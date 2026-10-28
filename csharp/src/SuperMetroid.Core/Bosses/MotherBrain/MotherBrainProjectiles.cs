@@ -48,7 +48,7 @@ internal sealed class MotherBrainProjectiles
                 projectile.Radius = setRadius.Radius;
                 break;
             case MotherBrainEffectCue.Command { Kind: MotherBrainEffectCueKind.UsePaletteZero }:
-                projectile.GraphicsIndex = 0;
+                projectile.Graphics = default;
                 break;
             case MotherBrainEffectCue.Command { Kind: MotherBrainEffectCueKind.DropDrool }:
                 // After changing to the falling pre-instruction, the released drool drops twelve pixels before its first
@@ -85,7 +85,7 @@ internal sealed class MotherBrainProjectiles
             switch (cue)
             {
                 case MotherBrainTurretCue.UsePaletteZero:
-                    projectile.GraphicsIndex = 0;
+                    projectile.Graphics = default;
                     return;
                 case MotherBrainTurretCue.ClearPreInstruction:
                     projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
@@ -431,7 +431,7 @@ internal sealed class MotherBrainProjectiles
         MotherBrainProjectileStarts.Initialize(
             shard,
             RoomEnemyProjectileKind.MotherBrainGlassShard,
-            graphicsIndex: 0);
+            graphics: default);
 
         // `$86:CDC5` doubles the complete RNG word and masks it to an even nine-bit angle.
         // The low eight-bit angle selects signed sine/cosine velocities; bits 5..8 choose
@@ -444,7 +444,7 @@ internal sealed class MotherBrainProjectiles
             unchecked((short)ReadSignedSineSample(angle)) * 4))));
         int animationIndex = ((angleOffset >> 4) & 30) >> 1;
         shard.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassAnimations.ShardProgram(animationIndex)));
-        shard.GraphicsIndex = MotherBrainGlassShardDefinitions.GraphicsIndex;
+        shard.Graphics = MotherBrainGlassShardDefinitions.Graphics;
 
         MotherBrainGlassShardPlacement placement =
             MotherBrainGlassShardDefinitions.Placement(request.Shard);
@@ -490,12 +490,12 @@ internal sealed class MotherBrainProjectiles
         MotherBrainProjectileStarts.Initialize(
             sparkle,
             RoomEnemyProjectileKind.MotherBrainGlassSparkle,
-            graphicsIndex: 0);
+            graphics: default);
         sparkle.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassProgram.Sparkle));
         sparkle.Position = sparkle.Position.WithWhole(new(unchecked((ushort)(
             source.Position.X.Whole + (_room.Random.Generate() % 32) - 16)), unchecked((ushort)(
             source.Position.Y.Whole + (_room.Random.Generate() % 32) - 16))));
-        sparkle.GraphicsIndex = MotherBrainGlassShardDefinitions.GraphicsIndex;
+        sparkle.Graphics = MotherBrainGlassShardDefinitions.Graphics;
     }
 
     /// <summary>Reads the native signed sine table as its raw two-byte sample.</summary>
@@ -519,7 +519,7 @@ internal sealed class MotherBrainProjectiles
         MotherBrainProjectileStarts.Initialize(
             beam,
             RoomEnemyProjectileKind.MotherBrainHandBeamFired,
-            graphicsIndex: 0);
+            graphics: default);
         beam.Position = state.HandBeamNextPosition;
         beam.Velocity = state.HandBeamNextVelocity;
 
@@ -835,7 +835,7 @@ internal sealed class MotherBrainProjectiles
         MotherBrainProjectileStarts.Initialize(
             bullet,
             RoomEnemyProjectileKind.MotherBrainRoomTurretBullet,
-            MotherBrainTurretDefinitions.GraphicsIndex);
+            MotherBrainTurretDefinitions.Graphics);
         MotherBrainTurretDirection direction =
             MotherBrainTurretDefinitions.Ring.At(unchecked((byte)turret.Position.Y.Fraction));
         MotherBrainTurretDirectionDefinition definition =

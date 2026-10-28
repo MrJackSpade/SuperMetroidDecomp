@@ -396,13 +396,23 @@ internal sealed class EnemyProjectileEngine
             if (unchecked((ushort)(screen.X + 128)) >= 512 || unchecked((ushort)(screen.Y + 128)) >= 512)
                 continue;
 
-            int paletteBits = new SnesObjAttributeWord(checked((ushort)projectile.GraphicsIndex)).PaletteBits;
             // The blank frame draws nothing.
             if (frame != EnemyProjectileFrameId.Blank)
                 _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile, projectileIndex),
-                    EnemySheetDefinitions.ProjectileFrameName(frame), screen, unchecked((byte)projectile.GraphicsIndex), paletteBits);
+                    EnemySheetDefinitions.ProjectileFrameName(frame), screen, ProjectileTileBase(projectile.Graphics),
+                    projectile.Graphics.PaletteRow);
         }
     }
+
+    /// <summary>
+    /// The sheet character a projectile drawn with <paramref name="graphics"/> takes its parts from: the tile base's
+    /// position within its 256-character page, because a projectile's drawing reads only that part of the base its
+    /// spawner supplied. The spawned-object sheets are composed at the same character.
+    /// </summary>
+    internal static int ProjectileTileBase(SpriteGraphics graphics) => graphics.TileBase % ProjectileTilePageCharacters;
+
+    /// <summary>The characters one projectile tile page holds.</summary>
+    private const int ProjectileTilePageCharacters = 256;
 
     /// <summary>Searches physical slots $22 down to $00 and returns null when the finite pool is full.</summary>
     internal RoomEnemyProjectileSlot? AllocateEnemyProjectile()
@@ -429,7 +439,7 @@ internal sealed class EnemyProjectileEngine
     internal static void InitializeEnemyProjectileFromDefinition(
         RoomEnemyProjectileSlot projectile,
         RoomEnemyProjectileKind kind,
-        int graphicsIndex)
+        SpriteGraphics graphics)
     {
         EnemyProjectileDefinition definition = EnemyProjectileDefinitionCatalog.Get(kind);
         projectile.Kind = kind;
@@ -452,7 +462,7 @@ internal sealed class EnemyProjectileEngine
         projectile.BlocksSamusProjectiles = definition.BlocksSamusProjectiles;
         projectile.CollisionOption = EnemyProjectileCollisionOption.RunShotList;
         projectile.CollidedProjectileType = 0;
-        projectile.GraphicsIndex = graphicsIndex;
+        projectile.Graphics = graphics;
     }
 
     /// <summary>Dispatches the slot's current bank-$86 movement callback before its timed instruction list.</summary>
@@ -767,7 +777,7 @@ internal sealed class EnemyProjectileEngine
         _ = _spriteObjects.SpawnRoomSpriteObject(new(
             unchecked((ushort)(projectile.Position.X.Whole + (random & mask) - center)),
             unchecked((ushort)(projectile.Position.Y.Whole + (SnesLittleEndian.HighByte(unchecked((ushort)random)) & mask) - center))),
-            kind, graphicsIndex: 0);
+            kind, graphics: default);
     }
 
     /// <summary>
@@ -825,7 +835,7 @@ internal sealed class EnemyProjectileEngine
         InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.MiscDustExplosion,
-            graphicsIndex: 0);
+            graphics: default);
         projectile.Position = projectile.Position.WithWhole(position);
 
         // EprojInit_DustCloudOrExplosion ignores the definition's placeholder list and
@@ -849,7 +859,7 @@ internal sealed class EnemyProjectileEngine
         RoomEnemyProjectileKind kind = dark
             ? RoomEnemyProjectileKind.CeresFallingDebrisDark
             : RoomEnemyProjectileKind.CeresFallingDebrisLight;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex: EnemyPaletteBits.Palette7);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics: SpriteGraphics.InPalette(7));
         projectile.Position = projectile.Position.WithWhole(new(checked((ushort)xPosition), 42));
         projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(16));
         projectile.Variable0 = 0;
@@ -894,7 +904,7 @@ internal sealed class EnemyProjectileEngine
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.SaveStationElectricity,
-            graphicsIndex: 0);
+            graphics: default);
         int blockX = plmBlockIndex % roomWidthInBlocks;
         int blockY = plmBlockIndex / roomWidthInBlocks;
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(16 * (blockX + 1))), unchecked((ushort)(16 * (blockY - 2)))));
@@ -916,7 +926,7 @@ internal sealed class EnemyProjectileEngine
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
-            graphicsIndex: 0);
+            graphics: default);
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + definition.XOffset)), unchecked((ushort)(samus.Position.Y.Whole + GunshipDustDefinitions.YOffset))));
         projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         projectile.Variable0 = parameter;
@@ -968,7 +978,7 @@ internal sealed class EnemyProjectileEngine
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             particle,
             kind,
-            unchecked((ushort)(source.TileIndexBase | source.PaletteIndex)));
+            source.Graphics);
         particle.Position = particle.Position.WithWhole(new(unchecked((ushort)(source.Position.X.Whole + xOffset)), source.Position.Y.Whole));
         particle.Velocity = velocity;
     }
@@ -979,7 +989,7 @@ internal sealed class EnemyProjectileEngine
         _ = _spriteObjects.SpawnRoomSpriteObject(
             projectile.Position.Whole,
             RoomSpriteObjectKind.EnemyProjectileDud,
-            graphicsIndex: 0);
+            graphics: default);
         LastEnemyProjectileDudSoundEffect = Library1Sound.DudShot;
         projectile.Direction = unchecked((ushort)(projectile.Direction | SamusProjectileDirectionMasks.Spent));
     }

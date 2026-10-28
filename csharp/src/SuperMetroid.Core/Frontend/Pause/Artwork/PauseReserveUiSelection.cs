@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 
+namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
 /// <summary>The selected pause reserve-tank labels, digits, arrow placements and arrow colours a presentation is compiled from.</summary>
 internal sealed record PauseReserveUiSelection

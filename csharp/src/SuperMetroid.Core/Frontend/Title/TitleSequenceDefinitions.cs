@@ -31,16 +31,16 @@ public static class TitleSequenceDefinitions
     {
         /// <summary>The year card.</summary>
         public static readonly TitleTextSequenceDefinition Year =
-            new(TitleSequencePhase.YearText, new(129, 112), SnesObjPalettes.Palette(1));
+            new(TitleSequencePhase.YearText, new(129, 112), 1);
         /// <summary>The Nintendo card.</summary>
         public static readonly TitleTextSequenceDefinition Nintendo =
-            new(TitleSequencePhase.NintendoText, new(129, 112), SnesObjPalettes.Palette(1));
+            new(TitleSequencePhase.NintendoText, new(129, 112), 1);
         /// <summary>The Presents card.</summary>
         public static readonly TitleTextSequenceDefinition Presents =
-            new(TitleSequencePhase.PresentsText, new(129, 112), SnesObjPalettes.Palette(1));
+            new(TitleSequencePhase.PresentsText, new(129, 112), 1);
         /// <summary>The Metroid 3 card.</summary>
         public static readonly TitleTextSequenceDefinition MetroidThree =
-            new(TitleSequencePhase.MetroidThreeText, new(129, 112), SnesObjPalettes.Palette(1));
+            new(TitleSequencePhase.MetroidThreeText, new(129, 112), 1);
     }
 
     /// <summary>The floor scenes' starting transforms, motion and completion thresholds.</summary>
@@ -80,9 +80,9 @@ public static class TitleSequenceDefinitions
         /// <summary>The Nintendo copyright's origin in screen pixels, below the logo.</summary>
         public static Position16<ScreenPixels> CopyrightOrigin => new(128, 196);
         /// <summary>The sprite palette the title logo draws with.</summary>
-        public static readonly SnesObjAttributeWord LogoPalette = SnesObjPalettes.Palette(2);
+        public const int LogoPalette = 2;
         /// <summary>The sprite palette the Nintendo copyright draws with.</summary>
-        public static readonly SnesObjAttributeWord CopyrightPalette = SnesObjPalettes.Palette(4);
+        public const int CopyrightPalette = 4;
     }
 
     /// <summary>The installed title graphics' extents and the Baby Metroid's animation pages.</summary>

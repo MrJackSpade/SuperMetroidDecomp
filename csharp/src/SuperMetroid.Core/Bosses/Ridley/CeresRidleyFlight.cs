@@ -61,7 +61,7 @@ internal sealed class CeresRidleyFlight
         // $A6:A10B-A12E clears the shared boss tilemap workspace, disables the minimap, and
         // marks the room explored. Those consumers are not yet represented by RoomEnemySystem;
         // every actor-owned write that follows is retained below.
-        slot.PaletteIndex = EnemyPaletteBits.Palette7;
+        slot.PaletteRow = 7;
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
 
         // Native bits $1000 and $0400 are proven by the initializer, but $1000 has not yet
@@ -77,8 +77,8 @@ internal sealed class CeresRidleyFlight
             Function = RidleyAiFunction.WaitForDoorTransition,
             FightMode = RidleyFightMode.NotFighting,
             HitCounter = 0,
-            SpritemapPaletteIndex = SnesObjPalettes.Palette(7),
-            CommonDrawPaletteIndex = SnesObjPalettes.Palette(7),
+            SpritemapPalette = 7,
+            CommonDrawPalette = 7,
             MovementAnimationEnabled = false,
             FacingDirection = RidleyFacing.Left,
             IdleTailWhipEnabled = true,

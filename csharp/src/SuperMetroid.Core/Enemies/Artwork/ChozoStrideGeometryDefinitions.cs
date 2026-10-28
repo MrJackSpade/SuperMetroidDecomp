@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
 
@@ -52,15 +53,15 @@ internal static class ChozoStrideGeometryDefinitions
         int left = -1, right = -1;
         for (int index = 0; index < supplied.Count; index++)
         {
-            SpritemapPart part = supplied[index];
-            if (part.Attributes.TileNumber == LeftHalf.Tile)
+            SpritePart part = supplied[index];
+            if (part.Character == LeftHalf.Tile)
             {
-                if (left >= 0 || part.X.SignedOffset != SupportFootX(phase) + LeftHalf.OffsetFromLeft) return supplied;
+                if (left >= 0 || part.Offset.X != SupportFootX(phase) + LeftHalf.OffsetFromLeft) return supplied;
                 left = index;
             }
-            else if (part.Attributes.TileNumber == RightHalf.Tile)
+            else if (part.Character == RightHalf.Tile)
             {
-                if (right >= 0 || part.X.SignedOffset != SupportFootX(phase) + RightHalf.OffsetFromLeft) return supplied;
+                if (right >= 0 || part.Offset.X != SupportFootX(phase) + RightHalf.OffsetFromLeft) return supplied;
                 right = index;
             }
         }
@@ -68,22 +69,20 @@ internal static class ChozoStrideGeometryDefinitions
         return new FootParts(supplied, phase, left, right);
     }
 
-    /// <summary>Retains a foot glyph's flags, row, and tile attributes when relocating its horizontal origin.</summary>
-    private readonly record struct FootAppearance(int XFlags, SnesSpritemapYByte Y, SnesObjAttributeWord Attributes)
+    /// <summary>Retains a foot glyph's size, row, character, palette, priority and mirroring when relocating its horizontal origin.</summary>
+    private readonly record struct FootAppearance(SpritePart Part)
     {
-        /// <summary>Separates the glyph's non-position X flags from its current horizontal coordinate.</summary>
-        internal static FootAppearance From(SpritemapPart part) =>
-            new((ushort)(part.X.Raw & ~0x1ff), part.Y, part.Attributes);
-        /// <summary>Reconstructs the glyph at a new X coordinate with its other appearance bits intact.</summary>
-        internal SpritemapPart At(int x) =>
-            new(new SnesSpritemapXWord((ushort)(XFlags | (x & 0x1ff))), Y, Attributes);
+        /// <summary>Keeps the glyph's whole appearance; only its horizontal coordinate is recalculated.</summary>
+        internal static FootAppearance From(SpritePart part) => new(part);
+        /// <summary>The glyph at a new X coordinate, wrapped across the sprite plane, with its other fields intact.</summary>
+        internal SpritePart At(int x) => Part.At(SpritePart.WrapX(x), Part.Offset.Y);
     }
 
     /// <summary>Projects relocated foot glyphs into their original slots among the supplied pose parts.</summary>
     private sealed class FootParts : EnemySpritemapParts
     {
         /// <summary>All supplied parts other than the two relocated support-foot glyphs.</summary>
-        private readonly SpritemapPart[] otherParts;
+        private readonly SpritePart[] otherParts;
         /// <summary>The preserved appearances of the left and right support-foot glyphs.</summary>
         private readonly FootAppearance left, right;
         /// <summary>The stride phase and original indices used to reinsert the two foot glyphs.</summary>
@@ -97,7 +96,7 @@ internal static class ChozoStrideGeometryDefinitions
             this.rightIndex = rightIndex;
             left = FootAppearance.From(supplied[leftIndex]);
             right = FootAppearance.From(supplied[rightIndex]);
-            otherParts = new SpritemapPart[supplied.Count - 2];
+            otherParts = new SpritePart[supplied.Count - 2];
             int output = 0;
             for (int index = 0; index < supplied.Count; index++)
                 if (index != leftIndex && index != rightIndex) otherParts[output++] = supplied[index];
@@ -105,7 +104,7 @@ internal static class ChozoStrideGeometryDefinitions
         /// <summary>Gets the original part count, including both relocated support feet.</summary>
         public override int Count => otherParts.Length + 2;
         /// <summary>Returns the original part at this index or its relocated support-foot equivalent.</summary>
-        public override SpritemapPart this[int index]
+        public override SpritePart this[int index]
         {
             get
             {

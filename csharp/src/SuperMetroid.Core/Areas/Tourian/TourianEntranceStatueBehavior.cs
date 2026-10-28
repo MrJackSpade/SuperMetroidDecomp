@@ -66,7 +66,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
                 "is outside the three-entry instruction table.");
         }
 
-        statue.PaletteIndex = 0;
+        statue.PaletteRow = 0;
         statue.InstructionTimer = WrappingCountdown.Start(1);
         statue.Timer = WrappingCountdown.Start(0);
         Extensions[statue.SlotIndex].Program = AnimationProgramCursor<TourianEntranceStatueProgram>.Start(
@@ -104,7 +104,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         if (projectile is null)
             return;
 
-        TourianStatueProjectileStarts.Initialize(projectile, kind, graphicsIndex: 0);
+        TourianStatueProjectileStarts.Initialize(projectile, kind, graphics: default);
         projectile.Position = projectile.Position.WithWhole(position);
         // The projectile's two general words retain the authored spawn coordinates.
         projectile.Variable0 = position.X;

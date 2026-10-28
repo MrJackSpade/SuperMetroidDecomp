@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Samus.Artwork;
@@ -15,10 +16,10 @@ public static class SamusOverlaySheetDefinitions
     public const string ChestCoverFrame = "ChestCover";
 
     /// <summary>
-    /// <c>$90:868D</c>: the chest cover is standard OBJ character $21 in Samus's palette row, in front of every
+    /// <c>$90:868D</c>: the chest cover is standard sprite character $21 in Samus's palette row, in front of every
     /// background.
     /// </summary>
-    public static SnesObjAttributeWord ChestCoverAppearance { get; } = SnesObjAttributeWord.Create(tileNumber: 33, paletteIndex: 4, priority: 3);
+    public static SpritePart ChestCoverAppearance { get; } = SpritePart.Single(character: 33, palette: 4, priority: 3);
 
     /// <summary>The arm cannon's cover in native direction <paramref name="direction"/> at cover frame <paramref name="frame"/>.</summary>
     public static string ArmCannonFrame(int direction, int frame) => $"ArmCannon.{direction}.{frame}";

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
@@ -59,7 +60,7 @@ internal sealed class DraygonIntro
                     if (_spriteObjects.SpawnRoomSpriteObject(
                             new(16, 384),
                             RoomSpriteObjectKind.DraygonIntroEvir,
-                            EnemyPaletteBits.Palette7) is not null)
+                            SpriteGraphics.InPalette(7)) is not null)
                     {
                         state.IntroEvirsSpawned++;
                     }

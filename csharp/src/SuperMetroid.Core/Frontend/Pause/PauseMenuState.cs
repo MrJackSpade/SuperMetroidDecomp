@@ -606,7 +606,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         DrawMenuSpritemap(
             indicator,
             origin,
-            ReadPauseSpritePaletteBits());
+            PauseMenuLayout.MapMarkerPalette);
     }
 
     /// <summary>Advances the map marker's native timer-before-draw frame cadence.</summary>
@@ -668,7 +668,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Gets the native OBJ palette bits shared by pause map markers.</summary>
-    private static ushort ReadPauseSpritePaletteBits() => PauseMenuLayout.MapMarkerPaletteBits;
 
     /// <summary>
     /// Ports the three SetPauseScreenButtonLabelPalettes variants at $82:A628-$A84C and
@@ -732,10 +731,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Draws a map sprite sheet frame with its selected palette bits.</summary>
-    private void DrawMenuSpritemap(MapSpriteId id, Position16<SpritePixels> origin, int paletteBits) =>
+    private void DrawMenuSpritemap(MapSpriteId id, Position16<SpritePixels> origin, int palette) =>
         // Map compositions use this shared entry. Extracted equipment selectors
         // and reserve tanks draw through their semantic presentation owners.
-        MapSpriteSheet.Draw(MapSheet, id, screen.Objects, origin, paletteBits);
+        MapSpriteSheet.Draw(MapSheet, id, screen.Objects, origin, palette);
 
     /// <summary>Shows the current mutable equipment page on BG1's first screen, leaving the second as the map left it.</summary>
     private void UploadEquipmentTilemap() =>

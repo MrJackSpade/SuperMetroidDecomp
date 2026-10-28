@@ -43,8 +43,8 @@ public static class FileSelectMapDefinitions
     public const int EntryWindowSpeed = 4;
 
     /// <summary>The draw palette of the station, boss and gunship markers and the load-station marker: sprite palette seven.</summary>
-    public const ushort StationMarkerPalette = 0x0e00;
+    public const int StationMarkerPalette = 7;
 
     /// <summary>The draw palette a defeated boss's marker takes: sprite palette six.</summary>
-    public const ushort DefeatedBossPalette = 0x0c00;
+    public const int DefeatedBossPalette = 6;
 }

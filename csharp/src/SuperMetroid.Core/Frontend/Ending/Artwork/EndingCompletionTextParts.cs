@@ -56,8 +56,8 @@ internal sealed class EndingCompletionTextParts : IReadOnlyList<CompiledSpritePa
                 x = start + column * 8;
                 tile = CharacterSheetGrid.Cell(16, 0) + EndingTextDefinitions.CompileGlyph(text[column], EndingTextStyle.CopyrightLarge, bottom);
             }
-            return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(bottom ? bottomY : bottomY - 8),
-                SnesObjAttributeWord.Create(tile, 0, 3, flips), true);
+            return new(SpritePart.Create(x, bottom ? bottomY : bottomY - 8, false,
+                tile, 0, 3, flips), true);
         }
     }
     /// <summary>Yields all visible glyph halves in their native OAM order.</summary>

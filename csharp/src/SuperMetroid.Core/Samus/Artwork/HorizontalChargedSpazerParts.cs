@@ -19,8 +19,8 @@ internal readonly struct HorizontalChargedSpazerParts(int phase) : IReadOnlyList
             int size = SpazerCompositionGeometryDefinitions.TileSize;
             int x = (ProjectileSpritePartDefinitions.ChargedSpazerHorizontalCells / 2 - 1 - index % ProjectileSpritePartDefinitions.ChargedSpazerHorizontalCells) * size;
             int y = SpazerCompositionGeometryDefinitions.HorizontalStripOriginY + direction * distance;
-            return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
-                SnesObjAttributeWord.Create(ProjectileSpritePartDefinitions.ChargedSpazerHorizontalGlyph, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, 0), false);
+            return new(SpritePart.Create(x, y, false,
+                ProjectileSpritePartDefinitions.ChargedSpazerHorizontalGlyph, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, 0), false);
         }
     }
     /// <summary>Yields the centered or three-lane charged-Spazer strip.</summary>

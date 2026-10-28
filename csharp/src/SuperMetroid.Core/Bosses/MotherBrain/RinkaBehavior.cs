@@ -46,7 +46,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Health restored to a special Rinka after its death delay.</summary>
     private const ushort RinkaHealth = 10;
     /// <summary>Enemy palette selected for both ordinary and Mother Brain variants.</summary>
-    private static readonly ushort RinkaPaletteIndex = EnemyPaletteBits.Palette2;
+    private const int RinkaPaletteIndex = 2;
     /// <summary>Flight speed in 8.8 pixels per update (1 + 32/256 pixels), resolved along the cartridge angle into flight velocity.</summary>
     private const ushort RinkaSpeed = 288;
     /// <summary>Number of Mother Brain Rinka actors sharing the eleven spawn resources.</summary>
@@ -141,7 +141,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 EnemyProperties.IgnoreSamusCollision);
         }
 
-        slot.PaletteIndex = RinkaPaletteIndex;
+        slot.PaletteRow = RinkaPaletteIndex;
         InitializeRinkaLife(slot, state);
     }
 
@@ -560,7 +560,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             MotherBrainProjectileStarts.Initialize(
                 projectile,
                 RoomEnemyProjectileKind.EnemyDeathExplosion,
-                graphicsIndex: 0);
+                graphics: default);
             projectile.Position = projectile.Position.WithWhole(slot.Position.Whole);
             projectile.DropDefinitionId = slot.DefinitionId;
             projectile.KilledEnemy = KilledEnemy.Of(slot, respawns);

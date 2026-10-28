@@ -126,11 +126,11 @@ public static class IntroCinematicDefinitions
     public static class Objects
     {
         /// <summary>The sprite palette of the discovery scene's actors.</summary>
-        public static readonly SnesObjAttributeWord DiscoveryPalette = SnesObjPalettes.Palette(7);
+        public const int DiscoveryPalette = 7;
         /// <summary>The sprite palette of the scientists.</summary>
-        public static readonly SnesObjAttributeWord ScientistPalette = SnesObjPalettes.Palette(6);
+        public const int ScientistPalette = 6;
         /// <summary>The sprite palette of the cinematic explosions.</summary>
-        public static readonly SnesObjAttributeWord ExplosionPalette = SnesObjPalettes.Palette(5);
+        public const int ExplosionPalette = 5;
         /// <summary>The queue limit the opening's sounds are requested under.</summary>
         public static readonly SoundQueueLimit MaximumQueuedSounds = SoundQueueLimit.Max6;
         /// <summary>The Baby Metroid's first cry.</summary>

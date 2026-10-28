@@ -56,9 +56,9 @@ internal static class SamusAtmosphereSheetComposer
     private static SheetFrameSource Direct(SamusSheetInputs inputs, SamusAtmosphericArtworkCatalog atmosphere, string name,
         byte type, int frame)
     {
-        if (!atmosphere.TryResolve(type, frame, out int attributes))
+        if (!atmosphere.TryResolve(type, frame, out SpritePart appearance))
             throw new InvalidDataException($"Atmospheric type {type} frame {frame} has no installed sprite.");
-        return new(name, SpritePartFrames.SmallObject(new SnesObjAttributeWord(checked((ushort)attributes)), 0), inputs.StandardObjects);
+        return new(name, SpritePartFrames.SmallObject(appearance, 0), inputs.StandardObjects);
     }
 
     /// <summary>

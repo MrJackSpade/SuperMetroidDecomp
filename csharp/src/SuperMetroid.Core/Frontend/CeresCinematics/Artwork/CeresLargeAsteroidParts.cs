@@ -31,7 +31,7 @@ internal sealed class CeresLargeAsteroidParts(
         else
             return supplied;
         if (supplied.PartCount != 19) return supplied;
-        static Offset16<SpritePixels> Anchor(CompiledSpritePart part) => new Offset16<SpritePixels>(checked((short)part.X.SignedOffset), checked((short)part.Y.SignedOffset));
+        static Offset16<SpritePixels> Anchor(CompiledSpritePart part) => new Offset16<SpritePixels>(checked((short)part.Part.Offset.X), checked((short)part.Part.Offset.Y));
         var left = Anchor(supplied.Part(5));
         var right = Anchor(supplied.Part(12));
         var lower = Anchor(supplied.Part(18));
@@ -82,9 +82,8 @@ internal sealed class CeresLargeAsteroidParts(
                 row = 4 - 2 * (piece / 2);
                 tile = CeresLargeAsteroidCellDefinitions.Lower;
             }
-            return new(SnesSpritemapXWord.Create(anchor.X + 8 * column, large),
-                SnesSpritemapYByte.Create(anchor.Y + 8 * row),
-                SnesObjAttributeWord.Create(tile + column + 16 * row, 0, priority, 0), true);
+            return new(SpritePart.Create(anchor.X + 8 * column, anchor.Y + 8 * row, large,
+                tile + column + 16 * row, 0, priority, 0), true);
         }
     }
     /// <summary>Emits the three rocks' nineteen parts in native OAM record order.</summary>

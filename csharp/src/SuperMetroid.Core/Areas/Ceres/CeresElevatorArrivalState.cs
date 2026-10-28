@@ -122,7 +122,7 @@ public sealed class CeresElevatorArrivalState
         return new CeresElevatorProjectile(
             definition.Program,
             position,
-            CeresElevatorArrivalDefinitions.StartingGraphicsIndex);
+            CeresElevatorArrivalDefinitions.StartingGraphics);
     }
 
     /// <summary>Runs a projectile's typed program (#641) when its frame expires: a new pose, or the delete.</summary>
@@ -171,32 +171,27 @@ public sealed class CeresElevatorArrivalState
             return;
         }
 
-        int paletteBits = new SnesObjAttributeWord(checked((ushort)projectile.GraphicsIndex)).PaletteBits;
         presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.CeresElevatorArrival, instance),
             EnemySheetDefinitions.ProjectileFrameName(CeresElevatorArrivalDefinitions.Frame(pose)), screen,
-            unchecked((byte)projectile.GraphicsIndex), paletteBits);
+            EnemyProjectileEngine.ProjectileTileBase(projectile.Graphics), projectile.Graphics.PaletteRow);
     }
 
     /// <summary>Small per-slot state for the two Ceres arrival enemy projectiles.</summary>
     internal sealed class CeresElevatorProjectile
     {
-        /// <summary>Initializes a projectile's program, position, and graphics index.</summary>
+        /// <summary>Initializes a projectile's program, position, and graphics.</summary>
         public CeresElevatorProjectile(
             CeresElevatorArrivalProgram program,
             Position16<RoomPixels> position,
-            int graphicsIndex)
+            SpriteGraphics graphics)
         {
             Program = AnimationProgramCursor<CeresElevatorArrivalProgram>.Start(program);
             Position = position;
-            GraphicsIndex = graphicsIndex;
+            Graphics = graphics;
         }
 
-        /// <summary>Native graphics word supplying palette and tile-base bits for drawing.</summary>
-        public int GraphicsIndex
-        {
-            get;
-            private init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-        }
+        /// <summary>The sheet characters and palette row the projectile draws with.</summary>
+        public SpriteGraphics Graphics { get; }
         /// <summary>Whether the projectile still occupies its arrival slot.</summary>
         public bool Active { get; set; } = true;
         /// <summary>Whole room position; the pre-instruction only rewrites Y.</summary>

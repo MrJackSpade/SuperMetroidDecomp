@@ -103,29 +103,20 @@ internal sealed class SelectedPresentationHash
     public void AppendIdentity(string label, string? identity) =>
         Append(label, identity is null ? ReadOnlySpan<byte>.Empty : Convert.FromHexString(identity));
 
-    /// <summary>Preserves OAM part order, offsets, size, flips, priority, palette and tile selection.</summary>
-    public void AppendEnemyParts(ReadOnlySpan<SuperMetroid.Core.Hardware.SpritemapPart> parts)
+    /// <summary>Preserves part order, offsets, size, flips, priority, palette and character selection.</summary>
+    public void AppendEnemyParts(ReadOnlySpan<SpritePart> parts)
     {
         Append("parts", parts.Length);
-        foreach (var part in parts)
-        {
-            Append("x-and-size", part.X.Raw);
-            Append("y", part.Y.Raw);
-            Append("attributes", part.Attributes.Raw);
-        }
+        foreach (SpritePart part in parts)
+            part.AppendIdentity(this);
     }
 
-    /// <summary>Hashes calculated OBJ records with the identical ordering and framing as stored spans.</summary>
-    public void AppendEnemyParts(SuperMetroid.Core.Hardware.EnemySpritemapParts parts)
+    /// <summary>Hashes calculated parts with the identical ordering and framing as stored spans.</summary>
+    public void AppendEnemyParts(SuperMetroid.Core.Enemies.Artwork.EnemySpritemapParts parts)
     {
         Append("parts", parts.Count);
         for (int index = 0; index < parts.Count; index++)
-        {
-            var part = parts[index];
-            Append("x-and-size", part.X.Raw);
-            Append("y", part.Y.Raw);
-            Append("attributes", part.Attributes.Raw);
-        }
+            parts[index].AppendIdentity(this);
     }
     /// <summary>Frames a field or payload length as a little-endian 32-bit count.</summary>
     private void AppendLength(int value)

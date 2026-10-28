@@ -47,7 +47,7 @@ internal sealed class KraidProjectiles
         }
         KraidEncounterAccess.EnsureKraidSlot(lint, expectedSlot, "lint");
         KraidEncounterAccess.AttachKraidPart(lint, state);
-        lint.PaletteIndex = _slotTable.Slots[0].PaletteIndex;
+        lint.PaletteRow = _slotTable.Slots[0].PaletteRow;
         lint.InstructionTimer = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
         _access.SetKraidPartProgram(lint, KraidPartProgram.LintInitial);
         lint.Frame = EnemyFrameId.KraidLint00;
@@ -65,7 +65,7 @@ internal sealed class KraidProjectiles
         KraidEnemyState state = _access.RequireKraidState(nail);
         KraidEncounterAccess.EnsureKraidSlot(nail, expectedSlot, "fingernail");
         KraidEncounterAccess.AttachKraidPart(nail, state);
-        nail.PaletteIndex = _slotTable.Slots[0].PaletteIndex;
+        nail.PaletteRow = _slotTable.Slots[0].PaletteRow;
         KraidPartState nailPart = state.Parts[nail.SlotIndex];
         nailPart.NailVelocity = nailPart.NailVelocity.WithX(nailPart.NailVelocity.X.WithFraction(40));
         nail.Properties = nail.Properties.With(EnemyProperties.Invisible);
@@ -433,7 +433,7 @@ internal sealed class KraidProjectiles
     /// <summary>Advances the visible lint charge before firing.</summary>
     private void ChargeKraidLint(RoomEnemySlot lint)
     {
-        lint.PaletteIndex = (_access.Part(lint).FunctionTimer & 1) != 0 ? (ushort)3584 : (ushort)0;
+        lint.PaletteRow = (_access.Part(lint).FunctionTimer & 1) != 0 ? 7 : 0;
         lint.Position = lint.Position.WithWholeX(unchecked((ushort)(
             _access.Part(lint).LintXOffset + _slotTable.Slots[0].Position.X.Whole - _access.Part(lint).LintTravel)));
         CountdownStep charge = WrappingCountdown.FromRaw(checked((ushort)_access.Part(lint).FunctionTimer)).Decrement();
@@ -538,7 +538,7 @@ internal sealed class KraidProjectiles
     {
         table.AddPreInstruction(context =>
         {
-            context.Projectile.GraphicsIndex = 0;
+            context.Projectile.Graphics = default;
         }, EnemyProjectilePreInstruction.KraidRockSpit_UsePalette0);
     }
 }

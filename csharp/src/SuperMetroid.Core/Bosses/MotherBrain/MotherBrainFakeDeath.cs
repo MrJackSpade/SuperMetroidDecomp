@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -273,7 +274,7 @@ internal sealed class MotherBrainFakeDeath
         if (projectile is null)
             return;
 
-        MotherBrainProjectileStarts.Initialize(projectile, kind, graphicsIndex: EnemyPaletteBits.Palette7);
+        MotherBrainProjectileStarts.Initialize(projectile, kind, graphics: SpriteGraphics.InPalette(7));
         projectile.Position = projectile.Position.WithWhole(position);
         projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         projectile.Variable0 = MotherBrainProjectiles.TopTubeDustPending;

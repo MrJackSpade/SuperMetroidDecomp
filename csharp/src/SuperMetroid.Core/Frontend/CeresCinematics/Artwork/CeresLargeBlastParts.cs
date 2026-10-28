@@ -24,10 +24,10 @@ internal static class CeresLargeBlastParts
         if (supplied.PartCount != 1) return supplied;
         for (int frame = 0; frame < 4; frame++)
             if (shown == CeresDestructionSpriteDefinitions.LargeFrame(frame))
-                return supplied.CalculateIfMatching(Parts(frame, supplied.Part(0).Attributes.TileNumber));
+                return supplied.CalculateIfMatching(Parts(frame, supplied.Part(0).Part.Character));
         return supplied;
     }
     /// <summary>Each blast frame's one 16-pixel sprite: the supplied cloud tile at X=-8 and a frame-dependent rising Y offset.</summary>
     private static CompiledSpritePart[] Parts(int frame, int tile) =>
-        [new(SnesSpritemapXWord.Create(-8, true), SnesSpritemapYByte.Create(-10 - 2 * frame), SnesObjAttributeWord.Create(tile, 0, 3, 0), true)];
+        [new(SpritePart.Create(-8, -10 - 2 * frame, true, tile, 0, 3, 0), true)];
 }

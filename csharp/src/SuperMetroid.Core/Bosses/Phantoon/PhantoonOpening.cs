@@ -113,7 +113,7 @@ internal sealed class PhantoonOpening
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             flame,
             RoomEnemyProjectileKind.PhantoonStartingFlame,
-            unchecked((ushort)(body.PaletteIndex | body.TileIndexBase)));
+            body.Graphics);
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.StartingFlame));
         flame.Position = flame.Position.WithFractionX(0).WithFractionY(0);
         flame.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));

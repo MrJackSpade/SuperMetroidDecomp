@@ -54,7 +54,7 @@ internal static class FileSelectSheetComposer
             string name = FileCopyArrowDefinitions.FrameName(shape);
             // The arrows' parts are placed with their own attribute words, palette and all.
             frames.Add(new(name, new SpriteFrame(name, [.. FileCopyArrowDefinitions.Parts(shape)
-                .SelectToArray(part => SpritePartFrames.Part(part.X, part.Y, part.Attributes, firstCharacter: 0))]), page));
+                .SelectToArray(part => SpritePartFrames.Part(part.Part, firstCharacter: 0))]), page));
         }
         var cgram = new SnesCgram();
         new CgramPalettes(cgram).LoadImage(maps.Palettes.FileSelect);

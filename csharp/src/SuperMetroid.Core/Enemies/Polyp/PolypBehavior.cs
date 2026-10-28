@@ -174,7 +174,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.PolypRock,
-            unchecked((ushort)(source.PaletteIndex | source.TileIndexBase)));
+            source.Graphics);
         projectile.InstallAnimation(new PolypRockAnimation(PolypRockProgram.Initial));
         projectile.PreInstruction = PolypRockPreInstruction;
         projectile.Variable0 = RockFunctions.Parameter(PolypRockFunction.Rising);

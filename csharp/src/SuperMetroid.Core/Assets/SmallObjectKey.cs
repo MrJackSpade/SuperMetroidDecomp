@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>The attributes and first character that identify a cached small object frame.</summary>
-/// <param name="Attributes">The attributes.</param>
-/// <param name="FirstCharacter">The first character.</param>
-public readonly record struct SmallObjectKey(int Attributes, int FirstCharacter);
+/// <summary>The piece and first character that identify a cached single-piece frame.</summary>
+/// <param name="Part">The piece, drawn small at the origin.</param>
+/// <param name="FirstCharacter">Sheet character of the bound artwork's character 0.</param>
+public readonly record struct SmallObjectKey(SpritePart Part, int FirstCharacter);

@@ -91,7 +91,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>Screen origin used when drawing the active title spritemap.</summary>
     internal Position16<ScreenPixels> ActiveOrigin { get; set; }
     /// <summary>Object attributes (the OBJ palette) applied to every part of the active composition.</summary>
-    internal SnesObjAttributeWord ActiveObjectPalette { get; set; }
+    internal int ActiveObjectPalette { get; set; }
     /// <summary>The floor's pan position, whose whole words are interpreted as signed pixels.</summary>
     private FixedPosition<FloorPixels> panPosition;
     /// <summary>Native 8.8 Mode 7 matrix scale animated from the close-up scene to identity.</summary>
@@ -428,14 +428,14 @@ public sealed class TitleSequenceState : IFrontendScreen
             // after masking the ROM attributes with `$F1FF`. It does not add a base tile;
             // confusing it with the enemy loader makes the title art uniformly blue.
             TitleGraphicsPresentation.DrawSprite(sheet, sprite, objects,
-                ActiveOrigin.ToSpritePosition(), ActiveObjectPalette.Raw);
+                ActiveOrigin.ToSpritePosition(), ActiveObjectPalette);
         }
 
         if (Phase is >= TitleSequencePhase.CopyrightFade and <= TitleSequencePhase.TitleScreenFadeOut)
         {
             TitleGraphicsPresentation.DrawSprite(sheet, TitleSprite.NintendoCopyright, objects,
                 TitleSequenceDefinitions.Sprites.CopyrightOrigin.ToSpritePosition(),
-                TitleSequenceDefinitions.Sprites.CopyrightPalette.Raw);
+                TitleSequenceDefinitions.Sprites.CopyrightPalette);
         }
 
         objects.FinishFrame();

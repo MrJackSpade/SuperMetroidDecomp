@@ -72,7 +72,7 @@ internal sealed class NorfairRidleyCombat
                 EnemyProperties.Invisible);
             return;
         }
-        slot.PaletteIndex = EnemyPaletteBits.Palette7;
+        slot.PaletteRow = 7;
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
 
         // Native property $1000 blocks Plasma Beam penetration. Its meaning is established
@@ -86,8 +86,8 @@ internal sealed class NorfairRidleyCombat
         {
             Function = RidleyAiFunction.WaitForDoorTransition,
             FightMode = RidleyFightMode.NotFighting,
-            SpritemapPaletteIndex = SnesObjPalettes.Palette(7),
-            CommonDrawPaletteIndex = SnesObjPalettes.Palette(7),
+            SpritemapPalette = 7,
+            CommonDrawPalette = 7,
             MovementAnimationEnabled = true,
             FacingDirection = RidleyFacing.Right,
             IdleTailWhipEnabled = false,

@@ -386,7 +386,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.DragonFireball,
-            unchecked((ushort)(body.PaletteIndex | body.TileIndexBase)));
+            body.Graphics);
         projectile.Position = projectile.Position.WithY(new(unchecked((ushort)(body.Position.Y.Whole - 28)), 0));
         projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(DragonFireballInitialYVelocity));
 

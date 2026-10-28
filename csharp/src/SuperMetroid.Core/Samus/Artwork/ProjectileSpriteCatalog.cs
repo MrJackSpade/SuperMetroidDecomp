@@ -69,9 +69,9 @@ public sealed class ProjectileSpriteCatalog
                     throw new InvalidDataException($"Projectile sprite {name} part {i} has invalid visual fields.");
                 // Hardware wraps a large part's adjacent tile at row/sheet boundaries.
                 // Do not impose the menu atlas's contiguous-rectangle restriction here.
-                var attributes = SnesObjAttributeWord.Create(p.TileRow * ProjectileSpriteDefinitions.TileColumns + p.TileColumn,
-                    p.Palette.Value, p.Priority, (p.FlipX ? TileFlip.Horizontal : 0) | (p.FlipY ? TileFlip.Vertical : 0));
-                compiled[i] = new(SnesSpritemapXWord.Create(p.OffsetX, p.Size == 16), new SnesSpritemapYByte(unchecked((byte)p.OffsetY)), attributes, false);
+                compiled[i] = new(SpritePart.Create(p.OffsetX, p.OffsetY, p.Size == 16,
+                    p.TileRow * ProjectileSpriteDefinitions.TileColumns + p.TileColumn,
+                    p.Palette.Value, p.Priority, (p.FlipX ? TileFlip.Horizontal : 0) | (p.FlipY ? TileFlip.Vertical : 0)), false);
             }
             var composition = new SpriteComposition(compiled);
             if (ProjectileSpritePartDefinitions.TrySingleBeamPhase(id, out int phase))

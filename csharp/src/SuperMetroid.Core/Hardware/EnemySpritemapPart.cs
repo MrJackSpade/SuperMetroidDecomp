@@ -1,1 +1,0 @@
-namespace SuperMetroid.Core.Hardware;

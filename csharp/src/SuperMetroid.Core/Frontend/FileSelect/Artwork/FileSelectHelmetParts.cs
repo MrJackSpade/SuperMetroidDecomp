@@ -56,16 +56,16 @@ internal sealed class FileSelectHelmetParts(int frame) : IReadOnlyList<CompiledS
                 int pairsPerRow = (MapSpriteFormat.TileColumns - FirstVisorTile % MapSpriteFormat.TileColumns) / 2;
                 int tile = FirstVisorTile + phase % pairsPerRow * 2 + phase / pairsPerRow * MapSpriteFormat.TileColumns;
                 bool right = index == 0;
-                return new(SnesSpritemapXWord.Create(right ? 0 : -TileSide, false), SnesSpritemapYByte.Create(VisorTop),
-                    SnesObjAttributeWord.Create(tile + (right ? 1 : 0), 0, 3, default), true);
+                return new(SpritePart.Create(right ? 0 : -TileSide, VisorTop, false,
+                    tile + (right ? 1 : 0), 0, 3, default), true);
             }
             Corner corner = BodyCorner(index - (frame >= 3 ? 2 : 0));
             int x = corner is Corner.TopRight or Corner.BottomRight ? 1 : 0;
             int y = corner is Corner.BottomLeft or Corner.BottomRight ? 1 : 0;
             int side = BodyTileSide * TileSide, step = side - LargeSide;
             int bodyTile = FirstBodyTile + Math.Min(frame, 2) * BodyTileSide + x + y * MapSpriteFormat.TileColumns;
-            return new(SnesSpritemapXWord.Create(-side / 2 + x * step, true), SnesSpritemapYByte.Create(-side / 2 + y * step),
-                SnesObjAttributeWord.Create(bodyTile, 0, 3, default), true);
+            return new(SpritePart.Create(-side / 2 + x * step, -side / 2 + y * step, true,
+                bodyTile, 0, 3, default), true);
         }
     }
     /// <summary>Yields visor overlays before body parts where the native composition does.</summary>

@@ -64,8 +64,7 @@ internal sealed class IntroEggCrackingParts(int stage) : IReadOnlyList<CompiledS
                 : row == 0 ? IntroEggRockingCellDefinitions.TopStrip + column
                 : column == 2 ? IntroEggRockingCellDefinitions.RightColumn + row - 1
                 : IntroEggRockingCellDefinitions.LowerLeft + 16 * (row - 1) + column;
-            return new(SnesSpritemapXWord.Create(-12 + 8 * column, false),
-                SnesSpritemapYByte.Create(-12 + 8 * row), SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
+            return new(SpritePart.Create(-12 + 8 * column, -12 + 8 * row, false, tile, 0, 3, 0), true);
         }
     }
     /// <summary>The row and column <paramref name="cell"/> occupies in the shell's three-by-three grid.</summary>

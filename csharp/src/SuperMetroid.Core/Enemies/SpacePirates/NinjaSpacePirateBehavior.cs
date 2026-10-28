@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
@@ -521,18 +522,18 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state)
     {
-        int graphicsIndex = 0;
+        SpriteGraphics graphics = default;
         if (_spriteObjects.SpawnRoomSpriteObject(
                 new(unchecked((ushort)(slot.Position.X.Whole - 8)), unchecked((ushort)(slot.Position.Y.Whole + 28))),
                 RoomSpriteObjectKind.NinjaPirateLandingDust,
-                graphicsIndex) is not null)
+                graphics) is not null)
         {
             state.LandingDustCount++;
         }
         if (_spriteObjects.SpawnRoomSpriteObject(
                 new(unchecked((ushort)(slot.Position.X.Whole + 8)), unchecked((ushort)(slot.Position.Y.Whole + 28))),
                 RoomSpriteObjectKind.NinjaPirateLandingDust,
-                graphicsIndex) is not null)
+                graphics) is not null)
         {
             state.LandingDustCount++;
         }
@@ -552,7 +553,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.PirateClaw,
-            unchecked((ushort)(source.TileIndexBase | source.PaletteIndex)));
+            source.Graphics);
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(source.Position.Whole + spawnOffset);
         projectile.DirectionParameter = throwsRight ? (ushort)1 : (ushort)0;
         projectile.StartAnimation(new SpacePirateProjectileAnimation(throwsRight
@@ -608,8 +609,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 state.Function = setFunction.Function;
                 return null;
             case NinjaSpacePirateCue.SetPalette setPalette:
-                slot.PaletteIndex = (setPalette.Palette ?? throw new InvalidOperationException(
-                    "A ninja Space Pirate palette cue carries no palette.")).PaletteBits;
+                slot.PaletteRow = setPalette.Palette ?? throw new InvalidOperationException(
+                    "A ninja Space Pirate palette cue carries no palette.");
                 return null;
             case NinjaSpacePirateCue.PlaySound playSound:
                 _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = playSound.Sound ?? throw new InvalidOperationException(

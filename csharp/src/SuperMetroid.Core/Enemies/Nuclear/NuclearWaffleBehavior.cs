@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Nuclear.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
@@ -69,7 +70,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Origin = slot.Position.Whole;
         PositionNuclearWaffleHead(slot, state, state.SweepStartAngle);
         state.InitialHead = slot.Position.Whole;
-        state.GraphicsAttributes = new SnesObjAttributeWord(unchecked((ushort)(slot.TileIndexBase | slot.PaletteIndex)));
+        state.GraphicsAttributes = slot.Graphics;
 
         SpawnNuclearWaffleProjectileSegments(slot, state);
         SpawnNuclearWaffleSpriteSegments(slot, state);
@@ -162,7 +163,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 segment,
                 RoomEnemyProjectileKind.NuclearWaffleBody,
-                state.GraphicsAttributes.Raw);
+                state.GraphicsAttributes);
             segment.Position = owner.Position.WithWhole(state.InitialHead);
             // Initializer $BB92 writes collision option one for these four links. Property
             // $8000 admits the beam overlap; this independent flag selects the persistent
@@ -182,7 +183,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomSpriteObjectSlot? segment = _spriteObjects.SpawnRoomSpriteObject(
                 slot.Position.Whole,
                 RoomSpriteObjectKind.NuclearWaffleBody,
-                state.GraphicsAttributes.Raw);
+                state.GraphicsAttributes);
             if (segment is null)
                 throw new InvalidOperationException("Nuclear Waffle exhausted the sprite-object pool during room load.");
             state.SpriteSegments[segmentIndex] = segment;
@@ -294,19 +295,19 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Emits a turn overlay and direction sprite, queuing sound on the rising turn.</summary>
     private void SpawnNuclearWaffleTurnObjects(
         Position16<RoomPixels> position,
-        SnesObjAttributeWord graphicsAttributes,
+        SpriteGraphics graphicsAttributes,
         NuclearWaffleOrientation orientation)
     {
         _ = _spriteObjects.SpawnRoomSpriteObject(
             position,
             RoomSpriteObjectKind.NuclearWaffleTurnOverlay,
-            graphicsAttributes.Raw);
+            graphicsAttributes);
         _ = _spriteObjects.SpawnRoomSpriteObject(
             position,
             orientation.Turn == RotationDirection.Counterclockwise
                 ? RoomSpriteObjectKind.NuclearWaffleTurnCounterClockwise
                 : RoomSpriteObjectKind.NuclearWaffleTurnClockwise,
-            graphicsAttributes.Raw);
+            graphicsAttributes);
 
         // The falling turn is the silent second half-turn; every other change queues the turn sound.
         if (orientation.State != NuclearWaffleTurnState.PastFallingThreshold)

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -30,7 +31,7 @@ internal sealed class RidleyProjectiles
         _ridleyEncounter = ridleyEncounter;
     }
     /// <summary>OBJ palette row used for fireballs and every afterburn stage.</summary>
-    private static readonly ushort FireballGraphicsIndex = EnemyPaletteBits.Palette5;
+    private static readonly SpriteGraphics FireballGraphicsIndex = SpriteGraphics.InPalette(5);
     /// <summary>The fireball's 8.8 speed: five pixels per update.</summary>
     private const ushort FireballSpeed = 1280;
 
@@ -110,7 +111,7 @@ internal sealed class RidleyProjectiles
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             dust,
             RoomEnemyProjectileKind.MiscDustExplosion,
-            graphicsIndex: 0);
+            graphics: default);
         dust.Position = dust.Position.WithWhole(position);
         dust.StartAnimation(new MiscDustProjectileAnimation(MiscDustProjectileDefinitions.Program(animation)));
     }

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
@@ -38,7 +39,7 @@ internal sealed class DraygonDeath
             _spriteObjects.SpawnRoomSpriteObject(
                 body.Position.Whole + new Offset16<RoomPixels>((short)(state.FacingRight ? 32 : -32), -16),
                 RoomSpriteObjectKind.DraygonSpiralFoam,
-                graphicsIndex: 0);
+                graphics: default);
         }
 
         // Retail quarters both coordinates before calculating this angle. That is not an
@@ -133,7 +134,7 @@ internal sealed class DraygonDeath
 
         int random = _room.Random.Generate();
         Position16<RoomPixels> smoke = new((ushort)((random & 127) + 192), (ushort)((SnesLittleEndian.HighByte(random) & 63) + 400));
-        if (_spriteObjects.SpawnRoomSpriteObject(smoke, RoomSpriteObjectKind.DustCloud, graphicsIndex: 0) is not null)
+        if (_spriteObjects.SpawnRoomSpriteObject(smoke, RoomSpriteObjectKind.DustCloud, graphics: default) is not null)
             state.DeathSmokeObjectsSpawned++;
     }
 
@@ -161,7 +162,7 @@ internal sealed class DraygonDeath
         RoomSpriteObjectSlot? sprite = _spriteObjects.SpawnRoomSpriteObject(
             definition.Initial,
             kind,
-            graphicsIndex: EnemyPaletteBits.Palette7);
+            graphics: SpriteGraphics.InPalette(7));
         if (sprite is null)
         {
             throw new InvalidOperationException(

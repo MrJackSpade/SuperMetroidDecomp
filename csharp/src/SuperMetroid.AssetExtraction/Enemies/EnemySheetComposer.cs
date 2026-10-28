@@ -143,12 +143,12 @@ internal static class EnemySheetComposer
         {
             if (!EnemyDefinitionFrameDefinitions.Frames.TryGetValue(enemy, out IReadOnlyList<EnemyFrameId>? shown))
                 continue;
-            EnemyGraphicsIndexes indexes = graphics.DrawIndexes(enemy);
-            int paletteBits = SnesObjAttributeWord.FromPaletteBits(checked((ushort)indexes.PaletteIndex)).PaletteIndex;
+            SpriteGraphics indexes = graphics.DrawIndexes(enemy);
+            int paletteBits = indexes.PaletteRow;
             var pictures = new Dictionary<string, CharacterRange[][]>(StringComparer.Ordinal);
             var rots = new Dictionary<string, string>(StringComparer.Ordinal);
             var frames = new List<SheetFrameSource>();
-            foreach (FramePictures framePictures in Frames(inputs.Enemies, shown, checked((ushort)indexes.TileIndex), loaded.Characters,
+            foreach (FramePictures framePictures in Frames(inputs.Enemies, shown, checked((ushort)indexes.TileBase), loaded.Characters,
                 CorpseRotSimulation.Rots(enemy)))
             {
                 frames.AddRange(framePictures.Sources);

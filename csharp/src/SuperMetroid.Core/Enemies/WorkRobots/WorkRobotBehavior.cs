@@ -108,7 +108,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // clock/table and remembers this actor's OBJ palette exactly as $A8:CB83-$CBCB does.
         WorkRobotPaletteAnimationTimer = WrappingCountdown.Start(1);
         WorkRobotPaletteAnimationRecord = 0;
-        WorkRobotPaletteAnimationPaletteRow = (slot.PaletteIndex >> 9) & 7;
+        WorkRobotPaletteAnimationPaletteRow = slot.PaletteRow;
     }
 
     /// <summary>Ports <c>InitAI_RobotNoPower</c> at $A8:CBCC.</summary>
@@ -448,7 +448,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             definition.ProjectileKind(),
-            unchecked((ushort)(robot.TileIndexBase | robot.PaletteIndex)));
+            robot.Graphics);
         projectile.Velocity = projectile.Velocity.WithX(state.LaserVelocity.X);
         projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(definition switch
         {
@@ -471,7 +471,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // pre-instruction $D3BF clears it on their first projectile pass.
         if (definition is
             WorkRobotLaser.DownLeft or WorkRobotLaser.DownRight)
-            projectile.GraphicsIndex = 0;
+            projectile.Graphics = default;
 
         // Preserve the original $86:D35B viewport bug. Its final Y comparison omits
         // `CMP Layer1YPosition`, so lasers only request sound while their owner's absolute
@@ -491,7 +491,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        projectile.GraphicsIndex = 0;
+        projectile.Graphics = default;
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal) ||
             EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {

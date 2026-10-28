@@ -26,10 +26,10 @@ internal static class EndingRewardActorDefinitions
     /// <summary>The starting position and palette bits each reward initialization gives its actor.</summary>
     public static EndingRewardActorInitializationDefinition GetInitialization(EndingRewardInitialization initialization) => initialization switch
     {
-        EndingRewardInitialization.Suitless => new(new(120, 136), 0x0a00),
-        EndingRewardInitialization.SuitedBody => new(new(120, 152), 0x0c00),
-        EndingRewardInitialization.HelmetedHead => new(new(124, 108), 0x0c00),
-        EndingRewardInitialization.HelmetlessHead => new(new(121, 107), 0x0a00),
+        EndingRewardInitialization.Suitless => new(new(120, 136), 5),
+        EndingRewardInitialization.SuitedBody => new(new(120, 152), 6),
+        EndingRewardInitialization.HelmetedHead => new(new(124, 108), 6),
+        EndingRewardInitialization.HelmetlessHead => new(new(121, 107), 5),
         _ => throw new InvalidOperationException($"Undefined {nameof(EndingRewardInitialization)} {initialization}."),
     };
 }

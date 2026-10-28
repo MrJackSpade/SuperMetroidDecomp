@@ -151,35 +151,32 @@ internal sealed class EnemyGraphicsSet
     }
 
     /// <summary>
-    /// The character index and OBJ palette bits <paramref name="enemy"/> draws with in this set: its record's, or the
+    /// The sheet characters and palette row <paramref name="enemy"/> draws with in this set: its record's, or the
     /// standard fallback for an enemy the set does not load, with the character index and palette its initialization
     /// copies from the enemy it follows, or fixes, in place of the set's where it does.
     /// </summary>
-    internal EnemyGraphicsIndexes DrawIndexes(EnemyDefinitionId enemy)
+    internal SpriteGraphics DrawIndexes(EnemyDefinitionId enemy)
     {
-        EnemyGraphicsIndexes indexes = FindGraphicsIndexes(enemy);
+        SpriteGraphics indexes = FindGraphicsIndexes(enemy);
         if (EnemyTileBaseDefinitions.DrawsAtTilesOf.TryGetValue(enemy, out EnemyDefinitionId tileOwner))
-            indexes = indexes with { TileIndex = FindGraphicsIndexes(tileOwner).TileIndex };
+            indexes = indexes with { TileBase = FindGraphicsIndexes(tileOwner).TileBase };
         if (EnemyTileBaseDefinitions.DrawsInPaletteOf.TryGetValue(enemy, out EnemyDefinitionId paletteOwner))
-            indexes = indexes with { PaletteIndex = FindGraphicsIndexes(paletteOwner).PaletteIndex };
-        return indexes with { TileIndex = EnemyTileBaseDefinitions.Fixed.GetValueOrDefault(enemy, indexes.TileIndex) };
+            indexes = indexes with { PaletteRow = FindGraphicsIndexes(paletteOwner).PaletteRow };
+        return indexes with { TileBase = EnemyTileBaseDefinitions.Fixed.GetValueOrDefault(enemy, indexes.TileBase) };
     }
 
-    /// <summary>Finds the room-set tile and OBJ palette indexes, falling back to standard sprite tile zero and palette five.</summary>
-    internal EnemyGraphicsIndexes FindGraphicsIndexes(EnemyDefinitionId definitionId)
+    /// <summary>Finds the room-set characters and palette row, falling back to standard sprite character zero and palette row five.</summary>
+    internal SpriteGraphics FindGraphicsIndexes(EnemyDefinitionId definitionId)
     {
         foreach (RoomEnemyGraphicsSetEntry entry in Entries)
         {
             if (entry.DefinitionId == definitionId)
-            {
-                return new EnemyGraphicsIndexes(                    checked((ushort)entry.TileIndexBase),
-                    unchecked((ushort)((entry.PaletteRow & EnemyTileDataMasks.PaletteNibbleBits) << 9)));
-            }
+                return SpriteGraphics.Of(entry.TileIndexBase, entry.PaletteRow & EnemyTileDataMasks.PaletteNibbleBits);
         }
 
-        // LoadEnemyGfxIndexes uses standard sprite tile zero and OBJ palette five when an
+        // LoadEnemyGfxIndexes uses standard sprite character zero and palette row five when an
         // actor has no room graphics-set record. That fallback supports invisible/control
         // enemies without synthesizing an asset association.
-        return new EnemyGraphicsIndexes(0, 2560);
+        return SpriteGraphics.InPalette(SpriteColourSetDefinitions.EnemyProjectiles);
     }
 }

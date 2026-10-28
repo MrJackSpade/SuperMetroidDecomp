@@ -39,7 +39,7 @@ internal sealed class FallingSparksBehavior
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.FallingSpark,
-            unchecked((ushort)(source.TileIndexBase | source.PaletteIndex)));
+            source.Graphics);
         projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(unchecked((ushort)(source.Position.Y.Whole + 8)), source.Position.Y.Fraction));
 
         // `$86:F391` zeros both ordinary velocity words, then calls the shared RNG. The
@@ -142,7 +142,7 @@ internal sealed class FallingSparksBehavior
         _ = _spriteObjects.SpawnRoomSpriteObject(
             projectile.Position.Whole,
             RoomSpriteObjectKind.FallingSparkTrail,
-            checked((ushort)projectile.GraphicsIndex));
+            projectile.Graphics);
     }
 
     /// <summary>Connects the falling-spark pre-instruction to the projectile handler table.</summary>

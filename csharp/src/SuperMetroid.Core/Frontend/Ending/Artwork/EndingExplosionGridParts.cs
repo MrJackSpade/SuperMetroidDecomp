@@ -40,8 +40,7 @@ internal sealed class EndingExplosionGridParts : IReadOnlyList<CompiledSpritePar
             TileFlip flips = lava ?
                 (column != 0 ? TileFlip.Horizontal : 0) |
                 (row != 0 ? TileFlip.Vertical : 0) : 0;
-            return new(SnesSpritemapXWord.Create((column - 1) * 16, true),
-                SnesSpritemapYByte.Create((row - 1) * 16), SnesObjAttributeWord.Create(tile, 0, 0, flips), true);
+            return new(SpritePart.Create((column - 1) * 16, (row - 1) * 16, true, tile, 0, 0, flips), true);
         }
     }
     /// <summary>Yields the four parts in native drawing order.</summary>

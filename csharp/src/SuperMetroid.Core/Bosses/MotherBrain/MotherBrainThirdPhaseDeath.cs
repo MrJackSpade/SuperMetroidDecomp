@@ -63,7 +63,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     public WrappingCountdown DeathAndEscapeExplosionIndex { get; internal set; }
 
     /// <summary>OBJ palette selection forced to palette seven when the dying brain effects shut down.</summary>
-    public SnesObjAttributeWord BrainPalette { get; internal set; }
+    public int BrainPalette { get; internal set; }
 
     /// <summary>Number of calls made to the body flicker producer at `$A9:AFB6`.</summary>
     public uint BodyFlickerCallCount { get; private set; }
@@ -317,7 +317,7 @@ internal sealed class MotherBrainThirdPhaseDeath
             _state.DisableSmallPurpleBreathGeneration();
             _state.BrainPaletteHandlingEnabled = false;
             _state.HealthBasedPaletteHandlingEnabled = false;
-            BrainPalette = SnesObjPalettes.Palette(7);
+            BrainPalette = 7;
             requests.PaletteRequested = true;
             // `$AF91/$AF94` clear words $0FF0 and $0FF2 before the fade-out explosions.
             DeathExplosionIntervalTimer = WrappingCountdown.Start(0);

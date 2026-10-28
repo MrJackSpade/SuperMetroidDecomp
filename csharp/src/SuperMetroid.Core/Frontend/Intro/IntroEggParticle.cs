@@ -18,7 +18,7 @@ internal sealed class IntroEggParticle
         // twelve native words so this physical spawn does not require a cartridge read.
         sprite = new IntroDiscoverySprite(
             IntroEggMotionDefinitions.FragmentInitialPosition(index),
-            paletteBits: IntroCinematicDefinitions.Objects.DiscoveryPalette.Raw,
+            palette: IntroCinematicDefinitions.Objects.DiscoveryPalette,
             program: definition.Program)
         {
             GeneralTimer = index,

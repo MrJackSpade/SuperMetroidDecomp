@@ -7,7 +7,7 @@ using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
-/// <summary>Installed arm-cannon cover placement, OAM attributes, and indexed 8×8 tiles.</summary>
+/// <summary>Installed arm-cannon cover placement, cover appearances, and indexed 8×8 tiles.</summary>
 public sealed class SamusArmCannonArtworkCatalog
 {
     /// <summary>Tile-source slots: one row per native aim direction, each holding every cover-art frame slot.</summary>
@@ -19,8 +19,8 @@ public sealed class SamusArmCannonArtworkCatalog
     internal readonly Dictionary<int, int> poseDescriptors = new();
     /// <summary>Descriptor bytes retained when an edit or independent value cannot be derived.</summary>
     internal readonly Dictionary<int, byte> drawingData = new();
-    /// <summary>Per-direction OBJ attribute words that differ from the stock orientation rules.</summary>
-    internal readonly Dictionary<int, ushort> attributes = new();
+    /// <summary>Per-direction cover appearances that differ from the stock orientation rules.</summary>
+    internal readonly Dictionary<int, SpritePart> attributes = new();
     /// <summary>Per-direction opening cover tiles that differ from stock lists.</summary>
     internal readonly Dictionary<int, int> openingTiles = new();
     /// <summary>Installed indexed PNG characters for the twelve nonclosed cover tiles.</summary>
@@ -30,7 +30,7 @@ public sealed class SamusArmCannonArtworkCatalog
 
     /// <summary>Separates authored edits from native descriptor, placement, and tile-selection rules.</summary>
     private SamusArmCannonArtworkCatalog(int[] poseDescriptors, byte[] drawingData,
-        ushort[] attributes, int[][] coverTiles, RoomCharacterAtlas tiles,
+        SpritePart[] attributes, int[][] coverTiles, RoomCharacterAtlas tiles,
         SamusBodyArtworkCatalog? bodyGeometry = null)
     {
         this.bodyGeometry = bodyGeometry;
@@ -56,7 +56,7 @@ public sealed class SamusArmCannonArtworkCatalog
         }
         for (int direction = 0; direction < attributes.Length; direction++)
         {
-            if (attributes[direction] != SamusArmCannonArtworkFormat.StockSpriteAttributes(SamusProjectileDirectionCodec.FromAimIndex(direction)))
+            if (attributes[direction] != SamusArmCannonArtworkFormat.StockCoverAppearance(SamusProjectileDirectionCodec.FromAimIndex(direction)))
                 this.attributes.Add(direction, attributes[direction]);
             for (int frame = 1; frame <= OpeningFrames; frame++)
                 if (coverTiles[direction][frame - 1] != SamusArmCannonArtworkFormat.StockCoverTile(SamusProjectileDirectionCodec.FromAimIndex(direction), frame))
@@ -69,22 +69,21 @@ public sealed class SamusArmCannonArtworkCatalog
     internal SamusArmCannonArtworkCatalog WithBodyGeometry(SamusBodyArtworkCatalog body) => new(
         Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount).Select(PoseDescriptor).ToArray(),
         Enumerable.Range(0, SamusArmCannonArtworkFormat.DrawingDataByteCount).Select(ReadDrawingByte).ToArray(),
-        Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount).Select(SpriteAttributes).ToArray(),
+        Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount).Select(CoverAppearance).ToArray(),
         Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount).Select(direction =>
             Enumerable.Range(1, OpeningFrames).Select(frame => OpeningTile(direction, frame)).ToArray()).ToArray(),
         tiles, body);
 
-    /// <summary>SHA-256 of selected cannon placement, OBJ attributes, tile selectors and characters.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("samus-arm-cannon-v2", content =>
+    /// <summary>SHA-256 of selected cannon placement, cover appearances, tile selectors and characters.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("samus-arm-cannon-v3", content =>
     {
         for (int pose = 0; pose < SamusBodyArtworkCatalog.PoseCount; pose++) content.Append("pose descriptor", PoseDescriptor(pose));
         Span<byte> selectedDrawing = stackalloc byte[SamusArmCannonArtworkFormat.DrawingDataByteCount];
         for (int index = 0; index < selectedDrawing.Length; index++)
             selectedDrawing[index] = ReadDrawingByte(index);
         content.Append("drawing data", selectedDrawing);
-        Span<ushort> selectedAttributes = stackalloc ushort[SamusDrawingDefinitions.ArmCannon.DirectionCount];
-        for (int direction = 0; direction < selectedAttributes.Length; direction++) selectedAttributes[direction] = SpriteAttributes(direction);
-        content.AppendWords("attributes", selectedAttributes);
+        for (int direction = 0; direction < SamusDrawingDefinitions.ArmCannon.DirectionCount; direction++)
+            CoverAppearance(direction).AppendIdentity(content);
         for (int direction = 0; direction < SamusDrawingDefinitions.ArmCannon.DirectionCount; direction++)
             for (int frame = 1; frame <= OpeningFrames; frame++)
                 content.Append("cover tile", OpeningTile(direction, frame));
@@ -94,7 +93,7 @@ public sealed class SamusArmCannonArtworkCatalog
     /// <summary>Validated JSON placement tables before their separately loaded tile PNG is attached.</summary>
     /// <remarks>Placement and PNG admission remain distinct so installation identifies the failing file.</remarks>
     internal sealed record Placement(int[] PoseDescriptors, byte[] DrawingData,
-        ushort[] Attributes, int[][] CoverTiles);
+        SpritePart[] Attributes, int[][] CoverTiles);
 
     /// <summary>Combines validated descriptor tables with the installed indexed tile sheet.</summary>
     internal static SamusArmCannonArtworkCatalog FromPlacement(Placement placement, RoomCharacterAtlas tiles) =>
@@ -110,8 +109,8 @@ public sealed class SamusArmCannonArtworkCatalog
             document.PoseDescriptors.Length != SamusBodyArtworkCatalog.PoseCount ||
             document.DrawingData is null ||
             document.DrawingData.Length != SamusArmCannonArtworkFormat.DrawingDataByteCount ||
-            document.SpriteAttributes is null ||
-            document.SpriteAttributes.Length != SamusDrawingDefinitions.ArmCannon.DirectionCount ||
+            document.CoverAppearances is null ||
+            document.CoverAppearances.Length != SamusDrawingDefinitions.ArmCannon.DirectionCount ||
             !CoverTileShape.HasRows(document.CoverTiles))
             throw new InvalidDataException("Arm-cannon artwork has an invalid version or table geometry.");
 
@@ -122,8 +121,8 @@ public sealed class SamusArmCannonArtworkCatalog
                     $"Arm-cannon pose descriptor {descriptor} lies outside drawing data.");
         byte[] data = document.DrawingData.Select((value, index) =>
             RequireByte(value, $"drawing byte {index}")).ToArray();
-        ushort[] attributes = document.SpriteAttributes.Select((value, index) =>
-            RequireWord(value, $"attribute {index}")).ToArray();
+        SpritePart[] attributes = document.CoverAppearances.Select((value, index) =>
+            RequireAppearance(value, $"cover appearance {index}")).ToArray();
         int[][] coverTiles = new int[document.CoverTiles.Length][];
         for (int direction = 0; direction < coverTiles.Length; direction++)
         {
@@ -173,12 +172,12 @@ public sealed class SamusArmCannonArtworkCatalog
         throw new InvalidDataException("Arm-cannon coordinate basis is incomplete.");
     }
 
-    /// <summary>Gets the packed small-OBJ character, palette, priority, and flip attributes for native direction 0–9; supplied words override the stock $90:C791 table.</summary>
-    public ushort SpriteAttributes(int direction)
+    /// <summary>Gets the cover's character, palette, priority, and mirroring for native direction 0–9; supplied appearances override the stock $90:C791 table.</summary>
+    public SpritePart CoverAppearance(int direction)
     {
         if ((uint)direction >= SamusDrawingDefinitions.ArmCannon.DirectionCount) throw new ArgumentOutOfRangeException(nameof(direction));
         return attributes.ContainsKey(direction) ? attributes[direction]
-            : SamusArmCannonArtworkFormat.StockSpriteAttributes(SamusProjectileDirectionCodec.FromAimIndex(direction));
+            : SamusArmCannonArtworkFormat.StockCoverAppearance(SamusProjectileDirectionCodec.FromAimIndex(direction));
     }
 
     /// <summary>The installed cover tile native direction 0–9 shows at cover frame 0–3; the closed frame 0 shows none.</summary>
@@ -219,10 +218,11 @@ public sealed class SamusArmCannonArtworkCatalog
         ? (byte)value
         : throw new InvalidDataException($"Arm-cannon {name} is not a byte.");
 
-    /// <summary>Rejects an authored attribute outside one unsigned word.</summary>
-    private static ushort RequireWord(int value, string name) => (uint)value <= ushort.MaxValue
-        ? (ushort)value
-        : throw new InvalidDataException($"Arm-cannon {name} is not a word.");
+    /// <summary>Requires an authored cover appearance to be one small piece at the cover's origin.</summary>
+    private static SpritePart RequireAppearance(SpriteVisualPart? value, string name) =>
+        value is { OffsetX: 0, OffsetY: 0, Size: 8 }
+            ? value.ToSpritePart(SpriteArtwork.CharactersPerRow)
+            : throw new InvalidDataException($"Arm-cannon {name} is not one small piece at the origin.");
 
     /// <summary>Strict camel-case options for loading and writing placement JSON.</summary>
     private static readonly JsonSerializerOptions Options = new()

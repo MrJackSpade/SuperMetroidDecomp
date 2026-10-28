@@ -159,7 +159,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
                 RequestKagoBugDrop(projectile);
                 break;
             case KagoBugProjectileCueKind.UsePaletteZero:
-                projectile.GraphicsIndex = 0;
+                projectile.Graphics = default;
                 break;
             case KagoBugProjectileCueKind.Delete:
                 projectile.Clear();
@@ -217,7 +217,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.KagoBug,
-            unchecked((ushort)(source.TileIndexBase | source.PaletteIndex)));
+            source.Graphics);
 
         projectile.Variable1 = source.EnemyIndex;
         projectile.Position = projectile.Position.WithWhole(source.Position.Whole);

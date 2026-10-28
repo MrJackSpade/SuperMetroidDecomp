@@ -109,7 +109,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         statue.Frame = EnemyFrameId.Empty;
         statue.InstructionTimer = WrappingCountdown.Start(1);
         statue.Timer = WrappingCountdown.Start(0);
-        statue.PaletteIndex = 0;
+        statue.PaletteRow = 0;
 
         var state = new ChozoStatueState
         {
@@ -362,7 +362,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep,
-            graphicsIndex: 0);
+            graphics: default);
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(statue.Position.X.Whole + footstepOffset.X)), unchecked((ushort)(statue.Position.Y.Whole + 28))));
     }
 

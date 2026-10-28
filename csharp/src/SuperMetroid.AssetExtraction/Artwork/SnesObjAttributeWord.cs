@@ -1,4 +1,8 @@
-namespace SuperMetroid.Core.Hardware;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Spatial;
+
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>A lossless view over the two-byte attribute word in one low-OAM record.</summary>
 /// <param name="Raw">The packed tile number and OBJ attributes, preserving all 16 native bits.</param>
@@ -102,6 +106,12 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
         if ((flips & ~(TileFlip.Horizontal | TileFlip.Vertical)) != 0)
             throw new ArgumentOutOfRangeException(nameof(flips));
     }
+
+    /// <summary>The word that stores <paramref name="part"/>'s character, palette row, priority and mirroring.</summary>
+    public static SnesObjAttributeWord From(SpritePart part) => Create(part.Character, part.Palette, part.Priority, part.Flip);
+
+    /// <summary>The single small piece at the origin this word describes.</summary>
+    public SpritePart ToSinglePart() => SpritePart.Single(TileNumber, PaletteIndex, Priority, FlipFlags);
 
     /// <summary>Wraps an existing low-OAM attribute word without changing its bit pattern.</summary>
     public static implicit operator SnesObjAttributeWord(ushort raw) => new(raw);

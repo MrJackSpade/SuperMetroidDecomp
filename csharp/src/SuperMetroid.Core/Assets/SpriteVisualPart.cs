@@ -23,4 +23,41 @@ public sealed record SpriteVisualPart
     public required bool FlipX { get; init; }
     /// <summary>Vertical reflection applied to the selected artwork region.</summary>
     public required bool FlipY { get; init; }
+
+    /// <summary>
+    /// The piece this document part describes on a sheet <paramref name="tileColumns"/> characters wide. An inherited
+    /// palette becomes row 0, which the draw's palette replaces.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The size is not eight or sixteen, or a field is outside its range.</exception>
+    public SpritePart ToSpritePart(int tileColumns)
+    {
+        if (Size is not (8 or 16))
+            throw new InvalidDataException($"A sprite part is {Size} pixels square; parts are 8 or 16.");
+        try
+        {
+            return SpritePart.Create(OffsetX, OffsetY, Size == 16, TileRow * tileColumns + TileColumn, Palette ?? 0, Priority,
+                (FlipX ? TileFlip.Horizontal : TileFlip.None) | (FlipY ? TileFlip.Vertical : TileFlip.None));
+        }
+        catch (ArgumentOutOfRangeException error)
+        {
+            throw new InvalidDataException("A sprite part has an offset, character, palette or priority outside its range.", error);
+        }
+    }
+
+    /// <summary>The document form of <paramref name="part"/> on a sheet <paramref name="tileColumns"/> characters wide.</summary>
+    /// <param name="part">The piece.</param>
+    /// <param name="tileColumns">Characters across the sheet.</param>
+    /// <param name="inheritPalette">Whether the document records the palette as inherited instead of the piece's row.</param>
+    public static SpriteVisualPart FromSpritePart(SpritePart part, int tileColumns, bool inheritPalette = false) => new()
+    {
+        OffsetX = part.Offset.X,
+        OffsetY = part.Offset.Y,
+        TileColumn = part.Character % tileColumns,
+        TileRow = part.Character / tileColumns,
+        Size = part.Large ? 16 : 8,
+        Priority = part.Priority,
+        Palette = inheritPalette ? null : part.Palette,
+        FlipX = part.FlipsHorizontally,
+        FlipY = part.FlipsVertically,
+    };
 }

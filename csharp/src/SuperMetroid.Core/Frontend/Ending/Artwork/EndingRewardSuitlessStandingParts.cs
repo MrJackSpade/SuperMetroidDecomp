@@ -95,7 +95,7 @@ internal static class EndingRewardSuitlessStandingParts
                 large = index is 10 or >= 13 and < 17 or >= 20;
             }
         }
-        return new(SnesSpritemapXWord.Create(x, large), SnesSpritemapYByte.Create(y),
-            SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
+        return new(SpritePart.Create(x, y, large,
+            tile, 0, 3, 0), true);
     }
 }

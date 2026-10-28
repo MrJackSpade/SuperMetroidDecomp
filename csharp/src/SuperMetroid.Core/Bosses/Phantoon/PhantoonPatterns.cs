@@ -763,7 +763,7 @@ internal sealed class PhantoonPatterns
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             flame,
             RoomEnemyProjectileKind.PhantoonDestroyableFlame,
-            unchecked((ushort)(body.PaletteIndex | body.TileIndexBase)));
+            body.Graphics);
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.DestroyableIdle));
         flame.Position = flame.Position.WithFractionX(0).WithFractionY(0);
         flame.Velocity = flame.Velocity.WithY(new SignedEightEight(0));

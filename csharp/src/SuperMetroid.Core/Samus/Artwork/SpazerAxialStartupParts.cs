@@ -24,8 +24,8 @@ internal readonly struct SpazerAxialStartupParts(int group, int length) : IReadO
                 ? (vertical ? ProjectileSpritePartDefinitions.ChargedSpazerVerticalGlyph : ProjectileSpritePartDefinitions.ChargedSpazerHorizontalGlyph)
                 : (vertical ? ProjectileSpritePartDefinitions.SpazerVerticalGlyph : ProjectileSpritePartDefinitions.SpazerHorizontalGlyph);
             var flips = reflected ? (vertical ? TileFlip.Vertical : TileFlip.Horizontal) : 0;
-            return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
-                SnesObjAttributeWord.Create(glyph, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, flips), false);
+            return new(SpritePart.Create(x, y, false,
+                glyph, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, flips), false);
         }
     }
     /// <summary>Yields the selected centered axial startup strip.</summary>

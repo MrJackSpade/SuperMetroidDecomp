@@ -26,10 +26,10 @@ public sealed class RidleyEnemyState
     /// handoff, so it stays far below the range where the cartridge's counter would wrap.
     /// </summary>
     public int HitCounter { get; internal set; }
-    /// <summary>Gets the OBJ palette Ridley's tail and wings are drawn with: palette seven, or palette zero on hurt-flash updates.</summary>
-    public SnesObjAttributeWord SpritemapPaletteIndex { get; internal set; }
-    /// <summary>Gets the OBJ palette the common enemy draw path uses for Ridley's body: the slot's palette, or palette zero on hurt-flash updates.</summary>
-    public SnesObjAttributeWord CommonDrawPaletteIndex { get; internal set; }
+    /// <summary>Gets the palette row Ridley's tail and wings are drawn with: row seven, or row zero on hurt-flash updates.</summary>
+    public int SpritemapPalette { get; internal set; }
+    /// <summary>Gets the palette row the common enemy draw path uses for Ridley's body: the slot's row, or row zero on hurt-flash updates.</summary>
+    public int CommonDrawPalette { get; internal set; }
     /// <summary>Gets whether shared body motion and wing/tail updates run; cleared when the intact death body is hidden.</summary>
     public bool MovementAnimationEnabled { get; internal set; }
     /// <summary>Gets the native facing-table index: zero for left, one for front-facing transition art, and two for right.</summary>

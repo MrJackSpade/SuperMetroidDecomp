@@ -35,8 +35,8 @@ internal readonly struct AlternateDiagonalStartupParts(bool reflected, int phase
             if (reflected) x = -size - x;
             var flips = (rotated != reflected ? TileFlip.Horizontal : 0) |
                 (rotated ? TileFlip.Vertical : 0);
-            return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
-                SnesObjAttributeWord.Create(tile, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, flips), false);
+            return new(SpritePart.Create(x, y, false,
+                tile, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, flips), false);
         }
     }
     /// <summary>Yields the alternate diagonal startup's native pair order.</summary>

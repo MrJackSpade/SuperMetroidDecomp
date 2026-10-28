@@ -17,8 +17,8 @@ internal readonly struct HorizontalPlasmaWaveShortParts(int phase) : IReadOnlyLi
             int x = (ProjectileSpritePartDefinitions.PlasmaWaveShortCells / 2 - 1 - index % ProjectileSpritePartDefinitions.PlasmaWaveShortCells) * size;
             int direction = phase == 0 ? 0 : index < ProjectileSpritePartDefinitions.PlasmaWaveShortCells ? 1 : -1;
             int y = -size / 2 + (phase == 0 ? 0 : direction * SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(phase - 1));
-            return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
-                SnesObjAttributeWord.Create(ProjectileSpritePartDefinitions.SpazerHorizontalGlyph, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, 0), false);
+            return new(SpritePart.Create(x, y, false,
+                ProjectileSpritePartDefinitions.SpazerHorizontalGlyph, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, 0), false);
         }
     }
     /// <summary>Yields the short horizontal core or its paired spread strips.</summary>

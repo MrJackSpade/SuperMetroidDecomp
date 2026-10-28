@@ -114,9 +114,8 @@ internal sealed class MenuHeadingBorderDefinitions(MenuHeading heading) : IReadO
                 ? column == 0 ? CornerStrip + (row == 0 ? 0 : 3)
                 : column == Columns - 1 ? CornerStrip + (row == 0 ? 2 : 4) : CornerStrip + 1
                 : VerticalEdge;
-            return new(SnesSpritemapXWord.Create(-Columns * 8 / 2 + column * 8, false),
-                SnesSpritemapYByte.Create(-Rows * 8 / 2 + row * 8),
-                SnesObjAttributeWord.Create(tile, 0, 3, default), true);
+            return new(SpritePart.Create(-Columns * 8 / 2 + column * 8, -Rows * 8 / 2 + row * 8, false,
+                tile, 0, 3, default), true);
         }
     }
     /// <summary>Visits border parts in their authored OAM order.</summary>

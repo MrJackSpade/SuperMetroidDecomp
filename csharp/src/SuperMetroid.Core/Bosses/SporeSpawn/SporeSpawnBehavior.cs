@@ -268,7 +268,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             _ = _spriteObjects.SpawnRoomSpriteObject(
                 new(unchecked((ushort)(random % 64 + 96)), unchecked((ushort)(SnesLittleEndian.HighByte(random) % 16 + 480))),
                 RoomSpriteObjectKind.DustCloud,
-                graphicsIndex: 0);
+                graphics: default);
         }
     }
 
@@ -667,7 +667,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         _ = _spriteObjects.SpawnRoomSpriteObject(
             new(unchecked((ushort)(state.Body.Position.X.Whole + random % 128 - 64)), unchecked((ushort)(state.Body.Position.Y.Whole + SnesLittleEndian.HighByte(random) % 64 - 32))),
             RoomSpriteObjectKind.SporeSpawnDyingExplosion,
-            graphicsIndex: 0);
+            graphics: default);
         LastSporeSpawnSoundEffect = SporeSpawnSoundDefinitions.DyingExplosion;
     }
 
@@ -684,7 +684,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DeathDropRequested = true;
     }
     /// <summary>Graphics bits assigned to newly spawned spores.</summary>
-    private static readonly ushort SporeSpawnGraphicsIndex = EnemyPaletteBits.Palette1;
+    private static readonly SpriteGraphics SporeSpawnGraphicsIndex = SpriteGraphics.InPalette(1);
 
     /// <summary>Ports projectile definition $86:DE6C and initializer $86:DCA3.</summary>
     internal void SpawnSporeSpawnStalk(RoomEnemySlot body, int spawnArgument)
@@ -698,7 +698,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             stalk,
             RoomEnemyProjectileKind.SporeSpawnStalk,
-            unchecked((ushort)(body.TileIndexBase | body.PaletteIndex)));
+            body.Graphics);
         stalk.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.Stalk));
         stalk.Position = stalk.Position.WithWholeX(body.Position.X.Whole);
         stalk.Position = stalk.Position.WithWholeY(unchecked((ushort)(
@@ -718,7 +718,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             spawner,
             RoomEnemyProjectileKind.SporeSpawnSpawner,
-            unchecked((ushort)(body.TileIndexBase | body.PaletteIndex)));
+            body.Graphics);
         spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.SpawnerClosed));
         spawner.Position = spawner.Position.WithWholeX(SporeSpawnProjectileDefinitions.SpawnerX(spawnArgument));
         spawner.Position = spawner.Position.WithWholeY(520);

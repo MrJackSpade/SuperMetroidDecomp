@@ -54,8 +54,7 @@ internal sealed class IntroEggRockingParts(int frame) : IReadOnlyList<CompiledSp
                 }
             }
             int shear = frame == 0 ? 0 : (frame == 1 ? -1 : 1) * (3 - row);
-            return new(SnesSpritemapXWord.Create(-12 + 8 * column + shear, large),
-                SnesSpritemapYByte.Create(-12 + 8 * row), SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
+            return new(SpritePart.Create(-12 + 8 * column + shear, -12 + 8 * row, large, tile, 0, 3, 0), true);
         }
     }
     /// <summary>Enumerates egg parts in the cartridge's top-strip then lower-body drawing order.</summary>

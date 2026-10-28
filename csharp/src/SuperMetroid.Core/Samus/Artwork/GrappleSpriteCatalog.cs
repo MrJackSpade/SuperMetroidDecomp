@@ -7,23 +7,23 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <summary>Immutable Grapple visual attributes; cadence, placement, geometry and physics are not editable here.</summary>
 public sealed class GrappleSpriteCatalog
 {
-    /// <summary>Independent rope-style words, absent when all four frames match calculated stock.</summary>
-    internal readonly ushort[]? segments;
-    /// <summary>Selected small-OBJ endpoint attribute word used by both connected and unconnected drawing paths; native $94:B13D/$B17D supplies tile $20, palette 5 and priority 3.</summary>
-    public int Endpoint { get; }
+    /// <summary>Independent rope appearances, absent when all four frames match calculated stock.</summary>
+    internal readonly SpritePart[]? segments;
+    /// <summary>Selected single-piece endpoint appearance used by both connected and unconnected drawing paths; native $94:B13D/$B17D supplies character $20, palette 5 and priority 3.</summary>
+    public SpritePart Endpoint { get; }
     /// <summary>Retains the selected endpoint and only the rope frame styles that depart from stock.</summary>
-    private GrappleSpriteCatalog(int endpoint, ushort[] segments)
+    private GrappleSpriteCatalog(SpritePart endpoint, SpritePart[] segments)
     {
         Endpoint = endpoint;
         for (int frame = 0; frame < segments.Length; frame++)
             if (segments[frame] != GrappleSpriteDefinitions.StockSegment(frame))
             { this.segments = segments; return; }
     }
-    /// <summary>Resolves one rope animation frame's selected OBJ attributes without advancing any segment's independent gameplay timer.</summary>
+    /// <summary>Resolves one rope animation frame's selected appearance without advancing any segment's independent gameplay timer.</summary>
     /// <param name="frame">Zero-based frame 0..3 in native $94:B18B..B19A record order.</param>
-    /// <returns>The complete tile number, palette, priority and authored flip flags; drawing additionally ORs angle-derived flips into this word.</returns>
+    /// <returns>The character, palette, priority and authored mirroring; drawing additionally mirrors it by the rope's angle.</returns>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is outside the four segment appearances.</exception>
-    public ushort Segment(int frame)
+    public SpritePart Segment(int frame)
         => (uint)frame < GrappleSpriteDefinitions.SegmentFrameCount
             ? segments is null ? GrappleSpriteDefinitions.StockSegment(frame) : segments[frame]
             : throw new InvalidDataException($"Invalid Grapple visual frame {frame}.");
@@ -36,7 +36,7 @@ public sealed class GrappleSpriteCatalog
         WriteIndented = true,
     };
 
-    /// <summary>Validates endpoint and four rope appearances and compiles independent OBJ attribute words, preserving authored differences from stock.</summary>
+    /// <summary>Validates endpoint and four rope appearances, preserving authored differences from stock.</summary>
     /// <param name="json">Case-sensitive UTF-8 JSON read from its current position; the caller retains ownership of the stream.</param>
     /// <returns>An immutable appearance catalog that does not retain mutable document arrays or control rope geometry, cadence or physics.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
@@ -58,14 +58,14 @@ public sealed class GrappleSpriteCatalog
         return new(Compile(document.Endpoint), document.Segments.Select(Compile).ToArray());
     }
 
-    /// <summary>Validates an authored tile, palette, priority, and flip style into an OBJ attribute word.</summary>
-    private static ushort Compile(GrappleSpriteStyle? style)
+    /// <summary>Validates an authored tile, palette, priority, and flip style into a single-piece appearance.</summary>
+    private static SpritePart Compile(GrappleSpriteStyle? style)
     {
         if (style is null || style.TileColumn is < 0 or >= ProjectileSpriteDefinitions.TileColumns || style.TileRow is < 0 or >= ProjectileSpriteDefinitions.TileRows ||
             style.Palette is < 0 or > 7 || style.Priority is < 0 or > 3)
             throw new InvalidDataException("Invalid Grapple tile, palette or priority.");
-        return SnesObjAttributeWord.Create(style.TileRow * ProjectileSpriteDefinitions.TileColumns + style.TileColumn, style.Palette, style.Priority,
-            (style.FlipX ? TileFlip.Horizontal : 0) | (style.FlipY ? TileFlip.Vertical : 0)).Raw;
+        return SpritePart.Single(style.TileRow * ProjectileSpriteDefinitions.TileColumns + style.TileColumn, style.Palette, style.Priority,
+            (style.FlipX ? TileFlip.Horizontal : 0) | (style.FlipY ? TileFlip.Vertical : 0));
     }
 
     /// <summary>Serializes and validates all five appearances using the same strict schema as <see cref="Load"/>.</summary>

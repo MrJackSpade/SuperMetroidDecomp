@@ -111,8 +111,8 @@ public sealed class YappingMawEnemyState
     /// <summary>Result of the point-based $A0:AD70 viewport test sampled before movement.</summary>
     public bool IsOffScreen { get; internal set; }
 
-    /// <summary>The actor's own OBJ palette, captured at room load and restored to every link after frozen flashing.</summary>
-    public SnesObjAttributeWord OriginalPalette { get; internal set; }
+    /// <summary>The actor's own palette row, captured at room load and restored to every link after frozen flashing.</summary>
+    public int OriginalPalette { get; internal set; }
 
     /// <summary>The four physical bank-$86 body-link slots, ordered root to mouth.</summary>
     public RoomEnemyProjectileSlot?[] BodyProjectiles { get; } =

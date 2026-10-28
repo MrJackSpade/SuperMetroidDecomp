@@ -43,8 +43,8 @@ internal sealed class MenuCursorParts(int frame) : IReadOnlyList<CompiledSpriteP
             bool left = (index == 0) == (frame == 3);
             int leftTile = frame switch { 0 => FirstLeftTile, 1 => SecondLeftTile, 2 => ThirdLeftTile, _ => FinalLeftTile };
             int rightTile = frame switch { 0 => FirstRightTile, 2 => ThirdRightTile, _ => SharedRightTile };
-            return new(SnesSpritemapXWord.Create(left ? -8 : 0, false), SnesSpritemapYByte.Create(-4),
-                SnesObjAttributeWord.Create(left ? leftTile : rightTile, 0, 3, TileFlip.None), true);
+            return new(SpritePart.Create(left ? -8 : 0, -4, false,
+                left ? leftTile : rightTile, 0, 3, TileFlip.None), true);
         }
     }
     /// <summary>Yields both missile parts in the native order for the selected pose.</summary>

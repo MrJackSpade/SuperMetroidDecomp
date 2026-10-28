@@ -32,8 +32,8 @@ internal sealed class EnemyPresentation
     /// <summary>Sprite colour set <paramref name="set"/> (#1405).</summary>
     internal ColourRun ColourSet(int set) => Colours.SpriteSets.Set(set);
 
-    /// <summary>The sprite colour set <paramref name="slot"/>'s palette bits select (#1405).</summary>
-    internal ColourRun ColourSetOf(RoomEnemySlot slot) => ColourSet(SnesObjAttributeWord.FromPaletteBits(checked((ushort)slot.PaletteIndex)).PaletteIndex);
+    /// <summary>The sprite colour set <paramref name="slot"/>'s palette row selects (#1405).</summary>
+    internal ColourRun ColourSetOf(RoomEnemySlot slot) => ColourSet(slot.PaletteRow);
 
     /// <summary>The room's bound CGRAM; enemy palette writes require the room's video memory to be bound.</summary>
     internal GameplayColours Colours
@@ -103,8 +103,8 @@ internal sealed class EnemyPresentation
 
     /// <summary>
     /// Publishes one frame of the enemy <paramref name="draw"/> shows from its installed sheet (#1392): the sheet its room's graphics set
-    /// names. While the draw's palette bits are not those the set loaded the enemy with, as on a hit or freeze flash or
-    /// after its AI moves it to another row, the frame shows them ORed into each part's own row.
+    /// names. While the draw's palette row is not the one the set loaded the enemy with, as on a hit or freeze flash or
+    /// after its AI moves it to another row, the frame shows it ORed into each part's own row.
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="source">The actor shown.</param>
@@ -114,12 +114,11 @@ internal sealed class EnemyPresentation
     /// </exception>
     internal void PublishSheetFrame(SpriteFrameBuffer sprites, SpriteSource source, EnemySheetDraw draw)
     {
-        (EnemyDefinitionId enemy, string frame, Position16<ScreenPixels> origin, int paletteBits, int tileBase, CorpseRotView? rot) = draw;
-        EnemyGraphicsIndexes composed = _graphicsSet.DrawIndexes(enemy);
-        if (tileBase != composed.TileIndex)
-            throw new InvalidDataException($"{enemy} draws at tile base ${tileBase:X3}; its sheet was composed at ${composed.TileIndex:X3}.");
-        int loaded = SnesObjAttributeWord.FromPaletteBits(checked((ushort)composed.PaletteIndex)).PaletteIndex;
-        int drawn = SnesObjAttributeWord.FromPaletteBits(checked((ushort)paletteBits)).PaletteIndex;
+        (EnemyDefinitionId enemy, string frame, Position16<ScreenPixels> origin, int drawn, int tileBase, CorpseRotView? rot) = draw;
+        SpriteGraphics composed = _graphicsSet.DrawIndexes(enemy);
+        if (tileBase != composed.TileBase)
+            throw new InvalidDataException($"{enemy} draws at tile base ${tileBase:X3}; its sheet was composed at ${composed.TileBase:X3}.");
+        int loaded = composed.PaletteRow;
         SpriteSheet sheet = Sheets.For(LoadedSet, enemy);
         foreach (string picture in Pictures(frame, Sheets.Layers(LoadedSet, enemy, frame), Sheets.RotCorpse(LoadedSet, enemy, frame), rot))
             sprites.Add(new ImageSpriteDraw(source, sheet.Frame(picture), origin, SpriteMirror.None, drawn == loaded ? null : drawn));
@@ -127,24 +126,23 @@ internal sealed class EnemyPresentation
 
     /// <summary>
     /// Publishes one spawned object's frame from the loaded graphics set's sheet for the tile base it draws at (#1392).
-    /// While the draw's palette bits are not those the sheet was coloured with, the frame shows them ORed into each
-    /// part's own row, as the cartridge ORs them into each part.
+    /// While the draw's palette row is not the one the sheet was coloured with, the frame shows it ORed into each
+    /// part's own row, as the cartridge ORs it into each part.
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="source">The object shown.</param>
     /// <param name="frame">The sheet frame's name.</param>
     /// <param name="origin">The frame origin on screen.</param>
-    /// <param name="tileBase">The packed tile base the object's parts draw at.</param>
-    /// <param name="paletteBits">The draw's palette selection.</param>
+    /// <param name="tileBase">The tile base the object's parts draw at.</param>
+    /// <param name="drawn">The palette row the draw selects.</param>
     /// <param name="rot">The rot the drawing encounter selected, which a frame drawn over a rotting corpse's rows shows; none for one that shows none.</param>
     /// <exception cref="InvalidDataException">
     /// The set has no sheet for that tile base, or a frame showing a corpse's rot is drawn without that rot.
     /// </exception>
     internal void PublishSpawnedFrame(SpriteFrameBuffer sprites, SpriteSource source, string frame, Position16<ScreenPixels> origin,
-        int tileBase, int paletteBits, CorpseRotView? rot = null)
+        int tileBase, int drawn, CorpseRotView? rot = null)
     {
         SpawnedObjectSheet sheet = Sheets.Spawned(LoadedSet, tileBase);
-        int drawn = SnesObjAttributeWord.FromPaletteBits(checked((ushort)paletteBits)).PaletteIndex;
         foreach (string picture in Pictures(frame, Sheets.SpawnedLayers(LoadedSet, tileBase, frame),
                      Sheets.SpawnedRotCorpse(LoadedSet, tileBase, frame), rot))
             sprites.Add(new ImageSpriteDraw(source, sheet.Sheet.Frame(picture), origin, SpriteMirror.None, drawn == sheet.Palette ? null : drawn));
@@ -186,11 +184,11 @@ internal sealed class EnemyPresentation
     /// <param name="source">The actor shown.</param>
     /// <param name="frame">The frame.</param>
     /// <param name="origin">The frame origin on screen.</param>
-    /// <param name="paletteBits">The draw's palette selection.</param>
+    /// <param name="palette">The palette row the draw selects.</param>
     /// <param name="rot">The rot the encounter selected, which a frame drawn over its rotting rows shows; none for one that shows none.</param>
     internal void PublishEncounterFrame(SpriteFrameBuffer sprites, SpriteSource source, EnemyFrameId frame,
-        Position16<ScreenPixels> origin, int paletteBits, CorpseRotView? rot = null) =>
-        PublishSpawnedFrame(sprites, source, EnemySheetDefinitions.EncounterFrameName(frame), origin, 0, checked((ushort)paletteBits), rot);
+        Position16<ScreenPixels> origin, int palette, CorpseRotView? rot = null) =>
+        PublishSpawnedFrame(sprites, source, EnemySheetDefinitions.EncounterFrameName(frame), origin, 0, palette, rot);
 
     /// <summary>The installed enemy sheets.</summary>
     private IEnemySheetSource Sheets => _room.Session.Sheets ?? throw new InvalidOperationException(

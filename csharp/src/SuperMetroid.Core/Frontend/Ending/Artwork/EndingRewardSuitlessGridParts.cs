@@ -113,8 +113,8 @@ internal sealed class EndingRewardSuitlessGridParts(Pose pose) : IReadOnlyList<C
                 x = 8 * ((tile & 15) - 12) - 16; y = 8 * (tile / 16) - 40;
                 large = true;
             }
-            return new(SnesSpritemapXWord.Create(x, large), SnesSpritemapYByte.Create(y),
-                SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
+            return new(SpritePart.Create(x, y, large,
+                tile, 0, 3, 0), true);
         }
     }
     /// <summary>Visits the pose's parts in the order used by its compiled spritemap.</summary>

@@ -55,8 +55,8 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
         for (int index = 0; index < selection.Length; index++)
         {
             CompiledSpritePart part = supplied.Part(index);
-            int tile = part.Attributes.TileNumber;
-            bool cropped = tile == Tile(EndingLogoWrapTile.LeftCap) && !part.X.IsLarge;
+            int tile = part.Part.Character;
+            bool cropped = tile == Tile(EndingLogoWrapTile.LeftCap) && !part.Part.Large;
             if (!TryPlace(tile, cropped, out _)) return supplied;
             selection[index] = new EndingLogoWrapSelection(tile, cropped);
         }
@@ -127,8 +127,8 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
         }
         int size = large ? 16 : 8;
         if (rotate) { x = -x - size; y = -y - size; }
-        part = new(SnesSpritemapXWord.Create(x, large), SnesSpritemapYByte.Create(y),
-            SnesObjAttributeWord.Create(tile, 0, 3, rotate
+        part = new(SpritePart.Create(x, y, large,
+            tile, 0, 3, rotate
                 ? TileFlip.Horizontal | TileFlip.Vertical : 0), true);
         return true;
     }

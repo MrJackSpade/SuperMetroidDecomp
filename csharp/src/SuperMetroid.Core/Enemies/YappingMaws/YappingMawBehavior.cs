@@ -90,7 +90,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             Origin = slot.Position.Whole,
             ActivationDistance = slot.Spawn.Population.Parameter1,
             RetractedDelayTimer = WrappingCountdown.Start(YappingMawRetractedDelayFrames),
-            OriginalPalette = SnesObjAttributeWord.FromPaletteBits(new SnesObjAttributeWord(checked((ushort)slot.PaletteIndex)).PaletteBits),
+            OriginalPalette = slot.PaletteRow,
         };
         slot.SetSpeciesState(state);
 
@@ -116,7 +116,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 body,
                 RoomEnemyProjectileKind.YappingMawBody,
-                unchecked((ushort)(slot.TileIndexBase | slot.PaletteIndex)));
+                slot.Graphics);
             body.Position = body.Position.WithWhole(slot.Position.Whole);
             body.InstallAnimation(new YappingMawBodyProjectileAnimation(slot.Spawn.Population.Parameter2 == 0
                 ? YappingMawBodyProjectileProgram.FacingDown
@@ -131,7 +131,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             slot.Spawn.Population.Parameter2 == 0
                 ? RoomSpriteObjectKind.YappingMawRootVariantZero
                 : RoomSpriteObjectKind.YappingMawRootVariantOne,
-            unchecked((ushort)(slot.TileIndexBase | slot.PaletteIndex)));
+            slot.Graphics);
 
         if (state.RootSpriteObject is null)
         {
@@ -459,38 +459,32 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         YappingMawEnemyState state)
     {
-        int paletteBits = SelectYappingMawFrozenPalette(
-            state.OriginalPalette.PaletteBits,
+        int palette = SelectYappingMawFrozenPalette(
+            state.OriginalPalette,
             slot.FrozenTimer.RawValue);
         foreach (RoomEnemyProjectileSlot? body in state.BodyProjectiles)
         {
             if (body is not null)
-            {
-                body.GraphicsIndex = new SnesObjAttributeWord(checked((ushort)body.GraphicsIndex))
-                    .WithPaletteBits(checked((ushort)paletteBits));
-            }
+                body.Graphics = body.Graphics.InRow(palette);
         }
 
         if (state.RootSpriteObject is not null)
-        {
-            state.RootSpriteObject.Attributes =
-                state.RootSpriteObject.Attributes.WithPaletteBits(checked((ushort)paletteBits));
-        }
+            state.RootSpriteObject.Graphics = state.RootSpriteObject.Graphics.InRow(palette);
     }
 
-    /// <summary>Flashes frozen palette six against original colors during the last 89 ticks.</summary>
+    /// <summary>Flashes frozen palette row six against original colors during the last 89 ticks.</summary>
     private static int SelectYappingMawFrozenPalette(
-        int originalPaletteBits,
+        int originalPalette,
         int frozenTimer)
     {
         if (frozenTimer == 0)
-            return originalPaletteBits;
+            return originalPalette;
 
-        // Frozen palette six ($0C00) flashes back to the actor palette on alternating pairs
+        // Frozen palette row six flashes back to the actor palette on alternating pairs
         // only during the final 89 ticks. The strict signed comparison excludes timer 90.
         if (unchecked((short)(frozenTimer - 90)) < 0 && (frozenTimer & 2) == 0)
-            return originalPaletteBits;
-        return EnemyFrozenPaletteDefinitions.PaletteBits;
+            return originalPalette;
+        return SpriteColourSetDefinitions.Frozen;
     }
 
     /// <summary>Animation callback used by all six held-Samus offset opcodes.</summary>

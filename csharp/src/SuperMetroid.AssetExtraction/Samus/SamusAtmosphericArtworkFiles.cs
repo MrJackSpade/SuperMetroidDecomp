@@ -1,5 +1,7 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -17,8 +19,8 @@ public static class SamusAtmosphericArtworkFiles
     public const string ArtworkFileName = "samus-atmosphere.json";
     /// <summary>Stock manifest filename recording version-one format, cartridge provenance, and the atmospheric JSON's SHA-256.</summary>
     public const string ManifestFileName = "samus-atmosphere-manifest.json";
-    /// <summary>Schema revision shared by the extracted artwork and its provenance manifest.</summary>
-    private const int FormatVersion = 1;
+    /// <summary>Schema revision shared by the extracted artwork and its provenance manifest; version 2 stores sprite parts.</summary>
+    private const int FormatVersion = 2;
     /// <summary>Strict camel-case JSON contract for both the stock and replacement lists.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -88,22 +90,29 @@ public static class SamusAtmosphericArtworkFiles
         }
     }
 
-    /// <summary>Requires both four-word direct-OBJ lists before installing a ROM-independent catalog.</summary>
+    /// <summary>Requires both four-frame single-piece lists before installing a ROM-independent catalog.</summary>
     private static SamusAtmosphericArtworkCatalog Build(ArtworkDocument document, string source)
     {
         if (document.Version != FormatVersion || document.TypeOne is null ||
             document.SharedTypeFour is null)
             throw new InvalidDataException($"Samus atmospheric artwork {source} has invalid structure.");
-        return new SamusAtmosphericArtworkCatalog(document.TypeOne, document.SharedTypeFour);
+        return new SamusAtmosphericArtworkCatalog(Pieces(document.TypeOne, source), Pieces(document.SharedTypeFour, source));
     }
 
-    /// <summary>Imports the four packed attribute words of one native atmospheric list.</summary>
-    private static ushort[] ReadList(ISnesAddressSpace bus, ushort pointer)
+    /// <summary>The stored single small pieces of one list, each at the sprite origin.</summary>
+    private static SpritePart[] Pieces(SpriteVisualPart[] parts, string source) =>
+        [.. parts.Select(part => part is { OffsetX: 0, OffsetY: 0, Size: 8 }
+            ? part.ToSpritePart(SpriteArtwork.CharactersPerRow)
+            : throw new InvalidDataException($"Samus atmospheric artwork {source} has a part that is not one small piece at the origin."))];
+
+    /// <summary>Imports one native atmospheric list, decoding its four attribute words into single small pieces.</summary>
+    private static SpriteVisualPart[] ReadList(ISnesAddressSpace bus, ushort pointer)
     {
-        var words = new ushort[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount];
-        for (int frame = 0; frame < words.Length; frame++)
-            words[frame] = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.MovementBank.Value | pointer + frame * 2));
-        return words;
+        var parts = new SpriteVisualPart[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount];
+        for (int frame = 0; frame < parts.Length; frame++)
+            parts[frame] = SpriteVisualPart.FromSpritePart(new SnesObjAttributeWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(
+                SamusSourceDefinitions.MovementBank.Value | pointer + frame * 2)).ToSinglePart(), SpriteArtwork.CharactersPerRow);
+        return parts;
     }
 
     /// <summary>Checks that each atmospheric type still selects its expected authored or zero list pointer.</summary>
@@ -115,8 +124,8 @@ public static class SamusAtmosphericArtworkFiles
                 $"Atmospheric type {type} points to ${actual:X4}, expected ${expected:X4}.");
     }
 
-    /// <summary>Editable direct-OBJ words for footsteps and the shared lava/dust effect.</summary>
-    private sealed record ArtworkDocument(int Version, ushort[] TypeOne, ushort[] SharedTypeFour);
+    /// <summary>Editable single small pieces for footsteps and the shared lava/dust effect.</summary>
+    private sealed record ArtworkDocument(int Version, SpriteVisualPart[] TypeOne, SpriteVisualPart[] SharedTypeFour);
     /// <summary>Stock source revision and artwork-byte hash used before any override is selected.</summary>
     private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256, string ArtworkSha256);
 }

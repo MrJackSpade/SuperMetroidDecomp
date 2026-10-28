@@ -131,7 +131,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         InstallKiHunterInstruction(wings, state, KiHunterProgram.WingsLeft);
         wings.Position = wings.Position.WithWhole(body.Position.Whole);
         state.Function = KiHunterEnemyFunction.FollowBody;
-        wings.PaletteIndex = body.PaletteIndex;
+        wings.PaletteRow = body.PaletteRow;
         wings.TileIndexBase = body.TileIndexBase;
         if ((body.Spawn.Population.Parameter1 >> KiHunterMotionDefinitions.WinglessParameterBit & 1) != 0)
             wings.Properties = wings.Properties.With(EnemyProperties.Deleted);
@@ -923,7 +923,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             kind,
-            unchecked((ushort)(body.TileIndexBase | body.PaletteIndex)));
+            body.Graphics);
 
         projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(movingRight
             ? KiHunterAcidHorizontalSpeed

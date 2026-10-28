@@ -346,16 +346,16 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the body-only private tail of <c>EnemyTouch_Powamp</c>.</summary>
     private void ResolvePowampTouch(RoomEnemySlot body, SamusState samus)
     {
-        int originalPalette = body.PaletteIndex;
+        int originalPalette = body.PaletteRow;
         _collision.ResolveNormalEnemyTouch(body, samus);
         if (body.Health != 0)
             return;
 
         PowampBalloon balloon = RequirePowampBalloon(body);
         balloon.Slot.Properties = balloon.Slot.Properties.With(EnemyProperties.Deleted);
-        body.PaletteIndex = originalPalette;
+        body.PaletteRow = originalPalette;
         SpawnPowampSpikeBurst(body);
-        body.PaletteIndex = EnemyPaletteBits.Palette5;
+        body.PaletteRow = 5;
     }
 
     /// <summary>Copies common shot/freeze presentation from the body to its balloon.</summary>
@@ -578,13 +578,12 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
     /// <summary>Ports <c>FirePowampSpikesIn8Directions</c> at $A8:C223.</summary>
     /// <returns>
-    /// The accumulator <c>FirePowampSpikesIn8Directions</c> leaves: the last spike's native
-    /// projectile index, or the body's graphics word when the pool was full. The death
-    /// sequence passes it straight to EnemyDeath as the animation.
+    /// The death animation <c>FirePowampSpikesIn8Directions</c> leaves selected for EnemyDeath: the last spike's
+    /// native projectile index, or, when the pool was full, <see cref="FullPoolDeathAnimation"/>.
     /// </returns>
     internal int SpawnPowampSpikeBurst(RoomEnemySlot body)
     {
-        int graphics = unchecked((ushort)(body.TileIndexBase | body.PaletteIndex));
+        int graphics = FullPoolDeathAnimation(body);
         int accumulator = 0;
         // Native Y counts from seven down to zero. Allocation independently searches the
         // eighteen-slot bank-$86 pool from native index $22 downward on every iteration.
@@ -601,7 +600,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 spike,
                 RoomEnemyProjectileKind.PowampSpike,
-                unchecked((ushort)(body.TileIndexBase | body.PaletteIndex)));
+                body.Graphics);
             spike.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole);
             spike.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
             spike.DirectionParameter = unchecked((ushort)direction);
@@ -609,6 +608,14 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         return accumulator;
     }
+
+    /// <summary>
+    /// The death animation a Powamp dies with when its spike burst found the projectile pool full. The cartridge leaves
+    /// the body's graphics, read as one number, as the animation, and EnemyDeath treats any number past its animations
+    /// as the default animation 0. That number names an animation only for a body drawing in palette row zero, where it
+    /// is the body's tile base; any other palette row puts it past every animation.
+    /// </summary>
+    private static int FullPoolDeathAnimation(RoomEnemySlot body) => body.PaletteRow == 0 ? body.TileIndexBase : 0;
 
     /// <summary>Ports <c>PreInstruction_EnemyProjectile_PowampSpike</c> at $86:D263.</summary>
     internal static void RunPowampSpikePreInstruction(

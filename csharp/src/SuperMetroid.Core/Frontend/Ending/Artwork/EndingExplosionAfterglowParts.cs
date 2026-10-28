@@ -59,7 +59,7 @@ internal sealed class EndingExplosionAfterglowParts : IReadOnlyList<CompiledSpri
         var tiles = new int[supplied.PartCount];
         for (int index = 0; index < tiles.Length; index++)
         {
-            int tile = supplied.Part(index).Attributes.TileNumber;
+            int tile = supplied.Part(index).Part.Character;
             if (tile < CharacterSheetGrid.Cell(24, 0) || tile > CharacterSheetGrid.Cell(30, 15)) return supplied;
             tiles[index] = tile;
         }
@@ -84,8 +84,8 @@ internal sealed class EndingExplosionAfterglowParts : IReadOnlyList<CompiledSpri
                 else if (column >= 12) { x = (column - 14) * 8; y = 32; }
                 else { y = -24; large = true; }
             }
-            return new(SnesSpritemapXWord.Create(x, large), SnesSpritemapYByte.Create(y),
-                SnesObjAttributeWord.Create(tile, 0, 0), true);
+            return new(SpritePart.Create(x, y, large,
+                tile, 0, 0), true);
         }
     }
     /// <summary>Enumerates afterglow pieces in native cap, wing, and body draw order.</summary>

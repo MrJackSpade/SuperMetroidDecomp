@@ -86,8 +86,8 @@ internal sealed class CeresStationBlastParts(int frame) : IReadOnlyList<Compiled
             }
             var flips = (x >= 0 ? TileFlip.Horizontal : 0)
                 | (y >= 0 ? TileFlip.Vertical : 0);
-            return new(SnesSpritemapXWord.Create(x, size == 16), SnesSpritemapYByte.Create(y),
-                SnesObjAttributeWord.Create(tile, 0, 3, flips), true);
+            return new(SpritePart.Create(x, y, size == 16,
+                tile, 0, 3, flips), true);
         }
     }
     /// <summary>Emits all calculated blast parts in native OAM order.</summary>

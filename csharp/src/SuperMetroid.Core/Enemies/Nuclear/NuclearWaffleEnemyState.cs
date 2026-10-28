@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.SpriteObjects;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
@@ -76,8 +77,8 @@ public sealed class NuclearWaffleEnemyState
     public int SecondTurnThreshold { get; internal set; }
     /// <summary>Which turn threshold the head last crossed; a change spawns two turn sprite objects at the head's previous position.</summary>
     public NuclearWaffleTurnState HeadOrientationState { get; internal set; }
-    /// <summary>The owning enemy's VRAM tile base and OBJ palette, captured at room load for the persistent body links and transient joint-turn sprite objects.</summary>
-    public SnesObjAttributeWord GraphicsAttributes { get; internal set; }
+    /// <summary>The owning enemy's sheet characters and palette row, captured at room load for the persistent body links and transient joint-turn sprite objects.</summary>
+    public SpriteGraphics GraphicsAttributes { get; internal set; }
 
     /// <summary>Four persistent, damaging bank-$86 links.</summary>
     public RoomEnemyProjectileSlot?[] ProjectileSegments { get; } =

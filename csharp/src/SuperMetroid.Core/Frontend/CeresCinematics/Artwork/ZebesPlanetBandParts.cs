@@ -86,8 +86,8 @@ internal sealed class ZebesPlanetBandParts : IReadOnlyList<CompiledSpritePart>
                 int column = 2 * (49 - index);
                 x = -32 + 8 * column; y = -64; tile = ZebesPlanetBandCellDefinitions.TopCap + column;
             }
-            return new(SnesSpritemapXWord.Create(x, large), SnesSpritemapYByte.Create(y),
-                SnesObjAttributeWord.Create(tile, 0, 0, 0), true);
+            return new(SpritePart.Create(x, y, large,
+                tile, 0, 0, 0), true);
         }
     }
     /// <summary>Visits the calculated fifty-part planet silhouette in cartridge OAM order.</summary>

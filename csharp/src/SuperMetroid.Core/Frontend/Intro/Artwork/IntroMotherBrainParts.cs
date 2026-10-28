@@ -56,8 +56,7 @@ internal sealed class IntroMotherBrainParts(int frame) : IReadOnlyList<CompiledS
                 int atlasColumn = frame == 2 && middleSide ? column / 2 : column;
                 tile = IntroMotherBrainCellDefinitions.FirstPatch + 6 * frame + 32 * row + 2 * atlasColumn;
             }
-            return new(SnesSpritemapXWord.Create(-24 + 16 * column, true),
-                SnesSpritemapYByte.Create(-24 + 16 * row), SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
+            return new(SpritePart.Create(-24 + 16 * column, -24 + 16 * row, true, tile, 0, 3, 0), true);
         }
     }
     /// <summary>Visits the portrait cells in spritemap order.</summary>

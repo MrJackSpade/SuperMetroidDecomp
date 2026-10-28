@@ -26,8 +26,8 @@ internal sealed class IntroRinkaParts(int frame) : IReadOnlyList<CompiledSpriteP
             int column = index % 2, row = index / 2;
             TileFlip flips = (column == 0 ? TileFlip.Horizontal : 0)
                 | (row == 0 ? TileFlip.Vertical : 0);
-            return new(SnesSpritemapXWord.Create(-8 * column, false), SnesSpritemapYByte.Create(-8 * row),
-                SnesObjAttributeWord.Create(IntroRinkaCellDefinitions.FirstQuadrant + frame, 0, 3, flips), true);
+            return new(SpritePart.Create(-8 * column, -8 * row, false,
+                IntroRinkaCellDefinitions.FirstQuadrant + frame, 0, 3, flips), true);
         }
     }
     /// <summary>Yields bottom-right through top-left quadrants in native composition order.</summary>

@@ -32,8 +32,8 @@ internal readonly struct SpazerAxialSpreadParts(int pose, int phase) : IReadOnly
                 lane = seedIndex == 0 ? index % 3 - 1 : 1 - index % 3;
             }
             var seed = new SpazerSeedParts(pose)[seedIndex];
-            return new(SnesSpritemapXWord.Create(seed.X.SignedOffset + (vertical ? lane * distance : 0), seed.X.IsLarge),
-                SnesSpritemapYByte.Create(seed.Y.SignedOffset + (vertical ? 0 : lane * distance)), seed.Attributes, seed.InheritPalette);
+            return new(seed.Part.At(seed.Part.Offset.X + (vertical ? lane * distance : 0),
+                seed.Part.Offset.Y + (vertical ? 0 : lane * distance)), seed.InheritPalette);
         }
     }
     /// <summary>Yields all six axial spread cells in native traversal order.</summary>

@@ -56,7 +56,7 @@ internal sealed class NoobTubeBehavior
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex: 0);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics: default);
 
         int blockX = request.PlmBlockIndex % roomWidthInBlocks;
         int blockY = request.PlmBlockIndex / roomWidthInBlocks;

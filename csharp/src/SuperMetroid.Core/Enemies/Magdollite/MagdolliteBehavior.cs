@@ -102,8 +102,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         // Retail's last Magdollite record therefore resets this clock to eight and selects
         // its OBJ palette. Model the resulting singleton hook, not nine independent cycles.
         MagdollitePaletteAnimationInstalled = true;
-        MagdolliteColourSet = new SuperMetroid.Core.Hardware.SnesObjAttributeWord(
-            checked((ushort)slot.PaletteIndex)).PaletteIndex;
+        MagdolliteColourSet = slot.PaletteRow;
         MagdollitePaletteAnimationTimer = WrappingCountdown.Start(8);
         MagdollitePaletteFrame = 0;
     }
@@ -784,7 +783,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.LavaThrownByMagdollite,
-            unchecked((ushort)(source.TileIndexBase | source.PaletteIndex)));
+            source.Graphics);
 
         // SpawnEprojInner has already cleared all generic scratch words. The initializer
         // copies both subpixels from the throwing overlay, starts two pixels below it, and

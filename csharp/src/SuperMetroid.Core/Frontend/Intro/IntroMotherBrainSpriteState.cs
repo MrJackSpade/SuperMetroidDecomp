@@ -17,7 +17,7 @@ internal sealed class IntroMotherBrainSpriteState
 {
     /// <summary>The cinematic sprite object running the Mother Brain's typed program (#641).</summary>
     private readonly IntroDiscoverySprite actor =
-        new(IntroMotherBrainDefinitions.MotherBrainOrigin, IntroCinematicDefinitions.Objects.DiscoveryPalette.Raw,
+        new(IntroMotherBrainDefinitions.MotherBrainOrigin, IntroCinematicDefinitions.Objects.DiscoveryPalette,
             IntroMotherBrainDefinitions.MotherBrain.Program);
     /// <summary>Remaining palette alternations after a missile hit.</summary>
     private WrappingCountdown hurtFlashTimer;
@@ -35,8 +35,8 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>Fixed cinematic screen origin from definition $8B:CE55.</summary>
     public static Position16<ScreenPixels> Position => IntroMotherBrainDefinitions.MotherBrainOrigin;
 
-    /// <summary>OAM palette and attribute bits selected by the discovery cinematic object.</summary>
-    public static ushort PaletteBits => IntroCinematicDefinitions.Objects.DiscoveryPalette.Raw;
+    /// <summary>The sprite palette row the discovery cinematic object draws in.</summary>
+    public static int Palette => IntroCinematicDefinitions.Objects.DiscoveryPalette;
 
     /// <summary>The pose Mother Brain's program shows; null before its first frame and after deletion.</summary>
     public CinematicSpritePose? Pose => actor.Pose;

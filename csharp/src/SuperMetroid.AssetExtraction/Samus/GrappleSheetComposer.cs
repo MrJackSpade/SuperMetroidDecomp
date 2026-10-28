@@ -32,9 +32,9 @@ internal static class GrappleSheetComposer
         Ensure.NotNull(inputs);
         GrappleTileAtlas tiles = inputs.Projectiles.GrappleTiles;
         var frames = new List<SheetFrameSource>();
-        var endpoint = new SnesObjAttributeWord(checked((ushort)(tiles.Sprites?.Endpoint ?? GrappleBeamDefinitions.Rendering.EndpointAttributes)));
-        if (endpoint.TileNumber is >= FirstRopeCharacter and <= LastRopeCharacter)
-            throw new InvalidDataException($"The grapple endpoint names rope character ${endpoint.TileNumber:X3}, which its orientation selects.");
+        SpritePart endpoint = tiles.Sprites?.Endpoint ?? GrappleBeamDefinitions.Rendering.Endpoint;
+        if (endpoint.Character is >= FirstRopeCharacter and <= LastRopeCharacter)
+            throw new InvalidDataException($"The grapple endpoint names rope character ${endpoint.Character:X3}, which its orientation selects.");
         for (int point = 0; point < GrappleSheetDefinitions.EndpointFrameCount; point++)
         {
             frames.Add(new(GrappleSheetDefinitions.EndpointFrame(point), SpritePartFrames.SmallObject(endpoint, 0),
@@ -45,9 +45,8 @@ internal static class GrappleSheetComposer
             SpriteArtwork page = tiles.OnStandardObjects(inputs.StandardObjects, 0, orientation);
             for (int segment = 0; segment < GrappleSpriteDefinitions.SegmentFrameCount; segment++)
             {
-                ushort appearance = tiles.Sprites?.Segment(segment)
-                    ?? unchecked((ushort)(GrappleBeamDefinitions.Rendering.FirstSegmentAttributes + segment));
-                if (new SnesObjAttributeWord(appearance).TileNumber == EndpointCharacter)
+                SpritePart appearance = tiles.Sprites?.Segment(segment) ?? GrappleSpriteDefinitions.StockSegment(segment);
+                if (appearance.Character == EndpointCharacter)
                     throw new InvalidDataException($"Grapple rope segment {segment} names the endpoint's character, which its animation selects.");
                 foreach (SpriteMirror mirror in GrappleSheetDefinitions.RopeMirrors)
                 {
@@ -55,7 +54,7 @@ internal static class GrappleSheetComposer
                     TileFlip flips = ((mirror & SpriteMirror.Horizontal) != 0 ? TileFlip.Horizontal : TileFlip.None) |
                         ((mirror & SpriteMirror.Vertical) != 0 ? TileFlip.Vertical : TileFlip.None);
                     frames.Add(new(GrappleSheetDefinitions.RopeFrame(orientation, segment, mirror),
-                        SpritePartFrames.SmallObject(new SnesObjAttributeWord(appearance).Or(SnesObjAttributeWord.Create(0, 0, 0, flips)), 0), page));
+                        SpritePartFrames.SmallObject(appearance with { Flip = appearance.Flip | flips }, 0), page));
                 }
             }
         }

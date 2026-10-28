@@ -39,8 +39,8 @@ internal sealed class EndingExplosionSilhouetteParts : IReadOnlyList<CompiledSpr
                 tile = rightTile - column * 2;
                 y = top;
             }
-            return new(SnesSpritemapXWord.Create(x, large), SnesSpritemapYByte.Create(y),
-                SnesObjAttributeWord.Create(tile, 0, 3), true);
+            return new(SpritePart.Create(x, y, large,
+                tile, 0, 3), true);
         }
     }
     /// <summary>Yields the twenty silhouette pieces in native draw order.</summary>

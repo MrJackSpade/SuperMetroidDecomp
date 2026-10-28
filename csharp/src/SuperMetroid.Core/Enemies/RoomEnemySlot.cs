@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies;
@@ -131,11 +132,11 @@ public sealed class RoomEnemySlot
     }
     /// <summary>Enemy.instTimer at +$1C: animation instruction countdown in processing updates; initialization starts it at one.</summary>
     public WrappingCountdown InstructionTimer { get; internal set; }
-    /// <summary>Enemy.palette at +$1E: native OBJ palette attribute bits, normally the graphics-set palette index shifted left nine, rather than a CGRAM color index.</summary>
-    public int PaletteIndex
+    /// <summary>Enemy.palette at +$1E: the sprite palette row the enemy draws in, 0 through 7, normally its graphics-set row.</summary>
+    public int PaletteRow
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, SpritePart.MaximumPalette, value);
     }
     /// <summary>Enemy.GFXOffset at +$20: sprite character-index offset assigned by the graphics set, in 32-byte planar tile units.</summary>
     public int TileIndexBase
@@ -143,6 +144,8 @@ public sealed class RoomEnemySlot
         get;
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
+    /// <summary>The sheet characters and palette row the enemy draws with, as the projectiles and sprite objects it spawns take them.</summary>
+    public SpriteGraphics Graphics => SpriteGraphics.Of(TileIndexBase, PaletteRow);
     /// <summary>
     /// Enemy.layer at +$22, 0 through 65535: drawing-queue layer word, initialized from the definition's byte-sized
     /// layer; the draw queue reads its low three bits.
@@ -201,7 +204,7 @@ public sealed class RoomEnemySlot
         FlashTimer = WrappingCountdown.Start(0);
         Layer = 0;
         TileIndexBase = 0;
-        PaletteIndex = 0;
+        PaletteRow = 0;
         FrameCounter = 0;
         ShakeTimer = WrappingCountdown.Start(0);
         InvincibilityTimer = WrappingCountdown.Start(0);

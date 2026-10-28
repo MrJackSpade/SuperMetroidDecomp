@@ -109,7 +109,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// upper eight bits of another enemy's value, fixed by its speed record
     /// (<see cref="EvirInitDefinitions.FirstHalfCycleSources"/>). The enemy is read as it stands while the population
     /// loads: for the second Evir of either retail room the third enemy is the first Evir's spit, already carrying its
-    /// body's palette, so the first half-cycle is not zero.
+    /// body's palette, so the first half-cycle is not zero. Read that way, a palette field yields the enemy's palette
+    /// row itself: the cartridge keeps the row shifted nine bits up, so half its upper eight bits is the row.
     /// </summary>
     private WrappingCountdown ReadFirstHalfCycle(int speedRecord)
     {
@@ -121,10 +122,12 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             int value = source.Field switch
             {
                 EvirHalfCycleSourceField.PopulationParameter2 => checked((ushort)enemy.Spawn.Population.Parameter2),
-                EvirHalfCycleSourceField.Palette => checked((ushort)enemy.PaletteIndex),
+                EvirHalfCycleSourceField.Palette => enemy.PaletteRow,
                 _ => throw new InvalidOperationException($"Undefined {nameof(EvirHalfCycleSourceField)} {source.Field}."),
             };
-            return WrappingCountdown.Start(SnesLittleEndian.HighByte(value) / 2);
+            return WrappingCountdown.Start(source.Field == EvirHalfCycleSourceField.Palette
+                ? value
+                : SnesLittleEndian.HighByte(value) / 2);
         }
         throw new InvalidDataException(
             $"Evir speed record {speedRecord} takes its first half-cycle from a value no retail Evir reads.");
@@ -148,7 +151,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot body = RequireEvirRelativeSlot(slot, -2, EnemyDefinitionId.Evir, "projectile body", initializing: true);
         // The projectile definition has no graphics-set entry of its own. Native copies the
         // body's resolved palette/tile indexes so the projectile map addresses the Evir art.
-        slot.PaletteIndex = body.PaletteIndex;
+        slot.PaletteRow = body.PaletteRow;
         slot.TileIndexBase = body.TileIndexBase;
         ResetEvirProjectilePosition(slot, state);
 

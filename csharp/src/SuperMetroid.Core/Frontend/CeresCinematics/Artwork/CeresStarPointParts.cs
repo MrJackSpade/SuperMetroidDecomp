@@ -25,7 +25,7 @@ internal sealed class CeresStarPointParts(StarfieldPoint[] points, TileFlip flip
         for (int index = 0; index < points.Length; index++)
         {
             var part = supplied[index];
-            points[index] = new(Offset16<SpritePixels>.Of(part.X.SignedOffset, part.Y.Raw), part.Attributes.TileNumber);
+            points[index] = new(Offset16<SpritePixels>.Of(part.Part.Offset.X, part.Part.Offset.Y), part.Part.Character);
         }
         var calculated = new CeresStarPointParts(points, flips);
         return supplied.SequenceEqual(calculated) ? calculated : supplied;
@@ -39,8 +39,7 @@ internal sealed class CeresStarPointParts(StarfieldPoint[] points, TileFlip flip
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             var point = points[index];
-            return new(SnesSpritemapXWord.Create(point.Offset.X, false), new SnesSpritemapYByte(checked((byte)point.Offset.Y)),
-                SnesObjAttributeWord.Create(point.Tile, 0, 0, flips), true);
+            return new(SpritePart.Create(point.Offset.X, point.Offset.Y, false, point.Tile, 0, 0, flips), true);
         }
     }
     /// <summary>Enumerates the calculated star parts in source order.</summary>

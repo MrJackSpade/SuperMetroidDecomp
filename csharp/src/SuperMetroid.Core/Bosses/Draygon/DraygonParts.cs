@@ -12,6 +12,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
@@ -66,7 +67,7 @@ internal sealed class DraygonParts
         // Draygon owns that image (#1354); his body frames draw into it and it publishes as his body on BG2.
         _presentation.AttachBg2Image(new EnemyBg2Image(EnemyBg2SurfaceDefinitions.BlankTile.Raw));
 
-        body.PaletteIndex = EnemyPaletteBits.Palette7;
+        body.PaletteRow = 7;
         body.InstructionTimer = WrappingCountdown.Start(1);
 
         _frameContext.RequestFullSweep();
@@ -104,7 +105,7 @@ internal sealed class DraygonParts
             case DraygonPart.Tail:
                 if (part.SlotIndex != 2)
                     throw new InvalidDataException("Draygon's tail must own native slot $0080.");
-                part.PaletteIndex = EnemyPaletteBits.Palette7;
+                part.PaletteRow = 7;
                 state.Tail = part;
                 state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.TailFacingLeftInitialFakeWhip));
                 return;
@@ -114,7 +115,7 @@ internal sealed class DraygonParts
                     throw new InvalidDataException("Draygon's arms must own native slot $00C0.");
                 // Body init briefly writes $9813 before this record exists. Retail part init
                 // clears that lost write and installs the ordinary idle loop at $97E7.
-                part.PaletteIndex = EnemyPaletteBits.Palette7;
+                part.PaletteRow = 7;
                 part.Layer = 2;
                 state.Arms = part;
                 state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.ArmsFacingLeftIdle));
@@ -327,7 +328,7 @@ internal sealed class DraygonParts
         if (_spriteObjects.SpawnRoomSpriteObject(
                 state.Body.Position.Whole + scatter,
                 kind,
-                graphicsIndex: 0) is not null)
+                graphics: default) is not null)
         {
             state.DeathAnimationObjectsSpawned++;
         }
@@ -360,7 +361,7 @@ internal sealed class DraygonParts
         _spriteObjects.SpawnRoomSpriteObject(
             new(samus.Position.X.Whole, unchecked((ushort)(samus.Position.Y.Whole + 16))),
             RoomSpriteObjectKind.DustCloud,
-            graphicsIndex: 0);
+            graphics: default);
     }
 
     /// <summary>Ports the two body instruction producers at <c>$A5:9F7C/9FAE</c>.</summary>
@@ -373,7 +374,7 @@ internal sealed class DraygonParts
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             goop,
             RoomEnemyProjectileKind.DraygonGoop,
-            graphicsIndex: EnemyPaletteBits.Palette2);
+            graphics: SpriteGraphics.InPalette(2));
         goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.Goop));
         goop.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(state.Body.Position.X.Whole + (movingRight ? 24 : -28))), unchecked((ushort)(state.Body.Position.Y.Whole - 16))));
 

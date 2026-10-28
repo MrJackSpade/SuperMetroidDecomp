@@ -357,10 +357,10 @@ public sealed class FileSelectPresentation
             ValidatePoint(point, owner);
     }
 
-    /// <summary>Restricts a sprite anchor to the SNES nine-bit X and eight-bit Y range.</summary>
+    /// <summary>Restricts a sprite anchor to the sprite plane: X 0..511 and Y 0..255.</summary>
     private static void ValidatePoint(Position16<SpritePixels> point, string owner)
     {
-        if (point.X < 0 || point.X > SnesSpritemapXWord.OffsetFieldMaximum ||
+        if (point.X < 0 || point.X > SpritePart.PlaneWidth - 1 ||
             (uint)point.Y > byte.MaxValue)
             throw new InvalidDataException(
                 $"File-select {owner} requires X=0..511 and Y=0..255.");

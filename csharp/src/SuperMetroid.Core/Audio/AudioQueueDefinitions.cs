@@ -6,17 +6,11 @@ public static class AudioQueueDefinitions
     /// <summary>Music requests the music queue holds, each with its own delay.</summary>
     public const int MusicCapacity = 8;
 
-    /// <summary>Wrap mask for a music queue position, 0 through <see cref="MusicCapacity"/> - 1.</summary>
-    public const int MusicIndexMask = MusicCapacity - 1;
-
     /// <summary>The sound libraries, each with its own sound queue.</summary>
     public const int SoundLibraryCount = SoundClockTiming.LibraryCount;
 
     /// <summary>Positions in each sound queue's ring, including the one kept empty to tell a full ring from an empty one.</summary>
     public const int SoundCapacity = 16;
-
-    /// <summary>Wrap and occupancy mask for a sound queue position, 0 through <see cref="SoundCapacity"/> - 1.</summary>
-    public const int SoundIndexMask = SoundCapacity - 1;
 
     /// <summary>The most unread requests a sound queue can hold: fifteen.</summary>
     public const int MaximumSoundOccupancy = SoundCapacity - 1;

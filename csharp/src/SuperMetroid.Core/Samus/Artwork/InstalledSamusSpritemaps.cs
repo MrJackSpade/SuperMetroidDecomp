@@ -65,7 +65,7 @@ public sealed class InstalledSamusSpritemaps
     }
 
     /// <summary>SHA-256 of selected pose bases, table entries and ordered composition parts.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("samus-spritemaps-v3", content =>
+    public string ContentIdentity => field ??= SelectedPresentationHash.Create("samus-spritemaps-v3", content =>
     {
         content.AppendWords("top bases", TopBases);
         content.AppendWords("bottom bases", BottomBases);
@@ -80,11 +80,17 @@ public sealed class InstalledSamusSpritemaps
     });
 
     /// <summary>Materializes all 253 upper-half element-index bases in pose order; callers add the animation frame to obtain a pointer-table index.</summary>
-    public ReadOnlySpan<ushort> TopBases => Enumerable.Range(0, InstalledSamusBodyArtwork.PoseCount).Select(pose => TopBase(SamusPoseNumbering.FromNumber(pose))).ToArray();
+    public ReadOnlySpan<ushort> TopBases => topBasesTable ??= Enumerable.Range(0, InstalledSamusBodyArtwork.PoseCount).Select(pose => TopBase(SamusPoseNumbering.FromNumber(pose))).ToArray();
+    /// <summary>The materialized <see cref="TopBases"/>; the installed tables never change after construction.</summary>
+    private ushort[]? topBasesTable;
     /// <summary>Materializes all 253 lower-half element-index bases in pose order, including poses sharing the upper/lower composition.</summary>
-    public ReadOnlySpan<ushort> BottomBases => Enumerable.Range(0, InstalledSamusBodyArtwork.PoseCount).Select(pose => BottomBase(SamusPoseNumbering.FromNumber(pose))).ToArray();
+    public ReadOnlySpan<ushort> BottomBases => bottomBasesTable ??= Enumerable.Range(0, InstalledSamusBodyArtwork.PoseCount).Select(pose => BottomBase(SamusPoseNumbering.FromNumber(pose))).ToArray();
+    /// <summary>The materialized <see cref="BottomBases"/>; the installed tables never change after construction.</summary>
+    private ushort[]? bottomBasesTable;
     /// <summary>Materializes the complete table in native order, preserving repeated compositions and entries with none.</summary>
-    public ReadOnlySpan<SamusSpritemapId?> Entries => Enumerable.Range(0, EntryCount).Select(Entry).ToArray();
+    public ReadOnlySpan<SamusSpritemapId?> Entries => entriesTable ??= Enumerable.Range(0, EntryCount).Select(Entry).ToArray();
+    /// <summary>The materialized <see cref="Entries"/>; the installed tables never change after construction.</summary>
+    private SamusSpritemapId?[]? entriesTable;
     /// <summary>Resolves a table entry through an override, shared source entry, or calculated stock composition.</summary>
     private SamusSpritemapId? Entry(int index) => entries.TryGetValue(index, out SamusSpritemapId? value)
         ? value : SamusSpritemapSharing.SourceIndex(index) != index

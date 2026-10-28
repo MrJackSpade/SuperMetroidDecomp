@@ -176,19 +176,33 @@ public sealed class InstalledSamusBodyArtwork
     public string ContentIdentity => CreateContentIdentity();
 
     /// <summary>Gets each upper-body definition group's resolved first record.</summary>
-    public ReadOnlySpan<int> TopSetStarts => Enumerable.Range(0, TopSetCount).Select(index => SetStart(true, index)).ToArray();
+    public ReadOnlySpan<int> TopSetStarts => topSetStartsTable ??= Enumerable.Range(0, TopSetCount).Select(index => SetStart(true, index)).ToArray();
+    /// <summary>The materialized <see cref="TopSetStarts"/>; the installed tables never change after construction.</summary>
+    private int[]? topSetStartsTable;
     /// <summary>Gets each lower-body definition group's resolved first record.</summary>
-    public ReadOnlySpan<int> BottomSetStarts => Enumerable.Range(0, BottomSetCount).Select(index => SetStart(false, index)).ToArray();
+    public ReadOnlySpan<int> BottomSetStarts => bottomSetStartsTable ??= Enumerable.Range(0, BottomSetCount).Select(index => SetStart(false, index)).ToArray();
+    /// <summary>The materialized <see cref="BottomSetStarts"/>; the installed tables never change after construction.</summary>
+    private int[]? bottomSetStartsTable;
     /// <summary>Gets each pose's resolved first frame.</summary>
-    public ReadOnlySpan<int> PoseFirstFrames => Enumerable.Range(0, PoseCount).Select(pose => PoseFirstFrame(SamusPoseNumbering.FromNumber(pose))).ToArray();
+    public ReadOnlySpan<int> PoseFirstFrames => poseFirstFramesTable ??= Enumerable.Range(0, PoseCount).Select(pose => PoseFirstFrame(SamusPoseNumbering.FromNumber(pose))).ToArray();
+    /// <summary>The materialized <see cref="PoseFirstFrames"/>; the installed tables never change after construction.</summary>
+    private int[]? poseFirstFramesTable;
     /// <summary>Gets the resolved signed art-origin offset for every pose.</summary>
-    public ReadOnlySpan<sbyte> GraphicsYOffsets => Enumerable.Range(0, PoseCount).Select(index => GraphicsYOffset(SamusPoseNumbering.FromNumber(index))).ToArray();
+    public ReadOnlySpan<sbyte> GraphicsYOffsets => graphicsYOffsetsTable ??= Enumerable.Range(0, PoseCount).Select(index => GraphicsYOffset(SamusPoseNumbering.FromNumber(index))).ToArray();
+    /// <summary>The materialized <see cref="GraphicsYOffsets"/>; the installed tables never change after construction.</summary>
+    private sbyte[]? graphicsYOffsetsTable;
     /// <summary>Native landing table, including the one adjacent byte read by an unaligned word.</summary>
-    public ReadOnlySpan<ushort> LandingYOffsets => Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount).Select(LandingByte).ToArray();
+    public ReadOnlySpan<ushort> LandingYOffsets => landingYOffsetsTable ??= Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount).Select(LandingByte).ToArray();
+    /// <summary>The materialized <see cref="LandingYOffsets"/>; the installed tables never change after construction.</summary>
+    private ushort[]? landingYOffsetsTable;
     /// <summary>Gets the resolved posture-transition vertical-offset table.</summary>
-    public ReadOnlySpan<sbyte> PostureYOffsets => Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.PostureTransitionVerticalOffsetByteCount).Select(PostureByte).ToArray();
+    public ReadOnlySpan<sbyte> PostureYOffsets => postureYOffsetsTable ??= Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.PostureTransitionVerticalOffsetByteCount).Select(PostureByte).ToArray();
+    /// <summary>The materialized <see cref="PostureYOffsets"/>; the installed tables never change after construction.</summary>
+    private sbyte[]? postureYOffsetsTable;
     /// <summary>Gets the resolved drained-state vertical-offset table.</summary>
-    public ReadOnlySpan<sbyte> DrainedYOffsets => Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.DrainedVerticalOffsetByteCount).Select(DrainedByte).ToArray();
+    public ReadOnlySpan<sbyte> DrainedYOffsets => drainedYOffsetsTable ??= Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.DrainedVerticalOffsetByteCount).Select(DrainedByte).ToArray();
+    /// <summary>The materialized <see cref="DrainedYOffsets"/>; the installed tables never change after construction.</summary>
+    private sbyte[]? drainedYOffsetsTable;
     /// <summary>Resolves an edited landing byte or its native shared-source alias.</summary>
     private ushort LandingByte(int index) => landingYOffsets.ContainsKey(index)
         ? landingYOffsets[index] : SamusBodyPlacements.LandingSourceIndex(index) == index
@@ -243,7 +257,9 @@ public sealed class InstalledSamusBodyArtwork
         SamusPoseNumbering.HasRecord(pose) ? graphicsYOffsets.ContainsKey(SamusPoseNumbering.Number(pose)) ? graphicsYOffsets[SamusPoseNumbering.Number(pose)] : SamusBodyPlacements.DefaultGraphicsYOffset(pose) :
             throw new InvalidDataException($"Pose {pose} has no authored graphics Y offset.");
     /// <summary>Gets the resolved contiguous bank-$92 frame-selector interval.</summary>
-    public ReadOnlySpan<SamusBodyFrameSelection> Frames => Enumerable.Range(0, FrameCount).Select(FrameAt).ToArray();
+    public ReadOnlySpan<SamusBodyFrameSelection> Frames => framesTable ??= Enumerable.Range(0, FrameCount).Select(FrameAt).ToArray();
+    /// <summary>The materialized <see cref="Frames"/>; the installed tables never change after construction.</summary>
+    private SamusBodyFrameSelection[]? framesTable;
     /// <summary>Resolves a frame-selector byte through edited values, aliases, or compiled defaults.</summary>
     private byte FrameComponent(int index) => frames.ContainsKey(index)
         ? frames[index] : SamusBodyFrameSharing.SourceComponent(index) != index

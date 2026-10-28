@@ -1817,7 +1817,7 @@ internal static class LookupStream1Verification
         {
             var launch = SamusBombSpreadLaunches.ForSlot(index);
             AssertEqual(Word(0x90d8cf + index * 2), launch.FuseTimer, "spread native fuse");
-            AssertEqual(Word(0x90d8d9 + index * 2), launch.XVelocity, "spread native direction/magnitude X");
+            AssertEqual(Word(0x90d8d9 + index * 2), launch.XVelocity.LaunchWord, "spread native direction/magnitude X");
             AssertEqual(Word(0x90d8e3 + index * 2), launch.YSpeed.Whole, "spread native whole Y");
             AssertEqual(Word(0x90d8ed + index * 2), launch.YSpeed.Fraction, "spread native fraction Y");
         }

@@ -6,9 +6,6 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 public readonly record struct BombSpreadHorizontalVelocity
 {
-    /// <summary>The direction bit's weight in the launch word's high byte.</summary>
-    internal const int LeftwardBit = 128;
-
     /// <summary>Stores already range-checked parts.</summary>
     private BombSpreadHorizontalVelocity(bool movingLeft, int wholePixels, int fractionSteps)
     {
@@ -26,16 +23,9 @@ public readonly record struct BombSpreadHorizontalVelocity
     /// <summary>Additional 1/256 pixels travelled per frame, 0 through 255.</summary>
     public int FractionSteps { get; }
 
-    /// <summary>
-    /// Decodes a launch definition's packed horizontal word: its high byte holds the direction bit and the whole
-    /// speed, its low byte the fraction.
-    /// </summary>
-    public static BombSpreadHorizontalVelocity FromLaunchWord(int launchWord)
-    {
-        int high = UnsignedEightEight.Whole(launchWord);
-        bool movingLeft = high >= LeftwardBit;
-        return new(movingLeft, movingLeft ? high - LeftwardBit : high, UnsignedEightEight.Fraction(launchWord));
-    }
+    /// <summary>A launch moving left or right at <paramref name="wholePixels"/> and <paramref name="fractionSteps"/> 256ths of a pixel per frame.</summary>
+    internal static BombSpreadHorizontalVelocity Of(bool movingLeft, int wholePixels, int fractionSteps) =>
+        new(movingLeft, wholePixels, fractionSteps);
 
     /// <summary>The same speed in the opposite direction, as a wall collision leaves it.</summary>
     public BombSpreadHorizontalVelocity Reversed() => new(!MovingLeft, WholePixels, FractionSteps);

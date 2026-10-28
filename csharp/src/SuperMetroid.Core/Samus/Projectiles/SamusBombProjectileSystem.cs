@@ -496,7 +496,7 @@ public sealed class SamusBombProjectileSystem
 
             BombSpreadLaunchDefinition launch = SamusBombSpreadLaunches.ForSlot(index);
             slot.BombTimer = WrappingCountdown.FromRaw(launch.FuseTimer);
-            slot.BombSpreadHorizontal = BombSpreadHorizontalVelocity.FromLaunchWord(launch.XVelocity);
+            slot.BombSpreadHorizontal = launch.XVelocity;
             // The held charge adds up to three whole pixels of upward launch speed; the negated whole word
             // wraps exactly as the cartridge's sixteen-bit subtraction from zero does.
             slot.BombSpreadLaunchVelocity = SignedSixteenSixteen.FromParts(

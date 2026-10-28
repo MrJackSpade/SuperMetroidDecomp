@@ -13,7 +13,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
     {
         var reference = Enumerable.Range(0,MorphBallBombDefinitions.SlotCount).Select(i =>
             new BombSpreadLaunchDefinition(CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.FuseTimers+i*2)),
-                CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.XVelocities+i*2)), new UnsignedSixteenSixteen(CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.YSpeeds+i*2)),
+                BombSpreadHorizontalVelocity.FromLaunchWord(CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.XVelocities+i*2))), new UnsignedSixteenSixteen(CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.YSpeeds+i*2)),
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.YSubspeeds+i*2))))).ToArray();
         for(int i=0;i<reference.Length;i++)
             AssertEqual(reference[i],SamusBombSpreadLaunches.ForSlot(i),"All native Bomb Spread launch words");
@@ -32,8 +32,8 @@ internal static class BombSpreadLaunchDefinitionsVerification
                 var slot=bombs.Slots[i]; var expected=reference[i];
                 ushort y=unchecked((ushort)-(expected.YSpeed.Whole+((hold>>6)&3)));
                 AssertEqual(expected.FuseTimer,slot.BombTimer.RawValue,"Spread fuse by physical slot");
-                AssertEqual(BombSpreadHorizontalVelocity.FromLaunchWord(expected.XVelocity),slot.BombSpreadHorizontal,"Spread horizontal direction and speed");
-                AssertEqual(expected.XVelocity, slot.BombSpreadDirectionMagnitude,"Spread horizontal travel re-encodes the native direction/magnitude word");
+                AssertEqual(expected.XVelocity,slot.BombSpreadHorizontal,"Spread horizontal direction and speed");
+                AssertEqual(expected.XVelocity.LaunchWord, slot.BombSpreadDirectionMagnitude,"Spread horizontal travel re-encodes the native direction/magnitude word");
                 var launchVelocity=SignedSixteenSixteen.FromParts(unchecked((short)y),expected.YSpeed.Fraction);
                 AssertEqual(launchVelocity,slot.BombSpreadLaunchVelocity,"Spread hold modifier, negated whole velocity and authored fraction");
                 AssertEqual(launchVelocity,slot.BombSpreadVerticalVelocity,"Spread live velocity starts at the launch velocity");
@@ -60,7 +60,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
         ushort[] boundaries = [0, 1, 0x7fff, 0x8000, 0xff00, 0xffff];
         for (int slot = 0; slot < MorphBallBombDefinitions.SlotCount; slot++)
         {
-            int launchWord = SamusBombSpreadLaunches.ForSlot(slot).XVelocity;
+            int launchWord = SamusBombSpreadLaunches.ForSlot(slot).XVelocity.LaunchWord;
             foreach (BombSpreadHorizontalVelocity velocity in new[] {
                 BombSpreadHorizontalVelocity.FromLaunchWord(launchWord),
                 BombSpreadHorizontalVelocity.FromLaunchWord(launchWord).Reversed() })

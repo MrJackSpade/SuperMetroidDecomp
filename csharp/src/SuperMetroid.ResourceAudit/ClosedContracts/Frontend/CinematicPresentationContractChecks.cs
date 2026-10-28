@@ -27,7 +27,6 @@ internal static class CinematicPresentationContractChecks
             using SuperMetroid.Core.Frontend.Intro.Artwork;
             using SuperMetroid.Core.Frontend.Title;
             using SuperMetroid.Core.Frontend.Title.Artwork;
-            using SuperMetroid.Core.Hardware;
             class CinematicConsumer {
                 void Inspect(TitlePalettePresentation palette, TitleGradientPresentation gradient,
                     TitleGraphicsPresentation title, IntroEyeTilemapPresentation eye,

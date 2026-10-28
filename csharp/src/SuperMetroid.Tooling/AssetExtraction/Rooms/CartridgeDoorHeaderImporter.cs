@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.AssetExtraction.Cartridge;

@@ -5,7 +5,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;

@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.GameOver;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 

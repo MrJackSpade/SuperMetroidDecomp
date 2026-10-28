@@ -70,8 +70,6 @@
   "coreLayers": [
     { "name": "Geometry", "modules": ["Spatial"],
       "description": "Coordinate spaces, extents, units and the cartridge's fixed-point number formats." },
-    { "name": "Hardware", "modules": ["Hardware"],
-      "description": "SNES hardware models: the address space, CPU-visible memory, PPU memories and registers, DMA, and host colors." },
     { "name": "Foundation", "modules": ["Compatibility", "Input", "Audio", "Programs", "Assets"],
       "description": "Compatibility services reproducing gameplay-observable timing of the original hardware, controller input, the SPC driver, shared instruction-program machinery and installed-artwork infrastructure. No gameplay knowledge." },
     { "name": "Simulation", "modules": ["Gameplay", "Map", "Samus", "Enemies", "Bosses", "Rooms", "Fx", "Areas", "Progression", "Saves", "Hud", "Escape", "World"],

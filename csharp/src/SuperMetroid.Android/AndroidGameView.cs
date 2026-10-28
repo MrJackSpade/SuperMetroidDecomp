@@ -5,7 +5,6 @@ using Android.Views;
 using SuperMetroid.Core.Frontend;
 using System.Diagnostics;
 using SuperMetroid.Android.Diagnostics;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Android;
 

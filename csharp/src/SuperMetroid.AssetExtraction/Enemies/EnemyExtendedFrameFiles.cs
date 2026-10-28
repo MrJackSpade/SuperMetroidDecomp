@@ -1,7 +1,6 @@
 using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;

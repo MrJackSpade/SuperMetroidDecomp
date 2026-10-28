@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.Artwork;

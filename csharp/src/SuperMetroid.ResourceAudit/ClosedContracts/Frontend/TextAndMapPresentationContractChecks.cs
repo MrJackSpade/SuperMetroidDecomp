@@ -27,7 +27,6 @@ internal static class TextAndMapPresentationContractChecks
             using SuperMetroid.Core.Frontend.Map.Artwork;
             using SuperMetroid.Core.Frontend.Menus;
             using SuperMetroid.Core.Frontend.Pause;
-            using SuperMetroid.Core.Hardware;
             using SuperMetroid.Core.Progression;
             using SuperMetroid.Core.Rooms;
             class TextMapConsumer {

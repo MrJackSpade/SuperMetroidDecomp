@@ -6,7 +6,7 @@ using SuperMetroid.EnsureAnalyzer.Modules;
 namespace SuperMetroid.EnsureAnalyzer.Contracts;
 
 /// <summary>
-/// Keeps fixed-point values, angles and carry flags in their named types (#1326). Outside <c>Hardware/</c> and
+/// Keeps fixed-point values, angles and carry flags in their named types (#1326). Outside
 /// <c>[EncodingOwner]</c> codec types, Core carries no whole/fraction pair as primitives (SME6351), no angle as a raw
 /// byte or word (SME6352), and no processor-carry protocol (SME6353).
 /// </summary>
@@ -28,9 +28,6 @@ public sealed class FixedPointVocabularyAnalyzer : DiagnosticAnalyzer
     /// <summary>Name endings that mark a difference or bit pattern of angles rather than an angle.</summary>
     private static readonly string[] NonAngleSuffixes = ["Step", "Delta", "Mask", "Offset"];
 
-    /// <summary>The Core folder whose hardware vocabulary defines these types.</summary>
-    private const string HardwareFolder = "/" + CoreLayerAnalyzer.CoreAssembly + "/Hardware/";
-
     private static readonly DiagnosticDescriptor SplitFixedPointRule = new(
         SplitFixedPointId,
         "Fixed-point value split into primitives",
@@ -51,7 +48,7 @@ public sealed class FixedPointVocabularyAnalyzer : DiagnosticAnalyzer
 
     private static readonly DiagnosticDescriptor CarryProtocolRule = new(
         CarryProtocolId,
-        "Processor-flag protocol outside Hardware",
+        "Processor-flag protocol",
         "'{0}' carries a processor flag; use WordCarry's operations or name what the flag means",
         "Design",
         DiagnosticSeverity.Warning,
@@ -219,14 +216,12 @@ public sealed class FixedPointVocabularyAnalyzer : DiagnosticAnalyzer
     /// <summary>Whether a field is an auto-property's compiler-generated backing store.</summary>
     private static bool IsBackingField(ISymbol member) => member is IFieldSymbol { AssociatedSymbol: not null };
 
-    /// <summary>Whether a type is a codec boundary or declared under <c>Hardware/</c>.</summary>
+    /// <summary>Whether a type or a type containing it is a codec boundary.</summary>
     private static bool IsExempt(INamedTypeSymbol? type)
     {
         for (INamedTypeSymbol? current = type; current is not null; current = current.ContainingType)
         {
             if (current.GetAttributes().Any(attribute => attribute.AttributeClass?.Name == EncodingOwnerAttribute))
-                return true;
-            if (current.Locations.Any(location => location.SourceTree?.FilePath.Replace('\\', '/').IndexOf(HardwareFolder, StringComparison.OrdinalIgnoreCase) >= 0))
                 return true;
         }
         return false;

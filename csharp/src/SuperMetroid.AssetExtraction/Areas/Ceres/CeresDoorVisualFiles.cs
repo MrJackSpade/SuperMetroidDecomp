@@ -5,7 +5,6 @@ using System.Buffers.Binary;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Security.Cryptography;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;

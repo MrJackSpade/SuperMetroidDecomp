@@ -35,9 +35,8 @@ internal static class FixedPointVocabularyAnalyzerTests
         Expect("record R(bool Carry);", FixedPointVocabularyAnalyzer.CarryProtocolId, "'Carry' carries a processor flag");
         Expect("class C { void M(bool carry) { } }");
 
-        // Codec boundaries and Hardware are exempt; other assemblies are not Core.
+        // Codec boundaries are exempt; other assemblies are not Core.
         Expect("[EncodingOwner(\"fixture format\")] class C { void M(ushort angle) { } }");
-        Expect("class C { void M(ushort angle) { } }", path: "Hardware/C.cs");
         Expect("class C { void M(ushort angle) { } }", assembly: "SuperMetroid.Verification");
     }
 
@@ -48,7 +47,7 @@ internal static class FixedPointVocabularyAnalyzerTests
         const string attribute = "[System.AttributeUsage(System.AttributeTargets.All)] sealed class EncodingOwnerAttribute(string format) : System.Attribute { public string Format { get; } = format; } ";
         SyntaxTree[] trees =
         [
-            CSharpSyntaxTree.ParseText(attribute + "namespace System.Runtime.CompilerServices { static class IsExternalInit { } }", path: "C:/fixture-repo/csharp/src/SuperMetroid.Core/Hardware/Attribute.cs"),
+            CSharpSyntaxTree.ParseText(attribute + "namespace System.Runtime.CompilerServices { static class IsExternalInit { } }", path: "C:/fixture-repo/csharp/src/SuperMetroid.Core/Compatibility/Attribute.cs"),
             CSharpSyntaxTree.ParseText(source, path: "C:/fixture-repo/csharp/src/SuperMetroid.Core/" + path),
         ];
         var compilation = CSharpCompilation.Create(assembly, trees, AnalyzerTests.References,

@@ -25,7 +25,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
     {
         GunshipLiftoffArtworkCatalog installed = stock.Enemies.GunshipLiftoff ??
             throw new InvalidDataException("Installed enemy art omitted gunship takeoff frames.");
-        GunshipLiftoffTransferDefinitions.TransferSequence transfers =
+        GunshipLiftoffTransferDefinition[] transfers =
             GunshipLiftoffTransferDefinitions.Frames;
         AssertEqual(5, transfers.Length, "gunship has five native takeoff transfers");
         for (int index = 0; index < transfers.Length; index++)

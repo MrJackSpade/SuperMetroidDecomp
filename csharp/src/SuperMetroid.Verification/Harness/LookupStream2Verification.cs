@@ -1654,7 +1654,7 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2GunshipTransfers(ISnesAddressSpace rom)
     {
         var transfers = GunshipLiftoffTransferDefinitions.Frames;
-        AssertEqual(5, transfers.Count, "Gunship calculated transfer count");
+        AssertEqual(5, transfers.Length, "Gunship calculated transfer count");
         var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = InstalledFixtures.EnemyTiles };
         var slot = enemies.SlotTable.Slots[0];
         var part = new GunshipPartState();

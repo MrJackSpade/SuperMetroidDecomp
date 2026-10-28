@@ -52,7 +52,7 @@ public static class EnemySpritemapDocuments
                 throw new InvalidDataException(
                     $"Enemy composition {frame.Name} is missing or exceeds OAM capacity.");
             EnemySpritemapParts parts = BabyMetroidSpriteParts.Compile(frame.Frame,
-                EnemySpritemapCatalog.CompileParts(visual, frame.Name), ref sharedBabyBody);
+                EnemySpritemaps.CompileParts(visual, frame.Name), ref sharedBabyBody);
             parts = ChozoStride.Compile(frame.Frame, parts);
             if (!frames.TryAdd(frame.Frame, parts))
                 throw new InvalidDataException(

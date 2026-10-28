@@ -8,6 +8,7 @@ internal static class EnemyDisplayArtworkClosedContractDefinitions
     [
         new("SuperMetroid.Core.Enemies.Artwork.EnemySpritemapCatalog", "installed-simple-enemy-display-frames", ["TryGetDisplay"],
             [new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemapCatalog.cs"),
+             new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemaps.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/ChozoStrideGeometryDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/ChozoStride.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/BabyMetroidSpriteParts.cs"),
@@ -25,6 +26,7 @@ internal static class EnemyDisplayArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Bosses/Artwork/BossSpriteFrameDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyExtendedFrameCompositions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemapCatalog.cs"),
+             new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemaps.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/ChozoStrideGeometryDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/ChozoStride.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/BabyMetroidSpriteParts.cs"),

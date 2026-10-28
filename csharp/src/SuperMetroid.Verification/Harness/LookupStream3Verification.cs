@@ -2689,7 +2689,7 @@ internal static class LookupStream3Verification
             foreach (var frame in selected)
             {
                 AssertTrue(catalog.TryGet(frame.Bank, frame.Pointer, out var parts), "stream 3 Baby view remains installed");
-                AssertTrue(parts.SequenceEqual(EnemySpritemapCatalog.CompileParts(document.Frames[frame.Name], frame.Name)),
+                AssertTrue(parts.SequenceEqual(EnemySpritemaps.CompileParts(document.Frames[frame.Name], frame.Name)),
                     "stream 3 exact supplied Baby part order and every visual field");
             }
             // The catalog names each frame by its identity (#1402), in identity-name order; every frame here shows itself.
@@ -2698,7 +2698,7 @@ internal static class LookupStream3Verification
                 foreach (var frame in definitions.OrderBy(frame => frame.Frame.ToString(), StringComparer.Ordinal))
                 {
                     content.AppendName("frame", frame.Frame.ToString());
-                    content.AppendEnemyParts(EnemySpritemapCatalog.CompileParts(document.Frames[frame.Name], frame.Name));
+                    content.AppendEnemyParts(EnemySpritemaps.CompileParts(document.Frames[frame.Name], frame.Name));
                 }
                 foreach (var frame in definitions.OrderBy(frame => frame.Frame.ToString(), StringComparer.Ordinal))
                 {
@@ -2743,7 +2743,7 @@ internal static class LookupStream3Verification
             original[upper] = upperPart with { OffsetY = upperPart.OffsetY + 1 };
             original[opposite] = oppositePart with { OffsetY = oppositePart.OffsetY + 1 };
             Check(Load());
-            AssertTrue(parts.SequenceEqual(EnemySpritemapCatalog.CompileParts(
+            AssertTrue(parts.SequenceEqual(EnemySpritemaps.CompileParts(
                 original.Select((value, index) => index == upper ? upperPart : index == opposite ? oppositePart : value).ToArray(), frame.Name)),
                 "previous Baby component remains immutable after a symmetric supplied edit");
             original[upper] = upperPart;

@@ -170,7 +170,7 @@ internal sealed class PhantoonCombat
             // A0:9BE6..9BF6 excludes bombs and every family at/above beam
             // explosions. Lingering missile explosions must not reach shot AI.
             if (family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb or
-                >= SamusProjectileFamily.BeamExplosion)
+                SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion)
                 continue;
 
             if (!body.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))

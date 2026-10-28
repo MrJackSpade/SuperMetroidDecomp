@@ -8,7 +8,7 @@ internal static class SamusHudInput
     /// <summary>DD8C preserves charge in morph/unmorph art unless active Grapple is being cancelled.</summary>
     public static bool PostureTransitionAdmitsWeapons(SamusPoseId pose, bool grappleActive, SamusOverreadCatalog? overreads)
     {
-        if (pose >= SamusHudDefinitions.StandardTransitionStart)
+        if (!SamusPoseNumbering.Precedes(pose, SamusHudDefinitions.StandardTransitionStart))
             return true;
         if (!SamusPoseNumbering.Precedes(pose, SamusHudDefinitions.NonFiringTransitionStart))
             return false;

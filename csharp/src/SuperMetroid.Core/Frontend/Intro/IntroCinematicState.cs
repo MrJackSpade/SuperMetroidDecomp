@@ -339,12 +339,15 @@ public sealed class IntroCinematicState : IFrontendScreen
     }
 
     /// <summary>
-    /// True until $8B:A66F replaces the initial BG3 card. The setup phases appended to the
-    /// enum precede it in time even though they follow it numerically.
+    /// True until $8B:A66F replaces the initial BG3 card: through the setup phases and the first narration, until
+    /// page one's music is queued.
     /// </summary>
     private bool InitialNarrationCardResident =>
         Phase is IntroCinematicPhase.Initial or IntroCinematicPhase.SetupPageOne or
-        < IntroCinematicPhase.WaitForPageOneMusicQueue;
+            IntroCinematicPhase.WaitForInitialMusicQueue or IntroCinematicPhase.FadeInFirstNarration or
+            IntroCinematicPhase.LastMetroidIsInCaptivity or IntroCinematicPhase.GalaxyIsAtPeace or
+            IntroCinematicPhase.WaitForSecondMusicQueue or IntroCinematicPhase.FourSecondHold or
+            IntroCinematicPhase.FadeOutFirstNarration;
 
     /// <summary>Gets the current opening-cinematic state-machine phase.</summary>
     public IntroCinematicPhase Phase { get; private set; }

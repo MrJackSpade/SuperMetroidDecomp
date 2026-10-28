@@ -195,7 +195,7 @@ internal static class CrocomireBodyVisualsVerification
         // Build cartridge-based OAM and BG2 VRAM references for one selected body frame, at the indexes his room draws him at.
         DrawNativeResult DrawNative(ushort pointer, bool newFrame) =>
             new DrawNativeResult(DrawReferenceExtendedFrame(rom, 0xa4, pointer, new(0x0080, 0x0080),
-                    checked((ushort)indexes.PaletteRow), checked((ushort)indexes.TileBase)),
+                    NativeSpriteGraphicsWords.PaletteBits(indexes.PaletteRow), checked((ushort)indexes.TileBase)),
                 ReadReferenceExtendedBg2Vram(rom, 0xa4, pointer, newFrame));
         // Draw one compiled Crocomire frame through production enemy presentation into fresh OAM and VRAM buffers.
         static DrawNativeResult Draw(InstalledEnemyArtwork art,

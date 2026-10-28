@@ -499,7 +499,7 @@ internal static class EnemySpritemapArtworkVerification
             DrawImportedEnemySpritemap(rom, nativeRoom, new NativeEnemySpritemapDraw
             {
                 Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(0x0040, 0x0080),
-                PaletteBits = checked((ushort)(drawn ?? throw new InvalidOperationException("Verification requires the drawn slot.")).PaletteRow),
+                PaletteBits = NativeSpriteGraphicsWords.PaletteBits((drawn ?? throw new InvalidOperationException("Verification requires the drawn slot.")).PaletteRow),
                 BaseTileIndex = checked((ushort)drawn.TileIndexBase),
             });
             AssertTrue(room.ImageEquals(nativeRoom),
@@ -2940,7 +2940,7 @@ internal static class EnemySpritemapArtworkVerification
             OamBuffer actual = DrawInstalledMotherBrainFrame(
                 stock, frame.Pointer, new(0x0140, 0x00a0));
             var expected = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(0x0040, 0x0090), PaletteBits = indexes.PaletteRow, BaseTileIndex = indexes.TileBase });
+            DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(0x0040, 0x0090), PaletteBits = NativeSpriteGraphicsWords.PaletteBits(indexes.PaletteRow), BaseTileIndex = indexes.TileBase });
             AssertTrue(actual.ImageEquals(expected) &&
                        actual.NextByteOffset == expected.NextByteOffset,
                 $"Mother Brain private draw uses installed {frame.Name} with native OAM");

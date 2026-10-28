@@ -132,7 +132,7 @@ internal static class EnemyExtendedFrameArtworkVerification
                 OamBuffer installed = DrawExtendedForBank(stock, frame.Bank, frame.Pointer, new(x, y), slot => drawn = slot);
                 OamBuffer native = DrawReferenceExtendedFrame(rom,
                     frame.Bank, frame.Pointer, new(x, y),
-                    checked((ushort)(drawn ?? throw new InvalidOperationException("Verification requires the drawn slot.")).PaletteRow),
+                    NativeSpriteGraphicsWords.PaletteBits((drawn ?? throw new InvalidOperationException("Verification requires the drawn slot.")).PaletteRow),
                     checked((ushort)drawn.TileIndexBase));
                 AssertTrue(native.ImageEquals(installed) &&
                            native.NextByteOffset == installed.NextByteOffset,

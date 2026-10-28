@@ -952,7 +952,9 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                          SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Metaree),
                      })
             {
-                OamBuffer native = DrawReferenceBurst(program, bus);
+                EnemyDefinitionId spawner = BurstSpawner(program);
+                OamBuffer native = DrawReferenceBurst(program, bus,
+                    BurstSystem(artwork, spawner).GraphicsSet.DrawIndexes(spawner));
                 OamBuffer installedBurst = DrawBurst(artwork, program,
                     NewEnemyProjectileVisualGuard(bus));
                 AssertTrue(native.NextByteOffset > 0 &&
@@ -975,7 +977,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             return oam;
         }
 
-        static OamBuffer DrawReferenceBurst(ushort program, ISnesAddressSpace source)
+        // The native particles draw with their spawner's graphics word (#1455): its palette row and its set's tile base.
+        static OamBuffer DrawReferenceBurst(ushort program, ISnesAddressSpace source, SpriteGraphics spawner)
         {
             ushort pointer = ReadNativeEnemyProjectileProgramWord(source, unchecked((ushort)(program + 2)));
             var oam = new OamBuffer();
@@ -984,25 +987,26 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             // Initialization offsets X by six; no motion tick precedes this draw.
             foreach (ushort x in new ushort[] { 134, 134, 122, 122 })
                 DrawImportedEnemyProjectileSpritemap(source, oam, pointer, new(x, 96),
-                    0x0e00, originYIsOnScreen: true);
+                    NativeSpriteGraphicsWords.GraphicsWord(spawner), originYIsOnScreen: true);
             return oam;
         }
 
         static OamBuffer DrawBurst(InstalledEnemyArtwork artwork, ushort program,
             ISnesAddressSpace source)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
-            bool skree = program == SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree);
-            // The particles draw from the sheets a set loading their spawner composes from this artwork.
-            SpawnedObjectFixtures.LoadSetDrawing(enemies, skree ? EnemyDefinitionId.Skree : EnemyDefinitionId.Metaree);
+            EnemyDefinitionId spawner = BurstSpawner(program);
+            bool skree = spawner == EnemyDefinitionId.Skree;
+            RoomEnemySystem enemies = BurstSystem(artwork, spawner);
             Action<RoomEnemySlot> spawn = slot => enemies.Projectiles.SpawnMetalParticleBurst(slot,
                 skree ? SuperMetroid.Core.Enemies.Skree.SkreeParticleDefinitions.Burst : SuperMetroid.Core.Enemies.Metaree.MetareeParticleDefinitions.Burst);
             var enemy = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
-                TileIndexBase = 0x0200,
-                PaletteRow = 6,
             };
+            // The spawner holds the tile base and palette row its set gives it, as a room's spawn would.
+            SpriteGraphics graphics = enemies.GraphicsSet.DrawIndexes(spawner);
+            enemy.TileIndexBase = graphics.TileBase;
+            enemy.PaletteRow = graphics.PaletteRow;
             spawn(enemy);
             foreach (RoomEnemyProjectileSlot particle in enemies.Projectiles.EnemyProjectiles
                          .Where(particle => particle.IsActive))
@@ -1014,6 +1018,18 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             oam.BeginFrame();
             enemies.DrawEnemyProjectiles(oam, new(0, 0));
             return oam;
+        }
+
+        static EnemyDefinitionId BurstSpawner(ushort program) =>
+            program == SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree)
+                ? EnemyDefinitionId.Skree : EnemyDefinitionId.Metaree;
+
+        // The particles draw from the sheets a set loading their spawner composes from this artwork.
+        static RoomEnemySystem BurstSystem(InstalledEnemyArtwork artwork, EnemyDefinitionId spawner)
+        {
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
+            SpawnedObjectFixtures.LoadSetDrawing(enemies, spawner);
+            return enemies;
         }
 
         static OamBuffer DrawSharedFrame(InstalledEnemyArtwork artwork,

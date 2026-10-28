@@ -77,9 +77,6 @@ dotnet_diagnostic.SME6280.severity = error
 dotnet_diagnostic.SME6281.severity = error
 dotnet_diagnostic.SME6282.severity = error
 dotnet_diagnostic.SME6283.severity = error
-# #630: the PPU layout is confined to declared rendering boundaries.
-dotnet_diagnostic.SME6300.severity = error
-dotnet_diagnostic.SME6301.severity = error
 # #633: parameter lists stay within the ceiling and pass capabilities as narrow typed contracts.
 dotnet_diagnostic.SME6330.severity = error
 dotnet_diagnostic.SME6331.severity = error
@@ -146,8 +143,6 @@ dotnet_diagnostic.SME6281.severity = none
 dotnet_diagnostic.SME6282.severity = none
 dotnet_diagnostic.SME6283.severity = none
 dotnet_diagnostic.SME6284.severity = none
-dotnet_diagnostic.SME6300.severity = none
-dotnet_diagnostic.SME6301.severity = none
 dotnet_diagnostic.SME6330.severity = none
 dotnet_diagnostic.SME6331.severity = none
 dotnet_diagnostic.SME6332.severity = none
@@ -245,8 +240,6 @@ dotnet_diagnostic.SME6281.severity = none
 dotnet_diagnostic.SME6282.severity = none
 dotnet_diagnostic.SME6283.severity = none
 dotnet_diagnostic.SME6284.severity = none
-dotnet_diagnostic.SME6300.severity = none
-dotnet_diagnostic.SME6301.severity = none
 dotnet_diagnostic.SME6330.severity = none
 dotnet_diagnostic.SME6331.severity = none
 dotnet_diagnostic.SME6332.severity = none

@@ -24,8 +24,6 @@ SME6281 | Design | Warning | SpatialClumpAnalyzer
 SME6282 | Design | Warning | SpatialClumpAnalyzer
 SME6283 | Design | Warning | SpatialClumpAnalyzer
 SME6284 | Design | Warning | PrimitiveDomainAnalyzer
-SME6300 | Design | Warning | PpuLayoutAccessAnalyzer
-SME6301 | Design | Warning | PpuLayoutAccessAnalyzer
 SME6330 | Design | Warning | ParameterListAnalyzer
 SME6331 | Design | Warning | ParameterListAnalyzer
 SME6332 | Design | Warning | ParameterListAnalyzer

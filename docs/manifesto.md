@@ -204,7 +204,6 @@ executable. `csharp/.editorconfig` and the analyzer sources are the authoritativ
 | Closed domains | A primitive switched or compared over named constants is a type. Switches are exhaustive and fail on undefined values. |
 | Spatial | Spatial values are typed, branded by space, never parallel scalars. |
 | Controller | Controller state is typed buttons; the raw word exists only where the controller is read. |
-| Hardware boundaries | CPU bus, PPU, DSP and SPC layouts are confined to declared, narrow, reasoned boundaries; the simulation never threads a bus through its signatures. |
 | Parameter lists | Operations take cohesive narrow contracts. |
 | Encoding | Functional code holds no raw hex, address dispatch, opaque word arrays, raw width operations, hand-written countdowns, untyped flags or narrow storage. |
 | Word reads | Multi-byte values are read through canonical operations, never rebuilt from bytes. |

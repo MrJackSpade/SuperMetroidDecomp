@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 
 namespace SuperMetroid.Verification.Fx;
@@ -35,7 +36,7 @@ internal static class LookupLiquidTilemapsVerification
         {
             int source = 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(type));
             byte[] transfer = RoomFxLiquidTilemapDefinitions.ComposePage(type);
-            ReadOnlySpan<byte> installed = catalog.Resolve(type).Span;
+            ReadOnlySpan<byte> installed = catalog.ResolveBytes(type);
             AssertEqual(0x840, transfer.Length, "Calculated full native transfer length");
             AssertEqual(0x840, installed.Length, "Installed full native transfer length");
             for (int index = 0; index < 1056; index++)
@@ -50,7 +51,7 @@ internal static class LookupLiquidTilemapsVerification
         }
     }
 
-    /// <summary>Rejects unknown liquid identities and partial pages, and confirms stock pages are computed without caching raw bytes.</summary>
+    /// <summary>Rejects unknown liquid identities and partial pages, and confirms the stock pages are the cartridge's pages.</summary>
     private static void VerifyLiquidTilemapDomainAndStorage(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {
         var valid = new HashSet<RoomFxType> { RoomFxType.Lava, RoomFxType.Acid, RoomFxType.Water };
@@ -80,27 +81,7 @@ internal static class LookupLiquidTilemapsVerification
             foreach (int invalid in new[] { int.MinValue, -1, 1056, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => RoomFxLiquidTilemapDefinitions.Cell(type, invalid),
                     "Calculated cell rejects outside full33-row domain");
-            byte[]? StoredPage() => type switch
-            {
-                RoomFxType.Lava => stock.lava,
-                RoomFxType.Acid => stock.acid,
-                RoomFxType.Water => stock.water,
-                RoomFxType.None or
-                    RoomFxType.Spores or
-                    RoomFxType.Rain or
-                    RoomFxType.Fog or
-                    RoomFxType.ScrollingSky or
-                    RoomFxType.UnusedScrollingSky or
-                    RoomFxType.Fireflea or
-                    RoomFxType.TourianEntranceStatue or
-                    RoomFxType.CeresRidley or
-                    RoomFxType.CeresElevator or
-                    RoomFxType.CeresHaze => throw new ArgumentOutOfRangeException(nameof(type), type, "Only three liquid identities have stock pages."),
-                _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Only three liquid identities have stock pages."),
-            };
-            AssertTrue(StoredPage() is null, "Stock catalog retains no liquid page bytes");
-            _ = stock.Resolve(type);
-            AssertTrue(StoredPage() is null, "Transfer does not create a cached page");
+            AssertTrue(original.AsSpan().SequenceEqual(stock.ResolveBytes(type)), "The stock catalog's page is the cartridge's page");
         }
     }
 

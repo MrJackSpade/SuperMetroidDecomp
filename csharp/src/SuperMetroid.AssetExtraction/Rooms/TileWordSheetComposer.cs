@@ -368,14 +368,8 @@ internal static class TileWordSheetComposer
         return Rows([.. words]);
     }
 
-    /// <summary>A room effect's page, as its little-endian words lay it out.</summary>
-    private static BodyPart Page(ReadOnlySpan<byte> page)
-    {
-        var words = new ushort[page.Length / sizeof(ushort)];
-        for (int word = 0; word < words.Length; word++)
-            words[word] = LittleEndianBytes.Word(page[word * 2], page[word * 2 + 1]);
-        return Rows(words);
-    }
+    /// <summary>A room effect's page, as the tilemap words of its tiles lay it out.</summary>
+    private static BodyPart Page(ReadOnlySpan<BackgroundTile> page) => Rows(BackgroundTileWords.ToWords(page));
 
     /// <summary>Each frame of a catalog: its writes, at the tilemap words they write.</summary>
     private static IEnumerable<NamedPart> FrameParts(EnemyBg2FrameCatalog catalog) =>

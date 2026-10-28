@@ -87,7 +87,7 @@ internal static class RoomFxLayer3TilemapsVerification
             edited.RoomFxLayer3Tilemaps, edited.RoomFxPaletteBlends,
             out CartridgeReadGuard guarded);
         ushort editedWord = BitConverter.ToUInt16(
-            edited.RoomFxLayer3Tilemaps.Resolve(RoomFxType.Lava).Span[..sizeof(ushort)]);
+            edited.RoomFxLayer3Tilemaps.ResolveBytes(RoomFxType.Lava).AsSpan(0, sizeof(ushort)));
         AssertEqual(editedWord, plane.Words[Layer3Plane.EffectPageFirstRow * Layer3Plane.Columns],
             "edited lava tile cell reaches the room's BG3 plane");
         AssertEqual(0, guarded.ForbiddenReadAttempts,

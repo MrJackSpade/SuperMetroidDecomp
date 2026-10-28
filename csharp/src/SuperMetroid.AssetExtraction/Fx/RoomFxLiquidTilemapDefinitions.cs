@@ -1,7 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using System.Buffers.Binary;
 
-namespace SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Calculated stock liquid BG3 layouts at $8A:8000,8840,9080.</summary>
 public static class RoomFxLiquidTilemapDefinitions

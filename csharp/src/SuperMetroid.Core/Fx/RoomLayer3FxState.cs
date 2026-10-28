@@ -1,4 +1,3 @@
-using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Fx.Artwork;
@@ -38,21 +37,10 @@ public sealed class RoomLayer3FxState
     /// <summary>The effect whose authored page the room's BG3 plane shows, chosen when the room loaded; null when it shows none.</summary>
     public RoomFxType? EffectPageType { get; private set; }
 
-    /// <summary>The tiles of the page the room's BG3 plane shows (#1348), decoded from its words while the room effects' pages still hold words; empty when it shows none.</summary>
-    public SuperMetroid.Core.Assets.BackgroundTile[] EffectPageTiles() => SuperMetroid.Core.Assets.BackgroundTileWords.ToTiles(EffectPageWords());
-
-    /// <summary>The words of the page the room's BG3 plane shows (#1348); empty when it shows none.</summary>
-    public ushort[] EffectPageWords()
-    {
-        if (EffectPageType is not { } type)
-            return [];
-        ReadOnlySpan<byte> page = (Layer3Tilemaps ?? throw new InvalidOperationException(
-            "A room effect's page requires installed layer-3 tilemaps.")).Resolve(type).Span;
-        var words = new ushort[page.Length / sizeof(ushort)];
-        for (int word = 0; word < words.Length; word++)
-            words[word] = BinaryPrimitives.ReadUInt16LittleEndian(page[(word * sizeof(ushort))..]);
-        return words;
-    }
+    /// <summary>The tiles of the page the room's BG3 plane shows (#1348); empty when it shows none.</summary>
+    public BackgroundTile[] EffectPageTiles() => EffectPageType is { } type
+        ? (Layer3Tilemaps ?? throw new InvalidOperationException("A room effect's page requires installed layer-3 tilemaps.")).Resolve(type).ToArray()
+        : [];
 
     /// <summary>Current host-owned room-FX blend colors; never stored in debugger state.</summary>
     public RoomFxPaletteBlendCatalog? PaletteBlendColors => _session.PaletteBlendColors;

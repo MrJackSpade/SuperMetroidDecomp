@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-using System.Buffers.Binary;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
@@ -7,29 +5,18 @@ using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Core.Fx.Artwork;
 
-/// <summary>Editable BG3 tile references for the six cartridge room-FX pages.</summary>
+/// <summary>Editable BG3 tiles for the six room-FX pages, as their installed document places them.</summary>
 public sealed class RoomFxLayer3TilemapCatalog
 {
-    /// <summary>Edited liquid transfer bytes; null selects the stock layout formula for that effect.</summary>
-    internal readonly byte[]? lava, acid, water;
-    /// <summary>Compressed representation of the authored spore page.</summary>
-    internal readonly RoomFxSporeTilemap spores;
-    /// <summary>Representations of the rain and fog atmosphere pages.</summary>
-    internal readonly RoomFxAtmosphereTilemap rain, fog;
+    /// <summary>Each authored page's tiles, row-major, by the effect that shows it.</summary>
+    private readonly Dictionary<RoomFxType, BackgroundTile[]> pages;
 
-    /// <summary>Retains edited liquid payloads while replacing exact stock pages with their calculated forms.</summary>
-    private RoomFxLayer3TilemapCatalog(byte[] lava, byte[] acid, byte[] water,
-        byte[] spores, byte[] rain, byte[] fog)
-    {
-        this.lava = RoomFxLiquidTilemapDefinitions.Matches(RoomFxType.Lava, lava) ? null : lava;
-        this.acid = RoomFxLiquidTilemapDefinitions.Matches(RoomFxType.Acid, acid) ? null : acid;
-        this.water = RoomFxLiquidTilemapDefinitions.Matches(RoomFxType.Water, water) ? null : water;
-        this.spores = new RoomFxSporeTilemap(spores);
-        this.rain = new RoomFxAtmosphereTilemap(RoomFxType.Rain, rain);
-        this.fog = new RoomFxAtmosphereTilemap(RoomFxType.Fog, fog);
-    }
+    /// <summary>Keeps every authored page.</summary>
+    private RoomFxLayer3TilemapCatalog(Dictionary<RoomFxType, BackgroundTile[]> pages) => this.pages = pages;
 
-    /// <summary>Compiles named 32x33 pages to the original ordered VRAM transfer words.</summary>
+    /// <summary>Validates the six named pages and places every cell's tile.</summary>
+    /// <param name="json">The document stream, read from its current position.</param>
+    /// <exception cref="InvalidDataException">The version, a page or a cell is invalid.</exception>
     public static RoomFxLayer3TilemapCatalog Load(Stream json)
     {
         Ensure.NotNull(json);
@@ -41,16 +28,15 @@ public sealed class RoomFxLayer3TilemapCatalog
             throw new InvalidDataException(
                 "Room-FX BG3 tilemaps require the supported version and six named pages.");
 
-        return new(Compile(RoomFxType.Lava), Compile(RoomFxType.Acid), Compile(RoomFxType.Water),
-            Compile(RoomFxType.Spores), Compile(RoomFxType.Rain), Compile(RoomFxType.Fog));
+        return new(RoomFxLayer3TilemapFormat.Types.ToDictionary(type => type, Compile));
 
-        byte[] Compile(RoomFxType type)
+        BackgroundTile[] Compile(RoomFxType type)
         {
             if (!document.Pages.TryGetValue(type.ToString(), out RoomBackgroundTilemapCell[]? cells) ||
                 cells is null || cells.Length != RoomFxLayer3TilemapFormat.CellsPerPage)
                 throw new InvalidDataException(
                     $"Room-FX BG3 {type} must contain {RoomFxLayer3TilemapFormat.CellsPerPage} cells.");
-            var bytes = new byte[RoomFxLayer3TilemapFormat.PageByteCount];
+            var tiles = new BackgroundTile[RoomFxLayer3TilemapFormat.CellsPerPage];
             for (int cell = 0; cell < cells.Length; cell++)
             {
                 RoomBackgroundTilemapCell? value = cells[cell];
@@ -60,19 +46,17 @@ public sealed class RoomFxLayer3TilemapCatalog
                     (uint)value.Palette >= RoomBackgroundTilemapFormat.PaletteCount)
                     throw new InvalidDataException(
                         $"Room-FX BG3 {type} cell {cell} has an invalid tile or palette.");
-                TileFlip flips =
-                    (value.FlipX ? TileFlip.Horizontal : 0) |
-                    (value.FlipY ? TileFlip.Vertical : 0);
-                int word = SnesBgTilemapWord.Create(
-                    value.TileRow * RoomBackgroundTilemapFormat.TileColumns + value.TileColumn,
-                    value.Palette, value.Priority, flips).Raw;
-                BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(cell * sizeof(ushort)), checked((ushort)word));
+                tiles[cell] = new BackgroundTile(value.TileRow * RoomBackgroundTilemapFormat.TileColumns + value.TileColumn,
+                    value.Palette, value.FlipX, value.FlipY, value.Priority);
             }
-            return bytes;
+            return tiles;
         }
     }
 
-    /// <summary>Validates and writes a complete editable tilemap document.</summary>
+    /// <summary>Validates a document by loading it, then writes it as indented camel-case JSON.</summary>
+    /// <param name="json">The destination stream.</param>
+    /// <param name="document">The six named pages.</param>
+    /// <exception cref="InvalidDataException">The document fails validation.</exception>
     public static void Write(Stream json, RoomFxLayer3TilemapDocument document)
     {
         Ensure.NotNull(json);
@@ -81,21 +65,12 @@ public sealed class RoomFxLayer3TilemapCatalog
         json.Write(bytes);
     }
 
-    /// <summary>
-    /// Selects one of the six named editable 33-row resources directly. The six
-    /// even identities $02..0C match the original $83:ABF2..ABFC page dispatch;
-    /// Arbitrary edited payloads are compiled from the supplied document. Exact
-    /// stock liquid pages use their layout formulas and retain no generated cache.
-    /// The statue effect aliases the water page; other ushort types are rejected.
-    /// </summary>
-    public ReadOnlyMemory<byte> Resolve(RoomFxType type) => type switch
+    /// <summary>The tiles of the page <paramref name="type"/> shows; the Tourian entrance statue room shows water's.</summary>
+    /// <exception cref="InvalidDataException">The effect shows no authored page.</exception>
+    public ReadOnlyMemory<BackgroundTile> Resolve(RoomFxType type) => type switch
     {
-        RoomFxType.Lava => lava ?? RoomFxLiquidTilemapDefinitions.ComposePage(type),
-        RoomFxType.Acid => acid ?? RoomFxLiquidTilemapDefinitions.ComposePage(type),
-        RoomFxType.Water or RoomFxType.TourianEntranceStatue => water ?? RoomFxLiquidTilemapDefinitions.ComposePage(RoomFxType.Water),
-        RoomFxType.Spores => spores.ComposePage(),
-        RoomFxType.Rain => rain.ComposePage(),
-        RoomFxType.Fog => fog.ComposePage(),
+        RoomFxType.Lava or RoomFxType.Acid or RoomFxType.Water or RoomFxType.Spores or RoomFxType.Rain or RoomFxType.Fog => pages[type],
+        RoomFxType.TourianEntranceStatue => pages[RoomFxType.Water],
         RoomFxType.None or
             RoomFxType.ScrollingSky or
             RoomFxType.UnusedScrollingSky or
@@ -106,7 +81,7 @@ public sealed class RoomFxLayer3TilemapCatalog
         _ => throw new InvalidDataException($"Room-FX BG3 tilemap {type} is not an authored page."),
     };
 
-    /// <summary>Uses camel-case editable fields, rejects unknown properties, and writes readable page documents.</summary>
+    /// <summary>Strict camel-case settings that reject unknown or duplicate page properties.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

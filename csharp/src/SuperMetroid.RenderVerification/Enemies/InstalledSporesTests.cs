@@ -101,8 +101,7 @@ internal static class InstalledSporesTests
             Require(baseline.LayerBlendConfiguration == LayerBlendingConfiguration.Spores,
                 "A compiled spores record selects incompatible blending.");
             // Since #1348 the room's BG3 plane shows the effect's page directly instead of a copy written into VRAM.
-            Require(baseline.EffectPageType == RoomFxType.Spores && baseline.EffectPageWords()
-                    .SelectMany(word => new[] { (byte)word, (byte)(word >> 8) })
+            Require(baseline.EffectPageType == RoomFxType.Spores && baseline.EffectPageTiles()
                     .SequenceEqual(stock.RoomFxLayer3Tilemaps.Resolve(RoomFxType.Spores).ToArray()),
                 "The spores room does not show the installed spores BG3 page.");
             int tick = 0;

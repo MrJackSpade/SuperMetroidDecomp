@@ -43,7 +43,7 @@ internal static class LookupFxTilemapDispatchVerification
                 if (type is RoomFxType.Rain or RoomFxType.Fog)
                 {
                     int preservedMask = type == RoomFxType.Rain ? 0xe3ff : 0xc3ff;
-                    ReadOnlySpan<byte> compiled = stock.Resolve(type).Span;
+                    ReadOnlySpan<byte> compiled = stock.ResolveBytes(type);
                     for (int offset = 0; offset < expected.Length; offset += 2)
                         AssertEqual(BinaryPrimitives.ReadUInt16LittleEndian(expected.AsSpan(offset)) & preservedMask,
                             BinaryPrimitives.ReadUInt16LittleEndian(compiled[offset..]) & preservedMask,
@@ -51,13 +51,13 @@ internal static class LookupFxTilemapDispatchVerification
                 }
                 if (type == RoomFxType.Spores)
                 {
-                    ReadOnlySpan<byte> compiled = stock.Resolve(type).Span;
+                    ReadOnlySpan<byte> compiled = stock.ResolveBytes(type);
                     for (int offset = 0; offset < expected.Length; offset += 2)
                         AssertEqual(BinaryPrimitives.ReadUInt16LittleEndian(expected.AsSpan(offset)) & 0x3ff,
                             BinaryPrimitives.ReadUInt16LittleEndian(compiled[offset..]) & 0x3ff,
                             "Retained spore character composition matches original");
                 }
-                ReadOnlySpan<byte> actual = edited.Resolve(type).Span;
+                ReadOnlySpan<byte> actual = edited.ResolveBytes(type);
                 AssertEqual(expected.Length, actual.Length, "Edited page retains full transfer length");
                 for (int offset = 0; offset < actual.Length; offset += 2)
                     AssertEqual(markers[type], BinaryPrimitives.ReadUInt16LittleEndian(actual[offset..]),

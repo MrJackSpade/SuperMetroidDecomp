@@ -5,6 +5,8 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Fx;
 
@@ -27,7 +29,7 @@ internal static class LookupSporeTilemapVerification
     /// <summary>Checks both compiled and installed attribute words against the selected retail bit mask.</summary>
     private static void VerifySporeTileAttribute(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock, int mask)
     {
-        ReadOnlySpan<byte> installed = stock.Resolve(RoomFxType.Spores).Span;
+        ReadOnlySpan<byte> installed = stock.ResolveBytes(RoomFxType.Spores);
         AssertEqual(0x840, installed.Length, "Full original spore transfer length");
         for (int index = 0; index < 1056; index++)
         {
@@ -38,32 +40,27 @@ internal static class LookupSporeTilemapVerification
         }
     }
 
-    /// <summary>Confirms stock values stay computed while each edited cell survives an owned transfer.</summary>
+    /// <summary>Confirms the stock page is the cartridge's page and an edit at every cell survives a reload.</summary>
     private static void VerifySporeAttributeStorageAndEdits(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {
-        object page = stock.spores;
-        AssertTrue(((RoomFxSporeTilemap)page).customAttributes is null, "Stock spore attributes are not stored");
-        _ = stock.Resolve(RoomFxType.Spores);
-        AssertTrue(((RoomFxSporeTilemap)page).customAttributes is null, "Resolving spores does not cache attributes");
-
         var original = new byte[0x840];
         for (int offset = 0; offset < original.Length; offset++) original[offset] = SporeAttributeStorageAndEditsRomByte(rom, 0x8a98c0 + offset);
+        AssertTrue(original.AsSpan().SequenceEqual(stock.ResolveBytes(RoomFxType.Spores)), "The stock spore page is the cartridge's page");
+        byte[] changed = original.ToArray();
         for (int index = 0; index < 1056; index++)
         {
-            byte[] changed = original.ToArray();
             byte bit = (index % 4) switch { 0 => 4, 1 => 32, 2 => 64, _ => 128 };
             changed[index * 2 + 1] ^= bit;
-            var custom = new RoomFxSporeTilemap(changed);
-            byte[] transfer = custom.ComposePage();
-            AssertTrue(changed.SequenceEqual(transfer), "An attribute edit at every cell survives exactly");
-            Array.Clear(changed);
-            AssertTrue(transfer.SequenceEqual(custom.ComposePage()), "Page owns custom values independently of input");
         }
+        RoomFxLayer3TilemapCatalog edited = RoomFxLayer3TilemapFixtures.WithPage(stock, RoomFxType.Spores, BackgroundTileWordBytes.Tiles(changed));
+        AssertTrue(changed.AsSpan().SequenceEqual(edited.ResolveBytes(RoomFxType.Spores)), "An attribute edit at every cell survives exactly");
+        AssertTrue(original.AsSpan().SequenceEqual(stock.ResolveBytes(RoomFxType.Spores)), "An edited catalog leaves the stock catalog's page");
         foreach (int index in new[] { int.MinValue, -1, 1056, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => RoomFxSporeTilemapDefinitions.Attributes(index),
                 "Attribute function preserves its exact cell domain");
-        foreach (int length in new[] { 0, 1, 0x83f, 0x841 })
-            AssertThrows<ArgumentException>(() => new RoomFxSporeTilemap(new byte[length]), "Incomplete spore page rejects");
+        foreach (int length in new[] { 0, 1, 1055, 1057 })
+            AssertThrows<InvalidDataException>(() => RoomFxLayer3TilemapFixtures.WithPage(stock, RoomFxType.Spores, new BackgroundTile[length]),
+                "Incomplete spore page rejects");
     }
 
     /// <summary>Reads a retail tilemap byte when constructing the independent edit source.</summary>

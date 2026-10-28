@@ -64,7 +64,7 @@ internal static class Layer3PlaneVerification
         for (int index = 0; index < hudRows.Length; index++)
             hudRows[index] = (ushort)(0x2000 + index);
         Layer3Plane plane = Layer3Plane.Compose(BackgroundTileWordBytes.Tiles(hudRows), water.EffectPageTiles());
-        ReadOnlySpan<byte> page = presentation.RoomFxLayer3Tilemaps.Resolve(RoomFxType.Water).Span;
+        ReadOnlySpan<byte> page = presentation.RoomFxLayer3Tilemaps.ResolveBytes(RoomFxType.Water);
         for (int row = Layer3Plane.HudRows; row < Layer3Plane.Rows; row++)
         for (int column = 0; column < Layer3Plane.Columns; column++)
         {

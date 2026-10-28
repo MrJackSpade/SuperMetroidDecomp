@@ -1,5 +1,7 @@
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.Artwork;
 
-namespace SuperMetroid.Core.Fx.Artwork;
+namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Independently regular fields of rain $8A:A100 and fog $8A:A940.</summary>
 public static class RoomFxAtmosphereTilemapDefinitions

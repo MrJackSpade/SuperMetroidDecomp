@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Frontend.Map.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Defines every named map-screen sprite composition.</summary>
 public sealed record MapSpriteDocument

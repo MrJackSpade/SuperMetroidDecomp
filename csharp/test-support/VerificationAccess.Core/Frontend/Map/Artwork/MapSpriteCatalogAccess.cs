@@ -7,7 +7,7 @@ internal static class MapSpriteCatalogAccess
 {
     /// <summary>Accesses a compiled world-map label through the catalog's private selector.</summary>
     private static WorldMapLabelComposition? WorldLabel(MapSpriteCompositions catalog, MapSpriteId id) =>
-        catalog.GetWorldLabel(id);
+        MapSpriteArtwork.Of(catalog).GetWorldLabel(id);
 
     /// <summary>Inspects authored compositions and sparse map-object pixel storage.</summary>
     extension(MapSpriteCompositions self)
@@ -15,7 +15,7 @@ internal static class MapSpriteCatalogAccess
         /// <summary>Checks whether a world label has authored parts or a non-label has an installed frame.</summary>
         internal bool StoresComposition(MapSpriteId id) => WorldLabel(self, id) is { } label
             ? label.authored is not null
-            : self.GetFrame(id) is not null;
+            : MapSpriteArtwork.Of(self).GetFrame(id) is not null;
 
         /// <summary>Stored horizontal advances: the label origin(s) plus each authored letter advance.</summary>
         internal int StoredLabelHorizontalCount(MapSpriteId id)

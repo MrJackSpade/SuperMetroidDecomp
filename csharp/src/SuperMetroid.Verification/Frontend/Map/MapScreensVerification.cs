@@ -154,7 +154,7 @@ internal static class MapScreensVerification
 
         static FileSelectAreaMapGraphics World(ISnesAddressSpace addressSpace, AreaMapPresentation catalog, int area) =>
             new(area, catalog.Tiles, catalog.Palettes, catalog.Screens,
-                catalog.WorldArtwork, catalog.Sprites, MenuSheetFixtures.For(catalog));
+                catalog.WorldArtwork, MenuSheetFixtures.For(catalog));
     }
 
     /// <summary>Runs file-select transition and load phases with edited screens, then restores and rebinds the menu to stock art.</summary>

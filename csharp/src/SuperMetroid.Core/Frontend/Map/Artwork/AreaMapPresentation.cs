@@ -111,7 +111,7 @@ public sealed class AreaMapPresentation : IInstalledArtworkContent, IGameplayPre
     public MapScreenPresentation Screens { get; }
     /// <summary>Selected foreground and background PNG artwork for the world-map screen.</summary>
     public WorldMapArtwork WorldArtwork { get; }
-    /// <summary>Selected map sprite shapes and indexed PNG artwork used to draw map icons.</summary>
+    /// <summary>The installed map and menu sprites; the game draws them from the map sprite sheet, and their compositions belong to the import pipeline (#1463).</summary>
     public MapSpriteCompositions Sprites { get; }
     /// <summary>Selected pause-menu character atlas, separate from map-screen characters in <see cref="Tiles"/>.</summary>
     public MapTileAtlas PauseTiles { get; }

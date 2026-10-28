@@ -1,6 +1,6 @@
 using System.Collections.Frozen;
 
-namespace SuperMetroid.Core.Frontend.Map.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Map-object cell runs in the menu atlas and the marker cells drawn by calculation (<see cref="MapMarkerCell"/>).</summary>
 internal static class MapMarkerCellDefinitions

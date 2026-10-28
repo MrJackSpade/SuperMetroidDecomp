@@ -131,7 +131,7 @@ internal static class FileSelectMapWindowVerification
         int[] indices = [86, 107, 102, 81, 97, 118];
         int[] activeColors = [0x01db, 0x0bb1, 0x0013, 0x7fe0, 0x6400, 0x6417];
         var maps = RetailPresentationFixture();
-        var graphics = new FileSelectAreaMapGraphics(0, maps.Tiles, maps.Palettes, maps.Screens, maps.WorldArtwork, maps.Sprites, MenuSheetFixtures.For(maps));
+        var graphics = new FileSelectAreaMapGraphics(0, maps.Tiles, maps.Palettes, maps.Screens, maps.WorldArtwork, MenuSheetFixtures.For(maps));
         graphics.BindLabels(maps.Labels);
         for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
         {

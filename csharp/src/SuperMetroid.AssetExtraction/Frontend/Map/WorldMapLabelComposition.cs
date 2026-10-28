@@ -1,7 +1,10 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Menus.Artwork;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.Map.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>
 /// World-area lettering at82:CC6B..CD66. Tiles use the contiguous alphabet6A+(letter-'A'),

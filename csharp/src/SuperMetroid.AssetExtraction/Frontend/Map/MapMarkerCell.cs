@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Map.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>The menu atlas cells of the regular map markers (bank $82:C232..C262, C298, C38C..C3A8, CF7C..CFE0).</summary>
 internal enum MapMarkerCell

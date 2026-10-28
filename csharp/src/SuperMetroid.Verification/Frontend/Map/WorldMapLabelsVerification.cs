@@ -24,9 +24,9 @@ internal static class WorldMapLabelsVerification
         var guard = NewWorldLabelReadGuard(bus);
         ushort[] used = Enumerable.Repeat(ushort.MaxValue, FileSelectMapDefinitions.AreaCount).ToArray();
         var native = new FileSelectAreaMapGraphics(0, original.Tiles,
-            original.Palettes, original.Screens, original.WorldArtwork, original.Sprites, MenuSheetFixtures.For(original));
+            original.Palettes, original.Screens, original.WorldArtwork, MenuSheetFixtures.For(original));
         var installed = new FileSelectAreaMapGraphics(0, original.Tiles,
-            original.Palettes, original.Screens, original.WorldArtwork, original.Sprites, MenuSheetFixtures.For(original));
+            original.Palettes, original.Screens, original.WorldArtwork, MenuSheetFixtures.For(original));
         native.BindLabels(original.Labels);
         installed.BindLabels(original.Labels);
         for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)

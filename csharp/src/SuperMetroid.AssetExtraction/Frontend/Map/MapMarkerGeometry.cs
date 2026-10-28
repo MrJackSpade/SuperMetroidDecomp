@@ -1,7 +1,9 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Menus.Artwork;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.Map.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>
 /// Regular map marker compositions from bank82:C232..C262,C298,C38C..C3A8,CF7C..CFE0.

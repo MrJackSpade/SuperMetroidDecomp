@@ -123,9 +123,9 @@ internal static class CoreAccess
         /// <summary>Map-space scroll point currently displayed by the pause menu.</summary>
         internal Position16<MapPixels> MapScroll => pause.MapScrollPosition;
 
-        /// <summary>Reads the displayed BG1 map tile word of the pause screen.</summary>
+        /// <summary>Reads the displayed BG1 map tile of the pause screen as the area-map cell word it was placed from.</summary>
         internal MapTileWord ReadDisplayedMapTile(Position16<MapTiles> cell) =>
-            new(pause.screen.Tilemaps.Bg1[AreaMapLayout.GetTilemapWordIndex(cell)]);
+            new(BackgroundTileWords.ToWord(pause.screen.Tilemaps.Bg1[AreaMapLayout.GetTilemapWordIndex(cell)]));
     }
 
     /// <summary>Reads the shooting-star array in its native update order.</summary>

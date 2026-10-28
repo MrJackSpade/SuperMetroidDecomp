@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -71,6 +72,21 @@ internal static class OamBufferAccess
                     baseTileIndex, clipVerticalWrap, originYIsOnScreen);
         }
 
+        /// <summary>Draws installed enemy parts, encoded back to their spritemap records, as the native writer does.</summary>
+        public void AddEnemySpritemap(
+            ReadOnlySpan<SpritePart> parts,
+            Position16<SpritePixels> origin,
+            ushort paletteBits,
+            ushort baseTileIndex,
+            bool clipVerticalWrap = false,
+            bool originYIsOnScreen = true)
+        {
+            _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
+            foreach (SpritePart part in parts)
+                self.AppendEnemySpritemapPart(SpritemapPart.From(part), origin, paletteBits,
+                    baseTileIndex, clipVerticalWrap, originYIsOnScreen);
+        }
+
         /// <summary>Appends an installed enemy composition in its original drawing order, as the native writer does.</summary>
         [PpuLayoutBoundary("exact hardware test: native OAM oracle for enemy compositions")]
         public void AddEnemySpritemap(EnemySpritemapParts parts,
@@ -80,7 +96,7 @@ internal static class OamBufferAccess
             Ensure.NotNull(parts);
             _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
             for (int index = 0; index < parts.Count; index++)
-                self.AppendEnemySpritemapPart(parts[index], origin, paletteBits,
+                self.AppendEnemySpritemapPart(SpritemapPart.From(parts[index]), origin, paletteBits,
                     baseTileIndex, clipVerticalWrap, originYIsOnScreen);
         }
 

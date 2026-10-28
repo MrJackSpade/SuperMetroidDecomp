@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Samus.Artwork;
@@ -18,7 +19,7 @@ internal static class ProjectileSpriteCatalogAccess
             if (!self.frames.TryGetValue(id, out var parts)) throw new InvalidDataException($"Missing projectile sprite {id.Name}.");
             for (int index = 0; index < parts.PartCount; index++)
             {
-                var part = parts.Part(index);
+                SpritemapPart part = SpritemapPart.From(parts.Part(index).Part);
                 oam.AddProjectileSpritePart(part.X, part.Y.Raw, part.Attributes, origin);
             }
         }

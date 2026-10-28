@@ -1,6 +1,7 @@
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Enemies.Drawing;
 
@@ -27,7 +28,8 @@ internal static class EnemyPartComposition
         if (!spritemaps.TryGetDisplay(draw.Frame, out EnemySpritemapParts installed))
             throw new InvalidDataException($"Enemy frame {draw.Frame} requires an installed display composition.");
         ushort paletteBits = checked((ushort)draw.PaletteBits);
-        return Parts(objects, source, EnemySpriteFrames.Frame(installed, checked((ushort)draw.BaseTileIndex), paletteBits),
+        return Parts(objects, source,
+            EnemySpriteFrames.Frame(installed, checked((ushort)draw.BaseTileIndex), SnesObjAttributeWord.FromPaletteBits(paletteBits).PaletteIndex),
             new Position16<ScreenPixels>(draw.Origin.X, draw.Origin.Y), paletteBits);
     }
 

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -17,8 +18,11 @@ internal static class SpriteCompositionAccess
         {
             _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
             foreach (var part in self.parts)
-                oam.AddOnScreenSpritePart(part.X, part.Y,
-                    part.InheritPalette ? part.Attributes.WithPaletteBits(paletteBits) : part.Attributes, origin);
+            {
+                SpritemapPart encoded = SpritemapPart.From(part.Part);
+                oam.AddOnScreenSpritePart(encoded.X, encoded.Y,
+                    part.InheritPalette ? encoded.Attributes.WithPaletteBits(paletteBits) : encoded.Attributes, origin);
+            }
         }
         /// <summary>Preserves the cartridge's opposite Y-wrap clipping for negative origins.</summary>
         [PpuLayoutBoundary("frontend OAM writer: SpriteComposition.DrawOffScreen until #1358 moves it onto sprite entries")]
@@ -26,9 +30,12 @@ internal static class SpriteCompositionAccess
         {
             _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
             foreach (var part in self.parts)
-                oam.AddOffScreenSpritePart(part.X, part.Y,
-                    part.InheritPalette ? part.Attributes.WithPaletteBits(paletteBits) : part.Attributes,
+            {
+                SpritemapPart encoded = SpritemapPart.From(part.Part);
+                oam.AddOffScreenSpritePart(encoded.X, encoded.Y,
+                    part.InheritPalette ? encoded.Attributes.WithPaletteBits(paletteBits) : encoded.Attributes,
                     origin);
+            }
         }
     }
 }

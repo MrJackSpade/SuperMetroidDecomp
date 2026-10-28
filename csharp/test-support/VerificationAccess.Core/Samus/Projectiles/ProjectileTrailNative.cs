@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Samus.Artwork;
@@ -99,7 +100,9 @@ internal static class ProjectileTrailNative
 
     /// <summary>The cartridge's retained tile word for a side's shown pose: the pose's stock appearance, or zero once cleared.</summary>
     internal static ushort NativeWord(ProjectileTrailFrame? shownPose) =>
-        shownPose is { } pose ? SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Projectiles.Trails.Resolve(pose) : (ushort)0;
+        shownPose is { } pose
+            ? SnesObjAttributeWord.From(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Projectiles.Trails.Resolve(pose)).Raw
+            : (ushort)0;
 
     /// <summary>
     /// The shown pose a retained tile word stands for: none for the cleared word, otherwise the first pose whose stock

@@ -278,11 +278,9 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                     return;
                 }
 
-                // The rising half reads the negative member of the same quadratic row. The
-                // native AND $7F00 is retained even though valid bounce indexes stay below
-                // $4000; it documents the exact table-index formation seen in a debugger.
-                int tableIndex = checked((ushort)
-                    EightEight.WholeOf(state.YSpeedTableIndex & MaridiaLargeSnailMasks.SpeedIndexWholeBits));
+                // The rising half reads the negative member of the same quadratic row. The record is not
+                // negative here, so its whole part is the row the cartridge's sign-clearing AND selects.
+                int tableIndex = checked((ushort)EightEight.WholeOf(state.YSpeedTableIndex));
                 _terrain.MoveEnemyVertically(
                     level,
                     slot,

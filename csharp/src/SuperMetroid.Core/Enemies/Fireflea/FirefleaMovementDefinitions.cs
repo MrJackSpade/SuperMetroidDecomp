@@ -12,7 +12,4 @@ internal static class FirefleaMovementDefinitions
     /// Circular positions and wrapped vertical extrema remain caller-owned.
     /// </remarks>
     internal static readonly ushort[] Radii = [8, 16, 24, 32, 40, 48, 56, 64];
-
-    /// <summary>Parameter-one bit 1: the Fireflea moves in a circle rather than vertically.</summary>
-    internal const ushort CircularMovementParameterBit = 0x0002;
 }

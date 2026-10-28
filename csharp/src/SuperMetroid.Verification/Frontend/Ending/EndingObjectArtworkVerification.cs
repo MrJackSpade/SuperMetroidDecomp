@@ -21,7 +21,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -30,6 +29,8 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 
@@ -182,7 +183,7 @@ internal static class EndingObjectArtworkVerification
                 nativeOam.FinalizeFrame();
                 var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
-                CinematicSheetFixtures.Drawer(stock.CloudSprites).Draw(definition.Pose, installedOam,
+                CinematicSheetFixtures.Drawer(EndingObjectSourceArtwork.Of(stock).CloudSprites).Draw(definition.Pose, installedOam,
                     new(120, y), 4, onScreen);
                 installedOam.FinalizeFrame();
                 AssertTrue(nativeOam.ImageEquals(installedOam) &&
@@ -432,7 +433,7 @@ internal static class EndingObjectArtworkVerification
         preservedCloudOam.FinalizeFrame();
         var editedCloudOam = ScreenSpritesFixtures.Blank();
         editedCloudOam.BeginFrame();
-        CinematicSheetFixtures.Drawer(editedCloudSprites.CloudSprites).Draw(EndingCloudSpriteDefinitions.Frames[(int)EndingCloudSpriteDefinitions.Role.Right].Pose, editedCloudOam,
+        CinematicSheetFixtures.Drawer(EndingObjectSourceArtwork.Of(editedCloudSprites).CloudSprites).Draw(EndingCloudSpriteDefinitions.Frames[(int)EndingCloudSpriteDefinitions.Role.Right].Pose, editedCloudOam,
             new(120, 72), 4, originIsOnScreen: true);
         editedCloudOam.FinalizeFrame();
         AssertTrue(preservedCloudOam.ImageEquals(editedCloudOam),

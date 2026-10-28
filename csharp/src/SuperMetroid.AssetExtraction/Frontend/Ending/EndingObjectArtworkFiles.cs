@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
-using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -13,6 +12,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
@@ -259,7 +259,7 @@ public static class EndingObjectArtworkFiles
             names.Any(name => !manifest.StockSha256.ContainsKey(name)))
             throw new InvalidDataException($"Ending OBJ manifest {manifestPath} does not describe this installation.");
 
-        return new EndingObjectArtwork(new EndingObjectArtworkParts { Clouds = LoadSheet(EndingObjectArtworkFormat.CloudFileName,
+        return new EndingObjectSourceArtwork(new EndingObjectArtworkParts { Clouds = LoadSheet(EndingObjectArtworkFormat.CloudFileName,
                 EndingObjectArtworkFormat.CloudByteCount), Explosion = LoadSheet(EndingObjectArtworkFormat.ExplosionFileName,
                 EndingObjectArtworkFormat.ExplosionByteCount), Fragments = Enumerable.Range(0, EndingObjectArtworkFormat.FragmentCount)
                 .Select(index => LoadMap(EndingObjectArtworkFormat.FragmentFileName(index),

@@ -4,8 +4,9 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
@@ -30,7 +31,7 @@ internal static class EndingSpriteSheetComposer
         int objectSelection = EndingCreditsPresentation.ObjectSelection(page.ObjectSheet);
         SpriteArtwork characters = ObjCharacterImage.Page(image, objectSelection);
         ScreenObjectSizes sizes = ObjectSelectionCodec.Sizes(objectSelection);
-        List<SheetFrameSource> frames = [.. IntroSpriteSheetComposer.Frames(page.Families(objects), characters, sizes)];
+        List<SheetFrameSource> frames = [.. IntroSpriteSheetComposer.Frames(page.Families(EndingObjectSourceArtwork.Of(objects)), characters, sizes)];
         if (page.Stars)
             frames.AddRange(EndingShootingStarDefinitions.SheetFrames.Select(frame =>
             {
@@ -48,7 +49,7 @@ internal static class EndingSpriteSheetComposer
     {
         Ensure.NotNull(objects);
         EndingPage page = Page(sheet);
-        IEnumerable<string> families = IntroSpriteSheetComposer.FrameNames(page.Families(objects));
+        IEnumerable<string> families = IntroSpriteSheetComposer.FrameNames(page.Families(EndingObjectSourceArtwork.Of(objects)));
         return page.Stars ? families.Concat(EndingShootingStarDefinitions.SheetFrames.Select(EndingShootingStarFrames.SheetFrameName)) : families;
     }
 
@@ -68,7 +69,7 @@ internal static class EndingSpriteSheetComposer
                     .. Enum.GetValues<EndingObjectFragmentId>().Select(fragment => new EndingObjectFragmentUpload(fragment)),
                     new EndingSheetUpload(EndingUploadKind.EndingFont),
                 ],
-                objects => [objects.ExplosionSprites, objects.CompletionTextSprites, EndingAnimalEscapeDefinitions.Sprites], Stars: false,
+                objects => [objects.ExplosionSprites, objects.CompletionTextSprites, EndingAnimalEscapeParts.Sprites], Stars: false,
                 (palettes, cgram) =>
                 {
                     EscapeColours(palettes, cgram);
@@ -156,6 +157,6 @@ internal static class EndingSpriteSheetComposer
     /// order, the families it shows, whether the stars show on it, and how the scene loads its colours.
     /// </summary>
     private sealed record EndingPage(EndingObjectSheet ObjectSheet, EndingReward Reward, IReadOnlyList<EndingUpload> Transfers,
-        Func<EndingObjectArtwork, IEnumerable<ICinematicSpriteFrames>> Families, bool Stars,
+        Func<EndingObjectSourceArtwork, IEnumerable<ICinematicSpriteFrames>> Families, bool Stars,
         Action<EndingPaletteSet, ScreenPalette> LoadColours);
 }

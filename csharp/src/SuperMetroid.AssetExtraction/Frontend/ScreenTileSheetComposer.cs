@@ -8,7 +8,6 @@ using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Title;
@@ -22,6 +21,8 @@ using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.Intro;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -39,11 +40,11 @@ internal static class ScreenTileSheetComposer
         AreaMapPresentation maps = sources.Maps;
         return sheet switch
         {
-            SpriteSheetId.IntroSceneTiles => Compose(sources.Intro.BackgroundCharacters.Characters.Span[..IntroCinematicDefinitions.Artwork.BackgroundCharacterBytes],
+            SpriteSheetId.IntroSceneTiles => Compose(IntroCinematicSourceArtwork.Of(sources.Intro).BackgroundCharacters.Characters.Span[..IntroCinematicDefinitions.Artwork.BackgroundCharacterBytes],
                 TileInkDepth.SixteenColours, IntroColours(sources.Intro)),
             SpriteSheetId.IntroFontTiles => Compose(IntroFontCharacters.Of(maps.IntroFont).Characters.Span, TileInkDepth.FourColours, IntroColours(sources.Intro)),
             SpriteSheetId.CeresFlightObjectTiles => ComposeFlightObjects(sources.Intro.CeresFlight),
-            SpriteSheetId.CeresIntroObjectTiles => Compose(sources.Intro.IntroObjectCharacters.Characters.Span[..CeresDestructionSceneDefinitions.SharedObjectCharacterBytes],
+            SpriteSheetId.CeresIntroObjectTiles => Compose(IntroCinematicSourceArtwork.Of(sources.Intro).IntroObjectCharacters.Characters.Span[..CeresDestructionSceneDefinitions.SharedObjectCharacterBytes],
                 TileInkDepth.SixteenColours, FlightColours(sources.Intro.CeresFlight)),
             SpriteSheetId.ZebesRevealTiles => Compose(sources.Intro.CeresDestruction.ZebesCharacters.Characters.Span[..CeresDestructionArtworkFormat.ZebesCharacterByteCount],
                 TileInkDepth.SixteenColours, FlightColours(sources.Intro.CeresFlight)),

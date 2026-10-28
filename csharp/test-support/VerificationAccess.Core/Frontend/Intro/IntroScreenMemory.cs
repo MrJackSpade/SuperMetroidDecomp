@@ -3,6 +3,7 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
@@ -17,10 +18,11 @@ internal static class IntroScreenMemory
     internal static byte[] Characters(IntroCinematicArtwork artwork, IntroFontAtlas installedFont, bool japaneseGlyphsBlanked)
     {
         IntroCinematicState.RequireFont(installedFont);
+        IntroCinematicSourceArtwork sources = IntroCinematicSourceArtwork.Of(artwork);
         ReadOnlySpan<byte> font = IntroFontCharacters.Of(installedFont).Characters.Span;
         var vram = new SnesVram();
         var intro = new IntroVram(vram);
-        intro.BackgroundCharacters.Load(artwork.BackgroundCharacters.Characters.Span[..IntroCinematicDefinitions.Artwork.BackgroundCharacterBytes]);
+        intro.BackgroundCharacters.Load(sources.BackgroundCharacters.Characters.Span[..IntroCinematicDefinitions.Artwork.BackgroundCharacterBytes]);
         intro.FontOne.Load(font);
         if (japaneseGlyphsBlanked)
         {
@@ -34,8 +36,8 @@ internal static class IntroScreenMemory
             intro.JapaneseBlankCharacters.Load(blanked);
         }
         intro.BackgroundPages.Load(BackgroundTileWordBytes.Of(artwork.BackgroundPages.Span[..IntroCinematicDefinitions.Artwork.BackgroundPageTilemapCells]));
-        intro.IntroObjectCharacters.Load(artwork.IntroObjectCharacters.Characters.Span);
-        intro.CinematicObjectCharacters.Load(artwork.CinematicObjectCharacters.Characters.Span[..IntroCinematicDefinitions.Artwork.ObjectCharacterBytes]);
+        intro.IntroObjectCharacters.Load(sources.IntroObjectCharacters.Characters.Span);
+        intro.CinematicObjectCharacters.Load(sources.CinematicObjectCharacters.Characters.Span[..IntroCinematicDefinitions.Artwork.ObjectCharacterBytes]);
         return vram.CaptureImage();
     }
 

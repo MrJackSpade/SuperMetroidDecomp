@@ -17,6 +17,7 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 

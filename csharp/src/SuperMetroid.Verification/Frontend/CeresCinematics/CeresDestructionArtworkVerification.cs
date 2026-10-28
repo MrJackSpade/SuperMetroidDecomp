@@ -18,6 +18,8 @@ using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 
 /// <summary>Checks installed Ceres destruction and Zebes reveal art against cartridge transfers and live cinematic rendering.</summary>
@@ -65,7 +67,7 @@ internal static class CeresDestructionArtworkVerification
                 nativeOam.FinalizeFrame();
                 var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
-                CinematicSheetFixtures.Drawer(stock.CeresDestruction.Sprites).Draw(frame.Pose, installedOam,
+                CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).CeresDestructionSprites).Draw(frame.Pose, installedOam,
                     new(120, y), 4, onScreen);
                 installedOam.FinalizeFrame();
                 AssertTrue(installedOam.ImageEquals(nativeOam) &&

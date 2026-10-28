@@ -15,6 +15,8 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.Intro;
 
@@ -46,7 +48,7 @@ internal static class IntroScientistSpriteArtworkVerification
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
-                CinematicSheetFixtures.Drawer(stock.ScientistSprites).Draw(definition.Pose, installed, new(x, y),
+                CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).ScientistSprites).Draw(definition.Pose, installed, new(x, y),
                     palette, onScreen);
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&
@@ -97,7 +99,7 @@ internal static class IntroScientistSpriteArtworkVerification
         examination.Step(0, introCrossfadeTimer: 0x007f);
         var installedExamination = ScreenSpritesFixtures.Blank();
         installedExamination.BeginFrame();
-        examination.Draw(installedExamination, CinematicSheetFixtures.Drawer(stock.ScientistSprites));
+        examination.Draw(installedExamination, CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).ScientistSprites));
         installedExamination.FinalizeFrame();
         var nativeExamination = new OamBuffer();
         nativeExamination.BeginFrame();

@@ -15,6 +15,8 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.Intro;
 
@@ -57,7 +59,7 @@ internal static class IntroRinkaSpriteArtworkVerification
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
-                CinematicSheetFixtures.Drawer(stock.RinkaSprites).Draw(definition.Pose, installed, new(x, y), palette,
+                CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).RinkaSprites).Draw(definition.Pose, installed, new(x, y), palette,
                     onScreen);
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&
@@ -87,7 +89,7 @@ internal static class IntroRinkaSpriteArtworkVerification
             "intro Rinka first two-wave actors exist for installed artwork test");
         var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();
-        rinkas.Draw(stockOam, CinematicSheetFixtures.Drawer(stock.RinkaSprites));
+        rinkas.Draw(stockOam, CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).RinkaSprites));
         stockOam.FinalizeFrame();
         var nativeLiveOam = new OamBuffer();
         nativeLiveOam.BeginFrame();
@@ -98,7 +100,7 @@ internal static class IntroRinkaSpriteArtworkVerification
             "installed intro Rinkas preserve native live-actor OAM placement and attributes");
         var editedOam = ScreenSpritesFixtures.Blank();
         editedOam.BeginFrame();
-        rinkas.Draw(editedOam, CinematicSheetFixtures.Drawer(edited.RinkaSprites));
+        rinkas.Draw(editedOam, CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(edited).RinkaSprites));
         editedOam.FinalizeFrame();
         AssertTrue(!stockOam.ImageEquals(editedOam),
             "intro Rinka palette edit changes live OAM attributes without moving actors");

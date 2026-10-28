@@ -10,6 +10,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
@@ -135,9 +136,9 @@ internal static class CeresDestructionArtworkExtractor
             new MemoryStream(mapJson.ToArray(), writable: false),
             new MemoryStream(zebesMapJson, writable: false),
             RoomCharacterAtlasPng.Read(new MemoryStream(zebesPng, writable: false), CeresDestructionArtworkFormat.ZebesCharacterByteCount),
-            new MemoryStream(spritesFile, writable: false),
             new MemoryStream(actorsFile, writable: false),
             new MemoryStream(destructionActorsFile, writable: false));
+        _ = CeresDestructionSpritePresentation.Load(new MemoryStream(spritesFile, writable: false));
         if (!compiled.CeresMaps.Span.SequenceEqual(allCeresMaps.AsSpan(firstDestructionByte,
                 CeresDestructionArtworkFormat.MapByteCount)) ||
             !BackgroundTileWords.ToBytes(compiled.ZebesMap.Tiles.Span).SequenceEqual(zebesMap.AsSpan(0,

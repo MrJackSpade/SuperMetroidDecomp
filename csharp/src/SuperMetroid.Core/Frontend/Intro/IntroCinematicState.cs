@@ -307,16 +307,12 @@ public sealed class IntroCinematicState : IFrontendScreen
         characterArtwork.Palette.LoadTo(palette);
         palette.Colors.CopyTo(introColours);
 
-        RequireMinimum(characterArtwork.BackgroundCharacters.Characters.Length, IntroCinematicDefinitions.Artwork.BackgroundCharacterBytes,
-            "intro BG1/BG2 characters");
         RequireMinimum(introFont.CharacterCount * (IntroFontAtlasFormat.ByteCount / IntroFontAtlasFormat.TileCount),
             IntroCinematicDefinitions.Artwork.FontOneBytes, "intro font one");
         RequireMinimum(characterArtwork.PortraitTilemap.Length, IntroCinematicDefinitions.Artwork.SamusHeadTilemapCells,
             "Samus-head BG2 tilemap");
         RequireMinimum(characterArtwork.BackgroundPages.Length, IntroCinematicDefinitions.Artwork.BackgroundPageTilemapCells,
             "intro BG1 page tilemaps");
-        RequireMinimum(characterArtwork.CinematicObjectCharacters.Characters.Length, IntroCinematicDefinitions.Artwork.ObjectCharacterBytes,
-            "intro OBJ characters");
         RequireMinimum(characterArtwork.InitialNarrationTilemap.Length, IntroCinematicDefinitions.Artwork.NarrationTilemapCells,
             "first narration BG3 tilemap");
         RequireFont(introFont);

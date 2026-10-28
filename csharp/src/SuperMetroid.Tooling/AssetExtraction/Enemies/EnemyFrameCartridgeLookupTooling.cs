@@ -42,12 +42,18 @@ internal static class EnemyFrameCartridgeLookupTooling
     /// <summary>The enemy bank holding <paramref name="frame"/>; the shared empty frames belong to no single bank.</summary>
     internal static byte Bank(EnemyFrameId frame) => EnemyFrameCartridgeLookup.Of(frame).Bank;
 
-    /// <summary>The frame bank <paramref name="bank"/> stores at <paramref name="word"/>, or null when it stores none there.</summary>
+    /// <summary>
+    /// The frame bank <paramref name="bank"/> stores at <paramref name="word"/>, or null when it stores none there. A
+    /// frame the bank's own compositions name at a shared word (the Lava Jumper's first pose at $A2:804D, #1432) is that
+    /// frame; only a shared word no composition names is the shared empty frame.
+    /// </summary>
     internal static EnemyFrameId? TryFrameAt(byte bank, ushort word)
     {
+        if (FramesByLocation.Value.TryGetValue(new SnesAddress(bank, word), out EnemyFrameId frame))
+            return frame;
         foreach ((EnemyFrameId shared, ushort sharedWord) in SharedWords)
             if (sharedWord == word)
                 return shared;
-        return FramesByLocation.Value.TryGetValue(new SnesAddress(bank, word), out EnemyFrameId frame) ? frame : null;
+        return null;
     }
 }

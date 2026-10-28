@@ -458,9 +458,6 @@ internal static class EnemySpritemapArtworkVerification
             "every installed Rinka composition is shown by a Rinka program");
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
-            // A frame at the common empty spritemap's word, which every enemy bank repeats, is that compiled empty frame.
-            if (SuperMetroid.AssetExtraction.Enemies.EnemyFrameCartridgeLookupTooling.TryFrameAt(frame.Bank, frame.Pointer) == EnemyFrameId.Empty)
-                continue;
             AssertTrue((stock.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGet(frame.Bank, frame.Pointer, out var parts),
                 $"installed enemy frame {frame.Name} exists");
             AssertTrue(stock.Enemies.Spritemaps.TryGetDisplay(frame.Bank, frame.Pointer, out _),
@@ -756,9 +753,7 @@ internal static class EnemySpritemapArtworkVerification
         {
             EnemySpritemapCatalog lavaJumperUpgraded = EnemySpritemapDocuments.Load(
                 preNorfairLavaJumperJson, stock.Enemies.Spritemaps);
-            // The lava jumper's $804D is the common empty spritemap, which is compiled rather than installed.
-            foreach (NativeEnemySpritemapDefinition frame in NorfairLavaJumperVisualDefinitions.Frames().Where(frame =>
-                         SuperMetroid.AssetExtraction.Enemies.EnemyFrameCartridgeLookupTooling.TryFrameAt(frame.Bank, frame.Pointer) != EnemyFrameId.Empty))
+            foreach (NativeEnemySpritemapDefinition frame in NorfairLavaJumperVisualDefinitions.Frames())
                 AssertTrue(lavaJumperUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-forty-nine override inherits lava-jumper frame {frame.Name}");
         }

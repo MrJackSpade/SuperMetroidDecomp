@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Map;
 /// <param name="AreaByteIndexes">The map bytes the area occupies.</param>
 internal readonly record struct ExploredMapPackingDefinition(
     int SaveOffset,
-    ExploredMapPackingDefinitions.OccupiedByteIndexes AreaByteIndexes);
+    ExploredMapPacking.OccupiedByteIndexes AreaByteIndexes);

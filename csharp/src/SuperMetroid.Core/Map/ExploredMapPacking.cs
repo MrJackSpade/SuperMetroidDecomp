@@ -4,7 +4,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Map;
 
 /// <summary>Bank $81 SRAM packing calculated from immutable stock map occupancy.</summary>
-internal static class ExploredMapPackingDefinitions
+internal static class ExploredMapPacking
 {
 
     /// <summary>

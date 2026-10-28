@@ -1,7 +1,7 @@
 
 namespace SuperMetroid.Core.Map;
 
-/// <summary>Cartridge values of <see cref="ExploredMapPackingDefinitions"/> that only verification reads.</summary>
+/// <summary>Cartridge values of <see cref="ExploredMapPacking"/> that only verification reads.</summary>
 internal static class ExploredMapPackingDefinitionsConstants
 {
     /// <summary>$81:8131, six live area byte counts followed by unused Ceres.</summary>
@@ -12,7 +12,7 @@ internal static class ExploredMapPackingDefinitionsConstants
     public const int NativeSourcePointerTable = 0x8182d6;
 
     /// <summary>Provides native explored-map byte counts, destinations, and source pointers for map packing checks.</summary>
-    extension(ExploredMapPackingDefinitions)
+    extension(ExploredMapPacking)
     {
         /// <inheritdoc cref="ExploredMapPackingDefinitionsConstants.NativeByteCountTable"/>
         internal static int NativeByteCountTable => ExploredMapPackingDefinitionsConstants.NativeByteCountTable;

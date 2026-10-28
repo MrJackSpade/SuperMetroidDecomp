@@ -5,12 +5,12 @@ namespace SuperMetroid.Core.Spatial;
 /// a picture is drawn unmirrored, mirrored on either axis, or on both.
 /// </summary>
 [Flags]
-public enum TileFlip : ushort
+public enum TileFlip : byte
 {
-    /// <summary>Leaves both axes in their stored pixel order.</summary>
+    /// <summary>Draws the picture as stored.</summary>
     None = 0,
-    /// <summary>Sets bit 14 to reverse the tile's horizontal pixel order.</summary>
-    Horizontal = 0x4000,
-    /// <summary>Sets bit 15 to reverse the tile's vertical pixel order.</summary>
-    Vertical = 0x8000,
+    /// <summary>Mirrors the picture left to right.</summary>
+    Horizontal = 1,
+    /// <summary>Mirrors the picture top to bottom.</summary>
+    Vertical = 2,
 }

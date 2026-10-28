@@ -13,14 +13,11 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
     private const ushort PaletteMask = 0x0007;
     /// <summary>Bit 13 raises this tile above the background's lower priority tier.</summary>
     internal const ushort PriorityMask = 0x2000;
-    /// <summary>The two upper bits carry horizontal and vertical reflection independently.</summary>
-    private const ushort FlipMask = 0xc000;
-
     /// <summary>Bit 14, the horizontal-mirror flag.</summary>
-    internal const ushort HorizontalFlipMask = (ushort)TileFlip.Horizontal;
+    internal const ushort HorizontalFlipMask = 0x4000;
 
     /// <summary>Bit 15, the vertical-mirror flag.</summary>
-    internal const ushort VerticalFlipMask = (ushort)TileFlip.Vertical;
+    internal const ushort VerticalFlipMask = 0x8000;
 
     /// <summary>Gets the ten-bit character number, from 0 through 1023, relative to the background's character base.</summary>
     public int CharacterIndex => Raw & CharacterMask;
@@ -29,7 +26,9 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
     /// <summary>Gets whether bit 13 selects this background tile's higher priority tier.</summary>
     public bool HasPriority => (Raw & PriorityMask) != 0;
     /// <summary>Gets the horizontal and vertical reflection bits in their original packed positions.</summary>
-    public TileFlip FlipFlags => (TileFlip)(Raw & FlipMask);
+    public TileFlip FlipFlags =>
+        ((Raw & HorizontalFlipMask) != 0 ? TileFlip.Horizontal : TileFlip.None) |
+        ((Raw & VerticalFlipMask) != 0 ? TileFlip.Vertical : TileFlip.None);
     /// <summary>Gets whether pixels are reflected across the tile's horizontal axis of traversal.</summary>
     public bool FlipHorizontally => (FlipFlags & TileFlip.Horizontal) != 0;
     /// <summary>Gets whether rows are drawn in reverse vertical order.</summary>
@@ -42,7 +41,7 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
     public SnesBgTilemapWord ToggleFlips(TileFlip flags)
     {
         ValidateFlips(flags);
-        return new(unchecked((ushort)(Raw ^ (ushort)flags)));
+        return new(unchecked((ushort)(Raw ^ FlipBits(flags))));
     }
 
     /// <summary>Encodes every documented SNES BG tilemap field into one lossless word.</summary>
@@ -62,7 +61,7 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
             characterIndex |
             (paletteIndex << PaletteShift) |
             (priority ? PriorityMask : 0) |
-            (ushort)flips)));
+            FlipBits(flips))));
     }
 
     /// <summary>Replaces only the ten-bit BG character index.</summary>
@@ -86,6 +85,11 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
         ushort fieldMask = unchecked(PaletteMask << PaletteShift);
         return new SnesBgTilemapWord(unchecked((ushort)((Raw & ~fieldMask) | paletteBits)));
     }
+
+    /// <summary>The entry bits that store <paramref name="flips"/>.</summary>
+    private static int FlipBits(TileFlip flips) =>
+        ((flips & TileFlip.Horizontal) != 0 ? HorizontalFlipMask : 0) |
+        ((flips & TileFlip.Vertical) != 0 ? VerticalFlipMask : 0);
 
     /// <summary>Rejects flags outside the two reflection bits before packing a background word.</summary>
     private static void ValidateFlips(TileFlip flips)

@@ -213,8 +213,8 @@ internal static class RoomFxRomDataVerification
 
         RoomLayer3FxState state = LoadSyntheticRoomFx(session, bus, cgram, record);
         Suite(nameof(VerifyRoomFxSharedRandomState), () => state = VerifyRoomFxSharedRandomState(bus, cgram, session, state, record, type));
-        AssertEqual(Layer3Plane.ClearedCell.Raw,
-            Layer3Plane.Compose(new ushort[Layer3Plane.HudRows * Layer3Plane.Columns], state.EffectPageWords())
+        AssertEqual(Layer3Plane.ClearedCell.PackedWord,
+            Layer3Plane.Compose(new BackgroundTile[Layer3Plane.HudRows * Layer3Plane.Columns], state.EffectPageTiles())
                 .Words[Layer3Plane.HudRows * Layer3Plane.Columns],
             $"{type} room shows the cleared word in the first gameplay BG3 FX word");
         if (type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid)

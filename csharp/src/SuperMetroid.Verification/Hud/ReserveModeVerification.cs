@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
@@ -92,7 +93,7 @@ internal static class ReserveModeVerification
         SamusPresentation.InitializeAnimation(knockbackVariant);
         knockbackVariant.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(
             ShinesparkDefinitions.ActiveSpeedBoostCounter);
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new BackgroundTile[4]);
         AssertTrue(SamusPosturePoseTransitions.TryApplyPostureTransition(knockbackVariant, 
 
                 level,

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
@@ -46,10 +47,10 @@ internal static class CollectibleMessageTimingVerification
                 "The displayed frame has no room backgrounds.")).Bg1.Blocks.Cells[item.BlockIndex];
             ExpandedBlockTiles shown = LevelBlockTilemapExpander.Expand((ushort)(cell.Definition | (int)cell.Flips),
                 runtime.Room.LoadedLevelData.ForegroundPlane.Definitions.AsSpan());
-            return [shown.TopLeft.Raw, shown.TopRight.Raw, shown.BottomLeft.Raw, shown.BottomRight.Raw];
+            return [shown.TopLeft.PackedWord, shown.TopRight.PackedWord, shown.BottomLeft.PackedWord, shown.BottomRight.PackedWord];
         }
-        ushort[] HudWords() => runtime.Hud.Tiles.WhereToArray((_, index) => index % 32 < 26);
-        ushort[] VisibleHudWords() => Enumerable.Range(0, runtime.Hud.Tiles.Length)
+        ushort[] HudWords() => runtime.Hud.TileWords.WhereToArray((_, index) => index % 32 < 26);
+        ushort[] VisibleHudWords() => Enumerable.Range(0, runtime.Hud.TileWords.Length)
             .Where(index => index % 32 < 26)
             .Select(index => runtime.Vram.ReadWord((ushort)(0x5820 + index))).ToArray();
         ushort[] beforeVisibleHud = VisibleHudWords();
@@ -89,9 +90,9 @@ internal static class CollectibleMessageTimingVerification
         AssertEqual(199, samus.MaxHealth, "return grants no duplicate energy");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertTrue(!beforeTile.SequenceEqual(TileWords()), "post-message NMI displays empty pickup tile");
-        for (int i = 0; i < runtime.Hud.Tiles.Length; i++)
+        for (int i = 0; i < runtime.Hud.TileWords.Length; i++)
             if (i % 32 < 26)
-                AssertEqual(runtime.Hud.Tiles[i], runtime.Vram.ReadWord((ushort)(0x5820 + i)), "post-message NMI publishes HUD");
+                AssertEqual(runtime.Hud.TileWords[i], runtime.Vram.ReadWord((ushort)(0x5820 + i)), "post-message NMI publishes HUD");
         Console.WriteLine("  Pickup message: native early grant, retained pickup/HUD during fanfare, and post-message visual update agree.");
     }
 

@@ -20,6 +20,11 @@ public sealed class BossBg2Tilemap
     /// <summary>The words in the hardware's screen order: each 32x32 screen's rows, screens left to right then down.</summary>
     public ImmutableArray<ushort> Words { get; }
 
+    /// <summary>The tilemap's tiles, row by row, decoded once from its words while Kraid's body still composes words.</summary>
+    [field: NonSerialized]
+    public ImmutableArray<SuperMetroid.Core.Assets.BackgroundTile> Tiles =>
+        field.IsDefault ? field = [.. SuperMetroid.Core.Assets.BackgroundTileWords.ToTiles(Words.AsSpan())] : field;
+
     /// <summary>The tilemap's size in tiles.</summary>
     public Extent16<TilemapCells> Size { get; }
 }

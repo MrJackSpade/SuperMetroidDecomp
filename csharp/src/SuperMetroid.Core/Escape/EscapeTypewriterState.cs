@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
@@ -6,28 +7,28 @@ namespace SuperMetroid.Core.Escape;
 /// <summary>Byte-oriented $A6:C2A7 text interpreter; each accepted call writes at most one glyph.</summary>
 public sealed class EscapeTypewriterState
 {
-    /// <summary>Complete tilemap word for A, including attributes applied to each written glyph.</summary>
-    private readonly SnesBgTilemapWord tileBase;
+    /// <summary>The tile of the letter A, whose colour variant, mirroring and priority every written glyph takes.</summary>
+    private readonly BackgroundTile tileBase;
     /// <summary>Rebound host text excluded from serialized interpreter state.</summary>
     [NonSerialized] private EscapeTypewriterProgram? installedProgram;
 
     /// <summary>Creates an unbound warning-text state for <paramref name="programId"/>; attach host text with <see cref="BindProgram"/> before interpreting it.</summary>
     /// <param name="programId">The warning program the state will show.</param>
-    /// <param name="tileBase">Complete tilemap word for the letter A, including tile index and presentation attributes.</param>
-    public EscapeTypewriterState(EscapeTypewriterProgramId programId, int tileBase)
+    /// <param name="tileBase">The tile of the letter A, including its colour variant, mirroring and priority.</param>
+    public EscapeTypewriterState(EscapeTypewriterProgramId programId, BackgroundTile tileBase)
     {
-        this.tileBase = new SnesBgTilemapWord(checked((ushort)tileBase));
+        this.tileBase = tileBase;
         ProgramId = programId;
     }
 
     /// <summary>Creates a warning-text state with its host program bound and its saved identity initialized from that program.</summary>
     /// <param name="program">Installed Ceres or Zebes warning lines and their native source identity.</param>
-    /// <param name="tileBase">Complete tilemap word for the letter A, including tile index and presentation attributes.</param>
+    /// <param name="tileBase">The tile of the letter A, including its colour variant, mirroring and priority.</param>
     /// <exception cref="ArgumentNullException"><paramref name="program"/> is null.</exception>
-    public EscapeTypewriterState(EscapeTypewriterProgram program, int tileBase)
+    public EscapeTypewriterState(EscapeTypewriterProgram program, BackgroundTile tileBase)
     {
         Ensure.NotNull(program);
-        this.tileBase = new SnesBgTilemapWord(checked((ushort)tileBase));
+        this.tileBase = tileBase;
         ProgramId = program.Id;
         BindProgram(program);
     }
@@ -134,12 +135,12 @@ public sealed class EscapeTypewriterState
         return glyph;
     }
 
-    /// <summary>The tile word <paramref name="character"/> types from <paramref name="tileBase"/>, or null for a space.</summary>
-    internal static SnesBgTilemapWord? GlyphOf(int character, SnesBgTilemapWord tileBase)
+    /// <summary>The tile <paramref name="character"/> types from <paramref name="tileBase"/>, or null for a space.</summary>
+    internal static BackgroundTile? GlyphOf(int character, BackgroundTile tileBase)
     {
         if (character == (byte)' ')
             return null;
         if (character == (byte)'!') character = EscapeTypewriterDefinitions.ExclamationGlyph;
-        return new SnesBgTilemapWord(unchecked((ushort)(tileBase.Raw + character - EscapeTypewriterDefinitions.FirstLetter)));
+        return tileBase with { Tile = tileBase.Tile + character - EscapeTypewriterDefinitions.FirstLetter };
     }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -97,9 +98,9 @@ internal static class EscapeGateVisualsVerification
             0x00, 0x00,
         ]);
         var guarded = NewMotherBrainEscapeGateGuard(bus);
-        byte[] blockDefinitions = new byte[0x400 * 8];
-        blockDefinitions[0x53 * 8] = 0x53;
-        blockDefinitions[0x54 * 8] = 0x54;
+        BackgroundTile[] blockDefinitions = new BackgroundTile[0x400 * 4];
+        blockDefinitions[0x53 * 4] = BackgroundTileWordBytes.Tile(0x53);
+        blockDefinitions[0x54 * 4] = BackgroundTileWordBytes.Tile(0x54);
         RoomLevelData CreateLevel() => new RoomLevelData(new(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), blockDefinitions);
         var system = new SharedGameState();
 
@@ -112,7 +113,7 @@ internal static class EscapeGateVisualsVerification
             closedLevel.GetCollisionBlockByIndex(origin).PackedWord.Raw,
             "edited closed gate preserves native physical collision");
         AssertEqual((ushort)0x0053,
-            closedLevel.DisplayedBlockTiles(origin).TopLeft.Raw,
+            closedLevel.DisplayedBlockTiles(origin).TopLeft.PackedWord,
             "edited closed gate survives later camera streaming");
 
         RoomLevelData closingLevel = CreateLevel();
@@ -135,7 +136,7 @@ internal static class EscapeGateVisualsVerification
         AssertEqual((ushort)0x830f,
             closingLevel.GetCollisionBlockByIndex(origin).PackedWord.Raw,
             "edited half-closed gate preserves native physical collision");
-        AssertEqual((ushort)0x0054, closingLevel.DisplayedBlockTiles(origin).TopLeft.Raw,
+        AssertEqual((ushort)0x0054, closingLevel.DisplayedBlockTiles(origin).TopLeft.PackedWord,
             "edited half-closed gate is shown");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "escape-gate visuals never reread compiled program or draw payloads");

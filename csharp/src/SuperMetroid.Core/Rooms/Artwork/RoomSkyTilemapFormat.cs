@@ -13,6 +13,9 @@ public static class RoomSkyTilemapFormat
     /// <summary>Rows in one 32-by-32 page.</summary>
     public const int RowsPerPage = 32;
 
+    /// <summary>Tiles in one sky page: 32 rows of 32.</summary>
+    public const int PageTiles = RowsPerPage * RowsPerPage;
+
     /// <summary>Bytes in one page row: 32 tile words.</summary>
     public const int RowByteCount = PageByteCount / RowsPerPage;
 

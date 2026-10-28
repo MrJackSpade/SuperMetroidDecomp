@@ -233,7 +233,7 @@ internal sealed class MotherBrainRainbowAndDeath
 
     /// <summary>Writes a glyph the Zebes escape typewriter typed over Mother Brain's room BG2 (#1348).</summary>
     private void WriteZebesTypewriterGlyph(EscapeTypewriterGlyph glyph) =>
-        _room.Services.DrawBg2Overlay(glyph.Cell, [glyph.Tile.Raw]);
+        _room.Services.DrawBg2Overlay(glyph.Cell, [glyph.Tile]);
 
     /// <summary>Runs one native body-function call through the shared verified sequence.</summary>
     internal void RunLiveMotherBrainRainbowBeam(

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
@@ -49,7 +50,7 @@ internal static class OceanSkyVerification
                     int source = 0x8A0000 | (SnesAddressMath.OffsetInBank(pointer + (worldY & 0xF8) * 8 + column * 2));
                     ushort expected = bus.ReadCartridgeWord(source);
                     int row = worldY % (SkyTilemap.Rows * 8) / 8;
-                    AssertTrue(shown.RowShown(row) && shown.Words[row * SkyTilemap.Columns + column] == expected,
+                    AssertTrue(shown.RowShown(row) && shown.Tiles[row * SkyTilemap.Columns + column].PackedWord == expected,
                         $"ocean visible row {worldY:X4}, column {column} follows ROM ocean chunk");
                 }
             }

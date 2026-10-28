@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.RenderVerification.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
@@ -85,7 +86,7 @@ internal static class InstalledPowerBombIsolationTests
                         if (Colors(baseline) != Colors(replacement)) changedColors++;
                         if (second is not null)
                         {
-                            var memoryImage = new FramePaint(new RgbColor[SnesPpuLayout.CgramColorCount], []);
+                            var memoryImage = new FramePaint(new RgbColor[SnesCgram.ColorCount], []);
                             var packet = new DisplayPacket(new(framesToRender.Count + 1, 1, 0),
                                 new LayeredScene(memoryImage, new RenderLayer[] { second }, 15));
                             framesToRender.Add(new ContextFrame(packet, context));

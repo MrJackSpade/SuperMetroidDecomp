@@ -51,6 +51,13 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
     }
 
     /// <summary>
+    /// Paints <paramref name="tile"/> over <paramref name="character"/>'s 32 bytes with its top-left pixel at
+    /// (<paramref name="left"/>, <paramref name="top"/>), and returns the rows it was coloured from.
+    /// </summary>
+    internal SpritePaletteRows PaintTile(int left, int top, BackgroundTile tile, ReadOnlySpan<byte> character, RgbColor[] colours) =>
+        PaintTile(left, top, new SnesBgTilemapWord(BackgroundTileWords.ToWord(tile)), character, colours);
+
+    /// <summary>
     /// Paints tile word <paramref name="word"/> over <paramref name="character"/>'s 32 bytes with its top-left pixel at
     /// (<paramref name="left"/>, <paramref name="top"/>), and returns the rows it was coloured from.
     /// </summary>

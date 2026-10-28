@@ -11,4 +11,9 @@ public sealed class EnemyBg2ImageSnapshot(ImmutableArray<ushort> words)
 {
     /// <summary>The image's words, row by row, 32 per row.</summary>
     public ImmutableArray<ushort> Words { get; } = words;
+
+    /// <summary>The image's tiles, row by row, 32 per row, decoded once from its words while the enemy BG2 images still hold words.</summary>
+    [field: NonSerialized]
+    public ImmutableArray<SuperMetroid.Core.Assets.BackgroundTile> Tiles =>
+        field.IsDefault ? field = [.. SuperMetroid.Core.Assets.BackgroundTileWords.ToTiles(Words.AsSpan())] : field;
 }

@@ -21,7 +21,7 @@ internal static class MessageSnapshotTestsVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var vram = new SnesVram();
-        byte[] graphics = new byte[SnesPpuLayout.VramByteCount];
+        byte[] graphics = new byte[SnesVram.ByteCount];
         new Random(32107).NextBytes(graphics);
         vram.LoadBytes(0, graphics);
         MessageBoxSheet messages = RepositoryInstallation.Installation.LoadRoomBlockSheets().MessageBoxes.Values.First();

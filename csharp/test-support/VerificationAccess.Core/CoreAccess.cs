@@ -157,7 +157,9 @@ internal static class CoreAccess
     extension(MapTileWord tile)
     {
         /// <summary>Horizontal and vertical flip bits encoded in a map tile word.</summary>
-        internal TileFlip FlipFlags => (TileFlip)(tile.Raw & 0xc000);
+        internal TileFlip FlipFlags =>
+            ((tile.Raw & 0x4000) != 0 ? TileFlip.Horizontal : TileFlip.None) |
+            ((tile.Raw & 0x8000) != 0 ? TileFlip.Vertical : TileFlip.None);
     }
 
     /// <summary>Builds the exact OAM upload byte payload from a prepared sprite buffer.</summary>

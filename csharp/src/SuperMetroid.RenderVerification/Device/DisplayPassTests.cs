@@ -2,10 +2,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 using SuperMetroid.Rendering.Direct3D11.Telemetry;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.RenderVerification.Device;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -19,9 +19,9 @@ internal static class DisplayPassTests
     {
         // Seeded tile memory gives every display size a full-screen image with no flat runs.
         var random = new Random(32111);
-        var vram = new byte[SnesPpuLayout.VramByteCount];
+        var vram = new byte[SnesVram.ByteCount];
         random.NextBytes(vram);
-        RgbColor[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount)
+        RgbColor[] palette = Enumerable.Range(0, SnesCgram.ColorCount)
             .Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
         var packet = new DisplayPacket(new(1, 1, 0), new LayeredScene(new FramePaint(palette, []),
             [new TileRenderLayer(VramTileFixtures.Cells(vram, palette, 0x4000, 0x6000, BgBitDepth.FourBpp, new Extent16<TilemapCells>(32, 32)),

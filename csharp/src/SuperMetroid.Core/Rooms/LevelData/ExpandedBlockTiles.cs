@@ -1,12 +1,14 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms.LevelData;
 
-/// <summary>Four row-major SNES tilemap words forming a visual 16x16 block.</summary>
-/// <param name="TopLeft">The upper-left 8x8 character's tilemap entry.</param>
-/// <param name="TopRight">The upper-right 8x8 character's tilemap entry.</param>
-/// <param name="BottomLeft">The lower-left 8x8 character's tilemap entry.</param>
-/// <param name="BottomRight">The lower-right 8x8 character's tilemap entry.</param>
+/// <summary>The four tiles a 16x16 block shows, row by row, already mirrored by the block's level word.</summary>
+/// <param name="TopLeft">The upper-left tile.</param>
+/// <param name="TopRight">The upper-right tile.</param>
+/// <param name="BottomLeft">The lower-left tile.</param>
+/// <param name="BottomRight">The lower-right tile.</param>
 public readonly record struct ExpandedBlockTiles(
-    SnesBgTilemapWord TopLeft,
-    SnesBgTilemapWord TopRight,
-    SnesBgTilemapWord BottomLeft,
-    SnesBgTilemapWord BottomRight);
+    BackgroundTile TopLeft,
+    BackgroundTile TopRight,
+    BackgroundTile BottomLeft,
+    BackgroundTile BottomRight);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Rooms;
 using static SuperMetroid.Verification.Areas.Maridia.MaridiaElevatubeVisualsVerification;
 using static SuperMetroid.Verification.Areas.Maridia.LookupElevatubeVerification;
@@ -27,7 +28,7 @@ internal static class MaridiaElevatubePlmVerification
         Suite(nameof(VerifyElevatubeProgramSound), () => VerifyElevatubeProgramSound(rom));
 
         RoomLevelData level = CreateRoom(new(4, 4), new ushort[16], new byte[16],
-            blockDefinitions: new byte[0x400 * 8]);
+            blockDefinitions: new BackgroundTile[0x400 * 4]);
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.WreckedShipTreadmill.TrySpawnMaridiaElevatube(level),
             "native door setup allocates the elevatube PLM");

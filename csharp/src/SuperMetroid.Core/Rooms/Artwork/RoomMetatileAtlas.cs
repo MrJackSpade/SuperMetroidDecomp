@@ -1,4 +1,3 @@
-using System.Buffers.Binary;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
@@ -6,21 +5,21 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
-/// Editable 16x16 visual blocks. This catalog contains only four BG tile words per
-/// block; room collision types, BTS behavior and placement remain elsewhere.
+/// Editable 16x16 visual blocks. This catalog contains only the four tiles each block
+/// shows; room collision types, BTS behavior and placement remain elsewhere.
 /// </summary>
 public sealed class RoomMetatileAtlas
 {
-    /// <summary>Four packed BG words per block in native quadrant order.</summary>
-    private readonly byte[] blockDefinitions;
+    /// <summary>Four tiles per block in quadrant order.</summary>
+    private readonly BackgroundTile[] blockTiles;
 
-    /// <summary>Accepts a fully validated native block table.</summary>
-    private RoomMetatileAtlas(byte[] blockDefinitions) => this.blockDefinitions = blockDefinitions;
+    /// <summary>Accepts a fully validated block table.</summary>
+    private RoomMetatileAtlas(BackgroundTile[] blockTiles) => this.blockTiles = blockTiles;
 
-    /// <summary>Compiled native block-table bytes: four little-endian BG tilemap words per block, ordered top-left, top-right, bottom-left, bottom-right.</summary>
-    public ReadOnlyMemory<byte> BlockDefinitions => blockDefinitions;
+    /// <summary>The blocks' tiles: four per block, ordered top-left, top-right, bottom-left, bottom-right.</summary>
+    public ReadOnlyMemory<BackgroundTile> BlockTiles => blockTiles;
 
-    /// <summary>Validates editable metatile JSON and packs each block's four tile references and visual attributes into the native eight-byte representation.</summary>
+    /// <summary>Validates editable metatile JSON and places each block's four tiles with their colour variants, mirroring and priority.</summary>
     /// <param name="json">Map document stream using the strict, camel-case version-1 schema.</param>
     /// <param name="expectedByteCount">Required decompressed table length in bytes, comprising 1..1024 complete eight-byte blocks.</param>
     /// <returns>The compiled block table, preserving the document's block and quadrant order.</returns>
@@ -38,7 +37,7 @@ public sealed class RoomMetatileAtlas
                 $"Room metatiles require version {RoomMetatileFormat.Version} and " +
                 $"{expectedCount} ordered 16x16 blocks.");
 
-        var bytes = new byte[expectedByteCount];
+        var tiles = new BackgroundTile[expectedCount * RoomMetatileFormat.TilesPerBlock];
         for (int block = 0; block < document.Blocks.Length; block++)
         {
             RoomMetatileDefinition? definition = document.Blocks[block];
@@ -49,7 +48,7 @@ public sealed class RoomMetatileAtlas
             WriteCell(definition.BottomLeft, block, "bottomLeft", 2);
             WriteCell(definition.BottomRight, block, "bottomRight", 3);
         }
-        return new RoomMetatileAtlas(bytes);
+        return new RoomMetatileAtlas(tiles);
 
         void WriteCell(RoomMetatileCell? cell, int block, string quadrant, int index)
         {
@@ -58,14 +57,9 @@ public sealed class RoomMetatileAtlas
                 (uint)cell.Palette >= RoomMetatileFormat.PaletteCount)
                 throw new InvalidDataException(
                     $"Room metatile {block} {quadrant} has an invalid tile or palette index.");
-            TileFlip flips =
-                (cell.FlipX ? TileFlip.Horizontal : 0) |
-                (cell.FlipY ? TileFlip.Vertical : 0);
-            BinaryPrimitives.WriteUInt16LittleEndian(
-                bytes.AsSpan(block * RoomMetatileFormat.BytesPerBlock + index * sizeof(ushort)),
-                SnesBgTilemapWord.Create(
-                    cell.TileRow * RoomMetatileFormat.TileColumns + cell.TileColumn,
-                    cell.Palette, cell.Priority, flips).Raw);
+            tiles[block * RoomMetatileFormat.TilesPerBlock + index] = new BackgroundTile(
+                cell.TileRow * RoomMetatileFormat.TileColumns + cell.TileColumn,
+                cell.Palette, cell.FlipX, cell.FlipY, cell.Priority);
         }
     }
 

@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
@@ -60,13 +61,12 @@ internal static class XraySetupVerification
         RoomLevelData level = runtime.Room.LoadedLevelData;
         // Markers are tileset blocks whose four tile words no other definition holds, so a word of one in the reveal
         // can only have been copied from a block showing it; the room draws them from their installed pictures (#1392).
-        byte[] table = level.BlockDefinitions.ToArray();
-        ushort[] words = [.. Enumerable.Range(0, table.Length / 2).Select(word => LittleEndianBytes.Word(table[word * 2], table[word * 2 + 1]))];
+        ushort[] words = BackgroundTileWordBytes.Words(level.BlockDefinitions.Span);
         Dictionary<ushort, int> uses = words.GroupBy(word => word).ToDictionary(group => group.Key, group => group.Count());
         int[] markers = [.. Enumerable.Range(CommonRoomElementBlocks, words.Length / 4 - CommonRoomElementBlocks)
             .Where(definition => Enumerable.Range(0, 4).All(corner => uses[words[definition * 4 + corner]] == 1)).Take(4)];
         AssertEqual(4, markers.Length, "the room's tileset has four blocks of unique tile words");
-        ushort Marker(int stage) => words[markers[stage] * 4];
+        BackgroundTile Marker(int stage) => BackgroundTileWordBytes.Tile(words[markers[stage] * 4]);
         // BG1 shows level data (#1346): show one block everywhere, keeping collision.
         void ShowEverywhere(int stage)
         {
@@ -97,7 +97,7 @@ internal static class XraySetupVerification
             room.State.XrayOverlay, scroll.Layer1Position, runtime.Xray.XrayRevealVisuals);
         AssertTrue(expected.SequenceEqual(XraySetupMemory.ReadReveal(runtime.Xray)), "stage four builds from the shown BG1 plane and overlays");
         AssertTrue(expected.Contains(Marker(2)), "the reveal copies the level data shown at stage four");
-        AssertTrue(!expected.Any(word => word == Marker(0) || word == Marker(1)), "no earlier setup call's BG1 reaches the reveal");
+        AssertTrue(!expected.Any(tile => tile == Marker(0) || tile == Marker(1)), "no earlier setup call's BG1 reaches the reveal");
         ShowEverywhere(3);
         for (int frame = 0; frame < 90; frame++) runtime.StepFrame(held);
         AssertTrue(expected.SequenceEqual(XraySetupMemory.ReadReveal(runtime.Xray)), "widening/full beam never rebuilds the frozen reveal map");

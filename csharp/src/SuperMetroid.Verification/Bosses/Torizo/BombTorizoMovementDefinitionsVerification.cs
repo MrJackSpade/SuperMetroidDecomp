@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Torizo;
@@ -85,7 +86,7 @@ internal static class BombTorizoMovementDefinitionsVerification
 
         var guarded = NewBombTorizoMovementReadGuard(rom);
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(64, 64), new RoomLevelPlanes(new ushort[4096], new byte[4096], new ushort[4096]), new byte[8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(64, 64), new RoomLevelPlanes(new ushort[4096], new byte[4096], new ushort[4096]), new BackgroundTile[4]);
 
         for (ushort tableOffset = 0; tableOffset < 40; tableOffset += 2)
         {

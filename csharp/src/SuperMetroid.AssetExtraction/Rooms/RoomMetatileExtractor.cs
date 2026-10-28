@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Hardware;
@@ -52,7 +53,7 @@ public static class RoomMetatileExtractor
             byte[] serialized = json.ToArray();
             RoomMetatileAtlas compiled = RoomMetatileAtlas.Load(
                 new MemoryStream(serialized, writable: false), native.Length);
-            if (!compiled.BlockDefinitions.Span.SequenceEqual(native))
+            if (!BackgroundTileWords.ToBytes(compiled.BlockTiles.Span).AsSpan().SequenceEqual(native))
                 throw new InvalidDataException(
                     $"Room metatile JSON {name} changed source ${source:X6} block bytes.");
             files.Add(name, serialized);

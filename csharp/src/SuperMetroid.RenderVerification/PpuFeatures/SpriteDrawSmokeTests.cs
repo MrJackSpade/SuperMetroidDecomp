@@ -31,7 +31,7 @@ internal static class SpriteDrawSmokeTests
         {
             // A sheet of four eight-pixel frames: three solid in colour 1 of rows 0 to 2, and one in row 3 colouring only
             // its left column, so a horizontal mirror moves that column to the frame's right edge.
-            var palette = new RgbColor[SnesPpuLayout.CgramColorCount];
+            var palette = new RgbColor[SnesCgram.ColorCount];
             palette[128 + 1] = new RgbColor(31, 0, 0);
             palette[128 + 16 + 1] = new RgbColor(0, 31, 0);
             palette[128 + 32 + 1] = new RgbColor(0, 0, 31);
@@ -88,9 +88,9 @@ internal static class SpriteDrawSmokeTests
 
         void CheckSeededScene(Random random)
         {
-            var vram = new byte[SnesPpuLayout.VramByteCount];
+            var vram = new byte[SnesVram.ByteCount];
             random.NextBytes(vram);
-            RgbColor[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount)
+            RgbColor[] palette = Enumerable.Range(0, SnesCgram.ColorCount)
                 .Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
             var draws = ImmutableArray.CreateBuilder<SpriteDraw>();
             // Pre-coloured image draws (#1392): a sheet with transparent pixels, frames cut anywhere on it, any origin,

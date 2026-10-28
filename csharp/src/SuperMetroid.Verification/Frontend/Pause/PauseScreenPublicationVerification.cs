@@ -55,7 +55,7 @@ internal static class PauseScreenPublicationVerification
         byte[] vram = pause.ShownVram();
         AssertTiles(vram, PauseMenuLayoutConstants.Bg1TilemapWord, screen.Tilemaps.Bg1, $"{page} BG1");
         AssertTiles(vram, PauseMenuLayoutConstants.Bg2TilemapWord, screen.Tilemaps.Bg2, $"{page} BG2");
-        AssertWords(vram, GameplayVramLayoutConstants.HudTilemapWord, screen.Tilemaps.Bg3, $"{page} BG3");
+        AssertTiles(vram, GameplayVramLayoutConstants.HudTilemapWord, screen.Tilemaps.Bg3, $"{page} BG3");
         int tilemapsFirst = PauseMenuLayoutConstants.Bg1TilemapWord * sizeof(ushort);
         int tilemapsEnd = (PauseMenuLayoutConstants.Bg2TilemapWord + screen.Tilemaps.Bg2.Length) * sizeof(ushort);
         AssertTrue(vram.AsSpan(0, tilemapsFirst).SequenceEqual(screen.Characters[..tilemapsFirst]) &&
@@ -64,16 +64,6 @@ internal static class PauseScreenPublicationVerification
             $"{page} draws its bound characters");
         AssertTrue(memory.Colors.SequenceEqual(screen.Palette.Colors), $"{page} draws its own palette");
         AssertTrue(screen.Objects.Draws.Length > 0 && PaintedSpriteEntries.AreOwn(memory.SpriteDraws, screen.Objects.Draws), $"{page} draws its own sprite entries");
-    }
-
-    /// <summary>Asserts that the words of <paramref name="vram"/> from <paramref name="firstWord"/> are exactly <paramref name="expected"/>.</summary>
-    private static void AssertWords(byte[] vram, int firstWord, ReadOnlySpan<ushort> expected, string context)
-    {
-        for (int word = 0; word < expected.Length; word++)
-        {
-            int at = (firstWord + word) * sizeof(ushort);
-            AssertEqual(expected[word], LittleEndianBytes.Word(vram[at], vram[at + 1]), $"{context} word {word}");
-        }
     }
 
     /// <summary>Asserts that the words of <paramref name="vram"/> from <paramref name="firstWord"/> place exactly the tiles <paramref name="expected"/>.</summary>

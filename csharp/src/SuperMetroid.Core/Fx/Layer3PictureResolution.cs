@@ -22,7 +22,7 @@ internal static class Layer3PictureResolution
         Ensure.NotNull(plane);
         if (resolver.Sheet.Layer != TileWordLayer.Bg3)
             throw new InvalidOperationException($"{resolver.Sheet.Name} pictures no BG3 words.");
-        return resolver.ResolveWords(plane, Layer3Plane.Columns * Layer3Plane.Rows, index => plane.Words[index], Ensure.NotNull(bindings).Of(characters),
+        return resolver.ResolveWords(plane, Layer3Plane.Columns * Layer3Plane.Rows, index => plane.Tiles[index], Ensure.NotNull(bindings).Of(characters),
             animated);
     }
 }

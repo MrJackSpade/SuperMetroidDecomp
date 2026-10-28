@@ -19,8 +19,10 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
     private const ushort ThreeBitMask = 0x0007;
     /// <summary>The PPU exposes four OBJ priority tiers.</summary>
     private const ushort TwoBitMask = 0x0003;
-    /// <summary>The upper two attribute bits reverse the tile on either axis.</summary>
-    private const ushort FlipMask = 0xc000;
+    /// <summary>Bit 14 mirrors the object left to right.</summary>
+    private const ushort HorizontalFlipBit = 0x4000;
+    /// <summary>Bit 15 mirrors the object top to bottom.</summary>
+    private const ushort VerticalFlipBit = 0x8000;
 
     /// <summary>Gets the nine-bit OBJ character number, from 0 through 511, including the tile-page select bit.</summary>
     public int TileNumber => Raw & TileNumberMask;
@@ -31,7 +33,9 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
     /// <summary>Gets only the palette field in its packed bit positions, suitable for native palette composition.</summary>
     public ushort PaletteBits => unchecked((ushort)(Raw & PaletteFieldMask));
     /// <summary>Gets both reflection flags without including tile, palette, or priority bits.</summary>
-    public TileFlip FlipFlags => (TileFlip)(Raw & FlipMask);
+    public TileFlip FlipFlags =>
+        ((Raw & HorizontalFlipBit) != 0 ? TileFlip.Horizontal : TileFlip.None) |
+        ((Raw & VerticalFlipBit) != 0 ? TileFlip.Vertical : TileFlip.None);
     /// <summary>Gets whether the object's pixels are drawn in reverse horizontal order.</summary>
     public bool FlipHorizontally => (FlipFlags & TileFlip.Horizontal) != 0;
     /// <summary>Gets whether the object's rows are drawn in reverse vertical order.</summary>
@@ -59,7 +63,7 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
             tileNumber |
             (paletteIndex << PaletteShift) |
             (priority << PriorityShift) |
-            (ushort)flips)));
+            FlipBits(flips))));
     }
 
     /// <summary>Creates a word containing only a validated OBJ palette field.</summary>
@@ -99,6 +103,11 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
     /// <summary>ORs another already-validated packed attribute fragment.</summary>
     public SnesObjAttributeWord Or(SnesObjAttributeWord attributes) =>
         new(unchecked((ushort)(Raw | attributes.Raw)));
+
+    /// <summary>The attribute bits that store <paramref name="flips"/>.</summary>
+    private static int FlipBits(TileFlip flips) =>
+        ((flips & TileFlip.Horizontal) != 0 ? HorizontalFlipBit : 0) |
+        ((flips & TileFlip.Vertical) != 0 ? VerticalFlipBit : 0);
 
     /// <summary>Rejects unsupported reflection bits before composing an OBJ attribute word.</summary>
     private static void ValidateFlips(TileFlip flips)

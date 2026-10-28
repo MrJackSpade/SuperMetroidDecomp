@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
@@ -40,7 +41,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             "retail Fake Kraid uses ordinary OAM composition");
 
         Suite(nameof(FakeKraidAnimationsVerification.VerifyFakeKraidAnimations), () => FakeKraidAnimationsVerification.VerifyFakeKraidAnimations(rom));
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]), new byte[8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]), new BackgroundTile[4]);
 
         Suite(nameof(VerifyInitializer), () => VerifyInitializer(movingRight: false));
         Suite(nameof(VerifyInitializer), () => VerifyInitializer(movingRight: true));

@@ -258,9 +258,9 @@ internal sealed class CollectiblePlms : IPlmFamilySource
             BgCharacterSet.Tiles.CharactersIn(graphics.Length)).BindTo(backgrounds);
 
         int firstDefinitionWord = CollectibleDynamicGraphicsDefinitions.FirstBlockDefinitionWord + graphicsSlot * SlotDefinitionWords;
-        ushort[] words = SlotDefinitions(graphicsSlot, paletteOffsets.Span);
-        for (int child = 0; child < words.Length; child++)
-            level.SetBlockDefinitionWord(firstDefinitionWord + child, words[child]);
+        BackgroundTile[] tiles = SlotDefinitions(graphicsSlot, paletteOffsets.Span);
+        for (int child = 0; child < tiles.Length; child++)
+            level.SetBlockDefinitionTile(firstDefinitionWord + child, tiles[child]);
         return graphicsSlot;
     }
 
@@ -285,16 +285,16 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         installed?.Resolve(kind) ?? RoomPlmDynamicCollectibleGraphicsDefinitions.Get(kind);
 
     /// <summary>
-    /// The block definition words a collectible writes for slot <paramref name="graphicsSlot"/>: each of its eight
-    /// characters in the palette row <paramref name="paletteOffsets"/> gives it.
+    /// The block definition tiles a collectible writes for slot <paramref name="graphicsSlot"/>: each of its eight
+    /// characters in the colour variant <paramref name="paletteOffsets"/> gives it.
     /// </summary>
-    internal static ushort[] SlotDefinitions(int graphicsSlot, ReadOnlySpan<byte> paletteOffsets)
+    internal static BackgroundTile[] SlotDefinitions(int graphicsSlot, ReadOnlySpan<byte> paletteOffsets)
     {
         int startingTileNumber = CollectibleDynamicGraphicsDefinitions.FirstTileNumber + graphicsSlot * SlotDefinitionWords;
-        var words = new ushort[SlotDefinitionWords];
-        for (int child = 0; child < words.Length; child++)
-            words[child] = unchecked((ushort)(startingTileNumber + child + (paletteOffsets[child] << 10)));
-        return words;
+        var tiles = new BackgroundTile[SlotDefinitionWords];
+        for (int child = 0; child < tiles.Length; child++)
+            tiles[child] = new BackgroundTile(startingTileNumber + child, paletteOffsets[child], highPriority: false);
+        return tiles;
     }
 
     /// <summary>Advances one item's reveal, pickup, message wait, or shot-block respawn list.</summary>

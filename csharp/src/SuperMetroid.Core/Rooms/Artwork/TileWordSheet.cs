@@ -35,9 +35,9 @@ public sealed class TileWordSheet
             if (frame.Sheet.Colours != ColoursOf(layer))
                 throw new InvalidDataException($"{Name} is not coloured as {layer}'s characters are.");
             if (tile.Corner.X + 8 > frame.Size.X || tile.Corner.Y + 8 > frame.Size.Y)
-                throw new InvalidDataException($"{Name} pictures tile ${tile.Tile.Word.Raw:X4} outside its frame {tile.Frame}.");
+                throw new InvalidDataException($"{Name} pictures tile {tile.Tile.Tile} outside its frame {tile.Frame}.");
             if (!pictures.TryAdd(tile.Tile, new BgTilePicture(frame, tile.Corner)))
-                throw new InvalidDataException($"{Name} pictures tile ${tile.Tile.Word.Raw:X4} over {tile.Tile.Shown.Artwork.Name} twice.");
+                throw new InvalidDataException($"{Name} pictures tile {tile.Tile.Tile} over {tile.Tile.Shown.Artwork.Name} twice.");
         }
     }
 

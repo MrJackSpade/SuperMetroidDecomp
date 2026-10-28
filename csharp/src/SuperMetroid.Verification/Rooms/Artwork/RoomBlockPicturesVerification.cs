@@ -209,7 +209,7 @@ internal static class RoomBlockPicturesVerification
         while (!typewriter.Step(out EscapeTypewriterGlyph? glyph))
         {
             if (glyph is { } typed)
-                overlay = overlay.With(typed.Cell, [typed.Tile.Raw]);
+                overlay = overlay.With(typed.Cell, [typed.Tile]);
         }
         ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver(sheet).Resolve(overlay,
             RoomCharacterSource.Of(RoomBackgroundCharacters.Tileset, runtime.BgArtwork, runtime.EnemySession.SpriteCharacters,
@@ -401,8 +401,8 @@ internal static class RoomBlockPicturesVerification
             ?? throw new InvalidOperationException($"{where}: BG2 shows no library background image.");
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
         // The room's load selects the image by name (#1406); its tilemap words are the pages the library list builds.
-        ImmutableArray<ushort> words = (runtime.Room.Scope?.BackgroundImage
-            ?? throw new InvalidOperationException($"{where}: the room selects no library background image.")).Image.TilemapWords;
+        ImmutableArray<ushort> words = [.. BackgroundTileWordBytes.Words((runtime.Room.Scope?.BackgroundImage
+            ?? throw new InvalidOperationException($"{where}: the room selects no library background image.")).Image.Tiles.AsSpan())];
         // A 32x64 map lays the two pages out one above the other, as the image does.
         for (int y = 0; y < RoomBackgroundImage.Pages * RoomBackgroundImage.PagePixels; y++)
         for (int x = 0; x < RoomBackgroundImage.PagePixels; x++)
@@ -493,7 +493,7 @@ internal static class RoomBlockPicturesVerification
         byte[] tiles = rooms.Characters == RoomBackgroundCharacters.ObjectCharacterPage
             ? runtime.Artwork.GameplayObjectPage(runtime.EnemySession.SpriteCharacters).Characters.ToArray()
             : runtime.ComposedVram()[(BgCharacterWordsConstants.WordOf(BgCharacterSet.Tiles, 0) * sizeof(ushort))..];
-        ReadOnlySpan<byte> definitions = runtime.Room.LoadedLevelData.ForegroundPlane.Definitions.AsSpan();
+        ReadOnlySpan<byte> definitions = BackgroundTileWordBytes.Of(runtime.Room.LoadedLevelData.ForegroundPlane.Definitions.AsSpan());
         int pictures = 0, uploaded = 0;
         for (int definition = 0; definition < table.Definitions; definition++)
         {
@@ -542,8 +542,9 @@ internal static class RoomBlockPicturesVerification
     /// Asserts the X-ray reveal the frame displays paints, pixel for pixel, the palette index, priority and standard colour
     /// the reveal buffer's tile words paint over the characters the bindings compose into VRAM (#1392).
     /// </summary>
-    internal static void AssertRevealPaintsWords(SuperMetroidRuntime runtime, ReadOnlySpan<ushort> words, string where)
+    internal static void AssertRevealPaintsWords(SuperMetroidRuntime runtime, ReadOnlySpan<BackgroundTile> tiles, string where)
     {
+        ushort[] words = BackgroundTileWordBytes.Words(tiles);
         XrayRevealPlane reveal = runtime.Display.Latched.XrayReveal ?? throw new InvalidOperationException($"{where}: no X-ray reveal is displayed.");
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
         for (int row = 0; row < XrayTilemapLayout.MetatileRows; row++)
@@ -591,7 +592,7 @@ internal static class RoomBlockPicturesVerification
     }
 
     /// <summary>Bytes per block definition.</summary>
-    private const int RoomLevelPlaneDefinitionBytes = SuperMetroid.Core.Rooms.Backgrounds.RoomLevelPlane.DefinitionBytes;
+    private const int RoomLevelPlaneDefinitionBytes = SuperMetroid.Core.Rooms.Backgrounds.RoomLevelPlane.DefinitionTiles * sizeof(ushort);
 
     /// <summary>Runs the room block picture checks.</summary>
     [VerificationCommand("--room-block-pictures")]

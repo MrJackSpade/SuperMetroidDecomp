@@ -21,13 +21,13 @@ internal static class RoomBlockFixtures
     /// in <paramref name="image"/> and coloured from <paramref name="palette"/>.
     /// </summary>
     /// <exception cref="ArgumentException">The definitions are not whole blocks.</exception>
-    internal static RoomBlockPictureTable Pictures(ReadOnlySpan<byte> definitions, ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette,
+    internal static RoomBlockPictureTable Pictures(ReadOnlySpan<BackgroundTile> definitions, ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette,
         int characterWord = 0)
     {
         const int columns = 16, side = RoomBlockSheet.BlockPixels, tile = 8, characterWords = 16;
-        if (definitions.IsEmpty || definitions.Length % RoomLevelPlane.DefinitionBytes != 0)
-            throw new ArgumentException("Block definitions are whole groups of four tilemap words.", nameof(definitions));
-        int count = definitions.Length / RoomLevelPlane.DefinitionBytes;
+        if (definitions.IsEmpty || definitions.Length % RoomLevelPlane.DefinitionTiles != 0)
+            throw new ArgumentException("Block definitions are whole groups of four tiles.", nameof(definitions));
+        int count = definitions.Length / RoomLevelPlane.DefinitionTiles;
         int rows = (count + columns - 1) / columns;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(columns * side, checked((ushort)(rows * side))));
         RgbColor[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
@@ -39,11 +39,10 @@ internal static class RoomBlockFixtures
             SpritePaletteRows coloured = SpritePaletteRows.None;
             for (int corner = 0; corner < 4; corner++)
             {
-                var word = new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(
-                    definitions.Slice(block * RoomLevelPlane.DefinitionBytes + corner * sizeof(ushort))));
+                BackgroundTile word = definitions[block * RoomLevelPlane.DefinitionTiles + corner];
                 for (int part = 0; part < characterWords; part++)
                 {
-                    int at = SnesVramAddressingConstants.ByteOffsetOfWord(characterWord + word.CharacterIndex * characterWords + part);
+                    int at = SnesVramAddressingConstants.ByteOffsetOfWord(characterWord + word.Tile * characterWords + part);
                     character[part * 2] = image[at];
                     character[part * 2 + 1] = image[at + 1];
                 }
@@ -109,7 +108,7 @@ internal static class RoomBlockFixtures
         ComposedSpriteSheet composed = canvas.ToSheet(colours, frames);
         SpriteSheet sheet = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(composed.Manifest), writable: false), "loaded-background-fixture",
             composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities, composed.PartRows);
-        var background = new RoomBackgroundImage("loaded-background-fixture", sheet, [.. words]);
+        var background = new RoomBackgroundImage("loaded-background-fixture", sheet, [.. BackgroundTileWordBytes.Tiles(words)]);
         return new RoomBackgroundImagePlane(background, new SpriteSheetFrame?[background.CellCount]);
     }
 }

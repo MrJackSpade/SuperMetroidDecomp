@@ -17,7 +17,7 @@ public readonly record struct VramDmaDestination
     /// <summary>Native DMA queue bit 15, selecting 32-word column increments.</summary>
     internal const ushort ColumnFlag = 1 << 15;
     /// <summary>Native fifteen-bit VMADD address field.</summary>
-    internal const ushort WordMask = SnesPpuLayout.VramWordCount - 1;
+    internal const ushort WordMask = SnesVram.WordCount - 1;
     /// <summary>The words a column increment advances.</summary>
     private const int ColumnIncrementWords = 32;
 

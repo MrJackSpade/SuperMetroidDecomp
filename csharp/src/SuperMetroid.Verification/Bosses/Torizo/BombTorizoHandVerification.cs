@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoHandVisualsVerification;
@@ -42,8 +43,8 @@ internal static class BombTorizoHandVerification
         // from the synthetic bus so a fallback to the old decoder cannot pass.
         var guarded = NewBombTorizoHandProgramReadGuard(bus);
 
-        var blockDefinitions = new byte[0x400 * 8];
-        blockDefinitions[0x53 * 8] = 0x53;
+        var blockDefinitions = new BackgroundTile[0x400 * 4];
+        blockDefinitions[0x53 * 4] = BackgroundTileWordBytes.Tile(0x53);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), blockDefinitions);
         var samus = new SamusState();
         var plms = PlmFixtures.Unbound();
@@ -68,7 +69,7 @@ internal static class BombTorizoHandVerification
             level.GetCollisionBlockByIndex(handOrigin).PackedWord.Raw,
             "edited Bomb Torizo hand keeps the cartridge's physical level word");
         AssertEqual((ushort)0x0053,
-            level.DisplayedBlockTiles(handOrigin).TopLeft.Raw,
+            level.DisplayedBlockTiles(handOrigin).TopLeft.PackedWord,
             "edited hand survives later background streaming");
         AssertEqual((ushort)0x8064, level.GetCollisionBlock(new(12, 11)).PackedWord.Raw,
             "multi-run hand geometry retains the second native run");

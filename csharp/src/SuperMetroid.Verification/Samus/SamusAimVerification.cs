@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -244,7 +245,7 @@ internal static void VerifySamusAimedAerialMovement()
         // Visual block definitions are ROM-native eight-byte records. The collision
         // test does not render them, but the room container deliberately enforces
         // that physical format even for synthetic fixtures.
-        blockDefinitions: new byte[24]);
+        blockDefinitions: new BackgroundTile[12]);
 
     var samus = new SamusState
     {
@@ -375,7 +376,7 @@ level, samus, ControllerButton.A, unchecked((ushort)index));
     RoomLevelData halfPlatform = CreateRoom(new(width, height),
         halfPlatformWords,
         halfPlatformBts,
-        blockDefinitions: new byte[24]);
+        blockDefinitions: new BackgroundTile[12]);
     var capturedCompactLanding = new SamusState
     {
         Pose = SamusPoseId.FallingAimDownRightPose,
@@ -450,7 +451,7 @@ level, compactLeftLanding, 0, index);
     RoomLevelData boxedLevel = CreateRoom(new(width, height),
         boxedBlocks,
         new byte[boxedBlocks.Length],
-        blockDefinitions: new byte[24]);
+        blockDefinitions: new BackgroundTile[12]);
     var boxedCompact = new SamusState
     {
         Pose = SamusPoseId.NormalJumpAimDownRightPose,

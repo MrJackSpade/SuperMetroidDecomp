@@ -1,4 +1,6 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
@@ -9,7 +11,7 @@ internal static class AffineFloorConstants
     /// <exception cref="ArgumentException">The image is not a whole memory image.</exception>
     public static AffineFloor Capture(ReadOnlySpan<byte> image, FloorTilePictures tiles)
     {
-        Ensure.LengthEqual(image, SnesPpuLayout.VramByteCount);
+        Ensure.LengthEqual(image, SnesVram.ByteCount);
         var cells = ImmutableArray.CreateBuilder<AffineFloorCell>(AffineFloor.CellCount);
         for (int cell = 0; cell < AffineFloor.CellCount; cell++)
             cells.Add(new AffineFloorCell(image[cell * sizeof(ushort)]));

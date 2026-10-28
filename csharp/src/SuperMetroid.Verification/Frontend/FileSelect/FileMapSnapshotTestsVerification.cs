@@ -14,6 +14,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 
 /// <summary>Checks file-select map render packets against the legacy raster path.</summary>
@@ -99,7 +100,7 @@ internal static class FileMapSnapshotTestsVerification
     /// <summary>Checks window replacement pixels and malformed nested-scene rejection.</summary>
     private static void VerifyWindowedSceneContract()
     {
-        var palette = new ushort[SnesPpuLayout.CgramColorCount]; palette[0] = 31;
+        var palette = new ushort[SnesCgram.ColorCount]; palette[0] = 31;
         var red = new FramePaint(ToColors(palette), []);
         palette[0] = 31 << 10;
         var blue = new FramePaint(ToColors(palette), []);

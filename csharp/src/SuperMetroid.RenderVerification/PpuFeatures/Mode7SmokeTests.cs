@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -16,7 +17,7 @@ internal static class Mode7SmokeTests
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var random = new Random(32113);
-        var vram = new byte[SnesPpuLayout.VramByteCount];
+        var vram = new byte[SnesVram.ByteCount];
         var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         random.NextBytes(vram); random.NextBytes(oam);
         RgbColor[] palette = Enumerable.Range(0, 256).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();

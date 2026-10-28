@@ -1,60 +1,58 @@
-using System.Buffers.Binary;
 using System.Collections.Immutable;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// Every way the X-ray reveal lays out a room's block definitions, by the four tile words it writes for each (#1392): a
+/// Every way the X-ray reveal lays out a room's block definitions, by the four tiles it writes for each (#1392): a
 /// copied block as the level shows it, a reveal metatile as defined, an overlay with its rows swapped. A buffer's block is
-/// found from its words; definitions laid out to the same words show the same picture.
+/// found from its tiles; definitions laid out to the same tiles show the same picture.
 /// </summary>
 public sealed class RevealedBlockIndex
 {
-    /// <summary>The layouts by their four tile words.</summary>
+    /// <summary>The layouts by their four tiles.</summary>
     private readonly Dictionary<ExpandedBlockTiles, RevealedBlock> layouts = [];
 
     /// <summary>Lays out each of <paramref name="definitions"/> every way, the layouts as defined taking precedence.</summary>
-    public RevealedBlockIndex(ImmutableArray<byte> definitions)
+    public RevealedBlockIndex(ImmutableArray<BackgroundTile> definitions)
     {
         Definitions = definitions;
-        int count = definitions.Length / RoomLevelPlane.DefinitionBytes;
+        int count = definitions.Length / RoomLevelPlane.DefinitionTiles;
         foreach (RevealedBlockArrangement arrangement in Enum.GetValues<RevealedBlockArrangement>())
         {
             for (int definition = 0; definition < count; definition++)
-                layouts.TryAdd(Words(definitions.AsSpan(), definition, arrangement), new RevealedBlock(definition, arrangement));
+                layouts.TryAdd(Tiles(definitions.AsSpan(), definition, arrangement), new RevealedBlock(definition, arrangement));
         }
     }
 
     /// <summary>The definitions laid out.</summary>
-    public ImmutableArray<byte> Definitions { get; }
+    public ImmutableArray<BackgroundTile> Definitions { get; }
 
     /// <summary>
-    /// The block whose layout writes the four tile words, top left to bottom right; null for a block the copy took from
-    /// beyond the room, where BG1 shows nothing and the copy writes zero words that lay out no definition.
+    /// The block whose layout writes the four tiles, top left to bottom right; null for a block the copy took from
+    /// beyond the room, where BG1 shows nothing and the copy writes blank tiles that lay out no definition.
     /// </summary>
-    /// <exception cref="InvalidDataException">No definition laid out any of the reveal's ways writes those words.</exception>
-    public RevealedBlock? Find(int topLeft, int topRight, int bottomLeft, int bottomRight)
+    /// <exception cref="InvalidDataException">No definition laid out any of the reveal's ways writes those tiles.</exception>
+    public RevealedBlock? Find(ExpandedBlockTiles tiles)
     {
-        if (layouts.TryGetValue(new ExpandedBlockTiles(new(checked((ushort)topLeft)), new(checked((ushort)topRight)),
-                new(checked((ushort)bottomLeft)), new(checked((ushort)bottomRight))), out RevealedBlock block))
+        if (layouts.TryGetValue(tiles, out RevealedBlock block))
             return block;
-        if ((topLeft | topRight | bottomLeft | bottomRight) == 0)
+        if (tiles == default)
             return null;
         throw new InvalidDataException(
-            $"The X-ray reveal writes ${topLeft:X4} ${topRight:X4} ${bottomLeft:X4} ${bottomRight:X4}, which lays out no block definition.");
+            $"The X-ray reveal writes {tiles.TopLeft} {tiles.TopRight} {tiles.BottomLeft} {tiles.BottomRight}, which lays out no block definition.");
     }
 
-    /// <summary>The four tile words <paramref name="arrangement"/> lays definition <paramref name="definition"/> out as.</summary>
-    private static ExpandedBlockTiles Words(ReadOnlySpan<byte> definitions, int definition, RevealedBlockArrangement arrangement)
+    /// <summary>The four tiles <paramref name="arrangement"/> lays definition <paramref name="definition"/> out as.</summary>
+    private static ExpandedBlockTiles Tiles(ReadOnlySpan<BackgroundTile> definitions, int definition, RevealedBlockArrangement arrangement)
     {
         if (arrangement == RevealedBlockArrangement.RowsSwapped)
         {
-            // $91:D0A6 swaps the two tile rows without toggling any tile's flips.
-            ReadOnlySpan<byte> words = definitions.Slice(definition * RoomLevelPlane.DefinitionBytes, RoomLevelPlane.DefinitionBytes);
-            return new(new(BinaryPrimitives.ReadUInt16LittleEndian(words[4..])), new(BinaryPrimitives.ReadUInt16LittleEndian(words[6..])),
-                new(BinaryPrimitives.ReadUInt16LittleEndian(words)), new(BinaryPrimitives.ReadUInt16LittleEndian(words[2..])));
+            // $91:D0A6 swaps the two tile rows without toggling any tile's mirroring.
+            ReadOnlySpan<BackgroundTile> tiles = definitions.Slice(definition * RoomLevelPlane.DefinitionTiles, RoomLevelPlane.DefinitionTiles);
+            return new(tiles[2], tiles[3], tiles[0], tiles[1]);
         }
         LevelBlockFlipFlags flips = arrangement switch
         {

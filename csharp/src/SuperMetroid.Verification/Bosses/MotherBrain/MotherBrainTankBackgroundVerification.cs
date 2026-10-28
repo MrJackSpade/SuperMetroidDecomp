@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.World;
@@ -71,7 +72,7 @@ internal static class MotherBrainTankBackgroundVerification
         return 0;
         ushort ReadStaged(int index) => runtime.Enemies.Room.Staging.EnemyBg2Tilemap[index];
         bool RoomShowsPipeBackground() => (runtime.Room.Scope?.BackgroundImage
-            ?? throw new InvalidOperationException("Mother Brain's room selects no library background image.")).Image.TilemapWords.SequenceEqual(pipePages);
+            ?? throw new InvalidOperationException("Mother Brain's room selects no library background image.")).Image.Tiles.SequenceEqual(BackgroundTileWordBytes.Tiles(pipePages));
     }
 
     /// <summary>Runs the ascent mask capture using the initialized Mother Brain room.</summary>

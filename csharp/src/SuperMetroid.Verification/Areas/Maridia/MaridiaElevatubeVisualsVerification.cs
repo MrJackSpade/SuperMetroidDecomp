@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json.Nodes;
@@ -56,8 +57,8 @@ internal static class MaridiaElevatubeVisualsVerification
                 "elevatube override replaces only the visible block");
 
             RoomLevelData level = CreateRoom(new(4, 4), new ushort[16], new byte[16],
-                blockDefinitions: new byte[0x400 * 8]);
-            level.SetBlockDefinitionWord(0x0058 * 4, 0x0058);
+                blockDefinitions: new BackgroundTile[0x400 * 4]);
+            level.SetBlockDefinitionTile(0x0058 * 4, BackgroundTileWordBytes.Tile(0x0058));
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmMaridiaElevatubeVisuals = edited });
             AssertTrue(plms.WreckedShipTreadmill.TrySpawnMaridiaElevatube(level),
                 "production door setup spawns the elevatube PLM");
@@ -68,10 +69,10 @@ internal static class MaridiaElevatubeVisualsVerification
                 level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
                 "edited elevatube tile retains native physical block");
             // A PLM redraw identifies its block by the BG1 ring destination of that block.
-            AssertEqual((ushort)0x0058, level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
+            AssertEqual((ushort)0x0058, level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord,
                 "edited elevatube reaches immediate tilemap update");
             AssertEqual((ushort)0x0058,
-                level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
+                level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord,
                 "edited elevatube survives later camera streaming");
             int heardAtFrame = -1;
             for (int frame = 1; frame < 24 && plms.SlotTable.ActiveCount != 0; frame++)

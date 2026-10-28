@@ -97,7 +97,7 @@ internal static class LibraryBackgroundReplay
         else if (LibraryBackgroundLoader.TryBindTransferredCharacters(transfer, characters))
             return;
         else if (transfer.Source is LibraryBackgroundSource.SkyPage sky && artwork.SkyArt is { } skies)
-            vram.ExecuteQueuedAssetWrite(skies.Page(sky.Page, transfer.ByteCount).Span, destination);
+            vram.ExecuteQueuedAssetWrite(BackgroundTileWords.ToBytes(skies.Page(sky.Page, transfer.ByteCount / sizeof(ushort)).Span), destination);
         else
             // A source no bound catalog owns must not fall back to the cartridge's bytes.
             throw new InvalidDataException(

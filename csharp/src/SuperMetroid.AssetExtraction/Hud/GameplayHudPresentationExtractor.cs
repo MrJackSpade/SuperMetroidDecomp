@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
@@ -39,7 +40,7 @@ public static class GameplayHudPresentationExtractor
             TopRow = ReadCells(bus, HudSourceDefinitions.TopRow,
                 GameplayHudDefinitions.TopRowCellCount),
             Template = ReadCells(bus, HudSourceDefinitions.Template, GameplayHudDefinitions.CellCount),
-            Blank = Cell(GameplayHudDefinitions.BlankWord),
+            Blank = Cell(BackgroundTileWords.ToWord(GameplayHudDefinitions.Blank)),
             SelectedPalette = GameplayHudDefinitions.SelectedPalette,
             DeselectedPalette = GameplayHudDefinitions.DeselectedPalette,
             MinimapAnchor = new(26, 0),
@@ -47,8 +48,8 @@ public static class GameplayHudPresentationExtractor
             {
                 Anchors = Enumerable.Range(0, GameplayHudDefinitions.EnergyTankCount)
                     .Select(tank => Point(GameplayHudDefinitions.EnergyTankCell(tank))).ToArray(),
-                Filled = Cell(GameplayHudDefinitions.FilledEnergyTankWord),
-                Empty = Cell(GameplayHudDefinitions.EmptyEnergyTankWord),
+                Filled = Cell(BackgroundTileWords.ToWord(GameplayHudDefinitions.FilledEnergyTank)),
+                Empty = Cell(BackgroundTileWords.ToWord(GameplayHudDefinitions.EmptyEnergyTank)),
             },
             Digits = new()
             {

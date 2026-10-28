@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -155,7 +156,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             state.SwoopOrigin = body.Position.Whole;
             state.SwoopRadius = new Extent16<RoomPixels>(16, 16);
             var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32),
-                new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]), new byte[8]);
+                new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]), new BackgroundTile[4]);
             var frame = new ClockedEnemyAiFrame(
                 new RoomEnemyFrame
                 {

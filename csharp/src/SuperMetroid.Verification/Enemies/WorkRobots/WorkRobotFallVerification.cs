@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.WorkRobots;
@@ -16,7 +17,7 @@ internal static class WorkRobotFallVerification
     /// </summary>
     internal static void VerifyWorkRobotFall()
     {
-        var air = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(new ushort[64], new byte[64], new ushort[64]), new byte[8]);
+        var air = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(new ushort[64], new byte[64], new ushort[64]), new BackgroundTile[4]);
         var frame = new ClockedEnemyAiFrame(
             new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Level = air },
             new FrameCounters(0));

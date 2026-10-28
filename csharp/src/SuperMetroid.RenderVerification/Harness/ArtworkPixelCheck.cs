@@ -63,7 +63,7 @@ internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRend
         var result = new SnesCgram();
         // All palette rows deliberately share sixteen distinct colors. Sprite
         // palette selection remains native, while the pixel-index oracle is exact.
-        for (int index = 0; index < SnesPpuLayout.CgramColorCount; index++)
+        for (int index = 0; index < SnesCgram.ColorCount; index++)
             result.SetColor(index, new RgbColor(index % 16 + 1, 7, 13));
         return result;
     }

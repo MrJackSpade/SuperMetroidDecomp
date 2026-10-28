@@ -475,15 +475,15 @@ internal static class LookupStream5Verification
             for (int index = 0; index < page.WordCount; index++)
             {
                 ushort native = ReadVerificationWord(rom, CeresEscapeNativeSources.OverlaySource(page) + index * 2);
-                AssertEqual(native, CeresEscapeOverlayTilemapDefinitions.StockWord(page, index), "Native calculated subtitle glyph/style");
-                document.Pages[page.Name][index] = (ushort)(native ^ ushort.MaxValue);
+                AssertEqual(native, CeresEscapeOverlayTilemapDefinitions.StockTile(page, index).PackedWord, "Native calculated subtitle glyph/style");
+                document.Pages[page.Name][index] = BackgroundTileWordBytes.Tile(native ^ ushort.MaxValue);
                 _ = Check(document);
-                document.Pages[page.Name][index] = native;
+                document.Pages[page.Name][index] = BackgroundTileWordBytes.Tile(native);
                 words++;
             }
             AssertTrue(!stock.TryResolveNative(CeresEscapeNativeSources.OverlaySource(page), page.WordCount * 2 - 1, out _), "Changed transfer extent rejected");
-            AssertThrows<ArgumentOutOfRangeException>(() => CeresEscapeOverlayTilemapDefinitions.StockWord(page, -1), "Glyph lower bound");
-            AssertThrows<ArgumentOutOfRangeException>(() => CeresEscapeOverlayTilemapDefinitions.StockWord(page, page.WordCount), "Glyph upper bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => CeresEscapeOverlayTilemapDefinitions.StockTile(page, -1), "Glyph lower bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => CeresEscapeOverlayTilemapDefinitions.StockTile(page, page.WordCount), "Glyph upper bound");
         }
         AssertTrue(!stock.TryResolve(default, out _), "Unknown subtitle page rejected");
         AssertEqual(55, words, "Native subtitle word count");
@@ -503,18 +503,25 @@ internal static class LookupStream5Verification
             AssertEqual(count, overlay.Overlay.Words.Count(word => word != RoomTilemapOverlay.Unwritten), "Native emergency word extent");
             AssertEqual(source.Pages["emergency"].Length, count, "Edited emergency page keeps its native extent");
             for (int index = 0; index < count; index++)
-                AssertEqual(source.Pages["emergency"][index], overlay.Overlay.Words[first + index], "Actual shown emergency preserves independent edits");
-            var transfers = new Dictionary<string, byte[]>();
+                AssertEqual(source.Pages["emergency"][index].PackedWord, overlay.Overlay.Words[first + index], "Actual shown emergency preserves independent edits");
             foreach (var page in CeresEscapeOverlayTilemapDefinitions.All)
             {
                 byte[] expected = new byte[page.WordCount * 2];
                 for (int index = 0; index < page.WordCount; index++)
-                    System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(expected.AsSpan(index * 2), source.Pages[page.Name][index]);
-                AssertTrue(result.TryResolve(page, out var actual) && actual.Span.SequenceEqual(expected), "Independent glyph word and neighboring data preservation");
-                transfers.Add(page.Name, expected);
+                    System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(expected.AsSpan(index * 2), source.Pages[page.Name][index].PackedWord);
+                AssertTrue(result.TryResolve(page, out var actual) && BackgroundTileWordBytes.Of(actual.Span).AsSpan().SequenceEqual(expected), "Independent glyph word and neighboring data preservation");
             }
-            // The pages are keyed by name since #1415, not by cartridge source; their names sort in transfer order.
-            AssertEqual(SelectedPresentationHash.FromNamedTransfers("enemy-ceres-escape-overlay-v1", transfers, bytes => bytes), result.ContentIdentity, "Overlay hash framing by page name");
+            // The pages are keyed by name since #1415, not by cartridge source, each framed by its tiles' fields (#1422).
+            string expectedIdentity = SelectedPresentationHash.Create("enemy-ceres-escape-overlay-v2", content =>
+            {
+                content.Append("shared", ReadOnlySpan<byte>.Empty);
+                foreach (var page in CeresEscapeOverlayTilemapDefinitions.All)
+                {
+                    content.Append("source", System.Text.Encoding.UTF8.GetBytes(page.Name));
+                    content.AppendTiles("tiles", source.Pages[page.Name]);
+                }
+            });
+            AssertEqual(expectedIdentity, result.ContentIdentity, "Overlay hash framing by page name");
             return result;
         }
     }

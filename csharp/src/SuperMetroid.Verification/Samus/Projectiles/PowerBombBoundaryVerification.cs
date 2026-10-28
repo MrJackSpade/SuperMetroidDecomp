@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -11,7 +12,7 @@ internal static class PowerBombBoundaryVerification
     /// <summary>Confirms ordinary and Chainsaw caller words visit the same expected room-block edges at two origins and zero radius.</summary>
     internal static void VerifyPowerBombBoundary()
     {
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(new ushort[25], new byte[25], new ushort[25]), new byte[8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(new ushort[25], new byte[25], new ushort[25]), new BackgroundTile[4]);
         Check(32, 32, 0x1000, [new BotwoonRadiusOpcode(1,1), new BotwoonRadiusOpcode(2,1), new BotwoonRadiusOpcode(3,1), new BotwoonRadiusOpcode(1,1), new BotwoonRadiusOpcode(1,2),
             new BotwoonRadiusOpcode(1,2), new BotwoonRadiusOpcode(2,2), new BotwoonRadiusOpcode(3,2), new BotwoonRadiusOpcode(3,1), new BotwoonRadiusOpcode(3,2)]);
         Check(0, 0, 0x1000, [new BotwoonRadiusOpcode(0,0), new BotwoonRadiusOpcode(1,0), new BotwoonRadiusOpcode(0,0), new BotwoonRadiusOpcode(0,0), new BotwoonRadiusOpcode(1,0), new BotwoonRadiusOpcode(1,0)]);

@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -53,7 +54,7 @@ internal static class CollectiblesVerification
         for (int bts = 0x11; bts <= 0x4e; bts++)
         {
             if (bts is > 0x3f and not 0x4e) continue;
-            var emptyLevel = CreateRoom(new(16, 16), new ushort[256], new byte[256], blockDefinitions: new byte[0x400 * 8]);
+            var emptyLevel = CreateRoom(new(16, 16), new ushort[256], new byte[256], blockDefinitions: new BackgroundTile[0x400 * 4]);
             var unusedPlms = PlmFixtures.Unbound();
             AssertTrue(unusedPlms.TrySpawnProjectileShotBlock(emptyLevel, 0, (byte)bts, 0, true),
                 "unused shootable entry allocates native nothing PLM");
@@ -83,7 +84,7 @@ internal static class CollectiblesVerification
                 int expectedFirstCharacter = 0x03e0 + loaded.GraphicsSlot * 8;
                 AssertEqual(
                     expectedFirstCharacter,
-                    fixture.Level.DisplayedBlockTiles(fixture.BlockIndex).TopLeft.CharacterIndex,
+                    fixture.Level.DisplayedBlockTiles(fixture.BlockIndex).TopLeft.Tile,
                     $"{kind} shown block uses its dynamic PLM character definition");
             }
             ushort visibleItemWord = fixture.Level.ForegroundEntries.Span[fixture.BlockIndex];
@@ -279,7 +280,7 @@ internal static class CollectiblesVerification
 
         var foreground = new ushort[size.Area];
         foreground[blockIndex] = 0x0123;
-        var definitions = new byte[0x400 * 8];
+        var definitions = new BackgroundTile[0x400 * 4];
         RoomLevelData level = CreateRoom(size,
             foreground,
             new byte[foreground.Length],

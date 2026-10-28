@@ -24,11 +24,11 @@ internal static class RoomArtworkPresentationContractChecks
             class RoomArtConsumer {
                 void Inspect(RoomCharacterAtlasCatalog characters, RoomMetatileCatalog metatiles,
                     RoomStaticPaletteCatalog colors, RoomSkyTilemapCatalog sky, RoomBackgroundTilemapCatalog library) {
-                    sky.Page(0, RoomSkyTilemapFormat.PageByteCount);
-                    sky.Page(RoomSkyTilemapFormat.PageCount - 1, RoomSkyTilemapFormat.PageByteCount);
+                    sky.Page(0, RoomSkyTilemapFormat.PageTiles);
+                    sky.Page(RoomSkyTilemapFormat.PageCount - 1, RoomSkyTilemapFormat.PageTiles);
                     sky.Page(0, 64);
-                    sky.Page(RoomSkyTilemapFormat.PageCount, RoomSkyTilemapFormat.PageByteCount);
-                    sky.Page(-1, RoomSkyTilemapFormat.PageByteCount);
+                    sky.Page(RoomSkyTilemapFormat.PageCount, RoomSkyTilemapFormat.PageTiles);
+                    sky.Page(-1, RoomSkyTilemapFormat.PageTiles);
                     sky.Page(0, 0);
                     library.Get(0);
                 }

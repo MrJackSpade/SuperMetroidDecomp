@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
@@ -41,10 +42,10 @@ internal static class RoomSkyTilemapsVerification
         }
         var stock = new RoomSkyTilemapCatalog(pages);
         AssertThrows<InvalidDataException>(
-            () => stock.Page(0, 0x40),
+            () => stock.Page(0, 0x20),
             "sky catalog rejects a row: rows are drawn from the pages, not transferred (#1347)");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => stock.Page(RoomSkyTilemapFormat.PageCount, RoomSkyTilemapFormat.PageByteCount),
+            () => stock.Page(RoomSkyTilemapFormat.PageCount, RoomSkyTilemapFormat.PageTiles),
             "sky catalog rejects a page outside the sky");
         // Every row the land and ocean tables select is the native page row at that offset; the ocean table's
         // adjacent-code chunks select no row.
@@ -61,7 +62,7 @@ internal static class RoomSkyTilemapsVerification
                 }
                 byte[] native = ReadRetailSkyBytes(bus, LibraryBackgroundOperands.SkyPageAddress(page) + row % 32 * 0x40, 0x40);
                 for (int column = 0; column < SkyTilemap.Columns; column++)
-                    AssertEqual(LittleEndianBytes.Word(native[column * 2], native[column * 2 + 1]), rows.Words[row * SkyTilemap.Columns + column],
+                    AssertEqual(LittleEndianBytes.Word(native[column * 2], native[column * 2 + 1]), rows.Tiles[row * SkyTilemap.Columns + column].PackedWord,
                         $"{table} sky row {row} column {column} is the native page word");
             }
         }
@@ -127,8 +128,8 @@ internal static class RoomSkyTilemapsVerification
             new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(editedDocument)),
             RoomSkyTilemapFormat.PageByteCount);
         int shownRow = 0x0300 / 8 * SkyTilemap.Columns;
-        AssertTrue(new RoomSkyTilemapCatalog(pages).Tilemap(ScrollingSkyChunkTable.Land).Words[shownRow] !=
-                stock.Tilemap(ScrollingSkyChunkTable.Land).Words[shownRow],
+        AssertTrue(new RoomSkyTilemapCatalog(pages).Tilemap(ScrollingSkyChunkTable.Land).Tiles[shownRow] !=
+                stock.Tilemap(ScrollingSkyChunkTable.Land).Tiles[shownRow],
             "editing a sky page changes the row the sky shows");
         Console.WriteLine("  Scrolling sky: seven literal pages roundtrip exactly; land/ocean " +
             "rows are the native page rows, and an edit reaches the shown row.");

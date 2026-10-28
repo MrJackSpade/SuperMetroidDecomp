@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
@@ -55,12 +56,12 @@ internal static class CollectibleVisualsVerification
             SeedCollectibleRom(bus);
             CollectibleFixture fixture = LoadCollectible(bus, 0xeed7, roomArgument: 0, precollected: false);
             PlmFixtures.VisualsOf(fixture.Plms).RoomPlmCollectibleVisuals = visuals;
-            fixture.Level.SetBlockDefinitionWord(0x04a * 4, 0x0123);
-            fixture.Level.SetBlockDefinitionWord(0x053 * 4, 0x0456);
+            fixture.Level.SetBlockDefinitionTile(0x04a * 4, BackgroundTileWordBytes.Tile(0x0123));
+            fixture.Level.SetBlockDefinitionTile(0x053 * 4, BackgroundTileWordBytes.Tile(0x0456));
             fixture.Plms.Step(fixture.Level);
             var result = new CollectibleVisualsRenderResult(fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).PackedWord.Raw,
-                fixture.Level.DisplayedBlockTiles(fixture.BlockIndex).TopLeft.Raw,
-                fixture.Level.DisplayedBlockTiles(fixture.BlockIndex).TopLeft.Raw);
+                fixture.Level.DisplayedBlockTiles(fixture.BlockIndex).TopLeft.PackedWord,
+                fixture.Level.DisplayedBlockTiles(fixture.BlockIndex).TopLeft.PackedWord);
             AssertTrue(fixture.Plms.CollectiblePlms.TryNotifyCollectibleTouch(fixture.BlockIndex),
                 "edited item art leaves the native touch trigger active");
             fixture.Plms.Step(fixture.Level);

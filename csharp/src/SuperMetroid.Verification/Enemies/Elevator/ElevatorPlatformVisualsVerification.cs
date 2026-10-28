@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
@@ -50,11 +51,11 @@ internal static class ElevatorPlatformVisualsVerification
             const ushort population = 0x9400;
             var bus = new TestAddressSpace();
             SeedSoleElevatorPlatformPlm(bus, population, new(0x0c, 0x08), ElevatorPlatformPlmDefinitionsConstants.InstructionLoop);
-            var definitions = new byte[0x400 * 8];
+            var definitions = new BackgroundTile[0x400 * 4];
             for (int tile = 0; tile < 4; tile++)
             {
-                definitions[0x085 * 8 + tile * 2] = 0x15;
-                definitions[0x053 * 8 + tile * 2] = 0x53;
+                definitions[0x085 * 4 + tile] = BackgroundTileWordBytes.Tile(0x15);
+                definitions[0x053 * 4 + tile] = BackgroundTileWordBytes.Tile(0x53);
             }
             RoomLevelData level = CreateRoom(new(32, 16), new ushort[32 * 16],
                 new byte[32 * 16], blockDefinitions: definitions);
@@ -65,7 +66,7 @@ internal static class ElevatorPlatformVisualsVerification
             int index = Enumerable.Range(0, 32 * 16).Single(block =>
                 level.GetCollisionBlockByIndex(block).PackedWord.Raw == 0x8085);
             return new RenderResult(level.GetCollisionBlockByIndex(index).PackedWord.Raw,
-                level.DisplayedBlockTiles(index).TopLeft.Raw);
+                level.DisplayedBlockTiles(index).TopLeft.PackedWord);
         }
 
         var native = Render(stock);

@@ -13,6 +13,7 @@ using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
@@ -121,7 +122,7 @@ internal static class RoomFxPaletteBlendsVerification
         AssertEqual(stockLine, GameplayEffectCapture.CaptureCeresHaze(false).Windows[120],
             "cosmetic override does not mutate stock presentation");
         // The edited haze over a black screen, as the display renderer draws it.
-        RgbaPixel[] pixels = DisplayRendering.Render(new LayeredScene(new FramePaint(new RgbColor[SnesPpuLayout.CgramColorCount], []),
+        RgbaPixel[] pixels = DisplayRendering.Render(new LayeredScene(new FramePaint(new RgbColor[SnesCgram.ColorCount], []),
             new RenderLayer[] { GameplayEffectCapture.CaptureCeresHaze(false, colors: edited) }, FadeLevel.Full));
         AssertEqual(editedLine.Green, pixels[120 * DisplayScreen.Width].G,
             "the display renderer draws the same edited Ceres tint the capture holds");

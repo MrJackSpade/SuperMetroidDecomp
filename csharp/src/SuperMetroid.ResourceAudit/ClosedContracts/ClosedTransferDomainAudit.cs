@@ -17,7 +17,7 @@ internal static class ClosedTransferDomainAudit
             .Value.ConstantValue is { HasValue: true, Value: not null } value ? Convert.ToInt32(value.Value) : null;
         if (type == typeof(RoomSkyTilemapCatalog).FullName && operation.TargetMethod.Name == "Page")
             // The page itself is checked against the sky's pages by its index domain.
-            return Constant("byteCount") is int skyCount && skyCount != RoomSkyTilemapFormat.PageByteCount
+            return Constant("tileCount") is int skyCount && skyCount != RoomSkyTilemapFormat.PageTiles
                 ? "A scrolling-sky page copy is not one complete page." : null;
         if (operation.TargetMethod.Name != "TryResolve" || type != typeof(GunshipLiftoffArtworkCatalog).FullName) return null;
         if (Constant("sourceAddress") is not int source) return null;

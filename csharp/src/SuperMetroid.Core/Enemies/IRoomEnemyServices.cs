@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;
@@ -22,13 +23,13 @@ public interface IRoomEnemyServices : IChozoStatueRoomServices, IMotherBrainRoom
     /// <summary>The active PLM population.</summary>
     IRoomPlmPresence Plms { get; }
 
-    /// <summary>Writes tilemap words over the room's BG1 from BG1 tilemap word <paramref name="firstWord"/> onward.</summary>
-    /// <param name="firstWord">The first BG1 tilemap word written.</param>
-    /// <param name="words">The tilemap words, in tilemap order.</param>
-    void DrawBg1Overlay(int firstWord, ReadOnlySpan<ushort> words);
+    /// <summary>Writes tiles over the room's BG1 from BG1 tilemap position <paramref name="first"/> onward.</summary>
+    /// <param name="first">The first BG1 tilemap position written.</param>
+    /// <param name="tiles">The tiles, in tilemap order.</param>
+    void DrawBg1Overlay(int first, ReadOnlySpan<BackgroundTile> tiles);
 
-    /// <summary>Writes tilemap words over the room's BG2 from tilemap word <paramref name="firstWord"/> (#1348).</summary>
-    void DrawBg2Overlay(int firstWord, ReadOnlySpan<ushort> words);
+    /// <summary>Writes tiles over the room's BG2 from tilemap position <paramref name="first"/> (#1348).</summary>
+    void DrawBg2Overlay(int first, ReadOnlySpan<BackgroundTile> tiles);
 
     /// <summary>Writes tile numbers into the room's turning floor map from cell <paramref name="firstCell"/> (#1349).</summary>
     void DrawFloorMap(int firstCell, ReadOnlySpan<byte> tiles);

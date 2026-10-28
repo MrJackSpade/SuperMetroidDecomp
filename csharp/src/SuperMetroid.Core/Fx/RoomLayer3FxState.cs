@@ -38,6 +38,9 @@ public sealed class RoomLayer3FxState
     /// <summary>The effect whose authored page the room's BG3 plane shows, chosen when the room loaded; null when it shows none.</summary>
     public RoomFxType? EffectPageType { get; private set; }
 
+    /// <summary>The tiles of the page the room's BG3 plane shows (#1348), decoded from its words while the room effects' pages still hold words; empty when it shows none.</summary>
+    public SuperMetroid.Core.Assets.BackgroundTile[] EffectPageTiles() => SuperMetroid.Core.Assets.BackgroundTileWords.ToTiles(EffectPageWords());
+
     /// <summary>The words of the page the room's BG3 plane shows (#1348); empty when it shows none.</summary>
     public ushort[] EffectPageWords()
     {

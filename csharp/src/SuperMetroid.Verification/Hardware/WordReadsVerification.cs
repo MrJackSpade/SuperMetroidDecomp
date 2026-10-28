@@ -2,6 +2,7 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.Verification.Hardware;
 
@@ -101,7 +102,7 @@ internal static class WordReadsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => new BgTilemapGeometry(new Extent16<TilemapCells>(48, 32)), "tilemaps are one or two screens");
 
         // One 4-bpp character row with each plane drawing a different column: pixel n's color is 2^plane.
-        var vram = new byte[SnesPpuLayout.VramWordCount * SnesVramAddressingConstants.BytesPerWord];
+        var vram = new byte[SnesVram.WordCount * SnesVramAddressingConstants.BytesPerWord];
         BgCharacterFormat four4 = BgCharacterFormat.FourBitsPerPixel;
         int row = four4.RowByteOffset(characterBaseWord: 0x1000, character: 2, row: 3);
         AssertEqual((0x1000 + 2 * 16) * 2 + 3 * 2, row, "4-bpp row offset: 16 words per character, one word per row");

@@ -1,6 +1,6 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Tooling;
-using System.Buffers.Binary;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -126,15 +126,15 @@ internal static class DynamicCollectibleArtVerification
         LoadRetailBombsWithArt(RoomPlmDynamicCollectibleArtCatalog art)
     {
         const int width = 64;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64), new RoomLevelPlanes(new ushort[width * 64], new byte[width * 64], new ushort[width * 64]), new byte[0x400 * 8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64), new RoomLevelPlanes(new ushort[width * 64], new byte[width * 64], new ushort[width * 64]), new BackgroundTile[0x400 * 4]);
         var vram = new SnesVram();
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmDynamicCollectibleArt = art });
         PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(vram), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationDefinitions.Get(0x83fe), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         CollectiblePlmSnapshot item = plms.CollectiblePlms.Collectibles.Single();
         byte[] tiles = BgArtworkFixtures.Composed(vram, new BgArtworkBytes().WithCollectibles(art)
             .WithSuppliedCollectibles(RoomPlmPopulationDefinitions.Get(0x83fe))).AsSpan(0x3e00 * 2, 0x100).ToArray();
-        ushort firstWord = BinaryPrimitives.ReadUInt16LittleEndian(
-            level.BlockDefinitions.Span.Slice(0x0470));
+        // Tile 0x238 of the block table is the collectible slot's first definition tile, byte 0x0470 of the cartridge's table.
+        ushort firstWord = level.BlockDefinitions.Span[0x0238].PackedWord;
         return new LoadRetailBombsWithArtResult(tiles, firstWord, item);
     }
 }

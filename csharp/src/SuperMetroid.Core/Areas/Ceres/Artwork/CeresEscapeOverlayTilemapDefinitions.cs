@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Collections.Immutable;
 
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
@@ -6,7 +7,7 @@ namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 internal static class CeresEscapeOverlayTilemapDefinitions
 {
     /// <summary>Supported editable warning-overlay schema revision.</summary>
-    internal const int Version = 1;
+    internal const int Version = 2;
     /// <summary>Installed JSON file containing all five Ceres warning tilemap pages.</summary>
     internal const string FileName = "ceres-escape-overlay-tilemaps.json";
 
@@ -54,19 +55,19 @@ internal static class CeresEscapeOverlayTilemapDefinitions
     private const int JapaneseTrailingUpperTile = LatinFirstTile + ('Z' - 'A' + 1);
     /// <summary>Number of Japanese upper glyph halves stored after the Latin alphabet.</summary>
     private const int MainGlyphCount = 16;
-    /// <summary>BG tile attribute selecting the foreground warning layer.</summary>
-    private const int Priority = 1 << 13;
-    /// <summary>The background palette the English warning uses: the one the self-destruct alarm cycle recolours.</summary>
+    /// <summary>The colour variant the English warning uses: the one the self-destruct alarm cycle recolours.</summary>
     private const int EnglishAlarmPalette = 6;
-    /// <summary>Foreground priority combined with the English alarm and Japanese subtitle palette rows.</summary>
-    private const int EnglishStyle = Priority | EnglishAlarmPalette << 10,
-        JapaneseStyle = Priority | 7 << 10;
+    /// <summary>The colour variant the Japanese subtitle uses.</summary>
+    private const int JapanesePalette = 7;
 
-    /// <summary>Calculates a stock English or Japanese overlay word from its authored glyph order, tile half, priority, and palette.</summary>
-    internal static ushort StockWord(CeresEscapeOverlayTilemapDefinition page, int index)
+    /// <summary>
+    /// Calculates a stock English or Japanese overlay tile from its authored glyph order and tile half, in its colour
+    /// variant and the warning's upper priority tier.
+    /// </summary>
+    internal static BackgroundTile StockTile(CeresEscapeOverlayTilemapDefinition page, int index)
     {
         if ((uint)index >= page.WordCount) throw new ArgumentOutOfRangeException(nameof(index));
-        if (page == Emergency) return (ushort)(EnglishStyle | LatinFirstTile + EmergencyText[index] - 'A');
+        if (page == Emergency) return new BackgroundTile(LatinFirstTile + EmergencyText[index] - 'A', EnglishAlarmPalette, highPriority: true);
         bool secondLine = page == JapaneseThird || page == JapaneseFourth;
         bool lowerHalf = page == JapaneseSecond || page == JapaneseFourth;
         if (page != JapaneseFirst && page != JapaneseSecond && page != JapaneseThird && page != JapaneseFourth)
@@ -76,7 +77,7 @@ internal static class CeresEscapeOverlayTilemapDefinitions
         if (glyph < 0) throw new InvalidOperationException("Ceres subtitle character has no native glyph.");
         int tile = lowerHalf ? JapaneseLowerTile + glyph : glyph < MainGlyphCount
             ? JapaneseUpperTile + glyph : JapaneseTrailingUpperTile + glyph - MainGlyphCount;
-        return (ushort)(JapaneseStyle | tile);
+        return new BackgroundTile(tile, JapanesePalette, highPriority: true);
     }
     /// <summary>The five fixed overlays in transfer order: the English title, then the four Japanese row halves.</summary>
     internal static ImmutableArray<CeresEscapeOverlayTilemapDefinition> All { get; } =

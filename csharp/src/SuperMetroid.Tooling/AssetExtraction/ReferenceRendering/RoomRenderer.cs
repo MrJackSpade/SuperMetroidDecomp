@@ -2,6 +2,7 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using System.Buffers.Binary;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -117,6 +118,7 @@ public static class RoomRenderer
         Span<RgbaPixel> destination,
         int destinationWidth)
     {
+        BackgroundTile[] definitionTiles = BackgroundTileWords.ToTiles(blockDefinitions);
         for (int blockY = 0; blockY < size.Y; blockY++)
         {
             for (int blockX = 0; blockX < size.X; blockX++)
@@ -128,7 +130,7 @@ public static class RoomRenderer
                 //   bit     11 vertical block flip
                 //   bits 12-15 collision/block type (rendering does not consume these)
                 ushort levelEntry = BinaryPrimitives.ReadUInt16LittleEndian(blocks[levelOffset..]);
-                ExpandedBlockTiles expanded = LevelBlockTilemapExpander.Expand(levelEntry, blockDefinitions);
+                ExpandedBlockTiles expanded = LevelBlockTilemapExpander.Expand(levelEntry, definitionTiles);
 
                 for (int outputTileY = 0; outputTileY < 2; outputTileY++)
                 {
@@ -136,13 +138,13 @@ public static class RoomRenderer
                     {
                         // The shared bank-$80 expansion has already swapped children and
                         // toggled their own PPU flip flags, so DrawTile consumes final words.
-                        ushort tileEntry = new OutputTileCorner(outputTileX, outputTileY) switch
+                        ushort tileEntry = BackgroundTileWords.ToWord(new OutputTileCorner(outputTileX, outputTileY) switch
                         {
                             (0, 0) => expanded.TopLeft,
                             (1, 0) => expanded.TopRight,
                             (0, 1) => expanded.BottomLeft,
                             _ => expanded.BottomRight,
-                        };
+                        });
                         DrawTile(tileEntry, vram, palette, destination, destinationWidth,
                             new(checked((ushort)(blockX * 16 + outputTileX * 8)), checked((ushort)(blockY * 16 + outputTileY * 8))));
                     }

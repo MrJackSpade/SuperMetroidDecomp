@@ -1,4 +1,3 @@
-using System.Buffers.Binary;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -7,7 +6,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
-/// Resolves the picture each block a room's planes use shows (#1392): the block's tile words, from the room's live
+/// Resolves the picture each block a room's planes use shows (#1392): the block's tiles, from the room's live
 /// definitions, over the frame an animation shows at each tile's character, or else the artwork the background bindings show there. A block is resolved again only
 /// when its definition or what its characters show changes, so a frame whose bindings stand still reuses its table.
 /// </summary>
@@ -15,7 +14,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
 {
     /// <summary>The definitions the last table was resolved from.</summary>
-    private ImmutableArray<byte> definitions;
+    private ImmutableArray<BackgroundTile> definitions;
 
     /// <summary>The BG1 plane whose used definitions <see cref="used"/> holds.</summary>
     private RoomLevelPlane? bg1Plane;
@@ -70,18 +69,16 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
             used = [.. Uses(bg1).Concat(bg2 is null ? [] : Uses(bg2)).Concat(also).Distinct().Order()];
             shown = new BgArtworkShown[used.Length * RoomBlockPictureNames.Tiles];
         }
-        SpriteSheetFrame?[]? pictures = fresh ? new SpriteSheetFrame?[definitions.Length / RoomLevelPlane.DefinitionBytes] : null;
-        Span<ushort> tiles = stackalloc ushort[RoomBlockPictureNames.Tiles];
+        SpriteSheetFrame?[]? pictures = fresh ? new SpriteSheetFrame?[definitions.Length / RoomLevelPlane.DefinitionTiles] : null;
         Span<BgArtworkShown> now = this.now;
         for (int index = 0; index < used.Length; index++)
         {
             int definition = used[index];
             bool changed = fresh;
+            ReadOnlySpan<BackgroundTile> tiles = definitions.AsSpan(definition * RoomLevelPlane.DefinitionTiles, RoomLevelPlane.DefinitionTiles);
             for (int tile = 0; tile < RoomBlockPictureNames.Tiles; tile++)
             {
-                tiles[tile] = BinaryPrimitives.ReadUInt16LittleEndian(
-                    definitions.AsSpan(definition * RoomLevelPlane.DefinitionBytes + tile * sizeof(ushort), sizeof(ushort)));
-                int character = new SnesBgTilemapWord(tiles[tile]).CharacterIndex;
+                int character = tiles[tile].Tile;
                 // A character an animation paints shows the frame it selected (#1406); any other shows what is bound over it.
                 if (!characters.Animated.TryShowing(character, RoomBlockPictureNames.CharacterWords, out now[tile]))
                     now[tile] = characters.Artwork.Showing(character, 1);

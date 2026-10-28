@@ -148,13 +148,13 @@ internal static class MapPresentationVerification
             hud.BindPresentation(hudArt);
             hud.Initialize(HudSnapshot.CeresDebug);
             hud.UpdateMinimap(system, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = map });
-            AssertEqual(map.GetTile(new(5, 6)).ForHud(true).Raw, hud.Tiles[60], "live minimap consumes edited cells without cartridge reads");
+            AssertEqual(map.GetTile(new(5, 6)).ForHud(true).Raw, hud.TileWords[60], "live minimap consumes edited cells without cartridge reads");
             AssertTrue(system.IsMapTileExplored(AreaId.Crateria, new(5, 5)), "art replacement preserves slope corner exploration");
 
             var edited = document with { Cells = document.Cells.Select(c => c with { TileColumn = 19 }).ToArray() };
             var reloaded = Load(Json(edited));
             hud.UpdateMinimap(system, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = reloaded });
-            AssertEqual(reloaded.GetTile(new(5, 6)).ForHud(true).Raw, hud.Tiles[60], "reloaded edit changes live minimap without ROM patch");
+            AssertEqual(reloaded.GetTile(new(5, 6)).ForHud(true).Raw, hud.TileWords[60], "reloaded edit changes live minimap without ROM patch");
         }
         AssertThrows<InvalidDataException>(() => Load(Json(document with { Version = 2 })), "reject unsupported map schema");
         AssertThrows<InvalidDataException>(() => Load(Json(document with { Area = "Norfair" })), "reject wrong area");
@@ -1473,7 +1473,7 @@ internal static class MapPresentationVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         AssertEqual(edited.Get(AreaId.Ceres).GetTile(runtime.Hud.MinimapCenter).CharacterIndex,
-            (ushort)(runtime.Hud.Tiles[60] & 0x3ff), "Ceres room-entry runtime consumes bound catalog without map ROM reads");
+            (ushort)(runtime.Hud.TileWords[60] & 0x3ff), "Ceres room-entry runtime consumes bound catalog without map ROM reads");
         var room = runtime.Room.LoadedRoom;
         var pause = new SuperMetroid.Core.Frontend.Pause.PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.IntroducedSamus, System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, MapPresentation = edited, SpriteSheets = MenuSheetFixtures.For(edited) });
         Position16<MapPixels> scroll = pause.MapScroll;

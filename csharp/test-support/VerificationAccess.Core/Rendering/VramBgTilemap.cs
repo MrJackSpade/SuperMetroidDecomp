@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
@@ -14,11 +15,11 @@ internal sealed class VramBgTilemap(SnesVram vram, int tilemapWord, Extent16<Til
     private readonly BgTilemapGeometry geometry = new(mapSize);
 
     /// <inheritdoc />
-    public bool TryTileAt(Position16<BgPlanePixels> scrolled, out SnesBgTilemapWord tile)
+    public bool TryTileAt(Position16<BgPlanePixels> scrolled, out BackgroundTile tile)
     {
         int x = geometry.WrapX(scrolled.X), y = geometry.WrapY(scrolled.Y);
-        tile = vram.ReadWord(geometry.EntryWordAddress(tilemapWord,
-            new Position16<TilemapCells>((ushort)BgCharacterGrid.CharacterOf(x), (ushort)BgCharacterGrid.CharacterOf(y))));
+        tile = BackgroundTileWordBytes.Tile(vram.ReadWord(geometry.EntryWordAddress(tilemapWord,
+            new Position16<TilemapCells>((ushort)BgCharacterGrid.CharacterOf(x), (ushort)BgCharacterGrid.CharacterOf(y)))));
         return true;
     }
 }

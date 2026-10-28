@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Fx.LookupFxBlendSelectorsVerification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.Verification.Areas.Ceres;
 
@@ -57,7 +57,7 @@ internal static class LookupCeresHazeRampVerification
                 int flags = ReadVerificationWord(rom, dead ? 0x88de16 : 0x88de11);
                 var captured = GameplayEffectCapture.CaptureCeresHaze(dead, counter);
                 // The haze over a black screen, as the display renderer draws it.
-                RgbaPixel[] drawn = DisplayRendering.Render(new LayeredScene(new FramePaint(new RgbColor[SnesPpuLayout.CgramColorCount], []),
+                RgbaPixel[] drawn = DisplayRendering.Render(new LayeredScene(new FramePaint(new RgbColor[SnesCgram.ColorCount], []),
                     new RenderLayer[] { captured }, FadeLevel.Full));
                 for (int y = 0; y < original.Length; y++)
                 {

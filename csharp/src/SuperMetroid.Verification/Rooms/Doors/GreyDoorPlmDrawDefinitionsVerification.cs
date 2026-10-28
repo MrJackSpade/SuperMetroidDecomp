@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -81,9 +82,9 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             ]);
             const int width = 16;
             const int origin = 4 + 4 * width;
-            byte[] blockDefinitions = new byte[0x400 * 8];
-            blockDefinitions[(originalVisual & 0x3ff) * 8] = 0xae;
-            blockDefinitions[0x53 * 8] = 0x53;
+            BackgroundTile[] blockDefinitions = new BackgroundTile[0x400 * 4];
+            blockDefinitions[(originalVisual & 0x3ff) * 4] = BackgroundTileWordBytes.Tile(0xae);
+            blockDefinitions[0x53 * 4] = BackgroundTileWordBytes.Tile(0x53);
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), blockDefinitions);
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmGreyDoorVisuals = header == PlmHeaderId.BombTorizoGreyDoor
                     ? edited : stock });
@@ -107,7 +108,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             if (header == PlmHeaderId.BombTorizoGreyDoor)
             {
                 AssertEqual((ushort)0x0053,
-                    level.DisplayedBlockTiles(origin).TopLeft.Raw,
+                    level.DisplayedBlockTiles(origin).TopLeft.PackedWord,
                     "edited grey cap is shown");
                 VerifyBombTorizoGreyDoorLifecycle(guarded, new TorizoGreyDoorRoom { Level = level, Plms = plms, System = system }, population, origin, blockDefinitions);
             }
@@ -191,7 +192,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
                 address => $"Resident grey door reread draw payload ${address:X6}.");
 
     /// <summary>Advances the Bomb-gated door through collection, defeat, hit, opening and persisted blue-cap reload.</summary>
-    private static void VerifyBombTorizoGreyDoorLifecycle(CartridgeReadGuard guarded, TorizoGreyDoorRoom room, ushort population, int origin, byte[] blockDefinitions)
+    private static void VerifyBombTorizoGreyDoorLifecycle(CartridgeReadGuard guarded, TorizoGreyDoorRoom room, ushort population, int origin, BackgroundTile[] blockDefinitions)
     {
         var enteringDoor = new DoorDefinition(
             Name: "fixture door",
@@ -266,8 +267,8 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
 
         const int width = 16;
         const int origin = 4 + 4 * width;
-        byte[] blockDefinitions = new byte[0x400 * 8];
-        blockDefinitions[0x54 * 8] = 0x54;
+        BackgroundTile[] blockDefinitions = new BackgroundTile[0x400 * 4];
+        blockDefinitions[0x54 * 4] = BackgroundTileWordBytes.Tile(0x54);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), blockDefinitions);
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmGreyDoorVisuals = edited });
         AssertTrue(plms.DoorPlms.TrySpawnBlueDoorOpening(level, origin,
@@ -285,7 +286,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             level.GetCollisionBlockByIndex(origin).PackedWord.Raw,
             "shared clear art leaves the native physical air word intact");
         AssertEqual((ushort)0x0054,
-            level.DisplayedBlockTiles(origin).TopLeft.Raw,
+            level.DisplayedBlockTiles(origin).TopLeft.PackedWord,
             "edited shared clear tile reaches blue-door camera streaming");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "blue-door shared clear draw does not reread bank-$84 payload bytes");

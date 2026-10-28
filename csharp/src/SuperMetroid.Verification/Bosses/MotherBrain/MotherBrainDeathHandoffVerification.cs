@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -20,7 +21,7 @@ internal static class MotherBrainDeathHandoffVerification
             [new EscapeTypewriterLine(0, "A !")]);
         var text = new EscapeTypewriterState(program, EscapeTypewriterDefinitions.ZebesTileBase);
         AssertTrue(!text.StepInto(vram), "typewriter first glyph is not completion");
-        AssertEqual(EscapeTypewriterDefinitions.ZebesTileBase, vram.ReadWord(0), "text glyph reaches its cell");
+        AssertEqual(EscapeTypewriterDefinitions.ZebesTileBase.PackedWord, vram.ReadWord(0), "text glyph reaches its cell");
         AssertTrue(!text.ClickRequested, "first glyph does not click");
         text.StepInto(vram);
         AssertEqual(2, text.Cell, "space advances cursor without a tile");
@@ -28,13 +29,13 @@ internal static class MotherBrainDeathHandoffVerification
         text.StepInto(vram);
         AssertEqual(1, text.GlyphsWritten, "delay applies before next visible glyph");
         text.StepInto(vram);
-        AssertEqual((ushort)(EscapeTypewriterDefinitions.ZebesTileBase + 26), vram.ReadWord(2), "exclamation uses native remap");
+        AssertEqual((ushort)(EscapeTypewriterDefinitions.ZebesTileBase.PackedWord + 26), vram.ReadWord(2), "exclamation uses native remap");
         AssertTrue(text.ClickRequested, "second visible glyph clicks despite intervening space");
         text.StepInto(vram); text.StepInto(vram);
         AssertTrue(text.StepInto(vram), "typewriter completes only at terminator after delay");
 
         ushort[] foreground = Enumerable.Repeat((ushort)0x8123, 256).ToArray();
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(foreground, new byte[256], new ushort[256]), new byte[8192]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(foreground, new byte[256], new ushort[256]), new BackgroundTile[4096]);
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.BossRoomMutations.TrySpawnMotherBrainMutation(level, new(0, 6), PlmHeaderId.MotherBrainsRoomEscapeDoor), "escape PLM allocates");
         AssertEqual((ushort)0x9123, level.GetCollisionBlock(new(0, 6)).PackedWord.Raw, "door setup preserves visual bits");

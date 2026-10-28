@@ -169,8 +169,8 @@ internal static class TourianAccessVisualsVerification
         int blockIndex = (clear ? 17 : 12) * width + 6;
         ushort[] words = new ushort[width * height];
         words[blockIndex] = 0x0123;
-        byte[] definitions = new byte[0x400 * 8];
-        definitions[0x0058 * 8] = 0x58;
+        BackgroundTile[] definitions = new BackgroundTile[0x400 * 4];
+        definitions[0x0058 * 4] = BackgroundTileWordBytes.Tile(0x58);
         RoomLevelData level = CreateRoom(new(width, height), words,
             new byte[words.Length], blockDefinitions: definitions);
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmTourianAccessVisuals = edited });
@@ -183,10 +183,10 @@ internal static class TourianAccessVisualsVerification
         AssertEqual(clear ? (ushort)0x00ff : (ushort)0x0053,
             level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
             $"Tourian {(clear ? "clear" : "crumble")} edited art retains native physical word");
-        AssertEqual((ushort)0x0058, level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
+        AssertEqual((ushort)0x0058, level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord,
             $"Tourian {(clear ? "clear" : "crumble")} edited block reaches immediate redraw");
         AssertEqual((ushort)0x0058,
-            level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
+            level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord,
             $"Tourian {(clear ? "clear" : "crumble")} edit survives later streaming");
         AssertEqual(0, bus.ForbiddenReadAttempts,
             $"Tourian {(clear ? "clear" : "crumble")} edited draw reads no source bytes");

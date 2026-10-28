@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
@@ -230,11 +231,11 @@ internal static class ContactCrumbleProgramsVerification
             const int blockIndex = 27;
             var words = new ushort[width * width];
             words[blockIndex] = 0xb321;
-            var definitions = new byte[0x400 * 8];
+            var definitions = new BackgroundTile[0x400 * 4];
             for (int tile = 0; tile < 4; tile++)
             {
-                definitions[0x53 * 8 + tile * 2] = 0x17;
-                definitions[0x54 * 8 + tile * 2] = 0x18;
+                definitions[0x53 * 4 + tile] = BackgroundTileWordBytes.Tile(0x17);
+                definitions[0x54 * 4 + tile] = BackgroundTileWordBytes.Tile(0x18);
             }
 
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), definitions);
@@ -248,8 +249,8 @@ internal static class ContactCrumbleProgramsVerification
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "contact-break draw avoids compiled source bytes");
             return new RenderBreakResult(level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
-                level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
-                level.DisplayedBlockTiles(blockIndex).TopLeft.Raw);
+                level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord,
+                level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord);
         }
 
         var stock = RenderBreak(RoomPlmShotBlockVisualCatalog.Stock());
@@ -271,9 +272,9 @@ internal static class ContactCrumbleProgramsVerification
             const int blockIndex = 27;
             var words = new ushort[width * width];
             words[blockIndex] = 0xb321;
-            var definitions = new byte[0x400 * 8];
+            var definitions = new BackgroundTile[0x400 * 4];
             for (int tile = 0; tile < 4; tile++)
-                definitions[0xbc * 8 + tile * 2] = tileIndex;
+                definitions[0xbc * 4 + tile] = BackgroundTileWordBytes.Tile(tileIndex);
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), definitions);
             var plms = PlmFixtures.Unbound();
             AssertTrue(plms.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, blockIndex,
@@ -285,7 +286,7 @@ internal static class ContactCrumbleProgramsVerification
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "linked contact restoration uses no compiled source bytes");
             return new ContactCrumbleProgramsRenderRestoredParentResult(level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
-                level.DisplayedBlockTiles(blockIndex).TopLeft.Raw);
+                level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord);
         }
 
         var stockParent = RenderRestoredParent(0x17);
@@ -315,7 +316,7 @@ internal static class ContactCrumbleProgramsVerification
         words[blockIndex] = 0xb321;
         var behaviors = new byte[words.Length];
         behaviors[blockIndex] = bts;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, behaviors, new ushort[words.Length]), new byte[0x400 * 8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, behaviors, new ushort[words.Length]), new BackgroundTile[0x400 * 4]);
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, blockIndex,
                 new RoomBlockBehavior(bts)),

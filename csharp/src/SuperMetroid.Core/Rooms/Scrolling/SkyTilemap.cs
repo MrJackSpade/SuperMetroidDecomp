@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Core.Rooms.Scrolling;
@@ -19,8 +20,8 @@ public sealed class SkyTilemap
     /// <summary>Rows in one chunk: the 32 rows of one tilemap page.</summary>
     private const int RowsPerChunk = 32;
 
-    /// <summary>The tile words of every row, row-major.</summary>
-    private readonly ushort[] words = new ushort[Rows * Columns];
+    /// <summary>The tiles of every row, row-major.</summary>
+    private readonly BackgroundTile[] tiles = new BackgroundTile[Rows * Columns];
 
     /// <summary>Whether each row selects a sky page; the ocean table's last chunks select none.</summary>
     private readonly bool[] shown = new bool[Rows];
@@ -28,16 +29,14 @@ public sealed class SkyTilemap
     /// <summary>Reads each row from the page its chunk selects in <paramref name="variant"/>'s table.</summary>
     /// <param name="pages">The installed sky pages.</param>
     /// <param name="variant">The land or ocean chunk table.</param>
-    public SkyTilemap(ReadOnlySpan<byte> pages, ScrollingSkyChunkTable variant)
+    public SkyTilemap(ReadOnlySpan<BackgroundTile> pages, ScrollingSkyChunkTable variant)
     {
         Variant = variant;
         for (int row = 0; row < Rows; row++)
         {
             if (!ScrollingSkyChunks.TryGetPage(variant, row / RowsPerChunk, out int page))
                 continue;
-            ReadOnlySpan<byte> bytes = RoomSkyTilemapCatalog.Row(pages, page, row % RowsPerChunk);
-            for (int column = 0; column < Columns; column++)
-                words[row * Columns + column] = BinaryPrimitives.ReadUInt16LittleEndian(bytes[(column * sizeof(ushort))..]);
+            RoomSkyTilemapCatalog.Row(pages, page, row % RowsPerChunk).CopyTo(tiles.AsSpan(row * Columns, Columns));
             shown[row] = true;
         }
     }
@@ -45,8 +44,8 @@ public sealed class SkyTilemap
     /// <summary>The land or ocean chunk table the rows follow.</summary>
     public ScrollingSkyChunkTable Variant { get; }
 
-    /// <summary>The tile words of every row, row-major; a row <see cref="RowShown"/> rejects holds zeros.</summary>
-    public ReadOnlySpan<ushort> Words => words;
+    /// <summary>The tiles of every row, row-major; a row <see cref="RowShown"/> rejects holds blank tiles.</summary>
+    public ReadOnlySpan<BackgroundTile> Tiles => tiles;
 
     /// <summary>Whether <paramref name="row"/> selects a sky page.</summary>
     public bool RowShown(int row) => shown[row];

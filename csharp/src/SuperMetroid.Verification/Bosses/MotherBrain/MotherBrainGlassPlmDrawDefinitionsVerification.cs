@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -88,8 +89,8 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         // The production control list is compiled and immutable. Draw each layout through the
         // production timed-frame draw instead of mutating a cartridge operand execution no longer reads.
         var guarded = NewMotherBrainGlassDrawReadGuard(bus, lists);
-        byte[] blockDefinitions = new byte[0x400 * 8];
-        blockDefinitions[0x57 * 8] = 0x57;
+        BackgroundTile[] blockDefinitions = new BackgroundTile[0x400 * 4];
+        blockDefinitions[0x57 * 4] = BackgroundTileWordBytes.Tile(0x57);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), blockDefinitions);
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmMotherBrainGlassVisuals = visuals });
         AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false, IsBossDefeated = () => false, IsMiniBossDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } } }),
@@ -122,7 +123,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         {
             const int editedBlock = 7 * width + 6;
             AssertEqual((ushort)0x0057,
-                level.DisplayedBlockTiles(editedBlock).TopLeft.Raw,
+                level.DisplayedBlockTiles(editedBlock).TopLeft.PackedWord,
                 "edited glass tile survives later camera streaming");
             AssertEqual((ushort)0x0ecf,
                 level.GetCollisionBlockByIndex(editedBlock).PackedWord.Raw,

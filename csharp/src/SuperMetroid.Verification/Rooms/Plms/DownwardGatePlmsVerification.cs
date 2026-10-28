@@ -269,11 +269,11 @@ internal static class DownwardGatePlmsVerification
         ]);
         SeedDownwardGateProjectileRom(bus);
 
-        var blockDefinitions = new byte[0x400 * 8];
+        var blockDefinitions = new BackgroundTile[0x400 * 4];
         for (int tile = 0; tile < 4; tile++)
         {
-            blockDefinitions[0x0ff * 8 + tile * 2] = 0x0f;
-            blockDefinitions[0x053 * 8 + tile * 2] = 0x53;
+            blockDefinitions[0x0ff * 4 + tile] = BackgroundTileWordBytes.Tile(0x0f);
+            blockDefinitions[0x053 * 4 + tile] = BackgroundTileWordBytes.Tile(0x53);
         }
         RoomLevelData level = CreateRoom(new(roomWidth, 16),
             new ushort[roomWidth * 16],

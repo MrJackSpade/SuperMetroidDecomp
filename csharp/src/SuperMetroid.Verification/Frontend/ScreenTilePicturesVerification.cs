@@ -23,6 +23,7 @@ using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.Verification.Frontend;
 
@@ -243,7 +244,7 @@ internal static class ScreenTilePicturesVerification
         ScreenLayerPictures tiles = cells.Tiles;
         int[] shown = [.. cells.Cells.Select(cell => cell.Tile).Distinct().Where(tile => tiles.Tiles[tile] is not null)];
         int best = -1, bestMatches = 0;
-        for (int characterBase = 0; characterBase < SnesPpuLayout.VramWordCount; characterBase += CharacterBaseStep)
+        for (int characterBase = 0; characterBase < SnesVram.WordCount; characterBase += CharacterBaseStep)
         {
             int matches = 0;
             foreach (int tile in shown)

@@ -123,8 +123,8 @@ internal static void VerifyTypedNativeWords()
     AssertEqual(224, ScreenGeometry.ScreenHeightPixels, "PPU visible screen height");
     AssertEqual(192, ScreenGeometry.GameplayViewportHeightPixels,
         "gameplay viewport excludes the 32-line HUD");
-    AssertEqual(0x10000, SnesPpuLayout.VramByteCount, "PPU VRAM byte capacity");
-    AssertEqual(512, SnesPpuLayout.CgramByteCount, "PPU CGRAM byte capacity");
+    AssertEqual(0x10000, SnesVram.ByteCount, "PPU VRAM byte capacity");
+    AssertEqual(512, SnesCgram.ColorCount * sizeof(ushort), "PPU CGRAM byte capacity");
     AssertEqual(544, SnesPpuLayoutConstants.OamUploadByteCount, "PPU OAM upload size");
     AssertEqual(0x0400, ScreenGeometry.TilemapScreenCellCount,
         "PPU 32-by-32 tilemap page size");

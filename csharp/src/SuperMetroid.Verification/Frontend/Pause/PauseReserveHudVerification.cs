@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -49,10 +50,10 @@ internal static class PauseReserveHudVerification
         game.Session.Show(pause);
         game.GameState = SuperMetroidGameState.PausedB;
         // The pause screen's BG3 words: the HUD's static top row, its three mutable rows, then the cleared effect rows.
-        ushort Shown(int hudCell) => pause.screen.Tilemaps.Bg3[Layer3Plane.Columns + hudCell];
+        ushort Shown(int hudCell) => pause.screen.Tilemaps.Bg3[Layer3Plane.Columns + hudCell].PackedWord;
         ushort originalAuto = Shown(8);
-        ushort[] initialHud = pause.screen.Tilemaps.Bg3.Slice(Layer3Plane.Columns, HudState.MutableTileCount).ToArray();
-        ushort[] initialFx = pause.screen.Tilemaps.Bg3.Slice(Layer3Plane.HudRows * Layer3Plane.Columns, PauseClearedEffectWords).ToArray();
+        ushort[] initialHud = BackgroundTileWordBytes.Words(pause.screen.Tilemaps.Bg3.Slice(Layer3Plane.Columns, HudState.MutableTileCount));
+        ushort[] initialFx = BackgroundTileWordBytes.Words(pause.screen.Tilemaps.Bg3.Slice(Layer3Plane.HudRows * Layer3Plane.Columns, PauseClearedEffectWords));
         long sequence = 0;
         void Step(ControllerButton input = ControllerButton.None) => game.StepCaptured(input, ++sequence, 1);
         Step(ControllerButton.A);
@@ -81,7 +82,7 @@ internal static class PauseReserveHudVerification
             AssertEqual(bus.ReadCartridgeWord((0x809997 + offset)), Shown(index), "empty AUTO uses native table");
         foreach (int index in Enumerable.Range(0, HudState.MutableTileCount).Except(ReserveDisplayCells))
             AssertEqual(initialHud[index], Shown(index), "reserve updates preserve other HUD cells");
-        AssertTrue(initialFx.AsSpan().SequenceEqual(pause.screen.Tilemaps.Bg3.Slice(Layer3Plane.HudRows * Layer3Plane.Columns, PauseClearedEffectWords)),
+        AssertTrue(initialFx.AsSpan().SequenceEqual(BackgroundTileWordBytes.Words(pause.screen.Tilemaps.Bg3.Slice(Layer3Plane.HudRows * Layer3Plane.Columns, PauseClearedEffectWords))),
             "HUD synchronization preserves cleared pause FX rows");
         for (int frame = 0; frame < 8 && game.GameState == SuperMetroidGameState.PausedB; frame++)
         {

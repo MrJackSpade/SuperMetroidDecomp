@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Hud;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Runtime;
 
 using SuperMetroid.Core.Rooms;
@@ -19,9 +20,9 @@ internal static class GameplaySnapshotTestsVerification
     internal static void VerifyGameplaySnapshots()
     {
         var random = new Random(32105);
-        byte[] bytes = new byte[SnesPpuLayout.VramByteCount];
+        byte[] bytes = new byte[SnesVram.ByteCount];
         random.NextBytes(bytes);
-        ushort[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount)
+        ushort[] palette = Enumerable.Range(0, SnesCgram.ColorCount)
             .Select(_ => (ushort)random.Next(32768)).ToArray();
         byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         random.NextBytes(oam);
@@ -56,8 +57,8 @@ internal static class GameplaySnapshotTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         LayeredScene captured = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         RgbaPixel[] retail = RenderForComparison(captured);
-        runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
-        for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Colours.AsPaletteColors().SetColor(color, new RgbColor(0, 0, 0));
+        runtime.Vram.LoadBytes(0, new byte[SnesVram.ByteCount]);
+        for (int color = 0; color < SnesCgram.ColorCount; color++) runtime.Colours.AsPaletteColors().SetColor(color, new RgbColor(0, 0, 0));
         AssertTrue(retail.SequenceEqual(RenderForComparison(captured)),
             "gameplay packet survives complete live VRAM/CGRAM replacement");
         Console.WriteLine("  Gameplay snapshots: retained line scrolls, layer rules and retained retail base match.");

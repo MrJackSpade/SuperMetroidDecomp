@@ -17,7 +17,7 @@ internal static class RoomFxSnapshotTestsVerification
     {
         var random = new Random(32108);
         var vram = new SnesVram();
-        byte[] bytes = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(bytes); vram.LoadBytes(0, bytes);
+        byte[] bytes = new byte[SnesVram.ByteCount]; random.NextBytes(bytes); vram.LoadBytes(0, bytes);
         var cgram = new SnesCgram();
         for (int i = 0; i < SnesCgram.ColorCount; i++) cgram.SetColor(i, RgbColor.FromWord(checked((ushort)random.Next(32768))));
         var oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();

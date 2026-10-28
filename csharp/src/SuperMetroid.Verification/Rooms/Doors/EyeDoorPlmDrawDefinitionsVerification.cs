@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -91,8 +92,8 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
         SeedPlmProgramWords(bus, 0x050e, pointers[1]);
         SeedPlmProgramWords(bus, 0x060e, pointers[2]);
 
-        byte[] blockDefinitions = new byte[0x400 * 8];
-        blockDefinitions[0x55 * 8] = 0x55;
+        BackgroundTile[] blockDefinitions = new BackgroundTile[0x400 * 4];
+        blockDefinitions[0x55 * 4] = BackgroundTileWordBytes.Tile(0x55);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), blockDefinitions);
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmEyeDoorVisuals = visuals });
         var guarded = NewEyeDoorDrawGuard(bus, lists);
@@ -116,7 +117,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
         if (orientation == EyeDoorOrientation.Right)
         {
             AssertEqual((ushort)0x0055,
-                level.DisplayedBlockTiles(origins[0]).TopLeft.Raw,
+                level.DisplayedBlockTiles(origins[0]).TopLeft.PackedWord,
                 "edited right eye survives later camera streaming");
         }
     }
@@ -153,7 +154,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
             unchecked((byte)doorBit), 0,
             0, 0,
         ]);
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), new byte[0x400 * 8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), new BackgroundTile[0x400 * 4]);
         var samus = new SamusState
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(eyeX * 16 + 8, eyeY * 16 + 8)),
@@ -195,7 +196,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"{orientation} retail eye-door lifecycle avoids instruction and draw ROM reads");
 
-        var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), new byte[0x400 * 8]);
+        var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), new BackgroundTile[0x400 * 4]);
         var reopened = PlmFixtures.Unbound();
         AssertEqual(3, PlmFixtures.LoadPopulation(ref reopened, new PlmRoom(reopenedLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Brinstar), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { EyeDoorProjectile = requests.Add } }),
             $"{orientation} opened eye-door room reloads three components");

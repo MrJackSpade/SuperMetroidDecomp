@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Tooling;
@@ -96,20 +97,19 @@ internal static class XrayRevealVisualInstallationVerification
         XrayRevealVisualCatalog edited = installed.LoadXrayRevealVisuals();
 
         var vram = new SnesVram();
-        var definitions = new byte[1024 * 8];
-        for (int i = 0; i < definitions.Length / 2; i++)
+        var definitions = new BackgroundTile[1024 * 4];
+        for (int i = 0; i < definitions.Length; i++)
         {
-            definitions[i * 2] = (byte)i;
-            definitions[i * 2 + 1] = LittleEndianBytes.HighByte(unchecked((ushort)i));
+            definitions[i] = BackgroundTileWordBytes.Tile(i);
         }
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(Enumerable.Repeat((ushort)0x8000, 1024).ToArray(), new byte[1024], new ushort[1024]), definitions);
         level.SetPlmForegroundEntry(33, (int)RoomCollisionType.ShootableBlock << 12);
         level.SetPlmBehavior(33, 2);
         RoomCollisionBlock before = level.GetPlmCollisionBlockByIndex(33);
-        ushort[] originalMap = XrayRevealTilemap.Build(level, XrayBg1Fixtures.Tilemap(vram), new(0, 0), new(16, 16),
-            AreaId.Brinstar, stock);
-        ushort[] editedMap = XrayRevealTilemap.Build(level, XrayBg1Fixtures.Tilemap(vram), new(0, 0), new(16, 16),
-            AreaId.Brinstar, edited);
+        ushort[] originalMap = BackgroundTileWordBytes.Words(XrayRevealTilemap.Build(level, XrayBg1Fixtures.Tilemap(vram), new(0, 0), new(16, 16),
+            AreaId.Brinstar, stock));
+        ushort[] editedMap = BackgroundTileWordBytes.Words(XrayRevealTilemap.Build(level, XrayBg1Fixtures.Tilemap(vram), new(0, 0), new(16, 16),
+            AreaId.Brinstar, edited));
         AssertEqual(originalTop * 4, originalMap[0], "stock tall reveal top-left metatile");
         AssertEqual((originalTop + 1) * 4, editedMap[0],
             "edited X-ray metatile changes live reveal tilemap");
@@ -122,16 +122,16 @@ internal static class XrayRevealVisualInstallationVerification
             InWorldCollectibleKind.Bombs, 0);
         var overlayLevel = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]), definitions);
         var noRomVisualData = new TestAddressSpace();
-        ushort[] itemMap = new ushort[XrayTilemapLayout.BufferWords];
+        BackgroundTile[] itemMap = new BackgroundTile[XrayTilemapLayout.BufferWords];
         XrayRevealOverlays.Apply(overlayLevel, itemMap, [item],
             new SharedGameState(), null, new(16, 16), edited);
         AssertEqual(((editedItem & 0x03ff) * 4) + ((editedItem & 0x0800) != 0 ? 2 : 0),
-            itemMap[0], "edited item art renders without a visual ROM read");
-        ushort[] roomMap = new ushort[XrayTilemapLayout.BufferWords];
+            itemMap[0].PackedWord, "edited item art renders without a visual ROM read");
+        BackgroundTile[] roomMap = new BackgroundTile[XrayTilemapLayout.BufferWords];
         XrayRevealOverlays.Apply(overlayLevel, roomMap, [],
             new SharedGameState(), XrayRoomOverlaySources.Overlay(roomPointer), new(16, 16), edited);
         AssertEqual(((editedRoomWord & 0x03ff) * 4) +
-            ((editedRoomWord & 0x0800) != 0 ? 2 : 0), roomMap[0],
+            ((editedRoomWord & 0x0800) != 0 ? 2 : 0), roomMap[0].PackedWord,
             "edited room overlay renders at its edited position without a ROM read");
 
         _ = GameAssetInstaller.EnsureInstalled(installed.Root)

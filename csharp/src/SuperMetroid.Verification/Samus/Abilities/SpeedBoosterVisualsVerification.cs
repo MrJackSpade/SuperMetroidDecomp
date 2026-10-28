@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
@@ -93,7 +94,7 @@ internal static class SpeedBoosterVisualsVerification
             (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms,
                 int blockIndex) = CreateSpeedBoosterBlockFixture(
                     new RoomBlockBehavior(0x82), AreaId.Brinstar);
-            level.SetBlockDefinitionWord(0x0058 * 4, 0x0058);
+            level.SetBlockDefinitionTile(0x0058 * 4, BackgroundTileWordBytes.Tile(0x0058));
             PlmFixtures.VisualsOf(plms).RoomPlmSpeedBoosterVisuals = edited;
             var guard = NewSpeedBoosterPlmReadGuard(bus);
             AssertTrue(plms.BlockReactions.TrySpawnBombedSpecialBlock(level, blockIndex,
@@ -104,10 +105,10 @@ internal static class SpeedBoosterVisualsVerification
                 level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
                 "edited reveal retains compiled type-B physical level word");
             // A PLM redraw identifies its block by the BG1 ring destination of that block.
-            AssertEqual((ushort)0x0058, level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
+            AssertEqual((ushort)0x0058, level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord,
                 "edited reveal reaches the immediate tilemap update");
             AssertEqual((ushort)0x0058,
-                level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
+                level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord,
                 "edited reveal survives later camera streaming");
             plms.Step(level);
             AssertEqual(0, plms.SlotTable.ActiveCount,

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Text;
@@ -41,8 +42,8 @@ internal static class TilemapJsonContractsEnvironmentVerification
             using var encoded = new MemoryStream();
             RoomMetatileAtlas.Write(encoded, document, native.Length);
             string json = Encoding.UTF8.GetString(encoded.ToArray());
-            void Load(string text) => AssertTrue(RoomMetatileAtlas.Load(TilemapContractStream(text), native.Length)
-                .BlockDefinitions.Span.SequenceEqual(native), "metatile compilation retains every quadrant/tile/priority/flip bit");
+            void Load(string text) => AssertTrue(BackgroundTileWordBytes.Of(RoomMetatileAtlas.Load(TilemapContractStream(text), native.Length)
+                .BlockTiles.Span).AsSpan().SequenceEqual(native), "metatile compilation retains every quadrant/tile/priority/flip bit");
             Load(json); Load(TilemapContractHistoricalCasing(json));
             foreach (string corrupt in TilemapContractCorruptions(json, root => (JsonObject)root.Required("blocks").Required(0).Required("topLeft"))
                 .Concat(new[] { TilemapContractMutate(json, root => root.Required("blocks").Required(0)["collision"] = 7),
@@ -118,13 +119,13 @@ internal static class TilemapJsonContractsEnvironmentVerification
         var overlayWords = CeresEscapeOverlayTilemapDefinitions.All.ToDictionary(page => page.Name,
             page => Enumerable.Range(0, page.WordCount).Select(index => unchecked((ushort)(index * 197 + 23))).ToArray());
         string overlayJson = Encoding.UTF8.GetString(CeresEscapeOverlayTilemapCatalog.Write(new()
-            { Version = CeresEscapeOverlayTilemapDefinitions.Version, Pages = overlayWords }));
+            { Version = CeresEscapeOverlayTilemapDefinitions.Version, Pages = overlayWords.ToDictionary(page => page.Key, page => BackgroundTileWordBytes.Tiles(page.Value)) }));
         var overlay = CeresEscapeOverlayTilemapCatalog.Load(TilemapContractStream(overlayJson));
         foreach (var page in CeresEscapeOverlayTilemapDefinitions.All)
         {
             AssertTrue(overlay.TryResolve(page, out var actual), "every Ceres warning page resolves");
             for (int index = 0; index < page.WordCount; index++) AssertEqual(overlayWords[page.Name][index],
-                BinaryPrimitives.ReadUInt16LittleEndian(actual.Span[(index * 2)..]), "warning words retain exact order");
+                actual.Span[index].PackedWord, "warning words retain exact order");
         }
         foreach (string corrupt in new[] { "{\"version\":1," + overlayJson[1..],
             TilemapContractMutate(overlayJson, root => root["duration"] = 7),

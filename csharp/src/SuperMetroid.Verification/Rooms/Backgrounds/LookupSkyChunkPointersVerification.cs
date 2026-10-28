@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -76,7 +77,7 @@ internal static class LookupSkyChunkPointersVerification
             int page = NativePage(row / 32);
             AssertEqual(page >= 0, rows.RowShown(row), $"Sky row {row} shows exactly when its native chunk names a page");
             for (int column = 0; page >= 0 && column < SkyTilemap.Columns; column++)
-                AssertEqual(RoomSkyTilemapFixtures.NumberedWord(page, row % 32 * 32 + column), rows.Words[row * SkyTilemap.Columns + column],
+                AssertEqual(RoomSkyTilemapFixtures.NumberedWord(page, row % 32 * 32 + column), rows.Tiles[row * SkyTilemap.Columns + column].PackedWord,
                     $"Sky row {row} column {column} reads its native page");
         }
     }

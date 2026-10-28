@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -89,7 +90,7 @@ internal static class LookupEyeDoorLayoutsVerification
             }
             if (field == 0)
             {
-                var level = CreateRoom(new(32, 16),new ushort[512],new byte[512],blockDefinitions:new byte[0x400 * 8]);
+                var level = CreateRoom(new(32, 16),new ushort[512],new byte[512],blockDefinitions:new BackgroundTile[0x400 * 4]);
                 var plms = PlmFixtures.Unbound();
                 var bus = new TestAddressSpace();
                 SeedSoleElevatorPlatformPlm(bus, 0x9400, new(3, 4), 0xafb6);

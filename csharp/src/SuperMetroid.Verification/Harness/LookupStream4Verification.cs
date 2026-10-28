@@ -1371,21 +1371,21 @@ internal static class LookupStream4Verification
             }
             using var output=new MemoryStream();GameplayHudPresentation.Write(output,document);byte[] bytes=output.ToArray();var selected=GameplayHudPresentation.Load(new MemoryStream(bytes));
             AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)),selected.ContentIdentity,"Icon exact document hash");
-            ushort[] tiles=Enumerable.Repeat(selected.Blank.Raw,96).ToArray();int nativeIndex=0;
+            ushort[] tiles=Enumerable.Repeat(selected.Blank.PackedWord,96).ToArray();int nativeIndex=0;
             for(int item=0;item<5;item++)
             {
                 var icon=document.Icons[GameplayHudDefinitions.IconName(item)];int width=item==0?3:2;
                 selected.TryApplyIcon(tiles,item);
                 for(int cell=0;cell<width*2;cell++,nativeIndex++)
                 {
-                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8099a3+nativeIndex*2),GameplayHudDefinitions.IconWord(item,cell),"Native calculated icon glyph/style");
+                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8099a3+nativeIndex*2),GameplayHudDefinitions.IconTile(item,cell).PackedWord,"Native calculated icon glyph/style");
                     AssertEqual(Word(icon.Cells[cell]),tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Every independent icon edit");
                 }
             }
             if(edit is -1 or 0 or 131)
             {
                 var hud=new HudState();hud.BindPresentation(selected);hud.Initialize(HudSnapshot.CeresDebug with{EquippedItems=(SamusEquipmentFlags.XrayScope|SamusEquipmentFlags.GrappleBeam),MaxMissiles=1,MaxSuperMissiles=1,MaxPowerBombs=1});
-                for(int item=0;item<5;item++){var icon=document.Icons[GameplayHudDefinitions.IconName(item)];int width=item==0?3:2;for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),hud.Tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Actual HUD inventory draws installed icon");}
+                for(int item=0;item<5;item++){var icon=document.Icons[GameplayHudDefinitions.IconName(item)];int width=item==0?3:2;for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),hud.TileWords[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Actual HUD inventory draws installed icon");}
             }
             for(int item=0;item<5;item++)selected.TryApplyIcon(tiles,item);
             for(int item=0;item<5;item++){var icon=document.Icons[GameplayHudDefinitions.IconName(item)];int width=item==0?3:2;for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Occupied icon guard preserves current cells");}
@@ -1393,11 +1393,11 @@ internal static class LookupStream4Verification
         for(int item=0;item<5;item++)
         {
             var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,ArtworkJson.Options);string name=GameplayHudDefinitions.IconName(item);var icon=document.Icons[name];document.Icons[name]=icon with{Anchor=icon.Anchor with{X=(ushort)(icon.Anchor.X+1)}};
-            using var output=new MemoryStream();GameplayHudPresentation.Write(output,document);var selected=GameplayHudPresentation.Load(new MemoryStream(output.ToArray()));ushort[] tiles=Enumerable.Repeat(selected.Blank.Raw,96).ToArray();selected.TryApplyIcon(tiles,item);int width=item==0?3:2;
+            using var output=new MemoryStream();GameplayHudPresentation.Write(output,document);var selected=GameplayHudPresentation.Load(new MemoryStream(output.ToArray()));ushort[] tiles=Enumerable.Repeat(selected.Blank.PackedWord,96).ToArray();selected.TryApplyIcon(tiles,item);int width=item==0?3:2;
             for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+1+cell%width],"Independent supplied icon anchor");
         }
-        foreach(int invalid in new[]{-1,5,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>GameplayHudDefinitions.IconWord(invalid,0),"Icon item domain");
-        for(int item=0;item<5;item++)foreach(int invalid in new[]{-1,GameplayHudDefinitions.IconWidth(item)*2})AssertThrows<ArgumentOutOfRangeException>(()=>GameplayHudDefinitions.IconWord(item,invalid),"Icon cell domain");
+        foreach(int invalid in new[]{-1,5,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>GameplayHudDefinitions.IconTile(invalid,0).PackedWord,"Icon item domain");
+        for(int item=0;item<5;item++)foreach(int invalid in new[]{-1,GameplayHudDefinitions.IconWidth(item)*2})AssertThrows<ArgumentOutOfRangeException>(()=>GameplayHudDefinitions.IconTile(item,invalid).PackedWord,"Icon cell domain");
         const int scale=6,imageWidth=128*scale,imageHeight=16*scale;byte[] pixels=new byte[imageWidth*imageHeight];int sourceIndex=0,startX=0;
         for(int item=0;item<5;item++)
         {
@@ -1440,17 +1440,17 @@ internal static class LookupStream4Verification
             {
                 var cell=document.Template[index];ushort expected=SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,(cell.FlipX?TileFlip.Horizontal:0)|(cell.FlipY?TileFlip.Vertical:0)).Raw;
                 AssertEqual(expected,tiles[index],"Independent template cell and all untouched neighbors");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8098cb+index*2),GameplayHudDefinitions.TemplateWord(index),"Exact native template word");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8098cb+index*2),GameplayHudDefinitions.TemplateTile(index).PackedWord,"Exact native template word");
             }
             AssertTrue(selected.TopRow().SequenceEqual(stock.TopRow()),"Template edits leave immutable top row independent");
             if(edit is -1 or 390 or 570)
             {
                 var hud=new HudState();hud.BindPresentation(selected);hud.Initialize(HudSnapshot.CeresDebug);
-                for(int row=0;row<3;row++)for(int x=26;x<32;x++)AssertEqual(tiles[row*32+x],hud.Tiles[row*32+x],"Actual initializer preserves selected initial minimap and border");
-                for(int x=1;x<=4;x++)AssertEqual(tiles[64+x],hud.Tiles[64+x],"Actual initializer preserves selected ENERGY typography");
+                for(int row=0;row<3;row++)for(int x=26;x<32;x++)AssertEqual(tiles[row*32+x],hud.TileWords[row*32+x],"Actual initializer preserves selected initial minimap and border");
+                for(int x=1;x<=4;x++)AssertEqual(tiles[64+x],hud.TileWords[64+x],"Actual initializer preserves selected ENERGY typography");
             }
         }
-        foreach(int invalid in new[]{-1,96,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>GameplayHudDefinitions.TemplateWord(invalid),"Template index domain");
+        foreach(int invalid in new[]{-1,96,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>GameplayHudDefinitions.TemplateTile(invalid).PackedWord,"Template index domain");
         Console.WriteLine("HUD template:96native words/zero overrides,576independent edits/hash/577full applications,three actual initializers/readguard/top-row independence/bounds pass.");
     }
 
@@ -1471,17 +1471,17 @@ internal static class LookupStream4Verification
             using var output=new MemoryStream();GameplayHudPresentation.Write(output,document);byte[] bytes=output.ToArray();
             var selected=GameplayHudPresentation.Load(new MemoryStream(bytes));
             AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)),selected.ContentIdentity,"Top row exact serialized content identity");
-            ushort[] row=selected.TopRow();
+            ushort[] row=BackgroundTileWordBytes.Words(selected.TopRow());
             AssertEqual(32,row.Length,"Top row covers every HUD column");
             for(int column=0;column<32;column++)
             {
                 var cell=document.TopRow[column];ushort expected=SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,(cell.FlipX?TileFlip.Horizontal:0)|(cell.FlipY?TileFlip.Vertical:0)).Raw;
                 AssertEqual(expected, row[column], "Every supplied top-row cell survives into the shown row");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x80988b+column*2),GameplayHudDefinitions.TopRowWord(column),"Native calculated top-row word");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x80988b+column*2),GameplayHudDefinitions.TopRowTile(column).PackedWord,"Native calculated top-row word");
             }
             ushort[] actual=new ushort[96],original=new ushort[96];selected.ApplyTemplate(actual);stock.ApplyTemplate(original);AssertTrue(actual.SequenceEqual(original),"Top-row edits leave mutable template independent");
         }
-        foreach(int invalid in new[]{-1,32,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>GameplayHudDefinitions.TopRowWord(invalid),"Top-row column domain");
+        foreach(int invalid in new[]{-1,32,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>GameplayHudDefinitions.TopRowTile(invalid).PackedWord,"Top-row column domain");
         const int scale=8,width=256,height=64;byte[] pixels=new byte[width*height];
         for(int cell=0;cell<4;cell++)for(int y=0;y<8;y++)for(int x=0;x<8;x++)
         {
@@ -1521,11 +1521,11 @@ internal static class LookupStream4Verification
                 for(int cell=0;cell<6;cell++)AssertEqual(Word(cells[cell]),tiles[GameplayHudDefinitions.AutoReserveCellIndex(cell)],"All twelve independently edited AUTO cells");
                 for(int tile=0;tile<96;tile++)if(tile%32 is not(8 or 9))AssertEqual((ushort)0x1234,tiles[tile],"AUTO leaves other HUD cells unchanged");
                 hud.UpdateGameplayCounters(new SamusState{Health=99,MaxHealth=99,ReserveTankMode=ReserveTankMode.Auto,ReserveEnergy=(ushort)(full?1:0)});
-                for(int cell=0;cell<6;cell++)AssertEqual(Word(cells[cell]),hud.Tiles[GameplayHudDefinitions.AutoReserveCellIndex(cell)],"Actual HUD reserve state chooses exact supplied AUTO cells");
+                for(int cell=0;cell<6;cell++)AssertEqual(Word(cells[cell]),hud.TileWords[GameplayHudDefinitions.AutoReserveCellIndex(cell)],"Actual HUD reserve state chooses exact supplied AUTO cells");
             }
-            ushort[] before=hud.Tiles.ToArray();hud.UpdateGameplayCounters(new SamusState{Health=99,MaxHealth=99,ReserveTankMode=0,ReserveEnergy=1});
-            for(int cell=0;cell<6;cell++)AssertEqual(before[GameplayHudDefinitions.AutoReserveCellIndex(cell)],hud.Tiles[GameplayHudDefinitions.AutoReserveCellIndex(cell)],"Manual reserve does not select another AUTO state");
-            hud.ClearAutoReserveIndicator();for(int cell=0;cell<6;cell++)AssertEqual(selected.Blank,hud.Tiles[GameplayHudDefinitions.AutoReserveCellIndex(cell)],"Explicit manual switch clears AUTO");
+            ushort[] before=hud.TileWords.ToArray();hud.UpdateGameplayCounters(new SamusState{Health=99,MaxHealth=99,ReserveTankMode=0,ReserveEnergy=1});
+            for(int cell=0;cell<6;cell++)AssertEqual(before[GameplayHudDefinitions.AutoReserveCellIndex(cell)],hud.TileWords[GameplayHudDefinitions.AutoReserveCellIndex(cell)],"Manual reserve does not select another AUTO state");
+            hud.ClearAutoReserveIndicator();for(int cell=0;cell<6;cell++)AssertEqual(selected.Blank.PackedWord,hud.TileWords[GameplayHudDefinitions.AutoReserveCellIndex(cell)],"Explicit manual switch clears AUTO");
         }
         Console.WriteLine("HUD AUTO:12native words/zero overrides,72independent glyph-style edits/hash,146 actual state updates,manual nonwrite/clear/readguard/neighbors/domains pass.");
     }
@@ -1574,7 +1574,7 @@ internal static class LookupStream4Verification
             }
         }
         foreach (int invalid in new[] { -1, 6, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => GameplayHudDefinitions.AutoReserveWord(invalid, true),
+            AssertThrows<ArgumentOutOfRangeException>(() => GameplayHudDefinitions.AutoReserveTile(invalid, true).PackedWord,
                 "AUTO calculated cell exact domain");
     }
 
@@ -1590,8 +1590,8 @@ internal static class LookupStream4Verification
         ushort[] tiles = new ushort[96];
         for (int digit = 0; digit < 10; digit++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dbf + digit * 2)), GameplayHudDefinitions.DigitWord(digit), "native health digit");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dd3 + digit * 2)), GameplayHudDefinitions.DigitWord(digit), "native ammo digit");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dbf + digit * 2)), GameplayHudDefinitions.DigitTile(digit).PackedWord, "native health digit");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dd3 + digit * 2)), GameplayHudDefinitions.DigitTile(digit).PackedWord, "native ammo digit");
             stock.ApplyEnergy(tiles, (ushort)(digit * 11), 99);
             for (int place = 0; place < 2; place++)
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dbf + digit * 2)), tiles[70 + place], "actual stock health digit draw");
@@ -1615,7 +1615,7 @@ internal static class LookupStream4Verification
         AssertEqual((ushort)((CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dd3 + 6)) & ~0x1c00) | 0x1000), tiles[75], "independent ammo digit palette applied");
         AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dd3 + 8)), tiles[76], "unedited trailing ammo digit unchanged");
         foreach (int invalid in new[] { int.MinValue, -1, 10, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => GameplayHudDefinitions.DigitWord(invalid), "HUD digit exact domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => GameplayHudDefinitions.DigitTile(invalid).PackedWord, "HUD digit exact domain");
     }
 
     /// <summary>Checks title screen sprite identities against the native artwork pointers.</summary>
@@ -3517,7 +3517,7 @@ internal static class LookupStream4Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x80998b + cell * 2)), tiles[GameplayHudDefinitions.AutoReserveCellIndex(cell)], "native AUTO draw destination");
         stock.ClearAutoReserve(tiles);
         for (int cell = 0; cell < 6; cell++)
-            AssertEqual(stock.Blank, tiles[GameplayHudDefinitions.AutoReserveCellIndex(cell)], "native AUTO clear destination");
+            AssertEqual(stock.Blank.PackedWord, tiles[GameplayHudDefinitions.AutoReserveCellIndex(cell)], "native AUTO clear destination");
 
         {
             var held0 = document.EnergyTanks.Anchors[1];
@@ -3538,8 +3538,8 @@ internal static class LookupStream4Verification
         AssertEqual(2, edited.energyTankAnchors.Count, "only edited tank positions are stored");
         AssertEqual(2, edited.autoAnchors.Count, "only edited AUTO positions are stored");
         edited.ApplyEnergy(tiles, 100, 1400);
-        AssertEqual(edited.FilledEnergyTank, tiles[0x44 / 2], "edited first tank moves to second native anchor");
-        AssertEqual(edited.EmptyEnergyTank, tiles[0x42 / 2], "edited second tank moves to first native anchor");
+        AssertEqual(edited.FilledEnergyTank.PackedWord, tiles[0x44 / 2], "edited first tank moves to second native anchor");
+        AssertEqual(edited.EmptyEnergyTank.PackedWord, tiles[0x42 / 2], "edited second tank moves to first native anchor");
         edited.ApplyAutoReserve(tiles, containsEnergy: false);
         AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x809997), tiles[9], "edited AUTO first cell follows override");
         AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x809999), tiles[8], "edited AUTO second cell follows override");

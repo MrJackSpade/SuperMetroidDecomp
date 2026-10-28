@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Hardware;
 public sealed class OamBuffer
 {
     /// <summary>Number of hardware OBJ records representable by one OAM image.</summary>
-    public const int SpriteCount = SnesPpuLayout.OamSpriteCount;
+    public const int SpriteCount = 128;
     /// <summary>Byte length of the 128 four-byte coordinate and attribute records.</summary>
     public const int LowTableByteCount = SnesPpuLayoutConstants.OamLowTableByteCount;
 

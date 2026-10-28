@@ -112,8 +112,7 @@ public sealed class RoomBlockSheetCatalog
         {
             content.AppendName("background", name);
             background.Sheet.AppendIdentity(content);
-            foreach (int word in background.TilemapWords)
-                content.Append("word", word);
+            content.AppendTiles("tiles", background.Tiles.AsSpan());
         }
         foreach (FloorTileSheet tiles in FloorTiles.Values.OrderBy(tiles => tiles.Name, StringComparer.Ordinal))
         {

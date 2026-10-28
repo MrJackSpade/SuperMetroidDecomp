@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -135,7 +136,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     // Exercise all six stable direction poses through the public install and movement
     // handlers. The pose definition's literal X-direction byte—not target-pose parity in
     // production—selects horizontal sign, while the phase selects which block axes run.
-    RoomLevelData directionLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), new byte[8]);
+    RoomLevelData directionLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), new BackgroundTile[4]);
     foreach ((SamusPoseId windupPose, SamusPoseId targetPose, ShinesparkPhase expectedPhase,
         bool expectsHorizontal, bool expectsVertical) in new[]
     {
@@ -465,7 +466,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         const int width = 24;
         const int height = 24;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height),
-            new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), new byte[8]);
+            new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), new BackgroundTile[4]);
         var samus = new SamusState
         {
             Pose = SamusPoseId.ShinesparkWindupRightPose,

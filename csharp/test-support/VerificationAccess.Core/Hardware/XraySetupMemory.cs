@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Abilities;
 
 namespace SuperMetroid.Core.Hardware;
@@ -11,5 +12,5 @@ internal static class XraySetupMemory
     public const int SavedBg1SecondScreen = SavedBg1 + XrayTilemapLayout.ScreenWords * 2;
 
     /// <summary>Reads the frozen reveal map through the production X-ray view.</summary>
-    public static ushort[] ReadReveal(SuperMetroid.Core.World.XrayReveal xray) => xray.RevealTilemap.ToArray();
+    public static BackgroundTile[] ReadReveal(SuperMetroid.Core.World.XrayReveal xray) => xray.RevealTilemap.ToArray();
 }

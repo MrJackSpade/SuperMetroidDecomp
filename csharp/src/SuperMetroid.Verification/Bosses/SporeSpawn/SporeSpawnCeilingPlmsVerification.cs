@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core.Hardware;
@@ -114,7 +115,7 @@ internal static class SporeSpawnCeilingPlmsVerification
         for (int x = 7; x <= 8; x++)
             words[y * width + x] = 0x0123;
         RoomLevelData level = CreateRoom(new(width, height), words,
-            new byte[words.Length], blockDefinitions: new byte[0x400 * 8]);
+            new byte[words.Length], blockDefinitions: new BackgroundTile[0x400 * 4]);
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.BossRoomMutations.TrySpawnSporeSpawnCeiling(level,
                 clear ? PlmHeaderId.ClearSporeSpawnCeiling :

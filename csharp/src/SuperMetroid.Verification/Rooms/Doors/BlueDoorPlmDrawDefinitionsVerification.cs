@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -58,9 +59,9 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
 
             const int width = 16;
             const int origin = 4 + 4 * width;
-            byte[] blockDefinitions = new byte[0x400 * 8];
-            blockDefinitions[originalVisual * 8] = 0x0d;
-            blockDefinitions[0x53 * 8] = 0x53;
+            BackgroundTile[] blockDefinitions = new BackgroundTile[0x400 * 4];
+            blockDefinitions[originalVisual * 4] = BackgroundTileWordBytes.Tile(0x0d);
+            blockDefinitions[0x53 * 4] = BackgroundTileWordBytes.Tile(0x53);
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), blockDefinitions);
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmBlueDoorVisuals = orientation == ColoredDoorOrientation.Left ? edited : stock });
             RoomBlockBehavior behavior = new(unchecked((byte)(
@@ -81,7 +82,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
             if (orientation == ColoredDoorOrientation.Left)
             {
                 AssertEqual((ushort)0x0053,
-                    level.DisplayedBlockTiles(origin).TopLeft.Raw,
+                    level.DisplayedBlockTiles(origin).TopLeft.PackedWord,
                     "edited blue-door tile survives later camera streaming");
             }
 

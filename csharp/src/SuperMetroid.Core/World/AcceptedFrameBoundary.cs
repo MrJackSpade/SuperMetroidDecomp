@@ -138,7 +138,7 @@ internal sealed class AcceptedFrameBoundary
             phantoonDisplay.Blending.LatchDisplay(phantoonDisplay.MosaicBlockSize);
         _room.TourianStatues?.LatchDisplay();
         GameplayLatchedScene scene = CaptureScene();
-        ImmutableArray<ushort>? reveal = CaptureXrayRevealTilemap(scene);
+        ImmutableArray<BackgroundTile>? reveal = CaptureXrayRevealTilemap(scene);
         _display.Latched = new GameplayDisplayLatch(
             displayScroll,
             _screenLayers.Displayed,
@@ -239,11 +239,11 @@ internal sealed class AcceptedFrameBoundary
 
     /// <summary>
     /// <paramref name="latched"/> with <paramref name="rooms"/>' BG1 and BG2 planes, and the X-ray reveal built from
-    /// <paramref name="reveal"/>'s words, showing the pictures their blocks show over what the bindings show now (#1392);
+    /// <paramref name="reveal"/>'s tiles, showing the pictures their blocks show over what the bindings show now (#1392);
     /// unchanged while the planes draw from the object character page, where X-ray is never used.
     /// </summary>
     /// <exception cref="InvalidOperationException">X-ray reveals a room whose planes draw from the object character page.</exception>
-    private GameplayDisplayLatch WithBlockPictures(GameplayDisplayLatch latched, RoomBackgrounds rooms, ImmutableArray<ushort>? reveal)
+    private GameplayDisplayLatch WithBlockPictures(GameplayDisplayLatch latched, RoomBackgrounds rooms, ImmutableArray<BackgroundTile>? reveal)
     {
         // While a Ceres room shows its Mode 7 map, the map draws its tiles' pictures, which its characters must still show
         // (#1392); Ceres Ridley's getaway writes its warning's and doors' characters over them once his Mode 7 ends.
@@ -253,11 +253,11 @@ internal sealed class AcceptedFrameBoundary
         if (rooms.Characters != RoomBackgroundCharacters.Tileset && reveal is not null)
             throw new InvalidOperationException("X-ray reveals a room whose planes draw from the object character page.");
         RevealedBlock?[]? revealed = null;
-        if (reveal is { } words)
+        if (reveal is { } revealTiles)
         {
             if (_revealIndex is null || _revealIndex.Definitions != scope.LevelData.ForegroundPlane.Definitions)
                 _revealIndex = new RevealedBlockIndex(scope.LevelData.ForegroundPlane.Definitions);
-            revealed = XrayRevealPlane.BlocksOf(words.AsSpan(), _revealIndex);
+            revealed = XrayRevealPlane.BlocksOf(revealTiles.AsSpan(), _revealIndex);
         }
         // The Ceres Ridley arena's backgrounds read the OBJ character table's uploads (#1392).
         RoomCharacterSource characters = RoomCharacterSource.Of(rooms.Characters, _backgrounds, _enemySession.SpriteCharacters,
@@ -277,7 +277,7 @@ internal sealed class AcceptedFrameBoundary
                 ?? throw new InvalidDataException($"{scope.Room.Definition.Name} shows a scrolling sky with no installed sky image.");
             SkyTilemap rows = (_artwork.RoomSkyTilemapArt ?? throw new InvalidOperationException("A sky room has no installed sky rows."))
                 .Tilemap(scrollingSky.Variant);
-            skyImage.Image.AssertPictures(rows.Words);
+            skyImage.Image.AssertPictures(rows.Tiles);
             sky = new SkyPictures(skyImage.Resolve(_backgrounds, animatedBlocks), rows);
         }
         // Where BG2 shows the tilemap its library background loaded, it draws the background's image (#1392): not over a
@@ -288,8 +288,8 @@ internal sealed class AcceptedFrameBoundary
         {
             image = background.Resolve(_backgrounds, animatedBlocks);
         }
-        // A boss body that owns BG2 draws each word from its body sheet's picture over what the word's character shows.
-        ImmutableArray<ushort>? body = latched.Bosses.KraidBody?.Tilemap.Words ?? latched.Bosses.EnemyBg2?.Words;
+        // A boss body that owns BG2 draws each tile from its body sheet's picture over what the tile's character shows.
+        ImmutableArray<BackgroundTile>? body = latched.Bosses.KraidBody?.Tilemap.Tiles ?? latched.Bosses.EnemyBg2?.Tiles;
         ImmutableArray<BgTilePicture?> bodyPictures = body is { } bodyWords
             ? (scope.BodyPictures ?? throw new InvalidDataException($"{scope.Room.Definition.Name} shows a boss body with no installed tile word sheet."))
                 .Resolve(bodyWords, characters)
@@ -333,12 +333,12 @@ internal sealed class AcceptedFrameBoundary
     /// </summary>
     internal Layer3Plane CaptureLayer3Plane()
     {
-        var hudRows = new ushort[Layer3Plane.HudRows * Layer3Plane.Columns];
+        var hudRows = new BackgroundTile[Layer3Plane.HudRows * Layer3Plane.Columns];
         // Without installed HUD artwork the HUD shows the stock top row.
-        ushort[] topRow = _artwork.MapPresentation?.GameplayHud.TopRow() ?? GameplayHudDefinitions.StockTopRow();
+        BackgroundTile[] topRow = _artwork.MapPresentation?.GameplayHud.TopRow() ?? GameplayHudDefinitions.StockTopRow();
         topRow.CopyTo(hudRows, 0);
         _hud.MutableRows.CopyTo(hudRows.AsSpan(Layer3Plane.Columns));
-        return Layer3Plane.Compose(hudRows, _room.Layer3Fx?.EffectPageWords() ?? []);
+        return Layer3Plane.Compose(hudRows, _room.Layer3Fx?.EffectPageTiles() ?? []);
     }
 
     /// <summary>The fixed colours effects chose during the previous main loop.</summary>
@@ -357,8 +357,8 @@ internal sealed class AcceptedFrameBoundary
     /// The reveal tilemap the X-ray setup calls queue for VRAM upload. It is copied while X-ray
     /// is active; otherwise the displayed BG2 tilemap is the room's own.
     /// </summary>
-    private ImmutableArray<ushort>? CaptureXrayRevealTilemap(GameplayLatchedScene scene) =>
-        // Where X-ray preserves the backgrounds ($91:D143) its setup copies no blocks: the words are another room's.
+    private ImmutableArray<BackgroundTile>? CaptureXrayRevealTilemap(GameplayLatchedScene scene) =>
+        // Where X-ray preserves the backgrounds ($91:D143) its setup copies no blocks: the tiles are another room's.
         _player.Samus?.Xray.IsActive == true && scene.Room is { } room && XrayBlockRevealRules.RevealsBlocks(room, scene.BossId)
             ? ImmutableArray.Create(_xray.RevealTilemap.ToArray())
             : null;

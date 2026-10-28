@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Frontend.Pause;
@@ -85,7 +86,7 @@ internal static class MapCrossViewAudit
             for (int outputX = 0; outputX < 5; outputX++)
             {
                 int mapX = (hud.MinimapCenter.X + outputX - 2) & 0x3f;
-                MapTileWord hudWord = new(hud.Tiles[26 + outputY * HudState.WidthInTiles + outputX]);
+                MapTileWord hudWord = new(hud.TileWords[26 + outputY * HudState.WidthInTiles + outputX]);
                 MapTileWord pauseWord = pause.ReadDisplayedMapTile(new(checked((ushort)mapX), checked((ushort)mapY)));
                 if (hudWord.IsBlank != pauseWord.IsBlank ||
                     (!hudWord.IsBlank &&

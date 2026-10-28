@@ -8,6 +8,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.RenderVerification.Areas;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.RenderVerification.Bosses;
 
 using SuperMetroid.TestSupport.FrameCapture;
@@ -52,8 +53,8 @@ internal static class RetailRidleyCaptureTests
             retained.Add(new RetainedFrame(packet, expected));
         }
         (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).GetawayActive = false;
-        runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
-        for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Colours.AsPaletteColors().SetColor(color, new RgbColor(0, 0, 0));
+        runtime.Vram.LoadBytes(0, new byte[SnesVram.ByteCount]);
+        for (int color = 0; color < SnesCgram.ColorCount; color++) runtime.Colours.AsPaletteColors().SetColor(color, new RgbColor(0, 0, 0));
         foreach (var sample in retained.AsEnumerable().Reverse())
             PixelComparison.Verify(sample.Packet, sample.Expected, renderer.RenderForReadback(sample.Packet),
                 $"{device.Kind}: retained Ridley {sample.Packet.Identity.Sequence}");

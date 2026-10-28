@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Samus.Grapple.GrapplePoseRefireVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
@@ -35,7 +36,7 @@ internal static class GrappleDoorsVerification
                     ? RoomCollisionType.VerticalExtension : RoomCollisionType.HorizontalExtension) << 12);
                 bts[origin + offset * stride] = unchecked((byte)-offset);
             }
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, bts, new ushort[words.Length]), new byte[8]);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, bts, new ushort[words.Length]), new BackgroundTile[4]);
             int hitBlock = origin + hitOffset * stride;
             var samus = new SamusState
             {

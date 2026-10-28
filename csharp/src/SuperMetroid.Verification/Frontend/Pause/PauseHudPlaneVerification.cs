@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Fx;
@@ -46,7 +47,7 @@ internal static class PauseHudPlaneVerification
     {
         var rows = new ushort[HudWordCount];
         for (int i = 0; i < rows.Length; i++) rows[i] = (ushort)(first + i);
-        return Layer3Plane.Compose(rows, []);
+        return Layer3Plane.Compose(BackgroundTileWordBytes.Tiles(rows), []);
     }
 
     /// <summary>The HUD rows of pause's captured BG3 tilemap.</summary>

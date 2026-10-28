@@ -121,7 +121,7 @@ internal static class XrayGameplayTests
         var random = new Random(34813);
         for (int frame = 0; frame < 32; frame++)
         {
-            var bytes = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(bytes);
+            var bytes = new byte[SnesVram.ByteCount]; random.NextBytes(bytes);
             var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount]; random.NextBytes(oam);
             var colors = Enumerable.Range(0, 256).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
             // The OBSEL is drawn after the layer below, keeping the seeded stream; the OAM converts under it then.
@@ -152,7 +152,7 @@ internal static class XrayGameplayTests
         // The reveal on BG2 drawn from block pictures in every arrangement (#1392), at the fine scrolls X-ray gives BG2.
         for (int frame = 0; frame < 8; frame++)
         {
-            var bytes = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(bytes);
+            var bytes = new byte[SnesVram.ByteCount]; random.NextBytes(bytes);
             var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount]; random.NextBytes(oam);
             var colors = Enumerable.Range(0, 256).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
             ushort Fine() => (ushort)random.Next(16);

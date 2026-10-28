@@ -57,7 +57,7 @@ internal static class NoobTubePlmVerification
         RoomLevelData level = CreateRoom(new(roomWidth, 16),
             new ushort[roomWidth * 16],
             new byte[roomWidth * 16],
-            blockDefinitions: new byte[0x400 * 8]);
+            blockDefinitions: new BackgroundTile[0x400 * 4]);
         var samus = new SamusState();
         samus.Position = samus.Position.WithWholeY(0x0100);
         RoomLayer3FxState roomFx = CreateNoobTubeWaterFx();

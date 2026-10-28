@@ -14,6 +14,10 @@
   <Import Project="../../test-support/AudioFixtures.projitems" />
   <Import Project="../../test-support/RepositoryInstallation.Verification.projitems" />
   <Import Project="../../test-support/VerificationAccess.Core.projitems" />
+  <ItemGroup>
+    <!-- Samus's colour rig is shared by the gameplay verification projects; desktop verification constructs no gameplay colours. -->
+    <Compile Remove="../../test-support/VerificationAccess.Core/Samus/Palettes/SamusColourRig.cs" />
+  </ItemGroup>
   <Import Project="../../test-support/VerificationAccess.Tooling.projitems" />
   <Import Project="../../test-support/VerificationAccess.Desktop.projitems" />
   <Import Project="../../test-support/VerificationAccess.Rendering.Direct3D11.projitems" />

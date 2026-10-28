@@ -91,8 +91,8 @@ internal static void Verify()
             Buttons: (1u << 8) | (1u << 9))),
         "ten-button generic pad Select and Start aliases");
 
-    AssertThrows<ArgumentOutOfRangeException>(() => new UsbGamepadIdentifier(-1, 0), "a USB vendor identifier is never negative");
-    AssertThrows<ArgumentOutOfRangeException>(() => new UsbGamepadIdentifier(0, ushort.MaxValue + 1),
+    AssertThrows<ArgumentOutOfRangeException>(() => _ = new UsbGamepadIdentifier(-1, 0), "a USB vendor identifier is never negative");
+    AssertThrows<ArgumentOutOfRangeException>(() => _ = new UsbGamepadIdentifier(0, ushort.MaxValue + 1),
         "a USB product identifier never exceeds its sixteen-bit range");
 
     Console.WriteLine(

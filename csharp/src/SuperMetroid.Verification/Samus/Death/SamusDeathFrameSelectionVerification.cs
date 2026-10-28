@@ -80,7 +80,7 @@ internal static class SamusDeathFrameSelectionVerification
     /// <summary>The explosion frame shown on <paramref name="update"/>, or null before the explosion and on completion.</summary>
     private static int? ExpectedFrame(int update)
     {
-        if (update < FirstExplosionUpdate || update >= CompletionUpdate)
+        if (update is < FirstExplosionUpdate or >= CompletionUpdate)
             return null;
         int frame = 0;
         while (frame + 1 < FrameStarts.Length && update >= FrameStarts[frame + 1])

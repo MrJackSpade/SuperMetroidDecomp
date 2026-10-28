@@ -75,15 +75,24 @@ internal static class BossDisplayBindingsFixtureVerification
         /// The tile each boss that owns BG2 fills its image with when its initialisation attaches it (#1446): Phantoon,
         /// Draygon, Crocomire and Mother Brain; null for a boss that draws none.
         /// </summary>
-        private static BackgroundTile? Bg2Fill(EnemyDefinitionId definition) => definition switch
+        private static BackgroundTile? Bg2Fill(EnemyDefinitionId definition) =>
+            Bg2Fills.TryGetValue(definition, out BackgroundTile fill) ? fill : null;
+
+        /// <summary>Each part of a boss that owns BG2, with the tile its initialisation fills the image with.</summary>
+        private static readonly Dictionary<EnemyDefinitionId, BackgroundTile> Bg2Fills = new()
         {
-            EnemyDefinitionId.PhantoonBody or EnemyDefinitionId.PhantoonEye or EnemyDefinitionId.PhantoonTentacles
-                or EnemyDefinitionId.PhantoonMouth => SuperMetroid.Core.Bosses.Phantoon.Artwork.PhantoonBg2FrameDefinitions.BlankTile,
-            EnemyDefinitionId.DraygonBody or EnemyDefinitionId.DraygonEye
-                or EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms => SuperMetroid.Core.Enemies.Drawing.EnemyBg2SurfaceDefinitions.BlankTile,
-            EnemyDefinitionId.Crocomire or EnemyDefinitionId.CrocomireTongue => SuperMetroid.Core.Bosses.Crocomire.CrocomireBg2.CrocomireBlankBg2Tile,
-            EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead => SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBg2Definitions.BlankTile,
-            _ => null,
+            [EnemyDefinitionId.PhantoonBody] = SuperMetroid.Core.Bosses.Phantoon.Artwork.PhantoonBg2FrameDefinitions.BlankTile,
+            [EnemyDefinitionId.PhantoonEye] = SuperMetroid.Core.Bosses.Phantoon.Artwork.PhantoonBg2FrameDefinitions.BlankTile,
+            [EnemyDefinitionId.PhantoonTentacles] = SuperMetroid.Core.Bosses.Phantoon.Artwork.PhantoonBg2FrameDefinitions.BlankTile,
+            [EnemyDefinitionId.PhantoonMouth] = SuperMetroid.Core.Bosses.Phantoon.Artwork.PhantoonBg2FrameDefinitions.BlankTile,
+            [EnemyDefinitionId.DraygonBody] = SuperMetroid.Core.Enemies.Drawing.EnemyBg2SurfaceDefinitions.BlankTile,
+            [EnemyDefinitionId.DraygonEye] = SuperMetroid.Core.Enemies.Drawing.EnemyBg2SurfaceDefinitions.BlankTile,
+            [EnemyDefinitionId.DraygonTail] = SuperMetroid.Core.Enemies.Drawing.EnemyBg2SurfaceDefinitions.BlankTile,
+            [EnemyDefinitionId.DraygonArms] = SuperMetroid.Core.Enemies.Drawing.EnemyBg2SurfaceDefinitions.BlankTile,
+            [EnemyDefinitionId.Crocomire] = SuperMetroid.Core.Bosses.Crocomire.CrocomireBg2.CrocomireBlankBg2Tile,
+            [EnemyDefinitionId.CrocomireTongue] = SuperMetroid.Core.Bosses.Crocomire.CrocomireBg2.CrocomireBlankBg2Tile,
+            [EnemyDefinitionId.MotherBrainBody] = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBg2Definitions.BlankTile,
+            [EnemyDefinitionId.MotherBrainHead] = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBg2Definitions.BlankTile,
         };
 
         /// <summary>Selects an extended spritemap and optionally marks it as a new instruction frame.</summary>

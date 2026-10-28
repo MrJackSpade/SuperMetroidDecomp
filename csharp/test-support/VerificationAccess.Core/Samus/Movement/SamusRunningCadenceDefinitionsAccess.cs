@@ -37,6 +37,9 @@ internal static class SamusRunningCadenceDefinitionsAccess
     {
         SamusRunningCadence.Ordinary => 0xb5d3,
         SamusRunningCadence.SoundQueueClobber => 0x0303,
-        _ => (ushort)(0xb5e8 + (cadence - SamusRunningCadence.BoostStage0) * 11),
+        SamusRunningCadence.BoostStage0 or SamusRunningCadence.BoostStage1 or SamusRunningCadence.BoostStage2
+            or SamusRunningCadence.BoostStage3 or SamusRunningCadence.BoostStage4 =>
+            (ushort)(0xb5e8 + (cadence - SamusRunningCadence.BoostStage0) * 11),
+        _ => throw new ArgumentOutOfRangeException(nameof(cadence), cadence, "Not a running cadence."),
     };
 }

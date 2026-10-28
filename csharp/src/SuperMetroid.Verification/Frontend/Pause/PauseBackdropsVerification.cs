@@ -46,16 +46,16 @@ internal static class PauseBackdropsVerification
         using (var output = File.Create(path)) PauseBackdropPresentation.Write(output, document with { Areas = editedAreas, Buttons = buttons });
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "backdrop/button-only edits change catalog identity");
-        AssertTrue(original.PauseBackdrops.CreateButtonTilemap().SequenceEqual(
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0xb6e400, 0x400)), "all native mutable button words survive extraction");
+        AssertTrue(original.PauseBackdrops.CreateButtonTilemap().SequenceEqual(BackgroundTileWordBytes.Tiles(
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0xb6e400, 0x400))), "all native mutable button tiles survive extraction");
         AreaId everyTickArea = Enum.GetValues<AreaId>()[0];
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
             byte[] expected = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0xb6e000, 0x800);
             ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82965f + (int)area * 2);
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0x820000 | label, 24).CopyTo(expected, 170 * 2);
-            var words = new ushort[PauseBackdropDefinitions.Cells]; original.PauseBackdrops.LoadTo(words, area);
-            AssertTrue(expected.SequenceEqual(System.Runtime.InteropServices.MemoryMarshal.AsBytes<ushort>(words).ToArray()), "all 1024 backdrop words match native frame plus unmasked area lettering");
+            var tiles = new BackgroundTile[PauseBackdropDefinitions.Cells]; original.PauseBackdrops.LoadTo(tiles, area);
+            AssertTrue(BackgroundTileWordBytes.Tiles(expected).SequenceEqual(tiles), "all 1024 backdrop tiles match native frame plus unmasked area lettering");
             var native = Create(bus, area, original);
             var pause = Create(guard, area, original);
             var persistentEdit = Create(guard, area, edited);
@@ -138,8 +138,10 @@ internal static class PauseBackdropsVerification
         using (var authored = new MemoryStream())
         {
             PauseBackdropPresentation.Write(authored, document with { Areas = invalidAreas }); authored.Position = 0;
-            var compiled = PauseBackdropPresentation.Load(authored); var words = new ushort[PauseBackdropDefinitions.Cells]; compiled.LoadTo(words, AreaId.Crateria);
-            AssertEqual((ushort)0xfdff, words[0], "named Interface atlas resolves its own tile coordinates and every visual attribute");
+            var compiled = PauseBackdropPresentation.Load(authored); var tiles = new BackgroundTile[PauseBackdropDefinitions.Cells]; compiled.LoadTo(tiles, AreaId.Crateria);
+            // The Interface atlas's last cell (column 31, row 7) is tile $1FF; every visual attribute carries through.
+            AssertEqual(new BackgroundTile(0x1ff, 7, FlipHorizontally: true, FlipVertically: true, HighPriority: true), tiles[0],
+                "named Interface atlas resolves its own tile coordinates and every visual attribute");
         }
         foreach (var invalid in new[] { document.Buttons[0] with { Atlas = (PauseAtlas)byte.MaxValue }, document.Buttons[0] with { TileColumn = 32 },
             document.Buttons[0] with { TileRow = 8 }, document.Buttons[0] with { Palette = -1 }, document.Buttons[0] with { Palette = 8 } })

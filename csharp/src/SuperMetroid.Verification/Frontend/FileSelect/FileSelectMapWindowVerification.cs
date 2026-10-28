@@ -121,7 +121,7 @@ internal static class FileSelectMapWindowVerification
         var graphics = new FileSelectRoomMapGraphics(new SuperMetroid.Core.Progression.SharedGameState(),
             SuperMetroid.Core.Progression.AreaId.Maridia, mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));
         RgbaPixel[] frameOnly = graphics.RenderFrameOnly().ToArray();
-        graphics.screen.Tilemaps.AreaMap[0] = 0x1234;
+        graphics.screen.Tilemaps.AreaMap[0] = new BackgroundTile(0x234, 4, highPriority: false);
         AssertTrue(frameOnly.SequenceEqual(graphics.RenderFrameOnly()), "transition frame never samples room-map BG1 tiles");
     }
 

@@ -184,7 +184,7 @@ internal static class EndingObjectArtworkVerification
                 var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
                 CinematicSheetFixtures.Drawer(stock.CloudSprites).Draw(definition.Pose, installedOam,
-                    new(120, y), 0x0800, onScreen);
+                    new(120, y), 4, onScreen);
                 installedOam.FinalizeFrame();
                 AssertTrue(nativeOam.ImageEquals(installedOam) &&
                         nativeOam.LastFinalizedSpriteCount == installedOam.LastFinalizedSpriteCount,
@@ -421,12 +421,12 @@ internal static class EndingObjectArtworkVerification
         var preservedCloudOam = ScreenSpritesFixtures.Blank();
         preservedCloudOam.BeginFrame();
         CinematicSheetFixtures.Drawer(repaired.LoadEndingObjectArt().CloudSprites).Draw(EndingCloudSpriteDefinitions.Frames[(int)EndingCloudSpriteDefinitions.Role.Right].Pose, preservedCloudOam,
-            new(120, 72), 0x0800, originIsOnScreen: true);
+            new(120, 72), 4, originIsOnScreen: true);
         preservedCloudOam.FinalizeFrame();
         var editedCloudOam = ScreenSpritesFixtures.Blank();
         editedCloudOam.BeginFrame();
         CinematicSheetFixtures.Drawer(editedCloudSprites.CloudSprites).Draw(EndingCloudSpriteDefinitions.Frames[(int)EndingCloudSpriteDefinitions.Role.Right].Pose, editedCloudOam,
-            new(120, 72), 0x0800, originIsOnScreen: true);
+            new(120, 72), 4, originIsOnScreen: true);
         editedCloudOam.FinalizeFrame();
         AssertTrue(preservedCloudOam.ImageEquals(editedCloudOam),
             "ending cloud sprite override survives stock repair with edited OAM");

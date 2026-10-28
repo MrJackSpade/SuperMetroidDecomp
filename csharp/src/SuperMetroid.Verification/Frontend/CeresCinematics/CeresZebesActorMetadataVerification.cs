@@ -32,7 +32,7 @@ internal static class CeresZebesActorMetadataVerification
                 $"Zebes reveal actor {index} X");
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(yAddresses[index]), actor.Position.Y,
                 $"Zebes reveal actor {index} Y");
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(attributeAddresses[index]), actor.Attributes,
+            PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(attributeAddresses[index]), actor.Palette,
                 $"Zebes reveal actor {index} attributes");
         }
 

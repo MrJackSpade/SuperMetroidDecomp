@@ -28,9 +28,11 @@ internal static class CeresStarPointPartsVerification
             {
                 var edited = (CompiledSpritePart[])supplied.Clone();
                 var part = edited[index];
-                edited[index] = part with { Attributes = part.Attributes with { Raw = (ushort)(part.Attributes.Raw ^ 0x1000) } };
+                // The priority edit flips the priority tier's low bit; the point edit moves the star one pixel down, wrapping
+                // across the signed Y offset range as the cartridge's Y byte does.
+                edited[index] = part with { Part = part.Part with { Priority = part.Part.Priority ^ 1 } };
                 AssertTrue(ReferenceEquals(edited, CeresStarPointParts.CalculateIfMatching(edited, reflected ? TileFlip.Horizontal : TileFlip.None)), "independent priority edit stays supplied");
-                edited[index] = part with { Y = new SnesSpritemapYByte(unchecked((byte)(part.Y.Raw + 1))) };
+                edited[index] = part with { Part = part.Part.At(part.Part.Offset.X, unchecked((sbyte)(part.Part.Offset.Y + 1))) };
                 var translated = CeresStarPointParts.CalculateIfMatching(edited, reflected ? TileFlip.Horizontal : TileFlip.None);
                 AssertTrue(!ReferenceEquals(edited, translated) && edited.SequenceEqual(translated), "point edits preserve calculated attributes");
             }

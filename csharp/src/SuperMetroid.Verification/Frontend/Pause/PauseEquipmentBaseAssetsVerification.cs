@@ -2,7 +2,6 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
-using System.Buffers.Binary;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.Pause.PauseEquipmentRulesVerification;
@@ -32,8 +31,8 @@ internal static class PauseEquipmentBaseAssetsVerification
         var document = RequiredJson.Deserialize<PauseEquipmentBaseDocument>(stockBytes, ArtworkJson.Options);
         byte[] nativeBase = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.EquipmentPage,
             PauseEquipmentBaseDefinitions.Cells * sizeof(ushort));
-        AssertTrue(nativeBase.SequenceEqual(original.PauseEquipmentBase.CreateTilemap()),
-            "all 1024 equipment base cells match native words");
+        AssertTrue(BackgroundTileWordBytes.Tiles(nativeBase).SequenceEqual(original.PauseEquipmentBase.CreateTilemap()),
+            "all 1024 equipment base cells match the native tiles");
 
         var guard = NewPauseEquipmentBaseReadGuard(bus);
         var native = new PauseMenuState(new PauseMenuEntry { Samus = Samus(), System = new SharedGameState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
@@ -69,19 +68,18 @@ internal static class PauseEquipmentBaseAssetsVerification
         AssertTrue(!stockPause.Render().SequenceEqual(editedPause.Render()),
             "edited static equipment cell reaches actual menu pixels");
 
-        byte[] rebound = Enumerable.Repeat((byte)0x5a, PauseEquipmentBaseDefinitions.Cells * 2).ToArray();
+        // Every cell starts as a sentinel tile, so a cell the rebind leaves alone keeps it.
+        var sentinel = new BackgroundTile(0x25a, 6, FlipHorizontally: true, FlipVertically: false, HighPriority: false);
+        BackgroundTile[] rebound = Enumerable.Repeat(sentinel, PauseEquipmentBaseDefinitions.Cells).ToArray();
         int protectedCell = Enumerable.Range(0, PauseEquipmentBaseDefinitions.Cells)
             .First(PauseEquipmentBaseDefinitions.IsLiveOwnedCell);
         int arrowCell = Enumerable.Range(0, PauseEquipmentBaseDefinitions.Cells)
             .First(PauseEquipmentBaseDefinitions.IsArrowCell);
-        ushort liveArrow = new SnesBgTilemapWord(0).WithPaletteIndex(2).Raw;
-        BinaryPrimitives.WriteUInt16LittleEndian(rebound.AsSpan(arrowCell * 2), liveArrow);
+        rebound[arrowCell] = new BackgroundTile(0, 2, highPriority: false);
         edited.PauseEquipmentBase.RebindBaseInto(rebound);
-        AssertEqual((byte)0x5a, rebound[protectedCell * 2], "base rebind preserves live inventory/wireframe/reserve bytes");
-        AssertEqual(2, new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(rebound.AsSpan(arrowCell * 2))).PaletteIndex,
-            "base rebind preserves the live reserve-arrow palette");
-        AssertTrue(!rebound.AsSpan(editedCell * 2, 2).SequenceEqual(new byte[] { 0x5a, 0x5a }),
-            "base rebind refreshes ordinary authored cells");
+        AssertEqual(sentinel, rebound[protectedCell], "base rebind preserves live inventory/wireframe/reserve cells");
+        AssertEqual(2, rebound[arrowCell].ColourVariant, "base rebind preserves the live reserve-arrow palette");
+        AssertTrue(rebound[editedCell] != sentinel, "base rebind refreshes ordinary authored cells");
 
         using var captured = new MemoryStream();
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(captured, editedPause); captured.Position = 0;

@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Saves;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;

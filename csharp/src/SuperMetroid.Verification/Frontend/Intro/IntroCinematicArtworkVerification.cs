@@ -668,7 +668,8 @@ internal static class IntroCinematicArtworkVerification
         Suite(nameof(VerifyCinematicSpriteAnimations), () => VerifyCinematicSpriteAnimations(bus));
         const ushort originX = 8;
         const ushort originY = 24;
-        ushort paletteBits = IntroCinematicDefinitions.Objects.ScientistPalette.Raw;
+        int palette = IntroCinematicDefinitions.Objects.ScientistPalette;
+        ushort paletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits;
         foreach (CinematicSpriteFrameDefinition definition in IntroCaretSpriteDefinitions.Frames)
         {
             var native = new OamBuffer();
@@ -680,7 +681,7 @@ internal static class IntroCinematicArtworkVerification
             var installed = ScreenSpritesFixtures.Blank();
             installed.BeginFrame();
             CinematicSheetFixtures.Drawer(stock.CaretSprites).Draw(definition.Pose, installed,
-                new(originX, originY), paletteBits);
+                new(originX, originY), palette);
             installed.FinalizeFrame();
             AssertTrue(installed.ImageEquals(native) &&
                     installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,
@@ -712,12 +713,12 @@ internal static class IntroCinematicArtworkVerification
             var previousOam = ScreenSpritesFixtures.Blank();
             previousOam.BeginFrame();
             CinematicSheetFixtures.Drawer(previous).Draw(IntroCaretSpriteDefinitions.Visible.Pose, previousOam,
-                new(originX, originY), paletteBits);
+                new(originX, originY), palette);
             previousOam.FinalizeFrame();
             var stockOam = ScreenSpritesFixtures.Blank();
             stockOam.BeginFrame();
             CinematicSheetFixtures.Drawer(stock.CaretSprites).Draw(IntroCaretSpriteDefinitions.Visible.Pose, stockOam,
-                new(originX, originY), paletteBits);
+                new(originX, originY), palette);
             stockOam.FinalizeFrame();
             AssertTrue(previousOam.ImageEquals(stockOam),
                 "prior four-frame override preserves its actual caret composition");
@@ -730,12 +731,12 @@ internal static class IntroCinematicArtworkVerification
         IntroCaretSpritePresentation edited = IntroCaretSpritePresentation.Load(editedJson);
         var changed = ScreenSpritesFixtures.Blank();
         changed.BeginFrame();
-        CinematicSheetFixtures.Drawer(edited).Draw(IntroCaretSpriteDefinitions.Visible.Pose, changed, new(originX, originY), paletteBits);
+        CinematicSheetFixtures.Drawer(edited).Draw(IntroCaretSpriteDefinitions.Visible.Pose, changed, new(originX, originY), palette);
         changed.FinalizeFrame();
         var original = ScreenSpritesFixtures.Blank();
         original.BeginFrame();
         CinematicSheetFixtures.Drawer(stock.CaretSprites).Draw(IntroCaretSpriteDefinitions.Visible.Pose, original,
-            new(originX, originY), paletteBits);
+            new(originX, originY), palette);
         original.FinalizeFrame();
         AssertTrue(!changed.LowTable.SequenceEqual(original.LowTable) &&
                 changed.LowTable[..2].SequenceEqual(original.LowTable[..2]) &&
@@ -805,6 +806,8 @@ internal static class IntroCinematicArtworkVerification
     private static void VerifyIntroMotherBrainSpriteArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
+        // The cartridge oracle takes the palette row as its attribute bits; the port's draw takes the row itself.
+        ushort motherBrainPaletteBits = SnesObjAttributeWord.Create(0, IntroMotherBrainSpriteState.Palette, 0).PaletteBits;
         foreach (CinematicSpriteFrameDefinition definition in
             IntroMotherBrainSpriteDefinitions.Frames)
         {
@@ -814,13 +817,13 @@ internal static class IntroCinematicArtworkVerification
                 (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank,
                     CinematicSpritemapSources.Of(definition.Pose)),
                 new(IntroMotherBrainSpriteState.Position.X, IntroMotherBrainSpriteState.Position.Y),
-                IntroMotherBrainSpriteState.PaletteBits);
+                motherBrainPaletteBits);
             native.FinalizeFrame();
             var installed = ScreenSpritesFixtures.Blank();
             installed.BeginFrame();
             CinematicSheetFixtures.Drawer(stock.MotherBrainSprites).Draw(definition.Pose, installed,
                 IntroMotherBrainSpriteState.Position.ToSpritePosition(),
-                IntroMotherBrainSpriteState.PaletteBits);
+                IntroMotherBrainSpriteState.Palette);
             installed.FinalizeFrame();
             AssertTrue(installed.ImageEquals(native) &&
                     installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,
@@ -842,13 +845,13 @@ internal static class IntroCinematicArtworkVerification
         stockOam.BeginFrame();
         CinematicSheetFixtures.Drawer(stock.MotherBrainSprites).Draw(IntroMotherBrainSpriteDefinitions.FramePose(0), stockOam,
             IntroMotherBrainSpriteState.Position.ToSpritePosition(),
-            IntroMotherBrainSpriteState.PaletteBits);
+            IntroMotherBrainSpriteState.Palette);
         stockOam.FinalizeFrame();
         var editedOam = ScreenSpritesFixtures.Blank();
         editedOam.BeginFrame();
         CinematicSheetFixtures.Drawer(edited.MotherBrainSprites).Draw(IntroMotherBrainSpriteDefinitions.FramePose(0), editedOam,
             IntroMotherBrainSpriteState.Position.ToSpritePosition(),
-            IntroMotherBrainSpriteState.PaletteBits);
+            IntroMotherBrainSpriteState.Palette);
         editedOam.FinalizeFrame();
         AssertTrue(!editedOam.ImageEquals(stockOam),
             "intro Mother Brain palette edit changes OAM art but not sprite size or X high bits");
@@ -886,7 +889,8 @@ internal static class IntroCinematicArtworkVerification
     {
         const ushort x = 120;
         const ushort y = 100;
-        ushort palette = IntroCinematicDefinitions.Objects.ExplosionPalette.Raw;
+        int palette = IntroCinematicDefinitions.Objects.ExplosionPalette;
+        ushort paletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits;
         foreach (CinematicSpriteFrameDefinition definition in
             IntroMotherBrainExplosionSpriteDefinitions.Frames)
         {
@@ -894,7 +898,7 @@ internal static class IntroCinematicArtworkVerification
             native.BeginFrame();
             DrawImportedSpritemap(bus, native,
                 (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank,
-                    CinematicSpritemapSources.Of(definition.Pose)), new(x, y), palette);
+                    CinematicSpritemapSources.Of(definition.Pose)), new(x, y), paletteBits);
             native.FinalizeFrame();
             var installed = ScreenSpritesFixtures.Blank();
             installed.BeginFrame();

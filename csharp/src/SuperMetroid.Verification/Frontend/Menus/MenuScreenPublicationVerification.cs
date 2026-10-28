@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.GameOver;
@@ -87,11 +88,11 @@ internal static class MenuScreenPublicationVerification
         FramePaint memory = snapshot.Paint;
         // The image the menu composes from its screen when it captures a frame (#1403).
         byte[] vram = MenuScreenMemory.Compose(screen);
-        ReadOnlySpan<ushort> tilemaps = screen.Tilemaps.All;
+        ReadOnlySpan<BackgroundTile> tilemaps = screen.Tilemaps.All;
         int first = MenuVramLayout.Bg1TilemapWord * sizeof(ushort);
         for (int word = 0; word < tilemaps.Length; word++)
-            AssertEqual(tilemaps[word], SnesLittleEndian.Word(vram[first + word * 2], vram[first + word * 2 + 1]),
-                $"{menu} draws its own tilemap word {word}");
+            AssertEqual(tilemaps[word], BackgroundTileWords.ToTile(SnesLittleEndian.Word(vram[first + word * 2], vram[first + word * 2 + 1])),
+                $"{menu} draws its own tilemap tile {word}");
         int last = first + tilemaps.Length * sizeof(ushort);
         AssertTrue(vram[..first].SequenceEqual(screen.Characters[..first]) && vram[last..].SequenceEqual(screen.Characters[last..]),
             $"{menu} draws its bound characters");

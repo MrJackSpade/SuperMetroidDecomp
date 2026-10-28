@@ -22,7 +22,7 @@ internal static class CeresFlightActorMetadataVerification
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe84), front.InitialTimer, "front stars initial timer");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe8a), front.Position.X, "front stars X");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe90), front.Position.Y, "front stars Y");
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe96), front.Attributes, "front stars attributes");
+        PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe96), front.Palette, "front stars attributes");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbec3),
             CeresFlightActorDefinitions.FrontStarAcceleration,
             "front stars acceleration");
@@ -52,7 +52,7 @@ internal static class CeresFlightActorMetadataVerification
                 case 3:
                     AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfb4), actor.Position.X, "rear vortex X");
                     AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfba), actor.Position.Y, "rear vortex Y");
-                    AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfc0), actor.Attributes,
+                    PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfc0), actor.Palette,
                         "rear vortex attributes");
                     AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfcb),
                         unchecked((ushort)-actor.HorizontalDelta), "rear vortex speed magnitude");
@@ -61,7 +61,7 @@ internal static class CeresFlightActorMetadataVerification
                 case 4:
                     AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbea3), actor.Position.X, "rear stars X");
                     AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbea9), actor.Position.Y, "rear stars Y");
-                    AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbeaf), actor.Attributes,
+                    PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbeaf), actor.Palette,
                         "rear stars attributes");
                     AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe9d), actor.ActivePreInstruction.NativeAddress,
                         "rear stars initializer callback override");
@@ -108,7 +108,7 @@ internal static class CeresFlightActorMetadataVerification
         {
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.XWord), actor.Position.X, $"{name} X");
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.YWord), actor.Position.Y, $"{name} Y");
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.AttributeWord), actor.Attributes,
+            PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.AttributeWord), actor.Palette,
                 $"{name} attributes");
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.DeltaWord), unchecked((ushort)actor.HorizontalDelta),
                 $"{name} speed");

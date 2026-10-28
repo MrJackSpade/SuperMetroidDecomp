@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Frontend.Intro.IntroCinematicArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
@@ -29,7 +30,7 @@ internal static class IntroRinkaSpriteArtworkVerification
         if (unchecked((ushort)(y + CinematicSpriteDrawDefinitions.OriginYBias)) >= CinematicSpriteDrawDefinitions.BiasedOriginYLimit) return;
         DrawImportedSpritemap(bus, oam,
             ((int)new SnesAddress(            IntroCinematicSourceDefinitions.SpritemapBank, spritemap)),
-            new(actor.WholePosition.X, y), actor.Attributes.Raw,
+            new(actor.WholePosition.X, y), SnesObjAttributeWord.Create(0, actor.Palette, 0).PaletteBits,
             originIsOnScreen: y < CinematicSpriteDrawDefinitions.OnScreenOriginYLimit);
     }
     /// <summary>Compares installed Rinka OAM and flashback pixels with native art, then verifies a palette override and rebinding.</summary>
@@ -38,7 +39,8 @@ internal static class IntroRinkaSpriteArtworkVerification
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
         const ushort x = 120;
-        ushort palette = IntroCinematicDefinitions.Objects.DiscoveryPalette.Raw;
+        int palette = IntroCinematicDefinitions.Objects.DiscoveryPalette;
+        ushort paletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits;
         foreach (CinematicSpriteFrameDefinition definition in IntroRinkaSpriteDefinitions.Frames)
         {
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
@@ -50,9 +52,9 @@ internal static class IntroRinkaSpriteArtworkVerification
                 var native = new OamBuffer();
                 native.BeginFrame();
                 if (onScreen)
-                    DrawImportedSpritemap(bus, native, source, new(x, y), palette);
+                    DrawImportedSpritemap(bus, native, source, new(x, y), paletteBits);
                 else
-                    DrawImportedSpritemap(bus, native, source, new(x, y), palette, originIsOnScreen: false);
+                    DrawImportedSpritemap(bus, native, source, new(x, y), paletteBits, originIsOnScreen: false);
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();

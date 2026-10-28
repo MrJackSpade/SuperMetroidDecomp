@@ -50,7 +50,7 @@ internal static class GenericSpriteArtworkVerification
             ArtworkJson.Options);
         var expected = new OamBuffer();
         int titleCases = 0;
-        IReadOnlyDictionary<TitleSprite, ushort> spritemaps =
+        IReadOnlyDictionary<TitleSprite, int> spritemaps =
             SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(reference);
         foreach (TitleSpriteFrame frame in document.Sprites)
         foreach (ushort x in new ushort[] { 0, 255, ushort.MaxValue })
@@ -63,7 +63,7 @@ internal static class GenericSpriteArtworkVerification
             title.PrepareRenderSprites();
             expected = new OamBuffer(); expected.BeginFrame();
             DrawImportedSpritemap(reference, expected,
-                (int)new SnesAddress(FrontendSourceDefinitions.TitleSpritemapBank, spritemaps[frame.Sprite]), new(x, y),
+                (int)SnesAddress.InBank(FrontendSourceDefinitions.TitleSpritemapBank, spritemaps[frame.Sprite]), new(x, y),
                 SnesObjAttributeWord.Create(0, palette, 0).PaletteBits);
             expected.FinalizeFrame();
             EqualSprites(expected, title.objects, "title composition/coordinate/palette parity");

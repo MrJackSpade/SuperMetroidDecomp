@@ -1621,7 +1621,7 @@ internal static class LookupStream4Verification
     /// <summary>Checks title screen sprite identities against the native artwork pointers.</summary>
     internal static void VerifyTitleSpriteIdentities(SuperMetroidAddressSpace rom)
     {
-        var nativeTitlePointers = new HashSet<ushort> { 0x8103, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8ba0c7) };
+        var nativeTitlePointers = new HashSet<int> { 0x8103, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8ba0c7) };
         foreach (int start in new[] { 0x8ba03d, 0x8ba055, 0x8ba079, 0x8ba09d })
             for (int entry = start; CartridgeImportSource.Require(rom).ReadCartridgeWord(entry) < 0x8000; entry += 4)
                 if (CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 2)) != 0) nativeTitlePointers.Add(CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 2)));

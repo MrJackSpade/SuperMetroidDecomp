@@ -132,7 +132,7 @@ internal static class TitleGradientVerification
             "title extraction covers all cartridge-selected OBJ frames");
         ushort yearPointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             TitleSourceDefinitions.TextLists[TitleSequencePhase.YearText] + 6);
-        IReadOnlyDictionary<TitleSprite, ushort> spritemaps =
+        IReadOnlyDictionary<TitleSprite, int> spritemaps =
             SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(bus);
         AssertEqual(yearPointer, spritemaps[TitleSprite.YearReveal1], "the year's first letter is the year card's first listed spritemap");
         // Independent native OBJ records retain the cartridge reference now that both
@@ -140,7 +140,7 @@ internal static class TitleGradientVerification
         foreach (TitleSpriteFrame frame in spriteDocument.Sprites)
         {
             var nativeOam = new OamBuffer(); var installedOam = ScreenSpritesFixtures.Blank();
-            int address = ((int)new SnesAddress(FrontendSourceDefinitions.TitleSpritemapBank, spritemaps[frame.Sprite]));
+            int address = ((int)SnesAddress.InBank(FrontendSourceDefinitions.TitleSpritemapBank, spritemaps[frame.Sprite]));
             ushort Word(int at) => LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, at), CpuBusRegionRead.Read(bus, at + 1));
             int count = Word(address);
             for (int part = 0; part < count; part++)

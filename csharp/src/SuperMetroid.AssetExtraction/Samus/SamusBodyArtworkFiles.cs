@@ -59,9 +59,9 @@ public static class SamusBodyArtworkFiles
         ushort[] posePointers = ReadPointers(bus,
             SamusSourceDefinitions.AnimationDefinitionListPointers.Value,
             SamusBodyArtworkCatalog.PoseCount);
-        int[] topSetStarts = [.. topPointers.Select(BodyRecord)];
-        int[] bottomSetStarts = [.. bottomPointers.Select(BodyRecord)];
-        int[] poseFirstFrames = [.. posePointers.Select(BodyFrame)];
+        int[] topSetStarts = [.. topPointers.Select(pointer => BodyRecord(pointer))];
+        int[] bottomSetStarts = [.. bottomPointers.Select(pointer => BodyRecord(pointer))];
+        int[] poseFirstFrames = [.. posePointers.Select(pointer => BodyFrame(pointer))];
         sbyte[] graphicsYOffsets = Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount)
             .Select(pose => unchecked((sbyte)bus.ReadCartridgeByte(
                 SamusSourceDefinitions.PoseDefinitions.Value +

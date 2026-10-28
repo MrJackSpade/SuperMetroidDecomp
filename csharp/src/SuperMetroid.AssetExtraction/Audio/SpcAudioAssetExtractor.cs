@@ -232,7 +232,7 @@ public static class SpcAudioAssetExtractor
                         string id = $"sfx-program-{programAddress:x4}";
                         program = SpcSoundEffectProgramCodec.Decode(
                             id,
-                            programAddress,
+                            checked((ushort)programAddress),
                             commonRam,
                             commonWritten);
                         programsByAddress.Add(programAddress, program);

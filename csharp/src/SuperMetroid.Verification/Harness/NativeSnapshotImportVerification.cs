@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
@@ -361,8 +362,10 @@ internal static class NativeSnapshotImportVerification
             var kind = (RoomEnemyProjectileKind)id;
             AssertTrue(NativeSlotOnlyEnemyProjectileKinds.Contains(kind),
                 $"initial native enemy projectile {projectile.SlotIndex} kind ${id:X4} has a verified slot-only import");
+            // The snapshot's graphics word packs the projectile's tile base and palette row as an attribute word does.
+            var graphics = new SnesObjAttributeWord(W(NativeSnapshotMemory.EnemyProjectileGraphics + index));
             FamilyProjectileStarts.Initialize(
-                projectile, kind, W(NativeSnapshotMemory.EnemyProjectileGraphics + index));
+                projectile, kind, SpriteGraphics.Of(graphics.TileNumber, graphics.PaletteIndex));
             projectile.PreInstructionWord = W(NativeSnapshotMemory.EnemyProjectilePreInstruction + index);
             ushort instruction = W(NativeSnapshotMemory.NativeEnemyProjectileInstruction + index);
             // The typed family resumes at the step the recorded native pointer stands for.

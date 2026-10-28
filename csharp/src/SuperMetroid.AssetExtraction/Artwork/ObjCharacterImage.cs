@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
@@ -32,8 +33,7 @@ internal static class ObjCharacterImage
     {
         if ((uint)tileNumber >= 2 * NameTableCharacters)
             throw new ArgumentOutOfRangeException(nameof(tileNumber));
-        if ((uint)obsel > byte.MaxValue)
-            throw new ArgumentOutOfRangeException(nameof(obsel), obsel, "OBSEL is one register byte.");
+        Ensure.BetweenInclusive(0, byte.MaxValue, obsel);
         // OBSEL bits 0-2 choose the base in $2000-word ($4000-byte) units. A set ninth
         // tile bit selects the second name table, whose programmable displacement is
         // ((bits 3-4) + 1) * $1000 words. Each 4-bpp 8x8 tile occupies 16 VRAM words.

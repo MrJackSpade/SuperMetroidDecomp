@@ -1,4 +1,7 @@
 using SuperMetroid.Core.Hardware;
+using System.Collections.Immutable;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsClippingVerification;
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsDocumentsVerification;
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsFixtureVerification;
@@ -10,7 +13,6 @@ using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
-using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Bosses;
 using SuperMetroid.Verification.Harness;
 
@@ -35,8 +37,8 @@ internal static class BossDisplayBindingsVerification
                 AssertBodyOam(baseline.Draw(), stock.Oam.Frames[frame.Name], baseline.Actor);
                 string selected = (edits.Oam.DisplayFrames ?? throw new InvalidOperationException("Verification requires edits.Oam.DisplayFrames."))[frame.Name];
                 AssertBodyOam(replacement.Draw(), edits.Oam.Frames[selected], replacement.Actor);
-                AssertBossBg2(baseline.Vram, stock.Writes(frame.Bank, frame.Pointer));
-                AssertBossBg2(replacement.Vram, edits.Writes(frame.Bank,
+                AssertBossBg2(baseline, stock.Writes(frame.Bank, frame.Pointer));
+                AssertBossBg2(replacement, edits.Writes(frame.Bank,
                     edits.Selected(frame).Pointer));
                 AssertBossDisplayMechanics(baseline, replacement, frame.Name);
                 AssertEqual(frame.Pointer, replacement.Actor.SpritemapPointer, "replacement never changes physical identity");
@@ -72,14 +74,17 @@ internal static class BossDisplayBindingsVerification
     }
 
     /// <summary>Compares every expected BG2 tilemap word, each authored cell's tile encoded through the codec, after ordered boss-frame writes.</summary>
-    internal static void AssertBossBg2(SnesVram actual, EnemyBg2WriteDocument[] writes)
+    internal static void AssertBossBg2(BossDisplayFixture fixture, EnemyBg2WriteDocument[] writes)
     {
-        var expected = new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight];
+        // The boss draws into the BG2 image it owns (#1446); cells no write reaches keep the image's fill.
+        ImmutableArray<BackgroundTile> actual = fixture.Bg2.Tiles;
+        var expected = Enumerable.Repeat(BackgroundTileWords.ToWord(fixture.Bg2FillTile),
+            EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight).ToArray();
         foreach (EnemyBg2WriteDocument write in writes)
             for (int index = 0; index < write.Tiles.Length; index++)
                 expected[write.Y * EnemyBg2FrameLayout.TilemapWidth + write.X + index] = write.Tiles[index].PackedWord;
         for (int index = 0; index < expected.Length; index++)
-            AssertEqual(expected[index], actual.ReadWord(EnemyBg2FrameLayoutConstants.VramBase + index), "boss BG2 exact ordered destinations and payload");
+            AssertEqual(expected[index], BackgroundTileWords.ToWord(actual[index]), "boss BG2 exact ordered destinations and payload");
     }
 
     /// <summary>Requires edited presentation to preserve actor animation, WRAM, SRAM, and audio requests.</summary>

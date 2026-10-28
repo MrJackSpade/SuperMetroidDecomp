@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
@@ -57,7 +58,8 @@ internal static class BossDisplayBindingsStockVerification
                     AssertTrue(original.Parts.SequenceEqual(imported.Parts), frame.Name + " exact native sprite records");
                     parts += original.Parts.Length;
                     expectedOam.AddEnemySpritemap(original.Parts,
-                        new Position16<SpritePixels>(unchecked((ushort)(fixture.Actor.Position.X.Whole + original.Offset.X)), unchecked((ushort)(fixture.Actor.Position.Y.Whole + original.Offset.Y))), 0, 0,
+                        new Position16<SpritePixels>(unchecked((ushort)(fixture.Actor.Position.X.Whole + original.Offset.X)), unchecked((ushort)(fixture.Actor.Position.Y.Whole + original.Offset.Y))),
+                        NativeSpriteGraphicsWords.PaletteBits(fixture.Actor.PaletteRow), checked((ushort)fixture.Actor.TileIndexBase),
                         clipVerticalWrap: true, originYIsOnScreen: (EightEight.WholeOf(fixture.Actor.Position.Y.Whole + original.Offset.Y)) == 0);
                 }
                 ReadOnlyMemory<EnemyBg2TilemapWrite> writes = StockBossWrites(installed, frame);
@@ -73,7 +75,7 @@ internal static class BossDisplayBindingsStockVerification
                 AssertEqual(expectedOam.NextByteOffset, rendered.NextByteOffset, "stock packed sprite count");
                 AssertTrue(expectedOam.ImageEquals(rendered),
                     "stock packed OAM matches independently decoded native records");
-                AssertBossBg2(fixture.Vram, native.Bg2.Select(write => new EnemyBg2WriteDocument
+                AssertBossBg2(fixture, native.Bg2.Select(write => new EnemyBg2WriteDocument
                 { X = write.FirstCell % EnemyBg2FrameLayout.TilemapWidth, Y = write.FirstCell / EnemyBg2FrameLayout.TilemapWidth,
                     Tiles = RoomBackgroundTilemapCellWords.Cells(write.Tiles.Span) }).ToArray());
             }

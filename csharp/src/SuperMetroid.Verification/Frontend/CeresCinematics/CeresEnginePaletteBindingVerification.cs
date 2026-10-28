@@ -30,6 +30,7 @@ internal static class CeresEnginePaletteBindingVerification
         var installation = new GameInstallation(Path.GetFullPath(installationRoot));
         AreaMapPresentationCatalog stock = MapPresentationFiles.Load(installation.MapDirectory, null);
         IntroCinematicArtworkCatalog artwork = installation.LoadIntroCinematicArt();
+        InstalledSpriteSheets sheets = installation.LoadSpriteSheets();
         int destination = CeresCinematicLightPaletteFxColorDefinitionsConstants.GunshipEngineColorIndex / sizeof(ushort);
         ushort[] nativeColors = [0x7fff, 0]; // Pinned $8D:C880/$C886, not runtime ROM reads.
         var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
@@ -37,6 +38,8 @@ internal static class CeresEnginePaletteBindingVerification
         {
             MapPresentation = stock,
             IntroCinematicArt = artwork,
+            // The destruction scene's actors draw from the installed sprite sheets, as a full binding supplies them.
+            SpriteSheets = sheets,
         });
         game.GameState = SuperMetroidGameState.CeresGoesBoom;
 
@@ -75,10 +78,12 @@ internal static class CeresEnginePaletteBindingVerification
                 new JsonArray(new JsonObject { ["red"] = 0, ["green"] = 31, ["blue"] = 0 }));
             File.WriteAllText(Path.Combine(edits, RoomPaletteFxPresentationFormat.FileName), document.ToJsonString());
             AreaMapPresentationCatalog edited = MapPresentationFiles.Load(installation.MapDirectory, edits);
+            // Installed artwork is not saved state; the host rebinds all of it after a restore.
             restored.BindArtwork(restored.Artwork with
             {
                 MapPresentation = edited,
                 IntroCinematicArt = artwork,
+                SpriteSheets = sheets,
             });
             CeresDestructionCinematicState restoredScene = Scene(restored);
             ushort[] replacementColors = [31, 31 << 5];

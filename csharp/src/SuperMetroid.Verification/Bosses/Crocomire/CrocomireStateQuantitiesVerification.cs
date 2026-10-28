@@ -338,6 +338,8 @@ internal static class CrocomireStateQuantitiesVerification
         var state = new CrocomireEnemyState(body);
         enemies.CrocomireBehavior.Access.Crocomire = state;
         enemies.CrocomireBehavior.Access.CrocomireDeath = new CrocomireDeathState();
+        // Crocomire's initialisation attaches the BG2 image his sink clears rows of (#1446).
+        enemies.Presentation.AttachBg2Image(new EnemyBg2Image(CrocomireBg2.CrocomireBlankBg2Tile));
         enemies.VerificationServices().ReadRandom = () => ushort.MaxValue;
         enemies.VerificationServices().NextRandom = () => ushort.MaxValue;
         return new NewCrocomireResult(enemies, state);

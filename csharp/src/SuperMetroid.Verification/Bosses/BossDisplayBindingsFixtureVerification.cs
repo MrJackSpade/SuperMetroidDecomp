@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
@@ -5,7 +6,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.World;
@@ -29,6 +29,14 @@ internal static class BossDisplayBindingsFixtureVerification
         internal RoomEnemySlot Actor => Enemies.SlotTable.Slots[_slot];
         /// <summary>The actor's physical slot.</summary>
         private readonly int _slot;
+        /// <summary>The tile the boss fills its BG2 image with, or null for a boss that draws none.</summary>
+        private readonly BackgroundTile? bg2Fill;
+
+        /// <summary>The tile the boss's BG2 image holds where none of its frames has drawn.</summary>
+        internal BackgroundTile Bg2FillTile => bg2Fill ?? throw new InvalidOperationException($"{Actor.DefinitionId} draws no BG2 image.");
+
+        /// <summary>The boss's BG2 image as it publishes now.</summary>
+        internal EnemyBg2ImageSnapshot Bg2 => Enemies.Presentation.RequireBg2Image().Publish();
         /// <summary>Bound production instruction interpreter for one actor step.</summary>
         private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton> instructions;
         /// <summary>Bound extended-hitbox query used by the collision check.</summary>
@@ -54,9 +62,29 @@ internal static class BossDisplayBindingsFixtureVerification
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
             Actor.Properties = new EnemyPropertyWord(EnemyProperties.ProcessInstructions);
             Enemies.Drawing.Enqueue(0, Actor.EnemyIndex);
+            // The boss draws under the retail graphics set its room loads, whose sheets hold its frames.
+            SpawnedObjectFixtures.LoadSetDrawing(Enemies, definition, Actor);
+            // A boss that owns BG2 attaches its image as its initialisation does, before any of its frames draw into it.
+            bg2Fill = Bg2Fill(definition);
+            ClearBg2();
             instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton>(EnemyInstructionInterpreter.ProcessInstructions);
             hitbox = new HitboxQuery(Enemies.Collision.TryFindExtendedHitboxCallback);
         }
+
+        /// <summary>
+        /// The tile each boss that owns BG2 fills its image with when its initialisation attaches it (#1446): Phantoon,
+        /// Draygon, Crocomire and Mother Brain; null for a boss that draws none.
+        /// </summary>
+        private static BackgroundTile? Bg2Fill(EnemyDefinitionId definition) => definition switch
+        {
+            EnemyDefinitionId.PhantoonBody or EnemyDefinitionId.PhantoonEye or EnemyDefinitionId.PhantoonTentacles
+                or EnemyDefinitionId.PhantoonMouth => SuperMetroid.Core.Bosses.Phantoon.Artwork.PhantoonBg2FrameDefinitions.BlankTile,
+            EnemyDefinitionId.DraygonBody or EnemyDefinitionId.DraygonEye
+                or EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms => SuperMetroid.Core.Enemies.Drawing.EnemyBg2SurfaceDefinitions.BlankTile,
+            EnemyDefinitionId.Crocomire or EnemyDefinitionId.CrocomireTongue => SuperMetroid.Core.Bosses.Crocomire.CrocomireBg2.CrocomireBlankBg2Tile,
+            EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead => SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBg2Definitions.BlankTile,
+            _ => null,
+        };
 
         /// <summary>Selects an extended spritemap and optionally marks it as a new instruction frame.</summary>
         internal void SetFrame(ushort frame, bool fresh)
@@ -86,7 +114,10 @@ internal static class BossDisplayBindingsFixtureVerification
             return new HitboxResult(hit, callback is { } selected ? EnemyInteractionCallbackAccess.Word(selected) : (ushort)0);
         }
         /// <summary>Clears the boss BG2 tilemap before a presentation check.</summary>
-        internal void ClearBg2() => Vram.ExecuteWordTransfer(
-            new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight], EnemyBg2FrameLayoutConstants.VramBase, 1);
+        internal void ClearBg2()
+        {
+            if (bg2Fill is { } fill)
+                Enemies.Presentation.AttachBg2Image(new EnemyBg2Image(fill));
+        }
     }
 }

@@ -50,10 +50,16 @@ internal static class BossDisplayBindingsDocumentsVerification
         }
 
         /// <summary>Loads fixture documents into an artwork catalog, optionally omitting one BG2 family.</summary>
-        internal InstalledEnemyArtwork Build(bool extended = true, byte? omitBg2Bank = null) => new(
-            EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ExtendedFrames = extended ? EnemyExtendedFrameDocuments.Load(json.Json(Oam)) : null }),
-            new BossArtworkCatalog { CrocomireBg2Frames = omitBg2Bank == CrocomireBg2FrameDefinitionsConstants.Bank ? null : CrocomireBg2FrameCatalog.Load(json.Json(Crocomire)), PhantoonBg2Frames = omitBg2Bank == PhantoonBg2FrameDefinitionsConstants.Bank ? null : PhantoonBg2FrameCatalog.Load(json.Json(Phantoon)), DraygonBg2Frames = omitBg2Bank == DraygonBg2FrameToolingDefinitions.Bank ? null : DraygonBg2FrameCatalog.Load(json.Json(Draygon)) },
-            new AreaArtworkCatalog());
+        internal InstalledEnemyArtwork Build(bool extended = true, byte? omitBg2Bank = null)
+        {
+            // Bosses draw from sheets composed over the installed enemy artwork, so the fixture starts from it and
+            // replaces only the extended frames it authors (#1446).
+            EnemyTileArtworkCatalog tiles = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.LoadEnemyTiles().Enemies;
+            tiles.ExtendedFrames = extended ? EnemyExtendedFrameDocuments.Load(json.Json(Oam)) : null;
+            return new(tiles,
+                new BossArtworkCatalog { CrocomireBg2Frames = omitBg2Bank == CrocomireBg2FrameDefinitionsConstants.Bank ? null : CrocomireBg2FrameCatalog.Load(json.Json(Crocomire)), PhantoonBg2Frames = omitBg2Bank == PhantoonBg2FrameDefinitionsConstants.Bank ? null : PhantoonBg2FrameCatalog.Load(json.Json(Phantoon)), DraygonBg2Frames = omitBg2Bank == DraygonBg2FrameToolingDefinitions.Bank ? null : DraygonBg2FrameCatalog.Load(json.Json(Draygon)) },
+                new AreaArtworkCatalog());
+        }
 
         /// <summary>Resolves the redirected display pose for a native frame in the fixture.</summary>
         internal EnemySpritemapDefinition Selected(EnemySpritemapDefinition native) =>

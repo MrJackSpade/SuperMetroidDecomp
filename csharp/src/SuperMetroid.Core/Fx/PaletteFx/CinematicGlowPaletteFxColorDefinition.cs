@@ -4,8 +4,15 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public sealed class CinematicGlowPaletteFxColorDefinition
 {
     /// <summary>Builds the definition from its owner's program values.</summary>
-    internal CinematicGlowPaletteFxColorDefinition(CinematicGlowPaletteFxProgramOwner owner, PaletteFxObject paletteFxObject, PaletteFxProgram program, int colorByteIndex, int colorsPerFrame, int frameDuration) =>
-        (Owner, Object, ColorByteIndex, ColorsPerFrame, FrameDuration, Rows) = (owner, paletteFxObject, colorByteIndex, colorsPerFrame, frameDuration, PaletteFxColorRows.Of(program, colorsPerFrame));
+    internal CinematicGlowPaletteFxColorDefinition(CinematicGlowPaletteFxProgramOwner owner, PaletteFxObject paletteFxObject, PaletteFxProgram program, int colorByteIndex, int colorsPerFrame, int frameDuration)
+    {
+        Owner = owner;
+        Object = paletteFxObject;
+        ColorByteIndex = colorByteIndex;
+        ColorsPerFrame = colorsPerFrame;
+        FrameDuration = frameDuration;
+        Rows = PaletteFxColorRows.Of(program, colorsPerFrame);
+    }
 
     /// <summary>The mutually exclusive glow owner.</summary>
     public CinematicGlowPaletteFxProgramOwner Owner { get; }

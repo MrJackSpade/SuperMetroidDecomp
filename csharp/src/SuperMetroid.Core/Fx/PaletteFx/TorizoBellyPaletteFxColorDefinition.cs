@@ -4,8 +4,12 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public sealed class TorizoBellyPaletteFxColorDefinition
 {
     /// <summary>Builds the definition from its owner's program values.</summary>
-    internal TorizoBellyPaletteFxColorDefinition(TorizoBellyPaletteOwner owner, PaletteFxObject paletteFxObject, PaletteFxProgram program) =>
-        (Owner, Object, Rows) = (owner, paletteFxObject, PaletteFxColorRows.Of(program, TorizoBellyPaletteFxColorDefinitions.ColorsPerFrame));
+    internal TorizoBellyPaletteFxColorDefinition(TorizoBellyPaletteOwner owner, PaletteFxObject paletteFxObject, PaletteFxProgram program)
+    {
+        Owner = owner;
+        Object = paletteFxObject;
+        Rows = PaletteFxColorRows.Of(program, TorizoBellyPaletteFxColorDefinitions.ColorsPerFrame);
+    }
 
     /// <summary>The Torizo variant represented by this program.</summary>
     public TorizoBellyPaletteOwner Owner { get; }

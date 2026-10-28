@@ -8,8 +8,13 @@ public sealed class MaridiaEnvironmentalPaletteFxColorDefinition
     /// <param name="program">The program whose records the rotation shows.</param>
     /// <param name="frameCount">The records after which the one-color cyclic rotation returns.</param>
     /// <param name="colorsPerFrame">The colours each record writes.</param>
-    internal MaridiaEnvironmentalPaletteFxColorDefinition(MaridiaEnvironmentalPaletteOwner owner, PaletteFxProgram program, int frameCount, int colorsPerFrame) =>
-        (Owner, FrameCount, ColorsPerFrame, Rows) = (owner, frameCount, colorsPerFrame, PaletteFxColorRows.Of(program, colorsPerFrame));
+    internal MaridiaEnvironmentalPaletteFxColorDefinition(MaridiaEnvironmentalPaletteOwner owner, PaletteFxProgram program, int frameCount, int colorsPerFrame)
+    {
+        Owner = owner;
+        FrameCount = frameCount;
+        ColorsPerFrame = colorsPerFrame;
+        Rows = PaletteFxColorRows.Of(program, colorsPerFrame);
+    }
 
     /// <summary>The environmental animation represented by this program.</summary>
     public MaridiaEnvironmentalPaletteOwner Owner { get; }

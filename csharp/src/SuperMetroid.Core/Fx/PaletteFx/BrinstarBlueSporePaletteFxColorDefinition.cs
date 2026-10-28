@@ -6,8 +6,11 @@ public sealed class BrinstarBlueSporePaletteFxColorDefinition
     /// <summary>Builds the definition from its owner's program values.</summary>
     /// <param name="owner">The room family the entry serves.</param>
     /// <param name="program">The program whose records the entry shows.</param>
-    internal BrinstarBlueSporePaletteFxColorDefinition(BrinstarBlueSporePaletteOwner owner, PaletteFxProgram program) =>
-        (Owner, Rows) = (owner, PaletteFxColorRows.Of(program, BrinstarBlueSporePaletteFxColorDefinitions.ColorsPerFrame));
+    internal BrinstarBlueSporePaletteFxColorDefinition(BrinstarBlueSporePaletteOwner owner, PaletteFxProgram program)
+    {
+        Owner = owner;
+        Rows = PaletteFxColorRows.Of(program, BrinstarBlueSporePaletteFxColorDefinitions.ColorsPerFrame);
+    }
 
     /// <summary>The room family represented by this program.</summary>
     public BrinstarBlueSporePaletteOwner Owner { get; }

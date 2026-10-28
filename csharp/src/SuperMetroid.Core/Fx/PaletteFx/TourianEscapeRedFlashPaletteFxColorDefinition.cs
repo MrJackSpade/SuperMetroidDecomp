@@ -4,8 +4,15 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public sealed class TourianEscapeRedFlashPaletteFxColorDefinition
 {
     /// <summary>Builds the definition from its owner's program values.</summary>
-    internal TourianEscapeRedFlashPaletteFxColorDefinition(TourianEscapeRedFlashPaletteOwner owner, PaletteFxObject paletteFxObject, PaletteFxProgram program, int colorByteIndex, int duration, int colorsPerFrame) =>
-        (Owner, Object, ColorByteIndex, Duration, ColorsPerFrame, Rows) = (owner, paletteFxObject, colorByteIndex, duration, colorsPerFrame, PaletteFxColorRows.Of(program, colorsPerFrame));
+    internal TourianEscapeRedFlashPaletteFxColorDefinition(TourianEscapeRedFlashPaletteOwner owner, PaletteFxObject paletteFxObject, PaletteFxProgram program, int colorByteIndex, int duration, int colorsPerFrame)
+    {
+        Owner = owner;
+        Object = paletteFxObject;
+        ColorByteIndex = colorByteIndex;
+        Duration = duration;
+        ColorsPerFrame = colorsPerFrame;
+        Rows = PaletteFxColorRows.Of(program, colorsPerFrame);
+    }
 
     /// <summary>The mutually exclusive escape-palette owner.</summary>
     public TourianEscapeRedFlashPaletteOwner Owner { get; }

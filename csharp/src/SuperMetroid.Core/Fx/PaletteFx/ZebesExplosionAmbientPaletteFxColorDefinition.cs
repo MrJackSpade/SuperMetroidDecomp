@@ -4,8 +4,15 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public sealed class ZebesExplosionAmbientPaletteFxColorDefinition
 {
     /// <summary>Builds the definition from its owner's program values.</summary>
-    internal ZebesExplosionAmbientPaletteFxColorDefinition(ZebesExplosionAmbientPaletteFxProgramOwner owner, PaletteFxObject paletteFxObject, PaletteFxProgram program, int colorByteIndex, int colorsPerFrame, int cycleFrames) =>
-        (Owner, Object, ColorByteIndex, ColorsPerFrame, CycleFrames, Rows) = (owner, paletteFxObject, colorByteIndex, colorsPerFrame, cycleFrames, PaletteFxColorRows.Of(program, colorsPerFrame));
+    internal ZebesExplosionAmbientPaletteFxColorDefinition(ZebesExplosionAmbientPaletteFxProgramOwner owner, PaletteFxObject paletteFxObject, PaletteFxProgram program, int colorByteIndex, int colorsPerFrame, int cycleFrames)
+    {
+        Owner = owner;
+        Object = paletteFxObject;
+        ColorByteIndex = colorByteIndex;
+        ColorsPerFrame = colorsPerFrame;
+        CycleFrames = cycleFrames;
+        Rows = PaletteFxColorRows.Of(program, colorsPerFrame);
+    }
 
     /// <summary>The mutually exclusive ambient owner.</summary>
     public ZebesExplosionAmbientPaletteFxProgramOwner Owner { get; }

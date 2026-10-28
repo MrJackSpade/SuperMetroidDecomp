@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Fx;
 /// animated-tile object per slot, and a record may turn on any combination of them, so the slots are composable.
 /// </summary>
 [Flags]
-public enum RoomFxEffectSlots : byte
+public enum RoomFxEffectSlots
 {
     /// <summary>No slot.</summary>
     None = 0,

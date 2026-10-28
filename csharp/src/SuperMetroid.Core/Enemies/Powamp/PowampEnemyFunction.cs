@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// owns vertical movement.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum PowampEnemyFunction : ushort
+public enum PowampEnemyFunction
 {
     /// <summary><c>Function_Powamp_Deflated_Resting</c> at <c>$A8:C283</c>; holds the body at its resting height until its 60-update countdown starts balloon inflation.</summary>
     DeflatedResting = 1,

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// The direction Samus travels through a door. The values are arbitrary; the import pipeline decodes the cartridge's
 /// orientation byte into them (#1414).
 /// </summary>
-public enum DoorDirection : byte
+public enum DoorDirection
 {
     /// <summary>The destination lies to the right.</summary>
     Right = 1,

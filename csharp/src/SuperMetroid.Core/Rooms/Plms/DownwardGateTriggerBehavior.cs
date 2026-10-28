@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Exclusive shootable-block BTS identities used by downward gate shot blocks.</summary>
-public enum DownwardGateTriggerBehavior : byte
+public enum DownwardGateTriggerBehavior
 {
     /// <summary><c>$84:C610 Setup_LeftBlueGateTrigger</c>.</summary>
     BlueLeft = 0x46,

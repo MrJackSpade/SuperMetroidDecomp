@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// The Landing Site gunship's routines, run by its top hull.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-internal enum GunshipFunction : ushort
+internal enum GunshipFunction
 {
     /// <summary>A cleared record holds no function.</summary>
     None = 0,

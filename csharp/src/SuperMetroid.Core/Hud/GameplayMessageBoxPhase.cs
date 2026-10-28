@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Hud;
 
 /// <summary>Coroutine phase for <see cref="GameplayMessageBoxState"/>.</summary>
-public enum GameplayMessageBoxPhase : byte
+public enum GameplayMessageBoxPhase
 {
     /// <summary>No message owns gameplay or the BG3 window; after restoration, any completed save-confirmation result remains available for consumption by the suspended caller.</summary>
     Inactive,

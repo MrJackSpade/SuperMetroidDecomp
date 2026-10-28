@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// silently selecting a plausible-looking behaviour.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum PipeBugEnemyFunction : ushort
+public enum PipeBugEnemyFunction
 {
     /// <summary>$B3:8880, waits until a Brinstar Pipe Bug's origin is on screen.</summary>
     BrinstarWaitUntilOnScreen = 1,

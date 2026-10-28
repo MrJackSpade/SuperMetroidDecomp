@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>The eight mutually exclusive facing/action animation states used by Oum.</summary>
-internal enum MaridiaLargeSnailAnimation : ushort
+internal enum MaridiaLargeSnailAnimation
 {
     /// <summary>Selects the one-frame, sleeping right-facing list at $A2:CADB.</summary>
     FacingRightIdle = 0,

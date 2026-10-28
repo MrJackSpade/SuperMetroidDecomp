@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>
 /// The callbacks of Kraid's six-byte sinking/death records; each member names the bank-$A7 routine it ports.
 /// </summary>
-public enum KraidSinkCallback : ushort
+public enum KraidSinkCallback
 {
     /// <summary>
     /// <c>RTS_A7C6A6</c> at $A7:C6A6. Rows that only clear another BG2 tilemap strip

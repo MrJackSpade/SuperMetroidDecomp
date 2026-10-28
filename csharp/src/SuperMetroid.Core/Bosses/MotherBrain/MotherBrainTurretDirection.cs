@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The eight mutually exclusive directions used by Mother Brain's room turrets.</summary>
-internal enum MotherBrainTurretDirection : byte
+internal enum MotherBrainTurretDirection
 {
     /// <summary>Horizontal leftward turret aim and bullet launch.</summary>
     Left = 0,

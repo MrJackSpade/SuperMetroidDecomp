@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Skree;
 /// Mutually exclusive animation phases shared by Skree and Metaree. Native AI advances
 /// through the first three values; the fourth selector is an unused authored list.
 /// </summary>
-public enum SkreeMetareeAnimationPhase : ushort
+public enum SkreeMetareeAnimationPhase
 {
     /// <summary>Selector zero: Metaree $A3:8910 / Skree $A3:C65E, looping four idle poses at ten instruction updates each while the AI waits for Samus.</summary>
     Idling = 0,

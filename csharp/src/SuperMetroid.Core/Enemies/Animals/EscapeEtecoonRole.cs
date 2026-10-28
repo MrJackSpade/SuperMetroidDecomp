@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// Mutually exclusive authored roles selected by the escape Etecoon's even parameter-one
 /// byte offset. Odd restored values select the same role after the cartridge clears bit zero.
 /// </summary>
-public enum EscapeEtecoonRole : ushort
+public enum EscapeEtecoonRole
 {
     /// <summary>Native table byte selector $0000 at $B3:E718: starts at room pixel (128, 200), uses running-left list $B3:E556 and walking/falling function $E680, with signed 8.8 X velocity $FE00 (-2 pixels per update).</summary>
     LeftWalker = 0,

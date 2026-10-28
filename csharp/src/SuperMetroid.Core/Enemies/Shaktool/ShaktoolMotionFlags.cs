@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// first parameter carries the initial state in its top three bits (<c>ShaktoolBehavior.InitialMotionFlags</c>).
 /// </summary>
 [Flags]
-internal enum ShaktoolMotionFlags : ushort
+internal enum ShaktoolMotionFlags
 {
     /// <summary>No motion state is set.</summary>
     None = 0,

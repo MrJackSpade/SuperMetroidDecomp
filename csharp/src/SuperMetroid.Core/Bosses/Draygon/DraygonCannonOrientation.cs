@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Horizontal orientation selected by one of the three retail cannon headers.</summary>
-public enum DraygonCannonOrientation : byte
+public enum DraygonCannonOrientation
 {
     /// <summary>Native left-facing header $DF71, whose damage instruction uses the left draw family and bank-$A5 control word.</summary>
     Left,

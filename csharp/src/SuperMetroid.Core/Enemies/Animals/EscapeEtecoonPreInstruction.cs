@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// The routine an escape Etecoon's main AI calls every frame.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum EscapeEtecoonPreInstruction : ushort
+public enum EscapeEtecoonPreInstruction
 {
     /// <summary><c>$B3:807B</c>, the bank-common one-byte RTL installed by opcode $8074.</summary>
     Cleared = 1,

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// because Fune and Namihe park on different ones while their mouth animation owns the active part of the attack cycle.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum FuneNamiheEnemyFunction : ushort
+public enum FuneNamiheEnemyFunction
 {
     /// <summary>Function_Fune_WaitForTimer, $A8:9737: increments the wrapping cooldown before a signed comparison with parameter one's high-byte target; on expiry it clears the counter, selects active mouth bytecode, and parks at $978E.</summary>
     FuneWaitForCooldown = 1,

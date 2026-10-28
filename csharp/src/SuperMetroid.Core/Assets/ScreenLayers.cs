@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Assets;
 /// test layer by layer.
 /// </remarks>
 [Flags]
-public enum ScreenLayers : byte
+public enum ScreenLayers
 {
     /// <summary>No layer and no sprites.</summary>
     None = 0,

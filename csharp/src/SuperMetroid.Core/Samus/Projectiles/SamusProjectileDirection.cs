@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// The duplicated vertical directions retain Samus's facing side, which selects distinct
 /// muzzle offsets even though their velocity axes match.
 /// </summary>
-public enum SamusProjectileDirection : byte
+public enum SamusProjectileDirection
 {
     /// <summary>Vertical upward direction retaining right-facing muzzle placement.</summary>
     UpFacingRight = 0,

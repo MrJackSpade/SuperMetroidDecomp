@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// The pre-instructions a grey cap installs (#1296); the unlock checks are selected by the door's condition. The
 /// values are arbitrary (#1414).
 /// </summary>
-internal enum GreyDoorPreInstruction : ushort
+internal enum GreyDoorPreInstruction
 {
     /// <summary>No pre-instruction.</summary>
     None = 1,

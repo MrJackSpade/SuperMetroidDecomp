@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 /// The routine Kzan's top part runs each frame.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum KzanEnemyFunction : ushort
+public enum KzanEnemyFunction
 {
     /// <summary>Native <c>Function_Kzan_WaitingToFall</c> at <c>$A6:8BB4</c>; counts down the population-defined top wait before resetting fall acceleration.</summary>
     WaitingToFall = 1,

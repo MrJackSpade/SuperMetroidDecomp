@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 /// name; the cartridge name table calls the enemy Puromi.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum NuclearWaffleEnemyFunction : ushort
+public enum NuclearWaffleEnemyFunction
 {
     /// <summary>$A6:9615, Function_Puromi_Inactive: decrements the signed-expiry wait timer, then resets the sweep and joint-orientation latches and enables offscreen processing.</summary>
     Waiting = 1,

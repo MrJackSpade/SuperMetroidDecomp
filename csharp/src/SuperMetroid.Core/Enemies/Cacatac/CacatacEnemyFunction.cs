@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 /// selectors are outside the authored table.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum CacatacEnemyFunction : ushort
+public enum CacatacEnemyFunction
 {
     /// <summary>$A2:9FBA, <c>Function_Cacatac_MovingLeft</c>: advances the split 16.16 left velocity, turns right below the minimum X bound, then evaluates the random attack gate.</summary>
     MovingLeft = 1,

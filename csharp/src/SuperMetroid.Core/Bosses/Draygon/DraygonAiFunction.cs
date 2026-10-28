@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// slot stores the member, not the routine's address. Members start at one so a cleared slot is never
 /// mistaken for a function.
 /// </summary>
-public enum DraygonAiFunction : ushort
+public enum DraygonAiFunction
 {
     /// <summary>A cleared record holds no function.</summary>
     None = 0,

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 /// The seven hop records of <c>PuyoHopTable</c> at $A2:9A07. This is a discriminant,
 /// not a flags word: every value selects one eight-byte height/speed/function record.
 /// </summary>
-public enum PuyoHopType : ushort
+public enum PuyoHopType
 {
     /// <summary>Record zero at $A2:9A07: 16-pixel height, packed 8.8 X speed $0100, and the short-hop function; ordinary distant launches may randomize to record one.</summary>
     NormalSmall = 0,

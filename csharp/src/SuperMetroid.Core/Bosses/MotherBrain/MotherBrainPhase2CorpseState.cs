@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// draining once Mother Brain is a corpse, and the health palette resumes only once she has revived and walked back
 /// to her target. The backing values are the snapshot word the verification import decodes.
 /// </summary>
-public enum MotherBrainPhase2CorpseState : ushort
+public enum MotherBrainPhase2CorpseState
 {
     /// <summary>Mother Brain has not yet greyed out into a corpse; the Baby keeps draining her.</summary>
     Living = 0,

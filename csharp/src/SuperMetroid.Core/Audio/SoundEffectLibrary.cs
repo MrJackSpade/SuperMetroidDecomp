@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Audio;
 /// The three mutually exclusive sound-effect queues exposed by the retail cartridge.
 /// These values select different SPC input ports and are not combinable flags.
 /// </summary>
-public enum SoundEffectLibrary : byte
+public enum SoundEffectLibrary
 {
     /// <summary>First cartridge sound queue, published through APU port $2141 and host queue index zero.</summary>
     Library1 = 1,

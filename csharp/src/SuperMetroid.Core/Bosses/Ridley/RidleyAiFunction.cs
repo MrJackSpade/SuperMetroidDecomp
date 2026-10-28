@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// retreat functions from <see cref="CeresFakeRetreatMoveToPosition"/> on are shared with the Baby retrieval route,
 /// and the real fight selects them only while Ridley has grabbed Samus.
 /// </remarks>
-public enum RidleyAiFunction : ushort
+public enum RidleyAiFunction
 {
     /// <summary>$A6:A354: clears shared motion before returning to the flying dispatcher.</summary>
     ClearVelocity = 1,

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// Verified movement-dispatch indices from pose-definition byte one. This is an ordinary
 /// enum, not a flag set: each pose selects exactly one bank-$90 movement handler.
 /// </summary>
-public enum SamusMovementType : byte
+public enum SamusMovementType
 {
     /// <summary>Grounded standing poses; accepts ordinary aim, fire, crouch, jump, and run transitions.</summary>
     Standing = 0x00,

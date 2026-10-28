@@ -8,6 +8,14 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 internal static class RidleyNativeWords
 {
+    /// <summary>The facing index ($7E:7820) each <see cref="RidleyFacing"/> is stored as; the arena-target tables are indexed by it (#1452).</summary>
+    internal static readonly NativeWordIdentities<RidleyFacing> Facings = new(new Dictionary<RidleyFacing, ushort>
+    {
+        [RidleyFacing.Left] = 0,
+        [RidleyFacing.Turning] = 1,
+        [RidleyFacing.Right] = 2,
+    });
+
     /// <summary>
     /// The encounter-mode word ($7E:7802) holding each <see cref="RidleyFightMode"/> (#1452). The cartridge tests it with
     /// BEQ, BMI and CMP #2; dying is its only negative value.

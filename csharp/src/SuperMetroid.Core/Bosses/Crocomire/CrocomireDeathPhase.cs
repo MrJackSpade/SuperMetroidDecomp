@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// Keeping this table separate from the executor makes the ROM-authored sequence readable
 /// without mixing identity declarations into the state-transition implementation.
 /// </summary>
-public enum CrocomireDeathPhase : ushort
+public enum CrocomireDeathPhase
 {
     /// <summary>Zero: the fight and bridge checks run; the death sequence has not begun.</summary>
     Fighting = 0,

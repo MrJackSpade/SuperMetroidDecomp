@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// The routine Mama Turtle's main AI runs.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum MamaTurtleAiFunction : ushort
+public enum MamaTurtleAiFunction
 {
     /// <summary>$A2:8DD8, links the four following Baby Turtle slots to their parent.</summary>
     Initial = 1,

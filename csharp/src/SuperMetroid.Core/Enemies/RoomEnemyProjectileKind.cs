@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// the cartridge pointer as the enum value makes debugger state directly comparable with
 /// <c>eproj_id</c> rather than inventing a host-only identity layer.
 /// </summary>
-public enum RoomEnemyProjectileKind : ushort
+public enum RoomEnemyProjectileKind
 {
     /// <summary>Zero in <c>eproj_id</c>; the physical projectile slot is available for allocation.</summary>
     None = 0,

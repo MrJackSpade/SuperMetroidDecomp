@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Physical water-entry particle layouts selected by Samus's movement type.</summary>
-internal enum WaterSplashKind : byte
+internal enum WaterSplashKind
 {
     /// <summary>Single diving water-entry splash used by airborne movement.</summary>
     Diving = 0,

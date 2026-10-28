@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// and block index remain separate packed fields and therefore do not belong in this enum.
 /// </summary>
 [Flags]
-public enum LevelBlockFlipFlags : ushort
+public enum LevelBlockFlipFlags
 {
     /// <summary>No visual reflection bits are set in the level word.</summary>
     None = 0,

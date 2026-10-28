@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// The routines of the unused horizontal shutter.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum HorizontalShutterFunction : ushort
+public enum HorizontalShutterFunction
 {
     /// <summary><c>$A2:F224 Function_HorizontalShutter_Initial</c>: installs the trigger-mode table entry for the following AI update.</summary>
     Initial = 1,

@@ -213,6 +213,10 @@ internal static class CartridgeEncodingScanner
                     when NarrowLocalType(local, model, cancellationToken) is { } localType:
                     occurrences.Add(NarrowMember(local.Identifier, localType, "as a local", local, model, cancellationToken));
                     break;
+                // #1452: an enum's explicit narrow underlying type holds its identities at a register width.
+                case EnumDeclarationSyntax enumeration when NarrowUnderlyingType(enumeration, model, cancellationToken) is { } underlying:
+                    occurrences.Add(NarrowMember(enumeration.Identifier, underlying, "as its underlying type", enumeration, model, cancellationToken));
+                    break;
                 case ForEachStatementSyntax loop when NarrowLocalType(loop, model, cancellationToken) is { } loopType:
                     occurrences.Add(NarrowMember(loop.Identifier, loopType, "as a local", loop, model, cancellationToken));
                     break;
@@ -266,6 +270,16 @@ internal static class CartridgeEncodingScanner
     private static bool IsNarrowType(ITypeSymbol? type) =>
         (type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T } nullable ? nullable.TypeArguments[0] : type)?.SpecialType is
             SpecialType.System_UInt16 or SpecialType.System_Int16 or SpecialType.System_Byte or SpecialType.System_SByte;
+
+    /// <summary>
+    /// The display name of an enum's explicitly written narrow underlying type (<c>: byte</c>, <c>: ushort</c>, ...), or
+    /// null when the enum declares none or a wider one.
+    /// </summary>
+    private static string? NarrowUnderlyingType(EnumDeclarationSyntax enumeration, SemanticModel model, CancellationToken cancellationToken) =>
+        enumeration.BaseList is not null &&
+        model.GetDeclaredSymbol(enumeration, cancellationToken) is { EnumUnderlyingType: { } underlying } && IsNarrowType(underlying)
+            ? underlying.ToDisplayString()
+            : null;
 
     /// <summary>The display name of a local's narrow type, written or inferred, or null when the local is not narrow.</summary>
     private static string? NarrowLocalType(SyntaxNode declaration, SemanticModel model, CancellationToken cancellationToken) =>

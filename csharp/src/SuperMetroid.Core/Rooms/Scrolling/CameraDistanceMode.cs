@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// <c>CameraDistanceIndex</c> ($0941): the byte offset $90:95A0 uses to select Samus's
 /// horizontal camera target.
 /// </summary>
-public enum CameraDistanceMode : ushort
+public enum CameraDistanceMode
 {
     /// <summary>Normal tracking, restored by $88:8347 and boss completion routines.</summary>
     NormalTracking = 0,

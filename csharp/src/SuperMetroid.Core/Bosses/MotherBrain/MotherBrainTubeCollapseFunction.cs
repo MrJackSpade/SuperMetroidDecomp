@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// During fake death this independent state machine serializes the physical tube actors,
 /// ceiling projectiles, and one-frame bank-$84 room mutations.
 /// </summary>
-public enum MotherBrainTubeCollapseFunction : ushort
+public enum MotherBrainTubeCollapseFunction
 {
     /// <summary><c>$A9:8949 Function_MotherBrainBody_SpawnTubesFallingWhenLessThan4Proj</c>: admits collapse when four projectile slots are free, then requests physical bottom-left tube enemy 0.</summary>
     WaitForFourFreeProjectileSlots = 1,

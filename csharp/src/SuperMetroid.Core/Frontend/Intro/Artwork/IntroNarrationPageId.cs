@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>One named English narration page exposed to presentation content.</summary>
-public enum IntroNarrationPageId : byte
+public enum IntroNarrationPageId
 {
     /// <summary>First story page, recalling the Zebes battle and Mother Brain's plans; native <c>CinematicBGObjectInstLists_IntroTextPage1</c> at <c>$8C:C383</c>.</summary>
     Page1 = 1,

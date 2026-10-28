@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// The routine a Ki-Hunter's main AI runs each frame.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum KiHunterEnemyFunction : ushort
+public enum KiHunterEnemyFunction
 {
     /// <summary><c>$A8:F268 Function_Kihunter_Winged_IdleFlying</c>: patrols within the spawn-height band, reflects movement on collision, and starts a swoop toward nearby Samus below.</summary>
     FlyingPatrol = 1,

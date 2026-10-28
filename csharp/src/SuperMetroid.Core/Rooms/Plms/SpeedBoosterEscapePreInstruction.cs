@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Bank-$84 pre-instructions the Speed Booster escape PLM installs.</summary>
-public enum SpeedBoosterEscapePreInstruction : ushort
+public enum SpeedBoosterEscapePreInstruction
 {
     /// <summary>No pre-instruction installed.</summary>
     None = 0,

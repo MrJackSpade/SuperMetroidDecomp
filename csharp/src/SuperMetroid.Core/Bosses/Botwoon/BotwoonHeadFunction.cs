@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>Botwoon's head and attack callback, held in its variable F. Members start at one, as for <see cref="BotwoonEnemyFunction"/>.</summary>
-public enum BotwoonHeadFunction : ushort
+public enum BotwoonHeadFunction
 {
     /// <summary><c>$B3:9DC0 Function_Botwoon_Head_MovingAround</c>: derives orientation from delayed head positions and selects hidden/tangible drawing according to hole state.</summary>
     AnimateFromMovement = 1,

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// The seven frames the Ceres door, the Baby's capsule and Ridley's wings draw onto the rotating floor.
 /// Its values are arbitrary; verification's native view names each member's cartridge list (#1415).
 /// </summary>
-public enum CeresFloorAnimationFrame : ushort
+public enum CeresFloorAnimationFrame
 {
     /// <summary>The elevator landing platform's light frame.</summary>
     ElevatorLight = 1,

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <c>$7E:8066</c> (upper) that <c>$A9:9072</c> and <c>$A9:9109</c> use as an offset into
 /// their five-entry jump tables. Both joints share the same table layout.
 /// </summary>
-public enum MotherBrainNeckMovement : ushort
+public enum MotherBrainNeckMovement
 {
     /// <summary>Index 0: the joint does not move (<c>RTS_A99084</c>/<c>RTS_A9911B</c>).</summary>
     None = 0,

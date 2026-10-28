@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <c>$9B</c> and <c>$A9</c> store only these three values (<c>STZ</c>, <c>LDA #$0001</c>,
 /// <c>LDA #$0002</c>).
 /// </summary>
-public enum SamusVerticalDirection : ushort
+public enum SamusVerticalDirection
 {
     /// <summary>Zero: no vertical movement (grounded, or a pose change that cleared the motion).</summary>
     None = 0,

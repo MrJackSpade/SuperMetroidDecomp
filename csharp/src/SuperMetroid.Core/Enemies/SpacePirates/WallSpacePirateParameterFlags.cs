@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <see cref="SpacePirateParameters.Wall"/> decodes them from the parameter.
 /// </summary>
 [Flags]
-public enum WallSpacePirateParameterFlags : ushort
+public enum WallSpacePirateParameterFlags
 {
     /// <summary>No named parameter meaning is set.</summary>
     None = 0,

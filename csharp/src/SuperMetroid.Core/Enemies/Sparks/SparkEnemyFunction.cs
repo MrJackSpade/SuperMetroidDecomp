@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Sparks;
 /// which names no routine (<see cref="AdjacentCode"/>): the main AI fails loudly if it ever runs it.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum SparkEnemyFunction : ushort
+public enum SparkEnemyFunction
 {
     /// <summary><c>$A8:E694</c>: returns immediately, leaving the continuously active instruction list in control.</summary>
     AlwaysActive = 1,

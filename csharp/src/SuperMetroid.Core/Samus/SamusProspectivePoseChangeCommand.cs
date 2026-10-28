@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus;
 /// Prospective pose change commands dispatched by <c>$91:EC16</c> when the prospective
 /// pose equals the current pose. Each command is one handler, so this is not a flag set.
 /// </summary>
-public enum SamusProspectivePoseChangeCommand : byte
+public enum SamusProspectivePoseChangeCommand
 {
     /// <summary>Command 0, <c>RTS_91EFC3</c>.</summary>
     None = 0,

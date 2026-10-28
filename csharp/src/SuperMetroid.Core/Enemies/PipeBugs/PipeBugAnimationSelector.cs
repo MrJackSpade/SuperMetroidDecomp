@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// Bit zero selects shooting and bit one selects right-facing.
 /// </summary>
 [Flags]
-public enum PipeBugAnimationSelector : ushort
+public enum PipeBugAnimationSelector
 {
     /// <summary>Neither bit set: left-facing rise animation at entry zero of $B3:882B InstListPointers_Zeb or $B3:8833 InstListPointers_Zebbo.</summary>
     None = 0,

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Escape.Artwork;
 
 /// <summary>Mutually exclusive escape-warning identities, independent of the editable English wording.</summary>
-public enum EscapeTypewriterProgramId : byte
+public enum EscapeTypewriterProgramId
 {
     /// <summary>No installed warning identity; used by a typewriter initialized only with a native text pointer and rejected by presentation lookup.</summary>
     None,

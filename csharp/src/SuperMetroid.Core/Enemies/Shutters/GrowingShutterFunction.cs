@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// The growing shutter's routines: four initialization waits and two growth directions.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum GrowingShutterFunction : ushort
+public enum GrowingShutterFunction
 {
     /// <summary><c>$A2:EABD Function_ShutterGrowing_Initial_Upwards_WaitForTimer</c>: checks parameter 1 before decrementing; zero starts upward growth.</summary>
     WaitToGrowUpForTimer = 1,

@@ -1,12 +1,15 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Norfair Ridley's facing as the arena-target tables index it.</summary>
-public enum RidleyFacing : ushort
+/// <summary>
+/// Norfair Ridley's facing, which selects his arena targets, claw offsets and turning pose. The cartridge's facing index
+/// for each is verification's <c>RidleyNativeWords.Facings</c> (#1452).
+/// </summary>
+public enum RidleyFacing
 {
-    /// <summary>Native facing index zero, left-facing Ridley.</summary>
-    Left = 0,
-    /// <summary>Native facing index one, intermediate turning pose.</summary>
-    Turning = 1,
-    /// <summary>Native facing index two, right-facing Ridley.</summary>
-    Right = 2,
+    /// <summary>Ridley faces left.</summary>
+    Left,
+    /// <summary>Ridley is in the intermediate turning pose.</summary>
+    Turning,
+    /// <summary>Ridley faces right.</summary>
+    Right,
 }

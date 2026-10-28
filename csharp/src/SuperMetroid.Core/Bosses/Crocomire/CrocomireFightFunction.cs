@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// Crocomire's fight-AI function, held in body variable C. Each member names the entry of the
 /// 21-entry table at <c>$A4:86B3</c> it ports; the slot stores the member, not the table offset.
 /// </summary>
-public enum CrocomireFightFunction : ushort
+public enum CrocomireFightFunction
 {
     /// <summary>Table offset $00 selects <c>$A4:86DE FightAI_Crocomire_0_LockUp_SetInitialInstList</c>, which restarts the initial animation with timer one.</summary>
     ResetAnimation = 0,

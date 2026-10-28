@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Audio;
 /// layers merged by an override, carry the union.
 /// </summary>
 [Flags]
-public enum SoundEffectVoices : byte
+public enum SoundEffectVoices
 {
     /// <summary>No voice.</summary>
     None = 0,

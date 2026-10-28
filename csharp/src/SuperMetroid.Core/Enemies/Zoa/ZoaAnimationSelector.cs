@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Zoa;
 /// for rising versus shooting and bit one for right-facing versus left-facing.
 /// </summary>
 [Flags]
-public enum ZoaAnimationSelector : ushort
+public enum ZoaAnimationSelector
 {
     /// <summary>Neither bit set: left-facing shooting art, entry zero of $A3:B40D InstListPointers_Zoa.</summary>
     None = 0,

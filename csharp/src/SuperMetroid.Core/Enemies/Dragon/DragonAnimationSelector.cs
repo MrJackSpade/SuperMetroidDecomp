@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 /// Mutually exclusive Dragon animation selectors. Even/odd pairs face left/right; the
 /// three pairs represent idle body, cosmetic wings, and attacking body programs.
 /// </summary>
-public enum DragonAnimationSelector : ushort
+public enum DragonAnimationSelector
 {
     /// <summary>Table ordinal zero at $A2:E5EF selects InstList_Dragon_Idle_FacingLeft ($E59B), the left-facing body's one-frame pose followed by sleep.</summary>
     IdleFacingLeft = 0,

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The eight compiled Kraid mouth hitbox records at $A7:9788..97C7.</summary>
-internal enum KraidMouthHitbox : ushort
+internal enum KraidMouthHitbox
 {
     /// <summary>$A7:9788, Hitbox_KraidMouth_0, closed-mouth vulnerable shape.</summary>
     ClosedVulnerable = 1,

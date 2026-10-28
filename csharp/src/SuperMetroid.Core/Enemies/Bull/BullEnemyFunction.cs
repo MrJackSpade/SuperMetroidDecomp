@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Bull;
 /// The routine Bull's main AI runs each frame.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum BullEnemyFunction : ushort
+public enum BullEnemyFunction
 {
     /// <summary>$A8:D92B, Function_Bull_MovementDelay: waits for the sixteen-call activation countdown to reach zero, reloads it, and selects Samus targeting.</summary>
     MovementDelay = 1,

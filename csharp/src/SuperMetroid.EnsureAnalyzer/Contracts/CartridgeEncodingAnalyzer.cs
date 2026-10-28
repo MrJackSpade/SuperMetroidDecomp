@@ -131,7 +131,9 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
         isEnabledByDefault: true,
         description: "A byte, sbyte, short or ushort field, property, parameter or local holds gameplay state at a cartridge " +
             "register width. Widen quantities whose wrap does not matter; a wrap the game observes lives in a named " +
-            "wrapping stub of the Compatibility module, and a width an encoding needs in its [EncodingOwner] codec " +
+            "wrapping stub of the Compatibility module, and a width an encoding needs in its [EncodingOwner] codec. An enum " +
+            "declared with an explicit byte, sbyte, short or ushort underlying type is reported too: an identity's width is " +
+            "never gameplay, so the declaration drops it and any native word lives in the codec (#1452) " +
             "(#1323, #1419, docs/cartridge-encoding.md).");
 
     /// <inheritdoc />

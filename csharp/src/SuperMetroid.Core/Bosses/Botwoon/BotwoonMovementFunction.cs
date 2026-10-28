@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>Botwoon's movement callback, held in its variable E. Members start at one, as for <see cref="BotwoonEnemyFunction"/>.</summary>
-public enum BotwoonMovementFunction : ushort
+public enum BotwoonMovementFunction
 {
     /// <summary><c>$B3:9BB7 Function_Botwoon_Movement_DirectlyTowardTargetHole</c>: computes a clamped target vector and moves until the inside-hole transition is observed.</summary>
     MoveTowardHole = 1,

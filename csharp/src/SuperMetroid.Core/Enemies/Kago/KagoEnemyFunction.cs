@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Kago;
 /// The two routines Kago's main AI dispatches.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum KagoEnemyFunction : ushort
+public enum KagoEnemyFunction
 {
     /// <summary>Function_Kago_Nothing, $A8:AB7B: the first main-AI call only replaces variable A with its $AB81 return label; shell animation and shot-triggered effects remain independently owned.</summary>
     InstallNoOp = 1,

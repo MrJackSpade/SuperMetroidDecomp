@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Boyon;
 /// table indexes, not invented host states: zero dispatches falling and one dispatches
 /// rising.
 /// </summary>
-public enum BoyonBounceMovement : ushort
+public enum BoyonBounceMovement
 {
     /// <summary>Native table index zero: advance down the speed curve until the stored spawn-height baseline is reached.</summary>
     Falling = 0,

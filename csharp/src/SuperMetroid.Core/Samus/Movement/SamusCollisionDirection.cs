@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Low two bits consumed by <c>$A0:A8F0</c>'s direction jump table.</summary>
-public enum SamusCollisionDirection : ushort
+public enum SamusCollisionDirection
 {
     /// <summary>Native jump-table value 0 at $A0:A911: probes toward decreasing room X using the current left edge.</summary>
     Left = 0,

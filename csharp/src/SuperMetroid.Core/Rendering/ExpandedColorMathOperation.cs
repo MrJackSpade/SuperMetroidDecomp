@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Exclusive byte-domain equations used by the current room FX reference.</summary>
-public enum ExpandedColorMathOperation : byte
+public enum ExpandedColorMathOperation
 {
     /// <summary>Adds the expanded background RGB channels to the existing output channels, clamping each sum to 255 and preserving output alpha.</summary>
     Add,

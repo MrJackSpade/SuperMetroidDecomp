@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// word.
 /// </summary>
 [Flags]
-public enum MotherBrainHitboxParts : ushort
+public enum MotherBrainHitboxParts
 {
     /// <summary>No region touches Samus.</summary>
     None = 0,

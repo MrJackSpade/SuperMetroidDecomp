@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>The seven entries in <c>$84:BE4B</c>'s grey-door condition table.</summary>
-public enum GreyDoorCondition : byte
+public enum GreyDoorCondition
 {
     /// <summary>Condition-table index 0: the current area's major-boss bit must be set.</summary>
     AreaBossDefeated,

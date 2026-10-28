@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Bank-$84 pre-instructions the n00b-tube PLM installs.</summary>
-public enum NoobTubePlmPreInstruction : ushort
+public enum NoobTubePlmPreInstruction
 {
     /// <summary><c>$84:D4BF</c>: wake the linked list on a newly pressed face button or horizontal direction.</summary>
     WakeOnAcceptedInput = 0xd4bf,

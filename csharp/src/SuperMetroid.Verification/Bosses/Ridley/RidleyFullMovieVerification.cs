@@ -1331,7 +1331,7 @@ internal static class RidleyFullMovieVerification
                 Check("Ridley WingFrame", checked((ushort)ridleyState.WingFrame), NativeSnapshotMemory.RidleyWingFrame);
                 Check("Ridley WingAnimationTimerDelta", checked((ushort)ridleyState.WingAnimationTimerDelta), NativeSnapshotMemory.RidleyWingAnimationTimerDelta);
                 Check("Ridley WingAnimationTimer", ridleyState.WingAnimationTimer.RawValue, NativeSnapshotMemory.RidleyWingAnimationTimer);
-                Check("Ridley FacingDirection", (ushort)ridleyState.FacingDirection, NativeSnapshotMemory.RidleyFacingDirection);
+                Check("Ridley FacingDirection", RidleyNativeWords.Facings.Word(ridleyState.FacingDirection), NativeSnapshotMemory.RidleyFacingDirection);
                 Check("Ridley HealthStage", checked((ushort)ridleyState.HealthStage), NativeSnapshotMemory.RidleyHealthStage);
                 Check("Ridley GrabXOffset", unchecked((ushort)ridleyState.GrabOffset.X), NativeSnapshotMemory.RidleyGrabXOffset);
                 Check("Ridley GrabYOffset", unchecked((ushort)ridleyState.GrabOffset.Y), NativeSnapshotMemory.RidleyGrabYOffset);

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// High byte of the destroyable-flame spawn parameter: the even jump-table offset
 /// of the flame's initializer. The low byte is the type-specific index.
 /// </summary>
-public enum PhantoonFlameSpawnType : byte
+public enum PhantoonFlameSpawnType
 {
     /// <summary>$00: a casual flame that falls from Phantoon and bounces.</summary>
     Casual = 0,

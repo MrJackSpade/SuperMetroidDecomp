@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// The routines a dead sidehopper's main AI dispatches.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum DeadSidehopperAiFunction : ushort
+public enum DeadSidehopperAiFunction
 {
     /// <summary>$A9:D8E2, Function_CorpseSidehopper_Alive_WaitingForActivation: activates the living victim when the signed camera-X comparison is below room pixel 513, falling through into movement.</summary>
     AliveWaitForCamera = 1,

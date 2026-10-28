@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Bank-$84 pre-instruction callbacks used by the resident gate coroutine.</summary>
-internal enum DownwardGatePreInstruction : ushort
+internal enum DownwardGatePreInstruction
 {
     /// <summary>No pre-instruction installed in the PLM slot yet.</summary>
     None = 0,

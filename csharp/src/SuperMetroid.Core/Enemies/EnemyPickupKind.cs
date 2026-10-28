@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// cartridge values stored as <c>eproj_E / 2</c>; the table order is not the visual order of
 /// the five pickup instruction lists.
 /// </summary>
-public enum EnemyPickupKind : ushort
+public enum EnemyPickupKind
 {
     /// <summary>Zero sentinel used before a valid drop-table result; direct initialization treats it as dormant.</summary>
     None = 0,

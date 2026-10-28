@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Elevator;
 /// <c>$A3:9540</c>. The value is global because it survives the room transition between the
 /// departing and arriving elevator actors.
 /// </summary>
-public enum ElevatorActorStatus : ushort
+public enum ElevatorActorStatus
 {
     /// <summary>Status zero dispatches native <c>ElevatorAI_0_LeavingRoom</c> at <c>$A3:9548</c> when pseudo-door contact is present; waits for the required newly pressed direction.</summary>
     Inactive = 0,

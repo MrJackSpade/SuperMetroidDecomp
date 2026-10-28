@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// The routine a morph-ball eye's main AI runs.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum MorphBallEyeAiFunction : ushort
+public enum MorphBallEyeAiFunction
 {
     /// <summary>Native <c>Function_Eye_WaitForSamusToGetNear</c> at <c>$A8:90F1</c>; waits until Samus is strictly within 128 room pixels on both axes before starting the opening animation.</summary>
     WaitForSamus = 1,

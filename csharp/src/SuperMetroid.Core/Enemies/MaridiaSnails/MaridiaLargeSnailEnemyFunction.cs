@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 /// The behaviour routine Oum's main AI runs.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum MaridiaLargeSnailEnemyFunction : ushort
+public enum MaridiaLargeSnailEnemyFunction
 {
     /// <summary>Function_Oum_Idle, $A2:CDE6: completes settling bounces, then selects an idle facing and enters rolling when Samus is strictly within 24 horizontal pixels.</summary>
     Idle = 1,

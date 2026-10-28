@@ -189,6 +189,21 @@ internal static class CartridgeEncodingAnalyzerTests
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'Word' stores ushort instance state"));
         ExpectEncoding([new AnalyzerTestSource(functional, "class C { ushort frameCounter; // cartridge-encoding: allow(Wrap) - wraps by design\n }")],
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'frameCounter' stores ushort instance state"));
+        // #1452: an enum declared with an explicit narrow underlying type holds identities at a register width.
+        ExpectEncoding([new AnalyzerTestSource(functional, "enum Facing : ushort { Left, Right } enum Phase : byte { Idle } " +
+            "enum Lean : sbyte { Back = -1, Upright } enum Drift : short { None }")],
+            new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'Facing' holds ushort as its underlying type"),
+            new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'Phase' holds byte as its underlying type"),
+            new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'Lean' holds sbyte as its underlying type"),
+            new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'Drift' holds short as its underlying type"));
+        ExpectEncoding([new AnalyzerTestSource(functional, "[System.Flags] enum Items : System.UInt16 { None = 0, Morph = 4 }")],
+            new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'Items' holds ushort as its underlying type"));
+        // A default or int-wide enum, an owner's enum and the Compatibility module's enum are not reported.
+        ExpectEncoding([new AnalyzerTestSource(functional, "enum Facing { Left, Right } enum Phase : int { Idle } enum Wide : long { Far }")]);
+        ExpectEncoding([new AnalyzerTestSource(functional,
+            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class EncodingOwnerAttribute(string format) : System.Attribute { public string Format { get; } = format; } " +
+            "[EncodingOwner(\"fixture format\")] enum Word : ushort { Zero }")]);
+        ExpectEncoding([new AnalyzerTestSource(functional, "namespace SuperMetroid.Core.Compatibility { enum Width : byte { Narrow } }")]);
         // Constants, statics, wide members, arrays, encoding owners and the Compatibility module's stubs are not reported.
         ExpectEncoding([new AnalyzerTestSource(functional, "class C { const ushort Limit = 99; static ushort shared; int wide; ushort[] words = new ushort[2]; " +
             "int M() => Limit + shared + wide + words.Length; }")]);

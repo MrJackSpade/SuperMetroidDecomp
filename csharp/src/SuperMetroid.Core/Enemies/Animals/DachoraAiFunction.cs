@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// The routine Dachora's main AI runs each frame.
 /// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
 /// </summary>
-public enum DachoraAiFunction : ushort
+public enum DachoraAiFunction
 {
     /// <summary><c>$A7:F570</c>: probes the floor and waits for Samus to enter the activation rectangle.</summary>
     WaitingForSamus = 1,

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>Conveyor BTS entries among the normal special-air entries of bank-$94's inside-block dispatcher.</summary>
-internal enum ConveyorBlockBts : byte
+internal enum ConveyorBlockBts
 {
     /// <summary>$94:98EA, BTS $08: powered/grounded rightward conveyor.</summary>
     GroundedRight = 8,

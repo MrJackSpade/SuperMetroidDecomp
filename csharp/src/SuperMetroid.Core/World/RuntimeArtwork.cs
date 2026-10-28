@@ -172,9 +172,6 @@ internal sealed class RuntimeArtwork : IInstalledArtworkContent, IInstalledSprit
     /// <summary>Installed visual-only charge-flare offsets selected by pose movement and direction.</summary>
     [field: NonSerialized]
     public ChargeFlarePlacements? ChargeFlarePlacement { get; set; }
-    /// <summary>Installed charge-flare OAM compositions selected independently of timing and damage.</summary>
-    [field: NonSerialized]
-    public ChargeFlareSprites? ChargeFlareCompositions { get; set; }
 
     /// <summary>Current Grapple flare offsets.</summary>
     [field: NonSerialized]     public ChargeFlarePlacements? GrappleFlarePlacement
@@ -199,10 +196,6 @@ internal sealed class RuntimeArtwork : IInstalledArtworkContent, IInstalledSprit
             _player.Samus.Grapple.SwingFrames = GrappleSwingFrames;
         }
     }
-
-    /// <summary>Current projectile-trail appearances.</summary>
-    [field: NonSerialized]
-    public InstalledProjectileTrails? TrailArtwork { get; set; }
 
     /// <summary>The installed cartridge bytes Samus's glitch paths read; the projectile system binds them.</summary>
     [field: NonSerialized]
@@ -306,9 +299,6 @@ internal sealed class RuntimeArtwork : IInstalledArtworkContent, IInstalledSprit
             : throw new ArgumentOutOfRangeException(nameof(asset), asset, "The runtime binds no characters for this asset.");
 
 
-    /// <summary>Current external timed-projectile composition catalog, independent of mechanics.</summary>
-    [field: NonSerialized]
-    public InstalledProjectileSprites? ProjectileCompositions { get; set; }
     /// <summary>Host-selected BG tilemaps, rebound after debugger-state restoration.</summary>
     [field: NonSerialized]
     public RoomBackgroundTilemaps? RoomBackgroundTilemapArt { get; set; }

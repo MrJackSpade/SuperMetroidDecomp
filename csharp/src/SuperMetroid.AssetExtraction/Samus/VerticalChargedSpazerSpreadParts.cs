@@ -1,6 +1,6 @@
 ﻿using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Three descending columns. Side placement measures a required distance to the near cell edge and reflects across X=0; this placement policy and right/left/center traversal remain REQUIRED choices.</summary>
 internal readonly struct VerticalChargedSpazerSpreadParts(int phase) : IReadOnlyList<CompiledSpritePart>

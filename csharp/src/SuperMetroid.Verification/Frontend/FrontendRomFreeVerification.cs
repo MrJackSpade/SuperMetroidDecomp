@@ -226,11 +226,8 @@ internal static class FrontendRomFreeVerification
                 RoomPlmSamusEaterVisuals = samusEaterVisuals,
                 BeamPalettes = projectiles.BeamTiles.Palettes,
                 HyperBeamFxColors = projectiles.BeamTiles.HyperBeamFxColors,
-                ProjectileCompositions = projectiles.Catalog,
                 ProjectileFrameBindings = projectiles.FrameBindings,
-                TrailArtwork = projectiles.Trails,
                 ChargeFlarePlacement = projectiles.FlarePlacement,
-                ChargeFlareCompositions = projectiles.FlareCompositions,
                 GrappleFlarePlacement = projectiles.GrappleTiles.FlarePlacement,
                 GrappleSwingFrames = projectiles.GrappleTiles.SwingFrames,
             });

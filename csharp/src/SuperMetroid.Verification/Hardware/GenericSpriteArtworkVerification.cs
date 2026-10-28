@@ -87,8 +87,6 @@ internal static class GenericSpriteArtworkVerification
         {
             Random = new SharedRandom(),
             NarrationPresentation = maps.IntroNarration,
-            TrailArtwork = projectiles.Trails,
-            ProjectileCompositions = projectiles.Catalog,
             ProjectileFrameBindings = projectiles.FrameBindings,
         };
         intro.BindSpriteSheets(InstalledFixtures.SpriteSheets);

@@ -1,6 +1,6 @@
 ﻿using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Centered horizontal strip or opposite displaced copies. Selected length/glyph, lobe order and four spread distances remain REQUIRED; repeated cell geometry calculates.</summary>
 internal readonly struct HorizontalPlasmaWaveShortParts(int phase) : IReadOnlyList<CompiledSpritePart>

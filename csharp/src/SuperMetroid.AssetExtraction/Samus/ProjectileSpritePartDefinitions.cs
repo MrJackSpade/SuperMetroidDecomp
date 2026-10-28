@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>How each beam, missile and effect sprite is composed: its animation phase or pose and the parts that phase draws.</summary>
 public static class ProjectileSpritePartDefinitions

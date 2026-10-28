@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Samus.Artwork.ProjectileSpritePartDefinitions;
+using SuperMetroid.Core.Samus.Artwork;
+using static SuperMetroid.AssetExtraction.Samus.ProjectileSpritePartDefinitions;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Which parts each projectile sprite draws: the phase or pose an identity selects and the parts of each beam and wave pose.</summary>
 public static class ProjectileSpriteParts

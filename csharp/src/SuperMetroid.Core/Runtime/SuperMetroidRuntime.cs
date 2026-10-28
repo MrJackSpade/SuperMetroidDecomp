@@ -248,14 +248,11 @@ internal sealed class SuperMetroidRuntime
         Bind(a => a.XrayRevealVisuals, value => Xray.XrayRevealVisuals = value);
         Bind(a => a.RoomBackgroundTilemapArt, value => Artwork.RoomBackgroundTilemapArt = value);
         Bind(a => a.RoomSkyTilemapArt, value => Artwork.RoomSkyTilemapArt = value);
-        Bind(a => a.ProjectileCompositions, value => Artwork.ProjectileCompositions = value);
         Bind(a => a.ProjectileFrameBindings, value => Artwork.ProjectileFrameBindings = value);
-        Bind(a => a.TrailArtwork, value => Artwork.TrailArtwork = value);
         Bind(a => a.SamusOverreads, value => Artwork.SamusOverreads = value);
         Bind(a => a.SpriteSheets, value => Artwork.SpriteSheets = value);
         Bind(a => a.EnemySheets, value => EnemySession.Sheets = value);
         Bind(a => a.ChargeFlarePlacement, value => Artwork.ChargeFlarePlacement = value);
-        Bind(a => a.ChargeFlareCompositions, value => Artwork.ChargeFlareCompositions = value);
         Bind(a => a.GrappleFlarePlacement, value => Artwork.GrappleFlarePlacement = value);
         Bind(a => a.GrappleSwingFrames, value => Artwork.GrappleSwingFrames = value);
         Bind(a => a.BeamPalettes, value => Artwork.BeamPalettes = value);

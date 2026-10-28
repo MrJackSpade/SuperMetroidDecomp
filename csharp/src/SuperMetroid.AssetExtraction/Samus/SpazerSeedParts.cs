@@ -1,6 +1,6 @@
 ﻿using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Builds one ordinary Spazer seed as a four-cell diagonal or two-cell axial strip.</summary>
 internal readonly struct SpazerSeedParts(int pose) : IReadOnlyList<CompiledSpritePart>

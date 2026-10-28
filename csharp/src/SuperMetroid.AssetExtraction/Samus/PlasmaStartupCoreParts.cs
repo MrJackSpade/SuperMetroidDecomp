@@ -1,6 +1,6 @@
 ﻿using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>$93:F0FA/F194/F22E/F2CE and alternate groupsF36E/F408/F4A2/F542: centered startup cores share tile geometry; selected glyph/footprint/style remain REQUIRED.</summary>
 internal readonly struct PlasmaStartupCoreParts(int group) : IReadOnlyList<CompiledSpritePart>

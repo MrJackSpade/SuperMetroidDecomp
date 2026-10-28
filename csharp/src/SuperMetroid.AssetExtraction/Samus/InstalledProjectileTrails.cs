@@ -1,8 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Samus.Artwork;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Immutable single-piece appearance keyed by native trail frame; no timing or movement fields.</summary>
 public sealed class InstalledProjectileTrails

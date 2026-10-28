@@ -14,6 +14,7 @@ using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Rooms;

@@ -141,14 +141,8 @@ internal interface IGameplayArtwork
     /// <summary>Room sky tilemaps.</summary>
     RoomSkyTilemaps? RoomSkyTilemapArt { get; }
 
-    /// <summary>Samus projectile sprite compositions.</summary>
-    InstalledProjectileSprites? ProjectileCompositions { get; }
-
     /// <summary>Timed projectile frame sprite choices.</summary>
     InstalledProjectileFrameBindings? ProjectileFrameBindings { get; }
-
-    /// <summary>Projectile trail artwork.</summary>
-    InstalledProjectileTrails? TrailArtwork { get; }
 
     /// <summary>The cartridge bytes Samus's glitch paths read, extracted from the player's cartridge.</summary>
     InstalledSamusOverreads? SamusOverreads { get; }
@@ -161,9 +155,6 @@ internal interface IGameplayArtwork
 
     /// <summary>Charge-flare placement.</summary>
     ChargeFlarePlacements? ChargeFlarePlacement { get; }
-
-    /// <summary>Charge-flare sprite compositions.</summary>
-    ChargeFlareSprites? ChargeFlareCompositions { get; }
 
     /// <summary>The grapple flare's standing and running offsets.</summary>
     ChargeFlarePlacements? GrappleFlarePlacement { get; }

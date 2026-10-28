@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 

@@ -165,9 +165,6 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>Room sky tilemaps.</summary>
     public RoomSkyTilemaps? RoomSkyTilemapArt { get; init; }
 
-    /// <summary>Samus projectile sprite compositions.</summary>
-    public InstalledProjectileSprites? ProjectileCompositions { get; init; }
-
     /// <summary>Timed projectile frame sprite choices.</summary>
     public InstalledProjectileFrameBindings? ProjectileFrameBindings { get; init; }
 
@@ -186,9 +183,6 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>The Ceres door and escape artwork and the Tourian statues' colors.</summary>
     public AreaArtworkBundle? AreaArtwork { get; init; }
 
-    /// <summary>Projectile trail artwork.</summary>
-    public InstalledProjectileTrails? TrailArtwork { get; init; }
-
     /// <summary>The cartridge bytes Samus's glitch paths read, extracted from the player's cartridge.</summary>
     public InstalledSamusOverreads? SamusOverreads { get; init; }
 
@@ -200,9 +194,6 @@ public sealed record GameArtwork : IGameplayArtwork
 
     /// <summary>Charge-flare placement.</summary>
     public ChargeFlarePlacements? ChargeFlarePlacement { get; init; }
-
-    /// <summary>Charge-flare sprite compositions.</summary>
-    public ChargeFlareSprites? ChargeFlareCompositions { get; init; }
 
     /// <summary>The grapple flare's standing and running offsets.</summary>
     public ChargeFlarePlacements? GrappleFlarePlacement { get; init; }

@@ -225,8 +225,6 @@ internal static class MapPresentationVerification
         private readonly RoomSkyTilemaps skies;
         /// <summary>Installed beam palettes bound to Samus's projectile presentation.</summary>
         private readonly InstalledBeamPalettes? beamPalettes;
-        /// <summary>Installed trail appearances.</summary>
-        private readonly InstalledProjectileTrails trails;
         /// <summary>Installed elevator platform art used by the room PLM owner.</summary>
         private readonly RoomPlmElevatorPlatformVisualCatalog elevatorPlatform;
 
@@ -252,7 +250,6 @@ internal static class MapPresentationVerification
             EnemyTiles = installation.LoadEnemyTiles();
             var projectiles = installation.LoadProjectiles();
             beamPalettes = projectiles.BeamTiles.Palettes;
-            trails = projectiles.Trails;
             SamusBody = installation.LoadSamusBodyArt();
             elevatorPlatform = installation.LoadRoomPlmElevatorPlatformVisuals();
         }
@@ -273,7 +270,6 @@ internal static class MapPresentationVerification
             runtime.BossArtwork.Artwork = EnemyTiles.Bosses;
             runtime.AreaArtwork.Artwork = EnemyTiles.Areas;
             runtime.Artwork.BeamPalettes = beamPalettes;
-            runtime.Artwork.TrailArtwork = trails;
             runtime.Artwork.SamusBodyArt = SamusBody;
             runtime.ShotBlockVisuals.RoomPlmElevatorPlatformVisuals = elevatorPlatform;
         }

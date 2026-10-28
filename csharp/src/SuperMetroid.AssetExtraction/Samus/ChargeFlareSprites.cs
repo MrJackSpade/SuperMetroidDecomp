@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Editable charge-flare compositions, independent of cadence, placement and projectile physics.</summary>
 public sealed class ChargeFlareSprites
@@ -15,9 +17,6 @@ public sealed class ChargeFlareSprites
     /// <exception cref="InvalidDataException">The JSON is malformed or ambiguous, its required identity set or version is invalid, or its OAM fields/counts are unsupported.</exception>
     public static ChargeFlareSprites Load(Stream json)
         => new(InstalledProjectileSprites.LoadFrames(json, ChargeFlareSpriteDefinitions.All));
-
-    /// <summary>True when <paramref name="selector"/> indexes the native $93:A1A1 flare table.</summary>
-    public static bool Contains(int selector) => selector < ChargeFlareSpriteSelection.Selectors.Count;
 
     /// <summary>The flare composition a valid native selector names, as a whole frame over the standard OBJ page.</summary>
     public SpriteFrame Frame(int selector)

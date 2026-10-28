@@ -8,7 +8,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Artwork.ProjectileTrailAtlasVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Projectiles;

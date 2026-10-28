@@ -1,6 +1,6 @@
 ﻿using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Four axial native poses use a centered two-cell strip, reflected with travel direction; independent glyph/style/pixel content remains required.</summary>
 internal readonly struct AxialSuperMissileParts(int pose) : IReadOnlyList<CompiledSpritePart>

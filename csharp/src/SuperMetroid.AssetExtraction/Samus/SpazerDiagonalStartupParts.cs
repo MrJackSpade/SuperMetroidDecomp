@@ -1,6 +1,6 @@
 ﻿using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Ordinary diagonal startup strips keep the required two-pair origin and shift by half a cell when shortened to one pair. Pair adjacency/reflection calculate; selected footprint lengths, origin, glyphs and order remain REQUIRED.</summary>
 internal readonly struct SpazerDiagonalStartupParts(int group, int pairs) : IReadOnlyList<CompiledSpritePart>

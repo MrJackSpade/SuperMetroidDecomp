@@ -298,9 +298,7 @@ session.audio, session.Artwork.MapPresentation?.IntroFont, session.Artwork.Intro
         {
             Random = session.Random,
             FloorQueueResidue = session.floorQueueResidue,
-            ProjectileCompositions = session.Artwork.ProjectileCompositions,
             ProjectileFrameBindings = session.Artwork.ProjectileFrameBindings,
-            TrailArtwork = session.Artwork.TrailArtwork,
             NarrationPresentation = session.Artwork.MapPresentation?.IntroNarration,
         };
         cinematic.BindSamusHurtColors(session.Artwork.MapPresentation?.SamusHurtColors);

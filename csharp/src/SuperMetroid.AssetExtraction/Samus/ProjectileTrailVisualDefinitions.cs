@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Appearance-bearing timed records in the four bank-$90 trail lists, excluding commands and terminators.</summary>
 public static class ProjectileTrailVisualDefinitions

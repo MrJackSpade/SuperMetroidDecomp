@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Shared native Spazer composition coordinates for sprite geometry and tile rasterization.</summary>
 /// <remarks>

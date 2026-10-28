@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>The first glyph of each trail's consecutive characters.</summary>
 internal static class ProjectileTrailGlyphDefinitions

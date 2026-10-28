@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Samus.Artwork;
+﻿namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>$93:D10E/D25A/D3A6/D4F2/D63E/D6EA/D796/D842: native seed travel directions; chosen footprint lengths/glyphs/priority remain REQUIRED.</summary>
 internal enum SpazerSeedDirection

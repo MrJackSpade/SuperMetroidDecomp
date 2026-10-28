@@ -1,6 +1,7 @@
 using SuperMetroid.ResourceAudit.Resources;
 using Microsoft.CodeAnalysis.Operations;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Samus;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Samus;
 

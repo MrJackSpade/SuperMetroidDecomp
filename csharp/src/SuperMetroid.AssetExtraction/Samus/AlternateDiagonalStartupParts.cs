@@ -1,6 +1,6 @@
 ﻿using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>One centered endcap pair, then two rotated pairs. Footprint, glyph/endcap selection and native traversal remain REQUIRED; cell adjacency/reflection calculate.</summary>
 internal readonly struct AlternateDiagonalStartupParts(bool reflected, int phase) : IReadOnlyList<CompiledSpritePart>

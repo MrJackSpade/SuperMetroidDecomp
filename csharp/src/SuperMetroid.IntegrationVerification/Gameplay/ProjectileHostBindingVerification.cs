@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
@@ -36,14 +35,9 @@ internal static class ProjectileHostBindingVerification
         string root = installation.Root;
         using (var session = new InstalledGameSession(root))
         {
-            var content = session.Game.Artwork.ProjectileCompositions;
-            if (content is not InstalledProjectileSprites) throw new InvalidDataException("Installed session did not bind projectile content.");
-            CheckCatalog(content, installation.LoadProjectiles().Catalog);
             CheckFrameBindings(session.Game.Artwork.ProjectileFrameBindings, installation.LoadProjectiles().FrameBindings);
             CheckGrapple(session.Game.Artwork, installation.LoadProjectiles().GrappleTiles);
-            CheckFlareCompositions(session.Game.Artwork.ChargeFlareCompositions ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlareCompositions."), installation.LoadProjectiles().FlareCompositions);
             CheckBeams(session.Game.Artwork.BeamPalettes ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.BeamPalettes."), installation.LoadProjectiles().BeamTiles);
-            CheckTrails(session.Game.Artwork.TrailArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.TrailArtwork."), installation.LoadProjectiles().Trails);
             CheckFlare(session.Game.Artwork.ChargeFlarePlacement ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlarePlacement."), installation.LoadProjectiles().FlarePlacement);
         }
         Directory.CreateDirectory(installation.ProjectileOverrideDirectory);
@@ -94,14 +88,8 @@ internal static class ProjectileHostBindingVerification
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, GrappleSwingFrameDefinitions.FileName), grappleSwing.ToJsonString());
         using (var session = new InstalledGameSession(root))
         {
-            var content = session.Game.Artwork.ProjectileCompositions;
             CheckGrapple(session.Game.Artwork, installation.LoadProjectiles().GrappleTiles);
-            CheckFlareCompositions(session.Game.Artwork.ChargeFlareCompositions ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlareCompositions."), installation.LoadProjectiles().FlareCompositions);
-            if (content is null || !ReferenceEquals(content, session.Game.Artwork.ProjectileCompositions))
-                throw new InvalidDataException("Restarted host did not bind the newly selected content.");
-            CheckCatalog(content, installation.LoadProjectiles().Catalog);
             CheckBeams(session.Game.Artwork.BeamPalettes ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.BeamPalettes."), installation.LoadProjectiles().BeamTiles);
-            CheckTrails(session.Game.Artwork.TrailArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.TrailArtwork."), installation.LoadProjectiles().Trails);
             CheckFlare(session.Game.Artwork.ChargeFlarePlacement ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlarePlacement."), installation.LoadProjectiles().FlarePlacement);
         }
         File.WriteAllText(path, "invalid override");
@@ -123,27 +111,6 @@ internal static class ProjectileHostBindingVerification
             throw new InvalidDataException("Host did not bind current projectile frame choices.");
     }
 
-    /// <summary>Compares rendered OAM for every native projectile composition pointer.</summary>
-    private static void CheckCatalog(InstalledProjectileSprites actual, InstalledProjectileSprites expected)
-    {
-        foreach (ushort id in ProjectileSpriteDefinitions.NativePointers)
-        {
-            var a = new OamBuffer(); var b = new OamBuffer();
-            actual.Draw(id, a, new(100, 100)); expected.Draw(id, b, new(100, 100));
-            if (!a.LowTable.SequenceEqual(b.LowTable) || !a.HighTable.SequenceEqual(b.HighTable))
-                throw new InvalidDataException("Host bound different composition content than the installed selection.");
-        }
-    }
-
-    /// <summary>Checks each authored trail frame after host binding.</summary>
-    private static void CheckTrails(InstalledProjectileTrails actual, InstalledProjectileTrails expected)
-    {
-        if (actual is null) throw new InvalidDataException("Host did not bind trail content.");
-        foreach (var frame in ProjectileTrailVisualDefinitions.Frames)
-            if (actual.Resolve(frame) != expected.Resolve(frame))
-                throw new InvalidDataException("Host bound stale trail appearance.");
-    }
-
     /// <summary>Checks flare placement for both running states and every direction.</summary>
     private static void CheckFlare(ChargeFlarePlacements actual, ChargeFlarePlacements expected)
     {
@@ -152,19 +119,6 @@ internal static class ProjectileHostBindingVerification
         for (int direction = 0; direction < ChargeFlarePlacementDefinitions.DirectionCount; direction++)
             if (actual.Resolve(running, direction) != expected.Resolve(running, direction))
                 throw new InvalidDataException("Host restored stale flare placement.");
-    }
-
-    /// <summary>Compares every charge-flare selector's rendered OAM after host binding.</summary>
-    private static void CheckFlareCompositions(ChargeFlareSprites actual, ChargeFlareSprites expected)
-    {
-        if (actual is null) throw new InvalidDataException("Host did not bind flare compositions.");
-        for (ushort selector = 0; selector < ChargeFlareSpriteSelection.Selectors.Count; selector++)
-        {
-            var a = new OamBuffer(); var b = new OamBuffer();
-            actual.Draw(selector, a, new(100, 100)); expected.Draw(selector, b, new(100, 100));
-            if (!a.LowTable.SequenceEqual(b.LowTable) || !a.HighTable.SequenceEqual(b.HighTable) || a.NextByteOffset != b.NextByteOffset)
-                throw new InvalidDataException("Host restored stale flare composition content.");
-        }
     }
 
     /// <summary>Checks the Grapple flare placement and swing choices the host bound.</summary>

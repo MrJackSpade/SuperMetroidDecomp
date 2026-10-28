@@ -1,6 +1,6 @@
 ﻿using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>One/two-cell centered startup strips; native group glyph/reflection selection and traversal remain REQUIRED composition inputs, while adjacency and centering calculate.</summary>
 internal readonly struct SpazerAxialStartupParts(int group, int length) : IReadOnlyList<CompiledSpritePart>

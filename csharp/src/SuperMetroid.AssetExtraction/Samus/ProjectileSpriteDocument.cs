@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Samus.Artwork;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Mutable JSON authoring data for projectile OAM appearance, separate from timed instruction records, damage, hitboxes, and motion.</summary>
 public sealed record ProjectileSpriteDocument

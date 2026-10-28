@@ -11,7 +11,7 @@ internal static class BossColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/BeamPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/BeamPaint.cs"),
              new("csharp/src/SuperMetroid.Core/Progression/SamusEquipmentFlags.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Artwork/SpazerCompositionGeometryDefinitions.cs")]),
+             new("csharp/src/SuperMetroid.AssetExtraction/Samus/SpazerCompositionGeometryDefinitions.cs")]),
         new("SuperMetroid.Core.Bosses.Ridley.Artwork.CeresRidleyColorCatalog", "ceres-ridley-v3-complete-palette-rows",
             ["ApplyStart", "ApplyEyeFade", "ApplyBodyFade", "ApplyHealth", "ApplyAlarm", "ApplyRetreat", "ApplyBaby"],
             [new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresRidleyColorCatalog.cs"),

@@ -1,6 +1,6 @@
 ﻿using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Builds one selected Bomb or beam-explosion effect from its native glyph progression.</summary>
 internal readonly struct SimpleEffectParts(int phase, bool quad) : IReadOnlyList<CompiledSpritePart>

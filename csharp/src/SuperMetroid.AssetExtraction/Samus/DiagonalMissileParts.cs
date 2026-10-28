@@ -1,6 +1,6 @@
 ﻿using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Three-cell L-shaped missile or Super Missile artwork for one diagonal travel pose.</summary>
 internal readonly struct DiagonalMissileParts(int pose, bool super) : IReadOnlyList<CompiledSpritePart>

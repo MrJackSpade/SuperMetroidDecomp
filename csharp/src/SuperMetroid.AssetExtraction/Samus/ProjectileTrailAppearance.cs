@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>One small eight-by-eight OBJ's selected character and attributes, using the full gameplay projectile tile layout rather than coordinates in the compact trail PNG.</summary>
 public sealed record ProjectileTrailAppearance

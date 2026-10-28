@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Projectiles;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
 /// The installed program frames each artwork schema generation holds: the first program-frame schema's frames and every

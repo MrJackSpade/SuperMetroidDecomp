@@ -1,10 +1,11 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 
-namespace SuperMetroid.Core.World.Artwork;
+namespace SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>Reads installed extended enemy frame documents against the enemy-bank frame schema (#1395).</summary>
 public static class EnemyExtendedFrameDocuments
@@ -60,10 +61,10 @@ public static class EnemyExtendedFrameDocuments
                     component.Parts is null)
                     throw new InvalidDataException(
                         $"Extended enemy frame {definition.Name} component {index} is invalid.");
-                SpritePart[] parts = EnemySpritemaps.CompileParts(
+                SpritePart[] parts = EnemySpritemapCompiler.CompileParts(
                     component.Parts, $"{definition.Name} component {index}");
                 totalParts += parts.Length;
-                if (totalParts > EnemySpritemapCatalog.MaximumParts)
+                if (totalParts > EnemySpritemapCompiler.MaximumParts)
                     throw new InvalidDataException(
                         $"Extended enemy frame {definition.Name} exceeds OAM capacity.");
                 compiled[index] = new EnemyExtendedDrawComponent(

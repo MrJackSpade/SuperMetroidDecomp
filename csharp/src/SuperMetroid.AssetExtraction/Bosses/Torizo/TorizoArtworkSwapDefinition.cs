@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 
-namespace SuperMetroid.Core.Bosses.Torizo;
+namespace SuperMetroid.AssetExtraction.Bosses.Torizo;
 
 /// <summary>One Torizo artwork swap: which installed characters it shows.</summary>
 /// <param name="Page">The page of installed characters the swap shows from.</param>

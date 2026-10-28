@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
@@ -53,15 +52,12 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Bomb and Golden Torizo's hitboxes, touch and hurt, and what Samus's weapons do to them.</summary>
     internal TorizoCombat Combat { get; }
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
 
 
 
     /// <summary>Connects the Bomb and Golden Torizo callbacks to their room-scoped services.</summary>
     internal BombTorizoBehavior(BombTorizoBehaviorDependencies dependencies)
     {
-        _bossArtwork = dependencies.BossArtwork;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _audio = dependencies.Audio;
@@ -248,11 +244,8 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Shows artwork swap <paramref name="swap"/> under Torizo's poses at this update (#1406): from now on the frames drawn
     /// over its characters picture it, over every swap shown there before.
     /// </summary>
-    /// <exception cref="InvalidDataException">The installed boss artwork has no Torizo artwork swaps.</exception>
     private void ShowTorizoArtwork(TorizoArtworkSwap swap)
     {
-        _ = _bossArtwork.Artwork?.TorizoSwaps ?? throw new InvalidDataException(
-            "Torizo's artwork swaps require installed artwork.");
         _presentation.ShowCharacters(TorizoArtworkSwapDefinitions.Sources[swap.Ordinal]);
     }
 

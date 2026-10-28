@@ -110,7 +110,6 @@ internal sealed class RuntimeArtwork : IInstalledArtworkContent, IInstalledSprit
             _roomFx.Layer3Tilemaps = value?.RoomFxLayer3Tilemaps;
             _roomFx.PaletteBlendColors = value?.RoomFxPaletteBlends;
             BindSamusPalettePresentation();
-            _bossArtwork.EscapeTimerArtwork = value?.EscapeTimerTiles;
             _bossArtwork.EscapeTypewriterPresentation = value?.EscapeTypewriter;
             _bossArtwork.HudTileArtwork = value?.HudTiles;
             _bossArtwork.MotherBrainHealthColors = value?.MotherBrainHealthPalette;

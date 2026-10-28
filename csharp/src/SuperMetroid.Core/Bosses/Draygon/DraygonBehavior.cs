@@ -60,7 +60,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         _frameContext = dependencies.FrameContext;
         Parts = new DraygonParts(_room, dependencies.Projectiles, dependencies.Earthquake, dependencies.SpriteObjects, dependencies.Presentation, _frameContext, _bossArtwork);
         Turrets = new DraygonTurrets(_room, dependencies.Projectiles);
-        Intro = new DraygonIntro(_room, dependencies.SpriteObjects, dependencies.Presentation, Turrets);
+        Intro = new DraygonIntro(dependencies.SpriteObjects, dependencies.Presentation, Turrets);
         Movement = new DraygonMovement(dependencies.SpriteObjects);
         Swoops = new DraygonSwoops(_room, Parts, Turrets, Movement);
         Goop = new DraygonGoop(_room, dependencies.Audio, dependencies.DeathsAndDrops, Parts, Turrets, Movement);

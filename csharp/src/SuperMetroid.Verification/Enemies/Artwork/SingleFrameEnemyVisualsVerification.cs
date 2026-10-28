@@ -1,4 +1,4 @@
-using SuperMetroid.Core.World.Artwork;
+using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core.Enemies.Polyp.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
@@ -8,7 +8,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Kzan;
 using SuperMetroid.Core.Enemies.Polyp;
-using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -71,7 +70,7 @@ internal static class SingleFrameEnemyVisualsVerification
         }
 
         byte[] projectileBytes = EnemyProjectileSpritemapFiles.Extract(rom);
-        var projectileStock = EnemyProjectileSpritemapCatalog.Load(new MemoryStream(projectileBytes));
+        var projectileStock = EnemyProjectileSpritemapDocuments.Load(new MemoryStream(projectileBytes));
         var projectileDocument = RequiredJson.Deserialize<EnemyProjectileSpritemapDocument>(projectileBytes, options);
         var projectileLegacy = projectileDocument with
         {
@@ -83,11 +82,11 @@ internal static class SingleFrameEnemyVisualsVerification
         projectileLegacy.ProgramFrames[editedProjectile] =
             [projectileLegacy.ProgramFrames[editedProjectile][0] with { OffsetX = -12 }];
         byte[] projectileLegacyBytes = JsonSerializer.SerializeToUtf8Bytes(projectileLegacy, options);
-        var projectileMerged = EnemyProjectileSpritemapCatalog.Load(new MemoryStream(projectileLegacyBytes), projectileStock);
+        var projectileMerged = EnemyProjectileSpritemapDocuments.Load(new MemoryStream(projectileLegacyBytes), projectileStock);
         AssertEqual(-12, projectileMerged.GetProgramFrame(
             EnemyProjectilePresentationFrameSets.PrePolypRock[0].Frame).Span[0].Offset.X,
             "schema-12 projectile edit survives new stock");
-        AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapCatalog.Load(new MemoryStream(projectileLegacyBytes)),
+        AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapDocuments.Load(new MemoryStream(projectileLegacyBytes)),
             "old projectile stock requests reimport");
         var rockParts = projectileMerged.GetProgramFrame(PolypRockFrameDefinitions.ShownProjectileFrames[new(0)]);
         var rockActual = new OamBuffer();

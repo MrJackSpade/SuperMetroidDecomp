@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Crawlers;
-using SuperMetroid.Core.World.Artwork;
+using SuperMetroid.AssetExtraction.World.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Crawlers;
 

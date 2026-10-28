@@ -2,8 +2,8 @@ using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
-using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.Verification.Enemies.Projectiles;
 
@@ -22,7 +22,7 @@ internal static class EnemyProjectileLegacyOverridesVerification
         foreach (EnemyProjectileSpritemapVersion version in Enum.GetValues<EnemyProjectileSpritemapVersion>())
         {
             int count = version == EnemyProjectileSpritemapVersion.CeresOnly
-                ? EnemyProjectileSpritemapDefinitions.LegacyFrameCount : EnemyProjectileSpritemapDefinitions.Frames.Length;
+                ? EnemyProjectileSpritemapDocuments.LegacyFrameCount : EnemyProjectileSpritemapDefinitions.Frames.Length;
             EnemyProjectilePresentationFrameDefinition[] programs = HistoricalPrograms(version);
             EnemyProjectileSpritemapDocument document = stockDocument with
             {
@@ -75,7 +75,7 @@ internal static class EnemyProjectileLegacyOverridesVerification
         EnemyProjectileSpritemapCatalog Load(EnemyProjectileSpritemapDocument value, EnemyProjectileSpritemapCatalog? baseline = null)
         {
             using var json = fixture.Json(value);
-            return EnemyProjectileSpritemapCatalog.Load(json, baseline);
+            return EnemyProjectileSpritemapDocuments.Load(json, baseline);
         }
         static void AssertParts(SpriteVisualPart[] expected, ReadOnlySpan<SpritePart> actual, string context)
         {
@@ -86,7 +86,7 @@ internal static class EnemyProjectileLegacyOverridesVerification
                 SpriteVisualPart part = expected[index];
                 AssertEqual(part.OffsetX, actual[index].Offset.X, context + " X");
                 AssertEqual(part.OffsetY, actual[index].Offset.Y, context + " Y");
-                AssertEqual(part.TileRow * EnemyProjectileSpritemapDefinitions.TileColumns + part.TileColumn,
+                AssertEqual(part.TileRow * EnemyProjectileSpritemapDocuments.TileColumns + part.TileColumn,
                     actual[index].Character, context + " tile");
                 AssertEqual((part.Palette ?? throw new InvalidOperationException("Verification requires part.Palette.")), actual[index].Palette, context + " palette");
                 AssertEqual(part.Priority, actual[index].Priority, context + " priority");

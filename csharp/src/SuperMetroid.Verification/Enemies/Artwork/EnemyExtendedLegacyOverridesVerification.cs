@@ -1,4 +1,4 @@
-using SuperMetroid.Core.World.Artwork;
+using SuperMetroid.AssetExtraction.World.Artwork;
 using System.Reflection;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -102,7 +102,7 @@ internal static class EnemyExtendedLegacyOverridesVerification
             {
                 AssertEqual((short)expected[index].OffsetX, actual[index].Offset.X, context + " component X");
                 AssertEqual((short)expected[index].OffsetY, actual[index].Offset.Y, context + " component Y");
-                AssertTrue(actual[index].Parts.SequenceEqual(EnemySpritemaps.CompileParts(expected[index].Parts, context)),
+                AssertTrue(actual[index].Parts.SequenceEqual(EnemySpritemapCompiler.CompileParts(expected[index].Parts, context)),
                     context + " exact ordered OAM parts");
             }
         }

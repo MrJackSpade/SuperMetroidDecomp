@@ -6,5 +6,4 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="Frame">The frame shown.</param>
 /// <param name="World">Its room position.</param>
 /// <param name="PaletteRow">The palette row it draws in.</param>
-/// <param name="TileIndexBase">Its tile base on the head's sheet.</param>
-internal readonly record struct MotherBrainWorldFrame(EnemyFrameId Frame, Position16<RoomPixels> World, int PaletteRow, int TileIndexBase);
+internal readonly record struct MotherBrainWorldFrame(EnemyFrameId Frame, Position16<RoomPixels> World, int PaletteRow);

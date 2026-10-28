@@ -34,7 +34,7 @@ public static class EnemyProjectileSpritemapFiles
             int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(EnemySourceDefinitions.ProjectileInstructionBank, operand));
             programFrames.Add(frame.Name, EnemySpritemapFiles.ExtractParts(bus, CartridgeFormatDefinitions.EnemyProjectileSpritemapBank, pointer));
         }
-        return EnemyProjectileSpritemapCatalog.Write(new EnemyProjectileSpritemapDocument
+        return EnemyProjectileSpritemapDocuments.Write(new EnemyProjectileSpritemapDocument
         {
             Version = (int)EnemyProjectileSpritemapVersion.Current,
             Frames = frames,

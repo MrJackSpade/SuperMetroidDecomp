@@ -2,7 +2,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
-using SuperMetroid.Core.World.Artwork;
+using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Enemies.PipeBugs.Artwork;
 using SuperMetroid.Verification.Enemies.PipeBugs;
@@ -112,7 +112,7 @@ internal static class LookupStream2Verification
             foreach (var frame in selected)
             {
                 AssertTrue(catalog.TryGetDisplay(frame.Bank, frame.Pointer, out var parts), "Chozo actual installed display binding");
-                AssertTrue(parts.SequenceEqual(EnemySpritemaps.CompileParts(document.Frames[frame.Name], frame.Name)),
+                AssertTrue(parts.SequenceEqual(EnemySpritemapCompiler.CompileParts(document.Frames[frame.Name], frame.Name)),
                     "Chozo source/supplied part ordering and every visual field remain exact");
             }
             string expected = SelectedPresentationHash.Create("enemy-oam-v2", content =>
@@ -123,7 +123,7 @@ internal static class LookupStream2Verification
                 foreach (var frame in ordered)
                 {
                     content.AppendName("frame", EnemyFrameSheetKeys.Of(frame.Frame));
-                    content.AppendEnemyParts(EnemySpritemaps.CompileParts(document.Frames[frame.Name], frame.Name));
+                    content.AppendEnemyParts(EnemySpritemapCompiler.CompileParts(document.Frames[frame.Name], frame.Name));
                 }
                 foreach (var frame in ordered)
                 {
@@ -2196,7 +2196,7 @@ internal static class LookupStream2Verification
                 {
                     var wanted = expected[component];
                     var found = actual.Span[component];
-                    var parts = EnemySpritemaps.CompileParts(wanted.Parts, frame.Name);
+                    var parts = EnemySpritemapCompiler.CompileParts(wanted.Parts, frame.Name);
                     AssertEqual((short)wanted.OffsetX, found.Offset.X, "Golden Torizo independent component X");
                     AssertEqual((short)wanted.OffsetY, found.Offset.Y, "Golden Torizo independent component Y");
                     AssertTrue(found.Parts.SequenceEqual(parts), "Golden Torizo exact supplied part order and fields");
@@ -2221,7 +2221,7 @@ internal static class LookupStream2Verification
                     foreach (var component in components)
                     {
                         content.Append("offset-x", component.OffsetX); content.Append("offset-y", component.OffsetY);
-                        content.AppendEnemyParts(EnemySpritemaps.CompileParts(component.Parts, frame.Name));
+                        content.AppendEnemyParts(EnemySpritemapCompiler.CompileParts(component.Parts, frame.Name));
                     }
                 }
                 foreach (var frame in orderedFrames)

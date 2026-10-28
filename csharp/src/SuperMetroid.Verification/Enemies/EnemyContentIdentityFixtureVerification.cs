@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Artwork;
 using System.Collections.Immutable;
-using SuperMetroid.Core.World.Artwork;
+using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -20,7 +20,6 @@ using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.Magdollite;
-using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
@@ -419,7 +418,7 @@ internal static class EnemyContentIdentityFixtureVerification
             };
         }
         /// <summary>Compiles both projectile frame namespaces into one installed catalog.</summary>
-        public EnemyProjectileSpritemapCatalog Projectiles() => Shared("projectiles", () => EnemyProjectileSpritemapCatalog.Load(Json(ProjectileDocument())));
+        public EnemyProjectileSpritemapCatalog Projectiles() => Shared("projectiles", () => EnemyProjectileSpritemapDocuments.Load(Json(ProjectileDocument())));
 
         /// <summary>Builds BG2 frame writes whose tiles, placement, order, count, or run boundaries can vary.</summary>
         private MemoryStream Bg2(string family, ImmutableArray<EnemySpritemapDefinition> definitions)

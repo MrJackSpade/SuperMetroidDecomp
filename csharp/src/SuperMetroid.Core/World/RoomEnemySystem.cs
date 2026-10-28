@@ -697,7 +697,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         BotwoonBehavior = new BotwoonBehavior(new BotwoonBehaviorDependencies { Room = Room, Projectiles = Projectiles, SpriteObjects = SpriteObjects, SlotTable = SlotTable, Presentation = Presentation, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults , BossArtwork = BossArtworkBinding });
         Instructions = new EnemyInstructionInterpreter(new BossBg2Copies(CrocomireBehavior, MotherBrainEncounter, Room), Presentation, Room);
         Drawing = new EnemyDrawList(new EnemyDrawListDependencies { DeadTorizoBehavior = DeadTorizoBehavior, FrameContext = FrameContext, Instructions = Instructions, MotherBrainBehavior = MotherBrainBehavior, Presentation = Presentation, Room = Room, SlotTable = SlotTable });
-        BombTorizoBehavior = new BombTorizoBehavior(new BombTorizoBehaviorDependencies { Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops , BossArtwork = BossArtworkBinding });
+        BombTorizoBehavior = new BombTorizoBehavior(new BombTorizoBehaviorDependencies { Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops });
         BlueBrinstarFaceBlockBehavior = new BlueBrinstarFaceBlockBehavior(Room, Presentation, ElevatorBehavior);
         BeetomBehavior = new BeetomBehavior(Room, Terrain, Audio, FrameContext, Collision);
         AtomicBehavior = new AtomicBehavior();

@@ -1,7 +1,7 @@
 using SuperMetroid.ResourceAudit.Resources;
 using Microsoft.CodeAnalysis.Operations;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.World.Artwork;
+using SuperMetroid.AssetExtraction.World.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 

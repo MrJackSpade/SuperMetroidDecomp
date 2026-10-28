@@ -2,7 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.World.Artwork;
+using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core;
 using System.Text.Json;

@@ -4,6 +4,7 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 
@@ -80,7 +81,7 @@ internal static class WorkRobotResourceChecks
     /// <summary>Loads a constructed projectile artwork document, optionally merging missing frames from stock.</summary>
     private static EnemyProjectileSpritemapCatalog Load(EnemyProjectileSpritemapDocument document,
         EnemyProjectileSpritemapCatalog? stock = null) =>
-        EnemyProjectileSpritemapCatalog.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
+        EnemyProjectileSpritemapDocuments.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })), stock);
 
     /// <summary>Reports a failed resource contract with context for the audit command.</summary>

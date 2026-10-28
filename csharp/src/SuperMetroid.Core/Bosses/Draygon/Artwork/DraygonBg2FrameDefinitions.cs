@@ -1,13 +1,12 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.World.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 /// <summary>
 /// The 34 bank-$A5 Draygon extended frames whose sole zero-offset component
 /// points to a $FFFE BG2 tilemap stream. The remaining 48 selected frames are
-/// ordinary OAM components in <see cref="EnemyExtendedFrameDefinitions"/>.
+/// ordinary OAM components among the extended frame definitions.
 /// Hitbox pointers and instruction timing are not part of this visual catalog.
 /// </summary>
 internal static class DraygonBg2FrameDefinitions

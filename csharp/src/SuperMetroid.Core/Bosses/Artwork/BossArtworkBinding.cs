@@ -33,9 +33,6 @@ public sealed class BossArtworkBinding
     /// <summary>Where Ceres Ridley's getaway floor runs take their tile numbers from, bound with the map presentation.</summary>
     public CeresRidleyFloorUpdateSources? CeresRidleyFloorUpdates { get; set; }
 
-    /// <summary>The escape timer's installed tiles, bound with the map presentation.</summary>
-    public EscapeTimerTileAtlas? EscapeTimerArtwork { get; set; }
-
     /// <summary>The escape typewriters' installed text, bound with the map presentation.</summary>
     public EscapeTypewriterPresentation? EscapeTypewriterPresentation { get; set; }
 

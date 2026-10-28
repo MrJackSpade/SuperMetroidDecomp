@@ -13,6 +13,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Bosses.Torizo;
 
 namespace SuperMetroid.Verification.Bosses.Torizo.Artwork;
 

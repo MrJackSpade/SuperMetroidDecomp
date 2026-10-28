@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Enemies.Artwork;
 
-namespace SuperMetroid.Core.World.Artwork;
+namespace SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>Exposes the complete stock frame sequence with checked index and range access.</summary>
 internal sealed class EnemySpritemapFrameList : IReadOnlyList<EnemySpritemapDefinition>

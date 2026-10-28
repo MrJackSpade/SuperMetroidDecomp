@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="Frame">The sheet frame's name.</param>
 /// <param name="Origin">The frame origin on screen.</param>
 /// <param name="PaletteRow">The palette row the draw selects.</param>
-/// <param name="TileBase">The draw's tile base, which must be the one its sheet was composed at.</param>
 /// <param name="Rot">The rot the enemy selected, which a frame drawn over a rotting corpse's rows shows; none for an enemy that shows none.</param>
-internal sealed record EnemySheetDraw(EnemyDefinitionId Enemy, string Frame, Position16<ScreenPixels> Origin, int PaletteRow, int TileBase,
+internal sealed record EnemySheetDraw(EnemyDefinitionId Enemy, string Frame, Position16<ScreenPixels> Origin, int PaletteRow,
     CorpseRotView? Rot = null);

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 
-namespace SuperMetroid.Core.World.Artwork;
+namespace SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>
 /// The frames each enemy's encounter draws itself, outside the enemy list, at character index zero (#1392): Ridley's tail

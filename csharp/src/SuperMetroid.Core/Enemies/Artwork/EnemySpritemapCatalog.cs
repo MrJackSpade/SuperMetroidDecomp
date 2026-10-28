@@ -6,13 +6,6 @@ public sealed class EnemySpritemapCatalog
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
     public string ContentIdentity => EnemySpritemaps.ContentIdentity(this);
 
-    /// <summary>Upper bound on sprite pieces accepted from one editable enemy composition.</summary>
-    internal const int MaximumParts = 128;
-    /// <summary>Character-sheet width in eight-pixel tiles for composition tile references.</summary>
-    internal const int TileColumns = 16;
-    /// <summary>Character-sheet height in eight-pixel tiles for composition tile references.</summary>
-    internal const int TileRows = 32;
-
     /// <summary>The compiled frame compositions and display selections.</summary>
     internal readonly EnemySpritemapSelection selection;
 

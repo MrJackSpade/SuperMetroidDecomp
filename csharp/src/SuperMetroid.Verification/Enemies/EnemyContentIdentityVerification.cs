@@ -1,4 +1,4 @@
-using SuperMetroid.Core.World.Artwork;
+using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -96,15 +96,15 @@ internal static class EnemyContentIdentityVerification
         var legacyProjectiles = baseline.ProjectileDocument() with
         {
             Version = (int)EnemyProjectileSpritemapVersion.CeresOnly,
-            Frames = baseline.ProjectileDocument().Frames.Take(EnemyProjectileSpritemapDefinitions.LegacyFrameCount).ToDictionary(),
+            Frames = baseline.ProjectileDocument().Frames.Take(EnemyProjectileSpritemapDocuments.LegacyFrameCount).ToDictionary(),
             ProgramFrames = null,
         };
         AssertEqual(stockProjectiles.ContentIdentity,
-            EnemyProjectileSpritemapCatalog.Load(baseline.Json(legacyProjectiles), stockProjectiles).ContentIdentity,
+            EnemyProjectileSpritemapDocuments.Load(baseline.Json(legacyProjectiles), stockProjectiles).ContentIdentity,
             "older projectile overrides include current instruction-selected compositions");
         EnemyProjectileSpritemapCatalog changedProjectiles = new EnemyIdentityFixture("projectile-program-x").Projectiles();
         AssertTrue(stockProjectiles.ContentIdentity !=
-            EnemyProjectileSpritemapCatalog.Load(baseline.Json(legacyProjectiles), changedProjectiles).ContentIdentity,
+            EnemyProjectileSpritemapDocuments.Load(baseline.Json(legacyProjectiles), changedProjectiles).ContentIdentity,
             "inherited projectile program-frame changes contribute to the selected identity");
     }
 

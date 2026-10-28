@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.World.Artwork;
+using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsDocumentsVerification;

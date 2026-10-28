@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.World.Artwork;
+using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Areas.Ceres;

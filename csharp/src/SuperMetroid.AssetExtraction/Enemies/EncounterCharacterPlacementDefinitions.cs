@@ -14,6 +14,9 @@ internal static class EncounterCharacterPlacementDefinitions
     /// <summary>The character the Evir tiles Draygon's opening shows begin at: sixteen past the enemy tile area's start.</summary>
     internal const int EvirFirstCharacter = EnemyGraphicsSet.EnemyTileAreaFirstCharacter + 0x10;
 
+    /// <summary>The bytes of the Evir tiles Draygon's opening copies ($A5:871B): the Evir's whole graphics-set sheet.</summary>
+    internal const int EvirByteCount = 0x0600;
+
     /// <summary>The character Crocomire's skeleton's first character region begins at, $160 ($A4:99CB).</summary>
     internal const int SkeletonFirstRegionCharacter = 0x160;
 

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.AssetExtraction.Bosses.Torizo;
 
 namespace SuperMetroid.Verification.Bosses.Torizo;
 
@@ -73,7 +74,7 @@ internal static class TorizoAnimationsVerification
             {
                 var copyStep = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.CueStep>(Next("tile transfer"), $"{at}: tile transfer");
                 var copy = AssertIs<TorizoCue.ShowArtwork>(copyStep.Cue, $"{at}: artwork swap cue");
-                TorizoArtworkSwapDefinition transfer = TorizoArtworkSwapDefinitions.Entries[copy.Swap.Ordinal];
+                TorizoArtworkSwapDefinition transfer = TorizoArtworkSwapPages.Entries[copy.Swap.Ordinal];
                 AssertEqual(cursor, TorizoArtworkSwapDefinitions.Sites[copy.Swap.Ordinal].Instruction, $"{at}: tile transfer descriptor");
                 AssertEqual(transfer.ByteCount, cartridge.ReadCartridgeWord(address + 2), $"{at}: tile transfer size");
                 AssertEqual(transfer.SourceAddress, cartridge.ReadCartridgeLongFixedBank(address + 4), $"{at}: tile transfer source");

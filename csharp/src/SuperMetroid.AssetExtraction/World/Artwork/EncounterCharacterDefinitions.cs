@@ -8,7 +8,7 @@ using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 
-namespace SuperMetroid.Core.World.Artwork;
+namespace SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>
 /// The characters each enemy's encounter shows after its room loads (#1392, #1406), by the enemy whose graphics set loads

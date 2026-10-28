@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.World.Artwork;
+using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text;
@@ -607,11 +607,11 @@ public static class EnemyTileArtworkFiles
         try
         {
             EnemyProjectileSpritemapCatalog stockProjectiles =
-                EnemyProjectileSpritemapCatalog.Load(new MemoryStream(ReadVerifiedStock(
+                EnemyProjectileSpritemapDocuments.Load(new MemoryStream(ReadVerifiedStock(
                     EnemyProjectileSpritemapDefinitions.FileName,
                     manifest.EnemyProjectileCompositionsSha256), writable: false));
             projectileSpritemaps = OverridePath(EnemyProjectileSpritemapDefinitions.FileName) is { } projectileOverride
-                ? EnemyProjectileSpritemapCatalog.Load(
+                ? EnemyProjectileSpritemapDocuments.Load(
                     new MemoryStream(File.ReadAllBytes(projectileOverride), writable: false), stockProjectiles)
                 : stockProjectiles;
         }

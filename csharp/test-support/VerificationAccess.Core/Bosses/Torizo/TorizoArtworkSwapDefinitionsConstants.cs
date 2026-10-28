@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Bosses.Torizo;
+
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
@@ -8,7 +10,7 @@ internal static class TorizoArtworkSwapDefinitionsConstants
     public const byte Bank = 0xaa;
 
     /// <summary>
-    /// The cartridge site of each transfer, in <see cref="TorizoArtworkSwapDefinitions.Entries"/> order:
+    /// The cartridge site of each transfer, in <see cref="TorizoArtworkSwapPages.Entries"/> order:
     /// the cartridge oracle finds each descriptor by its instruction.
     /// </summary>
     internal static readonly TransferSite[] Sites =

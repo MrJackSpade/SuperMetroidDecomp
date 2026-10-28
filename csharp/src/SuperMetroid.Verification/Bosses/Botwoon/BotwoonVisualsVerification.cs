@@ -1,4 +1,4 @@
-using SuperMetroid.Core.World.Artwork;
+using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;

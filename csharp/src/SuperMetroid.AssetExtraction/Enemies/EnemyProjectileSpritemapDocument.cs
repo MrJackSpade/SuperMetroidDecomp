@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Presentation-only enemy-projectile JSON schema: named ordered OAM compositions and program-frame bindings, with no executable instruction or gameplay fields.</summary>
 public sealed record EnemyProjectileSpritemapDocument

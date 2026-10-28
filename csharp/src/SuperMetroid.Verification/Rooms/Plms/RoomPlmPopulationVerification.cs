@@ -1246,8 +1246,8 @@ internal static class RoomPlmPopulationVerification
         };
         enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
             // The save room's sprite objects compose with the installed enemy compositions.
-            Spritemaps = InstalledFixtures.EnemyTiles.Spritemaps, ProjectileSpritemaps = EnemyProjectileSpritemapCatalog.Load(new MemoryStream(
-                EnemyProjectileSpritemapCatalog.Write(artworkDocument))) });
+            Spritemaps = InstalledFixtures.EnemyTiles.Spritemaps, ProjectileSpritemaps = EnemyProjectileSpritemapDocuments.Load(new MemoryStream(
+                EnemyProjectileSpritemapDocuments.Write(artworkDocument))) });
 
         RoomEnemyProjectileSlot electricity = enemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.SaveStationElectricity);

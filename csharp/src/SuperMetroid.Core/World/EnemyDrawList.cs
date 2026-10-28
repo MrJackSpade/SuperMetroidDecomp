@@ -173,7 +173,7 @@ internal sealed class EnemyDrawList
                     if (frame == EnemyFrameId.Empty)
                         continue;
                     _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(slot.DefinitionId, EnemySheetDefinitions.FrameName(frame),
-                        new Position16<ScreenPixels>(draw.Origin.X, draw.Origin.Y), draw.PaletteRow, slot.TileIndexBase,
+                        new Position16<ScreenPixels>(draw.Origin.X, draw.Origin.Y), draw.PaletteRow,
                         (slot.Entity as IShowsCorpseRot)?.ShownRot));
                     continue;
                 }
@@ -192,7 +192,7 @@ internal sealed class EnemyDrawList
                     _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(slot.DefinitionId,
                         EnemySheetDefinitions.ComponentFrameName(draw.ExtendedFrame ?? throw new InvalidOperationException(
                             "An extended enemy draw was prepared without its frame."), index),
-                        new Position16<ScreenPixels>(componentOrigin.X, componentOrigin.Y), draw.PaletteRow, slot.TileIndexBase,
+                        new Position16<ScreenPixels>(componentOrigin.X, componentOrigin.Y), draw.PaletteRow,
                         (slot.Entity as IShowsCorpseRot)?.ShownRot));
                 }
             }

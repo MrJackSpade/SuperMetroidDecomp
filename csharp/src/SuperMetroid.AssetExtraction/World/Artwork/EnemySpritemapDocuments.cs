@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
@@ -5,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 
-namespace SuperMetroid.Core.World.Artwork;
+namespace SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>Reads installed enemy OAM composition documents against the enemy-bank frame schema (#1395).</summary>
 public static class EnemySpritemapDocuments
@@ -48,11 +49,11 @@ public static class EnemySpritemapDocuments
         foreach (EnemySpritemapDefinition frame in expected)
         {
             if (!document.Frames.TryGetValue(frame.Name, out SpriteVisualPart[]? visual) ||
-                visual is null || visual.Length > EnemySpritemapCatalog.MaximumParts)
+                visual is null || visual.Length > EnemySpritemapCompiler.MaximumParts)
                 throw new InvalidDataException(
                     $"Enemy composition {frame.Name} is missing or exceeds OAM capacity.");
             EnemySpritemapParts parts = BabyMetroidSpriteParts.Compile(frame.Frame,
-                EnemySpritemaps.CompileParts(visual, frame.Name), ref sharedBabyBody);
+                EnemySpritemapCompiler.CompileParts(visual, frame.Name), ref sharedBabyBody);
             parts = ChozoStride.Compile(frame.Frame, parts);
             if (!frames.TryAdd(frame.Frame, parts))
                 throw new InvalidDataException(

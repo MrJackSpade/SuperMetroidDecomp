@@ -1,5 +1,5 @@
 ﻿
-namespace SuperMetroid.Core.World.Artwork;
+namespace SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>
 /// Stock identities for installed enemy compositions. These are visual frame selections,

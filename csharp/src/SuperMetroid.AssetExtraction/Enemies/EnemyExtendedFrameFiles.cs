@@ -64,12 +64,12 @@ internal static class EnemyExtendedFrameFiles
         int expectedPadding = definition.Name.StartsWith("ceres_steam_oam_",
             StringComparison.Ordinal) ? CeresSteamHeaderHighByte : 0;
         bool motherBrainMixed = MotherBrainBodyVisualDefinitions.HasBg2(definition.Frame);
-        bool bg2Only = EnemyExtendedFrameDefinitions.IsBg2Only(definition);
+        bool bg2Only = EnemyExtendedFrames.IsBg2Only(definition);
         int maximumNativeComponents = motherBrainMixed
             ? MotherBrainBodyVisualDefinitions.MaximumComponents
             : bg2Only ? PhantoonBg2FrameDefinitions.IsFrame(definition.Frame)
                 ? PhantoonBg2FrameDefinitions.MaximumComponents : DraygonBg2FrameDefinitions.MaximumComponents
-                : EnemyExtendedFrameDefinitions.MaximumSpriteComponents(definition);
+                : EnemyExtendedFrames.MaximumSpriteComponents(definition);
         if (count < 1 || count > maximumNativeComponents ||
             padding != expectedPadding)
             throw new InvalidDataException(

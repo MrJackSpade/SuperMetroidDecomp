@@ -36,7 +36,7 @@ internal static class RoomBlockUploads
 {
     /// <summary>The tilesets some retail room state loads, each once in room order: those a block sheet is composed for.</summary>
     internal static IReadOnlyList<TilesetDefinition> Tilesets() =>
-        [.. RoomHeaderDefinitions.All.SelectMany(RoomStateSelectionDefinitions.GetStates)
+        [.. RoomHeaderDefinitions.All.SelectMany(RoomStateSelection.GetStates)
             .Select(state => RoomTilesetDefinitions.Get(state.GraphicsSet)).Distinct()];
 
     /// <summary>The rooms of each tileset and what they bind, in room order.</summary>
@@ -51,7 +51,7 @@ internal static class RoomBlockUploads
         foreach (RoomHeaderDefinition room in RoomHeaderDefinitions.All)
         {
             bool ceres = room.AreaIndex == AreaId.Ceres;
-            foreach (RoomStateSettings state in RoomStateSelectionDefinitions.GetStates(room))
+            foreach (RoomStateSettings state in RoomStateSelection.GetStates(room))
             {
                 TilesetDefinition tileset = RoomTilesetDefinitions.Get(state.GraphicsSet);
                 if (!tilesets.TryGetValue(tileset, out TilesetUploads? uploads))

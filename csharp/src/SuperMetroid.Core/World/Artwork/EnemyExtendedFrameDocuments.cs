@@ -46,8 +46,8 @@ public static class EnemyExtendedFrameDocuments
                     : definition.Name;
             if (!document.Frames.TryGetValue(authoredName,
                     out EnemyExtendedVisualComponent[]? visual) ||
-                visual is null || visual.Length > EnemyExtendedFrameDefinitions.MaximumSpriteComponents(definition) ||
-                (visual.Length == 0 && !EnemyExtendedFrameDefinitions.IsBg2Only(definition)))
+                visual is null || visual.Length > EnemyExtendedFrames.MaximumSpriteComponents(definition) ||
+                (visual.Length == 0 && !EnemyExtendedFrames.IsBg2Only(definition)))
                 throw new InvalidDataException(
                     $"Extended enemy frame {authoredName} is missing or exceeds component capacity.");
             var compiled = new EnemyExtendedDrawComponent[visual.Length];

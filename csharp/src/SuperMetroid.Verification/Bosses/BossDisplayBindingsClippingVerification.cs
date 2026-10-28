@@ -16,7 +16,7 @@ internal static class BossDisplayBindingsClippingVerification
         foreach ((EnemyDefinitionId definition, EnemySpritemapDefinition[] family) in BossDisplayDocuments.Families())
         {
             EnemySpritemapDefinition? bg2 = family.Cast<EnemySpritemapDefinition?>()
-                .FirstOrDefault(frame => frame.HasValue && EnemyExtendedFrameDefinitions.IsBg2Only(frame.Value));
+                .FirstOrDefault(frame => frame.HasValue && EnemyExtendedFrames.IsBg2Only(frame.Value));
             if (bg2 is not { } frame) continue;
             var author = new BossDisplayDocuments(edited: true);
             string selected = author.Selected(frame).Name;

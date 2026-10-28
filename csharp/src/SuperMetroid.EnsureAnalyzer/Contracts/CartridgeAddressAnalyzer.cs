@@ -14,8 +14,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// field or property initializer, enum member value, attribute argument or switch label holds a plausible cartridge or
 /// work-RAM address. A value is plausible when it is a 24-bit address in a mapped bank (<see cref="MappedBank"/>), or a
 /// 16-bit value at or above <c>$8000</c> declared in a type whose name or namespace names a cartridge structure
-/// (<see cref="StructureWords"/>) or in a file the encoding scanner names as a catalog
-/// (<see cref="CartridgeEncodingScanner.IsCatalogFile"/>). The address moves to the AssetExtraction codec that reads it
+/// (<see cref="StructureWords"/>), in a file the encoding scanner names as a catalog
+/// (<see cref="CartridgeEncodingScanner.IsCatalogFile"/>), or in an address-valued enum (<see cref="IsAddressValuedEnum"/>,
+/// #1452) wherever it is declared. The address moves to the AssetExtraction codec that reads it
 /// once, which produces the installed definition or the semantic identity. See <c>docs/cartridge-addresses.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -245,6 +246,22 @@ public sealed class CartridgeAddressAnalyzer : DiagnosticAnalyzer
             if (NamesCartridgeStructure(space.Name))
                 return $"the cartridge namespace '{space.ToDisplayString()}'";
         }
+        if (IsAddressValuedEnum(type))
+            return $"the address-valued enum '{type.Name}'";
         return null;
     }
+
+    /// <summary>
+    /// Whether <paramref name="type"/> is an enum whose members are cartridge words (#1452): it is not <c>[Flags]</c> and a
+    /// member's value lies in the cartridge's half of a bank below the all-ones word. Identities are ordinal names with
+    /// arbitrary values, so such a member is a routine or record address wherever the enum is declared. A <c>[Flags]</c>
+    /// enum's high member is a bit, and the all-ones word is the native "none" sentinel that no routine or record starts
+    /// at, so an ordinal enum whose only high member is that sentinel is not address-valued.
+    /// </summary>
+    internal static bool IsAddressValuedEnum(INamedTypeSymbol type) =>
+        type.TypeKind == TypeKind.Enum &&
+        !type.GetAttributes().Any(attribute => attribute.AttributeClass?.ToDisplayString() == "System.FlagsAttribute") &&
+        type.GetMembers().OfType<IFieldSymbol>().Any(member =>
+            member is { HasConstantValue: true, ConstantValue: { } boxed } &&
+            Integral(boxed) is >= BankUpperHalf and < WordMaximum);
 }

@@ -102,7 +102,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
             if (kind is not (RoomEnemyProjectileKind.DraygonGoop or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
                 RoomEnemyProjectileKind.MotherBrainOnionRing))
                 VerifySharedDelete(CartridgeImportSource.Require(rom).ReadCartridgeWord(
-                    NativeEnemyProjectileListDefinitions.ProjectileBank | ((ushort)kind + TouchListOffset)), "touch");
+                    NativeEnemyProjectileListDefinitions.ProjectileBank | (EnemyProjectileNativeWords.Kinds.Word(kind) + TouchListOffset)), "touch");
             if (kind is not (RoomEnemyProjectileKind.CrocomireProjectile or RoomEnemyProjectileKind.DraygonGoop or
                 RoomEnemyProjectileKind.KraidSpitRock or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
                 RoomEnemyProjectileKind.PhantoonDestroyableFlame or RoomEnemyProjectileKind.PhantoonStartingFlame or
@@ -116,7 +116,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 // A shot Draygon wall turret runs the typed misc-dust small explosion (#1292).
                 RoomEnemyProjectileKind.DraygonWallTurret))
                 VerifySharedDelete(CartridgeImportSource.Require(rom).ReadCartridgeWord(
-                    NativeEnemyProjectileListDefinitions.ProjectileBank | ((ushort)kind + ShotListOffset)), "shot");
+                    NativeEnemyProjectileListDefinitions.ProjectileBank | (EnemyProjectileNativeWords.Kinds.Word(kind) + ShotListOffset)), "shot");
 
             // Production runs every untyped reaction as the shared delete, so each such list must delete at once.
             void VerifySharedDelete(ushort address, string role)

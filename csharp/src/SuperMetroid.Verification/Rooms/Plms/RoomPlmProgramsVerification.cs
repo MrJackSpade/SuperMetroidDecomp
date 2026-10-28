@@ -44,9 +44,12 @@ internal static class RoomPlmProgramsVerification
             SpeedBoosterEscapeEntries, draw => throw new InvalidOperationException($"The lavaquake program never draws; got {draw}."),
             (IImportCartridgeSource cartridge, ushort cursor, out SpeedBoosterEscapePreInstruction cue, out int length) =>
             {
-                cue = (SpeedBoosterEscapePreInstruction)cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2));
+                bool installs = InstructionAt<RoomPlmInstruction>(cartridge, cursor) == RoomPlmInstruction.InstallPreInstruction;
+                cue = installs
+                    ? PlmPreInstructionNativeWords.SpeedBoosterEscape.Decode(cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "lavaquake pre-instruction")
+                    : default;
                 length = 4;
-                return InstructionAt<RoomPlmInstruction>(cartridge, cursor) == RoomPlmInstruction.InstallPreInstruction;
+                return installs;
             }, "Speed Booster lavaquake");
         // A wake steps over the sleep that closes each phase, onto the next phase's list.
         for (int phase = 0; phase < SpeedBoosterEscapeEntries.Count; phase++)
@@ -347,7 +350,8 @@ internal static class RoomPlmProgramsVerification
         (bool known, cue, length) = InstructionAt<RoomPlmInstruction>(cartridge, cursor) switch
         {
             RoomPlmInstruction.ClearDownwardGateTrigger => new DownwardGateCueAtCase(true, DownwardGateCue.ClearTrigger, 2),
-            RoomPlmInstruction.InstallPreInstruction => new DownwardGateCueAtCase(true, (DownwardGatePreInstruction)operand == DownwardGatePreInstruction.WakeIfTriggered
+            RoomPlmInstruction.InstallPreInstruction => new DownwardGateCueAtCase(true,
+                PlmPreInstructionNativeWords.DownwardGate.Decode(operand, "downward gate pre-instruction") == DownwardGatePreInstruction.WakeIfTriggered
                 ? DownwardGateCue.ArmWakeIfTriggered : DownwardGateCue.ArmWakeIfTriggeredOrSamusBelow, 4),
             RoomPlmInstruction.SpawnDownwardGateProjectile => new DownwardGateCueAtCase(true, DownwardGateCue.SpawnMovingGate, 4),
             RoomPlmInstruction.WakeDownwardGateProjectile => new DownwardGateCueAtCase(true, DownwardGateCue.WakeGateProjectile, 4),
@@ -408,9 +412,9 @@ internal static class RoomPlmProgramsVerification
         if (!known)
             return false;
         if (cue == DownwardGateCue.ArmWakeIfTriggeredOrSamusBelow)
-            AssertEqual((ushort)DownwardGatePreInstruction.WakeIfTriggeredOrSamusBelow, operand, "downward gate closed wake");
+            AssertEqual(PlmPreInstructionNativeWords.DownwardGate.Word(DownwardGatePreInstruction.WakeIfTriggeredOrSamusBelow), operand, "downward gate closed wake");
         if (cue == DownwardGateCue.SpawnMovingGate)
-            AssertEqual((ushort)RoomEnemyProjectileKind.DownwardGateMoving, operand, "downward gate moving projectile");
+            AssertEqual(EnemyProjectileNativeWords.Kinds.Word(RoomEnemyProjectileKind.DownwardGateMoving), operand, "downward gate moving projectile");
         if (cue == DownwardGateCue.QueueMovementSound)
         {
             AssertEqual(DownwardGateDefinitions.MovementSound, SoundEffectCommands.Decode(SoundEffectLibrary.Library3, ReadOperandByte(cartridge, cursor + 2)), "downward gate movement sound");
@@ -1114,7 +1118,8 @@ internal static class RoomPlmProgramsVerification
             RoomPlmInstruction.GotoIfEventSet => new NoobTubeCueAtCase(true, NoobTubeCue.SkipIfBroken, 6),
             RoomPlmInstruction.LinkInstruction => new NoobTubeCueAtCase(true, Entry(Operand(2)) == NoobTubeProgram.WaitForInput ? NoobTubeCue.LinkInputWait : NoobTubeCue.LinkBreak, 4),
             RoomPlmInstruction.InstallPreInstruction =>
-                new NoobTubeCueAtCase(true, (NoobTubePlmPreInstruction)Operand(2) == NoobTubePlmPreInstruction.WakeOnPowerBomb ? NoobTubeCue.ArmPowerBombWake : NoobTubeCue.ArmInputWake, 4),
+                new NoobTubeCueAtCase(true, PlmPreInstructionNativeWords.NoobTube.Decode(Operand(2), "n00b tube pre-instruction") == NoobTubePlmPreInstruction.WakeOnPowerBomb
+                    ? NoobTubeCue.ArmPowerBombWake : NoobTubeCue.ArmInputWake, 4),
             RoomPlmInstruction.ClearPreInstruction => new NoobTubeCueAtCase(true, NoobTubeCue.ClearPreInstruction, 2),
             RoomPlmInstruction.LockSamus => new NoobTubeCueAtCase(true, NoobTubeCue.LockSamus, 2),
             RoomPlmInstruction.SpawnNoobTubeCrack => new NoobTubeCueAtCase(true, NoobTubeCue.SpawnCrack, 2),
@@ -1182,7 +1187,7 @@ internal static class RoomPlmProgramsVerification
                 AssertEqual(NoobTubeProgram.Break, Entry(Operand(2)), "n00b tube break link");
                 break;
             case NoobTubeCue.ArmInputWake:
-                AssertEqual((ushort)NoobTubePlmPreInstruction.WakeOnAcceptedInput, Operand(2), "n00b tube input wake");
+                AssertEqual(PlmPreInstructionNativeWords.NoobTube.Word(NoobTubePlmPreInstruction.WakeOnAcceptedInput), Operand(2), "n00b tube input wake");
                 break;
             case NoobTubeCue.QueueBreakSound:
                 AssertEqual(NoobTubePlmDefinitions.BreakSound, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)), "n00b tube break sound");

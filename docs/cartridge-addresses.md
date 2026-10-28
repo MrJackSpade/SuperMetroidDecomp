@@ -28,7 +28,12 @@ switch label (a `case` value or a constant pattern), when the value is a plausib
   structure word as a whole camel-case word (`Rom`, `Cartridge`, `Bank`, `Pointer`, `Address`, `Wram`, `Sram`, `Snes`,
   `Native`, with plural endings);
 - a 16-bit value from `$8000` to `$FFFF` in a file the encoding scanner names as a definition catalog
-  (`CartridgeEncodingScanner.CatalogSuffixes`).
+  (`CartridgeEncodingScanner.CatalogSuffixes`);
+- a 16-bit value from `$8000` to `$FFFF` in an address-valued enum, whatever its file or name (#1452): an enum that is
+  not `[Flags]` and has a member valued from `$8000` to `$FFFE`. Identities are ordinal names with arbitrary values, so
+  a member in the cartridge's half of a bank is a routine or record address. A `[Flags]` enum's high member is a bit,
+  and the all-ones word `$FFFF` is the native "none" sentinel that no routine or record starts at, so an ordinal enum
+  whose only high member is that sentinel is not address-valued.
 
 A value is read as written: a literal, or arithmetic, casts and parentheses over literals. A reference to another
 constant is checked where that constant is declared, so one address is reported once.

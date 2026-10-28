@@ -359,7 +359,7 @@ internal static class NativeSnapshotImportVerification
         }
         else
         {
-            var kind = (RoomEnemyProjectileKind)id;
+            RoomEnemyProjectileKind kind = EnemyProjectileNativeWords.Kinds.Decode(id, "enemy projectile definition");
             AssertTrue(NativeSlotOnlyEnemyProjectileKinds.Contains(kind),
                 $"initial native enemy projectile {projectile.SlotIndex} kind ${id:X4} has a verified slot-only import");
             // The snapshot's graphics word packs the projectile's tile base and palette row as an attribute word does.

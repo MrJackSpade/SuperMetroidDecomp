@@ -1,17 +1,20 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>Bank-$84 pre-instruction callbacks used by the resident gate coroutine.</summary>
+/// <summary>
+/// Pre-instruction callbacks used by the resident gate coroutine. The values are arbitrary (#1452); verification's
+/// native view names each member's routine word.
+/// </summary>
 internal enum DownwardGatePreInstruction : ushort
 {
     /// <summary>No pre-instruction installed in the PLM slot yet.</summary>
     None = 0,
 
-    /// <summary>$84:BB52: wake the gate once its trigger is set.</summary>
-    WakeIfTriggered = 0xbb52,
+    /// <summary>Wake the gate once its trigger is set.</summary>
+    WakeIfTriggered = 1,
 
-    /// <summary>$84:BB6B: wake the gate once triggered or when Samus is inside its column.</summary>
-    WakeIfTriggeredOrSamusBelow = 0xbb6b,
+    /// <summary>Wake the gate once triggered or when Samus is inside its column.</summary>
+    WakeIfTriggeredOrSamusBelow = 2,
 
-    /// <summary>The <c>RTS</c> at $84:BB6A, installed once the gate has woken.</summary>
-    Inert = 0xbb6a,
+    /// <summary>The empty routine installed once the gate has woken.</summary>
+    Inert = 3,
 }

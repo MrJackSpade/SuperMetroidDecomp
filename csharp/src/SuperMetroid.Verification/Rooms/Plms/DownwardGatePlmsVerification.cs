@@ -189,7 +189,7 @@ internal static class DownwardGatePlmsVerification
             "compiled final open draw clears the second column collision word");
         RoomPlmSlotSnapshot openedGate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
-        AssertEqual((ushort)DownwardGatePreInstruction.WakeIfTriggered,
+        AssertEqual(PlmPreInstructionNativeWords.DownwardGate.Word(DownwardGatePreInstruction.WakeIfTriggered),
             openedGate.PreInstruction, "open gate sleeps under shot-only callback");
 
         AssertTrue(plms.Gates.TrySpawnDownwardGateTrigger(

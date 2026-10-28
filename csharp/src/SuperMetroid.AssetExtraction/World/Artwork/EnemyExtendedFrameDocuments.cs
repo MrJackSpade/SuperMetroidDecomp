@@ -61,10 +61,10 @@ public static class EnemyExtendedFrameDocuments
                     component.Parts is null)
                     throw new InvalidDataException(
                         $"Extended enemy frame {definition.Name} component {index} is invalid.");
-                SpritePart[] parts = EnemySpritemaps.CompileParts(
+                SpritePart[] parts = EnemySpritemapCompiler.CompileParts(
                     component.Parts, $"{definition.Name} component {index}");
                 totalParts += parts.Length;
-                if (totalParts > EnemySpritemapCatalog.MaximumParts)
+                if (totalParts > EnemySpritemapCompiler.MaximumParts)
                     throw new InvalidDataException(
                         $"Extended enemy frame {definition.Name} exceeds OAM capacity.");
                 compiled[index] = new EnemyExtendedDrawComponent(

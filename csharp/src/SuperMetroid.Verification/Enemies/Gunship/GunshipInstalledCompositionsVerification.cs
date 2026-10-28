@@ -42,7 +42,7 @@ internal static class GunshipInstalledCompositionsVerification
             "#1154 gunship exports its two hull and eleven pad compositions");
         foreach (NativeEnemySpritemapDefinition frame in shipFrames)
         {
-            SpritePart[] native = EnemySpritemaps.CompileParts(
+            SpritePart[] native = EnemySpritemapCompiler.CompileParts(
                 EnemySpritemapFiles.ExtractParts(imported, frame.Bank, frame.Pointer), frame.Name);
             AssertTrue(compositions.TryGetDisplay(frame.Bank, frame.Pointer, out var installed),
                 $"#1154 installed gunship composition {frame.Name} is resolvable");
@@ -68,7 +68,7 @@ internal static class GunshipInstalledCompositionsVerification
         var merged = EnemySpritemapDocuments.Load(legacyJson, compositions);
         AssertTrue(merged.TryGetDisplay(oldFrames[0].Bank, oldFrames[0].Pointer, out var edited),
             "#1154 schema-60 edited frame remains resolvable");
-        AssertTrue(edited.SequenceEqual(EnemySpritemaps.CompileParts(legacy.Frames[editedName], editedName)),
+        AssertTrue(edited.SequenceEqual(EnemySpritemapCompiler.CompileParts(legacy.Frames[editedName], editedName)),
             "#1154 schema-60 override edit survives the upgrade");
         foreach (NativeEnemySpritemapDefinition frame in shipFrames)
         {

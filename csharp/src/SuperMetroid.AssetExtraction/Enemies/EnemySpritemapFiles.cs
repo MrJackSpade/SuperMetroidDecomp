@@ -45,7 +45,7 @@ internal static class EnemySpritemapFiles
         ISnesAddressSpace bus, int bank, int pointer)
     {
         int count = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)SnesAddress.InBank(bank, pointer)));
-        if (count > EnemySpritemapCatalog.MaximumParts)
+        if (count > EnemySpritemapCompiler.MaximumParts)
             throw new InvalidDataException(
                 $"Enemy spritemap ${bank:X2}:{pointer:X4} has {count} parts.");
         var parts = new SpriteVisualPart[count];
@@ -59,8 +59,8 @@ internal static class EnemySpritemapFiles
             {
                 OffsetX = x.SignedOffset,
                 OffsetY = y.SignedOffset,
-                TileColumn = attributes.TileNumber % EnemySpritemapCatalog.TileColumns,
-                TileRow = attributes.TileNumber / EnemySpritemapCatalog.TileColumns,
+                TileColumn = attributes.TileNumber % EnemySpritemapCompiler.TileColumns,
+                TileRow = attributes.TileNumber / EnemySpritemapCompiler.TileColumns,
                 Size = x.IsLarge ? 16 : 8,
                 Priority = attributes.Priority,
                 Palette = attributes.PaletteIndex,

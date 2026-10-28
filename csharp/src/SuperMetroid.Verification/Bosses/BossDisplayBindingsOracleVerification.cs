@@ -10,6 +10,7 @@ using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.World.Artwork;
 
 namespace SuperMetroid.Verification.Bosses;
 
@@ -67,7 +68,7 @@ internal static class BossDisplayBindingsOracleVerification
                 continue;
             }
             int sprites = source.ReadCartridgeWord(Address(visual));
-            AssertTrue(sprites <= EnemySpritemapCatalog.MaximumParts, "native oracle OAM count is bounded");
+            AssertTrue(sprites <= EnemySpritemapCompiler.MaximumParts, "native oracle OAM count is bounded");
             var parts = new SpritePart[sprites];
             for (int index = 0; index < sprites; index++)
             {

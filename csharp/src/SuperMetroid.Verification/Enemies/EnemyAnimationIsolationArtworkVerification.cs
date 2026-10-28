@@ -111,7 +111,7 @@ internal static class EnemyAnimationIsolationArtworkVerification
             int nativeIndex = Array.FindIndex(definitions, value => value.Pointer == actor.SpritemapPointer);
             AssertTrue(nativeIndex >= 0, "draw assertion selects a declared Boyon frame");
             int selectedIndex = (nativeIndex + 1) % definitions.Length;
-            expected.AddEnemySpritemap(EnemySpritemaps.CompileParts(EditedAnimationParts(selectedIndex),
+            expected.AddEnemySpritemap(EnemySpritemapCompiler.CompileParts(EditedAnimationParts(selectedIndex),
                 definitions[selectedIndex].Name), new Position16<SpritePixels>(actor.Position.X.Whole, actor.Position.Y.Whole),
                 NativeSpriteGraphicsWords.PaletteBits(actor.PaletteRow),
                 checked((ushort)actor.TileIndexBase));
@@ -129,7 +129,7 @@ internal static class EnemyAnimationIsolationArtworkVerification
             Add(-16, 6, (selectedIndex + 1) % 16);
 
             void Add(int x, int y, int tile) => expected.AddEnemySpritemap(
-                EnemySpritemaps.CompileParts(EditedAnimationParts(tile), definitions[selectedIndex].Name),
+                EnemySpritemapCompiler.CompileParts(EditedAnimationParts(tile), definitions[selectedIndex].Name),
                 new Position16<SpritePixels>(unchecked((ushort)(actor.Position.X.Whole + x)), unchecked((ushort)(actor.Position.Y.Whole + y))),
                 NativeSpriteGraphicsWords.PaletteBits(actor.PaletteRow), checked((ushort)actor.TileIndexBase), clipVerticalWrap: true);
         }

@@ -1,7 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
@@ -97,7 +96,8 @@ public sealed class CrocomireMeltingArtwork
             using JsonDocument parsed = JsonDocument.Parse(json);
             // Preserve the schema's existing case-insensitive spelling, but reject aliases
             // of the same property before deserialization can silently overwrite them.
-            EnemySpritemaps.RejectDuplicateProperties(parsed.RootElement, StringComparer.OrdinalIgnoreCase);
+            JsonAssetDocument.RejectDuplicateProperties(parsed.RootElement, StringComparer.OrdinalIgnoreCase,
+                name => new InvalidDataException($"Duplicate enemy composition property {name}."));
             document = parsed.RootElement.Deserialize<CrocomireMeltingTilemapDocument>(TilemapJsonOptions)
                 ?? throw new InvalidDataException("Crocomire melt tilemap JSON is null.");
         }

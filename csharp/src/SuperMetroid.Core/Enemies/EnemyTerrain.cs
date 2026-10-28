@@ -458,17 +458,17 @@ internal sealed class EnemyTerrain
         if (remaining == 0)
         {
             if (((slot.Radius.Y + slot.Position.Y.Whole - 1) & 8) == 0)
-                return SquareSlopeDefinitions.EnemyQuadrantIsSolid(tableIndex);
+                return SquareSlopes.EnemyQuadrantIsSolid(tableIndex);
         }
         else if (remaining == spanMinusOne &&
                  ((slot.Position.Y.Whole - slot.Radius.Y) & 8) != 0)
         {
-            return SquareSlopeDefinitions.EnemyQuadrantIsSolid(tableIndex ^ 2);
+            return SquareSlopes.EnemyQuadrantIsSolid(tableIndex ^ 2);
         }
 
-        if (SquareSlopeDefinitions.EnemyQuadrantIsSolid(tableIndex))
+        if (SquareSlopes.EnemyQuadrantIsSolid(tableIndex))
             return true;
-        return SquareSlopeDefinitions.EnemyQuadrantIsSolid(tableIndex ^ 2);
+        return SquareSlopes.EnemyQuadrantIsSolid(tableIndex ^ 2);
     }
 
     /// <summary>Tests the target half-tile quadrant and the enemy's horizontal span against a square slope.</summary>
@@ -484,17 +484,17 @@ internal sealed class EnemyTerrain
         if (remaining == 0)
         {
             if (((slot.Radius.X + slot.Position.X.Whole - 1) & 8) == 0)
-                return SquareSlopeDefinitions.EnemyQuadrantIsSolid(tableIndex);
+                return SquareSlopes.EnemyQuadrantIsSolid(tableIndex);
         }
         else if (remaining == spanMinusOne &&
                  ((slot.Position.X.Whole - slot.Radius.X) & 8) != 0)
         {
-            return SquareSlopeDefinitions.EnemyQuadrantIsSolid(tableIndex ^ 1);
+            return SquareSlopes.EnemyQuadrantIsSolid(tableIndex ^ 1);
         }
 
-        if (SquareSlopeDefinitions.EnemyQuadrantIsSolid(tableIndex))
+        if (SquareSlopes.EnemyQuadrantIsSolid(tableIndex))
             return true;
-        return SquareSlopeDefinitions.EnemyQuadrantIsSolid(tableIndex ^ 1);
+        return SquareSlopes.EnemyQuadrantIsSolid(tableIndex ^ 1);
     }
 
     /// <summary>Checks slope height under the enemy center and snaps its Y position to the floor or underside.</summary>
@@ -597,7 +597,7 @@ internal sealed class EnemyTerrain
 
     /// <summary>Looks up the authored height of a slope shape at an already oriented block-local X.</summary>
     internal static int ReadNonSquareSlopeHeight(RoomBlockBehavior bts, int xWithinBlock) =>
-        SlopeHeightDefinitions.Read(bts.SlopeShape, xWithinBlock);
+        SlopeHeights.Read(bts.SlopeShape, xWithinBlock);
     /// <summary>
     /// The active frame's room PLM owner for enemy-breakable blocks. This synchronous call
     /// context is not persisted; every enemy frame supplies it again after debugger restoration.

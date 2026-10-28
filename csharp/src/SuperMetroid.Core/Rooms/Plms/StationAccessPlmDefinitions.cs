@@ -31,17 +31,4 @@ internal static class StationAccessPlmDefinitions
     /// <summary><c>$84:B6F3/$AE9D</c>, missile-station access from its left side.</summary>
     public static StationAccessPlmDefinition MissileLeft =>
         new(StationDraw.ResourceLeftRetracted, StationDraw.ResourceLeftExtended);
-
-    /// <summary>Resolves the access actor selected by one station-special-block BTS.</summary>
-    public static StationAccessPlmDefinition Resolve(StationAccessBehavior behavior) => behavior switch
-    {
-        StationAccessBehavior.MapRight => MapRight,
-        StationAccessBehavior.MapLeft => MapLeft,
-        StationAccessBehavior.EnergyRight => EnergyRight,
-        StationAccessBehavior.EnergyLeft => EnergyLeft,
-        StationAccessBehavior.MissileRight => MissileRight,
-        StationAccessBehavior.MissileLeft => MissileLeft,
-        StationAccessBehavior.SaveFloor => throw new InvalidDataException($"Station access has invalid behavior {behavior}."),
-        _ => throw new InvalidDataException($"Station access has invalid behavior {behavior}.")
-    };
 }

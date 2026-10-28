@@ -51,7 +51,7 @@ internal static class ColoredDoorCaps
 
     /// <summary>Builds an import/export draw-list DTO while runtime collision cells are read directly.</summary>
     internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.TryCompileCap<Draw>(request, TryDescribe, out list);
+        ShotBlockPlmDraws.TryCompileCap<Draw>(request, TryDescribe, out list);
 
     /// <summary>Names a compiled cap frame by color, direction, and phase for editable artwork.</summary>
     internal static string VisualId(PlmDraw request)
@@ -71,7 +71,7 @@ internal static class ColoredDoorCaps
 
     /// <summary>Resolves an exact ordinal visual identity back to its compiled draw record.</summary>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.FindByVisualId(Draws(), VisualId, TryGet, id, out list);
+        ShotBlockPlmDraws.FindByVisualId(Draws(), VisualId, TryGet, id, out list);
 
     /// <summary>Every colour's caps, each facing's four frames in turn.</summary>
     private static IEnumerable<PlmDraw> Draws()

@@ -104,7 +104,7 @@ public static class RoomBlockSheetFiles
     /// preferring a player override of each file.
     /// </summary>
     /// <exception cref="InvalidDataException">The manifest, a stock hash, an image or a picture manifest is invalid, or a sheet is not of blocks.</exception>
-    public static RoomBlockSheetCatalog Load(string stockDirectory, string? overrideDirectory)
+    public static InstalledRoomArtwork Load(string stockDirectory, string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
         string manifestPath = Path.Combine(stockDirectory, BackgroundManifestFileName);
@@ -141,7 +141,7 @@ public static class RoomBlockSheetFiles
         // The characters each block reads are the stock record's: an override repaints a block's pictures, not what it reads.
         Dictionary<RoomBlockSet, RoomBlockCharacters> blockCharacters = tilesets.Select(tileset => tileset.Blocks).Distinct()
             .ToDictionary(set => set, set => RoomBlockCharacterFiles.Read(stockDirectory, set));
-        return new RoomBlockSheetCatalog(
+        return new InstalledRoomArtwork(
             tilesets.ToDictionary(tileset => tileset, tileset => new RoomBlockSheet(tileset, store.Read(RoomBlockSheet.NameOf(tileset)),
                 blockCharacters[tileset.Blocks])),
             manifest.Words.ToDictionary(entry => entry.Key, entry => new RoomBackgroundImage(entry.Key, store.Read(entry.Key), [.. BackgroundTileWords.ToTiles(entry.Value)]),

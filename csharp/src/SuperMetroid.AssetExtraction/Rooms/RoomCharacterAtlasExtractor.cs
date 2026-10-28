@@ -25,7 +25,7 @@ public static class RoomCharacterAtlasExtractor
             RoomTilesetSourceDefinitions.CreCharacters);
         for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
-            RoomCharacterSet set = RoomTilesetDefinitions.Get(graphicsSet).Characters;
+            RoomCharacterSet set = RoomTilesets.Get(graphicsSet).Characters;
             string name = RoomCharacterAtlasFormat.FileName(set);
             if (!files.ContainsKey(name)) Add(name, sources.Characters[set]);
         }

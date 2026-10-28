@@ -28,7 +28,7 @@ internal sealed class MotherBrainGlassPlmAnimation()
                 slot.PreInstruction = MotherBrainGlassPreInstructions.Hit;
                 return null;
             case MotherBrainGlassPlmCue.RepeatUntilHits repeatUntilHits:
-                return slot.RoomArgument < repeatUntilHits.Hits ? Cursor.Program : null;
+                return slot.HitCounter < repeatUntilHits.Hits ? Cursor.Program : null;
             case MotherBrainGlassPlmCue.SpawnShards spawnShards:
                 glass.SpawnShards(slot, spawnShards.Shards);
                 return null;

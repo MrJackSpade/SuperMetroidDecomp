@@ -61,7 +61,7 @@ internal static class LookupCeresHazeRampVerification
                     new RenderLayer[] { captured }, FadeLevel.Full));
                 for (int y = 0; y < original.Length; y++)
                 {
-                    var actual = CeresHazeRenderDefinitions.ResolveComponents(y, counter, dead, null);
+                    var actual = CeresHazeShading.ResolveComponents(y, counter, dead, null);
                     byte red = (byte)((flags & 0x20) != 0 ? original[y] : 0);
                     byte green = (byte)((flags & 0x40) != 0 ? original[y] : 0);
                     byte blue = (byte)((flags & 0x80) != 0 ? original[y] : 0);
@@ -103,7 +103,7 @@ internal static class LookupCeresHazeRampVerification
                 int selected = dead ? 31 - channel : channel;
                 // Independent nearest-integer definition of the pre-existing RGB5 scaling contract.
                 byte expected = (byte)Math.Min(31, Math.Round((double)original * selected / (lastCounter - 1), MidpointRounding.AwayFromZero));
-                var actual = CeresHazeRenderDefinitions.ResolveComponents(200, counter, dead, colors);
+                var actual = CeresHazeShading.ResolveComponents(200, counter, dead, colors);
                 AssertEqual(new RgbColor(expected, expected, expected), actual, "All reachable amplitudes and RGB5 channel values scale exactly");
             }
         }

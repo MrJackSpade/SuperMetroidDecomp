@@ -52,7 +52,7 @@ internal static class BlueDoorCaps
     /// <summary>Builds an import/export draw DTO from the cap's cells for a recognized native pointer.</summary>
     /// <remarks>Runtime draws read cells directly rather than retaining these DTOs.</remarks>
     internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.TryCompileCap<Draw>(request, TryDescribe, out list);
+        ShotBlockPlmDraws.TryCompileCap<Draw>(request, TryDescribe, out list);
 
     /// <summary>Names an editable cap frame by direction and opening phase.</summary>
     internal static string VisualId(PlmDraw request)

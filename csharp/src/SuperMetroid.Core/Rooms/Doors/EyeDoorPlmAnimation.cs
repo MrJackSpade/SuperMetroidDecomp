@@ -15,7 +15,7 @@ internal sealed class EyeDoorPlmAnimation(EyeDoorOrientation orientation, EyeDoo
 
     /// <inheritdoc/>
     private protected override AnimationProgramSet<EyeDoorPlmProgram, EyeDoorPlmFrame, EyeDoorPlmCue> Programs =>
-        EyeDoorPlmProgramDefinitions.ProgramsFor(Orientation);
+        EyeDoorPlmProgramDefinitions.Sets[Orientation];
 
     /// <inheritdoc/>
     private protected override PlmDraw DrawList(EyeDoorPlmFrame frame) =>
@@ -37,7 +37,7 @@ internal sealed class EyeDoorPlmAnimation(EyeDoorOrientation orientation, EyeDoo
             case EyeDoorPlmCue.WatchIfSamusNear:
             case EyeDoorPlmCue.PulseIfSamusNear:
             case EyeDoorPlmCue.KeepPulsingIfSamusNear:
-                EyeDoorProximity proximity = EyeDoorPlmProgramDefinitions.ProximityOf(cue);
+                EyeDoorProximity proximity = EyeDoorPlmProgramDefinitions.Proximities[cue];
                 return eyes.IsSamusNear(context.Level, slot, proximity.Reach) ? proximity.Target : null;
             case EyeDoorPlmCue.LinkHit:
                 SetLink(EyeDoorPlmProgram.EyeHit);
@@ -77,12 +77,12 @@ internal sealed class EyeDoorPlmAnimation(EyeDoorOrientation orientation, EyeDoo
                 return null;
             case EyeDoorPlmCue.BecomeBlueDoor:
                 slot.Family = null;
-                slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.Closed(Orientation switch
+                slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.ClosedPrograms[Orientation switch
                 {
                     EyeDoorOrientation.Left => ColoredDoorOrientation.Left,
                     EyeDoorOrientation.Right => ColoredDoorOrientation.Right,
                     _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {Orientation}."),
-                })));
+                }]));
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EyeDoorPlmCue)} {cue}.");

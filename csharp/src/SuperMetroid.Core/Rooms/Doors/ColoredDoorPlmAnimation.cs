@@ -15,7 +15,7 @@ internal sealed class ColoredDoorPlmAnimation(ColoredDoorColor color, ColoredDoo
 
     /// <inheritdoc/>
     private protected override AnimationProgramSet<ColoredDoorProgram, DoorCapFrame, ColoredDoorCue> Programs =>
-        ColoredDoorPlmProgramDefinitions.ProgramsFor(Color, Orientation);
+        ColoredDoorPlmProgramDefinitions.Sets[new(Color, Orientation)];
 
     /// <inheritdoc/>
     public void StartClosing() => Restart(ColoredDoorProgram.Closing);
@@ -42,14 +42,14 @@ internal sealed class ColoredDoorPlmAnimation(ColoredDoorColor color, ColoredDoo
                 if (doors.IsDoorOpened(slot))
                 {
                     slot.Family = null;
-                    slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.Closed(Orientation)));
+                    slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.ClosedPrograms[Orientation]));
                 }
                 return null;
             case ColoredDoorCue.LinkHit:
                 SetLink(ColoredDoorProgram.Hit);
                 return null;
             case ColoredDoorCue.ArmWake:
-                slot.PreInstruction = ColoredDoorPreInstructions.Of(ColoredDoorPlmProgramDefinitions.WakeOf(Color));
+                slot.PreInstruction = ColoredDoorPreInstructions.Of(ColoredDoorPlmProgramDefinitions.Wakes[Color]);
                 return null;
             case ColoredDoorCue.CountHit:
                 return doors.CountColoredDoorHit(slot) ? ColoredDoorProgram.Open : null;

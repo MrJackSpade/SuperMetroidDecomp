@@ -607,7 +607,7 @@ internal sealed class EnemyProjectileEngine
                     : ((targetEdge & 8) >> 2) | (half & 1);
                 int tableIndex = 4 * collisionBlock.Bts.SlopeShape +
                     (quadrant ^ collisionBlock.Bts.SlopeOrientation);
-                if (!SquareSlopeDefinitions.EnemyQuadrantIsSolid(tableIndex))
+                if (!SquareSlopes.EnemyQuadrantIsSolid(tableIndex))
                     continue;
 
                 // The square-slope reaction places the projectile at an eight-pixel
@@ -826,7 +826,7 @@ internal sealed class EnemyProjectileEngine
         Position16<RoomPixels> position,
         MiscDustAnimation animation)
     {
-        MiscDustProjectileProgram program = MiscDustProjectileDefinitions.Program(animation);
+        MiscDustProjectileProgram program = MiscDustProjectiles.Program(animation);
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)
             return;

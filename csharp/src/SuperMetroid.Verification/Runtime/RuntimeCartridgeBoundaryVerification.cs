@@ -49,7 +49,7 @@ internal static class RuntimeCartridgeBoundaryVerification
             "NMI queue drainage takes no memory source");
         AssertTrue(!MetadataShape.DeclaresMethod(typeof(SuperMetroid.Core.World.LibraryBackgroundLoader), "ExecuteNativeForVerification", BindingFlags.Static | BindingFlags.NonPublic),
             "Core must not contain a native background byte decoder, even behind a diagnostic-only entry point");
-        AssertEqual(typeof(SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinition),
+        AssertEqual(typeof(SuperMetroid.Core.Rooms.Plms.RoomPlmPopulation),
             MetadataShape.ParameterTypes(typeof(SuperMetroid.Core.World.PlmPopulationLoader), "LoadRoomPopulation")[1],
             "the sequential PLM allocator requires typed decoded placements, not a native pointer/read flag");
         foreach (string importOnlyType in new[]

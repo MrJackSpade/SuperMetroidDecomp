@@ -85,7 +85,7 @@ internal static class SamusPaletteNative
     {
         /// <summary>$91:D998: the special Super-palette flash's cycle palette pointer.</summary>
         internal static ushort SpeedBoostPalettePointer(ushort byteOffset) =>
-            Address(SamusPaletteDefinitions.FullBodyCycles.SpeedBoostPalette(byteOffset));
+            Address(SamusFullBodyCyclePalettes.SpeedBoostPalette(byteOffset));
 
         /// <summary>The Screw Attack palette pointer for a bounded suit and phase.</summary>
         internal static bool TryScrewAttackPalettePointer(ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
@@ -99,22 +99,22 @@ internal static class SamusPaletteNative
 
         /// <summary>The stored-shine palette pointer for a bounded suit and phase.</summary>
         internal static bool TryStoredShinePalettePointer(ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
-            Pointer(SamusPaletteDefinitions.FullBodyCycles.TryStoredShinePalette(suitByteOffset, phaseByteOffset,
+            Pointer(SamusFullBodyCyclePalettes.TryStoredShinePalette(suitByteOffset, phaseByteOffset,
                 out SamusFullBodyCyclePalette palette), palette, out pointer);
 
         /// <summary>The active-shinespark palette pointer for a bounded suit and phase.</summary>
         internal static bool TryActiveShinesparkPalettePointer(ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
-            Pointer(SamusPaletteDefinitions.FullBodyCycles.TryActiveShinesparkPalette(suitByteOffset, phaseByteOffset,
+            Pointer(SamusFullBodyCyclePalettes.TryActiveShinesparkPalette(suitByteOffset, phaseByteOffset,
                 out SamusFullBodyCyclePalette palette), palette, out pointer);
 
         /// <summary>The Screw Attack list word read anywhere in its compiled allocation.</summary>
         internal static ushort ReadScrewAttackPalettePointer(ushort suitByteOffset, ushort phaseByteOffset) =>
-            Address(SamusPaletteDefinitions.FullBodyCycles.ReadScrewAttackPalette(suitByteOffset, phaseByteOffset));
+            Address(SamusFullBodyCyclePalettes.ReadScrewAttackPalette(suitByteOffset, phaseByteOffset));
 
         /// <summary>The active Speed Booster list word read anywhere in its compiled allocation, or an overrun's operand.</summary>
         internal static ushort ReadActiveSpeedBoosterPalettePointer(ushort suitByteOffset, ushort phaseByteOffset)
         {
-            SpeedBoosterPaletteSource source = SamusPaletteDefinitions.FullBodyCycles.ReadActiveSpeedBoosterPalette(
+            SpeedBoosterPaletteSource source = SamusFullBodyCyclePalettes.ReadActiveSpeedBoosterPalette(
                 suitByteOffset, phaseByteOffset);
             return source.Overrun switch
             {
@@ -145,7 +145,7 @@ internal static class SamusPaletteNative
     }
 
     /// <summary>Installed cycle colors by bank-$9B palette address.</summary>
-    extension(SamusFullBodyCycleColorCatalog colors)
+    extension(InstalledSamusFullBodyCycleColors colors)
     {
         /// <summary>One color of the cycle palette at bank-$9B <paramref name="pointer"/>.</summary>
         internal RgbColor Resolve(ushort pointer, int colorIndex) => colors.Resolve(Palette(pointer), colorIndex);
@@ -160,7 +160,7 @@ internal static class SamusPaletteNative
         /// <summary>$91:D7D5: the charged-beam palette pointer for a suit and phase, shade sequence 0/1/2/3/2/1.</summary>
         internal static bool TryChargedBeam(ushort suitOffset, ushort phaseOffset, out ushort pointer)
         {
-            if (!SamusChargePaletteDefinitions.IsCompiledChargePhase(suitOffset, phaseOffset))
+            if (!SamusChargePalettes.IsCompiledChargePhase(suitOffset, phaseOffset))
             {
                 pointer = 0;
                 return false;
@@ -173,7 +173,7 @@ internal static class SamusPaletteNative
         /// <summary>$91:D7FF: the pseudo-screw palette pointer, the active-shinespark shade three then the normal suit.</summary>
         internal static bool TryPseudoScrew(ushort suitOffset, ushort phaseOffset, out ushort pointer)
         {
-            if (!SamusChargePaletteDefinitions.IsCompiledChargePhase(suitOffset, phaseOffset))
+            if (!SamusChargePalettes.IsCompiledChargePhase(suitOffset, phaseOffset))
             {
                 pointer = 0;
                 return false;
@@ -187,7 +187,7 @@ internal static class SamusPaletteNative
         /// <summary>$91:D829: the Hyper-shot glow palette pointer, frames nine down to zero.</summary>
         internal static bool TryHyperShot(ushort tableOffset, out ushort pointer)
         {
-            if (!SamusChargePaletteDefinitions.IsCompiledHyperShot(tableOffset))
+            if (!SamusChargePalettes.IsCompiledHyperShot(tableOffset))
             {
                 pointer = 0;
                 return false;

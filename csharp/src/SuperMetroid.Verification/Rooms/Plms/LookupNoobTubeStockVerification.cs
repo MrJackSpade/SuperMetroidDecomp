@@ -11,7 +11,7 @@ internal static class LookupNoobTubeStockVerification
 {
     /// <summary>Compares seven flattened frame shapes and identities, then checks copied edits and rejection of invalid visual entries.</summary>
     internal static void VerifyNoobTubeStockMapping(SuperMetroidAddressSpace rom,
-        RoomPlmNoobTubeVisualCatalog installed)
+        InstalledRoomPlmNoobTubeVisuals installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x98d1,"intact"),new LookupEscapeGateStockFrame(0x98d7,"damaged"),new LookupEscapeGateStockFrame(0x98dd,"opened"),new LookupEscapeGateStockFrame(0x98e3,"cleared"),new LookupEscapeGateStockFrame(0x9953,"broken-late"),new LookupEscapeGateStockFrame(0x9991,"opened-rows"),new LookupEscapeGateStockFrame(0x99e5,"broken-full")];
         var native = new Dictionary<ushort, ushort[][]>();
@@ -35,10 +35,10 @@ internal static class LookupNoobTubeStockVerification
         var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id,
             native[frame.Pointer].SelectMany(run => run).ToArray())).ToArray();
         var flat = frames.ToDictionary(frame => frame.Pointer, frame => native[frame.Pointer].SelectMany(run => run).ToArray());
-        var stock = RoomPlmNoobTubeVisualCatalog.Stock();
-        var imported = new RoomPlmNoobTubeVisualCatalog(entries.Reverse());
+        var stock = InstalledRoomPlmNoobTubeVisuals.Stock();
+        var imported = new InstalledRoomPlmNoobTubeVisuals(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
-            nameof(RoomPlmNoobTubeVisualCatalog), words.ToDictionary(pair => NoobTubePlmDrawDefinitions.VisualId(NativePlmDraws.At<NoobTubeDraw>(pair.Key)), pair => pair.Value));
+            nameof(InstalledRoomPlmNoobTubeVisuals), words.ToDictionary(pair => NoobTubePlmDraws.VisualId(NativePlmDraws.At<NoobTubeDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(flat), catalog.ContentIdentity, "Tube original flattened identity");
@@ -60,7 +60,7 @@ internal static class LookupNoobTubeStockVerification
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<NoobTubeDraw>((ushort)pointer),0,0), "Tube stock unknown pointer");
         entries[3].Blocks[24] = 0xc58;
-        var mixed = new RoomPlmNoobTubeVisualCatalog(entries);
+        var mixed = new InstalledRoomPlmNoobTubeVisuals(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
         AssertEqual(Hash(expected), mixed.ContentIdentity, "Tube mixed custom/stock identity");
         entries[3].Blocks[24] = 0x5a;
@@ -72,15 +72,15 @@ internal static class LookupNoobTubeStockVerification
             for (int word = 0; word < native[frame.Pointer][run].Length; word++)
                 AssertEqual(expected[frame.Pointer][index++], mixed.GetWord(NativePlmDraws.At<NoobTubeDraw>(frame.Pointer),run,word), "Tube cloned custom and unchanged stock isolation");
         }
-        AssertThrows<InvalidDataException>(() => new RoomPlmNoobTubeVisualCatalog(entries[..1]), "Tube missing frame");
-        AssertThrows<InvalidDataException>(() => new RoomPlmNoobTubeVisualCatalog(entries.Append(entries[0])), "Tube duplicate frame");
+        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmNoobTubeVisuals(entries[..1]), "Tube missing frame");
+        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmNoobTubeVisuals(entries.Append(entries[0])), "Tube duplicate frame");
         var invalid = entries.ToArray();
         invalid[0] = new("INTACT", entries[0].Blocks);
-        AssertThrows<InvalidDataException>(() => new RoomPlmNoobTubeVisualCatalog(invalid), "Tube ordinal identity");
+        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmNoobTubeVisuals(invalid), "Tube ordinal identity");
         invalid[0] = new(entries[0].Id, new ushort[7]);
-        AssertThrows<InvalidDataException>(() => new RoomPlmNoobTubeVisualCatalog(invalid), "Tube exact flattened shape");
+        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmNoobTubeVisuals(invalid), "Tube exact flattened shape");
         entries[0].Blocks[0] = 0xf058;
-        AssertThrows<InvalidDataException>(() => new RoomPlmNoobTubeVisualCatalog(entries), "Tube visual bits only");
+        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmNoobTubeVisuals(entries), "Tube visual bits only");
     }
 
     /// <summary>Reads native PLM run displacement bytes for the stock visual comparison.</summary>

@@ -57,7 +57,7 @@ public static class RoomLevelStreamFiles
         foreach (RoomLevelId level in RoomVisualLayoutFiles.RetailLevels.Keys.OrderBy(candidate => candidate.Name, StringComparer.Ordinal))
         {
             byte[] stream = RomDataReader.Decompress(cartridge, RoomLevelSourceDefinitions.Addresses[level]);
-            if (stream.Length < RoomLevelStreamCatalog.MinimumStreamByteCount)
+            if (stream.Length < InstalledRoomLevelStreams.MinimumStreamByteCount)
                 throw new InvalidDataException($"Room level {level} has no size word.");
             string name = LevelFileName(level);
             using (var file = new FileStream(Path.Combine(directory, name), FileMode.CreateNew,
@@ -78,7 +78,7 @@ public static class RoomLevelStreamFiles
     /// <exception cref="ArgumentException"><paramref name="directory"/> is null, empty, or whitespace.</exception>
     /// <exception cref="InvalidDataException">The version, provenance, coverage, a file's identity, length, or hash is invalid; the message names the file.</exception>
     /// <exception cref="IOException">The manifest or a stream file cannot be read.</exception>
-    public static RoomLevelStreamCatalog Load(string directory)
+    public static InstalledRoomLevelStreams Load(string directory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         string manifestPath = Path.Combine(directory, ManifestFileName);
@@ -109,7 +109,7 @@ public static class RoomLevelStreamFiles
             if (!File.Exists(path))
                 throw new InvalidDataException($"Room-level stream {path} is missing.");
             byte[] stream = File.ReadAllBytes(path);
-            if (stream.Length != entry.ByteCount || stream.Length < RoomLevelStreamCatalog.MinimumStreamByteCount)
+            if (stream.Length != entry.ByteCount || stream.Length < InstalledRoomLevelStreams.MinimumStreamByteCount)
                 throw new InvalidDataException(
                     $"Room-level stream {path} has {stream.Length} bytes; the manifest records {entry.ByteCount}.");
             if (!string.Equals(Convert.ToHexString(SHA256.HashData(stream)), entry.Sha256,
@@ -122,7 +122,7 @@ public static class RoomLevelStreamFiles
             if (!streams.ContainsKey(level))
                 throw new InvalidDataException(
                     $"Room-level stream manifest {manifestPath} lacks {Path.Combine(directory, LevelFileName(level))}.");
-        return new RoomLevelStreamCatalog(streams, Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(manifestPath))),
+        return new InstalledRoomLevelStreams(streams, Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(manifestPath))),
             RoomVisualLayoutSourceDefinitions.All);
     }
 

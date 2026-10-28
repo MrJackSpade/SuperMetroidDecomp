@@ -36,7 +36,7 @@ internal static class GrappleSheetComposer
             throw new InvalidDataException($"The grapple endpoint names rope character ${endpoint.Character:X3}, which its orientation selects.");
         for (int point = 0; point < GrappleSheetDefinitions.EndpointFrameCount; point++)
         {
-            frames.Add(new(GrappleSheetDefinitions.EndpointFrame(point), SpritePartFrames.SmallObject(endpoint, 0),
+            frames.Add(new(GrappleSheets.EndpointFrame(point), SpritePartFrames.SmallObject(endpoint, 0),
                 tiles.OnStandardObjects(inputs.StandardObjects, point, GrappleRopeOrientation.Horizontal)));
         }
         foreach (GrappleRopeOrientation orientation in Enum.GetValues<GrappleRopeOrientation>())
@@ -52,7 +52,7 @@ internal static class GrappleSheetComposer
                     // `$94:AFDE` ORs the rope direction's flips into the segment's own attributes.
                     TileFlip flips = ((mirror & SpriteMirror.Horizontal) != 0 ? TileFlip.Horizontal : TileFlip.None) |
                         ((mirror & SpriteMirror.Vertical) != 0 ? TileFlip.Vertical : TileFlip.None);
-                    frames.Add(new(GrappleSheetDefinitions.RopeFrame(orientation, segment, mirror),
+                    frames.Add(new(GrappleSheets.RopeFrame(orientation, segment, mirror),
                         SpritePartFrames.SmallObject(appearance with { Flip = appearance.Flip | flips }, 0), page));
                 }
             }

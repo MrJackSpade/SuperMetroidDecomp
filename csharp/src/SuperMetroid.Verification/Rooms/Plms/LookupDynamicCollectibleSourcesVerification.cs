@@ -10,7 +10,7 @@ internal static class LookupDynamicCollectibleSourcesVerification
     /// <summary>Confirms each of seventeen native PLM graphics programs selects the compiled source and that its 256 artwork bytes retain that source identity.</summary>
     internal static void VerifyDynamicCollectibleSourcePointers(SuperMetroidAddressSpace rom)
     {
-        var exported = RoomPlmDynamicCollectibleGraphicsDefinitions.All.ToArray();
+        var exported = DynamicCollectibleGraphics.All.ToArray();
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {
             var kind = (InWorldCollectibleKind)raw;
@@ -19,7 +19,7 @@ internal static class LookupDynamicCollectibleSourcesVerification
                 AssertThrows<InvalidDataException>(() => RoomPlmDynamicCollectibleGraphicsDefinitions.GraphicsPointer(kind), "Dynamic source rejected byte kind");
                 continue;
             }
-            var graphic = RoomPlmDynamicCollectibleGraphicsDefinitions.Get(kind);
+            var graphic = DynamicCollectibleGraphics.Get(kind);
             foreach (int firstHeader in new[] {0xeed7,0xef2b,0xef7f})
             {
                 ushort program = ReadCollectibleGraphicsWord(rom, firstHeader + raw * 4 + 2);
@@ -40,16 +40,16 @@ internal static class LookupDynamicCollectibleSourcesVerification
     /// <summary>Checks ascending identities for kinds four through twenty and rejects all other byte values.</summary>
     internal static void VerifyDynamicCollectibleKindIdentity()
     {
-        var exported = RoomPlmDynamicCollectibleGraphicsDefinitions.All.ToArray();
+        var exported = DynamicCollectibleGraphics.All.ToArray();
         AssertEqual(17, exported.Length, "Original dynamic kind count");
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {
             var kind = (InWorldCollectibleKind)raw;
             if (raw is < 4 or > 20)
-                AssertThrows<InvalidDataException>(() => RoomPlmDynamicCollectibleGraphicsDefinitions.Get(kind), "Original graphics kind domain");
+                AssertThrows<InvalidDataException>(() => DynamicCollectibleGraphics.Get(kind), "Original graphics kind domain");
             else
             {
-                AssertEqual(kind, RoomPlmDynamicCollectibleGraphicsDefinitions.Get(kind).Kind, "Original direct kind identity");
+                AssertEqual(kind, DynamicCollectibleGraphics.Get(kind).Kind, "Original direct kind identity");
                 AssertEqual(kind, exported[raw - 4].Kind, "Original ascending kind enumeration");
             }
         }

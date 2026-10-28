@@ -209,11 +209,11 @@ internal static void VerifySamusPostureMovement()
     for (int index = 0; index < 6; index++)
     {
         AssertEqual((byte)3,
-            SamusAnimationDelayDefinitions.ReadAnimationByte(
+            SamusAnimationDelays.ReadAnimationByte(
                 null, SamusAnimationDelayDefinitions.PointerForPose(aimedCrouchTransitions[index]), 0),
             "aimed crouch starts with native three-tick delay");
         AssertEqual((byte)3,
-            SamusAnimationDelayDefinitions.ReadAnimationByte(
+            SamusAnimationDelays.ReadAnimationByte(
                 null, SamusAnimationDelayDefinitions.PointerForPose(aimedStandTransitions[index]), 0),
             "aimed stand starts with native three-tick delay");
     }

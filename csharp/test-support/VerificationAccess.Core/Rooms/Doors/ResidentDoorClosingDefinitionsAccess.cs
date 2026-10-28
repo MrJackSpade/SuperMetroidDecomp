@@ -12,9 +12,9 @@ internal static class ResidentDoorClosingDefinitionsAccess
         {
             get
             {
-                yield return new(PlmHeaderId.MotherBrainEscapeRoomGate, ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.MotherBrainEscapeRoomGate));
-                yield return new(PlmHeaderId.EyeDoorFacingRight, ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.EyeDoorFacingRight));
-                yield return new(PlmHeaderId.EyeDoorFacingLeft, ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.EyeDoorFacingLeft));
+                yield return new(PlmHeaderId.MotherBrainEscapeRoomGate, ResidentDoorClosings.Resolve(PlmHeaderId.MotherBrainEscapeRoomGate));
+                yield return new(PlmHeaderId.EyeDoorFacingRight, ResidentDoorClosings.Resolve(PlmHeaderId.EyeDoorFacingRight));
+                yield return new(PlmHeaderId.EyeDoorFacingLeft, ResidentDoorClosings.Resolve(PlmHeaderId.EyeDoorFacingLeft));
             }
         }
     }

@@ -1,7 +1,5 @@
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx;
 
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Expanded scanline layout of the bank-$88 FX type $2C fixed-color gradient.</summary>
@@ -17,24 +15,4 @@ internal static class CeresHazeRenderDefinitions
     internal const int BandHeight = 8;
     /// <summary>$88:DE2D's final table write uses counter fifteen; the following call only changes pre-instruction.</summary>
     internal const int MaximumComponent = CeresHazeDefinitions.FadeSteps - 1;
-
-    /// <summary>
-    /// Resolves only the cosmetic RGB amplitude. The native scanline bands and fade
-    /// counter remain compiled and are shared by software and captured-PPU rendering.
-    /// </summary>
-    internal static RgbColor ResolveComponents(
-        int screenY, int intensity, bool ridleyIsDead, RoomFxPaletteBlendCatalog? colors)
-    {
-        int component = screenY < RampFirstLine
-            ? InitialComponent
-            : Math.Min(MaximumComponent,
-                RampFirstComponent + (screenY - RampFirstLine) / BandHeight);
-        component = Math.Max(0, component + intensity - MaximumComponent);
-        RgbColor tint = colors is null
-            ? RoomFxPaletteBlendDefinitions.StockCeresHazeTint(ridleyIsDead)
-            : ridleyIsDead ? colors.CeresHazeRed : colors.CeresHazeBlue;
-        static int Scale(int component, int channel) =>
-            Math.Min(RgbColor.MaxChannel, (component * channel + MaximumComponent / 2) / MaximumComponent);
-        return new RgbColor(Scale(component, tint.Red), Scale(component, tint.Green), Scale(component, tint.Blue));
-    }
 }

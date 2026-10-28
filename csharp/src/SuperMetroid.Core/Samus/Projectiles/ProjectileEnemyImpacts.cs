@@ -115,9 +115,9 @@ internal sealed class ProjectileEnemyImpacts
                 $"Projectile family ${slot.PackedType.FamilyValue:X3} is not reflectable.");
         }
 
-        SamusProjectileHeader header = SamusProjectileSelectionDefinitions.Select(selectorTable, selectorIndex);
-        slot.Damage = SamusProjectileDamageDefinitions.Read(header);
-        SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program(header, slot.PackedDirection.DirectionIndex);
+        SamusProjectileHeader header = SamusProjectileSelection.Select(selectorTable, selectorIndex);
+        slot.Damage = SamusProjectileDamage.Read(header);
+        SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, slot.PackedDirection.DirectionIndex);
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.InstructionTimer = WrappingCountdown.Start(1);

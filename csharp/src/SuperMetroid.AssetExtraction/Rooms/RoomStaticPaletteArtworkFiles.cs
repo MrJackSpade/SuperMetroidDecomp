@@ -47,7 +47,7 @@ public static class RoomStaticPaletteArtworkFiles
     /// <returns>A catalog owning each selected 128-color base BG transfer, keyed by its native palette source address.</returns>
     /// <remarks>Checks every stock file's hash before selecting and validating its replacement. Neither the stock manifest nor its hashes are taken from the override directory; loading needs no cartridge.</remarks>
     /// <exception cref="InvalidDataException">The manifest, source coverage, stock hash, schema, color count, or RGB5 values are invalid.</exception>
-    public static RoomStaticPaletteCatalog Load(string stockDirectory, string? overrideDirectory)
+    public static RoomStaticPalettes Load(string stockDirectory, string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
         string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
@@ -92,7 +92,7 @@ public static class RoomStaticPaletteArtworkFiles
                 throw new InvalidDataException($"Invalid room palette {selectedPath}: {error.Message}", error);
             }
         }
-        return new RoomStaticPaletteCatalog(selected);
+        return new RoomStaticPalettes(selected);
     }
 
     /// <summary>Validates stock room-palette provenance and compiles all stock RGB5 palettes without player replacements.</summary>
@@ -106,7 +106,7 @@ public static class RoomStaticPaletteArtworkFiles
         var sources = new Dictionary<string, RoomPaletteSet>();
         for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
-            RoomPaletteSet set = RoomTilesetDefinitions.Get(graphicsSet).Palette;
+            RoomPaletteSet set = RoomTilesets.Get(graphicsSet).Palette;
             sources[RoomStaticPaletteFormat.FileName(set)] = set;
         }
         return sources;

@@ -16,15 +16,15 @@ internal static class SuitPickupBeamCurveDefinitionsVerification
         {
             AssertEqual(
                 rom.ReadCartridgeByte(SuitPickupBeamCurveDefinitions.NativeCurveAddress + index),
-                SuitPickupBeamCurveDefinitions.OffsetAt(index),
+                SuitPickupBeamCurve.OffsetAt(index),
                 $"suit-pickup beam offset {index}");
         }
 
         AssertThrows<InvalidDataException>(
-            () => SuitPickupBeamCurveDefinitions.OffsetAt(-1),
+            () => SuitPickupBeamCurve.OffsetAt(-1),
             "suit-pickup beam curve rejects a negative index");
         AssertThrows<InvalidDataException>(
-            () => SuitPickupBeamCurveDefinitions.OffsetAt(
+            () => SuitPickupBeamCurve.OffsetAt(
                 SuitPickupBeamCurveDefinitions.OffsetCount),
             "suit-pickup beam curve rejects a post-contour index");
 

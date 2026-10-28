@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
@@ -26,45 +25,25 @@ public static class ProjectileSheetDefinitions
         SamusBeamCombination.SpazerPlasmaWave, SamusBeamCombination.SpazerPlasmaIce,
     ];
 
-    /// <summary>The gameplay sheet drawn while <paramref name="beams"/> is the loaded beam combination.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The combination has no sheet.</exception>
-    public static SpriteSheetId For(SamusBeamCombination beams) => beams switch
+    /// <summary>The value each key selects; For looks it up.</summary>
+    public static readonly IReadOnlyDictionary<SamusBeamCombination, SpriteSheetId> Sheets = new Dictionary<SamusBeamCombination, SpriteSheetId>
     {
-        SamusBeamCombination.Power => SpriteSheetId.ProjectilesPower,
-        SamusBeamCombination.Wave => SpriteSheetId.ProjectilesWave,
-        SamusBeamCombination.Ice => SpriteSheetId.ProjectilesIce,
-        SamusBeamCombination.IceWave => SpriteSheetId.ProjectilesIceWave,
-        SamusBeamCombination.Spazer => SpriteSheetId.ProjectilesSpazer,
-        SamusBeamCombination.SpazerWave => SpriteSheetId.ProjectilesSpazerWave,
-        SamusBeamCombination.SpazerIce => SpriteSheetId.ProjectilesSpazerIce,
-        SamusBeamCombination.SpazerIceWave => SpriteSheetId.ProjectilesSpazerIceWave,
-        SamusBeamCombination.Plasma => SpriteSheetId.ProjectilesPlasma,
-        SamusBeamCombination.PlasmaWave => SpriteSheetId.ProjectilesPlasmaWave,
-        SamusBeamCombination.PlasmaIce => SpriteSheetId.ProjectilesPlasmaIce,
-        SamusBeamCombination.PlasmaIceWave => SpriteSheetId.ProjectilesPlasmaIceWave,
-        SamusBeamCombination.SpazerPlasmaWave => SpriteSheetId.ProjectilesSpazerPlasmaWave,
-        SamusBeamCombination.SpazerPlasmaIce => SpriteSheetId.ProjectilesSpazerPlasmaIce,
-        SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaIceWave =>
-            throw new ArgumentOutOfRangeException(nameof(beams), beams, "The beam combination has no translated palette, so no projectile sheet."),
-        _ => throw new ArgumentOutOfRangeException(nameof(beams), beams, "Undefined beam combination."),
+        [SamusBeamCombination.Power] = SpriteSheetId.ProjectilesPower,
+        [SamusBeamCombination.Wave] = SpriteSheetId.ProjectilesWave,
+        [SamusBeamCombination.Ice] = SpriteSheetId.ProjectilesIce,
+        [SamusBeamCombination.IceWave] = SpriteSheetId.ProjectilesIceWave,
+        [SamusBeamCombination.Spazer] = SpriteSheetId.ProjectilesSpazer,
+        [SamusBeamCombination.SpazerWave] = SpriteSheetId.ProjectilesSpazerWave,
+        [SamusBeamCombination.SpazerIce] = SpriteSheetId.ProjectilesSpazerIce,
+        [SamusBeamCombination.SpazerIceWave] = SpriteSheetId.ProjectilesSpazerIceWave,
+        [SamusBeamCombination.Plasma] = SpriteSheetId.ProjectilesPlasma,
+        [SamusBeamCombination.PlasmaWave] = SpriteSheetId.ProjectilesPlasmaWave,
+        [SamusBeamCombination.PlasmaIce] = SpriteSheetId.ProjectilesPlasmaIce,
+        [SamusBeamCombination.PlasmaIceWave] = SpriteSheetId.ProjectilesPlasmaIceWave,
+        [SamusBeamCombination.SpazerPlasmaWave] = SpriteSheetId.ProjectilesSpazerPlasmaWave,
+        [SamusBeamCombination.SpazerPlasmaIce] = SpriteSheetId.ProjectilesSpazerPlasmaIce,
     };
 
-    /// <summary>The frame of a timed projectile or bomb composition.</summary>
-    public static string ProjectileFrame(ProjectileSpriteId composition) => "Projectile." + composition.Name;
-
-    /// <summary>The frame of a charge-flare composition.</summary>
-    public static string FlareFrame(ProjectileSpriteId composition) => "Flare." + composition.Name;
-
-    /// <summary>The frame of a trail pose.</summary>
-    public static string TrailFrame(ProjectileTrailFrame pose) => "Trail." + pose;
-
     /// <summary>The flare compositions a projectile sheet holds: those the flare's selectors name.</summary>
-    public static IEnumerable<ProjectileSpriteId> FlareCompositions => ChargeFlareSpriteDefinitions.Selectors.Distinct();
-
-    /// <summary>Every frame a projectile sheet holds: each projectile and flare composition, each trail pose and the unshown trail.</summary>
-    public static IEnumerable<string> Frames =>
-        ProjectileSpriteDefinitions.All.Select(ProjectileFrame)
-            .Concat(FlareCompositions.Select(FlareFrame))
-            .Concat(Enum.GetValues<ProjectileTrailFrame>().Select(TrailFrame))
-            .Append(UnshownTrailFrame);
+    public static IEnumerable<ProjectileSpriteId> FlareCompositions => ChargeFlareSpriteSelection.Selectors.Distinct();
 }

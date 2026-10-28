@@ -10,266 +10,264 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// </remarks>
 internal static class SamusPoseCollisionDefinitions
 {
-    /// <summary>Native PoseDefinitions column at $91:B62F with eight-byte stride; FD..FF preserve bounded adjacent instruction bytes.</summary>
-    internal static byte ReadVerticalRadius(SamusPoseId pose) => pose switch
+    /// <summary>The value each key selects; ReadVerticalRadius looks it up.</summary>
+    internal static readonly IReadOnlyDictionary<SamusPoseId, byte> VerticalRadii = new Dictionary<SamusPoseId, byte>
     {
-        SamusPoseId.MorphBallGroundRightPose or
-        SamusPoseId.MorphBallMovingRightPose or
-        SamusPoseId.MorphBallMovingLeftPose or
-        SamusPoseId.UnusedPose20 or
-        SamusPoseId.UnusedPose21 or
-        SamusPoseId.UnusedPose22 or
-        SamusPoseId.UnusedPose23 or
-        SamusPoseId.UnusedPose24 or
-        SamusPoseId.MorphBallFallingRightPose or
-        SamusPoseId.MorphBallFallingLeftPose or
-        SamusPoseId.UnusedKnockbackRightPose or
-        SamusPoseId.UnusedKnockbackLeftPose or
-        SamusPoseId.MorphingTransitionRightPose or
-        SamusPoseId.MorphingTransitionLeftPose or
-        SamusPoseId.UnusedPose39 or
-        SamusPoseId.UnusedPose3A or
-        SamusPoseId.UnusedPose3F or
-        SamusPoseId.UnusedPose40 or
-        SamusPoseId.MorphBallGroundLeftPose or
-        SamusPoseId.UnusedPose42 or
-        SamusPoseId.SpringBallGroundRightPose or
-        SamusPoseId.SpringBallGroundLeftPose or
-        SamusPoseId.SpringBallMovingRightPose or
-        SamusPoseId.SpringBallMovingLeftPose or
-        SamusPoseId.SpringBallFallingRightPose or
-        SamusPoseId.SpringBallFallingLeftPose or
-        SamusPoseId.SpringBallJumpRightPose or
-        SamusPoseId.SpringBallJumpLeftPose or
-        SamusPoseId.UnusedPoseC5 or
-        SamusPoseId.UnusedPoseDb or
-        SamusPoseId.UnusedPoseDc or
-        SamusPoseId.UnusedPoseDf => 7,
-        SamusPoseId.NormalJumpAimDownRightPose or
-        SamusPoseId.NormalJumpAimDownLeftPose or
-        SamusPoseId.FallingAimDownRightPose or
-        SamusPoseId.FallingAimDownLeftPose or
-        SamusPoseId.UnusedPoseAE or
-        SamusPoseId.UnusedPoseAF => 10,
-        SamusPoseId.SpinJumpRightPose or
-        SamusPoseId.SpinJumpLeftPose or
-        SamusPoseId.SpaceJumpRightPose or
-        SamusPoseId.SpaceJumpLeftPose or
-        SamusPoseId.UnusedPose63 or
-        SamusPoseId.UnusedPose64 or
-        SamusPoseId.UnusedPose65 or
-        SamusPoseId.UnusedPose66 or
-        SamusPoseId.ScrewAttackRightPose or
-        SamusPoseId.ScrewAttackLeftPose => 12,
-        SamusPoseId.CrouchingRightPose or
-        SamusPoseId.CrouchingLeftPose or
-        SamusPoseId.CrouchingTransitionRightPose or
-        SamusPoseId.CrouchingTransitionLeftPose or
-        SamusPoseId.UnmorphingTransitionRightPose or
-        SamusPoseId.UnmorphingTransitionLeftPose or
-        SamusPoseId.TurningRightToLeftCrouchingPose or
-        SamusPoseId.TurningLeftToRightCrouchingPose or
-        SamusPoseId.UnusedPose5B or
-        SamusPoseId.UnusedPose5C or
-        SamusPoseId.UnusedPose5D or
-        SamusPoseId.UnusedPose5E or
-        SamusPoseId.UnusedPose5F or
-        SamusPoseId.UnusedPose60 or
-        SamusPoseId.UnusedPose61 or
-        SamusPoseId.UnusedPose62 or
-        SamusPoseId.CrouchingAimDiagonalUpRightPose or
-        SamusPoseId.CrouchingAimDiagonalUpLeftPose or
-        SamusPoseId.CrouchingAimDiagonalDownRightPose or
-        SamusPoseId.CrouchingAimDiagonalDownLeftPose or
-        SamusPoseId.CrouchingAimUpRightPose or
-        SamusPoseId.CrouchingAimUpLeftPose or
-        SamusPoseId.TurningRightToLeftCrouchingAimUpPose or
-        SamusPoseId.TurningLeftToRightCrouchingAimUpPose or
-        SamusPoseId.TurningRightToLeftCrouchingAimDiagonalDownPose or
-        SamusPoseId.TurningLeftToRightCrouchingAimDiagonalDownPose or
-        SamusPoseId.TurningRightToLeftCrouchingAimDiagonalUpPose or
-        SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose or
-        SamusPoseId.GrappleCrouchingRightPose or
-        SamusPoseId.GrappleCrouchingLeftPose or
-        SamusPoseId.GrappleCrouchingDownRightPose or
-        SamusPoseId.GrappleCrouchingDownLeftPose or
-        SamusPoseId.GrappleWallContactLeftPose or
-        SamusPoseId.GrappleWallContactRightPose or
-        SamusPoseId.XrayingCrouchingRightPose or
-        SamusPoseId.XrayingCrouchingLeftPose or
-        SamusPoseId.CrouchingTransitionAimUpRightPose or
-        SamusPoseId.CrouchingTransitionAimUpLeftPose or
-        SamusPoseId.CrouchingTransitionAimDiagonalUpRightPose or
-        SamusPoseId.CrouchingTransitionAimDiagonalUpLeftPose or
-        SamusPoseId.CrouchingTransitionAimDiagonalDownRightPose or
-        SamusPoseId.CrouchingTransitionAimDiagonalDownLeftPose => 16,
-        SamusPoseId.GrappleSwingRightPose or
-        SamusPoseId.GrappleSwingLeftPose => 17,
-        SamusPoseId.NormalJumpGunExtendedRightPose or
-        SamusPoseId.NormalJumpGunExtendedLeftPose or
-        SamusPoseId.NormalJumpAimUpRightPose or
-        SamusPoseId.NormalJumpAimUpLeftPose or
-        SamusPoseId.FallingRightPose or
-        SamusPoseId.FallingLeftPose or
-        SamusPoseId.FallingAimUpRightPose or
-        SamusPoseId.FallingAimUpLeftPose or
-        SamusPoseId.TurningRightToLeftJumpPose or
-        SamusPoseId.TurningLeftToRightJumpPose or
-        SamusPoseId.NeutralJumpTransitionRightPose or
-        SamusPoseId.NeutralJumpTransitionLeftPose or
-        SamusPoseId.NeutralJumpRightPose or
-        SamusPoseId.NeutralJumpLeftPose or
-        SamusPoseId.DamageBoostLeftPose or
-        SamusPoseId.DamageBoostRightPose or
-        SamusPoseId.NormalJumpForwardRightPose or
-        SamusPoseId.NormalJumpForwardLeftPose or
-        SamusPoseId.NormalJumpTransitionAimUpRightPose or
-        SamusPoseId.NormalJumpTransitionAimUpLeftPose or
-        SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose or
-        SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose or
-        SamusPoseId.NormalJumpTransitionAimDiagonalDownRightPose or
-        SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose or
-        SamusPoseId.FallingGunExtendedRightPose or
-        SamusPoseId.FallingGunExtendedLeftPose or
-        SamusPoseId.NormalJumpAimDiagonalUpRightPose or
-        SamusPoseId.NormalJumpAimDiagonalUpLeftPose or
-        SamusPoseId.NormalJumpAimDiagonalDownRightPose or
-        SamusPoseId.NormalJumpAimDiagonalDownLeftPose or
-        SamusPoseId.FallingAimDiagonalUpRightPose or
-        SamusPoseId.FallingAimDiagonalUpLeftPose or
-        SamusPoseId.FallingAimDiagonalDownRightPose or
-        SamusPoseId.FallingAimDiagonalDownLeftPose or
-        SamusPoseId.WallJumpRightPose or
-        SamusPoseId.WallJumpLeftPose or
-        SamusPoseId.TurningRightToLeftFallingPose or
-        SamusPoseId.TurningLeftToRightFallingPose or
-        SamusPoseId.TurningRightToLeftJumpAimUpPose or
-        SamusPoseId.TurningLeftToRightJumpAimUpPose or
-        SamusPoseId.TurningRightToLeftJumpAimDownPose or
-        SamusPoseId.TurningLeftToRightJumpAimDownPose or
-        SamusPoseId.TurningRightToLeftFallingAimUpPose or
-        SamusPoseId.TurningLeftToRightFallingAimUpPose or
-        SamusPoseId.TurningRightToLeftFallingAimDownPose or
-        SamusPoseId.TurningLeftToRightFallingAimDownPose or
-        SamusPoseId.TurningRightToLeftJumpAimDiagonalUpPose or
-        SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose or
-        SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose or
-        SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose or
-        SamusPoseId.UnusedPoseAC or
-        SamusPoseId.UnusedPoseAD or
-        SamusPoseId.UnusedPoseB0 or
-        SamusPoseId.UnusedPoseB1 or
-        SamusPoseId.ShinesparkWindupRightPose or
-        SamusPoseId.ShinesparkWindupLeftPose or
-        SamusPoseId.ShinesparkHorizontalRightPose or
-        SamusPoseId.ShinesparkHorizontalLeftPose or
-        SamusPoseId.ShinesparkVerticalRightPose or
-        SamusPoseId.ShinesparkVerticalLeftPose or
-        SamusPoseId.ShinesparkDiagonalRightPose or
-        SamusPoseId.ShinesparkDiagonalLeftPose => 19,
-        SamusPoseId.FacingRightNormalPose or
-        SamusPoseId.FacingLeftNormalPose or
-        SamusPoseId.StandingAimUpRightPose or
-        SamusPoseId.StandingAimUpLeftPose or
-        SamusPoseId.StandingAimDiagonalUpRightPose or
-        SamusPoseId.StandingAimDiagonalUpLeftPose or
-        SamusPoseId.StandingAimDiagonalDownRightPose or
-        SamusPoseId.StandingAimDiagonalDownLeftPose or
-        SamusPoseId.MovingRightNormalPose or
-        SamusPoseId.MovingLeftNormalPose or
-        SamusPoseId.MovingRightGunExtendedPose or
-        SamusPoseId.MovingLeftGunExtendedPose or
-        SamusPoseId.RunningAimUpRightPose or
-        SamusPoseId.RunningAimUpLeftPose or
-        SamusPoseId.RunningAimDiagonalUpRightPose or
-        SamusPoseId.RunningAimDiagonalUpLeftPose or
-        SamusPoseId.RunningAimDiagonalDownRightPose or
-        SamusPoseId.RunningAimDiagonalDownLeftPose or
-        SamusPoseId.TurningRightToLeftPose or
-        SamusPoseId.TurningLeftToRightPose or
-        SamusPoseId.StandingTransitionRightPose or
-        SamusPoseId.StandingTransitionLeftPose or
-        SamusPoseId.UnusedPose45 or
-        SamusPoseId.UnusedPose46 or
-        SamusPoseId.UnusedPose47 or
-        SamusPoseId.UnusedPose48 or
-        SamusPoseId.MoonwalkFacingLeftPose or
-        SamusPoseId.MoonwalkFacingRightPose or
-        SamusPoseId.KnockbackRightPose or
-        SamusPoseId.KnockbackLeftPose or
-        SamusPoseId.MoonwalkAimUpLeftPose or
-        SamusPoseId.MoonwalkAimUpRightPose or
-        SamusPoseId.MoonwalkAimDownLeftPose or
-        SamusPoseId.MoonwalkAimDownRightPose or
-        SamusPoseId.RanIntoWallRightPose or
-        SamusPoseId.RanIntoWallLeftPose or
-        SamusPoseId.TurningRightToLeftAimUpPose or
-        SamusPoseId.TurningLeftToRightAimUpPose or
-        SamusPoseId.TurningRightToLeftAimDiagonalDownPose or
-        SamusPoseId.TurningLeftToRightAimDiagonalDownPose or
-        SamusPoseId.TurningRightToLeftAimDiagonalUpPose or
-        SamusPoseId.TurningLeftToRightAimDiagonalUpPose or
-        SamusPoseId.NormalLandingRightPose or
-        SamusPoseId.NormalLandingLeftPose or
-        SamusPoseId.SpinLandingRightPose or
-        SamusPoseId.SpinLandingLeftPose or
-        SamusPoseId.GrappleStandingRightPose or
-        SamusPoseId.GrappleStandingLeftPose or
-        SamusPoseId.GrappleStandingDownRightPose or
-        SamusPoseId.GrappleStandingDownLeftPose or
-        SamusPoseId.DraygonGrabbedNeutralLeftPose or
-        SamusPoseId.DraygonGrabbedAimUpLeftPose or
-        SamusPoseId.DraygonGrabbedFiringLeftPose or
-        SamusPoseId.DraygonGrabbedAimDownLeftPose or
-        SamusPoseId.DraygonGrabbedMovingLeftPose or
-        SamusPoseId.MoonwalkTurnJumpLeftPose or
-        SamusPoseId.MoonwalkTurnJumpRightPose or
-        SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or
-        SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
-        SamusPoseId.MoonwalkTurnJumpAimDownLeftPose or
-        SamusPoseId.MoonwalkTurnJumpAimDownRightPose or
-        SamusPoseId.UnusedPoseC6 or
-        SamusPoseId.RanIntoWallAimUpRightPose or
-        SamusPoseId.RanIntoWallAimUpLeftPose or
-        SamusPoseId.RanIntoWallAimDownRightPose or
-        SamusPoseId.RanIntoWallAimDownLeftPose or
-        SamusPoseId.CrystalFlashRightPose or
-        SamusPoseId.CrystalFlashLeftPose or
-        SamusPoseId.XrayingStandingRightPose or
-        SamusPoseId.XrayingStandingLeftPose or
-        SamusPoseId.DeathSequenceRightPose or
-        SamusPoseId.DeathSequenceLeftPose or
-        SamusPoseId.UnusedPoseDd or
-        SamusPoseId.UnusedPoseDe or
-        SamusPoseId.LandingAimUpRightPose or
-        SamusPoseId.LandingAimUpLeftPose or
-        SamusPoseId.LandingAimDiagonalUpRightPose or
-        SamusPoseId.LandingAimDiagonalUpLeftPose or
-        SamusPoseId.LandingAimDiagonalDownRightPose or
-        SamusPoseId.LandingAimDiagonalDownLeftPose or
-        SamusPoseId.FiringLandingRightPose or
-        SamusPoseId.FiringLandingLeftPose or
-        SamusPoseId.DrainedCrouchingRightPose or
-        SamusPoseId.DrainedCrouchingLeftPose or
-        SamusPoseId.DrainedStandingRightPose or
-        SamusPoseId.DrainedStandingLeftPose or
-        SamusPoseId.DraygonGrabbedNeutralRightPose or
-        SamusPoseId.DraygonGrabbedAimUpRightPose or
-        SamusPoseId.DraygonGrabbedFiringRightPose or
-        SamusPoseId.DraygonGrabbedAimDownRightPose or
-        SamusPoseId.DraygonGrabbedMovingRightPose or
-        SamusPoseId.StandingTransitionAimUpRightPose or
-        SamusPoseId.StandingTransitionAimUpLeftPose or
-        SamusPoseId.StandingTransitionAimDiagonalUpRightPose or
-        SamusPoseId.StandingTransitionAimDiagonalUpLeftPose or
-        SamusPoseId.StandingTransitionAimDiagonalDownRightPose or
-        SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => 21,
-        SamusPoseId.ForwardFacingPowerSuitPose or
-        SamusPoseId.ForwardFacingSuitedPose => 24,
-        // These byte indices observe Calc_Xray_HDMADataTable_OffScreen, not additional poses.
-        SamusPoseId.AdjacentCodePoseFD => 138,
-        SamusPoseId.AdjacentCodePoseFE => 24,
-        SamusPoseId.AdjacentCodePoseFF => 16,
-        var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
+        [SamusPoseId.MorphBallGroundRightPose] = 7,
+        [SamusPoseId.MorphBallMovingRightPose] = 7,
+        [SamusPoseId.MorphBallMovingLeftPose] = 7,
+        [SamusPoseId.UnusedPose20] = 7,
+        [SamusPoseId.UnusedPose21] = 7,
+        [SamusPoseId.UnusedPose22] = 7,
+        [SamusPoseId.UnusedPose23] = 7,
+        [SamusPoseId.UnusedPose24] = 7,
+        [SamusPoseId.MorphBallFallingRightPose] = 7,
+        [SamusPoseId.MorphBallFallingLeftPose] = 7,
+        [SamusPoseId.UnusedKnockbackRightPose] = 7,
+        [SamusPoseId.UnusedKnockbackLeftPose] = 7,
+        [SamusPoseId.MorphingTransitionRightPose] = 7,
+        [SamusPoseId.MorphingTransitionLeftPose] = 7,
+        [SamusPoseId.UnusedPose39] = 7,
+        [SamusPoseId.UnusedPose3A] = 7,
+        [SamusPoseId.UnusedPose3F] = 7,
+        [SamusPoseId.UnusedPose40] = 7,
+        [SamusPoseId.MorphBallGroundLeftPose] = 7,
+        [SamusPoseId.UnusedPose42] = 7,
+        [SamusPoseId.SpringBallGroundRightPose] = 7,
+        [SamusPoseId.SpringBallGroundLeftPose] = 7,
+        [SamusPoseId.SpringBallMovingRightPose] = 7,
+        [SamusPoseId.SpringBallMovingLeftPose] = 7,
+        [SamusPoseId.SpringBallFallingRightPose] = 7,
+        [SamusPoseId.SpringBallFallingLeftPose] = 7,
+        [SamusPoseId.SpringBallJumpRightPose] = 7,
+        [SamusPoseId.SpringBallJumpLeftPose] = 7,
+        [SamusPoseId.UnusedPoseC5] = 7,
+        [SamusPoseId.UnusedPoseDb] = 7,
+        [SamusPoseId.UnusedPoseDc] = 7,
+        [SamusPoseId.UnusedPoseDf] = 7,
+        [SamusPoseId.NormalJumpAimDownRightPose] = 10,
+        [SamusPoseId.NormalJumpAimDownLeftPose] = 10,
+        [SamusPoseId.FallingAimDownRightPose] = 10,
+        [SamusPoseId.FallingAimDownLeftPose] = 10,
+        [SamusPoseId.UnusedPoseAE] = 10,
+        [SamusPoseId.UnusedPoseAF] = 10,
+        [SamusPoseId.SpinJumpRightPose] = 12,
+        [SamusPoseId.SpinJumpLeftPose] = 12,
+        [SamusPoseId.SpaceJumpRightPose] = 12,
+        [SamusPoseId.SpaceJumpLeftPose] = 12,
+        [SamusPoseId.UnusedPose63] = 12,
+        [SamusPoseId.UnusedPose64] = 12,
+        [SamusPoseId.UnusedPose65] = 12,
+        [SamusPoseId.UnusedPose66] = 12,
+        [SamusPoseId.ScrewAttackRightPose] = 12,
+        [SamusPoseId.ScrewAttackLeftPose] = 12,
+        [SamusPoseId.CrouchingRightPose] = 16,
+        [SamusPoseId.CrouchingLeftPose] = 16,
+        [SamusPoseId.CrouchingTransitionRightPose] = 16,
+        [SamusPoseId.CrouchingTransitionLeftPose] = 16,
+        [SamusPoseId.UnmorphingTransitionRightPose] = 16,
+        [SamusPoseId.UnmorphingTransitionLeftPose] = 16,
+        [SamusPoseId.TurningRightToLeftCrouchingPose] = 16,
+        [SamusPoseId.TurningLeftToRightCrouchingPose] = 16,
+        [SamusPoseId.UnusedPose5B] = 16,
+        [SamusPoseId.UnusedPose5C] = 16,
+        [SamusPoseId.UnusedPose5D] = 16,
+        [SamusPoseId.UnusedPose5E] = 16,
+        [SamusPoseId.UnusedPose5F] = 16,
+        [SamusPoseId.UnusedPose60] = 16,
+        [SamusPoseId.UnusedPose61] = 16,
+        [SamusPoseId.UnusedPose62] = 16,
+        [SamusPoseId.CrouchingAimDiagonalUpRightPose] = 16,
+        [SamusPoseId.CrouchingAimDiagonalUpLeftPose] = 16,
+        [SamusPoseId.CrouchingAimDiagonalDownRightPose] = 16,
+        [SamusPoseId.CrouchingAimDiagonalDownLeftPose] = 16,
+        [SamusPoseId.CrouchingAimUpRightPose] = 16,
+        [SamusPoseId.CrouchingAimUpLeftPose] = 16,
+        [SamusPoseId.TurningRightToLeftCrouchingAimUpPose] = 16,
+        [SamusPoseId.TurningLeftToRightCrouchingAimUpPose] = 16,
+        [SamusPoseId.TurningRightToLeftCrouchingAimDiagonalDownPose] = 16,
+        [SamusPoseId.TurningLeftToRightCrouchingAimDiagonalDownPose] = 16,
+        [SamusPoseId.TurningRightToLeftCrouchingAimDiagonalUpPose] = 16,
+        [SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose] = 16,
+        [SamusPoseId.GrappleCrouchingRightPose] = 16,
+        [SamusPoseId.GrappleCrouchingLeftPose] = 16,
+        [SamusPoseId.GrappleCrouchingDownRightPose] = 16,
+        [SamusPoseId.GrappleCrouchingDownLeftPose] = 16,
+        [SamusPoseId.GrappleWallContactLeftPose] = 16,
+        [SamusPoseId.GrappleWallContactRightPose] = 16,
+        [SamusPoseId.XrayingCrouchingRightPose] = 16,
+        [SamusPoseId.XrayingCrouchingLeftPose] = 16,
+        [SamusPoseId.CrouchingTransitionAimUpRightPose] = 16,
+        [SamusPoseId.CrouchingTransitionAimUpLeftPose] = 16,
+        [SamusPoseId.CrouchingTransitionAimDiagonalUpRightPose] = 16,
+        [SamusPoseId.CrouchingTransitionAimDiagonalUpLeftPose] = 16,
+        [SamusPoseId.CrouchingTransitionAimDiagonalDownRightPose] = 16,
+        [SamusPoseId.CrouchingTransitionAimDiagonalDownLeftPose] = 16,
+        [SamusPoseId.GrappleSwingRightPose] = 17,
+        [SamusPoseId.GrappleSwingLeftPose] = 17,
+        [SamusPoseId.NormalJumpGunExtendedRightPose] = 19,
+        [SamusPoseId.NormalJumpGunExtendedLeftPose] = 19,
+        [SamusPoseId.NormalJumpAimUpRightPose] = 19,
+        [SamusPoseId.NormalJumpAimUpLeftPose] = 19,
+        [SamusPoseId.FallingRightPose] = 19,
+        [SamusPoseId.FallingLeftPose] = 19,
+        [SamusPoseId.FallingAimUpRightPose] = 19,
+        [SamusPoseId.FallingAimUpLeftPose] = 19,
+        [SamusPoseId.TurningRightToLeftJumpPose] = 19,
+        [SamusPoseId.TurningLeftToRightJumpPose] = 19,
+        [SamusPoseId.NeutralJumpTransitionRightPose] = 19,
+        [SamusPoseId.NeutralJumpTransitionLeftPose] = 19,
+        [SamusPoseId.NeutralJumpRightPose] = 19,
+        [SamusPoseId.NeutralJumpLeftPose] = 19,
+        [SamusPoseId.DamageBoostLeftPose] = 19,
+        [SamusPoseId.DamageBoostRightPose] = 19,
+        [SamusPoseId.NormalJumpForwardRightPose] = 19,
+        [SamusPoseId.NormalJumpForwardLeftPose] = 19,
+        [SamusPoseId.NormalJumpTransitionAimUpRightPose] = 19,
+        [SamusPoseId.NormalJumpTransitionAimUpLeftPose] = 19,
+        [SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose] = 19,
+        [SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose] = 19,
+        [SamusPoseId.NormalJumpTransitionAimDiagonalDownRightPose] = 19,
+        [SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose] = 19,
+        [SamusPoseId.FallingGunExtendedRightPose] = 19,
+        [SamusPoseId.FallingGunExtendedLeftPose] = 19,
+        [SamusPoseId.NormalJumpAimDiagonalUpRightPose] = 19,
+        [SamusPoseId.NormalJumpAimDiagonalUpLeftPose] = 19,
+        [SamusPoseId.NormalJumpAimDiagonalDownRightPose] = 19,
+        [SamusPoseId.NormalJumpAimDiagonalDownLeftPose] = 19,
+        [SamusPoseId.FallingAimDiagonalUpRightPose] = 19,
+        [SamusPoseId.FallingAimDiagonalUpLeftPose] = 19,
+        [SamusPoseId.FallingAimDiagonalDownRightPose] = 19,
+        [SamusPoseId.FallingAimDiagonalDownLeftPose] = 19,
+        [SamusPoseId.WallJumpRightPose] = 19,
+        [SamusPoseId.WallJumpLeftPose] = 19,
+        [SamusPoseId.TurningRightToLeftFallingPose] = 19,
+        [SamusPoseId.TurningLeftToRightFallingPose] = 19,
+        [SamusPoseId.TurningRightToLeftJumpAimUpPose] = 19,
+        [SamusPoseId.TurningLeftToRightJumpAimUpPose] = 19,
+        [SamusPoseId.TurningRightToLeftJumpAimDownPose] = 19,
+        [SamusPoseId.TurningLeftToRightJumpAimDownPose] = 19,
+        [SamusPoseId.TurningRightToLeftFallingAimUpPose] = 19,
+        [SamusPoseId.TurningLeftToRightFallingAimUpPose] = 19,
+        [SamusPoseId.TurningRightToLeftFallingAimDownPose] = 19,
+        [SamusPoseId.TurningLeftToRightFallingAimDownPose] = 19,
+        [SamusPoseId.TurningRightToLeftJumpAimDiagonalUpPose] = 19,
+        [SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose] = 19,
+        [SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose] = 19,
+        [SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose] = 19,
+        [SamusPoseId.UnusedPoseAC] = 19,
+        [SamusPoseId.UnusedPoseAD] = 19,
+        [SamusPoseId.UnusedPoseB0] = 19,
+        [SamusPoseId.UnusedPoseB1] = 19,
+        [SamusPoseId.ShinesparkWindupRightPose] = 19,
+        [SamusPoseId.ShinesparkWindupLeftPose] = 19,
+        [SamusPoseId.ShinesparkHorizontalRightPose] = 19,
+        [SamusPoseId.ShinesparkHorizontalLeftPose] = 19,
+        [SamusPoseId.ShinesparkVerticalRightPose] = 19,
+        [SamusPoseId.ShinesparkVerticalLeftPose] = 19,
+        [SamusPoseId.ShinesparkDiagonalRightPose] = 19,
+        [SamusPoseId.ShinesparkDiagonalLeftPose] = 19,
+        [SamusPoseId.FacingRightNormalPose] = 21,
+        [SamusPoseId.FacingLeftNormalPose] = 21,
+        [SamusPoseId.StandingAimUpRightPose] = 21,
+        [SamusPoseId.StandingAimUpLeftPose] = 21,
+        [SamusPoseId.StandingAimDiagonalUpRightPose] = 21,
+        [SamusPoseId.StandingAimDiagonalUpLeftPose] = 21,
+        [SamusPoseId.StandingAimDiagonalDownRightPose] = 21,
+        [SamusPoseId.StandingAimDiagonalDownLeftPose] = 21,
+        [SamusPoseId.MovingRightNormalPose] = 21,
+        [SamusPoseId.MovingLeftNormalPose] = 21,
+        [SamusPoseId.MovingRightGunExtendedPose] = 21,
+        [SamusPoseId.MovingLeftGunExtendedPose] = 21,
+        [SamusPoseId.RunningAimUpRightPose] = 21,
+        [SamusPoseId.RunningAimUpLeftPose] = 21,
+        [SamusPoseId.RunningAimDiagonalUpRightPose] = 21,
+        [SamusPoseId.RunningAimDiagonalUpLeftPose] = 21,
+        [SamusPoseId.RunningAimDiagonalDownRightPose] = 21,
+        [SamusPoseId.RunningAimDiagonalDownLeftPose] = 21,
+        [SamusPoseId.TurningRightToLeftPose] = 21,
+        [SamusPoseId.TurningLeftToRightPose] = 21,
+        [SamusPoseId.StandingTransitionRightPose] = 21,
+        [SamusPoseId.StandingTransitionLeftPose] = 21,
+        [SamusPoseId.UnusedPose45] = 21,
+        [SamusPoseId.UnusedPose46] = 21,
+        [SamusPoseId.UnusedPose47] = 21,
+        [SamusPoseId.UnusedPose48] = 21,
+        [SamusPoseId.MoonwalkFacingLeftPose] = 21,
+        [SamusPoseId.MoonwalkFacingRightPose] = 21,
+        [SamusPoseId.KnockbackRightPose] = 21,
+        [SamusPoseId.KnockbackLeftPose] = 21,
+        [SamusPoseId.MoonwalkAimUpLeftPose] = 21,
+        [SamusPoseId.MoonwalkAimUpRightPose] = 21,
+        [SamusPoseId.MoonwalkAimDownLeftPose] = 21,
+        [SamusPoseId.MoonwalkAimDownRightPose] = 21,
+        [SamusPoseId.RanIntoWallRightPose] = 21,
+        [SamusPoseId.RanIntoWallLeftPose] = 21,
+        [SamusPoseId.TurningRightToLeftAimUpPose] = 21,
+        [SamusPoseId.TurningLeftToRightAimUpPose] = 21,
+        [SamusPoseId.TurningRightToLeftAimDiagonalDownPose] = 21,
+        [SamusPoseId.TurningLeftToRightAimDiagonalDownPose] = 21,
+        [SamusPoseId.TurningRightToLeftAimDiagonalUpPose] = 21,
+        [SamusPoseId.TurningLeftToRightAimDiagonalUpPose] = 21,
+        [SamusPoseId.NormalLandingRightPose] = 21,
+        [SamusPoseId.NormalLandingLeftPose] = 21,
+        [SamusPoseId.SpinLandingRightPose] = 21,
+        [SamusPoseId.SpinLandingLeftPose] = 21,
+        [SamusPoseId.GrappleStandingRightPose] = 21,
+        [SamusPoseId.GrappleStandingLeftPose] = 21,
+        [SamusPoseId.GrappleStandingDownRightPose] = 21,
+        [SamusPoseId.GrappleStandingDownLeftPose] = 21,
+        [SamusPoseId.DraygonGrabbedNeutralLeftPose] = 21,
+        [SamusPoseId.DraygonGrabbedAimUpLeftPose] = 21,
+        [SamusPoseId.DraygonGrabbedFiringLeftPose] = 21,
+        [SamusPoseId.DraygonGrabbedAimDownLeftPose] = 21,
+        [SamusPoseId.DraygonGrabbedMovingLeftPose] = 21,
+        [SamusPoseId.MoonwalkTurnJumpLeftPose] = 21,
+        [SamusPoseId.MoonwalkTurnJumpRightPose] = 21,
+        [SamusPoseId.MoonwalkTurnJumpAimUpLeftPose] = 21,
+        [SamusPoseId.MoonwalkTurnJumpAimUpRightPose] = 21,
+        [SamusPoseId.MoonwalkTurnJumpAimDownLeftPose] = 21,
+        [SamusPoseId.MoonwalkTurnJumpAimDownRightPose] = 21,
+        [SamusPoseId.UnusedPoseC6] = 21,
+        [SamusPoseId.RanIntoWallAimUpRightPose] = 21,
+        [SamusPoseId.RanIntoWallAimUpLeftPose] = 21,
+        [SamusPoseId.RanIntoWallAimDownRightPose] = 21,
+        [SamusPoseId.RanIntoWallAimDownLeftPose] = 21,
+        [SamusPoseId.CrystalFlashRightPose] = 21,
+        [SamusPoseId.CrystalFlashLeftPose] = 21,
+        [SamusPoseId.XrayingStandingRightPose] = 21,
+        [SamusPoseId.XrayingStandingLeftPose] = 21,
+        [SamusPoseId.DeathSequenceRightPose] = 21,
+        [SamusPoseId.DeathSequenceLeftPose] = 21,
+        [SamusPoseId.UnusedPoseDd] = 21,
+        [SamusPoseId.UnusedPoseDe] = 21,
+        [SamusPoseId.LandingAimUpRightPose] = 21,
+        [SamusPoseId.LandingAimUpLeftPose] = 21,
+        [SamusPoseId.LandingAimDiagonalUpRightPose] = 21,
+        [SamusPoseId.LandingAimDiagonalUpLeftPose] = 21,
+        [SamusPoseId.LandingAimDiagonalDownRightPose] = 21,
+        [SamusPoseId.LandingAimDiagonalDownLeftPose] = 21,
+        [SamusPoseId.FiringLandingRightPose] = 21,
+        [SamusPoseId.FiringLandingLeftPose] = 21,
+        [SamusPoseId.DrainedCrouchingRightPose] = 21,
+        [SamusPoseId.DrainedCrouchingLeftPose] = 21,
+        [SamusPoseId.DrainedStandingRightPose] = 21,
+        [SamusPoseId.DrainedStandingLeftPose] = 21,
+        [SamusPoseId.DraygonGrabbedNeutralRightPose] = 21,
+        [SamusPoseId.DraygonGrabbedAimUpRightPose] = 21,
+        [SamusPoseId.DraygonGrabbedFiringRightPose] = 21,
+        [SamusPoseId.DraygonGrabbedAimDownRightPose] = 21,
+        [SamusPoseId.DraygonGrabbedMovingRightPose] = 21,
+        [SamusPoseId.StandingTransitionAimUpRightPose] = 21,
+        [SamusPoseId.StandingTransitionAimUpLeftPose] = 21,
+        [SamusPoseId.StandingTransitionAimDiagonalUpRightPose] = 21,
+        [SamusPoseId.StandingTransitionAimDiagonalUpLeftPose] = 21,
+        [SamusPoseId.StandingTransitionAimDiagonalDownRightPose] = 21,
+        [SamusPoseId.StandingTransitionAimDiagonalDownLeftPose] = 21,
+        [SamusPoseId.ForwardFacingPowerSuitPose] = 24,
+        [SamusPoseId.ForwardFacingSuitedPose] = 24,
+        [SamusPoseId.AdjacentCodePoseFD] = 138,
+        [SamusPoseId.AdjacentCodePoseFE] = 24,
+        [SamusPoseId.AdjacentCodePoseFF] = 16,
     };
 }

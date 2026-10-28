@@ -95,7 +95,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     [NonSerialized] private ProjectileSheets? projectileSheets;
 
     /// <summary>Host-owned trail programs and appearances the flashback trails run.</summary>
-    [field: NonSerialized]     public ProjectileTrailCatalog? TrailArtwork { get; set; }
+    [field: NonSerialized]     public InstalledProjectileTrails? TrailArtwork { get; set; }
     /// <summary>The session's random-number word, which the demo Samus's animation draws from.</summary>
     public required SharedRandom Random { get; init; }
 
@@ -104,9 +104,9 @@ public sealed class IntroCinematicState : IFrontendScreen
 
     /// <summary>Current timed-projectile composition selected by the host.</summary>
     [field: NonSerialized]
-    public ProjectileSpriteCatalog? ProjectileCompositions { get; set; }
+    public InstalledProjectileSprites? ProjectileCompositions { get; set; }
     /// <summary>Host-owned frame artwork for the Mother Brain flashback projectile slots.</summary>
-    public ProjectileFrameBindingCatalog? ProjectileFrameBindings
+    public InstalledProjectileFrameBindings? ProjectileFrameBindings
     {
         get => flashbackProjectiles.Animation.FrameBindings;
         set => flashbackProjectiles.Animation.FrameBindings = value;
@@ -117,13 +117,13 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Installed background, object, and palette content for the intro scenes.</summary>
     [field: NonSerialized] internal IntroCinematicArtworkCatalog? CharacterArtwork { get; private set; }
     /// <summary>Installed Samus body graphics rebound into active flashback actors.</summary>
-    [NonSerialized] private SamusBodyArtworkCatalog? samusBodyArtwork;
+    [NonSerialized] private InstalledSamusBodyArtwork? samusBodyArtwork;
     /// <summary>Host-owned hurt-flash colors consumed by the shared Samus palette handler.</summary>
-    [NonSerialized] private SamusHurtColorCatalog? samusHurtColors;
+    [NonSerialized] private InstalledSamusHurtColors? samusHurtColors;
     /// <summary>Editable suit-flash colors used by the cinematic's ordinary Samus hurt handler.</summary>
-    public void BindSamusHurtColors(SamusHurtColorCatalog? value) => samusHurtColors = value;
+    public void BindSamusHurtColors(InstalledSamusHurtColors? value) => samusHurtColors = value;
     /// <summary>Rebinds installed Samus pixels to active and later intro flashbacks.</summary>
-    public void BindSamusBodyArtwork(SamusBodyArtworkCatalog? value)
+    public void BindSamusBodyArtwork(InstalledSamusBodyArtwork? value)
     {
         samusBodyArtwork = value;
         CurrentFlashbackSamus?.Presentation.BodyFrames.BindArtwork(value);
@@ -292,8 +292,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         AudioQueues? audio = null,
         IntroFontAtlas? introFont = null,
         IntroCinematicArtworkCatalog? characterArtwork = null,
-        BeamPaletteCatalog? beamPalettes = null,
-        SamusBodyArtworkCatalog? samusBodyArtwork = null,
+        InstalledBeamPalettes? beamPalettes = null,
+        InstalledSamusBodyArtwork? samusBodyArtwork = null,
         bool japaneseText = false)
     {
 

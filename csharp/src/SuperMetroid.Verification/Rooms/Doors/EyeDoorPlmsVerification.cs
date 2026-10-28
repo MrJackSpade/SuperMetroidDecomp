@@ -107,7 +107,7 @@ internal static class EyeDoorPlmsVerification
         RoomEnemyProjectileSlot smoke = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.EyeDoorSmoke);
         AssertTrue(smoke.Animation is MiscDustProjectileAnimation { Cursor.Program: var smokeProgram } &&
-                smokeProgram == MiscDustProjectileDefinitions.Program(MiscDustAnimation.CorpseDustCloud),
+                smokeProgram == MiscDustProjectiles.Program(MiscDustAnimation.CorpseDustCloud),
             "scattered smoke shows the corpse dust cloud, the cartridge's misc-dust selector ten");
         AssertEqual((ushort)114, smoke.Position.X.Whole,
             "smoke X uses low random byte and selected mask/base tuple");

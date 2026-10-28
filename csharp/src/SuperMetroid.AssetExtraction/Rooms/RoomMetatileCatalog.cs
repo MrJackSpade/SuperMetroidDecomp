@@ -19,7 +19,7 @@ public sealed class RoomMetatileCatalog
         Ensure.NotNull(atlases);
         for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
-            RoomBlockSet required = RoomTilesetDefinitions.Get(graphicsSet).Blocks;
+            RoomBlockSet required = RoomTilesets.Get(graphicsSet).Blocks;
             if (!atlases.TryGetValue(required, out RoomMetatileAtlas? value) || value is null)
                 throw new InvalidDataException($"RoomMetatileCatalog lacks graphics set ${graphicsSet:X2}'s {required}.");
         }

@@ -34,46 +34,27 @@ internal static class EyeDoorPlmProgramDefinitions
     /// <summary>The blocks up or down that make a component pulse.</summary>
     private const byte ComponentWakeRows = 16;
 
-    /// <summary>Each facing's program set.</summary>
-    private static readonly Dictionary<EyeDoorOrientation, AnimationProgramSet<EyeDoorPlmProgram, EyeDoorPlmFrame, EyeDoorPlmCue>> Sets =
-        Enum.GetValues<EyeDoorOrientation>().ToDictionary(orientation => orientation,
-            orientation => new AnimationProgramSet<EyeDoorPlmProgram, EyeDoorPlmFrame, EyeDoorPlmCue>(Build(orientation)));
-
-    /// <summary>The programs of the door facing <paramref name="orientation"/>.</summary>
-    internal static AnimationProgramSet<EyeDoorPlmProgram, EyeDoorPlmFrame, EyeDoorPlmCue> ProgramsFor(EyeDoorOrientation orientation) =>
-        Sets[orientation];
-
-    /// <summary>The operands of a proximity cue.</summary>
-    internal static EyeDoorProximity ProximityOf(EyeDoorPlmCue cue) => cue switch
+    /// <summary>Each facing's program set: the right-facing components pulse faster.</summary>
+    internal static IReadOnlyDictionary<EyeDoorOrientation, AnimationProgramSet<EyeDoorPlmProgram, EyeDoorPlmFrame, EyeDoorPlmCue>> Sets { get; } =
+        new Dictionary<EyeDoorOrientation, AnimationProgramSet<EyeDoorPlmProgram, EyeDoorPlmFrame, EyeDoorPlmCue>>
     {
-        EyeDoorPlmCue.ActivateIfSamusNear => new(new(EyeWakeColumns, EyeWakeRows), EyeDoorPlmProgram.EyeActivate),
-        EyeDoorPlmCue.CloseIfSamusInFront => new(new(EyeInFrontColumns, EyeWakeRows), EyeDoorPlmProgram.EyeClose),
-        EyeDoorPlmCue.WatchIfSamusNear => new(new(EyeWakeColumns, EyeWakeRows), EyeDoorPlmProgram.EyeWatch),
-        EyeDoorPlmCue.PulseIfSamusNear => new(new(ComponentWakeColumns, ComponentWakeRows), EyeDoorPlmProgram.ComponentActivate),
-        EyeDoorPlmCue.KeepPulsingIfSamusNear => new(new(ComponentWakeColumns, ComponentWakeRows), EyeDoorPlmProgram.ComponentCycle),
-        EyeDoorPlmCue.ConvertIfOpened or
-            EyeDoorPlmCue.DeleteIfOpened or
-            EyeDoorPlmCue.LinkHit or
-            EyeDoorPlmCue.LinkDelete or
-            EyeDoorPlmCue.ArmMissileWake or
-            EyeDoorPlmCue.ArmDoorBitWake or
-            EyeDoorPlmCue.Shoot or
-            EyeDoorPlmCue.QueueHitSound or
-            EyeDoorPlmCue.SpawnTwoSmoke or
-            EyeDoorPlmCue.CountHit or
-            EyeDoorPlmCue.SpawnSweat or
-            EyeDoorPlmCue.ClearPreInstruction or
-            EyeDoorPlmCue.SpawnSmoke or
-            EyeDoorPlmCue.MakeBlue or
-            EyeDoorPlmCue.BecomeBlueDoor => throw new InvalidOperationException($"{nameof(EyeDoorPlmCue)} {cue} is not a proximity branch."),
-        _ => throw new InvalidOperationException($"{nameof(EyeDoorPlmCue)} {cue} is not a proximity branch."),
+        [EyeDoorOrientation.Left] = new(Programs(LeftPulseDuration)),
+        [EyeDoorOrientation.Right] = new(Programs(RightPulseDuration)),
     };
 
-    /// <summary>One facing's programs.</summary>
-    private static Dictionary<EyeDoorPlmProgram, Step[]> Build(EyeDoorOrientation orientation)
+    /// <summary>The operands of each proximity cue; no other cue is a proximity branch.</summary>
+    internal static IReadOnlyDictionary<EyeDoorPlmCue, EyeDoorProximity> Proximities { get; } = new Dictionary<EyeDoorPlmCue, EyeDoorProximity>
     {
-        int pulse = orientation == EyeDoorOrientation.Right ? RightPulseDuration : LeftPulseDuration;
-        return new()
+        [EyeDoorPlmCue.ActivateIfSamusNear] = new(new(EyeWakeColumns, EyeWakeRows), EyeDoorPlmProgram.EyeActivate),
+        [EyeDoorPlmCue.CloseIfSamusInFront] = new(new(EyeInFrontColumns, EyeWakeRows), EyeDoorPlmProgram.EyeClose),
+        [EyeDoorPlmCue.WatchIfSamusNear] = new(new(EyeWakeColumns, EyeWakeRows), EyeDoorPlmProgram.EyeWatch),
+        [EyeDoorPlmCue.PulseIfSamusNear] = new(new(ComponentWakeColumns, ComponentWakeRows), EyeDoorPlmProgram.ComponentActivate),
+        [EyeDoorPlmCue.KeepPulsingIfSamusNear] = new(new(ComponentWakeColumns, ComponentWakeRows), EyeDoorPlmProgram.ComponentCycle),
+    };
+
+    /// <summary>One facing's programs, its components pulsing every <paramref name="pulse"/> updates.</summary>
+    private static Dictionary<EyeDoorPlmProgram, Step[]> Programs(int pulse) =>
+        new()
         {
             [EyeDoorPlmProgram.EyeStart] =
             [
@@ -193,5 +174,4 @@ internal static class EyeDoorPlmProgramDefinitions
                 Step.Stop,
             ],
         };
-    }
 }

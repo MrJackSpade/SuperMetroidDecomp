@@ -32,7 +32,7 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
         {
             var importBus = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
             SamusAtmosphericArtworkFiles.Extract(importBus, root, SupportedCartridge.Sha256);
-            SamusAtmosphericArtworkCatalog artwork = SamusAtmosphericArtworkFiles.Load(root, null);
+            InstalledSamusAtmosphericArtwork artwork = SamusAtmosphericArtworkFiles.Load(root, null);
             var runtimeBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
 
             foreach (byte type in new byte[] { 1, 4, 6, 7 })

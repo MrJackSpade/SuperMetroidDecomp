@@ -69,7 +69,7 @@ internal static class PlmDrawAddressCodec
         PlmFrameDraw<SporeSpawnCeilingDraw> { Frame: var frame } => PlmDrawSourceDefinitions.SporeSpawnCeiling[frame],
         PlmFrameDraw<StationDraw> { Frame: var frame } => PlmDrawSourceDefinitions.Station[frame],
         PlmFrameDraw<TourianAccessDraw> { Frame: var frame } => PlmDrawSourceDefinitions.TourianAccess[frame],
-        PlmFrameDraw<RoomPlmShotBlockDrawDefinitions.Draw> { Frame: var shot } => ShotBlock(shot),
+        PlmFrameDraw<ShotBlockPlmDraws.Draw> { Frame: var shot } => ShotBlock(shot),
         PlmFrameDraw<GrappleBlockDraw> { Frame: var grapple } => Offset(PlmDrawSourceDefinitions.GrappleBlockFirst, GrappleIndex(grapple) * OneBlockStride),
         PlmFrameDraw<RoomPlmCollectibleDrawDefinitions.Draw> { Frame: var item } => Collectible(item),
         PlmFrameDraw<BlueDoorCaps.Draw> { Frame: var blue } => Offset(PlmDrawSourceDefinitions.BlueDoorLeftAlias,
@@ -89,11 +89,11 @@ internal static class PlmDrawAddressCodec
     };
 
     /// <summary>A shot-block breakup frame at its shape's stride, or the shape's restoration.</summary>
-    private static SnesAddress ShotBlock(RoomPlmShotBlockDrawDefinitions.Draw shot) =>
+    private static SnesAddress ShotBlock(ShotBlockPlmDraws.Draw shot) =>
         shot.Restore ? ShotBlockRestoration(shot) : ShotBlockBreakup(shot);
 
     /// <summary>A shot-block breakup frame, at its shape's stride from the shape's first frame.</summary>
-    private static SnesAddress ShotBlockBreakup(RoomPlmShotBlockDrawDefinitions.Draw shot) => shot.Layout switch
+    private static SnesAddress ShotBlockBreakup(ShotBlockPlmDraws.Draw shot) => shot.Layout switch
     {
         RoomPlmShotBlockDrawDefinitions.Shape.Single => Offset(PlmDrawSourceDefinitions.SingleBreakupFirst, shot.Frame * OneBlockStride),
         RoomPlmShotBlockDrawDefinitions.Shape.Horizontal => Offset(PlmDrawSourceDefinitions.HorizontalBreakupFirst, shot.Frame * PairStride),
@@ -103,7 +103,7 @@ internal static class PlmDrawAddressCodec
     };
 
     /// <summary>A shot-block shape's restoration draw.</summary>
-    private static SnesAddress ShotBlockRestoration(RoomPlmShotBlockDrawDefinitions.Draw shot) => shot.Layout switch
+    private static SnesAddress ShotBlockRestoration(ShotBlockPlmDraws.Draw shot) => shot.Layout switch
     {
         RoomPlmShotBlockDrawDefinitions.Shape.Horizontal => PlmDrawSourceDefinitions.ShotBlockRestoreHorizontal,
         RoomPlmShotBlockDrawDefinitions.Shape.Vertical => PlmDrawSourceDefinitions.ShotBlockRestoreVertical,

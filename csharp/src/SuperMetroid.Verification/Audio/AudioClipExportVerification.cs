@@ -46,7 +46,7 @@ internal static class AudioClipExportVerification
                     .. effects.Select(effect => new AudioClipExporter.SoundEffectKey(AudioBank.GreenBrinstar, effect.Library, SoundEffectCommands.Command(effect))),
                     new AudioClipExporter.SoundEffectKey(AudioBank.EmptyCrateria, SoundEffectLibrary.Library2, SoundEffectCommands.Command(Library2Sound.EtecoonTheme)),
                 ]);
-            ClipAudioCatalog clips = InstalledAudioClips.Load(scratch.FullName);
+            ClipAudioLibrary clips = InstalledAudioClips.Load(scratch.FullName);
             AssertEqual(catalog.ContentIdentity, clips.Manifest.SourceContentIdentity, "clips name the catalog they were rendered from");
 
             VerifyMusic(catalog, clips, GreenBrinstarRoomTrack, loopRepeatsExactly: false);
@@ -71,7 +71,7 @@ internal static class AudioClipExportVerification
     /// A Green Brinstar track's clip against the independent render, and, when its tempo phase
     /// recurs every pass, its loop against the render's next pass.
     /// </summary>
-    private static void VerifyMusic(ExtractedAudioAssetCatalog catalog, ClipAudioCatalog clips, int track, bool loopRepeatsExactly)
+    private static void VerifyMusic(ExtractedAudioAssetCatalog catalog, ClipAudioLibrary clips, int track, bool loopRepeatsExactly)
     {
         MusicClipEntry entry = clips.GetMusic(MusicDataSet.GreenBrinstar, track);
         long loopStart = entry.LoopStart ?? throw new InvalidOperationException($"Green Brinstar track {track} loops.");
@@ -91,7 +91,7 @@ internal static class AudioClipExportVerification
     }
 
     /// <summary>Each layer of an effect against the independent render of its voices, including the next pass of a looping layer.</summary>
-    private static void VerifySoundEffect(ExtractedAudioAssetCatalog catalog, ClipAudioCatalog clips, SoundEffectId effect)
+    private static void VerifySoundEffect(ExtractedAudioAssetCatalog catalog, ClipAudioLibrary clips, SoundEffectId effect)
     {
         SoundEffectClipEntry entry = clips.GetSoundEffect(MusicDataSet.GreenBrinstar, effect);
         int libraryIndex = SoundEffectLibraries.ToQueueIndex(effect.Library);
@@ -115,9 +115,9 @@ internal static class AudioClipExportVerification
     }
 
     /// <summary>A tampered clip, an escaping path and a wrong format version are each rejected.</summary>
-    private static void VerifyLoaderRejections(string directory, ClipAudioCatalog clips)
+    private static void VerifyLoaderRejections(string directory, ClipAudioLibrary clips)
     {
-        string manifestPath = Path.Combine(directory, ClipAudioCatalog.ManifestFileName);
+        string manifestPath = Path.Combine(directory, ClipAudioLibrary.ManifestFileName);
         string manifestText = File.ReadAllText(manifestPath);
 
         AudioClipFile first = clips.Manifest.Music[0].Clip;

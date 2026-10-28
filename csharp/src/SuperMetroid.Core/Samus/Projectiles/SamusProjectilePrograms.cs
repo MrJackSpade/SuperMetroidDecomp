@@ -54,7 +54,7 @@ internal static class SamusProjectilePrograms
     /// animation frame of the record last installed, or for a freshly installed list the word preceding it.
     /// </summary>
     /// <exception cref="InvalidOperationException">The cursor stands at a list's start and no overread catalog is installed.</exception>
-    internal static ushort PrecedingAnimationFrame(AnimationProgramCursor<SamusProjectileProgram> cursor, SamusOverreadCatalog? overreads)
+    internal static ushort PrecedingAnimationFrame(AnimationProgramCursor<SamusProjectileProgram> cursor, InstalledSamusOverreads? overreads)
     {
         if (cursor.Position == 0)
             return (overreads ?? throw new InvalidOperationException(

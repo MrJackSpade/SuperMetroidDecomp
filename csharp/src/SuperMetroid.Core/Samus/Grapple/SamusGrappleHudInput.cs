@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Samus.Grapple;
 internal static class SamusGrappleHudInput
 {
     /// <summary>Admits a selected Grapple input only for native movement handlers that can fire it in the current pose transition.</summary>
-    public static bool IsSelectedAndAdmitted(SamusState samus, SamusOverreadCatalog? overreads)
+    public static bool IsSelectedAndAdmitted(SamusState samus, InstalledSamusOverreads? overreads)
     {
         if (samus.Control.AlphaLocked || SamusPoseMetadata.IsForwardFacingPose(samus.Pose) ||
             samus.SelectedHudItem != HudItem.Grapple)
             return false;
 
-        SamusHudHandler handler = SamusHudDefinitions.MovementHandler(SamusPoseMetadata.ReadMovementType(samus));
+        SamusHudHandler handler = SamusHudObservations.MovementHandler(SamusPoseMetadata.ReadMovementType(samus));
         return handler switch
         {
             SamusHudHandler.Standard or SamusHudHandler.Grapple => true,

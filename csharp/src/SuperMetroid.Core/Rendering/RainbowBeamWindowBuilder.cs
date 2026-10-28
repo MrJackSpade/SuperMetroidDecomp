@@ -105,5 +105,5 @@ internal static class RainbowBeamWindowBuilder
 
     /// <summary>Compiled bank-$91 absolute tangent, with the caller's angle wrapped to a byte.</summary>
     internal static int Tangent(int angle) =>
-        AbsoluteTangentDefinitions.Sample(unchecked((byte)angle));
+        AbsoluteTangents.Sample(unchecked((byte)angle));
 }

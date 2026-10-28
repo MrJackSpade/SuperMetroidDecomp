@@ -43,7 +43,7 @@ public sealed record GameArtwork : IGameplayArtwork
     IGameplayPresentationContent? IGameplayArtwork.MapPresentation => MapPresentation;
 
     /// <summary>Gameplay base palettes a new runtime starts from.</summary>
-    public GameplayBasePaletteCatalog? GameplayBasePalettes { get; init; }
+    public GameplayBasePalette? GameplayBasePalettes { get; init; }
 
     /// <summary>Common gameplay sprite characters (standard objects).</summary>
     public RoomCharacterAtlas? StandardObjectArt { get; init; }
@@ -52,7 +52,7 @@ public sealed record GameArtwork : IGameplayArtwork
     public IntroCinematicArtworkCatalog? IntroCinematicArt { get; init; }
 
     /// <summary>Samus body tiles, palettes and death palettes.</summary>
-    public SamusBodyArtworkCatalog? SamusBodyArt { get; init; }
+    public InstalledSamusBodyArtwork? SamusBodyArt { get; init; }
 
     /// <summary>Ending Mode 7 artwork.</summary>
     public EndingFloorArtworkCatalog? EndingFloorArt { get; init; }
@@ -64,49 +64,49 @@ public sealed record GameArtwork : IGameplayArtwork
     public EndingPaletteCatalog? EndingPaletteArt { get; init; }
 
     /// <summary>Room tileset characters.</summary>
-    public RoomCharacterAtlasCatalog? RoomCharacterArt { get; init; }
+    public RoomCharacterAtlases? RoomCharacterArt { get; init; }
 
     /// <summary>Room static palettes.</summary>
-    public RoomStaticPaletteCatalog? RoomPaletteArt { get; init; }
+    public RoomStaticPalettes? RoomPaletteArt { get; init; }
 
     /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>
-    public RoomBlockSheetCatalog? RoomBlockSheets { get; init; }
+    public InstalledRoomArtwork? RoomBlockSheets { get; init; }
 
     /// <summary>Initial room foreground and background layouts.</summary>
-    public RoomVisualLayoutCatalog? RoomVisualLayouts { get; init; }
+    public RoomLevelArtworks? RoomVisualLayouts { get; init; }
 
     /// <summary>Stock native room-level allocations; not overridable.</summary>
-    public RoomLevelStreamCatalog? RoomLevelStreams { get; init; }
+    public InstalledRoomLevelStreams? RoomLevelStreams { get; init; }
 
     /// <summary>Room PLM shot block visuals.</summary>
-    public RoomPlmShotBlockVisualCatalog? RoomPlmShotBlockVisuals { get; init; }
+    public InstalledRoomPlmShotBlockVisuals? RoomPlmShotBlockVisuals { get; init; }
 
     /// <summary>Room PLM grapple block visuals.</summary>
-    public RoomPlmGrappleBlockVisualCatalog? RoomPlmGrappleBlockVisuals { get; init; }
+    public InstalledRoomPlmGrappleBlockVisuals? RoomPlmGrappleBlockVisuals { get; init; }
 
     /// <summary>Room PLM station visuals.</summary>
-    public RoomPlmStationVisualCatalog? RoomPlmStationVisuals { get; init; }
+    public InstalledRoomPlmStationVisuals? RoomPlmStationVisuals { get; init; }
 
     /// <summary>Room PLM blue door visuals.</summary>
-    public RoomPlmBlueDoorVisualCatalog? RoomPlmBlueDoorVisuals { get; init; }
+    public InstalledRoomPlmBlueDoorVisuals? RoomPlmBlueDoorVisuals { get; init; }
 
     /// <summary>Room PLM colored door visuals.</summary>
-    public RoomPlmColoredDoorVisualCatalog? RoomPlmColoredDoorVisuals { get; init; }
+    public InstalledRoomPlmColoredDoorVisuals? RoomPlmColoredDoorVisuals { get; init; }
 
     /// <summary>Room PLM grey door visuals.</summary>
-    public RoomPlmGreyDoorVisualCatalog? RoomPlmGreyDoorVisuals { get; init; }
+    public InstalledRoomPlmGreyDoorVisuals? RoomPlmGreyDoorVisuals { get; init; }
 
     /// <summary>Room PLM eye door visuals.</summary>
-    public RoomPlmEyeDoorVisualCatalog? RoomPlmEyeDoorVisuals { get; init; }
+    public InstalledRoomPlmEyeDoorVisuals? RoomPlmEyeDoorVisuals { get; init; }
 
     /// <summary>Room PLM mother brain glass visuals.</summary>
     public RoomPlmMotherBrainGlassVisualCatalog? RoomPlmMotherBrainGlassVisuals { get; init; }
 
     /// <summary>Room PLM noob tube visuals.</summary>
-    public RoomPlmNoobTubeVisualCatalog? RoomPlmNoobTubeVisuals { get; init; }
+    public InstalledRoomPlmNoobTubeVisuals? RoomPlmNoobTubeVisuals { get; init; }
 
     /// <summary>Room PLM downward gate visuals.</summary>
-    public RoomPlmDownwardGateVisualCatalog? RoomPlmDownwardGateVisuals { get; init; }
+    public InstalledRoomPlmDownwardGateVisuals? RoomPlmDownwardGateVisuals { get; init; }
 
     /// <summary>Room PLM elevator platform visuals.</summary>
     public RoomPlmElevatorPlatformVisualCatalog? RoomPlmElevatorPlatformVisuals { get; init; }
@@ -124,28 +124,28 @@ public sealed record GameArtwork : IGameplayArtwork
     public RoomPlmChozoStatueVisualCatalog? RoomPlmChozoStatueVisuals { get; init; }
 
     /// <summary>Room PLM linked restore visuals.</summary>
-    public RoomPlmLinkedRestoreVisualCatalog? RoomPlmLinkedRestoreVisuals { get; init; }
+    public InstalledRoomPlmLinkedRestoreVisuals? RoomPlmLinkedRestoreVisuals { get; init; }
 
     /// <summary>Room PLM tourian access visuals.</summary>
     public RoomPlmTourianAccessVisualCatalog? RoomPlmTourianAccessVisuals { get; init; }
 
     /// <summary>Room PLM speed booster visuals.</summary>
-    public RoomPlmSpeedBoosterVisualCatalog? RoomPlmSpeedBoosterVisuals { get; init; }
+    public InstalledRoomPlmSpeedBoosterVisuals? RoomPlmSpeedBoosterVisuals { get; init; }
 
     /// <summary>Room PLM maridia elevatube visuals.</summary>
-    public RoomPlmMaridiaElevatubeVisualCatalog? RoomPlmMaridiaElevatubeVisuals { get; init; }
+    public InstalledRoomPlmMaridiaElevatubeVisuals? RoomPlmMaridiaElevatubeVisuals { get; init; }
 
     /// <summary>Room PLM spore spawn ceiling visuals.</summary>
     public RoomPlmSporeSpawnCeilingVisualCatalog? RoomPlmSporeSpawnCeilingVisuals { get; init; }
 
     /// <summary>Room PLM samus eater visuals.</summary>
-    public RoomPlmSamusEaterVisualCatalog? RoomPlmSamusEaterVisuals { get; init; }
+    public InstalledRoomPlmSamusEaterVisuals? RoomPlmSamusEaterVisuals { get; init; }
 
     /// <summary>Room PLM botwoon wall visuals.</summary>
-    public RoomPlmBotwoonWallVisualCatalog? RoomPlmBotwoonWallVisuals { get; init; }
+    public InstalledRoomPlmBotwoonWallVisuals? RoomPlmBotwoonWallVisuals { get; init; }
 
     /// <summary>Room PLM kraid visuals.</summary>
-    public RoomPlmKraidVisualCatalog? RoomPlmKraidVisuals { get; init; }
+    public InstalledRoomPlmKraidVisuals? RoomPlmKraidVisuals { get; init; }
 
     /// <summary>Room PLM crocomire visuals.</summary>
     public RoomPlmCrocomireVisualCatalog? RoomPlmCrocomireVisuals { get; init; }
@@ -154,31 +154,31 @@ public sealed record GameArtwork : IGameplayArtwork
     public RoomPlmMotherBrainFakeDeathVisualCatalog? RoomPlmMotherBrainFakeDeathVisuals { get; init; }
 
     /// <summary>Room PLM collectible visuals.</summary>
-    public RoomPlmCollectibleVisualCatalog? RoomPlmCollectibleVisuals { get; init; }
+    public InstalledRoomPlmCollectibleVisuals? RoomPlmCollectibleVisuals { get; init; }
 
     /// <summary>Room PLM dynamic collectible artwork.</summary>
-    public RoomPlmDynamicCollectibleArtCatalog? RoomPlmDynamicCollectibleArt { get; init; }
+    public InstalledDynamicCollectibleArt? RoomPlmDynamicCollectibleArt { get; init; }
 
     /// <summary>X-ray reveal operands and item and special-room overlays.</summary>
-    public XrayRevealVisualCatalog? XrayRevealVisuals { get; init; }
+    public InstalledXrayReveals? XrayRevealVisuals { get; init; }
 
     /// <summary>Room background tilemaps.</summary>
-    public RoomBackgroundTilemapCatalog? RoomBackgroundTilemapArt { get; init; }
+    public RoomBackgroundTilemaps? RoomBackgroundTilemapArt { get; init; }
 
     /// <summary>Room sky tilemaps.</summary>
-    public RoomSkyTilemapCatalog? RoomSkyTilemapArt { get; init; }
+    public RoomSkyTilemaps? RoomSkyTilemapArt { get; init; }
 
     /// <summary>Samus projectile sprite compositions.</summary>
-    public ProjectileSpriteCatalog? ProjectileCompositions { get; init; }
+    public InstalledProjectileSprites? ProjectileCompositions { get; init; }
 
     /// <summary>Timed projectile frame sprite choices.</summary>
-    public ProjectileFrameBindingCatalog? ProjectileFrameBindings { get; init; }
+    public InstalledProjectileFrameBindings? ProjectileFrameBindings { get; init; }
 
     /// <summary>The beam palettes, by beam combination.</summary>
-    public BeamPaletteCatalog? BeamPalettes { get; init; }
+    public InstalledBeamPalettes? BeamPalettes { get; init; }
 
     /// <summary>The Hyper Beam palette effect's colour cycle.</summary>
-    public HyperBeamFxColorCatalog? HyperBeamFxColors { get; init; }
+    public InstalledHyperBeamFxColors? HyperBeamFxColors { get; init; }
 
     /// <summary>Enemy sprite sheets, palettes and enemy-projectile spritemaps.</summary>
     public EnemyTileArtworkCatalog? EnemyTileArtwork { get; init; }
@@ -190,10 +190,10 @@ public sealed record GameArtwork : IGameplayArtwork
     public AreaArtworkCatalog? AreaArtwork { get; init; }
 
     /// <summary>Projectile trail artwork.</summary>
-    public ProjectileTrailCatalog? TrailArtwork { get; init; }
+    public InstalledProjectileTrails? TrailArtwork { get; init; }
 
     /// <summary>The cartridge bytes Samus's glitch paths read, extracted from the player's cartridge.</summary>
-    public SamusOverreadCatalog? SamusOverreads { get; init; }
+    public InstalledSamusOverreads? SamusOverreads { get; init; }
 
     /// <summary>The pre-coloured sprite sheets drawn families select their frames from.</summary>
     public InstalledSpriteSheets? SpriteSheets { get; init; }
@@ -202,14 +202,14 @@ public sealed record GameArtwork : IGameplayArtwork
     public InstalledEnemySheets? EnemySheets { get; init; }
 
     /// <summary>Charge-flare placement.</summary>
-    public ChargeFlarePlacementCatalog? ChargeFlarePlacement { get; init; }
+    public ChargeFlarePlacements? ChargeFlarePlacement { get; init; }
 
     /// <summary>Charge-flare sprite compositions.</summary>
-    public ChargeFlareSpriteCatalog? ChargeFlareCompositions { get; init; }
+    public ChargeFlareSprites? ChargeFlareCompositions { get; init; }
 
     /// <summary>The grapple flare's standing and running offsets.</summary>
-    public ChargeFlarePlacementCatalog? GrappleFlarePlacement { get; init; }
+    public ChargeFlarePlacements? GrappleFlarePlacement { get; init; }
 
     /// <summary>The frame Samus's swing pose shows at each grapple angle.</summary>
-    public GrappleSwingFrameCatalog? GrappleSwingFrames { get; init; }
+    public InstalledGrappleSwingFrames? GrappleSwingFrames { get; init; }
 }

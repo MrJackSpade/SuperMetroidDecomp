@@ -37,12 +37,12 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
                 ColoredDoorCaps.VisualId(draw.Draw),
                 draw.Runs.Span[0].LevelWords.Span
                     .SelectToArray(word => new RoomLevelWord(word).VisualWord))).ToArray();
-        RoomPlmColoredDoorVisualCatalog stock = RoomPlmColoredDoorVisualCatalog.Stock();
+        InstalledRoomPlmColoredDoorVisuals stock = InstalledRoomPlmColoredDoorVisuals.Stock();
         RoomPlmVisualEntry editedFrame = entries.Single(entry =>
             entry.Id == "green-left-frame-0");
         ushort originalVisual = editedFrame.Blocks[0];
         editedFrame.Blocks[0] = 0x0053;
-        var edited = new RoomPlmColoredDoorVisualCatalog(entries);
+        var edited = new InstalledRoomPlmColoredDoorVisuals(entries);
         editedFrame.Blocks[0] = 0x0054;
         AssertEqual((ushort)0x0053, edited.GetWord(NativePlmDraws.At<ColoredDoorCaps.Draw>(0xa827), 0),
             "colored-door visual catalog copies author data");

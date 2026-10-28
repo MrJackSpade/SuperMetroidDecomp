@@ -9,7 +9,7 @@ public static class ChargeFlareSpriteDefinitions
     public const ushort MainFlareSelectorOffset = 0;
 
     /// <summary>How many compositions each flare family holds: four main flares, then the right slow, right fast, left slow and left fast spark groups.</summary>
-    private static readonly ProjectileSpriteGroupSize[] Groups =
+    internal static readonly ProjectileSpriteGroupSize[] Groups =
     [
         new(ProjectileSpriteGroup.FlareMain, 4),
         new(ProjectileSpriteGroup.FlareSlowSparksRight, 6),
@@ -20,15 +20,4 @@ public static class ChargeFlareSpriteDefinitions
 
     /// <summary>The twenty-eight distinct flare and spark compositions, in family order.</summary>
     public static IReadOnlyList<ProjectileSpriteId> All { get; } = [.. Groups.SelectMany(group => group.Members)];
-
-    /// <summary>
-    /// The composition each of the fifty-four native flare-table positions selects: thirty main-flare phases, then six
-    /// phases each of right slow, right fast, left slow and left fast sparks. Repeated main-flare phases stay separate
-    /// positions.
-    /// </summary>
-    public static IReadOnlyList<ProjectileSpriteId> Selectors { get; } = [.. Enumerable.Range(0, 54).Select(Selector)];
-
-    /// <summary>The composition flare-table position <paramref name="index"/> selects.</summary>
-    private static ProjectileSpriteId Selector(int index) =>
-        All[index >= 30 ? index - 26 : index < 8 ? index % 2 : index < 16 ? 2 - index % 2 : 2 + index % 2];
 }

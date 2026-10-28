@@ -39,7 +39,7 @@ internal static class CompiledDynamicCollectibleGraphicsVerification
                 item.Kind == InWorldCollectibleKind.Bombs),
             "retail Bombs item remains allocated after compiled graphics upload");
         ReadOnlySpan<byte> expected =
-            RoomPlmDynamicCollectibleGraphicsDefinitions.Get(
+            DynamicCollectibleGraphics.Get(
                 InWorldCollectibleKind.Bombs).Tiles.Span;
         // The bound graphics are named; the image composes them as the loader selected them, with no installed selection.
         BgArtworkBytes collectibles = new BgArtworkBytes().WithCollectibles(null)
@@ -59,7 +59,7 @@ internal static class CompiledDynamicCollectibleGraphicsVerification
     /// <summary>Rejects live reads of compiled collectible tiles and item-list upload records.</summary>
     private static CartridgeReadGuard NewRetailCollectibleGraphicsReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
-            .Forbid(address => RoomPlmDynamicCollectibleGraphicsDefinitions.All.Any(graphic =>
+            .Forbid(address => DynamicCollectibleGraphics.All.Any(graphic =>
                 {
                     int first = 0x890000 | graphic.GraphicsPointer;
                     if (address >= first && address < first + graphic.Tiles.Length)

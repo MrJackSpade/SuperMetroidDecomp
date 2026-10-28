@@ -23,7 +23,7 @@ internal static class MechanicsWorkRamBoundaryVerification
         AssertThrows<InvalidDataException>(() => readSpeed(-1), "a row before the tables is not authored physics data");
         AssertThrows<InvalidDataException>(() => readSpeed(SamusHorizontalMotionDefinitions.RowCount),
             "a row past the tables is not authored physics data");
-        AssertThrows<InvalidDataException>(() => readSpeed(SamusHorizontalMotionDefinitions.FirstRow(SamusLiquidMedium.LavaOrAcid) + byte.MaxValue),
+        AssertThrows<InvalidDataException>(() => readSpeed(SamusHorizontalMotion.FirstRow(SamusLiquidMedium.LavaOrAcid) + byte.MaxValue),
             "the furthest movement-type overread is rejected without reading it");
         Console.WriteLine("Mechanics WRAM boundary: generic PLM/speed readers absent; only authored speed records resolve.");
     }

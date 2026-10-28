@@ -161,10 +161,10 @@ internal static class InstallationOverrideLifecycleVerification
             string identity = catalog switch
             {
                 InstalledProjectilePresentation projectile => projectile.SelectedSha256,
-                RoomCharacterAtlasCatalog characters => RoomTilesetSources.CharacterIdentity(characters),
-                RoomStaticPaletteCatalog palettes => RoomTilesetSources.PaletteIdentity(palettes),
-                RoomBackgroundTilemapCatalog backgrounds => RoomBackgroundTilemapArtworkFiles.ContentIdentity(backgrounds),
-                RoomSkyTilemapCatalog skies => RoomPresentationIdentity.SkyIdentity(skies),
+                RoomCharacterAtlases characters => RoomTilesetSources.CharacterIdentity(characters),
+                RoomStaticPalettes palettes => RoomTilesetSources.PaletteIdentity(palettes),
+                RoomBackgroundTilemaps backgrounds => RoomBackgroundTilemapArtworkFiles.ContentIdentity(backgrounds),
+                RoomSkyTilemaps skies => RoomPresentationIdentity.SkyIdentity(skies),
                 _ => catalog.GetType().GetProperty("ContentIdentity")?.GetValue(catalog) as string
                     ?? throw new InvalidDataException($"Catalog {loader.Name} lacks selected-content identity."),
             };
@@ -246,7 +246,7 @@ internal static class InstallationOverrideLifecycleVerification
         File.WriteAllBytes(palettePath, GameplayBasePaletteFiles.Write(palette));
         ushort selectedColor = (ushort)(palette.Initial[0].Red | palette.Initial[0].Green << 5 | palette.Initial[0].Blue << 10);
 
-        ClipAudioCatalog clips = installation.LoadAudioClips();
+        ClipAudioLibrary clips = installation.LoadAudioClips();
         MusicClipEntry song = clips.Manifest.Music[0];
         short[] samples = clips.ReadClip(song.Clip);
         samples[0] = unchecked((short)(samples[0] ^ 1));
@@ -276,7 +276,7 @@ internal static class InstallationOverrideLifecycleVerification
         Assert(installation.LoadStandardObjects().Characters.Span.SequenceEqual(expected.StandardObjects), phase + ": actual PNG transfer");
         Assert(IntroFontCharacters.Of(installation.LoadMaps().IntroFont).Characters.Span.SequenceEqual(expected.Font), phase + ": actual font transfer");
         Assert(installation.LoadGameplayBasePalettes().Initial[0] == RgbColor.FromWord(expected.Color), phase + ": actual palette word");
-        ClipAudioCatalog audio = installation.LoadAudioClips();
+        ClipAudioLibrary audio = installation.LoadAudioClips();
         Assert(audio.ReadClip(audio.GetMusic(expected.MusicSet, expected.MusicTrack).Clip)[0] == expected.ClipFirstSample,
             phase + ": actual replacement clip sample");
     }

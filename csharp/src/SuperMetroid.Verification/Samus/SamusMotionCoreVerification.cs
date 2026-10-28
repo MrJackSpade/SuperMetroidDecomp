@@ -34,7 +34,7 @@ internal static void VerifySamusPoseTransitionMatching()
         canonicalHeldInput: ControllerButton.Up | ControllerButton.Right | ControllerButton.A,
         canonicalNewInput: ControllerButton.A) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, canonicalHeldInput: 0x098...."));
     AssertEqual(0x55, (byte)jumpUp.ProspectivePose, "Samus transition required-new plus held chord");
-    AssertTrue(SamusPoseInputDefinitions.TryGetInputList(fixturePose, out _),
+    AssertTrue(SamusPoseInputs.TryGetInputList(fixturePose, out _),
         "Samus transition fixture pose has an authored table");
 
     SamusPoseTransition up = (SamusPoseTransitionTable.Find(
@@ -98,10 +98,10 @@ internal static void VerifySamusPoseTransitionMatching()
 internal static void VerifySamusHorizontalSpeed()
 {
     var bus = new TestAddressSpace();
-    SamusFullBodyCycleColorCatalog CycleColors() =>
+    InstalledSamusFullBodyCycleColors CycleColors() =>
         SamusFullBodyCycleColorFile.Read(new MemoryStream(
             SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(bus)));
-    SamusSuitColorCatalog SuitColors() =>
+    InstalledSamusSuitColors SuitColors() =>
         SamusSuitColorFile.Read(new MemoryStream(
             SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
 

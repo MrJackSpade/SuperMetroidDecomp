@@ -30,14 +30,14 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 ? WaterSplashKind.Diving
                 : WaterSplashKind.GroundedPair;
             AssertEqual(expected,
-                SamusAtmosphericEffectDefinitions.WaterSplashFor((SamusMovementType)movement),
+                SamusAtmosphericEffects.WaterSplashFor((SamusMovementType)movement),
                 $"water-splash movement selector ${movement:X2}");
         }
 
         for (ushort frame = 0; frame < 10; frame++)
         {
             AssertEqual(rom.ReadCartridgeByte(runningFootstepFrames + frame) != 0,
-                SamusAtmosphericEffectDefinitions.IsRunningFootContact(frame),
+                SamusAtmosphericEffects.IsRunningFootContact(frame),
                 $"running foot-contact frame {frame}");
         }
 
@@ -48,7 +48,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             AssertEqual(footstep, landing,
                 $"duplicated Crateria atmospheric policy ${room:X2}");
             AssertEqual(footstep,
-                (byte)SamusAtmosphericEffectDefinitions.ForCrateriaRoom(new RoomIdentity(AreaId.Crateria, room)),
+                (byte)SamusAtmosphericEffects.ForCrateriaRoom(new RoomIdentity(AreaId.Crateria, room)),
                 $"compiled Crateria atmospheric policy ${room:X2}");
         }
 
@@ -61,13 +61,13 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
         Suite(nameof(VerifyProductionCrateriaPolicies), () => VerifyProductionCrateriaPolicies(testPose));
 
         AssertThrows<InvalidDataException>(
-            () => SamusAtmosphericEffectDefinitions.WaterSplashFor((SamusMovementType)0x1c),
+            () => SamusAtmosphericEffects.WaterSplashFor((SamusMovementType)0x1c),
             "water-splash movement selector past table");
         AssertThrows<InvalidDataException>(
-            () => SamusAtmosphericEffectDefinitions.IsRunningFootContact(10),
+            () => SamusAtmosphericEffects.IsRunningFootContact(10),
             "running foot-contact frame past table");
         AssertThrows<InvalidDataException>(
-            () => SamusAtmosphericEffectDefinitions.ForCrateriaRoom(new RoomIdentity(AreaId.Crateria, 16)),
+            () => SamusAtmosphericEffects.ForCrateriaRoom(new RoomIdentity(AreaId.Crateria, 16)),
             "Crateria atmospheric room past table");
 
         Console.WriteLine(
@@ -87,7 +87,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             samus.LiquidPhysics.SpawnWaterSplash(samus, (SamusMovementType)movement, samus.Kinematics.BottomPixel.Y);
 
             WaterSplashKind expected =
-                SamusAtmosphericEffectDefinitions.WaterSplashFor((SamusMovementType)movement);
+                SamusAtmosphericEffects.WaterSplashFor((SamusMovementType)movement);
             AssertEqual(expected == WaterSplashKind.GroundedPair ? SamusAtmosphericEffectType.FootstepSplash : SamusAtmosphericEffectType.DivingSplash,
                 samus.LiquidPhysics.AtmosphericEffects.Slots[0].Type,
                 $"production water-splash type ${movement:X2}");
@@ -114,7 +114,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             AdvanceToFootContactTick(samus);
             samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1);
 
-            SamusAtmosphericEffectType expectedType = SamusAtmosphericEffectDefinitions.IsRunningFootContact(frame)
+            SamusAtmosphericEffectType expectedType = SamusAtmosphericEffects.IsRunningFootContact(frame)
                 ? SamusAtmosphericEffectType.FootstepSplash
                 : SamusAtmosphericEffectType.Inactive;
             AssertEqual(expectedType,
@@ -130,7 +130,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
         for (byte room = 0; room < 16; room++)
         {
             CrateriaAtmosphericEffectFlags policy =
-                SamusAtmosphericEffectDefinitions.ForCrateriaRoom(new RoomIdentity(AreaId.Crateria, room));
+                SamusAtmosphericEffects.ForCrateriaRoom(new RoomIdentity(AreaId.Crateria, room));
             bool wet = policy != CrateriaAtmosphericEffectFlags.None;
 
             var runner = new SamusState

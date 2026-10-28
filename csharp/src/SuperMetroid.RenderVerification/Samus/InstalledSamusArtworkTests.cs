@@ -41,7 +41,7 @@ internal static class InstalledSamusArtworkTests
     private static int CheckPoseDrawing(InstalledSamusArtworkFixture fixture,
         ArtworkPixelCheck check)
     {
-        for (int pose = 0; pose < SamusBodyArtworkCatalog.PoseCount; pose++)
+        for (int pose = 0; pose < InstalledSamusBodyArtwork.PoseCount; pose++)
         {
             var stock = new SamusState { Pose = (SamusPoseId)pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), Health = 99 };
             var edited = new SamusState { Pose = stock.Pose, Position = FixedPosition<RoomPixels>.FromWhole(stock.Position.Whole), Health = stock.Health };
@@ -63,7 +63,7 @@ internal static class InstalledSamusArtworkTests
                 $"pose {pose:X2}: drawing changed physics, damage or animation state");
             check.Pair(a, b, oa, $"pose {pose:X2}");
         }
-        return SamusBodyArtworkCatalog.PoseCount;
+        return InstalledSamusBodyArtwork.PoseCount;
     }
 
     /// <summary>
@@ -92,7 +92,7 @@ internal static class InstalledSamusArtworkTests
         for (int half = 0; half < 2; half++)
         {
             bool upper = half == 0;
-            int sets = upper ? SamusBodyArtworkCatalog.TopSetCount : SamusBodyArtworkCatalog.BottomSetCount;
+            int sets = upper ? InstalledSamusBodyArtwork.TopSetCount : InstalledSamusBodyArtwork.BottomSetCount;
             // A definition's first part fills a half row (top from character 0, bottom from 8), its second the half row below.
             int firstCharacter = upper ? 0 : SpriteArtwork.CharactersPerRow / 2;
             int secondCharacter = firstCharacter + SpriteArtwork.CharactersPerRow;
@@ -103,7 +103,7 @@ internal static class InstalledSamusArtworkTests
                 Require(stock.Count == edited.Count, "PNG changed definition count");
                 for (int position = 0; position < stock.Count; position++)
                 {
-                    SamusBodyTileDefinition a = stock[position], b = edited[position];
+                    SamusBodyTileTransfer a = stock[position], b = edited[position];
                     Require(a.FirstSize == b.FirstSize && a.SecondSize == b.SecondSize,
                         "PNG changed definition split size");
                     int record = fixture.Stock.DefinitionRecord(upper ? SamusBodyHalf.Top : SamusBodyHalf.Bottom, (byte)set, (byte)position);
@@ -155,7 +155,7 @@ internal static class InstalledSamusArtworkTests
     }
 
     /// <summary>Supplies installed cannon tiles to the queued VRAM transfer path.</summary>
-    private sealed class SamusQueuedArtwork(SamusBodyArtworkCatalog artwork) :
+    private sealed class SamusQueuedArtwork(InstalledSamusBodyArtwork artwork) :
         IInstalledArtworkContent, IInstalledArtworkTransferSource
     {
         /// <summary>Resolves a queued transfer from the installed cannon catalog.</summary>

@@ -21,7 +21,7 @@ internal static class MiscDustProjectileDefinitionsVerification
         for (ushort index = 0; index < 30; index++)
         {
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + index * 2));
-            MiscDustProjectileProgram program = MiscDustProjectileDefinitions.Program((MiscDustAnimation)index);
+            MiscDustProjectileProgram program = MiscDustProjectiles.Program((MiscDustAnimation)index);
             AssertEqual(native, MiscDustProjectileNativeListAddresses.Entry(program), $"misc-dust instruction selector {index}");
 
             var enemies = CreateMiscDustEnemySystem();
@@ -36,7 +36,7 @@ internal static class MiscDustProjectileDefinitionsVerification
         {
             int address = placementTable + index * 8;
             MiscDustPlacementDefinition definition =
-                MiscDustProjectileDefinitions.SmokePlacement(index);
+                MiscDustProjectiles.SmokePlacement(index);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), definition.RandomMask.X,
                 $"misc-dust placement X mask {index}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)), definition.RandomMask.Y,
@@ -81,7 +81,7 @@ internal static class MiscDustProjectileDefinitionsVerification
             "invalid room-graphics misc dust does not partially allocate a slot");
 
         AssertThrows<InvalidDataException>(
-            () => MiscDustProjectileDefinitions.SmokePlacement(5),
+            () => MiscDustProjectiles.SmokePlacement(5),
             "misc-dust placement beyond authored table");
         Console.WriteLine(
             "Misc dust definitions: thirty selectors, five placement records, and Mother Brain, room-graphics, Eye Door, and Ridley production consumers pass with both ROM tables forbidden.");

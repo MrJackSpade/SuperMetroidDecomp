@@ -68,7 +68,7 @@ internal static class RoomPlmSystemAccess
                 .Select(entry => new ColoredDoorPlmSnapshot(
                     entry.Slot.Header,
                     entry.Slot.BlockIndex,
-                    checked((ushort)entry.Slot.RoomArgument),
+                    entry.Slot.NativeRoomArgument,
                     (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).Color,
                     entry.Slot.Animation is ColoredDoorPlmAnimation colored ? colored.Orientation
                         : throw new InvalidOperationException($"Coloured cap at block {entry.Slot.BlockIndex} runs {entry.Slot.Animation}."),
@@ -83,7 +83,7 @@ internal static class RoomPlmSystemAccess
                 .Select(entry => new GreyDoorPlmSnapshot(
                     entry.Slot.Header,
                     entry.Slot.BlockIndex,
-                    checked((ushort)entry.Slot.RoomArgument),
+                    entry.Slot.NativeRoomArgument,
                     entry.Slot.Animation is GreyDoorPlmAnimation grey ? grey.Variant.Orientation
                         : throw new InvalidOperationException($"Grey cap at block {entry.Slot.BlockIndex} runs {entry.Slot.Animation}."),
                     (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).Condition,
@@ -98,7 +98,7 @@ internal static class RoomPlmSystemAccess
                 .Select(entry => new EyeDoorPlmSnapshot(
                     entry.Slot.Header,
                     entry.Slot.BlockIndex,
-                    checked((ushort)entry.Slot.RoomArgument),
+                    entry.Slot.NativeRoomArgument,
                     ((entry.Door ?? throw new InvalidOperationException("Verification requires entry.door."))).Component,
                     checked((byte)(entry.Door).HitCounter),
                     entry.Slot.Animation,
@@ -130,7 +130,7 @@ internal static class RoomPlmSystemAccess
 
         /// <summary>Current native room argument, retained after the header deletes itself.</summary>
         internal int MotherBrainGlassRoomArgument => MotherBrainGlassSlot(self) is { } slot
-            ? slot.RoomArgument
+            ? slot.HitCounter
             : self.MotherBrainGlass.MotherBrainGlassLastRoomArgument;
 
         /// <summary>The glass's typed program, or null after deletion.</summary>
@@ -222,7 +222,7 @@ internal static class RoomPlmSystemAccess
                 NativeSlotIndex: index,
                 HeaderPointer: slot.Header,
                 BlockIndex: slot.BlockIndex,
-                RoomArgument: checked((ushort)slot.RoomArgument),
+                RoomArgument: slot.NativeRoomArgument,
                 PreInstruction: PlmPreInstructionNativeRoutines.Of(slot.PreInstruction),
                 InstructionTimer: slot.InstructionTimer.RawValue,
                 LoopTimer: checked((ushort)slot.LoopTimer),

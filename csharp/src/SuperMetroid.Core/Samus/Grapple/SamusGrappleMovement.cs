@@ -59,7 +59,7 @@ public static class SamusGrappleMovement
         grapple.Phase = GrapplePhase.Firing;
         grapple.FireDirection = SamusProjectileDirectionCodec.FromAimIndex(direction);
         grapple.PoseChangeAutoFireTimer = WrappingCountdown.Start(GrappleBeamDefinitions.Firing.PoseChangeAutoFireFrames);
-        var launch = GrappleFiringDefinitions.Launch(direction);
+        var launch = GrappleFiring.Launch(direction);
         grapple.ExtensionVelocity = launch.Velocity;
         grapple.Angle = launch.Angle;
         grapple.MirroredAngle = grapple.Angle;
@@ -68,11 +68,11 @@ public static class SamusGrappleMovement
         // distinct type `$10`, so every stable/aimed moonwalk pose naturally takes the
         // no-run origin and flare tables without a pose-number exception.
         bool useRunOffsets = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running;
-        var origin = GrappleFiringDefinitions.Origin(direction, useRunOffsets);
+        var origin = GrappleFiring.Origin(direction, useRunOffsets);
         var flare = ReadFlareOrigin(grapple, direction, useRunOffsets);
         int graphicsYOffset = movingHeld ? GrappleBeamDefinitions.Firing.DraygonMovingGraphicsYOffset : SamusPoseMetadata.ReadGraphicsYOffset(samus);
         int physicalYOffset = movingHeld ? GrappleBeamDefinitions.Firing.DraygonMovingGraphicsYOffset :
-            SamusPoseProjectileOriginDefinitions.ReadYOffset(samus.Pose);
+            SamusPoseProjectileOrigins.ReadYOffset(samus.Pose);
 
         grapple.OriginOffset = new(origin.X, unchecked((short)(origin.Y - physicalYOffset)));
         grapple.FlareOffset = new(flare.X, unchecked((short)(flare.Y - graphicsYOffset)));
@@ -632,7 +632,7 @@ public static class SamusGrappleMovement
                 : facingLeft ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose;
         }
 
-        return GrappleConnectionDefinitions.DroppedPose(shotDirection, compact: samus.Kinematics.Radius.Y < 17);
+        return GrappleConnections.DroppedPose(shotDirection, compact: samus.Kinematics.Radius.Y < 17);
     }
 
     /// <summary>Applies an exact special-angle connection record, including its pose and bounded camera displacement.</summary>
@@ -646,7 +646,7 @@ public static class SamusGrappleMovement
         // around a wall-grab angle. These records govern collision positioning.
         for (int record = GrappleConnectionDefinitions.SpecialAngleCount - 1; record >= 0; record--)
         {
-            var special = GrappleConnectionDefinitions.SpecialAngle(record);
+            var special = GrappleConnections.SpecialAngle(record);
             if (special.Angle != grapple.Angle)
                 continue;
 
@@ -934,7 +934,7 @@ public static class SamusGrappleMovement
             : sourceMovementType == SamusMovementType.Crouching
                 ? GrappleConnectionTable.Crouching
                 : GrappleConnectionTable.Default;
-        var connection = GrappleConnectionDefinitions.ResolveConnection(connectionTable, grapple.FireDirection.ToAimIndex());
+        var connection = GrappleConnections.ResolveConnection(connectionTable, grapple.FireDirection.ToAimIndex());
         GrappleConnectionFunction nextFunction = connection.Function;
         GrappleConnectionHandler handler = connection.Handler;
 
@@ -1066,7 +1066,7 @@ public static class SamusGrappleMovement
             // Special pose command 10 runs $9B:BEEB. The locked body is positioned from
             // Start minus the raw NO-RUN origin table, then Flare is independently rebuilt
             // from the raw no-run flare table. Graphics-Y correction does not participate.
-            var origin = GrappleFiringDefinitions.Origin(grapple.FireDirection.ToAimIndex(), running: false);
+            var origin = GrappleFiring.Origin(grapple.FireDirection.ToAimIndex(), running: false);
             var flare = ReadFlareOrigin(grapple, grapple.FireDirection.ToAimIndex(), running: false);
             samus.Position = samus.Position.WithWhole(grapple.RopeStart - new Offset16<RoomPixels>(origin.X, origin.Y));
             grapple.BeamStart = samus.Position.Whole + new Offset16<RoomPixels>(flare.X, flare.Y);
@@ -1210,7 +1210,7 @@ public static class SamusGrappleMovement
         var grapple = samus.Grapple;
         grapple.PoseChangeAutoFireTimer = grapple.PoseChangeAutoFireTimer.DecrementToZero();
         int direction = SamusPoseMetadata.ReadShotDirection(samus);
-        bool banned = GrappleConnectionDefinitions.CancelsFiring(SamusPoseMetadata.ReadMovementType(samus));
+        bool banned = GrappleConnections.CancelsFiring(SamusPoseMetadata.ReadMovementType(samus));
         if (!banned && direction < 16)
         {
             if (direction == grapple.FireDirection.ToAimIndex()) return null;

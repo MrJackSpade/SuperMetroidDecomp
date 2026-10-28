@@ -6,7 +6,7 @@ internal static class SamusVisorColorDefinitions
 {
     /// <summary>$9B:A3C0, SamusPalettes_Visor: first widening color (0,31,14), the exact normal-suit visor ink at $9B:9408/9528/9808.</summary>
     /// <remarks>Covered only by the independently reviewed normalAndLoadingBaseInkDisposition
-    /// of SamusSuitColorCatalog: fixed OBJ palette4/color4 is a categorical painted ink,
+    /// of InstalledSamusSuitColors: fixed OBJ palette4/color4 is a categorical painted ink,
     /// not a measured quantity determining its RGB value. The same3BE0 begins this visor
     /// transition. Catalogs remain independently editable; this is shared source identity,
     /// not mutable cross-catalog coupling. FullBeamStart and DarkeningStep have a separate narrow visor-light disposition.</remarks>
@@ -23,18 +23,4 @@ internal static class SamusVisorColorDefinitions
 
     /// <summary>$9B:A3C0-$A3C5: widening start, midpoint and full-white endpoint.</summary>
     internal const int WideningPhaseCount = 3;
-
-    /// <summary>Interpolates the widening visor into white, then darkens the selected full-beam ink by five RGB5 levels per phase.</summary>
-    internal static RgbColor Color(int index)
-    {
-        if ((uint)index >= SamusVisorColorFormat.ColorCount)
-            throw new ArgumentOutOfRangeException(nameof(index));
-        return WideningStart.Zip(FullBeamStart, (_, start, fullBeam) =>
-        {
-            if (index >= WideningPhaseCount)
-                return fullBeam - (index - WideningPhaseCount) * DarkeningStep;
-            int intervals = WideningPhaseCount - 1;
-            return (start * (intervals - index) + 31 * index + intervals / 2) / intervals;
-        });
-    }
 }

@@ -35,7 +35,7 @@ internal static class SamusSuitColorsVerification
         AssertEqual(SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(cartridge.Rom)), "Normal suit sharing oracle revision");
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(cartridge);
-        SamusSuitColorCatalog colors = SamusSuitColorFile.Read(new MemoryStream(extracted));
+        InstalledSamusSuitColors colors = SamusSuitColorFile.Read(new MemoryStream(extracted));
         foreach (var (differences, source) in new[] { new VerifyNormalSuitCatalogBoundaryCase(colors.varia, 0x9b9520), new VerifyNormalSuitCatalogBoundaryCase(colors.gravity, 0x9b9800) })
         {
             AssertEqual(4, differences.Count, "Only four differing native colors per secondary suit remain stored");
@@ -117,11 +117,11 @@ internal static class SamusSuitColorsVerification
         string overrideDirectory,
         AreaMapPresentationCatalog original,
         ISnesAddressSpace bus,
-        GameplayBasePaletteCatalog initialPalettes,
+        GameplayBasePalette initialPalettes,
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus);
-        SamusSuitColorCatalog decoded = SamusSuitColorFile.Read(
+        InstalledSamusSuitColors decoded = SamusSuitColorFile.Read(
             new MemoryStream(extracted, writable: false));
         int[] sourceAddresses =
         [

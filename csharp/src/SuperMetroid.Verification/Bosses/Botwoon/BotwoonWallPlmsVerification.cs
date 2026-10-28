@@ -23,7 +23,7 @@ internal static class BotwoonWallPlmsVerification
         Suite(nameof(BossRoomPlmProgramsVerification.VerifyBotwoonWallPrograms), () => BossRoomPlmProgramsVerification.VerifyBotwoonWallPrograms(rom));
 
         RoomPlmShotBlockDrawDefinitions.DrawList draw =
-            BotwoonWallPlmDrawDefinitions.All.Single();
+            BotwoonWallPlmDraws.All.Single();
         AssertEqual((ushort)0x930f, PlmDrawAddressCodec.Of(draw.Draw),
             "Botwoon clear draw pointer");
         AssertEqual(1, draw.Runs.Length, "Botwoon clear has one vertical run");
@@ -39,9 +39,9 @@ internal static class BotwoonWallPlmsVerification
             AssertWord(word);
         for (int index = 0; index < 9; index++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x849311 + index * 2),
-                BotwoonWallPlmDrawDefinitions.LevelWordAt(index), "Botwoon calculated clear word matches native");
+                BotwoonWallPlmDraws.LevelWordAt(index), "Botwoon calculated clear word matches native");
         foreach (int index in new[] {int.MinValue,-1,9,int.MaxValue})
-            AssertThrows<ArgumentOutOfRangeException>(() => BotwoonWallPlmDrawDefinitions.LevelWordAt(index), "Botwoon fill rejects invalid block index");
+            AssertThrows<ArgumentOutOfRangeException>(() => BotwoonWallPlmDraws.LevelWordAt(index), "Botwoon fill rejects invalid block index");
         AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
             unchecked((byte)draw.Runs.Span[0].Next.X),
             "Botwoon clear final X offset");

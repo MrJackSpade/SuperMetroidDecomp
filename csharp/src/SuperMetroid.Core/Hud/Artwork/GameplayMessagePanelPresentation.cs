@@ -114,7 +114,7 @@ public sealed class GameplayMessagePanelPresentation
             if (string.IsNullOrEmpty(value.Title) ||
                 value.Title.Length > GameplayMessagePanelDefinitions.VisibleColumns ||
                 value.Title.Any(static character =>
-                    !GameplayMessageTitleDefinitions.IsSupportedGlyph(character)) ||
+                    !GameplayMessageGlyphs.IsSupportedGlyph(character)) ||
                 (uint)value.Palette >= 8 ||
                 value.Column < GameplayMessagePanelDefinitions.OuterLeftColumns ||
                 value.Column + value.Title.Length >

@@ -23,11 +23,11 @@ internal static class SamusColorPresentationContractChecks
             using SuperMetroid.Core.Samus.Artwork;
             using SuperMetroid.Core.Samus.Palettes;
             class ColorConsumer {
-                void Inspect(SamusFullBodyCycleColorCatalog body, SamusSuitColorCatalog suit,
-                    SamusChargeColorCatalog charge, SamusHurtColorCatalog hurt,
-                    SamusHyperBeamColorCatalog hyper, SamusVisorColorCatalog visor,
-                    CrystalFlashColorCatalog flash, PowerBombFixedColorCatalog bomb,
-                    HyperBeamFxColorCatalog fx, SamusColours colours, ColourRun run) {
+                void Inspect(InstalledSamusFullBodyCycleColors body, InstalledSamusSuitColors suit,
+                    InstalledSamusChargeColors charge, InstalledSamusHurtColors hurt,
+                    InstalledSamusHyperBeamColors hyper, InstalledSamusVisorColors visor,
+                    InstalledCrystalFlashColors flash, InstalledPowerBombFixedColors bomb,
+                    InstalledHyperBeamFxColors fx, SamusColours colours, ColourRun run) {
                     body.Apply(colours, new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
                         SamusFullBodyCycleColorFormat.SuitCount - 1, SamusFullBodyCycleColorFormat.ShadesPerSuit - 1));
                     body.Apply(colours, new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
@@ -68,7 +68,7 @@ internal static class SamusColorPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         var compilation = CSharpCompilation.Create("SamusColorProviderFixture", trees,
-            platforms.Append(typeof(SamusSuitColorCatalog).Assembly.Location).Distinct()
+            platforms.Append(typeof(InstalledSamusSuitColors).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         var exports = new ResourceIndex();
@@ -85,7 +85,7 @@ internal static class SamusColorPresentationContractChecks
             report.Consumers.Count == 27, "complete supported domains and false membership queries qualify; bad selectors still fail" + " (" + report.Describe() + ")");
         Require(report.Findings.Any(item => item.Message.Contains("selected PreExplosion", StringComparison.Ordinal)),
             "a known short pre-explosion stream must not borrow explosion capacity");
-        Require(report.Classifications.Any(item => item.Owner == "SamusVisorColorCatalog.TryResolveByteOffset"),
+        Require(report.Classifications.Any(item => item.Owner == "InstalledSamusVisorColors.TryResolveByteOffset"),
             "an unsupported queried visor offset is valid false, not a demanded resource");
     }
 

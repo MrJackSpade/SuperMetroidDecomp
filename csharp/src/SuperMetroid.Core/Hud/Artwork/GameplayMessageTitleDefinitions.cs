@@ -22,8 +22,6 @@ public static class GameplayMessageTitleDefinitions
     /// <summary>Letters in the contiguous A-Z tile range.</summary>
     public const int LetterCount = 26;
 
-    /// <summary>True when <paramref name="tile"/> is one of the A-Z letter tiles.</summary>
-    public static bool IsLetterTile(int tile) => (uint)(tile - FirstLetterTile) < LetterCount;
     /// <summary>JSON filename containing the editable one-row item and status titles.</summary>
     public const string FileName = "gameplay-message-titles.json";
     /// <summary>Number of transparent tilemap columns preceding the visible title.</summary>
@@ -38,7 +36,7 @@ public static class GameplayMessageTitleDefinitions
     public static BackgroundTile TransparentTile { get; } = new(0x00e, 0, highPriority: false);
 
     /// <summary>Fifteen item and status messages with a centered one-row title that the artwork document may replace.</summary>
-    private static readonly GameplayMessageId[] SupportedMessageIds =
+    internal static readonly GameplayMessageId[] SupportedMessageIds =
     [
         GameplayMessageId.EnergyTank,
         GameplayMessageId.VariaSuit,
@@ -59,8 +57,4 @@ public static class GameplayMessageTitleDefinitions
 
     /// <summary>Gets the 15 gameplay messages whose centered title text is editable.</summary>
     public static ReadOnlySpan<GameplayMessageId> MessageIds => SupportedMessageIds;
-
-    /// <summary>Determines whether a character belongs to the supported title glyph alphabet.</summary>
-    public static bool IsSupportedGlyph(char character) =>
-        character is ' ' or '-' or '.' or '?' or >= 'A' and <= 'Z';
 }

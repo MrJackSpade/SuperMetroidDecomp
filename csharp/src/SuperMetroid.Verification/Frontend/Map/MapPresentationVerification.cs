@@ -209,33 +209,33 @@ internal static class MapPresentationVerification
         /// <summary>Installed standard-object tiles required by the real-room fixture.</summary>
         private readonly RoomCharacterAtlas standardObjects;
         /// <summary>Installed room-specific character sheets bound before room initialization.</summary>
-        private readonly RoomCharacterAtlasCatalog roomCharacters;
+        private readonly RoomCharacterAtlases roomCharacters;
         /// <summary>Installed room palette data used instead of cartridge graphics fallback.</summary>
-        private readonly RoomStaticPaletteCatalog roomPalettes;
+        private readonly RoomStaticPalettes roomPalettes;
 
         /// <summary>The pre-coloured block pictures room loads draw from (#1392).</summary>
-        private readonly RoomBlockSheetCatalog roomBlockSheets;
+        private readonly InstalledRoomArtwork roomBlockSheets;
         /// <summary>Installed room visual layouts selected at room entry.</summary>
-        private readonly RoomVisualLayoutCatalog visualLayouts;
+        private readonly RoomLevelArtworks visualLayouts;
         /// <summary>Installed room level streams supplying collision and BTS at room entry.</summary>
-        private readonly RoomLevelStreamCatalog levelStreams;
+        private readonly InstalledRoomLevelStreams levelStreams;
         /// <summary>Installed background tilemaps for the room renderer.</summary>
-        private readonly RoomBackgroundTilemapCatalog backgrounds;
+        private readonly RoomBackgroundTilemaps backgrounds;
         /// <summary>Installed sky tilemaps for rooms that use a scrolling sky.</summary>
-        private readonly RoomSkyTilemapCatalog skies;
+        private readonly RoomSkyTilemaps skies;
         /// <summary>Installed beam palettes bound to Samus's projectile presentation.</summary>
-        private readonly BeamPaletteCatalog? beamPalettes;
+        private readonly InstalledBeamPalettes? beamPalettes;
         /// <summary>Installed trail appearances.</summary>
-        private readonly ProjectileTrailCatalog trails;
+        private readonly InstalledProjectileTrails trails;
         /// <summary>Installed elevator platform art used by the room PLM owner.</summary>
         private readonly RoomPlmElevatorPlatformVisualCatalog elevatorPlatform;
 
         /// <summary>Initial CGRAM colors loaded when the fixture enters gameplay.</summary>
-        public GameplayBasePaletteCatalog InitialPalettes { get; }
+        public GameplayBasePalette InitialPalettes { get; }
         /// <summary>Enemy character and sprite art bound alongside room art.</summary>
         public InstalledEnemyArtwork EnemyTiles { get; }
         /// <summary>Samus body art bound before gameplay drawing begins.</summary>
-        public SamusBodyArtworkCatalog SamusBody { get; }
+        public InstalledSamusBodyArtwork SamusBody { get; }
 
         /// <summary>Loads the complete installed room artwork set once for live-map override checks.</summary>
         public MapPresentationInstalledRoomAssets(SuperMetroid.AssetExtraction.Installation.GameInstallation installation)
@@ -315,7 +315,7 @@ internal static class MapPresentationVerification
         /// <summary>Supplies the catalog checks' shared arguments.</summary>
         internal void Deconstruct(out SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, out string root,
             out string stock, out string overrides, out AreaMapPresentationCatalog original,
-            out MapPresentationInstalledRoomAssets fixtureAssets, out GameplayBasePaletteCatalog initialPalettes)
+            out MapPresentationInstalledRoomAssets fixtureAssets, out GameplayBasePalette initialPalettes)
         {
             bus = Bus;
             root = copy.Root;
@@ -479,7 +479,7 @@ internal static class MapPresentationVerification
         string stock,
         string overrides,
         AreaMapPresentationCatalog original,
-        GameplayBasePaletteCatalog initialPalettes)
+        GameplayBasePalette initialPalettes)
     {
         string source = Path.Combine(stock, MotherBrainRainbowPaletteFormat.FileName);
         MotherBrainRainbowPaletteDocument document =
@@ -746,7 +746,7 @@ internal static class MapPresentationVerification
         string stock,
         string overrides,
         AreaMapPresentationCatalog original,
-        GameplayBasePaletteCatalog initialPalettes)
+        GameplayBasePalette initialPalettes)
     {
         string source = Path.Combine(stock, MotherBrainHealthPaletteFormat.FileName);
         MotherBrainHealthPaletteDocument document =
@@ -835,7 +835,7 @@ internal static class MapPresentationVerification
         string stock,
         string overrides,
         AreaMapPresentationCatalog original,
-        GameplayBasePaletteCatalog initialPalettes)
+        GameplayBasePalette initialPalettes)
     {
         string source = Path.Combine(stock, RoomPaletteFxPresentationFormat.FileName);
         RoomPaletteFxPresentationDocument document =
@@ -1439,7 +1439,7 @@ internal static class MapPresentationVerification
     /// <summary>Checks debugger rebinding and live Ceres HUD, pause, and file-select consumers under a map-ROM read guard.</summary>
     private static void VerifyLiveMapCatalog(ISnesAddressSpace bus, AreaMapPresentationCatalog original,
         AreaMapPresentationCatalog edited, ImportedAreaMap[] rules,
-        GameplayBasePaletteCatalog initialPalettes, MapPresentationInstalledRoomAssets fixtureAssets)
+        GameplayBasePalette initialPalettes, MapPresentationInstalledRoomAssets fixtureAssets)
     {
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         using var withoutContent = new MemoryStream();

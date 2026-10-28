@@ -35,7 +35,7 @@ internal static class SamusBodyNative
     internal static int[] Frames(IEnumerable<ushort> pointers) => [.. pointers.Select(pointer => Frame(pointer))];
 
     /// <summary>Native views of the body catalog.</summary>
-    extension(SamusBodyArtworkCatalog body)
+    extension(InstalledSamusBodyArtwork body)
     {
         /// <summary>The bank-$92 address of each upper-body definition group.</summary>
         internal ushort[] TopSetPointers => [.. body.TopSetStarts.ToArray().Select(RecordPointer)];
@@ -52,7 +52,7 @@ internal static class SamusBodyNative
     }
 
     /// <summary>Where the cartridge stores the body frame selectors.</summary>
-    extension(SamusBodyArtworkCatalog)
+    extension(InstalledSamusBodyArtwork)
     {
         /// <summary>$92:DB48: the SNES address of the first frame selector.</summary>
         internal static int FirstFrameAddress => SamusSourceDefinitions.BodyFrames.Value;

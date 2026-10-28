@@ -11,7 +11,7 @@ public static class SamusChargeColorFile
     /// <summary>Loads version-1 <c>samus-charge-colors.json</c>, validating three suits with six phases each, ten Hyper-shot frames, sixteen colors per row, and RGB5 channels from 0 through 31.</summary>
     /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
     /// <returns>Compiled selected colors, sharing stock repeated phases and calculated fades only when supplied values agree.</returns>
-    public static SamusChargeColorCatalog Read(Stream json)
+    public static InstalledSamusChargeColors Read(Stream json)
     {
         Ensure.NotNull(json);
         SamusChargeColorDocument document;
@@ -51,7 +51,7 @@ public static class SamusChargeColorFile
     /// ten pointers. Shot playback decrements its table offset from20 to2,
     /// reversing the full-body cycle. Inputs remain asset-local: edits to the
     /// shot asset do not alter the separately supplied full-body cycle.</remarks>
-    private static SamusHyperBeamColorCatalog CompileHyper(PaletteRgb5[][]? source)
+    private static InstalledSamusHyperBeamColors CompileHyper(PaletteRgb5[][]? source)
     {
         if (source is null || source.Length != SamusChargeColorFormat.HyperFrameCount)
             throw new InvalidDataException("Hyper shot requires ten frames.");

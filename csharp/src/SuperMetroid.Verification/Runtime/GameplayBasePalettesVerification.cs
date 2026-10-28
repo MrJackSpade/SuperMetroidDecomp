@@ -29,7 +29,7 @@ internal static class GameplayBasePalettesVerification
         try
         {
             GameplayBasePaletteFiles.Extract(bus, stock, SupportedCartridge.Sha256);
-            GameplayBasePaletteCatalog baseline = GameplayBasePaletteFiles.Load(stock, overrides);
+            GameplayBasePalette baseline = GameplayBasePaletteFiles.Load(stock, overrides);
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 AssertEqual(ReadWord(bus, GameplayBasePaletteSourceDefinitions.InitialPalette + color * 2),
                     baseline.Initial[color], $"installed starting CGRAM color {color}");
@@ -65,7 +65,7 @@ internal static class GameplayBasePalettesVerification
             Directory.CreateDirectory(overrides);
             string overridePath = Path.Combine(overrides, GameplayBasePaletteFormat.ArtworkFileName);
             File.WriteAllBytes(overridePath, GameplayBasePaletteFiles.Write(document));
-            GameplayBasePaletteCatalog edited = GameplayBasePaletteFiles.Load(stock, overrides);
+            GameplayBasePalette edited = GameplayBasePaletteFiles.Load(stock, overrides);
             var editedRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: edited);
             AssertEqual(edited.Initial[1], editedRuntime.Colours.Colors[1],
                 "edited starting color reaches live CGRAM");
@@ -81,7 +81,7 @@ internal static class GameplayBasePalettesVerification
             AssertThrows<InvalidDataException>(() => GameplayBasePaletteFiles.Load(stock, overrides),
                 "invalid RGB5 override fails loudly");
             File.Delete(overridePath);
-            GameplayBasePaletteCatalog restored = GameplayBasePaletteFiles.Load(stock, overrides);
+            GameplayBasePalette restored = GameplayBasePaletteFiles.Load(stock, overrides);
             AssertTrue(restored.Initial.SequenceEqual(baseline.Initial) &&
                 restored.CommonSprites.SequenceEqual(baseline.CommonSprites),
                 "removing override restores stock palette");

@@ -1,0 +1,72 @@
+using SuperMetroid.Core.Progression;
+using static SuperMetroid.Core.Samus.Projectiles.SamusComboMechanicsDefinitions;
+
+namespace SuperMetroid.Core.Samus.Projectiles;
+
+/// <summary>The kind, Power Bomb cost and spread of each charged beam combo.</summary>
+internal static class SamusComboMechanics
+{
+    /// <summary>
+    /// The special beam attack a retail combination fires, or null when it fires none: only
+    /// Wave, Ice, Spazer or Plasma equipped alone has one.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The combination is outside the twelve retail rows.</exception>
+    internal static SamusComboKind? ComboKind(SamusBeamCombination beam) => beam switch
+    {
+        SamusBeamCombination.Wave => SamusComboKind.Wave,
+        SamusBeamCombination.Ice => SamusComboKind.Ice,
+        SamusBeamCombination.Spazer => SamusComboKind.Spazer,
+        SamusBeamCombination.Plasma => SamusComboKind.Plasma,
+        SamusBeamCombination.Power or SamusBeamCombination.IceWave or SamusBeamCombination.SpazerWave or
+            SamusBeamCombination.SpazerIce or SamusBeamCombination.SpazerIceWave or SamusBeamCombination.PlasmaWave or
+            SamusBeamCombination.PlasmaIce or SamusBeamCombination.PlasmaIceWave => null,
+        SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaWave or
+            SamusBeamCombination.SpazerPlasmaIce or SamusBeamCombination.SpazerPlasmaIceWave =>
+            throw new ArgumentOutOfRangeException(nameof(beam), beam, "The combo tables hold twelve retail rows."),
+        _ => throw new ArgumentOutOfRangeException(nameof(beam), beam, "Undefined beam combination."),
+    };
+
+    /// <summary>
+    /// CostOfSBAsInPowerBombs at $90:CC21: one Power Bomb for Wave, Ice,
+    /// Spazer, and Plasma alone; zero for the eight non-combo beam indexes.
+    /// </summary>
+    /// <remarks>Independently reviewed for #1165 against NTSC J/U v1.0 and pinned
+    /// bank_90.asm: the four single-beam rows cost one and the other eight cost zero.
+    /// FireSBA masks equipped beams to a low nibble, then doubles it for a word
+    /// lookup. Rows 12..15 are outside the table.</remarks>
+    internal static ushort GetPowerBombCost(SamusBeamCombination beam) =>
+        ComboKind(beam) is null ? (ushort)0 : (ushort)1;
+
+    /// the bounded progression does not extrapolate into them.</remarks>
+    internal static ushort GetOriginAngle(int projectileSlot)
+    {
+        if ((uint)projectileSlot >= 4)
+            throw new ArgumentOutOfRangeException(nameof(projectileSlot));
+        return (ushort)(64 * projectileSlot);
+    }
+
+    /// <summary>
+    /// Applies the unsigned hardware-multiply sequence at $90:CC39 to the low
+    /// bytes of an angle and amplitude. Native negates the truncated positive
+    /// magnitude, so this deliberately truncates toward zero in all quadrants.
+    /// </summary>
+    /// <remarks>Independently reviewed for #1165 against $90:CC39/$CC8A and all
+    /// original positive sine words at $A0:B443. Multiplying a whole sample and
+    /// shifting eight bits equals the native low-byte product high byte plus
+    /// the high-byte product; restore sign afterward, including the exact 256 peak.
+    /// Ice, Plasma and Spazer callers supply byte-cycle angles; Y subtracts 64
+    /// with byte wrap. Amplitude uses its low byte as the hardware multiplier does.
+    /// This is a consumer view of the reviewed signed sine mapping, with no stored
+    /// lookup of its own; preserve this existing algorithm.</remarks>
+    internal static Offset16<RoomPixels> GetSineOffset(ByteAngle angle, int amplitude)
+    {
+        short Component(int phase)
+        {
+            int sample = Trigonometry.SignedSine(new ByteAngle(checked((byte)phase)));
+            int magnitude = EightEight.Multiply(Math.Abs(sample), (byte)amplitude);
+            return unchecked((short)(sample < 0 ? -magnitude : magnitude));
+        }
+
+        return new(Component(angle.RawValue), Component(angle.AddTableUnits(-ByteAngle.QuarterTurn.RawValue).RawValue));
+    }
+}

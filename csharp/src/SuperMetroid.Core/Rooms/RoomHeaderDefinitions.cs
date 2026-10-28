@@ -280,8 +280,11 @@ public static class RoomHeaderDefinitions
     /// <summary>Every retail room, in the cartridge's header order.</summary>
     public static IReadOnlyList<RoomHeaderDefinition> All => Definitions;
 
+    /// <summary>Every compiled room by its name.</summary>
+    private static readonly IReadOnlyDictionary<string, RoomHeaderDefinition> ByName = Definitions.ToDictionary(room => room.Name);
+
     /// <summary>The compiled room named <paramref name="name"/>.</summary>
-    private static RoomHeaderDefinition Find(string name) => Definitions.Single(room => room.Name == name);
+    private static RoomHeaderDefinition Find(string name) => ByName[name];
 
     /// <summary>The <c>RoomHeader_LandingSite</c> room.</summary>
     public static RoomHeaderDefinition LandingSite { get; } = Find(nameof(LandingSite));

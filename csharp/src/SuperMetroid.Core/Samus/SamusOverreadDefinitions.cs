@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Samus;
 
 /// <summary>
 /// The sizes of the cartridge byte ranges Samus's glitch paths read as data. The bytes themselves are not part of the
-/// port: the import pipeline reads them from the player's cartridge into <see cref="SamusOverreadCatalog"/>.
+/// port: the import pipeline reads them from the player's cartridge into <see cref="InstalledSamusOverreads"/>.
 /// </summary>
 internal static class SamusOverreadDefinitions
 {

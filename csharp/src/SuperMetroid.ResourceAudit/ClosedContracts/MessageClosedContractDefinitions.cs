@@ -10,6 +10,7 @@ internal static class MessageClosedContractDefinitions
     [
         new("csharp/src/SuperMetroid.Core/Hud/Artwork/GameplayMessageTitlePresentation.cs"),
         new("csharp/src/SuperMetroid.Core/Hud/Artwork/GameplayMessageTitleDefinitions.cs"),
+        new("csharp/src/SuperMetroid.Core/Hud/Artwork/GameplayMessageGlyphs.cs"),
         new("csharp/src/SuperMetroid.Core/Hud/GameplayMessageBoxDefinitions.cs"),
         new("csharp/src/SuperMetroid.Core/Hud/GameplayMessageButtonGlyphs.cs"),
         new("csharp/src/SuperMetroid.Core/Rooms/GameplayMessageIds.cs"),
@@ -29,6 +30,7 @@ internal static class MessageClosedContractDefinitions
             ["Contains", "Build", "ApplySelection"],
             [.. SharedGlyphSources,
              new("csharp/src/SuperMetroid.Core/Hud/Artwork/GameplayMessageNoticePresentation.cs"),
-             new("csharp/src/SuperMetroid.Core/Hud/Artwork/GameplayMessageNoticeDefinitions.cs")]),
+             new("csharp/src/SuperMetroid.Core/Hud/Artwork/GameplayMessageNoticeDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Hud/Artwork/GameplayMessageNotices.cs")]),
     ];
 }

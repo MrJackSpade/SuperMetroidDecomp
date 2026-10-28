@@ -115,7 +115,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     public IReadOnlyList<CollectiblePlmSnapshot> Collectibles => _slotTable.Slots
         .Where(slot => slot.Active)
         .SelectMany(slot => slot.Family is CollectiblePlmState { } item
-            ? [new CollectiblePlmSnapshot(slot.Header, slot.BlockIndex, slot.RoomArgument, item.Kind, item.GraphicsSlot)]
+            ? [new CollectiblePlmSnapshot(slot.Header, slot.BlockIndex, (slot.Argument as CollectedItemArgument)?.ItemBit, item.Kind, item.GraphicsSlot)]
             : Array.Empty<CollectiblePlmSnapshot>())
         .ToArray();
 
@@ -190,8 +190,8 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         BgArtworkBindings backgrounds = room.Backgrounds;
         SharedGameState system = room.System;
         RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
-        bool collected = unchecked((short)slot.RoomArgument) >= 0 &&
-            system.HasCollectedItemBit(slot.RoomArgument);
+        bool collected = slot.Argument is CollectedItemArgument placedItem &&
+            system.HasCollectedItemBit(placedItem.ItemBit);
         int graphicsSlot = UsesDynamicGraphics(kind)
             ? LoadDynamicCollectibleGraphics(backgrounds, kind, suppliedGraphic)
             : -1;
@@ -280,8 +280,8 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     /// The graphics a permanent item of <paramref name="kind"/> shows when its population supplies none: the installed
     /// selection's, or the compiled stock graphics where no selection is installed.
     /// </summary>
-    internal static RoomPlmDynamicCollectibleGraphic GraphicOf(RoomPlmDynamicCollectibleArtCatalog? installed, InWorldCollectibleKind kind) =>
-        installed?.Resolve(kind) ?? RoomPlmDynamicCollectibleGraphicsDefinitions.Get(kind);
+    internal static RoomPlmDynamicCollectibleGraphic GraphicOf(InstalledDynamicCollectibleArt? installed, InWorldCollectibleKind kind) =>
+        installed?.Resolve(kind) ?? DynamicCollectibleGraphics.Get(kind);
 
     /// <summary>Advances one item's reveal, pickup, message wait, or shot-block respawn list.</summary>
     internal bool TryStepCollectible(RoomLevelData level, PlmSlot slot)
@@ -369,7 +369,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                     item.Timer = 3;
                     return true;
                 }
-                DrawCollectible(level, slot, RoomPlmCollectibleDrawDefinitions.OrbFrame(item.AnimationIndex));
+                DrawCollectible(level, slot, CollectiblePlmDraws.OrbFrame(item.AnimationIndex));
                 item.Timer = item.AnimationIndex is 0 or 2 ? 20 : 10;
                 item.AnimationIndex = (item.AnimationIndex + 1) & 3;
                 return true;
@@ -400,7 +400,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                 item.WasCollectedBeforeReveal = item.Phase == CollectiblePhase.CollectedShotBlock;
                 item.Phase = CollectiblePhase.ShotBlockReveal;
                 item.AnimationIndex = 0;
-                DrawCollectible(level, slot, RoomPlmCollectibleDrawDefinitions.ShotRevealFrame(0));
+                DrawCollectible(level, slot, CollectiblePlmDraws.ShotRevealFrame(0));
                 _sounds.Queue(Library2Sound.BlockCrumble, SoundQueueLimit.Max6);
                 item.Timer = 4;
                 return true;
@@ -409,7 +409,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                 item.AnimationIndex++;
                 if (item.AnimationIndex < 3)
                 {
-                    DrawCollectible(level, slot, RoomPlmCollectibleDrawDefinitions.ShotRevealFrame(item.AnimationIndex));
+                    DrawCollectible(level, slot, CollectiblePlmDraws.ShotRevealFrame(item.AnimationIndex));
                     item.Timer = 4;
                     return true;
                 }
@@ -427,7 +427,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                 goto case CollectiblePhase.ShotBlockVisible;
 
             case CollectiblePhase.ShotBlockReconceal:
-                DrawCollectible(level, slot, RoomPlmCollectibleDrawDefinitions.ShotRevealFrame(item.AnimationIndex));
+                DrawCollectible(level, slot, CollectiblePlmDraws.ShotRevealFrame(item.AnimationIndex));
                 item.AnimationIndex--;
                 if (item.AnimationIndex >= 0)
                 {
@@ -441,7 +441,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
             case CollectiblePhase.CollectedShotBlockEmpty:
                 item.Phase = CollectiblePhase.CollectedShotBlockRespawn;
                 item.AnimationIndex = 2;
-                DrawCollectible(level, slot, RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, item.AnimationIndex));
+                DrawCollectible(level, slot, ShotBlockPlmDraws.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, item.AnimationIndex));
                 item.Timer = 4;
                 return true;
 
@@ -449,7 +449,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                 item.AnimationIndex--;
                 if (item.AnimationIndex >= 0)
                 {
-                    DrawCollectible(level, slot, RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, item.AnimationIndex));
+                    DrawCollectible(level, slot, ShotBlockPlmDraws.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, item.AnimationIndex));
                     item.Timer = 4;
                     return true;
                 }
@@ -465,7 +465,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
 
     /// <summary>Selects the visible frame for an item's kind, animation index, and dynamic art slot.</summary>
     private static PlmFrameDraw<RoomPlmCollectibleDrawDefinitions.Draw> GetVisibleCollectibleDraw(CollectiblePlmState item) =>
-        RoomPlmCollectibleDrawDefinitions.VisibleFrame(
+        CollectiblePlmDraws.VisibleFrame(
             item.Kind, item.AnimationIndex, item.GraphicsSlot);
 
     /// <summary>Executes a compiled item draw instruction against the level.</summary>
@@ -483,8 +483,8 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         SharedGameState system = _system
             ?? throw new InvalidOperationException("A live collectible has no persistence owner.");
 
-        if (unchecked((short)slot.RoomArgument) >= 0)
-            system.SetCollectedItemBit(slot.RoomArgument);
+        if (slot.Argument is CollectedItemArgument collectedItem)
+            system.SetCollectedItemBit(collectedItem.ItemBit);
         ApplyCollectibleEffect(samus, item.Kind);
 
         var pickup = new CollectiblePickupEvent(

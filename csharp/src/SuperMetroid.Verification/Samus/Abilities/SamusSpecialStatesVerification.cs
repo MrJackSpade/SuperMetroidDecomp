@@ -734,7 +734,7 @@ static void SeedSamusDeathSequenceCartridge(TestAddressSpace bus, ushort[] shade
 /// Installs the seeded synthetic death colors through the production artwork boundary. This
 /// fixture exercises Power suit; the other suit families use the same supplied colors.
 /// </summary>
-static SamusDeathPaletteArtworkCatalog DecodeSamusDeathFixtureArtwork(TestAddressSpace bus, ushort[] shades)
+static InstalledSamusDeathPalettes DecodeSamusDeathFixtureArtwork(TestAddressSpace bus, ushort[] shades)
 {
     ushort[] FixturePalette(int pointer) => Enumerable.Range(0, 16)
         .Select(color => LittleEndianBytes.Word(bus.ReadByte(pointer + color * 2), bus.ReadByte(pointer + color * 2 + 1))).ToArray();
@@ -742,7 +742,7 @@ static SamusDeathPaletteArtworkCatalog DecodeSamusDeathFixtureArtwork(TestAddres
     ushort[][] suitlessColors = Enumerable.Range(0, 10).Select(palette => FixturePalette(0x9bd400 + palette * 0x20)).ToArray();
     ushort[] paletteIndices = Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.RecordCount)
         .Select(index => (ushort)bus.ReadByte(SamusDeathExplosionTimingDefinitions.NativeFirstTimerAddress + index * 2 + 1)).ToArray();
-    return new SamusDeathPaletteArtworkCatalog([ToColors(suitColors), ToColors(suitColors), ToColors(suitColors)], ToColors(suitlessColors), ToColors(shades), paletteIndices);
+    return new InstalledSamusDeathPalettes([ToColors(suitColors), ToColors(suitColors), ToColors(suitColors)], ToColors(suitlessColors), ToColors(shades), paletteIndices);
 }
 
 /// <summary>
@@ -762,7 +762,7 @@ internal static void VerifySamusDeathSequence()
         0x6b5a, 0x6f7b, 0x739c, 0x77bd, 0x7bde, 0x7fff,
     ];
     SeedSamusDeathSequenceCartridge(bus, shades);
-    SamusDeathPaletteArtworkCatalog artwork = DecodeSamusDeathFixtureArtwork(bus, shades);
+    InstalledSamusDeathPalettes artwork = DecodeSamusDeathFixtureArtwork(bus, shades);
     var guardedBus = NewSamusDeathExplosionTimingReadGuard(bus);
     var samus = new SamusState
     {

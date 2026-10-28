@@ -49,7 +49,7 @@ internal static void VerifySamusRenderingSlice()
     var oamFrame = new SpriteFrameBuffer();
     var oam = new OamBuffer();
 
-    SamusSuitColorCatalog suitColors = SamusSuitColorFile.Read(
+    InstalledSamusSuitColors suitColors = SamusSuitColorFile.Read(
         new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
     SamusPresentation.LoadPowerSuitPalette(cgram.Samus.Suit, suitColors);
     AssertEqual(0x3800, cgram.Colors[192], "Samus power-suit palette color zero at CGRAM 192");
@@ -498,16 +498,16 @@ internal static void VerifySamusRenderingSlice()
 /// </summary>
 private static bool ShowsBodyFrame(SamusState samus, SpriteDraw draw, int index)
 {
-    SamusSpritemapArtworkCatalog spritemaps = samus.Presentation.BodyFrames.Artwork?.Spritemaps
+    InstalledSamusSpritemaps spritemaps = samus.Presentation.BodyFrames.Artwork?.Spritemaps
         ?? throw new InvalidOperationException("Verification requires bound Samus spritemaps.");
     InstalledSpriteSheets sheets = samus.Presentation.BodyFrames.Sheets
         ?? throw new InvalidOperationException("Verification requires bound Samus sprite sheets.");
     if (!spritemaps.TryGetComposition(index, out SamusSpritemapId composition) || !spritemaps.TryGetFrame(index, out SpriteFrame? frame))
         throw new InvalidOperationException($"Body spritemap {index:X4} is not installed.");
     SamusBodyRecords records = samus.Presentation.BodyFrames.Shown;
-    SamusBodyFrameKey key = SamusBodySheetDefinitions.Key(composition, frame, records.Top, records.Bottom);
+    SamusBodyFrameKey key = SamusBodySheets.Key(composition, frame, records.Top, records.Bottom);
     return draw is ImageSpriteDraw { Mirror: SpriteMirror.None } image &&
-        ReferenceEquals(sheets.Get(SamusBodySheetDefinitions.Sheet(key)).Frame(key.Name), image.Image);
+        ReferenceEquals(sheets.Get(SamusBodySheets.Sheet(key)).Frame(key.Name), image.Image);
 }
 
 /// <summary>
@@ -533,7 +533,7 @@ internal static void VerifySamusArmCannon()
     document.Required("coverTiles")[2] = new System.Text.Json.Nodes.JsonArray(0, 1, 2);
     using var placement = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString()));
     using var tiles = File.OpenRead(Path.Combine(directory, SamusArmCannonArtworkFormat.TileFileName));
-    var artwork = SamusArmCannonArtworkCatalogTooling.Load(placement, tiles);
+    var artwork = InstalledSamusArmCannonArtworkTooling.Load(placement, tiles);
     var samus = new SamusState
     {
         Pose = SamusPoseId.FacingRightNormalPose,
@@ -1047,7 +1047,7 @@ static void SeedBodyHalfRoutingSpritemaps(TestAddressSpace bus)
 {
     bus.WriteBytes(0x92e000, [1, 0, 0, 0, 0, 0x00, 0x28]);
     for (int index = 0; index <= 3; index++)
-        WriteTestWord(bus, SamusSpritemapArtworkCatalog.PointerTableAddress + index * 2, 0xe000);
+        WriteTestWord(bus, InstalledSamusSpritemaps.PointerTableAddress + index * 2, 0xe000);
     bus.WriteBytes(SamusSourceDefinitions.PostureTransitionVerticalOffsets.Value, [
         0xf8, 0x00, 0xf8, 0x00,
         0xfc, 0xfe, 0xfc, 0xfe,

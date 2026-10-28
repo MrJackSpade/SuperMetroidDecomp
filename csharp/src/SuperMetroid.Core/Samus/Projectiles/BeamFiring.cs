@@ -281,10 +281,10 @@ internal sealed class BeamFiring
 
         // `$93:8000` indexes a data-table pointer by beam type, stores damage, chooses the
         // direction-specific list, samples its initial radii, and arms a one-frame timer.
-        SamusProjectileHeader header = SamusProjectileSelectionDefinitions.Select(
+        SamusProjectileHeader header = SamusProjectileSelection.Select(
             charged ? SamusProjectileSelectorTable.ChargedBeam : SamusProjectileSelectorTable.UnchargedBeam, beamType.TableIndex);
-        slot.Damage = SamusProjectileDamageDefinitions.Read(header);
-        SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program(header, direction);
+        slot.Damage = SamusProjectileDamage.Read(header);
+        SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, direction);
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.InstructionTimer = WrappingCountdown.Start(1);
@@ -293,15 +293,15 @@ internal sealed class BeamFiring
         // selecting ordinary cooldown. Only uncharged auto-fire without those
         // conditions uses the longer held-fire delay.
         int cooldown = charged
-            ? SamusProjectileCooldownDefinitions.ReadByte(
+            ? SamusProjectileCooldowns.ReadByte(
                 SamusFiringTableDefinitions.UnchargedCooldowns +
                 SamusFiringTableDefinitions.ChargedRowOffset + beamType.TableIndex)
             : samus.EquippedBeams.HasAny(SamusBeamFlags.Charge) || (controllerNewInput & shoot) != ControllerButton.None
-                ? SamusProjectileCooldownDefinitions.ReadByte(SamusFiringTableDefinitions.UnchargedCooldowns + beamType.TableIndex)
-                : SamusProjectileCooldownDefinitions.ReadByte(SamusFiringTableDefinitions.AutoFireCooldowns + beamType.TableIndex);
+                ? SamusProjectileCooldowns.ReadByte(SamusFiringTableDefinitions.UnchargedCooldowns + beamType.TableIndex)
+                : SamusProjectileCooldowns.ReadByte(SamusFiringTableDefinitions.AutoFireCooldowns + beamType.TableIndex);
         sharedProjectiles.SetSharedCooldown(cooldown);
 
-        SoundEffectId? sound = SamusProjectileSoundRoutingDefinitions.Resolve(charged, beamType);
+        SoundEffectId? sound = SamusProjectileSoundRouting.Resolve(charged, beamType);
         if (charged)
             _charge.ChargedShotGlowTimer = WrappingCountdown.Start(4);
 
@@ -320,7 +320,7 @@ internal sealed class BeamFiring
             // The cartridge installs the callback only after muzzle collision. Do not
             // infer it from Wave bits: the table is the dispatcher, including overreads.
             SamusBeamCallbackDefinition callback =
-                SamusBeamCallbackDefinitions.Resolve(charged, beamType);
+                SamusBeamCallbacks.Resolve(charged, beamType);
             slot.PreInstruction = callback.Translated ?? throw new NotSupportedException(
                 $"Beam callback {callback.Callback} is not translated.");
             InitializePowerBeamVelocity(samus.ProjectileInheritance, slot);
@@ -371,10 +371,10 @@ internal sealed class BeamFiring
         // with 1000 before the first instruction record executes.
         slot.Type = SamusProjectileTypeWord.CreateBeam((SamusBeamFlags.Charge | SamusBeamFlags.Plasma), charged: true);
         const SamusBeamCombination hyperBeamType = SamusBeamCombination.Plasma;
-        SamusProjectileHeader header = SamusProjectileSelectionDefinitions.Select(
+        SamusProjectileHeader header = SamusProjectileSelection.Select(
             SamusProjectileSelectorTable.ChargedBeam, hyperBeamType.TableIndex);
-        slot.Damage = SamusProjectileDamageDefinitions.Read(header);
-        SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program(header, slot.PackedDirection.DirectionIndex);
+        slot.Damage = SamusProjectileDamage.Read(header);
+        SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, slot.PackedDirection.DirectionIndex);
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.InstructionTimer = WrappingCountdown.Start(1);
@@ -399,7 +399,7 @@ internal sealed class BeamFiring
         _charge.StartHyperBeamFlare();
         _charge.FlareCounter = 1 << 15;
 
-        SoundEffectId? sound = SamusProjectileSoundRoutingDefinitions.Resolve(
+        SoundEffectId? sound = SamusProjectileSoundRouting.Resolve(
             charged: true, hyperBeamType);
         return new BeamShot(slotIndex, sound);
     }
@@ -463,10 +463,10 @@ internal sealed class BeamFiring
         // keeping both calls makes the one-frame ignition transition directly inspectable.
         InitializeDirectionalVelocity(samus.ProjectileInheritance, slot, baseSpeed: 0);
 
-        SamusProjectileHeader header = SamusProjectileSelectionDefinitions.Select(
+        SamusProjectileHeader header = SamusProjectileSelection.Select(
             SamusProjectileSelectorTable.NonBeam, samus.SelectedHudItem.ToWord());
-        slot.Damage = SamusProjectileDamageDefinitions.Read(header);
-        SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program(header, slot.PackedDirection.DirectionIndex);
+        slot.Damage = SamusProjectileDamage.Read(header);
+        SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, slot.PackedDirection.DirectionIndex);
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.InstructionTimer = WrappingCountdown.Start(1);
@@ -498,14 +498,14 @@ internal sealed class BeamFiring
         SamusState samus,
         SamusProjectileSlot slot)
     {
-        int poseYOffset = SamusPoseProjectileOriginDefinitions.ReadYOffset(samus.Pose);
+        int poseYOffset = SamusPoseProjectileOrigins.ReadYOffset(samus.Pose);
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
 
         // `$90:BA94` uses the running/moonwalk origin table for movement type one and for
         // the two diagonally-up moonwalk poses $75/$76. Every other pose uses the default.
         bool runningOrigin = movementType == SamusMovementType.Running ||
             samus.Pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;
-        var origin = SamusProjectileOriginDefinitions.Read(runningOrigin, slot.PackedDirection.Raw);
+        var origin = SamusMuzzleOrigins.Read(runningOrigin, slot.PackedDirection.Raw);
         slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + origin.X)), unchecked((ushort)(samus.Position.Y.Whole + origin.Y - poseYOffset))));
     }
 
@@ -517,7 +517,7 @@ internal sealed class BeamFiring
         int direction = slot.PackedDirection.DirectionIndex;
         bool diagonal = direction is 1 or 3 or 6 or 8;
         int rowOffset = slot.PackedType.BeamCombination.TableIndex * SamusFiringTableDefinitions.InitialSpeedRowBytes;
-        int speed = unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
+        int speed = unchecked((short)SamusProjectileAccelerations.ReadWord(
             (diagonal
                 ? SamusFiringTableDefinitions.DiagonalSpeeds
                 : SamusFiringTableDefinitions.HorizontalVerticalSpeeds) + rowOffset));

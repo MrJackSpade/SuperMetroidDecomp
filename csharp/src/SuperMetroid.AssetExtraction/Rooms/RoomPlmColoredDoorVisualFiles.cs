@@ -26,10 +26,10 @@ public static class RoomPlmColoredDoorVisualFiles
     /// <param name="overrideDirectory">Optional directory whose colored-door JSON replaces stock when present; an absent file retains stock.</param>
     /// <returns>The selected three-color, four-orientation cap artwork; collision and door-opening mechanics remain compiled.</returns>
     /// <exception cref="InvalidDataException">Stock provenance, digest, format, or compiled equality fails, or selected entries violate frame coverage or visual-word rules.</exception>
-    public static RoomPlmColoredDoorVisualCatalog Load(
+    public static InstalledRoomPlmColoredDoorVisuals Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmColoredDoorVisualCatalog>(VisualFileName, "Colored-door", ColoredDoorCaps.All, ColoredDoorCaps.VisualId, entries => new RoomPlmColoredDoorVisualCatalog(entries.Select(entry =>
+            new RoomPlmVisualFamily<InstalledRoomPlmColoredDoorVisuals>(VisualFileName, "Colored-door", ColoredDoorCaps.All, ColoredDoorCaps.VisualId, entries => new InstalledRoomPlmColoredDoorVisuals(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetWord(draw, block)));
 
     /// <summary>Checks stock colored-door provenance, digest, schema, forty-eight-frame coverage, and equality with compiled visual words; ignores overrides.</summary>

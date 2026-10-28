@@ -25,9 +25,9 @@ internal sealed class ChainsawPowerBombCallback
         SamusProjectileSlot slot,
         SamusBombProjectileSystem sharedProjectiles,
         ISamusRoomPlms? roomPlms,
-        SamusOverreadCatalog? overreads)
+        InstalledSamusOverreads? overreads)
     {
-        SamusProjectileListLayout Lists() => (overreads ?? throw new InvalidOperationException(
+        InstalledProjectileListPositions Lists() => (overreads ?? throw new InvalidOperationException(
             "The chainsaw window store needs the installed Samus overread catalog.")).ProjectileLists;
         // The misaligned callback runs the Power Bomb fuse over the shot's multipurpose
         // variable word, so the fuse countdown is read from and written back to that word.

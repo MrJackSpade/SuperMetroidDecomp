@@ -40,7 +40,7 @@ internal static class RoomBackgroundTilemapsVerification
                 $"background tilemap {tilemap} preserves all native tile words");
             compiled.Add(tilemap, atlas);
         }
-        var catalog = new RoomBackgroundTilemapCatalog(compiled);
+        var catalog = new RoomBackgroundTilemaps(compiled);
         const ushort ceresList = 0xe4a5;
         int ceresSource = LibraryBackgroundSourceInventory.Scan(bus)
             .Single(source => source.ListPointer == ceresList &&
@@ -67,7 +67,7 @@ internal static class RoomBackgroundTilemapsVerification
             "editing one background tile reference changes only its native BG word");
         compiled[ceresTilemap] = modified;
         var editedVram = new SnesVram();
-        LibraryBackgroundReplay.Execute(editedVram, LibraryBackgroundProgramDefinitions.Get(ceresList), activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = new RoomBackgroundTilemapCatalog(compiled) });
+        LibraryBackgroundReplay.Execute(editedVram, LibraryBackgroundProgramDefinitions.Get(ceresList), activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = new RoomBackgroundTilemaps(compiled) });
         AssertTrue(nativeVram.ReadWord(0x4800) != editedVram.ReadWord(0x4800) &&
             nativeVram.ReadWord(0x4801) == editedVram.ReadWord(0x4801),
             "edited JSON changes the first displayed Ceres BG tile and not its neighbor");

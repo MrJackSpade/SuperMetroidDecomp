@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 public static class SamusFullBodyCycleColorFile
 {
     /// <summary>Loads and validates all 48 full-body cycle palettes for three suits and four families.</summary>
-    public static SamusFullBodyCycleColorCatalog Read(Stream json)
+    public static InstalledSamusFullBodyCycleColors Read(Stream json)
     {
         Ensure.NotNull(json);
         SamusFullBodyCycleColorDocument document;

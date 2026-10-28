@@ -43,10 +43,10 @@ internal static class StationAccessPlmDefinitionsVerification
             var behavior = (StationAccessBehavior)raw;
             if (raw is < 0x47 or > 0x4c)
             {
-                AssertThrows<InvalidDataException>(() => StationAccessPlmDefinitions.Resolve(behavior), "Station access full rejected BTS domain");
+                AssertThrows<InvalidDataException>(() => StationAccessPlms.Resolve(behavior), "Station access full rejected BTS domain");
                 continue;
             }
-            var selected = StationAccessPlmDefinitions.Resolve(behavior);
+            var selected = StationAccessPlms.Resolve(behavior);
             AssertEqual(selected, entries[raw - 0x47], "Station access original enumeration order");
             ushort header = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x9491c7 + (raw - 0x47) * 2));
             ushort program = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (header + 2)));
@@ -60,7 +60,7 @@ internal static class StationAccessPlmDefinitionsVerification
                 AssertEqual(expected, PlmDrawAddressCodec.Of(PlmDraw.Of(extended ? selected.Extended : selected.Retracted)),
                     "Station native access draw operand");
                 AssertEqual(expected, PlmDrawAddressCodec.Of(selected.Draw(extended)), "Station public phase selection");
-                AssertTrue(RoomPlmStationDrawDefinitions.TryGet(NativePlmDraws.At<StationDraw>(expected), out _), "Station selected physical draw is owned");
+                AssertTrue(StationPlmDraws.TryGet(NativePlmDraws.At<StationDraw>(expected), out _), "Station selected physical draw is owned");
             }
         }
     }

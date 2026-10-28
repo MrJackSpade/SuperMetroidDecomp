@@ -112,6 +112,6 @@ internal static class CrocomireArenaPlmDrawDefinitions
     /// <summary>Finds the physical bridge or wall layout for one editable visual identity.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList draw) =>
-        RoomPlmShotBlockDrawDefinitions.FindByVisualId(All, VisualId, id, out draw);
+        ShotBlockPlmDraws.FindByVisualId(All, VisualId, id, out draw);
 
 }

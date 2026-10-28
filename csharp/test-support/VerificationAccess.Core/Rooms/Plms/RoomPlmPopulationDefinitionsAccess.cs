@@ -10,7 +10,7 @@ internal static class RoomPlmPopulationDefinitionsAccess
     extension(RoomPlmPopulationDefinitions)
     {
         /// <inheritdoc cref="RoomPlmPopulationSources.Population"/>
-        internal static RoomPlmPopulationDefinition Get(ushort pointer) => RoomPlmPopulationSources.Population(pointer);
+        internal static RoomPlmPopulation Get(ushort pointer) => RoomPlmPopulationSources.Population(pointer);
 
         /// <inheritdoc cref="RoomPlmPopulationSources.Contains"/>
         internal static bool Contains(ushort pointer) => RoomPlmPopulationSources.Contains(pointer);
@@ -20,7 +20,7 @@ internal static class RoomPlmPopulationDefinitionsAccess
     }
 
     /// <summary>The list pointer of a compiled population.</summary>
-    extension(RoomPlmPopulationDefinition self)
+    extension(RoomPlmPopulation self)
     {
         /// <summary>The bank-$8F list pointer of this population.</summary>
         internal ushort Pointer => RoomPlmPopulationSources.PointerOf(self);

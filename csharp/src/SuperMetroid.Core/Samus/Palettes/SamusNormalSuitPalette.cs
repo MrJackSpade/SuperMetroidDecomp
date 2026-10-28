@@ -14,7 +14,7 @@ public static class SamusNormalSuitPalette
     /// <exception cref="ArgumentNullException">CGRAM is null.</exception>
     /// <exception cref="InvalidOperationException">Installed suit colors are absent.</exception>
     public static void Load(ColourRun suit, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
-        SamusSuitColorCatalog? colors)
+        InstalledSamusSuitColors? colors)
     {
         if (colors is null)
             throw new InvalidOperationException(
@@ -27,7 +27,7 @@ public static class SamusNormalSuitPalette
     /// <param name="colors">Required installed normal-suit artwork; selects its Power palette at native table offset zero.</param>
     /// <exception cref="ArgumentNullException">CGRAM is null.</exception>
     /// <exception cref="InvalidOperationException">Installed suit colors are absent.</exception>
-    public static void LoadPower(ColourRun suit, SamusSuitColorCatalog? colors)
+    public static void LoadPower(ColourRun suit, InstalledSamusSuitColors? colors)
     {
         if (colors is null)
             throw new InvalidOperationException(

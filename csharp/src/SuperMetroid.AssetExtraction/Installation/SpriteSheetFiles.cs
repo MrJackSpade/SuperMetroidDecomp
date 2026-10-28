@@ -44,7 +44,7 @@ public static class SpriteSheetFiles
         SpriteSheetStore store = SpriteSheetStore.Create(directory, ManifestFileName);
         var sources = new SpriteSheetSourceCatalog(content);
         foreach (SpriteSheetId sheet in SpriteSheetDefinitions.Sheets)
-            store.Write(SpriteSheetDefinitions.FileName(sheet), Compose(bus, sources, sheet));
+            store.Write(SpriteSheetDefinitions.FileNames[sheet], Compose(bus, sources, sheet));
         store.Finish(sourceCartridgeSha256);
         _ = Load(directory, null);
     }
@@ -58,7 +58,7 @@ public static class SpriteSheetFiles
         // The body sheets are named from the stock body tables installed beside them.
         string content = Path.GetDirectoryName(Path.GetFullPath(stockDirectory))
             ?? throw new ArgumentException($"Stock directory {stockDirectory} has no installation above it.", nameof(stockDirectory));
-        var body = new Lazy<SamusBodyArtworkCatalog>(() => SamusBodyArtworkFiles.Load(
+        var body = new Lazy<InstalledSamusBodyArtwork>(() => SamusBodyArtworkFiles.Load(
             Path.Combine(content, GameInstallationLayout.SamusBodyDirectoryName), null));
         // The pause sheet is named from the stock selector presentation installed beside it.
         var maps = new Lazy<AreaMapPresentationCatalog>(() => MapPresentationFiles.Load(
@@ -71,7 +71,7 @@ public static class SpriteSheetFiles
             Path.Combine(content, GameInstallationLayout.EndingObjectDirectoryName), null));
         foreach (SpriteSheetId sheet in SpriteSheetDefinitions.Sheets)
         {
-            SpriteSheet loaded = store.Read(SpriteSheetDefinitions.FileName(sheet));
+            SpriteSheet loaded = store.Read(SpriteSheetDefinitions.FileNames[sheet]);
             if (!loaded.HoldsExactly(FrameNames(sheet, body, maps, intro, ending)))
                 throw new InvalidDataException($"Sprite sheet {FrameFile(sheet)} does not hold exactly the frames its family draws.");
             sheets.Add(sheet, loaded);
@@ -98,7 +98,7 @@ public static class SpriteSheetFiles
     /// <param name="maps">The menus' presentation, whose selector frames name the pause sheet's.</param>
     /// <param name="intro">The opening cinematic's artwork, whose compositions name the intro sheet's frames.</param>
     /// <param name="ending">The ending's sprite artwork, whose compositions name the ending sheets' frames.</param>
-    internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, Lazy<SamusBodyArtworkCatalog> body,
+    internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, Lazy<InstalledSamusBodyArtwork> body,
         Lazy<AreaMapPresentationCatalog> maps, Lazy<IntroCinematicArtworkCatalog> intro, Lazy<EndingObjectArtworkCatalog> ending) => sheet switch
     {
         SpriteSheetId.MenuForegroundTiles or SpriteSheetId.MenuMapTiles or
@@ -121,7 +121,7 @@ public static class SpriteSheetFiles
             SpriteSheetId.EndingRewardIconFloorTiles =>
             [FloorCharacterSheet.FrameName],
         SpriteSheetId.EscapeTimer => EscapeTimerPresentationDefinitions.Glyphs.Select(EscapeTimerPresentationDefinitions.FrameName),
-        SpriteSheetId.Grapple => GrappleSheetDefinitions.Frames,
+        SpriteSheetId.Grapple => GrappleSheets.Frames,
         SpriteSheetId.SamusBodyTop or SpriteSheetId.SamusBodyBottom => SamusBodySheetComposer.FrameNames(body.Value, sheet),
         SpriteSheetId.SamusOverlays => SamusOverlaySheetDefinitions.Frames,
         SpriteSheetId.SamusAtmosphere => SamusAtmosphereSheetDefinitions.Frames,
@@ -148,10 +148,10 @@ public static class SpriteSheetFiles
             SpriteSheetId.ProjectilesPlasmaWave or SpriteSheetId.ProjectilesPlasmaIce or
             SpriteSheetId.ProjectilesPlasmaIceWave or SpriteSheetId.ProjectilesSpazerPlasmaWave or
             SpriteSheetId.ProjectilesSpazerPlasmaIce =>
-            ProjectileSheetDefinitions.Frames,
+            ProjectileSheetFrames.Frames,
         _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
     };
 
     /// <summary>A sheet's frame manifest file name.</summary>
-    internal static string FrameFile(SpriteSheetId sheet) => SpriteSheetStore.FrameFile(SpriteSheetDefinitions.FileName(sheet));
+    internal static string FrameFile(SpriteSheetId sheet) => SpriteSheetStore.FrameFile(SpriteSheetDefinitions.FileNames[sheet]);
 }

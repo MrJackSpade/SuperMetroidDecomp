@@ -695,7 +695,7 @@ internal static class CollectiblesVerification
     private static void VerifySuitPickupTransformation()
     {
         TestAddressSpace bus = CreateSuitPickupCartridge();
-        SamusSuitColorCatalog suitColors = SamusSuitColorFile.Read(
+        InstalledSamusSuitColors suitColors = SamusSuitColorFile.Read(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
         Suite(nameof(VerifySuitPickupHistory), () => VerifySuitPickupHistory(suitColors));
         var cgram = new SamusColourRig();
@@ -880,7 +880,7 @@ internal static class CollectiblesVerification
     }
 
     /// <summary>Checks pose-history shifts at transformation entry and reveal for both suits and preowned-suit states.</summary>
-    private static void VerifySuitPickupHistory(SamusSuitColorCatalog suitColors)
+    private static void VerifySuitPickupHistory(InstalledSamusSuitColors suitColors)
     {
         foreach (SamusSuitPickupKind kind in new[] { SamusSuitPickupKind.Varia, SamusSuitPickupKind.Gravity })
         foreach (bool otherSuit in new[] { false, true })

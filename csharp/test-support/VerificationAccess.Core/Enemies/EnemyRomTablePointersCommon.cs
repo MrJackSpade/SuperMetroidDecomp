@@ -12,6 +12,6 @@ internal static class EnemyRomTablePointersCommon
     /// </remarks>
     public const int SignedSineCosineWords = 0xa0b443;
     /// <summary>Thirty-two 16-byte slope-height profiles at $94:8B2B (512 bytes).</summary>
-    /// <remarks>Physical alias of <see cref="SlopeHeightDefinitions.Read"/>. Proof: #625 / #914.</remarks>
+    /// <remarks>Physical alias of <see cref="SlopeHeights.Read"/>. Proof: #625 / #914.</remarks>
     public const int SlopeHeightBytes = 0x948b2b;
 }

@@ -24,7 +24,7 @@ internal static class MotherBrainRoomColorsVerification
     /// <summary>Compares installed colors with extracted retail rows through production enemy paths, then checks isolated edits, legacy migration, and malformed overrides.</summary>
     internal static void VerifyMotherBrainRoomColors(ISnesAddressSpace rom, string stock,
         string overrides, AreaMapPresentationCatalog original,
-        GameplayBasePaletteCatalog initialPalettes)
+        GameplayBasePalette initialPalettes)
     {
         var nativeCgram = new SamusColourRig();
         var installedCgram = new SamusColourRig();

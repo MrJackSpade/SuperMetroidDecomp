@@ -9,14 +9,14 @@ internal static class SamusBodyTransferDomainAudit
     /// <summary>Returns a finding only when a constant pose, half-specific set, or definition record is provably outside its admitted domain.</summary>
     internal static string? InvalidConstants(IInvocationOperation operation)
     {
-        if (operation.TargetMethod.ContainingType.ToDisplayString() != typeof(SamusBodyArtworkCatalog).FullName) return null;
+        if (operation.TargetMethod.ContainingType.ToDisplayString() != typeof(InstalledSamusBodyArtwork).FullName) return null;
         int? Constant(string name) => operation.Arguments.FirstOrDefault(argument => argument.Parameter?.Name == name)?
             .Value.ConstantValue is { HasValue: true, Value: not null } value ? Convert.ToInt32(value.Value) : null;
-        if (operation.TargetMethod.Name == "Frame" && Constant("pose") is int pose && pose >= SamusBodyArtworkCatalog.PoseCount)
+        if (operation.TargetMethod.Name == "Frame" && Constant("pose") is int pose && pose >= InstalledSamusBodyArtwork.PoseCount)
             return "Known Samus pose has no admitted body frame list.";
         if (operation.TargetMethod.Name == "DefinitionRecord" && Constant("set") is int set)
         {
-            int count = Constant("half") == (int)SamusBodyHalf.Bottom ? SamusBodyArtworkCatalog.BottomSetCount : SamusBodyArtworkCatalog.TopSetCount;
+            int count = Constant("half") == (int)SamusBodyHalf.Bottom ? InstalledSamusBodyArtwork.BottomSetCount : InstalledSamusBodyArtwork.TopSetCount;
             if (set >= count) return "Known Samus definition set is outside the selected half's domain.";
         }
         if (operation.TargetMethod.Name == "DefinitionAt" && Constant("record") is int record &&

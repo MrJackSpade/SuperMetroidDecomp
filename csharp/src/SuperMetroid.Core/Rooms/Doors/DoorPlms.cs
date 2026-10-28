@@ -63,8 +63,8 @@ internal sealed class DoorPlms : IPlmFamilySource
             // `$82:E951-$E963` treats a negative room argument as explicitly
             // nonpersistent. C8CA uses $8000, so the escape entrance always selects its
             // closing list. Ordinary colored caps consult the same opened-door bit array.
-            if (unchecked((short)resident.RoomArgument) >= 0 &&
-                system.HasOpenedDoorBit(resident.RoomArgument))
+            if (resident.Argument is DoorBitArgument { Persists: true } residentDoor &&
+                system.HasOpenedDoorBit(residentDoor.DoorBit))
             {
                 break;
             }
@@ -75,7 +75,7 @@ internal sealed class DoorPlms : IPlmFamilySource
             if (resident.Animation is IResidentDoorAnimation residentDoor)
                 residentDoor.StartClosing();
             else
-                ResidentDoorClosingDefinitions.Resolve(resident.Header).StartOn(resident);
+                ResidentDoorClosings.Resolve(resident.Header).StartOn(resident);
             resident.InstructionTimer = WrappingCountdown.Start(1);
             return true;
         }
@@ -175,14 +175,11 @@ internal sealed class DoorPlms : IPlmFamilySource
     /// <summary>The dud sound's native queue cap.</summary>
     private static readonly SoundQueueLimit DudSoundMaximumQueued = SoundQueueLimit.Max6;
 
-    /// <summary>The room-argument bit that marks a cap as opened for good: a negative argument never persists.</summary>
-    private const ushort NonPersistentArgumentBit = 1 << 15;
-
     /// <summary>
     /// <c>$84:8A72</c>: whether this cap's door bit records it as opened before; a negative room argument never does.
     /// </summary>
     internal bool IsDoorOpened(PlmSlot slot) =>
-        unchecked((short)slot.RoomArgument) >= 0 && RequireSystem().HasOpenedDoorBit(slot.RoomArgument);
+        slot.Argument is DoorBitArgument { Persists: true } cap && RequireSystem().HasOpenedDoorBit(cap.DoorBit);
 
     /// <summary>
     /// <c>$84:8A91</c> at its threshold: records the door bit, leaves the spent door-bit word as the argument and
@@ -190,12 +187,12 @@ internal sealed class DoorPlms : IPlmFamilySource
     /// </summary>
     internal void MarkDoorOpened(PlmSlot slot)
     {
-        if (unchecked((short)slot.RoomArgument) >= 0)
+        if (slot.Argument is DoorBitArgument { Persists: true } cap)
         {
-            // The native routine leaves the door-bit word it just updated in the argument, marked spent.
+            // The native routine leaves the door-bit window it just updated in the argument, marked spent.
             SharedGameState system = RequireSystem();
-            system.SetOpenedDoorBit(slot.RoomArgument);
-            slot.RoomArgument = (ushort)(NonPersistentArgumentBit | system.GetOpenedDoorWordRaw(slot.RoomArgument >> 3));
+            system.SetOpenedDoorBit(cap.DoorBit);
+            slot.Argument = new SpentDoorArgument(cap.DoorBit, system.GetOpenedDoorWordRaw(cap.DoorBit / 8));
         }
         slot.PreInstruction = PlmPreInstructions.Inert;
     }
@@ -206,7 +203,7 @@ internal sealed class DoorPlms : IPlmFamilySource
         ColoredDoorPlmState door = (slot.Family as ColoredDoorPlmState)
             ?? throw new InvalidOperationException("A coloured cap's hit reached a slot without its door state.");
         door.HitCounter++;
-        if (door.HitCounter < ColoredDoorPlmProgramDefinitions.HitThresholdOf(door.Color))
+        if (door.HitCounter < ColoredDoorPlmProgramDefinitions.HitThresholds[door.Color])
             return false;
         MarkDoorOpened(slot);
         return true;
@@ -278,10 +275,11 @@ internal sealed class DoorPlms : IPlmFamilySource
         slot.Header = blueDoorHeader;
         slot.BlockIndex = blockIndex;
         slot.RestoreLevelWord = 0;
-        slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.Opening(orientation)));
+        slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.OpeningPrograms[orientation]));
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.PreInstruction = PlmPreInstructions.Inert;
-        slot.RoomArgument = 0;
+        // The native spawn leaves the argument zero: door bit zero, which a later closing check reads.
+        slot.Argument = new DoorBitArgument(0, Persists: true);
         slot.LoopTimer = 0;
         slot.Family = null;
 

@@ -28,13 +28,13 @@ internal static class ProjectileDamageVerification
         int[] headers = Enumerable.Range(0, 24).Select(i => 0x938431 + i * 22).Concat(LaterProjectileHeaders).ToArray();
         var bus = NewProjectileDamageReadGuard(rom);
         foreach (int address in headers)
-            AssertEqual(Word(address), SamusProjectileDamageDefinitions.Read(address), "Compiled native damage header");
+            AssertEqual(Word(address), SamusProjectileDamage.Read(address), "Compiled native damage header");
         for (int address = 0x9383c1; address < 0x9386db; address += 2)
             AssertEqual(Word(address), SamusProjectileProgramsVerification.SelectionWord(address), "All 357 selectors and 40 adjacent damage headers avoid ROM reads");
         foreach (int address in new[] { 0x938000, 0x938432, 0x9386db, 0x93ffff })
         {
             AssertThrows<InvalidDataException>(
-                () => SamusProjectileDamageDefinitions.Read(address),
+                () => SamusProjectileDamage.Read(address),
                 "Unknown damage address fails instead of reading arbitrary cartridge data");
             AssertThrows<InvalidDataException>(
                 () => SamusProjectileSelectionDefinitions.ReadWord(address),
@@ -124,13 +124,13 @@ internal static class ProjectileDamageVerification
     {
         for (int beam = 0; beam < 12; beam++)
             AssertEqual(readWord(SamusSourceDefinitionsConstants.SpecialBeamAttackCosts.Value + beam * 2),
-                SamusComboMechanicsDefinitions.GetPowerBombCost(SamusBeamCombinations.FromTableIndex(beam)),
+                SamusComboMechanics.GetPowerBombCost(SamusBeamCombinations.FromTableIndex(beam)),
                 $"compiled combo Power Bomb cost {beam}");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => SamusComboMechanicsDefinitions.GetPowerBombCost(SamusBeamCombination.SpazerPlasma),
+            () => SamusComboMechanics.GetPowerBombCost(SamusBeamCombination.SpazerPlasma),
             "combo cost rejects a beam index beyond the native table");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => SamusComboMechanicsDefinitions.GetPowerBombCost(SamusBeamCombinations.FromTableIndex(-1)),
+            () => SamusComboMechanics.GetPowerBombCost(SamusBeamCombinations.FromTableIndex(-1)),
             "combo cost rejects a negative beam index");
         Console.WriteLine("Combo cost algorithm: all twelve original cost words and bounds match.");
     }
@@ -140,13 +140,13 @@ internal static class ProjectileDamageVerification
     {
         for (int slot = 0; slot < 4; slot++)
             AssertEqual(readWord(BeamComboDefinitions.OriginAngles + slot * 2),
-                SamusComboMechanicsDefinitions.GetOriginAngle(slot),
+                SamusComboMechanics.GetOriginAngle(slot),
                 $"compiled combo origin angle {slot}");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => SamusComboMechanicsDefinitions.GetOriginAngle(4),
+            () => SamusComboMechanics.GetOriginAngle(4),
             "combo angle rejects a fifth projectile slot");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => SamusComboMechanicsDefinitions.GetOriginAngle(-1),
+            () => SamusComboMechanics.GetOriginAngle(-1),
             "combo angle rejects a negative projectile slot");
         Console.WriteLine("Combo origin algorithm: all four original angle words and bounds match.");
     }
@@ -171,7 +171,7 @@ internal static class ProjectileDamageVerification
         for (int angle = 0; angle < 256; angle++)
         for (int amplitude = 0; amplitude < 256; amplitude++)
             AssertEqual(NativeOffset(angle, amplitude),
-                SamusComboMechanicsDefinitions.GetSineOffset(
+                SamusComboMechanics.GetSineOffset(
                     new ByteAngle((byte)angle), (ushort)amplitude),
                 $"compiled combo sine offset {angle}/{amplitude}");
 
@@ -201,7 +201,7 @@ internal static class ProjectileDamageVerification
                 $"beam {beam:X} consumes its compiled one-Power-Bomb cost");
             for (int slot = 0; slot < 4; slot++)
                 AssertEqual(beam is 2 or 8
-                        ? SamusComboMechanicsDefinitions.GetOriginAngle(slot)
+                        ? SamusComboMechanics.GetOriginAngle(slot)
                         : (ushort)0,
                     projectiles.Slots[slot].Variable,
                     $"beam {beam:X} slot {slot} receives its compiled origin angle");
@@ -211,7 +211,7 @@ internal static class ProjectileDamageVerification
             SamusProjectileSlot first = projectiles.Slots[0];
             ushort angle = checked((ushort)first.Variable);
             ushort amplitude = beam == 2 ? (ushort)32 : unchecked((ushort)first.Velocity.X.SignedRawValue);
-            Offset16<RoomPixels> offset = SamusComboMechanicsDefinitions.GetSineOffset(
+            Offset16<RoomPixels> offset = SamusComboMechanics.GetSineOffset(
                 new ByteAngle(unchecked((byte)angle)), amplitude);
             if (beam == 2)
                 projectiles.Combos.StepIceCombo(samus, first, shared, Position16<RoomPixels>.Zero);

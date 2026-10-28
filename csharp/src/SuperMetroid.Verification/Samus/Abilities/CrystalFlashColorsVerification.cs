@@ -23,7 +23,7 @@ internal static class CrystalFlashColorsVerification
         string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.CrystalFlashColorExtractor.Extract(rom);
-        CrystalFlashColorCatalog native = CrystalFlashColorFile.Read(
+        InstalledCrystalFlashColors native = CrystalFlashColorFile.Read(
             new MemoryStream(extracted, writable: false));
         for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
         {

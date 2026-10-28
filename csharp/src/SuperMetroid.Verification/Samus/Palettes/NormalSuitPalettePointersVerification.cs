@@ -18,7 +18,7 @@ internal static class NormalSuitPalettePointersVerification
     internal static void VerifyNormalSuitPalettePointers()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        SamusSuitColorCatalog suitColors = SamusSuitColorFile.Read(
+        InstalledSamusSuitColors suitColors = SamusSuitColorFile.Read(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(rom)));
         SamusEquipmentFlags[] equipment =
         [

@@ -24,7 +24,7 @@ public sealed class SamusDrainedState
 {
     /// <summary>Host-owned Hyper Beam palette artwork, excluded from debugger-state serialization.</summary>
     [field: NonSerialized]
-    public SamusHyperBeamColorCatalog? PresentationColors { get; set; }
+    public InstalledSamusHyperBeamColors? PresentationColors { get; set; }
 
     /// <summary>
     /// Latches the immediate suit-palette restore from controller zero or command $17
@@ -201,7 +201,7 @@ public sealed class SamusDrainedState
     /// </remarks>
     /// <returns>True when this state owned the current frame's Samus palette dispatch.</returns>
     public bool UpdatePalette(SamusColours colours, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
-        SamusSuitColorCatalog? suitColors = null)
+        InstalledSamusSuitColors? suitColors = null)
     {
         Ensure.NotNull(colours);
 

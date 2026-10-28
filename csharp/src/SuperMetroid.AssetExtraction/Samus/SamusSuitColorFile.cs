@@ -11,7 +11,7 @@ public static class SamusSuitColorFile
     /// <summary>Loads and validates the three complete normal-suit palettes from JSON.</summary>
     /// <param name="json">Caller-owned stream containing the suit-color document.</param>
     /// <returns>The compiled suit-color catalog.</returns>
-    public static SamusSuitColorCatalog Read(Stream json)
+    public static InstalledSamusSuitColors Read(Stream json)
     {
         Ensure.NotNull(json);
         SamusSuitColorDocument document;

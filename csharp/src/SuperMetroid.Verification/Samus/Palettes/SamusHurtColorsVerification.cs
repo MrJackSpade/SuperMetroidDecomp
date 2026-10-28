@@ -28,7 +28,7 @@ internal static class SamusHurtColorsVerification
         }
 
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        SamusHurtColorCatalog catalog = SamusHurtColorFile.Read(
+        InstalledSamusHurtColors catalog = SamusHurtColorFile.Read(
             new MemoryStream(SamusHurtColorExtractor.Extract(rom)));
         foreach (SamusHurtColorVariant variant in Enum.GetValues<SamusHurtColorVariant>())
         {
@@ -59,7 +59,7 @@ internal static class SamusHurtColorsVerification
 
     /// <summary>Checks each counter step's selected source palette or intentional no-write frame.</summary>
     private static void CompareHurtCycle(ISnesAddressSpace rom,
-        SamusHurtColorCatalog catalog, bool cinematic)
+        InstalledSamusHurtColors catalog, bool cinematic)
     {
         var samus = new SamusState { HurtFlashCounter = 1 };
         samus.Presentation.SuitColors = SamusSuitColorFile.Read(new MemoryStream(

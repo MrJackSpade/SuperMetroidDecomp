@@ -16,7 +16,7 @@ internal readonly struct HorizontalPlasmaWaveShortParts(int phase) : IReadOnlyLi
             int size = SpazerCompositionGeometryDefinitions.TileSize;
             int x = (ProjectileSpritePartDefinitions.PlasmaWaveShortCells / 2 - 1 - index % ProjectileSpritePartDefinitions.PlasmaWaveShortCells) * size;
             int direction = phase == 0 ? 0 : index < ProjectileSpritePartDefinitions.PlasmaWaveShortCells ? 1 : -1;
-            int y = -size / 2 + (phase == 0 ? 0 : direction * SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(phase - 1));
+            int y = -size / 2 + (phase == 0 ? 0 : direction * SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelope.AxialLobeDistance(phase - 1));
             return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, y), false,
                 ProjectileSpritePartDefinitions.SpazerHorizontalGlyph, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, 0), false);
         }

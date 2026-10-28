@@ -13,7 +13,7 @@ public static class CrystalFlashColorFile
     /// <returns>Validated body and bubble colors independent of cartridge reads and gameplay timing.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     /// <exception cref="InvalidDataException">The JSON, schema version, palette dimensions, or color values are invalid.</exception>
-    public static CrystalFlashColorCatalog Read(Stream json)
+    public static InstalledCrystalFlashColors Read(Stream json)
     {
         Ensure.NotNull(json);
         CrystalFlashColorDocument document;

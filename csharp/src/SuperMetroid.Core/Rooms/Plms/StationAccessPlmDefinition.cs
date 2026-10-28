@@ -5,8 +5,4 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// <param name="Extended">The extended arm.</param>
 internal readonly record struct StationAccessPlmDefinition(
     StationDraw Retracted,
-    StationDraw Extended)
-{
-    /// <summary>Selects the retracted or extended arm draw for this station side.</summary>
-    internal PlmDraw Draw(bool extended) => PlmDraw.Of(extended ? Extended : Retracted);
-}
+    StationDraw Extended);

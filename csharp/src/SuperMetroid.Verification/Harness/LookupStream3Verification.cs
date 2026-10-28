@@ -1117,8 +1117,8 @@ internal static class LookupStream3Verification
         {
             int address = 0x9bc346 + 2 * (angle >> 10);
             int expected = (0x9a0000|CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
-            var asset = GrappleTileDefinitions.SegmentAssetFor(RotationAngle.FromRaw((ushort)angle));
-            AssertEqual(expected, GrappleTileDefinitions.TransferFor(asset).SourceAddress,
+            var asset = GrappleTileSelection.SegmentAssetFor(RotationAngle.FromRaw((ushort)angle));
+            AssertEqual(expected, GrappleTileSelection.TransferFor(asset).SourceAddress,
                 "stream 3 native grapple angle sector");
         }
 
@@ -1140,14 +1140,14 @@ internal static class LookupStream3Verification
         {
             AssertEqual(expectedTransfers[index], actualTransfers[index],
                 "stream 3 grapple transfer index");
-            AssertEqual(expectedTransfers[index], GrappleTileDefinitions.TransferFor(expectedTransfers[index].Asset),
+            AssertEqual(expectedTransfers[index], GrappleTileSelection.TransferFor(expectedTransfers[index].Asset),
                 "stream 3 grapple transfer asset dispatch");
             AssertEqual(expectedSources[index], actualTransfers[index].SourceAddress, "stream 3 grapple transfer cartridge source");
         }
         foreach (int invalid in new[] { -1, 7, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => _ = actualTransfers[invalid],
                 "stream 3 grapple transfer bounds");
-        AssertThrows<InvalidDataException>(() => GrappleTileDefinitions.TransferFor((InstalledArtworkId)(-1)),
+        AssertThrows<InvalidDataException>(() => GrappleTileSelection.TransferFor((InstalledArtworkId)(-1)),
             "stream 3 invalid grapple asset");
 
         for (int parameter = 0; parameter <= ushort.MaxValue; parameter++)
@@ -1205,7 +1205,7 @@ internal static class LookupStream3Verification
         Suite(nameof(VerifyStream3DeathSelectors), () => VerifyStream3DeathSelectors(rom));
         Suite(nameof(VerifyMotherBrainContactHitboxes), () => VerifyMotherBrainContactHitboxes());
         byte[] grappleSpriteJson = SuperMetroid.AssetExtraction.Samus.GrappleSpriteExtractor.Extract(rom);
-        var grappleSprites = GrappleSpriteCatalog.Load(new MemoryStream(grappleSpriteJson));
+        var grappleSprites = InstalledGrappleSprites.Load(new MemoryStream(grappleSpriteJson));
         AssertTrue(grappleSprites.segments is null, "stream 3 stock rope attribute rows discarded");
         AssertTrue(Enumerable.Range(0, GrappleSpriteDefinitions.SegmentFrameCount)
                 .Select(SuperMetroid.AssetExtraction.Samus.GrappleSpriteExtractor.SegmentAttributeAddress).SequenceEqual(GrappleSegmentAttributeAddresses),
@@ -1223,7 +1223,7 @@ internal static class LookupStream3Verification
                 var style = node.Required("segments").Required(frame);
                 if (field is "flipX" or "flipY") style[field] = !style.Required(field).GetValue<bool>();
                 else style[field] = style.Required(field).GetValue<int>() ^ 1;
-                var edited = GrappleSpriteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(node.ToJsonString())));
+                var edited = InstalledGrappleSprites.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(node.ToJsonString())));
                 for (int check = 0; check < 4; check++)
                 {
                     SpritePart segment = grappleSprites.Segment(check);
@@ -1245,7 +1245,7 @@ internal static class LookupStream3Verification
             AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroid.AssetExtraction.Samus.GrappleSpriteExtractor.SegmentAttributeAddress(invalid), "stream 3 rope operand address bounds");
             AssertThrows<InvalidDataException>(() => grappleSprites.Segment(invalid), "stream 3 rope attribute bounds");
         }
-        var swingFrames = GrappleSwingFrameCatalog.Load(new MemoryStream(
+        var swingFrames = InstalledGrappleSwingFrames.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.Samus.GrappleSwingFrameExtractor.Extract(rom)));
         for (int angle = 0; angle < 256; angle++)
             AssertEqual(rom.ReadCartridgeByte(0x9bc1c2 + angle), swingFrames.Resolve(new ByteAngle((byte)angle)), "stream 3 native calculated swing art frame");
@@ -1255,7 +1255,7 @@ internal static class LookupStream3Verification
         {
             int original = editedFrames[editedAngle];
             editedFrames[editedAngle] = (original + 1) & 31;
-            var edited = GrappleSwingFrameCatalog.Load(new MemoryStream(GrappleSwingFrameCatalog.Write(new()
+            var edited = InstalledGrappleSwingFrames.Load(new MemoryStream(InstalledGrappleSwingFrames.Write(new()
             { Version = 1, Frames = editedFrames })));
             for (int angle = 0; angle < 256; angle++)
                 AssertEqual((byte)editedFrames[angle], edited.Resolve(new ByteAngle((byte)angle)), "stream 3 independently edited swing art frame");

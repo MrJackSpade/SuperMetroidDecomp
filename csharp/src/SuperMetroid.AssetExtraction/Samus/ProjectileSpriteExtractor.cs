@@ -21,7 +21,7 @@ public static class ProjectileSpriteExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         byte[] json = ExtractFrames(bus, ProjectileSpriteDefinitions.All, ProjectileSpriteLocations.Projectiles());
-        _ = ProjectileSpriteCatalog.Load(new MemoryStream(json));
+        _ = InstalledProjectileSprites.Load(new MemoryStream(json));
         return json;
     }
 

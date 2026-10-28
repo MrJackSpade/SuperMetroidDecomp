@@ -125,6 +125,6 @@ internal static class SpawnedObjectSheetComposer
 
     /// <summary>The enemy frames the room sprite objects of <paramref name="kinds"/> show, each once.</summary>
     private static IEnumerable<EnemyFrameId> SpriteObjectFrames(IEnumerable<RoomSpriteObjectKind> kinds) =>
-        kinds.SelectMany(kind => RoomSpriteObjectAnimations.Programs.FramesFrom(RoomSpriteObjectDefinitions.Program(kind)))
+        kinds.SelectMany(kind => RoomSpriteObjectAnimations.Programs.FramesFrom(RoomSpriteObjectDefinitions.Programs[kind]))
             .Select(RoomSpriteObjectVisualDefinitions.ShownFrames.Of).Distinct().Order();
 }

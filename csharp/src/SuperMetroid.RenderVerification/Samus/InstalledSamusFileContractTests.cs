@@ -88,8 +88,8 @@ internal static class InstalledSamusFileContractTests
             }
             // Required references are inventoried from catalog construction, not
             // discovered by playing poses until one happens to request missing art.
-            BodyMutation(root => root.Required("poseFirstFrames")[0] = SamusBodyArtworkCatalog.FrameCount, "pose first frame");
-            BodyMutation(root => root.Required("spritemapTopBases")[0] = SamusSpritemapArtworkCatalog.EntryCount,
+            BodyMutation(root => root.Required("poseFirstFrames")[0] = InstalledSamusBodyArtwork.FrameCount, "pose first frame");
+            BodyMutation(root => root.Required("spritemapTopBases")[0] = InstalledSamusSpritemaps.EntryCount,
                 "spritemap base");
             BodyMutation(root => root.Required("spritemaps").Required(0)["parts"] = null, "spritemap parts");
             BodyMutation(root => root.Required("top")[0] = null, "body definition group");
@@ -124,10 +124,10 @@ internal static class InstalledSamusFileContractTests
                 if (!(name.StartsWith("top-", StringComparison.Ordinal) || name.StartsWith("bottom-", StringComparison.Ordinal))) continue;
                 bool upper = name.StartsWith("top-", StringComparison.Ordinal);
                 int set = Convert.ToInt32(name.Substring(name.IndexOf('-') + 1, 2), 16);
-                SamusBodyArtworkCatalog body = Load();
+                InstalledSamusBodyArtwork body = Load();
                 var definitions = upper ? body.TopSet(set) : body.BottomSet(set);
                 int position = Enumerable.Range(0, definitions.Count).FirstOrDefault(i =>
-                    definitions[i].Planar.Length < SamusBodyArtworkCatalog.BytesPerDefinitionSlot, -1);
+                    definitions[i].Planar.Length < InstalledSamusBodyArtwork.BytesPerDefinitionSlot, -1);
                 if (position < 0) continue;
                 int unusedTile = definitions[position].Planar.Length / 32;
                 image.Pixels[(position * 16 + unusedTile / 8 * 8) * width + unusedTile % 8 * 8] = 1;
@@ -146,7 +146,7 @@ internal static class InstalledSamusFileContractTests
                 $"{rejected} exact-path rejections, {accepted} equivalent overrides; stock-first admission, " +
                 "required fields/references, duplicate properties and older formats checked without ROM/gameplay.");
 
-            SamusBodyArtworkCatalog Load() => SamusBodyArtworkFiles.Load(stock, overrides);
+            InstalledSamusBodyArtwork Load() => SamusBodyArtworkFiles.Load(stock, overrides);
             void Restore()
             {
                 foreach (var pair in originals) File.WriteAllBytes(Path.Combine(stock, pair.Key), pair.Value);

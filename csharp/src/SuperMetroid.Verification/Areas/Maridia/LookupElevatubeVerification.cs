@@ -16,7 +16,7 @@ internal static class LookupElevatubeVerification
         AssertEqual(ReadSamusEaterPlmWord(rom, 0x849369), MaridiaElevatubePlmDefinitions.PhysicalWord.Raw, "Elevatube native scalar");
         var all = MaridiaElevatubePlmDefinitions.AllDraws.ToArray();
         AssertEqual(1, all.Length, "Elevatube single export");
-        AssertTrue(MaridiaElevatubePlmDefinitions.TryGetDrawByVisualId("elevatube-block", out var selected), "Elevatube ordinal ID");
+        AssertTrue(MaridiaElevatubeDraws.TryGetDrawByVisualId("elevatube-block", out var selected), "Elevatube ordinal ID");
         foreach (var draw in new[] {MaridiaElevatubePlmDefinitions.BlockDrawList,all[0],selected})
         {
             AssertEqual((ushort)0x9367, PlmDrawAddressCodec.Of(draw.Draw), "Elevatube original shared pointer");
@@ -30,7 +30,7 @@ internal static class LookupElevatubeVerification
         }
         foreach (string id in new[] {"", "ELEVATUBE-BLOCK", "elevatube-block "})
         {
-            AssertTrue(!MaridiaElevatubePlmDefinitions.TryGetDrawByVisualId(id, out var missing), "Elevatube unknown visual ID");
+            AssertTrue(!MaridiaElevatubeDraws.TryGetDrawByVisualId(id, out var missing), "Elevatube unknown visual ID");
             AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), missing, "Elevatube missing DTO");
         }
     }

@@ -28,10 +28,10 @@ public static class SamusAtmosphereSheetDefinitions
     public static string BubblesFrame(int frame) => $"Bubbles.{frame}";
 
     /// <summary>The animation frames the diving splash shows.</summary>
-    internal static int DivingSplashFrameCount => SamusAtmosphericAnimationDefinitions.FrameCount(SamusAtmosphericEffectType.DivingSplash);
+    internal static int DivingSplashFrameCount => SamusAtmosphericAnimations.FrameCount(SamusAtmosphericEffectType.DivingSplash);
 
     /// <summary>The animation frames the bubbles show.</summary>
-    internal static int BubblesFrameCount => SamusAtmosphericAnimationDefinitions.FrameCount(SamusAtmosphericEffectType.Bubbles);
+    internal static int BubblesFrameCount => SamusAtmosphericAnimations.FrameCount(SamusAtmosphericEffectType.Bubbles);
 
     /// <summary>Every frame the sheet holds.</summary>
     public static IEnumerable<string> Frames =>

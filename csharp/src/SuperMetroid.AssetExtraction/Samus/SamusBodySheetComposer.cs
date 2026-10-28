@@ -23,7 +23,7 @@ internal static class SamusBodySheetComposer
     internal static SpriteSheetSources Sources(SamusSheetInputs inputs, SpriteSheetId sheet)
     {
         Ensure.NotNull(inputs);
-        SamusBodyArtworkCatalog body = inputs.SamusBody;
+        InstalledSamusBodyArtwork body = inputs.SamusBody;
         var frames = new List<SheetFrameSource>();
         foreach ((SamusBodyFrameKey key, SpriteFrame frame) in Frames(body, sheet))
         {
@@ -38,16 +38,16 @@ internal static class SamusBodySheetComposer
     }
 
     /// <summary>The names of the frames a body sheet holds.</summary>
-    internal static IEnumerable<string> FrameNames(SamusBodyArtworkCatalog body, SpriteSheetId sheet) =>
+    internal static IEnumerable<string> FrameNames(InstalledSamusBodyArtwork body, SpriteSheetId sheet) =>
         Frames(body, sheet).Select(frame => frame.Key.Name);
 
     /// <summary>
     /// Every distinct frame a body sheet holds, in table order. A frame that transfers no bottom half keeps the bottom
     /// characters an earlier frame selected, or none before any did, so it is covered over each of those.
     /// </summary>
-    private static IEnumerable<KeyValuePair<SamusBodyFrameKey, SpriteFrame>> Frames(SamusBodyArtworkCatalog body, SpriteSheetId sheet)
+    private static IEnumerable<KeyValuePair<SamusBodyFrameKey, SpriteFrame>> Frames(InstalledSamusBodyArtwork body, SpriteSheetId sheet)
     {
-        SamusSpritemapArtworkCatalog spritemaps = body.Spritemaps;
+        InstalledSamusSpritemaps spritemaps = body.Spritemaps;
         int?[] inheritedBottoms = [null, .. Selections(body)
             .Where(entry => entry.Selection.NamesBottom)
             .Select(entry => (int?)body.DefinitionRecord(SamusBodyHalf.Bottom, entry.Selection.BottomSet, entry.Selection.BottomPosition))
@@ -60,14 +60,14 @@ internal static class SamusBodySheetComposer
                 : [body.DefinitionRecord(SamusBodyHalf.Bottom, selection.BottomSet, selection.BottomPosition)];
             foreach (int index in new[] { spritemaps.TopBase(pose) + animationFrame, spritemaps.BottomBase(pose) + animationFrame })
             {
-                if (index >= SamusSpritemapArtworkCatalog.EntryCount ||
+                if (index >= InstalledSamusSpritemaps.EntryCount ||
                     !spritemaps.TryGetComposition(index, out SamusSpritemapId composition) ||
                     !spritemaps.TryGetFrame(index, out SpriteFrame? frame))
                     continue;
                 foreach (int? bottom in bottoms)
                 {
-                    SamusBodyFrameKey key = SamusBodySheetDefinitions.Key(composition, frame, top, bottom);
-                    if (SamusBodySheetDefinitions.Sheet(key) == sheet && names.Add(key.Name))
+                    SamusBodyFrameKey key = SamusBodySheets.Key(composition, frame, top, bottom);
+                    if (SamusBodySheets.Sheet(key) == sheet && names.Add(key.Name))
                         yield return KeyValuePair.Create(key, frame);
                 }
             }
@@ -75,9 +75,9 @@ internal static class SamusBodySheetComposer
     }
 
     /// <summary>Every animation frame the tables hold a selection for, in table order.</summary>
-    private static IEnumerable<SelectedFrame> Selections(SamusBodyArtworkCatalog body)
+    private static IEnumerable<SelectedFrame> Selections(InstalledSamusBodyArtwork body)
     {
-        for (int pose = 0; pose < SamusBodyArtworkCatalog.PoseCount; pose++)
+        for (int pose = 0; pose < InstalledSamusBodyArtwork.PoseCount; pose++)
         {
             for (int animationFrame = 0; animationFrame < AnimationFrames; animationFrame++)
             {

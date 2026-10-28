@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
@@ -9,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class RoomPlmStationDrawDefinitions
 {
     /// <summary>Published enumeration order: frames by station, then save and access states.</summary>
-    private static readonly StationDraw[] PublishedOrder =
+    internal static readonly StationDraw[] PublishedOrder =
     [
         StationDraw.MapFrame0, StationDraw.EnergyFrame0, StationDraw.MissileFrame0,
         StationDraw.MapFrame1, StationDraw.EnergyFrame1, StationDraw.MissileFrame1,
@@ -21,272 +20,22 @@ internal static class RoomPlmStationDrawDefinitions
         StationDraw.ResourceLeftRetracted, StationDraw.ResourceLeftExtended,
     ];
 
-    /// <summary>
-    /// One native station draw list's geometry. Station runs are horizontal and every continuation is an absolute
-    /// origin-relative offset, not accumulated. Each layout is its own sealed record holding only what it needs; these
-    /// rules cover only the twenty native owned draw pointers.
-    /// </summary>
-    /// <param name="Id">The native draw list.</param>
-    internal abstract record Draw(StationDraw Id) : IPlmRunDrawShape
-    {
-        /// <inheritdoc/>
-        public abstract int RunCount { get; }
-
-        /// <inheritdoc/>
-        public int WordCount(int run)
-        {
-            CheckRun(run);
-            return WordsPerRun;
-        }
-
-        /// <inheritdoc/>
-        public sbyte NextX(int run)
-        {
-            CheckRun(run);
-            return run == 0 ? checked((sbyte)FirstRunX) : (sbyte)0;
-        }
-
-        /// <inheritdoc/>
-        public sbyte NextY(int run)
-        {
-            CheckRun(run);
-            return RunY(run);
-        }
-
-        /// <inheritdoc/>
-        public ushort WordAt(int run, int cell)
-        {
-            if ((uint)cell >= (uint)WordCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
-            return Word(run, cell);
-        }
-
-        /// <summary>The level words each run writes.</summary>
-        private protected virtual int WordsPerRun => 1;
-
-        /// <summary>The horizontal offset after the first run; every later run adds none.</summary>
-        private protected virtual int FirstRunX => 0;
-
-        /// <summary>The vertical offset after <paramref name="run"/>.</summary>
-        private protected virtual sbyte RunY(int run) => 0;
-
-        /// <summary>The level word at <paramref name="cell"/> of <paramref name="run"/>, both in range.</summary>
-        private protected abstract ushort Word(int run, int cell);
-
-        /// <summary>Builds one native level word from its collision type, flip bits and tile.</summary>
-        private protected static ushort LevelWord(int collision, int flip, int tile) => (ushort)(collision << 12 | flip | tile);
-
-        /// <summary>Rejects a run outside this layout's native command count.</summary>
-        private void CheckRun(int run)
-        {
-            if ((uint)run >= (uint)RunCount) throw new ArgumentOutOfRangeException(nameof(run));
-        }
-    }
-
-    /// <summary>Two horizontal display cells written origin then left; the art advances 32 tiles per frame.</summary>
-    /// <param name="Id">The native draw list.</param>
-    /// <param name="Frame">The display frame, zero through two.</param>
-    internal sealed record MapDisplay(StationDraw Id, int Frame) : Draw(Id)
-    {
-        /// <inheritdoc/>
-        public override int RunCount => 2;
-
-        /// <inheritdoc/>
-        private protected override int FirstRunX => -1;
-
-        /// <inheritdoc/>
-        private protected override ushort Word(int run, int cell) => LevelWord(8, 0, 0x10c + Frame * 32 - run);
-    }
-
-    /// <summary>
-    /// A vertical refill or ammunition display written origin then above; the art advances one tile per frame and its upper
-    /// cell, a slope, is 32 tiles earlier.
-    /// </summary>
-    /// <param name="Id">The native draw list.</param>
-    /// <param name="FirstTile">The display's tile at frame zero.</param>
-    /// <param name="Frame">The display frame, zero through two.</param>
-    internal sealed record ResourceDisplay(StationDraw Id, int FirstTile, int Frame) : Draw(Id)
-    {
-        /// <summary>The energy display's tile at frame zero.</summary>
-        internal const int EnergyFirstTile = 0xc4;
-
-        /// <summary>The missile display's tile at frame zero.</summary>
-        internal const int MissileFirstTile = 0xc7;
-
-        /// <inheritdoc/>
-        public override int RunCount => 2;
-
-        /// <inheritdoc/>
-        private protected override sbyte RunY(int run) => run == 0 ? (sbyte)-1 : (sbyte)0;
-
-        /// <inheritdoc/>
-        private protected override ushort Word(int run, int cell) => LevelWord(run == 0 ? 8 : 1, 0, FirstTile + Frame - run * 32);
-    }
-
-    /// <summary>
-    /// Six two-cell save-pod rows from floor to cap. The art mirrors horizontally, the floor also vertically, and the
-    /// active pose advances one tile. Floor and cap are solid except the idle floor-left trigger; the shaft is air.
-    /// </summary>
-    /// <param name="Id">The native draw list.</param>
-    internal sealed record SavePod(StationDraw Id) : Draw(Id)
-    {
-        /// <inheritdoc/>
-        public override int RunCount => 6;
-
-        /// <inheritdoc/>
-        private protected override int WordsPerRun => 2;
-
-        /// <inheritdoc/>
-        private protected override sbyte RunY(int run) => run < 5 ? (sbyte)(-run - 1) : (sbyte)0;
-
-        /// <inheritdoc/>
-        private protected override ushort Word(int run, int cell)
-        {
-            bool shaft = run is > 0 and < 5;
-            int tile = (shaft ? 0x5b : 0x59) + (Id == StationDraw.SaveActive ? 1 : 0);
-            int flip = cell * 0x400 | (run == 0 ? 0x800 : 0);
-            int collision = shaft ? 0 : Id == StationDraw.SaveIdle && run == 0 && cell == 0 ? 11 : 8;
-            return LevelWord(collision, flip, tile);
-        }
-    }
-
-    /// <summary>Map access cells, mirrored by side; the retracted pose writes a second cell beside the first.</summary>
-    /// <param name="Id">The native draw list.</param>
-    /// <param name="Side">The side of its station the arm sits on.</param>
-    /// <param name="Pose">Whether the arm is extended.</param>
-    internal sealed record MapAccess(StationDraw Id, HorizontalDirection Side, StationAccessPose Pose) : Draw(Id)
-    {
-        /// <inheritdoc/>
-        public override int RunCount => Pose == StationAccessPose.Extended ? 1 : 2;
-
-        /// <inheritdoc/>
-        private protected override int FirstRunX => Pose == StationAccessPose.Extended ? 0
-            : Side == HorizontalDirection.Left ? 3 : -3;
-
-        /// <inheritdoc/>
-        private protected override ushort Word(int run, int cell) =>
-            LevelWord(8, (Side == HorizontalDirection.Left ^ run != 0) ? 0x400 : 0, Pose == StationAccessPose.Extended ? 0x129 : 0x128);
-    }
-
-    /// <summary>A resource access cell, mirrored by side, whose extension turns its trigger solid.</summary>
-    /// <param name="Id">The native draw list.</param>
-    /// <param name="Side">The side of its station the arm sits on.</param>
-    /// <param name="Pose">Whether the arm is extended.</param>
-    internal sealed record ResourceAccess(StationDraw Id, HorizontalDirection Side, StationAccessPose Pose) : Draw(Id)
-    {
-        /// <inheritdoc/>
-        public override int RunCount => 1;
-
-        /// <inheritdoc/>
-        [SuppressMessage("Design", "SME6426",
-            Justification = "Every other station layout reads the run and cell it is asked for; a resource access arm is one cell, so its word needs neither coordinate.")]
-        private protected override ushort Word(int run, int cell)
-        {
-            bool extended = Pose == StationAccessPose.Extended;
-            return LevelWord(extended ? 8 : 11, Side == HorizontalDirection.Left ? 0 : 0x400, extended ? 0xc1 : 0xc3);
-        }
-    }
-
-    /// <summary>The layout of <paramref name="request"/>, which must be one of the twenty station draw lists.</summary>
-    /// <exception cref="InvalidOperationException"><paramref name="request"/> is not a station draw list.</exception>
-    internal static Draw Describe(PlmDraw request) =>
-        TryDescribe(request, out Draw? draw) ? draw : throw new InvalidOperationException($"{request} is not a station draw list.");
-
-    /// <summary>
-    /// Describes a draw handed over by the shared PLM drawing; draws of other families are not the stations'.
-    /// </summary>
-    internal static bool TryDescribe(PlmDraw request, [MaybeNullWhen(false)] out Draw draw)
-    {
-        if (request is not PlmFrameDraw<StationDraw>)
-        {
-            draw = null;
-            return false;
-        }
-        var station = PlmDraw.FrameOf<StationDraw>(request, "StationDraw");
-        draw = station switch
-        {
-            StationDraw.MapFrame0 => new MapDisplay(station, 0),
-            StationDraw.MapFrame1 => new MapDisplay(station, 1),
-            StationDraw.MapFrame2 => new MapDisplay(station, 2),
-            StationDraw.EnergyFrame0 => new ResourceDisplay(station, ResourceDisplay.EnergyFirstTile, 0),
-            StationDraw.EnergyFrame1 => new ResourceDisplay(station, ResourceDisplay.EnergyFirstTile, 1),
-            StationDraw.EnergyFrame2 => new ResourceDisplay(station, ResourceDisplay.EnergyFirstTile, 2),
-            StationDraw.MissileFrame0 => new ResourceDisplay(station, ResourceDisplay.MissileFirstTile, 0),
-            StationDraw.MissileFrame1 => new ResourceDisplay(station, ResourceDisplay.MissileFirstTile, 1),
-            StationDraw.MissileFrame2 => new ResourceDisplay(station, ResourceDisplay.MissileFirstTile, 2),
-            StationDraw.SaveIdle or StationDraw.SaveActive or StationDraw.SaveAlternate => new SavePod(station),
-            StationDraw.MapRightRetracted => new MapAccess(station, HorizontalDirection.Right, StationAccessPose.Retracted),
-            StationDraw.MapRightExtended => new MapAccess(station, HorizontalDirection.Right, StationAccessPose.Extended),
-            StationDraw.MapLeftRetracted => new MapAccess(station, HorizontalDirection.Left, StationAccessPose.Retracted),
-            StationDraw.MapLeftExtended => new MapAccess(station, HorizontalDirection.Left, StationAccessPose.Extended),
-            StationDraw.ResourceRightRetracted => new ResourceAccess(station, HorizontalDirection.Right, StationAccessPose.Retracted),
-            StationDraw.ResourceRightExtended => new ResourceAccess(station, HorizontalDirection.Right, StationAccessPose.Extended),
-            StationDraw.ResourceLeftRetracted => new ResourceAccess(station, HorizontalDirection.Left, StationAccessPose.Retracted),
-            StationDraw.ResourceLeftExtended => new ResourceAccess(station, HorizontalDirection.Left, StationAccessPose.Extended),
-            _ => throw new InvalidOperationException($"Undefined station draw {request}."),
-        };
-        return true;
-    }
-    /// <summary>Calculates the twenty complete native station lists in published enumeration order.</summary>
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
-    {
-        get
-        {
-            foreach (StationDraw frame in PublishedOrder)
-            {
-                TryGet(PlmDraw.Of(frame), out var list);
-                yield return list;
-            }
-        }
-    }
-    /// <summary>Constructs a temporary artwork draw-list DTO for a station pointer; runtime drawing calculates cells directly.</summary>
-    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.TryCompile<Draw>(request, TryDescribe, out list);
-
-    /// <summary>
-    /// Published ordinal artwork IDs: three numbered frames per map/resource
-    /// station, and named save/access states. These are identity selections,
-    /// independent of the physical words. Only complete native lists have IDs.
-    /// </summary>
-    internal static string VisualId(PlmDraw request) =>
-        PlmDraw.FrameOf<StationDraw>(request, "station draw list") switch
-        {
-            StationDraw.MapFrame0 => "map-frame-0",
-            StationDraw.MapFrame1 => "map-frame-1",
-            StationDraw.MapFrame2 => "map-frame-2",
-            StationDraw.EnergyFrame0 => "energy-frame-0",
-            StationDraw.EnergyFrame1 => "energy-frame-1",
-            StationDraw.EnergyFrame2 => "energy-frame-2",
-            StationDraw.MissileFrame0 => "missile-frame-0",
-            StationDraw.MissileFrame1 => "missile-frame-1",
-            StationDraw.MissileFrame2 => "missile-frame-2",
-            StationDraw.SaveIdle => "save-idle",
-            StationDraw.SaveActive => "save-active-a",
-            StationDraw.SaveAlternate => "save-active-b",
-            StationDraw.MapRightRetracted => "map-right-retracted",
-            StationDraw.MapRightExtended => "map-right-extended",
-            StationDraw.MapLeftRetracted => "map-left-retracted",
-            StationDraw.MapLeftExtended => "map-left-extended",
-            StationDraw.ResourceRightRetracted => "resource-right-retracted",
-            StationDraw.ResourceRightExtended => "resource-right-extended",
-            StationDraw.ResourceLeftRetracted => "resource-left-retracted",
-            StationDraw.ResourceLeftExtended => "resource-left-extended",
-            _ => throw new InvalidOperationException($"Undefined station draw list {request}."),
-        };
-
-    /// <summary>Finds a station draw list by its stable artwork identity rather than native pointer.</summary>
-    internal static bool TryGetByVisualId(string id,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        foreach (var candidate in All)
-        {
-            if (string.Equals(id, VisualId(candidate.Draw), StringComparison.Ordinal))
-            {
-                list = candidate;
-                return true;
-            }
-        }
-        list = default;
-        return false;
-    }
-
+    /// <summary>The visual block of the map display's first frame, top row; each frame steps one block row.</summary>
+    internal const int MapFirstBlock = 0x10c;
+    /// <summary>The visual block of the energy display's first frame.</summary>
+    internal const int EnergyFirstBlock = 0x0c4;
+    /// <summary>The visual block of the missile display's first frame.</summary>
+    internal const int MissileFirstBlock = 0x0c7;
+    /// <summary>The visual block of the save pod's top and base; the active pod's steps one block.</summary>
+    internal const int SavePodBlock = 0x059;
+    /// <summary>The visual block of the save pod's shaft; the active pod's steps one block.</summary>
+    internal const int SaveShaftBlock = 0x05b;
+    /// <summary>The visual block of the extended map access arm.</summary>
+    internal const int MapAccessExtendedBlock = 0x129;
+    /// <summary>The visual block of the retracted map access arm.</summary>
+    internal const int MapAccessRetractedBlock = 0x128;
+    /// <summary>The visual block of the extended resource access arm.</summary>
+    internal const int ResourceAccessExtendedBlock = 0x0c1;
+    /// <summary>The visual block of the retracted resource access arm.</summary>
+    internal const int ResourceAccessRetractedBlock = 0x0c3;
 }

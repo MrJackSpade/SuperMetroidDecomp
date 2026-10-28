@@ -39,7 +39,7 @@ internal static class BlockReactionSelectorsVerification
         ushort[] nativePointers = [0xa49b,0xa4e7,0xa4ed];
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
-            bool found = RoomPlmBombedRevealDrawDefinitions.TryGet(NativePlmDraws.At<RoomPlmBombedRevealDraw>(pointer), out var draw);
+            bool found = BombedRevealPlmDraws.TryGet(NativePlmDraws.At<RoomPlmBombedRevealDraw>(pointer), out var draw);
             AssertEqual(nativePointers.Contains((ushort)pointer), found, "bombed reveal complete native draw pointer domain");
             if (!found)
             {

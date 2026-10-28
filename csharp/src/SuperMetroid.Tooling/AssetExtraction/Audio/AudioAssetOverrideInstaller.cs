@@ -106,7 +106,7 @@ public static class AudioAssetOverrideInstaller
     private static AudioClipOverrideManifest ReadManifest(string directory)
     {
         string path = Path.Combine(directory, AudioClipOverrideManifest.FileName);
-        return JsonSerializer.Deserialize<AudioClipOverrideManifest>(File.ReadAllBytes(path), ClipAudioCatalog.JsonOptions)
+        return JsonSerializer.Deserialize<AudioClipOverrideManifest>(File.ReadAllBytes(path), ClipAudioLibrary.JsonOptions)
             ?? throw new InvalidDataException($"Audio override manifest '{path}' deserialized to null.");
     }
 
@@ -114,7 +114,7 @@ public static class AudioAssetOverrideInstaller
     private static void WriteManifest(string directory, AudioClipOverrideManifest manifest) =>
         File.WriteAllText(
             Path.Combine(directory, AudioClipOverrideManifest.FileName),
-            JsonSerializer.Serialize(manifest, ClipAudioCatalog.JsonOptions));
+            JsonSerializer.Serialize(manifest, ClipAudioLibrary.JsonOptions));
 
     /// <summary>Copies a directory tree.</summary>
     private static void CopyDirectory(string source, string destination)

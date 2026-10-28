@@ -1,0 +1,38 @@
+namespace SuperMetroid.Core.Assets;
+
+/// <summary>Editable starting colour image and common sprite colors restored on room entry.</summary>
+public sealed class GameplayBasePalette
+{
+    /// <summary>Owned 256-color starting image loaded at gameplay startup.</summary>
+    internal readonly RgbColor[] initial;
+    /// <summary>Owned sixteen-color palette reused by common room sprites.</summary>
+    internal readonly RgbColor[] commonSprites;
+
+    /// <summary>Retains validated RGB5 arrays detached from the editable document.</summary>
+    internal GameplayBasePalette(RgbColor[] initial, RgbColor[] commonSprites)
+    {
+        this.initial = initial;
+        this.commonSprites = commonSprites;
+    }
+
+    /// <summary>Identity of the decoded selected colors, independent of JSON encoding.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(GameplayBasePalette), content =>
+    {
+        content.AppendColors("initial", initial);
+        content.AppendColors("common sprites", commonSprites);
+    });
+
+    /// <summary>Loads the complete selected 256-colour starting image into gameplay's colours.</summary>
+    public void LoadInitial(GameplayColours colours) => Ensure.NotNull(colours).LoadStartingImage(initial);
+
+    /// <summary>Loads the complete selected 256-colour starting image into a screen's colours.</summary>
+    /// <param name="colours">Every colour of the screen, all 256.</param>
+    public void LoadInitial(ColourRun colours) => colours.CopyFrom(initial);
+
+    /// <summary>Loads the selected sixteen common sprite colours into <paramref name="set"/>.</summary>
+    public void LoadCommonSprites(ColourRun set) => set.CopyFrom(commonSprites);
+
+    /// <summary>Copies the sixteen enemy-projectile colours of the initial image into <paramref name="set"/>.</summary>
+    public void LoadEnemyProjectileSprites(ColourRun set) =>
+        set.CopyFrom(initial.AsSpan(GameplayBasePaletteFormat.EnemyProjectileInitialColor, GameplayBasePaletteFormat.SpriteColorCount));
+}

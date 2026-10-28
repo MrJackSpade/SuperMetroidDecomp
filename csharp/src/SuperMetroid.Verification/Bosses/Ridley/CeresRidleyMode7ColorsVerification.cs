@@ -23,7 +23,7 @@ internal static class CeresRidleyMode7ColorsVerification
     /// <summary>Compares native zoom rows, all getaway frames, override repair, and source-read blocking.</summary>
     internal static void VerifyCeresRidleyMode7ColorOverride(string stockDirectory,
         string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom,
-        GameplayBasePaletteCatalog initialPalettes)
+        GameplayBasePalette initialPalettes)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorExtractor.Extract(rom);
         CeresRidleyFloorColorCatalog native = CeresRidleyMode7ColorFile.Read(

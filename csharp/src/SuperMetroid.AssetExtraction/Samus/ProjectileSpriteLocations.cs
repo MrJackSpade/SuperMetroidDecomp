@@ -17,7 +17,7 @@ internal static class ProjectileSpriteLocations
     internal static ushort[] RecordSprites(ISnesAddressSpace bus)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
-        SamusProjectileListLayout lists = SamusProjectileListEntries.Read(cartridge);
+        InstalledProjectileListPositions lists = SamusProjectileListEntries.Read(cartridge);
         return [.. Enumerable.Range(0, SamusProjectileRecordDefinitions.Records.Length).Select(record => RomDataReader.ReadWordFixedBank(cartridge,
             SamusSourceDefinitions.ProjectileDataBank.Value | unchecked((ushort)(lists.RecordPosition(record) + 2))))];
     }
@@ -164,7 +164,7 @@ internal static class ProjectileSpriteLocations
     private static ushort PlasmaWavePointer(PlasmaWaveShape shape, int phase)
     {
         // Core part counts describe the native chosen footprints. Their full
-        // independent OAM design remains required under ProjectileSpriteCatalog.frames.
+        // independent OAM design remains required under InstalledProjectileSprites.frames.
         (int start, int coreParts) = shape switch
         {
             PlasmaWaveShape.HorizontalShort => new PlasmaWaveParts(PlasmaWaveHorizontalShort, 4),

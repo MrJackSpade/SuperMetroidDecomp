@@ -11,13 +11,13 @@ internal static class SamusBodyFrameStateAccess
     extension(SamusBodyFrameState self)
     {
         /// <summary>
-        /// Loads the body characters the shown definitions make (<see cref="SamusBodyArtworkCatalog.BodyArtwork"/>) at
+        /// Loads the body characters the shown definitions make (<see cref="InstalledSamusBodyArtwork.BodyArtwork"/>) at
         /// the start of the sprite characters, which the body's draws name from character zero.
         /// </summary>
         internal void LoadShownInto(SnesVram vram)
         {
             Ensure.NotNull(vram);
-            SamusBodyArtworkCatalog installed = self.Artwork ?? throw new InvalidOperationException(
+            InstalledSamusBodyArtwork installed = self.Artwork ?? throw new InvalidOperationException(
                 "Picturing Samus's body requires installed body artwork.");
             vram.LoadBytes(GameplayVramLayoutConstants.ObjectCharacters.Offset * sizeof(ushort),
                 installed.BodyArtwork(self.Shown.Top, self.Shown.Bottom).Characters);

@@ -738,8 +738,8 @@ false);
     /// when its signed countdown expires.
     /// </summary>
     public bool UpdatePalette(SamusColours colours, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
-        SamusSuitColorCatalog? suitColors = null,
-        SamusFullBodyCycleColorCatalog? cycleColors = null)
+        InstalledSamusSuitColors? suitColors = null,
+        InstalledSamusFullBodyCycleColors? cycleColors = null)
     {
         Ensure.NotNull(colours);
         if (PaletteType is not (SamusSpecialPaletteType.SpeedBoosterShine or SamusSpecialPaletteType.Shinesparking))
@@ -767,9 +767,9 @@ false);
         int suitOffset = equippedItems.GetSuitPaletteTableOffset();
         int phaseOffset = checked((ushort)PaletteFrameOffset);
         bool catalogued = PaletteType == SamusSpecialPaletteType.SpeedBoosterShine
-            ? SamusPaletteDefinitions.FullBodyCycles.TryStoredShinePalette(
+            ? SamusFullBodyCyclePalettes.TryStoredShinePalette(
                 suitOffset, phaseOffset, out SamusFullBodyCyclePalette palette)
-            : SamusPaletteDefinitions.FullBodyCycles.TryActiveShinesparkPalette(
+            : SamusFullBodyCyclePalettes.TryActiveShinesparkPalette(
                 suitOffset, phaseOffset, out palette);
         if (!catalogued)
             throw new InvalidDataException(
@@ -928,7 +928,7 @@ false);
         SamusProjectileSystem? projectiles)
     {
         // Resolve the crash axis before publishing the standing pose.
-        var departureAngles = ShinesparkEchoDefinitions.DepartureAngles(samus.Pose);
+        var departureAngles = ShinesparkEchoDepartures.DepartureAngles(samus.Pose);
         samus.HorizontalSpeed.ResetSpeedEchoPositionsForShinespark();
 
         // Native reserves fixed projectile slots three and four. Its projectile counter

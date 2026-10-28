@@ -26,15 +26,15 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
             ushort byteOffset = unchecked((ushort)(
                 record * CrystalFlashPaletteTimingDefinitions.RecordByteCount));
             AssertEqual(nativeDuration,
-                CrystalFlashPaletteTimingDefinitions.DurationForByteOffset(byteOffset),
+                CrystalFlashPaletteTiming.DurationForByteOffset(byteOffset),
                 $"Crystal Flash body-palette duration {record}");
         }
 
         AssertThrows<InvalidDataException>(
-            () => CrystalFlashPaletteTimingDefinitions.DurationForByteOffset(1),
+            () => CrystalFlashPaletteTiming.DurationForByteOffset(1),
             "Crystal Flash timing rejects an unaligned restored offset");
         AssertThrows<InvalidDataException>(
-            () => CrystalFlashPaletteTimingDefinitions.DurationForByteOffset(
+            () => CrystalFlashPaletteTiming.DurationForByteOffset(
                 CrystalFlashPaletteTimingDefinitions.RecordCount *
                     CrystalFlashPaletteTimingDefinitions.RecordByteCount),
             "Crystal Flash timing rejects an offset beyond the authored cycle");

@@ -20,7 +20,7 @@ public static class BeamPaletteFile
     /// <summary>Loads all twelve ordinary beam palette selections, rejecting duplicate or unknown properties, unsupported versions, missing keys, rows other than sixteen colors, and RGB5 channels outside 0..31; independently supplied color edits remain exact.</summary>
     /// <param name="json">UTF-8 JSON stream containing the versioned beam-palette document.</param>
     /// <returns>The validated immutable palette catalog.</returns>
-    public static BeamPaletteCatalog Read(Stream json)
+    public static InstalledBeamPalettes Read(Stream json)
     {
         BeamPaletteDocument document;
         try
@@ -37,7 +37,7 @@ public static class BeamPaletteFile
         var compiled = new RgbColor[BeamTileAtlasDefinitions.SelectionCount][];
         for (int selection = 0; selection < compiled.Length; selection++)
         {
-            if (!document.Palettes.TryGetValue(BeamPaletteDefinitions.Key(SamusBeamCombinations.FromTableIndex(selection)), out var colors) ||
+            if (!document.Palettes.TryGetValue(BeamPaletteSources.Key(SamusBeamCombinations.FromTableIndex(selection)), out var colors) ||
                 colors is null || colors.Length != BeamPaletteDefinitions.ColorCount)
                 throw new InvalidDataException($"Missing or incomplete beam palette {selection}.");
             compiled[selection] = new RgbColor[colors.Length];

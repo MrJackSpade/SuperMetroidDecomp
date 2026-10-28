@@ -20,24 +20,10 @@ namespace SuperMetroid.Core.Samus.Death;
 /// these nine even-byte durations and does not exempt adjacent control data.</remarks>
 internal static class SamusDeathExplosionTimingDefinitions
 {
-
     /// <summary>Number of authored suit-explosion timing records.</summary>
     public const ushort RecordCount = 9;
 
     /// <summary>Nine authored dwell times: initial whiteout hold, seven drawing cadences, and final completion delay.</summary>
-    private static ReadOnlySpan<byte> Durations =>
+    internal static ReadOnlySpan<byte> Durations =>
         [21, 6, 3, 4, 5, 5, 6, 6, 80];
-
-    /// <summary>Returns the fixed duration for one authored explosion-frame index.</summary>
-    public static ushort DurationForIndex(int index)
-    {
-        if (index is < 0 or >= RecordCount)
-        {
-            throw new InvalidDataException(
-                $"Samus death-explosion timing index {index} is outside the " +
-                $"{RecordCount}-record native sequence.");
-        }
-
-        return Durations[index];
-    }
 }

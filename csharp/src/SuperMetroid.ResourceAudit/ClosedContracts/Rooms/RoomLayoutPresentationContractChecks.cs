@@ -17,21 +17,21 @@ internal static class RoomLayoutPresentationContractChecks
     internal static void Run()
     {
         RoomLevelId first = RoomVisualLayoutSourceDefinitions.All.First();
-        RoomVisualLayout Layout(RoomLevelId level) => new(level, new(1, 1), [0], [0]);
+        RoomLevelArtwork Layout(RoomLevelId level) => new(level, new(1, 1), [0], [0]);
         var owned = RoomVisualLayoutSourceDefinitions.All.ToDictionary(level => level, Layout);
-        var incomplete = new Dictionary<RoomLevelId, RoomVisualLayout>(owned);
+        var incomplete = new Dictionary<RoomLevelId, RoomLevelArtwork>(owned);
         incomplete.Remove(first);
         bool rejected = false;
-        try { _ = new RoomVisualLayoutCatalog(incomplete, RoomVisualLayoutSourceDefinitions.All); }
+        try { _ = new RoomLevelArtworks(incomplete, RoomVisualLayoutSourceDefinitions.All); }
         catch (InvalidDataException) { rejected = true; }
         Require(rejected, "production construction must reject a missing required level");
-        var catalog = new RoomVisualLayoutCatalog(owned, RoomVisualLayoutSourceDefinitions.All);
+        var catalog = new RoomLevelArtworks(owned, RoomVisualLayoutSourceDefinitions.All);
         owned.Remove(first);
         Require(catalog.Get(first).Level == first, "catalog keys must be independent of the input dictionary");
         var mismatched = RoomVisualLayoutSourceDefinitions.All.ToDictionary(level => level, Layout);
         mismatched[first] = Layout(RoomVisualLayoutSourceDefinitions.All.Last());
         rejected = false;
-        try { _ = new RoomVisualLayoutCatalog(mismatched, RoomVisualLayoutSourceDefinitions.All); }
+        try { _ = new RoomLevelArtworks(mismatched, RoomVisualLayoutSourceDefinitions.All); }
         catch (InvalidDataException) { rejected = true; }
         Require(rejected, "installed keys must match their layout identities");
 
@@ -43,7 +43,7 @@ internal static class RoomLayoutPresentationContractChecks
             using SuperMetroid.Core.Rooms;
             using SuperMetroid.Core.Rooms.LevelData;
             class LayoutConsumer {
-                void Inspect(RoomVisualLayoutCatalog layouts, RoomLevelId level) {
+                void Inspect(RoomLevelArtworks layouts, RoomLevelId level) {
                     layouts.Get(new RoomLevelId("{{first.Name}}"));
                     layouts.Get(level);
                     layouts.Get(new RoomLevelId("UnknownLevel"));
@@ -53,7 +53,7 @@ internal static class RoomLayoutPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("RoomLayoutProviderFixture", sources,
-            platforms.Append(typeof(RoomVisualLayoutCatalog).Assembly.Location).Distinct()
+            platforms.Append(typeof(RoomLevelArtworks).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)

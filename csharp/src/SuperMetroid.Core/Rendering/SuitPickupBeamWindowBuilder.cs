@@ -62,7 +62,7 @@ internal static class SuitPickupBeamWindowBuilder
         for (int scanline = 0; scanline < windows.Length; scanline++)
         {
             int curveIndex = scanline < windows.Length / 2 ? scanline : windows.Length - 1 - scanline;
-            int curve = SuitPickupBeamCurveDefinitions.OffsetAt(curveIndex);
+            int curve = SuitPickupBeamCurve.OffsetAt(curveIndex);
             int candidateLeft = column.Left - curve;
             int candidateRight = column.Right + curve;
             windows[scanline] = new SuitPickupBeamEdges(

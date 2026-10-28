@@ -33,7 +33,7 @@ internal static class RoomStaticPalettesVerification
         var compiled = new Dictionary<int, RoomStaticPalette>();
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
-            int source = RoomTilesetDefinitions.Get(graphicsSet).PaletteAddress;
+            int source = RoomTilesets.Get(graphicsSet).PaletteAddress;
             string name = RoomStaticPaletteFormat.SourceFileName(source);
             if (compiled.ContainsKey(source)) continue;
             RoomStaticPalette palette = RoomStaticPaletteFile.Read(
@@ -49,7 +49,7 @@ internal static class RoomStaticPalettesVerification
         }
         AssertEqual(compiled.Count, files.Count,
             "one extracted room palette per distinct graphics-set color source");
-        var catalog = new RoomStaticPaletteCatalog(compiled.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.PaletteSetAt(pair.Key), pair => pair.Value));
+        var catalog = new RoomStaticPalettes(compiled.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.PaletteSetAt(pair.Key), pair => pair.Value));
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
             SelectedRoom header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
@@ -64,7 +64,7 @@ internal static class RoomStaticPalettesVerification
         }
 
         SelectedRoom landing = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
-        int selectedSource = RoomTilesetDefinitions.Get(landing.State.GraphicsSet).PaletteAddress;
+        int selectedSource = RoomTilesets.Get(landing.State.GraphicsSet).PaletteAddress;
         string selectedName = RoomStaticPaletteFormat.SourceFileName(selectedSource);
         JsonNode edited = JsonNode.Parse(files[selectedName])
             ?? throw new InvalidDataException("Extracted room palette JSON is empty.");
@@ -83,7 +83,7 @@ internal static class RoomStaticPalettesVerification
             "editing one RGB5 component changes only its selected runtime CGRAM color");
         compiled[selectedSource] = replacement;
         LoadedRoomAssets editedRoom = LoadFixtureRoomAssets(landing,
-            paletteArt: new RoomStaticPaletteCatalog(compiled.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.PaletteSetAt(pair.Key), pair => pair.Value)));
+            paletteArt: new RoomStaticPalettes(compiled.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.PaletteSetAt(pair.Key), pair => pair.Value)));
         var editedRoomCgram = new GameplayColours(new SpriteColourSets());
         editedRoom.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), editedRoomCgram.BackgroundSets);
         AssertEqual(editedCgram.Colors[0], editedRoomCgram.Colors[0],

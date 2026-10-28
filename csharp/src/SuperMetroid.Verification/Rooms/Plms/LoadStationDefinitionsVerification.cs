@@ -49,18 +49,18 @@ internal static class LoadStationDefinitionsVerification
             int count = areaValue < 7 ? OriginalLoadStationCount(rom, areaValue) : 0;
             if (areaValue < 7)
             {
-                AssertEqual(count, LoadStationDefinitions.Count(area), "Exact original area-list length");
+                AssertEqual(count, LoadStations.Count(area), "Exact original area-list length");
                 total += count;
             }
             else
-                AssertThrows<ArgumentOutOfRangeException>(() => LoadStationDefinitions.Count(area), "Unknown area count rejects");
+                AssertThrows<ArgumentOutOfRangeException>(() => LoadStations.Count(area), "Unknown area count rejects");
             for (int stationValue = 0; stationValue <= byte.MaxValue; stationValue++)
             {
                 byte station = (byte)stationValue;
                 if (stationValue < count)
-                    _ = LoadStationDefinitions.Get(area, station);
+                    _ = LoadStations.Get(area, station);
                 else
-                    AssertThrows<ArgumentOutOfRangeException>(() => LoadStationDefinitions.Get(area, station),
+                    AssertThrows<ArgumentOutOfRangeException>(() => LoadStations.Get(area, station),
                         "Every unsupported area/station pair rejects before placeholder selection");
             }
         }
@@ -89,7 +89,7 @@ internal static class LoadStationDefinitionsVerification
         for (int station = 0; station < OriginalLoadStationCount(rom, area); station++)
         {
             LoadStationEntry original = LoadStationEntryImporter.Load(rom, (AreaId)area, (byte)station);
-            LoadStationEntry actual = LoadStationDefinitions.Get((AreaId)area, (byte)station);
+            LoadStationEntry actual = LoadStations.Get((AreaId)area, (byte)station);
             AssertEqual(field(original), field(actual), $"Area {area} station {station} original {name}");
             if (name == "SamusXOffset")
                 AssertEqual(unchecked((ushort)(original.CameraPosition.X + 128 + original.SamusOffset.X)), actual.SamusPosition.X,

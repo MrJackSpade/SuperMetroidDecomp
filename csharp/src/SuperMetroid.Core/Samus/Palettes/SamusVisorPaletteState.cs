@@ -24,7 +24,7 @@ public sealed class SamusVisorPaletteState
 
     /// <summary>Host-owned visor artwork, excluded from debugger-state serialization.</summary>
     [field: NonSerialized]
-    public SamusVisorColorCatalog? PresentationColors { get; set; }
+    public InstalledSamusVisorColors? PresentationColors { get; set; }
 
     /// <summary>
     /// Palette-handler calls left before the next visor colour, one through

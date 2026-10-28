@@ -20,10 +20,10 @@ internal static class DownwardGateVisualsVerification
     /// <summary>Checks edited column and trigger tiles survive actual PLM drawing and later camera streaming.</summary>
     internal static void VerifyDownwardGateVisuals()
     {
-        RoomPlmDownwardGateVisualCatalog stock = RoomPlmDownwardGateVisualCatalog.Stock();
-        RoomPlmVisualRunEntry[] entries = DownwardGatePlmDrawDefinitions.All
+        InstalledRoomPlmDownwardGateVisuals stock = InstalledRoomPlmDownwardGateVisuals.Stock();
+        RoomPlmVisualRunEntry[] entries = DownwardGatePlmDraws.All
             .Select(list => new RoomPlmVisualRunEntry(
-                DownwardGatePlmDrawDefinitions.VisualId(list.Draw),
+                DownwardGatePlmDraws.VisualId(list.Draw),
                 list.Runs.Span
                     .SelectToArray(run => run.LevelWords.Span
                         .SelectToArray(word => new RoomLevelWord(word).VisualWord))
@@ -37,7 +37,7 @@ internal static class DownwardGateVisualsVerification
         RoomPlmVisualRunEntry trigger = entries.Single(entry =>
             entry.Id == "blue-left-trigger");
         trigger.Runs[1][0] = 0x0053;
-        var edited = new RoomPlmDownwardGateVisualCatalog(entries);
+        var edited = new InstalledRoomPlmDownwardGateVisuals(entries);
         column.Runs[0][1] = 0x0054;
         AssertEqual((ushort)0x0053, edited.GetWord(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1),
             "gate visual catalog copies author data");
@@ -45,7 +45,7 @@ internal static class DownwardGateVisualsVerification
             "stock gate visual retains the physical column art");
 
         DownwardGateVisualsRenderResult
-            Render(RoomPlmDownwardGateVisualCatalog visuals)
+            Render(InstalledRoomPlmDownwardGateVisuals visuals)
         {
             (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms, int gateBlockIndex) = CreateDownwardGateFixture(
                     DownwardGateTriggerBehavior.BlueLeft, visuals);
@@ -81,15 +81,15 @@ internal static class DownwardGateVisualsVerification
             "edited trigger art survives camera streaming");
 
         AssertThrows<InvalidDataException>(
-            () => new RoomPlmDownwardGateVisualCatalog(entries.Skip(1)),
+            () => new InstalledRoomPlmDownwardGateVisuals(entries.Skip(1)),
             "gate visual catalog rejects missing frames");
         column.Runs[0][1] = 0xf053;
         AssertThrows<InvalidDataException>(
-            () => new RoomPlmDownwardGateVisualCatalog(entries),
+            () => new InstalledRoomPlmDownwardGateVisuals(entries),
             "gate visual catalog rejects collision bits");
         column.Runs[0][1] = 0x0053;
         AssertThrows<InvalidDataException>(
-            () => new RoomPlmDownwardGateVisualCatalog(entries.Select(entry =>
+            () => new InstalledRoomPlmDownwardGateVisuals(entries.Select(entry =>
                 entry.Id == "column-frame-5" ? entry with { Id = "unknown-frame" } : entry)),
             "gate visual catalog rejects unknown frame IDs");
 

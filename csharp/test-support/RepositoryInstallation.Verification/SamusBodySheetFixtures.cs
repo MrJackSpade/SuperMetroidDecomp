@@ -24,16 +24,16 @@ internal static class SamusBodySheetFixtures
     private static readonly Lazy<SamusSheetInputs> inputs = new(() => SamusSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory));
 
     /// <summary>Sheets already composed, by body.</summary>
-    private static readonly ConditionalWeakTable<SamusBodyArtworkCatalog, InstalledSpriteSheets> composed = new();
+    private static readonly ConditionalWeakTable<InstalledSamusBodyArtwork, InstalledSpriteSheets> composed = new();
 
     /// <summary>Atmosphere sheets already composed, by spritemaps and then atmospheric attributes.</summary>
-    private static readonly ConditionalWeakTable<SamusSpritemapArtworkCatalog, ConditionalWeakTable<SamusAtmosphericArtworkCatalog, InstalledSpriteSheets>> atmospheres = new();
+    private static readonly ConditionalWeakTable<InstalledSamusSpritemaps, ConditionalWeakTable<InstalledSamusAtmosphericArtwork, InstalledSpriteSheets>> atmospheres = new();
 
     /// <summary>Sheets already composed, by arm cannon and then body.</summary>
-    private static readonly ConditionalWeakTable<SamusArmCannonArtworkCatalog, ConditionalWeakTable<SamusBodyArtworkCatalog, InstalledSpriteSheets>> cannons = new();
+    private static readonly ConditionalWeakTable<InstalledSamusArmCannonArtwork, ConditionalWeakTable<InstalledSamusBodyArtwork, InstalledSpriteSheets>> cannons = new();
 
     /// <summary>The installed sheets with the body and overlay sheets <paramref name="body"/> composes.</summary>
-    internal static InstalledSpriteSheets For(SamusBodyArtworkCatalog body)
+    internal static InstalledSpriteSheets For(InstalledSamusBodyArtwork body)
     {
         ArgumentNullException.ThrowIfNull(body);
         return body.ContentIdentity == inputs.Value.SamusBody.ContentIdentity ? InstalledFixtures.SpriteSheets
@@ -42,7 +42,7 @@ internal static class SamusBodySheetFixtures
     }
 
     /// <summary>The sheets <paramref name="body"/> draws from, with the overlay sheet <paramref name="cannon"/> composes.</summary>
-    internal static InstalledSpriteSheets For(SamusBodyArtworkCatalog body, SamusArmCannonArtworkCatalog cannon)
+    internal static InstalledSpriteSheets For(InstalledSamusBodyArtwork body, InstalledSamusArmCannonArtwork cannon)
     {
         ArgumentNullException.ThrowIfNull(body);
         ArgumentNullException.ThrowIfNull(cannon);
@@ -56,15 +56,15 @@ internal static class SamusBodySheetFixtures
     /// The installed sheets with an atmosphere sheet composed from <paramref name="spritemaps"/> and
     /// <paramref name="atmosphere"/>, each the installed body's when not given.
     /// </summary>
-    internal static InstalledSpriteSheets ForAtmosphere(SamusSpritemapArtworkCatalog? spritemaps = null,
-        SamusAtmosphericArtworkCatalog? atmosphere = null)
+    internal static InstalledSpriteSheets ForAtmosphere(InstalledSamusSpritemaps? spritemaps = null,
+        InstalledSamusAtmosphericArtwork? atmosphere = null)
     {
-        SamusBodyArtworkCatalog installed = inputs.Value.SamusBody;
+        InstalledSamusBodyArtwork installed = inputs.Value.SamusBody;
         spritemaps ??= installed.Spritemaps;
         atmosphere ??= installed.Atmosphere;
         if (spritemaps.ContentIdentity == installed.Spritemaps.ContentIdentity && atmosphere.ContentIdentity == installed.Atmosphere.ContentIdentity)
             return InstalledFixtures.SpriteSheets;
-        SamusAtmosphericArtworkCatalog attributes = atmosphere;
+        InstalledSamusAtmosphericArtwork attributes = atmosphere;
         return atmospheres.GetOrCreateValue(spritemaps).GetValue(attributes, key =>
         {
             SpriteSheetSources sources = SamusAtmosphereSheetComposer.Sources(inputs.Value, spritemaps, key);
@@ -77,7 +77,7 @@ internal static class SamusBodySheetFixtures
     extension(SamusBodyFrameState transfers)
     {
         /// <summary>Binds <paramref name="body"/> and the sheets composed from it.</summary>
-        internal void BindBodyFixture(SamusBodyArtworkCatalog body)
+        internal void BindBodyFixture(InstalledSamusBodyArtwork body)
         {
             transfers.BindArtwork(body);
             transfers.BindSheets(For(body));
@@ -88,9 +88,9 @@ internal static class SamusBodySheetFixtures
     extension(SamusState samus)
     {
         /// <summary>Binds <paramref name="cannon"/> over Samus's bound body, and the sheets they draw from.</summary>
-        internal void BindArmCannonFixture(SamusArmCannonArtworkCatalog cannon)
+        internal void BindArmCannonFixture(InstalledSamusArmCannonArtwork cannon)
         {
-            SamusBodyArtworkCatalog body = samus.Presentation.BodyFrames.Artwork
+            InstalledSamusBodyArtwork body = samus.Presentation.BodyFrames.Artwork
                 ?? throw new InvalidOperationException("An arm-cannon fixture binds over a bound body.");
             samus.ArmCannon.Artwork = cannon;
             samus.Presentation.BodyFrames.BindSheets(For(body, cannon));
@@ -104,7 +104,7 @@ internal static class SamusBodySheetFixtures
     /// <param name="cannon">The arm cannon the overlay sheet composes.</param>
     /// <param name="suffix">Keeps the fixture's frames apart from the installed sheets' in the frame-source registry.</param>
     private static InstalledSpriteSheets Compose(InstalledSpriteSheets basis, SamusSheetInputs fixture, IEnumerable<SpriteSheetId> ids,
-        SamusArmCannonArtworkCatalog cannon, string suffix)
+        InstalledSamusArmCannonArtwork cannon, string suffix)
     {
         InstalledSpriteSheets sheets = basis;
         foreach (SpriteSheetId id in ids)
@@ -122,7 +122,7 @@ internal static class SamusBodySheetFixtures
         var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(sheet => sheet, basis.Get);
         ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(sources, 0, 0);
         SpriteSheet loaded = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(sheet.Manifest), writable: false),
-            $"{SpriteSheetDefinitions.FileName(id)}-{suffix}", sheet.Size, sheet.Pixels, sheet.PaletteIndices, sheet.Priorities, sheet.PartRows);
+            $"{SpriteSheetDefinitions.FileNames[id]}-{suffix}", sheet.Size, sheet.Pixels, sheet.PaletteIndices, sheet.Priorities, sheet.PartRows);
         SheetFrameSources.Register(loaded, sources);
         sheets[id] = loaded;
         return new InstalledSpriteSheets(sheets);

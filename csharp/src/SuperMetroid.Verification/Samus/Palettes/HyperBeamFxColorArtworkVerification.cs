@@ -100,7 +100,7 @@ internal static class HyperBeamFxColorArtworkVerification
             int sharedRed = frame == 0 ? whiteSource & 31 : redSource & 31;
             int sharedGreen = frame == 4 ? redSource & 31 : redSource >> 5 & 31;
             AssertEqual(original, entry.Value.Resolve(frame == 0, sharedRed, sharedGreen), "Original paired endpoint shared-intensity reconstruction");
-            foreach (var field in MetadataShape.Fields(typeof(HyperBeamFxColorCatalog.PairedChannels), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
+            foreach (var field in MetadataShape.Fields(typeof(InstalledHyperBeamFxColors.PairedChannels), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
                 if (field.GetValue(entry.Value) is not null) pairedComponentCount++;
             AssertTrue(entry.Value.blue is null,
                 "No original duplicate blue channel is stored");
@@ -109,13 +109,13 @@ internal static class HyperBeamFxColorArtworkVerification
         for (int rgb = 0; rgb < 32768; rgb++)
         foreach (bool redHue in new[] { false, true })
         {
-            AssertEqual((ushort)rgb, new HyperBeamFxColorCatalog.PairedChannels(RgbColor.FromWord(checked((ushort)rgb)), redHue).Resolve(redHue),
+            AssertEqual((ushort)rgb, new InstalledHyperBeamFxColors.PairedChannels(RgbColor.FromWord(checked((ushort)rgb)), redHue).Resolve(redHue),
                 "Complete RGB5 endpoint inputs preserve equal and independently edited blue channels");
             int redComponent = rgb & 31, greenComponent = rgb >> 5 & 31;
-            AssertEqual((ushort)rgb, new HyperBeamFxColorCatalog.PairedChannels(RgbColor.FromWord(checked((ushort)rgb)), redHue, redComponent, greenComponent)
+            AssertEqual((ushort)rgb, new InstalledHyperBeamFxColors.PairedChannels(RgbColor.FromWord(checked((ushort)rgb)), redHue, redComponent, greenComponent)
                 .Resolve(redHue, redComponent, greenComponent), "All RGB5 shared extrema preserve supplied colors");
             int otherRed = (redComponent + 1) % 32, otherGreen = (greenComponent + 1) % 32;
-            AssertEqual((ushort)rgb, new HyperBeamFxColorCatalog.PairedChannels(RgbColor.FromWord(checked((ushort)rgb)), redHue, otherRed, otherGreen)
+            AssertEqual((ushort)rgb, new InstalledHyperBeamFxColors.PairedChannels(RgbColor.FromWord(checked((ushort)rgb)), redHue, otherRed, otherGreen)
                 .Resolve(redHue, otherRed, otherGreen), "All RGB5 differing extrema preserve independent inputs");
         }
         for (int color = 4; color < 8; color++)

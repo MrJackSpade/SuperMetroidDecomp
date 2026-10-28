@@ -33,15 +33,15 @@ internal static class LookupSpeedEscapeStagesVerification
             {
                 AssertEqual((ushort)0x8000, ReadSamusEaterPlmWord(rom, 0x84b888),
                     "Speed escape original completion sentinel");
-                AssertTrue(SpeedBoosterEscapeStageDefinitions.Resolve(offset) is null,
+                AssertTrue(SpeedBoosterEscapeStages.Resolve(offset) is null,
                     "Speed escape terminal action");
             }
             else if (index < 0)
-                AssertThrows<InvalidDataException>(() => SpeedBoosterEscapeStageDefinitions.Resolve(offset),
+                AssertThrows<InvalidDataException>(() => SpeedBoosterEscapeStages.Resolve(offset),
                     "Speed escape rejects every unsupported timer offset");
             else
             {
-                SpeedBoosterEscapeStageDefinition stage = (SpeedBoosterEscapeStageDefinitions.Resolve(offset) ?? throw new InvalidOperationException("Verification requires SpeedBoosterEscapeStageDefinitions.Resolve(offset)."));
+                SpeedBoosterEscapeStageDefinition stage = (SpeedBoosterEscapeStages.Resolve(offset) ?? throw new InvalidOperationException("Verification requires SpeedBoosterEscapeStages.Resolve(offset)."));
                 int actual = field switch
                 {
                     0 => stage.TargetSamusX,

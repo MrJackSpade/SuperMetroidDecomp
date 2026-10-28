@@ -146,7 +146,7 @@ internal static class CoreAccess
     }
 
     /// <summary>Reads the installed initial gameplay palette for exact color comparisons.</summary>
-    extension(GameplayBasePaletteCatalog palettes)
+    extension(GameplayBasePalette palettes)
     {
         /// <summary>Initial gameplay CGRAM colors retained by the loaded palette catalog.</summary>
         internal ReadOnlySpan<RgbColor> Initial => palettes.initial;
@@ -265,7 +265,7 @@ internal static class CoreAccess
                     .Where(entry => entry.Slot.Active)
                     .OrderByDescending(entry => entry.Index)
                     .SelectMany(entry => entry.Slot.Family is StationPlms.StationPlmState station
-                        ? [new StationPlmSnapshot(entry.Index, entry.Slot.BlockIndex, checked((ushort)entry.Slot.RoomArgument),
+                        ? [new StationPlmSnapshot(entry.Index, entry.Slot.BlockIndex, entry.Slot.NativeRoomArgument,
                             station.Kind, station.Triggered, station.SavePhase, lockedOut)]
                         : Array.Empty<StationPlmSnapshot>())
                     .ToArray();

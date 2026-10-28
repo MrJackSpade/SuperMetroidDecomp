@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal static class RoomPlmPopulationSourceDefinitions
 {
     /// <summary>Each compiled population, by its bank-$8F list pointer.</summary>
-    internal static IReadOnlyDictionary<ushort, RoomPlmPopulationDefinition> ByPointer { get; } = new Dictionary<ushort, RoomPlmPopulationDefinition>
+    internal static IReadOnlyDictionary<ushort, RoomPlmPopulation> ByPointer { get; } = new Dictionary<ushort, RoomPlmPopulation>
     {
         [0x8000] = RoomPlmPopulationDefinitions.LandingSiteState012,
         [0x8026] = RoomPlmPopulationDefinitions.LandingSiteState3,

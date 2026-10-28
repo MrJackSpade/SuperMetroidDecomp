@@ -163,7 +163,7 @@ internal static class RoomPlmPopulationVerification
             "Only the escape gate and the eye doors keep a closing start by identity");
         foreach (PlmHeaderId other in Enum.GetValues<PlmHeaderId>())
             if (!resolved.Contains(other))
-                AssertThrows<InvalidDataException>(() => ResidentDoorClosingDefinitions.Resolve(other),
+                AssertThrows<InvalidDataException>(() => ResidentDoorClosings.Resolve(other),
                     "Resident closing complete unsupported-header domain");
 
         int definitionIndex = 0;
@@ -175,7 +175,7 @@ internal static class RoomPlmPopulationVerification
             if (typedClosing is { } typed)
                 AssertEqual(expected, typed, $"resident door $84:{raw:X4} closing program begins at its header's list");
             else
-                AssertEqual(PlmProgramStartOracle.ForNativeList(expected), ResidentDoorClosingDefinitions.Resolve(header),
+                AssertEqual(PlmProgramStartOracle.ForNativeList(expected), ResidentDoorClosings.Resolve(header),
                     $"resident door $84:{raw:X4} resolves by identity");
 
             // Typed placement metadata supplies the first list only. The transition
@@ -185,12 +185,12 @@ internal static class RoomPlmPopulationVerification
             const ushort population = 0x9000;
             byte blockX = (byte)(1 + definitionIndex % 4);
             byte blockY = (byte)(1 + definitionIndex / 4);
-            var decoded = new RoomPlmPopulationDefinition($"$8F:{population:X4}",
+            var decoded = new RoomPlmPopulation($"$8F:{population:X4}",
             [
                 // Two directional caps are not placed in any retail room population,
                 // so they are absent from the 70-header population catalog.
                 new RoomPlmPlacement(new RoomPlmHeaderDefinition(header),
-                    new(blockX, blockY), 0x8000), // Negative argument always closes.
+                    new(blockX, blockY), PlmRoomArgumentWords.Decode(header, 0x8000)), // Negative argument always closes.
             ]);
 
             RoomLevelData level = CreateRoom(new(8, 8),
@@ -213,7 +213,7 @@ internal static class RoomPlmPopulationVerification
                 $"resident door $84:{raw:X4} accepts transition redirect");
             RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
             AssertTrue(typedClosing is null
-                    ? PlmProgramStartOracle.IsRunning(ResidentDoorClosingDefinitions.Resolve(header), slot)
+                    ? PlmProgramStartOracle.IsRunning(ResidentDoorClosings.Resolve(header), slot)
                     : slot.Animation is ColoredDoorPlmAnimation { Program: ColoredDoorProgram.Closing }
                         or GreyDoorPlmAnimation { Program: GreyDoorProgram.Closing },
                 $"resident door $84:{raw:X4} starts its closing program");
@@ -221,7 +221,7 @@ internal static class RoomPlmPopulationVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.BlueDoorFacingLeft),
+            () => ResidentDoorClosings.Resolve(PlmHeaderId.BlueDoorFacingLeft),
             "nonresident blue-door collision header is outside resident closing domain");
     }
 
@@ -742,12 +742,12 @@ internal static class RoomPlmPopulationVerification
         const int inRoomX = 2;
         const int inRoomY = 2;
 
-        var decoded = new RoomPlmPopulationDefinition($"$8F:{population:X4}",
+        var decoded = new RoomPlmPopulation($"$8F:{population:X4}",
         [
-            new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.GreenDoorFacingRight),
-                new(offRoomX, offRoomY), 0x27),
-            new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.GreenDoorFacingLeft),
-                new(inRoomX, inRoomY), 0x28),
+            new RoomPlmPlacement(RoomPlmHeaders.Get(PlmHeaderId.GreenDoorFacingRight),
+                new(offRoomX, offRoomY), new DoorBitArgument(0x27, Persists: true)),
+            new RoomPlmPlacement(RoomPlmHeaders.Get(PlmHeaderId.GreenDoorFacingLeft),
+                new(inRoomX, inRoomY), new DoorBitArgument(0x28, Persists: true)),
         ]);
 
         RoomLevelData level = CreateRoom(new(width, height),
@@ -772,10 +772,10 @@ internal static class RoomPlmPopulationVerification
         AssertEqual(0xc004, level.GetCollisionBlock(new(inRoomX, inRoomY)).PackedWord.Raw,
             "in-room record following the harmless tail actor still draws normally");
 
-        var malformed = new RoomPlmPopulationDefinition($"$8F:{malformedPopulation:X4}",
+        var malformed = new RoomPlmPopulation($"$8F:{malformedPopulation:X4}",
         [
-            new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.ScrollTrigger),
-                new(offRoomX, offRoomY), 0x9800, new byte[] { 0x80 }),
+            new RoomPlmPlacement(RoomPlmHeaders.Get(PlmHeaderId.ScrollTrigger),
+                new(offRoomX, offRoomY), null, new byte[] { 0x80 }),
         ]);
         AssertThrows<ArgumentOutOfRangeException>(
             () => PlmFixtures.LoadPopulation(PlmFixtures.Unbound(), new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Brinstar), malformed, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
@@ -1078,7 +1078,7 @@ internal static class RoomPlmPopulationVerification
 
     /// <summary>Exercises map, missile and save-station admission and message timing in one populated room.</summary>
     internal static void VerifyOtherStationFamilies(TestAddressSpace bus,
-        RoomPlmStationVisualCatalog? visuals = null)
+        InstalledRoomPlmStationVisuals? visuals = null)
     {
         const ushort population = 0x9200;
         SeedRoomPlmPopulation(bus, population, [
@@ -1316,12 +1316,12 @@ internal static class RoomPlmPopulationVerification
             Notices = GameplayMessageNoticeDefinitions.MessageIds.ToDictionary(id => id.ToString(), id =>
                 new GameplayMessageNotice
                 {
-                    RowCount = GameplayMessageNoticeDefinitions.ContentRows(id),
-                    Template = Cells(GameplayMessageNoticeDefinitions.ContentRows(id) * GameplayMessageBoxDefinitions.Layout.TilemapWidth, 0x2800),
+                    RowCount = GameplayMessageNotices.ContentRows(id),
+                    Template = Cells(GameplayMessageNotices.ContentRows(id) * GameplayMessageBoxDefinitions.Layout.TilemapWidth, 0x2800),
                     Text = [new GameplayMessageTextRegion { Row = 0, Column = 0, Width = 4,
                         Alignment = GameplayMessageTextAlignment.Left, Text = "TEST", Palette = 0 }],
-                    YesSelection = GameplayMessageNoticeDefinitions.IsSaveConfirmation(id) ? Cells(32, 0x5100) : null,
-                    NoSelection = GameplayMessageNoticeDefinitions.IsSaveConfirmation(id) ? Cells(32, 0x5200) : null,
+                    YesSelection = GameplayMessageNotices.IsSaveConfirmation(id) ? Cells(32, 0x5100) : null,
+                    NoSelection = GameplayMessageNotices.IsSaveConfirmation(id) ? Cells(32, 0x5200) : null,
                 }),
         };
         using var noticeJson = new MemoryStream();

@@ -16,7 +16,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.XVelocities+i*2)), new UnsignedSixteenSixteen(CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.YSpeeds+i*2)),
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.YSubspeeds+i*2))))).ToArray();
         for(int i=0;i<reference.Length;i++)
-            AssertEqual(reference[i],SamusBombSpreadLaunchDefinitions.ForSlot(i),"All native Bomb Spread launch words");
+            AssertEqual(reference[i],SamusBombSpreadLaunches.ForSlot(i),"All native Bomb Spread launch words");
         Action<SamusBombProjectileSystem,SamusState> spawn=(system,player)=>system.SpawnBombSpread(player);
         var guarded=NewBombSpreadLaunchReadGuard(rom);
         var bombs=new SamusBombProjectileSystem();
@@ -60,7 +60,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
         ushort[] boundaries = [0, 1, 0x7fff, 0x8000, 0xff00, 0xffff];
         for (int slot = 0; slot < MorphBallBombDefinitions.SlotCount; slot++)
         {
-            int launchWord = SamusBombSpreadLaunchDefinitions.ForSlot(slot).XVelocity;
+            int launchWord = SamusBombSpreadLaunches.ForSlot(slot).XVelocity;
             foreach (BombSpreadHorizontalVelocity velocity in new[] {
                 BombSpreadHorizontalVelocity.FromLaunchWord(launchWord),
                 BombSpreadHorizontalVelocity.FromLaunchWord(launchWord).Reversed() })

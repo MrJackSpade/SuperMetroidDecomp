@@ -15,7 +15,7 @@ namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 internal static class CeresExplosionVerification
 {
     /// <summary>Compares blast windows, RGB colors, phase coverage, and cleanup through the scene timeline, including installed-color ROM isolation.</summary>
-    internal static void VerifyCeresExplosionTimeline(PowerBombFixedColorCatalog? colors = null)
+    internal static void VerifyCeresExplosionTimeline(InstalledPowerBombFixedColors? colors = null)
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var guarded = NewForbiddenPowerBombColorBus(bus);
@@ -25,7 +25,7 @@ internal static class CeresExplosionVerification
         {
             IntroCinematicArtworkFiles.Extract(bus, artDirectory, SupportedCartridge.Sha256);
             IntroCinematicArtworkCatalog artwork = IntroCinematicArtworkFiles.Load(artDirectory, null);
-            PowerBombFixedColorCatalog stockColors = colors ?? PowerBombFixedColorFile.Read(
+            InstalledPowerBombFixedColors stockColors = colors ?? PowerBombFixedColorFile.Read(
                 new MemoryStream(PowerBombFixedColorExtractor.Extract(bus)));
             var scene = new CeresDestructionCinematicState(fixedColors: stockColors, artwork: artwork,
                 spriteSheets: CinematicSheetFixtures.WithIntro(artwork));

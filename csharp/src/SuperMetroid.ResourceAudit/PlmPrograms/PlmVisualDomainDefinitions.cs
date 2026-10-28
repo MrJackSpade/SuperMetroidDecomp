@@ -17,35 +17,35 @@ internal static class PlmVisualDomainDefinitions
     /// <summary>Returns exact draw lists for a reviewed PLM catalog, including supported alias identities, or null for other providers.</summary>
     internal static RoomPlmShotBlockDrawDefinitions.DrawList[]? Get(string qualifiedType) => qualifiedType switch
     {
-        "SuperMetroid.Core.Rooms.Plms.RoomPlmShotBlockVisualCatalog" => RoomPlmShotBlockDrawDefinitions.All.ToArray(),
-        "SuperMetroid.Core.Rooms.Plms.RoomPlmStationVisualCatalog" => RoomPlmStationDrawDefinitions.All.ToArray(),
+        "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmShotBlockVisuals" => ShotBlockPlmDraws.All.ToArray(),
+        "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmStationVisuals" => StationPlmDraws.All.ToArray(),
         "SuperMetroid.Core.Bosses.Torizo.Artwork.RoomPlmBombTorizoHandVisualCatalog" => BombTorizoHandPlmDrawDefinitions.All.ToArray(),
         "SuperMetroid.Core.Bosses.MotherBrain.Artwork.RoomPlmMotherBrainGlassVisualCatalog" => MotherBrainGlassPlmDrawDefinitions.All.ToArray(),
-        "SuperMetroid.Core.Rooms.Plms.RoomPlmNoobTubeVisualCatalog" => NoobTubePlmDrawDefinitions.All.ToArray(),
-        "SuperMetroid.Core.Rooms.Plms.RoomPlmDownwardGateVisualCatalog" => DownwardGatePlmDrawDefinitions.All.ToArray(),
+        "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmNoobTubeVisuals" => NoobTubePlmDraws.All.ToArray(),
+        "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmDownwardGateVisuals" => DownwardGatePlmDraws.All.ToArray(),
         "SuperMetroid.Core.Enemies.Elevator.Artwork.RoomPlmElevatorPlatformVisualCatalog" => ElevatorPlatformPlmDefinitions.DrawLists.ToArray(),
         "SuperMetroid.Core.Bosses.Draygon.Artwork.RoomPlmDraygonCannonVisualCatalog" => DraygonCannonPlmDrawDefinitions.All.ToArray(),
         "SuperMetroid.Core.Enemies.Chozo.Artwork.RoomPlmChozoStatueVisualCatalog" => ChozoStatuePlmDrawDefinitions.All.ToArray(),
-        "SuperMetroid.Core.Rooms.Plms.RoomPlmLinkedRestoreVisualCatalog" => RoomPlmLinkedRestoreDrawDefinitions.All.ToArray(),
+        "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmLinkedRestoreVisuals" => RoomPlmLinkedRestoreDrawDefinitions.All.ToArray(),
         "SuperMetroid.Core.Areas.Tourian.Artwork.RoomPlmTourianAccessVisualCatalog" => TourianAccessPlmDrawDefinitions.All.ToArray(),
-        "SuperMetroid.Core.Rooms.Plms.RoomPlmSpeedBoosterVisualCatalog" => SpeedBoosterBlockPlmDrawDefinitions.All.ToArray(),
-        "SuperMetroid.Core.Rooms.Plms.RoomPlmMaridiaElevatubeVisualCatalog" => MaridiaElevatubePlmDefinitions.AllDraws.ToArray(),
+        "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmSpeedBoosterVisuals" => SpeedBoosterBlockPlmDrawDefinitions.All.ToArray(),
+        "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmMaridiaElevatubeVisuals" => MaridiaElevatubePlmDefinitions.AllDraws.ToArray(),
         "SuperMetroid.Core.Bosses.SporeSpawn.Artwork.RoomPlmSporeSpawnCeilingVisualCatalog" => SporeSpawnCeilingPlmDrawDefinitions.All.ToArray(),
-        "SuperMetroid.Core.Rooms.Plms.RoomPlmSamusEaterVisualCatalog" => SamusEaterPlmDrawDefinitions.All.ToArray(),
-        "SuperMetroid.Core.Rooms.Plms.RoomPlmBotwoonWallVisualCatalog" => BotwoonWallPlmDrawDefinitions.All.ToArray(),
-        "SuperMetroid.Core.Rooms.Plms.RoomPlmKraidVisualCatalog" => KraidRoomPlmDrawDefinitions.All.ToArray(),
+        "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmSamusEaterVisuals" => SamusEaterPlmDraws.All.ToArray(),
+        "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmBotwoonWallVisuals" => BotwoonWallPlmDraws.All.ToArray(),
+        "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmKraidVisuals" => KraidRoomPlmDraws.All.ToArray(),
         "SuperMetroid.Core.Bosses.Crocomire.Artwork.RoomPlmCrocomireVisualCatalog" => CrocomireArenaPlmDrawDefinitions.All.ToArray(),
         "SuperMetroid.Core.Bosses.MotherBrain.Artwork.RoomPlmMotherBrainFakeDeathVisualCatalog" => MotherBrainFakeDeathPlmDrawDefinitions.All.ToArray(),
         // All includes the supported closed/mirrored aliases, not just the
         // authored keys required by construction. Aliases retain exact widths.
-        "SuperMetroid.Core.Rooms.Plms.RoomPlmBlueDoorVisualCatalog" => BlueDoorPlmDrawDefinitionsTooling.All.ToArray(),
-        "SuperMetroid.Core.Rooms.Plms.RoomPlmColoredDoorVisualCatalog" => ColoredDoorCaps.All.ToArray(),
-        "SuperMetroid.Core.Rooms.Plms.RoomPlmGreyDoorVisualCatalog" => GreyDoorCaps.All.ToArray(),
-        "SuperMetroid.Core.Rooms.Plms.RoomPlmEyeDoorVisualCatalog" => EyeDoorDraws.All.ToArray(),
+        "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmBlueDoorVisuals" => BlueDoorPlmDrawDefinitionsTooling.All.ToArray(),
+        "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmColoredDoorVisuals" => ColoredDoorCaps.All.ToArray(),
+        "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmGreyDoorVisuals" => GreyDoorCaps.All.ToArray(),
+        "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmEyeDoorVisuals" => EyeDoorDraws.All.ToArray(),
         "SuperMetroid.Core.Bosses.MotherBrain.Artwork.RoomPlmEscapeGateVisualCatalog" => MotherBrainEscapeGatePlmDrawDefinitions.All.ToArray(),
-        "SuperMetroid.Core.Rooms.Plms.RoomPlmCollectibleVisualCatalog" => RoomPlmCollectibleDrawDefinitions.All
+        "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmCollectibleVisuals" => CollectiblePlmDraws.All
             .Select(frame => SingleWord(PlmDraw.Of(frame.Draw), frame.LevelWord.Raw)).ToArray(),
-        "SuperMetroid.Core.Rooms.Plms.RoomPlmGrappleBlockVisualCatalog" => RoomPlmGrappleBlockDrawDefinitions.All
+        "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmGrappleBlockVisuals" => GrappleBlockPlmDraws.All
             .Select(frame => SingleWord(PlmDraw.Of(frame.Frame), frame.LevelWord.Raw)).ToArray(),
         _ => null,
     };

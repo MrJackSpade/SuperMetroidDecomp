@@ -10,186 +10,63 @@ internal static class SamusBodyPixelDefinitions
     /// <summary>One four-bit-plane SNES character tile occupies 32 source bytes.</summary>
     internal const int TileBytes = 32;
 
-    /// <summary>Exact transparent cells in the named $9B..9F body allocations;
-    /// the switches identify canvas padding, not a runtime content search.</summary>
-    internal static bool IsBlank(bool upper, int set, int position, int tile) =>
-        new SamusBodyTileKey(upper, set, position, tile) switch
-        {
-            (true, 0x0, 0x2, 0x4) => true, // $9E8200 transparent allocation cells.
-            (true, 0x0, 0x8, 0x4) => true, // $9E88C0 transparent allocation cells.
-            (true, 0x0, 0x14, 0x4) => true, // $9E9760 transparent allocation cells.
-            (true, 0x0, 0x15, 0x4) => true, // $9E9880 transparent allocation cells.
-            (true, 0x2, 0x1c, 0x4) => true, // $9EE5A0 transparent allocation cells.
-            (true, 0x8, 0x0, 0x0) => true, // $9BE000 transparent allocation cells.
-            (true, 0x8, 0x2, 0x5) => true, // $9BE040 transparent allocation cells.
-            (true, 0x8, 0x3, 0x0) => true, // $9BE160 transparent allocation cells.
-            (true, 0x8, 0x4, 0x6) => true, // $9BE240 transparent allocation cells.
-            (true, 0x8, 0x5, 0x1) => true, // $9BE3A0 transparent allocation cells.
-            (true, 0x8, 0x7, 0x2) => true, // $9BE680 transparent allocation cells.
-            (true, 0x8, 0x8, 0x2 or 0x5) => true, // $9BE7C0 transparent allocation cells.
-            (true, 0xa, 0x9, 0x1 or 0xa) => true, // $9C8600 transparent allocation cells.
-            (true, 0xa, 0xb, 0x0 or 0x1 or 0x8 or 0xb) => true, // $9C8900 transparent allocation cells.
-            (true, 0xa, 0xd, 0x1 or 0xa) => true, // $9C8C00 transparent allocation cells.
-            (true, 0xa, 0xf, 0x0 or 0x1 or 0x8 or 0xb) => true, // $9C8F00 transparent allocation cells.
-            (true, 0xa, 0x14, 0x0) => true, // $9C9600 transparent allocation cells.
-            (false, 0x2, 0x1, 0x5 or 0x6) => true, // $9F80C0 transparent allocation cells.
-            (false, 0x2, 0x2, 0x2 or 0x4) => true, // $9F81E0 transparent allocation cells.
-            (false, 0x2, 0x4, 0x2) => true, // $9F83E0 transparent allocation cells.
-            (false, 0x3, 0x0, 0x3) => true, // $9EE9C0 transparent allocation cells.
-            (false, 0x3, 0x1, 0x5 or 0x7) => true, // $9EEA40 transparent allocation cells.
-            (false, 0x3, 0x2, 0x2) => true, // $9EEB40 transparent allocation cells.
-            (false, 0x3, 0x3, 0x1 or 0x7) => true, // $9EEBC0 transparent allocation cells.
-            (false, 0x3, 0x4, 0x3) => true, // $9EECC0 transparent allocation cells.
-            (false, 0x3, 0x5, 0x5 or 0x7) => true, // $9EED40 transparent allocation cells.
-            (false, 0x3, 0x6, 0x2) => true, // $9EEE40 transparent allocation cells.
-            (false, 0x3, 0x7, 0x3 or 0x5) => true, // $9EEEC0 transparent allocation cells.
-            (false, 0x3, 0x8, 0x3) => true, // $9EEFC0 transparent allocation cells.
-            (false, 0x3, 0x9, 0x5 or 0x7) => true, // $9EF040 transparent allocation cells.
-            (false, 0x3, 0xa, 0x3) => true, // $9EF140 transparent allocation cells.
-            (false, 0x3, 0xb, 0x5 or 0x7) => true, // $9EF1C0 transparent allocation cells.
-            (false, 0x3, 0xc, 0x3) => true, // $9EF2C0 transparent allocation cells.
-            (false, 0x3, 0xd, 0x5 or 0x7) => true, // $9EF340 transparent allocation cells.
-            (false, 0x3, 0xe, 0x3) => true, // $9EF440 transparent allocation cells.
-            (false, 0x3, 0xf, 0x5 or 0x7) => true, // $9EF4C0 transparent allocation cells.
-            (false, 0x3, 0x10, 0x5 or 0x7) => true, // $9EF5C0 transparent allocation cells.
-            (false, 0x4, 0x1, 0x5 or 0x6) => true, // $9F9840 transparent allocation cells.
-            (false, 0x4, 0x2, 0x2 or 0x4) => true, // $9F9960 transparent allocation cells.
-            (false, 0x4, 0x4, 0x2) => true, // $9F9B60 transparent allocation cells.
-            (false, 0x5, 0x1, 0x5 or 0x6) => true, // $9FAE80 transparent allocation cells.
-            (false, 0x5, 0x2, 0x2 or 0x4) => true, // $9FAFA0 transparent allocation cells.
-            (false, 0x5, 0x4, 0x2) => true, // $9FB1A0 transparent allocation cells.
-            (false, 0x6, 0x1, 0x5 or 0x6) => true, // $9FC600 transparent allocation cells.
-            (false, 0x6, 0x2, 0x2 or 0x4) => true, // $9FC720 transparent allocation cells.
-            (false, 0x6, 0x4, 0x2) => true, // $9FC920 transparent allocation cells.
-            (false, 0x7, 0x1, 0x2 or 0x4 or 0x6 or 0x7 or 0xe) => true, // $9FE700 transparent allocation cells.
-            (false, 0x7, 0x2, 0x6) => true, // $9FE900 transparent allocation cells.
-            (false, 0x8, 0x0, 0x1) => true, // $9BEA00 transparent allocation cells.
-            (false, 0x8, 0x1, 0x1) => true, // $9BEC00 transparent allocation cells.
-            (false, 0x8, 0x2, 0x0) => true, // $9BEE00 transparent allocation cells.
-            _ => false,
-        };
-
-    /// <summary>$9E:AC40/C0A0/C0C0 and $9D:B8E0 contain the same bounded
-    /// Ep diagnostic drawing. Its selected pen1 and compact letter metrics are
-    /// bitmap-font design; the three E bars and p bowl/stem calculate directly.</summary>
-    internal static bool TryDiagnosticByte(bool upper, int set, int position, int index, out int value)
+    /// <summary>Exact transparent cells in the named $9B..9F body allocations: canvas padding, not a runtime
+    /// content search.</summary>
+    internal static readonly IReadOnlySet<SamusBodyTileKey> BlankCells = new HashSet<SamusBodyTileKey>
     {
-        value = 0;
-        if (set != 1 || !(upper ? position is 4 or 22 or 23 : position == 16) || (uint)index >= TileBytes)
-            return false;
-        if (index >= 16 || (index & 1) != 0) return true;
-        int y = index / 2;
-        for (int x = 0; x < 8; x++)
-        {
-            bool capitalE = y <= 4 && (x == 0 || x <= 2 && (y & 1) == 0);
-            bool lowerP = x == 4 && y >= 3 || x is >= 4 and <= 6 && y is 3 or 5 || x == 7 && y == 4;
-            if (capitalE || lowerP) value |= (byte)(128 >> x);
-        }
-        return true;
-    }
+        new(true, 0x0, 0x2, 0x4), // $9E8200 transparent allocation cells.
+        new(true, 0x0, 0x8, 0x4), // $9E88C0 transparent allocation cells.
+        new(true, 0x0, 0x14, 0x4), // $9E9760 transparent allocation cells.
+        new(true, 0x0, 0x15, 0x4), // $9E9880 transparent allocation cells.
+        new(true, 0x2, 0x1c, 0x4), // $9EE5A0 transparent allocation cells.
+        new(true, 0x8, 0x0, 0x0), // $9BE000 transparent allocation cells.
+        new(true, 0x8, 0x2, 0x5), // $9BE040 transparent allocation cells.
+        new(true, 0x8, 0x3, 0x0), // $9BE160 transparent allocation cells.
+        new(true, 0x8, 0x4, 0x6), // $9BE240 transparent allocation cells.
+        new(true, 0x8, 0x5, 0x1), // $9BE3A0 transparent allocation cells.
+        new(true, 0x8, 0x7, 0x2), // $9BE680 transparent allocation cells.
+        new(true, 0x8, 0x8, 0x2), new(true, 0x8, 0x8, 0x5), // $9BE7C0 transparent allocation cells.
+        new(true, 0xa, 0x9, 0x1), new(true, 0xa, 0x9, 0xa), // $9C8600 transparent allocation cells.
+        new(true, 0xa, 0xb, 0x0), new(true, 0xa, 0xb, 0x1), new(true, 0xa, 0xb, 0x8), new(true, 0xa, 0xb, 0xb), // $9C8900 transparent allocation cells.
+        new(true, 0xa, 0xd, 0x1), new(true, 0xa, 0xd, 0xa), // $9C8C00 transparent allocation cells.
+        new(true, 0xa, 0xf, 0x0), new(true, 0xa, 0xf, 0x1), new(true, 0xa, 0xf, 0x8), new(true, 0xa, 0xf, 0xb), // $9C8F00 transparent allocation cells.
+        new(true, 0xa, 0x14, 0x0), // $9C9600 transparent allocation cells.
+        new(false, 0x2, 0x1, 0x5), new(false, 0x2, 0x1, 0x6), // $9F80C0 transparent allocation cells.
+        new(false, 0x2, 0x2, 0x2), new(false, 0x2, 0x2, 0x4), // $9F81E0 transparent allocation cells.
+        new(false, 0x2, 0x4, 0x2), // $9F83E0 transparent allocation cells.
+        new(false, 0x3, 0x0, 0x3), // $9EE9C0 transparent allocation cells.
+        new(false, 0x3, 0x1, 0x5), new(false, 0x3, 0x1, 0x7), // $9EEA40 transparent allocation cells.
+        new(false, 0x3, 0x2, 0x2), // $9EEB40 transparent allocation cells.
+        new(false, 0x3, 0x3, 0x1), new(false, 0x3, 0x3, 0x7), // $9EEBC0 transparent allocation cells.
+        new(false, 0x3, 0x4, 0x3), // $9EECC0 transparent allocation cells.
+        new(false, 0x3, 0x5, 0x5), new(false, 0x3, 0x5, 0x7), // $9EED40 transparent allocation cells.
+        new(false, 0x3, 0x6, 0x2), // $9EEE40 transparent allocation cells.
+        new(false, 0x3, 0x7, 0x3), new(false, 0x3, 0x7, 0x5), // $9EEEC0 transparent allocation cells.
+        new(false, 0x3, 0x8, 0x3), // $9EEFC0 transparent allocation cells.
+        new(false, 0x3, 0x9, 0x5), new(false, 0x3, 0x9, 0x7), // $9EF040 transparent allocation cells.
+        new(false, 0x3, 0xa, 0x3), // $9EF140 transparent allocation cells.
+        new(false, 0x3, 0xb, 0x5), new(false, 0x3, 0xb, 0x7), // $9EF1C0 transparent allocation cells.
+        new(false, 0x3, 0xc, 0x3), // $9EF2C0 transparent allocation cells.
+        new(false, 0x3, 0xd, 0x5), new(false, 0x3, 0xd, 0x7), // $9EF340 transparent allocation cells.
+        new(false, 0x3, 0xe, 0x3), // $9EF440 transparent allocation cells.
+        new(false, 0x3, 0xf, 0x5), new(false, 0x3, 0xf, 0x7), // $9EF4C0 transparent allocation cells.
+        new(false, 0x3, 0x10, 0x5), new(false, 0x3, 0x10, 0x7), // $9EF5C0 transparent allocation cells.
+        new(false, 0x4, 0x1, 0x5), new(false, 0x4, 0x1, 0x6), // $9F9840 transparent allocation cells.
+        new(false, 0x4, 0x2, 0x2), new(false, 0x4, 0x2, 0x4), // $9F9960 transparent allocation cells.
+        new(false, 0x4, 0x4, 0x2), // $9F9B60 transparent allocation cells.
+        new(false, 0x5, 0x1, 0x5), new(false, 0x5, 0x1, 0x6), // $9FAE80 transparent allocation cells.
+        new(false, 0x5, 0x2, 0x2), new(false, 0x5, 0x2, 0x4), // $9FAFA0 transparent allocation cells.
+        new(false, 0x5, 0x4, 0x2), // $9FB1A0 transparent allocation cells.
+        new(false, 0x6, 0x1, 0x5), new(false, 0x6, 0x1, 0x6), // $9FC600 transparent allocation cells.
+        new(false, 0x6, 0x2, 0x2), new(false, 0x6, 0x2, 0x4), // $9FC720 transparent allocation cells.
+        new(false, 0x6, 0x4, 0x2), // $9FC920 transparent allocation cells.
+        new(false, 0x7, 0x1, 0x2), new(false, 0x7, 0x1, 0x4), new(false, 0x7, 0x1, 0x6), new(false, 0x7, 0x1, 0x7), new(false, 0x7, 0x1, 0xe), // $9FE700 transparent allocation cells.
+        new(false, 0x7, 0x2, 0x6), // $9FE900 transparent allocation cells.
+        new(false, 0x8, 0x0, 0x1), // $9BEA00 transparent allocation cells.
+        new(false, 0x8, 0x1, 0x1), // $9BEC00 transparent allocation cells.
+        new(false, 0x8, 0x2, 0x0), // $9BEE00 transparent allocation cells.
+    };
+
     /// <summary>$9C:8000..84FF, eight morph drawings: a diameter-16 circle
     /// sampled at pixel centres. $92:BAB3 uses one large OBJ plus its small overlay;
-    /// $92:BAE3 instead orders four small quadrants 4,3,2,1 and overlay0.
-    /// The selected interior material and seam painting remain independent inputs.</summary>
-    internal static byte ContourMask(bool upper, int set, int position, int index)
-    {
-        if (!upper || set != 10 || (uint)position >= 8 || (uint)index >= 5 * TileBytes)
-            return byte.MaxValue;
-        int tile = index / TileBytes;
-        int quadrant;
-        if (position == 4)
-        {
-            if (tile == 0) return byte.MaxValue;
-            quadrant = 4 - tile;
-        }
-        else
-        {
-            if (tile == 2) return byte.MaxValue;
-            quadrant = tile < 2 ? tile : tile - 1;
-        }
-        int y = (quadrant / 2) * 8 + (index % 16) / 2;
-        int mask = 0;
-        for (int bit = 0; bit < 8; bit++)
-        {
-            int x = (quadrant % 2) * 8 + bit;
-            int dx = 2 * x - 15, dy = 2 * y - 15;
-            if (dx * dx + dy * dy <= 16 * 16) mask |= 1 << (7 - bit);
-        }
-        return (byte)mask;
-    }
-    /// <summary>$9E:E9C0..F6BF cable allocation: the second quartet repeats
-    /// the first, exchanging the two16-pixel strips in its wide members.
-    /// The bright terminal quartet repeats sources8/9/A/9; final entry10 repeats9.
-    /// These are the exact bounded picture arrangements, not an unused-data exemption.</summary>
-    internal static bool TrySourceByte(bool upper, int set, int position, int index,
-        out int sourcePosition, out int sourceIndex)
-    {
-        sourcePosition = position;
-        sourceIndex = index;
-        if (!upper && set == 3)
-        {
-            if (position is >= 4 and <= 7)
-            {
-                sourcePosition = position - 4;
-                if ((position & 1) != 0)
-                {
-                    int tile = index / TileBytes;
-                    sourceIndex = (tile / 4 * 4 + (tile + 2) % 4) * TileBytes + index % TileBytes;
-                }
-                return true;
-            }
-            if (position is 11 or 16) sourcePosition = 9;
-            else if (position is >= 12 and <= 15) sourcePosition = position - 4;
-            return sourcePosition != position;
-        }
-        if (!SharesPreviousAnatomy(upper, set, position, index / TileBytes)) return false;
-        sourcePosition = position - 1;
-        return true;
-    }
-    /// <summary>Upright/inverted grapple upper sets3/5 share the same clockwise
-    /// anatomical patch domains; anticlockwise sets4/6 share their corresponding
-    /// domains. The earlier angle supplies the unchanged patch, while the arm
-    /// and other redrawn patches retain their independently supplied content.</summary>
-    internal static bool SharesPreviousAnatomy(bool upper, int set, int position, int tile)
-    {
-        if (!upper) return false;
-        // $9C:D2C0..DFC0: drained rocking/standing breathing keeps the same
-        // torso image; selected OAM origins and lower halves provide the motion.
-        if (set == 7 && position < 12)
-            return position switch
-            {
-                1 or 2 or 7 or 8 => tile < 9,
-                3 or 9 => tile < 2,
-                4 => tile is < 4 or >= 7 and < 10,
-                5 or 10 or 11 => tile < 10,
-                _ => false,
-            };
-        if (set is 3 or 5)
-        {
-            int column = tile % 6;
-            return tile < 12 && position switch
-            {
-                4 => column is 4 or 5,
-                5 or 12 or 14 => column >= 2,
-                6 or 11 or 13 => column < 2,
-                16 => column is 2 or 3,
-                _ => false,
-            };
-        }
-        if (set is 4 or 6)
-        {
-            int column = tile % 8;
-            return tile < 16 && position switch
-            {
-                1 => column < 4 || tile is 12 or 13,
-                3 or 14 => true,
-                6 => column < 4,
-                11 => tile == 4,
-                12 => column < 4 || tile is 14 or 15,
-                16 => column < 4 || tile is 4 or 5 or 6,
-                _ => false,
-            };
-        }
-        return false;
-    }
 }

@@ -299,11 +299,11 @@ internal static class LookupStream2Verification
             AssertEqual(pointer, ProjectileSpriteDefinitions.NativePointers[ordinal++], "Calculated projectile identity equals native sorted selector union");
         AssertTrue(expected.SequenceEqual(ProjectileSpriteDefinitions.NativePointers), "Projectile identity enumeration preserves native order");
         byte[] json = ProjectileSpriteExtractor.Extract(rom);
-        var selected = ProjectileSpriteCatalog.Load(new MemoryStream(json));
+        var selected = InstalledProjectileSprites.Load(new MemoryStream(json));
         var frames = (System.Collections.IDictionary)selected.frames;
         int calculatedCompositions = 0;
         foreach (SpriteComposition composition in frames.Values)
-            if (ProjectileSpritePartDefinitions.SingleBeamPoses.Any(pose => ReferenceEquals(pose, composition.parts)))
+            if (ProjectileSpriteParts.SingleBeamPoses.Any(pose => ReferenceEquals(pose, composition.parts)))
                 calculatedCompositions++;
         AssertEqual(12, calculatedCompositions, "Eight Power and four Ice compositions calculate without cached part arrays");
         int calculatedQuads = 0;
@@ -313,7 +313,7 @@ internal static class LookupStream2Verification
         AssertEqual(19, calculatedQuads, "Nineteen charged Power/Ice quadrant compositions calculate without cached part arrays");
         int calculatedWaves = 0;
         foreach (SpriteComposition composition in frames.Values)
-            if (ProjectileSpritePartDefinitions.WavePoses.Any(pose => ReferenceEquals(pose, composition.parts)))
+            if (ProjectileSpriteParts.WavePoses.Any(pose => ReferenceEquals(pose, composition.parts)))
                 calculatedWaves++;
         AssertEqual(33, calculatedWaves, "All33 stock Wave compositions share directional geometry without cached parts");
         int calculatedLobes = 0;
@@ -406,7 +406,7 @@ internal static class LookupStream2Verification
         string superMissileName = ProjectileSpriteDefinitions.Name(superMissilePointer);
         var originalMissilePart = document.Frames[superMissileName][1];
         document.Frames[superMissileName][1] = originalMissilePart with { OffsetX = originalMissilePart.OffsetX + 1 };
-        var editedMissile = ProjectileSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
+        var editedMissile = InstalledProjectileSprites.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
         var originalMissileOam = new OamBuffer();
         var editedMissileOam = new OamBuffer();
         selected.Draw(superMissilePointer, originalMissileOam, new(255, 255));
@@ -419,7 +419,7 @@ internal static class LookupStream2Verification
         string editedName = ProjectileSpriteDefinitions.Name(editedPointer);
         var before = document.Frames[editedName][0];
         document.Frames[editedName][0] = before with { OffsetX = before.OffsetX + 1 };
-        var edited = ProjectileSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
+        var edited = InstalledProjectileSprites.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
         var baselineOam = new OamBuffer();
         var editedOam = new OamBuffer();
         selected.Draw(editedPointer, baselineOam, new(255, 255));
@@ -433,7 +433,7 @@ internal static class LookupStream2Verification
         string quadName = ProjectileSpriteDefinitions.Name(quadPointer);
         var originalQuadPart = document.Frames[quadName][0];
         document.Frames[quadName][0] = originalQuadPart with { FlipX = !originalQuadPart.FlipX };
-        var editedQuadCatalog = ProjectileSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
+        var editedQuadCatalog = InstalledProjectileSprites.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
         var nativeQuad = new OamBuffer();
         var editedQuad = new OamBuffer();
         selected.Draw(quadPointer, nativeQuad, new(255, 255));
@@ -445,7 +445,7 @@ internal static class LookupStream2Verification
         string waveName = ProjectileSpriteDefinitions.Name(wavePointer);
         var wavePart = document.Frames[waveName][0];
         document.Frames[waveName][0] = wavePart with { OffsetY = wavePart.OffsetY + 1 };
-        var editedWaveCatalog = ProjectileSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
+        var editedWaveCatalog = InstalledProjectileSprites.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
         var nativeWave = new OamBuffer();
         var editedWave = new OamBuffer();
         selected.Draw(wavePointer, nativeWave, new(255, 255));
@@ -453,12 +453,12 @@ internal static class LookupStream2Verification
         byte[] expectedWave = nativeWave.LowTable.ToArray();
         expectedWave[1]++;
         AssertTrue(expectedWave.SequenceEqual(editedWave.LowTable) && nativeWave.HighTable.SequenceEqual(editedWave.HighTable), "Independent diagonal Wave Y edit changes exactly its emitted coordinate and preserves X ninth bit");
-        var flare = ChargeFlareSpriteCatalog.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
-        for (ushort selector = 0; selector < ChargeFlareSpriteDefinitions.Selectors.Count; selector++)
+        var flare = ChargeFlareSprites.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
+        for (ushort selector = 0; selector < ChargeFlareSpriteSelection.Selectors.Count; selector++)
         {
             var native = new OamBuffer();
             var actual = new OamBuffer();
-            DrawImportedProjectileSpritemap(rom, native, ProjectileSpriteNative.Address(ChargeFlareSpriteDefinitions.Selectors[selector]), new(255, 255));
+            DrawImportedProjectileSpritemap(rom, native, ProjectileSpriteNative.Address(ChargeFlareSpriteSelection.Selectors[selector]), new(255, 255));
             flare.Draw(selector, actual, new(255, 255));
             AssertTrue(native.ImageEquals(actual), "Existing flare span caller preserves exact extracted OAM");
         }
@@ -1139,7 +1139,7 @@ internal static class LookupStream2Verification
                 reversal == 3 ? SamusAccelerationMode.Turning : SamusAccelerationMode.Accelerating, facing, mode);
             bool right = reversal == 0 ? facing != 4 : facing == 4;
             ushort nativeOffset = ReadVerificationWord(rom, (right ? 0x90963f : 0x909647) + (int)mode);
-            AssertEqual(nativeOffset, HorizontalCameraTargetDefinitions.Offset(mode, right), "Native mode/facing target offset");
+            AssertEqual(nativeOffset, HorizontalCameraTargets.Offset(mode, right), "Native mode/facing target offset");
             var camera = new ScrollBoundaryCamera(grid);
             camera.SetPosition(new Position16<RoomPixels>(100, 0));
             camera.TrackMovedSamusHorizontally(
@@ -1342,7 +1342,7 @@ internal static class LookupStream2Verification
     {
         byte[] json = ProjectileTrailExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<ProjectileTrailDocument>(json, ArtworkJson.Options);
-        var stock = ProjectileTrailCatalog.Load(new MemoryStream(json));
+        var stock = InstalledProjectileTrails.Load(new MemoryStream(json));
         var edits = stock.suppliedAttributes;
         AssertEqual(0, edits.Count, "Stock trail appearance stores no repeated frame attributes");
         foreach (ProjectileTrailFrame frame in ProjectileTrailVisualDefinitions.Frames)
@@ -1365,7 +1365,7 @@ internal static class LookupStream2Verification
                     _ => original with { FlipY = !original.FlipY },
                 };
                 var frames = new Dictionary<string, ProjectileTrailAppearance>(document.Frames) { [name] = changed };
-                var catalog = ProjectileTrailCatalog.Load(new MemoryStream(ProjectileTrailCatalog.Write(document with { Frames = frames })));
+                var catalog = InstalledProjectileTrails.Load(new MemoryStream(InstalledProjectileTrails.Write(document with { Frames = frames })));
                 foreach (ProjectileTrailFrame other in ProjectileTrailVisualDefinitions.Frames)
                 {
                     var appearance = frames[ProjectileTrailNative.Name(other)];
@@ -1385,7 +1385,7 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2TrailPrograms(ISnesAddressSpace bus)
     {
         byte[] json = ProjectileTrailExtractor.Extract(bus);
-        var catalog = ProjectileTrailCatalog.Load(new MemoryStream(json));
+        var catalog = InstalledProjectileTrails.Load(new MemoryStream(json));
         var encountered = new HashSet<ushort>();
         // The cartridge's retained tile words, which the native interpreter keeps beside the port's sides.
         var nativeWords = new Dictionary<SamusProjectileTrailSide, ushort>();
@@ -2049,7 +2049,7 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2PowerDirectionBindings(ISnesAddressSpace rom)
     {
         byte[] json = ProjectileFrameBindingExtractor.Extract(rom);
-        var stock = ProjectileFrameBindingCatalog.Load(new MemoryStream(json));
+        var stock = InstalledProjectileFrameBindings.Load(new MemoryStream(json));
         var remaining = (System.Collections.IDictionary)stock.sprites;
         AssertEqual(0, remaining.Count, "All805 stock selector operands calculate; independent selection policies remain required");
         foreach (ushort pointer in SamusProjectileRecordDefinitions.TimedRecordAddresses)
@@ -2067,7 +2067,7 @@ internal static class LookupStream2Verification
             string key = ProjectileFrameBindingFormat.FrameNameAt(pointer);
             string original = document.Frames[key];
             document.Frames[key] = ProjectileSpriteDefinitions.Name(ProjectileSpriteDefinitions.NativePointers[0]);
-            var edited = ProjectileFrameBindingCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
+            var edited = InstalledProjectileFrameBindings.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
             var editedShot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = WrappingCountdown.Start(1) };
             system.Animation.FrameBindings = edited;
             _ = system.Animation.RunProjectileInstructionHandler(editedShot);
@@ -2113,7 +2113,7 @@ internal static class LookupStream2Verification
             ushort replacement = stock.Resolve(pointer) == ProjectileSpriteDefinitions.NativePointers[0]
                 ? ProjectileSpriteDefinitions.NativePointers[1] : ProjectileSpriteDefinitions.NativePointers[0];
             document.Frames[key] = ProjectileSpriteDefinitions.Name(replacement);
-            var edited = ProjectileFrameBindingCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
+            var edited = InstalledProjectileFrameBindings.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
             system.Animation.FrameBindings = edited;
             var editedShot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = WrappingCountdown.Start(1) };
             _ = system.Animation.RunProjectileInstructionHandler(editedShot);

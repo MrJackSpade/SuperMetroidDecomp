@@ -69,87 +69,107 @@ public static class RoomTilesetDefinitions
         Draygon,
     }
 
-    /// <summary>Maps a room theme to the compressed block table used for its level words.</summary>
-    private static RoomBlockSet SelectBlockSource(Theme theme) => theme switch
+    /// <summary>The compressed block table each room theme's level words use.</summary>
+    private static readonly Dictionary<Theme, RoomBlockSet> BlockSources = new()
     {
-        Theme.UpperCrateria or Theme.RedCrateria => RoomBlockSet.UpperCrateria,
-        Theme.LowerCrateria or Theme.OldTourian => RoomBlockSet.LowerCrateria,
-        Theme.WreckedShip_PowerOn or Theme.WreckedShip_PowerOff => RoomBlockSet.WreckedShip,
-        Theme.GreenBlueBrinstar => RoomBlockSet.GreenBlueBrinstar,
-        Theme.RedBrinstar_Kraid or Theme.StatuesHall => RoomBlockSet.RedBrinstarKraidStatuesHall,
-        Theme.HeatedNorfair or Theme.UnheatedNorfair => RoomBlockSet.Norfair,
-        Theme.SandlessMaridia => RoomBlockSet.SandlessMaridia,
-        Theme.SandyMaridia => RoomBlockSet.SandyMaridia,
-        Theme.Tourian or Theme.MotherBrain => RoomBlockSet.Tourian,
-        Theme.BlueCeres or Theme.WhiteCeres or Theme.BlueCeresElevator or Theme.WhiteCeresElevator or Theme.BlueCeresRidley or Theme.WhiteCeresRidley => RoomBlockSet.Ceres,
-        Theme.Map_Statues or Theme.WreckedShipMap_PowerOff or Theme.BlueRefill or Theme.YellowRefill or Theme.SaveStation => RoomBlockSet.UtilityRoomStatues,
-        Theme.Kraid => RoomBlockSet.Kraid,
-        Theme.Crocomire => RoomBlockSet.Crocomire,
-        Theme.Draygon => RoomBlockSet.Draygon,
-        _ => throw new InvalidDataException("Invalid graphics theme."),
+        [Theme.UpperCrateria] = RoomBlockSet.UpperCrateria,
+        [Theme.RedCrateria] = RoomBlockSet.UpperCrateria,
+        [Theme.LowerCrateria] = RoomBlockSet.LowerCrateria,
+        [Theme.OldTourian] = RoomBlockSet.LowerCrateria,
+        [Theme.WreckedShip_PowerOn] = RoomBlockSet.WreckedShip,
+        [Theme.WreckedShip_PowerOff] = RoomBlockSet.WreckedShip,
+        [Theme.GreenBlueBrinstar] = RoomBlockSet.GreenBlueBrinstar,
+        [Theme.RedBrinstar_Kraid] = RoomBlockSet.RedBrinstarKraidStatuesHall,
+        [Theme.StatuesHall] = RoomBlockSet.RedBrinstarKraidStatuesHall,
+        [Theme.HeatedNorfair] = RoomBlockSet.Norfair,
+        [Theme.UnheatedNorfair] = RoomBlockSet.Norfair,
+        [Theme.SandlessMaridia] = RoomBlockSet.SandlessMaridia,
+        [Theme.SandyMaridia] = RoomBlockSet.SandyMaridia,
+        [Theme.Tourian] = RoomBlockSet.Tourian,
+        [Theme.MotherBrain] = RoomBlockSet.Tourian,
+        [Theme.BlueCeres] = RoomBlockSet.Ceres,
+        [Theme.WhiteCeres] = RoomBlockSet.Ceres,
+        [Theme.BlueCeresElevator] = RoomBlockSet.Ceres,
+        [Theme.WhiteCeresElevator] = RoomBlockSet.Ceres,
+        [Theme.BlueCeresRidley] = RoomBlockSet.Ceres,
+        [Theme.WhiteCeresRidley] = RoomBlockSet.Ceres,
+        [Theme.Map_Statues] = RoomBlockSet.UtilityRoomStatues,
+        [Theme.WreckedShipMap_PowerOff] = RoomBlockSet.UtilityRoomStatues,
+        [Theme.BlueRefill] = RoomBlockSet.UtilityRoomStatues,
+        [Theme.YellowRefill] = RoomBlockSet.UtilityRoomStatues,
+        [Theme.SaveStation] = RoomBlockSet.UtilityRoomStatues,
+        [Theme.Kraid] = RoomBlockSet.Kraid,
+        [Theme.Crocomire] = RoomBlockSet.Crocomire,
+        [Theme.Draygon] = RoomBlockSet.Draygon,
     };
 
-    /// <summary>Maps a room theme to the character tiles uploaded for its backgrounds.</summary>
-    private static RoomCharacterSet SelectCharacterSource(Theme theme) => theme switch
+    /// <summary>The character tiles uploaded for each room theme's backgrounds.</summary>
+    private static readonly Dictionary<Theme, RoomCharacterSet> CharacterSources = new()
     {
-        Theme.UpperCrateria or Theme.RedCrateria => RoomCharacterSet.UpperCrateria,
-        Theme.LowerCrateria or Theme.OldTourian => RoomCharacterSet.LowerCrateria,
-        Theme.WreckedShip_PowerOn or Theme.WreckedShip_PowerOff => RoomCharacterSet.WreckedShip,
-        Theme.GreenBlueBrinstar => RoomCharacterSet.GreenBlueBrinstar,
-        Theme.RedBrinstar_Kraid or Theme.StatuesHall => RoomCharacterSet.RedBrinstarKraidStatuesHall,
-        Theme.HeatedNorfair or Theme.UnheatedNorfair => RoomCharacterSet.Norfair,
-        Theme.SandlessMaridia => RoomCharacterSet.SandlessMaridia,
-        Theme.SandyMaridia => RoomCharacterSet.SandyMaridia,
-        Theme.Tourian or Theme.MotherBrain => RoomCharacterSet.Tourian,
-        Theme.BlueCeres or Theme.WhiteCeres => RoomCharacterSet.Ceres,
-        Theme.BlueCeresElevator or Theme.WhiteCeresElevator => RoomCharacterSet.CeresElevator,
-        Theme.BlueCeresRidley or Theme.WhiteCeresRidley => RoomCharacterSet.CeresRidley,
-        Theme.Map_Statues or Theme.WreckedShipMap_PowerOff or Theme.BlueRefill or Theme.YellowRefill or Theme.SaveStation => RoomCharacterSet.UtilityRoomStatues,
-        Theme.Kraid => RoomCharacterSet.Kraid,
-        Theme.Crocomire => RoomCharacterSet.Crocomire,
-        Theme.Draygon => RoomCharacterSet.Draygon,
-        _ => throw new InvalidDataException("Invalid graphics theme."),
+        [Theme.UpperCrateria] = RoomCharacterSet.UpperCrateria,
+        [Theme.RedCrateria] = RoomCharacterSet.UpperCrateria,
+        [Theme.LowerCrateria] = RoomCharacterSet.LowerCrateria,
+        [Theme.OldTourian] = RoomCharacterSet.LowerCrateria,
+        [Theme.WreckedShip_PowerOn] = RoomCharacterSet.WreckedShip,
+        [Theme.WreckedShip_PowerOff] = RoomCharacterSet.WreckedShip,
+        [Theme.GreenBlueBrinstar] = RoomCharacterSet.GreenBlueBrinstar,
+        [Theme.RedBrinstar_Kraid] = RoomCharacterSet.RedBrinstarKraidStatuesHall,
+        [Theme.StatuesHall] = RoomCharacterSet.RedBrinstarKraidStatuesHall,
+        [Theme.HeatedNorfair] = RoomCharacterSet.Norfair,
+        [Theme.UnheatedNorfair] = RoomCharacterSet.Norfair,
+        [Theme.SandlessMaridia] = RoomCharacterSet.SandlessMaridia,
+        [Theme.SandyMaridia] = RoomCharacterSet.SandyMaridia,
+        [Theme.Tourian] = RoomCharacterSet.Tourian,
+        [Theme.MotherBrain] = RoomCharacterSet.Tourian,
+        [Theme.BlueCeres] = RoomCharacterSet.Ceres,
+        [Theme.WhiteCeres] = RoomCharacterSet.Ceres,
+        [Theme.BlueCeresElevator] = RoomCharacterSet.CeresElevator,
+        [Theme.WhiteCeresElevator] = RoomCharacterSet.CeresElevator,
+        [Theme.BlueCeresRidley] = RoomCharacterSet.CeresRidley,
+        [Theme.WhiteCeresRidley] = RoomCharacterSet.CeresRidley,
+        [Theme.Map_Statues] = RoomCharacterSet.UtilityRoomStatues,
+        [Theme.WreckedShipMap_PowerOff] = RoomCharacterSet.UtilityRoomStatues,
+        [Theme.BlueRefill] = RoomCharacterSet.UtilityRoomStatues,
+        [Theme.YellowRefill] = RoomCharacterSet.UtilityRoomStatues,
+        [Theme.SaveStation] = RoomCharacterSet.UtilityRoomStatues,
+        [Theme.Kraid] = RoomCharacterSet.Kraid,
+        [Theme.Crocomire] = RoomCharacterSet.Crocomire,
+        [Theme.Draygon] = RoomCharacterSet.Draygon,
     };
 
-    /// <summary>Maps a room theme to its selected palette resource, including Ceres color variants.</summary>
-    private static RoomPaletteSet SelectPaletteSource(Theme theme) => theme switch
+    /// <summary>Each room theme's selected palette resource, including Ceres color variants.</summary>
+    private static readonly Dictionary<Theme, RoomPaletteSet> PaletteSources = new()
     {
-        Theme.UpperCrateria => RoomPaletteSet.UpperCrateria,
-        Theme.RedCrateria => RoomPaletteSet.RedCrateria,
-        Theme.LowerCrateria => RoomPaletteSet.LowerCrateria,
-        Theme.OldTourian => RoomPaletteSet.OldTourian,
-        Theme.WreckedShip_PowerOn => RoomPaletteSet.WreckedShipPowerOn,
-        Theme.WreckedShip_PowerOff => RoomPaletteSet.WreckedShipPowerOff,
-        Theme.GreenBlueBrinstar => RoomPaletteSet.GreenBlueBrinstar,
-        Theme.RedBrinstar_Kraid => RoomPaletteSet.RedBrinstarKraid,
-        Theme.StatuesHall => RoomPaletteSet.StatuesHall,
-        Theme.HeatedNorfair => RoomPaletteSet.HeatedNorfair,
-        Theme.UnheatedNorfair => RoomPaletteSet.UnheatedNorfair,
-        Theme.SandlessMaridia => RoomPaletteSet.SandlessMaridia,
-        Theme.SandyMaridia => RoomPaletteSet.SandyMaridia,
-        Theme.Tourian => RoomPaletteSet.Tourian,
-        Theme.MotherBrain => RoomPaletteSet.MotherBrain,
-        Theme.BlueCeres or Theme.BlueCeresElevator or Theme.BlueCeresRidley => RoomPaletteSet.BlueCeres,
-        Theme.WhiteCeres or Theme.WhiteCeresElevator or Theme.WhiteCeresRidley => RoomPaletteSet.WhiteCeres,
-        Theme.Map_Statues => RoomPaletteSet.MapStatues,
-        Theme.WreckedShipMap_PowerOff => RoomPaletteSet.WreckedShipMapPowerOff,
-        Theme.BlueRefill => RoomPaletteSet.BlueRefill,
-        Theme.YellowRefill => RoomPaletteSet.YellowRefill,
-        Theme.SaveStation => RoomPaletteSet.SaveStation,
-        Theme.Kraid => RoomPaletteSet.Kraid,
-        Theme.Crocomire => RoomPaletteSet.Crocomire,
-        Theme.Draygon => RoomPaletteSet.Draygon,
-        _ => throw new InvalidDataException("Invalid graphics theme."),
+        [Theme.UpperCrateria] = RoomPaletteSet.UpperCrateria,
+        [Theme.RedCrateria] = RoomPaletteSet.RedCrateria,
+        [Theme.LowerCrateria] = RoomPaletteSet.LowerCrateria,
+        [Theme.OldTourian] = RoomPaletteSet.OldTourian,
+        [Theme.WreckedShip_PowerOn] = RoomPaletteSet.WreckedShipPowerOn,
+        [Theme.WreckedShip_PowerOff] = RoomPaletteSet.WreckedShipPowerOff,
+        [Theme.GreenBlueBrinstar] = RoomPaletteSet.GreenBlueBrinstar,
+        [Theme.RedBrinstar_Kraid] = RoomPaletteSet.RedBrinstarKraid,
+        [Theme.StatuesHall] = RoomPaletteSet.StatuesHall,
+        [Theme.HeatedNorfair] = RoomPaletteSet.HeatedNorfair,
+        [Theme.UnheatedNorfair] = RoomPaletteSet.UnheatedNorfair,
+        [Theme.SandlessMaridia] = RoomPaletteSet.SandlessMaridia,
+        [Theme.SandyMaridia] = RoomPaletteSet.SandyMaridia,
+        [Theme.Tourian] = RoomPaletteSet.Tourian,
+        [Theme.MotherBrain] = RoomPaletteSet.MotherBrain,
+        [Theme.BlueCeres] = RoomPaletteSet.BlueCeres,
+        [Theme.BlueCeresElevator] = RoomPaletteSet.BlueCeres,
+        [Theme.BlueCeresRidley] = RoomPaletteSet.BlueCeres,
+        [Theme.WhiteCeres] = RoomPaletteSet.WhiteCeres,
+        [Theme.WhiteCeresElevator] = RoomPaletteSet.WhiteCeres,
+        [Theme.WhiteCeresRidley] = RoomPaletteSet.WhiteCeres,
+        [Theme.Map_Statues] = RoomPaletteSet.MapStatues,
+        [Theme.WreckedShipMap_PowerOff] = RoomPaletteSet.WreckedShipMapPowerOff,
+        [Theme.BlueRefill] = RoomPaletteSet.BlueRefill,
+        [Theme.YellowRefill] = RoomPaletteSet.YellowRefill,
+        [Theme.SaveStation] = RoomPaletteSet.SaveStation,
+        [Theme.Kraid] = RoomPaletteSet.Kraid,
+        [Theme.Crocomire] = RoomPaletteSet.Crocomire,
+        [Theme.Draygon] = RoomPaletteSet.Draygon,
     };
-
-    /// <summary>Selects block, character and palette resources for the room state's native graphics theme.</summary>
-    public static TilesetDefinition Get(int graphicsSet)
-    {
-        if ((uint)graphicsSet >= Count)
-            throw new InvalidDataException($"Graphics set ${graphicsSet:X2} is outside the compiled retail tileset table.");
-        Theme theme = GraphicsSetThemes[graphicsSet];
-        return new(SelectBlockSource(theme), SelectCharacterSource(theme), SelectPaletteSource(theme));
-    }
 
     /// <summary>The theme of each retail graphics set, in graphics-set order.</summary>
     private static readonly Theme[] GraphicsSetThemes =
@@ -161,4 +181,8 @@ public static class RoomTilesetDefinitions
         Theme.Map_Statues, Theme.WreckedShipMap_PowerOff, Theme.BlueRefill, Theme.YellowRefill, Theme.SaveStation, Theme.Kraid,
         Theme.Crocomire, Theme.Draygon,
     ];
+
+    /// <summary>The block, character and palette resources of each retail graphics set, in graphics-set order.</summary>
+    internal static IReadOnlyList<TilesetDefinition> Tilesets { get; } =
+        [.. GraphicsSetThemes.Select(theme => new TilesetDefinition(BlockSources[theme], CharacterSources[theme], PaletteSources[theme]))];
 }

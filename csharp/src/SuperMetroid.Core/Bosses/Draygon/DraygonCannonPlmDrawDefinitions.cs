@@ -103,10 +103,10 @@ internal static class DraygonCannonPlmDrawDefinitions
     }
     /// <summary>Builds a temporary artwork draw-list DTO; runtime drawing calculates cells directly.</summary>
     internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.TryCompile<Draw>(request, TryDescribe, out list);
+        ShotBlockPlmDraws.TryCompile<Draw>(request, TryDescribe, out list);
     /// <summary>Finds a reachable cannon draw list by its editable visual ID.</summary>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.FindByVisualId(Draws(), VisualId, TryGet, id, out list);
+        ShotBlockPlmDraws.FindByVisualId(Draws(), VisualId, TryGet, id, out list);
     /// <summary>Maps a native cannon draw pointer to its facing, condition, and pose ID.</summary>
     internal static string VisualId(PlmDraw request) =>
         PlmDraw.FrameOf<DraygonCannonDraw>(request, "Draygon cannon draw with a visual ID") switch

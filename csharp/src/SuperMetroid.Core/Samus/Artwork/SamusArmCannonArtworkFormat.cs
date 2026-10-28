@@ -26,7 +26,7 @@ public static class SamusArmCannonArtworkFormat
     /// </summary>
     internal static int StockPoseDescriptor(int pose)
     {
-        if ((uint)pose >= SamusBodyArtworkCatalog.PoseCount) throw new ArgumentOutOfRangeException(nameof(pose));
+        if ((uint)pose >= InstalledSamusBodyArtwork.PoseCount) throw new ArgumentOutOfRangeException(nameof(pose));
         return SamusPoseNumbering.FromNumber(pose) switch
         {
             SamusPoseId.ForwardFacingPowerSuitPose or
@@ -391,7 +391,7 @@ public static class SamusArmCannonArtworkFormat
         if (position is >= AdjacentCostStart and < DrawingDataByteCount)
         {
             int costOffset = position - AdjacentCostStart;
-            int cost = SamusComboMechanicsDefinitions.GetPowerBombCost(
+            int cost = SamusComboMechanics.GetPowerBombCost(
                 SamusBeamCombinations.FromTableIndex(costOffset / sizeof(ushort)));
             value = (byte)(cost >> ((costOffset & 1) * 8));
             return true;

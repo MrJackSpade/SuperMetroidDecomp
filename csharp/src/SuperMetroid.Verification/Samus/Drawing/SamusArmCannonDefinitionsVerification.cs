@@ -26,7 +26,7 @@ internal static class SamusArmCannonDefinitionsVerification
                 SamusArmCannonDefinitions.OpenFlagTable + (int)selectedHudItem);
             AssertEqual(
                 expected,
-                SamusArmCannonDefinitions.DesiredOpenFlag(selectedHudItem),
+                SamusArmCannonOpening.DesiredOpenFlag(selectedHudItem),
                 $"arm-cannon HUD item {selectedHudItem} matches cartridge table");
 
             var samus = new SamusState
@@ -77,7 +77,7 @@ internal static class SamusArmCannonDefinitionsVerification
             "the open flag rejects a value above a byte");
 
         AssertThrows<ArgumentOutOfRangeException>(
-            () => SamusArmCannonDefinitions.DesiredOpenFlag(
+            () => SamusArmCannonOpening.DesiredOpenFlag(
                 (HudItem)Enum.GetValues<HudItem>().Length),
             "arm-cannon policy rejects an out-of-range HUD selection");
 

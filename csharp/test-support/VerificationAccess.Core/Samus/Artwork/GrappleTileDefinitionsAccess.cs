@@ -10,6 +10,6 @@ internal static class GrappleTileDefinitionsAccess
     {
         /// <summary>The installed rope characters the grapple's angle selects.</summary>
         internal static InstalledArtworkId SegmentAssetFor(RotationAngle angle) =>
-            GrappleTileDefinitions.SegmentAssetFor(GrappleTileDefinitions.OrientationFor(angle));
+            GrappleTileSelection.SegmentAssetFor(GrappleTileSelection.OrientationFor(angle));
     }
 }

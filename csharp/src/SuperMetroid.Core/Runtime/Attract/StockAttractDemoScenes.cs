@@ -490,7 +490,7 @@ public static class StockAttractDemoScenes
                 throw new InvalidOperationException("This demonstration does not use a grounded staging pose."),
             _ => throw new InvalidOperationException($"Undefined AttractDemoSamusSetup {SamusSetupFor(demonstration)}."),
         };
-        return (short)(floorRow * 16 - SamusPoseCollisionDefinitions.ReadVerticalRadius(pose));
+        return (short)(floorRow * 16 - SamusPoseCollisionRadii.ReadVerticalRadius(pose));
     }
 
     /// <summary>Landing Site entries select their sky, the charge-beam-room demonstration selects its scroll correction, and the two boss scenarios select their explicit room setup. All other staged rooms use the native no-op callback.</summary>

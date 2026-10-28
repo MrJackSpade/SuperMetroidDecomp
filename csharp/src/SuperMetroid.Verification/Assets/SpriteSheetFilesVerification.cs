@@ -48,7 +48,7 @@ internal static class SpriteSheetFilesVerification
             AssertTrue(timer.HoldsExactly(EscapeTimerPresentationDefinitions.Glyphs.Select(EscapeTimerPresentationDefinitions.FrameName)),
                 "the installed timer sheet holds exactly the timer's frames");
 
-            string image = SpriteSheetStore.ImageFile(SpriteSheetDefinitions.FileName(SpriteSheetId.EscapeTimer));
+            string image = SpriteSheetStore.ImageFile(SpriteSheetDefinitions.FileNames[SpriteSheetId.EscapeTimer]);
             RgbaPixel[] edited = [.. composed.Pixels];
             int opaque = Array.FindIndex(edited, pixel => pixel.A != 0);
             edited[opaque] = new RgbaPixel(1, 2, 3, 255);

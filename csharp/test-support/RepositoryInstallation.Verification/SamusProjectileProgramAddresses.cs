@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal static class SamusProjectileProgramAddresses
 {
     /// <summary>The installed layout.</summary>
-    private static SamusProjectileListLayout Layout => InstalledFixtures.SamusOverreads.ProjectileLists;
+    private static InstalledProjectileListPositions Layout => InstalledFixtures.SamusOverreads.ProjectileLists;
 
     /// <summary>Each step's instruction pointer, by program.</summary>
     internal static IReadOnlyDictionary<SamusProjectileProgram, ushort[]> StepAddresses => Layout.StepPositions;
@@ -15,18 +15,18 @@ internal static class SamusProjectileProgramAddresses
     /// <summary>The list entry of <paramref name="program"/>.</summary>
     internal static ushort Entry(SamusProjectileProgram program) => Layout.StepPositions[program][0];
 
-    /// <inheritdoc cref="SamusProjectileListLayout.Prefix"/>
+    /// <inheritdoc cref="InstalledProjectileListPositions.Prefix"/>
     internal static ushort Prefix(SamusProjectileProgram program) => Layout.Prefix(program);
 
-    /// <inheritdoc cref="SamusProjectileListLayout.Position(AnimationProgramCursor{SamusProjectileProgram})"/>
+    /// <inheritdoc cref="InstalledProjectileListPositions.Position(AnimationProgramCursor{SamusProjectileProgram})"/>
     internal static ushort Address(AnimationProgramCursor<SamusProjectileProgram> cursor) => Layout.Position(cursor);
 
-    /// <inheritdoc cref="SamusProjectileListLayout.Position(AnimationProgramCursor{SamusProjectileProgram}?)"/>
+    /// <inheritdoc cref="InstalledProjectileListPositions.Position(AnimationProgramCursor{SamusProjectileProgram}?)"/>
     internal static ushort Address(AnimationProgramCursor<SamusProjectileProgram>? cursor) => Layout.Position(cursor);
 
-    /// <inheritdoc cref="SamusProjectileListLayout.CursorAt"/>
+    /// <inheritdoc cref="InstalledProjectileListPositions.CursorAt"/>
     internal static AnimationProgramCursor<SamusProjectileProgram>? CursorAt(ushort address) => Layout.CursorAt(address);
 
-    /// <inheritdoc cref="SamusProjectileListLayout.RecordPosition"/>
+    /// <inheritdoc cref="InstalledProjectileListPositions.RecordPosition"/>
     internal static ushort RecordAddress(int record) => Layout.RecordPosition(record);
 }

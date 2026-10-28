@@ -37,14 +37,14 @@ internal static class ChargeFlarePlacementVerification
     {
         Suite(nameof(VerifyChargeFlareCompositions), () => VerifyChargeFlareCompositions(bus));
         byte[] json = ChargeFlarePlacementExtractor.Extract(bus);
-        var stock = ChargeFlarePlacementCatalog.Load(new MemoryStream(json));
+        var stock = ChargeFlarePlacements.Load(new MemoryStream(json));
         var document = RequiredJson.Parse(json);
         foreach (var entry in document.Required("offsets").AsObject())
             (entry.Value ?? throw new InvalidOperationException("Verification requires entry.Value."))["x"] = entry.Value.Required("x").GetValue<int>() + 7;
         var edited = Load(document);
         Suite(nameof(VerifyRuntimeFlarePlacement), () => VerifyRuntimeFlarePlacement(stock, edited));
         var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
-        var sprites = ChargeFlareSpriteCatalog.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(bus)));
+        var sprites = ChargeFlareSprites.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(bus)));
         var drawMetadata = new FlareMetadataDraw(system.Animation.DrawFlareComponentWithMetadata);
         var draw = new Action<SpriteFrameBuffer, SamusState, Position16<RoomPixels>, int, TurningFloorTransform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
         ProjectileDrawArtwork objects = InstalledFixtures.ProjectileArtwork();
@@ -121,16 +121,16 @@ internal static class ChargeFlarePlacementVerification
                 AssertEqual((original.GetEntry(i).Position.X + 7) & 511, changed.GetEntry(i).Position.X, "Public normal/Hyper path forwards selected placement to all components");
             AssertTrue(GraphDigest(originalSystem).SequenceEqual(GraphDigest(editedSystem)), "Normal/Hyper flare visual edits retain identical complete post-tick simulation state");
         }
-        document.Required("offsets").AsObject().Remove(ChargeFlarePlacementDefinitions.Key(false, 0));
+        document.Required("offsets").AsObject().Remove(ChargeFlarePlacementOffsets.Key(false, 0));
         AssertThrows<InvalidDataException>(() => Load(document), "Missing flare placement rejected");
         document = JsonNode.Parse(json);
-        (document ?? throw new InvalidOperationException("Verification requires document.")).Required("offsets").Required(ChargeFlarePlacementDefinitions.Key(false, 0))["x"] = 32768;
+        (document ?? throw new InvalidOperationException("Verification requires document.")).Required("offsets").Required(ChargeFlarePlacementOffsets.Key(false, 0))["x"] = 32768;
         AssertThrows<InvalidDataException>(() => Load(document), "Out-of-range flare position rejected");
         document = JsonNode.Parse(json); (document ?? throw new InvalidOperationException("Verification requires document."))["damage"] = 1;
         AssertThrows<InvalidDataException>(() => Load(document), "Flare placement cannot contain mechanics fields");
-        AssertThrows<InvalidDataException>(() => ChargeFlarePlacementCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))), "Duplicate flare properties rejected");
+        AssertThrows<InvalidDataException>(() => ChargeFlarePlacements.Load(new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))), "Duplicate flare properties rejected");
         Console.WriteLine($"Flare placement: {cases} native OAM cases with position ROM forbidden, visible edited displacement, whole-state isolation and invalid-resource rejection pass.");
-        static ChargeFlarePlacementCatalog Load(JsonNode node) => ChargeFlarePlacementCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(node.ToJsonString())));
+        static ChargeFlarePlacements Load(JsonNode node) => ChargeFlarePlacements.Load(new MemoryStream(Encoding.UTF8.GetBytes(node.ToJsonString())));
     }
     /// <summary>Invokes the renderer's private flare component path with explicit compiled pose metadata.</summary>
     internal delegate void FlareMetadataDraw(SpriteFrameBuffer sprites, SamusState samus,
@@ -159,7 +159,7 @@ internal static class ChargeFlarePlacementVerification
     }
 
     /// <summary>Confirms stock and edited flare offsets flow through actor drawing, artwork rebinding, and debugger restoration.</summary>
-    private static void VerifyRuntimeFlarePlacement(ChargeFlarePlacementCatalog stock, ChargeFlarePlacementCatalog edited)
+    private static void VerifyRuntimeFlarePlacement(ChargeFlarePlacements stock, ChargeFlarePlacements edited)
     {
         var random = new SharedRandom();
         var runtime = CreateRetailRuntimeFixture(random: random);

@@ -121,6 +121,6 @@ internal static class BombTorizoHandPlmDrawDefinitions
     /// <summary>Resolves an ordinal artwork ID to the corresponding temporary hand draw DTO.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.FindByVisualId(All, VisualId, id, out list);
+        ShotBlockPlmDraws.FindByVisualId(All, VisualId, id, out list);
 
 }

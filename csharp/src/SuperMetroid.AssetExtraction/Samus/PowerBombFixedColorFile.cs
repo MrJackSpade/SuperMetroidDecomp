@@ -14,7 +14,7 @@ public static class PowerBombFixedColorFile
     /// <returns>Compiled component triplets detached from the document arrays, with stock colors resolved from reviewed definitions where available.</returns>
     /// <exception cref="ArgumentNullException">The source stream is null.</exception>
     /// <exception cref="InvalidDataException">The JSON contains duplicate or unknown properties, an unsupported version, incorrect sequence lengths, null colors, or channels outside 0..31.</exception>
-    public static PowerBombFixedColorCatalog Read(Stream json)
+    public static InstalledPowerBombFixedColors Read(Stream json)
     {
         Ensure.NotNull(json);
         PowerBombFixedColorDocument document;

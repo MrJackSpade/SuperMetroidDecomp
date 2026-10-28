@@ -22,7 +22,7 @@ public static class RoomPlmLinkedRestoreVisualFiles
         string sourceCartridgeSha256) =>
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
             VisualFileName, "Linked restore", RoomPlmLinkedRestoreDrawDefinitions.All,
-            RoomPlmLinkedRestoreDrawDefinitions.VisualId);
+            LinkedRestorePlmDraws.VisualId);
 
     /// <summary>Validates the shared stock restoration artwork and selects an optional complete six-layout visual replacement.</summary>
     /// <param name="stockDirectory">Family directory with required stock JSON and version-one manifest.</param>
@@ -31,10 +31,10 @@ public static class RoomPlmLinkedRestoreVisualFiles
     /// <remarks>Stock provenance, byte hash, and compiled visual equality are mandatory before any override is read. Overrides need complete identities/shapes and twelve-bit visual words, not a manifest or physical level words.</remarks>
     /// <exception cref="InvalidDataException">Stock integrity/provenance, JSON version, coverage, identity, shape, or visual-only words are invalid.</exception>
     /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
-    public static RoomPlmLinkedRestoreVisualCatalog Load(
+    public static InstalledRoomPlmLinkedRestoreVisuals Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmLinkedRestoreVisualCatalog>(VisualFileName, "Linked restore", RoomPlmLinkedRestoreDrawDefinitions.All, RoomPlmLinkedRestoreDrawDefinitions.VisualId, entries => new RoomPlmLinkedRestoreVisualCatalog(entries.Select(entry =>
+            new RoomPlmVisualFamily<InstalledRoomPlmLinkedRestoreVisuals>(VisualFileName, "Linked restore", RoomPlmLinkedRestoreDrawDefinitions.All, LinkedRestorePlmDraws.VisualId, entries => new InstalledRoomPlmLinkedRestoreVisuals(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetWord(draw, run, block)));
 
     /// <summary>Checks only installed stock restoration visuals through <see cref="Load"/>, without overrides, cartridge access, or writes.</summary>

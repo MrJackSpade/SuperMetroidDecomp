@@ -19,7 +19,7 @@ internal static class RoomPlmScrollProgramDefinitionsAccess
 
         /// <summary>Applies the ordered writes of the program stored at <paramref name="pointer"/>.</summary>
         internal static void ApplyAt(ushort pointer, Action<int, RoomScrollState> write) =>
-            RoomPlmScrollProgramDefinitions.Apply(RoomPlmScrollProgramDefinitions.ProgramAt(pointer), write);
+            RoomPlmScrollPrograms.Apply(RoomPlmScrollProgramDefinitions.ProgramAt(pointer), write);
 
         /// <summary>The native encoding of the program stored at <paramref name="pointer"/>: index/state pairs, then the terminator.</summary>
         internal static ReadOnlyMemory<byte> Get(ushort pointer)

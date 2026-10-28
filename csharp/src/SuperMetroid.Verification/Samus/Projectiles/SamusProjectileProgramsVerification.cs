@@ -54,7 +54,7 @@ internal static class SamusProjectileProgramsVerification
                     AssertEqual(new Extent16<RoomPixels>(LittleEndianBytes.LowByte(radii), LittleEndianBytes.HighByte(radii)), record.Radius, $"{at}: radii");
                     AssertEqual(Word(cursor + 6), record.AnimationFrame, $"{at}: animation frame");
                     records.Add(cursor);
-                    cursor = unchecked((ushort)(cursor + SamusProjectileListLayout.TimedRecordByteCount));
+                    cursor = unchecked((ushort)(cursor + InstalledProjectileListPositions.TimedRecordByteCount));
                     continue;
                 }
                 switch ((SamusProjectileInstruction)word)
@@ -82,11 +82,11 @@ internal static class SamusProjectileProgramsVerification
                 ushort native = Word(header + sizeof(ushort) * (1 + field));
                 string at = $"projectile header $93:{header:X4} field {field}";
                 if (native == 0)
-                    AssertEqual(null, SamusProjectileHeaderDefinitions.Program(header, field), $"{at}: no list");
+                    AssertEqual(null, SamusProjectileHeaders.Program(header, field), $"{at}: no list");
                 else if (byEntry.TryGetValue(native, out SamusProjectileProgram program))
-                    AssertEqual(program, SamusProjectileHeaderDefinitions.Program(header, field), $"{at}: list");
+                    AssertEqual(program, SamusProjectileHeaders.Program(header, field), $"{at}: list");
                 else
-                    AssertThrows<InvalidDataException>(() => SamusProjectileHeaderDefinitions.Program(header, field), $"{at}: a word that is not a list fails");
+                    AssertThrows<InvalidDataException>(() => SamusProjectileHeaders.Program(header, field), $"{at}: a word that is not a list fails");
             }
         Console.WriteLine($"  Samus projectile programs: {byEntry.Count} programs ({steps} steps, {records.Count} records) and {fields} header fields match bank $93.");
     }
@@ -106,7 +106,7 @@ internal static class SamusProjectileProgramsVerification
     {
         if (HeaderListField(address) is not { } field)
             return SamusProjectileSelectionDefinitions.ReadWord(address);
-        return SamusProjectileHeaderDefinitions.Program(field.Header, field.Index) is { } program
+        return SamusProjectileHeaders.Program(field.Header, field.Index) is { } program
             ? SamusProjectileProgramAddresses.Entry(program) : (ushort)0;
     }
 

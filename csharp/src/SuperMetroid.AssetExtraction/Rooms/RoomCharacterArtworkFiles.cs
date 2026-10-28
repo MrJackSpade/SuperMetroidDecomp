@@ -58,7 +58,7 @@ public static class RoomCharacterArtworkFiles
     }
 
     /// <summary>Checks every stock file's hash and decodes every selected PNG without any ROM access.</summary>
-    public static RoomCharacterAtlasCatalog Load(string stockDirectory, string? overrideDirectory)
+    public static RoomCharacterAtlases Load(string stockDirectory, string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
         string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
@@ -111,7 +111,7 @@ public static class RoomCharacterArtworkFiles
             if (source.Set is { } set) sheets.Add(set, atlas);
             else cre = atlas;
         }
-        return new RoomCharacterAtlasCatalog(
+        return new RoomCharacterAtlases(
             cre ?? throw new InvalidDataException("Room character manifest has no CRE sheet."), sheets);
     }
 
@@ -127,7 +127,7 @@ public static class RoomCharacterArtworkFiles
         };
         for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
-            RoomCharacterSet set = RoomTilesetDefinitions.Get(graphicsSet).Characters;
+            RoomCharacterSet set = RoomTilesets.Get(graphicsSet).Characters;
             sources[RoomCharacterAtlasFormat.FileName(set)] = new(set);
         }
         sources[RoomCharacterAtlasFormat.FileName(RoomCharacterSet.TourianStatueGhost)] =

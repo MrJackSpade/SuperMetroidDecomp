@@ -23,7 +23,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
         /// <param name="random">The session's random-number word, or null for a runtime that is a session of its own.</param>
         internal static SuperMetroidRuntime Create(
             SuperMetroid.Core.Gameplay.HostGameplayOverrides overrides,
-            SuperMetroid.Core.Assets.GameplayBasePaletteCatalog? initialPaletteArt = null,
+            SuperMetroid.Core.Assets.GameplayBasePalette? initialPaletteArt = null,
             SuperMetroid.Core.Progression.SharedRandom? random = null) =>
             new(overrides, new SuperMetroid.Core.Frontend.GameArtwork { GameplayBasePalettes = initialPaletteArt },
                 new SuperMetroid.Core.Gameplay.FrameClock(), new SuperMetroid.Core.Compatibility.FloorUpdateResidue(),

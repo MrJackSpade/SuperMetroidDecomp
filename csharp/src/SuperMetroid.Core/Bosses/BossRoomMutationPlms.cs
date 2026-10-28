@@ -772,7 +772,7 @@ internal sealed class BossRoomMutationPlms
         slot.RestoreLevelWord = 0;
         slot.LoopTimer = 0;
         slot.PreInstruction = PlmPreInstructions.Inert;
-        slot.RoomArgument = 0;
+        slot.Argument = null;
         PlmProgramStart.Delete.StartOn(slot);
         slot.InstructionTimer = WrappingCountdown.Start(1);
 

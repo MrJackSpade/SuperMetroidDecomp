@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 internal static class SamusArmCannonNative
 {
     /// <summary>Native views of the installed arm cannon.</summary>
-    extension(SamusArmCannonArtworkCatalog cannon)
+    extension(InstalledSamusArmCannonArtwork cannon)
     {
         /// <summary>The bank-$90 address of pose <paramref name="pose"/>'s drawing descriptor.</summary>
         internal ushort PoseDrawingData(int pose) =>

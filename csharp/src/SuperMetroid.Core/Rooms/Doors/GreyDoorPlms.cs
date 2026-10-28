@@ -141,16 +141,16 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
         PlmSlot slot,
         ColoredDoorOrientation orientation)
     {
-        var argument = new GreyDoorRoomArgument(slot.RoomArgument);
+        GreyDoorArgument argument = slot.Argument as GreyDoorArgument ?? throw new InvalidDataException(
+            $"Grey-door header {slot.Header} was placed without its condition and door bit.");
         if (argument.ConditionIndex >= GreyDoorConditions.Count)
         {
             throw new InvalidDataException(
-                $"Grey-door header {slot.Header} selected invalid condition " +
-                $"index {argument.ConditionIndex} from room argument {argument.Word}.");
+                $"Grey-door header {slot.Header} selected invalid condition index {argument.ConditionIndex}.");
         }
 
         GreyDoorCondition condition = GreyDoorConditions.AtTableIndex(argument.ConditionIndex);
-        slot.RoomArgument = argument.DoorBitArgument;
+        slot.Argument = argument.Door;
         ApplyGreyDoorSetup(level, slot.BlockIndex);
         slot.Family = new GreyDoorPlmState(condition);
         var variant = new GreyDoorVariant(orientation, BombTorizo: slot.Header == PlmHeaderId.BombTorizoGreyDoor);

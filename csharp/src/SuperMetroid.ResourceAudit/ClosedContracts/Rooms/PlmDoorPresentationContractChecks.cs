@@ -39,10 +39,10 @@ internal static class PlmDoorPresentationContractChecks
             using SuperMetroid.Core.Rooms.Doors;
             using SuperMetroid.Core.Rooms.Plms;
             class PlmDoorConsumer {
-                void Inspect(RoomPlmBlueDoorVisualCatalog blue, RoomPlmColoredDoorVisualCatalog color,
-                    RoomPlmGreyDoorVisualCatalog grey, RoomPlmEyeDoorVisualCatalog eye,
-                    RoomPlmEscapeGateVisualCatalog escape, RoomPlmCollectibleVisualCatalog item,
-                    RoomPlmGrappleBlockVisualCatalog grapple, PlmDraw dynamicDraw) {
+                void Inspect(InstalledRoomPlmBlueDoorVisuals blue, InstalledRoomPlmColoredDoorVisuals color,
+                    InstalledRoomPlmGreyDoorVisuals grey, InstalledRoomPlmEyeDoorVisuals eye,
+                    RoomPlmEscapeGateVisualCatalog escape, InstalledRoomPlmCollectibleVisuals item,
+                    InstalledRoomPlmGrappleBlockVisuals grapple, PlmDraw dynamicDraw) {
                     blue.GetWord(BlueDoorCaps.Alias(ColoredDoorOrientation.Left), 3);
                     blue.GetWord(BlueDoorCaps.Alias(ColoredDoorOrientation.Left), 4);
                     color.GetWord(dynamicDraw, 3);
@@ -66,7 +66,7 @@ internal static class PlmDoorPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         var compilation = CSharpCompilation.Create("PlmDoorProviderFixture", trees,
-            platforms.Append(typeof(RoomPlmBlueDoorVisualCatalog).Assembly.Location).Distinct()
+            platforms.Append(typeof(InstalledRoomPlmBlueDoorVisuals).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         var exports = new ResourceIndex();
@@ -92,39 +92,39 @@ internal static class PlmDoorPresentationContractChecks
     {
         ConfirmCoverage(BlueDoorCaps.Editable, frame =>
             new RoomPlmVisualEntry(BlueDoorCaps.VisualId(frame.Draw), VisualRuns(frame)[0]),
-            entries => _ = new RoomPlmBlueDoorVisualCatalog(entries));
+            entries => _ = new InstalledRoomPlmBlueDoorVisuals(entries));
         ConfirmCoverage(ColoredDoorCaps.All, frame =>
             new RoomPlmVisualEntry(ColoredDoorCaps.VisualId(frame.Draw), VisualRuns(frame)[0]),
-            entries => _ = new RoomPlmColoredDoorVisualCatalog(entries));
+            entries => _ = new InstalledRoomPlmColoredDoorVisuals(entries));
         ConfirmCoverage(GreyDoorCaps.All, frame =>
             new RoomPlmVisualEntry(GreyDoorCaps.VisualId(frame.Draw), VisualRuns(frame)[0]),
-            entries => _ = new RoomPlmGreyDoorVisualCatalog(entries));
+            entries => _ = new InstalledRoomPlmGreyDoorVisuals(entries));
         ConfirmCoverage(EyeDoorDraws.Editable, frame =>
             new RoomPlmVisualEntry(EyeDoorDraws.VisualId(frame.Draw), VisualRuns(frame)[0]),
-            entries => _ = new RoomPlmEyeDoorVisualCatalog(entries));
+            entries => _ = new InstalledRoomPlmEyeDoorVisuals(entries));
         ConfirmCoverage(MotherBrainEscapeGatePlmDrawDefinitions.All, frame =>
             new RoomPlmVisualEntry(MotherBrainEscapeGatePlmDrawDefinitions.VisualId(frame.Draw), VisualRuns(frame)[0]),
             entries => _ = new RoomPlmEscapeGateVisualCatalog(entries));
         RoomPlmShotBlockDrawDefinitions.DrawList[] itemShapes =
-            (PlmVisualDomainDefinitions.Get((typeof(RoomPlmCollectibleVisualCatalog).FullName ?? throw new InvalidOperationException("Verification requires typeof(RoomPlmCollectibleVisualCatalog).FullName."))) ?? throw new InvalidOperationException("Verification requires PlmVisualDomainDefinitions.Get((typeof(RoomPlmCollectibleVisualCatalog).FullName ?? thr...."));
+            (PlmVisualDomainDefinitions.Get((typeof(InstalledRoomPlmCollectibleVisuals).FullName ?? throw new InvalidOperationException("Verification requires typeof(InstalledRoomPlmCollectibleVisuals).FullName."))) ?? throw new InvalidOperationException("Verification requires PlmVisualDomainDefinitions.Get((typeof(InstalledRoomPlmCollectibleVisuals).FullName ?? thr...."));
         ConfirmCoverage((itemShapes), frame => {
             Require(RoomPlmCollectibleDrawDefinitionsTooling.TryGet(frame.Draw, out var item), "compiled item shape owns its ID");
             return new RoomPlmVisualWordEntry(item.Id, VisualRuns(frame)[0][0]);
-        }, entries => _ = new RoomPlmCollectibleVisualCatalog(entries));
-        ConfirmCoverage((PlmVisualDomainDefinitions.Get((typeof(RoomPlmGrappleBlockVisualCatalog).FullName ?? throw new InvalidOperationException("Verification requires typeof(RoomPlmGrappleBlockVisualCatalog).FullName."))) ?? throw new InvalidOperationException("Verification requires PlmVisualDomainDefinitions.Get((typeof(RoomPlmGrappleBlockVisualCatalog).FullName ?? th....")), frame =>
-            new RoomPlmVisualWordEntry(RoomPlmGrappleBlockDrawDefinitions.VisualId(PlmDraw.FrameOf<GrappleBlockDraw>(frame.Draw, "Grapple-block")),
+        }, entries => _ = new InstalledRoomPlmCollectibleVisuals(entries));
+        ConfirmCoverage((PlmVisualDomainDefinitions.Get((typeof(InstalledRoomPlmGrappleBlockVisuals).FullName ?? throw new InvalidOperationException("Verification requires typeof(InstalledRoomPlmGrappleBlockVisuals).FullName."))) ?? throw new InvalidOperationException("Verification requires PlmVisualDomainDefinitions.Get((typeof(InstalledRoomPlmGrappleBlockVisuals).FullName ?? th....")), frame =>
+            new RoomPlmVisualWordEntry(GrappleBlockPlmDraws.VisualId(PlmDraw.FrameOf<GrappleBlockDraw>(frame.Draw, "Grapple-block")),
                 VisualRuns(frame)[0][0]),
-            entries => _ = new RoomPlmGrappleBlockVisualCatalog(entries));
+            entries => _ = new InstalledRoomPlmGrappleBlockVisuals(entries));
 
         // Confirm the reviewed reuse mappings against production GetWord, not
         // just the source adapter. The constructed catalog contains no ROM art.
-        var blue = new RoomPlmBlueDoorVisualCatalog(BlueDoorCaps.Editable.Select(frame =>
+        var blue = new InstalledRoomPlmBlueDoorVisuals(BlueDoorCaps.Editable.Select(frame =>
             new RoomPlmVisualEntry(BlueDoorCaps.VisualId(frame.Draw), VisualRuns(frame)[0])));
         foreach (var frame in BlueDoorPlmDrawDefinitionsTooling.All.Where(frame => BlueDoorCaps.VisualSource(frame.Draw) != frame.Draw))
             Require(Enumerable.Range(0, frame.Runs.Span[0].LevelWords.Length).All(word =>
                 blue.GetWord(frame.Draw, word) == blue.GetWord(BlueDoorCaps.VisualSource(frame.Draw), word)),
                 "each compiled closed cap resolves to its required opening artwork");
-        var eye = new RoomPlmEyeDoorVisualCatalog(EyeDoorDraws.Editable.Select(frame =>
+        var eye = new InstalledRoomPlmEyeDoorVisuals(EyeDoorDraws.Editable.Select(frame =>
             new RoomPlmVisualEntry(EyeDoorDraws.VisualId(frame.Draw), VisualRuns(frame)[0])));
         PlmDraw mirrored = EyeDoorPlmDrawDefinitions.MirroredOpeningClear;
         Require(Enumerable.Range(0, 4).All(word => eye.GetWord(mirrored, word) ==

@@ -20,18 +20,18 @@ internal static class BombBlockProgramsVerification
     private static void VerifyBombBlockRestorationMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa4c7, 0xa4cf, 0xa4d7];
-        AssertTrue(pointers.SequenceEqual(RoomPlmLinkedRestoreDefinition.BombBlock.All.Select(draw => PlmDrawAddressCodec.Of(draw.Draw))),
+        AssertTrue(pointers.SequenceEqual(LinkedRestorePlmFamily.BombBlock.All.Select(draw => PlmDrawAddressCodec.Of(draw.Draw))),
             "bomb restoration export order matches native layouts");
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
             bool expected = pointers.Contains((ushort)pointer);
-            bool found = RoomPlmLinkedRestoreDefinition.BombBlock.TryDescribe(NativePlmDraws.At<BombBlockRestoreDraw>(pointer), out var draw);
-            bool exported = RoomPlmLinkedRestoreDefinition.BombBlock.TryGet(NativePlmDraws.At<BombBlockRestoreDraw>(pointer), out var list);
+            bool found = LinkedRestorePlmFamily.BombBlock.TryDescribe(NativePlmDraws.At<BombBlockRestoreDraw>(pointer), out var draw);
+            bool exported = LinkedRestorePlmFamily.BombBlock.TryGet(NativePlmDraws.At<BombBlockRestoreDraw>(pointer), out var list);
             AssertEqual(expected, found, "bomb restoration full native pointer domain");
             AssertEqual(expected, exported, "bomb restoration export pointer domain");
             if (!found)
             {
-                AssertEqual(default(RoomPlmLinkedRestoreDefinition.Draw), draw, "missing restoration descriptor cleared");
+                AssertEqual(default(LinkedRestorePlmFamily.Draw), draw, "missing restoration descriptor cleared");
                 AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), list, "missing restoration export cleared");
                 continue;
             }
@@ -164,7 +164,7 @@ internal static class BombBlockProgramsVerification
         // family. Forbid their source bytes as well, so this production check covers
         // the complete bomb-block draw path rather than only its three unique restores.
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 RoomPlmShotBlockDrawDefinitions.All)
+                 ShotBlockPlmDraws.All)
         {
             int cursor = PlmDrawAddressCodec.Of(list.Draw);
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
@@ -218,8 +218,8 @@ internal static class BombBlockProgramsVerification
     private static void VerifyBombBlockVisualSeparation(
         SuperMetroidAddressSpace rom, HashSet<int> forbidden)
     {
-        RoomPlmVisualRunEntry[] entries = RoomPlmShotBlockDrawDefinitions.All
-            .Select(list => new RoomPlmVisualRunEntry(RoomPlmShotBlockDrawDefinitions.VisualId(list.Draw),
+        RoomPlmVisualRunEntry[] entries = ShotBlockPlmDraws.All
+            .Select(list => new RoomPlmVisualRunEntry(ShotBlockPlmDraws.VisualId(list.Draw),
                 list.Runs.Span.SelectToArray(run =>
                     run.LevelWords.Span.SelectToArray(word =>
                         new RoomLevelWord(word).VisualWord))))
@@ -227,10 +227,10 @@ internal static class BombBlockProgramsVerification
         RoomPlmVisualRunEntry first = entries.Single(entry =>
             entry.Id == "single-breakup-0");
         first.Runs[0][0] = 0x0054;
-        var edited = new RoomPlmShotBlockVisualCatalog(entries);
+        var edited = new InstalledRoomPlmShotBlockVisuals(entries);
 
         BombBlockProgramsRenderResult Render(
-            RoomPlmShotBlockVisualCatalog visuals)
+            InstalledRoomPlmShotBlockVisuals visuals)
         {
             const int width = 8;
             const int blockIndex = 27;
@@ -246,7 +246,7 @@ internal static class BombBlockProgramsVerification
                 level.DisplayedVisualWord(blockIndex));
         }
 
-        var stock = Render(RoomPlmShotBlockVisualCatalog.Stock());
+        var stock = Render(InstalledRoomPlmShotBlockVisuals.Stock());
         var changed = Render(edited);
         AssertEqual((ushort)0x0053, stock.Physical,
             "native bomb-break frame installs its original air collision word");

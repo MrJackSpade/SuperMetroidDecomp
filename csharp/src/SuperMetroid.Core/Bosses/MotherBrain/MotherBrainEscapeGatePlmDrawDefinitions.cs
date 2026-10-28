@@ -73,6 +73,6 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
     /// <summary>Finds a gate artwork draw list by its exact, case-sensitive visual identifier.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.FindByVisualId(All, VisualId, id, out list);
+        ShotBlockPlmDraws.FindByVisualId(All, VisualId, id, out list);
 
 }

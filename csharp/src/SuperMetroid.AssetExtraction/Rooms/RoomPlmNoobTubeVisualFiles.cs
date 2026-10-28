@@ -16,17 +16,17 @@ public static class RoomPlmNoobTubeVisualFiles
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256) =>
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "n00b-tube", NoobTubePlmDrawDefinitions.All,
-            NoobTubePlmDrawDefinitions.VisualId);
+            VisualFileName, "n00b-tube", NoobTubePlmDraws.All,
+            NoobTubePlmDraws.VisualId);
 
     /// <summary>Validates stock provenance and compiled parity, then selects an optional editable n00b-tube override without cartridge access.</summary>
     /// <param name="stockDirectory">Installed stock directory containing the shared manifest and n00b-tube JSON.</param>
     /// <param name="overrideDirectory">Optional directory whose n00b-tube JSON is selected when present.</param>
     /// <returns>The immutable selected n00b-tube visual catalog.</returns>
-    public static RoomPlmNoobTubeVisualCatalog Load(string stockDirectory,
+    public static InstalledRoomPlmNoobTubeVisuals Load(string stockDirectory,
         string? overrideDirectory = null) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmNoobTubeVisualCatalog>(VisualFileName, "n00b-tube", NoobTubePlmDrawDefinitions.All, NoobTubePlmDrawDefinitions.VisualId, entries => new RoomPlmNoobTubeVisualCatalog(entries.Select(entry =>
+            new RoomPlmVisualFamily<InstalledRoomPlmNoobTubeVisuals>(VisualFileName, "n00b-tube", NoobTubePlmDraws.All, NoobTubePlmDraws.VisualId, entries => new InstalledRoomPlmNoobTubeVisuals(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetWord(draw, run, block)));
 
     /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled n00b-tube visuals.</summary>

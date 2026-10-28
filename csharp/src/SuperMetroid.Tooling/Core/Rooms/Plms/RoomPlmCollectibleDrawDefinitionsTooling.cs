@@ -6,7 +6,7 @@ internal static class RoomPlmCollectibleDrawDefinitionsTooling
     /// <summary>The exported frame of <paramref name="request"/> when it is one of the twenty-four collectible draws.</summary>
     internal static bool TryGet(PlmDraw request, out RoomPlmCollectibleDrawFrame frame)
     {
-        frame = RoomPlmCollectibleDrawDefinitions.All.FirstOrDefault(candidate => PlmDraw.Of(candidate.Draw) == request);
+        frame = CollectiblePlmDraws.All.FirstOrDefault(candidate => PlmDraw.Of(candidate.Draw) == request);
         return frame != default;
     }
 }

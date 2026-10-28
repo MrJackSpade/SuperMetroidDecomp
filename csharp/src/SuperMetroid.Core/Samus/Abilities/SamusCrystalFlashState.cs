@@ -358,8 +358,8 @@ public sealed class SamusCrystalFlashState
     public bool UpdatePalette(
         SamusColours colours,
         SamusState samus,
-        SuperMetroid.Core.Samus.Artwork.BeamPaletteCatalog? palettes = null,
-        SuperMetroid.Core.Samus.Artwork.CrystalFlashColorCatalog? colors = null)
+        SuperMetroid.Core.Samus.Artwork.InstalledBeamPalettes? palettes = null,
+        SuperMetroid.Core.Samus.Artwork.InstalledCrystalFlashColors? colors = null)
     {
         Ensure.NotNull(colours);
         Ensure.NotNull(samus);
@@ -418,7 +418,7 @@ public sealed class SamusCrystalFlashState
                 throw new InvalidDataException(
                     $"Crystal Flash body frame {BodyPaletteRecordOffset} has no installed color.");
             CrystalPaletteTimer =
-                WrappingCountdown.FromRaw(CrystalFlashPaletteTimingDefinitions.DurationForByteOffset(
+                WrappingCountdown.FromRaw(CrystalFlashPaletteTiming.DurationForByteOffset(
                     BodyPaletteRecordOffset));
             colors.ApplyBody(colours,
                 BodyPaletteRecordOffset / SamusPaletteDefinitions.CrystalFlash.BodyRecordByteCount);

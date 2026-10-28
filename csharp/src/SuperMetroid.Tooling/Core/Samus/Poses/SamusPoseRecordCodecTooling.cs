@@ -19,5 +19,5 @@ internal static class SamusPoseRecordCodecTooling
     internal static byte MovementByte(SamusPoseId pose) =>
         IrregularMovementBytes.TryGetValue(pose, out byte irregular)
             ? irregular
-            : SamusPoseRecordCodec.MovementByte(SamusPoseDispatchDefinitions.ReadMovement(pose));
+            : SamusPoseRecordCodec.MovementByte(SamusPoseDispatch.ReadMovement(pose));
 }

@@ -12,7 +12,7 @@ internal static class LookupBlueDoorStockVerification
 {
     /// <summary>Compares all four orientations and their aliases with bank-$84 art, then checks custom-frame isolation and validation.</summary>
     internal static void VerifyBlueDoorStockMapping(SuperMetroidAddressSpace rom,
-        RoomPlmBlueDoorVisualCatalog installed)
+        InstalledRoomPlmBlueDoorVisuals installed)
     {
         LookupEscapeGateStockFrame[] frames = [
             new LookupEscapeGateStockFrame(0xa9b3,"left-frame-0"),new LookupEscapeGateStockFrame(0xa9bf,"left-frame-1"),new LookupEscapeGateStockFrame(0xa9cb,"left-frame-2"),new LookupEscapeGateStockFrame(0xa9d7,"left-frame-3"),
@@ -29,10 +29,10 @@ internal static class LookupBlueDoorStockVerification
             native.Add(frame.Pointer, words);
         }
         var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
-        var stock = RoomPlmBlueDoorVisualCatalog.Stock();
-        var imported = new RoomPlmBlueDoorVisualCatalog(entries.Reverse());
+        var stock = InstalledRoomPlmBlueDoorVisuals.Stock();
+        var imported = new InstalledRoomPlmBlueDoorVisuals(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
-            nameof(RoomPlmBlueDoorVisualCatalog), words.ToDictionary(pair => BlueDoorCaps.VisualId(NativePlmDraws.At<BlueDoorCaps.Draw>(pair.Key)), pair => pair.Value));
+            nameof(InstalledRoomPlmBlueDoorVisuals), words.ToDictionary(pair => BlueDoorCaps.VisualId(NativePlmDraws.At<BlueDoorCaps.Draw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(native), catalog.ContentIdentity, "Blue door original stock identity");
@@ -58,7 +58,7 @@ internal static class LookupBlueDoorStockVerification
                 AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<BlueDoorCaps.Draw>((ushort)raw),0), "Blue door unknown stock pointer");
         entries[12].Blocks[1] = 0xc58;
         entries[8].Blocks[3] = 0x59;
-        var mixed = new RoomPlmBlueDoorVisualCatalog(entries);
+        var mixed = new InstalledRoomPlmBlueDoorVisuals(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer,
             frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
         AssertEqual(Hash(expected), mixed.ContentIdentity, "Blue door custom/stock hash");
@@ -71,14 +71,14 @@ internal static class LookupBlueDoorStockVerification
         for (int row = 0; row < 4; row++)
             AssertEqual(expected[frames[orientation * 4].Pointer][row], mixed.GetWord(NativePlmDraws.At<BlueDoorCaps.Draw>(aliases[orientation]),row),
                 "Blue alias follows custom or stock canonical frame");
-        AssertThrows<InvalidDataException>(() => new RoomPlmBlueDoorVisualCatalog(entries[..15]), "Blue door missing frame");
-        AssertThrows<InvalidDataException>(() => new RoomPlmBlueDoorVisualCatalog(entries.Append(entries[0])), "Blue door duplicate frame");
+        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmBlueDoorVisuals(entries[..15]), "Blue door missing frame");
+        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmBlueDoorVisuals(entries.Append(entries[0])), "Blue door duplicate frame");
         var invalid = entries.ToArray();
         invalid[0] = new("LEFT-FRAME-0", entries[0].Blocks);
-        AssertThrows<InvalidDataException>(() => new RoomPlmBlueDoorVisualCatalog(invalid), "Blue door ordinal identity");
+        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmBlueDoorVisuals(invalid), "Blue door ordinal identity");
         invalid[0] = new(entries[0].Id, new ushort[3]);
-        AssertThrows<InvalidDataException>(() => new RoomPlmBlueDoorVisualCatalog(invalid), "Blue door exact shape");
+        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmBlueDoorVisuals(invalid), "Blue door exact shape");
         entries[0].Blocks[0] = 0xf058;
-        AssertThrows<InvalidDataException>(() => new RoomPlmBlueDoorVisualCatalog(entries), "Blue door visual bits only");
+        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmBlueDoorVisuals(entries), "Blue door visual bits only");
     }
 }

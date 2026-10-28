@@ -57,7 +57,7 @@ internal sealed class BgArtworkBytes
     }
 
     /// <summary>The common room elements' characters and every tileset's, as <paramref name="characters"/> installs them.</summary>
-    internal BgArtworkBytes WithRoomCharacters(RoomCharacterAtlasCatalog characters)
+    internal BgArtworkBytes WithRoomCharacters(RoomCharacterAtlases characters)
     {
         Ensure.NotNull(characters);
         Add(RoomBgArtwork.CommonRoomElements, () => characters.Cre.Characters);
@@ -94,7 +94,7 @@ internal sealed class BgArtworkBytes
     /// Every permanent item's graphics as gameplay selects them when its population supplies none: the selection
     /// <paramref name="installed"/> holds, or the compiled stock graphics where none is installed.
     /// </summary>
-    internal BgArtworkBytes WithCollectibles(RoomPlmDynamicCollectibleArtCatalog? installed)
+    internal BgArtworkBytes WithCollectibles(InstalledDynamicCollectibleArt? installed)
     {
         foreach (InWorldCollectibleKind kind in RoomPlmDynamicCollectibleGraphicsDefinitions.Kinds)
         {
@@ -106,7 +106,7 @@ internal sealed class BgArtworkBytes
 
     /// <summary>The graphics PLM population import supplied for its placements' permanent items, each kind once.</summary>
     /// <exception cref="InvalidDataException">Two placements supply one kind different graphics.</exception>
-    internal BgArtworkBytes WithSuppliedCollectibles(RoomPlmPopulationDefinition population)
+    internal BgArtworkBytes WithSuppliedCollectibles(RoomPlmPopulation population)
     {
         Ensure.NotNull(population);
         var supplied = new Dictionary<InWorldCollectibleKind, ReadOnlyMemory<byte>>();

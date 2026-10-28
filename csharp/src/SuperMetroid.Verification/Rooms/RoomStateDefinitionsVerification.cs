@@ -20,7 +20,7 @@ internal static class RoomStateDefinitionsVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "Room-state oracle revision");
         Suite(nameof(VerifyRoomStateSettings), () => VerifyRoomStateSettings(bus));
 
-        RoomHeaderDefinition ceres = LoadStationDefinitions.Get(SuperMetroid.Core.Progression.AreaId.Ceres, 0).Room
+        RoomHeaderDefinition ceres = LoadStations.Get(SuperMetroid.Core.Progression.AreaId.Ceres, 0).Room
             ?? throw new InvalidDataException("Ceres station has no room.");
         ushort ceresStatePointer = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, ceres.Pointer).State.Pointer;
         SelectedRoom compiledRoom = SelectedRoom.LoadUsingCompiledSelection(ceres);

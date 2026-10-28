@@ -31,14 +31,14 @@ internal static class PoseProjectileOriginVerification
                 _ => "Installed graphics offset read ROM.");
         var samus = PrepareRetailSamusFixture(new SamusState());
         var slot = new SamusProjectileSlot(0);
-        SamusBodyArtworkCatalog template = CreateSamusIdentityFixture();
+        InstalledSamusBodyArtwork template = CreateSamusIdentityFixture();
         // The graphics-Y byte only enters as a signed offset, so one artwork fixture per signed
         // byte class covers it.
-        var artwork = SignedByteClasses.Select(art => new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopSetStarts = template.TopSetStarts.ToArray(), BottomSetStarts = template.BottomSetStarts.ToArray(), PoseFirstFrames = template.PoseFirstFrames.ToArray(), GraphicsYOffsets = Enumerable.Repeat(unchecked((sbyte)art), SamusBodyArtworkCatalog.PoseCount).ToArray(), Frames = template.Frames.ToArray(), Top = Enumerable.Range(0, SamusBodyArtworkCatalog.TopSetCount).Select(index => template.TopSet(index).ToArray()).ToArray(), Bottom = Enumerable.Range(0, SamusBodyArtworkCatalog.BottomSetCount).Select(index => template.BottomSet(index).ToArray()).ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTilesContentIdentity = template.DeathTilesContentIdentity, ArmCannon = template.ArmCannon, LandingYOffsets = template.LandingYOffsets.ToArray(), PostureYOffsets = template.PostureYOffsets.ToArray(), DrainedYOffsets = template.DrainedYOffsets.ToArray() })).ToArray();
+        var artwork = SignedByteClasses.Select(art => new InstalledSamusBodyArtwork(new SamusBodyArtworkParts { TopSetStarts = template.TopSetStarts.ToArray(), BottomSetStarts = template.BottomSetStarts.ToArray(), PoseFirstFrames = template.PoseFirstFrames.ToArray(), GraphicsYOffsets = Enumerable.Repeat(unchecked((sbyte)art), InstalledSamusBodyArtwork.PoseCount).ToArray(), Frames = template.Frames.ToArray(), Top = Enumerable.Range(0, InstalledSamusBodyArtwork.TopSetCount).Select(index => template.TopSet(index).ToArray()).ToArray(), Bottom = Enumerable.Range(0, InstalledSamusBodyArtwork.BottomSetCount).Select(index => template.BottomSet(index).ToArray()).ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTilesContentIdentity = template.DeathTilesContentIdentity, ArmCannon = template.ArmCannon, LandingYOffsets = template.LandingYOffsets.ToArray(), PostureYOffsets = template.PostureYOffsets.ToArray(), DrainedYOffsets = template.DrainedYOffsets.ToArray() })).ToArray();
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
             byte expected = rom.ReadCartridgeByte(0x91b629 + pose * 8 + 4);
-            AssertEqual(expected, SamusPoseProjectileOriginDefinitions.ReadYOffset((SamusPoseId)pose),
+            AssertEqual(expected, SamusPoseProjectileOrigins.ReadYOffset((SamusPoseId)pose),
                 "Every byte-valued correction is compiled, including three adjacent-code indexes");
         }
         for (int pose = 0; pose <= 0xfc; pose++)

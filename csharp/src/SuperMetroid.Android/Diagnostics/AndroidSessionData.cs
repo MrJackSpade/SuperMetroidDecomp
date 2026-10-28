@@ -62,7 +62,7 @@ internal sealed class AndroidSessionData : IDisposable
         projectiles = installation.LoadProjectiles();
         GameArtwork artwork = installation.LoadGameArtwork(maps, projectiles);
         Console.WriteLine($"Projectile compositions: stock={projectiles.StockSha256}, selected={projectiles.SelectedSha256} ({root}).");
-        ClipAudioCatalog assets = audioDirectory is null
+        ClipAudioLibrary assets = audioDirectory is null
             ? installation.LoadAudioClips()
             : InstalledAudioClips.Load(audioDirectory);
         ContentIdentity = SuperMetroid.AssetExtraction.Installation.GameContentIdentity.Create(

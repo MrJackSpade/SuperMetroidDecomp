@@ -32,14 +32,14 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
             new RoomPlmVisualEntry(BlueDoorCaps.VisualId(draw.Draw),
                 draw.Runs.Span[0].LevelWords.Span
                     .SelectToArray(word => new RoomLevelWord(word).VisualWord))).ToArray();
-        RoomPlmBlueDoorVisualCatalog stock = RoomPlmBlueDoorVisualCatalog.Stock();
+        InstalledRoomPlmBlueDoorVisuals stock = InstalledRoomPlmBlueDoorVisuals.Stock();
         RoomPlmVisualEntry editedFrame = entries.Single(entry =>
             entry.Id == "left-frame-1");
         ushort originalVisual = editedFrame.Blocks[0];
         editedFrame.Blocks[0] = 0x0053;
-        var edited = new RoomPlmBlueDoorVisualCatalog(entries);
+        var edited = new InstalledRoomPlmBlueDoorVisuals(entries);
         editedFrame.Blocks[0] = 0x0054;
-        ushort leftFirstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (BlueEntry(BlueDoorPlmProgramDefinitions.Opening(ColoredDoorOrientation.Left)) + 5)));
+        ushort leftFirstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (BlueEntry(BlueDoorPlmProgramDefinitions.OpeningPrograms[ColoredDoorOrientation.Left]) + 5)));
         AssertEqual((ushort)0x0053, edited.GetWord(NativePlmDraws.At<BlueDoorCaps.Draw>(leftFirstDraw), 0),
             "blue-door visual catalog copies author data");
         AssertEqual(originalVisual, stock.GetWord(NativePlmDraws.At<BlueDoorCaps.Draw>(leftFirstDraw), 0),
@@ -50,7 +50,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
 
         foreach (ColoredDoorOrientation orientation in Enum.GetValues<ColoredDoorOrientation>())
         {
-            ushort openingList = BlueEntry(BlueDoorPlmProgramDefinitions.Opening(orientation));
+            ushort openingList = BlueEntry(BlueDoorPlmProgramDefinitions.OpeningPrograms[orientation]);
             ushort firstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (openingList + 5)));
             AssertTrue(BlueDoorCaps.TryGet(NativePlmDraws.At<BlueDoorCaps.Draw>(firstDraw), out var selected),
                 $"{orientation} opening program selects a compiled draw");
@@ -87,7 +87,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
             AssertEqual(0, plms.SlotTable.ActiveCount,
                 $"{orientation} blue-door opening reaches its native Delete");
 
-            foreach (BlueDoorProgram program in new[] { BlueDoorPlmProgramDefinitions.Closing(orientation), BlueDoorPlmProgramDefinitions.Closed(orientation) })
+            foreach (BlueDoorProgram program in new[] { BlueDoorPlmProgramDefinitions.ClosingPrograms[orientation], BlueDoorPlmProgramDefinitions.ClosedPrograms[orientation] })
             {
                 AssertTrue(plms.DoorPlms.TrySpawnBlueDoorOpening(level, origin, behavior,
                     new SamusProjectileTypeWord(0)),

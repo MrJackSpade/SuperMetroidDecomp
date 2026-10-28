@@ -51,7 +51,7 @@ internal static class RoomSpriteObjectSlotAccess
     extension(RoomSpriteObjectDefinitions)
     {
         /// <summary>The bank-$B4 list address <paramref name="kind"/> starts.</summary>
-        internal static ushort InstructionPointer(RoomSpriteObjectKind kind) => RoomSpriteObjectProgramAddresses.Entries[RoomSpriteObjectDefinitions.Program(kind)];
+        internal static ushort InstructionPointer(RoomSpriteObjectKind kind) => RoomSpriteObjectProgramAddresses.Entries[RoomSpriteObjectDefinitions.Programs[kind]];
     }
 
     /// <summary>Frames by spritemap.</summary>

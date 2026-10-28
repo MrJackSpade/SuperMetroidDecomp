@@ -44,7 +44,7 @@ public static class SamusDeathPaletteArtworkFiles
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         Directory.CreateDirectory(directory);
-        var suited = new ushort[SamusDeathPaletteArtworkCatalog.SuitCount][][];
+        var suited = new ushort[InstalledSamusDeathPalettes.SuitCount][][];
         for (int suit = 0; suit < suited.Length; suit++)
         {
             suited[suit] = new ushort[SamusPaletteDefinitions.Death.PaletteCount][];
@@ -85,13 +85,13 @@ public static class SamusDeathPaletteArtworkFiles
     /// <remarks>Stock provenance, byte hash, and strict schema/catalog admission are mandatory even with overrides. Replacement JSON needs all original dimensions, packed colors at most $7FFF, and nine row selectors 0..9, but no manifest.</remarks>
     /// <exception cref="InvalidDataException">Provenance, hash, strict JSON, version, dimensions, color words, or selectors are invalid; admission errors identify the source filename.</exception>
     /// <exception cref="IOException">A required stock or selected override file cannot be read.</exception>
-    public static SamusDeathPaletteArtworkCatalog Load(string stockDirectory, string? overrideDirectory)
+    public static InstalledSamusDeathPalettes Load(string stockDirectory, string? overrideDirectory)
     {
         SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(stockDirectory, ManifestFileName));
         ArtworkManifest manifest = manifestFile.Json<ArtworkManifest>(JsonOptions);
         return manifestFile.WithContext(() => LoadArtwork());
 
-        SamusDeathPaletteArtworkCatalog LoadArtwork()
+        InstalledSamusDeathPalettes LoadArtwork()
         {
             if (manifest.Version != FormatVersion ||
                 !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
@@ -105,13 +105,13 @@ public static class SamusDeathPaletteArtworkFiles
     }
 
     /// <summary>Validates death-palette document structure and converts packed RGB5 words into the installed catalog.</summary>
-    private static SamusDeathPaletteArtworkCatalog Build(ArtworkDocument document)
+    private static InstalledSamusDeathPalettes Build(ArtworkDocument document)
     {
         if (document.Version != FormatVersion || document.Suited is null ||
             document.Suitless is null || document.Whiteout is null ||
             document.ExplosionPaletteIndices is null)
             throw new InvalidDataException("Samus death-palette artwork has an invalid structure.");
-        return new SamusDeathPaletteArtworkCatalog(
+        return new InstalledSamusDeathPalettes(
             Array.ConvertAll(document.Suited, suit => Array.ConvertAll(
                 suit ?? throw new InvalidDataException("Samus death-palette artwork is missing a suit."), Colors)),
             Array.ConvertAll(document.Suitless, Colors), Colors(document.Whiteout), document.ExplosionPaletteIndices);
@@ -127,7 +127,7 @@ public static class SamusDeathPaletteArtworkFiles
     /// <summary>Imports all colors in one native sixteen-entry death palette row.</summary>
     private static ushort[] ReadPalette(ISnesAddressSpace bus, int pointer)
     {
-        var colors = new ushort[SamusDeathPaletteArtworkCatalog.ColorCount];
+        var colors = new ushort[InstalledSamusDeathPalettes.ColorCount];
         for (int color = 0; color < colors.Length; color++)
             colors[color] = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.PaletteBank.Value |
                 unchecked((ushort)(pointer + color * sizeof(ushort)))));

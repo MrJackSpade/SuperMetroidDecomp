@@ -85,7 +85,7 @@ internal static class GameplayContentIdentityVerification
         var paletteDocument = new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
             Colors(SnesCgram.ColorCount, edit == "initial"),
             Colors(GameplayBasePaletteFormat.SpriteColorCount, edit == "common"));
-        GameplayBasePaletteCatalog palettes = GameplayBasePaletteFiles.Read(new MemoryStream(
+        GameplayBasePalette palettes = GameplayBasePaletteFiles.Read(new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(paletteDocument,
                 (edit == "json-indent" ? IndentedJson : CompactJson))));
         using var png = new MemoryStream();
@@ -102,7 +102,7 @@ internal static class GameplayContentIdentityVerification
         for (int bts = 0; bts <= byte.MaxValue; bts++)
         {
             if (XrayRevealTable.Find(type, (byte)bts) is not { } native ||
-                !XrayRevealVisualCatalog.IsDrawable(native.Command)) continue;
+                !InstalledXrayReveals.IsDrawable(native.Command)) continue;
             var visual = new XrayRevealVisualWords(native.TopLeft, native.TopRight, native.BottomLeft, native.BottomRight);
             if (!editedOperands && native.Command == XrayRevealCommand.CopySquare && edit?.StartsWith("xray-", StringComparison.Ordinal) == true)
             {
@@ -118,7 +118,7 @@ internal static class GameplayContentIdentityVerification
             entries.Add(new(type, (byte)bts, visual));
         }
         AssertEqual(305, entries.Count, "complete compiled drawable rule fixture");
-        var items = new ushort[XrayOverlayVisualCatalog.DynamicGraphicsSlots * 2];
+        var items = new ushort[InstalledXrayOverlays.DynamicGraphicsSlots * 2];
         if (edit == "xray-item") items[^1] = 1;
         XrayRoomOverlayVisual[] tiles =
         [
@@ -129,8 +129,8 @@ internal static class GameplayContentIdentityVerification
         if (edit == "overlay-order") Array.Reverse(tiles);
         XrayRoomOverlayTiles[] rooms =
             [new(FirstFixtureOverlay, tiles), new(SecondFixtureOverlay, new XrayRoomOverlayVisual[] { new(new(8, 9), new RoomLevelWord(10)) })];
-        var overlays = XrayOverlayVisualCatalog.FromOverlaysForVerification(items, reverse ? rooms.Reverse() : rooms);
-        var xray = new XrayRevealVisualCatalog(reverse ? entries.AsEnumerable().Reverse() : entries, overlays);
+        var overlays = InstalledXrayOverlays.FromOverlaysForVerification(items, reverse ? rooms.Reverse() : rooms);
+        var xray = new InstalledXrayReveals(reverse ? entries.AsEnumerable().Reverse() : entries, overlays);
         return GameplayPresentationIdentity.Create(palettes, sprites, xray);
     }
 

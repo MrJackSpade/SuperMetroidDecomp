@@ -28,24 +28,33 @@ internal static class SamusVerticalMotionDefinitions
     };
 
     /// <summary>
-    /// $90:9EB9..9EE8 InitialYSpeeds/InitialYSubSpeeds: the launch magnitude by medium, jump equipment and whether Samus
-    /// kicks away from a wall, as 8.8 speeds. In lava or acid High Jump outweighs the wall kick.
+    /// $90:9EB9..9EE8 InitialYSpeeds/InitialYSubSpeeds: the launch magnitude with High Jump equipped by medium and
+    /// whether Samus kicks away from a wall, as 8.8 speeds. In lava or acid High Jump outweighs the wall kick.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<(SamusLiquidMedium Medium, bool HighJump, bool WallJump), int> LaunchSpeeds =
-        new Dictionary<(SamusLiquidMedium Medium, bool HighJump, bool WallJump), int>
+    internal static readonly IReadOnlyDictionary<SamusLaunchSpeedKey, int> HighJumpLaunchSpeeds =
+        new Dictionary<SamusLaunchSpeedKey, int>
     {
-        [(SamusLiquidMedium.Air, true, true)] = 0x0580,
-        [(SamusLiquidMedium.Air, false, true)] = 0x04a0,
-        [(SamusLiquidMedium.Air, true, false)] = 0x0600,
-        [(SamusLiquidMedium.Air, false, false)] = 0x04e0,
-        [(SamusLiquidMedium.Water, true, true)] = 0x0080,
-        [(SamusLiquidMedium.Water, false, true)] = 0x0040,
-        [(SamusLiquidMedium.Water, true, false)] = 0x0280,
-        [(SamusLiquidMedium.Water, false, false)] = 0x01c0,
-        [(SamusLiquidMedium.LavaOrAcid, true, true)] = 0x0380,
-        [(SamusLiquidMedium.LavaOrAcid, false, true)] = 0x02a0,
-        [(SamusLiquidMedium.LavaOrAcid, true, false)] = 0x0380,
-        [(SamusLiquidMedium.LavaOrAcid, false, false)] = 0x02c0,
+        [new(SamusLiquidMedium.Air, SamusLaunchKind.WallJump)] = 0x0580,
+        [new(SamusLiquidMedium.Air, SamusLaunchKind.Jump)] = 0x0600,
+        [new(SamusLiquidMedium.Water, SamusLaunchKind.WallJump)] = 0x0080,
+        [new(SamusLiquidMedium.Water, SamusLaunchKind.Jump)] = 0x0280,
+        [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.WallJump)] = 0x0380,
+        [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.Jump)] = 0x0380,
+    };
+
+    /// <summary>
+    /// $90:9EB9..9EE8 InitialYSpeeds/InitialYSubSpeeds: the launch magnitude without High Jump by medium and whether
+    /// Samus kicks away from a wall, as 8.8 speeds.
+    /// </summary>
+    internal static readonly IReadOnlyDictionary<SamusLaunchSpeedKey, int> UnassistedLaunchSpeeds =
+        new Dictionary<SamusLaunchSpeedKey, int>
+    {
+        [new(SamusLiquidMedium.Air, SamusLaunchKind.WallJump)] = 0x04a0,
+        [new(SamusLiquidMedium.Air, SamusLaunchKind.Jump)] = 0x04e0,
+        [new(SamusLiquidMedium.Water, SamusLaunchKind.WallJump)] = 0x0040,
+        [new(SamusLiquidMedium.Water, SamusLaunchKind.Jump)] = 0x01c0,
+        [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.WallJump)] = 0x02a0,
+        [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.Jump)] = 0x02c0,
     };
 
     /// <summary>$90:9EA1/9EA7 YSubAcceleration/YAcceleration: the fraction of each medium's gravity; the whole is zero in

@@ -40,11 +40,8 @@ internal static class CeresElevatorArrivalDefinitions
     internal static readonly IReadOnlyDictionary<CeresElevatorArrivalPose, EnemyProjectileFrameId> Frames =
         new Dictionary<CeresElevatorArrivalPose, EnemyProjectileFrameId>
         {
-            // Spritemap_CeresElevatorPad_0, shown by $86:A28D.
             [CeresElevatorArrivalPose.PadFirst] = EnemyProjectileFrameId.CeresElevatorPad0,
-            // Spritemap_CeresElevatorPad_1, shown by $86:A291.
             [CeresElevatorArrivalPose.PadSecond] = EnemyProjectileFrameId.CeresElevatorPad1,
-            // Spritemap_CeresElevatorPlatform, shown by $86:A299.
             [CeresElevatorArrivalPose.Platform] = EnemyProjectileFrameId.CeresElevatorPlatform,
         };
 }

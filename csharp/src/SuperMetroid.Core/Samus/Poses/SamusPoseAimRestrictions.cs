@@ -7,5 +7,5 @@ internal static class SamusPoseAimRestrictions
 {
     /// <summary>Native PoseDefinitions column at $91:B62C with eight-byte stride; FD..FF preserve bounded adjacent instruction bytes.</summary>
     internal static byte Read(SamusPoseId pose) =>
-        AimRestrictions.TryGetValue(pose, out byte value) ? value : throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {pose}.");
+        AimRestrictions.ContainsKey(pose) ? AimRestrictions[pose] : throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {pose}.");
 }

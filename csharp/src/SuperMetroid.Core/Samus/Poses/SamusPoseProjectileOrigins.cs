@@ -7,5 +7,5 @@ internal static class SamusPoseProjectileOrigins
 {
     /// <summary>$91:B62D PoseDefinitions Y offset, record stride eight. Beam/Grapple calculations zero-extend this byte, including the drained-pose $FC correction.</summary>
     internal static byte ReadYOffset(SamusPoseId pose) =>
-        YOffsets.TryGetValue(pose, out byte value) ? value : throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {pose}.");
+        YOffsets.ContainsKey(pose) ? YOffsets[pose] : throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {pose}.");
 }

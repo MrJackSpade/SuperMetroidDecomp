@@ -7,6 +7,9 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <summary>How each stock pose frame places its body: graphics offsets, landing and posture bytes, and the frames they share.</summary>
 internal static class SamusBodyPlacements
 {
+    /// <summary>Characters in the sprite name page; a large part's lower and right characters wrap within it.</summary>
+    private const int SpriteNameCharacterCount = 256;
+
     /// <summary>
     /// $91:B62D + pose*8: the stock visual origin shares the native real-pose byte
     /// with the already calculated physical projectile correction. Installed visual
@@ -424,13 +427,13 @@ internal static class SamusBodyPlacements
             foreach (SpritePart part in map.Parts)
             {
                 int size = part.Large ? 16 : 8;
-                if (part.Character >= 256) return false;
+                if (part.Character >= SpriteNameCharacterCount) return false;
                 for (int y = 0; y < size; y++)
                 for (int x = 0; x < size; x++)
                 {
                     int sx = part.FlipsHorizontally ? size - 1 - x : x;
                     int sy = part.FlipsVertically ? size - 1 - y : y;
-                    int tile = (part.Character + (sy / 8) * 16 + sx / 8) & 255;
+                    int tile = (part.Character + (sy / 8) * SpriteArtwork.CharactersPerRow + sx / 8) % SpriteNameCharacterCount;
                     int row = tile * 32 + (sy % 8) * 2;
                     int mask = 128 >> (sx % 8);
                     bool opaque = false;

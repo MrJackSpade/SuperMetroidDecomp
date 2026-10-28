@@ -16,6 +16,6 @@ internal static class SamusBombSpreadLaunches
         int radius = Math.Abs(index - 2);
         return new((ushort)(100 + radius * 10),
             BombSpreadHorizontalVelocity.Of(index < 2, radius / 2, radius % 2 * 128),
-            new UnsignedSixteenSixteen(2 - radius, radius == 0 ? HalfPixelFraction : 0));
+            radius == 0 ? CentreRise : new UnsignedSixteenSixteen(2 - radius, 0));
     }
 }

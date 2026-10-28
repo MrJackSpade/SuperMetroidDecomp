@@ -28,6 +28,9 @@ public readonly record struct UnsignedSixteenSixteen
     public static UnsignedSixteenSixteen FromRaw(uint rawValue) =>
         new(unchecked((ushort)(rawValue >> 16)), unchecked((ushort)rawValue));
 
+    /// <summary>A speed of <paramref name="sixteenths"/> sixteenths of a pixel, which must not be negative.</summary>
+    public static UnsignedSixteenSixteen FromSixteenthsOfPixel(int sixteenths) => FromRaw(checked((uint)sixteenths * 4096u));
+
     /// <summary>This speed with its whole word replaced.</summary>
     public UnsignedSixteenSixteen WithWhole(int whole) => new(whole, Fraction);
 

@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Projectiles;
 using static SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacementDefinitions;
@@ -79,7 +80,7 @@ public static class ChargeFlarePlacementOffsets
         if (direction < GrappleBeamDefinitions.Firing.DirectionCount) return BeamOffset(running, direction);
         int adjacent = direction - GrappleBeamDefinitions.Firing.DirectionCount;
         return Offset16<RoomPixels>.Of(BeamOffset(running, adjacent).Y,
-            running ? unchecked((short)(SwingSelectorByte(adjacent * 2) | SwingSelectorByte(adjacent * 2 + 1) << 8))
+            running ? BinaryPrimitives.ReadInt16LittleEndian([(byte)SwingSelectorByte(adjacent * 2), (byte)SwingSelectorByte(adjacent * 2 + 1)])
                 : GrappleFiring.Origin((byte)adjacent, true).X);
     }
 

@@ -13,7 +13,7 @@ internal static class EscapeTypewriterLines
     internal static EscapeTypewriterLine Line(EscapeTypewriterProgramId id, int index)
     {
         if ((uint)index >= LineCount(id)) throw new ArgumentOutOfRangeException(nameof(index));
-        string text = Ensure.Listed(EscapeTypewriterDefinitions.LineTexts, new EscapeTypewriterLineKey(id, index), nameof(index));
+        string text = Ensure.Listed(EscapeTypewriterDefinitions.LineTexts, new EscapeTypewriterLineKey(id, index));
         return new((EscapeTypewriterDefinitions.FirstRow + index * EscapeTypewriterDefinitions.LineRowStep) *
             EscapeTypewriterDefinitions.MaximumLineLength + EscapeTypewriterDefinitions.FirstColumn, text);
     }

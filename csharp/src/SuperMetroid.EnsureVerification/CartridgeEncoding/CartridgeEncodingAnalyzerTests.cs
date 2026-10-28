@@ -151,6 +151,9 @@ internal static class CartridgeEncodingAnalyzerTests
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.FlagsPrimitiveCastId, "casts [Flags] Items to ushort"));
         ExpectEncoding([new AnalyzerTestSource(functional, items + "class C { int M(Items held) => unchecked((int)held); }")],
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.FlagsPrimitiveCastId, "'(int)held'"));
+        // #1452: the message names the codec convention SME6438's vocabulary allows (ToWord), not a "native" word.
+        ExpectEncoding([new AnalyzerTestSource(functional, items + "class C { ushort M() => (ushort)Items.Bombs; }")],
+            new ExpectedDiagnostic(CartridgeEncodingAnalyzer.FlagsPrimitiveCastId, "convert only at the encoding boundary, with the type's codec ToWord ("));
         // A plain enum, a primitive-to-flags conversion, an owner and a reviewed allowance are not reported.
         ExpectEncoding([new AnalyzerTestSource(functional, items + "class C { ushort M(ushort word) => (ushort)Mode.Auto; Items N(ushort word) => (Items)word; }")]);
         ExpectEncoding([new AnalyzerTestSource(functional,

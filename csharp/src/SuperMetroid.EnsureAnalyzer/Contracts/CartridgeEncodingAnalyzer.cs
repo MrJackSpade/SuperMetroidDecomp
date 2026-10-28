@@ -114,7 +114,7 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
     private static readonly DiagnosticDescriptor FlagsPrimitiveCastRule = new(
         FlagsPrimitiveCastId,
         "[Flags] enum cast to a primitive word",
-        "{0}; keep the typed flags and convert only at the encoding boundary, with the type's ToNativeWord ({1})",
+        "{0}; keep the typed flags and convert only at the encoding boundary, with the type's codec ToWord ({1})",
         "Design",
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,

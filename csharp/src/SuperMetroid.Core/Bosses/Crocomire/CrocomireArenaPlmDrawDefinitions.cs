@@ -22,8 +22,8 @@ internal static class CrocomireArenaPlmDrawDefinitions
 
         /// <summary>Wall layouts draw three columns; bridge layouts draw one horizontal run.</summary>
         internal int RunCount => Wall ? 3 : 1;
-        /// <summary>Sets the vertical-run bit for wall columns while retaining the native cells per run.</summary>
-        internal int DirectionAndCount => WordsPerRun | (Wall ? 0x8000 : 0);
+        /// <summary>Wall columns write down their column; the bridge writes along its row.</summary>
+        internal PlmRunDirection Direction => Wall ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal;
         /// <summary>Offsets the next wall column from the draw origin rather than from the prior column.</summary>
         internal sbyte NextX(int run)
         {
@@ -91,7 +91,7 @@ internal static class CrocomireArenaPlmDrawDefinitions
         {
             var words = new ushort[shape.WordsPerRun];
             for (int block = 0; block < words.Length; block++) words[block] = shape.WordAt(run, block);
-            runs[run] = new(checked((ushort)shape.DirectionAndCount), words, new(shape.NextX(run), 0));
+            runs[run] = new(shape.Direction, words, new(shape.NextX(run), 0));
         }
         list = new(draw, runs);
         return true;

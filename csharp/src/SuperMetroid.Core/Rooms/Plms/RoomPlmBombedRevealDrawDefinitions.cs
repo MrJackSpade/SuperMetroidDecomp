@@ -23,7 +23,7 @@ internal static class RoomPlmBombedRevealDrawDefinitions
             RoomPlmBombedRevealDraw.CrumbleSingle => 0xb0bc,
             _ => throw new InvalidOperationException($"Undefined bombed-reveal draw {request}."),
         };
-        draw = new(request, new RoomPlmShotBlockDrawDefinitions.Run[] { new(1, new ushort[] { RoomLevelWord.FromRaw(word).Raw }, new(0, 0)) });
+        draw = new(request, new RoomPlmShotBlockDrawDefinitions.Run[] { new(PlmRunDirection.Horizontal, new ushort[] { RoomLevelWord.FromRaw(word).Raw }, new(0, 0)) });
         return true;
     }
 }

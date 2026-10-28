@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SpeedBoosterCollisionBlocksVerification;
@@ -48,7 +49,7 @@ internal static class SpeedBoosterPlmProgramsVerification
             AssertEqual(pointer,PlmDrawAddressCodec.Of(draw.Draw),"speed reveal DTO identity");
             AssertEqual(1,draw.Runs.Length,"speed reveal single run");
             var run = draw.Runs.Span[0];
-            AssertEqual(ReadRomWord(rom,0x840000 | pointer),run.DirectionAndCount,"speed reveal native direction/count");
+            AssertRunHeader(ReadRomWord(rom,0x840000 | pointer),run,"speed reveal native direction/count");
             AssertEqual(1,run.LevelWords.Length,"speed reveal single word");
             AssertEqual(nativeWord,run.LevelWords.Span[0],"speed reveal exported native word");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 4))),run.Next.X,"speed reveal native terminal X");

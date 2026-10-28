@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -223,8 +224,8 @@ internal static class SamusEaterVisualsVerification
                 else
                 {
                     AssertEqual(count, SamusEaterPlmDrawDefinitions.Draw.Count(run), "plant native horizontal count");
-                    AssertEqual(count, dtoRun.DirectionAndCount, "plant DTO count");
-                    AssertEqual(count, exportedRun.DirectionAndCount, "plant export count");
+                    AssertRunHeader(count, dtoRun, "plant DTO direction/count");
+                    AssertRunHeader(count, exportedRun, "plant export direction/count");
                     ushort offset = ReadSamusEaterPlmWord(rom, cursor + 2 + count * 2);
                     sbyte x = unchecked((sbyte)offset), y = unchecked((sbyte)(LittleEndianBytes.HighByte(offset)));
                     AssertEqual(x, SamusEaterPlmDrawDefinitions.Draw.NextX(run), "plant signed horizontal offset");

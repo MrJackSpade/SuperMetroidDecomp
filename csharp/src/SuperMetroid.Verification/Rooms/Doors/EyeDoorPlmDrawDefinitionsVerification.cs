@@ -103,7 +103,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
             AssertTrue(EyeDoorPlmDrawDefinitions.TryGet(NativePlmDraws.At<EyeDoorPlmDrawDefinitions.Draw>(pointers[component]), out var list),
                 $"{orientation} component {component} selects compiled draw data");
             RoomPlmShotBlockDrawDefinitions.Run run = list.Runs.Span[0];
-            int stride = (run.DirectionAndCount & 0x8000) != 0 ? width : 1;
+            int stride = run.Direction == PlmRunDirection.Vertical ? width : 1;
             for (int block = 0; block < run.LevelWords.Length; block++)
                 AssertEqual(run.LevelWords.Span[block],
                     level.GetCollisionBlockByIndex(origins[component] + block * stride).PackedWord.Raw,

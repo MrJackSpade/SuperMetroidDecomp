@@ -26,7 +26,7 @@ internal static class MaridiaElevatubePlmDefinitions
         new(BlockDraw,
             new RoomPlmShotBlockDrawDefinitions.Run[]
             {
-                new(1, new ushort[] { PhysicalWord.Raw }, new(0, 0)),
+                new(PlmRunDirection.Horizontal, new ushort[] { PhysicalWord.Raw }, new(0, 0)),
             });
 
     /// <summary>Stable asset identity assigned to the elevatube's one-block artwork.</summary>

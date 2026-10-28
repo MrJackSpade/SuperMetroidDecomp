@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -58,12 +59,12 @@ internal static class LookupBlueCapVerification
                 AssertEqual(ids[index], BlueDoorPlmDrawDefinitions.VisualId(NativePlmDraws.At<BlueDoorPlmDrawDefinitions.Draw>(pointer)), "Blue cap published ID");
                 AssertTrue(BlueDoorPlmDrawDefinitions.TryGetByVisualId(ids[index], out var byId), "Blue cap reverse ID");
                 AssertEqual(index < 16 ? pointer : pointers[(index - 16) * 4], PlmDrawAddressCodec.Of(byId.Draw), "Blue cap ID identity");
-                AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | pointer), shape.DirectionAndCount, "Blue cap native geometry");
+                AssertRunHeader(ReadSamusEaterPlmWord(rom, 0x840000 | pointer), shape.Direction, 4, "Blue cap native geometry");
                 AssertEqual((ushort)0, ReadSamusEaterPlmWord(rom, 0x840000 | (pointer + 10)), "Blue cap native final offset");
                 foreach (var frame in new[] {dto,exported[index]})
                 {
                     AssertEqual(1, frame.Runs.Length, "Blue cap one run");
-                    AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | pointer), frame.Runs.Span[0].DirectionAndCount, "Blue cap DTO geometry");
+                    AssertRunHeader(ReadSamusEaterPlmWord(rom, 0x840000 | pointer), frame.Runs.Span[0], "Blue cap DTO geometry");
                     AssertEqual(4, frame.Runs.Span[0].LevelWords.Length, "Blue cap DTO width");
                     AssertEqual((sbyte)0, frame.Runs.Span[0].Next.X, "Blue cap DTO final X");
                     AssertEqual((sbyte)0, frame.Runs.Span[0].Next.Y, "Blue cap DTO final Y");

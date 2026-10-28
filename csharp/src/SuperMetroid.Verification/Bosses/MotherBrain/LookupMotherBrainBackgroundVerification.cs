@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -32,7 +33,7 @@ internal static class LookupMotherBrainBackgroundVerification
             {
                 AssertEqual(1, draw.Runs.Length, "Mother Brain single background row");
                 var run = draw.Runs.Span[0];
-                AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | value), run.DirectionAndCount, "Mother Brain native background count/direction");
+                AssertRunHeader(ReadSamusEaterPlmWord(rom, 0x840000 | value), run, "Mother Brain native background count/direction");
                 AssertEqual(13, run.LevelWords.Length, "Mother Brain background width");
                 AssertEqual(unchecked((sbyte)MotherBrainBackgroundGeometryRomByte(rom, 0x840000 | (value + 28))), run.Next.X, "Mother Brain background native X");
                 AssertEqual(unchecked((sbyte)MotherBrainBackgroundGeometryRomByte(rom, 0x840000 | (value + 29))), run.Next.Y, "Mother Brain background native Y");

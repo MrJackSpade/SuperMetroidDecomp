@@ -101,7 +101,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         var expected = new Dictionary<int, ushort>();
         foreach (RoomPlmShotBlockDrawDefinitions.Run run in selected.Runs.Span)
         {
-            bool vertical = (run.DirectionAndCount & 0x8000) != 0;
+            bool vertical = run.Direction == PlmRunDirection.Vertical;
             for (int block = 0; block < run.LevelWords.Length; block++)
             {
                 int x = entryX + (vertical ? 0 : block);

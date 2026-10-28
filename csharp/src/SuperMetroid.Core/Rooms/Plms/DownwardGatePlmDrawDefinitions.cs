@@ -27,9 +27,8 @@ internal static class DownwardGatePlmDrawDefinitions
             if ((uint)run >= RunCount) throw new ArgumentOutOfRangeException(nameof(run));
             return Column ? 5 : Right ? 2 : 1;
         }
-        /// <summary>Sets the vertical-run bit for the gate column while preserving native block count.</summary>
-        internal ushort DirectionAndCount(int run) =>
-            (ushort)(WordCount(run) | (Column ? 0x8000 : 0));
+        /// <summary>The gate column writes down its column; trigger runs write along their row.</summary>
+        internal PlmRunDirection Direction => Column ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal;
         /// <summary>Moves left between the two left-trigger runs; other runs stay in their column.</summary>
         internal sbyte NextX(int run)
         {
@@ -107,7 +106,7 @@ internal static class DownwardGatePlmDrawDefinitions
         {
             var words = new ushort[draw.WordCount(run)];
             for (int word = 0; word < words.Length; word++) words[word] = draw.WordAt(run, word);
-            runs[run] = new(draw.DirectionAndCount(run), words, new(draw.NextX(run), 0));
+            runs[run] = new(draw.Direction, words, new(draw.NextX(run), 0));
         }
         list = new(request, runs);
         return true;

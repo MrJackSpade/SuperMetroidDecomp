@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Areas.Maridia;
@@ -21,7 +22,7 @@ internal static class LookupElevatubeVerification
             AssertEqual((ushort)0x9367, PlmDrawAddressCodec.Of(draw.Draw), "Elevatube original shared pointer");
             AssertEqual(1, draw.Runs.Length, "Elevatube one run");
             var run = draw.Runs.Span[0];
-            AssertEqual(ReadSamusEaterPlmWord(rom, 0x849367), run.DirectionAndCount, "Elevatube native run header");
+            AssertRunHeader(ReadSamusEaterPlmWord(rom, 0x849367), run, "Elevatube native run header");
             AssertEqual(1, run.LevelWords.Length, "Elevatube one word");
             AssertEqual(ReadSamusEaterPlmWord(rom, 0x849369), run.LevelWords.Span[0], "Elevatube DTO original word");
             AssertEqual(unchecked((sbyte)ElevatubePhysicalDrawRomByte(rom, 0x84936b)), run.Next.X, "Elevatube original X");

@@ -11,11 +11,8 @@ internal static class ColoredDoorPlmDrawDefinitions
     {
         /// <summary>Left and right caps draw a vertical four-cell run in native list orientation.</summary>
         internal bool Vertical => Orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right;
-        /// <summary>Encodes the native run direction and four-cell count.</summary>
-        internal int DirectionAndCount => Vertical ? 0x8004 : 4;
-
-        /// <summary>The cap run\'s native direction-and-count word.</summary>
-        public int DirectionAndCountWord() => DirectionAndCount;
+        /// <summary>The direction the cap's four-cell run writes in.</summary>
+        public PlmRunDirection Direction => Vertical ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal;
 
         /// <summary>
         /// Tiles advance four per color, one per vertical frame, or alternate

@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.Plms;
@@ -73,7 +74,7 @@ internal static class KraidDrawMappingsVerification
             AssertEqual(expected.Count, draw.BlockCount, "Kraid calculated block count");
             AssertEqual(1, exported[expected.Pointer].Runs.Length, "Kraid export has one run");
             var run = exported[expected.Pointer].Runs.Span[0];
-            AssertEqual(directionCount, run.DirectionAndCount, "Kraid export direction/count");
+            AssertRunHeader(directionCount, run, "Kraid export direction/count");
             AssertEqual(expected.Count, run.LevelWords.Length, "Kraid export word extent");
             ushort tail = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | (expected.Pointer + 2 + expected.Count * 2));
             AssertEqual((ushort)0, tail, "Kraid native terminator has zero displacement");

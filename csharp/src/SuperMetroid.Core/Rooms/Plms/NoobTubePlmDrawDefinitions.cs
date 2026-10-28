@@ -129,7 +129,7 @@ internal static class NoobTubePlmDrawDefinitions
         {
             var words = new ushort[draw.WordCount(run)];
             for (int cell = 0; cell < words.Length; cell++) words[cell] = draw.WordAt(run, cell);
-            runs[run] = new((ushort)words.Length, words, new(0, draw.NextY(run)));
+            runs[run] = new(PlmRunDirection.Horizontal, words, new(0, draw.NextY(run)));
         }
         list = new(request, runs);
         return true;

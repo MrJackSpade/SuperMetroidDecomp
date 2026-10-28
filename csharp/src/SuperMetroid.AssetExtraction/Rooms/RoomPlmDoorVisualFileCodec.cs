@@ -117,8 +117,7 @@ internal static class RoomPlmDoorVisualFileCodec
                 // Kraid's native spike-clear list is one 22-block run. A bounded
                 // 32-block allowance admits it without exposing arbitrary layouts.
                 if (run.LevelWords.Length is < 1 or > 32 ||
-                    (run.DirectionAndCount & 0x7fff) != run.LevelWords.Length || // cartridge-encoding: allow(Field) - the run word's low fifteen bits count its blocks; bit 15 is the direction
-                    ReadWord(bus, cursor) != run.DirectionAndCount)
+                    ReadWord(bus, cursor) != PlmRunHeaderCodec.Encode(run))
                     throw new InvalidDataException(
                         $"{family} draw ${pointer:X4} differs in run {runIndex} shape.");
                 for (int block = 0; block < run.LevelWords.Length; block++)

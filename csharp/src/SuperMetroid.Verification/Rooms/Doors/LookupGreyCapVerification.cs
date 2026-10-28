@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -55,12 +56,12 @@ internal static class LookupGreyCapVerification
                 AssertEqual(ids[index], GreyDoorPlmDrawDefinitions.VisualId(NativePlmDraws.At<GreyDoorPlmDrawDefinitions.Draw>(pointer)), "Grey cap published ID");
                 AssertTrue(GreyDoorPlmDrawDefinitions.TryGetByVisualId(ids[index], out var byId), "Grey cap reverse ID");
                 AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Grey cap ID identity");
-                AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | pointer), shape.DirectionAndCount, "Grey cap native geometry");
+                AssertRunHeader(ReadSamusEaterPlmWord(rom, 0x840000 | pointer), shape.Direction, 4, "Grey cap native geometry");
                 AssertEqual((ushort)0, ReadSamusEaterPlmWord(rom, 0x840000 | (pointer + 10)), "Grey cap native final offset");
                 foreach (var frame in new[] {dto,exported[index],byId})
                 {
                     AssertEqual(1, frame.Runs.Length, "Grey cap one run");
-                    AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | pointer), frame.Runs.Span[0].DirectionAndCount, "Grey cap DTO geometry");
+                    AssertRunHeader(ReadSamusEaterPlmWord(rom, 0x840000 | pointer), frame.Runs.Span[0], "Grey cap DTO geometry");
                     AssertEqual(4, frame.Runs.Span[0].LevelWords.Length, "Grey cap DTO width");
                     AssertEqual((sbyte)0, frame.Runs.Span[0].Next.X, "Grey cap DTO final X");
                     AssertEqual((sbyte)0, frame.Runs.Span[0].Next.Y, "Grey cap DTO final Y");

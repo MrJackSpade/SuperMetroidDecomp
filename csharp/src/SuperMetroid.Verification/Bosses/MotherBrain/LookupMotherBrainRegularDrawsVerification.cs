@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.Plms;
@@ -43,8 +44,8 @@ internal static class LookupMotherBrainRegularDrawsVerification
                 ushort count = ReadWord(cursor);
                 cursor += 2;
                 AssertEqual(count, (ushort)(shape.Count(run) | (shape.Vertical(run) ? 0x8000 : 0)), "Mother Brain regular native direction/count");
-                AssertEqual(count, dto.Runs.Span[run].DirectionAndCount, "Mother Brain regular DTO direction/count");
-                AssertEqual(count, exported[index].Runs.Span[run].DirectionAndCount, "Mother Brain regular export direction/count");
+                AssertRunHeader(count, dto.Runs.Span[run], "Mother Brain regular DTO direction/count");
+                AssertRunHeader(count, exported[index].Runs.Span[run], "Mother Brain regular export direction/count");
                 int length = count & 0x7fff;
                 AssertEqual(length, shape.Count(run), "Mother Brain regular native width");
                 AssertEqual(length, dto.Runs.Span[run].LevelWords.Length, "Mother Brain regular DTO width");

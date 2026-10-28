@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -96,7 +97,7 @@ internal static class LookupElevatorPlatformLayoutsVerification
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         var part = frame.Runs.Span[run];
-                        AssertEqual(header, part.DirectionAndCount, "ElevatorPlatform layout native DTO geometry");
+                        AssertRunHeader(header, part, "ElevatorPlatform layout native DTO geometry");
                         AssertEqual(count, part.LevelWords.Length, "ElevatorPlatform layout native DTO count");
                         AssertEqual(offset, LittleEndianBytes.Word((byte)part.Next.X, (byte)part.Next.Y), "ElevatorPlatform layout native DTO offset");
                     }

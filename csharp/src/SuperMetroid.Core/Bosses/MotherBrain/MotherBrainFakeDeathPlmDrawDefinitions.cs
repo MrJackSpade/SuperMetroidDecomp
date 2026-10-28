@@ -129,7 +129,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         {
             var words = new ushort[shape.Count(run)];
             for (int block = 0; block < words.Length; block++) words[block] = shape.WordAt(run, block);
-            runs[run] = new((ushort)(words.Length | (shape.Vertical(run) ? 0x8000 : 0)), words, new(shape.NextX(run), 0));
+            runs[run] = new(shape.Vertical(run) ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal, words, new(shape.NextX(run), 0));
         }
         draw = new(request, runs);
         return true;
@@ -220,7 +220,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         if (!TryDescribeBackground(request, out var row)) return false;
         var words = new ushort[13];
         for (int column = 0; column < words.Length; column++) words[column] = row.WordAt(column);
-        draw = new(request, new RoomPlmShotBlockDrawDefinitions.Run[] { new(13, words, new(0, 0)) });
+        draw = new(request, new RoomPlmShotBlockDrawDefinitions.Run[] { new(PlmRunDirection.Horizontal, words, new(0, 0)) });
         return true;
     }
 
@@ -315,7 +315,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         {
             var words = new ushort[shape.Count(run)];
             for (int block = 0; block < words.Length; block++) words[block] = shape.WordAt(run, block);
-            runs[run] = new((ushort)(0x8000 | words.Length), words, new(shape.NextX(run), shape.NextY(run)));
+            runs[run] = new(PlmRunDirection.Vertical, words, new(shape.NextX(run), shape.NextY(run)));
         }
         draw = new(request, runs);
         return true;

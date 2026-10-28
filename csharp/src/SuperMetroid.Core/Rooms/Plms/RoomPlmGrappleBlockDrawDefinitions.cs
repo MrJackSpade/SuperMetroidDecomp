@@ -13,8 +13,10 @@ internal static class RoomPlmGrappleBlockDrawDefinitions
     /// <summary>A single Grapple-block draw with the level word it installs.</summary>
     internal readonly record struct DrawList(GrappleBlockDraw Frame, RoomLevelWord LevelWord)
     {
-        /// <summary>Native one-word row, followed by signed zero X/Y termination.</summary>
-        internal const ushort DirectionAndCount = 1;
+        /// <summary>The one-block run writes along its row.</summary>
+        internal const PlmRunDirection Direction = PlmRunDirection.Horizontal;
+        /// <summary>The run writes its one level word, followed by signed zero X/Y termination.</summary>
+        internal const int Count = 1;
         /// <summary>The one-block record leaves the next draw position in its current column.</summary>
         internal const sbyte NextX = 0;
         /// <summary>The one-block record leaves the next draw position in its current row.</summary>

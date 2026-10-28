@@ -64,7 +64,7 @@ internal static class TourianAccessPlmDrawDefinitions
         Describe(draw, out int rows, out int word);
         var runs = new RoomPlmShotBlockDrawDefinitions.Run[rows];
         for (int row = 0; row < rows; row++)
-            runs[row] = new(4, Enumerable.Repeat(checked((ushort)word), 4).ToArray(),
+            runs[row] = new(PlmRunDirection.Horizontal, Enumerable.Repeat(checked((ushort)word), 4).ToArray(),
                 new(0, (sbyte)(row + 1 < rows ? row + 1 : 0)));
         return new(PlmDraw.Of(draw), runs);
     }

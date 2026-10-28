@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Rooms.Plms;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -82,7 +83,9 @@ internal static class TourianAccessPlmProgramsVerification
             int cursor = PlmDrawAddressCodec.Of(draw.Draw);
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in draw.Runs.Span)
             {
-                AssertTourianDrawWord(checked((ushort)run.DirectionAndCount));
+                AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), run,
+                    $"Tourian draw ${PlmDrawAddressCodec.Of(draw.Draw):X4} run header at +{cursor - PlmDrawAddressCodec.Of(draw.Draw)}");
+                cursor += 2;
                 foreach (ushort word in run.LevelWords.Span)
                     AssertTourianDrawWord(word);
                 AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),

@@ -9,27 +9,18 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class RoomPlmShotBlockDrawDefinitions
 {
 
-    /// <summary>The direction/count word's top bit, above its fifteen count bits: set when a vertical run writes down a column.</summary>
-    private const int VerticalRunBitIndex = 15;
-    /// <summary>The direction/count word's block count.</summary>
-    private const int RunCountBits = 0x7fff;
-
-    /// <summary>Whether a run's direction/count word, 0 through 65535, writes down a column.</summary>
-    internal static bool IsVerticalRun(int directionAndCount) =>
-        Ensure.BetweenInclusive(0, ushort.MaxValue, directionAndCount) >> VerticalRunBitIndex != 0;
-
-    /// <summary>The blocks a run's direction/count word, 0 through 65535, writes.</summary>
-    internal static int RunCount(int directionAndCount) =>
-        Ensure.BetweenInclusive(0, ushort.MaxValue, directionAndCount) & RunCountBits;
-
-    /// <summary>One native record: direction/count, complete level words, then the signed offset to the next record.</summary>
-    /// <param name="DirectionAndCount">The run's header word, 0 through 65535: the vertical-run bit above the block count.</param>
-    /// <param name="LevelWords">The level words the run writes.</param>
-    /// <param name="Next">The signed offset to the next record.</param>
+    /// <summary>One run: its direction, the complete level words it writes, then the signed offset to the next run.</summary>
+    /// <param name="Direction">The direction the run writes its blocks in.</param>
+    /// <param name="LevelWords">The level words the run writes, one per block.</param>
+    /// <param name="Next">The signed offset to the next run.</param>
     internal readonly record struct Run(
-        int DirectionAndCount,
+        PlmRunDirection Direction,
         ReadOnlyMemory<ushort> LevelWords,
-        Offset16<RoomBlocks> Next);
+        Offset16<RoomBlocks> Next)
+    {
+        /// <summary>The number of blocks the run writes: one per level word.</summary>
+        internal int Count => LevelWords.Length;
+    }
 
     /// <summary>One PLM draw with its ordered, immutable level-word runs.</summary>
     internal readonly record struct DrawList(PlmDraw Draw, ReadOnlyMemory<Run> Runs)
@@ -139,7 +130,7 @@ internal static class RoomPlmShotBlockDrawDefinitions
         {
             var words = new ushort[shape.WordCount(run)];
             for (int cell = 0; cell < words.Length; cell++) words[cell] = shape.WordAt(run, cell);
-            runs[run] = new(words.Length, words, new(shape.NextX(run), shape.NextY(run)));
+            runs[run] = new(PlmRunDirection.Horizontal, words, new(shape.NextX(run), shape.NextY(run)));
         }
         return new(draw, runs);
     }
@@ -149,7 +140,7 @@ internal static class RoomPlmShotBlockDrawDefinitions
     {
         var words = new ushort[4];
         for (int cell = 0; cell < 4; cell++) words[cell] = shape.WordAt(cell);
-        return new(draw, new Run[] { new(shape.DirectionAndCountWord(), words, new(0, 0)) });
+        return new(draw, new Run[] { new(shape.Direction, words, new(0, 0)) });
     }
 
     /// <summary>Breakup frame <paramref name="frame"/>, 0 through 3, of a shot block of <paramref name="shape"/>.</summary>
@@ -216,7 +207,7 @@ internal static class RoomPlmShotBlockDrawDefinitions
         {
             var words = new ushort[draw.WordsPerRun];
             for (int block = 0; block < words.Length; block++) words[block] = draw.WordAt(run, block);
-            runs[run] = new((ushort)((draw.Vertical ? 0x8000 : 0) | words.Length), words,
+            runs[run] = new(draw.Vertical ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal, words,
                 new(0, (sbyte)(run + 1 < runs.Length ? 1 : 0)));
         }
         return new(PlmDraw.Of(draw), runs);

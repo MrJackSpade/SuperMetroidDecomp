@@ -16,11 +16,8 @@ internal static class BlueDoorPlmDrawDefinitions
     {
         /// <summary>Whether this cap's four blocks are laid out as a vertical run.</summary>
         internal bool Vertical => Orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right;
-        /// <summary>Native run header: four blocks with the vertical direction bit when needed.</summary>
-        internal int DirectionAndCount => Vertical ? 0x8004 : 4;
-
-        /// <summary>The cap run\'s native direction-and-count word.</summary>
-        public int DirectionAndCountWord() => DirectionAndCount;
+        /// <summary>The direction the cap's four-block run writes in.</summary>
+        public PlmRunDirection Direction => Vertical ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal;
 
         /// <summary>
         /// Native A9A7..AA96 tiles follow orientation mirrors and bounded frame

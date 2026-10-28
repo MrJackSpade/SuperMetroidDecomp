@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -123,10 +124,9 @@ internal static class ShotBlockPlmProgramsVerification
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
             {
                 AssertEqual(run.LevelWords.Length, calculated.WordsPerRun, "shot-block calculated run width");
-                AssertEqual((run.DirectionAndCount & 0x8000) != 0, calculated.Vertical, "shot-block calculated direction");
+                AssertEqual(run.Direction == PlmRunDirection.Vertical, calculated.Vertical, "shot-block calculated direction");
                 int blockIndex = 0;
-                AssertEqual(run.DirectionAndCount,
-                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor),
+                AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), run,
                     $"shot-block draw list ${PlmDrawAddressCodec.Of(list.Draw):X4} direction/count");
                 forbidden.Add(0x840000 | cursor++);
                 forbidden.Add(0x840000 | cursor++);

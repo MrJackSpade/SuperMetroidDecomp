@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Rooms.Plms;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -78,7 +79,9 @@ internal static class SporeSpawnCeilingPlmsVerification
             int cursor = PlmDrawAddressCodec.Of(draw.Draw);
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in draw.Runs.Span)
             {
-                AssertDrawWord(checked((ushort)run.DirectionAndCount));
+                AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), run,
+                    $"Spore Spawn draw ${PlmDrawAddressCodec.Of(draw.Draw):X4} run header at +{cursor - PlmDrawAddressCodec.Of(draw.Draw)}");
+                cursor += 2;
                 foreach (ushort word in run.LevelWords.Span)
                     AssertDrawWord(word);
                 AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),

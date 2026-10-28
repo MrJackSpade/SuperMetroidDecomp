@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
@@ -78,7 +79,7 @@ internal static class GrappleBlockProgramsVerification
                 continue;
             }
             AssertEqual((ushort)pointer,NativePlmDraws.AddressOf(PlmDraw.Of(draw.Frame)),"Grapple draw identity");
-            AssertEqual(ReadRomWord(rom,0x840000 | pointer),RoomPlmGrappleBlockDrawDefinitions.DrawList.DirectionAndCount,"Grapple native single-block geometry");
+            AssertRunHeader(ReadRomWord(rom,0x840000 | pointer),RoomPlmGrappleBlockDrawDefinitions.DrawList.Direction,RoomPlmGrappleBlockDrawDefinitions.DrawList.Count,"Grapple native single-block geometry");
             AssertEqual(ReadRomWord(rom,0x840000 | (pointer + 2)),draw.LevelWord.Raw,"Grapple native collision and tile word");
             AssertEqual(unchecked((sbyte)GrappleBlockPhysicalDrawMappingRomByte(rom, 0x840000 | (pointer + 4))),RoomPlmGrappleBlockDrawDefinitions.DrawList.NextX,"Grapple native terminal X");
             AssertEqual(unchecked((sbyte)GrappleBlockPhysicalDrawMappingRomByte(rom, 0x840000 | (pointer + 5))),RoomPlmGrappleBlockDrawDefinitions.DrawList.NextY,"Grapple native terminal Y");

@@ -428,12 +428,8 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
         for (int runIndex = 0; runIndex < runs.Length; runIndex++)
         {
             RoomPlmShotBlockDrawDefinitions.Run run = runs[runIndex];
-            bool vertical = RoomPlmShotBlockDrawDefinitions.IsVerticalRun(run.DirectionAndCount);
-            int count = RoomPlmShotBlockDrawDefinitions.RunCount(run.DirectionAndCount);
-            if (count != run.LevelWords.Length)
-                throw new InvalidDataException(
-                    $"Compiled PLM draw {definition.Draw} has inconsistent block count.");
-            for (int offset = 0; offset < count; offset++)
+            bool vertical = run.Direction == PlmRunDirection.Vertical;
+            for (int offset = 0; offset < run.Count; offset++)
             {
                 Position16<RoomBlocks> block = entry + new Offset16<RoomBlocks>(checked((short)(vertical ? 0 : offset)), checked((short)(vertical ? offset : 0)));
                 int physicalWord = run.LevelWords.Span[offset];

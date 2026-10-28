@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -41,7 +42,7 @@ internal static class LookupMotherBrainBoundaryVerification
                 foreach (var draw in new[] {dto,exports[index]})
                 {
                     AssertEqual(2, draw.Runs.Length, "Mother Brain two boundary runs");
-                    AssertEqual(direction, draw.Runs.Span[run].DirectionAndCount, "Mother Brain DTO direction/count");
+                    AssertRunHeader(direction, draw.Runs.Span[run], "Mother Brain DTO direction/count");
                     AssertEqual(count, draw.Runs.Span[run].LevelWords.Length, "Mother Brain DTO run width");
                     AssertEqual(x, draw.Runs.Span[run].Next.X, "Mother Brain DTO X");
                     AssertEqual(y, draw.Runs.Span[run].Next.Y, "Mother Brain DTO Y");

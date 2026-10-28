@@ -1,15 +1,13 @@
-using static SuperMetroid.Core.Rooms.Plms.RoomPlmDynamicCollectibleGraphicsDefinitions;
+using SuperMetroid.Core.Rooms.Plms;
+using static SuperMetroid.AssetExtraction.Rooms.RoomPlmDynamicCollectibleGraphicsDefinitions;
 
-namespace SuperMetroid.Core.Rooms.Plms;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Which graphics and palette offsets each dynamic collectible loads.</summary>
 internal static class DynamicCollectibleGraphics
 {
     /// <summary>The place of <paramref name="kind"/> in <see cref="RoomPlmDynamicCollectibleGraphicsDefinitions.Kinds"/>, or -1 when it has no dynamic graphics upload.</summary>
     internal static int KindIndex(InWorldCollectibleKind kind) => Array.IndexOf(Kinds, kind);
-
-    /// <summary>Enumerates the complete set of dynamic permanent-item graphics in collectible-kind order.</summary>
-    internal static IEnumerable<RoomPlmDynamicCollectibleGraphic> All => Kinds.Select(Get);
 
     /// <summary>Combines a permanent item's eight palette selectors and tile bytes.</summary>
     internal static RoomPlmDynamicCollectibleGraphic Get(InWorldCollectibleKind kind)

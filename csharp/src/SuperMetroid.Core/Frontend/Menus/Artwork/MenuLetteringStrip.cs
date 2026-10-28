@@ -12,9 +12,6 @@ internal sealed record MenuLetteringStrip(string Text, MenuAtlasCellRange[] Cell
     internal IReadOnlyList<int> OrderedCells { get; } =
         Cells.SelectMany(range => Enumerable.Range(range.First, range.Last - range.First + 1)).ToArray();
 
-    /// <summary>Whether <paramref name="cell"/> belongs to this strip.</summary>
-    internal bool Contains(int cell) => MenuAtlasCellRange.AnyContains(Cells, cell);
-
     /// <summary>The strip column (cell position, left to right) of <paramref name="cell"/>.</summary>
     internal int Column(int cell)
     {

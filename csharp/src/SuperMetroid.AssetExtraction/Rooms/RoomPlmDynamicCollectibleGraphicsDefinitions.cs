@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.Plms;
+
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// Cartridge definitions shared by the exposed, Chozo-orb, and shot-block
@@ -17,14 +19,8 @@ internal static partial class RoomPlmDynamicCollectibleGraphicsDefinitions
         InWorldCollectibleKind.MorphBall, InWorldCollectibleKind.ReserveTank,
     ];
 
-    /// <summary>Number of permanent-item kinds with a bank $89 graphics block.</summary>
-    internal static int GraphicCount => Kinds.Length;
-
     /// <summary>The artwork blocks in their stored order.</summary>
     internal static readonly ItemGraphic[] StoredGraphics = Enum.GetValues<ItemGraphic>();
-
-    /// <summary>The bytes of one collectible's 4bpp characters: four 8x8 tiles.</summary>
-    internal const int TileByteCount = 0x100;
 
     /// <summary>Consecutive 256-byte artwork blocks in native bank-$89 order, $8000 through $9000.</summary>
     internal enum ItemGraphic

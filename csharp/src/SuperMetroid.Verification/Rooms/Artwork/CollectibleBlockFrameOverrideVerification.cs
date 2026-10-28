@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;

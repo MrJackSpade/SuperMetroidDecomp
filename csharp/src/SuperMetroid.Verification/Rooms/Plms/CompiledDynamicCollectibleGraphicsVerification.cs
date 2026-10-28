@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -57,7 +58,7 @@ internal static class CompiledDynamicCollectibleGraphicsVerification
     /// <summary>Rejects live reads of compiled collectible tiles and item-list upload records.</summary>
     private static CartridgeReadGuard NewRetailCollectibleGraphicsReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
-            .Forbid(address => DynamicCollectibleGraphics.All.Any(graphic =>
+            .Forbid(address => DynamicCollectibleGraphicsConstants.All.Any(graphic =>
                 {
                     int first = 0x890000 | graphic.GraphicsPointer;
                     if (address >= first && address < first + graphic.Tiles.Length)

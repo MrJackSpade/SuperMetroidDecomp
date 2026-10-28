@@ -64,9 +64,6 @@ internal sealed class SpriteSheetStore
         return new(stockDirectory, overrideDirectory, manifestFileName, manifest.Sha256);
     }
 
-    /// <summary>Writes one composed sheet's image, palette map and frame manifest.</summary>
-    internal void Write(string name, ComposedSpriteSheet composed) => WriteEncoded(Encode(name, composed));
-
     /// <summary>
     /// Writes every sheet: their images and manifests are encoded in parallel, the slow part (PNG compression), and
     /// written in the given order, so the files and the provenance manifest are the same as writing them one by one.

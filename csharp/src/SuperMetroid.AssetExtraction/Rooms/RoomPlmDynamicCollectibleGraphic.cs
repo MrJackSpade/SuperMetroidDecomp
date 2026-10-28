@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.Plms;
+
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// The eight palette selector bytes and 256 raw 4bpp character bytes consumed by

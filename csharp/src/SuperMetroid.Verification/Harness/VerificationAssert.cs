@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Enemies.Alcoon;
 using SuperMetroid.Verification.Enemies.Powamp;

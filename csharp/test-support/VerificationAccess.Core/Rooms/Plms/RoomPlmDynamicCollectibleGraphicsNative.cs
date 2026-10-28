@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Rooms;
+
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Verification's native view of the permanent-item artwork: the bank-$89 address of each block.</summary>

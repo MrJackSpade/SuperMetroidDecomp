@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using static SuperMetroid.Verification.Rooms.Plms.CompiledDynamicCollectibleGraphicsVerification;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -10,7 +11,7 @@ internal static class LookupDynamicCollectibleSourcesVerification
     /// <summary>Confirms each of seventeen native PLM graphics programs selects the compiled source and that its 256 artwork bytes retain that source identity.</summary>
     internal static void VerifyDynamicCollectibleSourcePointers(SuperMetroidAddressSpace rom)
     {
-        var exported = DynamicCollectibleGraphics.All.ToArray();
+        var exported = DynamicCollectibleGraphicsConstants.All.ToArray();
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {
             var kind = (InWorldCollectibleKind)raw;
@@ -40,7 +41,7 @@ internal static class LookupDynamicCollectibleSourcesVerification
     /// <summary>Checks ascending identities for kinds four through twenty and rejects all other byte values.</summary>
     internal static void VerifyDynamicCollectibleKindIdentity()
     {
-        var exported = DynamicCollectibleGraphics.All.ToArray();
+        var exported = DynamicCollectibleGraphicsConstants.All.ToArray();
         AssertEqual(17, exported.Length, "Original dynamic kind count");
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {

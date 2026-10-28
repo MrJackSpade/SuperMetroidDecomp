@@ -15,11 +15,6 @@ internal static class SporeSpawnCollisionDefinitions
     internal const SporeSpawnHitboxShot Shot = SporeSpawnHitboxShot.Vulnerable;
     /// <summary>The inactive head's touch reaction before Spore Spawn opens.</summary>
     internal const SporeSpawnHitboxTouch NoOp = SporeSpawnHitboxTouch.Inert;
-    /// <summary>
-    /// Samus projectile family bits 8-10: the vulnerable core accepts any projectile with one set, besides a charged
-    /// beam (<c>SporeSpawn_Shot</c>).
-    /// </summary>
-    internal const ushort AcceptedFamilyBits = 0x0700;
     /// <summary>The dud shot reaction of shell rectangles and the inactive trailing point.</summary>
     internal const SporeSpawnHitboxShot Dud = SporeSpawnHitboxShot.Dud;
 

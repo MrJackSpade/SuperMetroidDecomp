@@ -231,7 +231,9 @@ internal sealed class NorfairRidleyDeath
         fragment.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.RidleyExplosion];
         fragment.PaletteRow = 7;
         int random = _room.Random.Generate();
-        int horizontalMagnitude = random & RidleyExplosionDefinitions.FragmentSpeedMask;
+        int horizontalMagnitude =
+            RidleyExplosionDefinitions.FragmentSpeedSixteenths.Of(random) * RidleyExplosionDefinitions.SixteenthPixelSpeed +
+            RidleyExplosionDefinitions.FragmentSpeedWholePixel.Of(random) * RidleyExplosionDefinitions.WholePixelSpeed;
         var fragmentState = new RidleyExplosionFragmentState
         {
             Lifetime = WrappingCountdown.FromRaw(RidleyExplosionDefinitions.GetPart(fragment.Spawn.Population.Parameter1).Lifetime),

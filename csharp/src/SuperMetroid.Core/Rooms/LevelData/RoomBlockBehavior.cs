@@ -49,6 +49,12 @@ public readonly record struct RoomBlockBehavior(int Value)
     /// </summary>
     public bool UsesAreaReactionTable => (Value & HighBit) != 0;
 
+    /// <summary>
+    /// The entry of the room's door list a door block selects: the low seven bits. Bit seven is not part of the index;
+    /// elevator and special-door bytes share the same seven-bit lookup.
+    /// </summary>
+    public int DoorListIndex => Value & LowSevenBits;
+
     /// <summary>Low-seven-bit index used by area-dependent reaction tables.</summary>
     public int AreaReactionIndex => Value & LowSevenBits;
 

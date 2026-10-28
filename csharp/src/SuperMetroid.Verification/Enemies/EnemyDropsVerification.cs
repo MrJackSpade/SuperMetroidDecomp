@@ -378,7 +378,7 @@ internal static class EnemyDropsVerification
         AssertEqual(KilledEnemy.Of(enemy, respawns: true), explosion.KilledEnemy,
             "respawning slot zero is retained as the killed enemy, marked to respawn");
         AssertEqual(
-            EnemyDeathExplosionDefinitions.Program(0),
+            EnemyDeathExplosions.Program(0),
             ProgramOf(explosion),
             "out-of-range death variant clamps to native table entry zero");
         AssertEqual(new SuperMetroid.Core.Assets.SpriteGraphics(TileBase: 0, PaletteRow: 0), explosion.Graphics,

@@ -119,7 +119,7 @@ internal sealed class EnemyDeathsAndDrops
             explosion.Position = explosion.Position.WithWhole(enemy.Position.Whole);
             explosion.DropDefinitionId = enemy.DefinitionId;
             explosion.KilledEnemy = KilledEnemy.Of(enemy, respawns);
-            explosion.StartAnimation(new EnemyDeathProjectileAnimation(EnemyDeathExplosionDefinitions.Program(deathAnimation)));
+            explosion.StartAnimation(new EnemyDeathProjectileAnimation(EnemyDeathExplosions.Program(deathAnimation)));
         }
 
         enemy.Clear();
@@ -252,7 +252,7 @@ internal sealed class EnemyDeathsAndDrops
             RoomEnemyProjectileKind.EnemyDeathPickup,
             graphics: default);
         pickup.Position = pickup.Position.WithWhole(position);
-        pickup.DropChancesOverride = dropChances is { } table ? EnemyDropChanceDefinitions.At(table) : null;
+        pickup.DropChancesOverride = dropChances is { } table ? EnemyDropTables.At(table) : null;
         pickup.KilledEnemy = KilledEnemy.None;
         InitializeDirectEnemyPickup(pickup);
         return pickup;
@@ -401,7 +401,7 @@ internal sealed class EnemyDeathsAndDrops
                 accumulated = unchecked((ushort)(accumulated +
                     majorAdjustedBudget * chances[accumulatorIndex] / pooledMinorWeight));
                 if (accumulated >= random)
-                    return EnemyDropSelectionDefinitions.ForProbabilityColumn(accumulatorIndex);
+                    return EnemyDropTables.ForProbabilityColumn(accumulatorIndex);
             }
         }
         else
@@ -421,7 +421,7 @@ internal sealed class EnemyDeathsAndDrops
 
             accumulated = unchecked((ushort)(accumulated + chances[accumulatorIndex]));
             if (accumulated >= random)
-                return EnemyDropSelectionDefinitions.ForProbabilityColumn(accumulatorIndex);
+                return EnemyDropTables.ForProbabilityColumn(accumulatorIndex);
         }
 
         return EnemyPickupKind.NoDrop;
@@ -441,7 +441,7 @@ internal sealed class EnemyDeathsAndDrops
         EnemyDropTable? table = projectile.DropDefinitionId == EnemyDefinitionId.None
             ? null
             : _room.LoadedDefinitions.ReadEnemyDefinition(projectile.DropDefinitionId).DropChances;
-        return table is { } selected ? EnemyDropChanceDefinitions.At(selected) : null;
+        return table is { } selected ? EnemyDropTables.At(selected) : null;
     }
 
     /// <summary>Decrements pickup lifetime, then tests Grapple endpoint and strict Samus body overlap.</summary>

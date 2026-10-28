@@ -23,7 +23,7 @@ internal static class PlmVisualDomainDefinitions
         "SuperMetroid.Core.Bosses.MotherBrain.Artwork.RoomPlmMotherBrainGlassVisualCatalog" => MotherBrainGlassDraws.All.ToArray(),
         "SuperMetroid.Core.Rooms.Plms.RoomPlmNoobTubeVisualCatalog" => NoobTubePlmDrawDefinitions.All.ToArray(),
         "SuperMetroid.Core.Rooms.Plms.RoomPlmDownwardGateVisualCatalog" => DownwardGatePlmDrawDefinitions.All.ToArray(),
-        "SuperMetroid.Core.Enemies.Elevator.Artwork.RoomPlmElevatorPlatformVisualCatalog" => ElevatorPlatformPlmDefinitions.DrawLists.ToArray(),
+        "SuperMetroid.Core.Enemies.Elevator.Artwork.RoomPlmElevatorPlatformVisualCatalog" => ElevatorPlatformDraws.DrawLists.ToArray(),
         "SuperMetroid.Core.Bosses.Draygon.Artwork.RoomPlmDraygonCannonVisualCatalog" => DraygonCannonDraws.All.ToArray(),
         "SuperMetroid.Core.Enemies.Chozo.Artwork.RoomPlmChozoStatueVisualCatalog" => ChozoStatueDraws.All.ToArray(),
         "SuperMetroid.Core.Rooms.Plms.RoomPlmLinkedRestoreVisualCatalog" => RoomPlmLinkedRestoreDrawDefinitions.All.ToArray(),

@@ -188,8 +188,8 @@ internal static class PlmPresentationContractChecks
         ConfirmCoverage(DownwardGatePlmDrawDefinitions.All, frame =>
             new RoomPlmVisualRunEntry(DownwardGatePlmDrawDefinitions.VisualId(frame.Draw), VisualRuns(frame)),
             entries => _ = new RoomPlmDownwardGateVisualCatalog(entries));
-        ConfirmCoverage(ElevatorPlatformPlmDefinitions.DrawLists, frame =>
-            new RoomPlmVisualRunEntry(ElevatorPlatformPlmDefinitions.VisualId(frame.Draw), VisualRuns(frame)),
+        ConfirmCoverage(ElevatorPlatformDraws.DrawLists, frame =>
+            new RoomPlmVisualRunEntry(ElevatorPlatformDraws.VisualId(frame.Draw), VisualRuns(frame)),
             entries => _ = new RoomPlmElevatorPlatformVisualCatalog(entries));
         ConfirmCoverage(DraygonCannonDraws.All, frame =>
             new RoomPlmVisualEntry(DraygonCannonDraws.VisualId(frame.Draw),

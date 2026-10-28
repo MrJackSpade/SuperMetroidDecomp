@@ -30,9 +30,9 @@ internal static class ElevatorPlatformVisualsVerification
         RoomPlmElevatorPlatformVisualCatalog stock =
             RoomPlmElevatorPlatformVisualCatalog.Stock();
         RoomPlmVisualRunEntry[] entries =
-            ElevatorPlatformPlmDefinitions.DrawLists.Select(list =>
+            ElevatorPlatformDraws.DrawLists.Select(list =>
                 new RoomPlmVisualRunEntry(
-                    ElevatorPlatformPlmDefinitions.VisualId(list.Draw),
+                    ElevatorPlatformDraws.VisualId(list.Draw),
                     list.Runs.Span.SelectToArray(run =>
                         run.LevelWords.Span.SelectToArray(word =>
                             new RoomLevelWord(word).VisualWord))))

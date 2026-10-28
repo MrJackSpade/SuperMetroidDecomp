@@ -61,7 +61,7 @@ internal static class EnemyGameplayAcceptanceVerification
             for (int field = 0; field < EnemyVulnerabilityDefinitions.RecordSize; field++)
                 _ = EnemyVulnerabilityDefinitions.Read(definition.Vulnerability, field);
             if (definition.DropChances is { } table)
-                EnemyDropChanceDefinitions.Copy(table, drop);
+                EnemyDropTables.Copy(table, drop);
         }
         Console.WriteLine("Enemy reference closure: all 153 headers resolve compiled vulnerabilities and drops.");
     }

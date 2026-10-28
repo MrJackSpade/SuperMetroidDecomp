@@ -607,7 +607,7 @@ internal sealed class EnemyTerrain
     /// <summary>Spawns the breakable-block PLM for an enemy spike reaction and clears collision even if its pool is full.</summary>
     internal bool ReactToEnemySpikeBlock(RoomLevelData level, int blockIndex, RoomCollisionBlock block)
     {
-        if (!EnemyBreakableTerrainDefinitions.IsEnemyBreakable(block.Bts.Value)) return true;
+        if (!EnemyBreakableTerrain.IsEnemyBreakable(block.Bts.Value)) return true;
         var plms = _collisionPlms ?? throw new InvalidOperationException("Enemy-breakable terrain requires the active room PLM owner.");
         plms.TrySpawnEnemyBreakableBlock(level, blockIndex);
         return false; // $A0:C2D6 clears carry even if the PLM pool was full.

@@ -18,7 +18,7 @@ internal static class EnemyDropChanceDefinitionsVerification
         {
             var table = new EnemyDropTable(record);
             ushort pointer = EnemyDropChanceDefinitionsConstants.Pointer(table);
-            EnemyDropChanceDefinitions.Copy(table, actual);
+            EnemyDropTables.Copy(table, actual);
             for (int field = 0; field < actual.Length; field++)
             {
                 int address = EnemyDropChanceDefinitions.NativeBank |
@@ -32,13 +32,13 @@ internal static class EnemyDropChanceDefinitionsVerification
             EnemyDropChanceDefinitionsConstants.Pointer(new EnemyDropTable(EnemyDropChanceDefinitions.RecordCount - 1)),
             "the last compiled drop table is the last native record");
         AssertThrows<InvalidDataException>(
-            () => EnemyDropChanceDefinitions.Copy(new EnemyDropTable(-1), new byte[6]),
+            () => EnemyDropTables.Copy(new EnemyDropTable(-1), new byte[6]),
             "enemy drop table below the catalog is rejected");
         AssertThrows<InvalidDataException>(
-            () => EnemyDropChanceDefinitions.Copy(new EnemyDropTable(EnemyDropChanceDefinitions.RecordCount), new byte[6]),
+            () => EnemyDropTables.Copy(new EnemyDropTable(EnemyDropChanceDefinitions.RecordCount), new byte[6]),
             "enemy drop table above the catalog is rejected");
         AssertThrows<ArgumentException>(
-            () => EnemyDropChanceDefinitions.Copy(new EnemyDropTable(0), new byte[5]),
+            () => EnemyDropTables.Copy(new EnemyDropTable(0), new byte[5]),
             "short enemy drop destination");
 
         var samus = new SamusState
@@ -53,14 +53,14 @@ internal static class EnemyDropChanceDefinitionsVerification
         for (int record = 0; record < EnemyDropChanceDefinitions.RecordCount; record++)
         {
             var table = new EnemyDropTable(record);
-            projectile.DropChancesOverride = EnemyDropChanceDefinitions.At(table);
+            projectile.DropChancesOverride = EnemyDropTables.At(table);
             EnemyPickupKind selected = fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(projectile);
             AssertTrue(Enum.IsDefined(selected),
                 $"production enemy drop table {record} returns a defined kind");
         }
 
         AssertThrows<InvalidDataException>(
-            () => EnemyDropChanceDefinitions.At(new EnemyDropTable(EnemyDropChanceDefinitions.RecordCount)),
+            () => EnemyDropTables.At(new EnemyDropTable(EnemyDropChanceDefinitions.RecordCount)),
             "production enemy drop rejects a table outside the catalog");
         Console.WriteLine(
             "Enemy drop chance definitions: all 118 native records match ROM and execute " +

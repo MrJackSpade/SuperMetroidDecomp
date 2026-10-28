@@ -317,7 +317,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             }
             return;
         }
-        if (ElevatorPlatformPlmDefinitions.TryDescribe(draw, out var elevator))
+        if (ElevatorPlatformDraws.TryDescribe(draw, out var elevator))
         {
             Position16<RoomBlocks> elevatorCursor = origin;
             for (int run = 0; run < elevator.RunCount; run++)

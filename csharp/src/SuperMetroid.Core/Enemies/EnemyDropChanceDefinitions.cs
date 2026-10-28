@@ -31,34 +31,5 @@ internal static class EnemyDropChanceDefinitions
         "000000FF0000000000FF0000000000FF0000000000FF0000000000FF0000000000FF0000000000FF0000000000FF0000";
 
     /// <summary>Decoded chance records indexed by aligned native pointer offset.</summary>
-    private static readonly byte[] PackedChances = Convert.FromHexString(PackedChanceHex);
-
-    /// <summary>
-    /// Copies one probability table into <paramref name="destination"/>. Tables outside the complete 118-table retail
-    /// catalog fail explicitly rather than reading adjacent bytes as weights.
-    /// </summary>
-    internal static void Copy(EnemyDropTable table, Span<byte> destination)
-    {
-        if (destination.Length < RecordSize)
-        {
-            throw new ArgumentException(
-                $"Enemy drop chance destination requires {RecordSize} bytes.",
-                nameof(destination));
-        }
-
-        if ((uint)table.Record >= RecordCount)
-        {
-            throw new InvalidDataException(
-                $"Enemy drop table {table.Record} is outside the compiled {RecordCount}-table catalog.");
-        }
-        PackedChances.AsSpan(table.Record * RecordSize, RecordSize).CopyTo(destination);
-    }
-
-    /// <summary>The chances of <paramref name="table"/>, validated as <see cref="Copy"/> does.</summary>
-    internal static EnemyDropChances At(EnemyDropTable table)
-    {
-        Span<byte> columns = stackalloc byte[RecordSize];
-        Copy(table, columns);
-        return new EnemyDropChances(columns);
-    }
+    internal static readonly byte[] PackedChances = Convert.FromHexString(PackedChanceHex);
 }

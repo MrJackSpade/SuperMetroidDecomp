@@ -1263,21 +1263,21 @@ internal static class LookupStream2Verification
         for (int column = 0; column < 6; column++)
         {
             EnemyPickupKind expected = (EnemyPickupKind)rom.ReadCartridgeByte(0x86f25e + column);
-            AssertEqual(expected, EnemyDropSelectionDefinitions.ForProbabilityColumn(column),
+            AssertEqual(expected, EnemyDropTables.ForProbabilityColumn(column),
                 "Native probability-column pickup identity");
             var samus = CreateDropTestSamus();
             samus.Health = 50;
             samus.MaxMissiles = samus.MaxSuperMissiles = samus.MaxPowerBombs = 5;
             var fixture = CreateEnemyDropFixture(samus, [randomValues[column]]);
             var projectile = fixture.System.Projectiles.EnemyProjectiles[0];
-            projectile.DropChancesOverride = EnemyDropChanceDefinitions.At(NativeDropChances);
+            projectile.DropChancesOverride = EnemyDropTables.At(NativeDropChances);
             AssertEqual(expected, fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(projectile),
                 "Actual cumulative selection preserves each semantic column");
         }
         Suite(nameof(VerifyEnemyDropSelectionRules), () => VerifyEnemyDropSelectionRules());
-        AssertThrows<ArgumentOutOfRangeException>(() => EnemyDropSelectionDefinitions.ForProbabilityColumn(-1),
+        AssertThrows<ArgumentOutOfRangeException>(() => EnemyDropTables.ForProbabilityColumn(-1),
             "Drop column lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => EnemyDropSelectionDefinitions.ForProbabilityColumn(6),
+        AssertThrows<ArgumentOutOfRangeException>(() => EnemyDropTables.ForProbabilityColumn(6),
             "Drop column upper bound");
         Console.WriteLine("Enemy drop selection:six native identities and actual cumulative selections, RNG-zero reroll, energy hysteresis and full-resource eligibility pass.");
     }

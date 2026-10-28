@@ -36,20 +36,20 @@ internal static class SamusHorizontalMotion
         }
         bool air = row < AirRecordCount;
         bool water = false;
-        int decelerationFraction;
+        SignedSixteenSixteen deceleration;
         if (air)
         {
-            decelerationFraction = AirDecelerationFraction;
+            deceleration = AirDeceleration;
         }
         else
         {
             row -= AirRecordCount;
             water = row < LiquidRecordCount;
             if (!water) row -= LiquidRecordCount;
-            decelerationFraction = water ? WaterDecelerationFraction : LavaDecelerationFraction;
+            deceleration = water ? WaterDeceleration : LavaDeceleration;
         }
         SamusMovementType movement = RecordOrder[row];
-        uint maximum = movement switch
+        SignedSixteenSixteen maximum = movement switch
         {
             SamusMovementType.Running => air || water ? RunningMaximum : LavaRunningMaximum,
             SamusMovementType.NormalJumping or SamusMovementType.PostureTransition or
@@ -65,11 +65,11 @@ internal static class SamusHorizontalMotion
             SamusMovementType.DamageBoost => air ? KnockbackMaximum : MoonwalkingMaximum,
             SamusMovementType.Standing or SamusMovementType.Crouching or SamusMovementType.Unused0B or
                 SamusMovementType.Unused0C or SamusMovementType.TurningOnGround or SamusMovementType.RanIntoWall or
-                SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling => 0,
+                SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling => SignedSixteenSixteen.Zero,
             _ => throw new InvalidOperationException($"Undefined SamusMovementType {movement}."),
         };
         // All rows use the same authored acceleration except these named movement cases.
-        uint acceleration = movement switch
+        SignedSixteenSixteen acceleration = movement switch
         {
             SamusMovementType.Running => air ? AirRunningAcceleration : LiquidGroundAcceleration,
             SamusMovementType.UnusedGlitchBall or SamusMovementType.UnusedGlitchBallAlternate => GlitchBallAcceleration,
@@ -89,10 +89,7 @@ internal static class SamusHorizontalMotion
                 SamusMovementType.DamageBoost or SamusMovementType.DraygonHeld or SamusMovementType.Special => DefaultAcceleration,
             _ => throw new InvalidOperationException($"Undefined SamusMovementType {movement}."),
         };
-        entry = new(
-            SignedSixteenSixteen.FromRaw(unchecked((int)acceleration)),
-            SignedSixteenSixteen.FromRaw(unchecked((int)maximum)),
-            SignedSixteenSixteen.FromParts(0, decelerationFraction));
+        entry = new(acceleration, maximum, deceleration);
         return true;
     }
 

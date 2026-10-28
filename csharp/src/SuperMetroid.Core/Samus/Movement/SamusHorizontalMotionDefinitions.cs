@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Collections.Frozen;
 
 namespace SuperMetroid.Core.Samus.Movement;
@@ -6,52 +5,46 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <summary>Pinned bank-$90 horizontal mechanics, separate from animation and palette definitions.</summary>
 internal static class SamusHorizontalMotionDefinitions
 {
-    /// <summary>Deceleration fraction of every air record.</summary>
-    [SuppressMessage("Design", "SME6447", Justification =
-        "The fraction of a 16.16 deceleration of half a pixel per update, not a cartridge address.")]
-    internal const int AirDecelerationFraction = 0x8000;
-    /// <summary>Deceleration fraction of every water record.</summary>
-    internal const int WaterDecelerationFraction = 0x0800;
-    /// <summary>Deceleration fraction of every lava-or-acid record.</summary>
-    internal const int LavaDecelerationFraction = 0x4000;
+    /// <summary>Deceleration of every air record, half a pixel per update per update.</summary>
+    internal static SignedSixteenSixteen AirDeceleration { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(8);
+    /// <summary>Deceleration of every water record.</summary>
+    internal static SignedSixteenSixteen WaterDeceleration { get; } = SignedSixteenSixteen.FromParts(0, 0x0800);
+    /// <summary>Deceleration of every lava-or-acid record.</summary>
+    internal static SignedSixteenSixteen LavaDeceleration { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(4);
     /// <summary>Maximum running speed in air and water.</summary>
-    internal const uint RunningMaximum = 0x2c000u;
+    internal static SignedSixteenSixteen RunningMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(44);
     /// <summary>Maximum running speed in lava or acid.</summary>
-    internal const uint LavaRunningMaximum = 0x1c000u;
+    internal static SignedSixteenSixteen LavaRunningMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(28);
     /// <summary>Maximum speed of normal jumps, posture transitions, airborne spring ball and grappling.</summary>
-    internal const uint JumpingMaximum = 0x14000u;
+    internal static SignedSixteenSixteen JumpingMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(20);
     /// <summary>Maximum speed of spin and wall jumps.</summary>
-    internal const uint SpinJumpingMaximum = 0x16000u;
+    internal static SignedSixteenSixteen SpinJumpingMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(22);
     /// <summary>Maximum speed of a grounded morph or spring ball in air.</summary>
-    internal const uint AirMorphBallGroundMaximum = 0x34000u;
+    internal static SignedSixteenSixteen AirMorphBallGroundMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(52);
     /// <summary>Maximum speed of a grounded morph or spring ball in a liquid.</summary>
-    internal const uint LiquidMorphBallGroundMaximum = 0x2c000u;
+    internal static SignedSixteenSixteen LiquidMorphBallGroundMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(44);
     /// <summary>Maximum speed of falling, and of a falling ball in air.</summary>
-    internal const uint FallingMaximum = 0x10000u;
+    internal static SignedSixteenSixteen FallingMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(16);
     /// <summary>Maximum speed of a falling morph or spring ball in water.</summary>
-    internal const uint WaterBallFallingMaximum = 0x18000u;
+    internal static SignedSixteenSixteen WaterBallFallingMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(24);
     /// <summary>Maximum speed of a falling morph or spring ball in lava or acid.</summary>
-    internal const uint LavaBallFallingMaximum = 0x16000u;
+    internal static SignedSixteenSixteen LavaBallFallingMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(22);
     /// <summary>Maximum speed of the alternate unused glitch ball and unused movement $0D.</summary>
-    internal const uint GlitchBallMaximum = 0x20000u;
+    internal static SignedSixteenSixteen GlitchBallMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(32);
     /// <summary>Maximum speed of knockback, Draygon's hold, special movement and an airborne damage boost.</summary>
-    internal const uint KnockbackMaximum = 0x50000u;
-    /// <summary>Maximum speed of moonwalking and a grounded damage boost.</summary>
-    [SuppressMessage("Design", "SME6447", Justification =
-        "A 16.16 maximum speed of half a pixel per update, not a cartridge address.")]
-    internal const uint MoonwalkingMaximum = 0x08000u;
+    internal static SignedSixteenSixteen KnockbackMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(80);
+    /// <summary>Maximum speed of moonwalking and a grounded damage boost, half a pixel per update.</summary>
+    internal static SignedSixteenSixteen MoonwalkingMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(8);
     /// <summary>Running acceleration in air.</summary>
-    internal const uint AirRunningAcceleration = 0x3000u;
+    internal static SignedSixteenSixteen AirRunningAcceleration { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(3);
     /// <summary>Acceleration of running in a liquid and of a morph or spring ball in a liquid.</summary>
-    internal const uint LiquidGroundAcceleration = 0x0400u;
+    internal static SignedSixteenSixteen LiquidGroundAcceleration { get; } = SignedSixteenSixteen.FromParts(0, 0x0400);
     /// <summary>Acceleration of both unused glitch balls.</summary>
-    internal const uint GlitchBallAcceleration = 0x20000u;
+    internal static SignedSixteenSixteen GlitchBallAcceleration { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(32);
     /// <summary>Knockback acceleration.</summary>
-    internal const uint KnockbackAcceleration = 0x18000u;
-    /// <summary>The authored acceleration of every other movement.</summary>
-    [SuppressMessage("Design", "SME6447", Justification =
-        "A 16.16 acceleration of three quarters of a pixel per update, not a cartridge address.")]
-    internal const uint DefaultAcceleration = 0xc000u;
+    internal static SignedSixteenSixteen KnockbackAcceleration { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(24);
+    /// <summary>The authored acceleration of every other movement, three quarters of a pixel per update per update.</summary>
+    internal static SignedSixteenSixteen DefaultAcceleration { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(12);
 
     /// <summary>$90:9F55..A08C normal-air speed records end after damage boost.</summary>
     internal const int AirRecordCount = 26;

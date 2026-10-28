@@ -23,7 +23,7 @@ public static class RoomPlmKraidVisualFiles
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
             VisualFileName, "Kraid room",
             KraidRoomPlmDrawDefinitions.All,
-            KraidRoomPlmDrawDefinitions.VisualId);
+            KraidRoomPlmDraws.VisualId);
 
     /// <summary>Checks the installed stock Kraid layouts and selects a complete optional artwork replacement without changing collision or crumble timing.</summary>
     /// <param name="stockDirectory">Kraid family directory containing stock JSON and its version-one provenance/hash manifest.</param>
@@ -32,10 +32,10 @@ public static class RoomPlmKraidVisualFiles
     /// <remarks>Stock is always checked against supported-cartridge provenance, file hash, and compiled visual words. Overrides replace the whole family and require every identity and original cell count; they need no manifest.</remarks>
     /// <exception cref="InvalidDataException">Integrity, provenance, document version, identities, coverage, shapes, or visual-only words are invalid.</exception>
     /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
-    public static RoomPlmKraidVisualCatalog Load(
+    public static InstalledRoomPlmKraidVisuals Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmKraidVisualCatalog>(VisualFileName, "Kraid room", KraidRoomPlmDrawDefinitions.All, KraidRoomPlmDrawDefinitions.VisualId, entries => new RoomPlmKraidVisualCatalog(entries.Select(entry =>
+            new RoomPlmVisualFamily<InstalledRoomPlmKraidVisuals>(VisualFileName, "Kraid room", KraidRoomPlmDrawDefinitions.All, KraidRoomPlmDraws.VisualId, entries => new InstalledRoomPlmKraidVisuals(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetWord(draw, run, block)));
 
     /// <summary>Validates the stock Kraid installation through <see cref="Load"/> with no override, cartridge reads, or file writes.</summary>

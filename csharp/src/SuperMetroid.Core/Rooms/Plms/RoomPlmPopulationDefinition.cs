@@ -73,7 +73,7 @@ public sealed class RoomPlmPopulationDefinition
         {
             if (!CollectiblePlms.TryIdentifyPermanentCollectible(placement.Header.Header, out var kind, out _) ||
                 kind != graphic.Kind || !CollectiblePlms.UsesDynamicGraphics(kind) ||
-                graphic.Tiles.Length != 0x100 || graphic.PaletteOffsets.Length != 8 ||
+                graphic.Tiles.Length != RoomPlmDynamicCollectibleGraphicsDefinitions.TileByteCount || graphic.PaletteOffsets.Length != 8 ||
                 graphic.PaletteOffsets.Span.ContainsAnyExceptInRange((byte)0, (byte)7))
                 throw new InvalidDataException("Decoded collectible graphics do not match their placement or payload shape.");
             graphic = graphic with { Tiles = graphic.Tiles.ToArray(), PaletteOffsets = graphic.PaletteOffsets.ToArray() };

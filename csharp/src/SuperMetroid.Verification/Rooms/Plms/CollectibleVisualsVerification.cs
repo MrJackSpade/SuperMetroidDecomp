@@ -27,7 +27,7 @@ internal static class CollectibleVisualsVerification
         Suite(nameof(VerifyCollectibleDrawCollision), () => VerifyCollectibleDrawCollision(rom));
         Suite(nameof(VerifyCollectibleDrawVisuals), () => VerifyCollectibleDrawVisuals(rom));
         Suite(nameof(VerifyCollectibleDrawIdentity), () => VerifyCollectibleDrawIdentity(rom));
-        RoomPlmCollectibleVisualCatalog stock = RoomPlmCollectibleVisualCatalog.Stock();
+        InstalledRoomPlmCollectibleVisuals stock = InstalledRoomPlmCollectibleVisuals.Stock();
 
         Suite(nameof(VerifyCollectibleOrbSelector), () => VerifyCollectibleOrbSelector(rom));
         Suite(nameof(VerifyCollectibleRevealSelector), () => VerifyCollectibleRevealSelector(rom));
@@ -35,20 +35,20 @@ internal static class CollectibleVisualsVerification
         Suite(nameof(VerifyCollectibleDynamicSelector), () => VerifyCollectibleDynamicSelector(rom));
 
         RoomPlmVisualWordEntry[] entries =
-            RoomPlmCollectibleDrawDefinitions.All
+            CollectiblePlmDraws.All
                 .Select(frame => new RoomPlmVisualWordEntry(frame.Id,
                     frame.LevelWord.VisualWord))
                 .ToArray();
         int energyIndex = Array.FindIndex(entries, entry => entry.Id == "energy-tank-0");
         entries[energyIndex] = entries[energyIndex] with { VisualWord = 0x0053 };
-        var edited = new RoomPlmCollectibleVisualCatalog(entries);
+        var edited = new InstalledRoomPlmCollectibleVisuals(entries);
         entries[energyIndex] = entries[energyIndex] with { VisualWord = 0x0054 };
         AssertEqual((ushort)0x0053,
-            edited.GetWord(RoomPlmCollectibleDrawDefinitions.VisibleFrame(InWorldCollectibleKind.EnergyTank, 0, 0)),
+            edited.GetWord(CollectiblePlmDraws.VisibleFrame(InWorldCollectibleKind.EnergyTank, 0, 0)),
             "collectible catalog copies the edited visual word");
 
         CollectibleVisualsRenderResult Render(
-            RoomPlmCollectibleVisualCatalog visuals)
+            InstalledRoomPlmCollectibleVisuals visuals)
         {
             var bus = new TestAddressSpace();
             SeedCollectibleRom(bus);

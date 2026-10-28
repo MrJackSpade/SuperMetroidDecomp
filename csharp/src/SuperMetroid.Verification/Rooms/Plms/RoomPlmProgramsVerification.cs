@@ -58,7 +58,7 @@ internal static class RoomPlmProgramsVerification
             SpeedBoosterEscapeProgram? expected = phase + 1 < SpeedBoosterEscapeEntries.Count ? SpeedBoosterEscapeEntries[phase + 1].Program : null;
             if (expected is { } next)
                 AssertEqual(unchecked((ushort)(entry + 6)), SpeedBoosterEscapeEntries[phase + 1].Entry, $"lavaquake {next} follows {program}'s sleep");
-            AssertEqual(expected, SpeedBoosterEscapePlmProgramDefinitions.PhaseAfter(program), $"lavaquake phase after {program}");
+            AssertEqual(expected, SpeedBoosterEscapePhases.PhaseAfter(program), $"lavaquake phase after {program}");
         }
         Console.WriteLine($"  Speed Booster lavaquake program: {steps} typed steps match bank $84.");
     }
@@ -272,7 +272,7 @@ internal static class RoomPlmProgramsVerification
     /// <summary>The Speed Booster blocks' programs equal their native lists; both restore instructions draw the saved block.</summary>
     internal static void VerifySpeedBoosterBlockPrograms(ISnesAddressSpace rom)
     {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), SpeedBoosterBlockPlmProgramDefinitions.Programs,
+        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), SpeedBoosterBlockPrograms.Programs,
             SpeedBoosterBlockEntries, SpeedBoosterBlockDrawList, SpeedBoosterBlockCueAt, "Speed Booster block", SpeedBoosterBlockRestoreAt);
         Console.WriteLine($"  Speed Booster block programs: {steps} typed steps match bank $84.");
     }
@@ -301,10 +301,10 @@ internal static class RoomPlmProgramsVerification
     /// <summary>The bank-$84 draw list a Speed Booster block frame draws.</summary>
     private static PlmDraw SpeedBoosterBlockDrawList(SpeedBoosterBlockFrame frame) => frame switch
     {
-        SpeedBoosterBlockFrame.Crumble0 => SpeedBoosterBlockPlmDrawDefinitions.CrumbleDrawList(0),
-        SpeedBoosterBlockFrame.Crumble1 => SpeedBoosterBlockPlmDrawDefinitions.CrumbleDrawList(1),
-        SpeedBoosterBlockFrame.Crumble2 => SpeedBoosterBlockPlmDrawDefinitions.CrumbleDrawList(2),
-        SpeedBoosterBlockFrame.Crumble3 => SpeedBoosterBlockPlmDrawDefinitions.CrumbleDrawList(3),
+        SpeedBoosterBlockFrame.Crumble0 => SpeedBoosterBlockPlmDraws.CrumbleDrawList(0),
+        SpeedBoosterBlockFrame.Crumble1 => SpeedBoosterBlockPlmDraws.CrumbleDrawList(1),
+        SpeedBoosterBlockFrame.Crumble2 => SpeedBoosterBlockPlmDraws.CrumbleDrawList(2),
+        SpeedBoosterBlockFrame.Crumble3 => SpeedBoosterBlockPlmDraws.CrumbleDrawList(3),
         SpeedBoosterBlockFrame.BombReveal => SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw,
         SpeedBoosterBlockFrame.RestoredBlock => throw new InvalidOperationException("The restored block is drawn by its native restore instruction."),
         _ => throw new InvalidOperationException($"Undefined {nameof(SpeedBoosterBlockFrame)} {frame}."),
@@ -313,11 +313,11 @@ internal static class RoomPlmProgramsVerification
     /// <summary>The downward gate's programs equal their native lists, and each wake continues after the sleep it ends.</summary>
     internal static void VerifyDownwardGatePrograms(ISnesAddressSpace rom)
     {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), DownwardGatePlmProgramDefinitions.Programs, DownwardGateEntries,
+        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), DownwardGatePrograms.Programs, DownwardGateEntries,
             draw => PlmDraw.Of(draw), DownwardGateCueAt, "downward gate");
         foreach ((DownwardGateProgram program, ushort entry) in DownwardGateEntries)
         {
-            if (DownwardGatePlmProgramDefinitions.ProgramAfterSleep(program) is not { } next)
+            if (DownwardGatePrograms.ProgramAfterSleep(program) is not { } next)
                 continue;
             AssertEqual(unchecked((ushort)(entry + DownwardGateSleepContinuationOffset)), DownwardGateEntries.Single(e => e.Program == next).Entry,
                 $"downward gate {next} continues {program} past its sleep");
@@ -335,7 +335,7 @@ internal static class RoomPlmProgramsVerification
     /// </summary>
     internal static ushort DownwardGateNativeInstruction(ISnesAddressSpace rom, DownwardGatePlmAnimation gate)
     {
-        downwardGateAddresses ??= StepAddresses(CartridgeImportSource.Require(rom), DownwardGatePlmProgramDefinitions.Programs,
+        downwardGateAddresses ??= StepAddresses(CartridgeImportSource.Require(rom), DownwardGatePrograms.Programs,
             DownwardGateEntries, draw => PlmDraw.Of(draw), DownwardGateCueAt, "downward gate");
         return downwardGateAddresses[new ProgramStep<DownwardGateProgram>(gate.Cursor.Program, gate.Cursor.Position)];
     }

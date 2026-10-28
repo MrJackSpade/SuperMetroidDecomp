@@ -23,10 +23,10 @@ internal static class SpeedBoosterVisualsVerification
     {
         const ushort pointer = 0xa4f3;
         ushort native = (ushort)(ReadRomWord(rom,0x84a4f5) & 0xfff);
-        var stock = RoomPlmSpeedBoosterVisualCatalog.Stock();
-        var imported = new RoomPlmSpeedBoosterVisualCatalog([new("bomb-reveal",[native])]);
+        var stock = InstalledRoomPlmSpeedBoosterVisuals.Stock();
+        var imported = new InstalledRoomPlmSpeedBoosterVisuals([new("bomb-reveal",[native])]);
         string Hash(ushort word) => SuperMetroid.Core.Assets.SelectedPresentationHash.Create(
-            nameof(RoomPlmSpeedBoosterVisualCatalog), content => content.Append("visual word",word));
+            nameof(InstalledRoomPlmSpeedBoosterVisuals), content => content.Append("visual word",word));
         AssertEqual(native,stock.GetWord(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,0),"speed stock visual matches original native draw");
         AssertEqual(native,imported.GetWord(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,0),"speed imported visual matches original native draw");
         AssertEqual(Hash(native),stock.ContentIdentity,"speed stock scalar identity");
@@ -40,15 +40,15 @@ internal static class SpeedBoosterVisualsVerification
             AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,invalid),"speed visual block bounds");
         }
         ushort[] custom = [0x0453];
-        var edited = new RoomPlmSpeedBoosterVisualCatalog([new("bomb-reveal",custom)]);
+        var edited = new InstalledRoomPlmSpeedBoosterVisuals([new("bomb-reveal",custom)]);
         custom[0] = 0x0054;
         AssertEqual((ushort)0x0453,edited.GetWord(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,0),"speed visual scalar isolates source-array edits");
         AssertEqual(Hash(0x0453),edited.ContentIdentity,"speed custom scalar identity including flip bits");
-        AssertThrows<InvalidDataException>(() => new RoomPlmSpeedBoosterVisualCatalog([]),"speed visual requires entry");
-        AssertThrows<InvalidDataException>(() => new RoomPlmSpeedBoosterVisualCatalog([new("bomb-reveal",[native]),new("bomb-reveal",[native])]),"speed visual rejects duplicate entry");
-        AssertThrows<InvalidDataException>(() => new RoomPlmSpeedBoosterVisualCatalog([new("Bomb-reveal",[native])]),"speed visual ID is ordinal");
-        AssertThrows<InvalidDataException>(() => new RoomPlmSpeedBoosterVisualCatalog([new("bomb-reveal",[0xb0b6])]),"speed visual rejects collision bits");
-        AssertThrows<InvalidDataException>(() => new RoomPlmSpeedBoosterVisualCatalog([new("bomb-reveal",[native,native])]),"speed visual rejects altered shape");
+        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmSpeedBoosterVisuals([]),"speed visual requires entry");
+        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmSpeedBoosterVisuals([new("bomb-reveal",[native]),new("bomb-reveal",[native])]),"speed visual rejects duplicate entry");
+        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmSpeedBoosterVisuals([new("Bomb-reveal",[native])]),"speed visual ID is ordinal");
+        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmSpeedBoosterVisuals([new("bomb-reveal",[0xb0b6])]),"speed visual rejects collision bits");
+        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmSpeedBoosterVisuals([new("bomb-reveal",[native,native])]),"speed visual rejects altered shape");
     }
 
     /// <summary>Checks extraction and a production bomb reveal with immediate and streamed art but unchanged physical block.</summary>
@@ -85,7 +85,7 @@ internal static class SpeedBoosterVisualsVerification
                 installation.RoomPlmSpeedBoosterVisualOverrideDirectory,
                 RoomPlmSpeedBoosterVisualFiles.VisualFileName);
             File.WriteAllText(overridePath, document.ToJsonString());
-            RoomPlmSpeedBoosterVisualCatalog edited =
+            InstalledRoomPlmSpeedBoosterVisuals edited =
                 installation.LoadRoomPlmSpeedBoosterVisuals();
             AssertEqual((ushort)0x0058, edited.GetWord(drawPointer, 0, 0),
                 "Speed Booster visual override is loaded");

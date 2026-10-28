@@ -113,7 +113,7 @@ internal sealed class SpeedBoosterEscapePlms
         IRoomFxMotion fx)
     {
         SpeedBoosterEscapeStageDefinition? stage =
-            SpeedBoosterEscapeStageDefinitions.Resolve(checked((ushort)slot.LoopTimer));
+            SpeedBoosterEscapeStages.Resolve(checked((ushort)slot.LoopTimer));
         if (stage is null)
         {
             (_events ?? throw new InvalidOperationException(

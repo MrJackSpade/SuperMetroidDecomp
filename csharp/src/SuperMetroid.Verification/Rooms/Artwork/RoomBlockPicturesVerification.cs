@@ -550,7 +550,7 @@ internal static class RoomBlockPicturesVerification
     private const int BlockTiles = 4;
 
     /// <summary>The installed collectible graphics, whose palette selectors colour a collectible slot's blocks.</summary>
-    private static readonly Lazy<RoomPlmDynamicCollectibleArtCatalog> CollectibleArt =
+    private static readonly Lazy<InstalledDynamicCollectibleArt> CollectibleArt =
         new(() => RepositoryInstallation.Installation.LoadRoomPlmDynamicCollectibleArt());
 
     /// <summary>

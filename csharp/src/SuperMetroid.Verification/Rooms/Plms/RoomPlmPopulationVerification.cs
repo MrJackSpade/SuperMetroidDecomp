@@ -1078,7 +1078,7 @@ internal static class RoomPlmPopulationVerification
 
     /// <summary>Exercises map, missile and save-station admission and message timing in one populated room.</summary>
     internal static void VerifyOtherStationFamilies(TestAddressSpace bus,
-        RoomPlmStationVisualCatalog? visuals = null)
+        InstalledRoomPlmStationVisuals? visuals = null)
     {
         const ushort population = 0x9200;
         SeedRoomPlmPopulation(bus, population, [

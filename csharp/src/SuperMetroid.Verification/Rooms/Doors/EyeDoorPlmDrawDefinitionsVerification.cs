@@ -47,7 +47,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
             entry.Id == "right-eye-frame-0");
         ushort stockWord = rightEye.Blocks[0];
         rightEye.Blocks[0] = 0x0055;
-        var edited = new RoomPlmEyeDoorVisualCatalog(entries);
+        var edited = new InstalledRoomPlmEyeDoorVisuals(entries);
         rightEye.Blocks[0] = 0x0056;
         AssertEqual((ushort)0x0055, edited.GetWord(NativePlmDraws.At<EyeDoorDraws.Draw>(0x9c5b), 0),
             "eye-door catalog copies author data");
@@ -79,7 +79,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
     private static void VerifyEyeDoorNativeDrawPath(
         EyeDoorOrientation orientation,
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists,
-        RoomPlmEyeDoorVisualCatalog? visuals)
+        InstalledRoomPlmEyeDoorVisuals? visuals)
     {
         const int width = 16;
         var bus = new TestAddressSpace();

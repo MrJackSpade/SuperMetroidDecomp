@@ -57,7 +57,7 @@ internal static class StationAnimationProgramDefinitionsVerification
             AssertTrue(!StationNativeWords.AnimationLists.TryDecode(raw, out _),
                 "Undefined station list word names no station animation");
         AssertThrows<InvalidOperationException>(
-            () => StationAnimationProgramDefinitions.Resolve(default, 0),
+            () => StationAnimationPrograms.Resolve(default, 0),
             "Undefined station list is rejected at the typed boundary");
         int ordinal = 0;
         for (int listIndex = 0; listIndex < lists.Length; listIndex++)
@@ -65,12 +65,12 @@ internal static class StationAnimationProgramDefinitionsVerification
             var list = StationNativeWords.AnimationLists.Decode(lists[listIndex], "station animation list");
             int count = listIndex < 4 ? 3 : 1;
             foreach (int bad in new[] { int.MinValue,-1,count,int.MaxValue })
-                AssertThrows<InvalidDataException>(() => StationAnimationProgramDefinitions.Resolve(list, bad), "Station exact frame bounds");
+                AssertThrows<InvalidDataException>(() => StationAnimationPrograms.Resolve(list, bad), "Station exact frame bounds");
             for (int frame = 0; frame < count; frame++, ordinal += 2)
             {
                 ushort address = (ushort)(lists[listIndex] + frame * 4 + (draw ? 2 : 0));
                 ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | address);
-                var actual = StationAnimationProgramDefinitions.Resolve(list, frame);
+                var actual = StationAnimationPrograms.Resolve(list, frame);
                 AssertEqual(expected, draw ? PlmDrawAddressCodec.Of(actual.Draw) : actual.Duration, "Station original animation field");
                 var enumerated = words[ordinal + (draw ? 1 : 0)];
                 AssertEqual(address, enumerated.Address, "Station original field enumeration address/order");

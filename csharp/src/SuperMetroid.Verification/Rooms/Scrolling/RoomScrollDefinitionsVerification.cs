@@ -95,7 +95,7 @@ internal static class RoomScrollDefinitionsVerification
             "compiled scroll installation rejects incomplete storage");
 
         SelectedRoom ceres = SelectedRoom.LoadUsingCompiledSelection(
-            LoadStationDefinitions.Get(AreaId.Ceres, 0).Room ?? throw new InvalidDataException("Ceres station has no room."));
+            LoadStations.Get(AreaId.Ceres, 0).Room ?? throw new InvalidDataException("Ceres station has no room."));
         var guardedCeres = CreateRetailRuntimeFixture();
         // A new session's scroll allocation starts zeroed, so Ceres's tail past its cells reads zero.
         var ceresResidue = new byte[RoomScrollGrid.StorageByteCount];

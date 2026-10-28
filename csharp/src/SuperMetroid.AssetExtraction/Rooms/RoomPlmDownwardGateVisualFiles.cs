@@ -66,7 +66,7 @@ public static class RoomPlmDownwardGateVisualFiles
     /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
     /// <exception cref="InvalidDataException">Provenance, integrity, schema, identities, frame coverage, shapes, or visual bits are invalid.</exception>
     /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
-    public static RoomPlmDownwardGateVisualCatalog Load(
+    public static InstalledRoomPlmDownwardGateVisuals Load(
         string stockDirectory, string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
@@ -81,7 +81,7 @@ public static class RoomPlmDownwardGateVisualFiles
         if (!string.Equals(Convert.ToHexString(SHA256.HashData(stockBytes)),
                 manifest.VisualSha256, StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException($"Stock downward gate visuals {stockPath} failed their manifest hash.");
-        RoomPlmDownwardGateVisualCatalog stock = CreateCatalog(
+        InstalledRoomPlmDownwardGateVisuals stock = CreateCatalog(
             ReadJson<VisualDocument>(stockBytes, stockPath), stockPath);
         VerifyStockMatchesCompiled(stock, stockPath);
 
@@ -102,7 +102,7 @@ public static class RoomPlmDownwardGateVisualFiles
     {
         var entries = new List<RoomPlmVisualRunEntry>();
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 DownwardGatePlmDrawDefinitions.All.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
+                 DownwardGatePlmDraws.All.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
         {
             int cursor = PlmDrawAddressCodec.Of(list.Draw);
             var visuals = new List<ushort[]>();
@@ -133,18 +133,18 @@ public static class RoomPlmDownwardGateVisualFiles
             }
 
             entries.Add(new RoomPlmVisualRunEntry(
-                DownwardGatePlmDrawDefinitions.VisualId(list.Draw), visuals.ToArray()));
+                DownwardGatePlmDraws.VisualId(list.Draw), visuals.ToArray()));
         }
 
         return entries.ToArray();
     }
 
     /// <summary>Rejects stock artwork whose selected visual words differ from the compiled cartridge definitions.</summary>
-    private static void VerifyStockMatchesCompiled(RoomPlmDownwardGateVisualCatalog catalog,
+    private static void VerifyStockMatchesCompiled(InstalledRoomPlmDownwardGateVisuals catalog,
         string path)
     {
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 DownwardGatePlmDrawDefinitions.All)
+                 DownwardGatePlmDraws.All)
         for (int run = 0; run < list.Runs.Length; run++)
         for (int word = 0; word < list.Runs.Span[run].LevelWords.Length; word++)
         {
@@ -153,17 +153,17 @@ public static class RoomPlmDownwardGateVisualFiles
             if (catalog.GetWord(list.Draw, run, word) != expected)
                 throw new InvalidDataException(
                     $"Stock downward gate visuals {path} differ from compiled frame " +
-                    DownwardGatePlmDrawDefinitions.VisualId(list.Draw) + ".");
+                    DownwardGatePlmDraws.VisualId(list.Draw) + ".");
         }
     }
 
     /// <summary>Checks document revision and wraps entry validation errors with the source path.</summary>
-    private static RoomPlmDownwardGateVisualCatalog CreateCatalog(
+    private static InstalledRoomPlmDownwardGateVisuals CreateCatalog(
         VisualDocument document, string path)
     {
         if (document.Version != FormatVersion || document.Entries is null)
             throw new InvalidDataException($"Downward gate visuals {path} have an incompatible format.");
-        try { return new RoomPlmDownwardGateVisualCatalog(document.Entries); }
+        try { return new InstalledRoomPlmDownwardGateVisuals(document.Entries); }
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(

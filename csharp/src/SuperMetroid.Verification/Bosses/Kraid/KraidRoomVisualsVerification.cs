@@ -34,7 +34,7 @@ internal static class KraidRoomVisualsVerification
                 SupportedCartridge.Sha256);
             RoomPlmKraidVisualFiles.ValidateStock(
                 installation.RoomPlmKraidVisualDirectory);
-            RoomPlmKraidVisualCatalog stock =
+            InstalledRoomPlmKraidVisuals stock =
                 installation.LoadRoomPlmKraidVisuals();
             foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in
                      KraidRoomPlmDrawDefinitions.All)
@@ -47,7 +47,7 @@ internal static class KraidRoomVisualsVerification
                         $"Kraid stock draw ${PlmDrawAddressCodec.Of(draw.Draw):X4}, block {block}");
             }
             AssertThrows<InvalidDataException>(
-                () => new RoomPlmKraidVisualCatalog([]),
+                () => new InstalledRoomPlmKraidVisuals([]),
                 "Kraid visual catalog rejects missing frames");
 
             string stockPath = Path.Combine(
@@ -67,7 +67,7 @@ internal static class KraidRoomVisualsVerification
                 installation.RoomPlmKraidVisualOverrideDirectory,
                 RoomPlmKraidVisualFiles.VisualFileName);
             File.WriteAllText(overridePath, document.ToJsonString());
-            RoomPlmKraidVisualCatalog edited =
+            InstalledRoomPlmKraidVisuals edited =
                 installation.LoadRoomPlmKraidVisuals();
             AssertEqual((ushort)0x0058,
                 edited.GetWord(PlmDraw.Of(KraidRoomDraw.CrumbleFirst), 0, 0),
@@ -114,9 +114,9 @@ internal static class KraidRoomVisualsVerification
 
     /// <summary>Checks Kraid redraws use their selected art while a simultaneous elevatube retains its own visual catalog.</summary>
     private static void VerifyKraidVisualOwnerIsolation(
-        RoomPlmKraidVisualCatalog edited)
+        InstalledRoomPlmKraidVisuals edited)
     {
-        var tube = new RoomPlmMaridiaElevatubeVisualCatalog(
+        var tube = new InstalledRoomPlmMaridiaElevatubeVisuals(
             [new RoomPlmVisualEntry(
                 MaridiaElevatubePlmDefinitions.VisualId, [0x005b])]);
         Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.CrumbleKraidCeilingIntoBackground1, PlmDrawAddressCodec.Of(PlmDraw.Of(KraidRoomDraw.CrumbleFirst)), 0, 0x8180, 0x0058, new KraidRoomVisualCatalogs { Kraid = edited, Tube = tube }));

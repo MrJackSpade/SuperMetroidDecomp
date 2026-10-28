@@ -63,12 +63,12 @@ public static class RoomPlmDynamicCollectibleArtFiles
         var hashes = new Dictionary<string, string>(StringComparer.Ordinal);
         var palettes = new List<PaletteEntry>();
         foreach (RoomPlmDynamicCollectibleGraphic graphic in
-                 RoomPlmDynamicCollectibleGraphicsDefinitions.All)
+                 DynamicCollectibleGraphics.All)
         {
             for (int offset = 0; offset < graphic.Tiles.Length; offset++)
             {
                 if (bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmSourceDefinitions.ItemGraphicsBank, RoomPlmSourceDefinitions.FirstItemGraphic +
-                    RoomPlmDynamicCollectibleGraphicsDefinitions.GraphicIndex(graphic.Kind) * RoomPlmSourceDefinitions.ItemGraphicStride + offset)) !=
+                    DynamicCollectibleGraphics.GraphicIndex(graphic.Kind) * RoomPlmSourceDefinitions.ItemGraphicStride + offset)) !=
                     graphic.Tiles.Span[offset])
                     throw new InvalidDataException(
                         $"Native item {graphic.Kind} tile {offset} differs from the compiled definition.");
@@ -112,7 +112,7 @@ public static class RoomPlmDynamicCollectibleArtFiles
     /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
     /// <exception cref="InvalidDataException">Provenance, integrity, schema, item coverage, indexed PNGs, or palette selectors are invalid.</exception>
     /// <exception cref="IOException">A required stock or selected override file cannot be read.</exception>
-    public static RoomPlmDynamicCollectibleArtCatalog Load(
+    public static InstalledDynamicCollectibleArt Load(
         string stockDirectory, string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
@@ -135,7 +135,7 @@ public static class RoomPlmDynamicCollectibleArtFiles
         byte[][] stockOffsets = ParsePalettes(stockPalettes);
         // ParsePalettes accepts exactly one entry per dynamic graphic, in collectible-kind order.
         int graphicIndex = 0;
-        foreach (RoomPlmDynamicCollectibleGraphic graphic in RoomPlmDynamicCollectibleGraphicsDefinitions.All)
+        foreach (RoomPlmDynamicCollectibleGraphic graphic in DynamicCollectibleGraphics.All)
         {
             if (!stockOffsets[graphicIndex++].SequenceEqual(graphic.PaletteOffsets.Span))
                 throw new InvalidDataException(
@@ -151,7 +151,7 @@ public static class RoomPlmDynamicCollectibleArtFiles
             : stockOffsets;
         var entries = new List<RoomPlmDynamicCollectibleArtEntry>();
         foreach (RoomPlmDynamicCollectibleGraphic graphic in
-                 RoomPlmDynamicCollectibleGraphicsDefinitions.All)
+                 DynamicCollectibleGraphics.All)
         {
             string name = FileName(graphic.Kind);
             byte[] stockTiles = ReadTiles(ReadStock(stockDirectory, manifest, name),
@@ -164,11 +164,11 @@ public static class RoomPlmDynamicCollectibleArtFiles
             byte[] selectedTiles = overridePath is not null && File.Exists(overridePath)
                 ? ReadTiles(File.ReadAllBytes(overridePath), overridePath)
                 : stockTiles;
-            int index = RoomPlmDynamicCollectibleGraphicsDefinitions.KindIndex(graphic.Kind);
+            int index = DynamicCollectibleGraphics.KindIndex(graphic.Kind);
             entries.Add(new RoomPlmDynamicCollectibleArtEntry(graphic.Kind,
                 selectedTiles, selectedOffsets[index]));
         }
-        return new RoomPlmDynamicCollectibleArtCatalog(entries);
+        return new InstalledDynamicCollectibleArt(entries);
     }
 
     /// <summary>Runs all stock provenance, hash, image/selector, and compiled-appearance checks through <see cref="Load"/> without overrides, cartridge reads, or writes.</summary>
@@ -223,7 +223,7 @@ public static class RoomPlmDynamicCollectibleArtFiles
                 !string.Equals(entry.Id, kind.ToString(), StringComparison.Ordinal))
                 throw new InvalidDataException(
                     "Item palette document has an unknown item kind.");
-            int index = RoomPlmDynamicCollectibleGraphicsDefinitions.KindIndex(kind);
+            int index = DynamicCollectibleGraphics.KindIndex(kind);
             if ((uint)index >= result.Length || seen[index] ||
                 entry.Offsets is not { Length: 8 } ||
                 entry.Offsets.Any(offset => offset is < 0 or > 7))

@@ -32,14 +32,14 @@ internal static class SpeedBoosterPlmProgramsVerification
             if (!found)
             {
                 AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList),draw,"speed reveal missing draw cleared");
-                AssertThrows<InvalidDataException>(() => SpeedBoosterBlockPlmDrawDefinitions.VisualId(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>((ushort)address)),"speed reveal rejects unknown visual identity");
+                AssertThrows<InvalidDataException>(() => SpeedBoosterBlockPlmDraws.VisualId(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>((ushort)address)),"speed reveal rejects unknown visual identity");
             }
         }
-        AssertEqual("bomb-reveal",SpeedBoosterBlockPlmDrawDefinitions.VisualId(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer)),"speed reveal stable semantic ID");
-        AssertTrue(SpeedBoosterBlockPlmDrawDefinitions.TryGetByVisualId("bomb-reveal",out var byId),"speed reveal exact ID admitted");
+        AssertEqual("bomb-reveal",SpeedBoosterBlockPlmDraws.VisualId(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer)),"speed reveal stable semantic ID");
+        AssertTrue(SpeedBoosterBlockPlmDraws.TryGetByVisualId("bomb-reveal",out var byId),"speed reveal exact ID admitted");
         foreach (string id in new[] {"", "Bomb-reveal", "bomb-reveal ", "unknown"})
         {
-            AssertTrue(!SpeedBoosterBlockPlmDrawDefinitions.TryGetByVisualId(id,out var missing),"speed reveal ordinal ID rejection");
+            AssertTrue(!SpeedBoosterBlockPlmDraws.TryGetByVisualId(id,out var missing),"speed reveal ordinal ID rejection");
             AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList),missing,"speed reveal missing ID clears output");
         }
         ushort nativeWord = ReadRomWord(rom,0x840000 | (pointer + 2));
@@ -79,7 +79,7 @@ internal static class SpeedBoosterPlmProgramsVerification
             foreach (var entry in entries)
                 if (entry.Bts == bts && (entry.Area < 0 || entry.Area == area))
                     tableAddress = entry.Address;
-            bool found = SpeedBoosterBlockPlmDefinitions.TryResolve(new RoomBlockBehavior((byte)bts),
+            bool found = SpeedBoosterBlocks.TryResolve(new RoomBlockBehavior((byte)bts),
                 (AreaId)(byte)area,out var definition);
             AssertEqual(tableAddress != 0,found,"speed selector full byte BTS/area contract");
             if (!found)

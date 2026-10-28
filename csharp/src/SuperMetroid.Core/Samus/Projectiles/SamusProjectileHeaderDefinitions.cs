@@ -1,5 +1,3 @@
-using P = SuperMetroid.Core.Samus.Projectiles.SamusProjectileProgram;
-
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>

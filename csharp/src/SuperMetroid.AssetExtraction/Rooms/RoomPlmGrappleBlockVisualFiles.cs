@@ -65,7 +65,7 @@ public static class RoomPlmGrappleBlockVisualFiles
     /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
     /// <exception cref="InvalidDataException">Provenance, integrity, document version, pointer coverage/uniqueness, or visual-only bits are invalid.</exception>
     /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
-    public static RoomPlmGrappleBlockVisualCatalog Load(
+    public static InstalledRoomPlmGrappleBlockVisuals Load(
         string stockDirectory, string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
@@ -82,10 +82,10 @@ public static class RoomPlmGrappleBlockVisualFiles
                 manifest.VisualSha256, StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException(
                 $"Stock Grapple-block visuals {stockPath} failed their manifest hash.");
-        RoomPlmGrappleBlockVisualCatalog stock = CreateCatalog(
+        InstalledRoomPlmGrappleBlockVisuals stock = CreateCatalog(
             ReadJson<VisualDocument>(stockBytes, stockPath), stockPath);
         foreach (RoomPlmGrappleBlockDrawDefinitions.DrawList draw in
-                 RoomPlmGrappleBlockDrawDefinitions.All)
+                 GrappleBlockPlmDraws.All)
         {
             int expected = draw.LevelWord.VisualWord;
             if (stock.GetWord(PlmDraw.Of(draw.Frame)) != expected)
@@ -110,7 +110,7 @@ public static class RoomPlmGrappleBlockVisualFiles
     {
         var entries = new List<RoomPlmVisualWordEntry>();
         foreach (RoomPlmGrappleBlockDrawDefinitions.DrawList draw in
-                 RoomPlmGrappleBlockDrawDefinitions.All.OrderBy(item => PlmDrawAddressCodec.Of(PlmDraw.Of(item.Frame))))
+                 GrappleBlockPlmDraws.All.OrderBy(item => PlmDrawAddressCodec.Of(PlmDraw.Of(item.Frame))))
         {
             int pointer = PlmDrawAddressCodec.Of(PlmDraw.Of(draw.Frame));
             if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, pointer)) !=
@@ -123,7 +123,7 @@ public static class RoomPlmGrappleBlockVisualFiles
                     RoomPlmGrappleBlockDrawDefinitions.DrawList.NextY)
                 throw new InvalidDataException(
                     $"Grapple-block draw list ${pointer:X4} differs from compiled cartridge data.");
-            entries.Add(new RoomPlmVisualWordEntry(RoomPlmGrappleBlockDrawDefinitions.VisualId(draw.Frame),
+            entries.Add(new RoomPlmVisualWordEntry(GrappleBlockPlmDraws.VisualId(draw.Frame),
                 draw.LevelWord.VisualWord));
         }
 
@@ -131,13 +131,13 @@ public static class RoomPlmGrappleBlockVisualFiles
     }
 
     /// <summary>Validates a document's version and pointer-to-word entries with its source path in any error.</summary>
-    private static RoomPlmGrappleBlockVisualCatalog CreateCatalog(
+    private static InstalledRoomPlmGrappleBlockVisuals CreateCatalog(
         VisualDocument document, string path)
     {
         if (document.Version != FormatVersion || document.Entries is null)
             throw new InvalidDataException(
                 $"Grapple-block visuals {path} have an incompatible format.");
-        try { return new RoomPlmGrappleBlockVisualCatalog(document.Entries); }
+        try { return new InstalledRoomPlmGrappleBlockVisuals(document.Entries); }
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(

@@ -8,14 +8,14 @@ internal sealed class DownwardGatePlmAnimation(DownwardGateProgram program)
 {
     /// <inheritdoc/>
     private protected override AnimationProgramSet<DownwardGateProgram, DownwardGateDraw, DownwardGateCue> Programs =>
-        DownwardGatePlmProgramDefinitions.Programs;
+        DownwardGatePrograms.Programs;
 
     /// <inheritdoc/>
     private protected override PlmDraw DrawList(DownwardGateDraw frame) => PlmDraw.Of(frame);
 
     /// <inheritdoc/>
     private protected override DownwardGateProgram? ProgramAfterSleep(DownwardGateProgram program) =>
-        DownwardGatePlmProgramDefinitions.ProgramAfterSleep(program);
+        DownwardGatePrograms.ProgramAfterSleep(program);
 
     /// <inheritdoc/>
     private protected override DownwardGateProgram? Publish(DownwardGateCue cue, PlmSlot slot, PlmStepContext context)

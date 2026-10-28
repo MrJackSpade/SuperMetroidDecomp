@@ -71,7 +71,7 @@ internal sealed class ScrollPlms : IPlmFamilySource
         // A retail trigger runs its program's ordered writes; a constructed one its validated pairs.
         if (scroll.Program is null)
         {
-            RoomPlmScrollProgramDefinitions.Apply(scroll.CompiledProgram ?? throw new InvalidOperationException(
+            RoomPlmScrollPrograms.Apply(scroll.CompiledProgram ?? throw new InvalidOperationException(
                 "A scroll trigger has neither a retail program nor constructed pairs."), scrolls.SetStorage);
             FinishScrollMutation(level, slot);
             return true;

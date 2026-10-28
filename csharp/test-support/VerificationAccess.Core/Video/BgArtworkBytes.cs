@@ -94,7 +94,7 @@ internal sealed class BgArtworkBytes
     /// Every permanent item's graphics as gameplay selects them when its population supplies none: the selection
     /// <paramref name="installed"/> holds, or the compiled stock graphics where none is installed.
     /// </summary>
-    internal BgArtworkBytes WithCollectibles(RoomPlmDynamicCollectibleArtCatalog? installed)
+    internal BgArtworkBytes WithCollectibles(InstalledDynamicCollectibleArt? installed)
     {
         foreach (InWorldCollectibleKind kind in RoomPlmDynamicCollectibleGraphicsDefinitions.Kinds)
         {

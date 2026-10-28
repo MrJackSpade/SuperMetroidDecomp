@@ -20,19 +20,4 @@ internal static class CrateriaMainstreetEscapePassagePlmDefinitions
 
     /// <summary>The draw that clears the two passage blocks.</summary>
     internal static PlmFrameDraw<Draw> ClearPairDraw { get; } = PlmDraw.Of(Draw.ClearPair);
-
-    /// <summary>Recognizes the escape passage draw pointer and supplies its two adjacent air blocks.</summary>
-    internal static bool TryGetDraw(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
-    {
-        if (request != ClearPairDraw)
-        {
-            draw = default;
-            return false;
-        }
-        draw = new(request, new RoomPlmShotBlockDrawDefinitions.Run[]
-        {
-            new(PlmRunDirection.Horizontal, new ushort[] { 0x00ff, 0x00ff }, new(0, 0)),
-        });
-        return true;
-    }
 }

@@ -55,34 +55,34 @@ internal interface IGameplayArtwork
     InstalledRoomLevelStreams? RoomLevelStreams { get; }
 
     /// <summary>Room PLM shot block visuals.</summary>
-    RoomPlmShotBlockVisualCatalog? RoomPlmShotBlockVisuals { get; }
+    InstalledRoomPlmShotBlockVisuals? RoomPlmShotBlockVisuals { get; }
 
     /// <summary>Room PLM grapple block visuals.</summary>
-    RoomPlmGrappleBlockVisualCatalog? RoomPlmGrappleBlockVisuals { get; }
+    InstalledRoomPlmGrappleBlockVisuals? RoomPlmGrappleBlockVisuals { get; }
 
     /// <summary>Room PLM station visuals.</summary>
-    RoomPlmStationVisualCatalog? RoomPlmStationVisuals { get; }
+    InstalledRoomPlmStationVisuals? RoomPlmStationVisuals { get; }
 
     /// <summary>Room PLM blue door visuals.</summary>
-    RoomPlmBlueDoorVisualCatalog? RoomPlmBlueDoorVisuals { get; }
+    InstalledRoomPlmBlueDoorVisuals? RoomPlmBlueDoorVisuals { get; }
 
     /// <summary>Room PLM colored door visuals.</summary>
-    RoomPlmColoredDoorVisualCatalog? RoomPlmColoredDoorVisuals { get; }
+    InstalledRoomPlmColoredDoorVisuals? RoomPlmColoredDoorVisuals { get; }
 
     /// <summary>Room PLM grey door visuals.</summary>
-    RoomPlmGreyDoorVisualCatalog? RoomPlmGreyDoorVisuals { get; }
+    InstalledRoomPlmGreyDoorVisuals? RoomPlmGreyDoorVisuals { get; }
 
     /// <summary>Room PLM eye door visuals.</summary>
-    RoomPlmEyeDoorVisualCatalog? RoomPlmEyeDoorVisuals { get; }
+    InstalledRoomPlmEyeDoorVisuals? RoomPlmEyeDoorVisuals { get; }
 
     /// <summary>Room PLM mother brain glass visuals.</summary>
     RoomPlmMotherBrainGlassVisualCatalog? RoomPlmMotherBrainGlassVisuals { get; }
 
     /// <summary>Room PLM noob tube visuals.</summary>
-    RoomPlmNoobTubeVisualCatalog? RoomPlmNoobTubeVisuals { get; }
+    InstalledRoomPlmNoobTubeVisuals? RoomPlmNoobTubeVisuals { get; }
 
     /// <summary>Room PLM downward gate visuals.</summary>
-    RoomPlmDownwardGateVisualCatalog? RoomPlmDownwardGateVisuals { get; }
+    InstalledRoomPlmDownwardGateVisuals? RoomPlmDownwardGateVisuals { get; }
 
     /// <summary>Room PLM elevator platform visuals.</summary>
     RoomPlmElevatorPlatformVisualCatalog? RoomPlmElevatorPlatformVisuals { get; }
@@ -100,28 +100,28 @@ internal interface IGameplayArtwork
     RoomPlmChozoStatueVisualCatalog? RoomPlmChozoStatueVisuals { get; }
 
     /// <summary>Room PLM linked restore visuals.</summary>
-    RoomPlmLinkedRestoreVisualCatalog? RoomPlmLinkedRestoreVisuals { get; }
+    InstalledRoomPlmLinkedRestoreVisuals? RoomPlmLinkedRestoreVisuals { get; }
 
     /// <summary>Room PLM tourian access visuals.</summary>
     RoomPlmTourianAccessVisualCatalog? RoomPlmTourianAccessVisuals { get; }
 
     /// <summary>Room PLM speed booster visuals.</summary>
-    RoomPlmSpeedBoosterVisualCatalog? RoomPlmSpeedBoosterVisuals { get; }
+    InstalledRoomPlmSpeedBoosterVisuals? RoomPlmSpeedBoosterVisuals { get; }
 
     /// <summary>Room PLM maridia elevatube visuals.</summary>
-    RoomPlmMaridiaElevatubeVisualCatalog? RoomPlmMaridiaElevatubeVisuals { get; }
+    InstalledRoomPlmMaridiaElevatubeVisuals? RoomPlmMaridiaElevatubeVisuals { get; }
 
     /// <summary>Room PLM spore spawn ceiling visuals.</summary>
     RoomPlmSporeSpawnCeilingVisualCatalog? RoomPlmSporeSpawnCeilingVisuals { get; }
 
     /// <summary>Room PLM samus eater visuals.</summary>
-    RoomPlmSamusEaterVisualCatalog? RoomPlmSamusEaterVisuals { get; }
+    InstalledRoomPlmSamusEaterVisuals? RoomPlmSamusEaterVisuals { get; }
 
     /// <summary>Room PLM botwoon wall visuals.</summary>
-    RoomPlmBotwoonWallVisualCatalog? RoomPlmBotwoonWallVisuals { get; }
+    InstalledRoomPlmBotwoonWallVisuals? RoomPlmBotwoonWallVisuals { get; }
 
     /// <summary>Room PLM kraid visuals.</summary>
-    RoomPlmKraidVisualCatalog? RoomPlmKraidVisuals { get; }
+    InstalledRoomPlmKraidVisuals? RoomPlmKraidVisuals { get; }
 
     /// <summary>Room PLM crocomire visuals.</summary>
     RoomPlmCrocomireVisualCatalog? RoomPlmCrocomireVisuals { get; }
@@ -130,10 +130,10 @@ internal interface IGameplayArtwork
     RoomPlmMotherBrainFakeDeathVisualCatalog? RoomPlmMotherBrainFakeDeathVisuals { get; }
 
     /// <summary>Room PLM collectible visuals.</summary>
-    RoomPlmCollectibleVisualCatalog? RoomPlmCollectibleVisuals { get; }
+    InstalledRoomPlmCollectibleVisuals? RoomPlmCollectibleVisuals { get; }
 
     /// <summary>Room PLM dynamic collectible artwork.</summary>
-    RoomPlmDynamicCollectibleArtCatalog? RoomPlmDynamicCollectibleArt { get; }
+    InstalledDynamicCollectibleArt? RoomPlmDynamicCollectibleArt { get; }
 
     /// <summary>X-ray reveal operands and item and special-room overlays.</summary>
     InstalledXrayReveals? XrayRevealVisuals { get; }

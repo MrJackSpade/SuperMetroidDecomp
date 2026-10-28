@@ -21,7 +21,7 @@ internal static class LookupTubeDrawsVerification
     {
         ushort[] pointers = [0x98d1,0x98d7,0x98dd,0x98e3,0x9953,0x9991,0x99e5];
         string[] ids = ["intact","damaged","opened","cleared","broken-late","opened-rows","broken-full"];
-        var exported = NoobTubePlmDrawDefinitions.All.ToArray();
+        var exported = NoobTubePlmDraws.All.ToArray();
         AssertEqual(7, exported.Length, "Tube export count");
         if (field == 0)
         {
@@ -29,18 +29,18 @@ internal static class LookupTubeDrawsVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, NoobTubePlmDrawDefinitions.TryDescribe(NativePlmDraws.At<NoobTubeDraw>(pointer), out var shape), "Tube shape domain");
-                AssertEqual(owned, NoobTubePlmDrawDefinitions.TryGet(NativePlmDraws.At<NoobTubeDraw>(pointer), out var dto), "Tube DTO domain");
+                AssertEqual(owned, NoobTubePlmDraws.TryDescribe(NativePlmDraws.At<NoobTubeDraw>(pointer), out var shape), "Tube shape domain");
+                AssertEqual(owned, NoobTubePlmDraws.TryGet(NativePlmDraws.At<NoobTubeDraw>(pointer), out var dto), "Tube DTO domain");
                 if (!owned)
                 {
-                    AssertEqual(default(NoobTubePlmDrawDefinitions.Draw), shape, "Tube missing shape");
+                    AssertEqual(default(NoobTubePlmDraws.Draw), shape, "Tube missing shape");
                     AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "Tube missing DTO");
-                    AssertThrows<InvalidDataException>(() => NoobTubePlmDrawDefinitions.VisualId(NativePlmDraws.At<NoobTubeDraw>(pointer)), "Tube missing ID");
+                    AssertThrows<InvalidDataException>(() => NoobTubePlmDraws.VisualId(NativePlmDraws.At<NoobTubeDraw>(pointer)), "Tube missing ID");
                 }
             }
             foreach (string id in new[] { "INTACT", "broken", "", "unknown" })
             {
-                AssertTrue(!NoobTubePlmDrawDefinitions.TryGetByVisualId(id, out var missing), "Tube ordinal ID domain");
+                AssertTrue(!NoobTubePlmDraws.TryGetByVisualId(id, out var missing), "Tube ordinal ID domain");
                 AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), missing, "Tube rejected ID output");
             }
         }
@@ -48,13 +48,13 @@ internal static class LookupTubeDrawsVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            NoobTubePlmDrawDefinitions.TryDescribe(NativePlmDraws.At<NoobTubeDraw>(pointer), out var shape);
-            NoobTubePlmDrawDefinitions.TryGet(NativePlmDraws.At<NoobTubeDraw>(pointer), out var dto);
-            NoobTubePlmDrawDefinitions.TryGetByVisualId(ids[index], out var byId);
+            NoobTubePlmDraws.TryDescribe(NativePlmDraws.At<NoobTubeDraw>(pointer), out var shape);
+            NoobTubePlmDraws.TryGet(NativePlmDraws.At<NoobTubeDraw>(pointer), out var dto);
+            NoobTubePlmDraws.TryGetByVisualId(ids[index], out var byId);
             if (field == 0)
             {
                 AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Tube original export order");
-                AssertEqual(ids[index], NoobTubePlmDrawDefinitions.VisualId(NativePlmDraws.At<NoobTubeDraw>(pointer)), "Tube published ID");
+                AssertEqual(ids[index], NoobTubePlmDraws.VisualId(NativePlmDraws.At<NoobTubeDraw>(pointer)), "Tube published ID");
                 AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Tube reverse ID");
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {

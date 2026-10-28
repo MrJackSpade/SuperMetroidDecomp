@@ -22,25 +22,25 @@ internal static class LookupStationVisualIdsVerification
             new LookupEscapeGateStockFrame(0x9fb5,"resource-right-retracted"),new LookupEscapeGateStockFrame(0x9fbb,"resource-right-extended"),
             new LookupEscapeGateStockFrame(0x9fc1,"resource-left-retracted"),new LookupEscapeGateStockFrame(0x9fc7,"resource-left-extended"),
         ];
-        var exported = RoomPlmStationDrawDefinitions.All.ToArray();
+        var exported = StationPlmDraws.All.ToArray();
         AssertEqual(20, exported.Length, "Station original artwork identity count");
         for (int index = 0; index < expected.Length; index++)
         {
             var entry = expected[index];
             AssertEqual(entry.Pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Station original export order");
-            AssertEqual(entry.Id, RoomPlmStationDrawDefinitions.VisualId(NativePlmDraws.At<StationDraw>(entry.Pointer)), "Station original published ID");
-            AssertTrue(RoomPlmStationDrawDefinitions.TryGetByVisualId(entry.Id, out var resolved), "Station original reverse identity");
+            AssertEqual(entry.Id, StationPlmDraws.VisualId(NativePlmDraws.At<StationDraw>(entry.Pointer)), "Station original published ID");
+            AssertTrue(StationPlmDraws.TryGetByVisualId(entry.Id, out var resolved), "Station original reverse identity");
             AssertEqual(PlmDrawAddressCodec.Of(exported[index].Draw), PlmDrawAddressCodec.Of(resolved.Draw), "Station reverse identity selects the complete original draw");
             foreach (string invalid in new[] { entry.Id.ToUpperInvariant(), " " + entry.Id, entry.Id + " " })
             {
-                AssertTrue(!RoomPlmStationDrawDefinitions.TryGetByVisualId(invalid, out var missing), "Station IDs remain ordinal and exact");
+                AssertTrue(!StationPlmDraws.TryGetByVisualId(invalid, out var missing), "Station IDs remain ordinal and exact");
                 AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), missing, "Station rejected ID output");
             }
         }
         foreach (string invalid in new[] { "", "map-frame-3", "energy-frame--1", "missile-frame-01", "save-active-c" })
-            AssertTrue(!RoomPlmStationDrawDefinitions.TryGetByVisualId(invalid, out _), "Station unsupported named frame");
+            AssertTrue(!StationPlmDraws.TryGetByVisualId(invalid, out _), "Station unsupported named frame");
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
             if (!expected.Any(entry => entry.Pointer == raw))
-                AssertThrows<InvalidDataException>(() => RoomPlmStationDrawDefinitions.VisualId(NativePlmDraws.At<StationDraw>((ushort)raw)), "Station full unsupported pointer domain");
+                AssertThrows<InvalidDataException>(() => StationPlmDraws.VisualId(NativePlmDraws.At<StationDraw>((ushort)raw)), "Station full unsupported pointer domain");
     }
 }

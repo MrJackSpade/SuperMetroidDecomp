@@ -26,10 +26,10 @@ public static class RoomPlmEyeDoorVisualFiles
     /// <param name="overrideDirectory">Optional directory whose eye-door JSON replaces stock when present; an absent file retains stock.</param>
     /// <returns>The selected component art, with the opening-clear alias mirrored from the shared clearing frame and native door mechanics unchanged.</returns>
     /// <exception cref="InvalidDataException">Stock provenance, digest, format, or compiled equality fails, or selected entries violate editable coverage or visual-word rules.</exception>
-    public static RoomPlmEyeDoorVisualCatalog Load(string stockDirectory,
+    public static InstalledRoomPlmEyeDoorVisuals Load(string stockDirectory,
         string? overrideDirectory = null) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmEyeDoorVisualCatalog>(VisualFileName, "eye-door", EyeDoorDraws.Editable, EyeDoorDraws.VisualId, entries => new RoomPlmEyeDoorVisualCatalog(entries.Select(entry =>
+            new RoomPlmVisualFamily<InstalledRoomPlmEyeDoorVisuals>(VisualFileName, "eye-door", EyeDoorDraws.Editable, EyeDoorDraws.VisualId, entries => new InstalledRoomPlmEyeDoorVisuals(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetWord(draw, block)));
 
     /// <summary>Checks stock eye-door provenance, digest, schema, twenty-three-frame coverage, and equality with compiled visual words; ignores overrides.</summary>

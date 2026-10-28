@@ -1,0 +1,14 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
+
+namespace SuperMetroid.Core.Rooms.Plms;
+
+/// <summary>Verification access to <see cref="InstalledRoomPlmColoredDoorVisuals"/> members production does not use.</summary>
+internal static class InstalledRoomPlmColoredDoorVisualsAccess
+{
+    /// <summary>Creates an uninitialized colored-door art fixture for PLM binding checks.</summary>
+    extension(InstalledRoomPlmColoredDoorVisuals)
+    {
+        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        internal static InstalledRoomPlmColoredDoorVisuals Stock() => RepositoryInstallation.Installation.LoadRoomPlmColoredDoorVisuals();
+    }
+}

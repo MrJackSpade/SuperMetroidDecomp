@@ -70,10 +70,10 @@ internal static class PlmDefinitionMigrationVerification
         AssertEqual(0x8180, MaridiaElevatubePlmDefinitions.PhysicalWord.Raw, "elevatube level word");
         AssertEqual(0xc046, GatePlms.DownwardGateShotBlock(0).LeftBlockWord, "blue-left gate trigger block");
         AssertEqual(0xc04d, GatePlms.DownwardGateShotBlock(14).RightBlockWord, "yellow-right gate trigger block");
-        var bombHorizontal = new RoomPlmLinkedRestoreDefinition.Draw(PlmDraw.Of(BombBlockRestoreDraw.Horizontal), PlmRestoreShape.Horizontal, RoomPlmLinkedRestoreDefinition.BombBlock);
+        var bombHorizontal = new LinkedRestorePlmFamily.Draw(PlmDraw.Of(BombBlockRestoreDraw.Horizontal), PlmRestoreShape.Horizontal, LinkedRestorePlmFamily.BombBlock);
         AssertEqual(0xf058, bombHorizontal.WordAt(0, 0), "bomb block parent");
         AssertEqual(0x5058, bombHorizontal.WordAt(0, 1), "bomb block horizontal child");
-        var crumbleVertical = new RoomPlmLinkedRestoreDefinition.Draw(PlmDraw.Of(ContactCrumbleRestoreDraw.Vertical), PlmRestoreShape.Vertical, RoomPlmLinkedRestoreDefinition.ContactCrumble);
+        var crumbleVertical = new LinkedRestorePlmFamily.Draw(PlmDraw.Of(ContactCrumbleRestoreDraw.Vertical), PlmRestoreShape.Vertical, LinkedRestorePlmFamily.ContactCrumble);
         AssertEqual(0xb0bc, crumbleVertical.WordAt(0, 0), "contact crumble parent");
         AssertEqual(0xd0bc, crumbleVertical.WordAt(0, 1), "contact crumble vertical child");
         Console.WriteLine("PLM definition migration: header words, member identifications, station animations, catalog values and level words keep their values.");

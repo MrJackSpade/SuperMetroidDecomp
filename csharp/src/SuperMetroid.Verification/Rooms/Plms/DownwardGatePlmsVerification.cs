@@ -250,7 +250,7 @@ internal static class DownwardGatePlmsVerification
     /// <summary>Loads a gate and adjacent shot block at room cell (6,2) with compiled headers and synthetic actor instructions.</summary>
     internal static CreateDownwardGateFixtureResult
         CreateDownwardGateFixture(DownwardGateTriggerBehavior trigger,
-            RoomPlmDownwardGateVisualCatalog? visuals = null)
+            InstalledRoomPlmDownwardGateVisuals? visuals = null)
     {
         var bus = new TestAddressSpace();
         const ushort populationPointer = 0x9400;

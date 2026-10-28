@@ -49,7 +49,7 @@ internal static class MaridiaElevatubeVisualsVerification
                 installation.RoomPlmMaridiaElevatubeVisualOverrideDirectory,
                 RoomPlmMaridiaElevatubeVisualFiles.VisualFileName);
             File.WriteAllText(overridePath, document.ToJsonString());
-            RoomPlmMaridiaElevatubeVisualCatalog edited =
+            InstalledRoomPlmMaridiaElevatubeVisuals edited =
                 installation.LoadRoomPlmMaridiaElevatubeVisuals();
             AssertEqual((ushort)0x0058,
                 edited.GetWord(MaridiaElevatubePlmDefinitions.BlockDraw, 0, 0),

@@ -32,12 +32,12 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
             new RoomPlmVisualEntry(BlueDoorCaps.VisualId(draw.Draw),
                 draw.Runs.Span[0].LevelWords.Span
                     .SelectToArray(word => new RoomLevelWord(word).VisualWord))).ToArray();
-        RoomPlmBlueDoorVisualCatalog stock = RoomPlmBlueDoorVisualCatalog.Stock();
+        InstalledRoomPlmBlueDoorVisuals stock = InstalledRoomPlmBlueDoorVisuals.Stock();
         RoomPlmVisualEntry editedFrame = entries.Single(entry =>
             entry.Id == "left-frame-1");
         ushort originalVisual = editedFrame.Blocks[0];
         editedFrame.Blocks[0] = 0x0053;
-        var edited = new RoomPlmBlueDoorVisualCatalog(entries);
+        var edited = new InstalledRoomPlmBlueDoorVisuals(entries);
         editedFrame.Blocks[0] = 0x0054;
         ushort leftFirstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (BlueEntry(BlueDoorPlmProgramDefinitions.OpeningPrograms[ColoredDoorOrientation.Left]) + 5)));
         AssertEqual((ushort)0x0053, edited.GetWord(NativePlmDraws.At<BlueDoorCaps.Draw>(leftFirstDraw), 0),

@@ -61,7 +61,7 @@ public static class RoomPlmCollectibleVisualFiles
     /// <returns>The immutable selected collectible visual catalog.</returns>
     /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is blank.</exception>
     /// <exception cref="InvalidDataException">The manifest, stock provenance/digest/parity, or selected JSON is invalid.</exception>
-    public static RoomPlmCollectibleVisualCatalog Load(
+    public static InstalledRoomPlmCollectibleVisuals Load(
         string stockDirectory, string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
@@ -78,7 +78,7 @@ public static class RoomPlmCollectibleVisualFiles
                 manifest.VisualSha256, StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException(
                 $"Stock collectible visuals {stockPath} failed their manifest hash.");
-        RoomPlmCollectibleVisualCatalog stock = CreateCatalog(
+        InstalledRoomPlmCollectibleVisuals stock = CreateCatalog(
             ReadJson<VisualDocument>(stockBytes, stockPath), stockPath);
         VerifyStockMatchesCompiled(stock, stockPath);
 
@@ -103,7 +103,7 @@ public static class RoomPlmCollectibleVisualFiles
                 ? PlmDrawSourceDefinitions.CollectibleDynamicFrame0Table.Offset
                 : PlmDrawSourceDefinitions.CollectibleDynamicFrame1Table.Offset;
             int native = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, (checked((ushort)(table + slot * 2)))));
-            int compiled = PlmDrawAddressCodec.Of(RoomPlmCollectibleDrawDefinitions.VisibleFrame(
+            int compiled = PlmDrawAddressCodec.Of(CollectiblePlmDraws.VisibleFrame(
                 InWorldCollectibleKind.Bombs, animation, slot));
             if (native != compiled)
                 throw new InvalidDataException(
@@ -111,7 +111,7 @@ public static class RoomPlmCollectibleVisualFiles
         }
 
         var entries = new List<RoomPlmVisualWordEntry>();
-        foreach (RoomPlmCollectibleDrawFrame frame in RoomPlmCollectibleDrawDefinitions.All)
+        foreach (RoomPlmCollectibleDrawFrame frame in CollectiblePlmDraws.All)
         {
             int address = PlmDrawAddressCodec.Of(PlmDraw.Of(frame.Draw));
             if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, address)) != 1 ||
@@ -126,10 +126,10 @@ public static class RoomPlmCollectibleVisualFiles
     }
 
     /// <summary>Checks that hash-validated stock visual bits still match compiled cartridge definitions.</summary>
-    private static void VerifyStockMatchesCompiled(RoomPlmCollectibleVisualCatalog catalog,
+    private static void VerifyStockMatchesCompiled(InstalledRoomPlmCollectibleVisuals catalog,
         string path)
     {
-        foreach (RoomPlmCollectibleDrawFrame frame in RoomPlmCollectibleDrawDefinitions.All)
+        foreach (RoomPlmCollectibleDrawFrame frame in CollectiblePlmDraws.All)
             if (catalog.GetWord(PlmDraw.Of(frame.Draw)) !=
                 frame.LevelWord.VisualWord)
                 throw new InvalidDataException(
@@ -137,13 +137,13 @@ public static class RoomPlmCollectibleVisualFiles
     }
 
     /// <summary>Validates document version and entries, attaching the source path to any catalog error.</summary>
-    private static RoomPlmCollectibleVisualCatalog CreateCatalog(
+    private static InstalledRoomPlmCollectibleVisuals CreateCatalog(
         VisualDocument document, string path)
     {
         if (document.Version != FormatVersion || document.Entries is null)
             throw new InvalidDataException(
                 $"Collectible visuals {path} have an incompatible format.");
-        try { return new RoomPlmCollectibleVisualCatalog(document.Entries); }
+        try { return new InstalledRoomPlmCollectibleVisuals(document.Entries); }
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(

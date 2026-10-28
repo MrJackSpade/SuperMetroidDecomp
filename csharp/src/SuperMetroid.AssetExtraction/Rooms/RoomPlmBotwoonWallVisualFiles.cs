@@ -17,17 +17,17 @@ public static class RoomPlmBotwoonWallVisualFiles
         string sourceCartridgeSha256) =>
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
             VisualFileName, "Botwoon wall",
-            BotwoonWallPlmDrawDefinitions.All,
-            BotwoonWallPlmDrawDefinitions.VisualId);
+            BotwoonWallPlmDraws.All,
+            BotwoonWallPlmDraws.VisualId);
 
     /// <summary>Validates stock provenance and compiled parity, then selects an optional editable Botwoon wall override without cartridge access.</summary>
     /// <param name="stockDirectory">Installed stock directory containing the shared manifest and Botwoon wall JSON.</param>
     /// <param name="overrideDirectory">Optional directory whose Botwoon wall JSON is selected when present.</param>
     /// <returns>The immutable selected Botwoon wall visual catalog.</returns>
-    public static RoomPlmBotwoonWallVisualCatalog Load(
+    public static InstalledRoomPlmBotwoonWallVisuals Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmBotwoonWallVisualCatalog>(VisualFileName, "Botwoon wall", BotwoonWallPlmDrawDefinitions.All, BotwoonWallPlmDrawDefinitions.VisualId, entries => new RoomPlmBotwoonWallVisualCatalog(entries.Select(entry =>
+            new RoomPlmVisualFamily<InstalledRoomPlmBotwoonWallVisuals>(VisualFileName, "Botwoon wall", BotwoonWallPlmDraws.All, BotwoonWallPlmDraws.VisualId, entries => new InstalledRoomPlmBotwoonWallVisuals(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetWord(draw, run, block)));
 
     /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled Botwoon wall visuals.</summary>

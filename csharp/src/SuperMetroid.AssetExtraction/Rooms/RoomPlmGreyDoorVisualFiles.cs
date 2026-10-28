@@ -32,10 +32,10 @@ public static class RoomPlmGreyDoorVisualFiles
     /// <remarks>Stock must match its byte hash, supported-cartridge provenance, and compiled visual words even when an override exists. Override JSON needs all frame identities/shapes and visual-only words, but no manifest.</remarks>
     /// <exception cref="InvalidDataException">Stock integrity, provenance, JSON format, frame coverage, shapes, or visual word bits are invalid.</exception>
     /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
-    public static RoomPlmGreyDoorVisualCatalog Load(
+    public static InstalledRoomPlmGreyDoorVisuals Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmGreyDoorVisualCatalog>(VisualFileName, "Grey-door", GreyDoorCaps.All, GreyDoorCaps.VisualId, entries => new RoomPlmGreyDoorVisualCatalog(entries.Select(entry =>
+            new RoomPlmVisualFamily<InstalledRoomPlmGreyDoorVisuals>(VisualFileName, "Grey-door", GreyDoorCaps.All, GreyDoorCaps.VisualId, entries => new InstalledRoomPlmGreyDoorVisuals(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetWord(draw, block)));
 
     /// <summary>Runs stock manifest, hash, schema, and compiled-appearance checks without selecting overrides, reading a cartridge, or writing files.</summary>

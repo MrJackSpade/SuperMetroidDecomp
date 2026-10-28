@@ -137,5 +137,5 @@ internal static class EyeDoorDraws
     /// <summary>Resolves an exact editable visual identifier to its draw.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.FindByVisualId(Editable, VisualId, id, out list);
+        ShotBlockPlmDraws.FindByVisualId(Editable, VisualId, id, out list);
 }

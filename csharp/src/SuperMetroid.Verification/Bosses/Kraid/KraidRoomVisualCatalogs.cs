@@ -6,8 +6,8 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 internal readonly record struct KraidRoomVisualCatalogs
 {
     /// <summary>Kraid.</summary>
-    public required RoomPlmKraidVisualCatalog? Kraid { get; init; }
+    public required InstalledRoomPlmKraidVisuals? Kraid { get; init; }
 
     /// <summary>Tube.</summary>
-    public required RoomPlmMaridiaElevatubeVisualCatalog Tube { get; init; }
+    public required InstalledRoomPlmMaridiaElevatubeVisuals Tube { get; init; }
 }

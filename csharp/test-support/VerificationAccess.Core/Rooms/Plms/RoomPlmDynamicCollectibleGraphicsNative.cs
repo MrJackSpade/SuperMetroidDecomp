@@ -8,7 +8,7 @@ internal static class RoomPlmDynamicCollectibleGraphicsNative
     {
         /// <summary>$89:8000 onward: the bank-$89 address of <paramref name="kind"/>'s 256-byte artwork block.</summary>
         internal static ushort GraphicsPointer(InWorldCollectibleKind kind) =>
-            checked((ushort)(0x8000 + RoomPlmDynamicCollectibleGraphicsDefinitions.GraphicIndex(kind) * 0x100));
+            checked((ushort)(0x8000 + DynamicCollectibleGraphics.GraphicIndex(kind) * 0x100));
     }
 
     /// <summary>A graphic's bank-$89 address.</summary>

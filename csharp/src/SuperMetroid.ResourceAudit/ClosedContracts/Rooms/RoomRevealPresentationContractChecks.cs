@@ -29,7 +29,7 @@ internal static class RoomRevealPresentationContractChecks
             using SuperMetroid.Core.Samus.Abilities.Artwork;
             class RevealConsumer {
                 void Inspect(InstalledXrayReveals reveals, InstalledXrayOverlays overlays,
-                    RoomPlmDynamicCollectibleArtCatalog items) {
+                    InstalledDynamicCollectibleArt items) {
                     reveals.Apply(RoomCollisionType.ShootableBlock, 2);
                     reveals.Apply(RoomCollisionType.SolidBlock, 0);
                     reveals.Apply(RoomCollisionType.HorizontalExtension, 3);

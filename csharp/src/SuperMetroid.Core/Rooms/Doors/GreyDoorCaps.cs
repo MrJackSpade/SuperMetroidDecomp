@@ -43,7 +43,7 @@ internal static class GreyDoorCaps
 
     /// <summary>Builds a temporary import or export draw list; runtime reads physical cells directly.</summary>
     internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.TryCompileCap<Draw>(request, TryDescribe, out list);
+        ShotBlockPlmDraws.TryCompileCap<Draw>(request, TryDescribe, out list);
 
     /// <summary>Names a supported clear or grey animation frame by direction and frame number.</summary>
     internal static string VisualId(PlmDraw request)
@@ -56,7 +56,7 @@ internal static class GreyDoorCaps
 
     /// <summary>Resolves a stable artwork name to its compiled cap draw pointer and shape.</summary>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.FindByVisualId(Draws(), VisualId, TryGet, id, out list);
+        ShotBlockPlmDraws.FindByVisualId(Draws(), VisualId, TryGet, id, out list);
 
     /// <summary>The four cleared openings, then each facing's four grey frames.</summary>
     private static IEnumerable<PlmDraw> Draws()

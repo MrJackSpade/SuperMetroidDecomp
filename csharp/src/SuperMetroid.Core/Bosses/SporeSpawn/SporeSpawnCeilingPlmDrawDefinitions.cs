@@ -64,7 +64,7 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
     /// <summary>Finds the native physical square associated with an editable ceiling-frame key.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.FindByVisualId(All, VisualId, id, out list);
+        ShotBlockPlmDraws.FindByVisualId(All, VisualId, id, out list);
 
     /// <summary>Builds a two-run physical square for a supported clear or crumble draw.</summary>
     internal static bool TryGet(PlmDraw request,

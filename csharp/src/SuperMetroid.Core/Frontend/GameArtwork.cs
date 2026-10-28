@@ -79,34 +79,34 @@ public sealed record GameArtwork : IGameplayArtwork
     public InstalledRoomLevelStreams? RoomLevelStreams { get; init; }
 
     /// <summary>Room PLM shot block visuals.</summary>
-    public RoomPlmShotBlockVisualCatalog? RoomPlmShotBlockVisuals { get; init; }
+    public InstalledRoomPlmShotBlockVisuals? RoomPlmShotBlockVisuals { get; init; }
 
     /// <summary>Room PLM grapple block visuals.</summary>
-    public RoomPlmGrappleBlockVisualCatalog? RoomPlmGrappleBlockVisuals { get; init; }
+    public InstalledRoomPlmGrappleBlockVisuals? RoomPlmGrappleBlockVisuals { get; init; }
 
     /// <summary>Room PLM station visuals.</summary>
-    public RoomPlmStationVisualCatalog? RoomPlmStationVisuals { get; init; }
+    public InstalledRoomPlmStationVisuals? RoomPlmStationVisuals { get; init; }
 
     /// <summary>Room PLM blue door visuals.</summary>
-    public RoomPlmBlueDoorVisualCatalog? RoomPlmBlueDoorVisuals { get; init; }
+    public InstalledRoomPlmBlueDoorVisuals? RoomPlmBlueDoorVisuals { get; init; }
 
     /// <summary>Room PLM colored door visuals.</summary>
-    public RoomPlmColoredDoorVisualCatalog? RoomPlmColoredDoorVisuals { get; init; }
+    public InstalledRoomPlmColoredDoorVisuals? RoomPlmColoredDoorVisuals { get; init; }
 
     /// <summary>Room PLM grey door visuals.</summary>
-    public RoomPlmGreyDoorVisualCatalog? RoomPlmGreyDoorVisuals { get; init; }
+    public InstalledRoomPlmGreyDoorVisuals? RoomPlmGreyDoorVisuals { get; init; }
 
     /// <summary>Room PLM eye door visuals.</summary>
-    public RoomPlmEyeDoorVisualCatalog? RoomPlmEyeDoorVisuals { get; init; }
+    public InstalledRoomPlmEyeDoorVisuals? RoomPlmEyeDoorVisuals { get; init; }
 
     /// <summary>Room PLM mother brain glass visuals.</summary>
     public RoomPlmMotherBrainGlassVisualCatalog? RoomPlmMotherBrainGlassVisuals { get; init; }
 
     /// <summary>Room PLM noob tube visuals.</summary>
-    public RoomPlmNoobTubeVisualCatalog? RoomPlmNoobTubeVisuals { get; init; }
+    public InstalledRoomPlmNoobTubeVisuals? RoomPlmNoobTubeVisuals { get; init; }
 
     /// <summary>Room PLM downward gate visuals.</summary>
-    public RoomPlmDownwardGateVisualCatalog? RoomPlmDownwardGateVisuals { get; init; }
+    public InstalledRoomPlmDownwardGateVisuals? RoomPlmDownwardGateVisuals { get; init; }
 
     /// <summary>Room PLM elevator platform visuals.</summary>
     public RoomPlmElevatorPlatformVisualCatalog? RoomPlmElevatorPlatformVisuals { get; init; }
@@ -124,28 +124,28 @@ public sealed record GameArtwork : IGameplayArtwork
     public RoomPlmChozoStatueVisualCatalog? RoomPlmChozoStatueVisuals { get; init; }
 
     /// <summary>Room PLM linked restore visuals.</summary>
-    public RoomPlmLinkedRestoreVisualCatalog? RoomPlmLinkedRestoreVisuals { get; init; }
+    public InstalledRoomPlmLinkedRestoreVisuals? RoomPlmLinkedRestoreVisuals { get; init; }
 
     /// <summary>Room PLM tourian access visuals.</summary>
     public RoomPlmTourianAccessVisualCatalog? RoomPlmTourianAccessVisuals { get; init; }
 
     /// <summary>Room PLM speed booster visuals.</summary>
-    public RoomPlmSpeedBoosterVisualCatalog? RoomPlmSpeedBoosterVisuals { get; init; }
+    public InstalledRoomPlmSpeedBoosterVisuals? RoomPlmSpeedBoosterVisuals { get; init; }
 
     /// <summary>Room PLM maridia elevatube visuals.</summary>
-    public RoomPlmMaridiaElevatubeVisualCatalog? RoomPlmMaridiaElevatubeVisuals { get; init; }
+    public InstalledRoomPlmMaridiaElevatubeVisuals? RoomPlmMaridiaElevatubeVisuals { get; init; }
 
     /// <summary>Room PLM spore spawn ceiling visuals.</summary>
     public RoomPlmSporeSpawnCeilingVisualCatalog? RoomPlmSporeSpawnCeilingVisuals { get; init; }
 
     /// <summary>Room PLM samus eater visuals.</summary>
-    public RoomPlmSamusEaterVisualCatalog? RoomPlmSamusEaterVisuals { get; init; }
+    public InstalledRoomPlmSamusEaterVisuals? RoomPlmSamusEaterVisuals { get; init; }
 
     /// <summary>Room PLM botwoon wall visuals.</summary>
-    public RoomPlmBotwoonWallVisualCatalog? RoomPlmBotwoonWallVisuals { get; init; }
+    public InstalledRoomPlmBotwoonWallVisuals? RoomPlmBotwoonWallVisuals { get; init; }
 
     /// <summary>Room PLM kraid visuals.</summary>
-    public RoomPlmKraidVisualCatalog? RoomPlmKraidVisuals { get; init; }
+    public InstalledRoomPlmKraidVisuals? RoomPlmKraidVisuals { get; init; }
 
     /// <summary>Room PLM crocomire visuals.</summary>
     public RoomPlmCrocomireVisualCatalog? RoomPlmCrocomireVisuals { get; init; }
@@ -154,10 +154,10 @@ public sealed record GameArtwork : IGameplayArtwork
     public RoomPlmMotherBrainFakeDeathVisualCatalog? RoomPlmMotherBrainFakeDeathVisuals { get; init; }
 
     /// <summary>Room PLM collectible visuals.</summary>
-    public RoomPlmCollectibleVisualCatalog? RoomPlmCollectibleVisuals { get; init; }
+    public InstalledRoomPlmCollectibleVisuals? RoomPlmCollectibleVisuals { get; init; }
 
     /// <summary>Room PLM dynamic collectible artwork.</summary>
-    public RoomPlmDynamicCollectibleArtCatalog? RoomPlmDynamicCollectibleArt { get; init; }
+    public InstalledDynamicCollectibleArt? RoomPlmDynamicCollectibleArt { get; init; }
 
     /// <summary>X-ray reveal operands and item and special-room overlays.</summary>
     public InstalledXrayReveals? XrayRevealVisuals { get; init; }

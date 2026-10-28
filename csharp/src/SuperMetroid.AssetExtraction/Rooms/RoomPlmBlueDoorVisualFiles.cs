@@ -24,10 +24,10 @@ public static class RoomPlmBlueDoorVisualFiles
     /// <param name="stockDirectory">Installed stock directory containing the shared manifest and blue-door JSON.</param>
     /// <param name="overrideDirectory">Optional directory whose blue-door JSON is selected when present.</param>
     /// <returns>The immutable selected blue-door visual catalog.</returns>
-    public static RoomPlmBlueDoorVisualCatalog Load(
+    public static InstalledRoomPlmBlueDoorVisuals Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmBlueDoorVisualCatalog>(VisualFileName, "Blue-door", BlueDoorCaps.Editable, BlueDoorCaps.VisualId, entries => new RoomPlmBlueDoorVisualCatalog(entries.Select(entry =>
+            new RoomPlmVisualFamily<InstalledRoomPlmBlueDoorVisuals>(VisualFileName, "Blue-door", BlueDoorCaps.Editable, BlueDoorCaps.VisualId, entries => new InstalledRoomPlmBlueDoorVisuals(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetWord(draw, block)));
 
     /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled blue-door visuals.</summary>

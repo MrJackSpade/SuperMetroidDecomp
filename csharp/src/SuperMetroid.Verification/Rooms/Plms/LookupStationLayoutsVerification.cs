@@ -28,7 +28,7 @@ internal static class LookupStationLayoutsVerification
     {
         ushort[] pointers = [0x9f25,0x9f6d,0x9f91,0x9f31,0x9f79,0x9f9d,0x9f3d,0x9f85,0x9fa9,0x9a3f,0x9a9f,0x9a6f,0x9f49,0x9f55,0x9f5b,0x9f67,0x9fb5,0x9fbb,0x9fc1,0x9fc7];
         string[] ids = ["map-frame-0","energy-frame-0","missile-frame-0","map-frame-1","energy-frame-1","missile-frame-1","map-frame-2","energy-frame-2","missile-frame-2","save-idle","save-active-a","save-active-b","map-right-retracted","map-right-extended","map-left-retracted","map-left-extended","resource-right-retracted","resource-right-extended","resource-left-retracted","resource-left-extended"];
-        var exported = RoomPlmStationDrawDefinitions.All.ToArray();
+        var exported = StationPlmDraws.All.ToArray();
         AssertEqual(20, exported.Length, "Station layout export count");
         if (field == 0)
         {
@@ -36,18 +36,18 @@ internal static class LookupStationLayoutsVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, RoomPlmStationDrawDefinitions.TryDescribe(NativePlmDraws.At<StationDraw>(pointer), out var shape), "Station layout shape domain");
-                AssertEqual(owned, RoomPlmStationDrawDefinitions.TryGet(NativePlmDraws.At<StationDraw>(pointer), out var dto), "Station layout DTO domain");
+                AssertEqual(owned, StationPlmDraws.TryDescribe(NativePlmDraws.At<StationDraw>(pointer), out var shape), "Station layout shape domain");
+                AssertEqual(owned, StationPlmDraws.TryGet(NativePlmDraws.At<StationDraw>(pointer), out var dto), "Station layout DTO domain");
                 if (!owned)
                 {
                     AssertEqual(null, shape, "Station layout missing shape");
                     AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "Station layout missing DTO");
-                    AssertThrows<InvalidDataException>(() => RoomPlmStationDrawDefinitions.VisualId(NativePlmDraws.At<StationDraw>(pointer)), "Station layout missing ID");
+                    AssertThrows<InvalidDataException>(() => StationPlmDraws.VisualId(NativePlmDraws.At<StationDraw>(pointer)), "Station layout missing ID");
                 }
             }
             foreach (string id in new[] { "MAP-FRAME-0", "broken", "", "unknown" })
             {
-                AssertTrue(!RoomPlmStationDrawDefinitions.TryGetByVisualId(id, out var missing), "Station layout ordinal ID domain");
+                AssertTrue(!StationPlmDraws.TryGetByVisualId(id, out var missing), "Station layout ordinal ID domain");
                 AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), missing, "Station layout rejected ID output");
             }
         }
@@ -55,13 +55,13 @@ internal static class LookupStationLayoutsVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            var shape = RoomPlmStationDrawDefinitions.Describe(NativePlmDraws.At<StationDraw>(pointer));
-            RoomPlmStationDrawDefinitions.TryGet(NativePlmDraws.At<StationDraw>(pointer), out var dto);
-            RoomPlmStationDrawDefinitions.TryGetByVisualId(ids[index], out var byId);
+            var shape = StationPlmDraws.Describe(NativePlmDraws.At<StationDraw>(pointer));
+            StationPlmDraws.TryGet(NativePlmDraws.At<StationDraw>(pointer), out var dto);
+            StationPlmDraws.TryGetByVisualId(ids[index], out var byId);
             if (field == 0)
             {
                 AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Station layout original export order");
-                AssertEqual(ids[index], RoomPlmStationDrawDefinitions.VisualId(NativePlmDraws.At<StationDraw>(pointer)), "Station layout published ID");
+                AssertEqual(ids[index], StationPlmDraws.VisualId(NativePlmDraws.At<StationDraw>(pointer)), "Station layout published ID");
                 AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Station layout reverse ID");
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {

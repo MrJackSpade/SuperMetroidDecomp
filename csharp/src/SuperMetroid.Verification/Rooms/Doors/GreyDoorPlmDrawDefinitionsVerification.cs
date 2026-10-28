@@ -41,12 +41,12 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
                 GreyDoorCaps.VisualId(draw.Draw),
                 draw.Runs.Span[0].LevelWords.Span
                     .SelectToArray(word => new RoomLevelWord(word).VisualWord))).ToArray();
-        RoomPlmGreyDoorVisualCatalog stock = RoomPlmGreyDoorVisualCatalog.Stock();
+        InstalledRoomPlmGreyDoorVisuals stock = InstalledRoomPlmGreyDoorVisuals.Stock();
         RoomPlmVisualEntry editedFrame = entries.Single(entry =>
             entry.Id == "grey-right-frame-0");
         ushort originalVisual = editedFrame.Blocks[0];
         editedFrame.Blocks[0] = 0x0053;
-        var edited = new RoomPlmGreyDoorVisualCatalog(entries);
+        var edited = new InstalledRoomPlmGreyDoorVisuals(entries);
         editedFrame.Blocks[0] = 0x0054;
         AssertEqual((ushort)0x0053, edited.GetWord(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0),
             "grey-door visual catalog copies author data");
@@ -258,7 +258,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             entry.Id == "clear-right");
         ushort original = clear.Blocks[0];
         clear.Blocks[0] = 0x0054;
-        var edited = new RoomPlmGreyDoorVisualCatalog(entries);
+        var edited = new InstalledRoomPlmGreyDoorVisuals(entries);
         clear.Blocks[0] = original;
 
         const int width = 16;

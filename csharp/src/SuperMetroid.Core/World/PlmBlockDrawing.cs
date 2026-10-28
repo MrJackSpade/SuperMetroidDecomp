@@ -29,34 +29,34 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
     private readonly PlmShotBlockVisuals _visuals = Ensure.NotNull(visuals);
 
     /// <summary>Nonserialized visual-only shot-block selection; native collision words remain compiled.</summary>
-    public RoomPlmShotBlockVisualCatalog? ShotBlockVisuals => _visuals.RoomPlmShotBlockVisuals;
+    public InstalledRoomPlmShotBlockVisuals? ShotBlockVisuals => _visuals.RoomPlmShotBlockVisuals;
 
     /// <summary>Nonserialized Grapple-block art; the compiled full level words own collision.</summary>
-    public RoomPlmGrappleBlockVisualCatalog? GrappleBlockVisuals => _visuals.RoomPlmGrappleBlockVisuals;
+    public InstalledRoomPlmGrappleBlockVisuals? GrappleBlockVisuals => _visuals.RoomPlmGrappleBlockVisuals;
 
     /// <summary>Nonserialized station appearance; the compiled level words retain collision.</summary>
-    public RoomPlmStationVisualCatalog? StationVisuals => _visuals.RoomPlmStationVisuals;
+    public InstalledRoomPlmStationVisuals? StationVisuals => _visuals.RoomPlmStationVisuals;
 
     /// <summary>Visual-only blue-door cap frames supplied by installed content.</summary>
-    public RoomPlmBlueDoorVisualCatalog? BlueDoorVisuals => _visuals.RoomPlmBlueDoorVisuals;
+    public InstalledRoomPlmBlueDoorVisuals? BlueDoorVisuals => _visuals.RoomPlmBlueDoorVisuals;
 
     /// <summary>Visual-only colored-door cap frames supplied by installed content.</summary>
-    public RoomPlmColoredDoorVisualCatalog? ColoredDoorVisuals => _visuals.RoomPlmColoredDoorVisuals;
+    public InstalledRoomPlmColoredDoorVisuals? ColoredDoorVisuals => _visuals.RoomPlmColoredDoorVisuals;
 
     /// <summary>Visual-only grey caps and shared clear frames supplied by installed content.</summary>
-    public RoomPlmGreyDoorVisualCatalog? GreyDoorVisuals => _visuals.RoomPlmGreyDoorVisuals;
+    public InstalledRoomPlmGreyDoorVisuals? GreyDoorVisuals => _visuals.RoomPlmGreyDoorVisuals;
 
     /// <summary>Visual-only mirrored eye-door frames supplied by installed content.</summary>
-    public RoomPlmEyeDoorVisualCatalog? EyeDoorVisuals => _visuals.RoomPlmEyeDoorVisuals;
+    public InstalledRoomPlmEyeDoorVisuals? EyeDoorVisuals => _visuals.RoomPlmEyeDoorVisuals;
 
     /// <summary>Visual-only Mother Brain glass frames supplied by installed content.</summary>
     public RoomPlmMotherBrainGlassVisualCatalog? MotherBrainGlassVisuals => _visuals.RoomPlmMotherBrainGlassVisuals;
 
     /// <summary>Visual-only n00b-tube frames supplied by installed content.</summary>
-    public RoomPlmNoobTubeVisualCatalog? NoobTubeVisuals => _visuals.RoomPlmNoobTubeVisuals;
+    public InstalledRoomPlmNoobTubeVisuals? NoobTubeVisuals => _visuals.RoomPlmNoobTubeVisuals;
 
     /// <summary>Nonserialized gate-block appearance; compiled level words retain collision.</summary>
-    public RoomPlmDownwardGateVisualCatalog? DownwardGateVisuals => _visuals.RoomPlmDownwardGateVisuals;
+    public InstalledRoomPlmDownwardGateVisuals? DownwardGateVisuals => _visuals.RoomPlmDownwardGateVisuals;
 
     /// <summary>Visual-only elevator frames; platform collision and timing remain compiled.</summary>
     public RoomPlmElevatorPlatformVisualCatalog? ElevatorPlatformVisuals => _visuals.RoomPlmElevatorPlatformVisuals;
@@ -74,33 +74,33 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
     public RoomPlmChozoStatueVisualCatalog? ChozoStatueVisuals => _visuals.RoomPlmChozoStatueVisuals;
 
     /// <summary>Nonserialized linked-block restoration art; collision stays compiled.</summary>
-    public RoomPlmLinkedRestoreVisualCatalog? LinkedRestoreVisuals => _visuals.RoomPlmLinkedRestoreVisuals;
+    public InstalledRoomPlmLinkedRestoreVisuals? LinkedRestoreVisuals => _visuals.RoomPlmLinkedRestoreVisuals;
 
     /// <summary>Nonserialized Tourian access-floor art; physical level words stay compiled.</summary>
     public RoomPlmTourianAccessVisualCatalog? TourianAccessVisuals => _visuals.RoomPlmTourianAccessVisuals;
 
     /// <summary>Gets or replaces nonserialized Speed Booster block reveal artwork; compiled level words still determine collision and breakability.</summary>
     /// <remarks>The catalog is shared by reference. Null uses the physical draw word's original visual fields.</remarks>
-    public RoomPlmSpeedBoosterVisualCatalog? SpeedBoosterVisuals => _visuals.RoomPlmSpeedBoosterVisuals;
+    public InstalledRoomPlmSpeedBoosterVisuals? SpeedBoosterVisuals => _visuals.RoomPlmSpeedBoosterVisuals;
 
     /// <summary>Gets or replaces nonserialized Maridia elevatube artwork for the shared $84:9367 draw, selected by PLM ownership rather than borrowing Kraid's appearance.</summary>
     /// <remarks>The catalog is shared by reference. Null preserves the physical word's original appearance; tube collision and motion remain compiled.</remarks>
-    public RoomPlmMaridiaElevatubeVisualCatalog? MaridiaElevatubeVisuals => _visuals.RoomPlmMaridiaElevatubeVisuals;
+    public InstalledRoomPlmMaridiaElevatubeVisuals? MaridiaElevatubeVisuals => _visuals.RoomPlmMaridiaElevatubeVisuals;
 
     /// <summary>Gets or replaces nonserialized artwork for the two-by-two Spore Spawn ceiling clear/crumble draws, without changing their physical words or sequence timing.</summary>
     /// <remarks>The catalog is shared by reference. Null retains each physical draw word's original visual fields.</remarks>
     public RoomPlmSporeSpawnCeilingVisualCatalog? SporeSpawnCeilingVisuals => _visuals.RoomPlmSporeSpawnCeilingVisuals;
 
     /// <summary>Replaceable plant tiles; the three-run collision layout stays compiled.</summary>
-    public RoomPlmSamusEaterVisualCatalog? SamusEaterVisuals => _visuals.RoomPlmSamusEaterVisuals;
+    public InstalledRoomPlmSamusEaterVisuals? SamusEaterVisuals => _visuals.RoomPlmSamusEaterVisuals;
 
     /// <summary>Gets or replaces nonserialized appearance for $84:930F's nine-block vertical Botwoon wall clear; its compiled air-block collision remains unchanged.</summary>
     /// <remarks>The catalog is shared by reference. Null uses the physical clear words' original visual fields.</remarks>
-    public RoomPlmBotwoonWallVisualCatalog? BotwoonWallVisuals => _visuals.RoomPlmBotwoonWallVisuals;
+    public InstalledRoomPlmBotwoonWallVisuals? BotwoonWallVisuals => _visuals.RoomPlmBotwoonWallVisuals;
 
     /// <summary>Gets or replaces nonserialized Kraid ceiling/spike PLM artwork, distinct from the boss's private BG2 body maps and from elevatube owners of the shared $84:9367 draw.</summary>
     /// <remarks>The catalog is shared by reference. Null retains physical draw appearance; block collision and mutation timing remain compiled.</remarks>
-    public RoomPlmKraidVisualCatalog? KraidVisuals => _visuals.RoomPlmKraidVisuals;
+    public InstalledRoomPlmKraidVisuals? KraidVisuals => _visuals.RoomPlmKraidVisuals;
 
     /// <summary>Gets or replaces nonserialized Crocomire arena bridge-clear/crumble and invisible-wall artwork; compiled draw runs still own block placement and collision.</summary>
     /// <remarks>The catalog is shared by reference. Null retains each physical draw word's original visual fields.</remarks>
@@ -111,10 +111,10 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
     public RoomPlmMotherBrainFakeDeathVisualCatalog? MotherBrainFakeDeathVisuals => _visuals.RoomPlmMotherBrainFakeDeathVisuals;
 
     /// <summary>Nonserialized collectible art; compiled level words retain collision.</summary>
-    public RoomPlmCollectibleVisualCatalog? CollectibleVisuals => _visuals.RoomPlmCollectibleVisuals;
+    public InstalledRoomPlmCollectibleVisuals? CollectibleVisuals => _visuals.RoomPlmCollectibleVisuals;
 
     /// <summary>Nonserialized item tile and palette art; physical pickup rules stay compiled.</summary>
-    public RoomPlmDynamicCollectibleArtCatalog? DynamicCollectibleArt => _visuals.RoomPlmDynamicCollectibleArt;
+    public InstalledDynamicCollectibleArt? DynamicCollectibleArt => _visuals.RoomPlmDynamicCollectibleArt;
 
     /// <summary>Draws a compiled draw, selecting its family's installed visuals while retaining physical collision words.</summary>
     public void Draw(RoomLevelData level, int blockIndex, PlmDraw draw)
@@ -125,17 +125,17 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
         // origin. A zero pair terminates. The 2x2 bomb art is consequently two horizontal
         // records: row zero, then `{dx=0,dy=1}` and row one.
         Position16<RoomBlocks> origin = level.Size.CellAtRowMajorIndex(blockIndex);
-        if (RoomPlmBombedRevealDrawDefinitions.TryGet(draw, out var bombedReveal))
+        if (BombedRevealPlmDraws.TryGet(draw, out var bombedReveal))
         {
             DrawCompiledBlockInstruction(level, bombedReveal, origin);
             return;
         }
-        if (CrateriaMainstreetEscapePassagePlmDefinitions.TryGetDraw(draw, out var clearedPassage))
+        if (CrateriaMainstreetEscapePassageDraws.TryGetDraw(draw, out var clearedPassage))
         {
             DrawCompiledBlockInstruction(level, clearedPassage, origin);
             return;
         }
-        if (OldTourianEscapeShaftWallPlmDefinitions.TryGetDraw(draw, out var openWall))
+        if (OldTourianEscapeShaftWallDraws.TryGetDraw(draw, out var openWall))
         {
             DrawCompiledBlockInstruction(level, openWall, origin);
             return;
@@ -145,7 +145,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             DrawCompiledBlockInstruction(level, animalWall, origin);
             return;
         }
-        if (draw is PlmFrameDraw<RoomPlmShotBlockDrawDefinitions.Draw> { Frame: var compiled })
+        if (draw is PlmFrameDraw<ShotBlockPlmDraws.Draw> { Frame: var compiled })
         {
             for (int run = 0; run < compiled.RunCount; run++)
                 for (int block = 0; block < compiled.WordsPerRun; block++)
@@ -157,7 +157,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             DrawPlmWordAt(level, draw, origin, SpeedBoosterBlockPlmDrawDefinitions.BombRevealWord, SpeedBoosterVisuals?.GetWord(draw, 0, 0));
             return;
         }
-        if (KraidRoomPlmDrawDefinitions.TryGet(draw, out var kraidDraw))
+        if (KraidRoomPlmDraws.TryGet(draw, out var kraidDraw))
         {
             DrawKraidBlockInstruction(level, kraidDraw, origin, KraidVisuals);
             return;
@@ -214,24 +214,24 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
                     DrawPlmWordAt(level, draw, origin + new Offset16<RoomBlocks>(checked((short)column), checked((short)row)), sporeCeilingWord.Raw, SporeSpawnCeilingVisuals?.GetWord(draw, row, column));
             return;
         }
-        if (SamusEaterPlmDrawDefinitions.TryDescribe(draw, out var samusEater))
+        if (SamusEaterPlmDraws.TryDescribe(draw, out var samusEater))
         {
             Position16<RoomBlocks> plant = origin;
             for (int run = 0; run < 3; run++)
             {
-                for (int block = 0; block < SamusEaterPlmDrawDefinitions.Draw.Count(run); block++)
+                for (int block = 0; block < SamusEaterPlmDraws.Draw.Count(run); block++)
                     DrawPlmWordAt(level, draw, plant + new Offset16<RoomBlocks>(checked((short)block), 0), samusEater.WordAt(run, block), SamusEaterVisuals?.GetWord(draw, run, block));
-                plant = origin + new Offset16<RoomBlocks>(SamusEaterPlmDrawDefinitions.Draw.NextX(run), samusEater.NextY(run));
+                plant = origin + new Offset16<RoomBlocks>(SamusEaterPlmDraws.Draw.NextX(run), samusEater.NextY(run));
             }
             return;
         }
         if (draw == BotwoonWallPlmDrawDefinitions.Clear)
         {
             for (int row = 0; row < BotwoonWallPlmDrawDefinitions.BlockCount; row++)
-                DrawPlmWordAt(level, draw, origin + new Offset16<RoomBlocks>(0, checked((short)row)), BotwoonWallPlmDrawDefinitions.LevelWordAt(row), BotwoonWallVisuals?.GetWord(draw, 0, row));
+                DrawPlmWordAt(level, draw, origin + new Offset16<RoomBlocks>(0, checked((short)row)), BotwoonWallPlmDraws.LevelWordAt(row), BotwoonWallVisuals?.GetWord(draw, 0, row));
             return;
         }
-        if (RoomPlmLinkedRestoreDefinition.TryDescribeAny(draw, out var linkedRestore))
+        if (LinkedRestorePlmFamily.TryDescribeAny(draw, out var linkedRestore))
         {
             for (int run = 0; run < linkedRestore.RunCount; run++)
                 for (int block = 0; block < 2; block++)
@@ -285,7 +285,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             }
             return;
         }
-        if (NoobTubePlmDrawDefinitions.TryDescribe(draw, out var noobTube))
+        if (NoobTubePlmDraws.TryDescribe(draw, out var noobTube))
         {
             Position16<RoomBlocks> tube = origin;
             for (int run = 0; run < noobTube.RunCount; run++)
@@ -301,7 +301,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             }
             return;
         }
-        if (RoomPlmStationDrawDefinitions.TryDescribe(draw, out var station))
+        if (StationPlmDraws.TryDescribe(draw, out var station))
         {
             Position16<RoomBlocks> stationCursor = origin;
             for (int run = 0; run < station.RunCount; run++)
@@ -333,7 +333,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             }
             return;
         }
-        if (DownwardGatePlmDrawDefinitions.TryDescribe(draw, out var gate))
+        if (DownwardGatePlmDraws.TryDescribe(draw, out var gate))
         {
             Position16<RoomBlocks> gateCursor = origin;
             for (int run = 0; run < gate.RunCount; run++)
@@ -404,12 +404,12 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             }
             return;
         }
-        if (RoomPlmCollectibleDrawDefinitions.TryGetWord(draw, out RoomLevelWord collectible))
+        if (CollectiblePlmDraws.TryGetWord(draw, out RoomLevelWord collectible))
         {
             DrawPlmWordAt(level, draw, origin, collectible.Raw, CollectibleVisuals?.GetWord(draw));
             return;
         }
-        if (RoomPlmGrappleBlockDrawDefinitions.TryGet(draw, out var grapple))
+        if (GrappleBlockPlmDraws.TryGet(draw, out var grapple))
         {
             // All five cartridge lists are a single word at the PLM origin. The
             // complete native word retains Grapple/air collision independently of art.
@@ -462,7 +462,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
 
 
     /// <summary>Draws one horizontal Kraid mutation with optional Kraid-owned visual replacements.</summary>
-    private static void DrawKraidBlockInstruction(RoomLevelData level, KraidRoomPlmDrawDefinitions.Draw draw, Position16<RoomBlocks> origin, RoomPlmKraidVisualCatalog? visuals)
+    private static void DrawKraidBlockInstruction(RoomLevelData level, KraidRoomPlmDraws.Draw draw, Position16<RoomBlocks> origin, InstalledRoomPlmKraidVisuals? visuals)
     {
         for (int block = 0; block < draw.BlockCount; block++)
         {

@@ -152,7 +152,7 @@ internal sealed class RoomLoader
         // `InitAndLoadGameData_Async` writes these exact indexes before calling
         // LoadFromLoadStation. The compiled catalog preserves that general lookup rather
         // than duplicating the Ceres room/door/placement at this call site.
-        LoadStationEntry station = LoadStationDefinitions.Get(
+        LoadStationEntry station = LoadStations.Get(
             areaIndex: AreaId.Ceres,
             stationIndex: 0);
         DoorDefinition door = station.Door ?? throw new InvalidDataException("The load station has no door.");
@@ -204,7 +204,7 @@ internal sealed class RoomLoader
             $"Save slot {slot.Slot}");
         int stationIndex = unchecked((byte)slot.SaveStation);
 
-        LoadStationEntry station = LoadStationDefinitions.Get(
+        LoadStationEntry station = LoadStations.Get(
             requestedArea,
             checked((byte)stationIndex));
         DoorDefinition door = station.Door ?? throw new InvalidDataException("The load station has no door.");
@@ -318,7 +318,7 @@ internal sealed class RoomLoader
         // `$82:8038-$8048` assigns these indexes immediately before LoadFromLoadStation.
         // Station eighteen is a cutscene-only entry high above Landing Site; station zero
         // is not selected until GunshipTop_7 finishes the landing and performs the save.
-        LoadStationEntry station = LoadStationDefinitions.Get(
+        LoadStationEntry station = LoadStations.Get(
             areaIndex: AreaId.Crateria,
             stationIndex: 18);
         DoorDefinition door = station.Door ?? throw new InvalidDataException("The load station has no door.");

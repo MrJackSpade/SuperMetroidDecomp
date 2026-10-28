@@ -40,7 +40,7 @@ internal static class RoomFxRecordDefinitionsVerification
     /// <summary>Compares Ceres FX outputs with native reads and guards compiled consumers from rereading record bytes.</summary>
     private static void VerifyCompiledCeresRoomFxConsumers(SuperMetroidAddressSpace bus)
     {
-        LoadStationEntry station = LoadStationDefinitions.Get(AreaId.Ceres, 0);
+        LoadStationEntry station = LoadStations.Get(AreaId.Ceres, 0);
         SelectedRoom room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, (station.Room ?? throw new InvalidDataException("Ceres station has no room.")).Pointer);
         var nativeVram = new SnesVram();
         var compiledVram = new SnesVram();

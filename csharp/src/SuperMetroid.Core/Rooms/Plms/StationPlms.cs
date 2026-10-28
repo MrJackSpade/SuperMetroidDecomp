@@ -828,7 +828,7 @@ internal sealed class StationPlms : IPlmFamilySource
             return true;
 
         StationAnimationProgramDefinitions.Frame frame =
-            StationAnimationProgramDefinitions.Resolve(
+            StationAnimationPrograms.Resolve(
                 station.AnimationList, station.AnimationFrame);
         WrappingCountdown timer = WrappingCountdown.FromRaw(frame.Duration);
         PlmDraw draw = frame.Draw;
@@ -890,7 +890,7 @@ internal sealed class StationPlms : IPlmFamilySource
             ? StationAnimationList.SaveFirstFrame
             : StationAnimationList.SaveSecondFrame;
         StationAnimationProgramDefinitions.Frame frame =
-            StationAnimationProgramDefinitions.Resolve(list, 0);
+            StationAnimationPrograms.Resolve(list, 0);
         if (frame.Duration != 4)
         {
             throw new InvalidDataException(
@@ -956,8 +956,8 @@ internal sealed class StationPlms : IPlmFamilySource
         StationAccessBehavior accessBehavior = station.AccessBehavior
             ?? throw new InvalidDataException("Station access has no BTS owner.");
         StationAccessPlmDefinition definition =
-            StationAccessPlmDefinitions.Resolve(accessBehavior);
-        _drawing.Draw(level, station.AccessBlockIndex, definition.Draw(pose == StationAccessPose.Extended));
+            StationAccessPlms.Resolve(accessBehavior);
+        _drawing.Draw(level, station.AccessBlockIndex, PlmDraw.Of(pose == StationAccessPose.Extended ? definition.Extended : definition.Retracted));
     }
 
     /// <summary>Resident PLM state for station appearance, access-arm timing, and save confirmation.</summary>

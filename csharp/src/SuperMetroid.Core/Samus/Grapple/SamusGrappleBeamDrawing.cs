@@ -91,7 +91,7 @@ public static class SamusGrappleBeamDrawing
         int screenY = unchecked((ushort)(grapple.BeamStart.Y - layer1.Y));
         // The assembly tests only Y's high byte. X is allowed to wrap into high OAM, while
         // any Y outside unsigned screen rows `$00-$FF` suppresses the whole spritemap.
-        if ((SnesLittleEndian.HighByteInPlace(screenY)) != 0)
+        if (ScreenConversions.IsOutsideSpriteRange(screenY))
             return false;
 
         // The first word of both native facing rows is zero. Grapple uses the
@@ -269,7 +269,7 @@ public static class SamusGrappleBeamDrawing
         int relativeY = unchecked((ushort)(grapple.Anchor.Y - layer1.Y));
         // The ordinary endpoint tests its center before subtracting the sprite
         // half-width. Swinging deliberately bypasses this vertical rejection.
-        if (!swinging && (SnesLittleEndian.HighByteInPlace(relativeY)) != 0)
+        if (!swinging && ScreenConversions.IsOutsideSpriteRange(relativeY))
             return;
 
         // Only the swinging routine omits SEC between its two SBC operations.

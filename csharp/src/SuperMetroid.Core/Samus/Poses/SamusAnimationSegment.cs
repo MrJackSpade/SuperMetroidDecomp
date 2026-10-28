@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Poses;
@@ -34,6 +35,14 @@ internal sealed class SamusAnimationSegment
 
     /// <summary>Equipment tested by the item-selected transitions.</summary>
     internal SamusEquipmentFlags Item { get; }
+
+    /// <summary>Byte <paramref name="index"/> of the little-endian item mask a command operand stores for <paramref name="item"/>.</summary>
+    private static byte ItemMaskByte(SamusEquipmentFlags item, int index)
+    {
+        Span<byte> mask = stackalloc byte[sizeof(ushort)];
+        BinaryPrimitives.WriteUInt16LittleEndian(mask, item.ToEquipmentWord());
+        return mask[index];
+    }
 
     /// <summary>Pose for an unequipped item at rest, and the only pose of <c>$F8</c>/<c>$FD</c>.</summary>
     internal SamusPoseId UnequippedGrounded { get; }
@@ -83,8 +92,8 @@ internal sealed class SamusAnimationSegment
                 SamusAnimationCommand.WallJumpSelect or SamusAnimationCommand.ItemTransition or
                 SamusAnimationCommand.Loop => operand switch
             {
-                1 => unchecked((byte)Item.ToEquipmentWord()),
-                2 => SnesLittleEndian.HighByte(Item.ToEquipmentWord()),
+                1 => ItemMaskByte(Item, 0),
+                2 => ItemMaskByte(Item, 1),
                 3 => SamusPoseNumbering.Number(UnequippedGrounded),
                 // $FC's equipped pose immediately follows its unequipped pose.
                 4 => SamusPoseNumbering.Number(Command == SamusAnimationCommand.ItemTransition ? EquippedGrounded : UnequippedAirborne),

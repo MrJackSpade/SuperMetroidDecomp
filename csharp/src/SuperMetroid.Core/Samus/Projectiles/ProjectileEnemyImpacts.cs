@@ -79,7 +79,7 @@ internal sealed class ProjectileEnemyImpacts
             // A live Super Missile stores its invisible collision-link byte index in the
             // variable's low byte. `$90:BE17` clears that exact slot before repurposing the
             // owner; it does not broadly delete unrelated Super Missile records.
-            int linkIndex = (SnesLittleEndian.LowByte(slot.Variable)) >> 1;
+            int linkIndex = slot.MissileLinkSlotOffset >> 1;
             if ((uint)linkIndex < SamusProjectileSystem.SlotCount && linkIndex != slotIndex && _slotTable.Slots[linkIndex].IsActive)
                 _animation.ClearProjectile(_slotTable.Slots[linkIndex]);
         }

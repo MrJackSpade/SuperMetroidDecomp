@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using System.Collections.Frozen;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
@@ -36,9 +37,9 @@ internal static class ChargeFlareAnimationDefinitions
         int program = (windows ?? throw new InvalidOperationException(
             "A charge-flare read below its programs needs the installed Samus overread catalog's animation windows.")).ChargeFlarePrograms
             + Start(tableByte / sizeof(ushort));
-        return tableByte % sizeof(ushort) == 0
-            ? SnesLittleEndian.LowByte(unchecked((ushort)program))
-            : SnesLittleEndian.HighByte(unchecked((ushort)program));
+        Span<byte> programWord = stackalloc byte[sizeof(ushort)];
+        BinaryPrimitives.WriteUInt16LittleEndian(programWord, unchecked((ushort)program));
+        return programWord[tableByte % sizeof(ushort)];
     }
 
     /// <summary>The main flare's delay or command byte at <paramref name="frame"/>, read without wrapping, as the grapple flare reads it.</summary>

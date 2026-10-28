@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
@@ -104,7 +105,7 @@ public static class XrayRevealTilemap
                 throw new InvalidDataException($"X-ray metatile ${metatile:X4} is outside the room definition table.");
             Write(destination, Word(offset)); Write(destination + 1, Word(offset + 2));
             Write(destination + 32, Word(offset + 4)); Write(destination + 33, Word(offset + 6));
-            ushort Word(int position) => SnesLittleEndian.Word(level.BlockDefinitions.Span[position], level.BlockDefinitions.Span[position + 1]);
+            ushort Word(int position) => BinaryPrimitives.ReadUInt16LittleEndian(level.BlockDefinitions.Span[position..]);
         }
         void Write(int index, int value)
         {

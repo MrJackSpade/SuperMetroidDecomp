@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
+﻿using System.Buffers.Binary;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
@@ -200,6 +201,18 @@ internal sealed class ProjectileTerrainCollision
     /// minus one; the first, top or left, block has $26 = $1A) and $1C (target boundary).
     /// </summary>
     private readonly record struct ShotSpan(int Span, int Remaining, int TargetBoundary);
+
+    /// <summary>
+    /// The little-endian level word an odd byte offset reads: <paramref name="first"/>'s high byte, then
+    /// <paramref name="second"/>'s low byte.
+    /// </summary>
+    private static ushort StraddlingLevelWord(int first, int second)
+    {
+        Span<byte> words = stackalloc byte[2 * sizeof(ushort)];
+        BinaryPrimitives.WriteUInt16LittleEndian(words, checked((ushort)first));
+        BinaryPrimitives.WriteUInt16LittleEndian(words[sizeof(ushort)..], checked((ushort)second));
+        return BinaryPrimitives.ReadUInt16LittleEndian(words[1..]);
+    }
 
     /// <summary>
     /// $94:A66A (horizontal) and $94:A71A (vertical) for a beam: the quarter cells of a
@@ -565,7 +578,7 @@ internal sealed class ProjectileTerrainCollision
         // the lower half of every screen, including ordinary blue-door caps.
         if (remaining >= 16 || unchecked((short)slot.Position.Y.Whole) < 0 ||
             (EightEight.WholeOf(slot.Position.Y.Whole)) >= (level.Size.Y + 15) / 16 ||
-            (SnesLittleEndian.HighByte(targetX)) >= (level.Size.X + 15) / 16)
+            RoomGridConversions.PixelToScreen(targetX) >= (level.Size.X + 15) / 16)
             return;
 
         int product = unchecked((byte)(top >> 4)) * unchecked((byte)level.Size.X);
@@ -583,7 +596,7 @@ internal sealed class ProjectileTerrainCollision
                     int next = level.GetCollisionBlockByIndex(index + 1).PackedWord.Raw;
                     // Dispatch consumes the unaligned word; BTS and PLM setup
                     // still use floor(byteOffset / 2), including aligned writes.
-                    block = block with { PackedWord = SnesLittleEndian.Word(SnesLittleEndian.HighByte(block.PackedWord.Raw), unchecked((byte)next)) };
+                    block = block with { PackedWord = StraddlingLevelWord(block.PackedWord.Raw, next) };
                 }
                 RunShotReaction(level, slot, block, roomPlms, new ShotSpan(span, remaining, targetX), out bool endSpan);
                 // Wave discards collision carry, but still honors PLM scan termination.
@@ -613,7 +626,7 @@ internal sealed class ProjectileTerrainCollision
             : slot.Position.Y.Whole + slot.Radius.Y - 1));
         int centerScreenX = EightEight.WholeOf(slot.Position.X.Whole);
         if (centerScreenX >= (level.Size.X + 15) / 16 ||
-            (SnesLittleEndian.HighByte(targetY)) >= (level.Size.Y + 15) / 16)
+            RoomGridConversions.PixelToScreen(targetY) >= (level.Size.Y + 15) / 16)
             return;
 
         // The hardware multiplier consumes bytes. The following addition and

@@ -10,5 +10,5 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public readonly record struct SuitPickupBeamEdges(byte Left, byte Right)
 {
     /// <summary>The HDMA table word for these edges: the left column in the low byte, the right column in the high byte.</summary>
-    public ushort Word => SnesLittleEndian.Word(Left, Right);
+    public ushort Word => ScanlineSpanWord.Of(Left, Right);
 }

@@ -327,7 +327,7 @@ public sealed class ScrollBoundaryCamera
             }
 
             proposed = candidate;
-            int candidateRightCell = row + (SnesLittleEndian.HighByte(proposed)) + 1;
+            int candidateRightCell = row + RoomGridConversions.PixelToScreen(proposed) + 1;
             SetWholeX(Scrolls.ReadCameraState(candidateRightCell) != RoomScrollState.RedBoundary
                 ? proposed
                 : ScreenStart(proposed));
@@ -349,7 +349,7 @@ public sealed class ScrollBoundaryCamera
         }
 
         proposed = leftCandidate;
-        int candidateCell = row + (SnesLittleEndian.HighByte(proposed));
+        int candidateCell = row + RoomGridConversions.PixelToScreen(proposed);
         SetWholeX(Scrolls.ReadCameraState(candidateCell) != RoomScrollState.RedBoundary
             ? proposed
             : NextScreenStart(proposed));
@@ -395,7 +395,7 @@ public sealed class ScrollBoundaryCamera
             }
 
             proposed = candidate;
-            int belowCandidate = ((SnesLittleEndian.HighByte(candidate)) + 1) * Scrolls.Size.X + centeredXScreen;
+            int belowCandidate = (RoomGridConversions.PixelToScreen(candidate) + 1) * Scrolls.Size.X + centeredXScreen;
             SetWholeY(Scrolls.ReadCameraState(belowCandidate) != RoomScrollState.RedBoundary
                 ? proposed
                 : ScreenStart(proposed));
@@ -421,7 +421,7 @@ public sealed class ScrollBoundaryCamera
         }
 
         proposed = upwardCandidate;
-        int candidateCell = (SnesLittleEndian.HighByte(upwardCandidate)) * Scrolls.Size.X + centeredXScreen;
+        int candidateCell = RoomGridConversions.PixelToScreen(upwardCandidate) * Scrolls.Size.X + centeredXScreen;
         SetWholeY(Scrolls.ReadCameraState(candidateCell) != RoomScrollState.RedBoundary
             ? proposed
             : NextScreenStart(proposed));
@@ -572,7 +572,7 @@ public sealed class ScrollBoundaryCamera
     private static int SignedDifference(int left, int right) => unchecked((short)(left - right));
 
     /// <summary>The first pixel of the 256-pixel scroll screen holding <paramref name="pixel"/> (the AND #$FF00 alignment).</summary>
-    private static ushort ScreenStart(int pixel) => (ushort)(SnesLittleEndian.HighByteInPlace(pixel));
+    private static ushort ScreenStart(int pixel) => RoomGridConversions.ScreenStart(pixel);
 
     /// <summary>The first pixel of the following scroll screen, wrapping at sixteen bits.</summary>
     private static ushort NextScreenStart(int pixel) => unchecked((ushort)(ScreenStart(pixel) + 2 * HalfScreen));

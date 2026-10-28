@@ -1,3 +1,5 @@
+using System.Buffers.Binary;
+
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Physical beam/missile muzzle positions, independent of charge-flare artwork.</summary>
@@ -48,6 +50,6 @@ internal static class SamusProjectileOriginDefinitions
             var muzzle = Muzzle(word >= 20, SamusProjectileDirections.At(word % 10));
             return word % 20 < 10 ? muzzle.X : muzzle.Y;
         }
-        return unchecked((short)(SnesLittleEndian.Word(SamusProjectileCooldownDefinitions.ReadByte(offset), SamusProjectileCooldownDefinitions.ReadByte(offset + 1))));
+        return unchecked((short)BinaryPrimitives.ReadUInt16LittleEndian([SamusProjectileCooldownDefinitions.ReadByte(offset), SamusProjectileCooldownDefinitions.ReadByte(offset + 1)]));
     }
 }

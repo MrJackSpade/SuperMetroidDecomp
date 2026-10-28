@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
@@ -53,7 +54,7 @@ public sealed class ProjectileInheritanceRecords
         SamusProjectileDirection direction = word.Direction
             ?? throw new InvalidDataException($"Projectile velocity initialization received invalid direction ${word.DirectionIndex:X2}.");
         int upward = LaunchVelocityWord(SamusCollisionDirection.Up);
-        int upContribution = (SnesLittleEndian.HighByteInPlace(upward)) == 0 ? 0 : (upward >> 2) | 3 << 14; // An arithmetic shift by two fills both top bits.
+        int upContribution = upward <= byte.MaxValue ? 0 : (upward >> 2) | 3 << 14; // An arithmetic shift by two fills both top bits.
         int x = unchecked((short)(direction switch
         {
             SamusProjectileDirection.UpRight or SamusProjectileDirection.Right or SamusProjectileDirection.DownRight =>
@@ -81,13 +82,12 @@ public sealed class ProjectileInheritanceRecords
     private ushort LaunchVelocityWord(SamusCollisionDirection direction) => ReadWord(RecordOffset(direction) - 1);
 
     /// <summary>Reads the little-endian word whose low byte is at <paramref name="offset"/>.</summary>
-    private ushort ReadWord(int offset) => SnesLittleEndian.Word(Bytes[offset], Bytes[offset + 1]);
+    private ushort ReadWord(int offset) => BinaryPrimitives.ReadUInt16LittleEndian(Bytes.AsSpan(offset));
 
     /// <summary>Writes <paramref name="value"/> little-endian at <paramref name="offset"/>.</summary>
     private void WriteWord(int offset, int value)
     {
-        Bytes[offset] = SnesLittleEndian.LowByte(value);
-        Bytes[offset + 1] = SnesLittleEndian.HighByte(value);
+        BinaryPrimitives.WriteUInt16LittleEndian(Bytes.AsSpan(offset), checked((ushort)Ensure.BetweenInclusive(0, ushort.MaxValue, value)));
     }
 
     /// <summary>Maps left, right, up, or down to its native 16.16 record offset.</summary>

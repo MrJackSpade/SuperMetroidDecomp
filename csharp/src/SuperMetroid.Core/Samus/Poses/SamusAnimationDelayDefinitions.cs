@@ -1,3 +1,5 @@
+using System.Buffers.Binary;
+
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Compiled bank-$91 Samus pose animation timing and command streams.</summary>
@@ -417,8 +419,8 @@ internal static class SamusAnimationDelayDefinitions
         if (!SamusPoseNumbering.HasRecord(pose))
         {
             int position = (SamusPoseNumbering.Number(pose) - SamusPoseNumbering.RecordCount) * sizeof(ushort);
-            return new(null, SnesLittleEndian.Word(SamusAnimationDelayPrograms.ByteAt(position),
-                SamusAnimationDelayPrograms.ByteAt(position + 1)));
+            return new(null, BinaryPrimitives.ReadUInt16LittleEndian([SamusAnimationDelayPrograms.ByteAt(position),
+                SamusAnimationDelayPrograms.ByteAt(position + 1)]));
         }
         return pose switch
         {

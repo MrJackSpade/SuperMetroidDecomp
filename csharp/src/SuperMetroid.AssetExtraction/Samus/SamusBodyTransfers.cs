@@ -1,8 +1,9 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Poses;
-using static SuperMetroid.Core.Samus.Artwork.SamusBodyTransferDefinitions;
+using static SuperMetroid.AssetExtraction.Samus.SamusBodyTransferDefinitions;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>The size and packing each stock body transfer selects.</summary>
 internal static class SamusBodyTransfers

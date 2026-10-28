@@ -1,4 +1,7 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Samus.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>One native seven-byte transfer compiled from palette-indexed PNG tiles.</summary>
 public sealed class SamusBodyTileTransfer
@@ -19,7 +22,7 @@ public sealed class SamusBodyTileTransfer
     /// </summary>
     private readonly int? calculatedFirstSize;
     /// <summary>Owning catalog used to reconstruct shared or diagnostic pixel bytes.</summary>
-    private readonly InstalledSamusBodyArtwork? body;
+    private readonly SamusBodyCharacterArtwork? body;
     /// <summary>Whether this definition belongs to the upper-body pointer table.</summary>
     private readonly bool upper;
     /// <summary>Native definition-group index for shared pixel reconstruction.</summary>
@@ -28,7 +31,7 @@ public sealed class SamusBodyTileTransfer
     private readonly int position;
 
     /// <summary>The owning catalog; a definition reconstructs shared bytes only once bound to it.</summary>
-    private InstalledSamusBodyArtwork BoundCatalog => body ??
+    private SamusBodyCharacterArtwork BoundCatalog => body ??
         throw new InvalidOperationException("This Samus body transfer is standalone; it is not bound to its catalog.");
 
     /// <summary>The bound definition's edited in-contour pixels.</summary>
@@ -57,7 +60,7 @@ public sealed class SamusBodyTileTransfer
     /// Binds a standalone definition, separating selected pixels from contour edits and
     /// deriving stock transfer geometry from the catalog's pose/frame selectors.
     /// </summary>
-    private SamusBodyTileTransfer(SamusBodyTileTransfer supplied, InstalledSamusBodyArtwork body,
+    private SamusBodyTileTransfer(SamusBodyTileTransfer supplied, SamusBodyCharacterArtwork body,
         bool upper, int set, int position, ReadOnlySpan<int> poseFirstFrames, ReadOnlySpan<SamusBodyFrameSelection> frames)
     {
         this.body = body;
@@ -102,13 +105,13 @@ public sealed class SamusBodyTileTransfer
             System.Buffers.ArrayPool<byte>.Shared.Return(scratchValues);
         }
         int first = supplied.FirstSize;
-        if (SamusBodyTransfers.TryFirstSize(body, new SamusBodyTileSlot(upper, set, position), PayloadLength, poseFirstFrames, frames, out int calculated))
+        if (SamusBodyTransfers.TryFirstSize(body.Body, new SamusBodyTileSlot(upper, set, position), PayloadLength, poseFirstFrames, frames, out int calculated))
             calculatedFirstSize = calculated;
         firstSizeOverride = calculatedFirstSize == first ? null : first;
     }
 
     /// <summary>Creates a catalog-bound definition with native transfer size.</summary>
-    internal SamusBodyTileTransfer WithTransferGeometry(InstalledSamusBodyArtwork body, bool upper, int set, int position,
+    internal SamusBodyTileTransfer WithTransferGeometry(SamusBodyCharacterArtwork body, bool upper, int set, int position,
         ReadOnlySpan<int> poseFirstFrames, ReadOnlySpan<SamusBodyFrameSelection> frames) =>
         new(this, body, upper, set, position, poseFirstFrames, frames);
 

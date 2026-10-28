@@ -1,16 +1,14 @@
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Samus;
 
-/// <summary>Physical DMA-record availability, independently reviewed from Samus placement tables.</summary>
+/// <summary>Installed body half-picture availability, independently reviewed from Samus placement tables.</summary>
 internal static class SamusBodyTransferClosedContractDefinitions
 {
     /// <summary>Reviews complete physical transfer records while accounting for placement, pose, and timing sources.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Samus.Artwork.InstalledSamusBodyArtwork", "samus-complete-physical-transfer-records",
-            ["Frame", "DefinitionRecord", "DefinitionAt", "BodyArtwork"],
+            ["Frame", "DefinitionRecord"],
             [new("csharp/src/SuperMetroid.Core/Samus/Artwork/InstalledSamusBodyArtwork.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyPixelDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyPixels.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyFrameDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyFrameSharing.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyPlacementDefinitions.cs"),
@@ -25,8 +23,6 @@ internal static class SamusBodyTransferClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyDefinitionStarts.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Drawing/SamusDrawingDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Drawing/SamusBodyFrameState.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyTransferDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyTransfers.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusArmCannonPlacementDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusArmCannonPlacements.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/InstalledSamusSpritemaps.cs"),

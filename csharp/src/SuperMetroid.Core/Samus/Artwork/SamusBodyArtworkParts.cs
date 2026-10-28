@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Artwork;
 
-/// <summary>Samus's body pointer tables, frame tiles, offsets and dependent artwork catalogs (#633).</summary>
+/// <summary>Samus's body pointer tables, frame selections, offsets and dependent artwork catalogs (#633).</summary>
 public sealed record SamusBodyArtworkParts
 {
     /// <summary>Each upper-body definition group's first record.</summary>
@@ -17,12 +17,6 @@ public sealed record SamusBodyArtworkParts
 
     /// <summary>The contiguous native frame-selector interval.</summary>
     public required SamusBodyFrameSelection[] Frames { get; init; }
-
-    /// <summary>Upper-body tile definitions grouped by pointer table entry.</summary>
-    public required SamusBodyTileTransfer[][] Top { get; init; }
-
-    /// <summary>Lower-body tile definitions grouped by pointer table entry.</summary>
-    public required SamusBodyTileTransfer[][] Bottom { get; init; }
 
     /// <summary>Editable Samus OAM compositions.</summary>
     public required InstalledSamusSpritemaps Spritemaps { get; init; }

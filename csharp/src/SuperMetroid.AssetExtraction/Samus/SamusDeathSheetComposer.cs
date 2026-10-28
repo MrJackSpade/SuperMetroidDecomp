@@ -18,7 +18,7 @@ internal static class SamusDeathSheetComposer
     internal static SpriteSheetSources Sources(SamusSheetInputs inputs)
     {
         Ensure.NotNull(inputs);
-        InstalledSamusBodyArtwork body = inputs.SamusBody;
+        InstalledSamusBodyArtwork body = inputs.SamusBody.Body;
         var frames = new List<SheetFrameSource>();
         foreach (HorizontalDirection facing in SamusDeathSheetDefinitions.Facings)
         {

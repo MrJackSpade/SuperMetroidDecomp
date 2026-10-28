@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 internal static class SamusOverlaySheetComposer
 {
     /// <summary>What the overlay sheet composes with the body's arm cannon.</summary>
-    internal static SpriteSheetSources Sources(SamusSheetInputs inputs) => Sources(inputs, Ensure.NotNull(inputs).SamusBody.ArmCannon);
+    internal static SpriteSheetSources Sources(SamusSheetInputs inputs) => Sources(inputs, Ensure.NotNull(inputs).SamusBody.Body.ArmCannon);
 
     /// <summary>What the overlay sheet composes with <paramref name="cannon"/>.</summary>
     internal static SpriteSheetSources Sources(SamusSheetInputs inputs, InstalledSamusArmCannonArtwork cannon)

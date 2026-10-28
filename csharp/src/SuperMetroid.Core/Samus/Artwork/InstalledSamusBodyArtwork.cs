@@ -5,11 +5,11 @@ using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
-/// <summary>Editable bank-$92 Samus body characters and their native frame/half selectors.</summary>
+/// <summary>Which body half pictures each Samus pose frame shows, and where the body is placed.</summary>
 /// <remarks>
 /// These records affect presentation only. Pose transitions, animation delays, collision,
-/// and projectile timing remain in the compiled simulation. A selected definition is named by its record, so the
-/// debugger can still identify the original seven-byte DMA record.
+/// and projectile timing remain in the compiled simulation. The body's characters are composed into its pre-coloured
+/// sheets at installation; this catalog names the half pictures a frame shows and carries their characters' identity.
 /// </remarks>
 public sealed class InstalledSamusBodyArtwork
 {
@@ -21,10 +21,6 @@ public sealed class InstalledSamusBodyArtwork
     public const int TopSetCount = 13;
     /// <summary>Number of lower-body definition groups.</summary>
     public const int BottomSetCount = 11;
-    /// <summary>Maximum tile count represented by one definition slot.</summary>
-    public const int TilesPerDefinition = 16;
-    /// <summary>Maximum planar-byte capacity of one definition slot.</summary>
-    public const int BytesPerDefinitionSlot = TilesPerDefinition * 32;
 
     /// <summary>Edited upper-body set starts keyed by native set index.</summary>
     internal readonly Dictionary<int, int> topSetStarts;
@@ -36,26 +32,14 @@ public sealed class InstalledSamusBodyArtwork
     internal readonly Dictionary<int, sbyte> graphicsYOffsets;
     /// <summary>Edited landing visual bytes, including an adjacent unaligned-read byte.</summary>
     internal readonly Dictionary<int, ushort> landingYOffsets;
-    /// <summary>Edited posture-transition art offsets.</summary>
-    internal readonly Dictionary<int, sbyte> postureYOffsets;
-    /// <summary>Edited drained-state art offsets.</summary>
-    internal readonly Dictionary<int, sbyte> drainedYOffsets;
+    /// <summary>The installed posture-transition art offsets.</summary>
+    private readonly sbyte[] postureYOffsets;
+    /// <summary>The installed drained-state art offsets.</summary>
+    private readonly sbyte[] drainedYOffsets;
     /// <summary>Edited components of four-byte native frame selectors.</summary>
     internal readonly Dictionary<int, byte> frames;
-    /// <summary>Characters in Samus's body artwork: two sixteen-wide rows.</summary>
-    public const int BodyCharacterCount = 2 * SpriteArtwork.CharactersPerRow;
-    /// <summary>Characters in one half row, filled by one transfer.</summary>
-    private const int HalfRowCharacters = SpriteArtwork.CharactersPerRow / 2;
-    /// <summary>Upper-body tile definitions grouped by native pointer-table entry.</summary>
-    private readonly SamusBodyTileTransfer[][] top;
-    /// <summary>Lower-body tile definitions grouped by native pointer-table entry.</summary>
-    private readonly SamusBodyTileTransfer[][] bottom;
-    /// <summary>Definition lookup by physical record, including cross-group selections.</summary>
-    private readonly Dictionary<int, SamusBodyTileTransfer> definitionsByRecord = [];
-    /// <summary>Owned ordinal of each definition in authored order (top sets, then bottom sets); the body artwork identity uses it.</summary>
-    private readonly Dictionary<int, int> definitionOrdinals = [];
-    /// <summary>Composed body characters per selected pair, built once.</summary>
-    private readonly System.Collections.Concurrent.ConcurrentDictionary<SamusBodyArtworkKey, SpriteArtwork> bodyArtwork = new();
+    /// <summary>The first numbered half picture any set holds; every record from it to the last is installed.</summary>
+    private readonly int firstRecord;
 
     /// <summary>Editable bank-$92 OAM composition for these body frames.</summary>
     public InstalledSamusSpritemaps Spritemaps { get; }
@@ -69,20 +53,24 @@ public sealed class InstalledSamusBodyArtwork
     /// <summary>Identity of the selected death-explosion characters, whose pre-coloured sheet is installed separately.</summary>
     public string DeathTilesContentIdentity { get; }
 
+    /// <summary>Identity of the selected body characters, whose pre-coloured sheets are installed separately.</summary>
+    public string BodyCharactersContentIdentity { get; }
+
     /// <summary>Editable pose placement and cover characters for the independent arm-cannon OBJ.</summary>
     public InstalledSamusArmCannonArtwork ArmCannon { get; }
 
     /// <summary>Creates and validates a complete editable Samus body-art catalog.</summary>
-    /// <param name="parts">Samus's body pointer tables, frame tiles, offsets and dependent artwork catalogs (#633).</param>
-    public InstalledSamusBodyArtwork(SamusBodyArtworkParts parts)
+    /// <param name="parts">Samus's body pointer tables, frame selections, offsets and dependent artwork catalogs (#633).</param>
+    /// <param name="bodyCharactersContentIdentity">Identity of the body characters the frames select, composed into the body sheets at installation.</param>
+    public InstalledSamusBodyArtwork(SamusBodyArtworkParts parts, string bodyCharactersContentIdentity)
     {
+        Ensure.NotNull(parts);
+        Ensure.NotNull(bodyCharactersContentIdentity);
         Ensure.NotNull(parts.TopSetStarts);
         Ensure.NotNull(parts.BottomSetStarts);
         Ensure.NotNull(parts.PoseFirstFrames);
         Ensure.NotNull(parts.GraphicsYOffsets);
         Ensure.NotNull(parts.Frames);
-        Ensure.NotNull(parts.Top);
-        Ensure.NotNull(parts.Bottom);
         Ensure.NotNull(parts.Spritemaps);
         Ensure.NotNull(parts.Atmosphere);
         Ensure.NotNull(parts.DeathPalettes);
@@ -96,8 +84,7 @@ public sealed class InstalledSamusBodyArtwork
             parts.LandingYOffsets.Length != SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount ||
             parts.PostureYOffsets.Length != SamusDrawingDefinitions.BodyOffsets.PostureTransitionVerticalOffsetByteCount ||
             parts.DrainedYOffsets.Length != SamusDrawingDefinitions.BodyOffsets.DrainedVerticalOffsetByteCount ||
-            parts.Frames.Length != FrameCount ||
-            parts.Top.Length != TopSetCount || parts.Bottom.Length != BottomSetCount)
+            parts.Frames.Length != FrameCount)
             throw new InvalidDataException("Samus body selector tables have an invalid length.");
 
         this.topSetStarts = Enumerable.Range(0, parts.TopSetStarts.Length)
@@ -130,49 +117,23 @@ public sealed class InstalledSamusBodyArtwork
                 ? components[index] != components[SamusBodyFrameSharing.SourceComponent(index)]
                 : !SamusBodyFrameSharing.TryComponent(index, out int calculated) || components[index] != calculated)
             .ToDictionary(index => index, index => components[index]);
+        this.postureYOffsets = (sbyte[])parts.PostureYOffsets.Clone();
+        this.drainedYOffsets = (sbyte[])parts.DrainedYOffsets.Clone();
         Spritemaps = parts.Spritemaps;
         Atmosphere = parts.Atmosphere;
         DeathPalettes = parts.DeathPalettes;
         DeathTilesContentIdentity = parts.DeathTilesContentIdentity;
+        BodyCharactersContentIdentity = bodyCharactersContentIdentity;
         ArmCannon = parts.ArmCannon.WithBodyGeometry(this);
-        this.top = CloneAndValidate(parts.TopSetStarts, parts.Top);
-        this.bottom = CloneAndValidate(parts.BottomSetStarts, parts.Bottom);
-        SamusBodyDefinitionStarts.ValidateCompleteGroups(parts.TopSetStarts, parts.BottomSetStarts, this.top, this.bottom);
-        IndexDefinitions(SamusBodyHalf.Top, this.top);
-        IndexDefinitions(SamusBodyHalf.Bottom, this.bottom);
-        this.postureYOffsets = Enumerable.Range(0, parts.PostureYOffsets.Length)
-            .Where(index => SamusBodyPlacements.PostureSourceIndex(index) == index
-                ? !SamusBodyPlacements.TryDefaultPostureByte(this, index, out int calculated) || parts.PostureYOffsets[index] != calculated
-                : parts.PostureYOffsets[index] != parts.PostureYOffsets[SamusBodyPlacements.PostureSourceIndex(index)])
-            .ToDictionary(index => index, index => parts.PostureYOffsets[index]);
-        this.drainedYOffsets = Enumerable.Range(0, parts.DrainedYOffsets.Length)
-            .Where(index => !SamusBodyPlacements.TryDefaultDrainedByte(this, index, out int calculated) || parts.DrainedYOffsets[index] != calculated)
-            .ToDictionary(index => index, index => parts.DrainedYOffsets[index]);
+        // Each set's half pictures run from its start to the next start in sorted order, so together they number every
+        // record from the lowest start to the last.
+        firstRecord = SamusBodyDefinitionStarts.GroupLengths(parts.TopSetStarts, parts.BottomSetStarts).Keys.Min();
         foreach (int firstFrame in parts.PoseFirstFrames)
             if ((uint)firstFrame >= FrameCount)
                 throw new InvalidDataException($"Samus pose selects invalid frame list {firstFrame}.");
-        // The contiguous bank image also contains bytes reached only by a frame
-        // counter running past its authored list. Validate a selection when it is
-        // actually used, not every four-byte word in the backing ROM interval.
-        BindTransfers(SamusBodyHalf.Top, this.top);
-        BindTransfers(SamusBodyHalf.Bottom, this.bottom);
-        definitionsByRecord.Clear();
-        definitionOrdinals.Clear();
-        IndexDefinitions(SamusBodyHalf.Top, this.top);
-        IndexDefinitions(SamusBodyHalf.Bottom, this.bottom);
     }
 
-    /// <summary>Resolves each definition's native transfer geometry against the selected frame tables.</summary>
-    private void BindTransfers(SamusBodyHalf half, SamusBodyTileTransfer[][] groups)
-    {
-        ReadOnlySpan<int> firstFrames = PoseFirstFrames;
-        ReadOnlySpan<SamusBodyFrameSelection> frameSnapshot = Frames;
-        for (int set = 0; set < groups.Length; set++)
-        for (int position = 0; position < groups[set].Length; position++)
-            groups[set][position] = groups[set][position].WithTransferGeometry(this, half == SamusBodyHalf.Top, set, position, firstFrames, frameSnapshot);
-    }
-
-    /// <summary>SHA-256 of selected body art, all visual selectors and every bundled Samus catalog.</summary>
+    /// <summary>SHA-256 of all visual selectors, the body characters' identity and every bundled Samus catalog.</summary>
     public string ContentIdentity => CreateContentIdentity();
 
     /// <summary>Gets each upper-body definition group's resolved first record.</summary>
@@ -195,29 +156,14 @@ public sealed class InstalledSamusBodyArtwork
     public ReadOnlySpan<ushort> LandingYOffsets => landingYOffsetsTable ??= Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount).Select(LandingByte).ToArray();
     /// <summary>The materialized <see cref="LandingYOffsets"/>; the installed tables never change after construction.</summary>
     private ushort[]? landingYOffsetsTable;
-    /// <summary>Gets the resolved posture-transition vertical-offset table.</summary>
-    public ReadOnlySpan<sbyte> PostureYOffsets => postureYOffsetsTable ??= Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.PostureTransitionVerticalOffsetByteCount).Select(PostureByte).ToArray();
-    /// <summary>The materialized <see cref="PostureYOffsets"/>; the installed tables never change after construction.</summary>
-    private sbyte[]? postureYOffsetsTable;
-    /// <summary>Gets the resolved drained-state vertical-offset table.</summary>
-    public ReadOnlySpan<sbyte> DrainedYOffsets => drainedYOffsetsTable ??= Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.DrainedVerticalOffsetByteCount).Select(DrainedByte).ToArray();
-    /// <summary>The materialized <see cref="DrainedYOffsets"/>; the installed tables never change after construction.</summary>
-    private sbyte[]? drainedYOffsetsTable;
+    /// <summary>Gets the installed posture-transition vertical-offset table.</summary>
+    public ReadOnlySpan<sbyte> PostureYOffsets => postureYOffsets;
+    /// <summary>Gets the installed drained-state vertical-offset table.</summary>
+    public ReadOnlySpan<sbyte> DrainedYOffsets => drainedYOffsets;
     /// <summary>Resolves an edited landing byte or its native shared-source alias.</summary>
     private ushort LandingByte(int index) => landingYOffsets.ContainsKey(index)
         ? landingYOffsets[index] : SamusBodyPlacements.LandingSourceIndex(index) == index
             ? SamusBodyPlacements.DefaultLandingByte(index) : LandingByte(SamusBodyPlacements.LandingSourceIndex(index));
-    /// <summary>Resolves an edited posture offset, following native aliases when needed.</summary>
-    private sbyte PostureByte(int index) => postureYOffsets.ContainsKey(index)
-        ? postureYOffsets[index] : SamusBodyPlacements.PostureSourceIndex(index) != index
-            ? PostureByte(SamusBodyPlacements.PostureSourceIndex(index))
-            : SamusBodyPlacements.TryDefaultPostureByte(this, index, out int calculated)
-                ? (sbyte)calculated : throw new InvalidDataException("Selected posture geometry no longer supplies its installed offset.");
-
-    /// <summary>Resolves a drained-state offset from edits or the selected art geometry.</summary>
-    private sbyte DrainedByte(int index) => drainedYOffsets.ContainsKey(index)
-        ? drainedYOffsets[index] : SamusBodyPlacements.TryDefaultDrainedByte(this, index, out int calculated)
-            ? (sbyte)calculated : throw new InvalidDataException("Selected drained geometry no longer supplies its installed offset.");
     /// <summary>Attempts to read the native unaligned landing-offset word at a byte index.</summary>
     /// <param name="index">The starting byte index.</param>
     /// <param name="value">Receives the little-endian landing-offset word.</param>
@@ -239,7 +185,7 @@ public sealed class InstalledSamusBodyArtwork
     public bool TryPostureYOffset(int index, out int value)
     {
         if ((uint)index >= SamusDrawingDefinitions.BodyOffsets.PostureTransitionVerticalOffsetByteCount) { value = 0; return false; }
-        value = PostureByte(index);
+        value = postureYOffsets[index];
         return true;
     }
     /// <summary>Attempts to read a signed drained-state art offset.</summary>
@@ -249,7 +195,7 @@ public sealed class InstalledSamusBodyArtwork
     public bool TryDrainedYOffset(int index, out int value)
     {
         if ((uint)index >= SamusDrawingDefinitions.BodyOffsets.DrainedVerticalOffsetByteCount) { value = 0; return false; }
-        value = DrainedByte(index);
+        value = drainedYOffsets[index];
         return true;
     }
     /// <summary>Signed pose art origin; changing it never changes a physical projectile origin.</summary>
@@ -269,10 +215,6 @@ public sealed class InstalledSamusBodyArtwork
     /// <summary>Assembles one native four-byte upper/lower body selector.</summary>
     private SamusBodyFrameSelection FrameAt(int index) => new(FrameComponent(index * 4), FrameComponent(index * 4 + 1),
         FrameComponent(index * 4 + 2), FrameComponent(index * 4 + 3));
-    /// <summary>Gets an upper-body definition group by pointer-table index.</summary>
-    public IReadOnlyList<SamusBodyTileTransfer> TopSet(int set) => top[set];
-    /// <summary>Gets a lower-body definition group by pointer-table index.</summary>
-    public IReadOnlyList<SamusBodyTileTransfer> BottomSet(int set) => bottom[set];
 
     /// <summary>Resolves an edited pose's first frame or the compiled stock one.</summary>
     private int PoseFirstFrame(SamusPoseId pose) => poseFirstFrames.TryGetValue(SamusPoseNumbering.Number(pose), out int value)
@@ -287,9 +229,9 @@ public sealed class InstalledSamusBodyArtwork
         if ((uint)index >= FrameCount)
             throw new InvalidDataException($"Samus frame {index} is outside extracted visual selectors.");
         SamusBodyFrameSelection frame = FrameAt(index);
-        GetDefinition(true, frame.TopSet, frame.TopPosition);
+        _ = DefinitionRecord(SamusBodyHalf.Top, frame.TopSet, frame.TopPosition);
         if (frame.NamesBottom)
-            GetDefinition(false, frame.BottomSet, frame.BottomPosition);
+            _ = DefinitionRecord(SamusBodyHalf.Bottom, frame.BottomSet, frame.BottomPosition);
         return frame;
     }
 
@@ -302,18 +244,6 @@ public sealed class InstalledSamusBodyArtwork
     }
     /// <summary>Whether a frame-selector component is a table index the selector can hold (0 through 255).</summary>
     private static bool IsSelectorComponent(int component) => component is >= 0 and <= byte.MaxValue;
-
-    /// <summary>Resolves a native set and position to its physical body tile definition.</summary>
-    public SamusBodyTileTransfer GetDefinition(bool upperHalf, int set, int position)
-    {
-        if (set < 0 || set >= (upperHalf ? TopSetCount : BottomSetCount) || !IsSelectorComponent(position))
-            throw new InvalidDataException(
-                $"Samus {(upperHalf ? "top" : "bottom")} definition {set:X2}/{position:X2} is absent.");
-        // The native selector steps position records past the chosen set's first without a
-        // per-set bounds check. Several authored frames intentionally land in the
-        // next definition group; resolve the physical record, not a C# jagged index.
-        return DefinitionAt(SetStart(upperHalf, set) + position);
-    }
 
     /// <summary>
     /// The frame <paramref name="animationFrame"/> places after the pose's first, when it lies in the frame table and both
@@ -333,92 +263,30 @@ public sealed class InstalledSamusBodyArtwork
     /// <summary>Whether a native set and position resolve to an installed definition.</summary>
     private bool HasDefinition(SamusBodyHalf half, int set, int position) =>
         set >= 0 && set < (half == SamusBodyHalf.Top ? TopSetCount : BottomSetCount) && IsSelectorComponent(position) &&
-        definitionsByRecord.ContainsKey(SetStart(half == SamusBodyHalf.Top, set) + position);
+        IsInstalledRecord(SetStart(half == SamusBodyHalf.Top, set) + position);
+
+    /// <summary>Whether a numbered half picture lies in an installed set.</summary>
+    private bool IsInstalledRecord(int record) => record >= firstRecord && record < SamusBodyDefinitionLayout.RecordCount;
 
     /// <summary>Returns the record selected by a native body set and position.</summary>
+    /// <exception cref="InvalidDataException">The set and position name no installed half picture.</exception>
     public int DefinitionRecord(SamusBodyHalf half, int set, int position)
     {
-        _ = GetDefinition(half == SamusBodyHalf.Top, set, position);
-        return SetStart(half == SamusBodyHalf.Top, set) + position;
-    }
-
-    /// <summary>
-    /// Samus's 32 body characters as the selected definitions make them visible: each definition's first transfer
-    /// fills one eight-character half row (top: characters 0-7, bottom: 8-15) and its second transfer the half row
-    /// below it (top: 16-23, bottom: 24-31). A half with no selected definition is blank.
-    /// </summary>
-    /// <param name="topRecord">The selected top definition's record, or null.</param>
-    /// <param name="bottomRecord">The selected bottom definition's record, or null.</param>
-    public SpriteArtwork BodyArtwork(int? topRecord, int? bottomRecord)
-    {
-        int top = topRecord is { } upper ? definitionOrdinals[upper] : -1;
-        int bottom = bottomRecord is { } lower ? definitionOrdinals[lower] : -1;
-        return bodyArtwork.GetOrAdd(new SamusBodyArtworkKey(top, bottom), key =>
-        {
-            var characters = new byte[BodyCharacterCount * SpriteArtwork.CharacterByteCount];
-            if (topRecord is { } upperRecord)
-                CopyHalves(DefinitionAt(upperRecord), characters, 0);
-            if (bottomRecord is { } lowerRecord)
-                CopyHalves(DefinitionAt(lowerRecord), characters, HalfRowCharacters);
-            return new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.SamusBody, key.SpriteVariant), characters);
-        });
-
-        static void CopyHalves(SamusBodyTileTransfer definition, byte[] characters, int firstCharacter)
-        {
-            ReadOnlySpan<byte> planar = definition.Planar.Span;
-            planar[..definition.FirstSize].CopyTo(characters.AsSpan(firstCharacter * SpriteArtwork.CharacterByteCount));
-            planar[definition.FirstSize..].CopyTo(characters.AsSpan(
-                (firstCharacter + SpriteArtwork.CharactersPerRow) * SpriteArtwork.CharacterByteCount));
-        }
-    }
-
-    /// <summary>Resolve a saved definition record after a debugger-state rebind.</summary>
-    public SamusBodyTileTransfer DefinitionAt(int record)
-    {
-        if (!definitionsByRecord.TryGetValue(record, out SamusBodyTileTransfer? definition))
+        bool upperHalf = half == SamusBodyHalf.Top;
+        if (set < 0 || set >= (upperHalf ? TopSetCount : BottomSetCount) || !IsSelectorComponent(position))
+            throw new InvalidDataException(
+                $"Samus {(upperHalf ? "top" : "bottom")} definition {set:X2}/{position:X2} is absent.");
+        // The native selector steps position records past the chosen set's first without a
+        // per-set bounds check. Several authored frames intentionally land in the
+        // next definition group; resolve the physical record, not a per-set index.
+        int record = SetStart(upperHalf, set) + position;
+        if (!IsInstalledRecord(record))
             throw new InvalidDataException($"Samus body definition record {record} is absent from installed art.");
-        return definition;
+        return record;
     }
 
-    /// <summary>Indexes each tile definition at its physical record.</summary>
-    private void IndexDefinitions(SamusBodyHalf half, SamusBodyTileTransfer[][] groups)
-    {
-        for (int set = 0; set < groups.Length; set++)
-        for (int position = 0; position < groups[set].Length; position++)
-        {
-            int record = SetStart(half == SamusBodyHalf.Top, set) + position;
-            if (!definitionsByRecord.TryAdd(record, groups[set][position]))
-                throw new InvalidDataException($"Samus body definition record {record} is duplicated.");
-            definitionOrdinals.Add(record, definitionOrdinals.Count);
-        }
-    }
-
-    /// <summary>Clones authored groups and validates each transfer slot against native capacity.</summary>
-    private static SamusBodyTileTransfer[][] CloneAndValidate(
-        int[] starts, SamusBodyTileTransfer[][] groups)
-    {
-        var result = new SamusBodyTileTransfer[groups.Length][];
-        for (int set = 0; set < groups.Length; set++)
-        {
-            SamusBodyTileTransfer[] source = groups[set] ??
-                throw new InvalidDataException($"Samus body definition set {set} is missing.");
-            result[set] = (SamusBodyTileTransfer[])source.Clone();
-            if (source.Length == 0 || starts[set] < 0)
-                throw new InvalidDataException($"Samus body definition set {set} is malformed.");
-            foreach (SamusBodyTileTransfer definition in source)
-            {
-                if (definition is null || definition.FirstSize == 0 ||
-                    definition.FirstSize + definition.SecondSize > BytesPerDefinitionSlot ||
-                    (definition.FirstSize + definition.SecondSize) % 32 != 0 ||
-                    definition.Planar.Length != definition.FirstSize + definition.SecondSize)
-                    throw new InvalidDataException($"Samus body definition set {set} has invalid tile data.");
-            }
-        }
-        return result;
-    }
-
-    /// <summary>Hashes selected body bytes, selectors, and bundled Samus presentation catalogs.</summary>
-    private string CreateContentIdentity() => SelectedPresentationHash.Create("samus-body-v2", content =>
+    /// <summary>Hashes all visual selectors, the body characters' identity and bundled Samus presentation catalogs.</summary>
+    private string CreateContentIdentity() => SelectedPresentationHash.Create("samus-body-v3", content =>
     {
         foreach (int start in TopSetStarts) content.Append("top set start", start);
         foreach (int start in BottomSetStarts) content.Append("bottom set start", start);
@@ -434,13 +302,7 @@ public sealed class InstalledSamusBodyArtwork
             content.Append("bottom set", frame.BottomSet);
             content.Append("bottom position", frame.BottomPosition);
         }
-        foreach ((int record, SamusBodyTileTransfer definition) in definitionsByRecord.OrderBy(pair => pair.Key))
-        {
-            content.Append("definition record", record);
-            content.Append("first transfer size", definition.FirstSize);
-            content.Append("second transfer size", definition.SecondSize);
-            content.Append("characters", definition.Planar.Span);
-        }
+        content.Append("body characters", Convert.FromHexString(BodyCharactersContentIdentity));
         content.Append("spritemaps", Convert.FromHexString(Spritemaps.ContentIdentity));
         content.Append("atmosphere", Convert.FromHexString(Atmosphere.ContentIdentity));
         content.Append("death palettes", Convert.FromHexString(DeathPalettes.ContentIdentity));

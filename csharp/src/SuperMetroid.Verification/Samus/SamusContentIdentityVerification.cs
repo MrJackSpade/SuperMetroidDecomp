@@ -10,6 +10,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus;
 using SuperMetroid.Verification.Harness;
 
@@ -48,8 +49,15 @@ internal static class SamusContentIdentityVerification
             "canonical spritemap order and host aggregate/warnings pass without a ROM.");
     }
 
-    /// <summary>Builds a minimal Samus art catalog, optionally changing one visual family or spritemap order.</summary>
-    internal static InstalledSamusBodyArtwork CreateSamusIdentityFixture(string? edit = null)
+    /// <summary>
+    /// Builds a minimal Samus art catalog, optionally changing one visual family or spritemap order; its characters are
+    /// registered, so bodies built from its tables compose their sheets from them.
+    /// </summary>
+    internal static InstalledSamusBodyArtwork CreateSamusIdentityFixture(string? edit = null) =>
+        SamusBodySheetFixtures.Register(CreateSamusIdentityCharacters(edit));
+
+    /// <summary>Builds a minimal Samus art catalog and its characters, optionally changing one visual family or spritemap order.</summary>
+    internal static SamusBodyCharacterArtwork CreateSamusIdentityCharacters(string? edit = null)
     {
         int firstRecord = SamusBodyDefinitionLayout.RecordCount -
             (InstalledSamusBodyArtwork.TopSetCount + InstalledSamusBodyArtwork.BottomSetCount);
@@ -126,7 +134,7 @@ internal static class SamusContentIdentityVerification
         InstalledSamusArmCannonArtwork cannon = InstalledSamusArmCannonArtworkTooling.Load(
             new MemoryStream(InstalledSamusArmCannonArtwork.Write(cannonDocument)),
             Png(cannonWidth, 8, edit == "cannon-tiles"));
-        return new InstalledSamusBodyArtwork(new SamusBodyArtworkParts { TopSetStarts = topStarts, BottomSetStarts = bottomStarts, PoseFirstFrames = poses, GraphicsYOffsets = graphics, Frames = frames, Top = Half(topStarts.Length, "top-characters"), Bottom = Half(bottomStarts.Length, "bottom-characters"), Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTilesContentIdentity = deathTiles.ContentIdentity, ArmCannon = cannon, LandingYOffsets = landing, PostureYOffsets = posture, DrainedYOffsets = drained });
+        return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = topStarts, BottomSetStarts = bottomStarts, PoseFirstFrames = poses, GraphicsYOffsets = graphics, Frames = frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTilesContentIdentity = deathTiles.ContentIdentity, ArmCannon = cannon, LandingYOffsets = landing, PostureYOffsets = posture, DrainedYOffsets = drained }, Half(topStarts.Length, "top-characters"), Half(bottomStarts.Length, "bottom-characters"));
 
         static MemoryStream Png(int width, int height, bool changed)
         {

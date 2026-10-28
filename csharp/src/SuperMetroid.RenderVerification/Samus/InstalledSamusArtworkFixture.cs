@@ -16,9 +16,9 @@ internal sealed class InstalledSamusArtworkFixture : IDisposable
     /// <summary>Root of the disposable installation used to load edited artwork.</summary>
     private readonly string root;
     /// <summary>Original body artwork loaded from the supplied installation before any files are copied.</summary>
-    internal InstalledSamusBodyArtwork Stock { get; }
+    internal SamusBodyCharacterArtwork Stock { get; }
     /// <summary>Artwork loaded from the scratch installation after its replacement PNGs are written.</summary>
-    internal InstalledSamusBodyArtwork Edited { get; }
+    internal SamusBodyCharacterArtwork Edited { get; }
     /// <summary>Number of replacement sheets written across body sets, arm cannon, and death tiles.</summary>
     internal int EditedPngCount { get; }
     /// <summary>Disposable installation whose override directory supplies the edited artwork.</summary>
@@ -30,7 +30,7 @@ internal sealed class InstalledSamusArtworkFixture : IDisposable
         string source = new GameInstallation(Path.GetFullPath(installationRoot)).SamusBodyDirectory;
         // Validate before copying: an absent/outdated installation must not silently
         // regenerate its data from the cartridge to make this verification pass.
-        Stock = SamusBodyArtworkFiles.Load(source, null);
+        Stock = SamusBodyArtworkFiles.LoadCharacters(source, null);
         scratch = new TestScratchDirectory("installed-samus-artwork");
         root = scratch.Root;
         try
@@ -56,8 +56,8 @@ internal sealed class InstalledSamusArtworkFixture : IDisposable
             EditedPngCount = InstalledSamusBodyArtwork.TopSetCount +
                 InstalledSamusBodyArtwork.BottomSetCount + 2;
             if (editLayout) SamusIsolationArtworkEdits.WriteBody(installation);
-            Edited = installation.LoadSamusBodyArt();
-            if (Stock.ContentIdentity == Edited.ContentIdentity)
+            Edited = SamusBodyArtworkFiles.LoadCharacters(installation.SamusBodyDirectory, installation.SamusBodyOverrideDirectory);
+            if (Stock.Body.ContentIdentity == Edited.Body.ContentIdentity)
                 throw new InvalidOperationException("PNG replacements did not change selected Samus content.");
 
             void Edit(string name, int width, int height)

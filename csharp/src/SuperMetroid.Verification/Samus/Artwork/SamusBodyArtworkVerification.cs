@@ -28,7 +28,8 @@ internal static class SamusBodyArtworkVerification
     /// <summary>Checks every extracted selector and split character transfer against retail.</summary>
     internal static void VerifySamusBodyArtwork(ISnesAddressSpace bus, GameInstallation installation)
     {
-        InstalledSamusBodyArtwork stock = installation.LoadSamusBodyArt();
+        SamusBodyCharacterArtwork stockCharacters = SamusBodyArtworkFiles.LoadCharacters(installation.SamusBodyDirectory, installation.SamusBodyOverrideDirectory);
+        InstalledSamusBodyArtwork stock = stockCharacters.Body;
         SamusDeathTileAtlas stockDeathTiles = SamusDeathTileArtworkFiles.Load(installation.SamusBodyDirectory, installation.SamusBodyOverrideDirectory);
         Suite(nameof(VerifySamusArmCannonArtwork), () => VerifySamusArmCannonArtwork(bus, stock));
         int definitions = 0;
@@ -62,7 +63,7 @@ internal static class SamusBodyArtworkVerification
                 AssertEqual(nativePointer,
                     upper ? stock.TopSetPointers[set] : stock.BottomSetPointers[set],
                     $"Samus {(upper ? "top" : "bottom")} set {set} pointer");
-                IReadOnlyList<SamusBodyTileTransfer> entries = upper ? stock.TopSet(set) : stock.BottomSet(set);
+                IReadOnlyList<SamusBodyTileTransfer> entries = upper ? stockCharacters.TopSet(set) : stockCharacters.BottomSet(set);
                 for (int position = 0; position < entries.Count; position++)
                 {
                     SamusBodyTileTransfer entry = entries[position];
@@ -317,7 +318,7 @@ internal static class SamusBodyArtworkVerification
         string stockPng = Path.Combine(installation.SamusBodyDirectory, "top-00.png");
         string overridePng = Path.Combine(installation.SamusBodyOverrideDirectory, "top-00.png");
         byte[] original = File.ReadAllBytes(stockPng);
-        IndexedPngImage image = IndexedPng.Read(new MemoryStream(original, false), new(64, checked((ushort)(stock.TopSet(0).Count * 16))));
+        IndexedPngImage image = IndexedPng.Read(new MemoryStream(original, false), new(64, checked((ushort)(stockCharacters.TopSet(0).Count * 16))));
         byte[] pixels = (byte[])image.Pixels.Clone();
         pixels[0] = (byte)((pixels[0] + 1) & 15);
         using (var output = File.Create(overridePng))
@@ -400,7 +401,8 @@ internal static class SamusBodyArtworkVerification
         using (var output = File.Create(armPngOverride))
             IndexedPng.Write(output, new(armImage.Size.X, armImage.Size.Y), armPixels,
                 armImage.Colours);
-        InstalledSamusBodyArtwork replacement = installation.LoadSamusBodyArt();
+        SamusBodyCharacterArtwork replacementCharacters = SamusBodyArtworkFiles.LoadCharacters(installation.SamusBodyDirectory, installation.SamusBodyOverrideDirectory);
+        InstalledSamusBodyArtwork replacement = replacementCharacters.Body;
         SamusDeathTileAtlas replacementDeathTiles = SamusDeathTileArtworkFiles.Load(installation.SamusBodyDirectory, installation.SamusBodyOverrideDirectory);
         AssertTrue(stock.ArmCannon.ReadDrawingByteAt(armXAddress) !=
                 replacement.ArmCannon.ReadDrawingByteAt(armXAddress),
@@ -456,7 +458,7 @@ internal static class SamusBodyArtworkVerification
             "edited cannon PNG belongs to the displayed cover frame");
         AssertEqual(SheetFrameSources.CharacterDraw((ImageSpriteDraw)originalArmFrame.Draws[0]).Artwork.Id, SheetFrameSources.CharacterDraw((ImageSpriteDraw)editedArmFrame.Draws[0]).Artwork.Id,
             "cosmetic cover edits keep the displayed cover frame's identity");
-        AssertTrue(!replacement.TopSet(0)[0].Planar.Span.SequenceEqual(stock.TopSet(0)[0].Planar.Span),
+        AssertTrue(!replacementCharacters.TopSet(0)[0].Planar.Span.SequenceEqual(stockCharacters.TopSet(0)[0].Planar.Span),
             "Samus body PNG override changes compiled tile bytes");
         AssertTrue(replacement.Frames[0].TopPosition != stock.Frames[0].TopPosition,
             "Samus body JSON override changes a visual frame selector");
@@ -559,8 +561,8 @@ internal static class SamusBodyArtworkVerification
         editedFrames.BindArtwork(replacement);
         stockFrames.Select(pose: SamusPoseId.MovingRightNormalPose, animationFrame: 0);
         editedFrames.Select(pose: SamusPoseId.MovingRightNormalPose, animationFrame: 0);
-        AssertTrue(!stock.BodyArtwork(stockFrames.Shown.Top, stockFrames.Shown.Bottom).Characters.SequenceEqual(
-                replacement.BodyArtwork(editedFrames.Shown.Top, editedFrames.Shown.Bottom).Characters),
+        AssertTrue(!stockCharacters.BodyArtwork(stockFrames.Shown.Top, stockFrames.Shown.Bottom).Characters.SequenceEqual(
+                replacementCharacters.BodyArtwork(editedFrames.Shown.Top, editedFrames.Shown.Bottom).Characters),
             "edited Samus body PNG changes the picture production shows for pose $09");
         document.Required("topSetStarts")[0] = 1;
         File.WriteAllText(selectedManifest, document.ToJsonString());

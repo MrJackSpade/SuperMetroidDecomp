@@ -5,6 +5,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Artwork;
@@ -25,7 +26,7 @@ internal static class SamusRenderingFixtureVerification
     {
         if (graphicsOffsetFixtures.TryGetValue(offset, out var existing)) return existing;
         var stock = renderingFixtureStock.Value;
-        var result = new InstalledSamusBodyArtwork(new SamusBodyArtworkParts { TopSetStarts = stock.TopSetStarts.ToArray(), BottomSetStarts = stock.BottomSetStarts.ToArray(), PoseFirstFrames = stock.PoseFirstFrames.ToArray(), GraphicsYOffsets = Enumerable.Repeat(offset, InstalledSamusBodyArtwork.PoseCount).ToArray(), Frames = stock.Frames.ToArray(), Top = Enumerable.Range(0, InstalledSamusBodyArtwork.TopSetCount).Select(index => stock.TopSet(index).ToArray()).ToArray(), Bottom = Enumerable.Range(0, InstalledSamusBodyArtwork.BottomSetCount).Select(index => stock.BottomSet(index).ToArray()).ToArray(), Spritemaps = stock.Spritemaps, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTilesContentIdentity = stock.DeathTilesContentIdentity, ArmCannon = stock.ArmCannon, LandingYOffsets = stock.LandingYOffsets.ToArray(), PostureYOffsets = stock.PostureYOffsets.ToArray(), DrainedYOffsets = stock.DrainedYOffsets.ToArray() });
+        var result = new InstalledSamusBodyArtwork(new SamusBodyArtworkParts { TopSetStarts = stock.TopSetStarts.ToArray(), BottomSetStarts = stock.BottomSetStarts.ToArray(), PoseFirstFrames = stock.PoseFirstFrames.ToArray(), GraphicsYOffsets = Enumerable.Repeat(offset, InstalledSamusBodyArtwork.PoseCount).ToArray(), Frames = stock.Frames.ToArray(), Spritemaps = stock.Spritemaps, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTilesContentIdentity = stock.DeathTilesContentIdentity, ArmCannon = stock.ArmCannon, LandingYOffsets = stock.LandingYOffsets.ToArray(), PostureYOffsets = stock.PostureYOffsets.ToArray(), DrainedYOffsets = stock.DrainedYOffsets.ToArray() }, stock.BodyCharactersContentIdentity);
         graphicsOffsetFixtures.Add(offset, result);
         return result;
     }
@@ -48,6 +49,7 @@ internal static class SamusRenderingFixtureVerification
     internal static void BindSyntheticSamusRendering(TestAddressSpace bus, SamusState samus)
     {
         InstalledSamusBodyArtwork stock = renderingFixtureStock.Value;
+        SamusBodyCharacterArtwork stockCharacters = SamusBodySheetFixtures.CharactersOf(stock);
         ushort Word(int address) => LittleEndianBytes.Word(bus.ReadByte(address), bus.ReadByte(address + 1));
         ushort[] Words(int address, int count) => Enumerable.Range(0, count)
             .Select(index => Word(address + index * 2)).ToArray();
@@ -84,7 +86,7 @@ internal static class SamusRenderingFixtureVerification
             var groups = new SamusBodyTileTransfer[pointers.Length][];
             for (int set = 0; set < groups.Length; set++)
             {
-                groups[set] = (upper ? stock.TopSet(set) : stock.BottomSet(set)).ToArray();
+                groups[set] = (upper ? stockCharacters.TopSet(set) : stockCharacters.BottomSet(set)).ToArray();
                 for (int position = 0; position < groups[set].Length; position++)
                 {
                     int address = 0x920000 | (pointers[set] + position * 7);
@@ -118,6 +120,6 @@ internal static class SamusRenderingFixtureVerification
         for (int index = 0; index < landing.Length; index++)
             if (bus.HasSeededByte(SamusSourceDefinitions.LandingVerticalOffsets.Value + index))
                 landing[index] = bus.ReadByte(SamusSourceDefinitions.LandingVerticalOffsets.Value + index);
-        samus.Presentation.BodyFrames.BindBodyFixture(new InstalledSamusBodyArtwork(new SamusBodyArtworkParts { TopSetStarts = SamusBodyNative.Records(topPointers), BottomSetStarts = SamusBodyNative.Records(bottomPointers), PoseFirstFrames = SamusBodyNative.Frames(posePointers), GraphicsYOffsets = offsets, Frames = frames, Top = Groups(true, topPointers), Bottom = Groups(false, bottomPointers), Spritemaps = sprites, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTilesContentIdentity = stock.DeathTilesContentIdentity, ArmCannon = stock.ArmCannon, LandingYOffsets = landing, PostureYOffsets = OverrideBytes(SamusSourceDefinitions.PostureTransitionVerticalOffsets.Value, stock.PostureYOffsets.ToArray()), DrainedYOffsets = OverrideBytes(SamusSourceDefinitions.DrainedVerticalOffsets.Value, stock.DrainedYOffsets.ToArray()) }));
+        samus.Presentation.BodyFrames.BindBodyFixture(SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = SamusBodyNative.Records(topPointers), BottomSetStarts = SamusBodyNative.Records(bottomPointers), PoseFirstFrames = SamusBodyNative.Frames(posePointers), GraphicsYOffsets = offsets, Frames = frames, Spritemaps = sprites, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTilesContentIdentity = stock.DeathTilesContentIdentity, ArmCannon = stock.ArmCannon, LandingYOffsets = landing, PostureYOffsets = OverrideBytes(SamusSourceDefinitions.PostureTransitionVerticalOffsets.Value, stock.PostureYOffsets.ToArray()), DrainedYOffsets = OverrideBytes(SamusSourceDefinitions.DrainedVerticalOffsets.Value, stock.DrainedYOffsets.ToArray()) }, Groups(true, topPointers), Groups(false, bottomPointers)));
     }
 }

@@ -116,7 +116,7 @@ internal sealed class InstalledSamusIsolationTests
         internal Actor(InstalledSamusIsolationTests tests, bool edited, SamusPoseId pose,
             SamusEquipmentFlags equipment, SamusLiquidMedium medium, bool lowCeiling)
         {
-            Body = edited ? tests.artwork.Edited : tests.artwork.Stock;
+            Body = SamusBodySheetFixtures.Register(edited ? tests.artwork.Edited : tests.artwork.Stock);
             Suits = edited ? tests.suits.Edited : tests.suits.Stock;
             Cycles = edited ? tests.cycles.Edited : tests.cycles.Stock;
             Crystal = edited ? tests.crystal.Edited : tests.crystal.Stock;

@@ -124,10 +124,10 @@ internal static class InstalledSamusFileContractTests
                 if (!(name.StartsWith("top-", StringComparison.Ordinal) || name.StartsWith("bottom-", StringComparison.Ordinal))) continue;
                 bool upper = name.StartsWith("top-", StringComparison.Ordinal);
                 int set = Convert.ToInt32(name.Substring(name.IndexOf('-') + 1, 2), 16);
-                InstalledSamusBodyArtwork body = Load();
+                SamusBodyCharacterArtwork body = SamusBodyArtworkFiles.LoadCharacters(stock, overrides);
                 var definitions = upper ? body.TopSet(set) : body.BottomSet(set);
                 int position = Enumerable.Range(0, definitions.Count).FirstOrDefault(i =>
-                    definitions[i].Planar.Length < InstalledSamusBodyArtwork.BytesPerDefinitionSlot, -1);
+                    definitions[i].Planar.Length < SamusBodyCharacterArtwork.BytesPerDefinitionSlot, -1);
                 if (position < 0) continue;
                 int unusedTile = definitions[position].Planar.Length / 32;
                 image.Pixels[(position * 16 + unusedTile / 8 * 8) * width + unusedTile % 8 * 8] = 1;

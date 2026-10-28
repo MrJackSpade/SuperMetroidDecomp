@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Native body-art allocations and transfer-row geometry, independent of chosen pixel content.</summary>
 internal static class SamusBodyTransferDefinitions

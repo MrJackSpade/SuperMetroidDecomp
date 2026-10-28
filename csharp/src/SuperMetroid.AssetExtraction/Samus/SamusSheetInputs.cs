@@ -18,11 +18,11 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="StandardObjects">The standard OBJ sheet as a page.</param>
 /// <param name="Palettes">The starting and common sprite colours a room load copies.</param>
 /// <param name="Intro">The intro's characters and palette.</param>
-/// <param name="SamusBody">Samus's body definitions, frame selections and spritemaps.</param>
+/// <param name="SamusBody">Samus's body characters, bound to the body's frame selections and spritemaps.</param>
 /// <param name="DeathTiles">The characters of Samus's suit explosion.</param>
 /// <param name="SuitColors">The three suits' colours.</param>
 internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projectiles, SpriteArtwork StandardObjects,
-    GameplayBasePalette Palettes, IntroCinematicArtwork Intro, InstalledSamusBodyArtwork SamusBody,
+    GameplayBasePalette Palettes, IntroCinematicArtwork Intro, SamusBodyCharacterArtwork SamusBody,
     SamusDeathTileAtlas DeathTiles, InstalledSamusSuitColors SuitColors)
 {
     /// <summary>Loads the stock artwork from installed content.</summary>
@@ -36,7 +36,7 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
                 StandardObjectArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.StandardObjectDirectoryName), null).Characters.Span),
             GameplayBasePaletteFiles.Load(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName), null),
             IntroCinematicArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName), null),
-            SamusBodyArtworkFiles.Load(samusBody, null),
+            SamusBodyArtworkFiles.LoadCharacters(samusBody, null),
             SamusDeathTileArtworkFiles.Load(samusBody, null),
             LoadSuitColors(Path.Combine(content, GameInstallationLayout.MapDirectoryName, SamusSuitColorFormat.FileName)));
     }

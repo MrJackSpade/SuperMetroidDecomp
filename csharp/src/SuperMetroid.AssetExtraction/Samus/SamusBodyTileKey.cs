@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>A tile of a Samus body transfer.</summary>
 /// <param name="Upper">The upper.</param>

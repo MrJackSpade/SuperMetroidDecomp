@@ -23,9 +23,9 @@ internal static class SamusBodySheetComposer
     internal static SpriteSheetSources Sources(SamusSheetInputs inputs, SpriteSheetId sheet)
     {
         Ensure.NotNull(inputs);
-        InstalledSamusBodyArtwork body = inputs.SamusBody;
+        SamusBodyCharacterArtwork body = inputs.SamusBody;
         var frames = new List<SheetFrameSource>();
-        foreach ((SamusBodyFrameKey key, SpriteFrame frame) in Frames(body, sheet))
+        foreach ((SamusBodyFrameKey key, SpriteFrame frame) in Frames(body.Body, sheet))
         {
             SpriteArtwork characters = body.BodyArtwork(key.TopRecord, key.BottomRecord);
             // A spritemap naming characters past the body's reads the standard OBJ sheet there.

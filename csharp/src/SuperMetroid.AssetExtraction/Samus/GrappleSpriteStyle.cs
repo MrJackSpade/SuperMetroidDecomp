@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Only the appearance of a native eight-pixel OBJ; no simulation fields.</summary>
 public sealed record GrappleSpriteStyle

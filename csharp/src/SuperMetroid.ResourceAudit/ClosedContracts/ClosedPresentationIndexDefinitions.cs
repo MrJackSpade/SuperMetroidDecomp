@@ -23,6 +23,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
+using SuperMetroid.AssetExtraction.Samus;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 

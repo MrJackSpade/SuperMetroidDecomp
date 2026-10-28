@@ -21,6 +21,6 @@ public static class GrappleSheets
     public static IEnumerable<string> Frames =>
         Enumerable.Range(0, EndpointFrameCount).Select(EndpointFrame)
             .Concat(Enum.GetValues<GrappleRopeOrientation>().SelectMany(orientation =>
-                Enumerable.Range(0, GrappleSpriteDefinitions.SegmentFrameCount).SelectMany(segment =>
+                Enumerable.Range(0, SuperMetroid.Core.Samus.Grapple.GrappleBeamDefinitions.Rendering.SegmentAnimationFrameCount).SelectMany(segment =>
                     RopeMirrors.Select(mirror => RopeFrame(orientation, segment, mirror)))));
 }

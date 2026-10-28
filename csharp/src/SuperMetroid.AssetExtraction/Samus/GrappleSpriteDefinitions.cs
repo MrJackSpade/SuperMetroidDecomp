@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Presentation identities for the endpoint and four timed rope records.</summary>
 public static class GrappleSpriteDefinitions
@@ -17,6 +17,9 @@ public static class GrappleSpriteDefinitions
     private const int SegmentPalette = 5;
     /// <summary>$94:B18D-$B199 common OBJ priority three for rope segments.</summary>
     private const int SegmentPriority = 3;
+
+    /// <summary>$94:B13C/B17C, DrawGrappleBeamEnd: the endpoint is character $20 in palette five, priority three.</summary>
+    internal static SpritePart StockEndpoint { get; } = SpritePart.Single(0x20, SegmentPalette, SegmentPriority);
 
     /// <summary>The native rope appearance of a timed frame: characters $21-$24 with palette five and priority three.</summary>
     internal static SpritePart StockSegment(int frame) =>

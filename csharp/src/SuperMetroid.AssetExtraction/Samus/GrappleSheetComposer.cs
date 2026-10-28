@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Samus.Grapple;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -31,7 +30,7 @@ internal static class GrappleSheetComposer
         Ensure.NotNull(inputs);
         GrappleTileAtlas tiles = inputs.Projectiles.GrappleTiles;
         var frames = new List<SheetFrameSource>();
-        SpritePart endpoint = tiles.Sprites?.Endpoint ?? GrappleBeamDefinitions.Rendering.Endpoint;
+        SpritePart endpoint = tiles.Sprites?.Endpoint ?? GrappleSpriteDefinitions.StockEndpoint;
         if (endpoint.Character is >= FirstRopeCharacter and <= LastRopeCharacter)
             throw new InvalidDataException($"The grapple endpoint names rope character ${endpoint.Character:X3}, which its orientation selects.");
         for (int point = 0; point < GrappleSheetDefinitions.EndpointFrameCount; point++)

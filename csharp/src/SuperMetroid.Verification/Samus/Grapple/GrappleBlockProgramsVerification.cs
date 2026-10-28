@@ -215,11 +215,11 @@ internal static class GrappleBlockProgramsVerification
             const int blockIndex = 27;
             var words = new ushort[width * width];
             words[blockIndex] = 0xe123;
-            var definitions = new byte[0x400 * 8];
+            var definitions = new BackgroundTile[0x400 * 4];
             for (int tile = 0; tile < 4; tile++)
             {
-                definitions[0xb7 * 8 + tile * 2] = 0x17;
-                definitions[0xb8 * 8 + tile * 2] = 0x18;
+                definitions[0xb7 * 4 + tile] = BackgroundTileWordBytes.Tile(0x17);
+                definitions[0xb8 * 4 + tile] = BackgroundTileWordBytes.Tile(0x18);
             }
 
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), definitions);
@@ -228,8 +228,8 @@ internal static class GrappleBlockProgramsVerification
                 "visual test starts the real respawning Grapple PLM");
             plms.Step(level);
             return new GrappleBlockProgramsRenderResult(level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
-                level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
-                level.DisplayedBlockTiles(blockIndex).TopLeft.Raw);
+                level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord,
+                level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord);
         }
 
         var stock = Render(RoomPlmGrappleBlockVisualCatalog.Stock());
@@ -322,7 +322,7 @@ internal static class GrappleBlockProgramsVerification
         const int blockIndex = 27;
         var words = new ushort[width * width];
         words[blockIndex] = 0xe123;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), new byte[0x400 * 8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), new BackgroundTile[0x400 * 4]);
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, blockIndex, bts),
             $"Grapple BTS {bts} installs its native program");

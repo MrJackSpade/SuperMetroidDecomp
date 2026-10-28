@@ -1,4 +1,3 @@
-using System.Buffers.Binary;
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
@@ -112,7 +111,7 @@ internal static class RoomBlockSheetComposer
     /// <exception cref="InvalidDataException">An upload covers only part of a character a block reads.</exception>
     private static ComposedSpriteSheet Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads)
     {
-        byte[] definitions = LoadedRoomAssets.BlockDefinitions(inputs.Metatiles, tileset, uploads.Ceres);
+        BackgroundTile[] definitions = LoadedRoomAssets.BlockDefinitions(inputs.Metatiles, tileset, uploads.Ceres);
         IReadOnlyList<BgCharacterPlacement> load = LoadedRoomAssets.CharacterPlacements(tileset, inputs.Characters.Cre.Characters,
             inputs.Characters.Get(tileset.Characters).Characters);
         var loaded = new BgArtworkBindings();
@@ -137,11 +136,11 @@ internal static class RoomBlockSheetComposer
         BgCharacterPlacement[] all = [.. uploads.Uploads.Concat(uploads.Collectibles.Select(slot => slot.Characters))
             .Where(placement => placement.Set == BgCharacterSet.Tiles)];
         int[] bounds = [.. all.SelectMany(placement => new[] { placement.FirstCharacter, placement.FirstCharacter + placement.CharacterCount }).Distinct().Order()];
-        var tiles = new ushort[RoomBlockPictureNames.Tiles];
-        for (int definition = 0; definition < definitions.Length / RoomLevelPlane.DefinitionBytes; definition++)
+        var tiles = new BackgroundTile[RoomBlockPictureNames.Tiles];
+        for (int definition = 0; definition < definitions.Length / RoomLevelPlane.DefinitionTiles; definition++)
         {
             for (int tile = 0; tile < tiles.Length; tile++)
-                tiles[tile] = BinaryPrimitives.ReadUInt16LittleEndian(definitions.AsSpan(definition * RoomLevelPlane.DefinitionBytes + tile * sizeof(ushort)));
+                tiles[tile] = definitions[definition * RoomLevelPlane.DefinitionTiles + tile];
             AddEach(tiles, all, withLoad: true);
             foreach (BgArtworkBindings objectPage in objectPages)
                 AddOverObjectPage(tiles, objectPage);
@@ -149,16 +148,16 @@ internal static class RoomBlockSheetComposer
         foreach (RoomBlockUploads.CollectibleSlotCharacters slot in uploads.Collectibles)
         {
             // A collectible's definitions show its own graphics, written and bound together.
-            for (int block = 0; block < slot.Words.Length / RoomBlockPictureNames.Tiles; block++)
-                AddEach(slot.Words[(block * RoomBlockPictureNames.Tiles)..((block + 1) * RoomBlockPictureNames.Tiles)], [slot.Characters], withLoad: false);
+            for (int block = 0; block < slot.Tiles.Length / RoomBlockPictureNames.Tiles; block++)
+                AddEach(slot.Tiles[(block * RoomBlockPictureNames.Tiles)..((block + 1) * RoomBlockPictureNames.Tiles)], [slot.Characters], withLoad: false);
         }
         // A library background's image shows its room's load; each 16x16 cell whose characters the room rebinds after
         // loading draws the cell's picture for what they show then.
         foreach (RoomBlockUploads.RoomBackgroundMap background in uploads.Backgrounds)
         {
-            foreach (ushort[] cell in RoomBackgroundImage.Cells(background.Words))
+            foreach (BackgroundTile[] cell in RoomBackgroundImage.Cells(BackgroundTileWords.ToTiles(background.Words)))
             {
-                if (cell.Any(word => all.Any(placement => placement.Covers(BgCharacterSet.Tiles, CharacterOf(word)))))
+                if (cell.Any(tile => all.Any(placement => placement.Covers(BgCharacterSet.Tiles, tile.Tile))))
                     AddEach(cell, all, withLoad: true);
             }
         }
@@ -175,7 +174,7 @@ internal static class RoomBlockSheetComposer
             for (int tile = 0; tile < RoomBlockPictureNames.Tiles; tile++)
             {
                 coloured |= canvas.PaintTile(corner.X + tile % 2 * RoomTileCanvas.CharacterPixels, corner.Y + tile / 2 * RoomTileCanvas.CharacterPixels,
-                    new SnesBgTilemapWord(picture.Words[tile]), bytes[picture.Shown[tile].Artwork].Span.Slice(
+                    picture.Tiles[tile], bytes[picture.Shown[tile].Artwork].Span.Slice(
                         picture.Shown[tile].WordOffset * sizeof(ushort), RoomTileCanvas.CharacterBytes), colours);
             }
             frames.Add(name, new SpriteSheetFrameDocument
@@ -191,12 +190,12 @@ internal static class RoomBlockSheetComposer
         return canvas.ToSheet(colours, frames);
 
         // Adds a picture of the block over the OBJ character table `objects` binds, when every tile's character is bound.
-        void AddOverObjectPage(ushort[] words, BgArtworkBindings objects)
+        void AddOverObjectPage(BackgroundTile[] words, BgArtworkBindings objects)
         {
             var shown = new BgArtworkShown[RoomBlockPictureNames.Tiles];
             for (int tile = 0; tile < shown.Length; tile++)
             {
-                if (!objects.TryShowing(BgCharacterSet.Tiles, CharacterOf(words[tile]), 1, out shown[tile]))
+                if (!objects.TryShowing(BgCharacterSet.Tiles, words[tile].Tile, 1, out shown[tile]))
                     return;
             }
             pictures.TryAdd(RoomBlockPictureNames.Of(words, shown), new Picture([.. words], shown));
@@ -205,9 +204,9 @@ internal static class RoomBlockSheetComposer
         // Adds a picture of the block for each combination of what the upload regions its tiles read can show: the
         // room's load, when given, or each of `candidates` covering the region. Tiles in one region show the same
         // artwork, as one binding covers them all. A block one of whose characters shows nothing is not pictured.
-        void AddEach(ushort[] words, IReadOnlyList<BgCharacterPlacement> candidates, bool withLoad)
+        void AddEach(BackgroundTile[] words, IReadOnlyList<BgCharacterPlacement> candidates, bool withLoad)
         {
-            int[] firsts = [.. words.Select(CharacterOf)];
+            int[] firsts = [.. words.Select(tile => tile.Tile)];
             int[] regions = [.. firsts.Select(first => Region(bounds, first))];
             IEnumerable<BgCharacterPlacement?[]> combinations = [new BgCharacterPlacement?[RoomBlockPictureNames.Tiles]];
             foreach (int region in regions.Distinct())
@@ -243,9 +242,6 @@ internal static class RoomBlockSheetComposer
         }
     }
 
-    /// <summary>The character tile word <paramref name="word"/> names.</summary>
-    private static int CharacterOf(ushort word) => new SnesBgTilemapWord(word).CharacterIndex;
-
     /// <summary>
     /// The upload region holding the character from <paramref name="first"/>: the run between two consecutive upload
     /// bounds it lies in, named by its first bound, or minus one outside every bound.
@@ -259,7 +255,7 @@ internal static class RoomBlockSheetComposer
     /// <summary>One block to picture: its four tile words and what shows at each tile's character.</summary>
     /// <param name="Words">The tile words: top left, top right, bottom left, bottom right.</param>
     /// <param name="Shown">What shows at each tile's character.</param>
-    private sealed record Picture(ushort[] Words, BgArtworkShown[] Shown);
+    private sealed record Picture(BackgroundTile[] Tiles, BgArtworkShown[] Shown);
 
     /// <summary>Artwork bound over background characters: the artwork, the set and the character it starts at.</summary>
     /// <param name="Identity">The artwork.</param>

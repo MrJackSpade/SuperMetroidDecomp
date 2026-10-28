@@ -115,7 +115,7 @@ internal static class RoomPlmPopulationVerification
             RoomLevelData level = CreateRoom(new(4, 4),
                 new ushort[16],
                 new byte[16],
-                blockDefinitions: new byte[0x400 * 8]);
+                blockDefinitions: new BackgroundTile[0x400 * 4]);
             var door = new DoorDefinition(
                 Name: "fixture door",
                 DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
@@ -197,7 +197,7 @@ internal static class RoomPlmPopulationVerification
             RoomLevelData level = CreateRoom(new(8, 8),
                 new ushort[64],
                 new byte[64],
-                blockDefinitions: new byte[0x400 * 8]);
+                blockDefinitions: new BackgroundTile[0x400 * 4]);
             var system = new SharedGameState();
             var plms = PlmFixtures.Unbound();
             AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), decoded, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
@@ -271,7 +271,7 @@ internal static class RoomPlmPopulationVerification
         RoomLevelData level = CreateRoom(new(width, height),
             new ushort[width * height],
             new byte[width * height],
-            blockDefinitions: new byte[0x400 * 8]);
+            blockDefinitions: new BackgroundTile[0x400 * 4]);
         var system = new SharedGameState();
         var samus = new SamusState
         {
@@ -375,7 +375,7 @@ internal static class RoomPlmPopulationVerification
         RoomLevelData level = CreateRoom(new(width, height),
             new ushort[width * height],
             new byte[width * height],
-            blockDefinitions: new byte[0x400 * 8]);
+            blockDefinitions: new BackgroundTile[0x400 * 4]);
         var system = new SharedGameState();
         var samus = new SamusState
         {
@@ -486,7 +486,7 @@ internal static class RoomPlmPopulationVerification
         RoomLevelData level = CreateRoom(new(width, height),
             new ushort[width * height],
             new byte[width * height],
-            blockDefinitions: new byte[0x400 * 8]);
+            blockDefinitions: new BackgroundTile[0x400 * 4]);
         var system = new SharedGameState();
         var plms = PlmFixtures.Unbound();
         AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Brinstar), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
@@ -552,7 +552,7 @@ internal static class RoomPlmPopulationVerification
         RoomLevelData level = CreateRoom(new(width, height),
             levelWords,
             new byte[width * height],
-            blockDefinitions: new byte[0x400 * 8]);
+            blockDefinitions: new BackgroundTile[0x400 * 4]);
         var plms = PlmFixtures.Unbound();
         AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.WreckedShip), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "Wrecked Ship attic record is accepted by sequential loader");
@@ -603,7 +603,7 @@ internal static class RoomPlmPopulationVerification
         RoomLevelData CreateLevel() => CreateRoom(new(width, height),
             new ushort[width * height],
             new byte[width * height],
-            blockDefinitions: new byte[0x400 * 8]);
+            blockDefinitions: new BackgroundTile[0x400 * 4]);
 
         RoomLayer3FxState CreateFx(ushort baseY, ushort targetY, ushort velocity, byte timer)
         {
@@ -760,7 +760,7 @@ internal static class RoomPlmPopulationVerification
         RoomLevelData level = CreateRoom(new(width, height),
             new ushort[width * height],
             new byte[width * height],
-            blockDefinitions: new byte[0x400 * 8]);
+            blockDefinitions: new BackgroundTile[0x400 * 4]);
         var plms = PlmFixtures.Unbound();
         AssertEqual(2, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Brinstar), decoded, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "off-room colored door and following record both run setup");
@@ -836,7 +836,7 @@ internal static class RoomPlmPopulationVerification
         RoomLevelData ordinaryLevel = CreateRoom(new(width, height),
             new ushort[width * height],
             new byte[width * height],
-            blockDefinitions: new byte[0x400 * 8]);
+            blockDefinitions: new BackgroundTile[0x400 * 4]);
         int gateBlock = ordinaryLevel.GetBlockIndex(new(gateX, gateY));
         ordinaryLevel.SetForegroundEntry(gateBlock, originalGateWord);
         var ordinary = PlmFixtures.Unbound();
@@ -861,7 +861,7 @@ internal static class RoomPlmPopulationVerification
         RoomLevelData escapeLevel = CreateRoom(new(width, height),
             new ushort[width * height],
             new byte[width * height],
-            blockDefinitions: new byte[0x400 * 8]);
+            blockDefinitions: new BackgroundTile[0x400 * 4]);
         escapeLevel.SetForegroundEntry(gateBlock, originalGateWord);
         var escape = PlmFixtures.Unbound();
         PlmFixtures.LoadPopulation(ref escape, new PlmRoom(escapeLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
@@ -903,7 +903,7 @@ internal static class RoomPlmPopulationVerification
         RoomLevelData fallbackLevel = CreateRoom(new(width, height),
             new ushort[width * height],
             new byte[width * height],
-            blockDefinitions: new byte[0x400 * 8]);
+            blockDefinitions: new BackgroundTile[0x400 * 4]);
         fallbackLevel.SetForegroundEntry(gateBlock, originalGateWord);
         var fallback = PlmFixtures.Unbound();
         AssertTrue(fallback.DoorPlms.TrySpawnDoorClosingPlm(fallbackLevel, motherBrainExit, system),
@@ -972,7 +972,7 @@ internal static class RoomPlmPopulationVerification
         RoomLevelData level = CreateRoom(new(8, 8),
             new ushort[64],
             new byte[64],
-            blockDefinitions: new byte[0x400 * 8]);
+            blockDefinitions: new BackgroundTile[0x400 * 4]);
         var system = new SharedGameState();
         var plms = PlmFixtures.Unbound();
         AssertEqual(5, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } }),
@@ -1051,7 +1051,7 @@ internal static class RoomPlmPopulationVerification
         const ushort emptyPopulation = 0x9780;
         SeedRoomPlmPopulation(bus, emptyPopulation, [0x00, 0x00]);
         RoomLevelData level = CreateRoom(new(32, 32), new ushort[32 * 32],
-            new byte[32 * 32], blockDefinitions: new byte[0x400 * 8]);
+            new byte[32 * 32], blockDefinitions: new BackgroundTile[0x400 * 4]);
         RoomScrollGrid scrolls = RoomScrollGrid.LoadCompiled(new RoomScrollStorage(),
             new byte[RoomScrollGrid.StorageByteCount], new Extent16<RoomScreens>(2, 2));
         var samus = new SamusState();
@@ -1103,7 +1103,7 @@ internal static class RoomPlmPopulationVerification
         RoomLevelData level = CreateRoom(new(width, 16),
             new ushort[width * 16],
             new byte[width * 16],
-            blockDefinitions: new byte[0x400 * 8]);
+            blockDefinitions: new BackgroundTile[0x400 * 4]);
         var system = new SharedGameState();
         var samus = new SamusState { Health = 99, MaxHealth = 99, Missiles = 0, MaxMissiles = 10 };
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmStationVisuals = visuals });

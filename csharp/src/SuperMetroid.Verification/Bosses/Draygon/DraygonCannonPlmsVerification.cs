@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonCannonPlmProgramVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -30,7 +31,7 @@ internal static class DraygonCannonPlmsVerification
         RoomLevelData level = CreateRoom(new(roomWidth, roomHeight),
             new ushort[roomWidth * roomHeight],
             new byte[roomWidth * roomHeight],
-            blockDefinitions: new byte[0x400 * 8]);
+            blockDefinitions: new BackgroundTile[0x400 * 4]);
         var disabledWords = new List<DraygonCannonControlWord>();
         var plms = PlmFixtures.Unbound();
 

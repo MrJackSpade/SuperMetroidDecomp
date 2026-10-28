@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core.Hardware;
@@ -64,7 +65,7 @@ internal static class CrocomireArenaPlmsVerification
         ushort[] sourceWords = Enumerable.Repeat((ushort)0x8123,
             width * height).ToArray();
         RoomLevelData level = CreateRoom(new(width, height), sourceWords,
-            new byte[sourceWords.Length], blockDefinitions: new byte[0x400 * 8]);
+            new byte[sourceWords.Length], blockDefinitions: new BackgroundTile[0x400 * 4]);
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.BossRoomMutations.TrySpawnCrocomireArenaMutation(level, new(5, 3), header),
             $"Crocomire header {header} allocates");

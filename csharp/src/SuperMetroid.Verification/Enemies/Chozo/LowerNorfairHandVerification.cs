@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
@@ -122,9 +123,9 @@ internal static class LowerNorfairHandVerification
         AssertTrue(runtime.Room.LoadedLevelData.GetCollisionBlock(new(4, 8)).CollisionType != RoomCollisionType.SpecialBlock,
             "completed statue does not install another hand trigger");
         RoomLevelData reentered = runtime.Room.LoadedLevelData;
-        reentered.SetBlockDefinitionWord(0x53 * 4, 0x0053);
+        reentered.SetBlockDefinitionTile(0x53 * 4, BackgroundTileWordBytes.Tile(0x0053));
         AssertEqual((ushort)0x0053,
-            reentered.DisplayedBlockTiles(0x1d * reentered.Size.X + 0x0c).TopLeft.Raw,
+            reentered.DisplayedBlockTiles(0x1d * reentered.Size.X + 0x0c).TopLeft.PackedWord,
             "event-completed hand re-entry streams the installed visual override");
         AssertEqual(0, bus.ForbiddenReadAttempts,
             "complete Lower Norfair hand sequence did not reread compiled PLM data");

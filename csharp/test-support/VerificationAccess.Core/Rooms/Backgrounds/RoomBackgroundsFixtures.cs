@@ -49,7 +49,7 @@ internal static class RoomBackgroundsFixtures
         foreach (var (column, row, cell) in cells)
             blockCells[row / 2 * SideBlocks + column / 2][row % 2 * 2 + column % 2] = cell.Raw;
         var definitionIndices = new Dictionary<BlockCellWords, ushort>();
-        var definitions = new byte[Definitions * RoomLevelPlane.DefinitionBytes];
+        var definitions = new BackgroundTile[Definitions * RoomLevelPlane.DefinitionTiles];
         var blocks = new ushort[blockCells.Length];
         for (int block = 0; block < blocks.Length; block++)
         {
@@ -60,8 +60,7 @@ internal static class RoomBackgroundsFixtures
                 index = (ushort)definitionIndices.Count;
                 definitionIndices.Add(key, index);
                 for (int corner = 0; corner < words.Length; corner++)
-                    BinaryPrimitives.WriteUInt16LittleEndian(
-                        definitions.AsSpan(index * RoomLevelPlane.DefinitionBytes + corner * 2), words[corner]);
+                    definitions[index * RoomLevelPlane.DefinitionTiles + corner] = BackgroundTileWordBytes.Tile(words[corner]);
             }
             blocks[block] = index;
         }
@@ -120,10 +119,10 @@ internal static class RoomBackgroundsFixtures
             words[cell] = BinaryPrimitives.ReadUInt16LittleEndian(image.Slice(SnesVramAddressingConstants.ByteOffsetOfWord(tilemapWord + cell), sizeof(ushort)));
         ushort[] distinct = [.. words.Distinct()];
         // Each distinct word painted as a block of four copies of itself; its top-left quarter pictures the word.
-        var definitions = new byte[distinct.Length * RoomLevelPlane.DefinitionBytes];
+        var definitions = new BackgroundTile[distinct.Length * RoomLevelPlane.DefinitionTiles];
         for (int index = 0; index < distinct.Length; index++)
         for (int corner = 0; corner < 4; corner++)
-            BinaryPrimitives.WriteUInt16LittleEndian(definitions.AsSpan(index * RoomLevelPlane.DefinitionBytes + corner * sizeof(ushort)), distinct[index]);
+            definitions[index * RoomLevelPlane.DefinitionTiles + corner] = BackgroundTileWordBytes.Tile(distinct[index]);
         RoomBlockPictureTable painted = RoomBlockFixtures.Pictures(definitions, image, palette, characterWord);
         var pictureOf = new Dictionary<ushort, BgTilePicture>();
         for (int index = 0; index < distinct.Length; index++)
@@ -138,9 +137,8 @@ internal static class RoomBackgroundsFixtures
     internal static BossBodyPictures UniformBody(SnesBgTilemapWord word, Extent16<TilemapCells> size, ReadOnlySpan<byte> image,
         ReadOnlySpan<RgbColor> palette, int characterWord = 0)
     {
-        var definition = new byte[RoomLevelPlane.DefinitionBytes];
-        for (int corner = 0; corner < 4; corner++)
-            System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(definition.AsSpan(corner * sizeof(ushort)), word.Raw);
+        var definition = new BackgroundTile[RoomLevelPlane.DefinitionTiles];
+        definition.AsSpan().Fill(BackgroundTileWordBytes.Tile(word.Raw));
         SpriteSheetFrame block = RoomBlockFixtures.Pictures(definition, image, palette, characterWord).Picture(0)
             ?? throw new InvalidOperationException("The painted block has no picture.");
         return new BossBodyPictures(size, [.. Enumerable.Repeat((BgTilePicture?)new BgTilePicture(block, default), size.X * size.Y)]);
@@ -223,7 +221,7 @@ internal static class RoomBackgroundsFixtures
         SpriteSheet sheet = SeededSheet(random, scene, size, new Dictionary<string, Position16<ImagePixels>> { [RoomBackgroundImage.FrameName] = default },
             size, "seeded background");
         ushort[] words = [.. Enumerable.Range(0, tileRows * RoomBackgroundImage.PageTiles).Select(_ => (ushort)random.Next(65536))];
-        var image = new RoomBackgroundImage("seeded background", sheet, [.. words]);
+        var image = new RoomBackgroundImage("seeded background", sheet, [.. BackgroundTileWordBytes.Tiles(words)]);
         var cells = new SpriteSheetFrame?[image.CellCount];
         for (int cell = 0; cell < cells.Length; cell++)
             cells[cell] = random.Next(4) == 0 ? blocks.Picture(random.Next(Definitions)) : null;
@@ -336,9 +334,9 @@ internal static class RoomBackgroundsFixtures
     internal static RoomBackgrounds Seeded(Random random, Position16<BgPlanePixels> bg1Scroll,
         Position16<BgPlanePixels>? bg2Scroll = null, bool door = false, bool overlay = false, RgbColor[]? pictureColours = null)
     {
-        var bytes = new byte[Definitions * RoomLevelPlane.DefinitionBytes];
+        var bytes = new byte[Definitions * RoomLevelPlane.DefinitionTiles * sizeof(ushort)];
         random.NextBytes(bytes);
-        ImmutableArray<byte> definitions = [.. bytes];
+        ImmutableArray<BackgroundTile> definitions = [.. BackgroundTileWordBytes.Tiles(bytes)];
         RoomBackgroundLayer Layer(Position16<BgPlanePixels> scroll)
         {
             var blocks = new ushort[SideBlocks * SideBlocks];

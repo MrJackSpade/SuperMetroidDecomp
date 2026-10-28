@@ -255,15 +255,15 @@ internal static class SamusEaterVisualsVerification
         const int width = 16;
         const int height = 16;
         var level = CreateRoom(new(width, height), new ushort[width * height],
-            new byte[width * height], blockDefinitions: new byte[0x400 * 8]);
-        level.SetBlockDefinitionWord(visualWord * 4, visualWord);
+            new byte[width * height], blockDefinitions: new BackgroundTile[0x400 * 4]);
+        level.SetBlockDefinitionTile(visualWord * 4, BackgroundTileWordBytes.Tile(visualWord));
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmSamusEaterVisuals = visuals });
         int origin = 8 * width + 8;
         plms.Drawing.Draw(level, origin, NativePlmDraws.At<SamusEaterDraw>(pointer));
         AssertEqual(physicalWord,
             level.GetCollisionBlockByIndex(origin).PackedWord.Raw,
             "Samus Eater edited draw retains native collision word");
-        AssertEqual(visualWord, level.DisplayedBlockTiles(origin).TopLeft.Raw,
+        AssertEqual(visualWord, level.DisplayedBlockTiles(origin).TopLeft.PackedWord,
             "Samus Eater edited block reaches the real redraw path");
         int nativeCursor = 0x840000 | pointer;
         int expectedX = 8, expectedY = 8;

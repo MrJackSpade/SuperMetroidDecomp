@@ -1,4 +1,5 @@
 ﻿using SuperMetroid.Core.Samus.Abilities.Artwork;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Plms;
@@ -21,10 +22,10 @@ internal sealed class XrayReveal
     /// The frozen reveal map, owned here (#1406). The cartridge built it in the tilemap staging its library backgrounds
     /// decompress into; nothing reads one through the other, so the map is its own state.
     /// </summary>
-    private readonly ushort[] _revealTilemap = new ushort[XrayTilemapLayout.BufferWords];
+    private readonly BackgroundTile[] _revealTilemap = new BackgroundTile[XrayTilemapLayout.BufferWords];
 
     /// <summary>The frozen reveal map; it is never rebuilt from later room changes.</summary>
-    internal ReadOnlySpan<ushort> RevealTilemap => _revealTilemap;
+    internal ReadOnlySpan<BackgroundTile> RevealTilemap => _revealTilemap;
 
     /// <summary>Binds the gameplay owners used to construct the X-ray reveal.</summary>
     internal XrayReveal(BackgroundScrollState backgroundScroll, ActiveRoomState room, SharedGameState system)
@@ -49,7 +50,7 @@ internal sealed class XrayReveal
         var level = _room.LevelData ?? throw new InvalidOperationException("X-ray setup has no level data.");
         Position16<RoomPixels> layer1 = _backgroundScroll.Layer1Position;
         Position16<RoomPixels> bg1Scroll = layer1 + _backgroundScroll.Bg1Offset;
-        // The copy reads the plane's tile words, not its pictures.
+        // The copy reads the plane's tiles, not its pictures.
         IBgTileSource bg1 = level.ForegroundPlane.Tiles(_backgroundScroll.Bg1Offset.AsBgPlaneOffset());
         var map = XrayRevealTilemap.Build(level, bg1, bg1Scroll, layer1,
             room.AreaIndex, XrayRevealVisuals);

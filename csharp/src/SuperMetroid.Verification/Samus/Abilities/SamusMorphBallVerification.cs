@@ -91,7 +91,7 @@ internal static void VerifySamusMorphBallMovement()
     var floorBlocks = new ushort[width * height];
     for (int x = 0; x < width; x++)
         floorBlocks[4 * width + x] = 0x8000;
-    RoomLevelData floor = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(floorBlocks, new byte[floorBlocks.Length], new ushort[floorBlocks.Length]), new byte[8]);
+    RoomLevelData floor = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(floorBlocks, new byte[floorBlocks.Length], new ushort[floorBlocks.Length]), new BackgroundTile[4]);
 
     var samus = new SamusState
     {
@@ -191,7 +191,7 @@ floor, samus, frameCounter: 0);
 
     // Remove the floor and execute the stable grounded handler. Its failed +1 probe drives
     // the explicit `$1D/$41 -> $31/$32` walk-off transition and starts downward gravity.
-    RoomLevelData empty = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), new byte[8]);
+    RoomLevelData empty = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), new BackgroundTile[4]);
     SamusPosturePoseTransitions.ApplyMorphBallPoseChange(samus, SamusPoseId.MorphBallGroundLeftPose);
     samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
     MorphBallMovementResult unsupported = SamusMorphBallMovement.StepGrounded(
@@ -422,7 +422,7 @@ floor, SamusPoseId.UnmorphingTransitionLeftPose, frameCounter: 0),
     var tunnelBlocks = (ushort[])floorBlocks.Clone();
     for (int x = 0; x < width; x++)
         tunnelBlocks[2 * width + x] = 0x8000;
-    RoomLevelData tunnel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(tunnelBlocks, new byte[tunnelBlocks.Length], new ushort[tunnelBlocks.Length]), new byte[8]);
+    RoomLevelData tunnel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(tunnelBlocks, new byte[tunnelBlocks.Length], new ushort[tunnelBlocks.Length]), new BackgroundTile[4]);
     var boxedBall = new SamusState
     {
         Pose = SamusPoseId.MorphBallGroundRightPose,
@@ -1025,7 +1025,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     reactionBts[reactionParentIndex] = 0;
     reactionWords[reactionExtensionIndex] = 0x5058;
     reactionBts[reactionExtensionIndex] = 0xff;
-    var reactionDefinitions = new byte[0x400 * 8];
+    var reactionDefinitions = new BackgroundTile[0x400 * 4];
     RoomLevelData reactionLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(reactionWords, reactionBts, new ushort[reactionWords.Length]), reactionDefinitions);
     var reactionPlms = PlmFixtures.Unbound();
     var reactionBombs = CreateBombFixture();
@@ -1576,7 +1576,7 @@ empty, bombJump, frameCounter: 1, PlmFixtures.Unbound());
     var ceilingBlocks = new ushort[width * height];
     for (int x = 0; x < width; x++)
         ceilingBlocks[2 * width + x] = 0x8000;
-    RoomLevelData ceiling = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(ceilingBlocks, new byte[ceilingBlocks.Length], new ushort[ceilingBlocks.Length]), new byte[8]);
+    RoomLevelData ceiling = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(ceilingBlocks, new byte[ceilingBlocks.Length], new ushort[ceilingBlocks.Length]), new BackgroundTile[4]);
     var straightBombJump = new SamusState
     {
         Pose = SamusPoseId.MorphBallGroundLeftPose,

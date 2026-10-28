@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
@@ -23,14 +24,14 @@ public static class XrayRevealTilemap
     /// <param name="layer1Position">Layer one's position, which selects the revealed blocks.</param>
     /// <param name="area">The room's area; only Brinstar shows Brinstar-only reveals.</param>
     /// <param name="visuals">Installed reveal art, or null for the stock table.</param>
-    public static ushort[] Build(RoomLevelData level, IBgTileSource bg1,
+    public static BackgroundTile[] Build(RoomLevelData level, IBgTileSource bg1,
         Position16<RoomPixels> bg1Scroll, Position16<RoomPixels> layer1Position,
         AreaId area, XrayRevealVisualCatalog? visuals = null)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(bg1);
         Position16<BgPlanePixels> scroll = bg1Scroll.AsBgPlaneScroll();
-        var result = new ushort[XrayTilemapLayout.BufferWords];
+        var result = new BackgroundTile[XrayTilemapLayout.BufferWords];
         for (int row = 0; row < XrayTilemapLayout.MetatileRows; row++)
         for (int col = 0; col < XrayTilemapLayout.MetatileColumns; col++)
         {
@@ -89,28 +90,27 @@ public static class XrayRevealTilemap
                 ? visuals.Apply(block.CollisionType, block.Bts.Value)
                 : XrayRevealTable.Find(block.CollisionType, block.Bts.Value);
         }
-        ushort ReadBg1(int x, int y)
+        BackgroundTile ReadBg1(int x, int y)
         {
             var cell = new Position16<BgPlanePixels>(
                 unchecked((ushort)(scroll.X + (((x & 63) * ScreenGeometry.BackgroundTileSizePixels - scroll.X) & (XrayTilemapLayout.TilemapPixelWidth - 1)))),
                 unchecked((ushort)(scroll.Y + (((y & 31) * ScreenGeometry.BackgroundTileSizePixels - scroll.Y) & (XrayTilemapLayout.TilemapPixelHeight - 1)))));
-            return bg1.TryTileAt(cell, out SnesBgTilemapWord tile) ? tile.Raw : (ushort)0;
+            return bg1.TryTileAt(cell, out BackgroundTile tile) ? tile : default;
         }
         void CopyMetatile(int destination, int metatile)
         {
-            ReadOnlySpan<byte> definitions = level.BlockDefinitions.Span;
-            int offset = metatile * 8;
-            if (offset + 8 > definitions.Length)
+            ReadOnlySpan<BackgroundTile> definitions = level.BlockDefinitions.Span;
+            int first = metatile * RoomLevelPlane.DefinitionTiles;
+            if (first + RoomLevelPlane.DefinitionTiles > definitions.Length)
                 throw new InvalidDataException($"X-ray metatile ${metatile:X4} is outside the room definition table.");
-            Write(destination, Word(offset)); Write(destination + 1, Word(offset + 2));
-            Write(destination + 32, Word(offset + 4)); Write(destination + 33, Word(offset + 6));
-            ushort Word(int position) => SnesLittleEndian.Word(level.BlockDefinitions.Span[position], level.BlockDefinitions.Span[position + 1]);
+            Write(destination, definitions[first]); Write(destination + 1, definitions[first + 1]);
+            Write(destination + 32, definitions[first + 2]); Write(destination + 33, definitions[first + 3]);
         }
-        void Write(int index, int value)
+        void Write(int index, BackgroundTile tile)
         {
             // Bottom-edge multi-block commands can write into subsequent native scratch
             // RAM. Only these two transferred screens belong to this display projection.
-            if (index < result.Length) result[index] = checked((ushort)value);
+            if (index < result.Length) result[index] = tile;
         }
     }
 

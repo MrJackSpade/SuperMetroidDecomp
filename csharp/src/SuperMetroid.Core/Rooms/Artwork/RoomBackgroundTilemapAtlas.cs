@@ -1,4 +1,3 @@
-using System.Buffers.Binary;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
@@ -17,16 +16,7 @@ public sealed class RoomBackgroundTilemapAtlas
     public ReadOnlyMemory<BackgroundTile> Tiles => tiles;
 
     /// <summary>The tiles as little-endian tilemap words, for the code #1422 has not yet moved off them.</summary>
-    public ReadOnlyMemory<byte> Bytes
-    {
-        get
-        {
-            var bytes = new byte[tiles.Length * sizeof(ushort)];
-            for (int index = 0; index < tiles.Length; index++)
-                BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(index * sizeof(ushort)), BackgroundTileWords.ToWord(tiles[index]));
-            return bytes;
-        }
-    }
+    public ReadOnlyMemory<byte> Bytes => BackgroundTileWords.ToBytes(tiles);
 
     /// <summary>Compiles an editable tile-reference document into one or two native BG tilemap pages.</summary>
     /// <param name="json">Caller-owned readable JSON stream, consumed from its current position without being disposed.</param>

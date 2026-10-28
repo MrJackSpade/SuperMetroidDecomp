@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.RoomPlmPopulationVerification;
@@ -29,7 +30,7 @@ internal static class RechargeStationAdmissionVerification
             PlmHeaderId header = missile ? PlmHeaderId.MissileStation : PlmHeaderId.EnergyStation;
             SeedRoomPlmPopulation(bus, 0x9000, [(byte)PlmNativeWords.Word(header), SnesLittleEndian.HighByte(PlmNativeWords.Word(header)), 8, 8, 0, 0, 0, 0]);
             var level = CreateRoom(new(32, 16), new ushort[512], new byte[512],
-                blockDefinitions: new byte[0x400 * 8]);
+                blockDefinitions: new BackgroundTile[0x400 * 4]);
             var samus = new SamusState { Health = 199, MaxHealth = 199, Missiles = 15, MaxMissiles = 15 };
             var plms = PlmFixtures.Unbound();
             PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });

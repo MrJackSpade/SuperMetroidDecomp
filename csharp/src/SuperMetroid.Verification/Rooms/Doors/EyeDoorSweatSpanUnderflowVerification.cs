@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -21,7 +22,7 @@ internal static class EyeDoorSweatSpanUnderflowVerification
         var blocks = new ushort[width * height];
         for (int x = 0; x < width; x++)
             blocks[6 * width + x] = 0x8000; // floor at row 6; rows 0-5 are air
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(blocks, new byte[blocks.Length], new ushort[blocks.Length]), new byte[8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(blocks, new byte[blocks.Length], new ushort[blocks.Length]), new BackgroundTile[4]);
 
         var drop = new RoomEnemyProjectileSlot(0)
         {

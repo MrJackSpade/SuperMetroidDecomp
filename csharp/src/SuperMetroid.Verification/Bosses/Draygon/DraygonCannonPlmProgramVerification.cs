@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core;
@@ -50,9 +51,9 @@ internal static class DraygonCannonPlmProgramVerification
         ]);
         var guarded = NewDraygonCannonProgramReadGuard(source);
         const int width = 32;
-        var blockDefinitions = new byte[0x400 * 8];
-        blockDefinitions[0x53 * 8] = 0x53;
-        blockDefinitions[0x54 * 8] = 0x54;
+        var blockDefinitions = new BackgroundTile[0x400 * 4];
+        blockDefinitions[0x53 * 4] = BackgroundTileWordBytes.Tile(0x53);
+        blockDefinitions[0x54 * 4] = BackgroundTileWordBytes.Tile(0x54);
         var level = CreateRoom(new(width, 32),
             new ushort[width * 32], new byte[width * 32],
             blockDefinitions: blockDefinitions);
@@ -81,13 +82,13 @@ internal static class DraygonCannonPlmProgramVerification
             level.GetCollisionBlockByIndex(rightShieldBlock).PackedWord.Raw,
             "edited right shield retains native physical collision and tile reference");
         AssertEqual((ushort)0x0053,
-            level.DisplayedBlockTiles(rightShieldBlock).TopLeft.Raw,
+            level.DisplayedBlockTiles(rightShieldBlock).TopLeft.PackedWord,
             "edited right shield survives later room streaming");
         AssertEqual((ushort)0xc114,
             level.GetCollisionBlockByIndex(leftShieldBlock).PackedWord.Raw,
             "edited left shield retains native physical collision and tile reference");
         AssertEqual((ushort)0x0054,
-            level.DisplayedBlockTiles(leftShieldBlock).TopLeft.Raw,
+            level.DisplayedBlockTiles(leftShieldBlock).TopLeft.PackedWord,
             "edited offscreen left shield enters later background streaming");
         AssertTrue(disabled.Contains(DraygonCannonControlWord.UpperLeft),
             "pre-destroyed cannon executes its retail damage-list entry");

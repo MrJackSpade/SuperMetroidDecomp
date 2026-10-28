@@ -123,7 +123,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             // One speed step left: the dive ends after this movement, wherever it is.
             state.Speed = new SignedEightEight(64);
             var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32),
-                new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]), new byte[8]);
+                new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]), new BackgroundTile[4]);
             enemies.NinjaSpacePirateBehavior.StepNinjaPirateDive(slot, state, level, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
             AssertEqual(movingRight ? NinjaSpacePirateFunction.DivekickRightWalkToPost : NinjaSpacePirateFunction.DivekickLeftWalkToPost,
                 state.Function, $"ninja Pirate dive {(movingRight ? "right" : "left")} lands");
@@ -184,7 +184,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
                 ?? throw new InvalidOperationException("Verification requires the initialized ninja state.");
             state.Speed = new SignedEightEight(0);
             var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32),
-                new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]), new byte[8]);
+                new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]), new BackgroundTile[4]);
             ushort nativeSpeed = unchecked((ushort)(0 - 64));
             enemies.NinjaSpacePirateBehavior.StepNinjaPirateDive(slot, state, level, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
             AssertEqual(nativeSpeed, state.Speed.RawValue, "the dive's speed word wraps from zero to its negative raw value");

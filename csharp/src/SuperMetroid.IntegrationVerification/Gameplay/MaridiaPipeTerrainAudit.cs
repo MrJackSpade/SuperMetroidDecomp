@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -45,9 +46,9 @@ internal static class MaridiaPipeTerrainAudit
                 int blockX = worldX / 16, blockY = worldY / 16;
                 if (blockX >= level.Size.X || blockY >= level.Size.Y) continue;
                 var tiles = LevelBlockTilemapExpander.Expand(source[blockY * level.Size.X + blockX], level.BlockDefinitions.Span);
-                ushort expected = (worldY & 8) == 0
+                ushort expected = BackgroundTileWords.ToWord((worldY & 8) == 0
                     ? (worldX & 8) == 0 ? tiles.TopLeft : tiles.TopRight
-                    : (worldX & 8) == 0 ? tiles.BottomLeft : tiles.BottomRight;
+                    : (worldX & 8) == 0 ? tiles.BottomLeft : tiles.BottomRight);
                 int address = tilemap + (mapX >= 256 ? 1024 : 0) + (mapY / 8) * 32 + ((mapX / 8) & 31);
                 ushort actual = BinaryPrimitives.ReadUInt16LittleEndian(vram.AsSpan(address * 2));
                 if (expected == actual) continue;

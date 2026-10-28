@@ -49,7 +49,7 @@ internal static class RoomTilesetSources
     /// <summary>The installed content identity of the selected block tables.</summary>
     internal static string BlockIdentity(RoomMetatileCatalog catalog) => SelectedPresentationHash.FromNamedTransfers(
         nameof(RoomMetatileCatalog), catalog.Atlases.ToDictionary(pair => pair.Key.ToString(), pair => pair.Value),
-        atlas => atlas.BlockDefinitions, catalog.Cre.BlockDefinitions);
+        atlas => BackgroundTileWords.ToBytes(atlas.BlockTiles.Span), BackgroundTileWords.ToBytes(catalog.Cre.BlockTiles.Span));
 
     /// <summary>The installed content identity of the selected room palettes.</summary>
     internal static string PaletteIdentity(RoomStaticPaletteCatalog catalog) => SelectedPresentationHash.FromNamedTransfers(

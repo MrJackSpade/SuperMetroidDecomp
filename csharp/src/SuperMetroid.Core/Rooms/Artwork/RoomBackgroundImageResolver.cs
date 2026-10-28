@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 public sealed class RoomBackgroundImageResolver(RoomBackgroundImage image, RoomBlockSheet sheet, IReadOnlySet<BgArtworkIdentity> loaded)
 {
     /// <summary>What each cell's tiles showed when last resolved, four per cell.</summary>
-    private readonly BgArtworkShown[] shown = new BgArtworkShown[image.TilemapWords.Length];
+    private readonly BgArtworkShown[] shown = new BgArtworkShown[image.Tiles.Length];
 
     /// <summary>The cell pictures last resolved, null where the image shows.</summary>
     private SpriteSheetFrame?[] cells = new SpriteSheetFrame?[image.CellCount];
@@ -33,19 +33,19 @@ public sealed class RoomBackgroundImageResolver(RoomBackgroundImage image, RoomB
     {
         Ensure.NotNull(bindings);
         SpriteSheetFrame?[]? next = resolved ? null : new SpriteSheetFrame?[Image.CellCount];
-        Span<ushort> words = stackalloc ushort[RoomBlockPictureNames.Tiles];
+        var tiles = new BackgroundTile[RoomBlockPictureNames.Tiles];
         var now = new BgArtworkShown[RoomBlockPictureNames.Tiles];
         for (int cell = 0; cell < Image.CellCount; cell++)
         {
             int first = RoomBackgroundImage.CellWord(cell);
-            words[0] = Image.TilemapWords[first];
-            words[1] = Image.TilemapWords[first + 1];
-            words[2] = Image.TilemapWords[first + RoomBackgroundImage.PageTiles];
-            words[3] = Image.TilemapWords[first + RoomBackgroundImage.PageTiles + 1];
+            tiles[0] = Image.Tiles[first];
+            tiles[1] = Image.Tiles[first + 1];
+            tiles[2] = Image.Tiles[first + RoomBackgroundImage.PageTiles];
+            tiles[3] = Image.Tiles[first + RoomBackgroundImage.PageTiles + 1];
             bool changed = !resolved, rebound = false;
             for (int tile = 0; tile < RoomBlockPictureNames.Tiles; tile++)
             {
-                int character = new SnesBgTilemapWord(words[tile]).CharacterIndex;
+                int character = tiles[tile].Tile;
                 if (!animated.TryShowing(character, RoomBlockPictureNames.CharacterWords, out now[tile]))
                     now[tile] = bindings.Showing(BgCharacterSet.Tiles, character, 1);
                 rebound |= !loaded.Contains(now[tile].Artwork);
@@ -55,7 +55,7 @@ public sealed class RoomBackgroundImageResolver(RoomBackgroundImage image, RoomB
                 continue;
             now.CopyTo(shown.AsSpan(cell * RoomBlockPictureNames.Tiles, RoomBlockPictureNames.Tiles));
             next ??= [.. cells];
-            next[cell] = rebound ? sheet.Picture(RoomBlockPictureNames.Of(words, now)) : null;
+            next[cell] = rebound ? sheet.Picture(RoomBlockPictureNames.Of(tiles, now)) : null;
         }
         resolved = true;
         if (next is not null)

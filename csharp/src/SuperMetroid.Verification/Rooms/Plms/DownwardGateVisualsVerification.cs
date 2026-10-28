@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -52,13 +53,13 @@ internal static class DownwardGateVisualsVerification
             StepDownwardGatePlm(plms, level);
             AssertEqual(visuals.GetWord(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1) == 0x0053
                     ? (ushort)0x0053 : (ushort)0x000f,
-                level.DisplayedBlockTiles(gateBlockIndex + level.Size.X).TopLeft.Raw,
+                level.DisplayedBlockTiles(gateBlockIndex + level.Size.X).TopLeft.PackedWord,
                 "first gate PLM step draws its selected second-column visual word");
             StepDownwardGatePlm(plms, level);
             int columnIndex = gateBlockIndex + level.Size.X;
             int triggerIndex = gateBlockIndex - 1;
-            ushort streamed = level.DisplayedBlockTiles(columnIndex).TopLeft.Raw;
-            ushort triggerStreamed = level.DisplayedBlockTiles(triggerIndex).TopLeft.Raw;
+            ushort streamed = level.DisplayedBlockTiles(columnIndex).TopLeft.PackedWord;
+            ushort triggerStreamed = level.DisplayedBlockTiles(triggerIndex).TopLeft.PackedWord;
             return new DownwardGateVisualsRenderResult(level.GetCollisionBlockByIndex(columnIndex).PackedWord.Raw,
                 streamed,
                 level.GetCollisionBlockByIndex(triggerIndex).PackedWord.Raw,

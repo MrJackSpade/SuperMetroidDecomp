@@ -138,7 +138,7 @@ public static class RoomBlockSheetFiles
             2 * tilesets.Count + manifest.Words.Count + words.Sheets.Length + mode7.Tiles.Count);
         return new RoomBlockSheetCatalog(
             tilesets.ToDictionary(tileset => tileset, tileset => new RoomBlockSheet(tileset, store.Read(RoomBlockSheet.NameOf(tileset)))),
-            manifest.Words.ToDictionary(entry => entry.Key, entry => new RoomBackgroundImage(entry.Key, store.Read(entry.Key), [.. entry.Value]),
+            manifest.Words.ToDictionary(entry => entry.Key, entry => new RoomBackgroundImage(entry.Key, store.Read(entry.Key), [.. BackgroundTileWords.ToTiles(entry.Value)]),
                 StringComparer.Ordinal),
             Sheets(TileWordLayer.Bg12), Sheets(TileWordLayer.Bg3),
             tilesets.ToDictionary(tileset => tileset, tileset => new MessageBoxSheet(tileset, store.Read(MessageBoxSheet.NameOf(tileset)), messageWords)),

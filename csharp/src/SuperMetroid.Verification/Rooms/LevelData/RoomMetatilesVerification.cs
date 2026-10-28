@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json.Nodes;
@@ -43,7 +44,7 @@ internal static class RoomMetatilesVerification
             byte[] native = RomDataReader.Decompress(bus, source);
             RoomMetatileAtlas atlas = RoomMetatileAtlas.Load(
                 new MemoryStream(files[name], writable: false), native.Length);
-            AssertTrue(atlas.BlockDefinitions.Span.SequenceEqual(native),
+            AssertTrue(BackgroundTileWordBytes.Of(atlas.BlockTiles.Span).AsSpan().SequenceEqual(native),
                 $"metatile source ${source:X6} roundtrips every tile reference, palette, priority and flip");
         }
         var bySource = new Dictionary<int, RoomMetatileAtlas>();
@@ -82,8 +83,8 @@ internal static class RoomMetatilesVerification
         var levelWord = RoomLevelWord.Create(0, LevelBlockFlipFlags.None,
             RoomCollisionType.SolidBlock);
         byte[] bts = [0x46];
-        var originalLevel = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([levelWord.Raw], bts, [0]), cre);
-        var modifiedLevel = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([levelWord.Raw], bts, [0]), modified.BlockDefinitions.Span);
+        var originalLevel = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([levelWord.Raw], bts, [0]), BackgroundTileWordBytes.Tiles(cre));
+        var modifiedLevel = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([levelWord.Raw], bts, [0]), modified.BlockTiles.Span);
         AssertTrue(originalLevel.ForegroundEntries.Span.SequenceEqual(modifiedLevel.ForegroundEntries.Span) &&
             originalLevel.BehaviorBytes.AsSpan().SequenceEqual(modifiedLevel.BehaviorBytes.AsSpan()),
             "visual metatile edit leaves room collision nibble and BTS unchanged");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
@@ -48,7 +49,7 @@ internal static class CollectibleMessageTimingVerification
                 "The displayed frame has no room backgrounds.")).Bg1.Blocks.Cells[item.BlockIndex];
             ExpandedBlockTiles shown = LevelBlockTilemapExpander.Expand((ushort)(cell.Definition | (int)cell.Flips),
                 runtime.Room.LoadedLevelData.ForegroundPlane.Definitions.AsSpan());
-            return [shown.TopLeft.Raw, shown.TopRight.Raw, shown.BottomLeft.Raw, shown.BottomRight.Raw];
+            return [shown.TopLeft.PackedWord, shown.TopRight.PackedWord, shown.BottomLeft.PackedWord, shown.BottomRight.PackedWord];
         }
         ushort[] HudWords() => runtime.Hud.Tiles.WhereToArray((_, index) => index % 32 < 26);
         ushort[] VisibleHudWords() => Enumerable.Range(0, runtime.Hud.Tiles.Length)

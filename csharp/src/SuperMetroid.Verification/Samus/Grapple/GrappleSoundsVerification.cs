@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Samus.Grapple.GrapplePoseRefireVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
@@ -18,8 +19,8 @@ internal static class GrappleSoundsVerification
     internal static void VerifyGrappleSounds()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var air = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
-        var anchors = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(Enumerable.Repeat((ushort)((int)RoomCollisionType.GrappleBlock << 12), 256).ToArray(), new byte[256], new ushort[256]), new byte[8]);
+        var air = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new BackgroundTile[4]);
+        var anchors = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(Enumerable.Repeat((ushort)((int)RoomCollisionType.GrappleBlock << 12), 256).ToArray(), new byte[256], new ushort[256]), new BackgroundTile[4]);
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         PrepareRetailSamusFixture(samus);

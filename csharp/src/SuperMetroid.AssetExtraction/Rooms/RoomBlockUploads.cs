@@ -114,7 +114,7 @@ internal static class RoomBlockUploads
                     BgArtworkBindings content = state.Background is { } skyProgram
                         ? Replay(inputs, room, tileset, skyProgram, null).Content : Loaded(inputs, tileset);
                     uploads.AddBackground(new RoomBackgroundMap(RoomBackgroundImage.SkyNameOf(variant, tileset),
-                        [.. inputs.Skies.Tilemap(variant).Words], content));
+                        BackgroundTileWords.ToWords(inputs.Skies.Tilemap(variant).Tiles), content));
                 }
             }
         }
@@ -575,8 +575,8 @@ internal static class RoomBlockUploads
 
     /// <summary>A collectible's graphics bound in one slot and the block definitions it writes there.</summary>
     /// <param name="Characters">The graphics bound.</param>
-    /// <param name="Words">The tile words written, four per definition.</param>
-    internal sealed record CollectibleSlotCharacters(BgCharacterPlacement Characters, ushort[] Words);
+    /// <param name="Tiles">The tiles written, four per definition.</param>
+    internal sealed record CollectibleSlotCharacters(BgCharacterPlacement Characters, BackgroundTile[] Tiles);
 
     /// <summary>What an OBJ character table holds at one place: the artwork and the character it starts at.</summary>
     /// <param name="Identity">The artwork.</param>

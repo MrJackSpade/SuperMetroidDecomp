@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
 namespace SuperMetroid.Verification.Samus.Abilities;
@@ -8,7 +9,7 @@ internal static class XrayExtensionsVerification
     /// <summary>Checks axis routing, byte arithmetic, blank exits, unsupported reveal types, and cycle detection.</summary>
     internal static void VerifyXrayExtensions()
     {
-        RoomLevelData Create() => new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(Enumerable.Repeat((ushort)0x8000, 64).ToArray(), new byte[64], new ushort[64]), Array.Empty<byte>());
+        RoomLevelData Create() => new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(Enumerable.Repeat((ushort)0x8000, 64).ToArray(), new byte[64], new ushort[64]), Array.Empty<BackgroundTile>());
         void Set(RoomLevelData level, int index, RoomCollisionType type, byte bts)
         {
             level.SetPlmForegroundEntry(index, (ushort)((int)type << 12));

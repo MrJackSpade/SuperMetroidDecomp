@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -15,7 +16,7 @@ internal static class CompactWalkOffCollisionVerification
     {
         var words = new ushort[16 * 32];
         for (int x = 0; x < 16; x++) words[16 * 16 + x] = 0x8000;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 32), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), new byte[8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 32), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), new BackgroundTile[4]);
         foreach (bool left in new[] { false, true })
         {
             // Native soft-unmorph comparison: the neighboring ordinary landing's

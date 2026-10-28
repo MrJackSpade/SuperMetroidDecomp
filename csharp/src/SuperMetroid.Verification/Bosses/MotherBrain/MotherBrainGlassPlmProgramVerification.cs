@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Rooms.Plms;
@@ -38,7 +39,7 @@ internal static class MotherBrainGlassPlmProgramVerification
         ]);
         var guarded = NewMotherBrainGlassProgramReadGuard(source);
         const int width = 32;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 16), new RoomLevelPlanes(new ushort[width * 16], new byte[width * 16], new ushort[width * 16]), new byte[0x400 * 8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 16), new RoomLevelPlanes(new ushort[width * 16], new byte[width * 16], new ushort[width * 16]), new BackgroundTile[0x400 * 4]);
         bool eventSet = false;
         var plms = PlmFixtures.Unbound();
         AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false, IsBossDefeated = () => false, IsMiniBossDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => eventSet, SetEvent = eventNumber =>

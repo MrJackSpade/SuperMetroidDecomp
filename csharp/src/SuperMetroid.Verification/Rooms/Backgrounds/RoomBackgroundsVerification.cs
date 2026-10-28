@@ -31,10 +31,10 @@ internal static class RoomBackgroundsVerification
     /// <summary>Resolves constructed planes through scroll offsets, a door window and an overlay.</summary>
     internal static void VerifyRoomBackgroundSources()
     {
-        // Definition n shows tile words n*4 .. n*4+3; the level words select definitions with flips.
-        var definitions = new byte[16 * RoomLevelPlane.DefinitionBytes];
-        for (int word = 0; word < definitions.Length / 2; word++)
-            System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(definitions.AsSpan(word * 2), (ushort)word);
+        // Definition n shows the tiles of words n*4 .. n*4+3; the level words select definitions with flips.
+        var definitions = new BackgroundTile[16 * RoomLevelPlane.DefinitionTiles];
+        for (int word = 0; word < definitions.Length; word++)
+            definitions[word] = BackgroundTileWordBytes.Tile(word);
         var blocks = new ushort[Side * Side];
         for (int block = 0; block < blocks.Length; block++)
             blocks[block] = (ushort)((block % 4) << 10 | block);
@@ -57,14 +57,14 @@ internal static class RoomBackgroundsVerification
             ExpandedBlockTiles tiles = LevelBlockTilemapExpander.Expand(
                 blocks[y / RoomLevelPlane.BlockPixels * Side + x / RoomLevelPlane.BlockPixels], definitions);
             bool right = x % RoomLevelPlane.BlockPixels >= 8, bottom = y % RoomLevelPlane.BlockPixels >= 8;
-            SnesBgTilemapWord expected = bottom ? right ? tiles.BottomRight : tiles.BottomLeft : right ? tiles.TopRight : tiles.TopLeft;
-            AssertTrue(planeTiles.TryTileAt(level + offset, out SnesBgTilemapWord tile), $"level pixel {x},{y} is inside the room");
+            BackgroundTile expected = bottom ? right ? tiles.BottomRight : tiles.BottomLeft : right ? tiles.TopRight : tiles.TopLeft;
+            AssertTrue(planeTiles.TryTileAt(level + offset, out BackgroundTile tile), $"level pixel {x},{y} is inside the room");
             AssertEqual(expected, tile, $"scroll {x + offset.X},{y + offset.Y} shows the level block's tile at scroll minus offset");
             checks++;
         }
-        AssertTrue(!planeTiles.TryTileAt(new Position16<BgPlanePixels>(0, 0) + offset + new Offset16<BgPlanePixels>(-1, 0), out SnesBgTilemapWord _),
+        AssertTrue(!planeTiles.TryTileAt(new Position16<BgPlanePixels>(0, 0) + offset + new Offset16<BgPlanePixels>(-1, 0), out BackgroundTile _),
             "a scroll left of the room shows no tile");
-        AssertTrue(!planeTiles.TryTileAt(new Position16<BgPlanePixels>(0, Side * RoomLevelPlane.BlockPixels) + offset, out SnesBgTilemapWord _),
+        AssertTrue(!planeTiles.TryTileAt(new Position16<BgPlanePixels>(0, Side * RoomLevelPlane.BlockPixels) + offset, out BackgroundTile _),
             "a scroll below the room shows no tile");
         AssertTrue(!layer.Blocks.TryCellAt(new Position16<BgPlanePixels>(0, 0) + new Offset16<BgPlanePixels>(-1, 0), out _, out _),
             "a scroll left of the room shows no block");
@@ -88,9 +88,9 @@ internal static class RoomBackgroundsVerification
     /// <summary>A PLM's block change reaches the next published plane, and an earlier plane keeps its blocks.</summary>
     internal static void VerifyPlmBlockChangeReachesPlane()
     {
-        var definitions = new byte[16 * RoomLevelPlane.DefinitionBytes];
-        for (int word = 0; word < definitions.Length / 2; word++)
-            System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(definitions.AsSpan(word * 2), (ushort)(0x100 + word));
+        var definitions = new BackgroundTile[16 * RoomLevelPlane.DefinitionTiles];
+        for (int word = 0; word < definitions.Length; word++)
+            definitions[word] = BackgroundTileWordBytes.Tile(0x100 + word);
         RoomLevelData level = CreateRoom(new(Side, Side), new ushort[Side * Side], new byte[Side * Side], blockDefinitions: definitions);
         RoomLevelPlane before = level.ForegroundPlane;
         AssertTrue(ReferenceEquals(before, level.ForegroundPlane), "an unchanged room publishes one plane");
@@ -138,8 +138,8 @@ internal static class RoomBackgroundsVerification
             for (int x = 0; x < 256; x += 41)
             {
                 var screen = new Offset16<BgPlanePixels>((short)x, (short)y);
-                AssertTrue(level.ForegroundPlane.Tiles(published.Bg1.ScrollOffset).TryTileAt(scroll + screen, out SnesBgTilemapWord shown) &&
-                        level.ForegroundPlane.TryTileAt(camera + screen, out SnesBgTilemapWord expected) && shown == expected,
+                AssertTrue(level.ForegroundPlane.Tiles(published.Bg1.ScrollOffset).TryTileAt(scroll + screen, out BackgroundTile shown) &&
+                        level.ForegroundPlane.TryTileAt(camera + screen, out BackgroundTile expected) && shown == expected,
                     $"{room.Name} BG1 at screen {x},{y} shows the level at the camera");
             }
         }

@@ -469,7 +469,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     // X=88 and reverses when its positive leading edge first enters this wall.
     for (int row = 0; row < roomHeight; row++)
         foreground[row * roomWidth + 6] = 0x8000;
-    RoomLevelData level = new RoomLevelData(new(roomWidth, roomHeight), new RoomLevelPlanes(foreground, new byte[foreground.Length], new ushort[foreground.Length]), new byte[8]);
+    RoomLevelData level = new RoomLevelData(new(roomWidth, roomHeight), new RoomLevelPlanes(foreground, new byte[foreground.Length], new ushort[foreground.Length]), new BackgroundTile[4]);
 
     // The fixture's enemy draws from the installed artwork's sheets; its tiles and colours are not what it checks.
     var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0))
@@ -1086,7 +1086,7 @@ internal static void VerifyCeresRidleyRoomEntry()
 
     const int roomWidth = 32;
     const int roomHeight = 16;
-    RoomLevelData air = new RoomLevelData(new(roomWidth, roomHeight), new RoomLevelPlanes(new ushort[roomWidth * roomHeight], new byte[roomWidth * roomHeight], new ushort[roomWidth * roomHeight]), new byte[8]);
+    RoomLevelData air = new RoomLevelData(new(roomWidth, roomHeight), new RoomLevelPlanes(new ushort[roomWidth * roomHeight], new byte[roomWidth * roomHeight], new ushort[roomWidth * roomHeight]), new BackgroundTile[4]);
     var sharedProjectiles = CreateBombFixture();
     var projectiles = CreateProjectileFixture();
 

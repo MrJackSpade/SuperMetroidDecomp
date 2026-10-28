@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
 /// One installed pre-coloured room background (#1392): the full picture of a 32-tile-wide tilemap a room shows on BG2,
-/// coloured with its tileset's palette over the characters the room loads, and the tilemap words it pictures. A library
+/// coloured with its tileset's palette over the characters the room loads, and the tiles it pictures. A library
 /// background pictures the two BG2 pages it loads, the first above the second; the scrolling sky pictures all its rows.
 /// </summary>
 public sealed class RoomBackgroundImage
@@ -20,7 +20,7 @@ public sealed class RoomBackgroundImage
     /// <summary>The tilemap pages the image pictures.</summary>
     public const int Pages = 2;
 
-    /// <summary>Tilemap words in a library background's two pages.</summary>
+    /// <summary>Tiles in a library background's two pages.</summary>
     public const int Words = Pages * PageTiles * PageTiles;
 
     /// <summary>Pixels along a tilemap page's side.</summary>
@@ -29,22 +29,22 @@ public sealed class RoomBackgroundImage
     /// <summary>The frame of an image's sheet that pictures its whole tilemap.</summary>
     public const string FrameName = "pages";
 
-    /// <summary>Checks the words fill whole pairs of 32-tile rows and the sheet's picture covers them.</summary>
-    /// <exception cref="InvalidDataException">The words do not fill pairs of rows or the picture is not their size.</exception>
-    public RoomBackgroundImage(string name, SpriteSheet sheet, ImmutableArray<ushort> words)
+    /// <summary>Checks the tiles fill whole pairs of 32-tile rows and the sheet's picture covers them.</summary>
+    /// <exception cref="InvalidDataException">The tiles do not fill pairs of rows or the picture is not their size.</exception>
+    public RoomBackgroundImage(string name, SpriteSheet sheet, ImmutableArray<BackgroundTile> tiles)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
         SpriteSheetFrame picture = Ensure.NotNull(sheet).Frame(FrameName);
-        if (words.IsDefaultOrEmpty || words.Length % (2 * PageTiles) != 0)
-            throw new InvalidDataException($"Room background {name} pictures {words.Length} tilemap words, not whole pairs of {PageTiles}-tile rows.");
-        if (picture.Size.X != PagePixels || picture.Size.Y != words.Length / PageTiles * 8)
-            throw new InvalidDataException($"Room background {name} is {picture.Size.X}x{picture.Size.Y}, not its {words.Length / PageTiles} rows.");
+        if (tiles.IsDefaultOrEmpty || tiles.Length % (2 * PageTiles) != 0)
+            throw new InvalidDataException($"Room background {name} pictures {tiles.Length} tiles, not whole pairs of {PageTiles}-tile rows.");
+        if (picture.Size.X != PagePixels || picture.Size.Y != tiles.Length / PageTiles * 8)
+            throw new InvalidDataException($"Room background {name} is {picture.Size.X}x{picture.Size.Y}, not its {tiles.Length / PageTiles} rows.");
         if (picture.Sheet.Colours != SpriteImageColours.Background)
             throw new InvalidDataException($"Room background {name} is not coloured from the background palette.");
         Name = name;
         Sheet = sheet;
         Picture = picture;
-        TilemapWords = words;
+        Tiles = tiles;
     }
 
     /// <summary>The background's installed name.</summary>
@@ -56,20 +56,20 @@ public sealed class RoomBackgroundImage
     /// <summary>The picture of both pages, the first above the second.</summary>
     public SpriteSheetFrame Picture { get; }
 
-    /// <summary>The tilemap words pictured, row by row, 32 to a row.</summary>
-    public ImmutableArray<ushort> TilemapWords { get; }
+    /// <summary>The tiles pictured, row by row, 32 to a row.</summary>
+    public ImmutableArray<BackgroundTile> Tiles { get; }
 
     /// <summary>The image's 16x16 cells: two rows by two columns each.</summary>
-    public int CellCount => TilemapWords.Length / RoomBlockPictureNames.Tiles;
+    public int CellCount => Tiles.Length / RoomBlockPictureNames.Tiles;
 
     /// <summary>The installed name of the sky <paramref name="variant"/>'s rows in a room of <paramref name="tileset"/>.</summary>
     public static string SkyNameOf(ScrollingSkyChunkTable variant, TilesetDefinition tileset) => $"Sky{variant}.{RoomBlockSheet.NameOf(tileset)}";
 
-    /// <summary>Checks <paramref name="words"/> are the words the image pictures, as a sky's rows must be.</summary>
-    /// <exception cref="InvalidDataException">The words differ.</exception>
-    public void AssertPictures(ReadOnlySpan<ushort> words)
+    /// <summary>Checks <paramref name="tiles"/> are the tiles the image pictures, as a sky's rows must be.</summary>
+    /// <exception cref="InvalidDataException">The tiles differ.</exception>
+    public void AssertPictures(ReadOnlySpan<BackgroundTile> tiles)
     {
-        if (!words.SequenceEqual(TilemapWords.AsSpan()))
+        if (!tiles.SequenceEqual(Tiles.AsSpan()))
             throw new InvalidDataException($"The tilemap shown is not the one room background {Name} pictures.");
     }
 
@@ -86,19 +86,19 @@ public sealed class RoomBackgroundImage
             && instruction.Door == door) ? door : null;
 
     /// <summary>
-    /// The 16x16 cells of 32-tile-wide <paramref name="words"/>, row by row, each its four tile words: top left, top right,
+    /// The 16x16 cells of 32-tile-wide <paramref name="tiles"/>, row by row, each its four tiles: top left, top right,
     /// bottom left, bottom right.
     /// </summary>
-    public static IEnumerable<ushort[]> Cells(IReadOnlyList<ushort> words)
+    public static IEnumerable<BackgroundTile[]> Cells(IReadOnlyList<BackgroundTile> tiles)
     {
-        Ensure.NotNull(words);
-        for (int cell = 0; cell < words.Count / RoomBlockPictureNames.Tiles; cell++)
+        Ensure.NotNull(tiles);
+        for (int cell = 0; cell < tiles.Count / RoomBlockPictureNames.Tiles; cell++)
         {
             int first = CellWord(cell);
-            yield return [words[first], words[first + 1], words[first + PageTiles], words[first + PageTiles + 1]];
+            yield return [tiles[first], tiles[first + 1], tiles[first + PageTiles], tiles[first + PageTiles + 1]];
         }
     }
 
-    /// <summary>The first tilemap word of cell <paramref name="cell"/>: sixteen cells to a pair of 32-tile rows.</summary>
+    /// <summary>The first tile of cell <paramref name="cell"/>: sixteen cells to a pair of 32-tile rows.</summary>
     public static int CellWord(int cell) => cell / (PageTiles / 2) * 2 * PageTiles + cell % (PageTiles / 2) * 2;
 }

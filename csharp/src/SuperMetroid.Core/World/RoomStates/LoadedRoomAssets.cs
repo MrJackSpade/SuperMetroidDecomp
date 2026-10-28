@@ -63,11 +63,11 @@ public sealed class LoadedRoomAssets
     /// or a Ceres room's tileset alone.
     /// </summary>
     /// <exception cref="InvalidDataException">The definitions are not whole blocks.</exception>
-    public static byte[] BlockDefinitions(RoomMetatileCatalog metatiles, TilesetDefinition tileset, bool ceres)
+    public static BackgroundTile[] BlockDefinitions(RoomMetatileCatalog metatiles, TilesetDefinition tileset, bool ceres)
     {
         Ensure.NotNull(metatiles);
-        byte[] roomBlockDefinitions = metatiles.Get(tileset.Blocks).BlockDefinitions.ToArray();
-        byte[] blockDefinitions;
+        BackgroundTile[] roomBlockDefinitions = metatiles.Get(tileset.Blocks).BlockTiles.ToArray();
+        BackgroundTile[] blockDefinitions;
         if (ceres)
         {
             // $82:E7D3 installs a Ceres tileset directly at WRAM $A000. Unlike Zebes
@@ -76,16 +76,16 @@ public sealed class LoadedRoomAssets
         }
         else
         {
-            byte[] creDefinitions = metatiles.Cre.BlockDefinitions.ToArray();
-            blockDefinitions = new byte[creDefinitions.Length + roomBlockDefinitions.Length];
+            BackgroundTile[] creDefinitions = metatiles.Cre.BlockTiles.ToArray();
+            blockDefinitions = new BackgroundTile[creDefinitions.Length + roomBlockDefinitions.Length];
             creDefinitions.CopyTo(blockDefinitions, 0);
             roomBlockDefinitions.CopyTo(blockDefinitions, creDefinitions.Length);
         }
 
-        if (blockDefinitions.Length == 0 || (blockDefinitions.Length & 7) != 0)
+        if (blockDefinitions.Length == 0 || blockDefinitions.Length % RoomLevelPlane.DefinitionTiles != 0)
         {
             throw new InvalidDataException(
-                $"Tileset {tileset} produced ${blockDefinitions.Length:X} bytes of block definitions; native blocks are eight bytes each.");
+                $"Tileset {tileset} produced {blockDefinitions.Length} block definition tiles; blocks are four tiles each.");
         }
         return blockDefinitions;
     }
@@ -102,7 +102,7 @@ public sealed class LoadedRoomAssets
         RoomVisualLayoutCatalog visualLayouts = catalogs.VisualLayouts;
         TilesetDefinition tileset = RoomTilesetDefinitions.Get(header.State.GraphicsSet);
 
-        byte[] blockDefinitions = BlockDefinitions(metatileArt, tileset, header.AreaIndex == AreaId.Ceres);
+        BackgroundTile[] blockDefinitions = BlockDefinitions(metatileArt, tileset, header.AreaIndex == AreaId.Ceres);
 
         // Installed visual layouts imply a retail room source. Its collision/BTS and
         // native overread allocation come from the stock-only installed level streams;
@@ -167,7 +167,7 @@ public sealed class LoadedRoomAssets
     private static RoomLevelData ParseLevelData(
         SelectedRoom header,
         byte[] levelStream,
-        byte[] blockDefinitions,
+        BackgroundTile[] blockDefinitions,
         RoomVisualLayout? visualLayout)
     {
         Extent16<RoomBlocks> visibleSize = header.Size.ToRoomBlocks();

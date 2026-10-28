@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
@@ -26,7 +27,8 @@ public static class RoomPresentationIdentity
             [GameInstallationLayout.RoomPaletteDirectoryName] = RoomTilesetSources.PaletteIdentity(palettes),
             [GameInstallationLayout.RoomMetatileDirectoryName] = RoomTilesetSources.BlockIdentity(metatiles),
             [GameInstallationLayout.RoomBackgroundTilemapDirectoryName] = RoomBackgroundTilemapArtworkFiles.ContentIdentity(backgrounds),
-            [nameof(RoomSkyTilemapCatalog)] = skies.ContentIdentity,
+            [nameof(RoomSkyTilemapCatalog)] = SelectedPresentationHash.Create(nameof(RoomSkyTilemapCatalog),
+                content => content.Append("pages", BackgroundTileWords.ToBytes(skies.Pages.Span))),
             [GameInstallationLayout.RoomVisualLayoutDirectoryName] = layouts.ContentIdentity,
         };
 }

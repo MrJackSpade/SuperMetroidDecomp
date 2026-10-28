@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
@@ -202,7 +203,7 @@ internal static class VerificationHelpersVerification
         ReadOnlySpan<ushort> foreground,
         ReadOnlySpan<byte> behavior,
         ReadOnlySpan<ushort> background = default,
-        ReadOnlySpan<byte> blockDefinitions = default)
+        ReadOnlySpan<BackgroundTile> blockDefinitions = default)
     {
         int blockCount = checked(size.X * size.Y);
         ushort[] clearedBackground = background.IsEmpty
@@ -211,8 +212,8 @@ internal static class VerificationHelpersVerification
 
         // One cleared definition is sufficient when a fixture never expands a nonzero
         // visual block. Rendering tests pass their cartridge-authored definition table.
-        byte[] clearedDefinitions = blockDefinitions.IsEmpty
-            ? new byte[8]
+        BackgroundTile[] clearedDefinitions = blockDefinitions.IsEmpty
+            ? new BackgroundTile[4]
             : blockDefinitions.ToArray();
 
         return new RoomLevelData(size, new RoomLevelPlanes(foreground, behavior, clearedBackground), clearedDefinitions);

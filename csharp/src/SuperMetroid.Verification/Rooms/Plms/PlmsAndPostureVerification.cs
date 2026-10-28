@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -26,13 +27,13 @@ internal static void VerifyBreakableGrapplePlms()
     const int width = 8;
     const int height = 8;
     const int blockIndex = 3 * width + 3;
-    var definitions = new byte[0x400 * 8];
+    var definitions = new BackgroundTile[0x400 * 4];
     WriteDefinitionWord(definitions, 0xb7, 0, 0x1111);
     WriteDefinitionWord(definitions, 0xb7, 1, 0x2222);
     WriteDefinitionWord(definitions, 0xb7, 2, 0x3333);
     WriteDefinitionWord(definitions, 0xb7, 3, 0x4444);
 
-    static RoomLevelData CreateLevel(byte behavior, byte[] blockDefinitions)
+    static RoomLevelData CreateLevel(byte behavior, BackgroundTile[] blockDefinitions)
     {
         var foreground = new ushort[width * height];
         var bts = new byte[foreground.Length];
@@ -65,7 +66,7 @@ internal static void VerifyBreakableGrapplePlms()
     respawningPlms.Step(respawning);
     AssertEqual(0xe0b7, respawning.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
         "connection-frame PLM pass draws grapple frame zero");
-    AssertEqual(0x1111, respawning.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
+    AssertEqual(0x1111, respawning.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord,
         "the drawn block shows its ROM-selected visual block definition");
 
     StepMany(respawningPlms,respawning, 239);
@@ -122,7 +123,7 @@ internal static void VerifyBreakableGrapplePlms()
 
     SeedBombBlockPlmPrograms(bus);
 
-    static RoomLevelData CreateBombLevel(byte behavior, byte[] blockDefinitions)
+    static RoomLevelData CreateBombLevel(byte behavior, BackgroundTile[] blockDefinitions)
     {
         var foreground = new ushort[width * height];
         var bts = new byte[foreground.Length];
@@ -186,13 +187,9 @@ internal static void VerifyBreakableGrapplePlms()
     Console.WriteLine("  Movement PLMs: grapple and collision-bomb ROM timing, multi-block terrain, sound, VRAM, and respawn agree.");
 }
 
-/// <summary>Places a little-endian tile definition word in a constructed cartridge block table.</summary>
-static void WriteDefinitionWord(byte[] definitions, int block, int tile, ushort value)
-{
-    int offset = block * 8 + tile * 2;
-    definitions[offset] = unchecked((byte)value);
-    definitions[offset + 1] = SnesLittleEndian.HighByte(value);
-}
+/// <summary>Places the tile a cartridge tilemap word describes in a constructed block table.</summary>
+static void WriteDefinitionWord(BackgroundTile[] definitions, int block, int tile, ushort value) =>
+    definitions[block * 4 + tile] = BackgroundTileWordBytes.Tile(value);
 
 /// <summary>Checks native crouch and stand transition timing, collision radii, floor clipping, and grounded movement.</summary>
 internal static void VerifySamusPostureMovement()

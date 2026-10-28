@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json.Nodes;
@@ -115,10 +116,10 @@ internal static class MotherBrainFakeDeathVisualsVerification
         const int width = 32;
         ushort[] words = Enumerable.Repeat((ushort)0x8123, width * 16).ToArray();
         RoomLevelData level = CreateRoom(new(width, 16), words,
-            new byte[words.Length], blockDefinitions: new byte[0x400 * 8]);
-        level.SetBlockDefinitionWord(0x0058 * 4, 0x0058);
-        level.SetBlockDefinitionWord(0x0059 * 4, 0x0059);
-        level.SetBlockDefinitionWord(0x0249 * 4, 0x0249);
+            new byte[words.Length], blockDefinitions: new BackgroundTile[0x400 * 4]);
+        level.SetBlockDefinitionTile(0x0058 * 4, BackgroundTileWordBytes.Tile(0x0058));
+        level.SetBlockDefinitionTile(0x0059 * 4, BackgroundTileWordBytes.Tile(0x0059));
+        level.SetBlockDefinitionTile(0x0249 * 4, BackgroundTileWordBytes.Tile(0x0249));
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmMotherBrainFakeDeathVisuals = visuals });
         AssertTrue(plms.BossRoomMutations.TrySpawnMotherBrainMutation(level, new(5, 3), header),
             $"Mother Brain visual header {header} allocates");
@@ -129,7 +130,7 @@ internal static class MotherBrainFakeDeathVisualsVerification
             level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
             $"Mother Brain visual header {header} retains physical block");
         // The redraw identifies its block by the block's DrawPLM BG1 ring destination.
-        AssertEqual(visualWord, level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
+        AssertEqual(visualWord, level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord,
             $"Mother Brain visual header {header} presents edited tile");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             $"Mother Brain visual header {header} reads no compiled source");

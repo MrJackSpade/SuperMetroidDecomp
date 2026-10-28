@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.Chozo.ChozoStatueVisualsVerification;
@@ -66,7 +67,7 @@ internal static class ChozoStatuePlmDefinitionsVerification
             const int width = 32;
             const int height = 16;
             int blockCount = width * height;
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[blockCount], new byte[blockCount], new ushort[blockCount]), new byte[8]);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[blockCount], new byte[blockCount], new ushort[blockCount]), new BackgroundTile[4]);
             var plms = PlmFixtures.Unbound();
             var request = new ChozoStatuePlmRequest(
                 definition.Header,

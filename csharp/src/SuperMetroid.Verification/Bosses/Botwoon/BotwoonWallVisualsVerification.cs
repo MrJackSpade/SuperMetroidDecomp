@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
@@ -150,8 +151,8 @@ internal static class BotwoonWallVisualsVerification
         for (int y = 4; y <= 12; y++)
             words[y * width + 15] = 0x0123;
         RoomLevelData level = CreateRoom(new(width, height), words,
-            new byte[words.Length], blockDefinitions: new byte[0x400 * 8]);
-        level.SetBlockDefinitionWord(0x0058 * 4, 0x0058);
+            new byte[words.Length], blockDefinitions: new BackgroundTile[0x400 * 4]);
+        level.SetBlockDefinitionTile(0x0058 * 4, BackgroundTileWordBytes.Tile(0x0058));
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmBotwoonWallVisuals = edited });
         AssertTrue(plms.BossRoomMutations.TrySpawnBotwoonWall(level,
                 PlmHeaderId.ClearBotwoonWall),
@@ -163,10 +164,10 @@ internal static class BotwoonWallVisualsVerification
             level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
             "edited Botwoon wall art retains the physical clear word");
         // A PLM redraw identifies its block by the BG1 ring destination it targets.
-        AssertEqual((ushort)0x0058, level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
+        AssertEqual((ushort)0x0058, level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord,
             "Botwoon wall edit reaches immediate redraw");
         AssertEqual((ushort)0x0058,
-            level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
+            level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord,
             "Botwoon wall edit survives background streaming");
         plms.Step(level);
         AssertEqual(0, plms.SlotTable.ActiveCount,

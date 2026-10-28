@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Hardware;
@@ -33,7 +34,7 @@ internal static class ChainsawFiringVerification
     internal static void VerifyChainsawFiring()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new BackgroundTile[4]);
         var samus = new SamusState
         {
             CollectedItems = SamusEquipmentFlags.HiJumpBoots,
@@ -67,7 +68,7 @@ internal static class ChainsawFiringVerification
         // makes that otherwise invisible call fail loudly through the production path.
         ushort[] reactiveWords = new ushort[256];
         reactiveWords[0] = (int)RoomCollisionType.BombableBlock << 12;
-        var reactiveLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(reactiveWords, new byte[256], new ushort[256]), new byte[8]);
+        var reactiveLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(reactiveWords, new byte[256], new ushort[256]), new BackgroundTile[4]);
         var reactiveSamus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
@@ -91,7 +92,7 @@ internal static class ChainsawFiringVerification
                 (int)RoomCollisionType.VerticalExtension << 12;
             doorBts[doorOrigin + row * 16] = unchecked((byte)-row);
         }
-        var doorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(doorWords, doorBts, new ushort[256]), new byte[8]);
+        var doorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(doorWords, doorBts, new ushort[256]), new BackgroundTile[4]);
         var doorSamus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
@@ -176,7 +177,7 @@ internal static class ChainsawFiringVerification
         ushort[] interferenceWords = new ushort[25];
         byte[] interferenceBts = new byte[25];
         interferenceWords[yellowDoorBlock] = 0x8000;
-        var interferenceLevel = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(interferenceWords, interferenceBts, new ushort[25]), new byte[0x400 * 8]);
+        var interferenceLevel = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(interferenceWords, interferenceBts, new ushort[25]), new BackgroundTile[0x400 * 4]);
         var interferencePlms = PlmFixtures.Unbound();
         AssertEqual(1, PlmFixtures.LoadPopulation(ref interferencePlms, new PlmRoom(interferenceLevel, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(interferenceBus, yellowDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "Chainsaw interference fixture loads the resident yellow door");
@@ -209,7 +210,7 @@ internal static class ChainsawFiringVerification
         ushort[] breakingWords = new ushort[25];
         breakingWords[bombableBlock] =
             (int)RoomCollisionType.BombableBlock << 12;
-        var breakingLevel = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(breakingWords, new byte[25], new ushort[25]), new byte[0x2000]);
+        var breakingLevel = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(breakingWords, new byte[25], new ushort[25]), new BackgroundTile[0x1000]);
         var breakingPlms = PlmFixtures.Unbound();
         var breakingReactions = new List<BombBlockReaction>();
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(

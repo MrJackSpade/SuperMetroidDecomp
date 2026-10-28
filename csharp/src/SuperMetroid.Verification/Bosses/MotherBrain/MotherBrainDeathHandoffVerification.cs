@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Escape;
@@ -36,7 +37,7 @@ internal static class MotherBrainDeathHandoffVerification
         AssertTrue(text.StepInto(vram), "typewriter completes only at terminator after delay");
 
         ushort[] foreground = Enumerable.Repeat((ushort)0x8123, 256).ToArray();
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(foreground, new byte[256], new ushort[256]), new byte[8192]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(foreground, new byte[256], new ushort[256]), new BackgroundTile[4096]);
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.BossRoomMutations.TrySpawnMotherBrainMutation(level, new(0, 6), PlmHeaderId.MotherBrainsRoomEscapeDoor), "escape PLM allocates");
         AssertEqual((ushort)0x9123, level.GetCollisionBlock(new(0, 6)).PackedWord.Raw, "door setup preserves visual bits");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Areas.Escape.EscapeRoomEffectsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -22,7 +23,7 @@ internal static class EscapeAnimalBlocksVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         ushort[] words = Enumerable.Repeat((ushort)0x8123, 256).ToArray();
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(words, new byte[256], new ushort[256]), new byte[8192]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(words, new byte[256], new ushort[256]), new BackgroundTile[4096]);
         var plms = PlmFixtures.Unbound();
         var system = new SharedGameState();
         // The real escape room population installs event ownership; its grey door may

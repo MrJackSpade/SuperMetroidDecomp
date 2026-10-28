@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
@@ -65,9 +66,9 @@ internal static class ChozoStatueVisualsVerification
             // of compiled draw bytes, so the production dispatcher must reach
             // each extracted override without falling back to ROM data.
             const int width = 32;
-            var blockDefinitions = new byte[0x400 * 8];
-            blockDefinitions[0x53 * 8] = 0x53;
-            blockDefinitions[0x54 * 8] = 0x54;
+            var blockDefinitions = new BackgroundTile[0x400 * 4];
+            blockDefinitions[0x53 * 4] = BackgroundTileWordBytes.Tile(0x53);
+            blockDefinitions[0x54 * 4] = BackgroundTileWordBytes.Tile(0x54);
             var guarded = NewChozoProgramAndDrawReadGuard(rom);
             foreach ((PlmHeaderId header, ushort physical, ushort visual) in new[]
             {
@@ -88,7 +89,7 @@ internal static class ChozoStatueVisualsVerification
                     level.GetCollisionBlockByIndex(origin).PackedWord.Raw,
                     $"edited Chozo art retains native physical word for {header}");
                 AssertEqual(visual,
-                    level.DisplayedBlockTiles(origin).TopLeft.Raw,
+                    level.DisplayedBlockTiles(origin).TopLeft.PackedWord,
                     $"edited Chozo art reaches streamed tilemap for {header}");
             }
             AssertEqual(0, guarded.ForbiddenReadAttempts,

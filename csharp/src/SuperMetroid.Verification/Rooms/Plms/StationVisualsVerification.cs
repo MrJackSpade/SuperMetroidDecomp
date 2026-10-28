@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -51,11 +52,11 @@ internal static class StationVisualsVerification
             WriteStationVisualMapPopulation(bus, population);
             const int width = 16;
             const int block = 6 + 6 * width;
-            var definitions = new byte[0x400 * 8];
+            var definitions = new BackgroundTile[0x400 * 4];
             for (int tile = 0; tile < 4; tile++)
             {
-                definitions[0x10c * 8 + tile * 2] = 0x0c;
-                definitions[0x053 * 8 + tile * 2] = 0x53;
+                definitions[0x10c * 4 + tile] = BackgroundTileWordBytes.Tile(0x0c);
+                definitions[0x053 * 4 + tile] = BackgroundTileWordBytes.Tile(0x53);
             }
 
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), definitions);
@@ -63,8 +64,8 @@ internal static class StationVisualsVerification
             PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
             plms.Step(level);
             return new StationVisualsRenderResult(level.GetCollisionBlockByIndex(block).PackedWord.Raw,
-                level.DisplayedBlockTiles(block).TopLeft.Raw,
-                level.DisplayedBlockTiles(block).TopLeft.Raw);
+                level.DisplayedBlockTiles(block).TopLeft.PackedWord,
+                level.DisplayedBlockTiles(block).TopLeft.PackedWord);
         }
 
         var native = Render(stock);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Plms.DynamicCollectibleArtVerification;
@@ -32,7 +33,7 @@ internal static class CompiledDynamicCollectibleGraphicsVerification
         // then exercise the real sequential room loader and assert its resulting VRAM.
         var guarded = NewRetailCollectibleGraphicsReadGuard(rom);
         const int width = 64;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64), new RoomLevelPlanes(new ushort[width * 64], new byte[width * 64], new ushort[width * 64]), new byte[0x400 * 8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64), new RoomLevelPlanes(new ushort[width * 64], new byte[width * 64], new ushort[width * 64]), new BackgroundTile[0x400 * 4]);
         var vram = new SnesVram();
         var plms = PlmFixtures.Unbound();
         PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(vram), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationDefinitions.Get(0x83fe), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });

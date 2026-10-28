@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -30,7 +31,7 @@ internal static class EyeDoorSweatBehaviorVerification
         const int roomWidth = 16;
         var foreground = new ushort[roomWidth * 16];
         foreground[5 * roomWidth + 6] = (int)RoomCollisionType.SolidBlock << 12;
-        RoomLevelData level = CreateRoom(new(roomWidth, 16), foreground, new byte[foreground.Length], blockDefinitions: new byte[1024 * 8]);
+        RoomLevelData level = CreateRoom(new(roomWidth, 16), foreground, new byte[foreground.Length], blockDefinitions: new BackgroundTile[1024 * 4]);
         var request = new EyeDoorProjectileRequest(EyeDoorProjectileDefinition.Sweat, Facing: EyeDoorOrientation.Right, PlmBlockIndex: 4 * roomWidth + 7, DoorBit: 0);
         enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(request, roomWidth, new SharedGameState());
         RoomEnemyProjectileSlot sweat = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorSweat);

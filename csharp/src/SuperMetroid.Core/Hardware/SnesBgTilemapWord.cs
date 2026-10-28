@@ -1,6 +1,9 @@
 namespace SuperMetroid.Core.Hardware;
 
-/// <summary>A lossless view over one standard SNES background tilemap entry.</summary>
+/// <summary>
+/// A lossless view over one cartridge background tilemap entry: the packed word the import pipeline decodes into a
+/// <see cref="SuperMetroid.Core.Assets.BackgroundTile"/>.
+/// </summary>
 /// <param name="Raw">The complete 16-bit entry, including character, palette, priority, and flip fields.</param>
 [EncodingOwner("background tilemap entry word")]
 public readonly record struct SnesBgTilemapWord(ushort Raw)

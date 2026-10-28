@@ -45,7 +45,7 @@ internal static class EyeDoorPlmsVerification
         RoomLevelData level = CreateRoom(new(16, 16),
             new ushort[16 * 16],
             new byte[16 * 16],
-            blockDefinitions: new byte[0x400 * 8]);
+            blockDefinitions: new BackgroundTile[0x400 * 4]);
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(220, 80)) };
         int randomAdvances = 0;
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => { randomAdvances++; return 0x7777; }) { ReadRandom = () => 0x3412 });
@@ -134,7 +134,7 @@ internal static class EyeDoorPlmsVerification
         RoomLevelData level = CreateRoom(new(roomWidth, roomHeight),
             new ushort[roomWidth * roomHeight],
             new byte[roomWidth * roomHeight],
-            blockDefinitions: new byte[0x400 * 8]);
+            blockDefinitions: new BackgroundTile[0x400 * 4]);
         var system = new SharedGameState();
         var samus = new SamusState
         {

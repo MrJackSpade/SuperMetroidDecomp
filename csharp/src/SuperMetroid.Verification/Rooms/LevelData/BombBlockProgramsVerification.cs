@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
@@ -236,11 +237,11 @@ internal static class BombBlockProgramsVerification
             const int blockIndex = 27;
             var words = new ushort[width * width];
             words[blockIndex] = 0xf321;
-            var definitions = new byte[0x400 * 8];
+            var definitions = new BackgroundTile[0x400 * 4];
             for (int tile = 0; tile < 4; tile++)
             {
-                definitions[0x53 * 8 + tile * 2] = 0x17;
-                definitions[0x54 * 8 + tile * 2] = 0x18;
+                definitions[0x53 * 4 + tile] = BackgroundTileWordBytes.Tile(0x17);
+                definitions[0x54 * 4 + tile] = BackgroundTileWordBytes.Tile(0x18);
             }
 
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), definitions);
@@ -249,8 +250,8 @@ internal static class BombBlockProgramsVerification
                 "bomb visual test installs the real collision-triggered PLM");
             plms.Step(level);
             return new BombBlockProgramsRenderResult(level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
-                level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
-                level.DisplayedBlockTiles(blockIndex).TopLeft.Raw);
+                level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord,
+                level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord);
         }
 
         var stock = Render(RoomPlmShotBlockVisualCatalog.Stock());
@@ -272,9 +273,9 @@ internal static class BombBlockProgramsVerification
             const int blockIndex = 27;
             var words = new ushort[width * width];
             words[blockIndex] = 0xf321;
-            var definitions = new byte[0x400 * 8];
+            var definitions = new BackgroundTile[0x400 * 4];
             for (int tile = 0; tile < 4; tile++)
-                definitions[0x58 * 8 + tile * 2] = tileIndex;
+                definitions[0x58 * 4 + tile] = BackgroundTileWordBytes.Tile(tileIndex);
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), definitions);
             var plms = PlmFixtures.Unbound();
             AssertTrue(plms.TrySpawnCollisionBombBlock(level, blockIndex, 1),
@@ -285,7 +286,7 @@ internal static class BombBlockProgramsVerification
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "linked restoration uses no compiled source draw bytes");
             return new RenderRestoredParentResult(level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
-                level.DisplayedBlockTiles(blockIndex).TopLeft.Raw);
+                level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord);
         }
 
         var stockParent = RenderRestoredParent(0x17);
@@ -326,7 +327,7 @@ internal static class BombBlockProgramsVerification
         words[blockIndex] = 0xf321;
         var bts = new byte[words.Length];
         bts[blockIndex] = behavior;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, bts, new ushort[words.Length]), new byte[0x400 * 8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, bts, new ushort[words.Length]), new BackgroundTile[0x400 * 4]);
         var plms = PlmFixtures.Unbound();
         bool spawned = producer switch
         {

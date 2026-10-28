@@ -717,11 +717,7 @@ internal static void VerifyLevelBlockTilemapExpansion()
 {
     // Put the definition at index one so the test also exercises the level entry's ten-bit
     // lookup. Existing child flip/palette bits are retained and XORed, never reconstructed.
-    var definitions = new byte[16];
-    BinaryPrimitives.WriteUInt16LittleEndian(definitions.AsSpan(8), 0x0123);
-    BinaryPrimitives.WriteUInt16LittleEndian(definitions.AsSpan(10), 0x4567);
-    BinaryPrimitives.WriteUInt16LittleEndian(definitions.AsSpan(12), 0x89ab);
-    BinaryPrimitives.WriteUInt16LittleEndian(definitions.AsSpan(14), 0xcdef);
+    BackgroundTile[] definitions = BackgroundTileWordBytes.Tiles(new ushort[] { 0, 0, 0, 0, 0x0123, 0x4567, 0x89ab, 0xcdef });
 
     RoomLevelWord unflipped = RoomLevelWord.Create(
         1, LevelBlockFlipFlags.None, RoomCollisionType.Air);
@@ -735,19 +731,19 @@ internal static void VerifyLevelBlockTilemapExpansion()
         RoomCollisionType.HorizontalExtension);
 
     AssertEqual(
-        new ExpandedBlockTiles(0x0123, 0x4567, 0x89ab, 0xcdef),
+        Expanded(0x0123, 0x4567, 0x89ab, 0xcdef),
         LevelBlockTilemapExpander.Expand(unflipped, definitions),
         "unflipped block expansion");
     AssertEqual(
-        new ExpandedBlockTiles(0x0567, 0x4123, 0x8def, 0xc9ab),
+        Expanded(0x0567, 0x4123, 0x8def, 0xc9ab),
         LevelBlockTilemapExpander.Expand(horizontalSlope, definitions),
         "horizontally flipped slope expansion ignores collision nibble");
     AssertEqual(
-        new ExpandedBlockTiles(0x09ab, 0x4def, 0x8123, 0xc567),
+        Expanded(0x09ab, 0x4def, 0x8123, 0xc567),
         LevelBlockTilemapExpander.Expand(verticalExtension, definitions),
         "vertically flipped extension expansion ignores collision nibble");
     AssertEqual(
-        new ExpandedBlockTiles(0x0def, 0x49ab, 0x8567, 0xc123),
+        Expanded(0x0def, 0x49ab, 0x8567, 0xc123),
         LevelBlockTilemapExpander.Expand(doubleFlipHorizontalExtension, definitions),
         "doubly flipped horizontal extension expansion ignores collision nibble");
 
@@ -756,6 +752,11 @@ internal static void VerifyLevelBlockTilemapExpansion()
         "block definition bounds check");
 
     Console.WriteLine("  BG stream: all 16x16 block flip expansions agree.");
+
+    // The four tiles the cartridge's four expanded tilemap words place.
+    static ExpandedBlockTiles Expanded(ushort topLeft, ushort topRight, ushort bottomLeft, ushort bottomRight) =>
+        new(BackgroundTileWordBytes.Tile(topLeft), BackgroundTileWordBytes.Tile(topRight),
+            BackgroundTileWordBytes.Tile(bottomLeft), BackgroundTileWordBytes.Tile(bottomRight));
 }
 
 /// <summary>
@@ -772,7 +773,7 @@ internal static void VerifyRoomLevelData()
     ];
     byte[] behavior = [0x00, 0x45, 0x80, 0x11, 0x22, 0x33];
     ushort[] background = [0, 1, 2, 3, 4, 5];
-    var definitions = new byte[8 * 4];
+    var definitions = new BackgroundTile[4 * 4];
     var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(foreground, behavior, background), definitions);
 
     RoomCollisionBlock block = level.GetCollisionBlock(new(1, 1));

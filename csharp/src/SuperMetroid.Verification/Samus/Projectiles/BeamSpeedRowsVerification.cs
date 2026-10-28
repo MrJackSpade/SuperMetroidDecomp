@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Samus.Projectiles.SamusProjectilesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -24,7 +25,7 @@ internal static class BeamSpeedRowsVerification
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SamusPoseId AimPose(byte direction) => (SamusPoseId)Enumerable.Range(0, 253).First(pose =>
             retail.ReadCartridgeByte(SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 3) == direction);
-        var room = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
+        var room = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new BackgroundTile[4]);
         for (ushort combination = 0; combination < 12; combination++)
         for (byte direction = 0; direction < 10; direction++)
         {

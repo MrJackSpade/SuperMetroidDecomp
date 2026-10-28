@@ -34,14 +34,14 @@ internal static class DraygonIntroDanceDefinitionsVerification
             int address = source + (slotIndex - 28) * 2;
             short expected = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
             AssertEqual(expected,
-                DraygonIntroDanceDefinitions.MovementLatencyForSlot(slotIndex),
+                DraygonIntroDance.MovementLatencyForSlot(slotIndex),
                 $"Draygon intro Evir slot {slotIndex} latency");
         }
         AssertThrows<ArgumentOutOfRangeException>(
-            () => DraygonIntroDanceDefinitions.MovementLatencyForSlot(27),
+            () => DraygonIntroDance.MovementLatencyForSlot(27),
             "Draygon intro Evir slot before native range");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => DraygonIntroDanceDefinitions.MovementLatencyForSlot(32),
+            () => DraygonIntroDance.MovementLatencyForSlot(32),
             "Draygon intro Evir slot after native range");
         Console.WriteLine("Evir latency algorithm: all four signed native delays and slot bounds match.");
     }
@@ -58,7 +58,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
             byte nativeX = rom.ReadCartridgeByte(source + offset);
             byte nativeY = rom.ReadCartridgeByte(source + offset + 1);
             DraygonIntroMovement actual =
-                DraygonIntroDanceDefinitions.ResolveMovement(offset);
+                DraygonIntroDance.ResolveMovement(offset);
 
             bool expectedDelete = nativeX == 0x80 && nativeY == 0x80;
             AssertEqual(expectedDelete ? (short)0 : unchecked((sbyte)nativeX), actual.Delta.X,
@@ -68,10 +68,10 @@ internal static class DraygonIntroDanceDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => DraygonIntroDanceDefinitions.ResolveMovement(1),
+            () => DraygonIntroDance.ResolveMovement(1),
             "Draygon intro rejects a non-native unaligned restored stream index");
         AssertThrows<InvalidDataException>(
-            () => DraygonIntroDanceDefinitions.ResolveMovement(
+            () => DraygonIntroDance.ResolveMovement(
                 unchecked(DraygonIntroDanceDefinitions.LastMovementStreamOffset + 4)),
             "Draygon intro rejects a restored stream index beyond the compiled route");
     }
@@ -84,13 +84,13 @@ internal static class DraygonIntroDanceDefinitionsVerification
         {
             bool expected = rom.ReadCartridgeByte(0xa5ce07 + offset) == 0x80 &&
                 rom.ReadCartridgeByte(0xa5ce08 + offset) == 0x80;
-            DraygonIntroMovement actual = DraygonIntroDanceDefinitions.ResolveMovement((ushort)offset);
+            DraygonIntroMovement actual = DraygonIntroDance.ResolveMovement((ushort)offset);
             AssertEqual(expected, actual.DeletesSprite, "Draygon original intro delete command selection");
             if (expected) commands++;
         }
         AssertEqual(2, commands, "Draygon aligned intro has two native delete commands");
         foreach (ushort offset in new ushort[] { 1, 0x0fb9, 0x0fba, 0x0fbb, 0x0fbd, 0x1140, 0xffff })
-            AssertThrows<InvalidDataException>(() => DraygonIntroDanceDefinitions.ResolveMovement(offset),
+            AssertThrows<InvalidDataException>(() => DraygonIntroDance.ResolveMovement(offset),
                 "Draygon command selection preserves alignment and outer bounds");
     }
 
@@ -126,7 +126,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
                 int actor = slotIndex - 28;
                 ushort streamIndex = unchecked((ushort)(
                     expectedStreamIndex +
-                    DraygonIntroDanceDefinitions.MovementLatencyForSlot(slotIndex)));
+                    DraygonIntroDance.MovementLatencyForSlot(slotIndex)));
                 if (unchecked((short)streamIndex) < 0 || !expectedActive[actor])
                     continue;
 

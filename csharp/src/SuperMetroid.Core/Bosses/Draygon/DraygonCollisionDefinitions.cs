@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal static class DraygonCollisionDefinitions
 {
     /// <summary>Left-facing body rectangles: one shootable eye and three touch-only regions.</summary>
-    private static readonly DraygonCollisionHitbox[] FirstBodyHitboxes =
+    internal static readonly DraygonCollisionHitbox[] FirstBodyHitboxes =
     [
         new(-17, -16, 18, 30, DraygonHitboxTouch.Harmless, DraygonHitboxShot.Eye),
         new(-59, -66, 3, -30, DraygonHitboxTouch.Body, DraygonHitboxShot.Dud),
@@ -20,7 +20,7 @@ internal static class DraygonCollisionDefinitions
     ];
 
     /// <summary>Mirrored right-facing body rectangles with the same shootable-eye rule.</summary>
-    private static readonly DraygonCollisionHitbox[] SecondBodyHitboxes =
+    internal static readonly DraygonCollisionHitbox[] SecondBodyHitboxes =
     [
         new(-18, -7, 18, 30, DraygonHitboxTouch.Harmless, DraygonHitboxShot.Eye),
         new(-10, -63, 62, -26, DraygonHitboxTouch.Body, DraygonHitboxShot.Dud),
@@ -29,23 +29,23 @@ internal static class DraygonCollisionDefinitions
     ];
 
     /// <summary>The empty list of the BG2 frames in which the body cannot be hit or touched.</summary>
-    private static readonly DraygonCollisionHitbox[] EmptyHitboxes = [];
+    internal static readonly DraygonCollisionHitbox[] EmptyHitboxes = [];
 
     /// <summary>Ordinary OAM art has no collision components.</summary>
-    private static readonly ImmutableArray<DraygonCollisionComponent> NoComponents = [];
+    internal static readonly ImmutableArray<DraygonCollisionComponent> NoComponents = [];
     /// <summary>The left-facing body's one zero-offset component.</summary>
-    private static readonly ImmutableArray<DraygonCollisionComponent> FirstBodyComponents = [new(Offset16<RoomPixels>.Zero, FirstBodyHitboxes)];
+    internal static readonly ImmutableArray<DraygonCollisionComponent> FirstBodyComponents = [new(Offset16<RoomPixels>.Zero, FirstBodyHitboxes)];
     /// <summary>The right-facing body's one zero-offset component.</summary>
-    private static readonly ImmutableArray<DraygonCollisionComponent> SecondBodyComponents = [new(Offset16<RoomPixels>.Zero, SecondBodyHitboxes)];
+    internal static readonly ImmutableArray<DraygonCollisionComponent> SecondBodyComponents = [new(Offset16<RoomPixels>.Zero, SecondBodyHitboxes)];
     /// <summary>The one zero-offset component of a BG2 frame in which the body cannot be hit or touched.</summary>
-    private static readonly ImmutableArray<DraygonCollisionComponent> EmptyBodyComponents = [new(Offset16<RoomPixels>.Zero, EmptyHitboxes)];
+    internal static readonly ImmutableArray<DraygonCollisionComponent> EmptyBodyComponents = [new(Offset16<RoomPixels>.Zero, EmptyHitboxes)];
 
     /// <summary>
     /// Each Draygon frame's collision components. Every BG2 body frame has one zero-offset component: the first eight and
     /// final frame of each facing use that facing's body hitboxes and the frames between use the empty list. Ordinary OAM
     /// frames have no collision components.
     /// </summary>
-    private static readonly Dictionary<EnemyFrameId, ImmutableArray<DraygonCollisionComponent>> FrameComponents = new()
+    internal static readonly Dictionary<EnemyFrameId, ImmutableArray<DraygonCollisionComponent>> FrameComponents = new()
     {
         [EnemyFrameId.DraygonFrame0] = NoComponents,
         [EnemyFrameId.DraygonFrame1] = NoComponents,
@@ -130,11 +130,4 @@ internal static class DraygonCollisionDefinitions
         [EnemyFrameId.DraygonFrame80] = NoComponents,
         [EnemyFrameId.DraygonFrame81] = NoComponents,
     };
-
-    /// <summary>The collision components of Draygon frame <paramref name="frame"/>.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of Draygon's frames.</exception>
-    internal static ImmutableArray<DraygonCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
-        frame is { } shown && FrameComponents.TryGetValue(shown, out ImmutableArray<DraygonCollisionComponent> components)
-            ? components
-            : throw new InvalidDataException($"Draygon frame {frame} has no compiled collision identity.");
 }

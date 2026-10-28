@@ -2240,7 +2240,7 @@ internal static class LookupStream4Verification
 
         for (int entry = 0; entry < 6; entry++)
         {
-            var actual = DraygonBurialEvirDefinitions.ForEntry(entry);
+            var actual = DraygonBurialEvirs.ForEntry(entry);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1af + 4 * entry)), actual.SubspeedMagnitude.X.Fraction, "stream4 burial radial X subspeed");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1b1 + 4 * entry)), actual.SubspeedMagnitude.Y.Fraction, "stream4 burial radial Y subspeed");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1c7 + 4 * entry)), actual.Initial.X, "stream4 burial radial spawn X including negative wrap");
@@ -2248,7 +2248,7 @@ internal static class LookupStream4Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1df + 4 * entry)), (ushort)actual.Angle.RawValue, "stream4 burial radial angle");
         }
         foreach (int invalid in new[] { -1, 6, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => DraygonBurialEvirDefinitions.ForEntry(invalid), "stream4 burial exact six-record domain");
+            AssertThrows<InvalidDataException>(() => DraygonBurialEvirs.ForEntry(invalid), "stream4 burial exact six-record domain");
     }
 
     /// <summary>Checks Spore Spawn and Fly visual identity data against native tables.</summary>

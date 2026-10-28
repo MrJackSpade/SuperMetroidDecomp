@@ -56,7 +56,7 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
                     StringComparison.Ordinal),
                 $"Draygon frame {frame.Pointer:X4} retains its author family");
             AssertEqual(0,
-                DraygonCollisionDefinitions.ComponentsAt(frame.Pointer).Length,
+                DraygonCollision.ComponentsAt(frame.Pointer).Length,
                 $"Draygon OAM frame {frame.Name} has no collision components");
             int root = ((int)new SnesAddress(frame.Bank, frame.Pointer));
             int componentCount = rom.ReadCartridgeByte(root);
@@ -89,7 +89,7 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
         AssertEqual(DraygonCollisionDefinitions.EmptyOamFrameCount,
             draygonFrames, "compiled Draygon empty-frame set is exact");
         AssertThrows<InvalidDataException>(
-            () => DraygonCollisionDefinitions.ComponentsAt(0xee65),
+            () => DraygonCollision.ComponentsAt(0xee65),
             "Spore Spawn frame cannot enter Draygon collision data");
         Console.WriteLine($"  Draygon OAM collision: {draygonFrames} frames and {componentsChecked} native zero-hitbox components return no shot/touch callback without ROM reads; 12 Spore Spawn frames excluded.");
     }

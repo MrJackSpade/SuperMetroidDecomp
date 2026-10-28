@@ -37,30 +37,33 @@ internal static class DraygonCannonPlmProgramDefinitions
                 DraygonCannonDraw.LeftDamagedA, DraygonCannonDraw.LeftDamagedB, DraygonCannonDraw.LeftDamagedC, DraygonCannonDraw.LeftDamagedD),
         });
 
-    /// <summary>Whether <paramref name="program"/> belongs to the right-facing cannon.</summary>
-    internal static bool FacesRight(DraygonCannonProgram program) => program switch
+    /// <summary>The facing of the cannon each program belongs to.</summary>
+    internal static readonly Dictionary<DraygonCannonProgram, DraygonCannonOrientation> Orientations = new()
     {
-        DraygonCannonProgram.RightStart or DraygonCannonProgram.RightIdle or DraygonCannonProgram.RightHit
-            or DraygonCannonProgram.RightDestroy or DraygonCannonProgram.RightSmoke => true,
-        DraygonCannonProgram.LeftStart or DraygonCannonProgram.LeftIdle or DraygonCannonProgram.LeftHit
-            or DraygonCannonProgram.LeftDestroy or DraygonCannonProgram.LeftSmoke => false,
-        _ => throw new InvalidOperationException($"Undefined {nameof(DraygonCannonProgram)} {program}."),
+        [DraygonCannonProgram.RightStart] = DraygonCannonOrientation.Right,
+        [DraygonCannonProgram.RightIdle] = DraygonCannonOrientation.Right,
+        [DraygonCannonProgram.RightHit] = DraygonCannonOrientation.Right,
+        [DraygonCannonProgram.RightDestroy] = DraygonCannonOrientation.Right,
+        [DraygonCannonProgram.RightSmoke] = DraygonCannonOrientation.Right,
+        [DraygonCannonProgram.LeftStart] = DraygonCannonOrientation.Left,
+        [DraygonCannonProgram.LeftIdle] = DraygonCannonOrientation.Left,
+        [DraygonCannonProgram.LeftHit] = DraygonCannonOrientation.Left,
+        [DraygonCannonProgram.LeftDestroy] = DraygonCannonOrientation.Left,
+        [DraygonCannonProgram.LeftSmoke] = DraygonCannonOrientation.Left,
     };
 
-    /// <summary>The first program of an intact cannon facing <paramref name="orientation"/>.</summary>
-    internal static DraygonCannonProgram StartProgram(DraygonCannonOrientation orientation) => orientation switch
+    /// <summary>The first program of an intact cannon of each facing.</summary>
+    internal static readonly Dictionary<DraygonCannonOrientation, DraygonCannonProgram> StartPrograms = new()
     {
-        DraygonCannonOrientation.Right => DraygonCannonProgram.RightStart,
-        DraygonCannonOrientation.Left => DraygonCannonProgram.LeftStart,
-        _ => throw new InvalidOperationException($"Undefined {nameof(DraygonCannonOrientation)} {orientation}."),
+        [DraygonCannonOrientation.Right] = DraygonCannonProgram.RightStart,
+        [DraygonCannonOrientation.Left] = DraygonCannonProgram.LeftStart,
     };
 
-    /// <summary>The first program of a cannon facing <paramref name="orientation"/> that spawns already destroyed.</summary>
-    internal static DraygonCannonProgram DestroyProgram(DraygonCannonOrientation orientation) => orientation switch
+    /// <summary>The first program of a cannon of each facing that spawns already destroyed.</summary>
+    internal static readonly Dictionary<DraygonCannonOrientation, DraygonCannonProgram> DestroyPrograms = new()
     {
-        DraygonCannonOrientation.Right => DraygonCannonProgram.RightDestroy,
-        DraygonCannonOrientation.Left => DraygonCannonProgram.LeftDestroy,
-        _ => throw new InvalidOperationException($"Undefined {nameof(DraygonCannonOrientation)} {orientation}."),
+        [DraygonCannonOrientation.Right] = DraygonCannonProgram.RightDestroy,
+        [DraygonCannonOrientation.Left] = DraygonCannonProgram.LeftDestroy,
     };
 
     /// <summary>Links the hit program, arms the missile wake and runs into the idle shield.</summary>

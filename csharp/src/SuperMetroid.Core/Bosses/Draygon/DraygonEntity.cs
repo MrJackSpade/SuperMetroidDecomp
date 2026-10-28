@@ -51,7 +51,7 @@ internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot,
     /// <inheritdoc/>
     public EnemyBg2FrameLookup? FindBg2Frame(EnemyFrameId selected, EnemyRoomBinding room)
     {
-        if (!DraygonBg2FrameDefinitions.IsFrame(selected))
+        if (!DraygonBg2FrameDefinitions.FrameIds.Contains(selected))
             return null;
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
         bool found = _bossArtwork.Installed.DraygonBg2Frames?.TryGet(selected, out writes) == true;

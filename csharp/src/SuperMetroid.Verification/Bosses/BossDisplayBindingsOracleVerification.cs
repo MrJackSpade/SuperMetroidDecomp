@@ -93,7 +93,7 @@ internal static class BossDisplayBindingsOracleVerification
             .Select(part => new BossPhysicalComponentsResult(part.Offset.X, part.Offset.Y,
                 part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom,
                     PhantoonHitboxCallbackCodec.ToCallbackWord(box.Touch), PhantoonHitboxCallbackCodec.ToCallbackWord(box.Shot))).ToArray())).ToArray(),
-        DraygonBg2FrameToolingDefinitions.Bank => DraygonCollisionDefinitions.ComponentsAt(frame.Pointer)
+        DraygonBg2FrameToolingDefinitions.Bank => DraygonCollision.ComponentsAt(frame.Pointer)
             .Select(part => new BossPhysicalComponentsResult(part.Offset.X, part.Offset.Y,
                 part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom,
                     DraygonHitboxCallbackCodec.ToCallbackWord(box.Touch), DraygonHitboxCallbackCodec.ToCallbackWord(box.Shot))).ToArray())).ToArray(),

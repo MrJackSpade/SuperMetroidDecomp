@@ -372,7 +372,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
                 }
             return;
         }
-        if (DraygonCannonPlmDrawDefinitions.TryDescribe(draw, out var draygonCannon))
+        if (DraygonCannonDraws.TryDescribe(draw, out var draygonCannon))
         {
             Position16<RoomBlocks> cannon = origin;
             for (int run = 0; run < draygonCannon.RunCount; run++)

@@ -10,22 +10,22 @@ namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 /// These existing source identities introduce no new independent paint inputs.
 /// Installed occurrences retain independent edits, including the copied clear target.
 /// </summary>
-internal sealed class DraygonIntroPaintDefinitions
+internal sealed class DraygonIntroPaint
 {
     /// <summary>First sixteen installed colors, shared in identity with Draygon's primary material.</summary>
-    internal readonly DraygonMaterialPaintDefinitions primary;
+    internal readonly DraygonMaterialPaint primary;
     /// <summary>Final eight colors, aliased to the Ceres escape-door surface material.</summary>
     internal readonly CeresDoorEscapeSurfacePaintDefinitions surface;
     /// <summary>Independent edit of the copied clear target, or null when it retains the native value.</summary>
     internal readonly RgbColor? clearEdit;
 
     /// <summary>Splits the 25 copied CGRAM colors into primary, clear-target, and door-surface aliases.</summary>
-    internal DraygonIntroPaintDefinitions(ReadOnlySpan<RgbColor> colors)
+    internal DraygonIntroPaint(ReadOnlySpan<RgbColor> colors)
     {
         Ensure.LengthEqual(colors, 25);
         primary = new(colors[..16]);
         surface = new(colors[17..]);
-        clearEdit = colors[16] == DraygonMaterialPaintDefinitions.ClearTarget ? null : colors[16];
+        clearEdit = colors[16] == DraygonMaterialPaint.ClearTarget ? null : colors[16];
     }
 
     /// <summary>Resolves a copied color through its owning material while preserving an edited clear target.</summary>
@@ -33,7 +33,7 @@ internal sealed class DraygonIntroPaintDefinitions
     {
         if ((uint)index >= 25) throw new ArgumentOutOfRangeException(nameof(index));
         if (index < 16) return primary.Color(index);
-        if (index == 16) return clearEdit ?? DraygonMaterialPaintDefinitions.ClearTarget;
+        if (index == 16) return clearEdit ?? DraygonMaterialPaint.ClearTarget;
         return surface.ColorAt(index - 17);
     }
 }

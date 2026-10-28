@@ -4,7 +4,7 @@ using SuperMetroid.Core.Samus.Abilities;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Exact pre-scaled and unscaled Power Bomb ellipse generation.</summary>
-public static class PowerBombShapeDefinitions
+public static class PowerBombShape
 {
     /// <summary>Finds the quarter-ellipse width at a source row before scaling by the selected blast radius.</summary>
     /// <remarks>Rasterize the quarter ellipse on a 1,024-step circle before radius scaling. Select the last angular

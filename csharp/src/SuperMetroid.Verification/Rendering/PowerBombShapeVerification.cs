@@ -7,16 +7,16 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Samus.Projectiles;
 
 /// <summary>Checks compiled Power Bomb width and top-offset curves through scanline rendering.</summary>
-internal static class PowerBombShapeDefinitionsVerification
+internal static class PowerBombShapeVerification
 {
     /// <summary>Compares all 32 quantized sine widths with native bytes and rejects invalid indices.</summary>
     internal static void VerifyPowerBombWidthAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (int i = 0; i < 32; i++)
-            AssertEqual(rom.ReadCartridgeByte(PowerBombShapeReferenceData.Width + i), PowerBombShapeDefinitions.Width(i),
+            AssertEqual(rom.ReadCartridgeByte(PowerBombShapeReferenceData.Width + i), PowerBombShape.Width(i),
                 "Power Bomb quantized sine width");
         foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => PowerBombShapeDefinitions.Width(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => PowerBombShape.Width(invalid),
                 "Power Bomb width bounds");
     }
 
@@ -24,10 +24,10 @@ internal static class PowerBombShapeDefinitionsVerification
     internal static void VerifyPowerBombTopOffsetAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (int i = 0; i < 32; i++)
-            AssertEqual(rom.ReadCartridgeByte(PowerBombShapeReferenceData.TopOffset + i), PowerBombShapeDefinitions.TopOffset(i),
+            AssertEqual(rom.ReadCartridgeByte(PowerBombShapeReferenceData.TopOffset + i), PowerBombShape.TopOffset(i),
                 "Power Bomb doubly quantized vertical boundary");
         foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => PowerBombShapeDefinitions.TopOffset(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => PowerBombShape.TopOffset(invalid),
                 "Power Bomb top offset bounds");
     }
 
@@ -48,10 +48,10 @@ internal static class PowerBombShapeDefinitionsVerification
             for (int index = 0; index < PowerBombShapeCursor.CountOf(stream); index++)
             for (int row = 0; row < 192; row++)
                 AssertEqual(rom.ReadCartridgeByte(table + index * 192 + row),
-                    PowerBombShapeDefinitions.ReadPreScaledHalfWidth(new PowerBombShapeCursor(stream, index), row),
+                    PowerBombShape.ReadPreScaledHalfWidth(new PowerBombShapeCursor(stream, index), row),
                     $"Power Bomb {stream} shape {index} row {row}");
             AssertThrows<InvalidOperationException>(
-                () => PowerBombShapeDefinitions.ReadPreScaledHalfWidth(
+                () => PowerBombShape.ReadPreScaledHalfWidth(
                     new PowerBombShapeCursor(stream, PowerBombShapeCursor.CountOf(stream)), 0),
                 $"a {stream} shape past the stream is rejected");
         }

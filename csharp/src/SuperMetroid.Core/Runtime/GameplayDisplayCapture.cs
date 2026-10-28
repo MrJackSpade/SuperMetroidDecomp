@@ -148,7 +148,7 @@ public static class GameplayDisplayCapture
             VisibleLines(bg2HorizontalScrolls),
             VisibleLines(crocomireBg2Scroll is not null ? live.CrocomireMeltingScrolls : lavaY)),
             live.DoorTransitionMainScreenLayers is null && live.MotherBrainAscentShowing
-                ? MotherBrainAscentDisplayDefinitions.BuildGameplayLayers() : default);
+                ? MotherBrainAscentDisplay.BuildGameplayLayers() : default);
         return new(frame.Paint, new RenderLayer[] { layer },
             FadeLevel.Full);
     }

@@ -142,7 +142,7 @@ public static class GameplayEffectCapture
             int shapeLine = Math.Abs(yFromCenter);
             if ((uint)shapeLine >= 192)
                 return -1;
-            int halfWidth = PowerBombShapeDefinitions.ReadPreScaledHalfWidth(
+            int halfWidth = PowerBombShape.ReadPreScaledHalfWidth(
                 shape, shapeLine);
             return halfWidth == 0 ? -1 : halfWidth;
         }
@@ -159,7 +159,7 @@ public static class GameplayEffectCapture
         // performs that clipping after this method, so only the common profile builder
         // is needed here. Widths increase while vertical boundaries decrease.
         int currentOuterScanline =
-            EightEight.Multiply(horizontalRadius, PowerBombShapeDefinitions.TopOffset(0));
+            EightEight.Multiply(horizontalRadius, PowerBombShape.TopOffset(0));
         if (scanlineDistance > currentOuterScanline)
             return -1;
 
@@ -169,8 +169,8 @@ public static class GameplayEffectCapture
         {
             // The 65816 routine uses the high byte of an unsigned 8x8 product. An
             // ordinary integer multiply followed by `>> 8` is exactly that operation.
-            int innerScanline = EightEight.Multiply(horizontalRadius, PowerBombShapeDefinitions.TopOffset(curveIndex));
-            int halfWidth = EightEight.Multiply(horizontalRadius, PowerBombShapeDefinitions.Width(curveIndex));
+            int innerScanline = EightEight.Multiply(horizontalRadius, PowerBombShape.TopOffset(curveIndex));
+            int halfWidth = EightEight.Multiply(horizontalRadius, PowerBombShape.Width(curveIndex));
             finalHalfWidth = halfWidth;
 
             // Native code fills both endpoints inclusively, then begins the next band
@@ -347,7 +347,7 @@ public static class GameplayEffectCapture
         Array.Fill(windows, ColorAddWindow.Empty);
         for (int y = HudHeight; y < Height; y++)
         {
-            RgbColor haze = CeresHazeRenderDefinitions.ResolveComponents(
+            RgbColor haze = CeresHazeShading.ResolveComponents(
                 y, intensity, ridleyIsDead, colors);
             windows[y] = new(0, Width - 1, ExpandFiveBit(haze.Red),
                 ExpandFiveBit(haze.Green), ExpandFiveBit(haze.Blue));

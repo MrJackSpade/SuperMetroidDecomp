@@ -232,7 +232,7 @@ using static SuperMetroid.Verification.Samus.Poses.PoseDispatchDefinitionsVerifi
 using static SuperMetroid.Verification.Samus.Poses.PoseInputDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Poses.PoseProjectileOriginVerification;
 using static SuperMetroid.Verification.Samus.Palettes.PowerBombFixedColorsVerification;
-using static SuperMetroid.Verification.Rendering.PowerBombShapeDefinitionsVerification;
+using static SuperMetroid.Verification.Rendering.PowerBombShapeVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileDamageVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileOriginsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileSoundRoutingVerification;

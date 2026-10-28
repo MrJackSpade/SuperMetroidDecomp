@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 

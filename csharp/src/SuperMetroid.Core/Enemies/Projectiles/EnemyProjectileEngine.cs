@@ -329,13 +329,13 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Ports <c>Draw_HighPriority_EnemyProjectile</c> at <c>$86:8390</c>, including the
-    /// preceding room-sprite-object phase at <c>$A0:8855</c>.
+    /// Draws the room's sprite objects and then the projectiles in front of Samus. The game draws them before Samus,
+    /// so they are drawn over her.
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="camera">Layer-one camera position in whole room pixels.</param>
     /// <param name="timeIsFrozen">Whether time is frozen, which stops the earthquake displacement.</param>
-    public void DrawHighPriorityEnemyProjectiles(
+    public void DrawEnemyProjectilesInFrontOfSamus(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> camera,
         bool timeIsFrozen = false)
@@ -343,20 +343,20 @@ internal sealed class EnemyProjectileEngine
         Ensure.NotNull(sprites);
         _room.EnsureLoaded();
 
-        // Sprite objects precede only the high pass. Repeating them in the low pass would
-        // duplicate explosions, dust, and Spark's trail in the same frame.
+        // Sprite objects are drawn once, with the projectiles in front of Samus. Drawing them again with the
+        // projectiles behind her would duplicate explosions, dust, and Spark's trail in the same frame.
         _spriteObjects.DrawRoomSpriteObjects(sprites, camera);
-        DrawEnemyProjectilePass(
+        DrawEnemyProjectilesAt(
             sprites,
             camera,
-            EnemyProjectileDrawPriority.High, timeIsFrozen);
+            EnemyProjectileDepth.InFrontOfSamus, timeIsFrozen);
     }
 
-    /// <summary>Ports <c>Draw_LowPriority_EnemyProjectile</c> at <c>$86:83B2</c>.</summary>
+    /// <summary>Draws the projectiles behind Samus. The game draws them after Samus, so she is drawn over them.</summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="camera">Layer-one camera position in whole room pixels.</param>
     /// <param name="timeIsFrozen">Whether time is frozen, which stops the earthquake displacement.</param>
-    public void DrawLowPriorityEnemyProjectiles(
+    public void DrawEnemyProjectilesBehindSamus(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> camera,
         bool timeIsFrozen = false)
@@ -364,22 +364,23 @@ internal sealed class EnemyProjectileEngine
         Ensure.NotNull(sprites);
         _room.EnsureLoaded();
 
-        DrawEnemyProjectilePass(
+        DrawEnemyProjectilesAt(
             sprites,
             camera,
-            EnemyProjectileDrawPriority.Low, timeIsFrozen);
+            EnemyProjectileDepth.BehindSamus, timeIsFrozen);
     }
 
-    /// <summary>Publishes one priority class in descending slot order so earlier entries win overlaps.</summary>
-    internal void DrawEnemyProjectilePass(
+    /// <summary>
+    /// Draws the projectiles at <paramref name="depth"/>, the highest slot first: among projectiles at one depth, a
+    /// higher slot's projectile is drawn over a lower slot's.
+    /// </summary>
+    internal void DrawEnemyProjectilesAt(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> camera,
-        EnemyProjectileDrawPriority priority,
+        EnemyProjectileDepth depth,
         bool timeIsFrozen)
     {
         Offset16<RoomPixels> shake = _earthquake.GetEnemyProjectileShake(timeIsFrozen);
-        // Both cartridge routines scan native indexes $22,$20,...,$00. Physical array
-        // index seventeen therefore reaches OAM first and wins equal-priority overlap.
         for (int projectileIndex = _enemyProjectiles.Length - 1;
              projectileIndex >= 0;
              projectileIndex--)
@@ -387,7 +388,7 @@ internal sealed class EnemyProjectileEngine
             RoomEnemyProjectileSlot projectile = _enemyProjectiles[projectileIndex];
 
             if (!projectile.IsActive ||
-                projectile.DrawPriority != priority ||
+                projectile.Depth != depth ||
                 projectile.Frame is not { } frame)
                 continue;
 
@@ -455,7 +456,7 @@ internal sealed class EnemyProjectileEngine
         projectile.Radius = definition.Radius;
         projectile.Damage = definition.Damage;
         projectile.InvincibilityFrames = 96;
-        projectile.DrawPriority = EnemyProjectileKinds.DrawPriority(definition);
+        projectile.Depth = definition.Depth;
         projectile.CanDamageSamus = definition.CanDamageSamus;
         projectile.PersistsOnSamusContact = definition.PersistsOnSamusContact;
         projectile.BlocksSamusProjectiles = definition.BlocksSamusProjectiles;
@@ -1048,8 +1049,6 @@ internal sealed class EnemyProjectileEngine
     internal static void SetPropertyFlags(RoomEnemyProjectileSlot projectile, EnemyProjectilePropertyFlags flags)
     {
         Ensure.NotNull(projectile);
-        if (flags.HasFlag(EnemyProjectilePropertyFlags.HighPriority))
-            projectile.DrawPriority = EnemyProjectileDrawPriority.High;
         if (flags.HasFlag(EnemyProjectilePropertyFlags.HarmlessToSamus))
             projectile.CanDamageSamus = false;
         if (flags.HasFlag(EnemyProjectilePropertyFlags.PersistsOnContact))
@@ -1062,8 +1061,6 @@ internal sealed class EnemyProjectileEngine
     internal static void ClearPropertyFlags(RoomEnemyProjectileSlot projectile, EnemyProjectilePropertyFlags flags)
     {
         Ensure.NotNull(projectile);
-        if (flags.HasFlag(EnemyProjectilePropertyFlags.HighPriority))
-            projectile.DrawPriority = EnemyProjectileDrawPriority.Low;
         if (flags.HasFlag(EnemyProjectilePropertyFlags.HarmlessToSamus))
             projectile.CanDamageSamus = true;
         if (flags.HasFlag(EnemyProjectilePropertyFlags.PersistsOnContact))

@@ -53,21 +53,21 @@ internal static class EnemyFormatDrawAccess
             oam.AppendDrawn(frame => pool.DrawRoomSpriteObjects(frame, camera));
     }
 
-    /// <summary>Draws enemy projectile passes into an OAM image.</summary>
+    /// <summary>Draws enemy projectiles into an OAM image.</summary>
     extension(EnemyProjectileEngine engine)
     {
-        /// <summary>Publishes one enemy-projectile priority pass, appending its OAM image to <paramref name="oam"/>.</summary>
-        internal void DrawEnemyProjectilePassAsOam(OamBuffer oam, Position16<RoomPixels> camera,
-            EnemyProjectileDrawPriority priority, bool timeIsFrozen) =>
-            oam.AppendDrawn(frame => engine.DrawEnemyProjectilePass(frame, camera, priority, timeIsFrozen));
+        /// <summary>Publishes the projectiles at one depth relative to Samus, appending their OAM image to <paramref name="oam"/>.</summary>
+        internal void DrawEnemyProjectilesAtAsOam(OamBuffer oam, Position16<RoomPixels> camera,
+            EnemyProjectileDepth depth, bool timeIsFrozen) =>
+            oam.AppendDrawn(frame => engine.DrawEnemyProjectilesAt(frame, camera, depth, timeIsFrozen));
 
-        /// <summary>Publishes the high-priority pass with its room sprite objects, appending its OAM image to <paramref name="oam"/>.</summary>
-        internal void DrawHighPriorityEnemyProjectilesAsOam(OamBuffer oam, Position16<RoomPixels> camera, bool timeIsFrozen = false) =>
-            oam.AppendDrawn(frame => engine.DrawHighPriorityEnemyProjectiles(frame, camera, timeIsFrozen));
+        /// <summary>Publishes the room sprite objects and the projectiles in front of Samus, appending their OAM image to <paramref name="oam"/>.</summary>
+        internal void DrawEnemyProjectilesInFrontOfSamusAsOam(OamBuffer oam, Position16<RoomPixels> camera, bool timeIsFrozen = false) =>
+            oam.AppendDrawn(frame => engine.DrawEnemyProjectilesInFrontOfSamus(frame, camera, timeIsFrozen));
 
-        /// <summary>Publishes the low-priority pass, appending its OAM image to <paramref name="oam"/>.</summary>
-        internal void DrawLowPriorityEnemyProjectilesAsOam(OamBuffer oam, Position16<RoomPixels> camera, bool timeIsFrozen = false) =>
-            oam.AppendDrawn(frame => engine.DrawLowPriorityEnemyProjectiles(frame, camera, timeIsFrozen));
+        /// <summary>Publishes the projectiles behind Samus, appending their OAM image to <paramref name="oam"/>.</summary>
+        internal void DrawEnemyProjectilesBehindSamusAsOam(OamBuffer oam, Position16<RoomPixels> camera, bool timeIsFrozen = false) =>
+            oam.AppendDrawn(frame => engine.DrawEnemyProjectilesBehindSamus(frame, camera, timeIsFrozen));
     }
 
     /// <summary>Draws the Ceres elevator arrival actors into an OAM image.</summary>

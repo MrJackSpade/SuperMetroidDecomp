@@ -68,12 +68,12 @@ internal static class EnemyFormatDrawEntriesVerification
         extended.Position = extended.Position.WithWhole(new(120, 110));
         enemies.Drawing.Enqueue(1, EnemySlotTable.EnemyIndexStride);
 
-        // Enemy projectile in the high-priority pass, drawn from the set's spawned-object sheet.
+        // Enemy projectile in front of Samus, drawn from the set's spawned-object sheet.
         EnemyProjectileFrameId projectileFrame = SpawnedObjectFrameDefinitions.Anywhere.Projectiles
             .First(frame => EnemyProjectileFrames.Parts(projectileSpritemaps, frame).Length > 0);
         RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[17];
         projectile.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
-        projectile.DrawPriority = EnemyProjectileDrawPriority.High;
+        projectile.Depth = EnemyProjectileDepth.InFrontOfSamus;
         projectile.Frame = projectileFrame;
         projectile.Graphics = ProjectileGraphics;
         projectile.Position = projectile.Position.WithWhole(new(30, 40));
@@ -82,7 +82,7 @@ internal static class EnemyFormatDrawEntriesVerification
         sprites.BeginFrame();
         enemies.Drawing.AdvanceLayers(Position16<RoomPixels>.Zero, 0, 7);
         enemies.Drawing.DrawLayers(sprites, Position16<RoomPixels>.Zero, 0, 7);
-        enemies.Projectiles.DrawEnemyProjectilePass(sprites, Position16<RoomPixels>.Zero, EnemyProjectileDrawPriority.High, false);
+        enemies.Projectiles.DrawEnemyProjectilesAt(sprites, Position16<RoomPixels>.Zero, EnemyProjectileDepth.InFrontOfSamus, false);
         sprites.FinalizeFrame();
         SpriteDraw[] draws = [.. sprites.Draws];
 

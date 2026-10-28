@@ -10,12 +10,10 @@ internal enum EnemyProjectilePropertyFlags
 {
     /// <summary>None of the behaviours.</summary>
     None = 0,
-    /// <summary>Draws at high priority.</summary>
-    HighPriority = 1,
     /// <summary>Does not damage Samus.</summary>
-    HarmlessToSamus = 2,
+    HarmlessToSamus = 1,
     /// <summary>Survives contact with Samus.</summary>
-    PersistsOnContact = 4,
+    PersistsOnContact = 2,
     /// <summary>Blocks Samus's projectiles.</summary>
-    BlocksShots = 8,
+    BlocksShots = 4,
 }

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 /// Host-owned visual streams for the escape and planet-explosion scenes (#1409): their maps and character counts. The
 /// import pipeline that reads the installed artwork names the content's identity.
 /// </summary>
-public abstract class EndingFloorArtworkCatalog
+public abstract class EndingFloorArtwork
 {
     /// <summary>Zebes zoom-out backdrop used by the first escape scene.</summary>
     private readonly EndingFloorSceneArtwork escapeA;
@@ -19,7 +19,7 @@ public abstract class EndingFloorArtworkCatalog
     /// <param name="planetExplosion">Large-Zebes map and character lanes for the explosion scene.</param>
     /// <param name="rewardIcon">Interleaved map and characters progressively uploaded during the post-credits reward jump.</param>
     /// <exception cref="ArgumentNullException">Any artwork argument is null.</exception>
-    internal EndingFloorArtworkCatalog(EndingFloorSceneArtwork escapeA,
+    internal EndingFloorArtwork(EndingFloorSceneArtwork escapeA,
         EndingFloorSceneArtwork escapeB, EndingFloorSceneArtwork planetExplosion,
         EndingRewardIconArtwork rewardIcon)
     {

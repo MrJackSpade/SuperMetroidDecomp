@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 /// Editable starting screen positions for the five rear-view Ceres approach actors.
 /// The front star field, actor instruction programs, and physical motion stay compiled.
 /// </summary>
-public sealed class CeresFlightActorLayout
+public sealed class CeresFlightActorPlacements
 {
     /// <summary>Edited actor positions, or null when all five match their native placements.</summary>
     internal readonly CeresFlightActorPlacement[]? placements;
 
     /// <summary>Retains supplied placements only when at least one differs from the native layout.</summary>
-    private CeresFlightActorLayout(CeresFlightActorPlacement[] placements)
+    private CeresFlightActorPlacements(CeresFlightActorPlacement[] placements)
     {
         bool stock = true;
         for (int index = 0; index < placements.Length; index++)
@@ -38,11 +38,11 @@ public sealed class CeresFlightActorLayout
     /// <summary>Resolves native named-actor initializer placement without a second stock lookup.</summary>
     private static CeresFlightActorPlacement DefaultPlacement(int index)
     {
-        var actor = CeresFlightActorDefinitions.RearViewActor(index);
-        return new() { Id = CeresFlightActorDefinitions.RearViewPlacementId(index), X = actor.Position.X, Y = actor.Position.Y };
+        var actor = CeresFlightActors.RearViewActor(index);
+        return new() { Id = CeresFlightActors.RearViewPlacementId(index), X = actor.Position.X, Y = actor.Position.Y };
     }
     /// <summary>Identity of ordered selected actor IDs and both initial visual coordinates.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(CeresFlightActorLayout), content =>
+    public string ContentIdentity => SelectedPresentationHash.Create("CeresFlightActorLayout", content =>
     {
         content.Append("actors", CeresFlightActorDefinitions.RearViewActorCount);
         for (int index = 0; index < CeresFlightActorDefinitions.RearViewActorCount; index++)
@@ -59,7 +59,7 @@ public sealed class CeresFlightActorLayout
     /// <returns>Validated starting visual placements without changing instruction programs, physical motion, or the front-view star field.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     /// <exception cref="InvalidDataException">The JSON, schema version, actor count/order/identity, or coordinate range is invalid.</exception>
-    public static CeresFlightActorLayout Load(Stream json)
+    public static CeresFlightActorPlacements Load(Stream json)
     {
         Ensure.NotNull(json);
         CeresFlightActorLayoutDocument document;
@@ -82,13 +82,13 @@ public sealed class CeresFlightActorLayout
         {
             CeresFlightActorPlacement placement = document.Actors[index];
             if (placement is null ||
-                placement.Id != CeresFlightActorDefinitions.RearViewPlacementId(index) ||
+                placement.Id != CeresFlightActors.RearViewPlacementId(index) ||
                 placement.X is < 0 or > ushort.MaxValue ||
                 placement.Y is < 0 or > ushort.MaxValue)
                 throw new InvalidDataException(
                     $"Ceres flight actor {index} must retain its identity and 16-bit coordinates.");
         }
-        return new CeresFlightActorLayout(document.Actors);
+        return new CeresFlightActorPlacements(document.Actors);
     }
 
     /// <summary>Serializes the editable layout as UTF-8 JSON and validates it through <see cref="Load"/> before writing any bytes to the destination.</summary>

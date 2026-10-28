@@ -66,7 +66,7 @@ internal static class CreditsPresentationVerification
         CreditsPresentation edited = CreditsPresentation.Load(
             new MemoryStream(editedBytes, writable: false));
         int firstTextRow = CreditsPresentationDefinitions.InitialBlankRows;
-        AssertEqual(CreditsPresentationDefinitions.CompileGlyph('T', CreditsLineStyle.Small) with { ColourVariant = 6 },
+        AssertEqual(CreditsGlyphs.CompileGlyph('T', CreditsLineStyle.Small) with { ColourVariant = 6 },
             edited.GetRow(firstTextRow)[3],
             "edited text, column and palette compile into the live row");
         AssertTrue(!edited.GetRow(firstTextRow).SequenceEqual(

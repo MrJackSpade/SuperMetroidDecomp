@@ -16,5 +16,5 @@ internal static class IntroMotherBrainSpriteDefinitions
 
     /// <summary>The pose of Mother Brain frame <paramref name="frame"/>, 0 through 2.</summary>
     internal static CinematicSpritePose FramePose(int frame) =>
-        (uint)frame < 3 ? Frames[frame].Pose : throw new ArgumentOutOfRangeException(nameof(frame));
+        Frames[Ensure.BetweenInclusive(0, 2, frame)].Pose;
 }

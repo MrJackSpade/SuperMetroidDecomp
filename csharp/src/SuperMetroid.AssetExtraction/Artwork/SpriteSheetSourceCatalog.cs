@@ -28,13 +28,13 @@ internal sealed class SpriteSheetSourceCatalog
     private readonly Lazy<IntroCinematicArtworkCatalog> intro;
 
     /// <summary>The ending's sprite artwork.</summary>
-    private readonly Lazy<EndingObjectArtworkCatalog> ending;
+    private readonly Lazy<EndingObjectArtwork> ending;
 
     /// <summary>The ending's palettes.</summary>
-    private readonly Lazy<EndingPaletteCatalog> endingPalettes;
+    private readonly Lazy<EndingPaletteSet> endingPalettes;
 
     /// <summary>The ending's Mode 7 artwork.</summary>
-    private readonly Lazy<EndingFloorArtworkCatalog> endingMode7;
+    private readonly Lazy<EndingFloorArtwork> endingMode7;
 
     /// <summary>Reads inputs from installed stock content.</summary>
     internal SpriteSheetSourceCatalog(string content)

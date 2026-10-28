@@ -72,7 +72,7 @@ internal static class EndingContentIdentityVerification
         for (int i = 0; i < originalOrder.Length; i++)
             AssertTrue(ReferenceEquals(supplied[i], catalog[originalOrder[i]]), "ending Mode7 supplied scene identity");
         AssertTrue(ReferenceEquals(reward, catalog.RewardIcon), "ending Mode7 reward identity");
-        string originalHash = SelectedPresentationHash.Create(nameof(EndingFloorArtworkCatalog), content =>
+        string originalHash = SelectedPresentationHash.Create("EndingFloorArtworkCatalog", content =>
         {
             content.Append("scene-count", supplied.Length);
             foreach (var scene in supplied)
@@ -143,7 +143,7 @@ internal static class EndingContentIdentityVerification
         // digest would needlessly change the exact debugger-object layout of older save states.
         foreach (Type type in new[]
         {
-            typeof(EndingObjectArtworkCatalog), typeof(EndingFloorArtworkCatalog), typeof(EndingPaletteCatalog),
+            typeof(EndingObjectArtwork), typeof(EndingFloorArtwork), typeof(EndingPaletteSet),
             typeof(EndingCloudSpritePresentation), typeof(EndingExplosionSpritePresentation),
             typeof(EndingCompletionTextSpritePresentation), typeof(EndingRewardSpritePresentation),
             typeof(EndingLogoSpritePresentation),
@@ -248,7 +248,7 @@ internal static class EndingContentIdentityVerification
         var fragments = Enumerable.Range(0, EndingObjectArtworkFormat.FragmentCount)
             .Select(index => Map("fragment-" + index, index)).ToArray();
         if (edit == "fragment-order") Array.Reverse(fragments);
-        var objects = new EndingObjectArtworkCatalog(new EndingObjectArtworkParts { Clouds = Characters("clouds", EndingObjectArtworkFormat.CloudByteCount), Explosion = Characters("explosion", EndingObjectArtworkFormat.ExplosionByteCount), Fragments = fragments, WaitingSamus = Characters("waiting", EndingObjectArtworkFormat.RewardByteCount), ShootingScreen = Characters("shooting", EndingObjectArtworkFormat.RewardByteCount), SuitlessSamus = Characters("suitless", EndingObjectArtworkFormat.RewardByteCount), WaitingTilemap = Map("waiting-map"), PostCreditsFragmentA = Characters("post-fragment-a", EndingObjectArtworkFormat.PostCreditsFragmentAByteCount), PostCreditsFragmentB = Map("post-fragment-b"), PostShotLogoTiles = Characters("logo-tiles", EndingObjectArtworkFormat.PostShotLogoTileByteCount), PostShotLogoMap = Map("logo-map"), CloudSprites = EndingCloudSpritePresentation.Load(Sprites("cloud", EndingCloudSpriteDefinitions.Frames.Select(frame => frame.Name))), ExplosionSprites = EndingExplosionSpritePresentation.Load(Sprites("explosion", EndingExplosionSpriteDefinitions.Frames.Select(frame => frame.Name))), CompletionTextSprites = EndingCompletionTextSpritePresentation.Load(Sprites("text", EndingCompletionTextSpriteDefinitions.Frames.Select(frame => frame.Name))), RewardSprites = EndingRewardSpritePresentation.Load(Sprites("reward", EndingRewardSpriteDefinitions.Frames.Select(frame => frame.Name))), LogoSprites = EndingLogoSpritePresentation.Load(Sprites("logo", EndingLogoSpriteDefinitions.Frames.Select(frame => frame.Name))) });
+        var objects = new EndingObjectArtwork(new EndingObjectArtworkParts { Clouds = Characters("clouds", EndingObjectArtworkFormat.CloudByteCount), Explosion = Characters("explosion", EndingObjectArtworkFormat.ExplosionByteCount), Fragments = fragments, WaitingSamus = Characters("waiting", EndingObjectArtworkFormat.RewardByteCount), ShootingScreen = Characters("shooting", EndingObjectArtworkFormat.RewardByteCount), SuitlessSamus = Characters("suitless", EndingObjectArtworkFormat.RewardByteCount), WaitingTilemap = Map("waiting-map"), PostCreditsFragmentA = Characters("post-fragment-a", EndingObjectArtworkFormat.PostCreditsFragmentAByteCount), PostCreditsFragmentB = Map("post-fragment-b"), PostShotLogoTiles = Characters("logo-tiles", EndingObjectArtworkFormat.PostShotLogoTileByteCount), PostShotLogoMap = Map("logo-map"), CloudSprites = EndingCloudSpritePresentation.Load(Sprites("cloud", EndingCloudSpriteDefinitions.Frames.Select(frame => frame.Name))), ExplosionSprites = EndingExplosionSpritePresentation.Load(Sprites("explosion", EndingExplosionSpriteDefinitions.Frames.Select(frame => frame.Name))), CompletionTextSprites = EndingCompletionTextSpritePresentation.Load(Sprites("text", EndingCompletionTextSpriteDefinitions.Frames.Select(frame => frame.Name))), RewardSprites = EndingRewardSpritePresentation.Load(Sprites("reward", EndingRewardSpriteDefinitions.Frames.Select(frame => frame.Name))), LogoSprites = EndingLogoSpritePresentation.Load(Sprites("logo", EndingLogoSpriteDefinitions.Frames.Select(frame => frame.Name))) });
 
         MemoryStream Mode7Png(string name, int seed)
         {
@@ -282,10 +282,10 @@ internal static class EndingContentIdentityVerification
         EndingPalette[] colors = Enum.GetValues<EndingPaletteId>().Select(id => EndingPaletteFile.Read(Json(new EndingPaletteDocument
         {
             Version = EndingPaletteDefinitions.Version,
-            Colors = Enumerable.Range(0, EndingPaletteDefinitions.ColorCount(id)).Select(index => new PaletteRgb5
+            Colors = Enumerable.Range(0, EndingPaletteFiles.ColorCount(id)).Select(index => new PaletteRgb5
             {
                 Red = ((int)id + index) % 32,
-                Green = index == EndingPaletteDefinitions.ColorCount(id) - 1 && edit == "palette-" + id ? 1 : 0,
+                Green = index == EndingPaletteFiles.ColorCount(id) - 1 && edit == "palette-" + id ? 1 : 0,
                 Blue = 0,
             }).ToArray(),
         }), id)).ToArray();
@@ -295,7 +295,7 @@ internal static class EndingContentIdentityVerification
     colors[0] = held0;
     colors[1] = held1;
 }
-        var palettes = new EndingPaletteCatalog(colors[0], colors[1], colors[2], colors[3], colors[4], colors[5], colors[6]);
+        var palettes = new EndingPaletteSet(colors[0], colors[1], colors[2], colors[3], colors[4], colors[5], colors[6]);
         return EndingPresentationIdentity.Create(mode7, objects, palettes);
     }
 

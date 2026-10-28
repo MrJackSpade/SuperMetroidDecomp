@@ -160,8 +160,7 @@ public static class PauseEquipmentLabelDefinitions
     internal static int StockPageByte(PauseEquipmentLabelId label)
     {
         if (label == PauseEquipmentLabelId.Hyper) label = Label(PauseEquipmentCategory.Beams, HyperBeamItem);
-        return destinations.Value.TryGetValue(label, out int destination) ? destination
-            : throw new ArgumentOutOfRangeException(nameof(label));
+        return Ensure.Listed(destinations.Value, label);
     }
 
     /// <summary>Native label destinations derived once from category columns and rows for per-cell lookup.</summary>

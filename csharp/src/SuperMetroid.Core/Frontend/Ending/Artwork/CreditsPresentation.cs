@@ -40,7 +40,7 @@ public sealed class CreditsPresentation
             throw new InvalidOperationException("Credits presentation has neither fixture rows nor authored lines.");
         for (int line = 0; line < authored.Length; line++)
         {
-            var definition = CreditsPresentationDefinitions.Lines[line];
+            var definition = CreditsRoles.Lines[line];
             row += definition.BlankRowsBefore;
             if (index < row)
                 return BlankRow();
@@ -77,7 +77,7 @@ public sealed class CreditsPresentation
         }
 
         IReadOnlyList<CreditsLineDefinition> definitions =
-            CreditsPresentationDefinitions.Lines;
+            CreditsRoles.Lines;
         if (document.Version != CreditsPresentationDefinitions.Version ||
             document.Lines is null || document.Lines.Length != definitions.Count)
         {
@@ -139,9 +139,9 @@ public sealed class CreditsPresentation
         {
             try
             {
-                _ = CreditsPresentationDefinitions.CompileGlyph(character, definition.Style);
+                _ = CreditsGlyphs.CompileGlyph(character, definition.Style);
                 if (definition.Style == CreditsLineStyle.Large)
-                    _ = CreditsPresentationDefinitions.CompileGlyph(character, definition.Style, bottom: true);
+                    _ = CreditsGlyphs.CompileGlyph(character, definition.Style, bottom: true);
             }
             catch (ArgumentOutOfRangeException error)
             {
@@ -157,7 +157,7 @@ public sealed class CreditsPresentation
         BackgroundTile[] row = BlankRow();
         for (int index = 0; index < line.Text.Length; index++)
             row[line.Column + index] = InVariant(
-                CreditsPresentationDefinitions.CompileGlyph(line.Text[index], definition.Style, bottom), line.Palette);
+                CreditsGlyphs.CompileGlyph(line.Text[index], definition.Style, bottom), line.Palette);
         return row;
     }
     /// <summary>Shows a visible glyph in <paramref name="colourVariant"/> while leaving blank tiles untouched.</summary>

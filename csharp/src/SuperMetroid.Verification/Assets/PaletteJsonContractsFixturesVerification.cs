@@ -68,7 +68,7 @@ internal static class PaletteJsonContractsFixturesVerification
             json => _ = IntroCinematicPaletteFile.Read(json));
         foreach (EndingPaletteId id in Enum.GetValues<EndingPaletteId>())
             yield return new($"ending {id}", PaletteContractDocument(new EndingPaletteDocument
-            { Version = EndingPaletteDefinitions.Version, Colors = PaletteContractColors(EndingPaletteDefinitions.ColorCount(id)) }),
+            { Version = EndingPaletteDefinitions.Version, Colors = PaletteContractColors(EndingPaletteFiles.ColorCount(id)) }),
                 json => _ = EndingPaletteFile.Read(json, id));
         var tube = TitleScreenAmbientPaletteFxColorDefinitions.All.Single(
             item => item.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight);

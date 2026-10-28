@@ -55,13 +55,13 @@ public sealed record GameArtwork : IGameplayArtwork
     public SamusBodyArtworkCatalog? SamusBodyArt { get; init; }
 
     /// <summary>Ending Mode 7 artwork.</summary>
-    public EndingFloorArtworkCatalog? EndingFloorArt { get; init; }
+    public EndingFloorArtwork? EndingFloorArt { get; init; }
 
     /// <summary>Ending sprite artwork.</summary>
-    public EndingObjectArtworkCatalog? EndingObjectArt { get; init; }
+    public EndingObjectArtwork? EndingObjectArt { get; init; }
 
     /// <summary>Ending palettes.</summary>
-    public EndingPaletteCatalog? EndingPaletteArt { get; init; }
+    public EndingPaletteSet? EndingPaletteArt { get; init; }
 
     /// <summary>Room tileset characters.</summary>
     public RoomCharacterAtlasCatalog? RoomCharacterArt { get; init; }

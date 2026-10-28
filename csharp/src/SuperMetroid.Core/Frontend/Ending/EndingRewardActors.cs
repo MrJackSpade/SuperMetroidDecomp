@@ -1,8 +1,11 @@
 using SuperMetroid.Core.Frontend.Intro;
+
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>The reward gesture and jump actors' initializations, pre-instructions and programs.</summary>
-internal static class EndingRewardActorDefinitions
+/// <summary>
+/// Selects the ending reward actors' definitions and initializations.
+/// </summary>
+internal static class EndingRewardActors
 {
     /// <summary>
     /// Resolves one complete native initialization/pre-instruction/list record. The

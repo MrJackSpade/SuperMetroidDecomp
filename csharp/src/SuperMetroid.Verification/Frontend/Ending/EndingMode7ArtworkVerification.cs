@@ -25,7 +25,7 @@ internal static class EndingMode7ArtworkVerification
     internal static void VerifyEndingMode7Artwork(GameInstallation installation)
     {
         var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        EndingFloorArtworkCatalog stock = installation.LoadEndingMode7Art();
+        EndingFloorArtwork stock = installation.LoadEndingMode7Art();
         foreach (EndingFloorSceneId id in Enum.GetValues<EndingFloorSceneId>())
         {
             (int characterSource, int packedSource) = EndingArtworkSources.Floor(id);
@@ -128,7 +128,7 @@ internal static class EndingMode7ArtworkVerification
             Array.Fill(map.Tiles, 0);
             using (var output = File.Create(mapOverride))
                 EndingFloorSceneArtwork.WriteMap(output, map);
-            EndingFloorArtworkCatalog editedMap = installation.LoadEndingMode7Art();
+            EndingFloorArtwork editedMap = installation.LoadEndingMode7Art();
             state.Stage.BindFloorArtwork(editedMap);
             LayeredScene mapSnapshot = EndingCreditsPresentation.CaptureRenderSnapshot(state);
             byte[] mapSnapshotVram = state.ShownVram();
@@ -187,7 +187,7 @@ internal static class EndingMode7ArtworkVerification
             Array.Fill(image.Pixels, (byte)0);
             using (var output = File.Create(pngOverride))
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-            EndingFloorArtworkCatalog editedCharacters = installation.LoadEndingMode7Art();
+            EndingFloorArtwork editedCharacters = installation.LoadEndingMode7Art();
             state.Stage.BindFloorArtwork(editedCharacters);
             // The ending draws its Mode 7 characters from the sheets the edited art composes (#1392).
             state.InstalledArtwork.BindSpriteSheets(EndingSheetFixtures.WithEndingMode7(editedCharacters));

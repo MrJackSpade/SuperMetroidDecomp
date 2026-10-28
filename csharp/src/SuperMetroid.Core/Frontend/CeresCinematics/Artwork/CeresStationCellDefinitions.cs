@@ -23,10 +23,4 @@ internal static class CeresStationCellDefinitions
     /// <summary>Tile14B, three-cell left edge, its lower-right continuation in the
     /// next atlas row, and an adjoining large center patch at column+3.</summary>
     internal const int LowerLeftEdge = 0x14b;
-    /// <summary>At a sixteen-column boundary, skip the row of lower tile halves.</summary>
-    internal static int TwoRowStrip(int start, int column)
-    {
-        int atlasColumn = (start & 15) + column;
-        return (start & ~15) + 32 * (atlasColumn / 16) + atlasColumn % 16;
-    }
 }

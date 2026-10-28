@@ -24,12 +24,4 @@ internal static class ZebesPlanetBandCellDefinitions
     internal const int Southeast = 0x86;
     /// <summary>Tile88, left end of the seven-small-part bottom rim at Y=32.</summary>
     internal const int BottomRim = 0x88;
-
-    /// <summary>Advance a horizontal strip through atlas columns; crossing sixteen
-    /// columns skips the atlas row occupied by the bottom halves of large parts.</summary>
-    internal static int TwoRowStrip(int start, int column)
-    {
-        int atlasColumn = (start & 15) + column;
-        return (start & ~15) + 32 * (atlasColumn / 16) + atlasColumn % 16;
-    }
 }

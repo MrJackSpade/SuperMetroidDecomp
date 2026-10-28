@@ -23,5 +23,5 @@ internal static class IntroScientistSpriteDefinitions
 
     /// <summary>The pose of scientist frame <paramref name="index"/>, 0 through 9.</summary>
     internal static CinematicSpritePose FramePose(int index) =>
-        (uint)index < 10 ? Frames[index].Pose : throw new ArgumentOutOfRangeException(nameof(index));
+        Frames[Ensure.BetweenInclusive(0, 9, index)].Pose;
 }

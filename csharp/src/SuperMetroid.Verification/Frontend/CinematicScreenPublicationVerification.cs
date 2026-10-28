@@ -34,7 +34,7 @@ internal static class CinematicScreenPublicationVerification
 
         // The ending's stars are written straight to OAM, some below the screen so that they wrap above it.
         SpriteSheetFrame star = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.EndingShootingSprites)
-            .Frame(EndingShootingStarDefinitions.SheetFrameName(EndingShootingStarDefinitions.FullStarFrame));
+            .Frame(EndingShootingStarFrames.SheetFrameName(EndingShootingStarDefinitions.FullStarFrame));
         var raw = ScreenSpritesFixtures.Blank();
         var oam = new OamBuffer();
         raw.BeginFrame();
@@ -43,7 +43,7 @@ internal static class CinematicScreenPublicationVerification
         {
             var position = new Position16<SpritePixels>((ushort)(index * 3 % 512), (ushort)(index * 7 % 256));
             raw.AddObjectImage(star, position);
-            oam.AddRawSmallSprite(position, SnesObjAttributeWord.From(EndingShootingStarDefinitions.Appearance(EndingShootingStarDefinitions.FullStarFrame)));
+            oam.AddRawSmallSprite(position, SnesObjAttributeWord.From(EndingShootingStarFrames.Appearance(EndingShootingStarDefinitions.FullStarFrame)));
         }
         raw.FinishFrame();
         oam.FinalizeFrame();

@@ -56,7 +56,7 @@ internal static class EndingCreditsPresentation
                     layers.Add(new TileAddRenderLayer(ending.Cells(EndingPlane.WavySamus, TileViewportRenderLayer.MapSize,
                             EndingTileLayer.WavySamus, BgBitDepth.TwoBpp),
                         PostCreditsLayer(ending))
-                        .WithScrolls(EndingWavySamusDefinitions.ScrollsAtAge(
+                        .WithScrolls(EndingWavySamus.ScrollsAtAge(
                             EndingSequenceDefinitions.Timing.WaitingBackdropFrames - ending.Stage.PhaseTimer)));
             }
             else if (ending.EscapeBackgroundEnabled)

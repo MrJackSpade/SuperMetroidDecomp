@@ -1693,9 +1693,9 @@ internal static class LookupStream5Verification
         Check(flight, values =>
         {
             using var encoded = new MemoryStream();
-            CeresFlightActorLayout.Write(encoded, new() { Version = 1, Actors = values });
+            CeresFlightActorPlacements.Write(encoded, new() { Version = 1, Actors = values });
             encoded.Position = 0;
-            var layout = CeresFlightActorLayout.Load(encoded);
+            var layout = CeresFlightActorPlacements.Load(encoded);
             return new LookupStream5Load<CeresFlightActorPlacement>(layout, layout.placements, index => layout[index], layout.ContentIdentity);
         }, value => new LookupStream5Field(value.Id, value.X, value.Y),
             (value, x) => x ? value with { X = unchecked((ushort)(value.X + 1)) } : value with { Y = unchecked((ushort)(value.Y + 1)) });
@@ -1709,24 +1709,24 @@ internal static class LookupStream5Verification
         Check(reveal, values =>
         {
             using var encoded = new MemoryStream();
-            CeresRevealActorLayout.Write(encoded, new() { Version = 1, Actors = values });
+            CeresRevealActorPlacements.Write(encoded, new() { Version = 1, Actors = values });
             encoded.Position = 0;
-            var layout = CeresRevealActorLayout.Load(encoded);
+            var layout = CeresRevealActorPlacements.Load(encoded);
             return new LookupStream5Load<CeresRevealActorPlacement>(layout, layout.placements, index => layout[index], layout.ContentIdentity);
         }, value => new LookupStream5Field(value.Id, value.X, value.Y),
             (value, x) => x ? value with { X = unchecked((ushort)(value.X + 1)) } : value with { Y = unchecked((ushort)(value.Y + 1)) });
         var destruction = Enumerable.Range(0, 3).Select(index =>
         {
             var inherited = flight[index == 0 ? 0 : index == 1 ? 2 : 3];
-            return new CeresDestructionActorPlacement { Id = CeresDestructionActorDefinitions.InitialPlacementId(index),
+            return new CeresDestructionActorPlacement { Id = CeresDestructionActors.InitialPlacementId(index),
                 X = index == 2 ? ReadVerificationWord(rom, 0x8bbfa6) : inherited.X, Y = inherited.Y };
         }).ToArray();
         Check(destruction, values =>
         {
             using var encoded = new MemoryStream();
-            CeresDestructionActorLayout.Write(encoded, new() { Version = 1, Actors = values });
+            CeresDestructionActorPlacements.Write(encoded, new() { Version = 1, Actors = values });
             encoded.Position = 0;
-            var layout = CeresDestructionActorLayout.Load(encoded);
+            var layout = CeresDestructionActorPlacements.Load(encoded);
             return new LookupStream5Load<CeresDestructionActorPlacement>(layout, layout.placements, index => layout[index], layout.ContentIdentity);
         }, value => new LookupStream5Field(value.Id, value.X, value.Y),
             (value, x) => x ? value with { X = unchecked((ushort)(value.X + 1)) } : value with { Y = unchecked((ushort)(value.Y + 1)) });
@@ -1934,7 +1934,7 @@ internal static class LookupStream5Verification
             CeresFlightPaletteFile.Read(Open(CeresFlightPaletteFormat.FileName)), Open(CeresFlightSpriteFormat.FileName), Open(CeresFlightActorLayoutFormat.FileName));
         byte[] nativeBytes = new byte[CgramPalettes.ByteCount];
         for (int index = 0; index < nativeBytes.Length; index++) nativeBytes[index] = rom.ReadCartridgeByte(CeresCinematicSourceDefinitions.FlightPalette + index);
-        string expectedHash = SelectedPresentationHash.Create(nameof(CeresFlightArtworkCatalog), content =>
+        string expectedHash = SelectedPresentationHash.Create("CeresFlightArtworkCatalog", content =>
         {
             content.Append("mode7-characters", catalog.FloorCharacters.Span);
             content.Append("mode7-maps", catalog.FloorMaps.Span);

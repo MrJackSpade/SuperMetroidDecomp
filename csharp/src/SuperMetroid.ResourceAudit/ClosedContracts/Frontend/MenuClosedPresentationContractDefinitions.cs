@@ -24,7 +24,7 @@ internal static class MenuClosedPresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Frontend/Menus/MenuMissileAnimationDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Menus/Artwork/MenuCursorParts.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/GameOver/Artwork/GameOverSpriteParts.cs"),
-             new("csharp/src/SuperMetroid.Core/Frontend/GameOver/Artwork/GameOverBabyColorCatalog.cs"),
+             new("csharp/src/SuperMetroid.Core/Frontend/GameOver/Artwork/GameOverBabyPaint.cs"),
              new("csharp/src/SuperMetroid.Core/Fx/Artwork/LoadingPaletteInputView.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/GameOver/GameOverMenuDefinitions.cs")]),
         new("SuperMetroid.Core.Frontend.Pause.Artwork.PauseReserveUiPresentation", "pause-reserve-v1-complete-fields",

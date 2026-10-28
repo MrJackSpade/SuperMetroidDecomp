@@ -42,7 +42,7 @@ internal static class IntroSpriteSheetComposer
     }
 
     /// <summary>What the Ceres flight sheet of <paramref name="flight"/> composes.</summary>
-    internal static SpriteSheetSources CeresFlightSources(CeresFlightArtworkCatalog flight)
+    internal static SpriteSheetSources CeresFlightSources(CeresFlightArtwork flight)
     {
         Ensure.NotNull(flight);
         return Compose([flight.Sprites], CeresFlightCharacters.Of(flight).ObjectPage, flight.Palette.LoadTo);
@@ -67,7 +67,7 @@ internal static class IntroSpriteSheetComposer
     internal static IEnumerable<string> FrameNames(IntroCinematicArtworkCatalog intro) => FrameNames(Families(Ensure.NotNull(intro)));
 
     /// <summary>The frames the Ceres flight sheet of <paramref name="flight"/> holds.</summary>
-    internal static IEnumerable<string> CeresFlightFrameNames(CeresFlightArtworkCatalog flight) =>
+    internal static IEnumerable<string> CeresFlightFrameNames(CeresFlightArtwork flight) =>
         FrameNames([Ensure.NotNull(flight).Sprites]);
 
     /// <summary>

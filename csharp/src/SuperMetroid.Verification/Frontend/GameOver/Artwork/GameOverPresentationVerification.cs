@@ -95,9 +95,9 @@ internal static class GameOverPresentationVerification
             cell.TileRow != (GameOverPresentationDefinitions.BlankTile / MapTileAtlasFormat.TileColumns));
         int visibleIndex = Array.IndexOf(document.Tilemap, firstVisible);
         document.Tilemap[visibleIndex] = firstVisible with { FlipX = !firstVisible.FlipX };
-        document.Sprites[GameOverPresentationDefinitions.CursorFrameName(0)][0] =
-            document.Sprites[GameOverPresentationDefinitions.CursorFrameName(0)][0] with
-            { FlipY = !document.Sprites[GameOverPresentationDefinitions.CursorFrameName(0)][0].FlipY };
+        document.Sprites[GameOverPresentationNames.CursorFrameName(0)][0] =
+            document.Sprites[GameOverPresentationNames.CursorFrameName(0)][0] with
+            { FlipY = !document.Sprites[GameOverPresentationNames.CursorFrameName(0)][0].FlipY };
         Directory.CreateDirectory(overrides);
         string replacement = Path.Combine(overrides, GameOverPresentationDefinitions.FileName);
         using (var output = File.Create(replacement))
@@ -156,7 +156,7 @@ internal static class GameOverPresentationVerification
             "game-over rejects missing named sprite");
         var shortPalette = RequiredJson.Deserialize<GameOverPresentationDocument>(
             extracted, ArtworkJson.Options);
-        shortPalette.BabyPalettes[GameOverPresentationDefinitions.BabyPaletteName(
+        shortPalette.BabyPalettes[GameOverPresentationNames.BabyPaletteName(
             GameOverBabyPalette.OpenCry)] = [0];
         AssertThrows<InvalidDataException>(() => GameOverPresentation.Write(Stream.Null, shortPalette),
             "game-over rejects malformed Baby palette");

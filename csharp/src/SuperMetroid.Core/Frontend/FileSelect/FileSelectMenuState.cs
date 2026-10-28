@@ -242,7 +242,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         }
         if (Phase == FileSelectPhase.CopyConfirm)
         {
-            (int shape, int y) = FileCopyArrowDefinitions.Select(operationSourceSlot, copyTargetSlot);
+            (int shape, int y) = FileCopyArrows.Select(operationSourceSlot, copyTargetSlot);
             sprites.AddImage(sheet.Frame(FileCopyArrowDefinitions.FrameName(shape)),
                 new Position16<SpritePixels>(FileCopyArrowDefinitions.OriginX, checked((ushort)y)));
         }

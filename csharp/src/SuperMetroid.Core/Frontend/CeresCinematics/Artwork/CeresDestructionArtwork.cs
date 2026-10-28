@@ -7,15 +7,15 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 /// <summary>
 /// Editable map and character transfers unique to the destruction of Ceres and
 /// the following Zebes reveal. The Ceres character sheets and the first two map
-/// slices are shared with <see cref="CeresFlightArtworkCatalog"/>.
+/// slices are shared with <see cref="CeresFlightArtwork"/>.
 /// </summary>
-public sealed class CeresDestructionArtworkCatalog
+public sealed class CeresDestructionArtwork
 {
     /// <summary>Retains validated Ceres map slices, Zebes reveal art, sprite compositions, and actor placements.</summary>
-    private CeresDestructionArtworkCatalog(byte[] ceresMaps,
+    private CeresDestructionArtwork(byte[] ceresMaps,
         RoomBackgroundTilemapAtlas zebesMap, RoomCharacterAtlas zebesCharacters,
-        CeresDestructionSpritePresentation sprites, CeresRevealActorLayout revealActors,
-        CeresDestructionActorLayout destructionActors)
+        CeresDestructionSpritePresentation sprites, CeresRevealActorPlacements revealActors,
+        CeresDestructionActorPlacements destructionActors)
     {
         CeresMaps = ceresMaps;
         ZebesMap = zebesMap;
@@ -34,12 +34,12 @@ public sealed class CeresDestructionArtworkCatalog
     /// <summary>Selected OAM compositions unique to the station explosion and Zebes reveal; approach sprites remain shared with the Ceres-flight catalog.</summary>
     public CeresDestructionSpritePresentation Sprites { get; }
     /// <summary>Initial screen-pixel placements of the six Zebes-reveal actors; instruction lists, slide acceleration, deletion, and phase transitions remain compiled cinematic behavior.</summary>
-    public CeresRevealActorLayout RevealActors { get; }
+    public CeresRevealActorPlacements RevealActors { get; }
     /// <summary>Initial screen-pixel placements of the three persistent destruction-background actors; movement and wrap behavior are not editable through this layout.</summary>
-    public CeresDestructionActorLayout DestructionActors { get; }
+    public CeresDestructionActorPlacements DestructionActors { get; }
 
     /// <summary>Identity of all selected destruction/reveal maps, characters, OAM frames and placements.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(CeresDestructionArtworkCatalog), content =>
+    public string ContentIdentity => SelectedPresentationHash.Create("CeresDestructionArtworkCatalog", content =>
     {
         content.Append("ceres-maps", CeresMaps.Span);
         content.AppendTiles("zebes-map", ZebesMap.Tiles.Span);
@@ -57,7 +57,7 @@ public sealed class CeresDestructionArtworkCatalog
     /// <param name="revealActorsJson">Six ordered initial Zebes-reveal actor placements.</param>
     /// <param name="destructionActorsJson">Three ordered initial destruction-background actor placements.</param>
     /// <returns>The compiled presentation; all input streams are consumed from their current positions and remain caller-owned.</returns>
-    public static CeresDestructionArtworkCatalog Load(Stream ceresMapJson,
+    public static CeresDestructionArtwork Load(Stream ceresMapJson,
         Stream zebesMapJson, RoomCharacterAtlas zebesCharacters, Stream spritesJson,
         Stream revealActorsJson, Stream destructionActorsJson)
     {
@@ -73,14 +73,14 @@ public sealed class CeresDestructionArtworkCatalog
             for (int cell = 0; cell < CeresDestructionArtworkFormat.CellsPerView; cell++)
                 maps[view * CeresDestructionArtworkFormat.CellsPerView + cell] =
                     checked((byte)document.Views[view][cell]);
-        return new CeresDestructionArtworkCatalog(maps,
+        return new CeresDestructionArtwork(maps,
             RoomBackgroundTilemapAtlas.Load(zebesMapJson,
                 CeresDestructionArtworkFormat.ZebesMapByteCount),
             zebesCharacters.Characters.Length == CeresDestructionArtworkFormat.ZebesCharacterByteCount ? zebesCharacters
                 : throw new InvalidDataException($"Zebes reveal characters hold {zebesCharacters.Characters.Length} bytes; expected {CeresDestructionArtworkFormat.ZebesCharacterByteCount}."),
             CeresDestructionSpritePresentation.Load(spritesJson),
-            CeresRevealActorLayout.Load(revealActorsJson),
-            CeresDestructionActorLayout.Load(destructionActorsJson));
+            CeresRevealActorPlacements.Load(revealActorsJson),
+            CeresDestructionActorPlacements.Load(destructionActorsJson));
     }
 
     /// <summary>Serializes the three-view Mode 7 map as UTF-8 JSON, validating version, dimensions, cell counts, and eight-bit tile indexes before writing any bytes.</summary>

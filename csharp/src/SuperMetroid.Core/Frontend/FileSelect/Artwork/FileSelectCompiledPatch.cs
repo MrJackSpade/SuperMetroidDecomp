@@ -12,13 +12,13 @@ internal sealed class FileSelectCompiledPatch
     internal FileSelectCompiledPatch(FileSelectPatch name, FileSelectCompiledPatchCell[] cells)
     {
         this.name = name;
-        if (cells.Length != FileSelectPresentationDefinitions.PatchCellCount(name))
+        if (cells.Length != FileSelectParts.PatchCellCount(name))
         {
             suppliedCells = cells;
             return;
         }
         for (int index = 0; index < cells.Length; index++)
-            if (cells[index] != FileSelectPresentationDefinitions.PatchCell(name, index))
+            if (cells[index] != FileSelectParts.PatchCell(name, index))
             {
                 suppliedCells = cells;
                 return;
@@ -26,8 +26,8 @@ internal sealed class FileSelectCompiledPatch
     }
 
     /// <summary>Cell count from edited art or the stock patch catalog.</summary>
-    internal int Count => suppliedCells?.Length ?? FileSelectPresentationDefinitions.PatchCellCount(name);
+    internal int Count => suppliedCells?.Length ?? FileSelectParts.PatchCellCount(name);
     /// <summary>Reads an edited cell or falls back to the corresponding stock cell.</summary>
     internal FileSelectCompiledPatchCell Cell(int index) => suppliedCells is null
-        ? FileSelectPresentationDefinitions.PatchCell(name, index) : suppliedCells[index];
+        ? FileSelectParts.PatchCell(name, index) : suppliedCells[index];
 }

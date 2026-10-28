@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// pixels and its OBJ characters as SNES 4-bpp planar bytes, which the flight sheets compose from, beside the maps, palette
 /// and compositions the game binds.
 /// </summary>
-public sealed class CeresFlightCharacters : CeresFlightArtworkCatalog
+public sealed class CeresFlightCharacters : CeresFlightArtwork
 {
     /// <summary>Retains compiled characters and selected palette, OAM, and actor resources.</summary>
     /// <param name="floorCharacters">The chunky Mode 7 floor characters.</param>
@@ -21,7 +21,7 @@ public sealed class CeresFlightCharacters : CeresFlightArtworkCatalog
     /// <param name="actors">The rear-view actors' placements.</param>
     private CeresFlightCharacters(byte[] floorCharacters, byte[] floorMaps,
         byte[] objectCharacters, CeresFlightPalette palette,
-        CeresFlightSpritePresentation sprites, CeresFlightActorLayout actors)
+        CeresFlightSpritePresentation sprites, CeresFlightActorPlacements actors)
         : base(floorMaps, palette, sprites, actors, floorCharacters.Length / CeresFlightArtworkFormat.FloorCharacterBytes,
             objectCharacters.Length / CeresFlightArtworkFormat.ObjectCharacterBytes)
     {
@@ -40,7 +40,7 @@ public sealed class CeresFlightCharacters : CeresFlightArtworkCatalog
         ObjectCharacters.Span[..CeresFlightArtworkFormat.ObjectByteCount]);
 
     /// <inheritdoc/>
-    public override string ContentIdentity => SelectedPresentationHash.Create(nameof(CeresFlightArtworkCatalog), content =>
+    public override string ContentIdentity => SelectedPresentationHash.Create("CeresFlightArtworkCatalog", content =>
     {
         content.Append("mode7-characters", FloorCharacters.Span);
         content.Append("mode7-maps", FloorMaps.Span);
@@ -89,11 +89,11 @@ public sealed class CeresFlightCharacters : CeresFlightArtworkCatalog
         return new CeresFlightCharacters(characters, map, objectCharacters,
             palette,
             CeresFlightSpritePresentation.Load(spritesJson),
-            CeresFlightActorLayout.Load(actorsJson));
+            CeresFlightActorPlacements.Load(actorsJson));
     }
 
     /// <summary>The characters <paramref name="flight"/> was read with.</summary>
     /// <exception cref="InvalidDataException">The flight artwork was not read from installed artwork.</exception>
-    public static CeresFlightCharacters Of(CeresFlightArtworkCatalog flight) => flight as CeresFlightCharacters
+    public static CeresFlightCharacters Of(CeresFlightArtwork flight) => flight as CeresFlightCharacters
         ?? throw new InvalidDataException("The Ceres flight artwork was not read from installed artwork.");
 }

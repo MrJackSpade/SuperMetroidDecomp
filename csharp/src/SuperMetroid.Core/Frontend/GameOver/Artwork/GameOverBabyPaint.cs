@@ -35,7 +35,7 @@ namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 /// differing outline-red component. This narrow disposition covers this palette
 /// only; it does not exempt other palette families or their numerical relationships.
 /// </remarks>
-internal sealed class GameOverBabyColorCatalog
+internal sealed class GameOverBabyPaint
 {
     /// <summary>Independent Baby ink endpoints and otherwise unreferenced palette words.</summary>
     private readonly Dictionary<BabyInk, RgbColor> inputs = new();
@@ -52,7 +52,7 @@ internal sealed class GameOverBabyColorCatalog
     private readonly int glassCryRed;
 
     /// <summary>Captures values from the four named palettes already validated by the presentation loader.</summary>
-    internal GameOverBabyColorCatalog(IReadOnlyDictionary<GameOverBabyPalette, RgbColor[]> palettes)
+    internal GameOverBabyPaint(IReadOnlyDictionary<GameOverBabyPalette, RgbColor[]> palettes)
     {
         RgbColor[] closed = palettes[GameOverBabyPalette.ClosedCry];
         greenCryRed = closed[4].Red;

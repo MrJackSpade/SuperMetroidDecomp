@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Independent static and animated color resources used by the ending.</summary>
 [ArchitectureReview("context-bag", "Seven installed ending palettes selected by id; every member is immutable color data, not a service.")]
-public sealed class EndingPaletteCatalog
+public sealed class EndingPaletteSet
 {
     /// <summary>Escape and cloud-scene color image.</summary>
     private readonly EndingPalette escape;
@@ -29,7 +29,7 @@ public sealed class EndingPaletteCatalog
     /// <param name="finalGunship">Sixteen colors for the final gunship's BG palette 5.</param>
     /// <param name="logoInitial">Sixteen initial assembling-logo colors for OBJ palette 7.</param>
     /// <param name="logoCrossfade">Sixteen ordered BG/OBJ palette pairs for the final logo transition.</param>
-    public EndingPaletteCatalog(EndingPalette escape, EndingPalette postCredits,
+    public EndingPaletteSet(EndingPalette escape, EndingPalette postCredits,
         EndingPalette credits, EndingPalette explosion, EndingPalette finalGunship,
         EndingPalette logoInitial, EndingPalette logoCrossfade)
     {
@@ -59,7 +59,7 @@ public sealed class EndingPaletteCatalog
     };
 
     /// <summary>Identity of all selected static colors and every ordered logo-crossfade color.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(EndingPaletteCatalog), content =>
+    public string ContentIdentity => SelectedPresentationHash.Create("EndingPaletteCatalog", content =>
     {
         content.Append("palette-count", 7);
         content.Append("palette", escape.Bytes.Span);

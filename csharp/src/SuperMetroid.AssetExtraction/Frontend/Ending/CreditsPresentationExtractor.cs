@@ -19,11 +19,11 @@ public static class CreditsPresentationExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ushort[][] nativeRows = ReadNativeRows(bus);
-        var lines = new CreditsLineDocument[CreditsPresentationDefinitions.Lines.Count];
+        var lines = new CreditsLineDocument[CreditsRoles.Lines.Count];
         int row = 0;
         for (int index = 0; index < lines.Length; index++)
         {
-            CreditsLineDefinition definition = CreditsPresentationDefinitions.Lines[index];
+            CreditsLineDefinition definition = CreditsRoles.Lines[index];
             RequireBlankRows(nativeRows, row, definition.BlankRowsBefore, definition.Id);
             row += definition.BlankRowsBefore;
             lines[index] = DecodeLine(nativeRows, ref row, definition);
@@ -141,10 +141,10 @@ public static class CreditsPresentationExtractor
                 throw new InvalidDataException(
                     $"Native credits line '{definition.Id}' mixes palettes.");
             }
-            char glyph = CreditsPresentationDefinitions.DecodeGlyph(topTile, definition.Style);
+            char glyph = CreditsGlyphs.DecodeGlyph(topTile, definition.Style);
             if (bottom is not null)
             {
-                char lower = CreditsPresentationDefinitions.DecodeGlyph(
+                char lower = CreditsGlyphs.DecodeGlyph(
                     BackgroundTileWords.ToTile(bottom[column]), definition.Style, bottom: true);
                 if (lower != glyph)
                 {

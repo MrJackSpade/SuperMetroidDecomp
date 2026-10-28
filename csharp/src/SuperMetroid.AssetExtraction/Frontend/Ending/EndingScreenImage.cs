@@ -68,7 +68,7 @@ internal static class EndingScreenImage
                 break;
             case EndingUploadKind.RewardChunk:
                 // The queued transfer writes both VRAM ports with increment-after-high; the bytes are already interleaved.
-                int source = EndingRewardGraphicsUploadDefinitions.ChunkOffset(upload.As<EndingChunkUpload>().Chunk);
+                int source = EndingRewardGraphicsUploads.ChunkOffset(upload.As<EndingChunkUpload>().Chunk);
                 vram.LoadBytes(EndingVramDestinations.RewardChunkWordOf(upload.As<EndingChunkUpload>().Chunk) * sizeof(ushort),
                     EndingRewardIconCharacters.Of(Mode7(artwork).RewardIcon).Bytes.Span.Slice(source,
                         EndingRewardGraphicsUploadDefinitions.ChunkBytes));
@@ -84,7 +84,7 @@ internal static class EndingScreenImage
     /// <summary>One of the sixteen flyaway chunks: the first half replace Mode 7 characters, the rest the padded map.</summary>
     private static void ReplayFlyawayChunk(SnesVram vram, int index, EndingScreenArtwork artwork)
     {
-        SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresFlightArtworkCatalog flight = artwork.Flight ?? throw new InvalidOperationException(
+        SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresFlightArtwork flight = artwork.Flight ?? throw new InvalidOperationException(
             "Ending flyaway requires installed flight artwork.");
         int chunkBytes = EndingArtworkExtentDefinitions.FlyawayChunkBytes;
         int chunksPerLane = EndingArtworkExtentDefinitions.FloorBytes / chunkBytes;
@@ -105,7 +105,7 @@ internal static class EndingScreenImage
     /// <summary>The waiting, shooting and reward characters with the post-credits map fragments.</summary>
     private static void ReplayCreditsCharacterArt(EndingVram ending, EndingScreenArtwork artwork)
     {
-        EndingObjectArtworkCatalog objects = Objects(artwork);
+        EndingObjectArtwork objects = Objects(artwork);
         ReadOnlySpan<byte> waiting = objects.WaitingSamus.Characters.Span;
         ending.WaitingCharacters.Load(waiting[..EndingArtworkExtentDefinitions.WaitingCharacterBytes]);
         ending.PostCreditsObjects.Load(objects.ShootingScreen.Characters.Span[..EndingArtworkExtentDefinitions.ShootingCharacterBytes]);
@@ -120,7 +120,7 @@ internal static class EndingScreenImage
     /// <summary>One post-shot subtitle, logo-tile or logo-map transfer at its native word.</summary>
     private static void ReplayPostShotTransfer(SnesVram vram, int index, EndingScreenArtwork artwork)
     {
-        EndingPostShotUploadDefinition transfer = EndingPostShotUploadDefinitions.Get(index);
+        EndingPostShotUploadDefinition transfer = EndingPostShotUploads.Get(index);
         int length = transfer.Length;
         ReadOnlySpan<byte> bytes = transfer.Source switch
         {
@@ -145,11 +145,11 @@ internal static class EndingScreenImage
     private static byte[] MapBytes(RoomBackgroundTilemapAtlas map) => BackgroundTileWords.ToBytes(map.Tiles.Span);
 
     /// <summary>The bound Mode 7 artwork.</summary>
-    private static EndingFloorArtworkCatalog Mode7(EndingScreenArtwork artwork) =>
+    private static EndingFloorArtwork Mode7(EndingScreenArtwork artwork) =>
         artwork.Floor ?? throw new InvalidOperationException("Ending Mode-7 scenes require installed artwork.");
 
     /// <summary>The bound OBJ artwork.</summary>
-    private static EndingObjectArtworkCatalog Objects(EndingScreenArtwork artwork) =>
+    private static EndingObjectArtwork Objects(EndingScreenArtwork artwork) =>
         artwork.Objects ?? throw new InvalidOperationException("Ending objects require installed artwork.");
 
     /// <summary>The bound ending font.</summary>

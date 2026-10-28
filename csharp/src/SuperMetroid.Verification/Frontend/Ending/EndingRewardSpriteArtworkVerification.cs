@@ -23,7 +23,7 @@ internal static class EndingRewardSpriteArtworkVerification
 {
     /// <summary>Compares every installed reward frame at screen and wrapped off-screen origins.</summary>
     internal static void VerifyEndingRewardSpriteArtwork(ISnesAddressSpace bus,
-        EndingObjectArtworkCatalog stock)
+        EndingObjectArtwork stock)
     {
         foreach (CinematicSpriteFrameDefinition frame in EndingRewardSpriteDefinitions.Frames)
         {
@@ -54,7 +54,7 @@ internal static class EndingRewardSpriteArtworkVerification
 
     /// <summary>Edits idle, gesture, and jump art and checks visible changes without sprite-ROM rereads.</summary>
     internal static void VerifyEndingRewardVisualOverride(GameInstallation installation,
-        EndingObjectArtworkCatalog stock, MutableCartridgeReadGuard guard)
+        EndingObjectArtwork stock, MutableCartridgeReadGuard guard)
     {
         string name = EndingRewardSpriteFormat.FileName;
         string stockPath = Path.Combine(installation.EndingObjectDirectory, name);
@@ -73,7 +73,7 @@ internal static class EndingRewardSpriteArtworkVerification
         {
             using (var output = File.Create(overridePath))
                 EndingRewardSpritePresentation.Write(output, document);
-            EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
+            EndingObjectArtwork edited = installation.LoadEndingObjectArt();
             var audio = new AudioQueues();
             var scene = CreateRetailEndingFixture(audio, 2, 0);
             scene.InstalledArtwork.BindStaffCredits(CreditsPresentation.Load(new MemoryStream(

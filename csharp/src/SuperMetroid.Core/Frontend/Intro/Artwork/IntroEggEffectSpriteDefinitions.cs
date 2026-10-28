@@ -24,5 +24,5 @@ internal static class IntroEggEffectSpriteDefinitions
 
     /// <summary>The pose of effect frame <paramref name="frame"/>, 0 through 10.</summary>
     internal static CinematicSpritePose FramePose(int frame) =>
-        (uint)frame < 11 ? Frames[frame].Pose : throw new ArgumentOutOfRangeException(nameof(frame));
+        Frames[Ensure.BetweenInclusive(0, 10, frame)].Pose;
 }

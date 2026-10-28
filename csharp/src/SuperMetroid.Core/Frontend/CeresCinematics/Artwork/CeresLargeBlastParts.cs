@@ -23,7 +23,7 @@ internal static class CeresLargeBlastParts
     {
         if (supplied.PartCount != 1) return supplied;
         for (int frame = 0; frame < 4; frame++)
-            if (shown == CeresDestructionSpriteDefinitions.LargeFrame(frame))
+            if (shown == CeresDestructionSpritePoses.LargeFrame(frame))
                 return supplied.CalculateIfMatching(Parts(frame, supplied.Part(0).Part.Character));
         return supplied;
     }

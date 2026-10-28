@@ -83,7 +83,7 @@ public static class GameOptionsPresentationDefinitions
 
     /// <summary>The JSON name of a looping missile-cursor frame's sprite, for frames 0-3.</summary>
     public static string CursorSpriteName(int frame) =>
-        (uint)frame < cursorSpriteNames.Length ? cursorSpriteNames[frame] : throw new ArgumentOutOfRangeException(nameof(frame));
+        Ensure.Element(cursorSpriteNames, frame);
 
     /// <summary>The JSON name of an assignable button's glyph.</summary>
     public static string ControllerLabelName(ControllerButton button) => button switch
@@ -112,7 +112,7 @@ public static class GameOptionsPresentationDefinitions
     /// <param name="index">Zero-based index 0-6 in X, A, B, Select, Y, L, R order.</param>
     /// <exception cref="ArgumentOutOfRangeException">The index is outside 0-6.</exception>
     public static ControllerButton ControllerLabelButton(int index) =>
-        (uint)index < ControllerLabelButtons.Count ? ControllerLabelButtons[index] : throw new ArgumentOutOfRangeException(nameof(index));
+        Ensure.Element(ControllerLabelButtons, index);
 
     /// <summary>$82:F665 ButtonTilemaps_A: upper-left A glyph; right half mirrors it.</summary>
     private const int AButtonTile = 0x90;

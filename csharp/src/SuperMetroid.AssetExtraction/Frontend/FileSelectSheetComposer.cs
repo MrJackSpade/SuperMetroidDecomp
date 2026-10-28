@@ -34,7 +34,7 @@ internal static class FileSelectSheetComposer
         var frames = new List<SheetFrameSource>();
         foreach (FileSelectBorder border in FileSelectPresentationDefinitions.Borders)
         {
-            string name = FileSelectPresentationDefinitions.BorderSpriteName(border);
+            string name = FileSelectParts.BorderSpriteName(border);
             frames.Add(new(name, fileSelect.borderSprites[border].ToFrame(name, 0), page, palette));
         }
         for (int frame = 0; frame < FileSelectPresentationDefinitions.CursorFrameCount; frame++)

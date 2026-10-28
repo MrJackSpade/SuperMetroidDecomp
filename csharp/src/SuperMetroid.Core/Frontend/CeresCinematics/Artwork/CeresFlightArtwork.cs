@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 /// pixels belong to the import pipeline that reads the installed artwork, which also names the content's identity.
 /// Flight motion, DMA order and the SPACE COLONY letter script remain compiled logic.
 /// </summary>
-public abstract class CeresFlightArtworkCatalog
+public abstract class CeresFlightArtwork
 {
     /// <summary>Retains the selected maps, palette, OAM and actor resources and the installed characters' counts.</summary>
     /// <param name="floorMaps">Front 768 map bytes followed by rear 768 map bytes.</param>
@@ -18,8 +18,8 @@ public abstract class CeresFlightArtworkCatalog
     /// <param name="actors">The rear-view actors' placements.</param>
     /// <param name="floorCharacterCount">The installed Mode 7 floor characters.</param>
     /// <param name="objectCharacterCount">The installed OBJ characters.</param>
-    internal CeresFlightArtworkCatalog(byte[] floorMaps, CeresFlightPalette palette,
-        CeresFlightSpritePresentation sprites, CeresFlightActorLayout actors, int floorCharacterCount, int objectCharacterCount)
+    internal CeresFlightArtwork(byte[] floorMaps, CeresFlightPalette palette,
+        CeresFlightSpritePresentation sprites, CeresFlightActorPlacements actors, int floorCharacterCount, int objectCharacterCount)
     {
         FloorMaps = floorMaps;
         Palette = palette;
@@ -40,7 +40,7 @@ public abstract class CeresFlightArtworkCatalog
     /// <summary>Selected six-frame OAM compositions for stars, station, asteroids, and vortex, shared with the Ceres destruction presentation.</summary>
     public CeresFlightSpritePresentation Sprites { get; }
     /// <summary>Selected initial screen-pixel positions for the five named rear-view actors; their movement and instruction timing remain compiled logic.</summary>
-    public CeresFlightActorLayout Actors { get; }
+    public CeresFlightActorPlacements Actors { get; }
 
     /// <summary>Identity of all selected approach maps, characters, colors, OAM frames and placements.</summary>
     public abstract string ContentIdentity { get; }

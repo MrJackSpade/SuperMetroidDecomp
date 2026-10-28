@@ -7,18 +7,6 @@ internal static class CeresFlightActorDefinitions
     /// <summary>Number of actors allocated by <c>$8B:BE3B-$8B:BE5C</c>.</summary>
     public const int RearViewActorCount = 5;
 
-    /// <summary>The installed layout id of each of the five rear-view actors, in spawn order.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The index is outside the five actors.</exception>
-    public static string RearViewPlacementId(int index) => index switch
-    {
-        0 => "large-asteroid",
-        1 => "station-under-attack",
-        2 => "small-asteroid",
-        3 => "vortex",
-        4 => "rear-stars",
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
-    };
-
     /// <summary><c>$8B:BEC2</c>, signed-8.8 acceleration applied to the opening star field.</summary>
     public const ushort FrontStarAcceleration = 0x0080;
 
@@ -46,56 +34,38 @@ internal static class CeresFlightActorDefinitions
         HorizontalDelta: 0,
         WrapX: false);
 
-    /// <summary>Selects the five named actors spawned by $8B:BE3B..BE5C.</summary>
-    /// <remarks>#1165 independently verifies each native spawn identity, definition triple,
-    /// initializer branch and motion callback. This is actor-type dispatch: large debris,
-    /// station, small debris, vortex and rear stars select their own native behavior and
-    /// placement. The selected initializer parameters are not samples of a numerical curve.
-    /// Named cases replace the earlier blanket retention claims; no output table or cache
-    /// is retained. Inputs outside 0..4 still throw. The instruction programs have separate
-    /// existing original-byte proofs shared across both Ceres scenes.</remarks>
-    public static CeresFlightActorDefinition RearViewActor(int index) => index switch
-    {
-        0 => LargeAsteroids,
-        1 => StationUnderAttack,
-        2 => SmallAsteroids,
-        3 => MovingVortex,
-        4 => RearStars,
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
-    };
-
     /// <summary>$8B:CF39, CinematicSpriteObjectDefs_CeresExplosionLargeAsteroids.
     /// BF22 initializes (80,159), palette0800; BF35 adds 1/4 pixel and masks X to nine bits;
     /// CE4B selects the large-asteroid loop. The destruction scene substitutes CE7F/CC3F.</summary>
-    private static CeresFlightActorDefinition LargeAsteroids =>
+    internal static CeresFlightActorDefinition LargeAsteroids =>
         new(CinematicSpritePreInstruction.CeresLargeAsteroids, CinematicSpriteProgram.CeresLargeAsteroid,
             new(80, 159), 4, 0, 0x4000, true);
 
     /// <summary>$8B:CE85, CinematicSpriteObjectDefinitions_CeresUnderAttack.
     /// BF4C initializes (116,160), palette0C00; BF5F adds 1/16 pixel with nine-bit X wrap;
     /// CC47 selects the station-under-attack loop.</summary>
-    private static CeresFlightActorDefinition StationUnderAttack =>
+    internal static CeresFlightActorDefinition StationUnderAttack =>
         new(CinematicSpritePreInstruction.CeresUnderAttack, CinematicSpriteProgram.CeresUnderAttack,
             new(116, 160), 6, 0, 0x1000, true);
 
     /// <summary>$8B:CE8B, CinematicSpriteObjectDefinitions_CeresSmallAsteroids.
     /// BF76 initializes (128,96), palette0800; BF89 adds 1/32 pixel with nine-bit X wrap;
     /// CC4F selects the small-asteroid loop. Both Ceres scenes share this identity.</summary>
-    private static CeresFlightActorDefinition SmallAsteroids =>
+    internal static CeresFlightActorDefinition SmallAsteroids =>
         new(CinematicSpritePreInstruction.CeresSmallAsteroid, CinematicSpriteProgram.CeresSmallAsteroid,
             new(128, 96), 4, 0, 0x0800, true);
 
     /// <summary>$8B:CE91, CinematicSpriteObjectDefinitions_CeresPurpleSpaceVortex, parameter1.
     /// BFA0 takes the nonzero branch to (224,87), palette0800, preserving BFC6 movement;
     /// CC57 alternates two frames. Parameter0 is the stationary destruction-scene variant.</summary>
-    private static CeresFlightActorDefinition MovingVortex =>
+    internal static CeresFlightActorDefinition MovingVortex =>
         new(CinematicSpritePreInstruction.CeresPurpleSpaceVortex, CinematicSpriteProgram.CeresVortex,
             new(224, 87), 4, 0, VortexHorizontalDelta, false);
 
     /// <summary>$8B:CF0F, CinematicSpriteObjectDefinitions_CeresStars, parameter1.
     /// BE7E takes the nonzero branch: X=-32, Y87, palette0800, timer remains cleared;
     /// BE9C replaces BEB5 with BFC6. The definition and CDA3 program alias FrontStars.</summary>
-    private static CeresFlightActorDefinition RearStars => FrontStars with
+    internal static CeresFlightActorDefinition RearStars => FrontStars with
     {
         ActivePreInstruction = CinematicSpritePreInstruction.CeresPurpleSpaceVortex,
         Position = FrontStars.Position.WithX(unchecked((ushort)-32)),

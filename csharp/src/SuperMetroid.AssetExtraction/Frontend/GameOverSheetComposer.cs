@@ -27,10 +27,10 @@ internal static class GameOverSheetComposer
         SpriteArtwork page = MapSpriteArtwork.Of(maps.Sprites).Page;
         var frames = new List<SheetFrameSource>();
         foreach (GameOverBabyFrame frame in Enum.GetValues<GameOverBabyFrame>())
-            frames.Add(Frame(GameOverPresentationDefinitions.BabyFrameName(frame), gameOver.babySprites[frame], page, gameOver.BabyPaletteIndex));
+            frames.Add(Frame(GameOverPresentationNames.BabyFrameName(frame), gameOver.babySprites[frame], page, gameOver.BabyPaletteIndex));
         frames.Add(Frame(GameOverPresentationDefinitions.EggFrame, gameOver.eggSprite, page, gameOver.EggPaletteIndex));
         for (int frame = 0; frame < GameOverPresentationDefinitions.CursorFrameCount; frame++)
-            frames.Add(Frame(GameOverPresentationDefinitions.CursorFrameName(frame), gameOver.cursorSprites[frame], page, gameOver.CursorPaletteIndex));
+            frames.Add(Frame(GameOverPresentationNames.CursorFrameName(frame), gameOver.cursorSprites[frame], page, gameOver.CursorPaletteIndex));
         var colours = new ScreenPalette();
         colours.Load(maps.Palettes.FileSelect);
         gameOver.ApplyBabyPalette(colours, GameOverBabyPalette.Idle);

@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 /// Editable spawn positions for the three persistent actors behind Ceres's explosion.
 /// Their instruction lists, wrap behavior, and movement remain compiled mechanics.
 /// </summary>
-public sealed class CeresDestructionActorLayout
+public sealed class CeresDestructionActorPlacements
 {
     /// <summary>Custom placements, or null when all three actors use their compiled spawn positions.</summary>
     internal readonly CeresDestructionActorPlacement[]? placements;
 
     /// <summary>Stores an owned layout only if at least one actor differs from the native default.</summary>
-    private CeresDestructionActorLayout(CeresDestructionActorPlacement[] placements)
+    private CeresDestructionActorPlacements(CeresDestructionActorPlacement[] placements)
     {
         bool stock = true;
         for (int index = 0; index < placements.Length; index++)
@@ -38,11 +38,11 @@ public sealed class CeresDestructionActorLayout
     /// <summary>Resolves native named-actor initializer placement without a second stock lookup.</summary>
     private static CeresDestructionActorPlacement DefaultPlacement(int index)
     {
-        var actor = CeresDestructionActorDefinitions.InitialActor(index);
-        return new() { Id = CeresDestructionActorDefinitions.InitialPlacementId(index), X = actor.Position.X, Y = actor.Position.Y };
+        var actor = CeresDestructionActors.InitialActor(index);
+        return new() { Id = CeresDestructionActors.InitialPlacementId(index), X = actor.Position.X, Y = actor.Position.Y };
     }
     /// <summary>Identity of ordered selected actor IDs and both initial visual coordinates.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(CeresDestructionActorLayout), content =>
+    public string ContentIdentity => SelectedPresentationHash.Create("CeresDestructionActorLayout", content =>
     {
         content.Append("actors", CeresDestructionActorDefinitions.InitialActorCount);
         for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)
@@ -59,7 +59,7 @@ public sealed class CeresDestructionActorLayout
     /// <returns>Validated persistent-actor placements, without changing asteroid motion/wrap, vortex behavior, explosion spawn events, or later Zebes artwork.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     /// <exception cref="InvalidDataException">The JSON, schema version, actor count/order/identity, or coordinate range is invalid.</exception>
-    public static CeresDestructionActorLayout Load(Stream json)
+    public static CeresDestructionActorPlacements Load(Stream json)
     {
         Ensure.NotNull(json);
         CeresDestructionActorLayoutDocument document;
@@ -82,13 +82,13 @@ public sealed class CeresDestructionActorLayout
         {
             CeresDestructionActorPlacement placement = document.Actors[index];
             if (placement is null ||
-                placement.Id != CeresDestructionActorDefinitions.InitialPlacementId(index) ||
+                placement.Id != CeresDestructionActors.InitialPlacementId(index) ||
                 placement.X is < 0 or > ushort.MaxValue ||
                 placement.Y is < 0 or > ushort.MaxValue)
                 throw new InvalidDataException(
                     $"Ceres destruction actor {index} must retain its identity and 16-bit coordinates.");
         }
-        return new CeresDestructionActorLayout(document.Actors);
+        return new CeresDestructionActorPlacements(document.Actors);
     }
 
     /// <summary>Serializes the selected destruction placements as UTF-8 JSON and validates them through <see cref="Load"/> before writing the destination.</summary>

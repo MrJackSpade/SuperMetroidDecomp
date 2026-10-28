@@ -91,5 +91,5 @@ public static class EndingRewardSpriteDefinitions
 
     /// <summary>The cinematic pose that shows <paramref name="frame"/>.</summary>
     internal static CinematicSpritePose FramePose(EndingRewardSpriteFrame frame) =>
-        FramePoses.TryGetValue(frame, out CinematicSpritePose pose) ? pose : throw new ArgumentOutOfRangeException(nameof(frame));
+        Ensure.Listed(FramePoses, frame);
 }

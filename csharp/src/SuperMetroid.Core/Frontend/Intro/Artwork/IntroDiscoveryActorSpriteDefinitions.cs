@@ -34,9 +34,9 @@ internal static class IntroDiscoveryActorSpriteDefinitions
 
     /// <summary>The pose of egg state <paramref name="frame"/>, 0 (intact) through 15 (last remnant).</summary>
     internal static CinematicSpritePose EggFramePose(int frame) =>
-        (uint)frame < 16 ? Frames[frame].Pose : throw new ArgumentOutOfRangeException(nameof(frame));
+        Frames[Ensure.BetweenInclusive(0, 15, frame)].Pose;
 
     /// <summary>The pose of confused-baby state <paramref name="frame"/>, 0 through 2.</summary>
     internal static CinematicSpritePose BabyFramePose(int frame) =>
-        (uint)frame < 3 ? Frames[16 + frame].Pose : throw new ArgumentOutOfRangeException(nameof(frame));
+        Frames[16 + Ensure.BetweenInclusive(0, 2, frame)].Pose;
 }

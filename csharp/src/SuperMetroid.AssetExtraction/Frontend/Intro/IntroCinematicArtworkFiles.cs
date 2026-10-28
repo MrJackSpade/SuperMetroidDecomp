@@ -456,7 +456,7 @@ public static class IntroCinematicArtworkFiles
             }
         }
 
-        CeresFlightArtworkCatalog LoadCeresFlight()
+        CeresFlightArtwork LoadCeresFlight()
         {
             (string mode7Path, byte[] mode7) = ReadSelected(CeresFlightArtworkFormat.FloorFileName);
             (string mapPath, byte[] map) = ReadSelected(CeresFlightArtworkFormat.MapFileName);
@@ -625,7 +625,7 @@ public static class IntroCinematicArtworkFiles
             }
         }
 
-        CeresDestructionArtworkCatalog LoadCeresDestruction()
+        CeresDestructionArtwork LoadCeresDestruction()
         {
             (string ceresPath, byte[] ceres) = ReadSelected(CeresDestructionArtworkFormat.CeresMapFileName);
             (string zebesMapPath, byte[] zebesMap) = ReadSelected(CeresDestructionArtworkFormat.ZebesMapFileName);
@@ -636,7 +636,7 @@ public static class IntroCinematicArtworkFiles
                 ReadSelected(CeresDestructionActorLayoutFormat.FileName);
             try
             {
-                return CeresDestructionArtworkCatalog.Load(
+                return CeresDestructionArtwork.Load(
                     new MemoryStream(ceres, writable: false),
                     new MemoryStream(zebesMap, writable: false),
                     RoomCharacterAtlasPng.Read(new MemoryStream(zebesPng, writable: false), CeresDestructionArtworkFormat.ZebesCharacterByteCount),

@@ -32,7 +32,7 @@ public static class EndingPaletteArtworkFiles
         var hashes = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (EndingPaletteId id in Enum.GetValues<EndingPaletteId>())
         {
-            int count = EndingPaletteDefinitions.ColorCount(id);
+            int count = EndingPaletteFiles.ColorCount(id);
             byte[] native = ReadNativePalette(bus, id, count);
             var colors = new PaletteRgb5[count];
             for (int index = 0; index < count; index++)
@@ -60,7 +60,7 @@ public static class EndingPaletteArtworkFiles
                 new MemoryStream(file, writable: false), id);
             if (!roundTrip.Bytes.Span.SequenceEqual(native))
                 throw new InvalidDataException($"Ending {id} palette JSON changed native colors.");
-            string name = EndingPaletteDefinitions.FileName(id);
+            string name = EndingPaletteFiles.FileName(id);
             using (var output = new FileStream(Path.Combine(directory, name),
                        FileMode.CreateNew, FileAccess.Write))
                 output.Write(file);
@@ -77,7 +77,7 @@ public static class EndingPaletteArtworkFiles
     /// <param name="overrideDirectory">Optional directory with per-role palette replacements; each absent file retains verified stock.</param>
     /// <returns>The selected ending colors in native transfer order, with palette selection and animation timing unchanged.</returns>
     /// <exception cref="InvalidDataException">Manifest provenance or coverage, a stock digest, or a selected palette's format, count, or RGB5 colors is invalid.</exception>
-    public static EndingPaletteCatalog Load(string stockDirectory,
+    public static EndingPaletteSet Load(string stockDirectory,
         string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
@@ -98,18 +98,18 @@ public static class EndingPaletteArtworkFiles
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                 StringComparison.OrdinalIgnoreCase) ||
             manifest.StockSha256 is null || manifest.StockSha256.Count != ids.Length ||
-            ids.Any(id => !manifest.StockSha256.ContainsKey(EndingPaletteDefinitions.FileName(id))))
+            ids.Any(id => !manifest.StockSha256.ContainsKey(EndingPaletteFiles.FileName(id))))
             throw new InvalidDataException(
                 $"Ending palette manifest {manifestPath} does not describe this installation.");
 
-        return new EndingPaletteCatalog(LoadOne(EndingPaletteId.Escape),
+        return new EndingPaletteSet(LoadOne(EndingPaletteId.Escape),
             LoadOne(EndingPaletteId.PostCredits), LoadOne(EndingPaletteId.Credits),
             LoadOne(EndingPaletteId.Explosion), LoadOne(EndingPaletteId.FinalGunship),
             LoadOne(EndingPaletteId.LogoInitial), LoadOne(EndingPaletteId.LogoCrossfade));
 
         EndingPalette LoadOne(EndingPaletteId id)
         {
-            string name = EndingPaletteDefinitions.FileName(id);
+            string name = EndingPaletteFiles.FileName(id);
             string stockPath = Path.Combine(stockDirectory, name);
             byte[] stock = File.ReadAllBytes(stockPath);
             if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock)),

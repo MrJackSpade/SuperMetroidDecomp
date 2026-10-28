@@ -67,8 +67,8 @@ internal static class IntroContentIdentityVerification
         foreach (Type type in new[]
         {
             typeof(IntroCinematicArtworkCatalog), typeof(IntroEyeTilemapPresentation),
-            typeof(CeresFlightArtworkCatalog), typeof(CeresDestructionArtworkCatalog),
-            typeof(CeresFlightActorLayout), typeof(CeresDestructionActorLayout), typeof(CeresRevealActorLayout),
+            typeof(CeresFlightArtwork), typeof(CeresDestructionArtwork),
+            typeof(CeresFlightActorPlacements), typeof(CeresDestructionActorPlacements), typeof(CeresRevealActorPlacements),
             typeof(IntroCaretSpritePresentation), typeof(IntroMotherBrainSpritePresentation),
             typeof(IntroMotherBrainExplosionSpritePresentation), typeof(IntroRinkaSpritePresentation),
             typeof(IntroEggEffectSpritePresentation), typeof(IntroDiscoveryActorSpritePresentation),
@@ -158,7 +158,7 @@ internal static class IntroContentIdentityVerification
         var flightActors = Enumerable.Range(0, CeresFlightActorDefinitions.RearViewActorCount).Select(index =>
             new CeresFlightActorPlacement
             {
-                Id = CeresFlightActorDefinitions.RearViewPlacementId(index), X = index + (edit == $"flight-actor-{index}-x" ? 1 : 0),
+                Id = CeresFlightActors.RearViewPlacementId(index), X = index + (edit == $"flight-actor-{index}-x" ? 1 : 0),
                 Y = index + (edit == $"flight-actor-{index}-y" ? 1 : 0),
             }).ToArray();
         // Build a Mode 7 flight view with an optional final-cell edit.
@@ -184,13 +184,13 @@ internal static class IntroContentIdentityVerification
         var revealActors = Enumerable.Range(0, CeresDestructionActorDefinitions.ZebesActorCount).Select(index =>
             new CeresRevealActorPlacement
             {
-                Id = CeresDestructionActorDefinitions.ZebesPlacementId(index), X = index + (edit == $"reveal-actor-{index}-x" ? 1 : 0),
+                Id = CeresDestructionActors.ZebesPlacementId(index), X = index + (edit == $"reveal-actor-{index}-x" ? 1 : 0),
                 Y = index + (edit == $"reveal-actor-{index}-y" ? 1 : 0),
             }).ToArray();
         var destructionActors = Enumerable.Range(0, CeresDestructionActorDefinitions.InitialActorCount).Select(index =>
             new CeresDestructionActorPlacement
             {
-                Id = CeresDestructionActorDefinitions.InitialPlacementId(index), X = index + (edit == $"destruction-actor-{index}-x" ? 1 : 0),
+                Id = CeresDestructionActors.InitialPlacementId(index), X = index + (edit == $"destruction-actor-{index}-x" ? 1 : 0),
                 Y = index + (edit == $"destruction-actor-{index}-y" ? 1 : 0),
             }).ToArray();
         int[][] views = Enumerable.Range(0, CeresDestructionArtworkFormat.ViewCount).Select(view =>
@@ -201,7 +201,7 @@ internal static class IntroContentIdentityVerification
             return cells;
         }).ToArray();
         if (edit == "destruction-map-order") Array.Reverse(views);
-        var destruction = CeresDestructionArtworkCatalog.Load(Json(new CeresDestructionMapDocument
+        var destruction = CeresDestructionArtwork.Load(Json(new CeresDestructionMapDocument
         {
             Version = CeresDestructionArtworkFormat.Version, Width = CeresDestructionArtworkFormat.MapWidth,
             Height = CeresDestructionArtworkFormat.MapHeight, Views = views,

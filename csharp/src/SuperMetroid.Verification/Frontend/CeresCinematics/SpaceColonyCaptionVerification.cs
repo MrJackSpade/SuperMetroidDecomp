@@ -14,7 +14,7 @@ internal static class SpaceColonyCaptionVerification
         for (int index = 0; index < 11; index++)
         {
             int instruction = 0x8cd629 + 6 * index;
-            var actual = SpaceColonyCaptionDefinitions.Letter(index);
+            var actual = SpaceColonyCaption.Letter(index);
             AssertEqual(16, CartridgeImportSource.Require(rom).ReadCartridgeWord(instruction), "native letter duration unchanged");
             AssertEqual(rom.ReadCartridgeByte(instruction + 2), actual.Column, "native caption column");
             AssertEqual((byte)24, rom.ReadCartridgeByte(instruction + 3), "native caption row unchanged");
@@ -23,6 +23,6 @@ internal static class SpaceColonyCaptionVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((drawing + 4)), BackgroundTileWords.ToWord(actual.Tile), "native caption tile and attributes");
         }
         foreach (int invalid in new[] { -1, 11, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SpaceColonyCaptionDefinitions.Letter(invalid), "caption domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => SpaceColonyCaption.Letter(invalid), "caption domain");
     }
 }

@@ -481,7 +481,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)
         {
             CeresDestructionActorDefinition definition =
-                CeresDestructionActorDefinitions.InitialActor(index);
+                CeresDestructionActors.InitialActor(index);
             if (Artwork?.CeresDestruction.DestructionActors is { } layout)
             {
                 CeresDestructionActorPlacement placement = layout[index];
@@ -600,7 +600,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private IntroDiscoverySprite CreateZebesActor(int index)
     {
         CeresDestructionActorDefinition definition =
-            CeresDestructionActorDefinitions.ZebesActor(index);
+            CeresDestructionActors.ZebesActor(index);
         if (Artwork?.CeresDestruction.RevealActors is { } layout)
         {
             CeresRevealActorPlacement placement = layout[index];
@@ -628,14 +628,14 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         // waits $50 BEFORE installing the repeating-blast pre-instruction, then runs
         // it during the final $40-frame wait. The pre-instruction stops on departure;
         // the instruction list still reaches its four terminal blasts afterward.
-        CeresExplosionSpawnEvents events = CeresExplosionDefinitions.EventsAtFrame(explosionSpawnerFrame,
+        CeresExplosionSpawnEvents events = CeresExplosions.EventsAtFrame(explosionSpawnerFrame,
             CeresDestructionPhaseGroups.BeforeFlyingAway.Contains(Phase), ref explosionRepeatCountdown);
         if (events.Initial)
         {
             for (int index = 0; index < CeresExplosionDefinitions.InitialExplosionCount; index++)
                 SpawnCeresExplosion(
                     CeresExplosionDefinitions.InitialActor,
-                    CeresExplosionDefinitions.InitialExplosion(index));
+                    CeresExplosions.InitialExplosion(index));
         }
         if (events.Repeating)
         {
@@ -643,14 +643,14 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 (CeresExplosionDefinitions.RepeatingExplosionCount - 1);
             SpawnCeresExplosion(
                 CeresExplosionDefinitions.RepeatingActor,
-                CeresExplosionDefinitions.RepeatingExplosion(offset));
+                CeresExplosions.RepeatingExplosion(offset));
         }
         if (events.Final)
         {
             for (int index = 0; index < CeresExplosionDefinitions.FinalExplosionCount; index++)
                 SpawnCeresExplosion(
                     CeresExplosionDefinitions.FinalWaveActor,
-                    CeresExplosionDefinitions.FinalExplosion(index));
+                    CeresExplosions.FinalExplosion(index));
         }
 
         for (int index = actors.Count - 1; index >= 0; index--)
@@ -659,7 +659,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             if (index < CeresDestructionActorDefinitions.InitialActorCount)
             {
                 CeresDestructionActorDefinition definition =
-                    CeresDestructionActorDefinitions.InitialActor(index);
+                    CeresDestructionActors.InitialActor(index);
                 if (actor.PreInstruction != definition.ActivePreInstruction)
                 {
                     throw new InvalidDataException(
@@ -792,12 +792,12 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             if (motion == ZebesActorsMotion.SlidingAway)
             {
                 CeresDestructionActorDefinition definition = ReferenceEquals(actor, ZebesPlanetActor)
-                    ? CeresDestructionActorDefinitions.ZebesActor(0)
+                    ? CeresDestructionActors.ZebesActor(0)
                     : ReferenceEquals(actor, zebesCompletionStarActor)
-                        ? CeresDestructionActorDefinitions.ZebesActor(4)
+                        ? CeresDestructionActors.ZebesActor(4)
                         : ReferenceEquals(actor, zebesTitleActor)
-                            ? CeresDestructionActorDefinitions.ZebesActor(5)
-                            : CeresDestructionActorDefinitions.ZebesActor(1);
+                            ? CeresDestructionActors.ZebesActor(5)
+                            : CeresDestructionActors.ZebesActor(1);
                 if (definition.SlidePreInstruction is null)
                 {
                     throw new InvalidDataException(

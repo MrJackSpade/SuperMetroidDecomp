@@ -73,13 +73,13 @@ internal static class EndingTextPresentationVerification
             editedDocument.ToJsonString(ArtworkJson.Options));
         EndingTextPresentation edited = EndingTextPresentation.Load(
             new MemoryStream(editedBytes, writable: false));
-        AssertEqual(EndingTextDefinitions.CompileGlyph('T', EndingTextStyle.ResultSmall),
+        AssertEqual(EndingTextGlyphs.CompileGlyph('T', EndingTextStyle.ResultSmall),
             edited.BuildResultPanel()[EndingTextDefinitions.ResultProducedBy.Column],
             "edited producer text reaches its bounded panel");
         AssertEqual(EndingTextDefinitions.ResultBlankTile,
             edited.BuildResultPanel()[EndingTextDefinitions.ResultProducedBy.Column + 4],
             "shorter producer text clears the remainder of its bounded panel");
-        AssertEqual(EndingTextDefinitions.CompileGlyph('T', EndingTextStyle.PercentageSmall),
+        AssertEqual(EndingTextGlyphs.CompileGlyph('T', EndingTextStyle.PercentageSmall),
             edited.Compile(EndingTextSequence.ItemPercentage)[0].Top,
             "edited percentage text reaches its live program");
 
@@ -144,7 +144,7 @@ internal static class EndingTextPresentationVerification
         File.WriteAllText(replacement, document.ToJsonString(ArtworkJson.Options));
         AreaMapPresentationCatalog edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
-        AssertEqual(EndingTextDefinitions.CompileGlyph('T', EndingTextStyle.FinalLarge),
+        AssertEqual(EndingTextGlyphs.CompileGlyph('T', EndingTextStyle.FinalLarge),
             edited.EndingText.Compile(EndingTextSequence.FinalMessage)[0].Top,
             "catalog override changes installed ending text");
         AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,

@@ -22,7 +22,7 @@ internal static class EndingCompletionTextSpriteArtworkVerification
 {
     /// <summary>Compares every installed completion frame at on-screen and wrapped off-screen anchors.</summary>
     internal static void VerifyEndingCompletionTextSpriteArtwork(ISnesAddressSpace bus,
-        EndingObjectArtworkCatalog stock)
+        EndingObjectArtwork stock)
     {
         foreach (CinematicSpriteFrameDefinition frame in
             EndingCompletionTextSpriteDefinitions.Frames)
@@ -54,7 +54,7 @@ internal static class EndingCompletionTextSpriteArtworkVerification
 
     /// <summary>Edits operation text art and checks its live pixel change without rereading sprite ROM.</summary>
     internal static void VerifyEndingCompletionTextVisualOverride(GameInstallation installation,
-        EndingObjectArtworkCatalog stock, MutableCartridgeReadGuard guard)
+        EndingObjectArtwork stock, MutableCartridgeReadGuard guard)
     {
         string name = EndingCompletionTextSpriteFormat.FileName;
         string stockPath = Path.Combine(installation.EndingObjectDirectory, name);
@@ -70,7 +70,7 @@ internal static class EndingCompletionTextSpriteArtworkVerification
         {
             using (var output = File.Create(overridePath))
                 EndingCompletionTextSpritePresentation.Write(output, document);
-            EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
+            EndingObjectArtwork edited = installation.LoadEndingObjectArt();
             var audio = new AudioQueues();
             var scene = CreateRetailEndingFixture(audio, 0, 0);
             scene.InstalledArtwork.BindFixtureObjectArtwork(stock);

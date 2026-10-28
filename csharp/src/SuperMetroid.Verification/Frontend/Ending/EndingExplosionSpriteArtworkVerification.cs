@@ -173,7 +173,7 @@ internal static class EndingExplosionSpriteArtworkVerification
 
     /// <summary>Compares installed explosion OAM with native maps for visible and wrapped offscreen origins after checking frame and program catalogs.</summary>
     internal static void VerifyEndingExplosionActorArtwork(
-        ISnesAddressSpace bus, EndingObjectArtworkCatalog stock)
+        ISnesAddressSpace bus, EndingObjectArtwork stock)
     {
         Suite(nameof(VerifyEndingExplosionFrameCatalog), () => VerifyEndingExplosionFrameCatalog(bus));
 
@@ -206,7 +206,7 @@ internal static class EndingExplosionSpriteArtworkVerification
 
     /// <summary>Flips the starfield art and confirms a live explosion scene changes OAM and pixels without bank-$8C reads, then rejects a missing frame.</summary>
     internal static void VerifyEndingExplosionVisualOverride(GameInstallation installation,
-        EndingObjectArtworkCatalog stock, MutableCartridgeReadGuard guard)
+        EndingObjectArtwork stock, MutableCartridgeReadGuard guard)
     {
         string name = EndingExplosionSpriteFormat.FileName;
         string stockPath = Path.Combine(installation.EndingObjectDirectory, name);
@@ -224,7 +224,7 @@ internal static class EndingExplosionSpriteArtworkVerification
         {
             using (var output = File.Create(overridePath))
                 EndingExplosionSpritePresentation.Write(output, document);
-            EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
+            EndingObjectArtwork edited = installation.LoadEndingObjectArt();
             var audio = new AudioQueues();
             var scene = CreateRetailEndingFixture(audio, 0, 0);
             scene.InstalledArtwork.BindFixtureObjectArtwork(stock);

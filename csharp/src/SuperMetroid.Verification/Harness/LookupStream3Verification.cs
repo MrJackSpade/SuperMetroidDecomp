@@ -333,7 +333,7 @@ internal static class LookupStream3Verification
             new VerifyStream3FileSelectBordersCase(FileSelectBorder.Main, 0x82d00b, 32), new VerifyStream3FileSelectBordersCase(FileSelectBorder.Copy, 0x82d0ad, 40), new VerifyStream3FileSelectBordersCase(FileSelectBorder.Clear, 0x82d177, 42),
         })
         {
-            string name = FileSelectPresentationDefinitions.BorderSpriteName(border);
+            string name = FileSelectParts.BorderSpriteName(border);
             var original = Read();
             var stock = Load(original)[border];
             AssertTrue(stock.parts is MenuHeadingBorderDefinitions,
@@ -341,7 +341,7 @@ internal static class LookupStream3Verification
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
             var presentation = FileSelectPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
-            string anchorKey = FileSelectPresentationDefinitions.BorderName(border);
+            string anchorKey = FileSelectParts.BorderName(border);
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
             presentation.DrawBorder(actualOam, MenuSheetFixtures.FileSelect(presentation), border);
@@ -520,10 +520,10 @@ internal static class LookupStream3Verification
     {
         static Dictionary<string, SpriteComposition> Sprites(GameOverPresentation presentation) => new(
             [.. Enum.GetValues<GameOverBabyFrame>().Select(frame =>
-                KeyValuePair.Create(GameOverPresentationDefinitions.BabyFrameName(frame), presentation.babySprites[frame])),
+                KeyValuePair.Create(GameOverPresentationNames.BabyFrameName(frame), presentation.babySprites[frame])),
             KeyValuePair.Create(GameOverPresentationDefinitions.EggFrame, presentation.eggSprite),
             .. Enumerable.Range(0, GameOverPresentationDefinitions.CursorFrameCount).Select(frame =>
-                KeyValuePair.Create(GameOverPresentationDefinitions.CursorFrameName(frame), presentation.cursorSprites[frame]))]);
+                KeyValuePair.Create(GameOverPresentationNames.CursorFrameName(frame), presentation.cursorSprites[frame]))]);
         static void Confirm(SpriteComposition actual, SpriteVisualPart[] expectedParts)
         {
             var expected = MenuSpriteCompiler.Compile(expectedParts, "native or independently edited menu composition");
@@ -545,11 +545,11 @@ internal static class LookupStream3Verification
         var presentation = Load(original);
         List<GameOverSpriteDraw> draws =
         [
-            .. Enum.GetValues<GameOverBabyFrame>().Select(frame => new GameOverSpriteDraw(GameOverPresentationDefinitions.BabyFrameName(frame),
+            .. Enum.GetValues<GameOverBabyFrame>().Select(frame => new GameOverSpriteDraw(GameOverPresentationNames.BabyFrameName(frame),
                 oam => presentation.DrawBaby(oam, GameOverSheet, frame), original.BabyAnchor.X, original.BabyAnchor.Y, presentation.BabyPaletteIndex)),
             new(GameOverPresentationDefinitions.EggFrame, oam => presentation.DrawEgg(oam, GameOverSheet), original.BabyAnchor.X, original.BabyAnchor.Y, presentation.EggPaletteIndex),
             .. Enumerable.Range(0, GameOverPresentationDefinitions.CursorFrameCount).Select(frame => new GameOverSpriteDraw(
-                GameOverPresentationDefinitions.CursorFrameName(frame), oam => presentation.DrawCursor(oam, GameOverSheet, frame, false),
+                GameOverPresentationNames.CursorFrameName(frame), oam => presentation.DrawCursor(oam, GameOverSheet, frame, false),
                 original.CursorX, original.YesCursorY, presentation.CursorPaletteIndex)),
         ];
         foreach (GameOverSpriteDraw draw in draws)
@@ -565,7 +565,7 @@ internal static class LookupStream3Verification
         }
         foreach (string name in GameOverPresentationDefinitions.SpriteNames)
         {
-            if (name == GameOverPresentationDefinitions.CursorFrameName(0)) for (int part = 0; part < 2; part++) AssertEqual(stock[name].Part(part), new MenuCursorParts(MenuMissileAnimationDefinitions.SpritemapId(0) - 0x34)[part], "exact first cursor candidate part");
+            if (name == GameOverPresentationNames.CursorFrameName(0)) for (int part = 0; part < 2; part++) AssertEqual(stock[name].Part(part), new MenuCursorParts(MenuMissileAnimationDefinitions.SpritemapId(0) - 0x34)[part], "exact first cursor candidate part");
             AssertTrue(Calculated(stock[name]), "stock game-over geometry retains no full part array " + name);
             Confirm(stock[name], original.Sprites[name]);
             for (int part = 0; part < original.Sprites[name].Length; part++)
@@ -607,7 +607,7 @@ internal static class LookupStream3Verification
             var presentation = load(new MemoryStream(json));
             for (int frame = 0; frame < 4; frame++)
             {
-                string name = GameOverPresentationDefinitions.CursorFrameName(frame);
+                string name = GameOverPresentationNames.CursorFrameName(frame);
                 var node = RequiredJson.Parse(json);
                 var parts = RequiredJson.Deserialize<SpriteVisualPart[]>(node.Required("sprites").Required(name).ToJsonString(), ArtworkJson.Options);
                 AssertTrue(Calculated(presentation[frame]), "shared menu cursor caller uses calculated geometry");
@@ -661,14 +661,14 @@ internal static class LookupStream3Verification
             new VerifyStream3FileSelectPatchesCase(FileSelectPatch.NoData, 0x81b4ac, 11),
         })
         {
-            string name = FileSelectPresentationDefinitions.PatchName(patch);
+            string name = FileSelectParts.PatchName(patch);
             FileSelectCompiledPatch Compiled(FileSelectPresentation value) => value.patches[patch];
             AssertTrue(Compiled(stock).suppliedCells is null,
                 "file-select stock patch retains no cells " + name);
             for (int index = 0; index < count; index++)
             {
                 ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + index * 2);
-                AssertEqual(new FileSelectCompiledPatchCell(new(checked((short)index), 0), BackgroundTileWords.ToTile(word)), FileSelectPresentationDefinitions.PatchCell(patch, index),
+                AssertEqual(new FileSelectCompiledPatchCell(new(checked((short)index), 0), BackgroundTileWords.ToTile(word)), FileSelectParts.PatchCell(patch, index),
                     "file-select calculated patch exact native cell");
                 foreach (int bit in new[] { 1, 32, 0x400, 0x2000, 0x4000, 0x8000 })
                 {
@@ -738,8 +738,8 @@ internal static class LookupStream3Verification
         }
         document.Tilemap[0] = document.Tilemap[0] with { TileColumn = 1 };
         Confirm(Load());
-        AssertThrows<ArgumentOutOfRangeException>(() => GameOverPresentationDefinitions.TilemapTile(-1), "game-over text negative cell");
-        AssertThrows<ArgumentOutOfRangeException>(() => GameOverPresentationDefinitions.TilemapTile(1024), "game-over text final cell boundary");
+        AssertThrows<ArgumentOutOfRangeException>(() => GameOverText.TilemapTile(-1), "game-over text negative cell");
+        AssertThrows<ArgumentOutOfRangeException>(() => GameOverText.TilemapTile(1024), "game-over text final cell boundary");
 
         void Confirm(GameOverPresentation presentation)
         {
@@ -1289,7 +1289,7 @@ internal static class LookupStream3Verification
             }
         }
         string[] expectedCreditRoles = ["staff-heading", "producer-heading", "producer-name", "director-heading", "director-name", "background-designers-heading", "background-designer-1", "background-designer-2", "background-designer-3", "object-designers-heading", "object-designer-1", "object-designer-2", "samus-original-designer-heading", "samus-original-designer-name", "samus-designer-heading", "samus-designer-name", "sound-program-heading", "sound-effects-heading", "sound-programmer-name", "music-composers-heading", "music-composer-1", "music-composer-2", "program-director-heading", "program-director-name", "system-coordinator-heading", "system-coordinator-name", "system-programmer-heading", "system-programmer-name", "samus-programmer-heading", "samus-programmer-name", "event-programmer-heading", "event-programmer-name", "enemy-programmer-heading", "enemy-programmer-name", "map-programmer-heading", "map-programmer-name", "assistant-programmer-heading", "assistant-programmer-name", "coordinators-heading", "coordinator-1", "coordinator-2", "printed-art-work-heading", "printed-art-work-1", "printed-art-work-2", "printed-art-work-3", "printed-art-work-4", "printed-art-work-5", "printed-art-work-6", "special-thanks-heading", "special-thanks-01", "special-thanks-02", "special-thanks-03", "special-thanks-04", "special-thanks-05", "special-thanks-06", "special-thanks-07", "special-thanks-08", "special-thanks-09", "special-thanks-10", "special-thanks-11", "special-thanks-12", "special-thanks-13", "special-thanks-14", "special-thanks-15", "special-thanks-r-and-d", "general-manager-heading", "general-manager-name"];
-        AssertTrue(CreditsPresentationDefinitions.Lines.Select(line => line.Id).SequenceEqual(expectedCreditRoles), "stream 3 all credit role identities and order");
+        AssertTrue(CreditsRoles.Lines.Select(line => line.Id).SequenceEqual(expectedCreditRoles), "stream 3 all credit role identities and order");
         Suite(nameof(VerifyCreditsPresentation), () => VerifyCreditsPresentation(Path.GetFullPath("Super Metroid.smc")));
         byte[] creditsJson = SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.Extract(rom);
         var credits = CreditsPresentation.Load(new MemoryStream(creditsJson));

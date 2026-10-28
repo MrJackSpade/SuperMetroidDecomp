@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 /// Their native instruction lists, slide acceleration, deletion, and phase handoffs
 /// remain in compiled cartridge mechanics.
 /// </summary>
-public sealed class CeresRevealActorLayout
+public sealed class CeresRevealActorPlacements
 {
     /// <summary>Explicit authored positions, or null when all six actors use their compiled native placements.</summary>
     internal readonly CeresRevealActorPlacement[]? placements;
 
     /// <summary>Collapses an all-stock layout to native placement lookup while retaining edited actor positions.</summary>
-    private CeresRevealActorLayout(CeresRevealActorPlacement[] placements)
+    private CeresRevealActorPlacements(CeresRevealActorPlacement[] placements)
     {
         bool stock = true;
         for (int index = 0; index < placements.Length; index++)
@@ -39,11 +39,11 @@ public sealed class CeresRevealActorLayout
     /// <summary>Resolves native named-actor initializer placement without a second stock lookup.</summary>
     private static CeresRevealActorPlacement DefaultPlacement(int index)
     {
-        var actor = CeresDestructionActorDefinitions.ZebesActor(index);
-        return new() { Id = CeresDestructionActorDefinitions.ZebesPlacementId(index), X = actor.Position.X, Y = actor.Position.Y };
+        var actor = CeresDestructionActors.ZebesActor(index);
+        return new() { Id = CeresDestructionActors.ZebesPlacementId(index), X = actor.Position.X, Y = actor.Position.Y };
     }
     /// <summary>Identity of ordered selected actor IDs and both initial visual coordinates.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(CeresRevealActorLayout), content =>
+    public string ContentIdentity => SelectedPresentationHash.Create("CeresRevealActorLayout", content =>
     {
         content.Append("actors", CeresDestructionActorDefinitions.ZebesActorCount);
         for (int index = 0; index < CeresDestructionActorDefinitions.ZebesActorCount; index++)
@@ -60,7 +60,7 @@ public sealed class CeresRevealActorLayout
     /// <returns>Selected placements for the reveal, with stock positions resolved from the compiled native initializers.</returns>
     /// <exception cref="ArgumentNullException">The source stream is null.</exception>
     /// <exception cref="InvalidDataException">The JSON, schema version, six-entry order, actor identity, or unsigned 16-bit coordinate is invalid.</exception>
-    public static CeresRevealActorLayout Load(Stream json)
+    public static CeresRevealActorPlacements Load(Stream json)
     {
         Ensure.NotNull(json);
         CeresRevealActorLayoutDocument document;
@@ -82,13 +82,13 @@ public sealed class CeresRevealActorLayout
         {
             CeresRevealActorPlacement placement = document.Actors[index];
             if (placement is null ||
-                placement.Id != CeresDestructionActorDefinitions.ZebesPlacementId(index) ||
+                placement.Id != CeresDestructionActors.ZebesPlacementId(index) ||
                 placement.X is < 0 or > ushort.MaxValue ||
                 placement.Y is < 0 or > ushort.MaxValue)
                 throw new InvalidDataException(
                     $"Ceres reveal actor {index} must retain its identity and 16-bit coordinates.");
         }
-        return new CeresRevealActorLayout(document.Actors);
+        return new CeresRevealActorPlacements(document.Actors);
     }
 
     /// <summary>Serializes the editable layout to UTF-8 JSON, validates it through <see cref="Load"/>, then writes the validated bytes.</summary>

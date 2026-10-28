@@ -354,8 +354,8 @@ internal static class LookupStream4Verification
         AssertEqual(2026, footprint.Count, "all2026 small/large-letter and digit footprint positions remain explicitly required");
         AssertTrue(native.SequenceEqual(atlas.Characters.Span), "all5120 original ending font bytes match");
         AssertTrue(native.SequenceEqual(EndingFontCharacters.FromPlanarBytes(native).Characters.Span), "legacy native import uses same calculated representation");
-        AssertEqual((ushort)0x4F, EndingTextDefinitions.CompileGlyph(' ', EndingTextStyle.ResultSmall).PackedWord, "native small text space selects blank tile4F");
-        AssertEqual((ushort)0x7F, EndingTextDefinitions.CompileGlyph(' ', EndingTextStyle.CopyrightLarge).PackedWord, "native large text space selects blank tile7F");
+        AssertEqual((ushort)0x4F, EndingTextGlyphs.CompileGlyph(' ', EndingTextStyle.ResultSmall).PackedWord, "native small text space selects blank tile4F");
+        AssertEqual((ushort)0x7F, EndingTextGlyphs.CompileGlyph(' ', EndingTextStyle.CopyrightLarge).PackedWord, "native large text space selects blank tile7F");
         var largeDeviations = new HashSet<LargeDeviation>
         {
             new LargeDeviation(0x21,5,2),new LargeDeviation(0x21,6,3),new LargeDeviation(0x21,7,4),new LargeDeviation(0x21,7,7),new LargeDeviation(0x21,7,8),new LargeDeviation(0x21,7,13),new LargeDeviation(0x21,6,14),
@@ -1146,7 +1146,7 @@ internal static class LookupStream4Verification
         var stockOverrides = stock.resultOverrides;
         AssertEqual(0, stockOverrides.Count, "Every stock producer-panel cell is calculated, without fallback samples");
         for (int cell = 0; cell < native.Length; cell++)
-            AssertEqual(native[cell], EndingTextLayoutDefinitions.ResultTile(cell, "PRODUCED BY").PackedWord, "Direct credit layout agrees with original cell independently of overrides");
+            AssertEqual(native[cell], EndingTextPanels.ResultTile(cell, "PRODUCED BY").PackedWord, "Direct credit layout agrees with original cell independently of overrides");
         foreach (int editedCell in new[] { 0, 75, 107, 233 })
         {
             var document = RequiredJson.Parse(source);
@@ -1170,10 +1170,10 @@ internal static class LookupStream4Verification
         var region = EndingTextDefinitions.ResultProducedBy;
         Array.Fill(expectedHeading, EndingTextDefinitions.ResultBlankTile.PackedWord, region.Column, region.Width);
         for (int letter = 0; letter < 4; letter++)
-            expectedHeading[region.Column + letter] = EndingTextDefinitions.CompileGlyph("TEST"[letter], EndingTextStyle.ResultSmall).PackedWord;
+            expectedHeading[region.Column + letter] = EndingTextGlyphs.CompileGlyph("TEST"[letter], EndingTextStyle.ResultSmall).PackedWord;
         AssertTrue(expectedHeading.SequenceEqual(BackgroundTileWordBytes.Words(heading.BuildResultPanel())), "Provided heading retains original fixed origin, padding and precedence over template words");
         foreach (int invalid in new[] { -1, native.Length })
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingTextLayoutDefinitions.ResultTile(invalid, "PRODUCED BY"), "Calculated result layout bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingTextPanels.ResultTile(invalid, "PRODUCED BY"), "Calculated result layout bounds");
         Console.WriteLine("Ending result panel:288 direct native cells, zero stock fallback samples, independent edits, heading precedence and immutable output snapshots pass; chosen wording has a narrow nonsense disposition; palette choices and font pixels remain required.");
     }
 
@@ -1192,7 +1192,7 @@ internal static class LookupStream4Verification
         var stockOverrides = stock.subtitleOverrides;
         AssertEqual(0, stockOverrides.Count, "Every stock subtitle cell is calculated without fallback samples");
         for (int cell = 0; cell < native.Length; cell++)
-            AssertEqual(native[cell], EndingTextLayoutDefinitions.SubtitleTile(cell).PackedWord, "Direct subtitle calculation agrees with native independently of overrides");
+            AssertEqual(native[cell], EndingTextPanels.SubtitleTile(cell).PackedWord, "Direct subtitle calculation agrees with native independently of overrides");
         Verify(stock, -1);
         AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(source)), stock.ContentIdentity, "Subtitle conversion preserves complete document identity");
         foreach (int editedCell in new[] { 0, 9, 14, 41 })

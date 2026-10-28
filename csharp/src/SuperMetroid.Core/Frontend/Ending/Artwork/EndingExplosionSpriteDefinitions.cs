@@ -54,9 +54,9 @@ public static class EndingExplosionSpriteDefinitions
 
     /// <summary>The cinematic pose of planet record <paramref name="record"/>: four damage, four flash and two lava poses.</summary>
     internal static CinematicSpritePose PlanetPose(int record) =>
-        (uint)record < PlanetRecords.Length ? PlanetRecords[record].Pose : throw new ArgumentOutOfRangeException(nameof(record));
+        Ensure.Element(PlanetRecords, record).Pose;
 
     /// <summary>The cinematic pose of the composite <paramref name="pose"/>.</summary>
     internal static CinematicSpritePose PoseOf(Pose pose) =>
-        Composites.TryGetValue(pose, out CinematicSpriteFrameDefinition frame) ? frame.Pose : throw new ArgumentOutOfRangeException(nameof(pose));
+        Ensure.Listed(Composites, pose).Pose;
 }

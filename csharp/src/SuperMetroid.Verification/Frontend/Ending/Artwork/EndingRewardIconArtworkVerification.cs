@@ -23,7 +23,7 @@ internal static class EndingRewardIconArtworkVerification
     /// <summary>Compares retail pixels and VRAM, then checks map and PNG override rebinds during the landing upload.</summary>
     internal static void VerifyEndingRewardIconArtwork(GameInstallation installation)
     {
-        EndingFloorArtworkCatalog stock = installation.LoadEndingMode7Art();
+        EndingFloorArtwork stock = installation.LoadEndingMode7Art();
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         var source = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         byte[] native = RomDataReader.Decompress(source,
@@ -113,7 +113,7 @@ internal static class EndingRewardIconArtworkVerification
                     IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
                         image.Pixels, image.Colours);
                 }
-                EndingFloorArtworkCatalog edited = installation.LoadEndingMode7Art();
+                EndingFloorArtwork edited = installation.LoadEndingMode7Art();
                 var uploadBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
                 var partial = new EndingScreen();
                 for (int chunk = 0; chunk < 8; chunk++)

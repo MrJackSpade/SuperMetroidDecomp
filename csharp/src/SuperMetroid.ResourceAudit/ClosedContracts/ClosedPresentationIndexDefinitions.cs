@@ -146,7 +146,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("SamusArmCannonArtworkCatalog", "ReadDrawingByte", "offset") => new(0, SamusArmCannonArtworkFormat.DrawingDataByteCount),
         ("SamusArmCannonArtworkCatalog", "CoverTileIndex", "direction") => new(0, SamusDrawingDefinitions.ArmCannon.DirectionCount),
         ("SamusArmCannonArtworkCatalog", "CoverTileIndex", "frame") => new(0, SamusArmCannonArtworkFormat.FramesPerDirection),
-        ("EndingObjectArtworkCatalog", "Fragment", "id") => new(0, EndingObjectArtworkFormat.FragmentCount),
+        ("EndingObjectArtwork", "Fragment", "id") => new(0, EndingObjectArtworkFormat.FragmentCount),
         ("GunshipLiftoffArtworkCatalog", "Resolve", "asset") => new((int)InstalledArtworkId.GunshipLiftoffFirstTiles,
             GunshipLiftoffTransferDefinitions.Frames.Length),
         ("AreaMapPresentationCatalog" or "IGameplayPresentationContent" or "IAreaMapSource", "Get", "area") => new(0, AreaIds.RetailCount),

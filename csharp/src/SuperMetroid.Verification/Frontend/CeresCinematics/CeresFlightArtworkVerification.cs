@@ -37,7 +37,7 @@ internal static class CeresFlightArtworkVerification
     internal static void VerifyCeresFlightArtwork(GameInstallation installation,
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
-        CeresFlightArtworkCatalog stock = installation.LoadIntroCinematicArt().CeresFlight;
+        CeresFlightArtwork stock = installation.LoadIntroCinematicArt().CeresFlight;
         AssertTrue(stock.FloorCharacters.Span.SequenceEqual(RomDataReader.Decompress(bus,
                 CeresCinematicSourceDefinitions.FlightFloorCharacters,
                 maximumOutputBytes: CeresFlightArtworkFormat.FloorByteCount)),
@@ -123,7 +123,7 @@ internal static class CeresFlightArtworkVerification
                 map.FrontTiles[0] = unchecked((byte)(map.FrontTiles[0] + 1));
                 map.RearTiles[0] = unchecked((byte)(map.RearTiles[0] + 1));
                 using var output = File.Create(overridePath);
-                CeresFlightArtworkCatalog.WriteMap(output, map);
+                CeresFlightArtwork.WriteMap(output, map);
             }
             else
             {
@@ -137,7 +137,7 @@ internal static class CeresFlightArtworkVerification
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
             }
 
-            CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
+            CeresFlightArtwork edited = installation.LoadIntroCinematicArt().CeresFlight;
             bool isRearMap = name == CeresFlightArtworkFormat.MapFileName;
             var fresh = new IntroCeresFlightState(new AudioQueues(), edited, sheets: CinematicSheetFixtures.WithFlight(edited));
             AssertTrue(fresh.ShownVram().SequenceEqual(
@@ -181,8 +181,8 @@ internal static class CeresFlightArtworkVerification
                 ?? throw new InvalidDataException("Ceres Mode-7 map is empty.");
         persistentMap.FrontTiles[0] = unchecked((byte)(persistentMap.FrontTiles[0] + 1));
         using (var output = File.Create(invalidMap))
-            CeresFlightArtworkCatalog.WriteMap(output, persistentMap);
-        CeresFlightArtworkCatalog selected = installation.LoadIntroCinematicArt().CeresFlight;
+            CeresFlightArtwork.WriteMap(output, persistentMap);
+        CeresFlightArtwork selected = installation.LoadIntroCinematicArt().CeresFlight;
         string stockMode7 = Path.Combine(installation.IntroCinematicDirectory,
             CeresFlightArtworkFormat.FloorFileName);
         File.WriteAllBytes(stockMode7, [0]);
@@ -199,7 +199,7 @@ internal static class CeresFlightArtworkVerification
 
     /// <summary>Checks five native rear-view actor positions and an edited asteroid's live OAM result.</summary>
     private static void VerifyCeresFlightActorLayout(GameInstallation installation,
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, CeresFlightArtworkCatalog stock)
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, CeresFlightArtwork stock)
     {
         string name = CeresFlightActorLayoutFormat.FileName;
         string stockPath = Path.Combine(installation.IntroCinematicDirectory, name);
@@ -226,8 +226,8 @@ internal static class CeresFlightArtworkVerification
         int stockAsteroidX = document.Actors[0].X;
         document.Actors[0] = document.Actors[0] with { X = stockAsteroidX + 16 };
         using (var output = File.Create(overridePath))
-            CeresFlightActorLayout.Write(output, document);
-        CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
+            CeresFlightActorPlacements.Write(output, document);
+        CeresFlightArtwork edited = installation.LoadIntroCinematicArt().CeresFlight;
         var original = new IntroCeresFlightState(new AudioQueues(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
         var changed = new IntroCeresFlightState(new AudioQueues(), edited, sheets: CinematicSheetFixtures.WithFlight(edited));
         for (int frame = 0; frame < 4000 &&
@@ -268,14 +268,14 @@ internal static class CeresFlightArtworkVerification
         AssertThrows<InvalidDataException>(() =>
         {
             using var invalid = new MemoryStream();
-            CeresFlightActorLayout.Write(invalid, document);
+            CeresFlightActorPlacements.Write(invalid, document);
         }, "Ceres flight layout rejects missing or reordered actor identities");
         File.Delete(overridePath);
     }
 
     /// <summary>Checks an edited palette in approach and destruction scenes, including restoration.</summary>
     private static void VerifyCeresFlightPaletteOverride(GameInstallation installation,
-        CeresFlightArtworkCatalog stock)
+        CeresFlightArtwork stock)
     {
         string stockPath = Path.Combine(installation.IntroCinematicDirectory,
             CeresFlightPaletteFormat.FileName);
@@ -291,7 +291,7 @@ internal static class CeresFlightArtworkVerification
         using (var output = File.Create(overridePath))
             CeresFlightPaletteFile.Write(output, document);
 
-        CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
+        CeresFlightArtwork edited = installation.LoadIntroCinematicArt().CeresFlight;
         var native = new IntroCeresFlightState(new AudioQueues(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
         var changed = new IntroCeresFlightState(new AudioQueues(), edited, sheets: CinematicSheetFixtures.WithFlight(edited));
         for (int tick = 0; tick < CeresFrontApproachTicks; tick++)
@@ -364,8 +364,8 @@ internal static class CeresFlightArtworkVerification
             Array.Fill(image.Pixels, (byte)0);
             using (var output = File.Create(overridePath))
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-            CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
-            CeresFlightArtworkCatalog stockArtwork = IntroCinematicArtworkFiles.Load(installation.IntroCinematicDirectory, null).CeresFlight;
+            CeresFlightArtwork edited = installation.LoadIntroCinematicArt().CeresFlight;
+            CeresFlightArtwork stockArtwork = IntroCinematicArtworkFiles.Load(installation.IntroCinematicDirectory, null).CeresFlight;
             var stockFlight = new IntroCeresFlightState(new AudioQueues(),
                 stockArtwork, sheets: CinematicSheetFixtures.WithFlight(stockArtwork));
             var editedFlight = new IntroCeresFlightState(new AudioQueues(), edited, sheets: CinematicSheetFixtures.WithFlight(edited));
@@ -395,9 +395,9 @@ internal static class CeresFlightArtworkVerification
         Array.Fill(map.FrontTiles, 0);
         Array.Fill(map.RearTiles, 0);
         using (var output = File.Create(mapOverride))
-            CeresFlightArtworkCatalog.WriteMap(output, map);
-        CeresFlightArtworkCatalog originalArtwork = IntroCinematicArtworkFiles.Load(installation.IntroCinematicDirectory, null).CeresFlight;
-        CeresFlightArtworkCatalog changedArtwork = installation.LoadIntroCinematicArt().CeresFlight;
+            CeresFlightArtwork.WriteMap(output, map);
+        CeresFlightArtwork originalArtwork = IntroCinematicArtworkFiles.Load(installation.IntroCinematicDirectory, null).CeresFlight;
+        CeresFlightArtwork changedArtwork = installation.LoadIntroCinematicArt().CeresFlight;
         var original = new IntroCeresFlightState(new AudioQueues(),
             originalArtwork, sheets: CinematicSheetFixtures.WithFlight(originalArtwork));
         var changed = new IntroCeresFlightState(new AudioQueues(),
@@ -434,7 +434,7 @@ internal static class CeresFlightArtworkVerification
     }
 
     /// <summary>Constructs the exact front or rear VRAM image from selected map and character art.</summary>
-    private static byte[] ExpectedCeresFlightVram(CeresFlightArtworkCatalog artwork, bool rear)
+    private static byte[] ExpectedCeresFlightVram(CeresFlightArtwork artwork, bool rear)
     {
         var expected = new byte[SnesVram.ByteCount];
         for (int word = 0; word < AffineFloor.CellCount; word++)

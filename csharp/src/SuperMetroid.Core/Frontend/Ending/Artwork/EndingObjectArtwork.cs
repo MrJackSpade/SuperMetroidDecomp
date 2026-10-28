@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 /// Actor instructions, palette selection and timing remain code; atmospheric
 /// cloud OAM compositions are a separate editable presentation resource.
 /// </summary>
-public sealed class EndingObjectArtworkCatalog
+public sealed class EndingObjectArtwork
 {
     /// <summary>Copied four-fragment sequence ordered by explosion VRAM destination page.</summary>
     private readonly RoomBackgroundTilemapAtlas[] fragments;
@@ -21,7 +21,7 @@ public sealed class EndingObjectArtworkCatalog
     /// <remarks>Copies the fragment sequence but retains the supplied atlas and presentation objects. This constructor validates transfer sizes, not stock hashes or manifest provenance; installation loading performs those checks.</remarks>
     /// <exception cref="ArgumentNullException">An atlas, composition resource, or fragment sequence is null.</exception>
     /// <exception cref="InvalidDataException">A transfer has an incorrect byte length, or the fragment sequence does not contain exactly four non-null, correctly sized entries.</exception>
-    public EndingObjectArtworkCatalog(EndingObjectArtworkParts parts)
+    public EndingObjectArtwork(EndingObjectArtworkParts parts)
     {
         Clouds = Ensure.NotNull(parts.Clouds);
         Explosion = Ensure.NotNull(parts.Explosion);
@@ -99,7 +99,7 @@ public sealed class EndingObjectArtworkCatalog
     public RoomBackgroundTilemapAtlas PostShotLogoMap { get; }
 
     /// <summary>Identity of every selected ending/credits character, map and ordered OAM composition.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(EndingObjectArtworkCatalog), content =>
+    public string ContentIdentity => SelectedPresentationHash.Create("EndingObjectArtworkCatalog", content =>
     {
         content.Append("clouds", Clouds.Characters.Span);
         content.Append("explosion", Explosion.Characters.Span);
@@ -126,6 +126,5 @@ public sealed class EndingObjectArtworkCatalog
     /// <returns>The retained map's tile references.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> is not one of the four defined fragment identities.</exception>
     public RoomBackgroundTilemapAtlas Fragment(EndingObjectFragmentId id) =>
-        fragmentsById.TryGetValue(id, out RoomBackgroundTilemapAtlas? fragment) ? fragment :
-            throw new ArgumentOutOfRangeException(nameof(id));
+        Ensure.Listed(fragmentsById, id);
 }

@@ -14,27 +14,29 @@ public static class EndingPaletteDefinitions
     /// <summary>Full editable resource sizes, not individual CGRAM transfer lengths:
     /// four 256-color bank-$8C allocations, two 16-color palettes, and sixteen pairs
     /// of 16-color crossfade palettes. Native credits transfers can select a subset.</summary>
-    public static int ColorCount(EndingPaletteId id) => id switch
-    {
-        EndingPaletteId.Escape or EndingPaletteId.PostCredits or EndingPaletteId.Credits or
-            EndingPaletteId.Explosion => ScreenPalette.ColorCount,
-        EndingPaletteId.FinalGunship => 16,
-        EndingPaletteId.LogoInitial => 16,
-        EndingPaletteId.LogoCrossfade => EndingLogoDefinitions.PaletteSteps * 2 * 16,
-        _ => throw new ArgumentOutOfRangeException(nameof(id)),
-    };
+    internal static readonly IReadOnlyDictionary<EndingPaletteId, int> ColorCounts =
+        new Dictionary<EndingPaletteId, int>
+        {
+            [EndingPaletteId.Escape] = ScreenPalette.ColorCount,
+            [EndingPaletteId.PostCredits] = ScreenPalette.ColorCount,
+            [EndingPaletteId.Credits] = ScreenPalette.ColorCount,
+            [EndingPaletteId.Explosion] = ScreenPalette.ColorCount,
+            [EndingPaletteId.FinalGunship] = 16,
+            [EndingPaletteId.LogoInitial] = 16,
+            [EndingPaletteId.LogoCrossfade] = EndingLogoDefinitions.PaletteSteps * 2 * 16,
+        };
 
     /// <summary>Published asset-file identities selected by semantic palette role.
     /// Explicit cases preserve independently editable stock and override filenames.</summary>
-    public static string FileName(EndingPaletteId id) => id switch
-    {
-        EndingPaletteId.Escape => "ending-escape-palette.json",
-        EndingPaletteId.PostCredits => "ending-post-credits-palette.json",
-        EndingPaletteId.Credits => "ending-credits-palette.json",
-        EndingPaletteId.Explosion => "ending-explosion-palette.json",
-        EndingPaletteId.FinalGunship => "ending-final-gunship-palette.json",
-        EndingPaletteId.LogoInitial => "ending-logo-initial-palette.json",
-        EndingPaletteId.LogoCrossfade => "ending-logo-crossfade-palette.json",
-        _ => throw new ArgumentOutOfRangeException(nameof(id)),
-    };
+    internal static readonly IReadOnlyDictionary<EndingPaletteId, string> FileNames =
+        new Dictionary<EndingPaletteId, string>
+        {
+            [EndingPaletteId.Escape] = "ending-escape-palette.json",
+            [EndingPaletteId.PostCredits] = "ending-post-credits-palette.json",
+            [EndingPaletteId.Credits] = "ending-credits-palette.json",
+            [EndingPaletteId.Explosion] = "ending-explosion-palette.json",
+            [EndingPaletteId.FinalGunship] = "ending-final-gunship-palette.json",
+            [EndingPaletteId.LogoInitial] = "ending-logo-initial-palette.json",
+            [EndingPaletteId.LogoCrossfade] = "ending-logo-crossfade-palette.json",
+        };
 }

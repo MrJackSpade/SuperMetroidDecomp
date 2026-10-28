@@ -119,21 +119,21 @@ public sealed record GameInstallation(string Root)
     /// <summary>Ending scene art edits remain outside replaceable stock content.</summary>
     public string EndingMode7OverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EndingMode7DirectoryName);
     /// <summary>Loads validated ending Mode 7 artwork and compatible scene replacements from the persistent override tree.</summary>
-    public EndingFloorArtworkCatalog LoadEndingMode7Art() =>
+    public EndingFloorArtwork LoadEndingMode7Art() =>
         EndingMode7ArtworkFiles.Load(EndingMode7Directory, EndingMode7OverrideDirectory);
     /// <summary>Stock ending sprite artwork under the replaceable content tree.</summary>
     public string EndingObjectDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingObjectDirectoryName);
     /// <summary>Ending OBJ edits remain outside replaceable stock content.</summary>
     public string EndingObjectOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EndingObjectDirectoryName);
     /// <summary>Loads validated ending OBJ artwork and any compatible user replacements.</summary>
-    public EndingObjectArtworkCatalog LoadEndingObjectArt() =>
+    public EndingObjectArtwork LoadEndingObjectArt() =>
         EndingObjectArtworkFiles.Load(EndingObjectDirectory, EndingObjectOverrideDirectory);
     /// <summary>Stock ending-scene color palettes under the replaceable content tree.</summary>
     public string EndingPaletteDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingPaletteDirectoryName);
     /// <summary>Ending color edits survive replacement of the stock installation.</summary>
     public string EndingPaletteOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EndingPaletteDirectoryName);
     /// <summary>Loads validated ending color palettes and compatible color replacements from the persistent override tree.</summary>
-    public EndingPaletteCatalog LoadEndingPalettes() =>
+    public EndingPaletteSet LoadEndingPalettes() =>
         EndingPaletteArtworkFiles.Load(EndingPaletteDirectory, EndingPaletteOverrideDirectory);
     /// <summary>Editable room character art stays outside the replaceable stock game directory.</summary>
     public string RoomCharacterOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomCharacterDirectoryName);

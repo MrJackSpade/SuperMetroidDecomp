@@ -21,7 +21,7 @@ internal static class CeresFlightSpriteArtworkVerification
 {
     /// <summary>Compares six retail frames, tests a visible star offset edit, and verifies rebind, validation, and stock repair.</summary>
     internal static void VerifyCeresFlightSpriteArtwork(GameInstallation installation,
-        SuperMetroidAddressSpace bus, CeresFlightArtworkCatalog stock)
+        SuperMetroidAddressSpace bus, CeresFlightArtwork stock)
     {
         foreach (CinematicSpriteFrameDefinition frame in CeresFlightSpriteDefinitions.Frames)
         {
@@ -60,7 +60,7 @@ internal static class CeresFlightSpriteArtworkVerification
         using (var output = File.Create(overridePath))
             CeresFlightSpritePresentation.Write(output, document);
 
-        CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
+        CeresFlightArtwork edited = installation.LoadIntroCinematicArt().CeresFlight;
         var stockFlight = new IntroCeresFlightState(new AudioQueues(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
         var editedFlight = new IntroCeresFlightState(new AudioQueues(), edited, sheets: CinematicSheetFixtures.WithFlight(edited));
         for (int frame = 0; frame < CeresFrontApproachTicks; frame++)
@@ -99,7 +99,7 @@ internal static class CeresFlightSpriteArtworkVerification
             "a sprite override cannot hide corrupted stock Ceres sprites");
         GameInstallation repaired = GameAssetInstaller.EnsureInstalled(installation.Root)
             ?? throw new InvalidOperationException("Ceres sprites vanished during stock repair.");
-        CeresFlightArtworkCatalog repairedArtwork = repaired.LoadIntroCinematicArt().CeresFlight;
+        CeresFlightArtwork repairedArtwork = repaired.LoadIntroCinematicArt().CeresFlight;
         var repairedFlight = new IntroCeresFlightState(new AudioQueues(),
             repairedArtwork, sheets: CinematicSheetFixtures.WithFlight(repairedArtwork));
         for (int frame = 0; frame < CeresFrontApproachTicks; frame++)

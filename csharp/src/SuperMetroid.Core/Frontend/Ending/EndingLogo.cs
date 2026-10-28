@@ -18,7 +18,7 @@ internal sealed class EndingLogo
     /// <summary>Stops each half at its respective landing point.</summary>
     private readonly bool[] settled = new bool[2];
     /// <summary>Selected palette source rebound after scene-state restoration.</summary>
-    [NonSerialized] private EndingPaletteCatalog? paletteArtwork;
+    [NonSerialized] private EndingPaletteSet? paletteArtwork;
     /// <summary>Becomes true when the grey-out instruction begins paired background and OBJ transfers.</summary>
     public bool CrossfadeStarted { get; internal set; }
     /// <summary>Number of paired palette transfers already applied.</summary>
@@ -28,15 +28,15 @@ internal sealed class EndingLogo
 
     /// <summary>Creates four logo actors and loads the initial artwork palette into CGRAM.</summary>
     public EndingLogo(ScreenPalette colours, Action landed,
-        EndingPaletteCatalog? paletteArtwork = null)
+        EndingPaletteSet? paletteArtwork = null)
     {
         this.landed = landed;
         this.paletteArtwork = paletteArtwork;
         for (int i = 0; i < actors.Length; i++)
         {
-            CinematicActorDefinition definition = EndingLogoDefinitions.Actor(i);
+            CinematicActorDefinition definition = EndingLogoActors.Actor(i);
             actors[i] = new IntroDiscoverySprite(
-                EndingLogoDefinitions.Origin(i),
+                EndingLogoActors.Origin(i),
                 7,
                 definition.Program);
             actors[i].InstallPreInstruction(definition.PreInstruction);
@@ -48,7 +48,7 @@ internal sealed class EndingLogo
     }
 
     /// <summary>Restored scene state keeps its current CGRAM; only future transfers change.</summary>
-    public void BindPaletteArtwork(EndingPaletteCatalog? value) => paletteArtwork = value;
+    public void BindPaletteArtwork(EndingPaletteSet? value) => paletteArtwork = value;
 
     /// <summary>Applies the pending crossfade pair before moving actors and interpreting their next instructions.</summary>
     public void Step(ScreenPalette colours)

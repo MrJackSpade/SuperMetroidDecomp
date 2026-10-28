@@ -102,9 +102,9 @@ internal sealed class EndingRewardGesture
     /// <summary>Creates an actor from compiled initialization and binds its discovery pre-instruction.</summary>
     private void Spawn(EndingRewardActor definition)
     {
-        EndingRewardActorDefinition record = EndingRewardActorDefinitions.Get(definition);
+        EndingRewardActorDefinition record = EndingRewardActors.Get(definition);
         EndingRewardActorInitializationDefinition initialization =
-            EndingRewardActorDefinitions.GetInitialization(record.Initialization);
+            EndingRewardActors.GetInitialization(record.Initialization);
         var actor = new IntroDiscoverySprite(
             initialization.Position,
             initialization.Palette,

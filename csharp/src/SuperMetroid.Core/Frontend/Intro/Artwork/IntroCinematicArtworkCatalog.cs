@@ -103,9 +103,9 @@ public sealed class IntroCinematicArtworkCatalog
     /// <summary>Native-precision colors loaded before the first narration card.</summary>
     public IntroCinematicPalette Palette { get; }
     /// <summary>Mode-7 and OBJ visual streams used after the narration fades to Ceres.</summary>
-    public CeresFlightArtworkCatalog CeresFlight { get; }
+    public CeresFlightArtwork CeresFlight { get; }
     /// <summary>Destruction maps and subsequent Zebes reveal art.</summary>
-    public CeresDestructionArtworkCatalog CeresDestruction { get; }
+    public CeresDestructionArtwork CeresDestruction { get; }
 
     /// <summary>Identity of the entire selected opening bundle, including its owned Ceres flight/reveal art.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(IntroCinematicArtworkCatalog), content =>

@@ -23,10 +23,10 @@ internal static class CinematicSheetFixtures
     private static readonly ConditionalWeakTable<object, CinematicSpriteSheet> drawers = new();
 
     /// <summary>Ceres flight sheets already composed, by flight artwork.</summary>
-    private static readonly ConditionalWeakTable<CeresFlightArtworkCatalog, SpriteSheet> flights = new();
+    private static readonly ConditionalWeakTable<CeresFlightArtwork, SpriteSheet> flights = new();
 
     /// <summary>The Ceres flight sheet <paramref name="flight"/> composes.</summary>
-    internal static SpriteSheet CeresFlight(CeresFlightArtworkCatalog flight)
+    internal static SpriteSheet CeresFlight(CeresFlightArtwork flight)
     {
         ArgumentNullException.ThrowIfNull(flight);
         return ReferenceEquals(flight, InstalledFixtures.IntroArtwork.CeresFlight)
@@ -48,7 +48,7 @@ internal static class CinematicSheetFixtures
     extension(IntroCeresFlightState self)
     {
         /// <summary>Binds <paramref name="flight"/> and the sheets it composes, as the game rebinds both.</summary>
-        internal void BindFixtureFlightArtwork(CeresFlightArtworkCatalog flight)
+        internal void BindFixtureFlightArtwork(CeresFlightArtwork flight)
         {
             self.BindArtwork(flight);
             self.BindSheets(WithFlight(flight));
@@ -56,10 +56,10 @@ internal static class CinematicSheetFixtures
     }
 
     /// <summary>Installed sheets with the Ceres flight's sprites and caption tiles composed, by flight artwork.</summary>
-    private static readonly ConditionalWeakTable<CeresFlightArtworkCatalog, InstalledSpriteSheets> flightSheets = new();
+    private static readonly ConditionalWeakTable<CeresFlightArtwork, InstalledSpriteSheets> flightSheets = new();
 
     /// <summary>The installed sheets with the Ceres flight sheet and caption tiles <paramref name="flight"/> composes.</summary>
-    internal static InstalledSpriteSheets WithFlight(CeresFlightArtworkCatalog flight)
+    internal static InstalledSpriteSheets WithFlight(CeresFlightArtwork flight)
     {
         ArgumentNullException.ThrowIfNull(flight);
         return ReferenceEquals(flight, InstalledFixtures.IntroArtwork.CeresFlight) ? InstalledFixtures.SpriteSheets

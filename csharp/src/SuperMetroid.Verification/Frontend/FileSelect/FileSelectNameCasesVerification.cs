@@ -13,26 +13,26 @@ internal static class FileSelectNameCasesVerification
         ["Background", "Main.WithData", "Main.Empty", "Copy.Source", "Copy.Destination",
          "Copy.Confirm", "Copy.Completed", "Clear.Selection", "Clear.Confirm", "Clear.Completed"],
         [FileSelectPresentationDefinitions.BackgroundPageName,
-            .. FileSelectPresentationDefinitions.Pages.Select(FileSelectPresentationDefinitions.PageName)],
-        () => FileSelectPresentationDefinitions.PageName((FileSelectPage)byte.MaxValue));
+            .. FileSelectPresentationDefinitions.Pages.Select(FileSelectParts.PageName)],
+        () => FileSelectParts.PageName((FileSelectPage)byte.MaxValue));
 
     /// <summary>Checks names for energy, empty-slot, and time-colon patches.</summary>
     internal static void VerifyFileSelectPatchNames(byte[] source) => VerifyFileSelectNames(source, "Patches",
         ["Energy", "NoData", "TimeColon"],
-        [.. FileSelectPresentationDefinitions.Patches.Select(FileSelectPresentationDefinitions.PatchName)],
-        () => FileSelectPresentationDefinitions.PatchName((FileSelectPatch)byte.MaxValue));
+        [.. FileSelectPresentationDefinitions.Patches.Select(FileSelectParts.PatchName)],
+        () => FileSelectParts.PatchName((FileSelectPatch)byte.MaxValue));
 
     /// <summary>Checks border anchor names for the three file-select flows.</summary>
     internal static void VerifyFileSelectBorderNames(byte[] source) => VerifyFileSelectNames(source, "BorderAnchors",
         ["Main", "Copy", "Clear"],
-        [.. FileSelectPresentationDefinitions.Borders.Select(FileSelectPresentationDefinitions.BorderName)],
-        () => FileSelectPresentationDefinitions.BorderName((FileSelectBorder)byte.MaxValue));
+        [.. FileSelectPresentationDefinitions.Borders.Select(FileSelectParts.BorderName)],
+        () => FileSelectParts.BorderName((FileSelectBorder)byte.MaxValue));
 
     /// <summary>Checks copy and clear confirmation anchors that depend on selected slots.</summary>
     internal static void VerifyFileSelectDynamicAnchorNames(byte[] source) => VerifyFileSelectNames(source, "DynamicAnchors",
         ["Copy.Destination.Source", "Copy.Confirm.Source", "Copy.Confirm.Destination", "Clear.Confirm.Source"],
-        [.. FileSelectPresentationDefinitions.Anchors.Select(FileSelectPresentationDefinitions.AnchorName)],
-        () => FileSelectPresentationDefinitions.AnchorName((FileSelectAnchor)byte.MaxValue));
+        [.. FileSelectPresentationDefinitions.Anchors.Select(FileSelectParts.AnchorName)],
+        () => FileSelectParts.AnchorName((FileSelectAnchor)byte.MaxValue));
 
     /// <summary>Checks border, cursor, and helmet sprite identities in the installed schema.</summary>
     internal static void VerifyFileSelectSpriteNames(byte[] source) => VerifyFileSelectNames(source, "Sprites",

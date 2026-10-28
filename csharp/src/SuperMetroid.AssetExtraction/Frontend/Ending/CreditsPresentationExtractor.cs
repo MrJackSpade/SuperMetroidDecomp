@@ -54,14 +54,14 @@ public static class CreditsPresentationExtractor
         }
 
         var rows = new List<ushort[]>(CreditsPresentationDefinitions.ExpectedCompiledRows);
-        ushort pointer = EndingSourceDefinitions.Credits.InitialInstruction;
+        int pointer = EndingSourceDefinitions.Credits.InitialInstruction;
         WrappingCountdown timer = WrappingCountdown.Start(0);
         for (int operation = 0; operation < EndingSourceDefinitions.Credits.MaximumOperations; operation++)
         {
-            ushort instruction = ReadWord(bus, pointer);
+            int instruction = ReadWord(bus, pointer);
             if ((instruction & EndingSourceDefinitions.Credits.CommandBit) == 0)
             {
-                ushort offset = ReadWord(bus, Add(pointer, 2));
+                int offset = ReadWord(bus, Add(pointer, 2));
                 if (offset % (CreditsPresentationDefinitions.TilemapWidth * sizeof(ushort)) != 0 ||
                     offset + CreditsPresentationDefinitions.TilemapWidth * sizeof(ushort) > source.Length)
                 {
@@ -135,7 +135,7 @@ public static class CreditsPresentationExtractor
         var text = new char[last - first + 1];
         for (int column = first; column <= last; column++)
         {
-            ushort topWord = top[column];
+            int topWord = top[column];
             if (!IsBlank(topWord) &&
                 ((topWord >> CreditsPresentationDefinitions.PaletteShift) &
                     CreditsPresentationDefinitions.MaximumPalette) != palette)
@@ -190,16 +190,16 @@ public static class CreditsPresentationExtractor
     }
 
     /// <summary>Recognizes the credits blank tile while ignoring its palette attribute bits.</summary>
-    private static bool IsBlank(ushort word) =>
-        new SnesBgTilemapWord(word).CharacterIndex == CreditsPresentationDefinitions.BlankWord;
+    private static bool IsBlank(int word) =>
+        new SnesBgTilemapWord(checked((ushort)word)).CharacterIndex == CreditsPresentationDefinitions.BlankWord;
 
     /// <summary>Reads one instruction word from the credits program's native bank.</summary>
-    private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
+    private static ushort ReadWord(ISnesAddressSpace bus, int pointer) =>
         RomDataReader.ReadWordFixedBank(
             CartridgeImportSource.Require(bus),
-            new SnesAddress(EndingSourceDefinitions.Credits.InstructionBank, pointer));
+            SnesAddress.InBank(EndingSourceDefinitions.Credits.InstructionBank, pointer));
 
     /// <summary>Advances a bank-local credits instruction pointer with native 16-bit wrapping.</summary>
-    private static ushort Add(ushort pointer, int bytes) =>
+    private static int Add(int pointer, int bytes) =>
         unchecked((ushort)(pointer + bytes));
 }

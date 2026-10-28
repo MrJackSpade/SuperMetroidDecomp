@@ -21,7 +21,7 @@ public static class AreaMapImporter
         int tilemapAddress = RomDataReader.ReadLongFixedBank(
             CartridgeImportSource.Require(bus),
             MapSourceDefinitions.AreaMaps.TilemapPointers + areaIndex * MapSourceDefinitions.AreaMaps.TilemapPointerBytes);
-        ushort revealPointer = RomDataReader.ReadWordFixedBank(
+        int revealPointer = RomDataReader.ReadWordFixedBank(
             CartridgeImportSource.Require(bus),
             MapSourceDefinitions.AreaMaps.StationRevealMaskPointers + areaIndex * sizeof(ushort));
         int revealAddress = MapSourceDefinitions.AreaMaps.StationRevealMaskBank | revealPointer;

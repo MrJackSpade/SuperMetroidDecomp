@@ -17,7 +17,7 @@ public static class PauseWireframeExtractor
         var frames = new Dictionary<string, PauseBackdropCell[]>();
         foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
         {
-            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.PauseWireframePointers.AddWithinBank((int)kind * 2));
+            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.PauseWireframePointers.AddWithinBank((int)kind * 2));
             var cells = new PauseBackdropCell[PauseWireframeDefinitions.Cells];
             for (int index = 0; index < cells.Length; index++)
             {

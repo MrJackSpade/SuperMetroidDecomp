@@ -71,7 +71,7 @@ public static class GameOverPresentationExtractor
         foreach (GameOverBabyPalette palette in Enum.GetValues<GameOverBabyPalette>())
         {
             var colors = new ushort[GameOverMenuDefinitions.BabyPaletteColorCount];
-            ushort pointer = GameOverBabyAnimationDefinitions.NativePalettePointer(palette);
+            int pointer = GameOverBabyAnimationDefinitions.NativePalettePointer(palette);
             for (int color = 0; color < colors.Length; color++)
                 colors[color] = ReadBank82Word(unchecked((ushort)(pointer + color * 2)));
             palettes.Add(GameOverPresentationDefinitions.BabyPaletteName(palette), colors);
@@ -103,7 +103,7 @@ public static class GameOverPresentationExtractor
             int sourceAddress = GameOverSourceDefinitions.TextBank | GameOverTextSources.Pointer(stream.Element);
             while (true)
             {
-                ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), sourceAddress);
+                int word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), sourceAddress);
                 sourceAddress = GameOverSourceDefinitions.TextBank | (SnesAddressMath.OffsetInBank(sourceAddress + 2));
                 if (Enum.IsDefined((GameOverTextControl)word))
                 {
@@ -124,12 +124,12 @@ public static class GameOverPresentationExtractor
                 if ((uint)wordIndex >= tilemap.Length)
                     throw new InvalidDataException(
                         $"Game-over text {stream.Description} escaped its 32x32 tilemap.");
-                tilemap[wordIndex] = word;
+                tilemap[wordIndex] = checked((ushort)word);
                 destinationByteOffset += sizeof(ushort);
             }
         }
 
-        ushort ReadBank82Word(ushort pointer) =>
+        ushort ReadBank82Word(int pointer) =>
             RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GameOverSourceDefinitions.SpriteBank | pointer);
     }
 
@@ -146,16 +146,16 @@ public static class GameOverPresentationExtractor
         foreach (GameOverBabyInstruction instruction in GameOverBabyAnimation.All)
         {
             int address = GameOverSourceDefinitions.SpriteBank | pointer;
-            ushort duration = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-            ushort sprite = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2);
-            ushort palette = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 4);
+            int duration = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+            int sprite = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2);
+            int palette = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 4);
             if (duration != instruction.Duration ||
                 sprite != GameOverBabyAnimationDefinitions.NativeSpritemap(instruction.Frame) ||
                 palette != GameOverBabyAnimationDefinitions.NativePalettePointer(instruction.Palette))
                 throw new InvalidDataException(
                     $"Compiled game-over Baby instruction $82:{pointer:X4} does not match the cartridge.");
 
-            ushort nextWord = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 6);
+            int nextWord = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 6);
             if (instruction.RestartAfter)
             {
                 if (nextWord != GameOverSourceDefinitions.BabyAnimationEnd)

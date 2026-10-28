@@ -35,7 +35,7 @@ public static class IntroNarrationExtractor
         ISnesAddressSpace bus,
         IntroNarrationScriptPage page)
     {
-        ushort cursor = checked((ushort)page.InstructionPointer);
+        int cursor = checked((ushort)page.InstructionPointer);
         RequireWord(bus, cursor, page.BeginOpcode, $"{page.Id} begin opcode");
         cursor = Add(cursor, 2);
         RequireRecord(bus, cursor, IntroNarrationDefinitions.InitialMarkerDelayFrames,
@@ -49,7 +49,7 @@ public static class IntroNarrationExtractor
         int previousColumn = 0;
         for (int record = 0; record < IntroNarrationScriptDefinitions.MaximumRecords; record++)
         {
-            ushort word = ReadWord(bus, cursor);
+            int word = ReadWord(bus, cursor);
             if ((word & IntroNarrationScriptDefinitions.InstructionCommandBit) != 0)
             {
                 if (page.Id == IntroNarrationPageId.Page6 &&
@@ -82,12 +82,12 @@ public static class IntroNarrationExtractor
             if (word != IntroNarrationDefinitions.CharacterDelayFrames)
                 throw new InvalidDataException(
                     $"Opening-narration {page.Id} character delay was {word}, expected 5.");
-            ushort packedPosition = ReadWord(bus, Add(cursor, 2));
-            ushort dataPointer = ReadWord(bus, Add(cursor, 4));
+            int packedPosition = ReadWord(bus, Add(cursor, 2));
+            int dataPointer = ReadWord(bus, Add(cursor, 4));
             int column = packedPosition &
                 IntroNarrationScriptDefinitions.PackedPositionXMask;
             int row = LittleEndianBytes.HighByte(packedPosition);
-            ushort drawFunction = ReadWord(bus, dataPointer);
+            int drawFunction = ReadWord(bus, dataPointer);
             int dimensions = LittleEndianBytes.Word(ReadByte(bus, Add(dataPointer, 2)), ReadByte(bus, Add(dataPointer, 3)));
             if (drawFunction != IntroNarrationScriptDefinitions.DrawCharacterFunction ||
                 dimensions != IntroNarrationScriptDefinitions.SingleTileDimensions)
@@ -119,11 +119,11 @@ public static class IntroNarrationExtractor
     /// <summary>Checks a marker record's duration, packed position, data pointer, and draw callback.</summary>
     private static void RequireRecord(
         ISnesAddressSpace bus,
-        ushort pointer,
-        ushort duration,
-        ushort packedPosition,
-        ushort dataPointer,
-        ushort drawFunction)
+        int pointer,
+        int duration,
+        int packedPosition,
+        int dataPointer,
+        int drawFunction)
     {
         if (ReadWord(bus, pointer) != duration ||
             ReadWord(bus, Add(pointer, 2)) != packedPosition ||
@@ -138,26 +138,26 @@ public static class IntroNarrationExtractor
     /// <summary>Requires an exact native opcode at a page-script address.</summary>
     private static void RequireWord(
         ISnesAddressSpace bus,
-        ushort pointer,
+        int pointer,
         int expected,
         string identity)
     {
-        ushort actual = ReadWord(bus, pointer);
+        int actual = ReadWord(bus, pointer);
         if (actual != expected)
             throw new InvalidDataException(
                 $"Opening-narration {identity} is ${actual:X4}, expected ${expected:X4}.");
     }
 
     /// <summary>Reads one script byte from the fixed narration bank.</summary>
-    private static byte ReadByte(ISnesAddressSpace bus, ushort pointer) =>
-        bus.ReadCartridgeByte((int)new SnesAddress(
+    private static byte ReadByte(ISnesAddressSpace bus, int pointer) =>
+        bus.ReadCartridgeByte((int)SnesAddress.InBank(
             IntroNarrationScriptDefinitions.ScriptBank, pointer));
 
     /// <summary>Reads a little-endian narration word with bank-local address wrapping.</summary>
-    private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
-        CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((int)new SnesAddress(IntroNarrationScriptDefinitions.ScriptBank, pointer));
+    private static ushort ReadWord(ISnesAddressSpace bus, int pointer) =>
+        CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((int)SnesAddress.InBank(IntroNarrationScriptDefinitions.ScriptBank, pointer));
 
     /// <summary>Advances a script pointer with native 16-bit bank-local wrapping.</summary>
-    private static ushort Add(ushort pointer, int bytes) =>
+    private static int Add(int pointer, int bytes) =>
         unchecked((ushort)(pointer + bytes));
 }

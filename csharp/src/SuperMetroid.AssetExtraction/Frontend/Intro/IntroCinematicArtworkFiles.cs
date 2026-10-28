@@ -136,9 +136,9 @@ public static class IntroCinematicArtworkFiles
             var colors = new PaletteRgb5[CgramPalettes.ColorCount];
             for (int index = 0; index < colors.Length; index++)
             {
-                ushort word = BinaryPrimitives.ReadUInt16LittleEndian(
+                int word = BinaryPrimitives.ReadUInt16LittleEndian(
                     native.AsSpan(index * sizeof(ushort)));
-                if (!RgbColor.IsColorWord(word))
+                if (!RgbColor.IsColorWord(checked((ushort)word)))
                     throw new InvalidDataException($"Opening palette color {index} has an unrepresentable high bit.");
                 colors[index] = new PaletteRgb5
                 {
@@ -204,10 +204,10 @@ public static class IntroCinematicArtworkFiles
             var native = new ushort[frames.Length][];
             for (int frame = 0; frame < frames.Length; frame++)
             {
-                ushort pointer = (ushort)(FrontendSourceDefinitions.IntroEyeFrameRecords +
-                    frame * FrontendSourceDefinitions.IntroEyeFrameRecordStride);
-                int source = (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank, pointer);
-                ushort function = CartridgeImportSource.Require(bus).ReadCartridgeWord(source);
+                int pointer = FrontendSourceDefinitions.IntroEyeFrameRecords +
+                    frame * FrontendSourceDefinitions.IntroEyeFrameRecordStride;
+                int source = (int)SnesAddress.InBank(IntroCinematicSourceDefinitions.SpritemapBank, pointer);
+                int function = CartridgeImportSource.Require(bus).ReadCartridgeWord(source);
                 if (function != IntroCinematicSourceDefinitions.PortraitTilemapDrawFunction ||
                     bus.ReadCartridgeByte(source + 2) != IntroEyeTilemapFormat.Columns ||
                     bus.ReadCartridgeByte(source + 3) != IntroEyeTilemapFormat.Rows)

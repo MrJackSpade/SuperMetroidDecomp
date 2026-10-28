@@ -26,11 +26,11 @@ public static class MapLandmarkExtractor
             if (boss == 0 && !bosses.IsEmpty) throw new InvalidDataException($"Missing {area} boss list.");
             for (int i = 0; i < bosses.Length; i++)
             {
-                ushort x = Read(boss + i * 4);
+                int x = Read(boss + i * 4);
                 if (bosses[i] is string id)
                 {
                     if (x >= ushort.MaxValue - 1) throw new InvalidDataException($"Missing map boss {id}.");
-                    points.Add(id, new(x, Read(boss + i * 4 + 2)));
+                    points.Add(id, Position16<MapPixels>.Of(x, Read(boss + i * 4 + 2)));
                 }
                 else if (x != ushort.MaxValue - 1) throw new InvalidDataException($"Expected unused {area} boss slot {i}.");
             }

@@ -52,7 +52,7 @@ internal static class Mode7TileSheetComposer
             Position16<ImagePixels> corner = FloorTileSheet.Corner(tile);
             for (int pixel = 0; pixel < FloorTileSheet.TileWords; pixel++)
             {
-                byte index = tiles[(tile * FloorTileSheet.TileWords + pixel) * 2 + 1];
+                int index = tiles[(tile * FloorTileSheet.TileWords + pixel) * 2 + 1];
                 if (index % 16 != 0 && index < SpriteImage.SpriteColourCount)
                     coloured |= SpritePaletteRowSet.Rows[index / 16];
                 canvas.PaintIndex(new(checked((ushort)(corner.X + pixel % FloorTileSheet.TilePixels)), checked((ushort)(corner.Y + pixel / FloorTileSheet.TilePixels))), index, colours);

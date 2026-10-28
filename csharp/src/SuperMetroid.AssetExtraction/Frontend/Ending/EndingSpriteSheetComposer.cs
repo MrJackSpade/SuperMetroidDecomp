@@ -27,7 +27,7 @@ internal static class EndingSpriteSheetComposer
         Ensure.NotNull(palettes);
         EndingPage page = Page(sheet);
         byte[] image = EndingScreenImage.Compose(page.Transfers, new EndingScreenArtwork(null, null, objects, font, page.Reward));
-        byte objectSelection = EndingCreditsPresentation.ObjectSelection(page.ObjectSheet);
+        int objectSelection = EndingCreditsPresentation.ObjectSelection(page.ObjectSheet);
         SpriteArtwork characters = ObjCharacterImage.Page(image, objectSelection);
         ScreenObjectSizes sizes = ObjectSelectionCodec.Sizes(objectSelection);
         List<SheetFrameSource> frames = [.. IntroSpriteSheetComposer.Frames(page.Families(objects), characters, sizes)];

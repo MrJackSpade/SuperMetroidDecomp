@@ -119,10 +119,10 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
     /// names its colours directly from all 256; colour zero is transparent. Such a pixel has no part row, as no draw
     /// overrides a background's rows.
     /// </summary>
-    internal void PaintIndex(Position16<ImagePixels> at, byte index, RgbColor[] colours)
+    internal void PaintIndex(Position16<ImagePixels> at, int index, RgbColor[] colours)
     {
         int pixel = at.Y * Width + at.X;
-        PaletteIndices[pixel] = index;
+        PaletteIndices[pixel] = checked((byte)index);
         if (index != 0)
             Pixels[pixel] = colours[index].ToRgbaPixel();
     }

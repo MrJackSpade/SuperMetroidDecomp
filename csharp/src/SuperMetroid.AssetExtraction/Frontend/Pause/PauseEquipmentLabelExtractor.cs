@@ -20,8 +20,8 @@ public static class PauseEquipmentLabelExtractor
             PauseEquipmentLabelTables tables = PauseMenuSourceDefinitions.EquipmentLabelTables[category];
             for (int item = 0; item < definition.ItemCount; item++)
             {
-                ushort destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), tables.Places + item * 2);
-                ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), tables.Labels + item * 2);
+                int destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), tables.Places + item * 2);
+                int source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), tables.Labels + item * 2);
                 labels.Add(PauseEquipmentLabelDefinitions.Key(category, item), new()
                 {
                     Column = ((destination - PauseMenuSourceDefinitions.EquipmentTilemapBase) / 2) % PauseEquipmentLabelDefinitions.TilemapColumns,
@@ -32,13 +32,13 @@ public static class PauseEquipmentLabelExtractor
             }
         }
 
-        ushort hyper = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.HyperBeamLabels +
+        int hyper = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.HyperBeamLabels +
             PauseEquipmentLabelDefinitions.HyperBeamItem * sizeof(ushort));
         for (int index = 0; index < PauseEquipmentLabelDefinitions.ItemCount(PauseEquipmentCategory.Beams); index++)
         {
-            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 PauseMenuSourceDefinitions.HyperBeamLabels + index * sizeof(ushort));
-            ushort expected = index == PauseEquipmentLabelDefinitions.HyperBeamItem
+            int expected = index == PauseEquipmentLabelDefinitions.HyperBeamItem
                 ? hyper : PauseMenuSourceDefinitions.BlankEquipmentLabel;
             if (pointer != expected)
                 throw new InvalidDataException("Native Hyper Beam pause pointers do not match the compiled one-label layout.");
@@ -64,7 +64,7 @@ public static class PauseEquipmentLabelExtractor
     }
 
     /// <summary>Decodes a bank-$82 label tilemap into editable atlas coordinates, palette, priority, and flips.</summary>
-    private static PauseBackdropCell[] ReadCells(ISnesAddressSpace bus, ushort source, int count, string name) =>
+    private static PauseBackdropCell[] ReadCells(ISnesAddressSpace bus, int source, int count, string name) =>
         Enumerable.Range(0, count)
             .Select(index => PauseTileGrid.FromWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 CartridgeBankWindow.At(PauseMenuSourceDefinitions.MenuBank, unchecked((ushort)(source + index * 2)))), $"{name}.{index}"))

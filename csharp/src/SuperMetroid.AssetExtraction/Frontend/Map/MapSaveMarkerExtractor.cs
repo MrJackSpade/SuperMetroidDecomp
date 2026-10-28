@@ -27,12 +27,12 @@ public static class MapSaveMarkerExtractor
             for (int index = 0; index < MapSaveMarkerDefinitions.SlotsPerArea; index++)
             {
                 int address = MapSourceDefinitions.Menu.ObjectBank | (pointer + index * 4);
-                ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+                int x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
                 bool usable = MapSaveMarkerDefinitions.IsUsable(typedArea, index);
                 if (usable)
                 {
                     if (x >= ushort.MaxValue - 1) throw new InvalidDataException($"Missing save marker {typedArea}/{index}.");
-                    points.Add(MapSaveMarkerDefinitions.Id(typedArea, index), new(x, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2)));
+                    points.Add(MapSaveMarkerDefinitions.Id(typedArea, index), Position16<MapPixels>.Of(x, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2)));
                 }
                 else if (x != ushort.MaxValue - 1) throw new InvalidDataException($"Expected unused save marker {typedArea}/{index}.");
             }

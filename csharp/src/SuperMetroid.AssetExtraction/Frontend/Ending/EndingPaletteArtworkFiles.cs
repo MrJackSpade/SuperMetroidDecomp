@@ -37,9 +37,9 @@ public static class EndingPaletteArtworkFiles
             var colors = new PaletteRgb5[count];
             for (int index = 0; index < count; index++)
             {
-                ushort word = BinaryPrimitives.ReadUInt16LittleEndian(
+                int word = BinaryPrimitives.ReadUInt16LittleEndian(
                     native.AsSpan(index * sizeof(ushort)));
-                if (!RgbColor.IsColorWord(word))
+                if (!RgbColor.IsColorWord(checked((ushort)word)))
                     throw new InvalidDataException(
                         $"Ending {id} palette color {index} has an unrepresentable high bit.");
                 colors[index] = new PaletteRgb5
@@ -156,11 +156,11 @@ public static class EndingPaletteArtworkFiles
         {
             SnesAddress source = EndingPaletteSources.LogoCrossfadeSource(step, palette)
                 .AddWithinBank(-(15 - color) * sizeof(ushort));
-            ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                CartridgeBankWindow.At(EndingSourceDefinitions.LogoPaletteBank, source.Offset));
             int index = (step * 2 + palette) * 16 + color;
             BinaryPrimitives.WriteUInt16LittleEndian(
-                native.AsSpan(index * sizeof(ushort)), word);
+                native.AsSpan(index * sizeof(ushort)),
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                    CartridgeBankWindow.At(EndingSourceDefinitions.LogoPaletteBank, source.Offset)));
         }
         return native;
     }

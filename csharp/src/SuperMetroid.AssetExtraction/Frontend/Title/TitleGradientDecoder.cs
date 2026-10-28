@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -6,7 +7,11 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
-/// <summary>Import-time expansion of the title's native direct-mode HDMA tables.</summary>
+/// <summary>
+/// Import-time expansion of the title's native direct-mode HDMA tables: the only reader of their header, repeat-count
+/// and colour-write bytes, which it decodes at their own widths.
+/// </summary>
+[EncodingOwner("title gradient direct-mode HDMA tables")]
 public static class TitleGradientDecoder
 {
     /// <summary>Expands the selected title gradient's fixed-color and control HDMA tables into one descriptor per scanline.</summary>

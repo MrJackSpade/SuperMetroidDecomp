@@ -17,6 +17,14 @@ public readonly record struct SnesAddress
         Value = (bank << 16) | offset;
     }
 
+    /// <summary>
+    /// Creates an address from a bank number and an offset within it held at domain width, checking each against its
+    /// native field: a bank outside a byte or an offset outside a word is a caller defect, never a silent truncation.
+    /// </summary>
+    public static SnesAddress InBank(int bank, int offset) => new(
+        (byte)Ensure.BetweenInclusive(0, byte.MaxValue, bank),
+        (ushort)Ensure.BetweenInclusive(0, ushort.MaxValue, offset));
+
     /// <summary>Retains a packed address after the public factory has checked its 24-bit range.</summary>
     private SnesAddress(int checkedValue)
     {

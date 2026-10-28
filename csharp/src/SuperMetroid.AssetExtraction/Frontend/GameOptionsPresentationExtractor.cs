@@ -161,11 +161,11 @@ public static class GameOptionsPresentationExtractor
     }
 
     /// <summary>Builds row-specific cursor anchors at one native horizontal coordinate.</summary>
-    private static Position16<SpritePixels>[] Points(ushort x, int count, Func<int, ushort> rowY)
+    private static Position16<SpritePixels>[] Points(int x, int count, Func<int, ushort> rowY)
     {
         var result = new Position16<SpritePixels>[count];
         for (int index = 0; index < result.Length; index++)
-            result[index] = new(x, rowY(index));
+            result[index] = Position16<SpritePixels>.Of(x, rowY(index));
         return result;
     }
 

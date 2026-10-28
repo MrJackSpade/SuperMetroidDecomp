@@ -26,9 +26,9 @@ public static class FileSelectPresentationExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var rawPatches = new Dictionary<ushort, RawPatch>();
+        var rawPatches = new Dictionary<int, RawPatch>();
         // Cache a decoded native text patch by its bank-local pointer across page variants.
-        RawPatch Patch(ushort pointer)
+        RawPatch Patch(int pointer)
         {
             if (!rawPatches.TryGetValue(pointer, out RawPatch? patch))
                 rawPatches.Add(pointer, patch = ReadPatch(bus, pointer));
@@ -41,20 +41,20 @@ public static class FileSelectPresentationExtractor
         AddMainStatic(mainEmpty, includeDataCommands: false);
 
         // Build a copy-mode page with its prompt, optional YES/NO question, and optional completion text.
-        ushort[] CopyPage(ushort prompt, int promptDestination,
-            bool confirmation = false, ushort? completion = null)
+        ushort[] CopyPage(int prompt, int promptDestination,
+            bool confirmation = false, int? completion = null)
         {
             ushort[] page = DataBase(FileSelectTilemapSourceDefinitions.DataCopyMode,
                 FileSelectNativeLayout.DataModeCopyDestination, prompt, promptDestination);
             if (confirmation)
                 AddConfirmation(page);
-            if (completion is ushort completed)
+            if (completion is int completed)
                 Apply(page, Patch(completed), FileSelectNativeLayout.CopyCompletedDestination);
             return page;
         }
 
         // Build a clear-mode page with its prompt, optional confirmation, and optional cleared-result text.
-        ushort[] ClearPage(ushort prompt, int promptDestination,
+        ushort[] ClearPage(int prompt, int promptDestination,
             bool confirmation = false, bool completed = false)
         {
             ushort[] page = DataBase(FileSelectTilemapSourceDefinitions.DataClearMode,
@@ -204,7 +204,7 @@ public static class FileSelectPresentationExtractor
         }
 
         // Start a copy/clear page with its mode title, prompt, Exit, and three data-slot label/time fields.
-        ushort[] DataBase(ushort mode, int modeDestination, ushort prompt,
+        ushort[] DataBase(int mode, int modeDestination, int prompt,
             int promptDestination)
         {
             ushort[] page = BlankPage();
@@ -231,14 +231,14 @@ public static class FileSelectPresentationExtractor
     }
 
     /// <summary>Decodes a bank-local text stream into relative cells, honoring row breaks until its end marker.</summary>
-    private static RawPatch ReadPatch(ISnesAddressSpace bus, ushort pointer)
+    private static RawPatch ReadPatch(ISnesAddressSpace bus, int pointer)
     {
         var cells = new List<RawPatchCell>();
         int address = FileSelectTilemapFormat.Bank | pointer;
         int x = 0, y = 0;
         while (true)
         {
-            ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+            int word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
             address = FileSelectTilemapFormat.Bank | (SnesAddressMath.OffsetInBank(address + 2));
             if (Enum.IsDefined((FileSelectTextControl)word))
             {
@@ -254,7 +254,7 @@ public static class FileSelectPresentationExtractor
                         throw new InvalidOperationException($"Undefined {nameof(FileSelectTextControl)} {word}.");
                 }
             }
-            cells.Add(new(new(checked((short)(x++)), checked((short)y)), new SnesBgTilemapWord(word)));
+            cells.Add(new(new(checked((short)(x++)), checked((short)y)), new SnesBgTilemapWord(checked((ushort)word))));
         }
     }
 
@@ -320,9 +320,9 @@ public static class FileSelectPresentationExtractor
     }
 
     /// <summary>Splits one SNES BG tile word into atlas position, palette, priority, and flip fields.</summary>
-    private static MapPresentationCell Cell(ushort raw)
+    private static MapPresentationCell Cell(int raw)
     {
-        var word = new SnesBgTilemapWord(raw);
+        var word = new SnesBgTilemapWord(checked((ushort)raw));
         return new()
         {
             TileColumn = word.CharacterIndex % FileSelectPresentationDefinitions.CharacterColumns,

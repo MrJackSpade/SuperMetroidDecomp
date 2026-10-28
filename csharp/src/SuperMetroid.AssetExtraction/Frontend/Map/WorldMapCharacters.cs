@@ -62,7 +62,7 @@ public sealed class WorldMapCharacters : WorldMapArtwork
             digitFill.Add(tile, mask);
         }
         this.background = Enumerable.Range(0, background.Length)
-            .Where(index => !TryBackgroundDefault(index, out byte value) || background[index] != value)
+            .Where(index => !TryBackgroundDefault(index, out int value) || background[index] != value)
             .ToDictionary(index => index, index => background[index]);
     }
     /// <summary>Imports the installed world-map foreground and background indexed PNGs, validating geometry and bitplane index ranges while retaining independent authored pixel differences.</summary>
@@ -96,8 +96,8 @@ public sealed class WorldMapCharacters : WorldMapArtwork
     {
         var pixels = new byte[WorldMapArtworkFormat.Width * WorldMapArtworkFormat.BackgroundHeight];
         for (int index = 0; index < pixels.Length; index++)
-            pixels[index] = background.TryGetValue(index, out byte value) ? value
-                : TryBackgroundDefault(index, out byte calculated) ? calculated
+            pixels[index] = background.ContainsKey(index) ? background[index]
+                : TryBackgroundDefault(index, out int calculated) ? (byte)calculated
                 : throw new InvalidDataException("World background source pixel is unavailable.");
         return SnesPlanarTileEncoder.Encode(pixels, new(WorldMapArtworkFormat.Width, WorldMapArtworkFormat.BackgroundHeight), 2);
     }
@@ -128,7 +128,7 @@ public sealed class WorldMapCharacters : WorldMapArtwork
     /// <summary>Restores a foreground pixel from an authored edit, shared source, or calculated font contour.</summary>
     private byte ForegroundPixel(int index)
     {
-        if (foreground.TryGetValue(index, out byte value)) return value;
+        if (foreground.ContainsKey(index)) return foreground[index];
         int source = WorldMapTileDefinitions.ForegroundSourcePixel(index);
         if (source < 0) return 0;
         if (source != index) return ForegroundPixel(source);
@@ -137,7 +137,7 @@ public sealed class WorldMapCharacters : WorldMapArtwork
     }
 
     /// <summary>Calculates a BG3 font, icon, or outlined-digit pixel when no authored difference exists.</summary>
-    private bool TryBackgroundDefault(int index, out byte value)
+    private bool TryBackgroundDefault(int index, out int value)
     {
         int x = index % WorldMapArtworkFormat.Width, y = index / WorldMapArtworkFormat.Width;
         int tile = y / 8 * WorldMapArtworkFormat.TileColumns + x / 8;
@@ -145,7 +145,7 @@ public sealed class WorldMapCharacters : WorldMapArtwork
         bool found = digitFill.TryGetValue(tile, out ulong footprint)
             ? WorldMapTileDefinitions.TryOutlinedPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), footprint, out pen)
             : WorldMapTileDefinitions.TryBackgroundPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), out pen);
-        value = (byte)pen;
+        value = pen;
         return found;
     }
 }

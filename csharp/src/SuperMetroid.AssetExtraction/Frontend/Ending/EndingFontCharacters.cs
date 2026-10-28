@@ -31,7 +31,7 @@ public sealed class EndingFontCharacters : EndingFontAtlas
         new(EndingFontAtlasFormat.Width, EndingFontAtlasFormat.Height), EndingFontAtlasFormat.BitsPerPixel);
 
     /// <summary>Resolves one selected atlas pixel from retained artwork or its glyph outline rule.</summary>
-    private byte Pixel(int pixel) => pixels.TryGetValue(pixel, out byte value) ? value
+    private byte Pixel(int pixel) => pixels.ContainsKey(pixel) ? pixels[pixel]
         : EndingFontAtlasFormat.TryCalculatedPixel(pixel, glyphFootprint, out int calculated) ? (byte)calculated
         : throw new InvalidOperationException("Required ending font pixel is absent.");
     /// <summary>Loads the 128x80 indexed ending-font sheet and validates its sixteen-color index range and native transfer size, preserving supplied artwork rather than matching PNG RGB colors.</summary>

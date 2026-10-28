@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 internal static class MenuSpriteExtractor
 {
     /// <summary>Decodes an indexed bank-$82 spritemap into bounded OAM parts, leaving palette choice to the caller as native menu rendering does.</summary>
-    public static SpriteVisualPart[] Read(ISnesAddressSpace bus, ushort id)
+    public static SpriteVisualPart[] Read(ISnesAddressSpace bus, int id)
     {
         int address = MapSourceDefinitions.Menu.ObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.SpritemapPointers + id * 2);
         int count = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);

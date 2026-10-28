@@ -633,7 +633,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             // A shot aimed straight left or right reflects up and away; every other aim, including the unnamed aim
             // indexes past the ten directions, reflects down.
             SamusProjectileDirection reflected = SamusProjectileDirectionCodec.TryFromAimIndex(
-                c.Projectile.Direction & SamusProjectileDirectionMasks.Direction) switch
+                c.Projectile.PackedDirection.DirectionIndex) switch
             {
                 SamusProjectileDirection.Left => SamusProjectileDirection.UpRight,
                 SamusProjectileDirection.Right => SamusProjectileDirection.UpLeft,

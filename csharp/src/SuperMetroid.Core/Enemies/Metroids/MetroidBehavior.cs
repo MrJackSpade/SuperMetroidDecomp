@@ -288,7 +288,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             DrainSamusWithMetroid(state, samus);
         }
 
-        if (state.Function >= MetroidAiFunction.AttachedToSamus)
+        if (state.Function is MetroidAiFunction.AttachedToSamus or MetroidAiFunction.PowerBombEscape)
             return;
 
         state.Function = MetroidAiFunction.ClosingOnSamus;

@@ -226,7 +226,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         Artwork = value;
         floorMap = null;
         if (value is null) return;
-        if (Phase <= CeresDestructionPhase.FlyToZebesInitial)
+        if (CeresDestructionPhaseGroups.ThroughFlightToZebesStart.Contains(Phase))
             value.CeresFlight.Palette.LoadTo(palette);
     }
 
@@ -432,12 +432,12 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>The state-$22 wrapper's work after the cinematic function returns ($8B:A367).</summary>
     private void StepWrapperTail()
     {
-        if (Phase <= CeresDestructionPhase.FadeOutCeres)
+        if (CeresDestructionPhaseGroups.CeresScene.Contains(Phase))
             StepCeresActors();
 
         // GameState_37 runs PaletteFxHandler after cinematic objects, including the
         // frame which spawns the program.
-        if (Phase > CeresDestructionPhase.FlyToZebesInitial)
+        if (!CeresDestructionPhaseGroups.ThroughFlightToZebesStart.Contains(Phase))
         {
             if (PaletteFx is null)
             {
@@ -629,7 +629,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         // it during the final $40-frame wait. The pre-instruction stops on departure;
         // the instruction list still reaches its four terminal blasts afterward.
         CeresExplosionSpawnEvents events = CeresExplosionDefinitions.EventsAtFrame(explosionSpawnerFrame,
-            Phase < CeresDestructionPhase.FlyingAwayFromExplosion, ref explosionRepeatCountdown);
+            CeresDestructionPhaseGroups.BeforeFlyingAway.Contains(Phase), ref explosionRepeatCountdown);
         if (events.Initial)
         {
             for (int index = 0; index < CeresExplosionDefinitions.InitialExplosionCount; index++)
@@ -922,7 +922,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         else if (usesFloor)
         {
             AffineTransform floor = FloorRotationMatrix.Transform(angle, Zoom,
-                Phase <= CeresDestructionPhase.FadeOutCeres
+                CeresDestructionPhaseGroups.CeresScene.Contains(Phase)
                     ? CeresDestructionSceneDefinitions.CeresFloorCenter
                     : CeresDestructionSceneDefinitions.ZebesFloorCenter,
                 Background.Whole.AsSignedWord());
@@ -958,7 +958,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         objects.BeginFrame();
         // Same-priority OBJ overlap is decided by OAM order. Allocation order is
         // not stable slot order after an earlier explosion dies and its slot is reused.
-        IEnumerable<IntroDiscoverySprite> drawActors = Phase <= CeresDestructionPhase.FadeOutCeres
+        IEnumerable<IntroDiscoverySprite> drawActors = CeresDestructionPhaseGroups.CeresScene.Contains(Phase)
             ? actors.OrderByDescending(actor => ceresActorSlots.First(entry => entry.Actor == actor).Slot) : actors;
         foreach (IntroDiscoverySprite actor in drawActors)
             actor.Draw(objects, installedArt: Sprites);

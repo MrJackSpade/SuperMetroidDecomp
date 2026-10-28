@@ -43,10 +43,19 @@ internal static class EnumValueReadAnalyzerTests
         Expect(Types + "class Suits { bool Run(Items items) => (items & Items.Gravity) != 0; }",
             "'(items & Items.Gravity) != 0' reads the numeric value of 'Items'" + Advice);
         Expect(Types + "class Dispatch { Draw Run(Draw draw) => draw + 1; }", "'draw + 1' reads the numeric value of 'Draw'" + Advice);
+        // #1452: ordering two values of one enum compares their backing values, in every direction.
+        Expect(Types + "class Dispatch { bool Run(Draw draw) => draw <= Draw.Wave; }", "'draw <= Draw.Wave' reads the numeric value of 'Draw'" + Advice);
+        Expect(Types + "class Dispatch { bool Run(Draw draw, Draw other) => draw > other; }", "'draw > other' reads the numeric value of 'Draw'" + Advice);
+        Expect(Types + "class Dispatch { bool Run(Draw draw) => Draw.Idle < draw || draw >= Draw.Wave; }", "reads the numeric value of 'Draw'" + Advice, count: 2);
+        Expect(Types + "class Suits { bool Run(Items items) => items < Items.Gravity; }", "'items < Items.Gravity' reads the numeric value of 'Items'" + Advice);
+        Expect(Types + "class Dispatch { bool Run(Draw draw) => draw is <= Draw.Wave; }", "The pattern '<= Draw.Wave' reads the numeric value of 'Draw'" + Advice);
 
         // Typed uses read no value.
         Expect(Types + "class Suits { bool Run(Items items) => items.HasFlag(Items.Gravity) && (items & Items.Varia) == Items.Varia; }", count: 0);
         Expect(Types + "class Dispatch { bool Run(Draw draw) => draw == Draw.Wave; }", count: 0);
+        Expect(Types + "class Dispatch { bool Run(Draw draw, Draw other) => draw != other && draw is Draw.Idle or Draw.Wave; }", count: 0);
+        // An owner may order the values it encodes.
+        Expect(Types + "[EncodingOwner(\"fixture format\")] class Codec { bool Run(Draw draw) => draw <= Draw.Wave; }", count: 0);
         // The type that owns an encoding converts, including from a nested type.
         Expect(Types + "[EncodingOwner(\"fixture format\")] class Codec { int Run(Draw draw) => (int)draw; }", count: 0);
         Expect(Types + "[EncodingOwner(\"fixture format\")] class Codec { static class Bits { static ushort Run(Items items) => (ushort)items; } }", count: 0);

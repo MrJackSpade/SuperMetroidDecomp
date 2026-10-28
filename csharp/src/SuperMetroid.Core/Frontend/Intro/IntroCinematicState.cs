@@ -160,8 +160,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             baseline.Colors.CopyTo(introColours);
             if (Phase is IntroCinematicPhase.Initial or IntroCinematicPhase.WaitForInitialMusicQueue)
                 value.Palette.LoadTo(palette);
-            if (Phase is >= IntroCinematicPhase.WaitForPageOneMusicQueue and
-                < IntroCinematicPhase.CeresFlight)
+            if (IntroCinematicPhaseGroups.NarrationPages.Contains(Phase))
             {
                 // The divider occupies only rows 24-27. Preserve live typewriter
                 // tiles and caret state in every other row on debugger rebind.

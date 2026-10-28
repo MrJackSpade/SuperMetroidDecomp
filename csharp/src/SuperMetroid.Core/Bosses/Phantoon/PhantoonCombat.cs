@@ -198,7 +198,9 @@ internal sealed class PhantoonCombat
             }
 
             if (hitboxShotAi == EnemyInteractionCallback.NoOp ||
-                Part(body).Function >= PhantoonAiFunction.DyingFadeInOut)
+                Part(body).Function is PhantoonAiFunction.DyingFadeInOut or PhantoonAiFunction.DyingExplosions or
+                    PhantoonAiFunction.BeginFinalWavyDeath or PhantoonAiFunction.DyingFadeOut or PhantoonAiFunction.AlmostDead or
+                    PhantoonAiFunction.Dead or PhantoonAiFunction.NoOperation)
             {
                 projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(
                     projectile.SlotIndex,

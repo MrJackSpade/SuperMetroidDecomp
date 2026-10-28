@@ -535,15 +535,15 @@ internal sealed class SamusPresentation
             // center. This is independent of `$00`'s extra power-suit chest-cover OBJ.
             spritemapY = unchecked((ushort)(renderY - 1 - layer1.Y));
         }
-        else if (movementType == SamusMovementType.Standing && samus.Pose >= SamusPoseId.NormalLandingRightPose &&
-            samus.Pose <= SamusPoseId.SpinLandingLeftPose)
+        else if (movementType == SamusMovementType.Standing &&
+            SamusPoseNumbering.InRange(samus.Pose, SamusPoseId.NormalLandingRightPose, SamusPoseId.SpinLandingLeftPose))
         {
             // `$90:8CDC-$90:8CF6` indexes sixteen packed bytes, but performs a 16-bit
             // unaligned LDA. The following landing frame's byte therefore becomes the high
             // byte of the subtraction. The complete wrapped `$0AFA` spritemap-position word
             // is observable state and is preserved, but OAM displays only low Y, so the
             // drawn origin takes back the leaked high byte (#1397).
-            int landingOffsetIndex = (samus.Pose - SamusPoseId.NormalLandingRightPose) * 4 +
+            int landingOffsetIndex = SamusPoseNumbering.Offset(samus.Pose, SamusPoseId.NormalLandingRightPose) * 4 +
                 samus.AnimationFrame;
             if (BodyFrames.Artwork is not { } landingArt ||
                 !landingArt.TryLandingYOffset(landingOffsetIndex, out int landingOffset))
@@ -553,8 +553,8 @@ internal sealed class SamusPresentation
             landingOffsetHighPart = (ushort)(landingOffset - (byte)landingOffset);
         }
         else if (movementType == SamusMovementType.PostureTransition &&
-            samus.Pose >= SamusPoseId.CrouchingTransitionRightPose &&
-            samus.Pose < SamusPoseId.MorphBallGroundLeftPose)
+            !SamusPoseNumbering.Precedes(samus.Pose, SamusPoseId.CrouchingTransitionRightPose) &&
+            SamusPoseNumbering.Precedes(samus.Pose, SamusPoseId.MorphBallGroundLeftPose))
         {
             // `$90:8D3C` indexes a signed byte by `2*(pose-$35)+animation frame` instead
             // of using the pose-definition graphics offset. Installed visual bytes
@@ -638,13 +638,13 @@ internal sealed class SamusPresentation
         // bodies below `$DB` never do. `$DB/$DC` draw it only on frame zero, `$DD-$F0`
         // only on frame two, and the aimed transition family `$F1+` always draws it.
         bool transitionBottom = movementType != SamusMovementType.PostureTransition ||
-            samus.Pose >= SamusPoseId.CrouchingTransitionAimUpRightPose ||
+            !SamusPoseNumbering.Precedes(samus.Pose, SamusPoseId.CrouchingTransitionAimUpRightPose) ||
             samus.Pose is SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionLeftPose or
                 SamusPoseId.StandingTransitionRightPose or SamusPoseId.StandingTransitionLeftPose ||
             (samus.Pose is SamusPoseId.UnusedPoseDb or SamusPoseId.UnusedPoseDc &&
                 samus.AnimationFrame == 0) ||
-            (samus.Pose >= SamusPoseId.UnusedPoseDd &&
-                samus.Pose < SamusPoseId.CrouchingTransitionAimUpRightPose && samus.AnimationFrame == 2);
+            (!SamusPoseNumbering.Precedes(samus.Pose, SamusPoseId.UnusedPoseDd) &&
+                SamusPoseNumbering.Precedes(samus.Pose, SamusPoseId.CrouchingTransitionAimUpRightPose) && samus.AnimationFrame == 2);
 
         // The otherwise-unused movement type `$0D` still has executable cartridge logic
         // at `$90:874C`: poses `$65/$66` draw a lower half only on frame zero, while every

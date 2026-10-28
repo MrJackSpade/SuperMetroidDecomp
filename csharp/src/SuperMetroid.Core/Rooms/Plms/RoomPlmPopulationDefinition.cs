@@ -72,7 +72,7 @@ public sealed class RoomPlmPopulationDefinition
         if (graphic is not null)
         {
             if (!CollectiblePlms.TryIdentifyPermanentCollectible(placement.Header.Header, out var kind, out _) ||
-                kind != graphic.Kind || kind < InWorldCollectibleKind.Bombs ||
+                kind != graphic.Kind || !CollectiblePlms.UsesDynamicGraphics(kind) ||
                 graphic.Tiles.Length != 0x100 || graphic.PaletteOffsets.Length != 8 ||
                 graphic.PaletteOffsets.Span.ContainsAnyExceptInRange((byte)0, (byte)7))
                 throw new InvalidDataException("Decoded collectible graphics do not match their placement or payload shape.");

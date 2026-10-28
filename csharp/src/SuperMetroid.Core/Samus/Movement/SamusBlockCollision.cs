@@ -1188,7 +1188,7 @@ public static class SamusBlockCollision
             int depth;
             // The post-grapple table treats even vertical extensions as solid, without
             // following BTS. Ordinary movement's dispatcher is not interchangeable.
-            if (block.CollisionType >= RoomCollisionType.SolidBlock)
+            if (block.CollisionType.IsSolidBlockType())
                 depth = boundary & 15;
             else if (block.CollisionType != RoomCollisionType.Slope)
                 continue;

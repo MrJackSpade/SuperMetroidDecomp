@@ -232,7 +232,8 @@ public sealed class TitleSequenceState : IFrontendScreen
         // their brightness levels are observable in native traces.
         bool confirmPressed =
             controller.NewlyPressed.HasAny(TitleSequenceDefinitions.Timing.ConfirmButtons);
-        if (confirmPressed && Phase < TitleSequencePhase.TitleScreenFadeIn)
+        if (confirmPressed && Phase is not (TitleSequencePhase.TitleScreenFadeIn or TitleSequencePhase.TitleScreen or
+            TitleSequencePhase.TitleScreenFadeOut))
         {
             Phase = TitleSequencePhase.SkipFadeOut;
             PhaseTimer = 0;
@@ -431,7 +432,8 @@ public sealed class TitleSequenceState : IFrontendScreen
                 ActiveOrigin.ToSpritePosition(), ActiveObjectPalette);
         }
 
-        if (Phase is >= TitleSequencePhase.CopyrightFade and <= TitleSequencePhase.TitleScreenFadeOut)
+        if (Phase is TitleSequencePhase.CopyrightFade or TitleSequencePhase.SkipFadeOut or TitleSequencePhase.TitleScreenFadeIn or
+            TitleSequencePhase.TitleScreen or TitleSequencePhase.TitleScreenFadeOut)
         {
             TitleGraphicsPresentation.DrawSprite(sheet, TitleSprite.NintendoCopyright, objects,
                 TitleSequenceDefinitions.Sprites.CopyrightOrigin.ToSpritePosition(),

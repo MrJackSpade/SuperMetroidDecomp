@@ -251,7 +251,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 Skeleton.FinishCrocomireArenaScrolls(state);
                 return;
             case CrocomireDeathPhase.WaitForStableSkeleton:
-                if (state.BodyResidentProgram >= CrocomireBodyProgram.SkeletonStable)
+                if (CrocomireBodyProgramGroups.SkeletonAtRest.Contains(state.BodyResidentProgram))
                     state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
                 return;
             case CrocomireDeathPhase.WaitOneUpdate:

@@ -535,8 +535,7 @@ internal static class SamusPoseMetadata
     public static bool BreaksCollisionBombBlocks(SamusState samus) =>
         samus.HorizontalSpeed.IsActivelySpeedBoosting ||
         IsScrewAttackPose(samus.Pose) ||
-        samus.Pose is >= SamusPoseId.ShinesparkHorizontalRightPose
-            and <= SamusPoseId.ShinesparkDiagonalLeftPose;
+        SamusPoseNumbering.InRange(samus.Pose, SamusPoseId.ShinesparkHorizontalRightPose, SamusPoseId.ShinesparkDiagonalLeftPose);
 
     /// <summary>True only for the two Space Jump animation records `$1B/$1C`.</summary>
     public static bool IsSpaceJumpPose(SamusPoseId pose) => pose is

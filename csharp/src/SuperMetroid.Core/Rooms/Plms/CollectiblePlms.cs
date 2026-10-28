@@ -192,7 +192,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
         bool collected = unchecked((short)slot.RoomArgument) >= 0 &&
             system.HasCollectedItemBit(slot.RoomArgument);
-        int graphicsSlot = kind >= InWorldCollectibleKind.Bombs
+        int graphicsSlot = UsesDynamicGraphics(kind)
             ? LoadDynamicCollectibleGraphics(backgrounds, kind, suppliedGraphic)
             : -1;
 
@@ -219,6 +219,13 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         system.LoadedItemCount = WrappingCounter.IncrementWord(system.LoadedItemCount);
         slot.Family = new CollectiblePlmState(kind, presentation, graphicsSlot, phase);
     }
+
+    /// <summary>
+    /// Whether a collectible loads its own graphics into a dynamic slot (#1452): every item but the four tanks, which
+    /// draw from the resident tank graphics.
+    /// </summary>
+    internal static bool UsesDynamicGraphics(InWorldCollectibleKind kind) => kind is not (InWorldCollectibleKind.EnergyTank
+        or InWorldCollectibleKind.MissileTank or InWorldCollectibleKind.SuperMissileTank or InWorldCollectibleKind.PowerBombTank);
 
     /// <summary>
     /// Names the item and presentation of a permanent-item PLM; false for every other PLM. This public read-only seam

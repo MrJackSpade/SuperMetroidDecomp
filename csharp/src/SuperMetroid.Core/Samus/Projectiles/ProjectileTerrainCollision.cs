@@ -340,7 +340,7 @@ internal sealed class ProjectileTerrainCollision
 
         // `$94:A175/$A195` return carry for 8/B/E directly. Door ($9), spike ($A), and
         // bombable ($F) also collide; their actor/weapon-gated setup remains a later slice.
-        return block.CollisionType is >= RoomCollisionType.SolidBlock and <= RoomCollisionType.BombableBlock;
+        return block.CollisionType.IsSolidBlockType();
     }
 
     /// <summary>Follows signed horizontal or vertical BTS links to the actual reaction block, rejecting cycles and out-of-room targets.</summary>

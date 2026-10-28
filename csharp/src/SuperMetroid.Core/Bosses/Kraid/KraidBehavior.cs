@@ -97,8 +97,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             unchecked((ushort)(camera.X - body.Position.X.Whole + body.Radius.X)),
             unchecked((ushort)(camera.Y - body.Position.Y.Whole + 152)));
         KraidAiFunction function = state.Parts[body.SlotIndex].Function;
-        if (function is >= KraidAiFunction.RestrictSamusToFirstScreen and
-            <= KraidAiFunction.RaiseBody)
+        if (KraidFunctionGroups.Rise.Contains(function))
         {
             Rise.RunKraidRiseFunction(body, state, samus);
             return;

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Projectiles;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
 /// The installed program frames each artwork schema generation added, by the name the installed artwork file keys them
@@ -11,7 +11,7 @@ internal static class EnemyProjectilePresentationFrameDefinitions
 
     /// <summary>
     /// The program frames the first program-frame artwork schema published
-    /// (<see cref="SuperMetroid.Core.Enemies.Artwork.EnemyProjectileSpritemapVersion.FirstProgramFrame"/>): every Mother
+    /// (schema version 3): every Mother
     /// Brain effect and misc-dust pose with the installed name it was first published under, in that schema's order.
     /// </summary>
     internal static IReadOnlyList<EnemyProjectilePresentationFrameDefinition> FirstProgramFrames { get; } =

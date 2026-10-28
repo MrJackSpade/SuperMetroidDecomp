@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.Projectiles;
+
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>One installed program frame of the enemy-projectile artwork file, by the name the file keys it under.</summary>
 internal readonly record struct EnemyProjectilePresentationFrameDefinition(string Name)

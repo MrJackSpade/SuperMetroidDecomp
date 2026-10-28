@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Projectiles;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Frame lists and counts of <see cref="EnemyProjectilePresentationFrameDefinitions"/> that only verification read.</summary>
 internal static class EnemyProjectilePresentationFrameDefinitionsFramesAccess

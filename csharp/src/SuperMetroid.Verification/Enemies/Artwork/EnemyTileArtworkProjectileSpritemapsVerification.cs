@@ -491,7 +491,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         }
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName),
-            EnemyProjectileSpritemapCatalog.Write(document));
+            EnemyProjectileSpritemapDocuments.Write(document));
         InstalledEnemyArtwork editedArt = EnemyTileArtworkFiles.Load(directory, overrides);
         EnemyProjectileSpritemapCatalog edited = (editedArt.Enemies.ProjectileSpritemaps ?? throw new InvalidOperationException("Verification requires editedArt.ProjectileSpritemaps."));
         var originalOam = new OamBuffer();
@@ -599,7 +599,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 ProgramFrames = document.ProgramFrames,
             }, CamelCaseJson);
         AssertThrows<InvalidDataException>(
-            () => EnemyProjectileSpritemapCatalog.Load(new MemoryStream(invalidCurrentJson),
+            () => EnemyProjectileSpritemapDocuments.Load(new MemoryStream(invalidCurrentJson),
                 installed),
             "current projectile compositions cannot silently omit Skree debris");
         var incompleteProgramFrames = document.ProgramFrames
@@ -613,7 +613,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 ProgramFrames = incompleteProgramFrames,
             }, CamelCaseJson);
         AssertThrows<InvalidDataException>(
-            () => EnemyProjectileSpritemapCatalog.Load(new MemoryStream(invalidProgramJson),
+            () => EnemyProjectileSpritemapDocuments.Load(new MemoryStream(invalidProgramJson),
                 installed),
             "current projectile compositions cannot silently omit a shared program frame");
 
@@ -627,7 +627,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 Frames = legacyFrames,
             }, CamelCaseJson);
         AssertThrows<InvalidDataException>(
-            () => EnemyProjectileSpritemapCatalog.Load(new MemoryStream(legacyJson)),
+            () => EnemyProjectileSpritemapDocuments.Load(new MemoryStream(legacyJson)),
             "a partial version-one composition cannot stand alone as stock content");
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), legacyJson);

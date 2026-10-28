@@ -10,6 +10,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
+using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 
@@ -24,7 +25,7 @@ internal static class EnemyProjectileArtworkContractChecks
         var document = new EnemyProjectileSpritemapDocument {
             Version = (int)EnemyProjectileSpritemapVersion.Current, Frames = direct, ProgramFrames = programs };
         EnemyProjectileSpritemapCatalog Load(EnemyProjectileSpritemapDocument value, EnemyProjectileSpritemapCatalog? stock = null) =>
-            EnemyProjectileSpritemapCatalog.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(value,
+            EnemyProjectileSpritemapDocuments.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(value,
                 new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })), stock);
         EnemyProjectileSpritemapCatalog catalog = Load(document);
         EnemyProjectileFrameId directId = EnemyProjectileFrames.Identity(EnemyProjectileSpritemapDefinitions.FrameNames[0]);
@@ -35,7 +36,7 @@ internal static class EnemyProjectileArtworkContractChecks
         var camelCase = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         JsonNode withNullFrame = RequiredJson.Parse(JsonSerializer.SerializeToUtf8Bytes(document, camelCase));
         withNullFrame.Required("frames")[directName] = null;
-        Reject(() => EnemyProjectileSpritemapCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(withNullFrame.ToJsonString())), null),
+        Reject(() => EnemyProjectileSpritemapDocuments.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(withNullFrame.ToJsonString())), null),
             "null direct composition");
         direct.Remove(directName); direct.Add("unowned-direct", []);
         Reject(() => Load(document), "same-count substituted direct composition");
@@ -43,7 +44,7 @@ internal static class EnemyProjectileArtworkContractChecks
         programs.Remove(program.Name); programs.Add("unowned-program", []);
         Reject(() => Load(document), "same-count substituted program composition");
         var legacy = document with { Version = (int)EnemyProjectileSpritemapVersion.CeresOnly,
-            Frames = EnemyProjectileSpritemapDefinitions.FrameNames.Take(EnemyProjectileSpritemapDefinitions.LegacyFrameCount)
+            Frames = EnemyProjectileSpritemapDefinitions.FrameNames.Take(EnemyProjectileSpritemapDocuments.LegacyFrameCount)
                 .ToDictionary(name => name, _ => Array.Empty<SpriteVisualPart>()), ProgramFrames = null };
         Reject(() => Load(legacy), "legacy stock without complete inheritance");
         EnemyProjectileSpritemapCatalog merged = Load(legacy, catalog);

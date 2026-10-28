@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Schema generations of the editable enemy-projectile composition document.</summary>
 public enum EnemyProjectileSpritemapVersion

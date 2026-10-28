@@ -81,7 +81,7 @@ internal static class MotherBrainFakeDeathPlmsVerification
         ushort[] words = Enumerable.Repeat((ushort)0x8123,
             width * height).ToArray();
         RoomLevelData level = CreateRoom(new(width, height), words,
-            new byte[words.Length], blockDefinitions: new BackgroundTile[0x400 * 4]);
+            new byte[words.Length]);
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.BossRoomMutations.TrySpawnMotherBrainMutation(level, new(5, 3), header),
             $"Mother Brain mutation {header} allocates");

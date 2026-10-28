@@ -50,13 +50,12 @@ internal static class RetailRuntimeFixtureVerification
     /// </summary>
     internal static LoadedRoomAssets LoadFixtureRoomAssets(SelectedRoom room,
         RoomCharacterAtlasCatalog? characterArt = null, RoomStaticPaletteCatalog? paletteArt = null,
-        RoomMetatileCatalog? metatileArt = null, RoomVisualLayoutCatalog? visualLayouts = null,
+        RoomVisualLayoutCatalog? visualLayouts = null,
         RoomLevelStreamCatalog? levelStreams = null) =>
         LoadedRoomAssets.Load(new RoomScrollStorage(), room, InstalledFixtures.RoomAssets with
         {
             Characters = characterArt ?? InstalledFixtures.RoomAssets.Characters,
             Palettes = paletteArt ?? InstalledFixtures.RoomAssets.Palettes,
-            Metatiles = metatileArt ?? InstalledFixtures.RoomAssets.Metatiles,
             VisualLayouts = visualLayouts ?? InstalledFixtures.RoomAssets.VisualLayouts,
             LevelStreams = levelStreams ?? InstalledFixtures.RoomAssets.LevelStreams,
         });

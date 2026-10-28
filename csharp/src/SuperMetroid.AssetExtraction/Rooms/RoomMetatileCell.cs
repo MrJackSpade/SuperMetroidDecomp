@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.Artwork;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Editable components of one SNES BG tilemap word: a ten-bit character index, three-bit palette index, priority, and per-tile flips.</summary>
 public sealed record RoomMetatileCell

@@ -236,21 +236,14 @@ internal static class BombBlockProgramsVerification
             const int blockIndex = 27;
             var words = new ushort[width * width];
             words[blockIndex] = 0xf321;
-            var definitions = new BackgroundTile[0x400 * 4];
-            for (int tile = 0; tile < 4; tile++)
-            {
-                definitions[0x53 * 4 + tile] = BackgroundTileWordBytes.Tile(0x17);
-                definitions[0x54 * 4 + tile] = BackgroundTileWordBytes.Tile(0x18);
-            }
-
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), definitions);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]));
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmShotBlockVisuals = visuals });
             AssertTrue(plms.TrySpawnCollisionBombBlock(level, blockIndex, 0),
                 "bomb visual test installs the real collision-triggered PLM");
             plms.Step(level);
             return new BombBlockProgramsRenderResult(level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
-                level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord,
-                level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord);
+                level.DisplayedVisualWord(blockIndex),
+                level.DisplayedVisualWord(blockIndex));
         }
 
         var stock = Render(RoomPlmShotBlockVisualCatalog.Stock());
@@ -259,23 +252,21 @@ internal static class BombBlockProgramsVerification
             "native bomb-break frame installs its original air collision word");
         AssertEqual(stock.Physical, changed.Physical,
             "shared breakup-art edit cannot change bomb-block physical collision");
-        AssertEqual((ushort)0x0017, stock.Immediate,
-            "stock breakup frame reaches immediate tile upload");
-        AssertEqual((ushort)0x0018, changed.Immediate,
-            "edited breakup frame reaches immediate bomb-block tile upload");
-        AssertEqual((ushort)0x0018, changed.Streamed,
-            "edited bomb-block breakup frame survives later camera streaming");
+        // The block BG1 shows names its picture (#1431): the stock breakup frame's block, or the edited frame's.
+        AssertEqual((ushort)0x0053, stock.Immediate,
+            "stock breakup frame's block reaches the immediate redraw");
+        AssertEqual((ushort)0x0054, changed.Immediate,
+            "edited breakup frame's block reaches the immediate bomb-block redraw");
+        AssertEqual((ushort)0x0054, changed.Streamed,
+            "edited bomb-block breakup frame's block survives later camera streaming");
 
-        RenderRestoredParentResult RenderRestoredParent(byte tileIndex)
+        RenderRestoredParentResult RenderRestoredParent()
         {
             const int width = 8;
             const int blockIndex = 27;
             var words = new ushort[width * width];
             words[blockIndex] = 0xf321;
-            var definitions = new BackgroundTile[0x400 * 4];
-            for (int tile = 0; tile < 4; tile++)
-                definitions[0x58 * 4 + tile] = BackgroundTileWordBytes.Tile(tileIndex);
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), definitions);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]));
             var plms = PlmFixtures.Unbound();
             AssertTrue(plms.TrySpawnCollisionBombBlock(level, blockIndex, 1),
                 "restored-art test installs linked respawning bomb block");
@@ -285,19 +276,16 @@ internal static class BombBlockProgramsVerification
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "linked restoration uses no compiled source draw bytes");
             return new RenderRestoredParentResult(level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
-                level.DisplayedBlockTiles(blockIndex).TopLeft.PackedWord);
+                level.DisplayedVisualWord(blockIndex));
         }
 
-        var stockParent = RenderRestoredParent(0x17);
-        var editedParent = RenderRestoredParent(0x18);
-        AssertEqual((ushort)0xf058, stockParent.Physical,
+        // A block's look is its picture in the block sheet (#1431), so the restored parent is checked as the block it
+        // shows: block $058 unmirrored, whose picture a block sheet override repaints.
+        var restoredParent = RenderRestoredParent();
+        AssertEqual((ushort)0xf058, restoredParent.Physical,
             "linked bomb block restores its native solid parent word");
-        AssertEqual(stockParent.Physical, editedParent.Physical,
-            "editing block $058 composition leaves restored collision intact");
-        AssertEqual((ushort)0x0017, stockParent.Streamed,
-            "stock restored parent uses its room-block composition");
-        AssertEqual((ushort)0x0018, editedParent.Streamed,
-            "edited block $058 composition reaches later streaming");
+        AssertEqual((ushort)0x0058, restoredParent.Streamed,
+            "restored parent shows block $058 to later streaming");
     }
 
     /// <summary>Native interaction path used to trigger a constructed bomb block.</summary>
@@ -326,7 +314,7 @@ internal static class BombBlockProgramsVerification
         words[blockIndex] = 0xf321;
         var bts = new byte[words.Length];
         bts[blockIndex] = behavior;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, bts, new ushort[words.Length]), new BackgroundTile[0x400 * 4]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, bts, new ushort[words.Length]));
         var plms = PlmFixtures.Unbound();
         bool spawned = producer switch
         {

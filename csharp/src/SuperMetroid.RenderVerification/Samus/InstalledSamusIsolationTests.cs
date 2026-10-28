@@ -139,7 +139,7 @@ internal sealed class InstalledSamusIsolationTests
                 if (lowCeiling) blocks[(FloorRow - 3) * RoomWidth + x] = (int)RoomCollisionType.SolidBlock << 12;
             }
             Level = new(new(RoomWidth, RoomHeight),
-                new RoomLevelPlanes(blocks, new byte[blocks.Length], new ushort[blocks.Length]), new SuperMetroid.Core.Assets.BackgroundTile[4]);
+                new RoomLevelPlanes(blocks, new byte[blocks.Length], new ushort[blocks.Length]));
         }
     }
 

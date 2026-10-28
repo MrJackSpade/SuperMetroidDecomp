@@ -19,7 +19,7 @@ internal static class GroundedBombSpreadVerification
     internal static void VerifyGroundedBombSpread()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(128, 128), new RoomLevelPlanes(new ushort[16384], new byte[16384], new ushort[16384]), new BackgroundTile[4]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(128, 128), new RoomLevelPlanes(new ushort[16384], new byte[16384], new ushort[16384]));
         foreach (int hold in new[] { 0, 1, 63, 64, 127, 128, 191, 192 })
         foreach (bool keepDown in hold == 192 ? new[] { false, true } : new[] { false })
         {

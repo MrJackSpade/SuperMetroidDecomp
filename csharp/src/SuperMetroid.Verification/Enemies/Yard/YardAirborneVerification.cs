@@ -41,7 +41,7 @@ internal static class YardAirborneVerification
     internal static void VerifyYardAirborneTrajectories(SelectedRoom room)
     {
         var empty = new ushort[64 * 64];
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(64, 64), new RoomLevelPlanes(empty, new byte[empty.Length], new ushort[empty.Length]), new BackgroundTile[4]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(64, 64), new RoomLevelPlanes(empty, new byte[empty.Length], new ushort[empty.Length]));
         // Signed whole/fraction boundary cases exercise native ADC carry, the
         // unusual suppressed zero-high-word write, and the vertical speed cap.
         uint[] horizontal = [0, 0x00008000, 0x00010000, 0x00018000, 0xFFFF8000, 0xFFFF0000, 0xFFFE8000];

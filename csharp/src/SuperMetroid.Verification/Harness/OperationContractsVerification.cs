@@ -80,7 +80,7 @@ internal static class OperationContractsVerification
 
         // Concrete contexts validate required values at construction.
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var level = new RoomLevelData(new(1, 1), new RoomLevelPlanes(new ushort[1], new byte[1], new ushort[1]), new BackgroundTile[4]);
+        var level = new RoomLevelData(new(1, 1), new RoomLevelPlanes(new ushort[1], new byte[1], new ushort[1]));
 
         // Explicit optional scenarios: the ordinary frame and retail overrides are named values.
         var ordinary = new RuntimeFrameRequest();

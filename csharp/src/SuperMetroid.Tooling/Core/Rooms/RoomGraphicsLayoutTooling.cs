@@ -11,5 +11,5 @@ internal static class RoomGraphicsLayoutTooling
         public const int CreBlockDefinitionsByteCount = 0x0800;
         /// <summary>Number of CRE block definitions preceding area-specific blocks.</summary>
         public const int CreBlockDefinitionCount =
-            CreBlockDefinitionsByteCount / Artwork.RoomMetatileFormat.BytesPerBlock;
+            CreBlockDefinitionsByteCount / SuperMetroid.AssetExtraction.Rooms.RoomMetatileFormat.BytesPerBlock;
 }

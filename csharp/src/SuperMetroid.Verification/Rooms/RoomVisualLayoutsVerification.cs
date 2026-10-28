@@ -81,7 +81,6 @@ internal static class RoomVisualLayoutsVerification
         // representative addresses. Each state's compressed level source is
         // forbidden, so an accidental ROM fallback fails at its first read.
         RoomCharacterAtlasCatalog characters = installed.LoadRoomCharacters();
-        RoomMetatileCatalog metatiles = installed.LoadRoomMetatiles();
         RoomStaticPaletteCatalog palettes = installed.LoadRoomPalettes();
         int stateCount = 0;
         int slopeBlocks = 0;
@@ -100,7 +99,7 @@ internal static class RoomVisualLayoutsVerification
                 int availableBg2 = Math.Min(layerBytes, native.Length - bg2Offset);
                 RoomLevelData loaded = LoadFixtureRoomAssets(room,
                     characterArt: characters, paletteArt: palettes,
-                    metatileArt: metatiles, visualLayouts: stock, levelStreams: levelStreams).LevelData;
+                    visualLayouts: stock, levelStreams: levelStreams).LevelData;
                 AssertEqual(blockCount, loaded.Size.X * loaded.Size.Y,
                     $"room ${header.Pointer:X4} state ${statePointer:X4} physical allocation");
                 for (int blockIndex = 0; blockIndex < blockCount; blockIndex++)
@@ -157,17 +156,18 @@ internal static class RoomVisualLayoutsVerification
                 editedRoom.LevelData.BackgroundEntries.AsSpan()),
             "visual room-layout override leaves full native BG1/BTS/BG2 allocations unchanged");
 
-        // The renderers resolve each block from the level planes (#1346), so the shown first blocks are the planes'.
-        ExpandedBlockTiles nativeFirst = nativeRoom.LevelData.ForegroundPlane.BlockTiles(new(0, 0));
-        AssertEqual(nativeFirst, stockRoom.LevelData.ForegroundPlane.BlockTiles(new(0, 0)),
-            "stock installed BG1 layout retains native rendered tile words");
-        AssertTrue(nativeFirst != editedRoom.LevelData.ForegroundPlane.BlockTiles(new(0, 0)),
+        // The renderers resolve each block from the level planes (#1346), so the shown first blocks, each a whole block and
+        // its mirroring (#1431), are the planes'.
+        RoomBlockCell nativeFirst = nativeRoom.LevelData.ForegroundPlane.Cells.Cells[0];
+        AssertEqual(nativeFirst, stockRoom.LevelData.ForegroundPlane.Cells.Cells[0],
+            "stock installed BG1 layout retains the native first block and mirroring");
+        AssertTrue(nativeFirst != editedRoom.LevelData.ForegroundPlane.Cells.Cells[0],
             "edited BG1 layout changes the live renderer's first block");
 
-        ExpandedBlockTiles nativeBg2 = nativeRoom.LevelData.BackgroundPlane.BlockTiles(new(0, 0));
-        AssertEqual(nativeBg2, stockRoom.LevelData.BackgroundPlane.BlockTiles(new(0, 0)),
-            "stock installed BG2 layout retains native rendered tile words");
-        AssertTrue(nativeBg2 != editedRoom.LevelData.BackgroundPlane.BlockTiles(new(0, 0)),
+        RoomBlockCell nativeBg2 = nativeRoom.LevelData.BackgroundPlane.Cells.Cells[0];
+        AssertEqual(nativeBg2, stockRoom.LevelData.BackgroundPlane.Cells.Cells[0],
+            "stock installed BG2 layout retains the native first block and mirroring");
+        AssertTrue(nativeBg2 != editedRoom.LevelData.BackgroundPlane.Cells.Cells[0],
             "edited BG2 layout changes the live renderer's first block");
 
         // Ceres has no authored BG2 tail, while the Wrecked Ship allocation includes

@@ -88,10 +88,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             ]);
             const int width = 16;
             const int origin = 4 + 4 * width;
-            BackgroundTile[] blockDefinitions = new BackgroundTile[0x400 * 4];
-            blockDefinitions[originalVisual * 4] = BackgroundTileWordBytes.Tile(0x04);
-            blockDefinitions[0x53 * 4] = BackgroundTileWordBytes.Tile(0x53);
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), blockDefinitions);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]));
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmColoredDoorVisuals = header == PlmHeaderId.GreenDoorFacingLeft
                     ? edited : stock });
             var system = new SharedGameState();
@@ -114,7 +111,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             if (header == PlmHeaderId.GreenDoorFacingLeft)
             {
                 AssertEqual((ushort)0x0053,
-                    level.DisplayedBlockTiles(origin).TopLeft.PackedWord,
+                    level.DisplayedVisualWord(origin),
                     "edited colored cap survives later camera streaming");
             }
 
@@ -436,7 +433,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"resident colored door {header} completes without program/draw ROM reads");
 
-            var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), blockDefinitions);
+            var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]));
             var reopened = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmColoredDoorVisuals = stock });
             AssertEqual(1, PlmFixtures.LoadPopulation(ref reopened, new PlmRoom(reopenedLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                 $"opened colored door {header} reloads");

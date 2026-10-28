@@ -30,7 +30,7 @@ internal static class SamusEaterPlmDefinitionsVerification
             int blockCount = width * height;
             var levelWords = new ushort[blockCount];
             levelWords[5] = 0xb123;
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(levelWords, new byte[blockCount], new ushort[blockCount]), new BackgroundTile[4]);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(levelWords, new byte[blockCount], new ushort[blockCount]));
             var plms = PlmFixtures.Unbound();
             var samus = new SamusState();
             samus.Position = samus.Position.WithWhole(new(24, definition.Ceiling ? (ushort)16 : (ushort)0));

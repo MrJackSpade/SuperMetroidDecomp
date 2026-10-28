@@ -84,9 +84,7 @@ internal static class NoobTubePlmDrawDefinitionsVerification
         // The retail control stream is compiled and immutable. Draw each physical layout through
         // the production timed-frame draw without patching that catalog.
         var guarded = NewNoobTubeDrawReadGuard(bus, lists);
-        BackgroundTile[] blockDefinitions = new BackgroundTile[0x400 * 4];
-        blockDefinitions[0x59 * 4] = BackgroundTileWordBytes.Tile(0x59);
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), blockDefinitions);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]));
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmNoobTubeVisuals = visuals });
         AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, 0x9400), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } } }),
             $"n00b tube loads for draw ${PlmDrawAddressCodec.Of(selected.Draw):X4}");
@@ -116,7 +114,7 @@ internal static class NoobTubePlmDrawDefinitionsVerification
         {
             const int editedBlock = 4 * width + 2;
             AssertEqual((ushort)0x0059,
-                level.DisplayedBlockTiles(editedBlock).TopLeft.PackedWord,
+                level.DisplayedVisualWord(editedBlock),
                 "edited tube tile survives later camera streaming");
             AssertEqual((ushort)0x0323,
                 level.GetCollisionBlockByIndex(editedBlock).PackedWord.Raw,

@@ -36,7 +36,7 @@ internal static class DraygonTilemapProductionVerification
         var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, RoomHeaderDefinitions.Draygon.Pointer);
         var installation = RepositoryInstallation.Installation;
         var assets = LoadFixtureRoomAssets(room, installation.LoadRoomCharacters(),
-            installation.LoadRoomPalettes(), installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());
+            installation.LoadRoomPalettes(), installation.LoadRoomVisualLayouts());
         var vram = new SnesVram(); var cgram = new SamusColourRig(); assets.LoadGraphics(BgArtworkFixtures.For(vram), cgram.Gameplay.BackgroundSets);
         var random = new SharedGameState();
         random.SetRandomNumber(0x1234);

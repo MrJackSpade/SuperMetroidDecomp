@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.LevelData;
 
-namespace SuperMetroid.Core.Rooms.LevelData;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// Expands one 16x16 level block into the four 8x8 tiles it shows.
@@ -18,16 +18,16 @@ public static class LevelBlockTilemapExpander
     /// applies the parent level entry's horizontal and vertical flips.
     /// </summary>
     /// <param name="levelEntry">The level word naming the block definition and its mirroring.</param>
-    /// <param name="blockDefinitions">The room's block definitions, <see cref="RoomLevelPlane.DefinitionTiles"/> tiles each.</param>
+    /// <param name="blockDefinitions">The block compositions, <see cref="RoomMetatileFormat.TilesPerBlock"/> tiles each.</param>
     public static ExpandedBlockTiles Expand(RoomLevelWord levelEntry, ReadOnlySpan<BackgroundTile> blockDefinitions)
     {
         // The typed word keeps the collision nibble explicitly out of visual expansion.
         int blockIndex = levelEntry.VisualBlockIndex;
-        int first = blockIndex * RoomLevelPlane.DefinitionTiles;
-        if (first + RoomLevelPlane.DefinitionTiles > blockDefinitions.Length)
+        int first = blockIndex * RoomMetatileFormat.TilesPerBlock;
+        if (first + RoomMetatileFormat.TilesPerBlock > blockDefinitions.Length)
         {
             throw new InvalidDataException(
-                $"Block index ${blockIndex:X3} exceeds the {blockDefinitions.Length / RoomLevelPlane.DefinitionTiles} loaded definitions.");
+                $"Block index ${blockIndex:X3} exceeds the {blockDefinitions.Length / RoomMetatileFormat.TilesPerBlock} loaded definitions.");
         }
 
         BackgroundTile topLeft = blockDefinitions[first];

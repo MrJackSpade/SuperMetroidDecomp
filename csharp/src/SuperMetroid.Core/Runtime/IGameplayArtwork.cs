@@ -45,9 +45,6 @@ internal interface IGameplayArtwork
     /// <summary>Room static palettes.</summary>
     RoomStaticPaletteCatalog? RoomPaletteArt { get; }
 
-    /// <summary>Room metatiles.</summary>
-    RoomMetatileCatalog? RoomMetatileArt { get; }
-
     /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>
     RoomBlockSheetCatalog? RoomBlockSheets { get; }
 

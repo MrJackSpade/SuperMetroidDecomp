@@ -1,8 +1,9 @@
+using SuperMetroid.Core;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Rooms.Artwork;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// Editable 16x16 visual blocks. This catalog contains only the four tiles each block

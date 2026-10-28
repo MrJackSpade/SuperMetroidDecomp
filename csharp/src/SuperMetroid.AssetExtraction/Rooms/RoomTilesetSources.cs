@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Artwork;
 using System.Collections.Frozen;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -45,11 +44,6 @@ internal static class RoomTilesetSources
     internal static string CharacterIdentity(RoomCharacterAtlasCatalog catalog) => SelectedPresentationHash.FromNamedTransfers(
         nameof(RoomCharacterAtlasCatalog), catalog.Sheets.ToDictionary(pair => pair.Key.ToString(), pair => pair.Value),
         atlas => atlas.Characters, catalog.Cre.Characters);
-
-    /// <summary>The installed content identity of the selected block tables.</summary>
-    internal static string BlockIdentity(RoomMetatileCatalog catalog) => SelectedPresentationHash.FromNamedTransfers(
-        nameof(RoomMetatileCatalog), catalog.Atlases.ToDictionary(pair => pair.Key.ToString(), pair => pair.Value),
-        atlas => BackgroundTileWords.ToBytes(atlas.BlockTiles.Span), BackgroundTileWords.ToBytes(catalog.Cre.BlockTiles.Span));
 
     /// <summary>The installed content identity of the selected room palettes.</summary>
     internal static string PaletteIdentity(RoomStaticPaletteCatalog catalog) => SelectedPresentationHash.FromNamedTransfers(

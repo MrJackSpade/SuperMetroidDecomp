@@ -191,7 +191,7 @@ internal static void VerifySamusBlockCollision()
     var doorForeground = new ushort[width * height];
     var doorBehavior = new byte[doorForeground.Length];
     doorForeground[1 * width + 2] = 0x9000;
-    RoomLevelData doorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(doorForeground, doorBehavior, new ushort[doorForeground.Length]), new BackgroundTile[4], doors: RoomDoorListDefinitions.ForListPointer(doorListPointer));
+    RoomLevelData doorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(doorForeground, doorBehavior, new ushort[doorForeground.Length]), doors: RoomDoorListDefinitions.ForListPointer(doorListPointer));
     var doorBody = new SamusKinematicsState
     {
         Position = FixedPosition<RoomPixels>.FromWhole(new(26, 24)),
@@ -212,7 +212,7 @@ internal static void VerifySamusBlockCollision()
         "consumed door transition does not leak into later movement");
 
     doorBehavior[1 * width + 2] = 2;
-    RoomLevelData elevatorDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(doorForeground, doorBehavior, new ushort[doorForeground.Length]), new BackgroundTile[4], doors: RoomDoorListDefinitions.ForListPointer(doorListPointer));
+    RoomLevelData elevatorDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(doorForeground, doorBehavior, new ushort[doorForeground.Length]), doors: RoomDoorListDefinitions.ForListPointer(doorListPointer));
     doorBody.Position = doorBody.Position.WithWholeX(26).WithFractionX(0);
     BlockMoveResult elevatorDoorMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = elevatorDoorLevel }, doorBody, null, new HorizontalBlockMove { Displacement = 0x00020000 });
     AssertTrue(elevatorDoorMove.Collided, "elevator pseudo-door remains solid");

@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Checks canonical content identities for selected room art and their compatibility warnings.</summary>
 internal static class RoomContentIdentityVerification
@@ -22,7 +23,7 @@ internal static class RoomContentIdentityVerification
         RoomIdentityFixture baseline = CreateRoomIdentityFixture();
         IReadOnlyDictionary<string, string> hashes = baseline.Identity;
         RoomIdentityFixture reordered = CreateRoomIdentityFixture(reverse: true);
-        AssertEqual(6, hashes.Count, "six independent room-art identities");
+        AssertEqual(5, hashes.Count, "five independent room-art identities");
         foreach ((string name, string digest) in hashes)
             AssertEqual(digest, reordered.Identity[name], $"{name} identity ignores insertion order");
 
@@ -37,8 +38,9 @@ internal static class RoomContentIdentityVerification
         // CRE is not keyed by a graphics-set source; it must not escape the identity.
         AssertTrue(baseline.Characters.ContentIdentity != CreateRoomIdentityFixture("cre-characters").Characters.ContentIdentity,
             "shared CRE character edits are fingerprinted");
-        AssertTrue(baseline.Metatiles.ContentIdentity != CreateRoomIdentityFixture("cre-blocks").Metatiles.ContentIdentity,
-            "shared CRE metatile edits are fingerprinted");
+        // How a room's blocks look is their block sheet's identity (#1431), which covers the characters each block reads.
+        AssertTrue(BlockSheetIdentity(firstCharacter: 0) != BlockSheetIdentity(firstCharacter: 1),
+            "the characters a block reads are fingerprinted with its block sheet");
 
         var callerOwned = new Dictionary<string, string>(hashes);
         Guid build = Guid.Parse("01234567-89ab-cdef-0123-456789abcdef");
@@ -55,8 +57,23 @@ internal static class RoomContentIdentityVerification
             .Contains(first, StringComparison.Ordinal), "room-art drift is explained by its domain");
         Suite(nameof(VerifyGameContentIdentityComposition), () => VerifyGameContentIdentityComposition());
         Suite(nameof(VerifyControllerInputRecording), () => VerifyControllerInputRecording());
-        Console.WriteLine("  Selected room content: six domains, CRE, canonical ordering, isolated edits, " +
+        Console.WriteLine("  Selected room content: five domains, CRE, block characters, canonical ordering, isolated edits, " +
             "aggregate drift, immutable snapshots and recording compatibility pass without a ROM.");
+    }
+
+    /// <summary>
+    /// The content identity of a one-block sheet whose block reads the character run from <paramref name="firstCharacter"/>,
+    /// pictured the same either way.
+    /// </summary>
+    private static string BlockSheetIdentity(int firstCharacter)
+    {
+        RoomBlockSheet pictured = RoomBlockFixtures.Pictures(new BackgroundTile[4], new byte[64], new RgbColor[256]).Sheet;
+        var sheet = new RoomBlockSheet(default(TilesetDefinition), pictured.Sheet,
+            new RoomBlockCharacters(default(TilesetDefinition).Blocks, [[new RoomBlockCharacterRun(firstCharacter, 1)]]));
+        return new RoomBlockSheetCatalog(new Dictionary<TilesetDefinition, RoomBlockSheet> { [default] = sheet },
+            new Dictionary<string, RoomBackgroundImage>(), new Dictionary<TilesetDefinition, TileWordSheet>(),
+            new Dictionary<TilesetDefinition, TileWordSheet>(), new Dictionary<TilesetDefinition, MessageBoxSheet>(),
+            new Dictionary<TilesetDefinition, FloorTileSheet>()).ContentIdentity;
     }
 
     /// <summary>Builds stock-shaped room catalogs with one optional visual edit and optional reversed insertion order.</summary>
@@ -77,21 +94,6 @@ internal static class RoomContentIdentityVerification
             Colors = Enumerable.Range(0, RoomStaticPaletteFormat.ColorCount).Select(index =>
                 new PaletteRgb5 { Red = change && index == 0 ? 1 : 0, Green = 0, Blue = 0 }).ToArray(),
         }));
-        RoomMetatileAtlas Blocks(bool change)
-        {
-            var cell = new RoomMetatileCell
-            {
-                TileColumn = 0, TileRow = 0, Palette = 0, Priority = change, FlipX = false, FlipY = false,
-            };
-            return RoomMetatileAtlas.Load(Json(new RoomMetatileDocument
-            {
-                Version = RoomMetatileFormat.Version,
-                Blocks = [new RoomMetatileDefinition
-                {
-                    TopLeft = cell, TopRight = cell, BottomLeft = cell, BottomRight = cell,
-                }],
-            }), RoomMetatileFormat.BytesPerBlock);
-        }
         RoomBackgroundTilemapAtlas Page(bool change) => RoomBackgroundTilemapAtlas.Load(
             Json(new RoomBackgroundTilemapDocument
             {
@@ -109,10 +111,8 @@ internal static class RoomContentIdentityVerification
 
         RoomCharacterAtlas character = Characters(edited == GameInstallationLayout.RoomCharacterDirectoryName);
         RoomStaticPalette palette = Palette(edited == GameInstallationLayout.RoomPaletteDirectoryName);
-        RoomMetatileAtlas blocks = Blocks(edited == GameInstallationLayout.RoomMetatileDirectoryName);
         var chars = new Dictionary<int, RoomCharacterAtlas>();
         var colors = new Dictionary<int, RoomStaticPalette>();
-        var metatiles = new Dictionary<int, RoomMetatileAtlas>();
         IEnumerable<int> sets = Enumerable.Range(0, RoomTilesetDefinitions.Count);
         if (reverse) sets = sets.Reverse();
         foreach (int set in sets)
@@ -120,7 +120,6 @@ internal static class RoomContentIdentityVerification
             var definition = RoomTilesetDefinitions.Get((byte)set);
             chars[definition.CharacterAddress] = character;
             colors[definition.PaletteAddress] = palette;
-            metatiles[definition.BlockDefinitionsAddress] = blocks;
         }
         var backgrounds = new Dictionary<RoomBackgroundTilemap, RoomBackgroundTilemapAtlas>();
         IEnumerable<RoomBackgroundTilemap> pages = Enum.GetValues<RoomBackgroundTilemap>();
@@ -141,22 +140,21 @@ internal static class RoomContentIdentityVerification
         return new RoomIdentityFixture(
             new RoomCharacterAtlasCatalog(Characters(edited == "cre-characters"), chars.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.CharacterSetAt(pair.Key), pair => pair.Value)),
             new RoomStaticPaletteCatalog(colors.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.PaletteSetAt(pair.Key), pair => pair.Value)),
-            new RoomMetatileCatalog(Blocks(edited == "cre-blocks"), metatiles.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.BlockSetAt(pair.Key), pair => pair.Value)),
             new RoomBackgroundTilemapCatalog(backgrounds), new RoomSkyTilemapCatalog(skies),
             RoomVisualLayoutCatalog.FromLayoutsForVerification(layouts));
 
         static MemoryStream Json<T>(T document) => new(JsonSerializer.SerializeToUtf8Bytes(document));
     }
 
-    /// <summary>Six independent room presentation catalogs used to measure selected-content identity.</summary>
+    /// <summary>Five independent room presentation catalogs used to measure selected-content identity.</summary>
     internal sealed record RoomIdentityFixture(RoomCharacterAtlasCatalog Characters,
-        RoomStaticPaletteCatalog Palettes, RoomMetatileCatalog Metatiles,
+        RoomStaticPaletteCatalog Palettes,
         RoomBackgroundTilemapCatalog Backgrounds, RoomSkyTilemapCatalog Skies,
         RoomVisualLayoutCatalog Layouts)
     {
         /// <summary>Per-domain hashes for the fixture's selected room artwork.</summary>
         public IReadOnlyDictionary<string, string> Identity => RoomPresentationIdentity.Create(
-            Characters, Palettes, Metatiles, Backgrounds, Skies, Layouts);
+            Characters, Palettes, Backgrounds, Skies, Layouts);
     }
 
     /// <summary>Runs ROM-free room-art identity and aggregate compatibility checks.</summary>

@@ -11,7 +11,7 @@ internal static class FallingSpeedRecurrenceVerification
     /// <summary>Confirms extra fractional run speed selects mode two on fall entry and CPU-observed air/water deceleration alternates before clamping.</summary>
     internal static void VerifyRetailFallingSpeedRecurrence()
     {
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new BackgroundTile[4]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]));
         foreach (ushort extraWhole in new ushort[] { 0, 1 })
         foreach (ushort extraFraction in new ushort[] { 0, 1 })
         foreach (SamusAccelerationMode previousMode in Enum.GetValues<SamusAccelerationMode>())

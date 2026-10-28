@@ -1262,11 +1262,11 @@ internal sealed class RoomLoader
     /// <summary>The host-bound room catalogs; room loading never substitutes cartridge artwork.</summary>
     private RoomAssetCatalogs RequireRoomAssetCatalogs() =>
         _artwork.RoomCharacterArt is { } characters && _artwork.RoomPaletteArt is { } palettes &&
-        _artwork.RoomMetatileArt is { } metatiles && _artwork.RoomVisualLayouts is { } layouts &&
+        _artwork.RoomVisualLayouts is { } layouts &&
         _artwork.RoomLevelStreams is { } levelStreams && _artwork.RoomBlockSheets is { } blockSheets
-            ? new RoomAssetCatalogs(characters, palettes, metatiles, layouts, levelStreams, blockSheets)
+            ? new RoomAssetCatalogs(characters, palettes, layouts, levelStreams, blockSheets)
             : throw new InvalidOperationException(
-                "Room loading requires installed character, palette, metatile, visual-layout, level-stream and block-sheet assets.");
+                "Room loading requires installed character, palette, visual-layout, level-stream and block-sheet assets.");
 
 
     /// <summary>The 16-pixel block a coordinate lies in within its 256-pixel screen.</summary>

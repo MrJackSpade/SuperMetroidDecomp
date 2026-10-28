@@ -212,8 +212,6 @@ internal static class MapPresentationVerification
         private readonly RoomCharacterAtlasCatalog roomCharacters;
         /// <summary>Installed room palette data used instead of cartridge graphics fallback.</summary>
         private readonly RoomStaticPaletteCatalog roomPalettes;
-        /// <summary>Installed metatiles used when the fixture builds its room layer.</summary>
-        private readonly RoomMetatileCatalog roomMetatiles;
 
         /// <summary>The pre-coloured block pictures room loads draw from (#1392).</summary>
         private readonly RoomBlockSheetCatalog roomBlockSheets;
@@ -246,7 +244,6 @@ internal static class MapPresentationVerification
             standardObjects = installation.LoadStandardObjects();
             roomCharacters = installation.LoadRoomCharacters();
             roomPalettes = installation.LoadRoomPalettes();
-            roomMetatiles = installation.LoadRoomMetatiles();
             roomBlockSheets = installation.LoadRoomBlockSheets();
             visualLayouts = installation.LoadRoomVisualLayouts();
             levelStreams = installation.LoadRoomLevelStreams();
@@ -266,7 +263,6 @@ internal static class MapPresentationVerification
             runtime.Artwork.StandardObjectArt = standardObjects;
             runtime.Artwork.RoomCharacterArt = roomCharacters;
             runtime.Artwork.RoomPaletteArt = roomPalettes;
-            runtime.Artwork.RoomMetatileArt = roomMetatiles;
             runtime.Artwork.RoomBlockSheets = roomBlockSheets;
             runtime.Artwork.RoomVisualLayouts = visualLayouts;
             runtime.Artwork.RoomLevelStreams = levelStreams;

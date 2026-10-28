@@ -171,8 +171,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         behaviors[blockIndex] = bts.ToBtsByte();
         RoomLevelData level = CreateRoom(new(width, height),
             words,
-            behaviors,
-            blockDefinitions: new BackgroundTile[0x400 * 4]);
+            behaviors);
         var plms = PlmFixtures.Unbound();
         int parsed = PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), area), RoomPlmPopulationImporter.Read(bus, emptyPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(0, parsed, "speed-block fixture begins with an empty room PLM population");

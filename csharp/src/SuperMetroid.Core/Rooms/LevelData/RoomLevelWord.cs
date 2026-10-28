@@ -26,7 +26,7 @@ public readonly record struct RoomLevelWord(ushort Raw)
     /// <summary>Distance from the low bit to the collision dispatch nibble.</summary>
     private const int CollisionTypeShift = 12;
 
-    /// <summary>Low ten bits selecting a visual 16×16 block definition.</summary>
+    /// <summary>Low ten bits naming the 16×16 block shown, by its index among those the room loads.</summary>
     public ushort VisualBlockIndex => (ushort)(Raw & VisualBlockIndexMask);
 
     /// <summary>

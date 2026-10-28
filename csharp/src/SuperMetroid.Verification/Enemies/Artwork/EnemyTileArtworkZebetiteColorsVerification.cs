@@ -40,7 +40,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         {
             ReferenceCycle(nativeCgram, ref nativeCounter);
             Cycle(installed);
-            AssertEqual((call + 1) & ZebetiteDefinitions.PaletteCycleMask,
+            AssertEqual((call + 1) % ZebetiteDefinitions.PaletteCycleLength,
                 Counter(installed),
                 "Installed Zebetite pulse retains physical-slot-zero counter and wrap");
             AssertEqual(nativeCounter, Counter(installed),

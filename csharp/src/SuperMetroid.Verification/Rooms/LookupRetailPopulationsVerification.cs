@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Bosses.Draygon;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.Plms;
@@ -111,7 +112,14 @@ internal static class LookupRetailPopulationsVerification
                     3 => placement.RoomArgument,
                     _ => 0,
                 };
-                if (field != 4)
+                if (field == 3 && placement.CannonControl is { } control)
+                {
+                    // A Draygon cannon's argument names its control word, which the population carries typed (#1448).
+                    AssertEqual(DraygonCannonControlWordAddresses.Decode(checked((ushort)expected)), control,
+                        $"population {pointer:X4} operation {count} cannon control");
+                    AssertEqual(0, result, $"population {pointer:X4} operation {count} cannon carries no raw argument");
+                }
+                else if (field != 4)
                     AssertEqual(expected, result, $"population {pointer:X4} operation {count} field {field}");
                 address += 6;
                 count++;

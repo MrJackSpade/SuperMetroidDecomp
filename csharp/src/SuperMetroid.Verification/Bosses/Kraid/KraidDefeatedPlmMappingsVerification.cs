@@ -39,7 +39,7 @@ internal static class KraidDefeatedPlmMappingsVerification
             AssertEqual(expected, field(enumerated[index]), "Native defeated-room operation order");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 2, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = requests[invalid], "Defeated-room list bounds");
+            AssertThrows<IndexOutOfRangeException>(() => _ = requests[invalid], "Defeated-room list bounds");
     }
 
     /// <summary>Reads an inline bank-$A7 argument byte from the cartridge oracle.</summary>

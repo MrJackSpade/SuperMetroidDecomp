@@ -82,13 +82,13 @@ internal sealed class CeresStationParts : IReadOnlyList<CompiledSpritePart>
                 int piece = 31 - index;
                 int column = 2 * piece - (piece >= 4 ? 1 : 0);
                 x = -50 + 8 * column; y = -16;
-                tile = CeresStationCellDefinitions.TwoRowStrip(CeresStationCellDefinitions.UpperMiddle, column);
+                tile = CinematicAtlasStrip.TwoRowStrip(CeresStationCellDefinitions.UpperMiddle, column);
             }
             else if (index < 38)
             {
                 int column = Math.Min(2 * (37 - index), 9);
                 x = -42 + 8 * column; y = -32;
-                tile = CeresStationCellDefinitions.TwoRowStrip(CeresStationCellDefinitions.Shoulder, column);
+                tile = CinematicAtlasStrip.TwoRowStrip(CeresStationCellDefinitions.Shoulder, column);
             }
             else
             {

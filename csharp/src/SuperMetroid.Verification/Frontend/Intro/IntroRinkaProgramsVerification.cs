@@ -25,7 +25,7 @@ internal static class IntroRinkaProgramsVerification
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
         {
             AssertThrows<IndexOutOfRangeException>(() => { _ = frames[invalid]; }, "Rinka catalog bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => IntroRinkaSpriteDefinitions.FramePose(invalid), "Rinka pointer bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => IntroRinkaSpritePoses.FramePose(invalid), "Rinka pointer bounds");
         }
         AssertTrue(frames.SequenceEqual(frames.ToArray()), "Rinka enumeration order");
     }

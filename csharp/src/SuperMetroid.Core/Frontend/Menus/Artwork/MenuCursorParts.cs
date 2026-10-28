@@ -13,7 +13,7 @@ internal sealed class MenuCursorParts(int frame) : IReadOnlyList<CompiledSpriteP
     {
         if (supplied.PartCount != 2)
             return supplied;
-        return supplied.CalculateIfMatching(new MenuCursorParts(MenuMissileAnimationDefinitions.SpritemapId(frame) - FirstSpritemap));
+        return supplied.CalculateIfMatching(new MenuCursorParts(MenuMissileSpritemaps.SpritemapId(frame) - FirstSpritemap));
     }
 
     /// <summary>The first menu missile spritemap identity (<see cref="MenuMissileAnimationDefinitions.FirstSpritemap"/>).</summary>

@@ -62,10 +62,10 @@ public interface IGameplayPresentationContent : IAreaMapSource, IInstalledArtwor
     RoomPaletteFxPresentation RoomPaletteFx { get; }
 
     /// <summary>Selected layer-3 room-FX tilemaps, separate from animated characters and palette-blend colors.</summary>
-    RoomFxLayer3TilemapCatalog RoomFxLayer3Tilemaps { get; }
+    RoomFxLayer3Pages RoomFxLayer3Tilemaps { get; }
 
     /// <summary>Selected room-FX palette-blend presentation, separate from layer-3 tilemap geometry and animated character bytes.</summary>
-    RoomFxPaletteBlendCatalog RoomFxPaletteBlends { get; }
+    RoomFxBlendInks RoomFxPaletteBlends { get; }
 
     /// <summary>Selected animated room-FX character artwork, separate from layer-3 tilemaps and palette blending.</summary>
     RoomFxAnimatedTileAtlas RoomFxAnimatedTiles { get; }

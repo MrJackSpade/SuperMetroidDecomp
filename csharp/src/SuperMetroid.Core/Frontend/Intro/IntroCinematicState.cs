@@ -115,7 +115,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Installed first-font transfer rebound after debugger restoration.</summary>
     [field: NonSerialized] internal IntroFontAtlas? IntroFont { get; private set; }
     /// <summary>Installed background, object, and palette content for the intro scenes.</summary>
-    [field: NonSerialized] internal IntroCinematicArtworkCatalog? CharacterArtwork { get; private set; }
+    [field: NonSerialized] internal IntroCinematicArtwork? CharacterArtwork { get; private set; }
     /// <summary>Installed Samus body graphics rebound into active flashback actors.</summary>
     [NonSerialized] private InstalledSamusBodyArtwork? samusBodyArtwork;
     /// <summary>Host-owned hurt-flash colors consumed by the shared Samus palette handler.</summary>
@@ -147,7 +147,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         IntroFont = value;
     }
     /// <summary>Rebinds installed BG and OBJ pixels after restoring emulated state.</summary>
-    public void BindCharacterArtwork(IntroCinematicArtworkCatalog? value)
+    public void BindCharacterArtwork(IntroCinematicArtwork? value)
     {
         CharacterArtwork = value;
         CurrentCeresFlight?.BindArtwork(value?.CeresFlight);
@@ -291,7 +291,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         AudioQueues? audio = null,
         IntroFontAtlas? introFont = null,
-        IntroCinematicArtworkCatalog? characterArtwork = null,
+        IntroCinematicArtwork? characterArtwork = null,
         InstalledBeamPalettes? beamPalettes = null,
         InstalledSamusBodyArtwork? samusBodyArtwork = null,
         bool japaneseText = false)
@@ -717,7 +717,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // Retain the exact 224-word level-data copy as debugger-visible state. The later
         // $91:8784 demo movement/collision translation will consume this array; loading it
         // now proves the visual BG1 screen is not standing in for the collision contract.
-        MotherBrainLevelData = IntroMotherBrainCollisionDefinitions.CopySourceBytes();
+        MotherBrainLevelData = IntroMotherBrainCollision.CopySourceBytes();
         CurrentFlashbackLevel = CreateMotherBrainLevel(MotherBrainLevelData);
         flashbackProjectiles.Reset();
         CurrentFlashbackDemoInput = new DemoInputState();

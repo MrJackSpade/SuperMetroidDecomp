@@ -24,14 +24,14 @@ internal static class CeresEscapeOverlayTilemapFiles
                 source[index] = CartridgeImportSource.Require(bus).ReadCartridgeWord((int)first.AddWithinBank(index * sizeof(ushort)));
             pages.Add(page.Name, BackgroundTileWords.ToTiles(source));
         }
-        byte[] json = CeresEscapeOverlayTilemapCatalog.Write(
+        byte[] json = CeresEscapeOverlays.Write(
             new CeresEscapeOverlayTilemapDocument
             {
                 Version = CeresEscapeOverlayTilemapDefinitions.Version,
                 Pages = pages,
             });
-        CeresEscapeOverlayTilemapCatalog roundtrip =
-            CeresEscapeOverlayTilemapCatalog.Load(
+        CeresEscapeOverlays roundtrip =
+            CeresEscapeOverlays.Load(
                 new MemoryStream(json, writable: false));
         foreach (CeresEscapeOverlayTilemapDefinition page in
                  CeresEscapeOverlayTilemapDefinitions.All)

@@ -37,7 +37,7 @@ public sealed record GameArtwork : IGameplayArtwork
     public static GameArtwork Unbound { get; } = new();
 
     /// <summary>Area maps with the pause, HUD, title, intro and ending text and palettes that share their installation.</summary>
-    public AreaMapPresentationCatalog? MapPresentation { get; init; }
+    public AreaMapPresentation? MapPresentation { get; init; }
 
     /// <inheritdoc/>
     IGameplayPresentationContent? IGameplayArtwork.MapPresentation => MapPresentation;
@@ -49,19 +49,19 @@ public sealed record GameArtwork : IGameplayArtwork
     public RoomCharacterAtlas? StandardObjectArt { get; init; }
 
     /// <summary>Intro, Ceres destruction and Ceres flight artwork.</summary>
-    public IntroCinematicArtworkCatalog? IntroCinematicArt { get; init; }
+    public IntroCinematicArtwork? IntroCinematicArt { get; init; }
 
     /// <summary>Samus body tiles, palettes and death palettes.</summary>
     public InstalledSamusBodyArtwork? SamusBodyArt { get; init; }
 
     /// <summary>Ending Mode 7 artwork.</summary>
-    public EndingFloorArtworkCatalog? EndingFloorArt { get; init; }
+    public EndingFloorArtwork? EndingFloorArt { get; init; }
 
     /// <summary>Ending sprite artwork.</summary>
-    public EndingObjectArtworkCatalog? EndingObjectArt { get; init; }
+    public EndingObjectArtwork? EndingObjectArt { get; init; }
 
     /// <summary>Ending palettes.</summary>
-    public EndingPaletteCatalog? EndingPaletteArt { get; init; }
+    public EndingPaletteSet? EndingPaletteArt { get; init; }
 
     /// <summary>Room tileset characters.</summary>
     public RoomCharacterAtlases? RoomCharacterArt { get; init; }
@@ -127,7 +127,7 @@ public sealed record GameArtwork : IGameplayArtwork
     public InstalledRoomPlmLinkedRestoreVisuals? RoomPlmLinkedRestoreVisuals { get; init; }
 
     /// <summary>Room PLM tourian access visuals.</summary>
-    public RoomPlmTourianAccessVisualCatalog? RoomPlmTourianAccessVisuals { get; init; }
+    public RoomPlmTourianAccessVisuals? RoomPlmTourianAccessVisuals { get; init; }
 
     /// <summary>Room PLM speed booster visuals.</summary>
     public InstalledRoomPlmSpeedBoosterVisuals? RoomPlmSpeedBoosterVisuals { get; init; }
@@ -187,7 +187,7 @@ public sealed record GameArtwork : IGameplayArtwork
     public BossArtworkCatalog? BossArtwork { get; init; }
 
     /// <summary>The Ceres door and escape artwork and the Tourian statues' colors.</summary>
-    public AreaArtworkCatalog? AreaArtwork { get; init; }
+    public AreaArtworkBundle? AreaArtwork { get; init; }
 
     /// <summary>Projectile trail artwork.</summary>
     public InstalledProjectileTrails? TrailArtwork { get; init; }

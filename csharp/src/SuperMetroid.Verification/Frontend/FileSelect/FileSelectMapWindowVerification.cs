@@ -20,14 +20,14 @@ using SuperMetroid.Core.Frontend.Menus;
 internal static class FileSelectMapWindowVerification
 {
     /// <summary>Creates identical editable label anchors for all six selectable areas.</summary>
-    private static WorldMapLabelLayout CreateWindowLabelFixture(Position16<SpritePixels> label)
+    private static WorldMapLabelPositions CreateWindowLabelFixture(Position16<SpritePixels> label)
     {
         var points = Enumerable.Range(0, 6).ToDictionary(area => ((SuperMetroid.Core.Progression.AreaId)area).ToString(),
             _ => label);
         using var stream = new MemoryStream();
-        WorldMapLabelLayout.Write(stream, new() { Version = 1, Areas = points });
+        WorldMapLabelPositions.Write(stream, new() { Version = 1, Areas = points });
         stream.Position = 0;
-        return WorldMapLabelLayout.Load(stream);
+        return WorldMapLabelPositions.Load(stream);
     }
     /// <summary>Checks fractional clamping, native area durations and bounds, rendering composition, and label anchors.</summary>
     internal static void VerifyFileSelectMapWindow()

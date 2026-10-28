@@ -28,7 +28,7 @@ internal static class CeresFlightActorMetadataVerification
 
         for (int index = 0; index < CeresFlightActorDefinitions.RearViewActorCount; index++)
         {
-            CeresFlightActorDefinition actor = CeresFlightActorDefinitions.RearViewActor(index);
+            CeresFlightActorDefinition actor = CeresFlightActors.RearViewActor(index);
             int[] spawnOperands = [0x8bbe3c, 0x8bbe42, 0x8bbe48, 0x8bbe4e, 0x8bbe57];
             AssertEqual((byte)0xa0, retail.ReadCartridgeByte(spawnOperands[index] - 1), "native rear spawn LDY");
             ushort definition = CartridgeImportSource.Require(retail).ReadCartridgeWord(spawnOperands[index]);
@@ -74,16 +74,16 @@ internal static class CeresFlightActorMetadataVerification
         }
 
         AssertThrows<ArgumentOutOfRangeException>(
-            () => CeresFlightActorDefinitions.RearViewActor(
+            () => CeresFlightActors.RearViewActor(
                 CeresFlightActorDefinitions.RearViewActorCount),
             "Ceres rear-view actor definition boundary");
 
         foreach (int index in new[] { int.MinValue, -1, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(
-                () => CeresFlightActorDefinitions.RearViewActor(index), "rear metadata invalid index");
+                () => CeresFlightActors.RearViewActor(index), "rear metadata invalid index");
         AssertEqual((ushort)1, CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe51), "rear vortex native initializer parameter");
         AssertEqual((ushort)1, CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe5a), "rear stars native initializer parameter");
-        AssertEqual(front.Program, CeresFlightActorDefinitions.RearViewActor(4).Program, "front/rear program alias");
+        AssertEqual(front.Program, CeresFlightActors.RearViewActor(4).Program, "front/rear program alias");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((ActorBank | (frontDefinition + 2))),
             front.ActivePreInstruction.NativeAddress, "front stars preserve the definition callback");
         AssertEqual(0, front.HorizontalDelta, "front stars have callback-driven acceleration instead of fixed X velocity");

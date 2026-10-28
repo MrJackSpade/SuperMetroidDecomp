@@ -18,12 +18,12 @@ public sealed class FileSelectMapWindow
     /// <param name="labels">Required installed world-map label anchors; a missing catalog is rejected even though the parameter defaults to null.</param>
     /// <exception cref="ArgumentOutOfRangeException">The area has no supported transition.</exception>
     /// <exception cref="InvalidOperationException">World-map labels are not installed.</exception>
-    public FileSelectMapWindow(int area, SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelLayout? labels = null)
+    public FileSelectMapWindow(int area, SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions? labels = null)
         : this(area, FileSelectMapWindowMotions.Get(area), labels) { }
 
     /// <summary>Explicit motion injection for bounded arithmetic/render fixtures; production uses the compiled catalog.</summary>
     internal FileSelectMapWindow(int area, FileSelectMapWindowMotion motion,
-        SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelLayout? labels = null)
+        SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions? labels = null)
     {
         if ((uint)area >= FileSelectMapDefinitions.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
@@ -60,7 +60,7 @@ public sealed class FileSelectMapWindow
     public bool IsReturning { get; private set; }
 
     /// <summary>$81:AFF6 begins a shortened, unclamped contraction from the inset room frame.</summary>
-    public static FileSelectMapWindow CreateReturn(int area, SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelLayout? labels = null)
+    public static FileSelectMapWindow CreateReturn(int area, SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions? labels = null)
     {
         var window = new FileSelectMapWindow(area, labels);
         window.IsReturning = true;

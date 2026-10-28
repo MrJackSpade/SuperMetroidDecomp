@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.Fx;
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>Verification access to <see cref="RoomFxAnimatedTileObjectDefinition"/> members production does not use.</summary>
+/// <summary>Verification access to <see cref="RoomFxAnimatedTileLoop"/> members production does not use.</summary>
 internal static class RoomFxAnimatedTileObjectDefinitionAccess
 {
     /// <summary>The bank-$87 cursor of <paramref name="animatedObject"/>'s first timed frame.</summary>
@@ -23,7 +23,7 @@ internal static class RoomFxAnimatedTileObjectDefinitionAccess
         _ => throw new InvalidDataException($"Undefined room-FX object {animatedObject}."),
     };
 
-    extension(RoomFxAnimatedTileObjectDefinition self)
+    extension(RoomFxAnimatedTileLoop self)
     {
         /// <summary>The first timed instruction in the object's bank-$87 loop.</summary>
         public ushort InstructionPointer => FirstCursor(self.AnimatedObject);

@@ -24,7 +24,7 @@ internal static class RoomShakeDefinitionsVerification
 
         for (ushort type = 0; type < renderedTypeCount; type++)
         {
-            RoomShakeDefinition definition = RoomShakeDefinitions.ForType(type);
+            RoomShakeDefinition definition = RoomShakes.ForType(type);
             enemies.Earthquake.EarthquakeType = type;
             enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(1);
             RoomShakeFrameResult positive = enemies.HandleRoomShaking(timeIsFrozen: false);
@@ -55,7 +55,7 @@ internal static class RoomShakeDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => RoomShakeDefinitions.ForType(renderedTypeCount),
+            () => RoomShakes.ForType(renderedTypeCount),
             "room shake type outside rendered table");
 
         enemies.Earthquake.EarthquakeType = RoomEarthquakeDefinitions.FirstNonRenderedType;
@@ -102,17 +102,17 @@ internal static class RoomShakeDefinitionsVerification
 
     /// <summary>Compares BG1 displacement pairs with their native table entries.</summary>
     private static void VerifyRoomShakeBg1Algorithm(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, RoomShakeDefinitions.Bg1ReferenceAddress, 8,
+        Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, RoomShakes.Bg1ReferenceAddress, 8,
             definition => new OctantVector(definition.Bg1.X, definition.Bg1.Y), "BG1"));
 
     /// <summary>Compares BG2 displacement pairs with their native table entries.</summary>
     private static void VerifyRoomShakeBg2Algorithm(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, RoomShakeDefinitions.Bg2ReferenceAddress, 8,
+        Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, RoomShakes.Bg2ReferenceAddress, 8,
             definition => new OctantVector(definition.Bg2.X, definition.Bg2.Y), "BG2"));
 
     /// <summary>Compares enemy-projectile displacement pairs with their native table entries.</summary>
     private static void VerifyRoomShakeProjectileAlgorithm(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, RoomShakeDefinitions.ProjectileReferenceAddress, 4,
+        Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, RoomShakes.ProjectileReferenceAddress, 4,
             definition => new OctantVector(definition.Projectile.X, definition.Projectile.Y), "projectile"));
 
     /// <summary>Checks one compiled vector field against all 36 native rows and rejects invalid type indices.</summary>
@@ -122,9 +122,9 @@ internal static class RoomShakeDefinitionsVerification
         short Word(int address) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         for (ushort type = 0; type < 36; type++)
             AssertEqual(new OctantVector(Word(source + type * stride), Word(source + type * stride + 2)),
-                select(RoomShakeDefinitions.ForType(type)), $"Original shake {label} vector {type}");
-        AssertThrows<InvalidDataException>(() => select(RoomShakeDefinitions.ForType(36)), $"Shake {label} upper bound");
-        AssertThrows<InvalidDataException>(() => select(RoomShakeDefinitions.ForType(ushort.MaxValue)), $"Shake {label} invalid maximum");
+                select(RoomShakes.ForType(type)), $"Original shake {label} vector {type}");
+        AssertThrows<InvalidDataException>(() => select(RoomShakes.ForType(36)), $"Shake {label} upper bound");
+        AssertThrows<InvalidDataException>(() => select(RoomShakes.ForType(ushort.MaxValue)), $"Shake {label} invalid maximum");
     }
 
     /// <summary>Forbids reads of the migrated background and projectile shake tables during runtime checks.</summary>

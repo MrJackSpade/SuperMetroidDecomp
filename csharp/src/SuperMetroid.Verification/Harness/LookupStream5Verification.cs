@@ -161,9 +161,9 @@ internal static class LookupStream5Verification
         for (int index = 0; index < 4; index++)
             AssertEqual(new Offset16<RoomPixels>(unchecked((short)ReadVerificationWord(rom, 0xa6f840 + 4 * index)),
                 unchecked((short)ReadVerificationWord(rom, 0xa6f842 + 4 * index))),
-                CeresDoorRumbleGeometryDefinitions.Offset(index), "All eight native anchor words");
-        AssertThrows<ArgumentOutOfRangeException>(() => CeresDoorRumbleGeometryDefinitions.Offset(-1), "Rumble lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => CeresDoorRumbleGeometryDefinitions.Offset(4), "Rumble upper bound");
+                CeresDoorRumble.Offset(index), "All eight native anchor words");
+        AssertThrows<ArgumentOutOfRangeException>(() => CeresDoorRumble.Offset(-1), "Rumble lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => CeresDoorRumble.Offset(4), "Rumble upper bound");
         foreach (Position16<RoomPixels> origin in new Position16<RoomPixels>[] { new(232, 631), new(1, 65530) })
         {
             var system = new RoomEnemySystem(new EnemySession(), services: new VerificationRoomEnemyServices(null));
@@ -336,7 +336,7 @@ internal static class LookupStream5Verification
         using var png = new MemoryStream();
         IndexedPng.Write(png,size,pixels,SnesGraphics.DiagnosticPalette(16));
         byte[] pngBytes = png.ToArray();
-        CeresDoorVisualCatalog Load(CeresDoorVisualDocument value) => CeresDoorVisualFiles.Read(
+        CeresDoorVisuals Load(CeresDoorVisualDocument value) => CeresDoorVisualFiles.Read(
             new MemoryStream(pngBytes),new MemoryStream(CeresDoorVisualFiles.Write(value)));
         var stock = Load(document);
         CheckPlatformActor(stock, document);
@@ -355,19 +355,19 @@ internal static class LookupStream5Verification
         }
         AssertThrows<ArgumentOutOfRangeException>(() => stock.PlatformFrame(-1), "Platform lower frame domain");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.PlatformFrame(2), "Platform upper frame domain");
-        AssertThrows<ArgumentOutOfRangeException>(() => CeresFloorAnimationDefinitions.PlatformTile(0, -1), "Canonical platform lower column domain");
-        AssertThrows<ArgumentOutOfRangeException>(() => CeresFloorAnimationDefinitions.PlatformTile(0, 4), "Canonical platform upper column domain");
+        AssertThrows<ArgumentOutOfRangeException>(() => CeresFloorAnimation.PlatformTile(0, -1), "Canonical platform lower column domain");
+        AssertThrows<ArgumentOutOfRangeException>(() => CeresFloorAnimation.PlatformTile(0, 4), "Canonical platform upper column domain");
         Console.WriteLine("Ceres platform: eight native cells/eight independent edits,99 actual phase calls through wrap, high-byte/neighbor preservation, canonical hashes and domains pass.");
         PaletteRgb5[] Colors(int source,int count) => Enumerable.Range(0,count).Select(index =>
         {
             ushort word = ReadVerificationWord(rom,source+2*index);
             return new PaletteRgb5 { Red = word &31, Green = (word>>5)&31, Blue = (word>>10)&31 };
         }).ToArray();
-        void CheckPlatformActor(CeresDoorVisualCatalog visual, CeresDoorVisualDocument expected)
+        void CheckPlatformActor(CeresDoorVisuals visual, CeresDoorVisualDocument expected)
         {
             var system = new RoomEnemySystem(new EnemySession())
             {
-                TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = visual },
+                TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkBundle { CeresDoorVisual = visual },
             };
             var vram = new SnesVram();
             int destination = CeresDoorVisualDefinitions.PlatformFloorCell;
@@ -384,13 +384,13 @@ internal static class LookupStream5Verification
                 for (int cell = 0; cell < 4; cell++)
                 {
                     AssertEqual((ushort)(0xa700 | expected.Mode7DoorFrames[frame][cell]), vram.ReadWord(destination + cell), "Actual platform phase and character-byte preservation");
-                    AssertEqual(rom.ReadCartridgeByte(0xa6f918 + frame * 4 + cell), CeresFloorAnimationDefinitions.PlatformTile(frame, cell), "Canonical platform cap/atlas geometry matches native");
+                    AssertEqual(rom.ReadCartridgeByte(0xa6f918 + frame * 4 + cell), CeresFloorAnimation.PlatformTile(frame, cell), "Canonical platform cap/atlas geometry matches native");
                 }
                 AssertEqual((ushort)0xa75d, vram.ReadWord(destination - 1), "Platform preceding map/character unchanged");
                 AssertEqual((ushort)0xa75d, vram.ReadWord(destination + 4), "Platform following map/character unchanged");
             }
         }        static ushort Pack(PaletteRgb5 color) => (ushort)(color.Red | color.Green<<5 | color.Blue<<10);
-        void CheckHash(CeresDoorVisualCatalog actual, CeresDoorVisualDocument expected)
+        void CheckHash(CeresDoorVisuals actual, CeresDoorVisualDocument expected)
         {
             string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1",content =>
             {
@@ -466,7 +466,7 @@ internal static class LookupStream5Verification
     {
         byte[] json = SuperMetroid.AssetExtraction.Areas.Ceres.CeresEscapeOverlayTilemapFiles.Extract(rom);
         var document = RequiredJson.Deserialize<CeresEscapeOverlayTilemapDocument>(json, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
-        CeresEscapeOverlayTilemapCatalog stock = Check(document);
+        CeresEscapeOverlays stock = Check(document);
         var edits = stock.edits;
         AssertEqual(0, edits.Count, "All native Ceres glyph words calculate without overrides");
         int words = 0;
@@ -475,27 +475,27 @@ internal static class LookupStream5Verification
             for (int index = 0; index < page.WordCount; index++)
             {
                 ushort native = ReadVerificationWord(rom, CeresEscapeNativeSources.OverlaySource(page) + index * 2);
-                AssertEqual(native, CeresEscapeOverlayTilemapDefinitions.StockTile(page, index).PackedWord, "Native calculated subtitle glyph/style");
+                AssertEqual(native, CeresEscapeWarningGlyphs.StockTile(page, index).PackedWord, "Native calculated subtitle glyph/style");
                 document.Pages[page.Name][index] = BackgroundTileWordBytes.Tile(native ^ ushort.MaxValue);
                 _ = Check(document);
                 document.Pages[page.Name][index] = BackgroundTileWordBytes.Tile(native);
                 words++;
             }
             AssertTrue(!stock.TryResolveNative(CeresEscapeNativeSources.OverlaySource(page), page.WordCount * 2 - 1, out _), "Changed transfer extent rejected");
-            AssertThrows<ArgumentOutOfRangeException>(() => CeresEscapeOverlayTilemapDefinitions.StockTile(page, -1), "Glyph lower bound");
-            AssertThrows<ArgumentOutOfRangeException>(() => CeresEscapeOverlayTilemapDefinitions.StockTile(page, page.WordCount), "Glyph upper bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => CeresEscapeWarningGlyphs.StockTile(page, -1), "Glyph lower bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => CeresEscapeWarningGlyphs.StockTile(page, page.WordCount), "Glyph upper bound");
         }
         AssertTrue(!stock.TryResolve(default, out _), "Unknown subtitle page rejected");
         AssertEqual(55, words, "Native subtitle word count");
         Console.WriteLine("Ceres overlay glyphs: 55 native words, zero stock overrides, 55 independent full-word edits, exact original hash and transfer domains pass.");
 
-        CeresEscapeOverlayTilemapCatalog Check(CeresEscapeOverlayTilemapDocument source)
+        CeresEscapeOverlays Check(CeresEscapeOverlayTilemapDocument source)
         {
-            var result = CeresEscapeOverlayTilemapCatalog.Load(new MemoryStream(CeresEscapeOverlayTilemapCatalog.Write(source)));
+            var result = CeresEscapeOverlays.Load(new MemoryStream(CeresEscapeOverlays.Write(source)));
             var overlay = new RecordedBg1Overlay();
             var system = new RoomEnemySystem(new EnemySession(), services: overlay.Services())
             {
-                TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresEscapeOverlayTilemaps = result },
+                TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkBundle { CeresEscapeOverlayTilemaps = result },
             };
             system.CeresRidleyBehavior.Getaway.DrawCeresEmergencyText();
             int first = ReadVerificationWord(rom, 0xa6c162) - GameplayVramLayout.Bg1TilemapWord;
@@ -634,25 +634,25 @@ internal static class LookupStream5Verification
     internal static void VerifyLookupStream5MapLandmarkCases(SuperMetroidAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Map.MapLandmarkExtractor.Extract(rom);
-        MapLandmarkLayout layout = MapLandmarkLayout.Load(new MemoryStream(extracted));
+        MapLandmarkPositions layout = MapLandmarkPositions.Load(new MemoryStream(extracted));
         var artwork = SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteExtractor.Extract(rom);
-        MapSpriteCatalog sprites = MapSpriteArtwork.Read(new MemoryStream(artwork[MapSpriteFormat.JsonFile]), new MemoryStream(artwork[MapSpriteFormat.PngFile]));
+        MapSpriteCompositions sprites = MapSpriteArtwork.Read(new MemoryStream(artwork[MapSpriteFormat.JsonFile]), new MemoryStream(artwork[MapSpriteFormat.PngFile]));
         int Read(int pointer) => ReadVerificationWord(rom, MapSourceDefinitions.Menu.ObjectBank | pointer);
         int Root(int table, AreaId area) => ReadVerificationWord(rom, table + (int)area * 2);
         string[] expectedIds = ["Crateria.Elevator.0", "Crateria.Elevator.1", "Crateria.Elevator.2", "Crateria.Elevator.3", "Crateria.Elevator.4",
             "Boss.Kraid", "Brinstar.Elevator.0", "Brinstar.Elevator.1", "Brinstar.Elevator.2", "Brinstar.Elevator.3", "Brinstar.Elevator.4",
             "Boss.Ridley", "Norfair.Elevator.0", "Boss.Phantoon", "WreckedShip.Elevator.0", "WreckedShip.Elevator.1",
             "Boss.Draygon", "Maridia.Elevator.0", "Maridia.Elevator.1", "Maridia.Elevator.2", "Tourian.Elevator.0", "Boss.CeresRidley", "Crateria.Gunship"];
-        AssertTrue(expectedIds.SequenceEqual(MapLandmarkDefinitions.AllIds()), "Original public identity and manifest order");
+        AssertTrue(expectedIds.SequenceEqual(MapLandmarks.AllIds()), "Original public identity and manifest order");
         using var editedBytes = new MemoryStream();
-        MapLandmarkLayout.Write(editedBytes, new MapLandmarkDocument { Version = MapLandmarkFormat.Version,
+        MapLandmarkPositions.Write(editedBytes, new MapLandmarkDocument { Version = MapLandmarkFormat.Version,
             Markers = expectedIds.ToDictionary(id => id, id => layout.Get(id) with { X = (ushort)(layout.Get(id).X + 1), Y = (ushort)(layout.Get(id).Y + 1) }) });
         editedBytes.Position = 0;
-        MapLandmarkLayout editedLayout = MapLandmarkLayout.Load(editedBytes);
+        MapLandmarkPositions editedLayout = MapLandmarkPositions.Load(editedBytes);
         int bossSlots = 0, elevatorSlots = 0;
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
-            var bosses = MapLandmarkDefinitions.Bosses(area);
+            var bosses = MapLandmarks.Bosses(area);
             int pointer = Root(MapSourceDefinitions.Landmarks.BossLists, area);
             int count = 0;
             if (pointer != 0)
@@ -673,13 +673,13 @@ internal static class LookupStream5Verification
             AssertThrows<IndexOutOfRangeException>(() => _ = bosses[count], "Boss upper bound");
             bossSlots += count;
             if (area == AreaId.Ceres) continue;
-            var elevators = MapLandmarkDefinitions.Elevators(area);
+            var elevators = MapLandmarks.Elevators(area);
             pointer = Root(MapSourceDefinitions.Landmarks.ElevatorLists, area);
             count = 0;
             while (Read(pointer + count * 6) != ushort.MaxValue)
             {
                 var label = elevators[count];
-                AssertEqual(Read(pointer + count * 6 + 4), MapSpriteOrdinals.Spritemaps.Word(MapLandmarkDefinitions.ElevatorSpritemap(label.Destination)), "Native destination identity");
+                AssertEqual(Read(pointer + count * 6 + 4), MapSpriteOrdinals.Spritemaps.Word(MapLandmarks.ElevatorSpritemap(label.Destination)), "Native destination identity");
                 AssertEqual(Read(pointer + count * 6), layout.Get(label.Id).X, "Native elevator X");
                 AssertEqual(Read(pointer + count * 6 + 2), layout.Get(label.Id).Y, "Native elevator Y");
                 count++;
@@ -736,8 +736,8 @@ internal static class LookupStream5Verification
             AssertEqual(downloaded, system.HasAreaMap(area), "Drawing preserves map state");
             void Draw(MapSpriteId id, int x, int y, ushort palette) => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(sprites), id, expected, new(unchecked((ushort)(x + adjustment - 7)), unchecked((ushort)(y + adjustment - 9))), palette);
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarkDefinitions.Bosses((AreaId)7), "Invalid boss area");
-        AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarkDefinitions.Elevators(AreaId.Ceres), "Ceres has no elevator labels");
+        AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarks.Bosses((AreaId)7), "Invalid boss area");
+        AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarks.Elevators(AreaId.Ceres), "Ceres has no elevator labels");
         AssertEqual(8, bossSlots, "Eight native boss slots including three unused");
         AssertEqual(17, elevatorSlots, "Seventeen native destination labels");
         Console.WriteLine("Map landmark cases: eight native boss slots, seventeen destinations, extraction/schema, 23 ordered IDs, bounds and 56 stock/edited ordered OAM/state cases pass.");
@@ -1061,7 +1061,7 @@ internal static class LookupStream5Verification
 
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
 
-        static TourianStatueColorCatalog Check(TourianStatueColorDocument expected)
+        static TourianStatuePalettes Check(TourianStatueColorDocument expected)
         {
             var actual = TourianStatueColorFile.Read(new MemoryStream(TourianStatueColorFile.Write(expected), writable: false));
             var cgram = new GameplayColours(new SpriteColourSets());
@@ -1585,7 +1585,7 @@ internal static class LookupStream5Verification
         using var png = new MemoryStream();
         IndexedPng.Write(png,size,pixels,SnesGraphics.DiagnosticPalette(16));
         byte[] pngBytes = png.ToArray();
-        CeresDoorVisualCatalog Load(CeresDoorVisualDocument value) => CeresDoorVisualFiles.Read(
+        CeresDoorVisuals Load(CeresDoorVisualDocument value) => CeresDoorVisualFiles.Read(
             new MemoryStream(pngBytes),new MemoryStream(CeresDoorVisualFiles.Write(value)));
         var stock = Load(document);
         Check(stock,document);
@@ -1630,7 +1630,7 @@ internal static class LookupStream5Verification
             return new PaletteRgb5 { Red = word &31, Green = (word>>5)&31, Blue = (word>>10)&31 };
         }).ToArray();
         static ushort Pack(PaletteRgb5 color) => (ushort)(color.Red | color.Green<<5 | color.Blue<<10);
-        void Check(CeresDoorVisualCatalog actual,CeresDoorVisualDocument expected)
+        void Check(CeresDoorVisuals actual,CeresDoorVisualDocument expected)
         {
             var cgram = new GameplayColours(new SpriteColourSets());
             for(int row =0;row<8;row++)
@@ -1693,9 +1693,9 @@ internal static class LookupStream5Verification
         Check(flight, values =>
         {
             using var encoded = new MemoryStream();
-            CeresFlightActorLayout.Write(encoded, new() { Version = 1, Actors = values });
+            CeresFlightActorPlacements.Write(encoded, new() { Version = 1, Actors = values });
             encoded.Position = 0;
-            var layout = CeresFlightActorLayout.Load(encoded);
+            var layout = CeresFlightActorPlacements.Load(encoded);
             return new LookupStream5Load<CeresFlightActorPlacement>(layout, layout.placements, index => layout[index], layout.ContentIdentity);
         }, value => new LookupStream5Field(value.Id, value.X, value.Y),
             (value, x) => x ? value with { X = unchecked((ushort)(value.X + 1)) } : value with { Y = unchecked((ushort)(value.Y + 1)) });
@@ -1709,24 +1709,24 @@ internal static class LookupStream5Verification
         Check(reveal, values =>
         {
             using var encoded = new MemoryStream();
-            CeresRevealActorLayout.Write(encoded, new() { Version = 1, Actors = values });
+            CeresRevealActorPlacements.Write(encoded, new() { Version = 1, Actors = values });
             encoded.Position = 0;
-            var layout = CeresRevealActorLayout.Load(encoded);
+            var layout = CeresRevealActorPlacements.Load(encoded);
             return new LookupStream5Load<CeresRevealActorPlacement>(layout, layout.placements, index => layout[index], layout.ContentIdentity);
         }, value => new LookupStream5Field(value.Id, value.X, value.Y),
             (value, x) => x ? value with { X = unchecked((ushort)(value.X + 1)) } : value with { Y = unchecked((ushort)(value.Y + 1)) });
         var destruction = Enumerable.Range(0, 3).Select(index =>
         {
             var inherited = flight[index == 0 ? 0 : index == 1 ? 2 : 3];
-            return new CeresDestructionActorPlacement { Id = CeresDestructionActorDefinitions.InitialPlacementId(index),
+            return new CeresDestructionActorPlacement { Id = CeresDestructionActors.InitialPlacementId(index),
                 X = index == 2 ? ReadVerificationWord(rom, 0x8bbfa6) : inherited.X, Y = inherited.Y };
         }).ToArray();
         Check(destruction, values =>
         {
             using var encoded = new MemoryStream();
-            CeresDestructionActorLayout.Write(encoded, new() { Version = 1, Actors = values });
+            CeresDestructionActorPlacements.Write(encoded, new() { Version = 1, Actors = values });
             encoded.Position = 0;
-            var layout = CeresDestructionActorLayout.Load(encoded);
+            var layout = CeresDestructionActorPlacements.Load(encoded);
             return new LookupStream5Load<CeresDestructionActorPlacement>(layout, layout.placements, index => layout[index], layout.ContentIdentity);
         }, value => new LookupStream5Field(value.Id, value.X, value.Y),
             (value, x) => x ? value with { X = unchecked((ushort)(value.X + 1)) } : value with { Y = unchecked((ushort)(value.Y + 1)) });
@@ -1774,13 +1774,13 @@ internal static class LookupStream5Verification
     {
         for (ushort variant = 0; variant < 7; variant++)
         {
-            var actual = CeresDoorInitializationDefinitions.For(variant);
+            var actual = CeresDoorInitializations.For(variant);
             AssertEqual(ReadVerificationWord(rom, 0xa6f52c + 2 * variant), NativeEnemyProgramOracle.EntryOf(CeresDoorNativeListAddresses.Entries, actual.Program), "Ceres door original instruction dispatch");
             AssertEqual(ReadVerificationWord(rom, 0xa6f72b + 2 * variant), CeresNativeWords.DoorFunctions.Word(actual.MainFunction), "Ceres door original function dispatch");
         }
         for (ushort variant = 0; variant < 6; variant++)
         {
-            var actual = CeresSteamDefinitions.Initialization((CeresSteamVariant)variant);
+            var actual = CeresSteamInitializations.Initialization((CeresSteamVariant)variant);
             AssertEqual(ReadVerificationWord(rom, 0xa6eff5 + 2 * variant), NativeEnemyProgramOracle.EntryOf(CeresSteamNativeListAddresses.Entries, actual.Program), "Ceres steam original instruction dispatch");
             AssertEqual(ReadVerificationWord(rom, 0xa6f001 + 2 * variant), CeresNativeWords.SteamFunctions.Word(actual.Function), "Ceres steam original function dispatch");
         }
@@ -1791,10 +1791,10 @@ internal static class LookupStream5Verification
             AssertEqual(ReadVerificationWord(rom, 0xa8af67 + 2 * index), NativeEnemyProgramOracle.EntryOf(MagdolliteNativeListAddresses.Entries, actual.BodyProgram), "Magdollite original body program");
             AssertEqual(ReadVerificationWord(rom, 0xa8af79 + 2 * index), actual.OverlayYOffset, "Magdollite original overlay offset");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => CeresDoorInitializationDefinitions.For(7), "Ceres door upper bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => CeresDoorInitializationDefinitions.For(ushort.MaxValue), "Ceres door full-word rejection");
-        AssertThrows<InvalidDataException>(() => CeresSteamDefinitions.Initialization((CeresSteamVariant)6), "Ceres steam upper bound");
-        AssertThrows<InvalidDataException>(() => CeresSteamDefinitions.Initialization((CeresSteamVariant)ushort.MaxValue), "Ceres steam full-word rejection");
+        AssertThrows<ArgumentOutOfRangeException>(() => CeresDoorInitializations.For(7), "Ceres door upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => CeresDoorInitializations.For(ushort.MaxValue), "Ceres door full-word rejection");
+        AssertThrows<InvalidDataException>(() => CeresSteamInitializations.Initialization((CeresSteamVariant)6), "Ceres steam upper bound");
+        AssertThrows<InvalidDataException>(() => CeresSteamInitializations.Initialization((CeresSteamVariant)ushort.MaxValue), "Ceres steam full-word rejection");
         AssertThrows<InvalidDataException>(() => MagdollitePhaseDefinitions.Phase(-1), "Magdollite lower bound");
         AssertThrows<InvalidDataException>(() => MagdollitePhaseDefinitions.Phase(9), "Magdollite upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => { _ = CeresEscapeVramTransferDefinitions.All[-1]; }, "Ceres DMA list lower bound");
@@ -1886,7 +1886,7 @@ internal static class LookupStream5Verification
             var actual = new OamBuffer(); actual.BeginFrame();
             actual.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(frame, new(camera, 0))); actual.FinalizeFrame();
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6a321 + phase);
-            AssertEqual(native & 0x1ff, CeresDoorQuakeDefinitions.XOffset(phase) & 0x1ff,
+            AssertEqual(native & 0x1ff, CeresDoorQuake.XOffset(phase) & 0x1ff,
                 "Native overlapping high byte retains the same ninth coordinate bit");
             var expected = new OamBuffer(); expected.BeginFrame();
             DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = CeresDoorFrameDefinitionsConstants.Bank, Pointer = CeresDoorFrameDefinitionsConstants.RidleyPrivateOverlaySpritemap, Origin = new(unchecked((ushort)(x - camera + native)), 80), PaletteBits = SnesObjAttributeWord.Create(tileNumber: 0, paletteIndex: 2, priority: 0).PaletteBits, BaseTileIndex = 0 });
@@ -1934,7 +1934,7 @@ internal static class LookupStream5Verification
             CeresFlightPaletteFile.Read(Open(CeresFlightPaletteFormat.FileName)), Open(CeresFlightSpriteFormat.FileName), Open(CeresFlightActorLayoutFormat.FileName));
         byte[] nativeBytes = new byte[CgramPalettes.ByteCount];
         for (int index = 0; index < nativeBytes.Length; index++) nativeBytes[index] = rom.ReadCartridgeByte(CeresCinematicSourceDefinitions.FlightPalette + index);
-        string expectedHash = SelectedPresentationHash.Create(nameof(CeresFlightArtworkCatalog), content =>
+        string expectedHash = SelectedPresentationHash.Create("CeresFlightArtworkCatalog", content =>
         {
             content.Append("mode7-characters", catalog.FloorCharacters.Span);
             content.Append("mode7-maps", catalog.FloorMaps.Span);
@@ -1984,10 +1984,10 @@ internal static class LookupStream5Verification
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream(); IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        CeresDoorNormalPaintDefinitions stock = Check();
+        CeresDoorNormalPaint stock = Check();
         AssertEqual(13, stock.paint.Count, "Thirteen local material seeds remain after shared warm extraction");
         string[] warmSeeds = ["highlightBlue", "amberRed", "amberGreen", "red", "goldRed", "goldGreen", "goldBlue"];
-        AssertTrue(warmSeeds.Order(StringComparer.Ordinal).SequenceEqual(MetadataShape.Fields(typeof(CeresDoorWarmTargetPaintDefinitions), flags)
+        AssertTrue(warmSeeds.Order(StringComparer.Ordinal).SequenceEqual(MetadataShape.Fields(typeof(CeresDoorWarmTargetPaint), flags)
             .Where(field => field.FieldType == typeof(int)).Select(field => field.Name).Order(StringComparer.Ordinal)), "Seven exact shared warm material inputs");
         AssertEqual(0, stock.WarmTargets.edits.Count, "Shared native warm shades need no overrides");
         AssertEqual(0, stock.edits.Count, "Native calculated channels need no unexplained overrides");
@@ -2005,15 +2005,15 @@ internal static class LookupStream5Verification
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(15), "Normal upper bound");
         Console.WriteLine("Ceres normal: fifteen native colors, thirteen local plus seven shared seeds/zero overrides,45 independent channel edits,92 actual initializer palette copies, hash and bounds pass.");
 
-        CeresDoorNormalPaintDefinitions Check()
+        CeresDoorNormalPaint Check()
         {
             ushort Pack(PaletteRgb5 c) => (ushort)(c.Red | c.Green << 5 | c.Blue << 10);
-            var basis = new CeresDoorNormalPaintDefinitions(ToColors(document.Normal.Select(Pack).ToArray()));
+            var basis = new CeresDoorNormalPaint(ToColors(document.Normal.Select(Pack).ToArray()));
             var visual = CeresDoorVisualFiles.Read(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualFiles.Write(document)));
             for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Normal[color]), basis.ColorAt(color), "Every supplied normal channel remains independent");
             foreach (ushort variant in new ushort[] { 0, 3 })
             {
-                var system = new RoomEnemySystem(new EnemySession()) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = visual } };
+                var system = new RoomEnemySystem(new EnemySession()) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkBundle { CeresDoorVisual = visual } };
                 var cgram = new SamusColourRig();
                 system.Presentation.BindColours(cgram.Gameplay);
                 var slot = system.SlotTable.Slots[0]; slot.SetSpawnParameter1(variant);
@@ -2049,12 +2049,12 @@ internal static class LookupStream5Verification
         byte[] planar = Enumerable.Range(0, CeresDoorVisualDefinitions.CharacterBytes).Select(i => rom.ReadCartridgeByte(CeresSourceDefinitions.Door.Characters + i)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream(); IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
-        CeresDoorEscapePaintDefinitions stock = Check();
+        CeresDoorEscapePaint stock = Check();
         // The highlight/edge/outline levels live in the surface paint the escape palette composes.
         object surface = stock.surface;
-        AssertEqual(4, (((CeresDoorEscapeSurfacePaintDefinitions)surface).highlightAndEdgeLevels).Length, "Four selected highlight/edge/outline levels");
+        AssertEqual(4, (((CeresDoorEscapeSurfacePaint)surface).highlightAndEdgeLevels).Length, "Four selected highlight/edge/outline levels");
         AssertEqual(0, stock.edits.Count, "Native calculated channels need no unexplained overrides");
-        AssertEqual(0, (((CeresDoorEscapeSurfacePaintDefinitions)surface).edits).Count, "Native calculated surface channels need no unexplained overrides");
+        AssertEqual(0, (((CeresDoorEscapeSurfacePaint)surface).edits).Count, "Native calculated surface channels need no unexplained overrides");
         for (int color = 0; color < 15; color++)
         {
             PaletteRgb5 before = document.Escape[color];
@@ -2069,15 +2069,15 @@ internal static class LookupStream5Verification
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(15), "Escape upper bound");
         Console.WriteLine("Ceres escape: fifteen native colors, eight paint seeds/zero overrides,45 independent channel edits,92 actual escape initializer palette copies, hash and bounds pass.");
 
-        CeresDoorEscapePaintDefinitions Check()
+        CeresDoorEscapePaint Check()
         {
             ushort Pack(PaletteRgb5 c) => (ushort)(c.Red | c.Green << 5 | c.Blue << 10);
-            var basis = new CeresDoorEscapePaintDefinitions(ToColors(document.Escape.Select(Pack).ToArray()), new CeresDoorNormalPaintDefinitions(ToColors(document.Normal.Select(Pack).ToArray())));
+            var basis = new CeresDoorEscapePaint(ToColors(document.Escape.Select(Pack).ToArray()), new CeresDoorNormalPaint(ToColors(document.Normal.Select(Pack).ToArray())));
             var visual = CeresDoorVisualFiles.Read(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualFiles.Write(document)));
             for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Escape[color]), basis.ColorAt(color), "Every supplied escape channel remains independent");
             foreach (ushort variant in new ushort[] { 0, 3 })
             {
-                var system = new RoomEnemySystem(new EnemySession()) { RidleyEncounter = { CeresStatus = CeresEscapeStatus.SelfDestructStarted }, TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = visual } };
+                var system = new RoomEnemySystem(new EnemySession()) { RidleyEncounter = { CeresStatus = CeresEscapeStatus.SelfDestructStarted }, TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkBundle { CeresDoorVisual = visual } };
                 var cgram = new SamusColourRig();
                 system.Presentation.BindColours(cgram.Gameplay);
                 var slot = system.SlotTable.Slots[0]; slot.SetSpawnParameter1(variant);
@@ -2113,7 +2113,7 @@ internal static class LookupStream5Verification
         byte[] planar = Enumerable.Range(0, CeresDoorVisualDefinitions.CharacterBytes).Select(i => rom.ReadCartridgeByte(CeresSourceDefinitions.Door.Characters + i)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream(); IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
-        CeresDoorAnimationPaintDefinitions stock = Check(-1);
+        CeresDoorAnimationPaint stock = Check(-1);
         AssertEqual(17, stock.firstSeedBlue, "Selected beacon blue");
         AssertEqual(14, stock.dimMiddleAmberRed, "Selected dim amber red");
         foreach (Dictionary<ColourCell, RgbColor> overrides in new[] { stock.seedEdits, stock.edits })
@@ -2135,14 +2135,14 @@ internal static class LookupStream5Verification
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(0, 6), "Beacon color upper bound");
         Console.WriteLine("Ceres beacon:48native colors/zero stock overrides,144independent RGB edits,208actual row selections including64-tick cycle, untouched neighbors/hash/bounds pass.");
 
-        CeresDoorAnimationPaintDefinitions Check(int editedRow)
+        CeresDoorAnimationPaint Check(int editedRow)
         {
             ushort Pack(PaletteRgb5 c) => (ushort)(c.Red | c.Green << 5 | c.Blue << 10);
-            var basis = new CeresDoorAnimationPaintDefinitions(ToColors(document.Animation.Select(row => row.Select(Pack).ToArray()).ToArray()), new CeresDoorNormalPaintDefinitions(ToColors(document.Normal.Select(Pack).ToArray())));
+            var basis = new CeresDoorAnimationPaint(ToColors(document.Animation.Select(row => row.Select(Pack).ToArray()).ToArray()), new CeresDoorNormalPaint(ToColors(document.Normal.Select(Pack).ToArray())));
             var visual = CeresDoorVisualFiles.Read(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualFiles.Write(document)));
             for (int row = 0; row < 8; row++) for (int color = 0; color < 6; color++)
                 AssertEqual(Pack(document.Animation[row][color]), basis.ColorAt(row, color), "Every supplied beacon channel remains independent");
-            var system = new RoomEnemySystem(new EnemySession(), services: new StandaloneRoomEnemyServices(() => 0) { FloorMap = new FloorMap(new byte[FloorMap.Cells], default, RoomBackgroundsFixtures.FloorTiles()) }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = visual } };
+            var system = new RoomEnemySystem(new EnemySession(), services: new StandaloneRoomEnemyServices(() => 0) { FloorMap = new FloorMap(new byte[FloorMap.Cells], default, RoomBackgroundsFixtures.FloorTiles()) }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkBundle { CeresDoorVisual = visual } };
             var cgram = new SamusColourRig();
             system.Presentation.BindColours(cgram.Gameplay);
             system.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));

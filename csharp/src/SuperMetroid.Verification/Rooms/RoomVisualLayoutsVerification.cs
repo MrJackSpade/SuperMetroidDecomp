@@ -88,7 +88,7 @@ internal static class RoomVisualLayoutsVerification
         foreach (RoomHeaderDefinition header in RoomHeaderDefinitions.All)
         {
             SelectedRoom room = SelectedRoom.LoadUsingCompiledSelection(header);
-            foreach (ushort statePointer in RoomStateSelectionDefinitions.GetStatePointers(header))
+            foreach (ushort statePointer in RoomStateSelection.GetStatePointers(header))
             {
                 room = room with { State = RoomStateDefinitions.Get(statePointer) };
                 int source = RoomLevelSourceDefinitions.Addresses[room.State.Level];

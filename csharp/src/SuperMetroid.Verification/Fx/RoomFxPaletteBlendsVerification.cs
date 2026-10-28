@@ -32,7 +32,7 @@ internal static class RoomFxPaletteBlendsVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "FX blend oracle revision");
         Suite(nameof(VerifyFxBlendSelectorIdentities), () => VerifyFxBlendSelectorIdentities());
         Suite(nameof(VerifyFxBlendSourceAddresses), () => VerifyFxBlendSourceAddresses(rom));
-        RoomFxPaletteBlendCatalog catalog = RoomFxPaletteBlendFile.Read(
+        RoomFxBlendInks catalog = RoomFxPaletteBlendFile.Read(
             new MemoryStream(RoomFxPaletteBlendExtractor.Extract(NewBlackBlendSourceGuard(new DerivedBlendSourceGuard(rom)))));
         Suite(nameof(VerifyCeresDefaultRed), () => VerifyCeresDefaultRed(rom, catalog));
         Suite(nameof(VerifyCeresDefaultGreen), () => VerifyCeresDefaultGreen(rom, catalog));
@@ -49,9 +49,9 @@ internal static class RoomFxPaletteBlendsVerification
         Suite(nameof(VerifyFxWeatherThirdGreen), () => VerifyFxWeatherThirdGreen(rom, catalog));
         Suite(nameof(VerifyFxWeatherThirdBlue), () => VerifyFxWeatherThirdBlue(rom, catalog));
         Suite(nameof(VerifyFxBlendPageDispatch), () => VerifyFxBlendPageDispatch(rom, catalog));
-        RoomFxLayer3TilemapCatalog tilemaps = RoomFxLayer3TilemapCatalog.Load(
+        RoomFxLayer3Pages tilemaps = RoomFxLayer3Pages.Load(
             new MemoryStream(RoomFxLayer3TilemapExtractor.Extract(rom)));
-        foreach (RoomFxPaletteBlend id in RoomFxPaletteBlendDefinitions.Ids)
+        foreach (RoomFxPaletteBlend id in RoomFxPaletteBlendRules.Ids)
         {
             ReadOnlySpan<RgbColor> compiled = catalog.Resolve(id);
 
@@ -91,16 +91,16 @@ internal static class RoomFxPaletteBlendsVerification
         RoomFxPaletteBlendDocument stock = JsonSerializer.Deserialize<RoomFxPaletteBlendDocument>(
             RoomFxPaletteBlendExtractor.Extract(rom), ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock room-FX color document is null.");
-        AssertEqual(PaletteRgb5.From(RoomFxPaletteBlendDefinitions.StockCeresHazeBlue), stock.CeresHazeBlue,
+        AssertEqual(PaletteRgb5.From(RoomFxPaletteBlendRules.StockCeresHazeBlue), stock.CeresHazeBlue,
             "extractor names the stock Ceres blue tint");
-        AssertEqual(PaletteRgb5.From(RoomFxPaletteBlendDefinitions.StockCeresHazeRed), stock.CeresHazeRed,
+        AssertEqual(PaletteRgb5.From(RoomFxPaletteBlendRules.StockCeresHazeRed), stock.CeresHazeRed,
             "extractor names the stock Ceres escape tint");
         var editedDocument = stock with
         {
             CeresHazeBlue = new PaletteRgb5 { Red = 0, Green = 15, Blue = 0 },
             CeresHazeRed = new PaletteRgb5 { Red = 0, Green = 0, Blue = 15 },
         };
-        RoomFxPaletteBlendCatalog edited = RoomFxPaletteBlendFile.Read(
+        RoomFxBlendInks edited = RoomFxPaletteBlendFile.Read(
             new MemoryStream(RoomFxPaletteBlendFile.Write(editedDocument)));
         ColorAddWindow stockLine = GameplayEffectCapture.CaptureCeresHaze(false).Windows[120];
         AssertEqual(new ColorAddWindow(0, 255, 0, 0, 66), stockLine,
@@ -136,28 +136,28 @@ internal static class RoomFxPaletteBlendsVerification
             {
                 CeresHazeBlue = editedDocument.CeresHazeBlue with { Green = 32 },
             }), "invalid Ceres tint component fails loudly");
-        RoomFxPaletteBlendCatalog legacy = RoomFxPaletteBlendFile.Read(new MemoryStream(
+        RoomFxBlendInks legacy = RoomFxPaletteBlendFile.Read(new MemoryStream(
             RoomFxPaletteBlendFile.Write(stock with
             {
                 CeresHazeBlue = null,
                 CeresHazeRed = null,
             })));
-        AssertEqual(RoomFxPaletteBlendDefinitions.StockCeresHazeBlue, legacy.CeresHazeBlue,
+        AssertEqual(RoomFxPaletteBlendRules.StockCeresHazeBlue, legacy.CeresHazeBlue,
             "older color overrides inherit the stock blue haze tint");
-        AssertEqual(RoomFxPaletteBlendDefinitions.StockCeresHazeRed, legacy.CeresHazeRed,
+        AssertEqual(RoomFxPaletteBlendRules.StockCeresHazeRed, legacy.CeresHazeRed,
             "older color overrides inherit the stock red haze tint");
     }
 
     /// <summary>Installs a color override, verifies its CGRAM and haze effects, then checks identity restoration after removal.</summary>
     internal static void VerifyRoomFxPaletteBlendOverride(string stock, string overrides,
-        AreaMapPresentationCatalog baseline)
+        AreaMapPresentation baseline)
     {
         string path = Path.Combine(overrides, RoomFxPaletteBlendDefinitions.FileName);
         RoomFxPaletteBlendDocument document = JsonSerializer.Deserialize<RoomFxPaletteBlendDocument>(
             File.ReadAllBytes(Path.Combine(stock, RoomFxPaletteBlendDefinitions.FileName)),
             ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock room-FX blend document is null.");
-        string key = RoomFxPaletteBlendDefinitions.Key(RoomFxPaletteBlend.Lava);
+        string key = RoomFxPaletteBlendRules.Key(RoomFxPaletteBlend.Lava);
         PaletteRgb5 original = document.Blends[key][0];
         document.Blends[key][0] = original with { Red = (original.Red + 1) % 32 };
         document = document with
@@ -165,7 +165,7 @@ internal static class RoomFxPaletteBlendsVerification
             CeresHazeBlue = new PaletteRgb5 { Red = 0, Green = 15, Blue = 0 },
         };
         File.WriteAllBytes(path, RoomFxPaletteBlendFile.Write(document));
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "room-FX blend edit changes installed content identity");
         RgbColor expected = edited.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava)[0];
@@ -188,7 +188,7 @@ internal static class RoomFxPaletteBlendsVerification
             },
         }), "invalid room-FX blend component fails loudly");
         File.Delete(path);
-        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
             "removing room-FX blend override restores stock identity");
         Console.WriteLine("Room-FX blend override: edited color reaches CGRAM and removal restores stock.");
@@ -196,8 +196,8 @@ internal static class RoomFxPaletteBlendsVerification
 
     /// <summary>Loads a selected compiled FX record into CGRAM through a bus that forbids bank-$89 reads.</summary>
     private static ConstructBlendLoadResult
-        ConstructBlendLoad(RoomFxPaletteBlendCatalog catalog,
-            RoomFxLayer3TilemapCatalog tilemaps, RoomFxPaletteBlend selection)
+        ConstructBlendLoad(RoomFxBlendInks catalog,
+            RoomFxLayer3Pages tilemaps, RoomFxPaletteBlend selection)
     {
         RoomFxRecordDefinition record = SelectCompiledBlendRecord(selection);
         var memory = new TestAddressSpace();

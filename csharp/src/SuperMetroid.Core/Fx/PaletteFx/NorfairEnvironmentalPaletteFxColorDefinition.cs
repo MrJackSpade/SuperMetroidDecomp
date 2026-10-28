@@ -3,21 +3,10 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// <summary>One complete Norfair environmental palette control program.</summary>
 public sealed class NorfairEnvironmentalPaletteFxColorDefinition
 {
+    /// <summary>Builds the definition from its owner's program values.</summary>
+    internal NorfairEnvironmentalPaletteFxColorDefinition(NorfairEnvironmentalPaletteOwner owner, PaletteFxObject paletteFxObject, PaletteFxProgram program, int colorByteIndex, bool publishesHeatPhase) =>
+        (Owner, Object, ColorByteIndex, PublishesHeatPhase, Rows) = (owner, paletteFxObject, colorByteIndex, publishesHeatPhase, PaletteFxColorRows.Of(program, NorfairEnvironmentalPaletteFxColorDefinitions.ColorsPerFrame));
 
-    /// <summary>Captures the object, first record and destination for one environmental loop.</summary>
-    internal NorfairEnvironmentalPaletteFxColorDefinition(
-        NorfairEnvironmentalPaletteOwner owner,
-        PaletteFxObject paletteFxObject,
-        PaletteFxProgram program,
-        int colorByteIndex,
-        bool publishesHeatPhase)
-    {
-        Owner = owner;
-        Object = paletteFxObject;
-        Rows = PaletteFxColorRows.Of(program, NorfairEnvironmentalPaletteFxColorDefinitions.ColorsPerFrame);
-        ColorByteIndex = colorByteIndex;
-        PublishesHeatPhase = publishesHeatPhase;
-    }
 
     /// <summary>The mutually exclusive environmental palette owner.</summary>
     public NorfairEnvironmentalPaletteOwner Owner { get; }

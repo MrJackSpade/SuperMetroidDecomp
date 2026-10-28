@@ -28,12 +28,4 @@ public static class CeresFlightSpriteDefinitions
 
     /// <summary>The small asteroids beside the station.</summary>
     internal static CinematicSpritePose SmallAsteroids => Frames[3].Pose;
-
-    /// <summary>The cinematic pose of a purple vortex drawing.</summary>
-    internal static CinematicSpritePose VortexPose(CeresVortexFrame frame) => frame switch
-    {
-        CeresVortexFrame.Even => Frames[4].Pose,
-        CeresVortexFrame.Odd => Frames[5].Pose,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame)),
-    };
 }

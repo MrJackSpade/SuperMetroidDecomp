@@ -66,7 +66,7 @@ internal static class RoomBlockPicturesVerification
         Check(RoomHeaderDefinitions.CeresRidley, expectUploads: true);
         // The treadmills run once Phantoon, the Wrecked Ship's boss, is defeated.
         Check(RoomHeaderDefinitions.WreckedShipMainShaft, expectUploads: true,
-            RoomStateSelectionDefinitions.GetStates(RoomHeaderDefinitions.WreckedShipMainShaft)
+            RoomStateSelection.GetStates(RoomHeaderDefinitions.WreckedShipMainShaft)
                 .Single(state => state.Fx?.Records.Any(record => record.AnimatedTileSlots != RoomFxEffectSlots.None) == true),
             runtime => runtime.System.SetBossBits((int)AreaId.WreckedShip, BossBits.AreaBoss));
     }
@@ -290,7 +290,7 @@ internal static class RoomBlockPicturesVerification
         var rooms = new List<RoomHeaderDefinition> { RoomHeaderDefinitions.Kraid };
         foreach (RoomFxType effect in new[] { RoomFxType.Lava, RoomFxType.Acid, RoomFxType.Water, RoomFxType.Rain, RoomFxType.Fog, RoomFxType.Spores })
         {
-            rooms.Add(RoomHeaderDefinitions.All.First(room => RoomStateSelectionDefinitions.GetStates(room)[0].Fx?.Records
+            rooms.Add(RoomHeaderDefinitions.All.First(room => RoomStateSelection.GetStates(room)[0].Fx?.Records
                 .Any(record => record.Type == effect) == true));
         }
         foreach (RoomHeaderDefinition room in rooms)

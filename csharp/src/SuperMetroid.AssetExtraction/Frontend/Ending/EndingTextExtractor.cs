@@ -103,10 +103,10 @@ public static class EndingTextExtractor
                     : EndingTextDefinitions.SmallGlyphHeight))
                 throw new InvalidDataException($"Native {sequence} glyph has unexpected dimensions.");
             BackgroundTile top = BackgroundTileWords.ToTile(ReadWord(bus, Add(data, 4)));
-            char glyph = EndingTextDefinitions.DecodeGlyph(top, style);
+            char glyph = EndingTextGlyphs.DecodeGlyph(top, style);
             BackgroundTile? bottom = height == EndingTextDefinitions.LargeGlyphHeight
                 ? BackgroundTileWords.ToTile(ReadWord(bus, Add(data, 6))) : null;
-            if (bottom is { } lower && EndingTextDefinitions.DecodeGlyph(lower, style, bottom: true) != glyph)
+            if (bottom is { } lower && EndingTextGlyphs.DecodeGlyph(lower, style, bottom: true) != glyph)
                 throw new InvalidDataException($"Native {sequence} glyph halves disagree.");
             text.Add(glyph);
             compiled.Add(new(row, column, top, bottom));
@@ -122,9 +122,9 @@ public static class EndingTextExtractor
         for (int index = 0; index < text.Length; index++)
         {
             int cell = region.Row * EndingTextDefinitions.TilemapWidth + region.Column + index;
-            text[index] = EndingTextDefinitions.DecodeGlyph(cells[cell], region.Style);
+            text[index] = EndingTextGlyphs.DecodeGlyph(cells[cell], region.Style);
             if (region.Style == EndingTextStyle.CopyrightLarge &&
-                EndingTextDefinitions.DecodeGlyph(cells[cell + EndingTextDefinitions.TilemapWidth],
+                EndingTextGlyphs.DecodeGlyph(cells[cell + EndingTextDefinitions.TilemapWidth],
                     region.Style, bottom: true) != text[index])
                 throw new InvalidDataException("Native copyright glyph halves disagree.");
         }

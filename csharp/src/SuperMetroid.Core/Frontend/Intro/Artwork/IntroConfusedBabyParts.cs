@@ -9,7 +9,7 @@ internal static class IntroConfusedBabyParts
     internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 3; frame++)
-            if (IntroDiscoveryActorSpriteDefinitions.BabyFramePose(frame) == shown)
+            if (IntroDiscoveryActorSpritePoses.BabyFramePose(frame) == shown)
                 return supplied.CalculateIfMatching(Parts(frame));
         return supplied;
     }

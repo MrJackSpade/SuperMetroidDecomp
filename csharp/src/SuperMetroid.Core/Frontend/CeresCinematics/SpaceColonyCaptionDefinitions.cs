@@ -9,17 +9,12 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 internal static class SpaceColonyCaptionDefinitions
 {
     /// <summary>Native English caption; its one space occupies a cell but has no drawing operation.</summary>
-    private const string Text = "SPACE COLONY";
+    internal const string Text = "SPACE COLONY";
     /// <summary>Counts the visible glyph operations after omitting the caption's space.</summary>
     internal static int LetterCount => Text.Length - 1;
 
-    /// <summary>Places a visible glyph from column ten, skipping the undrawn space cell.</summary>
-    internal static SpaceColonyCaptionLetter Letter(int index)
-    {
-        if ((uint)index >= LetterCount) throw new ArgumentOutOfRangeException(nameof(index));
-        int column = index + (index >= Text.IndexOf(' ') ? 1 : 0);
-        return new SpaceColonyCaptionLetter(10 + column, Glyph(Text[column]));
-    }
+    /// <summary>The column the caption's first cell is drawn at.</summary>
+    internal const int FirstColumn = 10;
 
     /// <summary>
     /// $8C:D66B-D671: with Japanese text the list draws <c>$8C:D7F7</c>, the katakana caption
@@ -42,17 +37,16 @@ internal static class SpaceColonyCaptionDefinitions
 
     /// <summary>Native SPACE COLONY glyphs, each a high-priority tile in colour variant 0.
     /// Repeated C and O characters select the same drawing operation.</summary>
-    private static BackgroundTile Glyph(char character) => new(character switch
+    internal static readonly IReadOnlyDictionary<char, BackgroundTile> Glyphs = new Dictionary<char, BackgroundTile>
     {
-        'S' => 0x1ed,
-        'P' => 0x1ee,
-        'A' => 0x1ef,
-        'C' => 0x1f7,
-        'E' => 0x1f8,
-        'O' => 0x1f9,
-        'L' => 0x1fa,
-        'N' => 0x1fb,
-        'Y' => 0x1b9,
-        _ => throw new ArgumentOutOfRangeException(nameof(character))
-    }, 0, highPriority: true);
+        ['S'] = new(0x1ed, 0, highPriority: true),
+        ['P'] = new(0x1ee, 0, highPriority: true),
+        ['A'] = new(0x1ef, 0, highPriority: true),
+        ['C'] = new(0x1f7, 0, highPriority: true),
+        ['E'] = new(0x1f8, 0, highPriority: true),
+        ['O'] = new(0x1f9, 0, highPriority: true),
+        ['L'] = new(0x1fa, 0, highPriority: true),
+        ['N'] = new(0x1fb, 0, highPriority: true),
+        ['Y'] = new(0x1b9, 0, highPriority: true),
+    };
 }

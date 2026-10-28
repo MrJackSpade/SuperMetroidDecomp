@@ -216,7 +216,7 @@ public static class EndingObjectArtworkFiles
     /// <param name="overrideDirectory">Optional directory with independently selected replacement files; every absent file falls back to verified stock.</param>
     /// <returns>The selected artwork and OAM-composition catalog, retaining fixed transfer sizes while actor instructions, timing, and palette selection remain engine-owned.</returns>
     /// <exception cref="InvalidDataException">Manifest provenance or coverage, a stock digest, or a selected sheet, map, or sprite composition is invalid.</exception>
-    public static EndingObjectArtworkCatalog Load(string stockDirectory,
+    public static EndingObjectArtwork Load(string stockDirectory,
         string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
@@ -259,7 +259,7 @@ public static class EndingObjectArtworkFiles
             names.Any(name => !manifest.StockSha256.ContainsKey(name)))
             throw new InvalidDataException($"Ending OBJ manifest {manifestPath} does not describe this installation.");
 
-        return new EndingObjectArtworkCatalog(new EndingObjectArtworkParts { Clouds = LoadSheet(EndingObjectArtworkFormat.CloudFileName,
+        return new EndingObjectArtwork(new EndingObjectArtworkParts { Clouds = LoadSheet(EndingObjectArtworkFormat.CloudFileName,
                 EndingObjectArtworkFormat.CloudByteCount), Explosion = LoadSheet(EndingObjectArtworkFormat.ExplosionFileName,
                 EndingObjectArtworkFormat.ExplosionByteCount), Fragments = Enumerable.Range(0, EndingObjectArtworkFormat.FragmentCount)
                 .Select(index => LoadMap(EndingObjectArtworkFormat.FragmentFileName(index),

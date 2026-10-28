@@ -10,7 +10,7 @@ internal static class BossBitMasksConstants
     public static BossBits FromCartridge(byte value, string context)
     {
         BossBits bits = (BossBits)value;
-        BossBitMasks.Validate(bits, context);
+        ProvenBossBits.Validate(bits, context);
         return bits;
     }
 }

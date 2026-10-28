@@ -83,7 +83,7 @@ internal static class MotherBrainBodyPresentationVerification
             }
         }
         AssertTrue(baseline.ScrollCalls.Count > 0, "production body bytecode actually moves and counter-scrolls");
-        var missing = new MotherBrainPresentationFixture(new InstalledEnemyArtwork(EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ExtendedFrames = EnemyExtendedFrameDocuments.Load(author.Json(stockOam)) }), new BossArtworkCatalog(), new AreaArtworkCatalog()));
+        var missing = new MotherBrainPresentationFixture(new InstalledEnemyArtwork(EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ExtendedFrames = EnemyExtendedFrameDocuments.Load(author.Json(stockOam)) }), new BossArtworkCatalog(), new AreaArtworkBundle()));
         missing.SetFrame(mixed[0].Pointer, fresh: true);
         AssertThrows<InvalidDataException>(() => missing.Draw(), "missing mixed-frame BG2 art fails explicitly");
         // Installed artwork is not part of debugger states: the room binding holds it as non-serialized, and the host

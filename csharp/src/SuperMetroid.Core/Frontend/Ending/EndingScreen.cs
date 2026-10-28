@@ -100,7 +100,7 @@ internal sealed class EndingScreen
 
     /// <summary>How many of the logo's character chunks the post-shot has shown.</summary>
     internal int LogoChunksShown => uploads.Count(upload => upload is EndingChunkUpload { Kind: EndingUploadKind.PostShotTransfer } transfer &&
-        EndingPostShotUploadDefinitions.Get(transfer.Chunk).Source == EndingPostShotUploadSource.LogoTiles);
+        EndingPostShotUploads.Get(transfer.Chunk).Source == EndingPostShotUploadSource.LogoTiles);
 
     /// <summary>Forgets what the screen shows after the bound artwork changes.</summary>
     public void Invalidate()
@@ -109,7 +109,7 @@ internal sealed class EndingScreen
     }
 
     /// <summary>The tiles <paramref name="plane"/> holds over <paramref name="objects"/>.</summary>
-    internal ReadOnlySpan<BackgroundTile> Plane(EndingPlane plane, EndingObjectArtworkCatalog? objects)
+    internal ReadOnlySpan<BackgroundTile> Plane(EndingPlane plane, EndingObjectArtwork? objects)
     {
         planes ??= [];
         if (!planes.TryGetValue(plane, out BackgroundTile[]? tiles))
@@ -118,7 +118,7 @@ internal sealed class EndingScreen
     }
 
     /// <summary>The tiles the explosion's <paramref name="fragment"/> map holds over <paramref name="objects"/>.</summary>
-    internal ReadOnlySpan<BackgroundTile> ExplosionPlane(EndingObjectFragmentId fragment, EndingObjectArtworkCatalog? objects)
+    internal ReadOnlySpan<BackgroundTile> ExplosionPlane(EndingObjectFragmentId fragment, EndingObjectArtwork? objects)
     {
         explosionPlanes ??= [];
         if (!explosionPlanes.TryGetValue(fragment, out BackgroundTile[]? tiles))
@@ -127,7 +127,7 @@ internal sealed class EndingScreen
     }
 
     /// <summary>The floor's cells over <paramref name="floor"/> and <paramref name="flight"/>.</summary>
-    internal byte[] FloorCells(EndingFloorArtworkCatalog? floor, CeresFlightArtworkCatalog? flight) =>
+    internal byte[] FloorCells(EndingFloorArtwork? floor, CeresFlightArtwork? flight) =>
         floorCells ??= EndingScreenFloor.Cells(uploads, floor, flight);
 
     /// <summary>Forgets every plane, cell and tile the screen showed.</summary>

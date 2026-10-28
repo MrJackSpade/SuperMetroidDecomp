@@ -19,8 +19,4 @@ internal static class IntroMotherBrainExplosionSpriteDefinitions
         new("big-explosion-4", new(71), 4),
         new("big-explosion-5", new(72), 4),
     ];
-
-    /// <summary>The pose of explosion frame <paramref name="frame"/>, 0 through 5, of the small or <paramref name="big"/> effect.</summary>
-    internal static CinematicSpritePose FramePose(bool big, int frame) =>
-        (uint)frame < 6 ? Frames[(big ? 6 : 0) + frame].Pose : throw new ArgumentOutOfRangeException(nameof(frame));
 }

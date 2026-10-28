@@ -15,7 +15,7 @@ internal static class GameOverMenuIndexesVerification
     /// draws the selection missile. On a Yes answer, loading state $1F publishes the
     /// Ceres loader on the accepting frame; other saves fade into the area map.
     /// </summary>
-    internal static void VerifyGameOverMenuNativeIndexes(AreaMapPresentationCatalog presentation)
+    internal static void VerifyGameOverMenuNativeIndexes(AreaMapPresentation presentation)
     {
         var audio = new AudioQueues();
         var menu = new GameOverMenuState(audio, presentation, MenuSheetFixtures.For(presentation));

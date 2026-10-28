@@ -134,7 +134,7 @@ internal static class MapInstallationVerification
             RoomFxPaletteBlendDefinitions.FileName);
         var roomFxBlends = RequiredJson.Parse(File.ReadAllText(Path.Combine(
             installation.MapDirectory, RoomFxPaletteBlendDefinitions.FileName)));
-        string lavaBlendKey = RoomFxPaletteBlendDefinitions.Key(RoomFxPaletteBlend.Lava);
+        string lavaBlendKey = RoomFxPaletteBlendRules.Key(RoomFxPaletteBlend.Lava);
         int lavaBlendRed = roomFxBlends.Required("blends").Required(lavaBlendKey).Required(0).Required("red").GetValue<int>();
         roomFxBlends.Required("blends").Required(lavaBlendKey).Required(0)["red"] = (lavaBlendRed + 1) % 32;
         File.WriteAllText(roomFxBlendOverride, roomFxBlends.ToJsonString());
@@ -241,7 +241,7 @@ internal static class MapInstallationVerification
         File.WriteAllText(gameOverOverride, gameOver.ToJsonString());
         string gameOptionsOverride = Path.Combine(installation.MapOverrideDirectory, GameOptionsPresentationDefinitions.FileName);
         var gameOptions = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, GameOptionsPresentationDefinitions.FileName)));
-        gameOptions.Required("cursorAnchors").Required(GameOptionsPresentationDefinitions.MenuName(GameOptionsPage.Primary)).Required(0)["x"] = 32;
+        gameOptions.Required("cursorAnchors").Required(GameOptionsNames.MenuName(GameOptionsPage.Primary)).Required(0)["x"] = 32;
         File.WriteAllText(gameOptionsOverride, gameOptions.ToJsonString());
         string fileSelectOverride = Path.Combine(installation.MapOverrideDirectory, FileSelectPresentationDefinitions.FileName);
         var fileSelect = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, FileSelectPresentationDefinitions.FileName)));

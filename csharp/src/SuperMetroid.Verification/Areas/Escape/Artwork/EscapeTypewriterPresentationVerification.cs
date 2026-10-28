@@ -102,7 +102,7 @@ internal static class EscapeTypewriterPresentationVerification
         ISnesAddressSpace bus,
         string stockDirectory,
         string overrideDirectory,
-        AreaMapPresentationCatalog stockCatalog)
+        AreaMapPresentation stockCatalog)
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
@@ -115,7 +115,7 @@ internal static class EscapeTypewriterPresentationVerification
             "TEST!";
         string replacement = Path.Combine(overrideDirectory, EscapeTypewriterDefinitions.FileName);
         File.WriteAllText(replacement, document.ToJsonString(ArtworkJson.Options));
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
+        AreaMapPresentation edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         var state = new EscapeTypewriterState(
             edited.EscapeTypewriter.Get(EscapeTypewriterProgramId.Zebes),
             EscapeTypewriterDefinitions.ZebesTileBase);

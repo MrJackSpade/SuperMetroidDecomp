@@ -29,7 +29,7 @@ internal sealed class EndingRewardHeadParts(Pose pose) : IReadOnlyList<CompiledS
     internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         foreach (Pose pose in Enum.GetValues<Pose>())
-            if (IsHead(pose) && EndingRewardSpriteDefinitions.FramePose(pose) == shown)
+            if (IsHead(pose) && EndingRewardSpritePoses.FramePose(pose) == shown)
                 return supplied.CalculateIfMatching(new EndingRewardHeadParts(pose));
         return supplied;
     }

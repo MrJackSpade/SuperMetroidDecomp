@@ -3,17 +3,10 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// <summary>One complete Samus-loading palette control program.</summary>
 public sealed class SamusLoadingSuitPaletteFxColorDefinition
 {
+    /// <summary>Builds the definition from its owner's program values.</summary>
+    internal SamusLoadingSuitPaletteFxColorDefinition(SamusLoadingSuitPaletteFxProgramOwner owner, PaletteFxObject paletteFxObject, PaletteFxProgram program) =>
+        (Owner, Object, Rows) = (owner, paletteFxObject, PaletteFxColorRows.Of(program, SamusLoadingSuitPaletteFxColorDefinitions.ColorsPerFrame));
 
-    /// <summary>Pairs one suit's palette-FX object with its first record.</summary>
-    internal SamusLoadingSuitPaletteFxColorDefinition(
-        SamusLoadingSuitPaletteFxProgramOwner owner,
-        PaletteFxObject paletteFxObject,
-        PaletteFxProgram program)
-    {
-        Owner = owner;
-        Object = paletteFxObject;
-        Rows = PaletteFxColorRows.Of(program, SamusLoadingSuitPaletteFxColorDefinitions.ColorsPerFrame);
-    }
 
     /// <summary>The mutually exclusive suit palette.</summary>
     public SamusLoadingSuitPaletteFxProgramOwner Owner { get; }

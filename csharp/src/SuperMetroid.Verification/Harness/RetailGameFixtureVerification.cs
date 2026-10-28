@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Samus.Artwork;
@@ -19,7 +19,7 @@ internal static class RetailGameFixtureVerification
         InstalledFixtures.CreateGame(saves, gameOptions, renderGameplayFrames, hostServices, random);
 
     /// <summary>Creates a Ceres destruction state with optional supplied audio and cinematic artwork.</summary>
-    internal static CeresDestructionCinematicState CreateRetailDestructionFixture(AudioQueues? audio = null, IntroCinematicArtworkCatalog? artwork = null) =>
+    internal static CeresDestructionCinematicState CreateRetailDestructionFixture(AudioQueues? audio = null, IntroCinematicArtwork? artwork = null) =>
         InstalledFixtures.CreateDestruction(audio, artwork);
 
     /// <summary>Creates an ending state with supplied game time, inventory, audio, and language selection.</summary>
@@ -28,7 +28,7 @@ internal static class RetailGameFixtureVerification
         InstalledFixtures.CreateEnding(audio, gameTimeHours, gameTimeMinutes, inventory, japaneseText);
     /// <summary>Creates an intro state with optionally supplied audio and installed visual catalogs.</summary>
     internal static IntroCinematicState CreateRetailIntroFixture(AudioQueues? audio = null,
-        IntroFontAtlas? introFont = null, IntroCinematicArtworkCatalog? characterArtwork = null,
+        IntroFontAtlas? introFont = null, IntroCinematicArtwork? characterArtwork = null,
         InstalledBeamPalettes? beamPalettes = null, InstalledSamusBodyArtwork? samusBodyArtwork = null) =>
         InstalledFixtures.CreateIntro(audio, introFont, characterArtwork, beamPalettes, samusBodyArtwork);
 }

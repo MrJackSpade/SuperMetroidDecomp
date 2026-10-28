@@ -3,18 +3,9 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// <summary>One complete old-Tourian escape accent control program.</summary>
 public sealed class OldTourianEscapeAccentPaletteFxColorDefinition
 {
-    /// <summary>Records one accent destination, its object and first record.</summary>
-    internal OldTourianEscapeAccentPaletteFxColorDefinition(
-        OldTourianEscapeAccentPaletteOwner owner,
-        PaletteFxObject paletteFxObject,
-        PaletteFxProgram program,
-        int colorByteIndex)
-    {
-        Owner = owner;
-        Object = paletteFxObject;
-        Rows = PaletteFxColorRows.Of(program, OldTourianEscapeAccentPaletteFxColorDefinitions.ColorsPerFrame);
-        ColorByteIndex = colorByteIndex;
-    }
+    /// <summary>Builds the definition from its owner's program values.</summary>
+    internal OldTourianEscapeAccentPaletteFxColorDefinition(OldTourianEscapeAccentPaletteOwner owner, PaletteFxObject paletteFxObject, PaletteFxProgram program, int colorByteIndex) =>
+        (Owner, Object, ColorByteIndex, Rows) = (owner, paletteFxObject, colorByteIndex, PaletteFxColorRows.Of(program, OldTourianEscapeAccentPaletteFxColorDefinitions.ColorsPerFrame));
 
     /// <summary>The mutually exclusive escape-accent owner.</summary>
     public OldTourianEscapeAccentPaletteOwner Owner { get; }

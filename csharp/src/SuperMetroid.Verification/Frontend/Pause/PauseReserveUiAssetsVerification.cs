@@ -22,7 +22,7 @@ internal static class PauseReserveUiAssetsVerification
 {
     /// <summary>Checks reserve labels, digits, and arrow phases against native rendering, then verifies edits, rebinding, and invalid assets.</summary>
     internal static void VerifyPauseReserveUiAssets(ISnesAddressSpace bus, string stock, string overrides,
-        AreaMapPresentationCatalog original)
+        AreaMapPresentation original)
     {
         Directory.CreateDirectory(overrides);
         string stockPath = Path.Combine(stock, PauseReserveUiDefinitions.FileName);

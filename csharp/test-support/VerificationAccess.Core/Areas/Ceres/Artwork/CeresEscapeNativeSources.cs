@@ -30,7 +30,7 @@ internal static class CeresEscapeNativeSources
     }
 
     /// <summary>Resolves a native transfer from the bus against the installed Ceres escape overlays.</summary>
-    extension(CeresEscapeOverlayTilemapCatalog self)
+    extension(CeresEscapeOverlays self)
     {
         /// <summary>The installed words a native transfer of <paramref name="byteCount"/> bytes from <paramref name="sourceAddress"/> copies, when it is exactly one overlay page.</summary>
         internal bool TryResolveNative(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)

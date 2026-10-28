@@ -21,7 +21,7 @@ namespace SuperMetroid.Verification.Frontend.Map;
 internal static class MapArrowsVerification
 {
     /// <summary>Checks installed arrow timing and OAM against native output, then exercises edited art, serialization, and override validation.</summary>
-    internal static void VerifyMapArrows(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
+    internal static void VerifyMapArrows(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation original)
     {
         var guard = NewMapArrowGuard(bus);
         var native = new FileSelectMapAnimations(original.Arrows);

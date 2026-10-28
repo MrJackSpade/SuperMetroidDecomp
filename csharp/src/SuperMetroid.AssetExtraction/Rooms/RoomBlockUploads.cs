@@ -36,7 +36,7 @@ internal static class RoomBlockUploads
 {
     /// <summary>The tilesets some retail room state loads, each once in room order: those a block sheet is composed for.</summary>
     internal static IReadOnlyList<TilesetDefinition> Tilesets() =>
-        [.. RoomHeaderDefinitions.All.SelectMany(RoomStateSelectionDefinitions.GetStates)
+        [.. RoomHeaderDefinitions.All.SelectMany(RoomStateSelection.GetStates)
             .Select(state => RoomTilesets.Get(state.GraphicsSet)).Distinct()];
 
     /// <summary>The rooms of each tileset and what they bind, in room order.</summary>
@@ -51,7 +51,7 @@ internal static class RoomBlockUploads
         foreach (RoomHeaderDefinition room in RoomHeaderDefinitions.All)
         {
             bool ceres = room.AreaIndex == AreaId.Ceres;
-            foreach (RoomStateSettings state in RoomStateSelectionDefinitions.GetStates(room))
+            foreach (RoomStateSettings state in RoomStateSelection.GetStates(room))
             {
                 TilesetDefinition tileset = RoomTilesets.Get(state.GraphicsSet);
                 if (!tilesets.TryGetValue(tileset, out TilesetUploads? uploads))
@@ -146,13 +146,13 @@ internal static class RoomBlockUploads
             {
                 if (!record.AnimatedTileSlots.Includes(bit))
                     continue;
-                foreach (AnimatedCharacterPlacement frame in AnimatedTiles(inputs, AreaAnimatedTileObjectDefinitions.Read(room.AreaIndex, bit)))
+                foreach (AnimatedCharacterPlacement frame in AnimatedTiles(inputs, AreaAnimatedTileObjects.Read(room.AreaIndex, bit)))
                     yield return frame;
             }
         }
         if (state.SetupCallback == RoomSetupCallback.RunStatueUnlockingAnimations)
         {
-            foreach (TourianStatueAnimatedTileProgramDefinition statue in TourianStatueAnimatedTileMechanicsDefinitions.All)
+            foreach (TourianStatueAnimatedTileProgramDefinition statue in TourianStatueAnimatedTiles.All)
             {
                 // Phantoon's and Ridley's statues paint characters outside the room's tile characters, which no block reads.
                 if (!BgCharacterWords.AmongTiles(AnimatedTileVramDestinations.WordOf(statue.AnimatedObject)))
@@ -295,7 +295,7 @@ internal static class RoomBlockUploads
         AnimatedTileObject animatedObject = RoomFxAnimatedTilesState.ObjectOf(type);
         if (animatedObject == AnimatedTileObject.None)
             yield break;
-        RoomFxAnimatedTileObjectDefinition mechanics = RoomFxAnimatedTileMechanicsDefinitions.Require(animatedObject);
+        RoomFxAnimatedTileLoop mechanics = RoomFxAnimatedTiles.Require(animatedObject);
         for (int frame = 0; frame < mechanics.Frames.Count; frame++)
             yield return Animated(inputs, animatedObject, frame, mechanics.Image(mechanics.Frames[frame]),
                 mechanics.FrameByteCount, AnimatedTileVramDestinations.WordOf(animatedObject));
@@ -362,7 +362,7 @@ internal static class RoomBlockUploads
     /// <summary>Each frame an animated-tile object the port runs shows; none for an object it does not animate.</summary>
     private static IEnumerable<AnimatedCharacterPlacement> AnimatedTiles(RoomBlockSheetInputs inputs, AnimatedTileObject animatedObject)
     {
-        if (WreckedShipTreadmillMechanicsDefinitions.TryResolve(animatedObject, out WreckedShipTreadmillObjectDefinition? treadmill))
+        if (WreckedShipTreadmills.TryResolve(animatedObject, out WreckedShipTreadmillLoop? treadmill))
         {
             for (int frame = 0; frame < WreckedShipTreadmillMechanicsDefinitions.FrameCount; frame++)
                 yield return Animated(inputs, animatedObject, frame, treadmill.Image(frame), WreckedShipTreadmillMechanicsDefinitions.FrameByteCount,
@@ -371,7 +371,7 @@ internal static class RoomBlockUploads
         }
         if (animatedObject is not (AnimatedTileObject.HorizontalSpikes or AnimatedTileObject.MaridiaSandCeiling or AnimatedTileObject.MaridiaSandFalling))
             yield break;
-        RoomFxAnimatedTileObjectDefinition mechanics = RoomFxAnimatedTileMechanicsDefinitions.Require(animatedObject);
+        RoomFxAnimatedTileLoop mechanics = RoomFxAnimatedTiles.Require(animatedObject);
         for (int frame = 0; frame < mechanics.Frames.Count; frame++)
             yield return Animated(inputs, animatedObject, frame, mechanics.Image(mechanics.Frames[frame]),
                 mechanics.FrameByteCount, AnimatedTileVramDestinations.WordOf(animatedObject));

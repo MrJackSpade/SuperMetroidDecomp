@@ -42,7 +42,7 @@ internal static class CeresFlightArtworkExtractor
         byte[] floorPng = Png(mode7Size, mode7Pixels, 256);
         byte[] objectPng = Png(objectSize, objPixels, 16);
         using var mapJson = new MemoryStream();
-        CeresFlightArtworkCatalog.WriteMap(mapJson, new CeresFlightMapDocument
+        CeresFlightArtwork.WriteMap(mapJson, new CeresFlightMapDocument
         {
             Version = CeresFlightArtworkFormat.Version,
             Width = CeresFlightArtworkFormat.MapWidth,
@@ -101,7 +101,7 @@ internal static class CeresFlightArtworkExtractor
             int y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand);
             CeresFlightActorDefinition translated =
-                CeresFlightActorDefinitions.RearViewActor(index);
+                CeresFlightActors.RearViewActor(index);
             if (x != translated.Position.X || y != translated.Position.Y)
                 throw new InvalidDataException(
                     $"Ceres flight actor {source.Id} differs from its native initializer operands.");
@@ -111,7 +111,7 @@ internal static class CeresFlightArtworkExtractor
             };
         }
         using var actorsJson = new MemoryStream();
-        CeresFlightActorLayout.Write(actorsJson, new CeresFlightActorLayoutDocument
+        CeresFlightActorPlacements.Write(actorsJson, new CeresFlightActorLayoutDocument
         {
             Version = CeresFlightActorLayoutFormat.Version,
             Actors = placements,

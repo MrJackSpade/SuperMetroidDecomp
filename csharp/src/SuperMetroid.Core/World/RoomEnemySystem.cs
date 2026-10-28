@@ -818,7 +818,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     internal AreaArtworkBinding AreaArtworkBinding { get; }
 
     /// <summary>The areas' installed artwork; setting it rebinds the session's area artwork.</summary>
-    public AreaArtworkCatalog? AreaArtwork
+    public AreaArtworkBundle? AreaArtwork
     {
         get => AreaArtworkBinding.Artwork;
         set => AreaArtworkBinding.Artwork = value;

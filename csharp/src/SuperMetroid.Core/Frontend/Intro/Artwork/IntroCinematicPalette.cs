@@ -24,7 +24,7 @@ public sealed class IntroCinematicPalette
     /// <param name="transfer">The 256 selected colours as the palette transfer packs them.</param>
     private IntroCinematicPalette(byte[] transfer)
     {
-        if (IntroCinematicPaintDefinitions.Matches(transfer)) { rows = []; return; }
+        if (IntroCinematicPaint.Matches(transfer)) { rows = []; return; }
         rows = new PaletteRow[ScreenPalette.ColorCount / IntroCinematicPaletteFormat.ColorsPerRow];
         for (int row = 0; row < rows.Length; row++)
         {
@@ -46,7 +46,7 @@ public sealed class IntroCinematicPalette
             var output = new RgbColor[ScreenPalette.ColorCount];
             for (int row = 0; row < ScreenPalette.ColorCount / IntroCinematicPaletteFormat.ColorsPerRow; row++)
             for (int color = 0; color < IntroCinematicPaletteFormat.ColorsPerRow; color++)
-                output[row * IntroCinematicPaletteFormat.ColorsPerRow + color] = rows.Length == 0 ? IntroCinematicPaintDefinitions.Color(row, color) : rows[row].Resolve(color);
+                output[row * IntroCinematicPaletteFormat.ColorsPerRow + color] = rows.Length == 0 ? IntroCinematicPaint.Color(row, color) : rows[row].Resolve(color);
             return output;
         }
     }

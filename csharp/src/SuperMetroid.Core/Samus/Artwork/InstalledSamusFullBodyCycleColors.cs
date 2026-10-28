@@ -95,13 +95,13 @@ public sealed class InstalledSamusFullBodyCycleColors
                 SamusFullBodyCycleColorFormat.GravitySharedBase(palettes[0][color], palettes[1][color])) continue;
             colors.Add(indexCell, value);
         }
-        powerDim1 = Capture(1, 1, LoadingPaletteColorDefinitions.TintColor, 2);
-        powerDim2 = Capture(1, 2, LoadingPaletteColorDefinitions.TintColor, 2);
-        powerBright9 = Capture(3, 9, LoadingPaletteColorDefinitions.TintColor, 0);
-        powerDim12 = Capture(1, 12, LoadingPaletteColorDefinitions.TintColor, 2);
-        variaBright10 = Capture(19, 10, LoadingPaletteColorDefinitions.VariaTintColor, 0);
-        variaDim12 = Capture(17, 12, LoadingPaletteColorDefinitions.VariaTintColor, 2);
-        gravityDim2 = Capture(33, 2, LoadingPaletteColorDefinitions.TintColor, 2);
+        powerDim1 = Capture(1, 1, LoadingPaletteColors.TintColor, 2);
+        powerDim2 = Capture(1, 2, LoadingPaletteColors.TintColor, 2);
+        powerBright9 = Capture(3, 9, LoadingPaletteColors.TintColor, 0);
+        powerDim12 = Capture(1, 12, LoadingPaletteColors.TintColor, 2);
+        variaBright10 = Capture(19, 10, LoadingPaletteColors.VariaTintColor, 0);
+        variaDim12 = Capture(17, 12, LoadingPaletteColors.VariaTintColor, 2);
+        gravityDim2 = Capture(33, 2, LoadingPaletteColors.TintColor, 2);
         activePowerMiddle2 = CaptureActive(10, 2);
         activePowerBright2 = CaptureActive(11, 2);
         activePowerDim8 = CaptureActive(9, 8);
@@ -153,13 +153,13 @@ public sealed class InstalledSamusFullBodyCycleColors
     {
         switch (index)
         {
-            case 17: return powerDim1.Apply(LoadingPaletteColorDefinitions.TintColor(ResolveIndex(1), 2));
-            case 18: return powerDim2.Apply(LoadingPaletteColorDefinitions.TintColor(ResolveIndex(2), 2));
-            case 57: return powerBright9.Apply(LoadingPaletteColorDefinitions.TintColor(ResolveIndex(9), 0));
-            case 28: return powerDim12.Apply(LoadingPaletteColorDefinitions.TintColor(ResolveIndex(12), 2));
-            case 314: return variaBright10.Apply(LoadingPaletteColorDefinitions.VariaTintColor(ResolveIndex(266), 0));
-            case 284: return variaDim12.Apply(LoadingPaletteColorDefinitions.VariaTintColor(ResolveIndex(268), 2));
-            case 530: return gravityDim2.Apply(LoadingPaletteColorDefinitions.TintColor(ResolveIndex(514), 2));
+            case 17: return powerDim1.Apply(LoadingPaletteColors.TintColor(ResolveIndex(1), 2));
+            case 18: return powerDim2.Apply(LoadingPaletteColors.TintColor(ResolveIndex(2), 2));
+            case 57: return powerBright9.Apply(LoadingPaletteColors.TintColor(ResolveIndex(9), 0));
+            case 28: return powerDim12.Apply(LoadingPaletteColors.TintColor(ResolveIndex(12), 2));
+            case 314: return variaBright10.Apply(LoadingPaletteColors.VariaTintColor(ResolveIndex(266), 0));
+            case 284: return variaDim12.Apply(LoadingPaletteColors.VariaTintColor(ResolveIndex(268), 2));
+            case 530: return gravityDim2.Apply(LoadingPaletteColors.TintColor(ResolveIndex(514), 2));
             case 162: return activePowerMiddle2.Apply(ActiveGoldExpected(10));
             case 178: return activePowerBright2.Apply(ActiveGoldExpected(11));
             case 152: return activePowerDim8.Apply(SamusFullBodyCycleColorFormat.ActiveShineTint(ResolveIndex(136), 1));

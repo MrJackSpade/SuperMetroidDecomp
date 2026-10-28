@@ -17,19 +17,19 @@ internal static class LookupFxBlendBlackColorsVerification
     private static byte[] OriginalBlackBlendIds() => [0x02, 0x42, 0x48, 0xe2, 0xe8, 0xee];
 
     /// <summary>Compares red components of native, resolved, and applied third colors.</summary>
-    internal static void VerifyFxBlendBlackRed(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxBlendBlackComponent(rom, stock, 0);
+    internal static void VerifyFxBlendBlackRed(ISnesAddressSpace rom, RoomFxBlendInks stock) => VerifyFxBlendBlackComponent(rom, stock, 0);
     /// <summary>Compares green components of native, resolved, and applied third colors.</summary>
-    internal static void VerifyFxBlendBlackGreen(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxBlendBlackComponent(rom, stock, 5);
+    internal static void VerifyFxBlendBlackGreen(ISnesAddressSpace rom, RoomFxBlendInks stock) => VerifyFxBlendBlackComponent(rom, stock, 5);
     /// <summary>Compares blue components of native, resolved, and applied third colors.</summary>
-    internal static void VerifyFxBlendBlackBlue(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxBlendBlackComponent(rom, stock, 10);
+    internal static void VerifyFxBlendBlackBlue(ISnesAddressSpace rom, RoomFxBlendInks stock) => VerifyFxBlendBlackComponent(rom, stock, 10);
 
     /// <summary>Checks one five-bit channel for all six liquid blends in native words and CGRAM output.</summary>
-    private static void VerifyFxBlendBlackComponent(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock, int shift)
+    private static void VerifyFxBlendBlackComponent(ISnesAddressSpace rom, RoomFxBlendInks stock, int shift)
     {
         foreach (byte id in OriginalBlackBlendIds())
         {
             int expected = (ReadVerificationWord(rom, 0x89aa06 + id) >> shift) & 31;
-            AssertEqual(expected, ((RoomFxPaletteBlendDefinitions.CalculatedThirdColor(FxNativeWords.PaletteBlend(id)) ?? throw new InvalidOperationException("Verification requires RoomFxPaletteBlendDefinitions.CalculatedThirdColor(FxNativeWords.PaletteBlend(id)).")).ToWord() >> shift) & 31, "Original third-color component");
+            AssertEqual(expected, ((RoomFxPaletteBlendRules.CalculatedThirdColor(FxNativeWords.PaletteBlend(id)) ?? throw new InvalidOperationException("Verification requires RoomFxPaletteBlendRules.CalculatedThirdColor(FxNativeWords.PaletteBlend(id)).")).ToWord() >> shift) & 31, "Original third-color component");
             AssertEqual(expected, (stock.Resolve(FxNativeWords.PaletteBlend(id))[2].ToWord() >> shift) & 31, "Resolved third-color component");
             var cgram = new GameplayColours(new SpriteColourSets());
             stock.Apply(cgram.BackgroundSets, FxNativeWords.PaletteBlend(id));
@@ -38,17 +38,17 @@ internal static class LookupFxBlendBlackColorsVerification
     }
 
     /// <summary>Checks black stays calculated, weather colors remain independent, and custom third colors survive output edits.</summary>
-    internal static void VerifyFxBlendBlackStorageAndEdits(RoomFxPaletteBlendCatalog stock)
+    internal static void VerifyFxBlendBlackStorageAndEdits(RoomFxBlendInks stock)
     {
         for (int value = 0; value <= byte.MaxValue; value++)
         {
             byte id = (byte)value;
             if (OriginalBlackBlendIds().Contains(id)) AssertEqual(0,
-                (RoomFxPaletteBlendDefinitions.CalculatedThirdColor(FxNativeWords.PaletteBlend(id)) ?? throw new InvalidOperationException("Verification requires RoomFxPaletteBlendDefinitions.CalculatedThirdColor(FxNativeWords.PaletteBlend(id)).")), "Six liquid selections calculate black");
-            else if (id is 0x22 or 0x62) AssertTrue(RoomFxPaletteBlendDefinitions.CalculatedThirdColor(FxNativeWords.PaletteBlend(id)) is null, "Weather third color stays independent");
-            else AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedThirdColor(FxNativeWords.PaletteBlend(id)), "Unknown calculated-color selector rejects");
+                (RoomFxPaletteBlendRules.CalculatedThirdColor(FxNativeWords.PaletteBlend(id)) ?? throw new InvalidOperationException("Verification requires RoomFxPaletteBlendRules.CalculatedThirdColor(FxNativeWords.PaletteBlend(id)).")), "Six liquid selections calculate black");
+            else if (id is 0x22 or 0x62) AssertTrue(RoomFxPaletteBlendRules.CalculatedThirdColor(FxNativeWords.PaletteBlend(id)) is null, "Weather third color stays independent");
+            else AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendRules.CalculatedThirdColor(FxNativeWords.PaletteBlend(id)), "Unknown calculated-color selector rejects");
         }
-        foreach (var field in MetadataShape.Fields(typeof(RoomFxPaletteBlendCatalog), BindingFlags.Instance | BindingFlags.NonPublic)
+        foreach (var field in MetadataShape.Fields(typeof(RoomFxBlendInks), BindingFlags.Instance | BindingFlags.NonPublic)
                      .Where(field => field.FieldType == typeof(RoomFxBlendColors)))
         {
             var owner = (RoomFxBlendColors)(field.GetValue(stock) ?? throw new InvalidOperationException("Verification requires field.GetValue(stock)."));

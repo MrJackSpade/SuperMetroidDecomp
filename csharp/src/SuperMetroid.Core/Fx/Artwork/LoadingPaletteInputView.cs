@@ -22,7 +22,7 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<PaletteFxCol
 {
     /// <summary>The eight tinted endpoints, by the color each names.</summary>
     private static readonly Dictionary<PaletteFxColorKey, LoadingSuitColor> Endpoints =
-        Enum.GetValues<LoadingSuitColor>().ToDictionary(LoadingPaletteColorDefinitions.Key);
+        Enum.GetValues<LoadingSuitColor>().ToDictionary(LoadingPaletteColors.Key);
 
     /// <summary>Ordinary stored suit colors after the eight selected tinted endpoints are removed.</summary>
     private readonly Dictionary<PaletteFxColorKey, RgbColor> colors;
@@ -47,7 +47,7 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<PaletteFxCol
     internal LoadingPaletteInputView(Dictionary<PaletteFxColorKey, RgbColor> colors)
     {
         this.colors = colors;
-        RgbColor Supplied(LoadingSuitColor slot) => colors[LoadingPaletteColorDefinitions.Key(slot)];
+        RgbColor Supplied(LoadingSuitColor slot) => colors[LoadingPaletteColors.Key(slot)];
         powerDim1 = new(Supplied(LoadingSuitColor.PowerDim1), Expected(LoadingSuitColor.PowerDim1));
         powerDim2 = new(Supplied(LoadingSuitColor.PowerDim2), Expected(LoadingSuitColor.PowerDim2));
         powerBright9 = new(Supplied(LoadingSuitColor.PowerBright9), Expected(LoadingSuitColor.PowerBright9));
@@ -62,21 +62,21 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<PaletteFxCol
 
     /// <summary>Requires the normal-suit source color used to derive a loading tint endpoint.</summary>
     private RgbColor Normal(PaletteFxColorKey key) =>
-        LoadingPaletteColorDefinitions.TryReadColor(key, colors, out RgbColor value)
+        LoadingPaletteColors.TryReadColor(key, colors, out RgbColor value)
             ? value : throw new InvalidDataException($"Missing loading base {key}.");
 
     /// <summary>Calculates the selected loading tint from a normal-suit source and shared channel rules.</summary>
     private RgbColor Expected(LoadingSuitColor slot) => slot switch
     {
-        LoadingSuitColor.PowerDim1 => LoadingPaletteColorDefinitions.TintColor(Normal(LoadingPaletteColorDefinitions.NormalSource(LoadingSuitColor.PowerDim1)), 2),
-        LoadingSuitColor.PowerDim2 => LoadingPaletteColorDefinitions.TintColor(Normal(LoadingPaletteColorDefinitions.NormalSource(LoadingSuitColor.PowerDim2)), 2),
-        LoadingSuitColor.PowerBright9 => LoadingPaletteColorDefinitions.TintColor(Normal(LoadingPaletteColorDefinitions.NormalSource(LoadingSuitColor.PowerBright9)), 0),
-        LoadingSuitColor.PowerDim12 => LoadingPaletteColorDefinitions.TintColor(Normal(LoadingPaletteColorDefinitions.NormalSource(LoadingSuitColor.PowerDim12)), 2),
-        LoadingSuitColor.VariaBright10 => LoadingPaletteColorDefinitions.VariaTintColor(Normal(LoadingPaletteColorDefinitions.NormalSource(LoadingSuitColor.VariaBright10)), 0),
-        LoadingSuitColor.VariaBright11 => LoadingPaletteColorDefinitions.VariaTintColor(Normal(LoadingPaletteColorDefinitions.NormalSource(LoadingSuitColor.VariaBright11)), 0)
+        LoadingSuitColor.PowerDim1 => LoadingPaletteColors.TintColor(Normal(LoadingPaletteColors.NormalSource(LoadingSuitColor.PowerDim1)), 2),
+        LoadingSuitColor.PowerDim2 => LoadingPaletteColors.TintColor(Normal(LoadingPaletteColors.NormalSource(LoadingSuitColor.PowerDim2)), 2),
+        LoadingSuitColor.PowerBright9 => LoadingPaletteColors.TintColor(Normal(LoadingPaletteColors.NormalSource(LoadingSuitColor.PowerBright9)), 0),
+        LoadingSuitColor.PowerDim12 => LoadingPaletteColors.TintColor(Normal(LoadingPaletteColors.NormalSource(LoadingSuitColor.PowerDim12)), 2),
+        LoadingSuitColor.VariaBright10 => LoadingPaletteColors.VariaTintColor(Normal(LoadingPaletteColors.NormalSource(LoadingSuitColor.VariaBright10)), 0),
+        LoadingSuitColor.VariaBright11 => LoadingPaletteColors.VariaTintColor(Normal(LoadingPaletteColors.NormalSource(LoadingSuitColor.VariaBright11)), 0)
             .WithBlue(variaBright10.Apply(Expected(LoadingSuitColor.VariaBright10)).Blue),
-        LoadingSuitColor.VariaDim12 => LoadingPaletteColorDefinitions.VariaTintColor(Normal(LoadingPaletteColorDefinitions.NormalSource(LoadingSuitColor.VariaDim12)), 2),
-        LoadingSuitColor.GravityDim2 => LoadingPaletteColorDefinitions.TintColor(Normal(LoadingPaletteColorDefinitions.NormalSource(LoadingSuitColor.GravityDim2)), 2),
+        LoadingSuitColor.VariaDim12 => LoadingPaletteColors.VariaTintColor(Normal(LoadingPaletteColors.NormalSource(LoadingSuitColor.VariaDim12)), 2),
+        LoadingSuitColor.GravityDim2 => LoadingPaletteColors.TintColor(Normal(LoadingPaletteColors.NormalSource(LoadingSuitColor.GravityDim2)), 2),
         _ => throw new InvalidOperationException($"Undefined loading suit color {slot}."),
     };
 

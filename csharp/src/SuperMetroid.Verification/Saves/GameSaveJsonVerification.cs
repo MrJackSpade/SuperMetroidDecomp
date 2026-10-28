@@ -174,7 +174,7 @@ internal static class GameSaveJsonVerification
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
             throw new FileNotFoundException("Selected-slot decode verification requires the private retail ROM.", romPath);
-        AreaMapPresentationCatalog presentation = RetailPresentationFixture();
+        AreaMapPresentation presentation = RetailPresentationFixture();
         const ushort AllBits = ushort.MaxValue;
         const ushort SignBit = 1 << 15;
         GameSaveJsonCase[] cases =
@@ -222,7 +222,7 @@ internal static class GameSaveJsonVerification
     /// </summary>
     internal static void VerifyWidenedSlotFieldsJsonRoundTrip()
     {
-        AreaMapPresentationCatalog maps = RetailPresentationFixture();
+        AreaMapPresentation maps = RetailPresentationFixture();
         var store = new SaveSlotStore(maps);
         var samus = new SamusState { Health = 99, MaxHealth = 99, ReserveMissiles = 7 };
         var system = new SharedGameState { LoadedItemCount = ushort.MaxValue };

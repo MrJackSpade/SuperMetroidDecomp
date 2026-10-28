@@ -20,7 +20,7 @@ public static class EndingPaletteFile
     {
         EndingPaletteDocument document = JsonAssetDocument.Read<EndingPaletteDocument>(
             json, ArtworkJson.Options, $"ending {id} palette");
-        int count = EndingPaletteDefinitions.ColorCount(id);
+        int count = EndingPaletteFiles.ColorCount(id);
         if (document.Version != EndingPaletteDefinitions.Version ||
             document.Colors is null || document.Colors.Length != count)
             throw new InvalidDataException($"Ending {id} palette requires {count} RGB5 colors.");

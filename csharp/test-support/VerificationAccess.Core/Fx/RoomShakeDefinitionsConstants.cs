@@ -1,7 +1,7 @@
 
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>Cartridge values of <see cref="RoomShakeDefinitions"/> that only verification reads.</summary>
+/// <summary>Cartridge values of <see cref="RoomShakes"/> that only verification reads.</summary>
 internal static class RoomShakeDefinitionsConstants
 {
     /// <summary>$A0:872D BGShakeDisplacements.BG1X/BG1Y, at eight-byte record stride.</summary>
@@ -12,7 +12,7 @@ internal static class RoomShakeDefinitionsConstants
     public const int ProjectileReferenceAddress = 0x86846b;
 
     /// <summary>Provides native BG1, BG2, and projectile room-shake reference addresses.</summary>
-    extension(RoomShakeDefinitions)
+    extension(RoomShakes)
     {
         /// <inheritdoc cref="RoomShakeDefinitionsConstants.Bg1ReferenceAddress"/>
         internal static int Bg1ReferenceAddress => RoomShakeDefinitionsConstants.Bg1ReferenceAddress;

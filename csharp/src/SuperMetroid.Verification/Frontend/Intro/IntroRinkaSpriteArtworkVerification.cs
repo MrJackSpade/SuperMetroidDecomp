@@ -35,7 +35,7 @@ internal static class IntroRinkaSpriteArtworkVerification
     }
     /// <summary>Compares installed Rinka OAM and flashback pixels with native art, then verifies a palette override and rebinding.</summary>
     internal static void VerifyIntroRinkaSpriteArtwork(SuperMetroidAddressSpace bus,
-        IntroCinematicArtworkCatalog stock, GameInstallation installation)
+        IntroCinematicArtwork stock, GameInstallation installation)
     {
         const ushort x = 120;
         int palette = IntroCinematicDefinitions.Objects.DiscoveryPalette;
@@ -76,7 +76,7 @@ internal static class IntroRinkaSpriteArtworkVerification
         string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
         using (var output = File.Create(overridePath))
             IntroRinkaSpritePresentation.Write(output, document);
-        IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
+        IntroCinematicArtwork edited = installation.LoadIntroCinematicArt();
 
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroRinkas);
         var rinkas = new IntroRinkaSystem();

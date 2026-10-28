@@ -48,7 +48,7 @@ public static class EndingRewardSpriteDefinitions
     ];
 
     /// <summary>The cinematic pose that shows each <see cref="EndingRewardSpriteFrame"/>.</summary>
-    private static readonly Dictionary<EndingRewardSpriteFrame, CinematicSpritePose> FramePoses = new()
+    internal static readonly Dictionary<EndingRewardSpriteFrame, CinematicSpritePose> FramePoses = new()
     {
         [EndingRewardSpriteFrame.LargeSamusFromEndingStanding] = new(182),
         [EndingRewardSpriteFrame.LargeSamusFromEndingPreparingToJump] = new(197),
@@ -88,8 +88,4 @@ public static class EndingRewardSpriteDefinitions
         [EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame8] = new(174),
         [EndingRewardSpriteFrame.SuitlessSamusLowerBody] = new(166),
     };
-
-    /// <summary>The cinematic pose that shows <paramref name="frame"/>.</summary>
-    internal static CinematicSpritePose FramePose(EndingRewardSpriteFrame frame) =>
-        FramePoses.TryGetValue(frame, out CinematicSpritePose pose) ? pose : throw new ArgumentOutOfRangeException(nameof(frame));
 }

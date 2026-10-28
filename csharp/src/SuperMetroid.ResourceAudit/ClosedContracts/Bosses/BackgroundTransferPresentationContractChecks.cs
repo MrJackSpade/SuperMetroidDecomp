@@ -33,8 +33,8 @@ internal static class BackgroundTransferPresentationContractChecks
             class BackgroundConsumer {
                 void Inspect(PhantoonBg2FrameCatalog phantoon, DraygonBg2FrameCatalog draygon,
                     CrocomireBg2FrameCatalog crocomire, MotherBrainBodyBg2FrameCatalog motherBrain,
-                    RoomFxLayer3TilemapCatalog pages, RoomFxPaletteBlendCatalog blends,
-                    EndingObjectArtworkCatalog ending, GunshipLiftoffArtworkCatalog ship, SuperMetroid.Core.Assets.BackgroundColourSets backgrounds) {
+                    RoomFxLayer3Pages pages, RoomFxBlendInks blends,
+                    EndingObjectArtwork ending, GunshipLiftoffArtworkCatalog ship, SuperMetroid.Core.Assets.BackgroundColourSets backgrounds) {
                     phantoon.TryGet(0, out _);
                     draygon.TryGet(0, out _);
                     crocomire.TryGet(0, out _);

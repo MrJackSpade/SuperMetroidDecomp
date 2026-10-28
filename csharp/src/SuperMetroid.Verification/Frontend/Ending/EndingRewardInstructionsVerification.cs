@@ -54,7 +54,7 @@ internal static class EndingRewardInstructionsVerification
         foreach (int invalid in new[] { int.MinValue, -1, 37, int.MaxValue })
         {
             AssertThrows<IndexOutOfRangeException>(() => _ = catalog[invalid], "reward catalog bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingRewardSpriteDefinitions.FramePose((EndingRewardSpriteFrame)invalid), "reward frame bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingRewardSpritePoses.FramePose((EndingRewardSpriteFrame)invalid), "reward frame bounds");
         }
     }
 
@@ -77,12 +77,12 @@ internal static class EndingRewardInstructionsVerification
             return EndingRewardHairParts.CalculateIfMatching(definition.Pose, value);
         }
         SpriteComposition calculated = Calculate(supplied);
-        bool isArm = EndingRewardSpriteFrameSeries.Arm.Any(arm => EndingRewardSpriteDefinitions.FramePose(arm) == definition.Pose);
+        bool isArm = EndingRewardSpriteFrameSeries.Arm.Any(arm => EndingRewardSpritePoses.FramePose(arm) == definition.Pose);
         AssertTrue(!ReferenceEquals(supplied, calculated), "original reward composition uses calculated layout");
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("reward-head", value.AppendIdentity);
         AssertEqual(Identity(supplied), Identity(calculated), "original reward composition fields and ordering");
         if (new[] { EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame2, EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame3,
-                EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame4 }.Any(hair => EndingRewardSpriteDefinitions.FramePose(hair) == definition.Pose))
+                EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame4 }.Any(hair => EndingRewardSpritePoses.FramePose(hair) == definition.Pose))
         {
             var opposite = EndingRewardHairParts.OppositeForearm(new Offset16<SpritePixels>(checked((short)visual[2].OffsetX), checked((short)visual[2].OffsetY)));
             AssertEqual(visual[3].OffsetX, opposite.X, "original hair forearm reflection X");
@@ -108,7 +108,7 @@ internal static class EndingRewardInstructionsVerification
         {
             int shoulder = visual.Length - 3;
             EndingRewardSpriteFrame pose = EndingRewardSpriteFrame.SamusArmFromEndingFrame1;
-            while (EndingRewardSpriteDefinitions.FramePose(pose) != definition.Pose) pose++;
+            while (EndingRewardSpritePoses.FramePose(pose) != definition.Pose) pose++;
             for (int piece = 0; piece < shoulder; piece++)
                 AssertEqual(visual[piece].TileRow * 16 + visual[piece].TileColumn,
                     EndingRewardArmParts.StockTile(pose, piece), "original arm tile selection");

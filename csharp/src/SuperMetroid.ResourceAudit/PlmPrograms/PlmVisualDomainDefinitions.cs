@@ -27,7 +27,7 @@ internal static class PlmVisualDomainDefinitions
         "SuperMetroid.Core.Bosses.Draygon.Artwork.RoomPlmDraygonCannonVisualCatalog" => DraygonCannonPlmDrawDefinitions.All.ToArray(),
         "SuperMetroid.Core.Enemies.Chozo.Artwork.RoomPlmChozoStatueVisualCatalog" => ChozoStatuePlmDrawDefinitions.All.ToArray(),
         "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmLinkedRestoreVisuals" => RoomPlmLinkedRestoreDrawDefinitions.All.ToArray(),
-        "SuperMetroid.Core.Areas.Tourian.Artwork.RoomPlmTourianAccessVisualCatalog" => TourianAccessPlmDrawDefinitions.All.ToArray(),
+        "SuperMetroid.Core.Areas.Tourian.Artwork.RoomPlmTourianAccessVisuals" => TourianAccessDraws.All.ToArray(),
         "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmSpeedBoosterVisuals" => SpeedBoosterBlockPlmDrawDefinitions.All.ToArray(),
         "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmMaridiaElevatubeVisuals" => MaridiaElevatubePlmDefinitions.AllDraws.ToArray(),
         "SuperMetroid.Core.Bosses.SporeSpawn.Artwork.RoomPlmSporeSpawnCeilingVisualCatalog" => SporeSpawnCeilingPlmDrawDefinitions.All.ToArray(),

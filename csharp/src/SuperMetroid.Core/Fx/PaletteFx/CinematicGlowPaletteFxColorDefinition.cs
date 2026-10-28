@@ -3,22 +3,9 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// <summary>One complete cinematic glow control program.</summary>
 public sealed class CinematicGlowPaletteFxColorDefinition
 {
-    /// <summary>Binds a glow owner to its object, first record, CGRAM destination, record width, and cadence.</summary>
-    internal CinematicGlowPaletteFxColorDefinition(
-        CinematicGlowPaletteFxProgramOwner owner,
-        PaletteFxObject paletteFxObject,
-        PaletteFxProgram program,
-        int colorByteIndex,
-        int colorsPerFrame,
-        int frameDuration)
-    {
-        Owner = owner;
-        Object = paletteFxObject;
-        Rows = PaletteFxColorRows.Of(program, colorsPerFrame);
-        ColorByteIndex = colorByteIndex;
-        ColorsPerFrame = colorsPerFrame;
-        FrameDuration = frameDuration;
-    }
+    /// <summary>Builds the definition from its owner's program values.</summary>
+    internal CinematicGlowPaletteFxColorDefinition(CinematicGlowPaletteFxProgramOwner owner, PaletteFxObject paletteFxObject, PaletteFxProgram program, int colorByteIndex, int colorsPerFrame, int frameDuration) =>
+        (Owner, Object, ColorByteIndex, ColorsPerFrame, FrameDuration, Rows) = (owner, paletteFxObject, colorByteIndex, colorsPerFrame, frameDuration, PaletteFxColorRows.Of(program, colorsPerFrame));
 
     /// <summary>The mutually exclusive glow owner.</summary>
     public CinematicGlowPaletteFxProgramOwner Owner { get; }

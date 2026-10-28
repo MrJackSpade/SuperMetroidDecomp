@@ -11,14 +11,14 @@ namespace SuperMetroid.Verification.Frontend.Map;
 internal static class MapWindowMotionDefinitionsVerification
 {
     /// <summary>Compares native X origins and checks edited labels feed the actual window's left edge.</summary>
-    internal static void VerifyMapWindowOriginX(ISnesAddressSpace rom, WorldMapLabelLayout labels) =>
+    internal static void VerifyMapWindowOriginX(ISnesAddressSpace rom, WorldMapLabelPositions labels) =>
         Suite(nameof(VerifyMapWindowOrigin), () => VerifyMapWindowOrigin(rom, labels, vertical: false));
     /// <summary>Compares native Y origins and checks edited labels feed the actual window's top edge.</summary>
-    internal static void VerifyMapWindowOriginY(ISnesAddressSpace rom, WorldMapLabelLayout labels) =>
+    internal static void VerifyMapWindowOriginY(ISnesAddressSpace rom, WorldMapLabelPositions labels) =>
         Suite(nameof(VerifyMapWindowOrigin), () => VerifyMapWindowOrigin(rom, labels, vertical: true));
 
     /// <summary>Checks one coordinate for all six areas, round-trips edits, and rejects unsupported identities.</summary>
-    private static void VerifyMapWindowOrigin(ISnesAddressSpace rom, WorldMapLabelLayout labels, bool vertical)
+    private static void VerifyMapWindowOrigin(ISnesAddressSpace rom, WorldMapLabelPositions labels, bool vertical)
     {
         int field = vertical ? 2 : 0;
         for (int area = 0; area < 6; area++)
@@ -36,9 +36,9 @@ internal static class MapWindowMotionDefinitionsVerification
             editedAreas[((AreaId)area).ToString()] = vertical
                 ? installed with { Y = editedCoordinate } : installed with { X = editedCoordinate };
             using var json = new MemoryStream();
-            WorldMapLabelLayout.Write(json, new() { Version = 1, Areas = editedAreas });
+            WorldMapLabelPositions.Write(json, new() { Version = 1, Areas = editedAreas });
             json.Position = 0;
-            WorldMapLabelLayout edited = WorldMapLabelLayout.Load(json);
+            WorldMapLabelPositions edited = WorldMapLabelPositions.Load(json);
             for (int identity = 0; identity < 6; identity++)
                 AssertEqual(editedAreas[((AreaId)identity).ToString()], edited.Get(identity),
                     "named selection preserves edited and untouched coordinate fields");

@@ -112,9 +112,9 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
     {
         int count, first;
         Pose pose;
-        if (shown == EndingExplosionSpriteDefinitions.PoseOf(Pose.Glow)) { count = 3; first = 0; pose = Pose.Glow; }
-        else if (shown == EndingExplosionSpriteDefinitions.PoseOf(Pose.SupernovaFirst)) { count = 5; first = 0; pose = Pose.SupernovaFirst; }
-        else if (shown == EndingExplosionSpriteDefinitions.PoseOf(Pose.SupernovaSecond)) { count = 5; first = 3; pose = Pose.SupernovaSecond; }
+        if (shown == EndingExplosionSpritePoses.PoseOf(Pose.Glow)) { count = 3; first = 0; pose = Pose.Glow; }
+        else if (shown == EndingExplosionSpritePoses.PoseOf(Pose.SupernovaFirst)) { count = 5; first = 0; pose = Pose.SupernovaFirst; }
+        else if (shown == EndingExplosionSpritePoses.PoseOf(Pose.SupernovaSecond)) { count = 5; first = 3; pose = Pose.SupernovaSecond; }
         else return supplied;
         if (supplied.PartCount != count * 4) return supplied;
         var basis = new CompiledSpritePart[count];

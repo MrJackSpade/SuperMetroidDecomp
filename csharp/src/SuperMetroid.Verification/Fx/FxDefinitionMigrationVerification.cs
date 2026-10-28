@@ -32,15 +32,15 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(0x14000, QuicksandDefinitions.SlowSandfallDisplacement.RawValue, "slow sandfall");
         AssertEqual(0x1c000, QuicksandDefinitions.FastSandfallDisplacement.RawValue, "fast sandfall");
         AssertEqual(0x3000, QuicksandDefinitions.StationarySurfaceProbeLimit.RawValue, "stationary surface probe limit");
-        AssertEqual(0x28000, QuicksandDefinitions.SurfacePhysics(gravitySuit: false).UpwardSpeedLimit.RawValue, "upward cap without Gravity");
-        AssertEqual(0x10000, QuicksandDefinitions.SurfacePhysics(gravitySuit: true).StationaryDisplacement.RawValue, "stationary sink with Gravity");
+        AssertEqual(0x28000, QuicksandReactions.SurfacePhysics(gravitySuit: false).UpwardSpeedLimit.RawValue, "upward cap without Gravity");
+        AssertEqual(0x10000, QuicksandReactions.SurfacePhysics(gravitySuit: true).StationaryDisplacement.RawValue, "stationary sink with Gravity");
         AssertEqual((short)2, ConveyorBlockDefinitions.RightwardCarry, "rightward conveyor carry");
         AssertEqual((short)-2, ConveyorBlockDefinitions.LeftwardCarry, "leftward conveyor carry");
 
         // The Fireflea shades are the high bytes of the former shade words.
-        AssertEqual((byte)0xc2, FirefleaFxDefinitions.DarknessShade(12), "darkness level past the ramp");
-        AssertEqual((byte)25, FirefleaFxDefinitions.DarknessShade(10), "last ramp darkness level");
-        AssertEqual((byte)6, FirefleaFxDefinitions.FlashingShade(6), "brightest flash level");
+        AssertEqual((byte)0xc2, FirefleaShades.DarknessShade(12), "darkness level past the ramp");
+        AssertEqual((byte)25, FirefleaShades.DarknessShade(10), "last ramp darkness level");
+        AssertEqual((byte)6, FirefleaShades.FlashingShade(6), "brightest flash level");
 
         // The atlas is keyed by picture; the import reads each picture from the address it was keyed by.
         AssertEqual(34, RoomFxAnimatedTileAtlasFormat.Segments.Count(), "atlas segments");
@@ -50,15 +50,15 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(0x878ec4, AnimatedTileImageSources.Treadmill(3), "fourth treadmill picture source");
         AssertEqual(0x8798e4, AnimatedTileImageSources.TourianStatue(AnimatedTileObject.TourianStatueDraygon, TourianStatueTilePicture.Released),
             "Draygon released statue picture source");
-        AssertEqual(0x40, TourianStatueTileStripDefinitions.WindowByteCount(AnimatedTileObject.TourianStatueRidley), "Ridley statue picture size");
-        RoomFxAnimatedTileObjectDefinition spikes = RoomFxAnimatedTileMechanicsDefinitions.Require(AnimatedTileObject.HorizontalSpikes);
+        AssertEqual(0x40, TourianStatueTileStrip.WindowByteCount(AnimatedTileObject.TourianStatueRidley), "Ridley statue picture size");
+        RoomFxAnimatedTileLoop spikes = RoomFxAnimatedTiles.Require(AnimatedTileObject.HorizontalSpikes);
         AssertEqual(new AnimatedTileImage(AnimatedTileObject.HorizontalSpikes, 1), spikes.Image(spikes.Frames[3]), "the fourth spike step repeats the second picture");
         AssertEqual(new AnimatedTileImage(AnimatedTileObject.WreckedShipTreadmillRightwards, 3),
-            WreckedShipTreadmillMechanicsDefinitions.ForDirection(WreckedShipTreadmillDirection.Leftwards).Image(0),
+            WreckedShipTreadmills.ForDirection(WreckedShipTreadmillDirection.Leftwards).Image(0),
             "the leftward treadmill starts on the rightward loop's last picture");
         AssertEqual(0x20, WreckedShipTreadmillMechanicsDefinitions.FrameByteCount, "treadmill frame size");
-        AssertEqual(0x40, RoomFxAnimatedTileMechanicsDefinitions.Require(AnimatedTileObject.Lava).FrameByteCount, "liquid frame size");
-        AssertEqual(0x50, RoomFxAnimatedTileMechanicsDefinitions.Require(AnimatedTileObject.Rain).FrameByteCount, "rain frame size");
+        AssertEqual(0x40, RoomFxAnimatedTiles.Require(AnimatedTileObject.Lava).FrameByteCount, "liquid frame size");
+        AssertEqual(0x50, RoomFxAnimatedTiles.Require(AnimatedTileObject.Rain).FrameByteCount, "rain frame size");
 
         // RoomFxRomData's effect motion, waves and tides.
         AssertEqual(10, WaterWaveDefinitions.Bg3WavePhaseDuration, "water layer-three wave step");
@@ -113,7 +113,7 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(0x2c, SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(RoomFxType.CeresHaze), "Ceres haze type byte");
         AssertEqual(0x34, RoomFxRecordCodec.LayerBlends.Word(LayerBlendingConfiguration.MotherBrainPhaseTwo), "Mother Brain blend byte");
         AssertEqual(0xee, SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.PaletteBlends.Word(RoomFxPaletteBlend.MaridiaWaterD), "Maridia water D blend byte");
-        AssertEqual("blend-EE", RoomFxPaletteBlendDefinitions.Key(RoomFxPaletteBlend.MaridiaWaterD), "installed blend key keeps its name");
+        AssertEqual("blend-EE", RoomFxPaletteBlendRules.Key(RoomFxPaletteBlend.MaridiaWaterD), "installed blend key keeps its name");
         AssertEqual((byte)0x80, RoomFxRecordEncoding.SlotsByte(RoomFxEffectSlotSet.Slot(7)), "eighth effect slot");
         Console.WriteLine("Fx definition migration: native words, catalog values, atlas picture sources, effect page sources and decoded FX records keep their values.");
     }

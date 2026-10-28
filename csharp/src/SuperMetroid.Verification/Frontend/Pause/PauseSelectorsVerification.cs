@@ -27,7 +27,7 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 internal static class PauseSelectorsVerification
 {
     /// <summary>Compares all sixteen selectors with guarded native rendering and exercises edited animation and OAM parts.</summary>
-    internal static void VerifyPauseSelectors(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog catalog)
+    internal static void VerifyPauseSelectors(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation catalog)
     {
         Directory.CreateDirectory(overrides);
         string stockPath = Path.Combine(stock, PauseSelectorDefinitions.FileName), path = Path.Combine(overrides, PauseSelectorDefinitions.FileName);
@@ -38,7 +38,7 @@ internal static class PauseSelectorsVerification
         Suite(nameof(VerifyPauseSelectorAnchors), () => VerifyPauseSelectorAnchors(bus));
         Suite(nameof(VerifyPauseSelectorNativeDurations), () => VerifyPauseSelectorNativeDurations(bus, catalog.PauseSelectors));
         for (int group = 0; group < 3; group++) VerifyPauseSelectorNativeCompositions(bus, catalog.PauseSelectors, group);
-        foreach (var anchor in PauseSelectorDefinitions.Anchors())
+        foreach (var anchor in PauseSelectorAnchors.Anchors())
         {
             var native = Create(bus, catalog, anchor.Category, anchor.Item);
             var pause = Create(guard, catalog, anchor.Category, anchor.Item);
@@ -151,7 +151,7 @@ internal static class PauseSelectorsVerification
         }
         finally { File.WriteAllBytes(stockPath, bytes); }
         Console.WriteLine("Pause selectors: sixteen anchors/672 native OAM cases, 1600 guarded native frames, authored timing/parts/palettes, actual toggle, current-content restore and strict failures pass.");
-        static PauseMenuState Create(ISnesAddressSpace addressSpace, AreaMapPresentationCatalog content, PauseEquipmentCategory category, int item)
+        static PauseMenuState Create(ISnesAddressSpace addressSpace, AreaMapPresentation content, PauseEquipmentCategory category, int item)
         {
             var samus = new SamusState();
             if (category == PauseEquipmentCategory.Reserves) { samus.MaxReserveEnergy = 100; samus.ReserveEnergy = 50; samus.ReserveTankMode = ReserveTankMode.Manual; }
@@ -175,7 +175,7 @@ internal static class PauseSelectorsVerification
         Add(0x82c0da, 2); Add(0x82c0ec, 2); Add(0x82c100, 2); Add(0x82c10c, 1); Add(0x82c18e, 8); Add(0x82c1e8, 2);
         Add(0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82c0ec), 43);
         Add(0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82c1e8), 8);
-        foreach (var anchor in PauseSelectorDefinitions.Anchors())
+        foreach (var anchor in PauseSelectorAnchors.Anchors())
             Add((0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82c18e + (int)anchor.Category * 2)) + anchor.Item * 4, 4);
         foreach (int id in new[] { 0x14, 0x15, 0x16 })
         {

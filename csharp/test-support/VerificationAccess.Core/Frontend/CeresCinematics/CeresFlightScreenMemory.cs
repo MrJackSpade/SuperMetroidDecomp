@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 internal static class CeresFlightScreenMemory
 {
     /// <summary>The image of <paramref name="artwork"/>'s front view, or its rear view once <c>$BE22</c> has queued it.</summary>
-    internal static byte[] View(CeresFlightArtworkCatalog artwork, bool rear)
+    internal static byte[] View(CeresFlightArtwork artwork, bool rear)
     {
         var vram = new SnesVram();
         // $BCCD writes all $4000 character bytes to $2119, fills every corresponding low

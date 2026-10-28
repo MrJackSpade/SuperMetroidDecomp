@@ -10,7 +10,7 @@ internal sealed class IntroMotherBrainExplosionParts(bool big, int frame) : IRea
     internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         for (int index = 0; index < 12; index++)
-            if (IntroMotherBrainExplosionSpriteDefinitions.FramePose(index >= 6, index % 6) == shown)
+            if (IntroMotherBrainExplosionPoses.FramePose(index >= 6, index % 6) == shown)
                 return supplied.CalculateIfMatching(new IntroMotherBrainExplosionParts(index >= 6, index % 6));
         return supplied;
     }

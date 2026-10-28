@@ -40,9 +40,9 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     /// <summary>Routes Yes directly to the Ceres loader for the saved arrival state.</summary>
     private readonly bool continueLoadsCeresArrival;
     /// <summary>Installed artwork rebound after debugger restoration without changing menu timing.</summary>
-    [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
+    [NonSerialized] private AreaMapPresentation? mapPresentation;
     /// <summary>The installed map presentation the game-over screen draws from.</summary>
-    private AreaMapPresentationCatalog MapPresentation => mapPresentation ??
+    private AreaMapPresentation MapPresentation => mapPresentation ??
         throw new InvalidOperationException("No map presentation is installed for the game-over screen.");
 
     /// <summary>Creates the game-over scene with installed artwork and its BG1 tilemap, leaving music, animation, and fade initialization for the first update.</summary>
@@ -57,7 +57,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     /// </param>
     public GameOverMenuState(
         AudioQueues audio,
-        AreaMapPresentationCatalog? mapPresentation,
+        AreaMapPresentation? mapPresentation,
         InstalledSpriteSheets? spriteSheets,
         bool continueLoadsCeresArrival = false)
     {
@@ -100,7 +100,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     /// Reattaches host-owned presentation after debugger restoration and refreshes only
     /// presentation-owned PPU state. Animation phase, answer selection and fade remain live.
     /// </summary>
-    public void BindMapPresentation(AreaMapPresentationCatalog? catalog)
+    public void BindMapPresentation(AreaMapPresentation? catalog)
     {
         string? previousIdentity = mapPresentation?.ContentIdentity;
         mapPresentation = catalog ?? throw new InvalidOperationException(

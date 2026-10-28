@@ -72,34 +72,34 @@ public static class FileSelectPresentationExtractor
             [FileSelectPresentationDefinitions.BackgroundPageName] = Cells(
                 RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.Background,
                     MapSourceDefinitions.Menu.TilemapBytes)),
-            [FileSelectPresentationDefinitions.PageName(FileSelectPage.MainWithData)] = Cells(mainWithData),
-            [FileSelectPresentationDefinitions.PageName(FileSelectPage.MainEmpty)] = Cells(mainEmpty),
-            [FileSelectPresentationDefinitions.PageName(FileSelectPage.CopySource)] = Cells(CopyPage(
+            [FileSelectParts.PageName(FileSelectPage.MainWithData)] = Cells(mainWithData),
+            [FileSelectParts.PageName(FileSelectPage.MainEmpty)] = Cells(mainEmpty),
+            [FileSelectParts.PageName(FileSelectPage.CopySource)] = Cells(CopyPage(
                 FileSelectTilemapSourceDefinitions.CopyWhichData, FileSelectNativeLayout.CopySourcePromptDestination)),
-            [FileSelectPresentationDefinitions.PageName(FileSelectPage.CopyDestination)] = Cells(CopyPage(
+            [FileSelectParts.PageName(FileSelectPage.CopyDestination)] = Cells(CopyPage(
                 FileSelectTilemapSourceDefinitions.CopySamusToWhere, FileSelectNativeLayout.CopyDestinationPromptDestination)),
-            [FileSelectPresentationDefinitions.PageName(FileSelectPage.CopyConfirm)] = Cells(CopyPage(
+            [FileSelectParts.PageName(FileSelectPage.CopyConfirm)] = Cells(CopyPage(
                 FileSelectTilemapSourceDefinitions.CopySamusToSamus,
                 FileSelectNativeLayout.CopyConfirmationPromptDestination, confirmation: true)),
-            [FileSelectPresentationDefinitions.PageName(FileSelectPage.CopyCompleted)] = Cells(CopyPage(
+            [FileSelectParts.PageName(FileSelectPage.CopyCompleted)] = Cells(CopyPage(
                 FileSelectTilemapSourceDefinitions.CopySamusToSamus,
                 FileSelectNativeLayout.CopyConfirmationPromptDestination, confirmation: true,
                 completion: FileSelectTilemapSourceDefinitions.CopyCompleted)),
-            [FileSelectPresentationDefinitions.PageName(FileSelectPage.ClearSelection)] = Cells(ClearPage(
+            [FileSelectParts.PageName(FileSelectPage.ClearSelection)] = Cells(ClearPage(
                 FileSelectTilemapSourceDefinitions.ClearWhichData, FileSelectNativeLayout.ClearPromptDestination)),
-            [FileSelectPresentationDefinitions.PageName(FileSelectPage.ClearConfirm)] = Cells(ClearPage(
+            [FileSelectParts.PageName(FileSelectPage.ClearConfirm)] = Cells(ClearPage(
                 FileSelectTilemapSourceDefinitions.ClearSamus, FileSelectNativeLayout.ClearPromptDestination,
                 confirmation: true)),
-            [FileSelectPresentationDefinitions.PageName(FileSelectPage.ClearCompleted)] = Cells(ClearPage(
+            [FileSelectParts.PageName(FileSelectPage.ClearCompleted)] = Cells(ClearPage(
                 FileSelectTilemapSourceDefinitions.ClearSamus, FileSelectNativeLayout.ClearPromptDestination,
                 confirmation: true, completed: true)),
         };
 
         var patches = new Dictionary<string, FileSelectPatchDocument>(StringComparer.Ordinal)
         {
-            [FileSelectPresentationDefinitions.PatchName(FileSelectPatch.Energy)] = Document(Patch(FileSelectTilemapSourceDefinitions.Energy)),
-            [FileSelectPresentationDefinitions.PatchName(FileSelectPatch.NoData)] = Document(Patch(FileSelectTilemapSourceDefinitions.NoData)),
-            [FileSelectPresentationDefinitions.PatchName(FileSelectPatch.TimeColon)] = Document(Patch(FileSelectTilemapSourceDefinitions.TimeColon)),
+            [FileSelectParts.PatchName(FileSelectPatch.Energy)] = Document(Patch(FileSelectTilemapSourceDefinitions.Energy)),
+            [FileSelectParts.PatchName(FileSelectPatch.NoData)] = Document(Patch(FileSelectTilemapSourceDefinitions.NoData)),
+            [FileSelectParts.PatchName(FileSelectPatch.TimeColon)] = Document(Patch(FileSelectTilemapSourceDefinitions.TimeColon)),
         };
         var digits = Enumerable.Range(0, 10)
             .Select(value => Cell(BackgroundTileWords.ToWord(FileSelectLayout.Digit(value))))
@@ -110,18 +110,18 @@ public static class FileSelectPresentationExtractor
 
         var sprites = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal)
         {
-            [FileSelectPresentationDefinitions.BorderSpriteName(FileSelectBorder.Main)] =
+            [FileSelectParts.BorderSpriteName(FileSelectBorder.Main)] =
                 MenuSpriteExtractor.Read(bus, FileSelectNativeLayout.NormalBorderSpritemap),
-            [FileSelectPresentationDefinitions.BorderSpriteName(FileSelectBorder.Copy)] =
+            [FileSelectParts.BorderSpriteName(FileSelectBorder.Copy)] =
                 MenuSpriteExtractor.Read(bus, FileSelectNativeLayout.CopyBorderSpritemap),
-            [FileSelectPresentationDefinitions.BorderSpriteName(FileSelectBorder.Clear)] =
+            [FileSelectParts.BorderSpriteName(FileSelectBorder.Clear)] =
                 MenuSpriteExtractor.Read(bus, FileSelectNativeLayout.ClearBorderSpritemap),
         };
         for (int frame = 0; frame < MenuMissileAnimationDefinitions.FrameCount; frame++)
-            sprites.Add(FileSelectPresentationDefinitions.CursorSpriteName(frame),
-                MenuSpriteExtractor.Read(bus, MenuMissileAnimationDefinitions.SpritemapId(frame)));
+            sprites.Add(FileSelectParts.CursorSpriteName(frame),
+                MenuSpriteExtractor.Read(bus, MenuMissileSpritemaps.SpritemapId(frame)));
         for (int frame = 0; frame < FileSelectHelmetAnimation.FrameCount; frame++)
-            sprites.Add(FileSelectPresentationDefinitions.HelmetSpriteName(frame),
+            sprites.Add(FileSelectParts.HelmetSpriteName(frame),
                 MenuSpriteExtractor.Read(bus, FileSelectHelmetAnimation.SpritemapId(frame)));
 
         using var output = new MemoryStream();
@@ -153,30 +153,30 @@ public static class FileSelectPresentationExtractor
             Sprites = sprites,
             BorderAnchors = new(StringComparer.Ordinal)
             {
-                [FileSelectPresentationDefinitions.BorderName(FileSelectBorder.Main)] = new(128, 16),
-                [FileSelectPresentationDefinitions.BorderName(FileSelectBorder.Copy)] = new(128, 16),
-                [FileSelectPresentationDefinitions.BorderName(FileSelectBorder.Clear)] = new(124, 16),
+                [FileSelectParts.BorderName(FileSelectBorder.Main)] = new(128, 16),
+                [FileSelectParts.BorderName(FileSelectBorder.Copy)] = new(128, 16),
+                [FileSelectParts.BorderName(FileSelectBorder.Clear)] = new(124, 16),
             },
             MainCursorAnchors = Enumerable.Range(0, FileSelectLayout.MainSelectionCount)
-                .Select(FileSelectLayout.MainSelectionY)
+                .Select(FileSelectCursorPositions.MainSelectionY)
                 .Select(y => new Position16<SpritePixels>(14, y)).ToArray(),
             DataCursorAnchors = Enumerable.Range(0, FileSelectLayout.DataSelectionCount)
-                .Select(FileSelectLayout.DataSelectionY)
+                .Select(FileSelectCursorPositions.DataSelectionY)
                 .Select(y => new Position16<SpritePixels>(22, y)).ToArray(),
             ConfirmationCursorAnchors =
                 [new(94, 184), new(94, 208)],
             HelmetAnchors = Enumerable.Range(0, FileSelectLayout.SaveSlotCount)
-                .Select(FileSelectLayout.HelmetY)
+                .Select(FileSelectCursorPositions.HelmetY)
                 .Select(y => new Position16<SpritePixels>(100, y)).ToArray(),
             DynamicAnchors = new(StringComparer.Ordinal)
             {
-                [FileSelectPresentationDefinitions.AnchorName(FileSelectAnchor.CopyDestinationSource)] =
+                [FileSelectParts.AnchorName(FileSelectAnchor.CopyDestinationSource)] =
                     Point(FileSelectNativeLayout.CopyDestinationSourceLetterDestination),
-                [FileSelectPresentationDefinitions.AnchorName(FileSelectAnchor.CopyConfirmSource)] =
+                [FileSelectParts.AnchorName(FileSelectAnchor.CopyConfirmSource)] =
                     Point(FileSelectNativeLayout.CopyConfirmationSourceLetterDestination),
-                [FileSelectPresentationDefinitions.AnchorName(FileSelectAnchor.CopyConfirmDestination)] =
+                [FileSelectParts.AnchorName(FileSelectAnchor.CopyConfirmDestination)] =
                     Point(FileSelectNativeLayout.CopyConfirmationDestinationLetterDestination),
-                [FileSelectPresentationDefinitions.AnchorName(FileSelectAnchor.ClearConfirmSource)] =
+                [FileSelectParts.AnchorName(FileSelectAnchor.ClearConfirmSource)] =
                     Point(FileSelectNativeLayout.ClearConfirmationSourceLetterDestination),
             },
             ObjectPalette = MenuRenderDefinitions.ObjectPalette,

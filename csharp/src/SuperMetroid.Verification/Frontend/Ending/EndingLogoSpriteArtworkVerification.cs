@@ -18,7 +18,7 @@ internal static class EndingLogoSpriteArtworkVerification
 {
     /// <summary>Compares every installed logo frame at visible and wrapped origins with native OAM.</summary>
     internal static void VerifyEndingLogoSpriteArtwork(ISnesAddressSpace bus,
-        EndingObjectArtworkCatalog stock)
+        EndingObjectArtwork stock)
     {
         foreach (CinematicSpriteFrameDefinition frame in EndingLogoSpriteDefinitions.Frames)
         {
@@ -48,7 +48,7 @@ internal static class EndingLogoSpriteArtworkVerification
     }
 
     /// <summary>Loads a moved circle frame from an override and verifies that missing named art is rejected.</summary>
-    internal static EndingObjectArtworkCatalog LoadEditedEndingLogoArtwork(
+    internal static EndingObjectArtwork LoadEditedEndingLogoArtwork(
         GameInstallation installation)
     {
         string name = EndingLogoSpriteFormat.FileName;
@@ -64,7 +64,7 @@ internal static class EndingLogoSpriteArtworkVerification
         {
             using (var output = File.Create(overridePath))
                 EndingLogoSpritePresentation.Write(output, document);
-            EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
+            EndingObjectArtwork edited = installation.LoadEndingObjectArt();
             document.Frames.Remove("circle-right-3");
             AssertThrows<InvalidDataException>(() =>
             {

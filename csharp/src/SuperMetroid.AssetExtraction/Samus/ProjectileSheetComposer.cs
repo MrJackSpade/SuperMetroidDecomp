@@ -34,7 +34,7 @@ internal static class ProjectileSheetComposer
         SamusBeamCombination beams;
         if (sheet == SpriteSheetId.IntroProjectiles)
         {
-            IntroCinematicArtworkCatalog intro = inputs.Intro;
+            IntroCinematicArtwork intro = inputs.Intro;
             cgram = new ScreenPalette();
             basePage = IntroObjectPage.Of(intro);
             beams = SamusBeamCombination.Power;

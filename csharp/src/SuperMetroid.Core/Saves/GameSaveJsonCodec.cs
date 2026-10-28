@@ -434,8 +434,8 @@ public static class GameSaveJsonCodec
                 {
                     var cell = new Position16<MapTiles>(checked((ushort)x), checked((ushort)y));
                     int byteIndex = areaIndex * SharedGameState.ExploredMapBytesPerArea +
-                        AreaMapLayout.GetBitByteIndex(cell);
-                    if ((bytes[byteIndex] & AreaMapLayout.GetBitMask(cell.X)) != 0)
+                        AreaMapPages.GetBitByteIndex(cell);
+                    if ((bytes[byteIndex] & AreaMapPages.GetBitMask(cell.X)) != 0)
                         tiles.Add(MapCoordinateJsonDocument.FromCell(cell));
                 }
             }
@@ -474,8 +474,8 @@ public static class GameSaveJsonCodec
                     throw new InvalidDataException(
                         $"progression.exploredAreas[{areaIndex}].tiles must be row-major and unique");
                 int byteIndex = areaIndex * SharedGameState.ExploredMapBytesPerArea +
-                    AreaMapLayout.GetBitByteIndex(cell);
-                result[byteIndex] |= AreaMapLayout.GetBitMask(cell.X);
+                    AreaMapPages.GetBitByteIndex(cell);
+                result[byteIndex] |= AreaMapPages.GetBitMask(cell.X);
                 previousIndex = logicalIndex;
             }
         }

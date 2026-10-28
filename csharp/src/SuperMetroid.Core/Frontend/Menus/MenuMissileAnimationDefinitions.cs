@@ -13,21 +13,8 @@ public static class MenuMissileAnimationDefinitions
     /// </summary>
     public const int FrameDuration = 8;
 
-    /// <summary>
-    /// Returns the $82:BAB2 Draw_Menu_Selection_Missile spritemap ID for frame 0..3.
-    /// </summary>
-    /// <remarks>
-    /// Independently reviewed for #1165 against the supported ROM and pinned bank_82.asm.
-    /// The four consecutive menu spritemaps play in reverse ID order: 0x37-frame.
-    /// Native indexing doubles the frame to select a word; wrap belongs to the caller.
-    /// Reject unsupported indices with ArgumentOutOfRangeException,
-    /// rather than masking them. All three menu views and extraction share this function.
-    /// </remarks>
-    public static ushort SpritemapId(int frame)
-    {
-        if ((uint)frame >= FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
-        return (ushort)(0x37 - frame);
-    }
+    /// <summary>$82:BAB2: the spritemap ID frame zero draws; the four consecutive menu spritemaps play in reverse ID order.</summary>
+    internal const int FirstFrameSpritemap = 0x37;
 
     /// <summary>$82:C5D1: the first menu missile spritemap identity; playback order comes from $82:BAB2, not atlas ordering.</summary>
     internal const int FirstSpritemap = 0x34;

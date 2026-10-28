@@ -61,13 +61,13 @@ public static class SpriteSheetFiles
         var body = new Lazy<InstalledSamusBodyArtwork>(() => SamusBodyArtworkFiles.Load(
             Path.Combine(content, GameInstallationLayout.SamusBodyDirectoryName), null));
         // The pause sheet is named from the stock selector presentation installed beside it.
-        var maps = new Lazy<AreaMapPresentationCatalog>(() => MapPresentationFiles.Load(
+        var maps = new Lazy<AreaMapPresentation>(() => MapPresentationFiles.Load(
             Path.Combine(content, GameInstallationLayout.MapDirectoryName), null));
         // The intro sheet is named from the stock intro compositions installed beside it.
-        var intro = new Lazy<IntroCinematicArtworkCatalog>(() => IntroCinematicArtworkFiles.Load(
+        var intro = new Lazy<IntroCinematicArtwork>(() => IntroCinematicArtworkFiles.Load(
             Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName), null));
         // The ending sheets are named from the stock ending compositions installed beside them.
-        var ending = new Lazy<EndingObjectArtworkCatalog>(() => EndingObjectArtworkFiles.Load(
+        var ending = new Lazy<EndingObjectArtwork>(() => EndingObjectArtworkFiles.Load(
             Path.Combine(content, GameInstallationLayout.EndingObjectDirectoryName), null));
         foreach (SpriteSheetId sheet in SpriteSheetDefinitions.Sheets)
         {
@@ -99,7 +99,7 @@ public static class SpriteSheetFiles
     /// <param name="intro">The opening cinematic's artwork, whose compositions name the intro sheet's frames.</param>
     /// <param name="ending">The ending's sprite artwork, whose compositions name the ending sheets' frames.</param>
     internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, Lazy<InstalledSamusBodyArtwork> body,
-        Lazy<AreaMapPresentationCatalog> maps, Lazy<IntroCinematicArtworkCatalog> intro, Lazy<EndingObjectArtworkCatalog> ending) => sheet switch
+        Lazy<AreaMapPresentation> maps, Lazy<IntroCinematicArtwork> intro, Lazy<EndingObjectArtwork> ending) => sheet switch
     {
         SpriteSheetId.MenuForegroundTiles or SpriteSheetId.MenuMapTiles or
             SpriteSheetId.AreaMapForegroundTilesCrateria or SpriteSheetId.AreaMapForegroundTilesBrinstar or
@@ -120,16 +120,16 @@ public static class SpriteSheetFiles
             SpriteSheetId.EndingPlanetExplosionFloorTiles or SpriteSheetId.EndingFlyawayFloorTiles or
             SpriteSheetId.EndingRewardIconFloorTiles =>
             [FloorCharacterSheet.FrameName],
-        SpriteSheetId.EscapeTimer => EscapeTimerPresentationDefinitions.Glyphs.Select(EscapeTimerPresentationDefinitions.FrameName),
+        SpriteSheetId.EscapeTimer => EscapeTimerPresentationDefinitions.Glyphs.Select(EscapeTimerComposition.FrameName),
         SpriteSheetId.Grapple => GrappleSheets.Frames,
         SpriteSheetId.SamusBodyTop or SpriteSheetId.SamusBodyBottom => SamusBodySheetComposer.FrameNames(body.Value, sheet),
         SpriteSheetId.SamusOverlays => SamusOverlaySheetDefinitions.Frames,
         SpriteSheetId.SamusAtmosphere => SamusAtmosphereSheetDefinitions.Frames,
         SpriteSheetId.SamusDeath => SamusDeathSheetDefinitions.Frames,
         SpriteSheetId.GameOver => GameOverPresentationDefinitions.SpriteNames.ToArray(),
-        SpriteSheetId.FileSelect => FileSelectPresentationDefinitions.SheetFrames,
-        SpriteSheetId.GameOptions => GameOptionsPresentationDefinitions.SheetFrames,
-        SpriteSheetId.MapSprites => MapSpriteDefinitions.SheetFrames,
+        SpriteSheetId.FileSelect => FileSelectParts.SheetFrames,
+        SpriteSheetId.GameOptions => GameOptionsNames.SheetFrames,
+        SpriteSheetId.MapSprites => MapSpriteNames.SheetFrames,
         SpriteSheetId.PauseSprites => PauseSheetComposer.FrameNames(maps.Value),
         SpriteSheetId.Title => TitleSpriteDefinitions.All.Select(TitleSpriteDefinitions.FrameName),
         SpriteSheetId.IntroSprites => IntroSpriteSheetComposer.FrameNames(intro.Value),

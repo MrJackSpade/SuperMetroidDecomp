@@ -28,7 +28,7 @@ internal sealed class EnemyTileTransfers(InstalledEnemyArtwork installed,
     public BossArtworkCatalog BossTiles => installed.Bosses;
 
     /// <inheritdoc/>
-    public AreaArtworkCatalog AreaTiles => installed.Areas;
+    public AreaArtworkBundle AreaTiles => installed.Areas;
 
     /// <summary>Rejects animated tiles, which enemy tile fixtures never bind.</summary>
     public SuperMetroid.Core.Fx.Artwork.RoomFxAnimatedTileAtlas AnimatedTiles =>

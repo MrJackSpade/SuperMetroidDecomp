@@ -12,8 +12,8 @@ public static class RoomFxSources
     public static IEnumerable<ushort> Pointers => RoomFxSourceDefinitions.ByPointer.Keys.Order();
 
     /// <summary>The compiled FX header at <paramref name="pointer"/>.</summary>
-    public static RoomFxDefinition Fx(ushort pointer) =>
-        RoomFxSourceDefinitions.ByPointer.TryGetValue(pointer, out RoomFxDefinition? found)
+    public static RoomFxHeader Fx(ushort pointer) =>
+        RoomFxSourceDefinitions.ByPointer.TryGetValue(pointer, out RoomFxHeader? found)
             ? found
             : throw new ArgumentOutOfRangeException(nameof(pointer), pointer, "Pointer is not one of the 285 retail room FX headers.");
 }

@@ -103,7 +103,7 @@ internal interface IGameplayArtwork
     InstalledRoomPlmLinkedRestoreVisuals? RoomPlmLinkedRestoreVisuals { get; }
 
     /// <summary>Room PLM tourian access visuals.</summary>
-    RoomPlmTourianAccessVisualCatalog? RoomPlmTourianAccessVisuals { get; }
+    RoomPlmTourianAccessVisuals? RoomPlmTourianAccessVisuals { get; }
 
     /// <summary>Room PLM speed booster visuals.</summary>
     InstalledRoomPlmSpeedBoosterVisuals? RoomPlmSpeedBoosterVisuals { get; }
@@ -187,5 +187,5 @@ internal interface IGameplayArtwork
     BossArtworkCatalog? BossArtwork { get; }
 
     /// <summary>The Ceres door and escape artwork and the Tourian statues' colors.</summary>
-    AreaArtworkCatalog? AreaArtwork { get; }
+    AreaArtworkBundle? AreaArtwork { get; }
 }

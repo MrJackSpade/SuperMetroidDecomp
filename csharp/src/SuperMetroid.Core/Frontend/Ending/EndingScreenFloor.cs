@@ -12,7 +12,7 @@ internal static class EndingScreenFloor
 {
     /// <summary>The floor's cells once <paramref name="uploads"/> have been made, in order.</summary>
     /// <exception cref="InvalidOperationException">An upload names installed artwork that is not bound.</exception>
-    internal static byte[] Cells(IReadOnlyList<EndingUpload> uploads, EndingFloorArtworkCatalog? floor, CeresFlightArtworkCatalog? flight)
+    internal static byte[] Cells(IReadOnlyList<EndingUpload> uploads, EndingFloorArtwork? floor, CeresFlightArtwork? flight)
     {
         var cells = new byte[AffineFloor.CellCount];
         int chunkBytes = EndingArtworkExtentDefinitions.FlyawayChunkBytes;
@@ -35,7 +35,7 @@ internal static class EndingScreenFloor
                 case EndingUploadKind.RewardChunk:
                     // Each reward chunk uploads words of a map cell and a tile pixel; it lays out the cells of its words.
                     int chunkCells = EndingRewardGraphicsUploadDefinitions.ChunkBytes / sizeof(ushort);
-                    int source = EndingRewardGraphicsUploadDefinitions.ChunkOffset(upload.As<EndingChunkUpload>().Chunk) / sizeof(ushort);
+                    int source = EndingRewardGraphicsUploads.ChunkOffset(upload.As<EndingChunkUpload>().Chunk) / sizeof(ushort);
                     Floor(floor).RewardIcon.Map.Span.Slice(source, chunkCells).CopyTo(cells.AsSpan(upload.As<EndingChunkUpload>().Chunk * chunkCells));
                     break;
                 case EndingUploadKind.FlyawayChunk:
@@ -59,9 +59,9 @@ internal static class EndingScreenFloor
     }
 
     /// <summary>The flight's map data padded with the blank tile to the whole floor, as the flyaway uploads it.</summary>
-    private static byte[] FlyawayMap(CeresFlightArtworkCatalog? flight)
+    private static byte[] FlyawayMap(CeresFlightArtwork? flight)
     {
-        CeresFlightArtworkCatalog content = flight ?? throw new InvalidOperationException("Ending flyaway requires installed flight artwork.");
+        CeresFlightArtwork content = flight ?? throw new InvalidOperationException("Ending flyaway requires installed flight artwork.");
         var map = new byte[EndingArtworkExtentDefinitions.FloorBytes];
         content.FloorMaps.Span[..EndingArtworkExtentDefinitions.FlyawayMapDataBytes].CopyTo(map);
         map.AsSpan(EndingArtworkExtentDefinitions.FlyawayMapDataBytes).Fill(EndingArtworkExtentDefinitions.FlyawayBlankTile);
@@ -69,6 +69,6 @@ internal static class EndingScreenFloor
     }
 
     /// <summary>The bound floor artwork, which the scene and reward uploads require.</summary>
-    private static EndingFloorArtworkCatalog Floor(EndingFloorArtworkCatalog? floor) =>
+    private static EndingFloorArtwork Floor(EndingFloorArtwork? floor) =>
         floor ?? throw new InvalidOperationException("Ending Mode-7 scenes require installed artwork.");
 }

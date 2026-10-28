@@ -21,7 +21,7 @@ internal static class GameOverPresentationVerification
         ISnesAddressSpace bus,
         string stock,
         string overrides,
-        AreaMapPresentationCatalog original)
+        AreaMapPresentation original)
     {
         string stockPath = Path.Combine(stock, GameOverPresentationDefinitions.FileName);
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.GameOverPresentationExtractor.Extract(bus);
@@ -95,14 +95,14 @@ internal static class GameOverPresentationVerification
             cell.TileRow != (GameOverPresentationDefinitions.BlankTile / MapTileAtlasFormat.TileColumns));
         int visibleIndex = Array.IndexOf(document.Tilemap, firstVisible);
         document.Tilemap[visibleIndex] = firstVisible with { FlipX = !firstVisible.FlipX };
-        document.Sprites[GameOverPresentationDefinitions.CursorFrameName(0)][0] =
-            document.Sprites[GameOverPresentationDefinitions.CursorFrameName(0)][0] with
-            { FlipY = !document.Sprites[GameOverPresentationDefinitions.CursorFrameName(0)][0].FlipY };
+        document.Sprites[GameOverPresentationNames.CursorFrameName(0)][0] =
+            document.Sprites[GameOverPresentationNames.CursorFrameName(0)][0] with
+            { FlipY = !document.Sprites[GameOverPresentationNames.CursorFrameName(0)][0].FlipY };
         Directory.CreateDirectory(overrides);
         string replacement = Path.Combine(overrides, GameOverPresentationDefinitions.FileName);
         using (var output = File.Create(replacement))
             GameOverPresentation.Write(output, document);
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "game-over override changes selected catalog identity");
         AssertEqual(document.BabyAnchor, edited.GameOver.BabyAnchor,
@@ -156,7 +156,7 @@ internal static class GameOverPresentationVerification
             "game-over rejects missing named sprite");
         var shortPalette = RequiredJson.Deserialize<GameOverPresentationDocument>(
             extracted, ArtworkJson.Options);
-        shortPalette.BabyPalettes[GameOverPresentationDefinitions.BabyPaletteName(
+        shortPalette.BabyPalettes[GameOverPresentationNames.BabyPaletteName(
             GameOverBabyPalette.OpenCry)] = [0];
         AssertThrows<InvalidDataException>(() => GameOverPresentation.Write(Stream.Null, shortPalette),
             "game-over rejects malformed Baby palette");

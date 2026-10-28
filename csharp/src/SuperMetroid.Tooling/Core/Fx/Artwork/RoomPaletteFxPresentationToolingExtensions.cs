@@ -21,12 +21,12 @@ internal static class RoomPaletteFxPresentationToolingExtensions
             get
             {
                 foreach (PaletteFxColorKey key in self.colors.Keys)
-                    if (!MaridiaEnvironmentalColorDefinitions.TrySource(key, out _) &&
-                        !PlanetZebesTextColorDefinitions.TryCoordinates(key, out _, out _, out _) &&
+                    if (!MaridiaEnvironmentalColors.TrySource(key, out _) &&
+                        !PlanetZebesTextColors.TryCoordinates(key, out _, out _, out _) &&
                         !CrateriaLightningColorDefinitions.SurfaceProgram.Rows.TryLocate(key, out _, out _) &&
                         !CrateriaLightningColorDefinitions.DarkProgram.Rows.TryLocate(key, out _, out _) &&
-                        !HeatPaletteColorDefinitions.TryCanonical(key, out _) &&
-                        !LoadingPaletteColorDefinitions.TryCanonical(key, out _) &&
+                        !HeatPaletteColors.TryCanonical(key, out _) &&
+                        !LoadingPaletteColors.TryCanonical(key, out _) &&
                         !PostCreditsIconGlarePaletteFxColorDefinitions.Rows.TryLocate(key, out _, out _) &&
                         !ZebesExplosionGunshipPaletteFxColorDefinitions.Rows.TryLocate(key, out _, out _) &&
                         !TourianStatueGreyPaletteFxColorDefinitions.Rows.TryLocate(key, out _, out _)) yield return key;

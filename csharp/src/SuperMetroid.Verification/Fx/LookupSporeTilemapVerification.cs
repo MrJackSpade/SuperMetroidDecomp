@@ -13,20 +13,20 @@ namespace SuperMetroid.Verification.Fx;
 internal static class LookupSporeTilemapVerification
 {
     /// <summary>Compares palette bits throughout the 1056-cell page.</summary>
-    private static void VerifySporeTilePalette(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
+    private static void VerifySporeTilePalette(ISnesAddressSpace rom, RoomFxLayer3Pages stock) =>
         Suite(nameof(VerifySporeTileAttribute), () => VerifySporeTileAttribute(rom, stock, 0x1c00));
     /// <summary>Compares priority bits throughout the page.</summary>
-    private static void VerifySporeTilePriority(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
+    private static void VerifySporeTilePriority(ISnesAddressSpace rom, RoomFxLayer3Pages stock) =>
         Suite(nameof(VerifySporeTileAttribute), () => VerifySporeTileAttribute(rom, stock, 0x2000));
     /// <summary>Compares horizontal-flip bits throughout the page.</summary>
-    private static void VerifySporeTileHorizontalFlip(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
+    private static void VerifySporeTileHorizontalFlip(ISnesAddressSpace rom, RoomFxLayer3Pages stock) =>
         Suite(nameof(VerifySporeTileAttribute), () => VerifySporeTileAttribute(rom, stock, 0x4000));
     /// <summary>Compares vertical-flip bits throughout the page.</summary>
-    private static void VerifySporeTileVerticalFlip(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
+    private static void VerifySporeTileVerticalFlip(ISnesAddressSpace rom, RoomFxLayer3Pages stock) =>
         Suite(nameof(VerifySporeTileAttribute), () => VerifySporeTileAttribute(rom, stock, 0x8000));
 
     /// <summary>Checks both compiled and installed attribute words against the selected retail bit mask.</summary>
-    private static void VerifySporeTileAttribute(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock, int mask)
+    private static void VerifySporeTileAttribute(ISnesAddressSpace rom, RoomFxLayer3Pages stock, int mask)
     {
         ReadOnlySpan<byte> installed = stock.ResolveBytes(RoomFxType.Spores);
         AssertEqual(0x840, installed.Length, "Full original spore transfer length");
@@ -40,7 +40,7 @@ internal static class LookupSporeTilemapVerification
     }
 
     /// <summary>Confirms the stock page is the cartridge's page and an edit at every cell survives a reload.</summary>
-    private static void VerifySporeAttributeStorageAndEdits(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
+    private static void VerifySporeAttributeStorageAndEdits(ISnesAddressSpace rom, RoomFxLayer3Pages stock)
     {
         var original = new byte[0x840];
         for (int offset = 0; offset < original.Length; offset++) original[offset] = SporeAttributeStorageAndEditsRomByte(rom, 0x8a98c0 + offset);
@@ -51,7 +51,7 @@ internal static class LookupSporeTilemapVerification
             byte bit = (index % 4) switch { 0 => 4, 1 => 32, 2 => 64, _ => 128 };
             changed[index * 2 + 1] ^= bit;
         }
-        RoomFxLayer3TilemapCatalog edited = RoomFxLayer3TilemapFixtures.WithPage(stock, RoomFxType.Spores, BackgroundTileWordBytes.Tiles(changed));
+        RoomFxLayer3Pages edited = RoomFxLayer3TilemapFixtures.WithPage(stock, RoomFxType.Spores, BackgroundTileWordBytes.Tiles(changed));
         AssertTrue(changed.AsSpan().SequenceEqual(edited.ResolveBytes(RoomFxType.Spores)), "An attribute edit at every cell survives exactly");
         AssertTrue(original.AsSpan().SequenceEqual(stock.ResolveBytes(RoomFxType.Spores)), "An edited catalog leaves the stock catalog's page");
         foreach (int index in new[] { int.MinValue, -1, 1056, int.MaxValue })
@@ -66,7 +66,7 @@ internal static class LookupSporeTilemapVerification
     private static byte SporeAttributeStorageAndEditsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs all four attribute-bit comparisons and storage ownership checks.</summary>
-    internal static void VerifySporeTilemapAttributes(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
+    internal static void VerifySporeTilemapAttributes(ISnesAddressSpace rom, RoomFxLayer3Pages stock)
     {
         Suite(nameof(VerifySporeTilePalette), () => VerifySporeTilePalette(rom, stock));
         Suite(nameof(VerifySporeTilePriority), () => VerifySporeTilePriority(rom, stock));

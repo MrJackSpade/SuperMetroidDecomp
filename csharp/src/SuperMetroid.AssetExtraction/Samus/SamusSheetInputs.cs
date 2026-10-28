@@ -22,7 +22,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="DeathTiles">The characters of Samus's suit explosion.</param>
 /// <param name="SuitColors">The three suits' colours.</param>
 internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projectiles, SpriteArtwork StandardObjects,
-    GameplayBasePalette Palettes, IntroCinematicArtworkCatalog Intro, InstalledSamusBodyArtwork SamusBody,
+    GameplayBasePalette Palettes, IntroCinematicArtwork Intro, InstalledSamusBodyArtwork SamusBody,
     SamusDeathTileAtlas DeathTiles, InstalledSamusSuitColors SuitColors)
 {
     /// <summary>Loads the stock artwork from installed content.</summary>

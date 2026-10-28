@@ -119,7 +119,7 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
     /// <summary>Validates the native two-page coordinate, then indexes the editable logical row-major array.</summary>
     private static int Index(Position16<MapTiles> cell)
     {
-        _ = AreaMapLayout.GetTilemapWordIndex(cell); // Shared coordinate validation; storage here is row-major.
+        _ = AreaMapPages.GetTilemapWordIndex(cell); // Shared coordinate validation; storage here is row-major.
         return AreaMapLayout.Size.RowMajorIndex(cell);
     }
 }

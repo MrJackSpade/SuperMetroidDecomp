@@ -28,9 +28,9 @@ internal static class LookupPaletteFxDispatchVerification
         {
             ushort pointer = (ushort)value;
             if (original.Contains(pointer))
-                _ = RoomPaletteFxDefinitions.Get(pointer);
+                _ = RoomPaletteFxSelection.Get(pointer);
             else
-                AssertThrows<InvalidDataException>(() => RoomPaletteFxDefinitions.Get(pointer),
+                AssertThrows<InvalidDataException>(() => RoomPaletteFxSelection.Get(pointer),
                     "Unknown/interior palette-FX identity rejects");
         }
     }
@@ -40,7 +40,7 @@ internal static class LookupPaletteFxDispatchVerification
     {
         foreach (ushort pointer in OriginalPaletteFxObjects())
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | pointer),
-                FxNativeWords.PaletteFxSetups.Word(RoomPaletteFxDefinitions.Get(pointer).SetupCallback), "Native palette-FX setup callback");
+                FxNativeWords.PaletteFxSetups.Word(RoomPaletteFxSelection.Get(pointer).SetupCallback), "Native palette-FX setup callback");
     }
 
     /// <summary>Compares each compiled initial instruction pointer with the record's second word.</summary>
@@ -48,7 +48,7 @@ internal static class LookupPaletteFxDispatchVerification
     {
         foreach (ushort pointer in OriginalPaletteFxObjects())
             AssertEqual(ReadVerificationWord(rom, (0x8d0000 | pointer) + 2),
-                PaletteFxNativeListAddresses.Entry(RoomPaletteFxDefinitions.Get(pointer).InitialProgram), "Native palette-FX initial program");
+                PaletteFxNativeListAddresses.Entry(RoomPaletteFxSelection.Get(pointer).InitialProgram), "Native palette-FX initial program");
     }
 
     /// <summary>Runs identity, setup, list, and spawn checks while guarding compiled definition bytes.</summary>

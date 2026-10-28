@@ -66,6 +66,9 @@ public sealed class TourianStatueSequence
     {
         /// <summary>Program identity and installed transfer dimensions for this statue.</summary>
         public TourianStatueAnimatedTileProgramDefinition Definition { get; } = definition;
+        /// <summary>The statue's typed animated-tile programs, built once for its first-frame duration.</summary>
+        public AnimationProgramSet<TourianStatueTileProgram, TourianStatueTilePicture, TourianStatueTileCue> Program { get; } =
+            TourianStatueTileAnimations.Create(definition.FirstFrameDuration);
         /// <summary>Where the statue's typed program resumes; null once the program has stopped and the object is deleted.</summary>
         public AnimationProgramCursor<TourianStatueTileProgram>? Cursor { get; private set; } =
             AnimationProgramCursor<TourianStatueTileProgram>.Start(TourianStatueTileProgram.Entry);
@@ -164,7 +167,7 @@ public sealed class TourianStatueSequence
         // Resolve each statue's definition and start it at its program entry.
         void Spawn(AnimatedTileObject animatedObject)
         {
-            if (!TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader(
+            if (!TourianStatueAnimatedTiles.TryResolveObjectHeader(
                     animatedObject, out TourianStatueAnimatedTileProgramDefinition? definition))
                 throw new InvalidDataException(
                     $"Tourian statue animated-tile object {animatedObject} is not cataloged.");
@@ -187,7 +190,7 @@ public sealed class TourianStatueSequence
             // The statue programs load no loop counter; the program set still takes one.
             WrappingCountdown loopCounter = WrappingCountdown.Start(0);
             TourianStatueAnimatedTileProgramDefinition definition = tile.Definition;
-            AnimationProgramAdvance<TourianStatueTilePicture> advance = definition.Program.AdvanceTo(
+            AnimationProgramAdvance<TourianStatueTilePicture> advance = tile.Program.AdvanceTo(
                 ref cursor, ref loopCounter, (cue, _) => RunCue(definition, cue));
             switch (advance)
             {

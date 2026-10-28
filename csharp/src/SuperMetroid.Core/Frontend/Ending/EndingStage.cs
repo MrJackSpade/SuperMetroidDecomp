@@ -51,7 +51,7 @@ internal sealed class EndingStage
     internal Position16<BgPlanePixels> PostCreditsScroll { get; set; }
 
     /// <summary>Reloadable object character art for clouds, explosion and reward actors.</summary>
-    [field: NonSerialized] internal EndingObjectArtworkCatalog? ObjectArtwork { get; set; }
+    [field: NonSerialized] internal EndingObjectArtwork? ObjectArtwork { get; set; }
     /// <summary>Current bank-$8B cinematic-function replacement, including terminal display states.</summary>
     public EndingCreditsPhase Phase { get; internal set; }
 
@@ -285,11 +285,11 @@ internal sealed class EndingStage
 
     /// <summary>The ending's installed Mode 7 artwork.</summary>
     [field: NonSerialized]
-    internal EndingFloorArtworkCatalog? FloorArtwork { get; private set; }
+    internal EndingFloorArtwork? FloorArtwork { get; private set; }
 
     /// <summary>The ending's installed palettes.</summary>
     [field: NonSerialized]
-    internal EndingPaletteCatalog? PaletteArtwork { get; private set; }
+    internal EndingPaletteSet? PaletteArtwork { get; private set; }
 
     /// <summary>Raises native brightness one step every two calls until full brightness.</summary>
     internal bool StepFastFadeIn()
@@ -339,12 +339,12 @@ internal sealed class EndingStage
     /// backdrop is refreshed without resetting actors, palette, transform or music.
     /// During the native flyaway DMA, already-uploaded chunks are reapplied last.
     /// </summary>
-    internal void BindFloorArtwork(EndingFloorArtworkCatalog? value)
+    internal void BindFloorArtwork(EndingFloorArtwork? value)
     {
         FloorArtwork = value;
         screen.Invalidate();
     }
 
     /// <summary>Selects the palettes later native palette transfers and target-color reads use.</summary>
-    internal void BindPaletteArtwork(EndingPaletteCatalog? value) => PaletteArtwork = value;
+    internal void BindPaletteArtwork(EndingPaletteSet? value) => PaletteArtwork = value;
 }

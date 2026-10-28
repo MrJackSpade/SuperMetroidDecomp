@@ -32,7 +32,7 @@ internal static class EndingShootingStarsTests
         for (int frame = 0; frame < EndingShootingStarDefinitions.FrameCount; frame++)
             // The cartridge's attribute word is decoded by the import codec; the definitions hold the piece it describes
             // (character, palette row, priority and mirroring), which is what is compared.
-            Require(EndingShootingStarDefinitions.Appearance(frame) == new SnesObjAttributeWord(Word(0x8be9a7 + frame * 2)).ToSinglePart(),
+            Require(EndingShootingStarFrames.Appearance(frame) == new SnesObjAttributeWord(Word(0x8be9a7 + frame * 2)).ToSinglePart(),
                 "Native OBJ attributes");
         var stars = new EndingShootingStars();
         for (int frame = 1; frame <= 68; frame++)

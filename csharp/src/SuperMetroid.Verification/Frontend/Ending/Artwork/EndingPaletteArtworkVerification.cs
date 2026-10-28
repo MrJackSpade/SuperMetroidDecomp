@@ -165,15 +165,15 @@ internal static class EndingPaletteArtworkVerification
             new EndingPaletteArtworkVerificationValue(EndingPaletteId.Escape, 0x8cede9, 0x8cefe9),
         })
             AssertEqual((allocation.End - allocation.Start) / 2,
-                EndingPaletteDefinitions.ColorCount(allocation.Id), "complete palette allocation size");
+                EndingPaletteFiles.ColorCount(allocation.Id), "complete palette allocation size");
         foreach (var single in new[] { new VerifyEndingPaletteMetadataCase(EndingPaletteId.FinalGunship, 0x8bde34), new VerifyEndingPaletteMetadataCase(EndingPaletteId.LogoInitial, 0x8be57a) })
         {
             AssertEqual(0xa2, (int)rom.ReadCartridgeByte(single.Second), "native reverse palette LDX opcode");
             int lastOffset = rom.ReadCartridgeWord(single.Second + 1);
-            AssertEqual(lastOffset / 2 + 1, EndingPaletteDefinitions.ColorCount(single.First), "single palette reverse-copy size");
+            AssertEqual(lastOffset / 2 + 1, EndingPaletteFiles.ColorCount(single.First), "single palette reverse-copy size");
         }
         AssertEqual((0x8be627 - 0x8be5e7) / 2 * 16,
-            EndingPaletteDefinitions.ColorCount(EndingPaletteId.LogoCrossfade), "all native crossfade pointer payloads");
+            EndingPaletteFiles.ColorCount(EndingPaletteId.LogoCrossfade), "all native crossfade pointer payloads");
         Published[] published =
         [
             new Published(EndingPaletteId.Escape, "ending-escape-palette.json"),
@@ -185,14 +185,14 @@ internal static class EndingPaletteArtworkVerification
             new Published(EndingPaletteId.LogoCrossfade, "ending-logo-crossfade-palette.json"),
         ];
         foreach (var file in published)
-            AssertEqual(file.Name, EndingPaletteDefinitions.FileName(file.Role), "published palette filename compatibility");
+            AssertEqual(file.Name, EndingPaletteFiles.FileName(file.Role), "published palette filename compatibility");
         AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteSources.Source(EndingPaletteId.LogoCrossfade),
             "crossfade has no contiguous source");
         foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteSources.Source((EndingPaletteId)invalid), "invalid palette source role");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteDefinitions.ColorCount((EndingPaletteId)invalid), "invalid palette size role");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteDefinitions.FileName((EndingPaletteId)invalid), "invalid palette file role");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteFiles.ColorCount((EndingPaletteId)invalid), "invalid palette size role");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteFiles.FileName((EndingPaletteId)invalid), "invalid palette file role");
         }
     }
 
@@ -210,12 +210,12 @@ internal static class EndingPaletteArtworkVerification
             }, ArtworkJson.Options));
             supplied[i] = EndingPaletteFile.Read(json, EndingPaletteId.Escape);
         }
-        var catalog = new EndingPaletteCatalog(supplied[0], supplied[1], supplied[2], supplied[3], supplied[4], supplied[5], supplied[6]);
+        var catalog = new EndingPaletteSet(supplied[0], supplied[1], supplied[2], supplied[3], supplied[4], supplied[5], supplied[6]);
         EndingPaletteId[] originalOrder = [EndingPaletteId.Escape, EndingPaletteId.PostCredits, EndingPaletteId.Credits,
             EndingPaletteId.Explosion, EndingPaletteId.FinalGunship, EndingPaletteId.LogoInitial, EndingPaletteId.LogoCrossfade];
         for (int i = 0; i < originalOrder.Length; i++)
             AssertTrue(ReferenceEquals(supplied[i], catalog[originalOrder[i]]), "ending palette role preserves supplied reference");
-        string originalIdentity = SelectedPresentationHash.Create(nameof(EndingPaletteCatalog), content =>
+        string originalIdentity = SelectedPresentationHash.Create("EndingPaletteCatalog", content =>
         {
             content.Append("palette-count", supplied.Length);
             foreach (EndingPalette palette in supplied) content.Append("palette", palette.Bytes.Span);
@@ -229,13 +229,13 @@ internal static class EndingPaletteArtworkVerification
     internal static void VerifyEndingPaletteArtwork(GameInstallation installation)
     {
         Suite(nameof(VerifyEndingPaletteRoleSelection), () => VerifyEndingPaletteRoleSelection());
-        EndingPaletteCatalog stock = installation.LoadEndingPalettes();
-        AreaMapPresentationCatalog maps = installation.LoadMaps();
+        EndingPaletteSet stock = installation.LoadEndingPalettes();
+        AreaMapPresentation maps = installation.LoadMaps();
         var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         foreach (EndingPaletteId id in Enum.GetValues<EndingPaletteId>())
         {
             byte[] native = EndingPaletteArtworkFiles.ReadNativePalette(nativeBus, id,
-                EndingPaletteDefinitions.ColorCount(id));
+                EndingPaletteFiles.ColorCount(id));
             AssertTrue(stock[id].Bytes.Span.SequenceEqual(native),
                 $"installed ending {id} palette preserves every cartridge color byte");
         }
@@ -314,7 +314,7 @@ internal static class EndingPaletteArtworkVerification
         Directory.CreateDirectory(installation.EndingPaletteOverrideDirectory);
         foreach (EndingPaletteId id in Enum.GetValues<EndingPaletteId>())
         {
-            string name = EndingPaletteDefinitions.FileName(id);
+            string name = EndingPaletteFiles.FileName(id);
             string stockPath = Path.Combine(installation.EndingPaletteDirectory, name);
             string overridePath = Path.Combine(installation.EndingPaletteOverrideDirectory, name);
             EndingPaletteDocument document = JsonSerializer.Deserialize<EndingPaletteDocument>(
@@ -337,7 +337,7 @@ internal static class EndingPaletteArtworkVerification
             };
             using (var output = File.Create(overridePath))
                 EndingPaletteFile.Write(output, id, document);
-            EndingPaletteCatalog edited = installation.LoadEndingPalettes();
+            EndingPaletteSet edited = installation.LoadEndingPalettes();
             ReadOnlySpan<byte> original = stock[id].Bytes.Span;
             ReadOnlySpan<byte> changed = edited[id].Bytes.Span;
             int byteOffset = changedColor * sizeof(ushort);
@@ -395,14 +395,14 @@ internal static class EndingPaletteArtworkVerification
         Suite(nameof(VerifyVisibleEndingPaletteFxOverride), () => VerifyVisibleEndingPaletteFxOverride(installation));
 
         string invalidPath = Path.Combine(installation.EndingPaletteOverrideDirectory,
-            EndingPaletteDefinitions.FileName(EndingPaletteId.Escape));
+            EndingPaletteFiles.FileName(EndingPaletteId.Escape));
         File.WriteAllBytes(invalidPath, [0]);
         AssertThrows<InvalidDataException>(() => installation.LoadEndingPalettes(),
             "malformed ending palette override fails loudly");
         File.Delete(invalidPath);
         EndingPaletteDocument persistent = JsonSerializer.Deserialize<EndingPaletteDocument>(
             File.ReadAllBytes(Path.Combine(installation.EndingPaletteDirectory,
-                EndingPaletteDefinitions.FileName(EndingPaletteId.Escape))),
+                EndingPaletteFiles.FileName(EndingPaletteId.Escape))),
             ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock ending escape palette is empty.");
         persistent.Colors[0] = persistent.Colors[0] with
@@ -413,7 +413,7 @@ internal static class EndingPaletteArtworkVerification
             EndingPaletteFile.Write(output, EndingPaletteId.Escape, persistent);
         byte[] selected = installation.LoadEndingPalettes()[EndingPaletteId.Escape].Bytes.ToArray();
         string stockCreditsPath = Path.Combine(installation.EndingPaletteDirectory,
-            EndingPaletteDefinitions.FileName(EndingPaletteId.Credits));
+            EndingPaletteFiles.FileName(EndingPaletteId.Credits));
         File.WriteAllBytes(stockCreditsPath, [0]);
         AssertThrows<InvalidDataException>(() => installation.LoadEndingPalettes(),
             "valid override cannot conceal a corrupt stock ending palette");
@@ -452,7 +452,7 @@ internal static class EndingPaletteArtworkVerification
         var editedScene = CreateRetailEndingFixture(editedAudio, 2, 59);
         var stockScene = CreateRetailEndingFixture(stockAudio, 2, 59);
         editedScene.InstalledArtwork.BindPaletteArtwork(installation.LoadEndingPalettes());
-        AreaMapPresentationCatalog maps = installation.LoadMaps();
+        AreaMapPresentation maps = installation.LoadMaps();
         editedScene.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
         CreditsPresentation credits = maps.StaffCredits;
         editedScene.InstalledArtwork.BindStaffCredits(credits);
@@ -497,7 +497,7 @@ internal static class EndingPaletteArtworkVerification
     }
 
     /// <summary>Compares installed logo fade CGRAM with native playback while prohibiting source color reads.</summary>
-    private static void VerifyEndingLogoPaletteArtwork(EndingPaletteCatalog stock,
+    private static void VerifyEndingLogoPaletteArtwork(EndingPaletteSet stock,
         ISnesAddressSpace nativeBus, MutableCartridgeReadGuard guardedBus)
     {
         var nativeCgram = new ScreenPalette();
@@ -512,7 +512,7 @@ internal static class EndingPaletteArtworkVerification
             if (nativeLogo.PaletteStep > 0)
             {
                 byte[] nativeColors = EndingPaletteArtworkFiles.ReadNativePalette(nativeBus,
-                    EndingPaletteId.LogoCrossfade, EndingPaletteDefinitions.ColorCount(EndingPaletteId.LogoCrossfade));
+                    EndingPaletteId.LogoCrossfade, EndingPaletteFiles.ColorCount(EndingPaletteId.LogoCrossfade));
                 for (int palette = 0; palette < 2; palette++)
                     for (int color = 0; color < 16; color++)
                     {
@@ -536,7 +536,7 @@ internal static class EndingPaletteArtworkVerification
     /// <summary>Edits credits palette colors and checks rendered ending pixels change without VRAM edits.</summary>
     private static void VerifyVisibleCreditsPaletteOverride(GameInstallation installation)
     {
-        string name = EndingPaletteDefinitions.FileName(EndingPaletteId.Credits);
+        string name = EndingPaletteFiles.FileName(EndingPaletteId.Credits);
         string overridePath = Path.Combine(installation.EndingPaletteOverrideDirectory, name);
         EndingPaletteDocument document = JsonSerializer.Deserialize<EndingPaletteDocument>(
             File.ReadAllBytes(Path.Combine(installation.EndingPaletteDirectory, name)),
@@ -546,13 +546,13 @@ internal static class EndingPaletteArtworkVerification
             document.Colors[index] = new PaletteRgb5 { Red = 31, Green = 0, Blue = 0 };
         using (var output = File.Create(overridePath))
             EndingPaletteFile.Write(output, EndingPaletteId.Credits, document);
-        EndingPaletteCatalog edited = installation.LoadEndingPalettes();
+        EndingPaletteSet edited = installation.LoadEndingPalettes();
         var editedAudio = new AudioQueues();
         var stockAudio = new AudioQueues();
         var editedState = CreateRetailEndingFixture(editedAudio, 2, 59);
         var stockState = CreateRetailEndingFixture(stockAudio, 2, 59);
         editedState.InstalledArtwork.BindPaletteArtwork(edited);
-        AreaMapPresentationCatalog maps = installation.LoadMaps();
+        AreaMapPresentation maps = installation.LoadMaps();
         editedState.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
         CreditsPresentation credits = maps.StaffCredits;
         editedState.InstalledArtwork.BindStaffCredits(credits);
@@ -588,7 +588,7 @@ internal static class EndingPaletteArtworkVerification
     /// <summary>Edits logo crossfade colors and checks visible output while retaining tile data.</summary>
     private static void VerifyVisibleLogoPaletteOverride(GameInstallation installation)
     {
-        string name = EndingPaletteDefinitions.FileName(EndingPaletteId.LogoCrossfade);
+        string name = EndingPaletteFiles.FileName(EndingPaletteId.LogoCrossfade);
         string overridePath = Path.Combine(installation.EndingPaletteOverrideDirectory, name);
         EndingPaletteDocument document = JsonSerializer.Deserialize<EndingPaletteDocument>(
             File.ReadAllBytes(Path.Combine(installation.EndingPaletteDirectory, name)),
@@ -598,13 +598,13 @@ internal static class EndingPaletteArtworkVerification
             document.Colors[index] = new PaletteRgb5 { Red = 31, Green = 0, Blue = 0 };
         using (var output = File.Create(overridePath))
             EndingPaletteFile.Write(output, EndingPaletteId.LogoCrossfade, document);
-        EndingPaletteCatalog edited = installation.LoadEndingPalettes();
+        EndingPaletteSet edited = installation.LoadEndingPalettes();
         var editedAudio = new AudioQueues();
         var stockAudio = new AudioQueues();
         var editedState = CreateRetailEndingFixture(editedAudio, 2, 59);
         var stockState = CreateRetailEndingFixture(stockAudio, 2, 59);
         editedState.InstalledArtwork.BindPaletteArtwork(edited);
-        AreaMapPresentationCatalog maps = installation.LoadMaps();
+        AreaMapPresentation maps = installation.LoadMaps();
         editedState.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
         CreditsPresentation credits = maps.StaffCredits;
         editedState.InstalledArtwork.BindStaffCredits(credits);
@@ -643,7 +643,7 @@ internal static class EndingPaletteArtworkVerification
             .Where(id => id != EndingPaletteId.LogoCrossfade)
             .Select(id => new EndingPaletteArtworkVerificationValue(id, EndingPaletteSources.Source(id),
                 EndingPaletteSources.Source(id) +
-                EndingPaletteDefinitions.ColorCount(id) * sizeof(ushort)))
+                EndingPaletteFiles.ColorCount(id) * sizeof(ushort)))
             .Append(new EndingPaletteArtworkVerificationValue(EndingPaletteId.LogoCrossfade, 0x8cefe9, 0x8cf3e9))
             .ToArray();
 

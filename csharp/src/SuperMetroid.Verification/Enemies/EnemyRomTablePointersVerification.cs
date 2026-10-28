@@ -107,10 +107,10 @@ internal static class EnemyRomTablePointersVerification
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.TourianStatue.InstructionListWords + parameter)),
                 NativeEnemyProgramOracle.EntryOf(TourianEntranceStatueNativeListAddresses.Entries,
-                    TourianEntranceStatueAnimationDefinitions.InitialProgram(parameter)),
+                    TourianEntranceStatues.InitialProgram(parameter)),
                 $"Tourian entrance statue initial selector {parameter}");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => TourianEntranceStatueAnimationDefinitions.InitialProgram(1),
+            () => TourianEntranceStatues.InitialProgram(1),
             "Tourian statue selector rejects odd byte offsets");
 
         var guarded = NewEnemyInstructionSelectionReadGuard(rom);
@@ -124,7 +124,7 @@ internal static class EnemyRomTablePointersVerification
             slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);
             system.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
             AssertEqual(
-                AnimationProgramCursor<TourianEntranceStatueProgram>.Start(TourianEntranceStatueAnimationDefinitions.InitialProgram(parameter)),
+                AnimationProgramCursor<TourianEntranceStatueProgram>.Start(TourianEntranceStatues.InitialProgram(parameter)),
                 system.TourianEntranceStatueBehavior.Extensions[slot.SlotIndex].Program,
                 $"Tourian statue production initializer {parameter} avoids selector ROM");
         }

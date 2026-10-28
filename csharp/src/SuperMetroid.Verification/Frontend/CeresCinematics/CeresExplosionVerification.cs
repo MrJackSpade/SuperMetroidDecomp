@@ -24,7 +24,7 @@ internal static class CeresExplosionVerification
         try
         {
             IntroCinematicArtworkFiles.Extract(bus, artDirectory, SupportedCartridge.Sha256);
-            IntroCinematicArtworkCatalog artwork = IntroCinematicArtworkFiles.Load(artDirectory, null);
+            IntroCinematicArtwork artwork = IntroCinematicArtworkFiles.Load(artDirectory, null);
             InstalledPowerBombFixedColors stockColors = colors ?? PowerBombFixedColorFile.Read(
                 new MemoryStream(PowerBombFixedColorExtractor.Extract(bus)));
             var scene = new CeresDestructionCinematicState(fixedColors: stockColors, artwork: artwork,

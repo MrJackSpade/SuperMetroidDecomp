@@ -26,7 +26,7 @@ public static class MapSpriteExtractor
         if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.LabelSpritemaps) != MapSpriteOrdinals.Spritemaps.Word(MapSpriteId.WorldTitle))
             throw new InvalidDataException("Unexpected native world-title sprite binding.");
         var frames = new Dictionary<string, SpriteVisualPart[]>();
-        foreach (var definition in MapSpriteDefinitions.Frames)
+        foreach (var definition in MapSpriteNames.Frames)
             frames.Add(definition.Name, MenuSpriteExtractor.Read(bus, MapSpriteOrdinals.Spritemaps.Word(definition.Id)));
         byte[] pixels = SnesGraphics.DecodePlanarTiles(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectCharacters, MapSpriteFormat.ByteCount),
             4, MapSpriteFormat.TileColumns, out Extent16<ImagePixels> size);

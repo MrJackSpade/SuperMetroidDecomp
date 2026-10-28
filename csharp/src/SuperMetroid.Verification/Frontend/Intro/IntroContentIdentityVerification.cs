@@ -66,9 +66,9 @@ internal static class IntroContentIdentityVerification
                 edit + " preserves equivalent selected content");
         foreach (Type type in new[]
         {
-            typeof(IntroCinematicArtworkCatalog), typeof(IntroEyeTilemapPresentation),
-            typeof(CeresFlightArtworkCatalog), typeof(CeresDestructionArtworkCatalog),
-            typeof(CeresFlightActorLayout), typeof(CeresDestructionActorLayout), typeof(CeresRevealActorLayout),
+            typeof(IntroCinematicArtwork), typeof(IntroEyeTilemapPresentation),
+            typeof(CeresFlightArtwork), typeof(CeresDestructionArtwork),
+            typeof(CeresFlightActorPlacements), typeof(CeresDestructionActorPlacements), typeof(CeresRevealActorPlacements),
             typeof(IntroCaretSpritePresentation), typeof(IntroMotherBrainSpritePresentation),
             typeof(IntroMotherBrainExplosionSpritePresentation), typeof(IntroRinkaSpritePresentation),
             typeof(IntroEggEffectSpritePresentation), typeof(IntroDiscoveryActorSpritePresentation),
@@ -87,7 +87,7 @@ internal static class IntroContentIdentityVerification
     }
 
     /// <summary>Builds a complete synthetic opening asset bundle with one selected edit or encoding-only change.</summary>
-    private static IntroCinematicArtworkCatalog CreateIntroIdentityFixture(string? edit = null, bool reverse = false)
+    private static IntroCinematicArtwork CreateIntroIdentityFixture(string? edit = null, bool reverse = false)
     {
         // Serialize a fixture document, optionally changing only whitespace formatting.
         MemoryStream Json(object document) => new(JsonSerializer.SerializeToUtf8Bytes(document,
@@ -158,7 +158,7 @@ internal static class IntroContentIdentityVerification
         var flightActors = Enumerable.Range(0, CeresFlightActorDefinitions.RearViewActorCount).Select(index =>
             new CeresFlightActorPlacement
             {
-                Id = CeresFlightActorDefinitions.RearViewPlacementId(index), X = index + (edit == $"flight-actor-{index}-x" ? 1 : 0),
+                Id = CeresFlightActors.RearViewPlacementId(index), X = index + (edit == $"flight-actor-{index}-x" ? 1 : 0),
                 Y = index + (edit == $"flight-actor-{index}-y" ? 1 : 0),
             }).ToArray();
         // Build a Mode 7 flight view with an optional final-cell edit.
@@ -184,13 +184,13 @@ internal static class IntroContentIdentityVerification
         var revealActors = Enumerable.Range(0, CeresDestructionActorDefinitions.ZebesActorCount).Select(index =>
             new CeresRevealActorPlacement
             {
-                Id = CeresDestructionActorDefinitions.ZebesPlacementId(index), X = index + (edit == $"reveal-actor-{index}-x" ? 1 : 0),
+                Id = CeresDestructionActors.ZebesPlacementId(index), X = index + (edit == $"reveal-actor-{index}-x" ? 1 : 0),
                 Y = index + (edit == $"reveal-actor-{index}-y" ? 1 : 0),
             }).ToArray();
         var destructionActors = Enumerable.Range(0, CeresDestructionActorDefinitions.InitialActorCount).Select(index =>
             new CeresDestructionActorPlacement
             {
-                Id = CeresDestructionActorDefinitions.InitialPlacementId(index), X = index + (edit == $"destruction-actor-{index}-x" ? 1 : 0),
+                Id = CeresDestructionActors.InitialPlacementId(index), X = index + (edit == $"destruction-actor-{index}-x" ? 1 : 0),
                 Y = index + (edit == $"destruction-actor-{index}-y" ? 1 : 0),
             }).ToArray();
         int[][] views = Enumerable.Range(0, CeresDestructionArtworkFormat.ViewCount).Select(view =>
@@ -201,7 +201,7 @@ internal static class IntroContentIdentityVerification
             return cells;
         }).ToArray();
         if (edit == "destruction-map-order") Array.Reverse(views);
-        var destruction = CeresDestructionArtworkCatalog.Load(Json(new CeresDestructionMapDocument
+        var destruction = CeresDestructionArtwork.Load(Json(new CeresDestructionMapDocument
         {
             Version = CeresDestructionArtworkFormat.Version, Width = CeresDestructionArtworkFormat.MapWidth,
             Height = CeresDestructionArtworkFormat.MapHeight, Views = views,
@@ -214,7 +214,7 @@ internal static class IntroContentIdentityVerification
         RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
             .Select(index => Map("page-" + index, index)).ToArray();
         if (edit == "page-order") Array.Reverse(pages);
-        return new IntroCinematicArtworkCatalog(new IntroCinematicArtworkParts { BackgroundCharacters = Characters("background", IntroCinematicArtworkFormat.BackgroundByteCount), IntroObjectCharacters = Characters("intro-objects", IntroCinematicArtworkFormat.IntroObjectByteCount), CinematicObjectCharacters = Characters("cinematic-objects", IntroCinematicArtworkFormat.CinematicObjectByteCount), BackgroundPages = pages, PortraitTilemap = Map("portrait"), InitialNarrationTilemap = Map("narration-map"), FinalLine = IntroFinalLineTilemap.Load(Json(new IntroFinalLineTilemapDocument
+        return new IntroCinematicArtwork(new IntroCinematicArtworkParts { BackgroundCharacters = Characters("background", IntroCinematicArtworkFormat.BackgroundByteCount), IntroObjectCharacters = Characters("intro-objects", IntroCinematicArtworkFormat.IntroObjectByteCount), CinematicObjectCharacters = Characters("cinematic-objects", IntroCinematicArtworkFormat.CinematicObjectByteCount), BackgroundPages = pages, PortraitTilemap = Map("portrait"), InitialNarrationTilemap = Map("narration-map"), FinalLine = IntroFinalLineTilemap.Load(Json(new IntroFinalLineTilemapDocument
             {
                 Version = IntroFinalLineTilemapFormat.Version, Cells = Cells("divider", IntroFinalLineTilemapFormat.CellCount),
             })), EyeFrames = IntroEyeTilemapPresentation.Load(Json(new IntroEyeTilemapDocument

@@ -54,8 +54,8 @@ public sealed class FirefleaFxState
         Timer = timer;
 
         int shade = unchecked((byte)(
-            FirefleaFxDefinitions.FlashingShade(index) +
-            FirefleaFxDefinitions.DarknessShade(darkness)));
+            FirefleaShades.FlashingShade(index) +
+            FirefleaShades.DarknessShade(darkness)));
         // Each of the cartridge's three writes carries the shade as its five-bit intensity. Past the darkness ramp the
         // shade's upper bits only select channels the other writes set to the same value.
         int intensity = shade & RgbColor.MaxChannel;

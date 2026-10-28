@@ -77,10 +77,10 @@ internal static class MapArrowCasesVerification
             int animation = ReadVerificationWord(rom, 0x81af36 + 10 * index);
             int variants = ReadVerificationWord(rom, 0x82c1e4 + 2 * (animation - 1));
             AssertEqual(ReadVerificationWord(rom, 0x820000 | variants),
-                MapSpriteOrdinals.Spritemaps.Word(MapArrowDefinitions.SpriteBase((MapScrollDirection)(index + 1))), "original direction shape selector");
+                MapSpriteOrdinals.Spritemaps.Word(MapArrowSprites.SpriteBase((MapScrollDirection)(index + 1))), "original direction shape selector");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 0, 5, 256, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => MapArrowDefinitions.SpriteBase((MapScrollDirection)invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => MapArrowSprites.SpriteBase((MapScrollDirection)invalid),
                 "unsupported arrow shape direction");
     }
 }

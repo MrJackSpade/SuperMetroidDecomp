@@ -71,8 +71,8 @@ internal static class EndingFlyawayArtworkVerification
         edited.FrontTiles[0] = unchecked((byte)(edited.FrontTiles[0] + 1));
         Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
         using (var output = File.Create(overridePath))
-            CeresFlightArtworkCatalog.WriteMap(output, edited);
-        CeresFlightArtworkCatalog overrideArt = installation.LoadIntroCinematicArt().CeresFlight;
+            CeresFlightArtwork.WriteMap(output, edited);
+        CeresFlightArtwork overrideArt = installation.LoadIntroCinematicArt().CeresFlight;
         File.Delete(overridePath);
 
         var rebindBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);

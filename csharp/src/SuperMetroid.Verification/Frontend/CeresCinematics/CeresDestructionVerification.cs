@@ -58,7 +58,7 @@ internal static void VerifyCeresDestructionCinematic()
     string overrideRoot = overrideRootScratch.Root;
     Directory.CreateDirectory(overrideRoot);
     using (var stream = File.Create(Path.Combine(overrideRoot, CeresFlightArtworkFormat.MapFileName)))
-        CeresFlightArtworkCatalog.WriteMap(stream, new CeresFlightMapDocument
+        CeresFlightArtwork.WriteMap(stream, new CeresFlightMapDocument
         {
             Version = CeresFlightArtworkFormat.Version,
             Width = CeresFlightArtworkFormat.MapWidth,
@@ -67,7 +67,7 @@ internal static void VerifyCeresDestructionCinematic()
             RearTiles = maps.AsSpan(0x300, 0x300).SelectToArray(value => (int)value),
         });
     using (var stream = File.Create(Path.Combine(overrideRoot, CeresDestructionArtworkFormat.CeresMapFileName)))
-        CeresDestructionArtworkCatalog.WriteMap(stream, new CeresDestructionMapDocument
+        CeresDestructionArtwork.WriteMap(stream, new CeresDestructionMapDocument
         {
             Version = CeresDestructionArtworkFormat.Version,
             Width = CeresDestructionArtworkFormat.MapWidth,

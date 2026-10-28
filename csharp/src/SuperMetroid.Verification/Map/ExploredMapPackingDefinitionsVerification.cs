@@ -37,19 +37,19 @@ internal static class ExploredMapPackingDefinitionsVerification
         for (int area = 0; area < SaveRamLayoutConstants.PackedMapAreaCount; area++)
         {
             ExploredMapPackingDefinition definition =
-                ExploredMapPackingDefinitions.Area(area, RetailPresentationFixture());
-            ExploredMapPackingDefinitions.OccupiedByteIndexes indexes = definition.AreaByteIndexes;
+                ExploredMapPacking.Area(area, RetailPresentationFixture());
+            ExploredMapPacking.OccupiedByteIndexes indexes = definition.AreaByteIndexes;
             AssertEqual(ExploredMapPackingDefinitionsRomByte(retail,
-                    ExploredMapPackingDefinitions.NativeByteCountTable + area),
+                    ExploredMapPacking.NativeByteCountTable + area),
                 unchecked((byte)indexes.Count),
                 $"packed map area {area} byte count");
             AssertEqual(Word(
-                    ExploredMapPackingDefinitions.NativeDestinationOffsetTable + area * 2),
+                    ExploredMapPacking.NativeDestinationOffsetTable + area * 2),
                 definition.SaveOffset,
                 $"packed map area {area} SRAM offset");
             ushort nativeSourcePointer = ExploredMapNativeSourcePointers[area];
             AssertEqual(Word(
-                    ExploredMapPackingDefinitions.NativeSourcePointerTable + area * 2),
+                    ExploredMapPacking.NativeSourcePointerTable + area * 2),
                 nativeSourcePointer,
                 $"packed map area {area} source pointer");
             for (int index = 0; index < indexes.Count; index++)
@@ -63,7 +63,7 @@ internal static class ExploredMapPackingDefinitionsVerification
         }
         AssertEqual(327, exportedByteCount, "packed map exported byte count");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => ExploredMapPackingDefinitions.Area(SaveRamLayoutConstants.PackedMapAreaCount, RetailPresentationFixture()),
+            () => ExploredMapPacking.Area(SaveRamLayoutConstants.PackedMapAreaCount, RetailPresentationFixture()),
             "packed map excludes native Ceres list");
 
         var saveRam = new SaveSlotStore(RetailPresentationFixture());
@@ -80,7 +80,7 @@ internal static class ExploredMapPackingDefinitionsVerification
         for (int area = 0; area < SaveRamLayoutConstants.PackedMapAreaCount; area++)
         {
             foreach (byte areaByteIndex in
-                ExploredMapPackingDefinitions.Area(area, RetailPresentationFixture()).AreaByteIndexes)
+                ExploredMapPacking.Area(area, RetailPresentationFixture()).AreaByteIndexes)
             {
                 exported[area * SharedGameState.ExploredMapBytesPerArea +
                     areaByteIndex] = true;
@@ -141,8 +141,8 @@ internal static class ExploredMapPackingDefinitionsVerification
             AssertTrue(expected.SequenceEqual(SaveRamCodec.Encode(editedSaves, edited)), "blank artwork overrides preserve exact SRAM format");
             for (int area = 0; area < SaveRamLayoutConstants.PackedMapAreaCount; area++)
             {
-                var a = ExploredMapPackingDefinitions.Area(area, original);
-                var b = ExploredMapPackingDefinitions.Area(area, edited);
+                var a = ExploredMapPacking.Area(area, original);
+                var b = ExploredMapPacking.Area(area, edited);
                 AssertTrue(a.AreaByteIndexes.SequenceEqual(b.AreaByteIndexes), "editable artwork retains stock occupied byte order");
                 AssertEqual(a.SaveOffset, b.SaveOffset, "editable artwork retains packed offset");
                 AssertThrows<ArgumentOutOfRangeException>(() => _ = a.AreaByteIndexes[-1], "negative packed index rejected");

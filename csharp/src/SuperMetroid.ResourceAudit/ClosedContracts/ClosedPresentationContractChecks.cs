@@ -45,7 +45,7 @@ internal static class ClosedPresentationContractChecks
                     GameOverPresentation gameOver, PauseReserveUiPresentation reserve,
                     InstalledBeamPalettes beam, CeresRidleyColorCatalog ridley, CrocomireColorCatalog crocomire,
                     SporeSpawnColorCatalog spores, DraygonColorCatalog draygon, PhantoonColorCatalog phantoon,
-                    TourianStatueColorCatalog statues,
+                    TourianStatuePalettes statues,
                     MotherBrainRainbowPalettePresentation rainbow, MotherBrainDeathColorCatalog death,
                     ChozoAndTubeColorCatalog chozo, GameplayBasePalette basePalette,
                     InstalledSamusDeathPalettes samusDeath,

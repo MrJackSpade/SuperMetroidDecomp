@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 internal static class RoomFxSourcesConstants
 {
     /// <summary>The header pointer of <paramref name="fx"/>.</summary>
-    public static ushort PointerOf(RoomFxDefinition fx)
+    public static ushort PointerOf(RoomFxHeader fx)
     {
         Ensure.NotNull(fx);
         return RoomFxSourceDefinitions.ByPointer.Single(pair => Object.ReferenceEquals(pair.Value, fx)).Key;

@@ -52,7 +52,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 throw new InvalidOperationException("Direct debug room loading requires initialized Samus state.");
 
             SelectedRoom room = state is null ? self.RoomLoader.LoadSelectedRoom(definition)
-                : RoomStateSelectionDefinitions.GetStates(definition).Contains(state) ? new SelectedRoom(definition, state)
+                : RoomStateSelection.GetStates(definition).Contains(state) ? new SelectedRoom(definition, state)
                 : throw new ArgumentException($"{state.Name} is not a state of room {definition.Name}.", nameof(state));
             // The debug seam intentionally supplies an inert synthetic door. Any room whose
             // correctness depends on setup code must instead be audited through its real door;

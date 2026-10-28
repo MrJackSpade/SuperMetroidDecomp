@@ -21,9 +21,9 @@ public sealed class RoomFxSession
 
     /// <summary>Current host-owned BG3 effect tilemaps; never stored in debugger state.</summary>
     [field: NonSerialized]
-    public RoomFxLayer3TilemapCatalog? Layer3Tilemaps { get; set; }
+    public RoomFxLayer3Pages? Layer3Tilemaps { get; set; }
 
     /// <summary>Current host-owned room-FX blend colors; never stored in debugger state.</summary>
     [field: NonSerialized]
-    public RoomFxPaletteBlendCatalog? PaletteBlendColors { get; set; }
+    public RoomFxBlendInks? PaletteBlendColors { get; set; }
 }

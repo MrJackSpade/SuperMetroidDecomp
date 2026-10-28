@@ -11,7 +11,7 @@ using SuperMetroid.Core.Audio;
 internal static class RenderRetailFixture
 {
     /// <summary>Uses the shared installed map presentation in retail render captures.</summary>
-    internal static AreaMapPresentationCatalog Maps => InstalledFixtures.Maps;
+    internal static AreaMapPresentation Maps => InstalledFixtures.Maps;
 
     /// <summary>Creates a retail-backed game over <paramref name="saves"/> with the requested gameplay-frame capture setting.</summary>
     internal static SuperMetroidGame CreateGame(SuperMetroid.Core.Saves.SaveSlotStore saves,

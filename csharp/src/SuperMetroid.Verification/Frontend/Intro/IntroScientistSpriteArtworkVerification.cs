@@ -23,7 +23,7 @@ internal static class IntroScientistSpriteArtworkVerification
 {
     /// <summary>Compares ten frames, an edited delivery-scene override, rebinding, and missing-frame rejection.</summary>
     internal static void VerifyIntroScientistSpriteArtwork(SuperMetroidAddressSpace bus,
-        IntroCinematicArtworkCatalog stock, GameInstallation installation)
+        IntroCinematicArtwork stock, GameInstallation installation)
     {
         const ushort x = 120;
         int palette = IntroBabyActorDefinitions.DeliveredBaby.Palette;
@@ -66,7 +66,7 @@ internal static class IntroScientistSpriteArtworkVerification
         string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
         using (var output = File.Create(overridePath))
             IntroScientistSpritePresentation.Write(output, document);
-        IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
+        IntroCinematicArtwork edited = installation.LoadIntroCinematicArt();
 
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroScientistSprites);
         var stockState = CreateRetailIntroFixture(characterArtwork: stock);

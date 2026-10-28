@@ -22,7 +22,7 @@ internal static class PauseEquipmentLabelsVerification
 {
     /// <summary>Compares inventory tilemaps with ROM reads blocked, then checks edits and strict resource failures.</summary>
     internal static void VerifyPauseEquipmentLabelAssets(ISnesAddressSpace bus, string stock,
-        string overrides, AreaMapPresentationCatalog original)
+        string overrides, AreaMapPresentation original)
     {
         Directory.CreateDirectory(overrides);
         string stockPath = Path.Combine(stock, PauseEquipmentLabelDefinitions.FileName);
@@ -57,7 +57,7 @@ internal static class PauseEquipmentLabelsVerification
         var editedDocument = document with { Labels = labels };
         using (var output = File.Create(overridePath))
             PauseEquipmentLabelPresentation.Write(output, editedDocument);
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
 
         var liveSamus = new SamusState { CollectedBeams = SamusBeamFlags.Charge,
             EquippedBeams = SamusBeamFlags.Charge };

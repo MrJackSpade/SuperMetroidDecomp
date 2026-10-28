@@ -38,7 +38,7 @@ internal static class IntroMotherBrainDefinitionsVerification
 
         for (int index = 0; index < IntroMotherBrainDefinitions.BigExplosionCount; index++)
         {
-            IntroMotherBrainExplosionPlacement actual = IntroMotherBrainDefinitions.BigExplosion(index);
+            IntroMotherBrainExplosionPlacement actual = IntroMotherBrainExplosionPlacements.BigExplosion(index);
             AssertEqual(unchecked((short)CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.BigXOffsetReferenceAddress + index * 2))),
                 actual.Offset.X, $"intro Mother Brain big explosion {index} X offset");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.BigYOffsetReferenceAddress + index * 2))),
@@ -49,7 +49,7 @@ internal static class IntroMotherBrainDefinitionsVerification
 
         for (int index = 0; index < IntroMotherBrainDefinitions.SmallExplosionCount; index++)
         {
-            IntroMotherBrainExplosionPlacement actual = IntroMotherBrainDefinitions.SmallExplosion(index);
+            IntroMotherBrainExplosionPlacement actual = IntroMotherBrainExplosionPlacements.SmallExplosion(index);
             AssertEqual(unchecked((short)CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.SmallXOffsetReferenceAddress + index * 2))),
                 actual.Offset.X, $"intro Mother Brain small explosion {index} X offset");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.SmallYOffsetReferenceAddress + index * 2))),
@@ -59,11 +59,11 @@ internal static class IntroMotherBrainDefinitionsVerification
         }
 
         AssertThrows<ArgumentOutOfRangeException>(
-            () => IntroMotherBrainDefinitions.BigExplosion(
+            () => IntroMotherBrainExplosionPlacements.BigExplosion(
                 IntroMotherBrainDefinitions.BigExplosionCount),
             "intro Mother Brain big explosion definition boundary");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => IntroMotherBrainDefinitions.SmallExplosion(
+            () => IntroMotherBrainExplosionPlacements.SmallExplosion(
                 IntroMotherBrainDefinitions.SmallExplosionCount),
             "intro Mother Brain small explosion definition boundary");
 

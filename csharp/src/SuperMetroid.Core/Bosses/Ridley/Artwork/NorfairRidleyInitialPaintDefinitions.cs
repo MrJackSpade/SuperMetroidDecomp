@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 internal sealed class NorfairRidleyInitialPaintDefinitions
 {
     /// <summary>First 15 non-clear targets, resolved through the escape-door armor paint rules.</summary>
-    internal readonly CeresDoorEscapePaintDefinitions armor;
+    internal readonly CeresDoorEscapePaint armor;
     /// <summary>Second 15 non-clear targets, resolved through the Baby/container paint rules.</summary>
     internal readonly CeresBabyPaintDefinitions organ;
     /// <summary>Copied blue channel shared by the two clear-slot source records.</summary>

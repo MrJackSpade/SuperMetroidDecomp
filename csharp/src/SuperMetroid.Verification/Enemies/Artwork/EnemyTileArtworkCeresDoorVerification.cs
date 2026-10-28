@@ -25,7 +25,7 @@ internal static class EnemyTileArtworkCeresDoorVerification
     internal static void VerifyInstalledCeresDoorVisuals(ISnesAddressSpace bus,
         string directory, InstalledEnemyArtwork stock)
     {
-        CeresDoorVisualCatalog visual = stock.Areas.CeresDoorVisual
+        CeresDoorVisuals visual = stock.Areas.CeresDoorVisual
             ?? throw new InvalidDataException("Installed Ceres-door visuals are missing.");
         byte[] nativeTiles = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             CeresSourceDefinitions.Door.Characters, CeresDoorVisualDefinitions.CharacterBytes);
@@ -113,7 +113,7 @@ internal static class EnemyTileArtworkCeresDoorVerification
         File.WriteAllBytes(Path.Combine(overrides,
             CeresDoorVisualFormat.ColorsFileName),
             CeresDoorVisualFiles.Write(document));
-        CeresDoorVisualCatalog edited = (EnemyTileArtworkFiles.Load(directory,
+        CeresDoorVisuals edited = (EnemyTileArtworkFiles.Load(directory,
             overrides).Areas.CeresDoorVisual ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrides).CeresDoorVisual."));
         AssertEqual((byte)(nativeTiles[0] ^ 0x80), edited.Characters.Span[0],
             "Ceres-door PNG override changes the live first tile pixel");

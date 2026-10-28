@@ -19,7 +19,7 @@ internal sealed class RoomFxAnimatedTilesState
     private AnimatedTileObject animatedObject;
     /// <summary>
     /// The frame shown when the timer next expires, an index into the loaded object's
-    /// <see cref="RoomFxAnimatedTileObjectDefinition.Frames"/>. It replaces the cartridge's instruction pointer into
+    /// <see cref="RoomFxAnimatedTileLoop.Frames"/>. It replaces the cartridge's instruction pointer into
     /// the object's list: every supported list is its timed frames followed by a goto back to the first frame, so the
     /// cursor only ever moves to the next frame, and from the last frame back to the first in the same handler pass.
     /// </summary>
@@ -27,10 +27,10 @@ internal sealed class RoomFxAnimatedTilesState
     /// <summary>Remaining handler passes before the current animated frame advances.</summary>
     private WrappingCountdown instructionTimer;
     /// <summary>Frame schedule, transfer size and destination of the loaded object.</summary>
-    private RoomFxAnimatedTileObjectDefinition? compiledMechanics;
+    private RoomFxAnimatedTileLoop? compiledMechanics;
 
     /// <summary>The loaded object's definition; only an active slot has one.</summary>
-    private RoomFxAnimatedTileObjectDefinition Mechanics =>
+    private RoomFxAnimatedTileLoop Mechanics =>
         compiledMechanics ?? throw new InvalidOperationException("Room-FX animation requires compiled mechanics.");
 
     /// <summary>Whether a room-FX animated-tile object currently owns this slot.</summary>
@@ -71,7 +71,7 @@ internal sealed class RoomFxAnimatedTilesState
         if (animatedObject == AnimatedTileObject.None)
             return;
 
-        if (!RoomFxAnimatedTileMechanicsDefinitions.TryResolve(animatedObject, out compiledMechanics))
+        if (!RoomFxAnimatedTiles.TryResolve(animatedObject, out compiledMechanics))
             throw new InvalidDataException($"Room-FX animation {animatedObject} is not compiled.");
         nextFrame = 0;
         instructionTimer = WrappingCountdown.Start(1);
@@ -97,7 +97,7 @@ internal sealed class RoomFxAnimatedTilesState
         if (!instructionTimer.IsZero)
             return;
 
-        RoomFxAnimatedTileObjectDefinition mechanics = Mechanics;
+        RoomFxAnimatedTileLoop mechanics = Mechanics;
         int shown = nextFrame;
         RoomFxAnimatedTileFrameDefinition frame = mechanics.Frames[shown];
         if (frame.Duration == 0)

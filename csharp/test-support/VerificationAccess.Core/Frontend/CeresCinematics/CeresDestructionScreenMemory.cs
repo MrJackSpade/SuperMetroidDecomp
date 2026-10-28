@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 internal static class CeresDestructionScreenMemory
 {
     /// <summary>The image <paramref name="uploads"/> leave over <paramref name="artwork"/>, in order.</summary>
-    internal static byte[] Compose(IntroCinematicArtworkCatalog artwork, IReadOnlyList<CeresDestructionUpload> uploads, bool withSamus)
+    internal static byte[] Compose(IntroCinematicArtwork artwork, IReadOnlyList<CeresDestructionUpload> uploads, bool withSamus)
     {
         var vram = new SnesVram();
         var mode7 = new Mode7Vram(vram);

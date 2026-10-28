@@ -13,8 +13,8 @@ internal sealed class CeresVortexParts(bool odd, Offset16<SpritePixels> anchor, 
     internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied, SpriteComposition? reflectionSource = null)
     {
         bool odd;
-        if (shown == CeresFlightSpriteDefinitions.VortexPose(CeresVortexFrame.Even)) odd = false;
-        else if (shown == CeresFlightSpriteDefinitions.VortexPose(CeresVortexFrame.Odd)) odd = true;
+        if (shown == CeresFlightSpritePoses.VortexPose(CeresVortexFrame.Even)) odd = false;
+        else if (shown == CeresFlightSpritePoses.VortexPose(CeresVortexFrame.Odd)) odd = true;
         else return supplied;
         if (supplied.PartCount != (odd ? 33 : 36)) return supplied;
         int tip = odd ? 3 : 0, core = odd ? 12 : 18;

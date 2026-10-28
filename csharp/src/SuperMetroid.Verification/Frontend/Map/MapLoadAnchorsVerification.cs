@@ -82,7 +82,7 @@ internal static class MapLoadAnchorsVerification
             var typedArea = (AreaId)area;
             for (int station = 0; station < 16; station++)
             {
-                if (!MapSaveMarkerDefinitions.Indices(typedArea).Contains(station))
+                if (!MapSaveMarkers.Indices(typedArea).Contains(station))
                 {
                     AssertThrows<InvalidDataException>(() => FileSelectMapLoadAnchors.Get(typedArea, station),
                         "unused map-load station remains rejected");
@@ -108,7 +108,7 @@ internal static class MapLoadAnchorsVerification
     }
 
     /// <summary>Compares native and compiled map scrolling, saved-station entry, and area rendering with cartridge access forbidden on the compiled path.</summary>
-    internal static void VerifyMapLoadAnchors(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
+    internal static void VerifyMapLoadAnchors(ISnesAddressSpace bus, AreaMapPresentation catalog)
     {
         // One store for every saved-station fixture, as one SRAM held them.
         var stationSaves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
@@ -122,7 +122,7 @@ internal static class MapLoadAnchorsVerification
             var typedArea = (AreaId)area;
             for (int stationIndex = 0; stationIndex < MapSaveMarkerDefinitions.SlotsPerArea; stationIndex++)
             {
-                if (!MapSaveMarkerDefinitions.Indices(typedArea).Contains(stationIndex))
+                if (!MapSaveMarkers.Indices(typedArea).Contains(stationIndex))
                 {
                     AssertThrows<InvalidDataException>(() => FileSelectMapLoadAnchors.Get(typedArea, stationIndex), "unused load-map index rejected");
                     continue;

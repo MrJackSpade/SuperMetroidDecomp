@@ -24,14 +24,14 @@ internal static class LookupFxPairColorsVerification
     };
 
     /// <summary>Compares calculated red channels with native, installed, and applied CGRAM colors.</summary>
-    internal static void VerifyFxPairRed(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxPairComponent(rom, stock, 0);
+    internal static void VerifyFxPairRed(ISnesAddressSpace rom, RoomFxBlendInks stock) => VerifyFxPairComponent(rom, stock, 0);
     /// <summary>Compares calculated green channels with native, installed, and applied CGRAM colors.</summary>
-    internal static void VerifyFxPairGreen(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxPairComponent(rom, stock, 5);
+    internal static void VerifyFxPairGreen(ISnesAddressSpace rom, RoomFxBlendInks stock) => VerifyFxPairComponent(rom, stock, 5);
     /// <summary>Compares calculated blue channels with native, installed, and applied CGRAM colors.</summary>
-    internal static void VerifyFxPairBlue(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxPairComponent(rom, stock, 10);
+    internal static void VerifyFxPairBlue(ISnesAddressSpace rom, RoomFxBlendInks stock) => VerifyFxPairComponent(rom, stock, 10);
 
     /// <summary>Checks one RGB5 channel wherever the native blend rule derives it.</summary>
-    private static void VerifyFxPairComponent(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock, int shift)
+    private static void VerifyFxPairComponent(ISnesAddressSpace rom, RoomFxBlendInks stock, int shift)
     {
         foreach (byte id in OriginalFxBlendIds())
         for (int color = 0; color < 2; color++)
@@ -41,9 +41,9 @@ internal static class LookupFxPairColorsVerification
             int expected = (native >> shift) & 31;
             int? calculated = shift switch
             {
-                0 => RoomFxPaletteBlendDefinitions.CalculatedPairRed(FxNativeWords.PaletteBlend(id), color == 0),
-                5 => RoomFxPaletteBlendDefinitions.CalculatedPairGreen(FxNativeWords.PaletteBlend(id), native & 31, color == 0),
-                _ => RoomFxPaletteBlendDefinitions.CalculatedPairBlue(FxNativeWords.PaletteBlend(id), native & 31, (native >> 5) & 31, color == 0),
+                0 => RoomFxPaletteBlendRules.CalculatedPairRed(FxNativeWords.PaletteBlend(id), color == 0),
+                5 => RoomFxPaletteBlendRules.CalculatedPairGreen(FxNativeWords.PaletteBlend(id), native & 31, color == 0),
+                _ => RoomFxPaletteBlendRules.CalculatedPairBlue(FxNativeWords.PaletteBlend(id), native & 31, (native >> 5) & 31, color == 0),
             };
             AssertEqual(expected, (calculated ?? throw new InvalidOperationException("Verification requires calculated.")), "Native paired-color component rule");
             AssertEqual(expected, (stock.Resolve(FxNativeWords.PaletteBlend(id))[color].ToWord() >> shift) & 31, "Installed paired-color component");
@@ -78,9 +78,9 @@ internal static class LookupFxPairColorsVerification
             foreach (bool isPrimary in new[] { false, true })
             foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
             {
-                AssertThrows<ArgumentOutOfRangeException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairGreen(FxNativeWords.PaletteBlend(id), invalid, isPrimary), "Green rule RGB5 bounds");
-                AssertThrows<ArgumentOutOfRangeException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairBlue(FxNativeWords.PaletteBlend(id), invalid, 0, isPrimary), "Blue rule RGB5 bounds");
-                AssertThrows<ArgumentOutOfRangeException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairBlue(FxNativeWords.PaletteBlend(id), 0, invalid, isPrimary), "Blue rule green-input bounds" );
+                AssertThrows<ArgumentOutOfRangeException>(() => RoomFxPaletteBlendRules.CalculatedPairGreen(FxNativeWords.PaletteBlend(id), invalid, isPrimary), "Green rule RGB5 bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => RoomFxPaletteBlendRules.CalculatedPairBlue(FxNativeWords.PaletteBlend(id), invalid, 0, isPrimary), "Blue rule RGB5 bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => RoomFxPaletteBlendRules.CalculatedPairBlue(FxNativeWords.PaletteBlend(id), 0, invalid, isPrimary), "Blue rule green-input bounds" );
             }
         }
         for (int value = 0; value <= byte.MaxValue; value++)
@@ -89,9 +89,9 @@ internal static class LookupFxPairColorsVerification
             if (OriginalFxBlendIds().Contains(id)) continue;
             foreach (bool isPrimary in new[] { false, true })
             {
-                AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairRed(FxNativeWords.PaletteBlend(id), isPrimary), "Unknown red rule selector rejects");
-                AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairGreen(FxNativeWords.PaletteBlend(id), 0, isPrimary), "Unknown green rule selector rejects");
-                AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairBlue(FxNativeWords.PaletteBlend(id), 0, 0, isPrimary), "Unknown blue rule selector rejects");
+                AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendRules.CalculatedPairRed(FxNativeWords.PaletteBlend(id), isPrimary), "Unknown red rule selector rejects");
+                AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendRules.CalculatedPairGreen(FxNativeWords.PaletteBlend(id), 0, isPrimary), "Unknown green rule selector rejects");
+                AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendRules.CalculatedPairBlue(FxNativeWords.PaletteBlend(id), 0, 0, isPrimary), "Unknown blue rule selector rejects");
             }
         }
     }

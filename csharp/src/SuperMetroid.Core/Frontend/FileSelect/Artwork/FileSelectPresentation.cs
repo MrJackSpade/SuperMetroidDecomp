@@ -56,9 +56,9 @@ public sealed class FileSelectPresentation
         cursorSprites = sprites.Cursors;
         helmetSprites = sprites.Helmets;
         borderAnchors = FileSelectPresentationDefinitions.Borders.ToDictionary(border => border,
-            border => document.BorderAnchors[FileSelectPresentationDefinitions.BorderName(border)]);
+            border => document.BorderAnchors[FileSelectParts.BorderName(border)]);
         dynamicAnchors = FileSelectPresentationDefinitions.Anchors.ToDictionary(anchor => anchor,
-            anchor => document.DynamicAnchors[FileSelectPresentationDefinitions.AnchorName(anchor)]);
+            anchor => document.DynamicAnchors[FileSelectParts.AnchorName(anchor)]);
         this.document = document;
         ContentIdentity = contentIdentity;
     }
@@ -147,15 +147,15 @@ public sealed class FileSelectPresentation
 
     /// <summary>Draws the page's border frame of the file-select sheet at its authored OAM anchor.</summary>
     internal void DrawBorder(ScreenSprites screenSprites, SpriteSheet sheet, FileSelectBorder border) =>
-        screenSprites.AddImage(sheet.Frame(FileSelectPresentationDefinitions.BorderSpriteName(border)), borderAnchors[border]);
+        screenSprites.AddImage(sheet.Frame(FileSelectParts.BorderSpriteName(border)), borderAnchors[border]);
 
     /// <summary>Draws one missile-cursor frame of the file-select sheet.</summary>
     internal static void DrawCursor(ScreenSprites screenSprites, SpriteSheet sheet, int frame, Position16<SpritePixels> anchor) =>
-        screenSprites.AddImage(sheet.Frame(FileSelectPresentationDefinitions.CursorSpriteName(frame)), anchor);
+        screenSprites.AddImage(sheet.Frame(FileSelectParts.CursorSpriteName(frame)), anchor);
 
     /// <summary>Draws a selected-slot helmet frame of the file-select sheet at that slot's OAM anchor.</summary>
     internal void DrawHelmet(ScreenSprites screenSprites, SpriteSheet sheet, int frame, int slot) =>
-        screenSprites.AddImage(sheet.Frame(FileSelectPresentationDefinitions.HelmetSpriteName(frame)),
+        screenSprites.AddImage(sheet.Frame(FileSelectParts.HelmetSpriteName(frame)),
             Point(document.HelmetAnchors, slot, "helmet"));
 
     /// <summary>Reads and validates a complete file-select JSON document, compiling its tilemaps, patches, glyphs, and sprite compositions.</summary>
@@ -186,16 +186,16 @@ public sealed class FileSelectPresentation
             throw new InvalidDataException(
                 $"File-select presentation version must be {FileSelectPresentationDefinitions.Version}.");
         ValidateExactKeys(document.Pages,
-            [FileSelectPresentationDefinitions.BackgroundPageName, .. FileSelectPresentationDefinitions.Pages.Select(FileSelectPresentationDefinitions.PageName)],
+            [FileSelectPresentationDefinitions.BackgroundPageName, .. FileSelectPresentationDefinitions.Pages.Select(FileSelectParts.PageName)],
             "file-select pages");
-        ValidateExactKeys(document.Patches, FileSelectPresentationDefinitions.Patches.Select(FileSelectPresentationDefinitions.PatchName),
+        ValidateExactKeys(document.Patches, FileSelectPresentationDefinitions.Patches.Select(FileSelectParts.PatchName),
             "file-select patches");
-        ValidateExactKeys(document.Sprites, FileSelectPresentationDefinitions.SpriteNames,
+        ValidateExactKeys(document.Sprites, FileSelectParts.SpriteNames,
             "file-select sprites");
         ValidateExactKeys(document.BorderAnchors,
-            FileSelectPresentationDefinitions.Borders.Select(FileSelectPresentationDefinitions.BorderName), "file-select borders");
+            FileSelectPresentationDefinitions.Borders.Select(FileSelectParts.BorderName), "file-select borders");
         ValidateExactKeys(document.DynamicAnchors,
-            FileSelectPresentationDefinitions.Anchors.Select(FileSelectPresentationDefinitions.AnchorName),
+            FileSelectPresentationDefinitions.Anchors.Select(FileSelectParts.AnchorName),
             "file-select dynamic anchors");
         if (document.Digits is null || document.Digits.Length != 10)
             throw new InvalidDataException("File select requires ten digit cells.");
@@ -208,9 +208,9 @@ public sealed class FileSelectPresentation
         ValidatePoints(document.DataCursorAnchors, 4, "data cursor");
         ValidatePoints(document.ConfirmationCursorAnchors, 2, "confirmation cursor");
         ValidatePoints(document.HelmetAnchors, 3, "helmet");
-        foreach (string name in FileSelectPresentationDefinitions.Borders.Select(FileSelectPresentationDefinitions.BorderName))
+        foreach (string name in FileSelectPresentationDefinitions.Borders.Select(FileSelectParts.BorderName))
             ValidatePoint(document.BorderAnchors[name], $"{name} border");
-        foreach (string name in FileSelectPresentationDefinitions.Anchors.Select(FileSelectPresentationDefinitions.AnchorName))
+        foreach (string name in FileSelectPresentationDefinitions.Anchors.Select(FileSelectParts.AnchorName))
             ValidateTilePoint(document.DynamicAnchors[name], $"{name} dynamic anchor");
         if ((uint)document.ObjectPalette >= MapPresentationFormat.PaletteCount)
             throw new InvalidDataException("File-select object palette must be 0..7.");
@@ -219,12 +219,12 @@ public sealed class FileSelectPresentation
             throw new InvalidDataException("File-select actor durations must be 1..65535.");
 
         var pages = FileSelectPresentationDefinitions.Pages.ToDictionary(page => page,
-            page => CompilePage(document, FileSelectPresentationDefinitions.PageName(page)));
+            page => CompilePage(document, FileSelectParts.PageName(page)));
         BackgroundTile[] background = CompilePage(document, FileSelectPresentationDefinitions.BackgroundPageName);
         var patches = new Dictionary<FileSelectPatch, FileSelectCompiledPatch>();
         foreach (FileSelectPatch kind in FileSelectPresentationDefinitions.Patches)
         {
-            string name = FileSelectPresentationDefinitions.PatchName(kind);
+            string name = FileSelectParts.PatchName(kind);
             FileSelectPatchDocument patch = document.Patches[name] ??
                 throw new InvalidDataException($"File-select patch {name} is null.");
             if (patch.Cells is null || patch.Cells.Length == 0)
@@ -250,12 +250,12 @@ public sealed class FileSelectPresentation
         BackgroundTile[] letters = document.SlotLetters.Select((cell, index) =>
             CompileCell(cell, $"file-select slot letter {index}")).ToArray();
         var borderSprites = FileSelectPresentationDefinitions.Borders.ToDictionary(border => border,
-            border => MenuHeadingBorderDefinitions.CalculateIfMatching(FileSelectPresentationDefinitions.Heading(border),
-                MenuBorderParts.CalculateIfMatching(CompileSprite(document, FileSelectPresentationDefinitions.BorderSpriteName(border)))));
+            border => MenuHeadingBorder.CalculateIfMatching(FileSelectParts.Heading(border),
+                MenuBorderParts.CalculateIfMatching(CompileSprite(document, FileSelectParts.BorderSpriteName(border)))));
         SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, FileSelectPresentationDefinitions.CursorFrameCount).Select(frame =>
-            MenuCursorParts.CalculateIfMatching(frame, CompileSprite(document, FileSelectPresentationDefinitions.CursorSpriteName(frame))))];
+            MenuCursorParts.CalculateIfMatching(frame, CompileSprite(document, FileSelectParts.CursorSpriteName(frame))))];
         SpriteComposition[] helmetSprites = [.. Enumerable.Range(0, FileSelectPresentationDefinitions.HelmetFrameCount).Select(frame =>
-            FileSelectHelmetParts.CalculateIfMatching(frame, CompileSprite(document, FileSelectPresentationDefinitions.HelmetSpriteName(frame))))];
+            FileSelectHelmetParts.CalculateIfMatching(frame, CompileSprite(document, FileSelectParts.HelmetSpriteName(frame))))];
 
         foreach (FileSelectSlotFieldDocument slot in document.MainSlots.Concat(document.DataSlots))
             ValidateSlot(slot);

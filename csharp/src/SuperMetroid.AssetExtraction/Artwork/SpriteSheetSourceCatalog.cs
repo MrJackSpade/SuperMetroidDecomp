@@ -23,18 +23,18 @@ internal sealed class SpriteSheetSourceCatalog
     private readonly Lazy<SamusSheetInputs> samus;
 
     /// <summary>The menus' presentation.</summary>
-    private readonly Lazy<AreaMapPresentationCatalog> maps;
+    private readonly Lazy<AreaMapPresentation> maps;
     /// <summary>The opening cinematic's artwork.</summary>
-    private readonly Lazy<IntroCinematicArtworkCatalog> intro;
+    private readonly Lazy<IntroCinematicArtwork> intro;
 
     /// <summary>The ending's sprite artwork.</summary>
-    private readonly Lazy<EndingObjectArtworkCatalog> ending;
+    private readonly Lazy<EndingObjectArtwork> ending;
 
     /// <summary>The ending's palettes.</summary>
-    private readonly Lazy<EndingPaletteCatalog> endingPalettes;
+    private readonly Lazy<EndingPaletteSet> endingPalettes;
 
     /// <summary>The ending's Mode 7 artwork.</summary>
-    private readonly Lazy<EndingFloorArtworkCatalog> endingMode7;
+    private readonly Lazy<EndingFloorArtwork> endingMode7;
 
     /// <summary>Reads inputs from installed stock content.</summary>
     internal SpriteSheetSourceCatalog(string content)

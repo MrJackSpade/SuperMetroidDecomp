@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 internal static class CeresDestructionScenery
 {
     /// <summary>The floor's cells <paramref name="uploads"/> leave over the installed maps, in the order the scene made them.</summary>
-    internal static byte[] FloorMap(IntroCinematicArtworkCatalog artwork, IReadOnlyList<CeresDestructionUpload> uploads, bool withSamus)
+    internal static byte[] FloorMap(IntroCinematicArtwork artwork, IReadOnlyList<CeresDestructionUpload> uploads, bool withSamus)
     {
         byte[] maps = Tilemaps(artwork);
         var cells = new byte[AffineFloor.CellCount];
@@ -40,7 +40,7 @@ internal static class CeresDestructionScenery
     }
 
     /// <summary>The Zebes reveal's tilemap once <paramref name="uploads"/> include it; an empty plane before.</summary>
-    internal static BackgroundTile[] ZebesTilemap(IntroCinematicArtworkCatalog artwork, IReadOnlyList<CeresDestructionUpload> uploads)
+    internal static BackgroundTile[] ZebesTilemap(IntroCinematicArtwork artwork, IReadOnlyList<CeresDestructionUpload> uploads)
     {
         var tiles = new BackgroundTile[CeresDestructionArtworkFormat.ZebesMapByteCount / sizeof(ushort)];
         if (!uploads.Contains(CeresDestructionUpload.ZebesReveal))
@@ -50,7 +50,7 @@ internal static class CeresDestructionScenery
     }
 
     /// <summary>The installed Ceres flight and destruction maps joined into the native contiguous transfer source.</summary>
-    internal static byte[] Tilemaps(IntroCinematicArtworkCatalog artwork)
+    internal static byte[] Tilemaps(IntroCinematicArtwork artwork)
     {
         var maps = new byte[CeresDestructionSceneDefinitions.Floor.MapCells];
         artwork.CeresFlight.FloorMaps.Span.CopyTo(maps);

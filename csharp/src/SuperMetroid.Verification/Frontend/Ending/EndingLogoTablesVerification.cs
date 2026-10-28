@@ -42,7 +42,7 @@ internal static class EndingLogoTablesVerification
         for (int index = 0; index < 6; index++)
         {
             int address = 0x8be45a + index * 8;
-            var actual = EndingPostShotUploadDefinitions.Get(index);
+            var actual = EndingPostShotUploads.Get(index);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), actual.Length, "native transfer length");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeLong((address + 2)), StagingSource(actual.Source) + actual.Offset,
                 "native transfer source is its artwork's staging buffer plus the part's offset");
@@ -50,6 +50,6 @@ internal static class EndingLogoTablesVerification
                 SuperMetroid.AssetExtraction.Frontend.Ending.EndingVramDestinations.PostShotWordOf(actual), "native transfer destination word");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 6, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingPostShotUploadDefinitions.Get(invalid), "transfer bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingPostShotUploads.Get(invalid), "transfer bounds");
     }
 }

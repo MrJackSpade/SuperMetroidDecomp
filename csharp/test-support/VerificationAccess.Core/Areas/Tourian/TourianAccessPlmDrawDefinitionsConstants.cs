@@ -22,7 +22,7 @@ internal static class TourianAccessPlmDrawDefinitionsConstants
         rows = 0;
         word = 0;
         if (found)
-            TourianAccessPlmDrawDefinitions.Describe(frame, out rows, out word);
+            TourianAccessDraws.Describe(frame, out rows, out word);
         return found;
     }
 
@@ -30,7 +30,7 @@ internal static class TourianAccessPlmDrawDefinitionsConstants
     internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         bool found = PlmDraw.TryFrame(request, out TourianAccessDraw frame);
-        list = found ? TourianAccessPlmDrawDefinitions.Compile(frame) : default;
+        list = found ? TourianAccessDraws.Compile(frame) : default;
         return found;
     }
 }

@@ -29,7 +29,7 @@ internal static class IntroScientistFrameCatalogVerification
         foreach (int invalid in new[] { int.MinValue, -1, 10, int.MaxValue })
         {
             AssertThrows<IndexOutOfRangeException>(() => { _ = frames[invalid]; }, "scientist catalog boundary");
-            AssertThrows<ArgumentOutOfRangeException>(() => IntroScientistSpriteDefinitions.FramePose(invalid), "scientist pointer boundary");
+            AssertThrows<ArgumentOutOfRangeException>(() => IntroScientistSpritePoses.FramePose(invalid), "scientist pointer boundary");
         }
         AssertTrue(frames.SequenceEqual(frames.ToArray()), "scientist catalog enumeration agrees with indexing");
     }

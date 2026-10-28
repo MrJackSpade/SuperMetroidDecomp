@@ -30,7 +30,7 @@ public sealed class PauseReserveUiPresentation
         this.labels = parts.Labels; this.digitCell = parts.DigitCell;
         bool stockDigits = true;
         for (int digit = 0; digit < parts.Digits.Length; digit++)
-            stockDigits &= parts.Digits[digit] == PauseReserveUiDefinitions.DigitTile(digit);
+            stockDigits &= parts.Digits[digit] == PauseReserveUiTiles.DigitTile(digit);
         this.digits = stockDigits ? null : parts.Digits;
         bool stockArrow = true;
         for (int cell = 0; cell < parts.ArrowCells.Length; cell++)
@@ -87,7 +87,7 @@ public sealed class PauseReserveUiPresentation
     {
         if ((uint)position >= PauseReserveUiDefinitions.SupplyDigitPlaces || (uint)value >= PauseReserveUiDefinitions.DigitCount)
             throw new ArgumentOutOfRangeException();
-        tilemap[digitCell + position] = digits is null ? PauseReserveUiDefinitions.DigitTile(value) : digits[value];
+        tilemap[digitCell + position] = digits is null ? PauseReserveUiTiles.DigitTile(value) : digits[value];
     }
 
     /// <summary>Replaces only the colour variants of the ten authored arrow cells, preserving their characters, priority and mirroring.</summary>
@@ -173,20 +173,20 @@ public sealed class PauseReserveUiPresentation
     private sealed class ReserveLabel(PauseReserveLabel name, int? cellEdit, Dictionary<int, BackgroundTile> edits)
     {
         /// <summary>Uses an authored placement when changed, otherwise the native label anchor.</summary>
-        internal int Cell => cellEdit ?? PauseReserveUiDefinitions.StockLabelOffset(name) / sizeof(ushort);
+        internal int Cell => cellEdit ?? PauseReserveUiTiles.StockLabelOffset(name) / sizeof(ushort);
         /// <summary>Uses the native strip width for the selected label.</summary>
-        internal int CellCount => PauseReserveUiDefinitions.StockLabelWords(name);
+        internal int CellCount => PauseReserveUiTiles.StockLabelWords(name);
         /// <summary>Returns an edited tile or the corresponding stock glyph and attributes.</summary>
         internal BackgroundTile Tile(int index) => edits.TryGetValue(index, out BackgroundTile edited)
-            ? edited : PauseReserveUiDefinitions.StockLabelTile(name, index);
+            ? edited : PauseReserveUiTiles.StockLabelTile(name, index);
 
         /// <summary>Compares every supplied tile and the destination with stock, retaining only differences.</summary>
         internal static ReserveLabel Load(PauseReserveLabel name, int cell, ReadOnlySpan<BackgroundTile> tiles)
         {
             var edits = new Dictionary<int, BackgroundTile>();
             for (int index = 0; index < tiles.Length; index++)
-                if (tiles[index] != PauseReserveUiDefinitions.StockLabelTile(name, index)) edits.Add(index, tiles[index]);
-            int? editedCell = cell == PauseReserveUiDefinitions.StockLabelOffset(name) / sizeof(ushort) ? null : cell;
+                if (tiles[index] != PauseReserveUiTiles.StockLabelTile(name, index)) edits.Add(index, tiles[index]);
+            int? editedCell = cell == PauseReserveUiTiles.StockLabelOffset(name) / sizeof(ushort) ? null : cell;
             return new(name, editedCell, edits);
         }
     }

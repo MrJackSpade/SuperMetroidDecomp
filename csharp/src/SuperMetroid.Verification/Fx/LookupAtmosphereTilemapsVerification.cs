@@ -13,17 +13,17 @@ namespace SuperMetroid.Verification.Fx;
 internal static class LookupAtmosphereTilemapsVerification
 {
     /// <summary>Compares rain palette bits with the original atmosphere page.</summary>
-    private static void VerifyRainTilePalette(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
+    private static void VerifyRainTilePalette(ISnesAddressSpace rom, RoomFxLayer3Pages stock) =>
         Suite(nameof(VerifyAtmosphereTileField), () => VerifyAtmosphereTileField(rom, stock, RoomFxType.Rain, 0x1c00));
     /// <summary>Compares fog palette bits with the original atmosphere page.</summary>
-    private static void VerifyFogTilePalette(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
+    private static void VerifyFogTilePalette(ISnesAddressSpace rom, RoomFxLayer3Pages stock) =>
         Suite(nameof(VerifyAtmosphereTileField), () => VerifyAtmosphereTileField(rom, stock, RoomFxType.Fog, 0x1c00));
     /// <summary>Compares fog priority bits with the original atmosphere page.</summary>
-    private static void VerifyFogTilePriority(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
+    private static void VerifyFogTilePriority(ISnesAddressSpace rom, RoomFxLayer3Pages stock) =>
         Suite(nameof(VerifyAtmosphereTileField), () => VerifyAtmosphereTileField(rom, stock, RoomFxType.Fog, 0x2000));
 
     /// <summary>Checks every page cell's selected attribute mask against both calculation and installed output.</summary>
-    private static void VerifyAtmosphereTileField(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock,
+    private static void VerifyAtmosphereTileField(ISnesAddressSpace rom, RoomFxLayer3Pages stock,
         RoomFxType type, int mask)
     {
         int source = 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(type));
@@ -40,7 +40,7 @@ internal static class LookupAtmosphereTilemapsVerification
     }
 
     /// <summary>Checks rain/fog domain, the stock page, an edit at every cell, and exact page bounds.</summary>
-    private static void VerifyAtmosphereTilemapDomainAndEdits(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
+    private static void VerifyAtmosphereTilemapDomainAndEdits(ISnesAddressSpace rom, RoomFxLayer3Pages stock)
     {
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
@@ -66,7 +66,7 @@ internal static class LookupAtmosphereTilemapsVerification
             byte[] changed = stockPage.ToArray();
             for (int index = 0; index < 1056; index++)
                 changed[index * 2 + 1] ^= (byte)(type == RoomFxType.Fog && (index & 1) != 0 ? 32 : 4);
-            RoomFxLayer3TilemapCatalog edited = RoomFxLayer3TilemapFixtures.WithPage(stock, type, BackgroundTileWordBytes.Tiles(changed));
+            RoomFxLayer3Pages edited = RoomFxLayer3TilemapFixtures.WithPage(stock, type, BackgroundTileWordBytes.Tiles(changed));
             AssertTrue(changed.AsSpan().SequenceEqual(edited.ResolveBytes(type)), "A custom field edit at every cell survives");
             AssertTrue(stockPage.AsSpan().SequenceEqual(stock.ResolveBytes(type)), "An edited catalog leaves the stock catalog's page");
             foreach (int invalid in new[] { int.MinValue, -1, 1056, int.MaxValue })
@@ -82,7 +82,7 @@ internal static class LookupAtmosphereTilemapsVerification
     private static byte AtmosphereTilemapDomainAndEditsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs rain and fog palette, priority, and edit ownership checks.</summary>
-    internal static void VerifyAtmosphereTilemapFields(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
+    internal static void VerifyAtmosphereTilemapFields(ISnesAddressSpace rom, RoomFxLayer3Pages stock)
     {
         Suite(nameof(VerifyRainTilePalette), () => VerifyRainTilePalette(rom, stock));
         Suite(nameof(VerifyFogTilePalette), () => VerifyFogTilePalette(rom, stock));

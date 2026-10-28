@@ -15,13 +15,5 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal static class CeresDoorQuakeDefinitions
 {
     /// <summary>$A6:A323 is the negative four-pixel quake impulse, following the neutral word at $A6:A321.</summary>
-    private const short Impulse = -4;
-
-    /// <summary>Returns the signed offset selected by the earthquake timer's low two bits.</summary>
-    internal static sbyte XOffset(int earthquakeTimer)
-    {
-        int phase = earthquakeTimer & 3;
-        int word = phase < sizeof(ushort) ? 0 : Impulse;
-        return unchecked((sbyte)(word >> (8 * (phase & 1))));
-    }
+    internal const short Impulse = -4;
 }

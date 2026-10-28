@@ -32,7 +32,7 @@ internal static class LookupAnimatedAreasVerification
                 AssertEqual(expected, AreaAnimatedTileObjectDefinitions.NativeObjectPointer(area, bit),
                     "Original native animation area/bit selection");
                 if (area < 7)
-                    AssertEqual(expected, FxNativeWords.AnimatedTileObjects.Word(AreaAnimatedTileObjectDefinitions.Read((AreaId)area, bit)),
+                    AssertEqual(expected, FxNativeWords.AnimatedTileObjects.Word(AreaAnimatedTileObjects.Read((AreaId)area, bit)),
                         "Retail view shares original selection");
             }
             else
@@ -44,7 +44,7 @@ internal static class LookupAnimatedAreasVerification
             if (area >= 7 || bit >= 8)
             {
                 var failure = AssertThrows<ArgumentOutOfRangeException>(
-                    () => AreaAnimatedTileObjectDefinitions.Read((AreaId)area, bit), "Retail selection rejects");
+                    () => AreaAnimatedTileObjects.Read((AreaId)area, bit), "Retail selection rejects");
                 AssertEqual(bit >= 8 ? "bit" : "area", failure.ParamName, "Retail bit-first validation");
             }
         }
@@ -55,7 +55,7 @@ internal static class LookupAnimatedAreasVerification
             AssertThrows<ArgumentOutOfRangeException>(
                 () => AreaAnimatedTileObjectDefinitions.NativeObjectPointer(0, invalid), "Signed native bit bound");
             AssertThrows<ArgumentOutOfRangeException>(
-                () => AreaAnimatedTileObjectDefinitions.Read(AreaId.Crateria, invalid), "Signed retail bit bound");
+                () => AreaAnimatedTileObjects.Read(AreaId.Crateria, invalid), "Signed retail bit bound");
         }
     }
 }

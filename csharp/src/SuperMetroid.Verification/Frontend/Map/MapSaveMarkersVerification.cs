@@ -38,7 +38,7 @@ internal static class MapSaveMarkersVerification
                 ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectBank | (pointer + index * 4));
                 AssertTrue(x != ushort.MaxValue, "all sixteen native save/elevator slots precede the terminator");
                 bool usable = x != ushort.MaxValue - 1;
-                AssertEqual(usable, MapSaveMarkerDefinitions.IsUsable((AreaId)area, index),
+                AssertEqual(usable, MapSaveMarkers.IsUsable((AreaId)area, index),
                     "compiled active placement agrees with original marker presence");
                 if (usable)
                 {
@@ -46,36 +46,36 @@ internal static class MapSaveMarkersVerification
                     expectedIndices.Add(index);
                     string id = $"{(AreaId)area}.Save.{index}";
                     expectedIds.Add(id);
-                    AssertEqual(id, MapSaveMarkerDefinitions.Id((AreaId)area, index), "stable marker identity");
+                    AssertEqual(id, MapSaveMarkers.Id((AreaId)area, index), "stable marker identity");
                 }
                 else
-                    AssertThrows<InvalidDataException>(() => MapSaveMarkerDefinitions.Id((AreaId)area, index),
+                    AssertThrows<InvalidDataException>(() => MapSaveMarkers.Id((AreaId)area, index),
                         "native unused marker remains rejected");
             }
-            AssertTrue(expectedIndices.SequenceEqual(MapSaveMarkerDefinitions.Indices((AreaId)area)),
+            AssertTrue(expectedIndices.SequenceEqual(MapSaveMarkers.Indices((AreaId)area)),
                 "lazy enumeration preserves native ascending station order");
             for (int mask = 0; mask <= ushort.MaxValue; mask++)
-                AssertEqual((mask & nativeMask) != 0, MapSaveMarkerDefinitions.HasUsedMarker((AreaId)area, (ushort)mask),
+                AssertEqual((mask & nativeMask) != 0, MapSaveMarkers.HasUsedMarker((AreaId)area, (ushort)mask),
                     "every used-station mask retains native area-label eligibility");
             foreach (int invalid in new[] { int.MinValue, -1, 16, 256, int.MaxValue })
             {
-                AssertThrows<ArgumentOutOfRangeException>(() => MapSaveMarkerDefinitions.IsUsable((AreaId)area, invalid),
+                AssertThrows<ArgumentOutOfRangeException>(() => MapSaveMarkers.IsUsable((AreaId)area, invalid),
                     "station bounds precede byte narrowing");
-                AssertThrows<ArgumentOutOfRangeException>(() => MapSaveMarkerDefinitions.Id((AreaId)area, invalid),
+                AssertThrows<ArgumentOutOfRangeException>(() => MapSaveMarkers.Id((AreaId)area, invalid),
                     "ID station bounds remain rejected");
             }
         }
         AssertEqual(34, expectedIds.Count, "all original marker identities");
-        AssertTrue(expectedIds.SequenceEqual(MapSaveMarkerDefinitions.AllIds()), "full marker identity enumeration order");
+        AssertTrue(expectedIds.SequenceEqual(MapSaveMarkers.AllIds()), "full marker identity enumeration order");
         foreach (AreaId invalid in new[] { AreaId.Ceres, (AreaId)7, (AreaId)255 })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => { _ = MapSaveMarkerDefinitions.Indices(invalid); },
+            AssertThrows<ArgumentOutOfRangeException>(() => { _ = MapSaveMarkers.Indices(invalid); },
                 "invalid area rejects without enumerating the lazy sequence");
-            AssertThrows<ArgumentOutOfRangeException>(() => MapSaveMarkerDefinitions.HasUsedMarker(invalid, 0),
+            AssertThrows<ArgumentOutOfRangeException>(() => MapSaveMarkers.HasUsedMarker(invalid, 0),
                 "invalid area rejects even an empty used mask");
             try
             {
-                MapSaveMarkerDefinitions.Id(invalid, -1);
+                MapSaveMarkers.Id(invalid, -1);
                 throw new InvalidOperationException("Invalid marker area/index accepted.");
             }
             catch (ArgumentOutOfRangeException error)
@@ -86,7 +86,7 @@ internal static class MapSaveMarkersVerification
     }
 
     /// <summary>Checks marker OAM, edited Maridia position, snapshot rebind, and load handoff timing.</summary>
-    internal static void VerifyMapSaveMarkers(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
+    internal static void VerifyMapSaveMarkers(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation original)
     {
         var guard = NewSaveMarkerGuard(bus);
         Suite(nameof(VerifySaveMarkerEligibility), () => VerifySaveMarkerEligibility(bus));
@@ -95,7 +95,7 @@ internal static class MapSaveMarkersVerification
         for (int index = 0; index < MapSaveMarkerDefinitions.SlotsPerArea; index++)
         {
             var typedArea = (AreaId)area;
-            if (!MapSaveMarkerDefinitions.Indices(typedArea).Contains(index))
+            if (!MapSaveMarkers.Indices(typedArea).Contains(index))
             {
                 AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(typedArea, index, original.SaveMarkers), "cartridge rejects unused marker index");
                 AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(typedArea, index, original.SaveMarkers), "compiled definition rejects same unused marker index");
@@ -122,7 +122,7 @@ internal static class MapSaveMarkersVerification
         points["Maridia.Save.0"] = points["Maridia.Save.0"] with { X = (ushort)(points["Maridia.Save.0"].X + 8) };
         Directory.CreateDirectory(overrides);
         string path = Path.Combine(overrides, MapSaveMarkerFormat.FileName);
-        using (var output = File.Create(path)) MapSaveMarkerLayout.Write(output, document with { Markers = points });
+        using (var output = File.Create(path)) MapSaveMarkerPositions.Write(output, document with { Markers = points });
         byte[] bytes = File.ReadAllBytes(path);
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity, "save marker edit changes content identity");
@@ -163,7 +163,7 @@ internal static class MapSaveMarkersVerification
         AssertTrue(bytes.SequenceEqual(File.ReadAllBytes(path)), "save marker override bytes preserved");
         foreach (var bad in new[] { document with { Version = 2 }, document with { Markers = new() },
             document with { Markers = points.ToDictionary(pair => pair.Key, pair => pair.Value with { X = ushort.MaxValue }) } })
-            AssertThrows<InvalidDataException>(() => MapSaveMarkerLayout.Write(new MemoryStream(), bad), "invalid save marker layout rejected");
+            AssertThrows<InvalidDataException>(() => MapSaveMarkerPositions.Write(new MemoryStream(), bad), "invalid save marker layout rejected");
         File.WriteAllText(path, "{bad save markers");
         AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "bad save marker override cannot fall back");
         AssertEqual("{bad save markers", File.ReadAllText(path), "bad save marker override preserved");

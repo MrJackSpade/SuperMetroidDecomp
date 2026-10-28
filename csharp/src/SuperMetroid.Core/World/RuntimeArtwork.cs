@@ -28,7 +28,7 @@ internal sealed class RuntimeArtwork : IInstalledArtworkContent, IInstalledSprit
     BossArtworkCatalog IInstalledBossSpriteCharacterArtwork.BossTiles => _bossArtwork.Installed;
 
     /// <inheritdoc/>
-    AreaArtworkCatalog IInstalledAreaSpriteCharacterArtwork.AreaTiles => _areaArtwork.Installed;
+    AreaArtworkBundle IInstalledAreaSpriteCharacterArtwork.AreaTiles => _areaArtwork.Installed;
 
     /// <inheritdoc/>
     EnemyTileArtworkCatalog IInstalledSpriteCharacterArtwork.EnemyTiles =>

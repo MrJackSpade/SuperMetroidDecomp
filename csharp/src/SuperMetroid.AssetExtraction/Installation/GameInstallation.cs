@@ -112,28 +112,28 @@ public sealed record GameInstallation(string Root)
     /// <summary>Opening-cinematic PNG edits survive stock content replacement.</summary>
     public string IntroCinematicOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.IntroCinematicDirectoryName);
     /// <summary>Loads validated opening-cinematic artwork, selecting compatible user PNG replacements where supplied.</summary>
-    public IntroCinematicArtworkCatalog LoadIntroCinematicArt() =>
+    public IntroCinematicArtwork LoadIntroCinematicArt() =>
         IntroCinematicArtworkFiles.Load(IntroCinematicDirectory, IntroCinematicOverrideDirectory);
     /// <summary>Stock ending Mode 7 scene artwork under the replaceable content tree.</summary>
     public string EndingMode7Directory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingMode7DirectoryName);
     /// <summary>Ending scene art edits remain outside replaceable stock content.</summary>
     public string EndingMode7OverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EndingMode7DirectoryName);
     /// <summary>Loads validated ending Mode 7 artwork and compatible scene replacements from the persistent override tree.</summary>
-    public EndingFloorArtworkCatalog LoadEndingMode7Art() =>
+    public EndingFloorArtwork LoadEndingMode7Art() =>
         EndingMode7ArtworkFiles.Load(EndingMode7Directory, EndingMode7OverrideDirectory);
     /// <summary>Stock ending sprite artwork under the replaceable content tree.</summary>
     public string EndingObjectDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingObjectDirectoryName);
     /// <summary>Ending OBJ edits remain outside replaceable stock content.</summary>
     public string EndingObjectOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EndingObjectDirectoryName);
     /// <summary>Loads validated ending OBJ artwork and any compatible user replacements.</summary>
-    public EndingObjectArtworkCatalog LoadEndingObjectArt() =>
+    public EndingObjectArtwork LoadEndingObjectArt() =>
         EndingObjectArtworkFiles.Load(EndingObjectDirectory, EndingObjectOverrideDirectory);
     /// <summary>Stock ending-scene color palettes under the replaceable content tree.</summary>
     public string EndingPaletteDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingPaletteDirectoryName);
     /// <summary>Ending color edits survive replacement of the stock installation.</summary>
     public string EndingPaletteOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EndingPaletteDirectoryName);
     /// <summary>Loads validated ending color palettes and compatible color replacements from the persistent override tree.</summary>
-    public EndingPaletteCatalog LoadEndingPalettes() =>
+    public EndingPaletteSet LoadEndingPalettes() =>
         EndingPaletteArtworkFiles.Load(EndingPaletteDirectory, EndingPaletteOverrideDirectory);
     /// <summary>Editable room character art stays outside the replaceable stock game directory.</summary>
     public string RoomCharacterOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomCharacterDirectoryName);
@@ -296,7 +296,7 @@ public sealed record GameInstallation(string Root)
     /// <summary>Persistent replacements for Tourian access-floor appearances, preserved during stock rebuilds.</summary>
     public string RoomPlmTourianAccessVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmTourianAccessVisualDirectoryName);
     /// <summary>Editable Tourian access-floor art; physical rows and timing stay compiled.</summary>
-    public RoomPlmTourianAccessVisualCatalog LoadRoomPlmTourianAccessVisuals() =>
+    public RoomPlmTourianAccessVisuals LoadRoomPlmTourianAccessVisuals() =>
         RoomPlmTourianAccessVisualFiles.Load(RoomPlmTourianAccessVisualDirectory,
             RoomPlmTourianAccessVisualOverrideDirectory);
     /// <summary>Stock definitions for the bomb-revealed Speed Booster tile under the replaceable content tree.</summary>
@@ -412,13 +412,13 @@ public sealed record GameInstallation(string Root)
     public string MapOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.MapDirectoryName);
 
     /// <summary>Loads installed maps and stock exploration masks without a cartridge address space.</summary>
-    public AreaMapPresentationCatalog LoadMaps() => MapPresentationFiles.Load(MapDirectory, MapOverrideDirectory);
+    public AreaMapPresentation LoadMaps() => MapPresentationFiles.Load(MapDirectory, MapOverrideDirectory);
 
     /// <summary>
     /// Loads every installed presentation catalog the frontend binds. Hosts pass the maps and projectile
     /// presentation they already hold for content identity and save persistence.
     /// </summary>
-    public GameArtwork LoadGameArtwork(AreaMapPresentationCatalog maps, InstalledProjectilePresentation projectiles)
+    public GameArtwork LoadGameArtwork(AreaMapPresentation maps, InstalledProjectilePresentation projectiles)
     {
         Ensure.NotNull(maps);
         Ensure.NotNull(projectiles);

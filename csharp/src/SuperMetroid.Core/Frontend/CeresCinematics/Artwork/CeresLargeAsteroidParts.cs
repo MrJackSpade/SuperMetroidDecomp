@@ -24,7 +24,7 @@ internal sealed class CeresLargeAsteroidParts(
     {
         // Other poses belong to other owners.
         CeresLargeAsteroidComposition composition;
-        if (shown == CeresDestructionSpriteDefinitions.BackdropPose(CeresDestructionBackdrop.LargeAsteroids))
+        if (shown == CeresDestructionSpritePoses.BackdropPose(CeresDestructionBackdrop.LargeAsteroids))
             composition = CeresLargeAsteroidComposition.UnderAttack;
         else if (shown == CeresFlightSpriteDefinitions.LargeAsteroids)
             composition = CeresLargeAsteroidComposition.Approach;

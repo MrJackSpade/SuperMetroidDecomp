@@ -13,7 +13,7 @@ internal static class IntroMotherBrainInputDefinitionsVerification
 {
     /// <summary>Compares every demo input edge, timer and list position with the native interpreter, then the live intro owner's first record.</summary>
     internal static void VerifyIntroMotherBrainDemoInput(SuperMetroidAddressSpace bus,
-        IntroCinematicArtworkCatalog stock)
+        IntroCinematicArtwork stock)
     {
         ushort ReferenceWord(ushort pointer) => CartridgeImportSource.Require(bus).ReadCartridgeWord(DemoInputRomData.BankBase | pointer);
         var compiled = new DemoInputState();

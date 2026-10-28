@@ -20,13 +20,13 @@ internal static class LookupFxBlendSelectorsVerification
     internal static void VerifyFxBlendSelectorIdentities()
     {
         byte[] original = OriginalFxBlendIds();
-        AssertTrue(original.SequenceEqual(RoomFxPaletteBlendDefinitions.Ids.Select(id => (byte)SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.PaletteBlends.Word(id))), "Original blend selector order/domain");
+        AssertTrue(original.SequenceEqual(RoomFxPaletteBlendRules.Ids.Select(id => (byte)SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.PaletteBlends.Word(id))), "Original blend selector order/domain");
         for (int value = 0; value <= byte.MaxValue; value++)
         {
             byte id = (byte)value;
             if (original.Contains(id))
-                AssertEqual($"blend-{id:X2}", RoomFxPaletteBlendDefinitions.Key(FxNativeWords.PaletteBlend(id)), "Original document key");
-            else AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.Key(FxNativeWords.PaletteBlend(id)), "Unknown selector key rejects");
+                AssertEqual($"blend-{id:X2}", RoomFxPaletteBlendRules.Key(FxNativeWords.PaletteBlend(id)), "Original document key");
+            else AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendRules.Key(FxNativeWords.PaletteBlend(id)), "Unknown selector key rejects");
         }
     }
 
@@ -49,7 +49,7 @@ internal static class LookupFxBlendSelectorsVerification
     private static byte FxBlendSourceAddressesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks stock and edited three-color blends in CGRAM, including selector zero and malformed documents.</summary>
-    internal static void VerifyFxBlendPageDispatch(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock)
+    internal static void VerifyFxBlendPageDispatch(ISnesAddressSpace rom, RoomFxBlendInks stock)
     {
         var document = new RoomFxPaletteBlendDocument { Version = 1, Blends = new() };
         byte[] ids = OriginalFxBlendIds();

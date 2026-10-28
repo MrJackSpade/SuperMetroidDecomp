@@ -119,8 +119,8 @@ internal static class LookupStream1Verification
             int x = index % size.X, y = index / size.X;
             int tile = y / 8 * 16 + x / 8;
             bool available = tile is >= 0x3c and <= 0x45
-                ? WorldMapTileDefinitions.TryOutlinedPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), NativeMask(tile), out int value)
-                : WorldMapTileDefinitions.TryBackgroundPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), out value);
+                ? WorldMapCharacterDrawing.TryOutlinedPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), NativeMask(tile), out int value)
+                : WorldMapCharacterDrawing.TryBackgroundPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), out value);
             if (available) { AssertEqual(pixels[index], value, $"Native primitive tile{y / 8 * 16 + x / 8:X2} pixel{x % 8},{y % 8}"); calculated++; }
             AssertEqual(!available, stored.ContainsKey(index), "Exact font/icon basis, no stock primitive overrides");
         }
@@ -144,7 +144,7 @@ internal static class LookupStream1Verification
         byte[] invalid = (byte[])pixels.Clone(); invalid[0] = 4;
         AssertThrows<InvalidDataException>(() => WorldMapCharacters.Read(new MemoryStream(frontPng),
             new MemoryStream(Png(invalid, backSize.Y, 16))), "Invalid BG3 pen rejected during import, before upload");
-        AssertThrows<ArgumentOutOfRangeException>(() => WorldMapTileDefinitions.TryBackgroundPixel(96, new(0, 0), out _), "Background tile bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => WorldMapCharacterDrawing.TryBackgroundPixel(96, new(0, 0), out _), "Background tile bound");
         Console.WriteLine($"World BG3:6144 native pixels,{calculated} geometry/mask defaults,{stored.Count} exact source pixels/10footprints,96 independent tile edits/all-pixel inversion and actual full uploads pass.");
     }
 
@@ -433,9 +433,9 @@ internal static class LookupStream1Verification
         {
             byte expected = LookupStream1TimerCadenceRomByte(rom, 0x809eec + index);
             total += expected;
-            AssertEqual(expected, EscapeTimerCadenceDefinitions.Centiseconds((ushort)index), "Every native rational cadence sample");
-            AssertEqual(expected, EscapeTimerCadenceDefinitions.Centiseconds((ushort)(index + 128)), "Native128-frame wrap");
-            AssertEqual(expected, EscapeTimerCadenceDefinitions.Centiseconds((ushort)(index + 0xff80)), "Native ignores high NMI bits");
+            AssertEqual(expected, EscapeTimerCadence.Centiseconds((ushort)index), "Every native rational cadence sample");
+            AssertEqual(expected, EscapeTimerCadence.Centiseconds((ushort)(index + 128)), "Native128-frame wrap");
+            AssertEqual(expected, EscapeTimerCadence.Centiseconds((ushort)(index + 0xff80)), "Native ignores high NMI bits");
             var timer = new EscapeTimer();
             timer.SelectRunningStatus(EscapeTimerState.RunningInPlace);
             timer.SetTime(PackedDecimal.FromDecimal(0), PackedDecimal.FromDecimal(1), PackedDecimal.FromDecimal(50));
@@ -547,13 +547,13 @@ internal static class LookupStream1Verification
         {
             bool fill = image.Pixels[index] == Ink(index);
             bool calculated = DefaultFill(index, out bool expectedFill);
-            AssertEqual(calculated, EscapeTimerGlyphDefinitions.TryDefaultFill(index, out bool productionFill), "Exact digit/T/I/E footprint domain");
+            AssertEqual(calculated, EscapeTimerGlyphs.TryDefaultFill(index, out bool productionFill), "Exact digit/T/I/E footprint domain");
             if (calculated) { AssertEqual(fill, expectedFill, "Direct native three-part digit/T/I/E footprint"); AssertEqual(fill, productionFill, "Direct calculated digit/T/I/E footprint"); }
             AssertEqual(Source(index) == index && !calculated && fill, Fill(stock).Contains(index), "Exact retained stock footprint membership");
-            AssertEqual(Source(index), EscapeTimerGlyphDefinitions.SourcePixel(index), "Exact native shared lower-half pixel domain");
+            AssertEqual(Source(index), EscapeTimerGlyphs.SourcePixel(index), "Exact native shared lower-half pixel domain");
             if (Source(index) != index) AssertEqual(image.Pixels[index], image.Pixels[Source(index)], "Direct native repeated lower-half pixel");
             else if (!fill && !Overrides(stock).ContainsKey(index))
-                AssertEqual(image.Pixels[index], EscapeTimerGlyphDefinitions.Outline(index, pixel => image.Pixels[pixel] == Ink(pixel)), "Direct native calculated outline/transparency");
+                AssertEqual(image.Pixels[index], EscapeTimerGlyphs.Outline(index, pixel => image.Pixels[pixel] == Ink(pixel)), "Direct native calculated outline/transparency");
             byte[] editedPixels = (byte[])image.Pixels.Clone(); editedPixels[index] ^= 15;
             using var stream = new MemoryStream();
             IndexedPng.Write(stream, new(200, 8), editedPixels, image.Colours); stream.Position = 0;
@@ -1481,7 +1481,7 @@ internal static class LookupStream1Verification
         AssertEqual(0, stock.anchors.Count, "Timer stock stores no calculated anchor fallbacks");
         int[] anchorImmediates = [0x809f73, 0x809f7c, 0x809f85, 0x809f8e];
         foreach (EscapeTimerAnchor anchor in EscapeTimerPresentationDefinitions.Anchors)
-            AssertEqual(new Offset16<SpritePixels>(unchecked((short)Word(anchorImmediates[(int)anchor])), 0), EscapeTimerPresentationDefinitions.DefaultAnchor(anchor), "Timer centered anchor matches native renderer immediate");
+            AssertEqual(new Offset16<SpritePixels>(unchecked((short)Word(anchorImmediates[(int)anchor])), 0), EscapeTimerComposition.DefaultAnchor(anchor), "Timer centered anchor matches native renderer immediate");
         SpriteSheet sheet = EscapeTimerDrawChecks.Sheet(rom);
         SpriteArtwork characters = EscapeTimerCharacters.Read(new MemoryStream(
             SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerTileAtlasExtractor.Extract(rom))).Artwork;
@@ -2450,12 +2450,12 @@ internal static class LookupStream1Verification
         {
             var program = stock.Get(id);
             var original = document.Programs[id.ToString()].Lines;
-            AssertEqual(original.Length, EscapeTypewriterDefinitions.LineCount(id), "escape text required line grouping");
+            AssertEqual(original.Length, EscapeTypewriterLines.LineCount(id), "escape text required line grouping");
             AssertEqual(0, Stored(program), "escape text stock contains no sampled line overrides");
             for (int index = 0; index < original.Length; index++)
             {
                 var expected = new EscapeTypewriterLine(original[index].Cell, original[index].Text);
-                AssertEqual(expected, EscapeTypewriterDefinitions.Line(id, index), "escape text direct original placement and wording");
+                AssertEqual(expected, EscapeTypewriterLines.Line(id, index), "escape text direct original placement and wording");
                 AssertEqual(expected, program.Lines[index], "escape text installed line");
                 var editedLines = original.ToArray();
                 editedLines[index] = original[index] with { Text = "TEST!", Cell = original[index].Cell + 7 };
@@ -2602,11 +2602,11 @@ internal static class LookupStream1Verification
         var edits = new HashSet<int>();
         for (int index = 0; index < pixels.Length; index++)
         {
-            int source = WorldMapTileDefinitions.ForegroundSourcePixel(index);
+            int source = WorldMapCharacterDrawing.ForegroundSourcePixel(index);
             if (source >= 0)
-                AssertEqual(source, WorldMapTileDefinitions.ForegroundSourcePixel(source), "Foreground source dependencies are fixed and acyclic");
+                AssertEqual(source, WorldMapCharacterDrawing.ForegroundSourcePixel(source), "Foreground source dependencies are fixed and acyclic");
             AssertEqual(pixels[index], source < 0 ? (byte)0 : pixels[source], $"Direct foreground relation at pixel{index}");
-            bool font = WorldMapTileDefinitions.TryForegroundFontPixel(index, NativeMask, out int fontValue);
+            bool font = WorldMapCharacterDrawing.TryForegroundFontPixel(index, NativeMask, out int fontValue);
             bool required = source == index && (!font || pixels[index] != fontValue);
             AssertEqual(required, stored.ContainsKey(index), "Exact selected source/contour basis; zero stock relation exceptions");
             if (source == index && font && pixels[index] != fontValue) fontDifferences++;
@@ -2634,8 +2634,8 @@ internal static class LookupStream1Verification
         }
         byte[] inverted = pixels.Select(p => (byte)(p ^ 15)).ToArray();
         Check(Create(inverted), inverted);
-        AssertThrows<ArgumentOutOfRangeException>(() => WorldMapTileDefinitions.ForegroundSourcePixel(-1), "Foreground lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => WorldMapTileDefinitions.ForegroundSourcePixel(pixels.Length), "Foreground upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => WorldMapCharacterDrawing.ForegroundSourcePixel(-1), "Foreground lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => WorldMapCharacterDrawing.ForegroundSourcePixel(pixels.Length), "Foreground upper bound");
         Console.WriteLine($"World foreground:{pixels.Length} native pixels,{calculated} exact source relations,{stored.Count} source pixels/{masks.Count} masks/{fontDifferences} font differences,{edits.Count} independent tile/source edits/full inversion/full uploads pass.");
     }
 

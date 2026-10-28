@@ -24,8 +24,8 @@ public static class ExploredMapStorage
         var compressed = new byte[PackedByteCount];
         for (int area = 0; area < PackedAreaCount; area++)
         {
-            ExploredMapPackingDefinition definition = ExploredMapPackingDefinitions.Area(area, RequireMaps(maps));
-            ExploredMapPackingDefinitions.OccupiedByteIndexes areaByteIndexes = definition.AreaByteIndexes;
+            ExploredMapPackingDefinition definition = ExploredMapPacking.Area(area, RequireMaps(maps));
+            ExploredMapPacking.OccupiedByteIndexes areaByteIndexes = definition.AreaByteIndexes;
             for (int index = 0; index < areaByteIndexes.Count; index++)
             {
                 int compressedIndex = definition.SaveOffset + index;
@@ -45,8 +45,8 @@ public static class ExploredMapStorage
         var explored = new byte[SharedGameState.ExploredMapAreaCount * SharedGameState.ExploredMapBytesPerArea];
         for (int area = 0; area < PackedAreaCount; area++)
         {
-            ExploredMapPackingDefinition definition = ExploredMapPackingDefinitions.Area(area, RequireMaps(maps));
-            ExploredMapPackingDefinitions.OccupiedByteIndexes areaByteIndexes = definition.AreaByteIndexes;
+            ExploredMapPackingDefinition definition = ExploredMapPacking.Area(area, RequireMaps(maps));
+            ExploredMapPacking.OccupiedByteIndexes areaByteIndexes = definition.AreaByteIndexes;
             for (int index = 0; index < areaByteIndexes.Count; index++)
             {
                 int compressedIndex = definition.SaveOffset + index;

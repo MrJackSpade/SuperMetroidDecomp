@@ -13,12 +13,12 @@ internal static class IntroEggEffectDefinitionsVerification
     {
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int index = 0; index < IntroEggEffectDefinitions.ParticleCount; index++)
-            VerifyIntroEggEffectActor(retail, unchecked((ushort)(0xcecd + index * 6)), IntroEggEffectDefinitions.Particle(index),
+            VerifyIntroEggEffectActor(retail, unchecked((ushort)(0xcecd + index * 6)), IntroEggParticleActors.Particle(index),
                 $"intro egg particle {index}");
         Suite(nameof(VerifyIntroEggEffectActor), () => VerifyIntroEggEffectActor(retail, 0xcef1, IntroEggEffectDefinitions.SlimeDrop,
             "intro egg slime drop"));
         AssertThrows<ArgumentOutOfRangeException>(
-            () => IntroEggEffectDefinitions.Particle(IntroEggEffectDefinitions.ParticleCount),
+            () => IntroEggParticleActors.Particle(IntroEggEffectDefinitions.ParticleCount),
             "intro egg particle definition boundary");
 
         var guarded = NewIntroEggEffectDefinitionGuard(retail);

@@ -15,7 +15,7 @@ internal static class EndingGlyphMappingVerification
             AssertEqual(startColumn, actual.Column, "ending panel first native text column");
             AssertEqual(expectedText.Length, actual.Width, "ending panel text width");
             string text = new(Enumerable.Range(0, actual.Width).Select(i =>
-                EndingTextDefinitions.DecodeGlyph(BackgroundTileWordBytes.Tile(CartridgeImportSource.Require(bus).ReadCartridgeWord((source + 2 * (startColumn + i)))), actual.Style)).ToArray());
+                EndingTextGlyphs.DecodeGlyph(BackgroundTileWordBytes.Tile(CartridgeImportSource.Require(bus).ReadCartridgeWord((source + 2 * (startColumn + i)))), actual.Style)).ToArray());
             AssertEqual(expectedText, text, "ending native panel label");
         }
         // Row0 of the two original tilemaps; the blank-run boundaries locate text independently.
@@ -45,7 +45,7 @@ internal static class EndingGlyphMappingVerification
             {
                 AssertEqual(actual.Column + count, (int)bus.ReadCartridgeByte(cursor + 2), "native consecutive typewriter column");
                 int glyph = 0x8c0000 | CartridgeImportSource.Require(bus).ReadCartridgeWord((cursor + 4));
-                text.Append(EndingTextDefinitions.DecodeGlyph(BackgroundTileWordBytes.Tile(CartridgeImportSource.Require(bus).ReadCartridgeWord((glyph + 4))), style));
+                text.Append(EndingTextGlyphs.DecodeGlyph(BackgroundTileWordBytes.Tile(CartridgeImportSource.Require(bus).ReadCartridgeWord((glyph + 4))), style));
                 count++;
                 cursor += 6;
             }
@@ -85,8 +85,8 @@ internal static class EndingGlyphMappingVerification
         ];
         foreach (var record in largeRecords)
         {
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(record.Address), EndingTextDefinitions.CompileGlyph(record.Glyph, EndingTextStyle.FinalLarge).PackedWord, "native named glyph record");
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((record.Address + 2)), EndingTextDefinitions.CompileGlyph(record.Glyph, EndingTextStyle.FinalLarge, bottom: true).PackedWord, "native named lower glyph record");
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(record.Address), EndingTextGlyphs.CompileGlyph(record.Glyph, EndingTextStyle.FinalLarge).PackedWord, "native named glyph record");
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((record.Address + 2)), EndingTextGlyphs.CompileGlyph(record.Glyph, EndingTextStyle.FinalLarge, bottom: true).PackedWord, "native named lower glyph record");
         }
         LargeRecord[] smallRecords = [
             new LargeRecord('A', 0x8ce18d),
@@ -108,7 +108,7 @@ internal static class EndingGlyphMappingVerification
         ];
         foreach (var record in smallRecords)
         {
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(record.Address), EndingTextDefinitions.CompileGlyph(record.Glyph, EndingTextStyle.PercentageSmall).PackedWord, "native named glyph record");
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(record.Address), EndingTextGlyphs.CompileGlyph(record.Glyph, EndingTextStyle.PercentageSmall).PackedWord, "native named glyph record");
         }
         // Original indirect text records and producer/copyright panels establish attributes/blanks.
         ushort percentageAttributes = (ushort)(CartridgeImportSource.Require(bus).ReadCartridgeWord(0x8ce18d) & 0xfc00);
@@ -134,24 +134,24 @@ internal static class EndingGlyphMappingVerification
                 for (int digit = 0; digit < 10; digit++)
                     expected.Add(bottom ? digitsBottom[digit] : digitsTop[digit], (char)('0' + digit));
             foreach (var entry in expected)
-                AssertEqual(entry.Key, EndingTextDefinitions.CompileGlyph(entry.Value, style, bottom).PackedWord, $"ending {style} glyph {entry.Value} half {bottom}, encoded through the codec");
+                AssertEqual(entry.Key, EndingTextGlyphs.CompileGlyph(entry.Value, style, bottom).PackedWord, $"ending {style} glyph {entry.Value} half {bottom}, encoded through the codec");
             for (int word = 0; word <= ushort.MaxValue; word++)
             {
                 if (expected.TryGetValue((ushort)word, out char glyph))
-                    AssertEqual(glyph, EndingTextDefinitions.DecodeGlyph(BackgroundTileWordBytes.Tile(word), style, bottom), "ending glyph inverse over the tile each word places");
+                    AssertEqual(glyph, EndingTextGlyphs.DecodeGlyph(BackgroundTileWordBytes.Tile(word), style, bottom), "ending glyph inverse over the tile each word places");
                 else
-                    AssertThrows<InvalidDataException>(() => EndingTextDefinitions.DecodeGlyph(BackgroundTileWordBytes.Tile(word), style, bottom), "ending glyph rejects the tile of a non-glyph word");
+                    AssertThrows<InvalidDataException>(() => EndingTextGlyphs.DecodeGlyph(BackgroundTileWordBytes.Tile(word), style, bottom), "ending glyph rejects the tile of a non-glyph word");
             }
             foreach (char invalid in new[] { '\0', '@', '[', 'a', '/', ':', '\uffff' })
-                AssertThrows<ArgumentOutOfRangeException>(() => EndingTextDefinitions.CompileGlyph(invalid, style, bottom), "ending glyph character bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => EndingTextGlyphs.CompileGlyph(invalid, style, bottom), "ending glyph character bounds");
             if (style != EndingTextStyle.CopyrightLarge)
                 for (char digit = '0'; digit <= '9'; digit++)
-                    AssertThrows<ArgumentOutOfRangeException>(() => EndingTextDefinitions.CompileGlyph(digit, style, bottom), "ending glyph digits restricted to copyright");
+                    AssertThrows<ArgumentOutOfRangeException>(() => EndingTextGlyphs.CompileGlyph(digit, style, bottom), "ending glyph digits restricted to copyright");
         }
         foreach (EndingTextStyle invalid in new[] { (EndingTextStyle)4, (EndingTextStyle)255 })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingTextDefinitions.CompileGlyph('A', invalid), "ending glyph style bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingTextDefinitions.DecodeGlyph(BackgroundTileWordBytes.Tile(0), invalid), "ending decoder style bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingTextGlyphs.CompileGlyph('A', invalid), "ending glyph style bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingTextGlyphs.DecodeGlyph(BackgroundTileWordBytes.Tile(0), invalid), "ending decoder style bounds");
         }
     }
 }

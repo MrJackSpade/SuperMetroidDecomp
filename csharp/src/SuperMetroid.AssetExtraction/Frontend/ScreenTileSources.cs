@@ -10,36 +10,36 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// <param name="endingObjects">Reads the ending's object artwork.</param>
 /// <param name="endingPalettes">Reads the ending's palettes.</param>
 /// <param name="endingMode7">Reads the ending's Mode 7 artwork.</param>
-internal sealed class ScreenTileSources(Func<AreaMapPresentationCatalog> maps, Func<IntroCinematicArtworkCatalog> intro,
-    Func<EndingObjectArtworkCatalog> endingObjects, Func<EndingPaletteCatalog> endingPalettes, Func<EndingFloorArtworkCatalog> endingMode7)
+internal sealed class ScreenTileSources(Func<AreaMapPresentation> maps, Func<IntroCinematicArtwork> intro,
+    Func<EndingObjectArtwork> endingObjects, Func<EndingPaletteSet> endingPalettes, Func<EndingFloorArtwork> endingMode7)
 {
     /// <summary>The ending's Mode 7 artwork, once read.</summary>
-    private readonly Lazy<EndingFloorArtworkCatalog> endingMode7 = new(endingMode7);
+    private readonly Lazy<EndingFloorArtwork> endingMode7 = new(endingMode7);
 
     /// <summary>The ending's Mode 7 artwork.</summary>
-    internal EndingFloorArtworkCatalog EndingMode7 => endingMode7.Value;
+    internal EndingFloorArtwork EndingMode7 => endingMode7.Value;
 
     /// <summary>The ending's object artwork, once read.</summary>
-    private readonly Lazy<EndingObjectArtworkCatalog> endingObjects = new(endingObjects);
+    private readonly Lazy<EndingObjectArtwork> endingObjects = new(endingObjects);
 
     /// <summary>The ending's palettes, once read.</summary>
-    private readonly Lazy<EndingPaletteCatalog> endingPalettes = new(endingPalettes);
+    private readonly Lazy<EndingPaletteSet> endingPalettes = new(endingPalettes);
 
     /// <summary>The ending's object artwork.</summary>
-    internal EndingObjectArtworkCatalog EndingObjects => endingObjects.Value;
+    internal EndingObjectArtwork EndingObjects => endingObjects.Value;
 
     /// <summary>The ending's palettes.</summary>
-    internal EndingPaletteCatalog EndingPalettes => endingPalettes.Value;
+    internal EndingPaletteSet EndingPalettes => endingPalettes.Value;
 
     /// <summary>The menus' presentation, once read.</summary>
-    private readonly Lazy<AreaMapPresentationCatalog> maps = new(maps);
+    private readonly Lazy<AreaMapPresentation> maps = new(maps);
 
     /// <summary>The opening cinematic's artwork, once read.</summary>
-    private readonly Lazy<IntroCinematicArtworkCatalog> intro = new(intro);
+    private readonly Lazy<IntroCinematicArtwork> intro = new(intro);
 
     /// <summary>The menus' presentation.</summary>
-    internal AreaMapPresentationCatalog Maps => maps.Value;
+    internal AreaMapPresentation Maps => maps.Value;
 
     /// <summary>The opening cinematic's artwork.</summary>
-    internal IntroCinematicArtworkCatalog Intro => intro.Value;
+    internal IntroCinematicArtwork Intro => intro.Value;
 }

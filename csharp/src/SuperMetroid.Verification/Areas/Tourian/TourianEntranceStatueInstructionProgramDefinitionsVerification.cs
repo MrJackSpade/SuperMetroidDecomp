@@ -33,7 +33,7 @@ internal static class TourianEntranceStatueInstructionProgramDefinitionsVerifica
             slot.SetSpawnParameter1(parameter);
             enemies.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
             AssertEqual(
-                AnimationProgramCursor<TourianEntranceStatueProgram>.Start(TourianEntranceStatueAnimationDefinitions.InitialProgram(parameter)),
+                AnimationProgramCursor<TourianEntranceStatueProgram>.Start(TourianEntranceStatues.InitialProgram(parameter)),
                 enemies.TourianEntranceStatueBehavior.Extensions[slot.SlotIndex].Program,
                 $"Tourian entrance-statue initializer parameter {parameter}");
 

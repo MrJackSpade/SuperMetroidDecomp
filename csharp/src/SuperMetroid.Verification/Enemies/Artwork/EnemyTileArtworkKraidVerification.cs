@@ -168,7 +168,7 @@ internal static class EnemyTileArtworkKraidVerification
             "new Kraid quarter IDs append after existing debugger-state IDs");
         string mapDirectory = Path.Combine(directory, "kraid-bg3-map-art");
         MapPresentationExtractor.Extract(rom, mapDirectory, SupportedCartridge.Sha256);
-        AreaMapPresentationCatalog stock = MapPresentationFiles.Load(mapDirectory, null);
+        AreaMapPresentation stock = MapPresentationFiles.Load(mapDirectory, null);
         byte[] native = RomDataReader.ReadFixedBank(rom,
             KraidBackgroundDefinitionsConstants.StandardBg3TilesAddress,
             HudTileAtlasFormat.CharacterByteCount);
@@ -212,7 +212,7 @@ internal static class EnemyTileArtworkKraidVerification
         using (var output = File.Create(Path.Combine(overrides, HudTileAtlasFormat.FileName)))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
                 image.Pixels, image.Colours);
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(mapDirectory, overrides);
+        AreaMapPresentation edited = MapPresentationFiles.Load(mapDirectory, overrides);
         SnesVram changed = RunKraidBg3Restoration(enemyArtwork, edited.HudTiles);
         int destination = KraidBackgroundDefinitions.StandardBg3VramWord * sizeof(ushort);
         AssertEqual((byte)(baselineQueued.ReadByte(destination) ^ 0x80),
@@ -221,7 +221,7 @@ internal static class EnemyTileArtworkKraidVerification
         AssertTrue(baselineQueued.Bytes[(destination + 1)..]
                 .SequenceEqual(changed.Bytes[(destination + 1)..]),
             "edited Kraid BG3 character leaves all other VRAM bytes unchanged");
-        AreaMapPresentationCatalog reloaded = MapPresentationFiles.Load(mapDirectory, overrides);
+        AreaMapPresentation reloaded = MapPresentationFiles.Load(mapDirectory, overrides);
         AssertTrue(RunKraidBg3Restoration(enemyArtwork, reloaded.HudTiles)
             .Bytes.SequenceEqual(changed.Bytes),
             "Kraid BG3 uses the current HUD PNG override after catalog reload");

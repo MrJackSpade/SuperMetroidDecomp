@@ -26,11 +26,11 @@ internal static class EscapeTimerSheetComposer
         var frames = new List<SheetFrameSource>();
         foreach (EscapeTimerGlyph glyph in EscapeTimerPresentationDefinitions.Glyphs)
         {
-            string name = EscapeTimerPresentationDefinitions.FrameName(glyph);
+            string name = EscapeTimerComposition.FrameName(glyph);
             int spritemap = glyph == EscapeTimerGlyph.Label
                 ? (int)EscapeSourceDefinitions.TimerLabelSpritemap
                 : (int)EscapeSourceDefinitions.TimerSpritemapBank.AddWithinBank(EscapeSourceDefinitions.FirstTimerDigitSpritemap +
-                    EscapeTimerPresentationDefinitions.DigitValue(glyph) * EscapeSourceDefinitions.TimerDigitSpritemapStride);
+                    EscapeTimerComposition.DigitValue(glyph) * EscapeSourceDefinitions.TimerDigitSpritemapStride);
             frames.Add(new(name, new SpriteFrame(name, ReadSpritemap(bus, spritemap)), tiles.Artwork));
         }
         return SpriteSheetComposer.Compose(new SpriteSheetSources(frames, GameplayBasePaletteFiles.RoomLoadSpriteColours(bus), ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection)), PaletteRow, 0);

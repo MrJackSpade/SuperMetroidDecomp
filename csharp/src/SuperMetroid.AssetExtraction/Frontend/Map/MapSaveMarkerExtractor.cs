@@ -28,17 +28,17 @@ public static class MapSaveMarkerExtractor
             {
                 int address = MapSourceDefinitions.Menu.ObjectBank | (pointer + index * 4);
                 int x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-                bool usable = MapSaveMarkerDefinitions.IsUsable(typedArea, index);
+                bool usable = MapSaveMarkers.IsUsable(typedArea, index);
                 if (usable)
                 {
                     if (x >= ushort.MaxValue - 1) throw new InvalidDataException($"Missing save marker {typedArea}/{index}.");
-                    points.Add(MapSaveMarkerDefinitions.Id(typedArea, index), Position16<MapPixels>.Of(x, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2)));
+                    points.Add(MapSaveMarkers.Id(typedArea, index), Position16<MapPixels>.Of(x, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2)));
                 }
                 else if (x != ushort.MaxValue - 1) throw new InvalidDataException($"Expected unused save marker {typedArea}/{index}.");
             }
         }
         using var stream = new MemoryStream();
-        MapSaveMarkerLayout.Write(stream, new() { Version = MapSaveMarkerFormat.Version, Markers = points });
+        MapSaveMarkerPositions.Write(stream, new() { Version = MapSaveMarkerFormat.Version, Markers = points });
         return stream.ToArray();
     }
 }

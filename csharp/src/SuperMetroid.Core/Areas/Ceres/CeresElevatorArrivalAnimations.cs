@@ -1,5 +1,6 @@
 using P = SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalProgram;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
@@ -31,4 +32,7 @@ internal static class CeresElevatorArrivalAnimations
     private static AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue> Show(
         CeresElevatorArrivalPose pose, int duration) =>
         AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.Show(pose, duration);
+
+    /// <summary>The composition each arrival pose shows (<see cref="CeresElevatorArrivalDefinitions.Frames"/>).</summary>
+    internal static EnemyProjectileFrameId Frame(CeresElevatorArrivalPose pose) => Ensure.Listed(CeresElevatorArrivalDefinitions.Frames, pose);
 }

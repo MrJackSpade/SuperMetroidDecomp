@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 internal static class IntroObjectPage
 {
     /// <summary>The intro OBJ page of <paramref name="intro"/>.</summary>
-    internal static SpriteArtwork Of(IntroCinematicArtworkCatalog intro)
+    internal static SpriteArtwork Of(IntroCinematicArtwork intro)
     {
         Ensure.NotNull(intro);
         var id = new SpriteArtworkId(SpriteArtworkKind.IntroObjects);

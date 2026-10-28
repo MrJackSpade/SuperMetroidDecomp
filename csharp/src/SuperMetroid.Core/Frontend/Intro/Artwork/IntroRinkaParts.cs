@@ -11,7 +11,7 @@ internal sealed class IntroRinkaParts(int frame) : IReadOnlyList<CompiledSpriteP
     internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 3; frame++)
-            if (IntroRinkaSpriteDefinitions.FramePose(frame) == shown)
+            if (IntroRinkaSpritePoses.FramePose(frame) == shown)
                 return supplied.CalculateIfMatching(new IntroRinkaParts(frame));
         return supplied;
     }

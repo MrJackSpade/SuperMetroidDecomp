@@ -56,7 +56,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     /// <summary>Master brightness from fifteen (full) down to zero (black) during the exit fades; each step is guarded by a positive level.</summary>
     private int brightness = 15;
     /// <summary>Installed map artwork rebound after debugger restoration instead of serialized with navigation state.</summary>
-    [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
+    [NonSerialized] private AreaMapPresentation? mapPresentation;
 
     /// <summary>Initializes existing-save map entry from the saved Zebes area/station, exploration, boss, map-station, and used-station data without loading a gameplay room.</summary>
     /// <param name="audio">Owner receiving menu confirmation, scroll, palette-loop, and transition sound requests.</param>
@@ -67,7 +67,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     /// <exception cref="ArgumentOutOfRangeException">The save area is outside Zebes; Ceres bypasses this menu.</exception>
     /// <exception cref="InvalidOperationException">Map presentation assets or the sprite sheets are absent.</exception>
     public FileSelectMapMenuState(AudioQueues audio,
-        SuperMetroidSaveSlot slot, ControllerButton initialHeldInput, AreaMapPresentationCatalog? mapPresentation = null,
+        SuperMetroidSaveSlot slot, ControllerButton initialHeldInput, AreaMapPresentation? mapPresentation = null,
         InstalledSpriteSheets? spriteSheets = null)
     {
         this.audio = Ensure.NotNull(audio);
@@ -107,7 +107,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     public bool OptionsRequested { get; private set; }
 
     /// <summary>Rebinds host presentation after restoration without restarting navigation.</summary>
-    public void BindMapPresentation(AreaMapPresentationCatalog? catalog)
+    public void BindMapPresentation(AreaMapPresentation? catalog)
     {
         mapPresentation = catalog;
         navigation.BindLabels(catalog?.Labels);
@@ -123,7 +123,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     private FileSelectMapScroll CreateScrollForCurrentContent()
     {
         var typedArea = AreaIds.At(area);
-        AreaMapPresentationCatalog catalog = mapPresentation ?? throw new InvalidOperationException(
+        AreaMapPresentation catalog = mapPresentation ?? throw new InvalidOperationException(
             "File-select map requires installed map presentation assets.");
         var anchor = FileSelectMapLoadAnchors.Get(typedArea, stationIndex);
         return new FileSelectMapScroll(catalog.Get(typedArea), roomGraphics.MapSystem, anchor);

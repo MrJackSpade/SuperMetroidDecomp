@@ -83,7 +83,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     /// <summary>Ports <c>CeresSteam_Init</c> at <c>$A6:EFB1</c>.</summary>
     internal void InitializeCeresSteam(RoomEnemySlot slot)
     {
-        CeresSteamInitialization initialization = CeresSteamDefinitions.Initialization(
+        CeresSteamInitialization initialization = CeresSteamInitializations.Initialization(
             CeresSteamDefinitions.Variants.Decode(slot.Spawn.Population.Parameter1));
 
         // Steam graphics are preloaded with the Ceres tileset and therefore use VRAM tile

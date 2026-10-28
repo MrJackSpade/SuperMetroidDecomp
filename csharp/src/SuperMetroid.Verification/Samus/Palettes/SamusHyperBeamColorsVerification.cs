@@ -398,7 +398,7 @@ internal static class SamusHyperBeamColorsVerification
 
     /// <summary>Edits one installed rainbow ink, verifies it reaches live CGRAM and content identity, then checks invalid RGB5 and stock restoration.</summary>
     internal static void VerifySamusHyperBeamColorOverride(string stock, string overrides,
-        AreaMapPresentationCatalog baseline, ISnesAddressSpace rom,
+        AreaMapPresentation baseline, ISnesAddressSpace rom,
         GameplayBasePalette initialPalettes,
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
@@ -410,7 +410,7 @@ internal static class SamusHyperBeamColorsVerification
         PaletteRgb5 original = document.Frames[4][7];
         document.Frames[4][7] = original with { Red = (original.Red + 1) % 32 };
         File.WriteAllBytes(path, SamusHyperBeamColorFile.Write(document));
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "Hyper Beam color override changes installed content identity");
 
@@ -442,7 +442,7 @@ internal static class SamusHyperBeamColorsVerification
                  .. document.Frames[4].Skip(8)], .. document.Frames.Skip(5)],
         }), "out-of-range Hyper Beam RGB5 fails loudly");
         File.Delete(path);
-        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
             "removing Hyper Beam override restores stock content identity");
         Console.WriteLine("Hyper Beam override: edited frame reaches CGRAM and stock restores.");

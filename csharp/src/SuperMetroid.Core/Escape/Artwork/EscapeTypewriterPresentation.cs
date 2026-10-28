@@ -97,7 +97,7 @@ public sealed class EscapeTypewriterPresentation
                         $"Escape typewriter program {id} line {index} has invalid text or placement.");
                 }
                 var supplied = new EscapeTypewriterLine(line.Cell, line.Text);
-                if (index >= EscapeTypewriterDefinitions.LineCount(id) || supplied != EscapeTypewriterDefinitions.Line(id, index))
+                if (index >= EscapeTypewriterLines.LineCount(id) || supplied != EscapeTypewriterLines.Line(id, index))
                     differences.Add(index, supplied);
             }
             programs.Add(id, new(id, new LineSequence(id, program.Lines.Length, differences)));
@@ -116,7 +116,7 @@ public sealed class EscapeTypewriterPresentation
         public int Count => count;
         /// <summary>Reads an authored override when present, otherwise the compiled native line.</summary>
         public EscapeTypewriterLine this[int index] => (uint)index < Count
-            ? overrides.TryGetValue(index, out EscapeTypewriterLine? line) ? line : EscapeTypewriterDefinitions.Line(id, index)
+            ? overrides.TryGetValue(index, out EscapeTypewriterLine? line) ? line : EscapeTypewriterLines.Line(id, index)
             : throw new ArgumentOutOfRangeException(nameof(index));
         /// <summary>Yields warning lines in typewriter order, resolving stock lines lazily.</summary>
         public IEnumerator<EscapeTypewriterLine> GetEnumerator()

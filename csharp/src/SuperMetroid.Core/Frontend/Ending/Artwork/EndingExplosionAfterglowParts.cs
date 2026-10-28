@@ -55,7 +55,7 @@ internal sealed class EndingExplosionAfterglowParts : IReadOnlyList<CompiledSpri
     /// <summary>Recalculates the afterglow only for its native pose and supported atlas region, preserving edited tile choices.</summary>
     internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
-        if (shown != EndingExplosionSpriteDefinitions.PoseOf(EndingExplosionSpriteDefinitions.Pose.Afterglow)) return supplied;
+        if (shown != EndingExplosionSpritePoses.PoseOf(EndingExplosionSpriteDefinitions.Pose.Afterglow)) return supplied;
         var tiles = new int[supplied.PartCount];
         for (int index = 0; index < tiles.Length; index++)
         {

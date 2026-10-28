@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal static class IntroScreenMemory
 {
     /// <summary>The character image of <paramref name="artwork"/> and <paramref name="installedFont"/>, as `$8B:A469-$A529` upload them.</summary>
-    internal static byte[] Characters(IntroCinematicArtworkCatalog artwork, IntroFontAtlas installedFont, bool japaneseGlyphsBlanked)
+    internal static byte[] Characters(IntroCinematicArtwork artwork, IntroFontAtlas installedFont, bool japaneseGlyphsBlanked)
     {
         IntroCinematicState.RequireFont(installedFont);
         ReadOnlySpan<byte> font = IntroFontCharacters.Of(installedFont).Characters.Span;
@@ -42,7 +42,7 @@ internal static class IntroScreenMemory
     /// <summary>The memory image <paramref name="intro"/> shows: its bound characters with its portrait and narration tilemaps over them.</summary>
     internal static byte[] Compose(IntroCinematicState intro)
     {
-        IntroCinematicArtworkCatalog artwork = intro.CharacterArtwork ?? throw new InvalidOperationException(
+        IntroCinematicArtwork artwork = intro.CharacterArtwork ?? throw new InvalidOperationException(
             "Opening cinematic rendering requires installed artwork.");
         IntroFontAtlas font = intro.IntroFont ?? throw new InvalidOperationException(
             "Opening cinematic rendering requires the installed font atlas.");

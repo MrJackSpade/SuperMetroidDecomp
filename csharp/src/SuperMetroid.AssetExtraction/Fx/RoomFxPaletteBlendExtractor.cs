@@ -19,9 +19,9 @@ public static class RoomFxPaletteBlendExtractor
     {
         Ensure.NotNull(bus);
         var blends = new Dictionary<string, PaletteRgb5[]>();
-        foreach (RoomFxPaletteBlend id in RoomFxPaletteBlendDefinitions.Ids)
+        foreach (RoomFxPaletteBlend id in RoomFxPaletteBlendRules.Ids)
         {
-            RgbColor? calculatedThird = RoomFxPaletteBlendDefinitions.CalculatedThirdColor(id);
+            RgbColor? calculatedThird = RoomFxPaletteBlendRules.CalculatedThirdColor(id);
             byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 RoomFxLayer3TilemapSources.PaletteBlend(id),
                 (calculatedThird.HasValue ? 2 : RoomFxPaletteBlendDefinitions.ColorCount) * sizeof(ushort));
@@ -30,23 +30,23 @@ public static class RoomFxPaletteBlendExtractor
             {
                 RgbColor stored = index == 2 && calculatedThird.HasValue ? calculatedThird.Value
                     : RgbColor.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(source.AsSpan(index * RgbColor.ByteCount)));
-                int red = index < 2 ? RoomFxPaletteBlendDefinitions.CalculatedPairRed(id, index == 0) ?? stored.Red : stored.Red;
-                int green = index < 2 ? RoomFxPaletteBlendDefinitions.CalculatedPairGreen(id, red, index == 0) ?? stored.Green : RoomFxPaletteBlendDefinitions.CalculatedThirdGreen(id) ?? stored.Green;
+                int red = index < 2 ? RoomFxPaletteBlendRules.CalculatedPairRed(id, index == 0) ?? stored.Red : stored.Red;
+                int green = index < 2 ? RoomFxPaletteBlendRules.CalculatedPairGreen(id, red, index == 0) ?? stored.Green : RoomFxPaletteBlendRules.CalculatedThirdGreen(id) ?? stored.Green;
                 colors[index] = new PaletteRgb5
                 {
                     Red = red,
                     Green = green,
-                    Blue = index < 2 ? RoomFxPaletteBlendDefinitions.CalculatedPairBlue(id, red, green, index == 0) ?? stored.Blue : RoomFxPaletteBlendDefinitions.CalculatedThirdBlue(id, red) ?? stored.Blue,
+                    Blue = index < 2 ? RoomFxPaletteBlendRules.CalculatedPairBlue(id, red, green, index == 0) ?? stored.Blue : RoomFxPaletteBlendRules.CalculatedThirdBlue(id, red) ?? stored.Blue,
                 };
             }
-            blends.Add(RoomFxPaletteBlendDefinitions.Key(id), colors);
+            blends.Add(RoomFxPaletteBlendRules.Key(id), colors);
         }
         return RoomFxPaletteBlendFile.Write(new RoomFxPaletteBlendDocument
         {
             Version = RoomFxPaletteBlendDefinitions.Version,
             Blends = blends,
-            CeresHazeBlue = PaletteRgb5.From(RoomFxPaletteBlendDefinitions.StockCeresHazeBlue),
-            CeresHazeRed = PaletteRgb5.From(RoomFxPaletteBlendDefinitions.StockCeresHazeRed),
+            CeresHazeBlue = PaletteRgb5.From(RoomFxPaletteBlendRules.StockCeresHazeBlue),
+            CeresHazeRed = PaletteRgb5.From(RoomFxPaletteBlendRules.StockCeresHazeRed),
         });
     }
 }

@@ -34,8 +34,8 @@ internal static class RoomFxRetailInventoryVerification
     private const int RetailRoomFxDoorCount = 597;
 
     /// <summary>One bus's extracted room-FX catalogs; immutable, so every FX state built on that bus shares them.</summary>
-    internal sealed record RetailFxCatalogs(RoomFxPaletteBlendCatalog PaletteBlends,
-        RoomFxLayer3TilemapCatalog Layer3Tilemaps, RoomFxAnimatedTileAtlas AnimatedTiles);
+    internal sealed record RetailFxCatalogs(RoomFxBlendInks PaletteBlends,
+        RoomFxLayer3Pages Layer3Tilemaps, RoomFxAnimatedTileAtlas AnimatedTiles);
 
     /// <summary>Reuses extracted FX art for states sharing an import bus without keeping that bus alive.</summary>
     private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<SuperMetroidAddressSpace, RetailFxCatalogs>
@@ -47,7 +47,7 @@ internal static class RoomFxRetailInventoryVerification
         RetailFxCatalogs catalogs = retailFxCatalogs.GetValue(bus, source => new(
             RoomFxPaletteBlendFile.Read(new MemoryStream(
                 SuperMetroid.AssetExtraction.Fx.RoomFxPaletteBlendExtractor.Extract(source))),
-            RoomFxLayer3TilemapCatalog.Load(new MemoryStream(
+            RoomFxLayer3Pages.Load(new MemoryStream(
                 SuperMetroid.AssetExtraction.Fx.RoomFxLayer3TilemapExtractor.Extract(source))),
             RoomFxAnimatedTileAtlasPng.Read(new MemoryStream(
                 SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTileAtlasExtractor.Extract(source)))));
@@ -239,7 +239,7 @@ internal static class RoomFxRetailInventoryVerification
         {
             byte blend = ReadRetailFxRecordByte(bus, expectedRecord,
                 RoomFxRomDataRecordTooling.PaletteBlendOffset);
-            AssertTrue(blend == 0 || RoomFxPaletteBlendDefinitions.Ids.Contains(FxNativeWords.PaletteBlend(blend)),
+            AssertTrue(blend == 0 || RoomFxPaletteBlendRules.Ids.Contains(FxNativeWords.PaletteBlend(blend)),
                 $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
                 $"$83:{doorPointer:X4} uses an extracted FX palette blend (${blend:X2})");
         }
@@ -374,7 +374,7 @@ internal static class RoomFxRetailInventoryVerification
             bus,
             FxNativeWords.AnimatedTileObjects.Word(AnimatedTileObject.Lava),
             RoomFxNativeSources.LavaFirstInstruction,
-            RoomFxAnimatedTileMechanicsDefinitions.Require(AnimatedTileObject.Lava).FrameByteCount,
+            RoomFxAnimatedTiles.Require(AnimatedTileObject.Lava).FrameByteCount,
             AnimatedTileVramDestinations.WordOf(AnimatedTileObject.Lava),
             RoomFxNativeSources.LavaFirstFrame,
             "lava"));
@@ -382,7 +382,7 @@ internal static class RoomFxRetailInventoryVerification
             bus,
             FxNativeWords.AnimatedTileObjects.Word(AnimatedTileObject.Acid),
             RoomFxNativeSources.AcidFirstInstruction,
-            RoomFxAnimatedTileMechanicsDefinitions.Require(AnimatedTileObject.Lava).FrameByteCount,
+            RoomFxAnimatedTiles.Require(AnimatedTileObject.Lava).FrameByteCount,
             AnimatedTileVramDestinations.WordOf(AnimatedTileObject.Lava),
             RoomFxNativeSources.AcidFirstFrame,
             "acid"));
@@ -390,7 +390,7 @@ internal static class RoomFxRetailInventoryVerification
             bus,
             FxNativeWords.AnimatedTileObjects.Word(AnimatedTileObject.Rain),
             RoomFxNativeSources.RainFirstInstruction,
-            RoomFxAnimatedTileMechanicsDefinitions.Require(AnimatedTileObject.Rain).FrameByteCount,
+            RoomFxAnimatedTiles.Require(AnimatedTileObject.Rain).FrameByteCount,
             AnimatedTileVramDestinations.WordOf(AnimatedTileObject.Rain),
             RoomFxNativeSources.RainFirstFrame,
             "rain"));

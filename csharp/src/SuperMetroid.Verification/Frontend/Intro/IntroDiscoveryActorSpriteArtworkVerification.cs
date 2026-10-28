@@ -24,7 +24,7 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
     /// <summary>Compares stock OAM at visible and wrapped origins, then loads an
     /// override through production scene rendering without cartridge artwork reads.</summary>
     internal static void VerifyIntroDiscoveryActorSpriteArtwork(SuperMetroidAddressSpace bus,
-        IntroCinematicArtworkCatalog stock, GameInstallation installation)
+        IntroCinematicArtwork stock, GameInstallation installation)
     {
         const ushort x = 120;
         int palette = IntroCinematicDefinitions.Objects.DiscoveryPalette;
@@ -67,7 +67,7 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
         string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
         using (var output = File.Create(overridePath))
             IntroDiscoveryActorSpritePresentation.Write(output, document);
-        IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
+        IntroCinematicArtwork edited = installation.LoadIntroCinematicArt();
 
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroDiscoveryActors);
         var stockState = CreateRetailIntroFixture(characterArtwork: stock);

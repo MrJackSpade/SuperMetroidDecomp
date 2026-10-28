@@ -33,13 +33,13 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal sealed record RoomBlockSheetInputs(RoomCharacterAtlases Characters, RoomMetatileCatalog Metatiles,
     RoomStaticPalettes Palettes, RoomFxAnimatedTileAtlas AnimatedTiles, InstalledDynamicCollectibleArt Collectibles,
     BossArtworkCatalog Bosses, HudTileAtlas Hud, RoomBackgroundTilemaps BackgroundTilemaps, RoomSkyTilemaps Skies,
-    EscapeTypewriterPresentation EscapeTypewriter, AreaMapPresentationCatalog Maps, EnemySheetInputs Objects)
+    EscapeTypewriterPresentation EscapeTypewriter, AreaMapPresentation Maps, EnemySheetInputs Objects)
 {
     /// <summary>Loads the stock artwork from installed content.</summary>
     internal static RoomBlockSheetInputs Load(string content)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
-        AreaMapPresentationCatalog maps = MapPresentationFiles.Load(Path.Combine(content, GameInstallationLayout.MapDirectoryName), null);
+        AreaMapPresentation maps = MapPresentationFiles.Load(Path.Combine(content, GameInstallationLayout.MapDirectoryName), null);
         EnemySheetInputs objects = EnemySheetInputs.Load(content);
         return new(
             RoomCharacterArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomCharacterDirectoryName), null),

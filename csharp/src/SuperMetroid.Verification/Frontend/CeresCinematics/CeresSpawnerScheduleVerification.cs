@@ -84,7 +84,7 @@ internal static class CeresSpawnerScheduleVerification
                         _ => throw new InvalidOperationException($"The Ceres explosion spawner program publishes no {cue} cue."),
                     };
                 });
-                AssertEqual(expected, CeresExplosionDefinitions.EventsAtFrame(frame, frame < departure, ref actualCountdown),
+                AssertEqual(expected, CeresExplosions.EventsAtFrame(frame, frame < departure, ref actualCountdown),
                     $"native spawner events at frame{frame}, reset{reseedFrame}, departure{departure}");
                 AssertEqual(countdown, actualCountdown.RawValue, "native repeat countdown including late fade reset");
             }
@@ -93,7 +93,7 @@ internal static class CeresSpawnerScheduleVerification
         foreach (int outside in new[] { int.MinValue, -1, 0, 301, int.MaxValue })
         {
             WrappingCountdown untouched = WrappingCountdown.Start(123);
-            AssertEqual(default(CeresExplosionSpawnEvents), CeresExplosionDefinitions.EventsAtFrame(outside, true, ref untouched), "outside finite spawner lifetime");
+            AssertEqual(default(CeresExplosionSpawnEvents), CeresExplosions.EventsAtFrame(outside, true, ref untouched), "outside finite spawner lifetime");
             AssertEqual((ushort)123, untouched.RawValue, "inactive countdown is untouched");
         }
     }

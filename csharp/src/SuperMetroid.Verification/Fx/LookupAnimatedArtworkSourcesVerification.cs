@@ -16,7 +16,7 @@ internal static class LookupAnimatedArtworkSourcesVerification
         int total = 0;
         foreach (var original in OriginalSimpleAnimationLoops(rom))
         {
-            AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(FxNativeWords.AnimatedTileObjects.Decode(original.Object, "animated-tile object"), out var definition),
+            AssertTrue(RoomFxAnimatedTiles.TryResolve(FxNativeWords.AnimatedTileObjects.Decode(original.Object, "animated-tile object"), out var definition),
                 "Original animation resolves for artwork");
             var expected = new Dictionary<ushort, int>();
             for (int cursor = original.First; cursor < original.End; cursor += 4)
@@ -37,7 +37,7 @@ internal static class LookupAnimatedArtworkSourcesVerification
             }
         }
         AssertEqual(30, total, "Complete original simple artwork source domain");
-        var unknown = new RoomFxAnimatedTileObjectDefinition(0, 32, 1, 10, 1);
+        var unknown = new RoomFxAnimatedTileLoop(0, 32, 1, 10, 1);
         AssertThrows<InvalidDataException>(() => AnimatedTileImageSources.Of(unknown.Image(unknown.Frames[0])),
             "Unknown object cannot acquire an artwork mapping");
     }

@@ -19,7 +19,7 @@ internal sealed class EndingExplosionGridParts : IReadOnlyList<CompiledSpritePar
     internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         for (int record = 0; record < 10; record++)
-            if (shown == EndingExplosionSpriteDefinitions.PlanetPose(record))
+            if (shown == EndingExplosionSpritePoses.PlanetPose(record))
                 return supplied.CalculateIfMatching(new EndingExplosionGridParts(record));
         return supplied;
     }

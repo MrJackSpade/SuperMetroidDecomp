@@ -16,13 +16,13 @@ public sealed class RoomSpikeAnimatedTilesState
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the FX record.</param>
     /// <param name="area">The room's area, which selects each bit's object.</param>
-    public RoomSpikeAnimatedTilesState(RoomFxDefinition? fx, DoorDefinition? door, AreaId area)
+    public RoomSpikeAnimatedTilesState(RoomFxHeader? fx, DoorDefinition? door, AreaId area)
     {
         if (fx?.Select(door) is not { } record) return;
         RoomFxEffectSlots slots = record.AnimatedTileSlots;
         for (int bit = 0; bit < RoomFxEffectSlotSet.Count; bit++)
             if (slots.Includes(bit) &&
-                AreaAnimatedTileObjectDefinitions.Read(area, bit) == AnimatedTileObject.HorizontalSpikes)
+                AreaAnimatedTileObjects.Read(area, bit) == AnimatedTileObject.HorizontalSpikes)
             {
                 animation.LoadDefinition(AnimatedTileObject.HorizontalSpikes);
                 return;

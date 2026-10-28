@@ -64,7 +64,7 @@ public sealed record RoomPlmVisualCatalogSet
     public required InstalledRoomPlmLinkedRestoreVisuals LinkedRestore { get; init; }
 
     /// <summary>Tourian access.</summary>
-    public required RoomPlmTourianAccessVisualCatalog TourianAccess { get; init; }
+    public required RoomPlmTourianAccessVisuals TourianAccess { get; init; }
 
     /// <summary>Speed booster.</summary>
     public required InstalledRoomPlmSpeedBoosterVisuals SpeedBooster { get; init; }

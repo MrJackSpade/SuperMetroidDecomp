@@ -20,10 +20,10 @@ internal static class GameOptionsSheetComposer
     private const int SpriteColours = 128;
 
     /// <summary>What the options sheet composes.</summary>
-    internal static SpriteSheetSources Sources(AreaMapPresentationCatalog maps) => Sources(Ensure.NotNull(maps).GameOptions, maps);
+    internal static SpriteSheetSources Sources(AreaMapPresentation maps) => Sources(Ensure.NotNull(maps).GameOptions, maps);
 
     /// <summary>What the options sheet composes from <paramref name="options"/>, over the menus of <paramref name="maps"/>.</summary>
-    internal static SpriteSheetSources Sources(GameOptionsPresentation options, AreaMapPresentationCatalog maps)
+    internal static SpriteSheetSources Sources(GameOptionsPresentation options, AreaMapPresentation maps)
     {
         Ensure.NotNull(options);
         Ensure.NotNull(maps);
@@ -32,12 +32,12 @@ internal static class GameOptionsSheetComposer
         var frames = new List<SheetFrameSource>();
         foreach (GameOptionsPage menuPage in GameOptionsPresentationDefinitions.MenuPages)
         {
-            string name = GameOptionsPresentationDefinitions.HeadingSpriteName(menuPage);
+            string name = GameOptionsNames.HeadingSpriteName(menuPage);
             frames.Add(new(name, options.headingSprites[menuPage].ToFrame(name, 0), page, palette));
         }
         for (int frame = 0; frame < GameOptionsPresentationDefinitions.CursorFrameCount; frame++)
         {
-            string name = GameOptionsPresentationDefinitions.CursorSpriteName(frame);
+            string name = GameOptionsNames.CursorSpriteName(frame);
             frames.Add(new(name, options.cursorSprites[frame].ToFrame(name, 0), page, palette));
         }
         var cgram = new SnesCgram();

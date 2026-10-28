@@ -26,7 +26,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
     internal static void VerifyCeresEscapeOverlayTilemaps(ISnesAddressSpace rom,
         string stockDirectory, InstalledEnemyArtwork stock)
     {
-        CeresEscapeOverlayTilemapCatalog stockOverlay =
+        CeresEscapeOverlays stockOverlay =
             stock.Areas.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException(
                 "Installed Ceres escape overlay tilemaps are absent.");
         foreach (CeresEscapeOverlayTilemapDefinition page in
@@ -89,7 +89,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
             ?? throw new InvalidDataException("Stock Ceres overlay JSON is null.");
         document.Pages[title.Name][0] = BackgroundTileWordBytes.Tile(document.Pages[title.Name][0].PackedWord ^ 1);
         File.WriteAllBytes(Path.Combine(overrideDirectory, fileName),
-            CeresEscapeOverlayTilemapCatalog.Write(document));
+            CeresEscapeOverlays.Write(document));
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
         AssertTrue(stockOverlay.TryResolve(title, out ReadOnlyMemory<BackgroundTile> stockTiles),

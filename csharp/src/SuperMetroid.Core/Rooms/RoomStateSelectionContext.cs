@@ -30,7 +30,7 @@ public readonly record struct RoomStateSelectionContext(
     /// <exception cref="ArgumentOutOfRangeException">The mask contains an unproven boss-state bit.</exception>
     public bool IsBossDead(BossBits mask)
     {
-        BossBitMasks.Validate(mask, "Room-state boss selector");
+        ProvenBossBits.Validate(mask, "Room-state boss selector");
         return (BossBits & mask) != BossBits.None;
     }
 }

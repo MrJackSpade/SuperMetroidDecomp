@@ -31,7 +31,7 @@ internal static class TextAndMapPresentationContractChecks
             using SuperMetroid.Core.Rooms;
             class TextMapConsumer {
                 void Inspect(EscapeTypewriterPresentation escape, IntroNarrationPresentation intro,
-                    EndingTextPresentation ending, CreditsPresentation credits, MapSpriteCatalog sprites, SpriteSheet mapSheet,
+                    EndingTextPresentation ending, CreditsPresentation credits, MapSpriteCompositions sprites, SpriteSheet mapSheet,
                     MapArrowPresentation arrows, MapScreenPresentation screen,
                     ScreenSprites objects, System.Span<BackgroundTile> tilemap, AreaId area) {
                     escape.Get(EscapeTypewriterProgramId.Ceres);

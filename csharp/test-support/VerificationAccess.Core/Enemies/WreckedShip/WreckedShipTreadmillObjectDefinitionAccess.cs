@@ -3,11 +3,11 @@ using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
-/// <summary>Verification access to <see cref="WreckedShipTreadmillObjectDefinition"/> members production does not use.</summary>
+/// <summary>Verification access to <see cref="WreckedShipTreadmillLoop"/> members production does not use.</summary>
 internal static class WreckedShipTreadmillObjectDefinitionAccess
 {
     /// <summary>Reads the four timed frame-control pointers for one Wrecked Ship treadmill direction.</summary>
-    extension(WreckedShipTreadmillObjectDefinition self)
+    extension(WreckedShipTreadmillLoop self)
     {
         /// <summary>The boss-wait command installed by the object header.</summary>
         public ushort WaitInstructionPointer => self.Direction == WreckedShipTreadmillDirection.Rightwards

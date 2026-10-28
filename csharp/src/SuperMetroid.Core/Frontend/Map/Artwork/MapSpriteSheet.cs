@@ -21,7 +21,7 @@ internal static class MapSpriteSheet
     {
         Ensure.NotNull(sheet);
         // An undefined sprite fails before its palette is read.
-        SpriteSheetFrame frame = sheet.Frame(MapSpriteDefinitions.Name(id));
+        SpriteSheetFrame frame = sheet.Frame(MapSpriteNames.Name(id));
         Ensure.NotNull(sprites).AddImage(frame, origin, FrontendSheetPalette.Override(palette));
     }
 }

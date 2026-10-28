@@ -38,9 +38,9 @@ public sealed class PauseEquipmentBasePresentation
             relative % stride < PauseWireframeDefinitions.Columns)
         {
             int local = relative / stride * PauseWireframeDefinitions.Columns + relative % stride;
-            return PauseWireframeDefinitions.StockTile(PauseWireframeKind.PowerSuit, local);
+            return PauseWireframeTiles.StockTile(PauseWireframeKind.PowerSuit, local);
         }
-        return PauseEquipmentBaseDefinitions.StockTile(cell);
+        return PauseEquipmentBaseTiles.StockTile(cell);
     }
 
     /// <summary>Refreshes authored base cells while preserving every footprint owned by live menu state.</summary>
@@ -51,8 +51,8 @@ public sealed class PauseEquipmentBasePresentation
         for (int cell = 0; cell < PauseEquipmentBaseDefinitions.Cells; cell++)
         {
             bool liveOwned = equipmentLabels is null
-                ? PauseEquipmentBaseDefinitions.IsLiveOwnedCell(cell)
-                : PauseEquipmentBaseDefinitions.IsNonInventoryLiveOwnedCell(cell) ||
+                ? PauseEquipmentBaseTiles.IsLiveOwnedCell(cell)
+                : PauseEquipmentBaseTiles.IsNonInventoryLiveOwnedCell(cell) ||
                     equipmentLabels.OwnsLiveCell(cell);
             if (liveOwned) continue;
             current[cell] = Replacement(current[cell], cell);
@@ -68,7 +68,7 @@ public sealed class PauseEquipmentBasePresentation
         Ensure.LengthEqual(current, PauseEquipmentBaseDefinitions.Cells);
         for (int cell = 0; cell < PauseEquipmentBaseDefinitions.Cells; cell++)
         {
-            if (PauseEquipmentBaseDefinitions.IsNonInventoryLiveOwnedCell(cell)) continue;
+            if (PauseEquipmentBaseTiles.IsNonInventoryLiveOwnedCell(cell)) continue;
             current[cell] = Replacement(current[cell], cell);
         }
     }
@@ -77,7 +77,7 @@ public sealed class PauseEquipmentBasePresentation
     private BackgroundTile Replacement(BackgroundTile shown, int cell)
     {
         BackgroundTile replacement = Tile(cell);
-        return PauseEquipmentBaseDefinitions.IsArrowCell(cell) ? replacement with { ColourVariant = shown.ColourVariant } : replacement;
+        return PauseEquipmentBaseTiles.IsArrowCell(cell) ? replacement with { ColourVariant = shown.ColourVariant } : replacement;
     }
 
     /// <summary>Loads and validates all 1024 editable equipment-page base cells.</summary>

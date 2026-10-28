@@ -33,7 +33,7 @@ public abstract record MapScreenPageId
     {
         /// <summary>Selects <paramref name="area"/>'s world-map background.</summary>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="area"/> is not a playable Zebes area.</exception>
-        public WorldBackground(AreaId area) => Area = MapScreenDefinitions.RequireZebesArea(area);
+        public WorldBackground(AreaId area) => Area = MapScreens.RequireZebesArea(area);
 
         /// <summary>The playable area whose background this is.</summary>
         public AreaId Area { get; }
@@ -47,7 +47,7 @@ public abstract record MapScreenPageId
     {
         /// <summary>Selects <paramref name="area"/>'s room-map frame.</summary>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="area"/> is not a playable Zebes area.</exception>
-        public RoomFrame(AreaId area) => Area = MapScreenDefinitions.RequireZebesArea(area);
+        public RoomFrame(AreaId area) => Area = MapScreens.RequireZebesArea(area);
 
         /// <summary>The playable area whose frame this is.</summary>
         public AreaId Area { get; }

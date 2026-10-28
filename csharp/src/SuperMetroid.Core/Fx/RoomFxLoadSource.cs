@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Fx;
 internal sealed record RoomFxLoadSource
 {
     /// <summary>The room's FX header, or null for a load without one.</summary>
-    public required RoomFxDefinition? Fx { get; init; }
+    public required RoomFxHeader? Fx { get; init; }
 
     /// <summary>The door the room is entered through, or null for a load that matches only default records.</summary>
     public required DoorDefinition? Door { get; init; }

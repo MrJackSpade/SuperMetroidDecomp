@@ -125,7 +125,7 @@ internal static class CoreAccess
 
         /// <summary>Reads the displayed BG1 map tile of the pause screen as the area-map cell word it was placed from.</summary>
         internal MapTileWord ReadDisplayedMapTile(Position16<MapTiles> cell) =>
-            new(BackgroundTileWords.ToWord(pause.screen.Tilemaps.Bg1[AreaMapLayout.GetTilemapWordIndex(cell)]));
+            new(BackgroundTileWords.ToWord(pause.screen.Tilemaps.Bg1[AreaMapPages.GetTilemapWordIndex(cell)]));
     }
 
     /// <summary>Reads the shooting-star array in its native update order.</summary>

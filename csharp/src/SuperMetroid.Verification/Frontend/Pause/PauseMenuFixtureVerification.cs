@@ -20,7 +20,7 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 internal static class PauseMenuFixtureVerification
 {
     /// <summary>Translates constructed cartridge visuals into the installed pause contract without mutating shared retail catalog data.</summary>
-    internal static AreaMapPresentationCatalog CreateConstructedPausePresentation(
+    internal static AreaMapPresentation CreateConstructedPausePresentation(
         CartridgeImportAddressSpace bus)
     {
         var stock = RetailPresentationFixture();
@@ -57,8 +57,8 @@ internal static class PauseMenuFixtureVerification
         using var spriteJson = Json(sprites);
         using var spritePng = File.OpenRead(Path.Combine(installation.MapDirectory, MapSpriteFormat.PngFile));
         var selectors = Document<PauseSelectorDocument>(PauseSelectorDefinitions.FileName);
-        selectors.Anchors[PauseSelectorDefinitions.Anchor(PauseEquipmentCategory.Suits, 2)] = new(0x90, 0x70);
-        selectors.Anchors[PauseSelectorDefinitions.Anchor(PauseEquipmentCategory.Suits, 3)] = new(0xa0, 0x80);
+        selectors.Anchors[PauseSelectorAnchors.Anchor(PauseEquipmentCategory.Suits, 2)] = new(0x90, 0x70);
+        selectors.Anchors[PauseSelectorAnchors.Anchor(PauseEquipmentCategory.Suits, 3)] = new(0xa0, 0x80);
         foreach (string name in selectors.Frames.Keys.ToArray()) selectors.Frames[name] = [singlePart];
         using var selectorJson = Json(selectors);
         // The original synthetic ROM supplied zero-part reserve-strip maps. Keep
@@ -128,6 +128,6 @@ internal static class PauseMenuFixtureVerification
             CeresRidleyFloorUpdates = stock.CeresRidleyFloorUpdates,
             SamusHyperBeamColors = stock.SamusHyperBeamColors,
         };
-        return new AreaMapPresentationCatalog(parts);
+        return new AreaMapPresentation(parts);
     }
 }

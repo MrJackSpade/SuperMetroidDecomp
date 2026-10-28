@@ -102,7 +102,7 @@ internal static class SamusHurtColorsVerification
 
     /// <summary>Checks edited hurt and intro colors reach CGRAM through their respective counter phases.</summary>
     internal static void VerifySamusHurtColorOverride(string stock, string overrides,
-        AreaMapPresentationCatalog baseline, ISnesAddressSpace rom)
+        AreaMapPresentation baseline, ISnesAddressSpace rom)
     {
         string path = Path.Combine(overrides, SamusHurtColorFormat.FileName);
         SamusHurtColorDocument document = JsonSerializer.Deserialize<SamusHurtColorDocument>(
@@ -114,7 +114,7 @@ internal static class SamusHurtColorsVerification
         document.Hurt[5] = hurtOriginal with { Red = (hurtOriginal.Red + 1) % 32 };
         document.Intro[5] = introOriginal with { Blue = (introOriginal.Blue + 1) % 32 };
         File.WriteAllBytes(path, SamusHurtColorFile.Write(document));
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "hurt color override changes installed content identity");
         foreach (bool cinematic in new[] { false, true })
@@ -140,7 +140,7 @@ internal static class SamusHurtColorsVerification
             Hurt = [.. document.Hurt.Take(5), hurtOriginal with { Red = 32 }, .. document.Hurt.Skip(6)],
         }), "out-of-range Samus hurt RGB5 fails loudly");
         File.Delete(path);
-        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
             "removing hurt override restores stock content identity");
         Console.WriteLine("Samus hurt override: edited flash/intro colors reach CGRAM and stock restores.");

@@ -49,21 +49,21 @@ public sealed class PauseEquipmentLabelPresentation
         ValidateTilemap(tilemap);
         if (hyperBeam)
         {
-            for (int item = 0; item < PauseEquipmentLabelDefinitions.ItemCount(PauseEquipmentCategory.Beams); item++)
+            for (int item = 0; item < PauseEquipmentLabelTiles.ItemCount(PauseEquipmentCategory.Beams); item++)
             {
-                CompiledLabel destination = labels[PauseEquipmentLabelDefinitions.Label(PauseEquipmentCategory.Beams, item)];
+                CompiledLabel destination = labels[PauseEquipmentLabelTiles.Label(PauseEquipmentCategory.Beams, item)];
                 WriteBlank(tilemap.Slice(destination.PageCell, PauseEquipmentLabelDefinitions.BeamWords));
             }
             CompiledLabel hyper = labels[PauseEquipmentLabelId.Hyper];
             hyper.CopyTo(tilemap.Slice(hyper.PageCell, PauseEquipmentLabelDefinitions.BeamWords));
         }
         foreach (PauseEquipmentCategory category in PauseEquipmentCategories.InventoryCategories)
-        for (int item = 0; item < PauseEquipmentLabelDefinitions.ItemCount(category); item++)
+        for (int item = 0; item < PauseEquipmentLabelTiles.ItemCount(category); item++)
         {
             if (category == PauseEquipmentCategory.Beams && hyperBeam) continue;
 
             SuperMetroid.Core.Frontend.Pause.PauseEquipmentBit mask = SuperMetroid.Core.Frontend.Pause.PauseEquipmentRules.Mask(category, item);
-            CompiledLabel label = labels[PauseEquipmentLabelDefinitions.Label(category, item)];
+            CompiledLabel label = labels[PauseEquipmentLabelTiles.Label(category, item)];
             Span<BackgroundTile> destination = tilemap.Slice(label.PageCell, label.CellCount);
             if (!mask.IsSetIn(collectedBeams, collectedItems))
                 WriteBlank(destination);
@@ -82,7 +82,7 @@ public sealed class PauseEquipmentLabelPresentation
     public void ApplyLabel(Span<BackgroundTile> tilemap, PauseEquipmentCategory category, int item, int wordCount, bool disabled)
     {
         ValidateTilemap(tilemap);
-        PauseEquipmentLabelId id = PauseEquipmentLabelDefinitions.Label(category, item);
+        PauseEquipmentLabelId id = PauseEquipmentLabelTiles.Label(category, item);
         CompiledLabel label = labels[id];
         if (wordCount is < 0 or > PauseEquipmentLabelDefinitions.EquipmentWords)
             throw new ArgumentOutOfRangeException(nameof(wordCount));
@@ -121,17 +121,17 @@ public sealed class PauseEquipmentLabelPresentation
 
         PauseEquipmentLabelId[] expected = Enum.GetValues<PauseEquipmentLabelId>();
         if (document.Labels.Count != expected.Length ||
-            expected.Any(id => !document.Labels.ContainsKey(PauseEquipmentLabelDefinitions.Name(id))))
+            expected.Any(id => !document.Labels.ContainsKey(PauseEquipmentLabelTiles.Name(id))))
             throw new InvalidDataException("Pause equipment labels require the fourteen ordinary labels and Beam.Hyper exactly once.");
 
         var compiled = new Dictionary<PauseEquipmentLabelId, CompiledLabel>();
         var occupied = new HashSet<int>();
         foreach (PauseEquipmentLabelId id in expected)
         {
-            string key = PauseEquipmentLabelDefinitions.Name(id);
+            string key = PauseEquipmentLabelTiles.Name(id);
             PauseEquipmentLabel label = document.Labels[key] ??
                 throw new InvalidDataException($"Pause equipment label {key} is null.");
-            int words = PauseEquipmentLabelDefinitions.IsOrdinaryBeam(id)
+            int words = PauseEquipmentLabelTiles.IsOrdinaryBeam(id)
                 ? PauseEquipmentLabelDefinitions.BeamWords : PauseEquipmentLabelDefinitions.EquipmentWords;
             if (label.Cells is null || label.Cells.Length != words ||
                 (uint)label.Column >= PauseEquipmentLabelDefinitions.TilemapColumns ||
@@ -148,7 +148,7 @@ public sealed class PauseEquipmentLabelPresentation
                     bool plasmaWireframeOverlap = id == PauseEquipmentLabelId.Plasma &&
                         destinationCell == PauseEquipmentLabelDefinitions.PlasmaCell &&
                         cell == PauseEquipmentLabelDefinitions.PlasmaWireframeOverlapCell;
-                    if (PauseEquipmentBaseDefinitions.IsNonInventoryLiveOwnedCell(cell) &&
+                    if (PauseEquipmentBaseTiles.IsNonInventoryLiveOwnedCell(cell) &&
                         !plasmaWireframeOverlap)
                         throw new InvalidDataException($"Pause equipment label {key} overlaps wireframe or reserve state at cell {cell}.");
                     if (!occupied.Add(cell)) throw new InvalidDataException($"Pause equipment label {key} overlaps another label.");
@@ -207,17 +207,17 @@ public sealed class PauseEquipmentLabelPresentation
     private sealed class CompiledLabel(PauseEquipmentLabelId id, int? destinationEdit, Dictionary<int, BackgroundTile> edits)
     {
         /// <summary>Returns the edited cell or the stock selector's equipment-page cell.</summary>
-        internal int PageCell => destinationEdit ?? PauseEquipmentLabelDefinitions.StockPageByte(id) / sizeof(ushort);
+        internal int PageCell => destinationEdit ?? PauseEquipmentLabelTiles.StockPageByte(id) / sizeof(ushort);
         /// <summary>Uses the native selector's width even when its authored strip has edited cells.</summary>
-        internal int CellCount => PauseEquipmentLabelDefinitions.StockWordCount(id);
+        internal int CellCount => PauseEquipmentLabelTiles.StockWordCount(id);
 
         /// <summary>Retains only tiles and destination coordinates that differ from the native selector.</summary>
         internal static CompiledLabel Load(PauseEquipmentLabelId id, int destinationCell, ReadOnlySpan<BackgroundTile> tiles)
         {
             var edits = new Dictionary<int, BackgroundTile>();
             for (int cell = 0; cell < tiles.Length; cell++)
-                if (tiles[cell] != PauseEquipmentLabelDefinitions.StockTile(id, cell)) edits.Add(cell, tiles[cell]);
-            int? changedDestination = destinationCell == PauseEquipmentLabelDefinitions.StockPageByte(id) / sizeof(ushort)
+                if (tiles[cell] != PauseEquipmentLabelTiles.StockTile(id, cell)) edits.Add(cell, tiles[cell]);
+            int? changedDestination = destinationCell == PauseEquipmentLabelTiles.StockPageByte(id) / sizeof(ushort)
                 ? null : destinationCell;
             return new(id, changedDestination, edits);
         }
@@ -227,7 +227,7 @@ public sealed class PauseEquipmentLabelPresentation
         {
             for (int cell = 0; cell < destination.Length; cell++)
                 destination[cell] = edits.TryGetValue(cell, out BackgroundTile edited) ? edited
-                    : PauseEquipmentLabelDefinitions.StockTile(id, cell);
+                    : PauseEquipmentLabelTiles.StockTile(id, cell);
         }
     }
 }

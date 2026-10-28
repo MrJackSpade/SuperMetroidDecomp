@@ -98,7 +98,7 @@ internal static class PauseSelectorCompositionsVerification
     {
         int program = 0x820000 | ReadVerificationWord(rom, 0x82c0ec);
         int bases = 0x820000 | ReadVerificationWord(rom, 0x82c1e8);
-        foreach (var anchor in PauseSelectorDefinitions.Anchors().Where(a => Math.Min((int)a.Category, 2) == group))
+        foreach (var anchor in PauseSelectorAnchors.Anchors().Where(a => Math.Min((int)a.Category, 2) == group))
         {
             int positions = 0x820000 | ReadVerificationWord(rom, 0x82c18e + (int)anchor.Category * 2);
             ushort x = (ushort)(ReadVerificationWord(rom, positions + anchor.Item * 4) - 1);

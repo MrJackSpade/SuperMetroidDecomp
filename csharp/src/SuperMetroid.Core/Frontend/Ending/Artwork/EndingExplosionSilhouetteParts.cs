@@ -15,7 +15,7 @@ internal sealed class EndingExplosionSilhouetteParts : IReadOnlyList<CompiledSpr
 
     /// <summary>Uses the calculated silhouette only when the selected pose and all supplied OAM parts match it exactly.</summary>
     internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied) =>
-        shown == EndingExplosionSpriteDefinitions.PoseOf(EndingExplosionSpriteDefinitions.Pose.Silhouette)
+        shown == EndingExplosionSpritePoses.PoseOf(EndingExplosionSpriteDefinitions.Pose.Silhouette)
             ? supplied.CalculateIfMatching(new EndingExplosionSilhouetteParts()) : supplied;
 
     /// <summary>Four tip/body pieces followed by four rows of four streaked tiles.</summary>

@@ -36,17 +36,16 @@ public static class CeresSteamDefinitions
     /// apply the graphical transform. The same bounded index selects both
     /// fields; the adjacent tables have independent value rules.
     /// </summary>
-    internal static CeresSteamInitialization Initialization(CeresSteamVariant variant) => variant switch
-    {
-        CeresSteamVariant.Up => new(CeresSteamProgram.Up, CeresSteamFunction.None),
-        CeresSteamVariant.Left => new(CeresSteamProgram.Left, CeresSteamFunction.None),
-        CeresSteamVariant.Down => new(CeresSteamProgram.Down, CeresSteamFunction.None),
-        CeresSteamVariant.Right => new(CeresSteamProgram.Right, CeresSteamFunction.None),
-        CeresSteamVariant.RotatingElevatorLeft => new(CeresSteamProgram.Left,
-            CeresSteamFunction.ApplyRotatingElevatorOffset),
-        CeresSteamVariant.RotatingElevatorRight => new(CeresSteamProgram.Right,
-            CeresSteamFunction.ApplyRotatingElevatorOffset),
-        _ => throw new InvalidDataException(
-            $"Ceres steam variant {variant} exceeds its six-entry tables."),
-    };
+    internal static readonly IReadOnlyDictionary<CeresSteamVariant, CeresSteamInitialization> Initializations =
+        new Dictionary<CeresSteamVariant, CeresSteamInitialization>
+        {
+            [CeresSteamVariant.Up] = new(CeresSteamProgram.Up, CeresSteamFunction.None),
+            [CeresSteamVariant.Left] = new(CeresSteamProgram.Left, CeresSteamFunction.None),
+            [CeresSteamVariant.Down] = new(CeresSteamProgram.Down, CeresSteamFunction.None),
+            [CeresSteamVariant.Right] = new(CeresSteamProgram.Right, CeresSteamFunction.None),
+            [CeresSteamVariant.RotatingElevatorLeft] = new(CeresSteamProgram.Left,
+                CeresSteamFunction.ApplyRotatingElevatorOffset),
+            [CeresSteamVariant.RotatingElevatorRight] = new(CeresSteamProgram.Right,
+                CeresSteamFunction.ApplyRotatingElevatorOffset),
+        };
 }

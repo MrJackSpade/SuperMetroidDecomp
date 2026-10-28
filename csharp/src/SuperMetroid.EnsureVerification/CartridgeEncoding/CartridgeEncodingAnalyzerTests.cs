@@ -92,6 +92,16 @@ internal static class CartridgeEncodingAnalyzerTests
         // A named catalog mask or shift states the width's meaning; byte.MaxValue only names a storage width.
         ExpectEncoding([new AnalyzerTestSource(catalog, "static class WalkerLayout { public const int PackedXMask = 255; }"),
             new AnalyzerTestSource(functional, "class C { int M(int packed) => packed & WalkerLayout.PackedXMask; }")]);
+        // A hexadecimal mask a catalog declares is a field layout, not data: applying it decodes a packed field by hand (#1452).
+        const string hexMask = "static class WalkerLayout { public const int DoorIndexMask = 0x7f; }";
+        ExpectEncoding([new AnalyzerTestSource("csharp/src/SuperMetroid.Core/Game/WalkerLayout.cs", hexMask),
+                new AnalyzerTestSource(functional, "class C { int M(int bts) => bts & WalkerLayout.DoorIndexMask; }")],
+            new ExpectedDiagnostic(CartridgeEncodingAnalyzer.RawWidthId, "a hexadecimal mask its catalog declares"));
+        // Inside the type that owns the encoding the same mask is the definition.
+        ExpectEncoding([new AnalyzerTestSource("csharp/src/SuperMetroid.Core/Game/WalkerLayout.cs", hexMask),
+            new AnalyzerTestSource(functional,
+                "[System.AttributeUsage(System.AttributeTargets.All)] sealed class EncodingOwnerAttribute(string format) : System.Attribute { public string Format { get; } = format; } " +
+                "[EncodingOwner(\"fixture format\")] readonly struct Bts(int raw) { public int DoorIndex => raw & WalkerLayout.DoorIndexMask; }")]);
         ExpectEncoding([new AnalyzerTestSource(functional, "class C { int M(int value) => value & byte.MaxValue; }")],
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.RawWidthId, "keeps a byte, word or bank lane"));
         ExpectEncoding([new AnalyzerTestSource(functional,

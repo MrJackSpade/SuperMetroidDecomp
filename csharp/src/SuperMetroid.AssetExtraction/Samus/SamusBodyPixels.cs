@@ -1,6 +1,6 @@
-using static SuperMetroid.Core.Samus.Artwork.SamusBodyPixelDefinitions;
+using static SuperMetroid.AssetExtraction.Samus.SamusBodyPixelDefinitions;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Which body pixels are canvas padding, diagnostic drawing, morph contour or shared anatomy, and where a shared pixel comes from.</summary>
 internal static class SamusBodyPixels

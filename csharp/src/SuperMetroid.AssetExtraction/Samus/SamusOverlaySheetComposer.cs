@@ -13,8 +13,14 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 internal static class SamusOverlaySheetComposer
 {
+    /// <summary>
+    /// <c>$90:868D</c>: the chest cover is standard sprite character $21 in Samus's palette row, in front of every
+    /// background.
+    /// </summary>
+    private static readonly SpritePart ChestCoverAppearance = SpritePart.Single(character: 33, palette: 4, priority: 3);
+
     /// <summary>What the overlay sheet composes with the body's arm cannon.</summary>
-    internal static SpriteSheetSources Sources(SamusSheetInputs inputs) => Sources(inputs, Ensure.NotNull(inputs).SamusBody.ArmCannon);
+    internal static SpriteSheetSources Sources(SamusSheetInputs inputs) => Sources(inputs, Ensure.NotNull(inputs).SamusBody.Body.ArmCannon);
 
     /// <summary>What the overlay sheet composes with <paramref name="cannon"/>.</summary>
     internal static SpriteSheetSources Sources(SamusSheetInputs inputs, InstalledSamusArmCannonArtwork cannon)
@@ -33,7 +39,7 @@ internal static class SamusOverlaySheetComposer
             }
         }
         frames.Add(new(SamusOverlaySheetDefinitions.ChestCoverFrame,
-            SpritePartFrames.SmallObject(SamusOverlaySheetDefinitions.ChestCoverAppearance, 0), inputs.StandardObjects));
+            SpritePartFrames.SmallObject(ChestCoverAppearance, 0), inputs.StandardObjects));
         return new SpriteSheetSources(frames, inputs.SuitedColours(), ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection));
     }
 }

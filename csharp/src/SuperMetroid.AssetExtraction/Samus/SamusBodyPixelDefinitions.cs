@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Native Samus body-pixel allocation padding and shared angular anatomy.</summary>
 /// <remarks>Every other pixel retains its selected anatomical, armour, electric,

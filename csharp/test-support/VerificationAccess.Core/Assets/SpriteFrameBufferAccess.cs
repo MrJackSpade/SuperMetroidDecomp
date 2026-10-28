@@ -111,7 +111,7 @@ internal static class SpriteFrameBufferAccess
     {
         SpriteArtworkKind.EscapeTimerTiles => EscapeTimerCharacter,
         SpriteArtworkKind.SamusArmCannonCover => ArmCannonCoverCharacter,
-        SpriteArtworkKind.GrappleTiles => SuperMetroid.Core.Samus.Artwork.GrappleTileDefinitions.FirstCharacter,
+        SpriteArtworkKind.GrappleTiles => SuperMetroid.AssetExtraction.Samus.GrappleTileDefinitions.FirstCharacter,
         SpriteArtworkKind.StandardObjects or
             SpriteArtworkKind.SamusBody or
             SpriteArtworkKind.SamusBodyOnStandardObjects or

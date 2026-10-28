@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Samus;
+
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Verification access to <see cref="SamusBodyTransferDefinitions"/> members production does not use.</summary>

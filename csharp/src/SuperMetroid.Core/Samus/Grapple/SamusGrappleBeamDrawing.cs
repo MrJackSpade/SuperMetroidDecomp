@@ -184,7 +184,7 @@ public static class SamusGrappleBeamDrawing
         // OBJ characters $20-$24; the draws below bind that selection over the standard OBJ page.
         SpriteSheet installed = sheet ?? throw new InvalidOperationException("The grapple beam requires the installed grapple sheet.");
         SuperMetroid.Core.Samus.Artwork.GrappleRopeOrientation orientation =
-            SuperMetroid.Core.Samus.Artwork.GrappleTileSelection.OrientationFor(grapple.Angle);
+            SuperMetroid.Core.Samus.Artwork.GrappleRopeOrientations.For(grapple.Angle);
 
         // `$9B:BFA5` increments the shared flare counter after both tile records, saturating
         // at 120 by a signed comparison. It happens even at zero rope length; only the OAM

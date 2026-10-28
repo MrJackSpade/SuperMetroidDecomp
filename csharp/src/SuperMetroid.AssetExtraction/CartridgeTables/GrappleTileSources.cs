@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Samus;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 

@@ -106,7 +106,7 @@ internal static class InstalledSamusArtworkTests
                     SamusBodyTileTransfer a = stock[position], b = edited[position];
                     Require(a.FirstSize == b.FirstSize && a.SecondSize == b.SecondSize,
                         "PNG changed definition split size");
-                    int record = fixture.Stock.DefinitionRecord(upper ? SamusBodyHalf.Top : SamusBodyHalf.Bottom, (byte)set, (byte)position);
+                    int record = fixture.Stock.Body.DefinitionRecord(upper ? SamusBodyHalf.Top : SamusBodyHalf.Bottom, (byte)set, (byte)position);
                     var va = new SnesVram(); var vb = new SnesVram();
                     va.LoadBytes(ObjectCharacterByte(0), fixture.Stock.BodyArtwork(upper ? record : null, upper ? null : record).Characters);
                     vb.LoadBytes(ObjectCharacterByte(0), fixture.Edited.BodyArtwork(upper ? record : null, upper ? null : record).Characters);
@@ -145,10 +145,10 @@ internal static class InstalledSamusArtworkTests
             var queue = new VramWriteQueue();
             queue.Enqueue(length, source, VramDmaDestination.FromNative(destination));
             VramWriteEntry pending = queue.Entries.Single();
-            queue.DrainTo(a, new SamusQueuedArtwork(fixture.Stock), null, BgArtworkFixtures.For(a));
+            queue.DrainTo(a, new SamusQueuedArtwork(fixture.Stock.Body), null, BgArtworkFixtures.For(a));
             queue.Enqueue(checked((ushort)pending.SizeInBytes), pending.SourceAddress, pending.Destination);
             Require(queue.Entries.Single() == pending, $"{name}: replacement changed queued transfer");
-            queue.DrainTo(b, new SamusQueuedArtwork(fixture.Edited), null, BgArtworkFixtures.For(b));
+            queue.DrainTo(b, new SamusQueuedArtwork(fixture.Edited.Body), null, BgArtworkFixtures.For(b));
             Require(queue.Entries.Count == 0 && queue.TailInBytes == 0, $"{name}: NMI did not clear queue");
             check.Pair(a, b, TileGallery(destination, length, 0, 0), name);
         }

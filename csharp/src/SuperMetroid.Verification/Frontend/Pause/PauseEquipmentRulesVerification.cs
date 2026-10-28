@@ -83,8 +83,13 @@ internal static class PauseEquipmentRulesVerification
             PauseWireframeKind.PowerSuit, PauseWireframeKind.PowerSuitHiJump,
             PauseWireframeKind.VariaSuit, PauseWireframeKind.VariaSuitHiJump,
         ];
+        // Every equipment word whose bits all record items: the codec rejects the rest, which no equipment set produces.
+        ushort recorded = Enum.GetValues<SamusEquipmentFlags>()
+            .Aggregate(SamusEquipmentFlags.None, (all, item) => all | item).ToEquipmentWord();
         for (int word = 0; word <= ushort.MaxValue; word++)
         {
+            if ((word & ~recorded) != 0)
+                continue;
             int expected = Array.IndexOf(original, (ushort)(word & nativeMask));
             AssertTrue(expected >= 0, "native masked input has a table match");
             AssertEqual(nativeOrder[expected], PauseEquipmentRules.WireframeKind(SamusEquipmentWordCodec.FromEquipmentWord((ushort)word)), "complete native wireframe selection domain");

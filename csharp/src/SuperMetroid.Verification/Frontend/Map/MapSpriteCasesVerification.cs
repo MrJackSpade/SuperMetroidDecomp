@@ -53,7 +53,7 @@ internal static class MapSpriteCasesVerification
                         "horizontal label edits remain positions; other authored edits retain their composition");
                     var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
                     MenuSpriteCompiler.Compile(parts, role.Name).DrawOnScreen(expected, new(100, 100), 0x600);
-                    MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(edited), MapSpriteOrdinals.Spritemaps.Decode(role.NativeId, "map spritemap ordinal"), actual, new(100, 100), 0x600);
+                    MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(edited), MapSpriteOrdinals.Spritemaps.Decode(role.NativeId, "map spritemap ordinal"), actual, new(100, 100), 3);
                     expected.FinalizeFrame(); actual.FinalizeFrame();
                     AssertTrue(expected.ImageEquals(actual),
                         "every marker part field preserves independently authored edits");
@@ -72,7 +72,7 @@ internal static class MapSpriteCasesVerification
                     int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.NativeId * 2);
                     DrawImportedSpritemap(rom, expected, pointer, new(100, 100), 0x600);
                 }
-                MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(edited), MapSpriteOrdinals.Spritemaps.Decode(frame.NativeId, "map spritemap ordinal"), actual, new(100, 100), 0x600);
+                MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(edited), MapSpriteOrdinals.Spritemaps.Decode(frame.NativeId, "map spritemap ordinal"), actual, new(100, 100), 3);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.ImageEquals(actual),
                     "independently edited map sprite role and all unchanged roles");
@@ -113,7 +113,7 @@ internal static class MapSpriteCasesVerification
                     installed.AddOccupyingPart(new Position16<SpritePixels>(12, 34), 56);
                 }
                 DrawImportedSpritemap(bus, native, pointer, new(x, y), (ushort)(palette << 9));
-                MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(catalog), MapSpriteOrdinals.Spritemaps.Decode(frame.NativeId, "map spritemap ordinal"), installed, new(x, y), (ushort)(palette << 9));
+                MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(catalog), MapSpriteOrdinals.Spritemaps.Decode(frame.NativeId, "map spritemap ordinal"), installed, new(x, y), palette);
                 native.FinalizeFrame(); installed.FinalizeFrame();
                 AssertEqual(native.LastFinalizedSpriteCount, installed.LastFinalizedSpriteCount, "map sprite count/capacity matches native");
                 AssertTrue(native.ImageEquals(installed),

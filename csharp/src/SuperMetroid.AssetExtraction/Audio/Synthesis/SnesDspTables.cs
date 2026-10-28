@@ -31,13 +31,32 @@ internal static class SnesDspTables
         return (ushort)((ratio << 8) >> group);
     }
 
-    /// <summary>Calculates the four S-DSP interpolation taps for one 8-bit sample phase.</summary>
-    /// <remarks>The native order is indices 255-phase, 511-phase, 256+phase, phase.
-    /// Share the four raw values and their normalization across the sample. Rebuilding
-    /// them separately with decimal Taylor series dominated real-time frame processing.</remarks>
+    /// <summary>The four S-DSP interpolation taps of each 8-bit sample phase, calculated once.</summary>
+    private static readonly GaussianTaps[] GaussianTapsByPhase = BuildGaussianTaps();
+
+    /// <summary>The four S-DSP interpolation taps for one 8-bit sample phase.</summary>
+    /// <remarks>Every voice interpolates every output sample, and there are only 256 phases: calculating the taps
+    /// per sample (four sines and eight cosines each) dominated audio rendering.</remarks>
     internal static GaussianTaps GaussianCoefficients(int phase)
     {
         if ((uint)phase >= 256) throw new ArgumentOutOfRangeException(nameof(phase));
+        return GaussianTapsByPhase[phase];
+    }
+
+    /// <summary>Calculates every phase's taps.</summary>
+    private static GaussianTaps[] BuildGaussianTaps()
+    {
+        var taps = new GaussianTaps[256];
+        for (int phase = 0; phase < taps.Length; phase++)
+            taps[phase] = CalculateGaussianTaps(phase);
+        return taps;
+    }
+
+    /// <summary>Calculates the four S-DSP interpolation taps for one 8-bit sample phase.</summary>
+    /// <remarks>The native order is indices 255-phase, 511-phase, 256+phase, phase.
+    /// Share the four raw values and their normalization across the sample.</remarks>
+    private static GaussianTaps CalculateGaussianTaps(int phase)
+    {
         double tap0 = GaussianRaw(255 - phase);
         double tap1 = GaussianRaw(511 - phase);
         double tap2 = GaussianRaw(256 + phase);

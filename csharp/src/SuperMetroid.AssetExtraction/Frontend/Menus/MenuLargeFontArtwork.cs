@@ -22,6 +22,10 @@ internal sealed class MenuLargeFontArtwork
     internal readonly byte[] faces = new byte[(TileCount - 1) * 8];
     /// <summary>Authored pixels where the native shading departs from the shared shadow rule.</summary>
     internal readonly Dictionary<int, byte>? edits;
+    /// <summary>Whether each native tile number up to the last selected cell is a reviewed large-font cell.</summary>
+    private static readonly bool[] Members = BuildMembers();
+    /// <summary>Each selected tile's place in <see cref="faces"/>: how many selected nonblank tiles precede it.</summary>
+    private static readonly int[] RowIndices = BuildRowIndices();
 
     /// <summary>Separates supplied letter ink from its calculable shadow and retains only nonuniform art edits.</summary>
     internal MenuLargeFontArtwork(IndexedPngImage image)
@@ -41,18 +45,32 @@ internal sealed class MenuLargeFontArtwork
     }
 
     /// <summary>Reviewed large-letter cells and the transparent cell (<see cref="MenuLargeFontCellDefinitions.Cells"/>).</summary>
-    internal static bool Contains(int tile) => MenuAtlasCellRange.AnyContains(MenuLargeFontCellDefinitions.Cells, tile);
+    internal static bool Contains(int tile) => (uint)tile < (uint)Members.Length && Members[tile];
     /// <summary>Enumerates the reviewed large-letter cell set in native tile order.</summary>
     private static IEnumerable<int> Tiles()
     {
         for (int tile = 0; tile <= MenuLargeFontCellDefinitions.LastCell; tile++) if (Contains(tile)) yield return tile;
     }
     /// <summary>Compacts a native tile number into the stored ink-row array, omitting the transparent cell.</summary>
-    private static int Index(int tile)
+    private static int Index(int tile) => RowIndices[tile];
+    /// <summary>Marks every native tile number the reviewed cell runs select.</summary>
+    private static bool[] BuildMembers()
     {
-        int index = 0;
-        for (int candidate = 0; candidate < tile; candidate++) if (candidate != MenuLargeFontCellDefinitions.TransparentCell && Contains(candidate)) index++;
-        return index;
+        var members = new bool[MenuLargeFontCellDefinitions.Cells.Max(range => range.Last) + 1];
+        foreach (MenuAtlasCellRange range in MenuLargeFontCellDefinitions.Cells)
+            for (int tile = range.First; tile <= range.Last; tile++) members[tile] = true;
+        return members;
+    }
+    /// <summary>Counts, for every native tile number, the selected nonblank tiles before it.</summary>
+    private static int[] BuildRowIndices()
+    {
+        var indices = new int[Members.Length + 1];
+        for (int tile = 1; tile < indices.Length; tile++)
+        {
+            int previous = tile - 1;
+            indices[tile] = indices[previous] + (previous != MenuLargeFontCellDefinitions.TransparentCell && Members[previous] ? 1 : 0);
+        }
+        return indices;
     }
     /// <summary>Finds the upper letter half when a lower half's shadow needs ink across the tile boundary.</summary>
     private static int UpperHalf(int tile) => MenuLargeFontCellDefinitions.UpperHalves.TryGetValue(tile, out int upper) ? upper : -1;

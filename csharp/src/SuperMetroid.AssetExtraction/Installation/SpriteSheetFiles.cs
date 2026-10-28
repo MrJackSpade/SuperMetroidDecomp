@@ -32,7 +32,7 @@ public static class SpriteSheetFiles
     /// <summary>The provenance manifest's file name.</summary>
     public const string ManifestFileName = "sprite-sheets.json";
 
-    /// <summary>Composes and writes every sheet, then validates the result.</summary>
+    /// <summary>Composes and writes every sheet; the installer validates them with <see cref="ValidateStock"/>.</summary>
     /// <param name="bus">Cartridge source for frames no installed artwork holds.</param>
     /// <param name="content">Installed stock content holding the characters, compositions and colours the sheets compose from.</param>
     /// <param name="directory">Destination directory, created if absent.</param>
@@ -43,10 +43,9 @@ public static class SpriteSheetFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
         SpriteSheetStore store = SpriteSheetStore.Create(directory, ManifestFileName);
         var sources = new SpriteSheetSourceCatalog(content);
-        foreach (SpriteSheetId sheet in SpriteSheetDefinitions.Sheets)
-            store.Write(SpriteSheetDefinitions.FileNames[sheet], Compose(bus, sources, sheet));
+        // Composition reads the cartridge bus, so it stays in order; the store encodes the sheets in parallel.
+        store.WriteAll([.. SpriteSheetDefinitions.Sheets.Select(sheet => new NamedComposedSheet(SpriteSheetDefinitions.FileNames[sheet], Compose(bus, sources, sheet)))]);
         store.Finish(sourceCartridgeSha256);
-        _ = Load(directory, null);
     }
 
     /// <summary>Checks the stock files against their manifest and loads every sheet, preferring a player override of each file.</summary>

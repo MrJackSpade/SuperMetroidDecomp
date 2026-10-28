@@ -40,7 +40,7 @@ internal static class PowerBombDeathDrawingVerification
             actor.Bind(header, actor.Definition);
             actor.Bind(actor.DefinitionId, RoomEnemyDefinitionCatalog.Get(header));
             actor.TileIndexBase = checked((ushort)graphics.TileIndexBase);
-            actor.PaletteIndex = checked((ushort)((graphics.PaletteRow & 15) << 9));
+            actor.PaletteRow = graphics.PaletteRow;
             actor.Health = lethal ? (ushort)1 : (ushort)1000;
             actor.Position = actor.Position.WithWhole(new(128, 128));
             actor.Radius = new(actor.Definition.Radius.X, actor.Definition.Radius.Y);

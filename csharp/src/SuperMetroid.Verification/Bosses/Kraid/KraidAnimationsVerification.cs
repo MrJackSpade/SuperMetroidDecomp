@@ -195,7 +195,7 @@ internal static class KraidAnimationsVerification
     {
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 224)),
         TileIndexBase = 512,
-        PaletteIndex = 3072,
+        PaletteRow = 6,
     };
 
     /// <summary>Every real rock producer, and Kago's bug, starts the typed pose its native list starts.</summary>

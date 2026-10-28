@@ -41,7 +41,7 @@ internal static class TorizoInitializationDefinitionsVerification
                 actor.Radius = new(0xffff, 0xffff);
                 actor.Position = new(new(0xffff, 0x1234), new(0xffff, 0xabcd));
                 actor.Health = 0x3456;
-                actor.PaletteIndex = 0xffff;
+                actor.PaletteRow = 7;
                 actor.Timer = WrappingCountdown.Start(0xffff);
                 actor.InstructionTimer = WrappingCountdown.Start(0xffff);
                 actor.CurrentInstruction = 0xffff;
@@ -61,7 +61,7 @@ internal static class TorizoInitializationDefinitionsVerification
                 AssertEqual(0x3456, actor.Health, "Torizo initialization preserves population health");
                 AssertEqual((ushort)1, actor.InstructionTimer.RawValue, "Initial instruction timer");
                 AssertEqual((ushort)0, actor.Timer.RawValue, "Initial actor timer");
-                AssertEqual(0, actor.PaletteIndex, "Initial palette index");
+                AssertEqual(0, actor.PaletteRow, "Initial palette row");
                 var state = variant == 0 ? enemies.BombTorizo : enemies.BombTorizoBehavior.Attacks.GoldenTorizo;
                 AssertEqual((ushort)0, (state ?? throw new InvalidOperationException("Verification requires state.")).Velocity.X.RawValue, "Initial horizontal velocity");
                 AssertEqual((ushort)0x100, state.Velocity.Y.RawValue, "Initial falling velocity");

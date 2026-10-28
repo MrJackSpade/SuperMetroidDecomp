@@ -87,7 +87,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         Type type = typeof(RoomEnemySystem);
         enemies.Presentation.BindColours(cgram.Gameplay);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.PaletteRow = 0x0200;
+        slot.PaletteRow = 1;
         slot.Position = slot.Position.WithWhole(new(96, 96));
         slot.Radius = new(8, 8);
         var state = new DachoraEnemyState();

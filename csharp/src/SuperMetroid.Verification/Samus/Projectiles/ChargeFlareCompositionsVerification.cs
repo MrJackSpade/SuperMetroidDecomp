@@ -10,6 +10,7 @@ using static SuperMetroid.Verification.Samus.Grapple.GrappleTileArtworkVerificat
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;

@@ -8,7 +8,6 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -64,7 +63,7 @@ internal static class MotherBrainPicturesVerification
         void Draw(string context)
         {
             SpriteArtwork live = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.SpriteCharacters);
-            byte[] characters = live.Characters[..SpriteCharacters.TableByteCount].ToArray();
+            byte[] characters = live.Characters[..SpriteArtworkPlacements.TableByteCount].ToArray();
             foreach ((CorpseRotRow row, int step) in shown)
                 corpse.RowBytes(row, step).CopyTo(characters.AsSpan(row.FirstByte));
             SpriteArtwork rotted = ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.GameplayObjects), characters);
@@ -75,7 +74,7 @@ internal static class MotherBrainPicturesVerification
                 var source = new SpriteSource(SpriteSourceKind.MotherBrainBrain);
                 var camera = new Position16<RoomPixels>(unchecked((ushort)(head.Position.X.Whole - 128)), unchecked((ushort)(head.Position.Y.Whole - 112)));
                 runtime.Enemies.MotherBrainBehavior.Head.DrawMotherBrainWorldSpritemap(sprites, source,
-                    new MotherBrainWorldFrame(frame, head.Position.Whole, head.PaletteIndex, head.TileIndexBase), camera);
+                    new MotherBrainWorldFrame(frame, head.Position.Whole, head.PaletteRow, head.TileIndexBase), camera);
                 sprites.FinalizeFrame();
                 ImmutableArray<SpriteDraw> pictures = [.. sprites.Draws];
                 UploadedPictureChecks.AssertPaintsLikeParts(pictures,

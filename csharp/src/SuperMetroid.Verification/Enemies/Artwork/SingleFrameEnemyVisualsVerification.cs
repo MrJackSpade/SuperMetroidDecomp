@@ -46,7 +46,7 @@ internal static class SingleFrameEnemyVisualsVerification
         var merged = EnemySpritemapDocuments.Load(new MemoryStream(legacyBytes), stock);
         AssertTrue(merged.TryGetDisplay(previous[0].Bank, previous[0].Pointer, out var editedParts),
             "schema-67 override retains its existing frame");
-        AssertEqual(-11, editedParts[0].X.SignedOffset, "schema-67 edit survives new stock");
+        AssertEqual(-11, editedParts[0].Offset.X, "schema-67 edit survives new stock");
         AssertThrows<InvalidDataException>(() => EnemySpritemapDocuments.Load(new MemoryStream(legacyBytes)),
             "old stock requests reimport instead of omitting the new compositions");
 
@@ -86,7 +86,7 @@ internal static class SingleFrameEnemyVisualsVerification
         byte[] projectileLegacyBytes = JsonSerializer.SerializeToUtf8Bytes(projectileLegacy, options);
         var projectileMerged = EnemyProjectileSpritemapCatalog.Load(new MemoryStream(projectileLegacyBytes), projectileStock);
         AssertEqual(-12, projectileMerged.GetProgramFrame(
-            EnemyProjectilePresentationFrameSets.PrePolypRock[0].Frame).Span[0].X.SignedOffset,
+            EnemyProjectilePresentationFrameSets.PrePolypRock[0].Frame).Span[0].Offset.X,
             "schema-12 projectile edit survives new stock");
         AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapCatalog.Load(new MemoryStream(projectileLegacyBytes)),
             "old projectile stock requests reimport");

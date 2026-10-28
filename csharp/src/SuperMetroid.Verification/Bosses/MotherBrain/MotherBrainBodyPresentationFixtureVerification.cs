@@ -33,7 +33,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
             Body.Bind(bodyId, Body.Definition);
             Body.Bind(Body.DefinitionId, RoomEnemyDefinitionCatalog.Get(bodyId));
             Body.Position = Body.Position.WithWhole(new(128, 128));
-            Body.PaletteIndex = Body.TileIndexBase = 0;
+            Body.PaletteRow = Body.TileIndexBase = 0;
             State = new MotherBrainEnemyState(Body) { Head = Inner.Enemies.SlotTable.Slots[1], Form = MotherBrainForm.DrainedByBabyMetroid };
             Inner.Enemies.MotherBrainEncounter.MotherBrain = State;
             // Her phase-two transition attaches the enemy BG2 image her body draws into (#1356).

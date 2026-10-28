@@ -144,7 +144,7 @@ internal static class MotherBrainCorpseArtworkVerification
         for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.RowCount; page++)
             enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, page));
         return new ObjCharacterTablePage().Page(enemies.Room.Session.SpriteCharacters, new EnemyTileTransfers(artwork))
-            .Characters[..SpriteCharacters.TableByteCount].ToArray();
+            .Characters[..SpriteArtworkPlacements.TableByteCount].ToArray();
     }
 
     /// <summary>The six staged rows of the corpse frame, as the extraction stages them, in heap order.</summary>

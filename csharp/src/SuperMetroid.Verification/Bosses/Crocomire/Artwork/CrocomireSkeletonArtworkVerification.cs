@@ -138,7 +138,7 @@ internal static class CrocomireSkeletonArtworkVerification
             var shown = new SpriteArtworkPlacements();
             foreach (SpriteArtworkPlacement upload in PlacedUploads.Of(CrocomireSkeletonTransferDefinitions.Sources))
                 shown.Record(upload);
-            return new RunInstalledResult(new ObjCharacterTablePage().Page(shown, new EnemyTileTransfers(art)).Characters[..SpriteCharacters.TableByteCount].ToArray(),
+            return new RunInstalledResult(new ObjCharacterTablePage().Page(shown, new EnemyTileTransfers(art)).Characters[..SpriteArtworkPlacements.TableByteCount].ToArray(),
                 state, guard);
         }
 

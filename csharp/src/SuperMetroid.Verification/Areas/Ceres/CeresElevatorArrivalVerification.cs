@@ -38,10 +38,11 @@ internal static class CeresElevatorArrivalVerification
         var arrival = new CeresElevatorArrivalState(samus);
         arrival.Step(samus);
 
-        // With native graphics index zero, each actor shows its composition at tile base zero in the parts' own
-        // palettes; a leaked enemy graphics word would add a base tile and OR another OBJ palette.
-        VerificationAssert.AssertTrue(arrival.pad.GraphicsIndex == 0 && arrival.platform.GraphicsIndex == 0,
-            "Ceres arrival actors draw with graphics index zero");
+        // With tile base zero and palette row zero, each actor shows its composition at tile base zero in the parts' own
+        // palettes; leaked enemy graphics would add a base tile and select another palette row.
+        var noGraphics = new SpriteGraphics(TileBase: 0, PaletteRow: 0);
+        VerificationAssert.AssertTrue(arrival.pad.Graphics == noGraphics && arrival.platform.Graphics == noGraphics,
+            "Ceres arrival actors draw with tile base zero and palette row zero");
         var oam = new OamBuffer();
         oam.BeginFrame();
         arrival.DrawAsOam(oam, SpawnedObjectFixtures.Presentation(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElev0),

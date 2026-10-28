@@ -114,13 +114,15 @@ internal static class SamusBodyArtworkVerification
             for (int part = 0; part < record.Parts.Length; part++)
             {
                 int at = address + 2 + part * 5;
-                AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(at),
-                    record.Parts[part].X.Raw, $"Samus OAM ${pointer:X4} part {part} X/size");
-                AssertEqual(bus.ReadCartridgeByte(at + 2), record.Parts[part].Y.Raw,
-                    $"Samus OAM ${pointer:X4} part {part} Y");
-                AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(at + 3),
-                    record.Parts[part].Attributes.Raw,
-                    $"Samus OAM ${pointer:X4} part {part} attributes");
+                // The installed piece holds what the cartridge's five-byte record describes: the import codec decodes
+                // the record, and its offset, size, character, palette row, priority and mirroring are compared.
+                SpritePart expectedPart = new SpritemapPart(
+                    new SnesSpritemapXWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(at)),
+                    new SnesSpritemapYByte(bus.ReadCartridgeByte(at + 2)),
+                    new SnesObjAttributeWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(at + 3))).ToPart();
+                AssertEqual(expectedPart.Offset, record.Parts[part].Offset, $"Samus OAM ${pointer:X4} part {part} X/Y offset");
+                AssertEqual(expectedPart.Large, record.Parts[part].Large, $"Samus OAM ${pointer:X4} part {part} size");
+                AssertEqual(expectedPart, record.Parts[part], $"Samus OAM ${pointer:X4} part {part} character, palette, priority and flips");
             }
             var nativeOam = new OamBuffer();
             nativeOam.BeginFrame();
@@ -178,11 +180,12 @@ internal static class SamusBodyArtworkVerification
                 ? SamusSourceDefinitions.TypeOneAtmosphericAttributes
                 : SamusSourceDefinitions.SharedAtmosphericAttributes;
             int source = SamusSourceDefinitions.MovementBank.Value | (pointer + frame * sizeof(ushort));
-            ushort expectedAttributes = CartridgeImportSource.Require(bus).ReadCartridgeWord(source);
-            AssertTrue(stock.Atmosphere.TryResolve(type, frame, out int installedAttributes),
+            // The cartridge's attribute word is decoded by the import codec into the single piece it describes.
+            SpritePart expectedAttributes = new SnesObjAttributeWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(source)).ToSinglePart();
+            AssertTrue(stock.Atmosphere.TryResolve(type, frame, out SpritePart installedAttributes),
                 $"atmospheric type {type} frame {frame} has installed artwork");
             AssertEqual(expectedAttributes, installedAttributes,
-                $"atmospheric type {type} frame {frame} imported exact native attributes");
+                $"atmospheric type {type} frame {frame} imported the native character, palette row, priority and flips");
             var nativeEffects = new SamusAtmosphericEffectsState();
             var installedEffects = new SamusAtmosphericEffectsState();
             nativeEffects.SetSlot(0, (SamusAtmosphericEffectType)type, frame, 2, new(128, 128));
@@ -608,8 +611,8 @@ internal static class SamusBodyArtworkVerification
         for (int direction = 0; direction < SamusDrawingDefinitions.ArmCannon.DirectionCount; direction++)
         {
             int attrAddress = SamusSourceDefinitions.ArmCannonSpriteAttributes.Value + direction * 2;
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(attrAddress),
-                armCannon.SpriteAttributes(direction), $"arm-cannon direction {direction} OAM");
+            AssertEqual(new SnesObjAttributeWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(attrAddress)).ToSinglePart(),
+                armCannon.CoverAppearance(direction), $"arm-cannon direction {direction} cover character, palette row, priority and flips");
             int listAddress = SamusSourceDefinitions.TileListPointers.Value + direction * 2;
             int list = CartridgeImportSource.Require(bus).ReadCartridgeWord(listAddress);
             for (int frame = 0; frame < SamusArmCannonArtworkFormat.FramesPerDirection; frame++)

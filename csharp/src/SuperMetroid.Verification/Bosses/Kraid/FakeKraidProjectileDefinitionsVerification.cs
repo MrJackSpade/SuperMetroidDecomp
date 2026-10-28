@@ -40,7 +40,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
                 TileIndexBase = 0x0200,
-                PaletteIndex = 0x0c00,
+                PaletteRow = 6,
             };
             var state = new FakeKraidEnemyState();
             enemies.FakeKraidBehavior.SpawnFakeKraidSpitPair(source, state, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
@@ -78,7 +78,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
                 TileIndexBase = 0x0200,
-                PaletteIndex = 0x0c00,
+                PaletteRow = 6,
             };
             var state = new FakeKraidEnemyState() { FacingDelta = facingDelta };
             bool spawned = enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source, state, row);

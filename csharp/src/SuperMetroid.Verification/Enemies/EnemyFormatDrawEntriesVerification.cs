@@ -21,14 +21,12 @@ using SuperMetroid.Core.World;
 /// </summary>
 internal static class EnemyFormatDrawEntriesVerification
 {
-    /// <summary>The projectile's palette.</summary>
+    /// <summary>The projectile's palette row.</summary>
     private const byte ProjectilePalette = 5;
-    /// <summary>The projectile's palette as packed attribute bits.</summary>
-    private const ushort ProjectilePaletteBits = ProjectilePalette << 9;
-    /// <summary>The projectile's packed tile base: character zero, where its set composes every object it can spawn.</summary>
+    /// <summary>The projectile's tile base: character zero, where its set composes every object it can spawn.</summary>
     private const ushort ProjectileTileBase = 0;
-    /// <summary>The projectile's graphics index: its palette bits with its tile base.</summary>
-    private const ushort ProjectileGraphicsIndex = ProjectilePaletteBits | ProjectileTileBase;
+    /// <summary>The projectile's graphics: its tile base in its palette row.</summary>
+    private static readonly SpriteGraphics ProjectileGraphics = SpriteGraphics.Of(ProjectileTileBase, ProjectilePalette);
     /// <summary>A palette row neither enemy is loaded in, which a draw then shows its frame in.</summary>
     private const int OtherRow = 6;
 
@@ -54,7 +52,7 @@ internal static class EnemyFormatDrawEntriesVerification
         ordinary.Bind(EnemyDefinitionId.Beetom, default(RoomEnemyDefinition));
         ordinary.Frame = ordinaryFrame;
         ordinary.TileIndexBase = checked((ushort)beetom.TileIndexBase);
-        ordinary.PaletteIndex = PaletteBits(beetom.PaletteRow);
+        ordinary.PaletteRow = beetom.PaletteRow;
         ordinary.Position = ordinary.Position.WithWhole(new(100, 80));
         enemies.Drawing.Enqueue(0, 0);
 
@@ -66,7 +64,7 @@ internal static class EnemyFormatDrawEntriesVerification
         extended.ExtraProperties = extended.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
         extended.Frame = extendedFrame;
         extended.TileIndexBase = checked((ushort)pirate.TileIndexBase);
-        extended.PaletteIndex = PaletteBits(pirate.PaletteRow);
+        extended.PaletteRow = pirate.PaletteRow;
         extended.InstructionTimer = WrappingCountdown.Start(7);
         extended.Position = extended.Position.WithWhole(new(120, 110));
         enemies.Drawing.Enqueue(1, EnemySlotTable.EnemyIndexStride);
@@ -78,7 +76,7 @@ internal static class EnemyFormatDrawEntriesVerification
         projectile.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
         projectile.DrawPriority = EnemyProjectileDrawPriority.High;
         projectile.Frame = projectileFrame;
-        projectile.GraphicsIndex = ProjectileGraphicsIndex;
+        projectile.Graphics = ProjectileGraphics;
         projectile.Position = projectile.Position.WithWhole(new(30, 40));
 
         var sprites = new SpriteFrameBuffer();
@@ -114,14 +112,14 @@ internal static class EnemyFormatDrawEntriesVerification
         AssertEqual(draws.Length, entry, "No other entries are published");
 
         // An enemy drawn in a row its set did not load it in shows its frame in that row.
-        ordinary.PaletteIndex = PaletteBits(OtherRow);
+        ordinary.PaletteRow = OtherRow;
         sprites.BeginFrame();
         enemies.Drawing.AdvanceLayers(Position16<RoomPixels>.Zero, 0, 0);
         enemies.Drawing.DrawLayers(sprites, Position16<RoomPixels>.Zero, 0, 0);
         sprites.FinalizeFrame();
         AssertImage(sprites.Draws[0], new SpriteSource(SpriteSourceKind.Enemy, 0), beetomSheet.Frame(EnemySheetDefinitions.FrameName(ordinaryFrame)),
             new(100, 80), OtherRow, "Ordinary enemy in another row");
-        ordinary.PaletteIndex = PaletteBits(beetom.PaletteRow);
+        ordinary.PaletteRow = beetom.PaletteRow;
 
         // The shake tick belongs to the advance: it is consumed identically whether or not the frame is drawn.
         ordinary.FrameCounter = 0;
@@ -146,8 +144,6 @@ internal static class EnemyFormatDrawEntriesVerification
             AssertEqual(origin, image.Origin, $"{subject} is placed at its screen origin");
             AssertEqual(row, image.PaletteOverride, $"{subject} shows its frame in the row it is drawn in");
         }
-
-        static ushort PaletteBits(int row) => checked((ushort)((row & 15) << 9));
     }
 
     /// <summary>Runs the enemy-format draw-entry confirmation.</summary>

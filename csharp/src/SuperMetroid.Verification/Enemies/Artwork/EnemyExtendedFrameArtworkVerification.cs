@@ -1356,7 +1356,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         // Ridley's scene draws his tail and wings before his body while his movement animation runs, and his AI latches
         // the palette his body draws in; this fixture's animation is off and its latch holds the slot's palette.
         if (slot.DefinitionId == EnemyDefinitionId.Ridley)
-            enemies.RidleyEncounter.Ridley = new RidleyEnemyState { CommonDrawPaletteIndex = new SnesObjAttributeWord(checked((ushort)slot.PaletteRow)) };
+            enemies.RidleyEncounter.Ridley = new RidleyEnemyState { CommonDrawPalette = slot.PaletteRow };
         slot.ExtraProperties = slot.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
         slot.Frame = frame;

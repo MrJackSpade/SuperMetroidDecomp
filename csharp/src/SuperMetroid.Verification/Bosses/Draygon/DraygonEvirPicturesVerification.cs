@@ -45,11 +45,11 @@ internal static class DraygonEvirPicturesVerification
         // The room load's uploads reach the OBJ characters when its first frame drains them.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         RoomSpriteObjectSlot evir = runtime.Enemies.SpriteObjects.SpawnRoomSpriteObject(EvirPosition,
-            RoomSpriteObjectKind.DraygonIntroEvir, EnemyPaletteBits.Palette7) ?? throw new InvalidOperationException(
+            RoomSpriteObjectKind.DraygonIntroEvir, SpriteGraphics.InPalette(7)) ?? throw new InvalidOperationException(
             "Draygon's room has a free sprite-object slot for an opening Evir.");
 
         RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;
-        int tileBase = evir.Attributes.TileNumber;
+        int tileBase = evir.Graphics.TileBase;
         string frame = EnemySheetDefinitions.SpriteObjectFrameName(RoomSpriteObjectVisualDefinitions.ShownFrames.Of(evir.Frame));
         // The runtime draws from the sheets it loaded with its installation.
         IEnemySheetSource sheets = runtime.EnemySession.Sheets ?? throw new InvalidOperationException("The runtime loads the enemy sheets.");
@@ -84,9 +84,10 @@ internal static class DraygonEvirPicturesVerification
         EnemyFrameId shown = RoomSpriteObjectVisualDefinitions.ShownFrames.Of(evir.Frame);
         AssertTrue((InstalledFixtures.EnemyTiles.Spritemaps ?? throw new InvalidOperationException("Verification requires the installed compositions."))
             .TryGetDisplay(shown, out EnemySpritemapParts parts), $"the Evir's frame {shown} has an installed composition");
-        ushort paletteBits = evir.Attributes.PaletteBits;
-        CharacterSpriteDraw parted = EnemyPartComposition.Parts(live, drawn[0].Source, EnemySpriteFrames.Frame(parts, checked((ushort)evir.Attributes.TileNumber), paletteBits),
-            drawn[0].Origin, paletteBits);
+        int paletteRow = evir.Graphics.PaletteRow;
+        CharacterSpriteDraw parted = EnemyPartComposition.Parts(live, drawn[0].Source,
+            SuperMetroid.AssetExtraction.Enemies.EnemySpriteFrames.Frame(parts, evir.Graphics.TileBase, paletteRow),
+            drawn[0].Origin, NativeSpriteGraphicsWords.PaletteBits(paletteRow));
 
         UploadedPictureChecks.AssertPaintsLikeParts(drawn, [parted], $"the Evir {when}");
         return drawn;

@@ -2,7 +2,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Bosses.Ridley;
@@ -208,7 +207,7 @@ internal static class RidleyExplosionDefinitionsVerification
 
                 AssertEqual((ushort)1, fragment.InstructionTimer.RawValue,
                     "Ridley breakup production instruction timer");
-                AssertEqual(EnemyPaletteBits.Palette7, fragment.PaletteIndex,
+                AssertEqual(7, fragment.PaletteRow,
                     "Ridley breakup production palette");
                 RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
                     ?? throw new InvalidOperationException("The initialized fragment has no state.");

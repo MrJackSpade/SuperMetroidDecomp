@@ -80,7 +80,7 @@ internal static class EnemyLegacyOverridesVerification
             }
             AssertTrue(merged.TryGetDisplay(native.Bank, native.Pointer, out var remapped),
                 prefix + "the explicit remap is available");
-            AssertEqual(hasBindings ? 23 : 19, remapped[0].X.SignedOffset,
+            AssertEqual(hasBindings ? 23 : 19, remapped[0].Offset.X,
                 prefix + "authored bindings take precedence; older schemas inherit stock bindings");
             AssertEqual(stockIdentity, stock.ContentIdentity, prefix + "loading an override does not mutate stock");
 

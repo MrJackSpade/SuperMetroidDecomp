@@ -63,7 +63,7 @@ internal static class CeresRidleyPicturesVerification
         {
             MovementAnimationEnabled = true,
             FacingDirection = RidleyFacing.Left,
-            SpritemapPaletteIndex = SnesObjPalettes.Palette(1),
+            SpritemapPalette = 1,
             TailSegments = [.. Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
             {
                 Position = new Position16<RoomPixels>(unchecked((ushort)(80 + index * 10)), unchecked((ushort)(120 + index * 3))),

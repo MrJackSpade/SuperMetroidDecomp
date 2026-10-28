@@ -460,7 +460,9 @@ internal static class ProjectileCompositionsVerification
         File.WriteAllText(grappleStyleOverride, grappleStyle.ToJsonString());
         var styleEdited = installation.LoadProjectiles();
         AssertTrue(styleEdited.SelectedSha256 != grappleEdited.SelectedSha256, "Grapple style-only edit changes content identity");
-        AssertEqual((ushort)((grappleEdited.GrappleTiles.Sprites ?? throw new InvalidOperationException("Verification requires grappleEdited.GrappleTiles.Sprites.")).Endpoint ^ 512), (styleEdited.GrappleTiles.Sprites ?? throw new InvalidOperationException("Verification requires styleEdited.GrappleTiles.Sprites.")).Endpoint, "Installed Grapple style selects edited palette");
+        // The edit changes only the endpoint's palette row, to the four the style override authors.
+        AssertEqual((grappleEdited.GrappleTiles.Sprites ?? throw new InvalidOperationException("Verification requires grappleEdited.GrappleTiles.Sprites.")).Endpoint with { Palette = 4 },
+            (styleEdited.GrappleTiles.Sprites ?? throw new InvalidOperationException("Verification requires styleEdited.GrappleTiles.Sprites.")).Endpoint, "Installed Grapple style selects edited palette");
         File.WriteAllText(grappleStyleStock, "broken stock");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Grapple style override cannot hide corrupt stock");
         File.Move(grappleStyleStock, grappleStyleStock + ".invalid");

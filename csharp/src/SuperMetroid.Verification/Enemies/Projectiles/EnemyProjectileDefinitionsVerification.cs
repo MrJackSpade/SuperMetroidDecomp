@@ -42,7 +42,7 @@ internal static class EnemyProjectileDefinitionsVerification
 
         HashSet<int> forbidden = VerifyEnemyProjectileDefinitionRecords(rom, kinds);
 
-        Action<RoomEnemyProjectileSlot, RoomEnemyProjectileKind, int> initialize =
+        Action<RoomEnemyProjectileSlot, RoomEnemyProjectileKind, SpriteGraphics> initialize =
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition;
 
         const ushort populationPointer = 0x9400;
@@ -58,7 +58,7 @@ internal static class EnemyProjectileDefinitionsVerification
         {
             EnemyProjectileDefinition definition = EnemyProjectileDefinitionCatalog.Get(kind);
             projectile.Clear();
-            initialize(projectile, kind, 0x0c00);
+            initialize(projectile, kind, SpriteGraphics.InPalette(6));
             AssertEqual(kind, projectile.Kind, $"{kind} production kind");
             AssertEqual(definition.PreInstruction, projectile.PreInstruction,
                 $"{kind} production pre-instruction");
@@ -81,8 +81,8 @@ internal static class EnemyProjectileDefinitionsVerification
                 $"{kind} production persistence property");
             AssertEqual(definition.BlocksSamusProjectiles, projectile.BlocksSamusProjectiles,
                 $"{kind} production projectile-blocking property");
-            AssertEqual(0x0c00, projectile.GraphicsIndex,
-                $"{kind} production graphics word");
+            AssertEqual(SpriteGraphics.InPalette(6), projectile.Graphics,
+                $"{kind} production graphics: the spawner's tile base and palette row");
 
             projectile.Position = projectile.Position.WithWhole(new(0x0100, 0x0100));
             projectile.Radius = new(1, 1);
@@ -125,7 +125,7 @@ internal static class EnemyProjectileDefinitionsVerification
                 AssertTrue(ReferenceEquals(initialProgram, projectile.Animation), $"{kind} production touch keeps its program");
             }
 
-            initialize(projectile, kind, 0);
+            initialize(projectile, kind, new SpriteGraphics(TileBase: 0, PaletteRow: 0));
             projectile.Position = projectile.Position.WithWhole(new(0x0100, 0x0100));
             projectile.BlocksSamusProjectiles = true;
             projectile.CollisionOption = EnemyProjectileCollisionOption.RunShotList;

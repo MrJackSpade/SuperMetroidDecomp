@@ -48,7 +48,7 @@ internal static class MotherBrainGlassShardDefinitionsVerification
                     $"production Mother Brain glass-shard Y {parameter}/{animationIndex}");
                 AssertEqual(unchecked((ushort)(animationIndex << 5)), shard.Variable0,
                     $"production Mother Brain glass-shard angle offset {parameter}/{animationIndex}");
-                AssertEqual(MotherBrainGlassShardDefinitions.GraphicsIndex, shard.GraphicsIndex,
+                AssertEqual(MotherBrainGlassShardDefinitions.Graphics, shard.Graphics,
                     $"production Mother Brain glass-shard graphics index {parameter}/{animationIndex}");
                 AssertEqual(0, random.Count,
                     $"production Mother Brain glass-shard RNG count {parameter}/{animationIndex}");

@@ -1047,9 +1047,11 @@ CreateEmptyRoom(new(16, 16)), fallingRelease, controllerInput: 0, frameCounter: 
 internal static void VerifySamusAtmosphericEffects()
 {
     TestAddressSpace bus = CreateSamusAtmosphericEffectsCartridge();
+    // The shared appearances are the attribute words this fixture's cartridge seeds, decoded by the import codec.
+    static SpritePart Shared(ushort word) => new SuperMetroid.AssetExtraction.Artwork.SnesObjAttributeWord(word).ToSinglePart();
     var atmosphericArt = new SamusAtmosphericArtworkCatalog(
-        new ushort[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount],
-        [0x2a48, 0x2a49, 0, 0]);
+        new SpritePart[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount],
+        [Shared(0x2a48), Shared(0x2a49), Shared(0), Shared(0)]);
 
     var samus = new SamusState
     {

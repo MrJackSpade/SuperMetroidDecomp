@@ -366,7 +366,7 @@ internal static class SamusArmCannonPlacementDefinitions
                 throw new InvalidOperationException($"{pose} does not own an arm-cannon drawing allocation.");
         }
         int index = body.Spritemaps.TopBase(pose) + sourcePhase;
-        if ((uint)index >= SamusSpritemapArtworkCatalog.PointerCount ||
+        if ((uint)index >= SamusSpritemapArtworkCatalog.EntryCount ||
             !body.Spritemaps.TryGet((ushort)index, out SamusSpritemapDefinition? map) ||
             map.Parts.Length == 0) return false;
         int best = int.MinValue, selectedX = 0, selectedY = 0;

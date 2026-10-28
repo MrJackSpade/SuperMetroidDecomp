@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Rooms.RoomEnemiesVerification;

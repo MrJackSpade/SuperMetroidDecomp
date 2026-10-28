@@ -253,7 +253,7 @@ internal static class RoomBlockSheetComposer
     }
 
     /// <summary>One block to picture: its four tile words and what shows at each tile's character.</summary>
-    /// <param name="Words">The tile words: top left, top right, bottom left, bottom right.</param>
+    /// <param name="Tiles">The tiles: top left, top right, bottom left, bottom right.</param>
     /// <param name="Shown">What shows at each tile's character.</param>
     private sealed record Picture(BackgroundTile[] Tiles, BgArtworkShown[] Shown);
 

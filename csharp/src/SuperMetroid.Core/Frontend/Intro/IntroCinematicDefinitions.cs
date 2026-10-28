@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>The opening cinematic's shared definitions: its installed artwork extents, text layout, palette fades, music, actors' palettes and sounds, and the narration caret.</summary>

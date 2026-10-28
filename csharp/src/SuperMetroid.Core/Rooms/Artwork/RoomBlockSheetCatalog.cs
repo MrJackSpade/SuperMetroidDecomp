@@ -155,7 +155,7 @@ public sealed class RoomBlockSheetCatalog
             words.Sheet.AppendIdentity(content);
             foreach (TileWordSheetTile tile in words.Tiles)
             {
-                content.Append("word", tile.Tile.Word.Raw);
+                content.Append("word", BackgroundTileWords.ToWord(tile.Tile.Tile));
                 content.AppendName("artwork", tile.Tile.Shown.Artwork.Name);
                 content.Append("offset", tile.Tile.Shown.WordOffset);
                 content.AppendName("frame", tile.Frame);

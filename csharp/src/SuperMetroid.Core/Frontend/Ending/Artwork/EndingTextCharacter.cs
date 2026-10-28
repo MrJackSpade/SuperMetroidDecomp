@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Compiled placement and tilemap entries for one ending-text character.</summary>

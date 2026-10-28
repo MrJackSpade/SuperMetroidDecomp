@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>File identity and dimensions for the cartridge's four-row Japanese subtitle staging map.</summary>

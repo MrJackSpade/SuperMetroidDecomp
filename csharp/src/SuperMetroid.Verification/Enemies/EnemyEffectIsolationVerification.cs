@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationFixtureVerification;
 using static SuperMetroid.Verification.Enemies.EnemyEffectsFixtureVerification;

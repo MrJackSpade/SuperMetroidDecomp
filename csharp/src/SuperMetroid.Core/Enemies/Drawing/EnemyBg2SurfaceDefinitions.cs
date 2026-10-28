@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>The enemy BG2 staging surface at <c>$7E:2000</c>, which large bosses draw into before NMI uploads it.</summary>

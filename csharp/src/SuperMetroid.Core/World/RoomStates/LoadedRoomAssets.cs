@@ -146,7 +146,7 @@ public sealed class LoadedRoomAssets
         // 1024 tile characters. The tileset must therefore bind over the common room elements;
         // reversing these produces the vertical-stripe corruption seen when CRE replaces Ceres tiles.
         new(RoomBgArtwork.CommonRoomElements, BgCharacterSet.Tiles, RoomTileCharacters.CommonRoomElementsFirst, commonRoomElementCharacters),
-        new(RoomBgArtwork.Tileset(Ensure.NotNull(tileset).Characters), BgCharacterSet.Tiles, RoomTileCharacters.TilesetFirst, tilesetCharacters),
+        new(RoomBgArtwork.Tileset(tileset.Characters), BgCharacterSet.Tiles, RoomTileCharacters.TilesetFirst, tilesetCharacters),
     ];
 
     /// <summary>Binds the room's two character regions (#1350) and installs its first 128 CGRAM colors.</summary>

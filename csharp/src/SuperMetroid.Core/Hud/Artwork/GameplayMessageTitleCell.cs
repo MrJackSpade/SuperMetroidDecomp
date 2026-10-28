@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Text.Json.Serialization;
 
 namespace SuperMetroid.Core.Hud.Artwork;

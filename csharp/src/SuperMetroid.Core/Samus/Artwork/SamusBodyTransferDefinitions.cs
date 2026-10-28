@@ -31,7 +31,7 @@ internal static class SamusBodyTransferDefinitions
                 if ((upper ? frame.TopSet : frame.BottomSet) != set ||
                     (upper ? frame.TopPosition : frame.BottomPosition) != position) continue;
                 int mapIndex = baseIndex + phase;
-                if ((uint)mapIndex >= SamusSpritemapArtworkCatalog.PointerCount ||
+                if ((uint)mapIndex >= SamusSpritemapArtworkCatalog.EntryCount ||
                     !body.Spritemaps.TryGet((ushort)mapIndex, out SamusSpritemapDefinition? map)) continue;
                 foreach (SpritePart part in map.Parts)
                 {

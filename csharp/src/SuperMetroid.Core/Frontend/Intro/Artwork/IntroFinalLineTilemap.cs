@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;

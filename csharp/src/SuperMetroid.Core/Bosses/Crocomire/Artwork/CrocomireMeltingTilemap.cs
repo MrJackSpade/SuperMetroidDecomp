@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 /// <summary>

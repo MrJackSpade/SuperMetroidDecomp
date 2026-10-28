@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Identifies one compiled character emitted in typewriter order.</summary>

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Ports $8B:97F7/$9828/$9849: eight independently aging glyph rectangles.</summary>

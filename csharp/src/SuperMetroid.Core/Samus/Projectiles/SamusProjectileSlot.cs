@@ -69,6 +69,22 @@ public sealed class SamusProjectileSlot
         get;
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
+    /// <summary>
+    /// A missile's ignition speed in whole pixels, from <see cref="Variable"/>: zero until the shared missile
+    /// accelerator first crosses one pixel per frame.
+    /// </summary>
+    public int MissileIgnitionPixels => UnsignedEightEight.Whole(Variable);
+
+    /// <summary>
+    /// A live Super Missile's collision-link slot table offset, kept in <see cref="Variable"/> below its ignition speed,
+    /// where the accelerator's fraction would otherwise be.
+    /// </summary>
+    public int MissileLinkSlotOffset => UnsignedEightEight.Fraction(Variable);
+
+    /// <summary>Stores a Super Missile's collision-link slot table offset below its ignition speed, as <c>$90:BF46</c> adds it.</summary>
+    internal void SetMissileLinkSlotOffset(int slotTableOffset) =>
+        Variable = unchecked((ushort)(UnsignedEightEight.WithoutFraction(Variable) + slotTableOffset));
+
     /// <summary>WRAM $0CA4: phase word used by Spazer special-attack particles.</summary>
     public SpazerComboPhase AuxiliaryPhase { get; internal set; }
     /// <summary>Semantic identity of the slot's bank-$90 pre-instruction.</summary>

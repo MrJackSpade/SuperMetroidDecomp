@@ -24,6 +24,12 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     /// <summary>The high byte as the eight-bit angle the trigonometry routines read.</summary>
     public ByteAngle ToByteAngle() => new(TableIndex);
 
+    /// <summary>
+    /// This angle's 1/256th fraction read as a table angle: what an eight-bit routine handed the whole angle word
+    /// reads, as the Fireflea initializer does before its main AI reads the table index.
+    /// </summary>
+    public ByteAngle ReinterpretFractionAsTableAngle() => new(unchecked((byte)RawValue));
+
     /// <summary>Zero turns.</summary>
     public static RotationAngle Zero { get; } = new(0x0000);
 

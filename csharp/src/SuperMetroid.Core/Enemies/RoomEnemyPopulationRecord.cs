@@ -26,4 +26,10 @@ public readonly record struct RoomEnemyPopulationRecord(
 
     /// <summary>Second actor-specific spawn parameter, 0 through 65535.</summary>
     public int Parameter2 { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, Parameter2);
+
+    /// <summary>Parameter 1 as the two one-byte settings a species that packs two settings into it reads.</summary>
+    public PopulationParameterSettings Parameter1Settings => PopulationParameterSettings.Of(Parameter1);
+
+    /// <summary>Parameter 2 as the two one-byte settings a species that packs two settings into it reads.</summary>
+    public PopulationParameterSettings Parameter2Settings => PopulationParameterSettings.Of(Parameter2);
 }

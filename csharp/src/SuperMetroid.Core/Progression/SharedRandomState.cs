@@ -2,15 +2,29 @@ namespace SuperMetroid.Core.Progression;
 
 /// <summary>
 /// The cartridge's shared random state (WRAM <c>$05E5</c>): one sixteen-bit value every random consumer draws from.
-/// Advancing it and exchanging its two bytes are its only operations; a sample is the state read as an int.
+/// Advancing it and exchanging its two bytes are its only operations; a sample is the state read as an int, and the
+/// game often draws two independent random bytes from one sample, one per axis or choice.
 /// </summary>
+[EncodingOwner("shared random state and the two random bytes of a sample")]
 public readonly record struct SharedRandomState
 {
+    /// <summary>The bits of the lower random byte, below the upper one.</summary>
+    private const int ByteBits = 8;
+
     /// <summary>Holds a state from 0 through 65535.</summary>
-    public SharedRandomState(int value) => Value = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    public SharedRandomState(int value) => Value = RequireSample(value);
 
     /// <summary>The state as a sample, 0 through 65535.</summary>
     public int Value { get; }
+
+    /// <summary>The random byte a sample, 0 through 65535, holds in its low eight bits.</summary>
+    public static byte LowerByte(int sample) => unchecked((byte)RequireSample(sample));
+
+    /// <summary>
+    /// The random byte a sample, 0 through 65535, holds in its high eight bits: a second draw independent of
+    /// <see cref="LowerByte"/>, which the game uses for another axis or another choice.
+    /// </summary>
+    public static byte UpperByte(int sample) => unchecked((byte)(RequireSample(sample) >> ByteBits));
 
     /// <summary>
     /// The state after one advance, exactly as <c>$80:8111</c> computes it: the two byte multiplies, the high-byte
@@ -20,29 +34,32 @@ public readonly record struct SharedRandomState
     {
         // The ROM performs two separate 8x8 multiplies through the SNES hardware
         // multiplier ($4202/$4203). This first product is retained as a 16-bit word.
-        int lowByteProduct = SnesLittleEndian.LowByte(Value) * 5;
+        int lowByteProduct = LowerByte(Value) * 5;
 
         // The second hardware multiplication is read through an 8-bit accumulator, so
         // only its low result byte participates directly in the next addition.
-        int highByteProductLow = unchecked((byte)(SnesLittleEndian.HighByte(Value) * 5));
+        int highByteProductLow = unchecked((byte)(UpperByte(Value) * 5));
 
         // SEC makes the addition start with carry=1. It modifies the high byte of the
         // first product. The ninth bit is retained separately as the processor carry.
-        int highByteSum = SnesLittleEndian.HighByte(unchecked((ushort)lowByteProduct)) + highByteProductLow + 1;
+        int highByteSum = UpperByte(lowByteProduct) + highByteProductLow + 1;
 
         // STA $02,S replaces the saved product's high byte but, naturally, stores only
         // eight bits. Reconstruct that post-STA stack word explicitly.
-        int savedProduct = SnesLittleEndian.Word(unchecked((byte)lowByteProduct), unchecked((byte)highByteSum));
+        int savedProduct = unchecked((byte)lowByteProduct) | unchecked((byte)highByteSum) << ByteBits;
 
         // After PLA restores 16-bit A, ADC #$0011 consumes the carry left by the 8-bit
         // addition. That extra carry is the reason this is only *roughly* r*5+$0111.
         int result = savedProduct + 17 + WordCarry.OutOfByte(highByteSum);
 
         // A 65C816 accumulator wraps at 16 bits.
-        return new SharedRandomState(SnesLittleEndian.LowWord(result));
+        return new SharedRandomState(unchecked((ushort)result));
     }
 
     /// <summary>The state with its two bytes exchanged, as the lava and acid FX routine stores it back.</summary>
     public SharedRandomState WithBytesSwapped() =>
-        new(SnesLittleEndian.SwapBytes(checked((ushort)Value)));
+        new(LowerByte(Value) << ByteBits | UpperByte(Value));
+
+    /// <summary>A sample checked to lie in 0 through 65535.</summary>
+    private static int RequireSample(int sample) => Ensure.BetweenInclusive(0, ushort.MaxValue, sample);
 }

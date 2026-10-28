@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Menus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -13,7 +12,6 @@ namespace SuperMetroid.Verification.Frontend.Menus;
 internal static class MenuShoulderHighlightPixelsVerification
 {
     /// <summary>Compares stock planar tiles with retail VRAM data and preserves individual pixel edits.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyMenuShoulderHighlightPixels(ISnesAddressSpace rom)
     {
         int[] tiles = [0x3c, 0x3d, 0x43, 0x51];

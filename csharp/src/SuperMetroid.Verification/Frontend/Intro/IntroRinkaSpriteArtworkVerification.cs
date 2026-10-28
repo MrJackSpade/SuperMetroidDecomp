@@ -34,7 +34,6 @@ internal static class IntroRinkaSpriteArtworkVerification
             originIsOnScreen: y < CinematicSpriteDrawDefinitions.OnScreenOriginYLimit);
     }
     /// <summary>Compares installed Rinka OAM and flashback pixels with native art, then verifies a palette override and rebinding.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyIntroRinkaSpriteArtwork(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {

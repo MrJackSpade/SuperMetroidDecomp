@@ -8,7 +8,6 @@ internal static class SnesCgramAccess
     extension(SnesCgram self)
     {
         /// <summary>Clears all 256 colors to black.</summary>
-        [PpuLayoutBoundary("exact hardware test: clears the 256-color CGRAM backing store")]
         internal void Clear()
         {
             for (int index = 0; index < SnesCgram.ColorCount; index++)

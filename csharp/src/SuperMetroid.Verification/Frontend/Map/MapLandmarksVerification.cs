@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
@@ -21,7 +20,6 @@ namespace SuperMetroid.Verification.Frontend.Map;
 internal static class MapLandmarksVerification
 {
     /// <summary>Checks boss and elevator visibility across area state, then validates layout overrides and rebinds.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyMapLandmarks(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var guard = NewLandmarkGuard(bus);

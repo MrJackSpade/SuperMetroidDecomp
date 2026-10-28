@@ -2,7 +2,6 @@ using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Fx;
@@ -100,7 +99,6 @@ public static class GitHubErrorReporterSmokeTest
     }
 
     /// <summary>Captures before and failed-frame Samus state and checks replay, build, and input details in the report.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static string VerifyFrameFailureSnapshot()
     {
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();

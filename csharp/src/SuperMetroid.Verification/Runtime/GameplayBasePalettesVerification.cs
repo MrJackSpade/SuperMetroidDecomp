@@ -20,7 +20,6 @@ using SuperMetroid.Verification.Harness;
 internal static class GameplayBasePalettesVerification
 {
     /// <summary>Compares cartridge colors and exercises ROM-free runtime construction and override validation.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyGameplayBasePalettes(string sourceRom)
     {
         using var directoryScratch = new TestScratchDirectory("gameplay-base-palettes");

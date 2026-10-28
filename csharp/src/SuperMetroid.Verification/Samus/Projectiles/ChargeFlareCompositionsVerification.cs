@@ -24,7 +24,6 @@ using SuperMetroid.Verification.Harness;
 internal static class ChargeFlareCompositionsVerification
 {
     /// <summary>Checks extracted parts across selector, position, and OAM capacity cases, then validates visual edits and malformed assets.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyChargeFlareCompositions(SuperMetroidAddressSpace bus,
         bool flareOnly = false, string sourceRom = "Super Metroid.smc")
     {

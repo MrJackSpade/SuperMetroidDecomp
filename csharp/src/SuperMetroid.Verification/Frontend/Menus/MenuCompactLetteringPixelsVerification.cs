@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Menus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -13,7 +12,6 @@ namespace SuperMetroid.Verification.Frontend.Menus;
 internal static class MenuCompactLetteringPixelsVerification
 {
     /// <summary>Compares every selected glyph pixel, Tourian's distinct T cap, and edited VRAM encodings.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyMenuCompactLetteringPixels(ISnesAddressSpace rom)
     {
         int[] tiles = [0,1,2,3,4,5,6,7,8,9,0x10,0x12,0x13,0x14,0x15,0x16,0x18,0x19,0x20,0x32,0x44,0x45,0x53,0x54,0x55,0x56,0x5f,0xa5,0xa6,0xa7,0xa8,0xa9,0xaa,0xb7];

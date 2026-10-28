@@ -159,7 +159,6 @@ internal static class EnemyTileArtworkKraidVerification
     }
 
     /// <summary>Checks queued, direct, and restored BG3 tile uploads against installed HUD pixels.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     private static void VerifyInstalledKraidBg3Restoration(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork enemyArtwork)
     {
@@ -253,7 +252,6 @@ internal static class EnemyTileArtworkKraidVerification
     }
 
     /// <summary>Checks the Kraid room-background character upload and a selected PNG pixel edit.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyInstalledKraidRoomBackground(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork stock)
     {

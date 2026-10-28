@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Palettes;
@@ -20,7 +19,6 @@ namespace SuperMetroid.Verification.Samus.Abilities;
 internal static class CrystalFlashColorsVerification
 {
     /// <summary>Compares cartridge source words, then checks edited CGRAM, unchanged timers, and stock repair.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyCrystalFlashColorOverride(string stockDirectory,
         string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom)
     {

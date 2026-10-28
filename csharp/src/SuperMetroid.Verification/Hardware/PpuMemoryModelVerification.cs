@@ -2,92 +2,38 @@ using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
-using System.Text.Json;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks catalog ownership and typed VRAM, CGRAM, OAM and register views against their PPU backends.</summary>
-internal static class PpuLayoutBoundaryVerification
+/// <summary>Checks the import pipeline's typed VRAM, CGRAM and OAM views against their PPU backends.</summary>
+internal static class PpuMemoryModelVerification
 {
-    /// <summary>Inventory cell fields compared between the generated and committed PPU-layout inventories.</summary>
-    private static readonly string[] InventoryCellFields =
-        ["owner", "name", "region", "offset", "count", "encoding", "aliasOf"];
-
     /// <summary>
-    /// Checks the #630 PPU layout boundary: catalog identities and aliases, the repository
-    /// inventory, alias coherence through the typed views on real backends, typed round trips,
-    /// bounds, VMAIN increment/wrap and port order, OAM packing, CGRAM masking and the
-    /// allocation-free view paths.
+    /// Checks the import pipeline's PPU memory model: typed round trips through the VRAM, CGRAM
+    /// and OAM views, bounds, Mode 7's shared map and character words, VMAIN increment/wrap and
+    /// port order, OAM packing, CGRAM masking and the allocation-free view paths.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: suite driver over the layout catalog inventory")]
-    internal static void VerifyPpuLayoutBoundary()
+    internal static void VerifyPpuMemoryModel()
     {
-        IReadOnlyList<PpuLayoutCatalogEntry> entries = PpuLayoutCatalogInventory.Enumerate(PpuLayoutCatalogInventory.ProductionAssemblies);
-        Suite(nameof(VerifyPpuLayoutCatalogIdentities), () => VerifyPpuLayoutCatalogIdentities(entries));
-        Suite(nameof(VerifyPpuLayoutAliasRoundTrips), () => VerifyPpuLayoutAliasRoundTrips(entries));
-        Suite(nameof(VerifyPpuLayoutInventoryCurrent), () => VerifyPpuLayoutInventoryCurrent(entries));
         Suite(nameof(VerifyPpuTypedRoundTrips), VerifyPpuTypedRoundTrips);
         Suite(nameof(VerifyPpuViewBounds), VerifyPpuViewBounds);
+        Suite(nameof(VerifyMode7PlanesShareWords), VerifyMode7PlanesShareWords);
         Suite(nameof(VerifyVramIncrementAndWrap), VerifyVramIncrementAndWrap);
         Suite(nameof(VerifyVramPortByteOrder), VerifyVramPortByteOrder);
         Suite(nameof(VerifyOamTablePacking), VerifyOamTablePacking);
         Suite(nameof(VerifyCgramBit15Masking), VerifyCgramBit15Masking);
         Suite(nameof(VerifyPpuViewPathsAllocateNothing), VerifyPpuViewPathsAllocateNothing);
-        Console.WriteLine($"PPU layout boundary: {entries.Count} catalog cells, " +
-            $"{entries.Count(entry => entry.Cell.AliasOf is not null)} declared aliases, views and backends verified.");
-    }
-
-    /// <summary>Every (owner, name) is unique and storage is shared only through a declared alias.</summary>
-    [PpuLayoutBoundary("exact hardware test: catalog identity and alias rules")]
-    private static void VerifyPpuLayoutCatalogIdentities(IReadOnlyList<PpuLayoutCatalogEntry> entries)
-    {
-        AssertTrue(entries.Count > 0, "production catalogs declare PPU layout cells");
-        foreach (PpuLayoutRegion region in Enum.GetValues<PpuLayoutRegion>())
-        {
-            // OAM is no longer production state (#1358): frontends publish sprite entries and gameplay sprite draws.
-            bool retired = region is PpuLayoutRegion.OamLow or PpuLayoutRegion.OamHigh;
-            AssertEqual(!retired, entries.Any(entry => entry.Cell.Region == region),
-                retired ? $"the catalogs name no {region} location" : $"the catalogs name at least one {region} location");
-        }
-        IReadOnlyList<string> violations = PpuLayoutCatalogInventory.Violations(entries);
-        AssertTrue(violations.Count == 0, "catalog rules hold:" + Environment.NewLine + string.Join(Environment.NewLine, violations));
+        Console.WriteLine("PPU memory model: views and backends verified.");
     }
 
     /// <summary>
-    /// Each alias pair demonstrably shares its backing state: a value written through either
-    /// cell's view reads back through the other's, on a real backend.
+    /// Mode 7's map and character planes share every word: the low-byte port writes the map
+    /// cell and the high-byte port the pixel of the same word.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: alias coherence on the real PPU backends")]
-    private static void VerifyPpuLayoutAliasRoundTrips(IReadOnlyList<PpuLayoutCatalogEntry> entries)
+    private static void VerifyMode7PlanesShareWords()
     {
-        int pairs = 0;
-        foreach (PpuLayoutCatalogEntry entry in entries)
-        {
-            if (entry.Cell.AliasOf is not { } target)
-                continue;
-            switch (entry.Cell.Region)
-            {
-                case PpuLayoutRegion.Vram:
-                    VramRoundTrip(entry.Cell, target, seed: 0x5a3c, $"{entry.Reference} -> alias target");
-                    VramRoundTrip(target, entry.Cell, seed: 0xa5c3, $"alias target -> {entry.Reference}");
-                    break;
-                case PpuLayoutRegion.Cgram:
-                    CgramRoundTrip(entry.Cell, target, seed: 3, $"{entry.Reference} -> alias target");
-                    CgramRoundTrip(target, entry.Cell, seed: 17, $"alias target -> {entry.Reference}");
-                    break;
-                case PpuLayoutRegion.OamLow:
-                case PpuLayoutRegion.OamHigh:
-                default:
-                    throw new InvalidDataException($"{entry.Reference} aliases a {entry.Cell.Region} cell, which has no coherence check.");
-            }
-            pairs++;
-        }
-        AssertTrue(pairs > 0, "at least one alias pair is round-tripped");
-
-        // Mode 7's map and character planes share every word: the low-byte port writes the map
-        // cell and the high-byte port the pixel of the same word.
         var vram = new SnesVram();
         var mode7 = new Mode7Vram(vram);
         mode7.LoadMap([0x12, 0x34], cell: 0x0100);
@@ -99,62 +45,7 @@ internal static class PpuLayoutBoundaryVerification
         AssertEqual((ushort)0xab8c, map.ReadWord(0x0100), "a map fill keeps the interleaved character byte");
     }
 
-    /// <summary>Writes representative overlapping VRAM words through one region view and reads them through its declared alias.</summary>
-    [PpuLayoutBoundary("exact hardware test: VRAM alias coherence through two region views")]
-    private static void VramRoundTrip(PpuLayoutCell writer, PpuLayoutCell reader, ushort seed, string context)
-    {
-        var vram = new SnesVram();
-        var write = new VramRegion(vram, writer);
-        var read = new VramRegion(vram, reader);
-        int first = Math.Max(writer.Offset, reader.Offset);
-        int end = Math.Min(writer.Offset + writer.Count, reader.Offset + reader.Count);
-        // Probe the overlap's ends and a stride through it; a whole-VRAM alias would otherwise
-        // write 32K words per pair.
-        int stride = Math.Max(1, (end - first) / 64);
-        for (int word = first; word < end; word += stride)
-            write.Write([(ushort)(seed ^ word * 0x9e37)], word - writer.Offset);
-        write.Write([(ushort)(seed ^ (end - 1) * 0x9e37)], end - 1 - writer.Offset);
-        for (int word = first; word < end; word += stride)
-            AssertEqual((ushort)(seed ^ word * 0x9e37), read.ReadWord(word - reader.Offset), $"{context} word ${word:X4}");
-        AssertEqual((ushort)(seed ^ (end - 1) * 0x9e37), read.ReadWord(end - 1 - reader.Offset), $"{context} last word");
-    }
-
-    /// <summary>Checks shared palette slots through two typed CGRAM views in both alias directions.</summary>
-    [PpuLayoutBoundary("exact hardware test: CGRAM alias coherence through two palette views")]
-    private static void CgramRoundTrip(PpuLayoutCell writer, PpuLayoutCell reader, int seed, string context)
-    {
-        var cgram = new SnesCgram();
-        var write = new CgramPalette(cgram, writer);
-        var read = new CgramPalette(cgram, reader);
-        int first = Math.Max(writer.Offset, reader.Offset);
-        int end = Math.Min(writer.Offset + writer.Count, reader.Offset + reader.Count);
-        for (int slot = first; slot < end; slot++)
-            write.Write(slot - writer.Offset, Probe(slot, seed));
-        for (int slot = first; slot < end; slot++)
-            AssertEqual(Probe(slot, seed), read.Colors[slot - reader.Offset], $"{context} colour ${slot:X2}");
-
-        static RgbColor Probe(int slot, int seed) =>
-            new((slot + seed) & RgbColor.MaxChannel, (slot * 3 + seed) & RgbColor.MaxChannel, (slot * 7 + seed) & RgbColor.MaxChannel);
-    }
-
-
-    /// <summary>The committed inventory lists exactly the catalog cells (consumers may drift between regenerations).</summary>
-    [PpuLayoutBoundary("exact hardware test: inventory matches the catalogs")]
-    private static void VerifyPpuLayoutInventoryCurrent(IReadOnlyList<PpuLayoutCatalogEntry> entries)
-    {
-        string root = Directory.GetCurrentDirectory();
-        using JsonDocument expected = JsonDocument.Parse(PpuLayoutCatalogInventory.RenderJson(entries, root));
-        using JsonDocument actual = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, PpuLayoutCatalogInventory.InventoryPath)));
-        string[] Cells(JsonDocument document) => document.RootElement.GetProperty("cells").EnumerateArray()
-            .Select(cell => string.Join('|', InventoryCellFields
-                .Select(field => cell.GetProperty(field).ToString())))
-            .ToArray();
-        AssertTrue(Cells(expected).SequenceEqual(Cells(actual)),
-            $"{PpuLayoutCatalogInventory.InventoryPath} is current; regenerate it with DebugRunner --generate-ppu-layout-inventory");
-    }
-
     /// <summary>Representative typed values survive the views and backends unchanged.</summary>
-    [PpuLayoutBoundary("exact hardware test: typed round trips through views and backends")]
     private static void VerifyPpuTypedRoundTrips()
     {
         var vram = new SnesVram();
@@ -184,7 +75,6 @@ internal static class PpuLayoutBoundaryVerification
     }
 
     /// <summary>Views and cells reject indexes and ranges outside their declared location.</summary>
-    [PpuLayoutBoundary("exact hardware test: view and cell bounds")]
     private static void VerifyPpuViewBounds()
     {
         var vram = new SnesVram();
@@ -215,7 +105,6 @@ internal static class PpuLayoutBoundaryVerification
     }
 
     /// <summary>VMAIN's one- and 32-word increments, the queue's bit-15 encoding and the 15-bit VMADD wrap.</summary>
-    [PpuLayoutBoundary("exact hardware test: VMAIN increment and VMADD wrap")]
     private static void VerifyVramIncrementAndWrap()
     {
         var vram = new SnesVram();
@@ -242,7 +131,6 @@ internal static class PpuLayoutBoundaryVerification
     }
 
     /// <summary>DMA mode 1 writes $2118 then $2119 for each word; Mode 7's ports write one byte lane each.</summary>
-    [PpuLayoutBoundary("exact hardware test: VRAM port byte order")]
     private static void VerifyVramPortByteOrder()
     {
         var vram = new SnesVram();
@@ -259,7 +147,6 @@ internal static class PpuLayoutBoundaryVerification
     }
 
     /// <summary>OAM keeps four low-table bytes per OBJ and packs two high-table bits per OBJ, four OBJs per byte.</summary>
-    [PpuLayoutBoundary("exact hardware test: OAM low/high table packing")]
     private static void VerifyOamTablePacking()
     {
         var oam = new OamBuffer();
@@ -287,7 +174,6 @@ internal static class PpuLayoutBoundaryVerification
     }
 
     /// <summary>CGRAM stores fifteen colour bits: the port drops bit 15, and a RgbColor cannot carry it.</summary>
-    [PpuLayoutBoundary("exact hardware test: CGRAM bit-15 masking")]
     private static void VerifyCgramBit15Masking()
     {
         var cgram = new SnesCgram();
@@ -301,7 +187,6 @@ internal static class PpuLayoutBoundaryVerification
     }
 
     /// <summary>Representative per-entry palette, tilemap, Mode 7 and queue paths allocate nothing once warm.</summary>
-    [PpuLayoutBoundary("exact hardware test: allocation-free view paths")]
     private static void VerifyPpuViewPathsAllocateNothing()
     {
         var vram = new SnesVram();
@@ -337,11 +222,11 @@ internal static class PpuLayoutBoundaryVerification
         }
     }
 
-    /// <summary>Runs the PPU catalog, alias, port-order and allocation boundary suite.</summary>
-    [VerificationCommand("--ppu-layout-boundary")]
-    internal static int PpuLayoutBoundaryCommand()
+    /// <summary>Runs the PPU memory model's view, port-order and allocation suite.</summary>
+    [VerificationCommand("--ppu-memory-model")]
+    internal static int PpuMemoryModelCommand()
     {
-        Suite(nameof(VerifyPpuLayoutBoundary), () => VerifyPpuLayoutBoundary());
+        Suite(nameof(VerifyPpuMemoryModel), () => VerifyPpuMemoryModel());
         return 0;
     }
 }

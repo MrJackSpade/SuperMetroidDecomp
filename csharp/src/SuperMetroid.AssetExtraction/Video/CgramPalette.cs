@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Video;
@@ -10,7 +9,6 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// native word encoding and bit-15 masking stay behind the view. A struct over the backend, so
 /// palette fades and render lookups allocate nothing.
 /// </summary>
-[PpuLayoutBoundary("rendering view: a bounded CGRAM colour range")]
 public readonly struct CgramPalette
 {
     /// <summary>Underlying colour table to which writes must propagate: CGRAM or a screen palette.</summary>
@@ -19,7 +17,6 @@ public readonly struct CgramPalette
     internal readonly int first;
 
     /// <summary>Binds the CGRAM colours described by <paramref name="cell"/>.</summary>
-    [PpuLayoutAccess]
     public CgramPalette(IPaletteColors cgram, PpuLayoutCell cell)
         : this(Ensure.NotNull(cgram), Ensure.NotNull(cell).Region == PpuLayoutRegion.Cgram
             ? cell.Offset

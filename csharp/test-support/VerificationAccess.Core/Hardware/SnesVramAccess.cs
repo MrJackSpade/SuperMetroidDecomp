@@ -21,7 +21,6 @@ internal static class SnesVramAccess
         /// <param name="encodedDestination">
         /// Initial VMADD word plus this model's VMAIN-column marker in bit 15.
         /// </param>
-        [PpuLayoutBoundary("exact hardware test: drives one general-purpose DMA into VRAM")]
         internal void ExecuteHardwareMemoryDmaWrite(
             ISnesMutableMemory memory,
             int sourceAddress,

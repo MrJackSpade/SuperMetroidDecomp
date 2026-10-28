@@ -122,7 +122,6 @@ internal static class DynamicCollectibleArtVerification
     }
 
     /// <summary>Loads the retail Bombs PLM with selected art and captures its VRAM tile bytes, block word, and pickup state.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static LoadRetailBombsWithArtResult
         LoadRetailBombsWithArt(RoomPlmDynamicCollectibleArtCatalog art)
     {

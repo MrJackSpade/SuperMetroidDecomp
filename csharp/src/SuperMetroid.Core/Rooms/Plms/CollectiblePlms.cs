@@ -237,7 +237,6 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     }
 
     /// <summary>Binds two animation frames to the next collectible character slot (#1350) and updates live block-definition words.</summary>
-    [PpuLayoutBoundary("codec: the collectible character slots' native VRAM words")]
     private int LoadDynamicCollectibleGraphics(
         RoomLevelData level,
         BgArtworkBindings backgrounds,

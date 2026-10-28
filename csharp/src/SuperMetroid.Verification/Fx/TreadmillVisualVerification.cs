@@ -22,7 +22,6 @@ using SuperMetroid.Core.Rooms.Doors;
 internal static class TreadmillVisualVerification
 {
     /// <summary>Compares four cycling graphics frames with native transfer sources in powered treadmill rooms.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyTreadmillVisual()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -82,7 +81,6 @@ internal static class TreadmillVisualVerification
     }
 
     /// <summary>The floor's characters as the native transfer of <paramref name="source"/> leaves them.</summary>
-    [PpuLayoutBoundary("exact hardware test: reads a native VRAM transfer")]
     private static byte[] NativeFloorCharacters(ISnesAddressSpace bus, int source)
     {
         var expected = new SnesVram();

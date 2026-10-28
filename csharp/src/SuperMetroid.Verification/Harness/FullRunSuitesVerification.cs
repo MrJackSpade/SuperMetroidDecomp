@@ -259,7 +259,7 @@ using static SuperMetroid.Verification.Samus.Projectiles.PowerBombDeathRadiusVer
 using static SuperMetroid.Verification.Samus.Palettes.PowerBombFixedColorsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombFuseVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombRuntimeIntegrationVerification;
-using static SuperMetroid.Verification.Hardware.PpuLayoutBoundaryVerification;
+using static SuperMetroid.Verification.Hardware.PpuMemoryModelVerification;
 using static SuperMetroid.Verification.Hardware.FramePaintTestsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileContactPhaseVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileCooldownsVerification;
@@ -450,7 +450,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyDebuggerStateRejectsStaleLayouts), () => VerifyDebuggerStateRejectsStaleLayouts()),
         new(nameof(VerifyWorkRamCells), () => VerifyWorkRamCells()),
         new(nameof(VerifyCanonicalWordReads), () => VerifyCanonicalWordReads()),
-        new(nameof(VerifyPpuLayoutBoundary), () => VerifyPpuLayoutBoundary()),
+        new(nameof(VerifyPpuMemoryModel), () => VerifyPpuMemoryModel()),
         new(nameof(VerifyDspControls), () => VerifyDspControls()),
         new(nameof(VerifySpcDriverMemory), () => VerifySpcDriverMemory()),
         new(nameof(VerifyRoomEnemyLoadContracts), () => VerifyRoomEnemyLoadContracts()),

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Intro;
@@ -17,7 +16,6 @@ using SuperMetroid.Core.Progression;
 internal static class IntroMotherBrainDefinitionsVerification
 {
     /// <summary>Compares actor records, explosion offsets, fourth-hit timing, page-two transition, and actor deletion.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyIntroMotherBrainDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

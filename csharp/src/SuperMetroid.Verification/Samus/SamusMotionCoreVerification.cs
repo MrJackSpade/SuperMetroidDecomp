@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SyntheticSamusCartridgeVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -96,7 +95,6 @@ internal static void VerifySamusPoseTransitionMatching()
 /// Synthetic bus bytes are the retail running entry at $90:9F61, so these assertions stay
 /// deterministic while the DebugRunner independently reads the user's cartridge.
 /// </summary>
-[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 internal static void VerifySamusHorizontalSpeed()
 {
     var bus = new TestAddressSpace();

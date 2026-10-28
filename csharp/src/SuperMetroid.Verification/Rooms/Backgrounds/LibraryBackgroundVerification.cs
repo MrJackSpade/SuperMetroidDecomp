@@ -76,7 +76,6 @@ internal static void VerifyLibraryBackgroundSourceInventory()
 }
 
 /// <summary>Confirms installed Kraid HUD pixels reproduce the native upload and that an edit reaches VRAM.</summary>
-[PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
 static void VerifyKraidLibraryHudArtwork(
     ISnesAddressSpace bus, IReadOnlyList<LibraryBackgroundNativeOperand> romTransfers)
 {
@@ -129,7 +128,6 @@ static void VerifyKraidLibraryHudArtwork(
 }
 
 /// <summary>Exercises Ceres BG2 transfers, typed ROM/WRAM reads, command wrapping, and native clearing.</summary>
-[PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
 internal static void VerifyLibraryBackgroundLoader()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount];

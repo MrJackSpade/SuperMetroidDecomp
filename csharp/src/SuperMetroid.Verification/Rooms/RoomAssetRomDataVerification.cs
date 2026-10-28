@@ -149,7 +149,6 @@ internal static class RoomAssetRomDataVerification
     }
 
     /// <summary>Exercises every distinct room-character PNG against its native 4-bpp source.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyRoomCharacterAtlases()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");

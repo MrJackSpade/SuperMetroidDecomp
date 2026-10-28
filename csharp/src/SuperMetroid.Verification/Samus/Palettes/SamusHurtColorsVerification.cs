@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
@@ -59,7 +58,6 @@ internal static class SamusHurtColorsVerification
     }
 
     /// <summary>Checks each counter step's selected source palette or intentional no-write frame.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void CompareHurtCycle(ISnesAddressSpace rom,
         SamusHurtColorCatalog catalog, bool cinematic)
     {
@@ -103,7 +101,6 @@ internal static class SamusHurtColorsVerification
     }
 
     /// <summary>Checks edited hurt and intro colors reach CGRAM through their respective counter phases.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifySamusHurtColorOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline, ISnesAddressSpace rom)
     {

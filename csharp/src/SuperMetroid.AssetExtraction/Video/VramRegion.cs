@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.Video;
 
@@ -10,7 +9,6 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// VMADD base and the byte-address arithmetic stay behind the view. A struct over the backend,
 /// so uploads and reads allocate nothing.
 /// </summary>
-[PpuLayoutBoundary("rendering view: a bounded VRAM word range")]
 internal readonly struct VramRegion
 {
     /// <summary>Backend VRAM whose words are exposed through this bounded view.</summary>
@@ -19,7 +17,6 @@ internal readonly struct VramRegion
     internal readonly int first;
 
     /// <summary>Binds the VRAM words described by <paramref name="cell"/>.</summary>
-    [PpuLayoutAccess]
     public VramRegion(SnesVram vram, PpuLayoutCell cell)
         : this(Ensure.NotNull(vram), Ensure.NotNull(cell).Region == PpuLayoutRegion.Vram
             ? cell.Offset

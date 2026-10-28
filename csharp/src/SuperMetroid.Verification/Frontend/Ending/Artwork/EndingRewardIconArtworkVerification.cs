@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Frontend.Ending.EndingMode7ArtworkVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
@@ -21,7 +20,6 @@ namespace SuperMetroid.Verification.Frontend.Ending.Artwork;
 internal static class EndingRewardIconArtworkVerification
 {
     /// <summary>Compares retail pixels and VRAM, then checks map and PNG override rebinds during the landing upload.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyEndingRewardIconArtwork(GameInstallation installation)
     {
         EndingFloorArtworkCatalog stock = installation.LoadEndingMode7Art();

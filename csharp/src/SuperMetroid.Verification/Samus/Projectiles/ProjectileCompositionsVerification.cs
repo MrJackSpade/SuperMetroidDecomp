@@ -33,7 +33,6 @@ using SuperMetroid.Core.Gameplay;
 internal static class ProjectileCompositionsVerification
 {
     /// <summary>Compares extracted bank-$93 sprites across coordinate wraps and verifies edits without draw-time ROM access.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyProjectileCompositions(SuperMetroidAddressSpace rom,
         bool compositionOnly = false, string sourceRom = "Super Metroid.smc")
     {
@@ -124,7 +123,6 @@ internal static class ProjectileCompositionsVerification
     }
 
     /// <summary>Checks shot, explosion, and bomb draw owners preserve OAM, flicker, and projectile state without ROM reads.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyProjectileCompositionOwners()
     {
         int comparisons = 0;
@@ -262,7 +260,6 @@ internal static class ProjectileCompositionsVerification
     }
 
     /// <summary>Checks stock digests, persistent overrides, invalid content, and stock repair in projectile installation.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyProjectileFiles(ISnesAddressSpace bus, byte[] editedJson)
     {
         using var rootScratch = new TestScratchDirectory("projectile-install");

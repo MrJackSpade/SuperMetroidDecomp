@@ -26,7 +26,6 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 internal static class ChargeFlareProductionVerification
 {
     /// <summary>Compares normal and Hyper flare frames with native OAM, then checks visual edits leave projectile state intact.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyChargeFlareProduction(SuperMetroidAddressSpace bus,
         ChargeFlareSpriteCatalog stock,
         SamusBodyArtworkCatalog body, MapPresentationInstalledRoomAssets roomAssets,

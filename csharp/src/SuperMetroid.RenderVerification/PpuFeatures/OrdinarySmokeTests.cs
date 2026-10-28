@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.RenderVerification.Device;
 using SuperMetroid.Rendering.Direct3D11.Device;
@@ -15,7 +14,6 @@ using SuperMetroid.TestSupport.FrameRendering;
 internal static class OrdinarySmokeTests
 {
     /// <summary>Checks GPU pixels against the WARP reference and bounds steady-state CPU submission allocations.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var random = new Random(32115);

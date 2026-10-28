@@ -20,7 +20,6 @@ using SuperMetroid.TestSupport.FrameRendering;
 internal static class PauseReserveTanksVerification
 {
     /// <summary>Checks tank capacity, fill, and flicker combinations at the rendered pixel level, including save restoration.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyPauseReserveTanks()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

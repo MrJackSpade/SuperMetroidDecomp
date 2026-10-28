@@ -22,7 +22,6 @@ using SuperMetroid.AssetExtraction.Bosses.Ridley;
 internal static class EnemyTileArtworkNorfairRidleyColorsVerification
 {
     /// <summary>Compares all initial and reveal colors, guarded production updates, isolated edits, and override validation.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyInstalledNorfairRidleyColors(ISnesAddressSpace bus,
         string stockDirectory, InstalledEnemyArtwork stock)
     {

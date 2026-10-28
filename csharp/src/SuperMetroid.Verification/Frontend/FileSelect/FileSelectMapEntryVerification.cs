@@ -1,5 +1,4 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Video;
@@ -13,7 +12,6 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 internal static class FileSelectMapEntryVerification
 {
     /// <summary>Verifies two CGRAM cells fade in sixteen steps before the exact twenty-eight-update reveal rectangle.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyFileSelectMapEntry()
     {
         var white = Enumerable.Repeat(new PaletteRgb5 { Red = 31, Green = 31, Blue = 31 },

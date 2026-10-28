@@ -17,7 +17,6 @@ using SuperMetroid.Verification.Harness;
 internal static class GrappleEnemyDeathVerification
 {
     /// <summary>Exercises the native kill route through its visible projectile animation and pickup conversion.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyGrappleEnemyDeath()
     {
         Suite(nameof(VerifyGrappleDeathCleanupOrdinaryPoses), () => VerifyGrappleDeathCleanupOrdinaryPoses());

@@ -30,7 +30,6 @@ public static class RoomRenderer
     /// The BG character portion of VRAM as <c>$82:E783</c> leaves it: the CRE characters, then the
     /// area tileset over them from VMADD $0000, at their gameplay character numbers.
     /// </summary>
-    [PpuLayoutBoundary("backend: reference room renderer's BG character VRAM image")]
     private static byte[] BackgroundCharacterImage(byte[] areaTiles, byte[] commonTiles)
     {
         var vram = new byte[RoomGraphicsLayoutTooling.BackgroundCharacterVramByteCount];

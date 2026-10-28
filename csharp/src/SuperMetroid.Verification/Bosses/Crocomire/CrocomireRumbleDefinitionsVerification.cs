@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Bosses.Artwork;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -19,7 +18,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 internal static class CrocomireRumbleDefinitionsVerification
 {
     /// <summary>Audits all source words, then compares every rumble update through wall-spike palette publication.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyCrocomireRumbleDefinitions(SuperMetroidAddressSpace rom)
     {
         const int sourceAddress = 0xa498ca;

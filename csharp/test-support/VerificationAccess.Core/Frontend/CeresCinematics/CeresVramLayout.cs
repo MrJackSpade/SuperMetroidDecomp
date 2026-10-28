@@ -1,12 +1,10 @@
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>
 /// The Ceres flight and destruction cinematics' Mode 1 VRAM allocations (#630); their Mode 7
 /// gunship and station planes use <see cref="Mode7VramLayout"/>.
 /// </summary>
-[PpuLayoutBoundary("catalog: Ceres flight and destruction cinematic VRAM")]
 internal static class CeresVramLayout
 {
     /// <summary>VMADD $6000-$7FFF: the space/gunship/Ceres OBJ characters (bytes $C000-$FFFF), later overlaid by the shared cinematic sheet.</summary>

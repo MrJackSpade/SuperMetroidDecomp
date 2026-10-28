@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using System.Reflection;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus.Abilities;
@@ -30,7 +29,6 @@ internal static class InstalledPowerBombIsolationTests
     private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     /// <summary>Runs five installed palette edits through Power Bomb and Crystal Flash, comparing mechanics, color windows, cleanup, and WARP/D3D pixels.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(string installationRoot)
     {
         string stockDirectory = Path.Combine(Path.GetFullPath(installationRoot), "game", "maps");

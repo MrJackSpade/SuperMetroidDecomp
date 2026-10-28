@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// The pause screen's VRAM allocation (#630). Pause keeps its own PPU image; its BG3 plane
 /// retains the gameplay HUD rows at the gameplay HUD tilemap's location.
 /// </summary>
-[PpuLayoutBoundary("catalog: pause screen VRAM")]
 [NumberedIdentities("BG1, BG2 and BG3 are the PPU's distinct background layers, each with its own pause-screen role and size: the 64x32 map or equipment page, the 32x32 frame and the 32x64 HUD plane. The number names the hardware layer, not a position.")]
 internal static class PauseVramLayout
 {

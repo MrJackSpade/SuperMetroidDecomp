@@ -16,7 +16,6 @@ using SuperMetroid.AssetExtraction.Samus;
 internal static class NormalSuitPalettePointersVerification
 {
     /// <summary>Compares four equipment selections and every installed Samus CGRAM color.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyNormalSuitPalettePointers()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

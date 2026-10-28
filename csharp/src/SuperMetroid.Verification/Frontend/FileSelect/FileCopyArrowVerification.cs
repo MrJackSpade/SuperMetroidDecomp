@@ -17,7 +17,6 @@ using SuperMetroid.Verification.Harness;
 internal static class FileCopyArrowVerification
 {
     /// <summary>Compares native arrow parts and the eight-tick palette delay.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyFileCopyArrow()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

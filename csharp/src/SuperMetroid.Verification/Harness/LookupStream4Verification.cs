@@ -88,7 +88,6 @@ internal static class LookupStream4Verification
         [14, 15];
 
     /// <summary>Checks every foreground explosion palette hold, CGRAM exposure, deletion, and star handoff tick.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream4ForegroundCadence(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyZebesExplosionForegroundPaletteFxColorDefinitions), () => VerifyZebesExplosionForegroundPaletteFxColorDefinitions(rom));
@@ -198,7 +197,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Runs both title ambient loops for two cycles and checks per-tick CGRAM colors without live cartridge reads.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream4TitleAmbientMechanics(CartridgeImportAddressSpace rom)
     {
         int ticks = 0;
@@ -252,7 +250,6 @@ internal static class LookupStream4Verification
         Console.WriteLine("Title ambient mechanics:28 native controls, independent record decoding,164 actual per-tick CGRAM states, untouched colors and mechanics read guard pass; independent color artwork remains pending.");
     }
     /// <summary>Combines title ambient palette artwork and mechanics checks through the installed color source.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream4TitleAmbientComplete(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyLookupStream4TitleAmbientColors), () => VerifyLookupStream4TitleAmbientColors(rom));
@@ -556,7 +553,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Ceres fade phases, native color rows, and installed CGRAM exposure.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream4CeresFades(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
@@ -627,7 +623,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Ceres alarm palette timing and color output at its native CGRAM destination.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream4CeresAlarm(ISnesAddressSpace rom)
     {
         ushort Native(int row, int color)
@@ -1184,7 +1179,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks ending subtitle glyph selection and layout against imported presentation data.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyLookupStream4EndingSubtitle(ISnesAddressSpace rom)
     {
         byte[] source = EndingTextExtractor.Extract(rom);
@@ -1293,7 +1287,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks the Baby Metroid transfer graphics phase at the native VRAM locations.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyLookupStream4BabyTransferPhase(ISnesAddressSpace rom)
     {
         for (int phase = 0; phase < 4; phase++)
@@ -1462,7 +1455,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks the installed HUD top row at the native VRAM tile positions.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyLookupStream4HudTopRow(ISnesAddressSpace rom)
     {
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);
@@ -1728,7 +1720,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks beam palette relations and installed CGRAM and VRAM output against native data.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyLookupStream4BeamColorRelations(ISnesAddressSpace rom)
     {
         byte[] source = BeamPaletteExtractor.Extract(rom);
@@ -2374,7 +2365,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Draygon intro palette phases and installed CGRAM colors against native stages.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream4DraygonIntro(ISnesAddressSpace rom)
     {
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
@@ -2441,7 +2431,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Draygon sprite palette stages and their installed CGRAM output.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream4DraygonSprite(ISnesAddressSpace rom)
     {
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
@@ -2503,7 +2492,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Draygon background palette stages and their installed CGRAM output.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream4DraygonBackground(ISnesAddressSpace rom)
     {
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
@@ -2567,7 +2555,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Draygon health-driven palette selection and installed CGRAM output.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream4DraygonHealth(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyLookupStream4DraygonColors), () => VerifyLookupStream4DraygonColors(rom));
@@ -2632,7 +2619,6 @@ internal static class LookupStream4Verification
         Console.WriteLine("Draygon health:32 native colors/zero overrides,96RGB edits/hash,776full copies,48actual health calls and48actual hurt calls/read guard/held band/restore pass.");
     }
     /// <summary>Checks imported Draygon color rows against the native palette source.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyLookupStream4DraygonColors(ISnesAddressSpace rom)
     {
         byte[] original = DraygonColorExtractor.Extract(rom);
@@ -2689,7 +2675,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Norfair reveal room palette frames and destination colors against cartridge data.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream4NorfairReveal(ISnesAddressSpace rom)
     {
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
@@ -2779,7 +2764,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Norfair initial palette state and its installed CGRAM colors.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream4NorfairInitial(ISnesAddressSpace rom)
     {
         ushort[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + i * 2))).ToArray();
@@ -2873,7 +2857,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Botwoon color progression and installed CGRAM slots against native rows.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream4BotwoonColors(ISnesAddressSpace rom)
     {
         byte[] original = BotwoonColorExtractor.Extract(rom);
@@ -3037,7 +3020,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks beam tile geometry and installed VRAM words against native layouts.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyLookupStream4BeamTileGeometry(ISnesAddressSpace rom)
     {
         int diagonalX = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x93D110) & 0x1FF;
@@ -3161,7 +3143,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Ceres starting palette state and installed CGRAM colors.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream4CeresStart(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
@@ -3216,7 +3197,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Ceres Baby palette phases and installed CGRAM colors.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream4CeresBaby(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
@@ -3307,7 +3287,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks shared Ceres retreat colors and phase ownership against cartridge rows.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream4CeresRetreatShared(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
@@ -3348,7 +3327,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Ceres zoom and retreat palette phases in their native order.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream4CeresZoomAndRetreat(ISnesAddressSpace rom)
     {
         byte[] zoomJson = CeresRidleyMode7ColorExtractor.Extract(rom);
@@ -3427,7 +3405,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Ceres health-dependent palette phases and installed CGRAM output.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream4CeresHealth(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);

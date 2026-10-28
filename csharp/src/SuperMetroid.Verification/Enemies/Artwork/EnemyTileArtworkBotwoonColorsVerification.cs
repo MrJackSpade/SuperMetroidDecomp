@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;
@@ -22,7 +21,6 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
     /// <summary>Compares 128 stock colors with the ROM and checks edited colors flow through live health-band updates.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyInstalledBotwoonColors(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {

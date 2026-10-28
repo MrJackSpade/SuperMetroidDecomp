@@ -17,7 +17,6 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 internal static class FrozenMetroidShellVerification
 {
     /// <summary>Reproduces the empty shell frame and compares all emitted frozen sprite parts while the animation timer remains held (#1207).</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static int VerifyFrozenMetroidShell()
     {
         var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };

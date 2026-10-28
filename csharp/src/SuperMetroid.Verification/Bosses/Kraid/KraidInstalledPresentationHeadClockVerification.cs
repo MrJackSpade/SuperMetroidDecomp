@@ -17,7 +17,6 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 internal static class KraidInstalledPresentationHeadClockVerification
 {
     /// <summary>Replacing every head image must not replace the compiled clock, callback or mouth window.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyKraidInstalledHeadIsolation(CartridgeImportAddressSpace source, string directory, InstalledEnemyArtwork stock)
     {
         var native = new KraidHeadNativeCursors(CartridgeImportSource.Require(source));

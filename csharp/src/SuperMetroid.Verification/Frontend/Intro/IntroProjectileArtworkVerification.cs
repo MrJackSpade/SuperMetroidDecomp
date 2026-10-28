@@ -2,7 +2,6 @@ using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -18,7 +17,6 @@ internal static class IntroProjectileArtworkVerification
     /// Checks flashback shots, explosions and trails show their frames of the intro's projectile sheet, that saved states
     /// exclude the sheets, and that a restored intro draws alike once rebound.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyIntroProjectileArtwork(ushort sprite)
     {
         var intro = CreateRetailIntroFixture();

@@ -3,7 +3,6 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -19,7 +18,6 @@ namespace SuperMetroid.Verification.Enemies.SpacePirates;
 internal static class NinjaSpacePiratePaletteArtworkVerification
 {
     /// <summary>Compares native CGRAM, checks an isolated live color edit, and verifies guard and override persistence.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyInstalledNinjaSpacePiratePalette(ISnesAddressSpace bus,
         string stockDirectory, InstalledEnemyArtwork stock)
     {

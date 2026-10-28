@@ -2,7 +2,6 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -15,7 +14,6 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 internal static class AffineFloorFixtures
 {
     /// <summary>The floor <paramref name="image"/>'s map and characters show, coloured from <paramref name="palette"/>.</summary>
-    [PpuLayoutBoundary("exact hardware test: decodes a fixture's Mode 7 characters, the high byte of each VRAM word")]
     internal static AffineFloor Floor(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette)
     {
         var pixels = new byte[FloorTilePictures.Tiles * FloorCharacterSheet.TileBytes];

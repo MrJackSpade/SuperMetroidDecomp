@@ -75,7 +75,6 @@ internal static class CrocomireBodyVisualsVerification
         AssertTrue(!loaded.TryGet(0xca7e, out _), "pure-OAM frame excluded from BG2 catalog");
     }
     /// <summary>Compares installed OAM and VRAM output for every body frame with visual ROM reads denied, then checks a BG2 edit obeys the new-frame gate.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
     internal static void VerifyInstalledCrocomireBodyVisuals(
         SuperMetroidAddressSpace rom, string stockDirectory,
         InstalledEnemyArtwork stock)

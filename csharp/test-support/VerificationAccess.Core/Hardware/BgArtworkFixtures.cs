@@ -39,7 +39,6 @@ internal static class BgArtworkFixtures
         /// Writes each binding's bytes over <paramref name="image"/>, a VRAM image, from the word the cartridge keeps its
         /// set's first bound character at, oldest first.
         /// </summary>
-        [PpuLayoutBoundary("exact hardware test: composes bound background characters at their native VRAM words")]
         internal void ComposeOver(Span<byte> image)
         {
             Ensure.LengthEqual(image, SnesVram.ByteCount);

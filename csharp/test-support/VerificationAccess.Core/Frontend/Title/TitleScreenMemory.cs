@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Title;
@@ -8,7 +7,6 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// Composes the title's published artwork into the memory image the backends draw (#1358): the interleaved Mode 7
 /// characters and map, the OBJ characters, and the Baby Metroid page the animation currently shows.
 /// </summary>
-[PpuLayoutBoundary("exact hardware test: the title's Mode 7 planes, OBJ characters and Baby Metroid page at their native words")]
 internal static class TitleScreenMemory
 {
     /// <summary>The memory image of <paramref name="artwork"/> with Baby Metroid source page <paramref name="babySourcePage"/> shown.</summary>

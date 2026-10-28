@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Frontend.Ending.EndingLogoTablesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -17,7 +16,6 @@ internal static class EndingPostShotVerification
 {
     /// <summary>Compares every post-shot frame with native timing and exact palette and VRAM contents.</summary>
     /// <param name="bus">Retail cartridge data used as the expected artwork and palette source.</param>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyEndingPostShot(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyEndingPostShotTransferFields), () => VerifyEndingPostShotTransferFields(bus));

@@ -42,7 +42,6 @@ internal static class CeresRidleyGetawayDefinitionsVerification
     }
 
     /// <summary>Checks seven compiled transfer lists and their low-byte-only VRAM effects.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyCompiledCeresRidleyMode7Transfers(SuperMetroidAddressSpace rom)
     {
         int checkedTransfers = 0;

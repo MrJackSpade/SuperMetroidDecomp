@@ -1,5 +1,4 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
@@ -13,7 +12,6 @@ using SuperMetroid.Core.Escape.Artwork;
 internal static class MotherBrainDeathHandoffVerification
 {
     /// <summary>Checks visible glyph delays and clicks, then verifies the four-block escape door extension.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyMotherBrainDeathHandoff()
     {
         var vram = new SnesVram();

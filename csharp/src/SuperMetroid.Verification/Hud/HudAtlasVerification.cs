@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
@@ -33,7 +32,6 @@ internal static class HudAtlasVerification
     /// that rebinding artwork shows the new characters from the next accepted NMI whether or not one has passed since the
     /// HUD was set up.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyHudAtlasIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original, ImportedAreaMap[] rules,
         GameplayBasePaletteCatalog initialPalettes,

@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Samus.Artwork;
@@ -12,7 +11,6 @@ internal static class BeamTileAtlasAccess
     extension(BeamTileAtlas self)
     {
         /// <summary>Writes the atlas transfer bytes at the beam tile base word.</summary>
-        [PpuLayoutBoundary("codec: beam tile transfer at its native VRAM word")]
         internal void LoadTo(SnesVram vram) =>
             vram.LoadBytes(ObjCharacterNativeWords.Of(ProjectileObjectPageDefinitions.BeamFirstCharacter) * 2, self.Characters.Span);
     }

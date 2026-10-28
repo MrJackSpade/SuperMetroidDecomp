@@ -4,7 +4,6 @@ using SuperMetroid.Core.Samus.Drawing;
 using System.Text;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -82,7 +81,6 @@ internal static class SamusVisorColorsVerification
     }
 
     /// <summary>Compares 32 room updates for timer, source offset, and CGRAM slot 196 without installed table reads.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyInstalledRoomVisorCycle(ISnesAddressSpace rom,
         SamusVisorColorCatalog catalog)
     {
@@ -115,7 +113,6 @@ internal static class SamusVisorColorsVerification
     }
 
     /// <summary>Compares widening and full-beam X-ray color cycles, including the offset-six restart.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyInstalledXrayVisorCycle(ISnesAddressSpace rom,
         SamusVisorColorCatalog catalog)
     {
@@ -172,7 +169,6 @@ internal static class SamusVisorColorsVerification
     }
 
     /// <summary>Checks edited visor colors through newly bound Samus room/X-ray states and stock identity restoration.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifySamusVisorColorOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline, ISnesAddressSpace rom,
         GameplayBasePaletteCatalog initialPalettes, MapPresentationInstalledRoomAssets fixtureAssets)

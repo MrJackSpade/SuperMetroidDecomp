@@ -2,7 +2,6 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -17,7 +16,6 @@ using SuperMetroid.TestSupport.FrameRendering;
 internal static class EndingCloudPlacementVerification
 {
     /// <summary>Checks ending scene B's cloud origins and motion through fade-out against independently stepped actors.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyEndingCloudPlacement()
     {
         Suite(nameof(VerifyEndingTakeoffColorMath), () => VerifyEndingTakeoffColorMath(checkWrapping: true));

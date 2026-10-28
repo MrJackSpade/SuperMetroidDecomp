@@ -86,7 +86,6 @@ internal static class WordReadsVerification
     }
 
     /// <summary>Checks BG screen-block geometry, planar pixel decoding, and VRAM word wrapping.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks the PPU tilemap, character and VRAM word formats")]
     private static void VerifyBackgroundFormatModel()
     {
         // BGSC screen blocks run top-left, top-right, bottom-left, bottom-right, $400 words each.

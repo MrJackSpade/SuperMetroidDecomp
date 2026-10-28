@@ -1,7 +1,6 @@
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -17,7 +16,6 @@ using SuperMetroid.Verification.Harness;
 internal static class RoomBackgroundTilemapsVerification
 {
     /// <summary>Compares all retail sources, Ceres VRAM parity, and the effect of a single JSON tile edit.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyRoomBackgroundTilemapExtraction()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");

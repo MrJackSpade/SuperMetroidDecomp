@@ -12,7 +12,6 @@ using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
@@ -138,7 +137,6 @@ internal static class RoomBlockUploads
     /// The frames one state of a room's animations paint over the block characters (#1406): its room effects' animated
     /// tiles and the Tourian statues' pictures.
     /// </summary>
-    [PpuLayoutBoundary("codec: the VRAM words a room's animated tiles and the Tourian statues' pictures land on")]
     private static IEnumerable<AnimatedCharacterPlacement> AnimatedFrames(RoomBlockSheetInputs inputs, RoomHeaderDefinition room,
         RoomStateSettings state)
     {
@@ -221,7 +219,6 @@ internal static class RoomBlockUploads
     /// Replays <paramref name="program"/> as a room of <paramref name="tileset"/> entered through <paramref name="door"/>
     /// runs it, over the characters the room loads: the BG2 pages it leaves and what shows at each character then.
     /// </summary>
-    [PpuLayoutBoundary("codec: the BG2 tilemap pages a library background loads")]
     private static RoomBackgroundMap Replay(RoomBlockSheetInputs inputs, RoomHeaderDefinition room, TilesetDefinition tileset,
         LibraryBackgroundProgram program, DoorDefinition? door)
     {
@@ -293,7 +290,6 @@ internal static class RoomBlockUploads
             .Where(RoomLayer3FxState.ShowsPage).Distinct();
 
     /// <summary>Each frame a room effect of <paramref name="type"/> animates over BG3's characters.</summary>
-    [PpuLayoutBoundary("codec: the VRAM words a room effect's animated tiles land on")]
     internal static IEnumerable<AnimatedCharacterPlacement> EffectCharacters(RoomBlockSheetInputs inputs, RoomFxType type)
     {
         AnimatedTileObject animatedObject = RoomFxAnimatedTilesState.ObjectOf(type);
@@ -311,7 +307,6 @@ internal static class RoomBlockUploads
     /// characters to his base.
     /// </summary>
     /// <exception cref="InvalidDataException">A transfer over BG3's characters names no installed character artwork.</exception>
-    [PpuLayoutBoundary("codec: the VRAM words a room's library background transfers BG3 characters to")]
     private static IEnumerable<BgCharacterPlacement> Bg3LibraryUploads(RoomBlockSheetInputs inputs, RoomStateSettings state)
     {
         foreach (LibraryBackgroundInstruction transfer in state.Background?.Instructions ?? [])
@@ -353,7 +348,6 @@ internal static class RoomBlockUploads
     }
 
     /// <summary>Each frame an animated-tile object the port runs shows; none for an object it does not animate.</summary>
-    [PpuLayoutBoundary("codec: the VRAM words an animated-tile object's frames land on")]
     private static IEnumerable<AnimatedCharacterPlacement> AnimatedTiles(RoomBlockSheetInputs inputs, AnimatedTileObject animatedObject)
     {
         if (WreckedShipTreadmillMechanicsDefinitions.TryResolve(animatedObject, out WreckedShipTreadmillObjectDefinition? treadmill))

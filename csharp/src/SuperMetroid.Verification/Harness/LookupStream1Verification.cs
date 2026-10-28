@@ -87,7 +87,6 @@ internal static class LookupStream1Verification
         0xe888];
 
     /// <summary>Checks world-map BG3 primitives and residual pixels against native tiles, including edited full uploads.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyLookupStream1WorldBackground(ISnesAddressSpace rom)
     {
         byte[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => LookupStream1WorldBackgroundRomByte(rom, address + i)).ToArray();
@@ -459,7 +458,6 @@ internal static class LookupStream1Verification
     /// <summary>Reads the native centisecond correction table in bank $80.</summary>
     private static byte LookupStream1TimerCadenceRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks escape timer glyph geometry, independently edited pixels, and encoded VRAM output.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyLookupStream1TimerGlyphs(ISnesAddressSpace rom)
     {
         byte[] png = EscapeTimerTileAtlasExtractor.Extract(rom);
@@ -1474,7 +1472,6 @@ internal static class LookupStream1Verification
     private static byte LookupStream1HudPostureRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the escape timer's anchors, its sheet draws against the native sprites, and independent anchor and spacing edits.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyLookupStream1TimerLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => SnesLittleEndian.Word(LookupStream1TimerLayoutRomByte(rom, address), LookupStream1TimerLayoutRomByte(rom, address + 1));
@@ -1536,7 +1533,6 @@ internal static class LookupStream1Verification
     /// <summary>Reads native escape timer OAM layout bytes.</summary>
     private static byte LookupStream1TimerLayoutRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks flare origin words, independent placement edits, and emitted OAM.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyLookupStream1FlarePlacement(ISnesAddressSpace rom)
     {
         short Word(int address) => unchecked((short)(SnesLittleEndian.Word(LookupStream1FlarePlacementRomByte(rom, address), LookupStream1FlarePlacementRomByte(rom, address + 1))));
@@ -1925,7 +1921,6 @@ internal static class LookupStream1Verification
     private static byte LookupStream1DeathDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks charge-flare sprite selectors and extracted visual records against native pointers.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyLookupStream1VisualCatalogs(ISnesAddressSpace rom)
     {
         ushort Word(int address) => SnesLittleEndian.Word(LookupStream1VisualCatalogsRomByte(rom, address), LookupStream1VisualCatalogsRomByte(rom, address + 1));
@@ -2429,7 +2424,6 @@ internal static class LookupStream1Verification
     private static byte LookupStream1AtmosphericAttributesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks extracted escape typewriter glyph and placement data against native text drawing.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyLookupStream1EscapeText(ISnesAddressSpace rom)
     {
         byte[] json = EscapeTypewriterExtractor.Extract(rom);
@@ -2572,7 +2566,6 @@ internal static class LookupStream1Verification
     private static byte LookupStream1VisorColorsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks world-map foreground pixels and independently edited tile uploads.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyLookupStream1WorldForeground(ISnesAddressSpace rom)
     {
         byte[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => LookupStream1WorldForegroundRomByte(rom, address + i)).ToArray();
@@ -2828,7 +2821,6 @@ internal static class LookupStream1Verification
     /// <summary>Reads native projectile program words for control and hold comparison.</summary>
     private static byte LookupStream1ProjectileProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks cannon placement relative to Samus body poses and edited artwork geometry.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyLookupStream1CannonPlacement(ISnesAddressSpace rom)
     {
         using var directory = new TestScratchDirectory("map-catalog");
@@ -3000,7 +2992,6 @@ internal static class LookupStream1Verification
     /// Checks that a zero OAM pointer-table entry draws nothing: it would dereference $92:0000 direct-page scratch,
     /// which the port exempts (owner decision on #1318).
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifySamusZeroOamSelectorDrawsNothing(SamusSpritemapArtworkCatalog stock)
     {
         OamBuffer oam = SamusSpritemapDrawsAccess.SamusSpritemapOam(3, new Position16<ScreenPixels>(127, 131),
@@ -3096,7 +3087,6 @@ internal static class LookupStream1Verification
     /// <summary>Reads planar Samus body tile bytes before derived pixel expansion.</summary>
     private static byte LookupStream1BodyPixelsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks body tile DMA definitions and actual native-sized VRAM transfer output.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyLookupStream1BodyTransfers(ISnesAddressSpace rom)
     {
         using var directory = new TestScratchDirectory("map-catalog");

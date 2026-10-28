@@ -23,7 +23,6 @@ using SuperMetroid.Core.Progression;
 internal static class BeamTileArtworkVerification
 {
     /// <summary>Compares all beam selections with native VRAM, checks one-pixel edits, and exercises queued artwork rebinding.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyBeamTileArtwork(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyProjectileTrailDefinitions), () => VerifyProjectileTrailDefinitions(bus));
@@ -89,7 +88,6 @@ internal static class BeamTileArtworkVerification
     }
 
     /// <summary>Reconstructs the cartridge's selected beam tile transfer and palette as a native comparison fixture.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void LoadNativeBeamFixture(ISnesAddressSpace bus, SnesVram? vram,
         SnesCgram cgram, VramWriteQueue? queue, ushort selection)
     {

@@ -48,7 +48,6 @@ internal static class ImportedSpritemapsVerification
     /// <summary>Reads one native enemy frame-selector byte for the executed-instruction check.</summary>
     private static byte ExecutedEnemySelectorRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Compares the executed projectile frame's installed OAM with its native selector and spritemap.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyExecutedProjectileFrame(ISnesAddressSpace rom,
         RoomEnemyProjectileSlot projectile, EnemyProjectileSpritemapCatalog artwork,
         HashSet<ushort> executedOperands, ushort? expectedOperand = null)

@@ -48,7 +48,6 @@ internal static class MessageBoxSheetComposer
     }
 
     /// <summary>Composes <paramref name="tileset"/>'s message box images of <paramref name="messages"/>.</summary>
-    [PpuLayoutBoundary("codec: the HUD characters a message's tile words name")]
     internal static ComposedSpriteSheet Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset,
         IReadOnlyDictionary<string, ImmutableArray<ushort>> messages)
     {

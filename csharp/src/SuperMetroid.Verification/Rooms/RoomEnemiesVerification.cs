@@ -84,7 +84,6 @@ static void SeedRoomEnemyLoadingArtworkAndSpawnData(
 /// Checks room-enemy population, 64-byte headers, graphics staging, palettes, spawn
 /// snapshots, and the empty-population branch against a cartridge-shaped fixture.
 /// </summary>
-[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
 internal static void VerifyRoomEnemyLoading()
 {
     const ushort populationPointer = 0x9100;
@@ -688,7 +687,6 @@ private static CeresDoorVisualCatalog CreateCeresDoorFixtureVisuals(TestAddressS
 /// Proves that the stationary Ceres elevator platform is animated by the room's variant-two
 /// door actor, not by either arrival projectile that is deleted when the platform lands.
 /// </summary>
-[PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
 internal static void VerifyCeresElevatorPlatformAnimation()
 {
     const EnemyDefinitionId definitionPointer = EnemyDefinitionId.CeresDoor;
@@ -818,7 +816,6 @@ static List<VramWriteEntry> ReadRetailCeresEscapeTransfers(ISnesAddressSpace rom
 /// room $E0B5. This fixture uses native $A0/$A1/$A6/$B4 layouts and follows the translated
 /// dispatcher through the complete initial delay, eye fade, and body fade.
 /// </summary>
-[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
 internal static void VerifyCeresRidleyRoomEntry()
 {
     const EnemyDefinitionId definitionPointer = EnemyDefinitionId.RidleyCeres;

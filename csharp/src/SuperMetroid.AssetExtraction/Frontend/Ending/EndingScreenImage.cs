@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
@@ -10,7 +9,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// Replays the ending's recorded transfers over the bound artwork into the memory image the backends draw (#1358), each
 /// at the native words, lanes and order its transfer wrote.
 /// </summary>
-[PpuLayoutBoundary("codec: the ending's transfers at their native VRAM words")]
 internal static class EndingScreenImage
 {
     /// <summary>The image <paramref name="uploads"/> leave over <paramref name="artwork"/>, in order.</summary>

@@ -33,7 +33,6 @@ using SuperMetroid.Core.Gameplay;
 internal static class ChargeFlarePlacementVerification
 {
     /// <summary>Compares stock flare placement across pose, direction, coordinate, and Mode 7 cases, then checks edited offsets and state isolation.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyChargeFlarePlacement(SuperMetroidAddressSpace bus)
     {
         Suite(nameof(VerifyChargeFlareCompositions), () => VerifyChargeFlareCompositions(bus));
@@ -160,7 +159,6 @@ internal static class ChargeFlarePlacementVerification
     }
 
     /// <summary>Confirms stock and edited flare offsets flow through actor drawing, artwork rebinding, and debugger restoration.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyRuntimeFlarePlacement(ChargeFlarePlacementCatalog stock, ChargeFlarePlacementCatalog edited)
     {
         var random = new SharedRandom();

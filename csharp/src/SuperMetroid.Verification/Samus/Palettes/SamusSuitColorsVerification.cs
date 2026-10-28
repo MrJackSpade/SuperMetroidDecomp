@@ -3,7 +3,6 @@ using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
@@ -29,7 +28,6 @@ using SuperMetroid.AssetExtraction.Samus;
 internal static class SamusSuitColorsVerification
 {
     /// <summary>Compares all three suit palettes to retail colors and checks catalog bounds and CGRAM installation.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyNormalSuitCatalogBoundary()
     {
         var cartridge = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -114,7 +112,6 @@ internal static class SamusSuitColorsVerification
     }
 
     /// <summary>Checks edited suit colors through live loading, restoration, hurt recovery, and Ceres entry.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifySamusSuitColorOverride(
         string stockDirectory,
         string overrideDirectory,

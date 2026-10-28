@@ -161,7 +161,6 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks Wrecked Ship ghost palette phases against native CGRAM writes.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream2GhostPalette(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(new EnemySession());
@@ -230,7 +229,6 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks Old Tourian accent durations, repeated colors, and per-tick CGRAM updates.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream2TourianAccentCadence(CartridgeImportAddressSpace rom)
     {
         foreach (var definition in OldTourianEscapeAccentPaletteFxColorDefinitions.All)
@@ -276,7 +274,6 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks projectile identity selectors, extracted compositions, and 417 actual OAM drawings.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyLookupStream2ProjectileIdentityGeometry(ISnesAddressSpace rom)
     {
         var expected = new SortedSet<ushort>();
@@ -506,7 +503,6 @@ internal static class LookupStream2Verification
         Console.WriteLine("Environmental catalogs:six native definition/color/loop bindings,292mechanics words,16heat phase bytes,actual complete/repeating cycles,live colors,enumeration/order and bounds pass; accent timing and independent colors remain pending.");
     }
     /// <summary>Checks extracted pause backdrop geometry, independent edits, and VRAM tile output.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyLookupStream2BackdropGeometry(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseBackdropExtractor.Extract(rom);
@@ -945,7 +941,6 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks Dead Torizo corpse-tile geometry and native OAM composition.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyLookupStream2DeadTorizoGeometry(SuperMetroidAddressSpace rom)
     {
         var expected = new byte[0x1000];
@@ -1388,7 +1383,6 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks trail instruction words and emitted OAM across the compiled programs.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyLookupStream2TrailPrograms(ISnesAddressSpace bus)
     {
         byte[] json = ProjectileTrailExtractor.Extract(bus);
@@ -1520,7 +1514,6 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks Mother Brain tube palette ramps and actual CGRAM sequence.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream2TubeRamp(ISnesAddressSpace rom)
     {
         PaletteRgb5[] Read(int address) => Enumerable.Range(0, 32).Select(index =>
@@ -1690,7 +1683,6 @@ internal static class LookupStream2Verification
         Console.WriteLine("Gunship transfers: all10 native source/destination fields, five typed identities, the pages shown/phase handoff, enumeration and bounds pass.");
     }
     /// <summary>Checks reserve arrow RGB5 colors, independent edits, and CGRAM placement.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream2ReserveArrowColors(ISnesAddressSpace rom)
     {
         byte[] source = PauseReserveUiExtractor.Extract(rom);
@@ -1889,7 +1881,6 @@ internal static class LookupStream2Verification
         Console.WriteLine("Stream 2 palette mechanics: original mechanics, inline color offsets, durations, dispatch and bounds pass.");
     }
     /// <summary>Checks Crystal Flash body colors and emitted CGRAM against extracted native phases.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream2CrystalBody(ISnesAddressSpace rom)
     {
         byte[] source = CrystalFlashColorExtractor.Extract(rom);
@@ -2155,7 +2146,6 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks Golden Torizo foot extended frames, OAM geometry, and independent edits.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyLookupStream2GoldenTorizoFootGeometry(SuperMetroidAddressSpace rom)
     {
         var definitions = EnemyExtendedFrameDefinitions.Frames.ToArray();

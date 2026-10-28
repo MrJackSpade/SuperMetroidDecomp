@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Diagnostics.SaveStates;
@@ -20,7 +19,6 @@ internal static class TitleScreenPublicationVerification
     /// $3800, and every frame draws the title's own palette and sprite entries. A debugger round trip keeps the title
     /// state and, once the artwork is rebound, shows the same frame.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: reads the Baby Metroid characters' native Mode 7 VRAM high bytes")]
     internal static void VerifyTitleScreenPublication()
     {
         var maps = InstalledFixtures.Maps;

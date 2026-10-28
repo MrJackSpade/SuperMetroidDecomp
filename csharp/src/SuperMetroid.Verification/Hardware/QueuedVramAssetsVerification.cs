@@ -17,7 +17,6 @@ internal static class QueuedVramAssetsVerification
     }
 
     /// <summary>Compares byte-port wrap and stride, mixed queue order, capacity, and late asset resolution after serialization.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyQueuedVramAssets()
     {
         foreach (ushort destination in new ushort[] { 0, 0x7fff, 0x8000, 0xffff })

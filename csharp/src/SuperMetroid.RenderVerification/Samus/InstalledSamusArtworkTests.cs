@@ -85,7 +85,6 @@ internal static class InstalledSamusArtworkTests
     { if (!condition) throw new InvalidOperationException(message); }
 
     /// <summary>Checks each body definition's picture, as the body shows it alone, with stock and edited art.</summary>
-    [PpuLayoutBoundary("exact hardware test: pictures body characters through emulated sprite characters")]
     private static int CheckBodyTransfers(InstalledSamusArtworkFixture fixture,
         ArtworkPixelCheck check)
     {
@@ -128,7 +127,6 @@ internal static class InstalledSamusArtworkTests
     private static int ObjectCharacterByte(int character) => ObjectCharacterWord(character) * sizeof(ushort);
 
     /// <summary>Checks queued arm-cannon uploads across an installed-artwork rebind.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static int CheckQueuedTransfers(InstalledSamusArtworkFixture fixture, ArtworkPixelCheck check)
     {
         int count = 0;

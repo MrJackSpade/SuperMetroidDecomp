@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
@@ -8,7 +7,6 @@ internal static class AffineFloorConstants
 {
     /// <summary>The floor a frontend scene's memory image <paramref name="image"/> maps, showing <paramref name="tiles"/>.</summary>
     /// <exception cref="ArgumentException">The image is not a whole memory image.</exception>
-    [PpuLayoutBoundary("capture: Mode 7's tile map, the low byte of each of the first 16384 VRAM words")]
     public static AffineFloor Capture(ReadOnlySpan<byte> image, FloorTilePictures tiles)
     {
         Ensure.LengthEqual(image, SnesPpuLayout.VramByteCount);

@@ -340,7 +340,6 @@ level, fallLeft, 0, unchecked((ushort)(frame + 1))),
 /// indirections. These checks deliberately keep Space Jump physics independent from the
 /// visible Screw Attack pose used when both retail item bits are equipped.
 /// </summary>
-[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 internal static void VerifySamusSpaceJumpAndScrewAttack()
 {
     TestAddressSpace bus = CreateSpaceJumpAndScrewAttackCartridge();
@@ -1043,7 +1042,6 @@ CreateEmptyRoom(new(16, 16)), fallingRelease, controllerInput: 0, frameCounter: 
 /// Checks the producer, packed-slot interpreter, OAM path, sound publications, and periodic
 /// fixed-point damage translated from `$90:8000-$82DB/$8A4C-$8C1E/$A3E5/$E9CE`.
 /// </summary>
-[PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
 internal static void VerifySamusAtmosphericEffects()
 {
     TestAddressSpace bus = CreateSamusAtmosphericEffectsCartridge();

@@ -99,7 +99,6 @@ internal static class RidleySupplementalArtworkVerification
     }
 
     /// <summary>Checks exact OAM image content and byte count for a supplemental draw.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void AssertRidleySupplementOam(
         OamBuffer expected, OamBuffer actual, string description) =>
         AssertTrue(expected.ImageEquals(actual) &&

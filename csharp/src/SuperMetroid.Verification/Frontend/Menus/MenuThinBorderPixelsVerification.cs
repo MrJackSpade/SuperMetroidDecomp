@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Menus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -13,7 +12,6 @@ namespace SuperMetroid.Verification.Frontend.Menus;
 internal static class MenuThinBorderPixelsVerification
 {
     /// <summary>Compares stock atlas uploads and every border pixel, then checks edited art and invalid coordinates.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyMenuThinBorderPixels(ISnesAddressSpace rom)
     {
         int[] tiles = [0xad, 0xae];

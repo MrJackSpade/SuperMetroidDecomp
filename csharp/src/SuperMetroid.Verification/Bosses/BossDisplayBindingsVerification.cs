@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsClippingVerification;
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsDocumentsVerification;
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsFixtureVerification;
@@ -17,7 +16,6 @@ using SuperMetroid.Verification.Harness;
 internal static class BossDisplayBindingsVerification
 {
     /// <summary>Acceptance for the source-identified mismatch between selected OAM and physical BG2.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyBossDisplayBindings()
     {
         var stock = new BossDisplayDocuments(edited: false);
@@ -72,7 +70,6 @@ internal static class BossDisplayBindingsVerification
     }
 
     /// <summary>Compares every expected BG2 tilemap word after ordered boss-frame writes.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void AssertBossBg2(SnesVram actual, EnemyBg2WriteDocument[] writes)
     {
         var expected = new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight];

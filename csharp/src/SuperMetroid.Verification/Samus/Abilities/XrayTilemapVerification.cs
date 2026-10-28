@@ -9,7 +9,6 @@ namespace SuperMetroid.Verification.Samus.Abilities;
 internal static class XrayTilemapVerification
 {
     /// <summary>Confirms four-piece reveals survive block extensions and viewport edges without crossing native BG1 screen boundaries.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyXrayTilemap()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

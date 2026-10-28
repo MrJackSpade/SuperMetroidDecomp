@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Rooms.RoomEnemiesVerification;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using static SuperMetroid.Verification.Areas.Ceres.CeresEscapeOverlayTilemapsVerification;
 using static SuperMetroid.Verification.Areas.Ceres.Artwork.CeresEscapeTileArtworkVerification;
@@ -185,7 +184,6 @@ internal static class EnemyTileArtworkVerification
     }
 
     /// <summary>Extracts stock enemy art and runs tile, palette, BG, spritemap and live override checks for the supported retail revision.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyEnemyTileArtwork()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");

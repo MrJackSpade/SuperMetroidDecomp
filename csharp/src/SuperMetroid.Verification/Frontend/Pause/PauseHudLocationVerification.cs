@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Frontend.Pause;
@@ -15,7 +14,6 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 internal static class PauseHudLocationVerification
 {
     /// <summary>Checks that pause retains the native minimap tile and its native inks for both blink phases.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native BG3 tilemap words")]
     internal static void VerifyPauseHudLocation()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

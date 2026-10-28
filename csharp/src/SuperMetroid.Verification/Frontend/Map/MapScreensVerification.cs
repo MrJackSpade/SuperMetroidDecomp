@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.InstalledFileSelectMapVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
@@ -27,7 +26,6 @@ namespace SuperMetroid.Verification.Frontend.Map;
 internal static class MapScreensVerification
 {
     /// <summary>Compares six areas' VRAM and pixels, then verifies independent JSON and PNG edits, restored menus, and strict resource validation.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyMapScreens(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var guard = NewMapScreenGuard(bus);

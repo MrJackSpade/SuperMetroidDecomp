@@ -232,7 +232,6 @@ internal sealed class MotherBrainRainbowAndDeath
     }
 
     /// <summary>Writes a glyph the Zebes escape typewriter typed over Mother Brain's room BG2 (#1348).</summary>
-    [PpuLayoutBoundary("codec: the Zebes escape typewriter program's native BG2 tilemap destinations")]
     private void WriteZebesTypewriterGlyph(EscapeTypewriterGlyph glyph) =>
         _room.Services.DrawBg2Overlay(glyph.Cell, [glyph.Tile.Raw]);
 

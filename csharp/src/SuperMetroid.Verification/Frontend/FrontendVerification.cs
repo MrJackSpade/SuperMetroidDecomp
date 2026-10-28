@@ -392,7 +392,6 @@ internal static void VerifySavedGameLoadAppearance()
 }
 
 /// <summary>Confirms intro flashbacks inherit eight pixels of BG1 scroll and Mother Brain shake oscillates around it.</summary>
-[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 internal static void VerifyIntroGameplayFlashbackVerticalScroll()
 {
     // `$8B:A66F` installs BG1VOFS eight for the illustrated page. The two following
@@ -423,7 +422,6 @@ internal static void VerifyIntroGameplayFlashbackVerticalScroll()
 }
 
 /// <summary>Checks native byte-offset clearing and fixed-point fade rounding over 32 cinematic palette steps.</summary>
-[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 internal static void VerifyCinematicPaletteFader()
 {
     var target = new ushort[SnesCgram.ColorCount];

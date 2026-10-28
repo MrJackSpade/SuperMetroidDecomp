@@ -402,7 +402,6 @@ internal static class RoomFxRetailInventoryVerification
     /// bank-$87 animation. The body alone is insufficient: the first source row begins one
     /// tile above the liquid coordinate and must remain visible as the bubbling boundary.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyRetailLavaSurface(
         SuperMetroidAddressSpace bus,
         IReadOnlyList<RetailFxRoomState> states)
@@ -915,7 +914,6 @@ internal static class RoomFxRetailInventoryVerification
     }
 
     /// <summary>Seeds nonzero BG3 colors before FX-specific blends so visibility does not depend on a room graphics set.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void SeedVisibleRoomFxPalette(GameplayColours cgram)
     {
         // Standard room palettes normally provide these colors before LoadFXHeader applies

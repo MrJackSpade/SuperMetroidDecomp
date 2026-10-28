@@ -29,7 +29,6 @@ internal static class ChainsawFiringVerification
 {
     /// <summary>Checks the production firing and collision path against native-chainsaw-fire-probe, including bomb-owned slot ordering and the unstable charged callback.</summary>
     /// <remarks>This remains separately invokable for focused diagnostics and also runs in the default suite.</remarks>
-    [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
     internal static void VerifyChainsawFiring()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -25,7 +25,6 @@ internal static class SamusGrappleVerification
 {
 
 /// <summary>Checks attached swing motion, collision branches, wall jump, dropped pose, OAM drawing, and release.</summary>
-[PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
 internal static void VerifySamusGrappleSwingAndRelease()
 {
     var bus = new TestAddressSpace();

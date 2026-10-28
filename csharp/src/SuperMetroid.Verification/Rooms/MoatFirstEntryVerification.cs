@@ -3,7 +3,6 @@ using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -23,7 +22,6 @@ using SuperMetroid.TestSupport.FrameRendering;
 internal static class MoatFirstEntryVerification
 {
     /// <summary>Stages each reciprocal doorway (#370) and compares transition and first-gameplay pixels with and without pause.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyMoatFirstEntry()
     {
 

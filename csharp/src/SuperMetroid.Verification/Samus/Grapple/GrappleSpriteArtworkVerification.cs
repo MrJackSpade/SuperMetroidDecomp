@@ -3,7 +3,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Artwork;
@@ -19,7 +18,6 @@ using SuperMetroid.Verification.Harness;
 internal static class GrappleSpriteArtworkVerification
 {
     /// <summary>Compares native OAM across angles and animation ticks, then isolates tile and palette edits.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyGrappleSpriteArtwork(SuperMetroidAddressSpace bus)
     {
         byte[] json = GrappleSpriteExtractor.Extract(bus);

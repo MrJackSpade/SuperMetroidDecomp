@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
@@ -28,7 +27,6 @@ namespace SuperMetroid.Verification.Samus.Palettes;
 internal static class SamusFullBodyCycleColorsVerification
 {
     /// <summary>Compares extracted Speed Booster, Screw Attack, and shinespark color domains with their native words and schema boundaries.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyFullBodyPaletteColorData(ISnesAddressSpace rom, byte[] extracted)
     {
         var native = SamusFullBodyCycleColorFile.Read(new MemoryStream(extracted));
@@ -411,7 +409,6 @@ internal static class SamusFullBodyCycleColorsVerification
                 "Varia bright-only edit preserves supplied midpoint and other colors");
     }
     /// <summary>Edits four cycle families, drives their production owners for each suit, and checks CGRAM without source rereads.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifySamusFullBodyCycleColorOverride(
         string stockDirectory, string overrideDirectory,
         AreaMapPresentationCatalog original, ISnesAddressSpace rom,

@@ -2,7 +2,6 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.InstalledFileSelectMapVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
@@ -22,7 +21,6 @@ namespace SuperMetroid.Verification.Frontend.Map;
 internal static class MapArrowsVerification
 {
     /// <summary>Checks installed arrow timing and OAM against native output, then exercises edited art, serialization, and override validation.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyMapArrows(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var guard = NewMapArrowGuard(bus);

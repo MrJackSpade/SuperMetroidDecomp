@@ -127,7 +127,6 @@ internal static class EnemyTileArtworkKraidColorsVerification
     }
 
     /// <summary>Builds an independent CGRAM reference from pinned sm_a7.c palette writes; zero thresholds select health band eight at 1000 HP and odd hurt frames select flash.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static ushort[] ReferenceKraidPaletteConsumer(
         ISnesAddressSpace rom, KraidPaletteConsumer consumer)
     {
@@ -190,7 +189,6 @@ internal static class EnemyTileArtworkKraidColorsVerification
     }
 
     /// <summary>Runs one Kraid palette consumer and captures the resulting complete CGRAM image.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static RgbColor[] CaptureKraidPaletteConsumer(
         InstalledEnemyArtwork artwork,
         KraidPaletteConsumer consumer)

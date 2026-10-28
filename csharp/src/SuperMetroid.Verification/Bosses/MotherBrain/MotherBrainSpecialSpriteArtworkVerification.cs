@@ -38,7 +38,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     }
 
     /// <summary>Compares installed legs, Baby, attack and exploded-door sheets with native records and guarded VRAM uploads.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyInstalledMotherBrainSpecialSpriteArtwork(
         string directory, InstalledEnemyArtwork stock)
     {
@@ -145,7 +144,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     /// Checks every page the ascent shows against the native leg-loading list, one per call: where each shows, its bytes,
     /// the call that completes the list and the produced characters.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyMotherBrainLegLoadPages(
         InstalledEnemyArtwork stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
@@ -196,7 +194,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     }
 
     /// <summary>Shows both escape-timer digit pages and compares the characters they show with the cartridge's pages.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyMotherBrainEscapeTimerPages(
         InstalledEnemyArtwork stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
@@ -231,7 +228,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     private static int ShownByte(int character) => ObjectCharactersByte + character * RoomCharacterAtlasFormat.BytesPerTile;
 
     /// <summary>Copies each native sheet page directly from retail data into its authored VRAM destination for the oracle.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static SnesVram ReferenceMotherBrainSpecialPages(
         ISnesAddressSpace bus, MotherBrainSpecialSpriteSheetDefinition sheet)
     {

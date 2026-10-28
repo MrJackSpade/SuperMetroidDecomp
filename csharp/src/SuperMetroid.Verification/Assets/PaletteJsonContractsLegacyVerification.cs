@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Assets.PaletteJsonContractsFixturesVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -26,7 +25,6 @@ internal static class PaletteJsonContractsLegacyVerification
     }
 
     /// <summary>Strict field validation must not delete the supported stock-assisted migrations.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyPaletteContractLegacyOverrides()
     {
         Dictionary<string, JsonObject> documents = PaletteJsonContracts().ToDictionary(item => item.Name, item => item.Document);

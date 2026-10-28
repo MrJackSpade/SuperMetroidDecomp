@@ -97,7 +97,6 @@ internal static class EnemyAnimationIsolationArtworkVerification
     ];
 
     /// <summary>Compares the edited Boyon or Torizo body prefix with independently assembled packed OAM.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void AssertEditedAnimationDraw(EnemyAnimationFixture edited, OamBuffer drawn, int frame)
     {
         RoomEnemySlot actor = edited.Actor;

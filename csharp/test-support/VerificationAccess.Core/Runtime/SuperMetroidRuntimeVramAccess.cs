@@ -20,7 +20,6 @@ internal static class SuperMetroidRuntimeVramAccess
         internal SnesVram Vram => Images.GetValue(self, _ => new SnesVram());
 
         /// <summary>A copy of the runtime's VRAM image with its background character artwork composed over it (#1350).</summary>
-        [PpuLayoutBoundary("exact hardware test: reads gameplay's VRAM image with its bound background artwork")]
         internal byte[] ComposedVram() => BgArtworkFixtures.Composed(self.Vram, self.BgArtwork);
     }
 }

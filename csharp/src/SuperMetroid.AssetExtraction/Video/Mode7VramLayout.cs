@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.Video;
 
@@ -7,7 +6,6 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// characters in the first $4000 words: every word's low byte is a map cell and its high byte a
 /// character pixel. The two planes therefore share storage under different meanings.
 /// </summary>
-[PpuLayoutBoundary("catalog: Mode 7 VRAM planes")]
 internal static class Mode7VramLayout
 {
     /// <summary>Words in each interleaved Mode 7 plane: 128x128 map cells, or 256 characters of 64 pixels.</summary>

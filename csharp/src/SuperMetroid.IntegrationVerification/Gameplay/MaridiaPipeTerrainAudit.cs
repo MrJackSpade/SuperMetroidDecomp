@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using System.Buffers.Binary;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -12,7 +11,6 @@ namespace SuperMetroid.IntegrationVerification.Gameplay;
 internal static class MaridiaPipeTerrainAudit
 {
     /// <summary>Compares visible BG1/BG2 VRAM words with expanded authored tube blocks and reports the first mismatch.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     public static void Observe(SuperMetroidRuntime runtime, DisplayPacket snapshot, int frame, bool requireAuthoredTerrain = false)
     {
         if (runtime.Room.ActiveRoom?.Definition != RoomHeaderDefinitions.Toilet || snapshot.Layers is not { } layers) return;

@@ -124,7 +124,6 @@ internal static class ProjectileHostBindingVerification
     }
 
     /// <summary>Compares rendered OAM for every native projectile composition pointer.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void CheckCatalog(ProjectileSpriteCatalog actual, ProjectileSpriteCatalog expected)
     {
         foreach (ushort id in ProjectileSpriteDefinitions.NativePointers)
@@ -156,7 +155,6 @@ internal static class ProjectileHostBindingVerification
     }
 
     /// <summary>Compares every charge-flare selector's rendered OAM after host binding.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void CheckFlareCompositions(ChargeFlareSpriteCatalog actual, ChargeFlareSpriteCatalog expected)
     {
         if (actual is null) throw new InvalidDataException("Host did not bind flare compositions.");

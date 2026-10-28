@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -18,7 +17,6 @@ internal static class BgArtworkBindingsVerification
     /// A loaded room binds its CRE and tileset characters, and a library background its character transfer, at their
     /// VRAM words; VRAM itself holds none of them, and the published memory image shows them composed in bind order.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks the room characters' native VRAM words")]
     internal static void VerifyRoomCharacterBindings()
     {
         var runtime = CreateRetailRuntimeFixture();

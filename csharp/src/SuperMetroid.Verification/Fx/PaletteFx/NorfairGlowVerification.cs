@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -15,7 +14,6 @@ internal static class NorfairGlowVerification
     /// bank $8D's four Norfair glow lists. Check every frame, including wraparound;
     /// checking only whether CGRAM changes misses incorrect colors and cadence.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyNorfairGlowCycles(SuperMetroidAddressSpace bus)
     {
         int[] holds = [16, 4, 4, 5, 6, 7, 8, 8, 8, 8, 7, 6, 5, 4, 4, 16];

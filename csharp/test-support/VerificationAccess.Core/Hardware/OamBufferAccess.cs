@@ -19,7 +19,6 @@ internal static class OamBufferAccess
         /// Unlike menu parts, it neither parks vertically wrapped parts nor stops at capacity.
         /// The caller owns whole-projectile viewport admission.
         /// </summary>
-        [PpuLayoutBoundary("exact hardware test: native OAM oracle for projectile parts")]
         public void AddProjectileSpritePart(SnesSpritemapXWord xOffset, byte yOffset,
             SnesObjAttributeWord attributes, Position16<SpritePixels> origin)
         {
@@ -44,7 +43,6 @@ internal static class OamBufferAccess
         /// coordinates have zero high bytes, so the cleared high-OAM pair already describes a
         /// small object at X 0..255 and is deliberately left untouched.
         /// </remarks>
-        [PpuLayoutBoundary("exact hardware test: native OAM oracle for projectile trails")]
         public void AddProjectileTrailSprite(Position16<SpritePixels> position, SnesObjAttributeWord attributes)
         {
             if (self.NextByteOffset >= OamBuffer.LowTableByteCount)
@@ -88,7 +86,6 @@ internal static class OamBufferAccess
         }
 
         /// <summary>Appends an installed enemy composition in its original drawing order, as the native writer does.</summary>
-        [PpuLayoutBoundary("exact hardware test: native OAM oracle for enemy compositions")]
         public void AddEnemySpritemap(EnemySpritemapParts parts,
             Position16<SpritePixels> origin, ushort paletteBits, ushort baseTileIndex,
             bool clipVerticalWrap = false, bool originYIsOnScreen = true)
@@ -101,7 +98,6 @@ internal static class OamBufferAccess
         }
 
         /// <summary>Packs an enemy part after adding its tile base, palette, and optional vertical clipping.</summary>
-        [PpuLayoutBoundary("exact hardware test: native OAM oracle for enemy parts")]
         internal void AppendEnemySpritemapPart(SpritemapPart part,
             Position16<SpritePixels> origin, ushort paletteBits, ushort baseTileIndex,
             bool clipVerticalWrap, bool originYIsOnScreen)
@@ -139,10 +135,8 @@ internal static class OamBufferAccess
             self.NextByteOffset = (self.NextByteOffset + 4) % OamBuffer.LowTableByteCount;
         }
         /// <summary>Raw 512-byte low OAM table used by PPU DMA.</summary>
-        [PpuLayoutAccess]
         public ReadOnlySpan<byte> LowTable => self.LowTableBytes;
         /// <summary>Raw 32-byte high OAM table used by PPU DMA.</summary>
-        [PpuLayoutAccess]
         public ReadOnlySpan<byte> HighTable => self.HighTableBytes;
         /// <summary>Sprites appended since <see cref="OamBuffer.BeginFrame"/>, counted by the record cursor (a wrapped cursor counts from zero again).</summary>
         public int AppendedSpriteCount => self.NextByteOffset / OamBuffer.LowRecordByteCount;
@@ -151,7 +145,6 @@ internal static class OamBufferAccess
         /// construction cursor, so the producer's modeled sprite count is retained: it bounds
         /// the sprites read from the image.
         /// </summary>
-        [PpuLayoutAccess]
         public void LoadUploadPayload(ReadOnlySpan<byte> payload, int modeledSpriteCount)
         {
             if ((uint)modeledSpriteCount > OamBuffer.SpriteCount)

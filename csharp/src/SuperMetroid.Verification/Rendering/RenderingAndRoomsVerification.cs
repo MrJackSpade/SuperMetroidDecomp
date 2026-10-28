@@ -54,7 +54,6 @@ private static byte[] AllBlueExplicitScrollTable() =>
     Enumerable.Repeat((byte)1, RoomScrollGrid.StorageByteCount).ToArray();
 
 /// <summary>OBJ, HUD, cameras, scrolling, tilemaps, room data, and sky verification.</summary>
-[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 internal static void VerifyObjRendering()
 {
     var bus = new TestAddressSpace();
@@ -114,7 +113,6 @@ internal static void VerifyObjRendering()
 /// Verifies the HUD ROM-template mutation, authentic WRAM queue source, live counters, selection
 /// palettes and minimap words without relying on the private ROM.
 /// </summary>
-[PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
 internal static void VerifyHudState()
 {
     var bus = new TestAddressSpace();
@@ -905,7 +903,6 @@ internal static void VerifyCartridgeRoomStateSelection()
 }
 
 /// <summary>Checks that the gameplay layer shows BG2 through its map's real screen layout: the vertical second screen and Kraid's 64x64 map.</summary>
-[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
 internal static void VerifyBg2ScreenLayout()
 {
     // BG2SC=$4A means a 32x64-tile map rooted at word $4800. Once VOFS bit eight
@@ -1082,7 +1079,6 @@ static (int Red, int Green, int Blue)? AddedColour(ScanlineColorAddRenderLayer? 
 }
 
 /// <summary>Checks bank-$88 sky fixed-point bands and four queued circular-map rows.</summary>
-[PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
 internal static void VerifyScrollingSkyState()
 {
     AssertTrue(

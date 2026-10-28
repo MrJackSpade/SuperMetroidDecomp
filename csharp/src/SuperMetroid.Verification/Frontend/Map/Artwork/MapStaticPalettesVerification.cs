@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
@@ -25,7 +24,6 @@ internal static class MapStaticPalettesVerification
 {
     /// <summary>Compares stock palettes with the cartridge, then checks edited
     /// colors survive state restoration, stock replacement, and an ongoing fade.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyMapStaticPaletteIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original, ImportedAreaMap[] rules)
     {

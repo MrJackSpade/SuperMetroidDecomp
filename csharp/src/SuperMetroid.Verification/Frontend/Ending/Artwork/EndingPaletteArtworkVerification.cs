@@ -29,7 +29,6 @@ internal static class EndingPaletteArtworkVerification
     private const int FlyawayCharactersSource = 0x95a82f;
 
     /// <summary>Checks the logo's reverse-copy palette fade against native pointers and actual CGRAM writes.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyEndingLogoPaletteFade(CartridgeImportAddressSpace rom)
     {
         var original = new byte[512 * 2];
@@ -227,7 +226,6 @@ internal static class EndingPaletteArtworkVerification
     }
 
     /// <summary>Checks installed ending colors and visible scene overrides with cartridge reads guarded.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyEndingPaletteArtwork(GameInstallation installation)
     {
         Suite(nameof(VerifyEndingPaletteRoleSelection), () => VerifyEndingPaletteRoleSelection());
@@ -499,7 +497,6 @@ internal static class EndingPaletteArtworkVerification
     }
 
     /// <summary>Compares installed logo fade CGRAM with native playback while prohibiting source color reads.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyEndingLogoPaletteArtwork(EndingPaletteCatalog stock,
         ISnesAddressSpace nativeBus, MutableCartridgeReadGuard guardedBus)
     {

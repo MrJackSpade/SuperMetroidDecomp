@@ -19,7 +19,6 @@ using SuperMetroid.Core.World;
 internal static class CompiledDynamicCollectibleGraphicsVerification
 {
     /// <summary>Checks Bombs item VRAM after a real room load while blocking compiled graphics ROM reads.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyCompiledDynamicCollectibleGraphics(
         SuperMetroidAddressSpace rom)
     {

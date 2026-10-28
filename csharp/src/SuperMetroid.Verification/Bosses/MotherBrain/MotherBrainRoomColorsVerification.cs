@@ -224,7 +224,6 @@ internal static class MotherBrainRoomColorsVerification
     }
 
     /// <summary>Checks edits in both recovery-light slices reach exactly two live CGRAM words.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void AssertRecoveryLightsEdited(AreaMapPresentationCatalog original,
         AreaMapPresentationCatalog edited)
     {
@@ -247,7 +246,6 @@ internal static class MotherBrainRoomColorsVerification
     }
 
     /// <summary>Checks room-entry glass and tube edits change exactly their two selected CGRAM words.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void AssertRoomEntryEdited(AreaMapPresentationCatalog original,
         AreaMapPresentationCatalog edited)
     {
@@ -270,7 +268,6 @@ internal static class MotherBrainRoomColorsVerification
     }
 
     /// <summary>Checks a selected flash/final/phase-two color edit reaches CGRAM without changing body phase or palette-program timing.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void AssertEdited(string methodName, Func<MotherBrainBehavior, Action<MotherBrainEnemyState>> select,
         AreaMapPresentationCatalog original,
         AreaMapPresentationCatalog edited, int expectedFirstColor, int expectedDifferences,
@@ -317,7 +314,6 @@ internal static class MotherBrainRoomColorsVerification
     }
 
     /// <summary>Seeds every CGRAM word with a distinct bounded color so unintended palette writes remain observable.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void Seed(SamusColourRig cgram)
     {
         for (int index = 0; index < SnesCgram.ColorCount; index++)

@@ -222,7 +222,6 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
     }
 
     /// <summary>Draws one selected Draygon frame through the enemy layer producer and captures its resulting VRAM bytes.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static byte[] DrawDraygonBg2(InstalledEnemyArtwork art,
         ushort pointer, bool newInstructionFrame)
     {

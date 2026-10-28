@@ -20,7 +20,6 @@ using SuperMetroid.Core.Rooms.Doors;
 internal static class RoomBackgroundLibraryParityVerification
 {
     /// <summary>Runs every authored background list and door-gated transfer, comparing installed VRAM and WRAM against native execution.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyLibraryBackgroundInstalledParity(
         string sourceRom, GameInstallation installed)
     {
@@ -113,7 +112,6 @@ internal static class RoomBackgroundLibraryParityVerification
     /// ROM that names no library-background source cannot be compiled at all (#1414): its
     /// list fails to decode, naming the source.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyInstalledBackgroundTransferFailures(
         RoomBackgroundTilemapCatalog backgrounds, RoomSkyTilemapCatalog skies,
         HudTileAtlas hud, RoomCharacterAtlasCatalog characters)

@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Programs;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies;
@@ -26,7 +25,6 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
 
     /// <summary>Checks five color transfers, isolated overrides, hurt whiteout,
     /// death-phase palette use, reload persistence, and invalid asset rejection.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyInstalledCrocomireColors(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {

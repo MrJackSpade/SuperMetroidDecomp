@@ -479,7 +479,6 @@ internal static class MapPresentationVerification
     }
 
     /// <summary>Checks Mother Brain rainbow, beam, drain, and fake-death palette overrides against native CGRAM output.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyMotherBrainRainbowPaletteOverride(
         ISnesAddressSpace bus,
         string stock,
@@ -747,7 +746,6 @@ internal static class MapPresentationVerification
     }
 
     /// <summary>Checks Mother Brain health-threshold palette edits, stock copies, schema validation, and identity restoration.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyMotherBrainHealthPaletteOverride(
         ISnesAddressSpace bus,
         string stock,
@@ -838,7 +836,6 @@ internal static class MapPresentationVerification
     }
 
     /// <summary>Checks edited room palette-FX colors in a bound runtime while preserving program timing and stock provenance.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyRoomPaletteFxOverride(
         string stock,
         string overrides,
@@ -1489,7 +1486,6 @@ internal static class MapPresentationVerification
     }
 
     /// <summary>Checks stock file-select map pixels, edited BG1 words, and restoration without stale override art.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyFileSelectMapCatalog(AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited)
     {
         var system = new SharedGameState();
@@ -1525,7 +1521,6 @@ internal static class MapPresentationVerification
 
 
     /// <summary>Guards imported map tilemaps, reveal masks, atlases, HUD art, and static or animated palette sources during live rendering.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static MutableCartridgeReadGuard NewMapDataGuard(ISnesAddressSpace source, ImportedAreaMap[] maps)
     {
         var guard = new MutableCartridgeReadGuard(source);

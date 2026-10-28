@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -15,7 +14,6 @@ using SuperMetroid.Core.Progression;
 internal static class SpeedPaletteOverrunVerification
 {
     /// <summary>Checks phases eight and ten against a 65816 trace, including four-frame hold and recovery.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifySpeedPaletteOverrun()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

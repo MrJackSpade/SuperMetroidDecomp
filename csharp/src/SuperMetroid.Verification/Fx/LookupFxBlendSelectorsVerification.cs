@@ -50,7 +50,6 @@ internal static class LookupFxBlendSelectorsVerification
     private static byte FxBlendSourceAddressesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks stock and edited three-color blends in CGRAM, including selector zero and malformed documents.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyFxBlendPageDispatch(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock)
     {
         var document = new RoomFxPaletteBlendDocument { Version = 1, Blends = new() };

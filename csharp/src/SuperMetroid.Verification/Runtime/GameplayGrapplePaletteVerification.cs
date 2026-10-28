@@ -3,7 +3,6 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -23,7 +22,6 @@ using SuperMetroid.Verification.Harness;
 internal static class GameplayGrapplePaletteVerification
 {
     /// <summary>Checks normal fire, pose-change refire, fixed flare color, and cancellation for two equipped beams.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyGameplayGrapplePalette()
     {
         var installation=RepositoryInstallation.Installation;

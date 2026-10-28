@@ -24,7 +24,6 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
     }
 
     /// <summary>Compares authored atmospheric frame attributes with cartridge words and checks missing-art rejection.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifySamusAtmosphereArtworkBoundary(string sourceRom)
     {
         using var rootScratch = new TestScratchDirectory("samus-atmosphere-boundary");

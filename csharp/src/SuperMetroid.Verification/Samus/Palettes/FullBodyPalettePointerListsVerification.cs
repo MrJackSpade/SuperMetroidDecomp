@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
@@ -198,7 +197,6 @@ internal static class FullBodyPalettePointerListsVerification
     }
 
     /// <summary>Compares the sixteen Samus OBJ palette colors with one native palette source.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void AssertPaletteColors(
         ISnesAddressSpace rom, SamusColourRig actual, int pointer, string context)
     {

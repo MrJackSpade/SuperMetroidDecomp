@@ -67,7 +67,6 @@ internal static class EnemyGameplayAcceptanceVerification
     }
 
     /// <summary>Loads a retail KiHunter body-wing population without cartridge memory and checks a PNG edit affects the OBJ characters but no enemy slot or quota.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyEnemyPopulationPresentationIsolation(CartridgeImportAddressSpace source)
     {
         using var temporary = new TestScratchDirectory("map-catalog");

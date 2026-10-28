@@ -8,7 +8,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The work RAM and VRAM a library-background command list reads and writes as bank $82's interpreter runs it, which
 /// extraction's replay of the list reproduces (#1406).
 /// </summary>
-[PpuLayoutBoundary("catalog: the clear commands' encoded VRAM destinations, decoded once")]
 internal static class LibraryBackgroundStagingDefinitions
 {
     /// <summary><c>$7E:4000</c>: the tilemap staging decompression and fills write, and transfers read.</summary>

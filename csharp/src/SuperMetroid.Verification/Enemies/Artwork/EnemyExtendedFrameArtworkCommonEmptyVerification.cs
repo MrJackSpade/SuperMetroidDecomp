@@ -15,7 +15,6 @@ using SuperMetroid.Core.World;
 internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
 {
     /// <summary>Compares the 12 native empty-frame records and blocks cartridge reads during installed draw and callback selection.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifySharedEmptyExtendedFrames(
         SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
     {

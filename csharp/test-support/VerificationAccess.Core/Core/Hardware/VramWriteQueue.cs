@@ -19,15 +19,12 @@ namespace SuperMetroid.Core.Hardware;
 /// original call sites advance that tail by seven. Seeing <see cref="TailInBytes"/> in the
 /// debugger therefore remains directly comparable to WRAM <c>$0330</c>.
 /// </remarks>
-[PpuLayoutBoundary("backend: queued VRAM DMA entries and their native encoding")]
 public sealed class VramWriteQueue
 {
     /// <summary>Bytes reserved by the original WRAM layout before the Mode 7 table.</summary>
-    [PpuLayoutAccess]
     public const int StorageByteCount = 512;
 
     /// <summary>Physical size of one packed queue entry.</summary>
-    [PpuLayoutAccess]
     public const int EntryByteCount = 7;
 
     /// <summary>NMI writes a zero-size terminator at the tail, so every accepted record must leave two free bytes.</summary>
@@ -40,7 +37,6 @@ public sealed class VramWriteQueue
     /// Byte offset at which the ROM would write the next record, corresponding to WRAM
     /// <c>$0330</c>. It advances by seven rather than by one.
     /// </summary>
-    [PpuLayoutAccess]
     public int TailInBytes { get; private set; }
 
     /// <summary>
@@ -115,7 +111,6 @@ public sealed class VramWriteQueue
     }
 
     /// <summary>Rebinds a known legacy pending artwork transfer without changing its position or byte count.</summary>
-    [PpuLayoutAccess]
     public void RebindBusSource(int sourceAddress, ushort sizeInBytes, InstalledArtworkId asset)
     {
         if (!Enum.IsDefined(asset)) throw new ArgumentOutOfRangeException(nameof(asset));

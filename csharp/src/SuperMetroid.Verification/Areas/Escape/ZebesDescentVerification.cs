@@ -50,7 +50,6 @@ internal static class ZebesDescentVerification
     }
 
     /// <summary>Compares all origin and offset byte pairs with the native off-screen OAM parking branches.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyOffScreenCinematicOam()
     {
         var bus = new TestAddressSpace();

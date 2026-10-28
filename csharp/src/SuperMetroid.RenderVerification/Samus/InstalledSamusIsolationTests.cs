@@ -82,7 +82,6 @@ internal sealed class InstalledSamusIsolationTests
     }
 
     /// <summary>Creates one source-selected pair in a constructed room with optional liquid or low ceiling.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private Pair Create(SamusPoseId pose = SamusPoseId.FacingRightNormalPose,
         SamusEquipmentFlags equipment = SamusEquipmentFlags.None, SamusLiquidMedium medium = SamusLiquidMedium.Air, bool lowCeiling = false)
     {
@@ -193,7 +192,6 @@ internal sealed class InstalledSamusIsolationTests
         }
 
         /// <summary>Draws both actors, checks drawing leaves mechanics intact, and records OAM or VRAM changes.</summary>
-        [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
         internal void Draw(string context, ushort frame = 0)
         {
             var beforeStock = new SamusMechanicsSnapshot(Stock.Samus);
@@ -474,7 +472,6 @@ internal sealed class InstalledSamusIsolationTests
     }
 
     /// <summary>Completes Crystal Flash and checks movement, all ammo drains, palette frames, and pose release.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private void CheckCrystalFlash(bool left)
     {
         Pair pair = Create(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose);
@@ -596,7 +593,6 @@ internal sealed class InstalledSamusIsolationTests
     }
 
     /// <summary>Checks the full death lifetime, pose art, explosion draws and explosion artwork for a source pose and suit.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private void CheckDeath(SamusPoseId source, SamusEquipmentFlags suit)
     {
         Pair pair = Create(source, suit);

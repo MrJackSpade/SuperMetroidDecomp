@@ -161,7 +161,6 @@ internal static class EnemySpritemapArtworkVerification
     }
 
     /// <summary>Compares installed enemy compositions and rendering with the cartridge's OAM definitions.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyInstalledEnemySpritemaps(
         SuperMetroidAddressSpace rom, string stockDirectory,
         InstalledEnemyArtwork stock)
@@ -2937,7 +2936,6 @@ internal static class EnemySpritemapArtworkVerification
     }
 
     /// <summary>Checks Mother Brain's private draw hook against native head frames and above-screen culling.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyInstalledMotherBrainDrawHook(
         SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
     {
@@ -3007,7 +3005,6 @@ internal static class EnemySpritemapArtworkVerification
     }
 
     /// <summary>Spawns and draws a room sprite object to inspect its installed OAM output.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static OamBuffer DrawRoomSpriteObject(InstalledEnemyArtwork art,
         RoomSpriteObjectKind kind)
     {

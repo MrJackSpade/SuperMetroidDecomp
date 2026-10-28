@@ -10,7 +10,6 @@ using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Exact indexed-pixel oracle plus backend comparison for disk-authored replacements.</summary>
-[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry")]
 internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRenderer renderer)
 {
     /// <summary>Gives each stock or edited render packet a fresh frame identity.</summary>
@@ -23,7 +22,6 @@ internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRend
     private readonly SnesCgram colors = MakeColors();
 
     /// <summary>Checks edited VRAM against exact index substitution and verifies stock and edited backend output.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal void Pair(SnesVram stock, SnesVram edited, OamBuffer oam, string context)
     {
         DisplayPacket a = Packet(stock), b = Packet(edited);
@@ -60,7 +58,6 @@ internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRend
     }
 
     /// <summary>Builds distinct index colors across all CGRAM rows for exact artwork comparison.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry")]
     private static SnesCgram MakeColors()
     {
         var result = new SnesCgram();

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
@@ -13,7 +12,6 @@ namespace SuperMetroid.Verification.Frontend.GameOver;
 internal static class GameOverBabyColorsVerification
 {
     /// <summary>Compares four sixteen-color native phases with installed CGRAM slots and verifies channel edits, phase bounds, and content identity.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyGameOverBabyColors(ISnesAddressSpace rom)
     {
         var palettes = new Dictionary<GameOverBabyPalette, ushort[]>();

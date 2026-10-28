@@ -15,7 +15,6 @@ namespace SuperMetroid.Verification.Fx;
 internal static class RoomFxAnimatedTileArtworkVerification
 {
     /// <summary>Checks retail room-FX frames through both transfer owners, installed edits, and older atlas-width imports.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyRoomFxAnimatedTileArtwork()
     {
         if (!File.Exists("Super Metroid.smc"))
@@ -98,7 +97,6 @@ internal static class RoomFxAnimatedTileArtworkVerification
     }
 
     /// <summary>Checks that installed animated-tile overrides change the intended VRAM frames without changing mechanics.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyRoomFxAnimatedTileArtworkOverride(ISnesAddressSpace rom,
         string stock, string overrides, AreaMapPresentationCatalog baseline)
     {

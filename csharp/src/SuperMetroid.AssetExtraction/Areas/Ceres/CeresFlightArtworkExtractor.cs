@@ -4,7 +4,6 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
@@ -19,7 +18,6 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 internal static class CeresFlightArtworkExtractor
 {
     /// <summary>Exports Ceres flight's Mode-7 tiles/maps, OBJ sheets and frames, palette, and actor placements, then round-trips their native bytes.</summary>
-    [PpuLayoutBoundary("codec: native 512-byte CGRAM image of the Ceres flight palette")]
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);

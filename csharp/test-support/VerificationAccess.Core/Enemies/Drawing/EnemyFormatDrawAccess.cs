@@ -20,7 +20,6 @@ internal static class EnemyFormatDrawAccess
         /// Lets <paramref name="draw"/> publish into a fresh frame and appends the OAM records its draws and OAM sprites
         /// stand for, wrapping at the 128th record as the native enemy writer does.
         /// </summary>
-        [PpuLayoutBoundary("exact hardware test: appends native OAM records rebuilt from whole-frame draws")]
         internal void AppendDrawn(Action<SpriteFrameBuffer> draw)
         {
             OamBuffer image = SpriteFrameBuffer.DrawnOam(draw);

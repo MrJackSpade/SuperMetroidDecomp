@@ -5,7 +5,6 @@ using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -426,7 +425,6 @@ internal static class FrontendRomFreeVerification
     /// Kraid relocates BG3 characters to $2000 and owns the ordinary $4000 region as
     /// his BG2 map, so the deferred host refresh must use the room's selected base.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyFrontendRomFreeRestoredKraidHud(SuperMetroidGame native,
         SuperMetroidGame installed, Action<SuperMetroidGame, bool> bindInstalled)
     {
@@ -465,7 +463,6 @@ internal static class FrontendRomFreeVerification
     /// Exercise actual Samus movement and a beam shot after the cinematic handoff.
     /// A neutral-only window cannot expose projectile/pose presentation reads.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
     private static void VerifyFrontendRomFreeCeresInput(SuperMetroidGame native,
         SuperMetroidGame installed)
     {
@@ -545,7 +542,6 @@ internal static class FrontendRomFreeVerification
     /// elevators, save rooms, Norfair FX, and Phantoon's BG2 frames. It tests room
     /// initialization and neutral-frame presentation, not incoming doors or travel.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyFrontendRomFreeRoom(SuperMetroidGame native, SuperMetroidGame installed, RomFreeRoom room, int frameCount = 90, Action<SuperMetroidGame, SuperMetroidGame>? setup = null, GoldenTorizoForcing golden = default, ControllerButton heldInput = ControllerButton.None)
     {
         native.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(

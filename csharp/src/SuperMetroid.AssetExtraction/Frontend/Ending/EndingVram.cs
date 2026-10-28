@@ -1,12 +1,10 @@
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>Typed view of the ending's VRAM allocations (#630).</summary>
-[PpuLayoutBoundary("rendering view: ending and credits VRAM")]
 internal readonly struct EndingVram(SnesVram vram)
 {
     /// <summary>The escape/explosion OBJ sheet.</summary>

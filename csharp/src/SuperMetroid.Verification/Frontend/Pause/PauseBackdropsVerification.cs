@@ -23,7 +23,6 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 internal static class PauseBackdropsVerification
 {
     /// <summary>Checks native VRAM and pixels, edited content rebinds, and preserved equipment state across fades.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyPauseBackdrops(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         Directory.CreateDirectory(overrides);

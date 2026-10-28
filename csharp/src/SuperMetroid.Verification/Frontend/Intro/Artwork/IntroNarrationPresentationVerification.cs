@@ -6,7 +6,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -24,7 +23,6 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 internal static class IntroNarrationPresentationVerification
 {
     /// <summary>Compares all six stock pages and the font upload with native data, then checks edits, rebinding, and malformed glyph rejection.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
     internal static void VerifyIntroNarrationPresentation(string romPath)
     {
         ISnesAddressSpace nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);

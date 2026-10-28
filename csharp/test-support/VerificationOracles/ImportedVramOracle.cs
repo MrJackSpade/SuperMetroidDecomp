@@ -12,7 +12,6 @@ namespace SuperMetroid.TestSupport.VerificationOracles;
 internal static class ImportedVramOracle
 {
     /// <summary>Applies a nonzero queued asset transfer from a reference bus at its encoded VRAM destination.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     public static void ExecuteQueued(SnesVram vram, ISnesAddressSpace source,
         int sourceAddress, ushort sizeInBytes, ushort encodedDestination)
     {
@@ -22,7 +21,6 @@ internal static class ImportedVramOracle
     }
 
     /// <summary>Models hardware DAS zero as a full 64 KiB DMA, using the word port when the asset API cannot express it.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     public static void ExecuteHardware(SnesVram vram, ISnesAddressSpace source,
         int sourceAddress, ushort dmaSize, ushort encodedDestination)
     {

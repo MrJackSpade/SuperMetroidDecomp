@@ -28,7 +28,6 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 internal static class PauseSelectorsVerification
 {
     /// <summary>Compares all sixteen selectors with guarded native rendering and exercises edited animation and OAM parts.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyPauseSelectors(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog catalog)
     {
         Directory.CreateDirectory(overrides);

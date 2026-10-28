@@ -18,7 +18,6 @@ using SuperMetroid.Core.Progression;
 internal static class InvalidBeamGraphicsVerification
 {
     /// <summary>Verifies bounded instruction reads, ordinary beam palettes, and both direct and queued Chainsaw graphics loads.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyInvalidBeamGraphics()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

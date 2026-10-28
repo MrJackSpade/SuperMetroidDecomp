@@ -1,7 +1,6 @@
 using SuperMetroid.TestSupport.VerificationOracles;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -71,7 +70,6 @@ internal static class BombTorizoHandArtworkVerification
     }
 
     /// <summary>Creates the minimal valid palette catalog for a ROM-free hand artwork fixture.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static GameplayBasePaletteCatalog BombTorizoHandFixturePalette() =>
         GameplayBasePaletteFiles.Read(new MemoryStream(GameplayBasePaletteFiles.Write(
             new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,

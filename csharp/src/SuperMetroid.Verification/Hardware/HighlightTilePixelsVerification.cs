@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -12,7 +11,6 @@ namespace SuperMetroid.Verification.Hardware;
 internal static class HighlightTilePixelsVerification
 {
     /// <summary>Checks stock pixels, independently edited highlight colors, transfer bounds, and resulting planar bytes.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyHighlightTilePixels(ISnesAddressSpace rom)
     {
         var files = MapSpriteExtractor.Extract(rom);

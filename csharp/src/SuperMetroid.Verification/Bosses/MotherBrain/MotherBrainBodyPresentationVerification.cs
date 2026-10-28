@@ -28,7 +28,6 @@ internal static class MotherBrainBodyPresentationVerification
     /// Exercises the statically identified missing Mother Brain body draw path with
     /// a RAM-only fixture. This is not a gameplay search for cartridge accesses.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyMotherBrainBodyPresentation()
     {
         var author = new EnemyIdentityFixture();
@@ -124,7 +123,6 @@ internal static class MotherBrainBodyPresentationVerification
     }
 
     /// <summary>Checks each authored limb's OAM position, tile, palette, flip, size, and drawing order.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void AssertBodyOam(OamBuffer actual, EnemyExtendedVisualComponent[] authored, RoomEnemySlot body)
     {
         var expected = new byte[authored.Length * 4];
@@ -148,7 +146,6 @@ internal static class MotherBrainBodyPresentationVerification
     }
 
     /// <summary>Checks the exact BG2 tilemap words and destinations written for a selected body pose.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void AssertBodyBg2(ushort[] actual, EnemyBg2FrameDocument authored, string oamName)
     {
         var expected = new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight];

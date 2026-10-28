@@ -75,7 +75,6 @@ internal static class VerificationHelpersVerification
     /// This replaces loops whose copy/pasted index arithmetic was harder to audit than the
     /// palette behavior they were meant to prove.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void AssertPaletteSlice(
         IPaletteColors actual,
         int destinationIndex,

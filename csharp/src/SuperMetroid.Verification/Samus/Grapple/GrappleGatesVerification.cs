@@ -24,7 +24,6 @@ using SuperMetroid.Core.World;
 internal static class GrappleGatesVerification
 {
     /// <summary>Compares gate OAM across twelve frames around each rejected Grapple impact and checks the dud sound.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyGrappleGreenGateVisibility()
     {
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

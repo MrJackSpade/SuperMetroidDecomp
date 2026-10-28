@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.FileSelect.FileSelectMapEntryVerification;
 using static SuperMetroid.Verification.Frontend.FileSelect.FileSelectRoomMapVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapWindowMotionDefinitionsVerification;
@@ -81,7 +80,6 @@ internal static class FileSelectMapWindowVerification
     }
 
     /// <summary>Checks inclusive horizontal/exclusive bottom masking during expansion and return to the area map.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyFileSelectMapWindowComposition()
     {
         TestAddressSpace fake = CreateComposedMapWindowCartridge();
@@ -126,7 +124,6 @@ internal static class FileSelectMapWindowVerification
     }
 
     /// <summary>Checks active map colors, native BG3 tilemap transfers, an opaque drawn map, and visited-station labels.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     private static void VerifyFileSelectAreaMapGraphics()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

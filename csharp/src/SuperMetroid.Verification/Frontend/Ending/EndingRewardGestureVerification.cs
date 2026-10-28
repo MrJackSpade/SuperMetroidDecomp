@@ -22,7 +22,6 @@ using SuperMetroid.Core.Assets;
 internal static class EndingRewardGestureVerification
 {
     /// <summary>Compares sixteen upload chunks, both reward gesture timelines, and jump-to-shot sequences with native data and guarded definitions.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
     internal static void VerifyEndingRewardGesture()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

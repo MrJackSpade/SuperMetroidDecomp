@@ -10,12 +10,10 @@ internal static class PpuImageAccess
     extension(OamBuffer self)
     {
         /// <summary>Whether this OAM holds exactly the same low and high tables as <paramref name="other"/>.</summary>
-        [PpuLayoutBoundary("exact hardware test: compares complete OAM low/high-table images")]
         internal bool ImageEquals(OamBuffer other) =>
             self.LowTable.SequenceEqual(other.LowTable) && self.HighTable.SequenceEqual(other.HighTable);
 
         /// <summary>The first object whose record differs from <paramref name="other"/>'s, for a failure message.</summary>
-        [PpuLayoutBoundary("exact hardware test: reports the first differing OAM low/high-table record")]
         internal string FirstDifference(OamBuffer other)
         {
             for (int index = 0; index < self.LowTable.Length / 4; index++)
@@ -33,7 +31,6 @@ internal static class PpuImageAccess
     extension(SnesVram self)
     {
         /// <summary>Whether this VRAM holds exactly the same 64 KiB image as <paramref name="other"/>.</summary>
-        [PpuLayoutBoundary("exact hardware test: compares complete VRAM images")]
         internal bool ImageEquals(SnesVram other) => self.Bytes.SequenceEqual(other.Bytes);
     }
 

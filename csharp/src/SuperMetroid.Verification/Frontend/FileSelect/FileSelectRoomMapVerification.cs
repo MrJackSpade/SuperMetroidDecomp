@@ -30,7 +30,6 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 internal static class FileSelectRoomMapVerification
 {
     /// <summary>Checks every area map projection and frame word against ROM, then verifies the visible viewport and icon capacity.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyFileSelectRoomMapGraphics()
     {
         Suite(nameof(VerifyFileSelectStationMarker), () => VerifyFileSelectStationMarker());
@@ -153,7 +152,6 @@ internal static class FileSelectRoomMapVerification
     }
 
     /// <summary>Checks map palette cycling and independent availability-sensitive arrow animation in CGRAM and OAM.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables")]
     internal static void VerifyFileSelectMapAnimations()
     {
         var bus = new TestAddressSpace();
@@ -231,7 +229,6 @@ internal static class FileSelectRoomMapVerification
     }
 
     /// <summary>Checks exploration, map download, and boss flags against exact icon ordering and scrolled OAM coordinates.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyFileSelectMapIcons()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -481,7 +478,6 @@ internal static class FileSelectRoomMapVerification
     }
 
     /// <summary>Checks save-station marker frame cadence, backing visibility, OAM placement, and invalid station rejection.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyFileSelectStationMarker()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

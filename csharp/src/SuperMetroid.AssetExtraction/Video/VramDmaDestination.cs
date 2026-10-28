@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.Video;
 
@@ -13,7 +12,6 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// <see cref="Word"/> and <see cref="WordIncrement"/> are the only decoders, so the word it stores is the encoding.
 /// </remarks>
 [EncodingOwner("queued video transfer destination word")]
-[PpuLayoutBoundary("codec: queued VRAM DMA destination word")]
 public readonly record struct VramDmaDestination
 {
     /// <summary>Native DMA queue bit 15, selecting 32-word column increments.</summary>
@@ -27,7 +25,6 @@ public readonly record struct VramDmaDestination
     internal VramDmaDestination(ushort encoded) => Encoded = encoded;
 
     /// <summary>The native queue word: VMADD in bits 0-14, bit 15 set for the column increment.</summary>
-    [PpuLayoutAccess]
     internal ushort Encoded { get; }
 
     /// <summary>The VMADD word the transfer starts at.</summary>
@@ -37,6 +34,5 @@ public readonly record struct VramDmaDestination
     internal int WordIncrement => (Encoded & ColumnFlag) == 0 ? 1 : ColumnIncrementWords;
 
     /// <summary>Decodes a native queue word read from cartridge or WRAM data.</summary>
-    [PpuLayoutAccess]
     internal static VramDmaDestination FromNative(ushort encoded) => new(encoded);
 }

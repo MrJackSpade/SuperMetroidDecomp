@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Hardware;
 /// 32×32-character screens. Each screen is a contiguous <see cref="ScreenGeometry.TilemapScreenCellCount"/>-word
 /// block stored row by row; screens are ordered left to right, then top to bottom.
 /// </summary>
-[PpuLayoutAccess]
 [EncodingOwner("background tilemap screen layout")]
 public readonly record struct BgTilemapGeometry
 {

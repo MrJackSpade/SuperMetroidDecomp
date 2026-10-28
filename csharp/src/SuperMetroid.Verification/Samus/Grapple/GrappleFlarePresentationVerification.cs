@@ -28,7 +28,6 @@ namespace SuperMetroid.Verification.Samus.Grapple;
 internal static class GrappleFlarePresentationVerification
 {
     /// <summary>Compares flare drawing across phases and coordinates with native cadence, then checks the real actor's sheet binding.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyGrappleFlarePresentation(SuperMetroidAddressSpace bus,
         SamusBodyArtworkCatalog body, MapPresentationInstalledRoomAssets roomAssets,
         AreaMapPresentationCatalog maps, GrappleTileAtlas grappleArtwork)
@@ -149,7 +148,6 @@ internal static class GrappleFlarePresentationVerification
     private static byte GrappleFlarePresentationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the real actor draws the flare from the bound sheets and rebinds them after a saved-state restore.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyGrappleFlareActorBinding(
         SamusBodyArtworkCatalog body, MapPresentationInstalledRoomAssets roomAssets,
         AreaMapPresentationCatalog maps, GrappleTileAtlas grappleArtwork)

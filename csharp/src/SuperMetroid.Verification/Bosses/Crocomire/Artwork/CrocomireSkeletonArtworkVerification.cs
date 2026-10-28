@@ -19,7 +19,6 @@ namespace SuperMetroid.Verification.Bosses.Crocomire.Artwork;
 internal static class CrocomireSkeletonArtworkVerification
 {
     /// <summary>Exercises six installed uploads and a single-pixel PNG override with cartridge reads forbidden.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyCrocomireSkeletonArtwork(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {

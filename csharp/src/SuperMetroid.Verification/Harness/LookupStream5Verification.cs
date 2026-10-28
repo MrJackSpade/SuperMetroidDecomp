@@ -319,7 +319,6 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Compares Ceres platform graphics and VRAM placement against retail words.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyLookupStream5CeresPlatform(SuperMetroidAddressSpace rom)
     {
         var document = new CeresDoorVisualDocument
@@ -520,7 +519,6 @@ internal static class LookupStream5Verification
         }
     }
     /// <summary>Checks Crocomire wall and spike palette transfers where their CGRAM destinations overlap.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream5CrocomireSharedPaint(SuperMetroidAddressSpace rom)
     {
         int[] sources = [CrocomireSourceDefinitions.FightBodyColors, CrocomireSourceDefinitions.InitialWallColors,
@@ -932,7 +930,6 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Compares Zebes starfield sprite positions and attributes with the native OAM composition.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyLookupStream5ZebesStarFields(SuperMetroidAddressSpace rom)
     {
         var frames = new Dictionary<string, SpriteVisualPart[]>();
@@ -1015,7 +1012,6 @@ internal static class LookupStream5Verification
         }
     }
     /// <summary>Checks Tourian statue palette ramps and their CGRAM destinations against native colors.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream5StatueRamps(SuperMetroidAddressSpace rom)
     {
         byte[] nativeJson = SuperMetroid.AssetExtraction.TourianStatueColorExtractor.Extract(rom);
@@ -1130,7 +1126,6 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Checks Magdollite's palette pulse frames and the eight-frame update cadence.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream5MagdollitePulse(SuperMetroidAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Enemies.MagdollitePaletteCycleExtractor.Extract(rom);
@@ -1180,7 +1175,6 @@ internal static class LookupStream5Verification
         }
     }
     /// <summary>Checks Zebetite color pulses against the installed frame sequence and CGRAM positions.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream5ZebetitePulse(SuperMetroidAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.ZebetiteColorExtractor.Extract(rom);
@@ -1319,7 +1313,6 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Checks the map highlight palette cycle against cartridge colors and installed CGRAM slots.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream5MapHighlight(SuperMetroidAddressSpace rom)
     {
         var frames = Enumerable.Range(0, 14).Select(frame => new MapPaletteCycleFrame
@@ -1568,7 +1561,6 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Checks Ceres door alarm ramp colors and their physical CGRAM slots.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream5CeresDoorRamp(SuperMetroidAddressSpace rom)
     {
         var document = new CeresDoorVisualDocument
@@ -1899,7 +1891,6 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Checks the Ceres flight scene's transferred colors and CGRAM destinations.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream5CeresFlightPalette(SuperMetroidAddressSpace rom)
     {
         var colors = new PaletteRgb5[SnesCgram.ColorCount];
@@ -1969,7 +1960,6 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Checks Ceres normal room paint against native colors in their actual CGRAM positions.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream5CeresNormalPaint(SuperMetroidAddressSpace rom)
     {
         PaletteRgb5[] Colors(int source, int count) => Enumerable.Range(0, count).Select(i =>
@@ -2036,7 +2026,6 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Checks Ceres escape paint's highlights, edges and outlines after palette composition.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream5CeresEscapePaint(SuperMetroidAddressSpace rom)
     {
         PaletteRgb5[] Colors(int source, int count) => Enumerable.Range(0, count).Select(i =>
@@ -2101,7 +2090,6 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Checks Ceres beacon light colors against the native palette ramp.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream5CeresBeaconPaint(SuperMetroidAddressSpace rom)
     {
         PaletteRgb5[] Colors(int source, int count) => Enumerable.Range(0, count).Select(i =>

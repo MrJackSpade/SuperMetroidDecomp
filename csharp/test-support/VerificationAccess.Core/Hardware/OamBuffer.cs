@@ -14,14 +14,11 @@ namespace SuperMetroid.Core.Hardware;
 /// size. Four sprites therefore share each high-table byte. NMI uploads all 544 bytes to
 /// PPU OAM in one DMA at <c>$80:933A</c>.
 /// </remarks>
-[PpuLayoutBoundary("backend: OAM low/high-table construction and packing")]
-[PpuLayoutAccess]
 public sealed class OamBuffer
 {
     /// <summary>Number of hardware OBJ records representable by one OAM image.</summary>
     public const int SpriteCount = SnesPpuLayout.OamSpriteCount;
     /// <summary>Byte length of the 128 four-byte coordinate and attribute records.</summary>
-    [PpuLayoutAccess]
     public const int LowTableByteCount = SnesPpuLayoutConstants.OamLowTableByteCount;
 
     /// <summary>The values of one byte: a coordinate sum at or past it carried out of the low byte.</summary>
@@ -44,7 +41,6 @@ public sealed class OamBuffer
     /// Byte offset of the next low-table record, equivalent to WRAM <c>$0590</c>. It moves
     /// in four-byte increments and reaches <c>$0200</c> when all 128 sprites are occupied.
     /// </summary>
-    [PpuLayoutAccess]
     public int NextByteOffset { get; internal set; }
 
     /// <summary>

@@ -5,7 +5,6 @@ using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Abilities.DrainedPoseHistoryVerification;
 using static SuperMetroid.Verification.Fx.PaletteFx.HyperBeamPaletteFxColorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SyntheticSamusCartridgeVerification;
@@ -28,7 +27,6 @@ internal static class SamusDamageAndGrabVerification
 {
 
 /// <summary>Checks drained-pose animation, control recovery, and palette progression against native pose streams.</summary>
-[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 internal static void VerifySamusDrainedController()
 {
     var bus = new TestAddressSpace();

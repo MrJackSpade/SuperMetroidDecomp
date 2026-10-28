@@ -2,7 +2,6 @@ using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -18,7 +17,6 @@ namespace SuperMetroid.Verification.Hardware;
 internal static class Mode7GameplaySnapshotTestsVerification
 {
     /// <summary>Checks the band layer across matrix and scroll variants, then packet retention after live scene data changes.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void VerifyMode7GameplaySnapshots()
     {
         var random = new Random(32109);

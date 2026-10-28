@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// Resolves Kraid's body frame to the BG2 tilemap it shows (#1352): his 64x64 map, whose left screens hold the body's
 /// upper and lower pages and whose right screens keep the blank tile the room's library background filled.
 /// </summary>
-[PpuLayoutBoundary("codec: Kraid's 64x64 BG2 map in the hardware's screen order")]
 internal static class KraidBodyTilemap
 {
     /// <summary>The first word of the lower-left screen, where the lower page shows.</summary>

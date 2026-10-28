@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.Video;
 
@@ -7,19 +6,15 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// (BG1SC=$51, BG2SC=$49, BG3SC=$5A, BG12NBA=$00, BG34NBA=$04, OBSEL=$03). Room, enemy and
 /// effect catalogs declare their own uses of these planes as aliases of the cells here.
 /// </summary>
-[PpuLayoutBoundary("catalog: ordinary gameplay VRAM")]
 internal static class GameplayVramLayout
 {
     /// <summary>VMADD of <c>Bg1Tilemap</c>, for render packets and the PPU backend.</summary>
-    [PpuLayoutAccess]
     public const ushort Bg1TilemapWord = 0x5000;
 
     /// <summary>VMADD of <c>Bg2Tilemap</c>, for render packets and the PPU backend.</summary>
-    [PpuLayoutAccess]
     public const ushort Bg2TilemapWord = 0x4800;
 
     /// <summary>VMADD of <see cref="HudCharacters"/>, for render packets and the PPU backend.</summary>
-    [PpuLayoutAccess]
     public const ushort HudCharacterWord = 0x4000;
 
     /// <summary>VMADD $0000-$3FFF: the BG1/BG2 4-bpp character base (BG12NBA=$00); room tilesets load here.</summary>

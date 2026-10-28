@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -20,7 +19,6 @@ internal static class CeresDestructionVerification
 {
 
 /// <summary>Advances the Ceres escape aftermath through the state-six handoff while checking map transfers, actor deletion, and phase entry.</summary>
-[PpuLayoutBoundary("exact hardware test: checks native PPU geometry, native VRAM words")]
 internal static void VerifyCeresDestructionCinematic()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount];

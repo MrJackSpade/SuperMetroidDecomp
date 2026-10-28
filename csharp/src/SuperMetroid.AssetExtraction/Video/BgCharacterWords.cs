@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.Video;
 
@@ -7,7 +6,6 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// The background characters gameplay's native VRAM words stand for (#1406): where the cartridge keeps the room's tile
 /// characters and layer 3's, decoded once into the sets and characters Core binds by.
 /// </summary>
-[PpuLayoutBoundary("codec: gameplay's background character VRAM words as character sets and characters")]
 internal static class BgCharacterWords
 {
     /// <summary>Whether <paramref name="firstWord"/> lies among the room's tile characters.</summary>

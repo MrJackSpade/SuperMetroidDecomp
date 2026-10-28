@@ -5,7 +5,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Options.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 
 using SuperMetroid.AssetExtraction.Video;
@@ -24,7 +23,6 @@ internal static class GameOptionsSheetComposer
     internal static SpriteSheetSources Sources(AreaMapPresentationCatalog maps) => Sources(Ensure.NotNull(maps).GameOptions, maps);
 
     /// <summary>What the options sheet composes from <paramref name="options"/>, over the menus of <paramref name="maps"/>.</summary>
-    [PpuLayoutBoundary("codec: the menu's sprite colours, read from its CGRAM image")]
     internal static SpriteSheetSources Sources(GameOptionsPresentation options, AreaMapPresentationCatalog maps)
     {
         Ensure.NotNull(options);

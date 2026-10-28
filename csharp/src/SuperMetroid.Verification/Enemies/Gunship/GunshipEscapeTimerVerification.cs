@@ -2,7 +2,6 @@ using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Gunship;
@@ -21,7 +20,6 @@ using SuperMetroid.Core.Escape;
 internal static class GunshipEscapeTimerVerification
 {
     /// <summary>Confirms boarding suppresses timer sprites and countdown before liftoff reuses their VRAM tiles for dust.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
     internal static int VerifyGunshipEscapeTimer()
     {
         var installation = RepositoryInstallation.Installation;

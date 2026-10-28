@@ -3,7 +3,6 @@ using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -21,7 +20,6 @@ namespace SuperMetroid.Verification.Samus.Palettes;
 internal static class HyperBeamFxColorArtworkVerification
 {
     /// <summary>Compares all ten native timed frames with the ROM-free palette loop, then verifies shared-channel reconstruction, isolated edits and malformed document rejection.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyHyperBeamFxColorArtwork(ISnesAddressSpace bus)
     {
         byte[] json = HyperBeamFxColorExtractor.Extract(bus);

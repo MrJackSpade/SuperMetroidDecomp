@@ -77,7 +77,6 @@ internal static class InstalledSporesTests
     }
 
     /// <summary>Compares stock and edited spores FX over freeze, scroll wrap, and animated transfers while guarding gameplay state.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     private static void CheckOwners(AreaMapPresentationCatalog stock, AreaMapPresentationCatalog edited,
         List<DisplayPacket> packets)
     {
@@ -343,7 +342,6 @@ internal static class InstalledSporesTests
     }
 
     /// <summary>Compares source-aware spores blending against an independent Mode 1 priority and BGR555 pixel oracle.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     private static void CheckPixels(List<DisplayPacket> packets)
     {
         int cases = 0;

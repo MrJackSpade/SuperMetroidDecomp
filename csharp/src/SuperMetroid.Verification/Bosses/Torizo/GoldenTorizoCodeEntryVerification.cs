@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -15,7 +14,6 @@ using SuperMetroid.Core.Progression;
 internal static class GoldenTorizoCodeEntryVerification
 {
     /// <summary>Confirms the native item grant while the entering Wave artwork survives the next NMI.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyGoldenTorizoCodeEntry()
     {
         // Isolated SRAM; installed artwork is read-only and no player save is loaded.

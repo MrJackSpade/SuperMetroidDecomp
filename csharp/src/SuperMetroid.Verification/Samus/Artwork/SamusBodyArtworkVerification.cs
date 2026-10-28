@@ -26,7 +26,6 @@ namespace SuperMetroid.Verification.Samus.Artwork;
 internal static class SamusBodyArtworkVerification
 {
     /// <summary>Checks every extracted selector and split character transfer against retail.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native VRAM words")]
     internal static void VerifySamusBodyArtwork(ISnesAddressSpace bus, GameInstallation installation)
     {
         SamusBodyArtworkCatalog stock = installation.LoadSamusBodyArt();
@@ -591,7 +590,6 @@ internal static class SamusBodyArtworkVerification
     }
 
     /// <summary>Compares arm-cannon pose records and tiles to ROM, then checks guarded cover OAM and DMA output.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifySamusArmCannonArtwork(ISnesAddressSpace bus,
         SamusBodyArtworkCatalog body)
     {

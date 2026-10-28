@@ -3,7 +3,6 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresFlightSpriteArtworkVerification;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
@@ -35,7 +34,6 @@ internal static class CeresFlightArtworkVerification
     internal const int CeresFrontApproachTicks = 30;
 
     /// <summary>Checks native front and rear transfers, visible edits, restored bindings, and stock repair.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyCeresFlightArtwork(GameInstallation installation,
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
@@ -436,7 +434,6 @@ internal static class CeresFlightArtworkVerification
     }
 
     /// <summary>Constructs the exact front or rear VRAM image from selected map and character art.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native PPU geometry, native VRAM words")]
     private static byte[] ExpectedCeresFlightVram(CeresFlightArtworkCatalog artwork, bool rear)
     {
         var expected = new byte[SnesVram.ByteCount];

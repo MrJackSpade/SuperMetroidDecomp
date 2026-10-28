@@ -40,7 +40,6 @@ internal static class IntroEyeInstructionsVerification
     }
 
     /// <summary>Steps the objects and the native reader together, comparing the drawn eye frame and the eye countdown.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void Compare(IntroCinematicObjectSystem objects, IntroTilemaps vram, IntroEyeTilemapPresentation artwork,
         NativeEyeReader native, int updates, string phase)
     {

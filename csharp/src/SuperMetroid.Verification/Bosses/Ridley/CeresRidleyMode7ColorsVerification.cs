@@ -22,7 +22,6 @@ namespace SuperMetroid.Verification.Bosses.Ridley;
 internal static class CeresRidleyMode7ColorsVerification
 {
     /// <summary>Compares native zoom rows, all getaway frames, override repair, and source-read blocking.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyCeresRidleyMode7ColorOverride(string stockDirectory,
         string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom,
         GameplayBasePaletteCatalog initialPalettes)

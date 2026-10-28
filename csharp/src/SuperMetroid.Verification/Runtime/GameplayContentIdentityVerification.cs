@@ -2,7 +2,6 @@ using SuperMetroid.Core.Samus.Abilities.Artwork;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -78,7 +77,6 @@ internal static class GameplayContentIdentityVerification
     }
 
     /// <summary>Builds decoded presentation identities with one optional edit or reversed record order.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static IReadOnlyDictionary<string, string> CreateGameplayIdentityFixture(
         string? edit = null, bool reverse = false)
     {

@@ -2,7 +2,6 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -21,7 +20,6 @@ internal static class Mode7TileSheetComposer
 {
     /// <summary>Composes <paramref name="tileset"/>'s tiles over <paramref name="content"/>, the room as it has loaded.</summary>
     /// <exception cref="InvalidDataException">The installed palettes are invalid.</exception>
-    [PpuLayoutBoundary("codec: Mode 7 characters' pixels in the high bytes of the room tile characters' words")]
     internal static ComposedMode7Tiles Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset, BgArtworkBindings content)
     {
         Ensure.NotNull(inputs);

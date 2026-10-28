@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Rendering;
 /// <param name="Cells">The layer's cells and the tiles they show, a 32-by-32 map.</param>
 /// <param name="VerticalScroll">Vertical scroll in pixels, before the map wraps.</param>
 /// <param name="TransparentColorZero">Whether pen zero is transparent.</param>
-/// <param name="Priority">Selects only cells of one priority tier, or null for both.</param>
-[IndependentFlag("the layer's colour-zero transparency, an independent PPU setting")]
+/// <param name="Priority">Draws only the cells placed in front (true) or at the back (false), or null for both.</param>
+[IndependentFlag("the layer's colour-zero transparency, an independent setting")]
 public sealed record ScreenTilesViewportLayer(ScreenTileMap Cells, int VerticalScroll, bool TransparentColorZero, bool? Priority) : DisplayLayer
 {
     /// <summary>The largest scroll.</summary>
@@ -29,7 +29,7 @@ public sealed record ScreenTilesViewportLayer(ScreenTileMap Cells, int VerticalS
         init => field = Ensure.BetweenInclusive(0, MaximumScroll, value);
     } = Ensure.BetweenInclusive(0, MaximumScroll, VerticalScroll);
 
-    /// <summary>Requires a one-screen map, which the window and a subscreen look into.</summary>
+    /// <summary>Requires a one-screen map, the map the layer looks into.</summary>
     /// <exception cref="ArgumentException">The map is not <see cref="MapSize"/>.</exception>
     internal static ScreenTileMap RequireScreen(ScreenTileMap cells) => Ensure.NotNull(cells).Size == MapSize ? cells
         : throw new ArgumentException($"The layer looks into a {MapSize.X}x{MapSize.Y} map, not {cells.Size.X}x{cells.Size.Y}.", nameof(cells));

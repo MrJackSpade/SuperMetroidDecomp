@@ -1,19 +1,19 @@
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
-/// Owned 224-line color windows. Add expanded eight-bit components, clamp at 255,
-/// and preserve alpha. These reference semantics intentionally differ from the
-/// intro operation which first reduces the source pixel to five-bit components.
+/// A colour added to the screen within a band of columns on each of the 224 screen lines: each eight-bit channel
+/// is clamped at 255 and the screen's opacity kept. Unlike the intro's colour addition, the screen's colour is not
+/// first reduced to five-bit channels.
 /// </summary>
 public sealed record ColourAddBandsLayer : DisplayLayer
 {
-    /// <summary>Private copy that keeps each physical scanline's color window stable after construction.</summary>
+    /// <summary>The layer's own copy of each line's band, unchanged by later edits to the caller's.</summary>
     private readonly ColorAddWindow[] windows;
-    /// <summary>Exactly 224 immutable per-scanline windows in top-to-bottom physical display order.</summary>
+    /// <summary>Each screen line's band and colour, top to bottom: exactly 224.</summary>
     public ReadOnlySpan<ColorAddWindow> Windows => windows;
 
-    /// <summary>Copies a complete physical-screen color-add program for deferred software or GPU compositing.</summary>
-    /// <param name="windows">One inclusive window and expanded RGB addition for each of the 224 visible scanlines.</param>
+    /// <summary>Copies each screen line's band and the colour it adds.</summary>
+    /// <param name="windows">One band of columns, both edges included, and the colour it adds, for each of the 224 screen lines.</param>
     /// <exception cref="ArgumentException">The input does not contain exactly 224 entries.</exception>
     public ColourAddBandsLayer(ReadOnlySpan<ColorAddWindow> windows)
     {

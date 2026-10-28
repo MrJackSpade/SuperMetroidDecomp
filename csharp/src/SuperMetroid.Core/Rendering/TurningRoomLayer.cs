@@ -3,28 +3,28 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>A gameplay room shown as a turning floor: the floor viewport, the opaque HUD, and an optional bottom band of layer two and sprites.</summary>
-/// <remarks>Scanline boundaries are physical screen coordinates; the transform never restarts at the band origin.</remarks>
+/// <summary>A gameplay room shown as a turning floor: the floor viewport, the opaque HUD, and an optional bottom band of the background and sprites.</summary>
+/// <remarks>Band boundaries are screen lines; the floor's turning is measured from the top of the screen, never from a band's start.</remarks>
 public sealed record TurningRoomLayer : DisplayLayer
 {
-    /// <summary>Gets the floor's transform; sampling uses physical screen coordinates even below the HUD band.</summary>
+    /// <summary>The floor's transform, measured in screen coordinates even below the HUD.</summary>
     public AffineTransform Transform { get; }
-    /// <summary>Gets the BG3 plane whose top rows are the HUD, drawn unscrolled with opaque color-zero pixels (#1348).</summary>
+    /// <summary>The overlay whose top rows are the HUD, drawn unscrolled and opaque throughout (#1348).</summary>
     public Layer3Cells Hud { get; }
-    /// <summary>Gets the Mode 7 map the room shows (#1349); its characters are the room tileset's.</summary>
+    /// <summary>The turning floor's map the room shows (#1349); its characters are the room tileset's.</summary>
     public AffineFloor Map { get; }
-    /// <summary>Gets the number of top-of-screen scanlines occupied by the opaque HUD, 0..224 in multiples of eight; zero disables the HUD band.</summary>
+    /// <summary>The screen lines at the top the opaque HUD covers, 0..224 in multiples of eight; zero shows no HUD.</summary>
     public int HudScanlines { get; }
-    /// <summary>Gets the optional bottom Mode-1 BG2/OBJ band; null lets Mode 7 and OBJ continue to the bottom of the viewport.</summary>
+    /// <summary>The optional band of background and sprites at the bottom of the screen; null lets the floor and sprites continue to the bottom.</summary>
     public TurningRoomLowerBand? Floor { get; }
 
-    /// <summary>Creates an immutable full-screen composition description with explicit HUD, Mode 7, and optional Mode-1 floor boundaries.</summary>
+    /// <summary>Describes a room shown as a turning floor, with its HUD and an optional bottom band.</summary>
     /// <param name="transform">The floor's transform.</param>
-    /// <param name="hud">The BG3 plane whose top rows are the HUD.</param>
-    /// <param name="map">The Mode 7 map the room shows.</param>
-    /// <param name="hudScanlines">Top HUD height, from zero through 224 physical scanlines and divisible by eight.</param>
-    /// <param name="floor">Optional value-copied lower band; its first scanline must follow the HUD and be below 224, with each map dimension either 32 or 64 tiles.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The HUD height or supplied floor boundary/map dimensions are invalid.</exception>
+    /// <param name="hud">The overlay whose top rows are the HUD.</param>
+    /// <param name="map">The turning floor's map.</param>
+    /// <param name="hudScanlines">The HUD's height, from zero through 224 screen lines and a multiple of eight.</param>
+    /// <param name="floor">The optional bottom band, copied; its first line must follow the HUD and be above the screen's bottom, with each map dimension 32 or 64 tiles.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The HUD's height, or the band's first line or map size, is invalid.</exception>
     public TurningRoomLayer(AffineTransform transform, Layer3Cells hud, AffineFloor map,
         int hudScanlines, TurningRoomLowerBand? floor = null)
     {

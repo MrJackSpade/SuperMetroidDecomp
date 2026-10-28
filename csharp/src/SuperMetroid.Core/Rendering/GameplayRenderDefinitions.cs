@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>Cartridge register definitions for gameplay display capture.</summary>
+/// <summary>Definitions used when the gameplay display is captured.</summary>
 internal static class GameplayRenderDefinitions
 {
-    /// <summary>OBSEL=$03: gameplay OBJ uses word $6000, with 8/16-pixel object sizes.</summary>
+    /// <summary>The gameplay sprites' setting: small sprites are 8 pixels and large ones 16, drawn from the gameplay sprite tiles.</summary>
     internal const byte ObjectSelection = 0x03;
-    /// <summary>Bank-$88 Ceres Ridley getaway HDMA returns to Mode 1 for the final sixteen visible scanlines.</summary>
+    /// <summary>During the Ceres Ridley getaway the room's background replaces the turning floor on the last sixteen screen lines.</summary>
     internal const int CeresFloorFirstScanline = ScreenGeometry.ScreenHeightPixels - 16;
 }

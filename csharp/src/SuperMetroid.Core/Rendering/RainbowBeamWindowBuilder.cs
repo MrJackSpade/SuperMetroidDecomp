@@ -28,7 +28,7 @@ internal static class RainbowBeamWindowBuilder
     private const int DownSecondRunWord = 115;
 
     /// <summary>
-    /// Returns the screen columns the beam crosses on each visible scanline. The HUD lines and every line the beam
+    /// Returns the screen columns the beam crosses on each visible screen line. The HUD lines and every line the beam
     /// misses are <see cref="MotherBrainBeamLine.None"/>, and a null geometry misses every line.
     /// </summary>
     internal static MotherBrainBeamLine[] Build(MotherBrainRainbowBeamGeometry? geometry)
@@ -46,7 +46,7 @@ internal static class RainbowBeamWindowBuilder
         int originY = beam.MouthY;
         if (originY is <= MotherBrainBeamDefinitions.FirstLine or >= MotherBrainBeamDefinitions.EndLine)
             throw new ArgumentOutOfRangeException(nameof(geometry), originY,
-                "Rainbow-beam mouth Y is outside its native scanline work area.");
+                "Rainbow-beam mouth Y is outside the lines the beam is traced over.");
         int origin = EightEight.FromWhole(beam.MouthScreenX);
         var data = new ushort[MotherBrainBeamDefinitions.EndLine];
         Array.Fill(data, MissedLineWord);
@@ -103,7 +103,7 @@ internal static class RainbowBeamWindowBuilder
         }
     }
 
-    /// <summary>Compiled bank-$91 absolute tangent, with the caller's angle wrapped to a byte.</summary>
+    /// <summary>The beam's absolute tangent, with the caller's angle wrapped to a byte.</summary>
     internal static int Tangent(int angle) =>
         AbsoluteTangents.Sample(unchecked((byte)angle));
 }

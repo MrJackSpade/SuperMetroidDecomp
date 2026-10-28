@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>Mutually exclusive X-ray blending routines selected by $91:D27F and bank $88.</summary>
+/// <summary>How the X-ray beam blends a room; each room takes one.</summary>
 public enum XrayRoomBlendMode
 {
-    /// <summary>$88:817B substitutes the hidden-block BG2 map inside the beam.</summary>
+    /// <summary>Inside the beam, blocks show what they really are.</summary>
     RevealBlocks,
-    /// <summary>$88:81A4 preserves room backgrounds and does not substitute hidden blocks.</summary>
+    /// <summary>The room's backgrounds stay as they are and blocks are not revealed.</summary>
     PreserveBackgrounds,
-    /// <summary>$88:81DB preserves the Fireflea darkness subtraction outside the beam.</summary>
+    /// <summary>Fireflea's darkness stays outside the beam.</summary>
     Fireflea,
 }

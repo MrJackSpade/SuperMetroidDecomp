@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rendering;
 internal static class SuitPickupBeamWindowBuilder
 {
     /// <summary>
-    /// Returns one packed endpoint word per beam scanline: low byte is the inclusive left
+    /// Returns one packed endpoint word per beam screen line: low byte is the inclusive left
     /// endpoint, high byte the inclusive right endpoint, and an inverted word is empty.
     /// </summary>
     internal static ushort[] Build(SamusSuitPickupBeam beam)
@@ -15,7 +15,7 @@ internal static class SuitPickupBeamWindowBuilder
         int lines = SuitPickupBeamDefinitions.WindowScanlineCount;
         var windows = new ushort[lines];
         Array.Fill(windows, SuitPickupBeamDefinitions.EmptyWindow.Word);
-        // Window registers hold eight-bit columns; the beam's columns are always 0 through 255.
+        // Each edge is an eight-bit column; the beam's columns are always 0 through 255.
         SuitPickupBeamEdges column = new(checked((byte)beam.Left.X), checked((byte)beam.Right.X));
         switch (beam.Shape)
         {
@@ -36,8 +36,8 @@ internal static class SuitPickupBeamWindowBuilder
                 break;
             case SamusSuitPickupBeamShape.ClosingCurvedColumn:
                 FillCurvedColumn(windows, column);
-                // The upper wipe always clears at least the first scanline; the lower wipe
-                // is one scanline shorter, leaving the center line for the final stage.
+                // The upper wipe always clears at least the first screen line; the lower wipe
+                // is one screen line shorter, leaving the center line for the final stage.
                 for (int i = 0; i < Math.Min(Math.Max(1, beam.Progress), lines); i++)
                     windows[i] = SuitPickupBeamDefinitions.EmptyWindow.Word;
                 for (int i = 0; i < Math.Min(Math.Max(1, beam.Progress - 1), lines); i++)

@@ -25,7 +25,7 @@ public sealed class BackgroundColours
         this.colours = colours.ToArray();
     }
 
-    /// <summary>Every ink's colour, for the resolution of sprite draws no owner coloured and the software rasterizer.</summary>
+    /// <summary>Every ink's colour, for colouring the sprite draws no owner coloured.</summary>
     internal ReadOnlySpan<RgbColor> AllColours => colours;
 
     /// <summary>The colour shown where nothing is drawn.</summary>

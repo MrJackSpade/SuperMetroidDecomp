@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>The bit depth of a background layer's characters.</summary>
+/// <summary>How many inks a tile layer's characters draw with.</summary>
 public enum TileInkDepth
 {
-    /// <summary>Two bits per pixel.</summary>
+    /// <summary>Each pixel is one of four inks.</summary>
     FourColours,
 
-    /// <summary>Four bits per pixel.</summary>
+    /// <summary>Each pixel is one of sixteen inks.</summary>
     SixteenColours,
 }

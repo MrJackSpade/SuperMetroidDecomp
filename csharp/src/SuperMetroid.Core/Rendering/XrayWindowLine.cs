@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>Inclusive window endpoints in screen columns; inverted endpoints hide the reveal on that line.</summary>
+/// <summary>The columns the X-ray beam covers on one screen line, both edges included; a left edge past the right hides the beam on that line.</summary>
 /// <param name="Left">Inclusive left screen column, 0 through <see cref="MaximumColumn"/>.</param>
 /// <param name="Right">Inclusive right screen column, 0 through <see cref="MaximumColumn"/>.</param>
 public readonly record struct XrayWindowLine(int Left, int Right)

@@ -5,8 +5,8 @@ using SuperMetroid.Core.Rooms.Artwork;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
-/// The message box's text as BG3 shows it (#1392): the pre-coloured image of the message it shows, centered on the
-/// window, shown only on the reveal window's scanlines.
+/// The message box's text as the overlay shows it (#1392): the pre-coloured image of the message it shows, centered on the
+/// window, shown only on the reveal window's screen lines.
 /// </summary>
 public sealed record MessageBoxLayer : DisplayLayer
 {
@@ -35,13 +35,13 @@ public sealed record MessageBoxLayer : DisplayLayer
     /// <summary>The current centered reveal half-height in pixels, from zero through 24.</summary>
     public int RadiusPixels { get; }
 
-    /// <summary>The scanline the image's top row is drawn on: the rows centered on the window.</summary>
+    /// <summary>The screen line the image's top row is drawn on: the rows centered on the window.</summary>
     public int Top => GameplayMessageBoxDefinitions.Layout.WindowCenterY - Picture.Size.Y / 2;
 
-    /// <summary>The first scanline the reveal window shows.</summary>
+    /// <summary>The first screen line the reveal window shows.</summary>
     public int FirstScanline => GameplayMessageBoxDefinitions.Layout.WindowCenterY - RadiusPixels;
 
-    /// <summary>The scanline after the last one the reveal window shows.</summary>
+    /// <summary>The screen line after the last one the reveal window shows.</summary>
     public int EndScanline => GameplayMessageBoxDefinitions.Layout.WindowCenterY + RadiusPixels;
 
     /// <summary>

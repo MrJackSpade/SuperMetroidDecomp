@@ -27,9 +27,9 @@ public sealed class FloorCharacterSheet
         Id = id;
         Picture = Ensure.NotNull(sheet).Frame(FrameName);
         if (Picture.Sheet.Colours != SpriteImageColours.FullPalette)
-            throw new InvalidDataException($"Mode 7 character sheet {id} is not coloured from the full palette.");
+            throw new InvalidDataException($"Floor character sheet {id} is not coloured from the full palette.");
         if (Picture.Size.X != TilesPerRow * TilePixels || Picture.Size.Y == 0 || Picture.Size.Y % TilePixels != 0)
-            throw new InvalidDataException($"Mode 7 character sheet {id} is {Picture.Size.X}x{Picture.Size.Y}, not whole rows of characters.");
+            throw new InvalidDataException($"Floor character sheet {id} is {Picture.Size.X}x{Picture.Size.Y}, not whole rows of characters.");
     }
 
     /// <summary>The installed sheet.</summary>

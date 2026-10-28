@@ -3,12 +3,12 @@ using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>The colour each scanline of the Ceres haze gradient adds at the current fade.</summary>
+/// <summary>The colour each screen line of the Ceres haze gradient adds at the current fade.</summary>
 internal static class CeresHazeShading
 {
     /// <summary>
-    /// Resolves only the cosmetic RGB amplitude. The native scanline bands and fade
-    /// counter remain compiled and are shared by software and captured-PPU rendering.
+    /// Resolves only the colour's strength. The bands and the fade's progress come from
+    /// the haze's definitions.
     /// </summary>
     internal static RgbColor ResolveComponents(
         int screenY, int intensity, bool ridleyIsDead, RoomFxBlendInks? colors)

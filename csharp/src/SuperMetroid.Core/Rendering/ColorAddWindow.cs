@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>Inclusive horizontal endpoints and expanded-byte RGB addition for one physical scanline.</summary>
+/// <summary>The band of columns, both edges included, and the eight-bit colour added on one screen line.</summary>
 /// <param name="Left">Inclusive left screen column, 0 through <see cref="XrayWindowLine.MaximumColumn"/>.</param>
 /// <param name="Right">Inclusive right screen column, 0 through <see cref="XrayWindowLine.MaximumColumn"/>.</param>
-/// <param name="Red">Expanded red addition, 0 through 255.</param>
-/// <param name="Green">Expanded green addition, 0 through 255.</param>
-/// <param name="Blue">Expanded blue addition, 0 through 255.</param>
+/// <param name="Red">The red added, 0 through 255.</param>
+/// <param name="Green">The green added, 0 through 255.</param>
+/// <param name="Blue">The blue added, 0 through 255.</param>
 public readonly record struct ColorAddWindow(int Left, int Right, int Red, int Green, int Blue)
 {
     /// <summary>Inclusive left screen column.</summary>
@@ -22,27 +22,27 @@ public readonly record struct ColorAddWindow(int Left, int Right, int Red, int G
         init => field = Ensure.BetweenInclusive(0, XrayWindowLine.MaximumColumn, value);
     } = Ensure.BetweenInclusive(0, XrayWindowLine.MaximumColumn, Right);
 
-    /// <summary>Expanded red addition, 0 through 255.</summary>
+    /// <summary>The red added, 0 through 255.</summary>
     public int Red
     {
         get;
         init => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
     } = Ensure.BetweenInclusive(0, byte.MaxValue, Red);
 
-    /// <summary>Expanded green addition, 0 through 255.</summary>
+    /// <summary>The green added, 0 through 255.</summary>
     public int Green
     {
         get;
         init => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
     } = Ensure.BetweenInclusive(0, byte.MaxValue, Green);
 
-    /// <summary>Expanded blue addition, 0 through 255.</summary>
+    /// <summary>The blue added, 0 through 255.</summary>
     public int Blue
     {
         get;
         init => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
     } = Ensure.BetweenInclusive(0, byte.MaxValue, Blue);
 
-    /// <summary>Inverted endpoints represent an empty window, including hidden HUD lines.</summary>
+    /// <summary>A left edge past the right covers no columns, as on the HUD's lines.</summary>
     public static ColorAddWindow Empty => new(1, 0, 0, 0, 0);
 }

@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>Inserts only the sprite pixels whose frontmost sprite has this priority.</summary>
-/// <param name="Priority">The sprite priority tier, 0 through <see cref="FrontmostDepth"/>.</param>
-/// <param name="FixedColor">Optional fixed color added to the inserted pixels.</param>
+/// <summary>Draws only the sprite pixels whose frontmost sprite is at this depth.</summary>
+/// <param name="Priority">The sprites' depth, 0 (rearmost) through <see cref="FrontmostDepth"/>.</param>
+/// <param name="FixedColor">An optional tint added to the drawn pixels.</param>
 public sealed record SpriteDepthLayer(int Priority, ScreenTintLayer? FixedColor = null) : DisplayLayer
 {
-    /// <summary>The highest of the four OBJ priority tiers.</summary>
+    /// <summary>The frontmost of the four sprite depths.</summary>
     public const int FrontmostDepth = 3;
 
-    /// <summary>The OBJ priority tier.</summary>
+    /// <summary>The sprites' depth.</summary>
     public int Depth
     {
         get;

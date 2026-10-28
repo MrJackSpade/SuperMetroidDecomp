@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Rendering;
 /// draws. The layers and effects that use them belong to the containing frame, not here.
 /// </summary>
 /// <remarks>
-/// Capture on the simulation owner. Once captured, neither later simulation writes nor software-render scratch buffers
-/// can change it. Sprites are whole-frame draws only; a frontend screen's OAM storage is converted when it is captured
+/// Capture on the simulation owner. Once captured, later simulation writes cannot change it.
+/// Sprites are whole-frame draws only; a frontend screen's sprites become draws when it is captured
 /// (the extraction pipeline's ObjCharacterImage).
 /// </remarks>
 public sealed class FramePaint

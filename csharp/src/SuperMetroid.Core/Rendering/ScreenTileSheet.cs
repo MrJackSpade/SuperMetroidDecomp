@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Rendering;
 /// <summary>
 /// An installed sheet of one frontend background artwork's characters, pre-coloured (#1392): each character under each of
 /// the eight palette rows, <see cref="Columns"/> to a row, each palette row's block of characters below the one before,
-/// coloured with the standard palette of the screen that shows the artwork. A tilemap word draws its character's tile
-/// from its palette row's block, flipped and prioritised as the word says.
+/// coloured with the standard palette of the screen that shows the artwork. A cell draws its character's tile
+/// from its palette row's block, mirrored and placed in front or behind as the cell says.
 /// </summary>
 public sealed class ScreenTileSheet
 {
@@ -16,7 +16,7 @@ public sealed class ScreenTileSheet
     /// <summary>Tiles across a row of the sheet.</summary>
     public const int Columns = 32;
 
-    /// <summary>The palette rows a tilemap word can select.</summary>
+    /// <summary>The palette rows a cell can select.</summary>
     public const int ColourVariants = 8;
 
     /// <summary>Pixels along a tile's side.</summary>
@@ -70,7 +70,7 @@ public sealed class ScreenTileSheet
     /// <summary>Rows of tiles in each palette row's block of a sheet of <paramref name="characters"/> characters.</summary>
     public static int BlockRowsOf(int characters) => (Ensure.BetweenInclusive(1, int.MaxValue, characters) + Columns - 1) / Columns;
 
-    /// <summary>The VRAM words one character of <paramref name="depth"/> occupies.</summary>
+    /// <summary>The two-byte words of artwork one character of <paramref name="depth"/> occupies.</summary>
     public static int CharacterWordsOf(TileInkDepth depth) => depth == TileInkDepth.SixteenColours ? 16 : 8;
 
     /// <summary>How a sheet of <paramref name="depth"/> characters is coloured.</summary>

@@ -1,40 +1,40 @@
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
-/// Mode-1 composition retaining the winning layer until it blends. X-ray, Phantoon, Fireflea and spores share this
-/// operation; an all-empty window blends everywhere without revealing blocks. Memory belongs to the containing scene,
-/// and the fused operation also owns the unchanged HUD.
+/// Gameplay with a blend limited on each line to a band of columns, the frontmost layer at each pixel blending as
+/// <see cref="Blend"/> says. X-ray, Phantoon, Fireflea and spores share it; bands that are all empty blend everywhere
+/// without revealing blocks. The paint belongs to the containing scene, and this layer also draws the unchanged HUD.
 /// </summary>
 public sealed record GameplayBlendLayer : DisplayLayer
 {
-    /// <summary>Owned scanline windows, copied from the caller for stable rendering.</summary>
+    /// <summary>The layer's own copy of each line's band.</summary>
     private readonly XrayWindowLine[] lines;
-    /// <summary>Ordinary gameplay planes and OAM composed before color math.</summary>
+    /// <summary>The gameplay layers and sprites, composed before the blend.</summary>
     public GameplaySceneLayer Gameplay { get; }
-    /// <summary>One color-window interval for each of the 224 physical scanlines.</summary>
+    /// <summary>The band of columns the blend covers on each of the 224 screen lines.</summary>
     public ReadOnlySpan<XrayWindowLine> Lines => lines;
     /// <summary>Whether X-ray-reveal block characters replace eligible level tiles.</summary>
     public bool RevealBlocks { get; }
     /// <summary>Which layers blend, how, and with what.</summary>
     public SceneBlend Blend { get; }
-    /// <summary>Optional captured 2-bpp BG3-style subscreen plane.</summary>
+    /// <summary>An optional four-colour overlay the frontmost layer blends with.</summary>
     public OverlayBlendLayer? BlendPlane { get; }
-    /// <summary>Admit gameplay BG2 to the subscreen, competing with any captured BG3 by Mode-1 priority.</summary>
+    /// <summary>Whether the gameplay background is also blended with, ordered with the optional overlay by their tile depths.</summary>
     public bool BlendsWithBackground { get; }
 
-    /// <summary>Creates a gameplay composition with scanline-windowed colour blending.</summary>
-    /// <param name="gameplay">The ordinary gameplay source planes and sprites.</param>
-    /// <param name="lines">Exactly one color-window interval per physical scanline.</param>
+    /// <summary>Creates gameplay with a blend limited to a band of columns on each line.</summary>
+    /// <param name="gameplay">The gameplay layers and sprites.</param>
+    /// <param name="lines">Exactly one band of columns per screen line.</param>
     /// <param name="revealBlocks">Whether to substitute eligible level blocks with their X-ray reveal characters.</param>
     /// <param name="blend">Which layers blend, how, and with what.</param>
-    /// <param name="subscreen">Optional captured 2-bpp plane competing on the subscreen.</param>
-    /// <param name="subscreenUsesBg2">Whether gameplay BG2 also competes on the subscreen.</param>
-    [IndependentFlag("independent PPU facts of the captured frame: x-ray block reveal, and BG2 in the subscreen")]
+    /// <param name="subscreen">An optional four-colour overlay blended with.</param>
+    /// <param name="subscreenUsesBg2">Whether the gameplay background is also blended with.</param>
+    [IndependentFlag("independent facts of the frame: X-ray block reveal, and blending with the background")]
     public GameplayBlendLayer(GameplaySceneLayer gameplay, ReadOnlySpan<XrayWindowLine> lines, bool revealBlocks, SceneBlend blend, OverlayBlendLayer? subscreen = null, bool subscreenUsesBg2 = false)
     {
         Ensure.NotNull(gameplay);
         if (subscreenUsesBg2 && !blend.BlendsWithLayersBehind)
-            throw new ArgumentException("BG2 subscreen requires subscreen arithmetic.", nameof(subscreenUsesBg2));
+            throw new ArgumentException("Blending with the background requires blending with the layers behind.", nameof(subscreenUsesBg2));
         Ensure.LengthEqual(lines, ScreenGeometry.ScreenHeightPixels);
         Gameplay = gameplay;
         this.lines = lines.ToArray();

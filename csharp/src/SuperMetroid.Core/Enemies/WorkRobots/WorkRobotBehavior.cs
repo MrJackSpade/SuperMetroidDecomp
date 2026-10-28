@@ -369,7 +369,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             "Work Robot palette animation requires installed artwork."))
             .ApplyFrame(animated, record);
         WorkRobotPaletteAnimationTimer =
-            WrappingCountdown.FromRaw(WorkRobotPaletteCycle.DurationForByteOffset(recordByteOffset));
+            WrappingCountdown.FromRaw(WorkRobotPaletteTiming.DurationForByteOffset(recordByteOffset));
         WorkRobotPaletteAnimationRecord = record + 1;
     }
 

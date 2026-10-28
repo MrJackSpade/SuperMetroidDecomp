@@ -33,7 +33,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
             ushort byteOffset = unchecked((ushort)(
                 record * WorkRobotPaletteTimingDefinitions.RecordByteCount));
             AssertEqual(nativeDuration,
-                WorkRobotPaletteCycle.DurationForByteOffset(byteOffset),
+                WorkRobotPaletteTiming.DurationForByteOffset(byteOffset),
                 $"Work Robot palette duration {record}");
             AssertEqual(byteOffset,
                 WorkRobotPaletteTimingDefinitionsConstants.NormalizeByteOffset(byteOffset),
@@ -56,7 +56,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
         foreach (ushort invalid in new ushort[] { 1, 9, 51, 59, 60, 70, ushort.MaxValue })
         {
             AssertThrows<InvalidDataException>(
-                () => WorkRobotPaletteCycle.DurationForByteOffset(invalid),
+                () => WorkRobotPaletteTiming.DurationForByteOffset(invalid),
                 $"Work Robot duration rejects non-record offset {invalid}");
         }
 
@@ -112,7 +112,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
                 enemies.WorkRobotBehavior.WorkRobotPaletteAnimationRecord,
                 $"production Work Robot palette load {nextLoad} advances record");
             AssertEqual(
-                WorkRobotPaletteCycle.DurationForByteOffset(
+                WorkRobotPaletteTiming.DurationForByteOffset(
                     unchecked((ushort)(record *
                         WorkRobotPaletteTimingDefinitions.RecordByteCount))),
                 enemies.WorkRobotBehavior.WorkRobotPaletteAnimationTimer.RawValue,

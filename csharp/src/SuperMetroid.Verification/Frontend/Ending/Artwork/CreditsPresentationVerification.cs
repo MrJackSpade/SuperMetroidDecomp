@@ -32,8 +32,8 @@ internal static class CreditsPresentationVerification
             presentation.RowCount, "installed credits retain the fixed native schedule");
         for (int row = 0; row < nativeRows.Length; row++)
         {
-            AssertTrue(presentation.GetRow(row).SequenceEqual(nativeRows[row]),
-                $"installed credits row {row} matches the native row program");
+            AssertTrue(BackgroundTileWordBytes.Words(presentation.GetRow(row)).SequenceEqual(nativeRows[row]),
+                $"installed credits row {row}, encoded through the codec, matches the native row program");
         }
 
         // Exercise actual runtime cadence through completion. CreditsObjectState has no bus
@@ -66,7 +66,7 @@ internal static class CreditsPresentationVerification
         CreditsPresentation edited = CreditsPresentation.Load(
             new MemoryStream(editedBytes, writable: false));
         int firstTextRow = CreditsPresentationDefinitions.InitialBlankRows;
-        AssertEqual((ushort)(CreditsPresentationDefinitions.CompileGlyph('T', CreditsLineStyle.Small) | 6 << 10),
+        AssertEqual(CreditsPresentationDefinitions.CompileGlyph('T', CreditsLineStyle.Small) with { ColourVariant = 6 },
             edited.GetRow(firstTextRow)[3],
             "edited text, column and palette compile into the live row");
         AssertTrue(!edited.GetRow(firstTextRow).SequenceEqual(

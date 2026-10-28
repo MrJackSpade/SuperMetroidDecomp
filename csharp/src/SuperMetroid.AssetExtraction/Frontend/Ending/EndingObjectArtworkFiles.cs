@@ -39,7 +39,7 @@ public static class EndingObjectArtworkFiles
             EndingSourceDefinitions.Artwork.ExplosionObjectCharacters,
             EndingObjectArtworkFormat.ExplosionByteCount);
         for (int index = 0; index < EndingObjectArtworkFormat.FragmentCount; index++)
-            Export(EndingObjectArtworkFormat.FragmentFileName(index),
+            ExportMap(EndingObjectArtworkFormat.FragmentFileName(index),
                 EndingArtworkSources.ObjectFragment((EndingObjectFragmentId)index), EndingObjectArtworkFormat.FragmentByteCount);
         Export(EndingObjectArtworkFormat.WaitingSamusFileName,
             EndingSourceDefinitions.Artwork.WaitingForCreditsCharacters,
@@ -56,7 +56,7 @@ public static class EndingObjectArtworkFiles
         Export(EndingObjectArtworkFormat.PostCreditsFragmentAFileName,
             EndingSourceDefinitions.Artwork.TransformationCharacters,
             EndingObjectArtworkFormat.PostCreditsFragmentAByteCount);
-        Export(EndingObjectArtworkFormat.PostCreditsFragmentBFileName,
+        ExportMap(EndingObjectArtworkFormat.PostCreditsFragmentBFileName,
             EndingSourceDefinitions.Artwork.TransformationTilemap,
             EndingObjectArtworkFormat.PostCreditsFragmentBByteCount);
         Export(EndingObjectArtworkFormat.PostShotLogoTileFileName,
@@ -202,8 +202,8 @@ public static class EndingObjectArtworkFiles
             byte[] json = RoomBackgroundTilemapExtractor.Encode(native);
             RoomBackgroundTilemapAtlas compiled = RoomBackgroundTilemapAtlas.Load(
                 new MemoryStream(json, writable: false), count);
-            if (!compiled.Bytes.Span.SequenceEqual(native))
-                throw new InvalidDataException($"Ending map JSON {name} changed native BG2 words.");
+            if (!BackgroundTileWords.ToBytes(compiled.Tiles.Span).AsSpan().SequenceEqual(native))
+                throw new InvalidDataException($"Ending map JSON {name} changed native tilemap words.");
             using (var output = new FileStream(Path.Combine(directory, name),
                        FileMode.CreateNew, FileAccess.Write))
                 output.Write(json);
@@ -262,14 +262,14 @@ public static class EndingObjectArtworkFiles
         return new EndingObjectArtworkCatalog(new EndingObjectArtworkParts { Clouds = LoadSheet(EndingObjectArtworkFormat.CloudFileName,
                 EndingObjectArtworkFormat.CloudByteCount), Explosion = LoadSheet(EndingObjectArtworkFormat.ExplosionFileName,
                 EndingObjectArtworkFormat.ExplosionByteCount), Fragments = Enumerable.Range(0, EndingObjectArtworkFormat.FragmentCount)
-                .Select(index => LoadSheet(EndingObjectArtworkFormat.FragmentFileName(index),
+                .Select(index => LoadMap(EndingObjectArtworkFormat.FragmentFileName(index),
                     EndingObjectArtworkFormat.FragmentByteCount))
                 .ToArray(), WaitingSamus = LoadSheet(EndingObjectArtworkFormat.WaitingSamusFileName,
                 EndingObjectArtworkFormat.RewardByteCount), ShootingScreen = LoadSheet(EndingObjectArtworkFormat.ShootingScreenFileName,
                 EndingObjectArtworkFormat.RewardByteCount), SuitlessSamus = LoadSheet(EndingObjectArtworkFormat.SuitlessSamusFileName,
                 EndingObjectArtworkFormat.RewardByteCount), WaitingTilemap = LoadMap(EndingObjectArtworkFormat.WaitingTilemapFileName,
                 EndingObjectArtworkFormat.WaitingTilemapByteCount), PostCreditsFragmentA = LoadSheet(EndingObjectArtworkFormat.PostCreditsFragmentAFileName,
-                EndingObjectArtworkFormat.PostCreditsFragmentAByteCount), PostCreditsFragmentB = LoadSheet(EndingObjectArtworkFormat.PostCreditsFragmentBFileName,
+                EndingObjectArtworkFormat.PostCreditsFragmentAByteCount), PostCreditsFragmentB = LoadMap(EndingObjectArtworkFormat.PostCreditsFragmentBFileName,
                 EndingObjectArtworkFormat.PostCreditsFragmentBByteCount), PostShotLogoTiles = LoadSheet(EndingObjectArtworkFormat.PostShotLogoTileFileName,
                 EndingObjectArtworkFormat.PostShotLogoTileByteCount), PostShotLogoMap = LoadMap(EndingObjectArtworkFormat.PostShotLogoMapFileName,
                 EndingObjectArtworkFormat.PostShotLogoMapByteCount), CloudSprites = LoadCloudSprites(), ExplosionSprites = LoadExplosionSprites(), CompletionTextSprites = LoadCompletionTextSprites(), RewardSprites = LoadRewardSprites(), LogoSprites = LoadLogoSprites() });

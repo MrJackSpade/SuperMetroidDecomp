@@ -362,12 +362,13 @@ under `game/ending-mode7/`. The runtime interleaves these files for the original
 sixteen queued uploads; same-named files under `overrides/ending-mode7/` replace
 either half without changing the jump or shooting sequence.
 
-Twelve ending/credits character streams are installed under `game/ending-objects/`:
-`ending-cloud-characters.png`, `ending-explosion-objects.png`, and four
-`ending-explosion-fragment-*.png` sheets, plus `credits-waiting-samus.png`,
-`post-credits-shooting.png`, and `post-credits-suitless-samus.png`. The waiting
-sheet also supplies the two suited reward variants. The waiting scene's ordered
-BG2 tile references are `credits-waiting-tilemap.json` in the same directory.
+Ending/credits character streams are installed under `game/ending-objects/`:
+`ending-cloud-characters.png` and `ending-explosion-objects.png`, plus
+`credits-waiting-samus.png`, `post-credits-shooting.png`, and
+`post-credits-suitless-samus.png`. The waiting sheet also supplies the two suited
+reward variants. The planet explosion's four maps are ordered tile references in
+`ending-explosion-fragment-*.json`, and the waiting scene's ordered BG2 tile
+references are `credits-waiting-tilemap.json` in the same directory.
 `ending-cloud-sprites.json` contains the six editable atmospheric-cloud OAM
 compositions, including part offsets, tile references, flips, priority, and
 optional palette overrides. `ending-explosion-sprites.json` contains the sixteen
@@ -384,8 +385,9 @@ game logic.
 `ending-logo-sprites.json` contains the eight final assembling-logo OAM
 compositions: two S halves and three frames for each circle half. Logo motion,
 wrap timing, and palette-crossfade behavior remain compiled game logic.
-Two small cartridge tile uploads, `post-credits-tile-fragment-a.png` and
-`post-credits-tile-fragment-b.png`, are also installed as indexed PNGs. The
+The small transformation character upload is installed as the indexed PNG
+`post-credits-tile-fragment-a.png`, and its map as the ordered tile references in
+`post-credits-tile-fragment-b.json`. The
 final assembling logo uses `post-credits-logo-tiles.png` and the ordered BG2
 references in `post-credits-logo-map.json`; its six upload positions and timing
 are fixed game logic. Copy any indexed PNG or JSON file to

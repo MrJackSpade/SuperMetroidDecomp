@@ -177,24 +177,28 @@ internal static class EndingContentIdentityVerification
             return RoomCharacterAtlasPng.Read(png, bytes);
         }
 
-        RoomBackgroundTilemapAtlas Map(string name)
+        RoomBackgroundTilemapAtlas Map(string name, int seed = 0)
         {
-            RoomBackgroundTilemapCell Cell(bool last) => new()
+            RoomBackgroundTilemapCell Cell(int index)
             {
-                TileColumn = last && (edit == name || name == "waiting-map" && edit == "map-column") ? 1 : 0,
-                TileRow = last && name == "waiting-map" && edit == "map-row" ? 1 : 0,
-                Palette = last && name == "waiting-map" && edit == "map-palette" ? 1 : 0,
-                Priority = last && name == "waiting-map" && edit == "map-priority",
-                FlipX = last && name == "waiting-map" && edit == "map-flip-x",
-                FlipY = last && name == "waiting-map" && edit == "map-flip-y",
-            };
+                bool last = index == RoomBackgroundTilemapFormat.CellsPerPage - 1;
+                return new()
+                {
+                    TileColumn = last && (edit == name || name == "waiting-map" && edit == "map-column") ? 1 : index == 0 ? seed : 0,
+                    TileRow = last && name == "waiting-map" && edit == "map-row" ? 1 : 0,
+                    Palette = last && name == "waiting-map" && edit == "map-palette" ? 1 : 0,
+                    Priority = last && name == "waiting-map" && edit == "map-priority",
+                    FlipX = last && name == "waiting-map" && edit == "map-flip-x",
+                    FlipY = last && name == "waiting-map" && edit == "map-flip-y",
+                };
+            }
             return RoomBackgroundTilemapAtlas.Load(Json(new RoomBackgroundTilemapDocument
             {
                 Version = RoomBackgroundTilemapFormat.Version,
                 Pages = [new RoomBackgroundTilemapPage
                 {
                     Cells = Enumerable.Range(0, RoomBackgroundTilemapFormat.CellsPerPage)
-                        .Select(index => Cell(index == RoomBackgroundTilemapFormat.CellsPerPage - 1)).ToArray(),
+                        .Select(Cell).ToArray(),
                 }],
             }), RoomBackgroundTilemapFormat.BytesPerPage);
         }
@@ -242,9 +246,9 @@ internal static class EndingContentIdentityVerification
         }
 
         var fragments = Enumerable.Range(0, EndingObjectArtworkFormat.FragmentCount)
-            .Select(index => Characters("fragment-" + index, EndingObjectArtworkFormat.FragmentByteCount, index)).ToArray();
+            .Select(index => Map("fragment-" + index, index)).ToArray();
         if (edit == "fragment-order") Array.Reverse(fragments);
-        var objects = new EndingObjectArtworkCatalog(new EndingObjectArtworkParts { Clouds = Characters("clouds", EndingObjectArtworkFormat.CloudByteCount), Explosion = Characters("explosion", EndingObjectArtworkFormat.ExplosionByteCount), Fragments = fragments, WaitingSamus = Characters("waiting", EndingObjectArtworkFormat.RewardByteCount), ShootingScreen = Characters("shooting", EndingObjectArtworkFormat.RewardByteCount), SuitlessSamus = Characters("suitless", EndingObjectArtworkFormat.RewardByteCount), WaitingTilemap = Map("waiting-map"), PostCreditsFragmentA = Characters("post-fragment-a", EndingObjectArtworkFormat.PostCreditsFragmentAByteCount), PostCreditsFragmentB = Characters("post-fragment-b", EndingObjectArtworkFormat.PostCreditsFragmentBByteCount), PostShotLogoTiles = Characters("logo-tiles", EndingObjectArtworkFormat.PostShotLogoTileByteCount), PostShotLogoMap = Map("logo-map"), CloudSprites = EndingCloudSpritePresentation.Load(Sprites("cloud", EndingCloudSpriteDefinitions.Frames.Select(frame => frame.Name))), ExplosionSprites = EndingExplosionSpritePresentation.Load(Sprites("explosion", EndingExplosionSpriteDefinitions.Frames.Select(frame => frame.Name))), CompletionTextSprites = EndingCompletionTextSpritePresentation.Load(Sprites("text", EndingCompletionTextSpriteDefinitions.Frames.Select(frame => frame.Name))), RewardSprites = EndingRewardSpritePresentation.Load(Sprites("reward", EndingRewardSpriteDefinitions.Frames.Select(frame => frame.Name))), LogoSprites = EndingLogoSpritePresentation.Load(Sprites("logo", EndingLogoSpriteDefinitions.Frames.Select(frame => frame.Name))) });
+        var objects = new EndingObjectArtworkCatalog(new EndingObjectArtworkParts { Clouds = Characters("clouds", EndingObjectArtworkFormat.CloudByteCount), Explosion = Characters("explosion", EndingObjectArtworkFormat.ExplosionByteCount), Fragments = fragments, WaitingSamus = Characters("waiting", EndingObjectArtworkFormat.RewardByteCount), ShootingScreen = Characters("shooting", EndingObjectArtworkFormat.RewardByteCount), SuitlessSamus = Characters("suitless", EndingObjectArtworkFormat.RewardByteCount), WaitingTilemap = Map("waiting-map"), PostCreditsFragmentA = Characters("post-fragment-a", EndingObjectArtworkFormat.PostCreditsFragmentAByteCount), PostCreditsFragmentB = Map("post-fragment-b"), PostShotLogoTiles = Characters("logo-tiles", EndingObjectArtworkFormat.PostShotLogoTileByteCount), PostShotLogoMap = Map("logo-map"), CloudSprites = EndingCloudSpritePresentation.Load(Sprites("cloud", EndingCloudSpriteDefinitions.Frames.Select(frame => frame.Name))), ExplosionSprites = EndingExplosionSpritePresentation.Load(Sprites("explosion", EndingExplosionSpriteDefinitions.Frames.Select(frame => frame.Name))), CompletionTextSprites = EndingCompletionTextSpritePresentation.Load(Sprites("text", EndingCompletionTextSpriteDefinitions.Frames.Select(frame => frame.Name))), RewardSprites = EndingRewardSpritePresentation.Load(Sprites("reward", EndingRewardSpriteDefinitions.Frames.Select(frame => frame.Name))), LogoSprites = EndingLogoSpritePresentation.Load(Sprites("logo", EndingLogoSpriteDefinitions.Frames.Select(frame => frame.Name))) });
 
         MemoryStream Mode7Png(string name, int seed)
         {

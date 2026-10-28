@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
@@ -16,7 +17,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal sealed class EndingBackgroundTextState
 {
     /// <summary>Mutable 32-by-32 staging tilemap uploaded after each revealed glyph.</summary>
-    private readonly ushort[] tilemap;
+    private readonly BackgroundTile[] tilemap;
     /// <summary>Collected ammo and item counts used for the final item-percentage message.</summary>
     private readonly EndingInventorySnapshot inventory;
     /// <summary>Selects the Japanese subtitle row during the percentage hold.</summary>
@@ -101,9 +102,9 @@ internal sealed class EndingBackgroundTextState
         {
             EndingTextCharacter character = InstalledProgram[InstalledCharacterIndex++];
             int target = character.Row * EndingTextDefinitions.TilemapWidth + character.Column;
-            tilemap[target] = character.TopWord.Raw;
-            if (character.BottomWord is { } bottom)
-                tilemap[target + EndingTextDefinitions.TilemapWidth] = bottom.Raw;
+            tilemap[target] = character.Top;
+            if (character.Bottom is { } bottom)
+                tilemap[target + EndingTextDefinitions.TilemapWidth] = bottom;
             InstructionTimer = WrappingCountdown.Start(EndingTextDefinitions.CharacterDelayFrames);
             Upload(screen);
             return;
@@ -161,12 +162,12 @@ internal sealed class EndingBackgroundTextState
             EndingResultTextLayout.PercentBottomTile;
     }
 
-    /// <summary>Writes one decimal digit's top and bottom native BG words.</summary>
+    /// <summary>Writes one decimal digit's top and bottom tiles.</summary>
     private void WriteDigit(int topIndex, int digit)
     {
-        tilemap[topIndex] = unchecked((ushort)(EndingResultTextLayout.DigitTopTile + digit));
-        tilemap[topIndex + EndingScreenDefinitions.TilemapWidth] =
-            unchecked((ushort)(EndingResultTextLayout.DigitBottomTile + digit));
+        BackgroundTile top = EndingResultTextLayout.DigitTopTile, bottom = EndingResultTextLayout.DigitBottomTile;
+        tilemap[topIndex] = top with { Tile = top.Tile + digit };
+        tilemap[topIndex + EndingScreenDefinitions.TilemapWidth] = bottom with { Tile = bottom.Tile + digit };
     }
 
     /// <summary>Transfers the current staging tilemap to the selected background map.</summary>

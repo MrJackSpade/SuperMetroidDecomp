@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Compiled layout identities and timing boundaries for the scrolling staff credits.</summary>
@@ -19,20 +21,18 @@ public static class CreditsPresentationDefinitions
     public const int TrailingBlankRows = 35;
     /// <summary>Total expanded scrolling stream length, 520 tile rows including headings, two-row names, and blank spacing; not the 128-row source tilemap size.</summary>
     public const int ExpectedCompiledRows = 520;
-    /// <summary>Unattributed Font-3 blank tile word $007F, used for empty rows and spaces without applying a line's palette bits.</summary>
-    public const ushort BlankWord = 0x007f;
-    /// <summary>Left shift placing a line's three-bit palette selector into native BG word bits 10-12.</summary>
-    public const int PaletteShift = 10;
-    /// <summary>Largest accepted BG palette selector, seven; this is a palette-row identity, not an RGB value.</summary>
+    /// <summary>The Font-3 blank tile, used for empty rows and spaces without applying a line's colour variant.</summary>
+    public static BackgroundTile BlankTile { get; } = new(0x07f, 0, highPriority: false);
+    /// <summary>Largest accepted colour variant, seven; this is a palette-row identity, not an RGB value.</summary>
     public const int MaximumPalette = 7;
     /// <summary>Font-3 tile used by the upper half of the credits ampersand.</summary>
-    public const ushort LargeAmpersandTop = 0x007b;
+    public const int LargeAmpersandTop = 0x007b;
     /// <summary>Font-3 tile used by the lower half of the credits ampersand.</summary>
-    public const ushort LargeAmpersandBottom = 0x007c;
+    public const int LargeAmpersandBottom = 0x007c;
     /// <summary>Font-3 tile used by the upper half of the credits period.</summary>
-    public const ushort LargePeriodTop = 0x007d;
+    public const int LargePeriodTop = 0x007d;
     /// <summary>Font-3 tile used by the lower half of the credits period.</summary>
-    public const ushort LargePeriodBottom = 0x007e;
+    public const int LargePeriodBottom = 0x007e;
 
     /// <summary>Fixed native role order without duplicating the 67 role descriptors in storage.</summary>
     private static readonly CreditRoles Roles = new();
@@ -111,22 +111,21 @@ public static class CreditsPresentationDefinitions
         6 => "map-programmer",
         _ => "assistant-programmer",
     };
-    /// <summary>Encodes one supported credits glyph as an unattributed Font-3 tile word, before line palette bits are applied.</summary>
+    /// <summary>The Font-3 tile of one supported credits glyph, in colour variant zero before the line's variant is applied.</summary>
     /// <param name="character">Space or uppercase A-Z; large text additionally accepts ampersand and period. No case conversion or punctuation substitution is performed.</param>
     /// <param name="style">Small heading or large name/credit style.</param>
     /// <param name="bottom">Selects the lower tile row of a large glyph; nonblank small glyphs require false.</param>
-    /// <returns>The character's tile index, or <see cref="BlankWord"/> for a space; no palette, priority, or flip attributes are added.</returns>
+    /// <returns>The character's tile, or <see cref="BlankTile"/> for a space; no colour variant, priority, or mirroring is added.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The nonblank character, style, or requested glyph half has no supported credits encoding.</exception>
-    public static ushort CompileGlyph(char character, CreditsLineStyle style,
+    public static BackgroundTile CompileGlyph(char character, CreditsLineStyle style,
         bool bottom = false) => new CreditsGlyphKey(style, character, bottom) switch
     {
-        (_, ' ', _) => BlankWord,
-        (CreditsLineStyle.Small, >= 'A' and <= 'Z', false) =>
-            unchecked((ushort)(character - 'A')),
-        (CreditsLineStyle.Large, '&', false) => LargeAmpersandTop,
-        (CreditsLineStyle.Large, '&', true) => LargeAmpersandBottom,
-        (CreditsLineStyle.Large, '.', false) => LargePeriodTop,
-        (CreditsLineStyle.Large, '.', true) => LargePeriodBottom,
+        (_, ' ', _) => BlankTile,
+        (CreditsLineStyle.Small, >= 'A' and <= 'Z', false) => Plain(character - 'A'),
+        (CreditsLineStyle.Large, '&', false) => Plain(LargeAmpersandTop),
+        (CreditsLineStyle.Large, '&', true) => Plain(LargeAmpersandBottom),
+        (CreditsLineStyle.Large, '.', false) => Plain(LargePeriodTop),
+        (CreditsLineStyle.Large, '.', true) => Plain(LargePeriodBottom),
         (CreditsLineStyle.Large, >= 'A' and <= 'Z', _) =>
             EndingTextDefinitions.CompileGlyph(
                 character, EndingTextStyle.CopyrightLarge, bottom),
@@ -136,17 +135,17 @@ public static class CreditsPresentationDefinitions
                 : "Large credits text supports spaces, A-Z, ampersand, and period."),
     };
 
-    /// <summary>Decodes the low ten-bit character selector of a native credits word, ignoring palette, priority, and flip attributes.</summary>
-    /// <param name="word">Native BG tilemap word containing the Font-3 character selector.</param>
+    /// <summary>Decodes the Font-3 tile a credits cell shows, ignoring its colour variant, priority and mirroring.</summary>
+    /// <param name="cell">The placed tile.</param>
     /// <param name="style">The one-row small or two-row large font layout owning the selector.</param>
     /// <param name="bottom">Whether the selector belongs to the lower row of a large glyph; nonblank small glyphs require false.</param>
     /// <returns>The represented glyph; large decoding also recognizes Font-3 copyright digits through the shared ending-text decoder, although authored credits compilation excludes digits.</returns>
     /// <exception cref="InvalidDataException">The selector does not have a supported mapping for the requested style and glyph half.</exception>
-    public static char DecodeGlyph(int word, CreditsLineStyle style,
+    public static char DecodeGlyph(BackgroundTile cell, CreditsLineStyle style,
         bool bottom = false)
     {
-        int tile = word & 0x03ff;
-        if (tile == BlankWord)
+        int tile = cell.Tile;
+        if (tile == BlankTile.Tile)
             return ' ';
         if (style == CreditsLineStyle.Small && !bottom && tile <= 25)
             return (char)('A' + tile);
@@ -157,9 +156,12 @@ public static class CreditsPresentationDefinitions
             if (tile == (bottom ? LargePeriodBottom : LargePeriodTop))
                 return '.';
             return EndingTextDefinitions.DecodeGlyph(
-                tile, EndingTextStyle.CopyrightLarge, bottom);
+                Plain(tile), EndingTextStyle.CopyrightLarge, bottom);
         }
         throw new InvalidDataException(
-            $"Credits {style} tile word ${word:X4} has no safe UTF-8 mapping.");
+            $"Credits {style} tile {cell} has no safe UTF-8 mapping.");
     }
+
+    /// <summary>Font-3 tile <paramref name="tile"/> in colour variant zero, the lower priority tier and unmirrored.</summary>
+    private static BackgroundTile Plain(int tile) => new(tile, 0, highPriority: false);
 }

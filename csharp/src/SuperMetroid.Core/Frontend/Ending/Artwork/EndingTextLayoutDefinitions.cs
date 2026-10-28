@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Calculated post-credit text placement and ending-font atlas traversal.</summary>
@@ -18,18 +20,18 @@ internal static class EndingTextLayoutDefinitions
     /// continue after the copyright digit pair and select each lower half. Chosen phrase
     /// pixels remain independent required content in the ending-font artwork.
     /// </summary>
-    internal static ushort SubtitleWord(int cell)
+    internal static BackgroundTile SubtitleTile(int cell)
     {
         if ((uint)cell >= SubtitleCellCount) throw new ArgumentOutOfRangeException(nameof(cell));
         int row = cell / EndingTextDefinitions.TilemapWidth;
         int column = cell % EndingTextDefinitions.TilemapWidth;
         int glyph = column - (EndingTextDefinitions.TilemapWidth - SubtitleGlyphCount) / 2;
-        if ((uint)glyph >= SubtitleGlyphCount) return EndingTextDefinitions.ResultBlankWord;
+        if ((uint)glyph >= SubtitleGlyphCount) return EndingTextDefinitions.ResultBlankTile;
         int atlasWidth = EndingFontAtlasFormat.TilesPerRow;
         int firstRunCount = atlasWidth - SubtitleFirstTopTile % atlasWidth;
         int topTile = glyph < firstRunCount ? SubtitleFirstTopTile + glyph
             : SubtitleContinuationTopTile + glyph - firstRunCount;
-        return (ushort)(topTile + row * atlasWidth);
+        return new(topTile + row * atlasWidth, 0, highPriority: false);
     }
     /// <summary>$8C:DD31 glyphs spell the chosen credit identity DEER FORCE; narrowly retained lexical content.</summary>
     /// <remarks>Exact stock credit wording is retained as chosen lexical content: the native consumer copies glyphs
@@ -43,10 +45,10 @@ internal static class EndingTextLayoutDefinitions
     /// <summary>$8C:DC9B..DEDA fills nine rows with two small and two large lines, distributing the remaining rows equally across the three intervening gaps.</summary>
     private const int CreditLineGap = (EndingTextDefinitions.ResultPanelRows -
         2 * (EndingTextDefinitions.SmallGlyphHeight + EndingTextDefinitions.LargeGlyphHeight)) / 3;
-    /// <summary>$8C:DD31 applies BG palette6 to the DEER FORCE label; this chosen style remains required.</summary>
-    private const ushort DevelopmentGroupAttributes = 6 << 10;
-    /// <summary>$8C:DE6D applies BG palette7 to TEAM SHIKAMARU; this chosen style remains required.</summary>
-    private const ushort DevelopmentTeamAttributes = 7 << 10;
+    /// <summary>$8C:DD31 shows the DEER FORCE label in colour variant 6; this chosen style remains required.</summary>
+    private const int DevelopmentGroupColourVariant = 6;
+    /// <summary>$8C:DE6D shows TEAM SHIKAMARU in colour variant 7; this chosen style remains required.</summary>
+    private const int DevelopmentTeamColourVariant = 7;
     /// <summary>The complete result panel spans every authored row at the native tilemap width.</summary>
     internal const int ResultCellCount = EndingTextDefinitions.ResultPanelRows * EndingTextDefinitions.TilemapWidth;
 
@@ -55,7 +57,7 @@ internal static class EndingTextLayoutDefinitions
     /// glyph heights, and generate large lower halves from the font layout. The supplied
     /// heading defaults to $8C:DCAF PRODUCED BY, the fourth narrowly retained stock phrase.
     /// </summary>
-    internal static ushort ResultWord(int cell, string producedBy)
+    internal static BackgroundTile ResultTile(int cell, string producedBy)
     {
         if ((uint)cell >= ResultCellCount) throw new ArgumentOutOfRangeException(nameof(cell));
         int row = cell / EndingTextDefinitions.TilemapWidth;
@@ -64,26 +66,25 @@ internal static class EndingTextLayoutDefinitions
         int prepositionRow = groupRow + EndingTextDefinitions.LargeGlyphHeight + CreditLineGap;
         int teamRow = prepositionRow + EndingTextDefinitions.SmallGlyphHeight + CreditLineGap;
         if (row == EndingTextDefinitions.ResultProducedBy.Row)
-            return Glyph(producedBy, column - EndingTextDefinitions.ResultProducedBy.Column, EndingTextStyle.ResultSmall, bottom: false, attributes: 0);
+            return Glyph(producedBy, column - EndingTextDefinitions.ResultProducedBy.Column, EndingTextStyle.ResultSmall, bottom: false, colourVariant: 0);
         if (row >= groupRow && row < groupRow + EndingTextDefinitions.LargeGlyphHeight)
-            return Centered(DevelopmentGroup, column, EndingTextStyle.CopyrightLarge, row != groupRow, DevelopmentGroupAttributes);
+            return Centered(DevelopmentGroup, column, EndingTextStyle.CopyrightLarge, row != groupRow, DevelopmentGroupColourVariant);
         if (row == prepositionRow)
-            return Centered(AttributionPreposition, column, EndingTextStyle.ResultSmall, bottom: false, attributes: 0);
+            return Centered(AttributionPreposition, column, EndingTextStyle.ResultSmall, bottom: false, colourVariant: 0);
         if (row >= teamRow && row < teamRow + EndingTextDefinitions.LargeGlyphHeight)
-            return Centered(DevelopmentTeam, column, EndingTextStyle.CopyrightLarge, row != teamRow, DevelopmentTeamAttributes);
-        return EndingTextDefinitions.ResultBlankWord;
+            return Centered(DevelopmentTeam, column, EndingTextStyle.CopyrightLarge, row != teamRow, DevelopmentTeamColourVariant);
+        return EndingTextDefinitions.ResultBlankTile;
     }
 
     /// <summary>Centers a selected credit phrase before resolving its top or bottom glyph tile.</summary>
-    private static ushort Centered(string text, int column, EndingTextStyle style, bool bottom, int attributes) =>
-        Glyph(text, column - (EndingTextDefinitions.TilemapWidth - text.Length) / 2, style, bottom, attributes);
+    private static BackgroundTile Centered(string text, int column, EndingTextStyle style, bool bottom, int colourVariant) =>
+        Glyph(text, column - (EndingTextDefinitions.TilemapWidth - text.Length) / 2, style, bottom, colourVariant);
 
-    /// <summary>Leaves spaces blank and combines a compiled ending-font glyph with its selected palette bits.</summary>
-    private static ushort Glyph(string text, int character, EndingTextStyle style, bool bottom, int attributes)
+    /// <summary>Leaves spaces blank and shows a compiled ending-font glyph in its selected colour variant.</summary>
+    private static BackgroundTile Glyph(string text, int character, EndingTextStyle style, bool bottom, int colourVariant)
     {
         if ((uint)character >= text.Length || text[character] == ' ')
-            return EndingTextDefinitions.ResultBlankWord;
-        return (ushort)(attributes | EndingTextDefinitions.CompileGlyph(text[character],
-            style, bottom));
+            return EndingTextDefinitions.ResultBlankTile;
+        return EndingTextDefinitions.CompileGlyph(text[character], style, bottom) with { ColourVariant = colourVariant };
     }
 }

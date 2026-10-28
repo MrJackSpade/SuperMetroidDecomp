@@ -1,4 +1,6 @@
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
@@ -44,7 +46,7 @@ internal static class EndingScreenImage
                 break;
             case EndingUploadKind.ObjectFragment:
                 EndingObjectFragmentId fragment = upload.As<EndingObjectFragmentUpload>().Fragment;
-                ending.ObjectFragment(fragment).Load(Objects(artwork).Fragment(fragment).Characters.Span[..EndingArtworkExtentDefinitions.ObjectFragmentBytes]);
+                ending.ObjectFragment(fragment).Load(MapBytes(Objects(artwork).Fragment(fragment)).AsSpan(0, EndingArtworkExtentDefinitions.ObjectFragmentBytes));
                 break;
             case EndingUploadKind.EndingFont:
                 ending.EndingFont.Load(Font(artwork).Characters.Span[..EndingArtworkExtentDefinitions.ObjectFragmentLimit]);
@@ -107,12 +109,12 @@ internal static class EndingScreenImage
         ReadOnlySpan<byte> waiting = objects.WaitingSamus.Characters.Span;
         ending.WaitingCharacters.Load(waiting[..EndingArtworkExtentDefinitions.WaitingCharacterBytes]);
         ending.PostCreditsObjects.Load(objects.ShootingScreen.Characters.Span[..EndingArtworkExtentDefinitions.ShootingCharacterBytes]);
-        ending.WaitingTilemap.Load(objects.WaitingTilemap.Bytes.Span[..EndingArtworkExtentDefinitions.WaitingTilemapBytes]);
+        ending.WaitingTilemap.Load(MapBytes(objects.WaitingTilemap).AsSpan(0, EndingArtworkExtentDefinitions.WaitingTilemapBytes));
         // Function 126 selects suitless (<3h) or suited (>=3h) art; the latter reuses the waiting-scene sheet.
         ReadOnlySpan<byte> reward = artwork.Reward == EndingReward.Suitless ? objects.SuitlessSamus.Characters.Span : waiting;
         ending.RewardCharacters.Load(reward[..EndingArtworkExtentDefinitions.FloorBytes]);
         ending.PostCreditsFragmentA.Load(objects.PostCreditsFragmentA.Characters.Span[..EndingArtworkExtentDefinitions.PostCreditsFragmentABytes]);
-        ending.PostCreditsFragmentB.Load(objects.PostCreditsFragmentB.Characters.Span[..EndingArtworkExtentDefinitions.ObjectFragmentBytes]);
+        ending.PostCreditsFragmentB.Load(MapBytes(objects.PostCreditsFragmentB).AsSpan(0, EndingArtworkExtentDefinitions.ObjectFragmentBytes));
     }
 
     /// <summary>One post-shot subtitle, logo-tile or logo-map transfer at its native word.</summary>
@@ -125,19 +127,22 @@ internal static class EndingScreenImage
             EndingPostShotUploadSource.Subtitle => Font(artwork).Characters.Span.Slice(EndingPostShotDefinitions.SubtitleFontOffset, length),
             EndingPostShotUploadSource.LogoTiles => Objects(artwork).PostShotLogoTiles.Characters.Span.Slice(
                 transfer.Offset, length),
-            EndingPostShotUploadSource.LogoMap => Objects(artwork).PostShotLogoMap.Bytes.Span[..length],
+            EndingPostShotUploadSource.LogoMap => MapBytes(Objects(artwork).PostShotLogoMap).AsSpan(0, length),
             _ => throw new InvalidOperationException($"Undefined {nameof(EndingPostShotUploadSource)} {(int)transfer.Source}."),
         };
         vram.LoadBytes(EndingVramDestinations.PostShotWordOf(transfer) * sizeof(ushort), bytes);
     }
 
-    /// <summary>The tilemap words a tilemap transfer recorded.</summary>
+    /// <summary>The tilemap words of the tiles a tilemap transfer recorded, encoded through the codec.</summary>
     private static ReadOnlySpan<ushort> Words(EndingUpload upload) => upload switch
     {
-        EndingTilemapUpload tilemap => tilemap.Words,
-        EndingTextTilemapUpload text => text.Words,
+        EndingTilemapUpload tilemap => BackgroundTileWords.ToWords(tilemap.Tiles),
+        EndingTextTilemapUpload text => BackgroundTileWords.ToWords(text.Tiles),
         _ => throw new InvalidOperationException($"The {upload.Kind} transfer records no tilemap words."),
     };
+
+    /// <summary>An installed map's tiles as the little-endian tilemap words a transfer writes.</summary>
+    private static byte[] MapBytes(RoomBackgroundTilemapAtlas map) => BackgroundTileWords.ToBytes(map.Tiles.Span);
 
     /// <summary>The bound Mode 7 artwork.</summary>
     private static EndingFloorArtworkCatalog Mode7(EndingScreenArtwork artwork) =>

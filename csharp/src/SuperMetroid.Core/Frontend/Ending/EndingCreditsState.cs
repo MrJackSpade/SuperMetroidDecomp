@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Intro;
@@ -55,8 +56,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// <summary>Dynamic cinematic actors in native slot traversal order.</summary>
     internal readonly List<EndingSprite> sprites = [];
     /// <summary>Staging copy of the two-screen post-credits result tilemap.</summary>
-    private readonly ushort[] postCreditsTilemap =
-        new ushort[EndingScreenDefinitions.TilemapWords];
+    private readonly BackgroundTile[] postCreditsTilemap =
+        new BackgroundTile[EndingScreenDefinitions.TilemapWords];
     /// <summary>The state of the credits scroll, which exists while that phase runs.</summary>
     internal CreditsObjectState Credits => InstalledArtwork.CurrentCredits ??
         throw new InvalidOperationException("The credits scroll is not running.");
@@ -516,13 +517,13 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// <exception cref="ArgumentException">A plane other than the text plane is asked for two screens.</exception>
     internal ScreenTileMap Cells(EndingPlane plane, Extent16<TilemapCells> size, EndingTileLayer layer, BgBitDepth depth)
     {
-        ReadOnlySpan<ushort> upper = screen.Plane(plane, Stage.ObjectArtwork);
+        ReadOnlySpan<BackgroundTile> upper = screen.Plane(plane, Stage.ObjectArtwork);
         if (size.Y <= EndingScreenDefinitions.TilemapHeight)
             return ScreenTileMap.Of(upper[..(size.X * size.Y)], size, LayerTiles(layer, depth));
         if (plane != EndingPlane.Text)
             throw new ArgumentException($"The {plane} plane has one screen.", nameof(plane));
-        ushort[] words = [.. upper, .. screen.Plane(EndingPlane.TextLower, Stage.ObjectArtwork)];
-        return ScreenTileMap.Of(words.AsSpan(0, size.X * size.Y), size, LayerTiles(layer, depth));
+        BackgroundTile[] tiles = [.. upper, .. screen.Plane(EndingPlane.TextLower, Stage.ObjectArtwork)];
+        return ScreenTileMap.Of(tiles.AsSpan(0, size.X * size.Y), size, LayerTiles(layer, depth));
     }
 
     /// <summary>Captures the burst's BG1/OBJ main screen and BG2 subscreen color math.</summary>

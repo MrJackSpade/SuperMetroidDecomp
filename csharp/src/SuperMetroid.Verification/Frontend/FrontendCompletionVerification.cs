@@ -335,8 +335,8 @@ internal static void VerifyDoorOpeningTrajectories()
 /// <summary>Checks installed credits rows advance on half-pixel scroll boundaries and wrap the circular tilemap.</summary>
 internal static void VerifyCreditsObjectInterpreter()
 {
-    ushort[][] rows = Enumerable.Range(0, 33)
-        .Select(index => Enumerable.Repeat((ushort)(0x0100 + index), 32).ToArray())
+    BackgroundTile[][] rows = Enumerable.Range(0, 33)
+        .Select(index => Enumerable.Repeat(BackgroundTileWordBytes.Tile(0x0100 + index), 32).ToArray())
         .ToArray();
     var credits = new CreditsObjectState(
         CreditsPresentation.FromCompiledRowsForVerification(rows));
@@ -345,13 +345,13 @@ internal static void VerifyCreditsObjectInterpreter()
     CreditsObjectStepResult first = credits.Step();
     AssertTrue(first.CopiedRow, "credits copies first row at eight-pixel boundary");
     AssertEqual(1, credits.NextRow, "credits advances circular destination row");
-    AssertEqual((ushort)0x0100, credits.Tilemap[0], "credits copies installed first row");
+    AssertEqual((ushort)0x0100, credits.Tilemap[0].PackedWord, "credits copies installed first row");
 
     for (int row = 1; row < rows.Length; row++)
         for (int frame = 0; frame < 16; frame++)
             credits.Step();
     AssertEqual(1, credits.NextRow, "credits destination wraps after thirty-two rows");
-    AssertEqual((ushort)0x0120, credits.Tilemap[0], "wrapped row replaces circular row zero");
+    AssertEqual((ushort)0x0120, credits.Tilemap[0].PackedWord, "wrapped row replaces circular row zero");
 
     CreditsObjectStepResult ending = default;
     for (int frame = 0; frame < 16; frame++)
@@ -424,8 +424,8 @@ internal static void VerifyEndingCreditsState()
     AssertEqual(EndingReward.Helmetless, middle.Stage.EndingReward, "three-to-ten-hour ending branch");
     AssertEqual(EndingReward.Armored, slow.Stage.EndingReward, "ten-hour ending branch");
 
-    var percentageTilemap = new ushort[0x400];
-    Array.Fill(percentageTilemap, (ushort)0x007f);
+    var percentageTilemap = new BackgroundTile[0x400];
+    Array.Fill(percentageTilemap, BackgroundTileWordBytes.Tile(0x007f));
     var percentage = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = percentageTilemap, Inventory = new EndingInventorySnapshot(
             MaxHealth: 1499,
             MaxReserveEnergy: 400,
@@ -439,10 +439,10 @@ internal static void VerifyEndingCreditsState()
         percentage.Step(percentageScreen);
     AssertTrue(percentage.Completed && percentage.RequestedItemPercentageScroll,
         "item-percentage object reaches its native scroll handoff");
-    AssertEqual((ushort)0x3861, percentageTilemap[462], "100% hundreds top tile");
-    AssertEqual((ushort)0x3860, percentageTilemap[463], "100% tens top tile");
-    AssertEqual((ushort)0x3860, percentageTilemap[464], "100% units top tile");
-    AssertEqual((ushort)0x386a, percentageTilemap[465], "100% percent-sign top tile");
+    AssertEqual((ushort)0x3861, percentageTilemap[462].PackedWord, "100% hundreds top tile");
+    AssertEqual((ushort)0x3860, percentageTilemap[463].PackedWord, "100% tens top tile");
+    AssertEqual((ushort)0x3860, percentageTilemap[464].PackedWord, "100% units top tile");
+    AssertEqual((ushort)0x386a, percentageTilemap[465].PackedWord, "100% percent-sign top tile");
 
     Console.WriteLine(
         "  Ending: escape, explosion, clear time, credits, rewards, 100% count, and final hold agree.");

@@ -18,14 +18,14 @@ internal sealed class EndingCreditsRoll
     /// <summary>Dynamic cinematic actors in native slot traversal order.</summary>
     private readonly List<EndingSprite> sprites ;
     /// <summary>Staging copy of the two-screen post-credits result tilemap.</summary>
-    private readonly ushort[] postCreditsTilemap ;
+    private readonly BackgroundTile[] postCreditsTilemap ;
     /// <summary>What every ending scene draws on: brightness, the phase timer, the Mode 7 view, palettes, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
     /// <summary>The ending's installed artwork: its text, font, staff credits, Mode 7, object and palette assets and their loads.</summary>
     private readonly EndingArtwork _artwork;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal EndingCreditsRoll(EndingInventorySnapshot inventory, bool japaneseText, EndingScreen screen, List<EndingSprite> sprites, ushort[] postCreditsTilemap, EndingStage stage, EndingArtwork artwork)
+    internal EndingCreditsRoll(EndingInventorySnapshot inventory, bool japaneseText, EndingScreen screen, List<EndingSprite> sprites, BackgroundTile[] postCreditsTilemap, EndingStage stage, EndingArtwork artwork)
     {
         this.inventory = inventory;
         this.japaneseText = japaneseText;
@@ -74,7 +74,7 @@ internal sealed class EndingCreditsRoll
         _stage.Phase = EndingCreditsPhase.PostCreditsBlank;
     }
 
-    /// <summary>Copies the current result-panel staging words to the phase-selected VRAM tilemap destination.</summary>
+    /// <summary>Copies the current result-panel staging tiles to the phase-selected tilemap destination.</summary>
     internal void UploadPostCreditsTilemap() =>
         screen.Record(PostCreditsTextTilemap, postCreditsTilemap);
 

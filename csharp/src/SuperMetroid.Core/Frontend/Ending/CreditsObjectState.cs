@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Ending;
@@ -15,8 +16,8 @@ internal sealed class CreditsObjectState
     /// <summary>Installed credits rows; this reference is rebound after debugger state restoration.</summary>
     [NonSerialized] private CreditsPresentation? presentation;
     /// <summary>Thirty-two-row circular BG1 staging map updated one source row at a time.</summary>
-    internal readonly ushort[] tilemap =
-        new ushort[EndingScreenDefinitions.TilemapWords];
+    internal readonly BackgroundTile[] tilemap =
+        new BackgroundTile[EndingScreenDefinitions.TilemapWords];
     /// <summary>Native 16.16 credits scroll; only the vertical axis moves, half a pixel per accepted update, wrapping at sixteen bits.</summary>
     private FixedPosition<BgPlanePixels> scroll;
     /// <summary>Last whole scroll position that caused a source row to be copied.</summary>

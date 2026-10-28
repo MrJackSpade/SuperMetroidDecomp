@@ -11,10 +11,10 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 public sealed class EndingObjectArtworkCatalog
 {
     /// <summary>Copied four-fragment sequence ordered by explosion VRAM destination page.</summary>
-    private readonly RoomCharacterAtlas[] fragments;
+    private readonly RoomBackgroundTilemapAtlas[] fragments;
 
     /// <summary>The same fragments keyed by the explosion map each one holds.</summary>
-    private readonly Dictionary<EndingObjectFragmentId, RoomCharacterAtlas> fragmentsById;
+    private readonly Dictionary<EndingObjectFragmentId, RoomBackgroundTilemapAtlas> fragmentsById;
 
     /// <summary>Combines already compiled ending artwork and sprite compositions, enforcing the native transfer lengths.</summary>
     /// <param name="parts">The ending's object character atlases, tilemaps and sprite presentations (#633).</param>
@@ -44,14 +44,13 @@ public sealed class EndingObjectArtworkCatalog
             !HasRequiredLength(WaitingSamus, EndingObjectTransfer.WaitingSamus) ||
             !HasRequiredLength(ShootingScreen, EndingObjectTransfer.ShootingScreen) ||
             !HasRequiredLength(SuitlessSamus, EndingObjectTransfer.SuitlessSamus) ||
-            !HasRequiredLength(WaitingTilemap.Bytes, EndingObjectTransfer.WaitingTilemap) ||
+            !IsWholeMap(WaitingTilemap) ||
             !HasRequiredLength(PostCreditsFragmentA, EndingObjectTransfer.PostCreditsFragmentA) ||
-            !HasRequiredLength(PostCreditsFragmentB, EndingObjectTransfer.PostCreditsFragmentB) ||
+            !IsWholeMap(PostCreditsFragmentB) ||
             !HasRequiredLength(PostShotLogoTiles, EndingObjectTransfer.PostShotLogoTiles) ||
-            !HasRequiredLength(PostShotLogoMap.Bytes, EndingObjectTransfer.PostShotLogoMap) ||
+            !IsWholeMap(PostShotLogoMap) ||
             parts.Fragments.Count != EndingObjectArtworkFormat.FragmentCount ||
-            parts.Fragments.Any(fragment => fragment is null ||
-                !HasRequiredLength(fragment, EndingObjectTransfer.ExplosionFragment)))
+            parts.Fragments.Any(fragment => fragment is null || !IsWholeMap(fragment)))
             throw new InvalidDataException("Ending OBJ catalog has an incorrect native transfer length.");
         this.fragments = parts.Fragments.ToArray();
         fragmentsById = Enum.GetValues<EndingObjectFragmentId>().Zip(fragments, (id, fragment) => KeyValuePair.Create(id, fragment)).ToDictionary();
@@ -60,6 +59,9 @@ public sealed class EndingObjectArtworkCatalog
     /// <summary>Checks an atlas transfer against the cartridge's required byte count.</summary>
     private static bool HasRequiredLength(RoomCharacterAtlas atlas, EndingObjectTransfer transfer) =>
         HasRequiredLength(atlas.Characters, transfer);
+
+    /// <summary>Whether <paramref name="map"/> holds exactly one 32-by-32 page of tiles.</summary>
+    private static bool IsWholeMap(RoomBackgroundTilemapAtlas map) => map.Tiles.Length == EndingObjectArtworkFormat.MapCellCount;
 
     /// <summary>Checks raw transfer bytes against the exact length of their ending-artwork role.</summary>
     private static bool HasRequiredLength(ReadOnlyMemory<byte> bytes, EndingObjectTransfer transfer) =>
@@ -89,8 +91,8 @@ public sealed class EndingObjectArtworkCatalog
     public RoomBackgroundTilemapAtlas WaitingTilemap { get; }
     /// <summary>BG3 transformation characters imported from <c>$99:DA9F</c> and uploaded at VRAM byte $4000; separate from the transformation map.</summary>
     public RoomCharacterAtlas PostCreditsFragmentA { get; }
-    /// <summary>BG3 transformation tilemap imported from <c>$99:DAB1</c> and uploaded at VRAM byte $4800; its raw words are preserved through PNG atlas transport rather than interpreted as OBJ characters.</summary>
-    public RoomCharacterAtlas PostCreditsFragmentB { get; }
+    /// <summary>BG3 transformation map's ordered 32x32 tile and palette references, imported from <c>$99:DAB1</c>.</summary>
+    public RoomBackgroundTilemapAtlas PostCreditsFragmentB { get; }
     /// <summary>Four post-shot logo tile chunks uploaded to BG/OBJ VRAM.</summary>
     public RoomCharacterAtlas PostShotLogoTiles { get; }
     /// <summary>Post-shot logo's ordered 32x32 tile and palette references.</summary>
@@ -104,14 +106,14 @@ public sealed class EndingObjectArtworkCatalog
         content.Append("waiting-samus", WaitingSamus.Characters.Span);
         content.Append("shooting-screen", ShootingScreen.Characters.Span);
         content.Append("suitless-samus", SuitlessSamus.Characters.Span);
-        content.Append("waiting-map", WaitingTilemap.Bytes.Span);
+        content.AppendTiles("waiting-map", WaitingTilemap.Tiles.Span);
         content.Append("post-credits-fragment-a", PostCreditsFragmentA.Characters.Span);
-        content.Append("post-credits-fragment-b", PostCreditsFragmentB.Characters.Span);
+        content.AppendTiles("post-credits-fragment-b", PostCreditsFragmentB.Tiles.Span);
         content.Append("logo-characters", PostShotLogoTiles.Characters.Span);
-        content.Append("logo-map", PostShotLogoMap.Bytes.Span);
+        content.AppendTiles("logo-map", PostShotLogoMap.Tiles.Span);
         content.Append("fragment-count", fragments.Length);
-        foreach (RoomCharacterAtlas fragment in fragments)
-            content.Append("fragment", fragment.Characters.Span);
+        foreach (RoomBackgroundTilemapAtlas fragment in fragments)
+            content.AppendTiles("fragment", fragment.Tiles.Span);
         content.Append("cloud-sprites", Convert.FromHexString(CloudSprites.ContentIdentity));
         content.Append("explosion-sprites", Convert.FromHexString(ExplosionSprites.ContentIdentity));
         content.Append("completion-text-sprites", Convert.FromHexString(CompletionTextSprites.ContentIdentity));
@@ -119,11 +121,11 @@ public sealed class EndingObjectArtworkCatalog
         content.Append("logo-sprites", Convert.FromHexString(LogoSprites.ContentIdentity));
     });
 
-    /// <summary>Returns one $0800-byte explosion tilemap fragment uploaded within VRAM bytes $E000-$FFFF.</summary>
+    /// <summary>Returns one 32-by-32-cell explosion map.</summary>
     /// <param name="id">The explosion map; the copied fragment sequence holds the maps in its declaration order.</param>
-    /// <returns>The retained atlas carrying the selected raw tilemap bytes.</returns>
+    /// <returns>The retained map's tile references.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> is not one of the four defined fragment identities.</exception>
-    public RoomCharacterAtlas Fragment(EndingObjectFragmentId id) =>
-        fragmentsById.TryGetValue(id, out RoomCharacterAtlas? fragment) ? fragment :
+    public RoomBackgroundTilemapAtlas Fragment(EndingObjectFragmentId id) =>
+        fragmentsById.TryGetValue(id, out RoomBackgroundTilemapAtlas? fragment) ? fragment :
             throw new ArgumentOutOfRangeException(nameof(id));
 }

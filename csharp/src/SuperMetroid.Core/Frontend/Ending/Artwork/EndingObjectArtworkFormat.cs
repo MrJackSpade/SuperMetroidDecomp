@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 public static class EndingObjectArtworkFormat
 {
     /// <summary>Required ending-artwork manifest schema revision, including all selected character, map, and sprite-composition resources.</summary>
-    public const int ManifestVersion = 10;
+    public const int ManifestVersion = 11;
     /// <summary>Installation manifest containing the supported cartridge identity and stock-resource hashes.</summary>
     public const string ManifestFileName = "ending-object-artwork.json";
     /// <summary>Indexed PNG filename for the atmospheric-cloud OBJ characters.</summary>
@@ -21,8 +21,8 @@ public static class EndingObjectArtworkFormat
     public const string WaitingTilemapFileName = "credits-waiting-tilemap.json";
     /// <summary>PNG filename preserving the small BG3 transformation-character transfer.</summary>
     public const string PostCreditsFragmentAFileName = "post-credits-tile-fragment-a.png";
-    /// <summary>PNG transport filename preserving the raw BG3 transformation tilemap bytes; not an OBJ character-sheet identity.</summary>
-    public const string PostCreditsFragmentBFileName = "post-credits-tile-fragment-b.png";
+    /// <summary>JSON filename for the BG3 transformation tilemap's ordered tile, palette, priority, and flip references.</summary>
+    public const string PostCreditsFragmentBFileName = "post-credits-tile-fragment-b.json";
     /// <summary>Indexed PNG filename for the final-logo characters imported from <c>$99:E089</c>.</summary>
     public const string PostShotLogoTileFileName = "post-credits-logo-tiles.png";
     /// <summary>JSON filename for the final-logo tilemap imported from <c>$99:ECC4</c>.</summary>
@@ -33,18 +33,20 @@ public static class EndingObjectArtworkFormat
     public const int ExplosionByteCount = 768 * 32;
     /// <summary>Exact compiled length of each waiting, shooting, or suitless sheet, $4000 bytes or 512 4-bpp characters.</summary>
     public const int RewardByteCount = 512 * 32;
+    /// <summary>Cells in each installed ending tilemap: one ordered 32-by-32 page.</summary>
+    public const int MapCellCount = 1024;
     /// <summary>Exact waiting-map length, $0800 bytes containing 1024 sixteen-bit cells in one ordered 32-by-32 page.</summary>
-    public const int WaitingTilemapByteCount = 1024 * sizeof(ushort);
+    public const int WaitingTilemapByteCount = MapCellCount * sizeof(ushort);
     /// <summary>Exact BG3 transformation-character transfer length, $0100 bytes, retained without format conversion at upload.</summary>
     public const int PostCreditsFragmentAByteCount = 256;
     /// <summary>Exact BG3 transformation tilemap transfer length, $0800 bytes containing 1024 native tilemap words.</summary>
-    public const int PostCreditsFragmentBByteCount = 1024 * sizeof(ushort);
+    public const int PostCreditsFragmentBByteCount = MapCellCount * sizeof(ushort);
     /// <summary>Exact final-logo character length, $2000 bytes or 256 4-bpp characters, divided among four $0800-byte uploads.</summary>
     public const int PostShotLogoTileByteCount = 256 * 32;
     /// <summary>Exact final-logo map length, $0800 bytes containing one 32-by-32 page of sixteen-bit tilemap cells.</summary>
-    public const int PostShotLogoMapByteCount = 1024 * sizeof(ushort);
-    /// <summary>Exact raw explosion-fragment length, $0800 bytes containing 1024 tilemap words; atlas transport preserves those bytes.</summary>
-    public const int FragmentByteCount = 1024 * sizeof(ushort);
+    public const int PostShotLogoMapByteCount = MapCellCount * sizeof(ushort);
+    /// <summary>Exact explosion-fragment length, $0800 bytes containing one 32-by-32 page of sixteen-bit tilemap cells.</summary>
+    public const int FragmentByteCount = MapCellCount * sizeof(ushort);
     /// <summary>Exact native byte length of <paramref name="transfer"/>.</summary>
     /// <param name="transfer">Transfer whose length is required.</param>
     /// <returns>The byte count the cartridge uploads for that transfer.</returns>
@@ -66,11 +68,11 @@ public static class EndingObjectArtworkFormat
     public const int FragmentCount = 4;
     /// <summary>Published fragment keys use the VRAM word-page sequence70,74,78,7c.</summary>
     /// <param name="index">Zero-based fragment index, zero through three, matching <see cref="EndingObjectFragmentId"/> order.</param>
-    /// <returns>The lowercase page-keyed PNG filename for the fragment's byte-preserving atlas transport.</returns>
+    /// <returns>The lowercase page-keyed JSON filename of the fragment's tile references.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside zero through three.</exception>
     public static string FragmentFileName(int index)
     {
         if ((uint)index >= FragmentCount) throw new ArgumentOutOfRangeException(nameof(index));
-        return "ending-explosion-fragment-" + (112 + 4 * index).ToString("x2", System.Globalization.CultureInfo.InvariantCulture) + ".png";
+        return "ending-explosion-fragment-" + (112 + 4 * index).ToString("x2", System.Globalization.CultureInfo.InvariantCulture) + ".json";
     }
 }

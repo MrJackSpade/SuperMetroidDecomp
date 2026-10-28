@@ -39,8 +39,8 @@ internal static class EndingObjectArtworkVerification
     /// <summary>Matches four explosion-fragment source pointers and filenames to their native loader operands.</summary>
     internal static void VerifyEndingObjectFragmentMetadata(ISnesAddressSpace bus)
     {
-        string[] names = ["ending-explosion-fragment-70.png", "ending-explosion-fragment-74.png",
-            "ending-explosion-fragment-78.png", "ending-explosion-fragment-7c.png"];
+        string[] names = ["ending-explosion-fragment-70.json", "ending-explosion-fragment-74.json",
+            "ending-explosion-fragment-78.json", "ending-explosion-fragment-7c.json"];
         AssertEqual(names.Length, EndingObjectArtworkFormat.FragmentCount, "ending fragment count");
         for (int index = 0; index < names.Length; index++)
         {
@@ -127,7 +127,7 @@ internal static class EndingObjectArtworkVerification
         AssertSheet(stock.Explosion, EndingSourceDefinitions.Artwork.ExplosionObjectCharacters,
             EndingObjectArtworkFormat.ExplosionByteCount, "explosion");
         for (int index = 0; index < EndingObjectArtworkFormat.FragmentCount; index++)
-            AssertSheet(stock.Fragment((EndingObjectFragmentId)index),
+            AssertMap(stock.Fragment((EndingObjectFragmentId)index),
                 EndingArtworkSources.ObjectFragment((EndingObjectFragmentId)index), EndingObjectArtworkFormat.FragmentByteCount,
                 $"explosion fragment {index}");
         AssertSheet(stock.WaitingSamus,
@@ -142,14 +142,14 @@ internal static class EndingObjectArtworkVerification
         byte[] nativeWaitingMap = RomDataReader.Decompress(bus,
             EndingSourceDefinitions.Artwork.WaitingForCreditsTilemap,
             EndingArtworkExtentDefinitions.ObjectFragmentLimit);
-        AssertTrue(stock.WaitingTilemap.Bytes.Span.SequenceEqual(
+        AssertTrue(BackgroundTileWordBytes.Of(stock.WaitingTilemap.Tiles.Span).AsSpan().SequenceEqual(
                 nativeWaitingMap.AsSpan(0, EndingObjectArtworkFormat.WaitingTilemapByteCount)),
             "installed waiting-Samus map preserves all native BG2 tile words");
         AssertSheet(stock.PostCreditsFragmentA,
             EndingSourceDefinitions.Artwork.TransformationCharacters,
             EndingObjectArtworkFormat.PostCreditsFragmentAByteCount,
             "post-credits fragment A");
-        AssertSheet(stock.PostCreditsFragmentB,
+        AssertMap(stock.PostCreditsFragmentB,
             EndingSourceDefinitions.Artwork.TransformationTilemap,
             EndingObjectArtworkFormat.PostCreditsFragmentBByteCount,
             "post-credits fragment B");
@@ -159,7 +159,7 @@ internal static class EndingObjectArtworkVerification
         byte[] nativeLogoMap = RomDataReader.Decompress(bus,
             EndingSourceDefinitions.Artwork.PostShotLogoMap,
             EndingSourceDefinitions.Artwork.DecompressionLimit);
-        AssertTrue(stock.PostShotLogoMap.Bytes.Span.SequenceEqual(
+        AssertTrue(BackgroundTileWordBytes.Of(stock.PostShotLogoMap.Tiles.Span).AsSpan().SequenceEqual(
                 nativeLogoMap.AsSpan(0, EndingObjectArtworkFormat.PostShotLogoMapByteCount)),
             "installed post-shot logo map preserves all native BG2 tile words");
 
@@ -343,16 +343,24 @@ internal static class EndingObjectArtworkVerification
             AssertTrue(baseline.Brightness > 0,
                 $"ending {name} reaches a visible override frame");
 
-            int tiles = byteCount / RoomCharacterAtlasFormat.BytesPerTile;
-            int rows = tiles / RoomCharacterAtlasFormat.TileColumns;
             string overridePath = Path.Combine(installation.EndingObjectOverrideDirectory, name);
-            IndexedPngImage image;
-            using (var input = File.OpenRead(Path.Combine(installation.EndingObjectDirectory, name)))
-                image = IndexedPng.Read(input,
-                    new(RoomCharacterAtlasFormat.TileColumns * 8, checked((ushort)(rows * 8))));
-            Array.Fill(image.Pixels, (byte)0);
-            using (var output = File.Create(overridePath))
-                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
+            if (resource < 2)
+            {
+                int tiles = byteCount / RoomCharacterAtlasFormat.BytesPerTile;
+                int rows = tiles / RoomCharacterAtlasFormat.TileColumns;
+                IndexedPngImage image;
+                using (var input = File.OpenRead(Path.Combine(installation.EndingObjectDirectory, name)))
+                    image = IndexedPng.Read(input,
+                        new(RoomCharacterAtlasFormat.TileColumns * 8, checked((ushort)(rows * 8))));
+                Array.Fill(image.Pixels, (byte)0);
+                using (var output = File.Create(overridePath))
+                    IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
+            }
+            else
+            {
+                // An explosion map's override places tile zero in every cell, as a zeroed transfer would.
+                File.WriteAllBytes(overridePath, SuperMetroid.AssetExtraction.Rooms.RoomBackgroundTilemapExtractor.Encode(new byte[byteCount]));
+            }
             EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
             scene.InstalledArtwork.BindFixtureObjectArtwork(edited);
             LayeredScene changed = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
@@ -440,6 +448,14 @@ internal static class EndingObjectArtworkVerification
                 EndingSourceDefinitions.Artwork.DecompressionLimit);
             AssertTrue(sheet.Characters.Span.SequenceEqual(native.AsSpan(0, bytes)),
                 $"installed ending {name} PNG preserves every native OBJ byte");
+        }
+
+        void AssertMap(RoomBackgroundTilemapAtlas map, int source, int bytes, string name)
+        {
+            byte[] native = RomDataReader.Decompress(bus, source,
+                EndingSourceDefinitions.Artwork.DecompressionLimit);
+            AssertTrue(BackgroundTileWordBytes.Of(map.Tiles.Span).AsSpan().SequenceEqual(native.AsSpan(0, bytes)),
+                $"installed ending {name} map, encoded through the codec, preserves every native tilemap byte");
         }
     }
 

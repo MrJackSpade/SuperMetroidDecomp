@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Ending;
@@ -6,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal sealed record EndingBackgroundTextSetup
 {
     /// <summary>Tilemap.</summary>
-    public required ushort[] Tilemap { get; init; }
+    public required BackgroundTile[] Tilemap { get; init; }
 
     /// <summary>Inventory.</summary>
     public required EndingInventorySnapshot Inventory { get; init; }

@@ -10,10 +10,10 @@ public sealed class CreditsPresentation
     /// <summary>Validated editable lines rendered on demand at the fixed cartridge cadence.</summary>
     private readonly CreditsLineDocument[]? lines;
     /// <summary>Precompiled row overrides supplied by a fixture when the editable line path is unused.</summary>
-    internal readonly ushort[][]? fixtureRows;
+    internal readonly BackgroundTile[][]? fixtureRows;
 
     /// <summary>Retains one row source and the identity of its original JSON bytes.</summary>
-    internal CreditsPresentation(CreditsLineDocument[]? lines, ushort[][]? fixtureRows, string contentIdentity)
+    internal CreditsPresentation(CreditsLineDocument[]? lines, BackgroundTile[][]? fixtureRows, string contentIdentity)
     {
         this.lines = lines;
         this.fixtureRows = fixtureRows;
@@ -23,13 +23,13 @@ public sealed class CreditsPresentation
     /// <summary>Gets the uppercase SHA-256 identity of the exact loaded JSON bytes.</summary>
     public string ContentIdentity { get; }
 
-    /// <summary>Gets the fixed number of 32-word tilemap rows in the compiled staff roll.</summary>
+    /// <summary>Gets the fixed number of 32-tile rows in the compiled staff roll.</summary>
     public int RowCount => fixtureRows?.Length ?? CreditsPresentationDefinitions.ExpectedCompiledRows;
 
     /// <summary>Compiles one staff-roll tilemap row, including authored blank-row cadence.</summary>
     /// <param name="index">Zero-based compiled row index.</param>
-    /// <returns>Thirty-two complete SNES BG tilemap words.</returns>
-    public ReadOnlySpan<ushort> GetRow(int index)
+    /// <returns>Thirty-two tiles.</returns>
+    public ReadOnlySpan<BackgroundTile> GetRow(int index)
     {
         if ((uint)index >= RowCount)
             throw new ArgumentOutOfRangeException(nameof(index));
@@ -151,24 +151,23 @@ public sealed class CreditsPresentation
         }
     }
 
-    /// <summary>Places a line's glyphs and palette bits into one fixed-width BG tilemap row.</summary>
-    private static ushort[] RenderLine(CreditsLineDefinition definition, CreditsLineDocument line, bool bottom)
+    /// <summary>Places a line's glyphs in its colour variant into one fixed-width row.</summary>
+    private static BackgroundTile[] RenderLine(CreditsLineDefinition definition, CreditsLineDocument line, bool bottom)
     {
-        ushort[] row = BlankRow();
-        int attributes = line.Palette << CreditsPresentationDefinitions.PaletteShift;
+        BackgroundTile[] row = BlankRow();
         for (int index = 0; index < line.Text.Length; index++)
-            row[line.Column + index] = ApplyAttributes(
-                CreditsPresentationDefinitions.CompileGlyph(line.Text[index], definition.Style, bottom), attributes);
+            row[line.Column + index] = InVariant(
+                CreditsPresentationDefinitions.CompileGlyph(line.Text[index], definition.Style, bottom), line.Palette);
         return row;
     }
-    /// <summary>Applies palette attributes to a visible glyph while leaving blank tilemap words untouched.</summary>
-    private static ushort ApplyAttributes(int glyph, int attributes) =>
-        glyph == CreditsPresentationDefinitions.BlankWord
-            ? (ushort)glyph
-            : unchecked((ushort)(glyph | attributes));
+    /// <summary>Shows a visible glyph in <paramref name="colourVariant"/> while leaving blank tiles untouched.</summary>
+    private static BackgroundTile InVariant(BackgroundTile glyph, int colourVariant) =>
+        glyph == CreditsPresentationDefinitions.BlankTile
+            ? glyph
+            : glyph with { ColourVariant = colourVariant };
 
-    /// <summary>Allocates a 32-word row filled with the credits' compiled blank tile.</summary>
-    private static ushort[] BlankRow() =>
-        Enumerable.Repeat(CreditsPresentationDefinitions.BlankWord,
+    /// <summary>Allocates a 32-tile row filled with the credits' compiled blank tile.</summary>
+    private static BackgroundTile[] BlankRow() =>
+        Enumerable.Repeat(CreditsPresentationDefinitions.BlankTile,
             CreditsPresentationDefinitions.TilemapWidth).ToArray();
 }

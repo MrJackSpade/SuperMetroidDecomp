@@ -207,7 +207,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
                     DrawPlmWordAt(level, draw, origin + new Offset16<RoomBlocks>(checked((short)column), checked((short)row)), tourianWord, TourianAccessVisuals?.GetWord(draw, row, column));
             return;
         }
-        if (SporeSpawnCeilingPlmDrawDefinitions.TryGetWord(draw, out RoomLevelWord sporeCeilingWord))
+        if (SporeSpawnCeilingDraws.TryGetWord(draw, out RoomLevelWord sporeCeilingWord))
         {
             for (int row = 0; row < 2; row++)
                 for (int column = 0; column < 2; column++)

@@ -942,12 +942,12 @@ internal static class LookupStream4Verification
             {
                 int offset = SporeSpawnDeathColorDefinitions.LevelPaletteByteOffset + color * 2;
                 AssertEqual(LittleEndianBytes.Word(palette[offset], palette[offset + 1]),
-                    SporeSpawnDeathColorDefinitions.InitialLevelColor(color), "Level basis matches exact original decoded room color");
+                    SporeSpawnDeathFade.InitialLevelColor(color), "Level basis matches exact original decoded room color");
             }
             for (int frame = 0; frame < 7; frame++)
             {
                 AssertEqual(frame == 6 || unresolved, values.ContainsKey(new ColourCell(frame, color)), "Only explicit unresolved columns and final colors remain stored");
-                bool calculated = SporeSpawnDeathColorDefinitions.TryLevelColor(RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e5b9 + color * 2)))), frame, color, out RgbColor value);
+                bool calculated = SporeSpawnDeathFade.TryLevelColor(RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e5b9 + color * 2)))), frame, color, out RgbColor value);
                 AssertEqual(!unresolved, calculated, "Required trajectories are never disguised as calculated defaults");
                 if (calculated)
                     AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e4f9 + frame * 32 + color * 2)), value, "Direct level interpolation matches original native words");
@@ -1005,7 +1005,7 @@ internal static class LookupStream4Verification
         {
             int offset = SporeSpawnDeathColorDefinitions.BackgroundPaletteByteOffset + color * 2;
             AssertEqual(LittleEndianBytes.Word(palette[offset], palette[offset + 1]),
-                SporeSpawnDeathColorDefinitions.InitialBackgroundColor(color), "Every required initial color matches the original decoded room palette");
+                SporeSpawnDeathFade.InitialBackgroundColor(color), "Every required initial color matches the original decoded room palette");
         }
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
         var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
@@ -1016,7 +1016,7 @@ internal static class LookupStream4Verification
             {
                 AssertEqual(frame == 6, values.ContainsKey(new ColourCell(frame, color)), "Stock background has no interior fallback samples");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e5d9 + frame * 32 + color * 2)),
-                    SporeSpawnDeathColorDefinitions.BackgroundColor(RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e699 + color * 2)))), frame, color),
+                    SporeSpawnDeathFade.BackgroundColor(RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e699 + color * 2)))), frame, color),
                     "Direct background calculation matches every original word independently of catalog loading");
             }
         Verify(stock, -1, -1);
@@ -1075,7 +1075,7 @@ internal static class LookupStream4Verification
             {
                 AssertEqual(frame == 7, values.ContainsKey(new ColourCell(frame, color)), "Only final endpoint row remains stored in stock fade");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3f9 + frame * 32 + color * 2)),
-                    SporeSpawnColorCatalog.CalculateDeathSpriteColor(RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3f9 + color * 2)))), RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e4d9 + color * 2)))), frame),
+                    SporeSpawnColors.CalculateDeathSpriteColor(RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3f9 + color * 2)))), RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e4d9 + color * 2)))), frame),
                     "Direct channel interpolation equals every original sprite death word without loading fallback samples");
             }
         for (int color = 0; color < 16; color++)
@@ -2257,13 +2257,13 @@ internal static class LookupStream4Verification
 
         for (ushort index = 0; index < 4; index++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dcb9 + 2 * index)), SporeSpawnProjectileDefinitions.StalkYOffset(index), "stream4 original stalk segment spacing");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dce6 + 2 * index)), SporeSpawnProjectileDefinitions.SpawnerX(index), "stream4 original ceiling emitter spacing");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dcb9 + 2 * index)), SporeSpawnProjectiles.StalkYOffset(index), "stream4 original stalk segment spacing");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dce6 + 2 * index)), SporeSpawnProjectiles.SpawnerX(index), "stream4 original ceiling emitter spacing");
         }
         foreach (ushort invalid in new ushort[] { 4, ushort.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => SporeSpawnProjectileDefinitions.StalkYOffset(invalid), "stream4 stalk spawn domain");
-            AssertThrows<ArgumentOutOfRangeException>(() => SporeSpawnProjectileDefinitions.SpawnerX(invalid), "stream4 emitter spawn domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => SporeSpawnProjectiles.StalkYOffset(invalid), "stream4 stalk spawn domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => SporeSpawnProjectiles.SpawnerX(invalid), "stream4 emitter spawn domain");
         }
     }
 

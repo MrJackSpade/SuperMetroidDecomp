@@ -215,8 +215,8 @@ internal static class PlmPresentationContractChecks
             new RoomPlmVisualEntry(MaridiaElevatubePlmDefinitions.DrawVisualId(frame.Draw),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmMaridiaElevatubeVisualCatalog(entries));
-        ConfirmCoverage(SporeSpawnCeilingPlmDrawDefinitions.All, frame =>
-            new RoomPlmVisualEntry(SporeSpawnCeilingPlmDrawDefinitions.VisualId(frame.Draw),
+        ConfirmCoverage(SporeSpawnCeilingDraws.All, frame =>
+            new RoomPlmVisualEntry(SporeSpawnCeilingDraws.VisualId(frame.Draw),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmSporeSpawnCeilingVisualCatalog(entries));
         ConfirmCoverage(SamusEaterPlmDrawDefinitions.All, frame =>

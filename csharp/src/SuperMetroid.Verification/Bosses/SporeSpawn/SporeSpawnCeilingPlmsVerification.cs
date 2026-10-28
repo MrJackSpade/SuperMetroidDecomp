@@ -49,7 +49,7 @@ internal static class SporeSpawnCeilingPlmsVerification
     private static void VerifySporeSpawnCeilingDrawMapping(SuperMetroidAddressSpace rom)
     {
         RoomPlmShotBlockDrawDefinitions.DrawList[] draws =
-            SporeSpawnCeilingPlmDrawDefinitions.All.ToArray();
+            SporeSpawnCeilingDraws.All.ToArray();
         AssertEqual(4, draws.Length,
             "Spore Spawn ceiling has clear and three crumble appearances");
         ushort[] pointers = [0x9413,0x9423,0x9433,0x9443];
@@ -57,8 +57,8 @@ internal static class SporeSpawnCeilingPlmsVerification
         {
             ushort pointer = (ushort)raw;
             int index = Array.IndexOf(pointers, pointer);
-            AssertEqual(index >= 0, SporeSpawnCeilingPlmDrawDefinitions.TryGetWord(NativePlmDraws.At<SporeSpawnCeilingDraw>(pointer), out RoomLevelWord word), "Spore ceiling scalar ownership");
-            AssertEqual(index >= 0, SporeSpawnCeilingPlmDrawDefinitions.TryGet(NativePlmDraws.At<SporeSpawnCeilingDraw>(pointer), out var dto), "Spore ceiling DTO ownership");
+            AssertEqual(index >= 0, SporeSpawnCeilingDraws.TryGetWord(NativePlmDraws.At<SporeSpawnCeilingDraw>(pointer), out RoomLevelWord word), "Spore ceiling scalar ownership");
+            AssertEqual(index >= 0, SporeSpawnCeilingDraws.TryGet(NativePlmDraws.At<SporeSpawnCeilingDraw>(pointer), out var dto), "Spore ceiling DTO ownership");
             if (index < 0)
             {
                 AssertEqual((ushort)0, word.Raw, "missing Spore ceiling scalar zero");

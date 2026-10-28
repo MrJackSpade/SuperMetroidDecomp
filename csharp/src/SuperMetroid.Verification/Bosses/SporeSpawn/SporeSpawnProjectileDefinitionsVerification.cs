@@ -15,16 +15,16 @@ internal static class SporeSpawnProjectileDefinitionsVerification
         for (ushort index = 0; index < 4; index++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dcb9 + index * 2)),
-                SporeSpawnProjectileDefinitions.StalkYOffset(index),
+                SporeSpawnProjectiles.StalkYOffset(index),
                 $"Spore Spawn stalk Y {index}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dce6 + index * 2)),
-                SporeSpawnProjectileDefinitions.SpawnerX(index),
+                SporeSpawnProjectiles.SpawnerX(index),
                 $"Spore Spawn emitter X {index}");
         }
         for (int offset = 0; offset < 256; offset++)
         {
             Offset16<RoomPixels> delta =
-                SporeSpawnProjectileDefinitions.MovementAt(unchecked((byte)offset));
+                SporeSpawnProjectiles.MovementAt(unchecked((byte)offset));
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + offset)), delta.X,
                 $"Spore Spawn movement X {offset:X2}");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + ((offset + 1) & 0xff))),
@@ -77,10 +77,10 @@ internal static class SporeSpawnProjectileDefinitionsVerification
         }
 
         AssertThrows<ArgumentOutOfRangeException>(
-            () => SporeSpawnProjectileDefinitions.StalkYOffset(4),
+            () => SporeSpawnProjectiles.StalkYOffset(4),
             "Spore Spawn stalk index past table");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => SporeSpawnProjectileDefinitions.SpawnerX(ushort.MaxValue),
+            () => SporeSpawnProjectiles.SpawnerX(ushort.MaxValue),
             "Spore Spawn emitter index underflow");
         Console.WriteLine(
             "Spore Spawn projectile definitions: eight geometry words, 256 movement bytes, all real spawns and 512 movement/mirroring handoffs pass with source tables forbidden.");

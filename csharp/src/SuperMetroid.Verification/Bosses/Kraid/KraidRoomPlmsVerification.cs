@@ -60,7 +60,7 @@ internal static class KraidRoomPlmsVerification
         for (int x = 5; x < 5 + changedBlockCount; x++)
             words[5 * width + x] = 0x8123;
         RoomLevelData level = CreateRoom(new(width, height), words,
-            new byte[words.Length], blockDefinitions: new BackgroundTile[0x400 * 4]);
+            new byte[words.Length]);
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.BossRoomMutations.TrySpawnKraidRoomMutation(level, new(5, 5), header),
             $"Kraid mutation {header} allocates");

@@ -36,7 +36,7 @@ internal static class GrappleDoorsVerification
                     ? RoomCollisionType.VerticalExtension : RoomCollisionType.HorizontalExtension) << 12);
                 bts[origin + offset * stride] = unchecked((byte)-offset);
             }
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, bts, new ushort[words.Length]), new BackgroundTile[4]);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, bts, new ushort[words.Length]));
             int hitBlock = origin + hitOffset * stride;
             var samus = new SamusState
             {

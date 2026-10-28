@@ -2,8 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Tooling;
-using System.Text.Json.Nodes;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -84,6 +82,7 @@ internal static class RoomArtworkRenderParityVerification
                     RgbaPixel[] changedFrame = FrontendScenePixelsAccess.Pixels(changed.PublishDisplayFrame());
                     AssertTrue(!nativeFrame.SequenceEqual(changedFrame),
                         "Landing Site block sheet override changes rendered pixels");
+                    AssertShowsOverriddenPictures(changed, Inverted);
                     AssertGameplayPlanesUnchanged(changed, "block sheet");
                 }
                 finally
@@ -104,34 +103,37 @@ internal static class RoomArtworkRenderParityVerification
                     using var edited = File.Create(Path.Combine(installation.RoomBlockSheetOverrideDirectory, file));
                     RgbaPng.Write(edited, size, pixels);
                 }
+                Console.WriteLine("  Landing Site: a block sheet edit loads, shows its repainted block pictures and alters rendered " +
+                    "pixels without changing BG1 placement or BTS.");
+            }
 
-                string blockName = RoomMetatileFormat.CreFileName;
-                string stockBlockPath = Path.Combine(installation.RoomMetatileDirectory, blockName);
-                JsonNode blocks = JsonNode.Parse(File.ReadAllText(stockBlockPath))
-                    ?? throw new InvalidDataException("Installed CRE visual block JSON is empty.");
-                foreach (JsonNode? block in blocks.Required("blocks").AsArray().RequiredElements())
+            // The room loads with the overridden sheet and every block BG1 shows draws its repainted picture (#1431): each
+            // opaque pixel the stock picture of the same block paints, edited as the override edited it.
+            void AssertShowsOverriddenPictures(SuperMetroidRuntime changed, Func<RgbaPixel, RgbaPixel> edit)
+            {
+                RoomBlockPictureTable stock = (native.Display.Latched.Rooms ?? throw new InvalidOperationException("The stock room shows no backgrounds."))
+                    .Bg1.Pictures ?? throw new InvalidOperationException("The stock room's BG1 shows no block pictures.");
+                RoomBlockPictureTable repainted = (changed.Display.Latched.Rooms ?? throw new InvalidOperationException("The edited room shows no backgrounds."))
+                    .Bg1.Pictures ?? throw new InvalidOperationException("The edited room's BG1 shows no block pictures.");
+                int compared = 0;
+                for (int block = 0; block < stock.Blocks; block++)
                 {
-                    JsonNode cell = block.Required("topLeft");
-                    cell["tileColumn"] = (cell.Required("tileColumn").GetValue<int>() + 1)
-                        % RoomMetatileFormat.TileColumns;
+                    if (stock.Picture(block) is not { } before)
+                        continue;
+                    SpriteSheetFrame after = repainted.Picture(block)
+                        ?? throw new InvalidOperationException($"The edited room shows block {block} with no picture.");
+                    for (int y = 0; y < RoomBlockSheet.BlockPixels; y++)
+                    for (int x = 0; x < RoomBlockSheet.BlockPixels; x++)
+                    {
+                        RgbaPixel stockPixel = before.Sheet.Pixels[(before.Corner.Y + y) * before.Sheet.Size.X + before.Corner.X + x];
+                        if (stockPixel.A == 0)
+                            continue;
+                        RgbaPixel shown = after.Sheet.Pixels[(after.Corner.Y + y) * after.Sheet.Size.X + after.Corner.X + x];
+                        AssertEqual(edit(stockPixel), shown, $"Landing Site block {block} shows its repainted picture at ({x}, {y})");
+                        compared++;
+                    }
                 }
-                Directory.CreateDirectory(installation.RoomMetatileOverrideDirectory);
-                string blockOverridePath = Path.Combine(
-                    installation.RoomMetatileOverrideDirectory, blockName);
-                if (File.Exists(blockOverridePath))
-                    throw new InvalidOperationException("Render parity fixture found an existing block override.");
-                try
-                {
-                    File.WriteAllText(blockOverridePath, blocks.ToJsonString());
-                    SuperMetroidRuntime changed = LoadRoom(installedArt: true);
-                    RgbaPixel[] changedFrame = FrontendScenePixelsAccess.Pixels(changed.PublishDisplayFrame());
-                    AssertTrue(!nativeFrame.SequenceEqual(changedFrame),
-                        "Landing Site visual block override changes rendered pixels");
-                    AssertGameplayPlanesUnchanged(changed, "visual block JSON");
-                }
-                finally { File.Delete(blockOverridePath); }
-                Console.WriteLine("  Landing Site: block sheet and visual block edits both alter rendered pixels " +
-                    "without changing BG1 placement or BTS.");
+                AssertTrue(compared > 0, "Landing Site shows repainted block pictures");
             }
 
             void AssertGameplayPlanesUnchanged(SuperMetroidRuntime changed, string artwork)
@@ -150,7 +152,6 @@ internal static class RoomArtworkRenderParityVerification
                 if (installedArt)
                 {
                     runtime.Artwork.RoomCharacterArt = installation.LoadRoomCharacters();
-                    runtime.Artwork.RoomMetatileArt = installation.LoadRoomMetatiles();
                     runtime.Artwork.RoomBackgroundTilemapArt = installation.LoadRoomBackgroundTilemaps();
                     runtime.Artwork.RoomSkyTilemapArt = installation.LoadRoomSkyTilemaps();
                     runtime.Artwork.RoomBlockSheets = installation.LoadRoomBlockSheets();

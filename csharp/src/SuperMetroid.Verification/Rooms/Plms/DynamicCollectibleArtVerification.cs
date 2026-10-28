@@ -8,6 +8,7 @@ using static SuperMetroid.Verification.Rooms.Plms.LookupDynamicCollectibleStockV
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -73,14 +74,18 @@ internal static class DynamicCollectibleArtVerification
                 edited.Resolve(InWorldCollectibleKind.Bombs).PaletteOffsets.Span[0],
                 "edited item palette offset reaches the loaded catalog");
 
-            (byte[] stockVram, ushort stockTileWord, CollectiblePlmSnapshot stockItem) =
+            (byte[] stockVram, BgArtworkIdentity stockSlotArtwork, CollectiblePlmSnapshot stockItem) =
                 LoadRetailBombsWithArt(stock);
-            (byte[] editedVram, ushort editedTileWord, CollectiblePlmSnapshot editedItem) =
+            (byte[] editedVram, BgArtworkIdentity editedSlotArtwork, CollectiblePlmSnapshot editedItem) =
                 LoadRetailBombsWithArt(edited);
             AssertTrue(!stockVram.SequenceEqual(editedVram),
                 "edited permanent-item PNG reaches production VRAM");
-            AssertEqual((ushort)(stockTileWord + 0x0400), editedTileWord,
-                "edited palette offset reaches production block definitions");
+            // The slot's blocks name their pictures by the collectible bound over the slot's characters (#1431), which
+            // both loads bind; how those blocks look is their pictures in the block sheet, not a block composition.
+            AssertEqual(RoomBgArtwork.Collectible(InWorldCollectibleKind.Bombs), stockSlotArtwork,
+                "stock Bombs graphics show over the slot's characters");
+            AssertEqual(stockSlotArtwork, editedSlotArtwork,
+                "edited Bombs art binds the same collectible over the slot's characters");
             AssertEqual(stockItem, editedItem,
                 "item artwork edit preserves the native PLM pickup state");
 
@@ -121,20 +126,22 @@ internal static class DynamicCollectibleArtVerification
         }
     }
 
-    /// <summary>Loads the retail Bombs PLM with selected art and captures its VRAM tile bytes, block word, and pickup state.</summary>
+    /// <summary>Loads the retail Bombs PLM with selected art and captures its VRAM tile bytes, the artwork bound over its slot, and pickup state.</summary>
     private static LoadRetailBombsWithArtResult
         LoadRetailBombsWithArt(RoomPlmDynamicCollectibleArtCatalog art)
     {
         const int width = 64;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64), new RoomLevelPlanes(new ushort[width * 64], new byte[width * 64], new ushort[width * 64]), new BackgroundTile[0x400 * 4]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64), new RoomLevelPlanes(new ushort[width * 64], new byte[width * 64], new ushort[width * 64]));
         var vram = new SnesVram();
+        BgArtworkBindings backgrounds = BgArtworkFixtures.For(vram);
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmDynamicCollectibleArt = art });
-        PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(vram), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationDefinitions.Get(0x83fe), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, backgrounds, new SharedGameState(), AreaId.Crateria), RoomPlmPopulationDefinitions.Get(0x83fe), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         CollectiblePlmSnapshot item = plms.CollectiblePlms.Collectibles.Single();
         byte[] tiles = BgArtworkFixtures.Composed(vram, new BgArtworkBytes().WithCollectibles(art)
             .WithSuppliedCollectibles(RoomPlmPopulationDefinitions.Get(0x83fe))).AsSpan(0x3e00 * 2, 0x100).ToArray();
-        // Tile 0x238 of the block table is the collectible slot's first definition tile, byte 0x0470 of the cartridge's table.
-        ushort firstWord = level.BlockDefinitions.Span[0x0238].PackedWord;
-        return new LoadRetailBombsWithArtResult(tiles, firstWord, item);
+        BgArtworkIdentity slotArtwork = backgrounds.Showing(BgCharacterSet.Tiles,
+            RoomTileCharacters.CollectiblesFirst + item.GraphicsSlot * RoomTileCharacters.CollectibleSlotCharacters,
+            RoomTileCharacters.CollectibleSlotCharacters).Artwork;
+        return new LoadRetailBombsWithArtResult(tiles, slotArtwork, item);
     }
 }

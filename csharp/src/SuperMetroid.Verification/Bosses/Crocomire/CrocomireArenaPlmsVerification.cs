@@ -64,7 +64,7 @@ internal static class CrocomireArenaPlmsVerification
         ushort[] sourceWords = Enumerable.Repeat((ushort)0x8123,
             width * height).ToArray();
         RoomLevelData level = CreateRoom(new(width, height), sourceWords,
-            new byte[sourceWords.Length], blockDefinitions: new BackgroundTile[0x400 * 4]);
+            new byte[sourceWords.Length]);
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.BossRoomMutations.TrySpawnCrocomireArenaMutation(level, new(5, 3), header),
             $"Crocomire header {header} allocates");

@@ -33,8 +33,8 @@ public sealed class RoomBackgroundImageResolver(RoomBackgroundImage image, RoomB
     {
         Ensure.NotNull(bindings);
         SpriteSheetFrame?[]? next = resolved ? null : new SpriteSheetFrame?[Image.CellCount];
-        var tiles = new BackgroundTile[RoomBlockPictureNames.Tiles];
-        var now = new BgArtworkShown[RoomBlockPictureNames.Tiles];
+        var tiles = new BackgroundTile[RoomBackgroundImage.CellTiles];
+        var now = new BgArtworkShown[RoomBackgroundImage.CellTiles];
         for (int cell = 0; cell < Image.CellCount; cell++)
         {
             int first = RoomBackgroundImage.CellWord(cell);
@@ -43,19 +43,19 @@ public sealed class RoomBackgroundImageResolver(RoomBackgroundImage image, RoomB
             tiles[2] = Image.Tiles[first + RoomBackgroundImage.PageTiles];
             tiles[3] = Image.Tiles[first + RoomBackgroundImage.PageTiles + 1];
             bool changed = !resolved, rebound = false;
-            for (int tile = 0; tile < RoomBlockPictureNames.Tiles; tile++)
+            for (int tile = 0; tile < RoomBackgroundImage.CellTiles; tile++)
             {
                 int character = tiles[tile].Tile;
                 if (!animated.TryShowing(character, RoomBlockPictureNames.CharacterWords, out now[tile]))
                     now[tile] = bindings.Showing(BgCharacterSet.Tiles, character, 1);
                 rebound |= !loaded.Contains(now[tile].Artwork);
-                changed |= now[tile] != shown[cell * RoomBlockPictureNames.Tiles + tile];
+                changed |= now[tile] != shown[cell * RoomBackgroundImage.CellTiles + tile];
             }
             if (!changed)
                 continue;
-            now.CopyTo(shown.AsSpan(cell * RoomBlockPictureNames.Tiles, RoomBlockPictureNames.Tiles));
+            now.CopyTo(shown.AsSpan(cell * RoomBackgroundImage.CellTiles, RoomBackgroundImage.CellTiles));
             next ??= [.. cells];
-            next[cell] = rebound ? sheet.Picture(RoomBlockPictureNames.Of(tiles, now)) : null;
+            next[cell] = rebound ? sheet.Picture(RoomBackgroundImage.CellPictureName(tiles, now)) : null;
         }
         resolved = true;
         if (next is not null)

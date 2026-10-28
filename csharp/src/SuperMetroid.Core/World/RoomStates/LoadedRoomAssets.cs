@@ -4,7 +4,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.World.RoomStates;
@@ -39,7 +38,7 @@ public sealed class LoadedRoomAssets
 
     /// <summary>Selected room header and room-state metadata used to choose level source, graphics set, dimensions, scrolls, and door table; loading these assets does not execute its room ASM.</summary>
     public SelectedRoom Header { get; }
-    /// <summary>Runtime level allocation with compiled BG1/BG2 physical words, BTS, metatiles, and separately installed visual references; retained allocation rows and streaming tails may exceed the visible header dimensions.</summary>
+    /// <summary>Runtime level allocation with compiled BG1/BG2 physical words, BTS, and separately installed visual references; retained allocation rows and streaming tails may exceed the visible header dimensions.</summary>
     public RoomLevelData LevelData { get; }
     /// <summary>Room's screen-indexed scroll-control grid used to initialize the boundary camera, separate from current camera position or editable map-marker artwork.</summary>
     public RoomScrollGrid Scrolls { get; }
@@ -49,7 +48,7 @@ public sealed class LoadedRoomAssets
     public int TilesetCharacterCount { get; }
     /// <summary>Installed graphics-set little-endian BGR555 palette bytes; <see cref="LoadGraphics"/> copies the first $0100 bytes into CGRAM colors 0..127, preserving OBJ palettes.</summary>
     public byte[] PaletteBytes { get; }
-    /// <summary>Compiled graphics-set source identities selected by the room-state index and used to resolve installed metatiles, characters, and palette artwork.</summary>
+    /// <summary>Compiled graphics-set source identities selected by the room-state index and used to resolve installed block pictures, characters, and palette artwork.</summary>
     public TilesetDefinition Tileset { get; }
 
     /// <summary>The installed pre-coloured room artwork: block sheets and library background images (#1392).</summary>
@@ -57,38 +56,6 @@ public sealed class LoadedRoomAssets
 
     /// <summary>The pre-coloured pictures of the tileset's blocks the room's planes draw from (#1392).</summary>
     public RoomBlockSheet BlockSheet => Pictures.Get(Tileset);
-
-    /// <summary>
-    /// The block definitions a room of <paramref name="tileset"/> loads: the common room elements' and then the tileset's,
-    /// or a Ceres room's tileset alone.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The definitions are not whole blocks.</exception>
-    public static BackgroundTile[] BlockDefinitions(RoomMetatileCatalog metatiles, TilesetDefinition tileset, bool ceres)
-    {
-        Ensure.NotNull(metatiles);
-        BackgroundTile[] roomBlockDefinitions = metatiles.Get(tileset.Blocks).BlockTiles.ToArray();
-        BackgroundTile[] blockDefinitions;
-        if (ceres)
-        {
-            // $82:E7D3 installs a Ceres tileset directly at WRAM $A000. Unlike Zebes
-            // rooms, area six does not reserve the first $800 bytes for common CRE blocks.
-            blockDefinitions = roomBlockDefinitions;
-        }
-        else
-        {
-            BackgroundTile[] creDefinitions = metatiles.Cre.BlockTiles.ToArray();
-            blockDefinitions = new BackgroundTile[creDefinitions.Length + roomBlockDefinitions.Length];
-            creDefinitions.CopyTo(blockDefinitions, 0);
-            roomBlockDefinitions.CopyTo(blockDefinitions, creDefinitions.Length);
-        }
-
-        if (blockDefinitions.Length == 0 || blockDefinitions.Length % RoomLevelPlane.DefinitionTiles != 0)
-        {
-            throw new InvalidDataException(
-                $"Tileset {tileset} produced {blockDefinitions.Length} block definition tiles; blocks are four tiles each.");
-        }
-        return blockDefinitions;
-    }
 
     /// <summary>Reads every compressed input named by the selected room and graphics set.</summary>
     public static LoadedRoomAssets Load(RoomScrollStorage scrollStorage, SelectedRoom header, RoomAssetCatalogs catalogs)
@@ -98,18 +65,14 @@ public sealed class LoadedRoomAssets
         Ensure.NotNull(catalogs);
         RoomCharacterAtlasCatalog characterArt = catalogs.Characters;
         RoomStaticPaletteCatalog paletteArt = catalogs.Palettes;
-        RoomMetatileCatalog metatileArt = catalogs.Metatiles;
         RoomVisualLayoutCatalog visualLayouts = catalogs.VisualLayouts;
         TilesetDefinition tileset = RoomTilesetDefinitions.Get(header.State.GraphicsSet);
-
-        BackgroundTile[] blockDefinitions = BlockDefinitions(metatileArt, tileset, header.AreaIndex == AreaId.Ceres);
 
         // Installed visual layouts imply a retail room source. Its collision/BTS and
         // native overread allocation come from the stock-only installed level streams;
         // only the low visual tile bits come from the separately replaceable layout catalog.
         byte[] levelStream = catalogs.LevelStreams.Get(header.State.Level).ToArray();
-        RoomLevelData levelData = ParseLevelData(header, levelStream, blockDefinitions,
-            visualLayouts.Get(header.State.Level));
+        RoomLevelData levelData = ParseLevelData(header, levelStream, visualLayouts.Get(header.State.Level));
         RoomScrollGrid scrolls = LoadScrolls(scrollStorage, header);
         return new LoadedRoomAssets(
             header,
@@ -171,7 +134,6 @@ public sealed class LoadedRoomAssets
     private static RoomLevelData ParseLevelData(
         SelectedRoom header,
         byte[] levelStream,
-        BackgroundTile[] blockDefinitions,
         RoomVisualLayout? visualLayout)
     {
         Extent16<RoomBlocks> visibleSize = header.Size.ToRoomBlocks();
@@ -250,7 +212,7 @@ public sealed class LoadedRoomAssets
         ushort[] streamingBackground = new ushort[RoomLevelMemoryLayout.PrefilledStreamingWordCount];
         Array.Fill(streamingBackground, RoomLevelMemoryLayout.PrefilledLevelWord);
         background.CopyTo(streamingBackground, 0);
-        return new RoomLevelData(new Extent16<RoomBlocks>(unchecked((ushort)widthInBlocks), unchecked((ushort)allocationHeightInBlocks)), new RoomLevelPlanes(foreground, behavior, background), blockDefinitions, new RoomLevelStreaming(streamingAllocation, streamingBackground), doors: header.Doors, visualLayout: visualLayout);
+        return new RoomLevelData(new Extent16<RoomBlocks>(unchecked((ushort)widthInBlocks), unchecked((ushort)allocationHeightInBlocks)), new RoomLevelPlanes(foreground, behavior, background), new RoomLevelStreaming(streamingAllocation, streamingBackground), doors: header.Doors, visualLayout: visualLayout);
     }
 
     /// <summary>Creates the room's screen-indexed scroll grid from its selected state.</summary>

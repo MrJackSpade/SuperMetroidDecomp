@@ -1,4 +1,6 @@
 using System.Collections.Immutable;
+using System.Globalization;
+using System.Text;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
@@ -28,6 +30,9 @@ public sealed class RoomBackgroundImage
 
     /// <summary>The frame of an image's sheet that pictures its whole tilemap.</summary>
     public const string FrameName = "pages";
+
+    /// <summary>Tiles in one 16x16 cell of an image.</summary>
+    public const int CellTiles = 4;
 
     /// <summary>Checks the tiles fill whole pairs of 32-tile rows and the sheet's picture covers them.</summary>
     /// <exception cref="InvalidDataException">The tiles do not fill pairs of rows or the picture is not their size.</exception>
@@ -60,7 +65,7 @@ public sealed class RoomBackgroundImage
     public ImmutableArray<BackgroundTile> Tiles { get; }
 
     /// <summary>The image's 16x16 cells: two rows by two columns each.</summary>
-    public int CellCount => Tiles.Length / RoomBlockPictureNames.Tiles;
+    public int CellCount => Tiles.Length / CellTiles;
 
     /// <summary>The installed name of the sky <paramref name="variant"/>'s rows in a room of <paramref name="tileset"/>.</summary>
     public static string SkyNameOf(ScrollingSkyChunkTable variant, TilesetDefinition tileset) => $"Sky{variant}.{RoomBlockSheet.NameOf(tileset)}";
@@ -92,12 +97,40 @@ public sealed class RoomBackgroundImage
     public static IEnumerable<BackgroundTile[]> Cells(IReadOnlyList<BackgroundTile> tiles)
     {
         Ensure.NotNull(tiles);
-        for (int cell = 0; cell < tiles.Count / RoomBlockPictureNames.Tiles; cell++)
+        for (int cell = 0; cell < tiles.Count / CellTiles; cell++)
         {
             int first = CellWord(cell);
             yield return [tiles[first], tiles[first + 1], tiles[first + PageTiles], tiles[first + PageTiles + 1]];
         }
     }
+
+    /// <summary>
+    /// The name of the picture the block sheet holds of a cell whose tiles are <paramref name="tiles"/> over
+    /// <paramref name="shown"/> (#1392): a cell whose characters the room rebinds after loading draws it over the image.
+    /// </summary>
+    /// <param name="tiles">The cell's four tiles: top left, top right, bottom left, bottom right.</param>
+    /// <param name="shown">What shows over each tile's character, in the same order.</param>
+    /// <exception cref="ArgumentException">Either span does not hold four entries.</exception>
+    public static string CellPictureName(ReadOnlySpan<BackgroundTile> tiles, ReadOnlySpan<BgArtworkShown> shown)
+    {
+        Ensure.LengthEqual(tiles, CellTiles);
+        Ensure.LengthEqual(shown, CellTiles);
+        var name = new StringBuilder();
+        for (int tile = 0; tile < CellTiles; tile++)
+            name.Append(tile == 0 ? "" : ".").Append(TileName(tiles[tile]));
+        for (int tile = 0; tile < CellTiles; tile++)
+            name.Append('|').Append(shown[tile].Artwork.Name).Append('+')
+                .Append(shown[tile].WordOffset.ToString("X4", CultureInfo.InvariantCulture));
+        return name.ToString();
+    }
+
+    /// <summary>
+    /// The part of a cell picture's name that names one tile: its character, colour variant, and an <c>h</c>, <c>v</c> and
+    /// <c>p</c> for each of its mirrorings and its upper priority tier.
+    /// </summary>
+    private static string TileName(BackgroundTile tile) =>
+        string.Create(CultureInfo.InvariantCulture,
+            $"{tile.Tile:X3}c{tile.ColourVariant}{(tile.FlipHorizontally ? "h" : "")}{(tile.FlipVertically ? "v" : "")}{(tile.HighPriority ? "p" : "")}");
 
     /// <summary>The first tile of cell <paramref name="cell"/>: sixteen cells to a pair of 32-tile rows.</summary>
     public static int CellWord(int cell) => cell / (PageTiles / 2) * 2 * PageTiles + cell % (PageTiles / 2) * 2;

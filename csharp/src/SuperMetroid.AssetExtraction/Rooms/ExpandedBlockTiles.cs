@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Rooms.LevelData;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The four tiles a 16x16 block shows, row by row, already mirrored by the block's level word.</summary>
 /// <param name="TopLeft">The upper-left tile.</param>

@@ -52,14 +52,14 @@ internal static class DownwardGateVisualsVerification
                     DownwardGateTriggerBehavior.BlueLeft, visuals);
             StepDownwardGatePlm(plms, level);
             AssertEqual(visuals.GetWord(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1) == 0x0053
-                    ? (ushort)0x0053 : (ushort)0x000f,
-                level.DisplayedBlockTiles(gateBlockIndex + level.Size.X).TopLeft.PackedWord,
+                    ? (ushort)0x0053 : (ushort)0x00ff,
+                level.DisplayedVisualWord(gateBlockIndex + level.Size.X),
                 "first gate PLM step draws its selected second-column visual word");
             StepDownwardGatePlm(plms, level);
             int columnIndex = gateBlockIndex + level.Size.X;
             int triggerIndex = gateBlockIndex - 1;
-            ushort streamed = level.DisplayedBlockTiles(columnIndex).TopLeft.PackedWord;
-            ushort triggerStreamed = level.DisplayedBlockTiles(triggerIndex).TopLeft.PackedWord;
+            ushort streamed = level.DisplayedVisualWord(columnIndex);
+            ushort triggerStreamed = level.DisplayedVisualWord(triggerIndex);
             return new DownwardGateVisualsRenderResult(level.GetCollisionBlockByIndex(columnIndex).PackedWord.Raw,
                 streamed,
                 level.GetCollisionBlockByIndex(triggerIndex).PackedWord.Raw,
@@ -74,8 +74,8 @@ internal static class DownwardGateVisualsVerification
             "gate block art cannot change column collision");
         AssertEqual(native.TriggerPhysical, changed.TriggerPhysical,
             "gate trigger art cannot change shot-block collision");
-        AssertEqual((ushort)0x000f, native.Streamed,
-            "stock gate block streams its native visual tile");
+        AssertEqual((ushort)0x00ff, native.Streamed,
+            "stock gate block streams its native block");
         AssertEqual((ushort)0x0053, changed.Streamed,
             "edited gate block art survives camera streaming");
         AssertEqual((ushort)0x0053, changed.TriggerStreamed,

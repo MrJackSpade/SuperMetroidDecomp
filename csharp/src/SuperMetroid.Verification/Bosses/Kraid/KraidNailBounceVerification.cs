@@ -13,7 +13,7 @@ internal static class KraidNailBounceVerification
     internal static void VerifyKraidNailBounce()
     {
         var words = new ushort[32 * 32];
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), new BackgroundTile[4]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var state = new KraidEnemyState();
         enemies.KraidBehavior.Access.Kraid = state;
@@ -32,7 +32,7 @@ internal static class KraidNailBounceVerification
         }
         var wallWords = new ushort[32 * 32];
         for (int row = 0; row < 32; row++) wallWords[row * 32 + 9] = 0x8000;
-        var wallRoom = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(wallWords, new byte[wallWords.Length], new ushort[wallWords.Length]), new BackgroundTile[4]);
+        var wallRoom = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(wallWords, new byte[wallWords.Length], new ushort[wallWords.Length]));
         // A wall hit must skip the contour lookup entirely, not bounce twice.
         for (int fraction = 0; fraction <= ushort.MaxValue; fraction++)
         {

@@ -371,8 +371,7 @@ internal static class GModeGateGlitchVerification
 
         RoomLevelData level = CreateRoom(new(width, 16),
             new ushort[width * 16],
-            new byte[width * 16],
-            blockDefinitions: new BackgroundTile[0x400 * 4]);
+            new byte[width * 16]);
         var samus = new SamusState { Health = 1, MaxHealth = 99 };
         var plms = PlmFixtures.Unbound();
         PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
@@ -441,8 +440,7 @@ internal static class GModeGateGlitchVerification
         ]);
         RoomLevelData level = CreateRoom(new(width, 16),
             new ushort[width * 16],
-            new byte[width * 16],
-            blockDefinitions: new BackgroundTile[0x400 * 4]);
+            new byte[width * 16]);
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0x0100)) };
         RoomLayer3FxState roomFx = CreateNoobTubeWaterFx();
         bool brokenEvent = false;

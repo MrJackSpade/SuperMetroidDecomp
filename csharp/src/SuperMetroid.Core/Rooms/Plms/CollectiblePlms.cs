@@ -193,8 +193,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         bool collected = unchecked((short)slot.RoomArgument) >= 0 &&
             system.HasCollectedItemBit(slot.RoomArgument);
         int graphicsSlot = kind >= InWorldCollectibleKind.Bombs
-            ? LoadDynamicCollectibleGraphics(
-                level, backgrounds, kind, suppliedGraphic)
+            ? LoadDynamicCollectibleGraphics(backgrounds, kind, suppliedGraphic)
             : -1;
 
         RoomLevelWord setupWord = original.PackedWord.WithCollisionType(
@@ -236,9 +235,11 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         return found;
     }
 
-    /// <summary>Binds two animation frames to the next collectible character slot (#1350) and updates live block-definition words.</summary>
+    /// <summary>
+    /// Binds two animation frames to the next collectible character slot (#1350). The slot's blocks show the collectible
+    /// through what is bound over its characters (#1431), which names their pictures.
+    /// </summary>
     private int LoadDynamicCollectibleGraphics(
-        RoomLevelData level,
         BgArtworkBindings backgrounds,
         InWorldCollectibleKind kind,
         RoomPlmDynamicCollectibleGraphic? suppliedGraphic)
@@ -248,7 +249,6 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         // source grants the handler a bank-$84/$89 reader.
         RoomPlmDynamicCollectibleGraphic definition = suppliedGraphic ?? GraphicOf(_drawing.DynamicCollectibleArt, kind);
         ReadOnlyMemory<byte> graphics = definition.Tiles;
-        ReadOnlyMemory<byte> paletteOffsets = definition.PaletteOffsets;
 
         int graphicsSlot = _nextCollectibleGraphicsSlot;
         _nextCollectibleGraphicsSlot = (_nextCollectibleGraphicsSlot + 1) & 3;
@@ -256,16 +256,8 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         // The 256 bytes contain two 16x16 animation frames, four 4bpp tiles apiece.
         SlotCharacters(suppliedGraphic is null ? RoomBgArtwork.Collectible(kind) : RoomBgArtwork.SuppliedCollectible(kind), graphicsSlot,
             BgCharacterSet.Tiles.CharactersIn(graphics.Length)).BindTo(backgrounds);
-
-        int firstDefinitionWord = CollectibleDynamicGraphicsDefinitions.FirstBlockDefinitionWord + graphicsSlot * SlotDefinitionWords;
-        BackgroundTile[] tiles = SlotDefinitions(graphicsSlot, paletteOffsets.Span);
-        for (int child = 0; child < tiles.Length; child++)
-            level.SetBlockDefinitionTile(firstDefinitionWord + child, tiles[child]);
         return graphicsSlot;
     }
-
-    /// <summary>The block definition words one collectible slot's two animation frames take: four tiles each.</summary>
-    internal const int SlotDefinitionWords = 8;
 
     /// <summary>The collectible graphic slots instruction <c>$84:8764</c> rotates through.</summary>
     internal const int GraphicsSlots = 4;
@@ -283,19 +275,6 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     /// </summary>
     internal static RoomPlmDynamicCollectibleGraphic GraphicOf(RoomPlmDynamicCollectibleArtCatalog? installed, InWorldCollectibleKind kind) =>
         installed?.Resolve(kind) ?? RoomPlmDynamicCollectibleGraphicsDefinitions.Get(kind);
-
-    /// <summary>
-    /// The block definition tiles a collectible writes for slot <paramref name="graphicsSlot"/>: each of its eight
-    /// characters in the colour variant <paramref name="paletteOffsets"/> gives it.
-    /// </summary>
-    internal static BackgroundTile[] SlotDefinitions(int graphicsSlot, ReadOnlySpan<byte> paletteOffsets)
-    {
-        int startingTileNumber = CollectibleDynamicGraphicsDefinitions.FirstTileNumber + graphicsSlot * SlotDefinitionWords;
-        var tiles = new BackgroundTile[SlotDefinitionWords];
-        for (int child = 0; child < tiles.Length; child++)
-            tiles[child] = new BackgroundTile(startingTileNumber + child, paletteOffsets[child], highPriority: false);
-        return tiles;
-    }
 
     /// <summary>Advances one item's reveal, pickup, message wait, or shot-block respawn list.</summary>
     internal bool TryStepCollectible(RoomLevelData level, PlmSlot slot)

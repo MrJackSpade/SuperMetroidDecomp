@@ -129,7 +129,6 @@ internal static class FrontendRomFreeVerification
         var samus = installation.LoadSamusBodyArt();
         var characters = installation.LoadRoomCharacters();
         var roomPalettes = installation.LoadRoomPalettes();
-        var metatiles = installation.LoadRoomMetatiles();
         var blockSheets = installation.LoadRoomBlockSheets();
         var visualLayouts = installation.LoadRoomVisualLayouts();
         var levelStreams = installation.LoadRoomLevelStreams();
@@ -221,7 +220,6 @@ internal static class FrontendRomFreeVerification
                 SamusBodyArt = samus,
                 RoomCharacterArt = characters,
                 RoomPaletteArt = roomPalettes,
-                RoomMetatileArt = metatiles,
                 RoomBlockSheets = blockSheets,
                 RoomVisualLayouts = visualLayouts,
                 RoomLevelStreams = levelStreams,

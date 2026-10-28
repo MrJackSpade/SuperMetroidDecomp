@@ -26,7 +26,7 @@ internal static class DachoraMotionStateVerification
     /// </summary>
     internal static void VerifyDachoraMotionState()
     {
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new BackgroundTile[4]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]));
 
         (RoomEnemySystem enemies, RoomEnemySlot slot, DachoraEnemyState state) = NewDachora(parameter: 1);
         state.Speed = SignedSixteenSixteen.FromParts(8, 0);

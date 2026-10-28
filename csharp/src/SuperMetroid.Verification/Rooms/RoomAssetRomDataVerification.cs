@@ -118,19 +118,19 @@ internal static class RoomAssetRomDataVerification
         var installation = RepositoryInstallation.Installation;
         var characters = installation.LoadRoomCharacters();
         var palettes = installation.LoadRoomPalettes();
-        var metatiles = installation.LoadRoomMetatiles();
         var layouts = installation.LoadRoomVisualLayouts();
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
             SelectedRoom header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
-            LoadedRoomAssets native = LoadFixtureRoomAssets(header, characters, palettes, metatiles, layouts);
-            LoadedRoomAssets guarded = LoadFixtureRoomAssets(header, characters, palettes, metatiles, layouts);
+            LoadedRoomAssets native = LoadFixtureRoomAssets(header, characters, palettes, layouts);
+            LoadedRoomAssets guarded = LoadFixtureRoomAssets(header, characters, palettes, layouts);
             AssertEqual(native.Tileset, guarded.Tileset,
                 $"room $8F:{roomPointer:X4} resolves compiled graphics metadata");
             AssertTrue(native.CreCharactersIn(characters).Span.SequenceEqual(guarded.CreCharactersIn(characters).Span) &&
                 native.TilesetCharactersIn(characters).Span.SequenceEqual(guarded.TilesetCharactersIn(characters).Span) &&
                 native.PaletteBytes.SequenceEqual(guarded.PaletteBytes) &&
-                native.LevelData.BlockDefinitions.Span.SequenceEqual(guarded.LevelData.BlockDefinitions.Span),
+                // The room's blocks are its tileset's block pictures and the characters each reads (#1431).
+                ReferenceEquals(native.BlockSheet, guarded.BlockSheet) && native.BlockSheet.Characters.Set == native.Tileset.Blocks,
                 $"room $8F:{roomPointer:X4} retains exact decompressed visual inputs");
             var nativeVram = new SnesVram();
             var guardedVram = new SnesVram();

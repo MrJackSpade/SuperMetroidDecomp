@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.Artwork;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Editable JSON schema for one common-room-element or tileset-specific table of 16x16 visual blocks; collision and placement are not included.</summary>
 public sealed record RoomMetatileDocument

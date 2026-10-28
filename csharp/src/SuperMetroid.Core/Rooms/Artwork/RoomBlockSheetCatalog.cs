@@ -107,6 +107,7 @@ public sealed class RoomBlockSheetCatalog
         {
             content.AppendName("tileset", RoomBlockSheet.NameOf(tileset));
             sheet.Sheet.AppendIdentity(content);
+            sheet.Characters.AppendIdentity(content);
         }
         foreach ((string name, RoomBackgroundImage background) in Backgrounds.OrderBy(entry => entry.Key, StringComparer.Ordinal))
         {

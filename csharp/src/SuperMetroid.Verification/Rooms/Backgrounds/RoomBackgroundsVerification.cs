@@ -25,19 +25,21 @@ internal static class RoomBackgroundsVerification
     /// <summary>Blocks along each side of the constructed planes.</summary>
     private const int Side = 4;
 
+    /// <summary>Tiles a fixture paints into each block picture: top left, top right, bottom left, bottom right.</summary>
+    private const int BlockTiles = 4;
+
     /// <summary>Resolves constructed planes through scroll offsets, a door window and an overlay.</summary>
     internal static void VerifyRoomBackgroundSources()
     {
-        // Definition n shows the tiles of words n*4 .. n*4+3; the level words select definitions with flips.
-        var definitions = new BackgroundTile[16 * RoomLevelPlane.DefinitionTiles];
+        // Block n's picture paints the tiles of words n*4 .. n*4+3; the level words select blocks with flips (#1431).
+        var definitions = new BackgroundTile[16 * BlockTiles];
         for (int word = 0; word < definitions.Length; word++)
             definitions[word] = BackgroundTileWordBytes.Tile(word);
         var blocks = new ushort[Side * Side];
         for (int block = 0; block < blocks.Length; block++)
             blocks[block] = (ushort)((block % 4) << 10 | block);
-        var plane = new RoomLevelPlane(new Extent16<RoomBlocks>(Side, Side), blocks, [.. definitions]);
+        var plane = new RoomLevelPlane(new Extent16<RoomBlocks>(Side, Side), blocks);
         var offset = new Offset16<BgPlanePixels>(0x10, -0x08);
-        IBgTileSource planeTiles = plane.Tiles(offset);
         // The destination and the door's source room draw block pictures of different characters (#1403).
         var random = new Random(1346);
         var palette = new RgbColor[SnesCgram.ColorCount];
@@ -46,30 +48,31 @@ internal static class RoomBackgroundsVerification
         random.NextBytes(sourceImage);
         var layer = new RoomBackgroundLayer(plane.Cells, offset, RoomBlockFixtures.Pictures(definitions, destinationImage, palette));
 
+        // Each level pixel shows its level word's whole block, by index and mirroring (#1431), drawn through the offset.
+        AssertEqual(offset, layer.ScrollOffset, "the layer is drawn through the plane's scroll offset");
         int checks = 0;
         for (int y = 0; y < Side * RoomLevelPlane.BlockPixels; y += 3)
         for (int x = 0; x < Side * RoomLevelPlane.BlockPixels; x += 5)
         {
             var level = new Position16<BgPlanePixels>((ushort)x, (ushort)y);
-            ExpandedBlockTiles tiles = LevelBlockTilemapExpander.Expand(
-                blocks[y / RoomLevelPlane.BlockPixels * Side + x / RoomLevelPlane.BlockPixels], definitions);
-            bool right = x % RoomLevelPlane.BlockPixels >= 8, bottom = y % RoomLevelPlane.BlockPixels >= 8;
-            BackgroundTile expected = bottom ? right ? tiles.BottomRight : tiles.BottomLeft : right ? tiles.TopRight : tiles.TopLeft;
-            AssertTrue(planeTiles.TryTileAt(level + offset, out BackgroundTile tile), $"level pixel {x},{y} is inside the room");
-            AssertEqual(expected, tile, $"scroll {x + offset.X},{y + offset.Y} shows the level block's tile at scroll minus offset");
+            var word = new RoomLevelWord(blocks[y / RoomLevelPlane.BlockPixels * Side + x / RoomLevelPlane.BlockPixels]);
+            AssertTrue(layer.Blocks.TryCellAt(level, out RoomBlockCell cell, out Position16<BgPlanePixels> within),
+                $"level pixel {x},{y} is inside the room");
+            AssertEqual(new RoomBlockCell(word.VisualBlockIndex, word.VisualFlipFlags), cell,
+                $"level pixel {x},{y} shows the level word's block and mirroring");
+            AssertEqual(new Position16<BgPlanePixels>((ushort)(x % RoomLevelPlane.BlockPixels), (ushort)(y % RoomLevelPlane.BlockPixels)), within,
+                $"level pixel {x},{y} lies at its place within the block");
             checks++;
         }
-        AssertTrue(!planeTiles.TryTileAt(new Position16<BgPlanePixels>(0, 0) + offset + new Offset16<BgPlanePixels>(-1, 0), out BackgroundTile _),
-            "a scroll left of the room shows no tile");
-        AssertTrue(!planeTiles.TryTileAt(new Position16<BgPlanePixels>(0, Side * RoomLevelPlane.BlockPixels) + offset, out BackgroundTile _),
-            "a scroll below the room shows no tile");
+        AssertTrue(!layer.Blocks.TryCellAt(new Position16<BgPlanePixels>(0, Side * RoomLevelPlane.BlockPixels), out _, out _),
+            "a level pixel below the room shows no block");
         AssertTrue(!layer.Blocks.TryCellAt(new Position16<BgPlanePixels>(0, 0) + new Offset16<BgPlanePixels>(-1, 0), out _, out _),
             "a scroll left of the room shows no block");
 
         // The door's source screen covers the window at its scroll, below the HUD and the first blank scanline.
         var sourceBlocks = Enumerable.Repeat((ushort)15, Side * Side).ToArray();
         RoomBlockPictureTable sourcePictures = RoomBlockFixtures.Pictures(definitions, sourceImage, palette);
-        var source = new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(Side, Side), sourceBlocks, [.. definitions]).Cells,
+        var source = new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(Side, Side), sourceBlocks).Cells,
             new Offset16<BgPlanePixels>(0, 0), sourcePictures);
         var sourceScroll = new Position16<BgPlanePixels>(0, 0);
         var door = RoomDoorBackground.Begin(source, sourceScroll);
@@ -85,18 +88,15 @@ internal static class RoomBackgroundsVerification
     /// <summary>A PLM's block change reaches the next published plane, and an earlier plane keeps its blocks.</summary>
     internal static void VerifyPlmBlockChangeReachesPlane()
     {
-        var definitions = new BackgroundTile[16 * RoomLevelPlane.DefinitionTiles];
-        for (int word = 0; word < definitions.Length; word++)
-            definitions[word] = BackgroundTileWordBytes.Tile(0x100 + word);
-        RoomLevelData level = CreateRoom(new(Side, Side), new ushort[Side * Side], new byte[Side * Side], blockDefinitions: definitions);
+        RoomLevelData level = CreateRoom(new(Side, Side), new ushort[Side * Side], new byte[Side * Side]);
         RoomLevelPlane before = level.ForegroundPlane;
         AssertTrue(ReferenceEquals(before, level.ForegroundPlane), "an unchanged room publishes one plane");
         const int block = 2 * Side + 1;
         PlmLevelWrites.DrawLevelWord(level, block, 0x8007);
         RoomLevelPlane after = level.ForegroundPlane;
-        AssertEqual(LevelBlockTilemapExpander.Expand(0x8007, definitions), after.BlockTiles(new(1, 2)),
+        AssertEqual(new RoomBlockCell(0x007, LevelBlockFlipFlags.None), after.Cells.Cells[block],
             "the next plane shows the PLM's block");
-        AssertEqual(LevelBlockTilemapExpander.Expand(0, definitions), before.BlockTiles(new(1, 2)),
+        AssertEqual(new RoomBlockCell(0x000, LevelBlockFlipFlags.None), before.Cells.Cells[block],
             "the earlier plane keeps the block it published");
         Console.WriteLine("  Room backgrounds: a PLM block change reaches the next plane only.");
     }
@@ -134,9 +134,11 @@ internal static class RoomBackgroundsVerification
             for (int y = 0; y < 192; y += 37)
             for (int x = 0; x < 256; x += 41)
             {
+                // The block BG1 shows at a screen pixel, through its scroll and offset, is the level's block at the camera.
                 var screen = new Offset16<BgPlanePixels>((short)x, (short)y);
-                AssertTrue(level.ForegroundPlane.Tiles(published.Bg1.ScrollOffset).TryTileAt(scroll + screen, out BackgroundTile shown) &&
-                        level.ForegroundPlane.TryTileAt(camera + screen, out BackgroundTile expected) && shown == expected,
+                AssertTrue(published.Bg1.Blocks.TryCellAt(scroll - published.Bg1.ScrollOffset + screen, out RoomBlockCell shown, out var shownWithin) &&
+                        level.ForegroundPlane.Cells.TryCellAt(camera + screen, out RoomBlockCell expected, out var expectedWithin)
+                        && shown == expected && shownWithin == expectedWithin,
                     $"{room.Name} BG1 at screen {x},{y} shows the level at the camera");
             }
         }

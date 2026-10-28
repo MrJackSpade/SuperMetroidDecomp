@@ -27,7 +27,7 @@ internal static class ElevatorStandUpContactVerification
             blocks[DoorRow * Width + x] = 0x9000;
             behaviors[DoorRow * Width + x] = 2;
         }
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(Width, Height), new RoomLevelPlanes(blocks, behaviors, new ushort[Width * Height]), [], doors: RoomDoorListDefinitions.ForListPointer(0xdad5));
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(Width, Height), new RoomLevelPlanes(blocks, behaviors, new ushort[Width * Height]), doors: RoomDoorListDefinitions.ForListPointer(0xdad5));
 
         var samus = new SamusState { Pose = SamusPoseId.CrouchingLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(24, 0)) };
         SamusPoseMetadata.RefreshCollisionRadii(samus);

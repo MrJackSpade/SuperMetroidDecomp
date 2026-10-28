@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>The names room character, block and palette overrides had before #1363, which carried their cartridge source.</summary>
+/// <summary>The names room character and palette overrides had before #1363, which carried their cartridge source.</summary>
 internal static class RoomTilesetLegacyFileNameDefinitions
 {
     /// <summary>Each character sheet's old file name.</summary>
@@ -26,25 +26,6 @@ internal static class RoomTilesetLegacyFileNameDefinitions
         [RoomCharacterSet.Crocomire] = "room-characters-BDFE2A.png",
         [RoomCharacterSet.Draygon] = "room-characters-BF9DEA.png",
         [RoomCharacterSet.TourianStatueGhost] = "room-characters-87AD64.png",
-    }.ToFrozenDictionary();
-
-    /// <summary>Each block table's old file name.</summary>
-    internal static readonly FrozenDictionary<RoomBlockSet, string> Blocks = new Dictionary<RoomBlockSet, string>
-    {
-        [RoomBlockSet.UpperCrateria] = "room-blocks-C1B6F6.json",
-        [RoomBlockSet.LowerCrateria] = "room-blocks-C1BEEE.json",
-        [RoomBlockSet.WreckedShip] = "room-blocks-C1C5CF.json",
-        [RoomBlockSet.GreenBlueBrinstar] = "room-blocks-C1CFA6.json",
-        [RoomBlockSet.RedBrinstarKraidStatuesHall] = "room-blocks-C1D8DC.json",
-        [RoomBlockSet.Norfair] = "room-blocks-C1E361.json",
-        [RoomBlockSet.SandlessMaridia] = "room-blocks-C1F4B1.json",
-        [RoomBlockSet.SandyMaridia] = "room-blocks-C2855F.json",
-        [RoomBlockSet.Tourian] = "room-blocks-C29B01.json",
-        [RoomBlockSet.Ceres] = "room-blocks-C2A75E.json",
-        [RoomBlockSet.UtilityRoomStatues] = "room-blocks-C2A27B.json",
-        [RoomBlockSet.Kraid] = "room-blocks-C1E189.json",
-        [RoomBlockSet.Crocomire] = "room-blocks-C1F3AF.json",
-        [RoomBlockSet.Draygon] = "room-blocks-C2960D.json",
     }.ToFrozenDictionary();
 
     /// <summary>Each palette's old file name.</summary>

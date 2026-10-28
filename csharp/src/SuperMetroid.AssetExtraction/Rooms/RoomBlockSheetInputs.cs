@@ -43,7 +43,7 @@ internal sealed record RoomBlockSheetInputs(RoomCharacterAtlasCatalog Characters
         EnemySheetInputs objects = EnemySheetInputs.Load(content);
         return new(
             RoomCharacterArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomCharacterDirectoryName), null),
-            RoomMetatileArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomMetatileDirectoryName), null),
+            RoomMetatileArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomMetatileDirectoryName)),
             RoomStaticPaletteArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomPaletteDirectoryName), null),
             maps.RoomFxAnimatedTiles,
             RoomPlmDynamicCollectibleArtFiles.Load(Path.Combine(content, GameInstallationLayout.RoomPlmDynamicCollectibleArtDirectoryName), null),

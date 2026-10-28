@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text.Json.Nodes;
 using static SuperMetroid.Verification.Rooms.TilemapJsonContractsVerification;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Samus;
@@ -38,8 +39,9 @@ internal static class RoomAssetJsonContractsVerification
                     (stock, edited) => RoomBackgroundTilemapArtworkFiles.ContentIdentity(RoomBackgroundTilemapArtworkFiles.Load(stock, edited))),
                 new("skies", installed.RoomBackgroundTilemapDirectory, RoomSkyTilemapFormat.ManifestFileName,
                     (stock, edited) => RoomPresentationIdentity.SkyIdentity(RoomSkyTilemapArtworkFiles.Load(stock, edited))),
+                // Block compositions are stock extraction input with no override (#1431): their identity is their tiles.
                 new("metatiles", installed.RoomMetatileDirectory, RoomMetatileArtworkFiles.ManifestFileName,
-                    (stock, edited) => RoomMetatileArtworkFiles.Load(stock, edited).ContentIdentity),
+                    (stock, _) => BlockCompositionIdentity(RoomMetatileArtworkFiles.Load(stock))),
                 new("layouts", installed.RoomVisualLayoutDirectory, RoomVisualLayoutFiles.ManifestFileName,
                     (stock, edited) => RoomVisualLayoutFiles.Load(stock, edited).ContentIdentity),
                 new("X-ray", installed.XrayRevealVisualDirectory, XrayRevealVisualFiles.ManifestFileName,
@@ -107,6 +109,17 @@ internal static class RoomAssetJsonContractsVerification
             }
             accepted.Add(name + ": " + path);
         }
+    }
+
+    /// <summary>
+    /// A digest of every installed block composition's tile words, the common room elements' first and then each block
+    /// set's in set order, standing for the compositions' content as extraction reads it.
+    /// </summary>
+    private static string BlockCompositionIdentity(RoomMetatileCatalog catalog)
+    {
+        byte[] words = [.. BackgroundTileWords.ToBytes(catalog.Cre.BlockTiles.Span), .. catalog.Atlases.OrderBy(entry => entry.Key)
+            .SelectMany(entry => BackgroundTileWords.ToBytes(entry.Value.BlockTiles.Span))];
+        return Convert.ToHexString(SHA256.HashData(words));
     }
 
     /// <summary>Names one room asset family, its stock manifest, and its selected-content identity loader.</summary>

@@ -15,7 +15,6 @@ internal static class RoomLevelDataAccess
             Ensure.NotNull(source);
             if (source.Size.X != self.Size.X || source.Size.Y != self.Size.Y ||
                 !ReferenceEquals(source.Doors, self.Doors) ||
-                source.BlockDefinitions.Length != self.BlockDefinitions.Length ||
                 source.StreamingForegroundAllocation.Length != self.StreamingForegroundAllocation.Length ||
                 source.StreamingBackgroundAllocation.Length != self.StreamingBackgroundAllocation.Length ||
                 source.PlmForegroundAllocation.Length != self.PlmForegroundAllocation.Length ||
@@ -27,7 +26,6 @@ internal static class RoomLevelDataAccess
             source.ForegroundEntries.Span.CopyTo(System.Runtime.InteropServices.MemoryMarshal.AsMemory(self.ForegroundEntries).Span);
             source.BehaviorBytes.CopyTo(self.BehaviorBytes, 0);
             source.BackgroundEntries.CopyTo(self.BackgroundEntries, 0);
-            source.BlockDefinitions.Span.CopyTo(System.Runtime.InteropServices.MemoryMarshal.AsMemory(self.BlockDefinitions).Span);
             source.StreamingForegroundAllocation.CopyTo(self.StreamingForegroundAllocation, 0);
             source.StreamingBackgroundAllocation.CopyTo(self.StreamingBackgroundAllocation, 0);
             source.VisualStreamingForegroundAllocation.CopyTo(self.VisualStreamingForegroundAllocation, 0);

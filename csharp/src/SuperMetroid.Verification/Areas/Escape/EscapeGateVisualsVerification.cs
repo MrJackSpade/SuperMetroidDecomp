@@ -98,10 +98,7 @@ internal static class EscapeGateVisualsVerification
             0x00, 0x00,
         ]);
         var guarded = NewMotherBrainEscapeGateGuard(bus);
-        BackgroundTile[] blockDefinitions = new BackgroundTile[0x400 * 4];
-        blockDefinitions[0x53 * 4] = BackgroundTileWordBytes.Tile(0x53);
-        blockDefinitions[0x54 * 4] = BackgroundTileWordBytes.Tile(0x54);
-        RoomLevelData CreateLevel() => new RoomLevelData(new(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), blockDefinitions);
+        RoomLevelData CreateLevel() => new RoomLevelData(new(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]));
         var system = new SharedGameState();
 
         RoomLevelData closedLevel = CreateLevel();
@@ -113,7 +110,7 @@ internal static class EscapeGateVisualsVerification
             closedLevel.GetCollisionBlockByIndex(origin).PackedWord.Raw,
             "edited closed gate preserves native physical collision");
         AssertEqual((ushort)0x0053,
-            closedLevel.DisplayedBlockTiles(origin).TopLeft.PackedWord,
+            closedLevel.DisplayedVisualWord(origin),
             "edited closed gate survives later camera streaming");
 
         RoomLevelData closingLevel = CreateLevel();
@@ -136,7 +133,7 @@ internal static class EscapeGateVisualsVerification
         AssertEqual((ushort)0x830f,
             closingLevel.GetCollisionBlockByIndex(origin).PackedWord.Raw,
             "edited half-closed gate preserves native physical collision");
-        AssertEqual((ushort)0x0054, closingLevel.DisplayedBlockTiles(origin).TopLeft.PackedWord,
+        AssertEqual((ushort)0x0054, closingLevel.DisplayedVisualWord(origin),
             "edited half-closed gate is shown");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "escape-gate visuals never reread compiled program or draw payloads");

@@ -22,7 +22,7 @@ internal static class RoomArtworkPresentationContractChecks
         string consumer = """
             using SuperMetroid.Core.Rooms.Artwork;
             class RoomArtConsumer {
-                void Inspect(RoomCharacterAtlasCatalog characters, RoomMetatileCatalog metatiles,
+                void Inspect(RoomCharacterAtlasCatalog characters,
                     RoomStaticPaletteCatalog colors, RoomSkyTilemapCatalog sky, RoomBackgroundTilemapCatalog library) {
                     sky.Page(0, RoomSkyTilemapFormat.PageTiles);
                     sky.Page(RoomSkyTilemapFormat.PageCount - 1, RoomSkyTilemapFormat.PageTiles);

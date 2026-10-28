@@ -69,7 +69,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
         var words = new ushort[width * height];
         for (int x = 0; x < width; x++)
             words[20 * width + x] = 0x8000;
-        return new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), new BackgroundTile[4]);
+        return new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]));
     }
 
     /// <summary>Runs Work Robot instruction checks from the verification command dispatcher.</summary>

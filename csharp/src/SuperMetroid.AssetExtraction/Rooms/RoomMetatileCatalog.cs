@@ -1,6 +1,7 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.LevelData;
 
-namespace SuperMetroid.Core.Rooms.Artwork;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed room block compositions; no collision or block behaviour.</summary>
 public sealed class RoomMetatileCatalog

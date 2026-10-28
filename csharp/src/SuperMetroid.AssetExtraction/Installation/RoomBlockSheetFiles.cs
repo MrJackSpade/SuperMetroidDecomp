@@ -10,7 +10,8 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>
-/// Installs the pre-coloured room artwork (#1392): each tileset's block sheet and each library background's image, each
+/// Installs the pre-coloured room artwork (#1392): each tileset's block sheet, the characters each block set's blocks read
+/// (#1431), and each library background's image, each
 /// as an image, palette map and pictures, the tilemap words each background pictures, and the provenance of their
 /// hashes. A player override of a sheet's or image's file replaces the stock one.
 /// </summary>
@@ -59,6 +60,8 @@ public static class RoomBlockSheetFiles
         SpriteSheetStore store = SpriteSheetStore.Create(directory, ProvenanceFileName);
         foreach ((TilesetDefinition tileset, ComposedSpriteSheet sheet) in composition.BlockSheets)
             store.Write(RoomBlockSheet.NameOf(tileset), sheet);
+        foreach (RoomBlockCharacters characters in composition.BlockCharacters.Values)
+            RoomBlockCharacterFiles.Write(directory, characters);
         foreach ((string name, ComposedRoomBackground background) in composition.Backgrounds)
             store.Write(name, background.Sheet);
         ComposedTileWordSheet[] wordSheets = [.. composition.TileWords.Values, .. composition.Bg3Words.Values];
@@ -135,8 +138,12 @@ public static class RoomBlockSheetFiles
         Dictionary<string, TilesetDefinition> byName = tilesets.ToDictionary(RoomBlockSheet.NameOf, StringComparer.Ordinal);
         SpriteSheetStore store = SpriteSheetStore.Open(stockDirectory, overrideDirectory, ProvenanceFileName,
             2 * tilesets.Count + manifest.Words.Count + words.Sheets.Length + mode7.Tiles.Count);
+        // The characters each block reads are the stock record's: an override repaints a block's pictures, not what it reads.
+        Dictionary<RoomBlockSet, RoomBlockCharacters> blockCharacters = tilesets.Select(tileset => tileset.Blocks).Distinct()
+            .ToDictionary(set => set, set => RoomBlockCharacterFiles.Read(stockDirectory, set));
         return new RoomBlockSheetCatalog(
-            tilesets.ToDictionary(tileset => tileset, tileset => new RoomBlockSheet(tileset, store.Read(RoomBlockSheet.NameOf(tileset)))),
+            tilesets.ToDictionary(tileset => tileset, tileset => new RoomBlockSheet(tileset, store.Read(RoomBlockSheet.NameOf(tileset)),
+                blockCharacters[tileset.Blocks])),
             manifest.Words.ToDictionary(entry => entry.Key, entry => new RoomBackgroundImage(entry.Key, store.Read(entry.Key), [.. BackgroundTileWords.ToTiles(entry.Value)]),
                 StringComparer.Ordinal),
             Sheets(TileWordLayer.Bg12), Sheets(TileWordLayer.Bg3),

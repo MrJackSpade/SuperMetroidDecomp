@@ -60,10 +60,10 @@ internal static class ClosedPresentationIdentityDefinitions
         ("RoomFxLayer3TilemapCatalog", "Resolve", "type") => RoomFxLayer3TilemapFormat.Types.Select(type => (int)type).ToArray(),
         ("RoomFxPaletteBlendCatalog", "Apply", "selection") => RoomFxPaletteBlendDefinitions.Ids.Select(id => (int)id).Append(0).ToArray(),
         ("AreaMapPresentationCatalog" or "IGameplayPresentationContent", "Resolve", "asset") =>
-            [(int)VramAssetId.StandardHudTiles, (int)VramAssetId.KraidBg3RestoreQuarter0,
-             (int)VramAssetId.KraidBg3RestoreQuarter1, (int)VramAssetId.KraidBg3RestoreQuarter2,
-             (int)VramAssetId.KraidBg3RestoreQuarter3, (int)VramAssetId.EscapeTimerFirstTiles,
-             (int)VramAssetId.EscapeTimerSecondTiles],
+            [(int)InstalledArtworkId.StandardHudTiles, (int)InstalledArtworkId.KraidBg3RestoreQuarter0,
+             (int)InstalledArtworkId.KraidBg3RestoreQuarter1, (int)InstalledArtworkId.KraidBg3RestoreQuarter2,
+             (int)InstalledArtworkId.KraidBg3RestoreQuarter3, (int)InstalledArtworkId.EscapeTimerFirstTiles,
+             (int)InstalledArtworkId.EscapeTimerSecondTiles],
         ("RoomBackgroundTilemapCatalog", "Get", "tilemap") => Enum.GetValues<RoomBackgroundTilemap>().Select(tilemap => (int)tilemap).ToArray(),
         ("MotherBrainSpecialSpriteArtworkCatalog", "Get", "sheet") => MotherBrainSpecialSpriteArtworkDefinitions.All
             .Select(sheet => (int)sheet.Sheet).ToArray(),

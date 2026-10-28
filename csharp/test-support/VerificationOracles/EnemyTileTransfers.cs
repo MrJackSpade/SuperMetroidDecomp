@@ -17,7 +17,7 @@ namespace SuperMetroid.TestSupport.VerificationOracles;
 /// <param name="timer">The escape-timer atlas whose pages are served as typed assets, or null for none.</param>
 internal sealed class EnemyTileTransfers(InstalledEnemyArtwork installed,
     SuperMetroid.Core.Escape.Artwork.EscapeTimerTileAtlas? timer = null)
-    : IVramAssetProvider, IInstalledArtworkTransferSource, IObjCharacterSourceResolver, IInstalledSpriteCharacterArtwork,
+    : IInstalledArtworkContent, IInstalledArtworkTransferSource, IInstalledArtworkContent, IInstalledSpriteCharacterArtwork,
         IInstalledBossSpriteCharacterArtwork, IInstalledAreaSpriteCharacterArtwork
 {
     /// <inheritdoc/>
@@ -33,7 +33,7 @@ internal sealed class EnemyTileTransfers(InstalledEnemyArtwork installed,
     public SuperMetroid.Core.Fx.Artwork.RoomFxAnimatedTileAtlas AnimatedTiles =>
         throw new InvalidOperationException("Enemy tile fixtures bind no animated tiles.");
     /// <summary>Resolves an escape-timer page from the supplied atlas; enemy tile fixtures queue no other asset.</summary>
-    public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
+    public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) =>
         timer?.Resolve(asset) ?? throw new InvalidOperationException($"Enemy tile fixtures queue no asset {asset}.");
 
     /// <summary>Resolves a native Ceres or Torizo transfer, in the runtime artwork's order; enemy tiles are named by identity (#1412).</summary>
@@ -50,7 +50,7 @@ internal sealed class EnemyTileTransfers(InstalledEnemyArtwork installed,
     }
 
     /// <summary>Resolves an escape-timer page from the supplied atlas; enemy tile fixtures bind no other asset.</summary>
-    public ReadOnlyMemory<byte> ResolveAsset(VramAssetId asset) => Resolve(asset);
+    public ReadOnlyMemory<byte> ResolveAsset(InstalledArtworkId asset) => Resolve(asset);
 
 
 }

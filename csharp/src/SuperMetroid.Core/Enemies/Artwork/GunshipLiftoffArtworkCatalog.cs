@@ -29,7 +29,7 @@ public sealed class GunshipLiftoffArtworkCatalog
     }
 
     /// <summary>Returns the current editable characters for a typed pending VRAM transfer.</summary>
-    public ReadOnlyMemory<byte> Resolve(VramAssetId asset)
+    public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset)
     {
         for (int index = 0; index < frames.Length; index++)
         {

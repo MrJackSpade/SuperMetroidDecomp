@@ -10,18 +10,18 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 internal static class MotherBrainCharacterSources
 {
     /// <summary>Every page's artwork, in the order <see cref="MotherBrainSpritePage.All"/> lists the pages, which the catalogue names them by.</summary>
-    internal static IReadOnlyList<ObjCharacterSource> All { get; } = [.. MotherBrainSpritePage.All.Select(Of)];
+    internal static IReadOnlyList<SpriteArtworkSource> All { get; } = [.. MotherBrainSpritePage.All.Select(Of)];
 
     /// <summary>The artwork <paramref name="page"/> shows.</summary>
     /// <exception cref="InvalidOperationException">The page's sheet is not one of Mother Brain's.</exception>
-    internal static ObjCharacterSource Of(MotherBrainSpritePage page) => page.Sheet switch
+    internal static SpriteArtworkSource Of(MotherBrainSpritePage page) => page.Sheet switch
     {
         MotherBrainSpritePageSheet.Legs => Special(0, page.Page),
         MotherBrainSpritePageSheet.BabyMetroid => Special(1, page.Page),
         MotherBrainSpritePageSheet.Attack => Special(2, page.Page),
         MotherBrainSpritePageSheet.ExplodedDoor => Special(3, page.Page),
         MotherBrainSpritePageSheet.Corpse => new MotherBrainCorpseCharacters(page.Page),
-        MotherBrainSpritePageSheet.EscapeTimer => new AssetObjCharacters(EscapeTimerTilePages.AssetOf(Enum.GetValues<EscapeTimerTilePage>()[page.Page])),
+        MotherBrainSpritePageSheet.EscapeTimer => new InstalledArtworkCharacters(EscapeTimerTilePages.AssetOf(Enum.GetValues<EscapeTimerTilePage>()[page.Page])),
         MotherBrainSpritePageSheet.EscapeText => new MotherBrainEscapeTextCharacters(page.Page),
         _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainSpritePageSheet)} {page.Sheet}."),
     };

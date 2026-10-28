@@ -14,11 +14,11 @@ internal static class ObjCharacterTablePageAccess
         /// <param name="uploads">The OBJ character table's uploads.</param>
         /// <param name="resolver">Resolves installed artwork identities to their current bytes.</param>
         /// <exception cref="InvalidDataException">An upload's source is shorter than the range it shows.</exception>
-        public SpriteArtwork Page(SpriteCharacters uploads, IObjCharacterSourceResolver resolver)
+        public SpriteArtwork Page(SpriteArtworkPlacements uploads, IInstalledArtworkContent resolver)
         {
             Ensure.NotNull(uploads);
             Ensure.NotNull(resolver);
-            SpriteCharacterPlacement[] current = [.. uploads.Uploads];
+            SpriteArtworkPlacement[] current = [.. uploads.Uploads];
             var resolved = new ReadOnlyMemory<byte>[current.Length];
             for (int index = 0; index < current.Length; index++)
                 resolved[index] = current[index].Source.Resolve(resolver);
@@ -26,10 +26,10 @@ internal static class ObjCharacterTablePageAccess
                 previous.Uploads.SequenceEqual(current) && ObjCharacterTablePageConstants.SameSources(previous.Sources, resolved))
                 return self.page;
 
-            var table = new byte[SpriteCharacters.TableByteCount];
+            var table = new byte[SpriteArtworkPlacements.TableByteCount];
             for (int index = 0; index < current.Length; index++)
             {
-                SpriteCharacterPlacement upload = current[index];
+                SpriteArtworkPlacement upload = current[index];
                 ReadOnlyMemory<byte> bytes = resolved[index];
                 if (upload.ByteCount > bytes.Length)
                     throw new InvalidDataException($"{upload.Source} has {bytes.Length} bytes; it shows {upload.ByteCount}.");

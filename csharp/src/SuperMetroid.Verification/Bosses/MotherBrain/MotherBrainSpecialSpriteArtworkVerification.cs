@@ -125,7 +125,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             AssertEqual(ShownByte(baby.PageFirstCharacter(page)),
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 5) * 2,
                 $"Baby page {page} shows where the cartridge's record places it");
-            SpriteCharacterPlacement shown = PlacedUploads.Of(MotherBrainCharacterSources.Of(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.BabyMetroid, page)));
+            SpriteArtworkPlacement shown = PlacedUploads.Of(MotherBrainCharacterSources.Of(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.BabyMetroid, page)));
             AssertEqual(ShownByte(baby.PageFirstCharacter(page)) - ObjectCharactersByte, shown.FirstByte,
                 $"Baby page {page} selection shows at its record's characters");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record), shown.ByteCount,
@@ -168,7 +168,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             AssertEqual(completed ? 0 : page + 1, state.NextLegTilePage,
                 $"Mother Brain leg-loading page {page} next page, back to the first after the last");
             int nativeTableByte = nativeDestination * 2 - ObjectCharactersByte;
-            SpriteCharacterPlacement shown = enemies.Room.Session.SpriteCharacters.LastOver(nativeTableByte, nativeSize)
+            SpriteArtworkPlacement shown = enemies.Room.Session.SpriteCharacters.LastOver(nativeTableByte, nativeSize)
                 ?? throw new InvalidOperationException($"Mother Brain leg-loading page {page} shows nothing.");
             AssertEqual(nativeTableByte, shown.FirstByte,
                 $"Mother Brain leg-loading page {page} shows where the cartridge's record places it");

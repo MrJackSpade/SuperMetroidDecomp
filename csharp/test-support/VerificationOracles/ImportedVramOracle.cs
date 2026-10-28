@@ -66,10 +66,10 @@ internal static class ImportedVramOracle
     }
 
     /// <summary>Supplies cartridge bytes to a reference transfer while rejecting installed-asset lookups.</summary>
-    private sealed class ImportedTransfers(ISnesAddressSpace source) : IVramAssetProvider, IInstalledArtworkTransferSource
+    private sealed class ImportedTransfers(ISnesAddressSpace source) : IInstalledArtworkContent, IInstalledArtworkTransferSource
     {
         /// <summary>Rejects asset IDs because this oracle represents bus DMA rather than installed resources.</summary>
-        public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
+        public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) =>
             throw new InvalidOperationException($"Reference DMA has no installed asset {asset}.");
 
         /// <summary>Supplies a cartridge span only when the DMA source is mapped to ROM.</summary>

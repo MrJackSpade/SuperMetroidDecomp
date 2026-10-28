@@ -60,7 +60,7 @@ internal static class CrocomireSkeletonArtworkVerification
 
         (byte[] installedCharacters, CrocomireDeathState installedState,
             CartridgeReadGuard denied) = RunInstalled(stock);
-        var nativeCharacters = new byte[SpriteCharacters.TableByteCount];
+        var nativeCharacters = new byte[SpriteArtworkPlacements.TableByteCount];
         for (int index = 0; index < frames; index++)
         {
             int destination = ReadNativeCrocomireSkeletonWord(rom,
@@ -135,8 +135,8 @@ internal static class CrocomireSkeletonArtworkVerification
                  index <= CrocomireSkeletonTransferDefinitions.FrameCount; index++)
                 ShowNextChunk(system, state);
             // The skeleton's chunks as its sheets picture them: each installed chunk where the cartridge uploads it (#1406).
-            var shown = new SpriteCharacters();
-            foreach (SpriteCharacterPlacement upload in PlacedUploads.Of(CrocomireSkeletonTransferDefinitions.Sources))
+            var shown = new SpriteArtworkPlacements();
+            foreach (SpriteArtworkPlacement upload in PlacedUploads.Of(CrocomireSkeletonTransferDefinitions.Sources))
                 shown.Record(upload);
             return new RunInstalledResult(new ObjCharacterTablePage().Page(shown, new EnemyTileTransfers(art)).Characters[..SpriteCharacters.TableByteCount].ToArray(),
                 state, guard);

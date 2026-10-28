@@ -49,9 +49,9 @@ internal static class BackgroundTransferPresentationContractChecks
                     blends.Apply(backgrounds, RoomFxPaletteBlend.Fog);
                     ending.Fragment(EndingObjectFragmentId.Segment7C);
                     ending.Fragment((EndingObjectFragmentId)4);
-                    ship.Resolve(VramAssetId.GunshipLiftoffFirstTiles);
-                    ship.Resolve(VramAssetId.GunshipLiftoffFifthTiles);
-                    ship.Resolve(VramAssetId.BeamPowerTiles);
+                    ship.Resolve(InstalledArtworkId.GunshipLiftoffFirstTiles);
+                    ship.Resolve(InstalledArtworkId.GunshipLiftoffFifthTiles);
+                    ship.Resolve(InstalledArtworkId.BeamPowerTiles);
                     ship.TryResolve(GunshipLiftoffTransferDefinitions.First.SourceAddress, GunshipLiftoffTransferDefinitions.ByteCount, out _);
                     ship.TryResolve(GunshipLiftoffTransferDefinitions.First.SourceAddress, GunshipLiftoffTransferDefinitions.ByteCount - 1, out _);
                     ship.TryResolve(0, GunshipLiftoffTransferDefinitions.ByteCount - 1, out _);

@@ -381,7 +381,7 @@ internal sealed class CeresRidleyGetaway
             return true;
         if (cursor.List == CeresEscapePageList.Objects)
         {
-            ObjCharacterSource page = CeresEscapePageDefinitions.ObjectPages[cursor.Shown];
+            SpriteArtworkSource page = CeresEscapePageDefinitions.ObjectPages[cursor.Shown];
             RequireInstalled(page);
             _presentation.ShowCharacters(page);
         }
@@ -391,11 +391,11 @@ internal sealed class CeresRidleyGetaway
 
     /// <summary>Requires the installed artwork a timer-sprite page shows, when the room is drawn from installed artwork.</summary>
     /// <exception cref="InvalidDataException">The installed escape timer or Ceres escape character pages are missing.</exception>
-    private void RequireInstalled(ObjCharacterSource source)
+    private void RequireInstalled(SpriteArtworkSource source)
     {
         if (_room.Artwork is null)
             return;
-        if (source is AssetObjCharacters && _bossArtwork.EscapeTimerArtwork is null)
+        if (source is InstalledArtworkCharacters && _bossArtwork.EscapeTimerArtwork is null)
             throw new InvalidDataException("Installed Ceres escape timer has no editable sprite tile artwork.");
         if (source is CeresEscapeTileCharacters characters &&
             _areaArtwork.Artwork?.CeresEscapeTiles?.TryResolve(

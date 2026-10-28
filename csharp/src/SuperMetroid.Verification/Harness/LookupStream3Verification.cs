@@ -1120,13 +1120,13 @@ internal static class LookupStream3Verification
 
         GrappleTileTransfer[] expectedTransfers =
         [
-            new(VramAssetId.GrapplePointFirstTiles, 0, 32),
-            new(VramAssetId.GrapplePointSecondTiles, 32, 32),
-            new(VramAssetId.GrapplePointThirdTiles, 64, 32),
-            new(VramAssetId.GrapplePointFourthTiles, 96, 32),
-            new(VramAssetId.GrappleHorizontalSegmentTiles, 128, 128),
-            new(VramAssetId.GrappleDiagonalSegmentTiles, 256, 128),
-            new(VramAssetId.GrappleVerticalSegmentTiles, 384, 128),
+            new(InstalledArtworkId.GrapplePointFirstTiles, 0, 32),
+            new(InstalledArtworkId.GrapplePointSecondTiles, 32, 32),
+            new(InstalledArtworkId.GrapplePointThirdTiles, 64, 32),
+            new(InstalledArtworkId.GrapplePointFourthTiles, 96, 32),
+            new(InstalledArtworkId.GrappleHorizontalSegmentTiles, 128, 128),
+            new(InstalledArtworkId.GrappleDiagonalSegmentTiles, 256, 128),
+            new(InstalledArtworkId.GrappleVerticalSegmentTiles, 384, 128),
         ];
         int[] expectedSources = [0x9a8200, 0x9a8400, 0x9a8600, 0x9a8800, 0x9a8220, 0x9a8a20, 0x9a9220];
         var actualTransfers = GrappleTileDefinitions.Transfers;
@@ -1143,7 +1143,7 @@ internal static class LookupStream3Verification
         foreach (int invalid in new[] { -1, 7, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => _ = actualTransfers[invalid],
                 "stream 3 grapple transfer bounds");
-        AssertThrows<InvalidDataException>(() => GrappleTileDefinitions.TransferFor((VramAssetId)(-1)),
+        AssertThrows<InvalidDataException>(() => GrappleTileDefinitions.TransferFor((InstalledArtworkId)(-1)),
             "stream 3 invalid grapple asset");
 
         for (int parameter = 0; parameter <= ushort.MaxValue; parameter++)
@@ -1398,7 +1398,7 @@ internal static class LookupStream3Verification
                 int address = start + index * 7;
                 int nativeSize = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
                 int nativeTableByte = (CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 5) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2;
-                SpriteCharacterPlacement shown = PlacedUploads.Of(MotherBrainCharacterSources.Of(method()));
+                SpriteArtworkPlacement shown = PlacedUploads.Of(MotherBrainCharacterSources.Of(method()));
                 AssertEqual(nativeTableByte, shown.FirstByte, "stream 3 production escape page shows where the native record places it");
                 AssertEqual(nativeSize, shown.ByteCount, "stream 3 production escape page shows the native record's bytes");
                 AssertEqual(index + 1, timerList ? sequence.ThirdPhaseDeath.EscapePagesShown : sequence.ThirdPhaseDeath.ExplodedDoorPagesShown,
@@ -1452,7 +1452,7 @@ internal static class LookupStream3Verification
             uint source = (uint)(CartridgeImportSource.Require(rom).ReadCartridgeLong(pageEntry + 2));
             AssertEqual(source, (uint)(MotherBrainSourceDefinitions.Corpse.Characters + MotherBrainCorpseArtworkDefinitions.PageOffset(row)),
                 "stream 3 corpse page starts at its offset in the corpse sheet");
-            SpriteCharacterPlacement page = PlacedUploads.Of(MotherBrainCharacterSources.Of(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, row)));
+            SpriteArtworkPlacement page = PlacedUploads.Of(MotherBrainCharacterSources.Of(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, row)));
             AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry + 5) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2,
                 page.FirstByte, "stream 3 corpse page placement");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry), page.ByteCount, "stream 3 corpse page bytes");
@@ -3560,13 +3560,13 @@ BranchesToSharedBody:true),
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             GrappleTileTransfer[] expectedTransfers =
             [
-                new(VramAssetId.GrapplePointFirstTiles, 0, 32),
-                new(VramAssetId.GrapplePointSecondTiles, 32, 32),
-                new(VramAssetId.GrapplePointThirdTiles, 64, 32),
-                new(VramAssetId.GrapplePointFourthTiles, 96, 32),
-                new(VramAssetId.GrappleHorizontalSegmentTiles, 128, 128),
-                new(VramAssetId.GrappleDiagonalSegmentTiles, 256, 128),
-                new(VramAssetId.GrappleVerticalSegmentTiles, 384, 128),
+                new(InstalledArtworkId.GrapplePointFirstTiles, 0, 32),
+                new(InstalledArtworkId.GrapplePointSecondTiles, 32, 32),
+                new(InstalledArtworkId.GrapplePointThirdTiles, 64, 32),
+                new(InstalledArtworkId.GrapplePointFourthTiles, 96, 32),
+                new(InstalledArtworkId.GrappleHorizontalSegmentTiles, 128, 128),
+                new(InstalledArtworkId.GrappleDiagonalSegmentTiles, 256, 128),
+                new(InstalledArtworkId.GrappleVerticalSegmentTiles, 384, 128),
             ];
             VerifyStream3GrappleTilePatterns(rom, expectedTransfers);
         Console.WriteLine("Grapple tiles:512 native bytes,64 plane edits,8 coverage edits and seven transfer bindings pass; only reviewed stroke masks and visual shape choices remain.");

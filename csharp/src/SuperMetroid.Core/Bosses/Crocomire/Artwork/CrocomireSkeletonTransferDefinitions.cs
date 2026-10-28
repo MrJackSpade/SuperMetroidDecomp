@@ -17,5 +17,5 @@ internal static class CrocomireSkeletonTransferDefinitions
     internal const int FrameCount = 6;
 
     /// <summary>The six skeleton chunks, in upload order (#1392, #1406).</summary>
-    internal static IReadOnlyList<ObjCharacterSource> Sources { get; } = [.. Enumerable.Range(0, FrameCount).Select(index => new CrocomireSkeletonChunkCharacters(index))];
+    internal static IReadOnlyList<SpriteArtworkSource> Sources { get; } = [.. Enumerable.Range(0, FrameCount).Select(index => new CrocomireSkeletonChunkCharacters(index))];
 }

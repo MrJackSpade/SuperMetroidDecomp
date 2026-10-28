@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// The rot step of the rotting corpse whose characters a corpse upload showed over the region last, or none while no
 /// corpse has.
 /// </param>
-public sealed record CharacterRegionContent(CharacterRegion Region, SpriteCharacterPlacement? Placement, int? RotStep = null);
+public sealed record CharacterRegionContent(CharacterRegion Region, SpriteArtworkPlacement? Placement, int? RotStep = null);

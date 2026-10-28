@@ -22,8 +22,8 @@ internal static class EncounterCharacterDefinitions
     /// liftoff pictures, Crocomire's death his skeleton, a Torizo's instruction lists the characters of the poses it
     /// shows next, Ceres Ridley's getaway the escape timer and its warning, and the Ceres door's second variant its characters.
     /// </summary>
-    internal static IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<ObjCharacterSource>> Encounters { get; } =
-        new Dictionary<EnemyDefinitionId, IReadOnlyList<ObjCharacterSource>>
+    internal static IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<SpriteArtworkSource>> Encounters { get; } =
+        new Dictionary<EnemyDefinitionId, IReadOnlyList<SpriteArtworkSource>>
         {
             [EnemyDefinitionId.DraygonBody] = [DraygonIntroPresentationDefinitions.EvirTiles],
             [EnemyDefinitionId.ShipTop] = GunshipLiftoffTransferDefinitions.Pages,

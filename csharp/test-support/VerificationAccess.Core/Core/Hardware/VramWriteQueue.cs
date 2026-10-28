@@ -66,15 +66,15 @@ public sealed class VramWriteQueue
     }
 
     /// <summary>Queues an installed background artwork asset; the drain binds it (#1350).</summary>
-    public void EnqueueBackgroundAsset(VramAssetId asset, ushort sizeInBytes, VramDmaDestination destination)
+    public void EnqueueBackgroundAsset(InstalledArtworkId asset, ushort sizeInBytes, VramDmaDestination destination)
     {
-        if (asset == VramAssetId.None || !Enum.IsDefined(asset)) throw new ArgumentOutOfRangeException(nameof(asset));
+        if (asset == InstalledArtworkId.None || !Enum.IsDefined(asset)) throw new ArgumentOutOfRangeException(nameof(asset));
         if (sizeInBytes == 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
         Append(new VramWriteEntry(sizeInBytes, 0, destination) { AssetId = asset, Background = true });
     }
 
     /// <summary>Queues named owned background artwork; the drain binds it (#1350).</summary>
-    public void EnqueueBackgroundSource(ObjCharacterSource source, ushort sizeInBytes, VramDmaDestination destination)
+    public void EnqueueBackgroundSource(SpriteArtworkSource source, ushort sizeInBytes, VramDmaDestination destination)
     {
         Ensure.NotNull(source);
         if (sizeInBytes == 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
@@ -82,9 +82,9 @@ public sealed class VramWriteQueue
     }
 
     /// <summary>Queues a typed installed resource without copying artwork into emulated/debugger state.</summary>
-    public void EnqueueAsset(VramAssetId asset, ushort sizeInBytes, VramDmaDestination destination)
+    public void EnqueueAsset(InstalledArtworkId asset, ushort sizeInBytes, VramDmaDestination destination)
     {
-        if (asset == VramAssetId.None || !Enum.IsDefined(asset)) throw new ArgumentOutOfRangeException(nameof(asset));
+        if (asset == InstalledArtworkId.None || !Enum.IsDefined(asset)) throw new ArgumentOutOfRangeException(nameof(asset));
         if (sizeInBytes == 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
         Append(new VramWriteEntry(sizeInBytes, 0, destination) { AssetId = asset });
     }
@@ -105,7 +105,7 @@ public sealed class VramWriteQueue
     }
 
     /// <summary>Whether a transfer of <paramref name="asset"/> is still waiting for the next NMI.</summary>
-    public bool Queues(VramAssetId asset)
+    public bool Queues(InstalledArtworkId asset)
     {
         foreach (VramWriteEntry entry in Entries)
             if (entry.AssetId == asset)
@@ -115,11 +115,11 @@ public sealed class VramWriteQueue
 
     /// <summary>Rebinds a known legacy pending artwork transfer without changing its position or byte count.</summary>
     [PpuLayoutAccess]
-    public void RebindBusSource(int sourceAddress, ushort sizeInBytes, VramAssetId asset)
+    public void RebindBusSource(int sourceAddress, ushort sizeInBytes, InstalledArtworkId asset)
     {
-        if (asset == VramAssetId.None || !Enum.IsDefined(asset)) throw new ArgumentOutOfRangeException(nameof(asset));
+        if (asset == InstalledArtworkId.None || !Enum.IsDefined(asset)) throw new ArgumentOutOfRangeException(nameof(asset));
         for (int i = 0; i < Entries.Count; i++)
-            if (Entries[i].AssetId == VramAssetId.None && Entries[i].SourceAddress == sourceAddress && Entries[i].SizeInBytes == sizeInBytes)
+            if (Entries[i].AssetId == InstalledArtworkId.None && Entries[i].SourceAddress == sourceAddress && Entries[i].SizeInBytes == sizeInBytes)
                 Entries[i] = Entries[i] with { SourceAddress = 0, AssetId = asset };
     }
 
@@ -132,7 +132,7 @@ public sealed class VramWriteQueue
     /// <param name="assets">Resolves installed artwork transfers and named owned sources.</param>
     /// <param name="objects">Records what each transfer that reaches the OBJ character table shows, when gameplay draws from it.</param>
     /// <param name="backgrounds">Binds the queued background character artwork (#1350); required when any is queued.</param>
-    public void DrainTo(SnesVram vram, IVramAssetProvider? assets = null, SpriteCharacters? objects = null,
+    public void DrainTo(SnesVram vram, IInstalledArtworkContent? assets = null, SpriteArtworkPlacements? objects = null,
         BgArtworkBindings? backgrounds = null)
     {
         Ensure.NotNull(vram);
@@ -144,7 +144,7 @@ public sealed class VramWriteQueue
             VramWriteEntry entry = Entries[index];
             if (entry.OwnedSource is { } source)
             {
-                if (assets is not IObjCharacterSourceResolver resolver)
+                if (assets is not IInstalledArtworkContent resolver)
                     throw new InvalidOperationException($"Queued upload of {source} has no bound artwork resolver.");
                 ReadOnlyMemory<byte> data = source.Resolve(resolver);
                 if (data.Length != entry.SizeInBytes)
@@ -161,7 +161,7 @@ public sealed class VramWriteQueue
                 WriteStaged(vram, objects, entry, staging.Bytes.Slice(entry.StagingOffset, entry.SizeInBytes));
             else if (entry.StagingWords is { } words)
                 WriteStaged(vram, objects, entry, LittleEndianBytes(words, entry.SizeInBytes));
-            else if (entry.AssetId == VramAssetId.None)
+            else if (entry.AssetId == InstalledArtworkId.None)
             {
                 if (assets is not IInstalledArtworkTransferSource artwork ||
                     !artwork.TryResolve(entry.SourceAddress, entry.SizeInBytes, out ReadOnlyMemory<byte> selected))
@@ -187,7 +187,7 @@ public sealed class VramWriteQueue
                 else
                 {
                     vram.ExecuteQueuedAssetWrite(data.Span, entry.Destination.Encoded);
-                    objects?.RecordUpload(entry.Destination, entry.SizeInBytes, new AssetObjCharacters(entry.AssetId));
+                    objects?.RecordUpload(entry.Destination, entry.SizeInBytes, new InstalledArtworkCharacters(entry.AssetId));
                 }
             }
         }
@@ -212,7 +212,7 @@ public sealed class VramWriteQueue
     /// Writes staged bytes and records them where they reach the OBJ character table: a staged surface keeps changing,
     /// so the table shows the bytes the upload read.
     /// </summary>
-    private static void WriteStaged(SnesVram vram, SpriteCharacters? objects, VramWriteEntry entry, ReadOnlySpan<byte> bytes)
+    private static void WriteStaged(SnesVram vram, SpriteArtworkPlacements? objects, VramWriteEntry entry, ReadOnlySpan<byte> bytes)
     {
         vram.ExecuteQueuedAssetWrite(bytes, entry.Destination.Encoded);
         objects?.RecordUpload(entry.Destination, entry.SizeInBytes, new StagedObjCharacters(bytes));

@@ -207,8 +207,8 @@ internal static class SuperMetroidRuntimeAccess
         internal void ShowEscapeTimerSpriteTiles()
         {
             foreach (EscapeTimerTilePage page in Enum.GetValues<EscapeTimerTilePage>())
-                self.EnemySession.SpriteCharacters.Record(new SpriteCharacterPlacement(new AssetObjCharacters(EscapeTimerTilePages.AssetOf(page)),
-                    EscapeTimerTilePages.FirstCharacterOf(page), EscapeTimerTilePages.ByteCountOf(page) / SpriteCharacters.CharacterByteCount));
+                self.EnemySession.SpriteCharacters.Record(new SpriteArtworkPlacement(new InstalledArtworkCharacters(EscapeTimerTilePages.AssetOf(page)),
+                    EscapeTimerTilePages.FirstCharacterOf(page), EscapeTimerTilePages.ByteCountOf(page) / SpriteArtworkPlacements.CharacterByteCount));
         }
     }
 }

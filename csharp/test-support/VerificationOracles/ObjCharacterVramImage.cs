@@ -15,7 +15,7 @@ internal static class ObjCharacterVramImage
     /// <param name="uploads">The OBJ character table's uploads.</param>
     /// <param name="resolver">Resolves the uploads' named artwork.</param>
     [PpuLayoutBoundary("exact hardware test: places an OBJ page at the native OBJ character table")]
-    internal static SnesVram Of(SpriteCharacters uploads, IObjCharacterSourceResolver resolver)
+    internal static SnesVram Of(SpriteArtworkPlacements uploads, IInstalledArtworkContent resolver)
     {
         var vram = new SnesVram();
         vram.LoadBytes(GameplayVramLayoutConstants.ObjectCharacters.Offset * 2,

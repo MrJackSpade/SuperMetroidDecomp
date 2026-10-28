@@ -274,8 +274,8 @@ internal static class MapInstallationVerification
             "full installation consumes options-menu override");
         AssertTrue(stock.FileSelect.ContentIdentity != edited.FileSelect.ContentIdentity,
             "full installation consumes file-select override");
-        AssertTrue(!stock.EscapeTimerTiles.Resolve(SuperMetroid.Core.Hardware.VramAssetId.EscapeTimerFirstTiles).Span.SequenceEqual(
-            edited.EscapeTimerTiles.Resolve(SuperMetroid.Core.Hardware.VramAssetId.EscapeTimerFirstTiles).Span),
+        AssertTrue(!stock.EscapeTimerTiles.Resolve(SuperMetroid.Core.Assets.InstalledArtworkId.EscapeTimerFirstTiles).Span.SequenceEqual(
+            edited.EscapeTimerTiles.Resolve(SuperMetroid.Core.Assets.InstalledArtworkId.EscapeTimerFirstTiles).Span),
             "full installation consumes escape-timer artwork override");
         AssertTrue(stock.RoomFxAnimatedTiles.TryResolve(
                 AnimatedTileImageSources.Of(new AnimatedTileImage(AnimatedTileObject.MaridiaSandCeiling, 0)), 0x40,

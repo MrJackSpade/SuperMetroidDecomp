@@ -43,7 +43,7 @@ internal static class InvalidBeamGraphicsVerification
         var artwork = SuperMetroid.AssetExtraction.Samus.ProjectilePresentationFiles.Load(installedDirectory, null).BeamTiles;
         AssertTrue(artwork.TryResolve(ChainsawBeamGraphicsDefinitionsConstants.TileSource, 256, out var legacyTiles),
             "restored native Chainsaw DMA resolves through installed artwork");
-        AssertTrue(legacyTiles.Span.SequenceEqual(artwork.Resolve(VramAssetId.BeamChainsawTiles).Span),
+        AssertTrue(legacyTiles.Span.SequenceEqual(artwork.Resolve(InstalledArtworkId.BeamChainsawTiles).Span),
             "native and typed Chainsaw transfers select the same installed sheet");
         var gameplayBus = NewProjectileCompositionForbiddenBus();
         for (ushort beam = 0; beam < 12; beam++)

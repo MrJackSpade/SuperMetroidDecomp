@@ -1229,7 +1229,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     var backgroundTransfers = ReadRetailCeresEscapeTransfers(nativeRidleyRom, 0xa6c4fe);
     AssertEqual(7, spriteTransfers.Count, "native Ceres sprite transfer count");
     AssertEqual(8, backgroundTransfers.Count, "native Ceres background transfer count");
-    SpriteCharacters shownPages = enemies.Presentation.SpriteCharacters;
+    SpriteArtworkPlacements shownPages = enemies.Presentation.SpriteCharacters;
     int pagesBefore = shownPages.Uploads.Count;
     for (int record = 0; record < spriteTransfers.Count; record++)
     {
@@ -1251,18 +1251,18 @@ internal static void VerifyCeresRidleyRoomEntry()
     for (int index = 0; index < spriteTransfers.Count; index++)
     {
         VramWriteEntry expected = spriteTransfers[index];
-        SpriteCharacterPlacement actual = shownPages.Uploads[pagesBefore + index];
+        SpriteArtworkPlacement actual = shownPages.Uploads[pagesBefore + index];
         AssertEqual(expected.SizeInBytes, actual.ByteCount, $"Ceres page {index} native size");
-        AssertEqual(SpriteCharacters.TableByte(expected.Destination), actual.FirstByte, $"Ceres page {index} native place");
+        AssertEqual(SpriteArtworkPlacements.TableByte(expected.Destination), actual.FirstByte, $"Ceres page {index} native place");
         if (index < 2)
         {
             AssertEqual(0xb0c000 + index * 0x200, expected.SourceAddress,
                 $"Ceres timer {index} native source mapped to installed asset");
-            AssertEqual<ObjCharacterSource>(new AssetObjCharacters(index == 0 ? VramAssetId.EscapeTimerFirstTiles : VramAssetId.EscapeTimerSecondTiles),
+            AssertEqual<SpriteArtworkSource>(new InstalledArtworkCharacters(index == 0 ? InstalledArtworkId.EscapeTimerFirstTiles : InstalledArtworkId.EscapeTimerSecondTiles),
                 actual.Source, $"Ceres timer {index} installed source identity");
         }
         else
-            AssertEqual<ObjCharacterSource?>(CeresEscapeTileCharactersConstants.ForTransfer(expected.SourceAddress, expected.SizeInBytes), actual.Source,
+            AssertEqual<SpriteArtworkSource?>(CeresEscapeTileCharactersConstants.ForTransfer(expected.SourceAddress, expected.SizeInBytes), actual.Source,
                 $"Ceres page {index} names its installed character page");
     }
     CeresEscapeOverlayTilemapDefinition emergency = CeresEscapeOverlayTilemapDefinitions.Emergency;
@@ -1778,7 +1778,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
 /// <summary>Serves the loading fixture's seeded enemy tiles by definition: the bytes installed artwork would hold for them.</summary>
 /// <param name="tiles">The fixture's seeded enemy artwork.</param>
 internal sealed class SeededEnemyTileTransfers(EnemyTileArtworkCatalog tiles)
-    : IVramAssetProvider, IObjCharacterSourceResolver, IInstalledSpriteCharacterArtwork
+    : IInstalledArtworkContent, IInstalledArtworkContent, IInstalledSpriteCharacterArtwork
 {
     /// <inheritdoc/>
     public EnemyTileArtworkCatalog EnemyTiles => tiles;
@@ -1788,9 +1788,9 @@ internal sealed class SeededEnemyTileTransfers(EnemyTileArtworkCatalog tiles)
         throw new InvalidOperationException("The loading fixture binds no animated tiles.");
 
     /// <summary>Rejects typed assets, which the fixture never queues.</summary>
-    public ReadOnlyMemory<byte> Resolve(VramAssetId asset) => throw new InvalidOperationException($"The loading fixture queues no asset {asset}.");
+    public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) => throw new InvalidOperationException($"The loading fixture queues no asset {asset}.");
 
     /// <summary>Rejects typed assets, which the fixture never binds.</summary>
-    public ReadOnlyMemory<byte> ResolveAsset(VramAssetId asset) => Resolve(asset);
+    public ReadOnlyMemory<byte> ResolveAsset(InstalledArtworkId asset) => Resolve(asset);
 
 }

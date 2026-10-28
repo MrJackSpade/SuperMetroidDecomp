@@ -52,12 +52,12 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         runtime.EnemySession.TileArtwork = stock.Enemies;
         runtime.BossArtwork.Artwork = stock.Bosses;
         runtime.AreaArtwork.Artwork = stock.Areas;
-        SpriteCharacters stockPages = ShowAllTakeoffPages(stock);
+        SpriteArtworkPlacements stockPages = ShowAllTakeoffPages(stock);
         var nativeQueue = new VramWriteQueue();
         for (int index = 0; index < transfers.Length; index++)
         {
             GunshipLiftoffTransferDefinition transfer = transfers[index];
-            AssertEqual<ObjCharacterSource>(new AssetObjCharacters(transfer.Asset), stockPages.Uploads[index].Source,
+            AssertEqual<SpriteArtworkSource>(new InstalledArtworkCharacters(transfer.Asset), stockPages.Uploads[index].Source,
                 $"takeoff frame {index} shows its installed page");
             AssertEqual(PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages)[index].FirstByte, stockPages.Uploads[index].FirstByte,
                 $"takeoff frame {index} keeps its compiled place among the OBJ characters");
@@ -111,7 +111,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
             "Gunship takeoff art: five compiled pages, installed PNG parity, " +
             "live/rebound page edit and strict resources pass.");
 
-        static SpriteCharacters ShowAllTakeoffPages(InstalledEnemyArtwork art)
+        static SpriteArtworkPlacements ShowAllTakeoffPages(InstalledEnemyArtwork art)
         {
             var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
             RoomEnemySlot top = enemies.SlotTable.Slots[0];

@@ -125,7 +125,7 @@ internal static class EnemyGameplayAcceptanceVerification
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockPath, overridePath);
         (RoomEnemySystem changed, byte[] afterCharacters, SamusColourRig afterColors) = Load(edited);
         RoomEnemyGraphicsSetEntry[] entries = [.. baseline.GraphicsSet.Entries];
-        SpriteCharacterPlacement[] uploads = [.. baseline.Room.Session.SpriteCharacters.Uploads];
+        SpriteArtworkPlacement[] uploads = [.. baseline.Room.Session.SpriteCharacters.Uploads];
         AssertEqual(entries.Length, uploads.Length, "each selected enemy tile set lands as one OBJ character upload");
         byte[] expectedCharacters = beforeCharacters.ToArray();
         for (int index = 0; index < entries.Length; index++)

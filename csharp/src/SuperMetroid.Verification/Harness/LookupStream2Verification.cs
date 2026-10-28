@@ -1660,7 +1660,7 @@ internal static class LookupStream2Verification
         var slot = enemies.SlotTable.Slots[0];
         var part = new GunshipPartState();
         slot.SetSpeciesState(part, part.ClearWithRecord);
-        SpriteCharacters shown = enemies.Room.Session.SpriteCharacters;
+        SpriteArtworkPlacements shown = enemies.Room.Session.SpriteCharacters;
         int enumerated = 0;
         foreach (var transfer in transfers)
         {
@@ -1668,11 +1668,11 @@ internal static class LookupStream2Verification
             ushort destination = ReadVerificationWord(rom, 0xa2ac11 + 2 * enumerated);
             AssertEqual(source, EnemySourceDefinitions.GunshipLiftoffPageSource(enumerated), "Gunship import source matches the takeoff list");
             AssertEqual(destination, ObjCharacterNativeWords.Of(PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages)[enumerated].FirstByte / 32), "Gunship original destination");
-            AssertEqual(VramAssetId.GunshipLiftoffFirstTiles + enumerated, transfer.Asset, "Gunship typed transfer identity");
+            AssertEqual(InstalledArtworkId.GunshipLiftoffFirstTiles + enumerated, transfer.Asset, "Gunship typed transfer identity");
             AssertEqual(transfers[enumerated], transfer, "Gunship enumeration and indexing agree");
             enemies.GunshipBehavior.ShowGunshipTakeoffPage(slot);
             AssertEqual(PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages)[enumerated].FirstByte, shown.Uploads[enumerated].FirstByte, "Gunship shows its page in place");
-            AssertEqual<ObjCharacterSource>(new AssetObjCharacters(transfer.Asset), shown.Uploads[enumerated].Source, "Gunship shows its installed liftoff page");
+            AssertEqual<SpriteArtworkSource>(new InstalledArtworkCharacters(transfer.Asset), shown.Uploads[enumerated].Source, "Gunship shows its installed liftoff page");
             enumerated++;
         }
         AssertEqual(5, enumerated, "Gunship enumerates every transfer");

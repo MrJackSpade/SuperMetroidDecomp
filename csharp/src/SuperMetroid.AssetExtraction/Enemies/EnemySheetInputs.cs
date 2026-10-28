@@ -22,7 +22,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <param name="EscapeTimer">The escape timer's characters, which escapes upload.</param>
 internal sealed record EnemySheetInputs(EnemyTileArtworkCatalog Enemies, BossArtworkCatalog Bosses, AreaArtworkCatalog Areas,
     ReadOnlyMemory<byte> StandardObjects, GameplayBasePaletteCatalog Palettes, EscapeTimerTileAtlas EscapeTimer)
-    : IObjCharacterSourceResolver, IInstalledSpriteCharacterArtwork, IInstalledBossSpriteCharacterArtwork, IInstalledAreaSpriteCharacterArtwork
+    : IInstalledArtworkContent, IInstalledSpriteCharacterArtwork, IInstalledBossSpriteCharacterArtwork, IInstalledAreaSpriteCharacterArtwork
 {
     /// <summary>Loads the stock artwork from installed content.</summary>
     internal static EnemySheetInputs Load(string content)
@@ -62,8 +62,8 @@ internal sealed record EnemySheetInputs(EnemyTileArtworkCatalog Enemies, BossArt
     /// <inheritdoc/>
     /// <exception cref="InvalidDataException">The enemy artwork holds no gunship takeoff pictures.</exception>
     /// <exception cref="ArgumentOutOfRangeException">No catalogued upload names the asset.</exception>
-    ReadOnlyMemory<byte> IObjCharacterSourceResolver.ResolveAsset(VramAssetId asset) =>
-        asset is VramAssetId.EscapeTimerFirstTiles or VramAssetId.EscapeTimerSecondTiles ? EscapeTimer.Resolve(asset)
+    ReadOnlyMemory<byte> IInstalledArtworkContent.ResolveAsset(InstalledArtworkId asset) =>
+        asset is InstalledArtworkId.EscapeTimerFirstTiles or InstalledArtworkId.EscapeTimerSecondTiles ? EscapeTimer.Resolve(asset)
             : (Enemies.GunshipLiftoff ?? throw new InvalidDataException("Enemy sheets require the installed gunship takeoff pictures.")).Resolve(asset);
 
 }

@@ -106,7 +106,7 @@ internal static class UploadedPictureChecks
     /// set's own characters before any is.
     /// </summary>
     internal static IReadOnlyList<string> ExpectedPictures(IEnemySheetSource sheets, RoomEnemyGraphicsSetDefinition set, string frame,
-        IReadOnlyList<CharacterRegion[]> layers, IReadOnlyList<SpriteCharacterPlacement> made)
+        IReadOnlyList<CharacterRegion[]> layers, IReadOnlyList<SpriteArtworkPlacement> made)
     {
         SetCharacterCoverage coverage = sheets.Coverage(set);
         return layers.Count == 0 ? [frame] : [.. layers.Select((regions, layer) => sheets.Encounters.PictureName(frame, layer,
@@ -129,17 +129,17 @@ internal static class UploadedPictureChecks
     /// room load's characters before any is, and that the live characters there are exactly the bytes that picture
     /// composes from.
     /// </summary>
-    internal static void AssertRegionsFollowUploads(SuperMetroidRuntime runtime, IReadOnlyList<SpriteCharacterPlacement> uploads, string message)
+    internal static void AssertRegionsFollowUploads(SuperMetroidRuntime runtime, IReadOnlyList<SpriteArtworkPlacement> uploads, string message)
     {
         IEnemySheetSource sheets = runtime.EnemySession.Sheets ?? throw new InvalidOperationException("The runtime loads the enemy sheets.");
         RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;
-        IReadOnlyList<SpriteCharacterPlacement> setUploads = sheets.Encounters.Of(set);
+        IReadOnlyList<SpriteArtworkPlacement> setUploads = sheets.Encounters.Of(set);
         SetCharacterCoverage coverage = sheets.Coverage(set);
         SetRegions ranges = InstalledSetRegions.Of(set);
         IReadOnlyList<CharacterRegion> regions = [.. coverage.Regions.Where(region => setUploads.Any(upload => coverage.Covers(upload.Source, region)))];
         AssertTrue(regions.Count > 0, $"{message}: the loaded set's encounter uploads over its characters");
         byte[] loaded = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.SpriteCharacters).Characters.ToArray();
-        var made = new List<SpriteCharacterPlacement>();
+        var made = new List<SpriteArtworkPlacement>();
         for (int step = 0; step <= uploads.Count; step++)
         {
             if (step > 0)
@@ -150,7 +150,7 @@ internal static class UploadedPictureChecks
             ReadOnlySpan<byte> live = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.SpriteCharacters).Characters;
             foreach (CharacterRegion region in regions)
             {
-                SpriteCharacterPlacement? expected = made.LastOrDefault(upload => coverage.Covers(upload.Source, region));
+                SpriteArtworkPlacement? expected = made.LastOrDefault(upload => coverage.Covers(upload.Source, region));
                 AssertEqual(expected, sheets.Encounters.Showing(runtime.EnemySession.SpriteCharacters, setUploads, region, new SuperMetroid.Core.Assets.ArtworkFrameSelections(), coverage).Placement,
                     $"{message}: after {step} uploads the draw selects the upload made last over region {region.Name}");
                 CharacterRange range = ranges.RangeOf(region);

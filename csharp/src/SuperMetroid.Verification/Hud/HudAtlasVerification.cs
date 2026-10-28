@@ -40,7 +40,7 @@ internal static class HudAtlasVerification
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
         byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), NativeHudCharacters, HudTileAtlasFormat.ByteCount);
-        AssertTrue(source.SequenceEqual(original.Resolve(VramAssetId.StandardHudTiles).Span), "HUD PNG and compiled padding match all native bytes");
+        AssertTrue(source.SequenceEqual(original.Resolve(InstalledArtworkId.StandardHudTiles).Span), "HUD PNG and compiled padding match all native bytes");
         var guard = NewMapDataGuard(bus, rules);
         var native = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
         native.Artwork.MapPresentation = original;
@@ -77,7 +77,7 @@ internal static class HudAtlasVerification
         AssertTrue(previousDisplay.AsSpan().SequenceEqual(displayed.ComposedVram()), "catalog binding shows nothing new before the accepted NMI");
         displayed.FrameBoundary.BeginAcceptedFrame(0);
         byte[] shownAfterRebind = displayed.ComposedVram();
-        AssertTrue(edited.Resolve(VramAssetId.StandardHudTiles).Span[..HudTileAtlasFormat.CharacterByteCount]
+        AssertTrue(edited.Resolve(InstalledArtworkId.StandardHudTiles).Span[..HudTileAtlasFormat.CharacterByteCount]
             .SequenceEqual(shownAfterRebind.AsSpan(characterStart, HudTileAtlasFormat.CharacterByteCount)),
             "accepted NMI shows the newly bound PNG over an already displayed HUD");
         AssertTrue(previousDisplay.AsSpan(0, characterStart).SequenceEqual(shownAfterRebind.AsSpan(0, characterStart)) &&
@@ -94,7 +94,7 @@ internal static class HudAtlasVerification
         fixtureAssets.Bind(restored);
         restored.Artwork.MapPresentation = edited;
         restored.FrameBoundary.BeginAcceptedFrame(0);
-        AssertTrue(edited.Resolve(VramAssetId.StandardHudTiles).Span.SequenceEqual(
+        AssertTrue(edited.Resolve(InstalledArtworkId.StandardHudTiles).Span.SequenceEqual(
             restored.ComposedVram().AsSpan(GameplayVramLayout.HudCharacterWord * 2, HudTileAtlasFormat.ByteCount)),
             "a HUD set up before its first accepted NMI shows the newly bound PNG, not captured old pixels");
         RgbaPixel[] modified = Render(restored);

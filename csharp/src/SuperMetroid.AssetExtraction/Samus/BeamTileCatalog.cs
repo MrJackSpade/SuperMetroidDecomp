@@ -7,7 +7,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>The installed beam characters by combination, with the beam palettes; the projectile sheets are composed from them.</summary>
-public sealed class BeamTileCatalog : IVramAssetProvider
+public sealed class BeamTileCatalog : IInstalledArtworkContent
 {
     /// <summary>Selected 256-byte beam atlases, with native aliases sharing matching tile pixels.</summary>
     internal readonly BeamTileAtlas[] sheets;
@@ -51,27 +51,27 @@ public sealed class BeamTileCatalog : IVramAssetProvider
     }
 
     /// <summary>Resolves a supported typed beam-tile identity to its immutable 256-byte planar transfer.</summary>
-    public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
+    public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) =>
         sheets[BeamTileAtlasDefinitions.ArtworkOrdinal(SelectionFor(asset))].Characters;
 
     /// <summary>Maps a supported native equipped-beam selection to its queued VRAM asset identity.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The combination has no artwork ($0C or $0F).</exception>
-    public static VramAssetId AssetFor(SamusBeamCombination selection) => selection switch
+    public static InstalledArtworkId AssetFor(SamusBeamCombination selection) => selection switch
     {
-        SamusBeamCombination.Power => VramAssetId.BeamPowerTiles,
-        SamusBeamCombination.Wave => VramAssetId.BeamWaveTiles,
-        SamusBeamCombination.Ice => VramAssetId.BeamIceTiles,
-        SamusBeamCombination.IceWave => VramAssetId.BeamIceWaveTiles,
-        SamusBeamCombination.Spazer => VramAssetId.BeamSpazerTiles,
-        SamusBeamCombination.SpazerWave => VramAssetId.BeamSpazerWaveTiles,
-        SamusBeamCombination.SpazerIce => VramAssetId.BeamSpazerIceTiles,
-        SamusBeamCombination.SpazerIceWave => VramAssetId.BeamSpazerIceWaveTiles,
-        SamusBeamCombination.Plasma => VramAssetId.BeamPlasmaTiles,
-        SamusBeamCombination.PlasmaWave => VramAssetId.BeamPlasmaWaveTiles,
-        SamusBeamCombination.PlasmaIce => VramAssetId.BeamPlasmaIceTiles,
-        SamusBeamCombination.PlasmaIceWave => VramAssetId.BeamPlasmaIceWaveTiles,
-        SuperMetroid.Core.Samus.Projectiles.ChainsawBeamGraphicsDefinitions.Selection => VramAssetId.BeamChainsawTiles,
-        SuperMetroid.Core.Samus.Projectiles.SpacetimeBeamGraphicsDefinitions.Selection => VramAssetId.BeamSpacetimeTiles,
+        SamusBeamCombination.Power => InstalledArtworkId.BeamPowerTiles,
+        SamusBeamCombination.Wave => InstalledArtworkId.BeamWaveTiles,
+        SamusBeamCombination.Ice => InstalledArtworkId.BeamIceTiles,
+        SamusBeamCombination.IceWave => InstalledArtworkId.BeamIceWaveTiles,
+        SamusBeamCombination.Spazer => InstalledArtworkId.BeamSpazerTiles,
+        SamusBeamCombination.SpazerWave => InstalledArtworkId.BeamSpazerWaveTiles,
+        SamusBeamCombination.SpazerIce => InstalledArtworkId.BeamSpazerIceTiles,
+        SamusBeamCombination.SpazerIceWave => InstalledArtworkId.BeamSpazerIceWaveTiles,
+        SamusBeamCombination.Plasma => InstalledArtworkId.BeamPlasmaTiles,
+        SamusBeamCombination.PlasmaWave => InstalledArtworkId.BeamPlasmaWaveTiles,
+        SamusBeamCombination.PlasmaIce => InstalledArtworkId.BeamPlasmaIceTiles,
+        SamusBeamCombination.PlasmaIceWave => InstalledArtworkId.BeamPlasmaIceWaveTiles,
+        SuperMetroid.Core.Samus.Projectiles.ChainsawBeamGraphicsDefinitions.Selection => InstalledArtworkId.BeamChainsawTiles,
+        SuperMetroid.Core.Samus.Projectiles.SpacetimeBeamGraphicsDefinitions.Selection => InstalledArtworkId.BeamSpacetimeTiles,
         SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaIceWave =>
             throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam combination has no artwork."),
         _ => throw new ArgumentOutOfRangeException(nameof(selection), selection, "Undefined beam combination."),
@@ -79,35 +79,35 @@ public sealed class BeamTileCatalog : IVramAssetProvider
 
     /// <summary>The beam combination whose sheet a beam VRAM asset uploads: the inverse of <see cref="AssetFor"/>.</summary>
     /// <exception cref="InvalidDataException">The asset is not beam artwork.</exception>
-    public static SamusBeamCombination SelectionFor(VramAssetId asset) => asset switch
+    public static SamusBeamCombination SelectionFor(InstalledArtworkId asset) => asset switch
     {
-        VramAssetId.BeamPowerTiles => SamusBeamCombination.Power,
-        VramAssetId.BeamWaveTiles => SamusBeamCombination.Wave,
-        VramAssetId.BeamIceTiles => SamusBeamCombination.Ice,
-        VramAssetId.BeamIceWaveTiles => SamusBeamCombination.IceWave,
-        VramAssetId.BeamSpazerTiles => SamusBeamCombination.Spazer,
-        VramAssetId.BeamSpazerWaveTiles => SamusBeamCombination.SpazerWave,
-        VramAssetId.BeamSpazerIceTiles => SamusBeamCombination.SpazerIce,
-        VramAssetId.BeamSpazerIceWaveTiles => SamusBeamCombination.SpazerIceWave,
-        VramAssetId.BeamPlasmaTiles => SamusBeamCombination.Plasma,
-        VramAssetId.BeamPlasmaWaveTiles => SamusBeamCombination.PlasmaWave,
-        VramAssetId.BeamPlasmaIceTiles => SamusBeamCombination.PlasmaIce,
-        VramAssetId.BeamPlasmaIceWaveTiles => SamusBeamCombination.PlasmaIceWave,
-        VramAssetId.BeamChainsawTiles => SuperMetroid.Core.Samus.Projectiles.ChainsawBeamGraphicsDefinitions.Selection,
-        VramAssetId.BeamSpacetimeTiles => SuperMetroid.Core.Samus.Projectiles.SpacetimeBeamGraphicsDefinitions.Selection,
-        VramAssetId.None or VramAssetId.StandardHudTiles or VramAssetId.EscapeTimerFirstTiles or
-            VramAssetId.EscapeTimerSecondTiles or VramAssetId.ProjectileIceWaveTrailTiles or
-            VramAssetId.ProjectileMissileTrailTiles or VramAssetId.GrapplePointFirstTiles or
-            VramAssetId.GrapplePointSecondTiles or VramAssetId.GrapplePointThirdTiles or
-            VramAssetId.GrapplePointFourthTiles or VramAssetId.GrappleHorizontalSegmentTiles or
-            VramAssetId.GrappleDiagonalSegmentTiles or VramAssetId.GrappleVerticalSegmentTiles or
-            VramAssetId.KraidBg3RestoreQuarter0 or VramAssetId.KraidBg3RestoreQuarter1 or
-            VramAssetId.KraidBg3RestoreQuarter2 or VramAssetId.KraidBg3RestoreQuarter3 or
-            VramAssetId.GunshipLiftoffFirstTiles or VramAssetId.GunshipLiftoffSecondTiles or
-            VramAssetId.GunshipLiftoffThirdTiles or VramAssetId.GunshipLiftoffFourthTiles or
-            VramAssetId.GunshipLiftoffFifthTiles => throw new InvalidDataException($"Beam catalog cannot resolve {asset}."),
-        VramAssetId.StandardObjectTiles or
-            VramAssetId.HudTopRowTilemap => throw new ArgumentOutOfRangeException(nameof(asset), asset, "Undefined VRAM asset."),
+        InstalledArtworkId.BeamPowerTiles => SamusBeamCombination.Power,
+        InstalledArtworkId.BeamWaveTiles => SamusBeamCombination.Wave,
+        InstalledArtworkId.BeamIceTiles => SamusBeamCombination.Ice,
+        InstalledArtworkId.BeamIceWaveTiles => SamusBeamCombination.IceWave,
+        InstalledArtworkId.BeamSpazerTiles => SamusBeamCombination.Spazer,
+        InstalledArtworkId.BeamSpazerWaveTiles => SamusBeamCombination.SpazerWave,
+        InstalledArtworkId.BeamSpazerIceTiles => SamusBeamCombination.SpazerIce,
+        InstalledArtworkId.BeamSpazerIceWaveTiles => SamusBeamCombination.SpazerIceWave,
+        InstalledArtworkId.BeamPlasmaTiles => SamusBeamCombination.Plasma,
+        InstalledArtworkId.BeamPlasmaWaveTiles => SamusBeamCombination.PlasmaWave,
+        InstalledArtworkId.BeamPlasmaIceTiles => SamusBeamCombination.PlasmaIce,
+        InstalledArtworkId.BeamPlasmaIceWaveTiles => SamusBeamCombination.PlasmaIceWave,
+        InstalledArtworkId.BeamChainsawTiles => SuperMetroid.Core.Samus.Projectiles.ChainsawBeamGraphicsDefinitions.Selection,
+        InstalledArtworkId.BeamSpacetimeTiles => SuperMetroid.Core.Samus.Projectiles.SpacetimeBeamGraphicsDefinitions.Selection,
+        InstalledArtworkId.None or InstalledArtworkId.StandardHudTiles or InstalledArtworkId.EscapeTimerFirstTiles or
+            InstalledArtworkId.EscapeTimerSecondTiles or InstalledArtworkId.ProjectileIceWaveTrailTiles or
+            InstalledArtworkId.ProjectileMissileTrailTiles or InstalledArtworkId.GrapplePointFirstTiles or
+            InstalledArtworkId.GrapplePointSecondTiles or InstalledArtworkId.GrapplePointThirdTiles or
+            InstalledArtworkId.GrapplePointFourthTiles or InstalledArtworkId.GrappleHorizontalSegmentTiles or
+            InstalledArtworkId.GrappleDiagonalSegmentTiles or InstalledArtworkId.GrappleVerticalSegmentTiles or
+            InstalledArtworkId.KraidBg3RestoreQuarter0 or InstalledArtworkId.KraidBg3RestoreQuarter1 or
+            InstalledArtworkId.KraidBg3RestoreQuarter2 or InstalledArtworkId.KraidBg3RestoreQuarter3 or
+            InstalledArtworkId.GunshipLiftoffFirstTiles or InstalledArtworkId.GunshipLiftoffSecondTiles or
+            InstalledArtworkId.GunshipLiftoffThirdTiles or InstalledArtworkId.GunshipLiftoffFourthTiles or
+            InstalledArtworkId.GunshipLiftoffFifthTiles => throw new InvalidDataException($"Beam catalog cannot resolve {asset}."),
+        InstalledArtworkId.StandardObjectTiles or
+            InstalledArtworkId.HudTopRowTilemap => throw new ArgumentOutOfRangeException(nameof(asset), asset, "Undefined VRAM asset."),
         _ => throw new ArgumentOutOfRangeException(nameof(asset), asset, "Undefined VRAM asset."),
     };
 }

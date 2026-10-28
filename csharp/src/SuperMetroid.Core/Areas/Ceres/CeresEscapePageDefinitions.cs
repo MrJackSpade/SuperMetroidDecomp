@@ -33,9 +33,9 @@ internal static class CeresEscapePageDefinitions
     /// The pages the timer-sprite list ($A6:C4CB) shows over the OBJ characters, one an update, in its order: the escape
     /// timer's two pages, then the warning text's five from its first character.
     /// </summary>
-    internal static IReadOnlyList<ObjCharacterSource> ObjectPages { get; } =
+    internal static IReadOnlyList<SpriteArtworkSource> ObjectPages { get; } =
     [
-        .. Enum.GetValues<EscapeTimerTilePage>().Select(page => new AssetObjCharacters(EscapeTimerTilePages.AssetOf(page))),
+        .. Enum.GetValues<EscapeTimerTilePage>().Select(page => new InstalledArtworkCharacters(EscapeTimerTilePages.AssetOf(page))),
         .. Enumerable.Range(0, WarningPageCount).Select(page =>
             new CeresEscapeTileCharacters(WarningTextPage, page * PageCharacters * CharacterBytes, WarningPageByteCount(page))),
     ];

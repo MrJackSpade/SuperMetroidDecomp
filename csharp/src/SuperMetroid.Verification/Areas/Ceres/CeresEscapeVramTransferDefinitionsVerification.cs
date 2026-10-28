@@ -75,7 +75,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             .SkipWhile(record => record.Pointer != CeresEscapeVramTransferDefinitions.TimerSprites)
             .TakeWhile(record => record.Pointer < 0xc4fc)];
         AssertEqual(7, spriteList.Length, "Ceres timer-sprite list length");
-        SpriteCharacters shown = system.Presentation.SpriteCharacters;
+        SpriteArtworkPlacements shown = system.Presentation.SpriteCharacters;
         var state = new RidleyEnemyState { CeresEscapePages = CeresEscapePageCursor.Objects };
         for (int index = 0; index < spriteList.Length; index++)
         {
@@ -83,12 +83,12 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             TileTransferDefinition expected = spriteList[index];
             AssertEqual(index == spriteList.Length - 1, finished, $"Ceres transfer ${expected.Pointer:X4} list completion");
             AssertEqual(index + 1, shown.Uploads.Count, $"Ceres transfer ${expected.Pointer:X4} one page per update");
-            SpriteCharacterPlacement page = shown.Uploads[index];
+            SpriteArtworkPlacement page = shown.Uploads[index];
             AssertEqual(expected.ByteCount, page.ByteCount, $"Ceres transfer ${expected.Pointer:X4} page size");
-            AssertEqual(SpriteCharacters.TableByte(VramDmaDestination.FromNative(expected.DestinationWord)), page.FirstByte,
+            AssertEqual(SpriteArtworkPlacements.TableByte(VramDmaDestination.FromNative(expected.DestinationWord)), page.FirstByte,
                 $"Ceres transfer ${expected.Pointer:X4} page's place among the OBJ characters");
-            AssertEqual<ObjCharacterSource?>(expected.Pointer is 0xc4cb or 0xc4d2
-                    ? new AssetObjCharacters(expected.Pointer == 0xc4cb ? VramAssetId.EscapeTimerFirstTiles : VramAssetId.EscapeTimerSecondTiles)
+            AssertEqual<SpriteArtworkSource?>(expected.Pointer is 0xc4cb or 0xc4d2
+                    ? new InstalledArtworkCharacters(expected.Pointer == 0xc4cb ? InstalledArtworkId.EscapeTimerFirstTiles : InstalledArtworkId.EscapeTimerSecondTiles)
                     : CeresEscapeTileCharactersConstants.ForTransfer(expected.SourceAddress, expected.ByteCount),
                 page.Source, $"Ceres transfer ${expected.Pointer:X4} names its installed page");
         }

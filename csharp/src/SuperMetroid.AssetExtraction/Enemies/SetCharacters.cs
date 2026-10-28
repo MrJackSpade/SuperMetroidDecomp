@@ -23,7 +23,7 @@ internal sealed class SetCharacters
     private readonly SetRegions regions;
 
     /// <summary>Resolves the artwork the uploads show.</summary>
-    private readonly IObjCharacterSourceResolver resolver;
+    private readonly IInstalledArtworkContent resolver;
 
     /// <summary>The corpses of a kind that rot in the set's rooms, whose frames select the rot they show.</summary>
     private readonly IReadOnlyList<CorpseRotSimulation> corpses;
@@ -38,7 +38,7 @@ internal sealed class SetCharacters
     /// <exception cref="InvalidDataException">
     /// A corpse is not of a kind, or uploads a row over characters an encounter or Mother Brain's corpse uploads.
     /// </exception>
-    internal SetCharacters(byte[] table, SetRegions regions, IObjCharacterSourceResolver resolver, IReadOnlyList<CorpseRotSimulation> corpses)
+    internal SetCharacters(byte[] table, SetRegions regions, IInstalledArtworkContent resolver, IReadOnlyList<CorpseRotSimulation> corpses)
     {
         this.table = Ensure.NotNull(table);
         this.regions = Ensure.NotNull(regions);
@@ -145,7 +145,7 @@ internal sealed class SetCharacters
             {
                 // A character past the table reads the page's blank overhang.
                 int firstByte = (part.Character + row * SpriteArtwork.CharactersPerRow + column) * SpriteArtwork.CharacterByteCount;
-                if (firstByte < SpriteCharacters.TableByteCount && firstByte < region.FirstByte + region.ByteCount
+                if (firstByte < SpriteArtworkPlacements.TableByteCount && firstByte < region.FirstByte + region.ByteCount
                     && region.FirstByte < firstByte + SpriteArtwork.CharacterByteCount)
                     return true;
             }

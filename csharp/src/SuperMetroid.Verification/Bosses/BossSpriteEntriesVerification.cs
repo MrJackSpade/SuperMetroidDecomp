@@ -55,7 +55,7 @@ internal static class BossSpriteEntriesVerification
         }
 
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
-        var uploads = new SpriteCharacters();
+        var uploads = new SpriteArtworkPlacements();
         var queue = new VramWriteQueue();
         var statue = new TourianStatuePictureCharacters(AnimatedTileObject.TourianStatuePhantoon, TourianStatueTilePicture.Released);
         ReadOnlyMemory<byte> picture = statue.Resolve(runtime.Artwork);
@@ -66,7 +66,7 @@ internal static class BossSpriteEntriesVerification
         queue.DrainTo(new SnesVram(), runtime.Artwork, uploads, BgArtworkFixtures.For(new SnesVram()));
         staging.ByteView(0, 64)[3] = 0;
         AssertEqual(2, uploads.Uploads.Count, "Both uploads reach the OBJ page");
-        AssertEqual<ObjCharacterSource>(statue, uploads.Uploads[0].Source, "The statue picture is bound by its identity");
+        AssertEqual<SpriteArtworkSource>(statue, uploads.Uploads[0].Source, "The statue picture is bound by its identity");
         AssertTrue(uploads.Uploads[1].Source is StagedObjCharacters, "A staged corpse upload keeps the bytes it read");
         SpriteArtwork page = new ObjCharacterTablePage().Page(uploads, runtime.Artwork);
         AssertTrue(page.Characters.Slice(0, picture.Length).SequenceEqual(picture.Span), "The page shows the statue picture");
@@ -84,7 +84,7 @@ internal static class BossSpriteEntriesVerification
         AssertTrue(evirTiles.Length == RoomEnemyDefinitionCatalog.Get(EnemyDefinitionId.Evir).TileByteCount &&
             new EnemyTileCharacters(EnemyDefinitionId.Evir).Resolve(resolver).Span.SequenceEqual(evirTiles.Span),
             "Evir's tiles resolve to its installed sheet");
-        var uploads = new SpriteCharacters();
+        var uploads = new SpriteArtworkPlacements();
         uploads.Record(PlacedUploads.Of(DraygonIntroPresentationDefinitions.EvirTiles));
         SpriteArtwork page = new ObjCharacterTablePage().Page(uploads, resolver);
         int evirByte = PlacedUploads.Of(DraygonIntroPresentationDefinitions.EvirTiles).FirstByte;
@@ -142,10 +142,10 @@ internal static class BossSpriteEntriesVerification
     {
         InstalledEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
-        SpriteCharacters uploads = enemies.Room.Session.SpriteCharacters;
+        SpriteArtworkPlacements uploads = enemies.Room.Session.SpriteCharacters;
         int corpseBytes = MotherBrainCorpseArtworkDefinitions.PageByteCount;
         enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, 1));
-        AssertEqual<ObjCharacterSource>(new MotherBrainCorpseCharacters(1), uploads.Uploads.Single().Source,
+        AssertEqual<SpriteArtworkSource>(new MotherBrainCorpseCharacters(1), uploads.Uploads.Single().Source,
             "A corpse page selection shows its installed page");
         AssertEqual(MotherBrainCorpseArtworkDefinitions.PageFirstCharacter(1) * 32,
             uploads.Uploads.Single().FirstByte, "The corpse page shows from its sprite character");

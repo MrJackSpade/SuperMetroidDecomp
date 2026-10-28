@@ -7,7 +7,7 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>The installed grapple characters, with the grapple sprite, flare and swing catalogs; the grapple sheet is composed from them.</summary>
-public sealed class GrappleTileAtlas : IVramAssetProvider
+public sealed class GrappleTileAtlas : IInstalledArtworkContent
 {
     /// <summary>$9A:8220-829F/8A20-8A9F: eight reviewed drawn electric-stroke masks (64 binary rows)
     /// or independently supplied multicolor pixels. Their spur layout is visual content, not beam collision geometry.</summary>
@@ -65,50 +65,50 @@ public sealed class GrappleTileAtlas : IVramAssetProvider
     /// <summary>Resolves one endpoint character or four-character rope-orientation transfer.</summary>
     /// <param name="asset">One of the seven Grapple-owned VRAM asset identities.</param>
     /// <returns>The current 32-byte endpoint or 128-byte segment transfer.</returns>
-    public ReadOnlyMemory<byte> Resolve(VramAssetId asset)
+    public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset)
     {
         var transfer = GrappleTileDefinitions.TransferFor(asset);
         return asset switch
         {
-            VramAssetId.GrapplePointFirstTiles => firstPoint ?? GrappleBeamTilePatterns.Point(GrapplePointFrame.FilledDiamond),
-            VramAssetId.GrapplePointSecondTiles => secondPoint ?? GrappleBeamTilePatterns.Point(GrapplePointFrame.HollowDiamond),
-            VramAssetId.GrapplePointThirdTiles => thirdPoint ?? GrappleBeamTilePatterns.Point(GrapplePointFrame.TippedSquare),
-            VramAssetId.GrapplePointFourthTiles => fourthPoint ?? GrappleBeamTilePatterns.Point(GrapplePointFrame.ClippedDiamond),
-            VramAssetId.GrappleVerticalSegmentTiles => verticalSegments ??
+            InstalledArtworkId.GrapplePointFirstTiles => firstPoint ?? GrappleBeamTilePatterns.Point(GrapplePointFrame.FilledDiamond),
+            InstalledArtworkId.GrapplePointSecondTiles => secondPoint ?? GrappleBeamTilePatterns.Point(GrapplePointFrame.HollowDiamond),
+            InstalledArtworkId.GrapplePointThirdTiles => thirdPoint ?? GrappleBeamTilePatterns.Point(GrapplePointFrame.TippedSquare),
+            InstalledArtworkId.GrapplePointFourthTiles => fourthPoint ?? GrappleBeamTilePatterns.Point(GrapplePointFrame.ClippedDiamond),
+            InstalledArtworkId.GrappleVerticalSegmentTiles => verticalSegments ??
                 GrappleBeamTilePatterns.VerticalSegments(SegmentBytes(0).Span),
-            VramAssetId.GrappleHorizontalSegmentTiles or VramAssetId.GrappleDiagonalSegmentTiles =>
+            InstalledArtworkId.GrappleHorizontalSegmentTiles or InstalledArtworkId.GrappleDiagonalSegmentTiles =>
                 SegmentBytes(transfer.AtlasOffset - 128),
-            VramAssetId.None or
-                VramAssetId.StandardHudTiles or
-                VramAssetId.EscapeTimerFirstTiles or
-                VramAssetId.EscapeTimerSecondTiles or
-                VramAssetId.BeamPowerTiles or
-                VramAssetId.BeamWaveTiles or
-                VramAssetId.BeamIceTiles or
-                VramAssetId.BeamIceWaveTiles or
-                VramAssetId.BeamSpazerTiles or
-                VramAssetId.BeamSpazerWaveTiles or
-                VramAssetId.BeamSpazerIceTiles or
-                VramAssetId.BeamSpazerIceWaveTiles or
-                VramAssetId.BeamPlasmaTiles or
-                VramAssetId.BeamPlasmaWaveTiles or
-                VramAssetId.BeamPlasmaIceTiles or
-                VramAssetId.BeamPlasmaIceWaveTiles or
-                VramAssetId.ProjectileIceWaveTrailTiles or
-                VramAssetId.ProjectileMissileTrailTiles or
-                VramAssetId.KraidBg3RestoreQuarter0 or
-                VramAssetId.KraidBg3RestoreQuarter1 or
-                VramAssetId.KraidBg3RestoreQuarter2 or
-                VramAssetId.KraidBg3RestoreQuarter3 or
-                VramAssetId.GunshipLiftoffFirstTiles or
-                VramAssetId.GunshipLiftoffSecondTiles or
-                VramAssetId.GunshipLiftoffThirdTiles or
-                VramAssetId.GunshipLiftoffFourthTiles or
-                VramAssetId.GunshipLiftoffFifthTiles or
-                VramAssetId.BeamChainsawTiles or
-                VramAssetId.BeamSpacetimeTiles or
-                VramAssetId.StandardObjectTiles or
-                VramAssetId.HudTopRowTilemap => throw new InvalidDataException($"Not a Grapple tile asset: {asset}."),
+            InstalledArtworkId.None or
+                InstalledArtworkId.StandardHudTiles or
+                InstalledArtworkId.EscapeTimerFirstTiles or
+                InstalledArtworkId.EscapeTimerSecondTiles or
+                InstalledArtworkId.BeamPowerTiles or
+                InstalledArtworkId.BeamWaveTiles or
+                InstalledArtworkId.BeamIceTiles or
+                InstalledArtworkId.BeamIceWaveTiles or
+                InstalledArtworkId.BeamSpazerTiles or
+                InstalledArtworkId.BeamSpazerWaveTiles or
+                InstalledArtworkId.BeamSpazerIceTiles or
+                InstalledArtworkId.BeamSpazerIceWaveTiles or
+                InstalledArtworkId.BeamPlasmaTiles or
+                InstalledArtworkId.BeamPlasmaWaveTiles or
+                InstalledArtworkId.BeamPlasmaIceTiles or
+                InstalledArtworkId.BeamPlasmaIceWaveTiles or
+                InstalledArtworkId.ProjectileIceWaveTrailTiles or
+                InstalledArtworkId.ProjectileMissileTrailTiles or
+                InstalledArtworkId.KraidBg3RestoreQuarter0 or
+                InstalledArtworkId.KraidBg3RestoreQuarter1 or
+                InstalledArtworkId.KraidBg3RestoreQuarter2 or
+                InstalledArtworkId.KraidBg3RestoreQuarter3 or
+                InstalledArtworkId.GunshipLiftoffFirstTiles or
+                InstalledArtworkId.GunshipLiftoffSecondTiles or
+                InstalledArtworkId.GunshipLiftoffThirdTiles or
+                InstalledArtworkId.GunshipLiftoffFourthTiles or
+                InstalledArtworkId.GunshipLiftoffFifthTiles or
+                InstalledArtworkId.BeamChainsawTiles or
+                InstalledArtworkId.BeamSpacetimeTiles or
+                InstalledArtworkId.StandardObjectTiles or
+                InstalledArtworkId.HudTopRowTilemap => throw new InvalidDataException($"Not a Grapple tile asset: {asset}."),
             _ => throw new InvalidDataException($"Not a Grapple tile asset: {asset}."),
         };
     }
@@ -122,8 +122,8 @@ public sealed class GrappleTileAtlas : IVramAssetProvider
     /// </summary>
     public SpriteArtwork Tiles(int pointFrame, GrappleRopeOrientation orientation)
     {
-        VramAssetId point = GrappleTileDefinitions.PointAssetFor(pointFrame);
-        VramAssetId segments = GrappleTileDefinitions.SegmentAssetFor(orientation);
+        InstalledArtworkId point = GrappleTileDefinitions.PointAssetFor(pointFrame);
+        InstalledArtworkId segments = GrappleTileDefinitions.SegmentAssetFor(orientation);
         return tileSets.GetOrAdd(new GrappleTileSetKey(point, segments), key => new SpriteArtwork(
             new SpriteArtworkId(SpriteArtworkKind.GrappleTiles, SnesLittleEndian.Word(checked((byte)key.Segments), checked((byte)key.Point))),
             [.. Resolve(key.Point).Span, .. Resolve(key.Segments).Span]));

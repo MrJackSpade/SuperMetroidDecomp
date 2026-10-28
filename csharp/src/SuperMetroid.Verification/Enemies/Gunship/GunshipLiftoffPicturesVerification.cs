@@ -47,13 +47,13 @@ internal static class GunshipLiftoffPicturesVerification
         IEnemySheetSource sheets = runtime.EnemySession.Sheets ?? throw new InvalidOperationException("The runtime loads the enemy sheets.");
         RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;
 
-        var made = new List<SpriteCharacterPlacement>();
+        var made = new List<SpriteArtworkPlacement>();
         int pictured = 0;
         for (int step = 0; step <= PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages).Count; step++)
         {
             if (step > 0)
             {
-                SpriteCharacterPlacement upload = PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages)[step - 1];
+                SpriteArtworkPlacement upload = PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages)[step - 1];
                 runtime.EnemySession.SpriteCharacters.Record(upload);
                 made.Add(upload);
             }

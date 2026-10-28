@@ -235,10 +235,10 @@ internal static class RoomFxAnimatedTileArtworkVerification
 
     /// <summary>Feeds source-address DMA requests from an installed atlas while rejecting unrelated typed asset requests.</summary>
     internal sealed class RoomFxArtworkTestProvider(RoomFxAnimatedTileAtlas atlas) :
-        IVramAssetProvider, IInstalledArtworkTransferSource
+        IInstalledArtworkContent, IInstalledArtworkTransferSource
     {
         /// <summary>Fails if the focused room-FX fixture unexpectedly requests a typed VRAM asset.</summary>
-        public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
+        public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) =>
             throw new InvalidOperationException($"Room-FX test did not expect typed asset {asset}.");
         /// <summary>Resolves a bank-$87 source and native transfer width against installed frame bytes.</summary>
         public bool TryResolve(int sourceAddress, int byteCount,

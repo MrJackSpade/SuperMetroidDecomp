@@ -163,9 +163,9 @@ internal static class EnemyTileArtworkKraidVerification
     private static void VerifyInstalledKraidBg3Restoration(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork enemyArtwork)
     {
-        AssertEqual(24, (int)VramAssetId.GrappleVerticalSegmentTiles,
+        AssertEqual(24, (int)InstalledArtworkId.GrappleVerticalSegmentTiles,
             "existing pending-VRAM asset identities remain stable");
-        AssertEqual(25, (int)VramAssetId.KraidBg3RestoreQuarter0,
+        AssertEqual(25, (int)InstalledArtworkId.KraidBg3RestoreQuarter0,
             "new Kraid quarter IDs append after existing debugger-state IDs");
         string mapDirectory = Path.Combine(directory, "kraid-bg3-map-art");
         MapPresentationExtractor.Extract(rom, mapDirectory, SupportedCartridge.Sha256);
@@ -198,8 +198,8 @@ internal static class EnemyTileArtworkKraidVerification
         for (int quarter = 0; quarter < KraidHudRestoration.QuarterCount;
              quarter++)
         {
-            VramAssetId asset = KraidHudRestoration.AssetForQuarter(quarter);
-            AssertTrue(((IVramAssetProvider)runtime.Artwork).Resolve(asset).Span
+            InstalledArtworkId asset = KraidHudRestoration.AssetForQuarter(quarter);
+            AssertTrue(((IInstalledArtworkContent)runtime.Artwork).Resolve(asset).Span
                     .SequenceEqual(stock.HudTiles.KraidRestoreQuarter(quarter).Span),
                 $"runtime resolves Kraid BG3 quarter {quarter} from installed HUD pixels");
         }

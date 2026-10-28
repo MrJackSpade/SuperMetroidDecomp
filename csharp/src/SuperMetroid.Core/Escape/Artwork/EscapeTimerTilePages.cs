@@ -21,10 +21,10 @@ public static class EscapeTimerTilePages
     };
 
     /// <summary>The typed VRAM asset installed for the page.</summary>
-    public static VramAssetId AssetOf(EscapeTimerTilePage page) => page switch
+    public static InstalledArtworkId AssetOf(EscapeTimerTilePage page) => page switch
     {
-        EscapeTimerTilePage.First => VramAssetId.EscapeTimerFirstTiles,
-        EscapeTimerTilePage.Second => VramAssetId.EscapeTimerSecondTiles,
+        EscapeTimerTilePage.First => InstalledArtworkId.EscapeTimerFirstTiles,
+        EscapeTimerTilePage.Second => InstalledArtworkId.EscapeTimerSecondTiles,
         _ => throw new InvalidOperationException($"Undefined {nameof(EscapeTimerTilePage)} {page}."),
     };
 }

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Twelve trail tiles in one indexed sheet, compiled into two noncontiguous VRAM transfers.</summary>
-public sealed class ProjectileTrailAtlas : IVramAssetProvider
+public sealed class ProjectileTrailAtlas : IInstalledArtworkContent
 {
     /// <summary>Encoded four-bit planar characters in ice/wave order followed by missile trail art, with no native VRAM gap in the file.</summary>
     private readonly byte[] tiles;
@@ -18,46 +18,46 @@ public sealed class ProjectileTrailAtlas : IVramAssetProvider
     /// <param name="asset">Ice/wave or missile trail tile asset identity.</param>
     /// <returns>The selected native planar character bytes.</returns>
     /// <exception cref="InvalidDataException">The requested identity is not owned by this trail atlas.</exception>
-    public ReadOnlyMemory<byte> Resolve(VramAssetId asset) => asset switch
+    public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) => asset switch
     {
-        VramAssetId.ProjectileIceWaveTrailTiles => IceAndWave,
-        VramAssetId.ProjectileMissileTrailTiles => Missile,
-        VramAssetId.None or
-            VramAssetId.StandardHudTiles or
-            VramAssetId.EscapeTimerFirstTiles or
-            VramAssetId.EscapeTimerSecondTiles or
-            VramAssetId.BeamPowerTiles or
-            VramAssetId.BeamWaveTiles or
-            VramAssetId.BeamIceTiles or
-            VramAssetId.BeamIceWaveTiles or
-            VramAssetId.BeamSpazerTiles or
-            VramAssetId.BeamSpazerWaveTiles or
-            VramAssetId.BeamSpazerIceTiles or
-            VramAssetId.BeamSpazerIceWaveTiles or
-            VramAssetId.BeamPlasmaTiles or
-            VramAssetId.BeamPlasmaWaveTiles or
-            VramAssetId.BeamPlasmaIceTiles or
-            VramAssetId.BeamPlasmaIceWaveTiles or
-            VramAssetId.GrapplePointFirstTiles or
-            VramAssetId.GrapplePointSecondTiles or
-            VramAssetId.GrapplePointThirdTiles or
-            VramAssetId.GrapplePointFourthTiles or
-            VramAssetId.GrappleHorizontalSegmentTiles or
-            VramAssetId.GrappleDiagonalSegmentTiles or
-            VramAssetId.GrappleVerticalSegmentTiles or
-            VramAssetId.KraidBg3RestoreQuarter0 or
-            VramAssetId.KraidBg3RestoreQuarter1 or
-            VramAssetId.KraidBg3RestoreQuarter2 or
-            VramAssetId.KraidBg3RestoreQuarter3 or
-            VramAssetId.GunshipLiftoffFirstTiles or
-            VramAssetId.GunshipLiftoffSecondTiles or
-            VramAssetId.GunshipLiftoffThirdTiles or
-            VramAssetId.GunshipLiftoffFourthTiles or
-            VramAssetId.GunshipLiftoffFifthTiles or
-            VramAssetId.BeamChainsawTiles or
-            VramAssetId.BeamSpacetimeTiles or
-            VramAssetId.StandardObjectTiles or
-            VramAssetId.HudTopRowTilemap => throw new InvalidDataException($"Trail atlas cannot resolve {asset}."),
+        InstalledArtworkId.ProjectileIceWaveTrailTiles => IceAndWave,
+        InstalledArtworkId.ProjectileMissileTrailTiles => Missile,
+        InstalledArtworkId.None or
+            InstalledArtworkId.StandardHudTiles or
+            InstalledArtworkId.EscapeTimerFirstTiles or
+            InstalledArtworkId.EscapeTimerSecondTiles or
+            InstalledArtworkId.BeamPowerTiles or
+            InstalledArtworkId.BeamWaveTiles or
+            InstalledArtworkId.BeamIceTiles or
+            InstalledArtworkId.BeamIceWaveTiles or
+            InstalledArtworkId.BeamSpazerTiles or
+            InstalledArtworkId.BeamSpazerWaveTiles or
+            InstalledArtworkId.BeamSpazerIceTiles or
+            InstalledArtworkId.BeamSpazerIceWaveTiles or
+            InstalledArtworkId.BeamPlasmaTiles or
+            InstalledArtworkId.BeamPlasmaWaveTiles or
+            InstalledArtworkId.BeamPlasmaIceTiles or
+            InstalledArtworkId.BeamPlasmaIceWaveTiles or
+            InstalledArtworkId.GrapplePointFirstTiles or
+            InstalledArtworkId.GrapplePointSecondTiles or
+            InstalledArtworkId.GrapplePointThirdTiles or
+            InstalledArtworkId.GrapplePointFourthTiles or
+            InstalledArtworkId.GrappleHorizontalSegmentTiles or
+            InstalledArtworkId.GrappleDiagonalSegmentTiles or
+            InstalledArtworkId.GrappleVerticalSegmentTiles or
+            InstalledArtworkId.KraidBg3RestoreQuarter0 or
+            InstalledArtworkId.KraidBg3RestoreQuarter1 or
+            InstalledArtworkId.KraidBg3RestoreQuarter2 or
+            InstalledArtworkId.KraidBg3RestoreQuarter3 or
+            InstalledArtworkId.GunshipLiftoffFirstTiles or
+            InstalledArtworkId.GunshipLiftoffSecondTiles or
+            InstalledArtworkId.GunshipLiftoffThirdTiles or
+            InstalledArtworkId.GunshipLiftoffFourthTiles or
+            InstalledArtworkId.GunshipLiftoffFifthTiles or
+            InstalledArtworkId.BeamChainsawTiles or
+            InstalledArtworkId.BeamSpacetimeTiles or
+            InstalledArtworkId.StandardObjectTiles or
+            InstalledArtworkId.HudTopRowTilemap => throw new InvalidDataException($"Trail atlas cannot resolve {asset}."),
         _ => throw new InvalidDataException($"Trail atlas cannot resolve {asset}."),
     };
     /// <summary>Loads the 96-by-8 indexed PNG as twelve left-to-right 8-pixel tiles and encodes their palette indices into four-bit SNES planar character bytes.</summary>

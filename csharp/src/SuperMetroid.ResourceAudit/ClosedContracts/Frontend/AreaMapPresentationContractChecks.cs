@@ -29,12 +29,12 @@ internal static class AreaMapPresentationContractChecks
                     maps.Get(AreaId.Crateria);
                     maps.Get(AreaId.Ceres);
                     maps.Get((AreaId)7);
-                    maps.Resolve(VramAssetId.StandardHudTiles);
-                    maps.Resolve(VramAssetId.KraidBg3RestoreQuarter3);
-                    maps.Resolve(VramAssetId.EscapeTimerFirstTiles);
-                    maps.Resolve(VramAssetId.EscapeTimerSecondTiles);
-                    maps.Resolve(VramAssetId.None);
-                    maps.Resolve(VramAssetId.BeamPowerTiles);
+                    maps.Resolve(InstalledArtworkId.StandardHudTiles);
+                    maps.Resolve(InstalledArtworkId.KraidBg3RestoreQuarter3);
+                    maps.Resolve(InstalledArtworkId.EscapeTimerFirstTiles);
+                    maps.Resolve(InstalledArtworkId.EscapeTimerSecondTiles);
+                    maps.Resolve(InstalledArtworkId.None);
+                    maps.Resolve(InstalledArtworkId.BeamPowerTiles);
                     enemies.LoadPaletteTo(default, default);
                 }
             }

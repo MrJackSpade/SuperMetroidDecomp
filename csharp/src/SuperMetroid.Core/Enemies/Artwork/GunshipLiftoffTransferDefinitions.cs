@@ -10,14 +10,14 @@ internal static class GunshipLiftoffTransferDefinitions
     {
         if ((uint)index >= 5)
             throw new ArgumentOutOfRangeException(nameof(index));
-        return new(VramAssetId.GunshipLiftoffFirstTiles + index);
+        return new(InstalledArtworkId.GunshipLiftoffFirstTiles + index);
     }
 
     /// <summary>Calculated five-frame transfer sequence without a stored record table.</summary>
     internal static TransferSequence Frames => default;
 
     /// <summary>The five takeoff pages, in takeoff order (#1392, #1406).</summary>
-    internal static IReadOnlyList<ObjCharacterSource> Pages { get; } = [.. Frames.Select(frame => new AssetObjCharacters(frame.Asset))];
+    internal static IReadOnlyList<SpriteArtworkSource> Pages { get; } = [.. Frames.Select(frame => new InstalledArtworkCharacters(frame.Asset))];
 
     /// <summary>Calculated view over the five contiguous character transfers; no records are cached.</summary>
     internal readonly struct TransferSequence : IReadOnlyList<GunshipLiftoffTransferDefinition>

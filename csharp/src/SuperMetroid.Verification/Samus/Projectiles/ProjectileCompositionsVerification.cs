@@ -442,8 +442,8 @@ internal static class ProjectileCompositionsVerification
         File.WriteAllBytes(grappleOverride, grapplePng.ToArray());
         var grappleEdited = installation.LoadProjectiles();
         AssertTrue(grappleEdited.SelectedSha256 != compositionEdited.SelectedSha256, "Grapple PNG-only edit changes content identity");
-        AssertEqual((byte)(compositionEdited.GrappleTiles.Resolve(VramAssetId.GrapplePointFirstTiles).Span[0] ^ 128),
-            grappleEdited.GrappleTiles.Resolve(VramAssetId.GrapplePointFirstTiles).Span[0], "Installed Grapple PNG selects edited endpoint pixel");
+        AssertEqual((byte)(compositionEdited.GrappleTiles.Resolve(InstalledArtworkId.GrapplePointFirstTiles).Span[0] ^ 128),
+            grappleEdited.GrappleTiles.Resolve(InstalledArtworkId.GrapplePointFirstTiles).Span[0], "Installed Grapple PNG selects edited endpoint pixel");
         File.WriteAllText(grappleStock, "broken PNG");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Grapple override cannot conceal corrupt stock");
         File.Move(grappleStock, grappleStock + ".invalid");

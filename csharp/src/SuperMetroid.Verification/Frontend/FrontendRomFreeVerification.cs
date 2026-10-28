@@ -704,7 +704,7 @@ internal static class FrontendRomFreeVerification
             }
             if (room.Room == RoomHeaderDefinitions.Draygon && frame == 0)
             {
-                SpriteCharacterPlacement evir = PlacedUploads.Of(DraygonIntroPresentationDefinitions.EvirTiles);
+                SpriteArtworkPlacement evir = PlacedUploads.Of(DraygonIntroPresentationDefinitions.EvirTiles);
                 ReadOnlySpan<byte> nativeEvir = ShownObjects(native.GameplayRuntimeForVerification).Slice(evir.FirstByte, evir.ByteCount);
                 ReadOnlySpan<byte> installedEvir = ShownObjects(installed.GameplayRuntimeForVerification).Slice(evir.FirstByte, evir.ByteCount);
                 AssertTrue(installedEvir.SequenceEqual(nativeEvir),

@@ -19,17 +19,17 @@ internal static class EncounterCharacterPlacements
 
     /// <summary>Every encounter's uploads, each placed where the cartridge shows it.</summary>
     internal static EncounterCharacterCatalog Catalog { get; } = new(EncounterCharacterDefinitions.Encounters.ToDictionary(
-        entry => entry.Key, entry => (IReadOnlyList<SpriteCharacterPlacement>)[.. entry.Value.Select(Placed)]));
+        entry => entry.Key, entry => (IReadOnlyList<SpriteArtworkPlacement>)[.. entry.Value.Select(Placed)]));
 
     /// <summary>The upload of <paramref name="source"/> where the cartridge shows it.</summary>
     /// <exception cref="InvalidDataException">The cartridge shows no such source among the sprite characters.</exception>
-    internal static SpriteCharacterPlacement Placed(ObjCharacterSource source) => source switch
+    internal static SpriteArtworkPlacement Placed(SpriteArtworkSource source) => source switch
     {
-        AssetObjCharacters { Asset: >= VramAssetId.GunshipLiftoffFirstTiles and <= VramAssetId.GunshipLiftoffFirstTiles + 4 } liftoff =>
-            new(source, EncounterCharacterPlacementDefinitions.GunshipFirstCharacter + (liftoff.Asset - VramAssetId.GunshipLiftoffFirstTiles) * Characters(GunshipLiftoffTransferDefinitions.ByteCount),
+        InstalledArtworkCharacters { Asset: >= InstalledArtworkId.GunshipLiftoffFirstTiles and <= InstalledArtworkId.GunshipLiftoffFirstTiles + 4 } liftoff =>
+            new(source, EncounterCharacterPlacementDefinitions.GunshipFirstCharacter + (liftoff.Asset - InstalledArtworkId.GunshipLiftoffFirstTiles) * Characters(GunshipLiftoffTransferDefinitions.ByteCount),
                 Characters(GunshipLiftoffTransferDefinitions.ByteCount)),
-        AssetObjCharacters { Asset: VramAssetId.EscapeTimerFirstTiles } => Timer(source, EscapeTimerTilePage.First),
-        AssetObjCharacters { Asset: VramAssetId.EscapeTimerSecondTiles } => Timer(source, EscapeTimerTilePage.Second),
+        InstalledArtworkCharacters { Asset: InstalledArtworkId.EscapeTimerFirstTiles } => Timer(source, EscapeTimerTilePage.First),
+        InstalledArtworkCharacters { Asset: InstalledArtworkId.EscapeTimerSecondTiles } => Timer(source, EscapeTimerTilePage.Second),
         TorizoArtworkSwapCharacters swap =>
             new(source, EncounterCharacterPlacementDefinitions.TorizoDestinations[swap.Entry].FirstCharacter, Characters(TorizoArtworkSwapDefinitions.Entries[swap.Entry].ByteCount)),
         CrocomireSkeletonChunkCharacters chunk => new(source, SkeletonFirstCharacter(chunk.Entry),
@@ -49,13 +49,13 @@ internal static class EncounterCharacterPlacements
     };
 
     /// <summary>Escape timer page <paramref name="page"/>, shown as <paramref name="source"/>.</summary>
-    private static SpriteCharacterPlacement Timer(ObjCharacterSource source, EscapeTimerTilePage page) =>
+    private static SpriteArtworkPlacement Timer(SpriteArtworkSource source, EscapeTimerTilePage page) =>
         new(source, EscapeTimerTilePages.FirstCharacterOf(page), Characters(EscapeTimerTilePages.ByteCountOf(page)));
 
     /// <summary>The whole sprite characters <paramref name="byteCount"/> bytes of the cartridge's copy hold.</summary>
     /// <exception cref="InvalidDataException">The bytes are not whole characters.</exception>
-    private static int Characters(int byteCount) => byteCount % SpriteCharacters.CharacterByteCount == 0
-        ? byteCount / SpriteCharacters.CharacterByteCount
+    private static int Characters(int byteCount) => byteCount % SpriteArtworkPlacements.CharacterByteCount == 0
+        ? byteCount / SpriteArtworkPlacements.CharacterByteCount
         : throw new InvalidDataException($"{byteCount} bytes are not whole sprite characters.");
 
     /// <summary>The character skeleton chunk <paramref name="chunk"/> begins at: rows of the first region, then of the second.</summary>

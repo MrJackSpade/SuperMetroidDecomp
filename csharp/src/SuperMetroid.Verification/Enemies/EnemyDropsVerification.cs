@@ -351,7 +351,7 @@ internal static class EnemyDropsVerification
         enemy.Bind((EnemyDefinitionId)enemyHeader, enemy.Definition);
         enemy.Position = enemy.Position.WithWhole(new(321, 123));
         enemy.TileIndexBase = 0x0200;
-        enemy.PaletteIndex = 0x0c00;
+        enemy.PaletteRow = 6;
         enemy.Properties = new EnemyPropertyWord(EnemyProperties.RespawnIfKilled);
 
         // Variant nine proves the common routine applies the native >=5 clamp before it
@@ -379,7 +379,7 @@ internal static class EnemyDropsVerification
             EnemyDeathExplosionDefinitions.Program(0),
             ProgramOf(explosion),
             "out-of-range death variant clamps to native table entry zero");
-        AssertEqual(0, explosion.GraphicsIndex,
+        AssertEqual(new SuperMetroid.Core.Assets.SpriteGraphics(TileBase: 0, PaletteRow: 0), explosion.Graphics,
             "enemy-death initializer replaces the dying actor's room graphics with zero");
 
         EnemyDeathProjectileProgram converted = fixture.System.DeathsAndDrops.ConvertEnemyDeathExplosionToPickup(explosion);

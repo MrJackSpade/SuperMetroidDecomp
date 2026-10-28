@@ -27,7 +27,7 @@ internal static class KiHunterAcidSpitBehaviorVerification
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             TileIndexBase = 512,
-            PaletteIndex = 3072,
+            PaletteRow = 6,
         };
         enemies.KiHunterBehavior.SpawnKiHunterAcidSpit(body, false);
         enemies.KiHunterBehavior.SpawnKiHunterAcidSpit(body, true);

@@ -45,7 +45,7 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             TileIndexBase = 0x0200,
-            PaletteIndex = 0x0c00,
+            PaletteRow = 6,
         };
         var state = new FakeKraidEnemyState();
 

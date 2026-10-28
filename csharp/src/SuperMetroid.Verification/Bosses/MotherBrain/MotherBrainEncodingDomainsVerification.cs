@@ -1,5 +1,5 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 
@@ -193,10 +193,11 @@ internal static class MotherBrainEncodingDomainsVerification
                     MotherBrainEnemyState.LegLoadPageCount * MotherBrainLegLoadListConstants.RecordByteCount))),
             "the leg-transfer terminator is not a page");
 
-        AssertEqual(SnesObjPalettes.Palette(7), SnesObjAttributeWord.FromPaletteBits(SnesObjPalettes.Palette(7).PaletteBits),
+        SnesObjAttributeWord rowSeven = SnesObjAttributeWord.Create(tileNumber: 0, paletteIndex: 7, priority: 0);
+        AssertEqual(rowSeven, SnesObjAttributeWord.FromPaletteBits(rowSeven.PaletteBits),
             "a palette-only word decodes to its palette selection");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => SnesObjAttributeWord.FromPaletteBits(checked((ushort)(SnesObjPalettes.Palette(1).PaletteBits + 1))),
+            () => SnesObjAttributeWord.FromPaletteBits(checked((ushort)(SnesObjAttributeWord.Create(tileNumber: 0, paletteIndex: 1, priority: 0).PaletteBits + 1))),
             "a palette word carrying tile bits is rejected");
     }
 

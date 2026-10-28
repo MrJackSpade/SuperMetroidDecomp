@@ -33,14 +33,14 @@ internal static class MotherBrainEffectBehaviorVerification
 
         RoomEnemySystem bombEnemies = CreateRoomEnemySystem();
         RoomEnemyProjectileSlot bomb = bombEnemies.Projectiles.EnemyProjectiles[^1];
-        FamilyProjectileStarts.Initialize(bomb, RoomEnemyProjectileKind.MotherBrainBomb, 1024);
+        FamilyProjectileStarts.Initialize(bomb, RoomEnemyProjectileKind.MotherBrainBomb, SuperMetroid.Core.Assets.SpriteGraphics.InPalette(2));
         RunForcedTicks(rom, bombEnemies, bomb, samus, 10);
         AssertTrue(bomb.IsActive && bomb.Animation is MotherBrainEffectAnimation { Cursor.Program: MotherBrainEffectProgram.Bomb },
             "room-system Mother Brain bomb keeps looping its program");
 
         RoomEnemySystem breathEnemies = CreateRoomEnemySystem();
         RoomEnemyProjectileSlot breath = breathEnemies.Projectiles.EnemyProjectiles[^1];
-        FamilyProjectileStarts.Initialize(breath, RoomEnemyProjectileKind.MotherBrainPurpleBreathBig, 0);
+        FamilyProjectileStarts.Initialize(breath, RoomEnemyProjectileKind.MotherBrainPurpleBreathBig, default);
         RunForcedTicks(rom, breathEnemies, breath, samus, 9);
         AssertTrue(!breath.IsActive, "room-system Mother Brain purple breath reaches its deletion");
 
@@ -92,14 +92,14 @@ internal static class MotherBrainEffectBehaviorVerification
 
         RoomEnemySystem fragmentEnemies = CreateRoomEnemySystem();
         RoomEnemyProjectileSlot fragment = fragmentEnemies.Projectiles.EnemyProjectiles[^1];
-        FamilyProjectileStarts.Initialize(fragment, RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, 0);
+        FamilyProjectileStarts.Initialize(fragment, RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, default);
         RunForcedTicks(rom, fragmentEnemies, fragment, samus, 9);
         AssertTrue(fragment.IsActive && fragment.Animation is MotherBrainEffectAnimation { Cursor.Program: MotherBrainEffectProgram.EscapeDoorParticle },
             "room-system Mother Brain escape fragment keeps looping its program");
 
         RoomEnemySystem subtitleEnemies = CreateRoomEnemySystem();
         RoomEnemyProjectileSlot subtitle = subtitleEnemies.Projectiles.EnemyProjectiles[^1];
-        FamilyProjectileStarts.Initialize(subtitle, RoomEnemyProjectileKind.MotherBrainEscapeSubtitle, 0);
+        FamilyProjectileStarts.Initialize(subtitle, RoomEnemyProjectileKind.MotherBrainEscapeSubtitle, default);
         RunForcedTicks(rom, subtitleEnemies, subtitle, samus, 2);
         AssertTrue(subtitle.IsActive && subtitle.Animation is MotherBrainEffectAnimation { Cursor.Program: MotherBrainEffectProgram.EscapeSubtitle },
             "room-system Mother Brain escape subtitle holds at its sleep");
@@ -183,7 +183,7 @@ internal static class MotherBrainEffectBehaviorVerification
             // The ring's own movement routine handles its Samus hits; its definition's touch list is reached through the
             // common contact path, opened and kept alive here as the definitions check does.
             ring.PreInstruction = EnemyProjectilePreInstruction.MotherBrainsOnionRings;
-            ring.GraphicsIndex = 1024;
+            ring.Graphics = SuperMetroid.Core.Assets.SpriteGraphics.InPalette(2);
             ring.CanDamageSamus = true;
             ring.PersistsOnSamusContact = true;
             var touching = new SamusState { Position = ring.Position, Health = ushort.MaxValue };
@@ -193,7 +193,7 @@ internal static class MotherBrainEffectBehaviorVerification
             for (int frame = 0; frame < 30; frame++)
                 Process(rom, ringEnemies, ring, samus);
             AssertTrue(ring.IsActive, "onion-ring impact survives all six five-frame stages");
-            AssertEqual(0, ring.GraphicsIndex, "onion-ring impact selects palette zero");
+            AssertEqual(new SuperMetroid.Core.Assets.SpriteGraphics(TileBase: 0, PaletteRow: 0), ring.Graphics, "onion-ring impact selects palette zero");
             AssertEqual(EnemyProjectilePreInstruction.RTS_868170, ring.PreInstruction, "onion-ring impact clears its movement");
             Process(rom, ringEnemies, ring, samus);
             AssertTrue(!ring.IsActive, "onion-ring impact deletes on the frame after its 30-frame lifetime");

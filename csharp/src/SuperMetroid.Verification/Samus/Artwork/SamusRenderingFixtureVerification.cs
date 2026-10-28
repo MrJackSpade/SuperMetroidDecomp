@@ -1,4 +1,6 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -100,11 +102,13 @@ internal static class SamusRenderingFixtureVerification
         SamusSpritemapDefinition[] maps = SamusSpritemapNative.Compositions(spritePointers).Select(pointer =>
         {
             int address = 0x920000 | pointer;
-            var parts = new SamusSpritePart[Word(address)];
+            var parts = new SpritePart[Word(address)];
             for (int index = 0; index < parts.Length; index++)
             {
                 int part = address + 2 + index * 5;
-                parts[index] = new(new SnesSpritemapXWord(Word(part)), new SnesSpritemapYByte(bus.ReadByte(part + 2)), Word(part + 3));
+                // The fixture's five-byte records are decoded by the import codec into the pieces they describe.
+                parts[index] = new SpritemapPart(new SnesSpritemapXWord(Word(part)), new SnesSpritemapYByte(bus.ReadByte(part + 2)),
+                    new SnesObjAttributeWord(Word(part + 3))).ToPart();
             }
             return new SamusSpritemapDefinition(parts);
         }).ToArray();

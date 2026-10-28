@@ -52,7 +52,7 @@ internal static class FrozenMetroidShellVerification
         var expected = new OamBuffer();
         expected.BeginFrame();
         expected.AddEnemySpritemap(parts, new Position16<SpritePixels>(120, 100), 0x0c00,
-            checked((ushort)new SnesObjAttributeWord(checked((ushort)(indexes.TileBase | indexes.PaletteRow))).TileNumber));
+            checked((ushort)indexes.TileBase));
         Require(expected.NextByteOffset > 0, "The frozen shell must contain visible sprite parts.");
         for (int frame = 0; frame < 3; frame++)
         {

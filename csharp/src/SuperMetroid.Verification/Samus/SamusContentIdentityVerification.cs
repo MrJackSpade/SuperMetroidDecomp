@@ -10,7 +10,6 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.AssetExtraction.Installation;
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Verification.Samus;
 using SuperMetroid.Verification.Harness;
 
@@ -87,14 +86,14 @@ internal static class SamusContentIdentityVerification
         if (edit == "spritemap-entry") entries[0] = new SamusSpritemapId(1);
         SamusSpritemapDefinition[] definitions =
         [
-            new([new SamusSpritePart(new SnesSpritemapXWord(0), new SnesSpritemapYByte(edit == "spritemap-part" ? (byte)1 : (byte)0), new SnesObjAttributeWord(0))]),
-            new([new SamusSpritePart(new SnesSpritemapXWord(1), new SnesSpritemapYByte(0), new SnesObjAttributeWord(1))]),
+            new([SpritePart.Create(x: 0, y: edit == "spritemap-part" ? 1 : 0, large: false, character: 0, palette: 0, priority: 0)]),
+            new([SpritePart.Create(x: 1, y: 0, large: false, character: 1, palette: 0, priority: 0)]),
         ];
         var spritemaps = new SamusSpritemapArtworkCatalog(topBases, bottomBases, entries, definitions);
-        var one = new ushort[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount];
-        var shared = new ushort[one.Length];
-        if (edit == "atmosphere-one") one[0] = 1;
-        if (edit == "atmosphere-shared") shared[0] = 1;
+        var one = new SpritePart[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount];
+        var shared = new SpritePart[one.Length];
+        if (edit == "atmosphere-one") one[0] = SpritePart.Single(character: 1, palette: 0, priority: 0);
+        if (edit == "atmosphere-shared") shared[0] = SpritePart.Single(character: 1, palette: 0, priority: 0);
         var atmosphere = new SamusAtmosphericArtworkCatalog(one, shared);
         ushort[][] Rows() => Enumerable.Range(0, SamusPaletteDefinitions.Death.PaletteCount)
             .Select(_ => new ushort[SamusDeathPaletteArtworkCatalog.ColorCount]).ToArray();
@@ -121,7 +120,8 @@ internal static class SamusContentIdentityVerification
         };
         if (edit == "cannon-pose") cannonDocument.PoseDescriptors[0]++;
         if (edit == "cannon-drawing") cannonDocument.DrawingData[0] = 1;
-        if (edit == "cannon-attributes") cannonDocument.SpriteAttributes[0] = 1;
+        if (edit == "cannon-attributes")
+            cannonDocument.CoverAppearances[0] = SpriteVisualPart.FromSpritePart(SpritePart.Single(character: 1, palette: 0, priority: 0), SpriteArtwork.CharactersPerRow);
         if (edit == "cannon-sources") cannonDocument.CoverTiles[0][0] = 1;
         int cannonWidth = SamusArmCannonArtworkFormat.CoverTileCount * 8;
         SamusArmCannonArtworkCatalog cannon = SamusArmCannonArtworkCatalogTooling.Load(

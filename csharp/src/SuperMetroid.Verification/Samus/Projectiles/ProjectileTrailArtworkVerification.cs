@@ -111,7 +111,8 @@ internal static class ProjectileTrailArtworkVerification
         var part = document.Required("frames").Required(ProjectileTrailNative.Name(first));
         part["flipX"] = !part.Required("flipX").GetValue<bool>();
         var edited = Load(document);
-        AssertEqual((ushort)(catalog.Resolve(first) ^ 0x4000), edited.Resolve(first), "Trail flip edit changes only horizontal-flip bit");
+        AssertEqual(catalog.Resolve(first) with { Flip = catalog.Resolve(first).Flip ^ TileFlip.Horizontal }, edited.Resolve(first),
+            "Trail flip edit changes only the horizontal flip");
         var animation = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
         var trail = animation.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
         trail.InstructionPointer = ProjectileTrailNative.Address(first); trail.InstructionTimer = WrappingCountdown.Start(1); trail.Position = trail.Position.WithX(100).WithY(100);

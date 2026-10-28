@@ -118,7 +118,7 @@ internal static class CorpseRotPicturesVerification
     /// </summary>
     private static SpriteArtwork Rotted(SpriteArtwork loaded, CorpseRotSimulation simulation, CorpseRotView rot, string context)
     {
-        byte[] characters = loaded.Characters[..SpriteCharacters.TableByteCount].ToArray();
+        byte[] characters = loaded.Characters[..SpriteArtworkPlacements.TableByteCount].ToArray();
         if (rot.Steps.Any(step => step is not null))
         {
             CorpseRotState state = simulation.States.SingleOrDefault(state => state.View.PictureName("frame") == rot.PictureName("frame"))

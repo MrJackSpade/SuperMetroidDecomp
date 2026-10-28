@@ -1,6 +1,5 @@
 using SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Phantoon;
@@ -8,7 +7,9 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Bosses;
 
@@ -67,15 +68,15 @@ internal static class BossDisplayBindingsOracleVerification
             }
             int sprites = source.ReadCartridgeWord(Address(visual));
             AssertTrue(sprites <= EnemySpritemapCatalog.MaximumParts, "native oracle OAM count is bounded");
-            var parts = new SpritemapPart[sprites];
+            var parts = new SpritePart[sprites];
             for (int index = 0; index < sprites; index++)
             {
                 int address = Address(visual) + 2 + index * 5;
-                var nativeX = new SnesSpritemapXWord(source.ReadCartridgeWord(address));
-                // Native unused X bits are not presentation; compare the canonical
-                // signed offset and size that actually reach packed OAM.
-                parts[index] = new SpritemapPart(SnesSpritemapXWord.Create(nativeX.SignedOffset, nativeX.IsLarge),
-                    new SnesSpritemapYByte(source.ReadCartridgeByte(address + 2)), new SnesObjAttributeWord(source.ReadCartridgeWord((address + 3))));
+                // The import codec decodes the cartridge record into the piece it describes. Native unused X bits are
+                // not presentation and never reach the piece, which carries only the signed offset and size that reach
+                // packed OAM, with the record's character, palette row, priority and mirroring.
+                parts[index] = new SpritemapPart(new SnesSpritemapXWord(source.ReadCartridgeWord(address)),
+                    new SnesSpritemapYByte(source.ReadCartridgeByte(address + 2)), new SnesObjAttributeWord(source.ReadCartridgeWord((address + 3)))).ToPart();
             }
             oam.Add(new EnemyExtendedDrawComponent(new(x, y), EnemySpritemapParts.FromOwnedArray(parts)));
         }

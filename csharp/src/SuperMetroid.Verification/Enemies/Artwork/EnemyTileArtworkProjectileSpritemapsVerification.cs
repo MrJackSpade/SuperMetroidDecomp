@@ -55,10 +55,10 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
     private const ushort FixtureGraphicsIndex = 0x0a04;
 
     /// <summary>
-    /// The graphics index the production-drawn checks give a projectile: palette row five at character zero, where every
+    /// The graphics the production-drawn checks give a projectile: palette row five at character zero, where every
     /// set composes each object it can spawn (#1392).
     /// </summary>
-    private const ushort SpawnedGraphicsIndex = 0x0a00;
+    private static readonly SpriteGraphics SpawnedGraphics = SpriteGraphics.InPalette(5);
 
     /// <summary>Projectile kinds whose typed programs (#641) present frames by key instead of running a native list.</summary>
     private static readonly HashSet<RoomEnemyProjectileKind> TypedProgramKinds =
@@ -972,7 +972,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             var oam = new OamBuffer();
             oam.BeginFrame();
             DrawImportedEnemyProjectileSpritemap(source, oam, pointer, new(128, 96),
-                SpawnedGraphicsIndex, originYIsOnScreen: true);
+                NativeSpriteGraphicsWords.GraphicsWord(SpawnedGraphics), originYIsOnScreen: true);
             return oam;
         }
 
@@ -1001,7 +1001,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
                 TileIndexBase = 0x0200,
-                PaletteIndex = 0x0c00,
+                PaletteRow = 6,
             };
             spawn(enemy);
             foreach (RoomEnemyProjectileSlot particle in enemies.Projectiles.EnemyProjectiles
@@ -1038,7 +1038,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
             slot.Kind = kind;
             slot.Position = slot.Position.WithWhole(new(128, 96));
-            slot.GraphicsIndex = SpawnedGraphicsIndex;
+            slot.Graphics = SpawnedGraphics;
             // As the typed runner does when it shows the program frame the key installs.
             slot.Frame = EnemyProjectileProgramFrameOperands.Frame(presentationKey);
             // It draws from the sheets a set spawning it composes from this artwork.
@@ -1057,7 +1057,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             slot.Kind = RoomEnemyProjectileKind.NoobTubeShard;
             slot.Variable1 = 128;
             slot.Position = slot.Position.WithWhole(new(128, 96));
-            slot.GraphicsIndex = SpawnedGraphicsIndex;
+            slot.Graphics = SpawnedGraphics;
             // The first shard's flying loop opens with its reflecting flicker.
             slot.StartAnimation(new NoobTubeProjectileAnimation(NoobTubeProjectileProgram.Shard0Loop));
             enemies.Projectiles.ProcessEnemyProjectileInstructions(slot, new SamusState(), Position16<RoomPixels>.Zero);

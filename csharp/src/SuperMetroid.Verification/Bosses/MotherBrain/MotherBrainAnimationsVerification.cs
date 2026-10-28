@@ -190,7 +190,7 @@ internal static class MotherBrainAnimationsVerification
     {
         (RoomEnemySystem enemies, _) = NewMotherBrain();
         RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
-        FamilyProjectileStarts.Initialize(projectile, kind, MotherBrainTurretDefinitions.GraphicsIndex);
+        FamilyProjectileStarts.Initialize(projectile, kind, MotherBrainTurretDefinitions.Graphics);
         projectile.StartAnimation(animation);
         var native = new NativeEnemyProjectileListDefinitions.Reader(entry, projectile.InstructionTimer.RawValue);
         int update = 0;
@@ -205,7 +205,7 @@ internal static class MotherBrainAnimationsVerification
             AssertEqual(native.Timer, projectile.InstructionTimer.RawValue, $"{at}: timer");
             AssertEqual(native.Operand, projectile.PresentationOperandAddress, $"{at}: frame");
             if (native.PaletteCleared)
-                AssertEqual(0, projectile.GraphicsIndex, $"{at}: palette zero");
+                AssertEqual(new SuperMetroid.Core.Assets.SpriteGraphics(TileBase: 0, PaletteRow: 0), projectile.Graphics, $"{at}: palette zero");
             if (native.PreInstructionCleared)
                 AssertEqual(EnemyProjectilePreInstruction.RTS_868170, projectile.PreInstruction, $"{at}: pre-instruction cleared");
         }
@@ -225,7 +225,7 @@ internal static class MotherBrainAnimationsVerification
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
         state.HandBeamNextVelocity = new(new SignedEightEight(256), new SignedEightEight(0));
         RoomEnemyProjectileSlot beam = enemies.Projectiles.EnemyProjectiles[^1];
-        FamilyProjectileStarts.Initialize(beam, RoomEnemyProjectileKind.MotherBrainHandBeamCharging, 0);
+        FamilyProjectileStarts.Initialize(beam, RoomEnemyProjectileKind.MotherBrainHandBeamCharging, default);
         beam.StartAnimation(new MotherBrainHandBeamAnimation());
         var native = new NativeEnemyProjectileListDefinitions.Reader(HandBeamProgram, beam.InstructionTimer.RawValue);
         int spawns = 0;

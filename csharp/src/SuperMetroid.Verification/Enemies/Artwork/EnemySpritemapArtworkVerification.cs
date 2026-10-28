@@ -3014,11 +3014,11 @@ internal static class EnemySpritemapArtworkVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
         // Draygon's evirs show in Draygon's room, whose graphics set loads her.
         enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.DraygonBody), new SpriteColourSets());
-        Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, ushort, RoomSpriteObjectSlot?> spawn =
-            (owner, position, kind, graphicsIndex) => owner.SpriteObjects.SpawnRoomSpriteObject(position, kind, graphicsIndex);
+        Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, SpriteGraphics, RoomSpriteObjectSlot?> spawn =
+            (owner, position, kind, graphics) => owner.SpriteObjects.SpawnRoomSpriteObject(position, kind, graphics);
         Action<RoomEnemySystem, OamBuffer, Position16<RoomPixels>> draw =
             (owner, oam, camera) => owner.SpriteObjects.DrawRoomSpriteObjectsAsOam(oam, camera);
-        AssertTrue(spawn(enemies, new(0x0040, 0x0080), kind, 0x0e00) is not null,
+        AssertTrue(spawn(enemies, new(0x0040, 0x0080), kind, SpriteGraphics.InPalette(7)) is not null,
             "installed room sprite object allocated");
         var oam = new OamBuffer();
         draw(enemies, oam, Position16<RoomPixels>.Zero);

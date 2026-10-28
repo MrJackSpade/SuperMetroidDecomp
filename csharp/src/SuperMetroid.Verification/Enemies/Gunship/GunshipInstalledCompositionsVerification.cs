@@ -3,7 +3,7 @@ using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using System.Text.Json;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresSaveStartupVerification;
 using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -42,11 +42,11 @@ internal static class GunshipInstalledCompositionsVerification
             "#1154 gunship exports its two hull and eleven pad compositions");
         foreach (NativeEnemySpritemapDefinition frame in shipFrames)
         {
-            SpritemapPart[] native = EnemySpritemapCatalog.CompileParts(
+            SpritePart[] native = EnemySpritemapCatalog.CompileParts(
                 EnemySpritemapFiles.ExtractParts(imported, frame.Bank, frame.Pointer), frame.Name);
             AssertTrue(compositions.TryGetDisplay(frame.Bank, frame.Pointer, out var installed),
                 $"#1154 installed gunship composition {frame.Name} is resolvable");
-            AssertTrue(native.SequenceEqual(installed),
+            AssertTrue(installed.SequenceEqual(native),
                 $"#1154 {frame.Name} retains native offsets, sizes, tiles, priority and flips");
         }
 

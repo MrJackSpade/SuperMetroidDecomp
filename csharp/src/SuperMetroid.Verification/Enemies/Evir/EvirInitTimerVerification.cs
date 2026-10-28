@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -31,7 +32,8 @@ internal static class EvirInitTimerVerification
             int byteOffset = relative % 0x40;
             ushort word = byteOffset switch
             {
-                0x1f => checked((ushort)aliased.PaletteIndex),
+                // The aliased enemy's palette row, read as the native palette word that row is stored as.
+                0x1f => NativeSpriteGraphicsWords.PaletteBits(aliased.PaletteRow),
                 0x3f => checked((ushort)aliased.Spawn.Population.Parameter2),
                 _ => throw new InvalidOperationException($"Unexpected aliased Evir byte +{byteOffset:X2}."),
             };

@@ -73,7 +73,7 @@ internal static class RidleyBreakupProgramsVerification
         byte[] legacyBytes = JsonSerializer.SerializeToUtf8Bytes(legacy, options);
         var merged = EnemySpritemapDocuments.Load(new MemoryStream(legacyBytes), stock);
         AssertTrue(merged.TryGetDisplay(previous[0].Bank, previous[0].Pointer, out var parts), "schema-68 override retains existing frame");
-        AssertEqual(-11, parts[0].X.SignedOffset, "schema-68 edit survives stock refresh");
+        AssertEqual(-11, parts[0].Offset.X, "schema-68 edit survives stock refresh");
         AssertThrows<InvalidDataException>(() => EnemySpritemapDocuments.Load(new MemoryStream(legacyBytes)), "schema-68 incomplete stock requires refresh");
         enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = merged });
         // VerifyRidleyAnimations matches each typed breakup program to its native list; this draws every pose.

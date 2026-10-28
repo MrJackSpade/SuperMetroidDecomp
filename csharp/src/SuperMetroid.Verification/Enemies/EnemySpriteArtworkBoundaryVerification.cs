@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.HardwareVerification;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
@@ -65,10 +66,10 @@ internal static class EnemySpriteArtworkBoundaryVerification
             ImportedSpritemapOracle.DrawEnemy(CartridgeImportSource.Require(source), expected, new NativeEnemySpritemapDraw
             {
                 Bank = 0x8d, Pointer = pointer, Origin = new(x, y),
-                PaletteBits = new SnesObjAttributeWord(0x0a04).PaletteBits, BaseTileIndex = 0x04, ClipVerticalWrap = false,
+                PaletteBits = NativeSpriteGraphicsWords.PaletteBits(5), BaseTileIndex = 0x04, ClipVerticalWrap = false,
             });
             actual.AddEnemySpritemap(projectileArtwork.GetProgramFrame(frame.Frame).Span, new Position16<SpritePixels>(x, y),
-                new SnesObjAttributeWord(0x0a04).PaletteBits, 0x04);
+                NativeSpriteGraphicsWords.PaletteBits(5), 0x04);
             Equal(expected, actual, $"room projectile {frame.Name} at {x},{y}");
 
             projectileCases++;
@@ -94,7 +95,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
         {
             var position = actor.Position;
             DrawImportedEnemyProjectileSpritemap(source, elevatorExpected, actor.SpritemapPointer,
-                position.ToScreen(Position16<RoomPixels>.Zero).ToSpritePosition(), checked((ushort)actor.GraphicsIndex), (SnesLittleEndian.HighByteInPlace(position.Y)) == 0);
+                position.ToScreen(Position16<RoomPixels>.Zero).ToSpritePosition(), NativeSpriteGraphicsWords.GraphicsWord(actor.Graphics), (SnesLittleEndian.HighByteInPlace(position.Y)) == 0);
         }
         Equal(elevatorExpected, elevatorActual, "Ceres elevator owner ordering and placements");
 

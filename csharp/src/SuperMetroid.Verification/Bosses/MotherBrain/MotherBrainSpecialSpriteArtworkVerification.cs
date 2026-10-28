@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -168,7 +169,8 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             AssertEqual(completed ? 0 : page + 1, state.NextLegTilePage,
                 $"Mother Brain leg-loading page {page} next page, back to the first after the last");
             int nativeTableByte = nativeDestination * 2 - ObjectCharactersByte;
-            SpriteArtworkPlacement shown = enemies.Room.Session.SpriteCharacters.LastOver(nativeTableByte, nativeSize)
+            SpriteArtworkPlacement shown = enemies.Room.Session.SpriteCharacters.LastOver(
+                nativeTableByte / SpriteArtworkPlacements.CharacterByteCount, nativeSize / SpriteArtworkPlacements.CharacterByteCount)
                 ?? throw new InvalidOperationException($"Mother Brain leg-loading page {page} shows nothing.");
             AssertEqual(nativeTableByte, shown.FirstByte,
                 $"Mother Brain leg-loading page {page} shows where the cartridge's record places it");

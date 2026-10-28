@@ -6,7 +6,6 @@ using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -176,7 +175,7 @@ internal static class EscapeTimerPresentationVerification
     internal static void DrawImportedEscapeTimer(ISnesAddressSpace bus, EscapeTimer timer,
         OamBuffer oam)
     {
-        ushort palette = EnemyPaletteBits.Palette5;
+        ushort palette = NativeSpriteGraphicsWords.PaletteBits(5);
         Draw(0, EscapeTimerPresentationDefinitions.LabelSpritemap);
         Digits(timer.Minutes.Raw, unchecked((short)0xffe4));
         Digits(timer.Seconds.Raw, unchecked((short)0xfffc));

@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -78,22 +77,22 @@ internal static class EnemyProjectileLegacyOverridesVerification
             using var json = fixture.Json(value);
             return EnemyProjectileSpritemapCatalog.Load(json, baseline);
         }
-        static void AssertParts(SpriteVisualPart[] expected, ReadOnlySpan<SpritemapPart> actual, string context)
+        static void AssertParts(SpriteVisualPart[] expected, ReadOnlySpan<SpritePart> actual, string context)
         {
-            // Check each encoded field, including signed offsets and flip bits.
+            // Check each authored field of the installed pieces, including signed offsets and mirroring.
             AssertEqual(expected.Length, actual.Length, context + " ordered part count");
             for (int index = 0; index < expected.Length; index++)
             {
                 SpriteVisualPart part = expected[index];
-                AssertEqual(part.OffsetX, actual[index].X.SignedOffset, context + " X");
-                AssertEqual(part.OffsetY, actual[index].Y.SignedOffset, context + " Y");
+                AssertEqual(part.OffsetX, actual[index].Offset.X, context + " X");
+                AssertEqual(part.OffsetY, actual[index].Offset.Y, context + " Y");
                 AssertEqual(part.TileRow * EnemyProjectileSpritemapDefinitions.TileColumns + part.TileColumn,
-                    actual[index].Attributes.TileNumber, context + " tile");
-                AssertEqual((part.Palette ?? throw new InvalidOperationException("Verification requires part.Palette.")), actual[index].Attributes.PaletteIndex, context + " palette");
-                AssertEqual(part.Priority, actual[index].Attributes.Priority, context + " priority");
-                AssertEqual(part.Size == 16, actual[index].X.IsLarge, context + " size");
-                AssertEqual(part.FlipX, actual[index].Attributes.FlipHorizontally, context + " horizontal flip");
-                AssertEqual(part.FlipY, actual[index].Attributes.FlipVertically, context + " vertical flip");
+                    actual[index].Character, context + " tile");
+                AssertEqual((part.Palette ?? throw new InvalidOperationException("Verification requires part.Palette.")), actual[index].Palette, context + " palette");
+                AssertEqual(part.Priority, actual[index].Priority, context + " priority");
+                AssertEqual(part.Size == 16, actual[index].Large, context + " size");
+                AssertEqual(part.FlipX, actual[index].FlipsHorizontally, context + " horizontal flip");
+                AssertEqual(part.FlipY, actual[index].FlipsVertically, context + " vertical flip");
             }
         }
     }

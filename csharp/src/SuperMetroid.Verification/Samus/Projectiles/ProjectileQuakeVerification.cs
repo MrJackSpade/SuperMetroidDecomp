@@ -62,8 +62,8 @@ internal static class ProjectileQuakeVerification
                 ImportedSpritemapOracle.DrawEnemy(CartridgeImportSource.Require(bus), expected, new NativeEnemySpritemapDraw
                 {
                     Bank = 0x8d, Pointer = nativeSpritemap, Origin = new(x, y),
-                    PaletteBits = new SnesObjAttributeWord(checked((ushort)actor.GraphicsIndex)).PaletteBits,
-                    BaseTileIndex = unchecked((byte)actor.GraphicsIndex), ClipVerticalWrap = false,
+                    PaletteBits = SuperMetroid.Core.Assets.NativeSpriteGraphicsWords.PaletteBits(actor.Graphics.PaletteRow),
+                    BaseTileIndex = unchecked((byte)actor.Graphics.TileBase), ClipVerticalWrap = false,
                     OriginYIsOnScreen = (SnesLittleEndian.HighByte(y)) == 0,
                 });
             expected.FinalizeFrame();

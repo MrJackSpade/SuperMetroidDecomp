@@ -4,6 +4,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Rendering.Direct3D11.Device;
@@ -31,7 +32,10 @@ internal static class EndingShootingStarsTests
             Require(definition.Delay == Word(0x8be9d5 + index * 8), "Native start delay");
         }
         for (int frame = 0; frame < EndingShootingStarDefinitions.FrameCount; frame++)
-            Require(EndingShootingStarDefinitions.Attribute(frame).Raw == Word(0x8be9a7 + frame * 2), "Native OBJ attributes");
+            // The cartridge's attribute word is decoded by the import codec; the definitions hold the piece it describes
+            // (character, palette row, priority and mirroring), which is what is compared.
+            Require(EndingShootingStarDefinitions.Appearance(frame) == new SnesObjAttributeWord(Word(0x8be9a7 + frame * 2)).ToSinglePart(),
+                "Native OBJ attributes");
         var stars = new EndingShootingStars();
         for (int frame = 1; frame <= 68; frame++)
         {

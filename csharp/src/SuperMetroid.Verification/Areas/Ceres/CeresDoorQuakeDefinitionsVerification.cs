@@ -83,7 +83,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
         enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(0);
         var nativeOverlay = new OamBuffer();
         nativeOverlay.BeginFrame();
-        DrawImportedEnemySpritemap(rom, nativeOverlay, new NativeEnemySpritemapDraw { Bank = 0xa6, Pointer = 0xa329, Origin = new(100, 80), PaletteBits = EnemyPaletteBits.Palette2, BaseTileIndex = 0 });
+        DrawImportedEnemySpritemap(rom, nativeOverlay, new NativeEnemySpritemapDraw { Bank = 0xa6, Pointer = 0xa329, Origin = new(100, 80), PaletteBits = NativeSpriteGraphicsWords.PaletteBits(2), BaseTileIndex = 0 });
         nativeOverlay.FinalizeFrame();
         var installedOverlay = new OamBuffer();
         installedOverlay.BeginFrame();

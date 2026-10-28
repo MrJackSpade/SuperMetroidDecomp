@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
-using SuperMetroid.Core.Enemies.Artwork;
-
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
@@ -11,33 +8,27 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// </summary>
 internal static class CrocomireTongueCollisionDefinitions
 {
-
-    /// <summary>Whether <paramref name="frame"/> shows one of the tongue actor's nine frames.</summary>
-    internal static bool HasFrame(EnemyFrameId? frame) =>
-        frame is { } shown && CrocomireTongueFrameDefinitions.ShownFrames.TryFind(shown, out _);
-
-    /// <summary>Fight frames share a single physical component. Melting frame
-    /// identities select their pose-specific offsets and common empty hitbox list.
-    /// OAM/artwork identity remains separate from this physical geometry.</summary>
-    internal static CrocomireTongueCollisionComponent ComponentAt(EnemyFrameId? frame) =>
-        frame is { } shown && CrocomireTongueFrameDefinitions.ShownFrames.TryFind(shown, out CrocomireTongueFrame tongue)
-            ? ComponentAt(tongue)
-            : throw new InvalidDataException($"Crocomire tongue frame {frame} has no compiled collision.");
-
-    /// <summary>Maps fight and melting frame families to their respective empty hitbox lists.</summary>
-    internal static CrocomireTongueCollisionComponent ComponentAt(CrocomireTongueFrame frame) => frame switch
+    /// <summary>
+    /// Fight frames share a single physical component; melting frame identities select their pose-specific offsets
+    /// and the common empty hitbox list. OAM/artwork identity remains separate from this physical geometry.
+    /// </summary>
+    internal static readonly Dictionary<CrocomireTongueFrame, CrocomireTongueCollisionComponent> Components = new()
     {
-        CrocomireTongueFrame.Fight0 or CrocomireTongueFrame.Fight1 or
-            CrocomireTongueFrame.Fight2 or CrocomireTongueFrame.Fight3 => new(CrocomireTongueHitboxList.Fight),
-        CrocomireTongueFrame.MeltingPose0 or CrocomireTongueFrame.MeltingPose1 or CrocomireTongueFrame.MeltingPose2 or
-            CrocomireTongueFrame.MeltingPose3 or CrocomireTongueFrame.MeltingPose4 => new(CrocomireTongueHitboxList.Melting),
-        _ => throw new InvalidOperationException($"Undefined CrocomireTongueFrame {frame}."),
+        [CrocomireTongueFrame.Fight0] = new(CrocomireTongueHitboxList.Fight),
+        [CrocomireTongueFrame.Fight1] = new(CrocomireTongueHitboxList.Fight),
+        [CrocomireTongueFrame.Fight2] = new(CrocomireTongueHitboxList.Fight),
+        [CrocomireTongueFrame.Fight3] = new(CrocomireTongueHitboxList.Fight),
+        [CrocomireTongueFrame.MeltingPose0] = new(CrocomireTongueHitboxList.Melting),
+        [CrocomireTongueFrame.MeltingPose1] = new(CrocomireTongueHitboxList.Melting),
+        [CrocomireTongueFrame.MeltingPose2] = new(CrocomireTongueHitboxList.Melting),
+        [CrocomireTongueFrame.MeltingPose3] = new(CrocomireTongueHitboxList.Melting),
+        [CrocomireTongueFrame.MeltingPose4] = new(CrocomireTongueHitboxList.Melting),
     };
 
-    /// <summary>Confirms both native tongue hitbox lists contain no collision boxes.</summary>
-    internal static int HitboxCountAt(CrocomireTongueHitboxList list) => list switch
+    /// <summary>The number of collision boxes in each native tongue hitbox list: both are empty.</summary>
+    internal static readonly Dictionary<CrocomireTongueHitboxList, int> HitboxCounts = new()
     {
-        CrocomireTongueHitboxList.Fight or CrocomireTongueHitboxList.Melting => 0,
-        _ => throw new InvalidOperationException($"Undefined CrocomireTongueHitboxList {list}."),
+        [CrocomireTongueHitboxList.Fight] = 0,
+        [CrocomireTongueHitboxList.Melting] = 0,
     };
 }

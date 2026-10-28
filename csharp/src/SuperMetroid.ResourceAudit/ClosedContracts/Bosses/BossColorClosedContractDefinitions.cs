@@ -30,6 +30,8 @@ internal static class BossColorClosedContractDefinitions
             ["ApplyInitial", "ApplyFightBody", "ApplySkeletonArm", "ApplyWallSpikes"],
             [new("csharp/src/SuperMetroid.Core/Bosses/Crocomire/Artwork/CrocomireColorCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Crocomire/Artwork/CrocomirePaintDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Bosses/Crocomire/Artwork/CrocomirePaint.cs"),
+             new("csharp/src/SuperMetroid.Core/Bosses/Crocomire/Artwork/CrocomirePalette.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireColorDefinitions.cs")]),
         new("SuperMetroid.Core.Bosses.SporeSpawn.Artwork.SporeSpawnColorCatalog", "spore-spawn-v1-complete-scene-palettes",
             ["ResolveSpore", "ResolveHealth", "ResolveDeath"],

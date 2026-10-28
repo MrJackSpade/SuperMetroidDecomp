@@ -412,7 +412,7 @@ internal sealed class CrocomireCombat
     /// </summary>
     private static CrocomireBodyProgram SelectCrocomirePowerBombProgram(CrocomireEnemyState state) =>
         state.BodyFrame is { } frame
-            ? CrocomirePowerBombReactionDefinitions.ForFrame(frame)
+            ? CrocomirePowerBombReactions.ForFrame(frame)
             : CrocomireBodyProgram.PowerBombReactionMouthNotOpen;
 
     /// <summary>Ports the one-frame vector setup at $86:906B.</summary>
@@ -466,12 +466,12 @@ internal sealed class CrocomireCombat
     internal void RunCrocomireSpikeWallPiece(RoomEnemyProjectileSlot projectile)
     {
         int slot = projectile.SlotIndex;
-        int maximumAcceleration = CrocomireSpikeMotionDefinitions.MaximumAcceleration(slot);
+        int maximumAcceleration = CrocomireSpikeMotion.MaximumAcceleration(slot);
         int acceleration = projectile.Variable0;
         if (acceleration != maximumAcceleration)
         {
             acceleration = unchecked((ushort)(
-                acceleration + CrocomireSpikeMotionDefinitions.AccelerationDelta(slot)));
+                acceleration + CrocomireSpikeMotion.AccelerationDelta(slot)));
             if (acceleration >= maximumAcceleration)
                 acceleration = maximumAcceleration;
         }
@@ -486,7 +486,7 @@ internal sealed class CrocomireCombat
         int velocityFraction = unchecked((byte)velocityFractionSum);
         int velocityWhole = unchecked((byte)(
             (EightEight.WholeOf(projectile.Velocity.X.RawValue)) + (WordCarry.OutOfByte(velocityFractionSum))));
-        int maximumVelocity = CrocomireSpikeMotionDefinitions.MaximumVelocity(slot);
+        int maximumVelocity = CrocomireSpikeMotion.MaximumVelocity(slot);
         if (unchecked((sbyte)(velocityWhole - maximumVelocity)) >= 0)
             velocityWhole = maximumVelocity;
         var xVelocity = new SignedEightEight(UnsignedEightEight.FromParts(whole: (byte)velocityWhole, fraction: (byte)velocityFraction));
@@ -564,14 +564,14 @@ internal sealed class CrocomireCombat
     {
         callback = null;
         if (!(enemy.DefinitionId == EnemyDefinitionId.Crocomire &&
-            CrocomireBodyCollisionDefinitions.HasFrame(enemy.Frame)))
+            CrocomireBodyCollision.HasFrame(enemy.Frame)))
             return null;
 
         // Physical body components and their callback lists are compiled
         // independently of Crocomire's replaceable OAM/BG2 presentation.
         // Preserve native component/hitbox order: the first overlap wins.
         foreach (CrocomireBodyCollisionComponent component in
-                 CrocomireBodyCollisionDefinitions.ComponentsAt(enemy.Frame))
+                 CrocomireBodyCollision.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (CrocomireBodyCollisionHitbox hitbox in component.Hitboxes)
@@ -595,7 +595,7 @@ internal sealed class CrocomireCombat
     {
         callback = null;
         if (!(enemy.DefinitionId == EnemyDefinitionId.CrocomireTongue &&
-            (CrocomireTongueCollisionDefinitions.HasFrame(enemy.Frame) ||
+            (CrocomireTongueCollision.HasFrame(enemy.Frame) ||
             probe.ArtworkInstalled)))
             return null;
 
@@ -603,8 +603,8 @@ internal sealed class CrocomireCombat
         // referenced native hitbox lists are empty. Validate the exact
         // engine-owned frame identity and return no touch/shot callback.
         CrocomireTongueCollisionComponent component =
-            CrocomireTongueCollisionDefinitions.ComponentAt(enemy.Frame);
-        _ = CrocomireTongueCollisionDefinitions.HitboxCountAt(
+            CrocomireTongueCollision.ComponentAt(enemy.Frame);
+        _ = CrocomireTongueCollision.HitboxCountAt(
             component.HitboxList);
         return false;
     

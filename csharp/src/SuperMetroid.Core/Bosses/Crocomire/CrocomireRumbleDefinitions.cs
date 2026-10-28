@@ -13,7 +13,13 @@ internal static class CrocomireRumbleDefinitions
     private const ushort CompletedCursor = 0x0080;
 
     /// <summary>$A4:98D0-9900: seven negative targets in the native waveform.</summary>
-    private const int PhaseCount = 7;
+    internal const int PhaseCount = 7;
+
+    /// <summary>The table offset of the first oscillation, after the two copied prefix targets.</summary>
+    internal const int FirstPhaseOffset = 4;
+
+    /// <summary>The bytes each oscillation occupies: a positive return target, then a negative target and its timing.</summary>
+    internal const int PhaseBytes = 8;
 
     /// <summary>
     /// $A4:98FA: selected final repeat counter3 in the shake/sound performance.
@@ -21,31 +27,6 @@ internal static class CrocomireRumbleDefinitions
     /// one final traversal before loading the next phase.
     /// </summary>
     private const ushort FinalDecayHold = 3;
-
-    /// <summary>
-    /// $A4:98D4-98FC: six live approach deltas rise from one to two for the middle
-    /// pair, then return to one; the seventh phase carries the terminal marker.
-    /// </summary>
-    private static ushort ApproachDelta(int phase) => phase == PhaseCount - 1
-        ? EndMarker : (ushort)(1 + Math.Min(phase, 5 - phase) / 2);
-
-    /// <summary>
-    /// $A4:98D2-98FA: cooldown rises by four from eight, saturates at sixteen for
-    /// two cycles, then halves. The final selected repeat count belongs to the authored shake cadence.
-    /// </summary>
-    private static ushort Cooldown(int phase) => phase switch
-    {
-        PhaseCount - 1 => EndMarker,
-        PhaseCount - 2 => FinalDecayHold,
-        _ => (ushort)(phase <= 3 ? Math.Min(8 + 4 * phase, 16) : 16 >> (phase - 3)),
-    };
-
-    /// <summary>
-    /// Negative extrema in $A4:98D0-9900 double after each two-cycle buildup,
-    /// reaching amplitude4 at phase4, then halve each phase through phase6.
-    /// </summary>
-    private static short NegativeTarget(int phase) =>
-        (short)-(1 << (phase <= 4 ? phase / 2 : 6 - phase));
 
     /// <summary>$A4:98CA: exact copied prefix word4, accepted as a target by the
     /// preserved restored-cursor domain. Native entry starts at byte offset4;
@@ -60,35 +41,31 @@ internal static class CrocomireRumbleDefinitions
     /// targets. After the initial zero, seven oscillations each occupy eight bytes:
     /// one positive return target followed by the negative target and next timing.
     /// </summary>
-    internal static ImmutableArray<CrocomireRumbleDefinition> All { get; } = Targets();
-
-    /// <summary>Calculates the prefix, oscillation and terminator targets in native table order.</summary>
-    private static ImmutableArray<CrocomireRumbleDefinition> Targets()
-    {
-        var targets = ImmutableArray.CreateBuilder<CrocomireRumbleDefinition>(4 + PhaseCount * 2);
-        targets.Add(new(CopiedPrefixTarget0, 2, 0, 0, false));
-        targets.Add(new(CopiedPrefixTarget1, 4, 0, 0, false));
-        for (int phase = 0; phase < PhaseCount; phase++)
-        {
-            int offset = 4 + phase * 8;
-            targets.Add(new(phase == 0 ? (short)0 : (short)ApproachDelta(phase - 1), (ushort)(offset + 2), 0, 0, false));
-            targets.Add(new(NegativeTarget(phase), (ushort)(offset + 8), Cooldown(phase), ApproachDelta(phase), false));
-        }
-        targets.Add(new(unchecked((short)EndMarker), CompletedCursor, 0, 0, true));
-        targets.Add(new(unchecked((short)EndMarker), CompletedCursor, 0, 0, true));
-        return targets.MoveToImmutable();
-    }
-
-    /// <summary>Rejects the timing operands while resolving every native target cursor.</summary>
-    internal static CrocomireRumbleDefinition AtOffset(int tableOffset)
-    {
-        if (tableOffset is 0 or 2) return All[tableOffset / 2];
-        int terminatorOffset = 4 + PhaseCount * 8;
-        if (tableOffset == terminatorOffset || tableOffset == terminatorOffset + 2)
-            return All[All.Length - 2 + (tableOffset - terminatorOffset) / 2];
-        int offset = tableOffset - 4;
-        if (offset >= 0 && offset < PhaseCount * 8 && offset % 8 is 0 or 2)
-            return All[2 + offset / 8 * 2 + offset % 8 / 2];
-        throw new InvalidDataException("Crocomire rumble offset $" + tableOffset.ToString("X4") + " is not an authored target word.");
-    }
+    /// <remarks>
+    /// Negative extrema double after each two-cycle buildup, reaching amplitude 4 at phase 4, then halve each phase
+    /// through phase 6. Cooldown rises by four from eight, saturates at sixteen for two cycles, then halves; the final
+    /// selected repeat count belongs to the authored shake cadence. The six live approach deltas rise from one to two
+    /// for the middle pair, then return to one; the seventh phase carries the terminal marker.
+    /// </remarks>
+    internal static ImmutableArray<CrocomireRumbleDefinition> All { get; } =
+    [
+        new(CopiedPrefixTarget0, 2, 0, 0, false),
+        new(CopiedPrefixTarget1, 4, 0, 0, false),
+        new(0, 6, 0, 0, false),
+        new(-1, 12, 8, 1, false),
+        new(1, 14, 0, 0, false),
+        new(-1, 20, 12, 1, false),
+        new(1, 22, 0, 0, false),
+        new(-2, 28, 16, 2, false),
+        new(2, 30, 0, 0, false),
+        new(-2, 36, 16, 2, false),
+        new(2, 38, 0, 0, false),
+        new(-4, 44, 8, 1, false),
+        new(1, 46, 0, 0, false),
+        new(-2, 52, FinalDecayHold, 1, false),
+        new(1, 54, 0, 0, false),
+        new(-1, 60, EndMarker, EndMarker, false),
+        new(unchecked((short)EndMarker), CompletedCursor, 0, 0, true),
+        new(unchecked((short)EndMarker), CompletedCursor, 0, 0, true),
+    ];
 }

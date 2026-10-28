@@ -39,7 +39,7 @@ internal static class LookupCrocomireStockVerification
         var stock = RoomPlmCrocomireVisualCatalog.Stock();
         var imported = new RoomPlmCrocomireVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
-            nameof(RoomPlmCrocomireVisualCatalog), words.ToDictionary(pair => CrocomireArenaPlmDrawDefinitions.VisualId(NativePlmDraws.At<CrocomireArenaDraw>(pair.Key)), pair => pair.Value));
+            nameof(RoomPlmCrocomireVisualCatalog), words.ToDictionary(pair => CrocomireArenaDraws.VisualId(NativePlmDraws.At<CrocomireArenaDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock, imported, installed})
         {
             AssertEqual(Hash(native), catalog.ContentIdentity, "Crocomire original flattened hash");

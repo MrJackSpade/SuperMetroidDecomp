@@ -215,11 +215,11 @@ internal static class EnemyDefinitionBoundaryVerification
                 if (sprite == 0xd600) { expected = CrocomireBodyProgram.PowerBombReactionMouthFullyOpen; break; }
                 if (sprite == 0xd51c) { expected = CrocomireBodyProgram.PowerBombReactionMouthPartiallyOpen; break; }
             }
-            AssertEqual(expected, CrocomirePowerBombReactionDefinitions.ForFrame(frame), "Crocomire mechanical mouth admission");
+            AssertEqual(expected, CrocomirePowerBombReactions.ForFrame(frame), "Crocomire mechanical mouth admission");
             tested++;
         }
         AssertEqual(50, tested, "all Crocomire reaction frames");
-        AssertThrows<InvalidDataException>(() => CrocomirePowerBombReactionDefinitions.ForFrame(
+        AssertThrows<InvalidDataException>(() => CrocomirePowerBombReactions.ForFrame(
             new CrocomireBodyFrame(CrocomireBodyFrameSet.Skeleton, 0)), "a skeleton frame takes no power-bomb reaction");
     }
 

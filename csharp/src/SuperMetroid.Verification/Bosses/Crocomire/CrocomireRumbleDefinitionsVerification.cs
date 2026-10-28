@@ -29,7 +29,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         ushort tableOffset = 0;
         foreach (CrocomireRumbleDefinition definition in CrocomireRumbleDefinitions.All)
         {
-            AssertEqual(definition, CrocomireRumbleDefinitions.AtOffset(tableOffset),
+            AssertEqual(definition, CrocomireRumble.AtOffset(tableOffset),
                 $"Crocomire rumble cursor ${tableOffset:X4} resolves its enumerated target");
             int targetIndex = tableOffset >> 1;
             expectedWords[targetIndex] = unchecked((ushort)definition.TargetYOffset);
@@ -55,13 +55,13 @@ internal static class CrocomireRumbleDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => CrocomireRumbleDefinitions.AtOffset(1),
+            () => CrocomireRumble.AtOffset(1),
             "Crocomire odd rumble offset");
         AssertThrows<InvalidDataException>(
-            () => CrocomireRumbleDefinitions.AtOffset(8),
+            () => CrocomireRumble.AtOffset(8),
             "Crocomire timing word cannot become a target");
         AssertThrows<InvalidDataException>(
-            () => CrocomireRumbleDefinitions.AtOffset(0x40),
+            () => CrocomireRumble.AtOffset(0x40),
             "Crocomire rumble offset outside table");
 
         var guarded = NewCrocomireRumbleReadGuard(rom);

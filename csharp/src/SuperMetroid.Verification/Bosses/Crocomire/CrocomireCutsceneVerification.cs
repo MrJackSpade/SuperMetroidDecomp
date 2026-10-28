@@ -31,7 +31,7 @@ internal static class CrocomireCutsceneVerification
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (var frame in CrocomireSkeletonVisualDefinitions.Frames)
         {
-            var components = CrocomireBodyCollisionDefinitions.ComponentsAt(frame.Pointer);
+            var components = CrocomireBodyCollision.ComponentsAt(frame.Pointer);
             AssertEqual(rom.ReadCartridgeWordFixedBank(0xa40000 | frame.Pointer), components.Length, "corpse native component count");
             slot.SpritemapPointer = frame.Pointer;
             slot.Position = slot.Position.WithWhole(new(4096, 4096));

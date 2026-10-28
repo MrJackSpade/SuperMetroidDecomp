@@ -48,10 +48,10 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
         int probes = 0;
         foreach (ushort frame in frames)
         {
-            AssertTrue(CrocomireBodyCollisionDefinitions.HasFrame(frame),
+            AssertTrue(CrocomireBodyCollision.HasFrame(frame),
                 $"Crocomire body $A4:{frame:X4} has compiled collision");
             ReadOnlySpan<CrocomireBodyCollisionComponent> components =
-                CrocomireBodyCollisionDefinitions.ComponentsAt(frame);
+                CrocomireBodyCollision.ComponentsAt(frame);
             AssertEqual((byte)rom.ReadCartridgeWord((0xa40000 | frame)), (byte)components.Length,
                 $"Crocomire body $A4:{frame:X4} component count");
             for (int index = 0; index < components.Length; index++)
@@ -71,7 +71,7 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
                     seenLists.Add(list, component.Hitboxes);
             }
 
-            nativeSlot.Frame = compiledSlot.Frame = RoomEnemySlotFrameAccess.FrameAt(CrocomireBodyCollisionDefinitions.Bank, frame);
+            nativeSlot.Frame = compiledSlot.Frame = RoomEnemySlotFrameAccess.FrameAt(CrocomireBodyCollision.Bank, frame);
             foreach (short dx in new short[] { -112, -96, -64, -40, -16, 0, 16, 40, 64 })
             foreach (short dy in new short[] { -96, -64, -40, -16, 0, 16, 40, 64 })
             foreach (bool shot in new[] { false, true })
@@ -82,7 +82,7 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
                     [nativeSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(8, 8), shot, (ushort)0];
                 object?[] compiledArguments =
                     [compiledSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(8, 8), shot, (ushort)0];
-                bool nativeHit = ReferenceExtendedCollision(rom, CrocomireBodyCollisionDefinitions.Bank, nativeArguments);
+                bool nativeHit = ReferenceExtendedCollision(rom, CrocomireBodyCollision.Bank, nativeArguments);
                 bool compiledHit = ExtendedHitboxWalker.Find(compiled, compiledArguments);
                 AssertEqual(nativeHit, compiledHit,
                     $"Crocomire $A4:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");
@@ -96,7 +96,7 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
         AssertEqual(15, seenLists.Count,
             "fifty Crocomire body frames refer to fifteen hitbox lists");
         AssertThrows<InvalidDataException>(
-            () => CrocomireBodyCollisionDefinitions.ComponentsAt(0x8000),
+            () => CrocomireBodyCollision.ComponentsAt(0x8000),
             "unknown Crocomire body frame fails loudly");
         AssertEqual(0, denied.ForbiddenReadAttempts,
             "installed Crocomire body collision never reads ROM bytes");

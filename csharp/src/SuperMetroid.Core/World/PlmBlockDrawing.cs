@@ -167,7 +167,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             DrawPlmWordAt(level, draw, origin, MaridiaElevatubePlmDefinitions.PhysicalWord.Raw, MaridiaElevatubeVisuals?.GetWord(draw, 0, 0));
             return;
         }
-        if (CrocomireArenaPlmDrawDefinitions.TryDescribe(draw,
+        if (CrocomireArenaDraws.TryDescribe(draw,
                 out var crocomireDraw))
         {
             for (int run = 0; run < crocomireDraw.RunCount; run++)

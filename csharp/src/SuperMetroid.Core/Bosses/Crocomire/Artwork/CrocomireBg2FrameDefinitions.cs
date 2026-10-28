@@ -62,6 +62,6 @@ internal static class CrocomireBg2FrameDefinitions
         new(EnemyFrameId.CrocomireBody41, "crocomire_body_bg2_CA44"),
     ];
 
-    /// <summary>Whether <paramref name="frame"/> is one of Crocomire's BG2 body frames.</summary>
-    internal static bool IsFrame(EnemyFrameId frame) => Frames.Any(definition => definition.Frame == frame);
+    /// <summary>The body frames Crocomire draws partly on BG2.</summary>
+    internal static IReadOnlySet<EnemyFrameId> FrameIds { get; } = Frames.Select(definition => definition.Frame).ToHashSet();
 }

@@ -11,7 +11,7 @@ public static class WreckedShipGhostAppearanceDefinitions
     /// blue, and two brown bug shades whose green is three below their red. These are chosen artwork content, retained
     /// as authored; unused sprite slots are still copied and faded as native target data.
     /// </summary>
-    internal static readonly RgbColor[] PaletteColors =
+    internal static readonly RgbColor[] CovenColors =
     [
         new(0, 0, 14),
         new(31, 31, 21), new(23, 23, 16), new(9, 9, 2), new(5, 5, 0),

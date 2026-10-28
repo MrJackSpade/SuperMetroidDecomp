@@ -24,10 +24,11 @@ internal static class ChozoStatuePaint
     /// <summary>Calculates skin and gold colors common to all four statue halves.</summary>
     private static RgbColor? Shared(int local)
     {
-        if (SharedColors.TryGetValue(local, out RgbColor shared)) return shared;
+        if ((uint)local < (uint)SharedLeadingInks.Length) return SharedLeadingInks[local];
         if (local >= GoldRampFirst && local <= GoldRampFirst + RampSteps)
             return Ramp(GoldRampStart, GoldRampEnd, local - GoldRampFirst);
-        return null;
+        int highlight = local - SharedGoldHighlightFirst;
+        return (uint)highlight < (uint)SharedGoldHighlights.Length ? SharedGoldHighlights[highlight] : null;
     }
 
     /// <summary>Calculates first- and second-half grey ramps and their distinct highlight.</summary>

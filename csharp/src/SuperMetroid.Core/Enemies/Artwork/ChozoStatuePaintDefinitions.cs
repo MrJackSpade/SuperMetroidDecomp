@@ -17,16 +17,13 @@ internal static class ChozoStatuePaintDefinitions
     /// <summary>The shades between each ramp's two endpoints.</summary>
     internal const int RampSteps = 3;
 
-    /// <summary>The skin and gold colors every statue half shares outside the gold ramp.</summary>
-    internal static readonly Dictionary<int, RgbColor> SharedColors = new()
-    {
-        [0] = new(0, 0, 14),
-        [1] = new(31, 25, 24),
-        [2] = new(31, 20, 18),
-        [3] = new(31, 14, 11),
-        [12] = new(31, 31, 15),
-        [13] = new(25, 25, 10),
-    };
+    /// <summary>The leading colors every statue half shares, by color: the transparent backdrop blue and the three skin colors.</summary>
+    internal static readonly RgbColor[] SharedLeadingInks = [new(0, 0, 14), new(31, 25, 24), new(31, 20, 18), new(31, 14, 11)];
+
+    /// <summary>The gold highlights every statue half shares after its gold ramp, from the color at <see cref="SharedGoldHighlightFirst"/>.</summary>
+    internal static readonly RgbColor[] SharedGoldHighlights = [new(31, 31, 15), new(25, 25, 10)];
+    /// <summary>The first shared gold highlight's color.</summary>
+    internal const int SharedGoldHighlightFirst = 12;
 
     /// <summary>The gold ramp every statue half shares, from its brightest color at <see cref="GoldRampFirst"/>.</summary>
     internal const int GoldRampFirst = 8;

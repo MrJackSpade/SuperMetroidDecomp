@@ -131,9 +131,9 @@ internal static class RoomFxRecordCatalogSource
             : string.Join(" | ", set);
     }
 
-    /// <summary>Renders a surface height as the generated catalog spells it: its pixel row, or null where the record names none.</summary>
+    /// <summary>Renders a surface height as the generated catalog spells it: its pixel row as the record's word, or null where the record names none.</summary>
     private static string SurfaceY(int? y) =>
-        y is int named ? named.ToString(System.Globalization.CultureInfo.InvariantCulture) : "null";
+        y is int named ? $"0x{named:X4}" : "null";
 
     /// <summary>Renders the named headers for the generated Core catalog.</summary>
     internal static string RenderRoomFxDefinitions(RetailRoomFxCapture capture)

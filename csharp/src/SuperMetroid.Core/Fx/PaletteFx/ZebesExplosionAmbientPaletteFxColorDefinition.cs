@@ -1,33 +1,31 @@
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>One complete persistent Zebes-explosion ambient palette loop.</summary>
-public sealed class ZebesExplosionAmbientPaletteFxColorDefinition(
-        ZebesExplosionAmbientPaletteFxProgramOwner owner,
-        PaletteFxObject paletteFxObject,
-        PaletteFxProgram program,
-        int colorByteIndex,
-        int colorsPerFrame,
-        int cycleFrames)
+public sealed class ZebesExplosionAmbientPaletteFxColorDefinition
 {
+    /// <summary>Builds the definition from its owner's program values.</summary>
+    internal ZebesExplosionAmbientPaletteFxColorDefinition(ZebesExplosionAmbientPaletteFxProgramOwner owner, PaletteFxObject paletteFxObject, PaletteFxProgram program, int colorByteIndex, int colorsPerFrame, int cycleFrames) =>
+        (Owner, Object, ColorByteIndex, ColorsPerFrame, CycleFrames, Rows) = (owner, paletteFxObject, colorByteIndex, colorsPerFrame, cycleFrames, PaletteFxColorRows.Of(program, colorsPerFrame));
+
     /// <summary>The mutually exclusive ambient owner.</summary>
-    public ZebesExplosionAmbientPaletteFxProgramOwner Owner { get; } = owner;
+    public ZebesExplosionAmbientPaletteFxProgramOwner Owner { get; }
 
     /// <summary>The palette-FX object that installs this program.</summary>
     /// <remarks><c>$8D:E1D4</c> is afterglow and <c>$8D:E1D8</c> is lava.</remarks>
-    public PaletteFxObject Object { get; } = paletteFxObject;
+    public PaletteFxObject Object { get; }
 
     /// <summary>The first destination byte in CGRAM.</summary>
-    public int ColorByteIndex { get; } = colorByteIndex;
+    public int ColorByteIndex { get; }
 
     /// <summary>The number of timed records in the loop.</summary>
     public int FrameCount => Rows.FrameCount;
 
     /// <summary>The number of live BGR555 colors written by each timed record.</summary>
-    public int ColorsPerFrame { get; } = colorsPerFrame;
+    public int ColorsPerFrame { get; }
 
     /// <summary>The complete loop duration in frames.</summary>
-    public int CycleFrames { get; } = cycleFrames;
+    public int CycleFrames { get; }
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public PaletteFxColorRows Rows { get; } = PaletteFxColorRows.Of(program, colorsPerFrame);
+    public PaletteFxColorRows Rows { get; }
 }

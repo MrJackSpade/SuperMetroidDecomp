@@ -13,6 +13,10 @@ internal static class NativeSpriteGraphicsWords
     /// <exception cref="ArgumentOutOfRangeException">The row is outside the eight sprite palette rows.</exception>
     public static ushort PaletteBits(int row) => SnesObjAttributeWord.Create(tileNumber: 0, paletteIndex: row, priority: 0).PaletteBits;
 
+    /// <summary>The palette row an enemy's native palette word selects: its palette field (#1435).</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The word holds bits outside the palette field.</exception>
+    public static int PaletteRow(ushort paletteBits) => SnesObjAttributeWord.FromPaletteBits(paletteBits).PaletteIndex;
+
     /// <summary>
     /// <paramref name="graphics"/> as the cartridge's graphics word holds it: the tile base in the character field and
     /// the palette row in the palette field, the word the native writers add to and OR into each part's attributes.

@@ -134,7 +134,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         if (state.BurrowTimer.RawValue == 8)
-            _projectiles.SpawnSkreeParticleBurst(slot);
+            _projectiles.SpawnMetalParticleBurst(slot, SkreeParticleDefinitions.Burst);
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 1)));
     }
 
@@ -174,7 +174,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Skree &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.SkreeShot)
         {
-            BeforeGenericDeath = c => _projectiles.SpawnSkreeParticleBurst(c.Enemy),
+            BeforeGenericDeath = c => _projectiles.SpawnMetalParticleBurst(c.Enemy, SkreeParticleDefinitions.Burst),
         });
     }
 
@@ -191,7 +191,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 if (c.Enemy.Health != 0)
                     return;
-                _projectiles.SpawnSkreeParticleBurst(c.Enemy);
+                _projectiles.SpawnMetalParticleBurst(c.Enemy, SkreeParticleDefinitions.Burst);
                 _deathsAndDrops.StartGenericEnemyDeath(c.Enemy, deathAnimation: 0);
             },
         });

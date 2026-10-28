@@ -113,7 +113,30 @@ internal sealed class SetRegions
         foreach (IGrouping<CorpseRotSimulation, CharacterRange> corpse in regions.Where(corpseRows.ContainsKey)
                      .GroupBy(region => corpseRows[region].Corpse))
             combinations = Combine(combinations, Corpse(corpse.Key, [.. corpse], showsRot));
-        return combinations.Select(combination => (IReadOnlyList<CharacterRegionContent>)[.. regions.Select(region => combination[region])]);
+        // A finished corpse's region replaced by an upload shows what an unrotted region with that upload shows, so each
+        // combination is kept once.
+        return combinations.Select(combination => (IReadOnlyList<CharacterRegionContent>)[.. regions.Select(region => combination[region])])
+            .Distinct(SameContents.Instance);
+    }
+
+    /// <summary>Compares two combinations region by region.</summary>
+    private sealed class SameContents : IEqualityComparer<IReadOnlyList<CharacterRegionContent>>
+    {
+        /// <summary>The one comparer.</summary>
+        internal static SameContents Instance { get; } = new();
+
+        /// <inheritdoc/>
+        public bool Equals(IReadOnlyList<CharacterRegionContent>? x, IReadOnlyList<CharacterRegionContent>? y) =>
+            ReferenceEquals(x, y) || x is not null && y is not null && x.SequenceEqual(y);
+
+        /// <inheritdoc/>
+        public int GetHashCode(IReadOnlyList<CharacterRegionContent> obj)
+        {
+            var hash = new HashCode();
+            foreach (CharacterRegionContent content in Ensure.NotNull(obj))
+                hash.Add(content);
+            return hash.ToHashCode();
+        }
     }
 
     /// <summary>
@@ -152,14 +175,22 @@ internal sealed class SetRegions
 
     /// <summary>
     /// What a corpse's <paramref name="regions"/> can show together: for each state its rows can show together, a rot
-    /// step in each region of a row it uploaded, and what the encounters left in each of a row it has not.
+    /// step in each region of a row it uploaded, and what the encounters left in each of a row it has not. Once the corpse
+    /// has finished rotting no rot step uploads again, so an encounter's later upload may replace any rotted region (#1435).
     /// </summary>
     private IEnumerable<IReadOnlyList<CharacterRegionContent>> Corpse(CorpseRotSimulation corpse, CharacterRange[] regions, bool showsRot)
     {
         CorpseRotRow[] rows = [.. regions.Select(region => corpseRows[region].Row).Distinct()];
         IEnumerable<int?[]> states = showsRot ? corpse.Shown(rows) : [new int?[rows.Length]];
+        int?[] finished = corpse.Finished(rows);
         foreach (int?[] state in states)
         {
+            if (state.Any(step => step is not null) && state.SequenceEqual(finished))
+            {
+                foreach (IReadOnlyList<CharacterRegionContent> shown in AfterRot(regions, region => state[Array.IndexOf(rows, corpseRows[region].Row)]))
+                    yield return shown;
+                continue;
+            }
             CharacterRange[] unrotted = [.. regions.Where(region => state[Array.IndexOf(rows, corpseRows[region].Row)] is null)];
             foreach (IReadOnlyList<CharacterRegionContent> encountered in Encountered(unrotted))
             {
@@ -168,6 +199,25 @@ internal sealed class SetRegions
                     : encountered.Single(content => content.Region == RegionOf(region)))];
             }
         }
+    }
+
+    /// <summary>
+    /// What a finished corpse's <paramref name="regions"/> can show: each rotted region its final step or any upload made
+    /// over it since, each region it never rotted what the encounters left there.
+    /// </summary>
+    private IEnumerable<IReadOnlyList<CharacterRegionContent>> AfterRot(CharacterRange[] regions, Func<CharacterRange, int?> finalStep)
+    {
+        IEnumerable<IReadOnlyList<CharacterRegionContent>> combinations = [[]];
+        foreach (CharacterRange range in regions)
+        {
+            CharacterRegion region = RegionOf(range);
+            IEnumerable<CharacterRegionContent> uploaded = CharacterRange.Over(Uploads, range).Select(upload => new CharacterRegionContent(region, upload));
+            CharacterRegionContent[] contents = finalStep(range) is int step
+                ? [new(region, null, step), .. uploaded]
+                : [new(region, null), .. uploaded];
+            combinations = [.. combinations.SelectMany(earlier => contents.Select(content => (IReadOnlyList<CharacterRegionContent>)[.. earlier, content]))];
+        }
+        return combinations;
     }
 
     /// <summary>Every combination of an earlier one and one of <paramref name="contents"/>.</summary>

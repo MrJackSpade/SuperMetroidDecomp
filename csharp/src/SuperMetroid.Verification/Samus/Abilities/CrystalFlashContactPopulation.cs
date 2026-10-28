@@ -25,15 +25,15 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Pos
         ], 0);
     }
 
-    /// <summary>Associates the constructed population with its retail Ripper graphics header.</summary>
+    /// <summary>
+    /// Draws the constructed Ripper under a retail set that loads a Ripper first, as this fixture's did, so it draws from
+    /// sheets the installation composes (#1435).
+    /// </summary>
     public static RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer)
     {
         if (pointer != CrystalFlashContactDefinitions.Pointer)
             throw new ArgumentOutOfRangeException(nameof(pointer));
-        return new RoomEnemyGraphicsSetDefinition("Crystal Flash contact Ripper",
-        [
-            new RoomEnemyGraphicsSetHeader(CrystalFlashContactDefinitions.RipperHeader, 0),
-        ]);
+        return RoomEnemyGraphicsSetDefinitions.RedTower;
     }
 
     /// <summary>Uses the compiled falling-tube placement; this fixture constructs none.</summary>

@@ -283,7 +283,7 @@ internal static class NativeSnapshotImportVerification
             slot.Timer = WrappingCountdown.FromRaw(W(address + 24));
             slot.CurrentInstruction = W(address + 26);
             slot.InstructionTimer = WrappingCountdown.FromRaw(W(address + 28));
-            slot.PaletteRow = W(address + 30);
+            slot.PaletteRow = NativeSpriteGraphicsWords.PaletteRow(W(address + 30));
             slot.TileIndexBase = W(address + 32);
             slot.Layer = W(address + 34);
             slot.FlashTimer = WrappingCountdown.FromRaw(W(address + 36));
@@ -293,7 +293,9 @@ internal static class NativeSnapshotImportVerification
             slot.FrameCounter = W(address + 44);
             var words = new NativeEnemyRecordWords(
                 W(address + 48), W(address + 50), W(address + 52), W(address + 54), W(address + 56), W(address + 58));
-            NativeEnemyFamilyStateImport.Import(runtime.Enemies, slot, words);
+            // A free native slot's family words are its last occupant's, which no family state of this slot holds (#1435).
+            if (W(address) != 0)
+                NativeEnemyFamilyStateImport.Import(runtime.Enemies, slot, words);
             // Kraid's head program is typed and kept in the encounter state; the recorded body word is its native cursor,
             // which only this import translates. Before the first attack the word names no head record and the head stays unstarted.
             if (slot.DefinitionId == EnemyDefinitionId.Kraid && runtime.Enemies.KraidBehavior.Access.Kraid is { } kraid)

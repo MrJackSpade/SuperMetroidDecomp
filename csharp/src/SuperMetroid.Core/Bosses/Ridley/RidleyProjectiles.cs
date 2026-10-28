@@ -124,10 +124,7 @@ internal sealed class RidleyProjectiles
         RoomEnemyProjectileSlot? center = _projectiles.AllocateEnemyProjectile();
         if (center is null)
             return;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(center, kind, FireballGraphicsIndex);
-        center.StartAnimation(new RidleyFireballAnimation(kind == RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter
-            ? RidleyFireballProgram.VerticalCenter
-            : RidleyFireballProgram.HorizontalCenter));
+        RidleyProjectileStarts.Initialize(center, kind, FireballGraphicsIndex);
         center.Position = center.Position.WithWhole(position);
         // $86:9499/$949C explicitly stop the center; allocation retains prior velocities.
         center.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));

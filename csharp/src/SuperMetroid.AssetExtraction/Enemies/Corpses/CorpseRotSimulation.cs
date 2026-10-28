@@ -81,6 +81,12 @@ internal sealed class CorpseRotSimulation
         }
     }
 
+    /// <summary>
+    /// The step each of <paramref name="rows"/> shows once the corpse has finished rotting, when no further rot step uploads
+    /// over them, so an encounter's later upload can replace any of them (#1435).
+    /// </summary>
+    internal int?[] Finished(IReadOnlyList<CorpseRotRow> rows) => [.. Ensure.NotNull(rows).Select(row => reachable[^1][row])];
+
     /// <summary>Whether <paramref name="enemy"/>'s frames show a corpse whose characters rot: a corpse's, or Mother Brain's.</summary>
     internal static bool Rots(EnemyDefinitionId enemy) => ShowsSelectedRot(enemy) || ShowsUploadedRot(enemy);
 

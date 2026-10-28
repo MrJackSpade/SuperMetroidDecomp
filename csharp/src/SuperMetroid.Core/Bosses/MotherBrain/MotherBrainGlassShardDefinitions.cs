@@ -1,12 +1,13 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The graphics and physical origins of Mother Brain's glass shards.</summary>
 internal static class MotherBrainGlassShardDefinitions
 {
-    /// <summary>Graphics installed by the shard and sparkle initializers: from character $40, in palette row three.</summary>
-    internal static SpriteGraphics Graphics { get; } = SpriteGraphics.Of(0x40, 3);
+    /// <summary>Graphics installed by the shard and sparkle initializers: from Mother Brain's object characters, in palette row three.</summary>
+    internal static SpriteGraphics Graphics { get; } = SpriteGraphics.Of(EnemyTileBaseDefinitions.MotherBrainObjectCharacters, 3);
 
     /// <summary>
     /// One of three horizontal emitter positions on the glass: right (+8), left (-40), or centre (-16), all two blocks

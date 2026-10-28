@@ -48,8 +48,10 @@ internal static class SpawnedObjectSheetComposer
                 plans[0].Spawners.Add(enemy);
             SpriteGraphics indexes = graphics.DrawIndexes(enemy);
             int palette = indexes.PaletteRow;
-            // A projectile draws at its tile base's place in its page, a sprite object at the tile base itself.
-            foreach (int tileBase in new[] { EnemyProjectileEngine.ProjectileTileBase(indexes), indexes.TileBase }.Distinct())
+            // A projectile draws at its tile base's place in its page, a sprite object at the tile base itself, and some
+            // spawners' objects also at characters of their own choosing.
+            int[] alsoAt = EnemyTileBaseDefinitions.SpawnsAlsoAt.GetValueOrDefault(enemy, []);
+            foreach (int tileBase in new[] { EnemyProjectileEngine.ProjectileTileBase(indexes), indexes.TileBase }.Concat(alsoAt).Distinct())
             {
                 if (!plans.TryGetValue(tileBase, out SpawnedObjectSheetPlan? plan))
                     plans.Add(tileBase, plan = new SpawnedObjectSheetPlan(tileBase, palette, [], Anywhere: false));

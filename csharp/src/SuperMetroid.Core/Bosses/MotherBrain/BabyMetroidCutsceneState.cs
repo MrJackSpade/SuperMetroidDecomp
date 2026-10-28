@@ -61,7 +61,7 @@ public sealed class BabyMetroidCutsceneState
     public int TileBase { get; private set; }
 
     /// <summary>The sheet character the Baby's four transferred tile rows start at.</summary>
-    private const int BabyTileBase = 160;
+    private static int BabyTileBase => EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.BabyMetroidCutscene];
 
     /// <summary>The Baby's current program.</summary>
     public MotherBrainBabyProgram Program { get; private set; }

@@ -15,7 +15,6 @@ import sys
 CORE = os.path.join('csharp', 'src', 'SuperMetroid.Core')
 OUTPUT = os.path.join(CORE, 'Enemies', 'Artwork', 'SpawnedObjectFrameDefinitions.cs')
 FRAME_ENUM = os.path.join(CORE, 'Enemies', 'Projectiles', 'EnemyProjectileFrameId.cs')
-TYPED_STARTS = os.path.join(CORE, 'Enemies', 'Projectiles', 'EnemyProjectileTypedStarts.cs')
 # Tables that name every kind or frame, this generator's own output among them; reading them would make every kind
 # every spawner's.
 TABLES = {os.path.join(CORE, 'Enemies', 'Projectiles', name) for name in
@@ -49,7 +48,19 @@ def main():
     order = {name: index for index, name in enumerate(re.findall(r'^\s+(\w+)(?: = \w+)?,\s*$', read(FRAME_ENUM), re.M))}
     family_pattern = re.compile(r'class (\w+Animation)\b[^{;]*?:\s*EnemyProjectileProgramAnimation<', re.S)
     families = {match.group(1): path for path, text in texts.items() for match in family_pattern.finditer(text)}
-    starts = dict(re.findall(r'\[RoomEnemyProjectileKind\.(\w+)\] = \(\) => new (\w+)\(', read(TYPED_STARTS)))
+    # Every table of typed starts names the program family each kind starts: the shared one and each boss's own (#1435).
+    starts = {kind: family for text in texts.values()
+              for kind, family in re.findall(r'\[RoomEnemyProjectileKind\.(\w+)\] = \(\) => new (\w+)\(', text)}
+
+    # A seam interface reaches the classes implementing it, as Mother Brain's room actors reach the Pirates' laser and
+    # Ridley's afterburn (#1435): calling through the interface spawns what the implementation spawns.
+    interfaces = {match.group(1) for text in texts.values() for match in re.finditer(r'\binterface\s+(\w+)', text)}
+    implementers = {}
+    for path, text in texts.items():
+        for match in re.finditer(r'\b(?:class|record|struct)\s+\w+[^{;]*?:\s*([^{;]+)\{', text, re.S):
+            for base in re.findall(r'\b([A-Z]\w+)\b', match.group(1)):
+                if base in interfaces:
+                    implementers.setdefault(base, set()).add(path)
 
     def walk(start, follow):
         """The files reached from start, following the type names follow accepts."""
@@ -63,7 +74,7 @@ def main():
             for name in set(re.findall(r'\b([A-Z]\w+)\b', texts[path])):
                 if name in SHARED or name in seen_types or name not in types:
                     continue
-                for candidate in types[name]:
+                for candidate in types[name] | implementers.get(name, set()):
                     if candidate not in TABLES and follow(start, name, candidate):
                         seen_types.add(name)
                         stack.append(candidate)

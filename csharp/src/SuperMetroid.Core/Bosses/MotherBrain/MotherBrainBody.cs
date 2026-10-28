@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -109,7 +109,7 @@ internal sealed class MotherBrainBody
         _room.Staging.EnemyBg2Tilemap.AsSpan(0, MotherBrainBg2Definitions.ClearCellCount).Fill(MotherBrainBg2Definitions.BlankTile);
 
         body.InstructionTimer = WrappingCountdown.Start(1);
-        body.TileIndexBase = 0;
+        body.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.MotherBrainBody];
         body.Properties = body.Properties.With(
             EnemyProperties.BlocksPlasmaBeam |
             EnemyProperties.IgnoreSamusCollision |
@@ -400,7 +400,7 @@ internal sealed class MotherBrainBody
         MotherBrainProjectileStarts.Initialize(
             beam,
             RoomEnemyProjectileKind.MotherBrainHandBeamCharging,
-            graphics: SpriteGraphics.Of(64, 0));
+            graphics: SpriteGraphics.Of(EnemyTileBaseDefinitions.MotherBrainObjectCharacters, 0));
         beam.Variable0 = 0;
         beam.Variable1 = 0;
         beam.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));

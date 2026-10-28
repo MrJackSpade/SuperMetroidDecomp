@@ -995,7 +995,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             bool skree = program == SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree);
             // The particles draw from the sheets a set loading their spawner composes from this artwork.
             SpawnedObjectFixtures.LoadSetDrawing(enemies, skree ? EnemyDefinitionId.Skree : EnemyDefinitionId.Metaree);
-            Action<RoomEnemySlot> spawn = skree ? enemies.Projectiles.SpawnSkreeParticleBurst : enemies.Projectiles.SpawnMetareeParticleBurst;
+            Action<RoomEnemySlot> spawn = slot => enemies.Projectiles.SpawnMetalParticleBurst(slot,
+                skree ? SuperMetroid.Core.Enemies.Skree.SkreeParticleDefinitions.Burst : SuperMetroid.Core.Enemies.Metaree.MetareeParticleDefinitions.Burst);
             var enemy = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),

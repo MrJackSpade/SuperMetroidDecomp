@@ -6218,6 +6218,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.SetRegions.SameContents",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/SetRegions.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.SpawnedObjectSheetComposer",
       "kind": "static class",
       "scope": "product",
@@ -33288,6 +33301,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyProjectileStarts",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyProjectileStarts.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Ridley.RidleyProjectiles",
       "kind": "class",
       "scope": "product",
@@ -45017,6 +45043,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.EncounterSpawnedEnemyDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/EncounterSpawnedEnemyDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.EnemyAiRoutine",
       "kind": "enum",
       "scope": "product",
@@ -51787,6 +51826,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Metaree.MetareeParticleDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Metaree/MetareeParticleDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Metroids.Artwork.MetroidFrameDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -54912,6 +54964,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Projectiles.MetalParticleBurst",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Projectiles/MetalParticleBurst.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Projectiles.MiscDustProjectileAnimation",
       "kind": "class",
       "scope": "product",
@@ -57759,6 +57824,19 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Enemies/Skree/SkreeNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Skree.SkreeParticleDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Skree/SkreeParticleDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"

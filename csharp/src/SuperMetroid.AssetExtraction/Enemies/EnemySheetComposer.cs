@@ -162,8 +162,8 @@ internal static class EnemySheetComposer
 
     /// <summary>
     /// Graphics set <paramref name="set"/> as a room load leaves it: its enemy graphics, its OBJ page, its sprite colours,
-    /// and the enemies drawn under it, its members in record order and then each enemy its rooms place without the set
-    /// loading it.
+    /// and the enemies drawn under it, its members in record order, then each enemy its rooms place without the set
+    /// loading it, then the enemies those enemies' encounters spawn.
     /// </summary>
     private static LoadedGraphicsSet Load(EnemySheetInputs inputs, RoomEnemyGraphicsSetDefinition set)
     {
@@ -177,7 +177,11 @@ internal static class EnemySheetComposer
         IEnumerable<EnemyDefinitionId> placed = RoomStateDefinitions.All.Where(state => state.EnemyGraphicsSet.Name == set.Name)
             .SelectMany(state => state.EnemyPopulation.Records.Span.SelectToArray(record => record.DefinitionId))
             .Except(members).Distinct().Order();
-        EnemyDefinitionId[] drawn = [.. members, .. placed];
+        EnemyDefinitionId[] loaded = [.. members, .. placed];
+        // An encounter's own spawns, such as Mother Brain's tubes and the Baby, draw under the set its spawner loads.
+        EnemyDefinitionId[] spawned = [.. loaded.SelectMany(enemy => EncounterSpawnedEnemyDefinitions.BySpawner.GetValueOrDefault(enemy, []))
+            .Except(loaded).Distinct().Order()];
+        EnemyDefinitionId[] drawn = [.. loaded, .. spawned];
         IReadOnlyList<CorpseRotSimulation> corpses = CorpseRotSimulation.Of(inputs.Enemies, inputs.Bosses, drawn);
         var regions = new SetRegions(SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog.Of(set), [.. corpses.Where(corpse => corpse.Kind is null)]);
         return new LoadedGraphicsSet(graphics, new SetCharacters(Table(inputs, graphics), regions, inputs,

@@ -932,31 +932,17 @@ internal sealed class EnemyProjectileEngine
         projectile.StartAnimation(new GunshipDustAnimation(definition.Program));
     }
 
-    /// <summary>Spawns the four bank-$86 particles emitted by a dying/burrowing Skree.</summary>
-    internal void SpawnSkreeParticleBurst(RoomEnemySlot skree) => SpawnMetalParticleBurst(skree,
-        RoomEnemyProjectileKind.SkreeParticleDownRight, RoomEnemyProjectileKind.SkreeParticleUpRight,
-        RoomEnemyProjectileKind.SkreeParticleDownLeft, RoomEnemyProjectileKind.SkreeParticleUpLeft);
-
     /// <summary>
-    /// Spawns Metaree's four metal-particle definitions. Their motion initializers are
-    /// shared byte-for-byte with Skree, but pointer <c>$86:8AC5</c> selects Metaree's ROM
-    /// spritemap instead of silently reusing the visually different Skree debris.
+    /// The four particles of a Skree or Metaree <paramref name="burst"/>, six pixels either side of the source: the outer pair
+    /// flies at 1.25 pixels outward and just over 3 up per update, the inner pair at 0.375 outward and just over 4 up, in 8.8.
     /// </summary>
-    internal void SpawnMetareeParticleBurst(RoomEnemySlot metaree) => SpawnMetalParticleBurst(metaree,
-        RoomEnemyProjectileKind.MetareeParticleDownRight, RoomEnemyProjectileKind.MetareeParticleUpRight,
-        RoomEnemyProjectileKind.MetareeParticleDownLeft, RoomEnemyProjectileKind.MetareeParticleUpLeft);
-
-    /// <summary>
-    /// The four particles of a Skree or Metaree burst, six pixels either side of the source: the outer pair flies at
-    /// 1.25 pixels outward and just over 3 up per update, the inner pair at 0.375 outward and just over 4 up, in 8.8.
-    /// </summary>
-    private void SpawnMetalParticleBurst(RoomEnemySlot source, RoomEnemyProjectileKind downRight, RoomEnemyProjectileKind upRight,
-        RoomEnemyProjectileKind downLeft, RoomEnemyProjectileKind upLeft)
+    internal void SpawnMetalParticleBurst(RoomEnemySlot source, MetalParticleBurst burst)
     {
-        SpawnSkreeOrMetareeParticle(source, downRight, 6, new(320, -769));
-        SpawnSkreeOrMetareeParticle(source, upRight, 6, new(96, -1025));
-        SpawnSkreeOrMetareeParticle(source, downLeft, -6, new(-320, -769));
-        SpawnSkreeOrMetareeParticle(source, upLeft, -6, new(-96, -1025));
+        Ensure.NotNull(burst);
+        SpawnSkreeOrMetareeParticle(source, burst.DownRight, 6, new(320, -769));
+        SpawnSkreeOrMetareeParticle(source, burst.UpRight, 6, new(96, -1025));
+        SpawnSkreeOrMetareeParticle(source, burst.DownLeft, -6, new(-320, -769));
+        SpawnSkreeOrMetareeParticle(source, burst.UpLeft, -6, new(-96, -1025));
     }
 
     /// <summary>

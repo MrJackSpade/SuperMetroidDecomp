@@ -8,8 +8,10 @@ public static class EnemyTileBaseDefinitions
 {
     /// <summary>
     /// The character index each enemy that fixes one draws from: Ceres's doors and steam draw from characters loaded with
-    /// the Ceres tileset, a Zebetite from those following its room's first 128 enemy tiles, and the fragments Ridley's death
-    /// scatters from the first characters.
+    /// the Ceres tileset, a Zebetite from those following its room's first 128 enemy tiles, the fragments Ridley's death
+    /// scatters from the first characters, Mother Brain's body and head from the first characters, which their
+    /// initialisation selects whatever their place in the room's graphics set, and the Baby of Mother Brain's fight from
+    /// the characters its tile rows are transferred to (#1435).
     /// </summary>
     public static IReadOnlyDictionary<EnemyDefinitionId, int> Fixed { get; } = new Dictionary<EnemyDefinitionId, int>
     {
@@ -17,6 +19,24 @@ public static class EnemyTileBaseDefinitions
         [EnemyDefinitionId.Steam] = 0,
         [EnemyDefinitionId.Zebetite] = 128,
         [EnemyDefinitionId.RidleyExplosion] = 0,
+        [EnemyDefinitionId.MotherBrainBody] = 0,
+        [EnemyDefinitionId.MotherBrainHead] = 0,
+        [EnemyDefinitionId.BabyMetroidCutscene] = 160,
+    };
+
+    /// <summary>
+    /// The characters Mother Brain's charging hand beam and the shards of her tank's glass draw from: those following her
+    /// first 64, whatever their spawner's own (#1435).
+    /// </summary>
+    public const int MotherBrainObjectCharacters = 0x40;
+
+    /// <summary>
+    /// The character indexes, beside its own, each enemy's spawned objects draw from, so its spawned-object sheets are
+    /// composed there too: Mother Brain's at <see cref="MotherBrainObjectCharacters"/> (#1435).
+    /// </summary>
+    public static IReadOnlyDictionary<EnemyDefinitionId, int[]> SpawnsAlsoAt { get; } = new Dictionary<EnemyDefinitionId, int[]>
+    {
+        [EnemyDefinitionId.MotherBrainBody] = [MotherBrainObjectCharacters],
     };
 
     /// <summary>

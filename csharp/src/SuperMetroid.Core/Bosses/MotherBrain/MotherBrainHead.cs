@@ -71,7 +71,7 @@ internal sealed class MotherBrainHead
         // head-slot cursor starts there): its $A320 frame is the head's collision hitbox.
         // The visible brain runs a separate program (`$A9:8734`).
         head.InstructionTimer = WrappingCountdown.Start(1);
-        head.TileIndexBase = 0;
+        head.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.MotherBrainHead];
         head.Properties = head.Properties.With(
             EnemyProperties.BlocksPlasmaBeam | EnemyProperties.Invisible);
         head.PaletteRow = 1;

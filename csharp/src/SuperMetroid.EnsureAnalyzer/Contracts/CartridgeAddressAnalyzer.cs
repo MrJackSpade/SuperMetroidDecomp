@@ -26,7 +26,7 @@ public sealed class CartridgeAddressAnalyzer : DiagnosticAnalyzer
 
     /// <summary>
     /// Camel-case words naming a cartridge structure in a type or namespace name, matched whole, without regard to case
-    /// and with a plural ending: <c>XrayScopeDefinitions</c>, <c>SamusProjectileProgramAddresses</c>, <c>Hardware.Snes</c>.
+    /// and with a plural ending: <c>SamusXrayRomData</c>, <c>SamusProjectileProgramAddresses</c>, <c>Hardware.Snes</c>.
     /// </summary>
     internal static readonly ImmutableArray<string> StructureWords =
         ["Rom", "Cartridge", "Bank", "Pointer", "Address", "Wram", "Sram", "Snes", "Native"];

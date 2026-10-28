@@ -43,8 +43,10 @@ internal static class CartridgeAddressAnalyzerTests
             "$A0B2 is a 16-bit address in the cartridge structure 'ProgramPointers'" + Advice);
         Expect("namespace Game.Snes { class Dispatch { int Run(int p) { switch (p) { case 0x9438: return 1; default: return 0; } } } }",
             "$9438 is a 16-bit address in the cartridge namespace 'Game.Snes'" + Advice);
-        Expect("class XrayScopeDefinitions { public static class Window { public const ushort Table = 0xC000; } }",
-            "$C000 is a 16-bit address in the cartridge structure 'XrayScopeDefinitions'" + Advice);
+        Expect("class SamusXrayRomData { public static class Window { public const ushort Table = 0xC000; } }",
+            "$C000 is a 16-bit address in the cartridge structure 'SamusXrayRomData'" + Advice);
+        // A definitions catalog holds domain data, not a cartridge structure: its name alone names no address (#1450).
+        Expect("class XrayScopeDefinitions { public static class Window { public const ushort Table = 0xC000; } }", count: 0);
         Expect("class BeamDefinitions { internal const ushort Program = 0x8000; }",
             "$8000 is a 16-bit address in the catalog file 'BeamDefinitions.cs'" + Advice,
             path: "C:/fixture-repo/csharp/src/SuperMetroid.Core/Samus/BeamDefinitions.cs");
@@ -52,7 +54,7 @@ internal static class CartridgeAddressAnalyzerTests
         // A 16-bit value is a quantity where nothing names a cartridge structure.
         Expect("class SamusMovement { private const ushort SignBit = 0x8000; }", count: 0);
         // Definition data below the cartridge's half of a bank, even in a cartridge structure.
-        Expect("class XrayScopeDefinitions { public const byte RightFrameOne = 0x19; public const int UnitVector = 0x0100; }", count: 0);
+        Expect("class SamusXrayRomData { public const byte RightFrameOne = 0x19; public const int UnitVector = 0x0100; }", count: 0);
         // Unmapped banks, the ROM's lower half and the low mirrors are not addresses the game uses.
         Expect("class Speeds { private const int Boost = 0x18000; private const int Far = 0x5F8000; private const int Low = 0x8F1234; private const int Top = 0xE08000; }", count: 0);
         // Words that only contain a structure word name no cartridge structure.

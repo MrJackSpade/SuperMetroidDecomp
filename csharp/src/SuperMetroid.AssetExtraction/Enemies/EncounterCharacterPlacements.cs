@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.AssetExtraction.World.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Torizo;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -31,7 +32,7 @@ internal static class EncounterCharacterPlacements
         InstalledArtworkCharacters { Artwork: InstalledArtworkId.EscapeTimerFirstTiles } => Timer(source, EscapeTimerTilePage.First),
         InstalledArtworkCharacters { Artwork: InstalledArtworkId.EscapeTimerSecondTiles } => Timer(source, EscapeTimerTilePage.Second),
         TorizoArtworkSwapCharacters swap =>
-            new(source, EncounterCharacterPlacementDefinitions.TorizoDestinations[swap.Entry].FirstCharacter, Characters(TorizoArtworkSwapDefinitions.Entries[swap.Entry].ByteCount)),
+            new(source, EncounterCharacterPlacementDefinitions.TorizoDestinations[swap.Entry].FirstCharacter, Characters(TorizoArtworkSwapPages.Entries[swap.Entry].ByteCount)),
         CrocomireSkeletonChunkCharacters chunk => new(source, SkeletonFirstCharacter(chunk.Entry),
             Characters(SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireSkeletonTransferDefinitions.ChunkByteCount)),
         EnemyTileCharacters { Enemy: EnemyDefinitionId.Evir } => new(source, EncounterCharacterPlacementDefinitions.EvirFirstCharacter,

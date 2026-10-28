@@ -9,6 +9,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Torizo;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 
@@ -75,7 +76,7 @@ internal static class SpriteArtworkBytes
     /// <summary>The installed characters one Torizo artwork swap shows.</summary>
     private static ReadOnlyMemory<byte> TorizoSwap(TorizoArtworkSwapCharacters swap, IInstalledArtworkContent installed)
     {
-        TorizoArtworkSwapDefinition definition = TorizoArtworkSwapDefinitions.Entries[swap.Entry];
+        TorizoArtworkSwapDefinition definition = TorizoArtworkSwapPages.Entries[swap.Entry];
         return (Bosses(installed).TorizoSwaps ?? throw new InvalidDataException("Torizo artwork swaps require installed artwork."))
             .Characters(definition.Page, definition.PageByte, definition.ByteCount);
     }

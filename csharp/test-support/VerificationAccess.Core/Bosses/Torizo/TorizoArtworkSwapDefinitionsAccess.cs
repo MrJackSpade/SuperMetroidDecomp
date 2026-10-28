@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Bosses.Torizo;
+
 
 
 namespace SuperMetroid.Core.Bosses.Torizo;
@@ -16,6 +18,6 @@ internal static class TorizoArtworkSwapDefinitionsAccess
     extension(TorizoArtworkSwapDefinitions)
     {
         /// <summary>Compiled native VRAM transfer records in source order.</summary>
-        internal static ReadOnlySpan<TorizoArtworkSwapDefinition> All => TorizoArtworkSwapDefinitions.Entries;
+        internal static ReadOnlySpan<TorizoArtworkSwapDefinition> All => TorizoArtworkSwapPages.Entries;
     }
 }

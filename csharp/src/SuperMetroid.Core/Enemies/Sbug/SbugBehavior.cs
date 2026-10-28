@@ -173,7 +173,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         if (xDistance >= threshold || yDistance >= threshold)
             return;
 
-        state.Function = SbugMovementDefinitions.ActivationFunction(state.ActivationBehavior);
+        state.Function = SbugMovement.ActivationFunction(state.ActivationBehavior);
     }
 
     /// <summary>Converts Samus's cartridge bearing into Sbug's angular convention and chosen direction.</summary>
@@ -435,7 +435,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         SbugEnemyState state,
         int facing)
     {
-        state.RequestedProgram = SbugMovementDefinitions.FacingProgram(facing);
+        state.RequestedProgram = SbugMovement.FacingProgram(facing);
         if (state.RequestedProgram == state.InstalledProgram)
             return;
 

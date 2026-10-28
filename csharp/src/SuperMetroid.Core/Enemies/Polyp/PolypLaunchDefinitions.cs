@@ -3,18 +3,25 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 /// <summary>Fixed launch/cooldown mechanics selected by three independent native RNG draws.</summary>
 public static class PolypLaunchDefinitions
 {
+    /// <summary>The RNG bits 1..3 that select the cooldown; bit zero and the upper bits do not select a record.</summary>
+    internal const int CooldownSelectorMask = 0x0e;
 
-    /// <summary>Uses RNG bits 1..3; bit zero and the upper bits do not select a record.</summary>
-    public static ushort Cooldown(int random) => (ushort)(16 + ((random & 0x0e) >> 1) * 8);
+    /// <summary>The RNG bits 1..4 that select the launch speed and the horizontal velocity.</summary>
+    internal const int LaunchSelectorMask = 0x1e;
 
-    /// <summary>Uses RNG bits 1..4 to select quadratic speed indices 28 through 43.</summary>
-    public static ushort InitialYIndex(int random) => (ushort)(28 + ((random & 0x1e) >> 1));
+    /// <summary>The cooldown each RNG selector chooses: sixteen frames, eight longer per selector.</summary>
+    internal static readonly ushort[] Cooldowns = [16, 24, 32, 40, 48, 56, 64, 72];
 
-    /// <summary>Preserves the native sign grouping and sixteen-bit representation.</summary>
-    public static ushort XVelocity(int random)
-    {
-        int index = (random & 0x1e) >> 1;
-        int magnitude = 0x60 + (index & 7) * 0x10;
-        return unchecked((ushort)(index < 8 ? magnitude : -magnitude));
-    }
+    /// <summary>The quadratic speed index the first launch selector chooses; each following selector chooses the next.</summary>
+    internal const int FirstInitialYIndex = 28;
+
+    /// <summary>
+    /// The horizontal velocity each launch selector chooses: the first eight push right, the second eight push left by
+    /// the same magnitudes, each $10 faster than the last from $60.
+    /// </summary>
+    internal static readonly short[] XVelocities =
+    [
+        96, 112, 128, 144, 160, 176, 192, 208,
+        -96, -112, -128, -144, -160, -176, -192, -208,
+    ];
 }

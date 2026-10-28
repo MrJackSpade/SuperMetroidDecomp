@@ -1697,26 +1697,26 @@ internal static class LookupStream1Verification
     {
         short Word(int address) => unchecked((short)(LittleEndianBytes.Word(LookupStream1PowampMotionRomByte(rom, address), LookupStream1PowampMotionRomByte(rom, address + 1))));
         for (int phase = 0; phase < 12; phase++)
-            AssertEqual(Word(0xa8c1a1 + 2 * phase), PowampMotionDefinitions.WiggleOffset(phase), "Powamp native wiggle triangle");
+            AssertEqual(Word(0xa8c1a1 + 2 * phase), PowampMotion.WiggleOffset(phase), "Powamp native wiggle triangle");
         for (int pose = 0; pose < 3; pose++)
         {
-            AssertEqual(Word(0xa8c277 + 2 * pose), PowampMotionDefinitions.BalloonOffset(pose, false), "Powamp native rising balloon offset");
-            AssertEqual(Word(0xa8c27d + 2 * pose), PowampMotionDefinitions.BalloonOffset(pose, true), "Powamp native sinking balloon offset");
+            AssertEqual(Word(0xa8c277 + 2 * pose), PowampMotion.BalloonOffset(pose, false), "Powamp native rising balloon offset");
+            AssertEqual(Word(0xa8c27d + 2 * pose), PowampMotion.BalloonOffset(pose, true), "Powamp native sinking balloon offset");
         }
         for (int direction = 0; direction < 8; direction++)
         {
-            AssertEqual(Word(0x86d21a + 2 * direction), PowampMotionDefinitions.SpikeXAcceleration(direction), "Powamp native spike X acceleration");
-            AssertEqual(Word(0x86d22a + 2 * direction), PowampMotionDefinitions.SpikeYAcceleration(direction), "Powamp native spike Y acceleration");
+            AssertEqual(Word(0x86d21a + 2 * direction), PowampMotion.SpikeXAcceleration(direction), "Powamp native spike X acceleration");
+            AssertEqual(Word(0x86d22a + 2 * direction), PowampMotion.SpikeYAcceleration(direction), "Powamp native spike Y acceleration");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => PowampMotionDefinitions.WiggleOffset(invalid), "Powamp wiggle domain");
+            AssertThrows<InvalidDataException>(() => PowampMotion.WiggleOffset(invalid), "Powamp wiggle domain");
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
             for (int sinking = 0; sinking < 2; sinking++)
-                AssertThrows<ArgumentOutOfRangeException>(() => PowampMotionDefinitions.BalloonOffset(invalid, sinking != 0), "Powamp balloon pose domain");
+                AssertThrows<ArgumentOutOfRangeException>(() => PowampMotion.BalloonOffset(invalid, sinking != 0), "Powamp balloon pose domain");
         foreach (int invalid in new[] { int.MinValue, -1, 8, int.MaxValue })
         {
-            AssertThrows<InvalidDataException>(() => PowampMotionDefinitions.SpikeXAcceleration(invalid), "Powamp X direction domain");
-            AssertThrows<InvalidDataException>(() => PowampMotionDefinitions.SpikeYAcceleration(invalid), "Powamp Y direction domain");
+            AssertThrows<InvalidDataException>(() => PowampMotion.SpikeXAcceleration(invalid), "Powamp X direction domain");
+            AssertThrows<InvalidDataException>(() => PowampMotion.SpikeYAcceleration(invalid), "Powamp Y direction domain");
         }
     }
 

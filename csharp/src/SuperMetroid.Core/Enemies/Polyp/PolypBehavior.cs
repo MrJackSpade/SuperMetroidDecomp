@@ -106,13 +106,13 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the three independent random-table selections at $A2:B5B2.</summary>
     private void ShootPolypRock(RoomEnemySlot slot, PolypEnemyState state)
     {
-        int xVelocity = PolypLaunchDefinitions.XVelocity(_room.Random.Generate());
+        int xVelocity = PolypLaunches.XVelocity(_room.Random.Generate());
 
-        int initialYSpeed = PolypLaunchDefinitions.InitialYIndex(_room.Random.Generate());
+        int initialYSpeed = PolypLaunches.InitialYIndex(_room.Random.Generate());
         SpawnPolypRock(slot, initialYSpeed, xVelocity);
 
         state.Function = PolypEnemyFunction.Cooldown;
-        state.CooldownTimer = WrappingCountdown.FromRaw(PolypLaunchDefinitions.Cooldown(_room.Random.Generate()));
+        state.CooldownTimer = WrappingCountdown.FromRaw(PolypLaunches.Cooldown(_room.Random.Generate()));
     }
 
     /// <summary>

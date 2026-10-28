@@ -415,7 +415,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         int x = unchecked((ushort)(
-            balloon.State.BalloonSpawn.X + PowampMotionDefinitions.WiggleOffset(state.WiggleIndex)));
+            balloon.State.BalloonSpawn.X + PowampMotion.WiggleOffset(state.WiggleIndex)));
         balloon.Slot.Position = balloon.Slot.Position.WithWholeX(checked((ushort)x));
         body.Position = body.Position.WithWholeX(checked((ushort)x));
         if (stop == PowampWiggleStop.WhenCentered && IsPowampCentered(state.WiggleIndex))
@@ -434,7 +434,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         // The 65C816 calculation halves the pointer's byte offset past the first pose, (2 * shown - 2), and indexes
         // words with it. Before any pose has shown the offset underflows past five and falls back to the first entry.
         int index = shownPoses == 0 ? 0 : shownPoses - 1;
-        balloon.Slot.Position = balloon.Slot.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + PowampMotionDefinitions.BalloonOffset(index, sinking))));
+        balloon.Slot.Position = balloon.Slot.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + PowampMotion.BalloonOffset(index, sinking))));
     }
 
     /// <summary>
@@ -629,7 +629,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         spike.Velocity = spike.Velocity.WithX(new SignedEightEight(unchecked((ushort)(
-            unchecked((short)spike.Velocity.X.RawValue) + PowampMotionDefinitions.SpikeXAcceleration(direction)))));
+            unchecked((short)spike.Velocity.X.RawValue) + PowampMotion.SpikeXAcceleration(direction)))));
         if (EnemyProjectileEngine.MoveProjectileAxis(spike, level, axis: Axis.Horizontal))
         {
             BeginPowampSpikeDeletion(spike);
@@ -637,7 +637,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         spike.Velocity = spike.Velocity.WithY(new SignedEightEight(unchecked((ushort)(
-            unchecked((short)spike.Velocity.Y.RawValue) + PowampMotionDefinitions.SpikeYAcceleration(direction)))));
+            unchecked((short)spike.Velocity.Y.RawValue) + PowampMotion.SpikeYAcceleration(direction)))));
         if (EnemyProjectileEngine.MoveProjectileAxis(spike, level, axis: Axis.Vertical))
             BeginPowampSpikeDeletion(spike);
     }

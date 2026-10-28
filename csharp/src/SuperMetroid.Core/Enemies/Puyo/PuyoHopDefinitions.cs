@@ -6,16 +6,15 @@ public static class PuyoHopDefinitions
     /// <summary>Native table stride for the serialized byte-index selector.</summary>
     public const int RecordSize = 8;
 
-    /// <summary>Preserves native byte-index state while returning named fields.</summary>
-    public static PuyoHopDefinition FromByteIndex(int index) => index switch
+    /// <summary>The seven hops, by native byte index.</summary>
+    internal static readonly Dictionary<int, PuyoHopDefinition> Hops = new()
     {
-        0 => new(0x10, 0x100, 0x200, PuyoAirborneFunction.NormalShortHop),
-        8 => new(0x20, 0x100, 0x200, PuyoAirborneFunction.NormalBigHop),
-        16 => new(0x20, 0x200, 0x300, PuyoAirborneFunction.NormalLongHop),
-        24 => new(0x80, 0x140, 0x200, PuyoAirborneFunction.GiantHop),
-        32 => new(0, 0, 0x100, PuyoAirborneFunction.Dropping),
-        40 => new(0x10, 0x100, 0x1c0, PuyoAirborneFunction.Dropped),
-        48 => new(0x15, 0x100, 0x1c0, PuyoAirborneFunction.Dropped),
-        _ => throw new InvalidDataException($"Puyo hop byte index ${index:X4} is outside seven authored records."),
+        [0] = new(0x10, 0x100, 0x200, PuyoAirborneFunction.NormalShortHop),
+        [8] = new(0x20, 0x100, 0x200, PuyoAirborneFunction.NormalBigHop),
+        [16] = new(0x20, 0x200, 0x300, PuyoAirborneFunction.NormalLongHop),
+        [24] = new(0x80, 0x140, 0x200, PuyoAirborneFunction.GiantHop),
+        [32] = new(0, 0, 0x100, PuyoAirborneFunction.Dropping),
+        [40] = new(0x10, 0x100, 0x1c0, PuyoAirborneFunction.Dropped),
+        [48] = new(0x15, 0x100, 0x1c0, PuyoAirborneFunction.Dropped),
     };
 }

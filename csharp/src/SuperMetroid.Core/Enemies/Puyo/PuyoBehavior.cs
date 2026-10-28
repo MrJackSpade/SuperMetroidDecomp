@@ -195,7 +195,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The hop-table record <paramref name="state"/> has selected.</summary>
     private static PuyoHopDefinition Hop(PuyoEnemyState state) =>
-        PuyoHopDefinitions.FromByteIndex(checked((ushort)(state.HopRecord * PuyoHopDefinitions.RecordSize)));
+        PuyoHops.FromByteIndex(checked((ushort)(state.HopRecord * PuyoHopDefinitions.RecordSize)));
 
     /// <summary>Ports the indirect airborne dispatcher at $A2:9B81.</summary>
     private void RunAirbornePuyo(

@@ -290,9 +290,7 @@ internal static class LookupStream3Verification
             {
                 int entry = address + 2 + index * 5;
                 var part = stock.Part(index);
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry), part.X.Raw, "native border X/size");
-                AssertEqual(rom.ReadCartridgeByte(entry + 2), part.Y.Raw, "native border Y");
-                AssertEqual((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 3)) & ~0x0e00), part.Attributes.Raw, "native border inherited-palette attributes");
+                AssertEqual(NativeOwnerPalettePart(rom, entry), part.Part, "native border offset, size, character, priority and mirroring with inherited palette");
                 AssertTrue(part.InheritPalette, "border palette remains owner supplied");
                 foreach (int field in new[] { 0, 1, 2, 3 })
                 {
@@ -361,9 +359,7 @@ internal static class LookupStream3Verification
             {
                 int entry = address + 2 + index * 5;
                 var part = stock.Part(index);
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry), part.X.Raw, "native border X/size");
-                AssertEqual(rom.ReadCartridgeByte(entry + 2), part.Y.Raw, "native border Y");
-                AssertEqual((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 3)) & ~0x0e00), part.Attributes.Raw, "native border inherited-palette attributes");
+                AssertEqual(NativeOwnerPalettePart(rom, entry), part.Part, "native border offset, size, character, priority and mirroring with inherited palette");
                 AssertTrue(part.InheritPalette, "border palette remains owner supplied");
                 foreach (int field in new[] { 0, 1, 2, 3 })
                 {
@@ -387,6 +383,15 @@ internal static class LookupStream3Verification
             Confirm(Load(expanded)[border], expanded.Sprites[name]);
         }
     }
+
+    /// <summary>
+    /// The piece the native five-byte spritemap record at <paramref name="entry"/> describes, decoded by the import
+    /// pipeline's record codec, with the palette row cleared because the drawing owner supplies the palette.
+    /// </summary>
+    private static SpritePart NativeOwnerPalettePart(ISnesAddressSpace rom, int entry) =>
+        new SpritemapPart(new SnesSpritemapXWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry)),
+            new SnesSpritemapYByte(rom.ReadCartridgeByte(entry + 2)),
+            new SnesObjAttributeWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 3)).WithPaletteIndex(0)).ToPart();
 
     /// <summary>Decodes the seven grapple transfers and checks derived tile pixels against ROM and edited atlas data.</summary>
     internal static void VerifyStream3GrappleTilePatterns(ISnesAddressSpace rom, GrappleTileTransfer[] transfers)
@@ -1210,17 +1215,31 @@ internal static class LookupStream3Verification
         for (int frame = 0; frame < 4; frame++)
         {
             int address = 0x94b18d + 4 * frame;
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), grappleSprites.Segment(frame), "stream 3 calculated native rope attributes");
+            // The segment appearance has no packed word: the native attribute word is decoded by the import pipeline's
+            // codec and compared by character, palette row, priority and mirroring.
+            AssertEqual(new SnesObjAttributeWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(address)).ToSinglePart(),
+                grappleSprites.Segment(frame), "stream 3 calculated native rope appearance");
             foreach (string field in new[] { "tileColumn", "tileRow", "palette", "priority", "flipX", "flipY" })
             {
                 var node = RequiredJson.Parse(grappleSpriteJson);
                 var style = node.Required("segments").Required(frame);
-                int bit = field switch { "tileColumn" => 1, "tileRow" => 16, "palette" => 0x200, "priority" => 0x1000, "flipX" => 0x4000, _ => 0x8000 };
                 if (field is "flipX" or "flipY") style[field] = !style.Required(field).GetValue<bool>();
                 else style[field] = style.Required(field).GetValue<int>() ^ 1;
                 var edited = GrappleSpriteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(node.ToJsonString())));
                 for (int check = 0; check < 4; check++)
-                    AssertEqual((ushort)(grappleSprites.Segment(check) ^ (check == frame ? bit : 0)), edited.Segment(check), "stream 3 independent rope attribute edit");
+                {
+                    SpritePart segment = grappleSprites.Segment(check);
+                    SpritePart expectedSegment = check != frame ? segment : field switch
+                    {
+                        "tileColumn" => segment with { Character = segment.Character ^ 1 },
+                        "tileRow" => segment with { Character = segment.Character ^ 16 },
+                        "palette" => segment with { Palette = segment.Palette ^ 1 },
+                        "priority" => segment with { Priority = segment.Priority ^ 1 },
+                        "flipX" => segment with { Flip = segment.Flip ^ TileFlip.Horizontal },
+                        _ => segment with { Flip = segment.Flip ^ TileFlip.Vertical },
+                    };
+                    AssertEqual(expectedSegment, edited.Segment(check), "stream 3 independent rope appearance edit");
+                }
             }
         }
         foreach (int invalid in new[] { -1, 4, int.MaxValue })
@@ -3118,11 +3137,8 @@ internal static class LookupStream3Verification
             for (int part = 0; part < composition.PartCount; part++)
             {
                 int entry = address + 2 + part * 5;
-                var nativeX = new SnesSpritemapXWord(ReadVerificationWord(rom, entry));
-                AssertEqual(nativeX.SignedOffset, composition.Part(part).X.SignedOffset, "native helmet X");
-                AssertEqual(nativeX.IsLarge, composition.Part(part).X.IsLarge, "native helmet size");
-                AssertEqual(rom.ReadCartridgeByte(entry + 2), composition.Part(part).Y.Raw, "native helmet Y");
-                AssertEqual((ushort)(ReadVerificationWord(rom, entry + 3) & ~0x0e00), composition.Part(part).Attributes.Raw, "native helmet attributes with caller palette inheritance");
+                AssertEqual(NativeOwnerPalettePart(rom, entry), composition.Part(part).Part,
+                    "native helmet offset, size, character, priority and mirroring with caller palette inheritance");
             }
             for (int part = 0; part < original.Sprites[name].Length; part++)
             for (int field = 0; field < 9; field++)

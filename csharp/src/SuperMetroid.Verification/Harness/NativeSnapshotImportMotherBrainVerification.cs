@@ -3,6 +3,7 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Bosses.MotherBrain;
@@ -40,8 +41,8 @@ internal static class NativeSnapshotImportMotherBrainVerification
         state.FakeDeathExplosionTimer = WrappingCountdown.FromRaw(W(MotherBrainMemory.FakeDeathExplosionTimer));
         state.FakeDeathExplosionIndex = W(MotherBrainMemory.FakeDeathExplosionIndex);
         state.EnableUnpauseHook = W(MotherBrainMemory.EnableUnpauseHook) != 0;
-        state.NeckPalette = SnesObjAttributeWord.FromPaletteBits(W(MotherBrainMemory.NeckPaletteIndex));
-        state.BrainPalette = SnesObjAttributeWord.FromPaletteBits(W(MotherBrainMemory.BrainPaletteIndex));
+        state.NeckPalette = SnesObjAttributeWord.FromPaletteBits(W(MotherBrainMemory.NeckPaletteIndex)).PaletteIndex;
+        state.BrainPalette = SnesObjAttributeWord.FromPaletteBits(W(MotherBrainMemory.BrainPaletteIndex)).PaletteIndex;
         ushort brain = W(MotherBrainMemory.BrainInstructionList);
         // Bit 15 clear means the brain list is not live.
         state.BrainCursor = unchecked((short)brain) >= 0 ? null : MotherBrainNativeListAddresses.CompareHead(cartridge)[brain];
@@ -192,7 +193,7 @@ internal static class NativeSnapshotImportMotherBrainVerification
         sequence.State.GreyTransitionCounter = W(MotherBrainMemory.GreyTransitionCounter);
         sequence.State.Phase2CorpseState = DecodePhase2CorpseState(W(MotherBrainMemory.Phase2CorpseState));
         sequence.Revival.BabyMetroidAttackCounter = W(MotherBrainMemory.BabyMetroidAttackCounter);
-        sequence.ThirdPhaseDeath.BrainPalette = SnesObjAttributeWord.FromPaletteBits(W(MotherBrainMemory.BrainPaletteIndex));
+        sequence.ThirdPhaseDeath.BrainPalette = SnesObjAttributeWord.FromPaletteBits(W(MotherBrainMemory.BrainPaletteIndex)).PaletteIndex;
         sequence.ThirdPhaseDeath.MotherBrainUnpauseHookEnabled = W(MotherBrainMemory.EnableUnpauseHook) != 0;
         sequence.FinishSamusOff.RainbowBeamPaletteAnimationIndex = W(MotherBrainMemory.RainbowPaletteIndex);
         sequence.ThirdPhaseDeath.DeathExplosionIntervalTimer = WrappingCountdown.FromRaw(W(MotherBrainMemory.BrainSubFunction));

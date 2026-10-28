@@ -954,10 +954,13 @@ internal static class LookupStream5Verification
             {
                 int source = 0x8c0000 | CinematicSpritemapSources.Of(definition.Pose) + 2 + index * 5;
                 CompiledSpritePart actual = calculated.Part(index);
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(source), actual.X.Raw, "Native star X/size");
-                AssertEqual(rom.ReadCartridgeByte(source + 2), actual.Y.Raw, "Native star Y");
-                AssertEqual((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + 3)) & ~0x0e00), actual.Attributes.Raw,
-                    "Native star attributes excluding replaced source palette");
+                // The star has no packed record: the native five-byte record is decoded by the import pipeline's codec
+                // and compared by offset, size, character, priority and mirroring, its palette row cleared because the
+                // scene replaces it.
+                var nativeStar = new SpritemapPart(new SnesSpritemapXWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(source)),
+                    new SnesSpritemapYByte(rom.ReadCartridgeByte(source + 2)),
+                    new SnesObjAttributeWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(source + 3)).WithPaletteIndex(0)).ToPart();
+                AssertEqual(nativeStar, actual.Part, "Native star offset, size, character, priority and mirroring excluding replaced source palette");
                 for (int field = 0; field < 9; field++)
                 {
                     SpriteVisualPart value = parts[index];
@@ -1887,7 +1890,7 @@ internal static class LookupStream5Verification
             AssertEqual(native & 0x1ff, CeresDoorQuakeDefinitions.XOffset(phase) & 0x1ff,
                 "Native overlapping high byte retains the same ninth coordinate bit");
             var expected = new OamBuffer(); expected.BeginFrame();
-            DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = CeresDoorFrameDefinitionsConstants.Bank, Pointer = CeresDoorFrameDefinitionsConstants.RidleyPrivateOverlaySpritemap, Origin = new(unchecked((ushort)(x - camera + native)), 80), PaletteBits = EnemyPaletteBits.Palette2, BaseTileIndex = 0 });
+            DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = CeresDoorFrameDefinitionsConstants.Bank, Pointer = CeresDoorFrameDefinitionsConstants.RidleyPrivateOverlaySpritemap, Origin = new(unchecked((ushort)(x - camera + native)), 80), PaletteBits = SnesObjAttributeWord.Create(tileNumber: 0, paletteIndex: 2, priority: 0).PaletteBits, BaseTileIndex = 0 });
             expected.FinalizeFrame();
             AssertTrue(expected.ImageEquals(actual),
                 "Byte-decoded quake preserves actual low/high OAM through coordinate wrap");

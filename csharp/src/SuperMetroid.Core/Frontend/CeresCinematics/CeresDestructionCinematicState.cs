@@ -501,7 +501,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         IntroCinematicArtworkCatalog content = Artwork ?? throw new InvalidOperationException(
             "Zebes reveal requires installed cinematic artwork.");
-        RequireMinimum(content.CeresDestruction.ZebesMap.Bytes.Length, CeresDestructionArtworkFormat.ZebesMapByteCount,
+        RequireMinimum(content.CeresDestruction.ZebesMap.Tiles.Length, CeresDestructionArtworkFormat.ZebesMapByteCount / sizeof(ushort),
             "Zebes reveal tilemap");
         RequireMinimum(content.CeresDestruction.ZebesCharacters.Characters.Length, CeresDestructionArtworkFormat.ZebesCharacterByteCount,
             "Zebes reveal characters");

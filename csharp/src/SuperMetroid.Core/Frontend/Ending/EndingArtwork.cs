@@ -140,7 +140,7 @@ internal sealed class EndingArtwork
             "Post-credits scenes require installed object artwork.");
         byte[] waiting = artwork.WaitingSamus.Characters.ToArray();
         byte[] shooting = artwork.ShootingScreen.Characters.ToArray();
-        byte[] waitingMap = artwork.WaitingTilemap.Bytes.ToArray();
+        byte[] waitingMap = BackgroundTileWords.ToBytes(artwork.WaitingTilemap.Tiles.Span);
         byte[] fragmentA = artwork.PostCreditsFragmentA.Characters.ToArray();
         byte[] fragmentB = artwork.PostCreditsFragmentB.Characters.ToArray();
         byte[] result = _stage.EndingReward == EndingReward.Suitless

@@ -110,7 +110,7 @@ public static class RoomBackgroundTilemapArtworkFiles
     internal static string ContentIdentity(RoomBackgroundTilemapCatalog catalog) => SelectedPresentationHash.FromTransfers(
         nameof(RoomBackgroundTilemapCatalog),
         Ensure.NotNull(catalog).Tilemaps.ToDictionary(pair => RoomBackgroundSourceDefinitions.Tilemaps[pair.Key], pair => pair.Value),
-        atlas => atlas.Bytes);
+        atlas => BackgroundTileWords.ToBytes(atlas.Tiles.Span));
 
     /// <summary>Each background tilemap's file name before #1414, which carried its cartridge source, and its current name.</summary>
     internal static IReadOnlyDictionary<string, string> LegacyNames() => RoomBackgroundSourceDefinitions.Tilemaps.ToDictionary(

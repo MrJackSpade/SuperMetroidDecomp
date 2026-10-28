@@ -44,11 +44,11 @@ public sealed class EndingObjectArtworkCatalog
             !HasRequiredLength(WaitingSamus, EndingObjectTransfer.WaitingSamus) ||
             !HasRequiredLength(ShootingScreen, EndingObjectTransfer.ShootingScreen) ||
             !HasRequiredLength(SuitlessSamus, EndingObjectTransfer.SuitlessSamus) ||
-            !HasRequiredLength(WaitingTilemap.Bytes, EndingObjectTransfer.WaitingTilemap) ||
+            !HasRequiredLength(BackgroundTileWords.ToBytes(WaitingTilemap.Tiles.Span), EndingObjectTransfer.WaitingTilemap) ||
             !HasRequiredLength(PostCreditsFragmentA, EndingObjectTransfer.PostCreditsFragmentA) ||
             !HasRequiredLength(PostCreditsFragmentB, EndingObjectTransfer.PostCreditsFragmentB) ||
             !HasRequiredLength(PostShotLogoTiles, EndingObjectTransfer.PostShotLogoTiles) ||
-            !HasRequiredLength(PostShotLogoMap.Bytes, EndingObjectTransfer.PostShotLogoMap) ||
+            !HasRequiredLength(BackgroundTileWords.ToBytes(PostShotLogoMap.Tiles.Span), EndingObjectTransfer.PostShotLogoMap) ||
             parts.Fragments.Count != EndingObjectArtworkFormat.FragmentCount ||
             parts.Fragments.Any(fragment => fragment is null ||
                 !HasRequiredLength(fragment, EndingObjectTransfer.ExplosionFragment)))
@@ -104,11 +104,11 @@ public sealed class EndingObjectArtworkCatalog
         content.Append("waiting-samus", WaitingSamus.Characters.Span);
         content.Append("shooting-screen", ShootingScreen.Characters.Span);
         content.Append("suitless-samus", SuitlessSamus.Characters.Span);
-        content.Append("waiting-map", WaitingTilemap.Bytes.Span);
+        content.Append("waiting-map", BackgroundTileWords.ToBytes(WaitingTilemap.Tiles.Span));
         content.Append("post-credits-fragment-a", PostCreditsFragmentA.Characters.Span);
         content.Append("post-credits-fragment-b", PostCreditsFragmentB.Characters.Span);
         content.Append("logo-characters", PostShotLogoTiles.Characters.Span);
-        content.Append("logo-map", PostShotLogoMap.Bytes.Span);
+        content.Append("logo-map", BackgroundTileWords.ToBytes(PostShotLogoMap.Tiles.Span));
         content.Append("fragment-count", fragments.Length);
         foreach (RoomCharacterAtlas fragment in fragments)
             content.Append("fragment", fragment.Characters.Span);

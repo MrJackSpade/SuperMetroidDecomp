@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
@@ -41,7 +43,9 @@ internal static class CrystalFlashVisualsVerification
         var pixels = DisplayRendering.Render(packet);
         var colors = packet.Paint.Colors.ToArray();
         Array.Clear(colors, SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart, Common.ColoursPerRow);
-        var mutedMemory = new FramePaint(colors, packet.Paint.SpriteDraws);
+        // Samus's draws show her own colours, resolved when the frame is published (#1405), not the frame's: the body's
+        // row is muted where she holds it, her beam ink row, as the native check mutes its colour row (#1457).
+        var mutedMemory = new FramePaint(colors, MuteBeamInkRow(packet.Paint.SpriteDraws, runtime.Player.Colours));
         var mutedBody = DisplayRendering.Render(new LayeredScene(mutedMemory,
             packet.Layers, packet.Brightness));
         int centerX = samus.Position.X.Whole - runtime.Display.DisplayedGameplayScrolls.Layer1Position.X;
@@ -64,5 +68,26 @@ internal static class CrystalFlashVisualsVerification
         return new VerifyCrystalFlashVisualFrameResult(bodyVisible, windowVisible);
 
         ushort Word(int address) => CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+    }
+
+    /// <summary><paramref name="draws"/> with Samus's own draws resolved from <paramref name="samus"/>'s colours but her beam ink row blank.</summary>
+    private static ImmutableArray<SpriteDraw> MuteBeamInkRow(ImmutableArray<SpriteDraw> draws, SamusColours samus)
+    {
+        var muted = new MutedBeamInkRow(samus);
+        return [.. draws.Select(draw => draw is ImageSpriteDraw { Colours: not null } image && SamusColourDefinitions.Sources.Contains(draw.Source.Kind)
+            ? image with { Colours = DrawColours.Owned(image with { Colours = null }, muted) }
+            : draw)];
+    }
+
+    /// <summary>Samus's colours with her beam ink row, which the Crystal Flash's body and bubble show, blank.</summary>
+    private sealed class MutedBeamInkRow(SamusColours samus) : IInkRowColours
+    {
+        /// <inheritdoc />
+        public void Overlay(int inkRow, Span<RgbColor> colours)
+        {
+            samus.Overlay(inkRow, colours);
+            if (inkRow == SamusColourDefinitions.BeamInkRow)
+                colours.Clear();
+        }
     }
 }

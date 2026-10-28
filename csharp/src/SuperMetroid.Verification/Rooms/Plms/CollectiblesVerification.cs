@@ -15,6 +15,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
@@ -54,7 +55,7 @@ internal static class CollectiblesVerification
         for (int bts = 0x11; bts <= 0x4e; bts++)
         {
             if (bts is > 0x3f and not 0x4e) continue;
-            var emptyLevel = CreateRoom(new(16, 16), new ushort[256], new byte[256], blockDefinitions: new BackgroundTile[0x400 * 4]);
+            var emptyLevel = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
             var unusedPlms = PlmFixtures.Unbound();
             AssertTrue(unusedPlms.TrySpawnProjectileShotBlock(emptyLevel, 0, (byte)bts, 0, true),
                 "unused shootable entry allocates native nothing PLM");
@@ -79,13 +80,16 @@ internal static class CollectiblesVerification
             fixture.Plms.Step(fixture.Level);
             if (kind >= InWorldCollectibleKind.Bombs)
             {
-                // LoadItemPLMGfx mutates the live block-definition table before the first
-                // item draw; BG1 shows the block through those dynamic character names.
-                int expectedFirstCharacter = 0x03e0 + loaded.GraphicsSlot * 8;
+                // LoadItemPLMGfx binds the item's graphics over its slot's characters before the first item draw; BG1
+                // shows the slot's first-frame block, whose picture the artwork bound over those characters names (#1431).
                 AssertEqual(
-                    expectedFirstCharacter,
-                    fixture.Level.DisplayedBlockTiles(fixture.BlockIndex).TopLeft.Tile,
-                    $"{kind} shown block uses its dynamic PLM character definition");
+                    (ushort)(0x008e + loaded.GraphicsSlot * 2),
+                    fixture.Level.DisplayedVisualWord(fixture.BlockIndex),
+                    $"{kind} shown block is its slot's first-frame block");
+                AssertEqual(
+                    RoomBgArtwork.Collectible(kind),
+                    fixture.Backgrounds.Showing(BgCharacterSet.Tiles, 0x03e0 + loaded.GraphicsSlot * 8, 8).Artwork,
+                    $"{kind} graphics show over its slot's characters");
             }
             ushort visibleItemWord = fixture.Level.ForegroundEntries.Span[fixture.BlockIndex];
             AssertTrue(fixture.Plms.CollectiblePlms.TryNotifyCollectibleTouch(fixture.BlockIndex),
@@ -280,11 +284,9 @@ internal static class CollectiblesVerification
 
         var foreground = new ushort[size.Area];
         foreground[blockIndex] = 0x0123;
-        var definitions = new BackgroundTile[0x400 * 4];
         RoomLevelData level = CreateRoom(size,
             foreground,
-            new byte[foreground.Length],
-            blockDefinitions: definitions);
+            new byte[foreground.Length]);
         var system = new SharedGameState();
         if (precollected)
             system.SetCollectedItemBit(roomArgument);
@@ -296,9 +298,10 @@ internal static class CollectiblesVerification
             MaxHealth = 99,
         };
         var plms = PlmFixtures.Unbound();
-        int loaded = PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, RoomFx = roomFx is { } fx ? new RoomPlmFx(fx, () => samus) : null });
+        BgArtworkBindings backgrounds = BgArtworkFixtures.For(new SnesVram());
+        int loaded = PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, backgrounds, system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, RoomFx = roomFx is { } fx ? new RoomPlmFx(fx, () => samus) : null });
         AssertEqual(1, loaded, "one-item room population load count");
-        return new CollectibleFixture(plms, level, system, samus, blockIndex);
+        return new CollectibleFixture(plms, level, system, samus, blockIndex, backgrounds);
     }
 
     /// <summary>Seeds the three item-header families and their dynamic graphics operands in the fixture cartridge.</summary>
@@ -912,13 +915,14 @@ internal static class CollectiblesVerification
         }
     }
 
-    /// <summary>Room, PLM, system, and Samus owners returned by a constructed item population load.</summary>
+    /// <summary>Room, PLM, system, Samus and background-binding owners returned by a constructed item population load.</summary>
     internal readonly record struct CollectibleFixture(
         RoomPlmSystem Plms,
         RoomLevelData Level,
         SharedGameState System,
         SamusState Samus,
-        int BlockIndex);
+        int BlockIndex,
+        BgArtworkBindings Backgrounds);
 
     /// <summary>Synthetic cartridge with the suit-pickup fade curve and distinct suit palette first words.</summary>
     private static TestAddressSpace CreateSuitPickupCartridge()

@@ -29,7 +29,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <summary>
 /// What each tileset's rooms bind over the background characters after loading (#1392), so its block sheet pictures
 /// every block over each artwork that can show under it: the animated tiles their room effects run, the Tourian statues'
-/// frames, the collectibles' graphics in each slot with the block definitions they write, the characters their library
+/// frames, the collectibles' graphics in each slot with the blocks they show there, the characters their library
 /// backgrounds transfer, and Kraid's room backdrop.
 /// </summary>
 internal static class RoomBlockUploads
@@ -387,7 +387,7 @@ internal static class RoomBlockUploads
         inputs.AnimatedTiles.TryResolve(image, byteCount, out ReadOnlyMemory<byte> frame) ? frame
             : throw new InvalidDataException($"Installed animated tiles hold no {byteCount}-byte picture {image}.");
 
-    /// <summary>Each collectible's graphics in each slot, with the block definitions it writes there.</summary>
+    /// <summary>Each collectible's graphics in each slot, with the tiles of the blocks it shows there.</summary>
     private static IEnumerable<CollectibleSlotCharacters> Collectibles(RoomBlockSheetInputs inputs)
     {
         foreach (InWorldCollectibleKind kind in RoomPlmDynamicCollectibleGraphicsDefinitions.Kinds)
@@ -397,7 +397,7 @@ internal static class RoomBlockUploads
                 yield return new CollectibleSlotCharacters(
                     BgCharacterUpload.Of(CollectiblePlms.SlotCharacters(RoomBgArtwork.Collectible(graphic.Kind), slot,
                         BgCharacterSet.Tiles.CharactersIn(graphic.Tiles.Length)), graphic.Tiles),
-                    CollectiblePlms.SlotDefinitions(slot, graphic.PaletteOffsets.Span));
+                    CollectibleSlotBlocks.FirstBlockOf(slot), CollectibleSlotBlocks.Tiles(slot, graphic.PaletteOffsets.Span));
         }
     }
 
@@ -580,10 +580,11 @@ internal static class RoomBlockUploads
     /// <param name="SelectsKraidHudCharacters">Whether the background moved the HUD's characters to Kraid's base.</param>
     internal sealed record RoomBackgroundMap(string Name, ushort[] Words, BgArtworkBindings Content, bool SelectsKraidHudCharacters = false);
 
-    /// <summary>A collectible's graphics bound in one slot and the block definitions it writes there.</summary>
+    /// <summary>A collectible's graphics bound in one slot and the blocks it shows there.</summary>
     /// <param name="Characters">The graphics bound.</param>
-    /// <param name="Tiles">The tiles written, four per definition.</param>
-    internal sealed record CollectibleSlotCharacters(BgCharacterUpload Characters, BackgroundTile[] Tiles);
+    /// <param name="FirstBlock">The first of the slot's blocks.</param>
+    /// <param name="Tiles">The tiles of the slot's blocks, four per block.</param>
+    internal sealed record CollectibleSlotCharacters(BgCharacterUpload Characters, int FirstBlock, BackgroundTile[] Tiles);
 
     /// <summary>What an OBJ character table holds at one place: the artwork and the character it starts at.</summary>
     /// <param name="Identity">The artwork.</param>

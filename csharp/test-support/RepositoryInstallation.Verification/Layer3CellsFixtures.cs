@@ -19,7 +19,7 @@ internal static class Layer3CellsFixtures
 {
     /// <summary>The plane of a blank memory image: every cell character zero's transparent tile.</summary>
     private static readonly Lazy<Layer3Cells> blank = new(() =>
-        FromVram(new byte[SnesPpuLayout.VramByteCount], new RgbColor[SnesPpuLayout.CgramColorCount]));
+        FromVram(new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]));
 
     /// <summary>The plane of a blank memory image: every cell character zero's transparent tile.</summary>
     internal static Layer3Cells Blank => blank.Value;

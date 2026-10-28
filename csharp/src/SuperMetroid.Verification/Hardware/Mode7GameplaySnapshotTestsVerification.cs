@@ -22,9 +22,9 @@ internal static class Mode7GameplaySnapshotTestsVerification
     internal static void VerifyMode7GameplaySnapshots()
     {
         var random = new Random(32109);
-        byte[] bytes = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(bytes);
+        byte[] bytes = new byte[SnesVram.ByteCount]; random.NextBytes(bytes);
         byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount]; random.NextBytes(oam);
-        ushort[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount).Select(_ => (ushort)random.Next(32768)).ToArray();
+        ushort[] palette = Enumerable.Range(0, SnesCgram.ColorCount).Select(_ => (ushort)random.Next(32768)).ToArray();
         var memory = FramePaint.FromOam(bytes, ToColors(palette), oam, 128, 3);
         // The layer's pictures are drawn from the fixture's own VRAM, which the frame no longer carries (#1403).
         var fixtureVram = new SnesVram();
@@ -63,8 +63,8 @@ internal static class Mode7GameplaySnapshotTestsVerification
         var retained = new DisplayPacket(new(100, 1, 0), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "retail Ridley capture resolves mixed bands and haze");
         getaway.GetawayActive = false; getaway.FloorMatrixA = default;
-        runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
-        for (int i = 0; i < SnesPpuLayout.CgramColorCount; i++) runtime.Colours.AsPaletteColors().SetColor(i, new RgbColor(0, 0, 0));
+        runtime.Vram.LoadBytes(0, new byte[SnesVram.ByteCount]);
+        for (int i = 0; i < SnesCgram.ColorCount; i++) runtime.Colours.AsPaletteColors().SetColor(i, new RgbColor(0, 0, 0));
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "Ridley packet survives mode exit and live memory replacement");
         AssertThrows<ArgumentOutOfRangeException>(() => new GameplayFloorRenderLayer(default, RoomBackgroundsFixtures.BlankBg3(), RoomBackgroundsFixtures.BlankMode7Floor(), 31), "HUD must cover complete tile rows");
         AssertThrows<ArgumentOutOfRangeException>(() => new GameplayFloorRenderLayer(default, RoomBackgroundsFixtures.BlankBg3(), RoomBackgroundsFixtures.BlankMode7Floor(), 32,

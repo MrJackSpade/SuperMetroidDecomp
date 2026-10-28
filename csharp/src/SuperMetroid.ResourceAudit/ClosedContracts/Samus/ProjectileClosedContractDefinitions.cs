@@ -30,7 +30,6 @@ internal static class ProjectileClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SpazerCompositionGeometryDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Palettes/SamusColourDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Assets/GameplayBasePaletteCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Hardware/SnesPpuLayout.cs"),
              new("csharp/src/SuperMetroid.Core/Assets/SpriteComposition.cs")]),
         new("SuperMetroid.Core.Samus.Artwork.ProjectileTrailCatalog", "trail-complete-timed-appearances", ["Resolve"],
             [new("csharp/src/SuperMetroid.Core/Samus/Artwork/ProjectileTrailCatalog.cs"),
@@ -42,8 +41,7 @@ internal static class ProjectileClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileWaveEnvelopeDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SpazerCompositionGeometryDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Palettes/SamusColourDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Assets/GameplayBasePaletteCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Hardware/SnesPpuLayout.cs")]),
+             new("csharp/src/SuperMetroid.Core/Assets/GameplayBasePaletteCatalog.cs")]),
         new("SuperMetroid.Core.Samus.Artwork.GrappleSpriteCatalog", "grapple-complete-endpoint-and-segments", ["Segment"],
             [new("csharp/src/SuperMetroid.Core/Samus/Artwork/GrappleSpriteCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/GrappleSpriteDefinitions.cs")]),
@@ -57,7 +55,6 @@ internal static class ProjectileClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SpazerCompositionGeometryDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Palettes/SamusColourDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Assets/GameplayBasePaletteCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Hardware/SnesPpuLayout.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/ChargeFlareSpriteCatalog.cs")]),
     ];
 }

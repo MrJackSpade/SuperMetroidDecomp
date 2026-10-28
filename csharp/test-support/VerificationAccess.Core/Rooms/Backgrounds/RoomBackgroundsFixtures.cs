@@ -22,13 +22,13 @@ internal static class RoomBackgroundsFixtures
     private const int Definitions = 1024;
 
     /// <summary>A room whose BG1 shows tile word zero over the whole unscrolled screen, no BG2 plane, and a zero BG3 plane.</summary>
-    internal static RoomBackgrounds Blank() => Uniform(new byte[SnesPpuLayout.VramByteCount], new RgbColor[SnesPpuLayout.CgramColorCount], default);
+    internal static RoomBackgrounds Blank() => Uniform(new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount], default);
 
     /// <summary>A BG3 plane of zero words, as a blank memory image shows it (#1403).</summary>
     internal static Layer3Cells BlankBg3() => Layer3CellsFixtures.Blank;
 
     /// <summary>Seeded Mode 7 tile pictures for a Ceres map whose drawing a check does not look at.</summary>
-    internal static FloorTileSheet FloorTiles() => SeededMode7Tiles(new Random(0), new RgbColor[SnesPpuLayout.CgramColorCount]);
+    internal static FloorTileSheet FloorTiles() => SeededMode7Tiles(new Random(0), new RgbColor[SnesCgram.ColorCount]);
 
     /// <summary>A Mode 7 floor of tile zero everywhere, showing nothing.</summary>
     internal static AffineFloor BlankMode7Floor() => new([.. new AffineFloorCell[AffineFloor.CellCount]], new FloorCharacters().Pictures());
@@ -347,14 +347,14 @@ internal static class RoomBackgroundsFixtures
             var inside = new Position16<BgPlanePixels>((ushort)random.Next(SideBlocks * RoomLevelPlane.BlockPixels / 2),
                 (ushort)random.Next(SideBlocks * RoomLevelPlane.BlockPixels / 2));
             return new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(SideBlocks, SideBlocks), blocks, definitions).Cells,
-                scroll - inside, SeededPictures(random, pictureColours ?? new RgbColor[SnesPpuLayout.CgramColorCount]));
+                scroll - inside, SeededPictures(random, pictureColours ?? new RgbColor[SnesCgram.ColorCount]));
         }
         RoomBackgroundLayer bg1 = Layer(bg1Scroll);
         RoomBackgroundLayer? bg2 = bg2Scroll is { } scroll2 ? Layer(scroll2) : null;
         RoomDoorBackground? source = door
             ? RoomDoorBackground.Begin(Layer(bg1Scroll), bg1Scroll + new Offset16<BgPlanePixels>((short)random.Next(-128, 128), 0))
             : null;
-        RgbColor[] scene = pictureColours ?? new RgbColor[SnesPpuLayout.CgramColorCount];
+        RgbColor[] scene = pictureColours ?? new RgbColor[SnesCgram.ColorCount];
         RoomOverlayPictures? written = overlay ? SeededOverlayRun(random, scene, random.Next(8, 24)) : null;
         return new RoomBackgrounds(bg1, bg2, SeededBg3Pictures(random, scene), source, written,
             Bg2Image: bg2 is null ? SeededBackground(random, scene) : null);

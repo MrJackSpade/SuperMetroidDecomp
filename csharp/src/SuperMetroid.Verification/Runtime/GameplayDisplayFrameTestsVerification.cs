@@ -17,6 +17,7 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Runtime;
 
 /// <summary>
@@ -74,8 +75,8 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         // Wiping VRAM unbinds the room's artwork, so it follows the next frame's latch; the room reloads below.
-        runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
-        for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Colours.AsPaletteColors().SetColor(color, new RgbColor(31, 0, 31));
+        runtime.Vram.LoadBytes(0, new byte[SnesVram.ByteCount]);
+        for (int color = 0; color < SnesCgram.ColorCount; color++) runtime.Colours.AsPaletteColors().SetColor(color, new RgbColor(31, 0, 31));
         AssertTrue(ReferenceEquals(frameEnd, frame.FrameEnd) && ReferenceEquals(latched, frame.Latched),
             "a published frame keeps its own latch and frame-end inputs");
         AssertEqual(false, frame.FrameEnd.PowerBomb.IsActive, "published power bomb inputs are a value copy");

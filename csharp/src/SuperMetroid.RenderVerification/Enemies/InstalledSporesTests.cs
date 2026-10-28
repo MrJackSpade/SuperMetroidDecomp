@@ -151,7 +151,7 @@ internal static class InstalledSporesTests
                         ScreenLayers.Background), RoomBackgroundsFixtures.Blank() with
                         {
                             Bg3 = Layer3CellsFixtures.FromWords(Layer3Plane.Compose(new ushort[Layer3Plane.HudRows * Layer3Plane.Columns],
-                                replacement.EffectPageWords()).Words, new byte[SnesPpuLayout.VramByteCount], new RgbColor[SnesPpuLayout.CgramColorCount]),
+                                replacement.EffectPageWords()).Words, new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]),
                         });
                     var layer = GameplayEffectCapture.CaptureSpores(gameplay, (replacement.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires replacement.CaptureForDisplay().")));
                     Require(!layer.RevealBlocks && layer.Blend.Layers == (ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop) &&

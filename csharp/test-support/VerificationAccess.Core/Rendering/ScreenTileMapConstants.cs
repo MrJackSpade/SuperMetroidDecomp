@@ -1,6 +1,7 @@
 ﻿using SuperMetroid.Core.Assets;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -15,7 +16,7 @@ internal static class ScreenTileMapConstants
     [PpuLayoutBoundary("capture: a frontend layer's tilemap words, read from the screen's memory image into cells")]
     public static ScreenTileMap Capture(ReadOnlySpan<byte> image, int tilemapWord, Extent16<TilemapCells> size, ScreenLayerPictures tiles)
     {
-        Ensure.LengthEqual(image, SnesPpuLayout.VramByteCount);
+        Ensure.LengthEqual(image, SnesVram.ByteCount);
         var geometry = new BgTilemapGeometry(size);
         var cells = ImmutableArray.CreateBuilder<BackgroundTile>(size.X * size.Y);
         for (int y = 0; y < size.Y; y++)

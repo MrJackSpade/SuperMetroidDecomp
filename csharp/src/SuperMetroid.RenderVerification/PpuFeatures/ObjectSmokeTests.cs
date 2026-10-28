@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -16,11 +17,11 @@ internal static class ObjectSmokeTests
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var random = new Random(32112);
-        var vram = new byte[SnesPpuLayout.VramByteCount];
+        var vram = new byte[SnesVram.ByteCount];
         var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         random.NextBytes(vram);
         random.NextBytes(oam);
-        RgbColor[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount)
+        RgbColor[] palette = Enumerable.Range(0, SnesCgram.ColorCount)
             .Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
         ScreenTileMap cells = VramTileFixtures.Cells(vram, palette, 0x4000, 0x6000, BgBitDepth.FourBpp, new Extent16<TilemapCells>(32, 32));
         int cases = 0;

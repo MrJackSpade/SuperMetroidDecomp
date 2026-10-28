@@ -5,6 +5,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.Verification.Rendering;
 
@@ -19,7 +20,7 @@ internal static class ObjSubscreenVerification
         Suite(nameof(VerifyMode7Bg1Addition), () => VerifyMode7Bg1Addition());
         Suite(nameof(VerifyBg4SubscreenAddition), () => VerifyBg4SubscreenAddition());
         Suite(nameof(VerifyObjFixedColor), () => VerifyObjFixedColor());
-        byte[] vram = new byte[SnesPpuLayout.VramByteCount];
+        byte[] vram = new byte[SnesVram.ByteCount];
         for (int row = 0; row < 8; row++) vram[row * 2] = 255;
         ushort[] colors = new ushort[256];
         colors[0] = 31;
@@ -45,7 +46,7 @@ internal static class ObjSubscreenVerification
         foreach (byte palette in new byte[] { 0, 4 })
         foreach (byte priority in new byte[] { 0, 1, 2, 3 })
         {
-            byte[] vram = new byte[SnesPpuLayout.VramByteCount];
+            byte[] vram = new byte[SnesVram.ByteCount];
             if (opaqueBg) for (int pixel = 0; pixel < 64; pixel++) vram[pixel * 2 + 1] = 1;
             for (int row = 0; row < 8; row++) vram[0xc000 + row * 2] = 255;
             ushort[] colors = new ushort[256];
@@ -71,7 +72,7 @@ internal static class ObjSubscreenVerification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyMode7ObjSubtraction()
     {
-        byte[] vram = new byte[SnesPpuLayout.VramByteCount];
+        byte[] vram = new byte[SnesVram.ByteCount];
         for (int pixel = 0; pixel < 64; pixel++) vram[pixel * 2 + 1] = 1;
         for (int row = 0; row < 8; row++) vram[0xc000 + row * 2] = 255;
         ushort[] colors = new ushort[256];
@@ -92,7 +93,7 @@ internal static class ObjSubscreenVerification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyObjFixedColor()
     {
-        byte[] vram = new byte[SnesPpuLayout.VramByteCount];
+        byte[] vram = new byte[SnesVram.ByteCount];
         for (int y = 0; y < 8; y++) vram[y * 2] = 255;
         ushort[] palette = new ushort[256];
         palette[0] = 31 << 10;
@@ -126,7 +127,7 @@ internal static class ObjSubscreenVerification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyBg4SubscreenAddition()
     {
-        byte[] vram = new byte[SnesPpuLayout.VramByteCount];
+        byte[] vram = new byte[SnesVram.ByteCount];
         // Color four depends on the third bitplane: a mistaken 2-bpp decode sees zero.
         for (int row = 0; row < 8; row++) vram[row * 2 + 16] = 255;
         for (int tile = 0; tile < 1024; tile++) vram[0xe000 + tile * 2 + 1] = 4;

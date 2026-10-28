@@ -9,6 +9,7 @@ using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Frontend.Ending;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.FrameRendering;
@@ -96,7 +97,7 @@ internal static class EndingPlanetBoundaryVerification
     [PpuLayoutBoundary("exact hardware test: dumps native VRAM, CGRAM and OAM tables for the pinned native PPU")]
     private static byte[] NativeProbeInput(LayeredScene snapshot, byte[] snapshotVram, OamBuffer oam, byte objectSelection)
     {
-        var input = new List<byte>(SnesPpuLayout.VramByteCount + SnesPpuLayout.CgramColorCount * 2 + SnesPpuLayoutConstants.OamUploadByteCount + 2);
+        var input = new List<byte>(SnesVram.ByteCount + SnesCgram.ColorCount * 2 + SnesPpuLayoutConstants.OamUploadByteCount + 2);
         input.AddRange(snapshotVram);
         foreach (RgbColor color in snapshot.Paint.Colors)
         {

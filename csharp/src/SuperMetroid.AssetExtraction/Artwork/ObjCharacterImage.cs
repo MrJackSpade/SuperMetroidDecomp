@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 
@@ -43,6 +44,6 @@ internal static class ObjCharacterImage
         if ((tileNumber & NameSelectBit) != 0)
             tileWord += nameSelectWordOffset;
         // Physical VRAM has only 15 word-address bits, so register arithmetic wraps.
-        return (tileWord & (SnesPpuLayout.VramWordCount - 1)) * 2;
+        return (tileWord & (SnesVram.WordCount - 1)) * 2;
     }
 }

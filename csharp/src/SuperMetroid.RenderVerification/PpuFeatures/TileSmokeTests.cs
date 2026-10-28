@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -17,8 +18,8 @@ internal static class TileSmokeTests
     {
         VerifyFourthPlaneByteSelection(device, renderer);
         var random = new Random(32111);
-        byte[] bytes = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(bytes);
-        RgbColor[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
+        byte[] bytes = new byte[SnesVram.ByteCount]; random.NextBytes(bytes);
+        RgbColor[] palette = Enumerable.Range(0, SnesCgram.ColorCount).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
         var memory = new FramePaint(palette, []);
         ScreenLayerPictures upper = VramTileFixtures.Tiles(bytes, palette, 0x6000, BgBitDepth.FourBpp);
         ScreenTileMap Cells(int tilemapWord, ushort width, ushort height, ScreenLayerPictures tiles) =>
@@ -58,7 +59,7 @@ internal static class TileSmokeTests
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyFourthPlaneByteSelection(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
-        var vram = new byte[SnesPpuLayout.VramByteCount];
+        var vram = new byte[SnesVram.ByteCount];
         // A flipped tile's bottom row puts plane three in the high byte of a packed
         // uint. The adjacent second byte is deliberately different: the original
         // optimized shader selected it and produced palette index ten instead of two.
@@ -71,7 +72,7 @@ internal static class TileSmokeTests
         vram[(0x6000 + 4 * 16) * 2 + 29] = 233;
         for (int i = 0; i < 1024; i++)
             System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(vram.AsSpan(0x4000 * 2 + i * 2), 0xec04);
-        var palette = new RgbColor[SnesPpuLayout.CgramColorCount];
+        var palette = new RgbColor[SnesCgram.ColorCount];
         palette[3 * 16 + 2] = new RgbColor(31, 0, 0); palette[3 * 16 + 10] = new RgbColor(0, 0, 31);
         var memory = new FramePaint(palette, []);
         var frame = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory,

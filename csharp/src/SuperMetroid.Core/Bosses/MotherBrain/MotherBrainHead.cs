@@ -149,8 +149,7 @@ internal sealed class MotherBrainHead
                 head.Position.Whole + brainShake,
                 // The custom draw hook bypasses ordinary enemy palette selection. Retail
                 // still selects the shared white hurt palette on odd flash-timer frames.
-                (head.FlashTimer.RawValue & 1) != 0 ? 0 : state.BrainPalette,
-                head.TileIndexBase),
+                (head.FlashTimer.RawValue & 1) != 0 ? 0 : state.BrainPalette),
             camera);
 
         if (!state.DrawNeck || state.Body.Properties.HasAny(EnemyProperties.Invisible))
@@ -168,7 +167,7 @@ internal sealed class MotherBrainHead
                 sprites,
                 new SpriteSource(SpriteSourceKind.MotherBrainNeck, segments.Length - 1 - index),
                 new MotherBrainWorldFrame(MotherBrainVisualDefinitions.NeckJointFrame, segment + neckShake,
-                    state.NeckPalette, head.TileIndexBase),
+                    state.NeckPalette),
                 camera);
         }
     }
@@ -189,7 +188,7 @@ internal sealed class MotherBrainHead
 
         // The head's sheet pictures each frame over what the encounter's uploads and the corpse's rot leave (#1392).
         _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(EnemyDefinitionId.MotherBrainHead, EnemySheetDefinitions.FrameName(frame.Frame), screen,
-            frame.PaletteRow, frame.TileIndexBase));
+            frame.PaletteRow));
     }
 
     /// <summary>Derives the head's current shake offset from the encounter's animation state.</summary>

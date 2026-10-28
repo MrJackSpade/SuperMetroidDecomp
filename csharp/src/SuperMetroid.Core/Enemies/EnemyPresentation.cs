@@ -108,17 +108,12 @@ internal sealed class EnemyPresentation
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="source">The actor shown.</param>
-    /// <param name="draw">The frame drawn: the enemy, its sheet frame, origin, palette selection, tile base and rot.</param>
-    /// <exception cref="InvalidDataException">
-    /// The enemy draws at another tile base than its sheet's, or a frame showing a corpse's rot is drawn without that rot.
-    /// </exception>
+    /// <param name="draw">The frame drawn: the enemy, its sheet frame, origin, palette selection and rot.</param>
+    /// <exception cref="InvalidDataException">A frame showing a corpse's rot is drawn without that rot.</exception>
     internal void PublishSheetFrame(SpriteFrameBuffer sprites, SpriteSource source, EnemySheetDraw draw)
     {
-        (EnemyDefinitionId enemy, string frame, Position16<ScreenPixels> origin, int drawn, int tileBase, CorpseRotView? rot) = draw;
-        SpriteGraphics composed = _graphicsSet.DrawIndexes(enemy);
-        if (tileBase != composed.TileBase)
-            throw new InvalidDataException($"{enemy} draws at tile base ${tileBase:X3}; its sheet was composed at ${composed.TileBase:X3}.");
-        int loaded = composed.PaletteRow;
+        (EnemyDefinitionId enemy, string frame, Position16<ScreenPixels> origin, int drawn, CorpseRotView? rot) = draw;
+        int loaded = _graphicsSet.DrawIndexes(enemy).PaletteRow;
         SpriteSheet sheet = Sheets.For(LoadedSet, enemy);
         foreach (string picture in Pictures(frame, Sheets.Layers(LoadedSet, enemy, frame), Sheets.RotCorpse(LoadedSet, enemy, frame), rot))
             sprites.Add(new ImageSpriteDraw(source, sheet.Frame(picture), origin, SpriteMirror.None, drawn == loaded ? null : drawn));

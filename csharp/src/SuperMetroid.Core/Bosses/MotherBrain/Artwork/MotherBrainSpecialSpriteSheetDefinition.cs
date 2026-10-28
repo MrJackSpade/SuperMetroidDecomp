@@ -16,10 +16,4 @@ public readonly record struct MotherBrainSpecialSpriteSheetDefinition(
 
     /// <summary>Total tile-aligned source length encoded by this sheet.</summary>
     public int ByteCount => checked(PageCount * PageByteCount);
-
-    /// <summary>The sprite character page <paramref name="page"/> shows from.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The sheet has no such page.</exception>
-    public int PageFirstCharacter(int page) => (uint)page < PageCount
-        ? FirstCharacter + page * CharactersPerPage
-        : throw new ArgumentOutOfRangeException(nameof(page));
 }

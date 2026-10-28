@@ -19,7 +19,7 @@ internal static class MotherBrainTurretDefinitionsVerification
         for (ushort parameter = 0; parameter < 12; parameter++)
         {
             MotherBrainTurretDefinition definition =
-                MotherBrainTurretDefinitions.ForTurret(parameter);
+                MotherBrainTurrets.ForTurret(parameter);
             int wordOffset = parameter * 2;
             // $86:BEF9: each turret's eight allowed-direction bytes follow the previous turret's.
             ushort policyRow = (ushort)(0xbef9 + parameter * 8);
@@ -38,7 +38,7 @@ internal static class MotherBrainTurretDefinitionsVerification
             {
                 bool nativeAllowed = rom.ReadCartridgeByte(
                     0x860000 | (policyRow + direction)) != 0;
-                AssertEqual(nativeAllowed, MotherBrainTurretDefinitions.IsRotationAllowed(
+                AssertEqual(nativeAllowed, MotherBrainTurrets.IsRotationAllowed(
                     parameter,
                     (MotherBrainTurretDirection)direction),
                     $"Mother Brain turret allowed direction {parameter}/{direction}");
@@ -51,7 +51,7 @@ internal static class MotherBrainTurretDefinitionsVerification
             RoomEnemyProjectileSlot turret =
                 enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
             MotherBrainTurretDirectionDefinition directionDefinition =
-                MotherBrainTurretDefinitions.ForDirection(definition.InitialDirection);
+                MotherBrainTurrets.ForDirection(definition.InitialDirection);
             AssertEqual(RoomEnemyProjectileKind.MotherBrainRoomTurret, turret.Kind,
                 $"production Mother Brain turret kind {parameter}");
             AssertEqual(definition.Position, turret.Position.Whole,
@@ -97,7 +97,7 @@ internal static class MotherBrainTurretDefinitionsVerification
             MotherBrainTurretDirection typedDirection =
                 (MotherBrainTurretDirection)direction;
             MotherBrainTurretDirectionDefinition definition =
-                MotherBrainTurretDefinitions.ForDirection(typedDirection);
+                MotherBrainTurrets.ForDirection(typedDirection);
             int wordOffset = direction * 2;
             // Both native pose tables select the list the typed turret pose matches (--mother-brain-projectile-animations).
             ushort pose = MotherBrainNativeListAddresses.TurretEntries[direction].TurretPose;
@@ -140,13 +140,13 @@ internal static class MotherBrainTurretDefinitionsVerification
         }
 
         AssertThrows<ArgumentOutOfRangeException>(
-            () => MotherBrainTurretDefinitions.ForTurret(12),
+            () => MotherBrainTurrets.ForTurret(12),
             "Mother Brain turret parameter past table");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => MotherBrainTurretDefinitions.ForDirection((MotherBrainTurretDirection)8),
+            () => MotherBrainTurrets.ForDirection((MotherBrainTurretDirection)8),
             "Mother Brain turret direction past table");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => MotherBrainTurretDefinitions.IsRotationAllowed(
+            () => MotherBrainTurrets.IsRotationAllowed(
                 12, MotherBrainTurretDirection.Left),
             "Mother Brain turret rotation policy past table");
 

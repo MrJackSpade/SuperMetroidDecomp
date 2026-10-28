@@ -16,5 +16,5 @@ public readonly record struct MotherBrainCorpseRotRow(int Row, int FirstColumn, 
     public int ByteCount => ColumnCount * MotherBrainCorpseArtworkDefinitions.TileBytes;
 
     /// <summary>The sprite character the part shows from: its column within its row's corpse page.</summary>
-    public int FirstCharacter => MotherBrainCorpseArtworkDefinitions.PageFirstCharacter(Row) + MotherBrainCorpseArtworkDefinitions.RightFrameColumn + FirstColumn;
+    public int FirstCharacter => MotherBrainCorpseSheet.PageFirstCharacter(Row) + MotherBrainCorpseArtworkDefinitions.RightFrameColumn + FirstColumn;
 }

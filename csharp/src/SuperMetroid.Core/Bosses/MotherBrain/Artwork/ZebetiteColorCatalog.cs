@@ -6,46 +6,17 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 public sealed class ZebetiteColorCatalog
 {
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("ZebetiteColorCatalog-v1", content =>
-        {
-            content.Append("frames", ZebetiteColorFormat.FrameCount);
-            Span<RgbColor> row = stackalloc RgbColor[ZebetiteColorFormat.ColorsPerFrame];
-            for (int frame = 0; frame < ZebetiteColorFormat.FrameCount; frame++)
-            {
-                for (int color = 0; color < row.Length; color++) row[color] = Resolve(frame, color);
-                content.AppendColors("row", row);
-            }
-        });
+    public string ContentIdentity => ZebetitePulse.ContentIdentity(edits);
 
     /// <summary>Only palette cells edited away from the calculated native pulse, keyed by frame and color.</summary>
     internal readonly Dictionary<ColourCell, RgbColor> edits;
 
     /// <summary>Keeps the selected pulse colours that differ from the calculated native pulse.</summary>
     /// <param name="frames">The eight selected two-colour pulse rows.</param>
-    internal ZebetiteColorCatalog(RgbColor[][] frames)
-    {
-        edits = [];
-        for (int frame = 0; frame < frames.Length; frame++)
-            for (int color = 0; color < frames[frame].Length; color++)
-                if (frames[frame][color] != StockColor(frame, color))
-                    edits.Add(new ColourCell(frame, color), frames[frame][color]);
-    }
-
-    /// <summary>Calculated symmetric pulse of the two selected barrier-core paints.</summary>
-    private static RgbColor StockColor(int frame, int color) => ZebetitePulsePaintDefinitions.Color(frame, color);
-
-    /// <summary>Selects an edited pulse color when present, otherwise the symmetric native color.</summary>
-    private RgbColor Resolve(int frame, int color) =>
-        edits.TryGetValue(new ColourCell(frame, color), out RgbColor edited)
-            ? edited : StockColor(frame, color);
+    internal ZebetiteColorCatalog(RgbColor[][] frames) => edits = ZebetitePulse.Edits(frames);
 
     /// <summary>Writes the selected pulse row's two colors without advancing the shared palette counter or testing fade/linkage conditions; native <c>HandleZebetitePaletteAnimation</c> at <c>$A6:FD5E</c> targets CGRAM entries 172 and 173 (OBJ palette 2 colors 12 and 13).</summary>
     /// <param name="destination">The two pulsing colours.</param>
     /// <param name="frame">Zero-based pulse row from 0 through 7.</param>
-    public void Apply(ColourRun destination, int frame)
-    {
-        if ((uint)frame >= ZebetiteColorFormat.FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
-        for (int color = 0; color < ZebetiteColorFormat.ColorsPerFrame; color++)
-            destination.Write(color, Resolve(frame, color));
-    }
+    public void Apply(ColourRun destination, int frame) => ZebetitePulse.Apply(edits, destination, frame);
 }

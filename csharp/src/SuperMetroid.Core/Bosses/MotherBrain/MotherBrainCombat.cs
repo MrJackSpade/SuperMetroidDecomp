@@ -300,7 +300,7 @@ internal sealed class MotherBrainCombat
 
         // Body and head walk the same bank-$A9 roots; the head's dummy list keeps $A320.
         foreach (MotherBrainCollisionComponent component in
-                 MotherBrainCollisionDefinitions.ComponentsAt(enemy.Frame))
+                 MotherBrainCollision.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (MotherBrainCollisionHitbox hitbox in component.Hitboxes)

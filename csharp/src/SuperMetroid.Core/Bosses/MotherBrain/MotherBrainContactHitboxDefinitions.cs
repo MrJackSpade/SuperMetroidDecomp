@@ -6,12 +6,11 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class MotherBrainContactHitboxDefinitions
 {
-
-    /// <summary>Returns the native ordered collision rectangles for one physical component.</summary>
-    internal static MotherBrainContactHitboxes Get(MotherBrainContactPart part) =>
-        part switch
-        {
-            MotherBrainContactPart.Body or MotherBrainContactPart.Brain or MotherBrainContactPart.Neck => new(part),
-            _ => throw new ArgumentOutOfRangeException(nameof(part)),
-        };
+    /// <summary>The native ordered collision rectangles of each physical component.</summary>
+    internal static readonly Dictionary<MotherBrainContactPart, MotherBrainContactHitboxes> Parts = new()
+    {
+        [MotherBrainContactPart.Body] = new(MotherBrainContactPart.Body),
+        [MotherBrainContactPart.Brain] = new(MotherBrainContactPart.Brain),
+        [MotherBrainContactPart.Neck] = new(MotherBrainContactPart.Neck),
+    };
 }

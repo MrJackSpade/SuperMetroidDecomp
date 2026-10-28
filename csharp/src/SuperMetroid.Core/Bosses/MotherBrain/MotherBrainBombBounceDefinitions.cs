@@ -13,20 +13,6 @@ internal static class MotherBrainBombBounceDefinitions
     /// <summary>The ordinary fall gravity, also used before the first bounce.</summary>
     internal const ushort FallAcceleration = 0x0007;
 
-    /// <summary>Base gravity increment accumulated after each bounce.</summary>
-    private const int GrowthUnit = 16;
-    /// <summary>Caps each later bounce's additional increment at four growth units.</summary>
-    private const int MaximumGrowthSteps = 4;
-
-    /// <summary>Returns native acceleration for stages zero through eight, then zero for expiry at stage nine.</summary>
-    internal static ushort YAcceleration(int stage)
-    {
-        if ((uint)stage >= StageCount) throw new ArgumentOutOfRangeException(nameof(stage));
-        if (stage == 0) return FallAcceleration;
-        if (stage == StageCount - 1) return 0;
-        int acceleration = GrowthUnit;
-        for (int bounce = 1; bounce < stage; bounce++)
-            acceleration += GrowthUnit * Math.Min(bounce, MaximumGrowthSteps);
-        return (ushort)acceleration;
-    }
+    /// <summary>The native acceleration of stages zero through eight, then zero for expiry at stage nine.</summary>
+    internal static readonly ushort[] YAccelerations = [FallAcceleration, 16, 32, 64, 112, 176, 240, 304, 368, 0];
 }

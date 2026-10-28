@@ -63,7 +63,7 @@ internal static class EnemyExtendedFrameFiles
         // high byte as native presentation metadata.
         int expectedPadding = definition.Name.StartsWith("ceres_steam_oam_",
             StringComparison.Ordinal) ? CeresSteamHeaderHighByte : 0;
-        bool motherBrainMixed = MotherBrainBodyVisualDefinitions.HasBg2(definition.Frame);
+        bool motherBrainMixed = MotherBrainBodyVisualDefinitions.Bg2FrameIds.Contains(definition.Frame);
         bool bg2Only = EnemyExtendedFrameDefinitions.IsBg2Only(definition);
         int maximumNativeComponents = motherBrainMixed
             ? MotherBrainBodyVisualDefinitions.MaximumComponents

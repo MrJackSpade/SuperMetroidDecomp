@@ -6,34 +6,25 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 public sealed class MotherBrainDeathColorCatalog
 {
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("MotherBrainDeathColorCatalog-v1", content =>
-        {
-            Span<RgbColor> door = stackalloc RgbColor[MotherBrainExplodedDoorPaintDefinitions.ColorCount];
-            for (int color = 0; color < door.Length; color++) door[color] = ExplodedDoorColor(color);
-            content.AppendColors("explodedDoor", door);
-            bodyFade.AppendIdentity(content, "bodyFade");
-            legFade.AppendIdentity(content, "legFade");
-            corpseFade.AppendIdentity(content, "corpseFade");
-        });
+    public string ContentIdentity => MotherBrainDeathColors.ContentIdentity(this);
 
     /// <summary>Sixteen-stage body and brain palette progression toward black.</summary>
-    internal readonly ColorFade bodyFade;
+    internal readonly MotherBrainDeathFade bodyFade;
     /// <summary>Separate sixteen-stage back-leg palette progression.</summary>
-    internal readonly ColorFade legFade;
+    internal readonly MotherBrainDeathFade legFade;
     /// <summary>Eight-stage detached-head progression toward the drained palette.</summary>
-    internal readonly ColorFade corpseFade;
+    internal readonly MotherBrainDeathFade corpseFade;
     /// <summary>Edited escape-door colors, or null when the canonical image suffices.</summary>
     internal readonly RgbColor[]? explodedDoor;
 
     /// <summary>Compresses stock fade images into calculated stages while retaining independently edited frames.</summary>
     internal MotherBrainDeathColorCatalog(RgbColor[][] bodyFade, RgbColor[][] legFade,
-        RgbColor[][] corpseFade, RgbColor[] explodedDoor)
-    {
-        this.bodyFade = new(bodyFade, MotherBrainFadeTarget.Black);
-        this.legFade = new(legFade, MotherBrainFadeTarget.Black, MotherBrainPalettePart.BackLeg);
-        this.corpseFade = new(corpseFade, MotherBrainFadeTarget.DrainedBody);
-        this.explodedDoor = MotherBrainExplodedDoorPaintDefinitions.Matches(explodedDoor) ? null : explodedDoor;
-    }
+        RgbColor[][] corpseFade, RgbColor[] explodedDoor) =>
+        (this.bodyFade, this.legFade, this.corpseFade, this.explodedDoor) =
+            (new MotherBrainDeathFade(bodyFade, MotherBrainFadeTarget.Black),
+                new MotherBrainDeathFade(legFade, MotherBrainFadeTarget.Black, MotherBrainPalettePart.BackLeg),
+                new MotherBrainDeathFade(corpseFade, MotherBrainFadeTarget.DrainedBody),
+                MotherBrainDeathColors.EditedDoor(explodedDoor));
 
     /// <summary>Returns one body-fade color from the first segment of the native $AD:EA0A images, applied to both CGRAM 65..78 and 145..158 during the death fade.</summary>
     /// <param name="frame">Zero-based authored palette stage 0..15, not an elapsed gameplay-update count; the stock sequence ends at black.</param>
@@ -41,7 +32,7 @@ public sealed class MotherBrainDeathColorCatalog
     /// <returns>Packed SNES BGR555 color, preserving any independently edited stage.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The stage or color index is outside the authored images.</exception>
     public RgbColor BodyColor(int frame, int color) =>
-        Resolve(bodyFade, frame, color, nameof(BodyColor));
+        bodyFade.Checked(frame, color, nameof(BodyColor));
 
     /// <summary>Returns one back-leg fade color from the second fourteen-color segment of each native $AD:EA0A image, applied to CGRAM 177..190.</summary>
     /// <param name="frame">Zero-based authored palette stage 0..15; the stock back-leg sequence fades to black alongside the body.</param>
@@ -49,7 +40,7 @@ public sealed class MotherBrainDeathColorCatalog
     /// <returns>Packed SNES BGR555 color from the selected back-leg image.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The stage or color index is outside the authored images.</exception>
     public RgbColor LegColor(int frame, int color) =>
-        Resolve(legFade, frame, color, nameof(LegColor));
+        legFade.Checked(frame, color, nameof(LegColor));
 
     /// <summary>Returns one detached-head corpse color from the native $AD:F119 fade-to-gray images, applied to CGRAM 241..255 before corpse rotting.</summary>
     /// <param name="frame">Zero-based authored palette stage 0..7, progressing from the death-start colors to the drained corpse appearance.</param>
@@ -57,94 +48,11 @@ public sealed class MotherBrainDeathColorCatalog
     /// <returns>Packed SNES BGR555 color from the selected corpse image.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The stage or color index is outside the authored images.</exception>
     public RgbColor CorpseColor(int frame, int color) =>
-        Resolve(corpseFade, frame, color, nameof(CorpseColor));
+        corpseFade.Checked(frame, color, nameof(CorpseColor));
 
     /// <summary>Returns a color from the $A9:9534 exploded escape-door palette, installed at CGRAM 145..158 when the escape sequence opens the door.</summary>
     /// <param name="color">Zero-based palette color 0..13, corresponding to native sprite-palette-one colors 1..14.</param>
     /// <returns>Packed SNES BGR555 color from the selected fourteen-color image.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The color index is outside 0..13.</exception>
-    public RgbColor ExplodedDoorColor(int color) =>
-        (uint)color < MotherBrainExplodedDoorPaintDefinitions.ColorCount
-            ? explodedDoor is null ? MotherBrainExplodedDoorPaintDefinitions.Color(color) : explodedDoor[color] :
-            throw new ArgumentOutOfRangeException(nameof(color));
-
-    /// <summary>Checks authored frame and color bounds before resolving a fade color.</summary>
-    private static RgbColor Resolve(ColorFade frames, int frame, int color, string name) =>
-        (uint)frame < frames.FrameCount && (uint)color < frames.ColorCount
-            ? frames.Resolve(frame, color)
-            : throw new ArgumentOutOfRangeException(nameof(frame),
-                $"Mother Brain death {name} frame {frame}, color {color} is outside the authored images.");
-
-    /// <summary>
-    /// $AD:EA0A body/leg channels fade to black as (initial*(15-frame)+1)/15.
-    /// $AD:F119 corpse channels interpolate between endpoints, rounded to nearest
-    /// over seven intervals. These rules match every original intermediate color.
-    /// Starting colors calculate from health state three; the corpse final palette calculates shared
-    /// drained shade rules from the three narrowly approved drained-paint anchors.
-    /// Unmatched edited endpoints and frames remain exact and independent of the health document.
-    /// </summary>
-    internal sealed class ColorFade
-    {
-        /// <summary>Edited starting colors, or null when the health palette supplies the stock start.</summary>
-        internal readonly RgbColor[]? first;
-        /// <summary>Selects the back-leg rather than body starting palette.</summary>
-        private readonly MotherBrainPalettePart part;
-        /// <summary>Corpse fade endpoint; null selects black for the body and leg fades.</summary>
-        internal readonly MotherBrainRainbowPalettePresentation.DrainedBodyColors? last;
-        /// <summary>Exact edited frames retained when the calculated stock interpolation differs.</summary>
-        internal readonly RgbColor[][]? supplied;
-        /// <summary>Number of authored palette stages in this fade.</summary>
-        internal int FrameCount { get; }
-        /// <summary>Opaque colors in each authored stage.</summary>
-        internal int ColorCount { get; }
-
-        /// <summary>Detects whether the supplied stages follow stock interpolation or need exact storage.</summary>
-        internal ColorFade(RgbColor[][] frames, MotherBrainFadeTarget target, MotherBrainPalettePart part = MotherBrainPalettePart.Body)
-        {
-            this.part = part;
-            ColorCount = frames[0].Length;
-            for (int color = 0; color < ColorCount; color++)
-                if (frames[0][color] != MotherBrainHealthPalettePresentation.StockDeathStartColor(part, color))
-                { first = frames[0]; break; }
-            last = target == MotherBrainFadeTarget.Black ? null : new MotherBrainRainbowPalettePresentation.DrainedBodyColors(frames[^1]);
-            FrameCount = frames.Length;
-            for (int frame = 0; frame < FrameCount; frame++)
-            for (int color = 0; color < ColorCount; color++)
-            {
-                if (frames[frame][color] != Calculate(frame, color))
-                {
-                    supplied = frames;
-                    return;
-                }
-            }
-        }
-
-        /// <summary>Returns an exact edited color when present, otherwise calculates the stock stage.</summary>
-        internal RgbColor Resolve(int frame, int color) =>
-            supplied is null ? Calculate(frame, color) : supplied[frame][color];
-
-        /// <summary>Interpolates a channel with the native black-fade bias or rounded corpse endpoint.</summary>
-        private RgbColor Calculate(int frame, int color)
-        {
-            int steps = FrameCount - 1;
-            RgbColor start = first is null ? MotherBrainHealthPalettePresentation.StockDeathStartColor(part, color) : first[color];
-            // Without a supplied endpoint the fade ends at black with a one-unit bias.
-            RgbColor end = last is null ? RgbColor.Black : last[color];
-            int bias = last is null ? 1 : steps / 2;
-            return start.Zip(end, (_, from, to) => (from * (steps - frame) + to * frame + bias) / steps);
-        }
-
-        /// <summary>Appends resolved stage colors to the identity independent of storage representation.</summary>
-        internal void AppendIdentity(SelectedPresentationHash content, string label)
-        {
-            content.Append(label, FrameCount);
-            Span<RgbColor> row = stackalloc RgbColor[ColorCount];
-            for (int frame = 0; frame < FrameCount; frame++)
-            {
-                for (int color = 0; color < ColorCount; color++)
-                    row[color] = Resolve(frame, color);
-                content.AppendColors("row", row);
-            }
-        }
-    }
+    public RgbColor ExplodedDoorColor(int color) => MotherBrainDeathColors.ExplodedDoorColor(explodedDoor, color);
 }

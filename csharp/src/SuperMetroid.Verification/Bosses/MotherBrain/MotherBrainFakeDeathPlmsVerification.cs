@@ -39,7 +39,7 @@ internal static class MotherBrainFakeDeathPlmsVerification
         AssertEqual(22, draws.Length,
             "Mother Brain fake death owns twenty-two physical draws");
         foreach (MotherBrainFakeDeathProgram program in Enum.GetValues<MotherBrainFakeDeathProgram>())
-            AssertTrue(MotherBrainFakeDeathDraws.TryGet(PlmDraw.Of(MotherBrainFakeDeathPlmProgramDefinitions.Layout(program)), out _),
+            AssertTrue(MotherBrainFakeDeathDraws.TryGet(PlmDraw.Of(MotherBrainFakeDeathPrograms.Layout(program)), out _),
                 $"Mother Brain program {program} selects a compiled draw");
         Reachable[] reachable =
         [
@@ -90,7 +90,7 @@ internal static class MotherBrainFakeDeathPlmsVerification
         AssertTrue(plms.PopulationSlots.Single().Animation is MotherBrainFakeDeathPlmAnimation { Program: var started } && started == program,
             $"Mother Brain mutation {header} starts its typed program");
         AssertTrue(MotherBrainFakeDeathDraws.TryGet(
-                PlmDraw.Of(MotherBrainFakeDeathPlmProgramDefinitions.Layout(program)), out var draw),
+                PlmDraw.Of(MotherBrainFakeDeathPrograms.Layout(program)), out var draw),
             $"Mother Brain mutation {header} has a physical draw");
         for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
         {

@@ -8,6 +8,7 @@ internal static class MotherBrainSheetsClosedContractDefinitions
     [
         new("SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainSpecialSpriteArtworkCatalog", "mother-brain-special-sheets-complete-pages", ["Get"],
             [new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainSpecialSpriteArtworkCatalog.cs"),
+             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainSpecialSprites.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainSpecialSpriteArtworkDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/Artwork/RoomCharacterAtlas.cs")]),
     ];

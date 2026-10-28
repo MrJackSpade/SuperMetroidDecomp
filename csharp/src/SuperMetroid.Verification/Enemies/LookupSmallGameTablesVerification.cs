@@ -45,10 +45,10 @@ internal static class LookupSmallGameTablesVerification
     {
         for (int stage = 0; stage < MotherBrainBombBounceDefinitions.StageCount; stage++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c550 + 2 * stage)),
-                MotherBrainBombBounceDefinitions.YAcceleration(stage), $"Bomb bounce stage {stage} gravity");
+                MotherBrainBombBounces.YAcceleration(stage), $"Bomb bounce stage {stage} gravity");
         AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x86c550), MotherBrainBombBounceDefinitions.FallAcceleration,
             "Stage zero shares the ordinary fall gravity");
-        AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBombBounceDefinitions.YAcceleration(10), "Bomb stage bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBombBounces.YAcceleration(10), "Bomb stage bound");
     }
 
     /// <summary>Matches seven unrolled Crocomire bridge-dust spawn operands to their X/Y positions.</summary>

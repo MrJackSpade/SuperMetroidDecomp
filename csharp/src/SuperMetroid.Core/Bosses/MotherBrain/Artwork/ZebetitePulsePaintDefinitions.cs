@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>
@@ -10,25 +9,13 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 internal static class ZebetitePulsePaintDefinitions
 {
     /// <summary>Upper bound of each SNES five-bit color channel.</summary>
-    private const int ChannelMaximum = 31;
+    internal const int ChannelMaximum = 31;
     /// <summary>$A6:FD87/$A2:BA73: warm-green bias2 on the saturated-red core.
     /// The neighboring darker facet uses half this green bias.</summary>
-    private const int WarmGreenBias = 2;
+    internal const int WarmGreenBias = 2;
     /// <summary>$A6:FD89/$A2:BA75: the darker facet begins at floor(3/4 of red31)=23.
     /// Three-quarter shade is the selected material contrast, not a health ratio.</summary>
-    private const int DarkShadeNumerator = 3;
+    internal const int DarkShadeNumerator = 3;
     /// <summary>Denominator of the darker facet's three-quarter initial red shade.</summary>
-    private const int DarkShadeDenominator = 4;
-
-    /// <summary>Computes one of two symmetric red/green core facets for a pulse frame, leaving blue at zero.</summary>
-    internal static RgbColor Color(int frame, int color)
-    {
-        int intervals = ZebetiteColorFormat.FrameCount / 2;
-        int phase = Math.Min(frame, ZebetiteColorFormat.FrameCount - frame);
-        int redStart = color == 0 ? ChannelMaximum : ChannelMaximum * DarkShadeNumerator / DarkShadeDenominator;
-        int greenStart = color == 0 ? WarmGreenBias : WarmGreenBias / 2;
-        int red = redStart + (ChannelMaximum - redStart) * phase / intervals;
-        int green = greenStart * (intervals - phase) / intervals;
-        return new RgbColor(red, green, 0);
-    }
+    internal const int DarkShadeDenominator = 4;
 }

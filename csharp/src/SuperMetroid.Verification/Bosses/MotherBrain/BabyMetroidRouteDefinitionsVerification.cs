@@ -17,7 +17,7 @@ internal static class BabyMetroidRouteDefinitionsVerification
         {
             int address = BabyMetroidRouteDefinitionsConstants.SourceAddress +
                 index * BabyMetroidRouteDefinitionsConstants.RecordByteLength;
-            BabyMetroidRouteRecord record = BabyMetroidRouteDefinitions.GetRecord(index);
+            BabyMetroidRouteRecord record = BabyMetroidRoute.GetRecord(index);
 
             AssertEqual(ReadRomWord(rom, address), record.Target.X,
                 $"Baby route {index} target X");
@@ -37,18 +37,18 @@ internal static class BabyMetroidRouteDefinitionsVerification
                 AssertEqual(BabyMetroidRouteDefinitionsConstants.LatchOntoSamusFunction, following,
                     $"Baby route {index} is followed by the latch-onto-Samus function");
             else
-                AssertEqual(BabyMetroidRouteDefinitions.GetRecord(index + 1).Target.X, following,
+                AssertEqual(BabyMetroidRoute.GetRecord(index + 1).Target.X, following,
                     $"Baby route {index} is followed by the next waypoint's X");
         }
 
         AssertThrows<InvalidDataException>(
-            () => BabyMetroidRouteDefinitions.GetRecord(-1),
+            () => BabyMetroidRoute.GetRecord(-1),
             "Baby route rejects a leg before the first");
         AssertThrows<InvalidDataException>(
-            () => BabyMetroidRouteDefinitions.GetRecord(BabyMetroidRouteDefinitions.RecordCount),
+            () => BabyMetroidRoute.GetRecord(BabyMetroidRouteDefinitions.RecordCount),
             "Baby route rejects a leg past the final one");
         AssertThrows<InvalidDataException>(
-            () => BabyMetroidRouteDefinitions.GetWrongWayOffScreenXSpeed(0),
+            () => BabyMetroidRoute.GetWrongWayOffScreenXSpeed(0),
             "Baby route rejects an unknown movement callback");
 
         Console.WriteLine(

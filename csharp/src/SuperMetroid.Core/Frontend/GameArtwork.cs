@@ -37,7 +37,7 @@ public sealed record GameArtwork : IGameplayArtwork
     public static GameArtwork Unbound { get; } = new();
 
     /// <summary>Area maps with the pause, HUD, title, intro and ending text and palettes that share their installation.</summary>
-    public AreaMapPresentationCatalog? MapPresentation { get; init; }
+    public AreaMapPresentation? MapPresentation { get; init; }
 
     /// <inheritdoc/>
     IGameplayPresentationContent? IGameplayArtwork.MapPresentation => MapPresentation;

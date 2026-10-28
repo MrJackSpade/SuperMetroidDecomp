@@ -31,7 +31,7 @@ internal static class MapSaveMarkerCoordinatesVerification
         var original = new MapSaveMarkerDocument { Version = 1, Markers = points };
         byte[] extracted = MapSaveMarkerExtractor.Extract(rom);
         using var serialized = new MemoryStream();
-        MapSaveMarkerLayout.Write(serialized, original);
+        MapSaveMarkerPositions.Write(serialized, original);
         AssertTrue(extracted.SequenceEqual(serialized.ToArray()), "original marker JSON names, order and values preserved");
         Suite(nameof(VerifyMapSaveMarkerX), () => VerifyMapSaveMarkerX(original, extracted));
         Suite(nameof(VerifyMapSaveMarkerY), () => VerifyMapSaveMarkerY(original, extracted));
@@ -47,7 +47,7 @@ internal static class MapSaveMarkerCoordinatesVerification
     /// <summary>Round trips single-axis and full-corpus edits while rejecting out-of-range positions.</summary>
     private static void VerifyMapSaveMarkerCoordinateField(MapSaveMarkerDocument original, byte[] extracted, bool vertical)
     {
-        MapSaveMarkerLayout stock = MapSaveMarkerLayout.Load(new MemoryStream(extracted, writable: false));
+        MapSaveMarkerPositions stock = MapSaveMarkerPositions.Load(new MemoryStream(extracted, writable: false));
         AssertEqual(0, stock.StoredCoordinateComponentCount, "stock marker coordinates are calculated, not cached");
         Check(original, stock);
         foreach (string id in original.Markers.Keys)
@@ -57,13 +57,13 @@ internal static class MapSaveMarkerCoordinatesVerification
             var editedPoints = new Dictionary<string, Position16<MapPixels>>(original.Markers);
             editedPoints[id] = vertical ? point with { Y = checked((ushort)coordinate) } : point with { X = checked((ushort)coordinate) };
             var editedDocument = original with { Markers = editedPoints };
-            MapSaveMarkerLayout edited = RoundTrip(editedDocument);
+            MapSaveMarkerPositions edited = RoundTrip(editedDocument);
             AssertEqual(1, edited.StoredCoordinateComponentCount, "one edited axis stores one independent component");
             Check(editedDocument, edited);
         }
         var allEdited = original with { Markers = original.Markers.ToDictionary(pair => pair.Key,
             pair => new Position16<MapPixels>(checked((ushort)(511 - pair.Value.X)), checked((ushort)(255 - pair.Value.Y)))) };
-        MapSaveMarkerLayout allCustom = RoundTrip(allEdited);
+        MapSaveMarkerPositions allCustom = RoundTrip(allEdited);
         AssertEqual(68, allCustom.StoredCoordinateComponentCount, "all independent custom axes are preserved");
         Check(allEdited, allCustom);
         foreach (ushort invalid in new ushort[] { ushort.MaxValue, vertical ? (ushort)256 : (ushort)512 })
@@ -80,7 +80,7 @@ internal static class MapSaveMarkerCoordinatesVerification
         foreach (int invalid in new[] { int.MinValue, -1, 16, 256, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Get(AreaId.Crateria, invalid), "unsupported marker index");
 
-        void Check(MapSaveMarkerDocument expected, MapSaveMarkerLayout actual)
+        void Check(MapSaveMarkerDocument expected, MapSaveMarkerPositions actual)
         {
             for (int area = 0; area < 6; area++)
             for (int station = 0; station < 16; station++)
@@ -96,12 +96,12 @@ internal static class MapSaveMarkerCoordinatesVerification
                 AssertEqual(point, marker.MapPosition, "actual marker binds supplied position without ROM access");
             }
         }
-        static MapSaveMarkerLayout RoundTrip(MapSaveMarkerDocument document)
+        static MapSaveMarkerPositions RoundTrip(MapSaveMarkerDocument document)
         {
             using var stream = new MemoryStream();
-            MapSaveMarkerLayout.Write(stream, document);
+            MapSaveMarkerPositions.Write(stream, document);
             stream.Position = 0;
-            return MapSaveMarkerLayout.Load(stream);
+            return MapSaveMarkerPositions.Load(stream);
         }
     }
 }

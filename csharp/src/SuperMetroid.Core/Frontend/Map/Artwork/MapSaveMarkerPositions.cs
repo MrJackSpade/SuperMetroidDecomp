@@ -13,12 +13,12 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 /// Imported artwork changes never feed back into compiled load targets or scrolling.
 /// Original JSON names, coordinate bounds and serialization remain unchanged.
 /// </remarks>
-public sealed class MapSaveMarkerLayout
+public sealed class MapSaveMarkerPositions
 {
     /// <summary>Only X or Y fields that differ from the compiled station projection, keyed by stable marker identity.</summary>
     internal readonly Dictionary<string, AnchorOverride> coordinateOverrides;
     /// <summary>Retains validated drawing overrides independently of native load targets.</summary>
-    private MapSaveMarkerLayout(Dictionary<string, AnchorOverride> coordinateOverrides) =>
+    private MapSaveMarkerPositions(Dictionary<string, AnchorOverride> coordinateOverrides) =>
         this.coordinateOverrides = coordinateOverrides;
 
     /// <summary>Gets the selected station's drawing anchor in area-map pixels before scroll subtraction, using each edited coordinate independently and otherwise projecting its compiled load placement.</summary>
@@ -29,7 +29,7 @@ public sealed class MapSaveMarkerLayout
     /// <exception cref="InvalidDataException">The station slot is unused.</exception>
     public Position16<MapPixels> Get(AreaId area, int index)
     {
-        string id = MapSaveMarkerDefinitions.Id(area, index);
+        string id = MapSaveMarkers.Id(area, index);
         Position16<MapPixels> basis = FileSelectMapLoadAnchors.Get(area, index);
         var edited = coordinateOverrides.GetValueOrDefault(id);
         return new(checked((ushort)(edited.X ?? basis.X)), checked((ushort)(edited.Y ?? basis.Y)));
@@ -38,20 +38,20 @@ public sealed class MapSaveMarkerLayout
     /// <param name="json">Caller-owned stream containing the editable save-marker JSON document.</param>
     /// <returns>A drawing-only layout with independently editable X/Y coordinates.</returns>
     /// <exception cref="InvalidDataException">The JSON, schema version, marker identities, or coordinates are invalid.</exception>
-    public static MapSaveMarkerLayout Load(Stream json)
+    public static MapSaveMarkerPositions Load(Stream json)
     {
         MapSaveMarkerDocument document;
         try { document = JsonAssetDocument.Read<MapSaveMarkerDocument>(json, ArtworkJson.Options)
             ?? throw new InvalidDataException("Save marker layout is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid save marker layout JSON.", error); }
         if (document.Version != MapSaveMarkerFormat.Version || document.Markers is null ||
-            document.Markers.Count != MapSaveMarkerDefinitions.AllIds().Count())
+            document.Markers.Count != MapSaveMarkers.AllIds().Count())
             throw new InvalidDataException("Save marker layout requires version 1 and every known marker.");
         var overrides = new Dictionary<string, AnchorOverride>(StringComparer.Ordinal);
         foreach (AreaId area in AreaIds.Zebes)
-        foreach (int index in MapSaveMarkerDefinitions.Indices(area))
+        foreach (int index in MapSaveMarkers.Indices(area))
         {
-            string id = MapSaveMarkerDefinitions.Id(area, index);
+            string id = MapSaveMarkers.Id(area, index);
             if (!document.Markers.TryGetValue(id, out var point) || point.X is < 0 or > 511 || point.Y is < 0 or > 255)
                 throw new InvalidDataException($"Save marker {id} requires X=0..511 and Y=0..255.");
             Position16<MapPixels> basis = FileSelectMapLoadAnchors.Get(area, index);

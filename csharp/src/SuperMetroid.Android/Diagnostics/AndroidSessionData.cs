@@ -31,7 +31,7 @@ internal sealed class AndroidSessionData : IDisposable
     /// <summary>Installed artwork and audio, bound to every game this session composes or restores.</summary>
     private readonly InstalledSessionContent content;
     /// <summary>Installed map presentation used for save migration and persistence.</summary>
-    private readonly SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentationCatalog maps;
+    private readonly SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentation maps;
     /// <summary>Installed projectile art contributing to the session content identity.</summary>
     private readonly SuperMetroid.AssetExtraction.Samus.InstalledProjectilePresentation projectiles;
     /// <summary>State store tied to the session's options and installed content identity.</summary>

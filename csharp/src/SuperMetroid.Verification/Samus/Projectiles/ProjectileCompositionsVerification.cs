@@ -183,7 +183,7 @@ internal static class ProjectileCompositionsVerification
     /// rebound sheet set reaches them, and that saved graphs exclude the sheets and draw alike once rebound.
     /// </summary>
     private static void VerifyRuntimeProjectileSheets(ushort sprite, InstalledSpriteSheets sheets,
-        MapPresentationInstalledRoomAssets roomAssets, AreaMapPresentationCatalog maps)
+        MapPresentationInstalledRoomAssets roomAssets, AreaMapPresentation maps)
     {
         var random = new SharedRandom();
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: roomAssets.InitialPalettes, random: random);

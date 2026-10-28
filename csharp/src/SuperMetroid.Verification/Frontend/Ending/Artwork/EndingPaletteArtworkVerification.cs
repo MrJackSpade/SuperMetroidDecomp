@@ -230,7 +230,7 @@ internal static class EndingPaletteArtworkVerification
     {
         Suite(nameof(VerifyEndingPaletteRoleSelection), () => VerifyEndingPaletteRoleSelection());
         EndingPaletteSet stock = installation.LoadEndingPalettes();
-        AreaMapPresentationCatalog maps = installation.LoadMaps();
+        AreaMapPresentation maps = installation.LoadMaps();
         var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         foreach (EndingPaletteId id in Enum.GetValues<EndingPaletteId>())
         {
@@ -452,7 +452,7 @@ internal static class EndingPaletteArtworkVerification
         var editedScene = CreateRetailEndingFixture(editedAudio, 2, 59);
         var stockScene = CreateRetailEndingFixture(stockAudio, 2, 59);
         editedScene.InstalledArtwork.BindPaletteArtwork(installation.LoadEndingPalettes());
-        AreaMapPresentationCatalog maps = installation.LoadMaps();
+        AreaMapPresentation maps = installation.LoadMaps();
         editedScene.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
         CreditsPresentation credits = maps.StaffCredits;
         editedScene.InstalledArtwork.BindStaffCredits(credits);
@@ -552,7 +552,7 @@ internal static class EndingPaletteArtworkVerification
         var editedState = CreateRetailEndingFixture(editedAudio, 2, 59);
         var stockState = CreateRetailEndingFixture(stockAudio, 2, 59);
         editedState.InstalledArtwork.BindPaletteArtwork(edited);
-        AreaMapPresentationCatalog maps = installation.LoadMaps();
+        AreaMapPresentation maps = installation.LoadMaps();
         editedState.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
         CreditsPresentation credits = maps.StaffCredits;
         editedState.InstalledArtwork.BindStaffCredits(credits);
@@ -604,7 +604,7 @@ internal static class EndingPaletteArtworkVerification
         var editedState = CreateRetailEndingFixture(editedAudio, 2, 59);
         var stockState = CreateRetailEndingFixture(stockAudio, 2, 59);
         editedState.InstalledArtwork.BindPaletteArtwork(edited);
-        AreaMapPresentationCatalog maps = installation.LoadMaps();
+        AreaMapPresentation maps = installation.LoadMaps();
         editedState.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
         CreditsPresentation credits = maps.StaffCredits;
         editedState.InstalledArtwork.BindStaffCredits(credits);

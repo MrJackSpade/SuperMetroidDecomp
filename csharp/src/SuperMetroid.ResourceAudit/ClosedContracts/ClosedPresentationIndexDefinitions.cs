@@ -149,7 +149,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("EndingObjectArtwork", "Fragment", "id") => new(0, EndingObjectArtworkFormat.FragmentCount),
         ("GunshipLiftoffArtworkCatalog", "Resolve", "asset") => new((int)InstalledArtworkId.GunshipLiftoffFirstTiles,
             GunshipLiftoffTransferDefinitions.Frames.Length),
-        ("AreaMapPresentationCatalog" or "IGameplayPresentationContent" or "IAreaMapSource", "Get", "area") => new(0, AreaIds.RetailCount),
+        ("AreaMapPresentation" or "IGameplayPresentationContent" or "IAreaMapSource", "Get", "area") => new(0, AreaIds.RetailCount),
         ("XrayOverlayVisualCatalog", "ItemMetatile", "graphicsSlot") => new(0, SuperMetroid.Core.Samus.Abilities.Artwork.XrayOverlayVisualCatalog.DynamicGraphicsSlots * 2),
         ("RoomPlmDynamicCollectibleArtCatalog", "Resolve", "kind") => new((int)InWorldCollectibleKind.Bombs,
             (int)InWorldCollectibleKind.ReserveTank - (int)InWorldCollectibleKind.Bombs + 1),

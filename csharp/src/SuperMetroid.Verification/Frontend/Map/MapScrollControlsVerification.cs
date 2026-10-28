@@ -16,7 +16,7 @@ namespace SuperMetroid.Verification.Frontend.Map;
 internal static class MapScrollControlsVerification
 {
     /// <summary>Compares every direction combination, scroll trajectory, sound boundary, and installed menu under a guarded bus.</summary>
-    internal static void VerifyCompiledMapScrollControls(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
+    internal static void VerifyCompiledMapScrollControls(ISnesAddressSpace bus, AreaMapPresentation catalog)
     {
         var buttons = new ControllerButton[MapScrollControls.DirectionCount];
         for (int index = 0; index < buttons.Length; index++)

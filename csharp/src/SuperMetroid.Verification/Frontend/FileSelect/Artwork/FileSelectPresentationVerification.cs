@@ -21,7 +21,7 @@ internal static class FileSelectPresentationVerification
         ISnesAddressSpace bus,
         string stock,
         string overrides,
-        AreaMapPresentationCatalog original)
+        AreaMapPresentation original)
     {
         string stockPath = Path.Combine(stock, FileSelectPresentationDefinitions.FileName);
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(bus);
@@ -96,7 +96,7 @@ internal static class FileSelectPresentationVerification
             FileSelectPresentationDefinitions.FileName);
         using (var output = File.Create(replacement))
             FileSelectPresentation.Write(output, document);
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "file-select override changes selected catalog identity");
 

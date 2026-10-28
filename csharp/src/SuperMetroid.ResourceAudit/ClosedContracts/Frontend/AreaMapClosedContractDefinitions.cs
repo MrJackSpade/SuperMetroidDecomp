@@ -6,8 +6,8 @@ internal static class AreaMapClosedContractDefinitions
     /// <summary>Requires every selected area map to come from the atomic seven-area install and its reviewed tile-upload owners.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
-        new("SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentationCatalog", "map-atomic-seven-areas-and-owned-uploads", ["Get", "Resolve"],
-            [new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/AreaMapPresentationCatalog.cs"),
+        new("SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentation", "map-atomic-seven-areas-and-owned-uploads", ["Get", "Resolve"],
+            [new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/AreaMapPresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Progression/AreaId.cs"),
              new("csharp/src/SuperMetroid.Core/Map/Artwork/AreaMapPresentationAsset.cs"),
              new("csharp/src/SuperMetroid.Core/Map/Artwork/AreaMapStockRules.cs"),

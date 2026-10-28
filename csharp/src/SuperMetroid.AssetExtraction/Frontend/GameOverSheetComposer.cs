@@ -20,7 +20,7 @@ internal static class GameOverSheetComposer
     private const int SpriteColours = 128;
 
     /// <summary>What the game-over sheet composes.</summary>
-    internal static SpriteSheetSources Sources(AreaMapPresentationCatalog maps)
+    internal static SpriteSheetSources Sources(AreaMapPresentation maps)
     {
         Ensure.NotNull(maps);
         GameOverPresentation gameOver = maps.GameOver;

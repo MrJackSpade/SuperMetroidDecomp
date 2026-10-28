@@ -26,8 +26,8 @@ public sealed class PauseSelectorPresentation
     /// <summary>Applies a named screen-pixel override to the category and item's compiled stock anchor.</summary>
     public Position16<SpritePixels> Anchor(PauseEquipmentCategory category, int item)
     {
-        string name = PauseSelectorDefinitions.Anchor(category, item);
-        var basis = PauseSelectorDefinitions.StockAnchor(category, item);
+        string name = PauseSelectorAnchors.Anchor(category, item);
+        var basis = PauseSelectorAnchors.StockAnchor(category, item);
         return anchorOverrides.TryGetValue(name, out var value) ? new(checked((ushort)(value.X ?? basis.X)), checked((ushort)(value.Y ?? basis.Y))) : basis;
     }
     /// <summary>Wraps a nonnegative animation phase into the authored phase count.</summary>
@@ -55,7 +55,7 @@ public sealed class PauseSelectorPresentation
             PauseEquipmentCategory.Suits or PauseEquipmentCategory.Boots => equipment,
             _ => throw new InvalidOperationException($"Undefined PauseEquipmentCategory {category}."),
         }).Get(normalized);
-        Ensure.NotNull(entries).AddImage(Ensure.NotNull(sheet).Frame(PauseSelectorDefinitions.SheetFrameName(composition.Name)), point);
+        Ensure.NotNull(entries).AddImage(Ensure.NotNull(sheet).Frame(PauseSelectorAnchors.SheetFrameName(composition.Name)), point);
     }
     /// <summary>Loads and validates equipment-selector anchors, frames, animation, palette, and timing.</summary>
     public static PauseSelectorPresentation Load(Stream json)
@@ -70,11 +70,11 @@ public sealed class PauseSelectorPresentation
             document.Animation is null || document.Animation.Length is < 1 or > PauseSelectorDefinitions.MaximumPhases)
             throw new InvalidDataException("Pause selectors require version 1, sixteen anchors, palette 0..7, valid named frames and positive bounded timing.");
         var anchorOverrides = new Dictionary<string, AnchorOverride>();
-        foreach (var definition in PauseSelectorDefinitions.Anchors())
+        foreach (var definition in PauseSelectorAnchors.Anchors())
         {
             if (!document.Anchors.TryGetValue(definition.Name, out var point) || point.X is < 0 or > 255 || point.Y is < 0 or > 223)
                 throw new InvalidDataException($"Pause selector {definition.Name} requires screen coordinates X=0..255/Y=0..223.");
-            var basis = PauseSelectorDefinitions.StockAnchor(definition.Category, definition.Item);
+            var basis = PauseSelectorAnchors.StockAnchor(definition.Category, definition.Item);
             if (point.X != basis.X || point.Y != basis.Y)
                 anchorOverrides.Add(definition.Name, new AnchorOverride(point.X == basis.X ? null : point.X, point.Y == basis.Y ? null : point.Y));
         }

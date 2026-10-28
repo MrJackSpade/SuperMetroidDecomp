@@ -25,7 +25,7 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 internal static class PauseReserveTankAssetsVerification
 {
     /// <summary>Compares native menu OAM and pixels with installed reserve art, then checks edits and state isolation.</summary>
-    internal static void VerifyPauseReserveTankAssets(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog catalog)
+    internal static void VerifyPauseReserveTankAssets(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation catalog)
     {
         Directory.CreateDirectory(overrides);
         string stockPath = Path.Combine(stock, PauseReserveTankDefinitions.FileName), path = Path.Combine(overrides, PauseReserveTankDefinitions.FileName);
@@ -129,7 +129,7 @@ internal static class PauseReserveTankAssetsVerification
             }
             return samples;
         }
-        static PauseMenuState Create(ISnesAddressSpace source, SamusState state, AreaMapPresentationCatalog content)
+        static PauseMenuState Create(ISnesAddressSpace source, SamusState state, AreaMapPresentation content)
         {
             var pause = new PauseMenuState(new PauseMenuEntry { Samus = state, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = content, SpriteSheets = MenuSheetFixtures.For(content) });
             EnterPauseEquipment(pause);

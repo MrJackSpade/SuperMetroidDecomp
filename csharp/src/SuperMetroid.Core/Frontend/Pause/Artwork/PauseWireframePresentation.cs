@@ -58,12 +58,12 @@ public sealed class PauseWireframePresentation
         {
             this.kind = kind;
             for (int cell = 0; cell < PauseWireframeDefinitions.Cells; cell++)
-                if (tiles[cell] != PauseWireframeDefinitions.StockTile(kind, cell)) edits.Add(cell, tiles[cell]);
+                if (tiles[cell] != PauseWireframeTiles.StockTile(kind, cell)) edits.Add(cell, tiles[cell]);
         }
 
         /// <summary>Resolves an edited cell or calculates the variant's stock tile.</summary>
         internal BackgroundTile Tile(int cell) => edits.TryGetValue(cell, out BackgroundTile edited)
-            ? edited : PauseWireframeDefinitions.StockTile(kind, cell);
+            ? edited : PauseWireframeTiles.StockTile(kind, cell);
     }
     /// <summary>Serializes a wireframe document using the map-presentation JSON options and validates it through <see cref="Load"/> before writing any bytes to the destination.</summary>
     /// <param name="output">Caller-owned destination stream for the validated UTF-8 JSON.</param>

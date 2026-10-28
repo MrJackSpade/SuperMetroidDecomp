@@ -25,7 +25,7 @@ internal static class MapStaticPalettesVerification
     /// <summary>Compares stock palettes with the cartridge, then checks edited
     /// colors survive state restoration, stock replacement, and an ongoing fade.</summary>
     internal static void VerifyMapStaticPaletteIntegration(ISnesAddressSpace bus, string stock, string overrides,
-        AreaMapPresentationCatalog original, ImportedAreaMap[] rules)
+        AreaMapPresentation original, ImportedAreaMap[] rules)
     {
         var guard = NewMapDataGuard(bus, rules);
         var palette = new SnesCgram();

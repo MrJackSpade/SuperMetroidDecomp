@@ -19,7 +19,7 @@ internal static class TitleSheetComposer
     private const int SpriteColours = 128;
 
     /// <summary>What the title sheet composes.</summary>
-    internal static SpriteSheetSources Sources(AreaMapPresentationCatalog maps) =>
+    internal static SpriteSheetSources Sources(AreaMapPresentation maps) =>
         Sources(Ensure.NotNull(maps).TitleGraphics, maps.TitlePalette);
 
     /// <summary>What the title sheet composes from <paramref name="graphics"/>, coloured with <paramref name="palette"/>.</summary>

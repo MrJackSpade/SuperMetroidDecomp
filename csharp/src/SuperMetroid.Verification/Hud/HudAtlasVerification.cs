@@ -33,7 +33,7 @@ internal static class HudAtlasVerification
     /// HUD was set up.
     /// </summary>
     internal static void VerifyHudAtlasIntegration(ISnesAddressSpace bus, string stock, string overrides,
-        AreaMapPresentationCatalog original, ImportedAreaMap[] rules,
+        AreaMapPresentation original, ImportedAreaMap[] rules,
         GameplayBasePaletteCatalog initialPalettes,
         MapPresentationInstalledRoomAssets fixtureAssets)
     {

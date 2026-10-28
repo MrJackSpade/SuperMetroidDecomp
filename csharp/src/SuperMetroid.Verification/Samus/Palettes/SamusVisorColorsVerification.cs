@@ -170,7 +170,7 @@ internal static class SamusVisorColorsVerification
 
     /// <summary>Checks edited visor colors through newly bound Samus room/X-ray states and stock identity restoration.</summary>
     internal static void VerifySamusVisorColorOverride(string stock, string overrides,
-        AreaMapPresentationCatalog baseline, ISnesAddressSpace rom,
+        AreaMapPresentation baseline, ISnesAddressSpace rom,
         GameplayBasePaletteCatalog initialPalettes, MapPresentationInstalledRoomAssets fixtureAssets)
     {
         string path = Path.Combine(overrides, SamusVisorColorFormat.FileName);
@@ -183,7 +183,7 @@ internal static class SamusVisorColorsVerification
         document.Colors[0] = originalXray with { Red = (originalXray.Red + 1) % 32 };
         document.Colors[3] = original with { Red = (original.Red + 1) % 32 };
         File.WriteAllBytes(path, SamusVisorColorFile.Write(document));
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "visor color override changes installed content identity");
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
@@ -219,7 +219,7 @@ internal static class SamusVisorColorsVerification
             Colors = [.. document.Colors.Take(3), original with { Red = 32 }, .. document.Colors.Skip(4)],
         }), "out-of-range visor color fails loudly");
         File.Delete(path);
-        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
             "removing visor override restores stock content identity");
         Console.WriteLine("Samus visor override: edited room/X-ray colors reach CGRAM and stock restores.");

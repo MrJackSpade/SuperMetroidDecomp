@@ -250,7 +250,7 @@ public sealed class FileSelectPresentation
         BackgroundTile[] letters = document.SlotLetters.Select((cell, index) =>
             CompileCell(cell, $"file-select slot letter {index}")).ToArray();
         var borderSprites = FileSelectPresentationDefinitions.Borders.ToDictionary(border => border,
-            border => MenuHeadingBorderDefinitions.CalculateIfMatching(FileSelectParts.Heading(border),
+            border => MenuHeadingBorder.CalculateIfMatching(FileSelectParts.Heading(border),
                 MenuBorderParts.CalculateIfMatching(CompileSprite(document, FileSelectParts.BorderSpriteName(border)))));
         SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, FileSelectPresentationDefinitions.CursorFrameCount).Select(frame =>
             MenuCursorParts.CalculateIfMatching(frame, CompileSprite(document, FileSelectPresentationDefinitions.CursorSpriteName(frame))))];

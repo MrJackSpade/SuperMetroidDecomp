@@ -21,7 +21,7 @@ internal static class GameOverPresentationVerification
         ISnesAddressSpace bus,
         string stock,
         string overrides,
-        AreaMapPresentationCatalog original)
+        AreaMapPresentation original)
     {
         string stockPath = Path.Combine(stock, GameOverPresentationDefinitions.FileName);
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.GameOverPresentationExtractor.Extract(bus);
@@ -102,7 +102,7 @@ internal static class GameOverPresentationVerification
         string replacement = Path.Combine(overrides, GameOverPresentationDefinitions.FileName);
         using (var output = File.Create(replacement))
             GameOverPresentation.Write(output, document);
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "game-over override changes selected catalog identity");
         AssertEqual(document.BabyAnchor, edited.GameOver.BabyAnchor,

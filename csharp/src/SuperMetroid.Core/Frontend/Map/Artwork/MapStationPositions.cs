@@ -4,12 +4,12 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Drawing positions only: moving an icon never changes its compiled discovery cell.</summary>
-public sealed class MapStationLayout
+public sealed class MapStationPositions
 {
     /// <summary>Owned screen-position lookup by stable discovery marker ID, separate from compiled discovery cells.</summary>
     private readonly Dictionary<string, Position16<MapPixels>> points;
     /// <summary>Stores a mapping already checked for the complete marker set and bounded screen coordinates.</summary>
-    private MapStationLayout(Dictionary<string, Position16<MapPixels>> points) => this.points = points;
+    private MapStationPositions(Dictionary<string, Position16<MapPixels>> points) => this.points = points;
 
     /// <summary>Gets the screen-pixel drawing position for a named map-station marker.</summary>
     /// <param name="id">The stable marker identifier from the station discovery rules.</param>
@@ -22,7 +22,7 @@ public sealed class MapStationLayout
     /// <param name="json">The caller-owned stream containing the layout document.</param>
     /// <returns>The validated station-marker layout.</returns>
     /// <exception cref="InvalidDataException">The JSON, schema version, marker set, or coordinates are invalid.</exception>
-    public static MapStationLayout Load(Stream json)
+    public static MapStationPositions Load(Stream json)
     {
         MapStationLayoutDocument document;
         try { document = JsonAssetDocument.Read<MapStationLayoutDocument>(json, ArtworkJson.Options)

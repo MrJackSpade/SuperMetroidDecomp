@@ -31,7 +31,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>Derives newly pressed buttons from the raw held controller word.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>Provides editable menu art after construction or debugger restoration.</summary>
-    [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
+    [NonSerialized] private AreaMapPresentation? mapPresentation;
     /// <summary>Mutable primary page whose language palette bits can change in place.</summary>
     private readonly BackgroundTile[] primaryTilemap;
     /// <summary>English controller page updated with current button labels.</summary>
@@ -70,7 +70,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         bool iconCancelEnabled = false,
         bool moonwalkEnabled = false,
         bool japaneseText = false,
-        AreaMapPresentationCatalog? mapPresentation = null,
+        AreaMapPresentation? mapPresentation = null,
         InstalledSpriteSheets? spriteSheets = null)
     {
         this.audio = audio;
@@ -101,7 +101,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Rebinds host-owned visual assets after a debugger-state restore.</summary>
-    public void BindMapPresentation(AreaMapPresentationCatalog? catalog)
+    public void BindMapPresentation(AreaMapPresentation? catalog)
     {
         mapPresentation = catalog ?? throw new InvalidOperationException(
             "Options menu requires installed presentation assets.");
@@ -308,7 +308,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             return;
 
         QueueSelectSound();
-        GameOptionsPrimaryRow row = GameOptionsLayout.PrimaryRowAt(SelectedItem)
+        GameOptionsPrimaryRow row = GameOptionsPositions.PrimaryRowAt(SelectedItem)
             ?? throw new InvalidOperationException($"Primary options row {SelectedItem} is outside the five-row page.");
         switch (row)
         {
@@ -364,7 +364,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 SelectedItem = 0;
                 Phase = GameOptionsPhase.ScrollControllerUp;
             }
-            else if (GameOptionsLayout.ControllerRowKind(SelectedItem) == GameOptionsControllerRowKind.Exit)
+            else if (GameOptionsPositions.ControllerRowKind(SelectedItem) == GameOptionsControllerRowKind.Exit)
             {
                 Phase = GameOptionsPhase.ScrollControllerDown;
             }
@@ -376,7 +376,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         // Native queues the confirmation sound for any newly pressed word on this page,
         // even when an action row cannot find an assignable button in that word.
         QueueSelectSound();
-        GameOptionsControllerRowKind kind = GameOptionsLayout.ControllerRowKind(SelectedItem);
+        GameOptionsControllerRowKind kind = GameOptionsPositions.ControllerRowKind(SelectedItem);
         if (kind == GameOptionsControllerRowKind.Action)
         {
             for (int button = Input.ControllerBindings.AssignableButtonCount - 1; button >= 0; button--)
@@ -439,7 +439,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             return;
 
         QueueSelectSound();
-        GameOptionsSpecialRow row = GameOptionsLayout.SpecialRowAt(SelectedItem)
+        GameOptionsSpecialRow row = GameOptionsPositions.SpecialRowAt(SelectedItem)
             ?? throw new InvalidOperationException($"Special options row {SelectedItem} is outside the three-row page.");
         switch (row)
         {

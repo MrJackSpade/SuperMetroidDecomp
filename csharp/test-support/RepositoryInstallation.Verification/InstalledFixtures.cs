@@ -51,7 +51,7 @@ internal static class InstalledFixtures
         RoomMetatileArtworkFiles.Load(RepositoryInstallation.Installation.RoomMetatileDirectory));
 
     /// <summary>Lazy map and shared presentation resources.</summary>
-    private static readonly Lazy<AreaMapPresentationCatalog> maps = new(() => RepositoryInstallation.Installation.LoadMaps());
+    private static readonly Lazy<AreaMapPresentation> maps = new(() => RepositoryInstallation.Installation.LoadMaps());
 
     /// <summary>Lazy installed enemy tile and sprite artwork.</summary>
     private static readonly Lazy<InstalledEnemyArtwork> enemyArtwork = new(() => RepositoryInstallation.Installation.LoadEnemyTiles());
@@ -83,7 +83,7 @@ internal static class InstalledFixtures
         RoomBlockComposition.StockTiles(BlockCompositions, tileset.Blocks, ceres);
 
     /// <summary>The installation's stock map and presentation catalog, loaded once per process.</summary>
-    internal static AreaMapPresentationCatalog Maps => maps.Value;
+    internal static AreaMapPresentation Maps => maps.Value;
 
     /// <summary>The installation's stock enemy artwork, loaded once per process.</summary>
     internal static EnemyTileArtworkCatalog EnemyTiles => enemyArtwork.Value.Enemies;

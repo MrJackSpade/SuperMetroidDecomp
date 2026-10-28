@@ -2,15 +2,15 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
-/// <summary>Verification access to <see cref="MapSpriteCatalog"/> members production does not use.</summary>
+/// <summary>Verification access to <see cref="MapSpriteCompositions"/> members production does not use.</summary>
 internal static class MapSpriteCatalogAccess
 {
     /// <summary>Accesses a compiled world-map label through the catalog's private selector.</summary>
-    private static WorldMapLabelComposition? WorldLabel(MapSpriteCatalog catalog, MapSpriteId id) =>
+    private static WorldMapLabelComposition? WorldLabel(MapSpriteCompositions catalog, MapSpriteId id) =>
         catalog.GetWorldLabel(id);
 
     /// <summary>Inspects authored compositions and sparse map-object pixel storage.</summary>
-    extension(MapSpriteCatalog self)
+    extension(MapSpriteCompositions self)
     {
         /// <summary>Checks whether a world label has authored parts or a non-label has an installed frame.</summary>
         internal bool StoresComposition(MapSpriteId id) => WorldLabel(self, id) is { } label

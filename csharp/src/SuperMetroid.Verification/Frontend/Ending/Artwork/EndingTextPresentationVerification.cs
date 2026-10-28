@@ -131,7 +131,7 @@ internal static class EndingTextPresentationVerification
         ISnesAddressSpace bus,
         string stockDirectory,
         string overrideDirectory,
-        AreaMapPresentationCatalog stockCatalog)
+        AreaMapPresentation stockCatalog)
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.Frontend.Ending.EndingTextExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
@@ -142,7 +142,7 @@ internal static class EndingTextPresentationVerification
         document["finalMessage"] = "TEST";
         string replacement = Path.Combine(overrideDirectory, EndingTextDefinitions.FileName);
         File.WriteAllText(replacement, document.ToJsonString(ArtworkJson.Options));
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(
+        AreaMapPresentation edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
         AssertEqual(EndingTextGlyphs.CompileGlyph('T', EndingTextStyle.FinalLarge),
             edited.EndingText.Compile(EndingTextSequence.FinalMessage)[0].Top,
@@ -161,7 +161,7 @@ internal static class EndingTextPresentationVerification
         ISnesAddressSpace bus,
         string stockDirectory,
         string overrideDirectory,
-        AreaMapPresentationCatalog stockCatalog)
+        AreaMapPresentation stockCatalog)
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.Frontend.Ending.EndingFontAtlasExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
@@ -174,7 +174,7 @@ internal static class EndingTextPresentationVerification
         string replacement = Path.Combine(overrideDirectory, EndingFontAtlasFormat.FileName);
         using (var output = File.Create(replacement))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(
+        AreaMapPresentation edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
         AssertTrue(!EndingFontCharacters.Of(edited.EndingFont).Characters.Span.SequenceEqual(
             EndingFontCharacters.Of(stockCatalog.EndingFont).Characters.Span),

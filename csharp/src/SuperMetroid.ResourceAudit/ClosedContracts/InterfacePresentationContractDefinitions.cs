@@ -46,7 +46,7 @@ internal static class InterfacePresentationContractDefinitions
         new("SuperMetroid.Core.Gameplay.IGameplayPresentationContent", "gameplay-content-single-catalog", ["Get", "Resolve"],
             [new("csharp/src/SuperMetroid.Core/Gameplay/IGameplayPresentationContent.cs"),
              new("csharp/src/SuperMetroid.Core/Map/IAreaMapSource.cs"),
-             new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/AreaMapPresentationCatalog.cs"),
+             new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/AreaMapPresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Progression/AreaId.cs"),
              new("csharp/src/SuperMetroid.Core/Map/Artwork/AreaMapPresentationAsset.cs"),
              new("csharp/src/SuperMetroid.Core/Map/Artwork/AreaMapStockRules.cs"),
@@ -59,7 +59,7 @@ internal static class InterfacePresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/IInstalledArtworkContent.cs")]),        new("SuperMetroid.Core.Map.IAreaMapSource", "area-map-source-single-catalog", ["Get"],
             [new("csharp/src/SuperMetroid.Core/Map/IAreaMapSource.cs"),
              new("csharp/src/SuperMetroid.Core/Gameplay/IGameplayPresentationContent.cs"),
-             new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/AreaMapPresentationCatalog.cs"),
+             new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/AreaMapPresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Progression/AreaId.cs"),
              new("csharp/src/SuperMetroid.Core/Map/Artwork/AreaMapPresentationAsset.cs"),
              new("csharp/src/SuperMetroid.Core/Map/Artwork/AreaMapStockRules.cs"),
@@ -80,8 +80,8 @@ internal static class InterfacePresentationContractDefinitions
         "SuperMetroid.Core.Frontend.Intro.Artwork.IIntroCinematicSpritePresentation" =>
             [ContractTypeNames.MetadataName(typeof(CinematicSpriteSheet)),
              ContractTypeNames.MetadataName(typeof(CeresSceneSpriteSheet))],
-        "SuperMetroid.Core.Gameplay.IGameplayPresentationContent" => [ContractTypeNames.MetadataName(typeof(AreaMapPresentationCatalog))],
-        "SuperMetroid.Core.Map.IAreaMapSource" => [ContractTypeNames.MetadataName(typeof(AreaMapPresentationCatalog)),
+        "SuperMetroid.Core.Gameplay.IGameplayPresentationContent" => [ContractTypeNames.MetadataName(typeof(AreaMapPresentation))],
+        "SuperMetroid.Core.Map.IAreaMapSource" => [ContractTypeNames.MetadataName(typeof(AreaMapPresentation)),
             ContractTypeNames.MetadataName(typeof(IGameplayPresentationContent))],
         _ => null,
     };

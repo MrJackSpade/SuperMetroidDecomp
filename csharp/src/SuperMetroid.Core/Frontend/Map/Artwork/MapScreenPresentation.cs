@@ -24,7 +24,7 @@ public sealed class MapScreenPresentation
         if (document.Version != MapScreenDefinitions.Version || document.Pages is null || document.Pages.Count != MapScreenDefinitions.PageCount)
             throw new InvalidDataException("Map screens require version 1 and all thirteen named pages.");
         var pages = new Dictionary<MapScreenPageId, BackgroundTile[]>();
-        foreach (var definition in MapScreenDefinitions.Pages())
+        foreach (var definition in MapScreens.Pages())
         {
             if (!document.Pages.TryGetValue(definition.Id.Name, out var cells) || cells is null || cells.Length != MapScreenDefinitions.PageCells)
                 throw new InvalidDataException($"Map-screen {definition.Id.Name} requires 1024 cells in 32-column row order.");

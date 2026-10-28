@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Frontend.Menus;
 internal sealed class MenuScreen
 {
     /// <summary>Installs the shared world, map, sprite and palette artwork, and the sheets its backgrounds draw from.</summary>
-    public MenuScreen(MapTileAtlas? mapTiles, MapStaticPalettes? mapPalettes, WorldMapArtwork? worldArtwork, MapSpriteCatalog? sprites,
+    public MenuScreen(MapTileAtlas? mapTiles, MapStaticPalettes? mapPalettes, WorldMapArtwork? worldArtwork, MapSpriteCompositions? sprites,
         InstalledSpriteSheets? sheets)
     {
         WorldArtwork = RequireWorldArtwork(worldArtwork);
@@ -75,7 +75,7 @@ internal sealed class MenuScreen
     /// <summary>The installed menu sprite catalog, whose page the sprite entries draw from.</summary>
     [field: NonSerialized]
     [AllowNull]
-    public MapSpriteCatalog Sprites { get => field ?? throw new InvalidOperationException("The menu sprite catalog is rebound after debugger restoration."); private set; }
+    public MapSpriteCompositions Sprites { get => field ?? throw new InvalidOperationException("The menu sprite catalog is rebound after debugger restoration."); private set; }
 
     /// <summary>The menu's tilemaps.</summary>
     public MenuTilemaps Tilemaps { get; } = new();
@@ -99,7 +99,7 @@ internal sealed class MenuScreen
     }
 
     /// <summary>Rebinds the menu OBJ characters.</summary>
-    public void BindMapSprites(MapSpriteCatalog? sprites)
+    public void BindMapSprites(MapSpriteCompositions? sprites)
     {
         Sprites = RequireSprites(sprites);
     }
@@ -120,7 +120,7 @@ internal sealed class MenuScreen
         mapTiles ?? throw new InvalidOperationException("Menus require installed map tiles.");
 
     /// <summary>The installed menu sprite catalog, which a menu cannot draw without.</summary>
-    private static MapSpriteCatalog RequireSprites(MapSpriteCatalog? sprites) =>
+    private static MapSpriteCompositions RequireSprites(MapSpriteCompositions? sprites) =>
         sprites ?? throw new InvalidOperationException("Menus require installed sprite artwork.");
 
     /// <summary>What the screen paints with: its palette and sprite entries.</summary>

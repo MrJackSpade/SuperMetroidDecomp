@@ -30,7 +30,7 @@ internal static class GrappleFlarePresentationVerification
     /// <summary>Compares flare drawing across phases and coordinates with native cadence, then checks the real actor's sheet binding.</summary>
     internal static void VerifyGrappleFlarePresentation(SuperMetroidAddressSpace bus,
         SamusBodyArtworkCatalog body, MapPresentationInstalledRoomAssets roomAssets,
-        AreaMapPresentationCatalog maps, GrappleTileAtlas grappleArtwork)
+        AreaMapPresentation maps, GrappleTileAtlas grappleArtwork)
     {
         var guard = NewGrappleFlarePresentationGuard(NewChargeFlareCompositionGuard(bus));
         var flarePlacement = ChargeFlarePlacementCatalog.Load(new MemoryStream(
@@ -150,7 +150,7 @@ internal static class GrappleFlarePresentationVerification
     /// <summary>Checks the real actor draws the flare from the bound sheets and rebinds them after a saved-state restore.</summary>
     private static void VerifyGrappleFlareActorBinding(
         SamusBodyArtworkCatalog body, MapPresentationInstalledRoomAssets roomAssets,
-        AreaMapPresentationCatalog maps, GrappleTileAtlas grappleArtwork)
+        AreaMapPresentation maps, GrappleTileAtlas grappleArtwork)
     {
         var random = new SharedRandom();
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: roomAssets.InitialPalettes, random: random);

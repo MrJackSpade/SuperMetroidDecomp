@@ -23,7 +23,7 @@ public static class PauseSelectorExtractor
             if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), bases.AddWithinBank((int)category * 2)) != PauseMenuSourceDefinitions.SelectorSpritemaps[category])
                 throw new InvalidDataException("Unexpected native selector sprite binding.");
         var anchors = new Dictionary<string, Position16<SpritePixels>>();
-        foreach (var anchor in PauseSelectorDefinitions.Anchors())
+        foreach (var anchor in PauseSelectorAnchors.Anchors())
         {
             var position = new SnesAddress(PauseMenuSourceDefinitions.PauseSelectorBank.Bank, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.PauseSelectorPositionPointers.AddWithinBank((int)anchor.Category * 2)));
             anchors.Add(anchor.Name, new(unchecked((ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), position.AddWithinBank(anchor.Item * 4)) - 1)),
@@ -32,7 +32,7 @@ public static class PauseSelectorExtractor
         var frames = new Dictionary<string, SpriteVisualPart[]>();
         // Suits and boots share the Equipment frames, so only the first three categories own a group.
         foreach (PauseEquipmentCategory category in new[] { PauseEquipmentCategory.Reserves, PauseEquipmentCategory.Beams, PauseEquipmentCategory.Suits })
-            frames.Add(PauseSelectorDefinitions.Group(category), MenuSpriteExtractor.Read(bus, PauseMenuSourceDefinitions.SelectorSpritemaps[category]));
+            frames.Add(PauseSelectorAnchors.Group(category), MenuSpriteExtractor.Read(bus, PauseMenuSourceDefinitions.SelectorSpritemaps[category]));
         int animation = (int)new SnesAddress(PauseMenuSourceDefinitions.PauseSelectorBank.Bank, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.PauseSelectorAnimation));
         var phases = new List<PauseSelectorPhase>();
         for (int i = 0; ; i++)

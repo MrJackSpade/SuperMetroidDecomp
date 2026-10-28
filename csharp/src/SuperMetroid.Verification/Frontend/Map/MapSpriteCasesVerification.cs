@@ -85,7 +85,7 @@ internal static class MapSpriteCasesVerification
                 ScreenSpritesFixtures.Blank(), new(0, 0), 0), "undefined map sprite identity fails");
         AssertThrows<ArgumentOutOfRangeException>(() => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(stock), 0, ScreenSpritesFixtures.Blank(),
             new(0, 0), 0xffff), "undefined identity precedes invalid palette");
-        MapSpriteCatalog Load(Dictionary<string, SpriteVisualPart[]> frames)
+        MapSpriteCompositions Load(Dictionary<string, SpriteVisualPart[]> frames)
         {
             byte[] json = JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, ArtworkJson.Options);
             return MapSpriteArtwork.Read(new MemoryStream(json), new MemoryStream(png));
@@ -93,7 +93,7 @@ internal static class MapSpriteCasesVerification
     }
 
     /// <summary>Compares native and installed OAM across anchors, palettes, and nearly full sprite buffers.</summary>
-    internal static void VerifyMapSpriteNativeCompositions(ISnesAddressSpace bus, MapSpriteCatalog catalog)
+    internal static void VerifyMapSpriteNativeCompositions(ISnesAddressSpace bus, MapSpriteCompositions catalog)
     {
         OamBuffer native; var installed = ScreenSpritesFixtures.Blank();
         foreach (var frame in MapSpriteRoleOracle())

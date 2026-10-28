@@ -21,7 +21,7 @@ internal static class MapAtlasVerification
 {
     /// <summary>Compares stock tile bytes with ROM, then verifies override pixels, identity, rebind, and invalid asset handling.</summary>
     internal static void VerifyMapAtlasIntegration(ISnesAddressSpace bus, string stock, string overrides,
-        AreaMapPresentationCatalog original, ImportedAreaMap[] rules)
+        AreaMapPresentation original, ImportedAreaMap[] rules)
     {
         byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount);
         var vram = new SnesVram();

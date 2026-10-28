@@ -20,7 +20,7 @@ internal static class PausePresentationDomainAudit
             if (method is "Anchor" or "Draw")
             {
                 int? category = Constant("category"), item = Constant("item");
-                if (!PauseSelectorDefinitions.Anchors().Any(anchor =>
+                if (!PauseSelectorAnchors.Anchors().Any(anchor =>
                     (!category.HasValue || category == (int)anchor.Category) && (!item.HasValue || item == anchor.Item)))
                     return "Constant category/item does not select any reviewed pause selector anchor.";
             }
@@ -28,11 +28,11 @@ internal static class PausePresentationDomainAudit
         if (type == typeof(PauseEquipmentLabelPresentation).FullName && method == "ApplyLabel")
         {
             int? category = Constant("category"), item = Constant("item"), words = Constant("wordCount");
-            var candidates = PauseEquipmentLabelDefinitions.Labels();
+            var candidates = PauseEquipmentLabelTiles.Labels();
             if (!candidates.Any(label => (!category.HasValue || category == (int)label.Category) &&
                 (!item.HasValue || item == label.Item) && (!words.HasValue ||
                     words >= 0 && words <= PauseEquipmentLabelDefinitions.EquipmentWords &&
-                    (words <= PauseEquipmentLabelDefinitions.WordCount(label.Category) ||
+                    (words <= PauseEquipmentLabelTiles.WordCount(label.Category) ||
                         label.Label == PauseEquipmentLabelId.Plasma))))
                 return "Constant category/item/wordCount has no reviewed pause label; only Plasma owns the five-to-nine-word native overrun.";
         }

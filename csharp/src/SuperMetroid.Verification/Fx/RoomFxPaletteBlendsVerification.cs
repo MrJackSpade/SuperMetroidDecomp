@@ -150,7 +150,7 @@ internal static class RoomFxPaletteBlendsVerification
 
     /// <summary>Installs a color override, verifies its CGRAM and haze effects, then checks identity restoration after removal.</summary>
     internal static void VerifyRoomFxPaletteBlendOverride(string stock, string overrides,
-        AreaMapPresentationCatalog baseline)
+        AreaMapPresentation baseline)
     {
         string path = Path.Combine(overrides, RoomFxPaletteBlendDefinitions.FileName);
         RoomFxPaletteBlendDocument document = JsonSerializer.Deserialize<RoomFxPaletteBlendDocument>(
@@ -165,7 +165,7 @@ internal static class RoomFxPaletteBlendsVerification
             CeresHazeBlue = new PaletteRgb5 { Red = 0, Green = 15, Blue = 0 },
         };
         File.WriteAllBytes(path, RoomFxPaletteBlendFile.Write(document));
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "room-FX blend edit changes installed content identity");
         RgbColor expected = edited.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava)[0];
@@ -188,7 +188,7 @@ internal static class RoomFxPaletteBlendsVerification
             },
         }), "invalid room-FX blend component fails loudly");
         File.Delete(path);
-        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stock, overrides);
+        AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
             "removing room-FX blend override restores stock identity");
         Console.WriteLine("Room-FX blend override: edited color reaches CGRAM and removal restores stock.");

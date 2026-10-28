@@ -19,7 +19,7 @@ internal static class GameplayHudPresentationVerification
 {
     /// <summary>Compares stock HUD tiles with native data and checks override propagation without live ROM reads.</summary>
     internal static void VerifyGameplayHudPresentationAssets(ISnesAddressSpace bus, string stock,
-        string overrides, AreaMapPresentationCatalog original,
+        string overrides, AreaMapPresentation original,
         GameplayBasePaletteCatalog initialPalettes)
     {
         string stockPath = Path.Combine(stock, GameplayHudDefinitions.FileName);

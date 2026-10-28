@@ -29,7 +29,7 @@ internal static class ChargeFlareProductionVerification
     internal static void VerifyChargeFlareProduction(SuperMetroidAddressSpace bus,
         ChargeFlareSpriteCatalog stock,
         SamusBodyArtworkCatalog body, MapPresentationInstalledRoomAssets roomAssets,
-        AreaMapPresentationCatalog maps)
+        AreaMapPresentation maps)
     {
         var placement = ChargeFlarePlacementCatalog.Load(new MemoryStream(ChargeFlarePlacementExtractor.Extract(bus)));
         int ticks = 0;

@@ -36,7 +36,7 @@ internal static class ScreenTileSheetComposer
     internal static ComposedSpriteSheet Compose(SpriteSheetId sheet, ScreenTileSources sources)
     {
         Ensure.NotNull(sources);
-        AreaMapPresentationCatalog maps = sources.Maps;
+        AreaMapPresentation maps = sources.Maps;
         return sheet switch
         {
             SpriteSheetId.IntroSceneTiles => Compose(sources.Intro.BackgroundCharacters.Characters.Span[..IntroCinematicDefinitions.Artwork.BackgroundCharacterBytes],

@@ -16,9 +16,9 @@ internal static class MenuMissileLookupsVerification
             ReadVerificationWord(rom, 0x82ba81), "native frame wrap mask");
         for (int frame = 0; frame < 4; frame++)
             AssertEqual(ReadVerificationWord(rom, 0x82bab2 + frame * 2),
-                MenuMissileAnimationDefinitions.SpritemapId(frame), $"menu missile frame {frame}");
+                MenuMissileSpritemaps.SpritemapId(frame), $"menu missile frame {frame}");
         foreach (int frame in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => MenuMissileAnimationDefinitions.SpritemapId(frame),
+            AssertThrows<ArgumentOutOfRangeException>(() => MenuMissileSpritemaps.SpritemapId(frame),
                 $"menu missile invalid frame {frame}");
     }
 

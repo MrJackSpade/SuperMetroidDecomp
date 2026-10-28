@@ -17,7 +17,7 @@ internal static class AttractCaptureTestsVerification
     /// <summary>Compares demo playback, held final image, cancellation, and return-to-title packets with the live frontend.</summary>
     internal static void VerifyAttractCapture()
     {
-        AreaMapPresentationCatalog presentation = RetailPresentationFixture();
+        AreaMapPresentation presentation = RetailPresentationFixture();
         // Scene setup is compiled now. Bound only the live verification instance after
         // its real first scene has loaded; ROM table patches no longer affect admission.
         int samples = 0;

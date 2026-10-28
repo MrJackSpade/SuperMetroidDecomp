@@ -634,25 +634,25 @@ internal static class LookupStream5Verification
     internal static void VerifyLookupStream5MapLandmarkCases(SuperMetroidAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Map.MapLandmarkExtractor.Extract(rom);
-        MapLandmarkLayout layout = MapLandmarkLayout.Load(new MemoryStream(extracted));
+        MapLandmarkPositions layout = MapLandmarkPositions.Load(new MemoryStream(extracted));
         var artwork = SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteExtractor.Extract(rom);
-        MapSpriteCatalog sprites = MapSpriteArtwork.Read(new MemoryStream(artwork[MapSpriteFormat.JsonFile]), new MemoryStream(artwork[MapSpriteFormat.PngFile]));
+        MapSpriteCompositions sprites = MapSpriteArtwork.Read(new MemoryStream(artwork[MapSpriteFormat.JsonFile]), new MemoryStream(artwork[MapSpriteFormat.PngFile]));
         int Read(int pointer) => ReadVerificationWord(rom, MapSourceDefinitions.Menu.ObjectBank | pointer);
         int Root(int table, AreaId area) => ReadVerificationWord(rom, table + (int)area * 2);
         string[] expectedIds = ["Crateria.Elevator.0", "Crateria.Elevator.1", "Crateria.Elevator.2", "Crateria.Elevator.3", "Crateria.Elevator.4",
             "Boss.Kraid", "Brinstar.Elevator.0", "Brinstar.Elevator.1", "Brinstar.Elevator.2", "Brinstar.Elevator.3", "Brinstar.Elevator.4",
             "Boss.Ridley", "Norfair.Elevator.0", "Boss.Phantoon", "WreckedShip.Elevator.0", "WreckedShip.Elevator.1",
             "Boss.Draygon", "Maridia.Elevator.0", "Maridia.Elevator.1", "Maridia.Elevator.2", "Tourian.Elevator.0", "Boss.CeresRidley", "Crateria.Gunship"];
-        AssertTrue(expectedIds.SequenceEqual(MapLandmarkDefinitions.AllIds()), "Original public identity and manifest order");
+        AssertTrue(expectedIds.SequenceEqual(MapLandmarks.AllIds()), "Original public identity and manifest order");
         using var editedBytes = new MemoryStream();
-        MapLandmarkLayout.Write(editedBytes, new MapLandmarkDocument { Version = MapLandmarkFormat.Version,
+        MapLandmarkPositions.Write(editedBytes, new MapLandmarkDocument { Version = MapLandmarkFormat.Version,
             Markers = expectedIds.ToDictionary(id => id, id => layout.Get(id) with { X = (ushort)(layout.Get(id).X + 1), Y = (ushort)(layout.Get(id).Y + 1) }) });
         editedBytes.Position = 0;
-        MapLandmarkLayout editedLayout = MapLandmarkLayout.Load(editedBytes);
+        MapLandmarkPositions editedLayout = MapLandmarkPositions.Load(editedBytes);
         int bossSlots = 0, elevatorSlots = 0;
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
-            var bosses = MapLandmarkDefinitions.Bosses(area);
+            var bosses = MapLandmarks.Bosses(area);
             int pointer = Root(MapSourceDefinitions.Landmarks.BossLists, area);
             int count = 0;
             if (pointer != 0)
@@ -673,13 +673,13 @@ internal static class LookupStream5Verification
             AssertThrows<IndexOutOfRangeException>(() => _ = bosses[count], "Boss upper bound");
             bossSlots += count;
             if (area == AreaId.Ceres) continue;
-            var elevators = MapLandmarkDefinitions.Elevators(area);
+            var elevators = MapLandmarks.Elevators(area);
             pointer = Root(MapSourceDefinitions.Landmarks.ElevatorLists, area);
             count = 0;
             while (Read(pointer + count * 6) != ushort.MaxValue)
             {
                 var label = elevators[count];
-                AssertEqual(Read(pointer + count * 6 + 4), MapSpriteOrdinals.Spritemaps.Word(MapLandmarkDefinitions.ElevatorSpritemap(label.Destination)), "Native destination identity");
+                AssertEqual(Read(pointer + count * 6 + 4), MapSpriteOrdinals.Spritemaps.Word(MapLandmarks.ElevatorSpritemap(label.Destination)), "Native destination identity");
                 AssertEqual(Read(pointer + count * 6), layout.Get(label.Id).X, "Native elevator X");
                 AssertEqual(Read(pointer + count * 6 + 2), layout.Get(label.Id).Y, "Native elevator Y");
                 count++;
@@ -736,8 +736,8 @@ internal static class LookupStream5Verification
             AssertEqual(downloaded, system.HasAreaMap(area), "Drawing preserves map state");
             void Draw(MapSpriteId id, int x, int y, ushort palette) => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(sprites), id, expected, new(unchecked((ushort)(x + adjustment - 7)), unchecked((ushort)(y + adjustment - 9))), palette);
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarkDefinitions.Bosses((AreaId)7), "Invalid boss area");
-        AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarkDefinitions.Elevators(AreaId.Ceres), "Ceres has no elevator labels");
+        AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarks.Bosses((AreaId)7), "Invalid boss area");
+        AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarks.Elevators(AreaId.Ceres), "Ceres has no elevator labels");
         AssertEqual(8, bossSlots, "Eight native boss slots including three unused");
         AssertEqual(17, elevatorSlots, "Seventeen native destination labels");
         Console.WriteLine("Map landmark cases: eight native boss slots, seventeen destinations, extraction/schema, 23 ordered IDs, bounds and 56 stock/edited ordered OAM/state cases pass.");

@@ -80,7 +80,7 @@ internal static class GameplayMessagePanelsVerification
         ISnesAddressSpace bus,
         string stockDirectory,
         string overrideDirectory,
-        AreaMapPresentationCatalog stockCatalog)
+        AreaMapPresentation stockCatalog)
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.Hud.GameplayMessagePanelExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
@@ -95,7 +95,7 @@ internal static class GameplayMessagePanelsVerification
             overrideDirectory, GameplayMessagePanelDefinitions.FileName);
         File.WriteAllText(replacement,
             document.ToJsonString(ArtworkJson.Options));
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(
+        AreaMapPresentation edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
         var state = new GameplayMessageBoxState();
         state.BindPresentation(edited.GameplayMessageTitles, edited.GameplayMessagePanels);

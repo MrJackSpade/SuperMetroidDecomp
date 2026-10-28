@@ -9,16 +9,16 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 /// The ordered compositions of the map and menu sprites (#1409); palette inheritance retains live animation. The installed
 /// menu OBJ sheet pictures them; its characters belong to the import pipeline that reads the installed artwork.
 /// </summary>
-public class MapSpriteCatalog
+public class MapSpriteCompositions
 {
     /// <summary>Selected map marker, elevator, indicator, and label compositions.</summary>
     private readonly FrameSet frames;
     /// <summary>Retains validated compositions.</summary>
-    private MapSpriteCatalog(FrameSet frames) => this.frames = frames;
+    private MapSpriteCompositions(FrameSet frames) => this.frames = frames;
 
     /// <summary>Shares <paramref name="compositions"/>' validated compositions.</summary>
     /// <param name="compositions">The catalog whose compositions this one shows.</param>
-    internal MapSpriteCatalog(MapSpriteCatalog compositions) => frames = Ensure.NotNull(compositions).frames;
+    internal MapSpriteCompositions(MapSpriteCompositions compositions) => frames = Ensure.NotNull(compositions).frames;
 
     /// <summary>
     /// A named map marker, elevator, label, or indicator as a whole frame over the menu OBJ page (#1392): an area label,
@@ -26,7 +26,7 @@ public class MapSpriteCatalog
     /// </summary>
     internal SpriteFrame Frame(MapSpriteId id)
     {
-        string name = MapSpriteDefinitions.Name(id);
+        string name = MapSpriteNames.Name(id);
         if (GetWorldLabel(id) is { } label)
             return label.ToFrame(name);
         if (GetFrame(id) is { } frame)
@@ -121,7 +121,7 @@ public class MapSpriteCatalog
 
     /// <summary>Loads all 26 named sprite compositions.</summary>
     /// <exception cref="InvalidDataException">The document is invalid or misses a named composition.</exception>
-    public static MapSpriteCatalog Load(Stream json)
+    public static MapSpriteCompositions Load(Stream json)
     {
         MapSpriteDocument document;
         try { document = JsonAssetDocument.Read<MapSpriteDocument>(json, ArtworkJson.Options)

@@ -49,29 +49,29 @@ public sealed class GameOptionsPresentation
         this.pages = pages;
         this.background = background;
         this.controllerLabels = controllerLabels.Where(pair => pair.Value.Where((tile, cell) =>
-            tile != GameOptionsPresentationDefinitions.ControllerLabelTile(pair.Key, cell)).Any())
+            tile != GameOptionsArtworkCells.ControllerLabelTile(pair.Key, cell)).Any())
             .ToDictionary(pair => pair.Key, pair => pair.Value);
         this.headingSprites = headingSprites;
         this.cursorSprites = cursorSprites;
         controllerLabelAnchors = document.ControllerLabelAnchors.Where((point, index) =>
-            point != GameOptionsPresentationDefinitions.ControllerAnchor(index)).Any() ? document.ControllerLabelAnchors : null;
+            point != GameOptionsArtworkCells.ControllerAnchor(index)).Any() ? document.ControllerLabelAnchors : null;
         languageRegions = document.LanguageRegions.Where((region, index) =>
-            region.HighlightWhenJapanese != GameOptionsLayout.LanguagePaletteRegion(index).HighlightWhenJapanese ||
-            !region.Cells.SequenceEqual(GameOptionsPresentationDefinitions.LanguageCells(index))).Any()
+            region.HighlightWhenJapanese != GameOptionsPositions.LanguagePaletteRegion(index).HighlightWhenJapanese ||
+            !region.Cells.SequenceEqual(GameOptionsArtworkCells.LanguageCells(index))).Any()
             ? document.LanguageRegions : null;
         Dictionary<GameOptionsToggle, GameOptionsToggleVisualDocument> toggles = GameOptionsPresentationDefinitions.Toggles.ToDictionary(
-            toggle => toggle, toggle => document.SpecialToggles[GameOptionsPresentationDefinitions.ToggleName(toggle)]);
+            toggle => toggle, toggle => document.SpecialToggles[GameOptionsNames.ToggleName(toggle)]);
         specialToggles = toggles.Any(pair =>
-            !pair.Value.EnabledCells.SequenceEqual(GameOptionsPresentationDefinitions.ToggleCells(pair.Key, GameOptionsToggleState.Enabled)) ||
-            !pair.Value.DisabledCells.SequenceEqual(GameOptionsPresentationDefinitions.ToggleCells(pair.Key, GameOptionsToggleState.Disabled)))
+            !pair.Value.EnabledCells.SequenceEqual(GameOptionsArtworkCells.ToggleCells(pair.Key, GameOptionsToggleState.Enabled)) ||
+            !pair.Value.DisabledCells.SequenceEqual(GameOptionsArtworkCells.ToggleCells(pair.Key, GameOptionsToggleState.Disabled)))
             ? toggles : null;
         Dictionary<GameOptionsPage, Position16<SpritePixels>> headings = GameOptionsPresentationDefinitions.MenuPages.ToDictionary(
-            page => page, page => document.HeadingAnchors[GameOptionsPresentationDefinitions.MenuName(page)]);
-        headingAnchors = headings.Any(pair => pair.Value != GameOptionsPresentationDefinitions.HeadingAnchor(pair.Key)) ? headings : null;
+            page => page, page => document.HeadingAnchors[GameOptionsNames.MenuName(page)]);
+        headingAnchors = headings.Any(pair => pair.Value != GameOptionsArtworkCells.HeadingAnchor(pair.Key)) ? headings : null;
         Dictionary<GameOptionsPage, Position16<SpritePixels>[]> cursors = GameOptionsPresentationDefinitions.MenuPages.ToDictionary(
-            page => page, page => document.CursorAnchors[GameOptionsPresentationDefinitions.MenuName(page)]);
+            page => page, page => document.CursorAnchors[GameOptionsNames.MenuName(page)]);
         cursorAnchors = cursors.Any(pair => pair.Value.Where((point, index) =>
-            point != GameOptionsPresentationDefinitions.CursorAnchor(pair.Key, index)).Any()) ? cursors : null;
+            point != GameOptionsArtworkCells.CursorAnchor(pair.Key, index)).Any()) ? cursors : null;
         HiddenCursor = document.HiddenCursor;
         SelectedPalette = document.SelectedPalette;
         UnselectedPalette = document.UnselectedPalette;
@@ -107,8 +107,8 @@ public sealed class GameOptionsPresentation
         {
             for (int index = 0; index < GameOptionsDefinitions.LanguagePaletteRegionCount; index++)
             {
-                var region = GameOptionsLayout.LanguagePaletteRegion(index);
-                ApplyPalette(primaryPage, GameOptionsPresentationDefinitions.LanguageCells(index),
+                var region = GameOptionsPositions.LanguagePaletteRegion(index);
+                ApplyPalette(primaryPage, GameOptionsArtworkCells.LanguageCells(index),
                     japanese == region.HighlightWhenJapanese ? SelectedPalette : UnselectedPalette);
             }
             return;
@@ -128,14 +128,14 @@ public sealed class GameOptionsPresentation
             throw new ArgumentOutOfRangeException(nameof(action));
         ControllerButton label = GameOptionsPresentationDefinitions.ControllerLabelButton(button);
         controllerLabels.TryGetValue(label, out BackgroundTile[]? cells);
-        Position16<TilemapCells> anchor = controllerLabelAnchors?[action] ?? GameOptionsPresentationDefinitions.ControllerAnchor(action);
+        Position16<TilemapCells> anchor = controllerLabelAnchors?[action] ?? GameOptionsArtworkCells.ControllerAnchor(action);
         for (int row = 0; row < GameOptionsPresentationDefinitions.ControllerLabelHeight; row++)
         for (int column = 0; column < GameOptionsPresentationDefinitions.ControllerLabelWidth; column++)
         {
             int destination = (anchor.Y + row) * GameOptionsDefinitions.MenuTilemapWidth +
                 anchor.X + column;
             page[destination] = cells is not null ? cells[row * GameOptionsPresentationDefinitions.ControllerLabelWidth + column]
-                : GameOptionsPresentationDefinitions.ControllerLabelTile(label, row * GameOptionsPresentationDefinitions.ControllerLabelWidth + column);
+                : GameOptionsArtworkCells.ControllerLabelTile(label, row * GameOptionsPresentationDefinitions.ControllerLabelWidth + column);
         }
     }
 
@@ -144,9 +144,9 @@ public sealed class GameOptionsPresentation
     {
         if (specialToggles is null)
         {
-            ApplyPalette(page, GameOptionsPresentationDefinitions.ToggleCells(name, GameOptionsToggleState.Enabled),
+            ApplyPalette(page, GameOptionsArtworkCells.ToggleCells(name, GameOptionsToggleState.Enabled),
                 enabled ? SelectedPalette : UnselectedPalette);
-            ApplyPalette(page, GameOptionsPresentationDefinitions.ToggleCells(name, GameOptionsToggleState.Disabled),
+            ApplyPalette(page, GameOptionsArtworkCells.ToggleCells(name, GameOptionsToggleState.Disabled),
                 enabled ? UnselectedPalette : SelectedPalette);
             return;
         }
@@ -163,7 +163,7 @@ public sealed class GameOptionsPresentation
         if (!Enum.IsDefined(page))
             throw new ArgumentOutOfRangeException(nameof(page), page, "Options cursors exist only for the three menu pages.");
         if (cursorAnchors is null)
-            return GameOptionsPresentationDefinitions.CursorAnchor(page, selectedItem);
+            return GameOptionsArtworkCells.CursorAnchor(page, selectedItem);
         Position16<SpritePixels>[] points = cursorAnchors[page];
         return (uint)selectedItem < points.Length
             ? points[selectedItem]
@@ -173,11 +173,11 @@ public sealed class GameOptionsPresentation
     internal void DrawHeading(ScreenSprites sprites, SpriteSheet sheet, GameOptionsPage page, int verticalScroll)
     {
         Position16<SpritePixels> point = headingAnchors is null
-            ? GameOptionsPresentationDefinitions.HeadingAnchor(page)
+            ? GameOptionsArtworkCells.HeadingAnchor(page)
             : headingAnchors[page];
         // The authored X is validated on screen; scrolling the heading wraps its Y word.
         Position16<SpritePixels> origin = new(checked(point.X), unchecked((ushort)(point.Y - verticalScroll)));
-        sprites.AddImage(sheet.Frame(GameOptionsPresentationDefinitions.HeadingSpriteName(page)), origin);
+        sprites.AddImage(sheet.Frame(GameOptionsNames.HeadingSpriteName(page)), origin);
     }
 
     /// <summary>Draws one frame of the missile cursor at the selected position.</summary>
@@ -213,19 +213,19 @@ public sealed class GameOptionsPresentation
             throw new InvalidDataException(
                 $"Options presentation version must be {GameOptionsPresentationDefinitions.Version}.");
         ValidateExactKeys(document.Pages, [GameOptionsPresentationDefinitions.BackgroundPageName,
-                .. GameOptionsPresentationDefinitions.Tilemaps.Select(GameOptionsPresentationDefinitions.TilemapName)],
+                .. GameOptionsPresentationDefinitions.Tilemaps.Select(GameOptionsNames.TilemapName)],
             "options pages");
         ValidateExactKeys(document.ControllerLabels,
-            [.. GameOptionsPresentationDefinitions.ControllerLabelButtons.Select(GameOptionsPresentationDefinitions.ControllerLabelName)],
+            [.. GameOptionsPresentationDefinitions.ControllerLabelButtons.Select(GameOptionsNames.ControllerLabelName)],
             "options controller labels");
         ValidateExactKeys(document.SpecialToggles,
-            [.. GameOptionsPresentationDefinitions.Toggles.Select(GameOptionsPresentationDefinitions.ToggleName)],
+            [.. GameOptionsPresentationDefinitions.Toggles.Select(GameOptionsNames.ToggleName)],
             "options special toggles");
         ValidateExactKeys(document.Sprites,
-            [.. GameOptionsPresentationDefinitions.MenuPages.Select(GameOptionsPresentationDefinitions.HeadingSpriteName),
+            [.. GameOptionsPresentationDefinitions.MenuPages.Select(GameOptionsNames.HeadingSpriteName),
                 .. Enumerable.Range(0, GameOptionsPresentationDefinitions.CursorFrameCount).Select(GameOptionsPresentationDefinitions.CursorSpriteName)],
             "options sprites");
-        string[] menuNames = [.. GameOptionsPresentationDefinitions.MenuPages.Select(GameOptionsPresentationDefinitions.MenuName)];
+        string[] menuNames = [.. GameOptionsPresentationDefinitions.MenuPages.Select(GameOptionsNames.MenuName)];
         ValidateExactKeys(document.HeadingAnchors, menuNames, "options heading anchors");
         ValidateExactKeys(document.CursorAnchors, menuNames, "options cursor anchors");
         if (document.ControllerLabelAnchors is null ||
@@ -243,13 +243,13 @@ public sealed class GameOptionsPresentation
         ValidatePoint(document.HiddenCursor, "hidden cursor", offscreenX: OffscreenX.Allowed);
 
         var pages = GameOptionsPresentationDefinitions.Tilemaps.ToDictionary(tilemap => tilemap,
-            tilemap => CompilePage(document, GameOptionsPresentationDefinitions.TilemapName(tilemap)));
+            tilemap => CompilePage(document, GameOptionsNames.TilemapName(tilemap)));
         BackgroundTile[] background = CompilePage(document, GameOptionsPresentationDefinitions.BackgroundPageName);
 
         var labels = new Dictionary<ControllerButton, BackgroundTile[]>();
         foreach (ControllerButton button in GameOptionsPresentationDefinitions.ControllerLabelButtons)
         {
-            string name = GameOptionsPresentationDefinitions.ControllerLabelName(button);
+            string name = GameOptionsNames.ControllerLabelName(button);
             MapPresentationCell[] cells = document.ControllerLabels[name];
             if (cells is null || cells.Length != GameOptionsPresentationDefinitions.ControllerLabelCellCount)
                 throw new InvalidDataException($"Options controller label {name} requires six cells.");
@@ -267,7 +267,7 @@ public sealed class GameOptionsPresentation
         }
         foreach (GameOptionsToggle option in GameOptionsPresentationDefinitions.Toggles)
         {
-            string name = GameOptionsPresentationDefinitions.ToggleName(option);
+            string name = GameOptionsNames.ToggleName(option);
             GameOptionsToggleVisualDocument? toggle = document.SpecialToggles[name];
             if (toggle is null || toggle.EnabledCells is null || toggle.DisabledCells is null ||
                 toggle.EnabledCells.Length == 0 || toggle.DisabledCells.Length == 0)
@@ -278,16 +278,16 @@ public sealed class GameOptionsPresentation
         }
 
         var headingSprites = GameOptionsPresentationDefinitions.MenuPages.ToDictionary(page => page,
-            page => MenuHeadingBorderDefinitions.CalculateIfMatching(GameOptionsPresentationDefinitions.Heading(page),
-                MenuBorderParts.CalculateIfMatching(CompileSprite(document, GameOptionsPresentationDefinitions.HeadingSpriteName(page)))));
+            page => MenuHeadingBorder.CalculateIfMatching(GameOptionsNames.Heading(page),
+                MenuBorderParts.CalculateIfMatching(CompileSprite(document, GameOptionsNames.HeadingSpriteName(page)))));
         SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, GameOptionsPresentationDefinitions.CursorFrameCount)
             .Select(frame => MenuCursorParts.CalculateIfMatching(frame,
                 CompileSprite(document, GameOptionsPresentationDefinitions.CursorSpriteName(frame))))];
         foreach (GameOptionsPage page in GameOptionsPresentationDefinitions.MenuPages)
         {
-            string name = GameOptionsPresentationDefinitions.MenuName(page);
+            string name = GameOptionsNames.MenuName(page);
             ValidatePoint(document.HeadingAnchors[name], $"{name} heading", offscreenX: OffscreenX.Rejected);
-            int expected = GameOptionsPresentationDefinitions.CursorCount(page);
+            int expected = GameOptionsNames.CursorCount(page);
             Position16<SpritePixels>[]? points = document.CursorAnchors[name];
             if (points is null || points.Length != expected)
                 throw new InvalidDataException($"Options {name} requires {expected} cursor anchors.");

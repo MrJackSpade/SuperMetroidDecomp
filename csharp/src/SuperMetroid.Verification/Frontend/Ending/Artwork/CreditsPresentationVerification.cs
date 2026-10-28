@@ -106,7 +106,7 @@ internal static class CreditsPresentationVerification
 
     /// <summary>Checks override selection, content identity, stock restoration, and corrupt override rejection.</summary>
     internal static void VerifyStaffCreditsAssets(string stockDirectory,
-        string overrideDirectory, AreaMapPresentationCatalog original)
+        string overrideDirectory, AreaMapPresentation original)
     {
         Directory.CreateDirectory(overrideDirectory);
         string stockPath = Path.Combine(
@@ -121,7 +121,7 @@ internal static class CreditsPresentationVerification
         File.WriteAllText(overridePath,
             document.ToJsonString(ArtworkJson.Options));
 
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(
+        AreaMapPresentation edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
         int textRow = CreditsPresentationDefinitions.InitialBlankRows;
         AssertTrue(!edited.StaffCredits.GetRow(textRow).SequenceEqual(
@@ -131,7 +131,7 @@ internal static class CreditsPresentationVerification
             "staff-credit override changes catalog identity");
 
         File.Delete(overridePath);
-        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(
+        AreaMapPresentation restored = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
         AssertTrue(restored.StaffCredits.GetRow(textRow).SequenceEqual(
             original.StaffCredits.GetRow(textRow)),

@@ -181,7 +181,7 @@ internal static class FileSelectRoomMapVerification
         var spriteDocument = RequiredJson.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options);
         foreach (MapScrollDirection direction in new[] { MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down })
         {
-            MapSpriteId id = MapArrowDefinitions.SpriteBase(direction);
+            MapSpriteId id = MapArrowSprites.SpriteBase(direction);
             string name = MapSpriteDefinitions.Frames.Single(frame => frame.Id == id).Name;
             spriteDocument.Frames[name] = [new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
                 TileColumn = 0, TileRow = 1, Size = 8, Priority = 3, Palette = null, FlipX = false, FlipY = false }];
@@ -234,19 +234,19 @@ internal static class FileSelectRoomMapVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var system = new SharedGameState();
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
-        var landmarks = MapLandmarkDefinitions.AllIds().ToDictionary(id => id, _ => new Position16<MapPixels>(511, 255));
-        landmarks[(MapLandmarkDefinitions.Bosses(AreaId.Brinstar).First(id => id is not null) ?? throw new InvalidOperationException("Verification requires a Brinstar boss landmark."))] = new(32, 40);
-        var destination = MapLandmarkDefinitions.Elevators(AreaId.Brinstar).First(label =>
+        var landmarks = MapLandmarks.AllIds().ToDictionary(id => id, _ => new Position16<MapPixels>(511, 255));
+        landmarks[(MapLandmarks.Bosses(AreaId.Brinstar).First(id => id is not null) ?? throw new InvalidOperationException("Verification requires a Brinstar boss landmark."))] = new(32, 40);
+        var destination = MapLandmarks.Elevators(AreaId.Brinstar).First(label =>
             label.Destination == AreaId.Crateria);
         landmarks[destination.Id] = new(96, 112);
         using var landmarkJson = new MemoryStream();
-        MapLandmarkLayout.Write(landmarkJson, new() { Version = 1, Markers = landmarks });
+        MapLandmarkPositions.Write(landmarkJson, new() { Version = 1, Markers = landmarks });
         landmarkJson.Position = 0;
         var stations = MapStationDiscoveryRules.All.ToDictionary(rule => rule.Id, _ => new Position16<MapPixels>(511, 255));
         var station = MapStationDiscoveryRules.Get(AreaId.Brinstar, MapStationKind.Missile).First();
         stations[station.Id] = new(64, 80);
         using var stationJson = new MemoryStream();
-        MapStationLayout.Write(stationJson, new() { Version = 1, Markers = stations });
+        MapStationPositions.Write(stationJson, new() { Version = 1, Markers = stations });
         stationJson.Position = 0;
         var artwork = SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteExtractor.Extract(bus);
         var document = RequiredJson.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options);
@@ -260,8 +260,8 @@ internal static class FileSelectRoomMapVerification
         var sprites = MapSpriteArtwork.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)),
             new MemoryStream(artwork[MapSpriteFormat.PngFile]));
         var icons = new FileSelectMapIcons(system, AreaId.Brinstar);
-        icons.BindLandmarks(MapLandmarkLayout.Load(landmarkJson));
-        icons.BindStations(MapStationLayout.Load(stationJson));
+        icons.BindLandmarks(MapLandmarkPositions.Load(landmarkJson));
+        icons.BindStations(MapStationPositions.Load(stationJson));
         icons.BindSprites(MenuSheetFixtures.MapSprites(sprites));
         ScreenSprites Draw()
         {
@@ -484,11 +484,11 @@ internal static class FileSelectRoomMapVerification
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
         var positions = RequiredJson.Deserialize<MapSaveMarkerDocument>(
             SuperMetroid.AssetExtraction.Frontend.Map.MapSaveMarkerExtractor.Extract(bus), options);
-        positions.Markers[MapSaveMarkerDefinitions.Id(AreaId.Crateria, 0)] = new(100, 80);
+        positions.Markers[MapSaveMarkers.Id(AreaId.Crateria, 0)] = new(100, 80);
         using var positionJson = new MemoryStream();
-        MapSaveMarkerLayout.Write(positionJson, positions);
+        MapSaveMarkerPositions.Write(positionJson, positions);
         positionJson.Position = 0;
-        var layout = MapSaveMarkerLayout.Load(positionJson);
+        var layout = MapSaveMarkerPositions.Load(positionJson);
         var artwork = SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteExtractor.Extract(bus);
         var document = RequiredJson.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options);
         // Preserve the original fixture's one-part (-2,-3) sprite and priority three.
@@ -525,7 +525,7 @@ internal static class FileSelectRoomMapVerification
             oam.FinalizeFrame();
             AssertTrue(first.SequenceEqual(oam.LowTable.ToArray()), "repainting station marker does not advance animation");
         }
-        int unused = Enumerable.Range(0, 16).First(index => !MapSaveMarkerDefinitions.IsUsable(AreaId.Crateria, index));
+        int unused = Enumerable.Range(0, 16).First(index => !MapSaveMarkers.IsUsable(AreaId.Crateria, index));
         AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(AreaId.Crateria, unused, layout),
             "unused station map entry rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(AreaId.Crateria, 16, layout),

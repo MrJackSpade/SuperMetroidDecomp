@@ -23,7 +23,7 @@ internal sealed class SpriteSheetSourceCatalog
     private readonly Lazy<SamusSheetInputs> samus;
 
     /// <summary>The menus' presentation.</summary>
-    private readonly Lazy<AreaMapPresentationCatalog> maps;
+    private readonly Lazy<AreaMapPresentation> maps;
     /// <summary>The opening cinematic's artwork.</summary>
     private readonly Lazy<IntroCinematicArtwork> intro;
 

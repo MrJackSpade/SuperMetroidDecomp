@@ -35,7 +35,7 @@ internal static class GenericSpriteArtworkVerification
         GameInstallation installation = GameAssetInstaller.Install(sourceRom, temporary.Root);
         var reference = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        AreaMapPresentationCatalog maps = installation.LoadMaps();
+        AreaMapPresentation maps = installation.LoadMaps();
         IntroCinematicArtwork introArtwork = installation.LoadIntroCinematicArt();
         InstalledProjectilePresentation projectiles = installation.LoadProjectiles();
         SamusBodyArtworkCatalog body = installation.LoadSamusBodyArt();

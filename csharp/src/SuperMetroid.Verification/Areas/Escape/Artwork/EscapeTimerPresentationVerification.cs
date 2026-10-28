@@ -23,7 +23,7 @@ internal static class EscapeTimerPresentationVerification
 {
     /// <summary>Checks extraction, installed overrides, VRAM transfers, and rendered OAM against native timer assets.</summary>
     internal static void VerifyEscapeTimerPresentationAssets(ISnesAddressSpace bus, string stock,
-        string overrides, AreaMapPresentationCatalog original,
+        string overrides, AreaMapPresentation original,
         GameplayBasePaletteCatalog initialPalettes)
     {
         Suite(nameof(VerifyEscapeTimerPointerDefinitions), () => VerifyEscapeTimerPointerDefinitions(bus));

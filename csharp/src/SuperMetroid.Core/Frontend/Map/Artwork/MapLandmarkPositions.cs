@@ -4,14 +4,14 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Boss, elevator and gunship drawing anchors, independent of progression and destination rules.</summary>
-public sealed class MapLandmarkLayout
+public sealed class MapLandmarkPositions
 {
     /// <summary>Case-sensitive drawing anchors indexed by stable landmark identity.</summary>
     private readonly Dictionary<string, Position16<MapPixels>> points;
     /// <summary>Retains the complete, validated landmark coordinate set.</summary>
-    private MapLandmarkLayout(Dictionary<string, Position16<MapPixels>> points) => this.points = points;
+    private MapLandmarkPositions(Dictionary<string, Position16<MapPixels>> points) => this.points = points;
     /// <summary>Gets a boss, elevator-label, or gunship drawing anchor in area-map pixels before the renderer subtracts map scrolling; does not determine whether the landmark is visible.</summary>
-    /// <param name="id">Case-sensitive stable identity published by <see cref="MapLandmarkDefinitions.AllIds"/>.</param>
+    /// <param name="id">Case-sensitive stable identity published by <see cref="MapLandmarks.AllIds"/>.</param>
     /// <returns>The configured anchor with X in 0..511 and Y in 0..255.</returns>
     /// <exception cref="InvalidDataException">The landmark identity is not installed.</exception>
     public Position16<MapPixels> Get(string id) => points.TryGetValue(id, out var point) ? point
@@ -21,13 +21,13 @@ public sealed class MapLandmarkLayout
     /// <param name="json">Caller-owned stream containing the editable landmark layout.</param>
     /// <returns>The validated layout with ordinal, case-sensitive landmark lookup.</returns>
     /// <exception cref="InvalidDataException">The JSON, schema version, marker set, or coordinates are invalid.</exception>
-    public static MapLandmarkLayout Load(Stream json)
+    public static MapLandmarkPositions Load(Stream json)
     {
         MapLandmarkDocument document;
         try { document = JsonAssetDocument.Read<MapLandmarkDocument>(json, ArtworkJson.Options)
             ?? throw new InvalidDataException("Map landmark layout is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid map landmark layout JSON.", error); }
-        var ids = MapLandmarkDefinitions.AllIds().ToArray();
+        var ids = MapLandmarks.AllIds().ToArray();
         if (document.Version != MapLandmarkFormat.Version || document.Markers is null || document.Markers.Count != ids.Length)
             throw new InvalidDataException("Map landmarks require version 1 and every known marker.");
         foreach (string id in ids)

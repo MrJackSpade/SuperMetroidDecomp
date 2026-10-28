@@ -37,7 +37,7 @@ namespace SuperMetroid.Desktop.Window;
 public sealed class PlayableGameControl : UserControl
 {
     /// <summary>Installed map art used for file loading and save-file migration.</summary>
-    private SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentationCatalog? mapPresentation;
+    private SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentation? mapPresentation;
     /// <summary>Installed projectile display data selected at session restart.</summary>
     private SuperMetroid.AssetExtraction.Samus.InstalledProjectilePresentation? projectilePresentation;
     /// <summary>Installed artwork and audio, bound to every game this control composes or restores.</summary>

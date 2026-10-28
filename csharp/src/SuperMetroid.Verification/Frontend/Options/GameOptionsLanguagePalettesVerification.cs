@@ -27,9 +27,9 @@ internal static class GameOptionsLanguagePalettesVerification
         GameOptionsPresentation presentation = GameOptionsPresentation.Load(extracted);
         for (int setting = 0; setting < 2; setting++)
         {
-            GameOptionsToggleLayout layout = GameOptionsLayout.ToggleLayout(setting);
-            AssertEqual(setting == 0 ? GameOptionsLayout.IconCancel :
-                GameOptionsLayout.Moonwalk, layout, "named toggle layout alias");
+            GameOptionsToggleLayout layout = GameOptionsPositions.ToggleLayout(setting);
+            AssertEqual(setting == 0 ? GameOptionsPositions.IconCancel :
+                GameOptionsPositions.Moonwalk, layout, "named toggle layout alias");
             int[] actual = [layout.EnabledTop, layout.EnabledBottom, layout.DisabledTop, layout.DisabledBottom];
             for (int enabled = 0; enabled < 2; enabled++)
             {
@@ -60,7 +60,7 @@ internal static class GameOptionsLanguagePalettesVerification
             }
         }
         foreach (int setting in new[] { int.MinValue, -1, 2, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsLayout.ToggleLayout(setting),
+            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsPositions.ToggleLayout(setting),
                 $"invalid toggle layout {setting}");
         Console.WriteLine("Options toggle geometry: all eight native boxes, widths and both highlight states pass through extraction and presentation.");
     }
@@ -77,10 +77,10 @@ internal static class GameOptionsLanguagePalettesVerification
             "options language oracle revision");
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(bus);
         GameOptionsPresentation presentation = GameOptionsPresentation.Load(new MemoryStream(extracted));
-        AreaMapPresentationCatalog installed = RetailPresentationFixture();
+        AreaMapPresentation installed = RetailPresentationFixture();
         AssertEqual(4, GameOptionsDefinitions.LanguagePaletteRegionCount, "native language highlight has four regions");
         foreach (int index in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsLayout.LanguagePaletteRegion(index),
+            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsPositions.LanguagePaletteRegion(index),
                 $"unsupported language region {index}");
 
         // Set_Language_Text_Option_Highlight ($82:EDED) chooses palette zero for
@@ -104,7 +104,7 @@ internal static class GameOptionsLanguagePalettesVerification
                 int originalOffset = ReadVerificationWord(bus, instruction + 1);
                 int originalCount = ReadVerificationWord(bus, instruction + 4);
                 int expected = ReadVerificationWord(bus, instruction + 7) >> 10;
-                GameOptionsLanguagePaletteRegion region = GameOptionsLayout.LanguagePaletteRegion(regionIndex);
+                GameOptionsLanguagePaletteRegion region = GameOptionsPositions.LanguagePaletteRegion(regionIndex);
                 AssertEqual(originalOffset, region.ByteOffset, "language region offset");
                 AssertEqual(originalCount, region.ByteCount, "language region byte count");
                 AssertEqual(expected == 0, region.HighlightWhenJapanese == japanese, "language selection polarity");

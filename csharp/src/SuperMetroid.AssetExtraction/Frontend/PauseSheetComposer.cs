@@ -19,7 +19,7 @@ internal static class PauseSheetComposer
     private const int SpriteColours = 128;
 
     /// <summary>What the pause sheet composes.</summary>
-    internal static SpriteSheetSources Sources(AreaMapPresentationCatalog maps) =>
+    internal static SpriteSheetSources Sources(AreaMapPresentation maps) =>
         Sources(Ensure.NotNull(maps).PauseSelectors, maps.PauseReserveTanks, maps);
 
     /// <summary>
@@ -27,7 +27,7 @@ internal static class PauseSheetComposer
     /// <paramref name="maps"/>.
     /// </summary>
     internal static SpriteSheetSources Sources(PauseSelectorPresentation selectors, PauseReserveTankPresentation tanks,
-        AreaMapPresentationCatalog maps)
+        AreaMapPresentation maps)
     {
         Ensure.NotNull(selectors);
         Ensure.NotNull(tanks);
@@ -35,12 +35,12 @@ internal static class PauseSheetComposer
         SpriteArtwork page = MapSpriteArtwork.Of(maps.Sprites).Page;
         List<SheetFrameSource> frames = [.. selectors.Visuals.Select(visual =>
         {
-            string name = PauseSelectorDefinitions.SheetFrameName(visual.Name);
+            string name = PauseSelectorAnchors.SheetFrameName(visual.Name);
             return new SheetFrameSource(name, visual.ToFrame(name), page, selectors.ObjectPalette);
         })];
-        frames.AddRange(PauseReserveTankDefinitions.Frames().Select(frame =>
+        frames.AddRange(PauseReserveTankParts.Frames().Select(frame =>
         {
-            string name = PauseReserveTankDefinitions.SheetFrameName(frame.Name);
+            string name = PauseReserveTankParts.SheetFrameName(frame.Name);
             return new SheetFrameSource(name, tanks.ToFrame(frame.Id, name), page, tanks.Palette);
         }));
         var cgram = new SnesCgram();
@@ -50,7 +50,7 @@ internal static class PauseSheetComposer
     }
 
     /// <summary>The frames the pause sheet of <paramref name="maps"/> holds.</summary>
-    internal static IEnumerable<string> FrameNames(AreaMapPresentationCatalog maps) =>
-        Ensure.NotNull(maps).PauseSelectors.Visuals.Select(visual => PauseSelectorDefinitions.SheetFrameName(visual.Name))
-            .Concat(PauseReserveTankDefinitions.Frames().Select(frame => PauseReserveTankDefinitions.SheetFrameName(frame.Name)));
+    internal static IEnumerable<string> FrameNames(AreaMapPresentation maps) =>
+        Ensure.NotNull(maps).PauseSelectors.Visuals.Select(visual => PauseSelectorAnchors.SheetFrameName(visual.Name))
+            .Concat(PauseReserveTankParts.Frames().Select(frame => PauseReserveTankParts.SheetFrameName(frame.Name)));
 }

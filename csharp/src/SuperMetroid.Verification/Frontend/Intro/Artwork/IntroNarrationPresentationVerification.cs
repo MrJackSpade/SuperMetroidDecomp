@@ -187,7 +187,7 @@ internal static class IntroNarrationPresentationVerification
         ISnesAddressSpace bus,
         string stockDirectory,
         string overrideDirectory,
-        AreaMapPresentationCatalog stockCatalog)
+        AreaMapPresentation stockCatalog)
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.Frontend.Intro.IntroNarrationExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
@@ -202,7 +202,7 @@ internal static class IntroNarrationPresentationVerification
             overrideDirectory, IntroNarrationDefinitions.FileName);
         File.WriteAllText(replacement,
             document.ToJsonString(ArtworkJson.Options));
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(
+        AreaMapPresentation edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
         AssertEqual(IntroNarrationGlyphs.CompileGlyph('T'),
             edited.IntroNarration.Compile(IntroNarrationPageId.Page1)[0].Tile,
@@ -223,7 +223,7 @@ internal static class IntroNarrationPresentationVerification
         ISnesAddressSpace bus,
         string stockDirectory,
         string overrideDirectory,
-        AreaMapPresentationCatalog stockCatalog)
+        AreaMapPresentation stockCatalog)
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
@@ -237,7 +237,7 @@ internal static class IntroNarrationPresentationVerification
         string replacement = Path.Combine(overrideDirectory, IntroFontAtlasFormat.FileName);
         using (var output = File.Create(replacement))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(
+        AreaMapPresentation edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
         AssertTrue(!IntroFontCharacters.Of(edited.IntroFont).Characters.Span.SequenceEqual(
             IntroFontCharacters.Of(stockCatalog.IntroFont).Characters.Span),

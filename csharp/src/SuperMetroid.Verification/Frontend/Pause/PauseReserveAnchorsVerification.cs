@@ -37,7 +37,7 @@ internal static class PauseReserveAnchorsVerification
         {
             int expected = horizontal ? ReadVerificationWord(rom, 0x82c1d6 + index * 2) : ReadVerificationWord(rom, 0x82c1e2) - 1;
             var point = stock.Anchor(index);
-            var basis = PauseReserveTankDefinitions.StockAnchor(index);
+            var basis = PauseReserveTankParts.StockAnchor(index);
             AssertEqual(expected, horizontal ? point.X : point.Y, "original installed reserve coordinate");
             AssertEqual(expected, horizontal ? basis.X : basis.Y, "original reserve geometry");
             foreach (int value in new[] { 0, horizontal ? 255 : 223 })

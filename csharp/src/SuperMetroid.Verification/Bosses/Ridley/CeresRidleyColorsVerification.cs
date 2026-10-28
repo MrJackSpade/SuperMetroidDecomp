@@ -24,7 +24,7 @@ internal static class CeresRidleyColorsVerification
 {
     /// <summary>Verifies extracted colors, edited palette effects, legacy override migration, and guarded ROM access.</summary>
     internal static void VerifyCeresRidleyColorOverride(string stockDirectory,
-        string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom,
+        string overrideDirectory, AreaMapPresentation original, ISnesAddressSpace rom,
         GameplayBasePaletteCatalog initialPalettes,
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
@@ -80,7 +80,7 @@ internal static class CeresRidleyColorsVerification
         Paint((document.Baby ?? throw new InvalidOperationException("Verification requires document.Baby."))[1]);
         string replacement = Path.Combine(overrideDirectory, CeresRidleyColorFormat.FileName);
         File.WriteAllBytes(replacement, CeresRidleyColorFile.Write(document));
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
+        AreaMapPresentation edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Ceres Ridley palette edit changes installed identity");
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
@@ -182,7 +182,7 @@ internal static class CeresRidleyColorsVerification
                 Baby = null, Alarm = null },
             ArtworkJson.Options);
         File.WriteAllBytes(replacement, legacyJson);
-        AreaMapPresentationCatalog migrated =
+        AreaMapPresentation migrated =
             MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertEqual(edited.CeresRidleyColors.ResolveStart(1),
             migrated.CeresRidleyColors.ResolveStart(1),
@@ -197,7 +197,7 @@ internal static class CeresRidleyColorsVerification
             document with { Version = (int)CeresRidleyColorVersion.PreAlarm, Alarm = null },
             ArtworkJson.Options);
         File.WriteAllBytes(replacement, preAlarmJson);
-        AreaMapPresentationCatalog preAlarm =
+        AreaMapPresentation preAlarm =
             MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertEqual(edited.CeresRidleyColors.ResolveBaby(1, 1),
             preAlarm.CeresRidleyColors.ResolveBaby(1, 1),
@@ -215,7 +215,7 @@ internal static class CeresRidleyColorsVerification
             "ceres-ridley-reextract");
         byte[] overrideBeforeRepair = File.ReadAllBytes(replacement);
         SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(rom, replacementStock, "test-provenance");
-        AreaMapPresentationCatalog repaired = MapPresentationFiles.Load(replacementStock, overrideDirectory);
+        AreaMapPresentation repaired = MapPresentationFiles.Load(replacementStock, overrideDirectory);
         AssertEqual(edited.ContentIdentity, repaired.ContentIdentity,
             "Ceres Ridley stock repair preserves override identity");
         AssertTrue(overrideBeforeRepair.SequenceEqual(File.ReadAllBytes(replacement)),

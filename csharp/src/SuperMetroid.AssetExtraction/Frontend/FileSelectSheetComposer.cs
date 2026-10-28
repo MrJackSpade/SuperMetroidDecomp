@@ -21,11 +21,11 @@ internal static class FileSelectSheetComposer
     private const int SpriteColours = 128;
 
     /// <summary>What the file-select sheet composes.</summary>
-    internal static SpriteSheetSources Sources(AreaMapPresentationCatalog maps) =>
+    internal static SpriteSheetSources Sources(AreaMapPresentation maps) =>
         Sources(Ensure.NotNull(maps).FileSelect, maps);
 
     /// <summary>What the file-select sheet composes from <paramref name="fileSelect"/>, over the menus of <paramref name="maps"/>.</summary>
-    internal static SpriteSheetSources Sources(FileSelectPresentation fileSelect, AreaMapPresentationCatalog maps)
+    internal static SpriteSheetSources Sources(FileSelectPresentation fileSelect, AreaMapPresentation maps)
     {
         Ensure.NotNull(fileSelect);
         Ensure.NotNull(maps);

@@ -49,7 +49,7 @@ public static class MapStationLayoutExtractor
             if (count != rules.Length) throw new InvalidDataException($"Missing {area}/{kind} station records.");
         }
         using var stream = new MemoryStream();
-        MapStationLayout.Write(stream, new() { Version = MapStationLayoutFormat.Version, Markers = markers });
+        MapStationPositions.Write(stream, new() { Version = MapStationLayoutFormat.Version, Markers = markers });
         return stream.ToArray();
     }
 }

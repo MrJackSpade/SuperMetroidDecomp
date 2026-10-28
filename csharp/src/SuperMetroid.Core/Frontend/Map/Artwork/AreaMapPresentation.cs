@@ -20,12 +20,12 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Immutable map content snapshot. Overrides never alter stock provenance or exploration rules.</summary>
-public sealed class AreaMapPresentationCatalog : IInstalledArtworkContent, IGameplayPresentationContent
+public sealed class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentationContent
 {
     /// <summary>One validated map view per retail area in area-ID order.</summary>
     private readonly IAreaMapView[] areas;
     /// <summary>Captures the selected maps and shared presentation resources as one immutable snapshot.</summary>
-    internal AreaMapPresentationCatalog(AreaMapPresentationParts parts)
+    internal AreaMapPresentation(AreaMapPresentationParts parts)
     {
         this.areas = parts.Areas;
         ContentIdentity = parts.ContentIdentity;
@@ -98,13 +98,13 @@ public sealed class AreaMapPresentationCatalog : IInstalledArtworkContent, IGame
     /// <summary>Complete static palettes for pause, file-select, and each world-map area, separate from the highlight cycle.</summary>
     public MapStaticPalettes Palettes { get; }
     /// <summary>World-map area-name drawing anchors, independent of area selection and map exploration.</summary>
-    public WorldMapLabelLayout Labels { get; }
+    public WorldMapLabelPositions Labels { get; }
     /// <summary>Map-station label drawing positions; moving these does not change compiled discovery cells or station reveal masks.</summary>
-    public MapStationLayout Stations { get; }
+    public MapStationPositions Stations { get; }
     /// <summary>Boss, elevator, and gunship drawing anchors, independent of progression and destination rules.</summary>
-    public MapLandmarkLayout Landmarks { get; }
+    public MapLandmarkPositions Landmarks { get; }
     /// <summary>File-select save-marker visual coordinate overrides, independent of native load targets and scrolling.</summary>
-    public MapSaveMarkerLayout SaveMarkers { get; }
+    public MapSaveMarkerPositions SaveMarkers { get; }
     /// <summary>Map-arrow artwork and presentation frames for scrolling indicators.</summary>
     public MapArrowPresentation Arrows { get; }
     /// <summary>Named compiled map-screen tilemap layers, separate from the character atlas and per-area map cells.</summary>
@@ -112,7 +112,7 @@ public sealed class AreaMapPresentationCatalog : IInstalledArtworkContent, IGame
     /// <summary>Selected foreground and background PNG artwork for the world-map screen.</summary>
     public WorldMapArtwork WorldArtwork { get; }
     /// <summary>Selected map sprite shapes and indexed PNG artwork used to draw map icons.</summary>
-    public MapSpriteCatalog Sprites { get; }
+    public MapSpriteCompositions Sprites { get; }
     /// <summary>Selected pause-menu character atlas, separate from map-screen characters in <see cref="Tiles"/>.</summary>
     public MapTileAtlas PauseTiles { get; }
     /// <summary>Pause-screen backdrop tilemap presentation, independent of equipment and map state.</summary>

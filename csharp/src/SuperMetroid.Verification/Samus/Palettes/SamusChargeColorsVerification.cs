@@ -28,7 +28,7 @@ internal static class SamusChargeColorsVerification
 {
     /// <summary>Edits representative charge and Hyper colors, then checks installed identity and CGRAM output without rereading native palette words.</summary>
     internal static void VerifySamusChargeColorOverride(string stockDirectory,
-        string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom)
+        string overrideDirectory, AreaMapPresentation original, ISnesAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusChargeColorExtractor.Extract(rom);
         var native = SamusChargeColorFile.Read(new MemoryStream(extracted, writable: false));
@@ -60,7 +60,7 @@ internal static class SamusChargeColorsVerification
         Paint(document.HyperShot[0]);
         string replacement = Path.Combine(overrideDirectory, SamusChargeColorFormat.FileName);
         File.WriteAllBytes(replacement, SamusChargeColorFile.Write(document));
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
+        AreaMapPresentation edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "charge colors change installed content identity");
         var guarded = NewChargeColorReadGuard(rom, forbidden);
@@ -133,13 +133,13 @@ internal static class SamusChargeColorsVerification
             "charge-color-reextract");
         byte[] overrideBeforeRepair = File.ReadAllBytes(replacement);
         SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(rom, replacementStock, "test-provenance");
-        AreaMapPresentationCatalog repaired = MapPresentationFiles.Load(replacementStock, overrideDirectory);
+        AreaMapPresentation repaired = MapPresentationFiles.Load(replacementStock, overrideDirectory);
         AssertEqual(edited.ContentIdentity, repaired.ContentIdentity,
             "stock re-extraction preserves charge color override");
         AssertTrue(overrideBeforeRepair.SequenceEqual(File.ReadAllBytes(replacement)),
             "stock re-extraction does not rewrite charge colors");
         File.Delete(replacement);
-        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
+        AreaMapPresentation restored = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing charge override restores stock identity");
         Console.WriteLine("Samus charge colors: 736 ROM words, 36 charge phases, 20 Hyper calls, edited CGRAM, source-read guard and stock repair pass.");

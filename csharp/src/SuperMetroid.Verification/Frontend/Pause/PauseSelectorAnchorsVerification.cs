@@ -21,24 +21,24 @@ internal static class PauseSelectorAnchorsVerification
             ["Equipment.Varia", "Equipment.Gravity", "Equipment.MorphBall", "Equipment.Bombs", "Equipment.SpringBall", "Equipment.ScrewAttack"],
             ["Boots.HiJump", "Boots.SpaceJump", "Boots.SpeedBooster"] ];
         var expectedNames = names.SelectMany((group, category) => group.Select((name, item) => new PauseSelectorAnchor((PauseEquipmentCategory)category, item, name))).ToArray();
-        AssertTrue(expectedNames.SequenceEqual(PauseSelectorDefinitions.Anchors()), "original named identity order");
+        AssertTrue(expectedNames.SequenceEqual(PauseSelectorAnchors.Anchors()), "original named identity order");
         foreach (var (category, item, name) in expectedNames)
-            AssertEqual(name, PauseSelectorDefinitions.Anchor(category, item), "original named identity case");
+            AssertEqual(name, PauseSelectorAnchors.Anchor(category, item), "original named identity case");
         AssertTrue(expectedNames.Where(entry => entry.Category != PauseEquipmentCategory.Reserves)
-                .Select(entry => entry.Name).SequenceEqual(PauseEquipmentLabelDefinitions.Labels().Select(label => PauseEquipmentLabelDefinitions.Name(label.Label))),
+                .Select(entry => entry.Name).SequenceEqual(PauseEquipmentLabelTiles.Labels().Select(label => PauseEquipmentLabelTiles.Name(label.Label))),
             "label identity view contains exactly the fourteen ordinary controls in order");
-        AssertEqual(0, PauseEquipmentLabelDefinitions.ItemCount(PauseEquipmentCategory.Reserves), "reserve controls have no inventory labels");
+        AssertEqual(0, PauseEquipmentLabelTiles.ItemCount(PauseEquipmentCategory.Reserves), "reserve controls have no inventory labels");
         foreach (PauseEquipmentCategory category in PauseEquipmentCategories.InventoryCategories)
         {
-            AssertEqual(names[(int)category].Length, PauseEquipmentLabelDefinitions.ItemCount(category), "label category capacity");
+            AssertEqual(names[(int)category].Length, PauseEquipmentLabelTiles.ItemCount(category), "label category capacity");
             for (int item = 0; item < names[(int)category].Length; item++)
-                AssertEqual(names[(int)category][item], PauseEquipmentLabelDefinitions.Key(category, item), "label alias identity");
+                AssertEqual(names[(int)category][item], PauseEquipmentLabelTiles.Key(category, item), "label alias identity");
         }
         foreach (PauseEquipmentCategory category in new[] { PauseEquipmentCategory.Reserves, (PauseEquipmentCategory)4, (PauseEquipmentCategory)byte.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelDefinitions.Key(category, 0), "no label for invalid or reserve category");
+            AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelTiles.Key(category, 0), "no label for invalid or reserve category");
         foreach (PauseEquipmentCategory category in PauseEquipmentCategories.InventoryCategories)
         foreach (int item in new[] { int.MinValue, -1, names[(int)category].Length, 256, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelDefinitions.Key(category, item), "label category bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelTiles.Key(category, item), "label category bounds");
         Suite(nameof(VerifyPauseLabelIdentityAdmission), () => VerifyPauseLabelIdentityAdmission(rom, expectedNames.Where(entry => entry.Category != PauseEquipmentCategory.Reserves).Select(entry => entry.Name)
             .Append("Beam.Hyper").ToArray()));
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
@@ -53,7 +53,7 @@ internal static class PauseSelectorAnchorsVerification
         foreach (int item in new[] { int.MinValue, -1, names[(int)category].Length, 256, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Anchor(category, item), "unsupported selector item");
-            AssertThrows<ArgumentOutOfRangeException>(() => PauseSelectorDefinitions.StockAnchor(category, item), "geometry guards item before arithmetic");
+            AssertThrows<ArgumentOutOfRangeException>(() => PauseSelectorAnchors.StockAnchor(category, item), "geometry guards item before arithmetic");
         }
     }
 
@@ -87,11 +87,11 @@ internal static class PauseSelectorAnchorsVerification
     private static void VerifyPauseSelectorAnchorField(ISnesAddressSpace rom, PauseSelectorDocument document,
         PauseSelectorPresentation stock, bool horizontal)
     {
-        foreach (var anchor in PauseSelectorDefinitions.Anchors())
+        foreach (var anchor in PauseSelectorAnchors.Anchors())
         {
             int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c18e + (int)anchor.Category * 2);
             int original = ReadVerificationWord(rom, pointer + anchor.Item * 4 + (horizontal ? 0 : 2)) - 1;
-            var basis = PauseSelectorDefinitions.StockAnchor(anchor.Category, anchor.Item);
+            var basis = PauseSelectorAnchors.StockAnchor(anchor.Category, anchor.Item);
             var point = stock.Anchor(anchor.Category, anchor.Item);
             AssertEqual(original, horizontal ? basis.X : basis.Y, "native selector geometry field");
             AssertEqual(original, horizontal ? point.X : point.Y, "native installed selector coordinate field");
@@ -103,7 +103,7 @@ internal static class PauseSelectorAnchorsVerification
                 using var stream = new MemoryStream(); PauseSelectorPresentation.Write(stream, document with { Anchors = anchors }); stream.Position = 0;
                 var edited = PauseSelectorPresentation.Load(stream);
                 AssertEqual(1, edited.StoredAnchorComponentCount, "only one independently authored coordinate captured");
-                foreach (var other in PauseSelectorDefinitions.Anchors())
+                foreach (var other in PauseSelectorAnchors.Anchors())
                     AssertEqual(anchors[other.Name], edited.Anchor(other.Category, other.Item), "all edited and unedited coordinates");
             }
         }

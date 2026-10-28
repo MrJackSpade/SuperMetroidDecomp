@@ -23,7 +23,7 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 internal static class PauseBackdropsVerification
 {
     /// <summary>Checks native VRAM and pixels, edited content rebinds, and preserved equipment state across fades.</summary>
-    internal static void VerifyPauseBackdrops(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
+    internal static void VerifyPauseBackdrops(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation original)
     {
         Directory.CreateDirectory(overrides);
         string stockPath = Path.Combine(stock, PauseBackdropDefinitions.FileName);
@@ -88,7 +88,7 @@ internal static class PauseBackdropsVerification
                     "fresh edited session and live rebind retain the same artwork through equipment return and Start");
                 AssertTrue(snapshotVram.AsSpan(0x6000, 0x1000).SequenceEqual(changedVram.AsSpan(0x6000, 0x1000)), "backdrop rebind leaves shared map/equipment BG1 untouched");
                 AssertEqual(selection, new PauseBackdropsSelection(pause.ScreenMode, pause.SelectedCategory, pause.SelectedItem, pause.MapScroll), "backdrop rebind leaves navigation and scroll untouched");
-                foreach (var span in PauseMenuLayout.ButtonLabelSpans)
+                foreach (var span in PauseMenuButtonLabels.ButtonLabelSpans)
                 for (int word = 0; word < span.Count; word++)
                 {
                     int offset = (PauseMenuLayoutConstants.Bg2TilemapWord + span.Word + word) * 2;
@@ -163,7 +163,7 @@ internal static class PauseBackdropsVerification
         finally { File.WriteAllBytes(stockPath, stockBytes); }
         Console.WriteLine("Pause backdrops: seven native frames/labels, button artwork, 532 guarded transition/rebind frames, visible edits, restore, native equipment overrun preservation and strict resource failures pass.");
 
-        static PauseMenuState Create(ISnesAddressSpace addressSpace, AreaId area, AreaMapPresentationCatalog catalog)
+        static PauseMenuState Create(ISnesAddressSpace addressSpace, AreaId area, AreaMapPresentation catalog)
         {
             // Ceres has no map station, so its map byte is never set natively; since #1252 the
             // pause map draws elevator destinations for acquired maps, which Ceres does not have.

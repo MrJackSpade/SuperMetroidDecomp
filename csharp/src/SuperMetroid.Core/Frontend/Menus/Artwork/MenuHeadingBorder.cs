@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Menus.Artwork;
 
 /// <summary>$82:D00B/D0AD/D177 and D24B/D2F7/D41B: file-select/options heading outlines. Stock bounds follow immutable heading typography;
 /// independently edited title pages or sprite parts do not change these stock layout definitions. Exact title/padding, glyph roles and traversal are selected display content. Native82:8CA1 feeds ordered OAM; order may affect hardware limits and is preserved. Pixels, colors and timing are excluded.</summary>
-internal sealed class MenuHeadingBorderDefinitions(MenuHeading heading) : IReadOnlyList<CompiledSpritePart>
+internal sealed class MenuHeadingBorder(MenuHeading heading) : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Native heading words on the options BG pages; each uses eight-pixel character cells.</summary>
     private string Text => heading switch
@@ -25,9 +25,9 @@ internal sealed class MenuHeadingBorderDefinitions(MenuHeading heading) : IReadO
     /// <summary>$82:D24B/D2F7/D41B: common outer traversal runs span six horizontal edge tiles; primary's paired center consumes one extra left tile.</summary>
     private const int OuterRunLength = 6;
     /// <summary>$82:D24B and siblings: F9..FD is the packed top-left/edge/top-right/bottom-left/bottom-right artwork strip.</summary>
-    private const int CornerStrip = 0xf9;
+    private const int CornerStrip = 249;
     /// <summary>$82:D24B and siblings: ED is the vertical edge artwork.</summary>
-    private const int VerticalEdge = 0xed;
+    private const int VerticalEdge = 237;
     /// <summary>$82:D2F7: selected center traversal reused identically for bottom and top rows; chosen native OAM order retained as authored ordering; geometry and repeated runs calculate.</summary>
     private static ReadOnlySpan<byte> ControllerCenter => [0, 1, 7, 6, 5, 2, 4, 3];
     /// <summary>$82:D41B: selected shorter center traversal reused on both rows; chosen native OAM order retained as authored ordering; geometry and repeated runs calculate.</summary>
@@ -35,7 +35,7 @@ internal sealed class MenuHeadingBorderDefinitions(MenuHeading heading) : IReadO
 
     /// <summary>Uses calculated border geometry only for the six authored file and options headings.</summary>
     internal static SpriteComposition CalculateIfMatching(MenuHeading heading, SpriteComposition supplied) =>
-        supplied.CalculateIfMatching(new MenuHeadingBorderDefinitions(heading));
+        supplied.CalculateIfMatching(new MenuHeadingBorder(heading));
 
     /// <summary>Perimeter OAM parts for both horizontal edges and the two vertical sides.</summary>
     public int Count => 2 * (Columns + Rows - 2);

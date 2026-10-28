@@ -38,7 +38,7 @@ internal static class InstalledPowerBombIsolationTests
         var options = CamelCaseJson;
         var document = JsonSerializer.Deserialize<PowerBombFixedColorDocument>(original, options)
             ?? throw new InvalidDataException($"Null color document: {path}");
-        AreaMapPresentationCatalog stock = MapPresentationFiles.Load(stockDirectory, null);
+        AreaMapPresentation stock = MapPresentationFiles.Load(stockDirectory, null);
         CheckCompiledLifetimeOperands(stock.PowerBombFixedColors);
         CheckStateRestoration(stock.PowerBombFixedColors);
         var framesToRender = new List<ContextFrame>();
@@ -62,7 +62,7 @@ internal static class InstalledPowerBombIsolationTests
                 File.WriteAllBytes(Path.Combine(overrides, PowerBombFixedColorFormat.FileName),
                     PowerBombFixedColorFile.Write(document with
                     { PreExplosion = Replace(document.PreExplosion), Explosion = Replace(document.Explosion) }));
-                AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stockDirectory, overrides);
+                AreaMapPresentation edited = MapPresentationFiles.Load(stockDirectory, overrides);
                 Require(stock.ContentIdentity != edited.ContentIdentity, edit + ": override identity did not change");
                 foreach (bool crystalFlash in new[] { false, true })
                 {

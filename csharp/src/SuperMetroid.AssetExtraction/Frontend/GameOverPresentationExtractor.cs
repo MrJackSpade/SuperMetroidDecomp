@@ -64,7 +64,7 @@ public static class GameOverPresentationExtractor
         for (int frame = 0; frame < GameOverPresentationDefinitions.CursorFrameCount; frame++)
         {
             sprites.Add(GameOverPresentationNames.CursorFrameName(frame),
-                MenuSpriteExtractor.Read(bus, MenuMissileAnimationDefinitions.SpritemapId(frame)));
+                MenuSpriteExtractor.Read(bus, MenuMissileSpritemaps.SpritemapId(frame)));
         }
 
         var palettes = new Dictionary<string, ushort[]>(StringComparer.Ordinal);

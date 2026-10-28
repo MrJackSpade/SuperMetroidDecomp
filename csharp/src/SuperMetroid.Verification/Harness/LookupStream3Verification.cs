@@ -264,15 +264,15 @@ internal static class LookupStream3Verification
             new VerifyStream3OptionsBordersCase(GameOptionsPage.Primary, 0x82d24b, 34), new VerifyStream3OptionsBordersCase(GameOptionsPage.Controller, 0x82d2f7, 58), new VerifyStream3OptionsBordersCase(GameOptionsPage.Special, 0x82d41b, 52),
         })
         {
-            string name = GameOptionsPresentationDefinitions.HeadingSpriteName(page);
+            string name = GameOptionsNames.HeadingSpriteName(page);
             var original = Read();
             var stock = Load(original)[page];
-            AssertTrue(stock.parts is MenuHeadingBorderDefinitions,
+            AssertTrue(stock.parts is MenuHeadingBorder,
                 "native heading stores only semantic title identity instead of supplied bounds/order/style");
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
             var presentation = GameOptionsPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
-            string anchorKey = GameOptionsPresentationDefinitions.MenuName(page);
+            string anchorKey = GameOptionsNames.MenuName(page);
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
             presentation.DrawHeading(actualOam, MenuSheetFixtures.GameOptions(presentation), page, 3);
@@ -336,7 +336,7 @@ internal static class LookupStream3Verification
             string name = FileSelectParts.BorderSpriteName(border);
             var original = Read();
             var stock = Load(original)[border];
-            AssertTrue(stock.parts is MenuHeadingBorderDefinitions,
+            AssertTrue(stock.parts is MenuHeadingBorder,
                 "native file border uses semantic title and calculated perimeter");
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
@@ -565,7 +565,7 @@ internal static class LookupStream3Verification
         }
         foreach (string name in GameOverPresentationDefinitions.SpriteNames)
         {
-            if (name == GameOverPresentationNames.CursorFrameName(0)) for (int part = 0; part < 2; part++) AssertEqual(stock[name].Part(part), new MenuCursorParts(MenuMissileAnimationDefinitions.SpritemapId(0) - 0x34)[part], "exact first cursor candidate part");
+            if (name == GameOverPresentationNames.CursorFrameName(0)) for (int part = 0; part < 2; part++) AssertEqual(stock[name].Part(part), new MenuCursorParts(MenuMissileSpritemaps.SpritemapId(0) - 0x34)[part], "exact first cursor candidate part");
             AssertTrue(Calculated(stock[name]), "stock game-over geometry retains no full part array " + name);
             Confirm(stock[name], original.Sprites[name]);
             for (int part = 0; part < original.Sprites[name].Length; part++)
@@ -777,7 +777,7 @@ internal static class LookupStream3Verification
         {
             ushort offset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f639 + action * 2));
             AssertEqual(new Position16<TilemapCells>(checked((ushort)(offset / 2 % 32)), checked((ushort)(offset / 2 / 32))),
-                GameOptionsPresentationDefinitions.ControllerAnchor(action), "native options label anchor");
+                GameOptionsArtworkCells.ControllerAnchor(action), "native options label anchor");
         }
         foreach ((GameOptionsPage page, int address, int count) in new[]
         {
@@ -793,7 +793,7 @@ internal static class LookupStream3Verification
         for (int button = 0; button < 7; button++)
         for (int cell = 0; cell < 6; cell++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f659 + button * 12 + cell * 2)),
-                BackgroundTileWords.ToWord(GameOptionsPresentationDefinitions.ControllerLabelTile(GameOptionsPresentationDefinitions.ControllerLabelButton(button), cell)),
+                BackgroundTileWords.ToWord(GameOptionsArtworkCells.ControllerLabelTile(GameOptionsPresentationDefinitions.ControllerLabelButton(button), cell)),
                 "native options glyph composition preserves each tile and flip");
         Confirm(stock, loaded);
         var edited = ReadDocument();
@@ -806,7 +806,7 @@ internal static class LookupStream3Verification
             for (int cell = 0; cell < label.Length; cell++)
                 label[cell] = label[cell] with { FlipX = !label[cell].FlipX, Palette = 1 };
         edited.LanguageRegions[0].Cells[0] = 0;
-        edited.SpecialToggles[GameOptionsPresentationDefinitions.ToggleName(GameOptionsToggle.IconCancel)].EnabledCells[0] = 0;
+        edited.SpecialToggles[GameOptionsNames.ToggleName(GameOptionsToggle.IconCancel)].EnabledCells[0] = 0;
         foreach (string page in edited.HeadingAnchors.Keys.ToArray())
         {
             Position16<SpritePixels> old = edited.HeadingAnchors[page];
@@ -833,7 +833,7 @@ internal static class LookupStream3Verification
             foreach (GameOptionsToggle toggle in GameOptionsPresentationDefinitions.Toggles)
             foreach (bool enabled in new[] { false, true })
             {
-                GameOptionsToggleVisualDocument visual = document.SpecialToggles[GameOptionsPresentationDefinitions.ToggleName(toggle)];
+                GameOptionsToggleVisualDocument visual = document.SpecialToggles[GameOptionsNames.ToggleName(toggle)];
                 byte[] actual = presentation.CreatePageBytes(GameOptionsTilemap.SpecialEnglish);
                 byte[] expected = (byte[])actual.Clone();
                 Paint(expected, visual.EnabledCells, enabled ? document.SelectedPalette : document.UnselectedPalette);
@@ -849,7 +849,7 @@ internal static class LookupStream3Verification
                 Position16<TilemapCells> point = document.ControllerLabelAnchors[action];
                 for (int cell = 0; cell < 6; cell++)
                 {
-                    MapPresentationCell source = document.ControllerLabels[GameOptionsPresentationDefinitions.ControllerLabelName(GameOptionsPresentationDefinitions.ControllerLabelButton(button))][cell];
+                    MapPresentationCell source = document.ControllerLabels[GameOptionsNames.ControllerLabelName(GameOptionsPresentationDefinitions.ControllerLabelButton(button))][cell];
                     ushort word = SnesBgTilemapWord.Create(source.TileRow * MapTileAtlasFormat.TileColumns + source.TileColumn, source.Palette, source.Priority,
                         (source.FlipX ? TileFlip.Horizontal : TileFlip.None) |
                         (source.FlipY ? TileFlip.Vertical : TileFlip.None)).Raw;
@@ -860,17 +860,17 @@ internal static class LookupStream3Verification
             }
             foreach (GameOptionsPage page in GameOptionsPresentationDefinitions.MenuPages)
             {
-                Position16<SpritePixels>[] cursors = document.CursorAnchors[GameOptionsPresentationDefinitions.MenuName(page)];
+                Position16<SpritePixels>[] cursors = document.CursorAnchors[GameOptionsNames.MenuName(page)];
                 for (int row = 0; row < cursors.Length; row++)
                     AssertEqual(cursors[row], presentation.CursorPosition(page, row), "options stock/edited cursor");
             }
             foreach (GameOptionsPage page in GameOptionsPresentationDefinitions.MenuPages)
             {
-                Position16<SpritePixels> heading = document.HeadingAnchors[GameOptionsPresentationDefinitions.MenuName(page)];
+                Position16<SpritePixels> heading = document.HeadingAnchors[GameOptionsNames.MenuName(page)];
                 var actual = ScreenSpritesFixtures.Blank();
                 var expected = new OamBuffer();
                 presentation.DrawHeading(actual, MenuSheetFixtures.GameOptions(presentation), page, 3);
-                MenuSpriteCompiler.Compile(document.Sprites[GameOptionsPresentationDefinitions.HeadingSpriteName(page)], "heading oracle")
+                MenuSpriteCompiler.Compile(document.Sprites[GameOptionsNames.HeadingSpriteName(page)], "heading oracle")
                     .DrawOnScreen(expected, new(checked(heading.X), unchecked((ushort)(heading.Y - 3))),
                         SnesObjAttributeWord.Create(0, document.CursorPalette, 0).PaletteBits);
                 actual.FinishFrame(); expected.FinalizeFrame();

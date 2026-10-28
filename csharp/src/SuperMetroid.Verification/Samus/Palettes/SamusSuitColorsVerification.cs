@@ -115,7 +115,7 @@ internal static class SamusSuitColorsVerification
     internal static void VerifySamusSuitColorOverride(
         string stockDirectory,
         string overrideDirectory,
-        AreaMapPresentationCatalog original,
+        AreaMapPresentation original,
         ISnesAddressSpace bus,
         GameplayBasePaletteCatalog initialPalettes,
         MapPresentationInstalledRoomAssets fixtureAssets)
@@ -145,7 +145,7 @@ internal static class SamusSuitColorsVerification
         Paint(document.Gravity, 3);
         string replacement = Path.Combine(overrideDirectory, SamusSuitColorFormat.FileName);
         File.WriteAllBytes(replacement, SamusSuitColorFile.Write(document));
-        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
+        AreaMapPresentation edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Samus suit color override changes installed-content identity");
 
@@ -218,7 +218,7 @@ internal static class SamusSuitColorsVerification
             "Samus suit colors reject out-of-range RGB5 channels");
 
         File.Delete(replacement);
-        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
+        AreaMapPresentation restored = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing Samus suit override restores installed-content identity");
         Console.WriteLine("Samus suit colors: three stock palettes, three live CGRAM edits, production entry, normal restoration branches, ROM guard, invalid data and override removal pass.");

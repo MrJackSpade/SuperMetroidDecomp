@@ -119,7 +119,7 @@ public static class FileSelectPresentationExtractor
         };
         for (int frame = 0; frame < MenuMissileAnimationDefinitions.FrameCount; frame++)
             sprites.Add(FileSelectPresentationDefinitions.CursorSpriteName(frame),
-                MenuSpriteExtractor.Read(bus, MenuMissileAnimationDefinitions.SpritemapId(frame)));
+                MenuSpriteExtractor.Read(bus, MenuMissileSpritemaps.SpritemapId(frame)));
         for (int frame = 0; frame < FileSelectHelmetAnimation.FrameCount; frame++)
             sprites.Add(FileSelectPresentationDefinitions.HelmetSpriteName(frame),
                 MenuSpriteExtractor.Read(bus, FileSelectHelmetAnimation.SpritemapId(frame)));

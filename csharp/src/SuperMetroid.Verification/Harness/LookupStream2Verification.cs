@@ -521,7 +521,7 @@ internal static class LookupStream2Verification
                 int address = cell is >= 170 and < 182 ? label + (cell - 170) * 2 : 0xb6e000 + cell * 2;
                 BackgroundTile tile = BackgroundTileWords.ToTile(ReadVerificationWord(rom, address));
                 native[cell] = tile;
-                AssertEqual(tile != PauseBackdropDefinitions.StockAreaTile(area, cell), areaResiduals[index].ContainsKey(cell), "Exact required backdrop residual membership");
+                AssertEqual(tile != PauseBackdropTiles.StockAreaTile(area, cell), areaResiduals[index].ContainsKey(cell), "Exact required backdrop residual membership");
                 if (areaResiduals[index].TryGetValue(cell, out BackgroundTile retained)) AssertEqual(tile, retained, "Exact independent backdrop input");
             }
             ConfirmArea(stock, area, native);
@@ -534,7 +534,7 @@ internal static class LookupStream2Verification
         {
             BackgroundTile tile = BackgroundTileWords.ToTile(ReadVerificationWord(rom, 0xb6e400 + cell * 2));
             nativeButtons[cell] = tile;
-            AssertEqual(tile != PauseBackdropDefinitions.StockButtonTile(cell), buttonResiduals.ContainsKey(cell), "Exact required button residual membership");
+            AssertEqual(tile != PauseBackdropTiles.StockButtonTile(cell), buttonResiduals.ContainsKey(cell), "Exact required button residual membership");
         }
         AssertTrue(nativeButtons.SequenceEqual(stock.CreateButtonTilemap()), "All512native button-template tiles");
         foreach (int edit in new[] { 0, 5 * 32 + 8, 5 * 32 + 12, 10 * 32 + 3, 24 * 32 + 31, 26 * 32 + 29 })
@@ -599,9 +599,9 @@ internal static class LookupStream2Verification
             if (x is >= 12 and < 20 && y is >= 7 and < 24)
             {
                 int local = (y - 7) * 8 + x - 12;
-                calculated = PauseWireframeDefinitions.StockTile(PauseWireframeKind.PowerSuit, local);
+                calculated = PauseWireframeTiles.StockTile(PauseWireframeKind.PowerSuit, local);
             }
-            else calculated = PauseEquipmentBaseDefinitions.StockTile(cell);
+            else calculated = PauseEquipmentBaseTiles.StockTile(cell);
             AssertEqual(expected != calculated, residuals.ContainsKey(cell), "Exact equipment base residual membership");
             if (residuals.TryGetValue(cell, out BackgroundTile retained)) AssertEqual(expected, retained, "Required stock input remains exact");
         }
@@ -675,8 +675,8 @@ internal static class LookupStream2Verification
             for (int cell = 0; cell < PauseWireframeDefinitions.Cells; cell++)
             {
                 ushort actualNative = CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + cell * 2));
-                AssertEqual(actualNative, BackgroundTileWords.ToWord(PauseWireframeDefinitions.StockTile(kind, cell)), $"Complete native composition word {kind}/{cell}");
-                if (PauseWireframeDefinitions.TryStockTile(kind, cell, out int tile))
+                AssertEqual(actualNative, BackgroundTileWords.ToWord(PauseWireframeTiles.StockTile(kind, cell)), $"Complete native composition word {kind}/{cell}");
+                if (PauseWireframeTiles.TryStockTile(kind, cell, out int tile))
                 {
                     AssertEqual(actualNative & 0x03ff, tile, "Native body-piece tile progression");
                     pieceCells++;
@@ -730,14 +730,14 @@ internal static class LookupStream2Verification
         int words = 0;
         foreach (PauseReserveLabel id in PauseReserveUiDefinitions.Labels)
         {
-            string name = PauseReserveUiDefinitions.Name(id);
+            string name = PauseReserveUiTiles.Name(id);
             PauseReserveLabelVisual label = document.Labels[name];
             BackgroundTile[] native = PauseTileGrid.Compile(label.Cells, name);
             int nativeCell = label.Anchor.Row * 32 + label.Anchor.Column;
-            AssertEqual(nativeCell * 2, PauseReserveUiDefinitions.StockLabelOffset(id), "Native reserve text destination");
+            AssertEqual(nativeCell * 2, PauseReserveUiTiles.StockLabelOffset(id), "Native reserve text destination");
             for (int cell = 0; cell < label.Cells.Length; cell++)
             {
-                AssertEqual(native[cell], PauseReserveUiDefinitions.StockLabelTile(id, cell), "Native reserve glyph/palette/priority");
+                AssertEqual(native[cell], PauseReserveUiTiles.StockLabelTile(id, cell), "Native reserve glyph/palette/priority");
                 words++;
             }
             // Untouched tiles around and under the label; MANUAL/AUTO replacement keeps their colour variant, priority and mirroring.
@@ -777,7 +777,7 @@ internal static class LookupStream2Verification
         var stock = PauseReserveUiFile.Read(new MemoryStream(json));
         AssertThrows<InvalidDataException>(() => stock.ApplyLabel(new BackgroundTile[1024], (PauseReserveLabel)byte.MaxValue), "Unknown reserve label rejected");
         AssertThrows<ArgumentException>(() => stock.ApplyLabel(new BackgroundTile[1], PauseReserveLabel.Manual), "Short reserve destination rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => PauseReserveUiDefinitions.StockLabelTile(PauseReserveLabel.Auto, 4), "Reserve glyph upper bound rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => PauseReserveUiTiles.StockLabelTile(PauseReserveLabel.Auto, 4), "Reserve glyph upper bound rejected");
         Console.WriteLine("Reserve labels:22 native words/four destinations,22 independent cell edits,56 actual attribute-preserving/ordinary/moved patches and bounds pass; independent glyph/arrow inputs remain required.");
     }
 
@@ -791,23 +791,23 @@ internal static class LookupStream2Verification
         int words = 0;
         foreach (PauseEquipmentLabelId id in Enum.GetValues<PauseEquipmentLabelId>())
         {
-            string key = PauseEquipmentLabelDefinitions.Name(id);
+            string key = PauseEquipmentLabelTiles.Name(id);
             PauseEquipmentLabel label = document.Labels[key];
             BackgroundTile[] native = PauseTileGrid.Compile(label.Cells, key);
             AssertEqual((label.Row * 32 + label.Column) * 2,
-                PauseEquipmentLabelDefinitions.StockPageByte(id), "Native semantic label placement");
+                PauseEquipmentLabelTiles.StockPageByte(id), "Native semantic label placement");
             for (int cell = 0; cell < label.Cells.Length; cell++)
             {
-                AssertEqual(native[cell], PauseEquipmentLabelDefinitions.StockTile(id, cell), "Native glyph tile, colour variant, priority and mirroring");
+                AssertEqual(native[cell], PauseEquipmentLabelTiles.StockTile(id, cell), "Native glyph tile, colour variant, priority and mirroring");
                 words++;
             }
         }
         // Untouched tiles around the patched labels.
         var sentinel = new BackgroundTile(0x155, 5, highPriority: false, TileFlip.Horizontal);
         int changedCells = 0;
-        foreach (var identity in PauseEquipmentLabelDefinitions.Labels())
+        foreach (var identity in PauseEquipmentLabelTiles.Labels())
         {
-            string key = PauseEquipmentLabelDefinitions.Name(identity.Label);
+            string key = PauseEquipmentLabelTiles.Name(identity.Label);
             PauseEquipmentLabel label = document.Labels[key];
             for (int edit = -1; edit < label.Cells.Length; edit++)
             {
@@ -841,8 +841,8 @@ internal static class LookupStream2Verification
         }
         var overrun = new BackgroundTile[32 * 32];
         stock.ApplyLabel(overrun, PauseEquipmentCategory.Beams, 4, 9, false);
-        PauseEquipmentLabel plasma = document.Labels[PauseEquipmentLabelDefinitions.Name(PauseEquipmentLabelId.Plasma)];
-        PauseEquipmentLabel varia = document.Labels[PauseEquipmentLabelDefinitions.Name(PauseEquipmentLabelId.Varia)];
+        PauseEquipmentLabel plasma = document.Labels[PauseEquipmentLabelTiles.Name(PauseEquipmentLabelId.Plasma)];
+        PauseEquipmentLabel varia = document.Labels[PauseEquipmentLabelTiles.Name(PauseEquipmentLabelId.Varia)];
         BackgroundTile[] tail = PauseTileGrid.Compile(varia.Cells, "Native contiguous Varia tail");
         AssertTrue(tail.AsSpan(0, 4).SequenceEqual(overrun.AsSpan(plasma.Row * 32 + plasma.Column + 5, 4)),
             "Nine-cell Plasma patch retains four exact contiguous Varia tiles");
@@ -879,9 +879,9 @@ internal static class LookupStream2Verification
             "Independent moved label retains its edited destination and untouched original cell");
         AssertEqual(115, words, "All native equipment glyph tiles");
         AssertEqual(106, changedCells, "All ordinary label glyph cells edited independently");
-        AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelDefinitions.StockTile((PauseEquipmentLabelId)byte.MaxValue, 0), "Unknown label rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelDefinitions.StockTile(PauseEquipmentLabelId.Ice, -1), "Negative label cell rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelDefinitions.StockTile(PauseEquipmentLabelId.Ice, 5), "Label cell upper bound rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelTiles.StockTile((PauseEquipmentLabelId)byte.MaxValue, 0), "Unknown label rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelTiles.StockTile(PauseEquipmentLabelId.Ice, -1), "Negative label cell rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelTiles.StockTile(PauseEquipmentLabelId.Ice, 5), "Label cell upper bound rejected");
         Console.WriteLine("Pause equipment labels:115 native words/15placements,106 ordinary and five Hyper cell edits, disabled recoloring, exact Plasma/Varia overrun, source hashes and bounds pass; glyph artwork remains independent.");
     }
 
@@ -917,11 +917,11 @@ internal static class LookupStream2Verification
                 BackgroundTile[] actual = Enumerable.Repeat(sentinel, 32 * 32).ToArray();
                 BackgroundTile[] expected = actual.ToArray();
                 BackgroundTile[] blankTiles = PauseTileGrid.Compile(blank, "Reference blank");
-                foreach (var identity in PauseEquipmentLabelDefinitions.Labels())
+                foreach (var identity in PauseEquipmentLabelTiles.Labels())
                 {
-                    PauseEquipmentLabel label = selected.Labels[PauseEquipmentLabelDefinitions.Name(identity.Label)];
+                    PauseEquipmentLabel label = selected.Labels[PauseEquipmentLabelTiles.Name(identity.Label)];
                     int destination = label.Row * 32 + label.Column;
-                    int length = PauseEquipmentLabelDefinitions.WordCount(identity.Category);
+                    int length = PauseEquipmentLabelTiles.WordCount(identity.Category);
                     blankTiles.AsSpan(0, length).CopyTo(expected.AsSpan(destination, length));
                 }
                 if (hyper)
@@ -1605,9 +1605,9 @@ internal static class LookupStream2Verification
             int relative = cell - PauseWireframeDefinitions.FirstPageTile;
             bool wireframe = relative >= 0 && relative / PauseWireframeDefinitions.PageColumns < PauseWireframeDefinitions.Rows &&
                 relative % PauseWireframeDefinitions.PageColumns < PauseWireframeDefinitions.Columns;
-            AssertEqual(equipment, PauseEquipmentBaseDefinitions.IsEquipmentLabelCell(cell), "native equipment ownership footprint");
-            AssertEqual(equipment || reserve || wireframe, PauseEquipmentBaseDefinitions.IsLiveOwnedCell(cell), "native live ownership footprint");
-            AssertEqual((reserve || wireframe) && !equipment, PauseEquipmentBaseDefinitions.IsNonInventoryLiveOwnedCell(cell), "native noninventory footprint");
+            AssertEqual(equipment, PauseEquipmentBaseTiles.IsEquipmentLabelCell(cell), "native equipment ownership footprint");
+            AssertEqual(equipment || reserve || wireframe, PauseEquipmentBaseTiles.IsLiveOwnedCell(cell), "native live ownership footprint");
+            AssertEqual((reserve || wireframe) && !equipment, PauseEquipmentBaseTiles.IsNonInventoryLiveOwnedCell(cell), "native noninventory footprint");
         }
         Console.WriteLine("Pause ownership: all1024 cells plus rejected outer bounds match native label/reserve destinations, including the nine-cell Plasma overlap.");
     }

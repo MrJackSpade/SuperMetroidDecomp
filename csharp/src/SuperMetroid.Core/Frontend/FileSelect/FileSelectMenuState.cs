@@ -42,7 +42,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>Tracks button edges used by native menu navigation and confirmation.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>Host-owned file-select artwork rebound after debugger-state restoration.</summary>
-    [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
+    [NonSerialized] private AreaMapPresentation? mapPresentation;
     /// <summary>Decoded slots whose null entries failed or lacked native SRAM checksums.</summary>
     private readonly SuperMetroidSaveSlot?[] saveSlots = new SuperMetroidSaveSlot?[3];
     /// <summary>The selection missile's frame cycle.</summary>
@@ -60,7 +60,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
     /// <summary>Performs menu indices zero through two, including every native ROM transfer.</summary>
     public FileSelectMenuState(SaveSlotStore saves, AudioQueues? audio = null,
-        AreaMapPresentationCatalog? mapPresentation = null, InstalledSpriteSheets? spriteSheets = null)
+        AreaMapPresentation? mapPresentation = null, InstalledSpriteSheets? spriteSheets = null)
     {
         this.audio = audio;
         this.mapPresentation = mapPresentation;
@@ -692,7 +692,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         audio?.QueueSound(Library1Sound.MenuCursor, maximumQueued: SoundQueueLimit.Max6);
 
     /// <summary>Rebinds host-owned file-select visuals after debugger-state restoration.</summary>
-    public void BindMapPresentation([NotNull] AreaMapPresentationCatalog? catalog)
+    public void BindMapPresentation([NotNull] AreaMapPresentation? catalog)
     {
         if (catalog is null)
             throw new InvalidOperationException("File-select requires installed map presentation assets.");

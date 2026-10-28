@@ -36,7 +36,7 @@ internal static class InstalledSporesTests
     internal static void Run(string installationRoot, string romPath, string nativeArtworkDirectory)
     {
         string maps = Path.Combine(Path.GetFullPath(installationRoot), "game", "maps");
-        AreaMapPresentationCatalog stock = MapPresentationFiles.Load(maps, null);
+        AreaMapPresentation stock = MapPresentationFiles.Load(maps, null);
         CheckArtwork(stock.RoomFxAnimatedTiles, maps, romPath, nativeArtworkDirectory);
         var packets = new List<DisplayPacket>();
         using var overridesScratch = new TestScratchDirectory("installed-spores");
@@ -45,7 +45,7 @@ internal static class InstalledSporesTests
         {
             Directory.CreateDirectory(overrides);
             WriteOverrides(maps, overrides);
-            AreaMapPresentationCatalog edited = MapPresentationFiles.Load(maps, overrides);
+            AreaMapPresentation edited = MapPresentationFiles.Load(maps, overrides);
             Require(stock.ContentIdentity != edited.ContentIdentity, "Spore overrides did not affect selected content identity.");
             CheckOwners(stock, edited, packets);
             CheckPixels(packets);
@@ -77,7 +77,7 @@ internal static class InstalledSporesTests
     }
 
     /// <summary>Compares stock and edited spores FX over freeze, scroll wrap, and animated transfers while guarding gameplay state.</summary>
-    private static void CheckOwners(AreaMapPresentationCatalog stock, AreaMapPresentationCatalog edited,
+    private static void CheckOwners(AreaMapPresentation stock, AreaMapPresentation edited,
         List<DisplayPacket> packets)
     {
         var mechanics = RoomFxAnimatedTiles.All.Single(
@@ -168,7 +168,7 @@ internal static class InstalledSporesTests
     }
 
     /// <summary>Constructs a Layer 3 FX owner using the selected installed tile, map, and palette catalogs.</summary>
-    private static RoomFxSession Create(AreaMapPresentationCatalog presentation) => new()
+    private static RoomFxSession Create(AreaMapPresentation presentation) => new()
     {
         AnimatedTileArtwork = presentation.RoomFxAnimatedTiles,
         Layer3Tilemaps = presentation.RoomFxLayer3Tilemaps,

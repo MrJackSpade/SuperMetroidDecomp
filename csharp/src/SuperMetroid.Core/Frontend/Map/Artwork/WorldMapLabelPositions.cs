@@ -5,7 +5,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Cosmetic world-map label anchors. Area availability and navigation are not content.</summary>
-public sealed class WorldMapLabelLayout
+public sealed class WorldMapLabelPositions
 {
     /// <summary>Drawing anchor for Crateria's world-map name.</summary>
     private readonly Position16<SpritePixels> crateria;
@@ -21,7 +21,7 @@ public sealed class WorldMapLabelLayout
     private readonly Position16<SpritePixels> tourian;
 
     /// <summary>Retains six independently supplied label positions without deriving one area from another.</summary>
-    private WorldMapLabelLayout(Position16<SpritePixels> crateria, Position16<SpritePixels> brinstar, Position16<SpritePixels> norfair,
+    private WorldMapLabelPositions(Position16<SpritePixels> crateria, Position16<SpritePixels> brinstar, Position16<SpritePixels> norfair,
         Position16<SpritePixels> wreckedShip, Position16<SpritePixels> maridia, Position16<SpritePixels> tourian)
     {
         this.crateria = crateria;
@@ -51,7 +51,7 @@ public sealed class WorldMapLabelLayout
     /// <summary>Loads and validates label anchors for exactly the six Zebes world-map areas.</summary>
     /// <param name="json">Caller-owned stream containing a world-map label document.</param>
     /// <returns>The compiled cosmetic label layout.</returns>
-    public static WorldMapLabelLayout Load(Stream json)
+    public static WorldMapLabelPositions Load(Stream json)
     {
         WorldMapLabelDocument document;
         try { document = JsonAssetDocument.Read<WorldMapLabelDocument>(json, ArtworkJson.Options)

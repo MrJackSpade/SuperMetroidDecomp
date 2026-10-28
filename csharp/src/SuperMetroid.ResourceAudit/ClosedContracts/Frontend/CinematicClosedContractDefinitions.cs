@@ -10,6 +10,7 @@ internal static class CinematicClosedContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Frontend/Title/Artwork/TitlePalettePresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Fx/PaletteFx/TitleScreenAmbientPaletteFxColorDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Title/Artwork/TitleAmbientColorDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Frontend/Title/Artwork/TitleAmbientColors.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleSequenceDefinitions.cs")]),
         new("SuperMetroid.Core.Frontend.Title.Artwork.TitleGradientPresentation", "title-complete-masked-gradient-variants", ["Resolve"],
             [new("csharp/src/SuperMetroid.Core/Frontend/Title/Artwork/TitleGradientPresentation.cs")]),

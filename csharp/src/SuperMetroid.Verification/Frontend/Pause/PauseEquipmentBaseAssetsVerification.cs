@@ -21,7 +21,7 @@ internal static class PauseEquipmentBaseAssetsVerification
 {
     /// <summary>Compares 1,024 native cells, checks a visible edit, and preserves live cells on artwork rebind.</summary>
     internal static void VerifyPauseEquipmentBaseAssets(ISnesAddressSpace bus, string stock, string overrides,
-        AreaMapPresentationCatalog original)
+        AreaMapPresentation original)
     {
         Directory.CreateDirectory(overrides);
         string stockPath = Path.Combine(stock, PauseEquipmentBaseDefinitions.FileName);
@@ -50,8 +50,8 @@ internal static class PauseEquipmentBaseAssetsVerification
         AssertEqual(PauseScreenMode.Map, installed.ScreenMode, "equipment base fixture returns to the map page");
 
         const int editedCell = 194;
-        AssertTrue(!PauseEquipmentBaseDefinitions.IsLiveOwnedCell(editedCell) &&
-            !PauseEquipmentBaseDefinitions.IsArrowCell(editedCell), "edited control cell belongs to static base presentation");
+        AssertTrue(!PauseEquipmentBaseTiles.IsLiveOwnedCell(editedCell) &&
+            !PauseEquipmentBaseTiles.IsArrowCell(editedCell), "edited control cell belongs to static base presentation");
         PauseBackdropCell[] cells = document.Cells.ToArray();
         cells[editedCell] = cells[editedCell] with
         {
@@ -71,9 +71,9 @@ internal static class PauseEquipmentBaseAssetsVerification
         var sentinel = new BackgroundTile(0x25a, 6, FlipHorizontally: true, FlipVertically: false, HighPriority: false);
         BackgroundTile[] rebound = Enumerable.Repeat(sentinel, PauseEquipmentBaseDefinitions.Cells).ToArray();
         int protectedCell = Enumerable.Range(0, PauseEquipmentBaseDefinitions.Cells)
-            .First(PauseEquipmentBaseDefinitions.IsLiveOwnedCell);
+            .First(PauseEquipmentBaseTiles.IsLiveOwnedCell);
         int arrowCell = Enumerable.Range(0, PauseEquipmentBaseDefinitions.Cells)
-            .First(PauseEquipmentBaseDefinitions.IsArrowCell);
+            .First(PauseEquipmentBaseTiles.IsArrowCell);
         rebound[arrowCell] = new BackgroundTile(0, 2, highPriority: false);
         edited.PauseEquipmentBase.RebindBaseInto(rebound);
         AssertEqual(sentinel, rebound[protectedCell], "base rebind preserves live inventory/wireframe/reserve cells");

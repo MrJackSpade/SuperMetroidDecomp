@@ -21,7 +21,7 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 internal static class PauseWireframesVerification
 {
     /// <summary>Compares all four native patches, page transitions, equipment toggles, and restored-content rebinding.</summary>
-    internal static void VerifyPauseWireframes(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
+    internal static void VerifyPauseWireframes(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation original)
     {
         Directory.CreateDirectory(overrides);
         string stockPath = Path.Combine(stock, PauseWireframeDefinitions.FileName), path = Path.Combine(overrides, PauseWireframeDefinitions.FileName);
@@ -140,7 +140,7 @@ internal static class PauseWireframesVerification
 
         static void EnterEquipment(PauseMenuState pause)
         { EnterPauseEquipment(pause); AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "wireframe fixture enters equipment"); }
-        static void AssertPage(PauseMenuState pause, AreaMapPresentationCatalog catalog, PauseWireframeKind kind)
+        static void AssertPage(PauseMenuState pause, AreaMapPresentation catalog, PauseWireframeKind kind)
         {
             BackgroundTile[] actual = BackgroundTileWordBytes.Tiles(pause.ShownVram().AsSpan(0x6000, 0x800));
             BackgroundTile[] expected = actual.ToArray(); catalog.PauseWireframes.ApplyTo(expected, kind);

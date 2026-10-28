@@ -9,6 +9,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Frontend.Options;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 /// <summary>Checks the three game-options heading sprites and placement anchors against cartridge instructions.</summary>
 internal static class GameOptionsHeadingsVerification
@@ -20,7 +21,7 @@ internal static class GameOptionsHeadingsVerification
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Options headings oracle revision");
         byte[] json = GameOptionsPresentationExtractor.Extract(rom);
-        _ = GameOptionsPresentation.Load(new MemoryStream(json));
+        _ = GameOptionsSourcePresentation.Load(new MemoryStream(json));
         var document = RequiredJson.Deserialize<GameOptionsPresentationDocument>(json, ArtworkJson.Options);
         Suite(nameof(VerifyGameOptionsHeadingIds), () => VerifyGameOptionsHeadingIds(rom, document));
         Suite(nameof(VerifyGameOptionsHeadingAnchors), () => VerifyGameOptionsHeadingAnchors(rom, document));

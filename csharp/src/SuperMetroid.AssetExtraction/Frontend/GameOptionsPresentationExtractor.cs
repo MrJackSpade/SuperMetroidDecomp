@@ -8,6 +8,7 @@ using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -104,7 +105,7 @@ public static class GameOptionsPresentationExtractor
         };
 
         using var output = new MemoryStream();
-        GameOptionsPresentation.Write(output, new()
+        GameOptionsSourcePresentation.Write(output, new()
         {
             Version = GameOptionsPresentationDefinitions.Version,
             Pages = pages,

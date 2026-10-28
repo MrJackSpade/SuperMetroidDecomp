@@ -72,6 +72,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 /// <summary>Checks stream-three compiled enemy, projectile, and room lookup contracts against native sources.</summary>
 internal static class LookupStream3Verification
@@ -252,7 +253,7 @@ internal static class LookupStream3Verification
         GameOptionsPresentationDocument Read() => RequiredJson.Deserialize<GameOptionsPresentationDocument>(imported, ArtworkJson.Options);
         Dictionary<GameOptionsPage, SpriteComposition> Load(GameOptionsPresentationDocument document)
         {
-            var value = GameOptionsPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            var value = GameOptionsSourcePresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
             return value.headingSprites;
         }
         void Confirm(SpriteComposition actual, SpriteVisualPart[] parts)
@@ -274,7 +275,7 @@ internal static class LookupStream3Verification
                 "native heading stores only semantic title identity instead of supplied bounds/order/style");
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
-            var presentation = GameOptionsPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
+            var presentation = GameOptionsSourcePresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
             string anchorKey = GameOptionsNames.MenuName(page);
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
@@ -603,7 +604,7 @@ internal static class LookupStream3Verification
             Confirm(Sprites(Load(expanded))[name], expanded.Sprites[name]);
         }
         ConfirmCursorCaller(SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom), source => FileSelectSourcePresentation.Load(source).cursorSprites);
-        ConfirmCursorCaller(SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(rom), source => GameOptionsPresentation.Load(source).cursorSprites);
+        ConfirmCursorCaller(SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(rom), source => GameOptionsSourcePresentation.Load(source).cursorSprites);
 
         void ConfirmCursorCaller(byte[] json, Func<Stream, SpriteComposition[]> load)
         {
@@ -766,7 +767,7 @@ internal static class LookupStream3Verification
         byte[] imported = SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(rom);
         GameOptionsPresentationDocument ReadDocument() => RequiredJson.Deserialize<GameOptionsPresentationDocument>(
             imported, ArtworkJson.Options);
-        GameOptionsPresentation Load(GameOptionsPresentationDocument document) => GameOptionsPresentation.Load(new MemoryStream(
+        GameOptionsPresentation Load(GameOptionsPresentationDocument document) => GameOptionsSourcePresentation.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         var stock = ReadDocument();
         var loaded = Load(stock);

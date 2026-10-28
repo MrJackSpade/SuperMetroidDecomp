@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend;
 namespace SuperMetroid.Verification.Frontend.Options;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 /// <summary>Checks game-options toggle boxes and language highlight palettes against native instructions.</summary>
 internal static class GameOptionsLanguagePalettesVerification
@@ -24,7 +25,7 @@ internal static class GameOptionsLanguagePalettesVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)),
             "options toggle oracle revision");
         using var extracted = new MemoryStream(GameOptionsPresentationExtractor.Extract(bus));
-        GameOptionsPresentation presentation = GameOptionsPresentation.Load(extracted);
+        GameOptionsPresentation presentation = GameOptionsSourcePresentation.Load(extracted);
         for (int setting = 0; setting < 2; setting++)
         {
             GameOptionsToggleLayout layout = GameOptionsPositions.ToggleLayout(setting);
@@ -76,7 +77,7 @@ internal static class GameOptionsLanguagePalettesVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)),
             "options language oracle revision");
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(bus);
-        GameOptionsPresentation presentation = GameOptionsPresentation.Load(new MemoryStream(extracted));
+        GameOptionsPresentation presentation = GameOptionsSourcePresentation.Load(new MemoryStream(extracted));
         AreaMapPresentation installed = RetailPresentationFixture();
         AssertEqual(4, GameOptionsDefinitions.LanguagePaletteRegionCount, "native language highlight has four regions");
         foreach (int index in new[] { int.MinValue, -1, 4, int.MaxValue })

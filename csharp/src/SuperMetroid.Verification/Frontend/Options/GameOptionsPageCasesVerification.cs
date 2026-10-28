@@ -8,6 +8,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Frontend.Options;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 /// <summary>Checks installed game-options pages against five native source selections and page bytes.</summary>
 internal static class GameOptionsPageCasesVerification
@@ -18,7 +19,7 @@ internal static class GameOptionsPageCasesVerification
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Options page oracle revision");
-        GameOptionsPresentation presentation = GameOptionsPresentation.Load(
+        GameOptionsPresentation presentation = GameOptionsSourcePresentation.Load(
             new MemoryStream(GameOptionsPresentationExtractor.Extract(rom)));
         OriginalOrder[] originalOrder =
         [

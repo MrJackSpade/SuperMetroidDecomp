@@ -23,23 +23,21 @@ public sealed class IntroCinematicArtworkCatalog
         Ensure.NotNull(parts.BackgroundPages);
         if (parts.BackgroundPages.Count != IntroCinematicArtworkFormat.BackgroundPageCount)
             throw new InvalidDataException("Opening cinematic requires four ordered BG tilemap pages.");
-        var pages = new byte[IntroCinematicArtworkFormat.BackgroundPageByteCount * parts.BackgroundPages.Count];
+        var pages = new BackgroundTile[PageCells * parts.BackgroundPages.Count];
         for (int index = 0; index < parts.BackgroundPages.Count; index++)
         {
             RoomBackgroundTilemapAtlas page = parts.BackgroundPages[index]
                 ?? throw new InvalidDataException($"Opening BG page {index} is missing.");
-            byte[] pageBytes = BackgroundTileWords.ToBytes(page.Tiles.Span);
-            if (pageBytes.Length != IntroCinematicArtworkFormat.BackgroundPageByteCount)
+            if (page.Tiles.Length != PageCells)
                 throw new InvalidDataException($"Opening BG page {index} must contain one 32x32 tilemap.");
-            pageBytes.CopyTo(pages.AsSpan(index * IntroCinematicArtworkFormat.BackgroundPageByteCount,
-                IntroCinematicArtworkFormat.BackgroundPageByteCount));
+            page.Tiles.Span.CopyTo(pages.AsSpan(index * PageCells, PageCells));
         }
-        if (!pages.SequenceEqual(IntroBackgroundTilemapDefinitions.Compile()))
+        if (!pages.AsSpan().SequenceEqual(IntroBackgroundTilemapDefinitions.Compile()))
             suppliedBackgroundPages = pages;
-        ReadOnlyMemory<byte> portrait = RequirePage(parts.PortraitTilemap, "portrait");
+        ReadOnlyMemory<BackgroundTile> portrait = RequirePage(parts.PortraitTilemap, "portrait");
         if (!portrait.Span.SequenceEqual(IntroPortraitTilemapDefinitions.Compile()))
             suppliedPortrait = portrait.ToArray();
-        ReadOnlyMemory<byte> narration = RequirePage(parts.InitialNarrationTilemap, "initial narration");
+        ReadOnlyMemory<BackgroundTile> narration = RequirePage(parts.InitialNarrationTilemap, "initial narration");
         if (!narration.Span.SequenceEqual(IntroInitialNarrationTilemapDefinitions.Compile()))
             suppliedInitialNarration = narration.ToArray();
         FinalLine = Ensure.NotNull(parts.FinalLine);
@@ -55,13 +53,16 @@ public sealed class IntroCinematicArtworkCatalog
         CeresFlight = Ensure.NotNull(parts.CeresFlight);
         CeresDestruction = Ensure.NotNull(parts.CeresDestruction);
 
-        static ReadOnlyMemory<byte> RequirePage(RoomBackgroundTilemapAtlas? page, string name)
+        static ReadOnlyMemory<BackgroundTile> RequirePage(RoomBackgroundTilemapAtlas? page, string name)
         {
-            if (page is null || page.Tiles.Length * sizeof(ushort) != IntroCinematicArtworkFormat.BackgroundPageByteCount)
+            if (page is null || page.Tiles.Length != PageCells)
                 throw new InvalidDataException($"Opening cinematic {name} tilemap must contain one 32x32 page.");
-            return BackgroundTileWords.ToBytes(page.Tiles.Span);
+            return page.Tiles;
         }
     }
+
+    /// <summary>Cells in one 32-by-32 opening tilemap page.</summary>
+    private const int PageCells = 32 * 32;
 
     /// <summary>BG characters uploaded to VRAM byte $0000.</summary>
     public RoomCharacterAtlas BackgroundCharacters { get; }
@@ -69,18 +70,18 @@ public sealed class IntroCinematicArtworkCatalog
     public RoomCharacterAtlas IntroObjectCharacters { get; }
     /// <summary>Decompressed cinematic OBJ characters uploaded to VRAM byte $DC00.</summary>
     public RoomCharacterAtlas CinematicObjectCharacters { get; }
-    /// <summary>Four ordered 32x32 BG tilemap pages uploaded at VRAM byte $A000.</summary>
-    public ReadOnlyMemory<byte> BackgroundPages => suppliedBackgroundPages ?? IntroBackgroundTilemapDefinitions.Compile();
-    /// <summary>Only a selected four-page BG transfer differing from the compiled intro layout.</summary>
-    internal readonly byte[]? suppliedBackgroundPages;
-    /// <summary>Samus-head portrait BG tilemap uploaded at VRAM byte $9000.</summary>
-    public ReadOnlyMemory<byte> PortraitTilemap => suppliedPortrait ?? IntroPortraitTilemapDefinitions.Compile();
+    /// <summary>The four ordered 32x32 scene pages' tiles.</summary>
+    public ReadOnlyMemory<BackgroundTile> BackgroundPages => suppliedBackgroundPages ?? IntroBackgroundTilemapDefinitions.Compile();
+    /// <summary>Only selected scene pages differing from the compiled intro layout.</summary>
+    internal readonly BackgroundTile[]? suppliedBackgroundPages;
+    /// <summary>The Samus-head portrait's tiles.</summary>
+    public ReadOnlyMemory<BackgroundTile> PortraitTilemap => suppliedPortrait ?? IntroPortraitTilemapDefinitions.Compile();
     /// <summary>Copied portrait page when authoring differs from the compiled stock map.</summary>
-    internal readonly byte[]? suppliedPortrait;
-    /// <summary>First, pre-typewriter narration BG3 tilemap uploaded at VRAM byte $9800.</summary>
-    public ReadOnlyMemory<byte> InitialNarrationTilemap => suppliedInitialNarration ?? IntroInitialNarrationTilemapDefinitions.Compile();
+    internal readonly BackgroundTile[]? suppliedPortrait;
+    /// <summary>The first, pre-typewriter narration card's tiles.</summary>
+    public ReadOnlyMemory<BackgroundTile> InitialNarrationTilemap => suppliedInitialNarration ?? IntroInitialNarrationTilemapDefinitions.Compile();
     /// <summary>Copied pre-typewriter narration page when authoring differs from stock.</summary>
-    internal readonly byte[]? suppliedInitialNarration;
+    internal readonly BackgroundTile[]? suppliedInitialNarration;
     /// <summary>Four BG3 rows mapping Japanese subtitle glyph staging beneath illustrated-page text.</summary>
     public IntroFinalLineTilemap FinalLine { get; }
     /// <summary>Four editable Samus-portrait eye rectangles, without their blink timing.</summary>
@@ -112,10 +113,10 @@ public sealed class IntroCinematicArtworkCatalog
         content.Append("background-characters", BackgroundCharacters.Characters.Span);
         content.Append("intro-characters", IntroObjectCharacters.Characters.Span);
         content.Append("cinematic-characters", CinematicObjectCharacters.Characters.Span);
-        content.Append("background-pages", BackgroundPages.Span);
-        content.Append("portrait-map", PortraitTilemap.Span);
-        content.Append("narration-map", InitialNarrationTilemap.Span);
-        content.AppendWords("final-line", FinalLine.Words.Span);
+        content.AppendTiles("background-pages", BackgroundPages.Span);
+        content.AppendTiles("portrait-map", PortraitTilemap.Span);
+        content.AppendTiles("narration-map", InitialNarrationTilemap.Span);
+        content.AppendTiles("final-line", FinalLine.Tiles.Span);
         content.Append("eye-frames", Convert.FromHexString(EyeFrames.ContentIdentity));
         content.Append("caret-sprites", Convert.FromHexString(CaretSprites.ContentIdentity));
         content.Append("mother-brain-sprites", Convert.FromHexString(MotherBrainSprites.ContentIdentity));

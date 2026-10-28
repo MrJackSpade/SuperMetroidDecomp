@@ -75,23 +75,23 @@ internal static class IntroCinematicArtworkVerification
                     RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.ObjectCharacters,
                         maximumOutputBytes: IntroCinematicArtworkFormat.CinematicObjectByteCount)),
                 "installed compressed cinematic OBJ PNG preserves every native tile byte");
-            AssertTrue(stock.BackgroundPages.Span.SequenceEqual(
+            AssertTrue(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span).AsSpan().SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.BackgroundPageTilemaps,
-                        maximumOutputBytes: IntroCinematicDefinitions.Artwork.BackgroundPageTilemapBytes)),
-                "four installed BG page JSON files preserve every native tilemap word");
-            AssertTrue(stock.PortraitTilemap.Span.SequenceEqual(
+                        maximumOutputBytes: IntroCinematicDefinitions.Artwork.BackgroundPageTilemapCells * sizeof(ushort))),
+                "four installed BG page JSON files, encoded through the codec, preserve every native tilemap word");
+            AssertTrue(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span).AsSpan().SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.SamusHeadTilemap,
-                        maximumOutputBytes: IntroCinematicDefinitions.Artwork.SamusHeadTilemapBytes)),
-                "installed portrait JSON preserves every native tilemap word");
-            AssertTrue(stock.InitialNarrationTilemap.Span.SequenceEqual(
+                        maximumOutputBytes: IntroCinematicDefinitions.Artwork.SamusHeadTilemapCells * sizeof(ushort))),
+                "installed portrait JSON, encoded through the codec, preserves every native tilemap word");
+            AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.FirstNarrationTilemap,
-                        maximumOutputBytes: IntroCinematicDefinitions.Artwork.NarrationTilemapBytes)),
-                "installed initial narration JSON preserves every native tilemap word");
+                        maximumOutputBytes: IntroCinematicDefinitions.Artwork.NarrationTilemapCells * sizeof(ushort))),
+                "installed initial narration JSON, encoded through the codec, preserves every native tilemap word");
             for (int index = 0; index < IntroFinalLineTilemapFormat.CellCount; index++)
             {
                 int source = IntroCinematicSourceDefinitions.FinalTextLine + index * sizeof(ushort);
                 ushort nativeWord = LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, source), CpuBusRegionRead.Read(bus, source + 1));
-                AssertEqual(nativeWord, stock.FinalLine.Words.Span[index],
+                AssertEqual(nativeWord, stock.FinalLine.Tiles.Span[index].PackedWord,
                     $"opening divider tile {index} matches cartridge source");
             }
             Suite(nameof(VerifyIntroEyeInstructions), () => VerifyIntroEyeInstructions(bus));
@@ -104,7 +104,7 @@ internal static class IntroCinematicArtworkVerification
                 {
                     int wordSource = source + 4 + cell * sizeof(ushort);
                     ushort nativeWord = LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, wordSource), CpuBusRegionRead.Read(bus, wordSource + 1));
-                    AssertEqual(nativeWord, stock.EyeFrames.FrameWords(frame)[cell],
+                    AssertEqual(nativeWord, stock.EyeFrames.FrameTiles(frame)[cell].PackedWord,
                         $"opening eye frame {frame} cell {cell} matches cartridge");
                 }
             }
@@ -286,7 +286,7 @@ internal static class IntroCinematicArtworkVerification
             int dividerByte = (IntroVramWords.NarrationTilemapWord +
                 IntroCinematicDefinitions.Text.FinalLineFirstCell + changedCell) * sizeof(ushort);
             BinaryPrimitives.WriteUInt16LittleEndian(expectedDividerVram.AsSpan(dividerByte),
-                editedDivider.FinalLine.Words.Span[changedCell]);
+                editedDivider.FinalLine.Tiles.Span[changedCell].PackedWord);
             AssertTrue(!expectedDividerVram.SequenceEqual(stockDividerVram) &&
                     editedDividerState.ShownVram().SequenceEqual(
                         expectedDividerVram),
@@ -366,7 +366,7 @@ internal static class IntroCinematicArtworkVerification
                 // the final $400 bytes of the first transfer are deliberately overwritten.
                 edited.BackgroundCharacters.Characters.Span.CopyTo(expected.AsSpan(
                     (IntroVramLayout.BackgroundCharacters.Offset * 2)));
-                edited.BackgroundPages.Span.CopyTo(expected.AsSpan(
+                BackgroundTileWordBytes.Of(edited.BackgroundPages.Span).CopyTo(expected.AsSpan(
                     (IntroVramLayout.BackgroundPages.Offset * 2)));
                 edited.IntroObjectCharacters.Characters.Span.CopyTo(expected.AsSpan(
                     (IntroVramLayout.IntroObjectCharacters.Offset * 2)));
@@ -422,7 +422,7 @@ internal static class IntroCinematicArtworkVerification
 
                 IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
                 byte[] expected = nativeVram.ToArray();
-                edited.BackgroundPages.Span.CopyTo(expected.AsSpan(
+                BackgroundTileWordBytes.Of(edited.BackgroundPages.Span).CopyTo(expected.AsSpan(
                     (IntroVramLayout.BackgroundPages.Offset * 2)));
                 AssertTrue(!expected.SequenceEqual(nativeVram) &&
                         CreateRetailIntroFixture(characterArtwork: edited)
@@ -466,10 +466,10 @@ internal static class IntroCinematicArtworkVerification
                 {
                     new VerifyIntroCinematicArtworkCase(IntroCinematicArtworkFormat.PortraitTilemapFileName,
                         (IntroVramLayout.PortraitTilemap.Offset * 2),
-                        artwork => artwork.PortraitTilemap),
+                        artwork => BackgroundTileWordBytes.Of(artwork.PortraitTilemap.Span)),
                     new VerifyIntroCinematicArtworkCase(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName,
                         (IntroVramLayout.NarrationTilemap.Offset * 2),
-                        artwork => artwork.InitialNarrationTilemap),
+                        artwork => BackgroundTileWordBytes.Of(artwork.InitialNarrationTilemap.Span)),
                 })
             {
                 string stockPath = Path.Combine(installation.IntroCinematicDirectory, name);
@@ -598,9 +598,9 @@ internal static class IntroCinematicArtworkVerification
         var guarded = NewIntroArtworkSourceReadGuard(bus);
         var nativeVram = new IntroTilemaps();
         var installedVram = new IntroTilemaps();
-        var native = new IntroCinematicObjectSystem(nativeVram, new ushort[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
+        var native = new IntroCinematicObjectSystem(nativeVram, new BackgroundTile[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
         var installed = new IntroCinematicObjectSystem(installedVram,
-            new ushort[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
+            new BackgroundTile[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
         native.Step(0);
         installed.Step(0);
         AssertTrue(IntroTilemapsFixtures.Vram(installedVram).ImageEquals(IntroTilemapsFixtures.Vram(nativeVram)),
@@ -632,7 +632,7 @@ internal static class IntroCinematicArtworkVerification
         var eyeCell = IntroEyeAnimationDefinitions.PortraitCell;
         int destination = IntroVramWords.PortraitTilemapWord +
             eyeCell.Y * IntroCinematicDefinitions.Tilemaps.TilemapWidth + eyeCell.X;
-        AssertEqual(edited.FrameWords(0)[0], IntroTilemapsFixtures.Vram(installedVram).ReadWord(destination),
+        AssertEqual(edited.FrameTiles(0)[0].PackedWord, IntroTilemapsFixtures.Vram(installedVram).ReadWord(destination),
             "eye JSON edit reaches the active portrait tile");
         installed.BindEyeArtwork(stock.EyeFrames);
         AssertTrue(IntroTilemapsFixtures.Vram(installedVram).ImageEquals(IntroTilemapsFixtures.Vram(nativeVram)),
@@ -754,9 +754,9 @@ internal static class IntroCinematicArtworkVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed caret art avoids the native OAM composition source");
 
-        var nativeBlink = new IntroCinematicObjectSystem(new IntroTilemaps(), new ushort[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
+        var nativeBlink = new IntroCinematicObjectSystem(new IntroTilemaps(), new BackgroundTile[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
         var installedBlink = new IntroCinematicObjectSystem(new IntroTilemaps(),
-            new ushort[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
+            new BackgroundTile[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
         nativeBlink.SetCaretBlinking();
         installedBlink.SetCaretBlinking();
         for (int frame = 0; frame < 20; frame++)

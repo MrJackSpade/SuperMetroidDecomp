@@ -88,6 +88,14 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
     }
 
     /// <summary>
+    /// Paints two-bit <paramref name="tile"/> over <paramref name="character"/>'s 16 bytes with its top-left pixel at
+    /// (<paramref name="left"/>, <paramref name="top"/>), as <see cref="PaintTwoBppTile(int, int, SnesBgTilemapWord, ReadOnlySpan{byte}, RgbColor[])"/>
+    /// paints its word.
+    /// </summary>
+    internal SpritePaletteRows PaintTwoBppTile(int left, int top, BackgroundTile tile, ReadOnlySpan<byte> character, RgbColor[] colours) =>
+        PaintTwoBppTile(left, top, new SnesBgTilemapWord(BackgroundTileWords.ToWord(tile)), character, colours);
+
+    /// <summary>
     /// Paints two-bit tile word <paramref name="word"/> over <paramref name="character"/>'s 16 bytes with its top-left pixel
     /// at (<paramref name="left"/>, <paramref name="top"/>), keeping each pixel's row times four plus its colour, colour
     /// zero included, as BG3's sheets do; returns the rows it was coloured from.

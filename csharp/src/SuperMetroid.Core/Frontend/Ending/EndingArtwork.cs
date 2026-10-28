@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
@@ -99,10 +99,9 @@ internal sealed class EndingArtwork
     /// <summary>Copies one authored ending OBJ fragment into its named VRAM lane.</summary>
     private void LoadObjectFragment(EndingObjectFragmentId fragmentId)
     {
-        byte[] fragment = (_stage.ObjectArtwork ?? throw new InvalidOperationException(
-            "Ending object fragments require installed artwork.")).Fragment(fragmentId).Characters.ToArray();
-        EndingStage.RequireMinimum(fragment, EndingArtworkExtentDefinitions.ObjectFragmentBytes,
-            "ending OBJ fragment");
+        int fragmentCells = (_stage.ObjectArtwork ?? throw new InvalidOperationException(
+            "Ending object fragments require installed artwork.")).Fragment(fragmentId).Tiles.Length;
+        EndingStage.RequireMinimum(fragmentCells, EndingScreenPlanes.Cells, "ending explosion map");
         screen.Record(fragmentId);
     }
 
@@ -140,9 +139,9 @@ internal sealed class EndingArtwork
             "Post-credits scenes require installed object artwork.");
         byte[] waiting = artwork.WaitingSamus.Characters.ToArray();
         byte[] shooting = artwork.ShootingScreen.Characters.ToArray();
-        byte[] waitingMap = BackgroundTileWords.ToBytes(artwork.WaitingTilemap.Tiles.Span);
+        int waitingMapCells = artwork.WaitingTilemap.Tiles.Length;
         byte[] fragmentA = artwork.PostCreditsFragmentA.Characters.ToArray();
-        byte[] fragmentB = artwork.PostCreditsFragmentB.Characters.ToArray();
+        int fragmentBCells = artwork.PostCreditsFragmentB.Tiles.Length;
         byte[] result = _stage.EndingReward == EndingReward.Suitless
             ? artwork.SuitlessSamus.Characters.ToArray()
             : waiting;
@@ -150,12 +149,10 @@ internal sealed class EndingArtwork
             "waiting-Samus characters");
         EndingStage.RequireMinimum(shooting, EndingArtworkExtentDefinitions.ShootingCharacterBytes,
             "post-credits OBJ characters");
-        EndingStage.RequireMinimum(waitingMap, EndingArtworkExtentDefinitions.WaitingTilemapBytes,
-            "waiting-Samus tilemap");
+        EndingStage.RequireMinimum(waitingMapCells, EndingScreenPlanes.Cells, "waiting-Samus tilemap");
         EndingStage.RequireMinimum(fragmentA, EndingArtworkExtentDefinitions.PostCreditsFragmentABytes,
             "post-credits tile fragment A");
-        EndingStage.RequireMinimum(fragmentB, EndingArtworkExtentDefinitions.ObjectFragmentBytes,
-            "post-credits tile fragment B");
+        EndingStage.RequireMinimum(fragmentBCells, EndingScreenPlanes.Cells, "post-credits transformation map");
         EndingStage.RequireMinimum(result, EndingArtworkExtentDefinitions.FloorBytes,
             "post-credits reward characters");
         // Function 126 selects suitless (<3h) or suited (>=3h) art; the

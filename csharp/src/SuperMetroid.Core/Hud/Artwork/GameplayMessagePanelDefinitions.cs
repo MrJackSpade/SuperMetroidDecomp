@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Hud.Artwork;
 public static class GameplayMessagePanelDefinitions
 {
     /// <summary>Supported large-panel JSON schema version.</summary>
-    public const int Version = 1;
+    public const int Version = 2;
     /// <summary>Canonical editable large-panel asset file name.</summary>
     public const string FileName = "gameplay-message-panels.json";
     /// <summary>Number of content rows between the shared top and bottom borders.</summary>

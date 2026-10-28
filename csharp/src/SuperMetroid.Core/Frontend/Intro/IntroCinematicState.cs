@@ -164,11 +164,11 @@ public sealed class IntroCinematicState : IFrontendScreen
                 < IntroCinematicPhase.CeresFlight)
             {
                 // The divider occupies only rows 24-27. Preserve live typewriter
-                // words and caret state in every other row on debugger rebind.
-                value.FinalLine.Words.Span.CopyTo(textTilemap.AsSpan(
+                // tiles and caret state in every other row on debugger rebind.
+                value.FinalLine.Tiles.Span.CopyTo(textTilemap.AsSpan(
                     IntroCinematicDefinitions.Text.FinalLineFirstCell,
                     IntroCinematicDefinitions.Text.FinalLineWordCount));
-                value.FinalLine.Words.Span.CopyTo(tilemaps.Narration[IntroCinematicDefinitions.Text.FinalLineFirstCell..]);
+                value.FinalLine.Tiles.Span.CopyTo(tilemaps.Narration[IntroCinematicDefinitions.Text.FinalLineFirstCell..]);
             }
             tilemaps.LoadScenePages(value.BackgroundPages.Span);
             tilemaps.LoadPortrait(value.PortraitTilemap.Span);
@@ -205,9 +205,9 @@ public sealed class IntroCinematicState : IFrontendScreen
     internal readonly SamusProjectileSystem flashbackProjectiles = new(new BeamChargeState(), SamusProjectileResidue.None);
     /// <summary>Runs the shared bomb owner, including projectile cooldown, in flashbacks.</summary>
     private readonly SamusBombProjectileSystem flashbackBombProjectiles = new();
-    /// <summary>Staging words for progressively written BG3 narration pages.</summary>
-    private readonly ushort[] textTilemap =
-        new ushort[IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount];
+    /// <summary>Staging tiles for progressively written BG3 narration pages.</summary>
+    private readonly BackgroundTile[] textTilemap =
+        new BackgroundTile[IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount];
     /// <summary>Target palette restored by transitions back from gameplay flashbacks.</summary>
     private readonly RgbColor[] introColours = new RgbColor[ScreenPalette.ColorCount];
     /// <summary>Persistent bank-$8C actor and caret walker for illustrated pages.</summary>
@@ -312,13 +312,13 @@ public sealed class IntroCinematicState : IFrontendScreen
             "intro BG1/BG2 characters");
         RequireMinimum(introFont.CharacterCount * (IntroFontAtlasFormat.ByteCount / IntroFontAtlasFormat.TileCount),
             IntroCinematicDefinitions.Artwork.FontOneBytes, "intro font one");
-        RequireMinimum(characterArtwork.PortraitTilemap.Length, IntroCinematicDefinitions.Artwork.SamusHeadTilemapBytes,
+        RequireMinimum(characterArtwork.PortraitTilemap.Length, IntroCinematicDefinitions.Artwork.SamusHeadTilemapCells,
             "Samus-head BG2 tilemap");
-        RequireMinimum(characterArtwork.BackgroundPages.Length, IntroCinematicDefinitions.Artwork.BackgroundPageTilemapBytes,
+        RequireMinimum(characterArtwork.BackgroundPages.Length, IntroCinematicDefinitions.Artwork.BackgroundPageTilemapCells,
             "intro BG1 page tilemaps");
         RequireMinimum(characterArtwork.CinematicObjectCharacters.Characters.Length, IntroCinematicDefinitions.Artwork.ObjectCharacterBytes,
             "intro OBJ characters");
-        RequireMinimum(characterArtwork.InitialNarrationTilemap.Length, IntroCinematicDefinitions.Artwork.NarrationTilemapBytes,
+        RequireMinimum(characterArtwork.InitialNarrationTilemap.Length, IntroCinematicDefinitions.Artwork.NarrationTilemapCells,
             "first narration BG3 tilemap");
         RequireFont(introFont);
 
@@ -1319,29 +1319,29 @@ level, samus, FrameCounterWord(elapsedUpdates));
 
         // ClearCinematicBgObjects($2F) fills the complete $7E:3000 staging tilemap. The
         // native border then replaces four 32-tile rows at the top and bottom.
-        Array.Fill(textTilemap, IntroCinematicDefinitions.Text.Blank.Raw);
+        Array.Fill(textTilemap, IntroCinematicDefinitions.Text.Blank);
         for (int index = 0;
              index < IntroCinematicDefinitions.Text.GameplayBlankStartIndex;
              index++)
         {
-            textTilemap[index] = IntroCinematicDefinitions.Text.JapaneseBlank.Raw;
+            textTilemap[index] = IntroCinematicDefinitions.Text.JapaneseBlank;
             textTilemap[index + IntroCinematicDefinitions.Text.JapaneseBlankBottomDelta] =
-                IntroCinematicDefinitions.Text.JapaneseBlank.Raw;
+                IntroCinematicDefinitions.Text.JapaneseBlank;
         }
 
         // $8B:A72B maps Japanese subtitle glyph staging into BG3 rows 24-27.
         (CharacterArtwork ?? throw new InvalidOperationException(
             "Opening cinematic requires installed artwork."))
-            .FinalLine.Words.Span.CopyTo(textTilemap.AsSpan(
+            .FinalLine.Tiles.Span.CopyTo(textTilemap.AsSpan(
                 IntroCinematicDefinitions.Text.FinalLineFirstCell,
                 IntroCinematicDefinitions.Text.FinalLineWordCount));
 
         // `menu.menu_tilemap` begins $600 bytes into the same WRAM union. Its byte offset
         // $11E therefore aliases words 911/912 of the staging map; both receive $1C29.
         textTilemap[IntroCinematicDefinitions.Text.FinalBlankLeftIndex] =
-            IntroCinematicDefinitions.Text.FinalBlank.Raw;
+            IntroCinematicDefinitions.Text.FinalBlank;
         textTilemap[IntroCinematicDefinitions.Text.FinalBlankRightIndex] =
-            IntroCinematicDefinitions.Text.FinalBlank.Raw;
+            IntroCinematicDefinitions.Text.FinalBlank;
 
         textTilemap.CopyTo(tilemaps.Narration);
         CurrentObjects = new IntroCinematicObjectSystem(
@@ -1373,7 +1373,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
     {
         Array.Fill(
             textTilemap,
-            IntroCinematicDefinitions.Text.Blank.Raw,
+            IntroCinematicDefinitions.Text.Blank,
             startIndex: IntroCinematicDefinitions.Text.GameplayBlankStartIndex,
             count: IntroCinematicDefinitions.Text.GameplayBlankWordCount);
         textTilemap.AsSpan(0, IntroCinematicDefinitions.Tilemaps.VisibleTextCellCount).CopyTo(tilemaps.Narration);
@@ -1478,7 +1478,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
     internal static ushort FrameCounterWord(int elapsedUpdates) => unchecked((ushort)elapsedUpdates);
 
     /// <summary>Defines a four-bit background plane at the selected tilemap and source scroll, drawn from the scene's tiles (#1392).</summary>
-    private TileRenderLayer Plane(ReadOnlySpan<ushort> tilemap, Position16<BgPlanePixels> scroll) =>
+    private TileRenderLayer Plane(ReadOnlySpan<BackgroundTile> tilemap, Position16<BgPlanePixels> scroll) =>
         new(ScreenTileMap.Of(tilemap, new Extent16<TilemapCells>(32, 32), SceneTiles), scroll, false);
 
     /// <summary>The narration's cells, showing its font characters (#1392).</summary>

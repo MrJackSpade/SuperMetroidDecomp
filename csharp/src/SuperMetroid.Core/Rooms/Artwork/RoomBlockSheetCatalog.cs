@@ -128,10 +128,10 @@ public sealed class RoomBlockSheetCatalog
         {
             content.AppendName("messages", messages.Name);
             messages.Sheet.AppendIdentity(content);
-            foreach ((string name, ImmutableArray<ushort> words) in messages.Messages.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+            foreach ((string name, ImmutableArray<BackgroundTile> tiles) in messages.Messages.OrderBy(entry => entry.Key, StringComparer.Ordinal))
             {
                 content.AppendName("message", name);
-                content.AppendWords("words", words.AsSpan());
+                content.AppendTiles("tiles", tiles.AsSpan());
             }
         }
         foreach ((TilesetDefinition tileset, RoomAnimatedCharacters animations) in Animations.OrderBy(entry => RoomBlockSheet.NameOf(entry.Key), StringComparer.Ordinal))
@@ -155,7 +155,7 @@ public sealed class RoomBlockSheetCatalog
             words.Sheet.AppendIdentity(content);
             foreach (TileWordSheetTile tile in words.Tiles)
             {
-                content.Append("word", BackgroundTileWords.ToWord(tile.Tile.Tile));
+                content.AppendTiles("tile", [tile.Tile.Tile]);
                 content.AppendName("artwork", tile.Tile.Shown.Artwork.Name);
                 content.Append("offset", tile.Tile.Shown.WordOffset);
                 content.AppendName("frame", tile.Frame);

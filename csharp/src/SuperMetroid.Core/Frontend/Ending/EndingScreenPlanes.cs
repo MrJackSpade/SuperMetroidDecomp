@@ -5,84 +5,82 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
-/// What the ending's background planes show (#1404): each plane's words are those of the newest upload that writes the
-/// plane, a tilemap the ending's scenes wrote or the installed artwork a scene loaded for it.
+/// What the ending's background planes show (#1404): each plane's tiles are those of the newest upload that writes the
+/// plane, a tilemap the ending's scenes wrote or the installed tilemap a scene loaded for it.
 /// </summary>
 internal static class EndingScreenPlanes
 {
     /// <summary>Cells in one plane: one 32-cell screen.</summary>
     internal const int Cells = 32 * 32;
 
-    /// <summary>The words <paramref name="plane"/> holds once <paramref name="uploads"/> have been made, in order.</summary>
+    /// <summary>The tiles <paramref name="plane"/> holds once <paramref name="uploads"/> have been made, in order.</summary>
     /// <exception cref="InvalidOperationException">An upload names installed artwork that is not bound.</exception>
-    internal static ushort[] Of(EndingPlane plane, IReadOnlyList<EndingUpload> uploads, EndingObjectArtworkCatalog? objects)
+    internal static BackgroundTile[] Of(EndingPlane plane, IReadOnlyList<EndingUpload> uploads, EndingObjectArtworkCatalog? objects)
     {
-        var words = new ushort[Cells];
+        var tiles = new BackgroundTile[Cells];
         foreach (EndingUpload upload in uploads)
         {
             switch (plane)
             {
                 case EndingPlane.Credits:
                     if (upload.Kind == EndingUploadKind.CreditsTilemap || IsText(upload, EndingTextTilemap.ResultPanel))
-                        Words(upload).CopyTo(words);
+                        Tiles(upload).CopyTo(tiles);
                     break;
                 case EndingPlane.Text:
                     if (IsText(upload, EndingTextTilemap.FinalText))
-                        Words(upload).CopyTo(words);
+                        Tiles(upload).CopyTo(tiles);
                     else if (upload.Kind == EndingUploadKind.CreditsCharacterArt)
-                        Load(BackgroundTileWords.ToBytes(Objects(objects).WaitingTilemap.Tiles.Span).AsSpan(0, EndingArtworkExtentDefinitions.WaitingTilemapBytes), words);
+                        Load(Objects(objects).WaitingTilemap.Tiles.Span, tiles);
                     break;
                 case EndingPlane.TextLower:
                     if (upload.Kind == EndingUploadKind.PostShotLowerTilemap)
-                        Words(upload).CopyTo(words);
+                        Tiles(upload).CopyTo(tiles);
                     break;
                 case EndingPlane.Logo:
+                    // The logo map's one transfer carries the whole installed map.
                     if (upload.Kind == EndingUploadKind.PostShotTransfer &&
-                        EndingPostShotUploadDefinitions.Get(upload.As<EndingChunkUpload>().Chunk) is { Source: EndingPostShotUploadSource.LogoMap } logoMap)
-                        Load(BackgroundTileWords.ToBytes(Objects(objects).PostShotLogoMap.Tiles.Span).AsSpan(0, logoMap.Length), words);
+                        EndingPostShotUploadDefinitions.Get(upload.As<EndingChunkUpload>().Chunk).Source == EndingPostShotUploadSource.LogoMap)
+                        Load(Objects(objects).PostShotLogoMap.Tiles.Span, tiles);
                     break;
                 case EndingPlane.WavySamus:
                     if (upload.Kind == EndingUploadKind.CreditsCharacterArt)
-                        Load(Objects(objects).PostCreditsFragmentB.Characters.Span[..EndingArtworkExtentDefinitions.ObjectFragmentBytes], words);
+                        Load(Objects(objects).PostCreditsFragmentB.Tiles.Span, tiles);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(plane), plane, "Undefined ending plane.");
             }
         }
-        return words;
+        return tiles;
     }
 
     /// <summary>Whether <paramref name="upload"/> writes the text tilemap <paramref name="tilemap"/>.</summary>
     private static bool IsText(EndingUpload upload, EndingTextTilemap tilemap) =>
         upload is EndingTextTilemapUpload written && written.Tilemap == tilemap;
 
-    /// <summary>The words the explosion's <paramref name="fragment"/> map holds once <paramref name="uploads"/> have been made.</summary>
+    /// <summary>The tiles the explosion's <paramref name="fragment"/> map holds once <paramref name="uploads"/> have been made.</summary>
     /// <exception cref="InvalidOperationException">An upload names installed artwork that is not bound.</exception>
-    internal static ushort[] Explosion(EndingObjectFragmentId fragment, IReadOnlyList<EndingUpload> uploads, EndingObjectArtworkCatalog? objects)
+    internal static BackgroundTile[] Explosion(EndingObjectFragmentId fragment, IReadOnlyList<EndingUpload> uploads, EndingObjectArtworkCatalog? objects)
     {
-        var words = new ushort[Cells];
+        var tiles = new BackgroundTile[Cells];
         foreach (EndingUpload upload in uploads)
         {
             if (upload is EndingObjectFragmentUpload loaded && loaded.Fragment == fragment)
-                Load(Objects(objects).Fragment(fragment).Characters.Span[..EndingArtworkExtentDefinitions.ObjectFragmentBytes], words);
+                Load(Objects(objects).Fragment(fragment).Tiles.Span, tiles);
         }
-        return words;
+        return tiles;
     }
 
-    /// <summary>The tilemap words a tilemap upload recorded.</summary>
-    private static ReadOnlySpan<ushort> Words(EndingUpload upload) => upload switch
+    /// <summary>The tiles a tilemap upload recorded.</summary>
+    private static ReadOnlySpan<BackgroundTile> Tiles(EndingUpload upload) => upload switch
     {
-        EndingTilemapUpload tilemap => tilemap.Words,
-        EndingTextTilemapUpload text => text.Words,
-        _ => throw new InvalidOperationException($"The {upload.Kind} transfer records no tilemap words."),
+        EndingTilemapUpload tilemap => tilemap.Tiles,
+        EndingTextTilemapUpload text => text.Tiles,
+        _ => throw new InvalidOperationException($"The {upload.Kind} transfer records no tiles."),
     };
 
-    /// <summary>Loads little-endian words over the start of <paramref name="words"/>.</summary>
-    private static void Load(ReadOnlySpan<byte> littleEndianWords, Span<ushort> words)
-    {
-        for (int word = 0; word < littleEndianWords.Length / sizeof(ushort) && word < words.Length; word++)
-            words[word] = BinaryPrimitives.ReadUInt16LittleEndian(littleEndianWords[(word * sizeof(ushort))..]);
-    }
+    /// <summary>Copies an installed map's tiles over the start of <paramref name="tiles"/>.</summary>
+    private static void Load(ReadOnlySpan<BackgroundTile> installed, Span<BackgroundTile> tiles) =>
+        installed[..Math.Min(installed.Length, tiles.Length)].CopyTo(tiles);
 
     /// <summary>The bound OBJ artwork, which a plane's artwork uploads require.</summary>
     private static EndingObjectArtworkCatalog Objects(EndingObjectArtworkCatalog? objects) =>

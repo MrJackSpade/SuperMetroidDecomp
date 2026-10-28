@@ -11,8 +11,8 @@ public sealed record EndingObjectArtworkParts
     /// <summary>$6000-byte Zebes-explosion OBJ character sheet.</summary>
     public required RoomCharacterAtlas Explosion { get; init; }
 
-    /// <summary>Four $0800-byte raw tilemap transfers, ordered by <see cref="EndingObjectFragmentId"/>; their bytes are carried in character-atlas PNG transport.</summary>
-    public required IReadOnlyList<RoomCharacterAtlas> Fragments { get; init; }
+    /// <summary>Four 32-by-32-cell explosion maps, ordered by <see cref="EndingObjectFragmentId"/>.</summary>
+    public required IReadOnlyList<RoomBackgroundTilemapAtlas> Fragments { get; init; }
 
     /// <summary>$4000-byte waiting-Samus character sheet, also used for suited rewards.</summary>
     public required RoomCharacterAtlas WaitingSamus { get; init; }
@@ -29,8 +29,8 @@ public sealed record EndingObjectArtworkParts
     /// <summary>$0100-byte BG3 transformation-character transfer.</summary>
     public required RoomCharacterAtlas PostCreditsFragmentA { get; init; }
 
-    /// <summary>$0800-byte BG3 transformation tilemap, carried in character-atlas PNG transport.</summary>
-    public required RoomCharacterAtlas PostCreditsFragmentB { get; init; }
+    /// <summary>32-by-32-cell BG3 transformation map.</summary>
+    public required RoomBackgroundTilemapAtlas PostCreditsFragmentB { get; init; }
 
     /// <summary>$2000-byte logo character stream divided into four staged uploads.</summary>
     public required RoomCharacterAtlas PostShotLogoTiles { get; init; }

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -16,14 +16,14 @@ public static class IntroCinematicDefinitions
         public const int BackgroundCharacterBytes = BackgroundCharacterCount * FourBitCharacterBytes;
         /// <summary>The narration font's 144 two-bit characters.</summary>
         public const int FontOneBytes = 144 * 16;
-        /// <summary>The Samus portrait's 32-by-32 tilemap.</summary>
-        public const int SamusHeadTilemapBytes = 32 * 32 * sizeof(ushort);
-        /// <summary>The scenes' four 32-by-32 background tilemap pages.</summary>
-        public const int BackgroundPageTilemapBytes = 4 * 32 * 32 * sizeof(ushort);
+        /// <summary>The cells of the Samus portrait's 32-by-32 tilemap.</summary>
+        public const int SamusHeadTilemapCells = 32 * 32;
+        /// <summary>The cells of the scenes' four 32-by-32 background tilemap pages.</summary>
+        public const int BackgroundPageTilemapCells = 4 * 32 * 32;
         /// <summary>The cinematic sprites' 288 four-bit characters.</summary>
         public const int ObjectCharacterBytes = 288 * FourBitCharacterBytes;
-        /// <summary>One 32-by-32 narration tilemap.</summary>
-        public const int NarrationTilemapBytes = 32 * 32 * sizeof(ushort);
+        /// <summary>The cells of one 32-by-32 narration tilemap.</summary>
+        public const int NarrationTilemapCells = 32 * 32;
         /// <summary>The 96 two-bit characters the Japanese narration blanks with its blank glyph.</summary>
         public const int JapaneseBlankCharactersByteCount = 96 * 16;
     }
@@ -43,11 +43,11 @@ public static class IntroCinematicDefinitions
     public static class Text
     {
         /// <summary>The blank cell written over the gameplay text region.</summary>
-        public static readonly SnesBgTilemapWord Blank = new(0x002f);
-        /// <summary>The blank cell of the Japanese narration layout: the blank glyph in front, palette seven.</summary>
-        public static readonly SnesBgTilemapWord JapaneseBlank = new(0x3c29);
-        /// <summary>The blank cell around the final text line: the blank glyph, palette seven.</summary>
-        public static readonly SnesBgTilemapWord FinalBlank = new(0x1c29);
+        public static BackgroundTile Blank { get; } = new(0x02f, 0, highPriority: false);
+        /// <summary>The blank cell of the Japanese narration layout: the blank glyph in front, colour variant seven.</summary>
+        public static BackgroundTile JapaneseBlank { get; } = new(0x029, 7, highPriority: true);
+        /// <summary>The blank cell around the final text line: the blank glyph, colour variant seven.</summary>
+        public static BackgroundTile FinalBlank { get; } = new(0x029, 7, highPriority: false);
         /// <summary>The first gameplay text cell cleared.</summary>
         public const int GameplayBlankStartIndex = 128;
         /// <summary>Gameplay text cells cleared.</summary>

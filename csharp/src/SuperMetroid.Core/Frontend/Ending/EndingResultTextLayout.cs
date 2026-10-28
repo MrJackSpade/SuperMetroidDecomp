@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.Ending;
@@ -23,17 +24,17 @@ public static class EndingResultTextLayout
     /// <summary>Tile-word index of the top half of the item percentage's hundreds digit; tens, units and the percent sign follow to its right.</summary>
     public const int PercentageHundredsTopIndex = 462;
 
-    /// <summary>The tilemap word of the upper half of percentage digit zero; adding 0-9 selects the digit.</summary>
-    public const ushort DigitTopTile = 0x3860;
+    /// <summary>The upper half of percentage digit zero; the next nine tiles show digits one through nine.</summary>
+    public static BackgroundTile DigitTopTile { get; } = new(0x060, 6, highPriority: true);
 
-    /// <summary>The tilemap word of the lower half of percentage digit zero, one row below its upper half.</summary>
-    public const ushort DigitBottomTile = 0x3870;
+    /// <summary>The lower half of percentage digit zero, one row below its upper half.</summary>
+    public static BackgroundTile DigitBottomTile { get; } = new(0x070, 6, highPriority: true);
 
-    /// <summary>The tilemap word of the upper half of the percent sign, after the three digits.</summary>
-    public const ushort PercentTopTile = 0x386a;
+    /// <summary>The upper half of the percent sign, after the three digits.</summary>
+    public static BackgroundTile PercentTopTile { get; } = new(0x06a, 6, highPriority: true);
 
-    /// <summary>The tilemap word of the lower half of the percent sign, one row below its upper half.</summary>
-    public const ushort PercentBottomTile = 0x387a;
+    /// <summary>The lower half of the percent sign, one row below its upper half.</summary>
+    public static BackgroundTile PercentBottomTile { get; } = new(0x07a, 6, highPriority: true);
 
     /// <summary>The items that each count one toward the ending item percentage; ammo and energy pickups are counted separately.</summary>
     public const SamusEquipmentFlags CollectibleItemMask =

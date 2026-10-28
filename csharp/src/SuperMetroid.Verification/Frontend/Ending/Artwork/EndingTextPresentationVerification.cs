@@ -37,19 +37,19 @@ internal static class EndingTextPresentationVerification
             "installed ending-font PNG compiles to exact native planar bytes");
         ISnesAddressSpace installedBus = NewEndingTextReadGuard(nativeBus);
 
-        AssertTrue(presentation.BuildResultPanel().SequenceEqual(
+        AssertTrue(BackgroundTileWordBytes.Words(presentation.BuildResultPanel()).SequenceEqual(
             ReadEndingWords(nativeBus, EndingSourceDefinitions.EndingResultPanel,
                 EndingTextDefinitions.ResultPanelRows * EndingTextDefinitions.TilemapWidth)),
-            "installed producer panel matches native tilemap");
-        AssertTrue(presentation.BuildCopyrightPanel().SequenceEqual(
+            "installed producer panel, encoded through the codec, matches native tilemap");
+        AssertTrue(BackgroundTileWordBytes.Words(presentation.BuildCopyrightPanel()).SequenceEqual(
             ReadEndingWords(nativeBus, EndingSourceDefinitions.EndingCopyrightPanel,
                 EndingTextDefinitions.CopyrightRows * EndingTextDefinitions.TilemapWidth)),
-            "installed copyright panel matches native tilemap");
+            "installed copyright panel, encoded through the codec, matches native tilemap");
 
         int comparedFrames = 0;
         foreach (EndingTextSequence sequence in Enum.GetValues<EndingTextSequence>())
         {
-            ushort[] installedTilemap = Enumerable.Repeat(
+            BackgroundTile[] installedTilemap = Enumerable.Repeat(
                 EndingScreenDefinitions.BlankTile,
                 EndingScreenDefinitions.TilemapWords).ToArray();
             // The installed sequence runs to completion with its text streams guarded.
@@ -62,7 +62,7 @@ internal static class EndingTextPresentationVerification
                 installed.Step(installedScreen);
                 comparedFrames++;
             }
-            AssertTrue(installedTilemap.Any(word => word != EndingScreenDefinitions.BlankTile),
+            AssertTrue(installedTilemap.Any(tile => tile != EndingScreenDefinitions.BlankTile),
                 $"installed ending {sequence} draws its text");
         }
 
@@ -77,11 +77,11 @@ internal static class EndingTextPresentationVerification
         AssertEqual(EndingTextDefinitions.CompileGlyph('T', EndingTextStyle.ResultSmall),
             edited.BuildResultPanel()[EndingTextDefinitions.ResultProducedBy.Column],
             "edited producer text reaches its bounded panel");
-        AssertEqual(EndingTextDefinitions.ResultBlankWord,
+        AssertEqual(EndingTextDefinitions.ResultBlankTile,
             edited.BuildResultPanel()[EndingTextDefinitions.ResultProducedBy.Column + 4],
             "shorter producer text clears the remainder of its bounded panel");
-        AssertEqual(new SnesBgTilemapWord(EndingTextDefinitions.CompileGlyph('T', EndingTextStyle.PercentageSmall)),
-            edited.Compile(EndingTextSequence.ItemPercentage)[0].TopWord,
+        AssertEqual(EndingTextDefinitions.CompileGlyph('T', EndingTextStyle.PercentageSmall),
+            edited.Compile(EndingTextSequence.ItemPercentage)[0].Top,
             "edited percentage text reaches its live program");
 
         var saved = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = Enumerable.Repeat(EndingScreenDefinitions.BlankTile,
@@ -145,8 +145,8 @@ internal static class EndingTextPresentationVerification
         File.WriteAllText(replacement, document.ToJsonString(ArtworkJson.Options));
         AreaMapPresentationCatalog edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
-        AssertEqual(new SnesBgTilemapWord(EndingTextDefinitions.CompileGlyph('T', EndingTextStyle.FinalLarge)),
-            edited.EndingText.Compile(EndingTextSequence.FinalMessage)[0].TopWord,
+        AssertEqual(EndingTextDefinitions.CompileGlyph('T', EndingTextStyle.FinalLarge),
+            edited.EndingText.Compile(EndingTextSequence.FinalMessage)[0].Top,
             "catalog override changes installed ending text");
         AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
             "ending-text override changes catalog content identity");

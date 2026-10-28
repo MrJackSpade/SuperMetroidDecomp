@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Hud;
 
@@ -74,21 +73,21 @@ public static class GameplayMessageBoxDefinitions
     public static class Buttons
     {
         /// <summary>The A button's glyph.</summary>
-        internal const ushort A = 0x28e0;
+        internal static BackgroundTile A { get; } = new(0x0e0, 2, highPriority: true);
         /// <summary>The B button's glyph.</summary>
-        internal const ushort B = 0x3ce1;
+        internal static BackgroundTile B { get; } = new(0x0e1, 7, highPriority: true);
         /// <summary>The X button's glyph.</summary>
-        internal const ushort X = 0x2cf7;
+        internal static BackgroundTile X { get; } = new(0x0f7, 3, highPriority: true);
         /// <summary>The Y button's glyph.</summary>
-        internal const ushort Y = 0x38f8;
+        internal static BackgroundTile Y { get; } = new(0x0f8, 6, highPriority: true);
         /// <summary>The Select button's glyph.</summary>
-        internal const ushort Select = 0x38d0;
+        internal static BackgroundTile Select { get; } = new(0x0d0, 6, highPriority: true);
         /// <summary>The L button's glyph.</summary>
-        internal const ushort L = 0x38eb;
+        internal static BackgroundTile L { get; } = new(0x0eb, 6, highPriority: true);
         /// <summary>The R button's glyph.</summary>
-        internal const ushort R = 0x38f1;
+        internal static BackgroundTile R { get; } = new(0x0f1, 6, highPriority: true);
         /// <summary>The blank glyph drawn when no supported button is bound.</summary>
-        public static readonly SnesBgTilemapWord UnknownGlyph = new(0x284e);
+        public static BackgroundTile UnknownGlyph { get; } = new(0x04e, 2, highPriority: true);
 
         /// <summary>The byte offset of the glyph in the missile, super missile and bomb panels.</summary>
         internal const ushort AmmunitionPanelGlyphOffset = 0x12a;

@@ -1,4 +1,4 @@
-using System.Buffers.Binary;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
@@ -11,21 +11,19 @@ internal static class IntroPortraitTilemapDefinitions
     private const int AtlasSide = 16;
     /// <summary>$97:88CC: chosen portrait top row five.</summary>
     private const int Top = 5;
-    /// <summary>$97:88CC: chosen blank tile $3FE and palette three, no priority or reflections; RGB paint and tile pixels are separate.</summary>
-    private const ushort Blank = 0x0ffe;
-    /// <summary>BG tile attribute bits selecting portrait palette three.</summary>
-    private const ushort Style = 3 << 10;
+    /// <summary>$97:88CC: chosen blank tile $3FE; RGB paint and tile pixels are separate.</summary>
+    private const int BlankTile = 0x3fe;
+    /// <summary>The portrait's colour variant three, in the lower priority tier and unmirrored.</summary>
+    private const int Palette = 3;
 
     /// <summary>Builds the centered portrait BG page from atlas occupancy and its hand-placed edge fragments.</summary>
-    internal static byte[] Compile()
+    internal static BackgroundTile[] Compile()
     {
         const int columns = IntroCinematicArtworkFormat.TileColumns;
         int left = (columns - AtlasSide) / 2;
-        var output = new byte[IntroCinematicArtworkFormat.BackgroundPageByteCount];
-        for (int cell = 0; cell < output.Length / 2; cell++)
-            BinaryPrimitives.WriteUInt16LittleEndian(output.AsSpan(cell * 2), Blank);
-        void Put(int x, int y, int tile) => BinaryPrimitives.WriteUInt16LittleEndian(
-            output.AsSpan((y * columns + x) * 2), (ushort)(Style | tile));
+        var output = new BackgroundTile[IntroCinematicArtworkFormat.BackgroundPageByteCount / sizeof(ushort)];
+        Array.Fill(output, new BackgroundTile(BlankTile, Palette, highPriority: false));
+        void Put(int x, int y, int tile) => output[y * columns + x] = new BackgroundTile(tile, Palette, highPriority: false);
         void Run(int x, int y, int tile, int count)
         {
             for (int column = 0; column < count; column++) Put(x + column, y, tile + column);

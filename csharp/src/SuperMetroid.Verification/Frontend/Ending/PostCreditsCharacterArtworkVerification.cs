@@ -169,11 +169,14 @@ internal static class PostCreditsCharacterArtworkVerification
             try
             {
                 if (fileName is EndingObjectArtworkFormat.WaitingTilemapFileName or
-                    EndingObjectArtworkFormat.PostShotLogoMapFileName)
+                    EndingObjectArtworkFormat.PostShotLogoMapFileName or EndingObjectArtworkFormat.PostCreditsFragmentBFileName)
                 {
-                    int mapBytes = fileName == EndingObjectArtworkFormat.PostShotLogoMapFileName
-                        ? EndingObjectArtworkFormat.PostShotLogoMapByteCount
-                        : EndingObjectArtworkFormat.WaitingTilemapByteCount;
+                    int mapBytes = fileName switch
+                    {
+                        EndingObjectArtworkFormat.PostShotLogoMapFileName => EndingObjectArtworkFormat.PostShotLogoMapByteCount,
+                        EndingObjectArtworkFormat.PostCreditsFragmentBFileName => EndingObjectArtworkFormat.PostCreditsFragmentBByteCount,
+                        _ => EndingObjectArtworkFormat.WaitingTilemapByteCount,
+                    };
                     File.WriteAllBytes(overridePath, RoomBackgroundTilemapExtractor.Encode(
                         new byte[mapBytes]));
                 }
@@ -183,8 +186,6 @@ internal static class PostCreditsCharacterArtworkVerification
                     {
                         EndingObjectArtworkFormat.PostCreditsFragmentAFileName =>
                             EndingObjectArtworkFormat.PostCreditsFragmentAByteCount,
-                        EndingObjectArtworkFormat.PostCreditsFragmentBFileName =>
-                            EndingObjectArtworkFormat.PostCreditsFragmentBByteCount,
                         EndingObjectArtworkFormat.PostShotLogoTileFileName =>
                             EndingObjectArtworkFormat.PostShotLogoTileByteCount,
                         _ => EndingObjectArtworkFormat.RewardByteCount,

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -8,45 +7,46 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// <summary>The four-row Japanese subtitle staging map, as ordered editable BG tile references.</summary>
 public sealed class IntroFinalLineTilemap
 {
-    /// <summary>Edited map words when any cell differs from the native formula; null keeps stock generation.</summary>
-    internal readonly ushort[]? suppliedWords;
+    /// <summary>Edited map tiles when any cell differs from the native formula; null keeps stock generation.</summary>
+    internal readonly BackgroundTile[]? suppliedTiles;
 
-    /// <summary>Keeps edited words only when the supplied map differs from the stock subtitle layout.</summary>
-    private IntroFinalLineTilemap(ushort[] words)
+    /// <summary>Keeps edited tiles only when the supplied map differs from the stock subtitle layout.</summary>
+    private IntroFinalLineTilemap(BackgroundTile[] tiles)
     {
-        for (int index = 0; index < words.Length; index++)
+        for (int index = 0; index < tiles.Length; index++)
         {
-            if (words[index] == CalculateWord(index)) continue;
-            suppliedWords = words;
+            if (tiles[index] == CalculateTile(index)) continue;
+            suppliedTiles = tiles;
             break;
         }
     }
 
-    /// <summary>Native word order: 32 columns in each of four consecutive rows.</summary>
-    public ReadOnlyMemory<ushort> Words
+    /// <summary>Native cell order: 32 columns in each of four consecutive rows.</summary>
+    public ReadOnlyMemory<BackgroundTile> Tiles
     {
         get
         {
-            if (suppliedWords is not null) return suppliedWords;
-            var output = new ushort[IntroFinalLineTilemapFormat.CellCount];
-            for (int index = 0; index < output.Length; index++) output[index] = CalculateWord(index);
+            if (suppliedTiles is not null) return suppliedTiles;
+            var output = new BackgroundTile[IntroFinalLineTilemapFormat.CellCount];
+            for (int index = 0; index < output.Length; index++) output[index] = CalculateTile(index);
             return output;
         }
     }
 
     /// <summary>Calculates the native margin or subtitle glyph tile for one of the 128 BG3 cells.</summary>
-    private static ushort CalculateWord(int index)
+    private static BackgroundTile CalculateTile(int index)
     {
         int column = index % IntroFinalLineTilemapFormat.Columns;
         int row = index / IntroFinalLineTilemapFormat.Columns;
         int margin = IntroFinalLineTilemapFormat.MarginColumns;
         int interiorColumns = IntroFinalLineTilemapFormat.Columns - 2 * margin;
-        if (column < margin || column >= margin + interiorColumns) return IntroFinalLineTilemapFormat.MarginWord;
+        if (column < margin || column >= margin + interiorColumns) return IntroFinalLineTilemapFormat.MarginTile;
         // Native $8B:8D84 places lower halves 0300 bytes after upper halves; each group contains two text lines.
         int tileStripRow = 2 * (row & 1) + (row >> 1);
-        return unchecked((ushort)(IntroFinalLineTilemapFormat.FirstInteriorWord + tileStripRow * interiorColumns + column - margin));
+        BackgroundTile first = IntroFinalLineTilemapFormat.FirstInteriorTile;
+        return first with { Tile = first.Tile + tileStripRow * interiorColumns + column - margin };
     }
-    /// <summary>Validates and compiles 128 ordered character references into the four-row BG3 subtitle map corresponding to $8B:A72B-A82A; exact stock words remain formula-derived.</summary>
+    /// <summary>Validates and compiles 128 ordered character references into the four-row BG3 subtitle map corresponding to $8B:A72B-A82A; exact stock tiles remain formula-derived.</summary>
     /// <param name="json">Caller-owned stream containing the supported editable tile-reference document.</param>
     /// <returns>The subtitle staging map, including editable margins, palette, priority, and flip attributes.</returns>
     /// <exception cref="InvalidDataException">The document schema, cell count, or character/palette selectors are invalid.</exception>
@@ -59,8 +59,8 @@ public sealed class IntroFinalLineTilemap
             document.Cells is not { Length: IntroFinalLineTilemapFormat.CellCount })
             throw new InvalidDataException("Opening divider tilemap requires 128 ordered cells.");
 
-        var words = new ushort[IntroFinalLineTilemapFormat.CellCount];
-        for (int index = 0; index < words.Length; index++)
+        var tiles = new BackgroundTile[IntroFinalLineTilemapFormat.CellCount];
+        for (int index = 0; index < tiles.Length; index++)
         {
             RoomBackgroundTilemapCell? cell = document.Cells[index];
             if (cell is null ||
@@ -68,14 +68,11 @@ public sealed class IntroFinalLineTilemap
                 (uint)cell.TileRow >= RoomBackgroundTilemapFormat.TileRows ||
                 (uint)cell.Palette >= RoomBackgroundTilemapFormat.PaletteCount)
                 throw new InvalidDataException($"Opening divider cell {index} has an invalid tile or palette.");
-            TileFlip flips =
-                (cell.FlipX ? TileFlip.Horizontal : 0) |
-                (cell.FlipY ? TileFlip.Vertical : 0);
-            words[index] = SnesBgTilemapWord.Create(
+            tiles[index] = new BackgroundTile(
                 cell.TileRow * RoomBackgroundTilemapFormat.TileColumns + cell.TileColumn,
-                cell.Palette, cell.Priority, flips).Raw;
+                cell.Palette, cell.FlipX, cell.FlipY, cell.Priority);
         }
-        return new IntroFinalLineTilemap(words);
+        return new IntroFinalLineTilemap(tiles);
     }
 
     /// <summary>Serializes the tile-reference document as UTF-8 JSON and validates it through <see cref="Load"/> before writing any destination bytes.</summary>

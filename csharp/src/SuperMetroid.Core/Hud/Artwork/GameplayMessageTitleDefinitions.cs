@@ -1,5 +1,5 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
-
 
 namespace SuperMetroid.Core.Hud.Artwork;
 
@@ -7,17 +7,17 @@ namespace SuperMetroid.Core.Hud.Artwork;
 public static class GameplayMessageTitleDefinitions
 {
     /// <summary>Supported gameplay-message title document schema revision.</summary>
-    public const int Version = 1;
+    public const int Version = 2;
     /// <summary>Native tile character index of A; B through Z follow contiguously.</summary>
-    public const ushort FirstLetterTile = 0x0e0;
+    public const int FirstLetterTile = 0x0e0;
     /// <summary>Native tile character index for a space.</summary>
-    public const ushort SpaceTile = 0x04e;
+    public const int SpaceTile = 0x04e;
     /// <summary>Native tile character index for a hyphen.</summary>
-    public const ushort HyphenTile = 0x0cf;
+    public const int HyphenTile = 0x0cf;
     /// <summary>Native tile character index for a period.</summary>
-    public const ushort PeriodTile = 0x0fa;
+    public const int PeriodTile = 0x0fa;
     /// <summary>Native tile character index for a question mark.</summary>
-    public const ushort QuestionMarkTile = 0x0fe;
+    public const int QuestionMarkTile = 0x0fe;
     /// <summary>Letters in the contiguous A-Z tile range.</summary>
     public const int LetterCount = 26;
 
@@ -31,12 +31,10 @@ public static class GameplayMessageTitleDefinitions
     public const int OuterRightColumns = 7;
     /// <summary>Width in tilemap cells of the centered visible title region.</summary>
     public const int VisibleColumns = 19;
-    /// <summary>Total words in the native three-row, 32-column message tilemap.</summary>
+    /// <summary>Total cells in the three-row, 32-column message.</summary>
     public const int TilemapWords = GameplayMessageBoxDefinitions.Layout.TilemapWidth * 3;
-    /// <summary>Transparent character word used outside the visible title region.</summary>
-    public const ushort TransparentWord = 0x000e;
-    /// <summary>BG priority bit applied to compiled title glyph words.</summary>
-    public const ushort PriorityWord = 0x2000;
+    /// <summary>The transparent tile shown outside the visible title region.</summary>
+    public static BackgroundTile TransparentTile { get; } = new(0x00e, 0, highPriority: false);
 
     /// <summary>Fifteen item and status messages with a centered one-row title that the artwork document may replace.</summary>
     private static readonly GameplayMessageId[] SupportedMessageIds =

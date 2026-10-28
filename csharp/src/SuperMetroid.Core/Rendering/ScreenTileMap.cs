@@ -40,20 +40,6 @@ public sealed class ScreenTileMap : IEquatable<ScreenTileMap>
     /// left to right, then top to bottom.
     /// </summary>
     /// <exception cref="ArgumentException">The tilemap does not hold every cell of the map.</exception>
-    public static ScreenTileMap Of(ReadOnlySpan<ushort> tilemap, Extent16<TilemapCells> size, ScreenLayerPictures tiles)
-    {
-        var placed = new BackgroundTile[tilemap.Length];
-        for (int index = 0; index < placed.Length; index++)
-            placed[index] = BackgroundTileWords.ToTile(tilemap[index]);
-        return Of(placed, size, tiles);
-    }
-
-    /// <summary>
-    /// Reads a <paramref name="size"/> map of cells from a screen's own tilemap <paramref name="tilemap"/>, each showing one
-    /// of <paramref name="tiles"/>. A map wider or taller than one 32-cell screen keeps its screens one after another,
-    /// left to right, then top to bottom.
-    /// </summary>
-    /// <exception cref="ArgumentException">The tilemap does not hold every cell of the map.</exception>
     public static ScreenTileMap Of(ReadOnlySpan<BackgroundTile> tilemap, Extent16<TilemapCells> size, ScreenLayerPictures tiles)
     {
         Ensure.LengthEqual(tilemap, size.X * size.Y);

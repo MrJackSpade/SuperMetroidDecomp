@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -15,7 +16,7 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>The shown portrait and narration tilemaps: eye-frame rectangles and narration uploads land here.</summary>
     private readonly IntroTilemaps tilemaps;
     /// <summary>Receives narration glyph words at their authored row and column.</summary>
-    private readonly ushort[] textTilemap;
+    private readonly BackgroundTile[] textTilemap;
     /// <summary>Where the persistent portrait eye's program resumes when its frame expires.</summary>
     private AnimationProgramCursor<IntroEyeProgram> eyeProgram =
         AnimationProgramCursor<IntroEyeProgram>.Start(IntroEyeProgram.Blinking);
@@ -56,7 +57,7 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Binds eye, caret, narration, shown tilemaps, subtitle, and optional audio owners.</summary>
     public IntroCinematicObjectSystem(
         IntroTilemaps tilemaps,
-        ushort[] textTilemap,
+        BackgroundTile[] textTilemap,
         IntroJapaneseSubtitles subtitles,
         AudioQueues? audio = null,
         IntroNarrationPresentation? narrationPresentation = null,
@@ -104,7 +105,7 @@ internal sealed class IntroCinematicObjectSystem
             CopyRectangleToPortrait(
                 IntroEyeAnimationDefinitions.PortraitCell,
                 IntroEyeAnimationDefinitions.FrameSize,
-                value.FrameWords(EyeArtworkIndex(frame)));
+                value.FrameTiles(EyeArtworkIndex(frame)));
     }
 
     /// <summary>
@@ -172,7 +173,7 @@ internal sealed class IntroCinematicObjectSystem
     {
         Array.Fill(
             textTilemap,
-            IntroCinematicDefinitions.Text.Blank.Raw,
+            IntroCinematicDefinitions.Text.Blank,
             startIndex: IntroCinematicDefinitions.Text.GameplayBlankStartIndex,
             count: IntroCinematicDefinitions.Text.GameplayBlankWordCount);
         StartNarration(
@@ -285,7 +286,7 @@ internal sealed class IntroCinematicObjectSystem
                     maximumQueued: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);
             }
             textTilemap[character.Row * IntroCinematicDefinitions.Tilemaps.TilemapWidth +
-                character.Column] = character.TilemapWord.Raw;
+                character.Column] = character.Tile;
             narrationCharacterIndex++;
             textInstructionTimer = WrappingCountdown.Start(IntroNarrationDefinitions.CharacterDelayFrames);
             return;
@@ -365,7 +366,7 @@ internal sealed class IntroCinematicObjectSystem
         CopyRectangleToPortrait(
             IntroEyeAnimationDefinitions.PortraitCell,
             IntroEyeAnimationDefinitions.FrameSize,
-            content.FrameWords(EyeArtworkIndex(frame)));
+            content.FrameTiles(EyeArtworkIndex(frame)));
     }
 
     /// <summary>The position of <paramref name="frame"/> in the installed eye artwork, which keeps the cartridge's draw-record order.</summary>
@@ -380,12 +381,12 @@ internal sealed class IntroCinematicObjectSystem
 
     /// <summary>Validates and writes each eye tilemap row into the portrait VRAM region.</summary>
     private void CopyRectangleToPortrait(Position16<TilemapCells> destination, Extent16<TilemapCells> size,
-        ReadOnlySpan<ushort> source)
+        ReadOnlySpan<BackgroundTile> source)
     {
         ValidateRectangle(destination, size);
         if (source.Length != size.Area)
             throw new InvalidDataException("Opening eye frame does not match its native rectangle size.");
-        Span<ushort> portrait = tilemaps.Portrait;
+        Span<BackgroundTile> portrait = tilemaps.Portrait;
         for (int row = 0; row < size.Y; row++)
         {
             source.Slice(row * size.X, size.X).CopyTo(

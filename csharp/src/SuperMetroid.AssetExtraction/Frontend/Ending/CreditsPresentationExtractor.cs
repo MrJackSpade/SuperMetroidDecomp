@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -130,24 +130,21 @@ public static class CreditsPresentationExtractor
         for (int column = last + 1; column < CreditsPresentationDefinitions.TilemapWidth; column++)
             RequireBlankColumn(top, bottom, column, definition.Id);
 
-        int palette = top[first] >> CreditsPresentationDefinitions.PaletteShift &
-            CreditsPresentationDefinitions.MaximumPalette;
+        int palette = BackgroundTileWords.ToTile(top[first]).ColourVariant;
         var text = new char[last - first + 1];
         for (int column = first; column <= last; column++)
         {
-            int topWord = top[column];
-            if (!IsBlank(topWord) &&
-                ((topWord >> CreditsPresentationDefinitions.PaletteShift) &
-                    CreditsPresentationDefinitions.MaximumPalette) != palette)
+            BackgroundTile topTile = BackgroundTileWords.ToTile(checked((ushort)top[column]));
+            if (!IsBlank(top[column]) && topTile.ColourVariant != palette)
             {
                 throw new InvalidDataException(
                     $"Native credits line '{definition.Id}' mixes palettes.");
             }
-            char glyph = CreditsPresentationDefinitions.DecodeGlyph(topWord, definition.Style);
+            char glyph = CreditsPresentationDefinitions.DecodeGlyph(topTile, definition.Style);
             if (bottom is not null)
             {
                 char lower = CreditsPresentationDefinitions.DecodeGlyph(
-                    bottom[column], definition.Style, bottom: true);
+                    BackgroundTileWords.ToTile(bottom[column]), definition.Style, bottom: true);
                 if (lower != glyph)
                 {
                     throw new InvalidDataException(
@@ -189,9 +186,9 @@ public static class CreditsPresentationExtractor
         }
     }
 
-    /// <summary>Recognizes the credits blank tile while ignoring its palette attribute bits.</summary>
+    /// <summary>Recognizes the credits blank tile while ignoring its colour variant, priority and mirroring.</summary>
     private static bool IsBlank(int word) =>
-        new SnesBgTilemapWord(checked((ushort)word)).CharacterIndex == CreditsPresentationDefinitions.BlankWord;
+        BackgroundTileWords.ToTile(checked((ushort)word)).Tile == CreditsPresentationDefinitions.BlankTile.Tile;
 
     /// <summary>Reads one instruction word from the credits program's native bank.</summary>
     private static ushort ReadWord(ISnesAddressSpace bus, int pointer) =>

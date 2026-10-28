@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -18,10 +18,10 @@ public static class EndingTextExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        EndingTextCell[] result = ReadCells(bus, EndingSourceDefinitions.EndingResultPanel,
+        BackgroundTile[] result = ReadCells(bus, EndingSourceDefinitions.EndingResultPanel,
             EndingTextDefinitions.ResultPanelRows * EndingTextDefinitions.TilemapWidth);
         string producedBy = DecodeRow(result, EndingTextDefinitions.ResultProducedBy);
-        EndingTextCell[] copyright = ReadCells(bus, EndingSourceDefinitions.EndingCopyrightPanel,
+        BackgroundTile[] copyright = ReadCells(bus, EndingSourceDefinitions.EndingCopyrightPanel,
             EndingTextDefinitions.CopyrightRows * EndingTextDefinitions.TilemapWidth);
         string year = DecodeRow(copyright, EndingTextDefinitions.CopyrightYear);
         string company = DecodeRow(copyright, EndingTextDefinitions.CopyrightCompany);
@@ -101,42 +101,41 @@ public static class EndingTextExtractor
                     ? EndingTextDefinitions.LargeGlyphHeight
                     : EndingTextDefinitions.SmallGlyphHeight))
                 throw new InvalidDataException($"Native {sequence} glyph has unexpected dimensions.");
-            int top = ReadWord(bus, Add(data, 4));
+            BackgroundTile top = BackgroundTileWords.ToTile(checked((ushort)ReadWord(bus, Add(data, 4))));
             char glyph = EndingTextDefinitions.DecodeGlyph(top, style);
-            int? bottom = height == EndingTextDefinitions.LargeGlyphHeight
-                ? ReadWord(bus, Add(data, 6)) : null;
-            if (bottom is { } bottomWord && EndingTextDefinitions.DecodeGlyph(bottomWord, style, bottom: true) != glyph)
+            BackgroundTile? bottom = height == EndingTextDefinitions.LargeGlyphHeight
+                ? BackgroundTileWords.ToTile(checked((ushort)ReadWord(bus, Add(data, 6)))) : null;
+            if (bottom is { } lower && EndingTextDefinitions.DecodeGlyph(lower, style, bottom: true) != glyph)
                 throw new InvalidDataException($"Native {sequence} glyph halves disagree.");
             text.Add(glyph);
-            compiled.Add(new(row, column, new SnesBgTilemapWord(checked((ushort)top)),
-                bottom is { } lower ? new SnesBgTilemapWord(checked((ushort)lower)) : null));
+            compiled.Add(new(row, column, top, bottom));
             cursor = Add(cursor, 6);
         }
         throw new InvalidDataException($"Native {sequence} did not terminate within the bounded record count.");
     }
 
     /// <summary>Decodes a fixed panel row and confirms both halves of large copyright glyphs agree.</summary>
-    private static string DecodeRow(EndingTextCell[] cells, EndingTextRegionDefinition region)
+    private static string DecodeRow(BackgroundTile[] cells, EndingTextRegionDefinition region)
     {
         var text = new char[region.Width];
         for (int index = 0; index < text.Length; index++)
         {
             int cell = region.Row * EndingTextDefinitions.TilemapWidth + region.Column + index;
-            text[index] = EndingTextDefinitions.DecodeGlyph(cells[cell].Word.Raw, region.Style);
+            text[index] = EndingTextDefinitions.DecodeGlyph(cells[cell], region.Style);
             if (region.Style == EndingTextStyle.CopyrightLarge &&
-                EndingTextDefinitions.DecodeGlyph(cells[cell + EndingTextDefinitions.TilemapWidth].Word.Raw,
+                EndingTextDefinitions.DecodeGlyph(cells[cell + EndingTextDefinitions.TilemapWidth],
                     region.Style, bottom: true) != text[index])
                 throw new InvalidDataException("Native copyright glyph halves disagree.");
         }
         return new string(text).TrimEnd();
     }
 
-    /// <summary>Copies a fixed count of native tilemap words into editable ending-text cells.</summary>
-    private static EndingTextCell[] ReadCells(ISnesAddressSpace bus, int pointer, int count)
+    /// <summary>Decodes a fixed count of native tilemap words into the tiles they place.</summary>
+    private static BackgroundTile[] ReadCells(ISnesAddressSpace bus, int pointer, int count)
     {
-        var result = new EndingTextCell[count];
+        var result = new BackgroundTile[count];
         for (int index = 0; index < count; index++)
-            result[index] = new() { Word = new SnesBgTilemapWord(ReadWord(bus, Add(pointer, index * 2))) };
+            result[index] = BackgroundTileWords.ToTile(ReadWord(bus, Add(pointer, index * 2)));
         return result;
     }
 

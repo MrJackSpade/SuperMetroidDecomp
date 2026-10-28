@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 
@@ -32,7 +33,7 @@ internal static class IntroScreenMemory
                 blank.CopyTo(blanked.AsSpan(offset));
             intro.JapaneseBlankCharacters.Load(blanked);
         }
-        intro.BackgroundPages.Load(artwork.BackgroundPages.Span[..IntroCinematicDefinitions.Artwork.BackgroundPageTilemapBytes]);
+        intro.BackgroundPages.Load(BackgroundTileWordBytes.Of(artwork.BackgroundPages.Span[..IntroCinematicDefinitions.Artwork.BackgroundPageTilemapCells]));
         intro.IntroObjectCharacters.Load(artwork.IntroObjectCharacters.Characters.Span);
         intro.CinematicObjectCharacters.Load(artwork.CinematicObjectCharacters.Characters.Span[..IntroCinematicDefinitions.Artwork.ObjectCharacterBytes]);
         return vram.CaptureImage();
@@ -54,8 +55,8 @@ internal static class IntroScreenMemory
         var vram = new SnesVram();
         vram.LoadBytes(0, characters);
         var view = new IntroVram(vram);
-        view.PortraitTilemap.Write(tilemaps.Portrait);
-        view.NarrationTilemap.Write(tilemaps.Narration);
+        view.PortraitTilemap.Write(BackgroundTileWordBytes.Words(tilemaps.Portrait));
+        view.NarrationTilemap.Write(BackgroundTileWordBytes.Words(tilemaps.Narration));
         return vram.CaptureImage();
     }
 }

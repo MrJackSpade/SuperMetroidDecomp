@@ -150,28 +150,28 @@ internal static class LookupStream3Verification
             Confirm(Load(edited), edited);
             Confirm(stock, native);
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.FrameWords(-1).ToArray(), "negative eye frame");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.FrameWords(4).ToArray(), "upper eye frame");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.FrameTiles(-1).ToArray(), "negative eye frame");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.FrameTiles(4).ToArray(), "upper eye frame");
         Console.WriteLine("Intro eye rectangles:24 native cells,24 independent edits, content identities and bounds pass; actual portrait draw copies pass; only reviewed patch identities/display policy remain.");
 
         static void Confirm(IntroEyeTilemapPresentation selected, ushort[][] expected)
         {
             for (int frame = 0; frame < expected.Length; frame++)
-                AssertTrue(expected[frame].SequenceEqual(selected.FrameWords(frame)), $"eye rectangle {frame}");
+                AssertTrue(expected[frame].SequenceEqual(BackgroundTileWordBytes.Words(selected.FrameTiles(frame))), $"eye rectangle {frame}");
             var tilemaps = new IntroTilemaps();
-            var objects = new IntroCinematicObjectSystem(tilemaps, new ushort[1024], new IntroJapaneseSubtitles(enabled: false), eyeArtwork: selected);
+            var objects = new IntroCinematicObjectSystem(tilemaps, new BackgroundTile[1024], new IntroJapaneseSubtitles(enabled: false), eyeArtwork: selected);
             IntroEyeFrame[] eyeFrames = [IntroEyeFrame.Open, IntroEyeFrame.HalfOpen, IntroEyeFrame.Closed, IntroEyeFrame.Deadpan];
             for (int frame = 0; frame < expected.Length; frame++)
             {
                 objects.ShowEyeFrame(eyeFrames[frame]);
                 for (int cell = 0; cell < 6; cell++)
-                    AssertEqual(expected[frame][cell], tilemaps.Portrait[(13 + cell / 3) * 32 + 17 + cell % 3],
+                    AssertEqual(expected[frame][cell], tilemaps.Portrait[(13 + cell / 3) * 32 + 17 + cell % 3].PackedWord,
                         "actual eye patch draw preserves native and independently supplied cells");
             }
             string identity = SelectedPresentationHash.Create(nameof(IntroEyeTilemapPresentation), content =>
             {
                 content.Append("frames", expected.Length);
-                foreach (ushort[] words in expected) content.AppendWords("frame", words);
+                foreach (ushort[] words in expected) content.AppendTiles("frame", BackgroundTileWordBytes.Tiles(words));
             });
             AssertEqual(identity, selected.ContentIdentity, "eye rectangle original identity framing");
         }
@@ -209,16 +209,16 @@ internal static class LookupStream3Verification
         for (int index = 0; index < native.Length; index++)
             native[index] = ReadVerificationWord(rom, IntroCinematicSourceDefinitions.FinalTextLine + 2 * index);
         IntroFinalLineTilemap stock = Load(native);
-        AssertTrue(native.SequenceEqual(stock.Words.Span), "all128 native intro divider cells");
-        AssertTrue(stock.suppliedWords is null,
+        AssertTrue(native.SequenceEqual(BackgroundTileWordBytes.Words(stock.Tiles.Span)), "all128 native intro divider cells");
+        AssertTrue(stock.suppliedTiles is null,
             "native divider retains no generated lookup");
         for (int changed = 0; changed < native.Length; changed++)
         {
             var edited = (ushort[])native.Clone();
             edited[changed] ^= 0x4401;
             IntroFinalLineTilemap selected = Load(edited);
-            AssertTrue(edited.SequenceEqual(selected.Words.Span), $"independent divider cell edit {changed}");
-            AssertTrue(native.SequenceEqual(stock.Words.Span), "previous divider instance remains immutable");
+            AssertTrue(edited.SequenceEqual(BackgroundTileWordBytes.Words(selected.Tiles.Span)), $"independent divider cell edit {changed}");
+            AssertTrue(native.SequenceEqual(BackgroundTileWordBytes.Words(stock.Tiles.Span)), "previous divider instance remains immutable");
         }
         Console.WriteLine("Japanese subtitle staging:128 native cells and128 independent tile/palette/flip edits pass; only reviewed display policy remains.");
 
@@ -458,7 +458,8 @@ internal static class LookupStream3Verification
             {
                 ushort position = CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 2));
                 ushort glyph = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8c0000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 4) + 4)));
-                expected.Add(new(LittleEndianBytes.LowByte(position), LittleEndianBytes.HighByte(position), glyph, glyph == IntroNarrationDefinitions.CompileGlyph(' ')));
+                BackgroundTile glyphTile = BackgroundTileWordBytes.Tile(glyph);
+                expected.Add(new(LittleEndianBytes.LowByte(position), LittleEndianBytes.HighByte(position), glyphTile, glyphTile == IntroNarrationDefinitions.CompileGlyph(' ')));
                 cursor += 6;
             }
             AssertTrue(stock.Compile(source.Id).SequenceEqual(expected), "calculated narration matches every native glyph/column/row record");
@@ -3057,9 +3058,9 @@ internal static class LookupStream3Verification
             var installation = SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(source, root);
             IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
             static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(BackgroundTileWordBytes.Tiles(bytes));
-            RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(stock.BackgroundPages.Slice(index * 2048, 2048).ToArray())).ToArray();
-            IntroCinematicArtworkCatalog Copy(byte[] narration) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(stock.PortraitTilemap.ToArray()), InitialNarrationTilemap = Page(narration), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
-            AssertTrue(stock.InitialNarrationTilemap.Span.SequenceEqual(native), "all 1024 initial narration words match native");
+            RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span.Slice(index * 1024, 1024)))).ToArray();
+            IntroCinematicArtworkCatalog Copy(byte[] narration) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), InitialNarrationTilemap = Page(narration), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
+            AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 initial narration words match native");
             AssertTrue(stock.suppliedInitialNarration is null, "stock initial narration stores no page array");
             var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
             var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
@@ -3086,16 +3087,16 @@ internal static class LookupStream3Verification
                 edited[word * 2] ^= 0xff;
                 edited[word * 2 + 1] ^= 0xff;
                 var selected = Copy(edited);
-                AssertTrue(selected.InitialNarrationTilemap.Span.SequenceEqual(edited), $"independent narration word {word}");
+                AssertTrue(BackgroundTileWordBytes.Of(selected.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(edited), $"independent narration word {word}");
                 if (word == 0) AssertTrue(selected.ContentIdentity != hash, "edited narration changes selected bundle identity");
                 edited[word * 2] ^= 1;
-                AssertTrue(selected.InitialNarrationTilemap.Span[word * 2] != edited[word * 2], "narration owns supplied bytes");
+                AssertTrue(BackgroundTileWordBytes.Of(selected.InitialNarrationTilemap.Span)[word * 2] != edited[word * 2], "narration owns supplied bytes");
             }
-            AssertTrue(stock.InitialNarrationTilemap.Span.SequenceEqual(native), "edits do not cross-mutate stock");
+            AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "edits do not cross-mutate stock");
             AssertEqual(hash, Copy(native).ContentIdentity, "equivalent stock bundle preserves canonical identity");
-            byte[] first = stock.InitialNarrationTilemap.ToArray();
-            first[0] ^= 1;
-            AssertTrue(stock.InitialNarrationTilemap.Span.SequenceEqual(native), "calculated page is not a mutable cached table");
+            BackgroundTile[] first = stock.InitialNarrationTilemap.ToArray();
+            first[0] = first[0] with { Tile = first[0].Tile ^ 1 };
+            AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "calculated page is not a mutable cached table");
             Console.WriteLine("Initial narration: 1024 native words, 1024 independent word edits, ownership, empty stock storage and canonical bundle identity pass.");
         }
         finally { if (Directory.Exists(root)) Directory.Delete(root, recursive: true); }
@@ -3240,9 +3241,9 @@ internal static class LookupStream3Verification
             IntroCinematicArtworkCatalog Copy(byte[] background)
             {
                 RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(background.AsSpan(index * 2048, 2048).ToArray())).ToArray();
-                return new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(stock.PortraitTilemap.ToArray()), InitialNarrationTilemap = Page(stock.InitialNarrationTilemap.ToArray()), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
+                return new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), InitialNarrationTilemap = Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
             }
-            byte[] calculated = IntroBackgroundTilemapDefinitions.Compile();
+            byte[] calculated = BackgroundTileWordBytes.Of(IntroBackgroundTilemapDefinitions.Compile());
             var mismatches = new List<string>();
             for (int cell = 0; cell < native.Length / 2; cell++)
             {
@@ -3259,12 +3260,12 @@ internal static class LookupStream3Verification
                 edit[word * 2] ^= 0xff;
                 edit[word * 2 + 1] ^= 0xff;
                 var selected = Copy(edit);
-                AssertTrue(selected.BackgroundPages.Span.SequenceEqual(edit), "independent background full-word edit");
+                AssertTrue(BackgroundTileWordBytes.Of(selected.BackgroundPages.Span).AsSpan().SequenceEqual(edit), "independent background full-word edit");
                 if (word % 1024 == 0) AssertTrue(hash != selected.ContentIdentity, "each edited page changes bundle identity");
                 edit[word * 2] ^= 1;
-                AssertTrue(selected.BackgroundPages.Span[word * 2] != edit[word * 2], "background owns supplied data");
+                AssertTrue(BackgroundTileWordBytes.Of(selected.BackgroundPages.Span)[word * 2] != edit[word * 2], "background owns supplied data");
             }
-            AssertTrue(stock.BackgroundPages.Span.SequenceEqual(native), "background edits do not cross-couple pages");
+            AssertTrue(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span).AsSpan().SequenceEqual(native), "background edits do not cross-couple pages");
             AssertEqual(hash, Copy(native).ContentIdentity, "equivalent backgrounds preserve canonical hash");
             var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
             var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
@@ -3382,9 +3383,9 @@ BranchesToSharedBody:true),
             var installation = SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(source, root);
             IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
             static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(BackgroundTileWordBytes.Tiles(bytes));
-            RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(stock.BackgroundPages.Slice(index * 2048, 2048).ToArray())).ToArray();
-            IntroCinematicArtworkCatalog Copy(byte[] portrait) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(portrait), InitialNarrationTilemap = Page(stock.InitialNarrationTilemap.ToArray()), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
-            AssertTrue(stock.PortraitTilemap.Span.SequenceEqual(native), "all 1024 calculated portrait words match native");
+            RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span.Slice(index * 1024, 1024)))).ToArray();
+            IntroCinematicArtworkCatalog Copy(byte[] portrait) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(portrait), InitialNarrationTilemap = Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
+            AssertTrue(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 calculated portrait words match native");
             AssertTrue(stock.suppliedPortrait is null,
                 "native portrait stores no output word array");
             string hash = stock.ContentIdentity;
@@ -3394,12 +3395,12 @@ BranchesToSharedBody:true),
                 edit[word * 2] ^= 0xff;
                 edit[word * 2 + 1] ^= 0xff;
                 var selected = Copy(edit);
-                AssertTrue(selected.PortraitTilemap.Span.SequenceEqual(edit), "independent portrait word preserves identity/style/position edit");
+                AssertTrue(BackgroundTileWordBytes.Of(selected.PortraitTilemap.Span).AsSpan().SequenceEqual(edit), "independent portrait word preserves identity/style/position edit");
                 if (word == 0) AssertTrue(hash != selected.ContentIdentity, "portrait edit changes content identity");
                 edit[word * 2] ^= 1;
-                AssertTrue(selected.PortraitTilemap.Span[word * 2] != edit[word * 2], "portrait owns supplied data");
+                AssertTrue(BackgroundTileWordBytes.Of(selected.PortraitTilemap.Span)[word * 2] != edit[word * 2], "portrait owns supplied data");
             }
-            AssertTrue(stock.PortraitTilemap.Span.SequenceEqual(native), "portrait edits do not cross-mutate stock");
+            AssertTrue(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span).AsSpan().SequenceEqual(native), "portrait edits do not cross-mutate stock");
             AssertEqual(hash, Copy(native).ContentIdentity, "equivalent portrait preserves canonical hash");
             var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
             var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,

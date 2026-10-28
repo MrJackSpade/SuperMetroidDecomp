@@ -31,13 +31,13 @@ internal sealed class EndingScreen
     [NonSerialized]
     private Dictionary<EndingLayerTiles, ScreenLayerPictures>? tiles;
 
-    /// <summary>The words each plane holds, until the uploads or the artwork change.</summary>
+    /// <summary>The tiles each plane holds, until the uploads or the artwork change.</summary>
     [NonSerialized]
-    private Dictionary<EndingPlane, ushort[]>? planes;
+    private Dictionary<EndingPlane, BackgroundTile[]>? planes;
 
-    /// <summary>The words each explosion map holds, until the uploads or the artwork change.</summary>
+    /// <summary>The tiles each explosion map holds, until the uploads or the artwork change.</summary>
     [NonSerialized]
-    private Dictionary<EndingObjectFragmentId, ushort[]>? explosionPlanes;
+    private Dictionary<EndingObjectFragmentId, BackgroundTile[]>? explosionPlanes;
 
     /// <summary>The floor's cells, until the uploads or the artwork change.</summary>
     [NonSerialized]
@@ -85,8 +85,8 @@ internal sealed class EndingScreen
     /// <summary>Records a transfer of chunk <paramref name="chunk"/> of installed artwork.</summary>
     public void Record(EndingUploadKind kind, int chunk) => Record(new EndingChunkUpload(kind, chunk));
 
-    /// <summary>Records a tilemap transfer of <paramref name="words"/>, copying them as they are now.</summary>
-    public void Record(EndingUploadKind kind, ReadOnlySpan<ushort> words) => Record(new EndingTilemapUpload(kind, words.ToArray()));
+    /// <summary>Records a tilemap transfer of <paramref name="tiles"/>, copying them as they are now.</summary>
+    public void Record(EndingUploadKind kind, ReadOnlySpan<BackgroundTile> tiles) => Record(new EndingTilemapUpload(kind, tiles.ToArray()));
 
     /// <summary>Records the transfer of the installed floor scene <paramref name="scene"/>.</summary>
     public void Record(EndingFloorSceneId scene) => Record(new EndingFloorSceneUpload(scene));
@@ -94,9 +94,9 @@ internal sealed class EndingScreen
     /// <summary>Records the transfer of the installed explosion map <paramref name="fragment"/>.</summary>
     public void Record(EndingObjectFragmentId fragment) => Record(new EndingObjectFragmentUpload(fragment));
 
-    /// <summary>Records a transfer of <paramref name="words"/> to the text tilemap <paramref name="tilemap"/>, copying them as they are now.</summary>
-    internal void Record(EndingTextTilemap tilemap, ReadOnlySpan<ushort> words) =>
-        Record(new EndingTextTilemapUpload(tilemap, words.ToArray()));
+    /// <summary>Records a transfer of <paramref name="tiles"/> to the text tilemap <paramref name="tilemap"/>, copying them as they are now.</summary>
+    internal void Record(EndingTextTilemap tilemap, ReadOnlySpan<BackgroundTile> tiles) =>
+        Record(new EndingTextTilemapUpload(tilemap, tiles.ToArray()));
 
     /// <summary>How many of the logo's character chunks the post-shot has shown.</summary>
     internal int LogoChunksShown => uploads.Count(upload => upload is EndingChunkUpload { Kind: EndingUploadKind.PostShotTransfer } transfer &&
@@ -108,22 +108,22 @@ internal sealed class EndingScreen
         ForgetShown();
     }
 
-    /// <summary>The words <paramref name="plane"/> holds over <paramref name="objects"/>.</summary>
-    internal ReadOnlySpan<ushort> Plane(EndingPlane plane, EndingObjectArtworkCatalog? objects)
+    /// <summary>The tiles <paramref name="plane"/> holds over <paramref name="objects"/>.</summary>
+    internal ReadOnlySpan<BackgroundTile> Plane(EndingPlane plane, EndingObjectArtworkCatalog? objects)
     {
         planes ??= [];
-        if (!planes.TryGetValue(plane, out ushort[]? words))
-            planes.Add(plane, words = EndingScreenPlanes.Of(plane, uploads, objects));
-        return words;
+        if (!planes.TryGetValue(plane, out BackgroundTile[]? tiles))
+            planes.Add(plane, tiles = EndingScreenPlanes.Of(plane, uploads, objects));
+        return tiles;
     }
 
-    /// <summary>The words the explosion's <paramref name="fragment"/> map holds over <paramref name="objects"/>.</summary>
-    internal ReadOnlySpan<ushort> ExplosionPlane(EndingObjectFragmentId fragment, EndingObjectArtworkCatalog? objects)
+    /// <summary>The tiles the explosion's <paramref name="fragment"/> map holds over <paramref name="objects"/>.</summary>
+    internal ReadOnlySpan<BackgroundTile> ExplosionPlane(EndingObjectFragmentId fragment, EndingObjectArtworkCatalog? objects)
     {
         explosionPlanes ??= [];
-        if (!explosionPlanes.TryGetValue(fragment, out ushort[]? words))
-            explosionPlanes.Add(fragment, words = EndingScreenPlanes.Explosion(fragment, uploads, objects));
-        return words;
+        if (!explosionPlanes.TryGetValue(fragment, out BackgroundTile[]? tiles))
+            explosionPlanes.Add(fragment, tiles = EndingScreenPlanes.Explosion(fragment, uploads, objects));
+        return tiles;
     }
 
     /// <summary>The floor's cells over <paramref name="floor"/> and <paramref name="flight"/>.</summary>
@@ -140,7 +140,7 @@ internal sealed class EndingScreen
         floorTiles = null;
     }
 
-    /// <summary>Appends <paramref name="upload"/>, dropping the earlier transfer whose words it covers.</summary>
+    /// <summary>Appends <paramref name="upload"/>, dropping the earlier transfer whose cells it covers.</summary>
     private void Record(EndingUpload upload)
     {
         uploads.RemoveAll(earlier => earlier.IsReplacedBy(upload));

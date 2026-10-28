@@ -37,7 +37,7 @@ internal sealed class EndingCompletionTextParts : IReadOnlyList<CompiledSpritePa
                     tile = CharacterSheetGrid.Cell(21, 10);
                     if (bottom) flips = TileFlip.Vertical;
                 }
-                else tile = CharacterSheetGrid.Cell(16, 0) + EndingTextDefinitions.CompileGlyph((char)('0' + frame - 45), EndingTextStyle.CopyrightLarge, bottom);
+                else tile = CharacterSheetGrid.Cell(16, 0) + EndingTextDefinitions.CompileGlyph((char)('0' + frame - 45), EndingTextStyle.CopyrightLarge, bottom).Tile;
             }
             else
             {
@@ -54,7 +54,7 @@ internal sealed class EndingCompletionTextParts : IReadOnlyList<CompiledSpritePa
                     if (letter-- == 0) break;
                 }
                 x = start + column * 8;
-                tile = CharacterSheetGrid.Cell(16, 0) + EndingTextDefinitions.CompileGlyph(text[column], EndingTextStyle.CopyrightLarge, bottom);
+                tile = CharacterSheetGrid.Cell(16, 0) + EndingTextDefinitions.CompileGlyph(text[column], EndingTextStyle.CopyrightLarge, bottom).Tile;
             }
             return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, bottom ? bottomY : bottomY - 8), false,
                 tile, 0, 3, flips), true);

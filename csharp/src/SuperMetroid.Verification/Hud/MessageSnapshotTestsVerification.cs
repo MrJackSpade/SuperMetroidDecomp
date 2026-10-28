@@ -77,10 +77,10 @@ internal static class MessageSnapshotTestsVerification
         }
 
         // Every image the sheet holds of each height takes every reveal radius.
-        foreach (IGrouping<int, KeyValuePair<string, System.Collections.Immutable.ImmutableArray<ushort>>> height in
+        foreach (IGrouping<int, KeyValuePair<string, System.Collections.Immutable.ImmutableArray<BackgroundTile>>> height in
                  messages.Messages.GroupBy(message => message.Value.Length / GameplayMessageBoxDefinitions.Layout.TilemapWidth))
         {
-            ushort[] tiles = [.. height.First().Value];
+            BackgroundTile[] tiles = [.. height.First().Value];
             for (int radius = 0; radius <= GameplayMessageBoxDefinitions.Timing.MaximumRadiusPixels; radius++)
             {
                 var layer = MessageBoxRenderLayer.FromTilemap(tiles, radius, messages);

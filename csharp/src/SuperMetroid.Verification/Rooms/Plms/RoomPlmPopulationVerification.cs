@@ -1320,8 +1320,8 @@ internal static class RoomPlmPopulationVerification
     /// <summary>Checks the native save-confirmation message's delayed controller reads and default acceptance.</summary>
     private static void VerifySaveStationConfirmation(TestAddressSpace bus)
     {
-        GameplayMessageTitleCell[] Cells(int count, ushort first) => Enumerable.Range(0, count)
-            .Select(index => new GameplayMessageTitleCell { Word = unchecked((ushort)(first + index)) }).ToArray();
+        BackgroundTile[] Cells(int count, ushort first) => [.. Enumerable.Range(0, count)
+            .Select(index => BackgroundTileWordBytes.Tile(first + index))];
         var notices = new GameplayMessageNoticeDocument
         {
             Version = GameplayMessageNoticeDefinitions.Version,
@@ -1354,7 +1354,7 @@ internal static class RoomPlmPopulationVerification
         }
         AssertEqual(GameplayMessageBoxPhase.AwaitingInput, message.Phase,
             "save message enters shared yes/no selection phase");
-        AssertEqual(0x5100, message.Tilemap[128],
+        AssertEqual(0x5100, message.Tilemap[128].PackedWord,
             "save message begins with native selected-YES row");
         // $85:84BA waits two lag frames before its first ReadControllerInput.
         message.Step(0);
@@ -1363,7 +1363,7 @@ internal static class RoomPlmPopulationVerification
         message.Step(ControllerButton.Left);
         AssertTrue(!message.ConfirmationSelectionYes,
             "save cursor changes the shared confirmation selection");
-        AssertEqual(0x5200, message.Tilemap[128],
+        AssertEqual(0x5200, message.Tilemap[128].PackedWord,
             "save cursor redraws the native selected-NO row");
         // Later reads come every second frame: the read's frame holds the next first wait.
         // A toggle's redraw wait precedes that cycle once (#1269), so the first read after

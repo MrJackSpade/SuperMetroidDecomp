@@ -53,7 +53,7 @@ internal static class IntroNarrationPresentationVerification
         {
             // The installed page runs to completion with every narration ROM read forbidden;
             // extraction copied its text from the cartridge.
-            ushort[] installedTilemap = CreateBlankIntroTilemap();
+            BackgroundTile[] installedTilemap = CreateBlankIntroTilemap();
             var installed = new IntroCinematicObjectSystem(
                 new IntroTilemaps(), installedTilemap, new IntroJapaneseSubtitles(enabled: false),
                 narrationPresentation: presentation, eyeArtwork: eyeArtwork);
@@ -65,7 +65,7 @@ internal static class IntroNarrationPresentationVerification
                 installed.Step(0);
                 comparedFrames++;
             }
-            AssertTrue(installedTilemap.Any(word => word != IntroCinematicDefinitions.Text.Blank.Raw),
+            AssertTrue(installedTilemap.Any(tile => tile != IntroCinematicDefinitions.Text.Blank),
                 $"installed opening narration {page} draws its text");
         }
 
@@ -76,7 +76,7 @@ internal static class IntroNarrationPresentationVerification
             editedDocument.ToJsonString(ArtworkJson.Options));
         IntroNarrationPresentation edited = IntroNarrationPresentation.Load(
             new MemoryStream(editedBytes, writable: false));
-        ushort[] editedTilemap = CreateBlankIntroTilemap();
+        BackgroundTile[] editedTilemap = CreateBlankIntroTilemap();
         var editedState = new IntroCinematicObjectSystem(
             new IntroTilemaps(), editedTilemap, new IntroJapaneseSubtitles(enabled: false),
             narrationPresentation: edited, eyeArtwork: eyeArtwork);
@@ -87,7 +87,7 @@ internal static class IntroNarrationPresentationVerification
             editedTilemap[4 * IntroCinematicDefinitions.Tilemaps.TilemapWidth + 1],
             "edited UTF-8 opening narration reaches the live tilemap");
 
-        ushort[] reboundTilemap = CreateBlankIntroTilemap();
+        BackgroundTile[] reboundTilemap = CreateBlankIntroTilemap();
         var rebound = new IntroCinematicObjectSystem(
             new IntroTilemaps(), reboundTilemap, new IntroJapaneseSubtitles(enabled: false),
             narrationPresentation: presentation, eyeArtwork: eyeArtwork);
@@ -146,10 +146,10 @@ internal static class IntroNarrationPresentationVerification
     }
 
     /// <summary>Starts a text layer filled with the native blank tilemap word.</summary>
-    private static ushort[] CreateBlankIntroTilemap()
+    private static BackgroundTile[] CreateBlankIntroTilemap()
     {
-        var result = new ushort[IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount];
-        Array.Fill(result, IntroCinematicDefinitions.Text.Blank.Raw);
+        var result = new BackgroundTile[IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount];
+        Array.Fill(result, IntroCinematicDefinitions.Text.Blank);
         return result;
     }
 
@@ -205,7 +205,7 @@ internal static class IntroNarrationPresentationVerification
         AreaMapPresentationCatalog edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
         AssertEqual(IntroNarrationDefinitions.CompileGlyph('T'),
-            edited.IntroNarration.Compile(IntroNarrationPageId.Page1)[0].TilemapWord.Raw,
+            edited.IntroNarration.Compile(IntroNarrationPageId.Page1)[0].Tile,
             "catalog override changes installed opening narration");
         AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
             "opening-narration override changes catalog content identity");

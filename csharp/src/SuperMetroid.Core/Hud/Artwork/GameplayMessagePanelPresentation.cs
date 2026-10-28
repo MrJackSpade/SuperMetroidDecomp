@@ -13,13 +13,13 @@ public sealed class GameplayMessagePanelPresentation
 {
     /// <summary>Validated titles and four-row templates for the seven large item-instruction messages.</summary>
     private readonly Dictionary<GameplayMessageId, CompiledPanel> panels;
-    /// <summary>Thirty-two BG3 tile words copied above and below each panel's content.</summary>
-    private readonly ushort[] border;
+    /// <summary>Thirty-two tiles copied above and below each panel's content.</summary>
+    private readonly BackgroundTile[] border;
 
-    /// <summary>Retains compiled panel words and a digest of the exact source JSON document.</summary>
+    /// <summary>Retains compiled panel tiles and a digest of the exact source JSON document.</summary>
     private GameplayMessagePanelPresentation(
         Dictionary<GameplayMessageId, CompiledPanel> panels,
-        ushort[] border,
+        BackgroundTile[] border,
         string contentIdentity)
     {
         this.panels = panels;
@@ -37,21 +37,21 @@ public sealed class GameplayMessagePanelPresentation
 
     /// <summary>Builds the complete six-row panel without cartridge reads.</summary>
     /// <param name="messageId">Supported large item-instruction message whose title and four-row template are selected.</param>
-    /// <returns>A new caller-owned 192-word BG3 tilemap in 32-column row-major order; the message-box state subsequently patches its compiled controller-button slot.</returns>
+    /// <returns>A new caller-owned 192-tile message in 32-column row-major order; the message-box state subsequently patches its compiled controller-button slot.</returns>
     /// <remarks>The same border row is copied above and below the four content rows. The title replaces columns 3..28 of the first content row without changing the template's other rows.</remarks>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="messageId"/> is not owned by this panel catalog.</exception>
-    public ushort[] Build(GameplayMessageId messageId)
+    public BackgroundTile[] Build(GameplayMessageId messageId)
     {
         if (!panels.TryGetValue(messageId, out CompiledPanel? panel))
             throw new ArgumentOutOfRangeException(nameof(messageId), messageId,
                 "The gameplay-message panel catalog does not own this message.");
 
-        var result = new ushort[GameplayMessagePanelDefinitions.TilemapWords];
+        var result = new BackgroundTile[GameplayMessagePanelDefinitions.TilemapWords];
         border.CopyTo(result, 0);
         panel.Template.CopyTo(result, GameplayMessageBoxDefinitions.Layout.TilemapWidth);
         border.CopyTo(result, result.Length - GameplayMessageBoxDefinitions.Layout.TilemapWidth);
 
-        Span<ushort> titleRow = result.AsSpan(
+        Span<BackgroundTile> titleRow = result.AsSpan(
             GameplayMessageBoxDefinitions.Layout.TilemapWidth +
                 GameplayMessagePanelDefinitions.OuterLeftColumns,
             GameplayMessagePanelDefinitions.VisibleColumns);
@@ -63,10 +63,10 @@ public sealed class GameplayMessagePanelPresentation
         return result;
     }
 
-    /// <summary>Validates all seven large-panel definitions and retains independently owned border/template words and title data for later tilemap construction.</summary>
+    /// <summary>Validates all seven large-panel definitions and retains independently owned border/template tiles and title data for later tilemap construction.</summary>
     /// <param name="json">UTF-8 JSON read from its current position to the end and left open; the exact consumed bytes determine <see cref="ContentIdentity"/>.</param>
     /// <returns>An immutable panel presentation that does not retain the document's mutable dictionary or tile-cell arrays.</returns>
-    /// <exception cref="InvalidDataException">JSON is invalid or ambiguous, its version, message set or dimensions are wrong, or a title, palette, column or outer title-row word violates the schema.</exception>
+    /// <exception cref="InvalidDataException">JSON is invalid or ambiguous, its version, message set or dimensions are wrong, or a title, palette, column or outer title-row tile violates the schema.</exception>
     public static GameplayMessagePanelPresentation Load(Stream json)
     {
         byte[] source;
@@ -94,7 +94,7 @@ public sealed class GameplayMessagePanelPresentation
             document.Panels is null)
         {
             throw new InvalidDataException(
-                "Gameplay-message panels require version 1, one 32-cell border and every named large panel.");
+                $"Gameplay-message panels require version {GameplayMessagePanelDefinitions.Version}, one 32-cell border and every named large panel.");
         }
 
         string[] expected = GameplayMessagePanelDefinitions.MessageIds
@@ -132,18 +132,17 @@ public sealed class GameplayMessagePanelPresentation
                 if ((column < GameplayMessagePanelDefinitions.OuterLeftColumns ||
                      column >= GameplayMessageBoxDefinitions.Layout.TilemapWidth -
                          GameplayMessagePanelDefinitions.OuterRightColumns) &&
-                    value.Template[column].Word.Raw != GameplayMessageTitleDefinitions.TransparentWord)
+                    value.Template[column] != GameplayMessageTitleDefinitions.TransparentTile)
                 {
                     throw new InvalidDataException(
                         $"Gameplay-message panel {id} title row has a nontransparent outer cell at {column}.");
                 }
             }
 
-            compiled.Add(id, new(value.Title, value.Palette, value.Column,
-                value.Template.Select(static cell => cell.Word.Raw).ToArray()));
+            compiled.Add(id, new(value.Title, value.Palette, value.Column, [.. value.Template]));
         }
 
-        return new(compiled, document.Border.Select(static cell => cell.Word.Raw).ToArray(),
+        return new(compiled, [.. document.Border],
             Convert.ToHexString(SHA256.HashData(source)));
     }
 
@@ -159,10 +158,10 @@ public sealed class GameplayMessagePanelPresentation
         output.Write(bytes);
     }
 
-    /// <summary>Immutable title, palette, placement, and owned tile words for one large instruction panel.</summary>
+    /// <summary>Immutable title, palette, placement, and owned tiles for one large instruction panel.</summary>
     private sealed record CompiledPanel(
         string Title,
         int Palette,
         int Column,
-        ushort[] Template);
+        BackgroundTile[] Template);
 }

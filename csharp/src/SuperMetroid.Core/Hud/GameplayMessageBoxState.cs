@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms;
@@ -24,8 +25,8 @@ namespace SuperMetroid.Core.Hud;
 /// </remarks>
 public sealed class GameplayMessageBoxState
 {
-    /// <summary>BG3 words for the active message, including its current confirmation cursor.</summary>
-    internal ushort[] TilemapWords { get; set; } = [];
+    /// <summary>The active message's tiles, including its current confirmation cursor.</summary>
+    internal BackgroundTile[] Tiles { get; set; } = [];
     /// <summary>Editable item-title artwork rebound after asset reload or state restoration.</summary>
     [NonSerialized] private GameplayMessageTitlePresentation? titlePresentation;
     /// <summary>Editable item-panel artwork, including remappable button glyphs.</summary>
@@ -94,7 +95,7 @@ public sealed class GameplayMessageBoxState
     public int MinimumDisplayFramesRemaining { get; private set; }
 
     /// <summary>Read-only final tilemap after border and configured-button substitution.</summary>
-    public ReadOnlySpan<ushort> Tilemap => TilemapWords;
+    public ReadOnlySpan<BackgroundTile> Tilemap => Tiles;
 
     /// <summary>Current yes/no choice for save confirmation message $17.</summary>
     public bool ConfirmationSelectionYes { get; private set; } = true;
@@ -126,17 +127,17 @@ public sealed class GameplayMessageBoxState
         noticePresentation = notices;
         if (notices?.Contains(MessageId) == true)
         {
-            TilemapWords = notices.Build(MessageId);
+            Tiles = notices.Build(MessageId);
             if (IsSaveConfirmation)
-                notices.ApplySelection(MessageId, TilemapWords, ConfirmationSelectionYes);
+                notices.ApplySelection(MessageId, Tiles, ConfirmationSelectionYes);
         }
         else if (panels?.Contains(MessageId) == true)
         {
-            TilemapWords = panels.Build(MessageId);
+            Tiles = panels.Build(MessageId);
             PatchInstalledPanelButton(MessageId);
         }
         else if (presentation?.Contains(MessageId) == true)
-            TilemapWords = presentation.Build(MessageId);
+            Tiles = presentation.Build(MessageId);
     }
 
     /// <summary>
@@ -172,14 +173,14 @@ public sealed class GameplayMessageBoxState
         _shootBinding = shootBinding;
         _runBinding = runBinding;
         if (noticePresentation?.Contains(messageId) == true)
-            TilemapWords = noticePresentation.Build(messageId);
+            Tiles = noticePresentation.Build(messageId);
         else if (panelPresentation?.Contains(messageId) == true)
         {
-            TilemapWords = panelPresentation.Build(messageId);
+            Tiles = panelPresentation.Build(messageId);
             PatchInstalledPanelButton(messageId);
         }
         else if (titlePresentation?.Contains(messageId) == true)
-            TilemapWords = titlePresentation.Build(messageId);
+            Tiles = titlePresentation.Build(messageId);
         else
             throw new InvalidOperationException(
                 $"Gameplay message {messageId} requires installed presentation assets.");
@@ -406,7 +407,7 @@ public sealed class GameplayMessageBoxState
         MessageId = GameplayMessageId.None;
         MinimumDisplayFramesRemaining = 0;
         RadiusPixels = 0;
-        TilemapWords = [];
+        Tiles = [];
     }
 
     /// <summary>
@@ -421,7 +422,7 @@ public sealed class GameplayMessageBoxState
         if (noticePresentation?.Contains(MessageId) == true)
         {
             noticePresentation.ApplySelection(
-                MessageId, TilemapWords, ConfirmationSelectionYes);
+                MessageId, Tiles, ConfirmationSelectionYes);
             return;
         }
         throw new InvalidOperationException("Save confirmation requires installed notice artwork.");
@@ -431,13 +432,13 @@ public sealed class GameplayMessageBoxState
     internal void PatchConfiguredButton(GameplayMessageId messageId, ControllerButton binding)
     {
         int byteOffset = GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(messageId);
-        if ((byteOffset & 1) != 0 || byteOffset + 1 >= TilemapWords.Length * 2)
+        if ((byteOffset & 1) != 0 || byteOffset + 1 >= Tiles.Length * 2)
         {
             throw new InvalidDataException(
                 $"Message {messageId} configurable-button offset ${byteOffset:X4} is outside its tilemap.");
         }
 
-        TilemapWords[byteOffset / 2] = ResolveButtonTilemapWord(binding);
+        Tiles[byteOffset / 2] = ResolveButtonTile(binding);
     }
 
     /// <summary>Selects the Shoot or Run binding required by the installed panel before drawing it.</summary>
@@ -467,28 +468,28 @@ public sealed class GameplayMessageBoxState
     /// <summary>The messages the ordinary message coroutine shows.</summary>
     internal static IEnumerable<GameplayMessageId> OrdinaryMessages => Enum.GetValues<GameplayMessageId>().Where(IsOrdinary);
 
-    /// <summary>The words the begun message shows in each form it takes: a save confirmation's for each choice.</summary>
+    /// <summary>The tiles the begun message shows in each form it takes: a save confirmation's for each choice.</summary>
     /// <exception cref="InvalidOperationException">No message has begun.</exception>
-    internal IEnumerable<ImmutableArray<ushort>> Forms()
+    internal IEnumerable<ImmutableArray<BackgroundTile>> Forms()
     {
         if (!IsActive)
             throw new InvalidOperationException("No message has begun.");
         if (!IsSaveConfirmation)
         {
-            yield return [.. TilemapWords];
+            yield return [.. Tiles];
             yield break;
         }
         foreach (bool yes in new[] { true, false })
         {
-            ushort[] words = [.. TilemapWords];
+            BackgroundTile[] tiles = [.. Tiles];
             (noticePresentation ?? throw new InvalidOperationException("A save confirmation has no installed notice."))
-                .ApplySelection(MessageId, words, yes);
-            yield return [.. words];
+                .ApplySelection(MessageId, tiles, yes);
+            yield return [.. tiles];
         }
     }
 
-    /// <summary>Maps a controller binding to the cartridge's message tilemap glyph word.</summary>
-    internal static ushort ResolveButtonTilemapWord(ControllerButton binding) =>
-        GameplayMessageButtonGlyphs.ResolveGlyphWord(binding);
+    /// <summary>Maps a controller binding to the message's button glyph tile.</summary>
+    internal static BackgroundTile ResolveButtonTile(ControllerButton binding) =>
+        GameplayMessageButtonGlyphs.ResolveGlyph(binding);
 
 }

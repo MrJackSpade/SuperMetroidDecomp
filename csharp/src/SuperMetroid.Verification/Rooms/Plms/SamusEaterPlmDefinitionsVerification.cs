@@ -15,7 +15,7 @@ internal static class SamusEaterPlmDefinitionsVerification
         Suite(nameof(VerifySamusEaterHeaderInstructionMapping), () => VerifySamusEaterHeaderInstructionMapping(rom));
         Suite(nameof(VerifySamusEaterMountingMapping), () => VerifySamusEaterMountingMapping(rom));
         SamusEaterPlmDefinition[] definitions =
-            [SamusEaterPlmDefinitions.Resolve(PlmHeaderId.InsideReactionBrinstarFloorPlant), SamusEaterPlmDefinitions.Resolve(PlmHeaderId.InsideReactionBrinstarCeilingPlant)];
+            [SamusEaterPlms.Plant(PlmHeaderId.InsideReactionBrinstarFloorPlant), SamusEaterPlms.Plant(PlmHeaderId.InsideReactionBrinstarCeilingPlant)];
         AssertEqual(2, definitions.Length, "Samus Eater PLM definition count");
         AssertEqual(SamusEaterProgram.FloorBite, definitions[0].Program, "floor plant header starts the floor bite");
         AssertEqual(SamusEaterProgram.CeilingBite, definitions[1].Program, "ceiling plant header starts the ceiling bite");
@@ -23,7 +23,7 @@ internal static class SamusEaterPlmDefinitionsVerification
 
         foreach (PlmHeaderId headerPointer in new[] { PlmNativeWords.Header(0xb6cb), PlmNativeWords.Header(0xb6cf) })
         {
-            SamusEaterPlmDefinition definition = SamusEaterPlmDefinitions.Resolve(headerPointer);
+            SamusEaterPlmDefinition definition = SamusEaterPlms.Plant(headerPointer);
             const int width = 4;
             const int height = 4;
             int blockCount = width * height;
@@ -52,7 +52,7 @@ internal static class SamusEaterPlmDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => SamusEaterPlmDefinitions.Resolve(PlmHeaderId.MapStation),
+            () => SamusEaterPlms.Plant(PlmHeaderId.MapStation),
             "map-station header cannot enter Samus Eater domain");
         Console.WriteLine(
             "Samus Eater PLMs: both header/program identities, the typed programs, and real aligned spawns match cartridge.");
@@ -75,11 +75,11 @@ internal static class SamusEaterPlmDefinitionsVerification
             ushort header = PlmNativeWords.Word(candidate);
             if (candidate is not (PlmHeaderId.InsideReactionBrinstarFloorPlant or PlmHeaderId.InsideReactionBrinstarCeilingPlant))
             {
-                AssertThrows<InvalidDataException>(() => SamusEaterPlmDefinitions.Resolve(candidate),
+                AssertThrows<InvalidDataException>(() => SamusEaterPlms.Plant(candidate),
                     "plant header selector rejects every unsupported identity");
                 continue;
             }
-            var actual = SamusEaterPlmDefinitions.Resolve(candidate);
+            var actual = SamusEaterPlms.Plant(candidate);
             AssertEqual(candidate == PlmHeaderId.InsideReactionBrinstarFloorPlant ? SamusEaterPlmDefinitions.Floor : SamusEaterPlmDefinitions.Ceiling,
                 actual, "plant selected header identity");
             if (mounting)

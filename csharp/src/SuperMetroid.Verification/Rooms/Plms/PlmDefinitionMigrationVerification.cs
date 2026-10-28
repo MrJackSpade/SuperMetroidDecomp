@@ -68,8 +68,8 @@ internal static class PlmDefinitionMigrationVerification
 
         // Level words built from collision type and visual block equal the former literal words.
         AssertEqual(0x8180, MaridiaElevatubePlmDefinitions.PhysicalWord.Raw, "elevatube level word");
-        AssertEqual(0xc046, DownwardGateShotBlockDefinitions.Resolve(0).LeftBlockWord, "blue-left gate trigger block");
-        AssertEqual(0xc04d, DownwardGateShotBlockDefinitions.Resolve(14).RightBlockWord, "yellow-right gate trigger block");
+        AssertEqual(0xc046, GatePlms.DownwardGateShotBlock(0).LeftBlockWord, "blue-left gate trigger block");
+        AssertEqual(0xc04d, GatePlms.DownwardGateShotBlock(14).RightBlockWord, "yellow-right gate trigger block");
         var bombHorizontal = new RoomPlmLinkedRestoreDefinition.Draw(PlmDraw.Of(BombBlockRestoreDraw.Horizontal), PlmRestoreShape.Horizontal, RoomPlmLinkedRestoreDefinition.BombBlock);
         AssertEqual(0xf058, bombHorizontal.WordAt(0, 0), "bomb block parent");
         AssertEqual(0x5058, bombHorizontal.WordAt(0, 1), "bomb block horizontal child");

@@ -20,15 +20,6 @@ internal static class DownwardGatePlmProgramDefinitions
     /// <summary>The movement sound's native queue cap.</summary>
     internal static readonly SoundQueueLimit MovementSoundMaximumQueued = SoundQueueLimit.Max6;
 
-    /// <summary>The trigger programs, in the order the shot-block room argument selects them.</summary>
-    internal static IReadOnlyList<DownwardGateProgram> TriggerPrograms { get; } =
-    [
-        DownwardGateProgram.TriggerBlueLeft, DownwardGateProgram.TriggerBlueRight,
-        DownwardGateProgram.TriggerRedLeft, DownwardGateProgram.TriggerRedRight,
-        DownwardGateProgram.TriggerGreenLeft, DownwardGateProgram.TriggerGreenRight,
-        DownwardGateProgram.TriggerYellowLeft, DownwardGateProgram.TriggerYellowRight,
-    ];
-
     /// <summary>Every downward gate program.</summary>
     internal static AnimationProgramSet<DownwardGateProgram, DownwardGateDraw, DownwardGateCue> Programs { get; } = new(
         new Dictionary<DownwardGateProgram, Step[]>

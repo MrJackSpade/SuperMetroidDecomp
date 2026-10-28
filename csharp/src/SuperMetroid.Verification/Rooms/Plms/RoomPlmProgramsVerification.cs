@@ -320,7 +320,7 @@ internal static class RoomPlmProgramsVerification
                 $"downward gate {next} continues {program} past its sleep");
         }
         ushort firstTrigger = DownwardGateEntries.Single(e => e.Program == DownwardGateProgram.TriggerBlueLeft).Entry;
-        AssertTrue(DownwardGatePlmProgramDefinitions.TriggerPrograms.SequenceEqual(
+        AssertTrue(DownwardGateShotBlockDefinitions.Triggers.Select(trigger => trigger.Program).SequenceEqual(
                 DownwardGateEntries.Where(e => e.Entry >= firstTrigger).OrderBy(e => e.Entry).Select(e => e.Program)),
             "downward gate triggers are selected in native list order");
         Console.WriteLine($"  Downward gate programs: {steps} typed steps match bank $84.");

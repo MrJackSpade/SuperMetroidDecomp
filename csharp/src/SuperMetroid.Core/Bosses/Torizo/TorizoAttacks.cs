@@ -219,7 +219,7 @@ internal sealed class TorizoAttacks
             int jitteredY = (random & 3) + torizo.Position.Y.Whole;
             int liftCarry = jitteredY >= TorizoMotionDefinitions.InitialDroolLift ? 1 : 0;
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(jitteredY - TorizoMotionDefinitions.InitialDroolLift)));
-            projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)((random & TorizoRandomDefinitions.DroolFallJitterMask) + 48 + liftCarry))));
+            projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(TorizoRandomDefinitions.DroolFallJitter.Of(random) + 48 + liftCarry))));
             // $86:A68D-$A6C3: the X offset's ADC carries out of CLC; ADC X. Every branch
             // stores a zero X velocity.
             int jitteredX = (_room.Random.Generate() & 3) + torizo.Position.X.Whole;
@@ -240,12 +240,12 @@ internal sealed class TorizoAttacks
         int angle;
         if (_access.Posture(torizo).HasFlag(TorizoPostureFlags.TurningAround))
         {
-            angle = (random & TorizoRandomDefinitions.DroolTurningAngleMask) >> 1;
+            angle = TorizoRandomDefinitions.DroolTurningAngle.Of(random);
         }
         else
         {
             int baseAngle = _access.FacesRight(torizo) ? 32 : 224;
-            angle = unchecked((byte)(baseAngle + (random & TorizoRandomDefinitions.DroolFacingAngleMask) - 8));
+            angle = unchecked((byte)(baseAngle + TorizoRandomDefinitions.DroolFacingSpread.Of(random) - 8));
         }
         projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)
             Trigonometry.SignedSine(unchecked(new ByteAngle((byte)angle))))));
@@ -462,8 +462,9 @@ internal sealed class TorizoAttacks
             torizo,
             TorizoRandomizedProjectiles.GoldenEyeBeam(facingRight));
 
-        int angle = ((_room.Random.Generate() & TorizoRandomDefinitions.EyeBeamSpreadMask) - 16 + 192 + (facingRight ? 0 : 128)) & TorizoRandomDefinitions.EyeBeamAngleMask;
-        int sineIndex = angle >> 1;
+        // The cartridge works in word indices, twice these table units, and wraps its sum at a full circle; the sum
+        // never leaves the circle, so the wrap never applies.
+        int sineIndex = _room.Random.Next(TorizoRandomDefinitions.EyeBeamSpread) - 8 + 96 + (facingRight ? 0 : 64);
         // The native combined table starts at negative cosine, not sine. Its
         // quarter-turn offset selects sine for X; the unshifted sample gives Y.
         projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)(8 *
@@ -729,11 +730,9 @@ internal sealed class TorizoAttacks
         SamusState samus,
         bool awayFromSamus)
     {
-        int angle = EnemyMath.CalculateBearing(
-            new(unchecked((short)(samus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - projectile.Position.Y.Whole)))).ReinterpretAsTableAngle().RawValue;
-        angle = awayFromSamus
-            ? angle | TorizoMotionDefinitions.AwayHalfTurn
-            : angle & TorizoMotionDefinitions.TowardHalfTurn;
+        ByteAngle bearing = EnemyMath.CalculateBearing(
+            new(unchecked((short)(samus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - projectile.Position.Y.Whole)))).ReinterpretAsTableAngle();
+        int angle = (awayFromSamus ? bearing.InSecondHalfTurn() : bearing.InFirstHalfTurn()).RawValue;
 
         // Preserve the native up-zero angle convention: X is sine, Y is
         // negative cosine. Starting both reads at sine rotates the shot.

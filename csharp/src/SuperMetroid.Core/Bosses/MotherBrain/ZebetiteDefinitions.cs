@@ -9,8 +9,8 @@ internal static class ZebetiteDefinitions
     /// <summary>The two colours the Zebetites pulse: the third sprite set's colours twelve and thirteen.</summary>
     public static readonly SpriteColourRun PulseColours = new(2, 12, 2);
 
-    /// <summary>Native palette-cycle index mask applied to physical enemy slot zero.</summary>
-    public const ushort PaletteCycleMask = 7;
+    /// <summary>The steps of the shared pulse cycle physical enemy slot zero counts through before it restarts.</summary>
+    public const int PaletteCycleLength = 8;
 
     /// <summary>Embedded primary spawn record at <c>$A6:FCE1-$A6:FCF0</c>.</summary>
     internal static readonly RoomEnemyPopulationRecord PrimarySpawn =

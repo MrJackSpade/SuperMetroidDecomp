@@ -102,7 +102,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         // consumed by instruction `$F127`, giving each vent a cartridge-authored stagger.
         var state = new CeresSteamEnemyState
         {
-            ActivationDelay = WrappingCountdown.Start((_room.Random.Generate() & CeresSteamDefinitions.ActivationDelayMask) + 1),
+            ActivationDelay = WrappingCountdown.Start(_room.Random.Next(CeresSteamDefinitions.ActivationDelay) + 1),
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 

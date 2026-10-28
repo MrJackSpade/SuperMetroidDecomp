@@ -22,7 +22,4 @@ internal static class BombTorizoMovementDefinitions
     /// These ten authored stride magnitudes share one table because facing only changes their sign.
     /// </summary>
     internal static readonly short[] LeftWalkVelocities = [-5, 0, -5, -19, -16, -7, 0, -7, -17, -18];
-
-    /// <summary>The posture byte offset bits that wrap the eight vertical offsets.</summary>
-    internal const int PostureYOffsetMask = 0x000f;
 }

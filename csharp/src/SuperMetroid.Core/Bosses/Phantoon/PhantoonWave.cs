@@ -15,8 +15,7 @@ public sealed record PhantoonWave(int Mode, int Phase, int Amplitude, int BaseSc
     /// <summary>One whole cycle of horizontal scrolls, one per line, as the wave's HDMA data repeats it down the screen.</summary>
     public ushort[] Cycle()
     {
-        int half = (Mode & PhantoonWaveDefinitions.LongWaveModeBit) != 0
-            ? PhantoonWaveDefinitions.LongHalfCycle : PhantoonWaveDefinitions.ShortHalfCycle;
+        int half = PhantoonWaveModeWord.HalfCycle(Mode);
         var cycle = new ushort[half * 2];
         PhantoonWaveTable.Build(Mode, Phase, Amplitude, BaseScroll, cycle);
         return cycle;

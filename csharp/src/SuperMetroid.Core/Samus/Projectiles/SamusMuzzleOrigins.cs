@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileOriginDefinitions;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -33,9 +32,9 @@ internal static class SamusMuzzleOrigins
     };
 
     /// <summary>Reads the selected X/Y muzzle offsets using the native low-nibble direction and running table layout.</summary>
-    internal static Offset16<RoomPixels> Read(bool running, int direction)
+    internal static Offset16<RoomPixels> Read(bool running, SamusProjectileDirectionWord direction)
     {
-        int offset = (direction & DirectionMask) * sizeof(ushort);
+        int offset = direction.DirectionIndex * sizeof(ushort);
         int x = running ? SamusFiringTableDefinitions.RunningXOrigins : SamusFiringTableDefinitions.DefaultXOrigins;
         int y = running ? SamusFiringTableDefinitions.RunningYOrigins : SamusFiringTableDefinitions.DefaultYOrigins;
         return new Offset16<RoomPixels>(ReadWord(x + offset), ReadWord(y + offset));

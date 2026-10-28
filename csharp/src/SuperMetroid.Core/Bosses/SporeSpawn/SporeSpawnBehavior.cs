@@ -460,9 +460,14 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 ResolveSporeSpawnDeathAfterCommon(context.Slot);
             });
     }
-    /// <summary>Checks the projectile family bits accepted by the vulnerable core.</summary>
+    /// <summary>
+    /// Whether the vulnerable core accepts the projectile (<c>SporeSpawn_Shot</c>): a charged beam, or any family but an
+    /// uncharged beam and a missile explosion. The cartridge tests the family nibble's low three bits, which only those
+    /// two families (nibbles 0 and 8) leave clear.
+    /// </summary>
     private static bool SporeSpawnAcceptsProjectile(SamusProjectileTypeWord projectileType) =>
-        (projectileType.Raw & SporeSpawnCollisionDefinitions.AcceptedFamilyBits) != 0 || projectileType.IsChargedBeam;
+        !projectileType.IsFamily(SamusProjectileFamily.Beam) && !projectileType.IsFamily(SamusProjectileFamily.MissileExplosion) ||
+        projectileType.IsChargedBeam;
 
     /// <summary>Ports the post-common body of <c>SporeSpawn_Shot</c> at $A5:ED5A.</summary>
     private void ResolveSporeSpawnShotAfterCommon(RoomEnemySlot body)

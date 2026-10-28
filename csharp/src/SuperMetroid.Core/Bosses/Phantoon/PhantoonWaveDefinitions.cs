@@ -5,7 +5,7 @@ public static class PhantoonWaveDefinitions
 {
     /// <summary>
     /// The phase a wave's setup seeds: two before the cycle's start, so the first advance lands two short of twice the
-    /// mouth's phase step. Only <see cref="PhaseMask"/>'s remainder of an advanced phase is ever read.
+    /// mouth's phase step. Only an advanced phase's position within one <see cref="PhaseCycle"/> is ever read.
     /// </summary>
     public const int InitialPhase = -2;
 
@@ -18,9 +18,6 @@ public static class PhantoonWaveDefinitions
     /// <summary>The phases in one whole cycle of the wave: a byte offset into the signed sine's 256 two-byte samples.</summary>
     public const int PhaseCycle = 512;
 
-    /// <summary>The remainder of a phase within one whole cycle.</summary>
-    public const int PhaseMask = PhaseCycle - 1;
-
     /// <summary>The bytes of one signed sine sample: an even phase reads a whole sample, an odd phase straddles two.</summary>
     public const int SampleBytes = 2;
 
@@ -29,9 +26,6 @@ public static class PhantoonWaveDefinitions
     /// (#1165: every phase matches the original, including this read past the samples).
     /// </summary>
     public const byte TrailingByte = 0x8b;
-
-    /// <summary>The mode bit that selects the 128-line rather than the 64-line wave.</summary>
-    public const int LongWaveModeBit = 1;
 
     /// <summary>The samples in half of the 64-line wave's cycle.</summary>
     public const int ShortHalfCycle = 32;

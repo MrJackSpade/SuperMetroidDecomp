@@ -70,10 +70,9 @@ internal static class BotwoonNavigation
                 $"Botwoon movement sample {sampleIndex} is outside the authored sample corpus.");
         }
 
-        int packed = BotwoonMovementSampleData.At(sampleIndex);
         return new Offset16<RoomPixels>(
-            MovementStep(packed >> BotwoonNavigationDefinitions.MovementXShift),
-            MovementStep(packed & BotwoonNavigationDefinitions.MovementComponentMask));
+            MovementStep(BotwoonMovementSampleData.XCode(sampleIndex)),
+            MovementStep(BotwoonMovementSampleData.YCode(sampleIndex)));
     }
 
     /// <summary>Expands one packed movement nibble to an authored step or stream separator.</summary>

@@ -10,8 +10,17 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 internal static class RidleyExplosionDefinitions
 {
-    /// <summary>The breakup initializer ($A6:C696) masks a random word to bits 4, 5 and 8 for a fragment's horizontal 8.8 speed.</summary>
-    internal const ushort FragmentSpeedMask = 0x0130;
+    /// <summary>
+    /// The breakup initializer ($A6:C696) draws a fragment's horizontal speed from one random word as the sum of two
+    /// selections: this one, 0 to 3 sixteenths of a pixel per frame, and <see cref="FragmentSpeedWholePixel"/>.
+    /// </summary>
+    internal static readonly RandomSampleField FragmentSpeedSixteenths = new(4, 2);
+    /// <summary>The selection of a whole pixel per frame or none that a fragment's horizontal speed adds.</summary>
+    internal static readonly RandomSampleField FragmentSpeedWholePixel = new(8, 1);
+    /// <summary>The 8.8 speed of one <see cref="FragmentSpeedSixteenths"/> step, a sixteenth of a pixel per frame.</summary>
+    internal const int SixteenthPixelSpeed = 16;
+    /// <summary>The 8.8 speed of a <see cref="FragmentSpeedWholePixel"/> step, one pixel per frame.</summary>
+    internal const int WholePixelSpeed = 256;
     /// <summary>The tail tip's sixteen orientations.</summary>
     internal const int TailTipOrientationCount = 16;
     /// <summary>The part each authored spawn parameter of the breakup's embedded population records selects.</summary>

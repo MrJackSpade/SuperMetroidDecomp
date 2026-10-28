@@ -21,9 +21,6 @@ internal static class SamusAnimationDelayDefinitions
     /// </summary>
     internal const int FloorUpdateResidueOffset = 0x02d0;
 
-    /// <summary>Bit 7 of a delay-stream byte: set for an animation command (<c>$80-$FF</c>), clear for a frame delay.</summary>
-    internal const byte CommandBit = 0x80;
-
     /// <summary>$91:B56F, AnimationDelays_0_9B: animation selected by ForwardFacingPowerSuitPose and its explicit pose aliases below.</summary>
     internal static readonly SamusAnimationDelayList ForwardFacingPowerSuitAnimation = new(158, 0);
 

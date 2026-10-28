@@ -219,7 +219,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (PaletteChangeNumber != 0 || slot.RequireSpeciesState<ZebetiteEnemyState>().IsSecondaryHalf)
             return;
 
-        int paletteCycle = (SharedPaletteCycle + 1) & ZebetiteDefinitions.PaletteCycleMask;
+        int paletteCycle = (SharedPaletteCycle + 1) % ZebetiteDefinitions.PaletteCycleLength;
         SharedPaletteCycle = paletteCycle;
         (_bossArtwork.Artwork?.ZebetiteColors ?? throw new InvalidOperationException(
             "Zebetite requires installed palette-cycle colors."))

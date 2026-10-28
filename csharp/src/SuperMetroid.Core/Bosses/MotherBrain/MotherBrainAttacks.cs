@@ -500,7 +500,7 @@ internal sealed class MotherBrainAttacks
         }
 
         // The cartridge samples the current RNG word; it does not advance the generator.
-        if ((_room.Random.Read() & MotherBrainForwardWalkDefinitions.ForwardWalkRandomMask) >=
+        if (MotherBrainForwardWalkDefinitions.ForwardWalkRandom.Of(_room.Random.Read()) >=
             MotherBrainForwardWalkDefinitions.ForwardWalkRandomThreshold)
             StartMotherBrainForwardWalk(state);
     }

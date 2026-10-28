@@ -16,7 +16,7 @@ internal static class BombTorizoMovement
         }
 
         int xIndex = tableOffset >> 1;
-        int yIndex = (tableOffset & PostureYOffsetMask) >> 1;
+        int yIndex = xIndex % PostureY.Length;
         int horizontal = LeftPostureX[xIndex % LeftPostureX.Length];
         return new Offset16<RoomPixels>(
             (short)(xIndex < LeftPostureX.Length ? horizontal : -horizontal), PostureY[yIndex]);

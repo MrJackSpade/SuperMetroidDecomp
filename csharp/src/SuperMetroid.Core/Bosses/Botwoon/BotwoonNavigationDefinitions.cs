@@ -1,16 +1,21 @@
+using SuperMetroid.Core.Enemies;
+
 namespace SuperMetroid.Core.Bosses.Botwoon;
 /// <summary>Compiled fixed geometry and path metadata for Botwoon's room navigation.</summary>
 internal static class BotwoonNavigationDefinitions
 {
 
     /// <summary>
-    /// <c>$B3:989D</c>: random bits 1-3 pick an even action offset 0-14 when Botwoon leaves a hole outside
-    /// its health phases; offsets 0, 2 and 4 follow an authored path and the rest spit from the hole.
+    /// <c>$B3:989D</c>: the random selection of one of eight actions when Botwoon leaves a hole outside its health
+    /// phases; the first <see cref="AuthoredPathActions"/> follow an authored path and the rest spit from the hole.
     /// </summary>
-    internal const ushort ActionChoiceMask = 0x000e;
+    internal static readonly RandomSampleField ActionChoice = new(1, 3);
 
-    /// <summary>Random bits 3-4 pick one of the target hole's four path descriptors.</summary>
-    internal const ushort PathChoiceMask = 0x0018;
+    /// <summary>How many of the <see cref="ActionChoice"/> actions, counted from the first, follow an authored path.</summary>
+    internal const int AuthoredPathActions = 3;
+
+    /// <summary>The random selection of one of the target hole's four path descriptors.</summary>
+    internal static readonly RandomSampleField PathChoice = new(3, 2);
 
     /// <summary>The head-position history ring's X/Y samples.</summary>
     internal const int HistoryEntries = 256;
@@ -20,9 +25,6 @@ internal static class BotwoonNavigationDefinitions
 
     /// <summary>Wraps a history-ring index, as the native <c>AND #$03FF</c> does to its byte offset.</summary>
     internal static int WrapHistoryIndex(int index) => index & (HistoryEntries - 1);
-
-    /// <summary>Random bits below the path variant: bits 3-4 select one of a hole's four path descriptors.</summary>
-    internal const int PathChoiceVariantShift = 3;
 
     /// <summary>Path descriptors authored for each source hole and visibility.</summary>
     internal const int PathVariantsPerHole = 4;
@@ -47,12 +49,6 @@ internal static class BotwoonNavigationDefinitions
 
     /// <summary>The number of room holes.</summary>
     internal static int HoleCount => Holes.Length;
-
-    /// <summary>The packed movement sample's X nibble sits above its Y nibble.</summary>
-    internal const int MovementXShift = 4;
-
-    /// <summary>Keeps one packed movement nibble.</summary>
-    internal const int MovementComponentMask = 0x0f;
 
     /// <summary>
     /// The authored step each packed movement nibble code stands for, in code order: the stream separator/terminator

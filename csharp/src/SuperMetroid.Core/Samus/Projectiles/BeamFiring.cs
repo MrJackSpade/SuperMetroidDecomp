@@ -505,7 +505,7 @@ internal sealed class BeamFiring
         // the two diagonally-up moonwalk poses $75/$76. Every other pose uses the default.
         bool runningOrigin = movementType == SamusMovementType.Running ||
             samus.Pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;
-        var origin = SamusMuzzleOrigins.Read(runningOrigin, slot.PackedDirection.Raw);
+        var origin = SamusMuzzleOrigins.Read(runningOrigin, slot.PackedDirection);
         slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + origin.X)), unchecked((ushort)(samus.Position.Y.Whole + origin.Y - poseYOffset))));
     }
 

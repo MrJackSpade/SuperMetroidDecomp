@@ -222,10 +222,10 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PathComplete = false;
         int choice = 0;
         if (!state.InsideHole && !state.InitialAction && state.HealthPhase == 0)
-            choice = _room.Random.Generate() & BotwoonNavigationDefinitions.ActionChoiceMask;
+            choice = _room.Random.Next(BotwoonNavigationDefinitions.ActionChoice);
         state.InitialAction = false;
 
-        if (choice is 0 or 2 or 4)
+        if (choice < BotwoonNavigationDefinitions.AuthoredPathActions)
         {
             state.Function = BotwoonEnemyFunction.FollowAuthoredPath;
             state.MovementFunction = BotwoonMovementFunction.LoadAuthoredPath;
@@ -358,8 +358,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         UpdateBotwoonHealthPhase(head, state);
         int hiddenBase = state.InsideHole ? BotwoonNavigationDefinitions.HiddenPathChoiceBase : 0;
-        int variant = (_room.Random.Generate() & BotwoonNavigationDefinitions.PathChoiceMask) >>
-            BotwoonNavigationDefinitions.PathChoiceVariantShift;
+        int variant = _room.Random.Next(BotwoonNavigationDefinitions.PathChoice);
         state.PathChoice = variant + hiddenBase + BotwoonNavigationDefinitions.PathVariantsPerHole * state.TargetHoleIndex;
     }
 

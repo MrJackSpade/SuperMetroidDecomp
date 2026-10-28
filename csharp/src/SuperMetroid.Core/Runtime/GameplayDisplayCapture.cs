@@ -25,7 +25,7 @@ public static class GameplayDisplayCapture
         GameplayDisplayLatch latched = frame.Latched;
         GameplayFrameEndDisplayInputs live = frame.FrameEnd;
         LayeredScene basis = latched.ShowsPerspectiveFloor ? CapturePerspectiveFloorBase(frame) : CaptureOrdinaryBase(frame);
-        var layers = new List<RenderLayer>(basis.Layers.ToArray());
+        var layers = new List<DisplayLayer>(basis.Layers.ToArray());
         GameplayRenderSnapshot scrolls = latched.Scrolls;
         bool doorOwnsDisplay = live.DoorTransitionMainScreenLayers is not null;
         if (!doorOwnsDisplay && CaptureXray(frame, basis) is { } xray) return xray;
@@ -42,13 +42,13 @@ public static class GameplayDisplayCapture
             {
                 if (fx.Type == RoomFxType.Spores)
                 {
-                    if (layers[0] is not OrdinaryGameplayRenderLayer ordinary)
+                    if (layers[0] is not GameplaySceneLayer ordinary)
                         throw new NotSupportedException("Spore FX requires an ordinary Mode-1 gameplay base.");
                     layers[0] = GameplayEffectCapture.CaptureSpores(ordinary, fx);
                 }
                 else if (fx.LayerBlendConfiguration == LayerBlendingConfiguration.WaterfallSubtractive)
                 {
-                    if (layers[0] is not OrdinaryGameplayRenderLayer ordinary)
+                    if (layers[0] is not GameplaySceneLayer ordinary)
                         throw new NotSupportedException("Waterfall FX requires an ordinary Mode-1 gameplay base.");
                     layers[0] = GameplayEffectCapture.CaptureWaterfall(ordinary, fx);
                 }
@@ -69,7 +69,7 @@ public static class GameplayDisplayCapture
         return new(basis.Paint, layers.ToArray(), basis.Brightness);
 
         // Append active optional effects without introducing empty render layers.
-        void AddLayer(RenderLayer? layer) { if (layer is not null) layers.Add(layer); }
+        void AddLayer(DisplayLayer? layer) { if (layer is not null) layers.Add(layer); }
     }
 
     /// <summary>
@@ -92,7 +92,7 @@ public static class GameplayDisplayCapture
         Position16<RoomPixels> bg1Scroll = scrolls.Bg1Scroll + shake.Bg1;
         // Draygon (#1354) and Mother Brain (#1356) place their body images with their own BG2 scrolls, which the room's
         // water waves then displace.
-        Position16<Bg2Pixels> bg2Scroll = (bosses.DraygonBody?.Scroll ?? bosses.MotherBrainBody?.Scroll ?? scrolls.Bg2Scroll) + shake.Bg2;
+        Position16<BackgroundPixels> bg2Scroll = (bosses.DraygonBody?.Scroll ?? bosses.MotherBrainBody?.Scroll ?? scrolls.Bg2Scroll) + shake.Bg2;
         if (live.TourianStatuesEnabled)
             // $88:DBCB supplies BG2VOFS through HDMA after the ordinary scroll
             // register upload. It replaces, rather than adds to, the quake-adjusted
@@ -111,11 +111,11 @@ public static class GameplayDisplayCapture
         BossBg2Layer? kraidBody = bosses.KraidBody;
         // Draygon's body shows only on the scanlines around it ($88:DF94), placed against the frame's camera (#1354).
         DraygonBodyScanlines bg2Lines = bosses.DraygonBody?.VisibleLines(scrolls.Layer1Position) ?? new DraygonBodyScanlines(32, 224);
-        Position16<Bg2Pixels>? crocomireBg2Scroll = bosses.CrocomireBg2Scroll;
+        Position16<BackgroundPixels>? crocomireBg2Scroll = bosses.CrocomireBg2Scroll;
         bool verticalStatueMap = scene.FxType == RoomFxType.TourianEntranceStatue;
         ScreenLayers displayedMainScreen = latched.MainScreen;
-        var view = new OrdinaryGameplayView(bg1Scroll,
-            new Position16<Bg2Pixels>(kraidBody is { } kraidX ? Add(kraidX.Scroll.X, shake.Bg2.X)
+        var view = new GameplaySceneView(bg1Scroll,
+            new Position16<BackgroundPixels>(kraidBody is { } kraidX ? Add(kraidX.Scroll.X, shake.Bg2.X)
                 : crocomireBg2Scroll is { } crocomireX ? Add(crocomireX.X, shake.Bg2.X) : bg2Scroll.X,
                 kraidBody is { } kraidY ? Add(kraidY.Scroll.Y, shake.Bg2.Y)
                 : crocomireBg2Scroll is { } crocomireY ? Add(crocomireY.Y, shake.Bg2.Y)
@@ -129,7 +129,7 @@ public static class GameplayDisplayCapture
                     ? ScreenLayers.Foreground | ScreenLayers.Sprites
                     : displayedMainScreen),
             bg2Lines.First, bg2Lines.End,
-            Bg2Mosaic: latched.Phantoon is { } phantoonDisplay ? new BackgroundMosaicSampling(phantoonDisplay.MosaicBlockSize) : default);
+            BackgroundPixelation: latched.Phantoon is { } phantoonDisplay ? new BackgroundPixelation(phantoonDisplay.MosaicBlockSize) : default);
         // Producers can return longer HDMA storage; the renderer consumes only the
         // gameplay region. Own exactly those visible register values in the packet.
         // Phantoon's wave owns the BG2 horizontal scroll while it shows; otherwise lava, water or the sky does.
@@ -138,18 +138,18 @@ public static class GameplayDisplayCapture
             bg2HorizontalScrolls = phantoonWave.GameplayScrolls();
         // A sky room shows the sky's rows on BG2 (#1347); Kraid shows his body there while he owns it (#1352), and a
         // boss that owns the enemy BG2 image shows it through BG2's map size (#1353), each from its pictures (#1403).
-        Extent16<TilemapCells>? bodySize = kraidBody?.Tilemap.Size ?? (bosses.EnemyBg2 is null ? null : view.Bg2MapSize);
+        Extent16<TilemapCells>? bodySize = kraidBody?.Tilemap.Size ?? (bosses.EnemyBg2 is null ? null : view.BackgroundMapSize);
         RoomBackgrounds rooms = (latched.Rooms
             ?? throw new InvalidOperationException("Ordinary gameplay capture has no room backgrounds.")) with
             {
                 BossBg2 = bodySize is { } size ? new BossBodyPictures(size, bosses.BodyPictures) : null,
             };
-        var layer = new OrdinaryGameplayRenderLayer(view, rooms, new Bg2LineScrolls(
+        var layer = new GameplaySceneLayer(view, rooms, new BackgroundLineScrolls(
             VisibleLines(bg2HorizontalScrolls),
             VisibleLines(crocomireBg2Scroll is not null ? live.CrocomireMeltingScrolls : lavaY)),
             live.DoorTransitionMainScreenLayers is null && live.MotherBrainAscentShowing
                 ? MotherBrainAscentDisplay.BuildGameplayLayers() : default);
-        return new(frame.Paint, new RenderLayer[] { layer },
+        return new(frame.Paint, new DisplayLayer[] { layer },
             FadeLevel.Full);
     }
 
@@ -207,15 +207,15 @@ public static class GameplayDisplayCapture
     private static ushort Add(int scroll, int shake) => unchecked((ushort)(scroll + shake));
 
     /// <summary>Normal Fireflea blending ($88:80B0), before and after X-ray owns the window.</summary>
-    private static GameplayColorMathRenderLayer CaptureFirefleaDarkness(RgbColor fixedColor, LayeredScene basis)
+    private static GameplayBlendLayer CaptureFirefleaDarkness(RgbColor fixedColor, LayeredScene basis)
     {
-        if (basis.Layers[0] is not OrdinaryGameplayRenderLayer ordinary)
+        if (basis.Layers[0] is not GameplaySceneLayer ordinary)
             throw new InvalidOperationException("Fireflea darkness requires ordinary Mode-1 gameplay.");
         // The source-aware operation is shared with X-ray, but an empty window means
         // every pixel is eligible. Only the background and the backdrop blend:
         // foreground and Samus must not be tinted by a whole-frame darkening overlay.
         var closed = Enumerable.Repeat(new XrayWindowLine(255, 0), ScreenGeometry.ScreenHeightPixels).ToArray();
-        return new(ordinary, closed, revealBlocks: false, blend: new SceneBlend { Layers = ColorBlend.Bg2 | ColorBlend.Backdrop | ColorBlend.Subtract, BlendsWithSubscreen = false, FixedColor = fixedColor });
+        return new(ordinary, closed, revealBlocks: false, blend: new SceneBlend { Layers = ColorBlend.Bg2 | ColorBlend.Backdrop | ColorBlend.Subtract, BlendsWithLayersBehind = false, FixedColor = fixedColor });
     }
 
     /// <summary>Captures the latched perspective floor and the HUD, adding the layer-2 band below the floor during Ridley's getaway.</summary>
@@ -233,31 +233,31 @@ public static class GameplayDisplayCapture
                 unchecked((short)(perspective.Transform.Scroll.X + shake.Bg1.X)),
                 unchecked((short)(perspective.Transform.Scroll.Y + shake.Bg1.Y))),
         };
-        Mode1FloorBand? floor = perspective.Below == BelowPerspectiveFloor.Layer2
+        TurningRoomLowerBand? floor = perspective.Below == BelowPerspectiveFloor.Layer2
             ? new(GameplayRenderDefinitions.CeresFloorFirstScanline, scrolls.Bg2Scroll + shake.Bg2,
                 new Extent16<TilemapCells>(64, 32),
                 latched.Rooms?.Bg2 ?? throw new InvalidOperationException("Ceres Ridley's room shows its layer-2 plane below the Mode 7 floor."))
             : null;
-        var layer = new GameplayFloorRenderLayer(transform, Bg3(latched), (latched.Rooms?.Floor
+        var layer = new TurningRoomLayer(transform, Bg3(latched), (latched.Rooms?.Floor
                 ?? throw new InvalidOperationException("A Mode 7 gameplay frame shows a Ceres room's Mode 7 map.")), ScreenGeometry.GameplayHudHeightPixels, floor);
-        return new(frame.Paint, new RenderLayer[] { layer }, FadeLevel.Full);
+        return new(frame.Paint, new DisplayLayer[] { layer }, FadeLevel.Full);
     }
 
     /// <summary>Removes BG2 when Phantoon is hidden, or uses it as an additive subscreen when the body is semitransparent.</summary>
-    private static RenderLayer CapturePhantoonBlending(PhantoonDisplaySnapshot phantoon, LayeredScene basis)
+    private static DisplayLayer CapturePhantoonBlending(PhantoonDisplaySnapshot phantoon, LayeredScene basis)
     {
-        var ordinary = (OrdinaryGameplayRenderLayer)basis.Layers[0];
+        var ordinary = (GameplaySceneLayer)basis.Layers[0];
         var mode = phantoon.Configuration;
         if (mode is not (LayerBlendingConfiguration.PhantoonHidden or LayerBlendingConfiguration.PhantoonSemiTransparent))
             return ordinary;
-        var gameplay = new OrdinaryGameplayRenderLayer(ordinary.View with
+        var gameplay = new GameplaySceneLayer(ordinary.View with
         {
             MainScreenLayers = ordinary.View.MainScreenLayers & ~ScreenLayers.Background,
-        }, ordinary.Rooms, ordinary.Bg2LineScrolls);
+        }, ordinary.Rooms, ordinary.BackgroundLineScrolls);
         if (mode == LayerBlendingConfiguration.PhantoonHidden) return gameplay;
         // $88:80D9: TM=$15, TS=$02, CGADSUB=$35. Gameplay HUD is the separate
         // IRQ band; below it BG2 adds to eligible main sources, never occluding BG1.
-        return new GameplayColorMathRenderLayer(gameplay, Enumerable.Repeat(new XrayWindowLine(255, 0), ScreenGeometry.ScreenHeightPixels).ToArray(), false, new SceneBlend { Layers = ColorBlend.Bg1 | ColorBlend.Bg3 | ColorBlend.Sprites | ColorBlend.Backdrop, BlendsWithSubscreen = true, FixedColor = RgbColor.Black }, subscreenUsesBg2: true);
+        return new GameplayBlendLayer(gameplay, Enumerable.Repeat(new XrayWindowLine(255, 0), ScreenGeometry.ScreenHeightPixels).ToArray(), false, new SceneBlend { Layers = ColorBlend.Bg1 | ColorBlend.Bg3 | ColorBlend.Sprites | ColorBlend.Backdrop, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, subscreenUsesBg2: true);
     }
 
     /// <summary>Captures X-ray's layer ownership before priority resolution and color math.</summary>
@@ -267,7 +267,7 @@ public static class GameplayDisplayCapture
         bool finishedThisFrame = xray.FinishedThisFrame;
         if (!xray.SetupStage.ShowsBlendedRoom()) return null;
         bool settingUp = xray.SetupStage != XraySetupStage.Complete;
-        if (basis.Layers[0] is not OrdinaryGameplayRenderLayer ordinary)
+        if (basis.Layers[0] is not GameplaySceneLayer ordinary)
             throw new NotSupportedException("X-ray display requires ordinary gameplay layers.");
         GameplayDisplayLatch latched = frame.Latched;
         GameplayLatchedScene scene = latched.Scene;
@@ -283,8 +283,8 @@ public static class GameplayDisplayCapture
             view = view with
             {
                 // The reveal map is drawn on BG2 at BG1's fine scroll within one 16-pixel block.
-                Bg2Scroll = new Position16<Bg2Pixels>((ushort)(scrolls.Bg1Scroll.X & 15), (ushort)(scrolls.Bg1Scroll.Y & 15)),
-                Bg2MapSize = new Extent16<TilemapCells>(64, 32),
+                BackgroundScroll = new Position16<BackgroundPixels>((ushort)(scrolls.Bg1Scroll.X & 15), (ushort)(scrolls.Bg1Scroll.Y & 15)),
+                BackgroundMapSize = new Extent16<TilemapCells>(64, 32),
             };
         }
         view = view with
@@ -297,8 +297,8 @@ public static class GameplayDisplayCapture
         // rooms retain their original map and per-line register values.
         // The reveal is BG2, drawn from block pictures (#1392), so the room's layer-2 plane is not shown under it.
         var gameplay = shownReveal is not null
-            ? new OrdinaryGameplayRenderLayer(view, ordinary.Rooms with { Bg2 = null, Sky = null, XrayReveal = shownReveal })
-            : new OrdinaryGameplayRenderLayer(view, ordinary.Rooms, ordinary.Bg2LineScrolls);
+            ? new GameplaySceneLayer(view, ordinary.Rooms with { Bg2 = null, Sky = null, XrayReveal = shownReveal })
+            : new GameplaySceneLayer(view, ordinary.Rooms, ordinary.BackgroundLineScrolls);
         var sub = mode != XrayRoomBlendMode.Fireflea && latched.RoomLayer3Fx is { } fx
             ? GameplayEffectCapture.CaptureRoomLayer3Fx(fx, ordinary.Rooms.ShownBg3) : null;
         if (mode != XrayRoomBlendMode.Fireflea && sub is null)
@@ -306,12 +306,12 @@ public static class GameplayDisplayCapture
             // Clear_FX_Tilemap leaves an opaque BG3 plane even without a visible FX
             // actor. Room initialization supplies zero scroll and the 32x64 BG3 map;
             // capture its real pixels rather than substituting transparent backdrop.
-            sub = new FxPlaneBlendRenderLayer(
+            sub = new OverlayBlendLayer(
                 ordinary.Rooms.ShownBg3, 0,
                 Layer3Plane.Rows,
                 ScreenGeometry.GameplayHudHeightPixels,
-                ExpandedColorMathOperation.Add,
-                new Position16<BgPlanePixels>[ScreenGeometry.ScreenHeightPixels]);
+                BlendOperation.Add,
+                new Position16<TilePlanePixels>[ScreenGeometry.ScreenHeightPixels]);
         }
         // The arithmetic sign belongs to the room's blend configuration, even when
         // its liquid plane is currently offscreen/disabled and supplies no pixels.
@@ -335,7 +335,7 @@ public static class GameplayDisplayCapture
         bool closed = settingUp || restoring || xray.BeamPhase == XrayBeamPhase.NoBeam;
         var lines = closed ? Enumerable.Repeat(new XrayWindowLine(255, 0), ScreenGeometry.ScreenHeightPixels).ToArray()
             : GameplayEffectCapture.CaptureXrayWindowLines(xray, scrolls.Layer1Position);
-        var layer = new GameplayColorMathRenderLayer(gameplay, lines, reveal, new SceneBlend { Layers = control, BlendsWithSubscreen = mode != XrayRoomBlendMode.Fireflea, FixedColor = new RgbColor(red, green, blue) }, sub);
-        return new(paint, new RenderLayer[] { layer }, basis.Brightness);
+        var layer = new GameplayBlendLayer(gameplay, lines, reveal, new SceneBlend { Layers = control, BlendsWithLayersBehind = mode != XrayRoomBlendMode.Fireflea, FixedColor = new RgbColor(red, green, blue) }, sub);
+        return new(paint, new DisplayLayer[] { layer }, basis.Brightness);
     }
 }

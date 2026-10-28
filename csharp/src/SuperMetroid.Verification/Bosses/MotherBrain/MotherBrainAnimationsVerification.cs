@@ -128,7 +128,7 @@ internal static class MotherBrainAnimationsVerification
     private static void VerifyBodyMoves()
     {
         (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
-        var scrolls = new List<Position16<Bg2Pixels>>();
+        var scrolls = new List<Position16<BackgroundPixels>>();
         state.Body.Position = FixedPosition<RoomPixels>.FromWhole(new(64, 112));
         Position16<RoomPixels> origin = state.Body.Position.Whole;
         void Run(MotherBrainBodyProgram program)

@@ -42,10 +42,10 @@ internal static class NorfairGlowCaptureTests
             foreach (int index in NorfairGlowFixture.ColorIndices)
                 colors[index] = scene.Paint.Colors[index];
             var memory = new FramePaint(colors, original.Paint.SpriteDraws);
-            var originalLayer = (OrdinaryGameplayRenderLayer)original.Layers[0];
+            var originalLayer = (GameplaySceneLayer)original.Layers[0];
             var registers = originalLayer.View;
             var foreground = new LayeredScene(memory,
-                [new OrdinaryGameplayRenderLayer(registers with { MainScreenLayers = ScreenLayers.Foreground }, originalLayer.Rooms)], original.Brightness);
+                [new GameplaySceneLayer(registers with { MainScreenLayers = ScreenLayers.Foreground }, originalLayer.Rooms)], original.Brightness);
             var isolated = new DisplayPacket(new(tick + 1, 2, (ushort)tick), foreground);
             var pixels = DisplayRendering.Render(isolated);
             PixelComparison.Verify(isolated, pixels, renderer.RenderForReadback(isolated),

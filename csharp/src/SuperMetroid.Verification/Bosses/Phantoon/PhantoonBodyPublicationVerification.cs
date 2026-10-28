@@ -45,7 +45,7 @@ internal static class PhantoonBodyPublicationVerification
             write.Words.CopyTo(expected.AsSpan(write.FirstCell));
 
         // Wavy fade-in: the intro wave set up and built once.
-        state.Bg2Scroll = new Position16<Bg2Pixels>(40, 0);
+        state.Bg2Scroll = new Position16<BackgroundPixels>(40, 0);
         state.Parts[state.Mouth.SlotIndex].WaveAmplitude = 3072;
         state.Parts[state.Mouth.SlotIndex].WavyPhaseDelta = 8;
         state.Wave.Begin(PhantoonWaveDefinitions.IntroMode);
@@ -59,7 +59,7 @@ internal static class PhantoonBodyPublicationVerification
         EnemyBg2ImageSnapshot image = runtime.Display.Latched.Bosses.EnemyBg2
             ?? throw new InvalidOperationException("Phantoon publishes his enemy BG2 image.");
         AssertTrue(image.Words.AsSpan().SequenceEqual(expected), "the published image holds the drawn body frame over the cleared image");
-        var drawn = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
+        var drawn = (GameplaySceneLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), "the capture draws the body image on BG2");
 
         // Swooping fade-out: the wave channel is deleted, the body stays.

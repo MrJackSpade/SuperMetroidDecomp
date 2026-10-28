@@ -30,7 +30,7 @@ internal static class EndingDmaVerification
         for (int call = 0; call <= EndingSequenceDefinitions.SetupFrameWaits; call++)
             ending.Step();
         AssertEqual(EndingCreditsPhase.WaitForEscapeMusic, ending.Stage.Phase, "ending setup completes after its NMI waits");
-        var projection = EndingCreditsPresentation.CaptureRenderSnapshot(ending).LayersOf<SuperMetroid.Core.Rendering.FloorRenderLayer>().Single().Transform;
+        var projection = EndingCreditsPresentation.CaptureRenderSnapshot(ending).LayersOf<SuperMetroid.Core.Rendering.TurningFloorLayer>().Single().Transform;
         AssertEqual((short)0, projection.Scroll.X, "native atmospheric scroll X");
         AssertEqual((short)0, projection.Scroll.Y, "native atmospheric scroll Y");
         AssertEqual(45, projection.MatrixA, "native initial angle 32, scale 64 cosine");

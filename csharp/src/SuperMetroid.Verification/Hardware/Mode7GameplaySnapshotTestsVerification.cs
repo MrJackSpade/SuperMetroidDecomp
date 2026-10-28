@@ -33,13 +33,13 @@ internal static class Mode7GameplaySnapshotTestsVerification
         {
             // The floor band below shows the room's layer-2 plane (#1403); the retail Ridley capture below draws it.
             var m = new AffineTransform(matrix, 17, -33, matrix, new Offset16<FloorPixels>(128, 96), new Offset16<FloorPixels>(-13, unchecked((short)scroll)));
-            var layer = new GameplayFloorRenderLayer(m, Layer3CellsFixtures.FromVram(fixtureVram.Bytes, ToColors(palette)), AffineFloorFixtures.Floor(fixtureVram.Bytes, ToColors(palette)), ScreenGeometry.GameplayHudHeightPixels);
-            var packet = new DisplayPacket(new(++samples, 1, 0), new LayeredScene(memory, new RenderLayer[] { layer }, 15));
-            AssertEqual(layer, (GameplayFloorRenderLayer)(packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")).Layers[0], "the Mode-7 band layer keeps all register fields");
+            var layer = new TurningRoomLayer(m, Layer3CellsFixtures.FromVram(fixtureVram.Bytes, ToColors(palette)), AffineFloorFixtures.Floor(fixtureVram.Bytes, ToColors(palette)), ScreenGeometry.GameplayHudHeightPixels);
+            var packet = new DisplayPacket(new(++samples, 1, 0), new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
+            AssertEqual(layer, (TurningRoomLayer)(packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")).Layers[0], "the Mode-7 band layer keeps all register fields");
             if (samples == 1)
             {
                 AssertThrows<ArgumentException>(() => new LayeredScene(memory,
-                    new RenderLayer[] { new SpriteRenderLayer(), layer }, 15), "Mode-7 base cannot erase earlier layers");
+                    new DisplayLayer[] { new SpritesLayer(), layer }, 15), "Mode-7 base cannot erase earlier layers");
             }
         }
         // Retail room assets with explicitly constructed getaway registers exercise
@@ -64,9 +64,9 @@ internal static class Mode7GameplaySnapshotTestsVerification
         runtime.Vram.LoadBytes(0, new byte[SnesVram.ByteCount]);
         for (int i = 0; i < SnesCgram.ColorCount; i++) runtime.Colours.AsPaletteColors().SetColor(i, new RgbColor(0, 0, 0));
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "Ridley packet survives mode exit and live memory replacement");
-        AssertThrows<ArgumentOutOfRangeException>(() => new GameplayFloorRenderLayer(default, RoomBackgroundsFixtures.BlankBg3(), RoomBackgroundsFixtures.BlankMode7Floor(), 31), "HUD must cover complete tile rows");
-        AssertThrows<ArgumentOutOfRangeException>(() => new GameplayFloorRenderLayer(default, RoomBackgroundsFixtures.BlankBg3(), RoomBackgroundsFixtures.BlankMode7Floor(), 32,
-            new Mode1FloorBand(31, new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32), RoomBackgroundsFixtures.Blank().Bg1)),
+        AssertThrows<ArgumentOutOfRangeException>(() => new TurningRoomLayer(default, RoomBackgroundsFixtures.BlankBg3(), RoomBackgroundsFixtures.BlankMode7Floor(), 31), "HUD must cover complete tile rows");
+        AssertThrows<ArgumentOutOfRangeException>(() => new TurningRoomLayer(default, RoomBackgroundsFixtures.BlankBg3(), RoomBackgroundsFixtures.BlankMode7Floor(), 32,
+            new TurningRoomLowerBand(31, new Position16<BackgroundPixels>(0, 0), new Extent16<TilemapCells>(64, 32), RoomBackgroundsFixtures.Blank().Bg1)),
             "floor cannot overlap HUD");
         Console.WriteLine($"  Mode-7 gameplay snapshots: {samples} matrix/scroll layers keep their registers; the Ridley packet is retained.");
     }

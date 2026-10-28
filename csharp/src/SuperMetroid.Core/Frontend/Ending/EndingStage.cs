@@ -48,7 +48,7 @@ internal sealed class EndingStage
     internal RotationAngle FloorAngle { get; set; }
 
     /// <summary>Scroll of the post-credits text map; only the vertical axis moves, during the item-percentage scroll-down.</summary>
-    internal Position16<BgPlanePixels> PostCreditsScroll { get; set; }
+    internal Position16<TilePlanePixels> PostCreditsScroll { get; set; }
 
     /// <summary>Reloadable object character art for clouds, explosion and reward actors.</summary>
     [field: NonSerialized] internal EndingObjectArtwork? ObjectArtwork { get; set; }

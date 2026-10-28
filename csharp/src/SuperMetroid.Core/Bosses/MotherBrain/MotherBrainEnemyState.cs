@@ -196,7 +196,7 @@ public sealed class MotherBrainEnemyState
     /// updated oppositely to physical body Y movement, keeping the large background-rendered
     /// body attached.
     /// </summary>
-    public Position16<Bg2Pixels> Bg2Scroll { get; internal set; }
+    public Position16<BackgroundPixels> Bg2Scroll { get; internal set; }
     /// <summary>Whether body AI has published encounter-owned BG2 scroll values for the runtime to apply instead of ordinary room scrolling.</summary>
     public bool HasBg2ScrollOverride { get; internal set; }
     /// <summary>ADF41C's main-screen BG2 flicker, separate from the OAM invisibility bit.</summary>

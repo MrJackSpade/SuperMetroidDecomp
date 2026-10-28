@@ -51,15 +51,15 @@ internal static class XrayNoFxDarkeningVerification
         foreach (int index in samples)
             AssertEqual(Channels(unblended[index], channel => channel / 2), pixels[index],
                 "opaque black BG3 halves outside-beam foreground instead of brightening");
-        var math = (GameplayColorMathRenderLayer)snapshot.Layers[0];
-        AssertTrue(math.Subscreen is not null, "no-FX X-ray retains the actual BG3 plane");
+        var math = (GameplayBlendLayer)snapshot.Layers[0];
+        AssertTrue(math.BlendPlane is not null, "no-FX X-ray retains the actual BG3 plane");
         // Clear_FX_Tilemap leaves the effect area of a room without FX in the cleared cell, which the subscreen shows.
         Layer3Plane layer3 = runtime.AcceptedLayer3Plane;
         AssertTrue(layer3.Tiles[(Layer3Plane.HudRows * Layer3Plane.Columns)..].ToArray().All(cell => cell == Layer3Plane.ClearedCell),
             "capture retains the cleared BG3 effect area");
         // Where the subscreen shows nothing, colour math takes the fixed colour without halving: the blend with its BG3
         // operand removed is the transparent case.
-        LayeredScene transparentScene = Replace(snapshot, new GameplayColorMathRenderLayer(math.Gameplay, math.Lines, math.RevealBlocks, math.Blend));
+        LayeredScene transparentScene = Replace(snapshot, new GameplayBlendLayer(math.Gameplay, math.Lines, math.RevealBlocks, math.Blend));
         RgbaPixel[] transparent = DisplayRendering.Render(transparentScene);
         foreach (int index in samples)
             AssertEqual(Channels(unblended[index], channel => Math.Min(MaximumChannel, channel + FixedColorChannel)), transparent[index],
@@ -68,8 +68,8 @@ internal static class XrayNoFxDarkeningVerification
         // The X-ray blending branch the FX selects reaches the PPU at the accepted NMI (#1307).
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var fireflea = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
-        var firefleaMath = (GameplayColorMathRenderLayer)fireflea.Layers[0];
-        AssertTrue(!firefleaMath.Blend.BlendsWithSubscreen && firefleaMath.Subscreen is null,
+        var firefleaMath = (GameplayBlendLayer)fireflea.Layers[0];
+        AssertTrue(!firefleaMath.Blend.BlendsWithLayersBehind && firefleaMath.BlendPlane is null,
             "Fireflea retains fixed-color subtraction without a BG3 operand");
         RgbaPixel[] darkPixels = DisplayRendering.Render(fireflea);
         RgbaPixel[] firefleaMain = Unblended(fireflea);
@@ -87,12 +87,12 @@ internal static class XrayNoFxDarkeningVerification
 
     /// <summary>The frame as its main screen shows before colour math: the scene with its blend layer's gameplay planes.</summary>
     private static RgbaPixel[] Unblended(LayeredScene scene) =>
-        DisplayRendering.Render(Replace(scene, ((GameplayColorMathRenderLayer)scene.Layers[0]).Gameplay));
+        DisplayRendering.Render(Replace(scene, ((GameplayBlendLayer)scene.Layers[0]).Gameplay));
 
     /// <summary><paramref name="scene"/> with its first layer, the gameplay blend, replaced by <paramref name="first"/>.</summary>
-    private static LayeredScene Replace(LayeredScene scene, RenderLayer first)
+    private static LayeredScene Replace(LayeredScene scene, DisplayLayer first)
     {
-        RenderLayer[] layers = scene.Layers.ToArray();
+        DisplayLayer[] layers = scene.Layers.ToArray();
         layers[0] = first;
         return new LayeredScene(scene.Paint, layers, scene.Brightness);
     }

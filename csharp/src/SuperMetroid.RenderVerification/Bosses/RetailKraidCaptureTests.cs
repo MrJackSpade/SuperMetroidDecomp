@@ -150,7 +150,7 @@ internal static class RetailKraidCaptureTests
     private static void RequireBlankBg2(SuperMetroidRuntime runtime, string context)
     {
         LayeredScene scene = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
-        var gameplay = (OrdinaryGameplayRenderLayer)scene.Layers[0];
+        var gameplay = (GameplaySceneLayer)scene.Layers[0];
         if (gameplay.Rooms.BossBg2 is null)
             throw new InvalidOperationException($"{context}: BG2 shows the room's own background where Kraid's tilemap was expected.");
         var shown = new SortedSet<ushort>(runtime.Display.Latched.Bosses.KraidBody?.Tilemap.Words

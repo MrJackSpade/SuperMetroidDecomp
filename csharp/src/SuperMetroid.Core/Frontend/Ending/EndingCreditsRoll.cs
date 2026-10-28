@@ -151,7 +151,7 @@ internal sealed class EndingCreditsRoll
         _stage.LoadStaticPalette(EndingPaletteId.PostCredits, screen.Palette.SpriteRow(EndingColourRowDefinitions.ShootingSpriteRow));
         PostCreditsTextTilemap = EndingTextTilemap.FinalText;
         PostCreditsMapHeight = EndingPostShotDefinitions.FinalTextMapHeight;
-        _stage.PostCreditsScroll = Position16<BgPlanePixels>.Zero;
+        _stage.PostCreditsScroll = Position16<TilePlanePixels>.Zero;
         Array.Fill(postCreditsTilemap, EndingScreenDefinitions.BlankTile,
             EndingPostShotDefinitions.ClearedCopyrightStart, EndingPostShotDefinitions.ClearedCopyrightWords);
         UploadPostCreditsTilemap();

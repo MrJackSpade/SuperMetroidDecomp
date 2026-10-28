@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rendering;
 
 /// <summary>A gameplay room shown as a turning floor: the floor viewport, the opaque HUD, and an optional bottom band of layer two and sprites.</summary>
 /// <remarks>Scanline boundaries are physical screen coordinates; the transform never restarts at the band origin.</remarks>
-public sealed record GameplayFloorRenderLayer : RenderLayer
+public sealed record TurningRoomLayer : DisplayLayer
 {
     /// <summary>Gets the floor's transform; sampling uses physical screen coordinates even below the HUD band.</summary>
     public AffineTransform Transform { get; }
@@ -16,7 +16,7 @@ public sealed record GameplayFloorRenderLayer : RenderLayer
     /// <summary>Gets the number of top-of-screen scanlines occupied by the opaque HUD, 0..224 in multiples of eight; zero disables the HUD band.</summary>
     public int HudScanlines { get; }
     /// <summary>Gets the optional bottom Mode-1 BG2/OBJ band; null lets Mode 7 and OBJ continue to the bottom of the viewport.</summary>
-    public Mode1FloorBand? Floor { get; }
+    public TurningRoomLowerBand? Floor { get; }
 
     /// <summary>Creates an immutable full-screen composition description with explicit HUD, Mode 7, and optional Mode-1 floor boundaries.</summary>
     /// <param name="transform">The floor's transform.</param>
@@ -25,8 +25,8 @@ public sealed record GameplayFloorRenderLayer : RenderLayer
     /// <param name="hudScanlines">Top HUD height, from zero through 224 physical scanlines and divisible by eight.</param>
     /// <param name="floor">Optional value-copied lower band; its first scanline must follow the HUD and be below 224, with each map dimension either 32 or 64 tiles.</param>
     /// <exception cref="ArgumentOutOfRangeException">The HUD height or supplied floor boundary/map dimensions are invalid.</exception>
-    public GameplayFloorRenderLayer(AffineTransform transform, Layer3Cells hud, AffineFloor map,
-        int hudScanlines, Mode1FloorBand? floor = null)
+    public TurningRoomLayer(AffineTransform transform, Layer3Cells hud, AffineFloor map,
+        int hudScanlines, TurningRoomLowerBand? floor = null)
     {
         if (hudScanlines < 0 || hudScanlines > ScreenGeometry.ScreenHeightPixels ||
             hudScanlines % ScreenGeometry.BackgroundTileSizePixels != 0)

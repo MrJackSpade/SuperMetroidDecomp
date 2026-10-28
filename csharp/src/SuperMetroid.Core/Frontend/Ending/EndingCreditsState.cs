@@ -413,7 +413,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 // Function 148 moves BG1 down two pixels per call from zero through -80.
                 // The software renderer applies the equivalent scroll while preserving the
                 // already-built tilemap until the final object is spawned.
-                Stage.PostCreditsScroll -= new Offset16<BgPlanePixels>(0, 2);
+                Stage.PostCreditsScroll -= new Offset16<TilePlanePixels>(0, 2);
                 if (--Stage.PhaseTimer <= 0)
                 {
                     InstalledArtwork.StartPostCreditsText(new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = postCreditsTilemap, Inventory = inventory, JapaneseText = japaneseText, DestinationTilemap = CreditsRoll.PostCreditsTextTilemap, Presentation = InstalledArtwork.EndingText, InstalledSequence = InstalledArtwork.EndingText is null ? null : EndingTextSequence.FinalMessage }));
@@ -475,7 +475,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
         && EndingCreditsPhaseGroups.BeforePlanetEscape.Contains(Stage.Phase);
 
     /// <summary>What <paramref name="layer"/> shows reading <paramref name="depth"/> characters: their pre-coloured tiles (#1392).</summary>
-    internal ScreenLayerPictures LayerTiles(EndingTileLayer layer, BgBitDepth depth) => screen.Tiles(InstalledArtwork.Sheets, layer, depth);
+    internal ScreenLayerPictures LayerTiles(EndingTileLayer layer, TileInkDepth depth) => screen.Tiles(InstalledArtwork.Sheets, layer, depth);
 
     /// <summary>The floor's cells: what the floor scene, flyaway and reward uploads lay out.</summary>
     internal byte[] FloorCells() => screen.FloorCells(Stage.FloorArtwork, Flyaway.FlightArtwork);
@@ -490,24 +490,24 @@ internal sealed class EndingCreditsState : IFrontendScreen
         // F2FA: TM=BG1|BG2, TS=BG2|OBJ, CGADSUB=$33. Resolve the two
         // main backgrounds by priority, then add the single winning subscreen pixel.
         // OBJ is not independently drawn on main, which would punch holes in the glow.
-        RenderLayer[] layers =
+        DisplayLayer[] layers =
         [
-            Plane(EndingExplosionDisplayDefinitions.FinaleSubMap, BgTilePriority.Low),
-            Plane(EndingExplosionDisplayDefinitions.FinaleMainMap, BgTilePriority.Low),
-            Plane(EndingExplosionDisplayDefinitions.FinaleSubMap, BgTilePriority.High),
-            Plane(EndingExplosionDisplayDefinitions.FinaleMainMap, BgTilePriority.High),
-            new TileAddRenderLayer(ExplosionCells(EndingExplosionDisplayDefinitions.FinaleSubMap), IncludeObjects: true,
+            Plane(EndingExplosionDisplayDefinitions.FinaleSubMap, TileDepth.Back),
+            Plane(EndingExplosionDisplayDefinitions.FinaleMainMap, TileDepth.Back),
+            Plane(EndingExplosionDisplayDefinitions.FinaleSubMap, TileDepth.Front),
+            Plane(EndingExplosionDisplayDefinitions.FinaleMainMap, TileDepth.Front),
+            new AddedScreenTilesLayer(ExplosionCells(EndingExplosionDisplayDefinitions.FinaleSubMap), IncludeObjects: true,
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];
         return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers, checked((byte)Stage.Brightness));
 
-        TileRenderLayer Plane(EndingObjectFragmentId map, BgTilePriority priority) => new(ExplosionCells(map),
-            new Position16<BgPlanePixels>(0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow), priority == BgTilePriority.High);
+        ScreenTilesLayer Plane(EndingObjectFragmentId map, TileDepth priority) => new(ExplosionCells(map),
+            new Position16<TilePlanePixels>(0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow), priority == TileDepth.Front);
     }
 
     /// <summary>The cells of the explosion's one-screen <paramref name="map"/>, showing its characters' pre-coloured tiles (#1392).</summary>
     private ScreenTileMap ExplosionCells(EndingObjectFragmentId map) =>
-        ScreenTileMap.Of(screen.ExplosionPlane(map, Stage.ObjectArtwork), TileViewportRenderLayer.MapSize, LayerTiles(EndingTileLayer.Explosion, BgBitDepth.FourBpp));
+        ScreenTileMap.Of(screen.ExplosionPlane(map, Stage.ObjectArtwork), ScreenTilesViewportLayer.MapSize, LayerTiles(EndingTileLayer.Explosion, TileInkDepth.SixteenColours));
 
     /// <summary>
     /// The cells of the <paramref name="size"/> map <paramref name="plane"/> shows (#1404), showing <paramref name="layer"/>'s
@@ -515,7 +515,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// below its upper one.
     /// </summary>
     /// <exception cref="ArgumentException">A plane other than the text plane is asked for two screens.</exception>
-    internal ScreenTileMap Cells(EndingPlane plane, Extent16<TilemapCells> size, EndingTileLayer layer, BgBitDepth depth)
+    internal ScreenTileMap Cells(EndingPlane plane, Extent16<TilemapCells> size, EndingTileLayer layer, TileInkDepth depth)
     {
         ReadOnlySpan<BackgroundTile> upper = screen.Plane(plane, Stage.ObjectArtwork);
         if (size.Y <= EndingScreenDefinitions.TilemapHeight)
@@ -531,14 +531,14 @@ internal sealed class EndingCreditsState : IFrontendScreen
     {
         // F2B7: BG1 and OBJ on main, BG2 on sub, math only for BG1 and
         // eligible OBJ palettes. Keep the backdrop and OBJ palettes 0–3 unmodified.
-        var main = new TileRenderLayer(ExplosionCells(EndingExplosionDisplayDefinitions.InitialMap),
-            new Position16<BgPlanePixels>(0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow), null);
-        RenderLayer[] layers =
+        var main = new ScreenTilesLayer(ExplosionCells(EndingExplosionDisplayDefinitions.InitialMap),
+            new Position16<TilePlanePixels>(0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow), null);
+        DisplayLayer[] layers =
         [
-            new SpritePriorityRenderLayer(0), new SpritePriorityRenderLayer(1),
-            main with { Priority = false }, new SpritePriorityRenderLayer(2),
-            main with { Priority = true }, new SpritePriorityRenderLayer(3),
-            new TileAddRenderLayer(ExplosionCells(EndingExplosionDisplayDefinitions.BurstSubMap), main, MainObjects: true,
+            new SpriteDepthLayer(0), new SpriteDepthLayer(1),
+            main with { Priority = false }, new SpriteDepthLayer(2),
+            main with { Priority = true }, new SpriteDepthLayer(3),
+            new AddedScreenTilesLayer(ExplosionCells(EndingExplosionDisplayDefinitions.BurstSubMap), main, MainObjects: true,
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];
         return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers, checked((byte)Stage.Brightness));

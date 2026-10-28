@@ -112,7 +112,7 @@ public sealed class KraidEnemyState
     public bool OwnsBg2Tilemap { get; internal set; }
 
     /// <summary>Live BG2HOFS/BG2VOFS calculated by Kraid main AI from the camera and body position.</summary>
-    public Position16<Bg2Pixels> Bg2Scroll { get; internal set; }
+    public Position16<BackgroundPixels> Bg2Scroll { get; internal set; }
 
     /// <summary>Number of `$A7:C995` rock/quake spawn requests made by retail cadence.</summary>
     public int RiseRockSpawnRequestCount { get; internal set; }

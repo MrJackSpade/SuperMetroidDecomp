@@ -57,13 +57,13 @@ internal static class PowerBombRuntimeIntegrationVerification
         runtime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
 
         GameplayRenderSnapshot ppu = runtime.Display.DisplayedGameplayScrolls;
-        ScanlineColorAddRenderLayer expected = GameplayEffectCapture.CapturePowerBombColorMath(
+        ColourAddBandsLayer expected = GameplayEffectCapture.CapturePowerBombColorMath(
                 PowerBombRenderSnapshot.Capture(explosion), ppu.Layer1Position)
             ?? throw new InvalidOperationException("The active Power Bomb captured no window.");
         AssertTrue(expected.Windows.ToArray().Any(window => window != ColorAddWindow.Empty),
             "Power Bomb fixture produces a visible first-flash window");
         LayeredScene published = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
-        ScanlineColorAddRenderLayer window = published.LayersOf<ScanlineColorAddRenderLayer>().Single();
+        ColourAddBandsLayer window = published.LayersOf<ColourAddBandsLayer>().Single();
         AssertTrue(window.Windows.SequenceEqual(expected.Windows),
             "the published gameplay frame carries the bank-$88 Power Bomb window");
         RgbaPixel[] actual = FrontendScenePixelsAccess.Pixels(published);

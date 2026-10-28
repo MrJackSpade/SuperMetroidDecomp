@@ -11,7 +11,7 @@ public readonly record struct SceneBlend
     public required ColorBlend Layers { get; init; }
 
     /// <summary>Whether the layers blend with the winning layer behind them rather than with <see cref="FixedColor"/>.</summary>
-    public required bool BlendsWithSubscreen { get; init; }
+    public required bool BlendsWithLayersBehind { get; init; }
 
     /// <summary>The fixed colour the layers blend with, and the fallback where nothing shows behind them.</summary>
     public required RgbColor FixedColor { get; init; }

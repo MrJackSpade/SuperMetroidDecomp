@@ -46,7 +46,7 @@ internal static class RoomFxTextureDriftVerification
             for (int frame = 0; frame < 200; frame++)
             {
                 rain.Step(new ArtworkFrameSelections(), Frame());
-                AssertEqual(new Position16<Bg3Pixels>(WholePixels(expectedX), WholePixels(expectedY)), rain.Scroll,
+                AssertEqual(new Position16<OverlayPixels>(WholePixels(expectedX), WholePixels(expectedY)), rain.Scroll,
                     $"rain wind {selection} frame {frame}");
                 expectedX = unchecked((ushort)(expectedX + AtmosphereDrift.RainHorizontalVelocity(selection)));
                 expectedY = unchecked((ushort)(expectedY - AtmosphereDriftDefinitions.RainVerticalVelocity));

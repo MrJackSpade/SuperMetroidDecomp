@@ -22,7 +22,7 @@ internal static class ObjectSmokeTests
         random.NextBytes(oam);
         RgbColor[] palette = Enumerable.Range(0, SnesCgram.ColorCount)
             .Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
-        ScreenTileMap cells = VramTileFixtures.Cells(vram, palette, 0x4000, 0x6000, BgBitDepth.FourBpp, new Extent16<TilemapCells>(32, 32));
+        ScreenTileMap cells = VramTileFixtures.Cells(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(32, 32));
         int cases = 0;
         for (int size = 0; size < 8; size++)
         foreach (int count in new[] { 0, 1, 37, 128 })
@@ -30,13 +30,13 @@ internal static class ObjectSmokeTests
         {
             byte obsel = (byte)((size << 5) | selection);
             var memory = FramePaint.FromOam(vram, palette, oam, count, obsel);
-            Check(memory, obsel, new RenderLayer[] { new SpriteRenderLayer() });
-            Check(memory, obsel, new RenderLayer[] {
-                new SpritePriorityRenderLayer(0),
-                new TileRenderLayer(cells, new Position16<BgPlanePixels>(3, 11), false),
-                new SpritePriorityRenderLayer(1), new SpritePriorityRenderLayer(2),
-                new TileRenderLayer(cells, new Position16<BgPlanePixels>(3, 11), true),
-                new SpritePriorityRenderLayer(3) });
+            Check(memory, obsel, new DisplayLayer[] { new SpritesLayer() });
+            Check(memory, obsel, new DisplayLayer[] {
+                new SpriteDepthLayer(0),
+                new ScreenTilesLayer(cells, new Position16<TilePlanePixels>(3, 11), false),
+                new SpriteDepthLayer(1), new SpriteDepthLayer(2),
+                new ScreenTilesLayer(cells, new Position16<TilePlanePixels>(3, 11), true),
+                new SpriteDepthLayer(3) });
         }
         // Earlier OAM wins even when the later entry has greater display priority.
         // A transparent hole in the winner must still expose that later entry.
@@ -47,12 +47,12 @@ internal static class ObjectSmokeTests
         for (int row = 0; row < 8; row++) vram[32 + row * 2] = 0xff;
         oam[6] = 1; oam[7] = 0x32;
         var overlap = FramePaint.FromOam(vram, palette, oam, 2, 0);
-        Check(overlap, 0, new RenderLayer[] { new SpriteRenderLayer() });
+        Check(overlap, 0, new DisplayLayer[] { new SpritesLayer() });
         for (byte priority = 0; priority < 4; priority++)
-            Check(overlap, 0, new RenderLayer[] { new SpritePriorityRenderLayer(priority) });
+            Check(overlap, 0, new DisplayLayer[] { new SpriteDepthLayer(priority) });
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {cases} exact OBJ comparisons passed.");
 
-        void Check(FramePaint memory, byte obsel, RenderLayer[] layers)
+        void Check(FramePaint memory, byte obsel, DisplayLayer[] layers)
         {
             var frame = new DisplayPacket(new(++cases, 1, 0),
                 new LayeredScene(memory, layers, 15));

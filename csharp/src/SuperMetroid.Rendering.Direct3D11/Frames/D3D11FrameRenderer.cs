@@ -153,9 +153,9 @@ public sealed class D3D11FrameRenderer : IDisposable
         if (packet.Layers is { } layers) { DrawLayers(packet, layers); return; }
         if (packet.Floor is { } mode7)
         {
-            var operations = new List<RenderLayer>();
-            if (mode7.Background is { } background && mode7.Floor is { } shownFloor) operations.Add(new FloorRenderLayer(background, shownFloor));
-            operations.Add(new SpriteRenderLayer());
+            var operations = new List<DisplayLayer>();
+            if (mode7.Background is { } background && mode7.Floor is { } shownFloor) operations.Add(new TurningFloorLayer(background, shownFloor));
+            operations.Add(new SpritesLayer());
             DrawLayers(packet, new LayeredScene(mode7.Paint,
                 operations.ToArray(), mode7.Brightness), mode7.Gradient);
             return;
@@ -220,10 +220,10 @@ public sealed class D3D11FrameRenderer : IDisposable
             : throw new InvalidOperationException("A frame's layers show two different layer-3 planes.");
 
     /// <summary>Adds or subtracts the room effect's layer-3 rows, each line at its own scroll.</summary>
-    private unsafe void DispatchBackgroundMath(FxPlaneBlendRenderLayer layer)
+    private unsafe void DispatchBackgroundMath(OverlayBlendLayer layer)
     {
         var data = ClearUploadConstants();
-        data[0] = (uint)(layer.Operation == ExpandedColorMathOperation.Add
+        data[0] = (uint)(layer.Operation == Core.Rendering.BlendOperation.Add
             ? D3D11TileOperation.AddLayer : D3D11TileOperation.SubtractLayer);
         // The plane's rows shown: the first in the layer word, how many in the map height (#1348).
         data[1] = (uint)layer.FirstRow;
@@ -241,7 +241,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>Uploads each scanline's color window edges and fixed RGB channels.</summary>
-    private unsafe void DispatchColorWindows(ScanlineColorAddRenderLayer layer)
+    private unsafe void DispatchColorWindows(ColourAddBandsLayer layer)
     {
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.LineColourAdd;
@@ -292,28 +292,28 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// Composes a room under the X-ray: its layers in their order, the reveal's window, the layers each line shows, and
     /// the blend with the fixed colour or the layers behind.
     /// </summary>
-    private unsafe void DispatchXrayRoom(GameplayColorMathRenderLayer layer)
+    private unsafe void DispatchXrayRoom(GameplayBlendLayer layer)
     {
         var r = layer.Gameplay.View;
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.XrayRoom;
         // Xray.hlsli reads layer 1's scroll, layer 2's map size and the blend from the layer header words.
-        data[3] = r.Bg1Scroll.X;
-        data[4] = unchecked((ushort)(r.Bg1Scroll.Y + D3D11Screen.LayerLineOffset));
-        data[5] = r.Bg2MapSize.X; data[6] = r.Bg2MapSize.Y;
+        data[3] = r.ForegroundScroll.X;
+        data[4] = unchecked((ushort)(r.ForegroundScroll.Y + D3D11Screen.LayerLineOffset));
+        data[5] = r.BackgroundMapSize.X; data[6] = r.BackgroundMapSize.Y;
         data[7] = (uint)r.MainScreenLayers; data[8] = layer.RevealBlocks ? 1u : 0u;
         data[9] = (uint)layer.Blend.Layers;
         data[10] = (uint)layer.Blend.FixedColor.Red; data[11] = (uint)layer.Blend.FixedColor.Green; data[12] = (uint)layer.Blend.FixedColor.Blue;
         // Layer 1 is always the room's; layer 2 is what the room publishes for it (#1403).
         data[14] = D3D11RoomSources.Layer2Of(layer.Gameplay.Rooms);
-        data[22] = layer.Blend.BlendsWithSubscreen ? 1u : 0u;
+        data[22] = layer.Blend.BlendsWithLayersBehind ? 1u : 0u;
         data[26] = 224;
-        data[27] = (uint)r.Bg2Mosaic.Size;
+        data[27] = (uint)r.BackgroundPixelation.Size;
         // What the blend draws from behind: nothing, layer 3, layer 2 or both.
-        if (layer.SubscreenUsesBg2) data[15] = (uint)D3D11XrayBehindLayers.Layer2;
-        if (layer.Subscreen is { } sub)
+        if (layer.BlendsWithBackground) data[15] = (uint)D3D11XrayBehindLayers.Layer2;
+        if (layer.BlendPlane is { } sub)
         {
-            data[15] = (uint)(layer.SubscreenUsesBg2
+            data[15] = (uint)(layer.BlendsWithBackground
                 ? D3D11XrayBehindLayers.Layer2AndLayer3
                 : D3D11XrayBehindLayers.Layer3);
             data[18] = (uint)sub.FirstRow;
@@ -322,7 +322,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         for (int y = 32; y < 224; y++)
         {
             int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + y * 4, line = y - 32;
-            var scroll = layer.Gameplay.Bg2ScrollAt(line);
+            var scroll = layer.Gameplay.BackgroundScrollAt(line);
             data[offset] = scroll.X;
             data[offset + 1] = unchecked((ushort)(scroll.Y + D3D11Screen.LayerLineOffset));
             data[offset + 2] = D3D11ConstantPacking.Bytes(checked((byte)layer.Lines[y].Left), checked((byte)layer.Lines[y].Right), 0, 0);
@@ -330,9 +330,9 @@ public sealed class D3D11FrameRenderer : IDisposable
             var mainScreen = layer.Gameplay.MainScreenLayersByLine.IsEmpty
                 ? r.MainScreenLayers : layer.Gameplay.MainScreenLayersByLine[line];
             // Draygon's room hides layer 2 outside its band even while the X-ray blends.
-            if (y < r.Bg2FirstScanline || y >= r.Bg2EndScanline) mainScreen &= ~ScreenLayers.Background;
+            if (y < r.BackgroundFirstLine || y >= r.BackgroundEndLine) mainScreen &= ~ScreenLayers.Background;
             data[offset + 2] |= D3D11ConstantPacking.Bytes(0, 0, (byte)mainScreen, 0);
-            if (layer.Subscreen is { } bg3)
+            if (layer.BlendPlane is { } bg3)
                 data[offset + 3] = D3D11ConstantPacking.Halves(bg3.Scrolls[y].X, bg3.Scrolls[y].Y);
         }
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
@@ -340,7 +340,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>Draws the message box's text image, coloured in the message's text colours (#1408).</summary>
-    private unsafe void DispatchMessage(MessageBoxRenderLayer layer)
+    private unsafe void DispatchMessage(MessageBoxLayer layer)
     {
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.MessageText;
@@ -353,7 +353,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>Composes a room with a perspective floor: the floor, the sprites and layer 2 by priority, and the opaque HUD.</summary>
-    private void DispatchFloorRoom(GameplayFloorRenderLayer layer)
+    private void DispatchFloorRoom(TurningRoomLayer layer)
     {
         // Clipping is in screen lines. Never move the floor's origin to the start of the band: the transform is the
         // whole screen's.
@@ -382,9 +382,9 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// Composes a room: sprites of priority 0 and 1, layer 2 then layer 1 at low priority, sprites of priority 2, layer 2
     /// then layer 1 at high priority, sprites of priority 3; in bands split where the layers a line shows change.
     /// </summary>
-    private void DispatchOrdinaryGameplay(OrdinaryGameplayRenderLayer layer)
+    private void DispatchOrdinaryGameplay(GameplaySceneLayer layer)
     {
-        OrdinaryGameplayView r = layer.View;
+        GameplaySceneView r = layer.View;
         // Every pass inserts from the same sprite layer, so a sprite hidden by one in front never shows at another
         // priority.
         int first = D3D11Screen.HudHeight, end;
@@ -410,7 +410,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         void Background1(bool high)
         {
             if ((activeLayers & ScreenLayers.Foreground) != 0)
-                DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Layer1, Scroll = r.Bg1Scroll.AsBgPlaneScroll() + new Offset16<BgPlanePixels>(0, D3D11Screen.LayerLineOffset), MapSize = new Extent16<TilemapCells>(64, 32), Priority = Priority(high), FirstScanline = (uint)first, EndScanline = (uint)end });
+                DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Layer1, Scroll = r.ForegroundScroll.AsBgPlaneScroll() + new Offset16<TilePlanePixels>(0, D3D11Screen.LayerLineOffset), MapSize = new Extent16<TilemapCells>(64, 32), Priority = Priority(high), FirstScanline = (uint)first, EndScanline = (uint)end });
         }
         void Background2(bool high)
         {
@@ -419,22 +419,22 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>Draws the room's layer 2 at one priority in a band, each line at its own scroll, with its mosaic.</summary>
-    private unsafe void DispatchRoomLayer2(OrdinaryGameplayRenderLayer layer, bool high, int first, int end)
+    private unsafe void DispatchRoomLayer2(GameplaySceneLayer layer, bool high, int first, int end)
     {
         var r = layer.View;
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.Layer;
-        data[5] = r.Bg2MapSize.X; data[6] = r.Bg2MapSize.Y;
+        data[5] = r.BackgroundMapSize.X; data[6] = r.BackgroundMapSize.Y;
         data[7] = Priority(high); data[8] = 1; data[15] = 1;
         data[14] = D3D11RoomSources.Layer2Of(layer.Rooms);
-        data[25] = (uint)Math.Max(r.Bg2FirstScanline, first); data[26] = (uint)Math.Min(r.Bg2EndScanline, end);
+        data[25] = (uint)Math.Max(r.BackgroundFirstLine, first); data[26] = (uint)Math.Min(r.BackgroundEndLine, end);
         // Header word 27 is the mosaic's block size (zero elsewhere).
-        data[27] = (uint)r.Bg2Mosaic.Size;
+        data[27] = (uint)r.BackgroundPixelation.Size;
         for (int y = D3D11Screen.HudHeight; y < D3D11Screen.Height; y++)
         {
             int line = y - D3D11Screen.HudHeight;
             int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + y * 4;
-            var scroll = layer.Bg2ScrollAt(line);
+            var scroll = layer.BackgroundScrollAt(line);
             data[offset] = scroll.X;
             data[offset + 1] = unchecked((ushort)(scroll.Y + D3D11Screen.LayerLineOffset));
         }
@@ -443,7 +443,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>Adds a frontend layer's colours where the layer covering it shows, each line at its own scroll.</summary>
-    private unsafe void DispatchAddLayerBehind(TileAddRenderLayer layer)
+    private unsafe void DispatchAddLayerBehind(AddedScreenTilesLayer layer)
     {
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.AddLayerBehind;
@@ -479,12 +479,12 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>The cells a frontend layer draws (#1403): its own and, for a layer added behind, its covering layer's.</summary>
-    private static IEnumerable<ScreenTileMap> ScreenMaps(RenderLayer layer) => layer switch
+    private static IEnumerable<ScreenTileMap> ScreenMaps(DisplayLayer layer) => layer switch
     {
-        TileRenderLayer bg => [bg.Cells],
-        TileViewportRenderLayer bg => [bg.Cells],
-        TileAddRenderLayer { MainCoverage: { } coverage } sub => [sub.Cells, coverage.Cells],
-        TileAddRenderLayer sub => [sub.Cells],
+        ScreenTilesLayer bg => [bg.Cells],
+        ScreenTilesViewportLayer bg => [bg.Cells],
+        AddedScreenTilesLayer { MainCoverage: { } coverage } sub => [sub.Cells, coverage.Cells],
+        AddedScreenTilesLayer sub => [sub.Cells],
         _ => [],
     };
 
@@ -492,7 +492,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// Dispatches a frontend tile layer's cells (#1403), each drawn from its tile's pre-coloured picture, colour zero
     /// transparent unless <paramref name="transparentZero"/> is false.
     /// </summary>
-    private void DispatchScreenTiles(D3D11TileOperation operation, ScreenTileMap cells, Position16<BgPlanePixels> scroll, bool? priority,
+    private void DispatchScreenTiles(D3D11TileOperation operation, ScreenTileMap cells, Position16<TilePlanePixels> scroll, bool? priority,
         bool transparentZero = true) =>
         DispatchTile(operation, new D3D11TileDispatch
         {
@@ -505,21 +505,21 @@ public sealed class D3D11FrameRenderer : IDisposable
         ReadOnlySpan<SuperMetroid.Core.Rendering.TitleGradientLine> gradient = default)
     {
         // Reject unimplemented operations before changing GPU state. No CPU fallback.
-        foreach (RenderLayer layer in scene.Layers)
-            if (layer is not (TileRenderLayer or TileViewportRenderLayer or FixedColorAddRenderLayer or SpriteRenderLayer or SpritePriorityRenderLayer or FloorRenderLayer or GameplayFloorRenderLayer or ScanlineColorAddRenderLayer or FxPlaneBlendRenderLayer or TileAddRenderLayer or MessageBoxRenderLayer or OrdinaryGameplayRenderLayer or WindowedSceneRenderLayer or GameplayColorMathRenderLayer))
+        foreach (DisplayLayer layer in scene.Layers)
+            if (layer is not (ScreenTilesLayer or ScreenTilesViewportLayer or ScreenTintLayer or SpritesLayer or SpriteDepthLayer or TurningFloorLayer or TurningRoomLayer or ColourAddBandsLayer or OverlayBlendLayer or AddedScreenTilesLayer or MessageBoxLayer or GameplaySceneLayer or InsetSceneLayer or GameplayBlendLayer))
                 throw new NotSupportedException($"GPU layer {layer.GetType().Name} is not implemented yet.");
         SuperMetroid.Core.Assets.SpriteSheetFrame? messagePicture = null;
-        foreach (RenderLayer layer in scene.Layers)
+        foreach (DisplayLayer layer in scene.Layers)
         {
-            if (layer is MessageBoxRenderLayer message)
+            if (layer is MessageBoxLayer message)
                 messagePicture = messagePicture is null || ReferenceEquals(messagePicture, message.Picture) ? message.Picture
                     : throw new InvalidOperationException("A frame shows two different message boxes.");
         }
         // The gameplay base layer publishes the room backgrounds; a Mode-7 floor band shows the room's layer-2 plane.
         RoomBackgrounds? rooms = scene.Layers.IsEmpty ? null : scene.Layers[0] switch
         {
-            OrdinaryGameplayRenderLayer ordinary => ordinary.Rooms,
-            GameplayColorMathRenderLayer gameplay => gameplay.Gameplay.Rooms,
+            GameplaySceneLayer ordinary => ordinary.Rooms,
+            GameplayBlendLayer gameplay => gameplay.Gameplay.Rooms,
             _ => null,
         };
         RoomBackgroundLayer? floor = null;
@@ -530,9 +530,9 @@ public sealed class D3D11FrameRenderer : IDisposable
             : throw new InvalidOperationException("A frame shows two different Mode 7 floors.");
         List<ScreenTileMap> screens = frameScreens;
         screens.Clear();
-        foreach (RenderLayer layer in scene.Layers)
+        foreach (DisplayLayer layer in scene.Layers)
         {
-            if (layer is FloorRenderLayer frontendMode7)
+            if (layer is TurningFloorLayer frontendMode7)
                 floorMap = SameFloor(floorMap, frontendMode7.Floor);
             // The frontend layers' cells (#1403), each once.
             foreach (ScreenTileMap cells in ScreenMaps(layer))
@@ -540,15 +540,15 @@ public sealed class D3D11FrameRenderer : IDisposable
                 if (!screens.Contains(cells))
                     screens.Add(cells);
             }
-            if (layer is GameplayFloorRenderLayer mode7)
+            if (layer is TurningRoomLayer mode7)
             {
                 floor = mode7.Floor?.Room ?? floor;
                 bg3 = SameBg3(bg3, mode7.Hud);
                 floorMap = SameFloor(floorMap, mode7.Map);
             }
-            else if (layer is FxPlaneBlendRenderLayer math)
+            else if (layer is OverlayBlendLayer math)
                 bg3 = SameBg3(bg3, math.Plane);
-            else if (layer is GameplayColorMathRenderLayer { Subscreen: { } sub })
+            else if (layer is GameplayBlendLayer { BlendPlane: { } sub })
                 bg3 = SameBg3(bg3, sub.Plane);
         }
         var levels = new RoomLevelLayers(rooms?.Bg1, rooms?.Bg2 ?? floor, rooms?.DoorSource, rooms?.Bg1Overlay, rooms?.Sky, bg3,
@@ -580,54 +580,54 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.CSSetUnorderedAccessView(1, objectView);
         DrawSpriteLayer();
         DispatchTile(D3D11TileOperation.Backdrop, new D3D11TileDispatch());
-        foreach (RenderLayer layer in scene.Layers)
+        foreach (DisplayLayer layer in scene.Layers)
         {
             switch (layer)
             {
-                case GameplayColorMathRenderLayer gameplayXray:
+                case GameplayBlendLayer gameplayXray:
                     DispatchXrayRoom(gameplayXray);
                     break;
-                case WindowedSceneRenderLayer window:
+                case InsetSceneLayer window:
                     DrawWindow(packet, window);
                     break;
-                case OrdinaryGameplayRenderLayer ordinary:
+                case GameplaySceneLayer ordinary:
                     DispatchOrdinaryGameplay(ordinary);
                     break;
-                case MessageBoxRenderLayer message:
+                case MessageBoxLayer message:
                     DispatchMessage(message);
                     break;
-                case TileAddRenderLayer sub:
+                case AddedScreenTilesLayer sub:
                     DispatchAddLayerBehind(sub);
                     break;
-                case FxPlaneBlendRenderLayer math:
+                case OverlayBlendLayer math:
                     DispatchBackgroundMath(math);
                     break;
-                case ScanlineColorAddRenderLayer windows:
+                case ColourAddBandsLayer windows:
                     DispatchColorWindows(windows);
                     break;
-                case GameplayFloorRenderLayer gameplay:
+                case TurningRoomLayer gameplay:
                     DispatchFloorRoom(gameplay);
                     break;
-                case FloorRenderLayer mode7:
-                    DispatchFloor(mode7.Transform, subtractSprites: mode7.SubtractSpriteSubscreen, addLayer1: mode7.AddBg1Subscreen);
+                case TurningFloorLayer mode7:
+                    DispatchFloor(mode7.Transform, subtractSprites: mode7.SubtractsSprites, addLayer1: mode7.AddsForeground);
                     break;
-                case SpriteRenderLayer objLayer:
+                case SpritesLayer objLayer:
                     DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { Red = objLayer.AddToScreen ? 1u : 0u, Green = objLayer.FixedColor is not null ? 1u : 0u, Blue = objLayer.FixedColor is { } color ? (uint)(color.Red | color.Green << 5 | color.Blue << 10) : 0 });
                     break;
-                case SpritePriorityRenderLayer obj:
-                    DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { Priority = (uint)obj.Priority + 1, Green = obj.FixedColor is not null ? 1u : 0u, Blue = obj.FixedColor is { } priorityColor ? (uint)(priorityColor.Red | priorityColor.Green << 5 | priorityColor.Blue << 10) : 0 });
+                case SpriteDepthLayer obj:
+                    DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { Priority = (uint)obj.Depth + 1, Green = obj.FixedColor is not null ? 1u : 0u, Blue = obj.FixedColor is { } priorityColor ? (uint)(priorityColor.Red | priorityColor.Green << 5 | priorityColor.Blue << 10) : 0 });
                     break;
-                case TileRenderLayer bg:
+                case ScreenTilesLayer bg:
                     DispatchScreenTiles(D3D11TileOperation.Layer, bg.Cells, bg.Scroll, bg.Priority);
                     break;
-                case TileViewportRenderLayer bg:
-                    DispatchScreenTiles(D3D11TileOperation.Layer, bg.Cells, new Position16<BgPlanePixels>(0, checked((ushort)bg.VerticalScroll)), bg.Priority, bg.TransparentColorZero);
+                case ScreenTilesViewportLayer bg:
+                    DispatchScreenTiles(D3D11TileOperation.Layer, bg.Cells, new Position16<TilePlanePixels>(0, checked((ushort)bg.VerticalScroll)), bg.Priority, bg.TransparentColorZero);
                     break;
-                case FixedColorAddRenderLayer add:
+                case ScreenTintLayer add:
                     DispatchTile(D3D11TileOperation.AddColour, new D3D11TileDispatch { Red = (uint)add.Red, Green = (uint)add.Green, Blue = (uint)add.Blue });
                     break;
                 default:
-                    throw new InvalidOperationException($"Undefined {nameof(RenderLayer)} {layer}.");
+                    throw new InvalidOperationException($"Undefined {nameof(DisplayLayer)} {layer}.");
             }
         }
         if (!gradient.IsEmpty) DispatchTitleGradient(gradient);
@@ -709,7 +709,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             _ => throw new ArgumentOutOfRangeException(nameof(transform), transform.Outside, "Unknown floor overflow."),
         };
         data[25] = firstScanline; data[26] = endScanline;
-        data[27] = (int)(addLayer1 ? FloorColorBlend.AddBg1
+        data[27] = (int)(addLayer1 ? FloorColorBlend.AddForeground
             : subtractSprites ? FloorColorBlend.SubtractSprites : FloorColorBlend.None);
         fixed (int* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
@@ -762,7 +762,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     private D3D11FrameRenderer? childRenderer;
 
     /// <summary>Renders a non-nested child scene and copies its selected rectangle into the parent output.</summary>
-    private void DrawWindow(DisplayPacket packet, WindowedSceneRenderLayer window)
+    private void DrawWindow(DisplayPacket packet, InsetSceneLayer window)
     {
         if (window.Left == window.Right || window.Top == window.Bottom) return;
         // A single reusable child owns its own buffers, sprite layer and output.

@@ -112,25 +112,25 @@ public sealed class FileSelectRoomMapGraphics
     public LayeredScene CaptureRenderSnapshot(Position16<MapPixels> scroll = default,
         FileSelectStationMarker? marker = null, FileSelectMapAnimations? animations = null, RoomMapContent content = RoomMapContent.Scene)
     {
-        var layers = new List<RenderLayer>();
+        var layers = new List<DisplayLayer>();
         // Both planes draw from the map characters' pre-coloured tiles (#1392).
         ScreenLayerPictures tiles = screen.RoomMapTiles;
         ScreenTileMap frame = ScreenTileMap.Of(screen.Tilemaps.Bg2, new Extent16<TilemapCells>(32, 32), tiles);
         if (content == RoomMapContent.FrameOnly)
-            layers.Add(new TileRenderLayer(frame, new Position16<BgPlanePixels>(0, FileSelectMapDefinitions.RoomFrameVerticalScroll), null));
+            layers.Add(new ScreenTilesLayer(frame, new Position16<TilePlanePixels>(0, FileSelectMapDefinitions.RoomFrameVerticalScroll), null));
         else
         {
             ScreenTileMap map = ScreenTileMap.Of(screen.Tilemaps.AreaMap, new Extent16<TilemapCells>(64, 32), tiles);
             foreach (bool priority in new[] { false, true })
             {
-                layers.Add(new TileRenderLayer(frame, new Position16<BgPlanePixels>(0, FileSelectMapDefinitions.RoomFrameVerticalScroll), priority));
-                layers.Add(new TileRenderLayer(map, scroll.AsBgPlaneScroll(), priority));
+                layers.Add(new ScreenTilesLayer(frame, new Position16<TilePlanePixels>(0, FileSelectMapDefinitions.RoomFrameVerticalScroll), priority));
+                layers.Add(new ScreenTilesLayer(map, scroll.AsBgPlaneScroll(), priority));
             }
         }
         if (marker is not null && content != RoomMapContent.FrameOnly)
         {
             PrepareIcons(scroll, marker, animations);
-            layers.Add(new SpriteRenderLayer());
+            layers.Add(new SpritesLayer());
         }
         else
         {

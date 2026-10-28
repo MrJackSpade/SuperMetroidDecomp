@@ -64,7 +64,7 @@ internal sealed class EndingScreen
     }
 
     /// <summary>What <paramref name="layer"/> shows, reading <paramref name="depth"/> characters (#1392).</summary>
-    internal ScreenLayerPictures Tiles(InstalledSpriteSheets sheets, EndingTileLayer layer, BgBitDepth depth)
+    internal ScreenLayerPictures Tiles(InstalledSpriteSheets sheets, EndingTileLayer layer, TileInkDepth depth)
     {
         if (!ReferenceEquals(tileSheets, sheets))
         {

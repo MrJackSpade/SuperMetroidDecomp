@@ -28,6 +28,6 @@ internal static class MotherBrainAscentCaptureVerification
         AssertEqual((ScreenLayers)5, captured.MainScreenLayersByLine[191], "Captured frame retains its own mask after the state changes");
         Console.WriteLine("Mother Brain ascent capture: actual room, production start/end and all native scanline masks passed.");
         return 0;
-        OrdinaryGameplayRenderLayer Layer() => (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
+        GameplaySceneLayer Layer() => (GameplaySceneLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
     }
 }

@@ -8,9 +8,9 @@ internal static class RoomDoorBackgroundAccess
     {
         /// <summary>Whether the source screen still covers a scrolled position.</summary>
         /// <param name="scrolled">The scroll register plus the screen pixel.</param>
-        public bool Covers(Position16<BgPlanePixels> scrolled)
+        public bool Covers(Position16<TilePlanePixels> scrolled)
         {
-            Offset16<BgPlanePixels> within = scrolled - self.WindowOrigin;
+            Offset16<TilePlanePixels> within = scrolled - self.WindowOrigin;
             return (ushort)within.X < RoomDoorBackgroundConstants.WindowSize.X && (ushort)within.Y < RoomDoorBackgroundConstants.WindowSize.Y;
         }
     }

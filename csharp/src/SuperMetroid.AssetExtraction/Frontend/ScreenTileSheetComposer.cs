@@ -40,41 +40,41 @@ internal static class ScreenTileSheetComposer
         return sheet switch
         {
             SpriteSheetId.IntroSceneTiles => Compose(sources.Intro.BackgroundCharacters.Characters.Span[..IntroCinematicDefinitions.Artwork.BackgroundCharacterBytes],
-                BgBitDepth.FourBpp, IntroColours(sources.Intro)),
-            SpriteSheetId.IntroFontTiles => Compose(IntroFontCharacters.Of(maps.IntroFont).Characters.Span, BgBitDepth.TwoBpp, IntroColours(sources.Intro)),
+                TileInkDepth.SixteenColours, IntroColours(sources.Intro)),
+            SpriteSheetId.IntroFontTiles => Compose(IntroFontCharacters.Of(maps.IntroFont).Characters.Span, TileInkDepth.FourColours, IntroColours(sources.Intro)),
             SpriteSheetId.CeresFlightObjectTiles => ComposeFlightObjects(sources.Intro.CeresFlight),
             SpriteSheetId.CeresIntroObjectTiles => Compose(sources.Intro.IntroObjectCharacters.Characters.Span[..CeresDestructionSceneDefinitions.SharedObjectCharacterBytes],
-                BgBitDepth.FourBpp, FlightColours(sources.Intro.CeresFlight)),
+                TileInkDepth.SixteenColours, FlightColours(sources.Intro.CeresFlight)),
             SpriteSheetId.ZebesRevealTiles => Compose(sources.Intro.CeresDestruction.ZebesCharacters.Characters.Span[..CeresDestructionArtworkFormat.ZebesCharacterByteCount],
-                BgBitDepth.FourBpp, FlightColours(sources.Intro.CeresFlight)),
+                TileInkDepth.SixteenColours, FlightColours(sources.Intro.CeresFlight)),
             SpriteSheetId.EndingCreditsFontTiles => Compose(EndingFontCharacters.Of(maps.EndingFont).Characters.Span[..EndingArtworkExtentDefinitions.FontCharacterBytes],
-                BgBitDepth.FourBpp, EndingColours(sources, EndingPaletteId.Credits)),
+                TileInkDepth.SixteenColours, EndingColours(sources, EndingPaletteId.Credits)),
             SpriteSheetId.EndingTextFontTiles => Compose(EndingFontCharacters.Of(maps.EndingFont).Characters.Span[..EndingArtworkExtentDefinitions.FontCharacterBytes],
-                BgBitDepth.FourBpp, EndingColours(sources, EndingPaletteId.PostCredits)),
+                TileInkDepth.SixteenColours, EndingColours(sources, EndingPaletteId.PostCredits)),
             SpriteSheetId.EndingSubtitleTiles => Compose(EndingFontCharacters.Of(maps.EndingFont).Characters.Span.Slice(EndingPostShotDefinitions.SubtitleFontOffset,
-                EndingPostShotUploadDefinitions.SubtitleLength), BgBitDepth.FourBpp, EndingColours(sources, EndingPaletteId.PostCredits)),
-            SpriteSheetId.EndingLogoTiles => Compose(sources.EndingObjects.PostShotLogoTiles.Characters.Span, BgBitDepth.FourBpp,
+                EndingPostShotUploadDefinitions.SubtitleLength), TileInkDepth.SixteenColours, EndingColours(sources, EndingPaletteId.PostCredits)),
+            SpriteSheetId.EndingLogoTiles => Compose(sources.EndingObjects.PostShotLogoTiles.Characters.Span, TileInkDepth.SixteenColours,
                 EndingColours(sources, EndingPaletteId.PostCredits)),
             SpriteSheetId.EndingWaitingTiles => Compose(sources.EndingObjects.WaitingSamus.Characters.Span[..EndingArtworkExtentDefinitions.WaitingCharacterBytes],
-                BgBitDepth.FourBpp, EndingColours(sources, EndingPaletteId.PostCredits)),
+                TileInkDepth.SixteenColours, EndingColours(sources, EndingPaletteId.PostCredits)),
             SpriteSheetId.EndingWavySamusTiles => Compose(sources.EndingObjects.PostCreditsFragmentA.Characters.Span[..EndingArtworkExtentDefinitions.PostCreditsFragmentABytes],
-                BgBitDepth.TwoBpp, EndingColours(sources, EndingPaletteId.PostCredits)),
+                TileInkDepth.FourColours, EndingColours(sources, EndingPaletteId.PostCredits)),
             SpriteSheetId.EndingExplosionTiles => Compose(sources.EndingObjects.Explosion.Characters.Span[..EndingArtworkExtentDefinitions.ExplosionObjectBytes],
-                BgBitDepth.FourBpp, EndingColours(sources, EndingPaletteId.Explosion)),
-            SpriteSheetId.MenuForegroundTiles => Compose(WorldMapCharacters.Of(maps.WorldArtwork).ForegroundCharacters(), BgBitDepth.FourBpp, maps.Palettes.FileSelect),
-            SpriteSheetId.MenuMapTiles => Compose(MapTileCharacters.Of(maps.Tiles).Characters, BgBitDepth.FourBpp, maps.Palettes.FileSelect),
-            SpriteSheetId.PauseMapTiles => Compose(MapTileCharacters.Of(maps.Tiles).Characters, BgBitDepth.FourBpp, maps.Palettes.Pause),
-            SpriteSheetId.PauseInterfaceTiles => Compose(MapTileCharacters.Of(maps.PauseTiles).Characters, BgBitDepth.FourBpp, maps.Palettes.Pause),
-            SpriteSheetId.PauseHudTiles => Compose(maps.HudTiles.Bytes.Span[..HudTileAtlasFormat.CharacterByteCount], BgBitDepth.TwoBpp,
+                TileInkDepth.SixteenColours, EndingColours(sources, EndingPaletteId.Explosion)),
+            SpriteSheetId.MenuForegroundTiles => Compose(WorldMapCharacters.Of(maps.WorldArtwork).ForegroundCharacters(), TileInkDepth.SixteenColours, maps.Palettes.FileSelect),
+            SpriteSheetId.MenuMapTiles => Compose(MapTileCharacters.Of(maps.Tiles).Characters, TileInkDepth.SixteenColours, maps.Palettes.FileSelect),
+            SpriteSheetId.PauseMapTiles => Compose(MapTileCharacters.Of(maps.Tiles).Characters, TileInkDepth.SixteenColours, maps.Palettes.Pause),
+            SpriteSheetId.PauseInterfaceTiles => Compose(MapTileCharacters.Of(maps.PauseTiles).Characters, TileInkDepth.SixteenColours, maps.Palettes.Pause),
+            SpriteSheetId.PauseHudTiles => Compose(maps.HudTiles.Bytes.Span[..HudTileAtlasFormat.CharacterByteCount], TileInkDepth.FourColours,
                 maps.Palettes.Pause),
             SpriteSheetId.AreaMapForegroundTilesCrateria or SpriteSheetId.AreaMapForegroundTilesBrinstar or
                 SpriteSheetId.AreaMapForegroundTilesNorfair or SpriteSheetId.AreaMapForegroundTilesWreckedShip or
                 SpriteSheetId.AreaMapForegroundTilesMaridia or SpriteSheetId.AreaMapForegroundTilesTourian =>
-                Compose(WorldMapCharacters.Of(maps.WorldArtwork).ForegroundCharacters(), BgBitDepth.FourBpp, maps.Palettes.World(AreaFor(ScreenTileSheetDefinitions.AreaMapForegrounds, sheet))),
+                Compose(WorldMapCharacters.Of(maps.WorldArtwork).ForegroundCharacters(), TileInkDepth.SixteenColours, maps.Palettes.World(AreaFor(ScreenTileSheetDefinitions.AreaMapForegrounds, sheet))),
             SpriteSheetId.AreaMapBackgroundTilesCrateria or SpriteSheetId.AreaMapBackgroundTilesBrinstar or
                 SpriteSheetId.AreaMapBackgroundTilesNorfair or SpriteSheetId.AreaMapBackgroundTilesWreckedShip or
                 SpriteSheetId.AreaMapBackgroundTilesMaridia or SpriteSheetId.AreaMapBackgroundTilesTourian =>
-                Compose(WorldMapCharacters.Of(maps.WorldArtwork).BackgroundCharacters(), BgBitDepth.TwoBpp, maps.Palettes.World(AreaFor(ScreenTileSheetDefinitions.AreaMapBackgrounds, sheet))),
+                Compose(WorldMapCharacters.Of(maps.WorldArtwork).BackgroundCharacters(), TileInkDepth.FourColours, maps.Palettes.World(AreaFor(ScreenTileSheetDefinitions.AreaMapBackgrounds, sheet))),
             SpriteSheetId.EscapeTimer or SpriteSheetId.Grapple or SpriteSheetId.SamusBodyTop or
                 SpriteSheetId.SamusBodyBottom or SpriteSheetId.SamusOverlays or SpriteSheetId.SamusAtmosphere or
                 SpriteSheetId.SamusDeath or SpriteSheetId.GameOver or SpriteSheetId.FileSelect or
@@ -107,7 +107,7 @@ internal static class ScreenTileSheetComposer
     /// coloured from <paramref name="palette"/>'s background half.
     /// </summary>
     /// <exception cref="InvalidDataException">The characters are not whole characters of the depth.</exception>
-    internal static ComposedSpriteSheet Compose(ReadOnlySpan<byte> characters, BgBitDepth depth, ReadOnlySpan<RgbColor> palette)
+    internal static ComposedSpriteSheet Compose(ReadOnlySpan<byte> characters, TileInkDepth depth, ReadOnlySpan<RgbColor> palette)
     {
         int bytes = ScreenTileSheet.CharacterWordsOf(depth) * sizeof(ushort);
         if (characters.IsEmpty || characters.Length % bytes != 0)
@@ -123,7 +123,7 @@ internal static class ScreenTileSheetComposer
                 Position16<ImagePixels> corner = ScreenTileSheet.CornerOf(character, row, blockRows);
                 SnesBgTilemapWord word = SnesBgTilemapWord.Create(0, row, priority: false);
                 ReadOnlySpan<byte> pixels = characters.Slice(character * bytes, bytes);
-                if (depth == BgBitDepth.FourBpp)
+                if (depth == TileInkDepth.SixteenColours)
                     canvas.PaintTile(corner.X, corner.Y, word, pixels, colours);
                 else
                     canvas.PaintTwoBppTile(corner.X, corner.Y, word, pixels, colours);
@@ -132,7 +132,7 @@ internal static class ScreenTileSheetComposer
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
         {
             [ScreenTileSheet.FrameName] = TileWordSheetComposer.Frame(canvas, 0, ScreenTileSheet.ColourVariants * blockRows,
-                depth == BgBitDepth.FourBpp ? TileWordLayer.Bg12 : TileWordLayer.Bg3),
+                depth == TileInkDepth.SixteenColours ? TileWordLayer.Bg12 : TileWordLayer.Bg3),
         };
         return canvas.ToSheet(colours, frames, ScreenTileSheet.ColoursOf(depth));
     }
@@ -263,7 +263,7 @@ internal static class ScreenTileSheetComposer
 
     /// <summary>The Ceres flight's object characters under its palette, which its caption shows.</summary>
     internal static ComposedSpriteSheet ComposeFlightObjects(CeresFlightArtwork flight) =>
-        Compose(CeresFlightCharacters.Of(Ensure.NotNull(flight)).ObjectCharacters.Span[..CeresFlightArtworkFormat.ObjectByteCount], BgBitDepth.FourBpp, FlightColours(flight));
+        Compose(CeresFlightCharacters.Of(Ensure.NotNull(flight)).ObjectCharacters.Span[..CeresFlightArtworkFormat.ObjectByteCount], TileInkDepth.SixteenColours, FlightColours(flight));
 
     /// <summary>The opening cinematic's palette.</summary>
     private static ReadOnlySpan<RgbColor> IntroColours(IntroCinematicArtwork intro)

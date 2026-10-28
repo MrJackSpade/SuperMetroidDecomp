@@ -24,7 +24,7 @@ public sealed class ScreenTileSheet
 
     /// <summary>Checks the sheet holds whole blocks of tiles for each palette row, coloured for <paramref name="depth"/>.</summary>
     /// <exception cref="InvalidDataException">The picture is not whole blocks of tiles, or not coloured for the depth.</exception>
-    public ScreenTileSheet(SpriteSheetId id, SpriteSheet sheet, BgBitDepth depth)
+    public ScreenTileSheet(SpriteSheetId id, SpriteSheet sheet, TileInkDepth depth)
     {
         Id = id;
         Depth = depth;
@@ -40,7 +40,7 @@ public sealed class ScreenTileSheet
     public SpriteSheetId Id { get; }
 
     /// <summary>The bit depth of the artwork's characters.</summary>
-    public BgBitDepth Depth { get; }
+    public TileInkDepth Depth { get; }
 
     /// <summary>The picture of every tile.</summary>
     public SpriteSheetFrame Picture { get; }
@@ -71,9 +71,9 @@ public sealed class ScreenTileSheet
     public static int BlockRowsOf(int characters) => (Ensure.BetweenInclusive(1, int.MaxValue, characters) + Columns - 1) / Columns;
 
     /// <summary>The VRAM words one character of <paramref name="depth"/> occupies.</summary>
-    public static int CharacterWordsOf(BgBitDepth depth) => depth == BgBitDepth.FourBpp ? 16 : 8;
+    public static int CharacterWordsOf(TileInkDepth depth) => depth == TileInkDepth.SixteenColours ? 16 : 8;
 
     /// <summary>How a sheet of <paramref name="depth"/> characters is coloured.</summary>
-    public static SpriteImageColours ColoursOf(BgBitDepth depth) =>
-        depth == BgBitDepth.FourBpp ? SpriteImageColours.Background : SpriteImageColours.TwoBppBackground;
+    public static SpriteImageColours ColoursOf(TileInkDepth depth) =>
+        depth == TileInkDepth.SixteenColours ? SpriteImageColours.Background : SpriteImageColours.TwoBppBackground;
 }

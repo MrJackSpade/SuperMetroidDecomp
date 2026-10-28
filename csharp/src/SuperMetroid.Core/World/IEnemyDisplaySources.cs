@@ -33,7 +33,7 @@ internal interface IEnemyDisplaySources
     EnemyBg2ImageSnapshot? EnemyBg2 { get; }
 
     /// <summary>Crocomire's BG2 scroll while Crocomire is loaded; otherwise null.</summary>
-    Position16<Bg2Pixels>? CrocomireBg2Scroll { get; }
+    Position16<BackgroundPixels>? CrocomireBg2Scroll { get; }
 
     /// <summary>The morph-ball eye's beam.</summary>
     MorphBallEyeBeamState MorphBallEyeBeam { get; }

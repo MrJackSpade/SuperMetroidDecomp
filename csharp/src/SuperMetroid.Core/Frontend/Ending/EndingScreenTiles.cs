@@ -43,7 +43,7 @@ internal static class EndingScreenTiles
     }
 
     /// <summary>The tiles <paramref name="layer"/> shows once <paramref name="uploads"/> have been made, in order.</summary>
-    internal static ScreenLayerPictures Layer(InstalledSpriteSheets sheets, EndingTileLayer layer, BgBitDepth depth, IEnumerable<EndingUpload> uploads)
+    internal static ScreenLayerPictures Layer(InstalledSpriteSheets sheets, EndingTileLayer layer, TileInkDepth depth, IEnumerable<EndingUpload> uploads)
     {
         Ensure.NotNull(sheets);
         var tiles = new ScreenTileSet(depth);

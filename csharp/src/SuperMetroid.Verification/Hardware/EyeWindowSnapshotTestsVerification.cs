@@ -42,7 +42,7 @@ internal static class EyeWindowSnapshotTestsVerification
             var beam = new MorphBallEyeBeamRenderSnapshot(MorphBallEyeBeamPhase.Full,
                 new(unchecked((ushort)(x + 512)), unchecked((ushort)(y + 768))),
                 RotationAngle.FromTableIndex((byte)angle), width, new RgbColor(31, 12, 1));
-            ScanlineColorAddRenderLayer? layer = GameplayEffectCapture.CaptureMorphBallEyeBeam(beam, new Position16<RoomPixels>(512, 768));
+            ColourAddBandsLayer? layer = GameplayEffectCapture.CaptureMorphBallEyeBeam(beam, new Position16<RoomPixels>(512, 768));
             AssertTrue(layer is not null, $"eye capture origin {x},{y}; angle {angle}; width {width}");
             samples++;
         }

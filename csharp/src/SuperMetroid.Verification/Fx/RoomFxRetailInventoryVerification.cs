@@ -479,10 +479,10 @@ internal static class RoomFxRetailInventoryVerification
         RoomLayer3FxRenderSnapshot snapshot,
         Layer3Plane plane)
     {
-        FxPlaneBlendRenderLayer? layer = GameplayEffectCapture.CaptureRoomLayer3Fx(snapshot,
+        OverlayBlendLayer? layer = GameplayEffectCapture.CaptureRoomLayer3Fx(snapshot,
             Layer3CellsFixtures.FromWords(plane.Words, BgArtworkFixtures.ComposedVram(vram, new BgArtworkBytes()).Bytes, cgram.Colors));
         return DisplayRendering.Render(new LayeredScene(new FramePaint(cgram.Colors, []),
-            layer is null ? [] : new RenderLayer[] { layer }, FadeLevel.Full));
+            layer is null ? [] : new DisplayLayer[] { layer }, FadeLevel.Full));
     }
 
     /// <summary>The frame the display renderer draws of the backdrop alone, which an absent FX layer leaves unchanged.</summary>

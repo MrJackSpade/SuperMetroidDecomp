@@ -25,17 +25,17 @@ internal static class WindowSceneSmokeTests
             return (vram, FramePaint.FromOam(vram, palette, oam, 128, obsel));
         }
         var parentMemory = Memory(3); var childMemory = Memory(7);
-        var background = new TileRenderLayer(VramTileFixtures.Cells(parentMemory.Vram, parentMemory.Paint.Colors, 0x4000, 0x6000, BgBitDepth.FourBpp,
-            new Extent16<TilemapCells>(32, 32)), new Position16<BgPlanePixels>(3, 11), true);
+        var background = new ScreenTilesLayer(VramTileFixtures.Cells(parentMemory.Vram, parentMemory.Paint.Colors, 0x4000, 0x6000, TileInkDepth.SixteenColours,
+            new Extent16<TilemapCells>(32, 32)), new Position16<TilePlanePixels>(3, 11), true);
         AffineFloor childFloor = AffineFloorFixtures.Floor(childMemory.Vram, childMemory.Paint.Colors);
-        LayeredScene Child(byte brightness) => new(childMemory.Paint, new RenderLayer[] {
-            new FloorRenderLayer(new(255, 71, -71, 255, new(128, 112), new(13, -11), FloorOverflowMode.CharacterZero), childFloor),
-            new SpriteRenderLayer() }, brightness);
+        LayeredScene Child(byte brightness) => new(childMemory.Paint, new DisplayLayer[] {
+            new TurningFloorLayer(new(255, 71, -71, 255, new(128, 112), new(13, -11), FloorOverflowMode.CharacterZero), childFloor),
+            new SpritesLayer() }, brightness);
         // The parent's tile layer and the child's floor pack once; drawing them before the counted frames leaves each of
         // those only its memory and sprite-draw uploads.
         int count = 0;
         renderer.RenderForReadback(new DisplayPacket(new(++count, 1, 0), new LayeredScene(parentMemory.Paint,
-            [background, new WindowedSceneRenderLayer(Child(15), 0, 0, 256, 224)], 15)));
+            [background, new InsetSceneLayer(Child(15), 0, 0, 256, 224)], 15)));
         // Each scene render uploads its memory and sprite-draw buffers once. The draw buffer uploads its grown capacity,
         // so a frame's bytes are fixed per window shape rather than computable from the scene alone.
         var bytesByChildren = new Dictionary<int, long>();
@@ -44,11 +44,11 @@ internal static class WindowSceneSmokeTests
         for (byte brightness = 0; brightness <= 15; brightness++)
         {
             LayeredScene child = Child(brightness);
-            var window = new WindowedSceneRenderLayer(child, edges.Left, edges.Top, edges.Right, edges.Bottom);
+            var window = new InsetSceneLayer(child, edges.Left, edges.Top, edges.Right, edges.Bottom);
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(parentMemory.Paint,
-                new RenderLayer[] { new SpritePriorityRenderLayer(0), window,
+                new DisplayLayer[] { new SpriteDepthLayer(0), window,
                     background,
-                    new SpritePriorityRenderLayer(3), window, new FixedColorAddRenderLayer(1,2,3) }, 13), [new FadeLevel(11)]);
+                    new SpriteDepthLayer(3), window, new ScreenTintLayer(1,2,3) }, 13), [new FadeLevel(11)]);
             var before = renderer.UploadStatistics;
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: scene window {count}, edges {edges}, brightness {brightness}");

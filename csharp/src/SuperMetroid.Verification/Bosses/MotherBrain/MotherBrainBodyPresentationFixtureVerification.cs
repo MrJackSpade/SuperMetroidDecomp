@@ -23,7 +23,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         /// <summary>Third-form body state bound to the fixture's encounter.</summary>
         internal MotherBrainEnemyState State { get; }
         /// <summary>The BG2 scroll placing the body after each production step that has taken BG2 over (#1356).</summary>
-        internal List<Position16<Bg2Pixels>> ScrollCalls { get; } = [];
+        internal List<Position16<BackgroundPixels>> ScrollCalls { get; } = [];
         /// <summary>Production instruction processor bound to this fixture's enemy system.</summary>
         private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton> instructions;
 

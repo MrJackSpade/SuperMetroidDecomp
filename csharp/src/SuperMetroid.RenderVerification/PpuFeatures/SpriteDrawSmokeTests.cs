@@ -66,7 +66,7 @@ internal static class SpriteDrawSmokeTests
                 new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer, 3), Frame(3), new(40, 30), SpriteMirror.Horizontal),
             ];
             var memory = new FramePaint(palette, draws);
-            RgbaPixel[] pixels = Check(memory, [new SpriteRenderLayer()], "ordering and flip");
+            RgbaPixel[] pixels = Check(memory, [new SpritesLayer()], "ordering and flip");
             RgbaPixel red = new(255, 0, 0), blue = new(0, 0, 255), yellow = new(255, 255, 0);
             ExpectPixel(11, 10, red, "the first draw alone");
             ExpectPixel(15, 10, red, "the first-emitted draw is in front of later ones");
@@ -129,18 +129,18 @@ internal static class SpriteDrawSmokeTests
                     (SpriteMirror)random.Next(4), random.Next(3) == 0 ? random.Next(8) : null));
             }
             var memory = new FramePaint(palette, draws.ToImmutable());
-            ScreenTileMap cells = VramTileFixtures.Cells(vram, palette, GameplayVramLayout.Bg2TilemapWord, GameplayVramLayout.HudCharacterWord, BgBitDepth.FourBpp,
+            ScreenTileMap cells = VramTileFixtures.Cells(vram, palette, GameplayVramLayout.Bg2TilemapWord, GameplayVramLayout.HudCharacterWord, TileInkDepth.SixteenColours,
                 new Extent16<TilemapCells>(32, 32));
-            Check(memory, [new SpriteRenderLayer()], $"seeded scene {cases}");
+            Check(memory, [new SpritesLayer()], $"seeded scene {cases}");
             Check(memory, [
-                new SpritePriorityRenderLayer(0),
-                new TileRenderLayer(cells, new Position16<BgPlanePixels>(3, 11), false),
-                new SpritePriorityRenderLayer(1), new SpritePriorityRenderLayer(2),
-                new TileRenderLayer(cells, new Position16<BgPlanePixels>(3, 11), true),
-                new SpritePriorityRenderLayer(3)], $"seeded priority ladder {cases}");
+                new SpriteDepthLayer(0),
+                new ScreenTilesLayer(cells, new Position16<TilePlanePixels>(3, 11), false),
+                new SpriteDepthLayer(1), new SpriteDepthLayer(2),
+                new ScreenTilesLayer(cells, new Position16<TilePlanePixels>(3, 11), true),
+                new SpriteDepthLayer(3)], $"seeded priority ladder {cases}");
         }
 
-        RgbaPixel[] Check(FramePaint memory, RenderLayer[] layers, string label)
+        RgbaPixel[] Check(FramePaint memory, DisplayLayer[] layers, string label)
         {
             var frame = new DisplayPacket(new(++cases, 1, 0), new LayeredScene(memory, layers, 15));
             RgbaPixel[] expected = DisplayRendering.Render(frame);

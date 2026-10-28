@@ -88,7 +88,7 @@ internal static class InstalledPowerBombIsolationTests
                         {
                             var memoryImage = new FramePaint(new RgbColor[SnesCgram.ColorCount], []);
                             var packet = new DisplayPacket(new(framesToRender.Count + 1, 1, 0),
-                                new LayeredScene(memoryImage, new RenderLayer[] { second }, 15));
+                                new LayeredScene(memoryImage, new DisplayLayer[] { second }, 15));
                             framesToRender.Add(new ContextFrame(packet, context));
                             // With a black backdrop this center pixel must be exactly the
                             // selected expanded RGB, not merely different from stock.
@@ -168,8 +168,8 @@ internal static class InstalledPowerBombIsolationTests
     }
 
     /// <summary>Checks color-add window lifetime and every scanline's horizontal bounds independently of its color.</summary>
-    private static void RequireSameGeometry(ScanlineColorAddRenderLayer? first,
-        ScanlineColorAddRenderLayer? second, string context)
+    private static void RequireSameGeometry(ColourAddBandsLayer? first,
+        ColourAddBandsLayer? second, string context)
     {
         Require((first is null) == (second is null), context + ": window lifetime differs");
         if (first is null || second is null) return;

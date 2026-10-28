@@ -34,7 +34,7 @@ internal static class ColorWindowSnapshotTestsVerification
             for (int tick = 0; tick < 2000 && pickup.IsActive; tick++)
             {
                 bool sample = phases.Add(pickup.Stage) || tick % 7 == 0;
-                ScanlineColorAddRenderLayer? retained = null;
+                ColourAddBandsLayer? retained = null;
                 ColorAddWindow[]? captured = null;
                 if (sample)
                 {
@@ -58,7 +58,7 @@ internal static class ColorWindowSnapshotTestsVerification
             for (int tick = 0; tick < 2000 && explosion.IsActive; tick++)
             {
                 bool sample = phases.Add(explosion.RenderedPhase) || tick % 13 == 0;
-                ScanlineColorAddRenderLayer? retained = null;
+                ColourAddBandsLayer? retained = null;
                 ColorAddWindow[]? captured = null;
                 if (sample)
                 {
@@ -75,15 +75,15 @@ internal static class ColorWindowSnapshotTestsVerification
 
         var windows = new ColorAddWindow[224];
         Array.Fill(windows, new ColorAddWindow(0, 255, 200, 10, 255));
-        var owned = new ScanlineColorAddRenderLayer(windows);
+        var owned = new ColourAddBandsLayer(windows);
         Array.Fill(windows, ColorAddWindow.Empty);
         AssertTrue(owned.Windows.ToArray().All(window => window == new ColorAddWindow(0, 255, 200, 10, 255)), "windows own input");
-        AssertThrows<ArgumentException>(() => new ScanlineColorAddRenderLayer(new ColorAddWindow[223]),
+        AssertThrows<ArgumentException>(() => new ColourAddBandsLayer(new ColorAddWindow[223]),
             "window operation rejects incomplete scanline table");
-        _ = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory, new RenderLayer[] { owned }, 15));
+        _ = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory, new DisplayLayer[] { owned }, 15));
         Console.WriteLine($"  Color window snapshots: {samples} suit/Power Bomb retained windows and input ownership agree.");
 
-        void Compare(ColorAddWindow[] captured, ScanlineColorAddRenderLayer layer)
+        void Compare(ColorAddWindow[] captured, ColourAddBandsLayer layer)
         {
             samples++;
             AssertTrue(layer.Windows.SequenceEqual(captured), $"color window snapshot sample {samples}");

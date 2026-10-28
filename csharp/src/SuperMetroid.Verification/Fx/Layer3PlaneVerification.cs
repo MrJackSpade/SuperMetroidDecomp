@@ -79,7 +79,7 @@ internal static class Layer3PlaneVerification
         RoomLayer3FxRenderSnapshot shown = water.CaptureForDisplay() ?? throw new InvalidOperationException("Water is a renderable effect.");
         AssertEqual((ushort)0x0080, shown.Surface.Y, "the published effect carries the constructed liquid level");
         Layer3Cells cells = Layer3CellsFixtures.FromWords(plane.Words, new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]);
-        FxPlaneBlendRenderLayer layer = GameplayEffectCapture.CaptureRoomLayer3Fx(shown, cells)
+        OverlayBlendLayer layer = GameplayEffectCapture.CaptureRoomLayer3Fx(shown, cells)
             ?? throw new InvalidOperationException("Water at a visible level captures a BG3 layer.");
         AssertTrue(ReferenceEquals(cells, layer.Plane) && layer.FirstRow == 0 && layer.MapHeightTiles == Layer3Plane.Rows,
             "liquid BG3 samples the whole published plane");

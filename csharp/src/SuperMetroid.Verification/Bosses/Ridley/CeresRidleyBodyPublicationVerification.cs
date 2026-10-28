@@ -58,7 +58,7 @@ internal static class CeresRidleyBodyPublicationVerification
             foreach (CeresFloorTileRun transfer in CeresFloorAnimation.Get(wings))
                 AssertTrue(map.Cells.Slice(transfer.FloorCell, transfer.TileNumbers.Count).Select(cell => (byte)cell.Tile).SequenceEqual(transfer.TileNumbers),
                     $"angle {ridley.FloorAngle} publishes his {wings} body frame");
-            var mode7 = (GameplayFloorRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
+            var mode7 = (TurningRoomLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
             AssertTrue(mode7.Map.Cells.SequenceEqual(map.Cells), $"angle {ridley.FloorAngle} draws his published body");
         }
         Console.WriteLine("  Ceres Ridley body: two getaway rotations publish his transform and body frames on the Mode 7 layer.");

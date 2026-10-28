@@ -43,13 +43,13 @@ internal static class OrdinarySmokeTests
             var flags = (mask & 1) != 0 ? ScreenLayers.Foreground : 0;
             if ((mask & 2) != 0) flags |= ScreenLayers.Background;
             if ((mask & 4) != 0) flags |= ScreenLayers.Sprites;
-            var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
+            var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511),
                 new Extent16<TilemapCells>((ushort)geometry.First, (ushort)geometry.Second), flags);
-            var layer = new OrdinaryGameplayRenderLayer(registers,
-                hdma % 2 == 0 || geometry is { First: 64, Second: 64 } && hdma == 3 ? rooms : hdma == 1 ? sky : loaded, new Bg2LineScrolls(
+            var layer = new GameplaySceneLayer(registers,
+                hdma % 2 == 0 || geometry is { First: 64, Second: 64 } && hdma == 3 ? rooms : hdma == 1 ? sky : loaded, new BackgroundLineScrolls(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory,
-                new RenderLayer[] { layer }, 15));
+                new DisplayLayer[] { layer }, 15));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, geometry {geometry}, layers {flags}, HDMA {hdma}");
             if (count == 96)
@@ -71,11 +71,11 @@ internal static class OrdinarySmokeTests
             var flags = (mask & 1) != 0 ? ScreenLayers.Foreground : 0;
             if ((mask & 2) != 0) flags |= ScreenLayers.Background;
             if ((mask & 4) != 0) flags |= ScreenLayers.Sprites;
-            var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
+            var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511),
                 new Extent16<TilemapCells>(64, 32), flags);
-            var layer = new OrdinaryGameplayRenderLayer(registers, pictured, new Bg2LineScrolls(
+            var layer = new GameplaySceneLayer(registers, pictured, new BackgroundLineScrolls(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
-            var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new RenderLayer[] { layer }, 15));
+            var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, block pictures, layers {flags}, HDMA {hdma}");
         }
@@ -84,12 +84,12 @@ internal static class OrdinarySmokeTests
         foreach (var geometry in new[] { new OrdinarySmokeRunCase(64, 32), new OrdinarySmokeRunCase(32, 64), new OrdinarySmokeRunCase(32, 32) })
         for (int hdma = 0; hdma < 4; hdma += 3)
         {
-            var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
+            var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511),
                 new Extent16<TilemapCells>((ushort)geometry.First, (ushort)geometry.Second),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
-            var layer = new OrdinaryGameplayRenderLayer(registers, background, new Bg2LineScrolls(
+            var layer = new GameplaySceneLayer(registers, background, new BackgroundLineScrolls(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
-            var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new RenderLayer[] { layer }, 15));
+            var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, background image, geometry {geometry}, HDMA {hdma}");
         }
@@ -102,11 +102,11 @@ internal static class OrdinarySmokeTests
         };
         for (int hdma = 0; hdma < 4; hdma++)
         {
-            var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
+            var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511),
                 new Extent16<TilemapCells>(64, 64), ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
-            var layer = new OrdinaryGameplayRenderLayer(registers, boss, new Bg2LineScrolls(
+            var layer = new GameplaySceneLayer(registers, boss, new BackgroundLineScrolls(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
-            var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new RenderLayer[] { layer }, 15));
+            var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, boss BG2 tilemap, HDMA {hdma}");
         }
@@ -114,11 +114,11 @@ internal static class OrdinarySmokeTests
         var hudPictured = pictured with { Bg3 = RoomBackgroundsFixtures.SeededBg3Pictures(random, colors) };
         for (int hdma = 0; hdma < 4; hdma += 3)
         {
-            var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
+            var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511),
                 new Extent16<TilemapCells>(64, 32), ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
-            var layer = new OrdinaryGameplayRenderLayer(registers, hudPictured, new Bg2LineScrolls(
+            var layer = new GameplaySceneLayer(registers, hudPictured, new BackgroundLineScrolls(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
-            var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new RenderLayer[] { layer }, 15));
+            var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, BG3 pictures, HDMA {hdma}");
         }
@@ -126,11 +126,11 @@ internal static class OrdinarySmokeTests
         var typed = pictured with { Bg2Overlay = RoomBackgroundsFixtures.SeededPicturedOverlay(random, colors) };
         foreach (var geometry in new[] { new OrdinarySmokeRunCase(64, 32), new OrdinarySmokeRunCase(32, 64) })
         {
-            var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
+            var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511),
                 new Extent16<TilemapCells>((ushort)geometry.First, (ushort)geometry.Second),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
-            var layer = new OrdinaryGameplayRenderLayer(registers, typed, default);
-            var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new RenderLayer[] { layer }, 15));
+            var layer = new GameplaySceneLayer(registers, typed, default);
+            var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, BG2 overlay pictures, geometry {geometry}");
         }
@@ -138,10 +138,10 @@ internal static class OrdinarySmokeTests
         // characters.
         var warned = pictured with { Bg1Overlay = RoomBackgroundsFixtures.SeededPicturedOverlay(random, colors) };
         {
-            var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
+            var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511),
                 new Extent16<TilemapCells>(64, 32), ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
-            var layer = new OrdinaryGameplayRenderLayer(registers, warned, default);
-            var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new RenderLayer[] { layer }, 15));
+            var layer = new GameplaySceneLayer(registers, warned, default);
+            var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, BG1 overlay pictures");
         }

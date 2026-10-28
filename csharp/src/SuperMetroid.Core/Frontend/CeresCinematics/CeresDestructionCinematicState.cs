@@ -913,11 +913,11 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     public LayeredScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
-        RenderLayer[] layers;
+        DisplayLayer[] layers;
         if (usesFloor && (mainScreenLayers & ScreenLayers.Foreground) == ScreenLayers.None)
         {
-            layers = [new SpritePriorityRenderLayer(0), new SpritePriorityRenderLayer(1),
-                new SpritePriorityRenderLayer(2), new SpritePriorityRenderLayer(3)];
+            layers = [new SpriteDepthLayer(0), new SpriteDepthLayer(1),
+                new SpriteDepthLayer(2), new SpriteDepthLayer(3)];
         }
         else if (usesFloor)
         {
@@ -926,16 +926,16 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                     ? CeresDestructionSceneDefinitions.CeresFloorCenter
                     : CeresDestructionSceneDefinitions.ZebesFloorCenter,
                 Background.Whole.AsSignedWord());
-            layers = [new SpritePriorityRenderLayer(0), new FloorRenderLayer(floor, AffineFloor.Of(FloorMap(), UploadedFloorTiles())),
-                new SpritePriorityRenderLayer(1), new SpritePriorityRenderLayer(2), new SpritePriorityRenderLayer(3)];
+            layers = [new SpriteDepthLayer(0), new TurningFloorLayer(floor, AffineFloor.Of(FloorMap(), UploadedFloorTiles())),
+                new SpriteDepthLayer(1), new SpriteDepthLayer(2), new SpriteDepthLayer(3)];
         }
         else
         {
             // Preserve the existing non-mosaicked Mode 1 path. Mosaic implementation
             // is a cartridge-correctness change, not an implicit part of this extraction.
             // The Zebes reveal draws from the pre-coloured tiles of the characters the Uploads leave (#1392).
-            layers = [new TileRenderLayer(ScreenTileMap.Of(ZebesTilemap(), new Extent16<TilemapCells>(32, 32), UploadedTiles()),
-                new Position16<BgPlanePixels>(0, 0), null)];
+            layers = [new ScreenTilesLayer(ScreenTileMap.Of(ZebesTilemap(), new Extent16<TilemapCells>(32, 32), UploadedTiles()),
+                new Position16<TilePlanePixels>(0, 0), null)];
         }
         if (CaptureStationExplosion() is { } blast)
             layers = [.. layers, blast];
@@ -948,7 +948,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private sealed record CeresActorSlot(IntroDiscoverySprite Actor, int Slot);
 
     /// <summary>Captures the active station blast's scanline color addition as a render layer.</summary>
-    private ScanlineColorAddRenderLayer? CaptureStationExplosion() =>
+    private ColourAddBandsLayer? CaptureStationExplosion() =>
         GameplayEffectCapture.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(stationExplosion),
             layer1: Position16<RoomPixels>.Zero, firstVisibleScanline: 0);
 

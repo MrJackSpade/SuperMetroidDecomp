@@ -56,7 +56,7 @@ internal sealed class D3D11SceneColourBuffer : IDisposable
             BackgroundColours colours = slots[slot].Colouring switch
             {
                 D3D11PictureColouring.Frame => frame,
-                D3D11PictureColouring.MessageText => messageText ??= MessageBoxRenderLayer.ShownIn(frame),
+                D3D11PictureColouring.MessageText => messageText ??= MessageBoxLayer.ShownIn(frame),
                 _ => throw new InvalidDataException($"Unknown picture colouring {slots[slot].Colouring}."),
             };
             upload[1 + slot] = (uint)table;

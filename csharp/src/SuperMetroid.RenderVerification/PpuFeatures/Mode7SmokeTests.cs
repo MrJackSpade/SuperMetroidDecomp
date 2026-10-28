@@ -26,7 +26,7 @@ internal static class Mode7SmokeTests
         Layer3Cells bg3 = Layer3CellsFixtures.FromVram(vram, palette, 0x4000);
         AffineFloor map = AffineFloorFixtures.Floor(vram, palette);
         // Below the floor band, the room's layer-2 plane drawn from its block pictures (#1403).
-        RoomBackgroundLayer floorRoom = RoomBackgroundsFixtures.Seeded(random, default, new Position16<BgPlanePixels>(17, 65535), pictureColours: palette).Bg2
+        RoomBackgroundLayer floorRoom = RoomBackgroundsFixtures.Seeded(random, default, new Position16<TilePlanePixels>(17, 65535), pictureColours: palette).Bg2
             ?? throw new InvalidOperationException("A seeded room with a BG2 scroll has a layer-2 plane.");
         int count = 0;
         foreach (short scale in new short[] { 0, 1, 255, 256, 512, -256, short.MinValue, short.MaxValue })
@@ -38,10 +38,10 @@ internal static class Mode7SmokeTests
                 new FloorScene(memory, registers, 13, floor: map), [new FadeLevel(11)]);
             Check(frame);
             Check(new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory,
-                new RenderLayer[] { new SpriteRenderLayer(), new FloorRenderLayer(registers, map),
-                    new FixedColorAddRenderLayer(3, 7, 11) }, 15)));
+                new DisplayLayer[] { new SpritesLayer(), new TurningFloorLayer(registers, map),
+                    new ScreenTintLayer(3, 7, 11) }, 15)));
             Check(new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory,
-                new RenderLayer[] { new FloorRenderLayer(registers, map, AddBg1Subscreen: true) }, 15)));
+                new DisplayLayer[] { new TurningFloorLayer(registers, map, AddsForeground: true) }, 15)));
         }
         Check(new DisplayPacket(new(++count, 1, 0), new FloorScene(memory, null, 15)));
         foreach (int hud in new[] { 0, 8, 32, 208 })
@@ -49,13 +49,13 @@ internal static class Mode7SmokeTests
         foreach (short scale in new short[] { 256, -113, 511, 0 })
         {
             var band = floorStart is { } start
-                ? new Mode1FloorBand(start, new Position16<Bg2Pixels>(17, 65535), new Extent16<TilemapCells>(64, 32), floorRoom)
-                : (Mode1FloorBand?)null;
-            var layer = new GameplayFloorRenderLayer(
+                ? new TurningRoomLowerBand(start, new Position16<BackgroundPixels>(17, 65535), new Extent16<TilemapCells>(64, 32), floorRoom)
+                : (TurningRoomLowerBand?)null;
+            var layer = new TurningRoomLayer(
                 new(scale, 71, -71, scale, new(128, 112), new(-17, 211), FloorOverflowMode.CharacterZero),
                 bg3, map, hud, band);
             Check(new DisplayPacket(new(++count, 1, 0),
-                new LayeredScene(memory, new RenderLayer[] { layer }, 13)));
+                new LayeredScene(memory, new DisplayLayer[] { layer }, 13)));
         }
         // A Ceres room's map drawn from seeded tile pictures (#1392), some rows recoloured by the scene, and from the
         // fixture's characters, with outside pixels transparent, as Ceres rooms show them, or character zero.
@@ -65,11 +65,11 @@ internal static class Mode7SmokeTests
         foreach (short scale in new short[] { 256, -113, 511 })
         foreach (bool fill in new[] { false, true })
         {
-            var layer = new GameplayFloorRenderLayer(
+            var layer = new TurningRoomLayer(
                 new(scale, 71, -71, scale, new(128, 112), new(-17, 211), fill ? FloorOverflowMode.CharacterZero : FloorOverflowMode.Transparent),
                 bg3, shown, hud, null);
             Check(new DisplayPacket(new(++count, 1, 0),
-                new LayeredScene(memory, new RenderLayer[] { layer }, 13)));
+                new LayeredScene(memory, new DisplayLayer[] { layer }, 13)));
         }
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact Mode 7 comparisons passed.");
 

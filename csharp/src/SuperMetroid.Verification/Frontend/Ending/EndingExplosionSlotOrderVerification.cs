@@ -42,10 +42,10 @@ internal static class EndingExplosionSlotOrderVerification
         AssertTrue(mismatches.Length == 0,
             "native slot order preserves all 37 afterglow pieces before starfield OAM overflow" +
             string.Concat(mismatches.Select(index => $" [part {index}: live {(index < liveParts.Length ? liveParts[index].Part.ToString() : "missing")}, native {afterglowParts[index].Part}]")));
-        var background = snapshot.LayersOf<FloorRenderLayer>().Single();
+        var background = snapshot.LayersOf<TurningFloorLayer>().Single();
         AssertTrue(actual.SpriteParts().All(part => part.Part.Priority == 0), "live flyaway actors use native priority zero");
-        var fixedWhite = snapshot.LayersOf<FixedColorAddRenderLayer>().Single();
-        RenderLayer[] order = [fixedWhite, new SpriteRenderLayer(FixedColor: fixedWhite), background];
+        var fixedWhite = snapshot.LayersOf<ScreenTintLayer>().Single();
+        DisplayLayer[] order = [fixedWhite, new SpritesLayer(FixedColor: fixedWhite), background];
         var nativePixels = DisplayRendering.Render(new LayeredScene(actual, order, snapshot.Brightness));
         var actualPixels = ending.Render();
 

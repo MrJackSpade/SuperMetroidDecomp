@@ -261,7 +261,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     private static LayeredScene Insert(LayeredScene basis, LayeredScene inside,
         int left, int top, int right, int bottom)
     {
-        RenderLayer[] layers = [.. basis.Layers, new WindowedSceneRenderLayer(inside, left, top, right, bottom)];
+        DisplayLayer[] layers = [.. basis.Layers, new InsetSceneLayer(inside, left, top, right, bottom)];
         return new(basis.Paint, layers, basis.Brightness);
     }
 }

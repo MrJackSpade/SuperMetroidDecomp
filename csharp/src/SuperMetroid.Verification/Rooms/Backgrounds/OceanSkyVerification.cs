@@ -27,8 +27,8 @@ internal static class OceanSkyVerification
         // Capture consumes the accepted NMI's register snapshot, not the room's mutable scroll state.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var scene = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
-        var ordinary = (OrdinaryGameplayRenderLayer)scene.Layers[0];
-        Console.WriteLine($"Ocean room: main={runtime.Room.LoadedRoom.State.MainCallback}, BG2={ordinary.View.Bg2MapSize.X}x{ordinary.View.Bg2MapSize.Y}, sky={runtime.Room.ScrollingSky is not null}");
+        var ordinary = (GameplaySceneLayer)scene.Layers[0];
+        Console.WriteLine($"Ocean room: main={runtime.Room.LoadedRoom.State.MainCallback}, BG2={ordinary.View.BackgroundMapSize.X}x{ordinary.View.BackgroundMapSize.Y}, sky={runtime.Room.ScrollingSky is not null}");
 
         ScrollingSkyState sky = runtime.Room.ScrollingSky ?? throw new InvalidOperationException("Ocean main installs the scrolling sky.");
         AssertEqual(ScrollingSkyChunkTable.Ocean, sky.Variant, "the ocean main reads the ocean chunk table, not the land table");

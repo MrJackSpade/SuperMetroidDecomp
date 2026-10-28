@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 /// <param name="Scroll">The BG2 scroll placing her body, or null before she takes BG2 over.</param>
 /// <param name="Hidden">Whether her death flicker hides BG2.</param>
-public sealed record MotherBrainBodyPlacement(Position16<Bg2Pixels>? Scroll, bool Hidden);
+public sealed record MotherBrainBodyPlacement(Position16<BackgroundPixels>? Scroll, bool Hidden);

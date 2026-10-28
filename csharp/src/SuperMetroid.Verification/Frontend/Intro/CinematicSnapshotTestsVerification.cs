@@ -40,7 +40,7 @@ internal static class CinematicSnapshotTestsVerification
             {
                 RgbaPixel[] expected = flight.Render();
                 LayeredScene snapshot = flight.CaptureRenderSnapshot();
-                coloredRearView |= snapshot.Layers.Any(layer => layer is FixedColorAddRenderLayer c
+                coloredRearView |= snapshot.Layers.Any(layer => layer is ScreenTintLayer c
                     && (c.Red != 0 || c.Green != 0 || c.Blue != 0));
                 Compare(expected, snapshot, tick);
                 flight.StepFrame();
@@ -63,9 +63,9 @@ internal static class CinematicSnapshotTestsVerification
             {
                 RgbaPixel[] expected = destruction.Render();
                 LayeredScene snapshot = destruction.CaptureRenderSnapshot();
-                mode7 |= snapshot.Layers.Any(layer => layer is FloorRenderLayer);
-                mode1 |= snapshot.Layers.Any(layer => layer is TileRenderLayer);
-                foreach (var window in snapshot.LayersOf<ScanlineColorAddRenderLayer>())
+                mode7 |= snapshot.Layers.Any(layer => layer is TurningFloorLayer);
+                mode1 |= snapshot.Layers.Any(layer => layer is ScreenTilesLayer);
+                foreach (var window in snapshot.LayersOf<ColourAddBandsLayer>())
                 {
                     explosionWindow |= window.Windows.Any(row =>
                         row.Left <= row.Right && (row.Red != 0 || row.Green != 0 || row.Blue != 0));

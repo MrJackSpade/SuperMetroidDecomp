@@ -50,7 +50,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
     /// The BG2 scroll the sky publishes: <c>$88:AFB2</c> copies layer-one Y, with its sixteen-bit wrap, into Y.
     /// X stays zero because the sky never writes the uniform horizontal scroll; its bands shift each line instead.
     /// </summary>
-    public Position16<Bg2Pixels> Bg2Scroll { get; private set; }
+    public Position16<BackgroundPixels> Bg2Scroll { get; private set; }
 
     /// <summary>Whether the indirect table has not been terminated by a frozen frame.</summary>
     public bool BandsShown { get; private set; } = hasBands;
@@ -76,7 +76,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
 
         BandsShown = HasBands;
         if (HasBands) AdvanceHorizontalScrolls();
-        Bg2Scroll = new Position16<Bg2Pixels>(0, checked((ushort)layer1YPosition));
+        Bg2Scroll = new Position16<BackgroundPixels>(0, checked((ushort)layer1YPosition));
     }
 
     /// <summary>

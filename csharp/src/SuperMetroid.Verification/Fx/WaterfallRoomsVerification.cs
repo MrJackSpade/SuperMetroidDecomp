@@ -40,14 +40,14 @@ internal static class WaterfallRoomsVerification
             AssertEqual(ScreenLayers.Foreground | ScreenLayers.Sprites, runtime.ScreenLayers.Displayed, "waterfall main-screen layers");
             var snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame())
                 ?? throw new InvalidDataException("Waterfall room capture is absent.");
-            var math = snapshot.Layers[0] as GameplayColorMathRenderLayer
+            var math = snapshot.Layers[0] as GameplayBlendLayer
                 ?? throw new InvalidDataException("Waterfall room still captures an ordinary opaque background.");
-            AssertTrue(math.SubscreenUsesBg2, "waterfall capture admits BG2 subscreen");
+            AssertTrue(math.BlendsWithBackground, "waterfall capture admits BG2 subscreen");
             AssertEqual(ColorBlend.Bg1 | ColorBlend.Sprites | ColorBlend.Backdrop | ColorBlend.Subtract, math.Blend.Layers,
                 "the waterfall subtracts from the foreground, the sprites and the backdrop, unhalved");
             AssertEqual(ScreenLayers.Foreground | ScreenLayers.Sprites,
                 math.Gameplay.View.MainScreenLayers, "waterfall main excludes BG2");
-            AssertTrue(!snapshot.Layers.Any(layer => layer is FxPlaneBlendRenderLayer),
+            AssertTrue(!snapshot.Layers.Any(layer => layer is OverlayBlendLayer),
                 "waterfall has no second post-composition liquid overlay");
             var pixels = DisplayRendering.Render(snapshot);
             AssertEqual(256 * 224, pixels.Length, "reported room composes full frame");

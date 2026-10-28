@@ -16,7 +16,7 @@ internal sealed record DoorOpeningScrollSetup
     public required Position16<RoomPixels> CameraPosition { get; init; }
 
     /// <summary>The layer-two words <c>$0917/$0919</c> owned by the IRQ.</summary>
-    public required Position16<Bg2Pixels> Layer2Position { get; init; }
+    public required Position16<BackgroundPixels> Layer2Position { get; init; }
 
     /// <summary>Samus's 16.16 position as the IRQ carries her.</summary>
     public required FixedPosition<RoomPixels> SamusPosition { get; init; }
@@ -25,7 +25,7 @@ internal sealed record DoorOpeningScrollSetup
     public required Position16<RoomPixels> FinalCameraPosition { get; init; }
 
     /// <summary>Final layer2 position.</summary>
-    public required Position16<Bg2Pixels> FinalLayer2Position { get; init; }
+    public required Position16<BackgroundPixels> FinalLayer2Position { get; init; }
 
     /// <summary>Final samus position.</summary>
     public required FixedPosition<RoomPixels> FinalSamusPosition { get; init; }

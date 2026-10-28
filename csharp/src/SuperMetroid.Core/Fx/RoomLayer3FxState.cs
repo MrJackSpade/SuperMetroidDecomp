@@ -48,12 +48,12 @@ public sealed class RoomLayer3FxState
     /// Rain, fog, and spores texture drift: one 8.8 accumulator per axis. Its signed high
     /// byte offsets BG3 scroll before the next velocity step.
     /// </summary>
-    private Offset16<Bg3Subpixels> drift;
+    private Offset16<OverlaySubpixels> drift;
     /// <summary>
     /// Rain's horizontal texture drift per frame in 8.8 pixels, chosen from the random number when the room loads;
     /// only X is set. The fall is <see cref="RainFallVelocity"/>.
     /// </summary>
-    private Offset16<Bg3Subpixels> rainWindVelocity;
+    private Offset16<OverlaySubpixels> rainWindVelocity;
     /// <summary>Previous layer-one camera point, used to make rain follow camera movement.</summary>
     private Position16<RoomPixels> previousCamera;
     /// <summary>How many tide-phase units make one full turn of the negative-cosine lookup.</summary>
@@ -75,7 +75,7 @@ public sealed class RoomLayer3FxState
     /// Water's BG3 surface drift: an 8.8 horizontal accumulator whose signed whole pixels offset the surface
     /// texture. Only X moves.
     /// </summary>
-    private Offset16<Bg3Subpixels> waterDrift;
+    private Offset16<OverlaySubpixels> waterDrift;
     /// <summary>Countdown before advancing the water BG3 waveform.</summary>
     private WrappingCountdown waterBg3WaveTimer;
     /// <summary>Countdown for the optional water BG2 horizontal wave.</summary>
@@ -142,7 +142,7 @@ public sealed class RoomLayer3FxState
     public LayerBlendingConfiguration LayerBlendConfiguration { get; private set; } = LayerBlendingConfiguration.Unconfigured;
 
     /// <summary>Live BG3 scroll-register shadows (BG3HOFS/BG3VOFS).</summary>
-    public Position16<Bg3Pixels> Scroll { get; private set; }
+    public Position16<OverlayPixels> Scroll { get; private set; }
 
     /// <summary>Whether the translated effect supplies a gameplay-region BG3 plane.</summary>
     public bool IsRenderable => ShowsPage(Type);
@@ -258,7 +258,7 @@ public sealed class RoomLayer3FxState
             // `$88:D981` masks the random word with six *after* shifting it once,
             // producing byte offsets 0/2/4/6 into a word table. Expressed as a C#
             // element index that is bits two and three of the original random word.
-            rainWindVelocity = new Offset16<Bg3Subpixels>(
+            rainWindVelocity = new Offset16<OverlaySubpixels>(
                 unchecked((short)AtmosphereDrift.RainHorizontalVelocity((source.RandomNumber >> 2) & 3)), 0);
         }
     }
@@ -368,8 +368,8 @@ public sealed class RoomLayer3FxState
 
         if (Type == RoomFxType.Rain)
         {
-            Offset16<Bg3Pixels> cameraDelta = previousCamera.AsBg3Scroll() - frame.Camera.AsBg3Scroll();
-            Scroll = Position16<Bg3Pixels>.Zero + cameraDelta + drift.WholePixels();
+            Offset16<OverlayPixels> cameraDelta = previousCamera.AsBg3Scroll() - frame.Camera.AsBg3Scroll();
+            Scroll = Position16<OverlayPixels>.Zero + cameraDelta + drift.WholePixels();
             drift += rainWindVelocity + RainFallVelocity;
             previousCamera = frame.Camera;
             return;
@@ -775,9 +775,9 @@ public sealed class RoomLayer3FxState
         YVelocity = default;
         Timer = WrappingCountdown.Start(0);
         LayerBlendConfiguration = default;
-        Scroll = Position16<Bg3Pixels>.Zero;
-        drift = Offset16<Bg3Subpixels>.Zero;
-        rainWindVelocity = Offset16<Bg3Subpixels>.Zero;
+        Scroll = Position16<OverlayPixels>.Zero;
+        drift = Offset16<OverlaySubpixels>.Zero;
+        rainWindVelocity = Offset16<OverlaySubpixels>.Zero;
         previousCamera = Position16<RoomPixels>.Zero;
         // Half a pixel: the liquid starts centred on its whole position.
         BaseY = new FixedCoordinate(0, 1 << 15);
@@ -785,7 +785,7 @@ public sealed class RoomLayer3FxState
         TideFixedOffset = 0;
         Surface = NoSurface;
         LiquidOptions = RoomLiquidOptions.None;
-        waterDrift = Offset16<Bg3Subpixels>.Zero;
+        waterDrift = Offset16<OverlaySubpixels>.Zero;
         waterBg2WaveTimer = WrappingCountdown.Start(0);
         waterBg3WaveTimer = WrappingCountdown.Start(0);
         waterBg3WavePhase = waterBg2WavePhase = 0;
@@ -809,11 +809,11 @@ public sealed class RoomLayer3FxState
     public void StopLiquidMotion() => LiquidMotionStopped = true;
 
     /// <summary>Rain's texture fall each frame, in 8.8 pixels.</summary>
-    private static readonly Offset16<Bg3Subpixels> RainFallVelocity =
+    private static readonly Offset16<OverlaySubpixels> RainFallVelocity =
         new(0, unchecked(-AtmosphereDriftDefinitions.RainVerticalVelocity));
 
     /// <summary>Water's surface drift each frame its <see cref="RoomLiquidOptions.SurfaceDrift"/> option is set.</summary>
-    private static readonly Offset16<Bg3Subpixels> WaterDriftVelocity =
+    private static readonly Offset16<OverlaySubpixels> WaterDriftVelocity =
         new(unchecked((short)WaterWaveDefinitions.HorizontalSubscrollVelocity), 0);
 
     /// <summary>The mutually exclusive callbacks installed in the native rise-function word.</summary>

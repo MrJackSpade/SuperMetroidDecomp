@@ -32,14 +32,14 @@ internal static class EndingWavySamusTests
         scene.Stage.Phase = EndingCreditsPhase.PostCreditsShootingStars;
         scene.Stage.PhaseTimer = 1;
         scene.Stage.Brightness = 15;
-        Require(!EndingCreditsPresentation.CaptureRenderSnapshot(scene).LayersOf<TileAddRenderLayer>().Any(), "Wave must not start during the palette fade");
+        Require(!EndingCreditsPresentation.CaptureRenderSnapshot(scene).LayersOf<AddedScreenTilesLayer>().Any(), "Wave must not start during the palette fade");
         scene.Step();
         RgbaPixel[]? previous = null;
         for (int age = 0; age < 180; age++)
         {
             Require(scene.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop, "Native wave lasts exactly the 180-frame hold");
             var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-            var wave = snapshot.LayersOf<TileAddRenderLayer>().Single();
+            var wave = snapshot.LayersOf<AddedScreenTilesLayer>().Single();
             for (int line = 0; line < 224; line++)
             {
                 Require(wave.Scrolls[line].X == NativeX(age, line), $"Native HDMA X age {age}, line {line}");
@@ -48,7 +48,7 @@ internal static class EndingWavySamusTests
             if (age is 0 or 1 or 2 or 3 or 179)
             {
                 // The same frame without the wave's addition shows what the addition changes.
-                RenderLayer[] unwaved = [.. snapshot.Layers.ToArray().Where(layer => layer is not TileAddRenderLayer)];
+                DisplayLayer[] unwaved = [.. snapshot.Layers.ToArray().Where(layer => layer is not AddedScreenTilesLayer)];
                 RgbaPixel[] withoutWave = DisplayRendering.Render(new LayeredScene(snapshot.Paint, unwaved, snapshot.Brightness));
                 RgbaPixel[] expected = DisplayRendering.Render(snapshot);
                 Require(!expected.SequenceEqual(withoutWave), "Native artwork must visibly add the blue transformation effect");
@@ -60,7 +60,7 @@ internal static class EndingWavySamusTests
                     var supplied = wave.Scrolls.ToArray();
                     var owned = wave.WithScrolls(supplied);
                     supplied[0] = new(123, 123);
-                    Require(owned.Scrolls[0] == new Position16<BgPlanePixels>(0, 0), "Captured line scrolls own their input memory");
+                    Require(owned.Scrolls[0] == new Position16<TilePlanePixels>(0, 0), "Captured line scrolls own their input memory");
                 }
                 if (age == 3) Require(previous is not null && !expected.SequenceEqual(previous), "Wave changes visible pixels between consecutive frames");
                 previous = expected;
@@ -68,7 +68,7 @@ internal static class EndingWavySamusTests
             scene.Step();
         }
         Require(scene.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingSamus, "Result panel replaces the wave after its wait");
-        Require(!EndingCreditsPresentation.CaptureRenderSnapshot(scene).LayersOf<TileAddRenderLayer>().Any(), "Result panel disables BG3 addition");
+        Require(!EndingCreditsPresentation.CaptureRenderSnapshot(scene).LayersOf<AddedScreenTilesLayer>().Any(), "Result panel disables BG3 addition");
         Console.WriteLine($"{device.Kind}: ending wave native scrolls, moving blue pixels and 180-frame lifecycle passed.");
 
         ushort NativeX(int age, int line)

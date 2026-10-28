@@ -28,14 +28,14 @@ internal static class DraygonBodyPublicationVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon);
         DraygonEnemyState draygon = runtime.Enemies.DraygonBehavior.Parts.Draygon
             ?? throw new InvalidOperationException("Draygon's room loads Draygon.");
-        Position16<Bg2Pixels> roomScroll = runtime.BackgroundScroll.Bg2Scroll;
+        Position16<BackgroundPixels> roomScroll = runtime.BackgroundScroll.Bg2Scroll;
 
         foreach (Position16<RoomPixels> body in new Position16<RoomPixels>[] { new(256, 160), new(352, 288) })
         {
             draygon.Body.Position = draygon.Body.Position.WithWhole(body);
             runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
             Position16<RoomPixels> camera = runtime.Room.LoadedCamera.PixelPosition;
-            var expected = new Position16<Bg2Pixels>(
+            var expected = new Position16<BackgroundPixels>(
                 unchecked((ushort)(draygon.BodyGraphicsDisplacement.X + camera.X - body.X - 450)),
                 unchecked((ushort)(draygon.BodyGraphicsDisplacement.Y + camera.Y - body.Y - 192)));
             runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -45,11 +45,11 @@ internal static class DraygonBodyPublicationVerification
             AssertEqual(roomScroll, runtime.BackgroundScroll.Bg2Scroll, "Draygon leaves the room's BG2 scroll alone");
             _ = runtime.Display.Latched.Bosses.EnemyBg2
                 ?? throw new InvalidOperationException("Draygon publishes his enemy BG2 image.");
-            var drawn = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
+            var drawn = (GameplaySceneLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
             AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), $"Draygon at {body} shows his body image on BG2");
-            AssertEqual(expected + runtime.Display.Latched.Scrolls.RoomShake.Bg2, drawn.View.Bg2Scroll, $"Draygon at {body} places the image at his body");
+            AssertEqual(expected + runtime.Display.Latched.Scrolls.RoomShake.Bg2, drawn.View.BackgroundScroll, $"Draygon at {body} places the image at his body");
             AssertEqual(placement.VisibleLines(runtime.Display.Latched.Scrolls.Layer1Position),
-                new DraygonBodyScanlines(drawn.View.Bg2FirstScanline, drawn.View.Bg2EndScanline), $"Draygon at {body} shows BG2 on the scanlines around his body");
+                new DraygonBodyScanlines(drawn.View.BackgroundFirstLine, drawn.View.BackgroundEndLine), $"Draygon at {body} shows BG2 on the scanlines around his body");
         }
         Console.WriteLine("  Draygon body: the body image publishes at two body positions through Draygon's own placement.");
     }

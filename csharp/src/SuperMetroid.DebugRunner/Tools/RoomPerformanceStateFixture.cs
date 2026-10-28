@@ -70,7 +70,7 @@ internal static class RoomPerformanceStateFixture
             $"600 measured Windows frames: step (including audio synthesis)={stepMs / 600:F3}ms render={renderMs / 600:F3}ms audio copy={audioMs / 600:F3}ms.");
         if (lastSnapshot?.Layers is { } layers)
         {
-            foreach (RenderLayer layer in layers.Layers)
+            foreach (DisplayLayer layer in layers.Layers)
             {
                 var isolated = new LayeredScene(layers.Paint, [layer], layers.Brightness);
                 // These isolated costs include snapshot-memory setup and backdrop

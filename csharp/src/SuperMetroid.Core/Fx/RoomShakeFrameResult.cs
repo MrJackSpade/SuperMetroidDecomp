@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Fx;
 /// <param name="Bg2">BG2 scroll displacement.</param>
 public readonly record struct RoomShakeFrameResult(
     Offset16<RoomPixels> Bg1,
-    Offset16<Bg2Pixels> Bg2);
+    Offset16<BackgroundPixels> Bg2);

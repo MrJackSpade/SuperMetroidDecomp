@@ -94,8 +94,8 @@ internal static class CrocomirePresentation1193Verification
                 {
                     AssertEqual(previousScroll, runtime.Display.DisplayedGameplayScrolls.Bg1Scroll.Y,
                         "Rumble becomes visible at the following accepted NMI");
-                    var layer = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
-                    AssertEqual(previousScroll, layer.View.Bg1Scroll.Y,
+                    var layer = (GameplaySceneLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
+                    AssertEqual(previousScroll, layer.View.ForegroundScroll.Y,
                         "Production foreground composition receives the displayed rumble scroll");
                 }
                 previousScroll = expected;

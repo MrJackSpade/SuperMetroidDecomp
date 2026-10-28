@@ -29,7 +29,7 @@ public static class GameplayEffectCapture
     /// </summary>
     public static ushort[]? BuildWaterBg2HorizontalScrolls(
         RoomLayer3FxRenderSnapshot fx,
-        Position16<Bg2Pixels> bg2Scroll)
+        Position16<BackgroundPixels> bg2Scroll)
     {
         if (fx.Type != RoomFxType.Water || (fx.LiquidOptions & RoomLiquidOptions.Bg2Wave) == RoomLiquidOptions.None)
             return null;
@@ -56,7 +56,7 @@ public static class GameplayEffectCapture
     /// </summary>
     public static ushort[]? BuildLavaAcidBg2HorizontalScrolls(
         RoomLayer3FxRenderSnapshot fx,
-        Position16<Bg2Pixels> bg2Scroll)
+        Position16<BackgroundPixels> bg2Scroll)
     {
         bool isLavaAcid = fx.Type is RoomFxType.Lava or RoomFxType.Acid;
         bool usesVertical =
@@ -226,7 +226,7 @@ public static class GameplayEffectCapture
     }
 
     /// <summary>Resolves the published eye cone and ROM tangent table into inclusive color windows.</summary>
-    public static ScanlineColorAddRenderLayer? CaptureMorphBallEyeBeam(
+    public static ColourAddBandsLayer? CaptureMorphBallEyeBeam(
         MorphBallEyeBeamRenderSnapshot beam, Position16<RoomPixels> layer1)
     {
         if (beam.Phase is MorphBallEyeBeamPhase.Inactive or MorphBallEyeBeamPhase.PendingInitialization)
@@ -251,7 +251,7 @@ public static class GameplayEffectCapture
     /// rasterizing the published beam geometry. This shared layer is consumed by both the
     /// software and Windows Direct3D backends.
     /// </summary>
-    public static ScanlineColorAddRenderLayer? CaptureMotherBrainRainbowBeam(MotherBrainRainbowBeamRenderSnapshot beam)
+    public static ColourAddBandsLayer? CaptureMotherBrainRainbowBeam(MotherBrainRainbowBeamRenderSnapshot beam)
     {
         if (!beam.Active) return null;
         MotherBrainBeamLine[] lines = RainbowBeamWindowBuilder.Build(beam.Geometry);
@@ -269,18 +269,18 @@ public static class GameplayEffectCapture
     }
 
     /// <summary>Composes native configuration $16 with both BG2 and BG3 on the subscreen.</summary>
-    public static GameplayColorMathRenderLayer CaptureWaterfall(OrdinaryGameplayRenderLayer gameplay,
+    public static GameplayBlendLayer CaptureWaterfall(GameplaySceneLayer gameplay,
         RoomLayer3FxRenderSnapshot fx)
     {
         if (fx.LayerBlendConfiguration != LayerBlendingConfiguration.WaterfallSubtractive)
             throw new ArgumentException("Waterfall capture requires configuration $16.", nameof(fx));
         var windows = new XrayWindowLine[Height];
         Array.Fill(windows, new XrayWindowLine(255, 0));
-        return new(gameplay, windows, false, new SceneBlend { Layers = WaterfallRoomDisplayRules.Blend, BlendsWithSubscreen = true, FixedColor = RgbColor.Black }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3), subscreenUsesBg2: true);
+        return new(gameplay, windows, false, new SceneBlend { Layers = WaterfallRoomDisplayRules.Blend, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3), subscreenUsesBg2: true);
     }
 
     /// <summary>Resolves FX type, liquid visibility and wave phase into a backend-neutral BG equation.</summary>
-    public static FxPlaneBlendRenderLayer? CaptureRoomLayer3Fx(RoomLayer3FxRenderSnapshot fx, Layer3Cells plane)
+    public static OverlayBlendLayer? CaptureRoomLayer3Fx(RoomLayer3FxRenderSnapshot fx, Layer3Cells plane)
     {
         LayerBlendingConfiguration required = fx.Type switch
         {
@@ -306,7 +306,7 @@ public static class GameplayEffectCapture
         bool liquid = fx.Type is RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid;
         if (liquid && unchecked((short)fx.Surface.Y) < 0) return null;
         bool atmosphere = fx.Type is RoomFxType.Rain or RoomFxType.Fog or RoomFxType.Spores;
-        var scrolls = new Position16<BgPlanePixels>[Height];
+        var scrolls = new Position16<TilePlanePixels>[Height];
         int firstSurfaceLine = fx.WaterSurfaceScreenY - (ScreenGeometry.BackgroundTileSizePixels - 1);
         for (int y = HudHeight; y < Height; y++)
         {
@@ -320,7 +320,7 @@ public static class GameplayEffectCapture
         // Liquids sample the whole plane; atmospheres repeat its lower 32 rows.
         return new(plane, atmosphere ? Layer3Plane.Rows / 2 : 0,
             atmosphere ? Layer3Plane.Rows / 2 : Layer3Plane.Rows,
-            HudHeight, subtract ? ExpandedColorMathOperation.Subtract : ExpandedColorMathOperation.Add, scrolls);
+            HudHeight, subtract ? BlendOperation.Subtract : BlendOperation.Add, scrolls);
     }
 
     /// <summary>
@@ -328,18 +328,18 @@ public static class GameplayEffectCapture
     /// overlay would incorrectly brighten foreground terrain (and OBJ palettes 0-3).
     /// Use the same literal Mode-1 composition as the other source-aware effects.
     /// </summary>
-    public static GameplayColorMathRenderLayer CaptureSpores(OrdinaryGameplayRenderLayer gameplay,
+    public static GameplayBlendLayer CaptureSpores(GameplaySceneLayer gameplay,
         RoomLayer3FxRenderSnapshot fx)
     {
         if (fx.Type != RoomFxType.Spores)
             throw new ArgumentException("Spore blending requires a spores FX snapshot.", nameof(fx));
         var emptyWindows = new XrayWindowLine[Height];
         Array.Fill(emptyWindows, new XrayWindowLine(255, 0));
-        return new(gameplay, emptyWindows, false, new SceneBlend { Layers = AtmosphereDriftDefinitions.SporesBlendedLayers, BlendsWithSubscreen = true, FixedColor = RgbColor.Black }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3));
+        return new(gameplay, emptyWindows, false, new SceneBlend { Layers = AtmosphereDriftDefinitions.SporesBlendedLayers, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3));
     }
 
     /// <summary>Resolves the selected Ceres gradient into RGB window rows, with no boss-state reference.</summary>
-    public static ScanlineColorAddRenderLayer CaptureCeresHaze(bool ridleyIsDead,
+    public static ColourAddBandsLayer CaptureCeresHaze(bool ridleyIsDead,
         int intensity = CeresHazeRenderDefinitions.MaximumComponent,
         RoomFxBlendInks? colors = null)
     {
@@ -359,7 +359,7 @@ public static class GameplayEffectCapture
     /// Resolves ROM curve data and the rendered explosion phase on the producer side.
     /// The renderer receives only clipped endpoints/colors, not a bus or projectile owner.
     /// </summary>
-    public static ScanlineColorAddRenderLayer? CapturePowerBombColorMath(
+    public static ColourAddBandsLayer? CapturePowerBombColorMath(
         PowerBombRenderSnapshot explosion, Position16<RoomPixels> layer1,
         int firstVisibleScanline = HudHeight)
     {
@@ -428,7 +428,7 @@ public static class GameplayEffectCapture
     }
 
     /// <summary>The suit pickup's light beam as a colour added through its window, captured once; nothing later reads the pickup.</summary>
-    public static ScanlineColorAddRenderLayer? CaptureSuitPickup(SamusSuitPickupFlash? flash)
+    public static ColourAddBandsLayer? CaptureSuitPickup(SamusSuitPickupFlash? flash)
     {
         if (flash is not { } active) return null;
         ushort[] endpoints = SuitPickupBeamWindowBuilder.Build(active.Beam);

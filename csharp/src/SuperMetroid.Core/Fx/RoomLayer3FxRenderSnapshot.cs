@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Fx;
 public readonly record struct RoomLayer3FxRenderSnapshot(
     RoomFxType Type,
     LayerBlendingConfiguration LayerBlendConfiguration,
-    Position16<Bg3Pixels> Scroll,
+    Position16<OverlayPixels> Scroll,
     Position16<RoomPixels> Surface,
     RoomLiquidOptions LiquidOptions = RoomLiquidOptions.None,
     int WaterBg3WavePhase = 0,

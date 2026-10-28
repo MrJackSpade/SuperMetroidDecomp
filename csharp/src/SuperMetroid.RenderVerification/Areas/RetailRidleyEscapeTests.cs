@@ -61,7 +61,7 @@ internal static class RetailRidleyEscapeTests
                         ?? throw new InvalidOperationException("Ridley escape omitted capture.");
                     // The getaway's floor reaches the screen at the accepted frame after the main loop that computed it
                     // (#1307), so the published frame, not the live getaway, decides whether this picture shows it.
-                    if (frame.Latched.PerspectiveFloor is { Below: BelowPerspectiveFloor.Layer2 } && scene.Layers[0] is not GameplayFloorRenderLayer { Floor: not null })
+                    if (frame.Latched.PerspectiveFloor is { Below: BelowPerspectiveFloor.Layer2 } && scene.Layers[0] is not TurningRoomLayer { Floor: not null })
                         throw new InvalidOperationException("Native Mode-7 escape omitted its preserved floor layer.");
                     var packet = new DisplayPacket(new(++samples, 1, (ushort)tick), scene);
                     PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),

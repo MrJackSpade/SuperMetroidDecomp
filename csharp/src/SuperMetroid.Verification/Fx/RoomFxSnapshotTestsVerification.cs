@@ -41,26 +41,26 @@ internal static class RoomFxSnapshotTestsVerification
         foreach (int phase in new[] { 0, 7, 15 })
         foreach (ushort currentY in new ushort[] { 400, ushort.MaxValue })
         {
-            var fx = new RoomLayer3FxRenderSnapshot(type, blend, new Position16<Bg3Pixels>(65530, 511), new Position16<RoomPixels>(0, currentY),
+            var fx = new RoomLayer3FxRenderSnapshot(type, blend, new Position16<OverlayPixels>(65530, 511), new Position16<RoomPixels>(0, currentY),
                 WaterBg3WavePhase: phase, WaterSurfaceScreenY: surface);
-            FxPlaneBlendRenderLayer? layer = GameplayEffectCapture.CaptureRoomLayer3Fx(fx, plane);
+            OverlayBlendLayer? layer = GameplayEffectCapture.CaptureRoomLayer3Fx(fx, plane);
             var packet = new DisplayPacket(new(++samples, 1, 0),
-                new LayeredScene(memory, layer is null ? [] : new RenderLayer[] { layer }, 15));
+                new LayeredScene(memory, layer is null ? [] : new DisplayLayer[] { layer }, 15));
             RgbaPixel[] actual = DisplayRendering.Render(packet);
             AssertTrue(actual.AsSpan(0, 256 * 32).SequenceEqual(baseline.AsSpan(0, 256 * 32)),
                 $"room FX {type}/{blend} at {surface}, phase {phase}, Y {currentY} preserves HUD band");
         }
-        var lines = new Position16<BgPlanePixels>[224];
-        var owned = new FxPlaneBlendRenderLayer(plane, 0, 64, 32, ExpandedColorMathOperation.Add, lines);
-        Array.Fill(lines, new Position16<BgPlanePixels>(1234, 5678));
+        var lines = new Position16<TilePlanePixels>[224];
+        var owned = new OverlayBlendLayer(plane, 0, 64, 32, BlendOperation.Add, lines);
+        Array.Fill(lines, new Position16<TilePlanePixels>(1234, 5678));
         AssertTrue(owned.Scrolls.All(line => line == default), "BG math owns register rows");
-        AssertThrows<ArgumentException>(() => new FxPlaneBlendRenderLayer(plane, 0, 64, 32,
-            ExpandedColorMathOperation.Add, new Position16<BgPlanePixels>[223]), "BG math rejects truncated register table");
-        AssertThrows<ArgumentOutOfRangeException>(() => new FxPlaneBlendRenderLayer(plane, 0, 64, 32,
-            (ExpandedColorMathOperation)255, lines), "BG math rejects unknown equation");
+        AssertThrows<ArgumentException>(() => new OverlayBlendLayer(plane, 0, 64, 32,
+            BlendOperation.Add, new Position16<TilePlanePixels>[223]), "BG math rejects truncated register table");
+        AssertThrows<ArgumentOutOfRangeException>(() => new OverlayBlendLayer(plane, 0, 64, 32,
+            (BlendOperation)255, lines), "BG math rejects unknown equation");
         var encoded = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory, [owned], 15));
         AssertThrows<InvalidDataException>(() => GameplayEffectCapture.CaptureRoomLayer3Fx(
-            new(RoomFxType.Water, LayerBlendingConfiguration.Rain, Position16<Bg3Pixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue)), plane), "capture preserves invalid water configuration failure");
+            new(RoomFxType.Water, LayerBlendingConfiguration.Rain, Position16<OverlayPixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue)), plane), "capture preserves invalid water configuration failure");
         Console.WriteLine($"  Room FX snapshots: {samples} water/lava/acid/rain/fog cases, HUD exclusion and ownership agree.");
     }
 }

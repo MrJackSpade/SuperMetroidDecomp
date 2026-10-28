@@ -1416,7 +1416,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
             return CurrentCeresFlight.CaptureRenderSnapshot();
 
         SpriteFrameBuffer sprites;
-        TileRenderLayer room;
+        ScreenTilesLayer room;
         if (Phase is IntroCinematicPhase.MotherBrainCrossfade or
             IntroCinematicPhase.MotherBrainFlashback or IntroCinematicPhase.PageTwoCrossfade)
         {
@@ -1447,7 +1447,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
             // The first card is opaque and unscrolled; later text is transparent
             // and cropped one tile down. Do not conflate those two PPU setups.
             return new(new FramePaint(palette.Colors, sprites.Draws),
-                new RenderLayer[] { new TileViewportRenderLayer(NarrationCells(), 0, false, null) }, Brightness.Level);
+                new DisplayLayer[] { new ScreenTilesViewportLayer(NarrationCells(), 0, false, null) }, Brightness.Level);
         }
         else
         {
@@ -1455,14 +1455,14 @@ level, samus, FrameCounterWord(elapsedUpdates));
             room = Plane(tilemaps.Portrait, new(0, GameplayFlashbackBg1VerticalScroll));
         }
 
-        var text = new TileViewportRenderLayer(NarrationCells(), GameplayFlashbackBg1VerticalScroll, true, false);
+        var text = new ScreenTilesViewportLayer(NarrationCells(), GameplayFlashbackBg1VerticalScroll, true, false);
         // Mode 1 with high-priority BG3: preserve both the OBJ winner and the
         // insertion points of text/room priority planes during palette crossfades.
-        return new(new FramePaint(palette.Colors, sprites.Draws), new RenderLayer[]
+        return new(new FramePaint(palette.Colors, sprites.Draws), new DisplayLayer[]
         {
-            new SpritePriorityRenderLayer(0), text, new SpritePriorityRenderLayer(1), room,
-            new SpritePriorityRenderLayer(2), room with { Priority = true },
-            new SpritePriorityRenderLayer(3), text with { Priority = true },
+            new SpriteDepthLayer(0), text, new SpriteDepthLayer(1), room,
+            new SpriteDepthLayer(2), room with { Priority = true },
+            new SpriteDepthLayer(3), text with { Priority = true },
         }, Brightness.Level);
     }
 
@@ -1480,9 +1480,9 @@ level, samus, FrameCounterWord(elapsedUpdates));
     internal static ushort FrameCounterWord(int elapsedUpdates) => unchecked((ushort)elapsedUpdates);
 
     /// <summary>Defines a four-bit background plane at the selected tilemap and source scroll, drawn from the scene's tiles (#1392).</summary>
-    private TileRenderLayer Plane(ReadOnlySpan<BackgroundTile> tilemap, Position16<BgPlanePixels> scroll) =>
+    private ScreenTilesLayer Plane(ReadOnlySpan<BackgroundTile> tilemap, Position16<TilePlanePixels> scroll) =>
         new(ScreenTileMap.Of(tilemap, new Extent16<TilemapCells>(32, 32), SceneTiles), scroll, false);
 
     /// <summary>The narration's cells, showing its font characters (#1392).</summary>
-    private ScreenTileMap NarrationCells() => ScreenTileMap.Of(tilemaps.Narration, TileViewportRenderLayer.MapSize, NarrationTiles);
+    private ScreenTileMap NarrationCells() => ScreenTileMap.Of(tilemaps.Narration, ScreenTilesViewportLayer.MapSize, NarrationTiles);
 }

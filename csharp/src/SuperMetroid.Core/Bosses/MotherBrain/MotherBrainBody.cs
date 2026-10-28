@@ -467,7 +467,7 @@ internal sealed class MotherBrainBody
     /// <summary>Sets the BG2 offset placing her body for the current motion; the NMI publishes it with her body (#1356).</summary>
     internal static void PublishMotherBrainBg2Scroll(
         MotherBrainEnemyState state,
-        Position16<Bg2Pixels> scroll)
+        Position16<BackgroundPixels> scroll)
     {
         state.Bg2Scroll = scroll;
         state.HasBg2ScrollOverride = true;

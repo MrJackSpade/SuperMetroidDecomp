@@ -131,7 +131,7 @@ internal sealed class MotherBrainRainbowAndDeath
             _presentation.ColourSet(SpriteColourSetDefinitions.EscapeTypewriterText)
                 .Slice(SpriteColourSetDefinitions.EscapeTypewriterTextFirstColour, 2)
                 .CopyFrom(EscapeTypewriterColourDefinitions.Source.In(_presentation.BackgroundSets).Colors);
-            state.Bg2Scroll = Position16<Bg2Pixels>.Zero;
+            state.Bg2Scroll = Position16<BackgroundPixels>.Zero;
         }
         if (step.ExplodedDoorPaletteRequested)
             LoadMotherBrainDeathDoorPalette();

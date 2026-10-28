@@ -77,9 +77,9 @@ internal static void VerifyObjRendering()
     // The frontend capture converts the screen's OAM storage into the sprite draw it stands for;
     // the display renderer then shows that draw over the backdrop.
     RgbaPixel[] backdrop = DisplayRendering.Render(new LayeredScene(
-        new FramePaint(cgram.Colors, []), new RenderLayer[] { new SpriteRenderLayer() }, FadeLevel.Full));
+        new FramePaint(cgram.Colors, []), new DisplayLayer[] { new SpritesLayer() }, FadeLevel.Full));
     RgbaPixel[] pixels = DisplayRendering.Render(new LayeredScene(
-        FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0), new RenderLayer[] { new SpriteRenderLayer() }, FadeLevel.Full));
+        FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0), new DisplayLayer[] { new SpritesLayer() }, FadeLevel.Full));
     AssertEqual(new RgbaPixel(255, 0, 0), pixels[20 * 256 + 10], "OBJ colored planar pixel");
     AssertEqual(backdrop[20 * 256 + 11], pixels[20 * 256 + 11], "OBJ color zero shows the backdrop");
 
@@ -95,7 +95,7 @@ internal static void VerifyObjRendering()
     oam.AddRawSmallSprite(position: new Position16<SpritePixels>(10, 20), attributes: 0x3600); // OAM 1: OBJ3, palette 3.
     oam.FinalizeFrame();
     RgbaPixel[] overlap = DisplayRendering.Render(new LayeredScene(
-        FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0), new RenderLayer[] { new SpriteRenderLayer() }, FadeLevel.Full));
+        FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0), new DisplayLayer[] { new SpritesLayer() }, FadeLevel.Full));
     AssertEqual(
         new RgbaPixel(255, 0, 0),
         overlap[20 * 256 + 10],
@@ -653,7 +653,7 @@ internal static void VerifyBackgroundScrollState()
     // Upward doors derive BG2 from destination+$1F while layer one keeps the destination.
     var upwardParallax = new BackgroundScrollState { Layer2Scroll = Layer2ScrollModes.FromHeader(0x80, 0x40) };
     upwardParallax.PrepareDoorOpeningDestination(new(0x0400, 0x0220), new(0x0400, 0x021f));
-    AssertEqual(new Position16<Bg2Pixels>(0x0200, 0x0087), upwardParallax.Layer2Position,
+    AssertEqual(new Position16<BackgroundPixels>(0x0200, 0x0087), upwardParallax.Layer2Position,
         "upward door setup calculates BG2 from its separate parallax basis");
     AssertEqual(new Position16<RoomPixels>(0x0400, 0x0220), upwardParallax.Layer1Position,
         "upward door setup keeps the destination layer-one position");
@@ -672,7 +672,7 @@ internal static void VerifyBackgroundScrollState()
         stagedLayer1: new(0xff00, 0x0000));
     AssertEqual(new Offset16<RoomPixels>(0x0220, 0x0340), rightDoor.Bg1Offset,
         "$80:AE29 BG1 offsets are the retained registers minus the staged layer-one origin");
-    AssertEqual(new Offset16<Bg2Pixels>(0x0100, 0), rightDoor.Bg2Offset,
+    AssertEqual(new Offset16<BackgroundPixels>(0x0100, 0), rightDoor.Bg2Offset,
         "$80:AE3B BG2 offsets negate the staged layer-one origin on both axes");
     rightDoor.CalculateLayerScrolls();
     AssertEqual((ushort)0x0124, rightDoor.Bg1Scroll.X,
@@ -927,15 +927,15 @@ internal static void VerifyBg2ScreenLayout()
     var horizontalByLine = new ushort[DisplayScreen.Height - DisplayScreen.HudHeight];
     horizontalByLine[0] = 8;
     RgbaPixel[] gameplayFrame = RenderOrdinaryGameplay(gameplayCgram,
-        new OrdinaryGameplayRenderLayer(
-            new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0x00e0),
+        new GameplaySceneLayer(
+            new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0x00e0),
                 new Extent16<TilemapCells>(32, 64), ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites),
             // BG2 shows the tilemap just loaded, as its library background's image (#1403).
             RoomBackgroundsFixtures.Blank() with
             {
                 Bg2Image = RoomBlockFixtures.LoadedBackground(gameplayVram.Bytes, gameplayCgram.Colors, GameplayVramLayout.Bg2TilemapWord),
             },
-            new Bg2LineScrolls(horizontalByLine, default)));
+            new BackgroundLineScrolls(horizontalByLine, default)));
     AssertEqual(new RgbaPixel(0, 0, 255),
         gameplayFrame[DisplayScreen.HudHeight * DisplayScreen.Width],
         "ordinary compositor consumes sky HOFS and vertical BGSC screen");
@@ -951,8 +951,8 @@ internal static void VerifyBg2ScreenLayout()
         destinationWord: unchecked((ushort)(kraidBg2BaseWord + firstGameplaySourceRow * 32)),
         wordIncrement: 1);
     gameplayFrame = RenderOrdinaryGameplay(gameplayCgram,
-        new OrdinaryGameplayRenderLayer(
-            new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0),
+        new GameplaySceneLayer(
+            new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0),
                 new Extent16<TilemapCells>(64, 64), ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites),
             // Kraid's body is the 64x64 map he loads at $4000, drawn from its pictures (#1403).
             RoomBackgroundsFixtures.Blank() with
@@ -967,8 +967,8 @@ internal static void VerifyBg2ScreenLayout()
     Console.WriteLine("  BG render: BGSC geometry agrees.");
 
     // The frame the display renderer draws of the gameplay layer alone, with no sprites.
-    static RgbaPixel[] RenderOrdinaryGameplay(SnesCgram cgram, OrdinaryGameplayRenderLayer layer) =>
-        DisplayRendering.Render(new LayeredScene(new FramePaint(cgram.Colors, []), new RenderLayer[] { layer }, FadeLevel.Full));
+    static RgbaPixel[] RenderOrdinaryGameplay(SnesCgram cgram, GameplaySceneLayer layer) =>
+        DisplayRendering.Render(new LayeredScene(new FramePaint(cgram.Colors, []), new DisplayLayer[] { layer }, FadeLevel.Full));
 }
 
 /// <summary>The native first pre-scaled power-bomb profile's half width for <paramref name="row"/> at $88:9F06.</summary>
@@ -1014,7 +1014,7 @@ internal static void VerifyPowerBombColorMathWindow()
 
     // Spawn happens after the native HDMA pass. Even though status is already `$8000`,
     // the host must not invent an explosion table on this frame.
-    ScanlineColorAddRenderLayer? spawnWindows = CaptureWindows();
+    ColourAddBandsLayer? spawnWindows = CaptureWindows();
     AssertTrue(AddedColour(spawnWindows, centerX, centerY) is null,
         "power-bomb spawn frame has no premature HDMA window");
 
@@ -1030,7 +1030,7 @@ internal static void VerifyPowerBombColorMathWindow()
         "power-bomb renderer retains pre-update radius");
     AssertEqual(0x3400, explosion.PreExplosionRadius.RawValue,
         "power-bomb logic advances next-frame radius");
-    ScanlineColorAddRenderLayer? scaledWindows = CaptureWindows();
+    ColourAddBandsLayer? scaledWindows = CaptureWindows();
     (int Red, int Green, int Blue) fixedColor = (8, 16, 24);
     AssertEqual<(int, int, int)?>(fixedColor,
         AddedColour(scaledWindows, centerX + 3, centerY),
@@ -1048,7 +1048,7 @@ internal static void VerifyPowerBombColorMathWindow()
     explosion.StepFrame();
     AssertEqual(PowerBombExplosionPhase.PreExplosionYellow, explosion.RenderedPhase,
         "first pre-scaled yellow frame is retained for composition");
-    ScanlineColorAddRenderLayer? shapeWindows = CaptureWindows();
+    ColourAddBandsLayer? shapeWindows = CaptureWindows();
     AssertEqual<PowerBombShapeCursor?>(new PowerBombShapeCursor(PowerBombShapeStream.Yellow, 0), explosion.RenderedShape,
         "first yellow frame selects the native profile");
     for (int y = 0; y < DisplayScreen.Height; y++)
@@ -1066,12 +1066,12 @@ internal static void VerifyPowerBombColorMathWindow()
     Console.WriteLine("  Power bomb: ROM curve bands, rendered-frame timing, and center-outward shapes agree.");
 
     // The colour windows the displayed frame adds for the explosion, as the gameplay capture takes them.
-    ScanlineColorAddRenderLayer? CaptureWindows() =>
+    ColourAddBandsLayer? CaptureWindows() =>
         GameplayEffectCapture.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
 }
 
 /// <summary>The colour <paramref name="windows"/> add at a screen pixel, or null where no window covers it.</summary>
-static (int Red, int Green, int Blue)? AddedColour(ScanlineColorAddRenderLayer? windows, int x, int y)
+static (int Red, int Green, int Blue)? AddedColour(ColourAddBandsLayer? windows, int x, int y)
 {
     if (windows is null) return null;
     ColorAddWindow window = windows.Windows[y];
@@ -1100,7 +1100,7 @@ internal static void VerifyScrollingSkyState()
 
     var sky = new ScrollingSkyState(ScrollingSkyChunkTable.Land);
     sky.ProcessFrame(layer1YPosition: 0x041f, timeIsFrozen: false);
-    AssertEqual(new Position16<Bg2Pixels>(0, 0x041f), sky.Bg2Scroll, "$88:AFB2 BG2 scroll copies layer-one Y and leaves X zero");
+    AssertEqual(new Position16<BackgroundPixels>(0, 0x041f), sky.Bg2Scroll, "$88:AFB2 BG2 scroll copies layer-one Y and leaves X zero");
 
     // Chunk index five is the intentional table-adjacency wrap to tilemap zero.
     AssertTrue(ScrollingSkyChunks.TryGetPage(ScrollingSkyChunkTable.Land, 5, out int wrapped) && wrapped == 0,

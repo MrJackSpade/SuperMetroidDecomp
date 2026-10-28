@@ -8,5 +8,5 @@ public enum FloorColorBlend
     /// <summary>The floor minus the sprites.</summary>
     SubtractSprites = 1,
     /// <summary>BG1/OBJ main plus BG1 subscreen; only eligible layers/palettes participate.</summary>
-    AddBg1 = 2,
+    AddForeground = 2,
 }

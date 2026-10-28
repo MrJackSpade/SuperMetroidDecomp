@@ -156,7 +156,7 @@ internal static class PaletteJsonContractsVisibleVerification
         // The 8x8 sprite's pixels at the screen's top-left corner, as the display renderer draws them.
         static RgbaPixel[] CapturedSpritePixels(FramePaint paint)
         {
-            RgbaPixel[] frame = DisplayRendering.Render(new LayeredScene(paint, new RenderLayer[] { new SpriteRenderLayer() }, FadeLevel.Full));
+            RgbaPixel[] frame = DisplayRendering.Render(new LayeredScene(paint, new DisplayLayer[] { new SpritesLayer() }, FadeLevel.Full));
             return [.. Enumerable.Range(0, 64).Select(pixel => frame[pixel / 8 * ScreenGeometry.ScreenSize.X + pixel % 8])];
         }
     }

@@ -281,24 +281,24 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         PrepareRenderSprites();
         // BG fetches start on physical scanline one; OBJ coordinates already use
         // output-space Y. Keep the cartridge scroll and sprite origins unchanged.
-        Position16<BgPlanePixels> mapScroll = new(
+        Position16<TilePlanePixels> mapScroll = new(
             ScreenMode == PauseScreenMode.Map ? MapScrollPosition.X : (ushort)0,
             unchecked((ushort)((ScreenMode == PauseScreenMode.Map ? MapScrollPosition.Y : 0) + ScreenGeometry.BackgroundRowOffset)));
         // Every plane draws from the pause screen's pre-coloured tiles (#1392).
         ScreenLayerPictures planes = screen.PlaneTiles;
-        var bg1 = new TileRenderLayer(ScreenTileMap.Of(screen.Tilemaps.Bg1, new Extent16<TilemapCells>(64, 32), planes),
+        var bg1 = new ScreenTilesLayer(ScreenTileMap.Of(screen.Tilemaps.Bg1, new Extent16<TilemapCells>(64, 32), planes),
             mapScroll, false);
-        var bg2 = new TileRenderLayer(ScreenTileMap.Of(screen.Tilemaps.Bg2, new Extent16<TilemapCells>(32, 32), planes),
-            new Position16<BgPlanePixels>(0, ScreenGeometry.BackgroundRowOffset), false);
+        var bg2 = new ScreenTilesLayer(ScreenTileMap.Of(screen.Tilemaps.Bg2, new Extent16<TilemapCells>(32, 32), planes),
+            new Position16<TilePlanePixels>(0, ScreenGeometry.BackgroundRowOffset), false);
         // The HUD plane shows its first screen through the viewport.
-        var bg3 = new TileViewportRenderLayer(ScreenTileMap.Of(screen.Tilemaps.Bg3[..PauseTilemaps.ScreenWords], TileViewportRenderLayer.MapSize,
+        var bg3 = new ScreenTilesViewportLayer(ScreenTileMap.Of(screen.Tilemaps.Bg3[..PauseTilemaps.ScreenWords], ScreenTilesViewportLayer.MapSize,
             screen.HudTiles), ScreenGeometry.BackgroundRowOffset, true, false);
-        RenderLayer[] layers =
+        DisplayLayer[] layers =
         [
-            new SpritePriorityRenderLayer(0), bg3,
-            new SpritePriorityRenderLayer(1), bg2, bg1,
-            new SpritePriorityRenderLayer(2), bg2 with { Priority = true }, bg1 with { Priority = true },
-            new SpritePriorityRenderLayer(3), bg3 with { Priority = true },
+            new SpriteDepthLayer(0), bg3,
+            new SpriteDepthLayer(1), bg2, bg1,
+            new SpriteDepthLayer(2), bg2 with { Priority = true }, bg1 with { Priority = true },
+            new SpriteDepthLayer(3), bg3 with { Priority = true },
         ];
         return new(screen.Paint(), layers, checked((byte)(Transition == PauseMenuTransition.None ? 15 : TransitionBrightness)));
     }

@@ -12,5 +12,5 @@ namespace SuperMetroid.Core.Gameplay;
 public readonly record struct GameplayRenderSnapshot(
     Position16<RoomPixels> Layer1Position,
     Position16<RoomPixels> Bg1Scroll,
-    Position16<Bg2Pixels> Bg2Scroll,
+    Position16<BackgroundPixels> Bg2Scroll,
     RoomShakeFrameResult RoomShake);

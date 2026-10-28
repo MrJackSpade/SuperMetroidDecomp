@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 internal static class CeresScreenTiles
 {
     /// <summary>The Ceres flight's characters: its object characters, which its caption shows.</summary>
-    internal static ScreenLayerPictures Flight(InstalledSpriteSheets sheets) => new ScreenTileSet(BgBitDepth.FourBpp)
+    internal static ScreenLayerPictures Flight(InstalledSpriteSheets sheets) => new ScreenTileSet(TileInkDepth.SixteenColours)
         .Place(ScreenTileSheets.Of(Ensure.NotNull(sheets), SpriteSheetId.CeresFlightObjectTiles), CeresTileSetDefinitions.ObjectFirstTile, 0,
             CeresFlightArtworkFormat.ObjectByteCount / CharacterBytes)
         .Pictures();
@@ -23,7 +23,7 @@ internal static class CeresScreenTiles
     internal static ScreenLayerPictures Destruction(InstalledSpriteSheets sheets, IEnumerable<CeresDestructionUpload> uploads)
     {
         Ensure.NotNull(sheets);
-        var tiles = new ScreenTileSet(BgBitDepth.FourBpp);
+        var tiles = new ScreenTileSet(TileInkDepth.SixteenColours);
         foreach (CeresDestructionUpload upload in Ensure.NotNull(uploads))
         {
             if (upload == CeresDestructionUpload.CeresScene)
@@ -58,5 +58,5 @@ internal static class CeresScreenTiles
     }
 
     /// <summary>Bytes of one 4-bpp character.</summary>
-    private static int CharacterBytes => ScreenTileSheet.CharacterWordsOf(BgBitDepth.FourBpp) * sizeof(ushort);
+    private static int CharacterBytes => ScreenTileSheet.CharacterWordsOf(TileInkDepth.SixteenColours) * sizeof(ushort);
 }

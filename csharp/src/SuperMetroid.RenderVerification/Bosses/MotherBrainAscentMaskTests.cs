@@ -30,12 +30,12 @@ internal static class MotherBrainAscentMaskTests
         var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         oam[0] = 16; oam[1] = 212; oam[2] = 3; oam[3] = 0x30;
         var memory = FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0);
-        var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
+        var registers = new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0), new Extent16<TilemapCells>(64, 32),
             ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
         ScreenLayers[] masks = Enumerable.Range(32, 192).Select(y => (ScreenLayers)(y < 56 ? 0x15 : y < 216 ? 0x13 : 0x05)).ToArray();
         foreach (bool active in new[] { true, false })
         {
-            var layer = new OrdinaryGameplayRenderLayer(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1)), mainScreenLayersByLine: active ? masks : []);
+            var layer = new GameplaySceneLayer(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1)), mainScreenLayersByLine: active ? masks : []);
             var scene = new LayeredScene(memory, [layer], 15);
             var pixels = DisplayRendering.Render(scene);
             Check(16, 218, active ? 1 : 129, "leg hidden by floor only during ascent");
@@ -44,7 +44,7 @@ internal static class MotherBrainAscentMaskTests
             Check(0, 80, 2, "middle band retains BG2");
             var packet = new DisplayPacket(new(1, 1, 0), scene);
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "Mother Brain ascent mask");
-            var math = new GameplayColorMathRenderLayer(layer, Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new SceneBlend { Layers = ColorBlend.None, BlendsWithSubscreen = false, FixedColor = RgbColor.Black });
+            var math = new GameplayBlendLayer(layer, Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new SceneBlend { Layers = ColorBlend.None, BlendsWithLayersBehind = false, FixedColor = RgbColor.Black });
             var mathScene = new LayeredScene(memory, [math], 15);
             var mathPacket = new DisplayPacket(new(2, 1, 0), mathScene);
             PixelComparison.Verify(mathPacket, pixels, DisplayRendering.Render(mathScene), "CPU source-aware ascent mask");

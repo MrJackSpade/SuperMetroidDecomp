@@ -28,13 +28,13 @@ internal static class ObjSubscreenVerification
         oam[0] = 8; oam[1] = 8;
         var memory = FramePaint.FromOam(vram, ToColors(colors), oam, 1, 0);
         var packet = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory,
-            new RenderLayer[] { new SpriteRenderLayer(true) }, 15));
+            new DisplayLayer[] { new SpritesLayer(true) }, 15));
 
         var pixels = DisplayRendering.Render(packet);
         AssertEqual(new RgbaPixel(255, 0, 255), pixels[8 * 256 + 8], "OBJ subscreen adds blue to red backdrop");
         AssertEqual(new RgbaPixel(255, 0, 0), pixels[0], "transparent OBJ preserves backdrop");
         var ordinary = new DisplayPacket(new(2, 1, 0), new LayeredScene(memory,
-            new RenderLayer[] { new SpriteRenderLayer() }, 15));
+            new DisplayLayer[] { new SpritesLayer() }, 15));
     }
 
     /// <summary>Checks Mode 7 BG1 self-addition and OBJ palette eligibility after main-screen priority selection.</summary>
@@ -54,7 +54,7 @@ internal static class ObjSubscreenVerification
             var registers = new AffineTransform(256, 0, 0, 256, new Offset16<FloorPixels>(0, 0), new Offset16<FloorPixels>(0, 0));
             var memory = FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3);
             var packet = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory,
-                new RenderLayer[] { new FloorRenderLayer(registers, AffineFloorFixtures.Floor(vram, ToColors(colors)), AddBg1Subscreen: true) }, 15));
+                new DisplayLayer[] { new TurningFloorLayer(registers, AffineFloorFixtures.Floor(vram, ToColors(colors)), AddsForeground: true) }, 15));
             var pixels = DisplayRendering.Render(packet);
             RgbaPixel expected = opaqueBg && priority == 0 ? new(0, 132, 0)
                 : opaqueBg && palette == 4 ? new(99, 66, 0) : new(99, 0, 0);
@@ -62,7 +62,7 @@ internal static class ObjSubscreenVerification
             AssertEqual(opaqueBg ? new RgbaPixel(0, 132, 0) : new RgbaPixel(0, 0, 24), pixels[0],
                 "BG1 doubles itself but transparent BG1 preserves unmodified backdrop");
             AssertThrows<ArgumentException>(() => new LayeredScene(memory,
-                new RenderLayer[] { new FloorRenderLayer(registers, AffineFloorFixtures.Floor(vram, ToColors(colors)), true, true) }, 15), "reject contradictory Mode7 math modes");
+                new DisplayLayer[] { new TurningFloorLayer(registers, AffineFloorFixtures.Floor(vram, ToColors(colors)), true, true) }, 15), "reject contradictory Mode7 math modes");
         }
     }
 
@@ -79,7 +79,7 @@ internal static class ObjSubscreenVerification
         oam[0] = 8; oam[1] = 8;
         var memory = FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3);
         var packet = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory,
-            new RenderLayer[] { new FloorRenderLayer(new(256, 0, 0, 256, default, default), AffineFloorFixtures.Floor(vram, ToColors(colors)), true) }, 15));
+            new DisplayLayer[] { new TurningFloorLayer(new(256, 0, 0, 256, default, default), AffineFloorFixtures.Floor(vram, ToColors(colors)), true) }, 15));
         var pixels = DisplayRendering.Render(packet);
         AssertEqual(new RgbaPixel(198, 99, 0), pixels[8 * 256 + 8], "Mode7 minus OBJ clamps each five-bit component without halving");
         AssertEqual(new RgbaPixel(255, 99, 0), pixels[0], "transparent OBJ leaves Mode7 color unchanged");
@@ -100,7 +100,7 @@ internal static class ObjSubscreenVerification
             oam[0] = 8; oam[1] = 8; oam[3] = (byte)(objPalette * 2);
             var packet = new DisplayPacket(new(1, 1, 0), new LayeredScene(
                 FramePaint.FromOam(vram, ToColors(palette), oam, 1, 0),
-                new RenderLayer[] { new SpriteRenderLayer(FixedColor: new(8, 4, 2)) }, 15));
+                new DisplayLayer[] { new SpritesLayer(FixedColor: new(8, 4, 2)) }, 15));
             var pixels = DisplayRendering.Render(packet);
             AssertEqual(objPalette == 4 ? new RgbaPixel(123, 33, 16) : new RgbaPixel(57, 0, 0), pixels[8 * 256 + 8],
                 "OBJ fixed RGB addition respects palette eligibility and five-bit expansion");
@@ -110,7 +110,7 @@ internal static class ObjSubscreenVerification
             {
                 var filtered = new DisplayPacket(new(1, 1, 0), new LayeredScene(
                     FramePaint.FromOam(vram, ToColors(palette), oam, 1, 0),
-                    new RenderLayer[] { new SpritePriorityRenderLayer(selectedPriority, new(8, 4, 2)) }, 15));
+                    new DisplayLayer[] { new SpriteDepthLayer(selectedPriority, new(8, 4, 2)) }, 15));
                 var filteredPixels = DisplayRendering.Render(filtered);
                 AssertEqual(selectedPriority == 0 ? pixels[8 * 256 + 8] : new RgbaPixel(0, 0, 255),
                     filteredPixels[8 * 256 + 8], "fixed OBJ color obeys both priority filtering and palette eligibility");
@@ -130,10 +130,10 @@ internal static class ObjSubscreenVerification
         colors[0] = 31;
         colors[20] = 31 << 10;
         // The subscreen and its coverage are the one-screen maps at a tilemap word, read as the fixture stands when drawn.
-        ScreenTileMap Cells(int tilemapWord) => VramTileFixtures.Cells(vram, ToColors(colors), tilemapWord, 0, BgBitDepth.FourBpp, TileViewportRenderLayer.MapSize);
+        ScreenTileMap Cells(int tilemapWord) => VramTileFixtures.Cells(vram, ToColors(colors), tilemapWord, 0, TileInkDepth.SixteenColours, ScreenTilesViewportLayer.MapSize);
         var memory = new FramePaint(ToColors(colors), []);
         var packet = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory,
-            new RenderLayer[] { new TileAddRenderLayer(Cells(0x7000)) }, 15));
+            new DisplayLayer[] { new AddedScreenTilesLayer(Cells(0x7000)) }, 15));
         AssertTrue(DisplayRendering.Render(packet).All(pixel => pixel == new RgbaPixel(255, 0, 255)),
             "four-bit subscreen resolves upper bitplanes and sixteen-color palette stride before addition");
 
@@ -147,8 +147,8 @@ internal static class ObjSubscreenVerification
             oam[0] = 8; oam[1] = 8; oam[3] = (byte)(palette * 2);
             var masked = new DisplayPacket(new(3, 1, 0), new LayeredScene(
                 FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3),
-                new RenderLayer[] { new SpriteRenderLayer(), new TileAddRenderLayer(Cells(0x7000),
-                    new TileRenderLayer(Cells(0x6800), new Position16<BgPlanePixels>(0, 0), null), MainObjects: true) }, 15));
+                new DisplayLayer[] { new SpritesLayer(), new AddedScreenTilesLayer(Cells(0x7000),
+                    new ScreenTilesLayer(Cells(0x6800), new Position16<TilePlanePixels>(0, 0), null), MainObjects: true) }, 15));
             var pixels = DisplayRendering.Render(masked);
             AssertEqual(new RgbaPixel(255, 0, 0), pixels[0], "masked subscreen does not add to backdrop");
             AssertEqual(palette == 4 ? new RgbaPixel(0, 255, 255) : new RgbaPixel(0, 255, 0), pixels[8 * 256 + 8],
@@ -163,7 +163,7 @@ internal static class ObjSubscreenVerification
             vram[0xe000 + (32 + 1) * 2 + 1] = (byte)(4 | (highBackground ? 32 : 0));
             var composite = new DisplayPacket(new(2, 1, 0), new LayeredScene(
                 FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3),
-                new RenderLayer[] { new TileAddRenderLayer(Cells(0x7000), IncludeObjects: true) }, 15));
+                new DisplayLayer[] { new AddedScreenTilesLayer(Cells(0x7000), IncludeObjects: true) }, 15));
             bool objectWins = priority >= (highBackground ? 3 : 2);
             AssertEqual(objectWins ? new RgbaPixel(255, 255, 0) : new RgbaPixel(255, 0, 255),
                 DisplayRendering.Render(composite)[8 * 256 + 8],

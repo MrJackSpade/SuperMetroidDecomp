@@ -333,15 +333,15 @@ internal static class RoomBackgroundsFixtures
     /// The scene's 256 CGRAM colours the planes' seeded block pictures (#1392) keep as standard in their even rows, odd rows
     /// differing as under a palette effect; null for black.
     /// </param>
-    internal static RoomBackgrounds Seeded(Random random, Position16<BgPlanePixels> bg1Scroll,
-        Position16<BgPlanePixels>? bg2Scroll = null, bool door = false, bool overlay = false, RgbColor[]? pictureColours = null)
+    internal static RoomBackgrounds Seeded(Random random, Position16<TilePlanePixels> bg1Scroll,
+        Position16<TilePlanePixels>? bg2Scroll = null, bool door = false, bool overlay = false, RgbColor[]? pictureColours = null)
     {
-        RoomBackgroundLayer Layer(Position16<BgPlanePixels> scroll)
+        RoomBackgroundLayer Layer(Position16<TilePlanePixels> scroll)
         {
             var blocks = new ushort[SideBlocks * SideBlocks];
             for (int index = 0; index < blocks.Length; index++)
                 blocks[index] = (ushort)random.Next(ushort.MaxValue + 1);
-            var inside = new Position16<BgPlanePixels>((ushort)random.Next(SideBlocks * RoomLevelPlane.BlockPixels / 2),
+            var inside = new Position16<TilePlanePixels>((ushort)random.Next(SideBlocks * RoomLevelPlane.BlockPixels / 2),
                 (ushort)random.Next(SideBlocks * RoomLevelPlane.BlockPixels / 2));
             return new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(SideBlocks, SideBlocks), blocks).Cells,
                 scroll - inside, SeededPictures(random, pictureColours ?? new RgbColor[SnesCgram.ColorCount]));
@@ -349,7 +349,7 @@ internal static class RoomBackgroundsFixtures
         RoomBackgroundLayer bg1 = Layer(bg1Scroll);
         RoomBackgroundLayer? bg2 = bg2Scroll is { } scroll2 ? Layer(scroll2) : null;
         RoomDoorBackground? source = door
-            ? RoomDoorBackground.Begin(Layer(bg1Scroll), bg1Scroll + new Offset16<BgPlanePixels>((short)random.Next(-128, 128), 0))
+            ? RoomDoorBackground.Begin(Layer(bg1Scroll), bg1Scroll + new Offset16<TilePlanePixels>((short)random.Next(-128, 128), 0))
             : null;
         RgbColor[] scene = pictureColours ?? new RgbColor[SnesCgram.ColorCount];
         RoomOverlayPictures? written = overlay ? SeededOverlayRun(random, scene, random.Next(8, 24)) : null;

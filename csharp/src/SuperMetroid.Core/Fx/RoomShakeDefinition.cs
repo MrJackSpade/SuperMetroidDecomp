@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Fx;
 /// <param name="Bg2">BG2 scroll displacement.</param>
 /// <param name="Projectile">Enemy-projectile draw displacement.</param>
 internal readonly record struct RoomShakeDefinition(
-    Offset16<RoomPixels> Bg1, Offset16<Bg2Pixels> Bg2, Offset16<RoomPixels> Projectile);
+    Offset16<RoomPixels> Bg1, Offset16<BackgroundPixels> Bg2, Offset16<RoomPixels> Projectile);

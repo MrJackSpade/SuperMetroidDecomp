@@ -34,7 +34,7 @@ internal static class MessageSnapshotTestsVerification
         {
             if (id == GameplayMessageId.None) continue;
             var state = CreateGameplayMessageFixture();
-            AssertTrue(MessageBoxRenderLayer.Capture(state, messages) is null, "inactive message has no overlay");
+            AssertTrue(MessageBoxLayer.Capture(state, messages) is null, "inactive message has no overlay");
             state.Begin(id, 0);
             int previousRadius = -1;
             bool previousYes = true;
@@ -47,8 +47,8 @@ internal static class MessageSnapshotTestsVerification
                 {
                     previousRadius = state.RadiusPixels;
                     previousYes = state.ConfirmationSelectionYes;
-                    MessageBoxRenderLayer? layer = MessageBoxRenderLayer.Capture(state, messages);
-                    RenderLayer[] layers = layer is null ? [] : [layer];
+                    MessageBoxLayer? layer = MessageBoxLayer.Capture(state, messages);
+                    DisplayLayer[] layers = layer is null ? [] : [layer];
                     var packet = new DisplayPacket(new(++samples, 1, (ushort)tick),
                         new LayeredScene(memory, layers, 15));
                     if (layer is not null)
@@ -83,14 +83,14 @@ internal static class MessageSnapshotTestsVerification
             BackgroundTile[] tiles = [.. height.First().Value];
             for (int radius = 0; radius <= GameplayMessageBoxDefinitions.Timing.MaximumRadiusPixels; radius++)
             {
-                var layer = MessageBoxRenderLayer.FromTilemap(tiles, radius, messages);
+                var layer = MessageBoxLayer.FromTilemap(tiles, radius, messages);
                 _ = new DisplayPacket(new(++samples, 1, 0), new LayeredScene(memory, [layer], 15));
             }
         }
         SpriteSheetFrame wrongSize = RepositoryInstallation.Installation.LoadRoomBlockSheets().Bg3Words.Values.First()
             .Sheet.Frame("Fill");
-        AssertThrows<ArgumentException>(() => new MessageBoxRenderLayer(wrongSize, 1), "an image of no whole message rows rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => MessageBoxRenderLayer.FromTilemap(messages.Messages.Values.First().AsSpan(), 25, messages),
+        AssertThrows<ArgumentException>(() => new MessageBoxLayer(wrongSize, 1), "an image of no whole message rows rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => MessageBoxLayer.FromTilemap(messages.Messages.Values.First().AsSpan(), 25, messages),
             "invalid reveal radius rejected");
         Console.WriteLine($"  Message snapshots: {samples} retail/glyph-window captures and ownership checks agree.");
     }

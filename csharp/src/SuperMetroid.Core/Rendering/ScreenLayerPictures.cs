@@ -13,7 +13,7 @@ public sealed class ScreenLayerPictures
 
     /// <summary>Holds each character index's tile.</summary>
     /// <exception cref="ArgumentException">The tiles do not cover every character index.</exception>
-    internal ScreenLayerPictures(ImmutableArray<ScreenTilePicture?> tiles, BgBitDepth depth)
+    internal ScreenLayerPictures(ImmutableArray<ScreenTilePicture?> tiles, TileInkDepth depth)
     {
         Ensure.LengthEqual(tiles.AsSpan(), CharacterIndices);
         Tiles = tiles;
@@ -25,7 +25,7 @@ public sealed class ScreenLayerPictures
     public ImmutableArray<ScreenTilePicture?> Tiles { get; }
 
     /// <summary>The bit depth of the layer's characters.</summary>
-    public BgBitDepth Depth { get; }
+    public TileInkDepth Depth { get; }
 
     /// <summary>The sheets the tiles come from, each once.</summary>
     public ImmutableArray<ScreenTileSheet> Sheets { get; }

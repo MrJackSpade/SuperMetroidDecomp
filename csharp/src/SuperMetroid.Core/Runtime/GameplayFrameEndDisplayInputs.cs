@@ -37,7 +37,7 @@ public sealed record GameplayFrameEndDisplayInputs(
     CeresHazeRenderSnapshot? CeresHaze,
     RoomFxBlendInks? RoomFxPaletteBlends,
     PowerBombRenderSnapshot PowerBomb,
-    MessageBoxRenderLayer? MessageBox,
+    MessageBoxLayer? MessageBox,
     SamusSuitPickupBeam? SuitPickupBeam,
     SamusXrayDisplaySnapshot? Xray,
     bool TourianStatuesEnabled);

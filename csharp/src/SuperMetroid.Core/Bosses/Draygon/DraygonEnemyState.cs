@@ -77,13 +77,13 @@ public sealed class DraygonEnemyState
     /// Signed pixel offset written by the tail-whip instruction $A5:9E0A and added to the body's
     /// BG2 scroll words, displacing the body graphics without moving the enemy records.
     /// </summary>
-    public Offset16<Bg2Pixels> BodyGraphicsDisplacement { get; internal set; }
+    public Offset16<BackgroundPixels> BodyGraphicsDisplacement { get; internal set; }
 
     /// <summary>
     /// The BG2 scroll that places the body image (#1354), derived after enemies draw from the final camera, the body
     /// position and <see cref="BodyGraphicsDisplacement"/>; it is Draygon's own, never the room's BG2 scroll.
     /// </summary>
-    public Position16<Bg2Pixels> BodyBg2Scroll { get; internal set; }
+    public Position16<BackgroundPixels> BodyBg2Scroll { get; internal set; }
 
     /// <summary>
     /// The native table at $7E:9002 is written every four bytes and addressed by a byte

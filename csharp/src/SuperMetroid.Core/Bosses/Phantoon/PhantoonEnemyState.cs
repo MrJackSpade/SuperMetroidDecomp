@@ -46,7 +46,7 @@ public sealed class PhantoonEnemyState
     /// Modeled BG2 scroll registers written after the body has moved: camera minus body plus
     /// forty whole pixels on each axis when ordinary synchronization runs.
     /// </summary>
-    public Position16<Bg2Pixels> Bg2Scroll { get; internal set; }
+    public Position16<BackgroundPixels> Bg2Scroll { get; internal set; }
 
     /// <summary>
     /// Whether Phantoon draws translucent: the native layer-blending bit <c>$4000</c>, the only bit Phantoon sets or

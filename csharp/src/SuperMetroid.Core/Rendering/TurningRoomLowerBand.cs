@@ -7,5 +7,5 @@ namespace SuperMetroid.Core.Rendering;
 /// <param name="Scroll">BG2's scroll in pixels.</param>
 /// <param name="MapSize">BG2 size in eight-pixel cells, 32 or 64 on each axis when used by a gameplay layer.</param>
 /// <param name="Room">The room's layer-2 plane the band shows (#1346, #1403), drawn from its block pictures.</param>
-public readonly record struct Mode1FloorBand(int FirstScanline, Position16<Bg2Pixels> Scroll, Extent16<TilemapCells> MapSize,
+public readonly record struct TurningRoomLowerBand(int FirstScanline, Position16<BackgroundPixels> Scroll, Extent16<TilemapCells> MapSize,
     RoomBackgroundLayer Room);

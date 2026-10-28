@@ -17,7 +17,7 @@ public sealed class BackgroundScrollState
     public Position16<RoomPixels> Layer1Position { get; set; }
 
     /// <summary>Parallax-derived BG2 position (<c>$0917/$0919</c>).</summary>
-    public Position16<Bg2Pixels> Layer2Position { get; set; }
+    public Position16<BackgroundPixels> Layer2Position { get; set; }
 
     /// <summary>
     /// The room state's per-axis layer-2 scroll. Before a room state sets it, both axes copy layer one and stream,
@@ -31,20 +31,20 @@ public sealed class BackgroundScrollState
     public Offset16<RoomPixels> Bg1Offset { get; set; }
 
     /// <summary>Wrapped delta added to <see cref="Layer2Position"/> to form BG2HOFS/BG2VOFS.</summary>
-    public Offset16<Bg2Pixels> Bg2Offset { get; set; }
+    public Offset16<BackgroundPixels> Bg2Offset { get; set; }
 
     /// <summary>Modeled BG1HOFS/BG1VOFS mirrors in direct-page words <c>$00B1/$00B3</c>.</summary>
     public Position16<RoomPixels> Bg1Scroll { get; private set; }
 
     /// <summary>Modeled BG2HOFS/BG2VOFS mirrors in direct-page words <c>$00B5/$00B7</c>.</summary>
-    public Position16<Bg2Pixels> Bg2Scroll { get; private set; }
+    public Position16<BackgroundPixels> Bg2Scroll { get; private set; }
 
     /// <summary>
     /// Publishes a room actor's direct writes to the PPU BG2 scroll mirrors. Mother Brain
     /// uses fixed layer-two room modes, so the ordinary scrolling pass intentionally leaves
     /// these values untouched after the actor supplies them.
     /// </summary>
-    public void SetBg2Scroll(Position16<Bg2Pixels> scroll) => Bg2Scroll = scroll;
+    public void SetBg2Scroll(Position16<BackgroundPixels> scroll) => Bg2Scroll = scroll;
 
     /// <summary>Publishes a room-main write to the BG1VOFS mirror without moving the camera or streaming origin.</summary>
     public void SetBg1VerticalScroll(int vertical) => Bg1Scroll = Bg1Scroll.WithY(vertical);
@@ -63,12 +63,12 @@ public sealed class BackgroundScrollState
         // `$80:AE29` derives the four offsets. Keeping the register writes here makes the
         // returned offset state and the block snapshot one indivisible cartridge action.
         Bg1Scroll = retainedBg1Scroll;
-        Bg2Scroll = Position16<Bg2Pixels>.Zero;
+        Bg2Scroll = Position16<BackgroundPixels>.Zero;
         Bg1Offset = retainedBg1Scroll - stagedLayer1;
         // `$80:AE3B-$80:AE4A` deliberately subtracts layer 1 for both BG2 offsets: the
         // BG2 offset words are the negated staged layer-one origin. This is not a typo:
         // layer 2's own position is combined with these words later.
-        Bg2Offset = new Offset16<Bg2Pixels>(
+        Bg2Offset = new Offset16<BackgroundPixels>(
             unchecked((short)-stagedLayer1.X),
             unchecked((short)-stagedLayer1.Y));
     }

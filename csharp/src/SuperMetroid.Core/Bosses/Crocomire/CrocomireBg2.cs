@@ -29,7 +29,7 @@ internal sealed class CrocomireBg2
     }
 
     /// <summary>Literal BG2 scroll owned by Crocomire while its extended tilemap is active.</summary>
-    public Position16<Bg2Pixels> CrocomireBg2Scroll { get; internal set; }
+    public Position16<BackgroundPixels> CrocomireBg2Scroll { get; internal set; }
 
     /// <summary>Switches an actor's instruction pointer and resets its timer for the next native list.</summary>
     /// <summary>Starts the tongue's <paramref name="program"/> from its first step once <paramref name="timer"/> expires.</summary>

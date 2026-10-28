@@ -39,22 +39,22 @@ internal static class FirefleaEyeVerification
         AssertTrue(sprites.Draws.Length > 0, "retail rock eye emits sprites");
         var memory = FramePaintConstants.Capture(runtime.Colours.AsPaletteColors(), sprites);
         var source = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
-        var actualDarkness = (GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
+        var actualDarkness = (GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual(ColorBlend.Bg2 | ColorBlend.Backdrop | ColorBlend.Subtract, actualDarkness.Blend.Layers,
             "reported room darkens the background and backdrop, not the sprites");
-        var baseLayer = (OrdinaryGameplayRenderLayer)source.Layers[0];
+        var baseLayer = (GameplaySceneLayer)source.Layers[0];
         // Isolate the actual room OBJ pixels on a black backdrop, retaining the
         // retail graphics/palette and the production source-aware color-math kernel.
         var palette = memory.Colors.ToArray();
         palette[0] = RgbColor.Black;
         memory = new(palette, memory.SpriteDraws);
-        var objects = new OrdinaryGameplayRenderLayer(baseLayer.View with { MainScreenLayers = ScreenLayers.Sprites }, baseLayer.Rooms);
+        var objects = new GameplaySceneLayer(baseLayer.View with { MainScreenLayers = ScreenLayers.Sprites }, baseLayer.Rooms);
         RgbaPixel[]? bright = null;
         foreach (byte darkness in new byte[] { 0, 6, 12, 18, 24, 25, 31 })
         {
             var closed = Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray();
-            var layer = new GameplayColorMathRenderLayer(objects, closed, false, new SceneBlend { Layers = actualDarkness.Blend.Layers, BlendsWithSubscreen = false, FixedColor = new RgbColor(darkness, darkness, darkness) });
-            var pixels = DisplayRendering.Render(new LayeredScene(memory, new RenderLayer[] { layer }, source.Brightness));
+            var layer = new GameplayBlendLayer(objects, closed, false, new SceneBlend { Layers = actualDarkness.Blend.Layers, BlendsWithLayersBehind = false, FixedColor = new RgbColor(darkness, darkness, darkness) });
+            var pixels = DisplayRendering.Render(new LayeredScene(memory, new DisplayLayer[] { layer }, source.Brightness));
             bright ??= pixels;
             AssertTrue(pixels.SequenceEqual(bright), "native A2 darkness leaves retail eye OBJ colors unchanged");
             AssertTrue(pixels.Any(pixel => pixel.R != 0 || pixel.G != 0 || pixel.B != 0),

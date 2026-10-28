@@ -29,7 +29,7 @@ internal static class MotherBrainBodyPublicationVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room loads Mother Brain.");
-        Position16<Bg2Pixels> roomScroll = runtime.BackgroundScroll.Bg2Scroll;
+        Position16<BackgroundPixels> roomScroll = runtime.BackgroundScroll.Bg2Scroll;
 
         // Phase one: the body is only staged; the room's pipe background shows.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -40,7 +40,7 @@ internal static class MotherBrainBodyPublicationVerification
         ushort[] staged = Enumerable.Range(0, state.EnemyBg2TilemapSize / 2)
             .Select(cell => runtime.Enemies.Room.Staging.EnemyBg2Tilemap[cell].PackedWord).ToArray();
         runtime.Enemies.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(state);
-        state.Bg2Scroll = new Position16<Bg2Pixels>(unchecked((ushort)-27), unchecked((ushort)-217));
+        state.Bg2Scroll = new Position16<BackgroundPixels>(unchecked((ushort)-27), unchecked((ushort)-217));
         state.HasBg2ScrollOverride = true;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         EnemyBg2ImageSnapshot image = runtime.Display.Latched.Bosses.EnemyBg2
@@ -49,9 +49,9 @@ internal static class MotherBrainBodyPublicationVerification
         AssertEqual(new MotherBrainBodyPlacement(state.Bg2Scroll, false), runtime.Display.Latched.Bosses.MotherBrainBody,
             "phase two publishes her body at her posture scroll");
         AssertEqual(roomScroll, runtime.BackgroundScroll.Bg2Scroll, "Mother Brain leaves the room's BG2 scroll alone");
-        var drawn = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertEqual(new Extent16<TilemapCells>(32, 32), drawn.View.Bg2MapSize, "her body shows on one 32x32 screen");
-        AssertEqual(state.Bg2Scroll + runtime.Display.Latched.Scrolls.RoomShake.Bg2, drawn.View.Bg2Scroll, "her scroll places her body");
+        var drawn = (GameplaySceneLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
+        AssertEqual(new Extent16<TilemapCells>(32, 32), drawn.View.BackgroundMapSize, "her body shows on one 32x32 screen");
+        AssertEqual(state.Bg2Scroll + runtime.Display.Latched.Scrolls.RoomShake.Bg2, drawn.View.BackgroundScroll, "her scroll places her body");
         AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), "the capture draws her body image");
         AssertTrue(drawn.View.MainScreenLayers.HasFlag(ScreenLayers.Background), "her shown body keeps BG2 on the main screen");
 
@@ -60,7 +60,7 @@ internal static class MotherBrainBodyPublicationVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(new MotherBrainBodyPlacement(state.Bg2Scroll, true), runtime.Display.Latched.Bosses.MotherBrainBody,
             "the death flicker publishes her body hidden");
-        var hidden = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
+        var hidden = (GameplaySceneLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertTrue(!hidden.View.MainScreenLayers.HasFlag(ScreenLayers.Background), "a hidden body leaves BG2 off the main screen");
         Console.WriteLine("  Mother Brain body: phase one shows the pipes; phase two publishes her placed body; death hides it.");
     }

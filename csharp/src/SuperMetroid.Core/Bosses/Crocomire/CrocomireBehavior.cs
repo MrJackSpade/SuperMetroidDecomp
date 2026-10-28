@@ -266,7 +266,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
                 return;
             case CrocomireDeathPhase.PinDefeatedRoomBg2Scroll:
-                Bg2.CrocomireBg2Scroll = Position16<Bg2Pixels>.Zero;
+                Bg2.CrocomireBg2Scroll = Position16<BackgroundPixels>.Zero;
                 return;
             case CrocomireDeathPhase.RiverSkeletonDetour:
                 CrocomireSkeleton.RunCrocomireSkeletonRiver(state);

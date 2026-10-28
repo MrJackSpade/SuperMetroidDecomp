@@ -14,10 +14,10 @@ public sealed class ScreenTileSet
     private ScreenLayerPictures? pictures;
 
     /// <summary>Starts an empty set of <paramref name="depth"/> tiles.</summary>
-    public ScreenTileSet(BgBitDepth depth) => Depth = depth;
+    public ScreenTileSet(TileInkDepth depth) => Depth = depth;
 
     /// <summary>The depth of the artwork the set's tiles come from; every placement is of artwork this deep.</summary>
-    public BgBitDepth Depth { get; }
+    public TileInkDepth Depth { get; }
 
     /// <summary>
     /// Places <paramref name="count"/> characters of <paramref name="sheet"/>'s artwork, from <paramref name="firstCharacter"/>,

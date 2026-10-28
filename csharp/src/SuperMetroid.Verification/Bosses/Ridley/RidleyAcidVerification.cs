@@ -82,7 +82,7 @@ internal static class RidleyAcidVerification
                 Layer3CellsFixtures.FromWords(plane.Words, runtime.ComposedVram(), memory.Colors));
             var baseline = DisplayRendering.Render(new LayeredScene(memory, [], 15));
             var actual = DisplayRendering.Render(new LayeredScene(memory,
-                effect is null ? [] : new RenderLayer[] { effect }, 15));
+                effect is null ? [] : new DisplayLayer[] { effect }, 15));
             AssertEqual(expectedVisible, !actual.SequenceEqual(baseline), "acid visibility at lower-arena camera");
             AssertTrue(actual.Take(32 * 256).SequenceEqual(baseline.Take(32 * 256)), "acid does not overwrite HUD");
         }

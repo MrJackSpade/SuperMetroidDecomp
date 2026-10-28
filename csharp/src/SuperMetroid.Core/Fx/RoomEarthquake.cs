@@ -76,7 +76,7 @@ internal sealed class RoomEarthquake
 
         RoomShakeDefinition definition = RoomShakes.ForType(EarthquakeType);
         Offset16<RoomPixels> bg1 = definition.Bg1;
-        Offset16<Bg2Pixels> bg2 = definition.Bg2;
+        Offset16<BackgroundPixels> bg2 = definition.Bg2;
 
         // The timer alternates which side of the origin is shown. Native code forms the
         // negative half with EOR #$FFFF / INC before adding the same table word.

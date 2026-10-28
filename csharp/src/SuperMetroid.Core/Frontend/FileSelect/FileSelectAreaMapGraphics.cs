@@ -182,7 +182,7 @@ public sealed class FileSelectAreaMapGraphics
     {
         PrepareLabels(usedStationMasks);
         LayeredScene backgrounds = CaptureBackgrounds(colorMath);
-        return new(backgrounds.Paint, [.. backgrounds.Layers, new SpriteRenderLayer()], FadeLevel.Full);
+        return new(backgrounds.Paint, [.. backgrounds.Layers, new SpritesLayer()], FadeLevel.Full);
     }
 
     /// <summary>The area map's BG1 foreground with its additive BG3 background, without the labels.</summary>
@@ -191,11 +191,11 @@ public sealed class FileSelectAreaMapGraphics
     {
         // The foreground and the area's background draw from the area's pre-coloured tiles (#1392).
         AreaMapTiles tiles = screen.AreaMapTiles(AreaIds.At(SelectedArea));
-        var foreground = new TileRenderLayer(ScreenTileMap.Of(screen.Tilemaps.Bg1, new Extent16<TilemapCells>(32, 32),
-            tiles.Foreground), new Position16<BgPlanePixels>(0, 0), null);
-        return new(screen.Paint(), new RenderLayer[] {
+        var foreground = new ScreenTilesLayer(ScreenTileMap.Of(screen.Tilemaps.Bg1, new Extent16<TilemapCells>(32, 32),
+            tiles.Foreground), new Position16<TilePlanePixels>(0, 0), null);
+        return new(screen.Paint(), new DisplayLayer[] {
             foreground,
-            new TileAddRenderLayer(ScreenTileMap.Of(screen.Tilemaps.AreaBackground, TileViewportRenderLayer.MapSize,
+            new AddedScreenTilesLayer(ScreenTileMap.Of(screen.Tilemaps.AreaBackground, ScreenTilesViewportLayer.MapSize,
                     tiles.Background),
                 colorMath == AreaMapColorMath.WithBackdrop ? null : foreground) }, FadeLevel.Full);
     }

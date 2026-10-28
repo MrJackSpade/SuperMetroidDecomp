@@ -203,30 +203,30 @@ internal sealed class IntroCeresFlightState
     public LayeredScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
-        var layers = new List<RenderLayer> { new SpritePriorityRenderLayer(0) };
+        var layers = new List<DisplayLayer> { new SpriteDepthLayer(0) };
         if (Phase is IntroCeresFlightPhase.SpaceColonyTitle or IntroCeresFlightPhase.FadeOut or
             IntroCeresFlightPhase.StartGameAtCeres or IntroCeresFlightPhase.Finished)
         {
             // The caption draws from the flight's object characters' pre-coloured tiles (#1392).
-            var caption = new TileRenderLayer(ScreenTileMap.Of(SpaceColonyTilemap, new Extent16<TilemapCells>(32, 32),
+            var caption = new ScreenTilesLayer(ScreenTileMap.Of(SpaceColonyTilemap, new Extent16<TilemapCells>(32, 32),
                 captionTiles ?? throw new InvalidOperationException("The Ceres flight's caption requires the installed sprite sheets.")),
-                new Position16<BgPlanePixels>(0, 0), false);
+                new Position16<TilePlanePixels>(0, 0), false);
             layers.Add(caption);
-            layers.Add(new SpritePriorityRenderLayer(1));
+            layers.Add(new SpriteDepthLayer(1));
             layers.Add(caption with { Priority = true });
         }
         else
         {
-            layers.Add(new FloorRenderLayer(FloorRotationMatrix.Transform(angle, zoom,
+            layers.Add(new TurningFloorLayer(FloorRotationMatrix.Transform(angle, zoom,
                 CeresFlightRenderDefinitions.FloorCenter, background.Whole.AsSignedWord()),
                 AffineFloor.Of(FloorMap(), floorTiles ?? throw new InvalidOperationException("The Ceres flight's Mode 7 view requires the installed sprite sheets."))));
-            layers.Add(new SpritePriorityRenderLayer(1));
+            layers.Add(new SpriteDepthLayer(1));
         }
-        layers.Add(new SpritePriorityRenderLayer(2));
-        layers.Add(new SpritePriorityRenderLayer(3));
+        layers.Add(new SpriteDepthLayer(2));
+        layers.Add(new SpriteDepthLayer(3));
         if (Phase == IntroCeresFlightPhase.FlyingTowardCeres)
         {
-            layers.Add(new FixedColorAddRenderLayer(checked((byte)flashIntensity), checked((byte)flashIntensity), checked((byte)flashIntensity)));
+            layers.Add(new ScreenTintLayer(checked((byte)flashIntensity), checked((byte)flashIntensity), checked((byte)flashIntensity)));
         }
         return new(new FramePaint(palette.Colors, objects.Draws), layers.ToArray(), checked((byte)brightness));
     }

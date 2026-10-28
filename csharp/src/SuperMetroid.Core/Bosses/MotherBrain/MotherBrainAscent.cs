@@ -198,7 +198,7 @@ internal sealed class MotherBrainAscent
             return;
 
         SpawnMotherBrainAscentDust(state);
-        state.Bg2Scroll = state.Bg2Scroll + new Offset16<Bg2Pixels>(0, 2);
+        state.Bg2Scroll = state.Bg2Scroll + new Offset16<BackgroundPixels>(0, 2);
         state.Body.Position = state.Body.Position.WithWholeY(unchecked((ushort)(state.Body.Position.Y.Whole - 2)));
         MotherBrainBody.PublishMotherBrainBg2Scroll(state, state.Bg2Scroll);
         if (state.Body.Position.Y.Whole >= 189)

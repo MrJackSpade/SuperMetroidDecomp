@@ -11,17 +11,17 @@ internal static class LayeredRenderSnapshotAccess
         /// memory, object selection and brightness are shared. Allocates one layer array, which the result owns.
         /// </summary>
         /// <remarks>Removing layers keeps every validated invariant, including the fused gameplay base staying first.</remarks>
-        public LayeredScene Without<TLayer>() where TLayer : RenderLayer
+        public LayeredScene Without<TLayer>() where TLayer : DisplayLayer
         {
             int kept = 0;
-            foreach (RenderLayer layer in self.layers)
+            foreach (DisplayLayer layer in self.layers)
             {
                 if (layer is not TLayer)
                     kept++;
             }
-            var remaining = new RenderLayer[kept];
+            var remaining = new DisplayLayer[kept];
             int next = 0;
-            foreach (RenderLayer layer in self.layers)
+            foreach (DisplayLayer layer in self.layers)
             {
                 if (layer is not TLayer)
                     remaining[next++] = layer;
@@ -29,17 +29,17 @@ internal static class LayeredRenderSnapshotAccess
             return new LayeredScene(self.Paint, remaining, self.Brightness);
         }
         /// <summary>A new array of this snapshot's <typeparamref name="TLayer"/> operations, in application order.</summary>
-        public TLayer[] LayersOf<TLayer>() where TLayer : RenderLayer
+        public TLayer[] LayersOf<TLayer>() where TLayer : DisplayLayer
         {
             int count = 0;
-            foreach (RenderLayer layer in self.layers)
+            foreach (DisplayLayer layer in self.layers)
             {
                 if (layer is TLayer)
                     count++;
             }
             var result = new TLayer[count];
             int next = 0;
-            foreach (RenderLayer layer in self.layers)
+            foreach (DisplayLayer layer in self.layers)
             {
                 if (layer is TLayer match)
                     result[next++] = match;

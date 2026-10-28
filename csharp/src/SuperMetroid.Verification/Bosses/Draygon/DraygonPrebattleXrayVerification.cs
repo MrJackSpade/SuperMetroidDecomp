@@ -47,17 +47,17 @@ internal static class DraygonPrebattleXrayVerification
         var boss = runtime.Enemies.DraygonBehavior.Parts.Draygon;
         AssertEqual(DraygonAiFunction.IntroInitialDelay, (boss ?? throw new InvalidOperationException("Verification requires boss.")).Function, "X-Ray preserves the pre-battle phase");
         var scene = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
-        var math = (GameplayColorMathRenderLayer)scene.Layers[0];
+        var math = (GameplayBlendLayer)scene.Layers[0];
         var r = math.Gameplay.View;
         AssertTrue(!math.RevealBlocks, "native boss exclusion preserves the original BG2 artwork");
-        AssertEqual(32, r.Bg2FirstScanline, "native offscreen TM table begins below HUD");
-        AssertEqual(32, r.Bg2EndScanline, "native offscreen TM table hides all Draygon BG2 lines");
+        AssertEqual(32, r.BackgroundFirstLine, "native offscreen TM table begins below HUD");
+        AssertEqual(32, r.BackgroundEndLine, "native offscreen TM table hides all Draygon BG2 lines");
         var pixels = DisplayRendering.Render(scene);
         var hidden = RenderWithRegisters(r with { MainScreenLayers = r.MainScreenLayers & ~ScreenLayers.Background });
-        var unmasked = RenderWithRegisters(r with { Bg2FirstScanline = 32, Bg2EndScanline = 224 });
+        var unmasked = RenderWithRegisters(r with { BackgroundFirstLine = 32, BackgroundEndLine = 224 });
         int exposed = pixels.Zip(hidden, (first, second) => first != second).Count(differs => differs);
         int wrapped = unmasked.Zip(hidden, (first, second) => first != second).Count(differs => differs);
-        Console.WriteLine($"Pre-battle Draygon: body={boss.Body.Position.X.Whole:X4}/{boss.Body.Position.Y.Whole:X4}, Samus={samus.Position.X.Whole}/{samus.Position.Y.Whole}, camera={r.Bg1Scroll.X}/{r.Bg1Scroll.Y}; exposed={exposed}, unmasked={wrapped} pixels.");
+        Console.WriteLine($"Pre-battle Draygon: body={boss.Body.Position.X.Whole:X4}/{boss.Body.Position.Y.Whole:X4}, Samus={samus.Position.X.Whole}/{samus.Position.Y.Whole}, camera={r.ForegroundScroll.X}/{r.ForegroundScroll.Y}; exposed={exposed}, unmasked={wrapped} pixels.");
 
         AssertTrue(wrapped > 0, "the reported corner visibly exposes repeated body art without native clipping");
         AssertEqual(0, exposed, "pre-battle X-Ray hides the offscreen body exactly like native TM HDMA");
@@ -73,19 +73,19 @@ internal static class DraygonPrebattleXrayVerification
         int descentFrames = boss.SwoopPathEntryCount;
         for (int frame = 0; frame < descentFrames + 2; frame++) runtime.StepFrame(0);
         var combat = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
-        var ordinary = (OrdinaryGameplayRenderLayer)combat.Layers[0];
+        var ordinary = (GameplaySceneLayer)combat.Layers[0];
         var combatWithoutBg2 = new LayeredScene(combat.Paint,
-            new RenderLayer[] { new OrdinaryGameplayRenderLayer(ordinary.View with
-                { MainScreenLayers = ordinary.View.MainScreenLayers & ~ScreenLayers.Background }, ordinary.Rooms, ordinary.Bg2LineScrolls) }, combat.Brightness);
+            new DisplayLayer[] { new GameplaySceneLayer(ordinary.View with
+                { MainScreenLayers = ordinary.View.MainScreenLayers & ~ScreenLayers.Background }, ordinary.Rooms, ordinary.BackgroundLineScrolls) }, combat.Brightness);
         int visible = DisplayRendering.Render(combat).Zip(DisplayRendering.Render(combatWithoutBg2), (first, second) => first != second).Count(differs => differs);
         Console.WriteLine($"Battle-start Draygon body: {visible} visible pixels.");
         AssertTrue(visible > 0, "battle start still displays Draygon's body");
 
-        RgbaPixel[] RenderWithRegisters(OrdinaryGameplayView registers)
+        RgbaPixel[] RenderWithRegisters(GameplaySceneView registers)
         {
-            var gameplay = new OrdinaryGameplayRenderLayer(registers, math.Gameplay.Rooms, math.Gameplay.Bg2LineScrolls, math.Gameplay.MainScreenLayersByLine);
-            var changed = new GameplayColorMathRenderLayer(gameplay, math.Lines, math.RevealBlocks, math.Blend, math.Subscreen, math.SubscreenUsesBg2);
-            return DisplayRendering.Render(new LayeredScene(scene.Paint, new RenderLayer[] { changed }, scene.Brightness));
+            var gameplay = new GameplaySceneLayer(registers, math.Gameplay.Rooms, math.Gameplay.BackgroundLineScrolls, math.Gameplay.MainScreenLayersByLine);
+            var changed = new GameplayBlendLayer(gameplay, math.Lines, math.RevealBlocks, math.Blend, math.BlendPlane, math.BlendsWithBackground);
+            return DisplayRendering.Render(new LayeredScene(scene.Paint, new DisplayLayer[] { changed }, scene.Brightness));
         }
     }
 

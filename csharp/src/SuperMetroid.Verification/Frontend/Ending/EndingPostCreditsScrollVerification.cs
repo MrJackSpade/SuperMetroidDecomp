@@ -27,7 +27,7 @@ internal static class EndingPostCreditsScrollVerification
         var installation = RepositoryInstallation.Installation;
 
         // A leftover scroll from an earlier scroll-down must not survive the white flash.
-        var leftover = new Position16<BgPlanePixels>(0, ScrollWordRange - ScrollDownCalls * PixelsPerCall);
+        var leftover = new Position16<TilePlanePixels>(0, ScrollWordRange - ScrollDownCalls * PixelsPerCall);
         ending.Stage.PostCreditsScroll = leftover;
         ending.CreditsRoll.CurrentPostShot = new EndingPostShot(ending.screen.Palette);
         ending.CreditsRoll.CurrentRewardJump = new EndingRewardJump(ending.Stage.EndingReward, _ => { });
@@ -40,14 +40,14 @@ internal static class EndingPostCreditsScrollVerification
             ending.Step();
         }
         AssertEqual(EndingCreditsPhase.PostCreditsWhiteFlash, ending.Stage.Phase, "the post-shot owner hands off to the white flash");
-        AssertEqual(Position16<BgPlanePixels>.Zero, ending.Stage.PostCreditsScroll, "the white flash resets the text map scroll to zero");
+        AssertEqual(Position16<TilePlanePixels>.Zero, ending.Stage.PostCreditsScroll, "the white flash resets the text map scroll to zero");
 
         ending.Stage.Phase = EndingCreditsPhase.ItemPercentageScrollDown;
         ending.Stage.PhaseTimer = ScrollDownCalls;
         for (int call = 1; call <= ScrollDownCalls; call++)
         {
             ending.Step();
-            var expected = new Position16<BgPlanePixels>(0, checked((ushort)(ScrollWordRange - call * PixelsPerCall)));
+            var expected = new Position16<TilePlanePixels>(0, checked((ushort)(ScrollWordRange - call * PixelsPerCall)));
             AssertEqual(expected, ending.Stage.PostCreditsScroll,
                 $"scroll-down call {call} wraps the vertical scroll below zero to {expected.Y}, as the native word did");
         }

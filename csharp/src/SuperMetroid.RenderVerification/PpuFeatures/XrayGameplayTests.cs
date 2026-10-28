@@ -46,15 +46,15 @@ internal static class XrayGameplayTests
             var memory = FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0);
             Layer3Cells plane = Layer3CellsFixtures.FromVram(vram.Bytes, cgram.Colors, 0x1000);
             bg1 = bg1 with { Bg3 = plane };
-            var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
+            var registers = new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0), new Extent16<TilemapCells>(64, 32),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
             var lines = Enumerable.Repeat(new XrayWindowLine(128, 255), 224).ToArray();
             var controls = ColorBlend.Bg1 | ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop
                 | (half ? ColorBlend.Half : 0) | (subtract ? ColorBlend.Subtract : 0);
-            var bg3 = sub ? new FxPlaneBlendRenderLayer(plane, Layer3Plane.Rows / 2, 32, 32,
-                ExpandedColorMathOperation.Add, new Position16<BgPlanePixels>[224]) : null;
-            var layer = new GameplayColorMathRenderLayer(new(registers, bg1), lines, reveal, new SceneBlend { Layers = controls, BlendsWithSubscreen = true, FixedColor = new RgbColor(7, 7, 7) }, bg3);
-            var scene = new LayeredScene(memory, new RenderLayer[] { layer }, 15);
+            var bg3 = sub ? new OverlayBlendLayer(plane, Layer3Plane.Rows / 2, 32, 32,
+                BlendOperation.Add, new Position16<TilePlanePixels>[224]) : null;
+            var layer = new GameplayBlendLayer(new(registers, bg1), lines, reveal, new SceneBlend { Layers = controls, BlendsWithLayersBehind = true, FixedColor = new RgbColor(7, 7, 7) }, bg3);
+            var scene = new LayeredScene(memory, new DisplayLayer[] { layer }, 15);
             var packet = new DisplayPacket(new(++count, 1, 0), scene);
             var pixels = DisplayRendering.Render(scene);
             // Independent scalar expectations, not just parity between two implementations.
@@ -86,10 +86,10 @@ internal static class XrayGameplayTests
                     var bodyRooms = bossImage
                         ? bg1 with { BossBg2 = RoomBackgroundsFixtures.UniformBody(new(2), new(64, 32), vram.Bytes, cgram.Colors) }
                         : bg1;
-                    var additive = new GameplayColorMathRenderLayer(new(registers with
+                    var additive = new GameplayBlendLayer(new(registers with
                     {
                         MainScreenLayers = ScreenLayers.Foreground | ScreenLayers.Sprites,
-                    }, bodyRooms), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new SceneBlend { Layers = ColorBlend.Bg1 | ColorBlend.Bg3 | ColorBlend.Sprites | ColorBlend.Backdrop, BlendsWithSubscreen = true, FixedColor = RgbColor.Black }, subscreenUsesBg2: true);
+                    }, bodyRooms), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new SceneBlend { Layers = ColorBlend.Bg1 | ColorBlend.Bg3 | ColorBlend.Sprites | ColorBlend.Backdrop, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, subscreenUsesBg2: true);
                     var bodyColors = cgram.Colors.ToArray();
                     if (blackBody) bodyColors[2] = RgbColor.Black;
                     var addScene = new LayeredScene(FramePaint.FromOam(vram.Bytes, bodyColors, oam, 1, 0), [additive], 15);
@@ -108,8 +108,8 @@ internal static class XrayGameplayTests
                 // four. Keep foreground at x80 and the OBJ at x16. This distinguishes
                 // native Fireflea source selection from a whole-frame dark overlay.
                 vram.ExecuteWordTransfer(new ushort[] { 4 }, GameplayVramLayout.Bg2TilemapWord + 8 * 32 + 9, 1);
-                var dark = new GameplayColorMathRenderLayer(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1), new TilemapCell(8, 8, new(4)), new TilemapCell(9, 8, new(4))) with { Bg3 = Layer3CellsFixtures.FromVram(vram.Bytes, cgram.Colors, 0x1000) }), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new SceneBlend { Layers = ColorBlend.Bg2 | ColorBlend.Backdrop | ColorBlend.Subtract, BlendsWithSubscreen = false, FixedColor = new RgbColor(18, 18, 18) });
-                var darkScene = new LayeredScene(FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0), new RenderLayer[] { dark }, 15);
+                var dark = new GameplayBlendLayer(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1), new TilemapCell(8, 8, new(4)), new TilemapCell(9, 8, new(4))) with { Bg3 = Layer3CellsFixtures.FromVram(vram.Bytes, cgram.Colors, 0x1000) }), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new SceneBlend { Layers = ColorBlend.Bg2 | ColorBlend.Backdrop | ColorBlend.Subtract, BlendsWithLayersBehind = false, FixedColor = new RgbColor(18, 18, 18) });
+                var darkScene = new LayeredScene(FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0), new DisplayLayer[] { dark }, 15);
                 var darkPixels = DisplayRendering.Render(darkScene);
                 Check(darkPixels[64 * 256 + 64], new(0, 16, 0, 255), "Fireflea BG2 subtraction");
                 Check(darkPixels[64 * 256 + 72], new(0, 0, 0, 255), "Fireflea backdrop subtraction");
@@ -127,25 +127,25 @@ internal static class XrayGameplayTests
             var colors = Enumerable.Range(0, 256).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
             // The OBSEL is drawn after the layer below, keeping the seeded stream; the OAM converts under it then.
             ushort Word() => (ushort)random.Next(65536);
-            var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(Word(), Word()), new Position16<Bg2Pixels>(Word(), Word()),
+            var registers = new GameplaySceneView(new Position16<RoomPixels>(Word(), Word()), new Position16<BackgroundPixels>(Word(), Word()),
                 frame % 2 == 0 ? new Extent16<TilemapCells>(64, 32) : new Extent16<TilemapCells>(32, 64),
                 (ScreenLayers)(random.Next(32) & 0x13));
             // Every fifth frame's planes draw from block pictures (#1392).
-            var gameplay = new OrdinaryGameplayRenderLayer(registers, RoomBackgroundsFixtures.Seeded(random, registers.Bg1Scroll.AsBgPlaneScroll(),
-                    frame % 2 == 0 ? registers.Bg2Scroll.AsBgPlaneScroll() : null, door: frame % 3 == 0, overlay: frame % 4 == 0,
+            var gameplay = new GameplaySceneLayer(registers, RoomBackgroundsFixtures.Seeded(random, registers.ForegroundScroll.AsBgPlaneScroll(),
+                    frame % 2 == 0 ? registers.BackgroundScroll.AsBgPlaneScroll() : null, door: frame % 3 == 0, overlay: frame % 4 == 0,
                     pictureColours: frame % 5 == 0 ? colors : null),
-                new Bg2LineScrolls(
+                new BackgroundLineScrolls(
                 Enumerable.Range(0, 192).Select(_ => Word()).ToArray(),
                 Enumerable.Range(0, 192).Select(_ => Word()).ToArray()));
             var lines = Enumerable.Range(0, 224).Select(_ => new XrayWindowLine((byte)random.Next(256), (byte)random.Next(256))).ToArray();
             int bg3Rows = frame % 2 == 0 ? 32 : 64;
-            var bg3 = new FxPlaneBlendRenderLayer(gameplay.Rooms.ShownBg3, random.Next(Layer3Plane.Rows - bg3Rows + 1), bg3Rows, 32,
-                ExpandedColorMathOperation.Add, Enumerable.Range(0, 224).Select(_ => new Position16<BgPlanePixels>(Word(), Word())).ToArray());
+            var bg3 = new OverlayBlendLayer(gameplay.Rooms.ShownBg3, random.Next(Layer3Plane.Rows - bg3Rows + 1), bg3Rows, 32,
+                BlendOperation.Add, Enumerable.Range(0, 224).Select(_ => new Position16<TilePlanePixels>(Word(), Word())).ToArray());
             bool bg2Subscreen = frame % 4 == 0;
-            var layer = new GameplayColorMathRenderLayer(gameplay, lines, frame % 2 == 0, new SceneBlend { Layers = (ColorBlend)random.Next(256), BlendsWithSubscreen = bg2Subscreen || frame % 3 != 0, FixedColor = new RgbColor((byte)random.Next(32), (byte)random.Next(32), (byte)random.Next(32)) }, bg2Subscreen ? null : bg3, bg2Subscreen);
+            var layer = new GameplayBlendLayer(gameplay, lines, frame % 2 == 0, new SceneBlend { Layers = (ColorBlend)random.Next(256), BlendsWithLayersBehind = bg2Subscreen || frame % 3 != 0, FixedColor = new RgbColor((byte)random.Next(32), (byte)random.Next(32), (byte)random.Next(32)) }, bg2Subscreen ? null : bg3, bg2Subscreen);
             byte obsel = (byte)random.Next(256);
             var memory = FramePaint.FromOam(bytes, colors, oam, 128, obsel);
-            var scene = new LayeredScene(memory, new RenderLayer[] { layer }, (byte)(frame % 16));
+            var scene = new LayeredScene(memory, new DisplayLayer[] { layer }, (byte)(frame % 16));
             var packet = new DisplayPacket(new(++count, 1, 0), scene);
             var expected = DisplayRendering.Render(scene);
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: patterned X-ray {frame}");
@@ -157,15 +157,15 @@ internal static class XrayGameplayTests
             var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount]; random.NextBytes(oam);
             var colors = Enumerable.Range(0, 256).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
             ushort Fine() => (ushort)random.Next(16);
-            var registers = new OrdinaryGameplayView(new Position16<RoomPixels>((ushort)random.Next(65536), (ushort)random.Next(65536)),
-                new Position16<Bg2Pixels>(Fine(), Fine()), new Extent16<TilemapCells>(64, 32),
+            var registers = new GameplaySceneView(new Position16<RoomPixels>((ushort)random.Next(65536), (ushort)random.Next(65536)),
+                new Position16<BackgroundPixels>(Fine(), Fine()), new Extent16<TilemapCells>(64, 32),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
-            SuperMetroid.Core.Gameplay.RoomBackgrounds seeded = RoomBackgroundsFixtures.Seeded(random, registers.Bg1Scroll.AsBgPlaneScroll(), pictureColours: colors);
-            var gameplay = new OrdinaryGameplayRenderLayer(registers, seeded with { XrayReveal = RoomBackgroundsFixtures.SeededReveal(random, colors) });
+            SuperMetroid.Core.Gameplay.RoomBackgrounds seeded = RoomBackgroundsFixtures.Seeded(random, registers.ForegroundScroll.AsBgPlaneScroll(), pictureColours: colors);
+            var gameplay = new GameplaySceneLayer(registers, seeded with { XrayReveal = RoomBackgroundsFixtures.SeededReveal(random, colors) });
             var lines = Enumerable.Range(0, 224).Select(_ => new XrayWindowLine((byte)random.Next(256), (byte)random.Next(256))).ToArray();
-            var layer = new GameplayColorMathRenderLayer(gameplay, lines, true, new SceneBlend { Layers = (ColorBlend)random.Next(256), BlendsWithSubscreen = false, FixedColor = new RgbColor((byte)random.Next(32), (byte)random.Next(32), (byte)random.Next(32)) }, null);
+            var layer = new GameplayBlendLayer(gameplay, lines, true, new SceneBlend { Layers = (ColorBlend)random.Next(256), BlendsWithLayersBehind = false, FixedColor = new RgbColor((byte)random.Next(32), (byte)random.Next(32), (byte)random.Next(32)) }, null);
             var memory = FramePaint.FromOam(bytes, colors, oam, 128, 3);
-            var scene = new LayeredScene(memory, new RenderLayer[] { layer }, 15);
+            var scene = new LayeredScene(memory, new DisplayLayer[] { layer }, 15);
             var packet = new DisplayPacket(new(++count, 1, 0), scene);
             PixelComparison.Verify(packet, DisplayRendering.Render(scene), renderer.RenderForReadback(packet),
                 $"{device.Kind}: X-ray reveal pictures {frame}");

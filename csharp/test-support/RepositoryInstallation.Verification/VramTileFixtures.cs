@@ -18,7 +18,7 @@ internal static class VramTileFixtures
     /// The tile set of all <see cref="ScreenLayerPictures.CharacterIndices"/> <paramref name="depth"/> characters from
     /// <paramref name="characterWord"/> in <paramref name="image"/>, read as VRAM addresses wrap, coloured from <paramref name="palette"/>.
     /// </summary>
-    internal static ScreenLayerPictures Tiles(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int characterWord, BgBitDepth depth) =>
+    internal static ScreenLayerPictures Tiles(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int characterWord, TileInkDepth depth) =>
         Tiles(image, palette, characterWord, depth, [.. Enumerable.Range(0, ScreenLayerPictures.CharacterIndices)]);
 
     /// <summary>
@@ -26,7 +26,7 @@ internal static class VramTileFixtures
     /// <paramref name="characterWord"/> in <paramref name="image"/>, read as VRAM addresses wrap and coloured from
     /// <paramref name="palette"/>; the set shows nothing for the other indices.
     /// </summary>
-    internal static ScreenLayerPictures Tiles(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int characterWord, BgBitDepth depth,
+    internal static ScreenLayerPictures Tiles(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int characterWord, TileInkDepth depth,
         IReadOnlyCollection<int> characters)
     {
         int[] shown = [.. characters.Distinct().Order()];
@@ -55,7 +55,7 @@ internal static class VramTileFixtures
     /// The cells of the <paramref name="size"/> tilemap at <paramref name="tilemapWord"/> in <paramref name="image"/>, showing
     /// the tile set of the <paramref name="depth"/> characters from <paramref name="characterWord"/> coloured from <paramref name="palette"/>.
     /// </summary>
-    internal static ScreenTileMap Cells(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int tilemapWord, int characterWord, BgBitDepth depth,
+    internal static ScreenTileMap Cells(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int tilemapWord, int characterWord, TileInkDepth depth,
         Extent16<TilemapCells> size) =>
         ScreenTileMapConstants.Capture(image, tilemapWord, size, Tiles(image, palette, characterWord, depth));
 }

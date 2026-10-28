@@ -543,7 +543,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <inheritdoc/>
     EnemyBg2ImageSnapshot? IEnemyDisplaySources.EnemyBg2 => Presentation.Bg2Image?.Publish();
     /// <inheritdoc/>
-    Position16<Bg2Pixels>? IEnemyDisplaySources.CrocomireBg2Scroll =>
+    Position16<BackgroundPixels>? IEnemyDisplaySources.CrocomireBg2Scroll =>
         CrocomireBehavior.Access.Crocomire is not null ? CrocomireBehavior.Bg2.CrocomireBg2Scroll : null;
     /// <inheritdoc/>
     MorphBallEyeBeamState IEnemyDisplaySources.MorphBallEyeBeam => MorphBallEyeBehavior.MorphBallEyeBeam;

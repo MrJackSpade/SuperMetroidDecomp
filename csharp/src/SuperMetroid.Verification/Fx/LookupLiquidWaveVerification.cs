@@ -33,7 +33,7 @@ internal static class LookupLiquidWaveVerification
         foreach (ushort baseScroll in new ushort[] { 0, ushort.MaxValue })
         {
             var water = new RoomLayer3FxRenderSnapshot(RoomFxType.Water,
-                LayerBlendingConfiguration.WaterSubtractive, new Position16<Bg3Pixels>(baseScroll, 0),
+                LayerBlendingConfiguration.WaterSubtractive, new Position16<OverlayPixels>(baseScroll, 0),
                 Surface: new(0, 100), LiquidOptions: RoomLiquidOptions.Bg2Wave, WaterBg3WavePhase: phase,
                 WaterBg2WavePhase: phase, WaterSurfaceScreenY: 100);
             var captured = GameplayEffectCapture.CaptureRoomLayer3Fx(water, RoomBackgroundsFixtures.BlankBg3());
@@ -47,7 +47,7 @@ internal static class LookupLiquidWaveVerification
             {
                 ushort cameraY = (ushort)((baseScroll & 0xfff0) | cameraPhase);
                 ushort[] bg2 = (GameplayEffectCapture.BuildWaterBg2HorizontalScrolls(water,
-                    new Position16<Bg2Pixels>(baseScroll, cameraY)) ?? throw new InvalidOperationException("Verification requires GameplayEffectCapture.BuildWaterBg2HorizontalScrolls(water, new Position16<Bg2Pixel...."));
+                    new Position16<BackgroundPixels>(baseScroll, cameraY)) ?? throw new InvalidOperationException("Verification requires GameplayEffectCapture.BuildWaterBg2HorizontalScrolls(water, new Position16<Bg2Pixel...."));
                 var heat = water with { Type = RoomFxType.Lava, LavaAcidBg2WavePhase = phase };
                 ushort[] heatScroll = (GameplayEffectCapture.BuildLavaAcidBg2VerticalScrolls(heat, cameraY) ?? throw new InvalidOperationException("Verification requires GameplayEffectCapture.BuildLavaAcidBg2VerticalScrolls(heat, cameraY)."));
                 for (int line = 0; line < bg2.Length; line++)

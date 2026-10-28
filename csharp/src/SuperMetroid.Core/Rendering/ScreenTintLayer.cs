@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rendering;
 /// <param name="Red">Fixed red intensity, 0 through <see cref="RgbColor.MaxChannel"/>.</param>
 /// <param name="Green">Fixed green intensity, 0 through <see cref="RgbColor.MaxChannel"/>.</param>
 /// <param name="Blue">Fixed blue intensity, 0 through <see cref="RgbColor.MaxChannel"/>.</param>
-public sealed record FixedColorAddRenderLayer(int Red, int Green, int Blue) : RenderLayer
+public sealed record ScreenTintLayer(int Red, int Green, int Blue) : DisplayLayer
 {
     /// <summary>Fixed red intensity.</summary>
     public int Red

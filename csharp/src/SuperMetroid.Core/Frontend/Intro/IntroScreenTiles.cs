@@ -16,9 +16,9 @@ internal static class IntroScreenTiles
     internal static ScreenLayerPictures Scene(InstalledSpriteSheets sheets)
     {
         Ensure.NotNull(sheets);
-        return new ScreenTileSet(BgBitDepth.FourBpp)
+        return new ScreenTileSet(TileInkDepth.SixteenColours)
             .Place(ScreenTileSheets.Of(sheets, SpriteSheetId.IntroSceneTiles), IntroTileSetDefinitions.SceneFirstTile, 0,
-                IntroCinematicDefinitions.Artwork.BackgroundCharacterBytes / (ScreenTileSheet.CharacterWordsOf(BgBitDepth.FourBpp) * sizeof(ushort)))
+                IntroCinematicDefinitions.Artwork.BackgroundCharacterBytes / (ScreenTileSheet.CharacterWordsOf(TileInkDepth.SixteenColours) * sizeof(ushort)))
             .Pictures();
     }
 
@@ -27,7 +27,7 @@ internal static class IntroScreenTiles
     {
         Ensure.NotNull(sheets);
         ScreenTileSheet font = ScreenTileSheets.Of(sheets, SpriteSheetId.IntroFontTiles);
-        var tiles = new ScreenTileSet(BgBitDepth.TwoBpp)
+        var tiles = new ScreenTileSet(TileInkDepth.FourColours)
             .Place(font, IntroTileSetDefinitions.FontFirstTile, 0, IntroFontAtlasFormat.ByteCount / FontCharacterBytes);
         // BlankOut_JapanText_Tiles repeats the font's own blank glyph over the Japanese glyphs.
         if (japaneseGlyphsBlanked)
@@ -37,5 +37,5 @@ internal static class IntroScreenTiles
     }
 
     /// <summary>Bytes of one 2-bpp font character.</summary>
-    private static int FontCharacterBytes => ScreenTileSheet.CharacterWordsOf(BgBitDepth.TwoBpp) * sizeof(ushort);
+    private static int FontCharacterBytes => ScreenTileSheet.CharacterWordsOf(TileInkDepth.FourColours) * sizeof(ushort);
 }

@@ -7,11 +7,11 @@ namespace SuperMetroid.Core.Rendering;
 public sealed class LayeredScene
 {
     /// <summary>Packet-owned copy of the layer order, insulated from later caller mutations.</summary>
-    internal readonly RenderLayer[] layers;
+    internal readonly DisplayLayer[] layers;
     /// <summary>The frame's colours and sprite draws, retained by reference, not copied again by this packet.</summary>
     public FramePaint Paint { get; }
     /// <summary>Owned operation sequence in back-to-front application order on the 256-by-224-pixel visible viewport.</summary>
-    public ReadOnlySpan<RenderLayer> Layers => layers;
+    public ReadOnlySpan<DisplayLayer> Layers => layers;
     /// <summary>The screen's brightness, from black (zero) to <see cref="FadeLevel.Full"/>, applied after all layer operations.</summary>
     public int Brightness { get; }
 
@@ -22,29 +22,29 @@ public sealed class LayeredScene
     /// <exception cref="ArgumentNullException"><paramref name="paint"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is out of range.</exception>
     /// <exception cref="ArgumentException">A layer is null or unsupported, has invalid geometry, priorities or color values, selects incompatible color math, or places a fused gameplay base after another operation.</exception>
-    public LayeredScene(FramePaint paint, ReadOnlySpan<RenderLayer> layers, int brightness)
+    public LayeredScene(FramePaint paint, ReadOnlySpan<DisplayLayer> layers, int brightness)
     {
         Ensure.NotNull(paint);
         Brightness = Ensure.BetweenInclusive(0, FadeLevel.Full, brightness);
         // Each accepted record is sealed and owns any array data. Copy the sequence so a scene
         // cannot rearrange a queued frame's priority ladder after publication.
-        foreach (RenderLayer layer in layers)
+        foreach (DisplayLayer layer in layers)
         {
-            if (layer is not (SpritePriorityRenderLayer or SpriteRenderLayer or TileRenderLayer or TileViewportRenderLayer or FloorRenderLayer or FixedColorAddRenderLayer or OrdinaryGameplayRenderLayer or ScanlineColorAddRenderLayer or MessageBoxRenderLayer or FxPlaneBlendRenderLayer or GameplayFloorRenderLayer or TileAddRenderLayer or WindowedSceneRenderLayer or GameplayColorMathRenderLayer))
+            if (layer is not (SpriteDepthLayer or SpritesLayer or ScreenTilesLayer or ScreenTilesViewportLayer or TurningFloorLayer or ScreenTintLayer or GameplaySceneLayer or ColourAddBandsLayer or MessageBoxLayer or OverlayBlendLayer or TurningRoomLayer or AddedScreenTilesLayer or InsetSceneLayer or GameplayBlendLayer))
                 throw new ArgumentException("Unrecognized or null render layer.", nameof(layers));
-            if (layer is FloorRenderLayer { SubtractSpriteSubscreen: true, AddBg1Subscreen: true })
+            if (layer is TurningFloorLayer { SubtractsSprites: true, AddsForeground: true })
                 throw new ArgumentException("Mode 7 cannot select two different color-math operations.", nameof(layers));
-            if (layer is SpriteRenderLayer { FixedColor: not null, AddToScreen: true })
+            if (layer is SpritesLayer { FixedColor: not null, AddToScreen: true })
                 throw new ArgumentException("OBJ fixed color requires replacing OBJ.", nameof(layers));
-            if (layer is TileRenderLayer bg4 &&
+            if (layer is ScreenTilesLayer bg4 &&
                 (bg4.MapSize.X is not (32 or 64) || bg4.MapSize.Y is not (32 or 64)))
                 throw new ArgumentException("BGSC geometry must be 32 or 64 tiles on each axis.", nameof(layers));
-            if (layer is TileAddRenderLayer { MainCoverage: { } coverage } &&
+            if (layer is AddedScreenTilesLayer { MainCoverage: { } coverage } &&
                 (coverage.MapSize.X is not (32 or 64) || coverage.MapSize.Y is not (32 or 64)))
                 throw new ArgumentException("Coverage BGSC geometry must be 32 or 64 tiles on each axis.", nameof(layers));
         }
         for (int i = 1; i < layers.Length; i++)
-            if (layers[i] is OrdinaryGameplayRenderLayer or GameplayFloorRenderLayer or GameplayColorMathRenderLayer)
+            if (layers[i] is GameplaySceneLayer or TurningRoomLayer or GameplayBlendLayer)
                 throw new ArgumentException("The fused gameplay base must be the first operation.", nameof(layers));
         Paint = paint;
         this.layers = layers.ToArray();

@@ -19,7 +19,7 @@ internal static class MaridiaPipeTerrainAudit
     public static void Observe(SuperMetroidRuntime runtime, DisplayPacket snapshot, int frame, bool requireAuthoredTerrain = false)
     {
         if (runtime.Room.ActiveRoom?.Definition != RoomHeaderDefinitions.Toilet || snapshot.Layers is not { } layers) return;
-        var gameplay = layers.LayersOf<OrdinaryGameplayRenderLayer>().Single();
+        var gameplay = layers.LayersOf<GameplaySceneLayer>().Single();
         var r = gameplay.View;
         var scroll = runtime.BackgroundScroll;
         var level = runtime.Room.LoadedLevelData;
@@ -34,8 +34,8 @@ internal static class MaridiaPipeTerrainAudit
             // The audit compares wrapped register words, so take each offset as its native word.
             int offsetX = unchecked((ushort)(background ? scroll.Bg2Offset.X : scroll.Bg1Offset.X));
             int offsetY = unchecked((ushort)(background ? scroll.Bg2Offset.Y : scroll.Bg1Offset.Y));
-            int registerX = background ? r.Bg2Scroll.X : r.Bg1Scroll.X;
-            int registerY = background ? r.Bg2Scroll.Y : r.Bg1Scroll.Y;
+            int registerX = background ? r.BackgroundScroll.X : r.ForegroundScroll.X;
+            int registerY = background ? r.BackgroundScroll.Y : r.ForegroundScroll.Y;
             int tilemap = background ? GameplayVramLayout.Bg2TilemapWord : GameplayVramLayout.Bg1TilemapWord;
             ReadOnlySpan<ushort> source = background ? level.BackgroundEntries : level.ForegroundEntries.Span;
             int differences = 0;

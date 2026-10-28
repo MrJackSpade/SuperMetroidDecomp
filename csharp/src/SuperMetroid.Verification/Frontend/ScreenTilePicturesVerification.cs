@@ -79,7 +79,7 @@ internal static class ScreenTilePicturesVerification
         int layers = 0;
         void Check(LayeredScene scene, byte[] vram, string name)
         {
-            if (scene.Layers.ToArray().Any(layer => layer is TileRenderLayer or TileViewportRenderLayer or TileAddRenderLayer or FloorRenderLayer)
+            if (scene.Layers.ToArray().Any(layer => layer is ScreenTilesLayer or ScreenTilesViewportLayer or AddedScreenTilesLayer or TurningFloorLayer)
                 && sampled.Add(name))
                 layers += AssertDrawnFromTiles(scene, vram, name);
         }
@@ -121,7 +121,7 @@ internal static class ScreenTilePicturesVerification
             while (ending.Stage.Phase != EndingCreditsPhase.SeeYouNextMission)
             {
                 LayeredScene scene = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
-                if (scene.Layers.ToArray().Any(layer => layer is TileRenderLayer or TileViewportRenderLayer or TileAddRenderLayer or FloorRenderLayer)
+                if (scene.Layers.ToArray().Any(layer => layer is ScreenTilesLayer or ScreenTilesViewportLayer or AddedScreenTilesLayer or TurningFloorLayer)
                     && sampled.Add($"{hours} hours, {ending.Stage.Phase}"))
                     layers += AssertDrawnFromTiles(scene, ending.ShownVram(), $"ending at {hours} hours, {ending.Stage.Phase}");
                 ending.Step();
@@ -197,15 +197,15 @@ internal static class ScreenTilePicturesVerification
             }
             return new ScreenTileMap(tiles, cells.Size, cells.Cells);
         }
-        var fromCharacters = new List<RenderLayer>();
-        foreach (RenderLayer layer in scene.Layers)
+        var fromCharacters = new List<DisplayLayer>();
+        foreach (DisplayLayer layer in scene.Layers)
         {
-            RenderLayer stripped = layer switch
+            DisplayLayer stripped = layer switch
             {
-                TileRenderLayer bg => bg with { Cells = FromCharacters(bg.Cells) },
-                TileViewportRenderLayer bg => bg with { Cells = FromCharacters(bg.Cells) },
-                FloorRenderLayer mode7 => mode7 with { Floor = new AffineFloor(mode7.Floor.Cells, AffineFloorFixtures.Floor(vram, scene.Paint.Colors).Tiles) },
-                TileAddRenderLayer sub => sub with
+                ScreenTilesLayer bg => bg with { Cells = FromCharacters(bg.Cells) },
+                ScreenTilesViewportLayer bg => bg with { Cells = FromCharacters(bg.Cells) },
+                TurningFloorLayer mode7 => mode7 with { Floor = new AffineFloor(mode7.Floor.Cells, AffineFloorFixtures.Floor(vram, scene.Paint.Colors).Tiles) },
+                AddedScreenTilesLayer sub => sub with
                 {
                     Cells = FromCharacters(sub.Cells),
                     MainCoverage = sub.MainCoverage is { } coverage ? coverage with { Cells = FromCharacters(coverage.Cells) } : null,
@@ -260,12 +260,12 @@ internal static class ScreenTilePicturesVerification
     }
 
     /// <summary>The cells a layer draws: its own and, for a subscreen, its coverage's.</summary>
-    private static IEnumerable<ScreenTileMap> TileMaps(RenderLayer layer) => layer switch
+    private static IEnumerable<ScreenTileMap> TileMaps(DisplayLayer layer) => layer switch
     {
-        TileRenderLayer bg => [bg.Cells],
-        TileViewportRenderLayer bg => [bg.Cells],
-        TileAddRenderLayer { MainCoverage: { } coverage } sub => [sub.Cells, coverage.Cells],
-        TileAddRenderLayer sub => [sub.Cells],
+        ScreenTilesLayer bg => [bg.Cells],
+        ScreenTilesViewportLayer bg => [bg.Cells],
+        AddedScreenTilesLayer { MainCoverage: { } coverage } sub => [sub.Cells, coverage.Cells],
+        AddedScreenTilesLayer sub => [sub.Cells],
         _ => [],
     };
 
@@ -276,7 +276,7 @@ internal static class ScreenTilePicturesVerification
     private static bool ShowsCharacter(ReadOnlySpan<byte> vram, int characterBase, int tile, ScreenLayerPictures tiles)
     {
         ScreenTilePicture picture = tiles.Tiles[tile] ?? throw new ArgumentException($"Tile {tile} shows nothing.", nameof(tile));
-        bool fourBpp = tiles.Depth == BgBitDepth.FourBpp;
+        bool fourBpp = tiles.Depth == TileInkDepth.SixteenColours;
         int words = ScreenTileSheet.CharacterWordsOf(tiles.Depth);
         SpriteImage image = picture.Sheet.Picture.Sheet;
         Position16<ImagePixels> corner = picture.Sheet.Corner(picture.SheetTile, 0);

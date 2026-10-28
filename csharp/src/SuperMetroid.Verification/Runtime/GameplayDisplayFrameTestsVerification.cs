@@ -93,13 +93,13 @@ internal static class GameplayDisplayFrameTestsVerification
         // Each boss's body shows in its own room, whose artwork pictures it (#1392).
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Kraid, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        OrdinaryGameplayView before = Registers(runtime);
-        var kraid = new KraidEnemyState { OwnsBg2Tilemap = true, Bg2Scroll = new Position16<Bg2Pixels>(320, 88) };
+        GameplaySceneView before = Registers(runtime);
+        var kraid = new KraidEnemyState { OwnsBg2Tilemap = true, Bg2Scroll = new Position16<BackgroundPixels>(320, 88) };
         runtime.Enemies.KraidBehavior.Access.Kraid = kraid;
-        AssertPending(runtime, registers => registers.Bg2MapSize == before.Bg2MapSize &&
-            registers.Bg2Scroll == before.Bg2Scroll, "Kraid's body on BG2");
-        AssertPublished(runtime, registers => registers.Bg2MapSize == new Extent16<TilemapCells>(64, 64) &&
-            registers.Bg2Scroll == kraid.Bg2Scroll, "Kraid's body on BG2");
+        AssertPending(runtime, registers => registers.BackgroundMapSize == before.BackgroundMapSize &&
+            registers.BackgroundScroll == before.BackgroundScroll, "Kraid's body on BG2");
+        AssertPublished(runtime, registers => registers.BackgroundMapSize == new Extent16<TilemapCells>(64, 64) &&
+            registers.BackgroundScroll == kraid.Bg2Scroll, "Kraid's body on BG2");
         runtime.Enemies.KraidBehavior.Access.Kraid = null;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 
@@ -108,9 +108,9 @@ internal static class GameplayDisplayFrameTestsVerification
         before = Registers(runtime);
         var motherBrain = new MotherBrainEnemyState(runtime.Enemies.SlotTable.Slots[0]) { HasBg2ScrollOverride = true, DeathBg2Hidden = true };
         runtime.Enemies.MotherBrainEncounter.MotherBrain = motherBrain;
-        AssertPending(runtime, registers => registers.Bg2MapSize == before.Bg2MapSize &&
+        AssertPending(runtime, registers => registers.BackgroundMapSize == before.BackgroundMapSize &&
             registers.MainScreenLayers == before.MainScreenLayers, "Mother Brain BG2SC and TM BG2 bit");
-        AssertPublished(runtime, registers => registers.Bg2MapSize == new Extent16<TilemapCells>(32, 32) &&
+        AssertPublished(runtime, registers => registers.BackgroundMapSize == new Extent16<TilemapCells>(32, 32) &&
             registers.MainScreenLayers == (ScreenLayers.Foreground | ScreenLayers.Sprites), "Mother Brain BG2SC and TM BG2 bit");
         AssertEqual(motherBrain.RainbowBeam.Color, runtime.PublishDisplayFrame().Latched.FixedColors.RainbowBeam,
             "rainbow beam COLDATA is latched with Mother Brain's registers");
@@ -122,11 +122,11 @@ internal static class GameplayDisplayFrameTestsVerification
     /// <summary>The FX blend selectors and the scrolling sky's BG2 shadows publish with the accepted NMI's latch.</summary>
     private static void VerifySceneRegisterTiming(SuperMetroidRuntime runtime)
     {
-        OrdinaryGameplayView before = Registers(runtime);
+        GameplaySceneView before = Registers(runtime);
         RoomFxType originalFx = runtime.RoomLayer3Fx.Type;
         runtime.RoomLayer3Fx.Type = RoomFxType.TourianEntranceStatue;
-        AssertPending(runtime, registers => registers.Bg2MapSize == before.Bg2MapSize, "FX-selected BG2SC");
-        AssertPublished(runtime, registers => registers.Bg2MapSize == new Extent16<TilemapCells>(32, 64), "FX-selected BG2SC");
+        AssertPending(runtime, registers => registers.BackgroundMapSize == before.BackgroundMapSize, "FX-selected BG2SC");
+        AssertPublished(runtime, registers => registers.BackgroundMapSize == new Extent16<TilemapCells>(32, 64), "FX-selected BG2SC");
         runtime.RoomLayer3Fx.Type = originalFx;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 
@@ -140,10 +140,10 @@ internal static class GameplayDisplayFrameTestsVerification
         sky.ProcessFrame(SkyLayer1Y, timeIsFrozen: false);
         AssertTrue(runtime.PublishDisplayFrame().FrameEnd.ScrollingSky is not null,
             "sky bands are read live during display");
-        AssertPending(runtime, registers => registers.Bg2Scroll.Y == before.Bg2Scroll.Y &&
-            registers.Bg2MapSize == before.Bg2MapSize, "sky BG2VOFS and BG2SC");
-        AssertPublished(runtime, registers => registers.Bg2Scroll.Y == SkyLayer1Y &&
-            registers.Bg2MapSize == new Extent16<TilemapCells>(32, 64), "sky BG2VOFS and BG2SC");
+        AssertPending(runtime, registers => registers.BackgroundScroll.Y == before.BackgroundScroll.Y &&
+            registers.BackgroundMapSize == before.BackgroundMapSize, "sky BG2VOFS and BG2SC");
+        AssertPublished(runtime, registers => registers.BackgroundScroll.Y == SkyLayer1Y &&
+            registers.BackgroundMapSize == new Extent16<TilemapCells>(32, 64), "sky BG2VOFS and BG2SC");
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }
@@ -156,16 +156,16 @@ internal static class GameplayDisplayFrameTestsVerification
         RoomFixedColor fixedColor = runtime.RoomLayer3Fx.FixedColors;
         runtime.RoomLayer3Fx.Type = RoomFxType.Fireflea;
         fixedColor.Color = new RgbColor(9, 9, 9);
-        AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is OrdinaryGameplayRenderLayer,
+        AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is GameplaySceneLayer,
             "Fireflea blend selector waits for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var darkness = (GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
+        var darkness = (GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual(9, darkness.Blend.FixedColor.Red, "Fireflea's fixed colour publishes with its blend");
         fixedColor.Color = fixedColor.Color.WithRed(4);
-        AssertEqual(9, ((GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.FixedColor.Red,
+        AssertEqual(9, ((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.FixedColor.Red,
             "a fixed colour chosen in the main loop waits for the next accepted frame");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(4, ((GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.FixedColor.Red,
+        AssertEqual(4, ((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.FixedColor.Red,
             "the next accepted frame publishes the chosen fixed colour");
         runtime.RoomLayer3Fx.Type = originalFx;
         fixedColor.Color = RgbColor.Black;
@@ -227,10 +227,10 @@ internal static class GameplayDisplayFrameTestsVerification
         getaway.FloorMatrixC = SignedEightEight.FromSignedRaw(-33); getaway.FloorMatrixD = SignedEightEight.FromSignedRaw(240);
         getaway.FloorCenter = new Position16<FloorPixels>(128, 120);
         getaway.FloorOffset = new Offset16<FloorPixels>(7, 19);
-        AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is OrdinaryGameplayRenderLayer,
+        AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is GameplaySceneLayer,
             "Ridley's M7A..M7Y and fake BGMODE wait for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var mode7 = (GameplayFloorRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
+        var mode7 = (TurningRoomLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual(240, mode7.Transform.MatrixA, "the accepted NMI publishes Ridley's M7A");
         AssertEqual(33, mode7.Transform.MatrixB, "the accepted NMI publishes Ridley's M7B");
         AssertTrue(mode7.Floor is not null, "the accepted NMI publishes Ridley's mixed Mode 7 band");
@@ -240,24 +240,24 @@ internal static class GameplayDisplayFrameTestsVerification
 
 
     /// <summary>Asserts a main-loop write is not yet displayed.</summary>
-    private static void AssertPending(SuperMetroidRuntime runtime, Func<OrdinaryGameplayView, bool> unchanged, string input)
+    private static void AssertPending(SuperMetroidRuntime runtime, Func<GameplaySceneView, bool> unchanged, string input)
     {
         AssertTrue(unchanged(Registers(runtime)), $"{input} written by the main loop waits for the NMI");
     }
 
     /// <summary>Asserts an accepted NMI publishes the write.</summary>
-    private static void AssertPublished(SuperMetroidRuntime runtime, Func<OrdinaryGameplayView, bool> published, string input)
+    private static void AssertPublished(SuperMetroidRuntime runtime, Func<GameplaySceneView, bool> published, string input)
     {
 
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        OrdinaryGameplayView registers = Registers(runtime);
+        GameplaySceneView registers = Registers(runtime);
         AssertTrue(published(registers), $"the accepted NMI publishes {input}");
 
     }
 
     /// <summary>The ordinary gameplay registers of a freshly published frame.</summary>
-    private static OrdinaryGameplayView Registers(SuperMetroidRuntime runtime) =>
-        ((OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0]).View;
+    private static GameplaySceneView Registers(SuperMetroidRuntime runtime) =>
+        ((GameplaySceneLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0]).View;
 
     /// <summary>Runs the focused gameplay display frame confirmation.</summary>
     [VerificationCommand("--gameplay-display-frame")]

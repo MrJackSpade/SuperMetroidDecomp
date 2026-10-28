@@ -104,16 +104,16 @@ internal static class FileMapSnapshotTestsVerification
         var red = new FramePaint(ToColors(palette), []);
         palette[0] = 31 << 10;
         var blue = new FramePaint(ToColors(palette), []);
-        var child = new LayeredScene(blue, new RenderLayer[] { new SpriteRenderLayer() }, 15);
-        var window = new WindowedSceneRenderLayer(child, 127, 111, 130, 113);
-        var parent = new LayeredScene(red, new RenderLayer[] { window }, 15);
+        var child = new LayeredScene(blue, new DisplayLayer[] { new SpritesLayer() }, 15);
+        var window = new InsetSceneLayer(child, 127, 111, 130, 113);
+        var parent = new LayeredScene(red, new DisplayLayer[] { window }, 15);
         var packet = new DisplayPacket(new(1, 1, 0), parent);
         RgbaPixel[] pixels = DisplayRendering.Render(packet);
         for (int y = 0; y < 224; y++)
         for (int x = 0; x < 256; x++)
             AssertEqual(x >= 127 && x < 130 && y >= 111 && y < 113 ? new RgbaPixel(0, 0, 255) : new RgbaPixel(255, 0, 0),
                 pixels[y * 256 + x], "window replacement includes child backdrop and excludes outside pixels");
-        AssertThrows<ArgumentException>(() => new WindowedSceneRenderLayer(parent, 0, 0, 1, 1), "nested scene rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => new WindowedSceneRenderLayer(child, 0, 0, 257, 224), "invalid window rejected");
+        AssertThrows<ArgumentException>(() => new InsetSceneLayer(parent, 0, 0, 1, 1), "nested scene rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => new InsetSceneLayer(child, 0, 0, 257, 224), "invalid window rejected");
     }
 }

@@ -57,7 +57,7 @@ internal static class TourianStatueWaterVerification
         AssertEqual(LayerBlendingConfiguration.LiquidOrFogAdditive, displayed.LayerBlendConfiguration, "Native configuration 18");
         var basis = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         var full = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
-        AssertEqual(1, full.Layers.Count(layer => layer is FxPlaneBlendRenderLayer), "One BG3 water plane accompanies the statue");
+        AssertEqual(1, full.Layers.Count(layer => layer is OverlayBlendLayer), "One BG3 water plane accompanies the statue");
         var dryPixels = DisplayRendering.Render(basis);
         var wetPixels = DisplayRendering.Render(full);
         for (int y = 32; y < 169; y++)
@@ -65,14 +65,14 @@ internal static class TourianStatueWaterVerification
                 AssertEqual(dryPixels[y * 256 + x], wetPixels[y * 256 + x], "BG3 water does not tint pixels above its native surface tile");
         AssertTrue(Enumerable.Range(176 * 256, (224 - 176) * 256).Any(index => dryPixels[index] != wetPixels[index]),
             "Actual water artwork visibly changes submerged room pixels");
-        AssertEqual<ushort[]?>(null, GameplayEffectCapture.BuildWaterBg2HorizontalScrolls(displayed, new Position16<Bg2Pixels>(0, 0)),
+        AssertEqual<ushort[]?>(null, GameplayEffectCapture.BuildWaterBg2HorizontalScrolls(displayed, new Position16<BackgroundPixels>(0, 0)),
             "Special statue FX does not install ordinary-water BG2 X-wave HDMA");
         runtime.TourianStatues.Descent = 64 << 16;
         runtime.TourianStatues.LatchDisplay();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var descending = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
+        var descending = (GameplaySceneLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual(unchecked((ushort)(runtime.Display.DisplayedGameplayScrolls.Layer1Position.Y + runtime.TourianStatues.DisplayedVerticalOffset)),
-            descending.View.Bg2Scroll.Y, "Statue descent retains its independent BG2 vertical scroll");
+            descending.View.BackgroundScroll.Y, "Statue descent retains its independent BG2 vertical scroll");
         AssertEqual(0xb0, (runtime.Display.DisplayedRoomLayer3Fx ?? throw new InvalidOperationException("Verification requires a published room FX snapshot.")).WaterSurfaceScreenY,
             "Statue motion does not move its water surface");
         runtime.RoomLayer3Fx.SetLiquidMotion(targetYPosition: 0xb4,

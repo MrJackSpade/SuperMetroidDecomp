@@ -107,7 +107,7 @@ internal static class PowerBombShapeVerification
             explosion.RenderedPhase = PowerBombExplosionPhase.ExplosionYellow;
             explosion.RenderedExplosionRadius = PowerBombRadius.FromRaw(EightEight.FromWhole(radius));
             explosion.FixedColor = explosion.FixedColor.WithRed(31);
-            ScanlineColorAddRenderLayer windows = GameplayEffectCapture.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0))
+            ColourAddBandsLayer windows = GameplayEffectCapture.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0))
                 ?? throw new InvalidOperationException("An active Power Bomb captures its windows.");
             int[] profile = Profile(radius);
             for (int y = 0; y < 224; y++)

@@ -198,7 +198,7 @@ internal static void VerifyDoorOpeningTrajectories()
     const ushort destinationY = 0x0200;
     var source = FixedPosition<RoomPixels>.FromWords(0x00a5, 0x4000, 0x0073, 0x8000);
     var postNudge = FixedPosition<RoomPixels>.FromWords(0x0318, 0x4000, 0x0218, 0x8000);
-    var finalLayer2 = new Position16<Bg2Pixels>(0x0180, 0x0140);
+    var finalLayer2 = new Position16<BackgroundPixels>(0x0180, 0x0140);
 
     for (int direction = 0; direction < 4; direction++)
     {
@@ -270,10 +270,10 @@ internal static void VerifyDoorOpeningTrajectories()
             2 => new Offset16<RoomPixels>(0, 4),
             _ => new Offset16<RoomPixels>(0, -4),
         };
-        var layer2Step = new Offset16<Bg2Pixels>(cameraStep.X, cameraStep.Y);
+        var layer2Step = new Offset16<BackgroundPixels>(cameraStep.X, cameraStep.Y);
         int samusStepRaw = direction is 0 or 2 ? 0x0001_0000 : -0x0001_0000;
         Position16<RoomPixels> previousCamera = trajectory.CameraPosition;
-        Position16<Bg2Pixels> previousLayer2 = trajectory.Layer2Position;
+        Position16<BackgroundPixels> previousLayer2 = trajectory.Layer2Position;
         FixedPosition<RoomPixels> previousSamus = trajectory.SamusPosition;
         for (int frame = 0; frame < expectedFrames; frame++)
         {

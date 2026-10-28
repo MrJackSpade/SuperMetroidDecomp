@@ -17,7 +17,7 @@ internal static class MenuScreenTiles
     internal static ScreenLayerPictures Menu(InstalledSpriteSheets sheets)
     {
         Ensure.NotNull(sheets);
-        return new ScreenTileSet(BgBitDepth.FourBpp)
+        return new ScreenTileSet(TileInkDepth.SixteenColours)
             .Place(ScreenTileSheets.Of(sheets, SpriteSheetId.MenuForegroundTiles), MenuTileSetDefinitions.WorldForegroundFirstTile, 0,
                 WorldMapArtworkFormat.ForegroundTileCount)
             .Place(ScreenTileSheets.Of(sheets, SpriteSheetId.MenuMapTiles), MenuTileSetDefinitions.MenuMapFirstTile, 0, MapTileAtlasFormat.CharacterCount)
@@ -28,7 +28,7 @@ internal static class MenuScreenTiles
     internal static ScreenLayerPictures RoomMap(InstalledSpriteSheets sheets)
     {
         Ensure.NotNull(sheets);
-        return new ScreenTileSet(BgBitDepth.FourBpp)
+        return new ScreenTileSet(TileInkDepth.SixteenColours)
             .Place(ScreenTileSheets.Of(sheets, SpriteSheetId.MenuMapTiles), MenuTileSetDefinitions.RoomMapFirstTile, 0, MapTileAtlasFormat.CharacterCount)
             .Pictures();
     }
@@ -38,11 +38,11 @@ internal static class MenuScreenTiles
     {
         Ensure.NotNull(sheets);
         return new AreaMapTiles(
-            new ScreenTileSet(BgBitDepth.FourBpp)
+            new ScreenTileSet(TileInkDepth.SixteenColours)
                 .Place(ScreenTileSheets.Of(sheets, ScreenTileSheetDefinitions.AreaMapForegrounds[area]), MenuTileSetDefinitions.WorldForegroundFirstTile, 0,
                     WorldMapArtworkFormat.ForegroundTileCount)
                 .Pictures(),
-            new ScreenTileSet(BgBitDepth.TwoBpp)
+            new ScreenTileSet(TileInkDepth.FourColours)
                 .Place(ScreenTileSheets.Of(sheets, ScreenTileSheetDefinitions.AreaMapBackgrounds[area]), MenuTileSetDefinitions.WorldBackgroundFirstTile, 0,
                     WorldMapArtworkFormat.BackgroundTileCount)
                 .Pictures());

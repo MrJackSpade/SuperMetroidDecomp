@@ -8,9 +8,9 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal static class EndingWavySamus
 {
     /// <summary>Reconstructs all 224 BG3 scanline offsets from cinematic age, retaining the setup-only first pass and native sine phase.</summary>
-    internal static Position16<BgPlanePixels>[] ScrollsAtAge(int age)
+    internal static Position16<TilePlanePixels>[] ScrollsAtAge(int age)
     {
-        var result = new Position16<BgPlanePixels>[224];
+        var result = new Position16<TilePlanePixels>[224];
         // Global HDMA precedes the cinematic dispatcher. Age one executes setup only;
         // age two is the first pre-instruction. Derive this deterministic owner from
         // the existing cinematic countdown so debugger restores retain exact phase.

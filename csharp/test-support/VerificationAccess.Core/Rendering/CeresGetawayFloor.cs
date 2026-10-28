@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rendering;
 public readonly record struct CeresGetawayFloor
 {
     /// <summary>Bg2 scroll.</summary>
-    public required Position16<Bg2Pixels> Bg2Scroll { get; init; }
+    public required Position16<BackgroundPixels> Bg2Scroll { get; init; }
 
     /// <summary>Bg2 character base word.</summary>
     public required ushort Bg2CharacterBaseWord { get; init; }

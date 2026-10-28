@@ -27,7 +27,7 @@ internal static class RoomShakes
             checked((short)(direction == 1 ? 0 : magnitude)), checked((short)(direction == 0 ? 0 : magnitude)));
         return new(
             group == 3 ? Offset16<RoomPixels>.Zero : shake,
-            group == 0 ? Offset16<Bg2Pixels>.Zero : new(shake.X, shake.Y),
+            group == 0 ? Offset16<BackgroundPixels>.Zero : new(shake.X, shake.Y),
             group < 2 ? Offset16<RoomPixels>.Zero : shake);
     }
 }

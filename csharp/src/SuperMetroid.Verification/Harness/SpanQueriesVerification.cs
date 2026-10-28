@@ -72,17 +72,17 @@ internal static class SpanQueriesVerification
         oam.BeginFrame();
         oam.FinalizeFrame();
         var memory = FramePaintConstants.CaptureFrontend(new SnesVram(), cgram, oam, 3);
-        var red = new FixedColorAddRenderLayer(31, 0, 0);
-        var objects = new SpritePriorityRenderLayer(2);
-        var blue = new FixedColorAddRenderLayer(0, 0, 31);
-        var snapshot = new LayeredScene(memory, new RenderLayer[] { red, objects, blue }, 15);
-        LayeredScene without = snapshot.Without<FixedColorAddRenderLayer>();
-        AssertTrue(without.Layers.SequenceEqual(new RenderLayer[] { objects }), "Without removes only the selected kind");
+        var red = new ScreenTintLayer(31, 0, 0);
+        var objects = new SpriteDepthLayer(2);
+        var blue = new ScreenTintLayer(0, 0, 31);
+        var snapshot = new LayeredScene(memory, new DisplayLayer[] { red, objects, blue }, 15);
+        LayeredScene without = snapshot.Without<ScreenTintLayer>();
+        AssertTrue(without.Layers.SequenceEqual(new DisplayLayer[] { objects }), "Without removes only the selected kind");
         AssertTrue(ReferenceEquals(snapshot.Paint, without.Paint) && without.Brightness == 15,
             "Without shares memory and brightness");
-        AssertTrue(snapshot.Layers.SequenceEqual(new RenderLayer[] { red, objects, blue }), "Without leaves the source snapshot unchanged");
-        AssertTrue(snapshot.LayersOf<FixedColorAddRenderLayer>().SequenceEqual(new[] { red, blue }), "LayersOf keeps application order");
-        AssertEqual(0, without.LayersOf<FixedColorAddRenderLayer>().Length, "LayersOf finds none after Without");
+        AssertTrue(snapshot.Layers.SequenceEqual(new DisplayLayer[] { red, objects, blue }), "Without leaves the source snapshot unchanged");
+        AssertTrue(snapshot.LayersOf<ScreenTintLayer>().SequenceEqual(new[] { red, blue }), "LayersOf keeps application order");
+        AssertEqual(0, without.LayersOf<ScreenTintLayer>().Length, "LayersOf finds none after Without");
         Console.WriteLine("#624 span queries: Enumerable-equivalent results and exceptions, zero-allocation scalar queries, owned results only, snapshot layer removal.");
     }
 

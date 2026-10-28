@@ -10,7 +10,7 @@ internal sealed record D3D11TileDispatch
 
 
     /// <summary>Scroll.</summary>
-    public Position16<BgPlanePixels> Scroll { get; init; } = default;
+    public Position16<TilePlanePixels> Scroll { get; init; } = default;
 
     /// <summary>Map size.</summary>
     public Extent16<TilemapCells>? MapSize { get; init; } = null;

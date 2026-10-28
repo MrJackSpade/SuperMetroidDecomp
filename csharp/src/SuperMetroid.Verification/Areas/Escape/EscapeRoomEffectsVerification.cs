@@ -41,11 +41,11 @@ internal static class EscapeRoomEffectsVerification
                 if (frame % 10 == 9)
                 {
                     var capture = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
-                    var layer = (OrdinaryGameplayRenderLayer)capture.Layers[0];
+                    var layer = (GameplaySceneLayer)capture.Layers[0];
                     var actual = DisplayRendering.Render(capture);
-                    var noObjects = new OrdinaryGameplayRenderLayer(layer.View with
+                    var noObjects = new GameplaySceneLayer(layer.View with
                     { MainScreenLayers = layer.View.MainScreenLayers & ~ScreenLayers.Sprites }, layer.Rooms,
-                        layer.Bg2LineScrolls);
+                        layer.BackgroundLineScrolls);
                     var baseline = DisplayRendering.Render(new LayeredScene(capture.Paint, [noObjects], capture.Brightness));
                     foreach (var sprite in runtime.Enemies.RoomSpriteObjects.Where(s => s.IsActive))
                     {
@@ -58,10 +58,10 @@ internal static class EscapeRoomEffectsVerification
                         visibleExplosion |= changed > 8;
                     }
                     var displayedShake = runtime.Display.DisplayedGameplayScrolls.RoomShake;
-                    var stationary = new OrdinaryGameplayRenderLayer(noObjects.View with
+                    var stationary = new GameplaySceneLayer(noObjects.View with
                     {
-                        Bg1Scroll = layer.View.Bg1Scroll - displayedShake.Bg1
-                    }, layer.Rooms, layer.Bg2LineScrolls);
+                        ForegroundScroll = layer.View.ForegroundScroll - displayedShake.Bg1
+                    }, layer.Rooms, layer.BackgroundLineScrolls);
                     var unshaken = DisplayRendering.Render(new LayeredScene(capture.Paint, [stationary], capture.Brightness));
                     visibleShake |= baseline.Where((pixel, index) => index >= 32 * 256 && pixel != unshaken[index]).Count() > 500;
                     AssertTrue(baseline.AsSpan(0, 32 * 256).SequenceEqual(unshaken.AsSpan(0, 32 * 256)), "escape shake does not move HUD");

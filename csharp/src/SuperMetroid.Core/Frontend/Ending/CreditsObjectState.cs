@@ -19,11 +19,11 @@ internal sealed class CreditsObjectState
     internal readonly BackgroundTile[] tilemap =
         new BackgroundTile[EndingScreenDefinitions.TilemapWords];
     /// <summary>Native 16.16 credits scroll; only the vertical axis moves, half a pixel per accepted update, wrapping at sixteen bits.</summary>
-    private FixedPosition<BgPlanePixels> scroll;
+    private FixedPosition<TilePlanePixels> scroll;
     /// <summary>Last whole scroll position that caused a source row to be copied.</summary>
-    private Position16<BgPlanePixels> previousCopiedScroll;
+    private Position16<TilePlanePixels> previousCopiedScroll;
     /// <summary>The scroll advance, one eight-pixel tilemap row, after which the next source row is copied.</summary>
-    private static readonly Offset16<BgPlanePixels> RowAdvance = new(0, 8);
+    private static readonly Offset16<TilePlanePixels> RowAdvance = new(0, 8);
     /// <summary>Next circular tilemap row to overwrite.</summary>
     internal int NextRow { get; private set; }
     /// <summary>Next installed credits row to consume.</summary>
@@ -41,7 +41,7 @@ internal sealed class CreditsObjectState
     /// <summary>Set when scrolling reaches the end of installed credits content.</summary>
     public bool Finished { get; private set; }
     /// <summary>Whole-pixel credits scroll position the background plane is drawn at.</summary>
-    public Position16<BgPlanePixels> ScrollPosition => scroll.Whole;
+    public Position16<TilePlanePixels> ScrollPosition => scroll.Whole;
 
     /// <summary>Reattaches installed row content after restoring serialized scrolling state.</summary>
     public void BindPresentation(CreditsPresentation? value) => presentation = value;

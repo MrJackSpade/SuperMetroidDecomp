@@ -17,10 +17,10 @@ internal static class PauseScreenTiles
     internal static ScreenLayerPictures Planes(InstalledSpriteSheets sheets)
     {
         Ensure.NotNull(sheets);
-        return new ScreenTileSet(BgBitDepth.FourBpp)
+        return new ScreenTileSet(TileInkDepth.SixteenColours)
             .Place(ScreenTileSheets.Of(sheets, SpriteSheetId.PauseMapTiles), PauseTileSetDefinitions.MapFirstTile, 0, MapTileAtlasFormat.CharacterCount)
             .Place(ScreenTileSheets.Of(sheets, SpriteSheetId.PauseInterfaceTiles), PauseTileSetDefinitions.InterfaceFirstTile, 0,
-                PauseTileAtlasFormat.ByteCount / (ScreenTileSheet.CharacterWordsOf(BgBitDepth.FourBpp) * sizeof(ushort)))
+                PauseTileAtlasFormat.ByteCount / (ScreenTileSheet.CharacterWordsOf(TileInkDepth.SixteenColours) * sizeof(ushort)))
             .Pictures();
     }
 
@@ -28,9 +28,9 @@ internal static class PauseScreenTiles
     internal static ScreenLayerPictures Hud(InstalledSpriteSheets sheets)
     {
         Ensure.NotNull(sheets);
-        return new ScreenTileSet(BgBitDepth.TwoBpp)
+        return new ScreenTileSet(TileInkDepth.FourColours)
             .Place(ScreenTileSheets.Of(sheets, SpriteSheetId.PauseHudTiles), PauseTileSetDefinitions.HudFirstTile, 0,
-                HudTileAtlasFormat.CharacterByteCount / (ScreenTileSheet.CharacterWordsOf(BgBitDepth.TwoBpp) * sizeof(ushort)))
+                HudTileAtlasFormat.CharacterByteCount / (ScreenTileSheet.CharacterWordsOf(TileInkDepth.FourColours) * sizeof(ushort)))
             .Pictures();
     }
 }

@@ -8,14 +8,14 @@ namespace SuperMetroid.Core.Rendering;
 /// The message box's text as BG3 shows it (#1392): the pre-coloured image of the message it shows, centered on the
 /// window, shown only on the reveal window's scanlines.
 /// </summary>
-public sealed record MessageBoxRenderLayer : RenderLayer
+public sealed record MessageBoxLayer : DisplayLayer
 {
     /// <summary>Checks the image's shape and the reveal radius.</summary>
     /// <param name="picture">The image of the message's text rows.</param>
     /// <param name="radiusPixels">The centered reveal half-height in pixels, from zero through 24.</param>
     /// <exception cref="ArgumentException">The image is not three through six full-width rows.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The radius is out of range.</exception>
-    public MessageBoxRenderLayer(SpriteSheetFrame picture, int radiusPixels)
+    public MessageBoxLayer(SpriteSheetFrame picture, int radiusPixels)
     {
         Ensure.NotNull(picture);
         int rows = picture.Size.Y / GameplayMessageBoxDefinitions.Layout.TilePixels;
@@ -57,7 +57,7 @@ public sealed record MessageBoxRenderLayer : RenderLayer
     /// <param name="messages">The room's message box images; required while a message is exposed.</param>
     /// <exception cref="InvalidOperationException">A message is exposed with no room's message box images.</exception>
     /// <exception cref="InvalidDataException">The images picture no message of the tiles shown.</exception>
-    public static MessageBoxRenderLayer? Capture(GameplayMessageBoxState messageBox, MessageBoxSheet? messages)
+    public static MessageBoxLayer? Capture(GameplayMessageBoxState messageBox, MessageBoxSheet? messages)
     {
         Ensure.NotNull(messageBox);
         if (!messageBox.IsActive || messageBox.RadiusPixels == 0)
@@ -71,6 +71,6 @@ public sealed record MessageBoxRenderLayer : RenderLayer
     /// <param name="radiusPixels">The reveal half-height in pixels.</param>
     /// <param name="sheet">The room's message box images.</param>
     /// <exception cref="InvalidDataException">The sheet pictures no message of these tiles.</exception>
-    public static MessageBoxRenderLayer FromTilemap(ReadOnlySpan<BackgroundTile> tilemap, int radiusPixels, MessageBoxSheet sheet) =>
+    public static MessageBoxLayer FromTilemap(ReadOnlySpan<BackgroundTile> tilemap, int radiusPixels, MessageBoxSheet sheet) =>
         new(Ensure.NotNull(sheet).Picture(tilemap), radiusPixels);
 }

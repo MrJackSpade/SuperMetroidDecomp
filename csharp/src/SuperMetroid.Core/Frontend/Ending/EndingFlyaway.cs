@@ -146,12 +146,12 @@ internal sealed class EndingFlyaway
     private int flyawayFadeCountdown;
 
     /// <summary>Fixed-color addition active only during visible planet flyaway phases.</summary>
-    internal FixedColorAddRenderLayer? FlyawayFixedColor => flyawayWhite != 0
+    internal ScreenTintLayer? FlyawayFixedColor => flyawayWhite != 0
         && EndingCreditsPhaseGroups.PlanetEscape.Contains(_stage.Phase)
         ? WhiteAddition(flyawayWhite) : null;
 
     /// <summary>Adds the same five-bit <paramref name="white"/> component to all three channels of the composed screen.</summary>
-    internal static FixedColorAddRenderLayer WhiteAddition(int white)
+    internal static ScreenTintLayer WhiteAddition(int white)
     {
         return new(checked((byte)white), checked((byte)white), checked((byte)white));
     }

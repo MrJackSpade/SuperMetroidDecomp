@@ -23,6 +23,6 @@ public readonly record struct GameplayLatchedBossBackgrounds(
     BossBg2Layer? KraidBody,
     EnemyBg2ImageSnapshot? EnemyBg2,
     DraygonBodyPlacement? DraygonBody,
-    Position16<Bg2Pixels>? CrocomireBg2Scroll,
+    Position16<BackgroundPixels>? CrocomireBg2Scroll,
     MotherBrainBodyPlacement? MotherBrainBody,
     ImmutableArray<BgTilePicture?> BodyPictures = default);

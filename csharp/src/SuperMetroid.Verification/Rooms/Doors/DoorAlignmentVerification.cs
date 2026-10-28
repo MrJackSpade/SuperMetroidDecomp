@@ -73,7 +73,7 @@ internal static class DoorAlignmentVerification
                 door,
                 source,
                 finalCamera: new Position16<RoomPixels>(0x0300, direction == 3 ? (ushort)0x0220 : (ushort)0x0200),
-                finalLayer2: new Position16<Bg2Pixels>(0x0180, 0x0140),
+                finalLayer2: new Position16<BackgroundPixels>(0x0180, 0x0140),
                 finalSamus: final);
             while (!transition.Advance())
             {

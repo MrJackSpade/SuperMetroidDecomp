@@ -38,15 +38,15 @@ internal static class RetailCrocomireCaptureTests
         {
             // Crocomire AI writes the BG2HOFS/BG2VOFS shadows during the main loop; the
             // next accepted NMI uploads them with the rest of that frame's latch (#1307).
-            Position16<Bg2Pixels> previousScroll = runtime.Enemies.CrocomireBehavior.Bg2.CrocomireBg2Scroll;
+            Position16<BackgroundPixels> previousScroll = runtime.Enemies.CrocomireBehavior.Bg2.CrocomireBg2Scroll;
             runtime.StepFrame(0);
             GameplayDisplayFrame published = runtime.PublishDisplayFrame();
             if (published.Latched.Bosses.CrocomireBg2Scroll != previousScroll)
                 throw new InvalidOperationException($"Crocomire BG2 scroll was not published by the following NMI at tick {tick}.");
             if (previousScroll != runtime.Enemies.CrocomireBehavior.Bg2.CrocomireBg2Scroll) latchedScrollChanges++;
             var scene = GameplayDisplayCapture.Capture(published);
-            var baseLayer = (OrdinaryGameplayRenderLayer)scene.Layers[0];
-            if (baseLayer.Bg2LineScrolls.VerticalShown || (death ?? throw new InvalidOperationException("Verification requires death.")).MeltingScrollActive)
+            var baseLayer = (GameplaySceneLayer)scene.Layers[0];
+            if (baseLayer.BackgroundLineScrolls.VerticalShown || (death ?? throw new InvalidOperationException("Verification requires death.")).MeltingScrollActive)
                 throw new InvalidOperationException("Crocomire fight incorrectly enabled melting HDMA.");
             var packet = new DisplayPacket(new(tick + 1, 1, (ushort)tick), scene);
             PixelComparison.Verify(packet, FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()),

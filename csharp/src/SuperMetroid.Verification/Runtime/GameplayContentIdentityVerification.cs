@@ -85,7 +85,7 @@ internal static class GameplayContentIdentityVerification
         var paletteDocument = new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
             Colors(SnesCgram.ColorCount, edit == "initial"),
             Colors(GameplayBasePaletteFormat.SpriteColorCount, edit == "common"));
-        GameplayBasePaletteCatalog palettes = GameplayBasePaletteFiles.Read(new MemoryStream(
+        GameplayBasePalette palettes = GameplayBasePaletteFiles.Read(new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(paletteDocument,
                 (edit == "json-indent" ? IndentedJson : CompactJson))));
         using var png = new MemoryStream();

@@ -25,7 +25,7 @@ internal static class CeresRidleyColorsVerification
     /// <summary>Verifies extracted colors, edited palette effects, legacy override migration, and guarded ROM access.</summary>
     internal static void VerifyCeresRidleyColorOverride(string stockDirectory,
         string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom,
-        GameplayBasePaletteCatalog initialPalettes,
+        GameplayBasePalette initialPalettes,
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyColorExtractor.Extract(rom);

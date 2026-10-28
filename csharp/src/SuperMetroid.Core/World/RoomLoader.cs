@@ -1090,7 +1090,7 @@ internal sealed class RoomLoader
     /// </remarks>
     internal void LoadGameplaySpritePalettes()
     {
-        GameplayBasePaletteCatalog artwork = _artwork.InitialPaletteArt ?? throw new InvalidOperationException(
+        GameplayBasePalette artwork = _artwork.InitialPaletteArt ?? throw new InvalidOperationException(
             "Room loading requires the installed gameplay palette catalog.");
         artwork.LoadCommonSprites(_colours.SpriteSets.Set(SpriteColourSetDefinitions.Common));
         artwork.LoadEnemyProjectileSprites(_colours.SpriteSets.Set(SpriteColourSetDefinitions.EnemyProjectiles));

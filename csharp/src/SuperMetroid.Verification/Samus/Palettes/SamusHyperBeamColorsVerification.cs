@@ -399,7 +399,7 @@ internal static class SamusHyperBeamColorsVerification
     /// <summary>Edits one installed rainbow ink, verifies it reaches live CGRAM and content identity, then checks invalid RGB5 and stock restoration.</summary>
     internal static void VerifySamusHyperBeamColorOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline, ISnesAddressSpace rom,
-        GameplayBasePaletteCatalog initialPalettes,
+        GameplayBasePalette initialPalettes,
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
         string path = Path.Combine(overrides, SamusHyperBeamColorFormat.FileName);

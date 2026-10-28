@@ -49,7 +49,7 @@ public sealed record GameContentIdentity(
 
     /// <summary>Builds an identity from validated audio, map, projectile, and further selected catalogs.</summary>
     public static GameContentIdentity Create(
-        ClipAudioCatalog audio,
+        ClipAudioLibrary audio,
         AreaMapPresentationCatalog maps,
         InstalledProjectilePresentation projectiles,
         IEnumerable<KeyValuePair<string, string>>? additionalContentSha256 = null)

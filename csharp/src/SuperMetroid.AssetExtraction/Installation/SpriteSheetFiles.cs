@@ -44,7 +44,7 @@ public static class SpriteSheetFiles
         SpriteSheetStore store = SpriteSheetStore.Create(directory, ManifestFileName);
         var sources = new SpriteSheetSourceCatalog(content);
         foreach (SpriteSheetId sheet in SpriteSheetDefinitions.Sheets)
-            store.Write(SpriteSheetDefinitions.FileName(sheet), Compose(bus, sources, sheet));
+            store.Write(SpriteSheetDefinitions.FileNames[sheet], Compose(bus, sources, sheet));
         store.Finish(sourceCartridgeSha256);
         _ = Load(directory, null);
     }
@@ -71,7 +71,7 @@ public static class SpriteSheetFiles
             Path.Combine(content, GameInstallationLayout.EndingObjectDirectoryName), null));
         foreach (SpriteSheetId sheet in SpriteSheetDefinitions.Sheets)
         {
-            SpriteSheet loaded = store.Read(SpriteSheetDefinitions.FileName(sheet));
+            SpriteSheet loaded = store.Read(SpriteSheetDefinitions.FileNames[sheet]);
             if (!loaded.HoldsExactly(FrameNames(sheet, body, maps, intro, ending)))
                 throw new InvalidDataException($"Sprite sheet {FrameFile(sheet)} does not hold exactly the frames its family draws.");
             sheets.Add(sheet, loaded);
@@ -153,5 +153,5 @@ public static class SpriteSheetFiles
     };
 
     /// <summary>A sheet's frame manifest file name.</summary>
-    internal static string FrameFile(SpriteSheetId sheet) => SpriteSheetStore.FrameFile(SpriteSheetDefinitions.FileName(sheet));
+    internal static string FrameFile(SpriteSheetId sheet) => SpriteSheetStore.FrameFile(SpriteSheetDefinitions.FileNames[sheet]);
 }

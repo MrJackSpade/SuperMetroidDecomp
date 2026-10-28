@@ -231,7 +231,7 @@ internal static class MapPresentationVerification
         private readonly RoomPlmElevatorPlatformVisualCatalog elevatorPlatform;
 
         /// <summary>Initial CGRAM colors loaded when the fixture enters gameplay.</summary>
-        public GameplayBasePaletteCatalog InitialPalettes { get; }
+        public GameplayBasePalette InitialPalettes { get; }
         /// <summary>Enemy character and sprite art bound alongside room art.</summary>
         public InstalledEnemyArtwork EnemyTiles { get; }
         /// <summary>Samus body art bound before gameplay drawing begins.</summary>
@@ -315,7 +315,7 @@ internal static class MapPresentationVerification
         /// <summary>Supplies the catalog checks' shared arguments.</summary>
         internal void Deconstruct(out SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, out string root,
             out string stock, out string overrides, out AreaMapPresentationCatalog original,
-            out MapPresentationInstalledRoomAssets fixtureAssets, out GameplayBasePaletteCatalog initialPalettes)
+            out MapPresentationInstalledRoomAssets fixtureAssets, out GameplayBasePalette initialPalettes)
         {
             bus = Bus;
             root = copy.Root;
@@ -479,7 +479,7 @@ internal static class MapPresentationVerification
         string stock,
         string overrides,
         AreaMapPresentationCatalog original,
-        GameplayBasePaletteCatalog initialPalettes)
+        GameplayBasePalette initialPalettes)
     {
         string source = Path.Combine(stock, MotherBrainRainbowPaletteFormat.FileName);
         MotherBrainRainbowPaletteDocument document =
@@ -746,7 +746,7 @@ internal static class MapPresentationVerification
         string stock,
         string overrides,
         AreaMapPresentationCatalog original,
-        GameplayBasePaletteCatalog initialPalettes)
+        GameplayBasePalette initialPalettes)
     {
         string source = Path.Combine(stock, MotherBrainHealthPaletteFormat.FileName);
         MotherBrainHealthPaletteDocument document =
@@ -835,7 +835,7 @@ internal static class MapPresentationVerification
         string stock,
         string overrides,
         AreaMapPresentationCatalog original,
-        GameplayBasePaletteCatalog initialPalettes)
+        GameplayBasePalette initialPalettes)
     {
         string source = Path.Combine(stock, RoomPaletteFxPresentationFormat.FileName);
         RoomPaletteFxPresentationDocument document =
@@ -1439,7 +1439,7 @@ internal static class MapPresentationVerification
     /// <summary>Checks debugger rebinding and live Ceres HUD, pause, and file-select consumers under a map-ROM read guard.</summary>
     private static void VerifyLiveMapCatalog(ISnesAddressSpace bus, AreaMapPresentationCatalog original,
         AreaMapPresentationCatalog edited, ImportedAreaMap[] rules,
-        GameplayBasePaletteCatalog initialPalettes, MapPresentationInstalledRoomAssets fixtureAssets)
+        GameplayBasePalette initialPalettes, MapPresentationInstalledRoomAssets fixtureAssets)
     {
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         using var withoutContent = new MemoryStream();

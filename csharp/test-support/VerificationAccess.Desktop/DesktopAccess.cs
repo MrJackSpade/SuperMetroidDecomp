@@ -72,7 +72,7 @@ internal static class DesktopAccess
         ExtractedAudioAssetCatalog.Load(audioDirectory ?? ExtractedAudioAssetLocator.FindAudioDirectory());
 
     /// <summary>The installed pre-rendered clips beside that audio (#1305), which a game binds.</summary>
-    internal static ClipAudioCatalog LoadAudioClips(string? audioDirectory = null) =>
+    internal static ClipAudioLibrary LoadAudioClips(string? audioDirectory = null) =>
         InstalledAudioClips.Load(audioDirectory ?? ExtractedAudioAssetLocator.FindAudioDirectory());
 
     /// <summary>A standalone synthesizing session over that audio, for fixtures that drive the cartridge audio types directly.</summary>

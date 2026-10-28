@@ -46,7 +46,7 @@ internal static class AudioOverridesVerification
         }
         ExportStock();
 
-        ClipAudioCatalog stock = installation.LoadAudioClips();
+        ClipAudioLibrary stock = installation.LoadAudioClips();
         AssertEqual(stock.ContentIdentity, installation.LoadAudioClips().ContentIdentity, "stock clip identity is stable across reload");
         string selectedDirectory = AudioAssetOverrideInstaller.Initialize(installation);
         AssertEqual(
@@ -73,7 +73,7 @@ internal static class AudioOverridesVerification
         AssertEqual("music-0f-track-03", songId, "a song's override identity keeps the data index existing overrides use");
         AudioAssetOverrideInstaller.Replace(installation, songId, tonePath, ToneLoop);
 
-        ClipAudioCatalog selected = installation.LoadAudioClips();
+        ClipAudioLibrary selected = installation.LoadAudioClips();
         MusicClipEntry song = selected.GetMusic(MusicDataSet.GreenBrinstar, ReplacedTrack);
         AssertEqual(ToneFrames, song.Clip.Frames, "the replacement's length selects the song");
         AssertEqual<long?>(ToneLoop, song.LoopStart, "the replacement's loop selects the song");
@@ -103,7 +103,7 @@ internal static class AudioOverridesVerification
             "a mono replacement is rejected");
         AssertEqual(selected.ContentIdentity, installation.LoadAudioClips().ContentIdentity, "rejected edits leave the override in place");
 
-        string stockManifestPath = Path.Combine(installation.AudioDirectory, ClipAudioCatalog.ManifestFileName);
+        string stockManifestPath = Path.Combine(installation.AudioDirectory, ClipAudioLibrary.ManifestFileName);
         File.AppendAllText(stockManifestPath, "corrupt");
         AssertThrows<System.Text.Json.JsonException>(
             () => installation.LoadAudioClips(),
@@ -124,7 +124,7 @@ internal static class AudioOverridesVerification
     }
 
     /// <summary>The clips' sample rate.</summary>
-    private static int ClipSampleRate(ClipAudioCatalog clips) => clips.Manifest.SampleRate;
+    private static int ClipSampleRate(ClipAudioLibrary clips) => clips.Manifest.SampleRate;
 
     /// <summary>Checks component digests and build identity affect compatibility warnings independently.</summary>
     internal static void VerifyGameContentIdentityComposition()

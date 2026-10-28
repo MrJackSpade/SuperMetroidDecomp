@@ -63,7 +63,7 @@ public sealed record GameInstallation(string Root)
     public string AudioOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.AudioDirectoryName);
     /// <summary>Loads the installed pre-rendered audio clips (#1305) the game plays, with the persistent clip override when one exists.</summary>
     /// <exception cref="InvalidDataException">The stock clips or the override are invalid.</exception>
-    public ClipAudioCatalog LoadAudioClips() => ClipAudioOverrides.Load(AudioDirectory, AudioOverrideDirectory);
+    public ClipAudioLibrary LoadAudioClips() => ClipAudioOverrides.Load(AudioDirectory, AudioOverrideDirectory);
     /// <summary>Stock area-map artwork and exploration masks under the replaceable content tree.</summary>
     public string MapDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.MapDirectoryName);
     /// <summary>Stock starting CGRAM and room-entry sprite palettes under the replaceable content tree.</summary>
@@ -71,7 +71,7 @@ public sealed record GameInstallation(string Root)
     /// <summary>Editable starting CGRAM and room-entry sprite colors survive stock rebuilds.</summary>
     public string GameplayBasePaletteOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.GameplayBasePaletteDirectoryName);
     /// <summary>Validates stock starting palettes and loads any compatible user replacements for initial CGRAM and room-entry sprite colors.</summary>
-    public GameplayBasePaletteCatalog LoadGameplayBasePalettes() =>
+    public GameplayBasePalette LoadGameplayBasePalettes() =>
         GameplayBasePaletteFiles.Load(GameplayBasePaletteDirectory, GameplayBasePaletteOverrideDirectory);
     /// <summary>Stock cartridge bytes Samus's glitch paths read; not editable, so there is no override directory.</summary>
     public string SamusOverreadDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SamusOverreadDirectoryName);

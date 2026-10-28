@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Editable starting colour image and common sprite colors restored on room entry.</summary>
-public sealed class GameplayBasePaletteCatalog
+public sealed class GameplayBasePalette
 {
     /// <summary>Owned 256-color starting image loaded at gameplay startup.</summary>
     internal readonly RgbColor[] initial;
@@ -9,14 +9,14 @@ public sealed class GameplayBasePaletteCatalog
     internal readonly RgbColor[] commonSprites;
 
     /// <summary>Retains validated RGB5 arrays detached from the editable document.</summary>
-    internal GameplayBasePaletteCatalog(RgbColor[] initial, RgbColor[] commonSprites)
+    internal GameplayBasePalette(RgbColor[] initial, RgbColor[] commonSprites)
     {
         this.initial = initial;
         this.commonSprites = commonSprites;
     }
 
     /// <summary>Identity of the decoded selected colors, independent of JSON encoding.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(GameplayBasePaletteCatalog), content =>
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(GameplayBasePalette), content =>
     {
         content.AppendColors("initial", initial);
         content.AppendColors("common sprites", commonSprites);

@@ -25,7 +25,7 @@ internal sealed class MovieReplayVideo : IDisposable
     private readonly string audioPath;
     private readonly FileStream audio;
     private readonly short[] samples = new short[AudioSession.PcmSamplesPerFrame];
-    private readonly ClipAudioCatalog clips = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.LoadAudioClips();
+    private readonly ClipAudioLibrary clips = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.LoadAudioClips();
     private Process? encoder;
     private Extent16<ScreenPixels> size;
     private long sequence;

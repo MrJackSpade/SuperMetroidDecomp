@@ -26,7 +26,7 @@ public sealed class ClipAudioBackend
     private const int FramesPerUpdate = SoundClockTiming.SamplesPerUpdate;
 
     /// <summary>The installed clips.</summary>
-    private readonly ClipAudioCatalog catalog;
+    private readonly ClipAudioLibrary catalog;
 
     /// <summary>Clip samples already read, by clip (a replacement may share a stock clip's relative path).</summary>
     private readonly Dictionary<AudioClipFile, short[]> samples = [];
@@ -36,7 +36,7 @@ public sealed class ClipAudioBackend
 
     /// <summary>Creates a backend over <paramref name="catalog"/>, continuing <paramref name="state"/> (a restored session's) or starting from power-on.</summary>
     /// <exception cref="ArgumentNullException"><paramref name="catalog"/> is null.</exception>
-    public ClipAudioBackend(ClipAudioCatalog catalog, ClipPlaybackState? state = null)
+    public ClipAudioBackend(ClipAudioLibrary catalog, ClipPlaybackState? state = null)
     {
         this.catalog = Ensure.NotNull(catalog);
         State = state ?? new ClipPlaybackState();

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Audio;
 /// identities and contained paths and every file's size; <see cref="ReadClip"/> also checks a
 /// file's SHA-256 as it reads it, so a host reads only the clips it plays.
 /// </summary>
-public sealed class ClipAudioCatalog
+public sealed class ClipAudioLibrary
 {
     /// <summary>The clip manifest's file name in the audio root.</summary>
     public const string ManifestFileName = "audio-clips.json";
@@ -48,7 +48,7 @@ public sealed class ClipAudioCatalog
     private readonly IReadOnlyDictionary<AudioClipFile, string> overrideFiles;
 
     /// <summary>Creates a catalog over a validated manifest.</summary>
-    private ClipAudioCatalog(string root, AudioClipManifest manifest, string contentIdentity, IReadOnlyDictionary<AudioClipFile, string> overrideFiles)
+    private ClipAudioLibrary(string root, AudioClipManifest manifest, string contentIdentity, IReadOnlyDictionary<AudioClipFile, string> overrideFiles)
     {
         this.root = root;
         this.overrideFiles = overrideFiles;
@@ -103,7 +103,7 @@ public sealed class ClipAudioCatalog
     /// override lives in the import pipeline, which knows the identities the override names clips by.
     /// </summary>
     /// <exception cref="InvalidDataException">The selected manifest repeats an identity.</exception>
-    internal static ClipAudioCatalog Select(
+    internal static ClipAudioLibrary Select(
         StockClips stock,
         AudioClipManifest manifest,
         string contentIdentity,
@@ -111,7 +111,7 @@ public sealed class ClipAudioCatalog
     {
         Ensure.NotNull(stock);
         ArgumentException.ThrowIfNullOrWhiteSpace(contentIdentity);
-        return new ClipAudioCatalog(stock.Root, Ensure.NotNull(manifest), contentIdentity, Ensure.NotNull(overrideFiles));
+        return new ClipAudioLibrary(stock.Root, Ensure.NotNull(manifest), contentIdentity, Ensure.NotNull(overrideFiles));
     }
 
     /// <summary>

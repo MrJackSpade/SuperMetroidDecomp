@@ -184,7 +184,7 @@ internal static class EnemyTileArtworkKraidVerification
         // Supply the constructor's explicit palette dependency; never revive its ROM fallback.
         PaletteRgb5[] Colors(int count) => Enumerable.Range(0, count)
             .Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray();
-        GameplayBasePaletteCatalog initial = GameplayBasePaletteFiles.Read(new EnemyIdentityFixture().Json(
+        GameplayBasePalette initial = GameplayBasePaletteFiles.Read(new EnemyIdentityFixture().Json(
             new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version, Colors(SnesCgram.ColorCount),
                 Colors(GameplayBasePaletteFormat.SpriteColorCount))));
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initial);

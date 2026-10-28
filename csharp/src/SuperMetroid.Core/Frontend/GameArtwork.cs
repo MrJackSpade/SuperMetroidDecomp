@@ -43,7 +43,7 @@ public sealed record GameArtwork : IGameplayArtwork
     IGameplayPresentationContent? IGameplayArtwork.MapPresentation => MapPresentation;
 
     /// <summary>Gameplay base palettes a new runtime starts from.</summary>
-    public GameplayBasePaletteCatalog? GameplayBasePalettes { get; init; }
+    public GameplayBasePalette? GameplayBasePalettes { get; init; }
 
     /// <summary>Common gameplay sprite characters (standard objects).</summary>
     public RoomCharacterAtlas? StandardObjectArt { get; init; }

@@ -39,7 +39,7 @@ internal static class AudioClipBackendVerification
     /// <summary>Runs both confirmations over the installation's clips and extracted catalog.</summary>
     internal static void VerifyAudioClipBackend(GameInstallation installation)
     {
-        ClipAudioCatalog clips = installation.LoadAudioClips();
+        ClipAudioLibrary clips = installation.LoadAudioClips();
         ExtractedAudioAssetCatalog extracted = installation.LoadAudio();
         VerifyEquivalence(clips, extracted, AudioRequest.ForTrack(new MusicTrack(RoomTrack)), MusicUpdates, "Green Brinstar room track");
         VerifyEquivalence(clips, extracted, new AudioRequest.RequestSound(Library1Sound.UnchargedPowerBeam), SoundUpdates, "Power Beam");
@@ -51,7 +51,7 @@ internal static class AudioClipBackendVerification
     }
 
     /// <summary>Feeds one event stream to both backends: uploads on update 0, <paramref name="request"/> on update 1.</summary>
-    private static void VerifyEquivalence(ClipAudioCatalog clips, ExtractedAudioAssetCatalog extracted, AudioRequest request, int updates, string name)
+    private static void VerifyEquivalence(ClipAudioLibrary clips, ExtractedAudioAssetCatalog extracted, AudioRequest request, int updates, string name)
     {
         var source = new AudioEventSource();
         var clipBackend = new ClipAudioBackend(clips);
@@ -77,7 +77,7 @@ internal static class AudioClipBackendVerification
     }
 
     /// <summary>Same track ignored, an ended track restarting, and stop.</summary>
-    private static void VerifyMusicCommands(ClipAudioCatalog clips)
+    private static void VerifyMusicCommands(ClipAudioLibrary clips)
     {
         var script = new Script(clips);
         script.Advance([new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
@@ -108,7 +108,7 @@ internal static class AudioClipBackendVerification
     }
 
     /// <summary>Priority, low-health mode, exempt requests and upload silencing.</summary>
-    private static void VerifySoundCommands(ClipAudioCatalog clips)
+    private static void VerifySoundCommands(ClipAudioLibrary clips)
     {
         SoundEffectClipEntry high = clips.Manifest.SoundEffects.First(entry =>
             entry.Context == MusicDataSet.GreenBrinstar && entry.Sound.Library == SoundEffectLibrary.Library2 &&
@@ -152,7 +152,7 @@ internal static class AudioClipBackendVerification
 
     /// <summary>Drives a clip backend with the session's event source, one update at a time.</summary>
     /// <param name="clips">The installed clips.</param>
-    private sealed class Script(ClipAudioCatalog clips)
+    private sealed class Script(ClipAudioLibrary clips)
     {
         /// <summary>The port model producing the events.</summary>
         private readonly AudioEventSource source = new();

@@ -232,7 +232,7 @@ public sealed class PlayableGameControl : UserControl
     }
 
     /// <summary>Loads the clips of the selected audio directory, or the installation's.</summary>
-    private ClipAudioCatalog LoadAudioAssets()
+    private ClipAudioLibrary LoadAudioAssets()
     {
         var installation = new GameInstallation(playerDataDirectory);
         if (installedAudioDirectory is null || Path.GetFullPath(installedAudioDirectory).Equals(
@@ -270,7 +270,7 @@ public sealed class PlayableGameControl : UserControl
         var installation = new GameInstallation(playerDataDirectory);
         addressSpace = installation.OpenRuntimeAddressSpace();
         mapPresentation = installation.LoadMaps();
-        ClipAudioCatalog selectedAudioAssets = LoadAudioAssets();
+        ClipAudioLibrary selectedAudioAssets = LoadAudioAssets();
         if (hostOptions.AudioEnabled)
             audioDevice = CreateAudioDevice();
         SaveSlotStore saves = replay is null ? LoadSavesFromDisk() : LoadReplaySaves();

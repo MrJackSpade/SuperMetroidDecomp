@@ -35,10 +35,10 @@ internal static class InstalledFixtures
     internal static SamusOverreadCatalog SamusOverreads => samusOverreads.Value;
 
     /// <summary>The installation's starting and common sprite colours, loaded once.</summary>
-    private static readonly Lazy<GameplayBasePaletteCatalog> gameplayBasePalettes = new(() => RepositoryInstallation.Installation.LoadGameplayBasePalettes());
+    private static readonly Lazy<GameplayBasePalette> gameplayBasePalettes = new(() => RepositoryInstallation.Installation.LoadGameplayBasePalettes());
 
     /// <summary>The installation's starting and common sprite colours.</summary>
-    internal static GameplayBasePaletteCatalog GameplayBasePalettes => gameplayBasePalettes.Value;
+    internal static GameplayBasePalette GameplayBasePalettes => gameplayBasePalettes.Value;
 
     /// <summary>Lazy stock character, palette, visual-layout, level-stream and block-sheet catalogs.</summary>
     private static readonly Lazy<RoomAssetCatalogs> roomAssets = new(() => new RoomAssetCatalogs(

@@ -131,7 +131,7 @@ public sealed class SuperMetroidGame
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="clips"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The session already advanced without synthesis and has no player to continue.</exception>
-    internal void BindAudio(ClipAudioCatalog clips) => Session.audioSession.BindClips(clips);
+    internal void BindAudio(ClipAudioLibrary clips) => Session.audioSession.BindClips(clips);
 
     /// <summary>Copies the last update's 1,600 interleaved 48-kHz stereo samples into host-owned storage.</summary>
     /// <exception cref="InvalidOperationException">No audio catalog is bound.</exception>

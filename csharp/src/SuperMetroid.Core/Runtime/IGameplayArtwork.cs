@@ -31,7 +31,7 @@ internal interface IGameplayArtwork
     IGameplayPresentationContent? MapPresentation { get; }
 
     /// <summary>Gameplay base palettes a new runtime starts from.</summary>
-    GameplayBasePaletteCatalog? GameplayBasePalettes { get; }
+    GameplayBasePalette? GameplayBasePalettes { get; }
 
     /// <summary>Common gameplay sprite characters (standard objects).</summary>
     RoomCharacterAtlas? StandardObjectArt { get; }

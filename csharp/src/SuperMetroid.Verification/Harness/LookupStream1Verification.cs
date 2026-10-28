@@ -1485,7 +1485,7 @@ internal static class LookupStream1Verification
         SpriteSheet sheet = EscapeTimerDrawChecks.Sheet(rom);
         SpriteArtwork characters = EscapeTimerCharacters.Read(new MemoryStream(
             SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerTileAtlasExtractor.Extract(rom))).Artwork;
-        GameplayBasePaletteCatalog palettes = InstalledFixtures.GameplayBasePalettes;
+        GameplayBasePalette palettes = InstalledFixtures.GameplayBasePalettes;
         var timer = new EscapeTimer(); timer.Clear();
         for (int digit = 0; digit < 10; digit++)
         {

@@ -92,7 +92,7 @@ internal sealed class RuntimeArtwork : IInstalledArtworkContent, IInstalledSprit
     }
     /// <summary>Installed colors used at construction and on each room-entry palette restore.</summary>
     [field: NonSerialized]
-    public GameplayBasePaletteCatalog? InitialPaletteArt { get; set; }
+    public GameplayBasePalette? InitialPaletteArt { get; set; }
     /// <summary>Whether the next accepted NMI must refresh already initialized HUD characters.</summary>
     [NonSerialized] private HudTileAtlas? pendingHudTiles;
     /// <summary>Gets or binds the host-owned presentation catalog used by maps, HUD, messages, room effects, Samus/enemy colors, and named VRAM assets.</summary>

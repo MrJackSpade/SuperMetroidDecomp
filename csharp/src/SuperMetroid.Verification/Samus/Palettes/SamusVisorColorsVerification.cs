@@ -171,7 +171,7 @@ internal static class SamusVisorColorsVerification
     /// <summary>Checks edited visor colors through newly bound Samus room/X-ray states and stock identity restoration.</summary>
     internal static void VerifySamusVisorColorOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline, ISnesAddressSpace rom,
-        GameplayBasePaletteCatalog initialPalettes, MapPresentationInstalledRoomAssets fixtureAssets)
+        GameplayBasePalette initialPalettes, MapPresentationInstalledRoomAssets fixtureAssets)
     {
         string path = Path.Combine(overrides, SamusVisorColorFormat.FileName);
         SamusVisorColorDocument document = JsonSerializer.Deserialize<SamusVisorColorDocument>(

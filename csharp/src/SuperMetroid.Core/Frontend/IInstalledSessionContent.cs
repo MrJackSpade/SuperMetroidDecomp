@@ -7,5 +7,5 @@ public interface IInstalledSessionContent
     GameArtwork Artwork { get; }
 
     /// <summary>The installed audio clips the session's playback state binds, whether or not samples reach a device.</summary>
-    ClipAudioCatalog AudioClips { get; }
+    ClipAudioLibrary AudioClips { get; }
 }

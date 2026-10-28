@@ -47,7 +47,7 @@ internal static class ClosedPresentationContractChecks
                     SporeSpawnColorCatalog spores, DraygonColorCatalog draygon, PhantoonColorCatalog phantoon,
                     TourianStatueColorCatalog statues,
                     MotherBrainRainbowPalettePresentation rainbow, MotherBrainDeathColorCatalog death,
-                    ChozoAndTubeColorCatalog chozo, GameplayBasePaletteCatalog basePalette,
+                    ChozoAndTubeColorCatalog chozo, GameplayBasePalette basePalette,
                     SamusDeathPaletteArtworkCatalog samusDeath,
                     SuperMetroid.Core.Assets.GameplayColours cgram, SuperMetroid.Core.Rendering.ScreenPalette screen, Span<ushort> tiles, Span<byte> bytes, Span<BackgroundTile> cells,
                     ScreenSprites oam, SpriteSheet sheet, int dynamicIndex) {

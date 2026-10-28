@@ -412,7 +412,7 @@ internal static class SamusFullBodyCycleColorsVerification
     internal static void VerifySamusFullBodyCycleColorOverride(
         string stockDirectory, string overrideDirectory,
         AreaMapPresentationCatalog original, ISnesAddressSpace rom,
-        GameplayBasePaletteCatalog initialPalettes,
+        GameplayBasePalette initialPalettes,
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(rom);

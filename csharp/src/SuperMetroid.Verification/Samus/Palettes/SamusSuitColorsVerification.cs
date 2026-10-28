@@ -117,7 +117,7 @@ internal static class SamusSuitColorsVerification
         string overrideDirectory,
         AreaMapPresentationCatalog original,
         ISnesAddressSpace bus,
-        GameplayBasePaletteCatalog initialPalettes,
+        GameplayBasePalette initialPalettes,
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus);

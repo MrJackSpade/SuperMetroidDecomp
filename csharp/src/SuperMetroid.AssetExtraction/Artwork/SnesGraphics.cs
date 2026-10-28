@@ -83,8 +83,8 @@ public static class SnesGraphics
         var colors = new RgbaPixel[colorCount];
         for (int i = 0; i < colorCount; i++)
         {
-            byte value = colorCount <= 1 ? (byte)0 : (byte)(i * 255 / (colorCount - 1));
-            colors[i] = new RgbaPixel(value, value, value);
+            int value = colorCount <= 1 ? 0 : i * 255 / (colorCount - 1);
+            colors[i] = new RgbaPixel((byte)value, (byte)value, (byte)value);
         }
         return colors;
     }

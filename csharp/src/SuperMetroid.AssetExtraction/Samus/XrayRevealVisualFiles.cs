@@ -82,7 +82,7 @@ public static class XrayRevealVisualFiles
         ushort[] itemMetatiles = Enumerable.Range(0, XrayOverlayVisualCatalog.DynamicGraphicsSlots * 2)
             .Select(slot =>
             {
-                ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.ItemDrawPointers.Value + slot * sizeof(ushort)));
+                int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.ItemDrawPointers.Value + slot * sizeof(ushort)));
                 if (pointer is < SnesBusLayout.RomWindowStart or > ushort.MaxValue - 3)
                     throw new InvalidDataException($"X-ray item draw pointer ${pointer:X4} is invalid.");
                 return new RoomLevelWord(CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.XrayItemDrawBank.Value | (pointer + 2)))).VisualWord;
@@ -245,17 +245,17 @@ public static class XrayRevealVisualFiles
 
     /// <summary>Walks the bank-$91 type/BTS dispatch tables and decodes only the operands owned by the selected copy shape.</summary>
     private static XrayRevealDefinition? ReadNative(ISnesAddressSpace bus,
-        RoomCollisionType type, byte bts)
+        RoomCollisionType type, int bts)
     {
         int typeWord = (int)type << 12;
         for (int entry = SamusSourceDefinitions.XrayRevealBlockTypeTable; ; entry += 4)
         {
-            ushort key = ReadWord(bus, entry);
+            int key = ReadWord(bus, entry);
             if ((RevealTableMarker)key == RevealTableMarker.TableEnd) return null;
             if (key != typeWord) continue;
             for (int match = ReadWord(bus, entry + 2); ; match += 4)
             {
-                ushort value = ReadWord(bus, match);
+                int value = ReadWord(bus, match);
                 if ((RevealTableMarker)value == RevealTableMarker.TableEnd) return null;
                 if ((RevealTableMarker)value != RevealTableMarker.AnyBts && value != bts) continue;
                 int pointer = ReadWord(bus, match + 2);
@@ -299,19 +299,19 @@ public static class XrayRevealVisualFiles
     }
 
     /// <summary>Reads ordered block-coordinate/metatile pairs from bank $8F until the required zero terminator.</summary>
-    private static XrayRoomOverlayEntry ReadRoomOverlay(ISnesAddressSpace bus, ushort pointer)
+    private static XrayRoomOverlayEntry ReadRoomOverlay(ISnesAddressSpace bus, int pointer)
     {
         var tiles = new List<XrayRoomOverlayTileDocument>();
         for (int cursor = pointer; cursor <= ushort.MaxValue - 3; cursor += 4)
         {
-            ushort coordinate = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.XrayRoomOverlayBank.Value | cursor));
+            int coordinate = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.XrayRoomOverlayBank.Value | cursor));
             if (coordinate == 0)
             {
                 if (tiles.Count == 0)
                     throw new InvalidDataException($"X-ray room overlay ${pointer:X4} is empty.");
                 return new XrayRoomOverlayEntry(pointer, tiles.ToArray());
             }
-            ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.XrayRoomOverlayBank.Value | (cursor + 2)));
+            int word = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.XrayRoomOverlayBank.Value | (cursor + 2)));
             if (!RoomLevelWord.IsValidVisualWord(word))
                 throw new InvalidDataException(
                     $"X-ray room overlay ${pointer:X4} has nonvisual bits ${word:X4}.");

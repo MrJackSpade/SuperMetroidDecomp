@@ -196,7 +196,7 @@ public static class BeamTileAtlasDefinitions
     /// fitting of those categorical assignments would re-encode the painting. Only the five
     /// original seed positions are covered; profile width/period/phase, RGB palettes and all
     /// other tile/pixel choices remain required. Independently supplied edits override each pen.</remarks>
-    internal static bool TryStockPlasmaInk(SamusBeamCombination selection, int pixel, out byte ink)
+    internal static bool TryStockPlasmaInk(SamusBeamCombination selection, int pixel, out int ink)
     {
         if (IsAdjacentDataArtwork(selection)) { ink = 0; return false; }
         if ((uint)pixel >= Width * Height) throw new ArgumentOutOfRangeException(nameof(pixel));
@@ -216,7 +216,7 @@ public static class BeamTileAtlasDefinitions
             center + 1 => PlasmaCenterMidPen,
             _ => -1,
         };
-        ink = selected >= 0 ? (byte)selected : (byte)0;
+        ink = selected >= 0 ? selected : 0;
         return selected >= 0;
     }
     /// <summary>

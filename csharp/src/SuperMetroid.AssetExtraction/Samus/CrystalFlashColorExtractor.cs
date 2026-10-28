@@ -22,7 +22,7 @@ public static class CrystalFlashColorExtractor
         var body = new PaletteRgb5[CrystalFlashColorFormat.BodyFrameCount][];
         for (int frame = 0; frame < body.Length; frame++)
         {
-            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 SamusSourceDefinitions.CrystalFlashBodyRecords.Value +
                 frame * SamusPaletteDefinitions.CrystalFlash.BodyRecordByteCount);
             body[frame] = ReadColors(pointer, CrystalFlashColorFormat.BodyColorCount);
@@ -30,7 +30,7 @@ public static class CrystalFlashColorExtractor
         var bubble = new PaletteRgb5[CrystalFlashColorFormat.BubbleFrameCount][];
         for (int frame = 0; frame < bubble.Length; frame++)
         {
-            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 SamusSourceDefinitions.BubblePointers.Value + frame * sizeof(ushort));
             bubble[frame] = ReadColors(pointer, CrystalFlashColorFormat.BubbleColorCount);
         }
@@ -41,14 +41,14 @@ public static class CrystalFlashColorExtractor
             Bubble = bubble,
         });
 
-        PaletteRgb5[] ReadColors(ushort pointer, int count)
+        PaletteRgb5[] ReadColors(int pointer, int count)
         {
             byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 SamusSourceDefinitions.PaletteBank.Value | pointer, count * sizeof(ushort));
             var result = new PaletteRgb5[count];
             for (int index = 0; index < count; index++)
             {
-                ushort word = LittleEndianBytes.Word(source[index * 2], source[index * 2 + 1]);
+                int word = LittleEndianBytes.Word(source[index * 2], source[index * 2 + 1]);
                 result[index] = new PaletteRgb5
                 {
                     Red = word & 31,

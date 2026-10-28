@@ -14,8 +14,10 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// Supports noninterlaced indexed PNG at 1/2/4/8 bits and all five scanline filters.
 /// Rejects truecolor, animation and interlace explicitly. Caller-specified dimensions
 /// are checked before decompression; encoded and inflated data are bounded.
-/// See https://www.w3.org/TR/png-3/ sections 9 and 11.2.
+/// See https://www.w3.org/TR/png-3/ sections 9 and 11.2. The codec owns the file's byte-wide chunk letters, filter
+/// bytes and packed palette indexes.
 /// </remarks>
+[EncodingOwner("indexed-colour PNG file")]
 public static class IndexedPng
 {
     /// <summary>Decodes a complete static indexed PNG, preserving each pixel's palette index and palette alpha; verifies dimensions, chunk ordering/checksums, the 16-MiB encoded limit, and exact inflated row length before returning unpacked pixels.</summary>

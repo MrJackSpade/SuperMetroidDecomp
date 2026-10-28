@@ -125,7 +125,7 @@ public static class RoomCharacterArtworkFiles
         {
             [RoomCharacterAtlasFormat.CreFileName] = new(null),
         };
-        for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
+        for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
             RoomCharacterSet set = RoomTilesetDefinitions.Get(graphicsSet).Characters;
             sources[RoomCharacterAtlasFormat.FileName(set)] = new(set);

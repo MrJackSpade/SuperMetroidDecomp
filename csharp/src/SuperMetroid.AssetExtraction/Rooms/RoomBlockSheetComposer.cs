@@ -243,7 +243,7 @@ internal static class RoomBlockSheetComposer
     }
 
     /// <summary>The character tile word <paramref name="word"/> names.</summary>
-    private static int CharacterOf(ushort word) => new SnesBgTilemapWord(word).CharacterIndex;
+    private static int CharacterOf(int word) => new SnesBgTilemapWord(checked((ushort)word)).CharacterIndex;
 
     /// <summary>
     /// The upload region holding the character from <paramref name="first"/>: the run between two consecutive upload

@@ -313,7 +313,7 @@ internal static class RoomBlockUploads
         {
             if (!transfer.Transfers)
                 continue;
-            ushort firstWord = LibraryBackgroundOperands.DestinationWord(transfer.Destination);
+            int firstWord = LibraryBackgroundOperands.DestinationWord(transfer.Destination);
             if (firstWord + transfer.ByteCount / sizeof(ushort) <= GameplayVramLayout.HudCharacters.Offset
                 || firstWord >= GameplayVramLayout.HudCharacters.Offset + GameplayVramLayout.HudCharacters.Count
                 || transfer.Source is LibraryBackgroundSource.StagedTilemap or LibraryBackgroundSource.StagedEnemyTilemap

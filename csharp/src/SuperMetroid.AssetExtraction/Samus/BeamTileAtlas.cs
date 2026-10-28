@@ -22,7 +22,7 @@ public sealed class BeamTileAtlas
         this.selection = selection;
         for (int pixel = 0; pixel < selectedPixels.Length; pixel++)
         {
-            if (BeamTileAtlasDefinitions.TryStockPlasmaInk(selection, pixel, out byte ink))
+            if (BeamTileAtlasDefinitions.TryStockPlasmaInk(selection, pixel, out int ink))
             {
                 if (selectedPixels[pixel] != ink) pixels[pixel] = selectedPixels[pixel];
                 continue;
@@ -49,9 +49,9 @@ public sealed class BeamTileAtlas
         for (int pixel = 0; pixel < BeamTileAtlasDefinitions.Width * BeamTileAtlasDefinitions.Height; pixel++)
         {
             if (sharing != BeamTileSharing.WholeSheet && !BeamTileAtlasDefinitions.IsSharedTilePixel(selection, pixel)) continue;
-            byte value = Pixel(pixel);
+            int value = Pixel(pixel);
             if (value == source.Pixel(pixel)) selected.Remove(pixel);
-            else selected[pixel] = value;
+            else selected[pixel] = (byte)value;
         }
         return new(selected, selection, source, sharing == BeamTileSharing.WholeSheet);
     }
@@ -63,10 +63,10 @@ public sealed class BeamTileAtlas
     /// <summary>Resolves an edited, shared, stock Plasma, or derived pixel in that priority order.</summary>
     private byte Pixel(int pixel)
     {
-        if (pixels.TryGetValue(pixel, out byte selected)) return selected;
+        if (pixels.ContainsKey(pixel)) return pixels[pixel];
         if (sharedSource is not null && (wholeSheetShared || BeamTileAtlasDefinitions.IsSharedTilePixel(selection, pixel)))
             return sharedSource.Pixel(pixel);
-        if (BeamTileAtlasDefinitions.TryStockPlasmaInk(selection, pixel, out byte ink)) return ink;
+        if (BeamTileAtlasDefinitions.TryStockPlasmaInk(selection, pixel, out int ink)) return (byte)ink;
         if (BeamTileAtlasDefinitions.TryDerivedPixelSource(selection, pixel, out int source))
             return source < 0 ? (byte)0 : Pixel(source);
         throw new InvalidOperationException("Required beam artwork pixel is absent.");

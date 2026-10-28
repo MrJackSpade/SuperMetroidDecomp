@@ -22,7 +22,7 @@ public static class SnesPlanarTileEncoder
         for (int y = 0; y < height; y++)
         for (int x = 0; x < width; x++)
         {
-            byte pixel = pixels[y * width + x];
+            int pixel = pixels[y * width + x];
             if (pixel >= 1 << bitsPerPixel) throw new InvalidDataException($"Atlas pixel ({x},{y}) exceeds its {1 << bitsPerPixel}-color index range.");
             int tile = y / 8 * (width / 8) + x / 8;
             for (int plane = 0; plane < bitsPerPixel; plane++)

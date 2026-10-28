@@ -91,7 +91,7 @@ internal static class LibraryBackgroundReplay
         if (transfer.ByteCount == 0)
             throw new InvalidDataException($"Library-background transfer from {transfer.Source} uses unsupported DMA size zero.");
         // The destination is an encoded VRAM word with the increment in its top bit, as the DMA's VMADD/VMAIN take it.
-        ushort destination = LibraryBackgroundOperands.DestinationWord(transfer.Destination);
+        int destination = LibraryBackgroundOperands.DestinationWord(transfer.Destination);
         if (staging.TryRead(transfer.Source, transfer.ByteCount, out ReadOnlySpan<byte> staged))
             vram.ExecuteQueuedAssetWrite(staged, destination);
         else if (LibraryBackgroundLoader.TryBindTransferredCharacters(transfer, characters))
@@ -171,7 +171,7 @@ internal static class LibraryBackgroundReplay
 
         /// <summary>Fills <paramref name="byteCount"/> bytes at bank-$7E <paramref name="destination"/> with <paramref name="value"/> words.</summary>
         /// <exception cref="InvalidDataException">The fill leaves the staging.</exception>
-        public void FillWords(int destination, int byteCount, ushort value)
+        public void FillWords(int destination, int byteCount, int value)
         {
             if ((byteCount & 1) != 0)
                 throw new ArgumentOutOfRangeException(nameof(byteCount));

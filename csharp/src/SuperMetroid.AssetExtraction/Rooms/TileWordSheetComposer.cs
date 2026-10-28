@@ -111,9 +111,10 @@ internal static class TileWordSheetComposer
                 for (int index = 0; index < run.Words.Length; index++)
                     written[new((ushort)(run.Start.X + index), (ushort)(run.Start.Y - part.Part.Top))] = run.Words[index];
             }
-            foreach ((Position16<TilemapCells> cell, ushort raw) in written)
+            foreach (KeyValuePair<Position16<TilemapCells>, ushort> entry in written)
             {
-                var word = new SnesBgTilemapWord(raw);
+                Position16<TilemapCells> cell = entry.Key;
+                var word = new SnesBgTilemapWord(entry.Value);
                 int character = word.CharacterIndex;
                 if (!content.TryShowing(bindings.Sets[0], character, 1, out BgArtworkShown shown))
                     throw new InvalidDataException($"{TileWordSheet.NameOf(layer, tileset)} part {part.Name} reads {bindings.Sets[0]} character {character}, which its room loads nothing over.");
@@ -187,7 +188,7 @@ internal static class TileWordSheetComposer
         for (int y = 0; y < size.Y; y++)
         for (int x = 0; x < size.X; x++)
         {
-            byte index = canvas.PaletteIndices[(corner.Y + y) * canvas.Width + x];
+            int index = canvas.PaletteIndices[(corner.Y + y) * canvas.Width + x];
             if (index % rowColours != 0)
                 coloured |= SpritePaletteRowSet.Rows[index / 16];
         }
@@ -286,7 +287,7 @@ internal static class TileWordSheetComposer
     }
 
     /// <summary>The text <paramref name="program"/> types from <paramref name="tileBase"/>, each glyph at the overlay cell it is typed over.</summary>
-    private static BodyPart Typed(EscapeTypewriterProgram program, ushort tileBase)
+    private static BodyPart Typed(EscapeTypewriterProgram program, int tileBase)
     {
         var runs = new List<BodyRun>();
         foreach (EscapeTypewriterLine line in program.Lines)
@@ -294,7 +295,7 @@ internal static class TileWordSheetComposer
             int cell = line.Cell;
             foreach (char character in line.Text)
             {
-                if (EscapeTypewriterState.GlyphOf((byte)character, new SnesBgTilemapWord(tileBase)) is { } glyph)
+                if (EscapeTypewriterState.GlyphOf((byte)character, new SnesBgTilemapWord(checked((ushort)tileBase))) is { } glyph)
                     runs.AddRange(Runs(cell, [glyph.Raw]));
                 cell++;
             }

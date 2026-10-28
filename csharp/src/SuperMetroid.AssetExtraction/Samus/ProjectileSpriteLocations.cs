@@ -41,7 +41,7 @@ internal static class ProjectileSpriteLocations
     private static ushort MissileExplosionPointer(int phase) => (ushort)(MissileExplosionStart +
         (phase == 0 ? 0 : RecordBytes(1) + (phase - 1) * RecordBytes(4)));
     /// <summary>Maps a compass pose to its missile-group composition after preceding variable-size records.</summary>
-    private static ushort MissilePointer(ushort start, int pose) => (ushort)(start +
+    private static ushort MissilePointer(int start, int pose) => (ushort)(start +
         pose / 2 * (RecordBytes(2) + RecordBytes(3)) + pose % 2 * RecordBytes(2));
     /// <summary>Calculates the sorted bank-$93 composition pointer at one catalog index from native group layouts.</summary>
     internal static ushort PointerAt(int index)
@@ -92,7 +92,7 @@ internal static class ProjectileSpriteLocations
         return PlasmaStartupPointer(index);
     }
     /// <summary>Skips unselected four-part layouts while indexing charged Wave's paired-lobe records.</summary>
-    private static ushort ChargedWavePointer(ushort start, int index)
+    private static ushort ChargedWavePointer(int start, int index)
     {
         // B368/B37E and BA8E/BAA4 each contain two unselected four-part
         // compositions between the first24 paired-lobe phases and the last8.

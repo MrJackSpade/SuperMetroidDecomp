@@ -35,7 +35,7 @@ public static class SamusFullBodyCycleColorExtractor
                 suits[suit] = new PaletteRgb5[SamusFullBodyCycleColorFormat.ShadesPerSuit][];
                 for (int shade = 0; shade < suits[suit].Length; shade++)
                 {
-                    ushort pointer = checked((ushort)(family switch
+                    int pointer = checked((ushort)(family switch
                     {
                         SamusFullBodyCycleFamily.SpeedBooster => SamusSourceDefinitions.SpeedBoosterCyclePalettes,
                         SamusFullBodyCycleFamily.StoredShine => SamusSourceDefinitions.StoredShineCyclePalettes,
@@ -49,7 +49,7 @@ public static class SamusFullBodyCycleColorExtractor
                     var colors = new PaletteRgb5[SamusFullBodyCycleColorFormat.ColorsPerPalette];
                     for (int index = 0; index < colors.Length; index++)
                     {
-                        ushort word = LittleEndianBytes.Word(source[index * 2], source[index * 2 + 1]);
+                        int word = LittleEndianBytes.Word(source[index * 2], source[index * 2 + 1]);
                         colors[index] = new PaletteRgb5
                         {
                             Red = word & 31,

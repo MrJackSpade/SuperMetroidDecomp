@@ -54,7 +54,7 @@ public static class SamusArmCannonArtworkFiles
         int[][] coverTiles = Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount)
             .Select(direction =>
             {
-                ushort list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                int list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     SamusSourceDefinitions.TileListPointers.Value + direction * 2);
                 ushort[] sources = [.. Enumerable.Range(0, SamusArmCannonArtworkFormat.FramesPerDirection)
                     .Select(frame => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),

@@ -10,8 +10,10 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <summary>
 /// Reads and writes the installation's pre-coloured artwork: 8-bit RGBA PNG images, non-interlaced. A pixel with zero
 /// alpha is transparent. Anything else (indexed or greyscale colour, other bit depths, interlacing) is rejected, so an
-/// edited image is saved in the same form as the stock one.
+/// edited image is saved in the same form as the stock one. The codec owns the file's byte-wide filter bytes, channel
+/// samples and chunk checksums.
 /// </summary>
+[EncodingOwner("RGBA PNG file")]
 public static class RgbaPng
 {
     /// <summary>The eight-byte PNG signature.</summary>

@@ -42,23 +42,23 @@ internal static class EnemySpritemapFiles
 
     /// <summary>Decodes one ordinary OAM frame, including components of extended frames.</summary>
     internal static SpriteVisualPart[] ExtractParts(
-        ISnesAddressSpace bus, byte bank, ushort pointer)
+        ISnesAddressSpace bus, int bank, int pointer)
     {
-        int count = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, pointer)));
+        int count = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)SnesAddress.InBank(bank, pointer)));
         if (count > EnemySpritemapCatalog.MaximumParts)
             throw new InvalidDataException(
                 $"Enemy spritemap ${bank:X2}:{pointer:X4} has {count} parts.");
         var parts = new SpriteVisualPart[count];
         for (int index = 0; index < count; index++)
         {
-            ushort address = unchecked((ushort)(pointer + 2 + index * 5));
-            var x = new SnesSpritemapXWord(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, address))));
-            byte y = bus.ReadCartridgeByte(((int)new SnesAddress(bank, unchecked((ushort)(address + 2)))));
-            var attributes = new SnesObjAttributeWord(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(address + 3))))));
+            int address = unchecked((ushort)(pointer + 2 + index * 5));
+            var x = new SnesSpritemapXWord(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)SnesAddress.InBank(bank, address))));
+            var y = new SnesSpritemapYByte(bus.ReadCartridgeByte(((int)SnesAddress.InBank(bank, unchecked((ushort)(address + 2))))));
+            var attributes = new SnesObjAttributeWord(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)SnesAddress.InBank(bank, unchecked((ushort)(address + 3))))));
             parts[index] = new SpriteVisualPart
             {
                 OffsetX = x.SignedOffset,
-                OffsetY = unchecked((sbyte)y),
+                OffsetY = y.SignedOffset,
                 TileColumn = attributes.TileNumber % EnemySpritemapCatalog.TileColumns,
                 TileRow = attributes.TileNumber / EnemySpritemapCatalog.TileColumns,
                 Size = x.IsLarge ? 16 : 8,

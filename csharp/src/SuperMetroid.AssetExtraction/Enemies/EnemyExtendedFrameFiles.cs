@@ -53,16 +53,16 @@ internal static class EnemyExtendedFrameFiles
     {
         Ensure.NotNull(bus);
         SnesAddress location = EnemyFrameCartridgeLookup.Of(definition.Frame);
-        byte bank = location.Bank;
-        ushort pointer = location.Offset;
-        int baseAddress = ((int)new SnesAddress(bank, pointer));
+        int bank = location.Bank;
+        int pointer = location.Offset;
+        int baseAddress = ((int)SnesAddress.InBank(bank, pointer));
         int count = bus.ReadCartridgeByte(baseAddress);
-        byte padding = bus.ReadCartridgeByte(((int)new SnesAddress(bank, unchecked((ushort)(pointer + 1)))));
+        int padding = bus.ReadCartridgeByte(((int)SnesAddress.InBank(bank, unchecked((ushort)(pointer + 1)))));
         // Ceres steam's header is $1001: the generic drawing/collision
         // walkers consume its low byte as one component and retain the
         // high byte as native presentation metadata.
-        byte expectedPadding = definition.Name.StartsWith("ceres_steam_oam_",
-            StringComparison.Ordinal) ? CeresSteamHeaderHighByte : (byte)0;
+        int expectedPadding = definition.Name.StartsWith("ceres_steam_oam_",
+            StringComparison.Ordinal) ? CeresSteamHeaderHighByte : 0;
         bool motherBrainMixed = MotherBrainBodyVisualDefinitions.HasBg2(definition.Frame);
         bool bg2Only = EnemyExtendedFrameDefinitions.IsBg2Only(definition);
         int maximumNativeComponents = motherBrainMixed
@@ -77,11 +77,11 @@ internal static class EnemyExtendedFrameFiles
         var components = new List<EnemyExtendedVisualComponent>(count);
         for (int index = 0; index < count; index++)
         {
-            ushort record = unchecked((ushort)(pointer + 2 + index * 8));
-            short x = unchecked((short)CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, record))));
-            short y = unchecked((short)CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(record + 2))))));
-            ushort spritePointer = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(record + 4)))));
-            if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, spritePointer))) ==
+            int record = unchecked((ushort)(pointer + 2 + index * 8));
+            int x = unchecked((short)CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)SnesAddress.InBank(bank, record))));
+            int y = unchecked((short)CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)SnesAddress.InBank(bank, unchecked((ushort)(record + 2))))));
+            int spritePointer = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)SnesAddress.InBank(bank, unchecked((ushort)(record + 4)))));
+            if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)SnesAddress.InBank(bank, spritePointer))) ==
                 EnemySourceDefinitions.Bg2StreamMarker)
             {
                 // Multipart bodies combine ordinary OAM with BG2 streams

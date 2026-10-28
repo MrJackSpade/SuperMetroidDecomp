@@ -23,14 +23,14 @@ public static class RoomEnemyDefinitionImporter
     /// <param name="bus">Address space that exposes the import-only cartridge source.</param>
     /// <param name="headerPointer">The header's bank-$A0 pointer; a verification fixture may seed one for an identity no member has.</param>
     /// <returns>The decoded enemy definition.</returns>
-    internal static RoomEnemyDefinition LoadAt(ISnesAddressSpace bus, ushort headerPointer)
+    internal static RoomEnemyDefinition LoadAt(ISnesAddressSpace bus, int headerPointer)
     {
         Ensure.NotNull(bus);
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         ushort Word(int offset) => ReadWord(cartridge, headerPointer, offset);
         byte Byte(int offset) => ReadByte(cartridge, headerPointer, offset);
-        byte bank = Byte(BankOffset);
-        ushort tileSize = Word(0);
+        int bank = Byte(BankOffset);
+        int tileSize = Word(0);
         return new RoomEnemyDefinition(
             TileByteCount: tileSize & EnemySourceDefinitions.EnemyHeaderTileByteCountBits,
             TilePlacement: (tileSize & EnemySourceDefinitions.EnemyHeaderFixedBlockBit) != 0
@@ -65,7 +65,7 @@ public static class RoomEnemyDefinitionImporter
     /// The hopper variant a header's +$2A word holds. Headers whose behaviour reads no variant keep leftover prototype
     /// instruction-list pointers there, which all lie in their bank's ROM half; they are not variants and import as zero.
     /// </summary>
-    private static ushort HopperVariant(ushort word) => word >= SnesBusLayout.RomWindowStart ? (ushort)0 : word;
+    private static int HopperVariant(int word) => word >= SnesBusLayout.RomWindowStart ? 0 : word;
 
     /// <summary>The long address of the planar tile data a header names: where the import reads the enemy's tile set.</summary>
     /// <param name="bus">Address space that exposes the import-only cartridge source.</param>
@@ -87,7 +87,7 @@ public static class RoomEnemyDefinitionImporter
     {
         Ensure.NotNull(bus);
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
-        ushort header = EnemyDefinitionIds.HeaderPointer(pointer);
+        int header = EnemyDefinitionIds.HeaderPointer(pointer);
         return (int)new SnesAddress(ReadByte(cartridge, header, BankOffset), ReadWord(cartridge, header, PaletteOffset));
     }
 
@@ -98,14 +98,14 @@ public static class RoomEnemyDefinitionImporter
     private const int PaletteOffset = 2;
 
     /// <summary>The long address of the byte <paramref name="offset"/> bytes into the bank-$A0 header at <paramref name="header"/>.</summary>
-    private static int HeaderAddress(ushort header, int offset) =>
+    private static int HeaderAddress(int header, int offset) =>
         EnemySourceDefinitions.EnemyHeaderBank | unchecked((ushort)(header + offset));
 
     /// <summary>Reads the little-endian header word <paramref name="offset"/> bytes into the header at <paramref name="header"/>.</summary>
-    private static ushort ReadWord(IImportCartridgeSource cartridge, ushort header, int offset) =>
+    private static ushort ReadWord(IImportCartridgeSource cartridge, int header, int offset) =>
         RomDataReader.ReadWordFixedBank(cartridge, HeaderAddress(header, offset));
 
     /// <summary>Reads the header byte <paramref name="offset"/> bytes into the header at <paramref name="header"/>.</summary>
-    private static byte ReadByte(IImportCartridgeSource cartridge, ushort header, int offset) =>
+    private static byte ReadByte(IImportCartridgeSource cartridge, int header, int offset) =>
         cartridge.ReadCartridgeByte(HeaderAddress(header, offset));
 }

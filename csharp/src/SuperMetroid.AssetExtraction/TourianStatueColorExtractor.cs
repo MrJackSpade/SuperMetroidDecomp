@@ -46,8 +46,8 @@ public static class TourianStatueColorExtractor
         for (int color = 0; color < count; color++)
         {
             int address = source + color * sizeof(ushort);
-            ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-            if (!RgbColor.IsColorWord(word))
+            int word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+            if (!RgbColor.IsColorWord(checked((ushort)word)))
                 throw new InvalidDataException($"Tourian statue palette word ${address:X6} has bit 15 set.");
             result[color] = new PaletteRgb5
             {

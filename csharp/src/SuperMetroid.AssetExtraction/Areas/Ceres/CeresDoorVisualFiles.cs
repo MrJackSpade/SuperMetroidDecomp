@@ -136,8 +136,8 @@ public static class CeresDoorVisualFiles
         var colors = new PaletteRgb5[count];
         for (int index = 0; index < count; index++)
         {
-            ushort word = BinaryPrimitives.ReadUInt16LittleEndian(source.AsSpan(index * 2));
-            if (!RgbColor.IsColorWord(word))
+            int word = BinaryPrimitives.ReadUInt16LittleEndian(source.AsSpan(index * 2));
+            if (!RgbColor.IsColorWord(checked((ushort)word)))
                 throw new InvalidDataException(
                     $"Ceres-door color ${sourceAddress + index * 2:X6} has an unrepresentable high bit.");
             colors[index] = new PaletteRgb5

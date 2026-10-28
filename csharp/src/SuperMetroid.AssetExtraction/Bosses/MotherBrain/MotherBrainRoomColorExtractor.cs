@@ -27,7 +27,7 @@ internal static class MotherBrainRoomColorExtractor
         {
             int pointerAddress = MotherBrainSourceDefinitions.RoomColors.FlashBank |
                 FlashPaletteOperandAddress(index);
-            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(pointerAddress);
+            int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(pointerAddress);
             if (pointer == 0)
                 throw new InvalidDataException($"Mother Brain room-flash row {index} has no palette pointer.");
             flash[index] = ReadColors(MotherBrainSourceDefinitions.RoomColors.FlashBank | pointer,
@@ -61,7 +61,7 @@ internal static class MotherBrainRoomColorExtractor
             var colors = new PaletteRgb5[count];
             for (int index = 0; index < count; index++)
             {
-                ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord((source + index * sizeof(ushort)));
+                int word = CartridgeImportSource.Require(bus).ReadCartridgeWord((source + index * sizeof(ushort)));
                 colors[index] = new PaletteRgb5
                 {
                     Red = word & 31,

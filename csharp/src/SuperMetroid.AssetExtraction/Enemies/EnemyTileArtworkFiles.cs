@@ -63,8 +63,8 @@ public static class EnemyTileArtworkFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);
 
-        var entries = new Dictionary<ushort, EnemyTileFileEntry>();
-        foreach (ushort graphicsSetPointer in RoomStateSources.Pointers
+        var entries = new Dictionary<int, EnemyTileFileEntry>();
+        foreach (int graphicsSetPointer in RoomStateSources.Pointers
                      .Select(pointer => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                          RoomStateSourceDefinitions.Bank | (pointer + RoomStateSourceDefinitions.EnemySetOffset)))
                      .Distinct().Order())
@@ -72,7 +72,7 @@ public static class EnemyTileArtworkFiles
             int cursor = EnemySourceDefinitions.GraphicsSetBank | graphicsSetPointer;
             for (int slot = 0; slot <= 4; slot++, cursor += 4)
             {
-                ushort headerWord = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor);
+                int headerWord = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor);
                 if (headerWord == CartridgeFormatDefinitions.ListTerminator) break;
                 if (slot == 4)
                     throw new InvalidDataException($"Enemy graphics set ${graphicsSetPointer:X4} exceeds four entries.");
@@ -102,8 +102,8 @@ public static class EnemyTileArtworkFiles
                 var colors = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
                 for (int color = 0; color < colors.Length; color++)
                 {
-                    ushort word = BinaryPrimitives.ReadUInt16LittleEndian(nativeColors.AsSpan(color * 2));
-                    if (!RgbColor.IsColorWord(word))
+                    int word = BinaryPrimitives.ReadUInt16LittleEndian(nativeColors.AsSpan(color * 2));
+                    if (!RgbColor.IsColorWord(checked((ushort)word)))
                         throw new InvalidDataException($"Enemy ${headerWord:X4} palette has an unrepresentable high bit.");
                     colors[color] = new PaletteRgb5
                     {
@@ -479,7 +479,7 @@ public static class EnemyTileArtworkFiles
             throw new InvalidDataException($"Enemy tile manifest {manifestPath} does not describe this installation.");
         ValidateDefinitionIds(manifest.Entries.Keys);
         // The compiled graphics sets must name the same pinned identities the installation was built from.
-        ValidateDefinitionIds(EnemyTileSourceDefinitions.All.Select(source => EnemyDefinitionIds.HeaderPointer(source.DefinitionId)));
+        ValidateDefinitionIds(EnemyTileSourceDefinitions.All.Select(source => (int)EnemyDefinitionIds.HeaderPointer(source.DefinitionId)));
         if (!manifest.KraidHeadsSha256.Keys.Order().SequenceEqual(KraidHeadFrame.ByMouthStage.Select(head => head.MouthStage)))
             throw new InvalidDataException("Enemy tile manifest omits or substitutes a Kraid head frame.");
         if (!manifest.TorizoInstructionTilesSha256.Keys.Order(StringComparer.Ordinal)
@@ -495,7 +495,7 @@ public static class EnemyTileArtworkFiles
 
         var sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>();
         var palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>();
-        foreach ((ushort manifestKey, EnemyTileFileEntry entry) in manifest.Entries)
+        foreach ((int manifestKey, EnemyTileFileEntry entry) in manifest.Entries)
         {
             EnemyDefinitionId definitionPointer = EnemyDefinitionIds.FromHeaderPointer(manifestKey);
             RoomEnemyDefinition definition = RoomEnemyDefinitionCatalog.Get(definitionPointer);
@@ -1209,7 +1209,7 @@ public static class EnemyTileArtworkFiles
         $"enemy-{EnemyDefinitionIds.HeaderPointer(definitionId):X4}-colors.json";
 
     /// <summary>Rejects missing or substituted retail enemy graphics identities using the pinned ordered ID digest.</summary>
-    private static void ValidateDefinitionIds(IEnumerable<ushort> pointers)
+    private static void ValidateDefinitionIds(IEnumerable<int> pointers)
     {
         string joined = string.Join(",", pointers.Order().Select(pointer => $"{pointer:X4}"));
         string hash = Convert.ToHexString(SHA256.HashData(Encoding.ASCII.GetBytes(joined)));
@@ -1325,8 +1325,8 @@ public static class EnemyTileArtworkFiles
         var colors = new PaletteRgb5[count];
         for (int index = 0; index < count; index++)
         {
-            ushort word = BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(index * 2));
-            if (!RgbColor.IsColorWord(word))
+            int word = BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(index * 2));
+            if (!RgbColor.IsColorWord(checked((ushort)word)))
                 throw new InvalidDataException(
                     $"Kraid {source} color {index} has an unrepresentable high bit.");
             colors[index] = new PaletteRgb5
@@ -1348,8 +1348,7 @@ public static class EnemyTileArtworkFiles
         for (int index = 0; index < cells.Length; index++)
         {
             int address = sourceAddress + index * 2;
-            ushort raw = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
-            var word = new SnesBgTilemapWord(raw);
+            var word = new SnesBgTilemapWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(address));
             cells[index] = new CrocomireMeltingTilemapCell
             {
                 TileIndex = word.CharacterIndex,
@@ -1376,7 +1375,7 @@ public static class EnemyTileArtworkFiles
 
     /// <summary>Records cartridge provenance and hashes for every stock enemy-art resource in the installation.</summary>
     private sealed record EnemyTileManifest(int Version, string SourceCartridgeSha256,
-        Dictionary<ushort, EnemyTileFileEntry> Entries,
+        Dictionary<int, EnemyTileFileEntry> Entries,
         string CrocomireFirstSha256, string CrocomireSecondSha256,
         string CrocomireFirstTilemapSha256, string CrocomireSecondTilemapSha256,
         string EnemyCompositionsSha256, string EnemyProjectileCompositionsSha256,

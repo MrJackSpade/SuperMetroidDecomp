@@ -77,8 +77,8 @@ public sealed class EscapeTimerCharacters : EscapeTimerTileAtlas
         private bool IsFill(int index)
         {
             int source = EscapeTimerGlyphDefinitions.SourcePixel(index);
-            return source != index && pixelOverrides.TryGetValue(index, out byte value)
-                ? value == EscapeTimerGlyphDefinitions.FillInk(index) : BasisFill(source);
+            return source != index && pixelOverrides.ContainsKey(index)
+                ? pixelOverrides[index] == EscapeTimerGlyphDefinitions.FillInk(index) : BasisFill(source);
         }
 
         /// <summary>Resolves a basis pixel from its PNG override, native calculated fill, or retained fill-site set.</summary>
@@ -88,7 +88,7 @@ public sealed class EscapeTimerCharacters : EscapeTimerTileAtlas
         /// <summary>Resolves an edited pixel, shared source pixel, or calculated fill and outline ink.</summary>
         private byte Pixel(int index)
         {
-            if (pixelOverrides.TryGetValue(index, out byte value)) return value;
+            if (pixelOverrides.ContainsKey(index)) return pixelOverrides[index];
             int source = EscapeTimerGlyphDefinitions.SourcePixel(index);
             if (source != index) return Pixel(source);
             return BasisFill(index) ? EscapeTimerGlyphDefinitions.FillInk(index) : EscapeTimerGlyphDefinitions.Outline(index, IsFill);

@@ -30,8 +30,8 @@ public static class EnemyProjectileSpritemapFiles
             .CompareTo(EnemyProjectileProgramFrameSources.Operand(right.Frame)));
         foreach (EnemyProjectilePresentationFrameDefinition frame in stored)
         {
-            ushort operand = EnemyProjectileProgramFrameSources.Operand(frame.Frame);
-            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(EnemySourceDefinitions.ProjectileInstructionBank, operand));
+            int operand = EnemyProjectileProgramFrameSources.Operand(frame.Frame);
+            int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(EnemySourceDefinitions.ProjectileInstructionBank, operand));
             programFrames.Add(frame.Name, EnemySpritemapFiles.ExtractParts(bus, CartridgeFormatDefinitions.EnemyProjectileSpritemapBank, pointer));
         }
         return EnemyProjectileSpritemapCatalog.Write(new EnemyProjectileSpritemapDocument

@@ -48,10 +48,10 @@ internal static class EscapeTimerSheetComposer
             int source = address + sizeof(ushort) + index * 5;
             var x = new SnesSpritemapXWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source));
             var attributes = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source + 3));
-            ushort size = x.IsLarge ? (ushort)16 : (ushort)8;
+            Extent16<ScreenPixels> size = x.IsLarge ? new(16, 16) : new(8, 8);
             parts[index] = new SpriteFramePart(
                 new Offset16<ScreenPixels>(checked((short)x.SignedOffset), unchecked((sbyte)bus.ReadCartridgeByte(source + 2))),
-                new Extent16<ScreenPixels>(size, size), attributes.TileNumber - EscapeTextArtworkDefinitions.TimerFirstCharacter,
+                size, attributes.TileNumber - EscapeTextArtworkDefinitions.TimerFirstCharacter,
                 (attributes.FlipHorizontally ? TileFlip.Horizontal : TileFlip.None) |
                 (attributes.FlipVertically ? TileFlip.Vertical : TileFlip.None),
                 null, attributes.Priority);

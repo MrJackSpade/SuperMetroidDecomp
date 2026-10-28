@@ -59,9 +59,9 @@ internal static class CeresFlightArtworkExtractor
         var colors = new PaletteRgb5[CgramPalettes.ColorCount];
         for (int index = 0; index < colors.Length; index++)
         {
-            ushort word = BinaryPrimitives.ReadUInt16LittleEndian(
+            int word = BinaryPrimitives.ReadUInt16LittleEndian(
                 nativePalette.AsSpan(index * sizeof(ushort)));
-            if (!RgbColor.IsColorWord(word))
+            if (!RgbColor.IsColorWord(checked((ushort)word)))
                 throw new InvalidDataException(
                     $"Ceres flight palette color {index} has an unrepresentable high bit.");
             colors[index] = new PaletteRgb5
@@ -96,9 +96,9 @@ internal static class CeresFlightArtworkExtractor
         for (int index = 0; index < placements.Length; index++)
         {
             var source = CeresCinematicSourceDefinitions.RearViewPlacements[index];
-            ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            int x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand);
-            ushort y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            int y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand);
             CeresFlightActorDefinition translated =
                 CeresFlightActorDefinitions.RearViewActor(index);

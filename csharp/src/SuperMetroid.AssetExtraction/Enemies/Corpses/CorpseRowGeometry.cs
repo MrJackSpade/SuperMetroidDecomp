@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 internal sealed record CorpseRowGeometry(bool InHeap, int Rows, int TilesPerRow, int[] ColumnWords, int[] ColumnMinimumY, int CopyLimit, int Wrap)
 {
     /// <summary>The Sidehopper corpse's movers for graphics variant <paramref name="graphicsVariant"/> (population parameter 0 or 2).</summary>
-    internal static CorpseRowGeometry Sidehopper(ushort graphicsVariant, int wrap) => InBg2(RottingCorpseSpecies.Sidehopper,
+    internal static CorpseRowGeometry Sidehopper(int graphicsVariant, int wrap) => InBg2(RottingCorpseSpecies.Sidehopper,
         [.. Enumerable.Range(0, 5).Select(column => CorpseStagingGeometryDefinitions.SidehopperColumnWordOffset(graphicsVariant, column))],
         [.. Enumerable.Range(0, 5).Select(column => CorpseStagingGeometryDefinitions.SidehopperColumnMinimumY(graphicsVariant, column))],
         copyLimit: 38, wrap);

@@ -71,7 +71,7 @@ internal static class SpawnedObjectSheetComposer
             ?? throw new InvalidDataException("Spawned-object sheets require the installed projectile compositions.");
         EnemySpritemapCatalog spritemaps = enemies.Spritemaps
             ?? throw new InvalidDataException("Spawned-object sheets require the installed enemy compositions.");
-        var tileBase = checked((ushort)plan.TileBase);
+        int tileBase = checked((ushort)plan.TileBase);
         SpawnedObjects spawned = Spawned(plan);
         // The palette bits are the sheet's, ORed in at composition, so each pixel keeps its part's own row.
         FramePictures[] frames = [.. spawned.Projectiles.Select(frame => characters.Pictures(

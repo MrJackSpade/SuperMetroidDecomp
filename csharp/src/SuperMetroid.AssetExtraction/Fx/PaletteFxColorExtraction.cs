@@ -17,7 +17,7 @@ internal static class PaletteFxColorExtraction
             frames[frame] = new PaletteRgb5[rows.ColorsPerFrame];
             for (int color = 0; color < rows.ColorsPerFrame; color++)
             {
-                ushort bgr555 = RomDataReader.ReadWordFixedBank(
+                int bgr555 = RomDataReader.ReadWordFixedBank(
                     CartridgeImportSource.Require(bus),
                     RoomFxBankSourceDefinitions.PaletteFx | PaletteFxRecordSources.ColorAddress(rows.Color(frame, color)));
                 frames[frame][color] = new PaletteRgb5

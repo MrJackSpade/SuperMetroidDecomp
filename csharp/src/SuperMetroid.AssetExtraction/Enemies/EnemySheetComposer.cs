@@ -220,7 +220,7 @@ internal static class EnemySheetComposer
     /// component.
     /// </summary>
     private static IEnumerable<FramePictures> Frames(EnemyTileArtworkCatalog enemies, IReadOnlyList<EnemyFrameId> shown,
-        ushort tileBase, SetCharacters characters, bool showsRot) =>
+        int tileBase, SetCharacters characters, bool showsRot) =>
         // The palette bits are the sheet's, ORed in at composition, so each pixel keeps its part's own row.
         Composed(enemies, shown).Select(frame => characters.Pictures(frame.Name, EnemySpriteFrames.Frame(frame.Parts, tileBase, 0), showsRot));
 

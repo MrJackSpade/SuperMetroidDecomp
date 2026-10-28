@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -9,6 +10,15 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 /// <summary>Reads and writes the installed Mother Brain room colour document.</summary>
 public static class MotherBrainRoomColorFile
 {
+    /// <summary>The revision each accepted stored version number names; the stored number is decoded once, here.</summary>
+    private static readonly FrozenDictionary<int, MotherBrainRoomColorRevision> Revisions =
+        new Dictionary<int, MotherBrainRoomColorRevision>
+        {
+            [MotherBrainRoomColorFormat.PreRoomEntryVersion] = MotherBrainRoomColorRevision.PreRoomEntry,
+            [MotherBrainRoomColorFormat.PreRecoveryLightsVersion] = MotherBrainRoomColorRevision.PreRecoveryLights,
+            [MotherBrainRoomColorFormat.Version] = MotherBrainRoomColorRevision.Current,
+        }.ToFrozenDictionary();
+
     /// <summary>Validates and compiles fake-death flash, room-entry, phase-two and recovery color artwork without retaining the document's mutable RGB5 arrays.</summary>
     /// <param name="json">UTF-8 JSON read from its current position to the end and left open.</param>
     /// <param name="currentStock">Explicit compatibility source required for version 1 or 2 documents: version 1 inherits its room-entry and recovery colors; version 2 inherits only recovery colors.</param>
@@ -20,13 +30,11 @@ public static class MotherBrainRoomColorFile
     {
         MotherBrainRoomColorDocument document = JsonAssetDocument.Read<MotherBrainRoomColorDocument>(
             json, ArtworkJson.Options, "Mother Brain room colors");
-        int version = document.Version;
-        if (version is not (MotherBrainRoomColorFormat.PreRoomEntryVersion or MotherBrainRoomColorFormat.PreRecoveryLightsVersion or
-            MotherBrainRoomColorFormat.Version))
+        if (!Revisions.TryGetValue(document.Version, out MotherBrainRoomColorRevision revision))
             throw new InvalidDataException("Mother Brain room colors require the supported version and fourteen flash rows.");
-        bool inheritsRoomEntry = version == MotherBrainRoomColorFormat.PreRoomEntryVersion;
-        bool inheritsRecoveryLights = version is MotherBrainRoomColorFormat.PreRoomEntryVersion or
-            MotherBrainRoomColorFormat.PreRecoveryLightsVersion;
+        bool inheritsRoomEntry = revision == MotherBrainRoomColorRevision.PreRoomEntry;
+        bool inheritsRecoveryLights = revision is MotherBrainRoomColorRevision.PreRoomEntry or
+            MotherBrainRoomColorRevision.PreRecoveryLights;
         if ((inheritsRecoveryLights && currentStock is null) ||
             document.Flash is null ||
             document.Flash.Length != MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount)

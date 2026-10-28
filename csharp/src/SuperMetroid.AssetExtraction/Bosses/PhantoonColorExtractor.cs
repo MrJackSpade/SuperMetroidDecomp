@@ -38,8 +38,8 @@ public static class PhantoonColorExtractor
             for (int color = 0; color < count; color++)
             {
                 int address = source + color * sizeof(ushort);
-                ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-                if (!RgbColor.IsColorWord(native))
+                int native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+                if (!RgbColor.IsColorWord(checked((ushort)native)))
                     throw new InvalidDataException(
                         $"Phantoon color ${address:X6} has an unrepresentable high bit.");
                 colors[color] = new PaletteRgb5

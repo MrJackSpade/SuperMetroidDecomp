@@ -24,9 +24,9 @@ public static class GameplayMessageNoticeExtractor
         {
             int definition = HudSourceDefinitions.Messages.DefinitionTable +
                 ((byte)id - 1) * HudSourceDefinitions.Messages.DefinitionBytes;
-            ushort setup = CartridgeImportSource.Require(bus).ReadCartridgeWord(definition);
-            ushort draw = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 2));
-            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 4));
+            int setup = CartridgeImportSource.Require(bus).ReadCartridgeWord(definition);
+            int draw = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 2));
+            int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 4));
             int rowCount = GameplayMessageNoticeDefinitions.ContentRows(id);
             GameplayMessageRoutine expectedSetup = GameplayMessageNoticeDefinitions.IsSaveConfirmation(id)
                 ? GameplayMessageRoutine.SetupLarge

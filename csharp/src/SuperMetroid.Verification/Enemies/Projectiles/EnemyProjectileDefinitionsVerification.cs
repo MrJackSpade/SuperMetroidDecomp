@@ -495,7 +495,7 @@ internal static class EnemyProjectileDefinitionsVerification
             () => EnemyProjectileDefinitionCatalog.Get(RoomEnemyProjectileKind.None),
             "inactive enemy-projectile identity has no definition");
         AssertThrows<InvalidDataException>(
-            () => EnemyProjectileDefinitionCatalog.Get((RoomEnemyProjectileKind)0x8000),
+            () => EnemyProjectileDefinitionCatalog.Get((RoomEnemyProjectileKind)ushort.MaxValue),
             "unknown enemy-projectile definition");
 
         Console.WriteLine(
@@ -515,7 +515,7 @@ internal static class EnemyProjectileDefinitionsVerification
         var forbidden = new HashSet<int>();
         foreach (RoomEnemyProjectileKind kind in kinds)
         {
-            int address = 0x860000 | (ushort)kind;
+            int address = 0x860000 | EnemyProjectileNativeWords.Kinds.Word(kind);
             for (int index = 0; index < 14; index++)
                 forbidden.Add(address + index);
 

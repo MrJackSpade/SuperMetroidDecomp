@@ -1516,7 +1516,7 @@ internal static class RidleyFullMovieVerification
             {
                 int index = projectile.SlotIndex * 2;
                 string owner = $"Enemy projectile {projectile.SlotIndex}";
-                Check(owner + " identity", (ushort)projectile.Kind, NativeSnapshotMemory.EnemyProjectileId + index);
+                Check(owner + " identity", EnemyProjectileNativeWords.Kinds.Word(projectile.Kind), NativeSnapshotMemory.EnemyProjectileId + index);
                 if (!projectile.IsActive || W(NativeSnapshotMemory.EnemyProjectileId + index) == 0) continue;
                 Check(owner + " X", projectile.Position.X.Whole, NativeSnapshotMemory.EnemyProjectileX + index);
                 Check(owner + " Y", projectile.Position.Y.Whole, NativeSnapshotMemory.EnemyProjectileY + index);
@@ -1573,7 +1573,7 @@ internal static class RidleyFullMovieVerification
                     case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp:
                     case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown:
                         variableE = checked((ushort)projectile.RemainingAfterburns);
-                        variableF = (ushort)projectile.NextAfterburnKind;
+                        variableF = EnemyProjectileNativeWords.Kinds.Word(projectile.NextAfterburnKind);
                         break;
                     case RoomEnemyProjectileKind.MiscDustExplosion:
                     case RoomEnemyProjectileKind.EnemyDeathExplosion:

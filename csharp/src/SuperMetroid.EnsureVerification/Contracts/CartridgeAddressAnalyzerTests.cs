@@ -51,6 +51,14 @@ internal static class CartridgeAddressAnalyzerTests
             "$8000 is a 16-bit address in the catalog file 'BeamDefinitions.cs'" + Advice,
             path: "C:/fixture-repo/csharp/src/SuperMetroid.Core/Samus/BeamDefinitions.cs");
 
+        // An enum whose members are routine addresses is reported wherever it is declared, by any name (#1452).
+        Expect("enum GateWake : ushort { None = 0, WhenTriggered = 0xBB52, Inert = 0xBB6A }",
+            "a 16-bit address in the address-valued enum 'GateWake'" + Advice, count: 2);
+        // An ordinal enum counts from small values; the all-ones word alone is its "none" sentinel, not an address.
+        Expect("enum GatePhase : ushort { Rise = 0, Hold = 1, Fall = 2, Unset = 0xFFFF }", count: 0);
+        // A [Flags] enum's high member is a bit.
+        Expect("[System.Flags] enum GateProperties : ushort { None = 0, Solid = 0x0400, Frozen = 0x8000 }", count: 0);
+
         // A 16-bit value is a quantity where nothing names a cartridge structure.
         Expect("class SamusMovement { private const ushort SignBit = 0x8000; }", count: 0);
         // Definition data below the cartridge's half of a bank, even in a cartridge structure.

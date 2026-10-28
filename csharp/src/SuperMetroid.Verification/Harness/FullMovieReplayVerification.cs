@@ -342,7 +342,7 @@ internal static class FullMovieReplayVerification
             // $1997 IDs, $1A4B X, $1A93 Y: one word per slot.
             var portProjectiles = traceEnemies.Projectiles.EnemyProjectiles.Select((projectile, slot) => new PortProjectile(projectile, slot))
                 .Where(entry => entry.Projectile.IsActive)
-                .Select(entry => $"{entry.Slot}:{(ushort)entry.Projectile.Kind:X4}@{entry.Projectile.Position.X.Whole:X}/{entry.Projectile.Position.Y.Whole:X}" +
+                .Select(entry => $"{entry.Slot}:{EnemyProjectileNativeWords.Kinds.Word(entry.Projectile.Kind):X4}@{entry.Projectile.Position.X.Whole:X}/{entry.Projectile.Position.Y.Whole:X}" +
                     $"#{entry.Projectile.Animation?.GetType().Name}/{entry.Projectile.InstructionTimer.RawValue:X}");
             var nativeProjectiles = Enumerable.Range(0, 18).Where(slot => Word(memory, 0x1997 + 2 * slot) != 0)
                 .Select(slot => $"{slot}:{Native(0x1997 + 2 * slot)}@{Word(memory, 0x1a4b + 2 * slot):X}/{Word(memory, 0x1a93 + 2 * slot):X}" +
@@ -472,7 +472,7 @@ internal static class FullMovieReplayVerification
             // The port's projectile kind is the native bank-$86 header pointer.
             var projectile = projectiles[slot];
             int offset = 2 * slot;
-            Check($"Enemy projectile {slot} ID", projectile.IsActive ? (ushort)projectile.Kind : (ushort)0,
+            Check($"Enemy projectile {slot} ID", projectile.IsActive ? EnemyProjectileNativeWords.Kinds.Word(projectile.Kind) : (ushort)0,
                 MovieDesyncMemory.EnemyProjectileIds + offset);
             if (!projectile.IsActive) continue;
             // $86:8097 leaves the whole X word unwritten and the n00b-tube bubble's init only

@@ -96,7 +96,7 @@ internal static class FrozenGateGlitchVerification
         }
         gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
-        AssertEqual((ushort)DownwardGatePreInstruction.WakeIfTriggeredOrSamusBelow,
+        AssertEqual(PlmPreInstructionNativeWords.DownwardGate.Word(DownwardGatePreInstruction.WakeIfTriggeredOrSamusBelow),
             gate.PreInstruction, "Caterpillar gate enters proximity-aware sleep");
         Enum sleepingProgram = (gate.Animation ?? throw new InvalidOperationException("The gate runs no typed program.")).RunningProgram;
 
@@ -142,7 +142,7 @@ internal static class FrozenGateGlitchVerification
         // callback plus the same advancing instruction list. Compare the observable wake
         // result above; retain the raw CPU words in the fixture for disassembly auditing.
         AssertEqual(expected.GateWoke,
-            gate.PreInstruction == (ushort)DownwardGatePreInstruction.Inert,
+            gate.PreInstruction == PlmPreInstructionNativeWords.DownwardGate.Word(DownwardGatePreInstruction.Inert),
             $"{expected.Distance}-pixel case selects the translated moving-gate phase");
     }
 

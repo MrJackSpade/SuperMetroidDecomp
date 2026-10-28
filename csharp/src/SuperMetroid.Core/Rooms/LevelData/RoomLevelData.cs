@@ -396,10 +396,9 @@ public sealed class RoomLevelData
                 "Door collision requires cartridge room metadata; this level has no door list.");
         }
 
-        // Bit seven is not part of the list index. Native elevator/special-door BTS values
-        // share the same seven-bit table lookup before the destination-room high bit decides
-        // whether collision is solid or starts game state $09.
-        int index = behavior & RoomDoorListDefinitions.BtsIndexMask;
+        // Elevator and special-door bytes share the door list lookup before the destination
+        // decides whether collision is solid or starts the door transition.
+        int index = new RoomBlockBehavior(behavior).DoorListIndex;
         if (index >= doors.Count)
             throw new InvalidDataException($"Door index {index} is outside the room's {doors.Count}-entry door list.");
         DoorListEntry entry = doors[index];

@@ -9,9 +9,14 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// its low nibble. Codes zero through four mean -128, -16, -1, 0, and 1 respectively.
 /// Packing the five-value native alphabet keeps the authored paths reviewable as one
 /// bounded compiled definition without retaining a runtime cartridge dependency.
+/// This type is the one reader of that packing (#1461): callers take each sample's two codes.
 /// </remarks>
+[EncodingOwner("Botwoon movement sample nibble pairs")]
 internal static class BotwoonMovementSampleData
 {
+    /// <summary>How many codes one nibble can hold; the X code is the sample's high digit in this base.</summary>
+    private const int CodesPerNibble = 16;
+
     /// <summary>One packed X/Y nibble pair per native movement sample,
     /// retained in original table order for bounded indexed lookup.</summary>
     private static readonly byte[] PackedSamples = Convert.FromBase64String(
@@ -129,8 +134,11 @@ internal static class BotwoonMovementSampleData
         NDQ0NDQ0NDQ0IzQ0NDQ0NDQ0NDQ0NDRENDRDNEM0RDRDNENDNEM0Q0M0Q0M0Q0NDQ0MyQ0MyMkMyMkMyMjJCMjID
         """);
 
-    /// <summary>Gets one packed X/Y component pair by zero-based native sample index.</summary>
-    internal static byte At(int index) => PackedSamples[index];
+    /// <summary>The X component code of the sample at zero-based native sample index <paramref name="index"/>.</summary>
+    internal static int XCode(int index) => PackedSamples[index] / CodesPerNibble;
+
+    /// <summary>The Y component code of the sample at zero-based native sample index <paramref name="index"/>.</summary>
+    internal static int YCode(int index) => PackedSamples[index] % CodesPerNibble;
 
     /// <summary>Number of compiled movement-component pairs.</summary>
     internal static int Count => PackedSamples.Length;

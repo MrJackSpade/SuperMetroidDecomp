@@ -1,5 +1,3 @@
-using static SuperMetroid.Core.Samus.Movement.AbsoluteTangentDefinitions;
-
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>The absolute tangent of each angle step.</summary>

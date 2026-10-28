@@ -25,7 +25,7 @@ internal static class ChozoStatuePaint
     private static RgbColor? Shared(int local)
     {
         if ((uint)local < (uint)SharedLeadingInks.Length) return SharedLeadingInks[local];
-        if (local >= GoldRampFirst && local <= GoldRampFirst + RampSteps)
+        if (local - GoldRampFirst is >= 0 and <= RampSteps)
             return Ramp(GoldRampStart, GoldRampEnd, local - GoldRampFirst);
         int highlight = local - SharedGoldHighlightFirst;
         return (uint)highlight < (uint)SharedGoldHighlights.Length ? SharedGoldHighlights[highlight] : null;
@@ -34,7 +34,7 @@ internal static class ChozoStatuePaint
     /// <summary>Calculates first- and second-half grey ramps and their distinct highlight.</summary>
     private static RgbColor WreckedShip(int local, bool second)
     {
-        if (local >= GreyRampFirst && local <= GreyRampFirst + RampSteps)
+        if (local - GreyRampFirst is >= 0 and <= RampSteps)
             return second
                 ? Ramp(SecondHalfGreyStart, SecondHalfGreyEnd, local - GreyRampFirst)
                 : Ramp(FirstHalfGreyStart, FirstHalfGreyEnd, local - GreyRampFirst);

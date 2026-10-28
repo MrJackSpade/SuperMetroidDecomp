@@ -26,7 +26,7 @@ internal static class PlmRoomArgumentWords
     private const ushort Filler = 0x8000;
 
     /// <summary>Headers whose retail placements carry a fixed word that no setup reads.</summary>
-    private static readonly IReadOnlyDictionary<PlmHeaderId, ushort> FixedWords = new Dictionary<PlmHeaderId, ushort>
+    private static readonly Dictionary<PlmHeaderId, ushort> FixedWords = new Dictionary<PlmHeaderId, ushort>
     {
         [PlmHeaderId.NoobTube] = 0x0080,
         [PlmHeaderId.BombTorizoHand] = 0x0000,

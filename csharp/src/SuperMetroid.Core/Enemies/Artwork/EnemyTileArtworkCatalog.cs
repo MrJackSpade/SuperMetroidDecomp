@@ -24,8 +24,8 @@ public sealed class EnemyTileArtworkCatalog
     private EnemyTileArtworkParts installed;
 
     /// <summary>Each installed sheet with its palette, in definition order.</summary>
-    internal IEnumerable<(EnemyDefinitionId Definition, RoomCharacterAtlas Sheet, EnemyPaletteSheet Palette)> SheetsInDefinitionOrder =>
-        installed.Sheets.OrderBy(pair => pair.Key).Select(pair => (pair.Key, pair.Value, installed.Palettes[pair.Key]));
+    internal IEnumerable<EnemyInstalledSheet> SheetsInDefinitionOrder =>
+        installed.Sheets.OrderBy(pair => pair.Key).Select(pair => new EnemyInstalledSheet(pair.Key, pair.Value, installed.Palettes[pair.Key]));
 
     /// <summary>Finds the installed tile sheet of <paramref name="enemy"/>.</summary>
     internal bool TryGetSheet(EnemyDefinitionId enemy, [NotNullWhen(true)] out RoomCharacterAtlas? sheet) =>

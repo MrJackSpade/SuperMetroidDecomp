@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 public static class CeresFloorAnimation
 {
     /// <summary>Each frame's rows expanded to their tile numbers, left to right.</summary>
-    private static readonly IReadOnlyDictionary<CeresFloorAnimationFrame, byte[][]> Tiles =
+    private static readonly Dictionary<CeresFloorAnimationFrame, byte[][]> Tiles =
         CeresFloorAnimationDefinitions.Frames.ToDictionary(frame => frame.Key,
             frame => frame.Value.Select(row => Expand(row.Tiles)).ToArray());
 

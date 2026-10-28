@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Calculated pose-origin and selected-glyph support relationships for Samus landing, posture and drained transitions.</summary>

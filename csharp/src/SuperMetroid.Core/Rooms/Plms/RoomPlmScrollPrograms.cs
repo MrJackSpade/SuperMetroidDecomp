@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms.Scrolling;
-using static SuperMetroid.Core.Rooms.Plms.RoomPlmScrollProgramDefinitions;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 

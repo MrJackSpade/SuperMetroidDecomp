@@ -1,5 +1,3 @@
-using static SuperMetroid.Core.Frontend.FileSelect.FileCopyArrowDefinitions;
-
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>

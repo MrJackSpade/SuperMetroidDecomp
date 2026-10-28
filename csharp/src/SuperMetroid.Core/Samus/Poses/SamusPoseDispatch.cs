@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus.Movement;
-using static SuperMetroid.Core.Samus.Poses.SamusPoseDispatchDefinitions;
 
 namespace SuperMetroid.Core.Samus.Poses;
 

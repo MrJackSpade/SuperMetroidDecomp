@@ -1,5 +1,3 @@
-using static SuperMetroid.Core.Rooms.Plms.SpeedBoosterEscapePlmProgramDefinitions;
-
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>The phase of the Speed Booster escape that follows each phase.</summary>

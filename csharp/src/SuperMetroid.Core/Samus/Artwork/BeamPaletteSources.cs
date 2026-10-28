@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Projectiles;
-using static SuperMetroid.Core.Samus.Artwork.BeamPaletteDefinitions;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 

@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Samus.Projectiles;
-
-
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Presentation geometry for the sixteen colors written by $90:ACCD.</summary>

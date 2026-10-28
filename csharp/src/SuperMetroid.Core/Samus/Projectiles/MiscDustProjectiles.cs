@@ -1,5 +1,3 @@
-using static SuperMetroid.Core.Samus.Projectiles.MiscDustProjectileDefinitions;
-
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The program and smoke placement of each miscellaneous dust projectile.</summary>

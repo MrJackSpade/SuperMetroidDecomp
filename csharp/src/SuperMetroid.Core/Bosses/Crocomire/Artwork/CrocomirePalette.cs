@@ -14,9 +14,10 @@ internal static class CrocomirePalette
     internal static string ContentIdentity(CrocomireColorCatalog colors) =>
         SelectedPresentationHash.Create("CrocomireColorCatalog-v1", content =>
         {
+            Span<RgbColor> buffer = stackalloc RgbColor[CrocomireColorCatalog.Counts.Values.Max()];
             foreach ((Band band, string label) in CrocomireColorCatalog.IdentityOrder)
             {
-                Span<RgbColor> transfer = stackalloc RgbColor[CrocomireColorCatalog.Counts[band]];
+                Span<RgbColor> transfer = buffer[..CrocomireColorCatalog.Counts[band]];
                 for (int color = 0; color < transfer.Length; color++) transfer[color] = colors.Get(band, color);
                 content.AppendColors(label, transfer);
             }

@@ -178,7 +178,7 @@ public static class RoomScrollDefinitions
     ];
 
     /// <summary>Every compiled scroll by its name.</summary>
-    private static readonly IReadOnlyDictionary<string, RoomScrollDefinition> ByName = Definitions.ToDictionary(scroll => scroll.Name);
+    private static readonly Dictionary<string, RoomScrollDefinition> ByName = Definitions.ToDictionary(scroll => scroll.Name);
 
     /// <summary>The compiled explicit allocation named <paramref name="name"/>.</summary>
     private static RoomScrollDefinition Find(string name) => ByName[name];

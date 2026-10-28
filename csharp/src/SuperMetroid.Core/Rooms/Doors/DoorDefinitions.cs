@@ -610,7 +610,7 @@ public static class DoorDefinitions
     ];
 
     /// <summary>Every compiled door by its name.</summary>
-    private static readonly IReadOnlyDictionary<string, DoorDefinition> ByName = Definitions.ToDictionary(door => door.Name);
+    private static readonly Dictionary<string, DoorDefinition> ByName = Definitions.ToDictionary(door => door.Name);
 
     /// <summary>The compiled door named <paramref name="name"/>.</summary>
     internal static DoorDefinition Find(string name) => ByName[name];

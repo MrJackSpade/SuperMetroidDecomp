@@ -11,6 +11,57 @@ internal static class WorldMapCharacterDrawing
     /// <summary>Hardware character side in pixels.</summary>
     private const int Side = CellSide;
 
+    /// <summary>Which pixels of a cell each right-hand wedge fills.</summary>
+    private static readonly Dictionary<WorldMapBackgroundShape, Func<int, int, bool>> WedgeFills = new()
+    {
+        [WorldMapBackgroundShape.UpperRightWedge] = (x, y) => x > y && x + y != Side - 1,
+        [WorldMapBackgroundShape.LowerRightWedge] = (x, y) => x + y >= Side,
+        [WorldMapBackgroundShape.RightQuarterWedge] = (x, y) => x + y >= Side && x > y,
+        [WorldMapBackgroundShape.TopQuarterWedge] = (x, y) => x > y && x + y < Side - 1,
+        [WorldMapBackgroundShape.UpperRightWedgeBelowTop] = (x, y) => y > 0 && x > y,
+        [WorldMapBackgroundShape.LowerRightWedgeWithEdge] = (x, y) => x + y >= Side - 1,
+        [WorldMapBackgroundShape.RightQuarterWedgeWithEdge] = (x, y) => x + y >= Side - 1 && x > y,
+        [WorldMapBackgroundShape.UpperRightWedgeWithDiagonal] = (x, y) => x >= y && x + y != Side - 1,
+    };
+
+    /// <summary>Which pixels of a cell each diagonal glow lights.</summary>
+    private static readonly Dictionary<WorldMapForegroundShape, Func<int, int, bool>> GlowPresence = new()
+    {
+        [WorldMapForegroundShape.GlowRightWedge] = (x, y) => x >= 4 && x >= y,
+        [WorldMapForegroundShape.GlowLowerAndLeft] = (x, y) => y >= 4 || x < 3,
+        [WorldMapForegroundShape.GlowLowerHalf] = (x, y) => y >= 4,
+        [WorldMapForegroundShape.GlowLowerLeftWedge] = (x, y) => x <= y && (y >= 4 || x > 0),
+        [WorldMapForegroundShape.GlowRightHalf] = (x, y) => x >= 4,
+        [WorldMapForegroundShape.GlowLeftStrip] = (x, y) => x < 3,
+        [WorldMapForegroundShape.GlowLowerRightCorner] = (x, y) => y >= 4 && x + y >= 7,
+        [WorldMapForegroundShape.GlowLowerLeftCorner] = (x, y) => y >= 4 && x + y <= 10,
+        [WorldMapForegroundShape.GlowUpperRightTip] = (x, y) => y < 3 && x > y || y == 3 && x == 4,
+        [WorldMapForegroundShape.GlowTopStrip] = (x, y) => y < 3,
+        [WorldMapForegroundShape.GlowUpperLeftCorner] = (x, y) => y <= 5 && x + y <= 6 && (y < 3 || x > 0),
+        [WorldMapForegroundShape.GlowRightEdge] = (x, y) => x >= Math.Max(4, 7 - y),
+        [WorldMapForegroundShape.GlowTopAndLeft] = (x, y) => y < 3 || x < 3,
+        [WorldMapForegroundShape.GlowTopLeftTip] = (x, y) => y < 3 && x <= y + 4,
+    };
+
+    /// <summary>The ink phase of each lit pixel of a diagonal glow.</summary>
+    private static readonly Dictionary<WorldMapForegroundShape, Func<int, int, int>> GlowPhases = new()
+    {
+        [WorldMapForegroundShape.GlowRightWedge] = (x, y) => x - y + 1,
+        [WorldMapForegroundShape.GlowRightHalf] = (x, y) => x - y + 1,
+        [WorldMapForegroundShape.GlowRightEdge] = (x, y) => x - y + 1,
+        [WorldMapForegroundShape.GlowLowerAndLeft] = (x, y) => x + y < 8 ? 7 - x - y : y - x + 1,
+        [WorldMapForegroundShape.GlowLowerHalf] = (x, y) => y - x + 1,
+        [WorldMapForegroundShape.GlowLowerLeftWedge] = (x, y) => y - x + 1,
+        [WorldMapForegroundShape.GlowLeftStrip] = (x, y) => 7 - x - y,
+        [WorldMapForegroundShape.GlowUpperRightTip] = (x, y) => 7 - x - y,
+        [WorldMapForegroundShape.GlowTopStrip] = (x, y) => 7 - x - y,
+        [WorldMapForegroundShape.GlowUpperLeftCorner] = (x, y) => 7 - x - y,
+        [WorldMapForegroundShape.GlowLowerRightCorner] = (x, y) => x + y - 6,
+        [WorldMapForegroundShape.GlowLowerLeftCorner] = (x, y) => x + y + 2,
+        [WorldMapForegroundShape.GlowTopAndLeft] = (x, y) => x > y ? x - y : 7 - x - y,
+        [WorldMapForegroundShape.GlowTopLeftTip] = (x, y) => x - y,
+    };
+
     /// <summary>Whether <paramref name="cell"/> lies in any of <paramref name="ranges"/>.</summary>
     private static bool InAny(WorldMapCellRange[] ranges, int cell)
     {
@@ -152,18 +203,7 @@ internal static class WorldMapCharacterDrawing
                 WorldMapBackgroundShape.RightQuarterWedge or WorldMapBackgroundShape.TopQuarterWedge or
                 WorldMapBackgroundShape.UpperRightWedgeBelowTop or WorldMapBackgroundShape.LowerRightWedgeWithEdge or
                 WorldMapBackgroundShape.RightQuarterWedgeWithEdge or WorldMapBackgroundShape.UpperRightWedgeWithDiagonal:
-                bool filled = shape switch
-                {
-                    WorldMapBackgroundShape.UpperRightWedge => x > y && x + y != Side - 1,
-                    WorldMapBackgroundShape.LowerRightWedge => x + y >= Side,
-                    WorldMapBackgroundShape.RightQuarterWedge => x + y >= Side && x > y,
-                    WorldMapBackgroundShape.TopQuarterWedge => x > y && x + y < Side - 1,
-                    WorldMapBackgroundShape.UpperRightWedgeBelowTop => y > 0 && x > y,
-                    WorldMapBackgroundShape.LowerRightWedgeWithEdge => x + y >= Side - 1,
-                    WorldMapBackgroundShape.RightQuarterWedgeWithEdge => x + y >= Side - 1 && x > y,
-                    WorldMapBackgroundShape.UpperRightWedgeWithDiagonal => x >= y && x + y != Side - 1,
-                    _ => throw new InvalidOperationException($"Unknown background shape {shape}."),
-                };
+                bool filled = WedgeFills[shape](x, y);
                 value = filled ? Fill : (byte)0; return true;
             default:
                 throw new InvalidOperationException($"Unknown background shape {shape}.");
@@ -388,40 +428,12 @@ internal static class WorldMapCharacterDrawing
     private static int GlowPixel(WorldMapForegroundShape shape, int index, Position16<CharacterPixels> point)
     {
         int x = point.X, y = point.Y;
-        bool present = shape switch
-        {
-            WorldMapForegroundShape.GlowRightWedge => x >= 4 && x >= y,
-            WorldMapForegroundShape.GlowLowerAndLeft => y >= 4 || x < 3,
-            WorldMapForegroundShape.GlowLowerHalf => y >= 4,
-            WorldMapForegroundShape.GlowLowerLeftWedge => x <= y && (y >= 4 || x > 0),
-            WorldMapForegroundShape.GlowRightHalf => x >= 4,
-            WorldMapForegroundShape.GlowLeftStrip => x < 3,
-            WorldMapForegroundShape.GlowLowerRightCorner => y >= 4 && x + y >= 7,
-            WorldMapForegroundShape.GlowLowerLeftCorner => y >= 4 && x + y <= 10,
-            WorldMapForegroundShape.GlowUpperRightTip => y < 3 && x > y || y == 3 && x == 4,
-            WorldMapForegroundShape.GlowTopStrip => y < 3,
-            WorldMapForegroundShape.GlowUpperLeftCorner => y <= 5 && x + y <= 6 && (y < 3 || x > 0),
-            WorldMapForegroundShape.GlowRightEdge => x >= Math.Max(4, 7 - y),
-            WorldMapForegroundShape.GlowTopAndLeft => y < 3 || x < 3,
-            WorldMapForegroundShape.GlowTopLeftTip => y < 3 && x <= y + 4,
-            _ => throw new InvalidOperationException($"Unknown diagonal glow {shape}."),
-        };
-        if (!present) return -1;
+        if (!GlowPresence.TryGetValue(shape, out Func<int, int, bool>? present))
+            throw new InvalidOperationException($"Unknown diagonal glow {shape}.");
+        if (!present(x, y)) return -1;
         // The single reviewed painted phase discontinuity remains its own source pixel.
         if (shape == WorldMapForegroundShape.GlowUpperRightTip && x == 2 && y == 1) return index;
-        int phase = shape switch
-        {
-            WorldMapForegroundShape.GlowRightWedge or WorldMapForegroundShape.GlowRightHalf or WorldMapForegroundShape.GlowRightEdge => x - y + 1,
-            WorldMapForegroundShape.GlowLowerAndLeft => x + y < 8 ? 7 - x - y : y - x + 1,
-            WorldMapForegroundShape.GlowLowerHalf or WorldMapForegroundShape.GlowLowerLeftWedge => y - x + 1,
-            WorldMapForegroundShape.GlowLeftStrip or WorldMapForegroundShape.GlowUpperRightTip or WorldMapForegroundShape.GlowTopStrip or
-                WorldMapForegroundShape.GlowUpperLeftCorner => 7 - x - y,
-            WorldMapForegroundShape.GlowLowerRightCorner => x + y - 6,
-            WorldMapForegroundShape.GlowLowerLeftCorner => x + y + 2,
-            WorldMapForegroundShape.GlowTopAndLeft => x > y ? x - y : 7 - x - y,
-            WorldMapForegroundShape.GlowTopLeftTip => x - y,
-            _ => throw new InvalidOperationException($"Unknown diagonal glow {shape}."),
-        };
+        int phase = GlowPhases[shape](x, y);
         int ink = ((phase - 1) & 7) + 1;
         return At(GlowInkCell, ink <= 5 ? 4 : ink - 1, ink <= 5 ? 5 - ink : 0);
     }

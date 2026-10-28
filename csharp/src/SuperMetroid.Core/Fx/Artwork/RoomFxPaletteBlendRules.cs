@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Fx.Artwork.RoomFxPaletteBlendDefinitions;
 
 namespace SuperMetroid.Core.Fx.Artwork;
 

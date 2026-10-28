@@ -281,7 +281,7 @@ public static class RoomHeaderDefinitions
     public static IReadOnlyList<RoomHeaderDefinition> All => Definitions;
 
     /// <summary>Every compiled room by its name.</summary>
-    private static readonly IReadOnlyDictionary<string, RoomHeaderDefinition> ByName = Definitions.ToDictionary(room => room.Name);
+    private static readonly Dictionary<string, RoomHeaderDefinition> ByName = Definitions.ToDictionary(room => room.Name);
 
     /// <summary>The compiled room named <paramref name="name"/>.</summary>
     private static RoomHeaderDefinition Find(string name) => ByName[name];

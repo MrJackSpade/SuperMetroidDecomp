@@ -1,6 +1,5 @@
 using System.Collections.Frozen;
 using SuperMetroid.Core.Input;
-using static SuperMetroid.Core.Samus.Poses.SamusPoseInputList;
 
 namespace SuperMetroid.Core.Samus.Poses;
 

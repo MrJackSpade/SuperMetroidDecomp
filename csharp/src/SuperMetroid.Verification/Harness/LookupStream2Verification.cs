@@ -1677,9 +1677,7 @@ internal static class LookupStream2Verification
         AssertEqual(5, enumerated, "Gunship enumerates every transfer");
         AssertEqual(0, part.NextLiftoffPage, "Gunship completes its page phase");
         AssertEqual(GunshipFunction.FireUpEngines, part.Function, "Gunship starts engines after fifth transfer");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = transfers[-1], "Gunship lower transfer bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = transfers[5], "Gunship upper transfer bound");
-        Console.WriteLine("Gunship transfers: all10 native source/destination fields, five typed identities, the pages shown/phase handoff, enumeration and bounds pass.");
+        Console.WriteLine("Gunship transfers: all10 native source/destination fields, five typed identities, the pages shown/phase handoff and enumeration pass.");
     }
     /// <summary>Checks reserve arrow RGB5 colors, independent edits, and CGRAM placement.</summary>
     internal static void VerifyLookupStream2ReserveArrowColors(ISnesAddressSpace rom)

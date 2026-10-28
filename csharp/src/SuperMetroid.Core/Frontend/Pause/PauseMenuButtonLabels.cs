@@ -1,5 +1,3 @@
-using static SuperMetroid.Core.Frontend.Pause.PauseMenuLayout;
-
 namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>

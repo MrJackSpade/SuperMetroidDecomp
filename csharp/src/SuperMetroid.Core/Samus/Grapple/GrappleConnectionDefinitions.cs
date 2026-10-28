@@ -1,4 +1,3 @@
-using static SuperMetroid.Core.Samus.Grapple.GrappleConnectionHandler;
 using static SuperMetroid.Core.Samus.Poses.SamusPoseId;
 using SuperMetroid.Core.Samus.Poses;
 

@@ -62,7 +62,7 @@ internal static class TilemapJsonContractsEnvironmentVerification
         void LoadFx(string text)
         {
             RoomFxLayer3TilemapCatalog catalog = RoomFxLayer3TilemapCatalog.Load(TilemapContractStream(text));
-            foreach (var pair in fxWords) AssertTrue(catalog.Resolve(pair.Key).Span.SequenceEqual(pair.Value),
+            foreach (var pair in fxWords) AssertTrue(catalog.ResolveBytes(pair.Key).AsSpan().SequenceEqual(pair.Value),
                 "all six BG3 effect pages retain every compiled word");
         }
         LoadFx(fxJson); LoadFx(TilemapContractHistoricalCasing(fxJson));

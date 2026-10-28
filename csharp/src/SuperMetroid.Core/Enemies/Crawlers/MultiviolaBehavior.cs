@@ -39,7 +39,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new MultiviolaEnemyState
         {
             Heading = slot.Spawn.Population.Parameter1,
-            Speed = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2),
+            Speed = slot.Spawn.Population.Parameter2Settings.First,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 

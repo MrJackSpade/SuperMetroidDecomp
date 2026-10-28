@@ -114,7 +114,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         while (unchecked((short)(accumulatedDistance - distanceInSubpixels)) < 0);
 
         state.CalculatedSpinJumpSpeed = speed;
-        int adjustedHalfSpan = SnesLittleEndian.HighByte(accumulatedDistance);
+        int adjustedHalfSpan = UnsignedEightEight.Whole(accumulatedDistance);
         var halfSpan = new Offset16<RoomPixels>(checked((short)adjustedHalfSpan), 0);
         state.RightPost = state.PostsMidpoint + halfSpan;
         state.LeftPost = state.PostsMidpoint - halfSpan;
@@ -570,7 +570,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
-        int pixels = SnesLittleEndian.HighByte(projectile.Variable0);
+        int pixels = UnsignedEightEight.Whole(projectile.Variable0);
         bool outbound = projectile.Variable1 != 0;
         bool thrownRight = projectile.PreInstruction == EnemyProjectilePreInstruction.PirateClaw_Right;
         int direction = thrownRight ? 1 : -1;

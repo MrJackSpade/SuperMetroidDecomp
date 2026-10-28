@@ -163,12 +163,14 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         int distanceAccumulator = 0;
         PuyoHopDefinition hop = Hop(state);
         int xSpeed = hop.XSpeed;
-        int swappedJumpHeight = SnesLittleEndian.SwapBytes(checked((ushort)hop.Height));
+        // The cartridge exchanges the height word's bytes (XBA); every authored height is below 256 pixels, so that
+        // makes the height the whole part of an 8.8 distance.
+        int swappedJumpHeight = UnsignedEightEight.FromParts(whole: checked((byte)hop.Height), fraction: 0);
 
         for (int guard = 0; guard <= ushort.MaxValue; guard++)
         {
             timeAccumulator = unchecked((ushort)(timeAccumulator + xSpeed));
-            int speedRow = (SnesLittleEndian.HighByte(timeAccumulator)) * QuadraticSpeedRecordSize;
+            int speedRow = UnsignedEightEight.Whole(timeAccumulator) * QuadraticSpeedRecordSize;
 
             // The cartridge intentionally reads a word at table+1: the high byte of the
             // fractional speed followed by the low byte of the whole speed. Accumulating

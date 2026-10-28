@@ -122,7 +122,7 @@ internal static class EnemyMath
     {
         int byteAngle = angle.RawValue;
         int sample = Trigonometry.EightBitHalfWave(byteAngle & EnemyByteAngleDefinitions.HalfWaveIndexMask);
-        int magnitude = EightEight.Multiply(sample, SnesLittleEndian.LowByte(radius));
+        int magnitude = EightEight.Multiply(sample, RadiusMultiplierOperand(radius));
         return byteAngle < EnemyByteAngleDefinitions.HalfTurn ? magnitude : -magnitude;
     }
 
@@ -154,7 +154,7 @@ internal static class EnemyMath
         // A half-wave byte times a radius byte is below 65,536, so the product needs no wrap.
         int byteAngle = angle.RawValue;
         int sample = Trigonometry.EightBitHalfWave(byteAngle & EnemyByteAngleDefinitions.HalfWaveIndexMask);
-        int product = sample * SnesLittleEndian.LowByte(radius);
+        int product = sample * RadiusMultiplierOperand(radius);
         int whole = EightEight.WholeOf(product);
         int fraction = unchecked((ushort)SixteenSixteen.FromEightEight(product));
         if (byteAngle >= EnemyByteAngleDefinitions.HalfTurn)
@@ -225,6 +225,12 @@ internal static class EnemyMath
 
     /// <summary>The word whose low byte is <paramref name="value"/>'s and whose high byte is all ones: a negative 8-bit result (#1412).</summary>
     internal static ushort FillHighByte(int value) => unchecked((ushort)(value | ~byte.MaxValue));
+
+    /// <summary>
+    /// The eight-bit multiplier operand a radius word, 0 through 65535, supplies: the eight-bit sine multiplication
+    /// takes only its low eight bits, so a radius of 256 or more wraps.
+    /// </summary>
+    private static int RadiusMultiplierOperand(int radius) => unchecked((byte)Ensure.BetweenInclusive(0, ushort.MaxValue, radius));
 
     /// <summary>Tests the sign of the low sixteen bits as a 65816 word, ignoring higher host bits.</summary>
     internal static bool IsNegative16(int value) => (short)unchecked((ushort)value) < 0;

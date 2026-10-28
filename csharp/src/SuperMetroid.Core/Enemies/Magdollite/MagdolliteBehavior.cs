@@ -92,7 +92,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         // The table stores +whole,+fraction,-whole,-fraction. Reading both signed records
         // retains retail's independently encoded negative fraction rather than negating a
         // host 32-bit value and accidentally repairing a possible ROM rounding quirk.
-        int speedOffset = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2) * EnemyLinearSpeedDefinitions.RecordSize;
+        int speedOffset = slot.Spawn.Population.Parameter2Settings.Second * EnemyLinearSpeedDefinitions.RecordSize;
         SignedSixteenSixteen positive = EnemyMath.ReadLinearEnemySpeed(checked((ushort)speedOffset));
         SignedSixteenSixteen negative = EnemyMath.ReadLinearEnemySpeed(checked((ushort)(speedOffset + 4)));
         state.DownwardVelocity = positive;

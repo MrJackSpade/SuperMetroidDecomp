@@ -186,7 +186,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         // components use $A8:DAF6, whose zero-fraction path is deliberately one subpixel more
         // negative than a conventional two's-complement negation.
         int magnitude = unchecked((ushort)Math.Abs(sine));
-        int sineHighByte = SnesLittleEndian.HighByte(magnitude);
+        int sineHighByte = UnsignedEightEight.Whole(magnitude);
         uint product = (uint)sineHighByte * (uint)speed;
         int fraction = unchecked((ushort)product);
         int whole = FixedCoordinate.WholeOf(unchecked((int)product));

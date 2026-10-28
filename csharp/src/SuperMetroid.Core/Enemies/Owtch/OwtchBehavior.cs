@@ -49,10 +49,10 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Owtch</c> at $A2:A3F9.</summary>
     internal static void InitializeOwtch(RoomEnemySlot slot)
     {
-        int initialState = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter1);
-        int undergroundTimerIndex = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter1);
-        int speedIndex = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2);
-        int distanceIndex = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2);
+        int initialState = slot.Spawn.Population.Parameter1Settings.First;
+        int undergroundTimerIndex = slot.Spawn.Population.Parameter1Settings.Second;
+        int speedIndex = slot.Spawn.Population.Parameter2Settings.First;
+        int distanceIndex = slot.Spawn.Population.Parameter2Settings.Second;
         if (initialState >= 5)
         {
             throw new InvalidDataException(
@@ -129,7 +129,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     state.Behavior = OwtchBehaviorState.Underground;
                     state.UndergroundTimer = WrappingCountdown.FromRaw(OwtchMovementDefinitions.UndergroundTimer(
-                        SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter1)));
+                        slot.Spawn.Population.Parameter1Settings.Second));
                 }
                 return;
 

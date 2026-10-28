@@ -64,10 +64,12 @@ public sealed class EtecoonEnemyState
     /// <summary>Installs the authored route and heading from the spawn parameters.</summary>
     internal void InstallSpawnParameters(RoomEnemyPopulationRecord population)
     {
-        HeadingRight = SnesLittleEndian.LowByte(population.Parameter1) != 0;
-        TeachingHops = SnesLittleEndian.HighByte(population.Parameter1);
-        Route = SnesLittleEndian.LowByte(population.Parameter2);
-        QuakePauseFrames = SnesLittleEndian.HighByte(population.Parameter2);
+        PopulationParameterSettings heading = population.Parameter1Settings;
+        PopulationParameterSettings route = population.Parameter2Settings;
+        HeadingRight = heading.First != 0;
+        TeachingHops = heading.Second;
+        Route = route.First;
+        QuakePauseFrames = route.Second;
     }
 
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>

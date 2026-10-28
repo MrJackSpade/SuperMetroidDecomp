@@ -74,7 +74,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The low byte is a common-linear-speed magnitude. Multiplication by eight is the
         // native byte offset across {right whole/fraction, left whole/fraction}.
-        int speedTableOffset = unchecked((ushort)((SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2)) * 8));
+        int speedTableOffset = unchecked((ushort)(slot.Spawn.Population.Parameter2Settings.First * 8));
         SignedSixteenSixteen right = EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
         state.RightSpeed = right;
         SignedSixteenSixteen left = EnemyMath.ReadLinearEnemySpeed(unchecked((ushort)(speedTableOffset + 4)));
@@ -86,7 +86,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.VerticallyStillArtInstalled = false;
         state.RestingHeight = new Position16<RoomPixels>(0, slot.Position.Y.Whole) + new Offset16<RoomPixels>(0, 1);
         state.YSpeedTableIndex = 0;
-        state.MaximumYSpeedTableIndex = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2);
+        state.MaximumYSpeedTableIndex = slot.Spawn.Population.Parameter2Settings.Second;
     }
 
     /// <summary>Ports <c>MainAI_Tripper_Kamer2</c> at $A3:9D16.</summary>

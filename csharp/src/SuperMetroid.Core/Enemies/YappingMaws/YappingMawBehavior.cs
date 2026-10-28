@@ -569,15 +569,15 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             new ByteAngle(unchecked((byte)-angle.RawValue)));
         bool negative = signedSample < 0;
         int magnitude = unchecked((ushort)(negative ? -signedSample : signedSample));
-        int product = unchecked((ushort)((SnesLittleEndian.HighByte(magnitude)) * unchecked((byte)length)));
+        int product = unchecked((ushort)(UnsignedEightEight.Whole(magnitude) * unchecked((byte)length)));
         if (product == 0)
             return 0;
 
         if (!negative)
-            return unchecked((ushort)(2 * (SnesLittleEndian.HighByte(product))));
+            return unchecked((ushort)(2 * UnsignedEightEight.Whole(product)));
 
         int negatedProduct = unchecked((ushort)-product);
-        return EnemyMath.FillHighByte(2 * SnesLittleEndian.HighByte(negatedProduct));
+        return EnemyMath.FillHighByte(2 * UnsignedEightEight.Whole(negatedProduct));
     }
 
     /// <summary>Routes bomb hits through the Maw's shared shot callback.</summary>

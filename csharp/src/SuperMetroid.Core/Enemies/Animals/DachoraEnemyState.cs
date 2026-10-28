@@ -22,7 +22,14 @@ public sealed class DachoraEnemyState
     /// <summary>The body's vertical acceleration fraction in 65536ths of a pixel, and an echo's lifetime.</summary>
     private int _accelerationFractionOrEchoLifetime;
 
-    /// <summary>The palette cycle: the frame shown next in the high byte and the updates before it in the low byte.</summary>
+    /// <summary>
+    /// The bits of the palette cycle's tick count, below its frame. The cycle stays one word because the cartridge
+    /// steps it as one: a tick from a cleared cycle borrows into the frame, and a speed or shine step past the top of
+    /// the ticks carries into it.
+    /// </summary>
+    private const int PaletteTickBits = 8;
+
+    /// <summary>The palette cycle: the frame shown next above the updates before it.</summary>
     private int _paletteCycle;
 
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
@@ -86,20 +93,19 @@ public sealed class DachoraEnemyState
     }
 
     /// <summary>The speed or shine palette frame the cycle shows next.</summary>
-    public int PaletteFrame => SnesLittleEndian.HighByte(_paletteCycle);
+    public int PaletteFrame => unchecked((byte)(_paletteCycle >> PaletteTickBits));
 
     /// <summary>The updates left before the speed palette cycle shows <see cref="PaletteFrame"/>.</summary>
     [IntegerQuantity("updates left before the palette cycle advances")]
-    public int PaletteTicks => SnesLittleEndian.LowByte(_paletteCycle);
+    public int PaletteTicks => unchecked((byte)_paletteCycle);
 
     /// <summary>
     /// Sets the palette cycle to show <paramref name="frame"/> after <paramref name="ticks"/> updates, each 0 through
     /// 255, as the run, wall, launch and ceiling phases restart or clear it.
     /// </summary>
     internal void SetPaletteCycle(int frame, int ticks) =>
-        _paletteCycle = SnesLittleEndian.Word(
-            checked((byte)Ensure.BetweenInclusive(0, byte.MaxValue, ticks)),
-            checked((byte)Ensure.BetweenInclusive(0, byte.MaxValue, frame)));
+        _paletteCycle = Ensure.BetweenInclusive(0, byte.MaxValue, frame) << PaletteTickBits |
+            Ensure.BetweenInclusive(0, byte.MaxValue, ticks);
 
     /// <summary>
     /// Counts one update off the speed palette cycle and reports whether its ticks reached zero. The cartridge

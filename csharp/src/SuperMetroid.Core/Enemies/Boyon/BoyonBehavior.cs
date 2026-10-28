@@ -48,8 +48,8 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Boyon</c> at <c>$A2:871C</c>.</summary>
     internal static void InitializeBoyon(RoomEnemySlot slot)
     {
-        int multiplierIndex = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter1);
-        int jumpHeightIndex = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter1);
+        int multiplierIndex = slot.Spawn.Population.Parameter1Settings.First;
+        int jumpHeightIndex = slot.Spawn.Population.Parameter1Settings.Second;
         if (multiplierIndex >= 8 || jumpHeightIndex >= 9)
         {
             throw new InvalidDataException(

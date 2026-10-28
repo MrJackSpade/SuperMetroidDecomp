@@ -40,7 +40,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Sbug</c> at $A3:A14D.</summary>
     internal static void InitializeSbug(RoomEnemySlot slot)
     {
-        int behavior = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2);
+        int behavior = slot.Spawn.Population.Parameter2Settings.Second;
         if (!SbugMovementDefinitions.ActivationBehaviors.TryAt(behavior, out _))
         {
             throw new InvalidDataException(

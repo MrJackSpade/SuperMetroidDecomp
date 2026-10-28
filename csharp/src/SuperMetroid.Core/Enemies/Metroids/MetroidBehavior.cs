@@ -402,7 +402,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             // Each axis adds a five-bit random byte minus sixteen: -16..+15 pixels.
             var scatter = new Offset16<RoomPixels>(
                 unchecked((short)((random & EnemyDropMasks.ScatterBits) - 16)),
-                unchecked((short)(((SnesLittleEndian.HighByte(random) & EnemyDropMasks.ScatterBits)) - 16)));
+                unchecked((short)((SharedRandomState.UpperByte(random) & EnemyDropMasks.ScatterBits) - 16)));
             MetroidDropRequests.Add(new MetroidDropRequest());
             _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(origin + scatter, EnemyDefinitionId.Metroid);
         }

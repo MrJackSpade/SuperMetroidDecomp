@@ -248,13 +248,14 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.RightVelocity = ReadShutterLinearSpeed(speedRecordOffset);
         state.LeftVelocity = ReadShutterLinearSpeed(speedRecordOffset + 4);
 
-        state.MovedLeftRestParameter = SnesLittleEndian.LowByte(slot.ExtraProperties.ToWord());
-        state.MovedRightRestParameter = SnesLittleEndian.HighByte(slot.ExtraProperties.ToWord());
+        PopulationParameterSettings restParameters = PopulationParameterSettings.Of(slot.ExtraProperties.ToWord());
+        state.MovedLeftRestParameter = restParameters.First;
+        state.MovedRightRestParameter = restParameters.Second;
         state.MovedLeftRestTime = state.MovedLeftRestParameter * RestUpdatesPerParameterUnit;
         state.MovedRightRestTime = state.MovedRightRestParameter * RestUpdatesPerParameterUnit;
 
         state.TriggerMode = DecodeTriggerMode(unchecked((byte)slot.Spawn.Population.Parameter1), "Horizontal");
-        state.TravelDistance = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter1);
+        state.TravelDistance = slot.Spawn.Population.Parameter1Settings.Second;
         state.HorizontalProximityOrWaitTime = slot.Spawn.Population.Parameter2;
         state.FunctionTimer = WrappingCountdown.FromRaw(checked((ushort)slot.Spawn.Population.Parameter2));
 
@@ -751,13 +752,14 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DownVelocity = ReadShutterLinearSpeed(speedRecordOffset);
         state.UpVelocity = ReadShutterLinearSpeed(speedRecordOffset + 4);
 
-        state.MovedUpRestParameter = SnesLittleEndian.LowByte(slot.ExtraProperties.ToWord());
-        state.MovedDownRestParameter = SnesLittleEndian.HighByte(slot.ExtraProperties.ToWord());
+        PopulationParameterSettings restParameters = PopulationParameterSettings.Of(slot.ExtraProperties.ToWord());
+        state.MovedUpRestParameter = restParameters.First;
+        state.MovedDownRestParameter = restParameters.Second;
         state.MovedUpRestTime = state.MovedUpRestParameter * RestUpdatesPerParameterUnit;
         state.MovedDownRestTime = state.MovedDownRestParameter * RestUpdatesPerParameterUnit;
 
         state.TriggerMode = DecodeTriggerMode(unchecked((byte)slot.Spawn.Population.Parameter1), "Vertical");
-        state.TravelDistance = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter1);
+        state.TravelDistance = slot.Spawn.Population.Parameter1Settings.Second;
         state.HorizontalProximityOrWaitTime = slot.Spawn.Population.Parameter2;
         state.FunctionTimer = WrappingCountdown.FromRaw(checked((ushort)slot.Spawn.Population.Parameter2));
 

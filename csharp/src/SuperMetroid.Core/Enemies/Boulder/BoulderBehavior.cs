@@ -75,7 +75,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         state.InitialPosition = slot.Position.Whole;
         state.PreviousY = slot.Position.Y;
 
-        int initialYOffset = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2);
+        int initialYOffset = slot.Spawn.Population.Parameter2Settings.Second;
         if (initialYOffset == 0)
         {
             // A zero high byte is not “no offset.” Native substitutes one pixel and sets
@@ -85,13 +85,13 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(state.InitialPosition.Y - initialYOffset)));
 
-        int horizontalReach = -SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2);
+        int horizontalReach = -slot.Spawn.Population.Parameter2Settings.First;
 
         // The population record's initialization parameter was copied to current_instruction
         // before init AI ran. Boulder consumes only its low byte as the strict Samus-Y
         // trigger threshold, then starts the real rolling animation in its place.
         int verticalReach = unchecked((byte)slot.CurrentInstruction);
-        state.DirectionSelector = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter1);
+        state.DirectionSelector = slot.Spawn.Population.Parameter1Settings.Second;
         if (state.DirectionSelector == 0)
         {
             horizontalReach = -horizontalReach;

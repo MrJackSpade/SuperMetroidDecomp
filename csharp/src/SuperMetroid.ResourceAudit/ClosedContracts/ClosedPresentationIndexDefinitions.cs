@@ -9,7 +9,6 @@ using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Frontend.Map;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -151,8 +150,6 @@ internal static class ClosedPresentationIndexDefinitions
             GunshipLiftoffTransferDefinitions.Frames.Length),
         ("AreaMapPresentation" or "IGameplayPresentationContent" or "IAreaMapSource", "Get", "area") => new(0, AreaIds.RetailCount),
         ("InstalledXrayOverlays", "ItemMetatile", "graphicsSlot") => new(0, SuperMetroid.Core.Samus.Abilities.Artwork.InstalledXrayOverlays.DynamicGraphicsSlots * 2),
-        ("InstalledDynamicCollectibleArt", "Resolve", "kind") => new((int)InWorldCollectibleKind.Bombs,
-            (int)InWorldCollectibleKind.ReserveTank - (int)InWorldCollectibleKind.Bombs + 1),
         _ => null,
     };
 }

@@ -118,7 +118,7 @@ internal static class RoomBlockUploads
             }
         }
         foreach ((TilesetDefinition _, TilesetUploads uploads) in tilesets.Where(entry => !entry.Value.Ceres))
-            uploads.AddCollectibles(Collectibles(inputs));
+            uploads.AddCollectibles(Collectibles());
         return tilesets;
     }
 
@@ -387,12 +387,15 @@ internal static class RoomBlockUploads
         inputs.AnimatedTiles.TryResolve(image, byteCount, out ReadOnlyMemory<byte> frame) ? frame
             : throw new InvalidDataException($"Installed animated tiles hold no {byteCount}-byte picture {image}.");
 
-    /// <summary>Each collectible's graphics in each slot, with the tiles of the blocks it shows there.</summary>
-    private static IEnumerable<CollectibleSlotCharacters> Collectibles(RoomBlockSheetInputs inputs)
+    /// <summary>
+    /// Each collectible's cartridge graphics in each slot, with the tiles of the blocks it shows there (#1453): the stock
+    /// pictures of the blocks named for the collectible over the slot, which the room block sheet's override restyles.
+    /// </summary>
+    private static IEnumerable<CollectibleSlotCharacters> Collectibles()
     {
         foreach (InWorldCollectibleKind kind in RoomPlmDynamicCollectibleGraphicsDefinitions.Kinds)
         {
-            RoomPlmDynamicCollectibleGraphic graphic = inputs.Collectibles.Resolve(kind);
+            RoomPlmDynamicCollectibleGraphic graphic = DynamicCollectibleGraphics.Get(kind);
             for (int slot = 0; slot < CollectiblePlms.GraphicsSlots; slot++)
                 yield return new CollectibleSlotCharacters(
                     BgCharacterUpload.Of(CollectiblePlms.SlotCharacters(RoomBgArtwork.Collectible(graphic.Kind), slot,

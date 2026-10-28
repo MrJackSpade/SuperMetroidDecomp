@@ -35,7 +35,6 @@ public static class RoomPlmPresentationIdentity
             [GameInstallationLayout.RoomPlmCrocomireVisualDirectoryName] = catalogs.Crocomire.ContentIdentity,
             [GameInstallationLayout.RoomPlmMotherBrainFakeDeathVisualDirectoryName] = catalogs.MotherBrainFakeDeath.ContentIdentity,
             [GameInstallationLayout.RoomPlmCollectibleVisualDirectoryName] = catalogs.Collectible.ContentIdentity,
-            [GameInstallationLayout.RoomPlmDynamicCollectibleArtDirectoryName] = catalogs.DynamicCollectibleArt.ContentIdentity,
         };
 }
 

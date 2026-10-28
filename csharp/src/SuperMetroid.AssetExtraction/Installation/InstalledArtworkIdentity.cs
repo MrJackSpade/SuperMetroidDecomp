@@ -48,7 +48,6 @@ public static class InstalledArtworkIdentity
                 Crocomire = Require(artwork.RoomPlmCrocomireVisuals),
                 MotherBrainFakeDeath = Require(artwork.RoomPlmMotherBrainFakeDeathVisuals),
                 Collectible = Require(artwork.RoomPlmCollectibleVisuals),
-                DynamicCollectibleArt = Require(artwork.RoomPlmDynamicCollectibleArt),
             }))
             .Concat(GameplayPresentationIdentity.Create(Require(artwork.GameplayBasePalettes), Require(artwork.StandardObjectArt),
                 Require(artwork.XrayRevealVisuals)))

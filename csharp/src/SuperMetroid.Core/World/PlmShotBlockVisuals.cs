@@ -126,8 +126,4 @@ internal sealed class PlmShotBlockVisuals
     /// <summary>Nonserialized collectible art; compiled level words retain collision.</summary>
     [field: NonSerialized]
     public InstalledRoomPlmCollectibleVisuals? RoomPlmCollectibleVisuals { get; set; }
-
-    /// <summary>Nonserialized item tile and palette art; physical pickup rules stay compiled.</summary>
-    [field: NonSerialized]
-    public InstalledDynamicCollectibleArt? RoomPlmDynamicCollectibleArt { get; set; }
 }

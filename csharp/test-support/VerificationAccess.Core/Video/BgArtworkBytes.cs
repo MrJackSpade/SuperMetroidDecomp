@@ -91,37 +91,15 @@ internal sealed class BgArtworkBytes
     }
 
     /// <summary>
-    /// Every permanent item's graphics as gameplay selects them when its population supplies none: the selection
-    /// <paramref name="installed"/> holds, or the compiled stock graphics where none is installed.
+    /// Every permanent item's cartridge characters, which the room block sheet's stock pictures of the item over its slot
+    /// are composed from (#1453): gameplay binds the item by name and uploads nothing.
     /// </summary>
-    internal BgArtworkBytes WithCollectibles(InstalledDynamicCollectibleArt? installed)
+    internal BgArtworkBytes WithCollectibles()
     {
         foreach (InWorldCollectibleKind kind in RoomPlmDynamicCollectibleGraphicsDefinitions.Kinds)
         {
             InWorldCollectibleKind collectible = kind;
-            Add(RoomBgArtwork.Collectible(collectible), () => CollectiblePlms.GraphicOf(installed, collectible).Tiles);
-        }
-        return this;
-    }
-
-    /// <summary>The graphics PLM population import supplied for its placements' permanent items, each kind once.</summary>
-    /// <exception cref="InvalidDataException">Two placements supply one kind different graphics.</exception>
-    internal BgArtworkBytes WithSuppliedCollectibles(RoomPlmPopulation population)
-    {
-        Ensure.NotNull(population);
-        var supplied = new Dictionary<InWorldCollectibleKind, ReadOnlyMemory<byte>>();
-        foreach (RoomPlmPlacement placement in population.Placements.Span)
-        {
-            if (placement.DynamicGraphic is not { } graphic)
-                continue;
-            if (supplied.TryGetValue(graphic.Kind, out ReadOnlyMemory<byte> known))
-            {
-                if (!known.Span.SequenceEqual(graphic.Tiles.Span))
-                    throw new InvalidDataException($"{population.Name} supplies two different graphics for {graphic.Kind}.");
-                continue;
-            }
-            supplied.Add(graphic.Kind, graphic.Tiles);
-            Add(RoomBgArtwork.SuppliedCollectible(graphic.Kind), graphic.Tiles);
+            Add(RoomBgArtwork.Collectible(collectible), () => DynamicCollectibleGraphics.Get(collectible).Tiles);
         }
         return this;
     }

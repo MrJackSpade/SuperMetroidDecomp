@@ -156,9 +156,6 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>Room PLM collectible visuals.</summary>
     public InstalledRoomPlmCollectibleVisuals? RoomPlmCollectibleVisuals { get; init; }
 
-    /// <summary>Room PLM dynamic collectible artwork.</summary>
-    public InstalledDynamicCollectibleArt? RoomPlmDynamicCollectibleArt { get; init; }
-
     /// <summary>X-ray reveal operands and item and special-room overlays.</summary>
     public InstalledXrayReveals? XrayRevealVisuals { get; init; }
 

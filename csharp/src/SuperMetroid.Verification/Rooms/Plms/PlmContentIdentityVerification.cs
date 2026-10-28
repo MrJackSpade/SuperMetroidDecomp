@@ -32,9 +32,9 @@ internal static class PlmContentIdentityVerification
     internal static void VerifyPlmContentIdentity()
     {
         IReadOnlyDictionary<string, string> baseline = CreatePlmIdentityFixture();
-        IReadOnlyDictionary<string, string> stock = RoomPlmPresentationIdentity.Create(new RoomPlmVisualCatalogSet { ShotBlock = InstalledRoomPlmShotBlockVisuals.Stock(), GrappleBlock = InstalledRoomPlmGrappleBlockVisuals.Stock(), Station = InstalledRoomPlmStationVisuals.Stock(), BlueDoor = InstalledRoomPlmBlueDoorVisuals.Stock(), ColoredDoor = InstalledRoomPlmColoredDoorVisuals.Stock(), GreyDoor = InstalledRoomPlmGreyDoorVisuals.Stock(), EyeDoor = InstalledRoomPlmEyeDoorVisuals.Stock(), MotherBrainGlass = RoomPlmMotherBrainGlassVisualCatalog.Stock(), NoobTube = InstalledRoomPlmNoobTubeVisuals.Stock(), DownwardGate = InstalledRoomPlmDownwardGateVisuals.Stock(), ElevatorPlatform = RoomPlmElevatorPlatformVisualCatalog.Stock(), EscapeGate = RoomPlmEscapeGateVisualCatalog.Stock(), BombTorizoHand = RoomPlmBombTorizoHandVisualCatalog.Stock(), DraygonCannon = RoomPlmDraygonCannonVisualCatalog.Stock(), ChozoStatue = RoomPlmChozoStatueVisualCatalog.Stock(), LinkedRestore = InstalledRoomPlmLinkedRestoreVisuals.Stock(), TourianAccess = RoomPlmTourianAccessVisuals.Stock(), SpeedBooster = InstalledRoomPlmSpeedBoosterVisuals.Stock(), MaridiaElevatube = InstalledRoomPlmMaridiaElevatubeVisuals.Stock(), SporeSpawnCeiling = RoomPlmSporeSpawnCeilingVisualCatalog.Stock(), SamusEater = InstalledRoomPlmSamusEaterVisuals.Stock(), BotwoonWall = InstalledRoomPlmBotwoonWallVisuals.Stock(), Kraid = InstalledRoomPlmKraidVisuals.Stock(), Crocomire = RoomPlmCrocomireVisualCatalog.Stock(), MotherBrainFakeDeath = RoomPlmMotherBrainFakeDeathVisualCatalog.Stock(), Collectible = InstalledRoomPlmCollectibleVisuals.Stock(), DynamicCollectibleArt = InstalledDynamicCollectibleArt.Stock() });
+        IReadOnlyDictionary<string, string> stock = RoomPlmPresentationIdentity.Create(new RoomPlmVisualCatalogSet { ShotBlock = InstalledRoomPlmShotBlockVisuals.Stock(), GrappleBlock = InstalledRoomPlmGrappleBlockVisuals.Stock(), Station = InstalledRoomPlmStationVisuals.Stock(), BlueDoor = InstalledRoomPlmBlueDoorVisuals.Stock(), ColoredDoor = InstalledRoomPlmColoredDoorVisuals.Stock(), GreyDoor = InstalledRoomPlmGreyDoorVisuals.Stock(), EyeDoor = InstalledRoomPlmEyeDoorVisuals.Stock(), MotherBrainGlass = RoomPlmMotherBrainGlassVisualCatalog.Stock(), NoobTube = InstalledRoomPlmNoobTubeVisuals.Stock(), DownwardGate = InstalledRoomPlmDownwardGateVisuals.Stock(), ElevatorPlatform = RoomPlmElevatorPlatformVisualCatalog.Stock(), EscapeGate = RoomPlmEscapeGateVisualCatalog.Stock(), BombTorizoHand = RoomPlmBombTorizoHandVisualCatalog.Stock(), DraygonCannon = RoomPlmDraygonCannonVisualCatalog.Stock(), ChozoStatue = RoomPlmChozoStatueVisualCatalog.Stock(), LinkedRestore = InstalledRoomPlmLinkedRestoreVisuals.Stock(), TourianAccess = RoomPlmTourianAccessVisuals.Stock(), SpeedBooster = InstalledRoomPlmSpeedBoosterVisuals.Stock(), MaridiaElevatube = InstalledRoomPlmMaridiaElevatubeVisuals.Stock(), SporeSpawnCeiling = RoomPlmSporeSpawnCeilingVisualCatalog.Stock(), SamusEater = InstalledRoomPlmSamusEaterVisuals.Stock(), BotwoonWall = InstalledRoomPlmBotwoonWallVisuals.Stock(), Kraid = InstalledRoomPlmKraidVisuals.Stock(), Crocomire = RoomPlmCrocomireVisualCatalog.Stock(), MotherBrainFakeDeath = RoomPlmMotherBrainFakeDeathVisualCatalog.Stock(), Collectible = InstalledRoomPlmCollectibleVisuals.Stock() });
         IReadOnlyDictionary<string, string> reordered = CreatePlmIdentityFixture(reverse: true);
-        AssertEqual(27, baseline.Count, "all room-actor artwork domains");
+        AssertEqual(26, baseline.Count, "all room-actor artwork domains");
         foreach ((string name, string hash) in baseline)
         {
             AssertEqual(stock[name], hash, name + " fixture matches the production stock selection");
@@ -55,9 +55,6 @@ internal static class PlmContentIdentityVerification
             AssertTrue(before.GetCompatibilityWarnings(after.ToSnapshot(), "test").Single()
                 .Contains(domain, StringComparison.Ordinal), domain + " has a specific compatibility warning");
         }
-        AssertTrue(baseline[GameInstallationLayout.RoomPlmDynamicCollectibleArtDirectoryName] !=
-            CreatePlmIdentityFixture("dynamic-palettes")[GameInstallationLayout.RoomPlmDynamicCollectibleArtDirectoryName],
-            "dynamic item palette selectors contribute independently of pixels");
 
         var runs = new Dictionary<string, ushort[][]> { ["frame"] = [[2, 3], [4]] };
         var repartitioned = new Dictionary<string, ushort[][]> { ["frame"] = [[2], [3, 4]] };
@@ -66,8 +63,8 @@ internal static class PlmContentIdentityVerification
             SelectedPresentationHash.FromWordFrames("test", repartitioned), "run boundaries are not flattened away");
         AssertTrue(SelectedPresentationHash.FromWordFrames("test", runs) !=
             SelectedPresentationHash.FromWordFrames("test", swapped), "native draw-run order contributes to identity");
-        Console.WriteLine("  Room-actor content: all 27 domains, canonical ordering, independent edits, " +
-            "dynamic item pixels/palettes, draw-run framing and host compatibility pass without a ROM.");
+        Console.WriteLine("  Room-actor content: all 26 domains, canonical ordering, independent edits, " +
+            "draw-run framing and host compatibility pass without a ROM.");
     }
 
     /// <summary>Builds stock-shaped PLM catalogs with one optional visual mutation and optional reversed insertion order.</summary>
@@ -97,14 +94,6 @@ internal static class PlmContentIdentityVerification
             return reverse ? frames.Reverse() : frames;
         }
 
-        var dynamicEntries = DynamicCollectibleGraphics.All
-            .Select(graphic => new RoomPlmDynamicCollectibleArtEntry(graphic.Kind,
-                graphic.Tiles.ToArray(), graphic.PaletteOffsets.ToArray())).ToArray();
-        if (edited == GameInstallationLayout.RoomPlmDynamicCollectibleArtDirectoryName)
-            dynamicEntries[^1].Tiles[^1] ^= 1;
-        if (edited == "dynamic-palettes")
-            dynamicEntries[^1].PaletteOffsets[^1] ^= 1;
-
         return RoomPlmPresentationIdentity.Create(new RoomPlmVisualCatalogSet { ShotBlock = new InstalledRoomPlmShotBlockVisuals(Runs(GameInstallationLayout.RoomPlmShotBlockVisualDirectoryName, ShotBlockPlmDraws.All)
                 .Select(draw => new RoomPlmVisualRunEntry(ShotBlockPlmDraws.VisualId(draw.Draw), draw.Runs))), GrappleBlock = new InstalledRoomPlmGrappleBlockVisuals(Words(GameInstallationLayout.RoomPlmGrappleBlockVisualDirectoryName,
                 GrappleBlockPlmDraws.All.Select(draw => new PlmContentIdentityDefinition(PlmDraw.Of(draw.Frame), draw.LevelWord.Raw)))
@@ -133,7 +122,7 @@ internal static class PlmContentIdentityVerification
                 .Select(draw => new RoomPlmVisualEntry(CrocomireArenaDraws.VisualId(draw.Draw), draw.Runs.SelectMany(run => run).ToArray()))), MotherBrainFakeDeath = new RoomPlmMotherBrainFakeDeathVisualCatalog(Runs(GameInstallationLayout.RoomPlmMotherBrainFakeDeathVisualDirectoryName, MotherBrainFakeDeathDraws.All)
                 .Select(draw => new RoomPlmVisualEntry(MotherBrainFakeDeathDraws.VisualId(draw.Draw), draw.Runs.SelectMany(run => run).ToArray()))), Collectible = new InstalledRoomPlmCollectibleVisuals(Words(GameInstallationLayout.RoomPlmCollectibleVisualDirectoryName,
                 CollectiblePlmDraws.All.Select(draw => new PlmContentIdentityDefinition(PlmDraw.Of(draw.Draw), draw.LevelWord.Raw)))
-                .Select(draw => new RoomPlmVisualWordEntry(CollectiblePlmDraws.VisualId(PlmDraw.FrameOf<RoomPlmCollectibleDrawDefinitions.Draw>(draw.Draw, "collectible")), draw.Word))), DynamicCollectibleArt = new InstalledDynamicCollectibleArt(reverse ? dynamicEntries.Reverse() : dynamicEntries) });
+                .Select(draw => new RoomPlmVisualWordEntry(CollectiblePlmDraws.VisualId(PlmDraw.FrameOf<RoomPlmCollectibleDrawDefinitions.Draw>(draw.Draw, "collectible")), draw.Word))) });
     }
 
     /// <summary>Runs the ROM-free selected-art identity and compatibility checks.</summary>

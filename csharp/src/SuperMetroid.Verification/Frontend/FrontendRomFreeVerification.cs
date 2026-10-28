@@ -161,7 +161,6 @@ internal static class FrontendRomFreeVerification
         var assetRoomPlmCrocomireVisuals = installation.LoadRoomPlmCrocomireVisuals();
         var assetRoomPlmMotherBrainFakeDeathVisuals = installation.LoadRoomPlmMotherBrainFakeDeathVisuals();
         var assetRoomPlmCollectibleVisuals = installation.LoadRoomPlmCollectibleVisuals();
-        var assetRoomPlmDynamicCollectibleArt = installation.LoadRoomPlmDynamicCollectibleArt();
         var assetXrayRevealVisuals = installation.LoadXrayRevealVisuals();
         InstalledProjectilePresentation projectiles = installation.LoadProjectiles();
         return (game, bindIntro) =>
@@ -202,7 +201,6 @@ internal static class FrontendRomFreeVerification
                 RoomPlmCrocomireVisuals = assetRoomPlmCrocomireVisuals,
                 RoomPlmMotherBrainFakeDeathVisuals = assetRoomPlmMotherBrainFakeDeathVisuals,
                 RoomPlmCollectibleVisuals = assetRoomPlmCollectibleVisuals,
-                RoomPlmDynamicCollectibleArt = assetRoomPlmDynamicCollectibleArt,
                 XrayRevealVisuals = assetXrayRevealVisuals,
                 BeamPalettes = projectiles.BeamTiles.Palettes,
                 HyperBeamFxColors = projectiles.BeamTiles.HyperBeamFxColors,

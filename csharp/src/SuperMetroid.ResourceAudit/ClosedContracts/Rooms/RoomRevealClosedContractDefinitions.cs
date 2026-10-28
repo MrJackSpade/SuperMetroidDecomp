@@ -2,13 +2,13 @@ using SuperMetroid.ResourceAudit.Reports;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Rooms;
 
-/// <summary>Complete terrain-reveal, installed overlay, and permanent-item stores.</summary>
+/// <summary>Complete terrain-reveal and installed overlay stores.</summary>
 internal static class RoomRevealClosedContractDefinitions
 {
     /// <summary>Reviewed source for X-ray visual ownership shared by reveal and overlay contracts.</summary>
     private static readonly ReviewedSource XrayCatalog = new(
         "csharp/src/SuperMetroid.Core/Samus/Abilities/Artwork/InstalledXrayReveals.cs");
-    /// <summary>Names the three closed audits for reveal commands, room overlays, and collectible uploads.</summary>
+    /// <summary>Names the two closed audits for reveal commands and room overlays.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Samus.Abilities.Artwork.InstalledXrayReveals", "xray-command-and-visual-share-one-identity", ["Apply"],
@@ -22,12 +22,5 @@ internal static class RoomRevealClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRoomOverlayVisual.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/Xray/XrayRoomOverlayDefinition.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/Xray/XrayRoomOverlayDefinitions.cs")]),
-        new("SuperMetroid.Core.Rooms.Plms.InstalledDynamicCollectibleArt", "plm-complete-seventeen-item-uploads", ["Resolve"],
-            [new("csharp/src/SuperMetroid.Core/Rooms/Plms/InstalledDynamicCollectibleArt.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmDynamicCollectibleGraphicsDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/Plms/DynamicCollectibleGraphics.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmDynamicCollectibleGraphicsDefinitions.Generated.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/Plms/CollectiblePlms.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmHeaders.cs")]),
     ];
 }

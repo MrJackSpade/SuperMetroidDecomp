@@ -26,9 +26,9 @@ internal static class SuperMetroidRuntimeVramAccess
         internal byte[] ComposedVram() => BgArtworkFixtures.Composed(self.Vram, self.BgArtwork, self.BackgroundArtwork());
 
         /// <summary>
-        /// The bytes of the background artwork the runtime binds, from what it has installed: its room characters, HUD,
-        /// Kraid backdrop and permanent-item graphics, and the graphics the loaded room's PLM population supplies. A name
-        /// the runtime installs nothing for stays unregistered, and composing a binding of it fails.
+        /// The bytes of the background artwork the runtime binds, from what it has installed: its room characters, HUD and
+        /// Kraid backdrop, and the permanent items' cartridge characters. A name the runtime installs nothing for stays
+        /// unregistered, and composing a binding of it fails.
         /// </summary>
         internal BgArtworkBytes BackgroundArtwork()
         {
@@ -39,9 +39,7 @@ internal static class SuperMetroidRuntimeVramAccess
                 artwork.WithHud(presentation.HudTiles);
             if (self.BossArtwork.Artwork?.KraidBackground is { } kraid)
                 artwork.WithKraidBackground(kraid);
-            artwork.WithCollectibles(self.ShotBlockVisuals.RoomPlmDynamicCollectibleArt);
-            if (self.Room.Scope is { } scope)
-                artwork.WithSuppliedCollectibles(scope.Assets.Header.State.PlmPopulation);
+            artwork.WithCollectibles();
             return artwork;
         }
     }

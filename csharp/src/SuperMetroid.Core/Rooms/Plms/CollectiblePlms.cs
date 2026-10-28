@@ -183,8 +183,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         PlmRoom room,
         PlmSlot slot,
         InWorldCollectibleKind kind,
-        CollectiblePresentation presentation,
-        RoomPlmDynamicCollectibleGraphic? suppliedGraphic)
+        CollectiblePresentation presentation)
     {
         RoomLevelData level = room.Level;
         BgArtworkBindings backgrounds = room.Backgrounds;
@@ -193,7 +192,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         bool collected = slot.Argument is CollectedItemArgument placedItem &&
             system.HasCollectedItemBit(placedItem.ItemBit);
         int graphicsSlot = UsesDynamicGraphics(kind)
-            ? LoadDynamicCollectibleGraphics(backgrounds, kind, suppliedGraphic)
+            ? ShowInNextGraphicsSlot(backgrounds, kind)
             : -1;
 
         RoomLevelWord setupWord = original.PackedWord.WithCollisionType(
@@ -243,26 +242,15 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     }
 
     /// <summary>
-    /// Binds two animation frames to the next collectible character slot (#1350). The slot's blocks show the collectible
-    /// through what is bound over its characters (#1431), which names their pictures.
+    /// Shows <paramref name="kind"/> over the next collectible graphics slot (#1350, #1453): the collectible is bound by
+    /// name over the slot's characters, and the slot's blocks show the room block sheet's pictures named for that
+    /// collectible over the slot (#1431). Nothing is uploaded; the pictures are the only collectible artwork.
     /// </summary>
-    private int LoadDynamicCollectibleGraphics(
-        BgArtworkBindings backgrounds,
-        InWorldCollectibleKind kind,
-        RoomPlmDynamicCollectibleGraphic? suppliedGraphic)
+    private int ShowInNextGraphicsSlot(BgArtworkBindings backgrounds, InWorldCollectibleKind kind)
     {
-        // Retail's presentation lists share one installed upload per kind. A
-        // constructed population may supply an explicitly decoded graphic; neither
-        // source grants the handler a bank-$84/$89 reader.
-        RoomPlmDynamicCollectibleGraphic definition = suppliedGraphic ?? GraphicOf(_drawing.DynamicCollectibleArt, kind);
-        ReadOnlyMemory<byte> graphics = definition.Tiles;
-
         int graphicsSlot = _nextCollectibleGraphicsSlot;
         _nextCollectibleGraphicsSlot = (_nextCollectibleGraphicsSlot + 1) & 3;
-
-        // The 256 bytes contain two 16x16 animation frames, four 4bpp tiles apiece.
-        SlotCharacters(suppliedGraphic is null ? RoomBgArtwork.Collectible(kind) : RoomBgArtwork.SuppliedCollectible(kind), graphicsSlot,
-            BgCharacterSet.Tiles.CharactersIn(graphics.Length)).BindTo(backgrounds);
+        SlotCharacters(RoomBgArtwork.Collectible(kind), graphicsSlot, RoomTileCharacters.CollectibleSlotCharacters).BindTo(backgrounds);
         return graphicsSlot;
     }
 
@@ -275,13 +263,6 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     /// </summary>
     internal static BgCharacterPlacement SlotCharacters(BgArtworkIdentity identity, int graphicsSlot, int characterCount) =>
         new(identity, BgCharacterSet.Tiles, RoomTileCharacters.CollectiblesFirst + graphicsSlot * RoomTileCharacters.CollectibleSlotCharacters, characterCount);
-
-    /// <summary>
-    /// The graphics a permanent item of <paramref name="kind"/> shows when its population supplies none: the installed
-    /// selection's, or the compiled stock graphics where no selection is installed.
-    /// </summary>
-    internal static RoomPlmDynamicCollectibleGraphic GraphicOf(InstalledDynamicCollectibleArt? installed, InWorldCollectibleKind kind) =>
-        installed?.Resolve(kind) ?? DynamicCollectibleGraphics.Get(kind);
 
     /// <summary>Advances one item's reveal, pickup, message wait, or shot-block respawn list.</summary>
     internal bool TryStepCollectible(RoomLevelData level, PlmSlot slot)

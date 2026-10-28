@@ -1187,25 +1187,21 @@ Permanent collectible PLM appearances are installed as
 (0..4095), then restart. Keep all 24 semantic IDs: the empty block, Chozo orb
 and burst, the four two-frame tank kinds, four two-frame dynamic graphics slots,
 and the three shot-block reveal frames. The words select visual blocks from the
-active room's combined CRE/area definitions. The dynamic graphics slot loads
-character tiles from the separate item art resources described below.
+active room's combined CRE/area definitions. A dynamic graphics slot's blocks
+show the item through pictures described below.
 Item acquisition, collision, room-item and Chozo persistence, sound, frame
 timing, and physical level words remain compiled. An edited word changes the
 immediate redraw and later camera streaming without changing the item reward.
 Invalid stock or override data fails loudly; the override survives stock
 installation repair or updates.
 
-Permanent-item character art is installed as 17 indexed 64x8 sheets under
-`game/room-plm-collectible-tiles/`, named `item-XX-kind.png`. Tiles 0-3 are
-animation frame zero and tiles 4-7 are frame one, in native upload order.
-Copy any sheet to the matching path under
-`overrides/room-plm-collectible-tiles/` to edit its 16-color pixel indexes.
-Copy `palettes.json` into that override directory to edit each kind's eight
-tile-palette offsets (0..7). These offsets select room CGRAM palettes; the PNG
-uses a diagnostic palette only to make indexes visible in an editor. Restart
-after editing. The installed stock files are hash-checked against the compiled
-cartridge definitions; malformed or incomplete overrides fail loudly. Edits
-reach room VRAM and tile definitions without changing pickup behavior.
+Permanent items that load their own graphics (every item but the four tanks)
+are drawn as pictures in the room block sheets: each tileset's sheet in
+`game/room-block-sheets` holds, for each such item, the pictures of the two
+graphics-slot blocks (one per animation frame) with that item shown over each of
+the four slots. To restyle an item, repaint those pictures in an override of the
+sheet under `overrides/room-block-sheets/`, then restart. Pickup behavior is
+unchanged.
 
 X-ray reveal art is installed as `game/xray-reveals/reveals.json`. Copy that
 file to `overrides/xray-reveals/reveals.json`, edit its `topLeft`, `topRight`,

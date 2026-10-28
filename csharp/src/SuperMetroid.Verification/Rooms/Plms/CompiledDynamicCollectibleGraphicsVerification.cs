@@ -1,6 +1,7 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using static SuperMetroid.Verification.Rooms.Plms.DynamicCollectibleArtVerification;
+using SuperMetroid.Core.Rooms.Artwork;
 using static SuperMetroid.Verification.Rooms.Plms.LookupDynamicCollectiblePalettesVerification;
 using static SuperMetroid.Verification.Rooms.Plms.LookupDynamicCollectibleSourcesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -15,10 +16,13 @@ namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks compiled item graphics through retail room population loading.</summary>
+/// <summary>Checks compiled item graphics and the collectible a retail room population shows over its graphics slot.</summary>
 internal static class CompiledDynamicCollectibleGraphicsVerification
 {
-    /// <summary>Checks Bombs item VRAM after a real room load while blocking compiled graphics ROM reads.</summary>
+    /// <summary>
+    /// Checks the compiled item graphics against the cartridge, then that a real room load names the Bombs item over its
+    /// graphics slot, which selects the slot blocks' pictures, while blocking compiled graphics ROM reads.
+    /// </summary>
     internal static void VerifyCompiledDynamicCollectibleGraphics(
         SuperMetroidAddressSpace rom)
     {
@@ -28,28 +32,22 @@ internal static class CompiledDynamicCollectibleGraphicsVerification
 
         // Retail population $8F:83FE contains a Chozo-orb Bombs item. Ban every
         // compiled graphics payload and every retail item-list upload from the bus,
-        // then exercise the real sequential room loader and assert its resulting VRAM.
+        // then exercise the real sequential room loader and assert what it binds.
         var guarded = NewRetailCollectibleGraphicsReadGuard(rom);
         const int width = 64;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64), new RoomLevelPlanes(new ushort[width * 64], new byte[width * 64], new ushort[width * 64]));
-        var vram = new SnesVram();
+        BgArtworkBindings backgrounds = BgArtworkFixtures.For(new SnesVram());
         var plms = PlmFixtures.Unbound();
-        PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(vram), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationDefinitions.Get(0x83fe), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
-        AssertTrue(plms.CollectiblePlms.Collectibles.Any(item =>
-                item.Kind == InWorldCollectibleKind.Bombs),
-            "retail Bombs item remains allocated after compiled graphics upload");
-        ReadOnlySpan<byte> expected =
-            DynamicCollectibleGraphics.Get(
-                InWorldCollectibleKind.Bombs).Tiles.Span;
-        // The bound graphics are named; the image composes them as the loader selected them, with no installed selection.
-        BgArtworkBytes collectibles = new BgArtworkBytes().WithCollectibles(null)
-            .WithSuppliedCollectibles(RoomPlmPopulationDefinitions.Get(0x83fe));
-        for (int offset = 0; offset < expected.Length; offset++)
-            AssertEqual(expected[offset], BgArtworkFixtures.Composed(vram, collectibles)[0x3e00 * 2 + offset],
-                $"retail Bombs item VRAM character byte {offset}");
+        PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, backgrounds, new SharedGameState(), AreaId.Crateria), RoomPlmPopulationDefinitions.Get(0x83fe), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        CollectiblePlmSnapshot bombs = plms.CollectiblePlms.Collectibles.Single(item => item.Kind == InWorldCollectibleKind.Bombs);
+        // The slot's blocks name their pictures by the collectible shown over the slot's characters (#1431, #1453); nothing
+        // is uploaded over them.
+        AssertEqual(RoomBgArtwork.Collectible(InWorldCollectibleKind.Bombs), backgrounds.Showing(BgCharacterSet.Tiles,
+                RoomTileCharacters.CollectiblesFirst + bombs.GraphicsSlot * RoomTileCharacters.CollectibleSlotCharacters,
+                RoomTileCharacters.CollectibleSlotCharacters).Artwork,
+            "retail Bombs item shows over all of its graphics slot's characters");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "retail collectible loader does not reread compiled character or palette bytes");
-        Suite(nameof(VerifyInstalledDynamicCollectibleArt), () => VerifyInstalledDynamicCollectibleArt(rom));
     }
 
     /// <summary>Reads a bank-$84 native graphics instruction word for the independent oracle.</summary>

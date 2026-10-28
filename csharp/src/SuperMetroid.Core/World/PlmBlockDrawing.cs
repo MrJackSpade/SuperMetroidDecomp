@@ -113,9 +113,6 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
     /// <summary>Nonserialized collectible art; compiled level words retain collision.</summary>
     public InstalledRoomPlmCollectibleVisuals? CollectibleVisuals => _visuals.RoomPlmCollectibleVisuals;
 
-    /// <summary>Nonserialized item tile and palette art; physical pickup rules stay compiled.</summary>
-    public InstalledDynamicCollectibleArt? DynamicCollectibleArt => _visuals.RoomPlmDynamicCollectibleArt;
-
     /// <summary>Draws a compiled draw, selecting its family's installed visuals while retaining physical collision words.</summary>
     public void Draw(RoomLevelData level, int blockIndex, PlmDraw draw)
     {

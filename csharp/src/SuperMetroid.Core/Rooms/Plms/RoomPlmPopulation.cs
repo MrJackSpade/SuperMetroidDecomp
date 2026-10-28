@@ -13,10 +13,10 @@ public sealed class RoomPlmPopulation
 
     /// <summary>The population's name, the disassembly's label for it without its prefix, or a fixture's description.</summary>
     public string Name { get; }
-    /// <summary>Validated placement records in native allocation order, excluding the zero header terminator; scroll and collectible payloads are owned copies.</summary>
+    /// <summary>Validated placement records in native allocation order, excluding the zero header terminator; scroll programs are owned copies.</summary>
     public ReadOnlyMemory<RoomPlmPlacement> Placements => placements;
 
-    /// <summary>Copies an ordered, bounded decoded population and validates setup-specific scroll and collectible payloads before any PLM slots are allocated.</summary>
+    /// <summary>Copies an ordered, bounded decoded population and validates scroll programs before any PLM slots are allocated.</summary>
     /// <param name="name">The population's name, used in diagnostics.</param>
     /// <param name="records">Placement sequence without a native zero terminator; at most 255 records may be supplied.</param>
     /// <exception cref="ArgumentNullException">The sequence or one of its placements is null.</exception>
@@ -40,7 +40,7 @@ public sealed class RoomPlmPopulation
             RoomPlmHeaders.Get(record.Header), record.Block, record.Argument, CannonControl: record.CannonControl)
             { CompiledScrollProgram = record.ScrollProgram }));
 
-    /// <summary>Copies one placement's payloads and rejects malformed scroll programs or collectible graphics.</summary>
+    /// <summary>Copies one placement's scroll program and rejects a malformed one.</summary>
     private static RoomPlmPlacement CopyPlacement(RoomPlmPlacement placement)
     {
         Ensure.NotNull(placement);
@@ -67,17 +67,6 @@ public sealed class RoomPlmPopulation
         }
         else if (program.Length != 0)
             throw new InvalidDataException("Only a resident scroll PLM may own scroll pairs.");
-
-        RoomPlmDynamicCollectibleGraphic? graphic = placement.DynamicGraphic;
-        if (graphic is not null)
-        {
-            if (!CollectiblePlms.TryIdentifyPermanentCollectible(placement.Header.Header, out var kind, out _) ||
-                kind != graphic.Kind || !CollectiblePlms.UsesDynamicGraphics(kind) ||
-                graphic.Tiles.Length != RoomPlmDynamicCollectibleGraphicsDefinitions.TileByteCount || graphic.PaletteOffsets.Length != 8 ||
-                graphic.PaletteOffsets.Span.ContainsAnyExceptInRange((byte)0, (byte)7))
-                throw new InvalidDataException("Decoded collectible graphics do not match their placement or payload shape.");
-            graphic = graphic with { Tiles = graphic.Tiles.ToArray(), PaletteOffsets = graphic.PaletteOffsets.ToArray() };
-        }
-        return placement with { ScrollProgram = program, DynamicGraphic = graphic, CompiledScrollProgram = compiledProgram };
+        return placement with { ScrollProgram = program, CompiledScrollProgram = compiledProgram };
     }
 }

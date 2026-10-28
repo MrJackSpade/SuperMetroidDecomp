@@ -167,8 +167,7 @@ internal sealed class PlmPopulationLoader
                 out InWorldCollectibleKind kind,
                 out CollectiblePresentation presentation))
         {
-            _collectiblePlms.SetupCollectibleSlot(room, slot, kind,
-                presentation, placement.DynamicGraphic);
+            _collectiblePlms.SetupCollectibleSlot(room, slot, kind, presentation);
             return true;
         }
 

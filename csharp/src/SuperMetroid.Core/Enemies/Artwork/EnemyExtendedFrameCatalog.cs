@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies.Drawing;
-
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
@@ -10,25 +7,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 public sealed class EnemyExtendedFrameCatalog
 {
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("enemy-extended-oam-v2", content =>
-        {
-            foreach ((EnemyFrameId frame, EnemyExtendedDrawComponent[] components) in frames.OrderBy(pair => EnemyFrameSheetKeys.Of(pair.Key), StringComparer.Ordinal))
-            {
-                content.AppendName("frame", EnemyFrameSheetKeys.Of(frame));
-                content.Append("components", components.Length);
-                foreach (EnemyExtendedDrawComponent component in components)
-                {
-                    content.Append("offset-x", component.Offset.X);
-                    content.Append("offset-y", component.Offset.Y);
-                    content.AppendEnemyParts(component.Parts);
-                }
-            }
-            foreach ((EnemyFrameId stock, EnemyFrameId selected) in displayFrames.OrderBy(pair => EnemyFrameSheetKeys.Of(pair.Key), StringComparer.Ordinal))
-            {
-                content.AppendName("native-binding", EnemyFrameSheetKeys.Of(stock));
-                content.AppendName("selected-binding", EnemyFrameSheetKeys.Of(selected));
-            }
-        });
+    public string ContentIdentity => EnemyExtendedFrames.ContentIdentity(this);
 
     /// <summary>Each authored frame's compiled OAM components.</summary>
     internal readonly Dictionary<EnemyFrameId, EnemyExtendedDrawComponent[]> frames;
@@ -38,44 +17,17 @@ public sealed class EnemyExtendedFrameCatalog
     /// <summary>Retains validated visual components and same-family display bindings.</summary>
     internal EnemyExtendedFrameCatalog(
         Dictionary<EnemyFrameId, EnemyExtendedDrawComponent[]> frames,
-        Dictionary<EnemyFrameId, EnemyFrameId> displayFrames)
-    {
-        this.frames = frames;
-        this.displayFrames = displayFrames;
-    }
+        Dictionary<EnemyFrameId, EnemyFrameId> displayFrames) =>
+        (this.frames, this.displayFrames) = (frames, displayFrames);
 
     /// <summary>Finds a frame's components, including the shared empty extended frame's.</summary>
-    internal bool TryGet(EnemyFrameId frame, out ReadOnlyMemory<EnemyExtendedDrawComponent> components)
-    {
-        // The shared empty extended frame's sole component draws the empty spritemap; no editable drawing is needed
-        // before initialization.
-        if (CommonEnemyEmptyFrames.IsFrame(frame))
-        {
-            components = ReadOnlyMemory<EnemyExtendedDrawComponent>.Empty;
-            return true;
-        }
-        if (frames.TryGetValue(frame, out EnemyExtendedDrawComponent[]? found))
-        {
-            components = found;
-            return true;
-        }
-        components = default;
-        return false;
-    }
+    internal bool TryGet(EnemyFrameId frame, out ReadOnlyMemory<EnemyExtendedDrawComponent> components) =>
+        EnemyExtendedFrames.TryGet(this, frame, out components);
 
     /// <summary>Maps the frame gameplay shows to the editable draw components displayed for it.</summary>
-    internal bool TryGetDisplay(EnemyFrameId frame, out ReadOnlyMemory<EnemyExtendedDrawComponent> components)
-    {
-        if (displayFrames.TryGetValue(frame, out EnemyFrameId selected) &&
-            frames.TryGetValue(selected, out EnemyExtendedDrawComponent[]? found))
-        {
-            components = found;
-            return true;
-        }
-        return TryGet(frame, out components);
-    }
+    internal bool TryGetDisplay(EnemyFrameId frame, out ReadOnlyMemory<EnemyExtendedDrawComponent> components) =>
+        EnemyExtendedFrames.TryGetDisplay(this, frame, out components);
 
     /// <summary>The frame displayed for <paramref name="frame"/>, whose BG2 half accompanies the displayed components.</summary>
-    internal EnemyFrameId GetDisplayFrame(EnemyFrameId frame) =>
-        displayFrames.TryGetValue(frame, out EnemyFrameId selected) ? selected : frame;
+    internal EnemyFrameId GetDisplayFrame(EnemyFrameId frame) => EnemyExtendedFrames.GetDisplayFrame(this, frame);
 }

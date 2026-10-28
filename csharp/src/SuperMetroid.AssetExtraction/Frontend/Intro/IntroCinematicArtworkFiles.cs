@@ -189,7 +189,7 @@ public static class IntroCinematicArtworkFiles
             });
             byte[] encoded = json.ToArray();
             if (!BackgroundTileWords.ToWords(IntroFinalLineTilemap.Load(new MemoryStream(encoded, writable: false))
-                .Tiles.Span).AsSpan().SequenceEqual(native))
+                .Tiles.Span).SequenceEqual(native))
                 throw new InvalidDataException("Opening divider tilemap JSON did not round-trip cartridge words.");
             string name = IntroFinalLineTilemapFormat.FileName;
             using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
@@ -244,7 +244,7 @@ public static class IntroCinematicArtworkFiles
             IntroEyeTilemapPresentation roundTrip = IntroEyeTilemapPresentation.Load(
                 new MemoryStream(encoded, writable: false));
             for (int frame = 0; frame < frames.Length; frame++)
-                if (!BackgroundTileWords.ToWords(roundTrip.FrameTiles(frame)).AsSpan().SequenceEqual(native[frame]))
+                if (!BackgroundTileWords.ToWords(roundTrip.FrameTiles(frame)).SequenceEqual(native[frame]))
                     throw new InvalidDataException($"Opening eye frame {frame} did not round-trip cartridge tile words.");
             string name = IntroEyeTilemapFormat.FileName;
             using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))

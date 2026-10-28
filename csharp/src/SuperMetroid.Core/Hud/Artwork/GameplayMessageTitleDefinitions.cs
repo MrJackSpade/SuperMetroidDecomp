@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 
@@ -10,14 +11,14 @@ public static class GameplayMessageTitleDefinitions
     public const int Version = 2;
     /// <summary>Native tile character index of A; B through Z follow contiguously.</summary>
     public const int FirstLetterTile = 0x0e0;
-    /// <summary>Native tile character index for a space.</summary>
-    public const int SpaceTile = 0x04e;
-    /// <summary>Native tile character index for a hyphen.</summary>
-    public const int HyphenTile = 0x0cf;
-    /// <summary>Native tile character index for a period.</summary>
-    public const int PeriodTile = 0x0fa;
-    /// <summary>Native tile character index for a question mark.</summary>
-    public const int QuestionMarkTile = 0x0fe;
+    /// <summary>The tile that draws each punctuation character a title spells: a space, a hyphen, a period and a question mark.</summary>
+    public static FrozenDictionary<char, int> PunctuationTiles { get; } = new Dictionary<char, int>
+    {
+        [' '] = 0x04e,
+        ['-'] = 0x0cf,
+        ['.'] = 0x0fa,
+        ['?'] = 0x0fe,
+    }.ToFrozenDictionary();
     /// <summary>Letters in the contiguous A-Z tile range.</summary>
     public const int LetterCount = 26;
 

@@ -22,5 +22,5 @@ internal static class BackgroundTileCells
     };
 
     /// <summary>The editable cell that places the tile a cartridge tilemap entry places.</summary>
-    internal static RoomBackgroundTilemapCell Of(ushort word) => Of(BackgroundTileWords.ToTile(word));
+    internal static RoomBackgroundTilemapCell Of(int word) => Of(BackgroundTileWords.ToTile(word));
 }

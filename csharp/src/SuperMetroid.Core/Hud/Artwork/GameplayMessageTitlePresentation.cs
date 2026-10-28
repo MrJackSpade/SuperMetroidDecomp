@@ -147,16 +147,9 @@ public sealed class GameplayMessageTitlePresentation
 
     /// <summary>The title tile that draws a supported character.</summary>
     private static int GlyphTile(char character) =>
-        character switch
-        {
-            ' ' => GameplayMessageTitleDefinitions.SpaceTile,
-            '-' => GameplayMessageTitleDefinitions.HyphenTile,
-            '.' => GameplayMessageTitleDefinitions.PeriodTile,
-            '?' => GameplayMessageTitleDefinitions.QuestionMarkTile,
-            >= 'A' and <= 'Z' => GameplayMessageTitleDefinitions.FirstLetterTile + character - 'A',
-            _ => throw new InvalidDataException(
-                $"Gameplay-message title glyph U+{(int)character:X4} is not supported."),
-        };
+        GameplayMessageTitleDefinitions.PunctuationTiles.TryGetValue(character, out int punctuation) ? punctuation
+        : character is >= 'A' and <= 'Z' ? GameplayMessageTitleDefinitions.FirstLetterTile + character - 'A'
+        : throw new InvalidDataException($"Gameplay-message title glyph U+{(int)character:X4} is not supported.");
 
     /// <summary>Recovers a supported title character from the tile <paramref name="cell"/> shows.</summary>
     internal static char DecodeGlyph(BackgroundTile cell) =>

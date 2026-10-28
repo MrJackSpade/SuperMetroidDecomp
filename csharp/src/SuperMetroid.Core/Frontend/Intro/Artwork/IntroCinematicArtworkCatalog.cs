@@ -32,7 +32,7 @@ public sealed class IntroCinematicArtworkCatalog
                 throw new InvalidDataException($"Opening BG page {index} must contain one 32x32 tilemap.");
             page.Tiles.Span.CopyTo(pages.AsSpan(index * PageCells, PageCells));
         }
-        if (!pages.AsSpan().SequenceEqual(IntroBackgroundTilemapDefinitions.Compile()))
+        if (!pages.SequenceEqual(IntroBackgroundTilemapDefinitions.Compile()))
             suppliedBackgroundPages = pages;
         ReadOnlyMemory<BackgroundTile> portrait = RequirePage(parts.PortraitTilemap, "portrait");
         if (!portrait.Span.SequenceEqual(IntroPortraitTilemapDefinitions.Compile()))

@@ -74,7 +74,7 @@ public static class GameplayMessageNoticeDefinitions
                     {
                         BackgroundTile cell = template[row * width + column];
                         if (IsText(cell)) { column++; continue; }
-                        if (cell.Tile == GameplayMessageTitleDefinitions.SpaceTile &&
+                        if (cell.Tile == GameplayMessageTitleDefinitions.PunctuationTiles[' '] &&
                             column + 1 < width && IsText(template[row * width + column + 1]))
                         {
                             column += 2;
@@ -87,9 +87,9 @@ public static class GameplayMessageNoticeDefinitions
             }
         }
 
+        // Text is a letter or any punctuation but the space, which separates words.
         static bool IsText(BackgroundTile cell) =>
             GameplayMessageTitleDefinitions.IsLetterTile(cell.Tile) ||
-            cell.Tile is GameplayMessageTitleDefinitions.HyphenTile or
-                GameplayMessageTitleDefinitions.PeriodTile or GameplayMessageTitleDefinitions.QuestionMarkTile;
+            GameplayMessageTitleDefinitions.PunctuationTiles.Any(glyph => glyph.Key != ' ' && glyph.Value == cell.Tile);
     }
 }

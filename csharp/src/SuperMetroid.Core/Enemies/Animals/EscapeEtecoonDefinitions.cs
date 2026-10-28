@@ -11,8 +11,8 @@ internal static class EscapeEtecoonDefinitions
         [4] = EscapeEtecoonRole.WaitForEscapeEvent,
     });
 
-    /// <summary>The cartridge clears parameter bit zero before dispatching on the role.</summary>
-    internal const int RoleParameterMask = 0xfffe;
+    /// <summary>The parameter bit the cartridge clears before dispatching on the role.</summary>
+    internal const int IgnoredParameterBit = 1;
 
     /// <summary>
     /// $B3:E718..E735 InitializationAI_EtecoonEscape: the position, action, program and horizontal speed each of the

@@ -159,31 +159,17 @@ internal static class RoomCharacterInstallationVerification
             AssertTrue(File.Exists(Path.Combine(installed.RoomMetatileDirectory,
                     RoomMetatileArtworkFiles.ManifestFileName)),
                 "room-block stock manifest is installed");
-            RoomMetatileCatalog stockBlocks = installed.LoadRoomMetatiles();
-            LoadedRoomAssets installedBlocks = LoadFixtureRoomAssets(landing,
-                metatileArt: stockBlocks);
-            AssertTrue(native.LevelData.BlockDefinitions.Span.SequenceEqual(
-                    installedBlocks.LevelData.BlockDefinitions.Span),
-                "installed stock room-block JSON retains native visual tile words");
+            // The stock block compositions are extraction input (#1431): the block sheets are composed from them and each
+            // block set records the characters its blocks read beside its sheets. Rooms load no composition.
+            RoomMetatileCatalog stockBlocks = RoomMetatileArtworkFiles.Load(installed.RoomMetatileDirectory);
+            RoomBlockSheetCatalog installedSheets = installed.LoadRoomBlockSheets();
+            AssertTrue(File.Exists(Path.Combine(installed.RoomBlockSheetDirectory, RoomBlockCharacterFiles.FileNameOf(native.Tileset.Blocks))),
+                "the Landing Site block set's character record is installed beside its block sheets");
+            AssertEqual((stockBlocks.Cre.BlockTiles.Length + stockBlocks.Get(native.Tileset.Blocks).BlockTiles.Length) / RoomMetatileFormat.TilesPerBlock,
+                installedSheets.Get(native.Tileset).Characters.Count,
+                "the installed character record covers every block a Landing Site room loads");
             string blockName = RoomMetatileFormat.CreFileName;
             string blockStockPath = Path.Combine(installed.RoomMetatileDirectory, blockName);
-            JsonNode blockDocument = JsonNode.Parse(File.ReadAllText(blockStockPath))
-                ?? throw new InvalidDataException("Installed room-block JSON is empty.");
-            JsonNode firstTile = blockDocument.Required("blocks").Required(0).Required("topLeft");
-            firstTile["tileColumn"] = (firstTile.Required("tileColumn").GetValue<int>() + 1)
-                % RoomMetatileFormat.TileColumns;
-            Directory.CreateDirectory(installed.RoomMetatileOverrideDirectory);
-            string blockOverridePath = Path.Combine(installed.RoomMetatileOverrideDirectory, blockName);
-            File.WriteAllText(blockOverridePath, blockDocument.ToJsonString());
-            LoadedRoomAssets editedBlocks = LoadFixtureRoomAssets(landing,
-                metatileArt: installed.LoadRoomMetatiles());
-            AssertTrue(!native.LevelData.BlockDefinitions.Span.SequenceEqual(
-                    editedBlocks.LevelData.BlockDefinitions.Span) &&
-                native.LevelData.ForegroundEntries.Span.SequenceEqual(
-                    editedBlocks.LevelData.ForegroundEntries.Span) &&
-                native.LevelData.BehaviorBytes.AsSpan().SequenceEqual(
-                    editedBlocks.LevelData.BehaviorBytes.AsSpan()),
-                "installed visual-block override changes room art without changing collision/BTS");
 
             AssertTrue(File.Exists(Path.Combine(installed.RoomBackgroundTilemapDirectory,
                     RoomBackgroundTilemapArtworkFiles.ManifestFileName)),
@@ -301,9 +287,8 @@ internal static class RoomCharacterInstallationVerification
             AssertTrue(File.Exists(paletteOverridePath) &&
                 File.Exists(Path.Combine(repaired.RoomPaletteDirectory, paletteName)),
                 "room-palette stock is restored while its override survives repair");
-            AssertTrue(File.Exists(blockOverridePath) &&
-                File.Exists(Path.Combine(repaired.RoomMetatileDirectory, blockName)),
-                "room-block stock is restored while its override survives repair");
+            AssertTrue(File.Exists(Path.Combine(repaired.RoomMetatileDirectory, blockName)),
+                "room-block stock is restored by repair");
             AssertTrue(File.Exists(backgroundOverridePath) &&
                 File.Exists(Path.Combine(repaired.RoomBackgroundTilemapDirectory, backgroundName)),
                 "room-background stock is restored while its override survives repair");
@@ -320,11 +305,8 @@ internal static class RoomCharacterInstallationVerification
             repairedPaletteRoom.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), repairedCgram.BackgroundSets);
             AssertTrue(new CgramPalettes(repairedCgram.AsPaletteColors()).ImageEquals(new CgramPalettes(editedCgram.AsPaletteColors())),
                 "repaired installation retains the selected user room palette");
-            LoadedRoomAssets repairedBlocks = LoadFixtureRoomAssets(landing,
-                metatileArt: repaired.LoadRoomMetatiles());
-            AssertTrue(repairedBlocks.LevelData.BlockDefinitions.Span.SequenceEqual(
-                    editedBlocks.LevelData.BlockDefinitions.Span),
-                "repaired installation retains selected user visual blocks");
+            AssertEqual(installedSheets.ContentIdentity, repaired.LoadRoomBlockSheets().ContentIdentity,
+                "repaired installation composes the same block pictures and character records from the restored stock blocks");
             var repairedBackgroundVram = new SnesVram();
             LibraryBackgroundReplay.Execute(repairedBackgroundVram, LibraryBackgroundProgramDefinitions.Get(ceres.State.BackgroundDataPointer), activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = repaired.LoadRoomBackgroundTilemaps() });
             AssertTrue(repairedBackgroundVram.ImageEquals(editedBackgroundVram),
@@ -343,9 +325,6 @@ internal static class RoomCharacterInstallationVerification
             File.WriteAllText(paletteOverridePath, "invalid RGB5 JSON");
             AssertThrows<InvalidDataException>(() => repaired.LoadRoomPalettes(),
                 "invalid room-palette override fails loudly instead of reverting to stock");
-            File.WriteAllText(blockOverridePath, "invalid visual block JSON");
-            AssertThrows<InvalidDataException>(() => repaired.LoadRoomMetatiles(),
-                "invalid room-block override fails loudly instead of reverting to stock");
 
             File.WriteAllText(backgroundOverridePath, "invalid background tilemap JSON");
             AssertThrows<InvalidDataException>(() => repaired.LoadRoomBackgroundTilemaps(),

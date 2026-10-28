@@ -22,37 +22,21 @@ internal static class MagdollitePhaseDefinitions
         true, true, true, true, true, false, true, false,
     ];
 
-    /// <summary>Whether an arm in <paramref name="enemySlot"/> grows one final phase on reaching the maximum rise.</summary>
-    internal static bool ApexGrowsFinalPhase(int enemySlot)
-    {
-        if ((uint)enemySlot >= (uint)s_apexGrowsByEnemySlot.Length)
-            throw new InvalidDataException(
-                $"Magdollite enemy slot {enemySlot} is outside the {s_apexGrowsByEnemySlot.Length} enemy slots.");
-        return s_apexGrowsByEnemySlot[enemySlot];
-    }
-
-    /// <summary>The narrow pillars and the three- to eight-segment stacks the rising body shows, in rise order.</summary>
-    private static readonly MagdolliteProgram[] PillarPrograms =
-    [
-        MagdolliteProgram.PillarPhase0, MagdolliteProgram.PillarPhase1, MagdolliteProgram.PillarPhase2, MagdolliteProgram.PillarPhase3,
-        MagdolliteProgram.PillarPhase4, MagdolliteProgram.PillarPhase5, MagdolliteProgram.PillarPhase6, MagdolliteProgram.PillarPhase7,
-    ];
-
     /// <summary>
-    /// $A8:AF55/$A8:AF67/$A8:AF79: distance thresholds, body animation lists,
-    /// and body-to-overlay Y offsets for the nine authored phases.
+    /// $A8:AF55/$A8:AF67/$A8:AF79: distance thresholds, body animation lists, and body-to-overlay Y offsets for the
+    /// nine authored phases; the body shows the narrow pillars and the three- to eight-segment stacks in rise order. The zero-distance setup repeats the first visible pillar. Each following sixteen-pixel rise
+    /// selects the next pillar-stack program and moves the overlay down one eight-pixel tile relative to the body.
     /// </summary>
-    internal static MagdollitePhaseDefinition Phase(int index)
-    {
-        if ((uint)index >= 9)
-            throw new InvalidDataException(
-                $"Magdollite phase {index} is outside the nine authored records.");
-        // The zero-distance setup repeats the first visible pillar. Each following
-        // sixteen-pixel rise selects the next pillar-stack program and moves
-        // the overlay down one eight-pixel tile relative to the body.
-        int visiblePhase = Math.Max(0, index - 1);
-        return new((ushort)(16 * index),
-            PillarPrograms[visiblePhase],
-            (ushort)(12 + 8 * visiblePhase));
-    }
+    internal static readonly MagdollitePhaseDefinition[] Phases =
+    [
+        new(0, MagdolliteProgram.PillarPhase0, 12),
+        new(16, MagdolliteProgram.PillarPhase0, 12),
+        new(32, MagdolliteProgram.PillarPhase1, 20),
+        new(48, MagdolliteProgram.PillarPhase2, 28),
+        new(64, MagdolliteProgram.PillarPhase3, 36),
+        new(80, MagdolliteProgram.PillarPhase4, 44),
+        new(96, MagdolliteProgram.PillarPhase5, 52),
+        new(112, MagdolliteProgram.PillarPhase6, 60),
+        new(128, MagdolliteProgram.PillarPhase7, 68),
+    ];
 }

@@ -35,7 +35,7 @@ internal static class LookupRomOraclesVerification
             int offset = timer & 6;
             short x = unchecked((short)rom.ReadCartridgeWord(0xa3a76d + offset));
             short y = unchecked((short)rom.ReadCartridgeWord(0xa3a775 + offset));
-            AssertEqual(new Offset16<RoomPixels>(x, y), MochtroidShakeDefinitions.Offset(timer), "Native cardinal shake and timer-bit mask");
+            AssertEqual(new Offset16<RoomPixels>(x, y), MochtroidShake.Offset(timer), "Native cardinal shake and timer-bit mask");
         }
     }
 

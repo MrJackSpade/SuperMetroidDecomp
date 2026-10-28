@@ -1274,7 +1274,7 @@ internal static class LookupStream5Verification
             var expected = new LookupStream5Expected2(unchecked((short)ReadVerificationWord(rom, 0xa890ca + direction * 2)),
                 unchecked((short)ReadVerificationWord(rom, 0xa890d2 + direction * 2)),
                 ReadVerificationWord(rom, 0xa890da + direction * 2));
-            var mount = MorphBallEyeGeometryDefinitions.Mount(direction);
+            var mount = MorphBallEyeGeometry.Mount(direction);
             AssertEqual(expected, new LookupStream5Expected2(mount.Offset.X, mount.Offset.Y, NativeEnemyProgramOracle.EntryOf(MorphBallEyeNativeListAddresses.Entries, mount.Program)),
                 "Native directional mount tuple");
             foreach (ushort origin in new ushort[] { 0, 65535 })
@@ -1309,13 +1309,13 @@ internal static class LookupStream5Verification
             var expected = new RgbColor(rom.ReadCartridgeByte(0x88ea8b + phase * 4) & RgbColor.MaxChannel,
                 rom.ReadCartridgeByte(0x88ea8c + phase * 4) & RgbColor.MaxChannel,
                 rom.ReadCartridgeByte(0x88ea8d + phase * 4) & RgbColor.MaxChannel);
-            AssertEqual(expected, MorphBallEyeGeometryDefinitions.BeamColor(phase), "Native two-channel triangle intensities");
+            AssertEqual(expected, MorphBallEyeGeometry.BeamColor(phase), "Native two-channel triangle intensities");
             step();
             AssertEqual(expected, owner.MorphBallEyeBehavior.MorphBallEyeBeam.Color, "Actual beam colour, zero blue intensity included");
             AssertEqual((ushort)((phase + 1) & 15), owner.MorphBallEyeBehavior.MorphBallEyeBeam.ColorIndex, "Actual masked cycling and wrap");
         }
-        AssertThrows<InvalidDataException>(() => MorphBallEyeGeometryDefinitions.Mount(4), "Unsupported mount direction");
-        AssertThrows<ArgumentOutOfRangeException>(() => MorphBallEyeGeometryDefinitions.BeamColor(16), "Beam phase bound");
+        AssertThrows<InvalidDataException>(() => MorphBallEyeGeometry.Mount(4), "Unsupported mount direction");
+        AssertThrows<ArgumentOutOfRangeException>(() => MorphBallEyeGeometry.BeamColor(16), "Beam phase bound");
         Console.WriteLine("Morph Ball eye: four native mount tuples, eight actual wrapped initializers,16 native beam colors and actual full-beam cycle pass.");
     }
 
@@ -1786,7 +1786,7 @@ internal static class LookupStream5Verification
         }
         for (int index = 0; index < 9; index++)
         {
-            var actual = MagdollitePhaseDefinitions.Phase(index);
+            var actual = MagdolliteRise.Phase(index);
             AssertEqual(ReadVerificationWord(rom, 0xa8af55 + 2 * index), actual.DistanceThreshold, "Magdollite original rise threshold");
             AssertEqual(ReadVerificationWord(rom, 0xa8af67 + 2 * index), NativeEnemyProgramOracle.EntryOf(MagdolliteNativeListAddresses.Entries, actual.BodyProgram), "Magdollite original body program");
             AssertEqual(ReadVerificationWord(rom, 0xa8af79 + 2 * index), actual.OverlayYOffset, "Magdollite original overlay offset");
@@ -1795,8 +1795,8 @@ internal static class LookupStream5Verification
         AssertThrows<ArgumentOutOfRangeException>(() => CeresDoorInitializationDefinitions.For(ushort.MaxValue), "Ceres door full-word rejection");
         AssertThrows<InvalidDataException>(() => CeresSteamDefinitions.Initialization((CeresSteamVariant)6), "Ceres steam upper bound");
         AssertThrows<InvalidDataException>(() => CeresSteamDefinitions.Initialization((CeresSteamVariant)ushort.MaxValue), "Ceres steam full-word rejection");
-        AssertThrows<InvalidDataException>(() => MagdollitePhaseDefinitions.Phase(-1), "Magdollite lower bound");
-        AssertThrows<InvalidDataException>(() => MagdollitePhaseDefinitions.Phase(9), "Magdollite upper bound");
+        AssertThrows<InvalidDataException>(() => MagdolliteRise.Phase(-1), "Magdollite lower bound");
+        AssertThrows<InvalidDataException>(() => MagdolliteRise.Phase(9), "Magdollite upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => { _ = CeresEscapeVramTransferDefinitions.All[-1]; }, "Ceres DMA list lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => { _ = CeresEscapeVramTransferDefinitions.All[19]; }, "Ceres DMA list upper bound");
         Console.WriteLine("Stream 5 initialization: all 53 native selector/phase words and rejected domains pass.");

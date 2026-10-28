@@ -28,12 +28,12 @@ internal static class MagdolliteApexThresholdVerification
             ushort overread = ReadMagdolliteWord(rom, address);
             for (int rise = MagdollitePhaseDefinitions.MaximumRise; rise <= MagdollitePhaseDefinitions.MaximumRise + largestStep; rise++)
             {
-                AssertEqual(unchecked((short)(rise - overread)) >= 0, MagdollitePhaseDefinitions.ApexGrowsFinalPhase(slot),
+                AssertEqual(unchecked((short)(rise - overread)) >= 0, MagdolliteRise.ApexGrowsFinalPhase(slot),
                     $"Magdollite apex growth for slot {slot} at a rise of {rise}");
             }
         }
         AssertThrows<InvalidDataException>(
-            () => MagdollitePhaseDefinitions.ApexGrowsFinalPhase(MagdollitePhaseDefinitions.ApexEnemySlotCount),
+            () => MagdolliteRise.ApexGrowsFinalPhase(MagdollitePhaseDefinitions.ApexEnemySlotCount),
             "Magdollite apex growth beyond the enemy slots");
 
         VerifyRiseCarry();

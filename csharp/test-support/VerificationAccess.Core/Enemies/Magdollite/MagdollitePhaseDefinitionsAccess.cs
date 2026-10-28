@@ -7,7 +7,7 @@ internal static class MagdollitePhaseDefinitionsAccess
     /// <summary>Exposes the per-slot Magdollite apex table size and native arm-height threshold address.</summary>
     extension(MagdollitePhaseDefinitions)
     {
-        /// <summary>Number of enemy slots covered by <see cref="MagdollitePhaseDefinitions.ApexGrowsFinalPhase"/>.</summary>
+        /// <summary>Number of enemy slots covered by <see cref="MagdolliteRise.ApexGrowsFinalPhase"/>.</summary>
         internal static int ApexEnemySlotCount =>
             MagdollitePhaseDefinitions.s_apexGrowsByEnemySlot.Length;
 

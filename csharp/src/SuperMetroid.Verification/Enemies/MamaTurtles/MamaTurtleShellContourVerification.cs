@@ -32,14 +32,14 @@ internal static class MamaTurtleShellContourVerification
                 ? distance + MamaTurtleShellContourDefinitions.HalfWidth
                 : distance;
             AssertEqual(MamaTurtleShellContourDefinitions.GetRawOffset(index),
-                MamaTurtleShellContourDefinitions.GetOffset(difference),
+                MamaTurtleShell.GetOffset(difference),
                 $"Mama Turtle shell contour direction/index for difference {difference}");
         }
         AssertThrows<ArgumentOutOfRangeException>(
-            () => MamaTurtleShellContourDefinitions.GetOffset(-24),
+            () => MamaTurtleShell.GetOffset(-24),
             "Mama Turtle shell contour rejects left distance twenty-four");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => MamaTurtleShellContourDefinitions.GetOffset(24),
+            () => MamaTurtleShell.GetOffset(24),
             "Mama Turtle shell contour rejects right distance twenty-four");
 
         var mama = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0200))};
@@ -64,7 +64,7 @@ internal static class MamaTurtleShellContourVerification
             }
             else
             {
-                short offset = MamaTurtleShellContourDefinitions.GetOffset(difference);
+                short offset = MamaTurtleShell.GetOffset(difference);
                 AssertEqual(unchecked((ushort)-offset), mama.Radius.Y,
                     $"sleeping Mama production radius at difference {difference}");
                 AssertTrue(mama.Properties.HasAny(EnemyProperties.SolidToSamus),

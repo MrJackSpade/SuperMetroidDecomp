@@ -59,7 +59,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             case MetroidCueKind.PlayRandomCry:
                 // GenerateRandomNumber advances exactly once and the low three result bits choose one of the eight
                 // cartridge-defined idle cries.
-                LastMetroidSoundEffectLibrary2 = MetroidBehaviorDefinitions.RandomCrySoundEffect(_room.Random.Generate());
+                LastMetroidSoundEffectLibrary2 = MetroidReactions.RandomCrySoundEffect(_room.Random.Generate());
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(MetroidCueKind)} {cue.Kind}.");
@@ -217,7 +217,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>Metroid_Func_4</c>, including post-decrement timer semantics.</summary>
     internal static void RunMetroidPowerBombEscape(RoomEnemySlot slot, MetroidEnemyState state)
     {
-        slot.Position += MetroidBehaviorDefinitions.EscapeDisplacement(state.EscapeTimer.RawValue);
+        slot.Position += MetroidReactions.EscapeDisplacement(state.EscapeTimer.RawValue);
         StoreMetroidXVelocity(state, 0);
         StoreMetroidYVelocity(state, 0);
 

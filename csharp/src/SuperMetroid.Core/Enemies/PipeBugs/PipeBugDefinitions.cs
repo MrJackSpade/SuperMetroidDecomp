@@ -4,47 +4,38 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 internal static class PipeBugDefinitions
 {
     /// <summary>
-    /// $B3:8C64-8C86 assigns NTSC formation release counters centered on104,
+    /// $B3:8C64-8C86 assigns NTSC formation release counters centered on 104,
     /// eight ticks per vertical rank. Physical slot order is center, upper-near,
-    /// upper-far, lower-near, lower-far; PAL shifts the same sequence down32 ticks.
+    /// upper-far, lower-near, lower-far; PAL shifts the same sequence down 32 ticks.
     /// </summary>
-    internal static ushort NorfairStaggerTarget(int member)
-    {
-        if ((uint)member >= 5) throw new ArgumentOutOfRangeException(nameof(member));
-        int rank = member <= 2 ? -member : member - 2;
-        return (ushort)(104 + 8 * rank);
-    }
+    internal static readonly ushort[] NorfairStaggerTargets = [104, 96, 88, 112, 120];
 
     /// <summary>
     /// $B3:8C87-8CA4 assigns each formation slot its center/upper/lower movement
     /// function. These are semantic native role branches, not ordinal addresses.
     /// </summary>
-    internal static PipeBugEnemyFunction NorfairPostRiseFunction(int member) => member switch
-    {
-        0 => PipeBugEnemyFunction.NorfairLeaderStagger,
-        1 => PipeBugEnemyFunction.NorfairUpperNearStagger,
-        2 => PipeBugEnemyFunction.NorfairUpperFarStagger,
-        3 => PipeBugEnemyFunction.NorfairLowerNearStagger,
-        4 => PipeBugEnemyFunction.NorfairLowerFarStagger,
-        _ => throw new ArgumentOutOfRangeException(nameof(member)),
-    };
+    internal static readonly PipeBugEnemyFunction[] NorfairPostRiseFunctions =
+    [
+        PipeBugEnemyFunction.NorfairLeaderStagger,
+        PipeBugEnemyFunction.NorfairUpperNearStagger,
+        PipeBugEnemyFunction.NorfairUpperFarStagger,
+        PipeBugEnemyFunction.NorfairLowerNearStagger,
+        PipeBugEnemyFunction.NorfairLowerFarStagger,
+    ];
 
     /// <summary>
-    /// $B3:882B/$8833 dispatch normal/strong rising/shooting programs by the native
-    /// facing and shooting flags. Every value names its actual behavior and species.
+    /// $B3:882B/$8833: the normal/strong rising/shooting programs for the native facing and shooting flags. Every value
+    /// names its actual behavior and species.
     /// </summary>
-    internal static PipeBugProgram BrinstarProgram(bool strong, PipeBugAnimationSelector selector) =>
-        new PipeBugProgramKey(strong, selector) switch
-        {
-            (false, PipeBugAnimationSelector.None) => PipeBugProgram.ZebRisingLeft,
-            (false, PipeBugAnimationSelector.Shooting) => PipeBugProgram.ZebShootingLeft,
-            (false, PipeBugAnimationSelector.FacingRight) => PipeBugProgram.ZebRisingRight,
-            (false, PipeBugAnimationSelector.FacingRight | PipeBugAnimationSelector.Shooting) => PipeBugProgram.ZebShootingRight,
-            (true, PipeBugAnimationSelector.None) => PipeBugProgram.ZebboRisingLeft,
-            (true, PipeBugAnimationSelector.Shooting) => PipeBugProgram.ZebboShootingLeft,
-            (true, PipeBugAnimationSelector.FacingRight) => PipeBugProgram.ZebboRisingRight,
-            (true, PipeBugAnimationSelector.FacingRight | PipeBugAnimationSelector.Shooting) => PipeBugProgram.ZebboShootingRight,
-            _ => throw new InvalidDataException(
-                $"Pipe Bug animation selector {selector} exceeds its four-entry table."),
-        };
+    internal static readonly Dictionary<PipeBugProgramKey, PipeBugProgram> BrinstarPrograms = new()
+    {
+        [new(false, PipeBugAnimationSelector.None)] = PipeBugProgram.ZebRisingLeft,
+        [new(false, PipeBugAnimationSelector.Shooting)] = PipeBugProgram.ZebShootingLeft,
+        [new(false, PipeBugAnimationSelector.FacingRight)] = PipeBugProgram.ZebRisingRight,
+        [new(false, PipeBugAnimationSelector.FacingRight | PipeBugAnimationSelector.Shooting)] = PipeBugProgram.ZebShootingRight,
+        [new(true, PipeBugAnimationSelector.None)] = PipeBugProgram.ZebboRisingLeft,
+        [new(true, PipeBugAnimationSelector.Shooting)] = PipeBugProgram.ZebboShootingLeft,
+        [new(true, PipeBugAnimationSelector.FacingRight)] = PipeBugProgram.ZebboRisingRight,
+        [new(true, PipeBugAnimationSelector.FacingRight | PipeBugAnimationSelector.Shooting)] = PipeBugProgram.ZebboShootingRight,
+    };
 }

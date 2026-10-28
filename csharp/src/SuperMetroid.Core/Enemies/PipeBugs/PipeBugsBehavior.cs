@@ -56,7 +56,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.RespawnDelay = WrappingCountdown.Start(BrinstarPipeBugRespawnFrames);
         state.AnimationState = PipeBugAnimationSelector.None;
         state.InstalledAnimationState = PipeBugAnimationSelector.None;
-        state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugDefinitions.BrinstarProgram(
+        state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugPrograms.BrinstarProgram(
             strong: slot.Spawn.Population.Parameter1 != 0,
             PipeBugAnimationSelector.None));
     }
@@ -287,7 +287,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.AnimationState == state.InstalledAnimationState)
             return;
         state.InstalledAnimationState = state.AnimationState;
-        state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugDefinitions.BrinstarProgram(
+        state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugPrograms.BrinstarProgram(
             strong: slot.Spawn.Population.Parameter1 != 0,
             state.AnimationState));
         slot.InstructionTimer = WrappingCountdown.Start(1);
@@ -342,8 +342,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int index = 0; index < formation.Length; index++)
         {
             PipeBugEnemyState memberState = formation[index].RequireSpeciesState<PipeBugEnemyState>();
-            memberState.StaggerTarget = PipeBugDefinitions.NorfairStaggerTarget(index);
-            memberState.NorfairPostRiseFunction = PipeBugDefinitions.NorfairPostRiseFunction(index);
+            memberState.StaggerTarget = PipeBugFormation.NorfairStaggerTarget(index);
+            memberState.NorfairPostRiseFunction = PipeBugFormation.NorfairPostRiseFunction(index);
         }
     }
 

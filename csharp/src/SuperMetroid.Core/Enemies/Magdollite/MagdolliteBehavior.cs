@@ -134,7 +134,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.InstalledProgram = null;
         state.BodyReachedApex = false;
         state.BodyWakeRequested = true;
-        state.DesiredProgram = MagdollitePhaseDefinitions.Phase(0).BodyProgram;
+        state.DesiredProgram = MagdolliteRise.Phase(0).BodyProgram;
         InstallMagdolliteInstructionList(slot, state);
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 32)));
         state.Function = MagdolliteEnemyFunction.BodyDormant;
@@ -316,7 +316,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.RiseDisplacement += AddMagdolliteY(body, speedOwner.UpwardVelocity);
 
         int upwardDistance = unchecked((ushort)-state.RiseDisplacement.Y);
-        MagdollitePhaseDefinition phase = MagdollitePhaseDefinitions.Phase(state.BodyPhase);
+        MagdollitePhaseDefinition phase = MagdolliteRise.Phase(state.BodyPhase);
         bool roseMaximum = !EnemyMath.IsNegative16(
             upwardDistance - MagdollitePhaseDefinitions.MaximumRise);
         bool rosePastSamus = samus is not null && EnemyMath.IsNegative16(unchecked((ushort)(
@@ -324,7 +324,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         // The maximum-rise branch skips the growth-index load, so its comparison depends on the
         // main loop's enemy index; the Samus test compares with the phase's own threshold.
         bool growsAPhase = roseMaximum
-            ? MagdollitePhaseDefinitions.ApexGrowsFinalPhase(body.SlotIndex)
+            ? MagdolliteRise.ApexGrowsFinalPhase(body.SlotIndex)
             : !EnemyMath.IsNegative16(upwardDistance - phase.DistanceThreshold);
 
         if (roseMaximum || rosePastSamus)
@@ -365,7 +365,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         int downwardDistanceRemaining = unchecked((ushort)-state.RiseDisplacement.Y);
-        int threshold = MagdollitePhaseDefinitions.Phase(state.BodyPhase - 1).DistanceThreshold;
+        int threshold = MagdolliteRise.Phase(state.BodyPhase - 1).DistanceThreshold;
         if (!EnemyMath.IsNegative16(downwardDistanceRemaining - threshold))
             return;
 

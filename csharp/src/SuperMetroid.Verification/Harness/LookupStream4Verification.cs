@@ -2333,7 +2333,7 @@ internal static class LookupStream4Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa587e6 + 4 * index)), target.Origin.Y, "Draygon original cannon Y");
         }
         for (ushort index = 0; index < 8; index++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2cb77 + index * 2)), NativeEnemyProgramOracle.EntryOf(MaridiaLargeSnailNativeListAddresses.Entries, MaridiaLargeSnailInstructionDefinitions.Program(index)), "Oum native action/facing dispatch");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2cb77 + index * 2)), NativeEnemyProgramOracle.EntryOf(MaridiaLargeSnailNativeListAddresses.Entries, MaridiaLargeSnailPrograms.Program(index)), "Oum native action/facing dispatch");
         for (int slot = 0; slot < 3; slot++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x81812b + slot * 2)), SaveRamLayout.SlotOffset(slot), "native SRAM slot origins");
         foreach (DraygonFiringCannon invalid in new[] { (DraygonFiringCannon)4, (DraygonFiringCannon)byte.MaxValue })
@@ -2341,7 +2341,7 @@ internal static class LookupStream4Verification
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => SaveRamLayout.SlotOffset(invalid), "save slot exact domain");
         foreach (ushort invalid in new ushort[] { 8, 255, ushort.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => MaridiaLargeSnailInstructionDefinitions.Program(invalid), "Oum animation exact domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => MaridiaLargeSnailPrograms.Program(invalid), "Oum animation exact domain");
     }
 
     /// <summary>Checks Ridley's fireball frames keep their native operand order.</summary>

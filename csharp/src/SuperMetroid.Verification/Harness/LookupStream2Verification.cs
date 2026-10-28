@@ -1297,9 +1297,9 @@ internal static class LookupStream2Verification
     {
         for (int member = 0; member < 5; member++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), PipeBugDefinitions.NorfairStaggerTarget(member),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), PipeBugFormation.NorfairStaggerTarget(member),
                 "Native rank-derived formation release counter");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), PipeBugsNativeWords.PipeBugEnemyFunctions.Word(PipeBugDefinitions.NorfairPostRiseFunction(member)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), PipeBugsNativeWords.PipeBugEnemyFunctions.Word(PipeBugFormation.NorfairPostRiseFunction(member)),
                 "Native role-specific formation function");
         }
         foreach (ushort samusX in new ushort[] { 120, 136 })
@@ -1332,8 +1332,8 @@ internal static class LookupStream2Verification
                     "Only leader loop counter resets");
             }
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => PipeBugDefinitions.NorfairStaggerTarget(-1), "Formation lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => PipeBugDefinitions.NorfairPostRiseFunction(5), "Formation upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => PipeBugFormation.NorfairStaggerTarget(-1), "Formation lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => PipeBugFormation.NorfairPostRiseFunction(5), "Formation upper bound");
         Console.WriteLine("Norfair Pipe Bug formation:ten native immediates, both actual facing formations and leader-only timer resets pass.");
     }
 

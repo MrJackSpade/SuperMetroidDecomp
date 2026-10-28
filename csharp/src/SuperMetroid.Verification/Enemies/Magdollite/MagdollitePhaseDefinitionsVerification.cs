@@ -16,7 +16,7 @@ internal static class MagdollitePhaseDefinitionsVerification
 
         for (int phaseIndex = 0; phaseIndex < 9; phaseIndex++)
         {
-            MagdollitePhaseDefinition phase = MagdollitePhaseDefinitions.Phase(phaseIndex);
+            MagdollitePhaseDefinition phase = MagdolliteRise.Phase(phaseIndex);
             AssertEqual(ReadMagdolliteWord(rom, thresholdTable + phaseIndex * 2),
                 phase.DistanceThreshold, $"Magdollite threshold {phaseIndex}");
             AssertEqual(ReadMagdolliteWord(rom, instructionTable + phaseIndex * 2),
@@ -50,12 +50,12 @@ internal static class MagdollitePhaseDefinitionsVerification
         headState.DownwardVelocity = SignedSixteenSixteen.Zero;
         headState.UpwardVelocity = SignedSixteenSixteen.Zero;
 
-        AssertEqual(MagdollitePhaseDefinitions.Phase(0).BodyProgram,
+        AssertEqual(MagdolliteRise.Phase(0).BodyProgram,
             bodyState.DesiredProgram, "Magdollite production initial body list");
 
         for (int phaseIndex = 0; phaseIndex < 9; phaseIndex++)
         {
-            MagdollitePhaseDefinition phase = MagdollitePhaseDefinitions.Phase(phaseIndex);
+            MagdollitePhaseDefinition phase = MagdolliteRise.Phase(phaseIndex);
             bodyState.BodyReachedApex = false;
             bodyState.BodyPhase = phaseIndex;
             body.Position = body.Position.WithWholeY(0x0300);
@@ -80,7 +80,7 @@ internal static class MagdollitePhaseDefinitionsVerification
             }
             else if (phaseIndex < 8)
             {
-                MagdollitePhaseDefinition next = MagdollitePhaseDefinitions.Phase(phaseIndex + 1);
+                MagdollitePhaseDefinition next = MagdolliteRise.Phase(phaseIndex + 1);
                 AssertEqual(phaseIndex + 1, bodyState.BodyPhase,
                     $"Magdollite production rise phase {phaseIndex}");
                 AssertEqual(next.BodyProgram, bodyState.DesiredProgram,
@@ -102,14 +102,14 @@ internal static class MagdollitePhaseDefinitionsVerification
             fall(body, bodyState);
             AssertEqual(priorPhase, bodyState.BodyPhase,
                 $"Magdollite production fall phase {priorPhase}");
-            AssertEqual(MagdollitePhaseDefinitions.Phase(priorPhase).BodyProgram,
+            AssertEqual(MagdolliteRise.Phase(priorPhase).BodyProgram,
                 bodyState.DesiredProgram,
                 $"Magdollite production fall list {priorPhase}");
         }
 
-        AssertThrows<InvalidDataException>(() => MagdollitePhaseDefinitions.Phase(-1),
+        AssertThrows<InvalidDataException>(() => MagdolliteRise.Phase(-1),
             "Magdollite negative phase");
-        AssertThrows<InvalidDataException>(() => MagdollitePhaseDefinitions.Phase(9),
+        AssertThrows<InvalidDataException>(() => MagdolliteRise.Phase(9),
             "Magdollite phase beyond authored table");
 
         Console.WriteLine(

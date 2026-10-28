@@ -27,7 +27,7 @@ internal static class PipeBugAnimationDefinitionsVerification
             initializedSlot.SetSpawnParameter1(strong ? (ushort)1 : (ushort)0);
             initializedSlot.Position = initializedSlot.Position.WithWhole(new(0x0100, 0x0080));
             PipeBugsBehavior.InitializeBrinstarPipeBug(initializedSlot);
-            AssertEqual(AnimationProgramCursor<PipeBugProgram>.Start(PipeBugDefinitions.BrinstarProgram(
+            AssertEqual(AnimationProgramCursor<PipeBugProgram>.Start(PipeBugPrograms.BrinstarProgram(
                     strong,
                     PipeBugAnimationSelector.None)),
                 (initializedEnemies.PipeBugStates[0] ?? throw new InvalidOperationException("Verification requires a Pipe Bug state.")).Program,
@@ -38,7 +38,7 @@ internal static class PipeBugAnimationDefinitionsVerification
                 var selector = (PipeBugAnimationSelector)index;
                 ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(((strong ? strongTable : normalTable) + index * 2));
                 AssertEqual(expected,
-                    NativeEnemyProgramOracle.EntryOf(PipeBugNativeListAddresses.Entries, PipeBugDefinitions.BrinstarProgram(strong, selector)),
+                    NativeEnemyProgramOracle.EntryOf(PipeBugNativeListAddresses.Entries, PipeBugPrograms.BrinstarProgram(strong, selector)),
                     $"{(strong ? "strong" : "normal")} Pipe Bug {selector}");
 
                 var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -58,7 +58,7 @@ internal static class PipeBugAnimationDefinitionsVerification
                 PipeBugsBehavior.SelectBrinstarPipeBugAnimation(slot, state);
                 AssertEqual(selector, state.InstalledAnimationState,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug selector {selector}");
-                AssertEqual(AnimationProgramCursor<PipeBugProgram>.Start(PipeBugDefinitions.BrinstarProgram(strong, selector)), state.Program,
+                AssertEqual(AnimationProgramCursor<PipeBugProgram>.Start(PipeBugPrograms.BrinstarProgram(strong, selector)), state.Program,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug animation {selector}");
                 AssertEqual(1, slot.InstructionTimer.RawValue,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug timer {selector}");
@@ -68,7 +68,7 @@ internal static class PipeBugAnimationDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => PipeBugDefinitions.BrinstarProgram(
+            () => PipeBugPrograms.BrinstarProgram(
                 strong: false,
                 (PipeBugAnimationSelector)4),
             "Pipe Bug animation selector past table");

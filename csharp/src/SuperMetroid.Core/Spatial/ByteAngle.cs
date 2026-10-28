@@ -14,6 +14,15 @@ public readonly record struct ByteAngle(byte RawValue)
     /// <summary>One half turn: left.</summary>
     public static ByteAngle HalfTurn { get; } = new(0x80);
 
+    /// <summary>
+    /// The index this angle reads in a 128-entry half-wave table: the angle folded onto the first half of the turn, as
+    /// the game's sine lookups fold it before restoring the sign from <see cref="IsInSecondHalf"/>.
+    /// </summary>
+    public int HalfWaveIndex => RawValue % HalfTurn.RawValue;
+
+    /// <summary>Whether this angle lies in the second half of the turn, where the sine wave is negative.</summary>
+    public bool IsInSecondHalf => RawValue >= HalfTurn.RawValue;
+
     /// <summary>Adds signed table units with the cartridge's byte wraparound.</summary>
     public ByteAngle AddTableUnits(int delta) => new(unchecked((byte)(RawValue + delta)));
 

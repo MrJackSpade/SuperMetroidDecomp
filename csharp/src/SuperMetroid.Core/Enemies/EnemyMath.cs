@@ -120,10 +120,9 @@ internal static class EnemyMath
     /// </summary>
     internal static int ReadEightBitSineProduct(ByteAngle angle, int radius)
     {
-        int byteAngle = angle.RawValue;
-        int sample = Trigonometry.EightBitHalfWave(byteAngle & EnemyByteAngleDefinitions.HalfWaveIndexMask);
+        int sample = Trigonometry.EightBitHalfWave(angle.HalfWaveIndex);
         int magnitude = EightEight.Multiply(sample, RadiusMultiplierOperand(radius));
-        return byteAngle < EnemyByteAngleDefinitions.HalfTurn ? magnitude : -magnitude;
+        return angle.IsInSecondHalf ? -magnitude : magnitude;
     }
 
     /// <summary>Ports <c>EightBitCosineMultiplication</c> at $A0:B0B2.</summary>
@@ -152,12 +151,11 @@ internal static class EnemyMath
         int radius)
     {
         // A half-wave byte times a radius byte is below 65,536, so the product needs no wrap.
-        int byteAngle = angle.RawValue;
-        int sample = Trigonometry.EightBitHalfWave(byteAngle & EnemyByteAngleDefinitions.HalfWaveIndexMask);
+        int sample = Trigonometry.EightBitHalfWave(angle.HalfWaveIndex);
         int product = sample * RadiusMultiplierOperand(radius);
         int whole = EightEight.WholeOf(product);
         int fraction = unchecked((ushort)SixteenSixteen.FromEightEight(product));
-        if (byteAngle >= EnemyByteAngleDefinitions.HalfTurn)
+        if (angle.IsInSecondHalf)
         {
             // $A0:B11B and $B125 negate each word independently instead of carrying the
             // fractional increment into the whole word. Preserve that documented ROM bug.
@@ -192,7 +190,7 @@ internal static class EnemyMath
         int magnitude,
         int angleOffset)
     {
-        int tableIndex = angle.AddTableUnits(angleOffset).RawValue & EnemyByteAngleDefinitions.HalfWaveIndexMask;
+        int tableIndex = angle.AddTableUnits(angleOffset).HalfWaveIndex;
         int sample = Trigonometry.UnsignedHalfWave(tableIndex);
         uint product = (uint)sample * (uint)magnitude;
         return unchecked((int)product);

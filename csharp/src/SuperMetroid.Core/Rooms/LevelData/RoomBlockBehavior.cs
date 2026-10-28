@@ -58,6 +58,9 @@ public readonly record struct RoomBlockBehavior(int Value)
     /// <summary>Low-seven-bit index used by area-dependent reaction tables.</summary>
     public int AreaReactionIndex => Value & LowSevenBits;
 
+    /// <summary>Low-seven-bit index into the enemy spike-block reaction table; bit seven is not part of the index.</summary>
+    public int EnemySpikeReactionIndex => Value & LowSevenBits;
+
     /// <summary>Whether this is a valid index into a normal table of the given size.</summary>
     public bool IsNormalReactionIndex(int entryCount) =>
         !UsesAreaReactionTable && Value < entryCount;

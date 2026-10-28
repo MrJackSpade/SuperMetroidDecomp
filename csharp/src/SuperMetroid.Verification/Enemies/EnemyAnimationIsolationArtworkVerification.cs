@@ -1,5 +1,5 @@
 using System.Text.Json;
-using SuperMetroid.Core.World.Artwork;
+using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Tooling;
 using SuperMetroid.AssetExtraction.Enemies;

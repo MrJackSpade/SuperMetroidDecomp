@@ -217,7 +217,7 @@ internal static class AuditContractChecks
         for (int pose = 0; pose < 3; pose++)
         {
             ushort spritemap = SuperMetroid.Core.Bosses.MotherBrain.Artwork.BabyMetroidVisualToolingDefinitions.Spritemap(pose);
-            Require(SuperMetroid.Core.World.Artwork.EnemySpritemapDefinitions.Frames.Any(frame =>
+            Require(SuperMetroid.AssetExtraction.World.Artwork.EnemySpritemapDefinitions.Frames.Any(frame =>
                 frame.Bank == SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainVisualToolingDefinitions.Bank && frame.Pointer == spritemap),
                 "each Baby Metroid pulse pose must be installed, not just named");
         }

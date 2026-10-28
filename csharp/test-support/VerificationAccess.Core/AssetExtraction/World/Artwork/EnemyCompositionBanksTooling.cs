@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.World.Artwork;
+﻿namespace SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>
 /// Development-tool cartridge banks of the enemy composition families, for oracles that read compositions from the

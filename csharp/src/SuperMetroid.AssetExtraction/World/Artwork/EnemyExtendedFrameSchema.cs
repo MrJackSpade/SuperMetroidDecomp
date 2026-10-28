@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace SuperMetroid.Core.World.Artwork;
+namespace SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>A supported schema of the editable extended-enemy-frame compositions, with the named frames its documents carry.</summary>
 /// <param name="Revision">The revision number a document stores.</param>

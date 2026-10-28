@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.World.Artwork;
+﻿namespace SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>Cartridge values and helpers of <c>PirateArtworkNameDefinitions</c> that only verification reads.</summary>
 internal static class PirateArtworkNameDefinitionsConstants

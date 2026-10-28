@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace SuperMetroid.Core.World.Artwork;
+namespace SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>An enemy composition schema revision the catalog accepts, with the named frames its documents carry.</summary>
 /// <param name="Revision">The revision number a document stores.</param>

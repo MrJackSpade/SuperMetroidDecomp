@@ -3,7 +3,7 @@ using static SuperMetroid.Verification.Bosses.BossDisplayBindingsDocumentsVerifi
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsFixtureVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.World.Artwork;
+using SuperMetroid.AssetExtraction.World.Artwork;
 namespace SuperMetroid.Verification.Bosses;
 
 /// <summary>Checks authored BG2-only boss OAM against the whole-frame coordinate wrap and component clipping.</summary>

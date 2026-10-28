@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Animals;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.World.Artwork;
+using SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>Checks the Dachora's and its echoes' typed animations.</summary>
 internal static class DachoraInstructionProgramDefinitionsVerification

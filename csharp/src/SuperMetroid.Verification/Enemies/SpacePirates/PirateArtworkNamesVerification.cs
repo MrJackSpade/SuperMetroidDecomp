@@ -2,7 +2,7 @@ using static SuperMetroid.Verification.Enemies.Artwork.ExtendedFrameSequenceVeri
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.World.Artwork;
+using SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>Checks published Walking and Wall Pirate artwork keys and their ordering.</summary>
 internal static class PirateArtworkNamesVerification

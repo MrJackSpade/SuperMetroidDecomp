@@ -3,7 +3,7 @@ using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 
-namespace SuperMetroid.Core.World.Artwork;
+namespace SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>
 /// What an extended enemy frame may hold (<see cref="EnemyExtendedFrameDefinitions"/>): the Phantoon and Draygon poses

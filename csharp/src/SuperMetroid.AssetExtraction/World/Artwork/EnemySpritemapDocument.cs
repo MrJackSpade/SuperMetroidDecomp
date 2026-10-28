@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.World.Artwork;
+namespace SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>Versioned, semantic enemy frame names mapped to editable OAM parts.</summary>
 public sealed record EnemySpritemapDocument

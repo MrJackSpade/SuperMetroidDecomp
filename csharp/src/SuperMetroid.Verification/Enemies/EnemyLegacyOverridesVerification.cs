@@ -1,5 +1,5 @@
 using SuperMetroid.Verification.Enemies.Artwork;
-using SuperMetroid.Core.World.Artwork;
+using SuperMetroid.AssetExtraction.World.Artwork;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyExtendedLegacyOverridesVerification;
 using static SuperMetroid.Verification.Enemies.Projectiles.EnemyProjectileLegacyOverridesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

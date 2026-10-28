@@ -1,4 +1,4 @@
-using SuperMetroid.Core.World.Artwork;
+using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectilePrograms;

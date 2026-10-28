@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Verification.Bosses.Botwoon;
-using SuperMetroid.Core.World.Artwork;
+using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Verification.Enemies.Projectiles;
 using SuperMetroid.Verification.Enemies.Deaths;

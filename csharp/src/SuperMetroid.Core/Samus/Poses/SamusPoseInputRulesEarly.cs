@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Core.Samus.Poses.CanonicalPoseButtons;
-using static SuperMetroid.Core.Samus.Poses.SamusPoseInputDefinitions;
+using static SuperMetroid.Core.Samus.Poses.SamusPoseInputs;
 using static SuperMetroid.Core.Samus.Poses.SamusPoseInputList;
 
 namespace SuperMetroid.Core.Samus.Poses;

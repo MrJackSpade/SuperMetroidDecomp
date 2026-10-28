@@ -165,27 +165,27 @@ internal sealed class RuntimeArtwork : IInstalledArtworkContent, IInstalledSprit
     public RoomCharacterAtlas? StandardObjectArt { get; set; }
 
     /// <summary>Rebinds authored visual frame choices to both native projectile slot owners.</summary>
-    [field: NonSerialized]     public ProjectileFrameBindingCatalog? ProjectileFrameBindings
+    [field: NonSerialized]     public InstalledProjectileFrameBindings? ProjectileFrameBindings
     {
         get;
         set;
     }
     /// <summary>Installed visual-only charge-flare offsets selected by pose movement and direction.</summary>
     [field: NonSerialized]
-    public ChargeFlarePlacementCatalog? ChargeFlarePlacement { get; set; }
+    public ChargeFlarePlacements? ChargeFlarePlacement { get; set; }
     /// <summary>Installed charge-flare OAM compositions selected independently of timing and damage.</summary>
     [field: NonSerialized]
-    public ChargeFlareSpriteCatalog? ChargeFlareCompositions { get; set; }
+    public ChargeFlareSprites? ChargeFlareCompositions { get; set; }
 
     /// <summary>Current Grapple flare offsets.</summary>
-    [field: NonSerialized]     public ChargeFlarePlacementCatalog? GrappleFlarePlacement
+    [field: NonSerialized]     public ChargeFlarePlacements? GrappleFlarePlacement
     {
         get;
         set { field = value; BindGrapplePresentation(); }
     }
 
     /// <summary>Current frame Samus's swing pose shows at each grapple angle.</summary>
-    [field: NonSerialized]     public GrappleSwingFrameCatalog? GrappleSwingFrames
+    [field: NonSerialized]     public InstalledGrappleSwingFrames? GrappleSwingFrames
     {
         get;
         set { field = value; BindGrapplePresentation(); }
@@ -203,11 +203,11 @@ internal sealed class RuntimeArtwork : IInstalledArtworkContent, IInstalledSprit
 
     /// <summary>Current projectile-trail appearances.</summary>
     [field: NonSerialized]
-    public ProjectileTrailCatalog? TrailArtwork { get; set; }
+    public InstalledProjectileTrails? TrailArtwork { get; set; }
 
     /// <summary>The installed cartridge bytes Samus's glitch paths read; the projectile system binds them.</summary>
     [field: NonSerialized]
-    public SamusOverreadCatalog? SamusOverreads
+    public InstalledSamusOverreads? SamusOverreads
     {
         get;
         set
@@ -236,10 +236,10 @@ internal sealed class RuntimeArtwork : IInstalledArtworkContent, IInstalledSprit
     public SuperMetroid.Core.Samus.Artwork.ProjectileSheets? ProjectileSheets { get; private set; }
 
     /// <summary>Beam palettes bound since the last accepted NMI, which that NMI publishes.</summary>
-    [NonSerialized] private BeamPaletteCatalog? pendingBeamPalette;
+    [NonSerialized] private InstalledBeamPalettes? pendingBeamPalette;
 
     /// <summary>Current beam palettes.</summary>
-    [field: NonSerialized]     public BeamPaletteCatalog? BeamPalettes
+    [field: NonSerialized]     public InstalledBeamPalettes? BeamPalettes
     {
         get;
         set { field = value; pendingBeamPalette = value; }
@@ -247,7 +247,7 @@ internal sealed class RuntimeArtwork : IInstalledArtworkContent, IInstalledSprit
 
     /// <summary>Current Hyper Beam palette effect colours.</summary>
     [field: NonSerialized]
-    public HyperBeamFxColorCatalog? HyperBeamFxColors { get; set; }
+    public InstalledHyperBeamFxColors? HyperBeamFxColors { get; set; }
 
     /// <summary>
     /// The equipped-beam word whose characters <c>Update_Beam_Tiles_and_Palette</c> ($90:AC8D) last loaded. The
@@ -309,7 +309,7 @@ internal sealed class RuntimeArtwork : IInstalledArtworkContent, IInstalledSprit
 
     /// <summary>Current external timed-projectile composition catalog, independent of mechanics.</summary>
     [field: NonSerialized]
-    public ProjectileSpriteCatalog? ProjectileCompositions { get; set; }
+    public InstalledProjectileSprites? ProjectileCompositions { get; set; }
     /// <summary>Host-selected BG tilemaps, rebound after debugger-state restoration.</summary>
     [field: NonSerialized]
     public RoomBackgroundTilemaps? RoomBackgroundTilemapArt { get; set; }
@@ -331,7 +331,7 @@ internal sealed class RuntimeArtwork : IInstalledArtworkContent, IInstalledSprit
     [field: NonSerialized]
     public InstalledRoomLevelStreams? RoomLevelStreams { get; set; }
     /// <summary>Host-owned Samus visual tiles; restored and future Samus states use the same edit.</summary>
-    [field: NonSerialized]     public SamusBodyArtworkCatalog? SamusBodyArt
+    [field: NonSerialized]     public InstalledSamusBodyArtwork? SamusBodyArt
     {
         get;
         set

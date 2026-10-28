@@ -233,7 +233,7 @@ internal sealed class ProjectileTerrainCollision
         // Cell index bits: 0 = right half, 1 = bottom half; BTS bit 6 / bit 7 flip them.
         int flips = (block.Bts.SlopeFlipsHorizontally ? 1 : 0) | (block.Bts.SlopeFlipsVertically ? 2 : 0);
         int baseIndex = block.Bts.SlopeShape * 4;
-        bool Solid(int cell) => SquareSlopeDefinitions.ReadSamusQuadrant(baseIndex + cell) != 0;
+        bool Solid(int cell) => SquareSlopes.ReadSamusQuadrant(baseIndex + cell) != 0;
 
         if (horizontalMovement)
         {

@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 internal static class SamusArmCannonCoverTransfers
 {
     /// <summary>Recognizes cover-tile transfers.</summary>
-    extension(SamusArmCannonArtworkCatalog self)
+    extension(InstalledSamusArmCannonArtwork self)
     {
         /// <summary>The installed cover tile a native <paramref name="byteCount"/>-byte transfer from <paramref name="sourceAddress"/> copies.</summary>
         internal bool TryResolveTile(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)

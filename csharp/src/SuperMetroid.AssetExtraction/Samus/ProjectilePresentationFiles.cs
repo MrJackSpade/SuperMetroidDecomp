@@ -73,9 +73,9 @@ public static class ProjectilePresentationFiles
         // Read one named stock asset after verifying its recorded content hash.
         ProjectileFile Stock(string name, string? expectedHash) => ReadStock(stockDirectory, name, expectedHash);
         ProjectileFile stock = Stock(ProjectileSpriteDefinitions.FileName, manifest.ContentSha256);
-        _ = stock.Compile(ProjectileSpriteCatalog.Load);
+        _ = stock.Compile(InstalledProjectileSprites.Load);
         ProjectileFile stockFrameBindings = Stock(ProjectileFrameBindingFormat.FileName, manifest.FrameBindingsSha256);
-        _ = stockFrameBindings.Compile(ProjectileFrameBindingCatalog.Load);
+        _ = stockFrameBindings.Compile(InstalledProjectileFrameBindings.Load);
         if (manifest.BeamHashes is null || manifest.BeamHashes.Count != BeamTileAtlasDefinitions.ArtworkCount)
             throw new InvalidDataException($"Projectile manifest {manifestPath} must identify every beam PNG.");
         var stockBeams = new Dictionary<string, ProjectileFile>();
@@ -93,21 +93,21 @@ public static class ProjectilePresentationFiles
         ProjectileFile stockHyperBeamFxColors = Stock(HyperBeamFxColorFormat.FileName, manifest.HyperBeamFxColorsSha256);
         _ = stockHyperBeamFxColors.Compile(HyperBeamFxColorFile.Read);
         ProjectileFile stockTrails = Stock(ProjectileTrailVisualDefinitions.FileName, manifest.TrailSha256);
-        _ = stockTrails.Compile(ProjectileTrailCatalog.Load);
+        _ = stockTrails.Compile(InstalledProjectileTrails.Load);
         ProjectileFile stockTrailTiles = Stock(ProjectileTrailAtlasDefinitions.FileName, manifest.TrailTilesSha256);
         _ = stockTrailTiles.Compile(ProjectileTrailAtlas.Load);
         ProjectileFile stockFlarePlacement = Stock(ChargeFlarePlacementDefinitions.FileName, manifest.FlarePlacementSha256);
-        _ = stockFlarePlacement.Compile(ChargeFlarePlacementCatalog.Load);
+        _ = stockFlarePlacement.Compile(ChargeFlarePlacements.Load);
         ProjectileFile stockFlareCompositions = Stock(ChargeFlareSpriteDefinitions.FileName, manifest.FlareCompositionsSha256);
-        _ = stockFlareCompositions.Compile(ChargeFlareSpriteCatalog.Load);
+        _ = stockFlareCompositions.Compile(ChargeFlareSprites.Load);
         ProjectileFile stockGrappleTiles = Stock(GrappleTileDefinitions.FileName, manifest.GrappleTilesSha256);
         _ = stockGrappleTiles.Compile(stream => GrappleTileAtlas.Load(stream));
         ProjectileFile stockGrappleSprites = Stock(GrappleSpriteDefinitions.FileName, manifest.GrappleSpritesSha256);
-        _ = stockGrappleSprites.Compile(GrappleSpriteCatalog.Load);
+        _ = stockGrappleSprites.Compile(InstalledGrappleSprites.Load);
         ProjectileFile stockGrappleFlare = Stock(GrappleFlarePlacementDefinitions.FileName, manifest.GrappleFlareSha256);
-        _ = stockGrappleFlare.Compile(ChargeFlarePlacementCatalog.LoadGrapple);
+        _ = stockGrappleFlare.Compile(ChargeFlarePlacements.LoadGrapple);
         ProjectileFile stockGrappleSwing = Stock(GrappleSwingFrameDefinitions.FileName, manifest.GrappleSwingSha256);
-        _ = stockGrappleSwing.Compile(GrappleSwingFrameCatalog.Load);
+        _ = stockGrappleSwing.Compile(InstalledGrappleSwingFrames.Load);
         // Finish stock validation before opening any optional replacement.
         // Select a persistent user replacement after all stock assets pass validation.
         ProjectileFile Select(ProjectileFile baseline) => baseline.Select(overrideDirectory);
@@ -124,18 +124,18 @@ public static class ProjectilePresentationFiles
         ProjectileFile selectedGrappleSprites = Select(stockGrappleSprites);
         ProjectileFile selectedGrappleFlare = Select(stockGrappleFlare);
         ProjectileFile selectedGrappleSwing = Select(stockGrappleSwing);
-        return new(selected.Compile(ProjectileSpriteCatalog.Load),
+        return new(selected.Compile(InstalledProjectileSprites.Load),
             Identity(new ProjectilePresentationSourceFiles { Composition = stock, Beams = stockBeams, Palettes = stockPalettes, HyperBeamFxColors = stockHyperBeamFxColors, Trails = stockTrails, TrailTiles = stockTrailTiles, FlarePlacement = stockFlarePlacement, FlareCompositions = stockFlareCompositions, GrappleTiles = stockGrappleTiles, GrappleSprites = stockGrappleSprites, GrappleFlare = stockGrappleFlare, GrappleSwing = stockGrappleSwing, FrameBindings = stockFrameBindings }), Identity(new ProjectilePresentationSourceFiles { Composition = selected, Beams = selectedBeams, Palettes = selectedPalettes, HyperBeamFxColors = selectedHyperBeamFxColors, Trails = selectedTrails, TrailTiles = selectedTrailTiles, FlarePlacement = selectedFlarePlacement, FlareCompositions = selectedFlareCompositions, GrappleTiles = selectedGrappleTiles, GrappleSprites = selectedGrappleSprites, GrappleFlare = selectedGrappleFlare, GrappleSwing = selectedGrappleSwing, FrameBindings = selectedFrameBindings }),
             BeamTileCatalog.FromAtlases(Enumerable.Range(0, BeamTileAtlasDefinitions.ArtworkCount)
                 .Select(index => selectedBeams[BeamTileAtlasDefinitions.FileName(BeamTileAtlasDefinitions.SelectionAt(index))].Compile(stream => BeamTileAtlas.Load(stream, BeamTileAtlasDefinitions.SelectionAt(index)))).ToArray(),
                 selectedPalettes.Compile(BeamPaletteFile.Read), selectedHyperBeamFxColors.Compile(HyperBeamFxColorFile.Read)),
-            selectedTrails.Compile(ProjectileTrailCatalog.Load),
+            selectedTrails.Compile(InstalledProjectileTrails.Load),
             selectedTrailTiles.Compile(ProjectileTrailAtlas.Load),
-            selectedFlarePlacement.Compile(ChargeFlarePlacementCatalog.Load),
-            selectedFlareCompositions.Compile(ChargeFlareSpriteCatalog.Load),
-            selectedGrappleTiles.Compile(stream => GrappleTileAtlas.Load(stream, selectedGrappleSprites.Compile(GrappleSpriteCatalog.Load),
-                selectedGrappleFlare.Compile(ChargeFlarePlacementCatalog.LoadGrapple), selectedGrappleSwing.Compile(GrappleSwingFrameCatalog.Load))),
-            selectedFrameBindings.Compile(ProjectileFrameBindingCatalog.Load));
+            selectedFlarePlacement.Compile(ChargeFlarePlacements.Load),
+            selectedFlareCompositions.Compile(ChargeFlareSprites.Load),
+            selectedGrappleTiles.Compile(stream => GrappleTileAtlas.Load(stream, selectedGrappleSprites.Compile(InstalledGrappleSprites.Load),
+                selectedGrappleFlare.Compile(ChargeFlarePlacements.LoadGrapple), selectedGrappleSwing.Compile(InstalledGrappleSwingFrames.Load))),
+            selectedFrameBindings.Compile(InstalledProjectileFrameBindings.Load));
     }
 
     /// <summary>Rejects changed or missing stock content before admitting its bytes to a projectile codec.</summary>

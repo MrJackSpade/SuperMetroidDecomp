@@ -32,9 +32,9 @@ internal static void VerifySamusGrappleSwingAndRelease()
     {
         BindSyntheticSamusRendering(bus, state);
         // Capture the fixture's currently authored visual offsets at construction time.
-        state.Grapple.FlarePlacement = ChargeFlarePlacementCatalog.Load(
+        state.Grapple.FlarePlacement = ChargeFlarePlacements.Load(
             new MemoryStream(GrappleFlarePlacementExtractor.Extract(bus)));
-        state.Grapple.SwingFrames = GrappleSwingFrameCatalog.Load(
+        state.Grapple.SwingFrames = InstalledGrappleSwingFrames.Load(
             new MemoryStream(GrappleSwingFrameExtractor.Extract(bus)));
     }
     SamusState CreateSamus(SamusPoseId pose, Position16<RoomPixels> position)
@@ -488,8 +488,8 @@ firingLevel, cancelledSamus, controllerInput: 0);
             // Exercise the whole connection-table cross-product through real authored
             // aim/movement combinations. Immutable mechanics metadata is not test input.
             int sourcePoseIndex = Enumerable.Range(0, 253).FirstOrDefault(pose =>
-                SamusPoseDispatchDefinitions.ReadMovement((SamusPoseId)pose) == sourceMovementType &&
-                SamusPoseAimDefinitions.Read((SamusPoseId)pose) == direction,
+                SamusPoseDispatch.ReadMovement((SamusPoseId)pose) == sourceMovementType &&
+                SamusPoseAimRestrictions.Read((SamusPoseId)pose) == direction,
                 -1);
             if (sourcePoseIndex < 0)
                 continue;
@@ -672,15 +672,15 @@ firingLevel, cancelledSamus, controllerInput: 0);
     AssertEqual(2, samus.Grapple.FlareAnimationTimer.RawValue,
         "first grapple flare performs decrement-before-test");
     var grappleFlare = (ImageSpriteDraw)grappleFlareOamFrame.Draws.Single();
-    AssertEqual(InstalledFixtures.SpriteSheets.Get(SpriteSheetId.ProjectilesPower).Frame(ProjectileSheetDefinitions.FlareFrame(
-            ChargeFlareSpriteDefinitions.Selectors[16 + ChargeFlareSpriteDefinitions.MainFlareSelectorOffset])), grappleFlare.Image,
+    AssertEqual(InstalledFixtures.SpriteSheets.Get(SpriteSheetId.ProjectilesPower).Frame(ProjectileSheetFrames.FlareFrame(
+            ChargeFlareSpriteSelection.Selectors[16 + ChargeFlareSpriteDefinitions.MainFlareSelectorOffset])), grappleFlare.Image,
         "grapple flare shows main flare frame sixteen from the loaded beams' projectile sheet");
     AssertEqual(new Position16<ScreenPixels>(98, 103), grappleFlare.Origin, "grapple flare is placed at the flare origin");
 
     // Selector provenance is now compiled even without installed artwork. The
     // independent all-angle cartridge comparison covers its exact sector boundaries.
-    int segmentSource = SuperMetroid.Core.Samus.Artwork.GrappleTileDefinitions.TransferFor(
-        SuperMetroid.Core.Samus.Artwork.GrappleTileDefinitions.SegmentAssetFor(samus.Grapple.Angle)).SourceAddress;
+    int segmentSource = SuperMetroid.Core.Samus.Artwork.GrappleTileSelection.TransferFor(
+        SuperMetroid.Core.Samus.Artwork.GrappleTileSelection.SegmentAssetFor(samus.Grapple.Angle)).SourceAddress;
 
     // $94:AFBA recalculates the angle from endpoint minus flare (1,-49).
     // Coarse octant division selects angle zero, giving a (0,-8) segment step.
@@ -696,7 +696,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
 
     AssertEqual(0x9a8200, GrapplePointAnimationDefinitions.SourceAddress(samus.Grapple.PointAnimationFrame),
         "grapple selects the native first endpoint tile");
-    AssertEqual(segmentSource, GrappleTileDefinitions.TransferFor(GrappleTileDefinitions.SegmentAssetFor(samus.Grapple.Angle)).SourceAddress,
+    AssertEqual(segmentSource, GrappleTileSelection.TransferFor(GrappleTileSelection.SegmentAssetFor(samus.Grapple.Angle)).SourceAddress,
         "grapple selects the native angle-selected segment tiles");
     AssertTrue(grappleOamFrame.Draws.All(draw => ReferenceEquals(InstalledFixtures.GrappleSheet.Image, ((ImageSpriteDraw)draw).Image.Sheet)),
         "grapple draws show frames of the grapple sheet");

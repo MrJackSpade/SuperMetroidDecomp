@@ -103,7 +103,7 @@ internal static class ProjectileTrailCoordinatesVerification
         var afterFrame = Enumerable.Range(0, 22).Select(frame => SamusProjectileProgramAddresses.CursorAt(unchecked((ushort)(
             SamusProjectileProgramAddresses.RecordAddress(records.First(record =>
                 SamusProjectileRecordDefinitions.Get(new SamusProjectileFrame(record)).AnimationFrame == frame)) +
-            SamusProjectileListLayout.TimedRecordByteCount)))).ToArray();
+            InstalledProjectileListPositions.TimedRecordByteCount)))).ToArray();
         var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Overreads = InstalledFixtures.SamusOverreads };
         var spawn = new Action<SamusProjectileSlot>(system.Trails.SpawnTrail);
         int cases = 0;
@@ -202,8 +202,8 @@ internal static class ProjectileTrailCoordinatesVerification
     {
         int family = LittleEndianBytes.HighByte(type);
         int index = family == 0 ? type & 63 : family + 31;
-        return ProjectileTrailDefinitions.Select(index, HorizontalDirection.Left) is not null &&
-            ProjectileTrailDefinitions.Select(index, HorizontalDirection.Right) is not null;
+        return ProjectileTrailSelection.Select(index, HorizontalDirection.Left) is not null &&
+            ProjectileTrailSelection.Select(index, HorizontalDirection.Right) is not null;
     }
 
     /// <summary>Every projectile type $90:BE17 can reflect, with its bank-$93 data table and index.</summary>

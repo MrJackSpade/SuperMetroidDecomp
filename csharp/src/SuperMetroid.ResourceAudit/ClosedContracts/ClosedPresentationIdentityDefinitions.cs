@@ -34,9 +34,9 @@ internal static class ClosedPresentationIdentityDefinitions
             GameplayMessageNoticeDefinitions.MessageIds.SelectToArray(id => (int)id),
         ("GameplayMessageNoticePresentation", "ApplySelection", "messageId") =>
             [(int)GameplayMessageId.SaveConfirmation, (int)GameplayMessageId.GunshipSaveConfirmation],
-        ("SamusFullBodyCycleColorCatalog", "Apply" or "Resolve", "palette.Family") =>
+        ("InstalledSamusFullBodyCycleColors", "Apply" or "Resolve", "palette.Family") =>
             Enum.GetValues<SamusFullBodyCycleFamily>().Select(family => (int)family).ToArray(),
-        ("SamusSuitColorCatalog", "Apply" or "Resolve", "suitTableOffset") => [0, 2, 4],
+        ("InstalledSamusSuitColors", "Apply" or "Resolve", "suitTableOffset") => [0, 2, 4],
         ("EnemyAuxiliaryColorCatalog", "Resolve", "palette") => EnemyAuxiliaryColorDefinitions.All
             .Select(definition => (int)definition.Id).ToArray(),
         ("KraidColorCatalog", "Resolve", "source") => Enum.GetValues<KraidPaletteSource>().Select(id => (int)id).ToArray(),
@@ -56,7 +56,7 @@ internal static class ClosedPresentationIdentityDefinitions
             .Concat(IntroDiscoveryActorSpriteDefinitions.Frames).Concat(IntroEggEffectSpriteDefinitions.Frames)
             .Concat(IntroRinkaSpriteDefinitions.Frames).Concat(IntroScientistSpriteDefinitions.Frames)
             .Select(frame => frame.Pose.Index).Distinct().ToArray(),
-        ("ProjectileTrailCatalog", "Resolve", "frame") => [.. ProjectileTrailVisualDefinitions.Frames.Select(frame => (int)frame)],
+        ("InstalledProjectileTrails", "Resolve", "frame") => [.. ProjectileTrailVisualDefinitions.Frames.Select(frame => (int)frame)],
         ("RoomFxLayer3TilemapCatalog", "Resolve", "type") => RoomFxLayer3TilemapFormat.Types.Select(type => (int)type).ToArray(),
         ("RoomFxPaletteBlendCatalog", "Apply", "selection") => RoomFxPaletteBlendDefinitions.Ids.Select(id => (int)id).Append(0).ToArray(),
         ("AreaMapPresentationCatalog" or "IGameplayPresentationContent", "Resolve", "asset") =>

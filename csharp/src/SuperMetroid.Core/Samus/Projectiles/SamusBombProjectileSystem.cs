@@ -28,7 +28,7 @@ public sealed class SamusBombProjectileSystem
 {
     /// <summary>Shared installed timed-frame sprite choices for the bomb half of the projectile pool.</summary>
     [field: NonSerialized]
-    public SuperMetroid.Core.Samus.Artwork.ProjectileFrameBindingCatalog? FrameBindings { get; set; }
+    public SuperMetroid.Core.Samus.Artwork.InstalledProjectileFrameBindings? FrameBindings { get; set; }
     /// <summary>Number of physical bomb slots at projectile byte indices $0A-$12.</summary>
     public const int SlotCount = MorphBallBombDefinitions.SlotCount;
 
@@ -294,7 +294,7 @@ public sealed class SamusBombProjectileSystem
             if (screenX < -48 || screenX >= 304 || ScreenConversions.IsOutsideSpriteRange(screenY))
                 continue;
 
-            SpriteSheetFrame image = artwork.Sheet.Frame(ProjectileSheetDefinitions.ProjectileFrame(
+            SpriteSheetFrame image = artwork.Sheet.Frame(ProjectileSheetFrames.ProjectileFrame(
                 slot.Sprite ?? throw new InvalidOperationException("A drawn bomb shows a composition.")));
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusBomb, slotIndex), image,
                 Position16<ScreenPixels>.Of(unchecked((ushort)screenX), screenY), SpriteMirror.None));
@@ -494,7 +494,7 @@ public sealed class SamusBombProjectileSystem
             slot.Position = slot.Position.WithWhole(samus.Position.Whole);
             InitializeBomb(slot);
 
-            BombSpreadLaunchDefinition launch = SamusBombSpreadLaunchDefinitions.ForSlot(index);
+            BombSpreadLaunchDefinition launch = SamusBombSpreadLaunches.ForSlot(index);
             slot.BombTimer = WrappingCountdown.FromRaw(launch.FuseTimer);
             slot.BombSpreadHorizontal = BombSpreadHorizontalVelocity.FromLaunchWord(launch.XVelocity);
             // The held charge adds up to three whole pixels of upward launch speed; the negated whole word
@@ -558,13 +558,13 @@ public sealed class SamusBombProjectileSystem
         // $93:80A6 reads the HIGH byte of type, masks its low nibble, and indexes the
         // non-beam pointer table. Type $0500 therefore selects word five -> $8675.
         int projectileTypeIndex = SamusProjectileFamilies.IndexOf(slot.PackedType.Raw);
-        SamusProjectileHeader header = SamusProjectileSelectionDefinitions.Select(SamusProjectileSelectorTable.NonBeam, projectileTypeIndex);
+        SamusProjectileHeader header = SamusProjectileSelection.Select(SamusProjectileSelectorTable.NonBeam, projectileTypeIndex);
 
-        slot.Damage = SamusProjectileDamageDefinitions.Read(header);
+        slot.Damage = SamusProjectileDamage.Read(header);
         if (unchecked((short)slot.Damage) < 0)
             throw new InvalidDataException($"Bomb header {header} has crash-marker damage ${slot.Damage:X4}.");
 
-        slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileHeaderDefinitions.Program(header, 0));
+        slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileHeaders.Program(header, 0));
         slot.InstructionTimer = WrappingCountdown.Start(1);
     }
 

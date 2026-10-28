@@ -22,8 +22,8 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="DeathTiles">The characters of Samus's suit explosion.</param>
 /// <param name="SuitColors">The three suits' colours.</param>
 internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projectiles, SpriteArtwork StandardObjects,
-    GameplayBasePalette Palettes, IntroCinematicArtworkCatalog Intro, SamusBodyArtworkCatalog SamusBody,
-    SamusDeathTileAtlas DeathTiles, SamusSuitColorCatalog SuitColors)
+    GameplayBasePalette Palettes, IntroCinematicArtworkCatalog Intro, InstalledSamusBodyArtwork SamusBody,
+    SamusDeathTileAtlas DeathTiles, InstalledSamusSuitColors SuitColors)
 {
     /// <summary>Loads the stock artwork from installed content.</summary>
     internal static SamusSheetInputs Load(string content)
@@ -42,7 +42,7 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
     }
 
     /// <summary>The stock suit colours, which the validated map installation holds.</summary>
-    private static SamusSuitColorCatalog LoadSuitColors(string path)
+    private static InstalledSamusSuitColors LoadSuitColors(string path)
     {
         using FileStream json = File.OpenRead(path);
         return SamusSuitColorFile.Read(json);

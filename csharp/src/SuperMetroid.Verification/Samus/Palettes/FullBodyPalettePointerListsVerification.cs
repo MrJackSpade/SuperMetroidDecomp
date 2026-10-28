@@ -25,7 +25,7 @@ internal static class FullBodyPalettePointerListsVerification
                 (uint)(address - SamusPaletteDefinitions.FullBodyCycles.StoredShineLists) < 0x2a ||
                 (uint)(address - SamusPaletteDefinitions.FullBodyCycles.ActiveShinesparkLists) < 0x1e,
             address => $"Runtime read of compiled full-body palette pointer ${address:X6}.");
-        SamusFullBodyCycleColorCatalog cycleColors = SamusFullBodyCycleColorFile.Read(
+        InstalledSamusFullBodyCycleColors cycleColors = SamusFullBodyCycleColorFile.Read(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(rom)));
         SamusEquipmentFlags[] equipment =
         [

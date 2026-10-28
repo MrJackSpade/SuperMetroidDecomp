@@ -21,8 +21,8 @@ internal static class SamusArtworkPresentationContractChecks
         SyntaxTree calls = CSharpSyntaxTree.ParseText("""
             using SuperMetroid.Core.Samus.Artwork;
             class SamusArtConsumer {
-                void Inspect(SamusBodyArtworkCatalog body, SamusSpritemapArtworkCatalog sprites,
-                    SamusAtmosphericArtworkCatalog atmosphere, SamusArmCannonArtworkCatalog arm) {
+                void Inspect(InstalledSamusBodyArtwork body, InstalledSamusSpritemaps sprites,
+                    InstalledSamusAtmosphericArtwork atmosphere, InstalledSamusArmCannonArtwork arm) {
                     body.GraphicsYOffset((SuperMetroid.Core.Samus.Poses.SamusPoseId)252);
                     body.GraphicsYOffset((SuperMetroid.Core.Samus.Poses.SamusPoseId)253);
                     body.TryLandingYOffset(int.MaxValue, out _);
@@ -33,8 +33,8 @@ internal static class SamusArtworkPresentationContractChecks
                     sprites.TopBase((SuperMetroid.Core.Samus.Poses.SamusPoseId)253);
                     sprites.BottomBase((SuperMetroid.Core.Samus.Poses.SamusPoseId)252);
                     sprites.BottomBase((SuperMetroid.Core.Samus.Poses.SamusPoseId)253);
-                    sprites.TryGet(SamusSpritemapArtworkCatalog.EntryCount - 1, out _);
-                    sprites.TryGet(SamusSpritemapArtworkCatalog.EntryCount, out _);
+                    sprites.TryGet(InstalledSamusSpritemaps.EntryCount - 1, out _);
+                    sprites.TryGet(InstalledSamusSpritemaps.EntryCount, out _);
                     atmosphere.TryResolve(byte.MaxValue, byte.MaxValue, out _);
                     arm.PoseDescriptor(252);
                     arm.PoseDescriptor(253);
@@ -49,7 +49,7 @@ internal static class SamusArtworkPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("SamusArtworkProviderFixture", sources,
-            platforms.Append(typeof(SamusBodyArtworkCatalog).Assembly.Location).Distinct()
+            platforms.Append(typeof(InstalledSamusBodyArtwork).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)
@@ -66,22 +66,22 @@ internal static class SamusArtworkPresentationContractChecks
         Require(before.UnresolvedCount == 20, "constructed calls must first expose absent adapters" + " (" + before.Describe() + ")");
         Require(after.Classifications.Count == 11 && after.UnresolvedCount == 9 && after.MissingCount == 0 &&
             after.Consumers.Count == 20, "complete table indices and false queries qualify; invalid indices and editable Frame do not" + " (" + after.Describe() + ")");
-        Require(after.Findings.Any(item => item.Owner == "SamusBodyArtworkCatalog.Frame"),
+        Require(after.Findings.Any(item => item.Owner == "InstalledSamusBodyArtwork.Frame"),
             "offset closure must not imply DMA frame-selector closure");
 
         foreach (string external in new[] {
-            "class ExternalArm { object Make() => SuperMetroid.Core.Samus.Artwork.SamusArmCannonArtworkCatalog.FromPlacement(null!, null!); }" })
+            "class ExternalArm { object Make() => SuperMetroid.Core.Samus.Artwork.InstalledSamusArmCannonArtwork.FromPlacement(null!, null!); }" })
         {
             AuditReport revoked = Inspect(Compile(trees.Append(CSharpSyntaxTree.ParseText(external,
                 path: "fixture-external-arm.cs"))), true);
             Require(revoked.Classifications.Count == 8 && revoked.UnresolvedCount == 12 &&
-                revoked.Findings.Count(item => item.Owner.StartsWith("SamusArmCannonArtworkCatalog.", StringComparison.Ordinal) &&
+                revoked.Findings.Count(item => item.Owner.StartsWith("InstalledSamusArmCannonArtwork.", StringComparison.Ordinal) &&
                     item.Message.Contains("stale", StringComparison.Ordinal)) == 7,
                 "unvalidated placement construction must revoke the arm proof" + " (" + revoked.Describe() + ")");
         }
         AuditReport partial = Inspect(Compile(trees.Append(CSharpSyntaxTree.ParseText("""
             namespace SuperMetroid.Core.Samus.Artwork {
-                public sealed partial class SamusBodyArtworkCatalog { void Change() { graphicsYOffsets[0] = 0; } }
+                public sealed partial class InstalledSamusBodyArtwork { void Change() { graphicsYOffsets[0] = 0; } }
             }
             """, path: "fixture-extra-body-partial.cs"))), true);
         Require(partial.Classifications.Count == 7 && partial.UnresolvedCount == 13,

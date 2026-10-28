@@ -16,9 +16,9 @@ internal sealed class InstalledSamusArtworkFixture : IDisposable
     /// <summary>Root of the disposable installation used to load edited artwork.</summary>
     private readonly string root;
     /// <summary>Original body artwork loaded from the supplied installation before any files are copied.</summary>
-    internal SamusBodyArtworkCatalog Stock { get; }
+    internal InstalledSamusBodyArtwork Stock { get; }
     /// <summary>Artwork loaded from the scratch installation after its replacement PNGs are written.</summary>
-    internal SamusBodyArtworkCatalog Edited { get; }
+    internal InstalledSamusBodyArtwork Edited { get; }
     /// <summary>Number of replacement sheets written across body sets, arm cannon, and death tiles.</summary>
     internal int EditedPngCount { get; }
     /// <summary>Disposable installation whose override directory supplies the edited artwork.</summary>
@@ -44,7 +44,7 @@ internal sealed class InstalledSamusArtworkFixture : IDisposable
             for (int half = 0; half < 2; half++)
             {
                 bool top = half == 0;
-                int sets = top ? SamusBodyArtworkCatalog.TopSetCount : SamusBodyArtworkCatalog.BottomSetCount;
+                int sets = top ? InstalledSamusBodyArtwork.TopSetCount : InstalledSamusBodyArtwork.BottomSetCount;
                 for (int set = 0; set < sets; set++)
                     Edit($"{(top ? "top" : "bottom")}-{set:X2}.png", 64,
                         (top ? Stock.TopSet(set) : Stock.BottomSet(set)).Count * 16);
@@ -53,8 +53,8 @@ internal sealed class InstalledSamusArtworkFixture : IDisposable
                 SamusArmCannonArtworkFormat.CoverTileCount * 8, 8);
             Edit(SamusDeathTileAtlasFormat.ArtworkFileName,
                 SamusDeathTileAtlasFormat.Width, SamusDeathTileAtlasFormat.Height);
-            EditedPngCount = SamusBodyArtworkCatalog.TopSetCount +
-                SamusBodyArtworkCatalog.BottomSetCount + 2;
+            EditedPngCount = InstalledSamusBodyArtwork.TopSetCount +
+                InstalledSamusBodyArtwork.BottomSetCount + 2;
             if (editLayout) SamusIsolationArtworkEdits.WriteBody(installation);
             Edited = installation.LoadSamusBodyArt();
             if (Stock.ContentIdentity == Edited.ContentIdentity)

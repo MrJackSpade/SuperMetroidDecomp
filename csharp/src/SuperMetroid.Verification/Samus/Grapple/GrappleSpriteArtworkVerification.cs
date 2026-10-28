@@ -18,7 +18,7 @@ internal static class GrappleSpriteArtworkVerification
     {
         byte[] json = GrappleSpriteExtractor.Extract(bus);
         byte[] png = GrappleTileExtractor.Extract(bus);
-        var catalog = GrappleSpriteCatalog.Load(new MemoryStream(json));
+        var catalog = InstalledGrappleSprites.Load(new MemoryStream(json));
         // The cartridge's attribute words are decoded by the import codec into the pieces they describe; the extracted
         // appearances hold the same character, palette row, priority and flips.
         AssertEqual(new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.GrappleEndpointAttributes.Value)).ToSinglePart(),
@@ -33,7 +33,7 @@ internal static class GrappleSpriteArtworkVerification
         int cases = 0;
         for (int point = 0; point < GrappleSheetDefinitions.EndpointFrameCount; point++, cases++)
             AssertEqual(SpritePartFrames.SmallObject(catalog.Endpoint, 0).Parts.Single(),
-                frames[GrappleSheetDefinitions.EndpointFrame(point)].Parts.Single(), $"Grapple endpoint frame {point} is the native endpoint OBJ");
+                frames[GrappleSheets.EndpointFrame(point)].Parts.Single(), $"Grapple endpoint frame {point} is the native endpoint OBJ");
         foreach (GrappleRopeOrientation orientation in Enum.GetValues<GrappleRopeOrientation>())
         for (int segment = 0; segment < GrappleSpriteDefinitions.SegmentFrameCount; segment++)
         foreach (SpriteMirror mirror in GrappleSheetDefinitions.RopeMirrors)
@@ -42,30 +42,30 @@ internal static class GrappleSpriteArtworkVerification
                 ((mirror & SpriteMirror.Vertical) != 0 ? TileFlip.Vertical : TileFlip.None);
             SpritePart appearance = catalog.Segment(segment);
             AssertEqual(SpritePartFrames.SmallObject(appearance with { Flip = appearance.Flip | flips }, 0).Parts.Single(),
-                frames[GrappleSheetDefinitions.RopeFrame(orientation, segment, mirror)].Parts.Single(),
+                frames[GrappleSheets.RopeFrame(orientation, segment, mirror)].Parts.Single(),
                 $"Grapple rope {orientation} frame {segment} mirrored {mirror} is the native segment OBJ with the rope's flips");
             cases++;
         }
         foreach (string bad in new[] { "null", "{}", "{", "{\"version\":1,\"version\":1}", System.Text.Encoding.UTF8.GetString(json).Replace("\"palette\": 5", "\"palette\": 8") })
-            AssertThrows<InvalidDataException>(() => GrappleSpriteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(bad))), "Invalid Grapple presentation rejected");
+            AssertThrows<InvalidDataException>(() => InstalledGrappleSprites.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(bad))), "Invalid Grapple presentation rejected");
         var missing = RequiredJson.Parse(json); missing.Required("segments").AsArray().RemoveAt(0);
-        AssertThrows<InvalidDataException>(() => GrappleSpriteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(missing.ToJsonString()))), "Missing segment appearance rejected");
+        AssertThrows<InvalidDataException>(() => InstalledGrappleSprites.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(missing.ToJsonString()))), "Missing segment appearance rejected");
         var mechanic = RequiredJson.Parse(json); mechanic.Required("segments").Required(0)["duration"] = 1;
-        AssertThrows<InvalidDataException>(() => GrappleSpriteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(mechanic.ToJsonString()))), "Editable timing field rejected");
+        AssertThrows<InvalidDataException>(() => InstalledGrappleSprites.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(mechanic.ToJsonString()))), "Editable timing field rejected");
         AssertThrows<InvalidDataException>(() => catalog.Segment(4), "Out-of-range visual selector rejected");
         foreach (var (field, value) in new VerifyGrappleSpriteArtworkCase[] { new VerifyGrappleSpriteArtworkCase("tileColumn", -1), new VerifyGrappleSpriteArtworkCase("tileColumn", 16), new VerifyGrappleSpriteArtworkCase("tileRow", -1), new VerifyGrappleSpriteArtworkCase("tileRow", 32), new VerifyGrappleSpriteArtworkCase("palette", -1), new VerifyGrappleSpriteArtworkCase("priority", 4) })
         {
             var invalid = RequiredJson.Parse(json); invalid.Required("endpoint")[field] = value;
-            AssertThrows<InvalidDataException>(() => GrappleSpriteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(invalid.ToJsonString()))), "Invalid Grapple style field: " + field);
+            AssertThrows<InvalidDataException>(() => InstalledGrappleSprites.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(invalid.ToJsonString()))), "Invalid Grapple style field: " + field);
         }
         var incomplete = RequiredJson.Parse(json); incomplete.Required("endpoint").AsObject().Remove("priority");
-        AssertThrows<InvalidDataException>(() => GrappleSpriteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(incomplete.ToJsonString()))), "Missing visual field rejected");
+        AssertThrows<InvalidDataException>(() => InstalledGrappleSprites.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(incomplete.ToJsonString()))), "Missing visual field rejected");
         var boundary = RequiredJson.Parse(json);
         boundary.Required("endpoint")["tileColumn"] = 15; boundary.Required("endpoint")["tileRow"] = 31;
         boundary.Required("endpoint")["palette"] = 7; boundary.Required("endpoint")["priority"] = 3;
         boundary.Required("endpoint")["flipX"] = true; boundary.Required("endpoint")["flipY"] = true;
         // The appearance the all-ones attribute word describes: the last character, palette row seven, priority three and both flips.
-        AssertEqual(new SnesObjAttributeWord(ushort.MaxValue).ToSinglePart(), GrappleSpriteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(boundary.ToJsonString()))).Endpoint,
+        AssertEqual(new SnesObjAttributeWord(ushort.MaxValue).ToSinglePart(), InstalledGrappleSprites.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(boundary.ToJsonString()))).Endpoint,
             "Every OBJ attribute bit can be authored without leaking into timing/geometry");
         Console.WriteLine($"Grapple sprite JSON: native appearances extracted and {cases} grapple sheet frames composed from them; invalid documents rejected.");
     }

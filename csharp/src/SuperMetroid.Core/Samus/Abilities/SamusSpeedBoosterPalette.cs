@@ -13,7 +13,7 @@ internal static class SamusSpeedBoosterPalette
     /// preserving the unrolled cartridge read behavior.
     /// </summary>
     internal static void Apply(SamusColours colours, SpeedBoosterPaletteSource source,
-        SamusFullBodyCycleColorCatalog? colors, SamusOverreadCatalog? overreads)
+        InstalledSamusFullBodyCycleColors? colors, InstalledSamusOverreads? overreads)
     {
         if (source.Overrun is { } overrun)
         {

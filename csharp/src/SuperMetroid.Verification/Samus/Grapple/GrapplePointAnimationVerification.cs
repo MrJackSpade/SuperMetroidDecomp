@@ -47,7 +47,7 @@ internal static class GrapplePointAnimationVerification
             }
             // Restored frames past the four installed endpoint tiles exist only in corrupted state; drawing them
             // fails loudly, so this checks the animation arithmetic itself.
-            GrapplePointAnimationDefinitions.Advance(grapple);
+            GrapplePointAnimation.Advance(grapple);
             AssertEqual(expectedTimer, grapple.PointAnimationTimer.RawValue, "Endpoint boundary timer matches native signed decrement");
             AssertEqual(0x9a0000 | expectedPointer, GrapplePointAnimationDefinitions.SourceAddress(grapple.PointAnimationFrame),
                 "Endpoint ordinal retains native wrapped pointer arithmetic");

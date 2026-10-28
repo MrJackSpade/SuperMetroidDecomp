@@ -63,7 +63,7 @@ public static class XrayRevealVisualFiles
             if (native != XrayRevealTable.Find(type, unchecked((byte)bts)))
                 throw new InvalidDataException(
                     $"Compiled X-ray rule {type}/BTS ${bts:X2} differs from the cartridge.");
-            if (native is not { } definition || !XrayRevealVisualCatalog.IsDrawable(definition.Command))
+            if (native is not { } definition || !InstalledXrayReveals.IsDrawable(definition.Command))
                 continue;
             var key = new XrayRevealGroupKey(type, definition);
             if (!groups.TryGetValue(key, out List<int>? values))
@@ -79,7 +79,7 @@ public static class XrayRevealVisualFiles
             .OrderBy(entry => entry.CollisionType)
             .ThenBy(entry => entry.BtsValues[0])
             .ToArray();
-        ushort[] itemMetatiles = Enumerable.Range(0, XrayOverlayVisualCatalog.DynamicGraphicsSlots * 2)
+        ushort[] itemMetatiles = Enumerable.Range(0, InstalledXrayOverlays.DynamicGraphicsSlots * 2)
             .Select(slot =>
             {
                 int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.ItemDrawPointers.Value + slot * sizeof(ushort)));
@@ -110,7 +110,7 @@ public static class XrayRevealVisualFiles
     /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
     /// <exception cref="InvalidDataException">Provenance, integrity, strict JSON schema, rule coverage/shape, unused operands, overlay identities/counts, or visual words are invalid.</exception>
     /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
-    public static XrayRevealVisualCatalog Load(string stockDirectory,
+    public static InstalledXrayReveals Load(string stockDirectory,
         string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
@@ -164,11 +164,11 @@ public static class XrayRevealVisualFiles
                 throw new InvalidDataException(
                     $"X-ray visuals {selectedPath} changed room-overlay structure at entry {index}.");
         }
-        var overlays = new XrayOverlayVisualCatalog(selected.ItemMetatiles,
+        var overlays = new InstalledXrayOverlays(selected.ItemMetatiles,
             selected.Rooms.Select(room => new XrayRoomOverlayTiles(XrayRoomOverlaySources.Overlay(checked((ushort)room.Pointer)),
                 room.Tiles.Select(tile =>
                     new XrayRoomOverlayVisual(tile.Block, new RoomLevelWord(checked((ushort)tile.Word)))).ToArray())));
-        return new XrayRevealVisualCatalog(mappings, overlays);
+        return new InstalledXrayReveals(mappings, overlays);
     }
 
     /// <summary>Runs stock provenance, hash, strict-schema, and catalog-coverage checks through <see cref="Load"/> without overrides, cartridge reads, or writes.</summary>
@@ -181,7 +181,7 @@ public static class XrayRevealVisualFiles
     {
         if (document.Version != FormatVersion || document.Entries is null ||
             document.ItemMetatiles is null || document.Rooms is null ||
-            document.ItemMetatiles.Length != XrayOverlayVisualCatalog.DynamicGraphicsSlots * 2 ||
+            document.ItemMetatiles.Length != InstalledXrayOverlays.DynamicGraphicsSlots * 2 ||
             document.ItemMetatiles.Any(word => !RoomLevelWord.IsValidVisualWord(word)) ||
             document.Rooms.Any(room => room is null))
             throw new InvalidDataException($"X-ray visuals {path} have an incompatible format.");
@@ -201,7 +201,7 @@ public static class XrayRevealVisualFiles
                 entry.BtsValues.Any(value => value is < 0 or > byte.MaxValue))
                 throw new InvalidDataException($"X-ray visuals {path} contain an invalid BTS group.");
             if (XrayRevealTable.Find(entry.CollisionType, unchecked((byte)entry.BtsValues[0])) is not { } rule ||
-                !XrayRevealVisualCatalog.IsDrawable(rule.Command) || entry.Shape != NameOf(rule.Command))
+                !InstalledXrayReveals.IsDrawable(rule.Command) || entry.Shape != NameOf(rule.Command))
                 throw new InvalidDataException($"X-ray visuals {path} contain an invalid copy shape.");
             XrayRevealCommand command = rule.Command;
             if (!RoomLevelWord.IsValidVisualWord(checked((ushort)entry.TopLeft)) || !RoomLevelWord.IsValidVisualWord(checked((ushort)entry.TopRight)) ||

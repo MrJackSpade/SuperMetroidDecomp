@@ -41,7 +41,7 @@ internal static class GrappleConnectionDefinitionsVerification
             bool authored = address < 0x9bc43e;
             if (authored)
             {
-                var connection = GrappleConnectionDefinitions.ResolveConnection(kind, direction);
+                var connection = GrappleConnections.ResolveConnection(kind, direction);
                 AssertEqual(new VerifyGrappleConnectionDefinitionsCase(Word(address), Word(address + 2)), new VerifyGrappleConnectionDefinitionsCase(SamusGrappleConnectionNative.Functions.Word(connection.Function), SamusGrappleConnectionNative.Handlers.Word(connection.Handler)),
                     "Both native connection words");
                 compiled++;
@@ -49,7 +49,7 @@ internal static class GrappleConnectionDefinitionsVerification
             else
             {
                 AssertThrows<InvalidDataException>(
-                    () => GrappleConnectionDefinitions.ResolveConnection(kind, direction),
+                    () => GrappleConnections.ResolveConnection(kind, direction),
                     "A direction past the compiled records fails instead of reading adjacent ROM");
             }
         }
@@ -74,9 +74,9 @@ internal static class GrappleConnectionDefinitionsVerification
         var metadata = NewGrappleFiringReadGuard(rom, () => metadataPose);
         var guard = NewGrappleConnectionReadGuard(metadata);
         var samus = new SamusState();
-        samus.Grapple.FlarePlacement = SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacementCatalog.Load(
+        samus.Grapple.FlarePlacement = SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacements.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.GrappleFlarePlacementExtractor.Extract(rom)));
-        samus.Grapple.SwingFrames = SuperMetroid.Core.Samus.Artwork.GrappleSwingFrameCatalog.Load(
+        samus.Grapple.SwingFrames = SuperMetroid.Core.Samus.Artwork.InstalledGrappleSwingFrames.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.GrappleSwingFrameExtractor.Extract(rom)));
         for (byte movement = 0; movement < 28; movement++)
         for (byte direction = 0; direction < 10; direction++)
@@ -135,10 +135,10 @@ internal static class GrappleConnectionDefinitionsVerification
         }).ToArray();
         AssertEqual(native.Length, GrappleConnectionDefinitions.SpecialAngleCount, "Native special-angle record count");
         for (int record = 0; record < native.Length; record++)
-            AssertEqual(native[record], GrappleConnectionDefinitions.SpecialAngle(record), $"Native special-angle record {record}");
-        AssertThrows<ArgumentOutOfRangeException>(() => GrappleConnectionDefinitions.SpecialAngle(native.Length), "Special-angle bound");
+            AssertEqual(native[record], GrappleConnections.SpecialAngle(record), $"Native special-angle record {record}");
+        AssertThrows<ArgumentOutOfRangeException>(() => GrappleConnections.SpecialAngle(native.Length), "Special-angle bound");
         var samus = new SamusState();
-        samus.Grapple.FlarePlacement = SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacementCatalog.Load(
+        samus.Grapple.FlarePlacement = SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacements.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.GrappleFlarePlacementExtractor.Extract(rom)));
         var g = samus.Grapple;
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
@@ -197,12 +197,12 @@ internal static class GrappleConnectionDefinitionsVerification
         SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkFiles.Extract(rom, artworkDirectory.Root,
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc")))));
         samus.Presentation.BodyFrames.BindBodyFixture(SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkFiles.Load(artworkDirectory.Root, null));
-        samus.Grapple.FlarePlacement = SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacementCatalog.Load(
+        samus.Grapple.FlarePlacement = SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacements.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.GrappleFlarePlacementExtractor.Extract(rom)));
         for (byte movement = 0; movement < 28; movement++)
         {
             bool banned = GrappleCancellationAndDropRomByte(rom, 0x9bb8b8 + movement) != 0;
-            AssertEqual(banned, GrappleConnectionDefinitions.CancelsFiring((SamusMovementType)movement), "Every native cancellation byte");
+            AssertEqual(banned, GrappleConnections.CancelsFiring((SamusMovementType)movement), "Every native cancellation byte");
         }
 
         for (byte movement = 0; movement < 28; movement++)

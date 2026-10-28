@@ -112,10 +112,10 @@ public sealed class SamusAtmosphericEffectsState
                 // packed word. That ordering is why a newly created timer-three frame is
                 // visible for two calls before frame one begins.
                 slot.AnimationTimer =
-                    WrappingCountdown.FromRaw(SamusAtmosphericAnimationDefinitions.FrameTimer(type, frameBeforeTimer));
+                    WrappingCountdown.FromRaw(SamusAtmosphericAnimations.FrameTimer(type, frameBeforeTimer));
                 slot.FrameAndType = WrappingCounter.IncrementWord(slot.FrameAndType);
                 if (slot.AnimationFrame >=
-                    SamusAtmosphericAnimationDefinitions.FrameCount(type))
+                    SamusAtmosphericAnimations.FrameCount(type))
                 {
                     slot.FrameAndType = 0;
                     continue;
@@ -128,7 +128,7 @@ public sealed class SamusAtmosphericEffectsState
                 if (slot.AnimationTimer.RawValue != DelayedStartMarker)
                     continue;
                 slot.AnimationTimer =
-                    WrappingCountdown.FromRaw(SamusAtmosphericAnimationDefinitions.FrameTimer(type, frameBeforeTimer));
+                    WrappingCountdown.FromRaw(SamusAtmosphericAnimations.FrameTimer(type, frameBeforeTimer));
             }
 
             switch (type)

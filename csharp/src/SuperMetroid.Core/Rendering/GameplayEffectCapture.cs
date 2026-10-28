@@ -212,7 +212,7 @@ public static class GameplayEffectCapture
             return Direction(-XrayScopeDefinitions.Window.UnitVector, 0);
 
         int tangentIndex = wrappedAngle & (RotationAngle.HalfTurn.TableIndex - 1);
-        int tangent = AbsoluteTangentDefinitions.Sample(tangentIndex);
+        int tangent = AbsoluteTangents.Sample(tangentIndex);
         if (wrappedAngle < RotationAngle.QuarterTurn.TableIndex)
             return Direction(tangent, -XrayScopeDefinitions.Window.UnitVector);
         if (wrappedAngle < RotationAngle.HalfTurn.TableIndex)

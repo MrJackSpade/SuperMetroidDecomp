@@ -40,7 +40,7 @@ public static class SamusGrappleSwing
         int artFrame = (grapple.SwingFrames ?? throw new InvalidOperationException(
             "Grapple swing requires installed frame definitions."))
             .Resolve(grapple.MirroredAngle.ToByteAngle());
-        var offset = GrappleBodyPlacementDefinitions.Offset(grapple.MirroredAngle.ToByteAngle(),
+        var offset = GrappleBodyPlacements.Offset(grapple.MirroredAngle.ToByteAngle(),
             SamusPoseMetadata.IsFacingLeft(samus.Pose));
 
         SamusPresentation.SetGrappleSwingAnimationFrame(samus, artFrame);

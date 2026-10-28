@@ -117,7 +117,7 @@ internal static class ProjectileSpriteNative
     }
 
     /// <summary>Installed bindings by record address.</summary>
-    extension(ProjectileFrameBindingCatalog bindings)
+    extension(InstalledProjectileFrameBindings bindings)
     {
         /// <summary>The bank-$93 address of the composition the record stored at bank-$93 <paramref name="address"/> draws.</summary>
         internal ushort Resolve(int address) => Address(bindings.Resolve(Frame(address)));

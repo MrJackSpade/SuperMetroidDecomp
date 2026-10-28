@@ -7,10 +7,10 @@ public sealed class SamusGrappleState
 {
     /// <summary>Current host visual origins, rebound after state load; never changes physical hand offsets.</summary>
     [field: NonSerialized]
-    public SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacementCatalog? FlarePlacement { get; set; }
+    public SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacements? FlarePlacement { get; set; }
     /// <summary>Current displayed orientation mapping, never a collision/body offset source.</summary>
     [field: NonSerialized]
-    public SuperMetroid.Core.Samus.Artwork.GrappleSwingFrameCatalog? SwingFrames { get; set; }
+    public SuperMetroid.Core.Samus.Artwork.InstalledGrappleSwingFrames? SwingFrames { get; set; }
     /// <summary>Gets or sets the current grapple function-pointer phase.</summary>
     public GrapplePhase Phase { get; set; }
     /// <summary>Gets or sets the grapple anchor (beam endpoint) in room pixels.</summary>

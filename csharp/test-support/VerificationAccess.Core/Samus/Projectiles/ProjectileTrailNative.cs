@@ -51,8 +51,8 @@ internal static class ProjectileTrailNative
                 throw new InvalidDataException($"Projectile trail selector ${address:X6} is outside the bounded selector window.");
             int index = offset / sizeof(ushort);
             ProjectileTrailProgram? program = index < TableSelections
-                ? ProjectileTrailDefinitions.Select(index, HorizontalDirection.Left)
-                : ProjectileTrailDefinitions.Select(index - TableSelections, HorizontalDirection.Right);
+                ? ProjectileTrailSelection.Select(index, HorizontalDirection.Left)
+                : ProjectileTrailSelection.Select(index - TableSelections, HorizontalDirection.Right);
             return program is { } selected ? ProjectileTrailSources.Start(selected) : null;
         }
     }

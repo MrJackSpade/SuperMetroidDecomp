@@ -37,7 +37,7 @@ internal static class ProjectileHostBindingVerification
         using (var session = new InstalledGameSession(root))
         {
             var content = session.Game.Artwork.ProjectileCompositions;
-            if (content is not ProjectileSpriteCatalog) throw new InvalidDataException("Installed session did not bind projectile content.");
+            if (content is not InstalledProjectileSprites) throw new InvalidDataException("Installed session did not bind projectile content.");
             CheckCatalog(content, installation.LoadProjectiles().Catalog);
             CheckFrameBindings(session.Game.Artwork.ProjectileFrameBindings, installation.LoadProjectiles().FrameBindings);
             CheckGrapple(session.Game.Artwork, installation.LoadProjectiles().GrappleTiles);
@@ -61,7 +61,7 @@ internal static class ProjectileHostBindingVerification
         using (var output = File.Create(Path.Combine(installation.ProjectileOverrideDirectory, beamName)))
             IndexedPng.Write(output, new(64, 8), image.Pixels, image.Colours);
         var colors = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, BeamPaletteDefinitions.FileName)));
-        colors.Required("palettes").Required(BeamPaletteDefinitions.Key(0)).Required(0)["red"] = 17;
+        colors.Required("palettes").Required(BeamPaletteSources.Key(0)).Required(0)["red"] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, BeamPaletteDefinitions.FileName), colors.ToJsonString());
         var trails = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ProjectileTrailVisualDefinitions.FileName)));
         trails.Required("frames").Required(ProjectileTrailVisualDefinitions.FrameNames[0])["flipX"] = true;
@@ -72,10 +72,10 @@ internal static class ProjectileHostBindingVerification
         using (var output = File.Create(Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailAtlasDefinitions.FileName)))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         var flare = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlarePlacementDefinitions.FileName)));
-        flare.Required("offsets").Required(ChargeFlarePlacementDefinitions.Key(false, 0))["x"] = 17;
+        flare.Required("offsets").Required(ChargeFlarePlacementOffsets.Key(false, 0))["x"] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlarePlacementDefinitions.FileName), flare.ToJsonString());
         var flareComposition = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlareSpriteDefinitions.FileName)));
-        flareComposition.Required("frames").Required(ChargeFlareSpriteDefinitions.Selectors[0].Name).Required(0)["offsetX"] = 17;
+        flareComposition.Required("frames").Required(ChargeFlareSpriteSelection.Selectors[0].Name).Required(0)["offsetX"] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlareSpriteDefinitions.FileName), flareComposition.ToJsonString());
         using (var input = File.OpenRead(Path.Combine(installation.ProjectileDirectory, GrappleTileDefinitions.FileName)))
             image = IndexedPng.Read(input, new(GrappleTileDefinitions.Width, GrappleTileDefinitions.Height));
@@ -87,7 +87,7 @@ internal static class ProjectileHostBindingVerification
         foreach (var style in grappleStyles.Required("segments").AsArray().RequiredElements()) style["palette"] = 4;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, GrappleSpriteDefinitions.FileName), grappleStyles.ToJsonString());
         var grappleFlare = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleFlarePlacementDefinitions.FileName)));
-        grappleFlare.Required("offsets").Required(ChargeFlarePlacementDefinitions.Key(false, 0))["x"] = 17;
+        grappleFlare.Required("offsets").Required(ChargeFlarePlacementOffsets.Key(false, 0))["x"] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, GrappleFlarePlacementDefinitions.FileName), grappleFlare.ToJsonString());
         var grappleSwing = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleSwingFrameDefinitions.FileName)));
         grappleSwing.Required("frames")[0] = 17;
@@ -116,15 +116,15 @@ internal static class ProjectileHostBindingVerification
     }
 
     /// <summary>Checks that the host selected the installed projectile frame binding table.</summary>
-    private static void CheckFrameBindings(object? actual, ProjectileFrameBindingCatalog expected)
+    private static void CheckFrameBindings(object? actual, InstalledProjectileFrameBindings expected)
     {
-        if (actual is not ProjectileFrameBindingCatalog catalog ||
+        if (actual is not InstalledProjectileFrameBindings catalog ||
             catalog.Resolve(0x86db) != expected.Resolve(0x86db))
             throw new InvalidDataException("Host did not bind current projectile frame choices.");
     }
 
     /// <summary>Compares rendered OAM for every native projectile composition pointer.</summary>
-    private static void CheckCatalog(ProjectileSpriteCatalog actual, ProjectileSpriteCatalog expected)
+    private static void CheckCatalog(InstalledProjectileSprites actual, InstalledProjectileSprites expected)
     {
         foreach (ushort id in ProjectileSpriteDefinitions.NativePointers)
         {
@@ -136,7 +136,7 @@ internal static class ProjectileHostBindingVerification
     }
 
     /// <summary>Checks each authored trail frame after host binding.</summary>
-    private static void CheckTrails(ProjectileTrailCatalog actual, ProjectileTrailCatalog expected)
+    private static void CheckTrails(InstalledProjectileTrails actual, InstalledProjectileTrails expected)
     {
         if (actual is null) throw new InvalidDataException("Host did not bind trail content.");
         foreach (var frame in ProjectileTrailVisualDefinitions.Frames)
@@ -145,7 +145,7 @@ internal static class ProjectileHostBindingVerification
     }
 
     /// <summary>Checks flare placement for both running states and every direction.</summary>
-    private static void CheckFlare(ChargeFlarePlacementCatalog actual, ChargeFlarePlacementCatalog expected)
+    private static void CheckFlare(ChargeFlarePlacements actual, ChargeFlarePlacements expected)
     {
         if (actual is null) throw new InvalidDataException("Host did not bind flare placement.");
         foreach (bool running in new[] { false, true })
@@ -155,10 +155,10 @@ internal static class ProjectileHostBindingVerification
     }
 
     /// <summary>Compares every charge-flare selector's rendered OAM after host binding.</summary>
-    private static void CheckFlareCompositions(ChargeFlareSpriteCatalog actual, ChargeFlareSpriteCatalog expected)
+    private static void CheckFlareCompositions(ChargeFlareSprites actual, ChargeFlareSprites expected)
     {
         if (actual is null) throw new InvalidDataException("Host did not bind flare compositions.");
-        for (ushort selector = 0; selector < ChargeFlareSpriteDefinitions.Selectors.Count; selector++)
+        for (ushort selector = 0; selector < ChargeFlareSpriteSelection.Selectors.Count; selector++)
         {
             var a = new OamBuffer(); var b = new OamBuffer();
             actual.Draw(selector, a, new(100, 100)); expected.Draw(selector, b, new(100, 100));
@@ -178,7 +178,7 @@ internal static class ProjectileHostBindingVerification
     }
 
     /// <summary>Checks each beam selection's loaded CGRAM palette.</summary>
-    private static void CheckBeams(BeamPaletteCatalog actual, BeamTileCatalog expected)
+    private static void CheckBeams(InstalledBeamPalettes actual, BeamTileCatalog expected)
     {
         if (actual is null) throw new InvalidDataException("Host did not bind beam palettes.");
         for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)

@@ -72,16 +72,16 @@ public static class SamusGrappleBeamDrawing
         if (grapple.FlareAnimationTimer.IsNegative)
         {
             grapple.FlareAnimationFrame = StepFlareFrame(grapple.FlareAnimationFrame, 1);
-            int delay = ChargeFlareAnimationDefinitions.ReadMainFlareDelay(grapple.FlareAnimationFrame);
-            if (ChargeFlareAnimationDefinitions.TryDecodeCommand(delay, out ChargeFlareDelayCommand command) &&
+            int delay = ChargeFlareAnimations.ReadMainFlareDelay(grapple.FlareAnimationFrame);
+            if (ChargeFlareAnimations.TryDecodeCommand(delay, out ChargeFlareDelayCommand command) &&
                 command == ChargeFlareDelayCommand.Rewind)
             {
                 // `$FE,n` is the compact loop command in the shared delay bytecode. The
                 // subtraction applies to the already-incremented frame word and wraps like
                 // 16-bit ADC/SBC; malformed ROM data remains visible instead of clamped.
-                int rewind = ChargeFlareAnimationDefinitions.ReadMainFlareDelay(StepFlareFrame(grapple.FlareAnimationFrame, 1));
+                int rewind = ChargeFlareAnimations.ReadMainFlareDelay(StepFlareFrame(grapple.FlareAnimationFrame, 1));
                 grapple.FlareAnimationFrame = StepFlareFrame(grapple.FlareAnimationFrame, -rewind);
-                delay = ChargeFlareAnimationDefinitions.ReadMainFlareDelay(grapple.FlareAnimationFrame);
+                delay = ChargeFlareAnimations.ReadMainFlareDelay(grapple.FlareAnimationFrame);
             }
 
             grapple.FlareAnimationTimer = WrappingCountdown.FromRaw(delay);
@@ -100,10 +100,10 @@ public static class SamusGrappleBeamDrawing
             grapple.FlareAnimationFrame + SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteDefinitions.MainFlareSelectorOffset));
         // Flare compositions name characters $50-$5D of the standard OBJ sheet, which no beam or trail upload covers,
         // so the loaded beams' projectile sheet shows them as the standard page does.
-        if (!SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteCatalog.Contains(tableIndex))
+        if (!SuperMetroid.Core.Samus.Artwork.ChargeFlareSprites.Contains(tableIndex))
             throw new InvalidDataException($"Unknown charge-flare sprite selector {tableIndex:X4}.");
-        SpriteSheetFrame image = objects.Sheet.Frame(SuperMetroid.Core.Samus.Artwork.ProjectileSheetDefinitions.FlareFrame(
-            SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteDefinitions.Selectors[tableIndex]));
+        SpriteSheetFrame image = objects.Sheet.Frame(SuperMetroid.Core.Samus.Artwork.ProjectileSheetFrames.FlareFrame(
+            SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteSelection.Selectors[tableIndex]));
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleFlare), image,
             Position16<ScreenPixels>.Of(screenX, screenY), SpriteMirror.None));
         return true;
@@ -140,10 +140,10 @@ public static class SamusGrappleBeamDrawing
         SamusGrappleState grapple)
     {
         bool useRunOffsets = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running;
-        var origin = GrappleFiringDefinitions.Origin(grapple.FireDirection.ToAimIndex(), useRunOffsets);
+        var origin = GrappleFiring.Origin(grapple.FireDirection.ToAimIndex(), useRunOffsets);
         var flare = SamusGrappleMovement.ReadFlareOrigin(grapple, grapple.FireDirection.ToAimIndex(), useRunOffsets);
         int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
-        int physicalYOffset = SamusPoseProjectileOriginDefinitions.ReadYOffset(samus.Pose);
+        int physicalYOffset = SamusPoseProjectileOrigins.ReadYOffset(samus.Pose);
 
         // Recompute from the final pose/position, not cached launch offsets. Physical
         // Start and presentation Flare remain separate coordinate pairs.
@@ -179,12 +179,12 @@ public static class SamusGrappleBeamDrawing
 
         // The native pair is a begin/end range, not two animation frames. Each
         // six-call interval advances the source by $200 through four endpoint tiles.
-        GrapplePointAnimationDefinitions.Advance(grapple);
+        GrapplePointAnimation.Advance(grapple);
         // Natively `$9B:BFA5` uploads the endpoint frame and the four rope characters for the angle's sector to
         // OBJ characters $20-$24; the draws below bind that selection over the standard OBJ page.
         SpriteSheet installed = sheet ?? throw new InvalidOperationException("The grapple beam requires the installed grapple sheet.");
         SuperMetroid.Core.Samus.Artwork.GrappleRopeOrientation orientation =
-            SuperMetroid.Core.Samus.Artwork.GrappleTileDefinitions.OrientationFor(grapple.Angle);
+            SuperMetroid.Core.Samus.Artwork.GrappleTileSelection.OrientationFor(grapple.Angle);
 
         // `$9B:BFA5` increments the shared flare counter after both tile records, saturating
         // at 120 by a signed comparison. It happens even at zero rope length; only the OAM
@@ -248,7 +248,7 @@ public static class SamusGrappleBeamDrawing
             if ((screenX | screenY) >= GrappleBeamDefinitions.Rendering.ViewportExtent)
                 break;
             // `$94:AFDE`'s direction flips are ORed into the segment's own; the sheet holds each combination.
-            SpriteSheetFrame image = installed.Frame(SuperMetroid.Core.Samus.Artwork.GrappleSheetDefinitions.RopeFrame(
+            SpriteSheetFrame image = installed.Frame(SuperMetroid.Core.Samus.Artwork.GrappleSheets.RopeFrame(
                 orientation, grapple.SegmentAnimationFrames[instructionSlot], mirror));
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleRope, segment), image,
                 Position16<ScreenPixels>.Of(screenX, screenY), SpriteMirror.None));
@@ -256,7 +256,7 @@ public static class SamusGrappleBeamDrawing
             screenYFixed = unchecked(screenYFixed + stepY);
         }
 
-        DrawBeamEndpoint(grapple, sprites, installed.Frame(SuperMetroid.Core.Samus.Artwork.GrappleSheetDefinitions.EndpointFrame(
+        DrawBeamEndpoint(grapple, sprites, installed.Frame(SuperMetroid.Core.Samus.Artwork.GrappleSheets.EndpointFrame(
             grapple.PointAnimationFrame)), layer1, samusPose);
     }
 

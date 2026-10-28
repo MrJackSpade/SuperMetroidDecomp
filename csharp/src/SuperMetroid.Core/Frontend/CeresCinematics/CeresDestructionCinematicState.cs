@@ -178,7 +178,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <param name="spriteSheets">Required installed sprite sheets the scene's actors draw from.</param>
     public CeresDestructionCinematicState(
         AudioQueues? audio = null,
-        PowerBombFixedColorCatalog? fixedColors = null,
+        InstalledPowerBombFixedColors? fixedColors = null,
         IntroCinematicArtworkCatalog? artwork = null,
         IPaletteFxColorSource? paletteFxColors = null,
         CeresDestructionOutcome outcome = CeresDestructionOutcome.SamusEscaped,
@@ -202,7 +202,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         initialFrameWaits is > 0 and <= CeresDestructionSceneDefinitions.InitialFrameWaits;
 
     /// <summary>Rebinds current host artwork after restoring a cinematic debugger state.</summary>
-    internal void BindFixedColors(PowerBombFixedColorCatalog? colors) =>
+    internal void BindFixedColors(InstalledPowerBombFixedColors? colors) =>
         stationExplosion.PresentationColors = colors;
 
     /// <summary>

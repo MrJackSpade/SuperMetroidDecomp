@@ -21,13 +21,13 @@ public static class XrayRevealOverlays
     public static void Apply(RoomLevelData level, Span<RevealedBlock?> blocks,
         IReadOnlyList<CollectiblePlmSnapshot> items, SharedGameState system,
         XrayRoomOverlayDefinition? roomOverlay, Position16<RoomPixels> layer1Position,
-        XrayRevealVisualCatalog? visuals = null)
+        InstalledXrayReveals? visuals = null)
     {
         Ensure.NotNull(level);
         Ensure.LengthEqual(blocks, XrayRevealLayout.Cells);
         if (visuals is null)
             throw new InvalidOperationException("X-ray reveal requires installed overlay visuals.");
-        XrayOverlayVisualCatalog overlays = visuals.Overlays ?? throw new InvalidOperationException(
+        InstalledXrayOverlays overlays = visuals.Overlays ?? throw new InvalidOperationException(
             "X-ray reveal requires installed item and room-overlay definitions.");
         for (int i = items.Count - 1; i >= 0; i--)
         {
@@ -36,10 +36,10 @@ public static class XrayRevealOverlays
             // The four tanks draw from the dynamic slots that follow the loaded item graphics, in tank order.
             int graphics = item.Kind switch
             {
-                InWorldCollectibleKind.EnergyTank => XrayOverlayVisualCatalog.DynamicGraphicsSlots,
-                InWorldCollectibleKind.MissileTank => XrayOverlayVisualCatalog.DynamicGraphicsSlots + 1,
-                InWorldCollectibleKind.SuperMissileTank => XrayOverlayVisualCatalog.DynamicGraphicsSlots + 2,
-                InWorldCollectibleKind.PowerBombTank => XrayOverlayVisualCatalog.DynamicGraphicsSlots + 3,
+                InWorldCollectibleKind.EnergyTank => InstalledXrayOverlays.DynamicGraphicsSlots,
+                InWorldCollectibleKind.MissileTank => InstalledXrayOverlays.DynamicGraphicsSlots + 1,
+                InWorldCollectibleKind.SuperMissileTank => InstalledXrayOverlays.DynamicGraphicsSlots + 2,
+                InWorldCollectibleKind.PowerBombTank => InstalledXrayOverlays.DynamicGraphicsSlots + 3,
                 InWorldCollectibleKind.Bombs or InWorldCollectibleKind.ChargeBeam or InWorldCollectibleKind.IceBeam or
                     InWorldCollectibleKind.HiJumpBoots or InWorldCollectibleKind.SpeedBooster or
                     InWorldCollectibleKind.WaveBeam or InWorldCollectibleKind.SpazerBeam or
@@ -50,7 +50,7 @@ public static class XrayRevealOverlays
                     InWorldCollectibleKind.MorphBall or InWorldCollectibleKind.ReserveTank => item.GraphicsSlot,
                 _ => throw new InvalidDataException($"Item {item.Header} has undefined collectible kind {item.Kind}."),
             };
-            if ((uint)graphics >= XrayOverlayVisualCatalog.DynamicGraphicsSlots * 2)
+            if ((uint)graphics >= InstalledXrayOverlays.DynamicGraphicsSlots * 2)
                 throw new InvalidDataException($"Item {item.Header} has invalid X-ray graphics slot {graphics}.");
             var metatile = new RoomLevelWord(overlays.ItemMetatile(graphics));
             Write(blocks, metatile, level.Size.CellAtRowMajorIndex(item.BlockIndex), layer1Position);
@@ -74,7 +74,7 @@ public static class XrayRevealOverlays
         // $91:D0A6 swaps the two tile rows for vertical flip. It neither toggles each
         // tile's mirroring nor implements horizontal flip; preserve that native behavior.
         bool flip = (metatileWord.VisualFlipFlags & LevelBlockFlipFlags.Vertical) != LevelBlockFlipFlags.None;
-        blocks[XrayRevealLayout.CellOf(x, y)] = new RevealedBlock(metatileWord.VisualBlockIndex,
+        blocks[XrayRevealCells.CellOf(x, y)] = new RevealedBlock(metatileWord.VisualBlockIndex,
             flip ? RevealedBlockArrangement.RowsSwapped : RevealedBlockArrangement.AsDefined);
     }
 }

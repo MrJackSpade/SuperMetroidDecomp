@@ -29,7 +29,7 @@ internal static class PowerBombFixedColorsVerification
         }
 
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        PowerBombFixedColorCatalog catalog = PowerBombFixedColorFile.Read(
+        InstalledPowerBombFixedColors catalog = PowerBombFixedColorFile.Read(
             new MemoryStream(PowerBombFixedColorExtractor.Extract(rom)));
         int compared = 0;
         foreach (PowerBombFixedColorSequence sequence in Enum.GetValues<PowerBombFixedColorSequence>())
@@ -65,7 +65,7 @@ internal static class PowerBombFixedColorsVerification
 
     /// <summary>Compares native and guarded explosion phases, radii, completion, and fixed colors frame by frame.</summary>
     private static void VerifyPowerBombColorAnimation(ISnesAddressSpace rom,
-        PowerBombFixedColorCatalog catalog, bool crystalFlash)
+        InstalledPowerBombFixedColors catalog, bool crystalFlash)
     {
         // The source-color words above are checked against the import-only ROM reader.
         // The runtime no longer has a cartridge color fallback, so both timing owners

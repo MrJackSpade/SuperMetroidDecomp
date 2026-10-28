@@ -51,7 +51,7 @@ internal static class SamusAnimationDelayDefinitionsVerification
         var residue = new SuperMetroid.Core.Compatibility.RecordedFloorUpdateResidue();
         residue.Write(0x0302 - SamusAnimationDelayDefinitions.FloorUpdateResidueOffset, 0x5A);
         AssertEqual((byte)0x5A,
-            SamusAnimationDelayDefinitions.ReadAnimationByte(residue,
+            SamusAnimationDelays.ReadAnimationByte(residue,
                 SamusAnimationDelayDefinitions.PointerForPose((SamusPoseId)0xFD), 0),
             "invalid-pose animation overread keeps its mutable WRAM alias");
         var flashbackSamus = new SamusState
@@ -59,11 +59,11 @@ internal static class SamusAnimationDelayDefinitionsVerification
             Pose = SamusPoseId.FacingLeftNormalPose,
         };
         SamusPresentation.InitializeAnimation(flashbackSamus);
-        AssertEqual(SamusAnimationDelayDefinitions.ListForPose(SamusPoseId.FacingLeftNormalPose),
+        AssertEqual(SamusAnimationDelays.ListForPose(SamusPoseId.FacingLeftNormalPose),
             flashbackSamus.AnimationDelayList,
             "Mother Brain flashback pose initializes through compiled animation timing");
         AssertThrows<InvalidDataException>(
-            () => SamusAnimationDelayDefinitions.ReadAnimationByte(residue,
+            () => SamusAnimationDelays.ReadAnimationByte(residue,
                 0xB5D1, 0),
             "uncompiled immutable pose-delay addresses fail explicitly");
         Console.WriteLine("Samus pose animation: 256 pointers and every stream byte match retail; mutable overread remains live.");

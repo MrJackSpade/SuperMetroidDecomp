@@ -21,12 +21,12 @@ internal static class SamusDeathExplosionTimingDefinitionsVerification
                 index * SamusDeathExplosionTimingDefinitions.RecordByteCount;
             AssertEqual(
                 rom.ReadCartridgeByte(address),
-                SamusDeathExplosionTimingDefinitions.DurationForIndex(index),
+                SamusDeathExplosionTiming.DurationForIndex(index),
                 $"Samus death-explosion duration {index}");
         }
 
         AssertThrows<InvalidDataException>(
-            () => SamusDeathExplosionTimingDefinitions.DurationForIndex(
+            () => SamusDeathExplosionTiming.DurationForIndex(
                 SamusDeathExplosionTimingDefinitions.RecordCount),
             "Samus death-explosion timing rejects a post-sequence index");
 

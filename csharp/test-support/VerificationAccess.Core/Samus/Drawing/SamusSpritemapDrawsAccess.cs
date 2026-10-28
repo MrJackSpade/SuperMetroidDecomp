@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// (the zero-pointer WRAM spritemap among them); built only when such a spritemap is drawn.
 /// </param>
 internal readonly record struct SamusSpritemapArtwork(
-    SamusSpritemapArtworkCatalog Spritemaps,
+    InstalledSamusSpritemaps Spritemaps,
     SpriteArtwork Characters,
     Func<SpriteArtwork> PageCharacters);
 

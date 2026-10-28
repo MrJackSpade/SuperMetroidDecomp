@@ -1738,7 +1738,7 @@ internal static class LookupStream4Verification
             {
                 var document = RequiredJson.Parse(source);
                 int word = edit / 3, channel = edit % 3;
-                var color = document.Required("palettes").Required(BeamPaletteDefinitions.Key(SamusBeamCombinations.FromTableIndex(word / 16))).Required(word % 16);
+                var color = document.Required("palettes").Required(BeamPaletteSources.Key(SamusBeamCombinations.FromTableIndex(word / 16))).Required(word % 16);
                 string component = channel switch { 0 => "red", 1 => "green", _ => "blue" };
                 color[component] = color.Required(component).GetValue<int>() ^ 1;
                 selected = BeamPaletteFile.Read(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));

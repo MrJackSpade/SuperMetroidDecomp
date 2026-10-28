@@ -249,8 +249,8 @@ internal sealed class EyeDoorBehavior
         int placementIndex,
         Position16<RoomBlocks> block)
     {
-        MiscDustProjectileProgram program = MiscDustProjectileDefinitions.Program(animation);
-        MiscDustPlacementDefinition placement = MiscDustProjectileDefinitions.SmokePlacement(checked((ushort)placementIndex));
+        MiscDustProjectileProgram program = MiscDustProjectiles.Program(animation);
+        MiscDustPlacementDefinition placement = MiscDustProjectiles.SmokePlacement(checked((ushort)placementIndex));
 
         int random = _room.Random.Read();
         // Native stores only the list pointer, keeping the definition's one-update timer.

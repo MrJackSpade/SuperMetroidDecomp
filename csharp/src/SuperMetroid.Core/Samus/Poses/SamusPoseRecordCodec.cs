@@ -35,7 +35,7 @@ internal static class SamusPoseRecordCodec
     internal static byte FacingByte(SamusPoseId pose) =>
         IrregularFacingBytes.TryGetValue(pose, out byte irregular)
             ? irregular
-            : FacingByte(SamusPoseDispatchDefinitions.ReadFacing(pose));
+            : FacingByte(SamusPoseDispatch.ReadFacing(pose));
 
     /// <summary>The bits of a history word's facing byte, below its movement byte.</summary>
     private const int FacingBits = 8;
@@ -54,7 +54,7 @@ internal static class SamusPoseRecordCodec
     /// the movement byte. A pose whose movement byte lies beyond the dispatcher fails, as reading its movement does.
     /// </summary>
     internal static ushort HistoryWord(SamusPoseId pose) =>
-        (ushort)(FacingByte(pose) | MovementByte(SamusPoseDispatchDefinitions.ReadMovement(pose)) << FacingBits);
+        (ushort)(FacingByte(pose) | MovementByte(SamusPoseDispatch.ReadMovement(pose)) << FacingBits);
 
     /// <summary>The movement type a history word records, or null when its movement byte names none.</summary>
     internal static SamusMovementType? HistoryMovement(ushort word)

@@ -20,7 +20,7 @@ public static class HyperBeamFxColorFile
     /// <summary>Loads ten eight-color projectile palette rows, rejecting duplicate or unknown properties, unsupported versions, incorrect dimensions, and RGB5 channels outside 0..31; preserves supplied edits independently of shared-color and midpoint relationships.</summary>
     /// <param name="json">UTF-8 JSON stream containing the versioned projectile-color document.</param>
     /// <returns>The validated catalog used by the Hyper Beam palette-FX handler.</returns>
-    public static HyperBeamFxColorCatalog Read(Stream json)
+    public static InstalledHyperBeamFxColors Read(Stream json)
     {
         HyperBeamFxColorDocument document;
         try

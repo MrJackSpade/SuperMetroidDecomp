@@ -16,7 +16,7 @@ internal readonly struct SpazerDiagonalSpreadParts(int pose, int phase) : IReadO
             var seed = new SpazerSeedParts(pose)[index % 4];
             int lane = index / 4;
             int direction = lane == 0 ? 0 : lane == 1 ? -1 : 1;
-            int distance = ProjectileSpritePartDefinitions.WaveDiagonalNumerator * SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(phase) / ProjectileSpritePartDefinitions.WaveDiagonalDenominator;
+            int distance = ProjectileSpritePartDefinitions.WaveDiagonalNumerator * SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelope.AxialLobeDistance(phase) / ProjectileSpritePartDefinitions.WaveDiagonalDenominator;
             int dx = direction * distance * (pose >= 2 ? -1 : 1);
             int dy = direction * distance * (pose is 1 or 2 ? -1 : 1);
             return new(seed.Part.At(Offset16<ScreenPixels>.Of(seed.Part.Offset.X + dx, seed.Part.Offset.Y + dy)), seed.InheritPalette);

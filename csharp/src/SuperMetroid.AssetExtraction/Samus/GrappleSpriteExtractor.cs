@@ -27,7 +27,7 @@ public static class GrappleSpriteExtractor
                 FlipX = attributes.FlipHorizontally, FlipY = attributes.FlipVertically,
             };
         }
-        return GrappleSpriteCatalog.Write(new()
+        return InstalledGrappleSprites.Write(new()
         {
             Version = GrappleSpriteDefinitions.Version,
             Endpoint = Read(SamusSourceDefinitions.GrappleEndpointAttributes.Value),

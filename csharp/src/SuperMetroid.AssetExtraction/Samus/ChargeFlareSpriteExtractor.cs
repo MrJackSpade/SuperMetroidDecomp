@@ -12,7 +12,7 @@ public static class ChargeFlareSpriteExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         byte[] json = ProjectileSpriteExtractor.ExtractFrames(bus, ChargeFlareSpriteDefinitions.All, ProjectileSpriteLocations.Flares());
-        _ = ChargeFlareSpriteCatalog.Load(new MemoryStream(json));
+        _ = ChargeFlareSprites.Load(new MemoryStream(json));
         return json;
     }
 }

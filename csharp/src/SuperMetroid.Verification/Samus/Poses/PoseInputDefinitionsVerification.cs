@@ -27,9 +27,9 @@ internal static class PoseInputDefinitionsVerification
                 if (native.Count >= 1000) throw new InvalidDataException("Native pose-input fixture does not terminate.");
                 native.Add(new PoseInputDefinitionsNative(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((address + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((address + 4))));
             }
-            AssertTrue(SamusPoseInputDefinitions.TryGetInputList(pose, out SamusPoseInputList actualPointer), "Authored graph exists");
+            AssertTrue(SamusPoseInputs.TryGetInputList(pose, out SamusPoseInputList actualPointer), "Authored graph exists");
             AssertEqual(pointer, SamusPoseInputListNative.Address(actualPointer), "Native transition-list diagnostic identity");
-            AssertEqual(native.Count != 0, SamusPoseInputDefinitions.Match(actualPointer, (ControllerButton)ushort.MaxValue, (ControllerButton)ushort.MaxValue).HasConditions, "Native empty versus nonempty input program");
+            AssertEqual(native.Count != 0, SamusPoseInputs.Match(actualPointer, (ControllerButton)ushort.MaxValue, (ControllerButton)ushort.MaxValue).HasConditions, "Native empty versus nonempty input program");
             for (int i = 0; i < native.Count; i++)
             {
                 newMask |= native[i].New; heldMask |= native[i].Held;
@@ -70,7 +70,7 @@ internal static class PoseInputDefinitionsVerification
         for (int pose = 253; pose <= byte.MaxValue; pose++)
         {
             SamusPoseId invalidPose = (SamusPoseId)pose;
-            AssertTrue(!SamusPoseInputDefinitions.TryGetInputList(invalidPose, out _), "Trailing pose indexes have no authored graph");
+            AssertTrue(!SamusPoseInputs.TryGetInputList(invalidPose, out _), "Trailing pose indexes have no authored graph");
             AssertThrows<InvalidDataException>(
                 () => SamusPoseTransitionTable.Lookup(invalidPose, (ControllerButton)1, (ControllerButton)1),
                 "Non-authored pose graph rejects adjacent code");

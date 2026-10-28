@@ -112,7 +112,7 @@ internal sealed class RidleyProjectiles
             RoomEnemyProjectileKind.MiscDustExplosion,
             graphics: default);
         dust.Position = dust.Position.WithWhole(position);
-        dust.StartAnimation(new MiscDustProjectileAnimation(MiscDustProjectileDefinitions.Program(animation)));
+        dust.StartAnimation(new MiscDustProjectileAnimation(MiscDustProjectiles.Program(animation)));
     }
 
     /// <summary>Creates the stationary impact center that later emits a perpendicular afterburn pair.</summary>

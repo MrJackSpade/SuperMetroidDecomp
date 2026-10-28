@@ -74,7 +74,7 @@ public sealed class SamusProjectileSystem
     /// the installation.
     /// </summary>
     [field: NonSerialized]
-    internal SamusOverreadCatalog? Overreads
+    internal InstalledSamusOverreads? Overreads
     {
         get;
         set
@@ -142,7 +142,7 @@ public sealed class SamusProjectileSystem
     public static void LoadBeamPalette(
         ColourRun beam,
         SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams,
-        SuperMetroid.Core.Samus.Artwork.BeamPaletteCatalog? palettes) =>
+        SuperMetroid.Core.Samus.Artwork.InstalledBeamPalettes? palettes) =>
         LoadBeamPalette(beam, SelectedCombination(equippedBeams), palettes);
 
     /// <summary>
@@ -155,7 +155,7 @@ public sealed class SamusProjectileSystem
 
     /// <summary>Loads a beam combination's final CGRAM palette from installed art or the special beam definitions.</summary>
     public static void LoadBeamPalette(ColourRun beam,
-        SamusBeamCombination selection, SuperMetroid.Core.Samus.Artwork.BeamPaletteCatalog? palettes)
+        SamusBeamCombination selection, SuperMetroid.Core.Samus.Artwork.InstalledBeamPalettes? palettes)
     {
         switch (selection)
         {
@@ -163,7 +163,7 @@ public sealed class SamusProjectileSystem
                 LoadChainsawPalette(beam);
                 break;
             case SpacetimeBeamGraphicsDefinitions.Selection:
-                SpacetimeBeamGraphicsDefinitions.LoadPalette(beam);
+                SpacetimeBeamGraphics.LoadPalette(beam);
                 break;
             case SamusBeamCombination.Power or SamusBeamCombination.Wave or SamusBeamCombination.Ice or
                 SamusBeamCombination.IceWave or SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave or
@@ -224,7 +224,7 @@ public sealed class SamusProjectileSystem
 
                 // The installed path compiles the two list levels for bounded native offsets.
                 bool catalogued = samus.Presentation.ChargeColors is not null &&
-                    SamusChargePaletteDefinitions.IsCompiledChargePhase(
+                    SamusChargePalettes.IsCompiledChargePhase(
                         suitOffset, checked((ushort)Charge.SamusChargePaletteIndex));
                 if (!catalogued)
                     throw new InvalidDataException(
@@ -306,7 +306,7 @@ public sealed class SamusProjectileSystem
         }
 
         bool cataloguedHyper = samus.Presentation.ChargeColors is not null &&
-            SamusChargePaletteDefinitions.IsCompiledHyperShot(tableOffset);
+            SamusChargePalettes.IsCompiledHyperShot(tableOffset);
         if (!cataloguedHyper)
             throw new InvalidDataException($"Hyper Beam palette offset {tableOffset} is not compiled.");
         int hyperPaletteIndex = (20 - tableOffset) / 2;
@@ -357,7 +357,7 @@ public sealed class SamusProjectileSystem
         // nothing: held/released Shoot must leave the charge word untouched.
         // Existing projectiles still advance below. Pose input can leave spin
         // first, making the normal producer eligible on the following alpha.
-        SamusHudHandler hudHandler = SamusHudDefinitions.MovementHandler(SamusPoseMetadata.ReadMovementType(samus));
+        SamusHudHandler hudHandler = SamusHudObservations.MovementHandler(SamusPoseMetadata.ReadMovementType(samus));
         bool preservesJumpHandlerCharge = samus.Grapple.Phase == GrapplePhase.Inactive &&
             hudHandler == SamusHudHandler.Jump;
         // Turning HUD dispatch waits for an explicit pose-initializer muzzle handoff.

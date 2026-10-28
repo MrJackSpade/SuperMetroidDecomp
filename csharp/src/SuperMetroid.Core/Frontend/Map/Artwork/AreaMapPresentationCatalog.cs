@@ -180,19 +180,19 @@ public sealed class AreaMapPresentationCatalog : IInstalledArtworkContent, IGame
     /// <summary>Selected room-FX palette-blend presentation, separate from layer-3 tilemap geometry and animated character bytes.</summary>
     public RoomFxPaletteBlendCatalog RoomFxPaletteBlends { get; }
     /// <summary>Fixed RGB5 colors for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>
-    public PowerBombFixedColorCatalog PowerBombFixedColors { get; }
+    public InstalledPowerBombFixedColors PowerBombFixedColors { get; }
     /// <summary>Visor colors shared by X-ray and room palette cycling, separate from complete suit palettes.</summary>
-    public SamusVisorColorCatalog SamusVisorColors { get; }
+    public InstalledSamusVisorColors SamusVisorColors { get; }
     /// <summary>Samus hurt-flash and cinematic-restoration color artwork.</summary>
-    public SamusHurtColorCatalog SamusHurtColors { get; }
+    public InstalledSamusHurtColors SamusHurtColors { get; }
     /// <summary>Base Power, Varia, and Gravity Suit colors, separate from transient full-body and charge cycles.</summary>
-    public SamusSuitColorCatalog SamusSuitColors { get; }
+    public InstalledSamusSuitColors SamusSuitColors { get; }
     /// <summary>Samus full-body palette-cycle inputs, separate from static suit, visor, and charged-beam colors.</summary>
-    public SamusFullBodyCycleColorCatalog SamusFullBodyCycleColors { get; }
+    public InstalledSamusFullBodyCycleColors SamusFullBodyCycleColors { get; }
     /// <summary>Crystal Flash body and bubble colors; native timing, frame selection, and completion remain engine-owned.</summary>
-    public CrystalFlashColorCatalog CrystalFlashColors { get; }
+    public InstalledCrystalFlashColors CrystalFlashColors { get; }
     /// <summary>Charged-beam and pseudo-Screw-Attack palette inputs, separate from base suit colors.</summary>
-    public SamusChargeColorCatalog SamusChargeColors { get; }
+    public InstalledSamusChargeColors SamusChargeColors { get; }
     /// <summary>Ceres Ridley colors, shared Norfair Ridley health colors, and private Baby drawing colors; Mode 7 zoom shades are supplied separately.</summary>
     public CeresRidleyColorCatalog CeresRidleyColors { get; }
     /// <summary>Ceres Ridley Mode 7 zoom shades, separate from ordinary Ridley colors and compiled movement and rotation.</summary>
@@ -200,7 +200,7 @@ public sealed class AreaMapPresentationCatalog : IInstalledArtworkContent, IGame
     /// <summary>Where the getaway's floor runs take their tile numbers from, which the floor updates it queues record.</summary>
     public CeresRidleyFloorUpdateSources CeresRidleyFloorUpdates { get; }
     /// <summary>Samus Hyper Beam palette-cycle colors, separate from charged-beam presentation and other suit cycles.</summary>
-    public SamusHyperBeamColorCatalog SamusHyperBeamColors { get; }
+    public InstalledSamusHyperBeamColors SamusHyperBeamColors { get; }
     /// <summary>Resolves installed HUD, Kraid HUD-restoration, or escape-timer character bytes for a VRAM transfer.</summary>
     /// <param name="asset">The transfer identity; this provider supports only the HUD and escape-timer identities in its catalog.</param>
     /// <returns>Read-only planar character bytes for the requested transfer.</returns>

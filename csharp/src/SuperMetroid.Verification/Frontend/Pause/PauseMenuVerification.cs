@@ -198,7 +198,7 @@ internal static class PauseMenuVerification
         // Keep the fixture's distinctive Wave palette through the real installed binding.
         var colors = Enumerable.Range(0, 12).Select(_ => new ushort[16]).ToArray();
         colors[1] = Enumerable.Range(0, 16).Select(color => (ushort)(0x3200 + color)).ToArray();
-        var beamPalettes = new BeamPaletteCatalog(ToColors(colors));
+        var beamPalettes = new InstalledBeamPalettes(ToColors(colors));
         resumeRuntime.Artwork.BeamPalettes = beamPalettes;
         resumeRuntime.SamusPhases.UpdateGameplayBeamTilesAndPalette(samus.EquippedBeams);
         resumeRuntime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);

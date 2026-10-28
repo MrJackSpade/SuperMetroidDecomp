@@ -20,12 +20,12 @@ public static class GrappleFlarePlacementExtractor
         {
             int x = running ? SamusSourceDefinitions.GrappleRunningFlareX.Value : SamusSourceDefinitions.GrappleDefaultFlareX.Value;
             int y = running ? SamusSourceDefinitions.GrappleRunningFlareY.Value : SamusSourceDefinitions.GrappleDefaultFlareY.Value;
-            offsets.Add(ChargeFlarePlacementDefinitions.Key(running, direction), new()
+            offsets.Add(ChargeFlarePlacementOffsets.Key(running, direction), new()
             {
                 X = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), x + direction * 2)),
                 Y = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), y + direction * 2)),
             });
         }
-        return ChargeFlarePlacementCatalog.Write(new() { Version = ChargeFlarePlacementDefinitions.Version, Offsets = offsets });
+        return ChargeFlarePlacements.Write(new() { Version = ChargeFlarePlacementDefinitions.Version, Offsets = offsets });
     }
 }

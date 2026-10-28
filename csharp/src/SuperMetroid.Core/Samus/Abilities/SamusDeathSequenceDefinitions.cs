@@ -14,27 +14,36 @@ public static class SamusDeathSequenceDefinitions
     /// <summary>Left-facing base index in Samus's death-explosion spritemap table.</summary>
     public const ushort LeftExplosionSpritemap = 0x0825;
 
-    /// <summary>
-    /// $9B:B420: the initial visible death-pose animation frame the movement type in effect before fatal-damage pose
-    /// setup selects, without replacing the separately initialized animation timer: ball movement starts at one, the
-    /// two unused glitch-ball types at zero, every other movement type at five.
-    /// </summary>
-    /// <param name="movement">The movement type before the death pose.</param>
-    /// <returns>The initial death-pose animation frame.</returns>
-    public static byte InitialFrame(SamusMovementType movement) => movement switch
+    /// <summary>The value each key selects; InitialFrame looks it up.</summary>
+    public static readonly IReadOnlyDictionary<SamusMovementType, byte> InitialFrames = new Dictionary<SamusMovementType, byte>
     {
-        SamusMovementType.MorphBallGround or SamusMovementType.MorphBallFalling or
-        SamusMovementType.SpringBallGround or SamusMovementType.SpringBallInAir or
-        SamusMovementType.SpringBallFalling => 1,
-        SamusMovementType.UnusedGlitchBall or SamusMovementType.UnusedGlitchBallAlternate => 0,
-        SamusMovementType.Standing or SamusMovementType.Running or SamusMovementType.NormalJumping or
-            SamusMovementType.SpinJumping or SamusMovementType.Crouching or SamusMovementType.Falling or
-            SamusMovementType.Knockback or SamusMovementType.Unused0B or SamusMovementType.Unused0C or
-            SamusMovementType.Unused0D or SamusMovementType.TurningOnGround or
-            SamusMovementType.PostureTransition or SamusMovementType.Moonwalking or
-            SamusMovementType.WallJumping or SamusMovementType.RanIntoWall or SamusMovementType.Grappling or
-            SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling or
-            SamusMovementType.DamageBoost or SamusMovementType.DraygonHeld or SamusMovementType.Special => 5,
-        _ => throw new InvalidDataException($"Death-pose frame table has no movement type {movement}."),
+        [SamusMovementType.MorphBallGround] = 1,
+        [SamusMovementType.MorphBallFalling] = 1,
+        [SamusMovementType.SpringBallGround] = 1,
+        [SamusMovementType.SpringBallInAir] = 1,
+        [SamusMovementType.SpringBallFalling] = 1,
+        [SamusMovementType.UnusedGlitchBall] = 0,
+        [SamusMovementType.UnusedGlitchBallAlternate] = 0,
+        [SamusMovementType.Standing] = 5,
+        [SamusMovementType.Running] = 5,
+        [SamusMovementType.NormalJumping] = 5,
+        [SamusMovementType.SpinJumping] = 5,
+        [SamusMovementType.Crouching] = 5,
+        [SamusMovementType.Falling] = 5,
+        [SamusMovementType.Knockback] = 5,
+        [SamusMovementType.Unused0B] = 5,
+        [SamusMovementType.Unused0C] = 5,
+        [SamusMovementType.Unused0D] = 5,
+        [SamusMovementType.TurningOnGround] = 5,
+        [SamusMovementType.PostureTransition] = 5,
+        [SamusMovementType.Moonwalking] = 5,
+        [SamusMovementType.WallJumping] = 5,
+        [SamusMovementType.RanIntoWall] = 5,
+        [SamusMovementType.Grappling] = 5,
+        [SamusMovementType.TurningWhileJumping] = 5,
+        [SamusMovementType.TurningWhileFalling] = 5,
+        [SamusMovementType.DamageBoost] = 5,
+        [SamusMovementType.DraygonHeld] = 5,
+        [SamusMovementType.Special] = 5,
     };
 }

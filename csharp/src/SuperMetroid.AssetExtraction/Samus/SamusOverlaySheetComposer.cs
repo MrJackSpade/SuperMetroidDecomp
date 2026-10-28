@@ -17,7 +17,7 @@ internal static class SamusOverlaySheetComposer
     internal static SpriteSheetSources Sources(SamusSheetInputs inputs) => Sources(inputs, Ensure.NotNull(inputs).SamusBody.ArmCannon);
 
     /// <summary>What the overlay sheet composes with <paramref name="cannon"/>.</summary>
-    internal static SpriteSheetSources Sources(SamusSheetInputs inputs, SamusArmCannonArtworkCatalog cannon)
+    internal static SpriteSheetSources Sources(SamusSheetInputs inputs, InstalledSamusArmCannonArtwork cannon)
     {
         Ensure.NotNull(inputs);
         Ensure.NotNull(cannon);

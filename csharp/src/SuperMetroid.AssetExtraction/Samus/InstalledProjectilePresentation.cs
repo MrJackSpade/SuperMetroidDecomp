@@ -15,4 +15,4 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="GrappleTiles">Grapple characters, with the grapple's sprite, flare and swing catalogs.</param>
 /// <param name="FrameBindings">Timed projectile frame sprite choices.</param>
 [ArchitectureReview("context-bag", "The installed projectile presentation the extraction read; every member is loaded artwork data or its identity, not a service.")]
-public sealed record InstalledProjectilePresentation(ProjectileSpriteCatalog Catalog, string StockSha256, string SelectedSha256, BeamTileCatalog BeamTiles, ProjectileTrailCatalog Trails, ProjectileTrailAtlas TrailTiles, ChargeFlarePlacementCatalog FlarePlacement, ChargeFlareSpriteCatalog FlareCompositions, GrappleTileAtlas GrappleTiles, ProjectileFrameBindingCatalog FrameBindings);
+public sealed record InstalledProjectilePresentation(InstalledProjectileSprites Catalog, string StockSha256, string SelectedSha256, BeamTileCatalog BeamTiles, InstalledProjectileTrails Trails, ProjectileTrailAtlas TrailTiles, ChargeFlarePlacements FlarePlacement, ChargeFlareSprites FlareCompositions, GrappleTileAtlas GrappleTiles, InstalledProjectileFrameBindings FrameBindings);

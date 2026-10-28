@@ -19,7 +19,7 @@ public readonly record struct SamusLookupFailurePose(SamusPoseId ProspectivePose
         bool hasBaseXSpeed)
     {
         if (hasBaseXSpeed &&
-            SamusPoseChangeCommandDefinitions.ForLookupFailure(movementType) == SamusProspectivePoseChangeCommand.Decelerate)
+            SamusPoseChangeCommands.ForLookupFailure(movementType) == SamusProspectivePoseChangeCommand.Decelerate)
             return new SamusLookupFailurePose(currentPose);
         SamusPoseId pose = definitionFallbackPose == SamusMovementDefinitions.Poses.RetainCurrentPoseFallback
             ? currentPose

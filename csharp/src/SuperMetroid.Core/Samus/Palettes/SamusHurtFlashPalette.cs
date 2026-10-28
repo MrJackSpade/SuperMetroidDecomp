@@ -36,7 +36,7 @@ public static class SamusHurtFlashPalette
         ColourRun suit,
         SamusState samus,
         ControllerButton controllerInput,
-        SamusHurtColorCatalog? presentationColors = null)
+        InstalledSamusHurtColors? presentationColors = null)
     {
         Ensure.NotNull(samus);
 

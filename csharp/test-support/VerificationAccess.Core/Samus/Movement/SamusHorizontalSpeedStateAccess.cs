@@ -29,7 +29,7 @@ internal static class SamusHorizontalSpeedStateAccess
     private static SamusLiquidMedium MediumAt(ushort word)
     {
         foreach (SamusLiquidMedium medium in Enum.GetValues<SamusLiquidMedium>())
-            if (RowWord(SamusHorizontalMotionDefinitions.FirstRow(medium)) == word)
+            if (RowWord(SamusHorizontalMotion.FirstRow(medium)) == word)
                 return medium;
         throw new ArgumentOutOfRangeException(nameof(word), word, "The cartridge selects only the three movement-type tables.");
     }
@@ -41,13 +41,13 @@ internal static class SamusHorizontalSpeedStateAccess
         internal static ushort NormalSpeedTable => NormalSpeedTableWord;
 
         /// <summary>The bank-$90 base of the ordinary-air table.</summary>
-        internal static ushort NormalAirSpeedTable => RowWord(SamusHorizontalMotionDefinitions.FirstRow(SamusLiquidMedium.Air));
+        internal static ushort NormalAirSpeedTable => RowWord(SamusHorizontalMotion.FirstRow(SamusLiquidMedium.Air));
 
         /// <summary>The bank-$90 base selected below water without Gravity Suit.</summary>
-        internal static ushort WaterSpeedTable => RowWord(SamusHorizontalMotionDefinitions.FirstRow(SamusLiquidMedium.Water));
+        internal static ushort WaterSpeedTable => RowWord(SamusHorizontalMotion.FirstRow(SamusLiquidMedium.Water));
 
         /// <summary>The bank-$90 base selected below lava/acid without Gravity Suit.</summary>
-        internal static ushort LavaAcidSpeedTable => RowWord(SamusHorizontalMotionDefinitions.FirstRow(SamusLiquidMedium.LavaOrAcid));
+        internal static ushort LavaAcidSpeedTable => RowWord(SamusHorizontalMotion.FirstRow(SamusLiquidMedium.LavaOrAcid));
     }
 
     /// <summary>Address-based resolution of authored records.</summary>
@@ -65,7 +65,7 @@ internal static class SamusHorizontalSpeedStateAccess
                 entry = default;
                 return false;
             }
-            return SamusHorizontalMotionDefinitions.TryResolveRow(offset / SpeedTableEntryConstants.ByteCount, out entry);
+            return SamusHorizontalMotion.TryResolveRow(offset / SpeedTableEntryConstants.ByteCount, out entry);
         }
 
         /// <summary>Resolves a standalone record by its bank-$90 address.</summary>
@@ -75,7 +75,7 @@ internal static class SamusHorizontalSpeedStateAccess
             {
                 if (recordAddress == address)
                 {
-                    entry = SamusHorizontalMotionDefinitions.Standalone(record);
+                    entry = SamusHorizontalMotion.Standalone(record);
                     return true;
                 }
             }
@@ -101,7 +101,7 @@ internal static class SamusHorizontalSpeedStateAccess
         /// <summary>The bank-$90 base word of the selected table; setting it selects the table that starts there.</summary>
         internal ushort ActiveSpeedTableBaseAddress
         {
-            get => RowWord(SamusHorizontalMotionDefinitions.FirstRow(self.ActiveSpeedTable));
+            get => RowWord(SamusHorizontalMotion.FirstRow(self.ActiveSpeedTable));
             set => self.ActiveSpeedTable = MediumAt(value);
         }
 

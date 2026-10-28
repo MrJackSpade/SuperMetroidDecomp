@@ -33,7 +33,7 @@ internal static class SamusHudDefinitionsVerification
             if (pose < (int)SamusHudDefinitions.NonFiringTransitionStart)
                 AssertEqual(rom.ReadCartridgeByte(SamusCartridgeTablesConstants.HudTransitionFlags + pose -
                         (int)SamusHudDefinitions.FirstTransitionPose),
-                    SamusHudDefinitions.PostureObservation((SamusPoseId)pose, InstalledFixtures.SamusOverreads),
+                    SamusHudObservations.PostureObservation((SamusPoseId)pose, InstalledFixtures.SamusOverreads),
                     "Complete bounded posture-index observation");
             AssertEqual(Transition((SamusPoseId)pose, active),
                 SamusHudInput.PostureTransitionAdmitsWeapons((SamusPoseId)pose, active, InstalledFixtures.SamusOverreads),
@@ -44,7 +44,7 @@ internal static class SamusHudDefinitionsVerification
         for (byte movement = 0; movement < 28; movement++)
         {
             ushort handler = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90dd05 + movement * 2));
-            AssertEqual(handler, (ushort)SamusHudDefinitions.MovementHandler((SamusMovementType)movement), "All 28 native HUD handler identities");
+            AssertEqual(handler, (ushort)SamusHudObservations.MovementHandler((SamusMovementType)movement), "All 28 native HUD handler identities");
             for (int pose = 0; pose < 253; pose++)
             foreach (bool locked in new[] { false, true })
             foreach (ushort selected in new ushort[] { 3, 4 })
@@ -88,7 +88,7 @@ internal static class SamusHudDefinitionsVerification
             AssertTrue(shots.Slots.All(slot => !slot.IsActive), "Held partial charge does not emit shot");
         }
         AssertThrows<ArgumentOutOfRangeException>(
-            () => SamusHudDefinitions.PostureObservation(
+            () => SamusHudObservations.PostureObservation(
                 SamusHudDefinitions.NonFiringTransitionStart, InstalledFixtures.SamusOverreads),
             "posture observation rejects the native prefiltered range");
         Console.WriteLine("Samus HUD definitions: 28 handler words, all 219 bounded posture-index observations, 512 transition cases, 3036 native-pose Grapple admission cases and 506 real charge-preservation cases pass with policy reads forbidden.");

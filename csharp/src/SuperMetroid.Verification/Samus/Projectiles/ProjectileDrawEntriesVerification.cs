@@ -33,7 +33,7 @@ internal static class ProjectileDrawEntriesVerification
         var image = (ImageSpriteDraw)draw;
         SamusBeamCombination beam = new SamusBeamLoadoutWord(artwork.EquippedBeams).Combination
             ?? throw new InvalidOperationException($"{subject} uses an equipped-beam word with no combination.");
-        SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(ProjectileSheetDefinitions.For(beam));
+        SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(ProjectileSheetFrames.For(beam));
         AssertTrue(ReferenceEquals(sheet.Image, image.Image.Sheet), $"{subject} is drawn from the {beam} beam's sheet");
         AssertEqual(sheet.Frame(frame), image.Image, $"{subject} shows its frame {frame}");
         AssertEqual(origin, draw.Origin, $"{subject} is placed at its camera-relative position");

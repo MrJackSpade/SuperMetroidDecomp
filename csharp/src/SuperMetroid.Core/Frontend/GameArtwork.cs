@@ -52,7 +52,7 @@ public sealed record GameArtwork : IGameplayArtwork
     public IntroCinematicArtworkCatalog? IntroCinematicArt { get; init; }
 
     /// <summary>Samus body tiles, palettes and death palettes.</summary>
-    public SamusBodyArtworkCatalog? SamusBodyArt { get; init; }
+    public InstalledSamusBodyArtwork? SamusBodyArt { get; init; }
 
     /// <summary>Ending Mode 7 artwork.</summary>
     public EndingFloorArtworkCatalog? EndingFloorArt { get; init; }
@@ -160,7 +160,7 @@ public sealed record GameArtwork : IGameplayArtwork
     public RoomPlmDynamicCollectibleArtCatalog? RoomPlmDynamicCollectibleArt { get; init; }
 
     /// <summary>X-ray reveal operands and item and special-room overlays.</summary>
-    public XrayRevealVisualCatalog? XrayRevealVisuals { get; init; }
+    public InstalledXrayReveals? XrayRevealVisuals { get; init; }
 
     /// <summary>Room background tilemaps.</summary>
     public RoomBackgroundTilemaps? RoomBackgroundTilemapArt { get; init; }
@@ -169,16 +169,16 @@ public sealed record GameArtwork : IGameplayArtwork
     public RoomSkyTilemaps? RoomSkyTilemapArt { get; init; }
 
     /// <summary>Samus projectile sprite compositions.</summary>
-    public ProjectileSpriteCatalog? ProjectileCompositions { get; init; }
+    public InstalledProjectileSprites? ProjectileCompositions { get; init; }
 
     /// <summary>Timed projectile frame sprite choices.</summary>
-    public ProjectileFrameBindingCatalog? ProjectileFrameBindings { get; init; }
+    public InstalledProjectileFrameBindings? ProjectileFrameBindings { get; init; }
 
     /// <summary>The beam palettes, by beam combination.</summary>
-    public BeamPaletteCatalog? BeamPalettes { get; init; }
+    public InstalledBeamPalettes? BeamPalettes { get; init; }
 
     /// <summary>The Hyper Beam palette effect's colour cycle.</summary>
-    public HyperBeamFxColorCatalog? HyperBeamFxColors { get; init; }
+    public InstalledHyperBeamFxColors? HyperBeamFxColors { get; init; }
 
     /// <summary>Enemy sprite sheets, palettes and enemy-projectile spritemaps.</summary>
     public EnemyTileArtworkCatalog? EnemyTileArtwork { get; init; }
@@ -190,10 +190,10 @@ public sealed record GameArtwork : IGameplayArtwork
     public AreaArtworkCatalog? AreaArtwork { get; init; }
 
     /// <summary>Projectile trail artwork.</summary>
-    public ProjectileTrailCatalog? TrailArtwork { get; init; }
+    public InstalledProjectileTrails? TrailArtwork { get; init; }
 
     /// <summary>The cartridge bytes Samus's glitch paths read, extracted from the player's cartridge.</summary>
-    public SamusOverreadCatalog? SamusOverreads { get; init; }
+    public InstalledSamusOverreads? SamusOverreads { get; init; }
 
     /// <summary>The pre-coloured sprite sheets drawn families select their frames from.</summary>
     public InstalledSpriteSheets? SpriteSheets { get; init; }
@@ -202,14 +202,14 @@ public sealed record GameArtwork : IGameplayArtwork
     public InstalledEnemySheets? EnemySheets { get; init; }
 
     /// <summary>Charge-flare placement.</summary>
-    public ChargeFlarePlacementCatalog? ChargeFlarePlacement { get; init; }
+    public ChargeFlarePlacements? ChargeFlarePlacement { get; init; }
 
     /// <summary>Charge-flare sprite compositions.</summary>
-    public ChargeFlareSpriteCatalog? ChargeFlareCompositions { get; init; }
+    public ChargeFlareSprites? ChargeFlareCompositions { get; init; }
 
     /// <summary>The grapple flare's standing and running offsets.</summary>
-    public ChargeFlarePlacementCatalog? GrappleFlarePlacement { get; init; }
+    public ChargeFlarePlacements? GrappleFlarePlacement { get; init; }
 
     /// <summary>The frame Samus's swing pose shows at each grapple angle.</summary>
-    public GrappleSwingFrameCatalog? GrappleSwingFrames { get; init; }
+    public InstalledGrappleSwingFrames? GrappleSwingFrames { get; init; }
 }

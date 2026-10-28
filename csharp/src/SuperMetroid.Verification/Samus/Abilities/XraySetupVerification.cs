@@ -40,12 +40,12 @@ internal static class XraySetupVerification
         {
             XrayRevealDefinition? native = XrayRevealTable.Find(type, unchecked((byte)bts));
             if (native is not { } definition ||
-                !XrayRevealVisualCatalog.IsDrawable(definition.Command)) continue;
+                !InstalledXrayReveals.IsDrawable(definition.Command)) continue;
             visualEntries.Add(new(type, unchecked((byte)bts), new XrayRevealVisualWords(
                 type == RoomCollisionType.Air ? 0x00fe : definition.TopLeft,
                 definition.TopRight, definition.BottomLeft, definition.BottomRight)));
         }
-        runtime.Xray.XrayRevealVisuals = new XrayRevealVisualCatalog(visualEntries, (runtime.Xray.XrayRevealVisuals ?? throw new InvalidOperationException("Verification requires runtime.Xray.XrayRevealVisuals.")).Overlays);
+        runtime.Xray.XrayRevealVisuals = new InstalledXrayReveals(visualEntries, (runtime.Xray.XrayRevealVisuals ?? throw new InvalidOperationException("Verification requires runtime.Xray.XrayRevealVisuals.")).Overlays);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();

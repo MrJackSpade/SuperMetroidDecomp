@@ -64,9 +64,9 @@ internal static class SamusProjectileHeaderNative
         internal static ushort ReadWord(int address)
         {
             if (address is >= 0x9383c1 and < 0x938431 && (address & 1) == 1)
-                return SamusProjectileSelectionDefinitions.Entry(SamusProjectileSelectorTable.UnchargedBeam, (address - 0x9383c1) / 2)
+                return SamusProjectileSelection.Entry(SamusProjectileSelectorTable.UnchargedBeam, (address - 0x9383c1) / 2)
                     is { } header ? Address(header) : (ushort)0;
-            return At(address) is { } damaged ? SamusProjectileDamageDefinitions.Read(damaged)
+            return At(address) is { } damaged ? SamusProjectileDamage.Read(damaged)
                 : throw new InvalidDataException($"Projectile selector word ${address:X6} is outside the compiled cartridge definitions.");
         }
     }
@@ -80,7 +80,7 @@ internal static class SamusProjectileHeaderNative
         internal static int BeamHeaderStride => 22;
 
         /// <summary>The damage of the header at bank-$93 <paramref name="address"/>.</summary>
-        internal static ushort Read(int address) => At(address) is { } header ? SamusProjectileDamageDefinitions.Read(header)
+        internal static ushort Read(int address) => At(address) is { } header ? SamusProjectileDamage.Read(header)
             : throw new InvalidDataException($"Projectile damage header ${address:X6} is outside the compiled cartridge definitions.");
     }
 
@@ -89,7 +89,7 @@ internal static class SamusProjectileHeaderNative
     {
         /// <summary>The program the header at bank-$93 <paramref name="header"/>'s list field <paramref name="direction"/> selects.</summary>
         internal static SamusProjectileProgram? Program(ushort header, int direction) =>
-            SamusProjectileHeaderDefinitions.Program(At(0x930000 | header)
+            SamusProjectileHeaders.Program(At(0x930000 | header)
                 ?? throw new InvalidDataException($"$93:{header:X4} is not a Samus projectile header."), direction);
     }
 }

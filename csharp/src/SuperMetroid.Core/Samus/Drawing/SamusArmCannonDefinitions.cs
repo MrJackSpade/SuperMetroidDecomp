@@ -3,12 +3,14 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// <summary>Fixed cartridge policy controlling the arm-cannon cover for each HUD item.</summary>
 internal static class SamusArmCannonDefinitions
 {
-    /// <summary>Returns the native desired cover state for a HUD item.</summary>
-    public static byte DesiredOpenFlag(HudItem selectedHudItem) => selectedHudItem switch
+    /// <summary>The value each key selects; DesiredOpenFlag looks it up.</summary>
+    public static readonly IReadOnlyDictionary<HudItem, byte> DesiredOpenFlags = new Dictionary<HudItem, byte>
     {
-        HudItem.Missile or HudItem.SuperMissile or HudItem.Grapple => 1,
-        HudItem.Beam or HudItem.PowerBomb or HudItem.XRay => 0,
-        _ => throw new ArgumentOutOfRangeException(nameof(selectedHudItem), selectedHudItem,
-            "HUD item is outside the six-entry dispatcher."),
+        [HudItem.Missile] = 1,
+        [HudItem.SuperMissile] = 1,
+        [HudItem.Grapple] = 1,
+        [HudItem.Beam] = 0,
+        [HudItem.PowerBomb] = 0,
+        [HudItem.XRay] = 0,
     };
 }

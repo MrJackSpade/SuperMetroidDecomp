@@ -19,7 +19,7 @@ internal static class XrayOverlaysVerification
     internal static void VerifyXrayOverlays()
     {
         var bus = new TestAddressSpace();
-        var overlays = XrayOverlayVisualCatalog.FromOverlaysForVerification(
+        var overlays = InstalledXrayOverlays.FromOverlaysForVerification(
             Enumerable.Range(1, 8).Select(value => (ushort)value),
             new XrayRoomOverlayTiles[]
             {
@@ -33,10 +33,10 @@ internal static class XrayOverlaysVerification
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         for (int bts = 0; bts <= byte.MaxValue; bts++)
             if (XrayRevealTable.Find(type, (byte)bts) is { } definition &&
-                XrayRevealVisualCatalog.IsDrawable(definition.Command))
+                InstalledXrayReveals.IsDrawable(definition.Command))
                 entries.Add(new(type, (byte)bts, new(definition.TopLeft, definition.TopRight,
                     definition.BottomLeft, definition.BottomRight)));
-        var visuals = new XrayRevealVisualCatalog(entries, overlays);
+        var visuals = new InstalledXrayReveals(entries, overlays);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]));
         var system = new SharedGameState();
         var items = new[]

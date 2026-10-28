@@ -224,9 +224,9 @@ internal static class MapPresentationVerification
         /// <summary>Installed sky tilemaps for rooms that use a scrolling sky.</summary>
         private readonly RoomSkyTilemaps skies;
         /// <summary>Installed beam palettes bound to Samus's projectile presentation.</summary>
-        private readonly BeamPaletteCatalog? beamPalettes;
+        private readonly InstalledBeamPalettes? beamPalettes;
         /// <summary>Installed trail appearances.</summary>
-        private readonly ProjectileTrailCatalog trails;
+        private readonly InstalledProjectileTrails trails;
         /// <summary>Installed elevator platform art used by the room PLM owner.</summary>
         private readonly RoomPlmElevatorPlatformVisualCatalog elevatorPlatform;
 
@@ -235,7 +235,7 @@ internal static class MapPresentationVerification
         /// <summary>Enemy character and sprite art bound alongside room art.</summary>
         public InstalledEnemyArtwork EnemyTiles { get; }
         /// <summary>Samus body art bound before gameplay drawing begins.</summary>
-        public SamusBodyArtworkCatalog SamusBody { get; }
+        public InstalledSamusBodyArtwork SamusBody { get; }
 
         /// <summary>Loads the complete installed room artwork set once for live-map override checks.</summary>
         public MapPresentationInstalledRoomAssets(SuperMetroid.AssetExtraction.Installation.GameInstallation installation)

@@ -76,7 +76,7 @@ public sealed record GameInstallation(string Root)
     /// <summary>Stock cartridge bytes Samus's glitch paths read; not editable, so there is no override directory.</summary>
     public string SamusOverreadDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SamusOverreadDirectoryName);
     /// <summary>Loads the validated cartridge bytes Samus's glitch paths read.</summary>
-    public SamusOverreadCatalog LoadSamusOverreads() => SamusOverreadFiles.Load(SamusOverreadDirectory);
+    public InstalledSamusOverreads LoadSamusOverreads() => SamusOverreadFiles.Load(SamusOverreadDirectory);
     /// <summary>Stock pre-coloured sprite sheets and their frame manifests.</summary>
     public string SpriteSheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SpriteSheetDirectoryName);
     /// <summary>Player-edited sprite sheet images or frame manifests, which replace the stock files of the same name.</summary>
@@ -105,7 +105,7 @@ public sealed record GameInstallation(string Root)
     /// <summary>Replacement Samus body PNGs and visual selectors survive stock rebuilds.</summary>
     public string SamusBodyOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.SamusBodyDirectoryName);
     /// <summary>Loads validated Samus body artwork and compatible replacement PNGs and selectors from the persistent override tree.</summary>
-    public SamusBodyArtworkCatalog LoadSamusBodyArt() =>
+    public InstalledSamusBodyArtwork LoadSamusBodyArt() =>
         SamusBodyArtworkFiles.Load(SamusBodyDirectory, SamusBodyOverrideDirectory);
     /// <summary>Stock opening-cinematic artwork under the replaceable content tree.</summary>
     public string IntroCinematicDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.IntroCinematicDirectoryName);
@@ -387,7 +387,7 @@ public sealed record GameInstallation(string Root)
     /// <summary>Persistent replacements for X-ray reveal metatile selections, preserved during stock rebuilds.</summary>
     public string XrayRevealVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.XrayRevealVisualDirectoryName);
     /// <summary>Editable X-ray metatile choices; reveal commands and collision rules remain compiled.</summary>
-    public XrayRevealVisualCatalog LoadXrayRevealVisuals() =>
+    public InstalledXrayReveals LoadXrayRevealVisuals() =>
         XrayRevealVisualFiles.Load(XrayRevealVisualDirectory, XrayRevealVisualOverrideDirectory);
     /// <summary>Editable BG tilemaps survive replacement of stock game content.</summary>
     public string RoomBackgroundTilemapOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomBackgroundTilemapDirectoryName);

@@ -43,25 +43,25 @@ internal sealed class SamusPresentation
 
     /// <summary>Host-bound normal suit colors; excluded from debugger-state graphs.</summary>
     [field: NonSerialized]
-    public SamusSuitColorCatalog? SuitColors { get; set; }
+    public InstalledSamusSuitColors? SuitColors { get; set; }
 
     /// <summary>Where the animation regions sit in their banks, which a restored index reading past its program needs.</summary>
     public SamusAnimationWindows? AnimationWindows { get; set; }
 
     /// <summary>Host-bound animation colors; excluded from debugger-state graphs.</summary>
     [field: NonSerialized]
-    public SamusFullBodyCycleColorCatalog? FullBodyCycleColors { get; set; }
+    public InstalledSamusFullBodyCycleColors? FullBodyCycleColors { get; set; }
 
     /// <summary>Host-bound charge and Hyper-shot body colors; not serialized.</summary>
     [field: NonSerialized]
-    public SamusChargeColorCatalog? ChargeColors { get; set; }
+    public InstalledSamusChargeColors? ChargeColors { get; set; }
 
     /// <summary>
     /// Copies <c>SamusPalettes_PowerSuit</c> at <c>$9B:9400</c> to palette-buffer/CGRAM
     /// entries 192–207, porting <c>Samus_LoadSuitPalette</c>'s no-suit branch.
     /// </summary>
     public static void LoadPowerSuitPalette(ColourRun suit,
-        SamusSuitColorCatalog? suitColors = null)
+        InstalledSamusSuitColors? suitColors = null)
     {
         // OBJ palettes begin at CGRAM 128. Spritemap palette 4 therefore resolves to 192,
         // exactly matching CopyToSamusSuitPalette's &palette_buffer[192] destination.
@@ -100,7 +100,7 @@ internal sealed class SamusPresentation
         samus.AnimationFrameBuffer = samus.LiquidPhysics.DeterminePoseChangeAnimationBuffer(samus);
         samus.AnimationDelayList = ResolveAnimationDelayList(samus);
         int initialDelay = ReadAnimationByte(samus, samus.AnimationFrame);
-        if (SamusAnimationDelayDefinitions.IsCommand(initialDelay))
+        if (SamusAnimationDelays.IsCommand(initialDelay))
         {
             throw new InvalidOperationException(
                 $"Samus pose {samus.Pose} cannot initialize directly on delay command ${initialDelay:X2}.");
@@ -244,7 +244,7 @@ internal sealed class SamusPresentation
         Func<SoundQueueAdmission>? queueEchoSound = null)
     {
         int delayOrCommand = ReadAnimationByte(samus, samus.AnimationFrame);
-        if (!SamusAnimationDelayDefinitions.IsCommand(delayOrCommand))
+        if (!SamusAnimationDelays.IsCommand(delayOrCommand))
         {
             // `$90:8554-$8568` replaces an ordinary running pose's per-pose delay list
             // with the pointer stored at `$91:B5D1` whenever momentum flag `$0B3C` is set.
@@ -429,7 +429,7 @@ internal sealed class SamusPresentation
         }
 
         int selectedDelay = ReadAnimationByte(samus, samus.AnimationFrame);
-        if (SamusAnimationDelayDefinitions.IsCommand(selectedDelay))
+        if (SamusAnimationDelays.IsCommand(selectedDelay))
         {
             throw new InvalidDataException(
                 $"Samus animation command ${delayOrCommand:X2} selected another command ${selectedDelay:X2}.");
@@ -449,11 +449,11 @@ internal sealed class SamusPresentation
 
     /// <summary>Resolves the current pose's animation-delay program.</summary>
     internal static SamusAnimationDelayList ResolveAnimationDelayList(SamusState samus) =>
-        SamusAnimationDelayDefinitions.ListForPose(samus.Pose);
+        SamusAnimationDelays.ListForPose(samus.Pose);
 
     /// <summary>Reads one compiled delay byte from the animation list selected for this pose.</summary>
     private static byte ReadAnimationByte(SamusState samus, int byteIndex) =>
-        SamusAnimationDelayDefinitions.ReadAnimationByte(samus.FloorQueueResidue, samus.AnimationDelayList, byteIndex, samus.Presentation.AnimationWindows);
+        SamusAnimationDelays.ReadAnimationByte(samus.FloorQueueResidue, samus.AnimationDelayList, byteIndex, samus.Presentation.AnimationWindows);
 
     /// <summary>
     /// Reads the shared ordinary-Dash delay list selected indirectly through `$91:B5D1`.
@@ -462,7 +462,7 @@ internal sealed class SamusPresentation
     internal static byte ReadDefaultRunningAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? floorUpdateResidue, int byteIndex,
         SamusAnimationWindows? windows)
     {
-        return SamusRunningCadenceDefinitions.ReadAnimationByte(
+        return SamusRunningCadenceBytes.ReadAnimationByte(
             floorUpdateResidue,
             SamusRunningCadence.Ordinary,
             byteIndex,

@@ -25,7 +25,7 @@ public sealed class SamusXrayState
 {
     /// <summary>Host-owned visor colors, excluded from debugger-state serialization.</summary>
     [field: NonSerialized]
-    public SamusVisorColorCatalog? PresentationColors { get; set; }
+    public InstalledSamusVisorColors? PresentationColors { get; set; }
 
     /// <summary>True while the dedicated bank-$91 X-ray input/movement handlers are installed.</summary>
     public bool IsActive { get; private set; }
@@ -507,7 +507,7 @@ public sealed class SamusXrayState
     public bool UpdatePalette(
         SamusColours colours,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
-        SamusSuitColorCatalog? suitColors = null)
+        InstalledSamusSuitColors? suitColors = null)
     {
         Ensure.NotNull(colours);
 

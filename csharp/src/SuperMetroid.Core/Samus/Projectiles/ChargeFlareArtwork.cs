@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public readonly record struct ChargeFlareArtwork
 {
     /// <summary>Placement.</summary>
-    public required SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacementCatalog? Placement { get; init; }
+    public required SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacements? Placement { get; init; }
 
 
     /// <summary>The projectile sheet the flare's frames are drawn from.</summary>

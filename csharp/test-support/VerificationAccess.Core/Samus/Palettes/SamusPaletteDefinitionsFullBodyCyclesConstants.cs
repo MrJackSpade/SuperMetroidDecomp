@@ -48,7 +48,7 @@ internal static class SamusPaletteDefinitionsFullBodyCyclesConstants
     /// the authored target colors without reading those cartridge bytes at runtime.
     ///
     /// Hyper Beam target colors at $9B:A240..A37F have an independent
-    /// #1165 review in SamusHyperBeamColorCatalog. This pointer mapping
+    /// #1165 review in InstalledSamusHyperBeamColors. This pointer mapping
     /// provides no retention justification for their remaining color inputs.
     /// </remarks>
     public const int HyperBeamPointers = 0x91d99e;

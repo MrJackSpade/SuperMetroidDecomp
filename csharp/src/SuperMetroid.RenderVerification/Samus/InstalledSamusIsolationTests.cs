@@ -30,13 +30,13 @@ internal sealed class InstalledSamusIsolationTests
     /// <summary>Stock and edited Samus body art used by paired production actors.</summary>
     private readonly InstalledSamusArtworkFixture artwork;
     /// <summary>Stock and edited suit colors selected by the actors' presentation owners.</summary>
-    private readonly StockEditedPair<SamusSuitColorCatalog> suits;
+    private readonly StockEditedPair<InstalledSamusSuitColors> suits;
     /// <summary>Stock and edited Speed Booster, Screw Attack, and shinespark cycle colors.</summary>
-    private readonly StockEditedPair<SamusFullBodyCycleColorCatalog> cycles;
+    private readonly StockEditedPair<InstalledSamusFullBodyCycleColors> cycles;
     /// <summary>Stock and edited Crystal Flash palette phases.</summary>
-    private readonly StockEditedPair<CrystalFlashColorCatalog> crystal;
+    private readonly StockEditedPair<InstalledCrystalFlashColors> crystal;
     /// <summary>Installed beam palette data shared by both actor fixtures.</summary>
-    private readonly BeamPaletteCatalog beams;
+    private readonly InstalledBeamPalettes beams;
     /// <summary>Number of stock and edited mechanics comparisons.</summary>
     private int comparisons;
     /// <summary>Number of production Samus draws performed by paired actors.</summary>
@@ -104,13 +104,13 @@ internal sealed class InstalledSamusIsolationTests
         /// <summary>Tile memory receiving installed Samus transfers.</summary>
         internal readonly SnesVram Tiles = new();
         /// <summary>Selected body, arm-cannon, death, and spritemap art.</summary>
-        internal readonly SamusBodyArtworkCatalog Body;
+        internal readonly InstalledSamusBodyArtwork Body;
         /// <summary>Selected base suit palette catalog.</summary>
-        internal readonly SamusSuitColorCatalog Suits;
+        internal readonly InstalledSamusSuitColors Suits;
         /// <summary>Selected full-body cycle color catalog.</summary>
-        internal readonly SamusFullBodyCycleColorCatalog Cycles;
+        internal readonly InstalledSamusFullBodyCycleColors Cycles;
         /// <summary>Selected Crystal Flash color catalog.</summary>
-        internal readonly CrystalFlashColorCatalog Crystal;
+        internal readonly InstalledCrystalFlashColors Crystal;
 
         /// <summary>Builds a cartridge-free Samus actor on the fixture floor with the selected visual catalog set.</summary>
         internal Actor(InstalledSamusIsolationTests tests, bool edited, SamusPoseId pose,

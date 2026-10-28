@@ -58,7 +58,7 @@ public static class SpriteSheetFiles
         // The body sheets are named from the stock body tables installed beside them.
         string content = Path.GetDirectoryName(Path.GetFullPath(stockDirectory))
             ?? throw new ArgumentException($"Stock directory {stockDirectory} has no installation above it.", nameof(stockDirectory));
-        var body = new Lazy<SamusBodyArtworkCatalog>(() => SamusBodyArtworkFiles.Load(
+        var body = new Lazy<InstalledSamusBodyArtwork>(() => SamusBodyArtworkFiles.Load(
             Path.Combine(content, GameInstallationLayout.SamusBodyDirectoryName), null));
         // The pause sheet is named from the stock selector presentation installed beside it.
         var maps = new Lazy<AreaMapPresentationCatalog>(() => MapPresentationFiles.Load(
@@ -98,7 +98,7 @@ public static class SpriteSheetFiles
     /// <param name="maps">The menus' presentation, whose selector frames name the pause sheet's.</param>
     /// <param name="intro">The opening cinematic's artwork, whose compositions name the intro sheet's frames.</param>
     /// <param name="ending">The ending's sprite artwork, whose compositions name the ending sheets' frames.</param>
-    internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, Lazy<SamusBodyArtworkCatalog> body,
+    internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, Lazy<InstalledSamusBodyArtwork> body,
         Lazy<AreaMapPresentationCatalog> maps, Lazy<IntroCinematicArtworkCatalog> intro, Lazy<EndingObjectArtworkCatalog> ending) => sheet switch
     {
         SpriteSheetId.MenuForegroundTiles or SpriteSheetId.MenuMapTiles or
@@ -121,7 +121,7 @@ public static class SpriteSheetFiles
             SpriteSheetId.EndingRewardIconFloorTiles =>
             [FloorCharacterSheet.FrameName],
         SpriteSheetId.EscapeTimer => EscapeTimerPresentationDefinitions.Glyphs.Select(EscapeTimerPresentationDefinitions.FrameName),
-        SpriteSheetId.Grapple => GrappleSheetDefinitions.Frames,
+        SpriteSheetId.Grapple => GrappleSheets.Frames,
         SpriteSheetId.SamusBodyTop or SpriteSheetId.SamusBodyBottom => SamusBodySheetComposer.FrameNames(body.Value, sheet),
         SpriteSheetId.SamusOverlays => SamusOverlaySheetDefinitions.Frames,
         SpriteSheetId.SamusAtmosphere => SamusAtmosphereSheetDefinitions.Frames,
@@ -148,7 +148,7 @@ public static class SpriteSheetFiles
             SpriteSheetId.ProjectilesPlasmaWave or SpriteSheetId.ProjectilesPlasmaIce or
             SpriteSheetId.ProjectilesPlasmaIceWave or SpriteSheetId.ProjectilesSpazerPlasmaWave or
             SpriteSheetId.ProjectilesSpazerPlasmaIce =>
-            ProjectileSheetDefinitions.Frames,
+            ProjectileSheetFrames.Frames,
         _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
     };
 

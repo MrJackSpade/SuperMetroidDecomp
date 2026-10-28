@@ -43,12 +43,12 @@ internal static class ClosedPresentationContractChecks
                 void Inspect(GameplayHudPresentation hud, FileSelectPresentation menu,
                     MotherBrainRoomColorPresentation colors, GameOptionsPresentation options,
                     GameOverPresentation gameOver, PauseReserveUiPresentation reserve,
-                    BeamPaletteCatalog beam, CeresRidleyColorCatalog ridley, CrocomireColorCatalog crocomire,
+                    InstalledBeamPalettes beam, CeresRidleyColorCatalog ridley, CrocomireColorCatalog crocomire,
                     SporeSpawnColorCatalog spores, DraygonColorCatalog draygon, PhantoonColorCatalog phantoon,
                     TourianStatueColorCatalog statues,
                     MotherBrainRainbowPalettePresentation rainbow, MotherBrainDeathColorCatalog death,
                     ChozoAndTubeColorCatalog chozo, GameplayBasePalette basePalette,
-                    SamusDeathPaletteArtworkCatalog samusDeath,
+                    InstalledSamusDeathPalettes samusDeath,
                     SuperMetroid.Core.Assets.GameplayColours cgram, SuperMetroid.Core.Rendering.ScreenPalette screen, Span<ushort> tiles, Span<byte> bytes, Span<BackgroundTile> cells,
                     ScreenSprites oam, SpriteSheet sheet, int dynamicIndex) {
                     hud.ApplyAmmo(cells, dynamicIndex, 123);

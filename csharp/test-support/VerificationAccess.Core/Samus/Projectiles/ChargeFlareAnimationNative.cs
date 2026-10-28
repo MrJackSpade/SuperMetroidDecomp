@@ -9,7 +9,7 @@ internal static class ChargeFlareAnimationNative
     extension(ChargeFlareAnimationDefinitions)
     {
         /// <summary>Reads two compiled cadence bytes, <paramref name="offset"/> bytes into the programs, as a word.</summary>
-        internal static ushort ReadWord(int offset) => LittleEndianBytes.Word(ChargeFlareAnimationDefinitions.ReadByte(offset),
-            ChargeFlareAnimationDefinitions.ReadByte(offset + 1));
+        internal static ushort ReadWord(int offset) => LittleEndianBytes.Word(ChargeFlareAnimations.ReadByte(offset),
+            ChargeFlareAnimations.ReadByte(offset + 1));
     }
 }

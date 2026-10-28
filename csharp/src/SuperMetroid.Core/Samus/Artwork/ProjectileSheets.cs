@@ -24,7 +24,7 @@ public sealed class ProjectileSheets
     }
 
     /// <summary>The gameplay context, drawing from the loaded beam combination's sheet.</summary>
-    public static ProjectileSheets Gameplay(InstalledSpriteSheets sheets) => new(sheets, ProjectileSheetDefinitions.For);
+    public static ProjectileSheets Gameplay(InstalledSpriteSheets sheets) => new(sheets, ProjectileSheetFrames.For);
 
     /// <summary>The intro's flashback context, drawing from the intro's sheet.</summary>
     public static ProjectileSheets IntroFlashbacks(InstalledSpriteSheets sheets) => new(sheets, IntroSheet);

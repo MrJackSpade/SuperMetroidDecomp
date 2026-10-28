@@ -29,24 +29,24 @@ internal static class XrayRevealVisualInstallationVerification
         static RevealedBlock Overlaid(ushort word) => new(new RoomLevelWord(word).VisualBlockIndex,
             (new RoomLevelWord(word).VisualFlipFlags & LevelBlockFlipFlags.Vertical) != LevelBlockFlipFlags.None
                 ? RevealedBlockArrangement.RowsSwapped : RevealedBlockArrangement.AsDefined);
-        XrayRevealVisualCatalog stock = installed.LoadXrayRevealVisuals();
+        InstalledXrayReveals stock = installed.LoadXrayRevealVisuals();
         int drawable = 0;
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         for (int bts = 0; bts <= byte.MaxValue; bts++)
         {
             XrayRevealDefinition? native = XrayRevealTable.Find(type, unchecked((byte)bts));
             if (native is not { } definition ||
-                !XrayRevealVisualCatalog.IsDrawable(definition.Command)) continue;
+                !InstalledXrayReveals.IsDrawable(definition.Command)) continue;
             AssertEqual((XrayRevealDefinition?)definition, stock.Apply(type, unchecked((byte)bts)),
                 $"stock installed X-ray visual {type}/BTS ${bts:X2}");
             drawable++;
         }
         AssertEqual(305, drawable, "complete pinned drawable X-ray rule count");
-        XrayOverlayVisualCatalog overlays = stock.Overlays ??
+        InstalledXrayOverlays overlays = stock.Overlays ??
             throw new InvalidDataException("Installed X-ray visuals omit item and room overlays.");
         var nativeBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(File.ReadAllBytes(installed.RomPath));
         ushort NativeWord(int address) => CartridgeImportSource.Require(nativeBus).ReadCartridgeWord(address);
-        for (int slot = 0; slot < XrayOverlayVisualCatalog.DynamicGraphicsSlots * 2; slot++)
+        for (int slot = 0; slot < InstalledXrayOverlays.DynamicGraphicsSlots * 2; slot++)
         {
             ushort pointer = NativeWord(SamusSourceDefinitions.ItemDrawPointers.Value + slot * 2);
             AssertEqual((ushort)(NativeWord(SamusSourceDefinitions.XrayItemDrawBank.Value | (pointer + 2)) & 0x0fff),
@@ -98,7 +98,7 @@ internal static class XrayRevealVisualInstallationVerification
         string overridePath = Path.Combine(installed.XrayRevealVisualOverrideDirectory,
             XrayRevealVisualFiles.VisualFileName);
         File.WriteAllText(overridePath, document.ToJsonString());
-        XrayRevealVisualCatalog edited = installed.LoadXrayRevealVisuals();
+        InstalledXrayReveals edited = installed.LoadXrayRevealVisuals();
 
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(Enumerable.Repeat((ushort)0x8000, 1024).ToArray(), new byte[1024], new ushort[1024]));
         level.SetPlmForegroundEntry(33, (int)RoomCollisionType.ShootableBlock << 12);

@@ -34,7 +34,7 @@ public static class SamusAerialMovement
         // The two words remain independent. Speed Booster's fractional
         // bonus likewise uses an independent 16-bit ADC and intentionally drops its carry.
         samus.Kinematics.YSpeed =
-            SamusVerticalMotionDefinitions.Launch(medium, hiJumpEquipped, kind: SamusLaunchKind.Jump);
+            SamusVerticalMotion.Launch(medium, hiJumpEquipped, kind: SamusLaunchKind.Jump);
         ApplyEquippedSpeedBoosterJumpBonus(samus);
         ConfigureEnvironmentGravity(samus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
@@ -51,7 +51,7 @@ public static class SamusAerialMovement
         SamusLiquidMedium medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         bool hiJumpEquipped = samus.EquippedItems.HasAny(SamusEquipmentFlags.HiJumpBoots);
         samus.Kinematics.YSpeed =
-            SamusVerticalMotionDefinitions.Launch(medium, hiJumpEquipped, kind: SamusLaunchKind.WallJump);
+            SamusVerticalMotion.Launch(medium, hiJumpEquipped, kind: SamusLaunchKind.WallJump);
         ApplyEquippedSpeedBoosterJumpBonus(samus);
         ConfigureEnvironmentGravity(samus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
@@ -82,7 +82,7 @@ public static class SamusAerialMovement
     {
         Ensure.NotNull(samus);
         samus.Kinematics.YAcceleration =
-            SamusVerticalMotionDefinitions.Gravity(samus.LiquidPhysics.DetermineMovementMedium(samus));
+            SamusVerticalMotion.Gravity(samus.LiquidPhysics.DetermineMovementMedium(samus));
     }
 
     /// <summary>

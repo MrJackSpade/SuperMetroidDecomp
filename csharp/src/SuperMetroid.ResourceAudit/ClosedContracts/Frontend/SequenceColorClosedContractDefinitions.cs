@@ -38,12 +38,14 @@ internal static class SequenceColorClosedContractDefinitions
         new("SuperMetroid.Core.Assets.GameplayBasePalette", "gameplay-base-v1-complete-cgram-image",
             ["LoadInitial", "LoadCommonSprites", "LoadEnemyProjectileSprites"],
             [new("csharp/src/SuperMetroid.Core/Assets/GameplayBasePalette.cs")]),
-        new("SuperMetroid.Core.Samus.Artwork.SamusDeathPaletteArtworkCatalog", "samus-death-complete-cloned-color-sequences",
+        new("SuperMetroid.Core.Samus.Artwork.InstalledSamusDeathPalettes", "samus-death-complete-cloned-color-sequences",
             ["SuitedColor", "SuitlessColor", "WhiteoutColor", "ExplosionPaletteIndex"],
-            [new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusDeathPaletteArtworkCatalog.cs"),
+            [new("csharp/src/SuperMetroid.Core/Samus/Artwork/InstalledSamusDeathPalettes.cs"),
              new("csharp/src/SuperMetroid.Core/Fx/Artwork/LoadingPaletteInputView.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusPaletteFade.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPaletteDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Death/SamusDeathExplosionTimingDefinitions.cs")]),
+             new("csharp/src/SuperMetroid.Core/Samus/Palettes/SamusFullBodyCyclePalettes.cs"),
+             new("csharp/src/SuperMetroid.Core/Samus/Death/SamusDeathExplosionTimingDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Samus/Death/SamusDeathExplosionTiming.cs")]),
     ];
 }

@@ -14,7 +14,7 @@ internal static class SpinChargeVerification
 {
     /// <summary>Regression for #473: spin HUD dispatch preserves charge on Shoot release.</summary>
     internal static void VerifySpinChargePreservation(TestAddressSpace bus, RoomLevelData air,
-        SuperMetroid.Core.Samus.Artwork.ProjectileFrameBindingCatalog frames)
+        SuperMetroid.Core.Samus.Artwork.InstalledProjectileFrameBindings frames)
     {
         foreach (SamusPoseId pose in new[] { SamusPoseId.SpinJumpRightPose, SamusPoseId.SpinJumpLeftPose,
             SamusPoseId.WallJumpRightPose, SamusPoseId.WallJumpLeftPose })

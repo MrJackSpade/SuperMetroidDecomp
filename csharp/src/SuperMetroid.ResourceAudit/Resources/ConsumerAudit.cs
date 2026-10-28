@@ -171,7 +171,7 @@ internal static class ConsumerAudit
         ("EnemyProjectileSpritemapCatalog", "GetProgramFrame") => ResourceDomains.EnemyProjectileProgram,
         ("EnemyProjectileSpritemapCatalog", "Get") => ResourceDomains.EnemyProjectileSprite,
         ("IPaletteFxColorSource" or "RoomPaletteFxPresentation", "TryReadColor") => ResourceDomains.PaletteFx,
-        ("ProjectileSpriteCatalog", "Frame") => ResourceDomains.SamusProjectile,
+        ("InstalledProjectileSprites", "Frame") => ResourceDomains.SamusProjectile,
         _ => null,
     };
 

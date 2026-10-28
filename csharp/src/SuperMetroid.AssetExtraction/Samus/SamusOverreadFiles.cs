@@ -22,7 +22,7 @@ public static class SamusOverreadFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         Directory.CreateDirectory(directory);
-        SamusProjectileListLayout lists = SamusProjectileListEntries.Read(cartridge);
+        InstalledProjectileListPositions lists = SamusProjectileListEntries.Read(cartridge);
         var document = new SamusOverreadDocument(
             SamusOverreadFormat.Version,
             Range(cartridge, SamusOverreadSourceDefinitions.SpacetimeCopySource, SamusOverreadDefinitions.SpacetimeCopySourceByteCount),
@@ -35,7 +35,7 @@ public static class SamusOverreadFiles
             lists.Positions.ToDictionary(position => position.Key.ToString(), position => position.Value),
             new SamusAnimationWindows(SamusSourceDefinitions.ChargeFlarePrograms.Offset,
                 SamusSourceDefinitions.PoseDelayPrograms.Offset, SamusSourceDefinitions.RunningCadences.Offset));
-        byte[] bytes = SamusOverreadCatalog.Write(document);
+        byte[] bytes = InstalledSamusOverreads.Write(document);
         File.WriteAllBytes(Path.Combine(directory, SamusOverreadFormat.FileName), bytes);
         File.WriteAllBytes(Path.Combine(directory, SamusOverreadFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(
@@ -47,7 +47,7 @@ public static class SamusOverreadFiles
     /// <summary>Validates the installed file's provenance and digest, then loads it.</summary>
     /// <param name="directory">Installed overread directory holding the file and its manifest.</param>
     /// <exception cref="InvalidDataException">The manifest, digest, provenance or file shape is invalid.</exception>
-    public static SamusOverreadCatalog Load(string directory)
+    public static InstalledSamusOverreads Load(string directory)
     {
         Manifest manifest;
         try
@@ -66,7 +66,7 @@ public static class SamusOverreadFiles
         byte[] bytes = File.ReadAllBytes(Path.Combine(directory, SamusOverreadFormat.FileName));
         if (!string.Equals(manifest.FileSha256, Convert.ToHexString(SHA256.HashData(bytes)), StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException("Installed Samus overread file failed its manifest hash.");
-        return SamusOverreadCatalog.Load(new MemoryStream(bytes, writable: false));
+        return InstalledSamusOverreads.Load(new MemoryStream(bytes, writable: false));
     }
 
     /// <summary>Checks the installed file's provenance, digest and shape.</summary>
@@ -88,7 +88,7 @@ public static class SamusOverreadFiles
     /// record's four bytes from there; a record below the cartridge half of the bank, or running into the next bank, lies
     /// in direct-page scratch and draws no trail (#1318).
     /// </summary>
-    private static Dictionary<string, string> TrailOverruns(IImportCartridgeSource cartridge, SamusProjectileListLayout layout)
+    private static Dictionary<string, string> TrailOverruns(IImportCartridgeSource cartridge, InstalledProjectileListPositions layout)
     {
         var lists = new Dictionary<string, string>();
         foreach (ProjectileTrailPlacementList list in Enum.GetValues<ProjectileTrailPlacementList>())

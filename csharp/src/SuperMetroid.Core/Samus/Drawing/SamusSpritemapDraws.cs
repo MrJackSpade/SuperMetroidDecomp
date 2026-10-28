@@ -21,7 +21,7 @@ public static class SamusSpritemapDraws
         this SpriteFrameBuffer sprites,
         int spritemapIndex,
         Position16<ScreenPixels> origin,
-        SamusSpritemapArtworkCatalog spritemaps,
+        InstalledSamusSpritemaps spritemaps,
         InstalledSpriteSheets sheets,
         SamusBodyRecords records,
         SpriteSource source)
@@ -33,8 +33,8 @@ public static class SamusSpritemapDraws
         if (!spritemaps.TryGetComposition(spritemapIndex, out SamusSpritemapId composition) ||
             !spritemaps.TryGetFrame(spritemapIndex, out SpriteFrame? frame))
             return;
-        SamusBodyFrameKey key = SamusBodySheetDefinitions.Key(composition, frame, records.Top, records.Bottom);
-        SpriteSheetFrame image = sheets.Get(SamusBodySheetDefinitions.Sheet(key)).Frame(key.Name);
+        SamusBodyFrameKey key = SamusBodySheets.Key(composition, frame, records.Top, records.Bottom);
+        SpriteSheetFrame image = sheets.Get(SamusBodySheets.Sheet(key)).Frame(key.Name);
         sprites.Add(new ImageSpriteDraw(source, image, origin, SpriteMirror.None));
     }
 }

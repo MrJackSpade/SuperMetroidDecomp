@@ -513,7 +513,7 @@ internal static class SamusSourceDefinitions
     /// adjacent physical data, including the Chainsaw path, rather than
     /// extending this rule. Keep the words available to ROM-backed
     /// consumers and the intentional adjacent-data overread. Selected ordinary
-    /// beam colors are supplied by <see cref="SuperMetroid.Core.Samus.Artwork.BeamPaletteCatalog"/>.
+    /// beam colors are supplied by <see cref="SuperMetroid.Core.Samus.Artwork.InstalledBeamPalettes"/>.
     /// Investigation: #625 / #900.
     /// </remarks>
     internal static readonly SnesAddress PalettePointers = new(0x90, 0xc3c9);

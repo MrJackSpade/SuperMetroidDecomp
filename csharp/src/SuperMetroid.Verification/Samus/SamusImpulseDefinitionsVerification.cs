@@ -19,7 +19,7 @@ internal static class SamusImpulseDefinitionsVerification
         // Bomb jumps start in morph ball. Since #1258 the medium test samples the current pose's
         // native collision radius, so the liquid threshold is that pose's bottom edge.
         var bomb = new SamusState { Pose = SamusPoseId.MorphBallGroundRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
-        int bombBottom = 128 + SamusPoseCollisionDefinitions.ReadVerticalRadius(bomb.Pose) - 1;
+        int bombBottom = 128 + SamusPoseCollisionRadii.ReadVerticalRadius(bomb.Pose) - 1;
         int bombCases = 0;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         for (int liquid = 1; liquid <= 2; liquid++)

@@ -5,13 +5,13 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// remain required under ProjectileSpriteCatalog.frames; sharing them grants no art exemption.</summary>
 internal static class ProjectileWaveEnvelopeDefinitions
 {
-
-    /// <summary>$93:AE70/AE77/AE7E/AE85: four outward axial lobe offsets 8/13/15/16.
-    /// These selected geometric source inputs remain REQUIRED under the artwork owner.</summary>
-    internal static int AxialLobeDistance(int outwardStep) => outwardStep switch
+    /// <summary>The value each key selects; AxialLobeDistance looks it up.</summary>
+    internal static readonly IReadOnlyDictionary<int, int> AxialLobeDistances = new Dictionary<int, int>
     {
-        0 => 8, 1 => 13, 2 => 15, 3 => 16,
-        _ => throw new ArgumentOutOfRangeException(nameof(outwardStep)),
+        [0] = 8,
+        [1] = 13,
+        [2] = 15,
+        [3] = 16,
     };
 
     /// <summary>$93:D64A: selected initial Spazer lane distance 4, preceding the four Wave distances.

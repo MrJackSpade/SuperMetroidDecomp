@@ -11,7 +11,7 @@ internal static class ProjectileSpriteDomainAudit
     internal static string? InvalidConstants(IInvocationOperation operation)
     {
         if (operation.TargetMethod.Name != "Frame" ||
-            operation.TargetMethod.ContainingType.ToDisplayString() != typeof(ProjectileSpriteCatalog).FullName) return null;
+            operation.TargetMethod.ContainingType.ToDisplayString() != typeof(InstalledProjectileSprites).FullName) return null;
         if (ConsumerAudit.ProjectileSpriteKey(operation) is not { } name) return null;
         return ProjectileSpriteDefinitions.All.Any(sprite => sprite.Name == name) || ChargeFlareSpriteDefinitions.All.Any(sprite => sprite.Name == name)
             ? null

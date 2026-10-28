@@ -11,7 +11,7 @@ public static class XrayRevealExtensions
     /// X-ray extensions reveal only a terminal scroll-trigger block, not arbitrary linked terrain.
     /// </summary>
     public static int? Resolve(RoomLevelData level, int blockIndex,
-        XrayRevealVisualCatalog? visuals = null)
+        InstalledXrayReveals? visuals = null)
     {
         Ensure.NotNull(level);
         RoomCollisionBlock block = level.GetPlmCollisionBlockByIndex(blockIndex);

@@ -52,10 +52,10 @@ internal sealed class ProjectileMotion
 
         int directionOffset = slot.PackedDirection.DirectionIndex * 2;
         slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
-            unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
+            unchecked((short)SamusProjectileAccelerations.ReadWord(
                 SamusFiringTableDefinitions.BeamXAccelerations + directionOffset))))));
         slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
-            unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
+            unchecked((short)SamusProjectileAccelerations.ReadWord(
                 SamusFiringTableDefinitions.BeamYAccelerations + directionOffset))))));
 
         SamusProjectileDirection? direction = slot.PackedDirection.Direction;
@@ -147,10 +147,10 @@ internal sealed class ProjectileMotion
     {
         int direction = slot.PackedDirection.DirectionIndex;
         slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
-            unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
+            unchecked((short)SamusProjectileAccelerations.ReadWord(
                 SamusFiringTableDefinitions.BeamXAccelerations + direction * 2))))));
         slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
-            unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
+            unchecked((short)SamusProjectileAccelerations.ReadWord(
                 SamusFiringTableDefinitions.BeamYAccelerations + direction * 2))))));
 
         // `$94:A352/$A3E4` advance the same 16.16 positions and scan every block touched by
@@ -200,10 +200,10 @@ internal sealed class ProjectileMotion
         // acceleration as beams. On the ignition frame Missile_Func1 below replaces velocity,
         // so this addition is intentionally overwritten; subsequent frames retain it.
         slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
-            unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
+            unchecked((short)SamusProjectileAccelerations.ReadWord(
                 SamusFiringTableDefinitions.BeamXAccelerations + direction * 2))))));
         slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
-            unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
+            unchecked((short)SamusProjectileAccelerations.ReadWord(
                 SamusFiringTableDefinitions.BeamYAccelerations + direction * 2))))));
 
         if (slot.MissileIgnitionPixels == 0)
@@ -219,9 +219,9 @@ internal sealed class ProjectileMotion
         {
             int acceleration = SamusFiringTableDefinitions.MissileAccelerations + direction * 4;
             slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
-                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration))))));
+                unchecked((short)SamusProjectileAccelerations.ReadWord(acceleration))))));
             slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
-                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration + 2))))));
+                unchecked((short)SamusProjectileAccelerations.ReadWord(acceleration + 2))))));
         }
 
         bool collided = direction switch
@@ -288,9 +288,9 @@ internal sealed class ProjectileMotion
             int acceleration =
                 SamusFiringTableDefinitions.SuperMissileAccelerations + direction * 4;
             slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
-                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration))))));
+                unchecked((short)SamusProjectileAccelerations.ReadWord(acceleration))))));
             slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
-                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration + 2))))));
+                unchecked((short)SamusProjectileAccelerations.ReadWord(acceleration + 2))))));
         }
 
         bool collided = false;
@@ -364,9 +364,9 @@ internal sealed class ProjectileMotion
         // the owner's coordinates. At ignition both positions are equivalent; retaining the
         // call matters for moving/transition poses whose cartridge origin tables can change.
         BeamFiring.InitializePosition(samus, link);
-        SamusProjectileHeader header = SamusProjectileSelectionDefinitions.Select(SamusProjectileSelectorTable.SuperMissileLink, 2);
-        link.Damage = SamusProjectileDamageDefinitions.Read(header);
-        link.Cursor = SamusProjectilePrograms.Start(SamusProjectileHeaderDefinitions.Program(header, 0));
+        SamusProjectileHeader header = SamusProjectileSelection.Select(SamusProjectileSelectorTable.SuperMissileLink, 2);
+        link.Damage = SamusProjectileDamage.Read(header);
+        link.Cursor = SamusProjectilePrograms.Start(SamusProjectileHeaders.Program(header, 0));
         link.InstructionTimer = WrappingCountdown.Start(1);
         link.PreInstruction = SamusProjectilePreInstruction.SuperMissileLink;
 
@@ -613,6 +613,6 @@ internal sealed class ProjectileMotion
                 quadrant ^= 1;
         }
 
-        return SquareSlopeDefinitions.ReadSamusQuadrant(quadrant) != 0;
+        return SquareSlopes.ReadSamusQuadrant(quadrant) != 0;
     }
 }

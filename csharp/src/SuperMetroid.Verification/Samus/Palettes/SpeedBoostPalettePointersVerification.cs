@@ -17,7 +17,7 @@ internal static class SpeedBoostPalettePointersVerification
     internal static void VerifySpeedBoostPalettePointers()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        SamusFullBodyCycleColorCatalog cycleColors = SamusFullBodyCycleColorFile.Read(
+        InstalledSamusFullBodyCycleColors cycleColors = SamusFullBodyCycleColorFile.Read(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(rom)));
         SamusEquipmentFlags[] equipment =
         [

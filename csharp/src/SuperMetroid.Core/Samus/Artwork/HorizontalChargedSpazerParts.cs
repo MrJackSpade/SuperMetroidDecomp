@@ -15,7 +15,7 @@ internal readonly struct HorizontalChargedSpazerParts(int phase) : IReadOnlyList
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             int lane = index / ProjectileSpritePartDefinitions.ChargedSpazerHorizontalCells;
             int direction = phase <= 1 ? (lane == 0 ? 0 : lane == 1 ? 1 : -1) : 1 - lane;
-            int distance = phase <= 1 ? SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.SpazerInitialAxialSpread : SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(phase - 2);
+            int distance = phase <= 1 ? SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.SpazerInitialAxialSpread : SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelope.AxialLobeDistance(phase - 2);
             int size = SpazerCompositionGeometryDefinitions.TileSize;
             int x = (ProjectileSpritePartDefinitions.ChargedSpazerHorizontalCells / 2 - 1 - index % ProjectileSpritePartDefinitions.ChargedSpazerHorizontalCells) * size;
             int y = SpazerCompositionGeometryDefinitions.HorizontalStripOriginY + direction * distance;

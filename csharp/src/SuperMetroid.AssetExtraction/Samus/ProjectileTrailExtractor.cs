@@ -26,6 +26,6 @@ public static class ProjectileTrailExtractor
                 Palette = a.PaletteIndex, Priority = a.Priority, FlipX = a.FlipHorizontally, FlipY = a.FlipVertically,
             });
         }
-        return ProjectileTrailCatalog.Write(new() { Version = ProjectileTrailVisualDefinitions.Version, Frames = frames });
+        return InstalledProjectileTrails.Write(new() { Version = ProjectileTrailVisualDefinitions.Version, Frames = frames });
     }
 }

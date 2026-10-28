@@ -11,7 +11,7 @@ internal sealed class ProjectileTrails
 
     /// <summary>The installed placements a trail reads past its placement list's records; null until bound.</summary>
     [field: NonSerialized]
-    internal SamusOverreadCatalog? Overreads { get; set; }
+    internal InstalledSamusOverreads? Overreads { get; set; }
 
     /// <summary>Uses the owning projectile table so trail allocation and drawing see the same slots.</summary>
     internal ProjectileTrails(ProjectileSlotTable slotTable)
@@ -39,8 +39,8 @@ internal sealed class ProjectileTrails
             trailEntry = family + 31;
         }
 
-        ProjectileTrailProgram? leftProgram = ProjectileTrailDefinitions.Select(trailEntry, HorizontalDirection.Left);
-        ProjectileTrailProgram? rightProgram = ProjectileTrailDefinitions.Select(trailEntry, HorizontalDirection.Right);
+        ProjectileTrailProgram? leftProgram = ProjectileTrailSelection.Select(trailEntry, HorizontalDirection.Left);
+        ProjectileTrailProgram? rightProgram = ProjectileTrailSelection.Select(trailEntry, HorizontalDirection.Right);
 
         // Retail reads the previously installed record, even when the animation timer
         // will expire later this frame. Reading ahead advances Spazer's trail spread early.
@@ -84,7 +84,7 @@ internal sealed class ProjectileTrails
     }
 
     /// <summary>Reads the native word immediately before the shot's next instruction pointer.</summary>
-    internal static ushort GetTrailAnimationFrame(SamusProjectileSlot projectile, SamusOverreadCatalog? overreads)
+    internal static ushort GetTrailAnimationFrame(SamusProjectileSlot projectile, InstalledSamusOverreads? overreads)
     {
         // $93:81D8-$81E3 unconditionally reads (instruction pointer - 8) + 6.
         // The upstream C port's timer-one lookahead is absent from the pinned ROM.
@@ -179,7 +179,7 @@ internal sealed class ProjectileTrails
 
         // A side allocated over an earlier trail keeps showing that trail's last pose until its own first one.
         SpriteSheetFrame image = objects.Sheet.Frame(side.ShownPose is { } pose
-            ? ProjectileSheetDefinitions.TrailFrame(pose) : ProjectileSheetDefinitions.UnshownTrailFrame);
+            ? ProjectileSheetFrames.TrailFrame(pose) : ProjectileSheetDefinitions.UnshownTrailFrame);
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectileTrail, slotIndex * 2 + (direction == HorizontalDirection.Left ? 0 : 1)),
             image, Position16<ScreenPixels>.Of(screenX, screenY), SpriteMirror.None));
     }

@@ -26,7 +26,7 @@ public static class XrayRevealMap
     /// <param name="visuals">Installed reveal art, or null for the stock table.</param>
     /// <returns>The shown cells, row by row, <see cref="XrayRevealLayout.MetatileColumns"/> to a row; null beyond the room.</returns>
     public static RevealedBlock?[] Build(RoomLevelData level, Position16<RoomPixels> layer1Position,
-        Offset16<RoomPixels> bg1Offset, AreaId area, XrayRevealVisualCatalog? visuals = null)
+        Offset16<RoomPixels> bg1Offset, AreaId area, InstalledXrayReveals? visuals = null)
     {
         Ensure.NotNull(level);
         RoomBlockCells bg1 = level.ForegroundPlane.Cells;
@@ -102,7 +102,7 @@ public static class XrayRevealMap
         {
             // Bottom-edge multi-block commands can write past the two transferred screens, into
             // native scratch RAM; only the shown cells belong to this display projection.
-            int cell = XrayRevealLayout.CellOf(col, row);
+            int cell = XrayRevealCells.CellOf(col, row);
             if (cell >= 0) result[cell] = block;
         }
     }

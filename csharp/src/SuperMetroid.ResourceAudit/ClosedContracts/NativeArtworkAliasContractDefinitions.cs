@@ -9,10 +9,12 @@ internal static class NativeArtworkAliasContractDefinitions
     [
         new("SuperMetroid.Core.Hud.Artwork.HudTileAtlas", "native-HudTileAtlas-dma-aliases", ["TryResolve"],
             [new("csharp/src/SuperMetroid.Core/Hud/Artwork/HudTileAtlas.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Artwork/GrappleTileDefinitions.cs")]),
+             new("csharp/src/SuperMetroid.Core/Samus/Artwork/GrappleTileDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Samus/Artwork/GrappleTileSelection.cs")]),
         new("SuperMetroid.Core.Escape.Artwork.EscapeTimerTileAtlas", "native-EscapeTimerTileAtlas-dma-aliases", ["TryResolve"],
             [new("csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTimerTileAtlas.cs"),
              new("csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTimerGlyphDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Artwork/GrappleTileDefinitions.cs")]),
+             new("csharp/src/SuperMetroid.Core/Samus/Artwork/GrappleTileDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Samus/Artwork/GrappleTileSelection.cs")]),
     ];
 }

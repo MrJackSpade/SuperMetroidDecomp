@@ -18,10 +18,10 @@ public sealed class SamusBodyFrameState
 {
     /// <summary>Currently bound external visual presentation; never part of save state.</summary>
     [field: NonSerialized]
-    public SamusBodyArtworkCatalog? Artwork { get; private set; }
+    public InstalledSamusBodyArtwork? Artwork { get; private set; }
 
     /// <summary>Rebinds the installed body artwork without changing the shown definitions.</summary>
-    public void BindArtwork(SamusBodyArtworkCatalog? value) => Artwork = value;
+    public void BindArtwork(InstalledSamusBodyArtwork? value) => Artwork = value;
 
     /// <summary>The installed pre-coloured sheets the body draws from; never part of save state.</summary>
     [field: NonSerialized]
@@ -43,7 +43,7 @@ public sealed class SamusBodyFrameState
     /// </summary>
     public void Select(SamusPoseId pose, int animationFrame)
     {
-        SamusBodyArtworkCatalog installed = Artwork ?? throw new InvalidOperationException(
+        InstalledSamusBodyArtwork installed = Artwork ?? throw new InvalidOperationException(
             "Samus body frame selection requires installed body artwork.");
         SamusBodyFrameSelection frame = installed.Frame(pose, animationFrame);
         int top = installed.DefinitionRecord(SamusBodyHalf.Top, frame.TopSet, frame.TopPosition);

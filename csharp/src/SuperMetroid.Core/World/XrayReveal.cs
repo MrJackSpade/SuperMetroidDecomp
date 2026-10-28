@@ -35,7 +35,7 @@ internal sealed class XrayReveal
     }
     /// <summary>Installed X-ray art, rebound by the host after debugger-state restore.</summary>
     [field: NonSerialized]
-    public XrayRevealVisualCatalog? XrayRevealVisuals { get; set; }
+    public InstalledXrayReveals? XrayRevealVisuals { get; set; }
 
     /// <summary>
     /// Setup call four's reveal construction (<c>$91:CB8E</c>), run before the setup stage advances. The reveal map is

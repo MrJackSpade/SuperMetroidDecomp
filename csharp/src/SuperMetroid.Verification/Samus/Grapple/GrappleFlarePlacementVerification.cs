@@ -30,7 +30,7 @@ internal static class GrappleFlarePlacementVerification
     internal static void VerifyGrappleFlarePlacement(SuperMetroidAddressSpace rom)
     {
         byte[] json = GrappleFlarePlacementExtractor.Extract(rom);
-        var stock = ChargeFlarePlacementCatalog.Load(new MemoryStream(json));
+        var stock = ChargeFlarePlacements.Load(new MemoryStream(json));
         var document = RequiredJson.Parse(json);
         foreach (bool running in new[] { false, true })
         for (int direction = 0; direction < 16; direction++)
@@ -40,11 +40,11 @@ internal static class GrappleFlarePlacementVerification
             int y = running ? SamusSourceDefinitions.GrappleRunningFlareY.Value : SamusSourceDefinitions.GrappleDefaultFlareY.Value;
             AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), x + direction * 2)), offset.X, "Extracted Grapple flare X including adjacent rows");
             AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), y + direction * 2)), offset.Y, "Extracted Grapple flare Y including adjacent rows");
-            var editedOffset = document.Required("offsets").Required(ChargeFlarePlacementDefinitions.Key(running, direction));
+            var editedOffset = document.Required("offsets").Required(ChargeFlarePlacementOffsets.Key(running, direction));
             editedOffset["x"] = unchecked((short)(offset.X + 7));
             editedOffset["y"] = unchecked((short)(offset.Y - 9));
         }
-        var edited = ChargeFlarePlacementCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
+        var edited = ChargeFlarePlacements.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
         var refresh = new Action<SamusState, SamusGrappleState>(SamusGrappleBeamDrawing.RefreshFiringDrawOrigins);
         Func<SamusState, SamusGrappleState, Position16<RoomPixels>, GrappleAnchorKind, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
         var empty = CreateRoom(new(64, 64), new ushort[4096], new byte[4096]);
@@ -94,7 +94,7 @@ internal static class GrappleFlarePlacementVerification
             Compare(lockedInPlace);
             if (lockedInPlace) locked++;
 
-            SamusState Seed(ChargeFlarePlacementCatalog? placement)
+            SamusState Seed(ChargeFlarePlacements? placement)
             {
                 var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)) };
                 PrepareRetailSamusFixture(samus);
@@ -122,7 +122,7 @@ internal static class GrappleFlarePlacementVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         byte[] beforeBinding = GraphDigest(runtime.Player.IntroducedSamus);
-        var swingFrames = GrappleSwingFrameCatalog.Load(new MemoryStream(GrappleSwingFrameExtractor.Extract(rom)));
+        var swingFrames = InstalledGrappleSwingFrames.Load(new MemoryStream(GrappleSwingFrameExtractor.Extract(rom)));
         runtime.Artwork.GrappleFlarePlacement = edited;
         runtime.Artwork.GrappleSwingFrames = swingFrames;
         AssertTrue(ReferenceEquals(edited, runtime.Player.IntroducedSamus.Grapple.FlarePlacement), "Artwork rebinding reaches current Samus immediately");

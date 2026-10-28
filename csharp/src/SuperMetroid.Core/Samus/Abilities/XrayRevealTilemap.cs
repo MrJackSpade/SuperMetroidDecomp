@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;

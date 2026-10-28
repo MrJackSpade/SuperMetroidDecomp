@@ -25,7 +25,7 @@ internal sealed class CeresSmallAsteroidParts(Offset16<SpritePixels>[] anchors) 
         Offset16<SpritePixels> Anchor(int index)
         {
             var part = supplied.Part(index);
-            return new Offset16<SpritePixels>(checked((short)part.Part.Offset.X), checked((short)part.Part.Offset.Y));
+            return new Offset16<SpritePixels>(part.Part.Offset.X, part.Part.Offset.Y);
         }
         Offset16<SpritePixels>[] anchors = [Anchor(1), Anchor(3), Anchor(5), Anchor(6), Anchor(10), Anchor(12), Anchor(13)];
         // Horizontal and corner shapes extend eight pixels beyond their anchor.

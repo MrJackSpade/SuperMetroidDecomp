@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Escape.Artwork;
 
 /// <summary>Native transfer records of the escape-timer character pages.</summary>

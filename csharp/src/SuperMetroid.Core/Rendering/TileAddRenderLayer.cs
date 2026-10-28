@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Adds a frontend tile layer's subscreen (#1403); optional coverage excludes transparent main-plane pixels. OBJ coordinates remain screen-relative.</summary>

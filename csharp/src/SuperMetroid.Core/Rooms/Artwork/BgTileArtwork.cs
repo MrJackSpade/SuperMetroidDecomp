@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>A tile word over what shows at its character: what a pre-coloured picture of the tile pictures (#1392).</summary>

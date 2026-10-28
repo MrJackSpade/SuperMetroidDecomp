@@ -170,7 +170,7 @@ internal sealed class SetCharacters
             }
             if (content.Placement is not { } upload)
                 continue;
-            ReadOnlySpan<byte> bytes = upload.Source.Resolve(resolver).Span;
+            ReadOnlySpan<byte> bytes = SpriteArtworkBytes.Of(upload.Source, resolver).Span;
             int offset = range.FirstByte - upload.FirstByte;
             if (bytes.Length < offset + range.ByteCount)
                 throw new InvalidDataException($"{upload.Source} holds {bytes.Length} bytes; its upload shows {upload.ByteCount}.");

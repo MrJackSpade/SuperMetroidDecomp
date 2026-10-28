@@ -19,7 +19,7 @@ internal sealed class CeresVortexParts(bool odd, Offset16<SpritePixels> anchor, 
         if (supplied.PartCount != (odd ? 33 : 36)) return supplied;
         int tip = odd ? 3 : 0, core = odd ? 12 : 18;
         var anchorPart = supplied.Part(core + 10);
-        var anchor = new Offset16<SpritePixels>(checked((short)anchorPart.Part.Offset.X), (short)anchorPart.Part.Offset.Y);
+        var anchor = new Offset16<SpritePixels>(anchorPart.Part.Offset.X, anchorPart.Part.Offset.Y);
         if (anchor.X > 215) return supplied;
         var stars = new CompiledSpritePart[supplied.PartCount - 13];
         int next = 0;

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
 /// <summary>

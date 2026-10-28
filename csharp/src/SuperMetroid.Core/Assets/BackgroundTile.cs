@@ -25,7 +25,7 @@ public readonly record struct BackgroundTile(int Tile, int ColourVariant, bool F
     /// <param name="highPriority">Whether the tile is in the layer's upper priority tier.</param>
     /// <param name="flip">The mirroring the tile is drawn with.</param>
     public BackgroundTile(int tile, int colourVariant, bool highPriority, TileFlip flip = TileFlip.None)
-        : this(tile, colourVariant, (flip & TileFlip.Horizontal) != 0, (flip & TileFlip.Vertical) != 0, highPriority)
+        : this(tile, colourVariant, (flip & TileFlip.Horizontal) != TileFlip.None, (flip & TileFlip.Vertical) != TileFlip.None, highPriority)
     {
     }
 
@@ -52,14 +52,14 @@ public readonly record struct BackgroundTile(int Tile, int ColourVariant, bool F
     /// </summary>
     public BackgroundTile WithFlipsToggled(TileFlip flip) => this with
     {
-        FlipHorizontally = FlipHorizontally ^ ((flip & TileFlip.Horizontal) != 0),
-        FlipVertically = FlipVertically ^ ((flip & TileFlip.Vertical) != 0),
+        FlipHorizontally = FlipHorizontally ^ ((flip & TileFlip.Horizontal) != TileFlip.None),
+        FlipVertically = FlipVertically ^ ((flip & TileFlip.Vertical) != TileFlip.None),
     };
 
     /// <summary>The same placement mirrored by <paramref name="flip"/> instead of its own mirroring.</summary>
     public BackgroundTile WithFlip(TileFlip flip) => this with
     {
-        FlipHorizontally = (flip & TileFlip.Horizontal) != 0,
-        FlipVertically = (flip & TileFlip.Vertical) != 0,
+        FlipHorizontally = (flip & TileFlip.Horizontal) != TileFlip.None,
+        FlipVertically = (flip & TileFlip.Vertical) != TileFlip.None,
     };
 }

@@ -112,7 +112,7 @@ internal sealed class SelectedPresentationHash
     }
 
     /// <summary>Hashes calculated parts with the identical ordering and framing as stored spans.</summary>
-    public void AppendEnemyParts(SuperMetroid.Core.Enemies.Artwork.EnemySpritemapParts parts)
+    public void AppendEnemyParts(IReadOnlyList<SpritePart> parts)
     {
         Append("parts", parts.Count);
         for (int index = 0; index < parts.Count; index++)

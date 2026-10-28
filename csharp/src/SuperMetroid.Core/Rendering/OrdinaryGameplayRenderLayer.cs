@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.Rendering;

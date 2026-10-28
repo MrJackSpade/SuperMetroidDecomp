@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
 /// <summary>A range of one installed Ceres escape character page, uploaded by the escape's transfer lists.</summary>

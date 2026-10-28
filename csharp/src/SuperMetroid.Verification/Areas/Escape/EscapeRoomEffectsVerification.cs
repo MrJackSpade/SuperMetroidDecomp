@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rendering;

@@ -31,7 +31,7 @@ internal sealed class EndingExplosionStarfieldParts : IReadOnlyList<CompiledSpri
             CompiledSpritePart part = supplied.Part(index);
             int tile = part.Part.Character;
             if (tile != CharacterSheetGrid.Cell(14, 13) && (tile < CharacterSheetGrid.Cell(15, 8) || tile > CharacterSheetGrid.Cell(15, 12))) return supplied;
-            stars[index] = new(new(checked((short)part.Part.Offset.X), (short)part.Part.Offset.Y), tile);
+            stars[index] = new(new(part.Part.Offset.X, part.Part.Offset.Y), tile);
         }
         return supplied.CalculateIfMatching(new EndingExplosionStarfieldParts(stars));
     }

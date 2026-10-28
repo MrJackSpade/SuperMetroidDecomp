@@ -1,4 +1,7 @@
-﻿namespace SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
+
+namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Verification access to <see cref="OamBuffer"/> members production does not use.</summary>
 internal static class OamBufferAccess

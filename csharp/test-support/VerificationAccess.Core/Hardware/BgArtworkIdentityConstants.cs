@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
+
+namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Cartridge values and helpers of <see cref="BgArtworkIdentity"/> that only verification reads.</summary>
 internal static class BgArtworkIdentityConstants

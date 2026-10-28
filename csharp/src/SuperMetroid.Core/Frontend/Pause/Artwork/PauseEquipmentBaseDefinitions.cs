@@ -44,9 +44,9 @@ public static class PauseEquipmentBaseDefinitions
     {
         if (IsEquipmentLabelCell(cell)) return true;
         if (IsReserveCell(cell)) return true;
-        int wireframeRelative = cell - PauseWireframeDefinitions.FirstPageByte / sizeof(ushort);
-        return wireframeRelative >= 0 && wireframeRelative / (PauseWireframeDefinitions.PageRowBytes / sizeof(ushort)) < PauseWireframeDefinitions.Rows &&
-            wireframeRelative % (PauseWireframeDefinitions.PageRowBytes / sizeof(ushort)) < PauseWireframeDefinitions.Columns;
+        int wireframeRelative = cell - PauseWireframeDefinitions.FirstPageTile;
+        return wireframeRelative >= 0 && wireframeRelative / PauseWireframeDefinitions.PageColumns < PauseWireframeDefinitions.Rows &&
+            wireframeRelative % PauseWireframeDefinitions.PageColumns < PauseWireframeDefinitions.Columns;
     }
 
     /// <summary>Returns whether reserve or wireframe composition owns a cell outside the equipment-label footprints.</summary>

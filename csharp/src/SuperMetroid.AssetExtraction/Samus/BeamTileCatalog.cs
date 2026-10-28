@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Progression;
@@ -95,7 +96,7 @@ public sealed class BeamTileCatalog : IInstalledArtworkContent
         InstalledArtworkId.BeamPlasmaIceWaveTiles => SamusBeamCombination.PlasmaIceWave,
         InstalledArtworkId.BeamChainsawTiles => SuperMetroid.Core.Samus.Projectiles.ChainsawBeamGraphicsDefinitions.Selection,
         InstalledArtworkId.BeamSpacetimeTiles => SuperMetroid.Core.Samus.Projectiles.SpacetimeBeamGraphicsDefinitions.Selection,
-        InstalledArtworkId.None or InstalledArtworkId.StandardHudTiles or InstalledArtworkId.EscapeTimerFirstTiles or
+        InstalledArtworkId.StandardHudTiles or InstalledArtworkId.EscapeTimerFirstTiles or
             InstalledArtworkId.EscapeTimerSecondTiles or InstalledArtworkId.ProjectileIceWaveTrailTiles or
             InstalledArtworkId.ProjectileMissileTrailTiles or InstalledArtworkId.GrapplePointFirstTiles or
             InstalledArtworkId.GrapplePointSecondTiles or InstalledArtworkId.GrapplePointThirdTiles or

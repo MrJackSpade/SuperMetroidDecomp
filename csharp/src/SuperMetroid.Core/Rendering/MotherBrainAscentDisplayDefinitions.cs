@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Native main-screen layer selection while Mother Brain rises through the floor.</summary>

@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Hardware;
 

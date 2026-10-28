@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Video;
@@ -280,7 +281,7 @@ internal static class RoomBlockUploads
     private static IEnumerable<BgCharacterPlacement> EncounterObjectUploads(RoomBlockSheetInputs inputs, RoomStateSettings state) =>
         SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog.Of(state.EnemyGraphicsSet).Select(upload => new BgCharacterPlacement(
             new BgArtworkIdentity($"{upload.Source}"), BgCharacterSet.Tiles, upload.FirstCharacter,
-            upload.Source.Resolve(inputs.Objects)));
+            SpriteArtworkBytes.Of(upload.Source, inputs.Objects)));
 
     /// <summary>The HUD's characters as gameplay setup uploads them, before any room loads.</summary>
     internal static BgCharacterPlacement HudCharacters(RoomBlockSheetInputs inputs) =>

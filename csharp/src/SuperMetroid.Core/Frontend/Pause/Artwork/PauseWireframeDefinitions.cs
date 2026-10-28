@@ -15,12 +15,12 @@ public static class PauseWireframeDefinitions
     public const int Count = 4;
     /// <summary>$82:B20C copies seventeen rows of eight words from bank $82.</summary>
     public const int Columns = 8, Rows = 17, Cells = Columns * Rows;
-    /// <summary>$82:B20C starts the wireframe at byte $1D8 of the equipment page, tile (12,7).</summary>
-    public const int FirstPageByte = 472;
-    /// <summary>The bytes of one row of the equipment page.</summary>
-    public const int PageRowBytes = 64;
-    /// <summary>The bytes of the equipment page, one 32x32 tilemap.</summary>
-    public const int PageBytes = 2048;
+    /// <summary>$82:B20C starts the wireframe at tile (12,7) of the equipment page.</summary>
+    public const int FirstPageTile = 7 * PageColumns + 12;
+    /// <summary>The tiles in one row of the equipment page.</summary>
+    public const int PageColumns = 32;
+    /// <summary>The tiles of the equipment page, one 32x32 tilemap.</summary>
+    public const int PageTiles = PageColumns * 32;
     /// <summary>Native packed body-piece rows advance sixteen BG characters within the pause interface artwork.</summary>
     private const int PieceRowStride = 16;
     /// <summary>$82:D527 and corresponding variants: left helmet half starts at tile $1B3.</summary>

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rendering;
 
@@ -21,22 +23,22 @@ internal sealed class PauseTilemaps
     private const int FxRowsWord = Layer3Plane.HudRows * Layer3Plane.Columns;
 
     /// <summary>BG1's two screens.</summary>
-    private readonly ushort[] bg1 = new ushort[2 * ScreenWords];
+    private readonly BackgroundTile[] bg1 = new BackgroundTile[2 * ScreenWords];
 
     /// <summary>BG2's screen.</summary>
-    private readonly ushort[] bg2 = new ushort[ScreenWords];
+    private readonly BackgroundTile[] bg2 = new BackgroundTile[ScreenWords];
 
     /// <summary>BG3's two screens: the HUD rows, the rest of the first screen and the screen below it.</summary>
     private readonly ushort[] bg3 = new ushort[2 * ScreenWords];
 
     /// <summary>The map or equipment page.</summary>
-    internal Span<ushort> Bg1 => bg1;
+    internal Span<BackgroundTile> Bg1 => bg1;
 
     /// <summary>The pause frame.</summary>
-    internal Span<ushort> Bg2 => bg2;
+    internal Span<BackgroundTile> Bg2 => bg2;
 
     /// <summary>The frame's two button-label rows, which the pause routines rewrite as labels change.</summary>
-    internal Span<ushort> ButtonRows => bg2.AsSpan(ButtonRowsFirstRow * Layer3Plane.Columns, 2 * Layer3Plane.Columns);
+    internal Span<BackgroundTile> ButtonRows => bg2.AsSpan(ButtonRowsFirstRow * Layer3Plane.Columns, 2 * Layer3Plane.Columns);
 
     /// <summary>The HUD and FX plane.</summary>
     internal ReadOnlySpan<ushort> Bg3 => bg3;

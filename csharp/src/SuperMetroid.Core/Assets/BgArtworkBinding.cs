@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Hardware;
+namespace SuperMetroid.Core.Assets;
 
 /// <summary>One background artwork binding: owned character bytes shown over a set's characters from one onward.</summary>
 /// <param name="Identity">The artwork shown.</param>

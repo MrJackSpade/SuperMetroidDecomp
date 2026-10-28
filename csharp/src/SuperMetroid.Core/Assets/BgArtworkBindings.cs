@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Hardware;
+namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// The background character artwork a frame shows (#1350, #1406): room tilesets, library backgrounds, collectibles,

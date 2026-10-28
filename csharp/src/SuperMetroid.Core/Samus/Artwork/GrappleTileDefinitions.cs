@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Grapple tile ownership and the pinned $9B:C342/C346 endpoint/angle selection tables.</summary>
@@ -67,8 +69,7 @@ public static class GrappleTileDefinitions
             Horizontal => 4,
             Diagonal => 5,
             Vertical => 6,
-            InstalledArtworkId.None or
-                InstalledArtworkId.StandardHudTiles or
+            InstalledArtworkId.StandardHudTiles or
                 InstalledArtworkId.EscapeTimerFirstTiles or
                 InstalledArtworkId.EscapeTimerSecondTiles or
                 InstalledArtworkId.BeamPowerTiles or

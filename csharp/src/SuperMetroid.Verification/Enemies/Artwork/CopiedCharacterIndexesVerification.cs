@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
@@ -39,14 +40,14 @@ internal static class CopiedCharacterIndexesVerification
             runtime.LoadCartridgeRoomForDebug(room, state: state);
             // Some copy on their first main-AI frame, which runs before the room's enemies first draw.
             runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = default, TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData });
-            EnemyGraphicsIndexes composed = runtime.Enemies.GraphicsSet.DrawIndexes(child);
+            SpriteGraphics composed = runtime.Enemies.GraphicsSet.DrawIndexes(child);
             RoomEnemySlot[] placed = [.. runtime.Enemies.SlotTable.Slots.Where(slot => slot.DefinitionId == child)];
             AssertTrue(placed.Length > 0, $"{room.Name} places {child}");
             foreach (RoomEnemySlot slot in placed)
             {
-                AssertEqual(composed.TileIndex, slot.TileIndexBase, $"{child} in {room.Name} draws at the character index its sheet is composed at");
+                AssertEqual(composed.TileBase, slot.TileIndexBase, $"{child} in {room.Name} draws at the character index its sheet is composed at");
                 if (EnemyTileBaseDefinitions.DrawsInPaletteOf.ContainsKey(child))
-                    AssertEqual(composed.PaletteIndex, slot.PaletteIndex, $"{child} in {room.Name} draws in the palette its sheet is coloured in");
+                    AssertEqual(composed.PaletteRow, slot.PaletteRow, $"{child} in {room.Name} draws in the palette its sheet is coloured in");
                 slots++;
             }
         }

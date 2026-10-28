@@ -168,7 +168,7 @@ internal static class LookupStream2Verification
         var cgram = new SamusColourRig();
         enemies.Presentation.BindColours(cgram.Gameplay);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.PaletteIndex = 0;
+        slot.PaletteRow = 0;
         var state = new WreckedShipGhostEnemyState { PhaseTimer = WrappingCountdown.Start(2) };
         Action<RoomEnemySlot, WreckedShipGhostEnemyState> brightening = enemies.WreckedShipGhostBehavior.RunWreckedShipGhostBrightening;
         Func<RoomEnemySlot, WreckedShipGhostEnemyState, int> fade = enemies.WreckedShipGhostBehavior.StepWreckedShipGhostPaletteTowardTarget;
@@ -668,13 +668,13 @@ internal static class LookupStream2Verification
             var native = new byte[PauseWireframeDefinitions.Cells * 2];
             for (int cell = 0; cell < PauseWireframeDefinitions.Cells; cell++)
                 System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(cell * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + cell * 2)));
-            Confirm(stock, kind, native, "Actual mirrored stock wireframe preserves every native tile word");
+            Confirm(stock, kind, BackgroundTileWordBytes.Tiles(native), "Actual mirrored stock wireframe preserves every native tile word");
             var edits = stock.frames[kind].edits;
             stockOverrides += edits.Count;
             for (int cell = 0; cell < PauseWireframeDefinitions.Cells; cell++)
             {
                 ushort actualNative = CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + cell * 2));
-                AssertEqual(actualNative, PauseWireframeDefinitions.StockWord(kind, cell), $"Complete native composition word {kind}/{cell}");
+                AssertEqual(actualNative, BackgroundTileWords.ToWord(PauseWireframeDefinitions.StockTile(kind, cell)), $"Complete native composition word {kind}/{cell}");
                 if (PauseWireframeDefinitions.TryStockTile(kind, cell, out int tile))
                 {
                     AssertEqual(actualNative & 0x03ff, tile, "Native body-piece tile progression");
@@ -704,17 +704,17 @@ internal static class LookupStream2Verification
         }
         AssertEqual(266, pieceCells, "Native glyph cells calculated from named body pieces");
         AssertEqual(0, stockOverrides, "All stock words derive without unexplained overrides");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ApplyTo(new byte[2048], (PauseWireframeKind)4), "Wireframe kind bound");
-        AssertThrows<ArgumentException>(() => stock.ApplyTo(new byte[1], PauseWireframeKind.PowerSuit), "Wireframe page bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ApplyTo(new BackgroundTile[PauseWireframeDefinitions.PageTiles], (PauseWireframeKind)4), "Wireframe kind bound");
+        AssertThrows<ArgumentException>(() => stock.ApplyTo(new BackgroundTile[1], PauseWireframeKind.PowerSuit), "Wireframe page bound");
         Console.WriteLine("Wireframe composition:544 native words,266 atlas-strip cells,zero stock overrides,four full native patches,28 independent glyph/flip/palette/priority edits and untouched-page/bounds checks pass. Only the approved specific diagram composition is retained; glyph pixels remain separately accounted.");
 
-        static void Confirm(PauseWireframePresentation presentation, PauseWireframeKind kind, byte[] words, string context)
+        static void Confirm(PauseWireframePresentation presentation, PauseWireframeKind kind, BackgroundTile[] tiles, string context)
         {
-            byte[] actual = Enumerable.Repeat((byte)0xaa, PauseWireframeDefinitions.PageBytes).ToArray();
-            byte[] expected = actual.ToArray();
+            BackgroundTile[] actual = Enumerable.Repeat(BackgroundTileWords.ToTile(0xaaaa), PauseWireframeDefinitions.PageTiles).ToArray();
+            BackgroundTile[] expected = actual.ToArray();
             for (int row = 0; row < PauseWireframeDefinitions.Rows; row++)
-                words.AsSpan(row * PauseWireframeDefinitions.Columns * 2, PauseWireframeDefinitions.Columns * 2)
-                    .CopyTo(expected.AsSpan(PauseWireframeDefinitions.FirstPageByte + row * PauseWireframeDefinitions.PageRowBytes));
+                tiles.AsSpan(row * PauseWireframeDefinitions.Columns, PauseWireframeDefinitions.Columns)
+                    .CopyTo(expected.AsSpan(PauseWireframeDefinitions.FirstPageTile + row * PauseWireframeDefinitions.PageColumns));
             presentation.ApplyTo(actual, kind);
             AssertTrue(expected.SequenceEqual(actual), context);
         }
@@ -1603,9 +1603,9 @@ internal static class LookupStream2Verification
                 int start = (ReadVerificationWord(rom, 0x82c068 + 2 * index) - 0x3800) / 2;
                 reserve |= (uint)(cell - start) < 7;
             }
-            int relative = cell - PauseWireframeDefinitions.FirstPageByte / 2;
-            bool wireframe = relative >= 0 && relative / (PauseWireframeDefinitions.PageRowBytes / 2) < PauseWireframeDefinitions.Rows &&
-                relative % (PauseWireframeDefinitions.PageRowBytes / 2) < PauseWireframeDefinitions.Columns;
+            int relative = cell - PauseWireframeDefinitions.FirstPageTile;
+            bool wireframe = relative >= 0 && relative / PauseWireframeDefinitions.PageColumns < PauseWireframeDefinitions.Rows &&
+                relative % PauseWireframeDefinitions.PageColumns < PauseWireframeDefinitions.Columns;
             AssertEqual(equipment, PauseEquipmentBaseDefinitions.IsEquipmentLabelCell(cell), "native equipment ownership footprint");
             AssertEqual(equipment || reserve || wireframe, PauseEquipmentBaseDefinitions.IsLiveOwnedCell(cell), "native live ownership footprint");
             AssertEqual((reserve || wireframe) && !equipment, PauseEquipmentBaseDefinitions.IsNonInventoryLiveOwnedCell(cell), "native noninventory footprint");

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Hardware;
+namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// A set of background characters a layer reads (#1406): what a tile word's character number names. Artwork binds over a

@@ -184,7 +184,7 @@ internal static void VerifyRoomEnemyLoading()
     RoomEnemySlot slot = enemies.SlotTable.Slots[0];
     AssertEqual(0x0456, slot.Position.X.Whole, "population X position");
     AssertEqual(0x0789, slot.Position.Y.Whole, "population Y position");
-    AssertEqual(0x0600, slot.PaletteIndex, "graphics-set OBJ palette index");
+    AssertEqual(0x0600, slot.PaletteRow, "graphics-set OBJ palette index");
     AssertEqual(0, slot.TileIndexBase, "first graphics-set tile index");
     AssertEqual(EnemyCallbackBody.ImmediateReturn, slot.Definition.NoOpCallbackBody,
         "definition bank $A2 runs the shared no-op callback as an immediate return");
@@ -1778,7 +1778,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
 /// <summary>Serves the loading fixture's seeded enemy tiles by definition: the bytes installed artwork would hold for them.</summary>
 /// <param name="tiles">The fixture's seeded enemy artwork.</param>
 internal sealed class SeededEnemyTileTransfers(EnemyTileArtworkCatalog tiles)
-    : IInstalledArtworkContent, IInstalledArtworkContent, IInstalledSpriteCharacterArtwork
+    : IInstalledArtworkContent, IInstalledSpriteCharacterArtwork
 {
     /// <inheritdoc/>
     public EnemyTileArtworkCatalog EnemyTiles => tiles;
@@ -1789,8 +1789,5 @@ internal sealed class SeededEnemyTileTransfers(EnemyTileArtworkCatalog tiles)
 
     /// <summary>Rejects typed assets, which the fixture never queues.</summary>
     public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) => throw new InvalidOperationException($"The loading fixture queues no asset {asset}.");
-
-    /// <summary>Rejects typed assets, which the fixture never binds.</summary>
-    public ReadOnlyMemory<byte> ResolveAsset(InstalledArtworkId asset) => Resolve(asset);
 
 }

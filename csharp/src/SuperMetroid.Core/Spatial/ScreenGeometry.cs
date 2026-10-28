@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rendering;
+namespace SuperMetroid.Core.Spatial;
 
 /// <summary>The game screen's geometry: its size, the HUD band across its top, and the tiles and tilemap screens backgrounds are laid out in.</summary>
 /// <remarks>

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Spatial;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Core.Hardware;
 

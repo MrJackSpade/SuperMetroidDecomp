@@ -284,7 +284,7 @@ internal static class NativeSnapshotImportVerification
             slot.Timer = WrappingCountdown.FromRaw(W(address + 24));
             slot.CurrentInstruction = W(address + 26);
             slot.InstructionTimer = WrappingCountdown.FromRaw(W(address + 28));
-            slot.PaletteIndex = W(address + 30);
+            slot.PaletteRow = W(address + 30);
             slot.TileIndexBase = W(address + 32);
             slot.Layer = W(address + 34);
             slot.FlashTimer = WrappingCountdown.FromRaw(W(address + 36));

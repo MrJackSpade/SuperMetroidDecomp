@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rendering;
+namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// The layers a screen shows (#1407): any combination of the foreground, the background, the overlay and the sprites.

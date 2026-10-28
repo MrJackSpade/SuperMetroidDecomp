@@ -13,11 +13,9 @@ public sealed class PauseReserveTankPresentation
     internal readonly Dictionary<int, AnchorOverride> anchorOverrides;
     /// <summary>Edited sprite compositions for the ten native reserve visual roles.</summary>
     internal readonly FrameSet frames;
-    /// <summary>The palette row every reserve-strip part draws in.</summary>
-    private readonly int palette;
     /// <summary>Stores independent anchor edits, frame art, and selected reserve palette.</summary>
     private PauseReserveTankPresentation(Dictionary<int, AnchorOverride> anchorOverrides, FrameSet frames, int palette)
-    { this.anchorOverrides = anchorOverrides; this.frames = frames; this.palette = Ensure.BetweenInclusive(0, SpritePart.MaximumPalette, palette); }
+    { this.anchorOverrides = anchorOverrides; this.frames = frames; Palette = Ensure.BetweenInclusive(0, SpritePart.MaximumPalette, palette); }
 
     /// <summary>Gets one reserve-strip screen anchor, falling back independently to each stock coordinate.</summary>
     /// <param name="index">Zero-based tank or trailing-cap position from 0 through 5.</param>
@@ -27,8 +25,8 @@ public sealed class PauseReserveTankPresentation
         var basis = PauseReserveTankDefinitions.StockAnchor(index);
         return anchorOverrides.TryGetValue(index, out var value) ? new(checked((ushort)(value.X ?? basis.X)), checked((ushort)(value.Y ?? basis.Y))) : basis;
     }
-    /// <summary>The palette row the strip draws in.</summary>
-    internal int Palette => palette;
+    /// <summary>The palette row every reserve-strip part draws in.</summary>
+    internal int Palette { get; }
 
     /// <summary>Draws one full, empty, partially filled, or end-cap reserve frame of the pause sheet at a strip position.</summary>
     /// <param name="entries">The screen's sprite entries.</param>

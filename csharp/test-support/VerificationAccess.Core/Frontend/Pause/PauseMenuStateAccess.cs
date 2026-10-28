@@ -39,9 +39,9 @@ internal static class PauseMenuStateAccess
         {
             const int firstUploadedNativeWordIndex = 0x0320;
             int uploadedWordOffset = nativeWordIndex - firstUploadedNativeWordIndex;
-            if ((uint)uploadedWordOffset >= PauseMenuLayout.ButtonRowsByteCount / 2)
+            if ((uint)uploadedWordOffset >= PauseMenuLayout.ButtonRowsTileCount)
                 throw new ArgumentOutOfRangeException(nameof(nativeWordIndex));
-            return self.screen.Tilemaps.ButtonRows[uploadedWordOffset];
+            return BackgroundTileWords.ToWord(self.screen.Tilemaps.ButtonRows[uploadedWordOffset]);
         }
 
         /// <summary>
@@ -53,9 +53,8 @@ internal static class PauseMenuStateAccess
             if ((uint)digitIndex >= PauseMenuLayout.ReserveSupplyDigitCount)
                 throw new ArgumentOutOfRangeException(nameof(digitIndex));
 
-            int byteOffset = PauseMenuLayout.ReserveSupplyDigitsByteOffset + digitIndex * 2;
-            return unchecked(
-                SnesLittleEndian.Word(self.equipmentTilemap[byteOffset], self.equipmentTilemap[byteOffset + 1]));
+            int tile = PauseMenuLayout.ReserveSupplyDigitsByteOffset / sizeof(ushort) + digitIndex;
+            return BackgroundTileWords.ToWord(self.equipmentTilemap[tile]);
         }
     }
 }

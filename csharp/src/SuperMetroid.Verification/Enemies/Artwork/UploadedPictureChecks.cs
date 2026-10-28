@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;

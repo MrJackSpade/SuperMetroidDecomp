@@ -114,7 +114,8 @@ internal static class SamusContentIdentityVerification
             Version = SamusArmCannonArtworkFormat.Version,
             PoseDescriptors = new int[SamusBodyArtworkCatalog.PoseCount],
             DrawingData = new int[SamusArmCannonArtworkFormat.DrawingDataByteCount],
-            SpriteAttributes = new int[SamusDrawingDefinitions.ArmCannon.DirectionCount],
+            CoverAppearances = Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount)
+                .Select(_ => SpriteVisualPart.FromSpritePart(SpritePart.Single(0, 0, 0), SpriteArtwork.CharactersPerRow)).ToArray(),
             CoverTiles = Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount)
                 .Select(_ => new int[SamusArmCannonArtworkFormat.FramesPerDirection - 1]).ToArray(),
         };

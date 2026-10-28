@@ -172,7 +172,7 @@ internal sealed class EnemyPresentation
         SetCharacterCoverage coverage = Sheets.Coverage(LoadedSet);
         return layers.Select((regions, layer) => catalog.PictureName(frame, layer,
             [.. regions.Select(region => RotSteps.TryShowing(region, out int step, out long stamp)
-                    && !SpriteCharacters.NewestFirst.TakeWhile(shown => shown.Stamp > stamp).Any(shown => coverage.Covers(shown.Source, region))
+                    && !SpriteCharacters.ShownAfter(stamp).Any(shown => coverage.Covers(shown, region))
                 ? new CharacterRegionContent(region, null, step) : catalog.Showing(SpriteCharacters, uploads, region, ArtworkFrames, coverage))]));
     }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
@@ -64,9 +65,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>The pause screen: its artwork, tilemaps (including the retained gameplay HUD rows), palette and sprite entries (#1358).</summary>
     internal readonly PauseScreen screen;
     /// <summary>Mutable BG1 equipment page including current inventory labels and tanks.</summary>
-    internal readonly byte[] equipmentTilemap;
+    internal readonly BackgroundTile[] equipmentTilemap;
     /// <summary>Mutable button-label source whose palette bits survive page transitions.</summary>
-    private readonly byte[] pauseButtonTilemap;
+    private readonly BackgroundTile[] pauseButtonTilemap;
     /// <summary>Current map/equipment fade or load phase.</summary>
     internal PauseMenuTransition Transition { get; private set; }
     /// <summary>Counter inserted between brightness changes during fade-in.</summary>
@@ -166,8 +167,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         SetPauseButtonLabelMode(0);
 
         // $B6:E800 is the mutable equipment template normally copied to $7E:3800.
-        // Preserve it as a byte array because the cartridge's offset tables contain WRAM
-        // byte addresses rather than tilemap word indexes.
         equipmentTilemap = entry.MapPresentation.PauseEquipmentBase.CreateTilemap();
         RebuildEquipmentTilemap();
         LoadPauseMapTilemap();
@@ -479,7 +478,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     {
         IAreaMapView map = (mapPresentation ?? throw new InvalidOperationException(
             "Pause map requires installed map presentation assets.")).Get(area);
-        byte[] mapTilemap = AreaMapTilemapBuilder.Build(
+        BackgroundTile[] mapTilemap = AreaMapTilemapBuilder.Build(
             map, system, MapTileWords.PauseBlank, mapRevealMode);
         MenuTilemaps.Load(screen.Tilemaps.Bg1, mapTilemap);
 
@@ -677,7 +676,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     {
         // These indexes are words relative to native WRAM $3000. The mutable cartridge
         // template begins at $3400, or word index $200; subtract that origin before
-        // indexing the local byte array.
+        // indexing the local tilemap.
         // Labels draw bright in BG palette two and dim in palette five.
         const int BrightLabelPalette = 2;
         const int DimLabelPalette = 5;
@@ -686,11 +685,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             int localWordIndex = sourceWordIndex - PauseMenuLayout.ButtonSourceWordOrigin;
             for (int word = 0; word < wordCount; word++)
             {
-                int byteOffset = (localWordIndex + word) * 2;
-                SnesBgTilemapWord tile = new SnesBgTilemapWord(
-                    SnesLittleEndian.Word(pauseButtonTilemap[byteOffset], pauseButtonTilemap[byteOffset + 1])).WithPaletteIndex(palette);
-                pauseButtonTilemap[byteOffset] = SnesLittleEndian.LowByte(tile.Raw);
-                pauseButtonTilemap[byteOffset + 1] = SnesLittleEndian.HighByte(tile.Raw);
+                ref BackgroundTile tile = ref pauseButtonTilemap[localWordIndex + word];
+                tile = tile with { ColourVariant = palette };
             }
         }
 
@@ -738,11 +734,11 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
     /// <summary>Shows the current mutable equipment page on BG1's first screen, leaving the second as the map left it.</summary>
     private void UploadEquipmentTilemap() =>
-        MenuTilemaps.Load(screen.Tilemaps.Bg1[..(equipmentTilemap.Length / sizeof(ushort))], equipmentTilemap);
+        MenuTilemaps.Load(screen.Tilemaps.Bg1[..equipmentTilemap.Length], equipmentTilemap);
 
     /// <summary>Shows the mutable button-label source's two rows on BG2, as the queued $7E:3640 transfer does.</summary>
     private void UploadButtonRows() => MenuTilemaps.Load(screen.Tilemaps.ButtonRows,
-        pauseButtonTilemap.AsSpan(PauseMenuLayout.ButtonRowsSourceOffset, PauseMenuLayout.ButtonRowsByteCount));
+        pauseButtonTilemap.AsSpan(PauseMenuLayout.ButtonRowsSourceTile, PauseMenuLayout.ButtonRowsTileCount));
 
     /// <summary>Gets the inventory bit represented by an item in an equipment category.</summary>
     private static PauseEquipmentBit ReadCategoryMask(PauseEquipmentCategoryDefinition category, int item) =>
@@ -1001,7 +997,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Adopts replacement button art while preserving palette bits from the live menu.</summary>
     private void RefreshPauseButtonArtwork()
     {
-        byte[] replacement = (mapPresentation ?? throw new InvalidOperationException(
+        BackgroundTile[] replacement = (mapPresentation ?? throw new InvalidOperationException(
             "Pause buttons require installed presentation assets."))
             .PauseBackdrops.CreateButtonTilemap();
         // Only these palette bits are owned by the live menu. Carry them forward
@@ -1010,10 +1006,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         foreach (var span in PauseMenuLayout.ButtonLabelSpans)
         for (int index = 0; index < span.Count; index++)
         {
-            int offset = (span.Word - PauseMenuLayout.ButtonSourceWordOrigin + index) * 2;
-            var previous = new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(pauseButtonTilemap.AsSpan(offset)));
-            var current = new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(replacement.AsSpan(offset)));
-            BinaryPrimitives.WriteUInt16LittleEndian(replacement.AsSpan(offset), current.WithPaletteIndex(previous.PaletteIndex).Raw);
+            int tile = span.Word - PauseMenuLayout.ButtonSourceWordOrigin + index;
+            replacement[tile] = replacement[tile] with { ColourVariant = pauseButtonTilemap[tile].ColourVariant };
         }
         replacement.CopyTo(pauseButtonTilemap, 0);
     }

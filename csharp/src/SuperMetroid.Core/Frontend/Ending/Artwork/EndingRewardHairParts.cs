@@ -27,7 +27,7 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
             for (int index = 0; index < 2; index++)
             {
                 CompiledSpritePart part = supplied.Part(index + 2);
-                positions[index] = new Offset16<SpritePixels>(checked((short)part.Part.Offset.X), checked((short)part.Part.Offset.Y));
+                positions[index] = new Offset16<SpritePixels>(part.Part.Offset.X, part.Part.Offset.Y);
             }
             forearmAnchor = positions[0];
             moving = positions[1] == OppositeForearm(forearmAnchor) ? null : positions;

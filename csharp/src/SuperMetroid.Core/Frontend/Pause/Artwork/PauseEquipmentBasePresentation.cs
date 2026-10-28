@@ -32,8 +32,8 @@ public sealed class PauseEquipmentBasePresentation
     /// <summary>Combines the power-suit wireframe with the equipment base outside its footprint.</summary>
     private static BackgroundTile DefaultTile(int cell)
     {
-        int relative = cell - PauseWireframeDefinitions.FirstPageByte / sizeof(ushort);
-        int stride = PauseWireframeDefinitions.PageRowBytes / sizeof(ushort);
+        int relative = cell - PauseWireframeDefinitions.FirstPageTile;
+        int stride = PauseWireframeDefinitions.PageColumns;
         if (relative >= 0 && relative / stride < PauseWireframeDefinitions.Rows &&
             relative % stride < PauseWireframeDefinitions.Columns)
         {

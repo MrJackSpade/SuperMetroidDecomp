@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
@@ -212,8 +213,7 @@ public sealed class AreaMapPresentationCatalog : IInstalledArtworkContent, IGame
         InstalledArtworkId.KraidBg3RestoreQuarter2 => HudTiles.KraidRestoreQuarter(2),
         InstalledArtworkId.KraidBg3RestoreQuarter3 => HudTiles.KraidRestoreQuarter(3),
         InstalledArtworkId.EscapeTimerFirstTiles or InstalledArtworkId.EscapeTimerSecondTiles => EscapeTimerTiles.Resolve(asset),
-        InstalledArtworkId.None or
-            InstalledArtworkId.BeamPowerTiles or
+        InstalledArtworkId.BeamPowerTiles or
             InstalledArtworkId.BeamWaveTiles or
             InstalledArtworkId.BeamIceTiles or
             InstalledArtworkId.BeamIceWaveTiles or

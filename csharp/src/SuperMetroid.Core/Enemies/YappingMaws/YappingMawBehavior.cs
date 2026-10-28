@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Programs;

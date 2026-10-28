@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;

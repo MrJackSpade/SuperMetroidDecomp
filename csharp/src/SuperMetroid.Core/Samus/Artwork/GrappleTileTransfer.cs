@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>One native transfer and its planar-byte position in the sixteen-character replacement sheet.</summary>

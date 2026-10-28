@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Input;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Rendering;

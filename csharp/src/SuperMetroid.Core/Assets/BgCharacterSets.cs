@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Hardware;
+namespace SuperMetroid.Core.Assets;
 
 /// <summary>The extent of each background character set (#1406).</summary>
 public static class BgCharacterSets

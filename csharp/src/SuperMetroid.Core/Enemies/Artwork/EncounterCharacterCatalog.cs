@@ -85,7 +85,7 @@ public sealed class EncounterCharacterCatalog
                 ?? throw new InvalidDataException($"{shown} shows over region {region.Name}, which no encounter of this graphics set paints with it.");
             return new CharacterRegionContent(region, selected);
         }
-        foreach ((SpriteArtworkSource source, _) in uploads.NewestFirst)
+        foreach (SpriteArtworkSource source in uploads.NewestFirst)
         {
             if (!coverage.Knows(source) && all.Any(upload => upload.Source == source))
                 throw new InvalidDataException($"{source}, uploaded by an encounter of another graphics set, shows over a frame drawn under this one.");

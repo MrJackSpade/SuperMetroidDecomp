@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Fx;

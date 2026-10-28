@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rendering;
+namespace SuperMetroid.Core.Spatial;
 
 /// <summary>Screen geometry values of <see cref="ScreenGeometry"/> that only verification reads.</summary>
 internal static class ScreenGeometryConstants

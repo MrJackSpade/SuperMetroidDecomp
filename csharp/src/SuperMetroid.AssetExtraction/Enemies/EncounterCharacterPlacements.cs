@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -25,11 +26,11 @@ internal static class EncounterCharacterPlacements
     /// <exception cref="InvalidDataException">The cartridge shows no such source among the sprite characters.</exception>
     internal static SpriteArtworkPlacement Placed(SpriteArtworkSource source) => source switch
     {
-        InstalledArtworkCharacters { Asset: >= InstalledArtworkId.GunshipLiftoffFirstTiles and <= InstalledArtworkId.GunshipLiftoffFirstTiles + 4 } liftoff =>
-            new(source, EncounterCharacterPlacementDefinitions.GunshipFirstCharacter + (liftoff.Asset - InstalledArtworkId.GunshipLiftoffFirstTiles) * Characters(GunshipLiftoffTransferDefinitions.ByteCount),
+        InstalledArtworkCharacters { Artwork: >= InstalledArtworkId.GunshipLiftoffFirstTiles and <= InstalledArtworkId.GunshipLiftoffFirstTiles + 4 } liftoff =>
+            new(source, EncounterCharacterPlacementDefinitions.GunshipFirstCharacter + (liftoff.Artwork - InstalledArtworkId.GunshipLiftoffFirstTiles) * Characters(GunshipLiftoffTransferDefinitions.ByteCount),
                 Characters(GunshipLiftoffTransferDefinitions.ByteCount)),
-        InstalledArtworkCharacters { Asset: InstalledArtworkId.EscapeTimerFirstTiles } => Timer(source, EscapeTimerTilePage.First),
-        InstalledArtworkCharacters { Asset: InstalledArtworkId.EscapeTimerSecondTiles } => Timer(source, EscapeTimerTilePage.Second),
+        InstalledArtworkCharacters { Artwork: InstalledArtworkId.EscapeTimerFirstTiles } => Timer(source, EscapeTimerTilePage.First),
+        InstalledArtworkCharacters { Artwork: InstalledArtworkId.EscapeTimerSecondTiles } => Timer(source, EscapeTimerTilePage.Second),
         TorizoArtworkSwapCharacters swap =>
             new(source, EncounterCharacterPlacementDefinitions.TorizoDestinations[swap.Entry].FirstCharacter, Characters(TorizoArtworkSwapDefinitions.Entries[swap.Entry].ByteCount)),
         CrocomireSkeletonChunkCharacters chunk => new(source, SkeletonFirstCharacter(chunk.Entry),

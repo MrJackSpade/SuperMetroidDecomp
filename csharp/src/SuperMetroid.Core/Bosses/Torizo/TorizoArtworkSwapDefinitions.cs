@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Torizo;

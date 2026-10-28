@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hud.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Kraid;

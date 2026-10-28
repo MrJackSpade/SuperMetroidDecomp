@@ -1,4 +1,3 @@
-using System.Buffers.Binary;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 
@@ -13,17 +12,16 @@ public sealed class PauseWireframePresentation
     private PauseWireframePresentation(Dictionary<PauseWireframeKind, Wireframe> frames) => this.frames = frames;
 
     /// <summary>Patches the selected eight-column, seventeen-row wireframe into the equipment page at tile (12, 7), matching native <c>EquipmentScreen_WriteSamusWireframeTilemap</c> at <c>$82:B20C</c>; leaves all other cells untouched and does not choose the inventory variant or queue VRAM.</summary>
-    /// <param name="equipmentPage">Complete 2048-byte, 32-by-32 equipment tilemap in little-endian word order.</param>
+    /// <param name="equipmentPage">Complete 32-by-32 equipment page.</param>
     /// <param name="kind">One of the four compiled Power/Varia and regular/Hi-Jump visual variants.</param>
-    public void ApplyTo(Span<byte> equipmentPage, PauseWireframeKind kind)
+    public void ApplyTo(Span<BackgroundTile> equipmentPage, PauseWireframeKind kind)
     {
         if (!frames.TryGetValue(kind, out Wireframe? source)) throw new ArgumentOutOfRangeException(nameof(kind));
-        Ensure.LengthEqual(equipmentPage, PauseWireframeDefinitions.PageBytes);
+        Ensure.LengthEqual(equipmentPage, PauseWireframeDefinitions.PageTiles);
         for (int row = 0; row < PauseWireframeDefinitions.Rows; row++)
         for (int column = 0; column < PauseWireframeDefinitions.Columns; column++)
-            BinaryPrimitives.WriteUInt16LittleEndian(equipmentPage.Slice(
-                PauseWireframeDefinitions.FirstPageByte + row * PauseWireframeDefinitions.PageRowBytes + column * sizeof(ushort)),
-                source.Word(row * PauseWireframeDefinitions.Columns + column));
+            equipmentPage[PauseWireframeDefinitions.FirstPageTile + row * PauseWireframeDefinitions.PageColumns + column] =
+                source.Tile(row * PauseWireframeDefinitions.Columns + column);
     }
 
     /// <summary>Loads all four named wireframe variants at the supported version, requiring 136 row-major cells per variant and validating each cell's atlas, tile coordinates, and palette before compiling native tilemap words.</summary>
@@ -50,25 +48,22 @@ public sealed class PauseWireframePresentation
     /// <summary>Calculated authored composition with independent supplied word overrides.</summary>
     internal sealed class Wireframe
     {
-        /// <summary>Variant used to derive stock tilemap words when no override exists.</summary>
+        /// <summary>Variant used to derive stock tiles when no override exists.</summary>
         private readonly PauseWireframeKind kind;
-        /// <summary>Only cells whose authored words differ from the stock composition.</summary>
-        internal readonly Dictionary<int, ushort> edits = [];
+        /// <summary>Only cells whose authored tiles differ from the stock composition.</summary>
+        internal readonly Dictionary<int, BackgroundTile> edits = [];
 
         /// <summary>Retains independent cell edits from a validated compiled wireframe.</summary>
-        internal Wireframe(PauseWireframeKind kind, ReadOnlySpan<byte> words)
+        internal Wireframe(PauseWireframeKind kind, ReadOnlySpan<BackgroundTile> tiles)
         {
             this.kind = kind;
             for (int cell = 0; cell < PauseWireframeDefinitions.Cells; cell++)
-            {
-                int value = BinaryPrimitives.ReadUInt16LittleEndian(words[(cell * sizeof(ushort))..]);
-                if (value != PauseWireframeDefinitions.StockWord(kind, cell)) edits.Add(cell, (ushort)value);
-            }
+                if (tiles[cell] != PauseWireframeDefinitions.StockTile(kind, cell)) edits.Add(cell, tiles[cell]);
         }
 
-        /// <summary>Resolves an edited cell or calculates the variant's stock word.</summary>
-        internal ushort Word(int cell) => edits.ContainsKey(cell)
-            ? edits[cell] : PauseWireframeDefinitions.StockWord(kind, cell);
+        /// <summary>Resolves an edited cell or calculates the variant's stock tile.</summary>
+        internal BackgroundTile Tile(int cell) => edits.TryGetValue(cell, out BackgroundTile edited)
+            ? edited : PauseWireframeDefinitions.StockTile(kind, cell);
     }
     /// <summary>Serializes a wireframe document using the map-presentation JSON options and validates it through <see cref="Load"/> before writing any bytes to the destination.</summary>
     /// <param name="output">Caller-owned destination stream for the validated UTF-8 JSON.</param>

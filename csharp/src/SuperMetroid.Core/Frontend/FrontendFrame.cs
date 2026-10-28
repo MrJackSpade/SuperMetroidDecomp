@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
 

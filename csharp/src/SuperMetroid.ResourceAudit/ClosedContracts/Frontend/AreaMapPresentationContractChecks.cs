@@ -33,7 +33,7 @@ internal static class AreaMapPresentationContractChecks
                     maps.Resolve(InstalledArtworkId.KraidBg3RestoreQuarter3);
                     maps.Resolve(InstalledArtworkId.EscapeTimerFirstTiles);
                     maps.Resolve(InstalledArtworkId.EscapeTimerSecondTiles);
-                    maps.Resolve(InstalledArtworkId.None);
+                    maps.Resolve(default);
                     maps.Resolve(InstalledArtworkId.BeamPowerTiles);
                     enemies.LoadPaletteTo(default, default);
                 }

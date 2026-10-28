@@ -59,9 +59,9 @@ internal static class SpawnedObjectFixtures
         enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SetDrawing(enemy), new SpriteColourSets());
         if (slot is null)
             return;
-        EnemyGraphicsIndexes indexes = enemies.GraphicsSet.DrawIndexes(enemy);
-        slot.TileIndexBase = indexes.TileIndex;
-        slot.PaletteIndex = indexes.PaletteIndex;
+        SpriteGraphics indexes = enemies.GraphicsSet.DrawIndexes(enemy);
+        slot.TileIndexBase = indexes.TileBase;
+        slot.PaletteRow = indexes.PaletteRow;
     }
 
     /// <summary>The installed enemy artwork with <paramref name="spritemaps"/> in place of its compositions.</summary>

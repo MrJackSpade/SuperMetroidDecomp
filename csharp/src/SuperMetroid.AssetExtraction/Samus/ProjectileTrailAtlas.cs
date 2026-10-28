@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Hardware;
 
@@ -22,8 +23,7 @@ public sealed class ProjectileTrailAtlas : IInstalledArtworkContent
     {
         InstalledArtworkId.ProjectileIceWaveTrailTiles => IceAndWave,
         InstalledArtworkId.ProjectileMissileTrailTiles => Missile,
-        InstalledArtworkId.None or
-            InstalledArtworkId.StandardHudTiles or
+        InstalledArtworkId.StandardHudTiles or
             InstalledArtworkId.EscapeTimerFirstTiles or
             InstalledArtworkId.EscapeTimerSecondTiles or
             InstalledArtworkId.BeamPowerTiles or

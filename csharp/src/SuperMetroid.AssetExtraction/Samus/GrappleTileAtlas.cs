@@ -78,8 +78,7 @@ public sealed class GrappleTileAtlas : IInstalledArtworkContent
                 GrappleBeamTilePatterns.VerticalSegments(SegmentBytes(0).Span),
             InstalledArtworkId.GrappleHorizontalSegmentTiles or InstalledArtworkId.GrappleDiagonalSegmentTiles =>
                 SegmentBytes(transfer.AtlasOffset - 128),
-            InstalledArtworkId.None or
-                InstalledArtworkId.StandardHudTiles or
+            InstalledArtworkId.StandardHudTiles or
                 InstalledArtworkId.EscapeTimerFirstTiles or
                 InstalledArtworkId.EscapeTimerSecondTiles or
                 InstalledArtworkId.BeamPowerTiles or

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>An enemy's installed tile set, shown in the OBJ character table outside its room's population load.</summary>

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>What one region shows for a picture of a frame (#1392).</summary>

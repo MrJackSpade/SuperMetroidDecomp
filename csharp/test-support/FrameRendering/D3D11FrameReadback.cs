@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using Vortice.Direct3D11;

@@ -31,7 +31,7 @@ internal sealed class CeresLargeAsteroidParts(
         else
             return supplied;
         if (supplied.PartCount != 19) return supplied;
-        static Offset16<SpritePixels> Anchor(CompiledSpritePart part) => new Offset16<SpritePixels>(checked((short)part.Part.Offset.X), checked((short)part.Part.Offset.Y));
+        static Offset16<SpritePixels> Anchor(CompiledSpritePart part) => new Offset16<SpritePixels>(part.Part.Offset.X, part.Part.Offset.Y);
         var left = Anchor(supplied.Part(5));
         var right = Anchor(supplied.Part(12));
         var lower = Anchor(supplied.Part(18));

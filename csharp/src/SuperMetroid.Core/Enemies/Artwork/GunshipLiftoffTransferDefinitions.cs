@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>The five gunship takeoff uploads, in takeoff order.</summary>

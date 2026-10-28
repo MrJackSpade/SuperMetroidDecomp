@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
@@ -90,9 +91,9 @@ internal static class EnemyAnimationIsolationFixtureVerification
             if (graphicsSet is not null)
             {
                 Enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, graphicsSet, Colors.Gameplay.SpriteSets);
-                EnemyGraphicsIndexes indexes = Enemies.GraphicsSet.DrawIndexes(Actor.DefinitionId);
-                Actor.TileIndexBase = indexes.TileIndex;
-                Actor.PaletteIndex = indexes.PaletteIndex;
+                SpriteGraphics indexes = Enemies.GraphicsSet.DrawIndexes(Actor.DefinitionId);
+                Actor.TileIndexBase = indexes.TileBase;
+                Actor.PaletteRow = indexes.PaletteRow;
             }
             if (golden)
             {

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Hardware;
+namespace SuperMetroid.Core.Assets;
 
 /// <summary>What shows over runs of a layer's background characters (#1392, #1406): the artwork a picture was coloured over.</summary>
 public interface IBgCharacterArtwork

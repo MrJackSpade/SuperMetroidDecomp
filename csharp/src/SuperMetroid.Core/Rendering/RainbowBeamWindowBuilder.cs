@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Samus.Movement;
 

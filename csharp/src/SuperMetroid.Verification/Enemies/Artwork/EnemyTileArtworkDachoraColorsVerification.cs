@@ -87,7 +87,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         Type type = typeof(RoomEnemySystem);
         enemies.Presentation.BindColours(cgram.Gameplay);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.PaletteIndex = 0x0200;
+        slot.PaletteRow = 0x0200;
         slot.Position = slot.Position.WithWhole(new(96, 96));
         slot.Radius = new(8, 8);
         var state = new DachoraEnemyState();
@@ -155,7 +155,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
 
         void CheckLive(DachoraPalettePhase phase, int frame)
         {
-            int destination = 128 + ((slot.PaletteIndex >> 9) & 7) * 16;
+            int destination = 128 + ((slot.PaletteRow >> 9) & 7) * 16;
             for (int color = 0; color < DachoraColorDefinitions.ColorsPerFrame; color++)
                 AssertEqual(colors.Resolve(phase, frame, color),
                     cgram.Colors[destination + color],

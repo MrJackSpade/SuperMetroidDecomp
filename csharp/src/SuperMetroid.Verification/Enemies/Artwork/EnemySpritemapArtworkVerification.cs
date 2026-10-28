@@ -503,7 +503,7 @@ internal static class EnemySpritemapArtworkVerification
             DrawImportedEnemySpritemap(rom, nativeRoom, new NativeEnemySpritemapDraw
             {
                 Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(0x0040, 0x0080),
-                PaletteBits = checked((ushort)(drawn ?? throw new InvalidOperationException("Verification requires the drawn slot.")).PaletteIndex),
+                PaletteBits = checked((ushort)(drawn ?? throw new InvalidOperationException("Verification requires the drawn slot.")).PaletteRow),
                 BaseTileIndex = checked((ushort)drawn.TileIndexBase),
             });
             AssertTrue(room.ImageEquals(nativeRoom),
@@ -2814,13 +2814,13 @@ internal static class EnemySpritemapArtworkVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
             // The enemy draws as a room drawing it loads it: at its tile base and in its palette there.
             enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(definition), new SpriteColourSets());
-            EnemyGraphicsIndexes indexes = enemies.GraphicsSet.DrawIndexes(definition);
+            SpriteGraphics indexes = enemies.GraphicsSet.DrawIndexes(definition);
             enemies.Drawing.Enqueue(0, 0);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(definition, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-            slot.TileIndexBase = indexes.TileIndex;
-            slot.PaletteIndex = indexes.PaletteIndex;
+            slot.TileIndexBase = indexes.TileBase;
+            slot.PaletteRow = indexes.PaletteRow;
             // The catalog-wide composition check includes families newer than the
             // fixture's actor-name mapping. Its frame identity owns the actual bank.
             byte frameBank = spritemapBank ?? (definition == EnemyDefinitionId.YappingMaw
@@ -2941,13 +2941,13 @@ internal static class EnemySpritemapArtworkVerification
     private static void VerifyInstalledMotherBrainDrawHook(
         SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
     {
-        EnemyGraphicsIndexes indexes = MotherBrainHeadIndexes();
+        SpriteGraphics indexes = MotherBrainHeadIndexes();
         foreach (NativeEnemySpritemapDefinition frame in MotherBrainVisualDefinitionsConstants.Frames())
         {
             OamBuffer actual = DrawInstalledMotherBrainFrame(
                 stock, frame.Pointer, new(0x0140, 0x00a0));
             var expected = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(0x0040, 0x0090), PaletteBits = indexes.PaletteIndex, BaseTileIndex = indexes.TileIndex });
+            DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(0x0040, 0x0090), PaletteBits = indexes.PaletteRow, BaseTileIndex = indexes.TileBase });
             AssertTrue(actual.ImageEquals(expected) &&
                        actual.NextByteOffset == expected.NextByteOffset,
                 $"Mother Brain private draw uses installed {frame.Name} with native OAM");
@@ -2960,7 +2960,7 @@ internal static class EnemySpritemapArtworkVerification
     }
 
     /// <summary>The tile base and palette Mother Brain's room's graphics set loads her head with.</summary>
-    private static EnemyGraphicsIndexes MotherBrainHeadIndexes()
+    private static SpriteGraphics MotherBrainHeadIndexes()
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles };
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.MotherBrainHead);
@@ -2975,12 +2975,12 @@ internal static class EnemySpritemapArtworkVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
         // She draws from the sheet her room's set composes from this artwork, at the indexes it loads her with.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.MotherBrainHead);
-        EnemyGraphicsIndexes indexes = enemies.GraphicsSet.DrawIndexes(EnemyDefinitionId.MotherBrainHead);
+        SpriteGraphics indexes = enemies.GraphicsSet.DrawIndexes(EnemyDefinitionId.MotherBrainHead);
         var oam = new OamBuffer();
         EnemyFrameId frame = RoomEnemySlotFrameAccess.FrameAt(MotherBrainVisualToolingDefinitions.Bank, pointer)
             ?? throw new InvalidOperationException("A Mother Brain draw shows a frame.");
         oam.AppendDrawn(sprites => enemies.MotherBrainBehavior.Head.DrawMotherBrainWorldSpritemap(sprites,
-            new SpriteSource(SpriteSourceKind.MotherBrainBrain), new MotherBrainWorldFrame(frame, world, indexes.PaletteIndex, indexes.TileIndex),
+            new SpriteSource(SpriteSourceKind.MotherBrainBrain), new MotherBrainWorldFrame(frame, world, indexes.PaletteRow, indexes.TileBase),
             new Position16<RoomPixels>(0x0100, 0x0010)));
         return oam;
     }

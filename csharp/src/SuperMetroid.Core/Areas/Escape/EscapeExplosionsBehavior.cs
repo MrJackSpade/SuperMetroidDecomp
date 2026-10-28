@@ -36,6 +36,6 @@ internal sealed class EscapeExplosionsBehavior
         }
         RoomSpriteObjectKind kind =
             ZebesEscapeExplosionDefinitions.ForIndex(inheritedX & 7).SpriteKind;
-        _spriteObjects.SpawnRoomSpriteObject(position, kind, 0);
+        _spriteObjects.SpawnRoomSpriteObject(position, kind, default);
     }
 }

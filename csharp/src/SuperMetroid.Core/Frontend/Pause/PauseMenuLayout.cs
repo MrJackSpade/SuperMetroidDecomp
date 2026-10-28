@@ -5,10 +5,10 @@ internal static class PauseMenuLayout
 {
     /// <summary>Pause character/palette word used to blank the retained FX plane.</summary>
     public const ushort Bg3FxClearTile = 0x184e;
-    /// <summary>Byte offset of those rows in the bank-$B6 button tilemap.</summary>
-    public const int ButtonRowsSourceOffset = 0x0240;
-    /// <summary>Combined byte length of the two mutable button rows.</summary>
-    public const int ButtonRowsByteCount = 0x0080;
+    /// <summary>The first tile of the two mutable button rows in the button tilemap.</summary>
+    public const int ButtonRowsSourceTile = 0x0120;
+    /// <summary>The tiles in the two mutable button rows.</summary>
+    public const int ButtonRowsTileCount = 0x0040;
     /// <summary>$7E:3400 button source expressed relative to the $7E:3000 native word indexes.</summary>
     public const int ButtonSourceWordOrigin = 0x0200;
     /// <summary>MAP, EXIT and SAMUS labels recolored by $82:A628-$A84C.</summary>

@@ -221,7 +221,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             RunFrames(enemies, slot, samus, 3);
             AssertEqual(function, (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NinjaSpacePirateStates[0].")).Function,
                 $"ninja Pirate dive program {program} function");
-            AssertEqual(0x0e00, slot.PaletteIndex,
+            AssertEqual(0x0e00, slot.PaletteRow,
                 $"ninja Pirate dive program {program} palette");
             AssertEqual(NinjaSpacePirateSoundDefinitions.Attack, (enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect.")),
                 $"ninja Pirate dive program {program} sound");

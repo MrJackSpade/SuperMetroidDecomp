@@ -49,7 +49,7 @@ internal sealed class TourianUnlockBehavior
             TourianStatueProjectileStarts.Initialize(
                 projectile,
                 RoomEnemyProjectileKind.TourianStatueDescentDust,
-                0);
+                default);
             projectile.Variable0 = 128;
             projectile.Variable1 = 188;
         }
@@ -77,7 +77,7 @@ internal sealed class TourianUnlockBehavior
         Position16<RoomPixels> position = TourianStatueUnlockDefinitions.EyePosition(parameter);
         var projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null) return null;
-        TourianStatueProjectileStarts.Initialize(projectile, kind, 0);
+        TourianStatueProjectileStarts.Initialize(projectile, kind, default);
         projectile.Position = projectile.Position.WithWhole(position);
         return projectile;
     }
@@ -90,7 +90,7 @@ internal sealed class TourianUnlockBehavior
             throw new InvalidOperationException($"{kind} is not a Tourian statue child projectile.");
         var projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null) return;
-        TourianStatueProjectileStarts.Initialize(projectile, kind, 0);
+        TourianStatueProjectileStarts.Initialize(projectile, kind, default);
         projectile.Position = projectile.Position.WithWhole(parent.Position.Whole);
         if (kind == RoomEnemyProjectileKind.TourianStatueSplash)
             projectile.Position = projectile.Position.WithWholeY((TourianStatueWaterSurface + SplashAboveSurface).Y);

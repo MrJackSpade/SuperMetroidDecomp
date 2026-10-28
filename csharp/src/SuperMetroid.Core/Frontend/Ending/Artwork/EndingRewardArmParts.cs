@@ -35,7 +35,7 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
         for (int index = 0; index < count; index++)
         {
             CompiledSpritePart part = supplied.Part(index);
-            positions[index] = new(checked((short)part.Part.Offset.X), (short)part.Part.Offset.Y);
+            positions[index] = new(part.Part.Offset.X, part.Part.Offset.Y);
             tiles[index] = part.Part.Character;
             stock &= tiles[index] == StockTile(pose, index);
         }
@@ -51,7 +51,7 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
         arm = grid ? null : positions;
         editedTiles = stock ? null : tiles;
         CompiledSpritePart shoulderPart = supplied.Part(count);
-        shoulder = new(checked((short)shoulderPart.Part.Offset.X), (short)shoulderPart.Part.Offset.Y);
+        shoulder = new(shoulderPart.Part.Offset.X, shoulderPart.Part.Offset.Y);
     }
 
     /// <summary>Places the split pose's two small column pieces and adjacent large piece.</summary>

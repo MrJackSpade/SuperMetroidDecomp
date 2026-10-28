@@ -58,8 +58,8 @@ internal static class SamusBodyTransferContractChecks
         var sprites = new SamusSpritemapArtworkCatalog(new ushort[SamusBodyArtworkCatalog.PoseCount],
             new ushort[SamusBodyArtworkCatalog.PoseCount], new SamusSpritemapId?[SamusSpritemapArtworkCatalog.PointerCount], []);
         var atmosphere = new SamusAtmosphericArtworkCatalog(
-            new ushort[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount],
-            new ushort[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount]);
+            new SpritePart[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount],
+            new SpritePart[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount]);
         RgbColor[][] Rows() => Enumerable.Range(0, SamusPaletteDefinitions.Death.PaletteCount)
             .Select(_ => new RgbColor[SamusDeathPaletteArtworkCatalog.ColorCount]).ToArray();
         var deathColors = new SamusDeathPaletteArtworkCatalog(
@@ -71,7 +71,8 @@ internal static class SamusBodyTransferContractChecks
             Version = SamusArmCannonArtworkFormat.Version,
             PoseDescriptors = new int[SamusBodyArtworkCatalog.PoseCount],
             DrawingData = new int[SamusArmCannonArtworkFormat.DrawingDataByteCount],
-            SpriteAttributes = new int[SamusDrawingDefinitions.ArmCannon.DirectionCount],
+            CoverAppearances = Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount)
+                .Select(_ => SpriteVisualPart.FromSpritePart(SpritePart.Single(0, 0, 0), SpriteArtwork.CharactersPerRow)).ToArray(),
             CoverTiles = Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount).Select(_ =>
                 new int[SamusArmCannonArtworkFormat.FramesPerDirection - 1]).ToArray() };
         using var cannonJson = new MemoryStream(SamusArmCannonArtworkCatalog.Write(cannonDocument));

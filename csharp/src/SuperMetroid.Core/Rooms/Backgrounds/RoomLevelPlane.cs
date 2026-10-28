@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.LevelData;
 using System.Collections.Immutable;

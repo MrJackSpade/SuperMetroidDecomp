@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Core.Hardware;
@@ -68,7 +69,7 @@ public sealed class VramWriteQueue
     /// <summary>Queues an installed background artwork asset; the drain binds it (#1350).</summary>
     public void EnqueueBackgroundAsset(InstalledArtworkId asset, ushort sizeInBytes, VramDmaDestination destination)
     {
-        if (asset == InstalledArtworkId.None || !Enum.IsDefined(asset)) throw new ArgumentOutOfRangeException(nameof(asset));
+        if (!Enum.IsDefined(asset)) throw new ArgumentOutOfRangeException(nameof(asset));
         if (sizeInBytes == 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
         Append(new VramWriteEntry(sizeInBytes, 0, destination) { AssetId = asset, Background = true });
     }
@@ -84,7 +85,7 @@ public sealed class VramWriteQueue
     /// <summary>Queues a typed installed resource without copying artwork into emulated/debugger state.</summary>
     public void EnqueueAsset(InstalledArtworkId asset, ushort sizeInBytes, VramDmaDestination destination)
     {
-        if (asset == InstalledArtworkId.None || !Enum.IsDefined(asset)) throw new ArgumentOutOfRangeException(nameof(asset));
+        if (!Enum.IsDefined(asset)) throw new ArgumentOutOfRangeException(nameof(asset));
         if (sizeInBytes == 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
         Append(new VramWriteEntry(sizeInBytes, 0, destination) { AssetId = asset });
     }
@@ -117,9 +118,9 @@ public sealed class VramWriteQueue
     [PpuLayoutAccess]
     public void RebindBusSource(int sourceAddress, ushort sizeInBytes, InstalledArtworkId asset)
     {
-        if (asset == InstalledArtworkId.None || !Enum.IsDefined(asset)) throw new ArgumentOutOfRangeException(nameof(asset));
+        if (!Enum.IsDefined(asset)) throw new ArgumentOutOfRangeException(nameof(asset));
         for (int i = 0; i < Entries.Count; i++)
-            if (Entries[i].AssetId == InstalledArtworkId.None && Entries[i].SourceAddress == sourceAddress && Entries[i].SizeInBytes == sizeInBytes)
+            if (Entries[i].AssetId == default && Entries[i].SourceAddress == sourceAddress && Entries[i].SizeInBytes == sizeInBytes)
                 Entries[i] = Entries[i] with { SourceAddress = 0, AssetId = asset };
     }
 
@@ -161,7 +162,7 @@ public sealed class VramWriteQueue
                 WriteStaged(vram, objects, entry, staging.Bytes.Slice(entry.StagingOffset, entry.SizeInBytes));
             else if (entry.StagingWords is { } words)
                 WriteStaged(vram, objects, entry, LittleEndianBytes(words, entry.SizeInBytes));
-            else if (entry.AssetId == InstalledArtworkId.None)
+            else if (entry.AssetId == default)
             {
                 if (assets is not IInstalledArtworkTransferSource artwork ||
                     !artwork.TryResolve(entry.SourceAddress, entry.SizeInBytes, out ReadOnlyMemory<byte> selected))

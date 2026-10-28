@@ -29,8 +29,7 @@ public class EscapeTimerTileAtlas
         {
             InstalledArtworkId.EscapeTimerFirstTiles => characters.AsMemory(0, EscapeTimerTileAtlasFormat.FirstByteCount),
             InstalledArtworkId.EscapeTimerSecondTiles => characters.AsMemory(EscapeTimerTileAtlasFormat.FirstByteCount, EscapeTimerTileAtlasFormat.SecondByteCount),
-            InstalledArtworkId.None or
-                InstalledArtworkId.StandardHudTiles or
+            InstalledArtworkId.StandardHudTiles or
                 InstalledArtworkId.BeamPowerTiles or
                 InstalledArtworkId.BeamWaveTiles or
                 InstalledArtworkId.BeamIceTiles or

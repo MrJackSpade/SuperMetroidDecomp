@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Areas;
@@ -17,7 +18,7 @@ namespace SuperMetroid.TestSupport.VerificationOracles;
 /// <param name="timer">The escape-timer atlas whose pages are served as typed assets, or null for none.</param>
 internal sealed class EnemyTileTransfers(InstalledEnemyArtwork installed,
     SuperMetroid.Core.Escape.Artwork.EscapeTimerTileAtlas? timer = null)
-    : IInstalledArtworkContent, IInstalledArtworkTransferSource, IInstalledArtworkContent, IInstalledSpriteCharacterArtwork,
+    : IInstalledArtworkContent, IInstalledArtworkTransferSource, IInstalledSpriteCharacterArtwork,
         IInstalledBossSpriteCharacterArtwork, IInstalledAreaSpriteCharacterArtwork
 {
     /// <inheritdoc/>
@@ -49,8 +50,6 @@ internal sealed class EnemyTileTransfers(InstalledEnemyArtwork installed,
         return false;
     }
 
-    /// <summary>Resolves an escape-timer page from the supplied atlas; enemy tile fixtures bind no other asset.</summary>
-    public ReadOnlyMemory<byte> ResolveAsset(InstalledArtworkId asset) => Resolve(asset);
 
 
 }

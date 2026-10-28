@@ -62,7 +62,7 @@ internal sealed record EnemySheetInputs(EnemyTileArtworkCatalog Enemies, BossArt
     /// <inheritdoc/>
     /// <exception cref="InvalidDataException">The enemy artwork holds no gunship takeoff pictures.</exception>
     /// <exception cref="ArgumentOutOfRangeException">No catalogued upload names the asset.</exception>
-    ReadOnlyMemory<byte> IInstalledArtworkContent.ResolveAsset(InstalledArtworkId asset) =>
+    ReadOnlyMemory<byte> IInstalledArtworkContent.Resolve(InstalledArtworkId asset) =>
         asset is InstalledArtworkId.EscapeTimerFirstTiles or InstalledArtworkId.EscapeTimerSecondTiles ? EscapeTimer.Resolve(asset)
             : (Enemies.GunshipLiftoff ?? throw new InvalidDataException("Enemy sheets require the installed gunship takeoff pictures.")).Resolve(asset);
 

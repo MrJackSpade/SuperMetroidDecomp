@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Text;
 
 namespace SuperMetroid.Core.Rooms.Artwork;

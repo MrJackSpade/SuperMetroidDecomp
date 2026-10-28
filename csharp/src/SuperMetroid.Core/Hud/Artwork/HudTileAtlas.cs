@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Hud.Artwork;
 
 /// <summary>Standard 2-bpp HUD/minimap artwork, followed by the cleared half its setup shows over BG2's words.</summary>

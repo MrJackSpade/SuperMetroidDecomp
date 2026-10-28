@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Diagnostics.SaveStates;
@@ -59,7 +60,7 @@ internal static class QueuedVramAssetsVerification
         restored.DrainTo(restoredVram, new TestVramAssets([21, 22, 23]), null, BgArtworkFixtures.For(restoredVram));
         AssertEqual((byte)21, restoredVram.ReadByte(0), "restored pending reference resolves current host artwork at drain");
         AssertEqual((byte)23, restoredVram.ReadByte(2), "odd final byte survives debugger round trip");
-        AssertThrows<ArgumentOutOfRangeException>(() => pending.EnqueueAsset(InstalledArtworkId.None, 1, VramDmaDestination.FromNative(0)), "None is not an asset source");
+        AssertThrows<ArgumentOutOfRangeException>(() => pending.EnqueueAsset(default, 1, VramDmaDestination.FromNative(0)), "An unnamed artwork is not an asset source");
         AssertThrows<ArgumentOutOfRangeException>(() => pending.EnqueueAsset((InstalledArtworkId)255, 1, VramDmaDestination.FromNative(0)), "unknown asset identifier rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => pending.EnqueueAsset(InstalledArtworkId.StandardHudTiles, 0, VramDmaDestination.FromNative(0)), "empty asset cannot become queue terminator");
         var full = new VramWriteQueue();

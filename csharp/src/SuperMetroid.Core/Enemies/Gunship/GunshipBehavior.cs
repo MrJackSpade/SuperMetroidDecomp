@@ -534,17 +534,15 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports gunship function 17 at <c>$A2:ABC7</c> (#1406): shows the next of the five liftoff pages over the OBJ
-    /// characters, one a step, as the cartridge's copy at this update's NMI shows it; after the fifth, the engines fire up.
+    /// Ports gunship function 17 at <c>$A2:ABC7</c> (#1406): shows the next of the five liftoff looks, one a step, from this
+    /// update's frame on; after the fifth, the engines fire up.
     /// </summary>
-    /// <exception cref="InvalidDataException">The page index left its five pages, or the liftoff artwork is not installed.</exception>
+    /// <exception cref="InvalidDataException">The page index left its five pages.</exception>
     internal void ShowGunshipTakeoffPage(RoomEnemySlot top)
     {
         int page = Part(top).NextLiftoffPage;
         if ((uint)page >= GunshipLiftoffTransferDefinitions.Pages.Count)
             throw new InvalidDataException("Gunship takeoff page escaped its five pages.");
-        if (_room.Artwork?.GunshipLiftoff is null)
-            throw new InvalidDataException("Gunship takeoff requires the installed liftoff artwork.");
         _room.Session.ShowCharacters(GunshipLiftoffTransferDefinitions.Pages[page]);
 
         Part(top).NextLiftoffPage = page + 1;

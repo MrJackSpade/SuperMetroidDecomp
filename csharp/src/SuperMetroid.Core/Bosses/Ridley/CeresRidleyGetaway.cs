@@ -368,7 +368,7 @@ internal sealed class CeresRidleyGetaway
     /// update's NMI, shows in it; the background list's pages show nowhere, so each of its updates shows nothing.
     /// </summary>
     /// <returns>True once every page of the list has been shown.</returns>
-    /// <exception cref="InvalidDataException">The cursor names no list, or a page's installed artwork is missing.</exception>
+    /// <exception cref="InvalidDataException">The cursor names no list.</exception>
     internal bool ShowNextCeresEscapePage(RidleyEnemyState state)
     {
         CeresEscapePageCursor cursor = state.CeresEscapePages;
@@ -378,26 +378,10 @@ internal sealed class CeresRidleyGetaway
             return true;
         if (cursor.List == CeresEscapePageList.Objects)
         {
-            SpriteArtworkSource page = CeresEscapeObjectPages.ObjectPages[cursor.Shown];
-            RequireInstalled(page);
-            _presentation.ShowCharacters(page);
+            _presentation.ShowCharacters(CeresEscapeObjectPages.ObjectPages[cursor.Shown]);
         }
         state.CeresEscapePages = cursor.Advance();
         return state.CeresEscapePages.IsFinished;
-    }
-
-    /// <summary>Requires the installed artwork a timer-sprite page shows, when the room is drawn from installed artwork.</summary>
-    /// <exception cref="InvalidDataException">The installed escape timer or Ceres escape character pages are missing.</exception>
-    private void RequireInstalled(SpriteArtworkSource source)
-    {
-        if (_room.Artwork is null)
-            return;
-        if (source is InstalledArtworkCharacters && _bossArtwork.EscapeTimerArtwork is null)
-            throw new InvalidDataException("Installed Ceres escape timer has no editable sprite tile artwork.");
-        if (source is CeresEscapeTileCharacters characters &&
-            _areaArtwork.Artwork?.CeresEscapeTiles?.TryResolve(
-                characters.Page, characters.Offset, characters.ByteCount, out _) != true)
-            throw new InvalidDataException($"Installed Ceres escape has no editable {characters}.");
     }
 
     /// <summary>Writes every row half of the one-shot Japanese overlay list at $A6:C3B8 over the room's BG1.</summary>

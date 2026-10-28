@@ -11,8 +11,6 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 [RoomLifetime]
 internal sealed class DraygonIntro
 {
-    /// <summary>Provides the active room bus, random source, and persistent boss state.</summary>
-    private readonly EnemyRoomBinding _room;
     /// <summary>Allocates breath bubbles, death smoke, and burial Evir sprites.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
     /// <summary>Updates the body and eye palette bands used by Draygon's presentation.</summary>
@@ -21,9 +19,8 @@ internal sealed class DraygonIntro
     private readonly DraygonTurrets _turrets;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal DraygonIntro(EnemyRoomBinding room, RoomSpriteObjectPool spriteObjects, EnemyPresentation presentation, DraygonTurrets turrets)
+    internal DraygonIntro(RoomSpriteObjectPool spriteObjects, EnemyPresentation presentation, DraygonTurrets turrets)
     {
-        _room = room;
         _spriteObjects = spriteObjects;
         _presentation = presentation;
         _turrets = turrets;
@@ -40,15 +37,6 @@ internal sealed class DraygonIntro
         {
             if (state.FunctionTimer.IsZero)
             {
-                RoomEnemyDefinition evir = RoomEnemyHeaders.Get(EnemyDefinitionId.Evir);
-                if (evir.TileByteCount != DraygonIntroPresentationDefinitions.EvirTilesByteCount)
-                    throw new InvalidDataException(
-                        "Draygon opening Evir sheet no longer has the compiled transfer length.");
-                if ((_room.Artwork ?? throw new InvalidDataException(
-                        "Installed Evir graphics are missing for Draygon's opening transfer.")).TilesOf(EnemyDefinitionId.Evir).Length !=
-                    DraygonIntroPresentationDefinitions.EvirTilesByteCount)
-                    throw new InvalidDataException(
-                        "Installed Evir graphics are missing for Draygon's opening transfer.");
                 _presentation.ShowCharacters(DraygonIntroPresentationDefinitions.EvirTiles);
                 state.IntroEvirGraphicsLoaded = true;
 

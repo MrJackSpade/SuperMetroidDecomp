@@ -5,7 +5,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Escape;
@@ -48,7 +48,6 @@ internal static class CeresEscapeTileArtworkVerification
         {
             TileArtwork = stock.Enemies,
             AreaArtwork = stock.Areas,
-            BossArtworkBinding = { EscapeTimerArtwork = timer },
         };
         foreach (CeresEscapePageCursor start in new[] { CeresEscapePageCursor.Objects, CeresEscapePageCursor.Backgrounds })
         {
@@ -120,7 +119,6 @@ internal static class CeresEscapeTileArtworkVerification
         {
             TileArtwork = edited.Enemies,
             AreaArtwork = edited.Areas,
-            BossArtworkBinding = { EscapeTimerArtwork = timer },
         };
         // The cursor starts at the first warning-text page, part-way through the timer-sprite list.
         int firstWarningPage = CeresEscapeVramTransferDefinitions.Records.ToList().FindIndex(record =>
@@ -150,24 +148,11 @@ internal static class CeresEscapeTileArtworkVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
             "invalid Ceres warning PNG fails loudly");
 
-        var missing = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
-        {
-            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }),
-            BossArtworkBinding = { EscapeTimerArtwork = timer },
-        };
-        try
-        {
-            missing.CeresRidleyBehavior.Getaway.ShowNextCeresEscapePage(new RidleyEnemyState
-            {
-                CeresEscapePages = CeresEscapePageCursor.Objects with { Shown = firstWarningPage },
-            });
-            throw new InvalidOperationException(
-                "Installed Ceres transfer accepted missing character artwork.");
-        }
-        catch (InvalidDataException)
-        {
-            // Missing installed art must not silently fall back to cartridge bytes.
-        }
+        // The pictures of the warning pages are composed from the installed characters; composing them without those
+        // characters fails rather than falling back to cartridge bytes.
+        var missing = new EnemyTileTransfers(new InstalledEnemyArtwork(stock.Enemies, stock.Bosses, new AreaArtworkBundle()), timer: timer);
+        AssertThrows<InvalidDataException>(() => SpriteArtworkBytes.Of(CeresEscapeObjectPages.ObjectPages[firstWarningPage], missing),
+            "Ceres warning pictures reject missing installed character artwork");
         Console.WriteLine(
             "Ceres escape tiles: both indexed PNGs match native bytes; the seven OBJ " +
             "pages match the cartridge without ROM art reads; edit, reload, and rejection pass.");

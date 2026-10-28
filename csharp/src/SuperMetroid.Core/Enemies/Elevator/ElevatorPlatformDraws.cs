@@ -12,24 +12,24 @@ internal static class ElevatorPlatformDraws
     internal readonly record struct Draw(ElevatorPlatformDraw Frame) : IPlmRunDrawShape
     {
         /// <summary>The frame's strips in native order.</summary>
-        private ElevatorPlatformStrip[] Strips => ElevatorPlatformPlmDefinitions.Strips[Frame];
+        private PlmBlockStrip[] Strips => ElevatorPlatformPlmDefinitions.Strips[Frame];
         /// <summary>Gets the three native strips.</summary>
         public int RunCount => Strips.Length;
         /// <summary>Gets one edge cell or four lower-row cells for a selected strip.</summary>
         public int WordCount(int run) => Strip(run).Cells.Length;
         /// <summary>Gets the next strip's absolute horizontal offset from the PLM origin.</summary>
-        public sbyte NextX(int run) => Strip(run).NextX;
+        public sbyte NextX(int run) => checked((sbyte)Strip(run).Next.X);
         /// <summary>Gets the next strip's absolute vertical offset from the PLM origin.</summary>
-        public sbyte NextY(int run) => Strip(run).NextY;
+        public sbyte NextY(int run) => checked((sbyte)Strip(run).Next.Y);
         /// <summary>Gets a solid platform tile word.</summary>
         public ushort WordAt(int run, int cell)
         {
-            ElevatorPlatformStrip strip = Strip(run);
+            PlmBlockStrip strip = Strip(run);
             if ((uint)cell >= (uint)strip.Cells.Length) throw new ArgumentOutOfRangeException(nameof(cell));
             return strip.Cells[cell].Raw;
         }
         /// <summary>Selects a strip, rejecting a strip index outside this platform draw.</summary>
-        private ElevatorPlatformStrip Strip(int run) =>
+        private PlmBlockStrip Strip(int run) =>
             (uint)run < (uint)RunCount ? Strips[run] : throw new ArgumentOutOfRangeException(nameof(run));
     }
 

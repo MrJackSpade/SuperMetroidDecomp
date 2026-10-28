@@ -16,13 +16,13 @@ internal static class ElevatorPlatformPlmDefinitions
     /// frame; lower art advances two, mirrored about the platform centre.
     /// Continuations are absolute offsets (3,0), (0,1), then the terminator.
     /// </summary>
-    internal static readonly Dictionary<ElevatorPlatformDraw, ElevatorPlatformStrip[]> Strips = new()
+    internal static readonly Dictionary<ElevatorPlatformDraw, PlmBlockStrip[]> Strips = new()
     {
         [ElevatorPlatformDraw.First] =
         [
-            new(3, 0, [RoomLevelWord.Create(0x85, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)]),
-            new(0, 1, [RoomLevelWord.Create(0x85, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock)]),
-            new(0, 0,
+            new(new(3, 0), [RoomLevelWord.Create(0x85, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)]),
+            new(new(0, 1), [RoomLevelWord.Create(0x85, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock)]),
+            new(new(0, 0),
             [
                 RoomLevelWord.Create(0x88, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
                 RoomLevelWord.Create(0x89, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
@@ -32,9 +32,9 @@ internal static class ElevatorPlatformPlmDefinitions
         ],
         [ElevatorPlatformDraw.Second] =
         [
-            new(3, 0, [RoomLevelWord.Create(0x86, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)]),
-            new(0, 1, [RoomLevelWord.Create(0x86, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock)]),
-            new(0, 0,
+            new(new(3, 0), [RoomLevelWord.Create(0x86, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)]),
+            new(new(0, 1), [RoomLevelWord.Create(0x86, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock)]),
+            new(new(0, 0),
             [
                 RoomLevelWord.Create(0x8a, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
                 RoomLevelWord.Create(0x8b, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
@@ -44,9 +44,9 @@ internal static class ElevatorPlatformPlmDefinitions
         ],
         [ElevatorPlatformDraw.Third] =
         [
-            new(3, 0, [RoomLevelWord.Create(0x87, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)]),
-            new(0, 1, [RoomLevelWord.Create(0x87, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock)]),
-            new(0, 0,
+            new(new(3, 0), [RoomLevelWord.Create(0x87, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)]),
+            new(new(0, 1), [RoomLevelWord.Create(0x87, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock)]),
+            new(new(0, 0),
             [
                 RoomLevelWord.Create(0x8c, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
                 RoomLevelWord.Create(0x8d, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),

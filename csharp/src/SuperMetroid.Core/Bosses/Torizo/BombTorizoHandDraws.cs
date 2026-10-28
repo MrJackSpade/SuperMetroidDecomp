@@ -20,9 +20,9 @@ internal static class BombTorizoHandDraws
         /// <summary>Gets the block count in a selected strip, rejecting an invalid run index.</summary>
         internal int WordCount(int run) => Strip(run).Cells.Length;
         /// <summary>Gets a strip's horizontal origin relative to the hand PLM block.</summary>
-        internal sbyte OriginX(int run) => Strip(run).OriginX;
+        internal sbyte OriginX(int run) => checked((sbyte)Strip(run).Origin.X);
         /// <summary>Gets a strip's vertical origin relative to the hand PLM block.</summary>
-        internal sbyte OriginY(int run) => Strip(run).OriginY;
+        internal sbyte OriginY(int run) => checked((sbyte)Strip(run).Origin.Y);
         /// <summary>Gets the next strip's relative X origin or zero at list termination.</summary>
         internal sbyte NextX(int run)
         {

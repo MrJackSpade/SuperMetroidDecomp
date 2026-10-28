@@ -18,9 +18,10 @@ public static class PowampMotionDefinitions
     /// <summary>$86:D21A/D22A, PowampSpike_VelocityTable_X/Y: eight clockwise compass directions beginning up.</summary>
     public const int SpikeDirectionCount = 8;
 
-    /// <summary>$86:D21A, PowampSpike_VelocityTable_X: signed 8.8 acceleration, zero vertically and ±$20 laterally.</summary>
-    internal static readonly short[] SpikeXAccelerations = [0, 32, 32, 32, 0, -32, -32, -32];
-
-    /// <summary>$86:D22A, PowampSpike_VelocityTable_Y: the X acceleration rotated two compass steps.</summary>
-    internal static readonly short[] SpikeYAccelerations = [-32, -32, 0, 32, 32, 32, 0, -32];
+    /// <summary>
+    /// $86:D21A/D22A, PowampSpike_VelocityTable_X/Y: each compass direction's signed 8.8 acceleration, ±$20 on each
+    /// axis the direction leans along. The Y component is the X component rotated two compass steps.
+    /// </summary>
+    internal static readonly EightEightVector<RoomPixels>[] SpikeAccelerations =
+        [new(0, -32), new(32, -32), new(32, 0), new(32, 32), new(0, 32), new(-32, 32), new(-32, 0), new(-32, -32)];
 }

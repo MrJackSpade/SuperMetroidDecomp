@@ -1,5 +1,6 @@
 using System.Collections;
 using SuperMetroid.Core.Assets;
+using static SuperMetroid.Core.Frontend.Menus.Artwork.MenuHeadingBorderDefinitions;
 
 namespace SuperMetroid.Core.Frontend.Menus.Artwork;
 
@@ -7,31 +8,10 @@ namespace SuperMetroid.Core.Frontend.Menus.Artwork;
 /// independently edited title pages or sprite parts do not change these stock layout definitions. Exact title/padding, glyph roles and traversal are selected display content. Native82:8CA1 feeds ordered OAM; order may affect hardware limits and is preserved. Pixels, colors and timing are excluded.</summary>
 internal sealed class MenuHeadingBorder(MenuHeading heading) : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Native heading words on the options BG pages; each uses eight-pixel character cells.</summary>
-    private string Text => heading switch
-    {
-        MenuHeading.FileSelectMain => "SAMUS DATA",
-        MenuHeading.FileSelectCopy => "DATA COPY MODE",
-        MenuHeading.FileSelectClear => "DATA CLEAR MODE",
-        MenuHeading.OptionsPrimary => "OPTION MODE",
-        MenuHeading.OptionsController => "CONTROLLER SETTING MODE",
-        MenuHeading.OptionsSpecial => "SPECIAL SETTING MODE",
-        _ => throw new ArgumentOutOfRangeException(nameof(heading)),
-    };
-    /// <summary>$82:D24B/D2F7/D41B: one blank cell and one corner cell pad each side of the heading.</summary>
-    private int Columns => Text.Length + 2 * 2;
-    /// <summary>Two glyph rows enclosed above/below by the border tile rows.</summary>
-    private const int Rows = 2 + 2;
-    /// <summary>$82:D24B/D2F7/D41B: common outer traversal runs span six horizontal edge tiles; primary's paired center consumes one extra left tile.</summary>
-    private const int OuterRunLength = 6;
-    /// <summary>$82:D24B and siblings: F9..FD is the packed top-left/edge/top-right/bottom-left/bottom-right artwork strip.</summary>
-    private const int CornerStrip = 249;
-    /// <summary>$82:D24B and siblings: ED is the vertical edge artwork.</summary>
-    private const int VerticalEdge = 237;
-    /// <summary>$82:D2F7: selected center traversal reused identically for bottom and top rows; chosen native OAM order retained as authored ordering; geometry and repeated runs calculate.</summary>
-    private static ReadOnlySpan<byte> ControllerCenter => [0, 1, 7, 6, 5, 2, 4, 3];
-    /// <summary>$82:D41B: selected shorter center traversal reused on both rows; chosen native OAM order retained as authored ordering; geometry and repeated runs calculate.</summary>
-    private static ReadOnlySpan<byte> SpecialCenter => [0, 1, 4, 3, 2];
+    /// <summary>The heading word this outline encloses.</summary>
+    private string Text => Ensure.Listed(Texts, heading);
+    /// <summary>Character columns spanned by the heading word and its padding on both sides.</summary>
+    private int Columns => Text.Length + 2 * SidePadding;
 
     /// <summary>Uses calculated border geometry only for the six authored file and options headings.</summary>
     internal static SpriteComposition CalculateIfMatching(MenuHeading heading, SpriteComposition supplied) =>
@@ -111,8 +91,8 @@ internal sealed class MenuHeadingBorder(MenuHeading heading) : IReadOnlyList<Com
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             var (column, row) = Position(index);
             int tile = row is 0 or (Rows - 1)
-                ? column == 0 ? CornerStrip + (row == 0 ? 0 : 3)
-                : column == Columns - 1 ? CornerStrip + (row == 0 ? 2 : 4) : CornerStrip + 1
+                ? column == 0 ? row == 0 ? TopLeftCorner : BottomLeftCorner
+                : column == Columns - 1 ? row == 0 ? TopRightCorner : BottomRightCorner : HorizontalEdge
                 : VerticalEdge;
             return new(SpritePart.Create(Offset16<ScreenPixels>.Of(-Columns * 8 / 2 + column * 8, -Rows * 8 / 2 + row * 8), false,
                 tile, 0, 3, default), true);

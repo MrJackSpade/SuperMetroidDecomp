@@ -33,7 +33,7 @@ public sealed class WorldMapCharacters : WorldMapArtwork
             if (!WorldMapCharacterDrawing.IsForegroundFontTile(tile)) continue;
             for (int y = 0; y < 8; y++)
             for (int x = 0; x < 8; x++)
-                if (foreground[TilePixel(tile, new(checked((ushort)x), checked((ushort)y)))] == WorldMapCharacterDrawing.ForegroundFontFace)
+                if (foreground[TilePixel(tile, new(checked((ushort)x), checked((ushort)y)))] == WorldMapCharacterDefinitions.ForegroundFontFace)
                     masks[tile] |= 1UL << (y * 8 + x);
         }
         for (int tile = 0; tile < masks.Length; tile++)

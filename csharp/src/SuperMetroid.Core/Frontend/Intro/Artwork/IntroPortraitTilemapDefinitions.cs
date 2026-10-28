@@ -15,24 +15,27 @@ internal static class IntroPortraitTilemapDefinitions
     internal const int Palette = 3;
 
     /// <summary>$97:88CC: selected one-bit occupancy of the main sixteen-by-sixteen atlas block. Repeated adjacent rows share their silhouette; every occupied tile identity follows the same atlas position formula. This mask describes drawing placement, not collision or a sampled numeric curve.</summary>
-    /// <remarks>Bit <c>c</c> of row <c>r</c> marks atlas column <c>c</c> of the row, so each row reads right to left.</remarks>
-    internal static readonly int[] SilhouetteRows =
+    /// <remarks>Character <c>c</c> of row <c>r</c> is atlas column <c>c</c> of the row, left to right; <see cref="OccupiedCell"/> marks an occupied cell.</remarks>
+    internal static readonly string[] SilhouetteRows =
     [
-        0b0000_0111_1111_0000,
-        0b0000_0011_1111_1000,
-        0b0000_0011_1111_1100,
-        0b0000_0011_1111_1100,
-        0b0000_0011_1111_1110,
-        0b1100_0001_1111_1110,
-        0b1111_0000_1111_1111,
-        0b1111_1100_1111_1111,
-        0b1001_1111_1111_1111,
-        0b1101_1111_1111_1111,
-        0b1101_1111_1111_1111,
-        0b0110_1111_1111_1111,
-        0b0110_0111_1111_1111,
-        0b0111_0011_1111_1111,
-        0b0011_1011_1111_1111,
-        0b0001_1111_1111_1000,
+        "....#######.....",
+        "...#######......",
+        "..########......",
+        "..########......",
+        ".#########......",
+        ".########.....##",
+        "########....####",
+        "########..######",
+        "#############..#",
+        "#############.##",
+        "#############.##",
+        "############.##.",
+        "###########..##.",
+        "##########..###.",
+        "##########.###..",
+        "...##########...",
     ];
+
+    /// <summary>The silhouette character marking an occupied atlas cell.</summary>
+    internal const char OccupiedCell = '#';
 }

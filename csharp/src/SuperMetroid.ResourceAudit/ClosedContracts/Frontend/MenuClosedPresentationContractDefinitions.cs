@@ -15,6 +15,7 @@ internal static class MenuClosedPresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Frontend/Menus/MenuMissileSpritemaps.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Menus/Artwork/MenuCursorParts.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Menus/Artwork/MenuHeadingBorder.cs"),
+             new("csharp/src/SuperMetroid.Core/Frontend/Menus/Artwork/MenuHeadingBorderDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Menus/Artwork/MenuBorderParts.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Options/GameOptionsDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Options/GameOptionsLayout.cs"),

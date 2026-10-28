@@ -58,6 +58,7 @@ internal static class ClosedPresentationContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Frontend/FileSelect/Artwork/FileSelectPresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/FileSelect/Artwork/FileSelectHelmetParts.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Menus/Artwork/MenuHeadingBorder.cs"),
+             new("csharp/src/SuperMetroid.Core/Frontend/Menus/Artwork/MenuHeadingBorderDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Menus/Artwork/MenuBorderParts.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/MapSpriteCompositions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Menus/MenuMissileAnimationDefinitions.cs"),

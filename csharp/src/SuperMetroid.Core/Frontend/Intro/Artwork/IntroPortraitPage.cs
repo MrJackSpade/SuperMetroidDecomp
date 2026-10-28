@@ -23,7 +23,7 @@ internal static class IntroPortraitPage
         }
         for (int row = 0; row < AtlasSide; row++)
         for (int column = 0; column < AtlasSide; column++)
-            if ((SilhouetteRows[row] & (1 << column)) != 0)
+            if (SilhouetteRows[row][column] == OccupiedCell)
                 Put(left + column, Top + row, AtlasOrigin + row * AtlasSide + column);
 
         // Left shoulder fragments reuse free atlas cells around the main head drawing.

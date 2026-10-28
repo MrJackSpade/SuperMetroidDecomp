@@ -18,6 +18,9 @@ internal static class SuiteTimingVerification
     /// <summary>Child-suite allocations subtracted from each enclosing suite's self allocation.</summary>
     private static readonly Stack<long> nestedSuiteAllocation = new();
 
+    /// <summary>Whether a suite is running, so a shared fixture's load can be timed under it.</summary>
+    internal static bool InSuite => suiteDepth > 0;
+
     /// <summary>Outermost suites that failed during this run, in the order they failed.</summary>
     internal static readonly List<string> failedSuites = [];
 

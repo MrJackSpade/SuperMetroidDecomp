@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -155,9 +156,11 @@ public static class GameAssetInstaller
                     step.Validate(directory);
                 }
             }
+            // Every component validated above; the receipt records the bytes it published so opening the
+            // installation later checks them by digest instead of decoding every resource again (#1430).
             File.WriteAllText(Path.Combine(staging, GameInstallationLayout.ReceiptFileName),
                 JsonSerializer.Serialize(new InstallationReceipt(GameInstallationLayout.FormatVersion,
-                    SupportedCartridge.Sha256)));
+                    SupportedCartridge.Sha256, DigestPublishedFiles(staging))));
             progress?.Report("Finishing setup…");
             cancellationToken.ThrowIfCancellationRequested();
             // Before publishing: a refused rename leaves the old content in place, so the next start retries it.
@@ -196,8 +199,11 @@ public static class GameAssetInstaller
         catch (IOException error) { throw new IOException("Game setup is already in use. Close the other setup window and retry.", error); }
     }
 
-    /// <summary>Published content format and verified source-revision digest.</summary>
-    private sealed record InstallationReceipt(int FormatVersion, string RomSha256);
+    /// <summary>
+    /// Published content format, verified source-revision digest, and the SHA-256 of every published file by its
+    /// content-relative path.
+    /// </summary>
+    private sealed record InstallationReceipt(int FormatVersion, string RomSha256, IReadOnlyDictionary<string, string> Files);
 
     /// <summary>Verified installed ROM plus component reuse decisions from one inspection pass.</summary>
     private sealed record InstalledState(byte[] Rom, HashSet<InstallerComponent> Reusable, bool Complete);
@@ -209,18 +215,10 @@ public static class GameAssetInstaller
         Action<string> Validate);
 
     /// <summary>
-    /// One extracted-content directory. A repair keeps a component whose installed files still
-    /// validate and re-extracts only the components that fail, then republishes atomically.
+    /// One extracted-content directory. Its steps' stock validators run when it is extracted; a repair keeps a component
+    /// whose published files are intact and re-extracts only the components that are not, then republishes atomically.
     /// </summary>
-    private sealed record InstallerComponent(string DirectoryName, params InstallerStep[] Steps)
-    {
-        /// <summary>Runs every stock validator for this component under its installed directory.</summary>
-        public void Validate(string contentDirectory)
-        {
-            string directory = Path.Combine(contentDirectory, DirectoryName);
-            foreach (InstallerStep step in Steps) step.Validate(directory);
-        }
-    }
+    private sealed record InstallerComponent(string DirectoryName, params InstallerStep[] Steps);
 
     /// <summary>Adapts an extraction without cancellation parameters into one installer stage.</summary>
     private static InstallerStep Step(string progress,
@@ -350,49 +348,73 @@ public static class GameAssetInstaller
         error is IOException or InvalidDataException or JsonException or InvalidOperationException;
 
     /// <summary>
-    /// Validates installed content once. Returns the components whose files can be kept by a
-    /// repair, and whether the whole installation (receipt, room index and every component)
-    /// is complete. A receipt from another format or ROM keeps nothing.
+    /// Inspects installed content once. Returns the components whose published files are intact, which a repair keeps,
+    /// and whether every component is. A receipt from another format or ROM keeps nothing.
     /// </summary>
     private static HashSet<InstallerComponent> InspectInstalledComponents(GameInstallation installation, out bool complete)
     {
         var valid = new HashSet<InstallerComponent>();
         complete = false;
-        bool receiptAndIndexValid;
-        try
-        {
-            ValidateReceipt(installation);
-            receiptAndIndexValid = true;
-        }
-        catch (Exception error) when (IsRepairableContentFailure(error))
-        {
-            receiptAndIndexValid = false;
-            if (!ReceiptMatchesFormatAndSource(installation)) return valid;
-        }
+        InstallationReceipt receipt;
+        try { receipt = ReadReceipt(installation); }
+        catch (Exception error) when (IsRepairableContentFailure(error)) { return valid; }
         foreach (InstallerComponent component in Components)
         {
             try
             {
-                component.Validate(installation.ContentDirectory);
+                VerifyPublishedFiles(installation, receipt, component);
                 valid.Add(component);
             }
             catch (Exception error) when (IsRepairableContentFailure(error)) { }
         }
-        complete = receiptAndIndexValid && valid.Count == Components.Length;
+        complete = valid.Count == Components.Length;
         return valid;
     }
 
-    /// <summary>True when the receipt names this format and source, so its components may be reused.</summary>
-    private static bool ReceiptMatchesFormatAndSource(GameInstallation installation)
+    /// <summary>
+    /// The SHA-256 of every file under <paramref name="contentDirectory"/>, by content-relative path, except the ROM,
+    /// which is checked against the supported cartridge, and the receipt that records them.
+    /// </summary>
+    private static SortedDictionary<string, string> DigestPublishedFiles(string contentDirectory)
     {
-        try
+        var files = new SortedDictionary<string, string>(StringComparer.Ordinal);
+        foreach (string file in Directory.EnumerateFiles(contentDirectory, "*", SearchOption.AllDirectories))
         {
-            string receiptPath = Path.Combine(installation.ContentDirectory, GameInstallationLayout.ReceiptFileName);
-            var receipt = JsonSerializer.Deserialize<InstallationReceipt>(File.ReadAllText(receiptPath));
-            return receipt is not null && receipt.FormatVersion == GameInstallationLayout.FormatVersion &&
-                receipt.RomSha256 == SupportedCartridge.Sha256;
+            string relative = Path.GetRelativePath(contentDirectory, file).Replace('\\', '/');
+            if (relative is GameInstallationLayout.RomFileName or GameInstallationLayout.ReceiptFileName)
+                continue;
+            files.Add(relative, Digest(file));
         }
-        catch (Exception error) when (IsRepairableContentFailure(error)) { return false; }
+        return files;
+    }
+
+    /// <summary>The SHA-256 of <paramref name="file"/>'s bytes.</summary>
+    private static string Digest(string file)
+    {
+        using FileStream stream = File.OpenRead(file);
+        return Convert.ToHexString(SHA256.HashData(stream));
+    }
+
+    /// <summary>
+    /// Requires every file <paramref name="component"/> published to still hold the bytes the receipt recorded. A missing
+    /// file or directory fails with the I/O error naming it; changed bytes fail naming the file.
+    /// </summary>
+    private static void VerifyPublishedFiles(GameInstallation installation, InstallationReceipt receipt, InstallerComponent component)
+    {
+        string prefix = component.DirectoryName + "/";
+        bool published = false;
+        foreach ((string relative, string digest) in receipt.Files)
+        {
+            if (!relative.StartsWith(prefix, StringComparison.Ordinal))
+                continue;
+            published = true;
+            string path = Path.GetFullPath(Path.Combine(installation.ContentDirectory, relative));
+            if (!string.Equals(Digest(path), digest, StringComparison.Ordinal))
+                throw new InvalidDataException($"Installed file {path} differs from the content published with this installation. " +
+                    "Reimport the supported cartridge.");
+        }
+        if (!published)
+            throw new InvalidDataException($"Installation receipt publishes no files for {component.DirectoryName}. Reimport the supported cartridge.");
     }
 
     /// <summary>Copies a previously validated component tree into the new staging directory.</summary>
@@ -405,19 +427,21 @@ public static class GameAssetInstaller
             File.Copy(file, Path.Combine(destination, Path.GetRelativePath(source, file)));
     }
 
-    /// <summary>Shared strict implementation; startup may use its exception to decide whether repair is needed.</summary>
+    /// <summary>
+    /// Shared strict implementation; startup may use its exception to decide whether repair is needed. Every component's
+    /// stock validators ran when it was published, and published content never changes, so opening the installation
+    /// checks that each published file still holds the bytes the receipt recorded (#1430).
+    /// </summary>
     internal static void ValidateRequiredExtractedContent(GameInstallation installation)
     {
-        ValidateReceipt(installation);
+        InstallationReceipt receipt = ReadReceipt(installation);
         // This is the startup inventory, not a sample of whichever room was run.
-        // The component table is the one ordered inventory of stock-resource checks;
-        // completeness of each domain's required references is audited separately.
         foreach (InstallerComponent component in Components)
-            component.Validate(installation.ContentDirectory);
+            VerifyPublishedFiles(installation, receipt, component);
     }
 
-    /// <summary>The receipt names this format and source.</summary>
-    private static void ValidateReceipt(GameInstallation installation)
+    /// <summary>The receipt, which must name this format and source and list the files it published.</summary>
+    private static InstallationReceipt ReadReceipt(GameInstallation installation)
     {
         string receiptPath = Path.Combine(installation.ContentDirectory, GameInstallationLayout.ReceiptFileName);
         var receipt = JsonSerializer.Deserialize<InstallationReceipt>(File.ReadAllText(receiptPath));
@@ -426,5 +450,8 @@ public static class GameAssetInstaller
                 $"{GameInstallationLayout.FormatVersion}; found {receipt?.FormatVersion.ToString() ?? "null"}. Reimport the supported cartridge.");
         if (receipt.RomSha256 != SupportedCartridge.Sha256)
             throw new InvalidDataException($"Installation receipt {receiptPath} has unsupported source provenance.");
+        if (receipt.Files is null)
+            throw new InvalidDataException($"Installation receipt {receiptPath} lists no published files. Reimport the supported cartridge.");
+        return receipt;
     }
 }

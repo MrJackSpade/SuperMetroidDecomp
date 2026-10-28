@@ -48,6 +48,22 @@ internal static class EnemyContentIdentityFixtureVerification
     /// <summary>JSON options: Camel-case property names.</summary>
     private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
+    /// <summary>Edits that change how every document is encoded, and so every component that reads one.</summary>
+    private static readonly string[] EncodingEdits = ["json-indent", "png-colors"];
+
+    /// <summary>The edit names each shared component registers, learned the first time it is built.</summary>
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, string[]> ComponentEdits = new(StringComparer.Ordinal);
+
+    /// <summary>Each shared component's variants; installed artwork is immutable, so fixtures share them.</summary>
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<(string Component, string? Edit, bool Reverse), object> SharedComponents = new();
+
+    /// <summary>
+    /// Each fixture atlas decoded once, by name, size, seed, whether its first pixel is edited and whether its PNG colours
+    /// are; decoded atlases are immutable, so fixtures share them.
+    /// </summary>
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<(string Name, int Bytes, int Seed, bool PixelEdited, bool ColoursEdited),
+        RoomCharacterAtlas> DecodedAtlases = new();
+
     /// <summary>Small authored presentation data loaded through production PNG/JSON compilers.</summary>
     internal sealed class EnemyIdentityFixture(string? edit = null, bool reverse = false)
     {
@@ -57,7 +73,40 @@ internal static class EnemyContentIdentityFixtureVerification
         private void Register(string name)
         {
             if (!Edits.Contains(name, StringComparer.Ordinal)) Edits.Add(name);
+            foreach (List<string> component in recording)
+                component.Add(name);
         }
+
+        /// <summary>The edit names each component being built registers, innermost last.</summary>
+        private readonly Stack<List<string>> recording = new();
+
+        /// <summary>
+        /// One component, built once per variant it can differ by (#1430). A component depends only on the edit names it
+        /// registers, the key order and the edits that change every document's encoding; every fixture whose edit is
+        /// none of those shares the stock instance, and still registers the component's names.
+        /// </summary>
+        private T Shared<T>(string component, Func<T> build) where T : class
+        {
+            if (!ComponentEdits.TryGetValue(component, out string[]? names))
+            {
+                var registered = new List<string>();
+                recording.Push(registered);
+                T built;
+                try { built = build(); }
+                finally { recording.Pop(); }
+                names = [.. registered.Distinct(StringComparer.Ordinal)];
+                ComponentEdits.TryAdd(component, names);
+                SharedComponents.TryAdd(VariantOf(component, names), built);
+                return built;
+            }
+            foreach (string name in names)
+                Register(name);
+            return (T)SharedComponents.GetOrAdd(VariantOf(component, names), _ => build());
+        }
+
+        /// <summary>The variant of a component this fixture builds: its edit only when the edit can change the component.</summary>
+        private (string Component, string? Edit, bool Reverse) VariantOf(string component, string[] names) =>
+            (component, edit is not null && (names.Contains(edit, StringComparer.Ordinal) || EncodingEdits.Contains(edit)) ? edit : null, reverse);
 
         /// <summary>Serializes fixture documents through the same camel-case JSON shape as installed artwork.</summary>
         public MemoryStream Json(object document) => new(JsonSerializer.SerializeToUtf8Bytes(document,
@@ -79,9 +128,17 @@ internal static class EnemyContentIdentityFixtureVerification
             return png;
         }
 
-        /// <summary>Compiles fixture PNG pixels into a production room-character atlas.</summary>
-        private RoomCharacterAtlas Characters(string name, int bytes, int seed = 0) =>
-            RoomCharacterAtlasPng.Read(Png(name, bytes, seed), bytes);
+        /// <summary>
+        /// Compiles fixture PNG pixels into a production room-character atlas. An atlas depends only on its name, size and
+        /// seed and on whether this fixture's edit changes its first pixel or the PNG colours, so every fixture shares the
+        /// one decoded for that combination instead of encoding and decoding it again (#1430).
+        /// </summary>
+        private RoomCharacterAtlas Characters(string name, int bytes, int seed = 0)
+        {
+            Register(name);
+            return DecodedAtlases.GetOrAdd((name, bytes, seed, edit == name, edit == "png-colors"),
+                _ => RoomCharacterAtlasPng.Read(Png(name, bytes, seed), bytes));
+        }
 
         /// <summary>Changes the final tilemap cell only when its named edit is selected.</summary>
         private RoomBackgroundTilemapCell[] Cells(string name, int count)
@@ -95,13 +152,13 @@ internal static class EnemyContentIdentityFixtureVerification
         }
 
         /// <summary>Builds the requested number of production background pages from editable cells.</summary>
-        private RoomBackgroundTilemapAtlas Map(string name, int bytes) => RoomBackgroundTilemapAtlas.Load(Json(
+        private RoomBackgroundTilemapAtlas Map(string name, int bytes) => Shared("map " + name, () => RoomBackgroundTilemapAtlas.Load(Json(
             new RoomBackgroundTilemapDocument
             {
                 Version = RoomBackgroundTilemapFormat.Version,
                 Pages = Enumerable.Range(0, bytes / RoomBackgroundTilemapFormat.BytesPerPage).Select(page =>
                     new RoomBackgroundTilemapPage { Cells = Cells(name + "-page-" + page, RoomBackgroundTilemapFormat.CellsPerPage) }).ToArray(),
-            }), bytes);
+            }), bytes));
 
         /// <summary>Builds a word sequence whose final element can carry a controlled edit.</summary>
         private ushort[] Words(string name, int count)
@@ -220,8 +277,8 @@ internal static class EnemyContentIdentityFixtureVerification
                     new EnemyContentIdentityFixtureField("lowerNorfair", 0, ChozoAndTubeColorDefinitions.ColorCount)), DachoraColors = ColorCatalog(DachoraColorFile.Read, new EnemyContentIdentityFixtureField("normal", 0, DachoraColorDefinitions.ColorsPerFrame),
                     new EnemyContentIdentityFixtureField("speed", DachoraColorDefinitions.AnimatedFrameCount, DachoraColorDefinitions.ColorsPerFrame),
                     new EnemyContentIdentityFixtureField("shine", DachoraColorDefinitions.AnimatedFrameCount, DachoraColorDefinitions.ColorsPerFrame)), AuxiliaryColors = auxiliary }),
-                new BossArtworkCatalog { CrocomireMelting = CrocomireMeltingArtwork.Load(RoomCharacterAtlasPng.Read(Png("melt-first", CrocomireMeltingArtworkFormat.FirstByteCount), CrocomireMeltingArtworkFormat.FirstByteCount),
-                    RoomCharacterAtlasPng.Read(Png("melt-second", CrocomireMeltingArtworkFormat.SecondByteCount), CrocomireMeltingArtworkFormat.SecondByteCount), Json(meltFirstMap), Json(meltSecondMap)), KraidBackground = new KraidBackgroundArtwork(Map("kraid-upper", KraidBackgroundDefinitions.SourceTilemapBytes),
+                new BossArtworkCatalog { CrocomireMelting = CrocomireMeltingArtwork.Load(Characters("melt-first", CrocomireMeltingArtworkFormat.FirstByteCount),
+                    Characters("melt-second", CrocomireMeltingArtworkFormat.SecondByteCount), Json(meltFirstMap), Json(meltSecondMap)), KraidBackground = new KraidBackgroundArtwork(Map("kraid-upper", KraidBackgroundDefinitions.SourceTilemapBytes),
                     Map("kraid-lower", KraidBackgroundDefinitions.SourceTilemapBytes), heads,
                     Characters("kraid-background", KraidSourceDefinitions.RoomBackgroundTileBytes)), KraidColors = ColorCatalog(KraidColorFile.Read,
                     new EnemyContentIdentityFixtureField("roomBackdrop", 0, KraidPalettes.ColorCount(KraidPaletteSource.RoomBackdrop)),
@@ -252,7 +309,7 @@ internal static class EnemyContentIdentityFixtureVerification
                     new EnemyContentIdentityFixtureField("corpseFade", MotherBrainDeathDefinitions.CorpseFadeFrameCount, MotherBrainDeathDefinitions.CorpseColorCount),
                     new EnemyContentIdentityFixtureField("explodedDoor", 0, MotherBrainDeathDefinitions.BodyColorCount)), ZebetiteColors = ColorCatalog(ZebetiteColorFile.Read, new EnemyContentIdentityFixtureField("frames", ZebetiteColorFormat.FrameCount, ZebetiteColorFormat.ColorsPerFrame)), NorfairRidleyColors = ColorCatalog(NorfairRidleyColorFile.Read,
                     new EnemyContentIdentityFixtureField("initial", 0, NorfairRidleyPaletteDefinitions.InitialColorCount),
-                    new EnemyContentIdentityFixtureField("reveal", NorfairRidleyPaletteDefinitions.RevealRowCount, NorfairRidleyPaletteDefinitions.RevealColorCount)), PhantoonBg2Frames = PhantoonBg2FrameCatalog.Load(Bg2("phantoon-bg2", PhantoonBg2FrameDefinitions.Frames)), DraygonBg2Frames = DraygonBg2FrameCatalog.Load(Bg2("draygon-bg2", DraygonBg2FrameDefinitions.Frames)), CrocomireBg2Frames = CrocomireBg2FrameCatalog.Load(Bg2("crocomire-bg2", CrocomireBg2FrameDefinitions.Frames)), MotherBrainBodyBg2Frames = motherBrainBodyBg2Frames ?? MotherBrainBodyBg2FrameCatalog.Load(
+                    new EnemyContentIdentityFixtureField("reveal", NorfairRidleyPaletteDefinitions.RevealRowCount, NorfairRidleyPaletteDefinitions.RevealColorCount)), PhantoonBg2Frames = Shared("phantoon-bg2", () => PhantoonBg2FrameCatalog.Load(Bg2("phantoon-bg2", PhantoonBg2FrameDefinitions.Frames))), DraygonBg2Frames = Shared("draygon-bg2", () => DraygonBg2FrameCatalog.Load(Bg2("draygon-bg2", DraygonBg2FrameDefinitions.Frames))), CrocomireBg2Frames = Shared("crocomire-bg2", () => CrocomireBg2FrameCatalog.Load(Bg2("crocomire-bg2", CrocomireBg2FrameDefinitions.Frames))), MotherBrainBodyBg2Frames = motherBrainBodyBg2Frames ?? MotherBrainBodyBg2FrameCatalog.Load(
                     Bg2("mother-brain-body-bg2", MotherBrainBodyVisualDefinitions.Bg2Frames)), MotherBrainCorpse = Characters("mother-brain-corpse", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainEscapeText = Characters("mother-brain-text", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainSpecialSprites = special, CrocomireSkeleton = CrocomireSkeletonArtwork.Load(RoomCharacterAtlasPng.Read(Png("crocomire-skeleton", CrocomireSkeletonTransferDefinitions.TotalByteCount), CrocomireSkeletonTransferDefinitions.TotalByteCount)), TorizoSwaps = torizo },
                 new AreaArtworkCatalog { CeresDoorVisual = door, TourianStatueColors = ColorCatalog(TourianStatueColorFile.Read,
                     new EnemyContentIdentityFixtureField("base", 0, TourianStatueColorDefinitions.BaseColorCount), new EnemyContentIdentityFixtureField("statue", 0, TourianStatueColorDefinitions.StatueColorCount),
@@ -316,7 +373,7 @@ internal static class EnemyContentIdentityFixtureVerification
             };
         }
         /// <summary>Compiles fixture OAM data through the installed spritemap loader.</summary>
-        public EnemySpritemapCatalog Oam() => EnemySpritemapDocuments.Load(Json(OamDocument()));
+        public EnemySpritemapCatalog Oam() => Shared("oam", () => EnemySpritemapDocuments.Load(Json(OamDocument())));
 
         /// <summary>Builds extended sprite components with independently editable offsets and frame bindings.</summary>
         public EnemyExtendedFrameDocument ExtendedDocument()
@@ -345,7 +402,7 @@ internal static class EnemyContentIdentityFixtureVerification
             };
         }
         /// <summary>Compiles extended frame fixtures through the installed catalog loader.</summary>
-        public EnemyExtendedFrameCatalog Extended() => EnemyExtendedFrameDocuments.Load(Json(ExtendedDocument()));
+        public EnemyExtendedFrameCatalog Extended() => Shared("extended", () => EnemyExtendedFrameDocuments.Load(Json(ExtendedDocument())));
 
         /// <summary>Builds ordinary and instruction-program projectile OAM frames.</summary>
         public EnemyProjectileSpritemapDocument ProjectileDocument()
@@ -362,7 +419,7 @@ internal static class EnemyContentIdentityFixtureVerification
             };
         }
         /// <summary>Compiles both projectile frame namespaces into one installed catalog.</summary>
-        public EnemyProjectileSpritemapCatalog Projectiles() => EnemyProjectileSpritemapCatalog.Load(Json(ProjectileDocument()));
+        public EnemyProjectileSpritemapCatalog Projectiles() => Shared("projectiles", () => EnemyProjectileSpritemapCatalog.Load(Json(ProjectileDocument())));
 
         /// <summary>Builds BG2 frame writes whose tiles, placement, order, count, or run boundaries can vary.</summary>
         private MemoryStream Bg2(string family, ImmutableArray<EnemySpritemapDefinition> definitions)

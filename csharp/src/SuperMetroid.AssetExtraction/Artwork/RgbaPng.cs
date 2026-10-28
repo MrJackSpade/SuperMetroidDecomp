@@ -67,6 +67,47 @@ public static class RgbaPng
         WriteChunk(output, "IEND", []);
     }
 
+    /// <summary>
+    /// Reads only an RGBA PNG's size from its header chunk, which follows the signature, checking its CRC and form as
+    /// <see cref="Read"/> does.
+    /// </summary>
+    /// <param name="input">The stream read from its current position; the caller keeps ownership.</param>
+    /// <exception cref="InvalidDataException">The data does not begin with a well-formed 8-bit RGBA, non-interlaced PNG header.</exception>
+    public static Extent16<ImagePixels> ReadSize(Stream input)
+    {
+        Ensure.NotNull(input);
+        Span<byte> signature = stackalloc byte[8];
+        input.ReadExactly(signature);
+        if (!signature.SequenceEqual(Signature))
+            throw new InvalidDataException("Not a PNG image.");
+        Span<byte> prefix = stackalloc byte[8];
+        input.ReadExactly(prefix);
+        if (BinaryPrimitives.ReadUInt32BigEndian(prefix) != HeaderLength || Encoding.ASCII.GetString(prefix[4..]) != "IHDR")
+            throw new InvalidDataException("The PNG has no header.");
+        var payload = new byte[HeaderLength];
+        input.ReadExactly(payload);
+        Span<byte> checksum = stackalloc byte[4];
+        input.ReadExactly(checksum);
+        if (Crc(prefix[4..], payload) != BinaryPrimitives.ReadUInt32BigEndian(checksum))
+            throw new InvalidDataException("PNG chunk IHDR fails its CRC.");
+        return Header(payload);
+    }
+
+    /// <summary>The bytes of a PNG header chunk.</summary>
+    private const int HeaderLength = 13;
+
+    /// <summary>The width and height a header chunk names, which must describe an 8-bit RGBA, non-interlaced image.</summary>
+    /// <exception cref="InvalidDataException">The header names another form or a size outside the supported one.</exception>
+    private static Extent16<ImagePixels> Header(byte[] payload)
+    {
+        if (payload.Length != HeaderLength || payload[8] != 8 || payload[9] != RgbaColourType || payload[10] != 0 || payload[11] != 0 || payload[12] != 0)
+            throw new InvalidDataException("Artwork PNGs are 8-bit RGBA without interlacing.");
+        uint w = BinaryPrimitives.ReadUInt32BigEndian(payload), h = BinaryPrimitives.ReadUInt32BigEndian(payload.AsSpan(4));
+        if (w is 0 or > MaximumDimension || h is 0 or > MaximumDimension)
+            throw new InvalidDataException($"A {w}x{h} PNG is outside the supported size.");
+        return new Extent16<ImagePixels>(checked((ushort)w), checked((ushort)h));
+    }
+
     /// <summary>Reads an RGBA PNG, checking every chunk's CRC and the image's form.</summary>
     /// <param name="input">The stream read from its current position; the caller keeps ownership.</param>
     /// <param name="size">The image's width and height.</param>
@@ -97,13 +138,9 @@ public static class RgbaPng
                 throw new InvalidDataException($"PNG chunk {type} fails its CRC.");
             if (type == "IHDR")
             {
-                if (payload.Length != 13 || payload[8] != 8 || payload[9] != RgbaColourType || payload[10] != 0 || payload[11] != 0 || payload[12] != 0)
-                    throw new InvalidDataException("Artwork PNGs are 8-bit RGBA without interlacing.");
-                uint w = BinaryPrimitives.ReadUInt32BigEndian(payload), h = BinaryPrimitives.ReadUInt32BigEndian(payload.AsSpan(4));
-                if (w is 0 or > MaximumDimension || h is 0 or > MaximumDimension)
-                    throw new InvalidDataException($"A {w}x{h} PNG is outside the supported size.");
-                width = (int)w;
-                height = (int)h;
+                Extent16<ImagePixels> header = Header(payload);
+                width = header.X;
+                height = header.Y;
             }
             else if (type == "IDAT")
             {

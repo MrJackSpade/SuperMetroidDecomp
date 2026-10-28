@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using static SuperMetroid.Verification.Harness.SuiteSchedulingVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Harness;
@@ -20,6 +21,14 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+    // A shared fixture loaded inside a suite is timed as its own entry under it; one loaded outside any suite runs untimed.
+    SharedFixtureTiming.Timer = (name, load) =>
+    {
+        if (InSuite)
+            Suite(name, load);
+        else
+            load();
+    };
     int exit = RunFlags(args);
     if (failedSuites.Count == 0)
         return exit;

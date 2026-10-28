@@ -13,7 +13,8 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 internal static class SheetFrameSources
 {
     /// <summary>Each projectile sheet frame's composition and the page its characters index.</summary>
-    private static readonly Lazy<System.Collections.Concurrent.ConcurrentDictionary<FrameKey, FrameSource>> sources = new(Build);
+    private static readonly Lazy<System.Collections.Concurrent.ConcurrentDictionary<FrameKey, FrameSource>> sources =
+        new(() => SharedFixtureTiming.Load("Fixture: sheet frame sources", Build));
 
     /// <summary>Pairs a fixture sheet's frames with what they were composed from.</summary>
     internal static void Register(SpriteSheet sheet, SpriteSheetSources composed)
@@ -102,7 +103,7 @@ internal static class SheetFrameSources
     }
 
     /// <summary>Registers every installed enemy sheet frame with what it was composed from, once.</summary>
-    private static readonly Lazy<bool> enemySources = new(() =>
+    private static readonly Lazy<bool> enemySources = new(() => SharedFixtureTiming.Load("Fixture: enemy sheet frame sources", () =>
     {
         SuperMetroid.AssetExtraction.Enemies.EnemySheetInputs inputs =
             SuperMetroid.AssetExtraction.Enemies.EnemySheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory);
@@ -116,7 +117,7 @@ internal static class SheetFrameSources
                 Register(InstalledFixtures.EnemySheets.Spawned(set.Name, plan.TileBase).Sheet, composed);
         }
         return true;
-    });
+    }));
 
     /// <summary>Pairs every installed projectile sheet frame with what it was composed from.</summary>
     private static System.Collections.Concurrent.ConcurrentDictionary<FrameKey, FrameSource> Build()

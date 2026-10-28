@@ -79,21 +79,63 @@ public sealed class SpriteSheet
     public static SpriteSheet Load(Stream manifest, string name, Extent16<ImagePixels> size, ReadOnlySpan<RgbaPixel> pixels,
         ReadOnlySpan<byte> paletteIndices, ReadOnlySpan<byte> priorities, ReadOnlySpan<byte> partRows)
     {
-        SpriteSheetDocument document = JsonAssetDocument.Read<SpriteSheetDocument>(manifest, Options, $"sprite sheet {name}");
-        if (document.Version != Version)
-            throw new InvalidDataException($"Sprite sheet {name} has manifest revision {document.Version}, not {Version}.");
-        if (document.Colours is null || document.Colours.Length != SpriteImage.ColourCountOf(document.Palette))
-            throw new InvalidDataException($"Sprite sheet {name} needs its {SpriteImage.ColourCountOf(document.Palette)} standard colours.");
+        SpriteSheetDocument document = ReadDocument(manifest, name);
         SpriteImage image;
         try
         {
-            image = new SpriteImage(name, size, pixels, paletteIndices,
-                new SpriteImagePalette(document.Palette, [.. document.Colours.Select(RgbColor.FromWord)]), priorities, partRows);
+            image = new SpriteImage(name, size, pixels, paletteIndices, PaletteOf(document), priorities, partRows);
         }
         catch (ArgumentException error)
         {
             throw new InvalidDataException($"Sprite sheet {name}: {error.Message}", error);
         }
+        return CutFrames(document, name, image);
+    }
+
+    /// <summary>
+    /// Reads a sheet manifest and cuts its frames from a sheet image whose layers <paramref name="decode"/> produces
+    /// when the image is first drawn (#1430).
+    /// </summary>
+    /// <param name="manifest">The frame list and standard colours.</param>
+    /// <param name="name">The sheet's installed name.</param>
+    /// <param name="size">The image's width and height.</param>
+    /// <param name="decode">Produces the image's pixels, palette indices, priorities and part rows.</param>
+    /// <exception cref="InvalidDataException">The manifest is malformed, of another revision, or places a frame off the image.</exception>
+    public static SpriteSheet Load(Stream manifest, string name, Extent16<ImagePixels> size, Func<SpriteImageLayers> decode)
+    {
+        SpriteSheetDocument document = ReadDocument(manifest, name);
+        SpriteImage image;
+        try
+        {
+            image = new SpriteImage(name, size, PaletteOf(document), decode);
+        }
+        catch (ArgumentException error)
+        {
+            throw new InvalidDataException($"Sprite sheet {name}: {error.Message}", error);
+        }
+        return CutFrames(document, name, image);
+    }
+
+    /// <summary>Reads and checks a sheet manifest.</summary>
+    /// <exception cref="InvalidDataException">The manifest is malformed, of another revision, or lacks its standard colours.</exception>
+    private static SpriteSheetDocument ReadDocument(Stream manifest, string name)
+    {
+        SpriteSheetDocument document = JsonAssetDocument.Read<SpriteSheetDocument>(manifest, Options, $"sprite sheet {name}");
+        if (document.Version != Version)
+            throw new InvalidDataException($"Sprite sheet {name} has manifest revision {document.Version}, not {Version}.");
+        if (document.Colours is null || document.Colours.Length != SpriteImage.ColourCountOf(document.Palette))
+            throw new InvalidDataException($"Sprite sheet {name} needs its {SpriteImage.ColourCountOf(document.Palette)} standard colours.");
+        return document;
+    }
+
+    /// <summary>The standard colours a sheet manifest names.</summary>
+    private static SpriteImagePalette PaletteOf(SpriteSheetDocument document) =>
+        new(document.Palette, [.. (document.Colours ?? []).Select(RgbColor.FromWord)]);
+
+    /// <summary>Cuts a manifest's part images and frames from the sheet image.</summary>
+    /// <exception cref="InvalidDataException">The manifest places a frame off the image or names a missing part image.</exception>
+    private static SpriteSheet CutFrames(SpriteSheetDocument document, string name, SpriteImage image)
+    {
         // Part images come first: the frames name them.
         var partImages = new Dictionary<string, SpriteSheetFrame>(StringComparer.Ordinal);
         foreach ((string partName, SpriteSheetFrameDocument? part) in document.PartImages ??

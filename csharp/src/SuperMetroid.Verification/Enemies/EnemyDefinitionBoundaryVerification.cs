@@ -17,9 +17,7 @@ using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
-using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
@@ -50,8 +48,9 @@ internal static class EnemyDefinitionBoundaryVerification
         Suite(nameof(VerifyCorpseMetadataDefinitions), () => VerifyCorpseMetadataDefinitions(source));
         Suite(nameof(VerifyCrocomirePowerBombReactionDefinitions), () => VerifyCrocomirePowerBombReactionDefinitions(source));
         Suite(nameof(VerifyEnemyAuxiliaryColors), () => VerifyEnemyAuxiliaryColors(source));
-        using var temporary = new TestScratchDirectory("map-catalog");
-        InstalledEnemyArtwork artwork = GameAssetInstaller.Install(sourceRom, temporary.Root).LoadEnemyTiles();
+        // The repository installation is the complete installation of the same ROM every fixture shares; extracting a
+        // private one here repeated the whole import on every run (#1430).
+        InstalledEnemyArtwork artwork = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.LoadEnemyTiles();
         AssertTrue(artwork.Enemies.AuxiliaryColors is not null, "complete installation supplies auxiliary palettes");
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         int drawCases = 0;

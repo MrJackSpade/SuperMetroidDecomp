@@ -529,7 +529,7 @@ internal static void VerifySamusArmCannon()
     int[] drawing = [2, 2, 7, 0xfd, 9, 0xfb];
     for (int index = 0; index < drawing.Length; index++)
         document.Required("drawingData")[index] = drawing[index];
-    document.Required("spriteAttributes")[2] = 0x281f;
+    // Direction two's cover keeps its installed appearance, the retail $281F: tile $1F, palette four, priority two.
     document.Required("coverTiles")[2] = new System.Text.Json.Nodes.JsonArray(0, 1, 2);
     using var placement = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString()));
     using var tiles = File.OpenRead(Path.Combine(directory, SamusArmCannonArtworkFormat.TileFileName));

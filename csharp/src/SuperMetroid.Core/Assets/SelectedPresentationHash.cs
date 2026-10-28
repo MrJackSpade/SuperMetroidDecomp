@@ -55,12 +55,20 @@ internal sealed class SelectedPresentationHash
     /// <summary>Adds a UTF-8 field label and byte payload with explicit lengths to prevent boundary ambiguity.</summary>
     public void Append(string label, ReadOnlySpan<byte> bytes)
     {
-        byte[] name = Encoding.UTF8.GetBytes(label);
-        AppendLength(name.Length);
-        hash.AppendData(name);
+        Ensure.NotNull(label);
+        // Labels are short literals hashed once per field: encoding them on the stack keeps hashing a large catalog
+        // from allocating a label array per field (#1430). The bytes hashed are the same UTF-8 encoding.
+        int maximum = Encoding.UTF8.GetMaxByteCount(label.Length);
+        Span<byte> buffer = maximum <= LabelBufferBytes ? stackalloc byte[LabelBufferBytes] : new byte[maximum];
+        int length = Encoding.UTF8.GetBytes(label, buffer);
+        AppendLength(length);
+        hash.AppendData(buffer[..length]);
         AppendLength(bytes.Length);
         hash.AppendData(bytes);
     }
+
+    /// <summary>The bytes of a label encoded on the stack; longer labels are encoded on the heap.</summary>
+    private const int LabelBufferBytes = 256;
 
     /// <summary>Adds a signed integer field in four-byte little-endian form.</summary>
     public void Append(string label, int value)

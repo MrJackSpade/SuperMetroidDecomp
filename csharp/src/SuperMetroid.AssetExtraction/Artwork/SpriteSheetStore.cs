@@ -86,11 +86,47 @@ internal sealed class SpriteSheetStore
     /// <exception cref="InvalidDataException">A stock hash, an image or the frame manifest is invalid.</exception>
     internal SpriteSheet Read(string name)
     {
-        byte[] image = Selected(ImageFile(name));
         byte[] frames = Selected(FrameFile(name));
+        if (IsOverridden(ImageFile(name)) || IsOverridden(PaletteFile(name)))
+        {
+            // A player's image is read whole now, so a malformed one fails as the sheet loads.
+            SpriteImageLayers layers = Decode(name, out Extent16<ImagePixels> size);
+            return SpriteSheet.Load(new MemoryStream(frames, writable: false), name, size, layers.Pixels,
+                layers.PaletteIndices, layers.Priorities, layers.PartRows);
+        }
+        // A stock image's files passed their hashes when the installation was published and opened; its pixels are
+        // decoded when it is first drawn (#1430).
+        string stockImage = Path.Combine(stockDirectory, ImageFile(name));
+        Extent16<ImagePixels> stockSize;
+        try
+        {
+            using FileStream header = File.OpenRead(stockImage);
+            stockSize = RgbaPng.ReadSize(header);
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException($"Sprite sheet {name}: {error.Message}", error);
+        }
+        return SpriteSheet.Load(new MemoryStream(frames, writable: false), name, stockSize, () =>
+        {
+            SpriteImageLayers layers = Decode(name, out Extent16<ImagePixels> decoded);
+            if (decoded != stockSize)
+                throw new InvalidDataException($"Sprite sheet {ImageFile(name)} changed size after its header was read.");
+            return layers;
+        });
+    }
+
+    /// <summary>Whether the player overrides <paramref name="name"/>.</summary>
+    private bool IsOverridden(string name) => overrideDirectory is not null && File.Exists(Path.Combine(overrideDirectory, name));
+
+    /// <summary>Reads one sheet's image and palette-index image into its layers.</summary>
+    /// <exception cref="InvalidDataException">A stock hash fails, an image is malformed, or the two images differ in size.</exception>
+    private SpriteImageLayers Decode(string name, out Extent16<ImagePixels> size)
+    {
+        byte[] image = Selected(ImageFile(name));
         byte[] palette = Selected(PaletteFile(name));
         RgbaPixel[] pixels, indices;
-        Extent16<ImagePixels> size, indexSize;
+        Extent16<ImagePixels> indexSize;
         try
         {
             pixels = RgbaPng.Read(new MemoryStream(image, writable: false), out size);
@@ -102,8 +138,16 @@ internal sealed class SpriteSheetStore
         }
         if (indexSize != size)
             throw new InvalidDataException($"Sprite sheet {PaletteFile(name)} is not the size of {ImageFile(name)}.");
-        return SpriteSheet.Load(new MemoryStream(frames, writable: false), name, size, pixels,
-            [.. indices.Select(index => index.R)], [.. indices.Select(index => index.G)], [.. indices.Select(index => index.B)]);
+        var paletteIndices = new byte[indices.Length];
+        var priorities = new byte[indices.Length];
+        var partRows = new byte[indices.Length];
+        for (int pixel = 0; pixel < indices.Length; pixel++)
+        {
+            paletteIndices[pixel] = indices[pixel].R;
+            priorities[pixel] = indices[pixel].G;
+            partRows[pixel] = indices[pixel].B;
+        }
+        return new SpriteImageLayers(pixels, paletteIndices, priorities, partRows);
     }
 
     /// <summary>A sheet's image file name.</summary>

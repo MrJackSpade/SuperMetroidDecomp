@@ -2,16 +2,16 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>
-/// The eye beam's room-global state: its lifetime, its angular half-width and the fixed colour it adds. It describes a
-/// colour-math reveal, not an enemy projectile or damage source.
+/// The eye beam's room-global state: its lifetime, the eye that casts it, its angular half-width and the fixed colour
+/// it adds. It describes a colour-addition reveal, not an enemy projectile or damage source.
 /// </summary>
 public sealed class MorphBallEyeBeamState
 {
-    /// <summary>Current host projection of the room-global HDMA object's lifetime, advanced before enemy AI; separate from the body's bank-$A8 function word.</summary>
+    /// <summary>The beam's lifetime, advanced before enemy AI and separate from the eye's own AI function.</summary>
     public MorphBallEyeBeamPhase Phase { get; internal set; }
 
-    /// <summary>Literal body slot read by <c>$88:E96D/$88:E98B</c>; retail uses slot one.</summary>
-    public int BodySlotIndex { get; internal set; } = -1;
+    /// <summary>The eye body that cast the beam, whose position and aim the cone follows; none while no beam exists.</summary>
+    public RoomEnemySlot? Body { get; internal set; }
 
     /// <summary>
     /// The beam's half-width as a 16.16 value in 256-per-turn angle units: zero when the beam appears, grown by
@@ -35,11 +35,27 @@ public sealed class MorphBallEyeBeamState
     /// </summary>
     public RgbColor Color { get; internal set; }
 
-    /// <summary>Ends the beam's lifetime and returns its colour to black.</summary>
+    /// <summary>
+    /// The cone the frame ending now shows: the beam's phase, width and colour with its eye's position and aim as they
+    /// stand at the frame-end latch; none while no beam exists.
+    /// </summary>
+    internal MorphBallEyeBeamCone? LatchDisplay()
+    {
+        if (Phase == MorphBallEyeBeamPhase.Inactive)
+            return null;
+        // A live beam always has an eye with its state; losing either is a corrupt enemy population.
+        RoomEnemySlot body = Body
+            ?? throw new InvalidDataException($"Active Morph Ball eye beam in phase {Phase} has no eye body.");
+        MorphBallEyeEnemyState eye = body.SpeciesState<MorphBallEyeEnemyState>()
+            ?? throw new InvalidDataException($"Active Morph Ball eye beam's body in enemy slot {body.SlotIndex} has no eye state.");
+        return new MorphBallEyeBeamCone(Phase, body.Position.Whole, eye.Angle, AngularWidth, Color);
+    }
+
+    /// <summary>Ends the beam's lifetime, releases its eye and returns its colour to black.</summary>
     internal void Reset()
     {
         Phase = MorphBallEyeBeamPhase.Inactive;
-        BodySlotIndex = -1;
+        Body = null;
         AngularHalfWidth = SignedSixteenSixteen.Zero;
         AngularHalfWidthGrowth = SignedSixteenSixteen.Zero;
         ColorIndex = 0;

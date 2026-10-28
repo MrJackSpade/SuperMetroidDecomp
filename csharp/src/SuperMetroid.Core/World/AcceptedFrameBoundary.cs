@@ -7,7 +7,6 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -144,7 +143,8 @@ internal sealed class AcceptedFrameBoundary
             _screenLayers.Displayed,
             CapturePerspectiveFloor(displayScroll.Bg1Scroll),
             roomLayer3Fx,
-            CaptureMorphBallEyeBeamForDisplay(),
+            // Before the first room no eye beam is shown.
+            _room.Enemies?.DisplaySources.MorphBallEyeBeam.LatchDisplay(),
             Displays?.Phantoon is { } phantoon ? PhantoonDisplaySnapshot.Capture(phantoon) : null,
             // Before the first room there are no statues, so no descent is displayed.
             checked((short)(_room.TourianStatues?.DisplayedVerticalOffset ?? 0)),
@@ -352,36 +352,4 @@ internal sealed class AcceptedFrameBoundary
         _player.Samus?.Xray.IsActive == true && scene.Room is { } room && XrayBlockRevealRules.RevealsBlocks(room, scene.BossId)
             ? ImmutableArray.Create(_xray.RevealedBlocks)
             : null;
-
-    /// <summary>
-    /// Captures the exact eye-body and HDMA-object values that become visible alongside
-    /// this NMI's OAM upload. Retail hard-codes body slot one; retaining the translated
-    /// slot reference here also makes corrupt actor ownership fail at publication time.
-    /// </summary>
-    internal MorphBallEyeBeamRenderSnapshot? CaptureMorphBallEyeBeamForDisplay()
-    {
-        // Before the first room no eye beam is shown.
-        if (_room.Enemies is not { } enemies)
-            return null;
-        MorphBallEyeBeamState beam = enemies.DisplaySources.MorphBallEyeBeam;
-        if (beam.Phase == MorphBallEyeBeamPhase.Inactive)
-            return null;
-
-        int bodyIndex = beam.BodySlotIndex;
-        if ((uint)bodyIndex >= enemies.SlotTable.Slots.Count ||
-            (uint)bodyIndex >= enemies.DisplaySources.MorphBallEyeStates.Count ||
-            enemies.DisplaySources.MorphBallEyeStates[bodyIndex] is not { } eyeState)
-        {
-            throw new InvalidDataException(
-                $"Active Morph Ball eye beam names invalid body slot {bodyIndex}.");
-        }
-
-        RoomEnemySlot body = enemies.SlotTable.Slots[bodyIndex];
-        return new MorphBallEyeBeamRenderSnapshot(
-            beam.Phase,
-            body.Position.Whole,
-            eyeState.Angle,
-            beam.AngularWidth,
-            beam.Color);
-    }
 }

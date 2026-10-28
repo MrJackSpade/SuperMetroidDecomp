@@ -1299,7 +1299,7 @@ internal static class LookupStream5Verification
         body.Bind(EnemyDefinitionId.Eye, body.Definition);
         new Action<RoomEnemySlot>(owner.MorphBallEyeBehavior.InitializeMorphBallEye)(body);
         (owner.MorphBallEyeBehavior.MorphBallEyeStates[1] ?? throw new InvalidOperationException("Verification requires owner.MorphBallEyeBehavior.MorphBallEyeStates[1].")).IsActivated = true;
-        owner.MorphBallEyeBehavior.MorphBallEyeBeam.BodySlotIndex = 1;
+        owner.MorphBallEyeBehavior.MorphBallEyeBeam.Body = body;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Full;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.ColorIndex = 0;
         Action step = owner.MorphBallEyeBehavior.StepFullMorphBallEyeBeam;

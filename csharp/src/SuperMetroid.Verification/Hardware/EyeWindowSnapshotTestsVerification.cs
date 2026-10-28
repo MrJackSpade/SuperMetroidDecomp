@@ -39,7 +39,7 @@ internal static class EyeWindowSnapshotTestsVerification
         void Check(int x, int y, int angle, ushort width)
         {
             // Nonzero camera coordinates also exercise signed world-to-screen wrapping.
-            var beam = new MorphBallEyeBeamRenderSnapshot(MorphBallEyeBeamPhase.Full,
+            var beam = new MorphBallEyeBeamCone(MorphBallEyeBeamPhase.Full,
                 new(unchecked((ushort)(x + 512)), unchecked((ushort)(y + 768))),
                 RotationAngle.FromTableIndex((byte)angle), width, new RgbColor(31, 12, 1));
             ColourAddBandsLayer? layer = GameplayEffectCapture.CaptureMorphBallEyeBeam(beam, new Position16<RoomPixels>(512, 768));
@@ -66,7 +66,7 @@ internal static class EyeWindowSnapshotTestsVerification
         ];
         foreach (var sample in expected)
         {
-            var beam = new MorphBallEyeBeamRenderSnapshot(MorphBallEyeBeamPhase.Full,
+            var beam = new MorphBallEyeBeamCone(MorphBallEyeBeamPhase.Full,
                 new(552, 616), RotationAngle.FromTableIndex(sample.Angle), sample.Width, new RgbColor(31, 31, 0));
             ColorAddWindow row = (GameplayEffectCapture.CaptureMorphBallEyeBeam(beam, new Position16<RoomPixels>(384, 512)) ?? throw new InvalidOperationException("Verification requires GameplayEffectCapture.CaptureMorphBallEyeBeam(beam, new Position16<RoomPixels>....")).Windows[sample.Y];
             for (int x = 0; x < 256; x++)

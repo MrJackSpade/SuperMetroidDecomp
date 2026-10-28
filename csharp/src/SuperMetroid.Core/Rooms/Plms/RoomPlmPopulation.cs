@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// Immutable, ordered input to the room PLM allocator. Native pointers survive only
 /// as identities and diagnostic context; construction never reads a CPU bus.
 /// </summary>
-public sealed class RoomPlmPopulationDefinition
+public sealed class RoomPlmPopulation
 {
     /// <summary>Owned placement records kept in the order the PLM allocator consumes them.</summary>
     private readonly RoomPlmPlacement[] placements;
@@ -21,7 +21,7 @@ public sealed class RoomPlmPopulationDefinition
     /// <param name="records">Placement sequence without a native zero terminator; at most 255 records may be supplied.</param>
     /// <exception cref="ArgumentNullException">The sequence or one of its placements is null.</exception>
     /// <exception cref="InvalidDataException">The record limit is exceeded, a header is the zero terminator, or a setup-specific payload is invalid.</exception>
-    public RoomPlmPopulationDefinition(string name, IEnumerable<RoomPlmPlacement> records)
+    public RoomPlmPopulation(string name, IEnumerable<RoomPlmPlacement> records)
     {
         Ensure.NotNull(records);
         Name = Ensure.NotNull(name);
@@ -35,9 +35,9 @@ public sealed class RoomPlmPopulationDefinition
     /// <summary>Builds a retail population from its compiled records, binding scroll triggers to their compiled program identities.</summary>
     /// <param name="name">The population's name.</param>
     /// <param name="records">Each record's PLM header, block coordinates and room argument, in native order.</param>
-    internal static RoomPlmPopulationDefinition FromRecords(string name, RoomPlmPlacementDefinition[] records) =>
+    internal static RoomPlmPopulation FromRecords(string name, RoomPlmPlacementDefinition[] records) =>
         new(name, Ensure.NotNull(records).Select(record => new RoomPlmPlacement(
-            RoomPlmHeaderDefinitions.Get(record.Header), record.Block, record.Argument, CannonControl: record.CannonControl)
+            RoomPlmHeaders.Get(record.Header), record.Block, record.Argument, CannonControl: record.CannonControl)
             { CompiledScrollProgram = record.ScrollProgram }));
 
     /// <summary>Copies one placement's payloads and rejects malformed scroll programs or collectible graphics.</summary>
@@ -56,7 +56,7 @@ public sealed class RoomPlmPopulationDefinition
         else if (placement.Header.Header == PlmHeaderId.ScrollTrigger)
         {
             if (program.Length is < 1 or > 2 * RoomScrollGrid.StorageByteCount - 1 ||
-                program.Length % 2 == 0 || (program[^1] & 0x80) == 0)
+                program.Length % 2 == 0 || (program[^1] & RoomPlmScrollProgramDefinitions.EndMarkerBit) == 0)
                 throw new InvalidDataException("A decoded scroll PLM needs a bounded, terminated pair program.");
             for (int offset = 0; offset < program.Length - 1; offset += 2)
             {

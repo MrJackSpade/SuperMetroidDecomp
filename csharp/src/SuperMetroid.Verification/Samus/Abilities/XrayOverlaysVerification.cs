@@ -61,7 +61,7 @@ internal static class XrayOverlaysVerification
             "an overlay flipped both ways only swaps the block's rows");
         AssertEqual(null, map[XrayRevealLayout.MetatileColumns - 1], "special-room overlay excludes the fine-scroll seventeenth column");
         Array.Clear(map);
-        items[0] = items[0] with { RoomArgument = ushort.MaxValue };
+        items[0] = items[0] with { ItemBit = null };
         system.SetCollectedItemBit(2);
         XrayRevealOverlays.Apply(level, map, items, system, null, new(16, 16), visuals);
         AssertTrue(map.All(block => block is null), "negative item arguments and collected items leave the reveal unchanged");

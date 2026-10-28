@@ -75,7 +75,7 @@ internal static class DownwardGatePlmsVerification
     {
         foreach ((PlmHeaderId header, int source) in new[] { new VerifyDownwardGateHeaderDefinitionsCase(PlmHeaderId.DownwardGate, 0x84c82c), new VerifyDownwardGateHeaderDefinitionsCase(PlmHeaderId.DownwardGateShotBlock, 0x84c838) })
         {
-            AssertEqual(header, RoomPlmHeaderDefinitions.Get(header).Header, "Gate compiled-population header");
+            AssertEqual(header, RoomPlmHeaders.Get(header).Header, "Gate compiled-population header");
             AssertEqual(unchecked((ushort)(source - 2)), PlmNativeWords.Word(header), "Gate header word precedes its first-list word");
         }
     }
@@ -260,12 +260,12 @@ internal static class DownwardGatePlmsVerification
         ushort argument = unchecked((ushort)(((byte)trigger - 0x46) * 2));
         // Supply imported placements directly. Cartridge header reads belong to import;
         // the guard below prohibits them only while the production runtime sets up slots.
-        var population = new RoomPlmPopulationDefinition($"$8F:{populationPointer:X4}",
+        var population = new RoomPlmPopulation($"$8F:{populationPointer:X4}",
         [
-            new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.DownwardGate),
-                new(gateX, gateY), 0),
-            new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.DownwardGateShotBlock),
-                new(gateX, gateY), argument),
+            new RoomPlmPlacement(RoomPlmHeaders.Get(PlmHeaderId.DownwardGate),
+                new(gateX, gateY), null),
+            new RoomPlmPlacement(RoomPlmHeaders.Get(PlmHeaderId.DownwardGateShotBlock),
+                new(gateX, gateY), PlmRoomArgumentWords.Decode(PlmHeaderId.DownwardGateShotBlock, argument)),
         ]);
         SeedDownwardGateProjectileRom(bus);
 

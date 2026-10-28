@@ -7,7 +7,7 @@ internal static class InstalledRoomPlmKraidVisualsAccess
     {
         /// <summary>Builds stock Kraid PLM art from the visual bits of its physical draw words.</summary>
         internal static InstalledRoomPlmKraidVisuals Stock() => new(
-            KraidRoomPlmDrawDefinitions.All.Select(draw =>
+            KraidRoomPlmDraws.All.Select(draw =>
                 new RoomPlmVisualEntry(
                     KraidRoomPlmDraws.VisualId(draw.Draw),
                     draw.VisualWords())));

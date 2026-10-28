@@ -33,7 +33,7 @@ internal static class PlmVisualDomainDefinitions
         "SuperMetroid.Core.Bosses.SporeSpawn.Artwork.RoomPlmSporeSpawnCeilingVisualCatalog" => SporeSpawnCeilingPlmDrawDefinitions.All.ToArray(),
         "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmSamusEaterVisuals" => SamusEaterPlmDraws.All.ToArray(),
         "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmBotwoonWallVisuals" => BotwoonWallPlmDraws.All.ToArray(),
-        "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmKraidVisuals" => KraidRoomPlmDrawDefinitions.All.ToArray(),
+        "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmKraidVisuals" => KraidRoomPlmDraws.All.ToArray(),
         "SuperMetroid.Core.Bosses.Crocomire.Artwork.RoomPlmCrocomireVisualCatalog" => CrocomireArenaPlmDrawDefinitions.All.ToArray(),
         "SuperMetroid.Core.Bosses.MotherBrain.Artwork.RoomPlmMotherBrainFakeDeathVisualCatalog" => MotherBrainFakeDeathPlmDrawDefinitions.All.ToArray(),
         // All includes the supported closed/mirrored aliases, not just the

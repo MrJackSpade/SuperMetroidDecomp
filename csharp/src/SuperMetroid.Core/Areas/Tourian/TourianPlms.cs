@@ -33,7 +33,8 @@ internal sealed class TourianPlms
     /// </summary>
     internal static void SetupMetroidsClearedSlot(PlmSlot slot)
     {
-        slot.PreInstruction = TourianPreInstructions.MetroidsClearedFor(slot.RoomArgument);
+        slot.PreInstruction = TourianPreInstructions.MetroidsClearedFor((slot.Argument as MetroidRoomArgument
+            ?? throw new InvalidDataException($"Metroids-cleared PLM at block {slot.BlockIndex} was placed without its entry.")).Entry);
         slot.StartAnimation(new RoomPlmSharedAnimation(RoomPlmSharedProgram.Sleep));
     }
 

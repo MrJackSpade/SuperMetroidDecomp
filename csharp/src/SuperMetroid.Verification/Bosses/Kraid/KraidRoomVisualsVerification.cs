@@ -37,7 +37,7 @@ internal static class KraidRoomVisualsVerification
             InstalledRoomPlmKraidVisuals stock =
                 installation.LoadRoomPlmKraidVisuals();
             foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in
-                     KraidRoomPlmDrawDefinitions.All)
+                     KraidRoomPlmDraws.All)
             {
                 for (int block = 0; block < draw.Runs.Span[0].LevelWords.Length;
                      block++)

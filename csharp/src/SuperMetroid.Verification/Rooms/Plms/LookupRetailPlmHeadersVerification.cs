@@ -27,16 +27,16 @@ internal static class LookupRetailPlmHeadersVerification
         AssertEqual(70, exported.Length, "Retail header enumeration count");
         for (int index = 0; index < headers.Length; index++)
             AssertEqual(headers[index], PlmNativeWords.Word(exported[index].Header), "Retail header ascending enumeration");
-        AssertThrows<InvalidOperationException>(() => RoomPlmHeaderDefinitions.Get((PlmHeaderId)(-1)), "Undefined header identities fail");
+        AssertThrows<InvalidOperationException>(() => RoomPlmHeaders.Get((PlmHeaderId)(-1)), "Undefined header identities fail");
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             ushort word = (ushort)raw;
             if (!PlmNativeWords.Headers.TryDecode(word, out PlmHeaderId header))
                 continue;
             if (!headers.Contains(word))
-                AssertThrows<InvalidDataException>(() => RoomPlmHeaderDefinitions.Get(header), "Retail header rejects all unsupported headers");
+                AssertThrows<InvalidDataException>(() => RoomPlmHeaders.Get(header), "Retail header rejects all unsupported headers");
             else
-                AssertEqual(header, RoomPlmHeaderDefinitions.Get(header).Header, "Retail header identity preserved");
+                AssertEqual(header, RoomPlmHeaders.Get(header).Header, "Retail header identity preserved");
         }
         // Native records independently establish which header identities the retail
         // populations reference; expected pointer fields never come from the new cases.

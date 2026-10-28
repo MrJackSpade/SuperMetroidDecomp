@@ -106,7 +106,7 @@ internal sealed class BgArtworkBytes
 
     /// <summary>The graphics PLM population import supplied for its placements' permanent items, each kind once.</summary>
     /// <exception cref="InvalidDataException">Two placements supply one kind different graphics.</exception>
-    internal BgArtworkBytes WithSuppliedCollectibles(RoomPlmPopulationDefinition population)
+    internal BgArtworkBytes WithSuppliedCollectibles(RoomPlmPopulation population)
     {
         Ensure.NotNull(population);
         var supplied = new Dictionary<InWorldCollectibleKind, ReadOnlyMemory<byte>>();

@@ -115,7 +115,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     public IReadOnlyList<CollectiblePlmSnapshot> Collectibles => _slotTable.Slots
         .Where(slot => slot.Active)
         .SelectMany(slot => slot.Family is CollectiblePlmState { } item
-            ? [new CollectiblePlmSnapshot(slot.Header, slot.BlockIndex, slot.RoomArgument, item.Kind, item.GraphicsSlot)]
+            ? [new CollectiblePlmSnapshot(slot.Header, slot.BlockIndex, (slot.Argument as CollectedItemArgument)?.ItemBit, item.Kind, item.GraphicsSlot)]
             : Array.Empty<CollectiblePlmSnapshot>())
         .ToArray();
 
@@ -190,8 +190,8 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         BgArtworkBindings backgrounds = room.Backgrounds;
         SharedGameState system = room.System;
         RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
-        bool collected = unchecked((short)slot.RoomArgument) >= 0 &&
-            system.HasCollectedItemBit(slot.RoomArgument);
+        bool collected = slot.Argument is CollectedItemArgument placedItem &&
+            system.HasCollectedItemBit(placedItem.ItemBit);
         int graphicsSlot = UsesDynamicGraphics(kind)
             ? LoadDynamicCollectibleGraphics(backgrounds, kind, suppliedGraphic)
             : -1;
@@ -483,8 +483,8 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         SharedGameState system = _system
             ?? throw new InvalidOperationException("A live collectible has no persistence owner.");
 
-        if (unchecked((short)slot.RoomArgument) >= 0)
-            system.SetCollectedItemBit(slot.RoomArgument);
+        if (slot.Argument is CollectedItemArgument collectedItem)
+            system.SetCollectedItemBit(collectedItem.ItemBit);
         ApplyCollectibleEffect(samus, item.Kind);
 
         var pickup = new CollectiblePickupEvent(

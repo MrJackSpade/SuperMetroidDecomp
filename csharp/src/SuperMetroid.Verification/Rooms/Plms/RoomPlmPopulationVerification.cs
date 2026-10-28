@@ -185,12 +185,12 @@ internal static class RoomPlmPopulationVerification
             const ushort population = 0x9000;
             byte blockX = (byte)(1 + definitionIndex % 4);
             byte blockY = (byte)(1 + definitionIndex / 4);
-            var decoded = new RoomPlmPopulationDefinition($"$8F:{population:X4}",
+            var decoded = new RoomPlmPopulation($"$8F:{population:X4}",
             [
                 // Two directional caps are not placed in any retail room population,
                 // so they are absent from the 70-header population catalog.
                 new RoomPlmPlacement(new RoomPlmHeaderDefinition(header),
-                    new(blockX, blockY), 0x8000), // Negative argument always closes.
+                    new(blockX, blockY), PlmRoomArgumentWords.Decode(header, 0x8000)), // Negative argument always closes.
             ]);
 
             RoomLevelData level = CreateRoom(new(8, 8),
@@ -742,12 +742,12 @@ internal static class RoomPlmPopulationVerification
         const int inRoomX = 2;
         const int inRoomY = 2;
 
-        var decoded = new RoomPlmPopulationDefinition($"$8F:{population:X4}",
+        var decoded = new RoomPlmPopulation($"$8F:{population:X4}",
         [
-            new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.GreenDoorFacingRight),
-                new(offRoomX, offRoomY), 0x27),
-            new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.GreenDoorFacingLeft),
-                new(inRoomX, inRoomY), 0x28),
+            new RoomPlmPlacement(RoomPlmHeaders.Get(PlmHeaderId.GreenDoorFacingRight),
+                new(offRoomX, offRoomY), new DoorBitArgument(0x27, Persists: true)),
+            new RoomPlmPlacement(RoomPlmHeaders.Get(PlmHeaderId.GreenDoorFacingLeft),
+                new(inRoomX, inRoomY), new DoorBitArgument(0x28, Persists: true)),
         ]);
 
         RoomLevelData level = CreateRoom(new(width, height),
@@ -772,10 +772,10 @@ internal static class RoomPlmPopulationVerification
         AssertEqual(0xc004, level.GetCollisionBlock(new(inRoomX, inRoomY)).PackedWord.Raw,
             "in-room record following the harmless tail actor still draws normally");
 
-        var malformed = new RoomPlmPopulationDefinition($"$8F:{malformedPopulation:X4}",
+        var malformed = new RoomPlmPopulation($"$8F:{malformedPopulation:X4}",
         [
-            new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.ScrollTrigger),
-                new(offRoomX, offRoomY), 0x9800, new byte[] { 0x80 }),
+            new RoomPlmPlacement(RoomPlmHeaders.Get(PlmHeaderId.ScrollTrigger),
+                new(offRoomX, offRoomY), null, new byte[] { 0x80 }),
         ]);
         AssertThrows<ArgumentOutOfRangeException>(
             () => PlmFixtures.LoadPopulation(PlmFixtures.Unbound(), new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Brinstar), malformed, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),

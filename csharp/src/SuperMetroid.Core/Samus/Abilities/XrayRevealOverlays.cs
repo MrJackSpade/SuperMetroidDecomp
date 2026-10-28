@@ -32,7 +32,7 @@ public static class XrayRevealOverlays
         for (int i = items.Count - 1; i >= 0; i--)
         {
             CollectiblePlmSnapshot item = items[i];
-            if (unchecked((short)item.RoomArgument) < 0 || system.HasCollectedItemBit(item.RoomArgument)) continue;
+            if (item.ItemBit is not { } itemBit || system.HasCollectedItemBit(itemBit)) continue;
             // The four tanks draw from the dynamic slots that follow the loaded item graphics, in tank order.
             int graphics = item.Kind switch
             {

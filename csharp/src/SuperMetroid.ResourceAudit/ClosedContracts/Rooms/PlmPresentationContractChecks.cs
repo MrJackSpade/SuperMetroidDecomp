@@ -227,7 +227,7 @@ internal static class PlmPresentationContractChecks
             new RoomPlmVisualEntry(BotwoonWallPlmDraws.VisualId(frame.Draw),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new InstalledRoomPlmBotwoonWallVisuals(entries));
-        ConfirmCoverage(KraidRoomPlmDrawDefinitions.All, frame =>
+        ConfirmCoverage(KraidRoomPlmDraws.All, frame =>
             new RoomPlmVisualEntry(KraidRoomPlmDraws.VisualId(frame.Draw),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new InstalledRoomPlmKraidVisuals(entries));

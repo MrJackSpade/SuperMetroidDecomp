@@ -109,7 +109,7 @@ internal static class LookupRetailPopulationsVerification
                     0 => PlmNativeWords.Word(placement.Header.Header),
                     1 => placement.Block.X,
                     2 => placement.Block.Y,
-                    3 => placement.RoomArgument,
+                    3 => placement.NativeRoomArgument,
                     _ => 0,
                 };
                 if (field == 3 && placement.CannonControl is { } control)

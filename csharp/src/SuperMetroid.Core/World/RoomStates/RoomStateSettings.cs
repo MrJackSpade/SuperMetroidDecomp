@@ -19,7 +19,7 @@ public sealed record RoomStateSettings(
     SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinition Scroll,
     SuperMetroid.Core.Rooms.Xray.XrayRoomOverlayDefinition? XrayOverlay,
     RoomMainCallback MainCallback,
-    SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinition PlmPopulation,
+    SuperMetroid.Core.Rooms.Plms.RoomPlmPopulation PlmPopulation,
     SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundProgram? Background,
     RoomSetupCallback SetupCallback)
 {

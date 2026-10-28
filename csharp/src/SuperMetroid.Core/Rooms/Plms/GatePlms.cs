@@ -73,7 +73,8 @@ internal sealed class GatePlms : IPlmFamilySource
     /// <summary>Installs a side trigger's selected instruction list and authored neighboring shot-block words.</summary>
     internal static void SetupDownwardGateShotBlock(RoomLevelData level, PlmSlot slot)
     {
-        DownwardGateShotBlockDefinition definition = DownwardGateShotBlock(slot.RoomArgument);
+        DownwardGateShotBlockDefinition definition = DownwardGateShotBlock((slot.Argument as GateTriggerArgument
+            ?? throw new InvalidDataException($"Downward gate shot block at block {slot.BlockIndex} was placed without its trigger.")).Trigger);
         slot.StartAnimation(new DownwardGatePlmAnimation(definition.Program));
 
         // Setup $C6E0 performs independent left and right writes even though every authored
@@ -86,20 +87,13 @@ internal sealed class GatePlms : IPlmFamilySource
     }
 
     /// <summary>
-    /// The shot-block trigger an even room argument selects: half the argument is the trigger's position in
-    /// <see cref="DownwardGateShotBlockDefinitions.Triggers"/>. An odd argument, or one past the last trigger, names no
-    /// color and side and is rejected.
+    /// The shot-block trigger at <paramref name="trigger"/> in <see cref="DownwardGateShotBlockDefinitions.Triggers"/>;
+    /// a position past the last trigger names no color and side and is rejected.
     /// </summary>
-    internal static DownwardGateShotBlockDefinition DownwardGateShotBlock(int roomArgument)
-    {
-        int lastRoomArgument = (DownwardGateShotBlockDefinitions.Triggers.Count - 1) * sizeof(ushort);
-        if ((roomArgument & 1) != 0 || roomArgument > lastRoomArgument)
-        {
-            throw new InvalidDataException(
-                $"Downward gate shot-block argument ${roomArgument:X4} does not name one of the eight colors and sides.");
-        }
-        return DownwardGateShotBlockDefinitions.Triggers[roomArgument / sizeof(ushort)];
-    }
+    internal static DownwardGateShotBlockDefinition DownwardGateShotBlock(int trigger) =>
+        (uint)trigger < (uint)DownwardGateShotBlockDefinitions.Triggers.Count
+            ? DownwardGateShotBlockDefinitions.Triggers[trigger]
+            : throw new InvalidDataException($"Downward gate trigger {trigger} does not name one of the eight colors and sides.");
 
     /// <summary>Writes a trigger's foreground word and its low-byte behavior to one collision block.</summary>
     /// <remarks>The trigger's BTS is the word's low byte: its visual block index, which selects the trigger's color and side.</remarks>

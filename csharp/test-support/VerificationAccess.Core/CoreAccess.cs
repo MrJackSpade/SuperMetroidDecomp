@@ -265,7 +265,7 @@ internal static class CoreAccess
                     .Where(entry => entry.Slot.Active)
                     .OrderByDescending(entry => entry.Index)
                     .SelectMany(entry => entry.Slot.Family is StationPlms.StationPlmState station
-                        ? [new StationPlmSnapshot(entry.Index, entry.Slot.BlockIndex, checked((ushort)entry.Slot.RoomArgument),
+                        ? [new StationPlmSnapshot(entry.Index, entry.Slot.BlockIndex, entry.Slot.NativeRoomArgument,
                             station.Kind, station.Triggered, station.SavePhase, lockedOut)]
                         : Array.Empty<StationPlmSnapshot>())
                     .ToArray();

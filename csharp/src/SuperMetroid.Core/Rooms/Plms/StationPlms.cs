@@ -154,7 +154,7 @@ internal sealed class StationPlms : IPlmFamilySource
     private StationPlmState FindSaveStation(StationActivationEvent activation)
     {
         StationPlmState[] matches = _slotTable.Slots
-            .Where(slot => slot.Active && slot.RoomArgument == activation.StationIndex)
+            .Where(slot => slot.Active && slot.Argument is StationArgument station && station.Station == activation.StationIndex)
             .Select(slot => slot.Family as StationPlmState)
             .OfType<StationPlmState>()
             .Where(station => station.Kind == StationKind.Save && station.AreaIndex == activation.AreaIndex)
@@ -875,7 +875,7 @@ internal sealed class StationPlms : IPlmFamilySource
                 StationKind.Save,
                 GameplayMessageIds.SaveCompleted,
                 station.AreaIndex,
-                slot.RoomArgument,
+                StationNumber(slot),
                 slot.BlockIndex));
             return true;
         }
@@ -946,9 +946,13 @@ internal sealed class StationPlms : IPlmFamilySource
             station.Kind,
             message,
             station.AreaIndex,
-            slot.RoomArgument,
+            StationNumber(slot),
             slot.BlockIndex));
     }
+
+    /// <summary>The number a station was placed with, which its activation events carry.</summary>
+    private static int StationNumber(PlmSlot slot) => (slot.Argument as StationArgument
+        ?? throw new InvalidDataException($"Station at block {slot.BlockIndex} was placed without its number.")).Station;
 
     /// <summary>Draws the station access arm at its captured collision block in the short or extended pose.</summary>
     private void DrawStationAccess(RoomLevelData level, StationPlmState station, StationAccessPose pose)

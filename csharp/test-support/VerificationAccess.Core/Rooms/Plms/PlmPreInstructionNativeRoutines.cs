@@ -31,8 +31,9 @@ internal static class PlmPreInstructionNativeRoutines
     /// <summary>The routine a Metroids-cleared PLM installs for <paramref name="roomArgument"/>.</summary>
     internal static ushort MetroidsCleared(ushort roomArgument)
     {
-        MetroidsClearedEvents.ResolveEvent(roomArgument);
-        int entry = roomArgument / 2;
+        int entry = PlmRoomArgumentWords.Decode(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, roomArgument) is MetroidRoomArgument metroids
+            ? metroids.Entry : throw new InvalidDataException($"Metroids-cleared argument ${roomArgument:X4} decodes to no entry.");
+        MetroidsClearedEvents.ResolveEvent(entry);
         return (ushort)(entry < 9 ? MetroidsClearedFirstNoOp + entry : MetroidsClearedFirstQuotaObserver + (entry - 9) * 16);
     }
 
@@ -68,7 +69,7 @@ internal static class PlmPreInstructionNativeRoutines
                      .Where(routine => routine != SpeedBoosterEscapePreInstruction.None))
             routines.Add(SpeedBoosterEscapePreInstructions.Of(routine), PlmPreInstructionNativeWords.SpeedBoosterEscape.Word(routine));
         for (ushort roomArgument = 0; roomArgument < 26; roomArgument += 2)
-            routines.Add(TourianPreInstructions.MetroidsClearedFor(roomArgument), MetroidsCleared(roomArgument));
+            routines.Add(TourianPreInstructions.MetroidsClearedFor(roomArgument / 2), MetroidsCleared(roomArgument));
         return routines;
     }
 }

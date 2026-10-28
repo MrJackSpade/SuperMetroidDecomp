@@ -82,7 +82,7 @@ internal sealed class ScrollPlms : IPlmFamilySource
             int offset = pairIndex * 2;
             if (offset >= program.Length)
                 throw new InvalidDataException(
-                    $"Scroll PLM program $8F:{slot.RoomArgument:X4} ended without a terminator.");
+                    $"Scroll PLM program at block {slot.BlockIndex} ended without a terminator.");
             int scrollIndex = program.Span[offset];
             if (unchecked((sbyte)scrollIndex) < 0)
             {
@@ -92,16 +92,16 @@ internal sealed class ScrollPlms : IPlmFamilySource
 
             if (offset + 1 >= program.Length)
                 throw new InvalidDataException(
-                    $"Scroll PLM program $8F:{slot.RoomArgument:X4} lacks a state byte.");
+                    $"Scroll PLM program at block {slot.BlockIndex} lacks a state byte.");
             scrolls.SetStorage(
                 scrollIndex,
                 RoomScrollStates.FromAuthoredByte(
                     program.Span[offset + 1],
-                    $"scroll PLM program $8F:{slot.RoomArgument:X4} pair {pairIndex}"));
+                    $"scroll PLM program at block {slot.BlockIndex} pair {pairIndex}"));
         }
 
         throw new InvalidDataException(
-            $"Scroll PLM data $8F:{slot.RoomArgument:X4} has no negative terminator.");
+            $"Scroll PLM data at block {slot.BlockIndex} has no negative terminator.");
     }
 
     /// <summary>Restores the type-$3 special-air trigger and rearms its waiting instruction list.</summary>

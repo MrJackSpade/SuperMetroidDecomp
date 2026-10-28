@@ -327,12 +327,12 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
         {
             // Setup $DF4C only moves the original argument to PLM_Variable and seeds three.
             // Its list begins at the damage instruction, which owns the terrain mutation.
-            slot.RoomArgument = DraygonCannonDefinitions.HitsToDestroy;
+            slot.HitCounter = DraygonCannonDefinitions.HitsToDestroy;
             slot.StartAnimation(new DraygonCannonPlmAnimation(DraygonCannonPlmProgramDefinitions.DestroyProgram(orientation)));
             return;
         }
 
-        slot.RoomArgument = 0;
+        slot.HitCounter = 0;
         slot.StartAnimation(new DraygonCannonPlmAnimation(DraygonCannonPlmProgramDefinitions.StartProgram(orientation)));
         WriteDraygonCannonTypeAndBts(
             level,
@@ -354,7 +354,7 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
 
         SamusProjectileFamily family = new SamusProjectileTypeWord(checked((ushort)slot.LoopTimer)).Family;
         if (family == SamusProjectileFamily.SuperMissile)
-            slot.RoomArgument = DraygonCannonDefinitions.SuperMissileHitCounterSeed;
+            slot.HitCounter = DraygonCannonDefinitions.SuperMissileHitCounterSeed;
         else if (family != SamusProjectileFamily.Missile)
             return;
 
@@ -371,13 +371,13 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
     {
         // Setup clears the counter and a Super Missile seeds it at 119; the destroying hit stops the counting, so the
         // count never reaches the byte's wrap.
-        int next = slot.RoomArgument + 1;
+        int next = slot.HitCounter + 1;
         if (next < DraygonCannonDefinitions.HitsToDestroy)
         {
-            slot.RoomArgument = next;
+            slot.HitCounter = next;
             return false;
         }
-        slot.RoomArgument = ushort.MaxValue;
+        slot.HitCounter = ushort.MaxValue;
         slot.PreInstruction = PlmPreInstructions.Inert;
         return true;
     }

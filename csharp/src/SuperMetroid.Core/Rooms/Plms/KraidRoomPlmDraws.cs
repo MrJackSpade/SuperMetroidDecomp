@@ -77,4 +77,21 @@ internal static class KraidRoomPlmDraws
         internal ushort WordAt(int index) =>
             (uint)index < (uint)BlockCount ? LevelWord(Frame, index) : throw new ArgumentOutOfRangeException(nameof(index));
     }
+
+    /// <summary>Materializes temporary native-shaped records for asset import/export and
+    /// inspection. Gameplay reads Draw.WordAt directly; no generated draw cache exists.</summary>
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
+    {
+        get
+        {
+            foreach (KraidRoomDraw frame in Enum.GetValues<KraidRoomDraw>())
+            {
+                var draw = new Draw(frame);
+                ushort[] words = new ushort[draw.BlockCount];
+                for (int block = 0; block < words.Length; block++) words[block] = draw.WordAt(block);
+                yield return new(PlmDraw.Of(frame),
+                    new RoomPlmShotBlockDrawDefinitions.Run[] { new(PlmRunDirection.Horizontal, words, new(0, 0)) });
+            }
+        }
+    }
 }

@@ -22,7 +22,7 @@ public static class RoomPlmKraidVisualFiles
         string sourceCartridgeSha256) =>
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
             VisualFileName, "Kraid room",
-            KraidRoomPlmDrawDefinitions.All,
+            KraidRoomPlmDraws.All,
             KraidRoomPlmDraws.VisualId);
 
     /// <summary>Checks the installed stock Kraid layouts and selects a complete optional artwork replacement without changing collision or crumble timing.</summary>
@@ -35,7 +35,7 @@ public static class RoomPlmKraidVisualFiles
     public static InstalledRoomPlmKraidVisuals Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<InstalledRoomPlmKraidVisuals>(VisualFileName, "Kraid room", KraidRoomPlmDrawDefinitions.All, KraidRoomPlmDraws.VisualId, entries => new InstalledRoomPlmKraidVisuals(entries.Select(entry =>
+            new RoomPlmVisualFamily<InstalledRoomPlmKraidVisuals>(VisualFileName, "Kraid room", KraidRoomPlmDraws.All, KraidRoomPlmDraws.VisualId, entries => new InstalledRoomPlmKraidVisuals(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetWord(draw, run, block)));
 
     /// <summary>Validates the stock Kraid installation through <see cref="Load"/> with no override, cartridge reads, or file writes.</summary>

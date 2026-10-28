@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <summary>Compiled fixed initialization records for the Ceres steam actor.</summary>
 public static class CeresSteamDefinitions
 {
-    /// <summary>The live random bits $A6:EFD9 keeps for a vent's activation delay, before adding one.</summary>
-    internal const ushort ActivationDelayMask = 0x001f;
+    /// <summary>The random selection $A6:EFD9 draws for a vent's activation delay, before adding one: 32 delays.</summary>
+    internal static readonly RandomSampleField ActivationDelay = new(0, 5);
 
     /// <summary>The variant each authored population parameter-one value selects.</summary>
     internal static readonly ParameterVariants<CeresSteamVariant> Variants = new(new Dictionary<int, CeresSteamVariant>

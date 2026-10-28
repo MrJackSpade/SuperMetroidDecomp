@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class RoomPlmBombedRevealDrawDefinitions
 {
     /// <summary>The single level word each bombed reveal draws.</summary>
-    internal static readonly IReadOnlyDictionary<RoomPlmBombedRevealDraw, ushort> Words = new Dictionary<RoomPlmBombedRevealDraw, ushort>
+    internal static readonly IReadOnlyDictionary<RoomPlmBombedRevealDraw, RoomLevelWord> Words = new Dictionary<RoomPlmBombedRevealDraw, RoomLevelWord>
     {
-        [RoomPlmBombedRevealDraw.PowerBomb] = RoomLevelWord.Create(0x057, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock).Raw,
-        [RoomPlmBombedRevealDraw.SuperMissile] = RoomLevelWord.Create(0x09f, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock).Raw,
-        [RoomPlmBombedRevealDraw.CrumbleSingle] = RoomLevelWord.Create(0x0bc, LevelBlockFlipFlags.None, RoomCollisionType.SpecialBlock).Raw,
+        [RoomPlmBombedRevealDraw.PowerBomb] = RoomLevelWord.Create(0x057, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock),
+        [RoomPlmBombedRevealDraw.SuperMissile] = RoomLevelWord.Create(0x09f, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock),
+        [RoomPlmBombedRevealDraw.CrumbleSingle] = RoomLevelWord.Create(0x0bc, LevelBlockFlipFlags.None, RoomCollisionType.SpecialBlock),
     };
 }

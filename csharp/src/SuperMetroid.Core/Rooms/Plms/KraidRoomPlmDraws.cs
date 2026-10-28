@@ -30,13 +30,17 @@ internal static class KraidRoomPlmDraws
     /// Full words retain collision nibbles; editable visual overrides are applied later.</remarks>
     private static ushort LevelWord(KraidRoomDraw draw, int index) => draw switch
     {
-        KraidRoomDraw.ClearCeiling => LevelWord(index == 0 ? KraidRoomDraw.CeilingBackground1
-            : (index & 1) != 0 ? KraidRoomDraw.CeilingBackground2 : KraidRoomDraw.CeilingBackground3, 0),
-        KraidRoomDraw.ClearSpikes => LevelWord((index & 1) == 0 ? KraidRoomDraw.SpikeFirst : KraidRoomDraw.SpikeSecond, 0),
-        _ => FixedWords.TryGetValue(draw, out ushort word)
-            ? word
-            : throw new InvalidOperationException($"Undefined {nameof(KraidRoomDraw)} {draw}."),
+        KraidRoomDraw.ClearCeiling => FixedWord(index == 0 ? KraidRoomDraw.CeilingBackground1
+            : (index & 1) != 0 ? KraidRoomDraw.CeilingBackground2 : KraidRoomDraw.CeilingBackground3),
+        KraidRoomDraw.ClearSpikes => FixedWord((index & 1) == 0 ? KraidRoomDraw.SpikeFirst : KraidRoomDraw.SpikeSecond),
+        KraidRoomDraw.CrumbleFirst or KraidRoomDraw.CrumbleSecond or KraidRoomDraw.CrumbleThird or
+        KraidRoomDraw.CeilingBackground1 or KraidRoomDraw.CeilingBackground2 or KraidRoomDraw.CeilingBackground3 or
+        KraidRoomDraw.SpikeFirst or KraidRoomDraw.SpikeSecond => FixedWord(draw),
+        _ => throw new InvalidOperationException($"Undefined {nameof(KraidRoomDraw)} {draw}."),
     };
+
+    /// <summary>The level word of a single named crumble, background or spike block.</summary>
+    private static ushort FixedWord(KraidRoomDraw draw) => FixedWords[draw].Raw;
 
     /// <summary>Resolves an ordinal artwork identifier to its calculated Kraid draw.</summary>
     internal static bool TryGetByVisualId(string id, out Draw draw)

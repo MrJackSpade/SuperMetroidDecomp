@@ -745,9 +745,9 @@ internal static class RoomPlmPopulationVerification
         var decoded = new RoomPlmPopulation($"$8F:{population:X4}",
         [
             new RoomPlmPlacement(RoomPlmHeaders.Get(PlmHeaderId.GreenDoorFacingRight),
-                new(offRoomX, offRoomY), new DoorBitArgument(0x27, Persists: true)),
+                new(offRoomX, offRoomY), new DoorBitArgument(0x27, DoorOpeningPersistence.Persistent)),
             new RoomPlmPlacement(RoomPlmHeaders.Get(PlmHeaderId.GreenDoorFacingLeft),
-                new(inRoomX, inRoomY), new DoorBitArgument(0x28, Persists: true)),
+                new(inRoomX, inRoomY), new DoorBitArgument(0x28, DoorOpeningPersistence.Persistent)),
         ]);
 
         RoomLevelData level = CreateRoom(new(width, height),

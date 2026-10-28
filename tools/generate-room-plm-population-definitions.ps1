@@ -57,12 +57,12 @@ public static class PlmHeaderGenerationProcessPolicy {
         }
         if ($name -match '^(Chozo|Exposed|ShotBlock)') { return 'new CollectedItemArgument(0x{0:X2})' -f $word }
         if ($name -match '^(GreyDoor|BombTorizoGreyDoor)') {
-            $persists = if (($word -band 0x8000) -eq 0) { 'true' } else { 'false' }
-            return 'new GreyDoorArgument({0}, new DoorBitArgument(0x{1:X2}, Persists: {2}))' -f (($word -shr 10) -band 0x1f), ($word -band 0x3ff), $persists
+            $persistence = if (($word -band 0x8000) -eq 0) { 'Persistent' } else { 'Transient' }
+            return 'new GreyDoorArgument({0}, new DoorBitArgument(0x{1:X2}, DoorOpeningPersistence.{2}))' -f (($word -shr 10) -band 0x1f), ($word -band 0x3ff), $persistence
         }
         if ($name -match '^((Red|Green|Yellow)Door|EyeDoor)') {
             if (($word -band 0x8000) -ne 0) { throw ('Door {0} argument {1:X4} never persists.' -f $name, $word) }
-            return 'new DoorBitArgument(0x{0:X2}, Persists: true)' -f $word
+            return 'new DoorBitArgument(0x{0:X2}, DoorOpeningPersistence.Persistent)' -f $word
         }
         if ($name -in @('EnergyStation', 'MissileStation', 'SaveStation')) { return 'new StationArgument(0x{0:X2})' -f $word }
         if ($name -eq 'SetMetroidsClearedStatesWhenRequired' -or $name -eq 'DownwardGateShotBlock') {

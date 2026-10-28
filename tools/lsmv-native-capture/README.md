@@ -4,8 +4,8 @@ This Windows console adapter replays an lsnes `.lsmv` movie on the same bsnes v0
 core lsnes records with, and writes the input-consumption trace that
 `../convert-smv-updates.py` reads. It produces the same `input-events.csv` and
 `update-boundaries.wram.gz` formats as `../smv-native-capture`. It does not alter
-the movie or ROM. Keep the build directory, ROM, gzip WRAM traces and generated
-replay private.
+the movie or ROM. Keep the build directory and ROM private; full captures are never
+kept.
 
 ## Build
 
@@ -30,13 +30,12 @@ g++ -o lsmv_capture.exe lsmv_capture.o lsnes/bsnes/obj/*.o zlib-objects/*.o ^
 ## Run
 
 ```text
-python tools/lsmv-native-capture/lsmv-extract.py MOVIE --rom ROM --output WORK/frames.bin
-lsmv_capture.exe ROM WORK/frames.bin OUTPUT_DIRECTORY
-python tools/convert-smv-updates.py MOVIE OUTPUT_DIRECTORY --rom ROM --output OUTPUT_DIRECTORY/updates.json
-dotnet csharp/src/SuperMetroid.Verification/bin/Release/net10.0-windows/SuperMetroid.Verification.dll --compact-replay-trace OUTPUT_DIRECTORY csharp/test-fixtures/replay-traces/low-13-percent
+pwsh -File tools/regenerate-replay-trace.ps1 -Movie MOVIE -Rom ROM -Name low-13-percent -Capture lsmv_capture.exe
 ```
 
-The last command writes the committed compact trace the replay verifier reads; see
+It extracts the movie's frames with `lsmv-extract.py`, runs this adapter, the converter
+and `--compact-replay-trace` in a temporary directory, replaces the committed trace, and
+deletes the full capture once the compactor has verified it; see
 `docs/smv-gameplay-parity.md` under "Replay trace storage".
 
 `lsmv_capture.exe ROM FRAMES OUTPUT --trace START END` instead writes

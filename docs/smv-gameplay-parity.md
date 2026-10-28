@@ -116,9 +116,11 @@ an earlier rule's meaning.
 
 ## Replay trace storage
 
-The native capture adapter writes a private full capture: `updates.json` from the converter
-and `update-boundaries.wram.gz`, whose records each hold the 128 KiB WRAM. Those streams are
-far too large to commit, so the replay verifiers read a committed compact trace instead:
+The native capture adapter writes a full capture: `updates.json` from the converter and
+`update-boundaries.wram.gz`, whose records each hold the 128 KiB WRAM. Those streams run to
+gigabytes, so full captures are never kept: the replay verifiers read a committed compact
+trace instead, and a trace that needs refreshing is regenerated from its movie and the
+pinned ROM.
 
 | Movie | Committed trace | Command |
 | --- | --- | --- |
@@ -130,12 +132,18 @@ far too large to commit, so the replay verifiers read a committed compact trace 
 | Ridley showcase | `csharp/test-fixtures/replay-traces/ridley` | `--ridley-full-movie` |
 
 The no-argument Verification suite runs all six replays from these paths; each command also
-runs one alone. Produce or refresh a trace from its full capture
-(the destination must be absent or empty):
+runs one alone. Produce or refresh a trace with one command:
 
 ```text
-dotnet csharp/src/SuperMetroid.Verification/bin/Release/net10.0-windows/SuperMetroid.Verification.dll --compact-replay-trace SOURCE_DIR DEST_DIR
+pwsh -File tools/regenerate-replay-trace.ps1 -Movie MOVIE -Rom ROM -Name NAME -Capture CAPTURE_EXE
 ```
+
+It runs the native capture (`CAPTURE_EXE` is the built adapter for the movie's format, see
+`tools/smv-native-capture` and `tools/lsmv-native-capture`), the converter and
+`--compact-replay-trace` in a temporary directory, replaces
+`csharp/test-fixtures/replay-traces/NAME` with the compact trace, and only then deletes the
+full capture. If a step fails it stops with that step's error and keeps the capture for
+diagnosis; it never deletes on failure and sets no time limit.
 
 The compactor selects the layout from the movie identity in `updates.json`, writes the trace,
 then reopens it through the verifiers' reader and compares every record's header and layout
@@ -160,8 +168,9 @@ layout serves the Ridley movie. Opening a compact trace checks the format, the l
 against the catalog, every file hash, and that the update manifest names the same movie,
 source capture and initial record. A checkpoint read outside the layout fails with the
 address instead of returning a value, so widening a comparison means extending the catalog
-and recompacting from the full capture. Diagnostics that need complete WRAM after the
-initial record, such as `--snapshot-import-audit`, read the private full capture directly.
+and regenerating the trace. Diagnostics that need complete WRAM after the initial record,
+such as `--snapshot-import-audit`, read a full capture made for that diagnosis with the
+adapter alone, which is deleted once the diagnosis is done.
 
 ## Which movies pass
 

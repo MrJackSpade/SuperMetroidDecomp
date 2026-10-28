@@ -2,7 +2,7 @@
 
 This Windows console adapter instruments Snes9x 1.60 to produce the input-consumption
 trace required by `../convert-smv-updates.py`. It does not alter the movie or ROM.
-Keep the build directory, ROM, movies, gzip WRAM traces and generated replay private.
+Keep the build directory, ROM and movies private. Full captures are never kept.
 
 Use an ignored working directory, with copies of `capture.cpp` and `CMakeLists.txt`.
 Clone Snes9x into `snes9x-160` at commit
@@ -11,22 +11,21 @@ Apply `instrument.py` to that Snes9x checkout, then configure/build with CMake a
 Visual Studio C++ in Release mode. The adapter uses libretro's ordinary execution
 loop and the original `S9xMovieOpen`; it does not shorten the movie.
 
-Run:
+Regenerate a committed trace with:
 
 ```text
-ridley_capture.exe ROM MOVIE OUTPUT_DIRECTORY 0,10890
-python tools/convert-smv-updates.py MOVIE OUTPUT_DIRECTORY --rom ROM --output OUTPUT_DIRECTORY/updates.json
-dotnet csharp/src/SuperMetroid.Verification/bin/Release/net10.0-windows/SuperMetroid.Verification.dll --compact-replay-trace OUTPUT_DIRECTORY csharp/test-fixtures/replay-traces/NAME
+pwsh -File tools/regenerate-replay-trace.ps1 -Movie MOVIE -Rom ROM -Name NAME -Capture ridley_capture.exe
 ```
 
-`OUTPUT_DIRECTORY` is the private full capture; keep it outside the repository or in an
-ignored location such as `native-captures/` (never under `test-temp`, which holds only
-per-run scratch). The replay verifiers read only the committed compact trace that the last
-command writes; its format and the per-movie `NAME` are described in
+It runs this adapter, `../convert-smv-updates.py` and `--compact-replay-trace` in a
+temporary directory, replaces `csharp/test-fixtures/replay-traces/NAME`, and deletes the
+full capture once the compactor has verified the trace; a failed step keeps it for
+diagnosis. The trace format and the per-movie `NAME` are described in
 `docs/smv-gameplay-parity.md` under "Replay trace storage".
 
-Replace `10890` with the supplied movie length. The terminal checkpoint is always
-captured even if it is omitted from the optional comma-separated snapshot list.
+The adapter alone is `ridley_capture.exe ROM MOVIE OUTPUT_DIRECTORY SNAPSHOTS`, where
+`SNAPSHOTS` is a comma-separated list of source frames whose WRAM is also written whole;
+the terminal checkpoint is always captured even if the list omits it.
 The source ROM must be the pinned J/U revision; the converter checks its hash.
 
 Observed instruction boundaries, cross-checked against the pinned disassembly:

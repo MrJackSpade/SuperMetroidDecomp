@@ -94,33 +94,24 @@ int main(int argc,char** argv) {
    out.exceptions(std::ios::failbit|std::ios::badbit); out.write((char*)Memory.RAM,131072);
    fprintf(stderr,"Captured frame %u, room %04X\n",frame,Memory.RAM[0x79b]|Memory.RAM[0x79c]<<8);
   };
-  gzFile trace=gzopen((output/"all-frames.wram.gz").string().c_str(),"wb1");
-  if(!trace) throw std::runtime_error("Cannot open full movie trace");
   updateTrace=gzopen((output/"update-boundaries.wram.gz").string().c_str(),"wb1");
   if(!updateTrace) throw std::runtime_error("Cannot open update trace");
   eventCsv.open(output/"input-events.csv"); eventCsv.exceptions(std::ios::failbit|std::ios::badbit);
   eventCsv << "event,source_frame,pc,held,pressed,nmi,state,door_function\n";
   unsigned loops=0;
-  auto traceFrame=[&](unsigned frame) {
-   if(gzwrite(trace,&frame,sizeof(frame))!=sizeof(frame) || gzwrite(trace,Memory.RAM,131072)!=131072)
-    throw std::runtime_error("Cannot write full movie trace");
-  };
   while(S9xMovieActive()) {
    auto frame=S9xMovieGetFrameCounter();
-   traceFrame(frame);
    if(requested.erase(frame)) write(frame);
    retro_run();
    if(++loops>length+300) throw std::runtime_error("Movie playback did not terminate");
   }
   write(length);
-  traceFrame(length);
   unsigned terminalPc=0;
   if(gzwrite(updateTrace,&length,4)!=4 || gzwrite(updateTrace,&terminalPc,4)!=4 || gzwrite(updateTrace,Memory.RAM,131072)!=131072)
    throw std::runtime_error("Cannot write terminal update state");
   eventCsv.close();
   if(gzclose(updateTrace)!=Z_OK) throw std::runtime_error("Cannot finalize update trace");
   updateTrace=nullptr;
-  if(gzclose(trace)!=Z_OK) throw std::runtime_error("Cannot finalize trace");
   fprintf(stderr,"Completed original movie: %u frames, %u host iterations\n",length,loops);
   retro_unload_game(); retro_deinit(); return 0;
  } catch(const std::exception& e) { fprintf(stderr,"%s\n",e.what()); return 1; }

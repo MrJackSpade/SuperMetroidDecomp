@@ -2942,789 +2942,789 @@ public enum EnemyFrameId
     WallPirateClimbRight3,
     /// <summary><c>wall_pirate_climb_right_4</c>, an installed extended frame.</summary>
     WallPirateClimbRight4,
-    /// <summary><c>ninja_pirate_8A54</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_0</c>, an installed extended frame.</summary>
     NinjaPiratePose0,
-    /// <summary><c>ninja_pirate_8A66</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_1</c>, an installed extended frame.</summary>
     NinjaPiratePose1,
-    /// <summary><c>ninja_pirate_8A78</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_2</c>, an installed extended frame.</summary>
     NinjaPiratePose2,
-    /// <summary><c>ninja_pirate_8A8A</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_3</c>, an installed extended frame.</summary>
     NinjaPiratePose3,
-    /// <summary><c>ninja_pirate_8A9C</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_4</c>, an installed extended frame.</summary>
     NinjaPiratePose4,
-    /// <summary><c>ninja_pirate_8AAE</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_5</c>, an installed extended frame.</summary>
     NinjaPiratePose5,
-    /// <summary><c>ninja_pirate_8AC0</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_6</c>, an installed extended frame.</summary>
     NinjaPiratePose6,
-    /// <summary><c>ninja_pirate_8AD2</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_7</c>, an installed extended frame.</summary>
     NinjaPiratePose7,
-    /// <summary><c>ninja_pirate_8AE4</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_8</c>, an installed extended frame.</summary>
     NinjaPiratePose8,
-    /// <summary><c>ninja_pirate_8D96</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_17</c>, an installed extended frame.</summary>
     NinjaPiratePose17,
-    /// <summary><c>ninja_pirate_8DA0</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_18</c>, an installed extended frame.</summary>
     NinjaPiratePose18,
-    /// <summary><c>ninja_pirate_8DAA</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_19</c>, an installed extended frame.</summary>
     NinjaPiratePose19,
-    /// <summary><c>ninja_pirate_8DB4</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_20</c>, an installed extended frame.</summary>
     NinjaPiratePose20,
-    /// <summary><c>ninja_pirate_8DBE</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_21</c>, an installed extended frame.</summary>
     NinjaPiratePose21,
-    /// <summary><c>ninja_pirate_8DC8</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_22</c>, an installed extended frame.</summary>
     NinjaPiratePose22,
-    /// <summary><c>ninja_pirate_8DD2</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_23</c>, an installed extended frame.</summary>
     NinjaPiratePose23,
-    /// <summary><c>ninja_pirate_8DDC</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_24</c>, an installed extended frame.</summary>
     NinjaPiratePose24,
-    /// <summary><c>ninja_pirate_8F56</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_49</c>, an installed extended frame.</summary>
     NinjaPiratePose49,
-    /// <summary><c>ninja_pirate_8F60</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_50</c>, an installed extended frame.</summary>
     NinjaPiratePose50,
-    /// <summary><c>ninja_pirate_8F6A</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_51</c>, an installed extended frame.</summary>
     NinjaPiratePose51,
-    /// <summary><c>ninja_pirate_8F9C</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_55</c>, an installed extended frame.</summary>
     NinjaPiratePose55,
-    /// <summary><c>ninja_pirate_90FE</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_65</c>, an installed extended frame.</summary>
     NinjaPiratePose65,
-    /// <summary><c>ninja_pirate_900A</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_57</c>, an installed extended frame.</summary>
     NinjaPiratePose57,
-    /// <summary><c>ninja_pirate_9014</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_58</c>, an installed extended frame.</summary>
     NinjaPiratePose58,
-    /// <summary><c>ninja_pirate_8E36</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_33</c>, an installed extended frame.</summary>
     NinjaPiratePose33,
-    /// <summary><c>ninja_pirate_8E48</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_34</c>, an installed extended frame.</summary>
     NinjaPiratePose34,
-    /// <summary><c>ninja_pirate_8E5A</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_35</c>, an installed extended frame.</summary>
     NinjaPiratePose35,
-    /// <summary><c>ninja_pirate_8E6C</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_36</c>, an installed extended frame.</summary>
     NinjaPiratePose36,
-    /// <summary><c>ninja_pirate_8E7E</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_37</c>, an installed extended frame.</summary>
     NinjaPiratePose37,
-    /// <summary><c>ninja_pirate_8E90</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_38</c>, an installed extended frame.</summary>
     NinjaPiratePose38,
-    /// <summary><c>ninja_pirate_8EA2</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_39</c>, an installed extended frame.</summary>
     NinjaPiratePose39,
-    /// <summary><c>ninja_pirate_8EB4</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_40</c>, an installed extended frame.</summary>
     NinjaPiratePose40,
-    /// <summary><c>ninja_pirate_93EA</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_69</c>, an installed extended frame.</summary>
     NinjaPiratePose69,
-    /// <summary><c>ninja_pirate_9404</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_70</c>, an installed extended frame.</summary>
     NinjaPiratePose70,
-    /// <summary><c>ninja_pirate_9416</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_71</c>, an installed extended frame.</summary>
     NinjaPiratePose71,
-    /// <summary><c>ninja_pirate_9476</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_75</c>, an installed extended frame.</summary>
     NinjaPiratePose75,
-    /// <summary><c>ninja_pirate_944A</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_73</c>, an installed extended frame.</summary>
     NinjaPiratePose73,
-    /// <summary><c>ninja_pirate_8F74</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_52</c>, an installed extended frame.</summary>
     NinjaPiratePose52,
-    /// <summary><c>ninja_pirate_8F7E</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_53</c>, an installed extended frame.</summary>
     NinjaPiratePose53,
-    /// <summary><c>ninja_pirate_8F88</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_54</c>, an installed extended frame.</summary>
     NinjaPiratePose54,
-    /// <summary><c>ninja_pirate_9032</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_61</c>, an installed extended frame.</summary>
     NinjaPiratePose61,
-    /// <summary><c>ninja_pirate_9372</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_67</c>, an installed extended frame.</summary>
     NinjaPiratePose67,
-    /// <summary><c>ninja_pirate_903C</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_62</c>, an installed extended frame.</summary>
     NinjaPiratePose62,
-    /// <summary><c>ninja_pirate_8B86</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_9</c>, an installed extended frame.</summary>
     NinjaPiratePose9,
-    /// <summary><c>ninja_pirate_8B98</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_10</c>, an installed extended frame.</summary>
     NinjaPiratePose10,
-    /// <summary><c>ninja_pirate_8BAA</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_11</c>, an installed extended frame.</summary>
     NinjaPiratePose11,
-    /// <summary><c>ninja_pirate_8BBC</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_12</c>, an installed extended frame.</summary>
     NinjaPiratePose12,
-    /// <summary><c>ninja_pirate_8BCE</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_13</c>, an installed extended frame.</summary>
     NinjaPiratePose13,
-    /// <summary><c>ninja_pirate_8BE0</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_14</c>, an installed extended frame.</summary>
     NinjaPiratePose14,
-    /// <summary><c>ninja_pirate_8BF2</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_15</c>, an installed extended frame.</summary>
     NinjaPiratePose15,
-    /// <summary><c>ninja_pirate_8C16</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_16</c>, an installed extended frame.</summary>
     NinjaPiratePose16,
-    /// <summary><c>ninja_pirate_8DE6</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_25</c>, an installed extended frame.</summary>
     NinjaPiratePose25,
-    /// <summary><c>ninja_pirate_8DF0</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_26</c>, an installed extended frame.</summary>
     NinjaPiratePose26,
-    /// <summary><c>ninja_pirate_8DFA</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_27</c>, an installed extended frame.</summary>
     NinjaPiratePose27,
-    /// <summary><c>ninja_pirate_8E04</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_28</c>, an installed extended frame.</summary>
     NinjaPiratePose28,
-    /// <summary><c>ninja_pirate_8E0E</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_29</c>, an installed extended frame.</summary>
     NinjaPiratePose29,
-    /// <summary><c>ninja_pirate_8E18</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_30</c>, an installed extended frame.</summary>
     NinjaPiratePose30,
-    /// <summary><c>ninja_pirate_8E22</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_31</c>, an installed extended frame.</summary>
     NinjaPiratePose31,
-    /// <summary><c>ninja_pirate_8E2C</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_32</c>, an installed extended frame.</summary>
     NinjaPiratePose32,
-    /// <summary><c>ninja_pirate_8FB0</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_56</c>, an installed extended frame.</summary>
     NinjaPiratePose56,
-    /// <summary><c>ninja_pirate_9280</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_66</c>, an installed extended frame.</summary>
     NinjaPiratePose66,
-    /// <summary><c>ninja_pirate_901E</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_59</c>, an installed extended frame.</summary>
     NinjaPiratePose59,
-    /// <summary><c>ninja_pirate_9028</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_60</c>, an installed extended frame.</summary>
     NinjaPiratePose60,
-    /// <summary><c>ninja_pirate_8EC6</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_41</c>, an installed extended frame.</summary>
     NinjaPiratePose41,
-    /// <summary><c>ninja_pirate_8ED8</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_42</c>, an installed extended frame.</summary>
     NinjaPiratePose42,
-    /// <summary><c>ninja_pirate_8EEA</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_43</c>, an installed extended frame.</summary>
     NinjaPiratePose43,
-    /// <summary><c>ninja_pirate_8EFC</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_44</c>, an installed extended frame.</summary>
     NinjaPiratePose44,
-    /// <summary><c>ninja_pirate_8F0E</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_45</c>, an installed extended frame.</summary>
     NinjaPiratePose45,
-    /// <summary><c>ninja_pirate_8F20</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_46</c>, an installed extended frame.</summary>
     NinjaPiratePose46,
-    /// <summary><c>ninja_pirate_8F32</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_47</c>, an installed extended frame.</summary>
     NinjaPiratePose47,
-    /// <summary><c>ninja_pirate_8F44</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_48</c>, an installed extended frame.</summary>
     NinjaPiratePose48,
-    /// <summary><c>ninja_pirate_9430</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_72</c>, an installed extended frame.</summary>
     NinjaPiratePose72,
-    /// <summary><c>ninja_pirate_945C</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_74</c>, an installed extended frame.</summary>
     NinjaPiratePose74,
-    /// <summary><c>ninja_pirate_9046</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_63</c>, an installed extended frame.</summary>
     NinjaPiratePose63,
-    /// <summary><c>ninja_pirate_937C</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_68</c>, an installed extended frame.</summary>
     NinjaPiratePose68,
-    /// <summary><c>ninja_pirate_9050</c>, an installed extended frame.</summary>
+    /// <summary><c>ninja_pirate_pose_64</c>, an installed extended frame.</summary>
     NinjaPiratePose64,
-    /// <summary><c>ridley_body_E983</c>, an installed extended frame.</summary>
+    /// <summary><c>ridley_body_left</c>, an installed extended frame.</summary>
     RidleyBodyLeft,
-    /// <summary><c>ridley_body_E9A5</c>, an installed extended frame.</summary>
+    /// <summary><c>ridley_body_right</c>, an installed extended frame.</summary>
     RidleyBodyRight,
-    /// <summary><c>ridley_body_E9C7</c>, an installed extended frame.</summary>
+    /// <summary><c>ridley_body_left_mouth_half_open</c>, an installed extended frame.</summary>
     RidleyBodyLeftMouthHalfOpen,
-    /// <summary><c>ridley_body_E9E9</c>, an installed extended frame.</summary>
+    /// <summary><c>ridley_body_left_mouth_open</c>, an installed extended frame.</summary>
     RidleyBodyLeftMouthOpen,
-    /// <summary><c>ridley_body_EA0B</c>, an installed extended frame.</summary>
+    /// <summary><c>ridley_body_right_mouth_half_open</c>, an installed extended frame.</summary>
     RidleyBodyRightMouthHalfOpen,
-    /// <summary><c>ridley_body_EA2D</c>, an installed extended frame.</summary>
+    /// <summary><c>ridley_body_right_mouth_open</c>, an installed extended frame.</summary>
     RidleyBodyRightMouthOpen,
-    /// <summary><c>ridley_body_EA4F</c>, an installed extended frame.</summary>
+    /// <summary><c>ridley_body_left_legs_half_extended</c>, an installed extended frame.</summary>
     RidleyBodyLeftLegsHalfExtended,
-    /// <summary><c>ridley_body_EA71</c>, an installed extended frame.</summary>
+    /// <summary><c>ridley_body_left_legs_extended</c>, an installed extended frame.</summary>
     RidleyBodyLeftLegsExtended,
-    /// <summary><c>ridley_body_EA93</c>, an installed extended frame.</summary>
+    /// <summary><c>ridley_body_right_legs_half_extended</c>, an installed extended frame.</summary>
     RidleyBodyRightLegsHalfExtended,
-    /// <summary><c>ridley_body_EAB5</c>, an installed extended frame.</summary>
+    /// <summary><c>ridley_body_right_legs_extended</c>, an installed extended frame.</summary>
     RidleyBodyRightLegsExtended,
-    /// <summary><c>ridley_body_EAD7</c>, an installed extended frame.</summary>
+    /// <summary><c>ridley_body_forward</c>, an installed extended frame.</summary>
     RidleyBodyForward,
-    /// <summary><c>draygon_oam_A2DF</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_0</c>, an installed extended frame.</summary>
     DraygonFrame0,
-    /// <summary><c>draygon_oam_A2E9</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_1</c>, an installed extended frame.</summary>
     DraygonFrame1,
-    /// <summary><c>draygon_oam_A2F3</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_2</c>, an installed extended frame.</summary>
     DraygonFrame2,
-    /// <summary><c>draygon_oam_A2FD</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_3</c>, an installed extended frame.</summary>
     DraygonFrame3,
-    /// <summary><c>draygon_oam_A307</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_4</c>, an installed extended frame.</summary>
     DraygonFrame4,
-    /// <summary><c>draygon_oam_A311</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_5</c>, an installed extended frame.</summary>
     DraygonFrame5,
-    /// <summary><c>draygon_oam_A3C5</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_23</c>, an installed extended frame.</summary>
     DraygonFrame23,
-    /// <summary><c>draygon_oam_A3CF</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_24</c>, an installed extended frame.</summary>
     DraygonFrame24,
-    /// <summary><c>draygon_oam_A3D9</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_25</c>, an installed extended frame.</summary>
     DraygonFrame25,
-    /// <summary><c>draygon_oam_A3E3</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_26</c>, an installed extended frame.</summary>
     DraygonFrame26,
-    /// <summary><c>draygon_oam_A40B</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_27</c>, an installed extended frame.</summary>
     DraygonFrame27,
-    /// <summary><c>draygon_oam_A41D</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_28</c>, an installed extended frame.</summary>
     DraygonFrame28,
-    /// <summary><c>draygon_oam_A42F</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_29</c>, an installed extended frame.</summary>
     DraygonFrame29,
-    /// <summary><c>draygon_oam_A441</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_30</c>, an installed extended frame.</summary>
     DraygonFrame30,
-    /// <summary><c>draygon_oam_A453</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_31</c>, an installed extended frame.</summary>
     DraygonFrame31,
-    /// <summary><c>draygon_oam_A465</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_32</c>, an installed extended frame.</summary>
     DraygonFrame32,
-    /// <summary><c>draygon_oam_A477</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_33</c>, an installed extended frame.</summary>
     DraygonFrame33,
-    /// <summary><c>draygon_oam_A489</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_34</c>, an installed extended frame.</summary>
     DraygonFrame34,
-    /// <summary><c>draygon_oam_A4A3</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_35</c>, an installed extended frame.</summary>
     DraygonFrame35,
-    /// <summary><c>draygon_oam_A4C5</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_36</c>, an installed extended frame.</summary>
     DraygonFrame36,
-    /// <summary><c>draygon_oam_A4EF</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_37</c>, an installed extended frame.</summary>
     DraygonFrame37,
-    /// <summary><c>draygon_oam_A521</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_38</c>, an installed extended frame.</summary>
     DraygonFrame38,
-    /// <summary><c>draygon_oam_A55B</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_39</c>, an installed extended frame.</summary>
     DraygonFrame39,
-    /// <summary><c>draygon_oam_A59D</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_40</c>, an installed extended frame.</summary>
     DraygonFrame40,
-    /// <summary><c>draygon_oam_A607</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_41</c>, an installed extended frame.</summary>
     DraygonFrame41,
-    /// <summary><c>draygon_oam_A611</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_42</c>, an installed extended frame.</summary>
     DraygonFrame42,
-    /// <summary><c>draygon_oam_A61B</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_43</c>, an installed extended frame.</summary>
     DraygonFrame43,
-    /// <summary><c>draygon_oam_A625</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_44</c>, an installed extended frame.</summary>
     DraygonFrame44,
-    /// <summary><c>draygon_oam_A62F</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_45</c>, an installed extended frame.</summary>
     DraygonFrame45,
-    /// <summary><c>draygon_oam_A639</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_46</c>, an installed extended frame.</summary>
     DraygonFrame46,
-    /// <summary><c>draygon_oam_A6ED</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_64</c>, an installed extended frame.</summary>
     DraygonFrame64,
-    /// <summary><c>draygon_oam_A6F7</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_65</c>, an installed extended frame.</summary>
     DraygonFrame65,
-    /// <summary><c>draygon_oam_A701</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_66</c>, an installed extended frame.</summary>
     DraygonFrame66,
-    /// <summary><c>draygon_oam_A70B</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_67</c>, an installed extended frame.</summary>
     DraygonFrame67,
-    /// <summary><c>draygon_oam_A779</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_68</c>, an installed extended frame.</summary>
     DraygonFrame68,
-    /// <summary><c>draygon_oam_A78B</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_69</c>, an installed extended frame.</summary>
     DraygonFrame69,
-    /// <summary><c>draygon_oam_A79D</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_70</c>, an installed extended frame.</summary>
     DraygonFrame70,
-    /// <summary><c>draygon_oam_A7AF</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_71</c>, an installed extended frame.</summary>
     DraygonFrame71,
-    /// <summary><c>draygon_oam_A7C1</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_72</c>, an installed extended frame.</summary>
     DraygonFrame72,
-    /// <summary><c>draygon_oam_A7D3</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_73</c>, an installed extended frame.</summary>
     DraygonFrame73,
-    /// <summary><c>draygon_oam_A7E5</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_74</c>, an installed extended frame.</summary>
     DraygonFrame74,
-    /// <summary><c>draygon_oam_A7F7</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_75</c>, an installed extended frame.</summary>
     DraygonFrame75,
-    /// <summary><c>draygon_oam_A811</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_76</c>, an installed extended frame.</summary>
     DraygonFrame76,
-    /// <summary><c>draygon_oam_A833</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_77</c>, an installed extended frame.</summary>
     DraygonFrame77,
-    /// <summary><c>draygon_oam_A85D</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_78</c>, an installed extended frame.</summary>
     DraygonFrame78,
-    /// <summary><c>draygon_oam_A88F</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_79</c>, an installed extended frame.</summary>
     DraygonFrame79,
-    /// <summary><c>draygon_oam_A8C9</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_80</c>, an installed extended frame.</summary>
     DraygonFrame80,
-    /// <summary><c>draygon_oam_A90B</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_81</c>, an installed extended frame.</summary>
     DraygonFrame81,
-    /// <summary><c>spore_spawn_oam_EE65</c>, an installed extended frame.</summary>
+    /// <summary><c>spore_spawn_dead_0</c>, an installed extended frame.</summary>
     SporeSpawnDead0,
-    /// <summary><c>spore_spawn_oam_EE6F</c>, an installed extended frame.</summary>
+    /// <summary><c>spore_spawn_closed_0</c>, an installed extended frame.</summary>
     SporeSpawnClosed0,
-    /// <summary><c>spore_spawn_oam_EE79</c>, an installed extended frame.</summary>
+    /// <summary><c>spore_spawn_opening_0</c>, an installed extended frame.</summary>
     SporeSpawnOpening0,
-    /// <summary><c>spore_spawn_oam_EE8B</c>, an installed extended frame.</summary>
+    /// <summary><c>spore_spawn_opening_1</c>, an installed extended frame.</summary>
     SporeSpawnOpening1,
-    /// <summary><c>spore_spawn_oam_EE9D</c>, an installed extended frame.</summary>
+    /// <summary><c>spore_spawn_opening_2</c>, an installed extended frame.</summary>
     SporeSpawnOpening2,
-    /// <summary><c>spore_spawn_oam_EEAF</c>, an installed extended frame.</summary>
+    /// <summary><c>spore_spawn_opening_3</c>, an installed extended frame.</summary>
     SporeSpawnOpening3,
-    /// <summary><c>spore_spawn_oam_EEC1</c>, an installed extended frame.</summary>
+    /// <summary><c>spore_spawn_opening_4</c>, an installed extended frame.</summary>
     SporeSpawnOpening4,
-    /// <summary><c>spore_spawn_oam_EED3</c>, an installed extended frame.</summary>
+    /// <summary><c>spore_spawn_opening_5</c>, an installed extended frame.</summary>
     SporeSpawnOpening5,
-    /// <summary><c>spore_spawn_oam_EEE5</c>, an installed extended frame.</summary>
+    /// <summary><c>spore_spawn_opening_6</c>, an installed extended frame.</summary>
     SporeSpawnOpening6,
-    /// <summary><c>spore_spawn_oam_EF3D</c>, an installed extended frame.</summary>
+    /// <summary><c>spore_spawn_open_0</c>, an installed extended frame.</summary>
     SporeSpawnOpen0,
-    /// <summary><c>spore_spawn_oam_EF4F</c>, an installed extended frame.</summary>
+    /// <summary><c>spore_spawn_open_1</c>, an installed extended frame.</summary>
     SporeSpawnOpen1,
-    /// <summary><c>spore_spawn_oam_EF61</c>, an installed extended frame.</summary>
+    /// <summary><c>spore_spawn_open_2</c>, an installed extended frame.</summary>
     SporeSpawnOpen2,
-    /// <summary><c>ceres_steam_oam_F142</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_0</c>, an installed extended frame.</summary>
     CeresSteamPose0,
-    /// <summary><c>ceres_steam_oam_F14C</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_1</c>, an installed extended frame.</summary>
     CeresSteamPose1,
-    /// <summary><c>ceres_steam_oam_F156</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_2</c>, an installed extended frame.</summary>
     CeresSteamPose2,
-    /// <summary><c>ceres_steam_oam_F160</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_3</c>, an installed extended frame.</summary>
     CeresSteamPose3,
-    /// <summary><c>ceres_steam_oam_F16A</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_4</c>, an installed extended frame.</summary>
     CeresSteamPose4,
-    /// <summary><c>ceres_steam_oam_F174</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_5</c>, an installed extended frame.</summary>
     CeresSteamPose5,
-    /// <summary><c>ceres_steam_oam_F17E</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_6</c>, an installed extended frame.</summary>
     CeresSteamPose6,
-    /// <summary><c>ceres_steam_oam_F188</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_7</c>, an installed extended frame.</summary>
     CeresSteamPose7,
-    /// <summary><c>ceres_steam_oam_F192</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_8</c>, an installed extended frame.</summary>
     CeresSteamPose8,
-    /// <summary><c>ceres_steam_oam_F19C</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_9</c>, an installed extended frame.</summary>
     CeresSteamPose9,
-    /// <summary><c>ceres_steam_oam_F1A6</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_10</c>, an installed extended frame.</summary>
     CeresSteamPose10,
-    /// <summary><c>ceres_steam_oam_F1B0</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_11</c>, an installed extended frame.</summary>
     CeresSteamPose11,
-    /// <summary><c>ceres_steam_oam_F1BA</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_12</c>, an installed extended frame.</summary>
     CeresSteamPose12,
-    /// <summary><c>ceres_steam_oam_F1C4</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_13</c>, an installed extended frame.</summary>
     CeresSteamPose13,
-    /// <summary><c>ceres_steam_oam_F1CE</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_14</c>, an installed extended frame.</summary>
     CeresSteamPose14,
-    /// <summary><c>ceres_steam_oam_F1D8</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_15</c>, an installed extended frame.</summary>
     CeresSteamPose15,
-    /// <summary><c>ceres_steam_oam_F1E2</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_16</c>, an installed extended frame.</summary>
     CeresSteamPose16,
-    /// <summary><c>ceres_steam_oam_F1EC</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_17</c>, an installed extended frame.</summary>
     CeresSteamPose17,
-    /// <summary><c>ceres_steam_oam_F1F6</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_18</c>, an installed extended frame.</summary>
     CeresSteamPose18,
-    /// <summary><c>ceres_steam_oam_F200</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_19</c>, an installed extended frame.</summary>
     CeresSteamPose19,
-    /// <summary><c>ceres_steam_oam_F20A</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_20</c>, an installed extended frame.</summary>
     CeresSteamPose20,
-    /// <summary><c>ceres_steam_oam_F214</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_21</c>, an installed extended frame.</summary>
     CeresSteamPose21,
-    /// <summary><c>ceres_steam_oam_F21E</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_22</c>, an installed extended frame.</summary>
     CeresSteamPose22,
-    /// <summary><c>ceres_steam_oam_F228</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_23</c>, an installed extended frame.</summary>
     CeresSteamPose23,
-    /// <summary><c>ceres_steam_oam_F232</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_24</c>, an installed extended frame.</summary>
     CeresSteamPose24,
-    /// <summary><c>ceres_steam_oam_F23C</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_25</c>, an installed extended frame.</summary>
     CeresSteamPose25,
-    /// <summary><c>ceres_steam_oam_F246</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_26</c>, an installed extended frame.</summary>
     CeresSteamPose26,
-    /// <summary><c>ceres_steam_oam_F250</c>, an installed extended frame.</summary>
+    /// <summary><c>ceres_steam_pose_27</c>, an installed extended frame.</summary>
     CeresSteamPose27,
-    /// <summary><c>oum_oam_CB87</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_0</c>, an installed extended frame.</summary>
     OumPose0,
-    /// <summary><c>oum_oam_CB91</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_1</c>, an installed extended frame.</summary>
     OumPose1,
-    /// <summary><c>oum_oam_CB9B</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_2</c>, an installed extended frame.</summary>
     OumPose2,
-    /// <summary><c>oum_oam_CBA5</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_3</c>, an installed extended frame.</summary>
     OumPose3,
-    /// <summary><c>oum_oam_CBAF</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_4</c>, an installed extended frame.</summary>
     OumPose4,
-    /// <summary><c>oum_oam_CBB9</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_5</c>, an installed extended frame.</summary>
     OumPose5,
-    /// <summary><c>oum_oam_CBC3</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_6</c>, an installed extended frame.</summary>
     OumPose6,
-    /// <summary><c>oum_oam_CBCD</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_7</c>, an installed extended frame.</summary>
     OumPose7,
-    /// <summary><c>oum_oam_CBD7</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_8</c>, an installed extended frame.</summary>
     OumPose8,
-    /// <summary><c>oum_oam_CBE1</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_9</c>, an installed extended frame.</summary>
     OumPose9,
-    /// <summary><c>oum_oam_CBEB</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_10</c>, an installed extended frame.</summary>
     OumPose10,
-    /// <summary><c>oum_oam_CBF5</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_11</c>, an installed extended frame.</summary>
     OumPose11,
-    /// <summary><c>oum_oam_CBFF</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_12</c>, an installed extended frame.</summary>
     OumPose12,
-    /// <summary><c>oum_oam_CC09</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_13</c>, an installed extended frame.</summary>
     OumPose13,
-    /// <summary><c>oum_oam_CC13</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_14</c>, an installed extended frame.</summary>
     OumPose14,
-    /// <summary><c>oum_oam_CC1D</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_15</c>, an installed extended frame.</summary>
     OumPose15,
-    /// <summary><c>oum_oam_CC27</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_16</c>, an installed extended frame.</summary>
     OumPose16,
-    /// <summary><c>oum_oam_CC31</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_17</c>, an installed extended frame.</summary>
     OumPose17,
-    /// <summary><c>oum_oam_CC3B</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_18</c>, an installed extended frame.</summary>
     OumPose18,
-    /// <summary><c>oum_oam_CC45</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_19</c>, an installed extended frame.</summary>
     OumPose19,
-    /// <summary><c>oum_oam_CC4F</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_20</c>, an installed extended frame.</summary>
     OumPose20,
-    /// <summary><c>oum_oam_CC59</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_21</c>, an installed extended frame.</summary>
     OumPose21,
-    /// <summary><c>oum_oam_CC63</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_22</c>, an installed extended frame.</summary>
     OumPose22,
-    /// <summary><c>oum_oam_CC6D</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_23</c>, an installed extended frame.</summary>
     OumPose23,
-    /// <summary><c>oum_oam_CC77</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_24</c>, an installed extended frame.</summary>
     OumPose24,
-    /// <summary><c>oum_oam_CC81</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_25</c>, an installed extended frame.</summary>
     OumPose25,
-    /// <summary><c>oum_oam_CC8B</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_26</c>, an installed extended frame.</summary>
     OumPose26,
-    /// <summary><c>oum_oam_CC95</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_27</c>, an installed extended frame.</summary>
     OumPose27,
-    /// <summary><c>oum_oam_CC9F</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_28</c>, an installed extended frame.</summary>
     OumPose28,
-    /// <summary><c>oum_oam_CCA9</c>, an installed extended frame.</summary>
+    /// <summary><c>oum_pose_29</c>, an installed extended frame.</summary>
     OumPose29,
-    /// <summary><c>crocomire_oam_C65E</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_tongue_fight_0</c>, an installed extended frame.</summary>
     CrocomireTongueFight0,
-    /// <summary><c>crocomire_oam_C668</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_tongue_fight_1</c>, an installed extended frame.</summary>
     CrocomireTongueFight1,
-    /// <summary><c>crocomire_oam_C672</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_tongue_fight_2</c>, an installed extended frame.</summary>
     CrocomireTongueFight2,
-    /// <summary><c>crocomire_oam_C67C</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_tongue_fight_3</c>, an installed extended frame.</summary>
     CrocomireTongueFight3,
-    /// <summary><c>crocomire_oam_CACE</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_tongue_melting_pose_0</c>, an installed extended frame.</summary>
     CrocomireTongueMeltingPose0,
-    /// <summary><c>crocomire_oam_CAD8</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_tongue_melting_pose_1</c>, an installed extended frame.</summary>
     CrocomireTongueMeltingPose1,
-    /// <summary><c>crocomire_oam_CAE2</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_tongue_melting_pose_2</c>, an installed extended frame.</summary>
     CrocomireTongueMeltingPose2,
-    /// <summary><c>crocomire_oam_CAEC</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_tongue_melting_pose_3</c>, an installed extended frame.</summary>
     CrocomireTongueMeltingPose3,
-    /// <summary><c>crocomire_oam_CAF6</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_tongue_melting_pose_4</c>, an installed extended frame.</summary>
     CrocomireTongueMeltingPose4,
-    /// <summary><c>crocomire_body_oam_BFC4</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_0</c>, an installed extended frame.</summary>
     CrocomireBody0,
-    /// <summary><c>crocomire_body_oam_BFF6</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_1</c>, an installed extended frame.</summary>
     CrocomireBody1,
-    /// <summary><c>crocomire_body_oam_C028</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_2</c>, an installed extended frame.</summary>
     CrocomireBody2,
-    /// <summary><c>crocomire_body_oam_C05A</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_3</c>, an installed extended frame.</summary>
     CrocomireBody3,
-    /// <summary><c>crocomire_body_oam_C08C</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_4</c>, an installed extended frame.</summary>
     CrocomireBody4,
-    /// <summary><c>crocomire_body_oam_C0BE</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_5</c>, an installed extended frame.</summary>
     CrocomireBody5,
-    /// <summary><c>crocomire_body_oam_C0F0</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_6</c>, an installed extended frame.</summary>
     CrocomireBody6,
-    /// <summary><c>crocomire_body_oam_C122</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_7</c>, an installed extended frame.</summary>
     CrocomireBody7,
-    /// <summary><c>crocomire_body_oam_C154</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_8</c>, an installed extended frame.</summary>
     CrocomireBody8,
-    /// <summary><c>crocomire_body_oam_C186</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_9</c>, an installed extended frame.</summary>
     CrocomireBody9,
-    /// <summary><c>crocomire_body_oam_C1B8</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_10</c>, an installed extended frame.</summary>
     CrocomireBody10,
-    /// <summary><c>crocomire_body_oam_C1EA</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_11</c>, an installed extended frame.</summary>
     CrocomireBody11,
-    /// <summary><c>crocomire_body_oam_C2EC</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_12</c>, an installed extended frame.</summary>
     CrocomireBody12,
-    /// <summary><c>crocomire_body_oam_C326</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_13</c>, an installed extended frame.</summary>
     CrocomireBody13,
-    /// <summary><c>crocomire_body_oam_C360</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_14</c>, an installed extended frame.</summary>
     CrocomireBody14,
-    /// <summary><c>crocomire_body_oam_C39A</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_15</c>, an installed extended frame.</summary>
     CrocomireBody15,
-    /// <summary><c>crocomire_body_oam_C3D4</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_16</c>, an installed extended frame.</summary>
     CrocomireBody16,
-    /// <summary><c>crocomire_body_oam_C40E</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_17</c>, an installed extended frame.</summary>
     CrocomireBody17,
-    /// <summary><c>crocomire_body_oam_C448</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_18</c>, an installed extended frame.</summary>
     CrocomireBody18,
-    /// <summary><c>crocomire_body_oam_C47A</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_19</c>, an installed extended frame.</summary>
     CrocomireBody19,
-    /// <summary><c>crocomire_body_oam_C4AC</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_20</c>, an installed extended frame.</summary>
     CrocomireBody20,
-    /// <summary><c>crocomire_body_oam_C4DE</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_21</c>, an installed extended frame.</summary>
     CrocomireBody21,
-    /// <summary><c>crocomire_body_oam_C510</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_22</c>, an installed extended frame.</summary>
     CrocomireBody22,
-    /// <summary><c>crocomire_body_oam_C542</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_23</c>, an installed extended frame.</summary>
     CrocomireBody23,
-    /// <summary><c>crocomire_body_oam_C574</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_24</c>, an installed extended frame.</summary>
     CrocomireBody24,
-    /// <summary><c>crocomire_body_oam_C5AE</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_25</c>, an installed extended frame.</summary>
     CrocomireBody25,
-    /// <summary><c>crocomire_body_oam_C5E8</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_26</c>, an installed extended frame.</summary>
     CrocomireBody26,
-    /// <summary><c>crocomire_body_oam_C6A4</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_27</c>, an installed extended frame.</summary>
     CrocomireBody27,
-    /// <summary><c>crocomire_body_oam_C752</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_28</c>, an installed extended frame.</summary>
     CrocomireBody28,
-    /// <summary><c>crocomire_body_oam_C78C</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_29</c>, an installed extended frame.</summary>
     CrocomireBody29,
-    /// <summary><c>crocomire_body_oam_C7C6</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_30</c>, an installed extended frame.</summary>
     CrocomireBody30,
-    /// <summary><c>crocomire_body_oam_C800</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_31</c>, an installed extended frame.</summary>
     CrocomireBody31,
-    /// <summary><c>crocomire_body_oam_C83A</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_32</c>, an installed extended frame.</summary>
     CrocomireBody32,
-    /// <summary><c>crocomire_body_oam_C874</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_33</c>, an installed extended frame.</summary>
     CrocomireBody33,
-    /// <summary><c>crocomire_body_oam_C8AE</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_34</c>, an installed extended frame.</summary>
     CrocomireBody34,
-    /// <summary><c>crocomire_body_oam_C8E8</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_35</c>, an installed extended frame.</summary>
     CrocomireBody35,
-    /// <summary><c>crocomire_body_oam_C922</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_36</c>, an installed extended frame.</summary>
     CrocomireBody36,
-    /// <summary><c>crocomire_body_oam_C95C</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_37</c>, an installed extended frame.</summary>
     CrocomireBody37,
-    /// <summary><c>crocomire_body_oam_C996</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_38</c>, an installed extended frame.</summary>
     CrocomireBody38,
-    /// <summary><c>crocomire_body_oam_C9D0</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_39</c>, an installed extended frame.</summary>
     CrocomireBody39,
-    /// <summary><c>crocomire_body_oam_CA0A</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_40</c>, an installed extended frame.</summary>
     CrocomireBody40,
-    /// <summary><c>crocomire_body_oam_CA44</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_41</c>, an installed extended frame.</summary>
     CrocomireBody41,
-    /// <summary><c>crocomire_body_oam_CA7E</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_42</c>, an installed extended frame.</summary>
     CrocomireBody42,
-    /// <summary><c>crocomire_body_oam_CA88</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_43</c>, an installed extended frame.</summary>
     CrocomireBody43,
-    /// <summary><c>crocomire_body_oam_CA92</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_44</c>, an installed extended frame.</summary>
     CrocomireBody44,
-    /// <summary><c>crocomire_body_oam_CA9C</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_45</c>, an installed extended frame.</summary>
     CrocomireBody45,
-    /// <summary><c>crocomire_body_oam_CAA6</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_46</c>, an installed extended frame.</summary>
     CrocomireBody46,
-    /// <summary><c>crocomire_body_oam_CAB0</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_47</c>, an installed extended frame.</summary>
     CrocomireBody47,
-    /// <summary><c>crocomire_body_oam_CABA</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_48</c>, an installed extended frame.</summary>
     CrocomireBody48,
-    /// <summary><c>crocomire_body_oam_CAC4</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_body_49</c>, an installed extended frame.</summary>
     CrocomireBody49,
     /// <summary><c>bomb_torizo_dormant</c>, an installed extended frame.</summary>
     BombTorizoDormant,
     /// <summary><c>golden_torizo_initial</c>, an installed extended frame.</summary>
     GoldenTorizoInitial,
-    /// <summary><c>kraid_arm_oam_8F59</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_arm_0</c>, an installed extended frame.</summary>
     KraidArm0,
-    /// <summary><c>kraid_arm_oam_8F83</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_arm_1</c>, an installed extended frame.</summary>
     KraidArm1,
-    /// <summary><c>kraid_arm_oam_8FAD</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_arm_2</c>, an installed extended frame.</summary>
     KraidArm2,
-    /// <summary><c>kraid_arm_oam_8FD7</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_arm_3</c>, an installed extended frame.</summary>
     KraidArm3,
-    /// <summary><c>kraid_arm_oam_9001</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_arm_4</c>, an installed extended frame.</summary>
     KraidArm4,
-    /// <summary><c>kraid_arm_oam_902B</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_arm_5</c>, an installed extended frame.</summary>
     KraidArm5,
-    /// <summary><c>kraid_arm_oam_9055</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_arm_6</c>, an installed extended frame.</summary>
     KraidArm6,
-    /// <summary><c>kraid_arm_oam_907F</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_arm_7</c>, an installed extended frame.</summary>
     KraidArm7,
-    /// <summary><c>kraid_arm_oam_90A9</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_arm_8</c>, an installed extended frame.</summary>
     KraidArm8,
-    /// <summary><c>kraid_arm_oam_90D3</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_arm_9</c>, an installed extended frame.</summary>
     KraidArm9,
-    /// <summary><c>kraid_arm_oam_90FD</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_arm_10</c>, an installed extended frame.</summary>
     KraidArm10,
-    /// <summary><c>kraid_arm_oam_9127</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_arm_11</c>, an installed extended frame.</summary>
     KraidArm11,
-    /// <summary><c>kraid_arm_oam_9151</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_arm_12</c>, an installed extended frame.</summary>
     KraidArm12,
-    /// <summary><c>kraid_arm_oam_917B</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_arm_13</c>, an installed extended frame.</summary>
     KraidArm13,
-    /// <summary><c>kraid_arm_oam_91A5</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_arm_14</c>, an installed extended frame.</summary>
     KraidArm14,
-    /// <summary><c>kraid_arm_oam_91CF</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_arm_15</c>, an installed extended frame.</summary>
     KraidArm15,
-    /// <summary><c>kraid_arm_oam_91F9</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_arm_16</c>, an installed extended frame.</summary>
     KraidArm16,
-    /// <summary><c>kraid_arm_oam_9223</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_arm_17</c>, an installed extended frame.</summary>
     KraidArm17,
-    /// <summary><c>kraid_arm_oam_924D</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_arm_18</c>, an installed extended frame.</summary>
     KraidArm18,
-    /// <summary><c>kraid_arm_oam_9277</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_arm_19</c>, an installed extended frame.</summary>
     KraidArm19,
-    /// <summary><c>kraid_arm_oam_92A1</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_arm_20</c>, an installed extended frame.</summary>
     KraidArm20,
-    /// <summary><c>kraid_arm_oam_92AB</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_arm_21</c>, an installed extended frame.</summary>
     KraidArm21,
-    /// <summary><c>golden_torizo_awake_AA26</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_awake_0</c>, an installed extended frame.</summary>
     GoldenTorizoAwake0,
-    /// <summary><c>golden_torizo_awake_AA1C</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_awake_1</c>, an installed extended frame.</summary>
     GoldenTorizoAwake1,
-    /// <summary><c>golden_torizo_awake_AA12</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_awake_2</c>, an installed extended frame.</summary>
     GoldenTorizoAwake2,
-    /// <summary><c>golden_torizo_awake_AA3A</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_awake_3</c>, an installed extended frame.</summary>
     GoldenTorizoAwake3,
-    /// <summary><c>golden_torizo_awake_AA4C</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_awake_4</c>, an installed extended frame.</summary>
     GoldenTorizoAwake4,
-    /// <summary><c>golden_torizo_awake_AA5E</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_awake_5</c>, an installed extended frame.</summary>
     GoldenTorizoAwake5,
-    /// <summary><c>golden_torizo_walk_left_A4FA</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_walk_left_0</c>, an installed extended frame.</summary>
     GoldenTorizoWalkLeft0,
-    /// <summary><c>golden_torizo_walk_left_A51C</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_walk_left_1</c>, an installed extended frame.</summary>
     GoldenTorizoWalkLeft1,
-    /// <summary><c>golden_torizo_walk_left_A53E</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_walk_left_2</c>, an installed extended frame.</summary>
     GoldenTorizoWalkLeft2,
-    /// <summary><c>golden_torizo_walk_left_A560</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_walk_left_3</c>, an installed extended frame.</summary>
     GoldenTorizoWalkLeft3,
-    /// <summary><c>golden_torizo_walk_left_A582</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_walk_left_4</c>, an installed extended frame.</summary>
     GoldenTorizoWalkLeft4,
-    /// <summary><c>golden_torizo_walk_left_A5A4</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_walk_left_5</c>, an installed extended frame.</summary>
     GoldenTorizoWalkLeft5,
-    /// <summary><c>golden_torizo_walk_left_A5C6</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_walk_left_6</c>, an installed extended frame.</summary>
     GoldenTorizoWalkLeft6,
-    /// <summary><c>golden_torizo_walk_left_A5E8</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_walk_left_7</c>, an installed extended frame.</summary>
     GoldenTorizoWalkLeft7,
-    /// <summary><c>golden_torizo_walk_left_A60A</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_walk_left_8</c>, an installed extended frame.</summary>
     GoldenTorizoWalkLeft8,
-    /// <summary><c>golden_torizo_walk_left_A62C</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_walk_left_9</c>, an installed extended frame.</summary>
     GoldenTorizoWalkLeft9,
-    /// <summary><c>golden_torizo_rightward_A4F0</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_rightward_0</c>, an installed extended frame.</summary>
     GoldenTorizoRightward0,
-    /// <summary><c>golden_torizo_rightward_AA98</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_rightward_1</c>, an installed extended frame.</summary>
     GoldenTorizoRightward1,
-    /// <summary><c>golden_torizo_rightward_AABA</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_rightward_2</c>, an installed extended frame.</summary>
     GoldenTorizoRightward2,
-    /// <summary><c>golden_torizo_rightward_AADC</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_rightward_3</c>, an installed extended frame.</summary>
     GoldenTorizoRightward3,
-    /// <summary><c>golden_torizo_rightward_AAFE</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_rightward_4</c>, an installed extended frame.</summary>
     GoldenTorizoRightward4,
-    /// <summary><c>golden_torizo_rightward_AB20</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_rightward_5</c>, an installed extended frame.</summary>
     GoldenTorizoRightward5,
-    /// <summary><c>golden_torizo_rightward_AB42</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_rightward_6</c>, an installed extended frame.</summary>
     GoldenTorizoRightward6,
-    /// <summary><c>golden_torizo_rightward_AB64</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_rightward_7</c>, an installed extended frame.</summary>
     GoldenTorizoRightward7,
-    /// <summary><c>golden_torizo_rightward_AB86</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_rightward_8</c>, an installed extended frame.</summary>
     GoldenTorizoRightward8,
-    /// <summary><c>golden_torizo_rightward_ABA8</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_rightward_9</c>, an installed extended frame.</summary>
     GoldenTorizoRightward9,
-    /// <summary><c>golden_torizo_rightward_ABCA</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_rightward_10</c>, an installed extended frame.</summary>
     GoldenTorizoRightward10,
-    /// <summary><c>torizo_jump_back_B048</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_jump_back_0</c>, an installed extended frame.</summary>
     TorizoJumpBack0,
-    /// <summary><c>torizo_jump_back_B062</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_jump_back_1</c>, an installed extended frame.</summary>
     TorizoJumpBack1,
-    /// <summary><c>torizo_jump_back_B07C</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_jump_back_2</c>, an installed extended frame.</summary>
     TorizoJumpBack2,
-    /// <summary><c>golden_torizo_right_orb_AC88</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_orb_0</c>, an installed extended frame.</summary>
     GoldenTorizoRightOrb0,
-    /// <summary><c>golden_torizo_right_orb_ACA2</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_orb_1</c>, an installed extended frame.</summary>
     GoldenTorizoRightOrb1,
-    /// <summary><c>golden_torizo_right_orb_ACBC</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_orb_2</c>, an installed extended frame.</summary>
     GoldenTorizoRightOrb2,
-    /// <summary><c>golden_torizo_right_orb_ACD6</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_orb_3</c>, an installed extended frame.</summary>
     GoldenTorizoRightOrb3,
-    /// <summary><c>golden_torizo_right_orb_ACF0</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_orb_4</c>, an installed extended frame.</summary>
     GoldenTorizoRightOrb4,
-    /// <summary><c>golden_torizo_right_orb_AD0A</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_orb_5</c>, an installed extended frame.</summary>
     GoldenTorizoRightOrb5,
-    /// <summary><c>golden_torizo_right_sonic_ABEC</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_sonic_0</c>, an installed extended frame.</summary>
     GoldenTorizoRightSonic0,
-    /// <summary><c>golden_torizo_right_sonic_AD24</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_sonic_1</c>, an installed extended frame.</summary>
     GoldenTorizoRightSonic1,
-    /// <summary><c>golden_torizo_right_sonic_AD3E</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_sonic_2</c>, an installed extended frame.</summary>
     GoldenTorizoRightSonic2,
-    /// <summary><c>golden_torizo_right_sonic_AD60</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_sonic_3</c>, an installed extended frame.</summary>
     GoldenTorizoRightSonic3,
-    /// <summary><c>golden_torizo_right_sonic_AD82</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_sonic_4</c>, an installed extended frame.</summary>
     GoldenTorizoRightSonic4,
-    /// <summary><c>golden_torizo_right_sonic_ADA4</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_sonic_5</c>, an installed extended frame.</summary>
     GoldenTorizoRightSonic5,
-    /// <summary><c>golden_torizo_right_sonic_ADC6</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_sonic_6</c>, an installed extended frame.</summary>
     GoldenTorizoRightSonic6,
-    /// <summary><c>golden_torizo_right_sonic_ADE8</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_sonic_7</c>, an installed extended frame.</summary>
     GoldenTorizoRightSonic7,
-    /// <summary><c>golden_torizo_right_sonic_AE0A</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_sonic_8</c>, an installed extended frame.</summary>
     GoldenTorizoRightSonic8,
-    /// <summary><c>golden_torizo_right_sonic_AE2C</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_sonic_9</c>, an installed extended frame.</summary>
     GoldenTorizoRightSonic9,
-    /// <summary><c>golden_torizo_right_sonic_AE4E</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_sonic_10</c>, an installed extended frame.</summary>
     GoldenTorizoRightSonic10,
-    /// <summary><c>golden_torizo_right_sonic_AE70</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_sonic_11</c>, an installed extended frame.</summary>
     GoldenTorizoRightSonic11,
-    /// <summary><c>golden_torizo_right_sonic_AE8A</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_sonic_12</c>, an installed extended frame.</summary>
     GoldenTorizoRightSonic12,
-    /// <summary><c>golden_torizo_right_sonic_AEA4</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_sonic_13</c>, an installed extended frame.</summary>
     GoldenTorizoRightSonic13,
-    /// <summary><c>golden_torizo_right_sonic_AEBE</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_sonic_14</c>, an installed extended frame.</summary>
     GoldenTorizoRightSonic14,
-    /// <summary><c>golden_torizo_right_sonic_AED8</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_sonic_15</c>, an installed extended frame.</summary>
     GoldenTorizoRightSonic15,
-    /// <summary><c>golden_torizo_right_sonic_AEF2</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_sonic_16</c>, an installed extended frame.</summary>
     GoldenTorizoRightSonic16,
-    /// <summary><c>golden_torizo_right_sonic_AF14</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_sonic_17</c>, an installed extended frame.</summary>
     GoldenTorizoRightSonic17,
-    /// <summary><c>golden_torizo_right_sonic_AF36</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_sonic_18</c>, an installed extended frame.</summary>
     GoldenTorizoRightSonic18,
-    /// <summary><c>golden_torizo_right_sonic_AF58</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_sonic_19</c>, an installed extended frame.</summary>
     GoldenTorizoRightSonic19,
-    /// <summary><c>golden_torizo_right_sonic_AF7A</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_right_sonic_20</c>, an installed extended frame.</summary>
     GoldenTorizoRightSonic20,
-    /// <summary><c>torizo_falling_left_B014</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_falling_left</c>, an installed extended frame.</summary>
     TorizoFallingLeft,
-    /// <summary><c>golden_torizo_left_foot_orb_AC06</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_left_foot_orb_0</c>, an installed extended frame.</summary>
     GoldenTorizoLeftFootOrb0,
-    /// <summary><c>golden_torizo_left_foot_orb_AC20</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_left_foot_orb_1</c>, an installed extended frame.</summary>
     GoldenTorizoLeftFootOrb1,
-    /// <summary><c>golden_torizo_left_foot_orb_AC3A</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_left_foot_orb_2</c>, an installed extended frame.</summary>
     GoldenTorizoLeftFootOrb2,
-    /// <summary><c>golden_torizo_left_foot_orb_AC54</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_left_foot_orb_3</c>, an installed extended frame.</summary>
     GoldenTorizoLeftFootOrb3,
-    /// <summary><c>golden_torizo_left_foot_orb_AC6E</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_left_foot_orb_4</c>, an installed extended frame.</summary>
     GoldenTorizoLeftFootOrb4,
-    /// <summary><c>torizo_jump_back_left_AFFA</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_jump_back_left_0</c>, an installed extended frame.</summary>
     TorizoJumpBackLeft0,
-    /// <summary><c>torizo_jump_back_left_B02E</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_jump_back_left_1</c>, an installed extended frame.</summary>
     TorizoJumpBackLeft1,
-    /// <summary><c>golden_torizo_left_orb_A64E</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_left_orb_0</c>, an installed extended frame.</summary>
     GoldenTorizoLeftOrb0,
-    /// <summary><c>golden_torizo_left_orb_A668</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_left_orb_1</c>, an installed extended frame.</summary>
     GoldenTorizoLeftOrb1,
-    /// <summary><c>golden_torizo_left_orb_A682</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_left_orb_2</c>, an installed extended frame.</summary>
     GoldenTorizoLeftOrb2,
-    /// <summary><c>golden_torizo_left_orb_A69C</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_left_orb_3</c>, an installed extended frame.</summary>
     GoldenTorizoLeftOrb3,
-    /// <summary><c>golden_torizo_left_orb_A6B6</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_left_orb_4</c>, an installed extended frame.</summary>
     GoldenTorizoLeftOrb4,
-    /// <summary><c>golden_torizo_left_orb_A6D0</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_left_orb_5</c>, an installed extended frame.</summary>
     GoldenTorizoLeftOrb5,
-    /// <summary><c>golden_torizo_left_orb_A6EA</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_left_orb_6</c>, an installed extended frame.</summary>
     GoldenTorizoLeftOrb6,
-    /// <summary><c>golden_torizo_left_orb_A704</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_left_orb_7</c>, an installed extended frame.</summary>
     GoldenTorizoLeftOrb7,
-    /// <summary><c>golden_torizo_left_orb_A71E</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_left_orb_8</c>, an installed extended frame.</summary>
     GoldenTorizoLeftOrb8,
-    /// <summary><c>golden_torizo_left_orb_A738</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_left_orb_9</c>, an installed extended frame.</summary>
     GoldenTorizoLeftOrb9,
-    /// <summary><c>golden_torizo_left_orb_A752</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_left_orb_10</c>, an installed extended frame.</summary>
     GoldenTorizoLeftOrb10,
-    /// <summary><c>golden_torizo_left_orb_A76C</c>, an installed extended frame.</summary>
+    /// <summary><c>golden_torizo_left_orb_11</c>, an installed extended frame.</summary>
     GoldenTorizoLeftOrb11,
-    /// <summary><c>torizo_combat_A786</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_0</c>, an installed extended frame.</summary>
     TorizoCombat0,
-    /// <summary><c>torizo_combat_A7A0</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_1</c>, an installed extended frame.</summary>
     TorizoCombat1,
-    /// <summary><c>torizo_combat_A7C2</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_2</c>, an installed extended frame.</summary>
     TorizoCombat2,
-    /// <summary><c>torizo_combat_A7E4</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_3</c>, an installed extended frame.</summary>
     TorizoCombat3,
-    /// <summary><c>torizo_combat_A806</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_4</c>, an installed extended frame.</summary>
     TorizoCombat4,
-    /// <summary><c>torizo_combat_A828</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_5</c>, an installed extended frame.</summary>
     TorizoCombat5,
-    /// <summary><c>torizo_combat_A84A</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_6</c>, an installed extended frame.</summary>
     TorizoCombat6,
-    /// <summary><c>torizo_combat_A86C</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_7</c>, an installed extended frame.</summary>
     TorizoCombat7,
-    /// <summary><c>torizo_combat_A88E</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_8</c>, an installed extended frame.</summary>
     TorizoCombat8,
-    /// <summary><c>torizo_combat_A8B0</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_9</c>, an installed extended frame.</summary>
     TorizoCombat9,
-    /// <summary><c>torizo_combat_A8D2</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_10</c>, an installed extended frame.</summary>
     TorizoCombat10,
-    /// <summary><c>torizo_combat_A8EC</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_11</c>, an installed extended frame.</summary>
     TorizoCombat11,
-    /// <summary><c>torizo_combat_A906</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_12</c>, an installed extended frame.</summary>
     TorizoCombat12,
-    /// <summary><c>torizo_combat_A920</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_13</c>, an installed extended frame.</summary>
     TorizoCombat13,
-    /// <summary><c>torizo_combat_A93A</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_14</c>, an installed extended frame.</summary>
     TorizoCombat14,
-    /// <summary><c>torizo_combat_A954</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_15</c>, an installed extended frame.</summary>
     TorizoCombat15,
-    /// <summary><c>torizo_combat_A976</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_16</c>, an installed extended frame.</summary>
     TorizoCombat16,
-    /// <summary><c>torizo_combat_A998</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_17</c>, an installed extended frame.</summary>
     TorizoCombat17,
-    /// <summary><c>torizo_combat_A9BA</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_18</c>, an installed extended frame.</summary>
     TorizoCombat18,
-    /// <summary><c>torizo_combat_A9DC</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_19</c>, an installed extended frame.</summary>
     TorizoCombat19,
-    /// <summary><c>torizo_combat_AF9C</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_20</c>, an installed extended frame.</summary>
     TorizoCombat20,
-    /// <summary><c>torizo_combat_AFA6</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_21</c>, an installed extended frame.</summary>
     TorizoCombat21,
-    /// <summary><c>torizo_combat_AFB0</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_22</c>, an installed extended frame.</summary>
     TorizoCombat22,
-    /// <summary><c>torizo_combat_AFBA</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_23</c>, an installed extended frame.</summary>
     TorizoCombat23,
-    /// <summary><c>torizo_combat_AFC4</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_24</c>, an installed extended frame.</summary>
     TorizoCombat24,
-    /// <summary><c>torizo_combat_AFD6</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_25</c>, an installed extended frame.</summary>
     TorizoCombat25,
-    /// <summary><c>torizo_combat_AFE8</c>, an installed extended frame.</summary>
+    /// <summary><c>torizo_combat_26</c>, an installed extended frame.</summary>
     TorizoCombat26,
     /// <summary><c>mother_brain_body_oam_standing</c>, an installed extended frame.</summary>
     MotherBrainBodyStanding,
@@ -3760,253 +3760,253 @@ public enum EnemyFrameId
     MotherBrainBodyDeathBeam2,
     /// <summary><c>mother_brain_body_oam_death_beam_3</c>, an installed extended frame.</summary>
     MotherBrainBodyDeathBeam3,
-    /// <summary><c>phantoon_bg2_DEDD</c>, an installed extended frame.</summary>
+    /// <summary><c>phantoon_invulnerable_body_0</c>, an installed extended frame.</summary>
     PhantoonInvulnerableBody0,
-    /// <summary><c>phantoon_bg2_DEE7</c>, an installed extended frame.</summary>
+    /// <summary><c>phantoon_full_hitbox_body_0</c>, an installed extended frame.</summary>
     PhantoonFullHitboxBody0,
-    /// <summary><c>phantoon_bg2_DEF1</c>, an installed extended frame.</summary>
+    /// <summary><c>phantoon_eye_hitbox_body_0</c>, an installed extended frame.</summary>
     PhantoonEyeHitboxBody0,
-    /// <summary><c>phantoon_bg2_DEFB</c>, an installed extended frame.</summary>
+    /// <summary><c>phantoon_closed_eye_0</c>, an installed extended frame.</summary>
     PhantoonClosedEye0,
-    /// <summary><c>phantoon_bg2_DF05</c>, an installed extended frame.</summary>
+    /// <summary><c>phantoon_opening_eye_0</c>, an installed extended frame.</summary>
     PhantoonOpeningEye0,
-    /// <summary><c>phantoon_bg2_DF0F</c>, an installed extended frame.</summary>
+    /// <summary><c>phantoon_opening_eye_1</c>, an installed extended frame.</summary>
     PhantoonOpeningEye1,
-    /// <summary><c>phantoon_bg2_DF19</c>, an installed extended frame.</summary>
+    /// <summary><c>phantoon_opening_eye_2</c>, an installed extended frame.</summary>
     PhantoonOpeningEye2,
-    /// <summary><c>phantoon_bg2_DF23</c>, an installed extended frame.</summary>
+    /// <summary><c>phantoon_centered_eye_0</c>, an installed extended frame.</summary>
     PhantoonCenteredEye0,
-    /// <summary><c>phantoon_bg2_DF2D</c>, an installed extended frame.</summary>
+    /// <summary><c>phantoon_gaze_0</c>, an installed extended frame.</summary>
     PhantoonGaze0,
-    /// <summary><c>phantoon_bg2_DF37</c>, an installed extended frame.</summary>
+    /// <summary><c>phantoon_gaze_4</c>, an installed extended frame.</summary>
     PhantoonGaze4,
-    /// <summary><c>phantoon_bg2_DF41</c>, an installed extended frame.</summary>
+    /// <summary><c>phantoon_gaze_6</c>, an installed extended frame.</summary>
     PhantoonGaze6,
-    /// <summary><c>phantoon_bg2_DF4B</c>, an installed extended frame.</summary>
+    /// <summary><c>phantoon_gaze_2</c>, an installed extended frame.</summary>
     PhantoonGaze2,
-    /// <summary><c>phantoon_bg2_DF55</c>, an installed extended frame.</summary>
+    /// <summary><c>phantoon_gaze_5</c>, an installed extended frame.</summary>
     PhantoonGaze5,
-    /// <summary><c>phantoon_bg2_DF5F</c>, an installed extended frame.</summary>
+    /// <summary><c>phantoon_gaze_3</c>, an installed extended frame.</summary>
     PhantoonGaze3,
-    /// <summary><c>phantoon_bg2_DF69</c>, an installed extended frame.</summary>
+    /// <summary><c>phantoon_gaze_7</c>, an installed extended frame.</summary>
     PhantoonGaze7,
-    /// <summary><c>phantoon_bg2_DF73</c>, an installed extended frame.</summary>
+    /// <summary><c>phantoon_gaze_1</c>, an installed extended frame.</summary>
     PhantoonGaze1,
-    /// <summary><c>phantoon_bg2_DFB3</c>, an installed extended frame.</summary>
+    /// <summary><c>phantoon_tentacle_0</c>, an installed extended frame.</summary>
     PhantoonTentacle0,
-    /// <summary><c>phantoon_bg2_DFC5</c>, an installed extended frame.</summary>
+    /// <summary><c>phantoon_tentacle_1</c>, an installed extended frame.</summary>
     PhantoonTentacle1,
-    /// <summary><c>phantoon_bg2_DFD7</c>, an installed extended frame.</summary>
+    /// <summary><c>phantoon_tentacle_2</c>, an installed extended frame.</summary>
     PhantoonTentacle2,
-    /// <summary><c>phantoon_bg2_DFE9</c>, an installed extended frame.</summary>
+    /// <summary><c>phantoon_mouth_0</c>, an installed extended frame.</summary>
     PhantoonMouth0,
-    /// <summary><c>phantoon_bg2_DFF3</c>, an installed extended frame.</summary>
+    /// <summary><c>phantoon_mouth_1</c>, an installed extended frame.</summary>
     PhantoonMouth1,
-    /// <summary><c>phantoon_bg2_DFFD</c>, an installed extended frame.</summary>
+    /// <summary><c>phantoon_mouth_2</c>, an installed extended frame.</summary>
     PhantoonMouth2,
-    /// <summary><c>draygon_bg2_A31B</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_6</c>, an installed extended frame.</summary>
     DraygonFrame6,
-    /// <summary><c>draygon_bg2_A325</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_7</c>, an installed extended frame.</summary>
     DraygonFrame7,
-    /// <summary><c>draygon_bg2_A32F</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_8</c>, an installed extended frame.</summary>
     DraygonFrame8,
-    /// <summary><c>draygon_bg2_A339</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_9</c>, an installed extended frame.</summary>
     DraygonFrame9,
-    /// <summary><c>draygon_bg2_A343</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_10</c>, an installed extended frame.</summary>
     DraygonFrame10,
-    /// <summary><c>draygon_bg2_A34D</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_11</c>, an installed extended frame.</summary>
     DraygonFrame11,
-    /// <summary><c>draygon_bg2_A357</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_12</c>, an installed extended frame.</summary>
     DraygonFrame12,
-    /// <summary><c>draygon_bg2_A361</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_13</c>, an installed extended frame.</summary>
     DraygonFrame13,
-    /// <summary><c>draygon_bg2_A36B</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_14</c>, an installed extended frame.</summary>
     DraygonFrame14,
-    /// <summary><c>draygon_bg2_A375</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_15</c>, an installed extended frame.</summary>
     DraygonFrame15,
-    /// <summary><c>draygon_bg2_A37F</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_16</c>, an installed extended frame.</summary>
     DraygonFrame16,
-    /// <summary><c>draygon_bg2_A389</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_17</c>, an installed extended frame.</summary>
     DraygonFrame17,
-    /// <summary><c>draygon_bg2_A393</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_18</c>, an installed extended frame.</summary>
     DraygonFrame18,
-    /// <summary><c>draygon_bg2_A39D</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_19</c>, an installed extended frame.</summary>
     DraygonFrame19,
-    /// <summary><c>draygon_bg2_A3A7</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_20</c>, an installed extended frame.</summary>
     DraygonFrame20,
-    /// <summary><c>draygon_bg2_A3B1</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_21</c>, an installed extended frame.</summary>
     DraygonFrame21,
-    /// <summary><c>draygon_bg2_A3BB</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_22</c>, an installed extended frame.</summary>
     DraygonFrame22,
-    /// <summary><c>draygon_bg2_A643</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_47</c>, an installed extended frame.</summary>
     DraygonFrame47,
-    /// <summary><c>draygon_bg2_A64D</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_48</c>, an installed extended frame.</summary>
     DraygonFrame48,
-    /// <summary><c>draygon_bg2_A657</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_49</c>, an installed extended frame.</summary>
     DraygonFrame49,
-    /// <summary><c>draygon_bg2_A661</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_50</c>, an installed extended frame.</summary>
     DraygonFrame50,
-    /// <summary><c>draygon_bg2_A66B</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_51</c>, an installed extended frame.</summary>
     DraygonFrame51,
-    /// <summary><c>draygon_bg2_A675</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_52</c>, an installed extended frame.</summary>
     DraygonFrame52,
-    /// <summary><c>draygon_bg2_A67F</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_53</c>, an installed extended frame.</summary>
     DraygonFrame53,
-    /// <summary><c>draygon_bg2_A689</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_54</c>, an installed extended frame.</summary>
     DraygonFrame54,
-    /// <summary><c>draygon_bg2_A693</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_55</c>, an installed extended frame.</summary>
     DraygonFrame55,
-    /// <summary><c>draygon_bg2_A69D</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_56</c>, an installed extended frame.</summary>
     DraygonFrame56,
-    /// <summary><c>draygon_bg2_A6A7</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_57</c>, an installed extended frame.</summary>
     DraygonFrame57,
-    /// <summary><c>draygon_bg2_A6B1</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_58</c>, an installed extended frame.</summary>
     DraygonFrame58,
-    /// <summary><c>draygon_bg2_A6BB</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_59</c>, an installed extended frame.</summary>
     DraygonFrame59,
-    /// <summary><c>draygon_bg2_A6C5</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_60</c>, an installed extended frame.</summary>
     DraygonFrame60,
-    /// <summary><c>draygon_bg2_A6CF</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_61</c>, an installed extended frame.</summary>
     DraygonFrame61,
-    /// <summary><c>draygon_bg2_A6D9</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_62</c>, an installed extended frame.</summary>
     DraygonFrame62,
-    /// <summary><c>draygon_bg2_A6E3</c>, an installed extended frame.</summary>
+    /// <summary><c>draygon_frame_63</c>, an installed extended frame.</summary>
     DraygonFrame63,
-    /// <summary><c>crocomire_skeleton_oam_E1FE</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_0</c>, an installed extended frame.</summary>
     CrocomireSkeleton0,
-    /// <summary><c>crocomire_skeleton_oam_E228</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_1</c>, an installed extended frame.</summary>
     CrocomireSkeleton1,
-    /// <summary><c>crocomire_skeleton_oam_E252</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_2</c>, an installed extended frame.</summary>
     CrocomireSkeleton2,
-    /// <summary><c>crocomire_skeleton_oam_E27C</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_3</c>, an installed extended frame.</summary>
     CrocomireSkeleton3,
-    /// <summary><c>crocomire_skeleton_oam_E2A6</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_4</c>, an installed extended frame.</summary>
     CrocomireSkeleton4,
-    /// <summary><c>crocomire_skeleton_oam_E2D0</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_5</c>, an installed extended frame.</summary>
     CrocomireSkeleton5,
-    /// <summary><c>crocomire_skeleton_oam_E2FA</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_6</c>, an installed extended frame.</summary>
     CrocomireSkeleton6,
-    /// <summary><c>crocomire_skeleton_oam_E324</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_7</c>, an installed extended frame.</summary>
     CrocomireSkeleton7,
-    /// <summary><c>crocomire_skeleton_oam_E34E</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_8</c>, an installed extended frame.</summary>
     CrocomireSkeleton8,
-    /// <summary><c>crocomire_skeleton_oam_E378</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_9</c>, an installed extended frame.</summary>
     CrocomireSkeleton9,
-    /// <summary><c>crocomire_skeleton_oam_E3A2</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_10</c>, an installed extended frame.</summary>
     CrocomireSkeleton10,
-    /// <summary><c>crocomire_skeleton_oam_E3CC</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_11</c>, an installed extended frame.</summary>
     CrocomireSkeleton11,
-    /// <summary><c>crocomire_skeleton_oam_E3F6</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_12</c>, an installed extended frame.</summary>
     CrocomireSkeleton12,
-    /// <summary><c>crocomire_skeleton_oam_E420</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_13</c>, an installed extended frame.</summary>
     CrocomireSkeleton13,
-    /// <summary><c>crocomire_skeleton_oam_E46A</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_14</c>, an installed extended frame.</summary>
     CrocomireSkeleton14,
-    /// <summary><c>crocomire_skeleton_oam_E4D4</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_15</c>, an installed extended frame.</summary>
     CrocomireSkeleton15,
-    /// <summary><c>crocomire_skeleton_oam_E53E</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_16</c>, an installed extended frame.</summary>
     CrocomireSkeleton16,
-    /// <summary><c>crocomire_skeleton_oam_E5A8</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_17</c>, an installed extended frame.</summary>
     CrocomireSkeleton17,
-    /// <summary><c>crocomire_skeleton_oam_E60A</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_18</c>, an installed extended frame.</summary>
     CrocomireSkeleton18,
-    /// <summary><c>crocomire_skeleton_oam_E65C</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_19</c>, an installed extended frame.</summary>
     CrocomireSkeleton19,
-    /// <summary><c>crocomire_skeleton_oam_E68E</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_20</c>, an installed extended frame.</summary>
     CrocomireSkeleton20,
-    /// <summary><c>crocomire_skeleton_oam_E6A8</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_21</c>, an installed extended frame.</summary>
     CrocomireSkeleton21,
-    /// <summary><c>crocomire_skeleton_oam_E6B2</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_22</c>, an installed extended frame.</summary>
     CrocomireSkeleton22,
-    /// <summary><c>crocomire_skeleton_oam_E6BC</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_23</c>, an installed extended frame.</summary>
     CrocomireSkeleton23,
-    /// <summary><c>crocomire_skeleton_oam_E6C6</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_24</c>, an installed extended frame.</summary>
     CrocomireSkeleton24,
-    /// <summary><c>crocomire_skeleton_oam_E6D0</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_25</c>, an installed extended frame.</summary>
     CrocomireSkeleton25,
-    /// <summary><c>crocomire_skeleton_oam_E6DA</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_26</c>, an installed extended frame.</summary>
     CrocomireSkeleton26,
-    /// <summary><c>crocomire_skeleton_oam_E6E4</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_27</c>, an installed extended frame.</summary>
     CrocomireSkeleton27,
-    /// <summary><c>crocomire_skeleton_oam_E6EE</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_28</c>, an installed extended frame.</summary>
     CrocomireSkeleton28,
-    /// <summary><c>crocomire_skeleton_oam_E6F8</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_29</c>, an installed extended frame.</summary>
     CrocomireSkeleton29,
-    /// <summary><c>crocomire_skeleton_oam_E702</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_30</c>, an installed extended frame.</summary>
     CrocomireSkeleton30,
-    /// <summary><c>crocomire_skeleton_oam_E70C</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_31</c>, an installed extended frame.</summary>
     CrocomireSkeleton31,
-    /// <summary><c>crocomire_skeleton_oam_E716</c>, an installed extended frame.</summary>
+    /// <summary><c>crocomire_skeleton_32</c>, an installed extended frame.</summary>
     CrocomireSkeleton32,
-    /// <summary><c>kraid_foot_oam_8CE3</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_0</c>, an installed extended frame.</summary>
     KraidFoot0,
-    /// <summary><c>kraid_foot_oam_8CF5</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_1</c>, an installed extended frame.</summary>
     KraidFoot1,
-    /// <summary><c>kraid_foot_oam_8D07</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_2</c>, an installed extended frame.</summary>
     KraidFoot2,
-    /// <summary><c>kraid_foot_oam_8D19</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_3</c>, an installed extended frame.</summary>
     KraidFoot3,
-    /// <summary><c>kraid_foot_oam_8D2B</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_4</c>, an installed extended frame.</summary>
     KraidFoot4,
-    /// <summary><c>kraid_foot_oam_8D3D</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_5</c>, an installed extended frame.</summary>
     KraidFoot5,
-    /// <summary><c>kraid_foot_oam_8D4F</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_6</c>, an installed extended frame.</summary>
     KraidFoot6,
-    /// <summary><c>kraid_foot_oam_8D61</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_7</c>, an installed extended frame.</summary>
     KraidFoot7,
-    /// <summary><c>kraid_foot_oam_8D73</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_8</c>, an installed extended frame.</summary>
     KraidFoot8,
-    /// <summary><c>kraid_foot_oam_8D85</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_9</c>, an installed extended frame.</summary>
     KraidFoot9,
-    /// <summary><c>kraid_foot_oam_8D97</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_10</c>, an installed extended frame.</summary>
     KraidFoot10,
-    /// <summary><c>kraid_foot_oam_8DA9</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_11</c>, an installed extended frame.</summary>
     KraidFoot11,
-    /// <summary><c>kraid_foot_oam_8DBB</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_12</c>, an installed extended frame.</summary>
     KraidFoot12,
-    /// <summary><c>kraid_foot_oam_8DCD</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_13</c>, an installed extended frame.</summary>
     KraidFoot13,
-    /// <summary><c>kraid_foot_oam_8DDF</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_14</c>, an installed extended frame.</summary>
     KraidFoot14,
-    /// <summary><c>kraid_foot_oam_8DF1</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_15</c>, an installed extended frame.</summary>
     KraidFoot15,
-    /// <summary><c>kraid_foot_oam_8E03</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_16</c>, an installed extended frame.</summary>
     KraidFoot16,
-    /// <summary><c>kraid_foot_oam_8E15</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_17</c>, an installed extended frame.</summary>
     KraidFoot17,
-    /// <summary><c>kraid_foot_oam_8E27</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_18</c>, an installed extended frame.</summary>
     KraidFoot18,
-    /// <summary><c>kraid_foot_oam_8E39</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_19</c>, an installed extended frame.</summary>
     KraidFoot19,
-    /// <summary><c>kraid_foot_oam_8E4B</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_20</c>, an installed extended frame.</summary>
     KraidFoot20,
-    /// <summary><c>kraid_foot_oam_8E5D</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_21</c>, an installed extended frame.</summary>
     KraidFoot21,
-    /// <summary><c>kraid_foot_oam_8E6F</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_22</c>, an installed extended frame.</summary>
     KraidFoot22,
-    /// <summary><c>kraid_foot_oam_8E81</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_23</c>, an installed extended frame.</summary>
     KraidFoot23,
-    /// <summary><c>kraid_foot_oam_8E93</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_24</c>, an installed extended frame.</summary>
     KraidFoot24,
-    /// <summary><c>kraid_foot_oam_8EA5</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_25</c>, an installed extended frame.</summary>
     KraidFoot25,
-    /// <summary><c>kraid_foot_oam_8EB7</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_26</c>, an installed extended frame.</summary>
     KraidFoot26,
-    /// <summary><c>kraid_foot_oam_8EC9</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_27</c>, an installed extended frame.</summary>
     KraidFoot27,
-    /// <summary><c>kraid_foot_oam_8EDB</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_28</c>, an installed extended frame.</summary>
     KraidFoot28,
-    /// <summary><c>kraid_foot_oam_8EED</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_29</c>, an installed extended frame.</summary>
     KraidFoot29,
-    /// <summary><c>kraid_foot_oam_8EFF</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_30</c>, an installed extended frame.</summary>
     KraidFoot30,
-    /// <summary><c>kraid_foot_oam_8F11</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_31</c>, an installed extended frame.</summary>
     KraidFoot31,
-    /// <summary><c>kraid_foot_oam_8F23</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_32</c>, an installed extended frame.</summary>
     KraidFoot32,
-    /// <summary><c>kraid_foot_oam_8F47</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_33</c>, an installed extended frame.</summary>
     KraidFoot33,
-    /// <summary><c>kraid_foot_oam_A565</c>, an installed extended frame.</summary>
+    /// <summary><c>kraid_foot_standing</c>, an installed extended frame.</summary>
     KraidFootStanding,
     /// <summary>The empty spritemap at the same offset in every enemy bank: an enemy showing it draws nothing.</summary>
     Empty,

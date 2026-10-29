@@ -658,9 +658,11 @@ public static class EnemyTileArtworkFiles
         DraygonBg2FrameCatalog draygonBg2Frames;
         try
         {
-            byte[] selected = ReadStockOrOverride(
+            // A player's override written before Draygon's frames were named for their poses keeps loading (#1465).
+            byte[] selected = EnemyBg2FrameDocumentUpgrade.Upgrade(ReadStockOrOverride(
                 DraygonBg2FrameDefinitions.FileName,
-                manifest.DraygonBg2FramesSha256);
+                manifest.DraygonBg2FramesSha256), DraygonBg2FrameDefinitions.Frames, DraygonBg2FrameDefinitions.Version,
+                EnemyFrameLegacyNameDefinitions.ExtendedCompositions, "Draygon");
             draygonBg2Frames = DraygonBg2FrameCatalog.Load(
                 new MemoryStream(selected, writable: false));
         }
@@ -673,9 +675,11 @@ public static class EnemyTileArtworkFiles
         CrocomireBg2FrameCatalog crocomireBg2Frames;
         try
         {
-            byte[] selected = ReadStockOrOverride(
+            // A player's override written before Crocomire's frames were named for their poses keeps loading (#1465).
+            byte[] selected = EnemyBg2FrameDocumentUpgrade.Upgrade(ReadStockOrOverride(
                 CrocomireBg2FrameDefinitions.FileName,
-                manifest.CrocomireBg2FramesSha256);
+                manifest.CrocomireBg2FramesSha256), CrocomireBg2FrameDefinitions.Frames, CrocomireBg2FrameDefinitions.Version,
+                EnemyFrameLegacyNameDefinitions.CrocomireBg2Frames, "Crocomire");
             crocomireBg2Frames = CrocomireBg2FrameCatalog.Load(
                 new MemoryStream(selected, writable: false));
         }

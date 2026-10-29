@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -28,13 +29,18 @@ internal sealed class SpriteSheetStore
     /// <summary>Each stock file's hash, written or read.</summary>
     private readonly Dictionary<string, string> hashes;
 
+    /// <summary>The current name of each frame a player's override frame manifest names, or null when its names are current.</summary>
+    private readonly Func<string, string>? overrideFrameName;
+
     /// <summary>Opens a directory's store.</summary>
-    private SpriteSheetStore(string stockDirectory, string? overrideDirectory, string manifestFileName, Dictionary<string, string> hashes)
+    private SpriteSheetStore(string stockDirectory, string? overrideDirectory, string manifestFileName, Dictionary<string, string> hashes,
+        Func<string, string>? overrideFrameName)
     {
         this.stockDirectory = stockDirectory;
         this.overrideDirectory = overrideDirectory;
         this.manifestFileName = manifestFileName;
         this.hashes = hashes;
+        this.overrideFrameName = overrideFrameName;
     }
 
     /// <summary>Starts writing a directory's sheets, creating it if absent.</summary>
@@ -42,7 +48,7 @@ internal sealed class SpriteSheetStore
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         Directory.CreateDirectory(directory);
-        return new(directory, null, manifestFileName, new(StringComparer.Ordinal));
+        return new(directory, null, manifestFileName, new(StringComparer.Ordinal), null);
     }
 
     /// <summary>Opens a directory's sheets for reading, after checking its provenance manifest.</summary>
@@ -50,8 +56,13 @@ internal sealed class SpriteSheetStore
     /// <param name="overrideDirectory">The player's overrides, or null.</param>
     /// <param name="manifestFileName">The provenance manifest's file name.</param>
     /// <param name="sheetCount">The sheets the directory holds, three files each.</param>
+    /// <param name="overrideFrameName">
+    /// The current name of each frame a player's override frame manifest names, for overrides written before the sheets'
+    /// frames were renamed; null when every override names its frames as the stock sheets do.
+    /// </param>
     /// <exception cref="InvalidDataException">The manifest does not describe this installation's sheets.</exception>
-    internal static SpriteSheetStore Open(string stockDirectory, string? overrideDirectory, string manifestFileName, int sheetCount)
+    internal static SpriteSheetStore Open(string stockDirectory, string? overrideDirectory, string manifestFileName, int sheetCount,
+        Func<string, string>? overrideFrameName = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
         string manifestPath = Path.Combine(stockDirectory, manifestFileName);
@@ -61,7 +72,7 @@ internal sealed class SpriteSheetStore
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256, StringComparison.OrdinalIgnoreCase) ||
             manifest.Sha256 is null || manifest.Sha256.Count != sheetCount * 3)
             throw new InvalidDataException($"Sprite sheet manifest {manifestPath} does not describe this installation.");
-        return new(stockDirectory, overrideDirectory, manifestFileName, manifest.Sha256);
+        return new(stockDirectory, overrideDirectory, manifestFileName, manifest.Sha256, overrideFrameName);
     }
 
     /// <summary>
@@ -109,6 +120,13 @@ internal sealed class SpriteSheetStore
     internal SpriteSheet Read(string name)
     {
         byte[] frames = Selected(FrameFile(name));
+        if (overrideFrameName is not null && IsOverridden(FrameFile(name)))
+        {
+            string document = $"sprite sheet {FrameFile(name)}";
+            JsonObject manifest = JsonFrameNames.Parse(frames, document);
+            JsonFrameNames.Rename(manifest, "frames", overrideFrameName, document);
+            frames = JsonFrameNames.Write(manifest);
+        }
         if (IsOverridden(ImageFile(name)) || IsOverridden(PaletteFile(name)))
         {
             // A player's image is read whole now, so a malformed one fails as the sheet loads.

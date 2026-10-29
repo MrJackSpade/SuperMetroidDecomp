@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.AssetExtraction.World.Artwork;
 
@@ -63,8 +64,10 @@ internal sealed record EnemyExtendedFrameSchema(int Revision, int FrameCount)
     internal static readonly EnemyExtendedFrameSchema PreCrocomireSkeleton = new(27, EnemyExtendedFrameDefinitions.PreCrocomireSkeletonFrameCount);
     /// <summary>Schema 28 predates Kraid's thirty-five extended foot roots.</summary>
     internal static readonly EnemyExtendedFrameSchema PreKraidFoot = new(28, EnemyExtendedFrameDefinitions.PreKraidFootFrameCount);
-    /// <summary>The current schema.</summary>
-    internal static readonly EnemyExtendedFrameSchema Current = new(29, EnemyExtendedFrameDefinitions.ExpectedFrameCount);
+    /// <summary>Every frame, the last schema whose documents named frames by where the cartridge stores them.</summary>
+    internal static readonly EnemyExtendedFrameSchema PreSemanticNames = new(29, EnemyExtendedFrameDefinitions.ExpectedFrameCount);
+    /// <summary>The current schema, naming every frame for its owner and meaning (#1465).</summary>
+    internal static readonly EnemyExtendedFrameSchema Current = new(30, EnemyExtendedFrameDefinitions.ExpectedFrameCount);
 
     /// <summary>Every accepted revision, oldest first.</summary>
     internal static readonly ImmutableArray<EnemyExtendedFrameSchema> Supported =
@@ -97,6 +100,7 @@ internal sealed record EnemyExtendedFrameSchema(int Revision, int FrameCount)
         PreBg2BossBindings,
         PreCrocomireSkeleton,
         PreKraidFoot,
+        PreSemanticNames,
         Current,
     ];
 
@@ -105,6 +109,27 @@ internal sealed record EnemyExtendedFrameSchema(int Revision, int FrameCount)
     /// <see cref="PreDisplayBindings"/>; earlier revisions inherit the stock bindings.
     /// </summary>
     internal bool OwnsDisplayBindings => Supported.IndexOf(this) > Supported.IndexOf(PreDisplayBindings);
+
+    /// <summary>
+    /// The name documents of this revision give <paramref name="definition"/>'s frame: its composition name, or for
+    /// revisions up to <see cref="PreSemanticNames"/> the name it had before frames were named for their meaning, which
+    /// <see cref="PreSporeIdentity"/> documents spelled as a Draygon frame for Spore Spawn's frames.
+    /// </summary>
+    internal string NameOf(EnemySpritemapDefinition definition)
+    {
+        if (Supported.IndexOf(this) > Supported.IndexOf(PreSemanticNames) ||
+            !EnemyFrameLegacyNameDefinitions.ExtendedCompositions.TryGetValue(definition.Frame, out string? legacy))
+            return definition.Name;
+        return this == PreSporeIdentity && legacy.StartsWith(SporeSpawnLegacyPrefix, StringComparison.Ordinal)
+            ? DraygonLegacyPrefix + legacy[SporeSpawnLegacyPrefix.Length..]
+            : legacy;
+    }
+
+    /// <summary>The start of Spore Spawn's frames' names before they were named for their meaning.</summary>
+    private const string SporeSpawnLegacyPrefix = "spore_spawn_oam_";
+
+    /// <summary>The start <see cref="PreSporeIdentity"/> documents gave Spore Spawn's frames' names.</summary>
+    private const string DraygonLegacyPrefix = "draygon_oam_";
 
     /// <summary>The accepted revision a document stores as <paramref name="revision"/>, or null when none is.</summary>
     internal static EnemyExtendedFrameSchema? FromRevision(int revision) => Supported.FirstOrDefault(schema => schema.Revision == revision);

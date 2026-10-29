@@ -4,10 +4,10 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
 /// The key each enemy frame's picture has in the installed enemy sheets, in players' override sheets and in the
-/// installed artwork's content identity (#1412). The sheets were first installed keyed by the frames' identity names,
-/// which then spelled each frame's composition name in Pascal case (<c>draygon_oam_A2DF</c> was keyed
-/// <c>DraygonOamA2DF</c>). The key stays derived from the composition name, the installed artwork document's own key, so
-/// renaming a frame's identity never changes a key on disk.
+/// installed artwork's content identity (#1412): its composition name, which names the frame for its owner and meaning
+/// (#1465), in Pascal case (<c>draygon_frame_0</c> is keyed <c>DraygonFrame0</c>). The key stays derived from the
+/// composition name, the installed artwork document's own key, so renaming a frame's identity never changes a key on
+/// disk. The import carries keys of older override sheets onto these.
 /// </summary>
 internal static class EnemyFrameSheetKeys
 {

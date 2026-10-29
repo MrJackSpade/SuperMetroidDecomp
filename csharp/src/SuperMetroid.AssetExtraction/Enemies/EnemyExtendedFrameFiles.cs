@@ -61,7 +61,7 @@ internal static class EnemyExtendedFrameFiles
         // Ceres steam's header is $1001: the generic drawing/collision
         // walkers consume its low byte as one component and retain the
         // high byte as native presentation metadata.
-        int expectedPadding = definition.Name.StartsWith("ceres_steam_oam_",
+        int expectedPadding = definition.Name.StartsWith("ceres_steam_",
             StringComparison.Ordinal) ? CeresSteamHeaderHighByte : 0;
         bool motherBrainMixed = MotherBrainBodyVisualDefinitions.Bg2FrameIds.Contains(definition.Frame);
         bool bg2Only = EnemyExtendedFrameBounds.IsBg2Only(definition);
@@ -87,7 +87,7 @@ internal static class EnemyExtendedFrameFiles
                 // Multipart bodies combine ordinary OAM with BG2 streams
                 // in one native extended root. Its BG2 half is extracted
                 // separately, never misrepresented as sprite artwork.
-                if (bg2Only || motherBrainMixed || definition.Name.StartsWith("crocomire_body_oam_",
+                if (bg2Only || motherBrainMixed || definition.Name.StartsWith("crocomire_body_",
                         StringComparison.Ordinal))
                     continue;
                 throw new InvalidDataException(

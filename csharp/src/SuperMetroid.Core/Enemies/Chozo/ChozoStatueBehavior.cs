@@ -143,9 +143,9 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     private ChozoAndTubeColorCatalog ChozoStatueColors() =>
         _room.Artwork?.ChozoAndTubeColors ?? throw new InvalidDataException("Chozo statue colors require installed artwork.");
 
-    /// <summary>The two sprite colour sets the Chozo statues and the glass tube colour (#1405).</summary>
-    private ColourRun ChozoAndTubeColours() =>
-        _presentation.Colours.SpriteSets.Sets(SpriteColourSetDefinitions.ChozoAndTube, SpriteColourSetDefinitions.ChozoAndTubeSets);
+    /// <summary>The two sprite colour stores the Chozo statues and the glass tube colour, in write order (#1405, #1464).</summary>
+    private ColourRunSequence ChozoAndTubeColours() =>
+        SpriteColourStore.InOrder(SpriteColourSetDefinitions.ChozoAndTube, _presentation.Colours.SpriteSets);
 
     /// <summary>
     /// Represents the exact enemy-slot side effect produced by the bank-$84 Chozo hand

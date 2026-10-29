@@ -53,7 +53,11 @@ internal static class CrocomirePalette
     }
 
     /// <summary>Writes one complete material band to its selected CGRAM destination.</summary>
-    internal static void Apply(CrocomireColorCatalog colors, ColourRun destination, Band band)
+    internal static void Apply(CrocomireColorCatalog colors, ColourRun destination, Band band) =>
+        Apply(colors, new ColourRunSequence(destination), band);
+
+    /// <summary>Writes one complete material band across its destination runs, run after run.</summary>
+    private static void Apply(CrocomireColorCatalog colors, ColourRunSequence destination, Band band)
     {
         for (int color = 0; color < CrocomireColorCatalog.Counts[band]; color++)
             destination.Write(color, colors.Get(band, color));

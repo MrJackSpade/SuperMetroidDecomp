@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 public readonly struct RidleyColours(GameplayColours colours)
 {
     /// <summary>Ceres door/container and Baby palettes.</summary>
-    public ColourRun CeresStart => RidleyColourDefinitions.CeresStart.In(colours.SpriteSets);
+    public ColourRunSequence CeresStart => SpriteColourRun.InOrder(RidleyColourDefinitions.CeresStart, colours.SpriteSets);
     /// <summary>Ceres eye colours.</summary>
     public ColourRun CeresEyeFade => RidleyColourDefinitions.CeresEyeFade.In(colours.SpriteSets);
     /// <summary>Ceres body fade, OBJ palette 1 copy.</summary>
@@ -27,7 +27,7 @@ public readonly struct RidleyColours(GameplayColours colours)
     /// <summary>Ceres Mode 7 zoom shade.</summary>
     public ColourRun CeresFloorZoom => RidleyColourDefinitions.CeresFloorZoom.In(colours.BackgroundSets);
     /// <summary>Norfair initial palettes.</summary>
-    public ColourRun NorfairInitial => RidleyColourDefinitions.NorfairInitial.In(colours.SpriteSets);
+    public ColourRunSequence NorfairInitial => SpriteColourRun.InOrder(RidleyColourDefinitions.NorfairInitial, colours.SpriteSets);
     /// <summary>Norfair reveal fade.</summary>
     public ColourRun NorfairReveal => RidleyColourDefinitions.NorfairReveal.In(colours.BackgroundSets);
 }

@@ -32,10 +32,10 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             FirstFrameDuration = 6,
             BossArea = AreaId.WreckedShip,
             DefeatedBossBits = BossBits.AreaBoss,
-            ClearedColours = new SpriteColourRun(2, 12, 3),
+            ClearedColours = new SpriteColourRun(SpriteColourStore.EnemiesSecond, 12, 3),
             UnlockEffectParameter = 0,
             PaletteFx = PaletteFxObject.GreyOutTourianStatuePhantoon,
-            GreyColours = new SpriteColourRun(2, 0, TourianStatueColorDefinitions.GreyColorCount),
+            GreyColours = new SpriteColourRun(SpriteColourStore.EnemiesSecond, 0, TourianStatueColorDefinitions.GreyColorCount),
         },
         [AnimatedTileObject.TourianStatueRidley] = new()
         {
@@ -46,10 +46,10 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             FirstFrameDuration = 10,
             BossArea = AreaId.Norfair,
             DefeatedBossBits = BossBits.AreaBoss,
-            ClearedColours = new SpriteColourRun(1, 9, 3),
+            ClearedColours = new SpriteColourRun(SpriteColourStore.EnemiesFirst, 9, 3),
             UnlockEffectParameter = 2,
             PaletteFx = PaletteFxObject.GreyOutTourianStatueRidley,
-            GreyColours = new SpriteColourRun(1, 0, TourianStatueColorDefinitions.GreyColorCount),
+            GreyColours = new SpriteColourRun(SpriteColourStore.EnemiesFirst, 0, TourianStatueColorDefinitions.GreyColorCount),
         },
         [AnimatedTileObject.TourianStatueKraid] = new()
         {

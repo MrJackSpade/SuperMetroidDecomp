@@ -62,8 +62,8 @@ internal static class EscapeTimerDrawChecks
         }
         var cgram = new ScreenPalette();
         BackgroundColourSetImage.LoadStarting(palettes, cgram);
-        palettes.LoadCommonSprites(cgram.SpriteSets.Set(SpriteColourSetDefinitions.Common));
-        palettes.LoadEnemyProjectileSprites(cgram.SpriteSets.Set(SpriteColourSetDefinitions.EnemyProjectiles));
+        palettes.LoadCommonSprites(SpriteColourSetDefinitions.Common.In(cgram.SpriteSets));
+        palettes.LoadEnemyProjectileSprites(SpriteColourSetDefinitions.EnemyProjectiles.In(cgram.SpriteSets));
 
         var vram = new SnesVram();
         vram.LoadBytes(ObjCharacterImage.ResolveTileByteAddress(FirstCharacter, TimerObjectSelection), characters.Characters);

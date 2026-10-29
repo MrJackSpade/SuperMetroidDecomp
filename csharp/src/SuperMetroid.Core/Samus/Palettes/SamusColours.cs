@@ -30,8 +30,8 @@ public sealed class SamusColours : IGameplayColourOwner
     public SamusColours(SpriteColourSets spriteSets)
     {
         Ensure.NotNull(spriteSets);
-        GrappleFlare = spriteSets.Set(SamusColourDefinitions.FlareSpriteSet).Slice(SamusColourDefinitions.FlareColour, 1);
-        Suitless = spriteSets.Set(SamusColourDefinitions.SuitlessSpriteSet);
+        GrappleFlare = SamusColourDefinitions.FlareStore.In(spriteSets).Slice(SamusColourDefinitions.FlareColour, 1);
+        Suitless = SamusColourDefinitions.SuitlessStore.In(spriteSets);
         heldByInkRow = new ColourRun?[SamusColourDefinitions.InkRows];
         heldByInkRow[SamusColourDefinitions.SuitInkRow] = Suit;
         heldByInkRow[SamusColourDefinitions.BeamInkRow] = Beam;
@@ -63,6 +63,10 @@ public sealed class SamusColours : IGameplayColourOwner
 
     /// <summary>The grapple flare's colour: the enemy projectiles' sprite set's last colour, which she shares.</summary>
     public ColourRun GrappleFlare { get; }
+
+    /// <summary>The sprite colour stores her body shows: the one her suit shows over, and the one she shows without it.</summary>
+    public static IReadOnlyList<SpriteColourStore> BodyStores { get; } =
+        [SamusColourDefinitions.SuitStore, SamusColourDefinitions.SuitlessStore];
 
     /// <inheritdoc />
     public IReadOnlyList<ColourRun> Stores => [Suit, Beam];

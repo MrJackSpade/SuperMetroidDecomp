@@ -25,9 +25,9 @@ public sealed class ChozoAndTubeColorCatalog
     public RgbColor ResolveTubeCracks(int color) => ChozoAndTubeColors.TubeCrack(this, color);
 
     /// <summary>Installs the tube-crack image at CGRAM 144–175, matching palette-only initializer $AA:E716; tube destruction and the initializer actor's removal remain runtime behavior.</summary>
-    public void ApplyTubeCracks(ColourRun destination) => ChozoAndTubeColors.ApplyTubeCracks(this, destination);
+    public void ApplyTubeCracks(ColourRunSequence destination) => ChozoAndTubeColors.ApplyTubeCracks(this, destination);
     /// <summary>Installs the 32 selected Wrecked Ship Chozo inks at CGRAM 144–175, replacing the $AA:E31D image copied by initializer $AA:E75C.</summary>
-    public void ApplyWreckedShip(ColourRun destination) => ChozoAndTubeColors.ApplyStatue(this, destination, ChozoStatuePalette.WreckedShip);
+    public void ApplyWreckedShip(ColourRunSequence destination) => ChozoAndTubeColors.ApplyStatue(this, destination, ChozoStatuePalette.WreckedShip);
     /// <summary>Installs the 32 selected Lower Norfair Chozo inks at CGRAM 144–175, replacing the $AA:E35D image copied by initializer $AA:E784.</summary>
-    public void ApplyLowerNorfair(ColourRun destination) => ChozoAndTubeColors.ApplyStatue(this, destination, ChozoStatuePalette.LowerNorfair);
+    public void ApplyLowerNorfair(ColourRunSequence destination) => ChozoAndTubeColors.ApplyStatue(this, destination, ChozoStatuePalette.LowerNorfair);
 }

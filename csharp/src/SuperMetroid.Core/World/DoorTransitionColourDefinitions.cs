@@ -26,13 +26,13 @@ public static class DoorTransitionColourDefinitions
     public static readonly BackgroundColourRun MinimapBackground = new(BackgroundColourSet.HudItemsAndEffects, 12, 1);
 
     /// <summary>The escape timer's first two colours, kept between common rooms while it runs.</summary>
-    public static readonly SpriteColourRun TimerFirst = new(5, 1, 2);
+    public static readonly SpriteColourRun TimerFirst = new(SpriteColourStore.EnemyProjectiles, 1, 2);
 
     /// <summary>The escape timer's fourth colour, kept between common rooms while it runs.</summary>
-    public static readonly SpriteColourRun TimerFourth = new(5, 4, 1);
+    public static readonly SpriteColourRun TimerFourth = new(SpriteColourStore.EnemyProjectiles, 4, 1);
 
     /// <summary>The escape timer's thirteenth colour, kept between common rooms while it runs.</summary>
-    public static readonly SpriteColourRun TimerThirteenth = new(5, 13, 1);
+    public static readonly SpriteColourRun TimerThirteenth = new(SpriteColourStore.EnemyProjectiles, 13, 1);
 
     /// <summary>The colours every door's source fade keeps.</summary>
     public static readonly IColourSetRun[] Hud = [MinimapExplored, MinimapUnexplored, HighlightedItem, MinimapRoomHighlight];

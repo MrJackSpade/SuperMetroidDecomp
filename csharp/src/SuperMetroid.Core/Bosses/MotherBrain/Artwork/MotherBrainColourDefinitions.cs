@@ -8,16 +8,16 @@ public static class MotherBrainColourDefinitions
     public static readonly BackgroundColourRun Body = new(BackgroundColourSet.TilesThird, 1, 15);
 
     /// <summary>Brain colours.</summary>
-    public static readonly SpriteColourRun Brain = new(1, 1, 15);
+    public static readonly SpriteColourRun Brain = new(SpriteColourStore.EnemiesFirst, 1, 15);
 
     /// <summary>Rear-leg colours.</summary>
-    public static readonly SpriteColourRun RearLegs = new(3, 1, 15);
+    public static readonly SpriteColourRun RearLegs = new(SpriteColourStore.EnemiesThird, 1, 15);
 
     /// <summary>The drain-faded rear-leg colours.</summary>
-    public static readonly SpriteColourRun DrainedRearLegs = new(3, 4, 5);
+    public static readonly SpriteColourRun DrainedRearLegs = new(SpriteColourStore.EnemiesThird, 4, 5);
 
     /// <summary>The fake-death brain colours.</summary>
-    public static readonly SpriteColourRun FakeDeathBrain = new(1, 1, 3);
+    public static readonly SpriteColourRun FakeDeathBrain = new(SpriteColourStore.EnemiesFirst, 1, 3);
 
     /// <summary>First room-flash slice.</summary>
     public static readonly BackgroundColourRun RoomFirst = new(BackgroundColourSet.TilesSecond, 4, 12);
@@ -29,16 +29,16 @@ public static class MotherBrainColourDefinitions
     public static readonly BackgroundColourRun RoomSecondMirror = new(BackgroundColourSet.TilesSixth, 3, 12);
 
     /// <summary>Phase-two attack sprites.</summary>
-    public static readonly SpriteColourRun PhaseTwoAttack = new(2, 1, 15);
+    public static readonly SpriteColourRun PhaseTwoAttack = new(SpriteColourStore.EnemiesSecond, 1, 15);
 
     /// <summary>Phase-two rear legs.</summary>
-    public static readonly SpriteColourRun PhaseTwoRearLegs = new(3, 1, 15);
+    public static readonly SpriteColourRun PhaseTwoRearLegs = new(SpriteColourStore.EnemiesThird, 1, 15);
 
     /// <summary>Room-entry glass shards.</summary>
-    public static readonly SpriteColourRun GlassShards = new(3, 1, 15);
+    public static readonly SpriteColourRun GlassShards = new(SpriteColourStore.EnemiesThird, 1, 15);
 
     /// <summary>Room-entry tube projectiles.</summary>
-    public static readonly SpriteColourRun TubeProjectiles = new(7, 1, 15);
+    public static readonly SpriteColourRun TubeProjectiles = new(SpriteColourStore.EnemiesFourth, 1, 15);
 
     /// <summary>First room-light slice.</summary>
     public static readonly BackgroundColourRun RecoveryLightsFirst = new(BackgroundColourSet.TilesSecond, 1, 14);

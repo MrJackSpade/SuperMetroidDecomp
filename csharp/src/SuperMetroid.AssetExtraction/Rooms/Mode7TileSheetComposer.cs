@@ -34,8 +34,8 @@ internal static class Mode7TileSheetComposer
         // the common sprite and enemy-projectile rows; an actor's own row shows its live colours over these.
         var loaded = new ScreenPalette();
         BackgroundColourSetImage.LoadStarting(inputs.Objects.Palettes, loaded);
-        inputs.Objects.Palettes.LoadCommonSprites(loaded.SpriteSets.Set(SpriteColourSetDefinitions.Common));
-        inputs.Objects.Palettes.LoadEnemyProjectileSprites(loaded.SpriteSets.Set(SpriteColourSetDefinitions.EnemyProjectiles));
+        inputs.Objects.Palettes.LoadCommonSprites(SpriteColourSetDefinitions.Common.In(loaded.SpriteSets));
+        inputs.Objects.Palettes.LoadEnemyProjectileSprites(SpriteColourSetDefinitions.EnemyProjectiles.In(loaded.SpriteSets));
         var colours = new RgbColor[SpriteImage.ColourCountOf(SpriteImageColours.FullPalette)];
         ScreenColourImage.Encode(loaded).CopyTo(colours, 0);
         background.CopyTo(colours, 0);

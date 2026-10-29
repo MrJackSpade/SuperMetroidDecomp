@@ -59,8 +59,8 @@ internal sealed class GraphicsSetColourPlacement : SpriteColourPlacement
     /// </exception>
     internal static SpriteColourStore FixedStore(SpriteColouring colouring) => Ensure.NotNull(colouring) switch
     {
-        SharedSpriteColouring shared => new SpriteColourStore(SharedSet(shared.Set)),
-        EncounterSpriteColouring encounter => new SpriteColourStore(encounter.Colours.Set),
+        SharedSpriteColouring shared => SharedStore(shared.Set),
+        EncounterSpriteColouring encounter => encounter.Colours.Store,
         GraphicsSetMemberColouring member => throw new InvalidOperationException(
             $"The colours of graphics-set member {member.Enemy} lie in the store the loaded graphics set gives them."),
         _ => throw new InvalidOperationException($"A room places no sprite colouring {colouring}."),
@@ -73,8 +73,8 @@ internal sealed class GraphicsSetColourPlacement : SpriteColourPlacement
             ? store
             : throw new InvalidOperationException($"Graphics set {_loadedSetName} loads no colours for {enemy}.");
 
-    /// <summary>The set the room's shared role <paramref name="set"/> occupies.</summary>
-    private static int SharedSet(SharedSpriteColours set) => set switch
+    /// <summary>The store the room's shared role <paramref name="set"/> occupies.</summary>
+    private static SpriteColourStore SharedStore(SharedSpriteColours set) => set switch
     {
         SharedSpriteColours.Common => SpriteColourSetDefinitions.Common,
         SharedSpriteColours.EnemyProjectiles => SpriteColourSetDefinitions.EnemyProjectiles,

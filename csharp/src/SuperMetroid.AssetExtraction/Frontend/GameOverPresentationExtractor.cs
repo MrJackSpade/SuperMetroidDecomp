@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 

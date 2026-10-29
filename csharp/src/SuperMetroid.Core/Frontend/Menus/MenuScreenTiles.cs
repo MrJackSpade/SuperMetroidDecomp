@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
 
@@ -20,7 +19,7 @@ internal static class MenuScreenTiles
         return new ScreenTileSet(TileInkDepth.SixteenColours)
             .Place(ScreenTileSheets.Of(sheets, SpriteSheetId.MenuForegroundTiles), MenuTileSetDefinitions.WorldForegroundFirstTile, 0,
                 WorldMapArtworkFormat.ForegroundTileCount)
-            .Place(ScreenTileSheets.Of(sheets, SpriteSheetId.MenuMapTiles), MenuTileSetDefinitions.MenuMapFirstTile, 0, MapTileAtlasFormat.CharacterCount)
+            .Place(ScreenTileSheets.Of(sheets, SpriteSheetId.MenuMapTiles), MenuTileSetDefinitions.MenuMapFirstTile, 0, MapScreenDefinitions.MapTileCount)
             .Pictures();
     }
 
@@ -29,7 +28,7 @@ internal static class MenuScreenTiles
     {
         Ensure.NotNull(sheets);
         return new ScreenTileSet(TileInkDepth.SixteenColours)
-            .Place(ScreenTileSheets.Of(sheets, SpriteSheetId.MenuMapTiles), MenuTileSetDefinitions.RoomMapFirstTile, 0, MapTileAtlasFormat.CharacterCount)
+            .Place(ScreenTileSheets.Of(sheets, SpriteSheetId.MenuMapTiles), MenuTileSetDefinitions.RoomMapFirstTile, 0, MapScreenDefinitions.MapTileCount)
             .Pictures();
     }
 

@@ -37,8 +37,8 @@ internal static class SuperMetroidRuntimeVramAccess
             var artwork = new BgArtworkBytes();
             if (self.Artwork.RoomCharacterArt is { } characters)
                 artwork.WithRoomCharacters(characters);
-            if (self.Artwork.MapPresentation is { } presentation)
-                artwork.WithHud(presentation.HudTiles);
+            if (self.Artwork.MapPresentation is SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentation presentation)
+                artwork.WithHud(SuperMetroid.AssetExtraction.Frontend.Map.MapCharacterArtwork.Of(presentation).Hud);
             if ((self.BossArtwork.Artwork as BossSourceArtwork)?.KraidBackground is { } kraid)
                 artwork.WithKraidBackground(kraid);
             artwork.WithCollectibles();

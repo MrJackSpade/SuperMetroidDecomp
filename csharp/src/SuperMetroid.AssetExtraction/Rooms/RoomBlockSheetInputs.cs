@@ -3,9 +3,9 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Hud;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -44,7 +44,7 @@ internal sealed record RoomBlockSheetInputs(RoomCharacterAtlases Characters, Roo
             RoomStaticPaletteArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomPaletteDirectoryName), null),
             maps.RoomFxAnimatedTiles,
             objects.Bosses,
-            maps.HudTiles,
+            MapCharacterArtwork.Of(maps).Hud,
             RoomBackgroundTilemapArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomBackgroundTilemapDirectoryName), null),
             RoomSkyTilemapArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomBackgroundTilemapDirectoryName), null),
             maps.EscapeTypewriter,

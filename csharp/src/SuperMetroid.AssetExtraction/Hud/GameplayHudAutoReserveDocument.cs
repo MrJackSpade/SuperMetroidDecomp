@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.Core.Spatial;
+
+namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Serializable AUTO reserve-indicator cells and their HUD anchors.</summary>
 public sealed record GameplayHudAutoReserveDocument

@@ -308,10 +308,10 @@ internal sealed class SuperMetroidRuntime
     }
 
 
-    /// <summary>The BG3 plane the last accepted NMI latched (#1351): the HUD and room effect as displayed.</summary>
-    /// <exception cref="InvalidOperationException">No NMI has latched a room's backgrounds yet.</exception>
-    public Layer3Plane AcceptedLayer3Plane =>
-        Display.Latched.Layer3 ?? throw new InvalidOperationException("No accepted NMI has latched a room's BG3 plane.");
+    /// <summary>The HUD's images the last accepted NMI latched (#1351, #1466): the HUD as displayed.</summary>
+    /// <exception cref="InvalidOperationException">No NMI has latched the HUD yet.</exception>
+    public ShownHud AcceptedHud =>
+        Display.Latched.Hud ?? throw new InvalidOperationException("No accepted NMI has latched the HUD.");
 
     /// <summary>The background character artwork the frame shows (#1350, #1406).</summary>
     public BgArtworkBindings BgArtwork { get; }
@@ -915,7 +915,7 @@ internal sealed class SuperMetroidRuntime
     private void UpdateHud(HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
     {
         // $80:9B44 rewrites the mutable three HUD rows during main-thread logic; they become visible at the next
-        // accepted NMI, which latches them for the BG3 plane (AcceptedFrameBoundary.CaptureLayer3Plane).
+        // accepted NMI, which latches the HUD's images (AcceptedFrameBoundary, HudState.Shown).
         if (Hud.IsInitialized)
         {
             // The loan exists only so cartridge firing logic does not observe zero and

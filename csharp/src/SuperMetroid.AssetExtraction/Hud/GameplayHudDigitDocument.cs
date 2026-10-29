@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.Core.Spatial;
+
+namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Serializable numeric glyphs and their gameplay-HUD anchors.</summary>
 public sealed record GameplayHudDigitDocument

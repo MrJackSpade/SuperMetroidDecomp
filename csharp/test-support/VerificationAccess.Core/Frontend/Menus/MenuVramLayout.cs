@@ -17,7 +17,7 @@ internal static class MenuVramLayout
 
     /// <summary>VMADD $3000-$3FFF: the shared map characters file select and the room map draw with.</summary>
     public static readonly PpuLayoutCell MapCharacters = new(nameof(MapCharacters), PpuLayoutRegion.Vram,
-        FileSelectMapNativeSources.RoomCharacters, SuperMetroid.Core.Map.Artwork.MapTileAtlasFormat.ByteCount / sizeof(ushort), "4-bpp BG characters (map atlas)",
+        FileSelectMapNativeSources.RoomCharacters, SuperMetroid.AssetExtraction.Frontend.Map.MapTileAtlasFormat.ByteCount / sizeof(ushort), "4-bpp BG characters (map atlas)",
         PpuMemoryLayout.Vram);
 
     /// <summary>VMADD $6000-$6FFF (byte $C000): the map-object OBJ characters uploaded from <c>$B6:C000</c>.</summary>

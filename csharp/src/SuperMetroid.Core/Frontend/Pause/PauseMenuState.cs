@@ -9,7 +9,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Map;
-using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Frontend.Menus;
 
 namespace SuperMetroid.Core.Frontend.Pause;
@@ -134,25 +134,22 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         screen = new PauseScreen(entry.MapPresentation, entry.SpriteSheets);
         BindSpriteSheets(entry.SpriteSheets);
         LoadPauseBackdrop();
-        if (entry.GameplayLayer3 is not null)
+        if (entry.GameplayHud is not null)
         {
             // SetupPPUForPauseMenu changes BG3SC to $58 but never uploads a replacement
             // tilemap. The four-row gameplay HUD already resident at VRAM word $5800 is
             // intentionally retained. A fresh host-side VRAM object used to discard that
             // state, removing the entire energy/ammo HUD from pause and exposing map BG1
-            // pixels in the area that its BG3 plane normally covers. Gameplay's BG3 plane
-            // is the displayed tilemap (#1351), so pause takes those words from it.
-            screen.Tilemaps.RetainHud(entry.GameplayLayer3);
+            // pixels in the area that its BG3 plane normally covers. Pause keeps the HUD's
+            // images gameplay displayed (#1351, #1466) and draws them under its palette.
+            screen.RetainHud(entry.GameplayHud);
         }
 
         // GameState_13 finishes pause setup by calling QueueClearingOfFxTilemap at
-        // `$80:A211`. The accepted NMI fills VRAM words $5880-$5FFF with $184E, preserving
-        // the first four HUD rows at $5800-$587F while blanking every row beneath them.
-        // This clear is essential because pause replaces BG3's character sheet: an
-        // untouched zero tilemap word selects pause character zero, which is the visible
-        // orange `1` glyph. Copying only the live HUD without replaying this queued DMA
-        // consequently tiled `1` through every otherwise-empty map cell.
-        screen.Tilemaps.ClearFx(PauseMenuLayout.Bg3FxClearTile);
+        // `$80:A211`, which blanks every BG3 row beneath the four HUD rows. Pause's HUD
+        // plane shows the cleared cell everywhere the HUD does not cover (PauseScreen.HudPlane):
+        // without the clear, every otherwise-empty map cell showed pause character zero,
+        // the visible orange `1` glyph.
         entry.MapPresentation.Palettes.Pause.LoadTo(screen.Palette);
 
         // LoadPauseScreenBaseTilemaps does *not* leave the bottom two button-label rows
@@ -290,9 +287,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             mapScroll, false);
         var bg2 = new ScreenTilesLayer(ScreenTileMap.Of(screen.Tilemaps.Bg2, new Extent16<TilemapCells>(32, 32), planes),
             new Position16<TilePlanePixels>(0, ScreenGeometry.BackgroundRowOffset), false);
-        // The HUD plane shows its first screen through the viewport.
-        var bg3 = new ScreenTilesViewportLayer(ScreenTileMap.Of(screen.Tilemaps.Bg3[..PauseTilemaps.ScreenWords], ScreenTilesViewportLayer.MapSize,
-            screen.HudTiles), ScreenGeometry.BackgroundRowOffset, true, false);
+        // The HUD plane shows its first screen through the viewport, drawn from the HUD's images (#1466).
+        var bg3 = new Layer3ViewportLayer(screen.HudPlane(), ScreenGeometry.BackgroundRowOffset, false);
         DisplayLayer[] layers =
         [
             new SpriteDepthLayer(0), bg3,
@@ -913,12 +909,12 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Retains only the HUD gameplay's last NMI displayed, not the pending WRAM tilemap.</summary>
-    /// <param name="gameplayLayer3">The BG3 plane gameplay latched at that NMI (#1351).</param>
-    public void SynchronizeAcceptedHud(Layer3Plane gameplayLayer3)
+    /// <param name="gameplayHud">The HUD gameplay latched at that NMI (#1351, #1466).</param>
+    public void SynchronizeAcceptedHud(ShownHud gameplayHud)
     {
-        // Pause owns an isolated PPU image. Mirror the native mutable HUD range,
-        // leaving its static first row and deliberately cleared FX rows untouched.
-        screen.Tilemaps.MirrorAcceptedHud(gameplayLayer3);
+        // Pause owns its own screen. Mirror the HUD's drawn rows, leaving its static
+        // first row and deliberately cleared FX rows untouched.
+        screen.MirrorAcceptedHud(gameplayHud);
     }
 
     /// <summary>Rebinds edited map and pause artwork while retaining live scroll, palette, and label state.</summary>

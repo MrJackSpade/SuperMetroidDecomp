@@ -23,7 +23,7 @@ public static class GameplayHudPresentationFile
     /// <param name="json">The UTF-8 JSON document stream.</param>
     /// <returns>The decoded gameplay-HUD artwork.</returns>
     /// <exception cref="InvalidDataException">The document is malformed, incomplete, or places elements outside the HUD or over each other.</exception>
-    public static GameplayHudPresentation Read(Stream json)
+    public static GameplayHudArtwork Read(Stream json)
     {
         Ensure.NotNull(json);
         byte[] source;
@@ -46,7 +46,7 @@ public static class GameplayHudPresentationFile
             document.Blank is null || document.EnergyTanks is null || document.Digits is null ||
             document.AutoReserve is null)
             throw new InvalidDataException("Gameplay HUD presentation requires version 2 and every named visual owner.");
-        return new GameplayHudPresentation(Decode(document, Convert.ToHexString(SHA256.HashData(source))));
+        return new GameplayHudArtwork(Decode(document, Convert.ToHexString(SHA256.HashData(source))));
     }
 
     /// <summary>Validates and writes a gameplay-HUD presentation document as UTF-8 JSON.</summary>
@@ -62,7 +62,7 @@ public static class GameplayHudPresentationFile
     }
 
     /// <summary>Decodes every cell and anchor and rejects any element outside the HUD or over another.</summary>
-    private static GameplayHudPresentationParts Decode(GameplayHudPresentationDocument document, string identity)
+    private static GameplayHudArtworkParts Decode(GameplayHudPresentationDocument document, string identity)
     {
         if (document.Icons is null || document.Icons.Count != GameplayHudDefinitions.IconNames.Length ||
             GameplayHudDefinitions.IconNames.Any(name => !document.Icons.ContainsKey(name)))
@@ -77,7 +77,7 @@ public static class GameplayHudPresentationFile
             icons.Add(new GameplayHudIcon(anchor, width, CompileCells(icon.Cells, width * GameplayHudIcon.Height, $"{name} icon")));
         }
         var minimapHidden = MapTileWords.HudBlank;
-        var parts = new GameplayHudPresentationParts
+        var parts = new GameplayHudArtworkParts
         {
             ContentIdentity = identity,
             TopRow = CompileCells(document.TopRow, GameplayHudDefinitions.TopRowCellCount, "HUD immutable top row"),
@@ -109,7 +109,7 @@ public static class GameplayHudPresentationFile
     }
 
     /// <summary>Rejects overlap among icons, tanks, digits, AUTO cells, and minimap cells.</summary>
-    private static void ValidateDistinctDynamicCells(GameplayHudPresentationParts parts)
+    private static void ValidateDistinctDynamicCells(GameplayHudArtworkParts parts)
     {
         var owners = new Dictionary<Position16<TilemapCells>, string>();
         void Own(Position16<TilemapCells> cell, string owner)

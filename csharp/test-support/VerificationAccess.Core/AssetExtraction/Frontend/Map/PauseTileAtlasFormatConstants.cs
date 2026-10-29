@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Map.Artwork;
-
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+﻿namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Cartridge values and helpers of <see cref="PauseTileAtlasFormat"/> that only verification reads.</summary>
 internal static class PauseTileAtlasFormatConstants

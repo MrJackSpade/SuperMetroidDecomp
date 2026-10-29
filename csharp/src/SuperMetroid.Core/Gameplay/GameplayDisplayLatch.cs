@@ -3,6 +3,7 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.Core.Hud;
 
 namespace SuperMetroid.Core.Gameplay;
 
@@ -30,7 +31,8 @@ namespace SuperMetroid.Core.Gameplay;
 /// The X-ray reveal the NMI queue uploads for BG2 while X-ray is active, drawn from the room's block pictures (#1392).
 /// </param>
 /// <param name="Rooms">The room backgrounds this NMI displays, resolved from level data; null before the first room.</param>
-/// <param name="Layer3">The BG3 plane's words this NMI latched, which its pictures are resolved from and the pause screen keeps; null before the first room.</param>
+/// <param name="Layer3">The room effect's BG3 words this NMI latched, which its pictures are resolved from; null before the first room.</param>
+/// <param name="Hud">The HUD's images this NMI latched, which cover the BG3 plane's top rows and the pause screen keeps (#1466).</param>
 public sealed record GameplayDisplayLatch(
     GameplayRenderSnapshot Scrolls,
     ScreenLayers MainScreen,
@@ -44,7 +46,8 @@ public sealed record GameplayDisplayLatch(
     GameplayLatchedFixedColors FixedColors,
     XrayRevealPlane? XrayReveal,
     RoomBackgrounds? Rooms,
-    Layer3Plane? Layer3 = null)
+    Layer3Plane? Layer3 = null,
+    ShownHud? Hud = null)
 {
     /// <summary>Whether the frame shows a Ceres perspective floor instead of the room's ordinary layers.</summary>
     public bool ShowsPerspectiveFloor => PerspectiveFloor is not null;

@@ -7,7 +7,6 @@ using SuperMetroid.Core.Rooms;
 
 using static SuperMetroid.Verification.Rooms.Backgrounds.LibraryBackgroundProgramsVerification;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -17,11 +16,11 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
-using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.Backgrounds;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Hud;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Checks library-background command sources, native transfer behavior, and installed artwork boundaries.</summary>
 internal static class LibraryBackgroundVerification

@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Samus;
@@ -38,7 +39,7 @@ internal static class HudNativeState
             for (int index = 0; index < hud.Minimap.Length; index++)
             {
                 var output = new Position16<TilemapCells>(checked((ushort)(index % columns)), checked((ushort)(index / columns)));
-                hud.Minimap[index] = Decode(new MapTileWord(words[artwork.MinimapCellIndex(output)]));
+                hud.Minimap[index] = Decode(new MapTileWord(words[GameplayHudArtwork.Of(artwork).MinimapCellIndex(output)]));
             }
         }
     }

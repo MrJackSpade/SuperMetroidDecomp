@@ -10,6 +10,7 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Hud;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 
@@ -52,8 +53,8 @@ internal sealed class SpriteSheetSourceCatalog
     private const int DefaultPalette = 0, DefaultPriority = 0;
 
     /// <summary>Composes sheet <paramref name="sheet"/>.</summary>
-    internal ComposedSpriteSheet Compose(SpriteSheetId sheet) => ScreenTileSheetDefinitions.Depths.ContainsKey(sheet)
-        ? ScreenTileSheetComposer.Compose(sheet, ScreenTiles())
+    internal ComposedSpriteSheet Compose(SpriteSheetId sheet) => sheet == SpriteSheetId.PauseHud ? HudImageSheet.ComposePause(maps.Value)
+        : ScreenTileSheetDefinitions.Depths.ContainsKey(sheet) ? ScreenTileSheetComposer.Compose(sheet, ScreenTiles())
         : ScreenTileSheetDefinitions.FloorSheets.Contains(sheet) ? ScreenTileSheetComposer.ComposeMode7(sheet, ScreenTiles())
         : SpriteSheetComposer.Compose(For(sheet), DefaultPalette, DefaultPriority);
 
@@ -100,7 +101,7 @@ internal sealed class SpriteSheetSourceCatalog
             SpriteSheetId.AreaMapBackgroundTilesBrinstar or SpriteSheetId.AreaMapBackgroundTilesNorfair or
             SpriteSheetId.AreaMapBackgroundTilesWreckedShip or SpriteSheetId.AreaMapBackgroundTilesMaridia or
             SpriteSheetId.AreaMapBackgroundTilesTourian or SpriteSheetId.PauseMapTiles or
-            SpriteSheetId.PauseInterfaceTiles or SpriteSheetId.PauseHudTiles or SpriteSheetId.IntroSceneTiles or
+            SpriteSheetId.PauseInterfaceTiles or SpriteSheetId.PauseHud or SpriteSheetId.IntroSceneTiles or
             SpriteSheetId.IntroFontTiles or SpriteSheetId.CeresFlightObjectTiles or
             SpriteSheetId.CeresIntroObjectTiles or SpriteSheetId.ZebesRevealTiles or
             SpriteSheetId.EndingCreditsFontTiles or SpriteSheetId.EndingTextFontTiles or

@@ -6,7 +6,6 @@ using static SuperMetroid.Verification.Rooms.Backgrounds.LibraryBackgroundProgra
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -16,6 +15,8 @@ namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.AssetExtraction.Hud;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Retail and synthetic checks for installed library-background command execution.</summary>
 internal static class RoomBackgroundLibraryParityVerification
@@ -31,7 +32,7 @@ internal static class RoomBackgroundLibraryParityVerification
         RoomBackgroundTilemaps backgrounds = installed.LoadRoomBackgroundTilemaps();
         RoomSkyTilemaps skies = installed.LoadRoomSkyTilemaps();
         RoomCharacterAtlases characters = installed.LoadRoomCharacters();
-        HudTileAtlas hud = installed.LoadMaps().HudTiles;
+        HudTileAtlas hud = MapCharacterArtwork.Of(installed.LoadMaps()).Hud;
         int cases = 0;
 
         foreach (LibraryBackgroundProgram program in LibraryBackgroundSourceDefinitions.All)

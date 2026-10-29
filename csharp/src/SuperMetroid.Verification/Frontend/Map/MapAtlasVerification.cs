@@ -10,7 +10,6 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -25,7 +24,7 @@ internal static class MapAtlasVerification
     {
         byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount);
         var vram = new SnesVram();
-        original.Tiles.LoadTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(0 / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
+        MapCharacterArtwork.Of(original).Map.LoadTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(0 / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
         for (int i = 0; i < source.Length; i++) AssertEqual(source[i], vram.ReadByte(i), "stock PNG recompiles exact map tile bytes");
         var guard = NewMapDataGuard(bus, rules);
         var system = new SharedGameState();
@@ -46,7 +45,7 @@ internal static class MapAtlasVerification
         byte[] replacementBytes = File.ReadAllBytes(replacement);
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "PNG edit changes selected catalog identity");
-        edited.Tiles.LoadTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(0 / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
+        MapCharacterArtwork.Of(edited).Map.LoadTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(0 / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
         byte[] planar = Enumerable.Range(0, source.Length).Select(vram.ReadByte).ToArray();
         byte[] decoded = SnesGraphics.DecodePlanarTiles(planar, 4, MapTileAtlasFormat.TileColumns, out _);
         AssertTrue(decoded.SequenceEqual(image.Pixels), "every edited PNG pixel reaches compiled tile data");

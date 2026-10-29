@@ -56,7 +56,7 @@ internal static class PauseScreenPublicationVerification
         byte[] vram = pause.ShownVram();
         AssertTiles(vram, PauseMenuLayoutConstants.Bg1TilemapWord, screen.Tilemaps.Bg1, $"{page} BG1");
         AssertTiles(vram, PauseMenuLayoutConstants.Bg2TilemapWord, screen.Tilemaps.Bg2, $"{page} BG2");
-        AssertTiles(vram, GameplayVramLayoutConstants.HudTilemapWord, screen.Tilemaps.Bg3, $"{page} BG3");
+        AssertTiles(vram, GameplayVramLayoutConstants.HudTilemapWord, screen.Bg3Tiles, $"{page} BG3");
         int tilemapsFirst = PauseMenuLayoutConstants.Bg1TilemapWord * sizeof(ushort);
         int tilemapsEnd = (PauseMenuLayoutConstants.Bg2TilemapWord + screen.Tilemaps.Bg2.Length) * sizeof(ushort);
         AssertTrue(vram.AsSpan(0, tilemapsFirst).SequenceEqual(screen.Characters[..tilemapsFirst]) &&

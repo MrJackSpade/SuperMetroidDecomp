@@ -66,7 +66,7 @@ public static class SpriteSheetDefinitions
         [SpriteSheetId.AreaMapBackgroundTilesTourian] = "area-map-background-tiles-tourian",
         [SpriteSheetId.PauseMapTiles] = "pause-map-tiles",
         [SpriteSheetId.PauseInterfaceTiles] = "pause-interface-tiles",
-        [SpriteSheetId.PauseHudTiles] = "pause-hud-tiles",
+        [SpriteSheetId.PauseHud] = "pause-hud",
         [SpriteSheetId.IntroSceneTiles] = "intro-scene-tiles",
         [SpriteSheetId.IntroFontTiles] = "intro-font-tiles",
         [SpriteSheetId.CeresFlightObjectTiles] = "ceres-flight-object-tiles",

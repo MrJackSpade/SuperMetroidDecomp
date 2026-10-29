@@ -10,11 +10,9 @@ using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -26,7 +24,7 @@ internal static class PauseTileAtlasVerification
     /// <summary>Compares stock VRAM bytes, three-area menu transitions, live and captured edits, restore rebinding, and malformed resources.</summary>
     internal static void VerifyPauseTileAtlas(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation original)
     {
-        var vram = new SnesVram(); original.PauseTiles.LoadTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(PauseTileAtlasFormatConstants.DestinationByte / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
+        var vram = new SnesVram(); MapCharacterArtwork.Of(original).Pause.LoadTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(PauseTileAtlasFormatConstants.DestinationByte / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
         AssertTrue(vram.Bytes.Slice(PauseTileAtlasFormatConstants.DestinationByte, PauseTileAtlasFormat.ByteCount).SequenceEqual(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount)), "pause UI PNG round-trips all native character bytes");
         Directory.CreateDirectory(overrides);
@@ -40,7 +38,7 @@ internal static class PauseTileAtlasVerification
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "pause-only PNG edit changes content identity");
         var firstMap = new SnesVram(); var editedMap = new SnesVram();
-        original.Tiles.LoadTo(new VramRegion(firstMap, PpuMemoryLayout.Vram).Slice(0 / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort))); edited.Tiles.LoadTo(new VramRegion(editedMap, PpuMemoryLayout.Vram).Slice(0 / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
+        MapCharacterArtwork.Of(original).Map.LoadTo(new VramRegion(firstMap, PpuMemoryLayout.Vram).Slice(0 / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort))); MapCharacterArtwork.Of(edited).Map.LoadTo(new VramRegion(editedMap, PpuMemoryLayout.Vram).Slice(0 / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
         AssertTrue(firstMap.ImageEquals(editedMap), "pause UI override does not alter shared map characters");
         foreach (AreaId area in new[] { AreaId.Crateria, AreaId.Maridia, AreaId.Tourian })
         {

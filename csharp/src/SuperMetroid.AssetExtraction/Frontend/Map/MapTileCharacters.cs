@@ -1,21 +1,20 @@
-using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>
-/// The installed map-screen or pause-interface characters as the import pipeline reads them (#1409): a 256-by-64 indexed
-/// PNG compiled to 256 row-major 8-by-8 SNES 4-bpp characters, which the screen tile sheets compose from.
+/// The installed map-screen or pause-interface characters as the import pipeline reads them (#1409, #1466): a 256-by-64
+/// indexed PNG compiled to 256 row-major 8-by-8 SNES 4-bpp characters, which the screen tile sheets compose from. The
+/// game never reads them.
 /// </summary>
-public sealed class MapTileCharacters : MapTileAtlas
+public sealed class MapTileCharacters
 {
     /// <summary>Owned SNES 4-bpp character bytes compiled from indexed PNG pixels.</summary>
     private readonly byte[] planar;
 
     /// <summary>Retains already compiled planar characters.</summary>
     /// <param name="planar">Whole 4-bpp characters.</param>
-    internal MapTileCharacters(byte[] planar) : base(planar.Length / (MapTileAtlasFormat.ByteCount / MapTileAtlasFormat.CharacterCount)) =>
-        this.planar = planar;
+    internal MapTileCharacters(byte[] planar) => this.planar = planar;
 
     /// <summary>The planar 4-bpp characters.</summary>
     public ReadOnlySpan<byte> Characters => planar;
@@ -29,9 +28,4 @@ public sealed class MapTileCharacters : MapTileAtlas
         var image = IndexedPng.Read(png, new(MapTileAtlasFormat.Width, MapTileAtlasFormat.Height));
         return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Size, 4));
     }
-
-    /// <summary>The characters <paramref name="atlas"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The atlas was not read from installed artwork.</exception>
-    public static MapTileCharacters Of(MapTileAtlas atlas) => atlas as MapTileCharacters
-        ?? throw new InvalidDataException("The map characters were not read from installed artwork.");
 }

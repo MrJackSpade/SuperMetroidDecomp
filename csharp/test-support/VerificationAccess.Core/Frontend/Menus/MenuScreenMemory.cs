@@ -1,8 +1,8 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Menus;
 
@@ -19,8 +19,9 @@ internal static class MenuScreenMemory
     {
         var image = new SnesVram();
         screen.WorldArtwork.LoadTo(image);
-        screen.MapTiles.LoadTo(new VramRegion(image, MenuVramLayout.MapCharacters));
-        // The menu's sprite page is installed artwork, the same for every menu screen (#1463).
+        // The menu's map characters and sprite page are installed artwork, the same for every menu screen (#1463, #1466).
+        MapCharacterArtwork.Of(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps).Map
+            .LoadTo(new VramRegion(image, MenuVramLayout.MapCharacters));
         SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.Sprites
             .LoadArtworkTo(new VramRegion(image, MenuVramLayout.ObjectCharacters));
         return image.CaptureImage();

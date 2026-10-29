@@ -1,5 +1,4 @@
-using SuperMetroid.Core.Hud.Artwork;
-using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Hud;

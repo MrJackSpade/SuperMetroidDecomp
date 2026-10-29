@@ -504,7 +504,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     {
         // Reject unimplemented operations before changing GPU state. No CPU fallback.
         foreach (DisplayLayer layer in scene.Layers)
-            if (layer is not (ScreenTilesLayer or ScreenTilesViewportLayer or ScreenTintLayer or SpritesLayer or SpriteDepthLayer or TurningFloorLayer or TurningRoomLayer or ColourAddBandsLayer or OverlayBlendLayer or AddedScreenTilesLayer or MessageBoxLayer or GameplaySceneLayer or InsetSceneLayer or GameplayBlendLayer))
+            if (layer is not (ScreenTilesLayer or ScreenTilesViewportLayer or Layer3ViewportLayer or ScreenTintLayer or SpritesLayer or SpriteDepthLayer or TurningFloorLayer or TurningRoomLayer or ColourAddBandsLayer or OverlayBlendLayer or AddedScreenTilesLayer or MessageBoxLayer or GameplaySceneLayer or InsetSceneLayer or GameplayBlendLayer))
                 throw new NotSupportedException($"GPU layer {layer.GetType().Name} is not implemented yet.");
         SuperMetroid.Core.Assets.SpriteSheetFrame? messagePicture = null;
         foreach (DisplayLayer layer in scene.Layers)
@@ -548,6 +548,8 @@ public sealed class D3D11FrameRenderer : IDisposable
                 bg3 = SameBg3(bg3, math.Plane);
             else if (layer is GameplayBlendLayer { BlendPlane: { } sub })
                 bg3 = SameBg3(bg3, sub.Plane);
+            else if (layer is Layer3ViewportLayer window)
+                bg3 = SameBg3(bg3, window.Plane);
         }
         var levels = new RoomLevelLayers(rooms?.Bg1, rooms?.Bg2 ?? floor, rooms?.DoorSource, rooms?.Bg1Overlay, rooms?.Sky, bg3,
             rooms?.Bg2Overlay, floorMap, rooms?.BossBg2, rooms?.XrayReveal, rooms?.Bg2Image,
@@ -620,6 +622,15 @@ public sealed class D3D11FrameRenderer : IDisposable
                     break;
                 case ScreenTilesViewportLayer bg:
                     DispatchScreenTiles(D3D11TileOperation.Layer, bg.Cells, new Position16<TilePlanePixels>(0, checked((ushort)bg.VerticalScroll)), bg.Priority, bg.TransparentColorZero);
+                    break;
+                case Layer3ViewportLayer window:
+                    // The window's rows of the layer-3 plane from its first, each pixel in its picture's priority tier (#1466).
+                    DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
+                    {
+                        RoomSource = D3D11RoomSource.Layer3, Map = 0, TransparentZero = 1, Priority = Priority(window.Priority),
+                        Scroll = new Position16<TilePlanePixels>(0, checked((ushort)window.VerticalScroll)),
+                        MapSize = new Extent16<TilemapCells>(32, Layer3ViewportLayer.WindowRows),
+                    });
                     break;
                 case ScreenTintLayer add:
                     DispatchTile(D3D11TileOperation.AddColour, new D3D11TileDispatch { Red = (uint)add.Red, Green = (uint)add.Green, Blue = (uint)add.Blue });

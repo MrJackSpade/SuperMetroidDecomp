@@ -45,7 +45,7 @@ public sealed class FileSelectRoomMapGraphics
         int index = AreaIds.ToIndex(area);
         if (index >= FileSelectMapDefinitions.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
-        screen = new MenuScreen(mapPresentation.Tiles, mapPresentation.Palettes,
+        screen = new MenuScreen(mapPresentation.Palettes,
             mapPresentation.WorldArtwork, installed);
         MenuTilemaps.Load(screen.Tilemaps.AreaMap, AreaMapTilemapBuilder.Build(mapPresentation.Get(area), system,
             mapPresentation.HiddenCells.RoomSelect(system.HasAreaMap(area)), revealMode));
@@ -78,8 +78,7 @@ public sealed class FileSelectRoomMapGraphics
 
         if (catalog is not null)
             catalog.Palettes.FileSelect.LoadToExcept(screen.Palette, screen.Palette.Colours(ScreenColourGroup.MapHighlight));
-        screen.BindMapTiles((catalog ?? throw new InvalidOperationException(
-            "Room-map graphics require installed map presentation assets.")).Tiles);
+        _ = catalog ?? throw new InvalidOperationException("Room-map graphics require installed map presentation assets.");
         var system = icons.MapSystem;
         var area = icons.MapArea;
         screen.BindWorldArtwork(catalog.WorldArtwork);

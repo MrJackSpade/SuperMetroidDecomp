@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Assets;
+using System.Collections.Immutable;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
@@ -13,8 +13,8 @@ namespace SuperMetroid.Core.Hud;
 /// What Super Metroid's gameplay HUD shows, as values (#1466): each energy tank, the energy count, each ammunition
 /// count, the AUTO reserve indicator, which item icons are shown and the shade the selection last gave each, and the
 /// five-by-three minimap's cells. Each value keeps what the HUD last drew, as the cartridge's HUD keeps its last
-/// writes; a value nothing has drawn since the HUD was set up shows the installed template. The installed artwork
-/// draws them (<see cref="Rows"/>).
+/// writes; a value nothing has drawn since the HUD was set up shows the installed template. The values select the
+/// installed HUD images and place them (<see cref="Shown"/>).
 /// </summary>
 public sealed class HudState
 {
@@ -48,8 +48,9 @@ public sealed class HudState
 
     /// <summary>Previous item selection used to update both icon shades and sound edges.</summary>
     internal HudItem PreviousSelectedItem { get; set; }
-    /// <summary>Current artwork binding, omitted from serialized gameplay state.</summary>
-    [NonSerialized] private GameplayHudPresentation? presentation;
+    /// <summary>The installed HUD layout the values are placed by, omitted from serialized gameplay state.</summary>
+    [field: NonSerialized]
+    internal GameplayHudPresentation? Presentation { get; private set; }
 
     /// <summary>Native $05F7: suppress minimap updates after a boss initializer.</summary>
     public bool MinimapDisabled { get; internal set; }
@@ -96,8 +97,8 @@ public sealed class HudState
     /// </summary>
     public void BindPresentation(GameplayHudPresentation? value, SamusState? samus = null)
     {
-        GameplayHudPresentation? previous = presentation;
-        presentation = value;
+        GameplayHudPresentation? previous = Presentation;
+        Presentation = value;
         if (!IsInitialized || value is null || samus is null ||
             string.Equals(previous?.ContentIdentity, value.ContentIdentity, StringComparison.Ordinal))
             return;
@@ -111,7 +112,7 @@ public sealed class HudState
     /// </summary>
     public void Initialize(HudSnapshot snapshot)
     {
-        _ = presentation ?? throw new InvalidOperationException("HUD initialization requires installed presentation assets.");
+        _ = Presentation ?? throw new InvalidOperationException("HUD initialization requires installed presentation assets.");
         ShowTemplateExceptMinimap();
         Array.Clear(Minimap);
 
@@ -297,49 +298,51 @@ public sealed class HudState
     }
 
     /// <summary>
-    /// The HUD's four rows as the installed artwork draws them now, row by row: the static top row, then the template
-    /// with every value drawn over it. A HUD with no artwork bound shows nothing, and one not yet set up shows only its
-    /// top row.
+    /// The HUD's images as its values select them now, in the order they are drawn (#1466): the static top row, then the
+    /// template with each value's images over it. A HUD with no artwork bound shows nothing, and one not yet set up shows
+    /// only its top row.
     /// </summary>
-    public BackgroundTile[] Rows()
+    public ShownHud Shown()
     {
-        var rows = new BackgroundTile[WidthInTiles + MutableTileCount];
-        if (presentation is null)
-            return rows;
-        presentation.TopRow().CopyTo(rows, 0);
+        if (Presentation is not { } art)
+            return ShownHud.Nothing;
+        var images = ImmutableArray.CreateBuilder<PlacedHudImage>();
+        images.Add(GameplayHudPresentation.TopRow);
         if (!IsInitialized)
-            return rows;
-        Span<BackgroundTile> drawn = rows.AsSpan(WidthInTiles);
-        presentation.ApplyTemplate(drawn);
+            return new ShownHud(images.ToImmutable());
+        images.Add(GameplayHudPresentation.Template);
         for (int item = 0; item < iconsAdded.Length; item++)
         {
-            if (iconsAdded[item])
-                presentation.TryApplyIcon(drawn, item);
-            if (iconShades[item] is { } shade)
-                presentation.ToggleItemHighlight(drawn, GameplayHudDefinitions.IconItems[item],
-                    shade == HudIconShade.Selected ? presentation.SelectedPalette : presentation.DeselectedPalette);
+            if (art.Icon(item, iconsAdded[item], iconShades[item]) is { } icon)
+                images.Add(icon);
         }
         for (int tank = 0; tank < energyTanks.Length; tank++)
+        {
             if (energyTanks[tank] is { } shown)
-                presentation.DrawEnergyTank(drawn, tank, shown);
+                images.Add(art.EnergyTank(tank, shown));
+        }
         if (energyCount is { } energy)
-            presentation.DrawEnergyCount(drawn, energy);
+            images.AddRange(art.EnergyCount(energy));
         for (int counter = 0; counter < ammoCounts.Length; counter++)
+        {
             if (ammoCounts[counter] is { } count)
-                presentation.ApplyAmmo(drawn, counter, count);
+                images.AddRange(art.Ammo(counter, count));
+        }
         if (reserveIndicator is { } indicator)
-            presentation.ApplyAutoReserve(drawn, indicator);
+            images.AddRange(art.AutoReserve(indicator));
         int columns = GameplayHudPresentation.MinimapSize.X;
         for (int index = 0; index < Minimap.Length; index++)
+        {
             if (Minimap[index] is { } cell)
-                presentation.DrawMinimapCell(drawn, new(checked((ushort)(index % columns)), checked((ushort)(index / columns))), cell);
-        return rows;
+                images.Add(art.MinimapCell(new(checked((ushort)(index % columns)), checked((ushort)(index / columns))), cell));
+        }
+        return new ShownHud(images.ToImmutable());
     }
 
     /// <summary>Updates the energy tanks and the two-digit energy remainder.</summary>
     private void DrawHealth(int health, int maxHealth)
     {
-        _ = presentation ?? throw new InvalidOperationException("HUD energy requires installed presentation assets.");
+        _ = Presentation ?? throw new InvalidOperationException("HUD energy requires installed presentation assets.");
         int fullTanks = health / 100;
         int tankCount = Math.Min(maxHealth / 100, GameplayHudDefinitions.EnergyTankCount);
         for (int tank = 0; tank < tankCount; tank++)
@@ -350,7 +353,7 @@ public sealed class HudState
     /// <summary>Draws the AUTO reserve indicator when its selected tank contains energy.</summary>
     private void DrawAutoReserve(bool containsEnergy)
     {
-        _ = presentation ?? throw new InvalidOperationException("HUD reserve indicator requires installed presentation assets.");
+        _ = Presentation ?? throw new InvalidOperationException("HUD reserve indicator requires installed presentation assets.");
         reserveIndicator = containsEnergy ? HudReserveIndicator.Filled : HudReserveIndicator.Empty;
     }
 
@@ -358,7 +361,7 @@ public sealed class HudState
     public void ClearAutoReserveIndicator()
     {
         if (!IsInitialized) throw new InvalidOperationException("Initialize the HUD before clearing AUTO.");
-        _ = presentation ?? throw new InvalidOperationException("HUD reserve indicator requires installed presentation assets.");
+        _ = Presentation ?? throw new InvalidOperationException("HUD reserve indicator requires installed presentation assets.");
         reserveIndicator = HudReserveIndicator.Cleared;
     }
 
@@ -368,7 +371,7 @@ public sealed class HudState
     /// </summary>
     private void AddIcon(int itemIndex)
     {
-        GameplayHudPresentation art = presentation ?? throw new InvalidOperationException("HUD icons require installed presentation assets.");
+        GameplayHudPresentation art = Presentation ?? throw new InvalidOperationException("HUD icons require installed presentation assets.");
         if (iconsAdded[itemIndex])
             return;
         iconsAdded[itemIndex] = true;
@@ -379,7 +382,7 @@ public sealed class HudState
     /// <summary>Gives the selected item's icon cells <paramref name="shade"/>, without redrawing the icon.</summary>
     internal void ToggleItemHighlight(HudItem selectedItem, HudIconShade shade)
     {
-        _ = presentation ?? throw new InvalidOperationException("HUD selection requires installed presentation assets.");
+        _ = Presentation ?? throw new InvalidOperationException("HUD selection requires installed presentation assets.");
         int itemIndex = Array.IndexOf(GameplayHudDefinitions.IconItems, selectedItem);
         if (itemIndex >= 0)
             iconShades[itemIndex] = shade;

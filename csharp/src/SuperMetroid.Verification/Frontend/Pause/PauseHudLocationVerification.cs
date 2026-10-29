@@ -36,7 +36,7 @@ internal static class PauseHudLocationVerification
             AssertEqual(phase == 0 ? 7 : 2, (center >> 10) & 7,
                 "native $90:AB4A blink selects palette seven only in its on phase");
             runtime.FrameBoundary.BeginAcceptedFrame(0);
-            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayLayer3 = runtime.AcceptedLayer3Plane });
+            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayHud = runtime.AcceptedHud });
             // The centre tile sits in the HUD's mutable rows, which follow the static top row on BG3.
             const int centerWord = Layer3Plane.Columns + 60;
             // A BG3 cell's palette selects four of the first CGRAM inks; the pause screen loads them from $B6:F000.
@@ -49,7 +49,7 @@ internal static class PauseHudLocationVerification
             for (int frame = 0; frame < 24; frame++)
             {
                 game.StepCaptured(0, frame + 1, 1);
-                AssertEqual(center, pause.screen.Tilemaps.Bg3[centerWord].PackedWord, $"phase {phase} frame {frame} retained HUD position tile");
+                AssertEqual(center, pause.screen.Bg3Tiles[centerWord].PackedWord, $"phase {phase} frame {frame} retained HUD position tile");
                 for (int color = 0; color < centerColors.Length; color++)
                     AssertEqual(centerColors[color], pause.screen.Palette.Colors[inks + 1 + color], $"phase {phase} frame {frame} HUD position ink {color + 1}");
             }

@@ -10,12 +10,12 @@ using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.TestSupport.RepositoryInstallation;
-using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Progression;
 
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Hud;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Builds a constructed pause presentation from retail source data and isolated fixture visuals.</summary>
@@ -74,8 +74,6 @@ internal static class PauseMenuFixtureVerification
             Areas = areas,
             HiddenCells = stock.HiddenCells,
             ContentIdentity = "constructed-pause-interaction-fixture",
-            Tiles = new MapTileCharacters(Read(MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount)),
-            HudTiles = new HudTileAtlas(hud),
             HighlightCycle = stock.HighlightCycle,
             Palettes = palettes,
             Labels = stock.Labels,
@@ -86,7 +84,6 @@ internal static class PauseMenuFixtureVerification
             Screens = stock.Screens,
             WorldArtwork = stock.WorldArtwork,
             Sprites = MapSpriteArtwork.Read(spriteJson, spritePng),
-            PauseTiles = new MapTileCharacters(Read(MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount)),
             PauseBackdrops = backdrops,
             PauseWireframes = stock.PauseWireframes,
             PauseSelectors = PauseSelectorSourcePresentation.Load(selectorJson),
@@ -131,6 +128,9 @@ internal static class PauseMenuFixtureVerification
             CeresRidleyFloorUpdates = stock.CeresRidleyFloorUpdates,
             SamusHyperBeamColors = stock.SamusHyperBeamColors,
         };
-        return new AreaMapPresentation(parts);
+        // The screens and the HUD are pictured from the constructed ROM's characters (#1466).
+        return new InstalledAreaMapPresentation(parts, new MapCharacterArtwork(
+            new MapTileCharacters(Read(MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount)), new HudTileAtlas(hud),
+            new MapTileCharacters(Read(MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount))));
     }
 }

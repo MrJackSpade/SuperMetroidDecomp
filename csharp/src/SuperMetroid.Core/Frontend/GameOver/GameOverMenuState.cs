@@ -65,7 +65,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         this.audio = Ensure.NotNull(audio);
         this.mapPresentation = mapPresentation ?? throw new InvalidOperationException(
             "Game-over screen requires installed presentation assets.");
-        screen = new MenuScreen(mapPresentation.Tiles, mapPresentation.Palettes,
+        screen = new MenuScreen(mapPresentation.Palettes,
             mapPresentation.WorldArtwork, spriteSheets);
         BindSpriteSheets(spriteSheets);
         LoadGameOverTilemap(mapPresentation.GameOver);
@@ -108,7 +108,6 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         if (string.Equals(previousIdentity, catalog.ContentIdentity, StringComparison.Ordinal))
             return;
 
-        screen.BindMapTiles(catalog.Tiles);
 
         screen.BindMapPalettes(catalog.Palettes);
         LoadGameOverTilemap(catalog.GameOver);

@@ -2,10 +2,10 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.AssetExtraction.Hud;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 

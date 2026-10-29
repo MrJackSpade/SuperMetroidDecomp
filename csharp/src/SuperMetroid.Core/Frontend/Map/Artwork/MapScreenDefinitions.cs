@@ -17,6 +17,10 @@ public static class MapScreenDefinitions
     public const int PageCells = PageColumns * PageRows;
     /// <summary>Serialized byte count of one page of 16-bit tilemap words.</summary>
     public const int PageBytes = PageCells * sizeof(ushort);
+    /// <summary>The map tiles a map screen's planes can place: as many as each of the map and pause interface tile sets holds.</summary>
+    public const int MapTileCount = 256;
+    /// <summary>The map tiles across one row of the room-frame pages' tile set.</summary>
+    public const int MapTileColumns = 32;
     /// <summary>Number of playable Zebes areas represented by world and room pages.</summary>
     public const int ZebesAreas = 6;
     /// <summary>Total required page count: one foreground plus two pages per area.</summary>

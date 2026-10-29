@@ -12,15 +12,17 @@ using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Map;
-using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
-/// <summary>Immutable map content snapshot. Overrides never alter stock provenance or exploration rules.</summary>
-public sealed class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentationContent
+/// <summary>
+/// Immutable map content snapshot. Overrides never alter stock provenance or exploration rules. The import reads it with
+/// the characters its screens and the HUD are pictured from, which the game never reads (#1466).
+/// </summary>
+public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentationContent
 {
     /// <summary>One validated map view per retail area in area-ID order.</summary>
     private readonly IAreaMapView[] areas;
@@ -30,8 +32,6 @@ public sealed class AreaMapPresentation : IInstalledArtworkContent, IGameplayPre
         this.areas = parts.Areas;
         HiddenCells = parts.HiddenCells;
         ContentIdentity = parts.ContentIdentity;
-        Tiles = parts.Tiles;
-        HudTiles = parts.HudTiles;
         HighlightCycle = parts.HighlightCycle;
         Palettes = parts.Palettes;
         Labels = parts.Labels;
@@ -42,7 +42,6 @@ public sealed class AreaMapPresentation : IInstalledArtworkContent, IGameplayPre
         Screens = parts.Screens;
         WorldArtwork = parts.WorldArtwork;
         Sprites = parts.Sprites;
-        PauseTiles = parts.PauseTiles;
         PauseBackdrops = parts.PauseBackdrops;
         PauseWireframes = parts.PauseWireframes;
         PauseSelectors = parts.PauseSelectors;
@@ -92,10 +91,6 @@ public sealed class AreaMapPresentation : IInstalledArtworkContent, IGameplayPre
     public string ContentIdentity { get; }
     /// <summary>The cells the map screens show in place of cells nothing reveals.</summary>
     public AreaMapHiddenCells HiddenCells { get; }
-    /// <summary>Selected map-screen character atlas; pause-menu artwork is supplied separately by <see cref="PauseTiles"/>.</summary>
-    public MapTileAtlas Tiles { get; }
-    /// <summary>Standard gameplay HUD character transfers, including the four BG3 quarters restored after Kraid.</summary>
-    public HudTileAtlas HudTiles { get; }
     /// <summary>Selected highlight color frames used by map presentation; animation progression remains engine-owned.</summary>
     public MapPaletteCycle HighlightCycle { get; }
     /// <summary>Complete static palettes for pause, file-select, and each world-map area, separate from the highlight cycle.</summary>
@@ -116,8 +111,6 @@ public sealed class AreaMapPresentation : IInstalledArtworkContent, IGameplayPre
     public WorldMapArtwork WorldArtwork { get; }
     /// <summary>The installed map and menu sprites; the game draws them from the map sprite sheet, and their compositions belong to the import pipeline (#1463).</summary>
     public MapSpriteCompositions Sprites { get; }
-    /// <summary>Selected pause-menu character atlas, separate from map-screen characters in <see cref="Tiles"/>.</summary>
-    public MapTileAtlas PauseTiles { get; }
     /// <summary>Pause-screen backdrop tilemap presentation, independent of equipment and map state.</summary>
     public PauseBackdropPresentation PauseBackdrops { get; }
     /// <summary>Samus suit wireframe artwork for the pause equipment screen.</summary>
@@ -204,15 +197,15 @@ public sealed class AreaMapPresentation : IInstalledArtworkContent, IGameplayPre
     public CeresRidleyFloorUpdateSources CeresRidleyFloorUpdates { get; }
     /// <summary>Samus Hyper Beam palette-cycle colors, separate from charged-beam presentation and other suit cycles.</summary>
     public SamusHyperBeamColours SamusHyperBeamColors { get; }
-    /// <summary>Resolves installed HUD or escape-timer character bytes for a VRAM transfer.</summary>
-    /// <param name="asset">The transfer identity; this provider supports only the HUD and escape-timer identities in its catalog.</param>
+    /// <summary>Resolves installed escape-timer character bytes for a VRAM transfer.</summary>
+    /// <param name="asset">The transfer identity; this provider supports only the escape-timer identities in its catalog.</param>
     /// <returns>Read-only planar character bytes for the requested transfer.</returns>
     /// <exception cref="InvalidDataException">The requested identity is not supported by this provider.</exception>
     public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) => asset switch
     {
-        InstalledArtworkId.StandardHudTiles => HudTiles.Bytes,
         InstalledArtworkId.EscapeTimerFirstTiles or InstalledArtworkId.EscapeTimerSecondTiles => EscapeTimerTiles.Resolve(asset),
-        InstalledArtworkId.BeamPowerTiles or
+        InstalledArtworkId.StandardHudTiles or
+            InstalledArtworkId.BeamPowerTiles or
             InstalledArtworkId.BeamWaveTiles or
             InstalledArtworkId.BeamIceTiles or
             InstalledArtworkId.BeamIceWaveTiles or

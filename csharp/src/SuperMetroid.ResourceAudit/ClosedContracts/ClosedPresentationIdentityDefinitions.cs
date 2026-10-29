@@ -65,7 +65,7 @@ internal static class ClosedPresentationIdentityDefinitions
         ("RoomFxLayer3Pages", "Resolve", "type") => RoomFxLayer3TilemapFormat.Types.Select(type => (int)type).ToArray(),
         ("RoomFxBlendInks", "Apply", "selection") => RoomFxPaletteBlendRules.Ids.Select(id => (int)id).Append(0).ToArray(),
         ("AreaMapPresentation" or "IGameplayPresentationContent", "Resolve", "asset") =>
-            [(int)InstalledArtworkId.StandardHudTiles, (int)InstalledArtworkId.EscapeTimerFirstTiles,
+            [(int)InstalledArtworkId.EscapeTimerFirstTiles,
              (int)InstalledArtworkId.EscapeTimerSecondTiles],
         ("RoomBackgroundTilemaps", "Get", "tilemap") => Enum.GetValues<RoomBackgroundTilemap>().Select(tilemap => (int)tilemap).ToArray(),
         ("MotherBrainSpecialSpriteArtworkCatalog", "Get", "sheet") => MotherBrainSpecialSpriteArtworkDefinitions.All

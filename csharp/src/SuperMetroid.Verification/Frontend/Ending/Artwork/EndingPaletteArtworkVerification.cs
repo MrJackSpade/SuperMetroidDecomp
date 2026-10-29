@@ -105,11 +105,11 @@ internal static class EndingPaletteArtworkVerification
         var cgram = new ScreenPalette();
         for (int step = 0; step < 16; step++)
         {
-            loaded.LoadTo(cgram.All.Slice(64, 32), step * 32);
+            loaded.LoadTo(cgram.BackgroundSets.All.Slice(64, 32), step * 32);
             for (int color = 0; color < 32; color++)
             {
                 int offset = (step * 32 + color) * 2;
-                AssertEqual(LittleEndianBytes.Word(original[offset], original[offset + 1]), cgram.Colors[64 + color],
+                AssertEqual(LittleEndianBytes.Word(original[offset], original[offset + 1]), cgram.BackgroundSets.All[64 + color],
                     "computed fade partial CGRAM transfer");
             }
         }
@@ -130,9 +130,9 @@ internal static class EndingPaletteArtworkVerification
             AssertThrows<ArgumentOutOfRangeException>(() => fade.Color(invalid), "computed fade index domain");
             AssertThrows<ArgumentOutOfRangeException>(() => loaded.Color(invalid), "loaded fade index domain");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => loaded.LoadTo(cgram.All.Slice(0, 2), 511), "computed fade source transfer bounds");
-        AssertThrows<ArgumentOutOfRangeException>(() => loaded.LoadTo(cgram.All.Slice(240, 32), 0), "computed fade destination transfer bounds");
-        loaded.LoadTo(cgram.All.Slice(256, 0), 512);
+        AssertThrows<ArgumentOutOfRangeException>(() => loaded.LoadTo(cgram.BackgroundSets.All.Slice(0, 2), 511), "computed fade source transfer bounds");
+        AssertThrows<ArgumentOutOfRangeException>(() => loaded.LoadTo(cgram.BackgroundSets.All.Slice(112, 32), 0), "computed fade destination transfer bounds");
+        loaded.LoadTo(cgram.BackgroundSets.All.Slice(128, 0), 512);
         AssertEqual(512, loaded.ColorCount, "computed fade retains published resource size");
     }
 

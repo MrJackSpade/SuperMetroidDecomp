@@ -96,8 +96,7 @@ internal static class LookupStream3Verification
             .Select(color => ReadVerificationWord(rom, IntroCinematicSourceDefinitions.Palette + 2 * color)).ToArray();
         IntroCinematicPalette stock = Load(native);
         Confirm(stock, native);
-        var rows = (Array)stock.rows;
-        AssertEqual(0, rows.Length, "intro complete stock palette stores no rows or paint words");
+        AssertEqual(0, stock.backgroundSets.Length + stock.spriteSets.Length, "intro complete stock palette stores no sets or paint words");
         for (int color = 0; color < native.Length; color++)
         for (int channel = 0; channel < 4; channel++)
         {
@@ -109,7 +108,7 @@ internal static class LookupStream3Verification
         Console.WriteLine("Intro palette rows:256 native colors and768 single-channel and256 combined RGB5 edits preserve transfer bytes/CGRAM/instance isolation; reviewed material choices and all shade calculations keep no stock rows.");
         static void Confirm(IntroCinematicPalette selected, ushort[] expected)
         {
-            ReadOnlySpan<byte> bytes = selected.ColorWords.Span;
+            ReadOnlySpan<byte> bytes = ScreenColourImage.Words(selected.Colours);
             for (int color = 0; color < expected.Length; color++)
                 AssertEqual(expected[color], System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(bytes[(color * 2)..]), "intro palette transfer word");
             var cgram = new ScreenPalette();
@@ -1015,12 +1014,12 @@ internal static class LookupStream3Verification
         foreach (int invalid in new[] { -1, 16, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBeamQuadrants.DirectionForPair(invalid),
                 "stream 3 beam dispatcher preserves span index bounds");
-        // Each scene's fade groups, as the colours of a screen palette they cover: first colour and colour count.
+        // Each scene's fade groups at the native boundary: the cartridge position of the first colour and the colour count.
         (int FirstColor, int ColorCount)[][] introRegions = [.. new[]
         {
             IntroCinematicDefinitions.Palette.Gameplay, IntroCinematicDefinitions.Palette.GameplayClear,
             IntroCinematicDefinitions.Palette.Narration, IntroCinematicDefinitions.Palette.Discovery,
-        }.Select(scene => scene.Select(group => new ScreenPalette().Colours(group)).Select(run => (run.First, run.Count)).ToArray())];
+        }.Select(scene => scene.Select(group => (ScreenColourPositions.Of(group), new ScreenPalette().Colours(group).Count)).ToArray())];
         (int FirstColor, int ColorCount)[][] expectedIntroRegions =
         [
             [new(0, 20), new(48, 16), new(233, 6)],

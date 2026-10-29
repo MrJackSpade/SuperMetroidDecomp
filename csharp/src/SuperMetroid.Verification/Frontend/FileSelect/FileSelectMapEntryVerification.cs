@@ -7,6 +7,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.Core.Rendering;
 
 /// <summary>Checks the file-select map entry's palette fade, transfer boundaries, and opening window.</summary>
 internal static class FileSelectMapEntryVerification

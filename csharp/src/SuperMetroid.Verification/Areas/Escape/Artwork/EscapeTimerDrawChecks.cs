@@ -61,9 +61,9 @@ internal static class EscapeTimerDrawChecks
             AssertTrue(draw is ImageSpriteDraw, message + ": timer draws are sheet images");
         }
         var cgram = new ScreenPalette();
-        palettes.LoadInitial(cgram.BackgroundSets, cgram);
-        palettes.LoadCommonSprites(cgram.SpriteRow(SpriteColourSetDefinitions.Common));
-        palettes.LoadEnemyProjectileSprites(cgram.SpriteRow(SpriteColourSetDefinitions.EnemyProjectiles));
+        palettes.LoadInitial(cgram.BackgroundSets, cgram.SpriteSets);
+        palettes.LoadCommonSprites(cgram.SpriteSets.Set(SpriteColourSetDefinitions.Common));
+        palettes.LoadEnemyProjectileSprites(cgram.SpriteSets.Set(SpriteColourSetDefinitions.EnemyProjectiles));
 
         var vram = new SnesVram();
         vram.LoadBytes(ObjCharacterImage.ResolveTileByteAddress(FirstCharacter, TimerObjectSelection), characters.Characters);

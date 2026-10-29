@@ -120,7 +120,7 @@ internal static class IntroCinematicArtworkVerification
             Suite(nameof(VerifyIntroDiscoveryActorSpriteArtwork), () => VerifyIntroDiscoveryActorSpriteArtwork(bus, stock, installation));
             Suite(nameof(VerifyIntroScientistSpriteArtwork), () => VerifyIntroScientistSpriteArtwork(bus, stock, installation));
             Suite(nameof(VerifyIntroMotherBrainDemoInput), () => VerifyIntroMotherBrainDemoInput(bus, stock));
-            AssertTrue(stock.Palette.ColorWords.Span.SequenceEqual(
+            AssertTrue(ScreenColourImage.Words(stock.Palette.Colours).AsSpan().SequenceEqual(
                     RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.Palette,
                         CgramPalettes.ByteCount)),
                 "installed opening palette preserves every native RGB5 word");
@@ -237,8 +237,8 @@ internal static class IntroCinematicArtworkVerification
                         index == 1 ? color with { Red = 32 } : color).ToArray(),
                 }))), "opening palette rejects out-of-range RGB5 channels");
             File.Delete(paletteOverridePath);
-            AssertTrue(installation.LoadIntroCinematicArt().Palette.ColorWords.Span.SequenceEqual(
-                    stock.Palette.ColorWords.Span),
+            AssertTrue(ScreenColourImage.Words(installation.LoadIntroCinematicArt().Palette.Colours).AsSpan().SequenceEqual(
+                    ScreenColourImage.Words(stock.Palette.Colours)),
                 "removing opening palette override restores exact native colors");
             File.WriteAllBytes(paletteOverridePath, [0]);
             AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
@@ -249,8 +249,8 @@ internal static class IntroCinematicArtworkVerification
                 "opening palette stock corruption fails manifest validation");
             _ = GameAssetInstaller.EnsureInstalled(root)
                 ?? throw new InvalidOperationException("Opening palette stock repair lost the installation.");
-            AssertTrue(installation.LoadIntroCinematicArt().Palette.ColorWords.Span.SequenceEqual(
-                    stock.Palette.ColorWords.Span),
+            AssertTrue(ScreenColourImage.Words(installation.LoadIntroCinematicArt().Palette.Colours).AsSpan().SequenceEqual(
+                    ScreenColourImage.Words(stock.Palette.Colours)),
                 "stock repair restores exact cartridge opening palette colors");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "installed opening palette never rereads its cartridge source");
@@ -677,8 +677,9 @@ internal static class IntroCinematicArtworkVerification
         Suite(nameof(VerifyCinematicSpriteAnimations), () => VerifyCinematicSpriteAnimations(bus));
         const ushort originX = 8;
         const ushort originY = 24;
-        int palette = IntroCinematicDefinitions.Objects.ScientistPalette;
-        ushort paletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits;
+        // The caret draws in the opening's cross-fade colours; the cartridge oracle takes their sprite set as its palette bits.
+        ScreenColourGroup palette = ScreenColourGroup.IntroCrossFadeObjects;
+        ushort paletteBits = SnesObjAttributeWord.Create(0, ScreenColourGroups.SpriteSet(palette), 0).PaletteBits;
         foreach (CinematicSpriteFrameDefinition definition in IntroCaretSpriteDefinitions.Frames)
         {
             var native = new OamBuffer();
@@ -814,8 +815,9 @@ internal static class IntroCinematicArtworkVerification
     private static void VerifyIntroMotherBrainSpriteArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
         IntroCinematicArtwork stock, GameInstallation installation)
     {
-        // The cartridge oracle takes the palette row as its attribute bits; the port's draw takes the row itself.
-        ushort motherBrainPaletteBits = SnesObjAttributeWord.Create(0, IntroMotherBrainSpriteState.Palette, 0).PaletteBits;
+        // The cartridge oracle takes the sprite set Mother Brain's colouring resolves to as its attribute bits; the port's
+        // draw takes the colouring itself.
+        ushort motherBrainPaletteBits = SnesObjAttributeWord.Create(0, ScreenColourGroups.SpriteSet(IntroMotherBrainSpriteState.Colouring), 0).PaletteBits;
         foreach (CinematicSpriteFrameDefinition definition in
             IntroMotherBrainSpriteDefinitions.Frames)
         {
@@ -831,7 +833,7 @@ internal static class IntroCinematicArtworkVerification
             installed.BeginFrame();
             CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).MotherBrainSprites).Draw(definition.Pose, installed,
                 IntroMotherBrainSpriteState.Position.ToSpritePosition(),
-                IntroMotherBrainSpriteState.Palette);
+                IntroMotherBrainSpriteState.Colouring);
             installed.FinalizeFrame();
             AssertTrue(installed.ImageEquals(native) &&
                     installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,
@@ -853,13 +855,13 @@ internal static class IntroCinematicArtworkVerification
         stockOam.BeginFrame();
         CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).MotherBrainSprites).Draw(IntroMotherBrainSpritePoses.FramePose(0), stockOam,
             IntroMotherBrainSpriteState.Position.ToSpritePosition(),
-            IntroMotherBrainSpriteState.Palette);
+            IntroMotherBrainSpriteState.Colouring);
         stockOam.FinalizeFrame();
         var editedOam = ScreenSpritesFixtures.Blank();
         editedOam.BeginFrame();
         CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(edited).MotherBrainSprites).Draw(IntroMotherBrainSpritePoses.FramePose(0), editedOam,
             IntroMotherBrainSpriteState.Position.ToSpritePosition(),
-            IntroMotherBrainSpriteState.Palette);
+            IntroMotherBrainSpriteState.Colouring);
         editedOam.FinalizeFrame();
         AssertTrue(!editedOam.ImageEquals(stockOam),
             "intro Mother Brain palette edit changes OAM art but not sprite size or X high bits");
@@ -896,8 +898,8 @@ internal static class IntroCinematicArtworkVerification
     {
         const ushort x = 120;
         const ushort y = 100;
-        int palette = IntroCinematicDefinitions.Objects.ExplosionPalette;
-        ushort paletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits;
+        ScreenColourGroup palette = ScreenColourGroup.IntroExplosions;
+        ushort paletteBits = SnesObjAttributeWord.Create(0, ScreenColourGroups.SpriteSet(palette), 0).PaletteBits;
         foreach (CinematicSpriteFrameDefinition definition in
             IntroMotherBrainExplosionSpriteDefinitions.Frames)
         {

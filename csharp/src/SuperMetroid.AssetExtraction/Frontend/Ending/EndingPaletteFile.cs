@@ -3,6 +3,8 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
@@ -12,7 +14,7 @@ public static class EndingPaletteFile
     /// <summary>Validates RGB5 JSON against the chosen resource's exact color count and compiles an independent compiled color representation.</summary>
     /// <param name="json">UTF-8 JSON read from its current position to the end and left open.</param>
     /// <param name="id">Palette role determining the required full resource size, not the size of an individual CGRAM transfer.</param>
-    /// <returns>Selected colors copied from the document; a logo crossfade matching the interpolation rule is represented by its endpoints without changing any supplied colors.</returns>
+    /// <returns>Selected colors copied from the document: a whole screen's decoded into its owners, a logo crossfade matching the interpolation rule represented by its endpoints without changing any supplied colors.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> is not a defined palette role.</exception>
     /// <exception cref="InvalidDataException">The JSON is invalid or ambiguous, the version or color count is wrong, or a color is null or has a channel outside 0..31.</exception>
@@ -34,7 +36,9 @@ public static class EndingPaletteFile
                     $"Ending {id} palette color {index} requires red, green and blue in 0..31.");
             compiled[index] = color.ToRgbColor();
         }
-        return EndingPalette.FromColours(id, compiled);
+        return count == ScreenColours.ColourCount
+            ? EndingPalette.FromScreen(ScreenColourImage.Decode(compiled))
+            : EndingPalette.FromColours(id, compiled);
     }
 
     /// <summary>Serializes and validates the entire selected palette before writing its UTF-8 JSON bytes.</summary>

@@ -30,9 +30,9 @@ internal static class MapStaticPalettesVerification
         var guard = NewMapDataGuard(bus, rules);
         var palette = new SnesCgram();
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(palette, bus, MapSourceDefinitions.Artwork.PauseColors);
-        AssertTrue(palette.Colors.SequenceEqual(original.Palettes.Pause), "all static pause colors match cartridge");
+        AssertTrue(palette.Colors.SequenceEqual(ScreenColourImage.Encode(original.Palettes.Pause)), "all static pause colors match cartridge");
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(palette, bus, MapSourceDefinitions.Menu.Colors);
-        AssertTrue(palette.Colors.SequenceEqual(original.Palettes.FileSelect), "all static file-select colors match cartridge");
+        AssertTrue(palette.Colors.SequenceEqual(ScreenColourImage.Encode(original.Palettes.FileSelect)), "all static file-select colors match cartridge");
         var nativeWorld = new FileSelectAreaMapGraphics(0, original.Tiles,
             original.Palettes, original.Screens, original.WorldArtwork, MenuSheetFixtures.For(original));
         var world = new FileSelectAreaMapGraphics(0, original.Tiles,
@@ -82,8 +82,10 @@ internal static class MapStaticPalettesVerification
             entry.Step(); controlEntry.Step();
             AssertEqual(controlEntry.Phase, entry.Phase, "palette replacement does not restart entry fade or reveal");
         }
+        RgbColor[] editedFileSelect = ScreenColourImage.Encode(edited.Palettes.FileSelect);
+        RgbColor[] entryColours = entry.Palette.Colors.ToArray();
         for (int color = 0; color < SnesCgram.ColorCount; color++)
-            AssertEqual(color is 14 or 30 ? RgbColor.Black : edited.Palettes.FileSelect[color], entry.Palette.Colors[color], "ongoing fade reaches newly bound palette target");
+            AssertEqual(color is 14 or 30 ? RgbColor.Black : editedFileSelect[color], entryColours[color], "ongoing fade reaches newly bound palette target");
 
         string rebuilt = Path.Combine(overrides, "stock-rebuilt");
         SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");

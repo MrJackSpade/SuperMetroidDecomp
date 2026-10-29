@@ -5,6 +5,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend;
 
 /// <summary>Checks the three Ceres destruction startup actors against their spawn operands and native definitions.</summary>
 internal static class CeresInitialActorMetadataVerification
@@ -73,7 +74,7 @@ internal static class CeresInitialActorMetadataVerification
         {
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.XWord), actor.Position.X, $"{name} X");
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.YWord), actor.Position.Y, $"{name} Y");
-            PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.AttributeWord), actor.Palette,
+            PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.AttributeWord), ScreenColourGroups.SpriteSet(actor.Colouring),
                 $"{name} attributes");
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.DeltaWord), unchecked((ushort)actor.HorizontalDelta),
                 $"{name} speed");

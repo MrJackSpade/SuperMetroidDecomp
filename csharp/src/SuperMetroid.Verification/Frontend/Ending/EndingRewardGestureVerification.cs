@@ -170,7 +170,7 @@ internal static class EndingRewardGestureVerification
                 EndingRewardNativeWords.Initializations.Decode(initializer, "reward initialization"));
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((code + 1)), origin.Position.X, "reward native initial X");
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((code + 7)), origin.Position.Y, "reward native initial Y");
-            PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(bus).ReadCartridgeWord((code + 13)), ScreenColourGroups.SpriteRow(origin.Colouring), "reward native initial palette selects the reward colouring's row");
+            PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(bus).ReadCartridgeWord((code + 13)), ScreenColourGroups.SpriteSet(origin.Colouring), "reward native initial palette selects the reward colouring's sprite set");
         }
         AssertEqual(4, initializers.Count, "reward initializer domain");
         AssertEqual(RewardActorPointers.Length, Enum.GetValues<EndingRewardActor>().Length, "reward record domain");

@@ -11,6 +11,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Frontend;
 
 /// <summary>Checks intro Mother Brain actor and explosion definitions against retail timing and placements.</summary>
 internal static class IntroMotherBrainDefinitionsVerification
@@ -86,10 +87,10 @@ internal static class IntroMotherBrainDefinitionsVerification
             AssertEqual(hit == 3, motherBrain.RecordMissileHit(),
                 $"intro Mother Brain hit {hit + 1} starts explosion only on the fourth hit");
         var cgram = new ScreenPalette();
-        var palette = new ushort[SnesCgram.ColorCount];
+        ScreenColours palette = ScreenColourImage.Decode(ToColors(new ushort[SnesCgram.ColorCount]));
         for (ushort frame = 1; frame <= 128; frame++)
         {
-            motherBrain.RunPreInstruction(cgram, ToColors(palette), frame, introCrossfadeTimer: 1);
+            motherBrain.RunPreInstruction(cgram, palette, frame, introCrossfadeTimer: 1);
             motherBrain.Step();
             if (frame < 128)
                 AssertTrue(!motherBrain.PageTwoRequested,
@@ -99,7 +100,7 @@ internal static class IntroMotherBrainDefinitionsVerification
             "intro Mother Brain page-two callback runs at explosion frame 128");
         for (int frame = 0; frame < 64; frame++)
         {
-            motherBrain.RunPreInstruction(cgram, ToColors(palette), (ushort)(129 + frame),
+            motherBrain.RunPreInstruction(cgram, palette, (ushort)(129 + frame),
                 introCrossfadeTimer: 1);
             motherBrain.Step();
             int record = CinematicSpriteNativeListAddresses.Entry(CinematicSpriteProgram.IntroMotherBrainPageTwo) +
@@ -108,7 +109,7 @@ internal static class IntroMotherBrainDefinitionsVerification
             AssertEqual(expected, CinematicSpritePoseSpritemaps.Of(motherBrain.Pose),
                 $"intro Mother Brain page-two frame {frame} preserves native loop");
         }
-        motherBrain.RunPreInstruction(cgram, ToColors(palette), cinematicFrameCounter: 193,
+        motherBrain.RunPreInstruction(cgram, palette, cinematicFrameCounter: 193,
             introCrossfadeTimer: 0);
         AssertTrue(!motherBrain.IsVisible,
             "intro Mother Brain page-two crossfade deletes the actor at timer zero");

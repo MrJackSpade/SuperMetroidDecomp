@@ -1012,7 +1012,7 @@ internal static class LookupStream5Verification
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
             actualOam.BeginFrame(); expectedOam.BeginFrame();
-            CinematicSheetFixtures.Drawer(catalog).Draw(pose, actualOam, new(128, 112), 0x0800, true);
+            CinematicSheetFixtures.Drawer(catalog).Draw(pose, actualOam, new(128, 112), ScreenColourGroup.CeresFlightSpaceObjects, true);
             expected.DrawOnScreen(expectedOam, new(128, 112), 0x0800);
             actualOam.FinishFrame(); expectedOam.FinalizeFrame();
             AssertEqual(expectedOam.LastFinalizedSpriteCount, actualOam.LastFinalizedSpriteCount, "Star OAM count/order");
@@ -1927,9 +1927,11 @@ internal static class LookupStream5Verification
             }
             colors[index] = original;
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(-1), "Ceres palette lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(SnesCgram.ColorCount), "Ceres palette upper bound");
-        AssertThrows<ArgumentException>(() => stock.CopyColorWordsTo(new byte[CeresFlightPalette.ColorWordBytes - 1]), "Ceres palette output extent");
+        // The palette is read by owner set and colour; its byte serialization belongs to the import pipeline.
+        ScreenColours stockColours = stock.Colours;
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = stockColours[new ScreenColourCell(ScreenColourOwner.Backgrounds, -1, 0)], "Ceres palette lower set bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = stockColours[new ScreenColourCell(ScreenColourOwner.Sprites, ColourSets.SetCount, 0)], "Ceres palette upper set bound");
+        AssertEqual(CgramPalettes.ByteCount, ScreenColourImage.Words(stockColours).Length, "Ceres palette serializes every colour of both owners");
         IReadOnlyDictionary<string, byte[]> files = SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightArtworkExtractor.Extract(rom);
         var catalog = CeresFlightCharacters.Read(Open(CeresFlightArtworkFormat.FloorFileName),
             Open(CeresFlightArtworkFormat.MapFileName), Open(CeresFlightArtworkFormat.ObjectFileName),
@@ -1955,13 +1957,15 @@ internal static class LookupStream5Verification
             using var json = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
             CeresFlightPalette actual = CeresFlightPaletteFile.Read(json);
             var cgram = new ScreenPalette(); actual.LoadTo(cgram);
-            Span<byte> bytes = stackalloc byte[CeresFlightPalette.ColorWordBytes]; actual.CopyColorWordsTo(bytes);
+            RgbColor[] selected = ScreenColourImage.Encode(actual.Colours);
+            RgbColor[] loaded = ScreenColourImage.Encode(cgram);
+            ReadOnlySpan<byte> bytes = ScreenColourImage.Words(actual.Colours);
             for (int index = 0; index < colors.Length; index++)
             {
                 PaletteRgb5 color = colors[index];
                 ushort expected = (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
-                AssertEqual(expected, actual.ColorAt(index), "Every selected color remains independent");
-                AssertEqual(expected, cgram.Colors[index], "Calculated colors reach actual CGRAM");
+                AssertEqual(expected, selected[index], "Every selected color remains independent");
+                AssertEqual(expected, loaded[index], "Calculated colors reach actual CGRAM");
                 AssertEqual(expected, System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(bytes.Slice(index * sizeof(ushort))), "Serialized colors retain exact native byte order");
             }
             return actual;

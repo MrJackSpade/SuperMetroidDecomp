@@ -12,6 +12,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rendering;
 
 /// <summary>Checks copy-confirmation arrow OAM and palette timing for all six file-slot pairs.</summary>
 internal static class FileCopyArrowVerification

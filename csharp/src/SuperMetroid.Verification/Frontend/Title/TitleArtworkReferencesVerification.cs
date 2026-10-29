@@ -8,6 +8,7 @@ namespace SuperMetroid.Verification.Frontend.Title;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
+using SuperMetroid.Core.Frontend;
 
 /// <summary>Checks title-artwork selector coverage and editable OAM without entering gameplay.</summary>
 internal static class TitleArtworkReferencesVerification
@@ -33,7 +34,7 @@ internal static class TitleArtworkReferencesVerification
         _ = Load(document);
         using (var stream = new MemoryStream()) TitleGraphicsCharacters.WriteMap(stream, document);
         foreach (TitleSpriteFrame frame in frames)
-            TitleGraphicsPresentation.DrawSprite(MenuSheetFixtures.WithTitle(Load(document)).Get(SpriteSheetId.Title), frame.Sprite, ScreenSpritesFixtures.Blank(), new(0, 0), 0);
+            TitleGraphicsPresentation.DrawSprite(MenuSheetFixtures.WithTitle(Load(document)).Get(SpriteSheetId.Title), frame.Sprite, ScreenSpritesFixtures.Blank(), new(0, 0), ScreenColourGroup.TitleText);
 
         // An unchanged frame count must not disguise one missing selector. Test every
         // compiled selector independently; the old loader accepted each substitution.
@@ -63,7 +64,7 @@ internal static class TitleArtworkReferencesVerification
         };
         TitleGraphicsPresentation selected = Load(document with { Sprites = edited });
         var oam = ScreenSpritesFixtures.Blank();
-        TitleGraphicsPresentation.DrawSprite(MenuSheetFixtures.WithTitle(selected).Get(SpriteSheetId.Title), edited[0].Sprite, oam, new(20, 30), 0);
+        TitleGraphicsPresentation.DrawSprite(MenuSheetFixtures.WithTitle(selected).Get(SpriteSheetId.Title), edited[0].Sprite, oam, new(20, 30), ScreenColourGroup.TitleText);
         oam.FinishFrame();
         AssertEqual(4, oam.NextByteOffset, "a required frame may still have editable OAM parts");
         AssertEqual((byte)23, oam.LowTable[0], "edited title X offset is applied");

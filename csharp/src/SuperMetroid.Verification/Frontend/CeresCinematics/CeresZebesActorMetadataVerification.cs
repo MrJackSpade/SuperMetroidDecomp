@@ -2,6 +2,7 @@ using SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 
@@ -31,7 +32,7 @@ internal static class CeresZebesActorMetadataVerification
                 $"Zebes reveal actor {index} X");
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(yAddresses[index]), actor.Position.Y,
                 $"Zebes reveal actor {index} Y");
-            PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(attributeAddresses[index]), actor.Palette,
+            PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(attributeAddresses[index]), ScreenColourGroups.SpriteSet(actor.Colouring),
                 $"Zebes reveal actor {index} attributes");
         }
 

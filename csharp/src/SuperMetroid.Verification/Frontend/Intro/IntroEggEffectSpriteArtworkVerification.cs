@@ -17,6 +17,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.Verification.Frontend.Intro;
 
@@ -30,8 +31,8 @@ internal static class IntroEggEffectSpriteArtworkVerification
         IntroCinematicArtwork stock, GameInstallation installation)
     {
         const ushort x = 120;
-        int palette = IntroCinematicDefinitions.Objects.DiscoveryPalette;
-        ushort paletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits;
+        ScreenColourGroup palette = ScreenColourGroup.IntroDiscoveryActors;
+        ushort paletteBits = SnesObjAttributeWord.Create(0, ScreenColourGroups.SpriteSet(palette), 0).PaletteBits;
         foreach (CinematicSpriteFrameDefinition definition in
             IntroEggEffectSpriteDefinitions.Frames)
         {

@@ -65,12 +65,13 @@ internal static class RgbColorDomainVerification
 
         // A production fade on typed colors reaches its exact target (native $82:DA02 ramp).
         var colours = new ScreenPalette();
-        colours.Load(cgram.Colors);
-        var target = new ColourImage(colours.All);
+        colours.LoadImage(cgram.Colors);
+        ColourImage target = colours.Capture();
         target.Fill(RgbColor.White);
         var fade = new GradualPaletteTransition(target, denominator: 6, new GradualColorChangeCounter());
         for (int step = 0; step < 16 && !fade.Step(); step++) { }
-        AssertTrue(colours.All.Colors.IndexOfAnyExcept(RgbColor.White) < 0, "typed palette fade installs its exact target");
+        AssertTrue(colours.BackgroundSets.All.Colors.IndexOfAnyExcept(RgbColor.White) < 0 &&
+            colours.SpriteSets.All.Colors.IndexOfAnyExcept(RgbColor.White) < 0, "typed palette fade installs its exact target");
 
         Console.WriteLine("RgbColor domain: all 32768 words, port masking, channel bounds, RGBA expansion, operations, and CGRAM agree.");
     }

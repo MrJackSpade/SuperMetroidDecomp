@@ -11,42 +11,24 @@ using SuperMetroid.Core.Rooms.Artwork;
 namespace SuperMetroid.Core.Bosses.Artwork;
 
 /// <summary>
-/// The bosses' installed artwork beside the shared enemy sheets (#1395) that gameplay reads: melts, BG2 frames, Mother
-/// Brain's corpse characters and each boss's colors. Each boss reads only its own entries. The characters the bosses'
-/// pre-coloured pictures are composed from belong to the import pipeline's subclass (#1463).
+/// The bosses' installed artwork beside the shared enemy sheets (#1395) that gameplay reads: Mother Brain's corpse
+/// characters and each boss's colors. Each boss reads only its own entries. The characters and frames the bosses'
+/// pre-coloured pictures and body sheets are composed from belong to the import pipeline's subclass (#1463, #1466).
 /// </summary>
 [ArchitectureReview("context-bag", "The bosses' installed artwork catalogs gameplay reads; its members are data, not services.")]
 public abstract record BossArtworkCatalog
 {
-    /// <summary>Both of Crocomire's melts; optional only for constructed fixtures.</summary>
-    public CrocomireMeltingArtwork? CrocomireMelting { get; init; }
-
-    /// <summary>Editable BG2 half of Crocomire's mixed fight-body frames.</summary>
-    public CrocomireBg2FrameCatalog? CrocomireBg2Frames { get; init; }
-
     /// <summary>Five editable Crocomire RGB5 transfer images; fight and death phases stay compiled.</summary>
     public CrocomireColorCatalog? CrocomireColors { get; init; }
-
-    /// <summary>Editable Phantoon BG2 tilemap frames; collision remains engine-owned.</summary>
-    public PhantoonBg2FrameCatalog? PhantoonBg2Frames { get; init; }
 
     /// <summary>Editable Phantoon health, fade-out and Wrecked Ship power-on colors.</summary>
     public PhantoonColorCatalog? PhantoonColors { get; init; }
 
-    /// <summary>Editable Draygon BG2 tilemap frames; collision remains engine-owned.</summary>
-    public DraygonBg2FrameCatalog? DraygonBg2Frames { get; init; }
-
     /// <summary>Editable Draygon opening, normal, flash and health-band colors.</summary>
     public DraygonColorCatalog? DraygonColors { get; init; }
 
-    /// <summary>Kraid's ordered BG2 tile references; null only for constructed fixtures.</summary>
-    public KraidBackgroundArtwork? KraidBackground { get; init; }
-
     /// <summary>Installed Kraid RGB5 artwork; null only for constructed fixtures.</summary>
     public KraidColorCatalog? KraidColors { get; init; }
-
-    /// <summary>Editable BG2 body poses paired with the installed Mother Brain OAM limbs.</summary>
-    public MotherBrainBodyBg2FrameCatalog? MotherBrainBodyBg2Frames { get; init; }
 
     /// <summary>Editable source tile sheet for Mother Brain's corpse-rotting WRAM staging.</summary>
     public RoomCharacterAtlas? MotherBrainCorpse { get; init; }

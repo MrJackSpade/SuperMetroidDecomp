@@ -12,7 +12,7 @@ internal sealed record KraidDeathDependencies
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     public required BossFrameResultBuilder FrameResults { get; init; }
 
-    /// <summary>Room scratch memory, services, and tilemap state used throughout the Kraid fight.</summary>
+    /// <summary>Room scratch memory and services used throughout the Kraid fight.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
     /// <summary>Publishes arena shake during growth, death, and heavy movement.</summary>
@@ -33,7 +33,7 @@ internal sealed record KraidDeathDependencies
     /// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and the sound he last requested.</summary>
     public required KraidEncounterAccess Access { get; init; }
 
-    /// <summary>Kraid's room background: its fade, color transitions, top and bottom tilemap transfers and the ceiling rocks.</summary>
+    /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
     public required KraidBackground Background { get; init; }
 
     /// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health palettes.</summary>

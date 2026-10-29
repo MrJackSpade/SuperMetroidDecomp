@@ -60,14 +60,14 @@ internal static class MotherBrainGeneratedVisualCatalogsVerification
         SpritemapFrameDefinition[] expected = OriginalMotherBrainFrames.Where(frame => frame.Pointer != 0xa320)
             .Select(frame => new SpritemapFrameDefinition(frame.Pointer,
                 frame.Name.Replace("_oam_", "_bg2_", StringComparison.Ordinal))).ToArray();
-        AssertEqual(16, MotherBrainBodyVisualDefinitions.Bg2Frames.Length, "Mother Brain BG2 count");
+        AssertEqual(16, MotherBrainBodyBg2FrameDefinitions.Frames.Length, "Mother Brain BG2 count");
         for (int i = 0; i < expected.Length; i++)
-            AssertEqual(expected[i], new SpritemapFrameDefinition(MotherBrainBodyVisualDefinitions.Bg2Frames[i].Pointer, MotherBrainBodyVisualDefinitions.Bg2Frames[i].Name),
+            AssertEqual(expected[i], new SpritemapFrameDefinition(MotherBrainBodyBg2FrameDefinitions.Frames[i].Pointer, MotherBrainBodyBg2FrameDefinitions.Frames[i].Name),
                 "Mother Brain published BG2 identity/name");
         var pointers = expected.Select(frame => frame.Pointer).ToHashSet();
         for (int pointer = 1; pointer <= ushort.MaxValue; pointer++)
             AssertEqual(pointers.Contains((ushort)pointer),
-                RoomEnemySlotFrameAccess.TryFrameAt(0xa9, (ushort)pointer) is { } frame && MotherBrainBodyVisualDefinitions.Bg2FrameIds.Contains(frame),
+                RoomEnemySlotFrameAccess.TryFrameAt(0xa9, (ushort)pointer) is { } frame && MotherBrainBodyVisualDefinitions.BodyLayerFrames.Contains(frame),
                 "Mother Brain exact BG2 domain including dummy exclusion");
         byte[] generatedJson = MotherBrainBodyBg2FrameFiles.Extract(rom);
         using var stream = new MemoryStream(generatedJson, writable: false);

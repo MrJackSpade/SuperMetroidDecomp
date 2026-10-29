@@ -8,13 +8,13 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Kraid's death: the sink below the floor, the tilemap clears and the background fade.</summary>
+/// <summary>Kraid's death: the sink below the floor, hiding his body and the background fade.</summary>
 [RoomLifetime]
 internal sealed class KraidDeath
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly BossFrameResultBuilder _frameResults;
-    /// <summary>Room scratch memory, services, and tilemap state used throughout the Kraid fight.</summary>
+    /// <summary>Room scratch memory and services used throughout the Kraid fight.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Publishes arena shake during growth, death, and heavy movement.</summary>
     private readonly RoomEarthquake _earthquake;
@@ -28,7 +28,7 @@ internal sealed class KraidDeath
     private readonly ZebetiteBehavior _zebetiteBehavior;
     /// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
-    /// <summary>Kraid's room background: its fade, color transitions, top and bottom tilemap transfers and the ceiling rocks.</summary>
+    /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
     private readonly KraidBackground _background;
     /// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health palettes.</summary>
     private readonly KraidHead _head;
@@ -50,24 +50,17 @@ internal sealed class KraidDeath
     }
 
     /// <summary>
-    /// <c>$A7:C715</c>: once the body has sunk, BG2 becomes Kraid's map filled with the blank tile, cleared over this
-    /// frame and the next. BG2 never returns to the room's own tilemap: on the cartridge Kraid's uploads overwrote it,
-    /// so showing it again draws stale room words across the top of the screen (#1427). A defeated room's reload takes
-    /// BG2 here too. The one frame in which the cartridge's half-cleared map still shows a strip of body is not
-    /// reproduced.
+    /// <c>$A7:C715</c>: once the body has sunk, his body is hidden: the upper half of his body layer shows his blank on
+    /// this update and the lower half on the next. His body layer stays shown in place of the room's background layer:
+    /// on the cartridge his body overwrote the room's, so showing it again draws a stale strip of it across the top of
+    /// the screen (#1427). A defeated room's reload hides his body here too. The one update in which the cartridge's
+    /// half-cleared layer still shows a strip of body is not reproduced.
     /// </summary>
-    private static void ClearKraidTopTilemapForDeath(KraidEnemyState state)
+    private static void HideKraidUpperBody(KraidEnemyState state)
     {
-        state.WorkingTop = KraidBodyPage.Blank;
-        state.DisplayedBody = state.DisplayedBody with { Top = KraidBodyPage.Blank, Head = null };
-        state.OwnsBg2Tilemap = true;
-    }
-
-    /// <summary><c>$A7:C751</c>: blanks the rest of Kraid's BG2 map, so it shows nothing for the rest of the visit.</summary>
-    private static void ClearKraidBottomTilemapForDeath(KraidEnemyState state)
-    {
-        state.WorkingBottom = KraidBodyPage.Blank;
-        state.DisplayedBody = state.DisplayedBody with { Bottom = KraidBodyPage.Blank };
+        state.BodyAppearance = KraidBodyAppearance.Hidden;
+        state.ShowUpperBody();
+        state.ShowsBodyLayer = true;
     }
 
     /// <summary>Dispatches the staged sinking, palette, and room-repair death sequence.</summary>
@@ -86,25 +79,25 @@ internal sealed class KraidDeath
                 _ = _head.ProcessKraidHeadInstruction(body, state);
                 if (_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToBlack))
                 {
-                    state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathUpdateTopTilemap;
+                    state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathShowUpperBody;
                     state.HurtFrameTimer = WrappingCountdown.Start(1);
                     state.HurtFrame = 1;
-                    KraidBackground.TransferKraidTopTilemap(state);
+                    state.ShowUpperBody();
                 }
                 return;
 
-            case KraidAiFunction.DeathUpdateTopTilemap:
+            case KraidAiFunction.DeathShowUpperBody:
                 _ = _head.ProcessKraidHeadInstruction(body, state);
-                state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathUpdateBottomTilemap;
+                state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathShowLowerBody;
                 for (int lintSlot = 2; lintSlot <= 4; lintSlot++)
                 {
                     state.Parts[_slotTable.Slots[lintSlot].SlotIndex].Function = KraidAiFunction.AlignPartToKraid;
                     state.Parts[_slotTable.Slots[lintSlot].SlotIndex].FunctionTimer = KraidBehavior.KraidStillPartTimer;
                 }
-                KraidBackground.TransferKraidTopTilemap(state);
+                state.ShowUpperBody();
                 return;
 
-            case KraidAiFunction.DeathUpdateBottomTilemap:
+            case KraidAiFunction.DeathShowLowerBody:
                 _ = _head.ProcessKraidHeadInstruction(body, state);
                 state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathSink;
                 state.DeathSoundTimer = WrappingCountdown.Start(43);
@@ -114,20 +107,21 @@ internal sealed class KraidDeath
                 _access.StartKraidPartProgram(_slotTable.Slots[1], KraidPartProgram.ArmRisingOrSinking);
                 _access.StartKraidPartProgram(_slotTable.Slots[5], KraidPartProgram.FootInitial);
                 state.Parts[_slotTable.Slots[5].SlotIndex].Function = KraidAiFunction.NoOperation;
-                KraidBackground.TransferKraidBottomTilemap(state);
+                state.ShowLowerBody();
                 return;
 
             case KraidAiFunction.DeathSink:
                 RunKraidDeathSink(body, state);
                 return;
 
-            case KraidAiFunction.DeathClearTopTilemap:
-                state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathClearBottomTilemap;
-                ClearKraidTopTilemapForDeath(state);
+            case KraidAiFunction.DeathHideUpperBody:
+                state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathHideLowerBody;
+                HideKraidUpperBody(state);
                 return;
-            case KraidAiFunction.DeathClearBottomTilemap:
+            case KraidAiFunction.DeathHideLowerBody:
                 state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathWaitBeforeFadeIn1;
-                ClearKraidBottomTilemapForDeath(state);
+                // `$A7:C751`: the lower half shows his hidden body, so his layer shows nothing for the rest of the visit.
+                state.ShowLowerBody();
                 return;
             // The death waits four updates before the room fades back in.
             case KraidAiFunction.DeathWaitBeforeFadeIn1:
@@ -166,8 +160,8 @@ internal sealed class KraidDeath
                 return;
             case KraidAiFunction.NoOperation:
             case KraidAiFunction.GrowBreakCeilingPlatforms:
-            case KraidAiFunction.GrowSetBg2Priority:
-            case KraidAiFunction.GrowFinishBg2Update:
+            case KraidAiFunction.GrowBringBodyInFront:
+            case KraidAiFunction.GrowShowLowerBodyInFront:
             case KraidAiFunction.GrowDrawRoomBackground:
             case KraidAiFunction.GrowFadeInRoomBackground:
             case KraidAiFunction.MainloopThinking:
@@ -200,7 +194,7 @@ internal sealed class KraidDeath
             case KraidAiFunction.GrowReleaseCamera:
             case KraidAiFunction.RestrictSamusToFirstScreen:
             case KraidAiFunction.RaiseKraidThroughFloor:
-            case KraidAiFunction.RaiseLoadBottomTilemap:
+            case KraidAiFunction.RaiseShowLowerBody:
             case KraidAiFunction.RaiseRocksEvery16Frames:
             case KraidAiFunction.RaiseRocksEvery8Frames:
             case KraidAiFunction.RaiseBody:
@@ -272,7 +266,7 @@ internal sealed class KraidDeath
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Deleted);
         for (int slot = 2; slot <= 5; slot++)
             _slotTable.Slots[slot].Properties = otherProperties;
-        state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathClearTopTilemap;
+        state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathHideUpperBody;
         // $A7:C594 returns the camera to distance index zero before the death drop.
         _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.NormalTracking;
 

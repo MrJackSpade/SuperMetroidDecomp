@@ -544,7 +544,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         ?? (Presentation.BossBody is { } body ? body.Publish(BossArtworkBinding.BodySheets
             ?? throw new InvalidOperationException("A boss shows its body with no installed boss body sheets.")) : null);
     /// <inheritdoc/>
-    Position16<BackgroundPixels>? IEnemyDisplaySources.KraidBodyScroll => KraidBehavior.BodyLayer.BodyScroll;
+    Position16<BackgroundPixels>? IEnemyDisplaySources.KraidBodyPlacement => KraidBehavior.BodyLayer.BodyPlacement;
     /// <inheritdoc/>
     Position16<BackgroundPixels>? IEnemyDisplaySources.CrocomireBg2Scroll =>
         CrocomireBehavior.Access.Crocomire is not null ? CrocomireBehavior.Bg2.CrocomireBg2Scroll : null;

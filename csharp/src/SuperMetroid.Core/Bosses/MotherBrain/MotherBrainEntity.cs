@@ -47,7 +47,7 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
 
     /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
-        Slot.DefinitionId == EnemyDefinitionId.MotherBrainBody && MotherBrainBodyVisualDefinitions.Bg2FrameIds.Contains(selected)
+        Slot.DefinitionId == EnemyDefinitionId.MotherBrainBody && MotherBrainBodyVisualDefinitions.BodyLayerFrames.Contains(selected)
             ? _bossArtwork.Body(BossBodyOwner.MotherBrain).Frame(selected) : null;
 
     /// <summary>The body's and head's shots enter the extended-spritemap walker; their contact and the tubes' use the header radius.</summary>

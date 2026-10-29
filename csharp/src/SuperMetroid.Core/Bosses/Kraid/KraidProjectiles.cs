@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 [RoomLifetime]
 internal sealed class KraidProjectiles
 {
-    /// <summary>Room scratch memory, services, and tilemap state used throughout the Kraid fight.</summary>
+    /// <summary>Room scratch memory and services used throughout the Kraid fight.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves nail and foot movement against room terrain.</summary>
     private readonly EnemyTerrain _terrain;
@@ -208,8 +208,8 @@ internal sealed class KraidProjectiles
 
             case KraidAiFunction.NoOperation:
             case KraidAiFunction.GrowBreakCeilingPlatforms:
-            case KraidAiFunction.GrowSetBg2Priority:
-            case KraidAiFunction.GrowFinishBg2Update:
+            case KraidAiFunction.GrowBringBodyInFront:
+            case KraidAiFunction.GrowShowLowerBodyInFront:
             case KraidAiFunction.GrowDrawRoomBackground:
             case KraidAiFunction.GrowFadeInRoomBackground:
             case KraidAiFunction.MainloopThinking:
@@ -238,11 +238,11 @@ internal sealed class KraidProjectiles
             case KraidAiFunction.GrowReleaseCamera:
             case KraidAiFunction.DeathInitialize:
             case KraidAiFunction.DeathFadeOut:
-            case KraidAiFunction.DeathUpdateTopTilemap:
-            case KraidAiFunction.DeathUpdateBottomTilemap:
+            case KraidAiFunction.DeathShowUpperBody:
+            case KraidAiFunction.DeathShowLowerBody:
             case KraidAiFunction.DeathSink:
-            case KraidAiFunction.DeathClearTopTilemap:
-            case KraidAiFunction.DeathClearBottomTilemap:
+            case KraidAiFunction.DeathHideUpperBody:
+            case KraidAiFunction.DeathHideLowerBody:
             case KraidAiFunction.DeathWaitBeforeFadeIn1:
             case KraidAiFunction.DeathWaitBeforeFadeIn2:
             case KraidAiFunction.DeathWaitBeforeFadeIn3:
@@ -252,7 +252,7 @@ internal sealed class KraidProjectiles
             case KraidAiFunction.DeathFinishedWasDead:
             case KraidAiFunction.RestrictSamusToFirstScreen:
             case KraidAiFunction.RaiseKraidThroughFloor:
-            case KraidAiFunction.RaiseLoadBottomTilemap:
+            case KraidAiFunction.RaiseShowLowerBody:
             case KraidAiFunction.RaiseRocksEvery16Frames:
             case KraidAiFunction.RaiseRocksEvery8Frames:
             case KraidAiFunction.RaiseBody:
@@ -355,8 +355,8 @@ internal sealed class KraidProjectiles
                 return;
             case KraidAiFunction.NoOperation:
             case KraidAiFunction.GrowBreakCeilingPlatforms:
-            case KraidAiFunction.GrowSetBg2Priority:
-            case KraidAiFunction.GrowFinishBg2Update:
+            case KraidAiFunction.GrowBringBodyInFront:
+            case KraidAiFunction.GrowShowLowerBodyInFront:
             case KraidAiFunction.GrowDrawRoomBackground:
             case KraidAiFunction.GrowFadeInRoomBackground:
             case KraidAiFunction.MainloopThinking:
@@ -384,11 +384,11 @@ internal sealed class KraidProjectiles
             case KraidAiFunction.GrowReleaseCamera:
             case KraidAiFunction.DeathInitialize:
             case KraidAiFunction.DeathFadeOut:
-            case KraidAiFunction.DeathUpdateTopTilemap:
-            case KraidAiFunction.DeathUpdateBottomTilemap:
+            case KraidAiFunction.DeathShowUpperBody:
+            case KraidAiFunction.DeathShowLowerBody:
             case KraidAiFunction.DeathSink:
-            case KraidAiFunction.DeathClearTopTilemap:
-            case KraidAiFunction.DeathClearBottomTilemap:
+            case KraidAiFunction.DeathHideUpperBody:
+            case KraidAiFunction.DeathHideLowerBody:
             case KraidAiFunction.DeathWaitBeforeFadeIn1:
             case KraidAiFunction.DeathWaitBeforeFadeIn2:
             case KraidAiFunction.DeathWaitBeforeFadeIn3:
@@ -398,7 +398,7 @@ internal sealed class KraidProjectiles
             case KraidAiFunction.DeathFinishedWasDead:
             case KraidAiFunction.RestrictSamusToFirstScreen:
             case KraidAiFunction.RaiseKraidThroughFloor:
-            case KraidAiFunction.RaiseLoadBottomTilemap:
+            case KraidAiFunction.RaiseShowLowerBody:
             case KraidAiFunction.RaiseRocksEvery16Frames:
             case KraidAiFunction.RaiseRocksEvery8Frames:
             case KraidAiFunction.RaiseBody:

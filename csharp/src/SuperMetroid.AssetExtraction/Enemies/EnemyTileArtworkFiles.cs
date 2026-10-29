@@ -212,7 +212,7 @@ public static class EnemyTileArtworkFiles
         File.WriteAllBytes(Path.Combine(directory, CrocomireBg2FrameDefinitions.FileName),
             crocomireBg2Json);
         byte[] motherBrainBodyBg2Json = MotherBrainBodyBg2FrameFiles.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory, MotherBrainBodyVisualDefinitions.Bg2FileName),
+        File.WriteAllBytes(Path.Combine(directory, MotherBrainBodyBg2FrameDefinitions.FileName),
             motherBrainBodyBg2Json);
         var gunshipLiftoffHashes = new Dictionary<int, string>();
         for (int index = 0; index < GunshipLiftoffTransferDefinitions.Frames.Length; index++)
@@ -296,7 +296,7 @@ public static class EnemyTileArtworkFiles
         {
             byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 KraidSourceDefinitions.CodeBank | KraidHeadArtworkDefinitions.Address(head.MouthStage),
-                KraidBackgroundDefinitions.HeadImageCells * sizeof(ushort));
+                KraidWorkingMapDefinitions.HeadImageCells * sizeof(ushort));
             byte[] json = KraidHeadTilemapFiles.Encode(native);
             File.WriteAllBytes(Path.Combine(directory,
                 KraidBackgroundArtworkFormat.HeadFileName(head.MouthStage)), json);
@@ -693,7 +693,7 @@ public static class EnemyTileArtworkFiles
         try
         {
             motherBrainBodyBg2Frames = MotherBrainBodyBg2FrameCatalog.Load(new MemoryStream(
-                ReadStockOrOverride(MotherBrainBodyVisualDefinitions.Bg2FileName,
+                ReadStockOrOverride(MotherBrainBodyBg2FrameDefinitions.FileName,
                     manifest.MotherBrainBodyBg2FramesSha256), writable: false));
         }
         catch (InvalidDataException error)
@@ -1152,7 +1152,7 @@ public static class EnemyTileArtworkFiles
             {
                 return RoomBackgroundTilemapAtlas.Load(
                     new MemoryStream(selected, writable: false),
-                    KraidBackgroundDefinitions.SourceTilemapBytes);
+                    KraidWorkingMapDefinitions.SourceTilemapBytes);
             }
             catch (InvalidDataException error)
             {
@@ -1254,7 +1254,7 @@ public static class EnemyTileArtworkFiles
     private static byte[] ExtractKraidTilemap(ISnesAddressSpace bus, int sourceAddress)
     {
         byte[] native = RomDataReader.Decompress(CartridgeImportSource.Require(bus), sourceAddress,
-            KraidBackgroundDefinitions.SourceTilemapBytes);
+            KraidWorkingMapDefinitions.SourceTilemapBytes);
         return RoomBackgroundTilemapExtractor.Encode(native);
     }
 

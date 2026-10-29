@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Bosses.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
@@ -17,21 +16,21 @@ internal static class KraidBodyFixtures
         BackgroundTileWordBytes.Words(KraidWorkingMap.Compose(Art(artwork)));
 
     /// <summary>
-    /// The tilemap entries <paramref name="state"/>'s body frame shows with <paramref name="artwork"/>: its pages and head as
-    /// the import's frames of Kraid's body sheet write them, over his blank.
+    /// The tilemap entries <paramref name="state"/>'s body frame shows with <paramref name="artwork"/>: its halves and head
+    /// as the import's frames of Kraid's body sheet write them, over his blank.
     /// </summary>
     internal static ushort[] Shown(BossArtworkCatalog artwork, KraidEnemyState state)
     {
-        Dictionary<string, AssetExtraction.Bosses.BossBodyFrameSource> frames = BossBodySheetComposer.Frames(artwork, Enemies.BossBodies.BossBodyOwner.Kraid)
+        Dictionary<string, BossBodyFrameSource> frames = BossBodySheetComposer.Frames(artwork.Sources, Enemies.BossBodies.BossBodyOwner.Kraid)
             .ToDictionary(frame => frame.Name, StringComparer.Ordinal);
         var words = new ushort[KraidBodyLayout.LayerRows * Enemies.BossBodies.BossBodyDefinitions.ColumnCount];
-        words.AsSpan().Fill(KraidBackgroundDefinitions.BlankTile.PackedWord);
-        KraidBodyFrame frame = state.DisplayedBody;
+        words.AsSpan().Fill(KraidWorkingMapDefinitions.BlankTile.PackedWord);
+        KraidBodyFrame frame = state.ShownBody;
         foreach (string? name in new[]
         {
-            KraidBodyFrameNames.Of(frame.Top, KraidBodyHalf.Upper),
+            KraidBodyFrameNames.Of(frame.Upper, KraidBodyHalf.Upper),
             frame.Head is { } head ? KraidBodyFrameNames.Head(head.MouthStage) : null,
-            KraidBodyFrameNames.Of(frame.Bottom, KraidBodyHalf.Lower),
+            KraidBodyFrameNames.Of(frame.Lower, KraidBodyHalf.Lower),
         })
         {
             if (name is null)
@@ -49,14 +48,14 @@ internal static class KraidBodyFixtures
     internal static ushort[] Tilemap(ReadOnlySpan<ushort> top, ReadOnlySpan<ushort> head, ReadOnlySpan<ushort> bottom)
     {
         var words = new ushort[KraidBackgroundDefinitions.BodyPlaneSize.X * KraidBackgroundDefinitions.BodyPlaneSize.Y];
-        words.AsSpan().Fill(KraidBackgroundDefinitions.BlankTile.PackedWord);
+        words.AsSpan().Fill(KraidWorkingMapDefinitions.BlankTile.PackedWord);
         top.CopyTo(words);
         head.CopyTo(words);
-        bottom.CopyTo(words.AsSpan(2 * KraidBackgroundDefinitions.PageCells));
+        bottom.CopyTo(words.AsSpan(2 * KraidWorkingMapDefinitions.PageCells));
         return words;
     }
 
     /// <summary>The installed Kraid BG2 artwork in <paramref name="artwork"/>.</summary>
     private static KraidBackgroundArtwork Art(BossArtworkCatalog artwork) =>
-        artwork.KraidBackground ?? throw new InvalidOperationException("The boss artwork has no Kraid BG2 sources.");
+        artwork.Sources.KraidBackground ?? throw new InvalidOperationException("The boss artwork has no Kraid BG2 sources.");
 }

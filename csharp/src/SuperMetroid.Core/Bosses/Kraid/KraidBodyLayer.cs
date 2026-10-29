@@ -34,27 +34,27 @@ internal sealed class KraidBodyLayer
     /// <exception cref="InvalidOperationException">No boss body sheets are installed.</exception>
     internal BossBodyLayer? CaptureBodyLayer()
     {
-        if (_access.Kraid is not { OwnsBg2Tilemap: true } state)
+        if (_access.Kraid is not { ShowsBodyLayer: true } state)
             return null;
         BossBodySheet sheet = _bossArtwork.Body(BossBodyOwner.Kraid);
-        if (shown is not { } cached || cached.Frame != state.DisplayedBody || !ReferenceEquals(cached.Sheet, sheet))
-            shown = cached = new KraidShownBody(state.DisplayedBody, sheet, Draw(state.DisplayedBody, sheet));
+        if (shown is not { } cached || cached.Frame != state.ShownBody || !ReferenceEquals(cached.Sheet, sheet))
+            shown = cached = new KraidShownBody(state.ShownBody, sheet, Draw(state.ShownBody, sheet));
         return cached.Layer;
     }
 
-    /// <summary>Where Kraid's body layer is viewed from while he owns it (#1352); otherwise null.</summary>
-    internal Position16<BackgroundPixels>? BodyScroll => _access.Kraid is { OwnsBg2Tilemap: true } state ? state.Bg2Scroll : null;
+    /// <summary>Where Kraid's body layer is placed while it is shown (#1352); otherwise null.</summary>
+    internal Position16<BackgroundPixels>? BodyPlacement => _access.Kraid is { ShowsBodyLayer: true } state ? state.BodyLayerPlacement : null;
 
     /// <summary>The layer <paramref name="frame"/> shows: its pages and head drawn from <paramref name="sheet"/> over his blank.</summary>
     /// <exception cref="InvalidDataException">The sheet lacks a frame the body frame shows.</exception>
     private static BossBodyLayer Draw(KraidBodyFrame frame, BossBodySheet sheet)
     {
         var canvas = new BossBodyCanvas(sheet, KraidBodyLayout.LayerRows);
-        if (KraidBodyFrameNames.Of(frame.Top, KraidBodyHalf.Upper) is { } upper)
+        if (KraidBodyFrameNames.Of(frame.Upper, KraidBodyHalf.Upper) is { } upper)
             canvas.Draw(sheet.Frame(upper));
         if (frame.Head is { } head)
             canvas.Draw(sheet.Frame(KraidBodyFrameNames.Head(head.MouthStage)));
-        if (KraidBodyFrameNames.Of(frame.Bottom, KraidBodyHalf.Lower) is { } lower)
+        if (KraidBodyFrameNames.Of(frame.Lower, KraidBodyHalf.Lower) is { } lower)
             canvas.Draw(sheet.Frame(lower));
         return canvas.Publish(sheet);
     }

@@ -13,10 +13,10 @@ public enum KraidAiFunction
     NoOperation = 1,
     /// <summary>$A7:AC4D: breaks ceiling platforms into their authored room mutations as Kraid grows.</summary>
     GrowBreakCeilingPlatforms,
-    /// <summary>$A7:AD3A: sets Kraid's private BG2 tilemap priority bits during growth.</summary>
-    GrowSetBg2Priority,
-    /// <summary>$A7:AD61: completes the growth sequence's BG2 tilemap updates.</summary>
-    GrowFinishBg2Update,
+    /// <summary>$A7:AD3A: brings Kraid's grown body in front of the room's sprites and shows its upper half.</summary>
+    GrowBringBodyInFront,
+    /// <summary>$A7:AD61: shows the lower half of his body in front of the sprites and settles his grown parts.</summary>
+    GrowShowLowerBodyInFront,
     /// <summary>$A7:AD8E: installs the room background behind the enlarged Kraid.</summary>
     GrowDrawRoomBackground,
     /// <summary>$A7:AE23: fades the room background into the enlarged encounter.</summary>
@@ -81,16 +81,16 @@ public enum KraidAiFunction
     DeathInitialize,
     /// <summary>$A7:C3F9: fades the room background out while continuing the private head stream.</summary>
     DeathFadeOut,
-    /// <summary>$A7:C4A4: updates the top BG2 half and parks the lint parts for sinking.</summary>
-    DeathUpdateTopTilemap,
-    /// <summary>$A7:C4C8: updates the bottom BG2 half and starts the death quake and sinking sound timer.</summary>
-    DeathUpdateBottomTilemap,
+    /// <summary>$A7:C4A4: shows the upper half of his body, covering his head, and parks the lint parts for sinking.</summary>
+    DeathShowUpperBody,
+    /// <summary>$A7:C4C8: shows the lower half of his body and starts the death quake and sinking sound timer.</summary>
+    DeathShowLowerBody,
     /// <summary>$A7:C537: sinks Kraid through the floor while processing authored debris, sounds, and drops.</summary>
     DeathSink,
-    /// <summary>$A7:C715: clears the top private BG2 half before ordinary room background restoration.</summary>
-    DeathClearTopTilemap,
-    /// <summary>$A7:C751: clears the bottom private BG2 half before the death's four-update wait.</summary>
-    DeathClearBottomTilemap,
+    /// <summary>$A7:C715: hides the upper half of his body before the room's backdrop is restored.</summary>
+    DeathHideUpperBody,
+    /// <summary>$A7:C751: hides the lower half of his body before the death's four-update wait.</summary>
+    DeathHideLowerBody,
     /// <summary>$A7:C777: the first of the four updates Kraid's death waits before fading the room back in.</summary>
     DeathWaitBeforeFadeIn1,
     /// <summary>$A7:C7A3: the second update of the wait before the fade-in.</summary>
@@ -107,10 +107,10 @@ public enum KraidAiFunction
     DeathFinishedWasDead,
     /// <summary>$A7:C865: restricts Samus to the room's first screen while waiting for the rise.</summary>
     RestrictSamusToFirstScreen,
-    /// <summary>$A7:C86B: installs the top BG2 tilemap half at the start of Kraid's rise.</summary>
+    /// <summary>$A7:C86B: shows the upper half of his body at the start of Kraid's rise.</summary>
     RaiseKraidThroughFloor,
-    /// <summary>$A7:C89A: installs the bottom BG2 half, starts the quake, and requests boss music.</summary>
-    RaiseLoadBottomTilemap,
+    /// <summary>$A7:C89A: shows the lower half of his body, starts the quake, and requests boss music.</summary>
+    RaiseShowLowerBody,
     /// <summary>$A7:C8E0: requests rise rocks on sixteen-frame timer boundaries during the first pre-rise wait.</summary>
     RaiseRocksEvery16Frames,
     /// <summary>$A7:C902: requests rise rocks on eight-frame timer boundaries during the faster pre-rise wait.</summary>

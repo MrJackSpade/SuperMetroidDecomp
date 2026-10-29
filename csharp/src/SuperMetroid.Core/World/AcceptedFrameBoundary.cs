@@ -200,7 +200,7 @@ internal sealed class AcceptedFrameBoundary
         var motherBrain = Displays?.MotherBrain;
         return new(
             Displays?.BossBody,
-            Displays?.KraidBodyScroll,
+            Displays?.KraidBodyPlacement,
             Displays?.Draygon is { } draygon
                 ? new DraygonBodyPlacement(draygon.Body.Position.Whole, draygon.BodyBg2Scroll, draygon.Body.Properties.HasAny(EnemyProperties.Deleted))
                 : null,

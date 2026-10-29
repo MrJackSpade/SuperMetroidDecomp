@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Verification.Bosses;
 

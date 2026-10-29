@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -10,37 +9,29 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// </summary>
 internal static class MotherBrainBodyVisualDefinitions
 {
-    /// <summary>Largest native root: ten components, including two BG2 streams.</summary>
-    internal const int MaximumComponents = EnemyBg2FrameLayout.MaximumComponents;
     /// <summary>Standing, walking, crouch, dummy, and death-beam body roots selected by compiled programs.</summary>
     internal const int FrameCount = 17;
-    /// <summary>Schema revision of the selected BG2 body-frame document.</summary>
-    internal const int Bg2Version = 2;
-    /// <summary>Installed JSON filename for Mother Brain's selected BG2 body frames.</summary>
-    internal const string Bg2FileName = "mother-brain-body-bg2-frames.json";
-    /// <summary>Every body frame with a BG2 stream, omitting the OAM-only initial dummy.</summary>
-    internal static ImmutableArray<EnemySpritemapDefinition> Bg2Frames { get; } =
-    [
-        new(EnemyFrameId.MotherBrainBodyStanding, "mother_brain_body_bg2_standing"),
-        new(EnemyFrameId.MotherBrainBodyWalking0, "mother_brain_body_bg2_walking_0"),
-        new(EnemyFrameId.MotherBrainBodyWalking1, "mother_brain_body_bg2_walking_1"),
-        new(EnemyFrameId.MotherBrainBodyWalking2, "mother_brain_body_bg2_walking_2"),
-        new(EnemyFrameId.MotherBrainBodyWalking3, "mother_brain_body_bg2_walking_3"),
-        new(EnemyFrameId.MotherBrainBodyWalking4, "mother_brain_body_bg2_walking_4"),
-        new(EnemyFrameId.MotherBrainBodyWalking5, "mother_brain_body_bg2_walking_5"),
-        new(EnemyFrameId.MotherBrainBodyWalking6, "mother_brain_body_bg2_walking_6"),
-        new(EnemyFrameId.MotherBrainBodyWalking7, "mother_brain_body_bg2_walking_7"),
-        new(EnemyFrameId.MotherBrainBodyCrouched, "mother_brain_body_bg2_crouched"),
-        new(EnemyFrameId.MotherBrainBodyUncrouching, "mother_brain_body_bg2_uncrouching"),
-        new(EnemyFrameId.MotherBrainBodyLeaningDown, "mother_brain_body_bg2_leaning_down"),
-        new(EnemyFrameId.MotherBrainBodyDeathBeam0, "mother_brain_body_bg2_death_beam_0"),
-        new(EnemyFrameId.MotherBrainBodyDeathBeam1, "mother_brain_body_bg2_death_beam_1"),
-        new(EnemyFrameId.MotherBrainBodyDeathBeam2, "mother_brain_body_bg2_death_beam_2"),
-        new(EnemyFrameId.MotherBrainBodyDeathBeam3, "mother_brain_body_bg2_death_beam_3"),
-    ];
 
-    /// <summary>The body frames with a BG2 stream.</summary>
-    internal static IReadOnlySet<EnemyFrameId> Bg2FrameIds { get; } = Bg2Frames.Select(definition => definition.Frame).ToHashSet();
+    /// <summary>The body frames drawn on Mother Brain's body layer: every pose but the sprite-only initial dummy (#1466).</summary>
+    internal static IReadOnlySet<EnemyFrameId> BodyLayerFrames { get; } = new HashSet<EnemyFrameId>
+    {
+        EnemyFrameId.MotherBrainBodyStanding,
+        EnemyFrameId.MotherBrainBodyWalking0,
+        EnemyFrameId.MotherBrainBodyWalking1,
+        EnemyFrameId.MotherBrainBodyWalking2,
+        EnemyFrameId.MotherBrainBodyWalking3,
+        EnemyFrameId.MotherBrainBodyWalking4,
+        EnemyFrameId.MotherBrainBodyWalking5,
+        EnemyFrameId.MotherBrainBodyWalking6,
+        EnemyFrameId.MotherBrainBodyWalking7,
+        EnemyFrameId.MotherBrainBodyCrouched,
+        EnemyFrameId.MotherBrainBodyUncrouching,
+        EnemyFrameId.MotherBrainBodyLeaningDown,
+        EnemyFrameId.MotherBrainBodyDeathBeam0,
+        EnemyFrameId.MotherBrainBodyDeathBeam1,
+        EnemyFrameId.MotherBrainBodyDeathBeam2,
+        EnemyFrameId.MotherBrainBodyDeathBeam3,
+    };
 
     /// <summary>The installed frame each <see cref="MotherBrainBodyFrame"/> shows.</summary>
     internal static EnemyFrameTable<MotherBrainBodyFrame> ShownFrames { get; } = new()

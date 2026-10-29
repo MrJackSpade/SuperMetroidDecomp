@@ -22,8 +22,6 @@ using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
-using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
@@ -228,12 +226,12 @@ internal static class EnemyContentIdentityFixtureVerification
                 KeyValuePair.Create(0, KraidHeadTilemapAtlas.Load(Json(new KraidHeadTilemapDocument
                 {
                     Version = KraidHeadTilemapFormat.Version, Width = KraidHeadTilemapFormat.Width,
-                    Height = KraidHeadTilemapFormat.Height, Cells = Cells("kraid-head-first", KraidBackgroundDefinitions.HeadImageCells),
+                    Height = KraidHeadTilemapFormat.Height, Cells = Cells("kraid-head-first", KraidWorkingMapDefinitions.HeadImageCells),
                 }))),
                 KeyValuePair.Create(1, KraidHeadTilemapAtlas.Load(Json(new KraidHeadTilemapDocument
                 {
                     Version = KraidHeadTilemapFormat.Version, Width = KraidHeadTilemapFormat.Width,
-                    Height = KraidHeadTilemapFormat.Height, Cells = Cells("kraid-head-second", KraidBackgroundDefinitions.HeadImageCells),
+                    Height = KraidHeadTilemapFormat.Height, Cells = Cells("kraid-head-second", KraidWorkingMapDefinitions.HeadImageCells),
                 }))),
             });
             var meltFirstMap = MeltMap("melt-first-map");
@@ -276,8 +274,8 @@ internal static class EnemyContentIdentityFixtureVerification
                     new EnemyContentIdentityFixtureField("speed", DachoraColorDefinitions.AnimatedFrameCount, DachoraColorDefinitions.ColorsPerFrame),
                     new EnemyContentIdentityFixtureField("shine", DachoraColorDefinitions.AnimatedFrameCount, DachoraColorDefinitions.ColorsPerFrame)), AuxiliaryColors = auxiliary }),
                 new BossSourceArtwork { CrocomireMelting = CrocomireMeltingArtwork.Load(Characters("melt-first", CrocomireMeltingArtworkFormat.FirstByteCount),
-                    Characters("melt-second", CrocomireMeltingArtworkFormat.SecondByteCount), Json(meltFirstMap), Json(meltSecondMap)), KraidBackground = new KraidBackgroundArtwork(Map("kraid-upper", KraidBackgroundDefinitions.SourceTilemapBytes),
-                    Map("kraid-lower", KraidBackgroundDefinitions.SourceTilemapBytes), heads,
+                    Characters("melt-second", CrocomireMeltingArtworkFormat.SecondByteCount), Json(meltFirstMap), Json(meltSecondMap)), KraidBackground = new KraidBackgroundArtwork(Map("kraid-upper", KraidWorkingMapDefinitions.SourceTilemapBytes),
+                    Map("kraid-lower", KraidWorkingMapDefinitions.SourceTilemapBytes), heads,
                     Characters("kraid-background", KraidSourceDefinitions.RoomBackgroundTileBytes)), KraidColors = ColorCatalog(KraidColorFile.Read,
                     new EnemyContentIdentityFixtureField("roomBackdrop", 0, KraidPalettes.ColorCount(KraidPaletteSource.RoomBackdrop)),
                     new EnemyContentIdentityFixtureField("initialTarget", 0, KraidPalettes.ColorCount(KraidPaletteSource.InitialTarget)),
@@ -308,7 +306,7 @@ internal static class EnemyContentIdentityFixtureVerification
                     new EnemyContentIdentityFixtureField("explodedDoor", 0, MotherBrainDeathDefinitions.BodyColorCount)), ZebetiteColors = ColorCatalog(ZebetiteColorFile.Read, new EnemyContentIdentityFixtureField("frames", ZebetiteColorFormat.FrameCount, ZebetiteColorFormat.ColorsPerFrame)), NorfairRidleyColors = ColorCatalog(NorfairRidleyColorFile.Read,
                     new EnemyContentIdentityFixtureField("initial", 0, NorfairRidleyPaletteDefinitions.InitialColorCount),
                     new EnemyContentIdentityFixtureField("reveal", NorfairRidleyPaletteDefinitions.RevealStepCount, NorfairRidleyPaletteDefinitions.RevealColorCount)), PhantoonBg2Frames = Shared("phantoon-bg2", () => PhantoonBg2FrameCatalog.Load(Bg2("phantoon-bg2", PhantoonBg2FrameDefinitions.Frames, PhantoonBg2FrameDefinitions.Version))), DraygonBg2Frames = Shared("draygon-bg2", () => DraygonBg2FrameCatalog.Load(Bg2("draygon-bg2", DraygonBg2FrameDefinitions.Frames, DraygonBg2FrameDefinitions.Version))), CrocomireBg2Frames = Shared("crocomire-bg2", () => CrocomireBg2FrameCatalog.Load(Bg2("crocomire-bg2", CrocomireBg2FrameDefinitions.Frames, CrocomireBg2FrameDefinitions.Version))), MotherBrainBodyBg2Frames = motherBrainBodyBg2Frames ?? MotherBrainBodyBg2FrameCatalog.Load(
-                    Bg2("mother-brain-body-bg2", MotherBrainBodyVisualDefinitions.Bg2Frames, MotherBrainBodyVisualDefinitions.Bg2Version)), MotherBrainCorpse = Characters("mother-brain-corpse", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainEscapeText = Characters("mother-brain-text", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainSpecialSprites = special, CrocomireSkeleton = CrocomireSkeletonArtwork.Load(RoomCharacterAtlasPng.Read(Png("crocomire-skeleton", CrocomireSkeletonCharacterDefinitions.TotalByteCount), CrocomireSkeletonCharacterDefinitions.TotalByteCount)), TorizoSwaps = torizo },
+                    Bg2("mother-brain-body-bg2", MotherBrainBodyBg2FrameDefinitions.Frames, MotherBrainBodyBg2FrameDefinitions.Version)), MotherBrainCorpse = Characters("mother-brain-corpse", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainEscapeText = Characters("mother-brain-text", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainSpecialSprites = special, CrocomireSkeleton = CrocomireSkeletonArtwork.Load(RoomCharacterAtlasPng.Read(Png("crocomire-skeleton", CrocomireSkeletonCharacterDefinitions.TotalByteCount), CrocomireSkeletonCharacterDefinitions.TotalByteCount)), TorizoSwaps = torizo },
                 new AreaSourceArtwork { CeresDoorVisual = door, TourianStatueColors = ColorCatalog(TourianStatueColorFile.Read,
                     new EnemyContentIdentityFixtureField("base", 0, TourianStatueColorDefinitions.BaseColorCount), new EnemyContentIdentityFixtureField("statue", 0, TourianStatueColorDefinitions.StatueColorCount),
                     new EnemyContentIdentityFixtureField("eye", TourianStatueColorDefinitions.EyeRowCount, TourianStatueColorDefinitions.EyeColorCount), new EnemyContentIdentityFixtureField("grey", 0, TourianStatueColorDefinitions.GreyColorCount)), CeresEscapeTiles = ceresTiles, CeresEscapeOverlayTilemaps = overlay });

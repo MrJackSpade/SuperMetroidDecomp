@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Bosses.MotherBrain;
+﻿using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
@@ -14,7 +13,7 @@ internal sealed record KraidRiseDependencies
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     public required BossFrameResultBuilder FrameResults { get; init; }
 
-    /// <summary>Room scratch memory, services, and tilemap state used throughout the Kraid fight.</summary>
+    /// <summary>Room scratch memory and services used throughout the Kraid fight.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
     /// <summary>Owns rocks, lint, and other fight projectiles.</summary>
@@ -36,12 +35,9 @@ internal sealed record KraidRiseDependencies
     /// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and the sound he last requested.</summary>
     public required KraidEncounterAccess Access { get; init; }
 
-    /// <summary>Kraid's room background: its fade, color transitions, top and bottom tilemap transfers and the ceiling rocks.</summary>
+    /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
     public required KraidBackground Background { get; init; }
 
     /// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health palettes.</summary>
     public required KraidHead Head { get; init; }
-
-    /// <summary>The session's installed boss artwork.</summary>
-    public required BossArtworkBinding BossArtwork { get; init; }
 }

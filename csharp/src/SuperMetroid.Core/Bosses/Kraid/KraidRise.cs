@@ -19,7 +19,7 @@ internal sealed class KraidRise
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly BossFrameResultBuilder _frameResults;
-    /// <summary>Room scratch memory, services, and tilemap state used throughout the Kraid fight.</summary>
+    /// <summary>Room scratch memory and services used throughout the Kraid fight.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns rocks, lint, and other fight projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -33,18 +33,15 @@ internal sealed class KraidRise
     private readonly ZebetiteBehavior _zebetiteBehavior;
     /// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
-    /// <summary>Kraid's room background: its fade, color transitions, top and bottom tilemap transfers and the ceiling rocks.</summary>
+    /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
     private readonly KraidBackground _background;
     /// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health palettes.</summary>
     private readonly KraidHead _head;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal KraidRise(KraidRiseDependencies dependencies)
     {
-        _bossArtwork = dependencies.BossArtwork;
         _frameResults = dependencies.FrameResults;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
@@ -77,14 +74,13 @@ internal sealed class KraidRise
             // restore the defeated arena on every room load so the broken ceiling and
             // removed floor spikes cannot return when the player exits and re-enters.
             LoadKraidColorBand(KraidPaletteSource.RoomBackdrop, _presentation.BossColours().KraidRoomBackdrop);
-            state.WorkingTop = state.WorkingBottom = KraidBodyPage.Blank;
-            state.BackgroundTilemapsPrepared = true;
+            state.BodyAppearance = KraidBodyAppearance.Hidden;
             UploadKraidRoomBackgroundTiles();
             _frameResults.KraidPlms.AddRange(KraidPlmDefinitions.DefeatedRoom);
-            // The body is the owner of `$A7:C715-$C815`; deleting it here skips the two
-            // BG2 clears and four standard-BG3 restoration DMAs. The other seven physical
-            // records take their own dead initializer and remain deleted as on cartridge.
-            state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathClearTopTilemap;
+            // The body owns `$A7:C715-$C815`: a defeated room's body starts at hiding his body layer's halves and
+            // the death's four-update wait. The other seven physical records take their own dead initializer and
+            // remain deleted as on cartridge.
+            state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathHideUpperBody;
             return;
         }
 
@@ -94,8 +90,8 @@ internal sealed class KraidRise
         state.EjectionLimit = new Position16<RoomPixels>(0, 324);
         state.InitialHealth = body.Health;
 
-        // `$A7:AAC6` constructs the private WRAM tilemap which subsequent rise, head,
-        // growth, and death functions upload in independently timed slices.
+        // `$A7:AAC6` readies his body, whose halves rise, head, growth and death functions show on independently
+        // timed updates.
         state.InitializeBodyLayer();
         state.HurtFrame = 0;
         state.HurtFrameTimer = WrappingCountdown.Start(0);
@@ -123,28 +119,19 @@ internal sealed class KraidRise
     }
 
     /// <summary>Binds the fixed room backdrop characters among the room's tile characters (#1352, #1406).</summary>
-    internal void UploadKraidRoomBackgroundTiles()
-    {
-        KraidBackgroundArtwork art = _bossArtwork.Artwork?.KraidBackground
-            ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters.");
+    internal void UploadKraidRoomBackgroundTiles() =>
         _presentation.Backgrounds.Bind(KraidBehavior.KraidRoomBackgroundIdentity, BgCharacterSet.Tiles, KraidBackgroundDefinitions.RoomBackgroundFirstCharacter,
-            BgCharacterSet.Tiles.CharactersIn(art.RoomBackgroundTiles.Characters.Length));
-    }
+            KraidBackgroundDefinitions.RoomBackgroundCharacterCount);
 
     /// <summary>
-    /// Ports <c>$A7:AD3A</c>'s priority-bit pass before second phase. It runs only on the composed body; a defeated
-    /// room's blank map never reaches growth.
+    /// <c>$A7:AD3A</c>: brings Kraid's grown body in front of the room's sprites before his second phase. Only a risen
+    /// body grows; a defeated room's hidden body never reaches growth.
     /// </summary>
-    private static void SetKraidBg2Priority(KraidEnemyState state)
-    {
-        state.WorkingTop = WithPriority(state.WorkingTop);
-        state.WorkingBottom = WithPriority(state.WorkingBottom);
-        state.Bg2PriorityBitsSet = true;
-
-        static KraidBodyPage WithPriority(KraidBodyPage page) => page == KraidBodyPage.Body
-            ? KraidBodyPage.PriorityBody
-            : throw new InvalidOperationException($"Kraid's priority pass reached a working page holding {page}.");
-    }
+    /// <exception cref="InvalidOperationException">His body is not behind the sprites.</exception>
+    private static void BringKraidBodyInFront(KraidEnemyState state) =>
+        state.BodyAppearance = state.BodyAppearance == KraidBodyAppearance.BehindSprites
+            ? KraidBodyAppearance.InFrontOfSprites
+            : throw new InvalidOperationException($"Kraid's growth reached a body that appears {state.BodyAppearance}.");
 
     /// <summary>Copies one Kraid palette source band to its CGRAM destination.</summary>
     internal void LoadKraidColorBand(KraidPaletteSource source, ColourRun destination)
@@ -163,7 +150,7 @@ internal sealed class KraidRise
         state.ThinkingTimer = WrappingCountdown.FromRaw(_head.ReadKraidThinkingTimer());
     }
 
-    /// <summary>Dispatches rise, scroll, tilemap, and palette stages of growth.</summary>
+    /// <summary>Dispatches the rise, camera, body and palette stages of growth.</summary>
     internal void RunKraidGrowthFunction(RoomEnemySlot body, KraidEnemyState state)
     {
         switch (state.Parts[body.SlotIndex].Function)
@@ -191,18 +178,18 @@ internal sealed class KraidRise
                     state.Parts[body.SlotIndex].CeilingRockOffset = unchecked((ushort)(state.Parts[body.SlotIndex].CeilingRockOffset + 2));
                 }
                 if (unchecked((short)(body.Position.Y.Whole - 296)) < 0)
-                    state.Parts[body.SlotIndex].Function = KraidAiFunction.GrowSetBg2Priority;
+                    state.Parts[body.SlotIndex].Function = KraidAiFunction.GrowBringBodyInFront;
                 return;
 
-            case KraidAiFunction.GrowSetBg2Priority:
-                SetKraidBg2Priority(state);
+            case KraidAiFunction.GrowBringBodyInFront:
+                BringKraidBodyInFront(state);
                 _slotTable.Slots[1].Properties = _slotTable.Slots[1].Properties.Without(
                     EnemyProperties.IgnoreSamusCollision);
-                state.Parts[body.SlotIndex].Function = KraidAiFunction.GrowFinishBg2Update;
-                KraidBackground.TransferKraidTopTilemap(state);
+                state.Parts[body.SlotIndex].Function = KraidAiFunction.GrowShowLowerBodyInFront;
+                state.ShowUpperBody();
                 return;
 
-            case KraidAiFunction.GrowFinishBg2Update:
+            case KraidAiFunction.GrowShowLowerBodyInFront:
                 state.Parts[body.SlotIndex].Function = KraidAiFunction.GrowDrawRoomBackground;
                 RoomEnemySlot foot = _slotTable.Slots[5];
                 _access.StartKraidPartProgram(foot, KraidPartProgram.FootNeutral);
@@ -211,7 +198,7 @@ internal sealed class KraidRise
                     _access.SetKraidPartProgram(_slotTable.Slots[lintSlot], KraidPartProgram.LintPostGrowth);
                     _slotTable.Slots[lintSlot].Frame = KraidPartFrameDefinitions.ShownFrames.Of(new KraidPartFrame(KraidPartFrameKind.Lint, 1));
                 }
-                KraidBackground.TransferKraidBottomTilemap(state);
+                state.ShowLowerBody();
                 return;
 
             case KraidAiFunction.GrowDrawRoomBackground:
@@ -261,11 +248,11 @@ internal sealed class KraidRise
             case KraidAiFunction.FootFirstPhaseRetreat:
             case KraidAiFunction.DeathInitialize:
             case KraidAiFunction.DeathFadeOut:
-            case KraidAiFunction.DeathUpdateTopTilemap:
-            case KraidAiFunction.DeathUpdateBottomTilemap:
+            case KraidAiFunction.DeathShowUpperBody:
+            case KraidAiFunction.DeathShowLowerBody:
             case KraidAiFunction.DeathSink:
-            case KraidAiFunction.DeathClearTopTilemap:
-            case KraidAiFunction.DeathClearBottomTilemap:
+            case KraidAiFunction.DeathHideUpperBody:
+            case KraidAiFunction.DeathHideLowerBody:
             case KraidAiFunction.DeathWaitBeforeFadeIn1:
             case KraidAiFunction.DeathWaitBeforeFadeIn2:
             case KraidAiFunction.DeathWaitBeforeFadeIn3:
@@ -275,7 +262,7 @@ internal sealed class KraidRise
             case KraidAiFunction.DeathFinishedWasDead:
             case KraidAiFunction.RestrictSamusToFirstScreen:
             case KraidAiFunction.RaiseKraidThroughFloor:
-            case KraidAiFunction.RaiseLoadBottomTilemap:
+            case KraidAiFunction.RaiseShowLowerBody:
             case KraidAiFunction.RaiseRocksEvery16Frames:
             case KraidAiFunction.RaiseRocksEvery8Frames:
             case KraidAiFunction.RaiseBody:
@@ -356,17 +343,17 @@ internal sealed class KraidRise
 
             case KraidAiFunction.RaiseKraidThroughFloor:
                 RestrictSamusToKraidFirstScreen(samus);
-                state.Parts[body.SlotIndex].Function = KraidAiFunction.RaiseLoadBottomTilemap;
-                KraidBackground.TransferKraidTopTilemap(state);
+                state.Parts[body.SlotIndex].Function = KraidAiFunction.RaiseShowLowerBody;
+                state.ShowUpperBody();
                 return;
 
-            case KraidAiFunction.RaiseLoadBottomTilemap:
+            case KraidAiFunction.RaiseShowLowerBody:
                 RestrictSamusToKraidFirstScreen(samus);
                 state.Parts[body.SlotIndex].Function = KraidAiFunction.RaiseRocksEvery16Frames;
                 state.Parts[body.SlotIndex].RisingRockTimer = 120;
                 _earthquake.EarthquakeTimer = WrappingCountdown.Start(496);
                 state.MusicRequest = MusicRequest.SelectTrack(5);
-                KraidBackground.TransferKraidBottomTilemap(state);
+                state.ShowLowerBody();
                 return;
 
             case KraidAiFunction.RaiseRocksEvery16Frames:
@@ -427,8 +414,8 @@ internal sealed class KraidRise
 
             case KraidAiFunction.NoOperation:
             case KraidAiFunction.GrowBreakCeilingPlatforms:
-            case KraidAiFunction.GrowSetBg2Priority:
-            case KraidAiFunction.GrowFinishBg2Update:
+            case KraidAiFunction.GrowBringBodyInFront:
+            case KraidAiFunction.GrowShowLowerBodyInFront:
             case KraidAiFunction.GrowDrawRoomBackground:
             case KraidAiFunction.GrowFadeInRoomBackground:
             case KraidAiFunction.MainloopThinking:
@@ -461,11 +448,11 @@ internal sealed class KraidRise
             case KraidAiFunction.GrowReleaseCamera:
             case KraidAiFunction.DeathInitialize:
             case KraidAiFunction.DeathFadeOut:
-            case KraidAiFunction.DeathUpdateTopTilemap:
-            case KraidAiFunction.DeathUpdateBottomTilemap:
+            case KraidAiFunction.DeathShowUpperBody:
+            case KraidAiFunction.DeathShowLowerBody:
             case KraidAiFunction.DeathSink:
-            case KraidAiFunction.DeathClearTopTilemap:
-            case KraidAiFunction.DeathClearBottomTilemap:
+            case KraidAiFunction.DeathHideUpperBody:
+            case KraidAiFunction.DeathHideLowerBody:
             case KraidAiFunction.DeathWaitBeforeFadeIn1:
             case KraidAiFunction.DeathWaitBeforeFadeIn2:
             case KraidAiFunction.DeathWaitBeforeFadeIn3:

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Phantoon;
-using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Hud;
@@ -12,6 +11,7 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
 using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
 namespace SuperMetroid.Verification.Bosses.Phantoon;
@@ -43,7 +43,7 @@ internal static class PhantoonBodyPublicationVerification
         BossArtworkCatalog bosses = runtime.BossArtwork.Artwork ?? throw new InvalidOperationException("The retail runtime installs boss artwork.");
         var expected = new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight];
         expected.AsSpan().Fill(BossBodySheetComposer.BlankOf(BossBodyOwner.Phantoon).PackedWord);
-        if (!(bosses.PhantoonBg2Frames ?? throw new InvalidOperationException("Phantoon's BG2 frames are installed.")).TryGet(frame, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes))
+        if (!(bosses.Sources.PhantoonBg2Frames ?? throw new InvalidOperationException("Phantoon's BG2 frames are installed.")).TryGet(frame, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes))
             throw new InvalidOperationException("Phantoon's body frame has installed writes.");
         foreach (EnemyBg2TilemapWrite write in writes.Span)
             write.Words.CopyTo(expected.AsSpan(write.FirstCell));

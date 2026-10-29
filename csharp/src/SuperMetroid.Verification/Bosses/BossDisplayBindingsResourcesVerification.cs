@@ -42,8 +42,8 @@ internal static class BossDisplayBindingsResourcesVerification
         AssertThrows<InvalidDataException>(() => EnemyExtendedFrameDocuments.Load(json.Json(stock.Oam with { Frames = bad })),
             "empty components are permitted only on declared BG2-only physical roots");
         var cross = new Dictionary<string, string>((edits.Oam.DisplayFrames ?? throw new InvalidOperationException("Verification requires edits.Oam.DisplayFrames.")), StringComparer.Ordinal);
-        string phantoon = EnemyExtendedFrameDefinitions.Frames.First(frame => PhantoonBg2FrameDefinitions.FrameIds.Contains(frame.Frame)).Name;
-        string draygon = EnemyExtendedFrameDefinitions.Frames.First(frame => DraygonBg2FrameDefinitions.FrameIds.Contains(frame.Frame)).Name;
+        string phantoon = EnemyExtendedFrameDefinitions.Frames.First(frame => PhantoonBodyLayerFrameDefinitions.Frames.Contains(frame.Frame)).Name;
+        string draygon = EnemyExtendedFrameDefinitions.Frames.First(frame => DraygonBodyLayerFrameDefinitions.Frames.Contains(frame.Frame)).Name;
         cross[phantoon] = draygon;
         AssertThrows<InvalidDataException>(() => EnemyExtendedFrameDocuments.Load(json.Json(edits.Oam with { DisplayFrames = cross })),
             "BG2 bindings cannot select another boss's visuals");
@@ -62,7 +62,7 @@ internal static class BossDisplayBindingsResourcesVerification
         // Older Draygon bindings cannot point at the new BG2 keys. Use an authored
         // old OAM target just as a real schema-26 file does.
         string oldDraygon = old.First(frame => frame.Name.StartsWith("draygon_", StringComparison.Ordinal) &&
-            !DraygonBg2FrameDefinitions.FrameIds.Contains(frame.Frame)).LegacyName;
+            !DraygonBodyLayerFrameDefinitions.Frames.Contains(frame.Frame)).LegacyName;
         foreach (string name in legacy.DisplayFrames.Keys.ToArray())
             if (!legacy.Frames.ContainsKey(legacy.DisplayFrames[name])) legacy.DisplayFrames[name] = oldDraygon;
         EnemyExtendedFrameCatalog baseline = (stock.Build().Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.Build().ExtendedFrames."));

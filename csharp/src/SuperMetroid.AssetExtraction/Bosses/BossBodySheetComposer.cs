@@ -1,12 +1,10 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.World.RoomStates;
@@ -75,14 +73,14 @@ internal static class BossBodySheetComposer
     /// <summary>The tile <paramref name="owner"/> clears its body layer with.</summary>
     internal static BackgroundTile BlankOf(BossBodyOwner owner) => owner switch
     {
-        BossBodyOwner.Kraid => KraidBackgroundDefinitions.BlankTile,
+        BossBodyOwner.Kraid => KraidWorkingMapDefinitions.BlankTile,
         BossBodyOwner.Phantoon or BossBodyOwner.Draygon or BossBodyOwner.Crocomire or BossBodyOwner.MotherBrain => BossBodySourceDefinitions.BlankTile,
         _ => throw new InvalidDataException($"Undefined boss body owner {owner}."),
     };
 
     /// <summary>Every frame <paramref name="owner"/> draws, at the layer cells it writes.</summary>
     /// <exception cref="InvalidDataException">The boss's installed artwork is missing.</exception>
-    internal static IEnumerable<BossBodyFrameSource> Frames(BossArtworkCatalog bosses, BossBodyOwner owner)
+    internal static IEnumerable<BossBodyFrameSource> Frames(BossSourceArtwork bosses, BossBodyOwner owner)
     {
         switch (owner)
         {
@@ -111,16 +109,16 @@ internal static class BossBodySheetComposer
     private static IEnumerable<BossBodyFrameSource> KraidFrames(KraidBackgroundArtwork art)
     {
         BackgroundTile[] working = KraidWorkingMap.Compose(art);
-        BackgroundTile[] upper = working[..KraidBackgroundDefinitions.PageCells];
-        BackgroundTile[] lower = working[KraidBackgroundDefinitions.LowerPageFirstCell..(KraidBackgroundDefinitions.LowerPageFirstCell + KraidBackgroundDefinitions.PageCells)];
+        BackgroundTile[] upper = working[..KraidWorkingMapDefinitions.PageCells];
+        BackgroundTile[] lower = working[KraidWorkingMapDefinitions.LowerPageFirstCell..(KraidWorkingMapDefinitions.LowerPageFirstCell + KraidWorkingMapDefinitions.PageCells)];
         int lowerCell = KraidBodyLayout.LowerPageTopRow * BossBodyDefinitions.ColumnCount;
-        foreach (KraidBodyPage page in new[] { KraidBodyPage.Body, KraidBodyPage.PriorityBody })
+        foreach (KraidBodyAppearance appearance in new[] { KraidBodyAppearance.BehindSprites, KraidBodyAppearance.InFrontOfSprites })
         {
-            bool inFront = page == KraidBodyPage.PriorityBody;
-            yield return BossBodyFrameSource.Written(KraidBodyFrameNames.Of(page, KraidBodyHalf.Upper)
-                ?? throw new InvalidDataException("Kraid's upper body page has no frame."), 0, InFront(upper, inFront));
-            yield return BossBodyFrameSource.Written(KraidBodyFrameNames.Of(page, KraidBodyHalf.Lower)
-                ?? throw new InvalidDataException("Kraid's lower body page has no frame."), lowerCell, InFront(lower, inFront));
+            bool inFront = appearance == KraidBodyAppearance.InFrontOfSprites;
+            yield return BossBodyFrameSource.Written(KraidBodyFrameNames.Of(appearance, KraidBodyHalf.Upper)
+                ?? throw new InvalidDataException("Kraid's upper body has no frame."), 0, InFront(upper, inFront));
+            yield return BossBodyFrameSource.Written(KraidBodyFrameNames.Of(appearance, KraidBodyHalf.Lower)
+                ?? throw new InvalidDataException("Kraid's lower body has no frame."), lowerCell, InFront(lower, inFront));
         }
         foreach (KraidHeadFrame head in KraidHeadFrame.ByMouthStage)
             yield return BossBodyFrameSource.Written(KraidBodyFrameNames.Head(head.MouthStage), 0, art.HeadTiles(head));

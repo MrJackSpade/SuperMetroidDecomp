@@ -1,6 +1,9 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Runtime;
@@ -54,7 +57,7 @@ internal static class MotherBrainTankBackgroundVerification
             "Phase-two setup attaches the staged first page as Mother Brain's body layer"); 
         AssertTrue(RoomShowsPipeBackground(), "Phase-two setup leaves the room's library background as loaded");
         var artwork = runtime.Enemies.BossArtwork;
-        AssertTrue(((artwork ?? throw new InvalidOperationException("Verification requires boss artwork.")).MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("Verification requires Mother Brain's body BG2 frames.")).TryGet(0xa252, out var writes),
+        AssertTrue(((artwork ?? throw new InvalidOperationException("Verification requires boss artwork.")).Sources.MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("Verification requires Mother Brain's body BG2 frames.")).TryGet(0xa252, out var writes),
             "Crouched body BG2 artwork is installed");
         state.Body.ExtraProperties = state.Body.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
         runtime.Enemies.Instructions.DrawBossBodyFrame(state.Body, EnemyFrameId.MotherBrainBodyCrouched);

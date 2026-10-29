@@ -1,8 +1,8 @@
-using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
 
-/// <summary>Cartridge values of <see cref="PhantoonBg2FrameDefinitions"/> that only verification reads.</summary>
+/// <summary>Cartridge values of <see cref="AssetExtraction.Bosses.PhantoonBg2FrameDefinitions"/> that only verification reads.</summary>
 internal static class PhantoonBg2FrameDefinitionsConstants
 {
     /// <summary>VRAM destination base for Phantoon's BG2 frame tiles.</summary>
@@ -10,14 +10,6 @@ internal static class PhantoonBg2FrameDefinitionsConstants
     /// <summary>WRAM staging base from which Phantoon's BG2 frame upload is copied.</summary>
     public const ushort WorkingRamBase = EnemyBg2FrameLayoutConstants.WorkingRamBase;
 
-    /// <summary>Provides Phantoon BG2 frame bases in VRAM and working RAM for animation checks.</summary>
-    extension(PhantoonBg2FrameDefinitions)
-    {
-        /// <inheritdoc cref="PhantoonBg2FrameDefinitionsConstants.VramBase"/>
-        internal static ushort VramBase => PhantoonBg2FrameDefinitionsConstants.VramBase;
-        /// <inheritdoc cref="PhantoonBg2FrameDefinitionsConstants.WorkingRamBase"/>
-        internal static ushort WorkingRamBase => PhantoonBg2FrameDefinitionsConstants.WorkingRamBase;
-    }
     /// <summary>$A7:DEDD, invulnerable body without active collision rectangles.</summary>
     internal static ushort InvulnerableBody => PhantoonBg2FrameDefinitionsConstants.Frame(0).Pointer;
     /// <summary>$A7:DEFB, the closed eyelid frame.</summary>

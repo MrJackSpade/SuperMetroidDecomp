@@ -1,4 +1,6 @@
+using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -9,12 +11,32 @@ using SuperMetroid.Core.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
-/// The bosses' installed artwork as the import pipeline holds it (#1463): beside what gameplay reads, the characters the
-/// bosses' pre-coloured pictures are composed from (Crocomire's skeleton, Torizo's artwork swaps, Mother Brain's escape
-/// text and special pages), and the identity of the whole selected boss presentation.
+/// The bosses' installed artwork as the import pipeline holds it (#1463, #1466): beside what gameplay reads, the characters
+/// the bosses' pre-coloured pictures are composed from (Crocomire's skeleton, Torizo's artwork swaps, Mother Brain's escape
+/// text and special pages), the frames their body sheets are composed from (Kraid's body and head tilemaps, Phantoon's,
+/// Draygon's, Crocomire's and Mother Brain's body-layer frames, Crocomire's melts), and the identity of the whole selected
+/// boss presentation.
 /// </summary>
 public sealed record BossSourceArtwork : BossArtworkCatalog
 {
+    /// <summary>Both of Crocomire's melts; optional only for constructed fixtures.</summary>
+    public CrocomireMeltingArtwork? CrocomireMelting { get; init; }
+
+    /// <summary>Editable BG2 half of Crocomire's mixed fight-body frames.</summary>
+    public CrocomireBg2FrameCatalog? CrocomireBg2Frames { get; init; }
+
+    /// <summary>Editable Phantoon BG2 tilemap frames; collision remains engine-owned.</summary>
+    public PhantoonBg2FrameCatalog? PhantoonBg2Frames { get; init; }
+
+    /// <summary>Editable Draygon BG2 tilemap frames; collision remains engine-owned.</summary>
+    public DraygonBg2FrameCatalog? DraygonBg2Frames { get; init; }
+
+    /// <summary>Kraid's ordered BG2 tile references; null only for constructed fixtures.</summary>
+    public KraidBackgroundArtwork? KraidBackground { get; init; }
+
+    /// <summary>Editable BG2 body poses paired with the installed Mother Brain OAM limbs.</summary>
+    public MotherBrainBodyBg2FrameCatalog? MotherBrainBodyBg2Frames { get; init; }
+
     /// <summary>Six editable skeleton character uploads; death timing and VRAM positions stay fixed.</summary>
     public CrocomireSkeletonArtwork? CrocomireSkeleton { get; init; }
 

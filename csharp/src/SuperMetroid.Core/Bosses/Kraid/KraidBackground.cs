@@ -8,7 +8,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Kraid's room background: its fade, color transitions, top and bottom tilemap transfers and the ceiling rocks.</summary>
+/// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
 [RoomLifetime]
 internal sealed class KraidBackground
 {
@@ -29,18 +29,6 @@ internal sealed class KraidBackground
         _projectiles = projectiles;
         _presentation = presentation;
         _access = access;
-    }
-
-    /// <summary>Shows the upper working page exactly as <c>$A7:C874</c> uploads it, covering any head drawn over it.</summary>
-    internal static void TransferKraidTopTilemap(KraidEnemyState state)
-    {
-        state.DisplayedBody = state.DisplayedBody with { Top = state.WorkingTop, Head = null };
-    }
-
-    /// <summary>Shows the lower working page exactly as <c>$A7:C8B6</c> uploads it.</summary>
-    internal static void TransferKraidBottomTilemap(KraidEnemyState state)
-    {
-        state.DisplayedBody = state.DisplayedBody with { Bottom = state.WorkingBottom };
     }
 
     /// <summary>Separates immutable RGB5 artwork from Kraid's native palette timing.</summary>

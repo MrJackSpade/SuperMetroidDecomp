@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Bosses.Artwork;
@@ -33,10 +34,11 @@ internal static class BossBodySheetFixtures
         composed[owner].GetValue(bosses, catalog => Compose(catalog, owner));
 
     /// <summary>Composes every boss's sheet: <paramref name="owner"/>'s from <paramref name="bosses"/>' frames, the rest from the installation's.</summary>
-    private static BossBodyArtworkFixture Compose(BossArtworkCatalog bosses, BossBodyOwner owner)
+    private static BossBodyArtworkFixture Compose(BossArtworkCatalog catalog, BossBodyOwner owner)
     {
-        BossArtworkCatalog stock = inputs.Value.Bosses;
-        BossArtworkCatalog frames = owner switch
+        BossSourceArtwork bosses = catalog.Sources;
+        BossSourceArtwork stock = inputs.Value.Bosses;
+        BossSourceArtwork frames = owner switch
         {
             BossBodyOwner.Kraid => stock with { KraidBackground = bosses.KraidBackground },
             BossBodyOwner.Phantoon => stock with { PhantoonBg2Frames = bosses.PhantoonBg2Frames },

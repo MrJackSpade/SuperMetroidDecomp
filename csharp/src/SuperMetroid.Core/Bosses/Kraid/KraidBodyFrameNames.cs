@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// </summary>
 internal static class KraidBodyFrameNames
 {
-    /// <summary>The frame of <paramref name="half"/> of Kraid's body as <paramref name="page"/> shows it, or null for a blank page.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="page"/> or <paramref name="half"/> is undefined.</exception>
-    internal static string? Of(KraidBodyPage page, KraidBodyHalf half)
+    /// <summary>The frame of <paramref name="half"/> of Kraid's body as <paramref name="appearance"/> shows it, or null when it is hidden.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="appearance"/> or <paramref name="half"/> is undefined.</exception>
+    internal static string? Of(KraidBodyAppearance appearance, KraidBodyHalf half)
     {
         string halfName = half switch
         {
@@ -17,12 +17,12 @@ internal static class KraidBodyFrameNames
             KraidBodyHalf.Lower => "Lower",
             _ => throw new InvalidDataException($"Undefined Kraid body half {half}."),
         };
-        return page switch
+        return appearance switch
         {
-            KraidBodyPage.Blank => null,
-            KraidBodyPage.Body => halfName,
-            KraidBodyPage.PriorityBody => halfName + "InFront",
-            _ => throw new InvalidDataException($"Undefined Kraid body page {page}."),
+            KraidBodyAppearance.Hidden => null,
+            KraidBodyAppearance.BehindSprites => halfName,
+            KraidBodyAppearance.InFrontOfSprites => halfName + "InFront",
+            _ => throw new InvalidDataException($"Undefined Kraid body appearance {appearance}."),
         };
     }
 

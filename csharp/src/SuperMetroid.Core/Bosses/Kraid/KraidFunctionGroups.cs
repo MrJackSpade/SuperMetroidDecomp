@@ -14,7 +14,7 @@ internal static class KraidFunctionGroups
     internal static readonly FrozenSet<KraidAiFunction> BeforeDeath = new[]
     {
         KraidAiFunction.None, KraidAiFunction.NoOperation, KraidAiFunction.GrowBreakCeilingPlatforms,
-        KraidAiFunction.GrowSetBg2Priority, KraidAiFunction.GrowFinishBg2Update, KraidAiFunction.GrowDrawRoomBackground,
+        KraidAiFunction.GrowBringBodyInFront, KraidAiFunction.GrowShowLowerBodyInFront, KraidAiFunction.GrowDrawRoomBackground,
         KraidAiFunction.GrowFadeInRoomBackground, KraidAiFunction.MainloopThinking, KraidAiFunction.SecondPhaseThinking,
         KraidAiFunction.MouthOpenReaction, KraidAiFunction.InitializeEyeGlow, KraidAiFunction.GlowEye, KraidAiFunction.UnglowEye,
         KraidAiFunction.LintInactive, KraidAiFunction.LintProduce, KraidAiFunction.LintCharge, KraidAiFunction.LintFire,
@@ -31,14 +31,14 @@ internal static class KraidFunctionGroups
     /// <summary>The functions laid out before Kraid starts sinking: everything before death and the death sequence's fade and tilemap updates.</summary>
     internal static readonly FrozenSet<KraidAiFunction> BeforeSinking = BeforeDeath.Concat(new[]
     {
-        KraidAiFunction.DeathInitialize, KraidAiFunction.DeathFadeOut, KraidAiFunction.DeathUpdateTopTilemap,
-        KraidAiFunction.DeathUpdateBottomTilemap,
+        KraidAiFunction.DeathInitialize, KraidAiFunction.DeathFadeOut, KraidAiFunction.DeathShowUpperBody,
+        KraidAiFunction.DeathShowLowerBody,
     }).ToFrozenSet();
 
     /// <summary>Kraid rising through the floor at the start of the encounter.</summary>
     internal static readonly FrozenSet<KraidAiFunction> Rise = new[]
     {
-        KraidAiFunction.RestrictSamusToFirstScreen, KraidAiFunction.RaiseKraidThroughFloor, KraidAiFunction.RaiseLoadBottomTilemap,
+        KraidAiFunction.RestrictSamusToFirstScreen, KraidAiFunction.RaiseKraidThroughFloor, KraidAiFunction.RaiseShowLowerBody,
         KraidAiFunction.RaiseRocksEvery16Frames, KraidAiFunction.RaiseRocksEvery8Frames, KraidAiFunction.RaiseBody,
     }.ToFrozenSet();
 

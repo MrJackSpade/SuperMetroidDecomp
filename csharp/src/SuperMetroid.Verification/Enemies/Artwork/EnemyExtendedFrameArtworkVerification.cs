@@ -213,14 +213,14 @@ internal static class EnemyExtendedFrameArtworkVerification
             "all new Golden Torizo left-foot orb visual frames are installed");
         AssertEqual(BossSpriteFrameDefinitions.DraygonSpriteFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
-                frame => frame.Name.StartsWith("draygon_", StringComparison.Ordinal) && !DraygonBg2FrameDefinitions.FrameIds.Contains(frame.Frame)),
+                frame => frame.Name.StartsWith("draygon_", StringComparison.Ordinal) && !DraygonBodyLayerFrameDefinitions.Frames.Contains(frame.Frame)),
             "all selected ordinary-OAM Draygon extended frames are installed");
         AssertEqual(BossSpriteFrameDefinitions.SporeSpawnSpriteFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
                 frame => frame.Name.StartsWith("spore_spawn_", StringComparison.Ordinal)),
             "all selected Spore Spawn extended frames are installed");
         var draygonOamPointers = EnemyExtendedFrameDefinitions.Frames
-            .Where(frame => frame.Name.StartsWith("draygon_", StringComparison.Ordinal) && !DraygonBg2FrameDefinitions.FrameIds.Contains(frame.Frame))
+            .Where(frame => frame.Name.StartsWith("draygon_", StringComparison.Ordinal) && !DraygonBodyLayerFrameDefinitions.Frames.Contains(frame.Frame))
             .Select(frame => frame.Pointer)
             .ToHashSet();
         HashSet<ushort> draygonBg2Pointers = VerifyNativeDraygonBg2FrameSelectors(rom, draygonOamPointers);

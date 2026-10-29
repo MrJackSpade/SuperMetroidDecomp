@@ -123,8 +123,8 @@ internal static class MotherBrainBodyPresentationVerification
 
         static EnemyBg2FrameDocument BodyBg2(bool edited) => new()
         {
-            Version = MotherBrainBodyVisualDefinitions.Bg2Version,
-            Frames = MotherBrainBodyVisualDefinitions.Bg2Frames.SelectToArray((frame, index) =>
+            Version = MotherBrainBodyBg2FrameDefinitions.Version,
+            Frames = MotherBrainBodyBg2FrameDefinitions.Frames.SelectToArray((frame, index) =>
                 KeyValuePair.Create(frame.Name, new EnemyBg2WriteDocument[]
                 { new() { X = edited ? 3 : 0, Y = edited ? 2 : 0, Tiles = RoomBackgroundTilemapCellWords.Cells(100 + index, 200 + index) },
                   new() { X = edited ? 4 : 1, Y = edited ? 3 : 1, Tiles = RoomBackgroundTilemapCellWords.Cells(300 + index, edited ? 460 + index : 400 + index) } })).ToDictionary(),
@@ -199,7 +199,7 @@ internal static class MotherBrainBodyPresentationVerification
             "manifest loads the exact imported Mother Brain body catalog");
         AssertEqual(oam.ContentIdentity, (installed.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires installed.ExtendedFrames.")).ContentIdentity,
             "manifest loads the complete current multipart catalog");
-        string file = Path.Combine(stockPath, MotherBrainBodyVisualDefinitions.Bg2FileName);
+        string file = Path.Combine(stockPath, MotherBrainBodyBg2FrameDefinitions.FileName);
         var author = new EnemyIdentityFixture();
         using var parsed = System.Text.Json.JsonDocument.Parse(File.ReadAllBytes(file));
         var document = RequiredJson.Deserialize<EnemyBg2FrameDocument>(parsed,
@@ -207,7 +207,7 @@ internal static class MotherBrainBodyPresentationVerification
         EnemyBg2WriteDocument[] first = document.Frames.Values.First();
         first[0].Tiles[0] = RoomBackgroundTilemapCellWords.Cell(first[0].Tiles[0].PackedWord ^ 1);
         Directory.CreateDirectory(overridePath);
-        string selectedFile = Path.Combine(overridePath, MotherBrainBodyVisualDefinitions.Bg2FileName);
+        string selectedFile = Path.Combine(overridePath, MotherBrainBodyBg2FrameDefinitions.FileName);
         using (var json = author.Json(document)) File.WriteAllBytes(selectedFile, json.ToArray());
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockPath, overridePath);
         AssertTrue(installed.ContentIdentity != edited.ContentIdentity, "selected Mother Brain BG2 edit changes installed bundle identity");

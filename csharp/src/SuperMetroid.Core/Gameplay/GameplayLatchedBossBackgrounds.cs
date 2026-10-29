@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// Crocomire's and Mother Brain's are viewed from, and the pictures it shows. Enemy AI chooses each during the main loop.
 /// </summary>
 /// <param name="Body">The body layer a boss shows, or null without one.</param>
-/// <param name="KraidBodyScroll">Where Kraid's body layer is viewed from, or null when Kraid does not own it.</param>
+/// <param name="KraidBodyPlacement">Where Kraid's body layer is placed, or null when it is not shown.</param>
 /// <param name="DraygonBody">Draygon's body position and where his body layer is viewed from, or null without Draygon (#1354).</param>
 /// <param name="CrocomireBg2Scroll">Where Crocomire's body layer is viewed from, or null when no Crocomire owns it.</param>
 /// <param name="MotherBrainBody">Where Mother Brain's body layer is viewed from and her death-flicker hiding, or null without either (#1356).</param>
@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// </param>
 public readonly record struct GameplayLatchedBossBackgrounds(
     BossBodyLayer? Body,
-    Position16<BackgroundPixels>? KraidBodyScroll,
+    Position16<BackgroundPixels>? KraidBodyPlacement,
     DraygonBodyPlacement? DraygonBody,
     Position16<BackgroundPixels>? CrocomireBg2Scroll,
     MotherBrainBodyPlacement? MotherBrainBody,

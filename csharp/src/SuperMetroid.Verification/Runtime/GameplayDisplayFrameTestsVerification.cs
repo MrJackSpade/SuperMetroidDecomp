@@ -94,12 +94,12 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Kraid, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         GameplaySceneView before = Registers(runtime);
-        var kraid = new KraidEnemyState { OwnsBg2Tilemap = true, Bg2Scroll = new Position16<BackgroundPixels>(320, 88) };
+        var kraid = new KraidEnemyState { ShowsBodyLayer = true, BodyLayerPlacement = new Position16<BackgroundPixels>(320, 88) };
         runtime.Enemies.KraidBehavior.Access.Kraid = kraid;
         AssertPending(runtime, registers => registers.BackgroundMapSize == before.BackgroundMapSize &&
             registers.BackgroundScroll == before.BackgroundScroll, "Kraid's body on BG2");
         AssertPublished(runtime, registers => registers.BackgroundMapSize == new Extent16<TilemapCells>(64, 64) &&
-            registers.BackgroundScroll == kraid.Bg2Scroll, "Kraid's body on BG2");
+            registers.BackgroundScroll == kraid.BodyLayerPlacement, "Kraid's body on BG2");
         runtime.Enemies.KraidBehavior.Access.Kraid = null;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 

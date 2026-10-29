@@ -17,7 +17,7 @@ internal static class BossBodyWords
     /// <exception cref="InvalidDataException">A part names a frame <paramref name="bosses"/> does not hold, or a cell the frame does not write.</exception>
     internal static ushort[] Of(BossBodyLayer layer, BossBodyOwner owner, BossArtworkCatalog bosses, ushort? blankWord = null)
     {
-        Dictionary<string, BossBodyFrameSource> frames = BossBodySheetComposer.Frames(bosses, owner).ToDictionary(frame => frame.Name, StringComparer.Ordinal);
+        Dictionary<string, BossBodyFrameSource> frames = BossBodySheetComposer.Frames(bosses.Sources, owner).ToDictionary(frame => frame.Name, StringComparer.Ordinal);
         ushort blank = blankWord ?? BossBodySheetComposer.BlankOf(owner).PackedWord;
         var words = new ushort[layer.Rows * BossBodyDefinitions.ColumnCount];
         foreach (BossBodyPlacement placement in layer.Placements)

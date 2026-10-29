@@ -108,7 +108,7 @@ public static class GameplayDisplayCapture
             ? GameplayEffectCapture.BuildLavaAcidBackgroundHorizontalScrolls(lava, bg2Scroll) : null;
         ushort[]? lavaY = fx is { } vertical
             ? GameplayEffectCapture.BuildLavaAcidBackgroundVerticalScrolls(vertical, bg2Scroll.Y) : null;
-        Position16<BackgroundPixels>? kraidBody = bosses.KraidBodyScroll;
+        Position16<BackgroundPixels>? kraidBody = bosses.KraidBodyPlacement;
         // Draygon's body shows only on the scanlines around it ($88:DF94), placed against the frame's camera (#1354).
         DraygonBodyScanlines bg2Lines = bosses.DraygonBody?.VisibleLines(scrolls.Layer1Position) ?? new DraygonBodyScanlines(32, 224);
         Position16<BackgroundPixels>? crocomireBg2Scroll = bosses.CrocomireBg2Scroll;

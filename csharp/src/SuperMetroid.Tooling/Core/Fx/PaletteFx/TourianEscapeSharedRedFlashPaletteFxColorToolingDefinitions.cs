@@ -15,10 +15,6 @@ internal static class TourianEscapeSharedRedFlashPaletteFxColorToolingDefinition
     public const ushort GeneralLevelProgramStart = 0xf941;
     /// <summary><c>PalFxInstList_Tourian40</c> at <c>$8D:F949</c>.</summary>
     public const ushort ArkanoidProgramStart = 0xf949;
-    /// <summary>CGRAM byte $A8: general-level red-flash destination.</summary>
-    internal const ushort GeneralColorByte = 0x00a8;
-    /// <summary>CGRAM byte $E8: Arkanoid-block and red-orb flash destination.</summary>
-    internal const ushort ArkanoidColorByte = 0x00e8;
     /// <summary>Both palette-FX entries, ordered by their owner value and materialized without a backing array.</summary>
     internal static readonly IReadOnlyList<TourianEscapeSharedRedFlashPaletteFxColorDefinition> Definitions = new ProgramEntries();
     /// <summary>Projects each owner onto its definition pointer, entry list, CGRAM destination, and branch policy.</summary>
@@ -32,10 +28,10 @@ internal static class TourianEscapeSharedRedFlashPaletteFxColorToolingDefinition
             {
                 TourianEscapeSharedRedFlashPaletteOwner.GeneralLevel => new(
                     TourianEscapeSharedRedFlashPaletteOwner.GeneralLevel,
-                    GeneralLevelDefinitionPointer, GeneralLevelProgramStart, GeneralColorByte, usesGoto: true),
+                    GeneralLevelDefinitionPointer, GeneralLevelProgramStart, usesGoto: true),
                 TourianEscapeSharedRedFlashPaletteOwner.ArkanoidBlocksAndRedOrbs => new(
                     TourianEscapeSharedRedFlashPaletteOwner.ArkanoidBlocksAndRedOrbs,
-                    ArkanoidDefinitionPointer, ArkanoidProgramStart, ArkanoidColorByte, usesGoto: false),
+                    ArkanoidDefinitionPointer, ArkanoidProgramStart, usesGoto: false),
                 _ => throw new ArgumentOutOfRangeException(nameof(index)),
             };
         /// <summary>Visits both entries in the same order as the owner values.</summary>

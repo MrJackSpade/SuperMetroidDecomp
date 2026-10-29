@@ -299,7 +299,7 @@ level, right, unchecked((ushort)(frame + 1))),
     // Command `$16` starts negative-super-special palette zero with one-call cadence. After
     // the Baby raises its delay to two, index two must remain visible for two calls before
     // advancing. Each call loads before decrementing, matching `$91:D96F-$D997` ordering.
-    unable.Drained.PresentationColors = rainbowColors;
+    unable.Drained.PresentationColors = rainbowColors.ToColours();
     unable.Drained.EnableRainbow(unable);
     AssertTrue(unable.Drained.UpdatePalette(drainedCgram.Samus, unable.EquippedItems, suitColors),
         "rainbow handler owns palette dispatcher");

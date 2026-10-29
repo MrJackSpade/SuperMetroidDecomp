@@ -697,12 +697,12 @@ empty, screwRepeat, ControllerButton.A, 0, ControllerButton.A);
         SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(bus)));
     var palettes = new SamusHorizontalSpeedState();
     var cgram = new SamusColourRig();
-    AssertTrue(palettes.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = SamusEquipmentFlags.ScrewAttack }, suitColors: suitColors, cycleColors: cycleColors),
+    AssertTrue(palettes.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = SamusEquipmentFlags.ScrewAttack }, suitColors: suitColors, cycleColors: cycleColors.ToColours()),
         "ending Screw frame copies normal suit palette");
     AssertEqual(0x0111, cgram.Colors[192], "ending Screw frame normal palette");
     for (int frame = 0; frame < 6; frame++)
     {
-        AssertTrue(palettes.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = SamusEquipmentFlags.ScrewAttack }, suitColors: suitColors, cycleColors: cycleColors),
+        AssertTrue(palettes.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = SamusEquipmentFlags.ScrewAttack }, suitColors: suitColors, cycleColors: cycleColors.ToColours()),
             $"Screw palette frame {frame} copies");
         AssertEqual(unchecked((ushort)(0x1200 + Math.Min(frame, 6 - frame))), cgram.Colors[192],
             $"Screw palette frame {frame} ROM color");

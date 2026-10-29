@@ -76,7 +76,9 @@ internal static class TorizoPaletteShakeVerification
         {
             Execute(TorizoCueKind.AdvancePaletteFade);
             restoredFade.Step();
-            AssertTrue(restoredFade.Target.Run(0).Colors.SequenceEqual(cgram.Colors.Slice(144, 32)), "Mid-fade save preserves each color step");
+            // The fade's target holds the body's colours, then the belly's, as one run each.
+            RgbColor[] restoredColours = [.. restoredFade.Target.Run(0).Colors, .. restoredFade.Target.Run(1).Colors];
+            AssertTrue(restoredColours.AsSpan().SequenceEqual(cgram.Colors.Slice(144, 32)), "Mid-fade save preserves each color step");
         }
         VerifyTorizoPaletteCatalogsAgainstRetailRom(cgram);
         Suite(nameof(VerifyTorizoLandingLifetime), () => VerifyTorizoLandingLifetime());

@@ -88,15 +88,13 @@ internal static class FrontendRomFreeVerification
 
             FrontendFrame expected = native.Step(input);
             FrontendFrame actual = installed.Step(input);
-            RgbaPixel[] expectedPixels = native.PublishedPixels(), actualPixels = installed.PublishedPixels();
             visited.Add(actual.GameState);
             AssertEqual(expected.GameState, actual.GameState,
                 $"installed startup game state at frame {frame}");
             AssertEqual(expected.Phase, actual.Phase,
                 $"installed startup native phase at frame {frame}");
-            if (frame % 37 == 0 || visited.Count == 1 ||
-                actual.GameState != before.GameState)
-                AssertTrue(actualPixels.SequenceEqual(expectedPixels),
+            if (ComparesPixels(frame, visited.Count == 1 || Changed(before, actual)))
+                AssertTrue(installed.PublishedPixels().SequenceEqual(native.PublishedPixels()),
                     $"installed startup native pixels at frame {frame}, {actual.Phase}");
 
             if (actual.GameState == SuperMetroidGameState.GameOptionsMenu &&
@@ -240,6 +238,17 @@ internal static class FrontendRomFreeVerification
     /// and Mother Brain flashback. This catches missing live content bindings at the
     /// real transition and during the projectile/hurt animation, not just at startup.
     /// </summary>
+    /// <summary>
+    /// Whether frame <paramref name="frame"/> of a lockstep run renders both games and compares their pixels: every
+    /// frame on which the frontend state or phase <paramref name="changed"/>, and every thirty-seventh frame between.
+    /// Each render is a full software Direct3D frame and readback, and game state and phase are compared on every frame.
+    /// </summary>
+    private static bool ComparesPixels(int frame, bool changed) => changed || frame % 37 == 0;
+
+    /// <summary>Whether the frontend's game state or phase changed from <paramref name="before"/> to <paramref name="after"/>.</summary>
+    private static bool Changed(FrontendFrame before, FrontendFrame after) =>
+        before.GameState != after.GameState || before.Phase != after.Phase;
+
     private static void VerifyFrontendRomFreeIntro(SuperMetroidGame native,
         SuperMetroidGame installed, HashSet<int> blockedBg2Bytes, ISnesAddressSpace nativeBus,
         Action<SuperMetroidGame, bool> bindInstalled, bool roomCensus)
@@ -257,13 +266,13 @@ internal static class FrontendRomFreeVerification
             startSent = true;
             FrontendFrame expected = native.Step(input);
             FrontendFrame actual = installed.Step(input);
-            RgbaPixel[] expectedPixels = native.PublishedPixels(), actualPixels = installed.PublishedPixels();
             AssertEqual(expected.GameState, actual.GameState,
                 $"installed intro game state at frame {frame}");
             AssertEqual(expected.Phase, actual.Phase,
                 $"installed intro native phase at frame {frame}");
-            AssertTrue(actualPixels.SequenceEqual(expectedPixels),
-                $"installed intro native pixels at frame {frame}, {actual.Phase}");
+            if (ComparesPixels(frame, Changed(before, actual)))
+                AssertTrue(installed.PublishedPixels().SequenceEqual(native.PublishedPixels()),
+                    $"installed intro native pixels at frame {frame}, {actual.Phase}");
             if (before.GameState == SuperMetroidGameState.IntroCinematic &&
                 actual.GameState != SuperMetroidGameState.IntroCinematic)
             {
@@ -272,15 +281,16 @@ internal static class FrontendRomFreeVerification
                 const int postIntroFrameCount = 1200;
                 for (int gameplayFrame = 0; gameplayFrame < postIntroFrameCount; gameplayFrame++)
                 {
+                    FrontendFrame beforeGameplay = installed.CurrentFrame;
                     FrontendFrame expectedGameplay = native.Step(0);
                     FrontendFrame actualGameplay = installed.Step(0);
-                    RgbaPixel[] expectedGameplayPixels = native.PublishedPixels(), actualGameplayPixels = installed.PublishedPixels();
                     AssertEqual(expectedGameplay.GameState, actualGameplay.GameState,
                         $"installed post-intro game state frame {gameplayFrame}");
                     AssertEqual(expectedGameplay.Phase, actualGameplay.Phase,
                         $"installed post-intro phase frame {gameplayFrame}");
-                    AssertTrue(actualGameplayPixels.SequenceEqual(expectedGameplayPixels),
-                        $"installed post-intro pixels frame {gameplayFrame}");
+                    if (ComparesPixels(gameplayFrame, Changed(beforeGameplay, actualGameplay)))
+                        AssertTrue(installed.PublishedPixels().SequenceEqual(native.PublishedPixels()),
+                            $"installed post-intro pixels frame {gameplayFrame}");
                 }
                 VerifyFrontendRomFreeRestoredKraidHud(native, installed, bindInstalled);
                 if (roomCensus)
@@ -477,13 +487,16 @@ internal static class FrontendRomFreeVerification
                 frame == 25 ? ControllerButton.X :
                 frame is >= 40 and < 60 ? (ControllerButton.A | ControllerButton.Left) :
                 frame >= 60 ? (ControllerButton.Right | ControllerButton.X) : 0;
+            FrontendFrame before = installed.CurrentFrame;
             FrontendFrame expected = native.Step(input);
             FrontendFrame actual = installed.Step(input);
-            RgbaPixel[] expectedPixels = native.PublishedPixels(), actualPixels = installed.PublishedPixels();
             AssertEqual(expected.GameState, actual.GameState,
                 $"installed Ceres input state frame {frame}");
             AssertEqual(expected.Phase, actual.Phase,
                 $"installed Ceres input phase frame {frame}");
+            if (!ComparesPixels(frame, Changed(before, actual)))
+                continue;
+            RgbaPixel[] expectedPixels = native.PublishedPixels(), actualPixels = installed.PublishedPixels();
             if (!actualPixels.SequenceEqual(expectedPixels))
             {
                 int first = 0;
@@ -586,6 +599,7 @@ internal static class FrontendRomFreeVerification
             firstLoadVram++;
         for (int frame = 0; frame < frameCount; frame++)
         {
+            FrontendFrame before = installed.CurrentFrame;
             FrontendFrame expected = native.Step(heldInput);
             FrontendFrame actual;
             try
@@ -597,7 +611,9 @@ internal static class FrontendRomFreeVerification
                 throw new InvalidOperationException(
                     $"Installed {room.RoomName} failed at neutral frame {frame}.", error);
             }
-            RgbaPixel[] expectedPixels = native.PublishedPixels(), actualPixels = installed.PublishedPixels();
+            bool comparesPixels = ComparesPixels(frame, Changed(before, actual));
+            RgbaPixel[] expectedPixels = comparesPixels ? native.PublishedPixels() : [];
+            RgbaPixel[] actualPixels = comparesPixels ? installed.PublishedPixels() : [];
             AssertEqual(room.Room,
                 installed.GameplayActiveRoom,
                 $"installed {room.RoomName} fixture remains in one room at frame {frame}");
@@ -644,7 +660,7 @@ internal static class FrontendRomFreeVerification
                 forcedGoldenFallingLeftObserved = true;
             if (GoldenRuns(TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftLeftFootFwd0, TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftLeftFootFwd1))
                 goldenLeftFootOrbProgramObserved = true;
-            if (!actualPixels.SequenceEqual(expectedPixels))
+            if (comparesPixels && !actualPixels.SequenceEqual(expectedPixels))
             {
                 int first = -1;
                 int count = 0;

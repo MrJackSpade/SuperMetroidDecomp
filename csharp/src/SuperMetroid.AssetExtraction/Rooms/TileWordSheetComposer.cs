@@ -160,7 +160,7 @@ internal static class TileWordSheetComposer
         }
         if (reboundRows > 0)
             frames.Add(TileWordSheet.ReboundFrameName, Frame(canvas, top, reboundRows, layer));
-        return new ComposedTileWordSheet(layer, tileset, canvas.ToSheet(colours, frames, TileWordSheet.ColoursOf(layer)), tiles);
+        return new ComposedTileWordSheet(layer, tileset, canvas.ToRoomSheet(colours, frames, TileWordSheet.ColoursOf(layer)), tiles);
 
         void Paint(Position16<TilemapCells> cell, ShownWord word)
         {

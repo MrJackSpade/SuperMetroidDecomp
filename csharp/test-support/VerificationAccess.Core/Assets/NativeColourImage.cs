@@ -25,15 +25,17 @@ internal static class NativeColourImage
     /// change.
     /// </summary>
     internal static ReadOnlySpan<RgbColor> Of(BackgroundColours colours) =>
-        Published.GetValue(colours, shown => Encode(shown.Backgrounds, shown.Sprites));
+        Published.GetValue(colours, shown => shown.Backgrounds switch
+        {
+            GameplayShownBackgrounds gameplay => Encode(gameplay.Sets, shown.Sprites),
+            // A screen's sets lie in the native image in their own order, as the import pipeline decodes them.
+            ScreenShownBackgrounds screen => EncodeScreen(screen.Sets, shown.Sprites),
+            _ => throw new InvalidOperationException($"Unknown shown background colours {shown.Backgrounds}."),
+        });
 
-    /// <summary>The native starting image <paramref name="starting"/> was decoded from, built on its first read and kept.</summary>
-    internal static ReadOnlySpan<RgbColor> Of(GameplayStartingColours starting) =>
-        Starting.GetValue(starting, colours => Encode(colours.Backgrounds, colours.Sprites));
-
-    /// <summary>The native image of a background and a sprite owner's sets: the background sets, then the sprite sets.</summary>
+    /// <summary>The native image of a frontend screen's background and sprite sets, each set at its own order.</summary>
     [WholeImageFixture("a 256-colour native colour image")]
-    internal static RgbColor[] Encode(ShownColourSets backgrounds, ShownColourSets sprites)
+    private static RgbColor[] EncodeScreen(ShownColourSets backgrounds, ShownColourSets sprites)
     {
         var image = new RgbColor[ColorCount];
         for (int set = 0; set < ColourSets.SetCount; set++)
@@ -44,15 +46,30 @@ internal static class NativeColourImage
         return image;
     }
 
+    /// <summary>The native starting image <paramref name="starting"/> was decoded from, built on its first read and kept.</summary>
+    internal static ReadOnlySpan<RgbColor> Of(GameplayStartingColours starting) =>
+        Starting.GetValue(starting, colours => Encode(colours.Backgrounds, colours.Sprites));
+
+    /// <summary>The native image of a background and a sprite owner's sets: the background sets, then the sprite sets.</summary>
+    [WholeImageFixture("a 256-colour native colour image")]
+    internal static RgbColor[] Encode(ShownBackgroundColourSets backgrounds, ShownColourSets sprites)
+    {
+        var image = new RgbColor[ColorCount];
+        BackgroundColourSetImage.Encode(backgrounds).CopyTo(image.AsSpan(GameplayColourPositionDefinitions.BackgroundSetsFirst));
+        for (int set = 0; set < ColourSets.SetCount; set++)
+            sprites.Set(set).CopyTo(image.AsSpan(GameplayColourPositionDefinitions.SpriteSetsFirst + set * ColourSets.SetColours));
+        return image;
+    }
+
     /// <summary>The colours a frame shows when its colour memory holds <paramref name="image"/>, a native 256-colour image.</summary>
     [WholeImageFixture("a frame's colours from a 256-colour native colour image")]
     internal static BackgroundColours Decode(ReadOnlySpan<RgbColor> image)
     {
         Ensure.LengthEqual(image, ColorCount);
-        var backgrounds = new BackgroundColourSets();
-        backgrounds.All.CopyFrom(image.Slice(GameplayColourPositionDefinitions.BackgroundSetsFirst, GameplayColourPositionDefinitions.SetsColours));
+        BackgroundColourSets backgrounds = BackgroundColourSetImage.Decode(
+            image.Slice(GameplayColourPositionDefinitions.BackgroundSetsFirst, GameplayColourPositionDefinitions.SetsColours));
         var sprites = new SpriteColourSets();
         sprites.All.CopyFrom(image.Slice(GameplayColourPositionDefinitions.SpriteSetsFirst, GameplayColourPositionDefinitions.SetsColours));
-        return new BackgroundColours(ShownColourSets.Of(backgrounds), ShownColourSets.Of(sprites));
+        return new BackgroundColours(ShownBackgroundColourSets.Of(backgrounds), ShownColourSets.Of(sprites));
     }
 }

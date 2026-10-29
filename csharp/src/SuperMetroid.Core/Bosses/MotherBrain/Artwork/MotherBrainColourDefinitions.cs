@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 public static class MotherBrainColourDefinitions
 {
     /// <summary>Body colours.</summary>
-    public static readonly BackgroundColourRun Body = new(4, 1, 15);
+    public static readonly BackgroundColourRun Body = new(BackgroundColourSet.TilesThird, 1, 15);
 
     /// <summary>Brain colours.</summary>
     public static readonly SpriteColourRun Brain = new(1, 1, 15);
@@ -20,13 +20,13 @@ public static class MotherBrainColourDefinitions
     public static readonly SpriteColourRun FakeDeathBrain = new(1, 1, 3);
 
     /// <summary>First room-flash slice.</summary>
-    public static readonly BackgroundColourRun RoomFirst = new(3, 4, 12);
+    public static readonly BackgroundColourRun RoomFirst = new(BackgroundColourSet.TilesSecond, 4, 12);
 
     /// <summary>Second room-flash slice.</summary>
-    public static readonly BackgroundColourRun RoomSecond = new(5, 3, 12);
+    public static readonly BackgroundColourRun RoomSecond = new(BackgroundColourSet.TilesFourth, 3, 12);
 
     /// <summary>Mirror of the second room-flash slice.</summary>
-    public static readonly BackgroundColourRun RoomSecondMirror = new(7, 3, 12);
+    public static readonly BackgroundColourRun RoomSecondMirror = new(BackgroundColourSet.TilesSixth, 3, 12);
 
     /// <summary>Phase-two attack sprites.</summary>
     public static readonly SpriteColourRun PhaseTwoAttack = new(2, 1, 15);
@@ -41,8 +41,8 @@ public static class MotherBrainColourDefinitions
     public static readonly SpriteColourRun TubeProjectiles = new(7, 1, 15);
 
     /// <summary>First room-light slice.</summary>
-    public static readonly BackgroundColourRun RecoveryLightsFirst = new(3, 1, 14);
+    public static readonly BackgroundColourRun RecoveryLightsFirst = new(BackgroundColourSet.TilesSecond, 1, 14);
 
     /// <summary>Second room-light slice.</summary>
-    public static readonly BackgroundColourRun RecoveryLightsSecond = new(5, 1, 14);
+    public static readonly BackgroundColourRun RecoveryLightsSecond = new(BackgroundColourSet.TilesFourth, 1, 14);
 }

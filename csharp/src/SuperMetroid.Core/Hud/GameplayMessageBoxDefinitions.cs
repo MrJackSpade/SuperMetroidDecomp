@@ -60,7 +60,7 @@ public static class GameplayMessageBoxDefinitions
     public static class Palette
     {
         /// <summary>The background set whose colours the message box's text shows.</summary>
-        public const int TextSet = 1;
+        public const BackgroundColourSet TextSet = BackgroundColourSet.HudItemsAndEffects;
         /// <summary>The colour of the text set the light message colour replaces.</summary>
         public const int TemporaryLightColour = 9;
         /// <summary>The light colour installed for the message box.</summary>

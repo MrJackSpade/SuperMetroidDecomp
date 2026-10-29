@@ -2,11 +2,18 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
-/// <summary>A palette-FX colour group of the background sets, from colour <paramref name="Colour"/> of set <paramref name="Set"/> (#1464).</summary>
-/// <param name="Set">The background set the group's first written colour is in.</param>
+/// <summary>
+/// A palette-FX colour group of gameplay's background set <paramref name="Set"/>, from its colour
+/// <paramref name="Colour"/> (#1464). The group runs to the set's last colour; no effect writes past it.
+/// </summary>
+/// <param name="Set">The background set that holds the group.</param>
 /// <param name="Colour">The group's first written colour within its set.</param>
-internal sealed record BackgroundSetPlacement(int Set, int Colour) : PaletteFxColourPlacement
+internal sealed record BackgroundSetPlacement(BackgroundColourSet Set, int Colour) : PaletteFxColourPlacement
 {
     /// <inheritdoc />
-    internal override ColourRun From(IPaletteFxColourOwners owners) => Ensure.NotNull(owners).BackgroundSets.FromSet(Set, Colour);
+    internal override ColourRun From(IPaletteFxColourOwners owners)
+    {
+        ColourRun set = Ensure.NotNull(owners).BackgroundSet(Set);
+        return set.Slice(Colour, set.Count - Colour);
+    }
 }

@@ -60,10 +60,10 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             FirstFrameDuration = 4,
             BossArea = AreaId.Brinstar,
             DefeatedBossBits = BossBits.AreaBoss,
-            ClearedColours = new BackgroundColourRun(7, 12, 3),
+            ClearedColours = new BackgroundColourRun(BackgroundColourSet.TilesSixth, 12, 3),
             UnlockEffectParameter = 6,
             PaletteFx = PaletteFxObject.GreyOutTourianStatueKraid,
-            GreyColours = new BackgroundColourRun(7, 0, TourianStatueColorDefinitions.GreyColorCount),
+            GreyColours = new BackgroundColourRun(BackgroundColourSet.TilesSixth, 0, TourianStatueColorDefinitions.GreyColorCount),
         },
         [AnimatedTileObject.TourianStatueDraygon] = new()
         {
@@ -74,10 +74,10 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             FirstFrameDuration = 8,
             BossArea = AreaId.Maridia,
             DefeatedBossBits = BossBits.AreaBoss,
-            ClearedColours = new BackgroundColourRun(6, 9, 3),
+            ClearedColours = new BackgroundColourRun(BackgroundColourSet.TilesFifth, 9, 3),
             UnlockEffectParameter = 4,
             PaletteFx = PaletteFxObject.GreyOutTourianStatueDraygon,
-            GreyColours = new BackgroundColourRun(6, 0, TourianStatueColorDefinitions.GreyColorCount),
+            GreyColours = new BackgroundColourRun(BackgroundColourSet.TilesFifth, 0, TourianStatueColorDefinitions.GreyColorCount),
         },
     };
 }

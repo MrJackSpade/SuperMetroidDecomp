@@ -4,21 +4,39 @@ namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
 /// The colours a frame's images show (#1408, #1464): the backdrop, and for each colour group of the frame's images the
-/// colours its owner holds now. A background image's groups are coloured by the background sets, an actor's by the
-/// sprite sets and a perspective floor's by both, each group by the set of the same identity. An image is coloured with
-/// its standard colours; a colour effect that changes what an owner holds (a glow, a fade, a liquid's tint, the message
-/// box's text colours) recolours it. Backends colour a picture from <see cref="ShowsOwnColours"/> and
-/// <see cref="Colour(SpriteImage, int)"/> alone.
+/// colours its owner holds now. A gameplay background image's group shows the background set the import pipeline named
+/// for it, a frontend screen's background image's group the screen's set of the same identity, an actor's group the
+/// sprite set of the same identity, and a perspective floor's groups its background groups and then the sprite sets. An
+/// image is coloured with its standard colours; a colour effect that changes what an owner holds (a glow, a fade, a
+/// liquid's tint, the message box's text colours) recolours it. Backends colour a picture from
+/// <see cref="ShowsOwnColours"/> and <see cref="Colour(SpriteImage, int)"/> alone.
 /// </summary>
 public sealed class BackgroundColours
 {
     /// <summary>The inks in one of an image's colour groups, which show its own colours or another's together.</summary>
     public const int GroupColours = ColourSets.SetColours;
 
-    /// <summary>Keeps the background and sprite sets as the frame shows them.</summary>
-    /// <param name="backgrounds">The background sets, whose first set's first colour is the backdrop.</param>
+    /// <summary>The background groups of a perspective floor's image, which its sprite groups follow.</summary>
+    private const int FloorBackgroundGroups = SpriteImage.SpriteColourCount / GroupColours;
+
+    /// <summary>Keeps gameplay's background and sprite sets as the frame shows them.</summary>
+    /// <param name="backgrounds">Gameplay's background sets, whose backdrop set's first colour is the backdrop.</param>
     /// <param name="sprites">The sprite sets, with the colours their owners show over them laid on.</param>
+    public BackgroundColours(ShownBackgroundColourSets backgrounds, ShownColourSets sprites)
+        : this(new GameplayShownBackgrounds(backgrounds), sprites)
+    {
+    }
+
+    /// <summary>Keeps a frontend screen's background and sprite sets as the frame shows them.</summary>
+    /// <param name="backgrounds">The screen's background sets, whose first set's first colour is the backdrop.</param>
+    /// <param name="sprites">The screen's sprite sets.</param>
     public BackgroundColours(ShownColourSets backgrounds, ShownColourSets sprites)
+        : this(new ScreenShownBackgrounds(backgrounds), sprites)
+    {
+    }
+
+    /// <summary>Keeps the background colours and sprite sets as the frame shows them.</summary>
+    private BackgroundColours(ShownBackgrounds backgrounds, ShownColourSets sprites)
     {
         Backgrounds = Ensure.NotNull(backgrounds);
         Sprites = Ensure.NotNull(sprites);
@@ -31,21 +49,22 @@ public sealed class BackgroundColours
         return new BackgroundColours(colours.ShownBackgrounds(), colours.ShownSprites());
     }
 
-    /// <summary>The background sets as the frame shows them.</summary>
-    internal ShownColourSets Backgrounds { get; }
+    /// <summary>The background colours as the frame shows them.</summary>
+    internal ShownBackgrounds Backgrounds { get; }
 
     /// <summary>The sprite sets as the frame shows them, for colouring the sprite draws no owner coloured.</summary>
     internal ShownColourSets Sprites { get; }
 
-    /// <summary>The colour shown where nothing is drawn: the first background set's first colour.</summary>
-    public RgbColor Backdrop => Backgrounds.Set(0)[0];
+    /// <summary>The colour shown where nothing is drawn.</summary>
+    public RgbColor Backdrop => Backgrounds.Backdrop;
 
     /// <summary>These colours with the backdrop shown in <paramref name="backdrop"/>.</summary>
-    public BackgroundColours WithBackdrop(RgbColor backdrop) => WithBackgroundColour(0, 0, backdrop);
+    public BackgroundColours WithBackdrop(RgbColor backdrop) => new(Backgrounds.WithBackdrop(backdrop), Sprites);
 
-    /// <summary>These colours with colour <paramref name="colour"/> of background set <paramref name="set"/> shown in <paramref name="value"/>.</summary>
-    public BackgroundColours WithBackgroundColour(int set, int colour, RgbColor value) =>
-        new(Backgrounds.With(set, colour, value), Sprites);
+    /// <summary>These colours with colour <paramref name="colour"/> of gameplay's background set <paramref name="set"/> shown in <paramref name="value"/>.</summary>
+    /// <exception cref="InvalidOperationException">These are a frontend screen's colours, which hold no gameplay background set.</exception>
+    public BackgroundColours WithBackgroundColour(BackgroundColourSet set, int colour, RgbColor value) =>
+        new(Backgrounds.WithBackgroundColour(set, colour, value), Sprites);
 
     /// <summary>The colour groups <paramref name="sheet"/>'s inks fall in.</summary>
     public static int Groups(SpriteImage sheet) => Ensure.NotNull(sheet).StandardColours.Length / GroupColours;
@@ -69,8 +88,9 @@ public sealed class BackgroundColours
     }
 
     /// <summary>
-    /// The colours <paramref name="sheet"/>'s group <paramref name="group"/> shows: the set of the same identity of the
-    /// owner that colours the sheet, a perspective floor's groups taking the background sets and then the sprite sets.
+    /// The colours <paramref name="sheet"/>'s group <paramref name="group"/> shows: the background or sprite colours of
+    /// the owner that colours the sheet, a perspective floor's groups taking its background groups' and then the sprite
+    /// sets.
     /// </summary>
     private ReadOnlySpan<RgbColor> Group(SpriteImage sheet, int group)
     {
@@ -78,8 +98,10 @@ public sealed class BackgroundColours
         return sheet.Colours switch
         {
             SpriteImageColours.Sprite => Sprites.Set(group),
-            SpriteImageColours.Background or SpriteImageColours.TwoBppBackground => Backgrounds.Set(group),
-            SpriteImageColours.FullPalette => group < ColourSets.SetCount ? Backgrounds.Set(group) : Sprites.Set(group - ColourSets.SetCount),
+            SpriteImageColours.Background or SpriteImageColours.TwoBppBackground => Backgrounds.Group(sheet, group),
+            SpriteImageColours.FullPalette => group < FloorBackgroundGroups
+                ? Backgrounds.Group(sheet, group)
+                : Sprites.Set(group - FloorBackgroundGroups),
             _ => throw new InvalidDataException($"Image {sheet.Name} names an unknown colouring {sheet.Colours}."),
         };
     }

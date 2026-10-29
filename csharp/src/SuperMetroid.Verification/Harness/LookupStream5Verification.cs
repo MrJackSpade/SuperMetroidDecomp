@@ -1074,7 +1074,7 @@ internal static class LookupStream5Verification
                 AssertEqual(Pack(expected.Base[color]), cgram.Colors[TourianStatuePaletteConstants.BaseCgramIndex + color], "Actual base CGRAM");
                 AssertEqual(Pack(expected.Statue[color]), cgram.Colors[TourianStatuePaletteConstants.StatueCgramIndex + color], "Unchanged statue CGRAM");
             }
-            actual.ApplyGrey(cgram.BackgroundSets.Set(0).Slice(0, expected.Grey.Length));
+            actual.ApplyGrey(cgram.BackgroundSets.Set(BackgroundColourSet.Hud).Slice(0, expected.Grey.Length));
             for (int color = 0; color < expected.Grey.Length; color++)
             {
                 AssertEqual(Pack(expected.Grey[color]), actual.ResolveGrey(color), "Exact independent grey ramp color");
@@ -1640,9 +1640,9 @@ internal static class LookupStream5Verification
                 actual.LoadAnimationColors(cgram.BackgroundSets,row);
                 for(int color=0;color<6;color++) AssertEqual(Pack(expected.Animation[row][color]),cgram.Colors[CeresDoorVisualConstants.AnimationTargetColor+color],"Ceres independent animation color");
             }
-            actual.LoadNormalColors(cgram.BackgroundSets.All.Slice(0, 15));
+            actual.LoadNormalColors(cgram.BackgroundSets.Set(BackgroundColourSet.Hud).Slice(0, 15));
             for(int color=0;color<15;color++) AssertEqual(Pack(expected.Normal[color]),cgram.Colors[color],"Ceres normal palette unchanged");
-            actual.LoadEscapeColors(cgram.BackgroundSets.All.Slice(0, 15));
+            actual.LoadEscapeColors(cgram.BackgroundSets.Set(BackgroundColourSet.Hud).Slice(0, 15));
             for(int color=0;color<15;color++) AssertEqual(Pack(expected.Escape[color]),cgram.Colors[color],"Ceres escape palette unchanged");
             string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1",content =>
             {

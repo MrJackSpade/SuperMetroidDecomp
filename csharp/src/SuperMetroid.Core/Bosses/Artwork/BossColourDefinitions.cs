@@ -8,7 +8,7 @@ public static class BossColourDefinitions
     public static readonly SpriteColourRun DraygonIntro = new(1, 0, 25);
 
     /// <summary>Draygon background material.</summary>
-    public static readonly BackgroundColourRun DraygonBackground = new(5, 0, 16);
+    public static readonly BackgroundColourRun DraygonBackground = new(BackgroundColourSet.TilesFourth, 0, 16);
 
     /// <summary>Draygon sprite material.</summary>
     public static readonly SpriteColourRun DraygonSprite = new(7, 0, 16);
@@ -20,10 +20,10 @@ public static class BossColourDefinitions
     public static readonly SpriteColourRun DraygonGoop = new(2, 1, 8);
 
     /// <summary>Draygon health band.</summary>
-    public static readonly BackgroundColourRun DraygonHealth = new(5, 9, 4);
+    public static readonly BackgroundColourRun DraygonHealth = new(BackgroundColourSet.TilesFourth, 9, 4);
 
     /// <summary>Crocomire fight body.</summary>
-    public static readonly BackgroundColourRun CrocomireFightBody = new(7, 0, 8);
+    public static readonly BackgroundColourRun CrocomireFightBody = new(BackgroundColourSet.TilesSixth, 0, 8);
 
     /// <summary>Crocomire initial wall.</summary>
     public static readonly SpriteColourRun CrocomireInitialWall = new(2, 0, 17);
@@ -62,13 +62,13 @@ public static class BossColourDefinitions
     public static readonly SpriteColourRun BabyMetroidCutscene = new(7, 1, 15);
 
     /// <summary>Kraid's room backdrop row.</summary>
-    public static readonly BackgroundColourRun KraidRoomBackdrop = new(6, 0, 16);
+    public static readonly BackgroundColourRun KraidRoomBackdrop = new(BackgroundColourSet.TilesFifth, 0, 16);
 
     /// <summary>Kraid's BG2 body row.</summary>
-    public static readonly BackgroundColourRun KraidBody = new(7, 0, 16);
+    public static readonly BackgroundColourRun KraidBody = new(BackgroundColourSet.TilesSixth, 0, 16);
 
     /// <summary>Kraid's eye colours.</summary>
-    public static readonly BackgroundColourRun KraidEye = new(7, 1, 3);
+    public static readonly BackgroundColourRun KraidEye = new(BackgroundColourSet.TilesSixth, 1, 3);
 
     /// <summary>Kraid's initial sprite row.</summary>
     public static readonly SpriteColourRun KraidSprites = new(3, 0, 16);
@@ -77,7 +77,7 @@ public static class BossColourDefinitions
     public static readonly SpriteColourRun KraidSecondary = new(7, 0, 16);
 
     /// <summary>Mother Brain's body colours.</summary>
-    public static readonly BackgroundColourRun MotherBrainBody = new(4, 1, 14);
+    public static readonly BackgroundColourRun MotherBrainBody = new(BackgroundColourSet.TilesThird, 1, 14);
 
     /// <summary>Mother Brain's brain colours.</summary>
     public static readonly SpriteColourRun MotherBrainBrain = new(1, 1, 15);
@@ -89,10 +89,10 @@ public static class BossColourDefinitions
     public static readonly SpriteColourRun MotherBrainCorpse = new(7, 1, 15);
 
     /// <summary>Phantoon's body palette.</summary>
-    public static readonly BackgroundColourRun PhantoonBody = new(7, 0, 16);
+    public static readonly BackgroundColourRun PhantoonBody = new(BackgroundColourSet.TilesSixth, 0, 16);
 
     /// <summary>Norfair Ridley's body colours.</summary>
-    public static readonly BackgroundColourRun NorfairRidleyBody = new(7, 1, 15);
+    public static readonly BackgroundColourRun NorfairRidleyBody = new(BackgroundColourSet.TilesSixth, 1, 15);
 
     /// <summary>Norfair Ridley's tail and wing colours.</summary>
     public static readonly SpriteColourRun NorfairRidleyTail = new(7, 1, 15);
@@ -113,8 +113,8 @@ public static class BossColourDefinitions
     public static readonly SpriteColourRun SporeSpawnBody = new(1, 0, 16);
 
     /// <summary>The room's level colours Spore Spawn's death fades.</summary>
-    public static readonly BackgroundColourRun SporeSpawnDeathLevel = new(4, 0, 16);
+    public static readonly BackgroundColourRun SporeSpawnDeathLevel = new(BackgroundColourSet.TilesThird, 0, 16);
 
     /// <summary>The room's background colours Spore Spawn's death fades.</summary>
-    public static readonly BackgroundColourRun SporeSpawnDeathBackground = new(7, 0, 16);
+    public static readonly BackgroundColourRun SporeSpawnDeathBackground = new(BackgroundColourSet.TilesSixth, 0, 16);
 }

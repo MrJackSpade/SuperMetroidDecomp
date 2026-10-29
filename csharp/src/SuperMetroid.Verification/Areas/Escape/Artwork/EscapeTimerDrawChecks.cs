@@ -61,7 +61,7 @@ internal static class EscapeTimerDrawChecks
             AssertTrue(draw is ImageSpriteDraw, message + ": timer draws are sheet images");
         }
         var cgram = new ScreenPalette();
-        palettes.LoadInitial(cgram.BackgroundSets, cgram.SpriteSets);
+        BackgroundColourSetImage.LoadStarting(palettes, cgram);
         palettes.LoadCommonSprites(cgram.SpriteSets.Set(SpriteColourSetDefinitions.Common));
         palettes.LoadEnemyProjectileSprites(cgram.SpriteSets.Set(SpriteColourSetDefinitions.EnemyProjectiles));
 

@@ -33,7 +33,16 @@ internal sealed class SamusColourRig : IPaletteColors, IPaletteFxColourOwners
     public SamusColours Samus { get; }
 
     /// <inheritdoc />
-    public ColourRun BackgroundSets => Gameplay.BackgroundSets.All;
+    public ColourRun BackgroundSet(BackgroundColourSet set) => Gameplay.BackgroundSets.Set(set);
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// The rig stands for colour memory at the native boundary, where a screen's set and gameplay's background set of
+    /// the same native position are the same colours, so a screen effect stepped on the rig writes the gameplay set its
+    /// set's native position decodes to.
+    /// </remarks>
+    public ColourRun ScreenBackgroundSet(int set) =>
+        Gameplay.BackgroundSets.Set(NativeBackgroundSets.AtNativeSet(set));
 
     /// <inheritdoc />
     public ColourRun SpriteSets => Gameplay.SpriteSets.All;

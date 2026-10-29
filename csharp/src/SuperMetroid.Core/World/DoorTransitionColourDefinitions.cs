@@ -8,22 +8,22 @@ public static class DoorTransitionColourDefinitions
     public static readonly RgbColor DoorCompletionVisorGreen = RgbColor.FromWord(0x3be0);
 
     /// <summary>The minimap's explored colours and its explored feature colour, always kept.</summary>
-    public static readonly BackgroundColourRun MinimapExplored = new(0, 9, 2);
+    public static readonly BackgroundColourRun MinimapExplored = new(BackgroundColourSet.Hud, 9, 2);
 
     /// <summary>The minimap's unexplored colours and its unexplored feature colour, always kept.</summary>
-    public static readonly BackgroundColourRun MinimapUnexplored = new(0, 13, 2);
+    public static readonly BackgroundColourRun MinimapUnexplored = new(BackgroundColourSet.Hud, 13, 2);
 
     /// <summary>The highlighted HUD item's background outline, background and outline, always kept.</summary>
-    public static readonly BackgroundColourRun HighlightedItem = new(1, 1, 3);
+    public static readonly BackgroundColourRun HighlightedItem = new(BackgroundColourSet.HudItemsAndEffects, 1, 3);
 
     /// <summary>The minimap's room highlight, always kept.</summary>
-    public static readonly BackgroundColourRun MinimapRoomHighlight = new(1, 13, 1);
+    public static readonly BackgroundColourRun MinimapRoomHighlight = new(BackgroundColourSet.HudItemsAndEffects, 13, 1);
 
     /// <summary>The HUD's background and its items' background outline, background and outline, kept between common rooms.</summary>
-    public static readonly BackgroundColourRun HudItems = new(1, 4, 4);
+    public static readonly BackgroundColourRun HudItems = new(BackgroundColourSet.HudItemsAndEffects, 4, 4);
 
     /// <summary>The minimap's background, kept between common rooms.</summary>
-    public static readonly BackgroundColourRun MinimapBackground = new(1, 12, 1);
+    public static readonly BackgroundColourRun MinimapBackground = new(BackgroundColourSet.HudItemsAndEffects, 12, 1);
 
     /// <summary>The escape timer's first two colours, kept between common rooms while it runs.</summary>
     public static readonly SpriteColourRun TimerFirst = new(5, 1, 2);

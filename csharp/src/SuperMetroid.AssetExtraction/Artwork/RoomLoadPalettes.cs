@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 
@@ -13,7 +14,7 @@ internal static class RoomLoadPalettes
     {
         Ensure.NotNull(palettes);
         var cgram = new ScreenPalette();
-        palettes.LoadInitial(cgram.BackgroundSets, cgram.SpriteSets);
+        BackgroundColourSetImage.LoadStarting(palettes, cgram);
         palettes.LoadCommonSprites(cgram.SpriteSets.Set(SpriteColourSetDefinitions.Common));
         palettes.LoadEnemyProjectileSprites(cgram.SpriteSets.Set(SpriteColourSetDefinitions.EnemyProjectiles));
         return cgram;

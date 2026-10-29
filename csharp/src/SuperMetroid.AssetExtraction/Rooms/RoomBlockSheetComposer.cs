@@ -104,7 +104,7 @@ internal static class RoomBlockSheetComposer
                 Parts = [],
             },
         };
-        return new ComposedRoomBackground(canvas.ToSheet(colours, frames), background.Words);
+        return new ComposedRoomBackground(canvas.ToRoomSheet(colours, frames), background.Words);
     }
 
     /// <summary>Composes one tileset's sheet.</summary>
@@ -189,7 +189,7 @@ internal static class RoomBlockSheetComposer
             });
             index++;
         }
-        return canvas.ToSheet(colours, frames);
+        return canvas.ToRoomSheet(colours, frames);
 
         // Adds a picture of block `block` over the OBJ character table `objects` binds, when every run it reads is bound.
         void AddBlockOverObjectPage(int block, BackgroundTile[] tiles, BgArtworkBindings objects)

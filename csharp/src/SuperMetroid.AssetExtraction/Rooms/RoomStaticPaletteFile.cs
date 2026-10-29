@@ -3,6 +3,7 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -37,7 +38,7 @@ public static class RoomStaticPaletteFile
                     $"Room palette color {index} requires red, green and blue in 0..31.");
             colours[index] = color.ToRgbColor();
         }
-        return RoomStaticPalette.FromColours(colours);
+        return RoomStaticPalette.FromColours(colours, ShownBackgroundColourSets.Of(BackgroundColourSetImage.Decode(colours)));
     }
 
     /// <summary>Validates and writes one editable room-palette document as JSON.</summary>

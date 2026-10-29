@@ -31,7 +31,7 @@ public sealed class LoadedRoomAssets
         Scrolls = scrolls;
         CreCharacterCount = tileset.CreCharacterCount;
         TilesetCharacterCount = tileset.TilesetCharacterCount;
-        PaletteBytes = tileset.PaletteBytes;
+        TilesetColours = tileset.Colours;
         Tileset = tileset.Tileset;
         Pictures = tileset.Pictures;
     }
@@ -46,8 +46,8 @@ public sealed class LoadedRoomAssets
     public int CreCharacterCount { get; }
     /// <summary>The installed tileset's characters the room binds over the common room elements' (#1422).</summary>
     public int TilesetCharacterCount { get; }
-    /// <summary>Installed graphics-set little-endian BGR555 palette bytes; <see cref="LoadGraphics"/> copies the first $0100 bytes into CGRAM colors 0..127, preserving OBJ palettes.</summary>
-    public byte[] PaletteBytes { get; }
+    /// <summary>The tileset's colours for each background set, which <see cref="LoadGraphics"/> gives the sets, leaving the sprite sets alone.</summary>
+    public ShownBackgroundColourSets TilesetColours { get; }
     /// <summary>Compiled graphics-set source identities selected by the room-state index and used to resolve installed block pictures, characters, and palette artwork.</summary>
     public TilesetDefinition Tileset { get; }
 
@@ -80,7 +80,7 @@ public sealed class LoadedRoomAssets
             scrolls,
             new RoomTilesetArtwork(tileset, BgCharacterSet.Tiles.CharactersIn(characterArt.Cre.Characters.Length),
                 BgCharacterSet.Tiles.CharactersIn(characterArt.Get(tileset.Characters).Characters.Length),
-                paletteArt.Get(tileset.Palette).PackedColours.ToArray(), catalogs.BlockSheets));
+                paletteArt.Get(tileset.Palette).Sets, catalogs.BlockSheets));
     }
 
     /// <summary>
@@ -112,7 +112,7 @@ public sealed class LoadedRoomAssets
         new(RoomBgArtwork.Tileset(tileset.Characters), BgCharacterSet.Tiles, RoomTileCharacters.TilesetFirst, tilesetCharacters),
     ];
 
-    /// <summary>Binds the room's two character regions (#1350) and installs its first 128 CGRAM colors.</summary>
+    /// <summary>Binds the room's two character regions (#1350) and gives every background set the tileset's colours for it.</summary>
     public void LoadGraphics(BgArtworkBindings backgrounds, BackgroundColourSets colours)
     {
         Ensure.NotNull(backgrounds);
@@ -120,14 +120,7 @@ public sealed class LoadedRoomAssets
 
         foreach (BgCharacterPlacement placement in CharacterPlacements(Tileset, CreCharacterCount, TilesetCharacterCount))
             placement.BindTo(backgrounds);
-        if (PaletteBytes.Length < RoomStaticPaletteFormat.ByteCount)
-        {
-            throw new InvalidDataException(
-                $"Tileset palette expanded to ${PaletteBytes.Length:X} bytes; expected at least $100.");
-        }
-        ColourRun room = colours.All;
-        for (int colour = 0; colour < room.Count; colour++)
-            room.Write(colour, RgbColor.FromWordIgnoringTopBit(BinaryPrimitives.ReadUInt16LittleEndian(PaletteBytes.AsSpan(colour * sizeof(ushort)))));
+        TilesetColours.CopyTo(colours);
     }
 
     /// <summary>Parses BG1, BTS, and BG2 while retaining native allocation tails beyond visible room screens.</summary>

@@ -250,15 +250,22 @@ internal sealed class PhantoonDeath
             return true;
         }
 
-        ColourRun room = PhantoonRoomColourDefinitions.PowerOn.In(_presentation.BackgroundSets);
-        for (int color = 0; color < room.Count; color++)
+        // The installed powered-on colours hold the faded sets one after another, so each set's colours continue the
+        // count the previous set's left off at.
+        int powerOnColour = 0;
+        foreach (BackgroundColourSet set in PhantoonRoomColourDefinitions.PowerOn)
         {
-            RgbColor current = room[color];
-            RgbColor target = (_bossArtwork.Artwork?.PhantoonColors ?? throw new InvalidDataException(
-                "Wrecked Ship power-on palette requires installed artwork.")).ResolvePowerOn(color);
-            room.Write(
-                color,
-                PhantoonPresentation.CalculatePhantoonTransitionColor(numerator, denominator, current, target));
+            ColourRun room = _presentation.BackgroundSets.Set(set);
+            for (int color = 0; color < room.Count; color++)
+            {
+                RgbColor current = room[color];
+                RgbColor target = (_bossArtwork.Artwork?.PhantoonColors ?? throw new InvalidDataException(
+                    "Wrecked Ship power-on palette requires installed artwork.")).ResolvePowerOn(powerOnColour);
+                room.Write(
+                    color,
+                    PhantoonPresentation.CalculatePhantoonTransitionColor(numerator, denominator, current, target));
+                powerOnColour++;
+            }
         }
         eye.FadeNumerator = numerator + 1;
         return false;

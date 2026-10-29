@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>One piece of a frontend or projectile sprite composition, and whether it takes the draw's palette.</summary>
 /// <param name="Part">The piece: offset, size, character, mirroring, palette row and priority.</param>

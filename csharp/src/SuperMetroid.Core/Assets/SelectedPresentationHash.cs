@@ -125,21 +125,6 @@ internal sealed class SelectedPresentationHash
     public void AppendIdentity(string label, string? identity) =>
         Append(label, identity is null ? ReadOnlySpan<byte>.Empty : Convert.FromHexString(identity));
 
-    /// <summary>Preserves part order, offsets, size, flips, priority, palette and character selection.</summary>
-    public void AppendEnemyParts(ReadOnlySpan<SpritePart> parts)
-    {
-        Append("parts", parts.Length);
-        foreach (SpritePart part in parts)
-            part.AppendIdentity(this);
-    }
-
-    /// <summary>Hashes calculated parts with the identical ordering and framing as stored spans.</summary>
-    public void AppendEnemyParts(IReadOnlyList<SpritePart> parts)
-    {
-        Append("parts", parts.Count);
-        for (int index = 0; index < parts.Count; index++)
-            parts[index].AppendIdentity(this);
-    }
     /// <summary>Frames a field or payload length as a little-endian 32-bit count.</summary>
     private void AppendLength(int value)
     {

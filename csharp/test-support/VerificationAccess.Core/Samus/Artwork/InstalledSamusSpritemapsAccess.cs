@@ -10,7 +10,7 @@ internal static class InstalledSamusSpritemapsAccess
     extension(InstalledSamusSpritemaps self)
     {
         /// <summary>The stored compositions, each at its identity's ordinal, without recreating stock art.</summary>
-        internal IReadOnlyList<SamusSpritemapDefinition> Definitions => self.Source.Definitions;
+        internal IReadOnlyList<SamusSpritemapDefinition> Definitions => self.Source.definitions;
     }
 
     /// <summary>Where the cartridge stores the tables the catalog installs.</summary>

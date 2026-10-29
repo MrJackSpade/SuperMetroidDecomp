@@ -41,7 +41,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
             AssertEqual(destination, ObjCharacterNativeWords.Of(PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages)[index].FirstByte / 32),
                 $"gunship frame {index} compiled place among the OBJ characters matches the cartridge");
             ReadOnlySpan<byte> pixels = installed.Resolve(transfer.Asset).Span;
-            AssertEqual(GunshipLiftoffTransferDefinitions.ByteCount, pixels.Length,
+            AssertEqual(GunshipLiftoffCharacterDefinitions.ByteCount, pixels.Length,
                 $"gunship frame {index} transfer length");
             for (int offset = 0; offset < pixels.Length; offset++)
                 AssertEqual(CpuBusRegionRead.Read(bus, EnemySourceDefinitions.GunshipLiftoffPageSource(index) + offset), pixels[offset],
@@ -61,13 +61,13 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
                 $"takeoff frame {index} shows its installed page");
             AssertEqual(PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages)[index].FirstByte, stockPages.Uploads[index].FirstByte,
                 $"takeoff frame {index} keeps its compiled place among the OBJ characters");
-            nativeQueue.Enqueue(GunshipLiftoffTransferDefinitions.ByteCount, EnemySourceDefinitions.GunshipLiftoffPageSource(index),
+            nativeQueue.Enqueue(GunshipLiftoffCharacterDefinitions.ByteCount, EnemySourceDefinitions.GunshipLiftoffPageSource(index),
                 VramDmaDestination.FromNative(ObjCharacterNativeWords.Of(stockPages.Uploads[index].FirstByte / 32)));
         }
         var nativeVram = new SnesVram();
         ImportedVramOracle.Drain(nativeQueue, nativeVram, bus);
         byte[] installedPage = new ObjCharacterTablePage().Page(stockPages, RuntimeArtworkContent.Of(runtime)).Characters.ToArray();
-        int pagesByte = stockPages.Uploads[0].FirstByte, pagesBytes = transfers.Length * GunshipLiftoffTransferDefinitions.ByteCount;
+        int pagesByte = stockPages.Uploads[0].FirstByte, pagesBytes = transfers.Length * GunshipLiftoffCharacterDefinitions.ByteCount;
         AssertTrue(installedPage.AsSpan(pagesByte, pagesBytes).SequenceEqual(
                 nativeVram.Bytes.Slice(GameplayVramLayoutConstants.ObjectCharacters.Offset * sizeof(ushort) + pagesByte, pagesBytes)),
             "all five installed takeoff pages match the native OBJ characters");

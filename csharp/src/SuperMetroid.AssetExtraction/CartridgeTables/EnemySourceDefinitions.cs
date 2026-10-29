@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -25,13 +26,13 @@ internal static class EnemySourceDefinitions
 
     /// <summary>
     /// $94:C800: the first of the gunship's five consecutive takeoff character pages, the sources the takeoff list at
-    /// $A2:AC07 names, each <see cref="GunshipLiftoffTransferDefinitions.ByteCount"/> bytes long (#1412).
+    /// $A2:AC07 names, each <see cref="GunshipLiftoffCharacterDefinitions.ByteCount"/> bytes long (#1412).
     /// </summary>
     internal static readonly SnesAddress GunshipLiftoffFirstPage = new(0x94, 0xc800);
 
     /// <summary>The cartridge source of the gunship's takeoff page <paramref name="index"/>.</summary>
     internal static int GunshipLiftoffPageSource(int index) =>
-        GunshipLiftoffFirstPage.Value + index * GunshipLiftoffTransferDefinitions.ByteCount;
+        GunshipLiftoffFirstPage.Value + index * GunshipLiftoffCharacterDefinitions.ByteCount;
 
     /// <summary>$A6:E2AA: Ceres Ridley's sixteen three-colour eye-fade rows (#1412).</summary>
     internal const int CeresRidleyEyeFadeRows = 0xa6e2aa;

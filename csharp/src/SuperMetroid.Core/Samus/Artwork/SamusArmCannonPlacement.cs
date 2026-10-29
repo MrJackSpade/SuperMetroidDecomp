@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public sealed class SamusArmCannonPlacement
 {
     /// <summary>The displacement of each animation frame, from frame zero.</summary>
-    private readonly ImmutableArray<Offset16<RoomPixels>> offsets;
+    internal readonly ImmutableArray<Offset16<RoomPixels>> offsets;
 
     /// <summary>Creates a pose's placement.</summary>
     /// <param name="drawingMode">The drawing-mode value the pose sets, 0 through 255; its low four bits choose whether and when the cover draws.</param>
@@ -37,9 +37,6 @@ public sealed class SamusArmCannonPlacement
 
     /// <summary>The aim direction shown at every animation frame after zero, or null when the pose shows one direction throughout.</summary>
     public int? LaterDirection { get; }
-
-    /// <summary>The animation frames with an installed displacement, from frame zero.</summary>
-    public int FrameCount => offsets.Length;
 
     /// <summary>The aim direction whose cover picture the pose shows at <paramref name="animationFrame"/>.</summary>
     public int Direction(int animationFrame) =>

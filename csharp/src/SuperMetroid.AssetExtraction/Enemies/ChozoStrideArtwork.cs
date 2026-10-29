@@ -1,8 +1,8 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Spatial;
 using static SuperMetroid.AssetExtraction.Enemies.ChozoStrideGeometryDefinitions;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 

@@ -1,9 +1,9 @@
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Spatial;
 using static SuperMetroid.AssetExtraction.Bosses.Torizo.GoldenTorizoStrideGeometryDefinitions;
 using static SuperMetroid.Core.Bosses.Torizo.GoldenTorizoStrideDefinitions;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Torizo;
 
@@ -51,7 +51,7 @@ internal static class GoldenTorizoStrideArtwork
         /// <summary>Repositions a support or departing foot tile for the current stride pose.</summary>
         internal SpritePart At(int phase)
         {
-            int anchor = Part.Palette == SupportPalette(phase) ? SupportFootXs[phase] : DepartingFootX;
+            int anchor = LegsByPalette[Part.Palette] == SupportLeg(phase) ? SupportFootXs[phase] : DepartingFootX;
             int x = anchor + (Part.Character - FirstFootTile) * TilePixels;
             return Part.At(Offset16<ScreenPixels>.Of(SpritePart.WrapX(x), Part.Offset.Y));
         }

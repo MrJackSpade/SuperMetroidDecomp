@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Movement;
 using static SuperMetroid.AssetExtraction.Samus.SamusAtmosphericArtworkDefinitions;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 

@@ -5,9 +5,6 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// <summary>The five gunship takeoff uploads, in takeoff order.</summary>
 internal static class GunshipLiftoffTransferDefinitions
 {
-    /// <summary>One takeoff upload contains $400 bytes of 4-bpp OBJ characters.</summary>
-    internal const ushort ByteCount = 0x0400;
-
     /// <summary>The takeoff's five uploads, showing five consecutive installed pages.</summary>
     internal static readonly GunshipLiftoffTransferDefinition[] Frames =
     [

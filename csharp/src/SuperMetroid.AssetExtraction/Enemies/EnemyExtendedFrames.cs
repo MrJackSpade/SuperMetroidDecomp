@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -40,10 +41,6 @@ internal static class EnemyExtendedFrames
                 pair => pair.Value.Select(component => new EnemyExtendedComponentPlacement(component.Offset)).ToArray()),
             new Dictionary<EnemyFrameId, EnemyFrameId>(selection.DisplayFrames));
 
-    /// <summary>Finds a frame's components, including the shared empty extended frame's.</summary>
-    internal static bool TryGet(EnemyExtendedFrameCatalog catalog, EnemyFrameId frame, out ReadOnlyMemory<EnemyExtendedDrawComponent> components) =>
-        Components(catalog, EnemyExtendedFramePlacements.TryResolve(catalog.Placements, frame, out EnemyFrameId? stored), stored, out components);
-
     /// <summary>Maps the frame gameplay shows to the editable draw components displayed for it.</summary>
     internal static bool TryGetDisplay(EnemyExtendedFrameCatalog catalog, EnemyFrameId frame, out ReadOnlyMemory<EnemyExtendedDrawComponent> components) =>
         Components(catalog, EnemyExtendedFramePlacements.TryResolveDisplay(catalog.Placements, frame, out EnemyFrameId? stored), stored, out components);
@@ -52,7 +49,7 @@ internal static class EnemyExtendedFrames
     /// The components of a frame the placements resolved: the stored frame's, none for the shared empty extended frame
     /// (resolved without a stored frame), or nothing when the frame is not installed.
     /// </summary>
-    private static bool Components(EnemyExtendedFrameCatalog catalog, bool resolved, EnemyFrameId? stored,
+    internal static bool Components(EnemyExtendedFrameCatalog catalog, bool resolved, EnemyFrameId? stored,
         out ReadOnlyMemory<EnemyExtendedDrawComponent> components)
     {
         components = !resolved ? default

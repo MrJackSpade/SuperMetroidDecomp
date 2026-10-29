@@ -10,6 +10,7 @@ using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoRightOrbFramesV
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Enemies;
 

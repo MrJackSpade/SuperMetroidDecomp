@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Five installed, palette-indexed takeoff frames resolved at accepted NMI.</summary>
 public sealed class GunshipLiftoffArtworkCatalog

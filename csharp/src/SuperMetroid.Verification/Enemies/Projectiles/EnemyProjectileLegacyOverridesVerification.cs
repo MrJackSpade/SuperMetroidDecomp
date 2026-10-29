@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Projectiles;
 

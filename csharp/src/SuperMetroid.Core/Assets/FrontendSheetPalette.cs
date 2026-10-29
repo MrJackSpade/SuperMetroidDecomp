@@ -15,5 +15,5 @@ internal static class FrontendSheetPalette
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The row is outside the eight sprite palette rows.</exception>
     internal static int? Override(int palette) =>
-        Ensure.BetweenInclusive(0, SpritePart.MaximumPalette, palette) == FramePalette ? null : palette;
+        Ensure.BetweenInclusive(0, SpriteImage.MaximumPaletteRow, palette) == FramePalette ? null : palette;
 }

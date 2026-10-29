@@ -43,6 +43,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies.NoobTube;
 using SuperMetroid.Core.Enemies.EyeDoor.Artwork;
 using SuperMetroid.Core.Enemies.SaveStation.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Compares installed enemy-projectile drawing compositions with native OAM and guards their runtime visual reads.</summary>

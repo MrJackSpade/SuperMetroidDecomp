@@ -64,9 +64,6 @@ public abstract class InstalledSamusSpritemaps
     /// <summary>SHA-256 of the selected pose bases, table entries and compositions.</summary>
     public abstract string ContentIdentity { get; }
 
-    /// <summary>Number of installed compositions.</summary>
-    public int CompositionCount => halves.Length;
-
     /// <summary>Materializes all 253 upper-half element-index bases in pose order; callers add the animation frame to obtain a pointer-table index.</summary>
     public ReadOnlySpan<ushort> TopBases => topBasesTable ??= Enumerable.Range(0, InstalledSamusBodyArtwork.PoseCount).Select(pose => TopBase(SamusPoseNumbering.FromNumber(pose))).ToArray();
     /// <summary>The materialized <see cref="TopBases"/>; the installed tables never change after construction.</summary>
@@ -113,12 +110,6 @@ public abstract class InstalledSamusSpritemaps
         composition = entry ?? default;
         return entry is not null;
     }
-
-    /// <summary>The body halves <paramref name="composition"/>'s picture shows.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">No such composition is installed.</exception>
-    public SamusBodyHalvesShown HalvesShown(SamusSpritemapId composition) => (uint)composition.Ordinal < (uint)halves.Length
-        ? halves[composition.Ordinal]
-        : throw new ArgumentOutOfRangeException(nameof(composition), composition, "No such Samus composition is installed.");
 
     /// <summary>
     /// The pre-coloured body picture the entry at <paramref name="index"/> shows with <paramref name="records"/>

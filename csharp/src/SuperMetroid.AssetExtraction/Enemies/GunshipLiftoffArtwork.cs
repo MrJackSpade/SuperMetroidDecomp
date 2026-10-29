@@ -1,7 +1,9 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>The gunship takeoff's installed frames: their validation, the frame each transfer uploads, and their identity.</summary>
 internal static class GunshipLiftoffArtwork
@@ -22,7 +24,7 @@ internal static class GunshipLiftoffArtwork
         Ensure.NotNull(frames);
         if (frames.Length != GunshipLiftoffTransferDefinitions.Frames.Length ||
             frames.Any(frame => frame is null ||
-                frame.Characters.Length != GunshipLiftoffTransferDefinitions.ByteCount))
+                frame.Characters.Length != GunshipLiftoffCharacterDefinitions.ByteCount))
             throw new InvalidDataException("Gunship takeoff requires five complete character frames.");
         return frames.ToArray();
     }

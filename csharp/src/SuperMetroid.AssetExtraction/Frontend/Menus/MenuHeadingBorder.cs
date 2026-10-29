@@ -1,8 +1,8 @@
 using System.Collections;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Spatial;
 using static SuperMetroid.AssetExtraction.Frontend.Menus.MenuHeadingBorderDefinitions;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Menus;
 

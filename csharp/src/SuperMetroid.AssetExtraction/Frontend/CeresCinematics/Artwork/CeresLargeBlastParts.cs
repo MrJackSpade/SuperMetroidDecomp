@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 

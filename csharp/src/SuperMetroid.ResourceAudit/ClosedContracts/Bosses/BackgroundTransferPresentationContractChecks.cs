@@ -2,7 +2,6 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 
@@ -26,6 +25,7 @@ internal static class BackgroundTransferPresentationContractChecks
             using SuperMetroid.Core.Bosses.Draygon.Artwork;
             using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
             using SuperMetroid.Core.Bosses.Phantoon.Artwork;
+            using SuperMetroid.AssetExtraction.Enemies;
             using SuperMetroid.Core.Enemies.Artwork;
             using SuperMetroid.Core.Frontend.Ending.Artwork;
             using SuperMetroid.Core.Fx;
@@ -73,7 +73,7 @@ internal static class BackgroundTransferPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("BackgroundTransferProviderFixture", sources,
-            platforms.Append(typeof(GunshipLiftoffArtworkCatalog).Assembly.Location).Distinct()
+            platforms.Append(typeof(SuperMetroid.Core.Assets.InstalledArtworkId).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)

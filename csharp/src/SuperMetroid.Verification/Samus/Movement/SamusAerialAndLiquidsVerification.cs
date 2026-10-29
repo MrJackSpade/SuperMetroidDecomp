@@ -12,7 +12,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
@@ -23,6 +22,7 @@ namespace SuperMetroid.Verification.Samus.Movement;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
 /// Focused cartridge comparisons for aerial motion, jump poses, liquid drag, and

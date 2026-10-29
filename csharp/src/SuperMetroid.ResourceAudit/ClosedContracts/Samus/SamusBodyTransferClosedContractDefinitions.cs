@@ -37,7 +37,7 @@ internal static class SamusBodyTransferClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusSpritemapPoseBases.cs"),
              new("csharp/src/SuperMetroid.Core/Spatial/TileFlip.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Artwork/SnesBgTilemapWord.cs"),
-             new("csharp/src/SuperMetroid.Core/Assets/SpritePart.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Artwork/SpritePart.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseCollisionDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseCollisionRadii.cs")]),
     ];

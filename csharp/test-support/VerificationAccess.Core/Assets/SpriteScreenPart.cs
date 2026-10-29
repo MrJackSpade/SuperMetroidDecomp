@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// <param name="Character">First character in the draw's artwork.</param>
 /// <param name="FlipX">Whether the pixels are mirrored horizontally.</param>
 /// <param name="FlipY">Whether the pixels are mirrored vertically.</param>
-/// <param name="Palette">OBJ palette row 0..7, taken from a validated <see cref="SpriteFramePart"/> or its composition.</param>
+/// <param name="Palette">OBJ palette row 0..7, taken from a validated <see cref="SuperMetroid.AssetExtraction.Artwork.SpriteFramePart"/> or its composition.</param>
 /// <param name="Priority">Priority against the backgrounds 0..3, taken from a validated part or draw.</param>
 [IndependentFlag("the OAM attribute word's independent horizontal and vertical flip bits")]
 internal readonly record struct SpriteScreenPart(Offset16<ScreenPixels> Position, Extent16<ScreenPixels> Size, int Character,

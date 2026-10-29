@@ -4,11 +4,11 @@ using SuperMetroid.AssetExtraction.World.Artwork;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyExtendedLegacyOverridesVerification;
 using static SuperMetroid.Verification.Enemies.Projectiles.EnemyProjectileLegacyOverridesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
 using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Checks historical enemy OAM schema overrides preserve authored
 /// frame edits, display remaps, stock inheritance, and content identities.</summary>

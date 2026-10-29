@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
 
@@ -17,7 +16,7 @@ public readonly record struct RoomCharacterSource(IBgCharacterArtwork Artwork, A
     /// <paramref name="backgrounds"/>, or the sprites' artwork, as <paramref name="objects"/>' shown sprite looks leave it;
     /// with what <paramref name="animations"/> declare the room's animations paint there, showing <paramref name="frames"/>.
     /// </summary>
-    public static RoomCharacterSource Of(RoomBackgroundCharacters characters, BgArtworkBindings backgrounds, EnemySession objects,
+    public static RoomCharacterSource Of(RoomBackgroundCharacters characters, BgArtworkBindings backgrounds, ISpriteObjectPage objects,
         RoomAnimatedCharacters animations, ArtworkFrameSelections frames)
     {
         var animated = new AnimatedCharacterView(Ensure.NotNull(animations).Of(characters), Ensure.NotNull(frames));

@@ -44,7 +44,7 @@ internal static class CinematicClosedContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTimerPresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTimerPresentationDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTimerComposition.cs"),
-             new("csharp/src/SuperMetroid.Core/Assets/SpriteComposition.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Artwork/SpriteComposition.cs"),
              new("csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTimerTileAtlas.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Areas/Escape/EscapeTimerGlyphDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Areas/Escape/EscapeTimerGlyphs.cs")]),

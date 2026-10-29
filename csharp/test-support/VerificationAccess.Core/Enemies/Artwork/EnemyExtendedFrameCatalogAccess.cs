@@ -10,6 +10,7 @@ internal static class EnemyExtendedFrameCatalogAccess
     {
         /// <summary>Finds a frame's components, including the shared empty extended frame's.</summary>
         internal bool TryGet(EnemyFrameId frame, out ReadOnlyMemory<EnemyExtendedDrawComponent> components) =>
-            EnemyExtendedFrames.TryGet(self, frame, out components);
+            EnemyExtendedFrames.Components(self, EnemyExtendedFramePlacements.TryResolve(self.Placements, frame, out EnemyFrameId? stored),
+                stored, out components);
     }
 }

@@ -1,4 +1,7 @@
-namespace SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Spatial;
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
 /// One authored piece of a sprite: a small or large square of characters from the sprite's character sheet, placed

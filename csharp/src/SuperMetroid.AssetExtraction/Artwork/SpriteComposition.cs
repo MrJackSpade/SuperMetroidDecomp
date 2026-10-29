@@ -1,6 +1,8 @@
+using SuperMetroid.Core.Assets;
 using System.Collections.Immutable;
+using SuperMetroid.Core;
 
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Immutable ordered visual parts. No collision, attack or attachment mechanics are stored here.</summary>
 public sealed class SpriteComposition

@@ -37,7 +37,7 @@ internal static class EnemyArtworkCatalogsTooling
         /// <summary>The word of the frame displayed for the frame stored at <paramref name="pointer"/> in <paramref name="bank"/>.</summary>
         internal ushort GetDisplayPointer(byte bank, ushort pointer) =>
             EnemyFrameCartridgeLookupTooling.TryFrameAt(bank, pointer) is { } frame
-                ? EnemyFrameCartridgeLookupTooling.Word(self.GetDisplayFrame(frame))
+                ? EnemyFrameCartridgeLookupTooling.Word(self.Placements.GetDisplayFrame(frame))
                 : pointer;
     }
 }

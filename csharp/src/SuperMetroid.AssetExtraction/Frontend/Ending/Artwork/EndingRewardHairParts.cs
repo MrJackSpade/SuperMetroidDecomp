@@ -4,6 +4,7 @@ using Pose = SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingRewardSp
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 

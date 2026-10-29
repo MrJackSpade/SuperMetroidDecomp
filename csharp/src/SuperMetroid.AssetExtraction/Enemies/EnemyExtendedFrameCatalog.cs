@@ -30,7 +30,4 @@ public sealed class EnemyExtendedFrameCatalog
     /// <summary>Maps the frame gameplay shows to the editable draw components displayed for it.</summary>
     internal bool TryGetDisplay(EnemyFrameId frame, out ReadOnlyMemory<EnemyExtendedDrawComponent> components) =>
         EnemyExtendedFrames.TryGetDisplay(this, frame, out components);
-
-    /// <summary>The frame displayed for <paramref name="frame"/>, whose BG2 half accompanies the displayed components.</summary>
-    internal EnemyFrameId GetDisplayFrame(EnemyFrameId frame) => Placements.GetDisplayFrame(frame);
 }

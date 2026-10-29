@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Assets;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Spatial;
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>One ordered region in an indexed tile sheet. Null palette inherits its drawing owner's current palette.</summary>
 [SpatialComponents("External format: sprite composition JSON stores each OAM part displacement as offsetX/offsetY.")]

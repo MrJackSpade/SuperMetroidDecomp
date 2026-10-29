@@ -31,7 +31,7 @@ internal static class EnemyExtendedFramePlacementsVerification
             bool composed = compositions.TryGetDisplay(frame, out ReadOnlyMemory<EnemyExtendedDrawComponent> expected);
             bool placed = placements.TryGetDisplay(frame, out ReadOnlyMemory<EnemyExtendedComponentPlacement> actual);
             AssertEqual(composed, placed, $"{frame} has placements exactly when it has installed compositions");
-            AssertEqual(compositions.GetDisplayFrame(frame), placements.GetDisplayFrame(frame),
+            AssertEqual(compositions.Placements.GetDisplayFrame(frame), placements.GetDisplayFrame(frame),
                 $"{frame} displays the frame its composition binding selects");
             if (!composed)
                 continue;

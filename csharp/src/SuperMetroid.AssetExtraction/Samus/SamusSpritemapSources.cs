@@ -3,6 +3,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
 using static SuperMetroid.AssetExtraction.Samus.SamusBodySheetDefinitions;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -46,9 +47,6 @@ public sealed class SamusSpritemapSources : InstalledSamusSpritemaps
                 part.AppendIdentity(content);
         }
     });
-
-    /// <summary>The stored compositions, each at its identity's ordinal.</summary>
-    internal IReadOnlyList<SamusSpritemapDefinition> Definitions => definitions;
 
     /// <summary>Whole frames already built, by composition.</summary>
     private readonly System.Collections.Concurrent.ConcurrentDictionary<SamusSpritemapId, SpriteFrame> frames = new();

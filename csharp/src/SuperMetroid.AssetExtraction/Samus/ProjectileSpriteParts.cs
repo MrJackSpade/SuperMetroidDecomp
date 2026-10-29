@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Spatial;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
 using static SuperMetroid.AssetExtraction.Samus.ProjectileSpritePartDefinitions;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 

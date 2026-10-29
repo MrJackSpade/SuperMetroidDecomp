@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Decodes OBSEL's object size selection into the sizes a screen's objects draw at (#1358).</summary>

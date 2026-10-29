@@ -218,7 +218,7 @@ public static class EnemyTileArtworkFiles
         for (int index = 0; index < GunshipLiftoffTransferDefinitions.Frames.Length; index++)
         {
             int pageSource = EnemySourceDefinitions.GunshipLiftoffPageSource(index);
-            var planar = new byte[GunshipLiftoffTransferDefinitions.ByteCount];
+            var planar = new byte[GunshipLiftoffCharacterDefinitions.ByteCount];
             for (int offset = 0; offset < planar.Length; offset++)
                 planar[offset] = bus.ReadCartridgeByte(pageSource + offset);
             byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
@@ -711,7 +711,7 @@ public static class EnemyTileArtworkFiles
             {
                 gunshipFrames[index] = RoomCharacterAtlasPng.Read(
                     new MemoryStream(selected, writable: false),
-                    GunshipLiftoffTransferDefinitions.ByteCount);
+                    GunshipLiftoffCharacterDefinitions.ByteCount);
             }
             catch (InvalidDataException error)
             {

@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Spatial;
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>One rectangular piece of a whole sprite frame, placed relative to the frame's origin.</summary>
 /// <param name="Offset">Top-left corner relative to the frame origin, before any whole-frame flip.</param>

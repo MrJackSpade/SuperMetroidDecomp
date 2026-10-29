@@ -239,7 +239,7 @@ internal static class EnemyContentIdentityFixtureVerification
             var meltFirstMap = MeltMap("melt-first-map");
             var meltSecondMap = MeltMap("melt-second-map");
             var gunship = GunshipLiftoffTransferDefinitions.Frames.Select((definition, index) =>
-                Characters("gunship-" + index, GunshipLiftoffTransferDefinitions.ByteCount, index)).ToArray();
+                Characters("gunship-" + index, GunshipLiftoffCharacterDefinitions.ByteCount, index)).ToArray();
             Register("gunship-order");
             if (edit == "gunship-order") Array.Reverse(gunship);
             var door = CeresDoorVisualFiles.Read(Png("ceres-door-tiles", CeresDoorVisualDefinitions.CharacterBytes), Json(new CeresDoorVisualDocument

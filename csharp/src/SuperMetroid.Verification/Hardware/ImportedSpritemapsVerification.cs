@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.Verification.Hardware;
 /// <summary>Uses cartridge spritemaps as a diagnostic oracle for installed enemy artwork.</summary>
 internal static class ImportedSpritemapsVerification

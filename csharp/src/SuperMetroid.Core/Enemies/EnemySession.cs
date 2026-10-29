@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies;
 /// flag, the random enemy counter, the death quota an empty population keeps, the staging surfaces, the Mode 7
 /// transfer residue and the sprite looks shown; and the host's installed enemy artwork, which every room's enemies draw from.
 /// </summary>
-public sealed class EnemySession
+public sealed class EnemySession : ISpriteObjectPage
 {
     /// <summary>The elevator journey words ($0E16, $0E18 and the travel direction) carried through an elevator door.</summary>
     internal ElevatorJourneyState Elevator { get; } = new();
@@ -87,5 +87,8 @@ public sealed class EnemySession
     /// <exception cref="InvalidOperationException">No enemy sheets are installed.</exception>
     internal IBgCharacterArtwork ObjectPage() =>
         (Sheets ?? throw new InvalidOperationException("Showing the sprites' artwork as a background requires installed enemy sheets.")).Looks.ObjectPage(SpriteLooks);
+
+    /// <inheritdoc />
+    IBgCharacterArtwork ISpriteObjectPage.ObjectPage() => ObjectPage();
 
 }

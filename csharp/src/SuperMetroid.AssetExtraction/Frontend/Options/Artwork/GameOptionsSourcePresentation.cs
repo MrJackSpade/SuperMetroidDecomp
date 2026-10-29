@@ -8,6 +8,7 @@ using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 

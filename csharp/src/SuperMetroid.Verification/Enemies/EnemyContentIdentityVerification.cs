@@ -40,6 +40,8 @@ internal static class EnemyContentIdentityVerification
         Type[] catalogs = [typeof(EnemyTileSourceArtwork), typeof(BossSourceArtwork), typeof(AreaSourceArtwork)];
         Type[] childTypes = catalogs.SelectMany(catalog => MetadataShape.Properties(catalog, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public)
             .Where(property => property.Name != nameof(EnemyTileSourceArtwork.ContentIdentity))
+            // The placements gameplay draws by are a view of the extended frames, hashed through them, not a subdomain.
+            .Where(property => property.Name != nameof(EnemyTileSourceArtwork.ExtendedFramePlacements))
             .Select(property => property.PropertyType)).ToArray();
         AssertEqual(35, childTypes.Length, "all enemy bundle subdomains are accounted for");
         foreach (Type type in childTypes.Concat(catalogs).Append(typeof(EnemyPaletteSheet)))

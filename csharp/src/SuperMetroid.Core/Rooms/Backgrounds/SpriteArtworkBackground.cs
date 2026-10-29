@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Rooms.Backgrounds;
@@ -8,11 +7,11 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// sprites' artwork, so its blocks show the looks shown there, as the installed enemy sheets resolve them when a block is
 /// drawn.
 /// </summary>
-/// <param name="session">The enemy session whose shown sprite looks the background shows.</param>
-public sealed class SpriteArtworkBackground(EnemySession session) : IBgCharacterArtwork
+/// <param name="sprites">The sprites' artwork the background shows.</param>
+public sealed class SpriteArtworkBackground(ISpriteObjectPage sprites) : IBgCharacterArtwork
 {
     /// <inheritdoc />
     /// <exception cref="InvalidOperationException">No enemy sheets are installed.</exception>
     public BgArtworkShown Showing(int firstCharacter, int characterCount) =>
-        Ensure.NotNull(session).ObjectPage().Showing(firstCharacter, characterCount);
+        Ensure.NotNull(sprites).ObjectPage().Showing(firstCharacter, characterCount);
 }

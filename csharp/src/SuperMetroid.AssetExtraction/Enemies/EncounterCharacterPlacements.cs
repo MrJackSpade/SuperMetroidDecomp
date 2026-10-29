@@ -36,8 +36,8 @@ internal static class EncounterCharacterPlacements
         GraphicsSetTileCharacters member => new(source,
             EncounterCharacterPlacementDefinitions.EnemyTileAreaFirstCharacter + Characters(member.Entry.StagingOffset), Characters(member.Entry.TileByteCount)),
         InstalledArtworkCharacters { Artwork: >= InstalledArtworkId.GunshipLiftoffFirstTiles and <= InstalledArtworkId.GunshipLiftoffFirstTiles + 4 } liftoff =>
-            new(source, EncounterCharacterPlacementDefinitions.GunshipFirstCharacter + (liftoff.Artwork - InstalledArtworkId.GunshipLiftoffFirstTiles) * Characters(GunshipLiftoffTransferDefinitions.ByteCount),
-                Characters(GunshipLiftoffTransferDefinitions.ByteCount)),
+            new(source, EncounterCharacterPlacementDefinitions.GunshipFirstCharacter + (liftoff.Artwork - InstalledArtworkId.GunshipLiftoffFirstTiles) * Characters(GunshipLiftoffCharacterDefinitions.ByteCount),
+                Characters(GunshipLiftoffCharacterDefinitions.ByteCount)),
         InstalledArtworkCharacters { Artwork: InstalledArtworkId.EscapeTimerFirstTiles } => Timer(source, EscapeTimerTilePage.First),
         InstalledArtworkCharacters { Artwork: InstalledArtworkId.EscapeTimerSecondTiles } => Timer(source, EscapeTimerTilePage.Second),
         TorizoArtworkSwapCharacters swap =>

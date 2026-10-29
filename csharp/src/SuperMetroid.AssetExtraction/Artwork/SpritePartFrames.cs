@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
 /// Converts authored sprite pieces into whole-frame parts, sized by their screen's sprite sizes. A part's character is

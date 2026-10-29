@@ -583,7 +583,7 @@ internal static class SamusBodyArtworkVerification
         InstalledSamusArmCannonArtwork reboundArm = repaired.LoadSamusBodyArt().ArmCannon;
         AssertTrue(reboundArm.ReadDrawingByteAt(armXAddress) != stock.ArmCannon.ReadDrawingByteAt(armXAddress),
             "repair preserves edited arm-cannon placement JSON");
-        AssertTrue(reboundArm.TryResolveTile(SamusSourceDefinitions.CharacterDataBank.Value |
+        AssertTrue(reboundArm.Source.TryResolveTile(SamusSourceDefinitions.CharacterDataBank.Value |
                 selectedArmTileSource, 32, out var reboundArmTile) &&
             reboundArmTile.Span.SequenceEqual(editedArmTile.Span),
             "repair preserves edited arm-cannon PNG pixels");
@@ -634,9 +634,9 @@ internal static class SamusBodyArtworkVerification
             int direction = bus.ReadCartridgeByte(descriptor);
             bool frameDependent = (direction & 0x80) != 0;
             SamusArmCannonPlacement placement = body.ArmCannon.Placement((SamusPoseId)pose);
-            AssertEqual((int)bus.ReadCartridgeByte(descriptor + 1), placement.DrawingMode, $"arm-cannon pose {pose:X2} drawing mode");
+            AssertEqual(bus.ReadCartridgeByte(descriptor + 1), placement.DrawingMode, $"arm-cannon pose {pose:X2} drawing mode");
             AssertEqual(direction & 0x7f, placement.FirstDirection, $"arm-cannon pose {pose:X2} first direction");
-            AssertEqual(frameDependent ? bus.ReadCartridgeByte(descriptor + 2) & 0x7f : (int?)null, placement.LaterDirection,
+            AssertEqual(frameDependent ? bus.ReadCartridgeByte(descriptor + 2) & 0x7f : null, placement.LaterDirection,
                 $"arm-cannon pose {pose:X2} later direction");
             int displacements = descriptor + (frameDependent ? 4 : 2);
             AssertEqual((drawingWindowEnd - displacements) / 2, placement.FrameCount, $"arm-cannon pose {pose:X2} placed frames");

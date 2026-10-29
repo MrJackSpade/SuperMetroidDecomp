@@ -1,4 +1,5 @@
-namespace SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Spatial;
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>The two object sizes a screen's OBJ size selection offers: what a part's small or large flag draws (#1358).</summary>
 /// <param name="Small">The size of a small object.</param>

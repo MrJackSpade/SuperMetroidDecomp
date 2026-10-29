@@ -84,7 +84,7 @@ public static class SamusBodyArtworkFiles
         ushort[] spritemapBottomBases = ReadPointers(bus,
             SamusSourceDefinitions.SpritemapBottomBases.Value, InstalledSamusBodyArtwork.PoseCount);
         ushort[] spritemapPointers = ReadPointers(bus,
-            SamusSourceDefinitions.SpritemapPointers.Value, InstalledSamusSpritemaps.EntryCount);
+            SamusSourceDefinitions.SpritemapPointers.Value, SamusSpritemapSources.EntryCount);
         // Compositions install in record order, so a composition's identity is its place among the referenced records.
         ushort[] compositions = [.. spritemapPointers.Distinct().Where(pointer => pointer != 0).Order()];
         SpriteVisualPart[][] spritemaps = [.. compositions.Select(pointer => ReadSpritemap(bus, pointer))];

@@ -18,7 +18,7 @@ public sealed record SamusBodyArtworkParts
     /// <summary>The contiguous native frame-selector interval.</summary>
     public required SamusBodyFrameSelection[] Frames { get; init; }
 
-    /// <summary>Which body picture each pose-half table entry selects.</summary>
+    /// <summary>Which body picture each pose half shows at each animation frame.</summary>
     public required InstalledSamusSpritemaps Spritemaps { get; init; }
 
     /// <summary>The selected appearance of the atmospheric effects.</summary>

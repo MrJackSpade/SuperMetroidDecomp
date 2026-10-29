@@ -20,7 +20,7 @@ internal static class SamusBodyTransfers
         {
             int start = poseFirstFrames[pose], end = InstalledSamusBodyArtwork.FrameCount;
             foreach (int next in poseFirstFrames) if (next > start && next < end) end = next;
-            int baseIndex = upper ? body.Spritemaps.TopBase(SamusPoseNumbering.FromNumber(pose)) : body.Spritemaps.BottomBase(SamusPoseNumbering.FromNumber(pose));
+            int baseIndex = upper ? body.Spritemaps.Source.TopBase(SamusPoseNumbering.FromNumber(pose)) : body.Spritemaps.Source.BottomBase(SamusPoseNumbering.FromNumber(pose));
             for (int phase = 0; phase < end - start; phase++)
             {
                 int frameIndex = start + phase;
@@ -29,7 +29,7 @@ internal static class SamusBodyTransfers
                 if ((upper ? frame.TopSet : frame.BottomSet) != set ||
                     (upper ? frame.TopPosition : frame.BottomPosition) != position) continue;
                 int mapIndex = baseIndex + phase;
-                if ((uint)mapIndex >= InstalledSamusSpritemaps.EntryCount ||
+                if ((uint)mapIndex >= SamusSpritemapSources.EntryCount ||
                     !body.Spritemaps.Source.TryGet((ushort)mapIndex, out SamusSpritemapDefinition? map)) continue;
                 foreach (SpritePart part in map.Parts)
                 {

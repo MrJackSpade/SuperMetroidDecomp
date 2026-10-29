@@ -9,12 +9,6 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// </summary>
 public static class SamusAtmosphereSheetDefinitions
 {
-    /// <summary>The Samus spritemap the diving splash's first frame shows; later frames follow it.</summary>
-    public const int DivingSplashFirstSpritemap = 399;
-
-    /// <summary>The Samus spritemap the bubbles' first frame shows; later frames follow it.</summary>
-    public const int BubblesFirstSpritemap = 390;
-
     /// <summary>The footstep splash in animation frame <paramref name="frame"/>.</summary>
     public static string FootstepFrame(int frame) => $"Footstep.{frame}";
 

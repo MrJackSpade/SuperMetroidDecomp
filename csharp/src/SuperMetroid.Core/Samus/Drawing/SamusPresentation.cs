@@ -13,23 +13,18 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// <summary>Samus's presentation: spritemap selection, tile transfers, suit, cycle and charge palettes, and the animation-frame sequencing that drives them.</summary>
 internal sealed class SamusPresentation
 {
-    /// <summary>Last top-half index passed to bank-$81's Samus spritemap routine, 0 through 65535.</summary>
-    public int TopSpritemapIndex
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
-
-    /// <summary>Last bottom-half index passed to bank-$81's Samus spritemap routine, 0 through 65535.</summary>
-    public int BottomSpritemapIndex
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    /// <summary>The top-half picture the body last drew, which the speed-booster echoes repeat; none before the body is drawn.</summary>
+    public SamusBodyHalfFrame? TopSpritemap { get; internal set; }
 
     /// <summary>
-    /// The definition records the body showed when its spritemap indices were last set, which the speed-booster echoes
-    /// show with those indices. The cartridge's echoes read whatever characters are in VRAM, so while invincibility
+    /// The bottom-half picture the body last drew, which the speed-booster echoes repeat; none when the last drawn frame
+    /// was a complete top-half picture, so an echo never repeats a bottom half left from an earlier frame.
+    /// </summary>
+    public SamusBodyHalfFrame? BottomSpritemap { get; internal set; }
+
+    /// <summary>
+    /// The definition records the body showed when its pictures were last chosen, which the speed-booster echoes show
+    /// with those pictures. The cartridge's echoes read whatever characters are in VRAM, so while invincibility
     /// flicker hides the body they can show an earlier spritemap over later characters; a pre-coloured frame keeps the
     /// characters it was shown with (#1392).
     /// </summary>
@@ -594,13 +589,13 @@ internal sealed class SamusPresentation
 
         var spritemaps = BodyFrames.Artwork?.Spritemaps ?? throw new InvalidOperationException(
             "Samus rendering requires installed spritemap artwork.");
-        int topBase = spritemaps.TopBase(samus.Pose);
-        TopSpritemapIndex = unchecked((ushort)(topBase + samus.AnimationFrame));
+        var top = new SamusBodyHalfFrame(samus.Pose, SamusBodyHalf.Top, samus.AnimationFrame);
+        TopSpritemap = top;
         // `$92:8000` follows these spritemaps natively, but it only chooses the transfers the next NMI shows with
         // them. Selecting first lets the draws bind the characters they are displayed with; nothing between reads it.
         BodyFrames.Select(samus.Pose, samus.AnimationFrame);
         ShownRecords = BodyFrames.Shown;
-        sprites.AddSamusBody(TopSpritemapIndex, drawOrigin, spritemaps, BodySheets, ShownRecords, new SpriteSource(SpriteSourceKind.Samus, 0));
+        sprites.AddSamusBody(top, drawOrigin, spritemaps, BodySheets, ShownRecords, new SpriteSource(SpriteSourceKind.Samus, 0));
 
         // `$90:868D-$90:86C4` writes one small OBJ directly between the top and bottom
         // spritemap calls when unsuited pose `$00` faces the screen. This is not a visor:
@@ -673,15 +668,14 @@ internal sealed class SamusPresentation
             SamusMovementType.SpringBallFalling) &&
             ordinarySpinBottom && knockbackBottom && transitionBottom && unusedTypeDBottom &&
             wallJumpBottom && damageBoostBottom && specialType1BBottom;
-        // The native bottom selector clears this word when a complete top-half frame does
-        // not need a bottom. Clearing it here also prevents the following echo renderer
-        // from reusing a bottom spritemap left by an earlier animation frame.
-        BottomSpritemapIndex = 0;
+        // A complete top-half frame clears the bottom picture, so the following echo renderer
+        // never reuses a bottom half left by an earlier animation frame.
+        BottomSpritemap = null;
         if (drawBottom)
         {
-            int bottomBase = spritemaps.BottomBase(samus.Pose);
-            BottomSpritemapIndex = unchecked((ushort)(bottomBase + samus.AnimationFrame));
-            sprites.AddSamusBody(BottomSpritemapIndex, drawOrigin, spritemaps, BodySheets, ShownRecords, new SpriteSource(SpriteSourceKind.Samus, 1));
+            var bottom = new SamusBodyHalfFrame(samus.Pose, SamusBodyHalf.Bottom, samus.AnimationFrame);
+            BottomSpritemap = bottom;
+            sprites.AddSamusBody(bottom, drawOrigin, spritemaps, BodySheets, ShownRecords, new SpriteSource(SpriteSourceKind.Samus, 1));
         }
 
         return true;
@@ -831,8 +825,10 @@ internal sealed class SamusPresentation
             "Samus speed-booster echo requires installed spritemap artwork.");
         int screenX = unchecked((ushort)(echo.X - layer1.X));
         var origin = Position16<ScreenPixels>.Of(screenX, unchecked((ushort)screenY));
-        sprites.AddSamusBody(TopSpritemapIndex, origin, spritemaps, BodySheets, ShownRecords, new SpriteSource(SpriteSourceKind.SamusEcho, slot * 2));
-        if (BottomSpritemapIndex != 0)
-            sprites.AddSamusBody(BottomSpritemapIndex, origin, spritemaps, BodySheets, ShownRecords, new SpriteSource(SpriteSourceKind.SamusEcho, slot * 2 + 1));
+        // An echo repeats the pictures the body last drew; before the body has been drawn there is nothing to repeat.
+        if (TopSpritemap is { } top)
+            sprites.AddSamusBody(top, origin, spritemaps, BodySheets, ShownRecords, new SpriteSource(SpriteSourceKind.SamusEcho, slot * 2));
+        if (BottomSpritemap is { } bottom)
+            sprites.AddSamusBody(bottom, origin, spritemaps, BodySheets, ShownRecords, new SpriteSource(SpriteSourceKind.SamusEcho, slot * 2 + 1));
     }
 }

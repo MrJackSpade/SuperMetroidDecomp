@@ -142,14 +142,17 @@ internal static void VerifySamusRenderingSlice()
     // Pose $01's graphics Y offset is six, so world (1152,134) becomes origin (128,128).
     AssertEqual(128, samus.Presentation.SpritemapPosition.X, "Samus default screen X calculation");
     AssertEqual(128, samus.Presentation.SpritemapPosition.Y, "Samus signed graphics-Y offset calculation");
-    AssertEqual(0x019a, samus.Presentation.TopSpritemapIndex, "Samus pose 1 top spritemap index");
-    AssertEqual(0x04aa, samus.Presentation.BottomSpritemapIndex, "Samus pose 1 bottom spritemap index");
+    // The body records the pose half and animation frame it drew, not a table index (#1465).
+    var poseOneTop = new SamusBodyHalfFrame(SamusPoseId.FacingRightNormalPose, SamusBodyHalf.Top, 0);
+    var poseOneBottom = new SamusBodyHalfFrame(SamusPoseId.FacingRightNormalPose, SamusBodyHalf.Bottom, 0);
+    AssertEqual(poseOneTop, samus.Presentation.TopSpritemap, "Samus pose 1 draws its top half's frame-zero picture");
+    AssertEqual(poseOneBottom, samus.Presentation.BottomSpritemap, "Samus pose 1 draws its bottom half's frame-zero picture");
     // The published description: body top and bottom as whole pre-coloured frames, each the sheet frame of its
     // spritemap with the definition records this frame's transfers select, at the spritemap origin.
     SpriteDraw[] body = [.. oamFrame.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.Samus)];
     AssertEqual(2, body.Length, "Samus pose 1 publishes its top and bottom body frames");
-    foreach ((SpriteDraw draw, int index, int instance) in new[] {
-        new VerifySamusRenderingSliceCase(body[0], samus.Presentation.TopSpritemapIndex, 0), new VerifySamusRenderingSliceCase(body[1], samus.Presentation.BottomSpritemapIndex, 1) })
+    foreach ((SpriteDraw draw, SamusBodyHalfFrame index, int instance) in new[] {
+        new VerifySamusRenderingSliceCase(body[0], poseOneTop, 0), new VerifySamusRenderingSliceCase(body[1], poseOneBottom, 1) })
     {
         AssertTrue(ShowsBodyFrame(samus, draw, index), $"body draw {instance} shows its spritemap's sheet frame with the selected records");
         AssertEqual(new SpriteSource(SpriteSourceKind.Samus, instance), draw.Source, $"body draw {instance} source");
@@ -183,8 +186,10 @@ internal static void VerifySamusRenderingSlice()
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(samus, oamFrame, layer1: new(0x0400, 0));
     oam = oamFrame.FinalizeAsOam();
-    AssertEqual(0x00f9, samus.Presentation.TopSpritemapIndex, "running pose top spritemap index");
-    AssertEqual(0x00e3, samus.Presentation.BottomSpritemapIndex, "running pose bottom spritemap index");
+    AssertEqual(new SamusBodyHalfFrame(SamusPoseId.MovingRightNormalPose, SamusBodyHalf.Top, 0), samus.Presentation.TopSpritemap,
+        "running pose draws its top half's frame-zero picture");
+    AssertEqual(new SamusBodyHalfFrame(SamusPoseId.MovingRightNormalPose, SamusBodyHalf.Bottom, 0), samus.Presentation.BottomSpritemap,
+        "running pose draws its bottom half's frame-zero picture");
     AssertEqual(2, oam.LastFinalizedSpriteCount, "synthetic running pose draws top and bottom pieces");
 
     SamusGroundedPoseTransitions.ApplyRunningRightToStandingRight(samus);
@@ -231,8 +236,10 @@ internal static void VerifySamusRenderingSlice()
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(samus, oamFrame, layer1: new(0x0400, 0));
     oam = oamFrame.FinalizeAsOam();
-    AssertEqual(0x0002, samus.Presentation.TopSpritemapIndex, "power-suit forward top spritemap index");
-    AssertEqual(0x0062, samus.Presentation.BottomSpritemapIndex, "power-suit forward bottom spritemap index");
+    AssertEqual(new SamusBodyHalfFrame(SamusPoseId.ForwardFacingPowerSuitPose, SamusBodyHalf.Top, 0), samus.Presentation.TopSpritemap,
+        "power-suit forward draws its top half's frame-zero picture");
+    AssertEqual(new SamusBodyHalfFrame(SamusPoseId.ForwardFacingPowerSuitPose, SamusBodyHalf.Bottom, 0), samus.Presentation.BottomSpritemap,
+        "power-suit forward draws its bottom half's frame-zero picture");
     AssertEqual(3, oam.LastFinalizedSpriteCount, "power-suit forward top/chest/bottom OAM order");
     OamEntry chestCover = oam.GetEntry(1);
     AssertEqual(121, chestCover.Position.X, "forward chest-cover X is Samus screen X minus seven");
@@ -257,11 +264,13 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(bottomBeforeSuited, samus.Presentation.BodyFrames.Shown.Bottom,
         "a frame with no bottom transfer keeps the earlier bottom record");
     SpriteDraw[] suitedBody = [.. oamFrame.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.Samus)];
-    AssertTrue(suitedBody.Length > 0 && suitedBody.Zip([samus.Presentation.TopSpritemapIndex, samus.Presentation.BottomSpritemapIndex])
+    var suitedTop = new SamusBodyHalfFrame(SamusPoseId.ForwardFacingSuitedPose, SamusBodyHalf.Top, 0);
+    var suitedBottom = new SamusBodyHalfFrame(SamusPoseId.ForwardFacingSuitedPose, SamusBodyHalf.Bottom, 0);
+    AssertTrue(suitedBody.Length > 0 && suitedBody.Zip([suitedTop, suitedBottom])
             .All(pair => ShowsBodyFrame(samus, pair.First, pair.Second)),
         "a frame with no bottom transfer draws its sheet frames over the earlier bottom record");
-    AssertEqual(0x00c2, samus.Presentation.TopSpritemapIndex, "suited forward top spritemap index");
-    AssertEqual(0x0122, samus.Presentation.BottomSpritemapIndex, "suited forward bottom spritemap index");
+    AssertEqual(suitedTop, samus.Presentation.TopSpritemap, "suited forward draws its top half's frame-zero picture");
+    AssertEqual(suitedBottom, samus.Presentation.BottomSpritemap, "suited forward draws its bottom half's frame-zero picture");
     AssertEqual(2, oam.LastFinalizedSpriteCount, "suited forward emits no power-suit chest patch");
 
     // `$90:85E2` suppresses body OAM on odd invincibility frames but still calls the
@@ -493,17 +502,17 @@ internal static void VerifySamusRenderingSlice()
 }
 
 /// <summary>
-/// Whether <paramref name="draw"/> is the unmirrored sheet picture the entry at <paramref name="index"/> selects with the
-/// definition records Samus's transfers select.
+/// Whether <paramref name="draw"/> is the unmirrored sheet picture <paramref name="frame"/> shows with the definition
+/// records Samus's transfers select.
 /// </summary>
-private static bool ShowsBodyFrame(SamusState samus, SpriteDraw draw, int index)
+private static bool ShowsBodyFrame(SamusState samus, SpriteDraw draw, SamusBodyHalfFrame frame)
 {
     InstalledSamusSpritemaps spritemaps = samus.Presentation.BodyFrames.Artwork?.Spritemaps
         ?? throw new InvalidOperationException("Verification requires bound Samus spritemaps.");
     InstalledSpriteSheets sheets = samus.Presentation.BodyFrames.Sheets
         ?? throw new InvalidOperationException("Verification requires bound Samus sprite sheets.");
-    if (!spritemaps.TryGetFrameKey(index, samus.Presentation.BodyFrames.Shown, out SamusBodyFrameKey key))
-        throw new InvalidOperationException($"Body spritemap {index:X4} is not installed.");
+    if (!spritemaps.TryGetFrameKey(frame, samus.Presentation.BodyFrames.Shown, out SamusBodyFrameKey key))
+        throw new InvalidOperationException($"Body picture {frame} has no composition.");
     return draw is ImageSpriteDraw { Mirror: SpriteMirror.None } image &&
         ReferenceEquals(sheets.Get(SamusBodySheets.Sheet(key)).Frame(key.Name), image.Image);
 }

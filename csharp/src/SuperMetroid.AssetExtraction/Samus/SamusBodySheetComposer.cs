@@ -15,9 +15,8 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 internal static class SamusBodySheetComposer
 {
-    /// <summary>The animation frames an index can name: the animation frame is a byte.</summary>
-    private const int AnimationFrames = 256;
-
+    /// <summary>The body halves each animation frame shows a picture of, in drawing order.</summary>
+    private static readonly SamusBodyHalf[] Halves = [SamusBodyHalf.Top, SamusBodyHalf.Bottom];
 
     /// <summary>What one body sheet composes.</summary>
     internal static SpriteSheetSources Sources(SamusSheetInputs inputs, SpriteSheetId sheet)
@@ -58,14 +57,14 @@ internal static class SamusBodySheetComposer
             int top = body.DefinitionRecord(SamusBodyHalf.Top, selection.TopSet, selection.TopPosition);
             int?[] bottoms = !selection.NamesBottom ? inheritedBottoms
                 : [body.DefinitionRecord(SamusBodyHalf.Bottom, selection.BottomSet, selection.BottomPosition)];
-            foreach (int index in new[] { spritemaps.TopBase(pose) + animationFrame, spritemaps.BottomBase(pose) + animationFrame })
+            foreach (SamusBodyHalf half in Halves)
             {
-                if (index >= InstalledSamusSpritemaps.EntryCount ||
-                    !spritemaps.TryGetFrame(index, out SpriteFrame? frame))
+                var halfFrame = new SamusBodyHalfFrame(pose, half, animationFrame);
+                if (!spritemaps.TryGetFrame(halfFrame, out SpriteFrame? frame))
                     continue;
                 foreach (int? bottom in bottoms)
                 {
-                    if (spritemaps.TryGetFrameKey(index, new SamusBodyRecords(top, bottom), out SamusBodyFrameKey key) &&
+                    if (spritemaps.TryGetFrameKey(halfFrame, new SamusBodyRecords(top, bottom), out SamusBodyFrameKey key) &&
                         SamusBodySheets.Sheet(key) == sheet && names.Add(key.Name))
                         yield return KeyValuePair.Create(key, frame);
                 }
@@ -78,7 +77,7 @@ internal static class SamusBodySheetComposer
     {
         for (int pose = 0; pose < InstalledSamusBodyArtwork.PoseCount; pose++)
         {
-            for (int animationFrame = 0; animationFrame < AnimationFrames; animationFrame++)
+            for (int animationFrame = 0; animationFrame < SamusBodySheetDefinitions.AnimationFrames; animationFrame++)
             {
                 if (body.TryFrame((SamusPoseId)pose, animationFrame, out SamusBodyFrameSelection selection))
                     yield return new SelectedFrame((SamusPoseId)pose, animationFrame, selection);

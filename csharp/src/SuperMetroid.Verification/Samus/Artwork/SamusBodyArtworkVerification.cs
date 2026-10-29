@@ -94,10 +94,10 @@ internal static class SamusBodyArtworkVerification
         }
         var spritemapGuard = NewFrontendCartridgeReadGuard(bus);
         int nonzeroSpritemaps = 0;
-        ushort[] nativePointers = [.. Enumerable.Range(0, InstalledSamusSpritemaps.EntryCount).Select(index =>
+        ushort[] nativePointers = [.. Enumerable.Range(0, SamusSpritemapSources.EntryCount).Select(index =>
             CartridgeImportSource.Require(bus).ReadCartridgeWord(InstalledSamusSpritemaps.PointerTableAddress + index * 2))];
         SamusSpritemapId?[] nativeEntries = SamusSpritemapNative.Entries(nativePointers);
-        for (int index = 0; index < InstalledSamusSpritemaps.EntryCount; index++)
+        for (int index = 0; index < SamusSpritemapSources.EntryCount; index++)
         {
             ushort pointer = nativePointers[index];
             AssertEqual(nativeEntries[index], sprites.Entries[index], $"Samus OAM pointer index {index}");

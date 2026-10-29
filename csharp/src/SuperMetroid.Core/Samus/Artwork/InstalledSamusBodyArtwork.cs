@@ -41,7 +41,7 @@ public sealed class InstalledSamusBodyArtwork
     /// <summary>The first numbered half picture any set holds; every record from it to the last is installed.</summary>
     private readonly int firstRecord;
 
-    /// <summary>Which body picture each pose-half table entry selects for these body frames.</summary>
+    /// <summary>Which body picture each pose half shows at each animation frame, for these body frames.</summary>
     public InstalledSamusSpritemaps Spritemaps { get; }
 
     /// <summary>The selected appearance of Samus's atmospheric effects.</summary>

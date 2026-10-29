@@ -89,7 +89,7 @@ internal static class SamusContentIdentityVerification
         var bottomBases = new ushort[InstalledSamusBodyArtwork.PoseCount];
         if (edit == "spritemap-top") topBases[0] = 1;
         if (edit == "spritemap-bottom") bottomBases[0] = 1;
-        SamusSpritemapId?[] entries = [.. Enumerable.Repeat<SamusSpritemapId?>(new SamusSpritemapId(0), InstalledSamusSpritemaps.EntryCount)];
+        SamusSpritemapId?[] entries = [.. Enumerable.Repeat<SamusSpritemapId?>(new SamusSpritemapId(0), SamusSpritemapSources.EntryCount)];
         if (edit == "spritemap-entry") entries[0] = new SamusSpritemapId(1);
         SamusSpritemapDefinition[] definitions =
         [

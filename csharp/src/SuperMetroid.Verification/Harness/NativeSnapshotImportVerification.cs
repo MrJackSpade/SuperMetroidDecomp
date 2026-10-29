@@ -25,6 +25,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Enemies.Drawing;
@@ -129,8 +130,11 @@ internal static class NativeSnapshotImportVerification
         SamusState samus = runtime.Player.Samus ?? throw new InvalidDataException(
             "The native Ridley checkpoint did not load Samus.");
         samus.Control.Unlock();
-        samus.Presentation.TopSpritemapIndex = W(NativeSnapshotMemory.SamusTopSpritemap);
-        samus.Presentation.BottomSpritemapIndex = W(NativeSnapshotMemory.SamusBottomSpritemap);
+        // The recorded indices name the pictures the body last drew; they are imported as the pose-half frames that show them.
+        InstalledSamusSpritemaps spritemaps = samus.Presentation.BodyFrames.Artwork?.Spritemaps ?? throw new InvalidDataException(
+            "The native Ridley checkpoint requires installed Samus spritemaps.");
+        samus.Presentation.TopSpritemap = SamusSpritemapNative.Frame(spritemaps, (SamusPoseId)W(NativeSnapshotMemory.Pose), SamusBodyHalf.Top, W(NativeSnapshotMemory.SamusTopSpritemap));
+        samus.Presentation.BottomSpritemap = SamusSpritemapNative.Frame(spritemaps, (SamusPoseId)W(NativeSnapshotMemory.Pose), SamusBodyHalf.Bottom, W(NativeSnapshotMemory.SamusBottomSpritemap));
         samus.Presentation.SpritemapPosition = new Position16<ScreenPixels>(W(NativeSnapshotMemory.SamusSpriteX), W(NativeSnapshotMemory.SamusSpriteY));
         samus.ArmCannon.Frame = W(NativeSnapshotMemory.CannonFrame);
         samus.ArmCannon.ToggleFlag = W(NativeSnapshotMemory.CannonToggle);

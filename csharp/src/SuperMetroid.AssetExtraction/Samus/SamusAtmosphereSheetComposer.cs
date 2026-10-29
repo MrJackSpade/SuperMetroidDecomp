@@ -40,12 +40,12 @@ internal static class SamusAtmosphereSheetComposer
         for (int frame = 0; frame < SamusAtmosphereSheetDefinitions.DivingSplashFrameCount; frame++)
         {
             frames.Add(Spritemap(inputs, spritemaps, SamusAtmosphereSheetDefinitions.DivingSplashFrame(frame),
-                SamusAtmosphereSheetDefinitions.DivingSplashFirstSpritemap + frame));
+                SamusAtmosphericArtworkDefinitions.DivingSplashFirstEntry + frame));
         }
         for (int frame = 0; frame < SamusAtmosphereSheetDefinitions.BubblesFrameCount; frame++)
         {
             frames.Add(Spritemap(inputs, spritemaps, SamusAtmosphereSheetDefinitions.BubblesFrame(frame),
-                SamusAtmosphereSheetDefinitions.BubblesFirstSpritemap + frame));
+                SamusAtmosphericArtworkDefinitions.BubblesFirstEntry + frame));
         }
         return new SpriteSheetSources(frames, inputs.SuitedColours(), ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection));
     }

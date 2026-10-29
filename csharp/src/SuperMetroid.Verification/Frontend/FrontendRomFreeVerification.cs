@@ -507,10 +507,10 @@ internal static class FrontendRomFreeVerification
                     $"native={expectedPixels[first]}, installed={actualPixels[first]}; " +
                     $"Samus native=({native.GameplaySamusX},{native.GameplaySamusY}) " +
                     $"pose ${(int)native.GameplaySamusPose:X2}/frame {nativeSamus.AnimationFrame}/" +
-                    $"top {nativeSamus.Presentation.TopSpritemapIndex}/bottom {nativeSamus.Presentation.BottomSpritemapIndex}, installed=" +
+                    $"top {nativeSamus.Presentation.TopSpritemap}/bottom {nativeSamus.Presentation.BottomSpritemap}, installed=" +
                     $"({installed.GameplaySamusX},{installed.GameplaySamusY}) " +
                     $"pose ${(int)installed.GameplaySamusPose:X2}/frame {installedSamus.AnimationFrame}/" +
-                    $"top {installedSamus.Presentation.TopSpritemapIndex}/bottom {installedSamus.Presentation.BottomSpritemapIndex}; " +
+                    $"top {installedSamus.Presentation.TopSpritemap}/bottom {installedSamus.Presentation.BottomSpritemap}; " +
                     $"first VRAM diff={firstVram}, first sprite part diff={firstPart}.");
             }
             fired |= installed.GameplayLastFiredProjectileSlot is not null;

@@ -2,35 +2,53 @@ using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Poses;
 using static SuperMetroid.AssetExtraction.Samus.SamusBodySheetDefinitions;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
-/// Samus's pose-half table as the import pipeline holds it (#1463): beside the selection gameplay reads, each
-/// composition's editable sprite parts, which the body and atmosphere sheets are composed from and which decide the body
-/// halves each composition's picture shows.
+/// Samus's pose-half table as the import pipeline holds it (#1463, #1465): the cartridge's per-pose first entries and
+/// its table of entries, from which the import chooses once the composition each pose half shows at each animation
+/// frame; and each composition's editable sprite parts, which the body and atmosphere sheets are composed from and
+/// which decide the body halves each composition's picture shows. The table's indices are the import's private
+/// knowledge: gameplay selects a picture by pose half and animation frame.
 /// </summary>
 public sealed class SamusSpritemapSources : InstalledSamusSpritemaps
 {
+    /// <summary>Number of entries in the pose-half table, including repeated compositions and entries with none; not the number of unique compositions or poses.</summary>
+    public const int EntryCount = 2096;
+
     /// <summary>The largest number of parts one composition may hold.</summary>
     private const int MaxParts = 128;
 
     /// <summary>Validated selected compositions, each at its identity's ordinal.</summary>
     internal readonly SamusSpritemapDefinition[] definitions;
+    /// <summary>Each pose's first upper-half table entry, in pose-number order.</summary>
+    private readonly ushort[] topBases;
+    /// <summary>Each pose's first lower-half table entry, in pose-number order.</summary>
+    private readonly ushort[] bottomBases;
+    /// <summary>The composition each table entry names, or none for an entry that draws nothing.</summary>
+    private readonly SamusSpritemapId?[] entries;
 
-    /// <summary>Validates pose selectors, table entries, and compositions, copying sprite parts and retaining independently edited selections without replacing animation or collision mechanics.</summary>
-    /// <param name="topBases">253 upper-half table element indices in native pose order, each below <see cref="InstalledSamusSpritemaps.EntryCount"/>.</param>
-    /// <param name="bottomBases">253 lower-half table element indices in native pose order, each below <see cref="InstalledSamusSpritemaps.EntryCount"/>.</param>
+    /// <summary>
+    /// Validates pose selectors, table entries, and compositions, copying sprite parts, and resolves the composition
+    /// each pose half shows at every animation frame the body sheets cover.
+    /// </summary>
+    /// <param name="topBases">253 upper-half table element indices in native pose order, each below <see cref="EntryCount"/>.</param>
+    /// <param name="bottomBases">253 lower-half table element indices in native pose order, each below <see cref="EntryCount"/>.</param>
     /// <param name="entries">2,096 table entries; each names a supplied composition, or none for a slot that draws nothing.</param>
     /// <param name="definitions">Non-null compositions, each identified by its position, with at most 128 non-null-array sprite parts.</param>
     /// <exception cref="InvalidDataException">Selector dimensions or indices, compositions, or entry coverage are invalid.</exception>
     public SamusSpritemapSources(ushort[] topBases, ushort[] bottomBases,
         SamusSpritemapId?[] entries, SamusSpritemapDefinition[] definitions)
-        : base(topBases, bottomBases, entries, HalvesShown(Validated(definitions)))
+        : base(PoseFrames(topBases, bottomBases, entries, Validated(definitions).Length), HalvesShown(Validated(definitions)))
     {
         this.definitions = Validated(definitions);
+        this.topBases = (ushort[])topBases.Clone();
+        this.bottomBases = (ushort[])bottomBases.Clone();
+        this.entries = (SamusSpritemapId?[])entries.Clone();
     }
 
     /// <summary>SHA-256 of selected pose bases, table entries and ordered composition parts.</summary>
@@ -48,6 +66,41 @@ public sealed class SamusSpritemapSources : InstalledSamusSpritemaps
         }
     });
 
+    /// <summary>Each pose's first upper-half table entry, in pose-number order.</summary>
+    public ReadOnlySpan<ushort> TopBases => topBases;
+
+    /// <summary>Each pose's first lower-half table entry, in pose-number order, including poses sharing the upper/lower composition.</summary>
+    public ReadOnlySpan<ushort> BottomBases => bottomBases;
+
+    /// <summary>The complete table in native order, preserving repeated compositions and entries with none.</summary>
+    public ReadOnlySpan<SamusSpritemapId?> Entries => entries;
+
+    /// <summary>The table entry at which <paramref name="pose"/>'s upper half begins (native $92:9263).</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The pose is outside the 253 supported identities.</exception>
+    public ushort TopBase(SamusPoseId pose) => topBases[Number(pose)];
+
+    /// <summary>The table entry at which <paramref name="pose"/>'s lower half begins (native $92:945D).</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The pose is outside the 253 supported identities.</exception>
+    public ushort BottomBase(SamusPoseId pose) => bottomBases[Number(pose)];
+
+    /// <summary>The table entry <paramref name="frame"/> reads: its pose half's first entry plus its animation frame.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The pose is outside the 253 supported identities.</exception>
+    public int EntryIndex(SamusBodyHalfFrame frame) => frame.Half switch
+    {
+        SamusBodyHalf.Top => TopBase(frame.Pose),
+        SamusBodyHalf.Bottom => BottomBase(frame.Pose),
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame.Half, "Samus's body has only a top and a bottom half."),
+    } + frame.AnimationFrame;
+
+    /// <summary>The composition the entry at <paramref name="index"/> names; false only for an entry with none, which draws nothing.</summary>
+    /// <exception cref="InvalidDataException">The index is outside the table.</exception>
+    public bool TryGetEntry(int index, out SamusSpritemapId composition)
+    {
+        SamusSpritemapId? entry = entries[Checked(index)];
+        composition = entry ?? default;
+        return entry is not null;
+    }
+
     /// <summary>Whole frames already built, by composition.</summary>
     private readonly System.Collections.Concurrent.ConcurrentDictionary<SamusSpritemapId, SpriteFrame> frames = new();
 
@@ -57,7 +110,7 @@ public sealed class SamusSpritemapSources : InstalledSamusSpritemaps
     /// </summary>
     public bool TryGetFrame(int index, [NotNullWhen(true)] out SpriteFrame? frame)
     {
-        if (!TryGetComposition(index, out SamusSpritemapId composition))
+        if (!TryGetEntry(index, out SamusSpritemapId composition))
         {
             frame = null;
             return false;
@@ -66,12 +119,67 @@ public sealed class SamusSpritemapSources : InstalledSamusSpritemaps
         return true;
     }
 
+    /// <summary>
+    /// The composition <paramref name="halfFrame"/> shows as a whole frame; false for a frame past the table's end or
+    /// one with no composition, which draws nothing.
+    /// </summary>
+    public bool TryGetFrame(SamusBodyHalfFrame halfFrame, [NotNullWhen(true)] out SpriteFrame? frame)
+    {
+        if (!Covers(halfFrame))
+        {
+            frame = null;
+            return false;
+        }
+        return TryGetFrame(EntryIndex(halfFrame), out frame);
+    }
+
     /// <summary>Returns false only for an entry with no composition, which draws nothing.</summary>
     public bool TryGet(int index, [NotNullWhen(true)] out SamusSpritemapDefinition? definition)
     {
-        definition = TryGetComposition(index, out SamusSpritemapId composition) ? definitions[composition.Ordinal] : null;
+        definition = TryGetEntry(index, out SamusSpritemapId composition) ? definitions[composition.Ordinal] : null;
         return definition is not null;
     }
+
+    /// <summary>Requires <paramref name="index"/> to be a table entry.</summary>
+    private static int Checked(int index) => index is < 0 or >= EntryCount
+        ? throw new InvalidDataException($"Samus spritemap index {index} is outside extracted art.")
+        : index;
+
+    /// <summary>The pose's place in the base tables.</summary>
+    private static int Number(SamusPoseId pose) => SamusPoseNumbering.HasRecord(pose)
+        ? SamusPoseNumbering.Number(pose)
+        : throw new ArgumentOutOfRangeException(nameof(pose));
+
+    /// <summary>
+    /// Maps the native tables to the composition each pose half shows at each animation frame: frame <c>n</c> of a pose
+    /// half shows the entry <c>n</c> places after the half's first, for every frame the body sheets cover that the table
+    /// holds. Frames reach past a pose's own program into the entries that follow it, as the cartridge's do.
+    /// </summary>
+    /// <exception cref="InvalidDataException">Selector dimensions or indices, or entry coverage, are invalid.</exception>
+    private static Dictionary<SamusPoseId, SamusPoseSpritemaps> PoseFrames(ushort[] topBases, ushort[] bottomBases,
+        SamusSpritemapId?[] entries, int compositionCount)
+    {
+        Ensure.NotNull(topBases);
+        Ensure.NotNull(bottomBases);
+        Ensure.NotNull(entries);
+        if (topBases.Length != InstalledSamusBodyArtwork.PoseCount ||
+            bottomBases.Length != InstalledSamusBodyArtwork.PoseCount ||
+            entries.Length != EntryCount)
+            throw new InvalidDataException("Samus spritemap selector tables have an invalid length.");
+        foreach (int index in topBases.Concat(bottomBases))
+            if (index >= EntryCount)
+                throw new InvalidDataException($"Samus spritemap base index {index} is outside the table.");
+        foreach (SamusSpritemapId? entry in entries)
+            if (entry is { } composition && (uint)composition.Ordinal >= (uint)compositionCount)
+                throw new InvalidDataException($"Samus spritemap {composition.Ordinal} is absent from installed art.");
+        SamusSpritemapId?[] table = (SamusSpritemapId?[])entries.Clone();
+        return Enumerable.Range(0, InstalledSamusBodyArtwork.PoseCount).ToDictionary(SamusPoseNumbering.FromNumber,
+            pose => new SamusPoseSpritemaps(Run(table, topBases[pose]), Run(table, bottomBases[pose])));
+    }
+
+    /// <summary>The entries a pose half's animation frames read, from its first entry to the table's end or the last covered frame.</summary>
+    private static ArraySegment<SamusSpritemapId?> Run(SamusSpritemapId?[] table, int first) =>
+        new(table, first, Math.Min(AnimationFrames, table.Length - first));
 
     /// <summary>Requires every composition to be present with at most <see cref="MaxParts"/> parts, and copies them.</summary>
     private static SamusSpritemapDefinition[] Validated(SamusSpritemapDefinition[] definitions) =>

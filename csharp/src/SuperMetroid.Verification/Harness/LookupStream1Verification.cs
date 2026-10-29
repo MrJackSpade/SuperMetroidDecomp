@@ -65,9 +65,6 @@ using SuperMetroid.AssetExtraction.Rooms;
 /// <summary>Cartridge-oracle checks for the first group of compiled gameplay and presentation catalogs.</summary>
 internal static class LookupStream1Verification
 {
-    /// <summary>Header row of the required Samus OAM pointer report.</summary>
-    private static readonly string[] OamPointerCsvHeader =
-        ["Index, NativeAddress, Composition"];
     /// <summary>The four escape-timer pixels whose native values still deviate from the calculated shapes.</summary>
     private static readonly int[] RetainedTimerDeviations =
         [1161, 1163, 189, 999];
@@ -1074,7 +1071,7 @@ internal static class LookupStream1Verification
         var empty = Create(native, emptyMaps);
         AssertTrue(empty.DrainedYOffsets.SequenceEqual(native), "Supplied empty art preserves all independent offsets");
         var zeroPointers = new SamusSpritemapSources(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
-            new SamusSpritemapId?[InstalledSamusSpritemaps.EntryCount], []);
+            new SamusSpritemapId?[SamusSpritemapSources.EntryCount], []);
         AssertTrue(Create(native, zeroPointers).DrainedYOffsets.SequenceEqual(native), "Mutable-zero-pointer art preserves offset schema");
         SamusBodyTileTransfer[][] Blank(bool top) => Enumerable.Range(0, top ? InstalledSamusBodyArtwork.TopSetCount : InstalledSamusBodyArtwork.BottomSetCount)
             .Select(set => (top ? stockArt.TopSet(set) : stockArt.BottomSet(set)).Select(definition =>
@@ -1137,7 +1134,7 @@ internal static class LookupStream1Verification
         var empty = Create(native, emptyMaps);
         AssertTrue(empty.PostureYOffsets.SequenceEqual(native), "Supplied empty art preserves all independent offsets");
         var zeroPointers = new SamusSpritemapSources(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
-            new SamusSpritemapId?[InstalledSamusSpritemaps.EntryCount], []);
+            new SamusSpritemapId?[SamusSpritemapSources.EntryCount], []);
         AssertTrue(Create(native, zeroPointers).PostureYOffsets.SequenceEqual(native), "Mutable-zero-pointer art preserves offset schema");
         SamusBodyTileTransfer[][] Blank(bool top) => Enumerable.Range(0, top ? InstalledSamusBodyArtwork.TopSetCount : InstalledSamusBodyArtwork.BottomSetCount)
             .Select(set => (top ? stockArt.TopSet(set) : stockArt.BottomSet(set)).Select(definition =>
@@ -1268,40 +1265,43 @@ internal static class LookupStream1Verification
                     (definition ?? throw new InvalidOperationException("Verification requires definition.")).Parts.Single(),
                     "Actual selector resolves independent marker payload");
         }
-        AssertEqual(0, stock.topBases.Count + stock.bottomBases.Count, "Zero stock OAM-base overrides");
+        // The installed semantic selection is compared with the native table: a pose half's first animation frame shows
+        // the composition of the entry its native base names, before and after the base is edited.
+        static SamusSpritemapId? Shown(InstalledSamusSpritemaps catalog, SamusBodyHalfFrame frame) =>
+            catalog.TryGetComposition(frame, out SamusSpritemapId composition) ? composition : null;
         AssertEqual(Canonical(top, bottom), stock.ContentIdentity, "Exact original canonical stock OAM hash");
         for (int half = 0; half < 2; half++)
         for (int pose = 0; pose < 253; pose++)
         {
             ushort expected = half == 0 ? top[pose] : bottom[pose];
-            AssertEqual(expected, half == 0 ? SamusSpritemapPoseBases.TopBase((SamusPoseId)pose) : SamusSpritemapPoseBases.BottomBase((SamusPoseId)pose),
-                "Direct named OAM-base case matches native ROM");
-            AssertEqual(expected, half == 0 ? stock.TopBase((SamusPoseId)pose) : stock.BottomBase((SamusPoseId)pose), "Runtime native base selection");
+            var firstFrame = new SamusBodyHalfFrame((SamusPoseId)pose, half == 0 ? SamusBodyHalf.Top : SamusBodyHalf.Bottom, 0);
+            AssertEqual(expected, half == 0 ? stock.TopBase((SamusPoseId)pose) : stock.BottomBase((SamusPoseId)pose), "Import-side native base selection");
+            AssertEqual(entries[expected], Shown(stock, firstFrame), "A pose half's first frame shows its native base entry's composition");
             CheckSelection(stock, expected);
             ushort[] upper = (ushort[])top.Clone(), lower = (ushort[])bottom.Clone();
             ushort edited = (ushort)((expected + 1) % 2096);
             (half == 0 ? upper : lower)[pose] = edited;
             var changed = Create(upper, lower);
-            AssertEqual(1, changed.topBases.Count + changed.bottomBases.Count, "Exactly one independent OAM-base override");
             AssertTrue(changed.TopBases.SequenceEqual(upper) && changed.BottomBases.SequenceEqual(lower), "All supplied independent bases preserved");
             AssertTrue(changed.Entries.SequenceEqual(entries), "OAM composition entries unchanged");
             ushort selected = half == 0 ? changed.TopBase((SamusPoseId)pose) : changed.BottomBase((SamusPoseId)pose);
-            AssertEqual(edited, selected, "Runtime honors independently edited base");
+            AssertEqual(edited, selected, "Import honors independently edited base");
+            AssertEqual(entries[edited], Shown(changed, firstFrame), "An edited base moves the pose half's first frame to the edited entry's composition");
             CheckSelection(changed, selected);
             AssertEqual(Canonical(upper, lower), changed.ContentIdentity, "Exact original canonical edited OAM hash");
             AssertTrue(changed.ContentIdentity != stock.ContentIdentity, "Every independent base edit changes identity");
         }
         foreach (SamusPoseId pose in new[] { (SamusPoseId)0xfd, (SamusPoseId)0xfe, (SamusPoseId)0xff })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusSpritemapPoseBases.TopBase(pose), "Top default excludes adjacent data");
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusSpritemapPoseBases.BottomBase(pose), "Bottom default excludes adjacent data");
             AssertThrows<ArgumentOutOfRangeException>(() => stock.TopBase(pose), "Original installed top domain exception");
             AssertThrows<ArgumentOutOfRangeException>(() => stock.BottomBase(pose), "Original installed bottom domain exception");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.TryGetComposition(new SamusBodyHalfFrame(pose, SamusBodyHalf.Top, 0), out _),
+                "A pose without a record has no installed pictures");
         }
         ushort[] invalid = (ushort[])top.Clone(); invalid[0] = 2096;
         AssertThrows<InvalidDataException>(() => Create(invalid, bottom), "Edited base retains original range validation");
         AssertTrue(stock.TopBases.SequenceEqual(top) && stock.BottomBases.SequenceEqual(bottom), "Stock bases immutable after edits");
-        Console.WriteLine("Samus OAM bases:506 native named cases, zero stock overrides,506 independent edits, actual supplied payload selection, exact canonical hashes and original bounds pass.");
+        Console.WriteLine("Samus OAM bases:506 native bases mapped to pose-half first frames,506 independent edits, actual supplied payload selection, exact canonical hashes and original bounds pass.");
     }
 
     /// <summary>Reads native Samus top and bottom OAM base words.</summary>
@@ -2865,7 +2865,7 @@ internal static class LookupStream1Verification
         var empty = new SamusSpritemapSources(body.Spritemaps.TopBases.ToArray(), body.Spritemaps.BottomBases.ToArray(),
             body.Spritemaps.Entries.ToArray(), body.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition([])).ToArray());
         var zero = new SamusSpritemapSources(body.Spritemaps.TopBases.ToArray(), body.Spritemaps.BottomBases.ToArray(),
-            new SamusSpritemapId?[InstalledSamusSpritemaps.EntryCount], []);
+            new SamusSpritemapId?[SamusSpritemapSources.EntryCount], []);
         var shifted = new SamusSpritemapSources(body.Spritemaps.TopBases.ToArray(), body.Spritemaps.BottomBases.ToArray(),
             body.Spritemaps.Entries.ToArray(), body.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition(
                 map.Parts.Select(part => part with { Offset = Offset16<ScreenPixels>.Of(SpritePart.WrapX(part.Offset.X + 1), unchecked((sbyte)(part.Offset.Y + 1))) }).ToArray())).ToArray());
@@ -2932,23 +2932,27 @@ internal static class LookupStream1Verification
         ushort[] nativePointers = Enumerable.Range(0, 2096).Select(index =>
             LittleEndianBytes.Word(LookupStream1OamPointersRomByte(rom, 0x92808d + index * 2), LookupStream1OamPointersRomByte(rom, 0x92808e + index * 2))).ToArray();
         SamusSpritemapId?[] native = SamusSpritemapNative.Entries(nativePointers);
-        int aliases = 0, directPointers = 0;
         int compositionCount = stock.Definitions.Count;
         AssertEqual(SamusSpritemapNative.Compositions(nativePointers).Length, compositionCount, "One installed composition per referenced native record");
-        for (int index = 0; index < native.Length; index++)
-        {
-            int source = SamusSpritemapSharing.SourceIndex(index);
-            AssertEqual(nativePointers[index], nativePointers[source], $"Source-identified native OAM sharing {index:X4}->{source:X4}");
-            if (source != index) aliases++;
-            else if (SamusSpritemapSharing.TryComposition(index, compositionCount, out SamusSpritemapId? calculated))
-            {
-                AssertEqual(native[index], calculated, $"Direct native composition identity {index:X4}");
-                directPointers++;
-            }
-        }
         AssertTrue(stock.Entries.SequenceEqual(native), "All native pointer observations preserved");
-        var stored = stock.entries;
-        AssertEqual(native.Length - aliases - directPointers, stored.Count, "Exact independent pointer basis, no stock alias/allocation fallbacks");
+        // Every pose half's animation frame shows the composition of the native entry its base and frame index, for
+        // every frame the body sheets cover that the table holds; a frame past those is outside installed art.
+        int poseFrames = 0;
+        for (int pose = 0; pose < InstalledSamusBodyArtwork.PoseCount; pose++)
+        foreach (SamusBodyHalf half in new[] { SamusBodyHalf.Top, SamusBodyHalf.Bottom })
+        for (int frame = 0; ; frame++)
+        {
+            var poseFrame = new SamusBodyHalfFrame((SamusPoseId)pose, half, frame);
+            int index = stock.EntryIndex(poseFrame);
+            if (frame == SamusBodySheetDefinitions.AnimationFrames || index >= SamusSpritemapSources.EntryCount)
+            {
+                AssertThrows<InvalidDataException>(() => stock.TryGetComposition(poseFrame, out _), "A frame past the covered frames is outside installed art");
+                break;
+            }
+            AssertEqual(native[index], stock.TryGetComposition(poseFrame, out SamusSpritemapId composition) ? composition : (SamusSpritemapId?)null,
+                $"Pose {pose:X2} {half} frame {frame} shows native entry {index:X4}");
+            poseFrames++;
+        }
         ushort[] top = stock.TopBases.ToArray(), bottom = stock.BottomBases.ToArray();
         SamusSpritemapDefinition[] definitions = stock.Definitions.ToArray();
         string Canonical(SamusSpritemapId?[] entries) => SelectedPresentationHash.Create("samus-spritemaps-v3", content =>
@@ -2978,13 +2982,10 @@ internal static class LookupStream1Verification
                     "Actual edited composition identity");
             if (index == native.Length - 1) AssertEqual(Canonical(supplied), edited.ContentIdentity, "Original independently edited OAM canonical hash");
         }
-        Directory.CreateDirectory("csharp/test-temp");
-        File.WriteAllLines("csharp/test-temp/samus-oam-pointer-required.csv", OamPointerCsvHeader
-            .Concat(stored.OrderBy(pair => pair.Key).Select(pair => $"{pair.Key:X4},{0x92808d + pair.Key * 2:X6},{pair.Value?.Ordinal ?? -1}")));
         AssertThrows<InvalidDataException>(() => stock.TryGet(2096, out _), "Original upper index rejection");
         AssertThrows<InvalidDataException>(() => stock.TryGet(ushort.MaxValue, out _), "Original full ushort rejection");
         VerifySamusZeroOamSelectorDrawsNothing(stock);
-        Console.WriteLine($"Samus OAM pointers:2096 native selectors, {aliases} exact aliases/{directPointers} direct calculations/{stored.Count} retained composition inputs,2096 independent edits,empty OAM,actual identity/WRAM selection and domain checks pass.");
+        Console.WriteLine($"Samus OAM pointers:2096 native selectors, {poseFrames} pose-half frames mapped to their entries,2096 independent edits,empty OAM,actual identity/WRAM selection and domain checks pass.");
     }
 
     /// <summary>Reads the native Samus spritemap OAM pointer table.</summary>

@@ -71,8 +71,8 @@ internal sealed class SamusMechanicsSnapshot
             if (field.IsDefined(typeof(NonSerializedAttribute)) ||
                 field.FieldType == typeof(SamusBodyFrameState) ||
                 (owner == typeof(SamusPresentation) && field.Name is
-                    "<TopSpritemapIndex>k__BackingField" or
-                    "<BottomSpritemapIndex>k__BackingField" or
+                    "<TopSpritemap>k__BackingField" or
+                    "<BottomSpritemap>k__BackingField" or
                     "<SpritemapPosition>k__BackingField" or
                     "<ShownRecords>k__BackingField")) continue;
             result.Add(field);

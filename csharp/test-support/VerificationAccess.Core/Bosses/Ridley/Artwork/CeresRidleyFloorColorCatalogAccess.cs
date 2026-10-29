@@ -9,6 +9,6 @@ internal static class CeresRidleyFloorColorCatalogAccess
     extension(CeresRidleyFloorColorCatalog self)
     {
         /// <summary>Reads an authored color by the high byte of the native zoom word.</summary>
-        public RgbColor Resolve(int zoomHighByte, int color) => CeresRidleyFloorShades.Resolve(self.rows, zoomHighByte, color);
+        public RgbColor Resolve(int zoomStep, int color) => CeresRidleyFloorShades.Resolve(self.steps, zoomStep, color);
     }
 }

@@ -44,12 +44,12 @@ internal static class CeresRidleyColorsVerification
                 CeresRidleyPaletteDefinitions.BodyFadeColorCount * sizeof(ushort),
                 CeresRidleyPaletteDefinitions.BodyFadeColorCount,
                 color => native.ResolveBodyFade(row, color));
-        for (int row = 0; row < CeresRidleyPaletteDefinitions.HealthRowCount; row++)
+        for (int row = 0; row < CeresRidleyPaletteDefinitions.HealthBandCount; row++)
             Check(RidleySourceDefinitions.Ceres.HealthColors + row *
                 CeresRidleyPaletteDefinitions.HealthColorCount * sizeof(ushort),
                 CeresRidleyPaletteDefinitions.HealthColorCount,
                 color => native.ResolveHealth(row, color));
-        for (int row = 0; row < CeresRidleyPaletteDefinitions.AlarmRowCount; row++)
+        for (int row = 0; row < CeresRidleyPaletteDefinitions.AlarmStepCount; row++)
             Check(RidleySourceDefinitions.Ceres.AlarmColors + row *
                 CeresRidleyPaletteDefinitions.AlarmColorCount * sizeof(ushort),
                 CeresRidleyPaletteDefinitions.AlarmColorCount,
@@ -145,8 +145,8 @@ internal static class CeresRidleyColorsVerification
         {
             state.HitCounter = count;
             healthTick(state);
-            int row = count < 70 ? CeresRidleyPaletteDefinitions.HealthMidRow :
-                CeresRidleyPaletteDefinitions.HealthLateRow;
+            int row = count < 70 ? CeresRidleyPaletteDefinitions.HealthMidBand :
+                CeresRidleyPaletteDefinitions.HealthLateBand;
             CheckCgram(CeresRidleyPaletteDefinitions.HealthColorCount,
                 CeresRidleyPaletteDefinitionsConstants.HealthCgramIndex,
                 color => edited.CeresRidleyColors.ResolveHealth(row, color),
@@ -252,7 +252,7 @@ internal static class CeresRidleyColorsVerification
             var nativeState = new RidleyEnemyState();
             var stockState = new RidleyEnemyState();
             var editedState = new RidleyEnemyState();
-            for (ushort frame = 0; frame < CeresRidleyPaletteDefinitions.AlarmRowCount * 4; frame++)
+            for (ushort frame = 0; frame < CeresRidleyPaletteDefinitions.AlarmStepCount * 4; frame++)
             {
                 nativeTick(nativeState, frame);
                 stockTick(stockState, frame);

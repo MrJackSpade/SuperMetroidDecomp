@@ -28,13 +28,13 @@ public static class CeresRidleyColorFile
         RgbColor[] start = Compile(document.Start, CeresRidleyPaletteDefinitions.StartColorCount, "start");
         RgbColor[][] eyeFade = CompileRows(document.EyeFade, CeresRidleyPaletteDefinitions.EyeFadeShadeCount,
             CeresRidleyPaletteDefinitions.EyeFadeColorCount, "eye fade");
-        RgbColor[][] health = CompileRows(document.Health, CeresRidleyPaletteDefinitions.HealthRowCount,
+        RgbColor[][] health = CompileRows(document.Health, CeresRidleyPaletteDefinitions.HealthBandCount,
             CeresRidleyPaletteDefinitions.HealthColorCount, "health");
         // A legacy override predates the alarm (and, before version two, the Baby) colours; the
         // version check above guarantees stock is supplied for the catalog to inherit them from.
         RgbColor[][]? alarm = version != CeresRidleyColorVersion.Current
             ? null
-            : CompileRows(document.Alarm, CeresRidleyPaletteDefinitions.AlarmRowCount,
+            : CompileRows(document.Alarm, CeresRidleyPaletteDefinitions.AlarmStepCount,
                 CeresRidleyPaletteDefinitions.AlarmColorCount, "alarm");
         RgbColor[] retreatBg = Compile(document.RetreatBg, CeresRidleyPaletteDefinitions.RetreatBgColorCount, "retreat BG");
         RgbColor[] retreatShared = Compile(document.RetreatShared, CeresRidleyPaletteDefinitions.RetreatSharedColorCount,

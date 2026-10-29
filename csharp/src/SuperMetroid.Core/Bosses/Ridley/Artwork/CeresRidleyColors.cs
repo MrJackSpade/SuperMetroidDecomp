@@ -103,22 +103,22 @@ internal static class CeresRidleyColors
             new RidleyColours(colours).CeresBodyFade.Write(color, colors.selection.BodyFade.Resolve(shade, color));
     }
 
-    /// <summary>Copies one fourteen-color health row, index 0..2, to CGRAM entries 241..254.</summary>
-    internal static void ApplyHealth(CeresRidleyColorCatalog colors, GameplayColours colours, int row)
+    /// <summary>Shows health band <paramref name="band"/>, 0..2, in Ridley's fourteen health colours.</summary>
+    internal static void ApplyHealth(CeresRidleyColorCatalog colors, GameplayColours colours, int band)
     {
-        _ = colors.selection.Health.Resolve(row, 0);
+        _ = colors.selection.Health.Resolve(band, 0);
         Ensure.NotNull(colours);
         for (int color = 0; color < CeresRidleyPaletteDefinitions.HealthColorCount; color++)
-            new RidleyColours(colours).Health.Write(color, colors.selection.Health.Resolve(row, color));
+            new RidleyColours(colours).Health.Write(color, colors.selection.Health.Resolve(band, color));
     }
 
-    /// <summary>Copies one self-destruct EMERGENCY-text phase, index 0..15, to CGRAM entries 97..99.</summary>
-    internal static void ApplyAlarm(CeresRidleyColorCatalog colors, GameplayColours colours, int row)
+    /// <summary>Shows self-destruct alarm step <paramref name="step"/>, 0..15, in the three EMERGENCY-text colours.</summary>
+    internal static void ApplyAlarm(CeresRidleyColorCatalog colors, GameplayColours colours, int step)
     {
-        _ = CeresRidleyAlarmColors.SourceRow(row);
+        _ = CeresRidleyAlarmColors.Phase(step);
         Ensure.NotNull(colours);
         for (int color = 0; color < CeresRidleyPaletteDefinitions.AlarmColorCount; color++)
-            new RidleyColours(colours).CeresAlarm.Write(color, colors.selection.Alarm.Resolve(row, color));
+            new RidleyColours(colours).CeresAlarm.Write(color, colors.selection.Alarm.Resolve(step, color));
     }
 
     /// <summary>Installs the retreat's fifteen BG colors and eight shared colors.</summary>

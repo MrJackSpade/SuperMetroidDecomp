@@ -637,7 +637,7 @@ internal static class LookupStream4Verification
         for (int row = 0; row < 16; row++)
         for (int color = 0; color < 3; color++)
         {
-            AssertEqual(Native(row, color), Native(CeresRidleyAlarmColors.SourceRow(row), color), "direct reflected/native relationship");
+            AssertEqual(Native(row, color), Native(CeresRidleyAlarmColors.Phase(row), color), "direct reflected/native relationship");
 
             AssertEqual(Native(row, color), stock.ResolveAlarm(row, color), "installed native alarm color");
         }

@@ -129,15 +129,15 @@ internal sealed class NorfairRidleyCombat
             return;
 
         state.FunctionTimer = WrappingCountdown.Start(2);
-        int row = state.FadeStep;
+        int step = state.FadeStep;
         bool hasPalette;
         var colors = _bossArtwork.Artwork?.NorfairRidleyColors ?? throw new InvalidOperationException(
             "Norfair Ridley reveal requires installed colors.");
-        if (row > NorfairRidleyPaletteDefinitions.RevealRowCount)
-            throw new InvalidDataException($"Norfair Ridley reveal row {row} escaped its native terminator.");
-        hasPalette = row < NorfairRidleyPaletteDefinitions.RevealRowCount;
+        if (step > NorfairRidleyPaletteDefinitions.RevealStepCount)
+            throw new InvalidDataException($"Norfair Ridley reveal step {step} escaped its native terminator.");
+        hasPalette = step < NorfairRidleyPaletteDefinitions.RevealStepCount;
         if (hasPalette)
-            colors.ApplyReveal(_presentation.Colours, row);
+            colors.ApplyReveal(_presentation.Colours, step);
         state.FadeStep++;
         if (hasPalette)
             return;

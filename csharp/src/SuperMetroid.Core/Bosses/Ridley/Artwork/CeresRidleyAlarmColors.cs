@@ -13,40 +13,40 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 /// </summary>
 internal sealed class CeresRidleyAlarmColors
 {
-    /// <summary>Independent supplied colors that differ from the reflected sixteen-row trajectory.</summary>
+    /// <summary>Independent supplied colors that differ from the reflected sixteen-step trajectory.</summary>
     internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
-    /// <summary>Compares supplied warning colors with calculated rows and retains only independently edited cells.</summary>
-    internal CeresRidleyAlarmColors(RgbColor[][] rows)
+    /// <summary>Compares supplied warning colors with calculated steps and retains only independently edited cells.</summary>
+    internal CeresRidleyAlarmColors(RgbColor[][] steps)
     {
-        for (int row = 0; row < CeresRidleyPaletteDefinitions.AlarmRowCount; row++)
+        for (int step = 0; step < CeresRidleyPaletteDefinitions.AlarmStepCount; step++)
         for (int color = 0; color < CeresRidleyPaletteDefinitions.AlarmColorCount; color++)
-            if (Calculate(row, color) != rows[row][color])
-                edits.Add(new ColourCell(row, color), rows[row][color]);
+            if (Calculate(step, color) != steps[step][color])
+                edits.Add(new ColourCell(step, color), steps[step][color]);
     }
 
-    /// <summary>$A6:C1DF-C23E: sixteen rows ascend through row8, then revisit rows7..1.</summary>
-    internal static int SourceRow(int row)
+    /// <summary>$A6:C1DF-C23E: the reflected phase of alarm step <paramref name="step"/>: sixteen steps ascend through phase eight, then revisit phases seven to one.</summary>
+    internal static int Phase(int step)
     {
-        if ((uint)row >= CeresRidleyPaletteDefinitions.AlarmRowCount)
-            throw new ArgumentOutOfRangeException(nameof(row));
-        return Math.Min(row, CeresRidleyPaletteDefinitions.AlarmRowCount - row);
+        if ((uint)step >= CeresRidleyPaletteDefinitions.AlarmStepCount)
+            throw new ArgumentOutOfRangeException(nameof(step));
+        return Math.Min(step, CeresRidleyPaletteDefinitions.AlarmStepCount - step);
     }
 
     /// <summary>Uses an edited cell when supplied; otherwise computes its bright, middle, or dark warning shade.</summary>
-    internal RgbColor Resolve(int row, int color)
+    internal RgbColor Resolve(int step, int color)
     {
-        _ = SourceRow(row);
+        _ = Phase(step);
         if ((uint)color >= CeresRidleyPaletteDefinitions.AlarmColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        var key = new ColourCell(row, color);
-        return edits.TryGetValue(key, out RgbColor value) ? value : Calculate(row, color);
+        var key = new ColourCell(step, color);
+        return edits.TryGetValue(key, out RgbColor value) ? value : Calculate(step, color);
     }
 
     /// <summary>Builds the three copied target colors from the rising and reflected phase's channel rates.</summary>
-    private static RgbColor Calculate(int row, int color)
+    private static RgbColor Calculate(int step, int color)
     {
-        int phase = SourceRow(row), halfStep = (phase + 1) / 2;
+        int phase = Phase(step), halfStep = (phase + 1) / 2;
         int blue = phase * 6 / 5;
         (int red, int green) = color switch
         {

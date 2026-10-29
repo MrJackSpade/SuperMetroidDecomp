@@ -5,39 +5,39 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 /// <summary>
 /// Arena reveal $A6:A50B-A6AE, ending at the fourteen room-theme9 palette7
 /// colors also present in decompressed $C2:B5E4. Native $A6:A4D6-A4EA uniformly
-/// copies the selected row. Every channel uses the existing fifteen-interval
+/// copies the selected step. Every channel uses the existing fifteen-interval
 /// biased fade; no intermediate sample is independently stored.
 /// </summary>
 internal sealed class NorfairRidleyRevealPaint
 {
 
-    /// <summary>Independently supplied row colors that differ from the scaled material endpoints.</summary>
+    /// <summary>Independently supplied step colors that differ from the scaled material endpoints.</summary>
     internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>Captures only palette cells that differ from the calculated fifteen-step reveal.</summary>
-    internal NorfairRidleyRevealPaint(RgbColor[][] rows)
+    internal NorfairRidleyRevealPaint(RgbColor[][] steps)
     {
-        for (int row = 0; row < Rows; row++)
+        for (int step = 0; step < Steps; step++)
             for (int color = 0; color < Colors; color++)
-                if (rows[row][color] != Calculate(row, color)) edits.Add(new ColourCell(row, color), rows[row][color]);
+                if (steps[step][color] != Calculate(step, color)) edits.Add(new ColourCell(step, color), steps[step][color]);
     }
 
     /// <summary>Resolves an independently edited reveal cell or scales its stock material endpoint.</summary>
-    internal RgbColor ColorAt(int row, int color)
+    internal RgbColor ColorAt(int step, int color)
     {
-        ValidateRow(row);
+        ValidateStep(step);
         if ((uint)color >= Colors) throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(new ColourCell(row, color), out RgbColor edited) ? edited : Calculate(row, color);
+        return edits.TryGetValue(new ColourCell(step, color), out RgbColor edited) ? edited : Calculate(step, color);
     }
 
     /// <summary>Restricts lookup to the fifteen native reveal phases.</summary>
-    internal static void ValidateRow(int row)
+    internal static void ValidateStep(int step)
     {
-        if ((uint)row >= Rows) throw new ArgumentOutOfRangeException(nameof(row));
+        if ((uint)step >= Steps) throw new ArgumentOutOfRangeException(nameof(step));
     }
 
     /// <summary>Applies the shared biased fade to one selected arena material endpoint.</summary>
-    private static RgbColor Calculate(int row, int color) => CeresRidleyFade.Scale(Endpoint(color), row + 1);
+    private static RgbColor Calculate(int step, int color) => CeresRidleyFade.Scale(Endpoint(color), step + 1);
 
     /// <summary>
     /// Immutable stock material operation for $A6:A693-A6AE and theme9 slots113..126.

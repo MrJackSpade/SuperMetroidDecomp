@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
-/// <summary>The selected material channels of Norfair Ridley's room reveal; <see cref="NorfairRidleyRevealPaint"/> calculates the reveal rows from them.</summary>
+/// <summary>The selected material channels of Norfair Ridley's room reveal; <see cref="NorfairRidleyRevealPaint"/> calculates the reveal steps from them.</summary>
 internal static class NorfairRidleyRevealPaintDefinitions
 {
-    /// <summary>Fifteen fade rows precede the full arena reveal palette.</summary>
-    internal const int Rows = 15;
-    /// <summary>Each reveal row copies fourteen room-theme colors.</summary>
+    /// <summary>Fifteen fade steps precede the full arena reveal palette.</summary>
+    internal const int Steps = 15;
+    /// <summary>Each reveal step copies fourteen room-theme colors.</summary>
     internal const int Colors = 14;
     /// <summary>Maximum value of an SNES five-bit color channel.</summary>
     internal const int Maximum = (1 << 5) - 1;

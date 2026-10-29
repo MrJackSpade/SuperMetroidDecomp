@@ -42,11 +42,11 @@ public sealed class CeresRidleyColorCatalog
 
     /// <summary>Shows body-fade shade <paramref name="shade"/>, 0..15, in Ceres Ridley's background and sprite body colours; the eleven-colour shades progress from black to full body paint.</summary>
     public void ApplyBodyFade(GameplayColours colours, int shade) => CeresRidleyColors.ApplyBodyFade(this, colours, shade);
-    /// <summary>Copies one fourteen-color health row, index 0..2, from the shared $A6:E46A palette family to CGRAM entries 241..254; encounter AI separately selects by Ceres shot count or Norfair health.</summary>
-    public void ApplyHealth(GameplayColours colours, int row) => CeresRidleyColors.ApplyHealth(this, colours, row);
+    /// <summary>Shows health band <paramref name="band"/>, 0..2, in Ridley's fourteen health colours, shared by both encounters; encounter AI separately selects the band by Ceres shot count or Norfair health.</summary>
+    public void ApplyHealth(GameplayColours colours, int band) => CeresRidleyColors.ApplyHealth(this, colours, band);
 
-    /// <summary>Copies one self-destruct EMERGENCY-text phase, index 0..15, to CGRAM entries 97..99, preserving the reflected three-color cycle at native $A6:C1DF.</summary>
-    public void ApplyAlarm(GameplayColours colours, int row) => CeresRidleyColors.ApplyAlarm(this, colours, row);
+    /// <summary>Shows self-destruct alarm step <paramref name="step"/>, 0..15, in the three EMERGENCY-text colours, preserving the reflected three-color cycle.</summary>
+    public void ApplyAlarm(GameplayColours colours, int step) => CeresRidleyColors.ApplyAlarm(this, colours, step);
 
     /// <summary>Installs the retreat's fifteen BG colors at CGRAM 81..95 and eight shared colors at both BG 33..40 and OBJ 241..248, matching $A6:A9E3/$AA01.</summary>
     public void ApplyRetreat(GameplayColours colours) => CeresRidleyColors.ApplyRetreat(this, colours);

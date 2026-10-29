@@ -3,16 +3,16 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>The room's layer-3 FX words that enemy AI drives directly: liquid motion commands from Ridley and the Chozo statue.</summary>
+/// <summary>The room's liquid effect, which enemy AI drives directly: liquid motion commands from Ridley and the Chozo statue.</summary>
 [RoomLifetime]
 internal sealed class EnemyRoomFx
 {
-    /// <summary>Current room's layer-3 FX owner; excluded from serialized enemy state and rebound after restoration.</summary>
+    /// <summary>Current room's effect state; excluded from serialized enemy state and rebound after restoration.</summary>
     [field: NonSerialized] internal RoomLayer3FxState? Layer3Fx { get; private set; }
 
     /// <summary>
-    /// Binds shared FX words before gameplay and after debugger restoration. Isolated
-    /// enemy audits may omit this owner and inspect the published diagnostic words.
+    /// Binds the room's effect state before gameplay and after debugger restoration. Isolated
+    /// enemy audits may omit this owner and inspect the published diagnostic values.
     /// </summary>
     internal void BindRoomFx(RoomLayer3FxState roomFx) => Layer3Fx = roomFx;
 

@@ -94,8 +94,6 @@ public sealed class MotherBrainEnemyState
     /// <summary>Whether the unpause hook must restore Mother Brain's BG2 image and beam SFX.</summary>
     public bool EnableUnpauseHook { get; internal set; }
 
-    /// <summary>True after all <c>$800</c> enemy-BG2 words have been filled with tile <c>$0338</c>.</summary>
-    public bool BackgroundTilemapPrepared { get; internal set; }
 
     /// <summary>The colours the five neck joints draw in (#1464).</summary>
     public SpriteColouring NeckColouring { get; internal set; } = SharedSpriteColouring.Common;
@@ -202,8 +200,8 @@ public sealed class MotherBrainEnemyState
     public bool PlacesBodyLayer { get; internal set; }
     /// <summary>ADF41C's death flicker hiding her body layer this frame, separate from the sprites' invisibility.</summary>
     public bool DeathHidesBodyLayer { get; internal set; }
-    /// <summary>One-shot latch for the AFE0 body tilemap clear.</summary>
-    public bool DeathBg2Cleared { get; internal set; }
+    /// <summary>One-shot latch for the AFE0 clearing of her body layer.</summary>
+    public bool DeathBodyLayerCleared { get; internal set; }
     /// <summary>Live escape message owner installed by $A6:C23F.</summary>
     public EscapeTypewriterState? EscapeTypewriter { get; internal set; }
 

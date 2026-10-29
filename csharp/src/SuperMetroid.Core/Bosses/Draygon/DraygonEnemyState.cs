@@ -37,8 +37,6 @@ public sealed class DraygonEnemyState
     /// <summary>Native enemy slot $00C0, installed by the arms initializer; its animation follows the body's authoritative coordinates.</summary>
     public RoomEnemySlot Arms { get => field ?? throw new InvalidOperationException("Draygon's arms part is not attached; part initialization attaches it."); internal set; }
 
-    /// <summary>True after the $1000-byte enemy BG2 surface has been filled with tile $338.</summary>
-    public bool BackgroundTilemapPrepared { get; internal set; }
 
     /// <summary>Room-loading IRQ command selected by Draygon's body instruction stream.</summary>
     public RoomLoadingInterruptCommand RoomLoadingIrqCommand { get; internal set; }

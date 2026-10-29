@@ -126,7 +126,6 @@ internal sealed class MotherBrainBody
             HitboxesEnabled = MotherBrainHitboxParts.Brain,
             BrainFunction = MotherBrainBrainFunction.SetupBrainToBeDrawn,
             Function = MotherBrainBodyFunction.FirstPhase,
-            BackgroundTilemapPrepared = true,
             // Her body is staged on a cleared canvas, without replacing the visible pipe background; her phase-two
             // transition shows it.
             StagedBody = new BossBodyCanvas(_bossArtwork.Body(BossBodyOwner.MotherBrain), BossBodyDefinitions.SharedBodyRows),

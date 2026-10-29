@@ -88,9 +88,9 @@ internal sealed class MotherBrainRainbowAndDeath
             if (step.PaletteRequested)
                 LoadMotherBrainDeathBodyFade(sequence.State.GreyTransitionCounter - 1);
         }
-        if (sequence.ThirdPhaseDeath.BodyClearRequested && !state.DeathBg2Cleared)
+        if (sequence.ThirdPhaseDeath.BodyClearRequested && !state.DeathBodyLayerCleared)
         {
-            state.DeathBg2Cleared = true;
+            state.DeathBodyLayerCleared = true;
             state.DeathHidesBodyLayer = false;
             state.Body.Properties = sequence.ThirdPhaseDeath.BodyProperties;
             _presentation.RequireBossBody().Clear(0, MotherBrainBodyDefinitions.DeathClearedCells);

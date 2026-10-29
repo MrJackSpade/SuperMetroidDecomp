@@ -2418,8 +2418,7 @@ internal static class LookupStream4Verification
                 enemies.Presentation.BindColours(actual.Gameplay); enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
                 new Action<RoomEnemySlot>(enemies.DraygonBehavior.Parts.InitializeDraygonBody)(enemies.SlotTable.Slots[0]);
                 for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0,actual.Colors[color],"Actual initializer full CGRAM copy");
-                AssertEqual(true,(enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Verification requires enemies.DraygonBehavior.Draygon.")).BackgroundTilemapPrepared,"Actual initializer continues BG2 preparation");
-                AssertEqual(DraygonAiFunction.IntroInitialDelay,enemies.DraygonBehavior.Parts.Draygon.Function,"Actual initializer phase");
+                AssertEqual(DraygonAiFunction.IntroInitialDelay,(enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Verification requires enemies.DraygonBehavior.Draygon.")).Function,"Actual initializer phase");
             }
         }
         ushort[] escape=Enumerable.Range(0,15).Select(index=>CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6f50e+index*2))).ToArray();

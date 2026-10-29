@@ -79,10 +79,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Phantoon body requires native slot zero, not slot {body.SlotIndex}.");
         }
 
-        Combat.Phantoon = new PhantoonEnemyState(body)
-        {
-            BackgroundTilemapPrepared = true,
-        };
+        Combat.Phantoon = new PhantoonEnemyState(body);
 
         // Phantoon shows his body on a cleared body layer (#1353, #1466): his body, eye, tentacle and mouth frames are
         // drawn on it.

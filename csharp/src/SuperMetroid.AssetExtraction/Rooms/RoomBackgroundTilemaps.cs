@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Rooms.Artwork;
 
-namespace SuperMetroid.Core.Rooms.Artwork;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Complete host-selected set of compressed library-background visual tilemaps.</summary>
 public sealed class RoomBackgroundTilemaps

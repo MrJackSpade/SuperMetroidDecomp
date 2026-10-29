@@ -15,10 +15,6 @@ public static class RoomBackgroundTilemapFormat
     public const int CellsPerPage = 32 * 32;
     /// <summary>Compiled byte length of one page, $0800, with one little-endian sixteen-bit word per cell.</summary>
     public const int BytesPerPage = CellsPerPage * sizeof(ushort);
-    /// <summary>The editable JSON file name of <paramref name="tilemap"/>, named for the background it pictures (#1414).</summary>
-    public static string FileName(SuperMetroid.Core.Rooms.Backgrounds.RoomBackgroundTilemap tilemap) =>
-        $"room-background-{SuperMetroid.Core.Assets.InstalledArtworkNames.Hyphenated(tilemap.ToString())}.json";
-
     /// <summary>Checks a native transfer extent and converts its byte length to the supported page count.</summary>
     /// <param name="byteCount">Compiled BG word bytes; only $0800 and $1000 are accepted.</param>
     /// <returns>One or two complete 32-by-32 pages.</returns>

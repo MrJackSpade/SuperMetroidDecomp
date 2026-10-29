@@ -163,8 +163,6 @@ internal static class InstallationOverrideLifecycleVerification
                 InstalledProjectilePresentation projectile => projectile.SelectedSha256,
                 RoomCharacterAtlases characters => RoomTilesetSources.CharacterIdentity(characters),
                 RoomStaticPalettes palettes => RoomTilesetSources.PaletteIdentity(palettes),
-                RoomBackgroundTilemaps backgrounds => RoomBackgroundTilemapArtworkFiles.ContentIdentity(backgrounds),
-                RoomSkyTilemaps skies => RoomPresentationIdentity.SkyIdentity(skies),
                 _ => catalog.GetType().GetProperty("ContentIdentity")?.GetValue(catalog) as string
                     ?? throw new InvalidDataException($"Catalog {loader.Name} lacks selected-content identity."),
             };

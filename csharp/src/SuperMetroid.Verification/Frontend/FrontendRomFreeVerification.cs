@@ -131,8 +131,6 @@ internal static class FrontendRomFreeVerification
         var blockSheets = installation.LoadRoomBlockSheets();
         var visualLayouts = installation.LoadRoomVisualLayouts();
         var levelStreams = installation.LoadRoomLevelStreams();
-        var backgrounds = installation.LoadRoomBackgroundTilemaps();
-        var sky = installation.LoadRoomSkyTilemaps();
         var samusEaterVisuals = installation.LoadRoomPlmSamusEaterVisuals();
         var assetRoomPlmShotBlockVisuals = installation.LoadRoomPlmShotBlockVisuals();
         var assetRoomPlmGrappleBlockVisuals = installation.LoadRoomPlmGrappleBlockVisuals();
@@ -220,8 +218,6 @@ internal static class FrontendRomFreeVerification
                 RoomBlockSheets = blockSheets,
                 RoomVisualLayouts = visualLayouts,
                 RoomLevelStreams = levelStreams,
-                RoomBackgroundTilemapArt = backgrounds,
-                RoomSkyTilemapArt = sky,
                 RoomPlmSamusEaterVisuals = samusEaterVisuals,
                 BeamPalettes = projectiles.BeamTiles.Palettes,
                 HyperBeamFxColors = projectiles.BeamTiles.HyperBeamFxColors,

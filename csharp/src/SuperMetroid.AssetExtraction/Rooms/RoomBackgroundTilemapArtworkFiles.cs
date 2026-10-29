@@ -1,10 +1,8 @@
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -18,6 +16,10 @@ public static class RoomBackgroundTilemapArtworkFiles
     public const string ManifestFileName = "room-backgrounds.json";
     /// <summary>Manifest revision; 2 names each tilemap for its background rather than its cartridge address (#1414).</summary>
     private const int FormatVersion = 2;
+
+    /// <summary>The editable JSON file name of <paramref name="tilemap"/>, named for the background it pictures (#1414).</summary>
+    public static string FileName(RoomBackgroundTilemap tilemap) =>
+        $"room-background-{InstalledArtworkNames.Hyphenated(tilemap.ToString())}.json";
 
     /// <summary>Creates one editable tilemap JSON file per background tilemap and records its provenance.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying the compressed background tilemaps.</param>
@@ -35,7 +37,7 @@ public static class RoomBackgroundTilemapArtworkFiles
         var entries = new Dictionary<string, RoomBackgroundFileEntry>();
         foreach ((RoomBackgroundTilemap tilemap, int address) in RoomBackgroundSourceDefinitions.Tilemaps.OrderBy(pair => pair.Key))
         {
-            string name = RoomBackgroundTilemapFormat.FileName(tilemap);
+            string name = FileName(tilemap);
             byte[] json = files[name];
             int byteCount = RomDataReader.Decompress(CartridgeImportSource.Require(bus), address).Length;
             RoomBackgroundTilemapFormat.ValidatePageCount(byteCount);
@@ -75,7 +77,7 @@ public static class RoomBackgroundTilemapArtworkFiles
         foreach ((string name, RoomBackgroundFileEntry entry) in manifest.Entries)
         {
             if (entry is null || !Enum.TryParse(entry.Tilemap, ignoreCase: false, out RoomBackgroundTilemap tilemap) ||
-                !Enum.IsDefined(tilemap) || name != RoomBackgroundTilemapFormat.FileName(tilemap))
+                !Enum.IsDefined(tilemap) || name != FileName(tilemap))
                 throw new InvalidDataException($"Room background manifest {manifestPath} has an invalid tilemap entry.");
             RoomBackgroundTilemapFormat.ValidatePageCount(entry.ByteCount);
             string stockPath = Path.Combine(stockDirectory, name);
@@ -104,18 +106,9 @@ public static class RoomBackgroundTilemapArtworkFiles
         return new RoomBackgroundTilemaps(selected);
     }
 
-    /// <summary>
-    /// The installed content identity of the selected tilemaps, which hashes each with its cartridge source as before
-    /// #1414, so recorded identities are unchanged.
-    /// </summary>
-    internal static string ContentIdentity(RoomBackgroundTilemaps catalog) => SelectedPresentationHash.FromTransfers(
-        nameof(RoomBackgroundTilemaps),
-        Ensure.NotNull(catalog).Tilemaps.ToDictionary(pair => RoomBackgroundSourceDefinitions.Tilemaps[pair.Key], pair => pair.Value),
-        atlas => BackgroundTileWords.ToBytes(atlas.Tiles.Span));
-
     /// <summary>Each background tilemap's file name before #1414, which carried its cartridge source, and its current name.</summary>
     internal static IReadOnlyDictionary<string, string> LegacyNames() => RoomBackgroundSourceDefinitions.Tilemaps.ToDictionary(
-        pair => $"room-background-{pair.Value:X6}.json", pair => RoomBackgroundTilemapFormat.FileName(pair.Key));
+        pair => $"room-background-{pair.Value:X6}.json", pair => FileName(pair.Key));
 
     /// <summary>Checks the background manifest, hashes, and all stock tilemap documents with overrides disabled.</summary>
     /// <param name="stockDirectory">Installed background-art directory to validate without cartridge reads or file writes.</param>

@@ -190,7 +190,7 @@ internal static class RoomCharacterInstallationVerification
             JsonNode alteredManifest = JsonNode.Parse(originalBackgroundManifest)
                 ?? throw new InvalidDataException("Installed background manifest is empty.");
             JsonObject manifestEntries = alteredManifest.Required("entries").AsObject();
-            string stockName = RoomBackgroundTilemapFormat.FileName(Enum.GetValues<RoomBackgroundTilemap>()[0]);
+            string stockName = RoomBackgroundTilemapArtworkFiles.FileName(Enum.GetValues<RoomBackgroundTilemap>()[0]);
             string substitutedName = "room-background-not-a-background-tilemap.json";
             JsonNode alteredEntry = manifestEntries.Required(stockName).DeepClone();
             alteredEntry["tilemap"] = substitutedTilemap;
@@ -217,7 +217,7 @@ internal static class RoomCharacterInstallationVerification
             int backgroundSource = LibraryBackgroundSourceInventory.Scan(bus)
                 .Single(source => source.ListPointer == ceres.State.BackgroundDataPointer &&
                     source.Command == LibraryBackgroundCommand.Decompress).SourceAddress;
-            string backgroundName = RoomBackgroundTilemapFormat.FileName(
+            string backgroundName = RoomBackgroundTilemapArtworkFiles.FileName(
                 LibraryBackgroundOperandDecoding.DecompressedSource(backgroundSource).Tilemap);
             var nativeBackgroundVram = new SnesVram();
             var stockBackgroundVram = new SnesVram();

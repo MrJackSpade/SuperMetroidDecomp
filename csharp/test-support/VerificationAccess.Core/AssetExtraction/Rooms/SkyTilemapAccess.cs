@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Rooms.Scrolling;
+
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Verification's view of which rows of a scrolling sky show a page.</summary>
 internal static class SkyTilemapAccess

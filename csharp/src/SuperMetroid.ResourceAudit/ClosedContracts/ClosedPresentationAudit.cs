@@ -162,8 +162,7 @@ internal sealed class ClosedPresentationAudit
             ?? EnemyDisplayArtworkDomainAudit.InvalidConstants(operation)
             ?? SamusBodyTransferDomainAudit.InvalidConstants(operation)
             ?? ProjectileSpriteDomainAudit.InvalidConstants(operation)
-            ?? InterfacePresentationDomainAudit.InvalidConstants(operation)
-            ?? ClosedTransferDomainAudit.InvalidConstants(operation);
+            ?? InterfacePresentationDomainAudit.InvalidConstants(operation);
         if (invalid is not null)
         {
             Gap(invalid);

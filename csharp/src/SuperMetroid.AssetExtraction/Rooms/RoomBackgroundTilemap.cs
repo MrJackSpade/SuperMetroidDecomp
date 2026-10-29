@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.Backgrounds;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// The tilemaps a room's library background decompresses as its room loads, each named for the background it

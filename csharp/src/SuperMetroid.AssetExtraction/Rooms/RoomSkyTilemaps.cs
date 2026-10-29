@@ -1,7 +1,9 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Scrolling;
 
-namespace SuperMetroid.Core.Rooms.Artwork;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Seven contiguous native scrolling-sky tilemap pages, selected by host artwork.</summary>
 public sealed class RoomSkyTilemaps

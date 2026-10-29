@@ -4,7 +4,6 @@ using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Audio.AudioOverridesVerification;
 using static SuperMetroid.Verification.Frontend.Recording.ControllerInputRecordingVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
@@ -23,7 +22,7 @@ internal static class RoomContentIdentityVerification
         RoomIdentityFixture baseline = CreateRoomIdentityFixture();
         IReadOnlyDictionary<string, string> hashes = baseline.Identity;
         RoomIdentityFixture reordered = CreateRoomIdentityFixture(reverse: true);
-        AssertEqual(5, hashes.Count, "five independent room-art identities");
+        AssertEqual(3, hashes.Count, "three independent room-art identities");
         foreach ((string name, string digest) in hashes)
             AssertEqual(digest, reordered.Identity[name], $"{name} identity ignores insertion order");
 
@@ -57,7 +56,7 @@ internal static class RoomContentIdentityVerification
             .Contains(first, StringComparison.Ordinal), "room-art drift is explained by its domain");
         Suite(nameof(VerifyGameContentIdentityComposition), () => VerifyGameContentIdentityComposition());
         Suite(nameof(VerifyControllerInputRecording), () => VerifyControllerInputRecording());
-        Console.WriteLine("  Selected room content: five domains, CRE, block characters, canonical ordering, isolated edits, " +
+        Console.WriteLine("  Selected room content: three domains, CRE, block characters, canonical ordering, isolated edits, " +
             "aggregate drift, immutable snapshots and recording compatibility pass without a ROM.");
     }
 
@@ -94,21 +93,6 @@ internal static class RoomContentIdentityVerification
             Colors = Enumerable.Range(0, RoomStaticPaletteFormat.ColorCount).Select(index =>
                 new PaletteRgb5 { Red = change && index == 0 ? 1 : 0, Green = 0, Blue = 0 }).ToArray(),
         }));
-        RoomBackgroundTilemapAtlas Page(bool change) => RoomBackgroundTilemapAtlas.Load(
-            Json(new RoomBackgroundTilemapDocument
-            {
-                Version = RoomBackgroundTilemapFormat.Version,
-                Pages = [new RoomBackgroundTilemapPage
-                {
-                    Cells = Enumerable.Range(0, RoomBackgroundTilemapFormat.CellsPerPage).Select(index =>
-                        new RoomBackgroundTilemapCell
-                        {
-                            TileColumn = 0, TileRow = 0, Palette = 0,
-                            Priority = false, FlipX = change && index == 0, FlipY = false,
-                        }).ToArray(),
-                }],
-            }), RoomBackgroundTilemapFormat.BytesPerPage);
-
         RoomCharacterAtlas character = Characters(edited == GameInstallationLayout.RoomCharacterDirectoryName);
         RoomStaticPalette palette = Palette(edited == GameInstallationLayout.RoomPaletteDirectoryName);
         var chars = new Dictionary<int, RoomCharacterAtlas>();
@@ -121,14 +105,6 @@ internal static class RoomContentIdentityVerification
             chars[definition.CharacterAddress] = character;
             colors[definition.PaletteAddress] = palette;
         }
-        var backgrounds = new Dictionary<RoomBackgroundTilemap, RoomBackgroundTilemapAtlas>();
-        IEnumerable<RoomBackgroundTilemap> pages = Enum.GetValues<RoomBackgroundTilemap>();
-        if (reverse) pages = pages.Reverse();
-        foreach (RoomBackgroundTilemap page in pages)
-            backgrounds[page] = Page(edited == GameInstallationLayout.RoomBackgroundTilemapDirectoryName &&
-                page == Enum.GetValues<RoomBackgroundTilemap>()[0]);
-        RoomBackgroundTilemapAtlas[] skies = Enumerable.Range(0, RoomSkyTilemapFormat.PageCount)
-            .Select(page => Page(edited == nameof(RoomSkyTilemaps) && page == 0)).ToArray();
         bool editLayout = edited == GameInstallationLayout.RoomVisualLayoutDirectoryName;
         RoomLevelId firstLevel = new("FixtureLevelA"), secondLevel = new("FixtureLevelB");
         var layouts = new Dictionary<RoomLevelId, RoomLevelArtwork>
@@ -140,21 +116,19 @@ internal static class RoomContentIdentityVerification
         return new RoomIdentityFixture(
             new RoomCharacterAtlases(Characters(edited == "cre-characters"), chars.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.CharacterSetAt(pair.Key), pair => pair.Value)),
             new RoomStaticPalettes(colors.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.PaletteSetAt(pair.Key), pair => pair.Value)),
-            new RoomBackgroundTilemaps(backgrounds), new RoomSkyTilemaps(skies),
             RoomLevelArtworks.FromLayoutsForVerification(layouts));
 
         static MemoryStream Json<T>(T document) => new(JsonSerializer.SerializeToUtf8Bytes(document));
     }
 
-    /// <summary>Five independent room presentation catalogs used to measure selected-content identity.</summary>
+    /// <summary>Three independent room presentation catalogs used to measure selected-content identity.</summary>
     internal sealed record RoomIdentityFixture(RoomCharacterAtlases Characters,
         RoomStaticPalettes Palettes,
-        RoomBackgroundTilemaps Backgrounds, RoomSkyTilemaps Skies,
         RoomLevelArtworks Layouts)
     {
         /// <summary>Per-domain hashes for the fixture's selected room artwork.</summary>
         public IReadOnlyDictionary<string, string> Identity => RoomPresentationIdentity.Create(
-            Characters, Palettes, Backgrounds, Skies, Layouts);
+            Characters, Palettes, Layouts);
     }
 
     /// <summary>Runs ROM-free room-art identity and aggregate compatibility checks.</summary>

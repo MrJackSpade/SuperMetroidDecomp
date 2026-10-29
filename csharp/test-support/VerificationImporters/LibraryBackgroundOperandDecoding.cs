@@ -1,8 +1,6 @@
 using System.Collections.Frozen;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Rooms.Artwork;
-using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.TestSupport.VerificationImporters;
 

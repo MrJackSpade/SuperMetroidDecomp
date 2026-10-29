@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Security.Cryptography;
 using System.Text.Json.Nodes;
 using static SuperMetroid.Verification.Rooms.TilemapJsonContractsVerification;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -35,9 +34,9 @@ internal static class RoomAssetJsonContractsVerification
             RoomJsonFileContract[] contracts =
             [
                 new("backgrounds", installed.RoomBackgroundTilemapDirectory, RoomBackgroundTilemapArtworkFiles.ManifestFileName,
-                    (stock, edited) => RoomBackgroundTilemapArtworkFiles.ContentIdentity(RoomBackgroundTilemapArtworkFiles.Load(stock, edited))),
+                    (stock, edited) => BackgroundTilemapIdentity(RoomBackgroundTilemapArtworkFiles.Load(stock, edited))),
                 new("skies", installed.RoomBackgroundTilemapDirectory, RoomSkyTilemapFormat.ManifestFileName,
-                    (stock, edited) => RoomPresentationIdentity.SkyIdentity(RoomSkyTilemapArtworkFiles.Load(stock, edited))),
+                    (stock, edited) => SkyIdentity(RoomSkyTilemapArtworkFiles.Load(stock, edited))),
                 // Block compositions are stock extraction input with no override (#1431): their identity is their tiles.
                 new("metatiles", installed.RoomMetatileDirectory, RoomMetatileArtworkFiles.ManifestFileName,
                     (stock, _) => BlockCompositionIdentity(RoomMetatileArtworkFiles.Load(stock))),
@@ -120,6 +119,16 @@ internal static class RoomAssetJsonContractsVerification
             .SelectMany(entry => BackgroundTileWords.ToBytes(entry.Value.BlockTiles.Span))];
         return Convert.ToHexString(SHA256.HashData(words));
     }
+
+    /// <summary>
+    /// The identity of the selected library background tilemaps, which only the import reads (#1466): their tiles in
+    /// background order.
+    /// </summary>
+    private static string BackgroundTilemapIdentity(RoomBackgroundTilemaps catalog) => Convert.ToHexString(SHA256.HashData(
+        [.. catalog.Tilemaps.OrderBy(entry => entry.Key).SelectMany(entry => BackgroundTileWords.ToBytes(entry.Value.Tiles.Span))]));
+
+    /// <summary>The identity of the selected sky pages, which only the import reads (#1466): their tiles in scrolling order.</summary>
+    private static string SkyIdentity(RoomSkyTilemaps skies) => Convert.ToHexString(SHA256.HashData(BackgroundTileWords.ToBytes(skies.Pages.Span)));
 
     /// <summary>Names one room asset family, its stock manifest, and its selected-content identity loader.</summary>
     internal sealed record RoomJsonFileContract(string Name, string Source, string Manifest, Func<string, string?, string> Identity);

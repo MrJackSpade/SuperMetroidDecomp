@@ -1,4 +1,7 @@
-namespace SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Rooms.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The scrolling sky's seven tilemap pages and their installed file names.</summary>
 public static class RoomSkyTilemapFormat

@@ -243,7 +243,7 @@ internal static class RoomBackgroundsFixtures
 
     /// <summary>A seeded image of the scrolling sky's rows, with rebound cells as <see cref="SeededBackground"/> has (#1392).</summary>
     internal static RoomBackgroundImagePlane SeededSky(Random random, RgbColor[] scene) =>
-        SeededImage(random, scene, SuperMetroid.Core.Rooms.Scrolling.SkyTilemap.Rows);
+        SeededImage(random, scene, SuperMetroid.AssetExtraction.Rooms.SkyTilemap.Rows);
 
     /// <summary>A seeded background image <paramref name="tileRows"/> 32-tile rows tall, about one cell in four rebound.</summary>
     private static RoomBackgroundImagePlane SeededImage(Random random, RgbColor[] scene, int tileRows)

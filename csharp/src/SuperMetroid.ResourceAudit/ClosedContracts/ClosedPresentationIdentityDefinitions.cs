@@ -5,7 +5,6 @@ using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Frontend.Map;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -67,7 +66,6 @@ internal static class ClosedPresentationIdentityDefinitions
         ("AreaMapPresentation" or "IGameplayPresentationContent", "Resolve", "asset") =>
             [(int)InstalledArtworkId.StandardHudTiles, (int)InstalledArtworkId.EscapeTimerFirstTiles,
              (int)InstalledArtworkId.EscapeTimerSecondTiles],
-        ("RoomBackgroundTilemaps", "Get", "tilemap") => Enum.GetValues<RoomBackgroundTilemap>().Select(tilemap => (int)tilemap).ToArray(),
         ("MotherBrainSpecialSpriteArtworkCatalog", "Get", "sheet") => MotherBrainSpecialSpriteArtworkDefinitions.All
             .Select(sheet => (int)sheet.Sheet).ToArray(),
         ("EnemyTileArtworkCatalog", "LoadTo" or "LoadPaletteTo", "definitionId") => EnemyTileSourceDefinitions.All

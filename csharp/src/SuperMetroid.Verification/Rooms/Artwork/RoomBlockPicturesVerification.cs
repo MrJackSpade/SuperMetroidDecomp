@@ -21,7 +21,6 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Verification.Harness;

@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Rooms.Scrolling;
 
-namespace SuperMetroid.Core.Rooms.Scrolling;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// The scrolling sky's tile rows by vertical world position (#1347). The cartridge streams two pairs of rows a frame

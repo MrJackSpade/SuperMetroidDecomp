@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// Eight colour sets of sixteen that one owner of gameplay's colours keeps (#1405, #1464): the backgrounds' or the
-/// sprites'. A writer reaches a set, a run of sets, or all of them; an image colour group the owner colours shows the
-/// set of the same identity.
+/// Eight colour sets of sixteen, told apart by their order, that one colour owner keeps (#1405, #1464): gameplay's
+/// sprite sets, or a frontend screen's background or sprite sets. A writer reaches a set, a run of sets, or all of
+/// them; an image colour group the owner colours shows the set of the same order.
 /// </summary>
 public abstract class ColourSets : IColourSets
 {

@@ -1,15 +1,14 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
+using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 
@@ -89,13 +88,13 @@ internal static class SpriteArtworkBytes
 
     /// <summary>The installed boss artwork <paramref name="installed"/> holds.</summary>
     /// <exception cref="InvalidOperationException">It holds no installed boss artwork.</exception>
-    private static BossArtworkCatalog Bosses(IInstalledArtworkContent installed) =>
+    private static BossSourceArtwork Bosses(IInstalledArtworkContent installed) =>
         (installed as IInstalledBossSpriteCharacterArtwork ?? throw new InvalidOperationException(
             $"{installed.GetType().Name} holds no installed boss artwork to resolve a named sprite artwork source.")).BossTiles;
 
     /// <summary>The installed area artwork <paramref name="installed"/> holds.</summary>
     /// <exception cref="InvalidOperationException">It holds no installed area artwork.</exception>
-    private static AreaArtworkBundle Areas(IInstalledArtworkContent installed) =>
+    private static AreaSourceArtwork Areas(IInstalledArtworkContent installed) =>
         (installed as IInstalledAreaSpriteCharacterArtwork ?? throw new InvalidOperationException(
             $"{installed.GetType().Name} holds no installed area artwork to resolve a named sprite artwork source.")).AreaTiles;
 }

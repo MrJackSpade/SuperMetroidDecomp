@@ -27,7 +27,6 @@ internal static class ChargeFlareProductionVerification
 {
     /// <summary>Compares normal and Hyper flare frames with native OAM, then checks visual edits leave projectile state intact.</summary>
     internal static void VerifyChargeFlareProduction(SuperMetroidAddressSpace bus,
-        ChargeFlareSprites stock,
         InstalledSamusBodyArtwork body, MapPresentationInstalledRoomAssets roomAssets,
         AreaMapPresentation maps)
     {
@@ -72,7 +71,6 @@ internal static class ChargeFlareProductionVerification
         runtime.Artwork.MapPresentation = maps;
         roomAssets.Bind(runtime);
         runtime.Artwork.ChargeFlarePlacement = placement;
-        runtime.Artwork.ChargeFlareCompositions = stock;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.Player.IntroducedSamus.Pose = SamusPoseId.FacingRightNormalPose;

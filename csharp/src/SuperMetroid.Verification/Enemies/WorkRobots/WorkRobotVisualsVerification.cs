@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.Verification.Enemies.WorkRobots;
 
@@ -14,7 +15,7 @@ internal static class WorkRobotVisualsVerification
 {
     /// <summary>Checks every pose the Work Robot's programs show against editable stock OAM equal to the cartridge's.</summary>
     internal static void VerifyInstalledWorkRobotVisuals(
-        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
+        SuperMetroidAddressSpace rom, EnemyTileSourceArtwork stock)
     {
         HashSet<ushort> shown = WorkRobotAnimationsConstants.Spritemaps(Enum.GetValues<WorkRobotProgram>()).ToHashSet();
         foreach (ushort pointer in shown)

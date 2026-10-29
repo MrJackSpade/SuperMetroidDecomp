@@ -151,7 +151,7 @@ internal sealed class SuperMetroidRuntime
         Freeze = new GameplayTimeFreeze(Player);
         Tester = new TesterTools(Colours, Player, System);
         TourianStatueDependencies = new TourianStatueSequenceDependencies { Colours = Colours, Player = Player, Room = Room, System = System, Tester = Tester, Freeze = Freeze };
-        Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, Room = Room, RoomFx = RoomFx, Display = Display, Hud = Hud, MessageBox = MessageBox, Player = Player });
+        Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies { BossArtwork = BossArtwork, Room = Room, RoomFx = RoomFx, Display = Display, Hud = Hud, MessageBox = MessageBox, Player = Player });
         HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Backgrounds = BgArtwork, Artwork = Artwork, Display = Display, Hud = Hud, Player = Player, EnemySession = EnemySession, Room = Room });
         ScreenLayers = new GameplayScreenLayers(Room);
         Xray = new XrayReveal(BackgroundScroll, Room, System);
@@ -212,7 +212,6 @@ internal sealed class SuperMetroidRuntime
 
         Bind(a => a.MapPresentation, value => Artwork.MapPresentation = value);
         Bind(a => a.GameplayBasePalettes, value => Artwork.InitialPaletteArt = value);
-        Bind(a => a.StandardObjectArt, value => Artwork.StandardObjectArt = value);
         Bind(a => a.SamusBodyArt, value => Artwork.SamusBodyArt = value);
         Bind(a => a.RoomCharacterArt, value => Artwork.RoomCharacterArt = value);
         Bind(a => a.RoomPaletteArt, value => Artwork.RoomPaletteArt = value);
@@ -248,14 +247,11 @@ internal sealed class SuperMetroidRuntime
         Bind(a => a.XrayRevealVisuals, value => Xray.XrayRevealVisuals = value);
         Bind(a => a.RoomBackgroundTilemapArt, value => Artwork.RoomBackgroundTilemapArt = value);
         Bind(a => a.RoomSkyTilemapArt, value => Artwork.RoomSkyTilemapArt = value);
-        Bind(a => a.ProjectileCompositions, value => Artwork.ProjectileCompositions = value);
         Bind(a => a.ProjectileFrameBindings, value => Artwork.ProjectileFrameBindings = value);
-        Bind(a => a.TrailArtwork, value => Artwork.TrailArtwork = value);
         Bind(a => a.SamusOverreads, value => Artwork.SamusOverreads = value);
         Bind(a => a.SpriteSheets, value => Artwork.SpriteSheets = value);
         Bind(a => a.EnemySheets, value => EnemySession.Sheets = value);
         Bind(a => a.ChargeFlarePlacement, value => Artwork.ChargeFlarePlacement = value);
-        Bind(a => a.ChargeFlareCompositions, value => Artwork.ChargeFlareCompositions = value);
         Bind(a => a.GrappleFlarePlacement, value => Artwork.GrappleFlarePlacement = value);
         Bind(a => a.GrappleSwingFrames, value => Artwork.GrappleSwingFrames = value);
         Bind(a => a.BeamPalettes, value => Artwork.BeamPalettes = value);

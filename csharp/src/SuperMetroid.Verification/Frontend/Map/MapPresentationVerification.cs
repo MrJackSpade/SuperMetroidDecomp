@@ -206,8 +206,6 @@ internal static class MapPresentationVerification
     /// </summary>
     internal sealed class MapPresentationInstalledRoomAssets
     {
-        /// <summary>Installed standard-object tiles required by the real-room fixture.</summary>
-        private readonly RoomCharacterAtlas standardObjects;
         /// <summary>Installed room-specific character sheets bound before room initialization.</summary>
         private readonly RoomCharacterAtlases roomCharacters;
         /// <summary>Installed room palette data used instead of cartridge graphics fallback.</summary>
@@ -225,8 +223,6 @@ internal static class MapPresentationVerification
         private readonly RoomSkyTilemaps skies;
         /// <summary>Installed beam palettes bound to Samus's projectile presentation.</summary>
         private readonly InstalledBeamPalettes? beamPalettes;
-        /// <summary>Installed trail appearances.</summary>
-        private readonly InstalledProjectileTrails trails;
         /// <summary>Installed elevator platform art used by the room PLM owner.</summary>
         private readonly RoomPlmElevatorPlatformVisualCatalog elevatorPlatform;
 
@@ -241,7 +237,6 @@ internal static class MapPresentationVerification
         public MapPresentationInstalledRoomAssets(SuperMetroid.AssetExtraction.Installation.GameInstallation installation)
         {
             InitialPalettes = installation.LoadGameplayBasePalettes();
-            standardObjects = installation.LoadStandardObjects();
             roomCharacters = installation.LoadRoomCharacters();
             roomPalettes = installation.LoadRoomPalettes();
             roomBlockSheets = installation.LoadRoomBlockSheets();
@@ -252,7 +247,6 @@ internal static class MapPresentationVerification
             EnemyTiles = installation.LoadEnemyTiles();
             var projectiles = installation.LoadProjectiles();
             beamPalettes = projectiles.BeamTiles.Palettes;
-            trails = projectiles.Trails;
             SamusBody = installation.LoadSamusBodyArt();
             elevatorPlatform = installation.LoadRoomPlmElevatorPlatformVisuals();
         }
@@ -260,7 +254,6 @@ internal static class MapPresentationVerification
         /// <summary>Installs all fixture artwork owners before Ceres room setup can request graphics.</summary>
         public void Bind(SuperMetroidRuntime runtime)
         {
-            runtime.Artwork.StandardObjectArt = standardObjects;
             runtime.Artwork.RoomCharacterArt = roomCharacters;
             runtime.Artwork.RoomPaletteArt = roomPalettes;
             runtime.Artwork.RoomBlockSheets = roomBlockSheets;
@@ -273,7 +266,6 @@ internal static class MapPresentationVerification
             runtime.BossArtwork.Artwork = EnemyTiles.Bosses;
             runtime.AreaArtwork.Artwork = EnemyTiles.Areas;
             runtime.Artwork.BeamPalettes = beamPalettes;
-            runtime.Artwork.TrailArtwork = trails;
             runtime.Artwork.SamusBodyArt = SamusBody;
             runtime.ShotBlockVisuals.RoomPlmElevatorPlatformVisuals = elevatorPlatform;
         }

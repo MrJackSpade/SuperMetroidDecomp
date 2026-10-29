@@ -33,9 +33,6 @@ internal interface IGameplayArtwork
     /// <summary>Gameplay base palettes a new runtime starts from.</summary>
     GameplayBasePalette? GameplayBasePalettes { get; }
 
-    /// <summary>Common gameplay sprite characters (standard objects).</summary>
-    RoomCharacterAtlas? StandardObjectArt { get; }
-
     /// <summary>Samus body tiles, palettes and death palettes.</summary>
     InstalledSamusBodyArtwork? SamusBodyArt { get; }
 
@@ -141,14 +138,8 @@ internal interface IGameplayArtwork
     /// <summary>Room sky tilemaps.</summary>
     RoomSkyTilemaps? RoomSkyTilemapArt { get; }
 
-    /// <summary>Samus projectile sprite compositions.</summary>
-    InstalledProjectileSprites? ProjectileCompositions { get; }
-
     /// <summary>Timed projectile frame sprite choices.</summary>
     InstalledProjectileFrameBindings? ProjectileFrameBindings { get; }
-
-    /// <summary>Projectile trail artwork.</summary>
-    InstalledProjectileTrails? TrailArtwork { get; }
 
     /// <summary>The cartridge bytes Samus's glitch paths read, extracted from the player's cartridge.</summary>
     InstalledSamusOverreads? SamusOverreads { get; }
@@ -162,9 +153,6 @@ internal interface IGameplayArtwork
     /// <summary>Charge-flare placement.</summary>
     ChargeFlarePlacements? ChargeFlarePlacement { get; }
 
-    /// <summary>Charge-flare sprite compositions.</summary>
-    ChargeFlareSprites? ChargeFlareCompositions { get; }
-
     /// <summary>The grapple flare's standing and running offsets.</summary>
     ChargeFlarePlacements? GrappleFlarePlacement { get; }
 
@@ -177,12 +165,12 @@ internal interface IGameplayArtwork
     /// <summary>The Hyper Beam palette effect's colour cycle.</summary>
     InstalledHyperBeamFxColors? HyperBeamFxColors { get; }
 
-    /// <summary>Enemy sprite sheets, palettes and enemy-projectile spritemaps.</summary>
+    /// <summary>Enemy palettes, extended frames and colour catalogs.</summary>
     EnemyTileArtworkCatalog? EnemyTileArtwork { get; }
 
-    /// <summary>The bosses' melts, skeletons, BG2 frames, special pages and colors.</summary>
+    /// <summary>The bosses' melts, BG2 frames, corpse characters and colors.</summary>
     BossArtworkCatalog? BossArtwork { get; }
 
-    /// <summary>The Ceres door and escape artwork and the Tourian statues' colors.</summary>
+    /// <summary>The Ceres door and escape overlay and the Tourian statues' colors.</summary>
     AreaArtworkBundle? AreaArtwork { get; }
 }

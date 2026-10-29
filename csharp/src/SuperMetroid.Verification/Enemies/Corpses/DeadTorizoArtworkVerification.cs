@@ -1,7 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Areas;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
@@ -57,7 +55,7 @@ internal static class DeadTorizoArtworkVerification
         AssertEqual(0, DrawDeadTorizoCorpseFrame(stock, new(0, 188)).NextByteOffset,
             "Dead Torizo private hook retains its above-screen cull");
 
-        var missing = new InstalledEnemyArtwork(EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), new BossArtworkCatalog(), new AreaArtworkBundle());
+        var missing = new InstalledEnemyArtwork(EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), new BossSourceArtwork(), new AreaSourceArtwork());
         AssertThrows<InvalidDataException>(() => StageDeadTorizoArtwork(missing),
             "bound installation missing the dead-Torizo sheet fails instead of reading ROM");
 
@@ -95,7 +93,7 @@ internal static class DeadTorizoArtworkVerification
 
     /// <summary>Matches the installed stationary frame's 25 OAM parts against the native spritemap.</summary>
     private static void VerifyDeadTorizoStationaryVisual(
-        EnemyTileArtworkCatalog stock)
+        EnemyTileSourceArtwork stock)
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         // The typed oracle ties the pose to its native list; the export must publish the pose the program shows.

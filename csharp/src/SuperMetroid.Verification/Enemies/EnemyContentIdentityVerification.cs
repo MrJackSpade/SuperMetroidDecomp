@@ -1,6 +1,4 @@
 using SuperMetroid.AssetExtraction.World.Artwork;
-using SuperMetroid.Core.Areas;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using System.Reflection;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
@@ -39,9 +37,9 @@ internal static class EnemyContentIdentityVerification
         Suite(nameof(VerifyLegacyEnemyIdentityMerges), () => VerifyLegacyEnemyIdentityMerges());
         // Inspect serialization shape, not data, so computed digests cannot silently change
         // the field count of a debugger snapshot. The hash itself uses typed production fields.
-        Type[] catalogs = [typeof(EnemyTileArtworkCatalog), typeof(BossArtworkCatalog), typeof(AreaArtworkBundle)];
+        Type[] catalogs = [typeof(EnemyTileSourceArtwork), typeof(BossSourceArtwork), typeof(AreaSourceArtwork)];
         Type[] childTypes = catalogs.SelectMany(catalog => MetadataShape.Properties(catalog, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public)
-            .Where(property => property.Name != nameof(EnemyTileArtworkCatalog.ContentIdentity))
+            .Where(property => property.Name != nameof(EnemyTileSourceArtwork.ContentIdentity))
             .Select(property => property.PropertyType)).ToArray();
         AssertEqual(35, childTypes.Length, "all enemy bundle subdomains are accounted for");
         foreach (Type type in childTypes.Concat(catalogs).Append(typeof(InstalledEnemyArtwork)).Append(typeof(EnemyPaletteSheet)))

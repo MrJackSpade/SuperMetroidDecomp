@@ -43,12 +43,8 @@ public sealed class IntroCinematicState : IFrontendScreen
             BindCharacterArtwork(artwork.IntroCinematicArt);
         if (!ReferenceEquals(previous.SamusBodyArt, artwork.SamusBodyArt))
             BindSamusBodyArtwork(artwork.SamusBodyArt);
-        if (!ReferenceEquals(previous.ProjectileCompositions, artwork.ProjectileCompositions))
-            ProjectileCompositions = artwork.ProjectileCompositions;
         if (!ReferenceEquals(previous.ProjectileFrameBindings, artwork.ProjectileFrameBindings))
             ProjectileFrameBindings = artwork.ProjectileFrameBindings;
-        if (!ReferenceEquals(previous.TrailArtwork, artwork.TrailArtwork))
-            TrailArtwork = artwork.TrailArtwork;
         if (!ReferenceEquals(previous.SpriteSheets, artwork.SpriteSheets))
             BindSpriteSheets(artwork.SpriteSheets);
     }
@@ -94,17 +90,12 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>The intro's projectile sheet, which the flashbacks' projectiles, bombs and trails draw from.</summary>
     [NonSerialized] private ProjectileSheets? projectileSheets;
 
-    /// <summary>Host-owned trail programs and appearances the flashback trails run.</summary>
-    [field: NonSerialized]     public InstalledProjectileTrails? TrailArtwork { get; set; }
     /// <summary>The session's random-number word, which the demo Samus's animation draws from.</summary>
     public required SharedRandom Random { get; init; }
 
     /// <summary>The session's floor update residue, bound into the flashback Samus.</summary>
     public SuperMetroid.Core.Compatibility.FloorUpdateResidue? FloorQueueResidue { get; init; }
 
-    /// <summary>Current timed-projectile composition selected by the host.</summary>
-    [field: NonSerialized]
-    public InstalledProjectileSprites? ProjectileCompositions { get; set; }
     /// <summary>Host-owned frame artwork for the Mother Brain flashback projectile slots.</summary>
     public InstalledProjectileFrameBindings? ProjectileFrameBindings
     {

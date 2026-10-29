@@ -14,6 +14,7 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.World;
 using SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
@@ -54,8 +55,7 @@ internal static class CorpseRotPicturesVerification
         Rot rot = StartRot(runtime, slot);
         IEnemySheetSource sheets = runtime.EnemySession.Sheets ?? throw new InvalidOperationException("The runtime loads the enemy sheets.");
         RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;
-        CorpseRotSimulation simulation = CorpseRotSimulation.Of(runtime.EnemySession.TileArtwork
-                ?? throw new InvalidOperationException("The runtime loads the enemy tiles."),
+        CorpseRotSimulation simulation = CorpseRotSimulation.Of(RuntimeArtworkContent.Of(runtime).EnemyTiles,
             runtime.Enemies.BossArtworkBinding.Artwork ?? throw new InvalidOperationException("The runtime loads the boss art."), [enemy])
             .Single(corpse => corpse.Flesh == rot.Kind.Name);
         var camera = new Position16<RoomPixels>(unchecked((ushort)(slot.Position.X.Whole - 128)), unchecked((ushort)(slot.Position.Y.Whole - 112)));
@@ -67,7 +67,7 @@ internal static class CorpseRotPicturesVerification
             if (!rot.Rotting())
                 after++;
             rotted = Math.Max(rotted, checked((int)rot.Steps()));
-            SpriteArtwork rottingArt = Rotted(runtime.Artwork.GameplayObjectPage(runtime.EnemySession.SpriteCharacters), simulation, expected,
+            SpriteArtwork rottingArt = Rotted(RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteCharacters), simulation, expected,
                 $"{context} after update {updates}");
             var sprites = new SpriteFrameBuffer();
             sprites.BeginFrame();
@@ -105,7 +105,7 @@ internal static class CorpseRotPicturesVerification
     {
         ImmutableArray<SpriteDraw> drawn = [.. sprites.Draws.Where(draw => draw.Source == source)];
         UploadedPictureChecks.AssertDrawnPictures(sheet, [picture], drawn, context);
-        CharacterSpriteDraw parted = EnemyPartComposition.Spritemap(rotting, source, runtime.EnemySession.TileArtwork?.Spritemaps
+        CharacterSpriteDraw parted = EnemyPartComposition.Spritemap(rotting, source, RuntimeArtworkContent.Of(runtime).EnemyTiles.Spritemaps
             ?? throw new InvalidOperationException("The runtime loads the enemy compositions."), frame with { Origin = new(drawn[0].Origin.X, drawn[0].Origin.Y) })
             ?? throw new InvalidOperationException($"{context}: the frame has parts.");
         return UploadedPictureChecks.AssertPaintsLikeParts(drawn, [parted], context, requirePixels: false);

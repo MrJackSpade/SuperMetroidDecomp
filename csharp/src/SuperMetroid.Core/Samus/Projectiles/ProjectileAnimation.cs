@@ -161,7 +161,7 @@ internal sealed class ProjectileAnimation
         // draws a "spritemap" out of WRAM, I/O registers and open bus (into OAM only; the
         // index is masked to $1FF). That garbage needs full memory emulation and has no
         // gameplay effect, so the port draws nothing for it (#1275, Mother Brain glitch movie).
-        if (!SuperMetroid.Core.Samus.Artwork.ChargeFlareSprites.Contains(tableIndex))
+        if (!SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteSelection.Contains(tableIndex))
             return;
         SpriteSheetFrame image = artwork.Objects.Sheet.Frame(ProjectileSheetFrames.FlareFrame(
             SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteSelection.Selectors[tableIndex]));

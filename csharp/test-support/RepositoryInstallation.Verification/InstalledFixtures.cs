@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Areas;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Frontend;
@@ -86,16 +84,16 @@ internal static class InstalledFixtures
     internal static AreaMapPresentation Maps => maps.Value;
 
     /// <summary>The installation's stock enemy artwork, loaded once per process.</summary>
-    internal static EnemyTileArtworkCatalog EnemyTiles => enemyArtwork.Value.Enemies;
+    internal static EnemyTileSourceArtwork EnemyTiles => enemyArtwork.Value.Enemies;
 
     /// <summary>The installation's stock enemy, boss and area artwork, loaded once per process.</summary>
     internal static InstalledEnemyArtwork EnemyArtwork => enemyArtwork.Value;
 
     /// <summary>The installation's stock boss artwork, loaded once per process with the enemy artwork.</summary>
-    internal static BossArtworkCatalog BossArtwork => enemyArtwork.Value.Bosses;
+    internal static BossSourceArtwork BossArtwork => enemyArtwork.Value.Bosses;
 
     /// <summary>The installation's stock area artwork, loaded once per process with the enemy artwork.</summary>
-    internal static AreaArtworkBundle AreaArtwork => enemyArtwork.Value.Areas;
+    internal static AreaSourceArtwork AreaArtwork => enemyArtwork.Value.Areas;
 
 
     /// <summary>The installation's projectile artwork and frame bindings, loaded once per process.</summary>
@@ -127,13 +125,11 @@ internal static class InstalledFixtures
     private static readonly Lazy<SuperMetroid.Core.Rooms.Artwork.RoomCharacterAtlas> standardObjects =
         new(() => RepositoryInstallation.Installation.LoadStandardObjects());
 
-    /// <summary>Binds the installed standard OBJ sheet, beam and trail artwork and the sprite sheets a runtime's projectiles draw from.</summary>
+    /// <summary>Binds the installed beam artwork and the sprite sheets a runtime's projectiles draw from.</summary>
     internal static void BindProjectileArtwork(SuperMetroid.Core.Runtime.SuperMetroidRuntime runtime)
     {
-        runtime.Artwork.StandardObjectArt = StandardObjects;
         runtime.Artwork.BeamPalettes = Projectiles.BeamTiles.Palettes;
         runtime.Artwork.HyperBeamFxColors = Projectiles.BeamTiles.HyperBeamFxColors;
-        runtime.Artwork.TrailArtwork = Projectiles.Trails;
         runtime.Artwork.SpriteSheets = SpriteSheets;
     }
 
@@ -186,9 +182,7 @@ internal static class InstalledFixtures
             characterArtwork ?? IntroArtwork, beamPalettes ?? Projectiles.BeamTiles.Palettes, samusBodyArtwork ?? SamusBody)
         {
             Random = new SharedRandom(),
-            ProjectileCompositions = Projectiles.Catalog,
             ProjectileFrameBindings = Projectiles.FrameBindings,
-            TrailArtwork = Projectiles.Trails,
             NarrationPresentation = Maps.IntroNarration,
         };
         intro.BindSamusHurtColors(Maps.SamusHurtColors);

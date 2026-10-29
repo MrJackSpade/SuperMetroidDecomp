@@ -15,6 +15,7 @@ using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
@@ -100,7 +101,7 @@ internal static class CeresRidleyPicturesVerification
             ?? throw new InvalidOperationException("Ceres Ridley's getaway wrote no warning over BG1.");
         RoomOverlayPictures shown = runtime.Display.Latched.Rooms?.Bg1Overlay
             ?? throw new InvalidOperationException("The displayed frame shows no warning over BG1.");
-        ReadOnlySpan<byte> page = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.SpriteCharacters).Characters;
+        ReadOnlySpan<byte> page = RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteCharacters).Characters;
         int written = 0;
         for (int index = 0; index < RoomTilemapOverlay.WordCount; index++)
         {
@@ -145,7 +146,7 @@ internal static class CeresRidleyPicturesVerification
     {
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        draw(sprites, runtime.Artwork.GameplayObjectPage(runtime.EnemySession.SpriteCharacters));
+        draw(sprites, RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteCharacters));
         sprites.FinalizeFrame();
         return sprites.Draws;
     }

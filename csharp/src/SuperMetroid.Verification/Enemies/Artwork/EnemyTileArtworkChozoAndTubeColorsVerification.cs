@@ -24,7 +24,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
 
     /// <summary>Checks three editable color bands, persistent overrides, and real initializers while preserving native instructions and PLM requests.</summary>
     internal static void VerifyInstalledChozoAndTubeColors(
-        ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
+        ISnesAddressSpace rom, string stockDirectory, EnemyTileSourceArtwork stock)
     {
         ChozoAndTubeColorCatalog native = stock.ChozoAndTubeColors ??
             throw new InvalidDataException("Installed enemy art has no Chozo/tube colors.");

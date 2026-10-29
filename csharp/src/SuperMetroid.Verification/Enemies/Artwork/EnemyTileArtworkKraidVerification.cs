@@ -25,6 +25,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction;
 
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Checks installed Kraid BG2, BG3, head, and room-background artwork against native transfers.</summary>
@@ -198,7 +199,7 @@ internal static class EnemyTileArtworkKraidVerification
              quarter++)
         {
             InstalledArtworkId asset = KraidHudRestoration.AssetForQuarter(quarter);
-            AssertTrue(((IInstalledArtworkContent)runtime.Artwork).Resolve(asset).Span
+            AssertTrue(RuntimeArtworkContent.Of(runtime).Resolve(asset).Span
                     .SequenceEqual(stock.HudTiles.KraidRestoreQuarter(quarter).Span),
                 $"runtime resolves Kraid BG3 quarter {quarter} from installed HUD pixels");
         }

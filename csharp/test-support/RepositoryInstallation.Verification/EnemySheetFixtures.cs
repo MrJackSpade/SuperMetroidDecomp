@@ -20,10 +20,10 @@ internal static class EnemySheetFixtures
     private static readonly Lazy<EnemySheetInputs> inputs = new(() => EnemySheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory));
 
     /// <summary>Sheets already composed, by enemy artwork.</summary>
-    private static readonly ConditionalWeakTable<EnemyTileArtworkCatalog, ComposedOnDemand> composed = new();
+    private static readonly ConditionalWeakTable<EnemyTileSourceArtwork, ComposedOnDemand> composed = new();
 
     /// <summary>The sheets enemies drawn with <paramref name="enemies"/> draw from.</summary>
-    internal static IEnemySheetSource For(EnemyTileArtworkCatalog enemies)
+    internal static IEnemySheetSource For(EnemyTileSourceArtwork enemies)
     {
         ArgumentNullException.ThrowIfNull(enemies);
         return composed.GetValue(enemies, key => new ComposedOnDemand(inputs.Value with { Enemies = key },

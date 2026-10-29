@@ -1,11 +1,9 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.TestSupport.VerificationOracles;
 
@@ -22,13 +20,13 @@ internal sealed class EnemyTileTransfers(InstalledEnemyArtwork installed,
         IInstalledBossSpriteCharacterArtwork, IInstalledAreaSpriteCharacterArtwork
 {
     /// <inheritdoc/>
-    public EnemyTileArtworkCatalog EnemyTiles => installed.Enemies;
+    public EnemyTileSourceArtwork EnemyTiles => installed.Enemies;
 
     /// <inheritdoc/>
-    public BossArtworkCatalog BossTiles => installed.Bosses;
+    public BossSourceArtwork BossTiles => installed.Bosses;
 
     /// <inheritdoc/>
-    public AreaArtworkBundle AreaTiles => installed.Areas;
+    public AreaSourceArtwork AreaTiles => installed.Areas;
 
     /// <summary>Rejects animated tiles, which enemy tile fixtures never bind.</summary>
     public SuperMetroid.Core.Fx.Artwork.RoomFxAnimatedTileAtlas AnimatedTiles =>

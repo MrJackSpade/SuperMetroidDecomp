@@ -8,6 +8,7 @@ using static SuperMetroid.Verification.Enemies.EnemyDropsVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.Enemies;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 
@@ -17,7 +18,7 @@ internal static class PowerBombDeathDrawingVerification
     /// <summary>Reproduces issue #1168's queue, damage, and draw order for lethal and surviving enemies.</summary>
     internal static void VerifyPowerBombDeathDrawing()
     {
-        EnemyTileArtworkCatalog artwork = InstalledFixtures.EnemyTiles;
+        EnemyTileSourceArtwork artwork = InstalledFixtures.EnemyTiles;
         EnemySpritemapCatalog spritemaps = artwork.Spritemaps ?? throw new InvalidOperationException("The installation has no enemy spritemaps.");
 
         Confirm(EnemyDefinitionId.Atomic, respawns: false, lethal: true);

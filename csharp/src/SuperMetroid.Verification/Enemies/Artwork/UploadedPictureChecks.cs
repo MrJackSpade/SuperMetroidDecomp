@@ -94,7 +94,7 @@ internal static class UploadedPictureChecks
     /// </summary>
     internal static void AssertPicturesPaintOverLive(SuperMetroidRuntime runtime, ImmutableArray<SpriteDraw> pictures, string message)
     {
-        SpriteArtwork live = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.SpriteCharacters);
+        SpriteArtwork live = RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteCharacters);
         AssertPaintsLikeParts(pictures,
             [.. pictures.Select(draw => SheetFrameSources.CharacterDraw(AssertIs<ImageSpriteDraw>(draw, $"{message}: draws from a sheet"), live))],
             message);
@@ -138,7 +138,7 @@ internal static class UploadedPictureChecks
         SetRegions ranges = InstalledSetRegions.Of(set);
         IReadOnlyList<CharacterRegion> regions = [.. coverage.Regions.Where(region => setUploads.Any(upload => coverage.Covers(upload.Source, region)))];
         AssertTrue(regions.Count > 0, $"{message}: the loaded set's encounter uploads over its characters");
-        byte[] loaded = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.SpriteCharacters).Characters.ToArray();
+        byte[] loaded = RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteCharacters).Characters.ToArray();
         var made = new List<SpriteArtworkPlacement>();
         for (int step = 0; step <= uploads.Count; step++)
         {
@@ -147,7 +147,7 @@ internal static class UploadedPictureChecks
                 runtime.EnemySession.SpriteCharacters.Record(uploads[step - 1]);
                 made.Add(uploads[step - 1]);
             }
-            ReadOnlySpan<byte> live = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.SpriteCharacters).Characters;
+            ReadOnlySpan<byte> live = RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteCharacters).Characters;
             foreach (CharacterRegion region in regions)
             {
                 SpriteArtworkPlacement? expected = made.LastOrDefault(upload => coverage.Covers(upload.Source, region));
@@ -155,7 +155,7 @@ internal static class UploadedPictureChecks
                     $"{message}: after {step} uploads the draw selects the upload made last over region {region.Name}");
                 CharacterRange range = ranges.RangeOf(region);
                 ReadOnlySpan<byte> composed = expected is null ? loaded.AsSpan(range.FirstByte, range.ByteCount)
-                    : expected.Source.Resolve(runtime.Artwork).Span.Slice(range.FirstByte - expected.FirstByte, range.ByteCount);
+                    : expected.Source.Resolve(RuntimeArtworkContent.Of(runtime)).Span.Slice(range.FirstByte - expected.FirstByte, range.ByteCount);
                 AssertTrue(live.Slice(range.FirstByte, range.ByteCount).SequenceEqual(composed),
                     $"{message}: after {step} uploads the live characters of region {region.Name} are those its picture composes from");
             }

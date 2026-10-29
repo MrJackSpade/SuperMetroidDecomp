@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 
@@ -19,6 +20,7 @@ internal static class ProjectilePresentationContractChecks
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
         string consumer = """
+            using SuperMetroid.AssetExtraction.Samus;
             using SuperMetroid.Core.Samus.Artwork;
             using SuperMetroid.Core.Samus.Projectiles;
             class ProjectileConsumer {
@@ -44,7 +46,7 @@ internal static class ProjectilePresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("ProjectileProviderFixture", sources,
-            platforms.Append(typeof(InstalledProjectileTrails).Assembly.Location).Distinct()
+            platforms.Append(typeof(ProjectileSpriteId).Assembly.Location).Append(typeof(InstalledProjectileTrails).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)
@@ -65,7 +67,7 @@ internal static class ProjectilePresentationContractChecks
             after.Consumers.Count == 11, "complete sparse/ranged domains qualify, not neighboring frames" + " (" + after.Describe() + ")");
 
         SyntaxTree partialFactory = CSharpSyntaxTree.ParseText("""
-            using SuperMetroid.Core.Samus.Artwork;
+            using SuperMetroid.AssetExtraction.Samus;
             class ExternalPartialProjectile {
                 object Make() => InstalledProjectileSprites.LoadFrames(null!, []);
             }

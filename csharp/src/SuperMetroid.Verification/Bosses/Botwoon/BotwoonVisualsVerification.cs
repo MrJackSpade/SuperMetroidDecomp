@@ -20,7 +20,7 @@ internal static class BotwoonVisualsVerification
 
     /// <summary>Compares sixteen installed head frames to native OAM and confirms pre-Botwoon edits survive schema upgrade.</summary>
     internal static void VerifyInstalledBotwoonVisuals(
-        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
+        SuperMetroidAddressSpace rom, EnemyTileSourceArtwork stock)
     {
         // The head animations' frames are checked against the cartridge lists by VerifyBotwoonHeadAnimations;
         // here every visible frame's installed artwork must draw the cartridge's OAM.

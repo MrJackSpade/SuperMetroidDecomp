@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.MaridiaSnails;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.AssetExtraction.Enemies;
 namespace SuperMetroid.Verification.Enemies.MaridiaSnails;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -14,7 +15,7 @@ using SuperMetroid.Core.World;
 internal static class MaridiaLargeSnailCollisionDefinitionsVerification
 {
     /// <summary>Confirms every pose Oum's programs show is one of the extracted frames and has installed editable art.</summary>
-    internal static void VerifyInstalledOumVisualSelectors(EnemyTileArtworkCatalog stock)
+    internal static void VerifyInstalledOumVisualSelectors(EnemyTileSourceArtwork stock)
     {
         var seen = MaridiaLargeSnailAnimationsConstants.Spritemaps(Enum.GetValues<MaridiaLargeSnailProgram>()).ToHashSet();
         foreach (ushort pose in seen)

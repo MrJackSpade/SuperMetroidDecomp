@@ -44,7 +44,6 @@ internal static class AttractRuntimeBindingsVerification
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.AttractDemo);
         var demo = game.GameplayRuntimeForVerification;
         AssertTrue(demo.Colours.Colors.SequenceEqual(palettes.Initial), "attract runtime loads all installed initial colors");
-        AssertTrue(ReferenceEquals(objects, demo.Artwork.StandardObjectArt), "attract runtime binds installed standard objects");
         AssertTrue(ReferenceEquals(enemyArtwork.Enemies, demo.EnemySession.TileArtwork), "attract runtime binds installed enemy artwork");
         AssertEqual(incomingRandom, demo.System.RandomNumber, "attract runtime preserves frontend random state");
         AssertTrue(!demo.Options.PlayerInvincibilityEnabled && !demo.Options.InfiniteAmmoEnabled && !demo.Options.PreventEscapeTimeout,

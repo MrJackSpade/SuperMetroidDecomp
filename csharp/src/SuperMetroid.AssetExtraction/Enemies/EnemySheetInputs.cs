@@ -1,11 +1,9 @@
 using SuperMetroid.AssetExtraction.Installation;
-using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Escape;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -19,7 +17,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <param name="StandardObjects">The standard OBJ characters a room load uploads first.</param>
 /// <param name="Palettes">The starting and common sprite colours a room load copies.</param>
 /// <param name="EscapeTimer">The escape timer's characters, which escapes upload.</param>
-internal sealed record EnemySheetInputs(EnemyTileArtworkCatalog Enemies, BossArtworkCatalog Bosses, AreaArtworkBundle Areas,
+internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSourceArtwork Bosses, AreaSourceArtwork Areas,
     ReadOnlyMemory<byte> StandardObjects, GameplayBasePalette Palettes, EscapeTimerTileAtlas EscapeTimer)
     : IInstalledArtworkContent, IInstalledSpriteCharacterArtwork, IInstalledBossSpriteCharacterArtwork, IInstalledAreaSpriteCharacterArtwork
 {
@@ -45,7 +43,7 @@ internal sealed record EnemySheetInputs(EnemyTileArtworkCatalog Enemies, BossArt
     }
 
     /// <inheritdoc/>
-    EnemyTileArtworkCatalog IInstalledSpriteCharacterArtwork.EnemyTiles => Enemies;
+    EnemyTileSourceArtwork IInstalledSpriteCharacterArtwork.EnemyTiles => Enemies;
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">No encounter uploads the room-FX tiles over the characters.</exception>
@@ -53,10 +51,10 @@ internal sealed record EnemySheetInputs(EnemyTileArtworkCatalog Enemies, BossArt
         "No encounter uploads room-FX animated tiles over the OBJ characters an enemy sheet composes over.");
 
     /// <inheritdoc/>
-    BossArtworkCatalog IInstalledBossSpriteCharacterArtwork.BossTiles => Bosses;
+    BossSourceArtwork IInstalledBossSpriteCharacterArtwork.BossTiles => Bosses;
 
     /// <inheritdoc/>
-    AreaArtworkBundle IInstalledAreaSpriteCharacterArtwork.AreaTiles => Areas;
+    AreaSourceArtwork IInstalledAreaSpriteCharacterArtwork.AreaTiles => Areas;
 
     /// <inheritdoc/>
     /// <exception cref="InvalidDataException">The enemy artwork holds no gunship takeoff pictures.</exception>

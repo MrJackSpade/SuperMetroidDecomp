@@ -494,7 +494,7 @@ internal static class RoomBlockPicturesVerification
                 RoomScopeOf(runtime).AnimatedCharacters, latched);
         // The Ceres Ridley arena's blocks read the OBJ character page its uploads compose; any other room's, the bound tiles.
         byte[] tiles = rooms.Characters == RoomBackgroundCharacters.ObjectCharacterPage
-            ? runtime.Artwork.GameplayObjectPage(runtime.EnemySession.SpriteCharacters).Characters.ToArray()
+            ? RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteCharacters).Characters.ToArray()
             : runtime.ComposedVram()[(BgCharacterWordsConstants.WordOf(BgCharacterSet.Tiles, 0) * sizeof(ushort))..];
         RoomScope scope = RoomScopeOf(runtime);
         bool ceres = scope.Room.AreaIndex == AreaId.Ceres;

@@ -79,8 +79,6 @@ public static class GrappleBeamDefinitions
         public const ushort SegmentAnimationDelay = 5;
         /// <summary>$94:B18B-B197: four successive rope animation records before the goto.</summary>
         public const int SegmentAnimationFrameCount = 4;
-        /// <summary>$94:B13C/B17C, DrawGrappleBeamEnd: the endpoint is character $20 in palette five, priority three.</summary>
-        public static SpritePart Endpoint { get; } = SpritePart.Single(0x20, 5, 3);
     }
 
 }

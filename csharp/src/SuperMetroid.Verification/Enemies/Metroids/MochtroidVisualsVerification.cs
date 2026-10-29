@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Metroids;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.Verification.Enemies.Metroids;
 
@@ -13,7 +14,7 @@ internal static class MochtroidVisualsVerification
 {
     /// <summary>Checks the six frames the two loops show are editable and draw pixel-identically to the cartridge.</summary>
     internal static void VerifyInstalledMochtroidVisuals(
-        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
+        SuperMetroidAddressSpace rom, EnemyTileSourceArtwork stock)
     {
         ushort[] poses = [.. MochtroidAnimationsConstants.Spritemaps(MochtroidProgram.FreeFlight, MochtroidProgram.Attached).Distinct()];
         AssertEqual(MochtroidVisualDefinitions.FrameCount, poses.Length, "the two loops show six distinct editable OAM frames");

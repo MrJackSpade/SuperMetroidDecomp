@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Checks installed gunship takeoff PNGs against five native DMA
@@ -65,7 +66,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         }
         var nativeVram = new SnesVram();
         ImportedVramOracle.Drain(nativeQueue, nativeVram, bus);
-        byte[] installedPage = new ObjCharacterTablePage().Page(stockPages, runtime.Artwork).Characters.ToArray();
+        byte[] installedPage = new ObjCharacterTablePage().Page(stockPages, RuntimeArtworkContent.Of(runtime)).Characters.ToArray();
         int pagesByte = stockPages.Uploads[0].FirstByte, pagesBytes = transfers.Length * GunshipLiftoffTransferDefinitions.ByteCount;
         AssertTrue(installedPage.AsSpan(pagesByte, pagesBytes).SequenceEqual(
                 nativeVram.Bytes.Slice(GameplayVramLayoutConstants.ObjectCharacters.Offset * sizeof(ushort) + pagesByte, pagesBytes)),
@@ -89,7 +90,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         runtime.EnemySession.TileArtwork = edited.Enemies;
         runtime.BossArtwork.Artwork = edited.Bosses;
         runtime.AreaArtwork.Artwork = edited.Areas;
-        byte[] editedPage = new ObjCharacterTablePage().Page(ShowAllTakeoffPages(stock), runtime.Artwork).Characters.ToArray();
+        byte[] editedPage = new ObjCharacterTablePage().Page(ShowAllTakeoffPages(stock), RuntimeArtworkContent.Of(runtime)).Characters.ToArray();
         AssertEqual((byte)(installedPage[pagesByte] ^ 0x80), editedPage[pagesByte],
             "rebound PNG changes the takeoff page shown");
         AssertTrue(editedPage.AsSpan(..pagesByte).SequenceEqual(installedPage.AsSpan(..pagesByte)) &&

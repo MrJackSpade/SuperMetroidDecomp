@@ -2414,7 +2414,7 @@ internal static class LookupStream4Verification
             if(edit is -1 or 0 or 48 or 74)
             {
                 var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
-                var artworkBosses = new BossArtworkCatalog { DraygonColors = selected };
+                var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies=new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork, BossArtwork = artworkBosses}; var actual=new SamusColourRig(); var vram=new SnesVram();
                 enemies.Presentation.BindColours(actual.Gameplay); enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
                 new Action<RoomEnemySlot>(enemies.DraygonBehavior.Parts.InitializeDraygonBody)(enemies.SlotTable.Slots[0]);
@@ -2481,7 +2481,7 @@ internal static class LookupStream4Verification
             if(edit is -1 or 0 or 47)
             {
                 var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
-                var artworkBosses = new BossArtworkCatalog { DraygonColors = selected };
+                var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies=new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork, BossArtwork = artworkBosses}; var cgram=new SamusColourRig();
                 enemies.Presentation.BindColours(cgram.Gameplay);                var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteBand=5};
                 Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
@@ -2543,7 +2543,7 @@ internal static class LookupStream4Verification
             if(edit is -1 or 0 or 47)
             {
                 var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
-                var artworkBosses = new BossArtworkCatalog { DraygonColors = selected };
+                var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies=new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork, BossArtwork = artworkBosses}; var cgram=new SamusColourRig();
                 enemies.Presentation.BindColours(cgram.Gameplay);
                 var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteBand=3};
@@ -2595,7 +2595,7 @@ internal static class LookupStream4Verification
             if (edit is -1 or 0 or 95)
             {
                 var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
-                var artworkBosses = new BossArtworkCatalog { DraygonColors = selected };
+                var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork, BossArtwork = artworkBosses };
                 var cgram = new SamusColourRig();
                 enemies.Presentation.BindColours(cgram.Gameplay);
@@ -2730,7 +2730,7 @@ internal static class LookupStream4Verification
             if (edit is -1 or 0 or 629)
             {
                 var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
-                var artworkBosses = new BossArtworkCatalog { NorfairRidleyColors = selected };
+                var artworkBosses = new BossSourceArtwork { NorfairRidleyColors = selected };
                 var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork, BossArtwork = artworkBosses };
                 var cgram = new SamusColourRig();
                 for (int color = 0; color < 256; color++) cgram.SetColor(color, RgbColor.FromWord(0x1234));
@@ -2821,7 +2821,7 @@ internal static class LookupStream4Verification
             if (edit is -1 or 0 or 95)
             {
                 var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
-                var artworkBosses = new BossArtworkCatalog { NorfairRidleyColors = selected };
+                var artworkBosses = new BossSourceArtwork { NorfairRidleyColors = selected };
                 var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork, BossArtwork = artworkBosses };
                 var guard = NewProjectileCompositionForbiddenBus();
                 enemies.Presentation.BindColours(cgram.Gameplay);
@@ -2901,7 +2901,7 @@ internal static class LookupStream4Verification
             if (edit is -1 or 0 or 383)
             {
                 var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
-                var artworkBosses = new BossArtworkCatalog { BotwoonColors = catalog };
+                var artworkBosses = new BossSourceArtwork { BotwoonColors = catalog };
                 var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork, BossArtwork = artworkBosses };
                 var cgram = new SamusColourRig();
                 var guard = NewBotwoonColorReadGuard(rom);

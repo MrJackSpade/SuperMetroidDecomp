@@ -8,6 +8,7 @@ using SuperMetroid.Core.Enemies.Yard;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.Verification.Enemies.Yard;
 
@@ -16,7 +17,7 @@ internal static class YardVisualsVerification
 {
     /// <summary>Checks every pose the Yard's programs show against editable stock OAM equal to the cartridge's.</summary>
     internal static void VerifyInstalledYardVisuals(
-        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
+        SuperMetroidAddressSpace rom, EnemyTileSourceArtwork stock)
     {
         HashSet<ushort> shown = YardAnimationsConstants.Spritemaps(Enum.GetValues<YardProgram>()).ToHashSet();
         foreach (ushort pointer in shown)

@@ -281,10 +281,10 @@ internal sealed class KraidRise
             case KraidAiFunction.DeathSink:
             case KraidAiFunction.DeathClearTopTilemap:
             case KraidAiFunction.DeathClearBottomTilemap:
-            case KraidAiFunction.DeathLoadBg3Quarter1:
-            case KraidAiFunction.DeathLoadBg3Quarter2:
-            case KraidAiFunction.DeathLoadBg3Quarter3:
-            case KraidAiFunction.DeathLoadBg3Quarter4:
+            case KraidAiFunction.DeathWaitBeforeFadeIn1:
+            case KraidAiFunction.DeathWaitBeforeFadeIn2:
+            case KraidAiFunction.DeathWaitBeforeFadeIn3:
+            case KraidAiFunction.DeathWaitBeforeFadeIn4:
             case KraidAiFunction.DeathFadeInBackground:
             case KraidAiFunction.DeathFinishedWasAlive:
             case KraidAiFunction.DeathFinishedWasDead:
@@ -481,10 +481,10 @@ internal sealed class KraidRise
             case KraidAiFunction.DeathSink:
             case KraidAiFunction.DeathClearTopTilemap:
             case KraidAiFunction.DeathClearBottomTilemap:
-            case KraidAiFunction.DeathLoadBg3Quarter1:
-            case KraidAiFunction.DeathLoadBg3Quarter2:
-            case KraidAiFunction.DeathLoadBg3Quarter3:
-            case KraidAiFunction.DeathLoadBg3Quarter4:
+            case KraidAiFunction.DeathWaitBeforeFadeIn1:
+            case KraidAiFunction.DeathWaitBeforeFadeIn2:
+            case KraidAiFunction.DeathWaitBeforeFadeIn3:
+            case KraidAiFunction.DeathWaitBeforeFadeIn4:
             case KraidAiFunction.DeathFadeInBackground:
             case KraidAiFunction.DeathFinishedWasAlive:
             case KraidAiFunction.DeathFinishedWasDead:

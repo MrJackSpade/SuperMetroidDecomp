@@ -4,31 +4,22 @@ using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Runtime;
-using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidInstalledPresentationOracleVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Gameplay;
-using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.World;
-using SuperMetroid.AssetExtraction;
 
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
-/// <summary>Checks installed Kraid BG2, BG3, head, and room-background artwork against native transfers.</summary>
+/// <summary>Checks installed Kraid BG2, head, and room-background artwork against native transfers.</summary>
 internal static class EnemyTileArtworkKraidVerification
 {
     /// <summary>JSON options: Camel-case property names, indented output.</summary>
@@ -156,100 +147,6 @@ internal static class EnemyTileArtworkKraidVerification
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrides),
             "malformed Kraid head override fails at load");
         Suite(nameof(VerifyInstalledKraidRoomBackground), () => VerifyInstalledKraidRoomBackground(rom, directory, stock));
-        Suite(nameof(VerifyInstalledKraidBg3Restoration), () => VerifyInstalledKraidBg3Restoration(rom, directory, stock));
-    }
-
-    /// <summary>Checks queued, direct, and restored BG3 tile uploads against installed HUD pixels.</summary>
-    private static void VerifyInstalledKraidBg3Restoration(
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork enemyArtwork)
-    {
-        AssertEqual(24, (int)InstalledArtworkId.GrappleVerticalSegmentTiles,
-            "existing pending-VRAM asset identities remain stable");
-        AssertEqual(25, (int)InstalledArtworkId.KraidBg3RestoreQuarter0,
-            "new Kraid quarter IDs append after existing debugger-state IDs");
-        string mapDirectory = Path.Combine(directory, "kraid-bg3-map-art");
-        MapPresentationExtractor.Extract(rom, mapDirectory, SupportedCartridge.Sha256);
-        AreaMapPresentation stock = MapPresentationFiles.Load(mapDirectory, null);
-        byte[] native = RomDataReader.ReadFixedBank(rom,
-            KraidBackgroundDefinitionsConstants.StandardBg3TilesAddress,
-            HudTileAtlasFormat.CharacterByteCount);
-        AssertTrue(stock.HudTiles.Bytes.Span[..native.Length].SequenceEqual(native),
-            "shared installed HUD PNG preserves all Kraid BG3 restoration source bytes");
-
-        var baselineQueued = new SnesVram();
-        baselineQueued.LoadBytes(KraidBackgroundDefinitions.StandardBg3VramWord * 2, native);
-        SnesVram installed = RunKraidBg3Restoration(enemyArtwork, stock.HudTiles);
-        AssertTrue(installed.ImageEquals(baselineQueued),
-            "installed Kraid BG3 restoration preserves native VRAM");
-        // These checks exercise asset binding/queue restoration, not starting colors.
-        // Supply the constructor's explicit palette dependency; never revive its ROM fallback.
-        PaletteRgb5[] Colors(int count) => Enumerable.Range(0, count)
-            .Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray();
-        GameplayBasePalette initial = GameplayBasePaletteFiles.Read(new EnemyIdentityFixture().Json(
-            new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version, Colors(SnesCgram.ColorCount),
-                Colors(GameplayBasePaletteFormat.SpriteColorCount))));
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initial);
-        runtime.Artwork.MapPresentation = stock;
-        runtime.EnemySession.TileArtwork = enemyArtwork.Enemies;
-        runtime.BossArtwork.Artwork = enemyArtwork.Bosses;
-        runtime.AreaArtwork.Artwork = enemyArtwork.Areas;
-        AssertTrue(ReferenceEquals(stock.HudTiles, runtime.BossArtwork.HudTileArtwork),
-            "runtime presentation binding supplies shared HUD art to Kraid");
-        for (int quarter = 0; quarter < KraidHudRestoration.QuarterCount;
-             quarter++)
-        {
-            InstalledArtworkId asset = KraidHudRestoration.AssetForQuarter(quarter);
-            AssertTrue(RuntimeArtworkContent.Of(runtime).Resolve(asset).Span
-                    .SequenceEqual(stock.HudTiles.KraidRestoreQuarter(quarter).Span),
-                $"runtime resolves Kraid BG3 quarter {quarter} from installed HUD pixels");
-        }
-        string overrides = Path.Combine(directory, "kraid-bg3-map-overrides");
-        Directory.CreateDirectory(overrides);
-        string stockPng = Path.Combine(mapDirectory, HudTileAtlasFormat.FileName);
-        using var input = new MemoryStream(File.ReadAllBytes(stockPng), writable: false);
-        IndexedPngImage image = IndexedPng.Read(input,
-            new(MapTileAtlasFormat.Width, MapTileAtlasFormat.Height));
-        image.Pixels[0] ^= 1;
-        using (var output = File.Create(Path.Combine(overrides, HudTileAtlasFormat.FileName)))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
-                image.Pixels, image.Colours);
-        AreaMapPresentation edited = MapPresentationFiles.Load(mapDirectory, overrides);
-        SnesVram changed = RunKraidBg3Restoration(enemyArtwork, edited.HudTiles);
-        int destination = KraidBackgroundDefinitions.StandardBg3VramWord * sizeof(ushort);
-        AssertEqual((byte)(baselineQueued.ReadByte(destination) ^ 0x80),
-            changed.ReadByte(destination),
-            "edited shared HUD pixel changes Kraid's first restored BG3 character");
-        AssertTrue(baselineQueued.Bytes[(destination + 1)..]
-                .SequenceEqual(changed.Bytes[(destination + 1)..]),
-            "edited Kraid BG3 character leaves all other VRAM bytes unchanged");
-        AreaMapPresentation reloaded = MapPresentationFiles.Load(mapDirectory, overrides);
-        AssertTrue(RunKraidBg3Restoration(enemyArtwork, reloaded.HudTiles)
-            .Bytes.SequenceEqual(changed.Bytes),
-            "Kraid BG3 uses the current HUD PNG override after catalog reload");
-    }
-
-    /// <summary>Invokes each death-phase BG3 quarter restoration through the live Kraid behavior.</summary>
-    private static SnesVram RunKraidBg3Restoration(InstalledEnemyArtwork enemyArtwork, HudTileAtlas hud)
-    {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
-        {
-            TileArtwork = enemyArtwork.Enemies, BossArtwork = enemyArtwork.Bosses, AreaArtwork = enemyArtwork.Areas,
-            BossArtworkBinding = { HudTileArtwork = hud },
-        };
-        var vram = new SnesVram();
-        enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
-        Action<RoomEnemySlot, KraidEnemyState, int, KraidAiFunction> restore = enemies.KraidBehavior.Death.RestoreKraidDeathBg3Quarter;
-        RoomEnemySlot body = enemies.SlotTable.Slots[0];
-        var state = new KraidEnemyState();
-        for (int quarter = 0; quarter < KraidHudRestoration.QuarterCount;
-             quarter++)
-        {
-            restore(body, state, quarter, KraidAiFunction.DeathFadeInBackground);
-            AssertEqual(quarter + 1, state.RestoredBg3Quarters,
-                $"Kraid BG3 quarter {quarter} retains death coroutine cadence");
-        }
-        // The restored characters are bound (#1352); the image a capture shows composes them from the HUD installed.
-        return BgArtworkFixtures.ComposedVram(vram, new BgArtworkBytes().WithHud(hud));
     }
 
     /// <summary>Checks the Kraid room-background character upload and a selected PNG pixel edit.</summary>

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
@@ -35,9 +34,6 @@ public sealed class BossArtworkBinding
 
     /// <summary>The escape typewriters' installed text, bound with the map presentation.</summary>
     public EscapeTypewriterPresentation? EscapeTypewriterPresentation { get; set; }
-
-    /// <summary>The installed standard BG3 characters Kraid's death restores, bound with the map presentation.</summary>
-    public HudTileAtlas? HudTileArtwork { get; set; }
 
     /// <summary>The installed boss artwork; a boss that needs it fails when none is installed.</summary>
     internal BossArtworkCatalog Installed =>

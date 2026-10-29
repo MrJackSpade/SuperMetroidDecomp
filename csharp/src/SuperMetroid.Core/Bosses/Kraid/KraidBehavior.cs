@@ -58,7 +58,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         Background = new KraidBackground(dependencies.Projectiles, dependencies.Presentation.Surfaces, Access, _bossArtwork);
         Head = new KraidHead(dependencies.Room, dependencies.Projectiles, dependencies.SlotTable, dependencies.Presentation.Surfaces, Access, Background);
         Rise = new KraidRise(new KraidRiseDependencies { FrameResults = dependencies.FrameResults, Room = dependencies.Room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, SlotTable = dependencies.SlotTable, Presentation = dependencies.Presentation.Surfaces, ZebetiteBehavior = dependencies.ZebetiteBehavior, BodyLayer = BodyLayer, Access = Access, Background = Background, Head = Head , BossArtwork = _bossArtwork });
-        Death = new KraidDeath(new KraidDeathDependencies { FrameResults = dependencies.FrameResults, Room = dependencies.Room, Earthquake = dependencies.Earthquake, SlotTable = dependencies.SlotTable, Presentation = dependencies.Presentation.Surfaces, DeathsAndDrops = dependencies.DeathsAndDrops, ZebetiteBehavior = dependencies.ZebetiteBehavior, Access = Access, Background = Background, Head = Head , BossArtwork = _bossArtwork });
+        Death = new KraidDeath(new KraidDeathDependencies { FrameResults = dependencies.FrameResults, Room = dependencies.Room, Earthquake = dependencies.Earthquake, SlotTable = dependencies.SlotTable, Presentation = dependencies.Presentation.Surfaces, DeathsAndDrops = dependencies.DeathsAndDrops, ZebetiteBehavior = dependencies.ZebetiteBehavior, Access = Access, Background = Background, Head = Head });
         Limbs = new KraidLimbs(dependencies.Room, dependencies.Earthquake, dependencies.SlotTable, Access);
         Projectiles = new KraidProjectiles(dependencies.Room, dependencies.Terrain, dependencies.SlotTable, dependencies.Collision, dependencies.DeathsAndDrops, Access);
         Combat = new KraidCombat(dependencies.Projectiles, dependencies.Audio, dependencies.SpriteObjects, dependencies.SlotTable, dependencies.Collision, Access);
@@ -300,10 +300,10 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case KraidAiFunction.DeathSink:
             case KraidAiFunction.DeathClearTopTilemap:
             case KraidAiFunction.DeathClearBottomTilemap:
-            case KraidAiFunction.DeathLoadBg3Quarter1:
-            case KraidAiFunction.DeathLoadBg3Quarter2:
-            case KraidAiFunction.DeathLoadBg3Quarter3:
-            case KraidAiFunction.DeathLoadBg3Quarter4:
+            case KraidAiFunction.DeathWaitBeforeFadeIn1:
+            case KraidAiFunction.DeathWaitBeforeFadeIn2:
+            case KraidAiFunction.DeathWaitBeforeFadeIn3:
+            case KraidAiFunction.DeathWaitBeforeFadeIn4:
             case KraidAiFunction.DeathFadeInBackground:
             case KraidAiFunction.DeathFinishedWasAlive:
             case KraidAiFunction.DeathFinishedWasDead:

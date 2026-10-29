@@ -123,12 +123,12 @@ internal static class RetailKraidCaptureTests
             if (boss.DeathSequenceComplete) break;
             runtime.StepFrame(0);
         }
-        if (!boss.DeathSequenceComplete || boss.RestoredBg3Quarters != 4 ||
+        if (!boss.DeathSequenceComplete || !deathPhases.Contains(KraidAiFunction.DeathWaitBeforeFadeIn4) ||
             !deathPhases.Contains(KraidAiFunction.DeathSink) ||
             !deathPhases.Contains(KraidAiFunction.DeathFadeInBackground))
-            throw new InvalidOperationException("Kraid death missed sinking, background fade or four BG3 restores.");
+            throw new InvalidOperationException("Kraid death missed sinking, the wait before the fade-in or the background fade.");
         RequireBlankBg2(runtime, $"{device.Kind}: defeated Kraid");
-        Console.WriteLine($"{device.Kind}: Kraid death: {deathSamples} exact samples across {deathPhases.Count} AI states; sinking, fade, BG3 restore and blank BG2 verified.");
+        Console.WriteLine($"{device.Kind}: Kraid death: {deathSamples} exact samples across {deathPhases.Count} AI states; sinking, wait, fade and blank BG2 verified.");
         RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, new RetailDoorCase { Door = KraidAuditDefinitions.LeftExitDoor, Destination = KraidAuditDefinitions.LeftExitDestination }, "defeated Kraid left", RequireSteadyHud(runtime, $"{device.Kind}: defeated Kraid left"));
         // The second route starts from the saved defeat bit, as in the existing
         // regression. Run the defeated-room restoration before opening the other door.

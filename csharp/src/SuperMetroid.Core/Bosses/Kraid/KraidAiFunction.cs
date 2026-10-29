@@ -89,16 +89,16 @@ public enum KraidAiFunction
     DeathSink,
     /// <summary>$A7:C715: clears the top private BG2 half before ordinary room background restoration.</summary>
     DeathClearTopTilemap,
-    /// <summary>$A7:C751: clears the bottom private BG2 half before BG3 graphics restoration.</summary>
+    /// <summary>$A7:C751: clears the bottom private BG2 half before the death's four-update wait.</summary>
     DeathClearBottomTilemap,
-    /// <summary>$A7:C777: queues the first of four standard BG3 graphics transfers.</summary>
-    DeathLoadBg3Quarter1,
-    /// <summary>$A7:C7A3: queues the second standard BG3 graphics transfer.</summary>
-    DeathLoadBg3Quarter2,
-    /// <summary>$A7:C7C9: queues the third standard BG3 graphics transfer.</summary>
-    DeathLoadBg3Quarter3,
-    /// <summary>$A7:C7EF: queues the fourth standard BG3 graphics transfer before the background fade-in.</summary>
-    DeathLoadBg3Quarter4,
+    /// <summary>$A7:C777: the first of the four updates Kraid's death waits before fading the room back in.</summary>
+    DeathWaitBeforeFadeIn1,
+    /// <summary>$A7:C7A3: the second update of the wait before the fade-in.</summary>
+    DeathWaitBeforeFadeIn2,
+    /// <summary>$A7:C7C9: the third update of the wait before the fade-in.</summary>
+    DeathWaitBeforeFadeIn3,
+    /// <summary>$A7:C7EF: the last update of the wait before the fade-in.</summary>
+    DeathWaitBeforeFadeIn4,
     /// <summary>$A7:C815: fades the ordinary background in, requests room music, and publishes boss persistence when newly defeated.</summary>
     DeathFadeInBackground,
     /// <summary>$A7:C843: the terminal death entry for a Kraid that was alive when this encounter loaded.</summary>

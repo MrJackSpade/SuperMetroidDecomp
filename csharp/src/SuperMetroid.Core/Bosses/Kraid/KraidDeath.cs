@@ -32,14 +32,11 @@ internal sealed class KraidDeath
     private readonly KraidBackground _background;
     /// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health palettes.</summary>
     private readonly KraidHead _head;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal KraidDeath(KraidDeathDependencies dependencies)
     {
-        _bossArtwork = dependencies.BossArtwork;
         _frameResults = dependencies.FrameResults;
         _room = dependencies.Room;
         _earthquake = dependencies.Earthquake;
@@ -129,20 +126,21 @@ internal sealed class KraidDeath
                 ClearKraidTopTilemapForDeath(state);
                 return;
             case KraidAiFunction.DeathClearBottomTilemap:
-                state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathLoadBg3Quarter1;
+                state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathWaitBeforeFadeIn1;
                 ClearKraidBottomTilemapForDeath(state);
                 return;
-            case KraidAiFunction.DeathLoadBg3Quarter1:
-                RestoreKraidDeathBg3Quarter(body, state, quarter: 0, KraidAiFunction.DeathLoadBg3Quarter2);
+            // The death waits four updates before the room fades back in.
+            case KraidAiFunction.DeathWaitBeforeFadeIn1:
+                state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathWaitBeforeFadeIn2;
                 return;
-            case KraidAiFunction.DeathLoadBg3Quarter2:
-                RestoreKraidDeathBg3Quarter(body, state, quarter: 1, KraidAiFunction.DeathLoadBg3Quarter3);
+            case KraidAiFunction.DeathWaitBeforeFadeIn2:
+                state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathWaitBeforeFadeIn3;
                 return;
-            case KraidAiFunction.DeathLoadBg3Quarter3:
-                RestoreKraidDeathBg3Quarter(body, state, quarter: 2, KraidAiFunction.DeathLoadBg3Quarter4);
+            case KraidAiFunction.DeathWaitBeforeFadeIn3:
+                state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathWaitBeforeFadeIn4;
                 return;
-            case KraidAiFunction.DeathLoadBg3Quarter4:
-                RestoreKraidDeathBg3Quarter(body, state, quarter: 3, KraidAiFunction.DeathFadeInBackground);
+            case KraidAiFunction.DeathWaitBeforeFadeIn4:
+                state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathFadeInBackground;
                 return;
             case KraidAiFunction.DeathFadeInBackground:
                 if (!_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToRoomColors))
@@ -311,28 +309,5 @@ internal sealed class KraidDeath
             }
             return;
         }
-    }
-
-    /// <summary>
-    /// Restores standard BG3 character quarter <paramref name="quarter"/> after the body dies (#1406).
-    /// <c>$A7:C777-$C7EF</c> deliberately spreads the $1000-byte restoration over four enemy frames, one quarter a
-    /// frame; each quarter is bound as background artwork this update and shows on the frame its NMI copy did.
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="quarter"/> is not one of the four quarters.</exception>
-    /// <exception cref="InvalidDataException">The standard BG3 artwork is not installed.</exception>
-    internal void RestoreKraidDeathBg3Quarter(
-        RoomEnemySlot body,
-        KraidEnemyState state,
-        int quarter,
-        KraidAiFunction next)
-    {
-        if ((uint)quarter >= KraidHudRestoration.QuarterCount)
-            throw new ArgumentOutOfRangeException(nameof(quarter));
-        if (_bossArtwork.HudTileArtwork is null)
-            throw new InvalidDataException("Installed Kraid death restoration has no standard BG3 artwork.");
-        KraidHudRestoration.Placement(quarter).BindTo(_presentation.Backgrounds);
-
-        state.RestoredBg3Quarters++;
-        state.Parts[body.SlotIndex].Function = next;
     }
 }

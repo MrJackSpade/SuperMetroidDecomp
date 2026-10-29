@@ -87,7 +87,7 @@ internal static class RoomBlockUploads
                 RoomBackgroundMap? replayed = state.Background is { } bg3Program ? Replay(inputs, room, tileset, bg3Program, DoorVariants(bg3Program).First()) : null;
                 uploads.AddBg3(replayed?.Content ?? Loaded(inputs, tileset),
                     replayed?.SelectsKraidHudCharacters == true ? BgCharacterSet.KraidLayer3 : BgCharacterSet.Layer3,
-                    EffectsIn(state), [.. Bg3LibraryUploads(inputs, state), .. Bg3BossUploads(inputs, state)]);
+                    EffectsIn(state), [.. Bg3LibraryUploads(inputs, state)]);
                 TileWordWriter[] writers = [.. WritersIn(state)];
                 if (writers.Length > 0 && characters == RoomBackgroundCharacters.ObjectCharacterPage)
                 {
@@ -325,15 +325,6 @@ internal static class RoomBlockUploads
                     $"{state.Name}'s library background transfers {transfer.Source} over BG3's characters, which no installed character artwork names.");
             yield return BgCharacterWords.Place(RoomBgArtwork.Library(transfer.Source), firstWord, characters);
         }
-    }
-
-    /// <summary>What <paramref name="state"/>'s bosses bind over BG3's characters: the HUD's, which Kraid's death restores.</summary>
-    private static IEnumerable<BgCharacterUpload> Bg3BossUploads(RoomBlockSheetInputs inputs, RoomStateSettings state)
-    {
-        if (!state.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Kraid))
-            yield break;
-        for (int quarter = 0; quarter < HudTileAtlasFormat.RestoreQuarterCount; quarter++)
-            yield return BgCharacterUpload.Of(KraidHudRestoration.Placement(quarter), inputs.Hud.KraidRestoreQuarter(quarter));
     }
 
     /// <summary>Bindings holding the HUD's characters and what a room of <paramref name="tileset"/> binds as it loads.</summary>

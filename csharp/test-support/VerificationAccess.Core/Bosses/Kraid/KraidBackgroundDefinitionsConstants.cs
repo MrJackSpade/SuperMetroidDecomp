@@ -15,18 +15,10 @@ internal static class KraidBackgroundDefinitionsConstants
     /// <summary>Provides the preserved lower-tail word used when checking Kraid background import fidelity.</summary>
     extension(KraidBackgroundDefinitions)
     {
-        /// <summary>First VRAM word restored by <c>$A7:C777</c>: the standard layer-3 characters' first.</summary>
-        internal static ushort StandardBg3VramWord => checked((ushort)BgCharacterWordsConstants.WordOf(BgCharacterSet.Layer3, 0));
-
         /// <summary>VRAM word destination computed by <c>$A7:ADCC-$ADD6</c> for BG1 base zero.</summary>
         internal static ushort RoomBackgroundTileVramWord => checked((ushort)BgCharacterWordsConstants.WordOf(BgCharacterSet.Tiles, KraidBackgroundDefinitions.RoomBackgroundFirstCharacter));
 
         /// <inheritdoc cref="KraidBackgroundDefinitionsConstants.PreservedLowerTailFirstWord"/>
         internal static int PreservedLowerTailFirstWord => KraidBackgroundDefinitionsConstants.PreservedLowerTailFirstWord;
     }
-    /// <summary>
-    /// <c>Tiles_Standard_BG3</c> at <c>$9A:B200</c>, restored by Kraid death functions
-    /// <c>$A7:C777-$C7EF</c> after the private BG2 map has overwritten VRAM word $4000.
-    /// </summary>
-    public const int StandardBg3TilesAddress = 0x9ab200;
 }

@@ -8,7 +8,6 @@ using static SuperMetroid.Verification.Hardware.QueuedVramAssetsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
@@ -19,7 +18,7 @@ namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks installed artwork ownership for Kraid background and death-sequence DMA transfers.</summary>
+/// <summary>Checks installed artwork ownership for Kraid's background DMA transfer.</summary>
 internal static class DmaArtworkBoundaryVerification
 {
     /// <summary>
@@ -34,10 +33,9 @@ internal static class DmaArtworkBoundaryVerification
         using var temporary = new TestScratchDirectory("map-catalog");
         GameInstallation installation = GameAssetInstaller.Install(sourceRom, temporary.Root);
         var reference = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
-        AreaMapPresentation maps = installation.LoadMaps();
         InstalledEnemyArtwork art = installation.LoadEnemyTiles();
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas, BossArtworkBinding = { HudTileArtwork = maps.HudTiles } };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
         var background = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(background));
         Action upload = new Action(enemies.KraidBehavior.Rise.UploadKraidRoomBackgroundTiles);
@@ -55,34 +53,7 @@ internal static class DmaArtworkBoundaryVerification
             "missing Kraid background artwork is not a cartridge fallback");
         enemies.BossArtwork = art.Bosses;
 
-        Action<RoomEnemySlot, KraidEnemyState, int, KraidAiFunction> restore = enemies.KraidBehavior.Death.RestoreKraidDeathBg3Quarter;
-        {
-            var actual = new SnesVram(); expected = new SnesVram();
-            enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(actual));
-            var state = new KraidEnemyState();
-            enemies.KraidBehavior.Access.Kraid = state;
-            RoomEnemySlot body = enemies.SlotTable.Slots[0];
-            for (int quarter = 0; quarter < KraidHudRestoration.QuarterCount; quarter++)
-            {
-                restore(body, state, quarter, KraidAiFunction.DeathFadeInBackground);
-                ImportedVramOracle.ExecuteQueued(expected, reference,
-                    KraidBackgroundDefinitionsConstants.StandardBg3TilesAddress + quarter * KraidHudRestoration.QuarterBytes,
-                    KraidHudRestoration.QuarterBytes,
-                    (ushort)(KraidBackgroundDefinitions.StandardBg3VramWord + quarter * KraidHudRestoration.QuarterBytes / 2));
-                var shownActual = BgArtworkFixtures.ComposedVram(actual, new BgArtworkBytes().WithHud(maps.HudTiles));
-                AssertTrue(shownActual.ImageEquals(expected),
-                    $"Kraid BG3 quarter {quarter} matches the native reference");
-                AssertEqual(quarter + 1, state.RestoredBg3Quarters, "Kraid retains the four-frame restoration cadence");
-                AssertEqual(KraidAiFunction.DeathFadeInBackground, state.Parts[0].Function,
-                    "artwork restoration preserves the death coroutine successor");
-            }
-        }
-        enemies.BossArtworkBinding.HudTileArtwork = null;
-        AssertThrows<InvalidDataException>(() => restore(enemies.SlotTable.Slots[0], new KraidEnemyState(),
-            0, KraidAiFunction.DeathFadeInBackground),
-            "Kraid death restoration requires installed HUD art");
-
-        Console.WriteLine("DMA artwork boundary: typed memory/asset ports, mixed queues, Kraid background, four BG3 quarter cases and missing-artwork rejection pass.");
+        Console.WriteLine("DMA artwork boundary: typed memory/asset ports, mixed queues, Kraid background and missing-artwork rejection pass.");
     }
 
     /// <summary>Runs direct DMA artwork-owner checks with the repository cartridge.</summary>

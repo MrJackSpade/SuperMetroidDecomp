@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Bosses.MotherBrain;
+﻿using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
@@ -39,7 +38,4 @@ internal sealed record KraidDeathDependencies
 
     /// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health palettes.</summary>
     public required KraidHead Head { get; init; }
-
-    /// <summary>The session's installed boss artwork.</summary>
-    public required BossArtworkBinding BossArtwork { get; init; }
 }

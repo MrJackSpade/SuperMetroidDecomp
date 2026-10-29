@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// Installed artwork the game loads by name (#1422): character runs and one tilemap row that rooms, the HUD, the escape,
-/// Samus's beams and Grapple, Kraid's death and the gunship's takeoff show. A name only; the installed content resolves
+/// Samus's beams and Grapple and the gunship's takeoff show. A name only; the installed content resolves
 /// it.
 /// </summary>
 public enum InstalledArtworkId
@@ -55,14 +55,6 @@ public enum InstalledArtworkId
     GrappleDiagonalSegmentTiles,
     /// <summary>The four vertical Grapple segment frames.</summary>
     GrappleVerticalSegmentTiles,
-    /// <summary>First quarter of the standard HUD characters, restored during Kraid's death.</summary>
-    KraidBg3RestoreQuarter0,
-    /// <summary>Second quarter of the standard HUD characters, restored during Kraid's death.</summary>
-    KraidBg3RestoreQuarter1,
-    /// <summary>Third quarter of the standard HUD characters, restored during Kraid's death.</summary>
-    KraidBg3RestoreQuarter2,
-    /// <summary>Fourth quarter of the standard HUD characters, restored during Kraid's death.</summary>
-    KraidBg3RestoreQuarter3,
     /// <summary>First editable gunship takeoff character run.</summary>
     GunshipLiftoffFirstTiles,
     /// <summary>Second editable gunship takeoff character run.</summary>

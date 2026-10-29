@@ -374,7 +374,7 @@ internal sealed class DraygonParts
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             goop,
             RoomEnemyProjectileKind.DraygonGoop,
-            graphics: SpriteGraphics.CharacterZeroIn(new UnnamedSpriteRowColouring(2)));
+            graphics: SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.DraygonGoop)));
         goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.Goop));
         goop.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(state.Body.Position.X.Whole + (movingRight ? 24 : -28))), unchecked((ushort)(state.Body.Position.Y.Whole - 16))));
 

@@ -847,9 +847,10 @@ internal sealed class EnemyProjectileEngine
     /// <summary>
     /// Allocates the light or dark Ceres falling-tile actor requested by room main
     /// <c>$8F:E525</c>. The X coordinate and palette variant come directly from the room's
-    /// current RNG word; this initializer owns only bank-$86's projectile fields.
+    /// current RNG word; this initializer owns only bank-$86's projectile fields. The room
+    /// main supplies the tile's animation and the graphics it draws in.
     /// </summary>
-    public void SpawnCeresFallingDebris(int xPosition, bool dark, EnemyProjectileAnimation animation)
+    public void SpawnCeresFallingDebris(int xPosition, bool dark, EnemyProjectileAnimation animation, SpriteGraphics graphics)
     {
         _room.EnsureLoaded();
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
@@ -859,7 +860,7 @@ internal sealed class EnemyProjectileEngine
         RoomEnemyProjectileKind kind = dark
             ? RoomEnemyProjectileKind.CeresFallingDebrisDark
             : RoomEnemyProjectileKind.CeresFallingDebrisLight;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics: SpriteGraphics.CharacterZeroIn(new UnnamedSpriteRowColouring(7)));
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics);
         projectile.Position = projectile.Position.WithWhole(new(checked((ushort)xPosition), 42));
         projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(16));
         projectile.Variable0 = 0;

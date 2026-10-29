@@ -13,6 +13,12 @@ public static class BossColourDefinitions
     /// <summary>Draygon sprite material.</summary>
     public static readonly SpriteColourRun DraygonSprite = new(7, 0, 16);
 
+    /// <summary>
+    /// The colours Draygon's goop draws in: the eight surface colours its opening transfer copies after its own sixteen
+    /// and their clear colour.
+    /// </summary>
+    public static readonly SpriteColourRun DraygonGoop = new(2, 1, 8);
+
     /// <summary>Draygon health band.</summary>
     public static readonly BackgroundColourRun DraygonHealth = new(5, 9, 4);
 
@@ -96,9 +102,6 @@ public static class BossColourDefinitions
 
     /// <summary>The Shitroid's body.</summary>
     public static readonly SpriteColourRun ShitroidBody = new(2, 0, 16);
-
-    /// <summary>The drained Sidehopper's corpse.</summary>
-    public static readonly SpriteColourRun ShitroidDeadSidehopper = new(7, 0, 16);
 
     /// <summary>The Shitroid's cycling membrane colours.</summary>
     public static readonly SpriteColourRun ShitroidMembrane = new(2, 5, 4);

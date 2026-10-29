@@ -3,6 +3,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Enemies.Gunship.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
@@ -107,6 +108,12 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         _shipPrograms[slot.SlotIndex] = cursor;
     }
 
+    /// <summary>
+    /// The colours every part of the ship draws in: those the Landing Site's graphics set loads for the bottom hull,
+    /// whichever part it is.
+    /// </summary>
+    private static readonly GraphicsSetMemberColouring ShipColouring = new(EnemyDefinitionId.ShipBottomEntrance);
+
     /// <summary>Initializes the top hull and selects ordinary idle or post-Ceres descent.</summary>
     internal void InitializeGunshipTop(RoomEnemySlot slot)
     {
@@ -117,7 +124,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         _shipPrograms[slot.SlotIndex] = AnimationProgramCursor<GunshipProgram>.Start(GunshipProgram.TopHull);
-        slot.Colouring = new UnnamedSpriteRowColouring(7);
+        slot.Colouring = ShipColouring;
         if (_gunshipLoadScenario == GunshipLoadScenario.EscapingCeres)
         {
             SamusState samus = _samusAtEnemyInitialization
@@ -158,7 +165,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (slot.SlotIndex == 0)
             throw new InvalidDataException("Gunship bottom cannot occupy enemy slot zero.");
         slot.TileIndexBase = _slotTable.Slots[slot.SlotIndex - 1].TileIndexBase;
-        slot.Colouring = new UnnamedSpriteRowColouring(7);
+        slot.Colouring = ShipColouring;
 
         if (slot.Spawn.Population.Parameter2 != 0)
         {

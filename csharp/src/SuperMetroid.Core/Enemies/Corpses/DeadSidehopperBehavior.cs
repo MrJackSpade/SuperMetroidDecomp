@@ -128,7 +128,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Ports the already-dead Tourian layout at <c>$A9:D825</c>.</summary>
     private void InitializeAlternateDeadSidehopper(RoomEnemySlot slot)
     {
-        slot.Colouring = new UnnamedSpriteRowColouring(7);
+        slot.Colouring = new EncounterSpriteColouring(TourianCorpseColourDefinitions.DrainedCorpses);
         SetDeadSidehopperProgram(slot, DeadTourianProgram.SidehopperInitiallyDead);
 
         DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(

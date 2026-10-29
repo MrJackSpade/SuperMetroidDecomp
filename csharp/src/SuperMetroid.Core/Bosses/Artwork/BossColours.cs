@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn;
+using SuperMetroid.Core.Enemies.Corpses.Artwork;
 namespace SuperMetroid.Core.Bosses.Artwork;
 
 /// <summary>Typed view of the other bosses' and set pieces' colours (#630, #1405): runs of gameplay's background and sprite colour sets.</summary>
@@ -74,7 +75,7 @@ public readonly struct BossColours(GameplayColours colours)
     {
         ShitroidColorTarget.Sidehopper => BossColourDefinitions.ShitroidSidehopper.In(colours.SpriteSets),
         ShitroidColorTarget.Shitroid => BossColourDefinitions.ShitroidBody.In(colours.SpriteSets),
-        ShitroidColorTarget.DeadSidehopper => BossColourDefinitions.ShitroidDeadSidehopper.In(colours.SpriteSets),
+        ShitroidColorTarget.DeadSidehopper => TourianCorpseColourDefinitions.DrainedCorpses.In(colours.SpriteSets),
         _ => throw new ArgumentOutOfRangeException(nameof(target), target, "Undefined Shitroid colour target."),
     };
     /// <summary>The row Spore Spawn's death sequence fades for <paramref name="layer"/>.</summary>

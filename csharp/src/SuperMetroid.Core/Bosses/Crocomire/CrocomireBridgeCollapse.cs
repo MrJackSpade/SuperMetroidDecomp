@@ -1,5 +1,7 @@
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
@@ -355,6 +357,7 @@ internal sealed class CrocomireBridgeCollapse
         projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(0));
         // $86:92A5 reads RandomNumberSeed; it does not advance it.
         projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)((_room.Random.Read() & 63) + 64))));
-        projectile.Graphics = SpriteGraphics.CharacterZeroIn(new UnnamedSpriteRowColouring(2));
+        // The fragments draw in the wall colours Crocomire's encounter installs.
+        projectile.Graphics = SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.CrocomireInitialWall));
     }
 }

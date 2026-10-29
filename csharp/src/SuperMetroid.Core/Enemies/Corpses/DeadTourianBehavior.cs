@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Corpses.Artwork;
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
@@ -108,7 +109,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        slot.Colouring = new UnnamedSpriteRowColouring(7);
+        slot.Colouring = new EncounterSpriteColouring(TourianCorpseColourDefinitions.DrainedCorpses);
         state.Function = DeadTourianCorpseFunction.Waiting;
         Extensions[slot.SlotIndex].Program = DeadSidehopperBehavior.StartDeadTourianProgram(slot, definition.InitialProgram);
         CorpseRottingTableProcessor.Initialize(state.RotTable);

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Elevator;
@@ -120,7 +121,8 @@ internal sealed class RoomMainRoutines
         room.Enemies.Projectiles.SpawnCeresFallingDebris(
             CeresFallingDebrisX(random & 15),
             dark,
-            new CeresFallingDebrisAnimation(dark ? CeresFallingDebrisProgram.Dark : CeresFallingDebrisProgram.Light));
+            new CeresFallingDebrisAnimation(dark ? CeresFallingDebrisProgram.Dark : CeresFallingDebrisProgram.Light),
+            CeresFallingDebrisVisualDefinitions.Graphics);
     }
 
     /// <summary>

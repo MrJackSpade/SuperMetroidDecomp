@@ -83,11 +83,11 @@ public interface IGameplayPresentationContent : IAreaMapSource, IInstalledArtwor
     InstalledSamusSuitColors SamusSuitColors { get; }
 
     /// <summary>Samus full-body palette-cycle inputs, separate from static suit, visor, and charged-beam colors.</summary>
-    InstalledSamusFullBodyCycleColors SamusFullBodyCycleColors { get; }
+    SamusFullBodyCycleColours SamusFullBodyCycleColors { get; }
 
     /// <summary>Charged-beam and pseudo-Screw-Attack palette inputs, separate from base suit colors.</summary>
-    InstalledSamusChargeColors SamusChargeColors { get; }
+    SamusChargeColours SamusChargeColors { get; }
 
     /// <summary>Samus Hyper Beam palette-cycle colors, separate from charged-beam presentation and other suit cycles.</summary>
-    InstalledSamusHyperBeamColors SamusHyperBeamColors { get; }
+    SamusHyperBeamColours SamusHyperBeamColors { get; }
 }

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>The ink and brightness a hyper beam shade is derived from.</summary>
 /// <param name="Ink">The ink.</param>

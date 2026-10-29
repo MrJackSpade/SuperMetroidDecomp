@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>An ink row of a suit's palette.</summary>
 /// <param name="Suit">The suit.</param>

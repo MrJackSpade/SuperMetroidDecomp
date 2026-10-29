@@ -50,11 +50,11 @@ internal sealed class SamusPresentation
 
     /// <summary>Host-bound animation colors; excluded from debugger-state graphs.</summary>
     [field: NonSerialized]
-    public InstalledSamusFullBodyCycleColors? FullBodyCycleColors { get; set; }
+    public SamusFullBodyCycleColours? FullBodyCycleColors { get; set; }
 
     /// <summary>Host-bound charge and Hyper-shot body colors; not serialized.</summary>
     [field: NonSerialized]
-    public InstalledSamusChargeColors? ChargeColors { get; set; }
+    public SamusChargeColours? ChargeColors { get; set; }
 
     /// <summary>
     /// Copies <c>SamusPalettes_PowerSuit</c> at <c>$9B:9400</c> to palette-buffer/CGRAM

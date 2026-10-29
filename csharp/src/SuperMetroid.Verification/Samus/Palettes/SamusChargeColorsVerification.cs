@@ -31,7 +31,7 @@ internal static class SamusChargeColorsVerification
         string overrideDirectory, AreaMapPresentation original, ISnesAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusChargeColorExtractor.Extract(rom);
-        var native = SamusChargeColorFile.Read(new MemoryStream(extracted, writable: false));
+        var native = SamusChargeColorFile.Read(new MemoryStream(extracted, writable: false)).ToColours();
         var forbidden = new HashSet<int>();
         forbidden.UnionWith(VerifySamusChargeColorPhases(rom));
         for (int frame = 0; frame < SamusChargeColorFormat.HyperFrameCount; frame++)
@@ -162,6 +162,7 @@ internal static class SamusChargeColorsVerification
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusChargeColorExtractor.Extract(rom);
         var catalog = SamusChargeColorFile.Read(new MemoryStream(extracted));
+        SamusChargeColours colours = catalog.ToColours();
         var forbidden = new HashSet<int>();
         var expected = new ushort[2, 3, 6, 16];
         var cgram = new SamusColourRig();
@@ -197,12 +198,12 @@ internal static class SamusChargeColorsVerification
                     AssertTrue(found, "Native charge pointer supported");
                     AssertEqual(pointer, compiled, "Native charge pointer selection");
                     for (int index = 0; index < 256; index++) cgram.SetColor(index, RgbColor.FromWord(0x1234));
-                    catalog.ApplyCharge(cgram.Samus, family != 0, SamusSuits.AtListPlace(suit), phase);
+                    colours.ApplyCharge(cgram.Samus, family != 0, SamusSuits.AtListPlace(suit), phase);
                     for (int color = 0; color < 16; color++)
                     {
                         ushort native = Word(0x9b0000 | (pointer + color * 2));
                         expected[family, suit, phase, color] = native;
-                        AssertEqual(native, catalog.ResolveCharge(family != 0, suit, phase, color), "Native charge color");
+                        AssertEqual(native, colours.ResolveCharge(family != 0, suit, phase, color), "Native charge color");
                         AssertEqual((family == 0 ? phase == 0 : phase == 3) && (suit == 0 || native != expected[family, 0, phase, color]), stored.ContainsKey(new ColourCell((suit * 6 + phase), color)), "Only canonical phase owns stock input");
                     }
                     for (int index = 0; index < 256; index++)
@@ -531,7 +532,7 @@ internal static class SamusChargeColorsVerification
                 rows[suit][phase][color] = new PaletteRgb5 { Red = ((value & 31) + delta) % 32,
                     Green = ((value >> 5 & 31) + delta) % 32, Blue = ((value >> 10 & 31) + delta) % 32 };
             }
-            var edited = SamusChargeColorFile.Read(new MemoryStream(SamusChargeColorFile.Write(document)));
+            var edited = SamusChargeColorFile.Read(new MemoryStream(SamusChargeColorFile.Write(document))).ToColours();
             for (int family = 0; family < 2; family++)
             for (int suit = 0; suit < 3; suit++)
             for (int phase = 0; phase < 6; phase++)
@@ -551,16 +552,16 @@ internal static class SamusChargeColorsVerification
         foreach (int invalid in new[] { -1, 6, int.MinValue, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => SamusChargeColorFormat.CanonicalPhase(pseudo, invalid), "Invalid phase rejected");
-            AssertThrows<ArgumentOutOfRangeException>(() => catalog.ResolveCharge(pseudo, 0, invalid, 0), "Invalid charge phase rejected");
-            AssertThrows<ArgumentOutOfRangeException>(() => catalog.ApplyCharge(cgram.Samus, pseudo, SamusSuit.Power, invalid), "Invalid apply phase rejected");
+            AssertThrows<ArgumentOutOfRangeException>(() => colours.ResolveCharge(pseudo, 0, invalid, 0), "Invalid charge phase rejected");
+            AssertThrows<ArgumentOutOfRangeException>(() => colours.ApplyCharge(cgram.Samus, pseudo, SamusSuit.Power, invalid), "Invalid apply phase rejected");
         }
         foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => catalog.ResolveCharge(false, invalid, 0, 0), "Invalid suit rejected");
+            AssertThrows<ArgumentOutOfRangeException>(() => colours.ResolveCharge(false, invalid, 0, 0), "Invalid suit rejected");
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => catalog.ResolveCharge(false, 0, 0, invalid), "Invalid color rejected");
+            AssertThrows<ArgumentOutOfRangeException>(() => colours.ResolveCharge(false, 0, 0, invalid), "Invalid color rejected");
         var guarded = NewChargeColorReadGuard(rom, forbidden);
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose,
-            EquippedBeams = SamusBeamFlags.Charge, Presentation = { ChargeColors = catalog } };
+            EquippedBeams = SamusBeamFlags.Charge, Presentation = { ChargeColors = colours } };
         var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
         projectiles.Charge.FlareCounter = 60;
         ushort[] suits = [0, 1, 0x20];

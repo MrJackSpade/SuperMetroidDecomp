@@ -360,7 +360,7 @@ public sealed class SamusHorizontalSpeedState
     /// <c>Handle_ScrewAttack_SpeedBoosting_Palette</c> at <c>$91:D9B2</c>.
     /// </summary>
     /// <returns>True when this call copied a ROM-authored palette into CGRAM.</returns>
-    public bool UpdateSpeedBoosterPalette(SamusColours colours, SpeedBoosterPaletteFrame frame, InstalledSamusSuitColors? suitColors = null, InstalledSamusFullBodyCycleColors? cycleColors = null,
+    public bool UpdateSpeedBoosterPalette(SamusColours colours, SpeedBoosterPaletteFrame frame, InstalledSamusSuitColors? suitColors = null, SamusFullBodyCycleColours? cycleColors = null,
         InstalledSamusOverreads? overreads = null)
     {
         Ensure.NotNull(colours);
@@ -479,7 +479,7 @@ public sealed class SamusHorizontalSpeedState
     private void CopyAndAdvanceScrewAttackPalette(
         SamusColours colours,
         SamusSuit suit,
-        InstalledSamusFullBodyCycleColors? cycleColors)
+        SamusFullBodyCycleColours? cycleColors)
     {
         SamusFullBodyCyclePalette palette = SamusFullBodyCyclePalettes.ReadScrewAttackPalette(
             suit, CyclePaletteStep);

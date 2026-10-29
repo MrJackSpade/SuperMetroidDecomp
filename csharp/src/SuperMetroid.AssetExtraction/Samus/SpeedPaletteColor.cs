@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>A colour of a speed booster palette.</summary>
 /// <param name="Palette">The palette.</param>

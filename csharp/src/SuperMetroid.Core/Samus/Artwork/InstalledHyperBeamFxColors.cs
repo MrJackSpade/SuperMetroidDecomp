@@ -46,18 +46,18 @@ public sealed class InstalledHyperBeamFxColors
             RgbColor value = frames[frame][color];
             if (frame == 0 && color == 0) continue;
             if (color == 0 && frame != 0 && value == frames[0][0]) continue;
-            if (color != 0 && (frame & 1) != 0 && value == SamusHyperBeamColorFormat.HueMidpoint(
+            if (color != 0 && (frame & 1) != 0 && value == HyperBeamHues.HueMidpoint(
                 frames[frame - 1][color], frames[(frame + 1) % HyperBeamFxColorFormat.FrameCount][color])) continue;
-            if (frame == 2 && color >= 4 && value == SamusHyperBeamColorFormat.YellowFromGreen(frames[4][color])) continue;
+            if (frame == 2 && color >= 4 && value == HyperBeamHues.YellowFromGreen(frames[4][color])) continue;
             if (frame == 0 && color >= 4 && value == HyperBeamFxColorFormat.RedHighlight(frames[0][3], frames[0][0], color)) continue;
             if (HyperBeamFxColorFormat.IsShadeMidpoint(frame, color))
             {
-                RgbColor expected = SamusHyperBeamColorFormat.HueMidpoint(frames[frame][color - 1], frames[frame][color + 1]);
+                RgbColor expected = HyperBeamHues.HueMidpoint(frames[frame][color - 1], frames[frame][color + 1]);
                 if (value != expected) shadeInputs.Add(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, new(value, expected));
                 continue;
             }
             if (frame == 4 && color == 7 && value == HyperBeamFxColorFormat.GreenFromRed(frames[0][3])) continue;
-            if (frame == 8 && color == 1 && value == SamusHyperBeamColorFormat.MagentaFromRed(frames[0][3])) continue;
+            if (frame == 8 && color == 1 && value == HyperBeamHues.MagentaFromRed(frames[0][3])) continue;
             if (HasPairedChannels(frame, color))
             {
                 var shared = SharedEndpointChannels(frame, color, frames[0][0], frames[0][3]);
@@ -98,15 +98,15 @@ public sealed class InstalledHyperBeamFxColors
         }
         if (color == 0) return Resolve(0, 0);
         if (frame == 4 && color == 7) return HyperBeamFxColorFormat.GreenFromRed(Resolve(0, 3));
-        if (frame == 8 && color == 1) return SamusHyperBeamColorFormat.MagentaFromRed(Resolve(0, 3));
+        if (frame == 8 && color == 1) return HyperBeamHues.MagentaFromRed(Resolve(0, 3));
         if (HyperBeamFxColorFormat.IsShadeMidpoint(frame, color))
         {
-            RgbColor expected = SamusHyperBeamColorFormat.HueMidpoint(Resolve(frame, color - 1), Resolve(frame, color + 1));
+            RgbColor expected = HyperBeamHues.HueMidpoint(Resolve(frame, color - 1), Resolve(frame, color + 1));
             return shadeInputs.TryGetValue(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, out var inputs) ? inputs.Apply(expected) : expected;
         }
         if (frame == 0) return HyperBeamFxColorFormat.RedHighlight(Resolve(0, 3), Resolve(0, 0), color);
-        if (frame == 2) return SamusHyperBeamColorFormat.YellowFromGreen(Resolve(4, color));
-        return SamusHyperBeamColorFormat.HueMidpoint(
+        if (frame == 2) return HyperBeamHues.YellowFromGreen(Resolve(4, color));
+        return HyperBeamHues.HueMidpoint(
             Resolve(frame - 1, color), Resolve((frame + 1) % HyperBeamFxColorFormat.FrameCount, color));
     }
 

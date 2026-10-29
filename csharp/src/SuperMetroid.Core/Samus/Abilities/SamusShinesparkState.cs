@@ -738,7 +738,7 @@ false);
     /// </summary>
     public bool UpdatePalette(SamusColours colours, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         InstalledSamusSuitColors? suitColors = null,
-        InstalledSamusFullBodyCycleColors? cycleColors = null)
+        SamusFullBodyCycleColours? cycleColors = null)
     {
         Ensure.NotNull(colours);
         if (PaletteType is not (SamusSpecialPaletteType.SpeedBoosterShine or SamusSpecialPaletteType.Shinesparking))

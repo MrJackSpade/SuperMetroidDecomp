@@ -24,7 +24,7 @@ public sealed class SamusDrainedState
 {
     /// <summary>Host-owned Hyper Beam palette artwork, excluded from debugger-state serialization.</summary>
     [field: NonSerialized]
-    public InstalledSamusHyperBeamColors? PresentationColors { get; set; }
+    public SamusHyperBeamColours? PresentationColors { get; set; }
 
     /// <summary>
     /// Latches the immediate suit-palette restore from controller zero or command $17
@@ -224,9 +224,7 @@ public sealed class SamusDrainedState
             SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount;
         if (PresentationColors is null)
             throw new InvalidOperationException("Drained Samus requires installed Hyper Beam colors.");
-        for (int index = 0; index < SamusHyperBeamColorFormat.ColorsPerFrame; index++)
-            colours.Suit.Write(index,
-                PresentationColors.Resolve(paletteFrame, index));
+        PresentationColors.Apply(colours, paletteFrame);
 
         CountdownStep timer = CommonPaletteTimer.Decrement();
         CommonPaletteTimer = timer.Remaining;

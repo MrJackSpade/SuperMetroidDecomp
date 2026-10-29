@@ -105,7 +105,7 @@ internal static class SamusHyperBeamColorsVerification
                 if (frame == 7 && index != 0)
                 {
                     ushort greenPointer = ReadVerificationWord(rom, 0x91d9a8);
-                    AssertEqual(native, SamusHyperBeamColorFormat.YellowFromGreen(RgbColor.FromWord(ReadVerificationWord(rom,
+                    AssertEqual(native, HyperBeamHues.YellowFromGreen(RgbColor.FromWord(ReadVerificationWord(rom,
                         0x9b0000 | (greenPointer + 2 * index)))), "Every original green-to-yellow hue word");
                 }
                 bool midpoint = frame == 6 && index is not (0 or 1 or 8 or 11);
@@ -119,7 +119,7 @@ internal static class SamusHyperBeamColorsVerification
                 if (cyanGreen)
                 {
                     ushort cyanPointer = ReadVerificationWord(rom, 0x91d9a4), greenPointer = ReadVerificationWord(rom, 0x91d9a8);
-                    AssertEqual(native, SamusHyperBeamColorFormat.HueMidpoint(
+                    AssertEqual(native, HyperBeamHues.HueMidpoint(
                         RgbColor.FromWord(checked(ReadVerificationWord(rom, 0x9b0000 | (cyanPointer + 2 * index)))),
                         RgbColor.FromWord(checked(ReadVerificationWord(rom, 0x9b0000 | (greenPointer + 2 * index))))), "Every original cyan-green midpoint word");
                 }
@@ -127,7 +127,7 @@ internal static class SamusHyperBeamColorsVerification
                 if (yellowRed)
                 {
                     ushort yellowPointer = ReadVerificationWord(rom, 0x91d9ac), redPointer = ReadVerificationWord(rom, 0x91d9b0);
-                    AssertEqual(native, SamusHyperBeamColorFormat.HueMidpoint(
+                    AssertEqual(native, HyperBeamHues.HueMidpoint(
                         RgbColor.FromWord(checked(ReadVerificationWord(rom, 0x9b0000 | (yellowPointer + 2 * index)))),
                         RgbColor.FromWord(checked(ReadVerificationWord(rom, 0x9b0000 | (redPointer + 2 * index))))), "Every original yellow-red midpoint word");
                 }
@@ -136,7 +136,7 @@ internal static class SamusHyperBeamColorsVerification
                 {
                     ushort firstPointer = ReadVerificationWord(rom, frame == 0 ? 0x91d9b0 : 0x91d9a0);
                     ushort secondPointer = ReadVerificationWord(rom, frame == 0 ? 0x91d9a0 : 0x91d9a4);
-                    AssertEqual(native, SamusHyperBeamColorFormat.HueMidpoint(
+                    AssertEqual(native, HyperBeamHues.HueMidpoint(
                         RgbColor.FromWord(checked(ReadVerificationWord(rom, 0x9b0000 | (firstPointer + 2 * index)))),
                         RgbColor.FromWord(checked(ReadVerificationWord(rom, 0x9b0000 | (secondPointer + 2 * index))))), "Original cycle-wrap and magenta-cyan midpoint colors");
                 }
@@ -191,17 +191,17 @@ internal static class SamusHyperBeamColorsVerification
             AssertEqual((ushort)rgb, minimumInput.Resolve(false, 0, green), "Every RGB5 shared endpoint minimum");
             var editedMinimum = new InstalledSamusHyperBeamColors.EndpointChannels(RgbColor.FromWord(checked((ushort)rgb)), false, 0, (green + 1) % 32);
             AssertEqual((ushort)rgb, editedMinimum.Resolve(false, 0, (green + 1) % 32), "Every RGB5 independently edited endpoint minimum");
-            AssertEqual((ushort)(green + 32 * green + 1024 * blue), SamusHyperBeamColorFormat.YellowFromGreen(RgbColor.FromWord(checked((ushort)rgb))), "Complete RGB5 green-to-yellow domain");
+            AssertEqual((ushort)(green + 32 * green + 1024 * blue), HyperBeamHues.YellowFromGreen(RgbColor.FromWord(checked((ushort)rgb))), "Complete RGB5 green-to-yellow domain");
             int midpoint = (int)Math.Ceiling((rgb % 32 + green) / 2.0);
             AssertEqual((ushort)(midpoint + 32 * green + 1024 * blue), SamusHyperBeamColorFormat.GreenYellowMidpoint(RgbColor.FromWord(checked((ushort)rgb))), "Complete RGB5 hue midpoint domain");
             for (int other = 0; other < 32; other++)
             {
                 int expected = (int)Math.Ceiling((rgb % 32 + other) / 2.0) +
                     32 * (int)Math.Ceiling((green + other) / 2.0) + 1024 * (int)Math.Ceiling((blue + other) / 2.0);
-                AssertEqual((ushort)expected, SamusHyperBeamColorFormat.HueMidpoint(RgbColor.FromWord(checked((ushort)rgb)), RgbColor.FromWord((ushort)(other * 1057))), "All RGB5 first colors and all independent per-channel midpoint pairs");
+                AssertEqual((ushort)expected, HyperBeamHues.HueMidpoint(RgbColor.FromWord(checked((ushort)rgb)), RgbColor.FromWord((ushort)(other * 1057))), "All RGB5 first colors and all independent per-channel midpoint pairs");
                 int lower = (int)Math.Floor((rgb % 32 + other) / 2.0) +
                     32 * (int)Math.Floor((green + other) / 2.0) + 1024 * (int)Math.Floor((blue + other) / 2.0);
-                AssertEqual((ushort)lower, SamusHyperBeamColorFormat.HueMidpoint(RgbColor.FromWord(checked((ushort)rgb)), RgbColor.FromWord((ushort)(other * 1057)), direction: HueRounding.Down), "Complete downward RGB5 midpoint arithmetic");
+                AssertEqual((ushort)lower, HyperBeamHues.HueMidpoint(RgbColor.FromWord(checked((ushort)rgb)), RgbColor.FromWord((ushort)(other * 1057)), direction: HueRounding.Down), "Complete downward RGB5 midpoint arithmetic");
                 AssertEqual((ushort)((lower & 31) | (expected & 0x7fe0)),
                     SamusHyperBeamColorFormat.CyanTransitionMiddle(RgbColor.FromWord(checked((ushort)rgb)), RgbColor.FromWord((ushort)(other * 1057))), "Complete cyan-biased midpoint channel pairs");
             }
@@ -305,7 +305,7 @@ internal static class SamusHyperBeamColorsVerification
 
         }
         byte[] chargeJson = SamusChargeColorExtractor.Extract(rom);
-        var shot = SamusChargeColorFile.Read(new MemoryStream(chargeJson));
+        var shot = SamusChargeColorFile.Read(new MemoryStream(chargeJson)).ToColours();
         AssertEqual(typeof(InstalledSamusHyperBeamColors), MetadataShape.FieldType(typeof(InstalledSamusChargeColors), "hyperShot", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic),
             "Hyper-shot owns the shared calculated representation, not another whole palette table");
         var shotCgram = new SamusColourRig();
@@ -339,7 +339,7 @@ internal static class SamusHyperBeamColorsVerification
                 int word = 1000 + frame * 16 + color;
                 document.HyperShot[frame][color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
             }
-            var edited = SamusChargeColorFile.Read(new MemoryStream(SamusChargeColorFile.Write(document)));
+            var edited = SamusChargeColorFile.Read(new MemoryStream(SamusChargeColorFile.Write(document))).ToColours();
             for (int frame = 0; frame < 10; frame++)
             for (int color = 0; color < 16; color++)
             {
@@ -368,7 +368,7 @@ internal static class SamusHyperBeamColorsVerification
         AssertEqual(0, shotGuard.ForbiddenReadAttempts, "Hyper-shot calculated colors avoid original palette and pointer reads");
         var installedSamus = new SamusState();
         installedSamus.Drained.EnableRainbow(installedSamus);
-        installedSamus.Drained.PresentationColors = catalog;
+        installedSamus.Drained.PresentationColors = catalog.ToColours();
         var installedCgram = new SamusColourRig();
         var guarded = NewForbiddenHyperBeamColorBus(rom);
         for (int call = 0; call < 22; call++)

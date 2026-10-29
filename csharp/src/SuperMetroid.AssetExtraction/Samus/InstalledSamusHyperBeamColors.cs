@@ -1,7 +1,9 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Editable ten-frame full-body Hyper Beam RGB5 palette cycle.</summary>
 /// <remarks>The four distinct color-zero payloads ($3800,$7FFF,$0000,$0400)
@@ -68,7 +70,7 @@ public sealed class InstalledSamusHyperBeamColors
                 continue;
             }
             if (source == index && frame == 7 && color != 0 &&
-                frames[frame][color] == SamusHyperBeamColorFormat.YellowFromGreen(frames[5][color])) continue;
+                frames[frame][color] == HyperBeamHues.YellowFromGreen(frames[5][color])) continue;
             if (frame == 6 && color == 11)
             {
                 if (SamusHyperBeamColorFormat.TryGreenYellowHighShadow(frames[6][3], frames[6][13], frames[5][11], out RgbColor expected))
@@ -94,7 +96,7 @@ public sealed class InstalledSamusHyperBeamColors
             {
                 RgbColor expected = frame == 6 ?
                     SamusHyperBeamColorFormat.GreenYellowMidpoint(frames[5][color]) :
-                    SamusHyperBeamColorFormat.HueMidpoint(frames[(frame + 9) % 10][color], frames[frame + 1][color]);
+                    HyperBeamHues.HueMidpoint(frames[(frame + 9) % 10][color], frames[frame + 1][color]);
                 if (SamusHyperBeamColorFormat.SharedIntermediateShadowChannel(frame, color) is ColorChannel shared)
                     expected = expected.With(shared, frames[frame][13][shared]);
                 if (frames[frame][color] != expected)
@@ -111,7 +113,7 @@ public sealed class InstalledSamusHyperBeamColors
             }
             if (frame == 3 && color == 13)
             {
-                RgbColor expected = SamusHyperBeamColorFormat.HueMidpoint(frames[3][3], frames[3][11]);
+                RgbColor expected = HyperBeamHues.HueMidpoint(frames[3][3], frames[3][11]);
                 if (frames[frame][color] != expected)
                     intermediateInputs.Add(index, new(frames[frame][color], expected));
                 continue;
@@ -119,6 +121,15 @@ public sealed class InstalledSamusHyperBeamColors
             colors.Add(new ColourCell(frame, color), frames[frame][color]);
         }
     }
+
+    /// <summary>
+    /// The decoded colours keyed by what they show (#1464): every cycle frame's suit colours, in cycle order. The
+    /// document's frame-by-colour layout ends here.
+    /// </summary>
+    public SamusHyperBeamColours ToColours() =>
+        new([.. Enumerable.Range(0, SamusHyperBeamColorFormat.FrameCount).Select(frame =>
+            Enumerable.Range(0, SamusHyperBeamColorFormat.ColorsPerFrame).Select(color => Resolve(frame, color))
+                .ToImmutableArray())]);
 
     /// <summary>Returns display color only; the frame clock remains cartridge-owned.</summary>
     /// <remarks>Cyan frame3 ink13 at9BA31A is the upward-rounded RGB5
@@ -140,7 +151,7 @@ public sealed class InstalledSamusHyperBeamColors
             {
                 shadeInputs.TryGetValue(frame * 16 + color, out var shadeInput);
                 RgbColor result = shadeInput.Apply(brighter);
-                return frame == 1 ? shadeInput.Apply(SamusHyperBeamColorFormat.MagentaFromRed(result)) : result;
+                return frame == 1 ? shadeInput.Apply(HyperBeamHues.MagentaFromRed(result)) : result;
             }
             throw new InvalidOperationException("Validated Hyper Beam shade exceeds RGB5.");
         }
@@ -162,7 +173,7 @@ public sealed class InstalledSamusHyperBeamColors
         }
         if (frame == 3 && color == 13)
         {
-            RgbColor middle = SamusHyperBeamColorFormat.HueMidpoint(Resolve(3, 3), Resolve(3, 11));
+            RgbColor middle = HyperBeamHues.HueMidpoint(Resolve(3, 3), Resolve(3, 11));
             return intermediateInputs.TryGetValue(frame * 16 + color, out var middleInput) ? middleInput.Apply(middle) : middle;
         }
         if (frame == 6 && color == 11)
@@ -171,9 +182,9 @@ public sealed class InstalledSamusHyperBeamColors
                 throw new InvalidOperationException("Validated Hyper Beam shadow exceeds RGB5.");
             return intermediateInputs.TryGetValue(frame * 16 + color, out var highInput) ? highInput.Apply(high) : high;
         }
-        if (frame == 7) return SamusHyperBeamColorFormat.YellowFromGreen(Resolve(5, color));
+        if (frame == 7) return HyperBeamHues.YellowFromGreen(Resolve(5, color));
         RgbColor expected = frame == 6 ? SamusHyperBeamColorFormat.GreenYellowMidpoint(Resolve(5, color)) :
-            SamusHyperBeamColorFormat.HueMidpoint(Resolve((frame + 9) % 10, color), Resolve(frame + 1, color));
+            HyperBeamHues.HueMidpoint(Resolve((frame + 9) % 10, color), Resolve(frame + 1, color));
         if (SamusHyperBeamColorFormat.SharedIntermediateShadowChannel(frame, color) is ColorChannel shared)
             expected = expected.With(shared, Resolve(frame, 13)[shared]);
         return intermediateInputs.TryGetValue(frame * 16 + color, out var inputs) ? inputs.Apply(expected) : expected;

@@ -27,5 +27,11 @@ internal static class ScreenPaletteFxColourDefinitions
             [PaletteFxColours.ExplodingZebesGreyClouds] = ScreenColourGroup.EndingExplodingZebesGreyClouds,
             [PaletteFxColours.GunshipEmergingFromExplosion] = ScreenColourGroup.EndingGunshipEmerging,
             [PaletteFxColours.UnusedCinematicFade] = ScreenColourGroup.UnusedCinematicFade,
+            [PaletteFxColours.TitleLogo] = ScreenColourGroup.TitleLogoGlow,
+            [PaletteFxColours.NintendoBootLogo] = ScreenColourGroup.NintendoBootLogo,
+            [PaletteFxColours.PlanetZebesText] = ScreenColourGroup.PlanetZebesText,
+            [PaletteFxColours.GunshipGlow] = ScreenColourGroup.EndingGunshipGlow,
+            [PaletteFxColours.ZoomedOutExplodingZebes] = ScreenColourGroup.EndingZoomedOutExplodingZebes,
+            [PaletteFxColours.PostCreditsSuperMetroidIcon] = ScreenColourGroup.EndingPostCreditsIcon,
         };
 }

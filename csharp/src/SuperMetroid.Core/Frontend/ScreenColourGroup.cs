@@ -242,4 +242,22 @@ public enum ScreenColourGroup
 
     /// <summary>The colours the unused cinematic fade program fades.</summary>
     UnusedCinematicFade,
+
+    /// <summary>The title logo's glowing colours, which a palette effect animates.</summary>
+    TitleLogoGlow,
+
+    /// <summary>The Nintendo boot logo's fading colours, which a palette effect animates.</summary>
+    NintendoBootLogo,
+
+    /// <summary>The Planet Zebes caption's fading colours, which a palette effect animates.</summary>
+    PlanetZebesText,
+
+    /// <summary>The ending gunship's glowing colour, which a palette effect animates.</summary>
+    EndingGunshipGlow,
+
+    /// <summary>The zoomed-out exploding Zebes' colours, which a palette effect animates.</summary>
+    EndingZoomedOutExplodingZebes,
+
+    /// <summary>The post-credits Super Metroid icon's colours, which a palette effect animates.</summary>
+    EndingPostCreditsIcon,
 }

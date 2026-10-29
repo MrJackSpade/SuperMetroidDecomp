@@ -44,8 +44,11 @@ internal sealed class SamusColourRig : IPaletteColors, IPaletteFxColourOwners
     /// </remarks>
     public ColourRun ScreenColours(PaletteFxColours colours)
     {
-        ScreenBackgroundSetPlacement screen = PaletteFxColoursPositions.ScreenBackground(colours);
-        return Gameplay.BackgroundSets.Set(NativeBackgroundSets.AtNativeSet(screen.Set)).Slice(screen.Colour, screen.ColourCount);
+        ScreenColourPlacement screen = PaletteFxColoursPositions.ScreenPlacement(colours);
+        // A screen's sprite set is the sprite set of the same native position, written from its first colour.
+        return screen is ScreenSpriteSetPlacement
+            ? Gameplay.SpriteSets.All.FromSet(screen.Set, screen.Colour)
+            : Gameplay.BackgroundSets.Set(NativeBackgroundSets.AtNativeSet(screen.Set)).Slice(screen.Colour, screen.ColourCount);
     }
 
     /// <inheritdoc />

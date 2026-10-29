@@ -14672,6 +14672,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomStaticPaletteFormat",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomStaticPaletteFormat.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomStaticPaletteImage",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomStaticPaletteImage.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Rooms.RoomTileCanvas",
       "kind": "class",
       "scope": "product",
@@ -21137,6 +21163,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Assets.BackgroundSetColour",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/BackgroundSetColour.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Assets.BackgroundTile",
@@ -36875,6 +36914,38 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.Artwork.PhantoonColorCatalogAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Phantoon/Artwork/PhantoonColorCatalogAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.Artwork.PhantoonColorCatalogAccess.extension(SuperMetroid.Core.Bosses.Phantoon.Artwork.PhantoonColorCatalog)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Phantoon/Artwork/PhantoonColorCatalogAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Phantoon.Artwork.PhantoonColorFormat",
       "kind": "static class",
       "scope": "product",
@@ -37961,19 +38032,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonRoomColourDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonRoomColourDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonSoundDefinitions",
@@ -81617,6 +81675,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.ScreenPaletteFxColourDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/ScreenPaletteFxColourDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.ScreenPaletteFxColours",
       "kind": "class",
       "scope": "product",
@@ -86909,14 +86980,14 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ScreenBackgroundPlacement",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ScreenColoursPlacement",
       "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ScreenBackgroundPlacement.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ScreenColoursPlacement.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -95725,19 +95796,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Artwork.RoomStaticPaletteFormat",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Artwork/RoomStaticPaletteFormat.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Rooms.Artwork.RoomStaticPalettes",
@@ -105969,7 +106027,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.RoomStaticPaletteFormatNative.extension(SuperMetroid.Core.Rooms.Artwork.RoomStaticPaletteFormat)",
+      "type": "SuperMetroid.Core.Rooms.RoomStaticPaletteFormatNative.extension(SuperMetroid.AssetExtraction.Rooms.RoomStaticPaletteFormat)",
       "kind": "class",
       "scope": "test",
       "assemblies": [

@@ -85,5 +85,11 @@ internal static class ScreenColourGroupDefinitions
             [ScreenColourGroup.EndingExplodingZebesGreyClouds] = new ScreenBackgroundSetPlacement(5, 1, 15),
             [ScreenColourGroup.EndingGunshipEmerging] = ScreenBackgroundSetPlacement.WholeSet(5),
             [ScreenColourGroup.UnusedCinematicFade] = ScreenBackgroundSetPlacement.WholeSet(5),
+            [ScreenColourGroup.TitleLogoGlow] = new ScreenSpriteSetPlacement(2, 1, 15),
+            [ScreenColourGroup.NintendoBootLogo] = new ScreenSpriteSetPlacement(1, 9, 7),
+            [ScreenColourGroup.PlanetZebesText] = new ScreenSpriteSetPlacement(0, 1, 15),
+            [ScreenColourGroup.EndingGunshipGlow] = new ScreenSpriteSetPlacement(7, 15, 1),
+            [ScreenColourGroup.EndingZoomedOutExplodingZebes] = ScreenSpriteSetPlacement.WholeSet(7),
+            [ScreenColourGroup.EndingPostCreditsIcon] = ScreenSpriteSetPlacement.WholeSet(7),
         };
 }

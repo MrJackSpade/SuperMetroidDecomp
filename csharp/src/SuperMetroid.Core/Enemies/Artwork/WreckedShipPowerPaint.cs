@@ -23,6 +23,7 @@ internal static class WreckedShipPowerPaint
             BackgroundColourSet.TilesThird => Foreground(ink),
             BackgroundColourSet.TilesFourth => Background(ink),
             BackgroundColourSet.TilesFifth => ink == 14 ? White : Neutral(CommonNeutral),
+            BackgroundColourSet.TilesSixth => throw new ArgumentOutOfRangeException(nameof(set), set, "The Wrecked Ship's power-on leaves the sixth tile set unpainted."),
             _ => throw new ArgumentOutOfRangeException(nameof(set), set, "The Wrecked Ship's power-on does not paint this set."),
         };
     }

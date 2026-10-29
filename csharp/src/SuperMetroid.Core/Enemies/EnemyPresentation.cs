@@ -36,8 +36,8 @@ internal sealed class EnemyPresentation
     /// <summary>Gameplay's background colour sets (#1405).</summary>
     internal BackgroundColourSets BackgroundSets => Colours.BackgroundSets;
 
-    /// <summary>Sprite colour set <paramref name="set"/> (#1405).</summary>
-    internal ColourRun ColourSet(int set) => Colours.SpriteSets.Set(set);
+    /// <summary>The sprite colours <paramref name="run"/> names (#1405, #1464).</summary>
+    internal ColourRun ColoursOf(SpriteColourRun run) => run.In(Colours.SpriteSets);
 
     /// <summary>The sprite colours <paramref name="colouring"/> holds (#1405, #1464).</summary>
     internal ColourRun ColourSetOf(SpriteColouring colouring) => Placement.ColoursOf(colouring, Colours.SpriteSets);

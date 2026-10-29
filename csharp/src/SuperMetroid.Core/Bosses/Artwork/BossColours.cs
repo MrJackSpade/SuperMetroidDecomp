@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Artwork;
 public readonly struct BossColours(GameplayColours colours)
 {
     /// <summary>Draygon opening colours.</summary>
-    public ColourRun DraygonIntro => BossColourDefinitions.DraygonIntro.In(colours.SpriteSets);
+    public ColourRunSequence DraygonIntro => SpriteColourRun.InOrder(BossColourDefinitions.DraygonIntro, colours.SpriteSets);
     /// <summary>Draygon background material.</summary>
     public ColourRun DraygonBackground => BossColourDefinitions.DraygonBackground.In(colours.BackgroundSets);
     /// <summary>Draygon sprite material.</summary>
@@ -18,7 +18,7 @@ public readonly struct BossColours(GameplayColours colours)
     /// <summary>Crocomire fight body.</summary>
     public ColourRun CrocomireFightBody => BossColourDefinitions.CrocomireFightBody.In(colours.BackgroundSets);
     /// <summary>Crocomire initial wall.</summary>
-    public ColourRun CrocomireInitialWall => BossColourDefinitions.CrocomireInitialWall.In(colours.SpriteSets);
+    public ColourRunSequence CrocomireInitialWall => SpriteColourRun.InOrder(BossColourDefinitions.CrocomireInitialWall, colours.SpriteSets);
     /// <summary>Crocomire initial projectile.</summary>
     public ColourRun CrocomireInitialProjectile => BossColourDefinitions.CrocomireInitialProjectile.In(colours.SpriteSets);
     /// <summary>Crocomire skeleton arm.</summary>

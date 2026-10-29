@@ -358,6 +358,6 @@ internal sealed class CrocomireBridgeCollapse
         // $86:92A5 reads RandomNumberSeed; it does not advance it.
         projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)((_room.Random.Read() & 63) + 64))));
         // The fragments draw in the wall colours Crocomire's encounter installs.
-        projectile.Graphics = SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.CrocomireInitialWall));
+        projectile.Graphics = SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.CrocomireWall));
     }
 }

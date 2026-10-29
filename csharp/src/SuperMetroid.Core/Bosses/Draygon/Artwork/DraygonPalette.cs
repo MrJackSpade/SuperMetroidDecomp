@@ -64,8 +64,11 @@ internal static class DraygonPalette
     private static RgbColor StockWhiteFlash(int color) => color == 0 ? DraygonMaterialPaint.ClearTarget : DraygonColorCatalog.FlashInk;
 
     /// <summary>Installs the selected opening colors at their native CGRAM destination.</summary>
-    internal static void ApplyIntro(DraygonColorCatalog colors, GameplayColours colours) =>
-        ApplyCalculated(new BossColours(colours).DraygonIntro, DraygonColorDefinitions.IntroCount, colors.ResolveIntro);
+    internal static void ApplyIntro(DraygonColorCatalog colors, GameplayColours colours)
+    {
+        ColourRunSequence intro = new BossColours(colours).DraygonIntro;
+        for (int color = 0; color < DraygonColorDefinitions.IntroCount; color++) intro.Write(color, colors.ResolveIntro(color));
+    }
 
     /// <summary>Installs Draygon's normal or white-flash material colors and the active health band.</summary>
     internal static void ApplyHurt(DraygonColorCatalog colors, GameplayColours colours, bool whiteFrame, int healthBand)

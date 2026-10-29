@@ -28,6 +28,7 @@ using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Chozo;
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Enemies.Crawlers;
 using SuperMetroid.Core.Enemies.Gunship;
@@ -1562,7 +1563,7 @@ internal static class LookupStream2Verification
         {
             static ushort Word(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
             var cgram = new GameplayColours(new SpriteColourSets());
-            catalog.ApplyTubeCracks(cgram.SpriteSets.Sets(1, 2));
+            catalog.ApplyTubeCracks(SpriteColourStore.InOrder(SpriteColourSetDefinitions.ChozoAndTube, cgram.SpriteSets));
             for (int color = 0; color < 32; color++)
             {
                 ushort word = Word(document.TubeCracks[color]);
@@ -1572,10 +1573,10 @@ internal static class LookupStream2Verification
                 AssertEqual(Word(document.LowerNorfair[color]), catalog.ResolveLowerNorfair(color), "Lower Norfair palette preserved");
             }
             var statues = new GameplayColours(new SpriteColourSets());
-            catalog.ApplyWreckedShip(statues.SpriteSets.Sets(1, 2));
+            catalog.ApplyWreckedShip(SpriteColourStore.InOrder(SpriteColourSetDefinitions.ChozoAndTube, statues.SpriteSets));
             for (int color = 0; color < 32; color++)
                 AssertEqual(Word(document.WreckedShip[color]), statues.Colors[ChozoAndTubeColorTransfer.Destination + color], "Wrecked Ship color reaches CGRAM");
-            catalog.ApplyLowerNorfair(statues.SpriteSets.Sets(1, 2));
+            catalog.ApplyLowerNorfair(SpriteColourStore.InOrder(SpriteColourSetDefinitions.ChozoAndTube, statues.SpriteSets));
             for (int color = 0; color < 32; color++)
                 AssertEqual(Word(document.LowerNorfair[color]), statues.Colors[ChozoAndTubeColorTransfer.Destination + color], "Lower Norfair color reaches CGRAM");
             string expected = SelectedPresentationHash.Create("ChozoAndTubeColorCatalog-v1", content =>

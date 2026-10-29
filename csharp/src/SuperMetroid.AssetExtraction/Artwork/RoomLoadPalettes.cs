@@ -15,8 +15,8 @@ internal static class RoomLoadPalettes
         Ensure.NotNull(palettes);
         var cgram = new ScreenPalette();
         BackgroundColourSetImage.LoadStarting(palettes, cgram);
-        palettes.LoadCommonSprites(cgram.SpriteSets.Set(SpriteColourSetDefinitions.Common));
-        palettes.LoadEnemyProjectileSprites(cgram.SpriteSets.Set(SpriteColourSetDefinitions.EnemyProjectiles));
+        palettes.LoadCommonSprites(SpriteColourSetDefinitions.Common.In(cgram.SpriteSets));
+        palettes.LoadEnemyProjectileSprites(SpriteColourSetDefinitions.EnemyProjectiles.In(cgram.SpriteSets));
         return cgram;
     }
 }

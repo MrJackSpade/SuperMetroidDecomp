@@ -1,39 +1,34 @@
+using System.Collections.Immutable;
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Enemies.Drawing;
 
-/// <summary>Which sprite colour set each shared role uses (#1405).</summary>
+/// <summary>Which sprite colour store each shared role uses (#1405, #1464).</summary>
 internal static class SpriteColourSetDefinitions
 {
-    /// <summary>The set a room load fills with the common sprite colours, which an enemy's hit flash shows.</summary>
-    public const int Common = 0;
+    /// <summary>The store a room load fills with the common sprite colours, which an enemy's hit flash shows.</summary>
+    public static readonly SpriteColourStore Common = SpriteColourStore.Common;
 
-    /// <summary>The set a room load fills with the enemy projectiles' colours.</summary>
-    public const int EnemyProjectiles = 5;
+    /// <summary>The store a room load fills with the enemy projectiles' colours.</summary>
+    public static readonly SpriteColourStore EnemyProjectiles = SpriteColourStore.EnemyProjectiles;
 
-    /// <summary>The set a frozen enemy shows: the colours of the beam that froze it.</summary>
-    public const int Frozen = 6;
+    /// <summary>The store a frozen enemy shows: the colours of the beam that froze it.</summary>
+    public static readonly SpriteColourStore Frozen = SpriteColourStore.SamusBeams;
 
-    /// <summary>The set the Chozo statues and the glass tube colour, with the one after it.</summary>
-    public const int ChozoAndTube = 1;
+    /// <summary>The stores the Chozo statues and the glass tube colour, in the order their colours are written.</summary>
+    public static readonly ImmutableArray<SpriteColourStore> ChozoAndTube =
+        [SpriteColourStore.EnemiesFirst, SpriteColourStore.EnemiesSecond];
 
-    /// <summary>The sets the Chozo statues and the glass tube colour.</summary>
-    public const int ChozoAndTubeSets = 2;
+    /// <summary>The store dead Sidehoppers fade in, from its second colour.</summary>
+    public static readonly SpriteColourStore DeadSidehopper = SpriteColourStore.EnemiesFirst;
 
-    /// <summary>The set dead Sidehoppers fade in, from its second colour.</summary>
-    public const int DeadSidehopper = 1;
-
-    /// <summary>The set the escape's typewriter text shows, whose two colours it copies from the background.</summary>
-    public const int EscapeTypewriterText = 1;
-
-    /// <summary>The first of the two typewriter text colours in its set.</summary>
-    public const int EscapeTypewriterTextFirstColour = 13;
-
-    /// <summary>The set the Ninja Space Pirates' gold wall colours load into.</summary>
-    public const int NinjaSpacePirate = 7;
+    /// <summary>The store the Ninja Space Pirates' gold wall colours load into.</summary>
+    public static readonly SpriteColourStore NinjaSpacePirate = SpriteColourStore.EnemiesFourth;
 
     /// <summary>
-    /// The set a Ninja Space Pirate's divekick flashes back to and lands in. The Metal Pirates room loads the gold
-    /// Ninja Space Pirates' own colours there; the escape's Climb loads its silver one into the next set, so there the
-    /// divekick leaves it in whatever colours this set holds, as on the cartridge.
+    /// The store a Ninja Space Pirate's divekick flashes back to and lands in. The Metal Pirates room loads the gold
+    /// Ninja Space Pirates' own colours there; the escape's Climb loads its silver one into another store, so there the
+    /// divekick leaves it in whatever colours this store holds, as on the cartridge.
     /// </summary>
-    public const int NinjaSpacePirateStance = 1;
+    public static readonly SpriteColourStore NinjaSpacePirateStance = SpriteColourStore.EnemiesFirst;
 }

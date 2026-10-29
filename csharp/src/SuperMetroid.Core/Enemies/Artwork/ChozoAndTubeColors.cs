@@ -83,14 +83,14 @@ internal static class ChozoAndTubeColors
         Enumerable.Range(0, ChozoAndTubeColorDefinitions.ColorCount).Select(color => Statue(colors, palette, color)).ToArray();
 
     /// <summary>Writes the tube-crack image's 32 inks.</summary>
-    internal static void ApplyTubeCracks(ChozoAndTubeColorCatalog colors, ColourRun destination)
+    internal static void ApplyTubeCracks(ChozoAndTubeColorCatalog colors, ColourRunSequence destination)
     {
         for (int color = 0; color < ChozoAndTubeColorDefinitions.ColorCount; color++)
             destination.Write(color, colors.ResolveTubeCracks(color));
     }
 
     /// <summary>Writes the selected statue's 32 inks into the shared boss OBJ palette range.</summary>
-    internal static void ApplyStatue(ChozoAndTubeColorCatalog colors, ColourRun destination, ChozoStatuePalette palette)
+    internal static void ApplyStatue(ChozoAndTubeColorCatalog colors, ColourRunSequence destination, ChozoStatuePalette palette)
     {
         for (int color = 0; color < ChozoAndTubeColorDefinitions.ColorCount; color++)
             destination.Write(color, Statue(colors, palette, color));

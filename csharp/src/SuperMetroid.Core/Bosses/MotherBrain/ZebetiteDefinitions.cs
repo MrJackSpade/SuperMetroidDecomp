@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>Fixed generation, health-tier, and respawn definitions for Tourian's Zebetites.</summary>
 internal static class ZebetiteDefinitions
 {
-    /// <summary>The two colours the Zebetites pulse: the third sprite set's colours twelve and thirteen.</summary>
-    public static readonly SpriteColourRun PulseColours = new(2, 12, 2);
+    /// <summary>The two colours the Zebetites pulse: the second enemy store's colours twelve and thirteen.</summary>
+    public static readonly SpriteColourRun PulseColours = new(SpriteColourStore.EnemiesSecond, 12, 2);
 
     /// <summary>The steps of the shared pulse cycle physical enemy slot zero counts through before it restarts.</summary>
     public const int PaletteCycleLength = 8;

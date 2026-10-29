@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Rooms;
 
@@ -82,16 +83,21 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Creates the per-statue gradual color transition against the live CGRAM image on first use.</summary>
     private GradualPaletteTransition GetTorizoPaletteTransition(TorizoEnemyState state) =>
         state.PaletteTransition ??= new GradualPaletteTransition(
-            new ColourImage(TorizoBodyColours), TorizoPaletteDefinitions.FadeDenominator, _presentation.GradualColorChange);
+            new ColourImage([.. TorizoBodyColours.Runs]), TorizoPaletteDefinitions.FadeDenominator, _presentation.GradualColorChange);
 
-    /// <summary>The body and belly colours the statue's fades change.</summary>
-    private ColourRun TorizoBodyColours => _presentation.Colours.SpriteSets.Sets(1, 2);
-
-    /// <summary>Sets target colors beginning at the first body entry for the authored palette fade.</summary>
-    private void SetTorizoPaletteTarget(TorizoEnemyState state, ReadOnlySpan<RgbColor> colors)
+    /// <summary>The body and belly colours the statue's fades change, body first.</summary>
+    private ColourRunSequence TorizoBodyColours
     {
-        colors.CopyTo(GetTorizoPaletteTransition(state).Target.Of(TorizoBodyColours));
+        get
+        {
+            BossColours colours = _presentation.BossColours();
+            return new ColourRunSequence(colours.TorizoBody, colours.TorizoBelly);
+        }
     }
+
+    /// <summary>Sets the authored palette fade's target colors: the body's, then the belly's.</summary>
+    private void SetTorizoPaletteTarget(TorizoEnemyState state, ReadOnlySpan<RgbColor> colors) =>
+        TorizoBodyColours.CopyInto(GetTorizoPaletteTransition(state).Target, colors);
 
     /// <summary>Ports <c>Torizo_Main</c> and its <c>toriz_var_E</c> dispatcher.</summary>
     private void RunBombTorizoMain(

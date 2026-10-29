@@ -13,9 +13,9 @@ internal static class SpriteColouringAccess
     /// <summary>The shared set each role row holds, which a row imported or recorded as a number denotes.</summary>
     private static readonly Dictionary<int, SharedSpriteColouring> RoleRows = new()
     {
-        [SpriteColourSetDefinitions.Common] = SharedSpriteColouring.Common,
-        [SpriteColourSetDefinitions.EnemyProjectiles] = SharedSpriteColouring.EnemyProjectiles,
-        [SpriteColourSetDefinitions.Frozen] = SharedSpriteColouring.Frozen,
+        [SpriteColourSetDefinitions.Common.Set] = SharedSpriteColouring.Common,
+        [SpriteColourSetDefinitions.EnemyProjectiles.Set] = SharedSpriteColouring.EnemyProjectiles,
+        [SpriteColourSetDefinitions.Frozen.Set] = SharedSpriteColouring.Frozen,
     };
 
     /// <summary>Rows of an enemy's colours.</summary>

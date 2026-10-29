@@ -14,6 +14,6 @@ internal static class SpriteColouringFixtures
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">The set is not a sprite set.</exception>
         internal static SpriteColouring InFixtureSet(int set) => new EncounterSpriteColouring(
-            new SpriteColourRun(Ensure.BetweenInclusive(0, ColourSets.SetCount - 1, set), 0, ColourSets.SetColours));
+            new SpriteColourRun(new SpriteColourStore(set), 0, ColourSets.SetColours));
     }
 }

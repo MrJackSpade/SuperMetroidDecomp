@@ -5,11 +5,11 @@ namespace SuperMetroid.Core.Areas.Artwork;
 public static class AreaColourDefinitions
 {
     /// <summary>Tourian statue base.</summary>
-    public static readonly SpriteColourRun TourianStatueBase = new(7, 0, 16);
+    public static readonly SpriteColourRun TourianStatueBase = new(SpriteColourStore.EnemiesFourth, 0, 16);
 
     /// <summary>Tourian statue.</summary>
-    public static readonly SpriteColourRun TourianStatue = new(2, 0, 16);
+    public static readonly SpriteColourRun TourianStatue = new(SpriteColourStore.EnemiesSecond, 0, 16);
 
     /// <summary>Tourian statue eye.</summary>
-    public static readonly SpriteColourRun TourianStatueEye = new(7, 9, 4);
+    public static readonly SpriteColourRun TourianStatueEye = new(SpriteColourStore.EnemiesFourth, 9, 4);
 }

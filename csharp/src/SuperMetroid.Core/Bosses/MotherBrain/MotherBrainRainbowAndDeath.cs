@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -128,8 +127,7 @@ internal sealed class MotherBrainRainbowAndDeath
             state.EscapeTypewriter = _bossArtwork.EscapeTypewriterPresentation is { } presentation
                 ? new(presentation.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterDefinitions.ZebesTileBase)
                 : new(EscapeTypewriterProgramId.Zebes, EscapeTypewriterDefinitions.ZebesTileBase);
-            _presentation.ColourSet(SpriteColourSetDefinitions.EscapeTypewriterText)
-                .Slice(SpriteColourSetDefinitions.EscapeTypewriterTextFirstColour, 2)
+            _presentation.ColoursOf(EscapeTypewriterColourDefinitions.Text)
                 .CopyFrom(EscapeTypewriterColourDefinitions.Source.In(_presentation.BackgroundSets).Colors);
             state.Bg2Scroll = Position16<BackgroundPixels>.Zero;
         }

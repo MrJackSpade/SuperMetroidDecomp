@@ -8,5 +8,5 @@ internal static class TourianCorpseColourDefinitions
     /// The drained corpses' colours, which the Shitroid encounter installs for its victim and in which the room's
     /// already-dead Sidehopper, Zoomers, Rippers and Skrees lie.
     /// </summary>
-    internal static readonly SpriteColourRun DrainedCorpses = new(7, 0, 16);
+    internal static readonly SpriteColourRun DrainedCorpses = new(SpriteColourStore.EnemiesFourth, 0, 16);
 }

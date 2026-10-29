@@ -23,11 +23,14 @@ internal static class SamusColourDefinitions
     /// <summary>The ink row Samus without her suit is coloured in.</summary>
     public const int SuitlessInkRow = 7;
 
-    /// <summary>The sprite colour set Samus without her suit shows.</summary>
-    public const int SuitlessSpriteSet = 7;
+    /// <summary>The sprite colour store whose colours Samus's suit shows over its own.</summary>
+    public static readonly SpriteColourStore SuitStore = SpriteColourStore.SamusSuit;
 
-    /// <summary>The sprite colour set whose last colour is Samus's grapple flare: the enemy projectiles' set.</summary>
-    public const int FlareSpriteSet = 5;
+    /// <summary>The sprite colour store Samus without her suit shows.</summary>
+    public static readonly SpriteColourStore SuitlessStore = SpriteColourStore.EnemiesFourth;
+
+    /// <summary>The sprite colour store whose last colour is Samus's grapple flare: the enemy projectiles' store.</summary>
+    public static readonly SpriteColourStore FlareStore = SpriteColourStore.EnemyProjectiles;
 
     /// <summary>The grapple flare's colour within its sprite set.</summary>
     public const int FlareColour = 15;

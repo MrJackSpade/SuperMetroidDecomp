@@ -89,7 +89,7 @@ internal static class ClosedPresentationContractChecks
                     rainbow.ApplyFakeDeathFromGrey(cgram, 8);
                     death.BodyColor(15, 13);
                     death.CorpseColor(8, 0);
-                    chozo.ApplyLowerNorfair(screen.SpriteSets.All.Slice(16, 32));
+                    chozo.ApplyLowerNorfair(new ColourRunSequence(screen.SpriteSets.All.Slice(16, 32)));
                     chozo.ResolveTubeCracks(0);
                     basePalette.LoadEnemyProjectileSprites(screen.SpriteSets.Set(dynamicIndex));
                     samusDeath.SuitedColor(2, 9, 15);

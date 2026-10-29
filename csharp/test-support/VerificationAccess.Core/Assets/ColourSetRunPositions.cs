@@ -11,7 +11,7 @@ internal static class ColourSetRunPositions
     internal static int First(IColourSetRun run) => run switch
     {
         BackgroundColourRun background => SuperMetroid.AssetExtraction.Video.BackgroundColourSetImage.First(background.Set) + background.Colour,
-        SpriteColourRun sprite => ColourSets.SetCount * ColourSets.SetColours + sprite.Set * ColourSets.SetColours + sprite.Colour,
+        SpriteColourRun sprite => ColourSets.SetCount * ColourSets.SetColours + sprite.Store.Set * ColourSets.SetColours + sprite.Colour,
         _ => throw new ArgumentOutOfRangeException(nameof(run), run, "Unknown colour set run."),
     };
 

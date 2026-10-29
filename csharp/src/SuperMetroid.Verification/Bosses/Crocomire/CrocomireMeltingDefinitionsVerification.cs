@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Crocomire;
@@ -9,6 +8,8 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -174,12 +175,12 @@ internal static class CrocomireMeltingDefinitionsVerification
         int sourceAddress = CrocomireMeltingSources.Tilemap(source);
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
-        var death = new CrocomireDeathState();
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
-        enemies.CrocomireBehavior.Access.CrocomireDeath = death;
-        // Crocomire's initialization attaches the enemy BG2 image his words draw into (#1355).
-        enemies.Presentation.AttachBg2Image(new EnemyBg2Image(CrocomireMeltingTilemap.BlankGlyph));
+        // Crocomire's initialization attaches the body canvases his melt is drawn on (#1355, #1466).
+        BossBodySheets sheets = RepositoryInstallation.Artwork.BossBodySheets
+            ?? throw new InvalidOperationException("The repository installation has no boss body sheets.");
+        CrocomireDeathState death = BossBodyCanvasFixtures.AttachCrocomire(enemies, sheets);
         // #1269 split the loader into the two native phases ($A4:9341 and $A4:93ED).
         Action<CrocomireEnemyState> initialize = source switch
         {
@@ -193,8 +194,9 @@ internal static class CrocomireMeltingDefinitionsVerification
             $"installed Crocomire melt tilemap ${sourceAddress:X6} body program");
         AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathSequenceIndex,
             $"installed Crocomire melt tilemap ${sourceAddress:X6} phase timing");
-        ushort[] result = BackgroundTileWordBytes.Words(death.Bg2WorkingTilemap.Slice(32,
-            CrocomireMeltingArtworkFormat.TilemapCellCount));
+        ushort[] working = BossBodyWords.Of(death.WorkingBody!.Publish(sheets), BossBodyOwner.Crocomire, artwork.Bosses);
+        ushort[] shown = BossBodyWords.Of(enemies.Presentation.RequireBossBody().Publish(sheets), BossBodyOwner.Crocomire, artwork.Bosses);
+        ushort[] result = working[32..(32 + CrocomireMeltingArtworkFormat.TilemapCellCount)];
         for (int index = 0; index < result.Length; index++)
         {
             int address = sourceAddress + index * 2;
@@ -202,7 +204,7 @@ internal static class CrocomireMeltingDefinitionsVerification
             if (compareRom)
                 AssertEqual(expected, result[index],
                     $"installed Crocomire tilemap ${sourceAddress:X6} cell {index}");
-            AssertEqual(result[index], enemies.Presentation.RequireBg2Image().Publish().Words[32 + index],
+            AssertEqual(result[index], shown[32 + index],
                 $"installed Crocomire tilemap ${sourceAddress:X6} shown word {index}");
         }
         return result;

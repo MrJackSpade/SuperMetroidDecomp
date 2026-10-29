@@ -161,8 +161,8 @@ internal static class EnemyAnimationIsolationFixtureVerification
         AssertAnimationValues(baseline.Enemies, edited.Enemies, context);
         // EnemyBG2Tilemap is the cartridge's staging image for the visible BG2 frame, so an
         // edited BG2 presentation legitimately changes it; every other WRAM byte must not.
-        int bg2Start = SnesAddressMath.OffsetInBank(MotherBrainBg2Definitions.WorkAddress);
-        int bg2End = bg2Start + MotherBrainBg2Definitions.ClearCellCount * sizeof(ushort);
+        int bg2Start = SnesAddressMath.OffsetInBank(MotherBrainBg2DefinitionsConstants.WorkAddress);
+        int bg2End = bg2Start + MotherBrainBg2DefinitionsConstants.ClearCellCount * sizeof(ushort);
         AssertSameBytes(baseline.Memory.WorkRam[..bg2Start], edited.Memory.WorkRam[..bg2Start],
             context + " preserves WRAM below the enemy BG2 staging image");
         AssertSameBytes(baseline.Memory.WorkRam[bg2End..], edited.Memory.WorkRam[bg2End..],

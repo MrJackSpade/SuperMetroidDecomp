@@ -14,6 +14,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.RenderVerification.Rooms;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.Core.Enemies.BossBodies;
 namespace SuperMetroid.RenderVerification.Bosses;
 
 using SuperMetroid.TestSupport.FrameCapture;
@@ -153,8 +154,9 @@ internal static class RetailKraidCaptureTests
         var gameplay = (GameplaySceneLayer)scene.Layers[0];
         if (gameplay.Rooms.BossBg2 is null)
             throw new InvalidOperationException($"{context}: BG2 shows the room's own background where Kraid's tilemap was expected.");
-        var shown = new SortedSet<ushort>(runtime.Display.Latched.Bosses.KraidBody?.Tilemap.Words
-            ?? throw new InvalidOperationException($"{context}: BG2 shows a boss body Kraid has not latched."));
+        var shown = new SortedSet<ushort>(BossBodyWords.Of(runtime.Display.Latched.Bosses.Body
+            ?? throw new InvalidOperationException($"{context}: BG2 shows a boss body Kraid has not latched."), BossBodyOwner.Kraid,
+            runtime.BossArtwork.Artwork ?? throw new InvalidOperationException($"{context}: the runtime installs no boss artwork.")));
         if (shown.Any(word => word != KraidBackgroundDefinitions.BlankTile.PackedWord))
             throw new InvalidOperationException($"{context}: BG2 shows {string.Join(", ", shown.Select(word => $"${word:X4}"))}; only the blank tile ${KraidBackgroundDefinitions.BlankTile.PackedWord:X4} remains on the cartridge.");
     }

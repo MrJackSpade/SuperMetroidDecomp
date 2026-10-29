@@ -16,6 +16,8 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Enemies.Callbacks;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -256,8 +258,9 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
-        // Her fight attaches the BG2 image her body frames draw into.
-        EnemyBg2Image image = EnemyBg2ImageFixtures.AttachBlank(enemies.Presentation);
+        // His fight attaches the body layer his body frames draw on.
+        BossBodyCanvas image = BossBodyCanvasFixtures.AttachBlank(enemies, RepositoryInstallation.Artwork.BossBodySheets
+            ?? throw new InvalidOperationException("The repository installation has no boss body sheets."), BossBodyOwner.Draygon);
         enemies.Drawing.Enqueue(0, 0);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.DraygonBody, slot.Definition);
@@ -270,6 +273,6 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         slot.SpritemapPointer = pointer;
         slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         enemies.Drawing.DrawLayersAsOam(new OamBuffer(), new(0, 0), 0, 0);
-        return EnemyBg2ImageFixtures.AsVram(image, EnemyBg2FrameLayoutConstants.VramBase, vram.Bytes.Length);
+        return BossBodyCanvasFixtures.AsVram(image, enemies, EnemyBg2FrameLayoutConstants.VramBase, vram.Bytes.Length);
     }
 }

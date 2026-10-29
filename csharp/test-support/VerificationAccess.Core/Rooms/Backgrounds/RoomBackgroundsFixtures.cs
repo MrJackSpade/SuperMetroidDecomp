@@ -4,6 +4,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rendering;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Gameplay;
@@ -109,11 +110,29 @@ internal static class RoomBackgroundsFixtures
     }
 
     /// <summary>
-    /// The boss body a fixture loaded as a <paramref name="size"/> tilemap at <paramref name="tilemapWord"/> in
-    /// <paramref name="image"/>, in the hardware's screen order (#1403): each cell's word painted from the characters at
-    /// <paramref name="characterWord"/>.
+    /// A seeded boss body of <paramref name="rows"/> rows (#1466): every four rows one part, showing a seeded block
+    /// picture repeated across them.
     /// </summary>
-    internal static BossBodyPictures BodyFromTilemap(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int tilemapWord,
+    internal static ShownBossBody SeededBody(Random random, RgbColor[] scene, int rows)
+    {
+        RoomBlockPictureTable blocks = SeededPictures(random, scene);
+        const int partRows = 4;
+        var parts = new List<ShownBossBodyPart>();
+        for (int top = 0; top < rows; top += partRows)
+        {
+            parts.Add(new ShownBossBodyPart(blocks.Picture(random.Next(Definitions))
+                ?? throw new InvalidOperationException("A seeded block has no picture."), top, BossBodyFootprint.OfRows(top, Math.Min(partRows, rows - top))));
+        }
+        return new ShownBossBody(rows, [.. parts]);
+    }
+
+    /// <summary>
+    /// The boss body a fixture loaded as a <paramref name="size"/> tilemap at <paramref name="tilemapWord"/> in
+    /// <paramref name="image"/>, in the hardware's screen order (#1403, #1466): one part for each distinct word, its
+    /// picture a block of four copies of the word painted from the characters at <paramref name="characterWord"/>,
+    /// repeated over the cells showing the word.
+    /// </summary>
+    internal static ShownBossBody BodyFromTilemap(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int tilemapWord,
         Extent16<TilemapCells> size, int characterWord = 0)
     {
         var words = new ushort[size.X * size.Y];
@@ -126,24 +145,35 @@ internal static class RoomBackgroundsFixtures
         for (int corner = 0; corner < BlockTiles; corner++)
             definitions[index * BlockTiles + corner] = BackgroundTileWordBytes.Tile(distinct[index]);
         RoomBlockPictureTable painted = RoomBlockFixtures.Pictures(definitions, image, palette, characterWord);
-        var pictureOf = new Dictionary<ushort, BgTilePicture>();
+        var parts = new List<ShownBossBodyPart>();
         for (int index = 0; index < distinct.Length; index++)
-            pictureOf[distinct[index]] = new BgTilePicture(painted.Picture(index) ?? throw new InvalidOperationException("A painted word has no picture."), default);
-        return new BossBodyPictures(size, [.. words.Select(word => (BgTilePicture?)pictureOf[word])]);
+        {
+            var masks = new uint[words.Length / BossBodyDefinitions.ColumnCount];
+            for (int cell = 0; cell < words.Length; cell++)
+            {
+                if (words[cell] == distinct[index])
+                    masks[cell / BossBodyDefinitions.ColumnCount] |= 1u << (cell % BossBodyDefinitions.ColumnCount);
+            }
+            parts.Add(new ShownBossBodyPart(painted.Picture(index) ?? throw new InvalidOperationException("A painted word has no picture."), 0,
+                new BossBodyFootprint(0, [.. masks])));
+        }
+        return new ShownBossBody(words.Length / BossBodyDefinitions.ColumnCount, [.. parts]);
     }
 
     /// <summary>
-    /// A boss body of <paramref name="size"/> that shows tilemap word <paramref name="word"/> in every cell (#1403), its
-    /// picture painted from the characters at <paramref name="characterWord"/> in <paramref name="image"/>.
+    /// A boss body of <paramref name="size"/> that shows tilemap word <paramref name="word"/> in every cell (#1403, #1466):
+    /// one part, a block of four copies of the word painted from the characters at <paramref name="characterWord"/> in
+    /// <paramref name="image"/>, repeated over every cell.
     /// </summary>
-    internal static BossBodyPictures UniformBody(SnesBgTilemapWord word, Extent16<TilemapCells> size, ReadOnlySpan<byte> image,
+    internal static ShownBossBody UniformBody(SnesBgTilemapWord word, Extent16<TilemapCells> size, ReadOnlySpan<byte> image,
         ReadOnlySpan<RgbColor> palette, int characterWord = 0)
     {
         var definition = new BackgroundTile[BlockTiles];
         definition.AsSpan().Fill(BackgroundTileWordBytes.Tile(word.Raw));
         SpriteSheetFrame block = RoomBlockFixtures.Pictures(definition, image, palette, characterWord).Picture(0)
             ?? throw new InvalidOperationException("The painted block has no picture.");
-        return new BossBodyPictures(size, [.. Enumerable.Repeat((BgTilePicture?)new BgTilePicture(block, default), size.X * size.Y)]);
+        int rows = size.X * size.Y / BossBodyDefinitions.ColumnCount;
+        return new ShownBossBody(rows, [new ShownBossBodyPart(block, 0, BossBodyFootprint.OfRows(0, rows))]);
     }
 
     /// <summary>

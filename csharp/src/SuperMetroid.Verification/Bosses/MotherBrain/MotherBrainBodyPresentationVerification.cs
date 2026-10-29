@@ -62,7 +62,7 @@ internal static class MotherBrainBodyPresentationVerification
             AssertEqual(frame.Pointer, replacement.Body.SpritemapPointer, "display remap retains physical frame");
 
             replacement.SetFrame(frame.Pointer, fresh: false);
-            replacement.MarkBg2(0xbeef);
+            replacement.MarkBg2();
             ushort[] retained = replacement.Bg2Words;
             AssertBodyOam(replacement.Draw(), editedOam.Frames[selected], replacement.Body, replacement.Inner.Enemies);
             AssertTrue(retained.SequenceEqual(replacement.Bg2Words),

@@ -16,6 +16,9 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// <param name="colours">The room's standard palette.</param>
 internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters room, RgbColor[] colours)
 {
+    /// <summary>The name of the part a boss clears its layer with.</summary>
+    internal const string BlankPartName = "Blank";
+
     /// <summary>The bytes of every artwork a cell can show, by identity.</summary>
     private readonly Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = Ensure.NotNull(room).Loaded
         .Concat(room.Animated.Select(frame => frame.Placement))
@@ -73,9 +76,8 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
     {
         if (room.Rebound.Any(upload => upload.Covers(BgCharacterSet.Tiles, blank.Tile)) || AnimationOf(blank.Tile) is not null)
             throw new InvalidDataException($"{owner}'s blank reads character {blank.Tile}, which its room rebinds or animates.");
-        const string blankName = "Blank";
-        pictures.Add(new BossBodyPicture(blankName, 1, 1, [new BossBodyPaintedCell(0, 0, blank, Character(blank.Tile, null))]));
-        var blankPart = new ComposedBossBodyPart(blankName, 0, BossBodyFootprint.OfCells(0, 1), null,
+        pictures.Add(new BossBodyPicture(BlankPartName, 1, 1, [new BossBodyPaintedCell(0, 0, blank, Character(blank.Tile, null))]));
+        var blankPart = new ComposedBossBodyPart(BlankPartName, 0, BossBodyFootprint.OfCells(0, 1), null,
             new Dictionary<string, string>(StringComparer.Ordinal));
 
         // Each picture goes to the column with the fewest rows so far.

@@ -11,6 +11,9 @@ using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
+using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Enemies.BossBodies;
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 
 /// <summary>Checks Phantoon's body and wave as published models instead of VRAM and HDMA tables (#1353).</summary>
@@ -33,15 +36,16 @@ internal static class PhantoonBodyPublicationVerification
             ?? throw new InvalidOperationException("Phantoon's room loads Phantoon.");
         RoomEnemySlot body = runtime.Enemies.SlotTable.Slots[0];
 
-        // The body frame draws into the enemy BG2 image through the installed frame's writes.
+        // The body frame draws on his body layer from his installed body sheet (#1466).
         EnemyFrameId frame = PhantoonBg2FrameDefinitions.Frames[1].Frame;
         body.ExtraProperties = body.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
-        runtime.Enemies.Instructions.ApplyInstalledEnemyBg2Frame(body, frame);
+        runtime.Enemies.Instructions.DrawBossBodyFrame(body, frame);
+        BossArtworkCatalog bosses = runtime.BossArtwork.Artwork ?? throw new InvalidOperationException("The retail runtime installs boss artwork.");
         var expected = new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight];
-        expected.AsSpan().Fill(PhantoonBg2FrameDefinitions.BlankTile.PackedWord);
-        EnemyBg2FrameLookup lookup = ((IEnemyBg2Frames)body.Entity!).FindBg2Frame(frame, runtime.Enemies.Room)
-            ?? throw new InvalidOperationException("Phantoon's body frame has installed writes.");
-        foreach (EnemyBg2TilemapWrite write in lookup.Writes.Span)
+        expected.AsSpan().Fill(BossBodySheetComposer.BlankOf(BossBodyOwner.Phantoon).PackedWord);
+        if (!(bosses.PhantoonBg2Frames ?? throw new InvalidOperationException("Phantoon's BG2 frames are installed.")).TryGet(frame, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes))
+            throw new InvalidOperationException("Phantoon's body frame has installed writes.");
+        foreach (EnemyBg2TilemapWrite write in writes.Span)
             write.Words.CopyTo(expected.AsSpan(write.FirstCell));
 
         // Wavy fade-in: the intro wave set up and built once.
@@ -56,9 +60,10 @@ internal static class PhantoonBodyPublicationVerification
             ?? throw new InvalidOperationException("Phantoon publishes his display.");
         AssertEqual(new PhantoonWave(PhantoonWaveDefinitions.IntroMode, state.Wave.Phase, 3072, 40), fadingIn.Wave,
             "the wavy fade-in publishes the wave's mode, phase, amplitude and base scroll");
-        EnemyBg2ImageSnapshot image = runtime.Display.Latched.Bosses.EnemyBg2
-            ?? throw new InvalidOperationException("Phantoon publishes his enemy BG2 image.");
-        AssertTrue(image.Words.AsSpan().SequenceEqual(expected), "the published image holds the drawn body frame over the cleared image");
+        BossBodyLayer image = runtime.Display.Latched.Bosses.Body
+            ?? throw new InvalidOperationException("Phantoon publishes his body layer.");
+        AssertTrue(BossBodyWords.Of(image, BossBodyOwner.Phantoon, bosses).AsSpan().SequenceEqual(expected),
+            "the published layer shows the drawn body frame over the cleared layer");
         var drawn = (GameplaySceneLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), "the capture draws the body image on BG2");
 
@@ -69,7 +74,7 @@ internal static class PhantoonBodyPublicationVerification
         PhantoonDisplaySnapshot fadingOut = runtime.Display.Latched.Phantoon
             ?? throw new InvalidOperationException("Phantoon publishes his display.");
         AssertTrue(fadingOut.Wave is null, "a deleted wave publishes nothing");
-        AssertTrue(ReferenceEquals(image, runtime.Display.Latched.Bosses.EnemyBg2), "an unchanged body image publishes again unchanged");
+        AssertTrue(ReferenceEquals(image, runtime.Display.Latched.Bosses.Body), "an unchanged body layer publishes again unchanged");
         Console.WriteLine("  Phantoon body: the body image and wave publish through the wavy fade-in and the swooping fade-out.");
     }
 

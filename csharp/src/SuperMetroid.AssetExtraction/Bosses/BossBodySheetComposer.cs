@@ -76,7 +76,7 @@ internal static class BossBodySheetComposer
     internal static string SheetNameOf(BossBodyOwner owner) => $"BossBody.{owner}";
 
     /// <summary>The tile <paramref name="owner"/> clears its body layer with.</summary>
-    private static BackgroundTile BlankOf(BossBodyOwner owner) => owner switch
+    internal static BackgroundTile BlankOf(BossBodyOwner owner) => owner switch
     {
         BossBodyOwner.Kraid => KraidBackgroundDefinitions.BlankTile,
         BossBodyOwner.Phantoon or BossBodyOwner.Draygon or BossBodyOwner.Crocomire or BossBodyOwner.MotherBrain => BossBodySourceDefinitions.BlankTile,
@@ -85,7 +85,7 @@ internal static class BossBodySheetComposer
 
     /// <summary>Every frame <paramref name="owner"/> draws, at the layer cells it writes.</summary>
     /// <exception cref="InvalidDataException">The boss's installed artwork is missing.</exception>
-    private static IEnumerable<BossBodyFrameSource> Frames(BossArtworkCatalog bosses, BossBodyOwner owner)
+    internal static IEnumerable<BossBodyFrameSource> Frames(BossArtworkCatalog bosses, BossBodyOwner owner)
     {
         switch (owner)
         {

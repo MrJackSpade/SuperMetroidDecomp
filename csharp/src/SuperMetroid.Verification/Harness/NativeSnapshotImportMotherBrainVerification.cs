@@ -5,7 +5,9 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.Core.Bosses.Artwork;
 namespace SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 
@@ -229,9 +231,11 @@ internal static class NativeSnapshotImportMotherBrainVerification
         word == 0 ? 0 : MotherBrainLegLoadListConstants.IndexOf(word);
 
     /// <summary>
-    /// The phase-two transition uploads her staged body screen and she owns the enemy BG2 image from then on (#1356). A
-    /// snapshot taken after the transition never ran it in the port, so the image starts as the uploaded staging screen.
+    /// The phase-two transition shows her staged body screen and she owns her body layer from then on (#1356, #1466). A
+    /// snapshot taken after the transition never ran it in the port, so the layer starts as the staged screen: the
+    /// installed body frame whose words it holds, drawn over her blank.
     /// </summary>
+    /// <exception cref="InvalidDataException">The staged screen is not one installed body frame over her blank.</exception>
     private static void ImportMotherBrainBodyImage(SuperMetroidRuntime runtime, MotherBrainEnemyState state, Func<int, ushort> W)
     {
         var function = MotherBrainNativeWords.MotherBrainBodyFunctions.Decode(W(MotherBrainMemory.BodyFunction), "recorded MotherBrainBodyFunction");
@@ -243,12 +247,20 @@ internal static class NativeSnapshotImportMotherBrainVerification
             MotherBrainBodyFunction.FakeDeathAscentTransitionFromGray);
         if (!transferred)
             return;
-        var screen = new ushort[MotherBrainBg2Definitions.InitialTilemapByteCount / sizeof(ushort)];
+        var screen = new ushort[MotherBrainBodyDefinitions.ShownCells];
         for (int word = 0; word < screen.Length; word++)
             screen[word] = W(EnemyBg2StagingWram + word * sizeof(ushort));
-        var image = new EnemyBg2Image(MotherBrainBg2Definitions.BlankTile);
-        image.Write(0, BackgroundTileWordBytes.Tiles(screen));
-        runtime.Enemies.Presentation.AttachBg2Image(image);
+        BossBodySheets sheets = runtime.BossArtwork.BodySheets ?? throw new InvalidOperationException("The runtime installs no boss body sheets.");
+        BossArtworkCatalog bosses = runtime.BossArtwork.Artwork ?? throw new InvalidOperationException("The runtime installs no boss artwork.");
+        BossBodySheet sheet = sheets.Of(BossBodyOwner.MotherBrain);
+        var image = new BossBodyCanvas(sheet, BossBodyDefinitions.SharedBodyRows);
+        BossBodyFrameSource? staged = BossBodySheetComposer.Frames(bosses, BossBodyOwner.MotherBrain).FirstOrDefault(frame =>
+            frame.Cells.All(entry => entry.Key < screen.Length && screen[entry.Key] == entry.Value.PackedWord));
+        if (staged is not null)
+            image.Draw(sheet.Frame(staged.Name));
+        if (!BossBodyWords.Of(image.Publish(sheets), BossBodyOwner.MotherBrain, bosses).AsSpan(0, screen.Length).SequenceEqual(screen))
+            throw new InvalidDataException("The snapshot's staged Mother Brain body is not one installed body frame over her blank.");
+        runtime.Enemies.Presentation.AttachBossBody(image);
     }
 
     /// <summary>The WRAM offset of the enemy BG2 staging image, <c>$7E:2000</c>.</summary>

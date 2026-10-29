@@ -6,6 +6,8 @@ using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
@@ -337,9 +339,9 @@ internal static class CrocomireStateQuantitiesVerification
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         var state = new CrocomireEnemyState(body);
         enemies.CrocomireBehavior.Access.Crocomire = state;
-        enemies.CrocomireBehavior.Access.CrocomireDeath = new CrocomireDeathState();
-        // Crocomire's initialisation attaches the BG2 image his sink clears rows of (#1446).
-        enemies.Presentation.AttachBg2Image(new EnemyBg2Image(CrocomireBg2.CrocomireBlankBg2Tile));
+        // Crocomire's initialisation attaches the body layer his sink clears rows of (#1446, #1466).
+        _ = BossBodyCanvasFixtures.AttachCrocomire(enemies, RepositoryInstallation.Artwork.BossBodySheets
+            ?? throw new InvalidOperationException("The repository installation has no boss body sheets."));
         enemies.VerificationServices().ReadRandom = () => ushort.MaxValue;
         enemies.VerificationServices().NextRandom = () => ushort.MaxValue;
         return new NewCrocomireResult(enemies, state);

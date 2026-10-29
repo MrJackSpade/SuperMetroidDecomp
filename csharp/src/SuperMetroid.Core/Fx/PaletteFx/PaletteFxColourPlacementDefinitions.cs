@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
 /// Whose colours each palette-FX colour group is (#1464): the one mapping from the colours an effect animates to the
-/// owner holding them, one of gameplay's background sets, a frontend screen's background sets, a sprite set or Samus's
-/// suit or beams, and that owner's colour the group starts at. Only the palette-FX handler reads a placement; effects,
-/// programs and definitions name the colour group.
+/// owner holding them, one of gameplay's background sets, a sprite set or Samus's suit or beams, and that owner's colour
+/// the group starts at; or the frontend screen, which resolves a title or cinematic effect's colours by the group's name.
+/// Only the palette-FX handler reads a placement; effects, programs and definitions name the colour group.
 /// </summary>
 internal static class PaletteFxColourPlacementDefinitions
 {
@@ -17,25 +17,25 @@ internal static class PaletteFxColourPlacementDefinitions
             [PaletteFxColours.TitleLogo] = new SpriteSetPlacement(2, 1),
             [PaletteFxColours.NintendoBootLogo] = new SpriteSetPlacement(1, 9),
             [PaletteFxColours.NintendoCopyright] = new SamusSuitPlacement(9),
-            [PaletteFxColours.BabyMetroidTubeLight] = new ScreenBackgroundPlacement(2, 10),
-            [PaletteFxColours.TitleScreenDisplays] = new ScreenBackgroundPlacement(2, 14),
-            [PaletteFxColours.CutsceneGunshipEngine] = new ScreenBackgroundPlacement(5, 15),
+            [PaletteFxColours.BabyMetroidTubeLight] = new ScreenColoursPlacement(PaletteFxColours.BabyMetroidTubeLight),
+            [PaletteFxColours.TitleScreenDisplays] = new ScreenColoursPlacement(PaletteFxColours.TitleScreenDisplays),
+            [PaletteFxColours.CutsceneGunshipEngine] = new ScreenColoursPlacement(PaletteFxColours.CutsceneGunshipEngine),
             [PaletteFxColours.CeresNavigationLightsSprite] = new SamusBeamsPlacement(13),
-            [PaletteFxColours.CeresNavigationLightsBackground] = new ScreenBackgroundPlacement(6, 13),
+            [PaletteFxColours.CeresNavigationLightsBackground] = new ScreenColoursPlacement(PaletteFxColours.CeresNavigationLightsBackground),
             [PaletteFxColours.PlanetZebesText] = new SpriteSetPlacement(0, 1),
-            [PaletteFxColours.OldMotherBrainBackgroundLights] = new ScreenBackgroundPlacement(1, 4),
+            [PaletteFxColours.OldMotherBrainBackgroundLights] = new ScreenColoursPlacement(PaletteFxColours.OldMotherBrainBackgroundLights),
             [PaletteFxColours.GunshipGlow] = new SpriteSetPlacement(7, 15),
             [PaletteFxColours.ZoomedOutExplodingZebes] = new SpriteSetPlacement(7, 0),
-            [PaletteFxColours.WideZebesExplosionForeground] = new ScreenBackgroundPlacement(0, 1),
-            [PaletteFxColours.WideZebesExplosionBackground] = new ScreenBackgroundPlacement(1, 1),
-            [PaletteFxColours.ZebesExplosionFinale] = new ScreenBackgroundPlacement(0, 1),
-            [PaletteFxColours.SpaceDuringZebesExplosion] = new ScreenBackgroundPlacement(0, 0),
+            [PaletteFxColours.WideZebesExplosionForeground] = new ScreenColoursPlacement(PaletteFxColours.WideZebesExplosionForeground),
+            [PaletteFxColours.WideZebesExplosionBackground] = new ScreenColoursPlacement(PaletteFxColours.WideZebesExplosionBackground),
+            [PaletteFxColours.ZebesExplosionFinale] = new ScreenColoursPlacement(PaletteFxColours.ZebesExplosionFinale),
+            [PaletteFxColours.SpaceDuringZebesExplosion] = new ScreenColoursPlacement(PaletteFxColours.SpaceDuringZebesExplosion),
             [PaletteFxColours.ZebesPlanetAfterglow] = new SamusBeamsPlacement(1),
-            [PaletteFxColours.ExplodingZebesLava] = new ScreenBackgroundPlacement(4, 0),
-            [PaletteFxColours.ExplodingZebesCrust] = new ScreenBackgroundPlacement(4, 1),
-            [PaletteFxColours.ExplodingZebesGreyClouds] = new ScreenBackgroundPlacement(5, 1),
-            [PaletteFxColours.GunshipEmergingFromExplosion] = new ScreenBackgroundPlacement(5, 0),
-            [PaletteFxColours.UnusedCinematicFade] = new ScreenBackgroundPlacement(5, 0),
+            [PaletteFxColours.ExplodingZebesLava] = new ScreenColoursPlacement(PaletteFxColours.ExplodingZebesLava),
+            [PaletteFxColours.ExplodingZebesCrust] = new ScreenColoursPlacement(PaletteFxColours.ExplodingZebesCrust),
+            [PaletteFxColours.ExplodingZebesGreyClouds] = new ScreenColoursPlacement(PaletteFxColours.ExplodingZebesGreyClouds),
+            [PaletteFxColours.GunshipEmergingFromExplosion] = new ScreenColoursPlacement(PaletteFxColours.GunshipEmergingFromExplosion),
+            [PaletteFxColours.UnusedCinematicFade] = new ScreenColoursPlacement(PaletteFxColours.UnusedCinematicFade),
             [PaletteFxColours.HyperBeam] = new SamusBeamsPlacement(1),
             [PaletteFxColours.SamusLoadingSuit] = new SamusSuitPlacement(0),
             [PaletteFxColours.PostCreditsSuperMetroidIcon] = new SpriteSetPlacement(7, 0),

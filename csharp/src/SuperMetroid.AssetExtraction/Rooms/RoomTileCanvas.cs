@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Spatial;
-using System.Buffers.Binary;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -40,15 +39,6 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
 
     /// <summary>Each pixel's row, which no draw overrides.</summary>
     internal byte[] PartRows { get; } = new byte[size.X * size.Y];
-
-    /// <summary>The 128 background colours a tileset's palette loads, the first half of CGRAM.</summary>
-    internal static RgbColor[] StandardColours(ReadOnlySpan<byte> palette)
-    {
-        var colours = new RgbColor[SpriteImage.SpriteColourCount];
-        for (int colour = 0; colour < colours.Length; colour++)
-            colours[colour] = RgbColor.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(palette[(colour * 2)..]));
-        return colours;
-    }
 
     /// <summary>
     /// Paints <paramref name="tile"/> over <paramref name="character"/>'s 32 bytes with its top-left pixel at

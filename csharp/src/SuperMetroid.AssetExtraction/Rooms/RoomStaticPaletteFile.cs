@@ -14,7 +14,7 @@ public static class RoomStaticPaletteFile
     /// Loads one room graphics-set palette from a JSON document containing exactly 128 RGB5 colors.
     /// </summary>
     /// <param name="json">The caller-owned stream containing the palette document.</param>
-    /// <returns>The compiled 256-byte little-endian CGRAM transfer.</returns>
+    /// <returns>The palette's colours, by the background set each fills.</returns>
     /// <exception cref="InvalidDataException">
     /// The document version, color count, or an RGB5 component is invalid.
     /// </exception>
@@ -38,7 +38,7 @@ public static class RoomStaticPaletteFile
                     $"Room palette color {index} requires red, green and blue in 0..31.");
             colours[index] = color.ToRgbColor();
         }
-        return RoomStaticPalette.FromColours(colours, ShownBackgroundColourSets.Of(BackgroundColourSetImage.Decode(colours)));
+        return new RoomStaticPalette(ShownBackgroundColourSets.Of(BackgroundColourSetImage.Decode(colours)));
     }
 
     /// <summary>Validates and writes one editable room-palette document as JSON.</summary>

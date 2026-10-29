@@ -13,10 +13,10 @@ internal static class PhantoonDefinitionMigrationVerification
     /// <summary>Compares the new definitions, sources and native words with the values the deleted catalogs held.</summary>
     internal static void VerifyPhantoonDefinitionMigration()
     {
-        // Colours: the counts stay in Core; the sources are the import's.
+        // Colours: the health counts stay in Core; the sources and the power-on's cartridge colour count are the import's.
         AssertEqual(8, PhantoonColorDefinitions.HealthBandCount, "health band count");
         AssertEqual(16, PhantoonColorDefinitions.HealthBandColorCount, "health band colours");
-        AssertEqual(112, PhantoonColorDefinitions.PowerOnCount, "power-on colours");
+        AssertEqual(112, PhantoonSourceDefinitions.PowerOnColourCount, "power-on colours");
         AssertEqual(0xa7cb41, PhantoonSourceDefinitions.HealthBandColors, "health band source");
         AssertEqual(0xa7ca41, PhantoonSourceDefinitions.FadeOutColors, "fade-out source");
         AssertEqual(0xa7ca61, PhantoonSourceDefinitions.PowerOnColors, "power-on source");

@@ -838,9 +838,9 @@ internal static class LookupStream5Verification
         var powerEdits = stock.selection.PowerEdits;
         AssertTrue(!MetadataShape.DeclaresField(typeof(PhantoonColorCatalog), "requiredPowerColors", BindingFlags.Instance | BindingFlags.NonPublic), "Power targets retain no stock color dictionary");
         AssertEqual(0, powerEdits.Count, "Native power targets have no unexplained overrides");
-        for (int color = 0; color < PhantoonColorDefinitions.PowerOnCount; color++)
+        for (int color = 0; color < PhantoonSourceDefinitions.PowerOnColourCount; color++)
         {
-            AssertEqual(ReadVerificationWord(rom, PhantoonSourceDefinitions.PowerOnColors + color * 2), stock.ResolvePowerOn(color), "Native power shade equality");
+            AssertEqual(ReadVerificationWord(rom, PhantoonSourceDefinitions.PowerOnColors + color * 2), stock.ResolvePowerOnAtNative(color), "Native power shade equality");
             PaletteRgb5 original = document.PowerOn[color];
             for (int channel = 0; channel < 3; channel++)
             {
@@ -854,8 +854,9 @@ internal static class LookupStream5Verification
             }
             document.PowerOn[color] = original;
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn(-1), "Power lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn(112), "Power upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn(BackgroundColourSet.Hud, -1), "Power lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn(BackgroundColourSet.TilesFifth, 16), "Power upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn(BackgroundColourSet.TilesSixth, 0), "Power unfaded set");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(-1, 0), "Health band lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(8, 0), "Health band upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(0, -1), "Health color lower bound");
@@ -876,7 +877,7 @@ internal static class LookupStream5Verification
                 for (int color = 0; color < values.Length; color++) AssertEqual(values[color], result.ResolveHealth(band, color), "Independent health channels and unaffected targets");
             }
             ushort[] power = Pack(source.PowerOn);
-            for (int color = 0; color < power.Length; color++) AssertEqual(power[color], result.ResolvePowerOn(color), "Power paint preserved");
+            for (int color = 0; color < power.Length; color++) AssertEqual(power[color], result.ResolvePowerOnAtNative(color), "Power paint preserved");
             string hash = SelectedPresentationHash.Create("PhantoonColorCatalog-v1", content =>
             {
                 content.AppendWords("fadeOut", fade);

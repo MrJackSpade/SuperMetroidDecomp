@@ -29,7 +29,7 @@ public static class PhantoonColorExtractor
             FadeOut = Read(PhantoonSourceDefinitions.FadeOutColors,
                 PhantoonColorDefinitions.FadeOutCount),
             PowerOn = Read(PhantoonSourceDefinitions.PowerOnColors,
-                PhantoonColorDefinitions.PowerOnCount),
+                PhantoonSourceDefinitions.PowerOnColourCount),
         });
 
         PaletteRgb5[] Read(int source, int count)

@@ -239,7 +239,7 @@ internal sealed class PhantoonDeath
         state.WreckedShipPowerPaletteComplete = true;
     }
 
-    /// <summary>Ports $A7:DC5A over CGRAM colors 0..111.</summary>
+    /// <summary>Ports $A7:DC5A: steps every background set the power-on fades toward its powered colours.</summary>
     internal bool AdvanceWreckedShipPowerPalette(PhantoonPartState eye)
     {
         int denominator = eye.FadeDenominator;
@@ -250,22 +250,17 @@ internal sealed class PhantoonDeath
             return true;
         }
 
-        // The installed powered-on colours hold the faded sets one after another, so each set's colours continue the
-        // count the previous set's left off at.
-        int powerOnColour = 0;
-        foreach (BackgroundColourSet set in PhantoonRoomColourDefinitions.PowerOn)
+        // Each faded set steps every colour toward its own powered target; no colour depends on another.
+        PhantoonColorCatalog targets = _bossArtwork.Artwork?.PhantoonColors ?? throw new InvalidDataException(
+            "Wrecked Ship power-on palette requires installed artwork.");
+        foreach (BackgroundColourSet set in PhantoonColorDefinitions.PowerOnSets)
         {
             ColourRun room = _presentation.BackgroundSets.Set(set);
             for (int color = 0; color < room.Count; color++)
-            {
-                RgbColor current = room[color];
-                RgbColor target = (_bossArtwork.Artwork?.PhantoonColors ?? throw new InvalidDataException(
-                    "Wrecked Ship power-on palette requires installed artwork.")).ResolvePowerOn(powerOnColour);
                 room.Write(
                     color,
-                    PhantoonPresentation.CalculatePhantoonTransitionColor(numerator, denominator, current, target));
-                powerOnColour++;
-            }
+                    PhantoonPresentation.CalculatePhantoonTransitionColor(
+                        numerator, denominator, room[color], targets.ResolvePowerOn(set, color)));
         }
         eye.FadeNumerator = numerator + 1;
         return false;

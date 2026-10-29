@@ -15,4 +15,10 @@ internal static class PhantoonSourceDefinitions
 
     /// <summary>$A7:CA61, the Wrecked Ship power-on target $A7:DC5A interpolates after Phantoon's death.</summary>
     internal const int PowerOnColors = 0xa7ca61;
+
+    /// <summary>
+    /// The colours of the power-on target: the cartridge's background colours from the first through the seventh set in
+    /// its order, which the installed document keeps in that order and the import decodes into the sets they target.
+    /// </summary>
+    internal const int PowerOnColourCount = 112;
 }

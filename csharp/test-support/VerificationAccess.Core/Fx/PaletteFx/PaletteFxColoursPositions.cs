@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Fx.PaletteFx;
@@ -15,14 +16,25 @@ internal static class PaletteFxColoursPositions
     {
         BackgroundSetPlacement background => GameplayColourPositionDefinitions.BackgroundSetsFirst
             + BackgroundColourSetImage.First(background.Set) + background.Colour,
-        ScreenBackgroundPlacement screen => GameplayColourPositionDefinitions.BackgroundSetsFirst
-            + screen.Set * GameplayColourPositionDefinitions.SetColours + screen.Colour,
+        ScreenColoursPlacement screen => ScreenCartridgeColour(ScreenBackground(screen.Colours)),
         SpriteSetPlacement sprite => GameplayColourPositionDefinitions.SpriteSetsFirst
             + sprite.Set * GameplayColourPositionDefinitions.SetColours + sprite.Colour,
         SamusSuitPlacement suit => GameplayColourPositionDefinitions.SamusSuitFirst + suit.Colour,
         SamusBeamsPlacement beams => GameplayColourPositionDefinitions.SamusBeamsFirst + beams.Colour,
         _ => throw new ArgumentOutOfRangeException(nameof(placement), placement, "Unknown palette-FX colour placement."),
     };
+
+    /// <summary>The cartridge colour a screen background placement's first colour is: its set's native position.</summary>
+    private static int ScreenCartridgeColour(ScreenBackgroundSetPlacement held) =>
+        GameplayColourPositionDefinitions.BackgroundSetsFirst + held.Set * GameplayColourPositionDefinitions.SetColours + held.Colour;
+
+    /// <summary>
+    /// Where a frontend screen's background sets hold the title or cinematic effect colours <paramref name="colours"/>:
+    /// the screen colour group the screen resolves them to, which its background sets hold in the cartridge's order.
+    /// </summary>
+    internal static ScreenBackgroundSetPlacement ScreenBackground(PaletteFxColours colours) =>
+        ScreenColourGroupDefinitions.Groups[ScreenPaletteFxColourDefinitions.Groups[colours]] as ScreenBackgroundSetPlacement
+            ?? throw new InvalidOperationException($"A screen's background sets do not hold {colours}.");
 
     /// <summary>Native view of a palette-FX colour group.</summary>
     extension(PaletteFxColours self)

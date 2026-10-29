@@ -73,5 +73,17 @@ internal static class ScreenColourGroupDefinitions
             [ScreenColourGroup.MapDimLabels] = ScreenSpriteSetPlacement.WholeSet(1),
             [ScreenColourGroup.MapDefeatedBossMarker] = ScreenSpriteSetPlacement.WholeSet(6),
             [ScreenColourGroup.MapMarkers] = ScreenSpriteSetPlacement.WholeSet(7),
+            [ScreenColourGroup.CinematicGunshipEngine] = new ScreenBackgroundSetPlacement(5, 15, 1),
+            [ScreenColourGroup.CeresNavigationLights] = new ScreenBackgroundSetPlacement(6, 13, 3),
+            [ScreenColourGroup.IntroOldMotherBrainLights] = new ScreenBackgroundSetPlacement(1, 4, 12),
+            [ScreenColourGroup.EndingWideExplosionForeground] = new ScreenBackgroundSetPlacement(0, 1, 15),
+            [ScreenColourGroup.EndingWideExplosionBackground] = new ScreenBackgroundSetPlacement(1, 1, 15),
+            [ScreenColourGroup.EndingExplosionFinale] = new ScreenBackgroundSetPlacement(0, 1, 15),
+            [ScreenColourGroup.EndingExplosionSpace] = ScreenBackgroundSetPlacement.WholeSet(0),
+            [ScreenColourGroup.EndingExplodingZebesLava] = ScreenBackgroundSetPlacement.WholeSet(4),
+            [ScreenColourGroup.EndingExplodingZebesCrust] = new ScreenBackgroundSetPlacement(4, 1, 15),
+            [ScreenColourGroup.EndingExplodingZebesGreyClouds] = new ScreenBackgroundSetPlacement(5, 1, 15),
+            [ScreenColourGroup.EndingGunshipEmerging] = ScreenBackgroundSetPlacement.WholeSet(5),
+            [ScreenColourGroup.UnusedCinematicFade] = ScreenBackgroundSetPlacement.WholeSet(5),
         };
 }

@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Rooms.Artwork;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>One editable RGB5 palette file per distinct graphics-set color source.</summary>
 public static class RoomStaticPaletteFormat

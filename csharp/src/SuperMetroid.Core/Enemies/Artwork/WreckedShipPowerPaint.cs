@@ -3,25 +3,27 @@ using static SuperMetroid.Core.Enemies.Artwork.WreckedShipPowerPaintDefinitions;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
 
-/// <summary>Paints the seven powered Wrecked Ship material palettes from the catalog's selected hues: repeats, shared channels, ramps, lighting offsets and fills calculate.</summary>
+/// <summary>Paints the powered Wrecked Ship colours of the seven background sets the power-on fades from the catalog's selected hues: repeats, shared channels, ramps, lighting offsets and fills calculate.</summary>
 internal static class WreckedShipPowerPaint
 {
-    /// <summary>Gets a powered Wrecked Ship color from seven sixteen-ink BG palette rows.</summary>
-    internal static RgbColor Color(int index)
+    /// <summary>Gets the powered Wrecked Ship colour <paramref name="ink"/> of background set <paramref name="set"/>.</summary>
+    internal static RgbColor Color(BackgroundColourSet set, int ink)
     {
-        if ((uint)index >= 112) throw new ArgumentOutOfRangeException(nameof(index));
-        int row = index / 16, ink = index % 16;
-        if (ink == 0) return row is 1 or 2 ? DoorTransparentMetadata : RgbColor.Black;
-        if (ink == 15) return RgbColor.Black;
-        return row switch
+        if ((uint)ink >= ColourSets.SetColours) throw new ArgumentOutOfRangeException(nameof(ink));
+        if (ink == 0) return set is BackgroundColourSet.HudItemsAndEffects or BackgroundColourSet.TilesFirst
+            ? DoorTransparentMetadata
+            : RgbColor.Black;
+        if (ink == ColourSets.SetColours - 1) return RgbColor.Black;
+        return set switch
         {
-            0 => Common(ink),
-            1 => GreenDoor(ink),
-            2 => MagentaDoor(ink),
-            3 => BlueDoor(ink),
-            4 => Foreground(ink),
-            5 => Background(ink),
-            _ => ink == 14 ? White : Neutral(CommonNeutral),
+            BackgroundColourSet.Hud => Common(ink),
+            BackgroundColourSet.HudItemsAndEffects => GreenDoor(ink),
+            BackgroundColourSet.TilesFirst => MagentaDoor(ink),
+            BackgroundColourSet.TilesSecond => BlueDoor(ink),
+            BackgroundColourSet.TilesThird => Foreground(ink),
+            BackgroundColourSet.TilesFourth => Background(ink),
+            BackgroundColourSet.TilesFifth => ink == 14 ? White : Neutral(CommonNeutral),
+            _ => throw new ArgumentOutOfRangeException(nameof(set), set, "The Wrecked Ship's power-on does not paint this set."),
         };
     }
     /// <summary>Builds shared gold, machinery, indicator, and neutral inks for the common row.</summary>

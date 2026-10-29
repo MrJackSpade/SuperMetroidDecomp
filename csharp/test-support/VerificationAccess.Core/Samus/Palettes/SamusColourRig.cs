@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
 
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Samus.Palettes;
@@ -38,11 +39,14 @@ internal sealed class SamusColourRig : IPaletteColors, IPaletteFxColourOwners
     /// <inheritdoc />
     /// <remarks>
     /// The rig stands for colour memory at the native boundary, where a screen's set and gameplay's background set of
-    /// the same native position are the same colours, so a screen effect stepped on the rig writes the gameplay set its
-    /// set's native position decodes to.
+    /// the same native position are the same colours, so a screen effect stepped on the rig writes the gameplay set the
+    /// native position of the screen set holding its colours decodes to.
     /// </remarks>
-    public ColourRun ScreenBackgroundSet(int set) =>
-        Gameplay.BackgroundSets.Set(NativeBackgroundSets.AtNativeSet(set));
+    public ColourRun ScreenColours(PaletteFxColours colours)
+    {
+        ScreenBackgroundSetPlacement screen = PaletteFxColoursPositions.ScreenBackground(colours);
+        return Gameplay.BackgroundSets.Set(NativeBackgroundSets.AtNativeSet(screen.Set)).Slice(screen.Colour, screen.ColourCount);
+    }
 
     /// <inheritdoc />
     public ColourRun SpriteSets => Gameplay.SpriteSets.All;

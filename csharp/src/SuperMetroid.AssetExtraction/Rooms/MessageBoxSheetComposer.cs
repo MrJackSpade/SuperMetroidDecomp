@@ -52,7 +52,7 @@ internal static class MessageBoxSheetComposer
         IReadOnlyDictionary<string, ImmutableArray<BackgroundTile>> messages)
     {
         Ensure.NotNull(inputs);
-        RgbColor[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).PackedColours.Span);
+        RgbColor[] colours = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
         int textSet = BackgroundColourSetImage.First(GameplayMessageBoxDefinitions.Palette.TextSet);
         colours[textSet + GameplayMessageBoxDefinitions.Palette.TemporaryLightColour] = GameplayMessageBoxDefinitions.Palette.TemporaryLightColor;
         colours[textSet + GameplayMessageBoxDefinitions.Palette.TemporaryDarkColour] = GameplayMessageBoxDefinitions.Palette.TemporaryDarkColor;

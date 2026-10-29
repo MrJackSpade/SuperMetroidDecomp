@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Menus.Artwork;
 
 namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 
@@ -120,19 +119,4 @@ public static class FileSelectPresentationDefinitions
             [FileSelectAnchor.CopyConfirmDestination] = "Copy.Confirm.Destination",
             [FileSelectAnchor.ClearConfirmSource] = "Clear.Confirm.Source",
         };
-
-    /// <summary>The menu heading a bordered heading draws.</summary>
-    internal static readonly IReadOnlyDictionary<FileSelectBorder, MenuHeading> Headings =
-        new Dictionary<FileSelectBorder, MenuHeading>
-        {
-            [FileSelectBorder.Main] = MenuHeading.FileSelectMain,
-            [FileSelectBorder.Copy] = MenuHeading.FileSelectCopy,
-            [FileSelectBorder.Clear] = MenuHeading.FileSelectClear,
-        };
-
-    /// <summary>$82:CAE9: the helmet's first 24x24 body block begins at menu atlas cell $D0.</summary>
-    internal const int HelmetFirstBodyCell = 0xd0;
-
-    /// <summary>$82:CB2B: the helmet's first two-cell visor strip begins at menu atlas cell $D9.</summary>
-    internal const int HelmetFirstVisorCell = 0xd9;
 }

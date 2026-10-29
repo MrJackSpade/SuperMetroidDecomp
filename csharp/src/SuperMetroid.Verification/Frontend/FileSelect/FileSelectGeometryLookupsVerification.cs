@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction.Frontend;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 
 /// <summary>Checks file-select cursor rows and helmet anchors against native geometry and extracted presentation.</summary>
 internal static class FileSelectGeometryLookupsVerification
@@ -20,7 +21,7 @@ internal static class FileSelectGeometryLookupsVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)),
             "file select geometry oracle revision");
         byte[] bytes = FileSelectPresentationExtractor.Extract(rom);
-        FileSelectPresentation presentation = FileSelectPresentation.Load(new MemoryStream(bytes));
+        FileSelectPresentation presentation = FileSelectSourcePresentation.Load(new MemoryStream(bytes));
         FileSelectPresentationDocument document = RequiredJson.Deserialize<FileSelectPresentationDocument>(
             bytes, ArtworkJson.Options);
         Suite(nameof(VerifyFileSelectMainCursorY), () => VerifyFileSelectMainCursorY(rom, presentation));

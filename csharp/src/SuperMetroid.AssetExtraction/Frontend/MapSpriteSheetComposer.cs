@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -27,8 +27,9 @@ internal static class MapSpriteSheetComposer
     {
         Ensure.NotNull(sprites);
         Ensure.NotNull(maps);
+        MapSpriteArtwork artwork = MapSpriteArtwork.Of(sprites);
         List<SheetFrameSource> frames = [.. MapSpriteNames.Frames.Select(frame =>
-            new SheetFrameSource(frame.Name, sprites.Frame(frame.Id), MapSpriteArtwork.Of(sprites).Page, FrontendSheetPalette.FramePalette))];
+            new SheetFrameSource(frame.Name, artwork.Frame(frame.Id), artwork.Page, FrontendSheetPalette.FramePalette))];
         var cgram = new SnesCgram();
         new CgramPalettes(cgram).LoadImage(maps.Palettes.FileSelect);
         return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true);

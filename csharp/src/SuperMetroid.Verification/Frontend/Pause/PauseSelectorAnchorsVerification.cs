@@ -6,6 +6,7 @@ using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
@@ -43,7 +44,7 @@ internal static class PauseSelectorAnchorsVerification
             .Append("Beam.Hyper").ToArray()));
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseSelectorDocument>(bytes, ArtworkJson.Options);
-        var stock = PauseSelectorPresentation.Load(new MemoryStream(bytes));
+        var stock = PauseSelectorSourcePresentation.Load(new MemoryStream(bytes));
         AssertEqual(0, stock.StoredAnchorComponentCount, "stock selector stores no coordinate table");
         Suite(nameof(VerifyPauseSelectorAnchorField), () => VerifyPauseSelectorAnchorField(rom, document, stock, horizontal: true));
         Suite(nameof(VerifyPauseSelectorAnchorField), () => VerifyPauseSelectorAnchorField(rom, document, stock, horizontal: false));
@@ -100,8 +101,8 @@ internal static class PauseSelectorAnchorsVerification
                 var anchors = new Dictionary<string, Position16<SpritePixels>>(document.Anchors);
                 var previous = anchors[anchor.Name];
                 anchors[anchor.Name] = horizontal ? new(checked((ushort)value), previous.Y) : new(previous.X, checked((ushort)value));
-                using var stream = new MemoryStream(); PauseSelectorPresentation.Write(stream, document with { Anchors = anchors }); stream.Position = 0;
-                var edited = PauseSelectorPresentation.Load(stream);
+                using var stream = new MemoryStream(); PauseSelectorSourcePresentation.Write(stream, document with { Anchors = anchors }); stream.Position = 0;
+                var edited = PauseSelectorSourcePresentation.Load(stream);
                 AssertEqual(1, edited.StoredAnchorComponentCount, "only one independently authored coordinate captured");
                 foreach (var other in PauseSelectorAnchors.Anchors())
                     AssertEqual(anchors[other.Name], edited.Anchor(other.Category, other.Item), "all edited and unedited coordinates");
@@ -112,7 +113,7 @@ internal static class PauseSelectorAnchorsVerification
             var anchors = new Dictionary<string, Position16<SpritePixels>>(document.Anchors);
             var first = anchors["Reserve.Mode"];
             anchors["Reserve.Mode"] = horizontal ? new(unchecked((ushort)invalid), first.Y) : new(first.X, unchecked((ushort)invalid));
-            AssertThrows<InvalidDataException>(() => PauseSelectorPresentation.Write(new MemoryStream(), document with { Anchors = anchors }),
+            AssertThrows<InvalidDataException>(() => PauseSelectorSourcePresentation.Write(new MemoryStream(), document with { Anchors = anchors }),
                 "invalid authored coordinate");
         }
     }

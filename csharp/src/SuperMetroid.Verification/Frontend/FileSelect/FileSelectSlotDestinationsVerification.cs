@@ -8,6 +8,7 @@ using SuperMetroid.Core.Map.Artwork;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 
 /// <summary>Checks file-select slot field destinations and label sources against bank $81 instructions.</summary>
 internal static class FileSelectSlotDestinationsVerification
@@ -20,7 +21,7 @@ internal static class FileSelectSlotDestinationsVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Slot field oracle revision");
         Suite(nameof(VerifyFileSelectSlotLabelSources), () => VerifyFileSelectSlotLabelSources(rom));
         byte[] json = FileSelectPresentationExtractor.Extract(rom);
-        _ = FileSelectPresentation.Load(new MemoryStream(json));
+        _ = FileSelectSourcePresentation.Load(new MemoryStream(json));
         FileSelectPresentationDocument document = RequiredJson.Deserialize<FileSelectPresentationDocument>(
             json, ArtworkJson.Options);
         // Each independently indexed field uses its own original LDX operands.

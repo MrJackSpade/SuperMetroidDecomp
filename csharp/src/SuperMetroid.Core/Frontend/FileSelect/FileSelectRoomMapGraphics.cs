@@ -15,8 +15,7 @@ public sealed class FileSelectRoomMapGraphics
     internal readonly MenuScreen screen;
     /// <summary>Map landmarks, stations, and boss icons drawn around the saved-station marker.</summary>
     private readonly FileSelectMapIcons icons;
-    /// <summary>Installed map sprite compositions whose page the menu screen loads.</summary>
-    [NonSerialized] private MapSpriteCompositions? sprites;
+
     /// <summary>The installed map sprite sheet the icons, marker and arrows draw from.</summary>
     [NonSerialized] private SpriteSheet? mapSheet;
     /// <summary>The room map's palette, initialized from file-select presentation colors and subsequently updated by the menu's palette-animation owner.</summary>
@@ -40,7 +39,6 @@ public sealed class FileSelectRoomMapGraphics
         icons = new FileSelectMapIcons(system, area);
         icons.BindStations(mapPresentation.Stations);
         icons.BindLandmarks(mapPresentation.Landmarks);
-        sprites = mapPresentation.Sprites;
         InstalledSpriteSheets installed = sheets ?? throw new InvalidOperationException("Room-map graphics require the installed sprite sheets.");
         mapSheet = installed.Get(SpriteSheetId.MapSprites);
         icons.BindSprites(mapSheet);
@@ -48,7 +46,7 @@ public sealed class FileSelectRoomMapGraphics
         if (index >= FileSelectMapDefinitions.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
         screen = new MenuScreen(mapPresentation.Tiles, mapPresentation.Palettes,
-            mapPresentation.WorldArtwork, sprites, installed);
+            mapPresentation.WorldArtwork, installed);
         MapTileWord hidden = system.HasAreaMap(area)
             ? MapTileWords.PauseBlank : MapTileWords.FileSelectUndownloadedBlank;
         MenuTilemaps.Load(screen.Tilemaps.AreaMap,
@@ -79,8 +77,7 @@ public sealed class FileSelectRoomMapGraphics
     {
         icons.BindStations(catalog?.Stations);
         icons.BindLandmarks(catalog?.Landmarks);
-        sprites = catalog?.Sprites;
-        screen.BindMapSprites(sprites);
+
         if (catalog is not null)
             screen.Palette.LoadExcept(catalog.Palettes.FileSelect, screen.Palette.SpriteRow(MapScreenDefinitions.HighlightSpriteRow));
         screen.BindMapTiles((catalog ?? throw new InvalidOperationException(

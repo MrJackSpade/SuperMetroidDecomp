@@ -1,0 +1,80 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Spatial;
+using SuperMetroid.AssetExtraction.Frontend.Menus;
+
+namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
+
+/// <summary>
+/// Selector14 at82:C29F is one cursor at(-4,-4). Selectors15/16 atC2B7/C2F5 are
+/// two-row highlight grids, six/ten cells wide, with X origins-16/-36 and Y=-4/4.
+/// Grid geometry and edge tiles are calculated. The original OAM visitation order is
+/// retained as authored composition order: it jumps between rows and columns rather
+/// than following a spatial traversal, and changing it changes partial-capacity output.
+/// Encoding those arbitrary cell permutations as numeric cases would disguise the data.
+/// </summary>
+internal sealed class PauseSelectorVisual
+{
+    /// <summary>Recognized cursor, beam, or equipment selector group; minus one selects preserved authored OAM.</summary>
+    private readonly int group;
+    /// <summary>Caller-supplied composition retained when it differs from every calculated native selector.</summary>
+    internal readonly SpriteComposition? authored;
+    /// <summary>Stores either a recognized calculated selector group or an independently supplied composition.</summary>
+    private PauseSelectorVisual(int group, SpriteComposition? authored, string name)
+    { this.group = group; this.authored = authored; Name = name; }
+    /// <summary>The frame name the selector presentation gives this visual.</summary>
+    internal string Name { get; }
+
+    /// <summary>Original beam highlight paint order expressed as row-major grid cells, not coordinates or tiles.</summary>
+    private static ReadOnlySpan<byte> BeamOrder => [10, 4, 6, 7, 8, 9, 11, 5, 3, 2, 1, 0];
+    /// <summary>Original equipment highlight paint order; the middle cells have a distinct non-spatial order.</summary>
+    private static ReadOnlySpan<byte> EquipmentOrder => [18, 8, 15, 17, 16, 7, 6, 5, 14, 4, 10, 11, 12, 13, 19, 9, 3, 2, 1, 0];
+
+    /// <summary>Returns the native part count for the cursor, beam grid, or equipment grid.</summary>
+    private static int Count(int group) => group switch
+    { 0 => 1, 1 => 12, 2 => 20, _ => throw new ArgumentOutOfRangeException(nameof(group)) };
+
+    /// <summary>Calculates one selector cell's geometry and edge tile while preserving the authored visitation order.</summary>
+    private static CompiledSpritePart Part(int group, int index)
+    {
+        if ((uint)index >= (uint)Count(group)) throw new ArgumentOutOfRangeException(nameof(index));
+        if (group == 0) return new(SpritePart.Create(Offset16<ScreenPixels>.Of(-4, -4), false, PauseSelectorSpriteDefinitions.CursorCell, 0, 3), true);
+        int width = group == 1 ? 6 : 10;
+        int cell = group == 1 ? BeamOrder[index] : EquipmentOrder[index];
+        int column = cell % width, row = cell / width;
+        int x = (group == 1 ? -16 : -36) + 8 * column;
+        int tile = column == width - 1 ? (row == 0 ? PauseSelectorSpriteDefinitions.GridTopRightCell : PauseSelectorSpriteDefinitions.GridRightCell)
+            : column == 0 && row == 0 ? PauseSelectorSpriteDefinitions.GridTopLeftCell : PauseSelectorSpriteDefinitions.GridCell;
+        return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, -4 + 8 * row), false,
+            tile, 0, 3), true);
+    }
+
+    /// <summary>Recognizes an exact native selector or compiles and retains edited OAM when its paint or order differs.</summary>
+    internal static PauseSelectorVisual Compile(SpriteVisualPart[] parts, string name)
+    {
+        for (int group = 0; group < 3; group++)
+        {
+            if (parts.Length != Count(group)) continue;
+            bool match = true;
+            for (int index = 0; match && index < parts.Length; index++)
+            {
+                var basis = Part(group, index); var part = parts[index];
+                match = part is not null && part.OffsetX == basis.Part.Offset.X && part.OffsetY == basis.Part.Offset.Y &&
+                    part.TileColumn == basis.Part.Character % 16 && part.TileRow == basis.Part.Character / 16 &&
+                    part.Size == 8 && part.Priority == 3 && part.Palette is null && !part.FlipX && !part.FlipY;
+            }
+            if (match) return new(group, null, name);
+        }
+        return new(-1, MenuSpriteCompiler.Compile(parts, name), name);
+    }
+
+    /// <summary>
+    /// The recognized selector in native OAM order, or the edited composition, as a whole frame (#1392); the calculated
+    /// selector's parts take their draw's palette.
+    /// </summary>
+    internal SpriteFrame ToFrame(string frameName) => authored is not null ? authored.ToFrame(frameName, 0)
+        : new(frameName, [.. Enumerable.Range(0, Count(group)).Select(index =>
+        {
+            CompiledSpritePart part = Part(group, index);
+            return part.Part.ToFramePart(0, SpritePartFrames.StandardSizes, inheritPalette: true);
+        })]);
+}

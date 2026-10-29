@@ -27,10 +27,11 @@ internal static class TitleSheetComposer
     {
         Ensure.NotNull(graphics);
         Ensure.NotNull(palette);
+        TitleGraphicsCharacters characters = TitleGraphicsCharacters.Of(graphics);
         List<SheetFrameSource> frames = [.. TitleSpriteDefinitions.All.Select(sprite =>
         {
             string name = TitleSpriteDefinitions.FrameName(sprite);
-            return new SheetFrameSource(name, graphics.Frame(sprite, name), TitleGraphicsCharacters.Of(graphics).ObjectPage, FrontendSheetPalette.FramePalette);
+            return new SheetFrameSource(name, characters.Frame(sprite, name), characters.ObjectPage, FrontendSheetPalette.FramePalette);
         })];
         var colours = new ScreenPalette();
         palette.Apply(colours);

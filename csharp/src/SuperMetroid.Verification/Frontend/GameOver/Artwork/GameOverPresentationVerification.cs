@@ -10,6 +10,7 @@ using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.GameOver.Artwork;
 
@@ -27,7 +28,7 @@ internal static class GameOverPresentationVerification
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.GameOverPresentationExtractor.Extract(bus);
         AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
             "installed game-over JSON is the deterministic cartridge extraction");
-        _ = GameOverPresentation.Load(new MemoryStream(extracted));
+        _ = GameOverSourcePresentation.Load(new MemoryStream(extracted));
         AssertEqual(60, GameOverBabyAnimationDefinitions.InstructionCount,
             "compiled game-over Baby instruction count");
 
@@ -101,7 +102,7 @@ internal static class GameOverPresentationVerification
         Directory.CreateDirectory(overrides);
         string replacement = Path.Combine(overrides, GameOverPresentationDefinitions.FileName);
         using (var output = File.Create(replacement))
-            GameOverPresentation.Write(output, document);
+            GameOverSourcePresentation.Write(output, document);
         AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "game-over override changes selected catalog identity");
@@ -142,23 +143,23 @@ internal static class GameOverPresentationVerification
         AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides),
             "corrupt game-over override fails loudly");
         using (var output = File.Create(replacement))
-            GameOverPresentation.Write(output, document);
-        AssertThrows<InvalidDataException>(() => GameOverPresentation.Write(Stream.Null,
+            GameOverSourcePresentation.Write(output, document);
+        AssertThrows<InvalidDataException>(() => GameOverSourcePresentation.Write(Stream.Null,
             document with { BabyPalette = 8 }),
             "game-over rejects invalid actor palette");
-        AssertThrows<InvalidDataException>(() => GameOverPresentation.Write(Stream.Null,
+        AssertThrows<InvalidDataException>(() => GameOverSourcePresentation.Write(Stream.Null,
             document with { Tilemap = document.Tilemap[..^1] }),
             "game-over rejects incomplete tilemap");
         var missingSprite = RequiredJson.Deserialize<GameOverPresentationDocument>(
             extracted, ArtworkJson.Options);
         missingSprite.Sprites.Remove(GameOverPresentationDefinitions.EggFrame);
-        AssertThrows<InvalidDataException>(() => GameOverPresentation.Write(Stream.Null, missingSprite),
+        AssertThrows<InvalidDataException>(() => GameOverSourcePresentation.Write(Stream.Null, missingSprite),
             "game-over rejects missing named sprite");
         var shortPalette = RequiredJson.Deserialize<GameOverPresentationDocument>(
             extracted, ArtworkJson.Options);
         shortPalette.BabyPalettes[GameOverPresentationNames.BabyPaletteName(
             GameOverBabyPalette.OpenCry)] = [0];
-        AssertThrows<InvalidDataException>(() => GameOverPresentation.Write(Stream.Null, shortPalette),
+        AssertThrows<InvalidDataException>(() => GameOverSourcePresentation.Write(Stream.Null, shortPalette),
             "game-over rejects malformed Baby palette");
 
         Console.WriteLine(

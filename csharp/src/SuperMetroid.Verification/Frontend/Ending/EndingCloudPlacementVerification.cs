@@ -67,7 +67,7 @@ internal static class EndingCloudPlacementVerification
             byte[] actualVram = ending.ShownVram();
             byte[] oamBytes = [.. oam.LowTable.ToArray(), .. oam.HighTable.ToArray()];
             var expectedMemory = FramePaint.FromOam(actualVram, actual.Paint.Colors,
-                oamBytes, oam.LastFinalizedSpriteCount, EndingCreditsPresentation.ObjectSelection(EndingCreditsPresentation.CurrentEscapeObjectSheet(ending)));
+                oamBytes, oam.LastFinalizedSpriteCount, SuperMetroid.AssetExtraction.Frontend.Ending.EndingSheetObjectSelection.Of(EndingCreditsPresentation.CurrentEscapeObjectSheet(ending)));
             var expected = DisplayRendering.Render(new LayeredScene(expectedMemory, actual.Layers, actual.Brightness));
             var pixels = ending.Render();
             int differs = pixels.ToArray().Zip(expected, (live, native) => live != native).ToList().IndexOf(true);

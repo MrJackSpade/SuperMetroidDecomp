@@ -101,6 +101,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
 /// <summary>Checks editable map and related presentation assets while keeping exploration rules and live gameplay reads separate from artwork.</summary>
 internal static class MapPresentationVerification
@@ -1398,7 +1399,7 @@ internal static class MapPresentationVerification
         year.Parts[0] = year.Parts[0] with { OffsetX = year.Parts[0].OffsetX + 8 };
         string replacement = Path.Combine(overrides, name);
         using (var output = File.Create(replacement))
-            TitleGraphicsPresentation.WriteMap(output, document);
+            TitleGraphicsCharacters.WriteMap(output, document);
 
         AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,

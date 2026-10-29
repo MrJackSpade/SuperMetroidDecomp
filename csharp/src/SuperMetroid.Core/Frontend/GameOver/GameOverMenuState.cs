@@ -66,7 +66,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         this.mapPresentation = mapPresentation ?? throw new InvalidOperationException(
             "Game-over screen requires installed presentation assets.");
         screen = new MenuScreen(mapPresentation.Tiles, mapPresentation.Palettes,
-            mapPresentation.WorldArtwork, mapPresentation.Sprites, spriteSheets);
+            mapPresentation.WorldArtwork, spriteSheets);
         BindSpriteSheets(spriteSheets);
         LoadGameOverTilemap(mapPresentation.GameOver);
         Phase = GameOverMenuPhase.ConfigureGraphics;
@@ -109,7 +109,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
             return;
 
         screen.BindMapTiles(catalog.Tiles);
-        screen.BindMapSprites(catalog.Sprites);
+
         screen.BindMapPalettes(catalog.Palettes);
         LoadGameOverTilemap(catalog.GameOver);
         if (BabyStep is int step)

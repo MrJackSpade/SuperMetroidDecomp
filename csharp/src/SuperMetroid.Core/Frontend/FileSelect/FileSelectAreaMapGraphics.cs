@@ -36,7 +36,7 @@ public sealed class FileSelectAreaMapGraphics
     {
         Ensure.NotNull(presentation);
         var graphics = new FileSelectAreaMapGraphics(selectedArea, presentation.Tiles, presentation.Palettes,
-            presentation.Screens, presentation.WorldArtwork, presentation.Sprites, sheets);
+            presentation.Screens, presentation.WorldArtwork, sheets);
         graphics.BindLabels(presentation.Labels);
         return graphics;
     }
@@ -47,21 +47,21 @@ public sealed class FileSelectAreaMapGraphics
     /// <param name="mapPalettes">Required world-map palettes, including area-specific selections.</param>
     /// <param name="mapScreens">Required foreground and per-area background tilemap resources.</param>
     /// <param name="worldArtwork">Required world-map character artwork.</param>
-    /// <param name="mapSprites">Required map-label OBJ artwork.</param>
+
     /// <param name="sheets">Required installed sprite sheets: the map sprites the title and labels draw from, and the background tiles.</param>
     /// <exception cref="InvalidOperationException">Any required presentation resource is absent despite its optional parameter default.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The selected area is outside the six Zebes identities.</exception>
     public FileSelectAreaMapGraphics(int selectedArea, MapTileAtlas? mapTiles = null, MapStaticPalettes? mapPalettes = null,
-        MapScreenPresentation? mapScreens = null, WorldMapArtwork? worldArtwork = null, MapSpriteCompositions? mapSprites = null,
+        MapScreenPresentation? mapScreens = null, WorldMapArtwork? worldArtwork = null,
         InstalledSpriteSheets? sheets = null)
     {
         if (mapTiles is null || mapPalettes is null || mapScreens is null ||
-            worldArtwork is null || mapSprites is null || sheets is null)
+            worldArtwork is null || sheets is null)
             throw new InvalidOperationException("Area-map graphics require installed presentation assets.");
         Palettes = mapPalettes;
         screens = mapScreens;
         mapSheet = sheets.Get(SpriteSheetId.MapSprites);
-        screen = new MenuScreen(mapTiles, mapPalettes, worldArtwork, mapSprites, sheets);
+        screen = new MenuScreen(mapTiles, mapPalettes, worldArtwork, sheets);
         LoadForeground();
         // State one completes its first-two-palette fade with these entries black.
         FileSelectMapEntry.BlackenEntryColours(screen.Palette);
@@ -108,7 +108,6 @@ public sealed class FileSelectAreaMapGraphics
         BindPalettes(catalog?.Palettes);
         BindScreens(catalog?.Screens, catalog?.WorldArtwork);
         screen.BindMapTiles(catalog?.Tiles);
-        BindSprites(catalog?.Sprites);
     }
 
     /// <summary>Refresh current layer artwork without selecting another area or restarting its palette fade.</summary>
@@ -126,8 +125,6 @@ public sealed class FileSelectAreaMapGraphics
         Palettes = content;
         if (content is not null) LoadInstalledPalette(AreaIds.At(SelectedArea));
     }
-    /// <summary>Rebinds the menu screen's label OBJ art.</summary>
-    private void BindSprites(MapSpriteCompositions? content) => screen.BindMapSprites(content);
 
     /// <summary>Rebinds the installed sheets: the map sprites the title and labels draw from, and the background tiles.</summary>
     internal void BindSheets(InstalledSpriteSheets? sheets)

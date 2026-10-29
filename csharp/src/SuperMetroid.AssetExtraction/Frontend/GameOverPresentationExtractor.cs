@@ -7,6 +7,8 @@ using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Menus;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -78,7 +80,7 @@ public static class GameOverPresentationExtractor
         }
 
         using var output = new MemoryStream();
-        GameOverPresentation.Write(output, new()
+        GameOverSourcePresentation.Write(output, new()
         {
             Version = GameOverPresentationDefinitions.Version,
             Tilemap = cells,

@@ -1,10 +1,12 @@
-using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.FileSelect;
+using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 
 using SuperMetroid.AssetExtraction.Video;
@@ -30,28 +32,29 @@ internal static class FileSelectSheetComposer
         Ensure.NotNull(fileSelect);
         Ensure.NotNull(maps);
         SpriteArtwork page = MapSpriteArtwork.Of(maps.Sprites).Page;
+        FileSelectSourcePresentation source = FileSelectSourcePresentation.Of(fileSelect);
         int palette = fileSelect.ObjectPalette;
         var frames = new List<SheetFrameSource>();
         foreach (FileSelectBorder border in FileSelectPresentationDefinitions.Borders)
         {
             string name = FileSelectParts.BorderSpriteName(border);
-            frames.Add(new(name, fileSelect.borderSprites[border].ToFrame(name, 0), page, palette));
+            frames.Add(new(name, source.borderSprites[border].ToFrame(name, 0), page, palette));
         }
         for (int frame = 0; frame < FileSelectPresentationDefinitions.CursorFrameCount; frame++)
         {
             string name = FileSelectParts.CursorSpriteName(frame);
-            frames.Add(new(name, fileSelect.cursorSprites[frame].ToFrame(name, 0), page, palette));
+            frames.Add(new(name, source.cursorSprites[frame].ToFrame(name, 0), page, palette));
         }
         for (int frame = 0; frame < FileSelectPresentationDefinitions.HelmetFrameCount; frame++)
         {
             string name = FileSelectParts.HelmetSpriteName(frame);
-            frames.Add(new(name, fileSelect.helmetSprites[frame].ToFrame(name, 0), page, palette));
+            frames.Add(new(name, source.helmetSprites[frame].ToFrame(name, 0), page, palette));
         }
         for (int shape = 0; shape < FileCopyArrowDefinitions.ShapeCount; shape++)
         {
             string name = FileCopyArrowDefinitions.FrameName(shape);
             // The arrows' parts are placed with their own attribute words, palette and all.
-            frames.Add(new(name, new SpriteFrame(name, [.. FileCopyArrowDefinitions.Parts(shape)
+            frames.Add(new(name, new SpriteFrame(name, [.. FileCopyArrowParts.Parts(shape)
                 .SelectToArray(part => SpritePartFrames.Part(part.Part, firstCharacter: 0))]), page));
         }
         var cgram = new SnesCgram();

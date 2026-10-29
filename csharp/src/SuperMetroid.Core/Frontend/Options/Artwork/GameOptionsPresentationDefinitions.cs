@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Frontend.Menus.Artwork;
 namespace SuperMetroid.Core.Frontend.Options.Artwork;
 
 /// <summary>Schema names and geometry for <c>options-menu.json</c>.</summary>
@@ -67,14 +66,6 @@ public static class GameOptionsPresentationDefinitions
             [GameOptionsPage.Special] = "Heading.Special",
         };
 
-    /// <summary>The menu heading a menu layout draws.</summary>
-    internal static readonly IReadOnlyDictionary<GameOptionsPage, MenuHeading> Headings =
-        new Dictionary<GameOptionsPage, MenuHeading>
-        {
-            [GameOptionsPage.Primary] = MenuHeading.OptionsPrimary,
-            [GameOptionsPage.Controller] = MenuHeading.OptionsController,
-            [GameOptionsPage.Special] = MenuHeading.OptionsSpecial,
-        };
 
     /// <summary>The JSON name of an assignable button's glyph.</summary>
     internal static readonly IReadOnlyDictionary<ControllerButton, string> ControllerLabelNames =

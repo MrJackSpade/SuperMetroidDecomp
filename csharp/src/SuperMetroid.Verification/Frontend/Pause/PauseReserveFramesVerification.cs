@@ -7,12 +7,13 @@ using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Frontend.Menus.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Pause;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
@@ -29,15 +30,15 @@ internal static class PauseReserveFramesVerification
     {
         byte[] bytes = PauseReserveTankExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseReserveTankDocument>(bytes, ArtworkJson.Options);
-        var stock = PauseReserveTankPresentation.Load(new MemoryStream(bytes));
+        var stock = PauseReserveTankSourcePresentation.Load(new MemoryStream(bytes));
         Suite(nameof(VerifyPauseReserveNativeFrames), () => VerifyPauseReserveNativeFrames(rom, stock));
         Suite(nameof(VerifyPauseReserveStockParts), () => VerifyPauseReserveStockParts(rom, document));
         AssertEqual(0, stock.StoredFrameCount, "stock reserve frames use no stored compositions");
         foreach (var changed in ReserveFrameOracle())
         {
             var frames = new Dictionary<string, SpriteVisualPart[]>(document.Frames); frames[changed.Name] = [];
-            using var stream = new MemoryStream(); PauseReserveTankPresentation.Write(stream, document with { Frames = frames }); stream.Position = 0;
-            var edited = PauseReserveTankPresentation.Load(stream);
+            using var stream = new MemoryStream(); PauseReserveTankSourcePresentation.Write(stream, document with { Frames = frames }); stream.Position = 0;
+            var edited = PauseReserveTankSourcePresentation.Load(stream);
             AssertEqual(1, edited.StoredFrameCount, "only authored reserve frame stored");
             foreach (var frame in ReserveFrameOracle())
             {
@@ -53,7 +54,7 @@ internal static class PauseReserveFramesVerification
                     "each authored reserve frame independently selected");
             }
             frames.Remove(changed.Name);
-            AssertThrows<InvalidDataException>(() => PauseReserveTankPresentation.Write(new MemoryStream(), document with { Frames = frames }),
+            AssertThrows<InvalidDataException>(() => PauseReserveTankSourcePresentation.Write(new MemoryStream(), document with { Frames = frames }),
                 "each reserve role remains required");
         }
         foreach (ushort invalid in new ushort[] { 0, 0x1a, 0x1c, 0x1d, 0x1e, 0x28, ushort.MaxValue })
@@ -70,7 +71,7 @@ internal static class PauseReserveFramesVerification
             AssertEqual((ushort)1, ReadVerificationWord(rom, pointer), "native reserve part count");
             var x = new SnesSpritemapXWord(ReadVerificationWord(rom, pointer + 2));
             var attributes = new SnesObjAttributeWord(ReadVerificationWord(rom, pointer + 5));
-            var stockPart = PauseReserveTankParts.StockPart((PauseReserveTankVisual)frame.Id);
+            var stockPart = PauseReserveTankStockParts.StockPart((PauseReserveTankVisual)frame.Id);
             AssertEqual(x.SignedOffset, stockPart.OffsetX, "native reserve X offset");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(pointer + 4)), stockPart.OffsetY, "native reserve Y offset");
             AssertEqual(x.IsLarge ? 16 : 8, stockPart.Size, "native reserve sprite size");
@@ -87,8 +88,8 @@ internal static class PauseReserveFramesVerification
             foreach (var part in edits)
             {
                 var frames = new Dictionary<string, SpriteVisualPart[]>(document.Frames); frames[frame.Name] = [part];
-                using var stream = new MemoryStream(); PauseReserveTankPresentation.Write(stream, document with { Frames = frames }); stream.Position = 0;
-                var edited = PauseReserveTankPresentation.Load(stream);
+                using var stream = new MemoryStream(); PauseReserveTankSourcePresentation.Write(stream, document with { Frames = frames }); stream.Position = 0;
+                var edited = PauseReserveTankSourcePresentation.Load(stream);
                 AssertEqual(1, edited.StoredFrameCount, "authored part difference remains compiled");
                 var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
                 MenuSpriteCompiler.Compile([part], frame.Name).DrawOnScreen(expected, new(24, 95), 0x600);

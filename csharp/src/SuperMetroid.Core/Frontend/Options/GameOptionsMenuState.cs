@@ -77,7 +77,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         this.mapPresentation = mapPresentation ?? throw new InvalidOperationException(
             "Options menu requires installed presentation assets.");
         screen = new MenuScreen(mapPresentation.Tiles, mapPresentation.Palettes,
-            mapPresentation.WorldArtwork, mapPresentation.Sprites, spriteSheets);
+            mapPresentation.WorldArtwork, spriteSheets);
         BindSpriteSheets(spriteSheets);
         mapPresentation.GameOptions.LoadBackground(screen.Tilemaps);
 
@@ -107,7 +107,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             "Options menu requires installed presentation assets.");
         screen.BindWorldArtwork(catalog.WorldArtwork);
         screen.BindMapTiles(catalog.Tiles);
-        screen.BindMapSprites(catalog.Sprites);
+
         screen.BindMapPalettes(catalog.Palettes);
         catalog.GameOptions.LoadBackground(screen.Tilemaps);
         Copy(catalog.GameOptions.CreatePage(GameOptionsTilemap.Primary), primaryTilemap);

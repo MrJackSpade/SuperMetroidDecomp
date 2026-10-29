@@ -6,12 +6,13 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using SuperMetroid.Core.Frontend.Pause;
-using SuperMetroid.Core.Frontend.Menus.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Pause;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
@@ -23,7 +24,7 @@ internal static class PauseSelectorCompositionsVerification
     {
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseSelectorDocument>(bytes, ArtworkJson.Options);
-        var stock = PauseSelectorPresentation.Load(new MemoryStream(bytes));
+        var stock = PauseSelectorSourcePresentation.Load(new MemoryStream(bytes));
         for (int group = 0; group < 3; group++) VerifyPauseSelectorNativeCompositions(rom, stock, group);
         AssertEqual(0, stock.StoredCompositionOverrideCount, "stock selector has no phase composition table");
         AssertTrue(!stock.StoresCompositionParts, "stock selector stores no sprite part records");
@@ -41,7 +42,7 @@ internal static class PauseSelectorCompositionsVerification
                 {
                     var parts = (SpriteVisualPart[])original.Clone(); parts[index] = change;
                     var frames = new Dictionary<string, SpriteVisualPart[]>(document.Frames); frames[name] = parts;
-                    var edited = PauseSelectorPresentation.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
+                    var edited = PauseSelectorSourcePresentation.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
                         document with { Frames = frames }, ArtworkJson.Options)));
                     AssertTrue(edited.StoresCompositionParts, "independent selector part edit retained");
                     var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
@@ -64,8 +65,8 @@ internal static class PauseSelectorCompositionsVerification
                 1 => phases[changed] with { Beam = "Equipment" },
                 _ => phases[changed] with { Equipment = "Reserve" },
             };
-            using var stream = new MemoryStream(); PauseSelectorPresentation.Write(stream, document with { Animation = phases }); stream.Position = 0;
-            var edited = PauseSelectorPresentation.Load(stream);
+            using var stream = new MemoryStream(); PauseSelectorSourcePresentation.Write(stream, document with { Animation = phases }); stream.Position = 0;
+            var edited = PauseSelectorSourcePresentation.Load(stream);
             AssertEqual(changed == 0 ? phases.Length - 1 : 1, edited.StoredCompositionOverrideCount,
                 "only differences from the first authored phase are captured");
             foreach (PauseEquipmentCategory category in Enum.GetValues<PauseEquipmentCategory>())

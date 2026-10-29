@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
@@ -8,6 +9,7 @@ using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Frontend.Menus;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -125,7 +127,7 @@ public static class FileSelectPresentationExtractor
                 MenuSpriteExtractor.Read(bus, FileSelectHelmetAnimation.SpritemapId(frame)));
 
         using var output = new MemoryStream();
-        FileSelectPresentation.Write(output, new()
+        FileSelectSourcePresentation.Write(output, new()
         {
             Version = FileSelectPresentationDefinitions.Version,
             Pages = pages,

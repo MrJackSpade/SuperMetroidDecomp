@@ -1,11 +1,12 @@
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
@@ -23,7 +24,7 @@ internal static class GameOverSheetComposer
     internal static SpriteSheetSources Sources(AreaMapPresentation maps)
     {
         Ensure.NotNull(maps);
-        GameOverPresentation gameOver = maps.GameOver;
+        GameOverSourcePresentation gameOver = GameOverSourcePresentation.Of(maps.GameOver);
         SpriteArtwork page = MapSpriteArtwork.Of(maps.Sprites).Page;
         var frames = new List<SheetFrameSource>();
         foreach (GameOverBabyFrame frame in Enum.GetValues<GameOverBabyFrame>())

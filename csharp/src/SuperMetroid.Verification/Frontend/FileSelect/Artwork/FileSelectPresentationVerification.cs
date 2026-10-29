@@ -10,6 +10,7 @@ using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.FileSelect.Artwork;
 
@@ -27,7 +28,7 @@ internal static class FileSelectPresentationVerification
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(bus);
         AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
             "installed file-select JSON is the deterministic cartridge extraction");
-        _ = FileSelectPresentation.Load(new MemoryStream(extracted));
+        _ = FileSelectSourcePresentation.Load(new MemoryStream(extracted));
 
         var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot
@@ -95,7 +96,7 @@ internal static class FileSelectPresentationVerification
         string replacement = Path.Combine(overrides,
             FileSelectPresentationDefinitions.FileName);
         using (var output = File.Create(replacement))
-            FileSelectPresentation.Write(output, document);
+            FileSelectSourcePresentation.Write(output, document);
         AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "file-select override changes selected catalog identity");
@@ -124,14 +125,14 @@ internal static class FileSelectPresentationVerification
         AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides),
             "corrupt file-select override fails loudly");
         using (var output = File.Create(replacement))
-            FileSelectPresentation.Write(output, document);
-        AssertThrows<InvalidDataException>(() => FileSelectPresentation.Write(Stream.Null,
+            FileSelectSourcePresentation.Write(output, document);
+        AssertThrows<InvalidDataException>(() => FileSelectSourcePresentation.Write(Stream.Null,
             document with { ObjectPalette = 8 }),
             "file-select rejects invalid object palette");
         var missingPage = RequiredJson.Deserialize<FileSelectPresentationDocument>(
             extracted, ArtworkJson.Options);
         missingPage.Pages.Remove(FileSelectParts.PageName(FileSelectPage.CopyCompleted));
-        AssertThrows<InvalidDataException>(() => FileSelectPresentation.Write(Stream.Null, missingPage),
+        AssertThrows<InvalidDataException>(() => FileSelectSourcePresentation.Write(Stream.Null, missingPage),
             "file-select rejects a missing named page");
         var duplicatePatch = RequiredJson.Deserialize<FileSelectPresentationDocument>(
             extracted, ArtworkJson.Options);
@@ -142,7 +143,7 @@ internal static class FileSelectPresentationVerification
             Cells = [duplicate, duplicate],
         };
         AssertThrows<InvalidDataException>(() =>
-                FileSelectPresentation.Write(Stream.Null, duplicatePatch),
+                FileSelectSourcePresentation.Write(Stream.Null, duplicatePatch),
             "file-select rejects duplicate patch coordinates");
 
         Console.WriteLine(

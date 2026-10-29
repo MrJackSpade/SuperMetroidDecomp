@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Frontend.Menus.Artwork;
 using static SuperMetroid.Core.Frontend.Options.Artwork.GameOptionsPresentationDefinitions;
 
 namespace SuperMetroid.Core.Frontend.Options.Artwork;
@@ -22,9 +21,6 @@ public static class GameOptionsNames
     internal static string HeadingSpriteName(GameOptionsPage page) =>
         Ensure.Listed(GameOptionsPresentationDefinitions.HeadingSpriteNames, page);
 
-    /// <summary>The menu heading a menu layout draws.</summary>
-    internal static MenuHeading Heading(GameOptionsPage page) =>
-        Ensure.Listed(GameOptionsPresentationDefinitions.Headings, page);
 
     /// <summary>The JSON name of an assignable button's glyph.</summary>
     public static string ControllerLabelName(ControllerButton button) =>

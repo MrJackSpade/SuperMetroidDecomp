@@ -67,7 +67,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         if (mapPresentation is null)
             throw new InvalidOperationException("File select requires installed menu presentation assets.");
         screen = new MenuScreen(mapPresentation.Tiles, mapPresentation.Palettes,
-            mapPresentation.WorldArtwork, mapPresentation.Sprites, spriteSheets);
+            mapPresentation.WorldArtwork, spriteSheets);
         BindSpriteSheets(spriteSheets);
         mapPresentation.FileSelect.LoadBackground(screen.Tilemaps);
 
@@ -699,7 +699,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         mapPresentation = catalog;
         screen.BindWorldArtwork(catalog.WorldArtwork);
         screen.BindMapTiles(catalog.Tiles);
-        screen.BindMapSprites(catalog.Sprites);
+
         screen.BindMapPalettes(catalog.Palettes);
         catalog.FileSelect.LoadBackground(screen.Tilemaps);
         RebuildInstalledPresentationPage();

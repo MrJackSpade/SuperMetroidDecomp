@@ -3,6 +3,7 @@ using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
@@ -24,7 +25,7 @@ public static class PauseReserveTankExtractor
         var frames = new Dictionary<string, SpriteVisualPart[]>();
         foreach (var definition in PauseReserveTankParts.Frames()) frames.Add(definition.Name, MenuSpriteExtractor.Read(bus, (ushort)definition.Id));
         using var output = new MemoryStream();
-        PauseReserveTankPresentation.Write(output, new() { Version = PauseReserveTankDefinitions.Version,
+        PauseReserveTankSourcePresentation.Write(output, new() { Version = PauseReserveTankDefinitions.Version,
             Palette = PauseReserveTankDefinitions.Palette, Anchors = anchors, Frames = frames });
         return output.ToArray();
     }

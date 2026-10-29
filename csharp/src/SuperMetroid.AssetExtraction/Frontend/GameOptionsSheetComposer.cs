@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -6,6 +6,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.AssetExtraction.Frontend;
@@ -28,17 +29,18 @@ internal static class GameOptionsSheetComposer
         Ensure.NotNull(options);
         Ensure.NotNull(maps);
         SpriteArtwork page = MapSpriteArtwork.Of(maps.Sprites).Page;
+        GameOptionsSourcePresentation source = GameOptionsSourcePresentation.Of(options);
         int palette = options.CursorPalette;
         var frames = new List<SheetFrameSource>();
         foreach (GameOptionsPage menuPage in GameOptionsPresentationDefinitions.MenuPages)
         {
             string name = GameOptionsNames.HeadingSpriteName(menuPage);
-            frames.Add(new(name, options.headingSprites[menuPage].ToFrame(name, 0), page, palette));
+            frames.Add(new(name, source.headingSprites[menuPage].ToFrame(name, 0), page, palette));
         }
         for (int frame = 0; frame < GameOptionsPresentationDefinitions.CursorFrameCount; frame++)
         {
             string name = GameOptionsNames.CursorSpriteName(frame);
-            frames.Add(new(name, options.cursorSprites[frame].ToFrame(name, 0), page, palette));
+            frames.Add(new(name, source.cursorSprites[frame].ToFrame(name, 0), page, palette));
         }
         var cgram = new SnesCgram();
         new CgramPalettes(cgram).LoadImage(maps.Palettes.FileSelect);

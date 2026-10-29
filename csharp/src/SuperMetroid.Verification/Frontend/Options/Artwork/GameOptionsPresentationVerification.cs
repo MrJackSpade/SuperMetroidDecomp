@@ -10,6 +10,7 @@ using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.Options.Artwork;
 
@@ -27,7 +28,7 @@ internal static class GameOptionsPresentationVerification
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(bus);
         AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
             "installed options JSON is the deterministic cartridge extraction");
-        _ = GameOptionsPresentation.Load(new MemoryStream(extracted));
+        _ = GameOptionsSourcePresentation.Load(new MemoryStream(extracted));
 
         var nativeAudio = new AudioQueues();
         var installedAudio = new AudioQueues();
@@ -91,7 +92,7 @@ internal static class GameOptionsPresentationVerification
         string replacement = Path.Combine(overrides,
             GameOptionsPresentationDefinitions.FileName);
         using (var output = File.Create(replacement))
-            GameOptionsPresentation.Write(output, document);
+            GameOptionsSourcePresentation.Write(output, document);
         AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "options override changes selected catalog identity");
@@ -129,11 +130,11 @@ internal static class GameOptionsPresentationVerification
         AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides),
             "corrupt options override fails loudly");
         using (var output = File.Create(replacement))
-            GameOptionsPresentation.Write(output, document);
-        AssertThrows<InvalidDataException>(() => GameOptionsPresentation.Write(Stream.Null,
+            GameOptionsSourcePresentation.Write(output, document);
+        AssertThrows<InvalidDataException>(() => GameOptionsSourcePresentation.Write(Stream.Null,
             document with { CursorPalette = 8 }),
             "options reject invalid cursor palette");
-        AssertThrows<InvalidDataException>(() => GameOptionsPresentation.Write(Stream.Null,
+        AssertThrows<InvalidDataException>(() => GameOptionsSourcePresentation.Write(Stream.Null,
             document with
             {
                 ControllerLabelAnchors = document.ControllerLabelAnchors[..^1],
@@ -141,7 +142,7 @@ internal static class GameOptionsPresentationVerification
         var missingPage = RequiredJson.Deserialize<GameOptionsPresentationDocument>(
             extracted, ArtworkJson.Options);
         missingPage.Pages.Remove(GameOptionsNames.TilemapName(GameOptionsTilemap.SpecialJapanese));
-        AssertThrows<InvalidDataException>(() => GameOptionsPresentation.Write(Stream.Null, missingPage),
+        AssertThrows<InvalidDataException>(() => GameOptionsSourcePresentation.Write(Stream.Null, missingPage),
             "options reject a missing named page");
         var overlappingToggle = RequiredJson.Deserialize<GameOptionsPresentationDocument>(
             extracted, ArtworkJson.Options);
@@ -150,7 +151,7 @@ internal static class GameOptionsPresentationVerification
         overlappingToggle.SpecialToggles[GameOptionsNames.ToggleName(GameOptionsToggle.IconCancel)] =
             toggle with { DisabledCells = [toggle.EnabledCells[0], .. toggle.DisabledCells] };
         AssertThrows<InvalidDataException>(() =>
-                GameOptionsPresentation.Write(Stream.Null, overlappingToggle),
+                GameOptionsSourcePresentation.Write(Stream.Null, overlappingToggle),
             "options reject overlapping toggle highlight cells");
 
         Console.WriteLine(

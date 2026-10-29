@@ -5,6 +5,7 @@ using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
@@ -46,7 +47,7 @@ public static class PauseSelectorExtractor
         var palette = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.PauseSelectorPalette));
         if (palette.Raw != palette.PaletteBits) throw new InvalidDataException("Invalid native selector palette word.");
         using var output = new MemoryStream();
-        PauseSelectorPresentation.Write(output, new() { Version = PauseSelectorDefinitions.Version,
+        PauseSelectorSourcePresentation.Write(output, new() { Version = PauseSelectorDefinitions.Version,
             InitialDurationTicks = bus.ReadCartridgeByte((int)PauseMenuSourceDefinitions.PauseSelectorInitialTimer), Palette = palette.PaletteIndex,
             Anchors = anchors, Frames = frames, Animation = phases.ToArray() });
         return output.ToArray();

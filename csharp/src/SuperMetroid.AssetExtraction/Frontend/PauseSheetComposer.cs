@@ -5,6 +5,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.AssetExtraction.Frontend;
@@ -17,6 +18,9 @@ internal static class PauseSheetComposer
 {
     /// <summary>CGRAM's first sprite colour.</summary>
     private const int SpriteColours = 128;
+
+    /// <summary>OBSEL value the pause-screen PPU setup installs: the sprite sizes the pause sheet's frames are composed in.</summary>
+    internal const byte PauseObjectSelection = 0x01;
 
     /// <summary>What the pause sheet composes.</summary>
     internal static SpriteSheetSources Sources(AreaMapPresentation maps) =>
@@ -33,7 +37,8 @@ internal static class PauseSheetComposer
         Ensure.NotNull(tanks);
         Ensure.NotNull(maps);
         SpriteArtwork page = MapSpriteArtwork.Of(maps.Sprites).Page;
-        List<SheetFrameSource> frames = [.. selectors.Visuals.Select(visual =>
+        PauseReserveTankSourcePresentation tankSource = PauseReserveTankSourcePresentation.Of(tanks);
+        List<SheetFrameSource> frames = [.. PauseSelectorSourcePresentation.Of(selectors).Visuals.Select(visual =>
         {
             string name = PauseSelectorAnchors.SheetFrameName(visual.Name);
             return new SheetFrameSource(name, visual.ToFrame(name), page, selectors.ObjectPalette);
@@ -41,16 +46,16 @@ internal static class PauseSheetComposer
         frames.AddRange(PauseReserveTankParts.Frames().Select(frame =>
         {
             string name = PauseReserveTankParts.SheetFrameName(frame.Name);
-            return new SheetFrameSource(name, tanks.ToFrame(frame.Id, name), page, tanks.Palette);
+            return new SheetFrameSource(name, tankSource.ToFrame(frame.Id, name), page, tanks.Palette);
         }));
         var cgram = new SnesCgram();
         new CgramPalettes(cgram).LoadImage(maps.Palettes.Pause);
-        return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(PauseMenuLayout.ObjectSelection),
+        return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(PauseObjectSelection),
             PartsKeepOwnRows: true);
     }
 
     /// <summary>The frames the pause sheet of <paramref name="maps"/> holds.</summary>
     internal static IEnumerable<string> FrameNames(AreaMapPresentation maps) =>
-        Ensure.NotNull(maps).PauseSelectors.Visuals.Select(visual => PauseSelectorAnchors.SheetFrameName(visual.Name))
+        Ensure.NotNull(maps).PauseSelectors.FrameNames.Select(PauseSelectorAnchors.SheetFrameName)
             .Concat(PauseReserveTankParts.Frames().Select(frame => PauseReserveTankParts.SheetFrameName(frame.Name)));
 }

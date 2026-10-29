@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using static SuperMetroid.Core.Frontend.Pause.Artwork.PauseReserveTankDefinitions;
 
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
@@ -28,17 +26,7 @@ public static class PauseReserveTankParts
     /// <param name="steps">Fill steps, 0 (empty) through 7.</param>
     /// <exception cref="ArgumentOutOfRangeException">The count is outside the eight fill levels.</exception>
     internal static PauseReserveTankVisual FillLevel(int steps) => Ensure.Element(FillLevels, steps);
-    /// <summary>The sheet tile drawn for a reserve-strip spritemap identity; palette is caller-owned.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The identity is not one of the ten reserve-strip spritemaps.</exception>
-    internal static int StockTile(PauseReserveTankVisual identity) => Ensure.Listed(StockTiles, identity);
 
-    /// <summary>Builds the native eight-pixel reserve-tank part with its tile identity and caller-owned palette.</summary>
-    internal static SpriteVisualPart StockPart(PauseReserveTankVisual identity)
-    {
-        int tile = StockTile(identity);
-        return new() { OffsetX = 0, OffsetY = 0, Size = 8, Priority = 3, Palette = null,
-            FlipX = false, FlipY = false, TileColumn = tile % MapSpriteFormat.TileColumns, TileRow = tile / MapSpriteFormat.TileColumns };
-    }
     /// <summary>$82:B3D9 maps each of eight fill-step indices to $20..$27; both native tables agree.</summary>
     /// <param name="index">Entry index, 0..15, covering both identical eight-entry native tables.</param>
     /// <returns>The Empty-through-Fill7 spritemap identity selected by index modulo eight; gameplay computes the index using fourteen energy per step.</returns>

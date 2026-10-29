@@ -693,9 +693,13 @@ internal static class LookupStream4Verification
                 AssertEqual(0x2345, cgram.Colors[100], "alarm following CGRAM unchanged");
             }
         }
+        CeresBabyShadeColorsDocument alarmBabyShades = document.BabyShades ?? throw new InvalidOperationException("Verification requires document.BabyShades.");
+        // Version two stored the Baby's colours as the cartridge's ordered steps; version one predates them.
+        PaletteRgb5[][] alarmBabySteps = [alarmBabyShades.Resting, alarmBabyShades.HorizontalSquish, alarmBabyShades.Round, alarmBabyShades.VerticalSquish];
         foreach (int version in new[] { 1, 2 })
         {
-            byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(document with { Version = version, Alarm = null }, ArtworkJson.Options);
+            byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(
+                document with { Version = version, Alarm = null, BabyShades = null, Baby = version == 1 ? null : alarmBabySteps }, ArtworkJson.Options);
             var legacy = CeresRidleyColorFile.Read(new MemoryStream(legacyJson), stock);
             for (int row = 0; row < 16; row++)
             for (int color = 0; color < 3; color++)
@@ -3342,7 +3346,7 @@ internal static class LookupStream4Verification
         byte[] zoomJson = CeresRidleyMode7ColorExtractor.Extract(rom);
         var zoomDocument = RequiredJson.Deserialize<CeresRidleyMode7ColorDocument>(zoomJson, ArtworkJson.Options);
         var zoomStock = CeresRidleyMode7ColorFile.Read(new MemoryStream(zoomJson));
-        var zoomDefinition = zoomStock.rows;
+        var zoomDefinition = zoomStock.steps;
         var zoomEdits = zoomDefinition.edits;
         AssertEqual(0, zoomEdits.Count, "All native zoom words calculate without residuals");
         AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x848050), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6b123), "Native neutral contour identity shared with Golden Torizo");

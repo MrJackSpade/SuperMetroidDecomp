@@ -22,9 +22,6 @@ public sealed class SpriteImage
     /// <summary>The colours the image was coloured with.</summary>
     private readonly RgbColor[] standardColours;
 
-    /// <summary>The gameplay background set each of the image's background colour groups draws in, or none.</summary>
-    private readonly ImmutableArray<BackgroundColourSet> backgroundSets;
-
     /// <summary>Copies the pixels, palette indices and standard colours of a named image.</summary>
     /// <param name="name">The image's installed name, which names it in diagnostics.</param>
     /// <param name="size">The image's width and height in pixels; both are positive.</param>
@@ -89,18 +86,18 @@ public sealed class SpriteImage
         Size = size;
         Colours = palette.Half;
         standardColours = colours.ToArray();
-        backgroundSets = palette.BackgroundSets.IsDefault ? [] : palette.BackgroundSets;
+        BackgroundSets = palette.BackgroundSets.IsDefault ? [] : palette.BackgroundSets;
         this.content = content;
     }
 
     /// <summary>The gameplay background sets the image's background groups draw in, group after group, or none.</summary>
-    public ImmutableArray<BackgroundColourSet> BackgroundSets => backgroundSets;
+    public ImmutableArray<BackgroundColourSet> BackgroundSets { get; }
 
     /// <summary>The gameplay background set the image's background colour group <paramref name="group"/> draws in.</summary>
     /// <exception cref="InvalidDataException">The import pipeline named no background sets for the image.</exception>
-    public BackgroundColourSet BackgroundSet(int group) => backgroundSets.IsEmpty
+    public BackgroundColourSet BackgroundSet(int group) => BackgroundSets.IsEmpty
         ? throw new InvalidDataException($"Image {Name} names no gameplay background set for its colour groups.")
-        : backgroundSets[Ensure.BetweenInclusive(0, backgroundSets.Length - 1, group)];
+        : BackgroundSets[Ensure.BetweenInclusive(0, BackgroundSets.Length - 1, group)];
 
     /// <summary>Checks one image's layers against its size and keeps its pixels and inks.</summary>
     /// <exception cref="ArgumentException">A length does not match, a priority exceeds 3 or a part row names no sprite row.</exception>

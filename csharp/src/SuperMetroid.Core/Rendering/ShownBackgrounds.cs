@@ -17,8 +17,4 @@ internal abstract class ShownBackgrounds
 
     /// <summary>These colours with the backdrop shown in <paramref name="backdrop"/>.</summary>
     internal abstract ShownBackgrounds WithBackdrop(RgbColor backdrop);
-
-    /// <summary>These colours with colour <paramref name="colour"/> of gameplay's background set <paramref name="set"/> shown in <paramref name="value"/>.</summary>
-    /// <exception cref="InvalidOperationException">The colours are a frontend screen's, which holds no gameplay background set.</exception>
-    internal abstract ShownBackgrounds WithBackgroundColour(BackgroundColourSet set, int colour, RgbColor value);
 }

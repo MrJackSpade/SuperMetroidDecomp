@@ -22,7 +22,7 @@ internal sealed class GameplayShownBackgrounds(ShownBackgroundColourSets sets) :
     internal override ShownBackgrounds WithBackdrop(RgbColor backdrop) =>
         WithBackgroundColour(BackgroundColourSetDefinitions.Backdrop, BackgroundColourSetDefinitions.BackdropColour, backdrop);
 
-    /// <inheritdoc />
-    internal override ShownBackgrounds WithBackgroundColour(BackgroundColourSet set, int colour, RgbColor value) =>
+    /// <summary>These colours with colour <paramref name="colour"/> of background set <paramref name="set"/> shown in <paramref name="value"/>.</summary>
+    internal GameplayShownBackgrounds WithBackgroundColour(BackgroundColourSet set, int colour, RgbColor value) =>
         new GameplayShownBackgrounds(Sets.With(set, colour, value));
 }

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Assets;
 

@@ -64,7 +64,9 @@ public sealed class BackgroundColours
     /// <summary>These colours with colour <paramref name="colour"/> of gameplay's background set <paramref name="set"/> shown in <paramref name="value"/>.</summary>
     /// <exception cref="InvalidOperationException">These are a frontend screen's colours, which hold no gameplay background set.</exception>
     public BackgroundColours WithBackgroundColour(BackgroundColourSet set, int colour, RgbColor value) =>
-        new(Backgrounds.WithBackgroundColour(set, colour, value), Sprites);
+        Backgrounds is GameplayShownBackgrounds gameplay
+            ? new(gameplay.WithBackgroundColour(set, colour, value), Sprites)
+            : throw new InvalidOperationException($"A frontend screen holds no gameplay background set {set}.");
 
     /// <summary>The colour groups <paramref name="sheet"/>'s inks fall in.</summary>
     public static int Groups(SpriteImage sheet) => Ensure.NotNull(sheet).StandardColours.Length / GroupColours;

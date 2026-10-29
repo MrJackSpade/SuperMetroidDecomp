@@ -20,8 +20,4 @@ internal sealed class ScreenShownBackgrounds(ShownColourSets sets) : ShownBackgr
 
     /// <inheritdoc />
     internal override ShownBackgrounds WithBackdrop(RgbColor backdrop) => new ScreenShownBackgrounds(Sets.With(0, 0, backdrop));
-
-    /// <inheritdoc />
-    internal override ShownBackgrounds WithBackgroundColour(BackgroundColourSet set, int colour, RgbColor value) =>
-        throw new InvalidOperationException($"A frontend screen holds no gameplay background set {set}.");
 }

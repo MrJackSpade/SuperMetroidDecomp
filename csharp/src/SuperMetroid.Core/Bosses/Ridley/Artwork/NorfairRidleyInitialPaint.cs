@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 
@@ -44,6 +45,6 @@ internal sealed class NorfairRidleyInitialPaint
         if ((uint)index >= 32) throw new ArgumentOutOfRangeException(nameof(index));
         if (edits.TryGetValue(new ColourCell(0, index), out RgbColor edited)) return edited;
         if (index is 0 or 16) return ClearSlot;
-        return index < 16 ? armor.ColorAt(index - 1) : organ.Resolve(0, index - 17);
+        return index < 16 ? armor.ColorAt(index - 1) : organ.Resolve(CeresBabyShade.Resting, index - 17);
     }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using static SuperMetroid.Core.Bosses.Ridley.Artwork.CeresRidleyStartColorDefinitions;
@@ -45,6 +46,6 @@ internal sealed class CeresRidleyStartColors
     {
         0 or PaletteSize => RgbColor.Black,
         < PaletteSize => door.ColorAt(color - 1),
-        _ => baby.Resolve(0, color - PaletteSize - 1),
+        _ => baby.Resolve(CeresBabyShade.Resting, color - PaletteSize - 1),
     };
 }

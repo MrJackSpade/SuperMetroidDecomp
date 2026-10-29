@@ -138,22 +138,9 @@ internal static class CeresRidleyColors
     /// <summary>Shows the Baby/container's <paramref name="shade"/> in the Baby's colours.</summary>
     internal static void ApplyBaby(CeresRidleyColorCatalog colors, GameplayColours colours, CeresBabyShade shade)
     {
-        int step = InstalledBabyStep(shade);
+        _ = colors.selection.Baby.Resolve(shade, 0);
         Ensure.NotNull(colours);
         for (int color = 0; color < CeresRidleyPaletteDefinitions.BabyColorCount; color++)
-            new RidleyColours(colours).CeresBaby.Write(color, colors.selection.Baby.Resolve(step, color));
+            new RidleyColours(colours).CeresBaby.Write(color, colors.selection.Baby.Resolve(shade, color));
     }
-
-    /// <summary>
-    /// The installed Baby colour step that holds <paramref name="shade"/>: the installed shades run from resting through
-    /// the horizontal squish and round pose to the vertical squish, each brighter than the one before.
-    /// </summary>
-    private static int InstalledBabyStep(CeresBabyShade shade) => shade switch
-    {
-        CeresBabyShade.Resting => 0,
-        CeresBabyShade.HorizontalSquish => 1,
-        CeresBabyShade.Round => 2,
-        CeresBabyShade.VerticalSquish => 3,
-        _ => throw new ArgumentOutOfRangeException(nameof(shade), shade, "Undefined Ceres Baby shade."),
-    };
 }

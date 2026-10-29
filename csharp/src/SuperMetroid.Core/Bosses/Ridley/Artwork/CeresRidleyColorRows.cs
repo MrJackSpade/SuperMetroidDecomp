@@ -25,6 +25,6 @@ internal sealed record CeresRidleyColorRows
     /// <summary>The retreat colours shared with the startup door paints.</summary>
     public required RgbColor[] RetreatShared { get; init; }
 
-    /// <summary>The Baby Metroid rows, or null when they are inherited from stock.</summary>
-    public required RgbColor[][]? Baby { get; init; }
+    /// <summary>The Baby Metroid's colours by shade, or null when they are inherited from stock.</summary>
+    public required CeresBabyShadeColours? Baby { get; init; }
 }

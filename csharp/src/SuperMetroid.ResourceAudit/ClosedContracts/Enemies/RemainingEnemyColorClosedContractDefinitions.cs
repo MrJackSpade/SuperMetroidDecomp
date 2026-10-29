@@ -32,6 +32,8 @@ internal static class RemainingEnemyColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresDoorEscapeSurfacePaint.cs"),
              new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresDoorWarmTargetPaint.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresBabyPaint.cs"),
+             new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresBabyPaintShades.cs"),
+             new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresBabyColourCell.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresBabyPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresRidleyBodyPaint.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresRidleyBodyPaintDefinitions.cs"),

@@ -92,7 +92,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
             "live Botwoon health palette avoids migrated RGB5 ROM reads");
         state.PalettePhase = 0;
         // Over the set before the body's, the cartridge's copy would run on past the authored band.
-        state.HealthColouring = SpriteColouring.InFixtureSet(SuperMetroid.Core.Bosses.Artwork.BossColourDefinitions.BotwoonBody.Set - 1);
+        state.HealthColouring = SpriteColouring.InFixtureSet(SuperMetroid.Core.Bosses.Artwork.BossColourDefinitions.BotwoonBody.Store.Set - 1);
         head.Health = 0;
         AssertThrows<InvalidDataException>(() => update(head, state),
             "installed Botwoon rejects health colours other than its body's");

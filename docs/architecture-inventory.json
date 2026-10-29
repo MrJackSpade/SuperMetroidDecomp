@@ -21459,6 +21459,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Assets.ColourRunSequence",
+      "kind": "struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/ColourRunSequence.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Assets.ColourSetRunPositions",
       "kind": "static class",
       "scope": "test",

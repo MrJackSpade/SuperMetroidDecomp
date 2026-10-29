@@ -83,10 +83,10 @@ internal sealed class TorizoMovement
         state.PreInstruction = TorizoPreInstruction.Idle;
         state.Velocity = new EightEightVector<RoomPixels>(0, 256);
 
-        // Init writes two shared target rows and then selects the encounter-specific body
-        // pair. This runtime exposes live CGRAM rather than separate current/target buffers,
-        // so install those final visible rows directly at their native palette indexes.
-        LoadTorizoSharedPaletteRows();
+        // Init writes the shared colours' targets and then selects the encounter-specific body
+        // colours. This runtime exposes the live colours rather than separate current/target
+        // buffers, so install those final visible colours directly in their owners.
+        LoadTorizoSharedColours();
         if (isGolden)
         {
             LoadGoldenTorizoBasePalette();
@@ -109,27 +109,20 @@ internal sealed class TorizoMovement
             LoadBombTorizoPalette();
     }
 
-    /// <summary>Writes the two palette rows shared by both statue variants to live CGRAM.</summary>
-    private void LoadTorizoSharedPaletteRows()
-    {
-        ReadOnlySpan<RgbColor> rows = TorizoPaletteDefinitions.SharedRows;
-        for (int color = 0; color < 16; color++)
-        {
-            _presentation.BossColours().TorizoSharedFirst.Write(color, rows[color]);
-            _presentation.BossColours().TorizoSharedSecond.Write(color, rows[16 + color]);
-        }
-    }
+    /// <summary>Loads the orb, flame and statue-shading colours both statue variants share.</summary>
+    private void LoadTorizoSharedColours() =>
+        _presentation.BossColours().TorizoShared.CopyFrom(TorizoPaletteDefinitions.Shared);
 
-    /// <summary>Installs Bomb Torizo's initial body and belly colors in palette rows nine and ten.</summary>
+    /// <summary>Installs Bomb Torizo's initial body and belly colours.</summary>
     private void LoadBombTorizoPalette() =>
-        _body.LoadTorizoBodyPalette(TorizoPaletteDefinitions.BombInitial[..16], TorizoPaletteDefinitions.BombInitial[16..]);
+        _body.LoadTorizoBodyColours(TorizoPaletteDefinitions.BombInitial);
 
     /// <summary>
     /// Installs Golden Torizo's initial body colors before hurt frames begin using the
     /// health-indexed bank-$84 gradient.
     /// </summary>
     private void LoadGoldenTorizoBasePalette() =>
-        _body.LoadTorizoBodyPalette(TorizoPaletteDefinitions.GoldenInitial[..16], TorizoPaletteDefinitions.GoldenInitial[16..]);
+        _body.LoadTorizoBodyColours(TorizoPaletteDefinitions.GoldenInitial);
 
     /// <summary>Interrupts active AI at the head and core health thresholds before normal pre-instructions resume.</summary>
     internal void RunBombTorizoActiveState(

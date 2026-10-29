@@ -52,17 +52,23 @@ public static class BossColourDefinitions
     /// <summary>Crocomire wall spikes.</summary>
     public static readonly SpriteColourRun CrocomireWallSpikes = new(SpriteColourStore.EnemiesThird, 0, 16);
 
-    /// <summary>Torizo body row.</summary>
+    /// <summary>The Torizos' body colours.</summary>
     public static readonly SpriteColourRun TorizoBody = new(SpriteColourStore.EnemiesFirst, 0, 16);
 
-    /// <summary>Torizo belly row.</summary>
+    /// <summary>The Torizos' belly colours.</summary>
     public static readonly SpriteColourRun TorizoBelly = new(SpriteColourStore.EnemiesSecond, 0, 16);
 
-    /// <summary>First shared Torizo row.</summary>
-    public static readonly SpriteColourRun TorizoSharedFirst = new(SpriteColourStore.EnemiesThird, 0, 16);
+    /// <summary>The body and belly colours a Torizo's body colouring loads and fades, body first.</summary>
+    public static readonly ImmutableArray<SpriteColourRun> TorizoBodyAndBelly = [TorizoBody, TorizoBelly];
 
-    /// <summary>Second shared Torizo row.</summary>
-    public static readonly SpriteColourRun TorizoSharedSecond = new(SpriteColourStore.EnemiesFourth, 0, 16);
+    /// <summary>The orb and flame colours both Torizos share.</summary>
+    public static readonly SpriteColourRun TorizoOrbsAndFlames = new(SpriteColourStore.EnemiesThird, 0, 16);
+
+    /// <summary>The statue-shading colours both Torizos share.</summary>
+    public static readonly SpriteColourRun TorizoStatueShading = new(SpriteColourStore.EnemiesFourth, 0, 16);
+
+    /// <summary>The colours both Torizos share, loaded together at initialization: orbs and flames, then statue shading.</summary>
+    public static readonly ImmutableArray<SpriteColourRun> TorizoShared = [TorizoOrbsAndFlames, TorizoStatueShading];
 
     /// <summary>Botwoon's body palette.</summary>
     public static readonly SpriteColourRun BotwoonBody = new(SpriteColourStore.EnemiesFourth, 0, 16);

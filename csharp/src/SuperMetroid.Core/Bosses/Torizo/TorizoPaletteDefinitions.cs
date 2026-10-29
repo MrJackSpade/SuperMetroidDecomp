@@ -7,20 +7,20 @@ internal static class TorizoPaletteDefinitions
     /// <summary>$82:DAFF supplies denominator 12 to the selected-palette fade.</summary>
     internal const int FadeDenominator = 12;
     /// <summary>
-    /// $AA:8687/$86A7, sprite palettes 3 and 7 shared by both Torizos (CGRAM rows eleven and
-    /// fifteen): orb/flame and statue-shading paint. Row eleven's colors nine to fifteen and
-    /// row fifteen's nine to eleven, thirteen and fourteen are single repeated fill colors.
+    /// $AA:8687/$86A7, the colours shared by both Torizos: orb/flame paint, then statue-shading
+    /// paint. The orb/flame colours nine to fifteen and the shading colours nine to eleven,
+    /// thirteen and fourteen are single repeated fill colors.
     /// </summary>
-    internal static ReadOnlySpan<RgbColor> SharedRows => SharedRowsColors;
-    /// <summary>Native sprite-palette rows shared by Bomb and Golden Torizo.</summary>
-    private static readonly RgbColor[] SharedRowsColors =
+    internal static ReadOnlySpan<RgbColor> Shared => SharedColors;
+    /// <summary>The orb/flame and statue-shading colours shared by Bomb and Golden Torizo.</summary>
+    private static readonly RgbColor[] SharedColors =
     [
         RgbColor.FromWord(0x3800), RgbColor.FromWord(0x03ff), RgbColor.FromWord(0x033b), RgbColor.FromWord(0x0216), RgbColor.FromWord(0x0113), RgbColor.FromWord(0x6b1e), RgbColor.FromWord(0x4a16), RgbColor.FromWord(0x3591),
         RgbColor.FromWord(0x20e9), RgbColor.FromWord(0x1580), RgbColor.FromWord(0x1580), RgbColor.FromWord(0x1580), RgbColor.FromWord(0x1580), RgbColor.FromWord(0x1580), RgbColor.FromWord(0x1580), RgbColor.FromWord(0x1580),
         RgbColor.FromWord(0x3800), RgbColor.FromWord(0x02df), RgbColor.FromWord(0x01d7), RgbColor.FromWord(0x00ac), RgbColor.FromWord(0x5a73), RgbColor.FromWord(0x41ad), RgbColor.FromWord(0x2d08), RgbColor.FromWord(0x1863),
         RgbColor.FromWord(0x1486), RgbColor.FromWord(0x0145), RgbColor.FromWord(0x0145), RgbColor.FromWord(0x0145), RgbColor.FromWord(0x7fff), RgbColor.FromWord(0x0145), RgbColor.FromWord(0x0145), RgbColor.FromWord(0x0000),
     ];
-    /// <summary>$AA:86C7/$86E7, Bomb Torizo's initial (statue) body rows nine and ten.</summary>
+    /// <summary>$AA:86C7/$86E7, Bomb Torizo's initial (statue) body and belly colours.</summary>
     internal static ReadOnlySpan<RgbColor> BombInitial => BombInitialColors;
     /// <summary>Bomb Torizo's statue body colors before the normal-body transition.</summary>
     private static readonly RgbColor[] BombInitialColors =

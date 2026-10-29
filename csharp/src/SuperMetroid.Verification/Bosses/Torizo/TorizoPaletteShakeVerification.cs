@@ -98,7 +98,7 @@ internal static class TorizoPaletteShakeVerification
             AssertEqual(native, TorizoPaletteDefinitions.Golden[i], "Shared Golden fade target matches cartridge");
             foreach ((int source, string name, RgbColor catalog) in new[]
             {
-                new VerifyTorizoPaletteCatalogsAgainstRetailRomCase(0xaa8687, "shared rows eleven/fifteen", TorizoPaletteDefinitions.SharedRows[i]),
+                new VerifyTorizoPaletteCatalogsAgainstRetailRomCase(0xaa8687, "shared orb/flame and statue-shading colours", TorizoPaletteDefinitions.Shared[i]),
                 new VerifyTorizoPaletteCatalogsAgainstRetailRomCase(0xaa86c7, "Bomb Torizo initial body", TorizoPaletteDefinitions.BombInitial[i]),
                 new VerifyTorizoPaletteCatalogsAgainstRetailRomCase(0xaa8747, "Golden Torizo initial body", TorizoPaletteDefinitions.GoldenInitial[i]),
             })

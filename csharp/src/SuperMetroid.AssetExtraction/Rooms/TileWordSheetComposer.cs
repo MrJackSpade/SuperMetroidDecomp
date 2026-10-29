@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
@@ -310,13 +311,13 @@ internal static class TileWordSheetComposer
         var hud = new HudState();
         hud.BindPresentation(presentation);
         hud.Initialize(stocked);
-        ushort[] shown = BackgroundTileWords.ToWords([.. presentation.TopRow(), .. hud.MutableRows]);
+        ushort[] shown = BackgroundTileWords.ToWords(hud.Rows());
         yield return new NamedPart("Hud", Rows(shown));
         var glyphs = new SortedSet<ushort>();
         void Show(HudSnapshot snapshot)
         {
             hud.Initialize(snapshot);
-            glyphs.UnionWith(BackgroundTileWords.ToWords(hud.MutableRows));
+            glyphs.UnionWith(BackgroundTileWords.ToWords(hud.Rows()));
         }
         for (int tanks = 0; tanks <= 14; tanks++)
         {
@@ -335,13 +336,13 @@ internal static class TileWordSheetComposer
         foreach (HudItem item in Enum.GetValues<HudItem>())
         {
             Show(stocked with { SelectedItem = item });
-            hud.ToggleItemHighlight(item, presentation.DeselectedPalette);
-            glyphs.UnionWith(BackgroundTileWords.ToWords(hud.MutableRows));
+            hud.ToggleItemHighlight(item, HudIconShade.Deselected);
+            glyphs.UnionWith(BackgroundTileWords.ToWords(hud.Rows()));
         }
         Show(stocked with { ReserveHealth = 0 });
         Show(stocked with { ReserveMode = ReserveTankMode.None });
         hud.ClearAutoReserveIndicator();
-        glyphs.UnionWith(BackgroundTileWords.ToWords(hud.MutableRows));
+        glyphs.UnionWith(BackgroundTileWords.ToWords(hud.Rows()));
         Show(HudSnapshot.CeresDebug);
         glyphs.ExceptWith(shown);
         yield return new NamedPart("Glyphs", Rows([.. glyphs]));
@@ -356,7 +357,7 @@ internal static class TileWordSheetComposer
             for (int y = 0; y < 32; y++)
             for (int x = 0; x < 64; x++)
             {
-                MapTileWord tile = map.GetTile(new Position16<MapTiles>((ushort)x, (ushort)y));
+                MapTileWord tile = MapTileWord.Of(map.Cell(new Position16<MapTiles>((ushort)x, (ushort)y)));
                 foreach (MapTileWord shown in new[] { tile.ForHud(true), tile.ForHud(false) })
                 {
                     words.Add((ushort)shown);

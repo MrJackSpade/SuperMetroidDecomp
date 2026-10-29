@@ -12,7 +12,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Map;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.VerificationImporters;

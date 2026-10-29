@@ -47,10 +47,8 @@ public sealed class FileSelectRoomMapGraphics
             throw new ArgumentOutOfRangeException(nameof(area));
         screen = new MenuScreen(mapPresentation.Tiles, mapPresentation.Palettes,
             mapPresentation.WorldArtwork, installed);
-        MapTileWord hidden = system.HasAreaMap(area)
-            ? MapTileWords.PauseBlank : MapTileWords.FileSelectUndownloadedBlank;
-        MenuTilemaps.Load(screen.Tilemaps.AreaMap,
-            AreaMapTilemapBuilder.Build(mapPresentation.Get(area), system, hidden, revealMode));
+        MenuTilemaps.Load(screen.Tilemaps.AreaMap, AreaMapTilemapBuilder.Build(mapPresentation.Get(area), system,
+            mapPresentation.HiddenCells.RoomSelect(system.HasAreaMap(area)), revealMode));
 
         LoadFrame(mapPresentation.Screens, area);
     }
@@ -86,10 +84,8 @@ public sealed class FileSelectRoomMapGraphics
         var area = icons.MapArea;
         screen.BindWorldArtwork(catalog.WorldArtwork);
         LoadFrame(catalog.Screens, area);
-        MapTileWord hidden = system.HasAreaMap(area)
-            ? MapTileWords.PauseBlank : MapTileWords.FileSelectUndownloadedBlank;
         MenuTilemaps.Load(screen.Tilemaps.AreaMap,
-            AreaMapTilemapBuilder.Build(catalog.Get(area), system, hidden));
+            AreaMapTilemapBuilder.Build(catalog.Get(area), system, catalog.HiddenCells.RoomSelect(system.HasAreaMap(area))));
     }
 
     /// <summary>Composes landmarks, the saved-station marker, and arrows in native order without advancing animations.</summary>

@@ -1,112 +1,75 @@
-using System.Security.Cryptography;
-using System.Text.Json;
+using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Hud.Artwork;
 
-/// <summary>Editable three-row gameplay-HUD tilemap, visual patches and layout anchors.</summary>
+/// <summary>
+/// The installed gameplay HUD's artwork (#1466): the tile each element shows and the cells it sits in, and how each of
+/// the HUD's values is drawn from them. The import pipeline decodes and validates the editable HUD document into it;
+/// the HUD's state is values, which <see cref="HudState.Rows"/> draws through these writers.
+/// </summary>
 public sealed class GameplayHudPresentation
 {
-    /// <summary>Edited template cells keyed by their 32-by-3 tilemap index.</summary>
-    internal readonly Dictionary<int, BackgroundTile> templateOverrides;
-    /// <summary>Edited cells in the separately supplied immutable top row.</summary>
-    internal readonly Dictionary<int, BackgroundTile> topRowOverrides;
-    /// <summary>Edited decimal glyph tiles used by the health field.</summary>
-    internal readonly Dictionary<int, BackgroundTile> healthDigits;
-    /// <summary>Edited decimal glyph tiles shared by ammunition fields.</summary>
-    internal readonly Dictionary<int, BackgroundTile> ammoDigits;
-    /// <summary>Edited AUTO reserve cells for filled and empty states.</summary>
-    internal readonly Dictionary<int, BackgroundTile> autoReserveOverrides;
-    /// <summary>Non-stock tilemap positions for the six AUTO indicator cells.</summary>
-    internal readonly Dictionary<int, int> autoAnchors;
-    /// <summary>Non-stock tilemap positions for energy tank cells.</summary>
-    internal readonly Dictionary<int, int> energyTankAnchors;
-    /// <summary>Compiled item icons in the cartridge's HUD selection order.</summary>
-    internal readonly CompiledIcon missile, superMissile, powerBomb, grapple, xray;
+    /// <summary>The decoded pictures and layout.</summary>
+    private readonly GameplayHudPresentationParts parts;
 
-    /// <summary>Validates layout and stores only cells differing from compiled stock art.</summary>
-    private GameplayHudPresentation(GameplayHudPresentationDocument document, byte[] source)
+    /// <summary>Takes the import's decoded, validated HUD artwork.</summary>
+    internal GameplayHudPresentation(GameplayHudPresentationParts parts)
     {
-        BackgroundTile[] topRow = CompileCells(document.TopRow, GameplayHudDefinitions.TopRowCellCount,
-            "HUD immutable top row");
-        topRowOverrides = new();
-        for (int index = 0; index < topRow.Length; index++)
-            if (topRow[index] != GameplayHudTiles.TopRowTile(index)) topRowOverrides.Add(index, topRow[index]);
-        BackgroundTile[] template = CompileCells(document.Template, GameplayHudDefinitions.CellCount, "HUD template");
-        templateOverrides = new();
-        for (int index = 0; index < template.Length; index++)
-            if (template[index] != GameplayHudTiles.TemplateTile(index)) templateOverrides.Add(index, template[index]);
-        Blank = CompileCell(document.Blank, "HUD blank");
-        FilledEnergyTank = CompileCell(document.EnergyTanks.Filled, "filled energy tank");
-        EmptyEnergyTank = CompileCell(document.EnergyTanks.Empty, "empty energy tank");
-        energyTankAnchors = CompileAnchors(document.EnergyTanks.Anchors, GameplayHudDefinitions.EnergyTankCount, "energy tank",
-            tank => GameplayHudTiles.EnergyTankCell(tank));
-        healthDigits = CompileDigitOverrides(document.Digits.Health, "health digits");
-        ammoDigits = CompileDigitOverrides(document.Digits.Ammo, "ammo digits");
-        HealthAnchor = ValidateAnchor(document.Digits.HealthAnchor, new(2, 1), "health digits");
-        MissileAmmoAnchor = ValidateAnchor(document.Digits.MissileAnchor, new(3, 1), "missile digits");
-        SuperMissileAmmoAnchor = ValidateAnchor(document.Digits.SuperMissileAnchor, new(2, 1), "Super Missile digits");
-        PowerBombAmmoAnchor = ValidateAnchor(document.Digits.PowerBombAnchor, new(2, 1), "Power Bomb digits");
-        MinimapAnchor = ValidateAnchor(document.MinimapAnchor, MinimapSize, "minimap");
-        autoReserveOverrides = CompileAutoReserve(document.AutoReserve);
-        autoAnchors = CompileAnchors(document.AutoReserve.Anchors, GameplayHudDefinitions.AutoReserveCellCount, "AUTO indicator",
-            GameplayHudTiles.AutoReserveCellIndex);
-        SelectedPalette = ValidatePalette(document.SelectedPalette, nameof(document.SelectedPalette));
-        DeselectedPalette = ValidatePalette(document.DeselectedPalette, nameof(document.DeselectedPalette));
-
-        if (document.Icons is null || document.Icons.Count != GameplayHudDefinitions.IconNames.Length ||
-            GameplayHudDefinitions.IconNames.Any(name => !document.Icons.ContainsKey(name)))
-            throw new InvalidDataException("Gameplay HUD requires exactly the five named item icons.");
-        missile = new(0, document.Icons["Missile"]);
-        superMissile = new(1, document.Icons["SuperMissile"]);
-        powerBomb = new(2, document.Icons["PowerBomb"]);
-        grapple = new(3, document.Icons["Grapple"]);
-        xray = new(4, document.Icons["XRay"]);
-        ValidateDistinctDynamicCells();
-        ContentIdentity = Convert.ToHexString(SHA256.HashData(source));
+        this.parts = Ensure.NotNull(parts);
+        if (parts.TopRow.Length != GameplayHudDefinitions.TopRowCellCount || parts.Template.Length != GameplayHudDefinitions.CellCount ||
+            parts.EnergyTankCells.Length != GameplayHudDefinitions.EnergyTankCount || parts.AutoReserveCells.Length != GameplayHudDefinitions.AutoReserveCellCount ||
+            parts.AutoReserveFilled.Length != GameplayHudDefinitions.AutoReserveCellCount || parts.AutoReserveEmpty.Length != GameplayHudDefinitions.AutoReserveCellCount ||
+            parts.HealthDigits.Length != Numerals || parts.AmmoDigits.Length != Numerals || parts.Icons.Length != GameplayHudDefinitions.ItemCount)
+            throw new ArgumentException("The gameplay HUD's artwork does not hold one picture for each of its cells.", nameof(parts));
     }
+
+    /// <summary>The decimal numerals a counter's digits show.</summary>
+    private const int Numerals = 10;
 
     /// <summary>Gets the SHA-256 identity of the source presentation document.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => parts.ContentIdentity;
+
     /// <summary>The HUD's static top row, with any installed edits (#1348).</summary>
-    public BackgroundTile[] TopRow()
-    {
-        var row = new BackgroundTile[GameplayHudDefinitions.Width];
-        for (int column = 0; column < row.Length; column++)
-            row[column] = topRowOverrides.GetValueOrDefault(column, GameplayHudTiles.TopRowTile(column));
-        return row;
-    }
+    public BackgroundTile[] TopRow() => [.. parts.TopRow];
 
     /// <summary>Gets the tile used to clear mutable HUD cells.</summary>
-    public BackgroundTile Blank { get; }
+    public BackgroundTile Blank => parts.Blank;
     /// <summary>Gets the tile for a filled energy tank.</summary>
-    public BackgroundTile FilledEnergyTank { get; }
+    public BackgroundTile FilledEnergyTank => parts.FilledEnergyTank;
     /// <summary>Gets the tile for an empty energy tank.</summary>
-    public BackgroundTile EmptyEnergyTank { get; }
-    /// <summary>Gets the BG palette index applied to the selected item icon.</summary>
-    public int SelectedPalette { get; }
-    /// <summary>Gets the BG palette index applied to deselected item icons.</summary>
-    public int DeselectedPalette { get; }
+    public BackgroundTile EmptyEnergyTank => parts.EmptyEnergyTank;
+    /// <summary>Gets the colour variant applied to the selected item icon.</summary>
+    public int SelectedPalette => parts.SelectedPalette;
+    /// <summary>Gets the colour variant applied to deselected item icons.</summary>
+    public int DeselectedPalette => parts.DeselectedPalette;
     /// <summary>Gets the tile coordinate of the two health digits.</summary>
-    public Position16<TilemapCells> HealthAnchor { get; }
+    public Position16<TilemapCells> HealthAnchor => parts.HealthAnchor;
     /// <summary>Gets the tile coordinate of the three missile-ammo digits.</summary>
-    public Position16<TilemapCells> MissileAmmoAnchor { get; }
+    public Position16<TilemapCells> MissileAmmoAnchor => parts.MissileAmmoAnchor;
     /// <summary>Gets the tile coordinate of the two Super Missile ammo digits.</summary>
-    public Position16<TilemapCells> SuperMissileAmmoAnchor { get; }
+    public Position16<TilemapCells> SuperMissileAmmoAnchor => parts.SuperMissileAmmoAnchor;
     /// <summary>Gets the tile coordinate of the two Power Bomb ammo digits.</summary>
-    public Position16<TilemapCells> PowerBombAmmoAnchor { get; }
+    public Position16<TilemapCells> PowerBombAmmoAnchor => parts.PowerBombAmmoAnchor;
     /// <summary>Gets the upper-left tile coordinate of the five-by-three minimap.</summary>
-    public Position16<TilemapCells> MinimapAnchor { get; }
+    public Position16<TilemapCells> MinimapAnchor => parts.MinimapAnchor;
 
     /// <summary>Writes the complete editable HUD template into a mutable tilemap.</summary>
     /// <param name="tiles">The 32-by-3 HUD tilemap to populate.</param>
     public void ApplyTemplate(Span<BackgroundTile> tiles)
     {
         ValidateTilemap(tiles);
-        for (int index = 0; index < GameplayHudDefinitions.CellCount; index++)
-            tiles[index] = templateOverrides.GetValueOrDefault(index, GameplayHudTiles.TemplateTile(index));
+        parts.Template.AsSpan().CopyTo(tiles);
     }
+
+    /// <summary>
+    /// Whether item <paramref name="itemIndex"/>'s icon draws when the HUD adds it: the cartridge draws an icon only over
+    /// a blank anchor, and nothing but the template ever sits under an icon.
+    /// </summary>
+    /// <param name="itemIndex">The zero-based item icon index.</param>
+    public bool IconShowsOverTemplate(int itemIndex) =>
+        parts.Template[Index(Icon(itemIndex).Anchor)].Tile == Blank.Tile;
 
     /// <summary>Draws an item icon when its anchor cell is currently blank.</summary>
     /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
@@ -114,27 +77,35 @@ public sealed class GameplayHudPresentation
     public void TryApplyIcon(Span<BackgroundTile> tiles, int itemIndex)
     {
         ValidateTilemap(tiles);
-        CompiledIcon icon = Icon(itemIndex);
-        int first = Index(icon.Anchor);
-        if (tiles[first].Tile != Blank.Tile)
+        GameplayHudIcon icon = Icon(itemIndex);
+        if (tiles[Index(icon.Anchor)].Tile != Blank.Tile)
             return;
-        for (int y = 0; y < CompiledIcon.Height; y++)
-        for (int x = 0; x < icon.Width; x++)
-            tiles[Index(icon.Anchor + new Offset16<TilemapCells>(checked((short)x), checked((short)y)))] = icon.Cell(y * icon.Width + x);
+        for (int cell = 0; cell < icon.Cells.Length; cell++)
+            tiles[Index(icon.CellAt(cell))] = icon.Cells[cell];
     }
 
-    /// <summary>Draws energy tanks and the two-digit current-energy remainder.</summary>
+    /// <summary>Draws one energy tank full or empty.</summary>
     /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
-    /// <param name="health">Current energy, including full tank hundreds.</param>
-    /// <param name="maxHealth">Maximum energy used to determine the visible tank count.</param>
-    public void ApplyEnergy(Span<BackgroundTile> tiles, int health, int maxHealth)
+    /// <param name="tank">The tank, 0 through 13.</param>
+    /// <param name="shown">Whether the tank is full or empty.</param>
+    public void DrawEnergyTank(Span<BackgroundTile> tiles, int tank, HudEnergyTank shown)
     {
         ValidateTilemap(tiles);
-        int fullTanks = health / 100;
-        int tankCount = Math.Min(maxHealth / 100, GameplayHudDefinitions.EnergyTankCount);
-        for (int tank = 0; tank < tankCount; tank++)
-            tiles[EnergyTankCell(tank)] = tank < fullTanks ? FilledEnergyTank : EmptyEnergyTank;
-        DrawDigits(tiles, healthDigits, health % 100, HealthAnchor, 2);
+        tiles[Index(parts.EnergyTankCells[Ensure.BetweenInclusive(0, GameplayHudDefinitions.EnergyTankCount - 1, tank)])] = shown switch
+        {
+            HudEnergyTank.Full => FilledEnergyTank,
+            HudEnergyTank.Empty => EmptyEnergyTank,
+            _ => throw new ArgumentOutOfRangeException(nameof(shown), shown, "Undefined energy tank state."),
+        };
+    }
+
+    /// <summary>Draws the two-digit energy count.</summary>
+    /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
+    /// <param name="remainder">The energy beyond full tanks, 0 through 99.</param>
+    public void DrawEnergyCount(Span<BackgroundTile> tiles, int remainder)
+    {
+        ValidateTilemap(tiles);
+        DrawDigits(tiles, parts.HealthDigits, remainder, HealthAnchor, 2);
     }
 
     /// <summary>Draws the ammunition count for a projectile item.</summary>
@@ -152,7 +123,7 @@ public sealed class GameplayHudPresentation
             _ => throw new ArgumentOutOfRangeException(nameof(itemIndex)),
         };
         // The digits divide the stored word, so a count the cartridge has drained below zero draws as its word.
-        DrawDigits(tiles, ammoDigits, SamusQuantity.Encode(value), anchor, digits);
+        DrawDigits(tiles, parts.AmmoDigits, SamusQuantity.Encode(value), anchor, digits);
     }
 
     /// <summary>Draws the AUTO reserve indicator for the requested reserve-energy state.</summary>
@@ -161,9 +132,9 @@ public sealed class GameplayHudPresentation
     public void ApplyAutoReserve(Span<BackgroundTile> tiles, bool containsEnergy)
     {
         ValidateTilemap(tiles);
+        ImmutableArray<BackgroundTile> shown = containsEnergy ? parts.AutoReserveFilled : parts.AutoReserveEmpty;
         for (int index = 0; index < GameplayHudDefinitions.AutoReserveCellCount; index++)
-            tiles[AutoReserveCell(index)] = autoReserveOverrides.GetValueOrDefault(index + (containsEnergy ? 0 : 6),
-                GameplayHudTiles.AutoReserveTile(index, containsEnergy));
+            tiles[Index(parts.AutoReserveCells[index])] = shown[index];
     }
 
     /// <summary>Replaces every AUTO reserve-indicator cell with the configured blank tile.</summary>
@@ -171,25 +142,24 @@ public sealed class GameplayHudPresentation
     public void ClearAutoReserve(Span<BackgroundTile> tiles)
     {
         ValidateTilemap(tiles);
-        for (int cell = 0; cell < GameplayHudDefinitions.AutoReserveCellCount; cell++)
-            tiles[AutoReserveCell(cell)] = Blank;
+        foreach (Position16<TilemapCells> cell in parts.AutoReserveCells)
+            tiles[Index(cell)] = Blank;
     }
 
-    /// <summary>Applies a palette to every nonblank cell of the selected item icon.</summary>
+    /// <summary>Applies a colour variant to every nonblank cell of the selected item icon.</summary>
     /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
-    /// <param name="selectedItem">The native one-based selected-item number.</param>
-    /// <param name="palette">The BG palette index to apply.</param>
-    public void ToggleItemHighlight(Span<BackgroundTile> tiles, SuperMetroid.Core.Samus.HudItem selectedItem, int palette)
+    /// <param name="selectedItem">The selected item.</param>
+    /// <param name="palette">The colour variant to apply.</param>
+    public void ToggleItemHighlight(Span<BackgroundTile> tiles, HudItem selectedItem, int palette)
     {
         ValidateTilemap(tiles);
-        if ((uint)palette > 7) throw new ArgumentOutOfRangeException(nameof(palette));
+        if ((uint)palette >= BackgroundTile.ColourVariants) throw new ArgumentOutOfRangeException(nameof(palette));
         int itemIndex = Array.IndexOf(GameplayHudDefinitions.IconItems, selectedItem);
         if (itemIndex < 0) return;
-        CompiledIcon icon = Icon(itemIndex);
-        for (int y = 0; y < CompiledIcon.Height; y++)
-        for (int x = 0; x < icon.Width; x++)
+        GameplayHudIcon icon = Icon(itemIndex);
+        for (int cell = 0; cell < icon.Cells.Length; cell++)
         {
-            int destination = Index(icon.Anchor + new Offset16<TilemapCells>(checked((short)x), checked((short)y)));
+            int destination = Index(icon.CellAt(cell));
             if (tiles[destination] != Blank)
                 tiles[destination] = tiles[destination] with { ColourVariant = palette };
         }
@@ -207,214 +177,54 @@ public sealed class GameplayHudPresentation
         return Index(MinimapAnchor + (output - Position16<TilemapCells>.Zero));
     }
 
-    /// <summary>Loads and validates a gameplay-HUD presentation document.</summary>
-    /// <param name="json">The UTF-8 JSON document stream.</param>
-    /// <returns>The compiled gameplay-HUD presentation.</returns>
-    public static GameplayHudPresentation Load(Stream json)
+    /// <summary>Draws one minimap cell: a revealed map cell's shape and mirroring in its shade, or the empty cell.</summary>
+    /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
+    /// <param name="output">The zero-based minimap column and row.</param>
+    /// <param name="cell">What the minimap cell shows.</param>
+    public void DrawMinimapCell(Span<BackgroundTile> tiles, Position16<TilemapCells> output, MinimapCell cell)
     {
-        byte[] source;
-        using (var buffer = new MemoryStream())
+        ValidateTilemap(tiles);
+        tiles[MinimapCellIndex(output)] = Ensure.NotNull(cell) switch
         {
-            json.CopyTo(buffer);
-            source = buffer.ToArray();
-        }
-        GameplayHudPresentationDocument document;
-        try
-        {
-            document = JsonAssetDocument.Read<GameplayHudPresentationDocument>(source,
-                ArtworkJson.Options) ??
-                throw new InvalidDataException("Gameplay HUD presentation document is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid gameplay HUD presentation JSON.", error);
-        }
-        if (document.Version != GameplayHudDefinitions.Version || document.Template is null ||
-            document.Blank is null || document.EnergyTanks is null || document.Digits is null ||
-            document.AutoReserve is null)
-            throw new InvalidDataException("Gameplay HUD presentation requires version 2 and every named visual owner.");
-        return new(document, source);
+            MinimapHiddenCell => parts.MinimapHidden,
+            MinimapMapCell shown => new BackgroundTile(shown.Shape.Picture, ShadeColourVariant(shown.Shade), highPriority: true, shown.Mirroring),
+            _ => throw new ArgumentOutOfRangeException(nameof(cell), cell, "Undefined minimap cell."),
+        };
     }
 
-    /// <summary>Validates and writes a gameplay-HUD presentation document as UTF-8 JSON.</summary>
-    /// <param name="output">The destination stream.</param>
-    /// <param name="document">The editable presentation document to serialize.</param>
-    public static void Write(Stream output, GameplayHudPresentationDocument document)
+    /// <summary>The colour variant the minimap shows a revealed cell in under <paramref name="shade"/>.</summary>
+    private int ShadeColourVariant(MinimapShade shade) => shade switch
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        output.Write(bytes);
-    }
+        MinimapShade.Unexplored => parts.MinimapUnexploredColourVariant,
+        MinimapShade.Explored => parts.MinimapExploredColourVariant,
+        MinimapShade.SamusLocation => parts.MinimapLocationColourVariant,
+        _ => throw new ArgumentOutOfRangeException(nameof(shade), shade, "Undefined minimap shade."),
+    };
 
-    /// <summary>Writes two or three decimal digits, using edited glyphs where supplied.</summary>
-    private static void DrawDigits(Span<BackgroundTile> tiles, Dictionary<int, BackgroundTile> glyphs, int value, Position16<TilemapCells> anchor, int count)
+    /// <summary>Writes two or three decimal digits.</summary>
+    private static void DrawDigits(Span<BackgroundTile> tiles, ImmutableArray<BackgroundTile> glyphs, int value, Position16<TilemapCells> anchor, int count)
     {
         int divisor = count == 3 ? 100 : 10;
         for (int digit = 0; digit < count; digit++)
         {
             int numeral = (value / divisor) % 10;
-            tiles[Index(anchor + new Offset16<TilemapCells>(checked((short)digit), 0))] = glyphs.GetValueOrDefault(numeral,
-                GameplayHudTiles.DigitTile(numeral));
+            tiles[Index(anchor + new Offset16<TilemapCells>(checked((short)digit), 0))] = glyphs[numeral];
             divisor /= 10;
         }
     }
 
-    /// <summary>Resolves a native item selector to its compiled HUD icon.</summary>
-    private CompiledIcon Icon(int itemIndex) => itemIndex switch
-    {
-        0 => missile, 1 => superMissile, 2 => powerBomb, 3 => grapple, 4 => xray,
-        _ => throw new ArgumentOutOfRangeException(nameof(itemIndex)),
-    };
-
-    /// <summary>Rejects overlap among icons, tanks, digits, AUTO cells, and minimap cells.</summary>
-    private void ValidateDistinctDynamicCells()
-    {
-        var owners = new Dictionary<int, string>();
-        void Own(int cell, string owner)
-        {
-            if (!owners.TryAdd(cell, owner))
-                throw new InvalidDataException($"Gameplay HUD {owner} overlaps {owners[cell]} at cell {cell}.");
-        }
-        for (int item = 0; item < GameplayHudDefinitions.ItemCount; item++)
-        {
-            CompiledIcon icon = Icon(item);
-            for (int y = 0; y < CompiledIcon.Height; y++)
-            for (int x = 0; x < icon.Width; x++) Own(Index(icon.Anchor + new Offset16<TilemapCells>(checked((short)x), checked((short)y))), GameplayHudTiles.IconName(item));
-        }
-        for (int tank = 0; tank < GameplayHudDefinitions.EnergyTankCount; tank++) Own(EnergyTankCell(tank), "energy tank");
-        for (int cell = 0; cell < GameplayHudDefinitions.AutoReserveCellCount; cell++) Own(AutoReserveCell(cell), "AUTO indicator");
-        for (int x = 0; x < 2; x++) Own(Index(HealthAnchor + new Offset16<TilemapCells>(checked((short)x), 0)), "health digits");
-        for (int x = 0; x < 3; x++) Own(Index(MissileAmmoAnchor + new Offset16<TilemapCells>(checked((short)x), 0)), "missile digits");
-        for (int x = 0; x < 2; x++) Own(Index(SuperMissileAmmoAnchor + new Offset16<TilemapCells>(checked((short)x), 0)), "Super Missile digits");
-        for (int x = 0; x < 2; x++) Own(Index(PowerBombAmmoAnchor + new Offset16<TilemapCells>(checked((short)x), 0)), "Power Bomb digits");
-        for (int y = 0; y < 3; y++)
-        for (int x = 0; x < 5; x++) Own(MinimapCellIndex(new(checked((ushort)x), checked((ushort)y))), "minimap");
-    }
-
-    /// <summary>Keeps only AUTO indicator cells whose filled or empty art differs from stock.</summary>
-    private static Dictionary<int, BackgroundTile> CompileAutoReserve(GameplayHudAutoReserveDocument document)
-    {
-        BackgroundTile[] full = CompileCells(document.ContainsEnergy, 6, "filled AUTO indicator");
-        BackgroundTile[] empty = CompileCells(document.Empty, 6, "empty AUTO indicator");
-        var overrides = new Dictionary<int, BackgroundTile>();
-        for (int state = 0; state < 2; state++)
-        for (int cell = 0; cell < 6; cell++)
-        {
-            BackgroundTile[] supplied = state == 0 ? full : empty;
-            if (supplied[cell] != GameplayHudTiles.AutoReserveTile(cell, state == 0))
-                overrides.Add(state * 6 + cell, supplied[cell]);
-        }
-        return overrides;
-    }
-    /// <summary>Compiles ten decimal glyphs and retains only tiles differing from stock.</summary>
-    private static Dictionary<int, BackgroundTile> CompileDigitOverrides(GameplayHudCell[]? cells, string name)
-    {
-        BackgroundTile[] compiled = CompileCells(cells, 10, name);
-        var overrides = new Dictionary<int, BackgroundTile>();
-        for (int digit = 0; digit < compiled.Length; digit++)
-            if (compiled[digit] != GameplayHudTiles.DigitTile(digit)) overrides.Add(digit, compiled[digit]);
-        return overrides;
-    }
-    /// <summary>Requires the expected cell count and places each authored cell's tile.</summary>
-    private static BackgroundTile[] CompileCells(GameplayHudCell[]? cells, int count, string name)
-    {
-        if (cells is null || cells.Length != count)
-            throw new InvalidDataException($"{name} requires exactly {count} cells.");
-        var result = new BackgroundTile[count];
-        for (int index = 0; index < count; index++)
-            result[index] = CompileCell(cells[index], $"{name} cell {index}");
-        return result;
-    }
-
-    /// <summary>Validates a character coordinate and palette, then places the cell's tile with its mirroring and priority.</summary>
-    private static BackgroundTile CompileCell(GameplayHudCell? cell, string name)
-    {
-        if (cell is null || cell.TileColumn is < 0 or > 31 || cell.TileRow is < 0 or > 31 ||
-            (uint)cell.Palette > 7)
-            throw new InvalidDataException($"{name} has invalid tile or palette coordinates.");
-        return new BackgroundTile(cell.TileRow * 32 + cell.TileColumn, cell.Palette, cell.FlipX, cell.FlipY, cell.Priority);
-    }
-
-    /// <summary>Uses an edited tank position when present, otherwise the native HUD offset.</summary>
-    private int EnergyTankCell(int tank) => energyTankAnchors.TryGetValue(tank, out int cell)
-        ? cell : GameplayHudTiles.EnergyTankCell(tank);
-
-    /// <summary>Uses an edited AUTO position when present, otherwise its stock cell.</summary>
-    private int AutoReserveCell(int index) => autoAnchors.TryGetValue(index, out int cell)
-        ? cell : GameplayHudTiles.AutoReserveCellIndex(index);
-
-    /// <summary>Validates the complete anchor array and retains only non-stock positions.</summary>
-    private static Dictionary<int, int> CompileAnchors(Position16<TilemapCells>[]? anchors, int count,
-        string name, Func<int, int> defaultCell)
-    {
-        if (anchors is null || anchors.Length != count)
-            throw new InvalidDataException($"Gameplay HUD {name} requires exactly {count} anchors.");
-        var overrides = new Dictionary<int, int>();
-        for (int index = 0; index < count; index++)
-        {
-            int cell = Index(ValidateAnchor(anchors[index], new(1, 1), $"{name} {index}"));
-            if (cell != defaultCell(index)) overrides.Add(index, cell);
-        }
-        return overrides;
-    }
-    /// <summary>Ensures an anchored rectangle fits within the mutable 32-by-3 HUD tilemap.</summary>
-    private static Position16<TilemapCells> ValidateAnchor(Position16<TilemapCells> anchor, Extent16<TilemapCells> size, string name)
-    {
-        if (anchor.X < 0 || anchor.Y < 0 ||
-            anchor.X + size.X > GameplayHudDefinitions.Width || anchor.Y + size.Y > GameplayHudDefinitions.Height)
-            throw new InvalidDataException($"Gameplay HUD {name} lies outside the 32x3 mutable tilemap.");
-        return anchor;
-    }
-
-    /// <summary>Restricts a BG palette selector to its three-bit range.</summary>
-    private static int ValidatePalette(int palette, string name) => (uint)palette <= 7
-        ? palette
-        : throw new InvalidDataException($"Gameplay HUD {name} must be in range 0..7.");
+    /// <summary>Resolves a zero-based item icon index to its installed icon.</summary>
+    private GameplayHudIcon Icon(int itemIndex) => (uint)itemIndex < (uint)parts.Icons.Length
+        ? parts.Icons[itemIndex]
+        : throw new ArgumentOutOfRangeException(nameof(itemIndex));
 
     /// <summary>Converts an HUD tile coordinate to the mutable row-major cell index.</summary>
     private static int Index(Position16<TilemapCells> point) => GameplayHudDefinitions.Size.RowMajorIndex(point);
+
     /// <summary>Requires a destination span for exactly three 32-cell HUD rows.</summary>
     private static void ValidateTilemap(Span<BackgroundTile> tiles)
     {
         if (tiles.Length != GameplayHudDefinitions.CellCount)
             throw new ArgumentException("Gameplay HUD requires exactly 96 mutable cells.", nameof(tiles));
-    }
-
-    /// <summary>Item icon art and placement, retaining only edits to native HUD definitions.</summary>
-    internal sealed class CompiledIcon
-    {
-        /// <summary>Native item selector used to recover stock dimensions and cells.</summary>
-        private readonly int item;
-        /// <summary>Edited icon cells keyed by local row-major index.</summary>
-        internal readonly Dictionary<int, BackgroundTile> edits = new();
-        /// <summary>Stock width for the selected item icon.</summary>
-        internal int Width => GameplayHudTiles.IconWidth(item);
-        /// <summary>All item icons occupy two HUD tile rows.</summary>
-        internal const int Height = 2;
-
-        /// <summary>Authored placement when it differs from the item's stock anchor.</summary>
-        internal readonly Position16<TilemapCells>? anchorOverride;
-        /// <summary>Selected authored or stock upper-left tile coordinate.</summary>
-        internal Position16<TilemapCells> Anchor => anchorOverride ?? StockAnchor(item);
-        /// <summary>Converts the native item offset into a 32-column tile coordinate.</summary>
-        private static Position16<TilemapCells> StockAnchor(int item)
-        {
-            int index = GameplayHudTiles.ItemCell(item);
-            return new(checked((ushort)(index % GameplayHudDefinitions.Width)), checked((ushort)(index / GameplayHudDefinitions.Width)));
-        }
-        /// <summary>Validates the icon rectangle and stores only non-stock placement or art.</summary>
-        internal CompiledIcon(int item, GameplayHudIconDocument? document)
-        {
-            this.item = item;
-            string name = GameplayHudTiles.IconName(item);
-            if (document is null) throw new InvalidDataException($"Gameplay HUD icon {name} is null.");
-            Position16<TilemapCells> anchor = ValidateAnchor(document.Anchor, new(checked((ushort)Width), Height), $"{name} icon");
-            anchorOverride = anchor == StockAnchor(item) ? null : anchor;
-            BackgroundTile[] cells = CompileCells(document.Cells, Width * Height, $"{name} icon");
-            for (int cell = 0; cell < cells.Length; cell++)
-                if (cells[cell] != GameplayHudTiles.IconTile(item, cell)) edits.Add(cell, cells[cell]);
-        }
-        /// <summary>Reads an edited icon cell or its compiled stock tile.</summary>
-        internal BackgroundTile Cell(int index) => edits.GetValueOrDefault(index, GameplayHudTiles.IconTile(item, index));
     }
 }

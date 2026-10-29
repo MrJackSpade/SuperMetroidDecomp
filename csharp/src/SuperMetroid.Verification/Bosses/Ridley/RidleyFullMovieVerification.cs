@@ -39,7 +39,7 @@ using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Map;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Verification.Bosses.Ridley;

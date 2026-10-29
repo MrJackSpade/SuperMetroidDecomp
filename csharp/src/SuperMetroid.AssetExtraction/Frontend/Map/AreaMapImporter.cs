@@ -1,7 +1,6 @@
 using SuperMetroid.Core;
 using System.Buffers.Binary;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 

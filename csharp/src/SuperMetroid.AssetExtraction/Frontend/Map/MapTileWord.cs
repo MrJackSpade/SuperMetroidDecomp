@@ -1,15 +1,20 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Map;
+using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Spatial;
+
+namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>
-/// The codec of one area-map cell word: the single type that reads and writes a map cell's character, palette,
-/// priority and flip fields and applies the map's explored-palette and HUD attribute operations to them.
+/// The codec of one cartridge area-map cell word (#1466): the import's single reader and writer of a map cell's
+/// character, palette, priority and flip fields, and of the cartridge's explored-palette and HUD attribute operations.
+/// The game sees a cell only as the <see cref="MapCell"/> this decodes.
 /// </summary>
 /// <remarks>
 /// Map cells use the ordinary SNES BG tile layout, but bank <c>$82</c> gives one palette
 /// bit additional gameplay meaning: clearing bit <c>$0400</c> changes a discovered cell
 /// from the downloaded-map palette to the explored palette. Keeping that operation here
-/// prevents pause-map and HUD code from open-coding different masks while retaining every
+/// keeps every reader of the cartridge's map words on the same masks while retaining every
 /// character, priority, and flip bit supplied by the cartridge.
 /// </remarks>
 /// <param name="Raw">Unmodified 16-bit BG word: ten character bits, three palette bits, priority at bit 13, and horizontal/vertical flips at bits 14/15.</param>
@@ -21,6 +26,9 @@ public readonly record struct MapTileWord(ushort Raw)
 
     /// <summary>Three BG palette bits, including the explored-cell bit.</summary>
     internal const ushort PaletteMask = 0x1c00;
+
+    /// <summary>The bit position of the three palette bits.</summary>
+    private const int PaletteShift = 10;
 
     /// <summary>The BG priority bit preserved when presenting a tile.</summary>
     internal const ushort PriorityMask = 0x2000;
@@ -53,10 +61,15 @@ public readonly record struct MapTileWord(ushort Raw)
     public ushort CharacterIndex => (ushort)(Raw & CharacterMask);
 
     /// <summary>Three-bit SNES BG palette index retained from the native word.</summary>
-    public byte PaletteIndex => (byte)((Raw & PaletteMask) >> 10);
+    public byte PaletteIndex => (byte)((Raw & PaletteMask) >> PaletteShift);
 
     /// <summary>Whether the native BG priority bit is set.</summary>
     public bool HasPriority => (Raw & PriorityMask) != 0;
+
+    /// <summary>The cell's horizontal and vertical mirroring.</summary>
+    public TileFlip Mirroring =>
+        ((Raw & HorizontalFlipMask) != 0 ? TileFlip.Horizontal : TileFlip.None) |
+        ((Raw & VerticalFlipMask) != 0 ? TileFlip.Vertical : TileFlip.None);
 
     /// <summary>
     /// Whether this cell shows the sloped-hallway character, as $90:AAFD recognises it from the character's nine low
@@ -87,8 +100,21 @@ public readonly record struct MapTileWord(ushort Raw)
     public MapTileWord WithLocationBlink() => new((ushort)(Raw | HudLocationBlinkAttributes));
 
     /// <summary>The background tile the cell places: its character, palette, mirroring and priority.</summary>
-    public BackgroundTile ToTile() =>
-        new(CharacterIndex, PaletteIndex, (Raw & HorizontalFlipMask) != 0, (Raw & VerticalFlipMask) != 0, HasPriority);
+    public BackgroundTile ToTile() => new(CharacterIndex, PaletteIndex, HasPriority, Mirroring);
+
+    /// <summary>
+    /// The cell the game shows for this word: its character as the shape, its palette as the colour variant, the palette
+    /// <c>$82:943D</c> leaves once the cell is explored, its mirroring and its priority.
+    /// </summary>
+    public MapCell ToCell() => new(new MapCellShape(CharacterIndex), PaletteIndex, AsExplored().PaletteIndex, Mirroring, HasPriority);
+
+    /// <summary>The cartridge word that shows <paramref name="cell"/> before it is explored.</summary>
+    public static MapTileWord Of(MapCell cell) => new(checked((ushort)(
+        cell.Shape.Picture |
+        cell.ColourVariant << PaletteShift |
+        (cell.InFront ? PriorityMask : 0) |
+        ((cell.Mirroring & TileFlip.Horizontal) != TileFlip.None ? HorizontalFlipMask : 0) |
+        ((cell.Mirroring & TileFlip.Vertical) != TileFlip.None ? VerticalFlipMask : 0))));
 
     /// <summary>Returns the complete native BG word without stripping map palette meaning or display attributes.</summary>
     /// <param name="word">Typed map cell whose stored bits are to be published or transferred.</param>

@@ -25,6 +25,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RoomHeaderImport;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Map;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.Verification.Rendering;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -122,7 +123,7 @@ internal static void VerifyHudState()
     SeedBlankHudTemplateAndDigitTables(bus);
 
     var hud = new HudState();
-    hud.BindPresentation(GameplayHudPresentation.Load(new MemoryStream(
+    hud.BindPresentation(SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationExtractor.Extract(bus))));
     hud.Initialize(HudSnapshot.CeresDebug);
     AssertEqual(0x2d09, hud.TileWords[0x8c / 2], "HUD health tens digit from ROM table");
@@ -246,8 +247,8 @@ internal static void VerifyHudState()
     AssertEqual(0x2c1f, hud.TileWords[59],
         "right-page sparse map keeps the western cell blank");
 
-    AssertEqual(HudState.MutableTileCount, hud.MutableRows.Length, "the HUD's three mutable rows");
-    AssertEqual(0x2c0f, hud.MutableRows[0].PackedWord, "the HUD's first mutable cell is the blank word the latched BG3 plane shows");
+    AssertEqual(HudState.MutableTileCount, hud.Tiles.Length, "the HUD's three drawn rows");
+    AssertEqual(0x2c0f, hud.Tiles[0].PackedWord, "the HUD's first drawn cell is the blank word the latched BG3 plane shows");
 
     Console.WriteLine("  HUD: inventory, live minimap coordinates/blink and WRAM upload agree.");
 }

@@ -17,7 +17,7 @@ public static class PauseEquipmentBaseExtractor
             PauseEquipmentBaseDefinitions.Cells * sizeof(ushort));
         var cells = new PauseBackdropCell[PauseEquipmentBaseDefinitions.Cells];
         for (int index = 0; index < cells.Length; index++)
-            cells[index] = PauseTileGrid.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(source.AsSpan(index * 2)),
+            cells[index] = PauseTileWords.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(source.AsSpan(index * 2)),
                 $"EquipmentBase.{index}");
         using var output = new MemoryStream();
         PauseEquipmentBasePresentation.Write(output, new() { Version = PauseEquipmentBaseDefinitions.Version, Cells = cells });

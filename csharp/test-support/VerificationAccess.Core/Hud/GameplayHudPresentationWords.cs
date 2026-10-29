@@ -19,9 +19,14 @@ internal static class GameplayHudPresentationWords
         /// <summary>Draws an item icon into packed words when its anchor cell is blank.</summary>
         internal void TryApplyIcon(Span<ushort> words, int itemIndex) => Edit(words, tiles => presentation.TryApplyIcon(tiles, itemIndex));
 
-        /// <summary>Draws energy tanks and the energy remainder into packed words.</summary>
-        internal void ApplyEnergy(Span<ushort> words, int health, int maxHealth) =>
-            Edit(words, tiles => presentation.ApplyEnergy(tiles, health, maxHealth));
+        /// <summary>Draws energy tanks and the energy remainder into packed words, as the HUD draws a health update.</summary>
+        internal void ApplyEnergy(Span<ushort> words, int health, int maxHealth) => Edit(words, tiles =>
+        {
+            int tanks = Math.Min(maxHealth / 100, GameplayHudDefinitions.EnergyTankCount);
+            for (int tank = 0; tank < tanks; tank++)
+                presentation.DrawEnergyTank(tiles, tank, tank < health / 100 ? HudEnergyTank.Full : HudEnergyTank.Empty);
+            presentation.DrawEnergyCount(tiles, health % 100);
+        });
 
         /// <summary>Draws an ammunition count into packed words.</summary>
         internal void ApplyAmmo(Span<ushort> words, int itemIndex, int value) => Edit(words, tiles => presentation.ApplyAmmo(tiles, itemIndex, value));

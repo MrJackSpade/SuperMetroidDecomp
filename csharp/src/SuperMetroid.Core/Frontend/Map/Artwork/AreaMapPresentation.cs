@@ -28,6 +28,7 @@ public sealed class AreaMapPresentation : IInstalledArtworkContent, IGameplayPre
     internal AreaMapPresentation(AreaMapPresentationParts parts)
     {
         this.areas = parts.Areas;
+        HiddenCells = parts.HiddenCells;
         ContentIdentity = parts.ContentIdentity;
         Tiles = parts.Tiles;
         HudTiles = parts.HudTiles;
@@ -89,6 +90,8 @@ public sealed class AreaMapPresentation : IInstalledArtworkContent, IGameplayPre
 
     /// <summary>Uppercase SHA-256 identity of length-framed stock map rules, station masks, and selected presentation resources in fixed order; override edits affect identity without changing stock provenance.</summary>
     public string ContentIdentity { get; }
+    /// <summary>The cells the map screens show in place of cells nothing reveals.</summary>
+    public AreaMapHiddenCells HiddenCells { get; }
     /// <summary>Selected map-screen character atlas; pause-menu artwork is supplied separately by <see cref="PauseTiles"/>.</summary>
     public MapTileAtlas Tiles { get; }
     /// <summary>Standard gameplay HUD character transfers, including the four BG3 quarters restored after Kraid.</summary>

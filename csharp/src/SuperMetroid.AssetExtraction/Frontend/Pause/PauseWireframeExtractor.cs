@@ -1,8 +1,8 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Map;
-using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
@@ -31,8 +31,8 @@ public static class PauseWireframeExtractor
                     TileColumn = character % PauseBackdropDefinitions.AtlasColumns,
                     TileRow = character % PauseBackdropDefinitions.AtlasTileCount / PauseBackdropDefinitions.AtlasColumns,
                     Palette = word.PaletteIndex, Priority = word.HasPriority,
-                    FlipX = (word.Raw & MapPresentationFormat.FlipXBit) != 0,
-                    FlipY = (word.Raw & MapPresentationFormat.FlipYBit) != 0,
+                    FlipX = (word.Mirroring & TileFlip.Horizontal) != TileFlip.None,
+                    FlipY = (word.Mirroring & TileFlip.Vertical) != TileFlip.None,
                 };
             }
             frames.Add(kind.ToString(), cells);

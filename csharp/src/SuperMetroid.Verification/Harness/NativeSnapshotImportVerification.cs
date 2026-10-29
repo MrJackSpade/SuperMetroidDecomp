@@ -113,10 +113,8 @@ internal static class NativeSnapshotImportVerification
         }
         runtime.PaletteFxSession.SamusInHeatPaletteIndex = W(NativeSnapshotMemory.HeatPalettePhase);
         runtime.PaletteFxSession.PreviousSamusInHeatPaletteIndex = W(NativeSnapshotMemory.PreviousHeatPalettePhase);
-        BackgroundTile[] initialHud = runtime.Hud.Tiles;
-        for (int index = 0; index < initialHud.Length; index++)
-            initialHud[index] = BackgroundTileWordBytes.Tile(W(NativeSnapshotMemory.HudTilemap + index * 2));
-        runtime.Hud.PreviousSelectedItem = HudItems.Decode(W(NativeSnapshotMemory.PreviousHudSelection));
+        ushort[] hudWords = [.. Enumerable.Range(0, HudState.MutableTileCount).Select(index => W(NativeSnapshotMemory.HudTilemap + index * 2))];
+        HudItem highlightedHudItem = HudItems.Decode(W(NativeSnapshotMemory.PreviousHudSelection));
         runtime.Room.LoadedCamera.Scrolls.Storage.Load(memory.AsSpan(NativeSnapshotMemory.ScrollStorage, RoomScrollGrid.StorageByteCount));
         runtime.Hud.MinimapDisabled = W(NativeSnapshotMemory.MinimapDisabled) != 0;
         byte[] initialMaps = memory.AsSpan(NativeSnapshotMemory.SavedExploredMaps,
@@ -331,6 +329,9 @@ internal static class NativeSnapshotImportVerification
         samus.Missiles = SamusQuantity.Decode(W(NativeSnapshotMemory.Missiles)); samus.MaxMissiles = SamusQuantity.Decode(W(NativeSnapshotMemory.MaxMissiles));
         samus.SuperMissiles = SamusQuantity.Decode(W(NativeSnapshotMemory.SuperMissiles)); samus.MaxSuperMissiles = SamusQuantity.Decode(W(NativeSnapshotMemory.MaxSuperMissiles));
         samus.PowerBombs = SamusQuantity.Decode(W(NativeSnapshotMemory.PowerBombs)); samus.MaxPowerBombs = SamusQuantity.Decode(W(NativeSnapshotMemory.MaxPowerBombs));
+        // The HUD imports as the values its native rows show, once Samus's inventory has imported (#1466).
+        runtime.Hud.ImportNative(hudWords, samus, highlightedHudItem, (runtime.Artwork.MapPresentation ?? throw new InvalidDataException(
+            "The native checkpoint requires the installed HUD artwork.")).GameplayHud);
         samus.PreviousHealthForHurtCheck = samus.Health;
         runtime.Controller1.Latch((ControllerButton)W(NativeSnapshotMemory.HeldInput));
         var game = CreateRetailGameFixture(saves, renderGameplayFrames: false, hostServices: hostServices, random: random);

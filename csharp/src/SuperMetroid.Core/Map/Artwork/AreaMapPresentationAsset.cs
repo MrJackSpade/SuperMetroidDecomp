@@ -1,26 +1,34 @@
-using System.Text.Json;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Map.Artwork;
 
-/// <summary>Versioned editable map cells; exploration rules are supplied by the application.</summary>
+/// <summary>
+/// One area's installed map (#1466): how each cell looks, which the import decodes from the area's editable presentation
+/// document, paired with exploration rules the import decided from the stock map, which edited artwork cannot change.
+/// </summary>
 public sealed class AreaMapPresentationAsset : IAreaMapView
 {
-    /// <summary>Validated visual BG words in logical 64-column row order, independent of native page layout.</summary>
-    private readonly MapTileWord[] cells;
+    /// <summary>Validated cells in logical 64-column row order, independent of native page layout.</summary>
+    private readonly MapCell[] cells;
     /// <summary>Snapshot of stock discoverability rules, unaffected by visual tile edits.</summary>
     private readonly bool[] discoverable;
     /// <summary>Snapshot of map-station reveal rules, unaffected by visual tile edits.</summary>
     private readonly bool[] station;
     /// <summary>Snapshot of sloped-cell reveal-above rules, unaffected by visual tile edits.</summary>
     private readonly bool[] revealsAbove;
-    /// <summary>Area shared by the validated presentation document and its separately supplied exploration rules.</summary>
+    /// <summary>Area shared by the decoded cells and their separately supplied exploration rules.</summary>
     public AreaId Area { get; }
 
-    /// <summary>Pairs copied visual cells with a complete independent snapshot of gameplay map rules.</summary>
-    private AreaMapPresentationAsset(MapTileWord[] cells, IAreaMapView rules)
+    /// <summary>Pairs copied cells with a complete independent snapshot of gameplay map rules.</summary>
+    /// <param name="cells">Every cell of the area in logical 64-column row order.</param>
+    /// <param name="rules">The exploration rules the cells are shown under.</param>
+    /// <exception cref="ArgumentException">There is not one cell for each of the area map's cells.</exception>
+    internal AreaMapPresentationAsset(MapCell[] cells, IAreaMapView rules)
     {
+        Ensure.NotNull(cells);
+        Ensure.NotNull(rules);
+        if (cells.Length != AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles)
+            throw new ArgumentException($"An area map has exactly {AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles} cells.", nameof(cells));
         this.cells = cells;
         Area = rules.Area;
         discoverable = new bool[cells.Length];
@@ -37,42 +45,6 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
         }
     }
 
-    /// <summary>Loads a full row-major layout, without ROM reads or writable file operations.</summary>
-    public static AreaMapPresentationAsset Load(Stream json, IAreaMapView rules)
-    {
-        Ensure.NotNull(json);
-        Ensure.NotNull(rules);
-        MapPresentationDocument document;
-        try
-        {
-            document = JsonAssetDocument.Read<MapPresentationDocument>(json, ArtworkJson.Options)
-                ?? throw new InvalidDataException("Map presentation document is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException($"Invalid map presentation JSON: {error.Message}", error);
-        }
-        if (document.Version != MapPresentationFormat.Version || document.Area != rules.Area.ToString())
-            throw new InvalidDataException($"Map presentation requires version {MapPresentationFormat.Version} and area {rules.Area}.");
-        int count = AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles;
-        if (document.Cells is null || document.Cells.Length != count)
-            throw new InvalidDataException($"Map presentation requires exactly {count} cells in 64-column row order.");
-        var cells = new MapTileWord[count];
-        for (int i = 0; i < count; i++)
-        {
-            var cell = document.Cells[i];
-            if (cell is null || (uint)cell.TileColumn >= MapPresentationFormat.AtlasColumns ||
-                (uint)cell.TileRow >= MapPresentationFormat.AtlasRows || (uint)cell.Palette >= MapPresentationFormat.PaletteCount)
-                throw new InvalidDataException($"Map presentation cell ({i % 64},{i / 64}) has an invalid atlas coordinate or palette.");
-            cells[i] = new MapTileWord((ushort)(cell.TileRow * MapPresentationFormat.AtlasColumns + cell.TileColumn |
-                cell.Palette << MapPresentationFormat.PaletteShift |
-                (cell.Priority ? MapPresentationFormat.PriorityBit : 0) |
-                (cell.FlipX ? MapPresentationFormat.FlipXBit : 0) |
-                (cell.FlipY ? MapPresentationFormat.FlipYBit : 0)));
-        }
-        return new(cells, rules);
-    }
-
     /// <summary>Applies other exploration rules to these already-validated, never-mutated cells.</summary>
     internal AreaMapPresentationAsset WithRules(IAreaMapView rules)
     {
@@ -81,40 +53,14 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
         return new(cells, rules);
     }
 
-    /// <summary>Gets the edited packed SNES BG word at logical map-tile coordinates X 0–63, Y 0–31; native two-page ordering is applied later when building a screen tilemap.</summary>
-    public MapTileWord GetTile(Position16<MapTiles> cell) => cells[Index(cell)];
+    /// <summary>How the cell at logical map coordinates X 0–63, Y 0–31 looks; native two-page ordering is applied later when building a screen tilemap.</summary>
+    public MapCell Cell(Position16<MapTiles> cell) => cells[Index(cell)];
     /// <summary>Gets the supplied rule snapshot for whether logical cell (X 0–63, Y 0–31) can be discovered, independent of the edited character or blank artwork.</summary>
     public bool IsDiscoverable(Position16<MapTiles> cell) => discoverable[Index(cell)];
     /// <summary>Gets the supplied rule snapshot for whether downloading this area's map reveals logical cell (X 0–63, Y 0–31); no exploration or save bits are changed.</summary>
     public bool IsRevealedByMapStation(Position16<MapTiles> cell) => station[Index(cell)];
     /// <summary>Gets the supplied slope-rule snapshot for whether visiting logical cell (X 0–63, Y 0–31) also explores the cell above; replacing its artwork does not change this rule.</summary>
     public bool RevealsCellAbove(Position16<MapTiles> cell) => revealsAbove[Index(cell)];
-
-    /// <summary>Importer entrypoint: writes presentation only, never source addresses or gameplay rules.</summary>
-    public static void Write(Stream json, IAreaMapView map)
-    {
-        Ensure.NotNull(json);
-        Ensure.NotNull(map);
-        var cells = new MapPresentationCell[AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles];
-        for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
-        for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
-        {
-            var cell = new Position16<MapTiles>(checked((ushort)x), checked((ushort)y));
-            MapTileWord tile = map.GetTile(cell);
-            cells[Index(cell)] = new()
-            {
-                TileColumn = tile.CharacterIndex % MapPresentationFormat.AtlasColumns,
-                TileRow = tile.CharacterIndex / MapPresentationFormat.AtlasColumns,
-                Palette = tile.PaletteIndex, Priority = tile.HasPriority,
-                FlipX = (tile.Raw & MapPresentationFormat.FlipXBit) != 0,
-                FlipY = (tile.Raw & MapPresentationFormat.FlipYBit) != 0
-            };
-        }
-        JsonSerializer.Serialize(json, new MapPresentationDocument
-        {
-            Version = MapPresentationFormat.Version, Area = map.Area.ToString(), Cells = cells
-        }, ArtworkJson.Options);
-    }
 
     /// <summary>Validates the native two-page coordinate, then indexes the editable logical row-major array.</summary>
     private static int Index(Position16<MapTiles> cell)

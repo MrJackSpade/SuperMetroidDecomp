@@ -6,7 +6,7 @@ using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Map;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Frontend;

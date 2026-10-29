@@ -24,7 +24,7 @@ public static class PauseReserveUiExtractor
         {
             Anchor = Point(PauseReserveUiDefinitions.DigitCell),
             Cells = Enumerable.Range(0, PauseReserveUiDefinitions.DigitCount)
-                .Select(value => PauseTileGrid.FromWord(BackgroundTileWords.ToWord(PauseReserveUiTiles.DigitTile(value)), $"Reserve.Digit{value}"))
+                .Select(value => PauseTileWords.FromWord(BackgroundTileWords.ToWord(PauseReserveUiTiles.DigitTile(value)), $"Reserve.Digit{value}"))
                 .ToArray(),
         };
         PauseGridPoint[] arrowCells =
@@ -69,7 +69,7 @@ public static class PauseReserveUiExtractor
         PauseReserveLabelVisual DirectLabel(int address, int cell, int words) => new()
         {
             Anchor = Point(cell),
-            Cells = Enumerable.Range(0, words).Select(index => PauseTileGrid.FromWord(
+            Cells = Enumerable.Range(0, words).Select(index => PauseTileWords.FromWord(
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + index * 2), $"Reserve label {address:X6}.{index}")).ToArray(),
         };
         static PauseGridPoint Point(int cell) => new()

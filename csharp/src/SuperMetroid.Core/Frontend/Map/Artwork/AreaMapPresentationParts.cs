@@ -22,6 +22,9 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Areas.</summary>
     public required IAreaMapView[] Areas { get; init; }
 
+    /// <summary>The cells the map screens show in place of cells nothing reveals.</summary>
+    public required AreaMapHiddenCells HiddenCells { get; init; }
+
     /// <summary>Uppercase SHA-256 identity of length-framed stock map rules, station masks, and selected presentation resources in fixed order; override edits affect identity without changing stock provenance.</summary>
     public required string ContentIdentity { get; init; }
 

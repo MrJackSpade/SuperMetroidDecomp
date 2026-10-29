@@ -121,18 +121,19 @@ internal static class MapPresentationVerification
             Cells = Enumerable.Repeat(cell, 64 * 32).ToArray() };
         string Json(MapPresentationDocument value) => JsonSerializer.Serialize(value,
             CamelCaseJson);
-        AreaMapPresentationAsset Load(string text) => AreaMapPresentationAsset.Load(
+        AreaMapPresentationAsset Load(string text) => AreaMapPresentationFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes(text)), rules);
         var map = Load(Json(document));
-        AssertEqual((ushort)0x6c51, map.GetTile(new(5, 6)).Raw, "map JSON compiles only presentation attributes");
+        AssertEqual(new MapCell(new MapCellShape(0x51), 3, 2, TileFlip.Horizontal, InFront: true), map.Cell(new(5, 6)),
+            "map JSON compiles only presentation attributes: shape, colour variants, mirroring and tier");
         AssertTrue(map.RevealsCellAbove(new(5, 6)), "replaced slope art retains its compiled reveal rule");
         AssertTrue(!map.IsDiscoverable(new(4, 6)), "new artwork cannot create exploration cells");
 
         var system = new SharedGameState();
-        byte[] projected = BackgroundTileWordBytes.Of(AreaMapTilemapBuilder.Build(map, system, MapTileWords.PauseBlank, MapRevealMode.Secret));
+        byte[] projected = BackgroundTileWordBytes.Of(AreaMapTilemapBuilder.Build(map, system, MapTileWords.PauseBlank.ToCell(), MapRevealMode.Secret));
         ushort Word(int x, int y) => System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(
             projected.AsSpan(AreaMapPages.GetTilemapWordIndex(new(checked((ushort)x), checked((ushort)y))) * 2));
-        AssertEqual(map.GetTile(new(5, 6)).Raw, Word(5, 6), "shared pause/file-select projection uses editable art");
+        AssertEqual(MapTileWord.Of(map.Cell(new(5, 6))).Raw, Word(5, 6), "shared pause/file-select projection uses editable art");
         AssertEqual(MapTileWords.PauseBlank.Raw, Word(4, 6), "secret reveal uses rules, not painted cells");
         AssertTrue(!system.IsMapTileExplored(AreaId.Crateria, new(5, 6)), "projection never mutates exploration");
 
@@ -142,19 +143,19 @@ internal static class MapPresentationVerification
             // cartridge reader supplies its stock fixture; minimap updates below use
             // the ROM-free bus and still exercise the production HUD owner.
             var source = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-            var hudArt = GameplayHudPresentation.Load(new MemoryStream(
+            var hudArt = SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationFile.Read(new MemoryStream(
                 SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationExtractor.Extract(source)));
             var hud = new HudState();
             hud.BindPresentation(hudArt);
             hud.Initialize(HudSnapshot.CeresDebug);
             hud.UpdateMinimap(system, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = map });
-            AssertEqual(map.GetTile(new(5, 6)).ForHud(true).Raw, hud.TileWords[60], "live minimap consumes edited cells without cartridge reads");
+            AssertEqual(MapTileWord.Of(map.Cell(new(5, 6))).ForHud(true).Raw, hud.TileWords[60], "live minimap consumes edited cells without cartridge reads");
             AssertTrue(system.IsMapTileExplored(AreaId.Crateria, new(5, 5)), "art replacement preserves slope corner exploration");
 
             var edited = document with { Cells = document.Cells.Select(c => c with { TileColumn = 19 }).ToArray() };
             var reloaded = Load(Json(edited));
             hud.UpdateMinimap(system, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = reloaded });
-            AssertEqual(reloaded.GetTile(new(5, 6)).ForHud(true).Raw, hud.TileWords[60], "reloaded edit changes live minimap without ROM patch");
+            AssertEqual(MapTileWord.Of(reloaded.Cell(new(5, 6))).ForHud(true).Raw, hud.TileWords[60], "reloaded edit changes live minimap without ROM patch");
         }
         AssertThrows<InvalidDataException>(() => Load(Json(document with { Version = 2 })), "reject unsupported map schema");
         AssertThrows<InvalidDataException>(() => Load(Json(document with { Area = "Norfair" })), "reject wrong area");
@@ -168,13 +169,14 @@ internal static class MapPresentationVerification
             {
                 var stock = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area);
                 using var json = new MemoryStream();
-                AreaMapPresentationAsset.Write(json, stock);
+                AreaMapPresentationFile.Write(json, stock);
                 json.Position = 0;
-                var restored = AreaMapPresentationAsset.Load(json, stock);
+                var restored = AreaMapPresentationFile.Read(json, stock);
                 for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
                 for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
                 {
-                    AssertEqual(stock.GetTile(new(checked((ushort)x), checked((ushort)y))).Raw, restored.GetTile(new(checked((ushort)x), checked((ushort)y))).Raw, "stock map JSON retains tile/attributes");
+                    AssertEqual(stock.Word(new(checked((ushort)x), checked((ushort)y))).Raw, MapTileWord.Of(restored.Cell(new(checked((ushort)x), checked((ushort)y)))).Raw, "stock map JSON retains tile/attributes");
+                    AssertEqual(stock.Word(new(checked((ushort)x), checked((ushort)y))).AsExplored().PaletteIndex, restored.Cell(new(checked((ushort)x), checked((ushort)y))).ExploredColourVariant, "stock map JSON keeps each cell's explored colour");
                     AssertEqual(stock.IsDiscoverable(new(checked((ushort)x), checked((ushort)y))), restored.IsDiscoverable(new(checked((ushort)x), checked((ushort)y))), "stock discovery rules survive import");
                     AssertEqual(stock.RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), restored.RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), "stock slope rules survive import");
                 }
@@ -190,8 +192,8 @@ internal static class MapPresentationVerification
     {
         /// <summary>Places the fixture's cells in Crateria so its projection uses a concrete area identity.</summary>
         public AreaId Area => AreaId.Crateria;
-        /// <summary>Provides the stock blank word that editable cells replace in this fixture.</summary>
-        public MapTileWord GetTile(Position16<MapTiles> cell) => MapTileWords.PauseBlank;
+        /// <summary>Provides the stock blank cell that editable cells replace in this fixture.</summary>
+        public MapCell Cell(Position16<MapTiles> cell) => MapTileWords.PauseBlank.ToCell();
         /// <summary>Restricts exploration to the two fixture cells in column five.</summary>
         public bool IsDiscoverable(Position16<MapTiles> cell) => cell.X == 5 && cell.Y is 5 or 6;
         /// <summary>Reveals only the lower fixture cell when a map station has been used.</summary>
@@ -331,7 +333,7 @@ internal static class MapPresentationVerification
         for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
         {
             var actual = original.Get(area);
-            AssertEqual(rules[area].GetTile(new(checked((ushort)x), checked((ushort)y))), actual.GetTile(new(checked((ushort)x), checked((ushort)y))), "ROM-free catalog retains stock cells");
+            AssertEqual(rules[area].Cell(new(checked((ushort)x), checked((ushort)y))), actual.Cell(new(checked((ushort)x), checked((ushort)y))), "ROM-free catalog retains stock cells");
             AssertEqual(rules[area].IsDiscoverable(new(checked((ushort)x), checked((ushort)y))), actual.IsDiscoverable(new(checked((ushort)x), checked((ushort)y))), "ROM-free stock discovery parity");
             AssertEqual(rules[area].IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))), actual.IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))), "ROM-free station mask parity");
             AssertEqual(rules[area].RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), actual.RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), "ROM-free stock slope parity");
@@ -358,7 +360,7 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyLiveMapCatalog), () => VerifyLiveMapCatalog(bus, original, edited, rules.Values.ToArray(), initialPalettes,
             fixtureAssets));
         AssertTrue(edited.ContentIdentity != original.ContentIdentity, "map override changes content identity");
-        AssertTrue(edited.Get(AreaId.Crateria).GetTile(new(0, 0)) != original.Get(AreaId.Crateria).GetTile(new(0, 0)), "catalog prefers valid override");
+        AssertTrue(edited.Get(AreaId.Crateria).Cell(new(0, 0)) != original.Get(AreaId.Crateria).Cell(new(0, 0)), "catalog prefers valid override");
         SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, repaired, "test-provenance");
         var afterRepair = MapPresentationFiles.Load(repaired, overrides);
         AssertEqual(edited.ContentIdentity, afterRepair.ContentIdentity, "re-extracted stock preserves selected override");
@@ -1316,8 +1318,8 @@ internal static class MapPresentationVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        AssertEqual(edited.Get(AreaId.Ceres).GetTile(runtime.Hud.MinimapCenter).CharacterIndex,
-            (ushort)(runtime.Hud.TileWords[60] & 0x3ff), "Ceres room-entry runtime consumes bound catalog without map ROM reads");
+        AssertEqual(edited.Get(AreaId.Ceres).Cell(runtime.Hud.MinimapCenter).Shape.Picture,
+            runtime.Hud.TileWords[60] & 0x3ff, "Ceres room-entry runtime consumes bound catalog without map ROM reads");
         var room = runtime.Room.LoadedRoom;
         var pause = new SuperMetroid.Core.Frontend.Pause.PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.IntroducedSamus, System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, MapPresentation = edited, SpriteSheets = MenuSheetFixtures.For(edited) });
         Position16<MapPixels> scroll = pause.MapScroll;
@@ -1341,8 +1343,8 @@ internal static class MapPresentationVerification
         AssertTrue(stock.RenderBackgrounds(new(0, 0)).SequenceEqual(installed.RenderBackgrounds(new(0, 0))),
             "file-select installed stock renders identical pixels without map ROM reads");
         installed.BindFixtureArtwork(edited);
-        byte[] expected = BackgroundTileWordBytes.Of(AreaMapTilemapBuilder.Build(edited.Get(AreaId.Crateria), system, MapTileWords.FileSelectUndownloadedBlank));
-        byte[] unchanged = BackgroundTileWordBytes.Of(AreaMapTilemapBuilder.Build(original.Get(AreaId.Crateria), system, MapTileWords.FileSelectUndownloadedBlank));
+        byte[] expected = BackgroundTileWordBytes.Of(AreaMapTilemapBuilder.Build(edited.Get(AreaId.Crateria), system, MapTileWords.FileSelectUndownloadedBlank.ToCell()));
+        byte[] unchanged = BackgroundTileWordBytes.Of(AreaMapTilemapBuilder.Build(original.Get(AreaId.Crateria), system, MapTileWords.FileSelectUndownloadedBlank.ToCell()));
         AssertTrue(!expected.SequenceEqual(unchanged), "override changes a visible file-select cell");
         var shownInstalled = MenuScreenFixtures.Vram(installed.screen);
         for (int i = 0; i < expected.Length / 2; i++)

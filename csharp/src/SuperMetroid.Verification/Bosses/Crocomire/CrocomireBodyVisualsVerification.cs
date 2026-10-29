@@ -75,6 +75,27 @@ internal static class CrocomireBodyVisualsVerification
         foreach (var frame in expected)
             AssertTrue(loaded.TryGet(frame.Pointer, out var writes) && writes.Length > 0,
                 "generated catalog loads every native BG2 stream by its published key");
+
+        // A player's revision-2 document named each frame by where the cartridge stores it; the import carries it onto
+        // the frames' semantic names and the current revision before the loader reads it (#1465).
+        var generated = RequiredJson.Deserialize<EnemyBg2FrameDocument>(generatedJson,
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        var legacyDocument = generated with
+        {
+            Version = EnemyFrameLegacyNameDefinitions.LastBg2FrameRevision,
+            Frames = CrocomireBg2FrameDefinitions.Frames.ToDictionary(
+                frame => EnemyFrameLegacyNameDefinitions.CrocomireBg2Frames[frame.Frame], frame => generated.Frames[frame.Name], StringComparer.Ordinal),
+        };
+        byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(legacyDocument, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        AssertThrows<InvalidDataException>(() => CrocomireBg2FrameCatalog.Load(new MemoryStream(legacyJson, writable: false)),
+            "the loader itself reads only the current revision's names");
+        var upgraded = CrocomireBg2FrameCatalog.Load(new MemoryStream(EnemyBg2FrameDocumentUpgrade.Upgrade(legacyJson,
+            CrocomireBg2FrameDefinitions.Frames, CrocomireBg2FrameDefinitions.Version, EnemyFrameLegacyNameDefinitions.CrocomireBg2Frames, "Crocomire"),
+            writable: false));
+        foreach (var frame in expected)
+            AssertTrue(upgraded.TryGet(frame.Pointer, out var legacyWrites) && loaded.TryGet(frame.Pointer, out var currentWrites) &&
+                legacyWrites.Length == currentWrites.Length,
+                "a revision-2 Crocomire BG2 document keyed by its older names installs every frame its current equal does");
         AssertTrue(!loaded.TryGet(0xca7e, out _), "pure-OAM frame excluded from BG2 catalog");
     }
     /// <summary>Compares installed OAM and VRAM output for every body frame with visual ROM reads denied, then checks a BG2 edit obeys the new-frame gate.</summary>

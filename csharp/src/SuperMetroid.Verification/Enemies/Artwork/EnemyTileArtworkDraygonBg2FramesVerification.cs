@@ -20,6 +20,7 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>Checks installed Draygon BG2 frames and collision components against native streams and live drawing.</summary>
 internal static class EnemyTileArtworkDraygonBg2FramesVerification
@@ -132,6 +133,32 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
                 out ReadOnlyMemory<EnemyBg2TilemapWrite> reloadedFrame) &&
             reloadedFrame.Span[0].Words[0] == (ushort)changedTile,
             "Draygon BG2 override survives reload");
+        // A player's override written at revision 2 named each frame by where the cartridge stores it; the import carries
+        // it onto the frames' semantic names, so its edit keeps showing (#1465).
+        var legacyOverride = document with
+        {
+            Version = EnemyFrameLegacyNameDefinitions.LastBg2FrameRevision,
+            Frames = DraygonBg2FrameDefinitions.Frames.ToDictionary(frame => frame.LegacyName,
+                frame => document.Frames[frame.Name], StringComparer.Ordinal),
+        };
+        AssertTrue(DraygonBg2FrameDefinitions.Frames.All(frame => !legacyOverride.Frames.ContainsKey(frame.Name)),
+            "the revision-2 Draygon BG2 fixture names no frame by its semantic name");
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(legacyOverride, CamelCaseJson));
+        InstalledEnemyArtwork legacyEdited = EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory);
+        foreach (EnemySpritemapDefinition frame in DraygonBg2FrameDefinitions.Frames)
+        {
+            bool legacyInstalled = (legacyEdited.Bosses.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires legacyEdited.DraygonBg2Frames.")).TryGet(frame.Frame,
+                out ReadOnlyMemory<EnemyBg2TilemapWrite> legacyFrame);
+            bool currentInstalled = (edited.Bosses.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires edited.DraygonBg2Frames.")).TryGet(frame.Frame,
+                out ReadOnlyMemory<EnemyBg2TilemapWrite> currentFrame);
+            AssertTrue(legacyInstalled && currentInstalled && legacyFrame.Length == currentFrame.Length,
+                $"revision-2 Draygon BG2 override installs {frame.Name} as its current-revision equal does");
+            for (int index = 0; index < legacyFrame.Length; index++)
+                AssertTrue(legacyFrame.Span[index].FirstCell == currentFrame.Span[index].FirstCell &&
+                    legacyFrame.Span[index].Words.SequenceEqual(currentFrame.Span[index].Words),
+                    $"revision-2 Draygon BG2 override keeps {frame.Name} write {index}");
+        }
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(document, CamelCaseJson));
         document.Frames[editedIdentity.Name][0] = first with { X = 32 };
         using var invalid = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
             CamelCaseJson));

@@ -22,6 +22,9 @@ internal sealed record ScreenBackgroundSetPlacement(int Set, int Colour, int Col
         Ensure.NotNull(values).BackgroundColours(Set, Colour, ColourCount);
 
     /// <inheritdoc />
+    internal override ScreenColourOwner Owner => ScreenColourOwner.Backgrounds;
+
+    /// <inheritdoc />
     internal override int DrawnSpriteSet() =>
         throw new InvalidOperationException("A sprite draws in a sprite set's colours, not a background set's.");
 }

@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -7,10 +6,9 @@ namespace SuperMetroid.Core.Assets;
 /// shown colours a plain draw of it resolves.
 /// </summary>
 /// <remarks>
-/// The manifest stores the set as one number with a bit per group's place, which
-/// <see cref="ImageColourGroupsJsonConverter"/> reads and writes; nothing else reads the bits.
+/// The manifest stores the set as one number with a bit per group's place, which the sheet's frame document holds and
+/// <see cref="FromManifest"/> and <see cref="ManifestMembers"/> convert; nothing else reads the bits.
 /// </remarks>
-[JsonConverter(typeof(ImageColourGroupsJsonConverter))]
 public readonly record struct ImageColourGroups
 {
     /// <summary>The highest number the manifest stores a set as: every group.</summary>

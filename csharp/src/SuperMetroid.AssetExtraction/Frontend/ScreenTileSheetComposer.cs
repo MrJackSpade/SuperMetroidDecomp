@@ -239,7 +239,7 @@ internal static class ScreenTileSheetComposer
                 Corner = default,
                 Size = canvas.Size,
                 Origin = default,
-                ColourGroups = coloured,
+                ColourGroups = coloured.ManifestMembers,
                 Parts = [],
             },
         };

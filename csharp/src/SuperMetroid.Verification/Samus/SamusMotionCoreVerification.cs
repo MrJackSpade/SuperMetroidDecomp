@@ -98,9 +98,9 @@ internal static void VerifySamusPoseTransitionMatching()
 internal static void VerifySamusHorizontalSpeed()
 {
     var bus = new TestAddressSpace();
-    InstalledSamusFullBodyCycleColors CycleColors() =>
+    SamusFullBodyCycleColours CycleColors() =>
         SamusFullBodyCycleColorFile.Read(new MemoryStream(
-            SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(bus)));
+            SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(bus))).ToColours();
     InstalledSamusSuitColors SuitColors() =>
         SamusSuitColorFile.Read(new MemoryStream(
             SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));

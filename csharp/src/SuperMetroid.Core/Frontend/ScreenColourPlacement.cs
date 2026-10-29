@@ -14,6 +14,9 @@ namespace SuperMetroid.Core.Frontend;
 /// <param name="ColourCount">The number of colours in the group.</param>
 internal abstract record ScreenColourPlacement(int Set, int Colour, int ColourCount)
 {
+    /// <summary>The screen colour owner that holds the group.</summary>
+    internal abstract ScreenColourOwner Owner { get; }
+
     /// <summary>The group's colours on <paramref name="screen"/>, read and written in place.</summary>
     internal abstract ColourRun In(ScreenPalette screen);
 

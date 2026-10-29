@@ -15,9 +15,16 @@ public sealed class PauseSelectorSourcePresentation : PauseSelectorPresentation
     /// <summary>Each named frame's recognised or authored composition.</summary>
     internal readonly Dictionary<string, PauseSelectorVisual> visuals;
 
-    /// <summary>Retains the selector presentation and its frames' compositions.</summary>
-    private PauseSelectorSourcePresentation(PauseSelectorParts parts, Dictionary<string, PauseSelectorVisual> visuals) : base(parts) =>
+    /// <summary>Retains the selector presentation, its frames' compositions and the sprite set they are composed in.</summary>
+    private PauseSelectorSourcePresentation(PauseSelectorParts parts, Dictionary<string, PauseSelectorVisual> visuals,
+        int spriteSet) : base(parts)
+    {
         this.visuals = visuals;
+        SpriteSet = spriteSet;
+    }
+
+    /// <summary>The sprite set the pause sheet composes every selector frame in.</summary>
+    internal int SpriteSet { get; }
 
     /// <summary>Every distinct visual the animation shows, in the order the animation first shows it.</summary>
     internal IEnumerable<PauseSelectorVisual> Visuals => FrameNames.Select(name => visuals[name]);
@@ -72,8 +79,8 @@ public sealed class PauseSelectorSourcePresentation : PauseSelectorPresentation
         }
         if (reservePhases is null || beamPhases is null || equipmentPhases is null)
             throw new InvalidDataException("Pause selector animation requires at least one phase.");
-        return new(new PauseSelectorParts { AnchorOverrides = anchorOverrides, Reserve = reservePhases, Beam = beamPhases, Equipment = equipmentPhases, PhaseCount = document.Animation.Length, DurationOverrides = durationOverrides, InitialDuration = document.InitialDurationTicks, Palette = document.Palette },
-            frames);
+        return new(new PauseSelectorParts { AnchorOverrides = anchorOverrides, Reserve = reservePhases, Beam = beamPhases, Equipment = equipmentPhases, PhaseCount = document.Animation.Length, DurationOverrides = durationOverrides, InitialDuration = document.InitialDurationTicks },
+            frames, document.Palette);
     }
 
     /// <summary>Validates and writes a pause-selector document as JSON.</summary>

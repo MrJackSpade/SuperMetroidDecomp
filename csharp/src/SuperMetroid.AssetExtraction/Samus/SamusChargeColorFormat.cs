@@ -2,7 +2,7 @@ using SuperMetroid.Core.Samus.Palettes;
 
 
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Installed filename and bounded suit, phase, frame, and palette geometry for selected Samus charge-related body colors.</summary>
 public static class SamusChargeColorFormat

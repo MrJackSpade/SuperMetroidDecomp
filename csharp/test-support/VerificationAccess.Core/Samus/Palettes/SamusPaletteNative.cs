@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
@@ -178,8 +179,15 @@ internal static class SamusPaletteNative
         internal static int PaletteIndex(ushort pointer) => SamusFullBodyCycleColorFormat.PaletteIndex(Palette(pointer));
     }
 
-    /// <summary>Installed cycle colors by bank-$9B palette address.</summary>
+    /// <summary>The import pipeline's decoded cycle colors by bank-$9B palette address.</summary>
     extension(InstalledSamusFullBodyCycleColors colors)
+    {
+        /// <summary>One color of the cycle palette at bank-$9B <paramref name="pointer"/>.</summary>
+        internal RgbColor Resolve(ushort pointer, int colorIndex) => colors.Resolve(Palette(pointer), colorIndex);
+    }
+
+    /// <summary>Samus's cycle colors by bank-$9B palette address.</summary>
+    extension(SamusFullBodyCycleColours colors)
     {
         /// <summary>One color of the cycle palette at bank-$9B <paramref name="pointer"/>.</summary>
         internal RgbColor Resolve(ushort pointer, int colorIndex) => colors.Resolve(Palette(pointer), colorIndex);

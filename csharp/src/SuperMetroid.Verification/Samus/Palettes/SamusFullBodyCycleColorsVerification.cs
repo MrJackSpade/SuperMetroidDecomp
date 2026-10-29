@@ -30,6 +30,7 @@ internal static class SamusFullBodyCycleColorsVerification
     internal static void VerifyFullBodyPaletteColorData(ISnesAddressSpace rom, byte[] extracted)
     {
         var native = SamusFullBodyCycleColorFile.Read(new MemoryStream(extracted));
+        SamusFullBodyCycleColours nativeColours = native.ToColours();
         var originalPointers = new SortedSet<ushort>();
         var originalBases = new Dictionary<ushort, ushort>();
         var stored = native.colors;
@@ -96,7 +97,7 @@ internal static class SamusFullBodyCycleColorsVerification
         {
             AssertEqual(ordinal++, SamusFullBodyCycleColorFormat.PaletteIndex(pointer), "Original palette allocation order equals calculated index");
             var cgram = new SamusColourRig();
-            native.Apply(cgram.Samus, pointer);
+            nativeColours.Apply(cgram.Samus, pointer);
             for (int color = 0; color < 16; color++)
             {
                 ushort expected = ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));

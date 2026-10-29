@@ -38,7 +38,7 @@ internal static class ClosedPresentationIdentityDefinitions
             GameplayMessageNoticeDefinitions.MessageIds.SelectToArray(id => (int)id),
         ("GameplayMessageNoticePresentation", "ApplySelection", "messageId") =>
             [(int)GameplayMessageId.SaveConfirmation, (int)GameplayMessageId.GunshipSaveConfirmation],
-        ("InstalledSamusFullBodyCycleColors", "Apply" or "Resolve", "palette.Family") =>
+        ("SamusFullBodyCycleColours", "Apply" or "Resolve", "palette.Family") =>
             Enum.GetValues<SamusFullBodyCycleFamily>().Select(family => (int)family).ToArray(),
         ("InstalledSamusSuitColors", "Apply" or "Resolve", "shown" or "suit") =>
             Enum.GetValues<SamusSuit>().Select(suit => (int)suit).ToArray(),

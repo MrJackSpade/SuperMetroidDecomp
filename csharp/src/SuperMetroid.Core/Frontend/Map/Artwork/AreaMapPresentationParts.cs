@@ -173,13 +173,13 @@ internal sealed record AreaMapPresentationParts
     public required InstalledSamusSuitColors SamusSuitColors { get; init; }
 
     /// <summary>Samus full-body palette-cycle inputs, separate from static suit, visor, and charged-beam colors.</summary>
-    public required InstalledSamusFullBodyCycleColors SamusFullBodyCycleColors { get; init; }
+    public required SamusFullBodyCycleColours SamusFullBodyCycleColors { get; init; }
 
     /// <summary>Crystal Flash body and bubble colors; native timing, frame selection, and completion remain engine-owned.</summary>
     public required InstalledCrystalFlashColors CrystalFlashColors { get; init; }
 
     /// <summary>Charged-beam and pseudo-Screw-Attack palette inputs, separate from base suit colors.</summary>
-    public required InstalledSamusChargeColors SamusChargeColors { get; init; }
+    public required SamusChargeColours SamusChargeColors { get; init; }
 
     /// <summary>Ceres Ridley colors, shared Norfair Ridley health colors, and private Baby drawing colors; Mode 7 zoom shades are supplied separately.</summary>
     public required CeresRidleyColorCatalog CeresRidleyColors { get; init; }
@@ -191,5 +191,5 @@ internal sealed record AreaMapPresentationParts
     public required CeresRidleyFloorUpdateSources CeresRidleyFloorUpdates { get; init; }
 
     /// <summary>Samus Hyper Beam palette-cycle colors, separate from charged-beam presentation and other suit cycles.</summary>
-    public required InstalledSamusHyperBeamColors SamusHyperBeamColors { get; init; }
+    public required SamusHyperBeamColours SamusHyperBeamColors { get; init; }
 }

@@ -188,11 +188,11 @@ public sealed class AreaMapPresentation : IInstalledArtworkContent, IGameplayPre
     /// <summary>Base Power, Varia, and Gravity Suit colors, separate from transient full-body and charge cycles.</summary>
     public InstalledSamusSuitColors SamusSuitColors { get; }
     /// <summary>Samus full-body palette-cycle inputs, separate from static suit, visor, and charged-beam colors.</summary>
-    public InstalledSamusFullBodyCycleColors SamusFullBodyCycleColors { get; }
+    public SamusFullBodyCycleColours SamusFullBodyCycleColors { get; }
     /// <summary>Crystal Flash body and bubble colors; native timing, frame selection, and completion remain engine-owned.</summary>
     public InstalledCrystalFlashColors CrystalFlashColors { get; }
     /// <summary>Charged-beam and pseudo-Screw-Attack palette inputs, separate from base suit colors.</summary>
-    public InstalledSamusChargeColors SamusChargeColors { get; }
+    public SamusChargeColours SamusChargeColors { get; }
     /// <summary>Ceres Ridley colors, shared Norfair Ridley health colors, and private Baby drawing colors; Mode 7 zoom shades are supplied separately.</summary>
     public CeresRidleyColorCatalog CeresRidleyColors { get; }
     /// <summary>Ceres Ridley Mode 7 zoom shades, separate from ordinary Ridley colors and compiled movement and rotation.</summary>
@@ -200,7 +200,7 @@ public sealed class AreaMapPresentation : IInstalledArtworkContent, IGameplayPre
     /// <summary>Where the getaway's floor runs take their tile numbers from, which the floor updates it queues record.</summary>
     public CeresRidleyFloorUpdateSources CeresRidleyFloorUpdates { get; }
     /// <summary>Samus Hyper Beam palette-cycle colors, separate from charged-beam presentation and other suit cycles.</summary>
-    public InstalledSamusHyperBeamColors SamusHyperBeamColors { get; }
+    public SamusHyperBeamColours SamusHyperBeamColors { get; }
     /// <summary>Resolves installed HUD, Kraid HUD-restoration, or escape-timer character bytes for a VRAM transfer.</summary>
     /// <param name="asset">The transfer identity; this provider supports only the HUD and escape-timer identities in its catalog.</param>
     /// <returns>Read-only planar character bytes for the requested transfer.</returns>

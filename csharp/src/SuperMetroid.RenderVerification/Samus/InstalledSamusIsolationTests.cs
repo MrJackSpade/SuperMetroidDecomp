@@ -32,7 +32,7 @@ internal sealed class InstalledSamusIsolationTests
     /// <summary>Stock and edited suit colors selected by the actors' presentation owners.</summary>
     private readonly StockEditedPair<InstalledSamusSuitColors> suits;
     /// <summary>Stock and edited Speed Booster, Screw Attack, and shinespark cycle colors.</summary>
-    private readonly StockEditedPair<InstalledSamusFullBodyCycleColors> cycles;
+    private readonly StockEditedPair<SamusFullBodyCycleColours> cycles;
     /// <summary>Stock and edited Crystal Flash palette phases.</summary>
     private readonly StockEditedPair<InstalledCrystalFlashColors> crystal;
     /// <summary>Installed beam palette data shared by both actor fixtures.</summary>
@@ -58,7 +58,7 @@ internal sealed class InstalledSamusIsolationTests
         suits = SamusIsolationArtworkEdits.Colors(source, artwork.Installation,
             SamusSuitColorFormat.FileName, SamusSuitColorFile.Read);
         cycles = SamusIsolationArtworkEdits.Colors(source, artwork.Installation,
-            SamusFullBodyCycleColorFormat.FileName, SamusFullBodyCycleColorFile.Read);
+            SamusFullBodyCycleColorFormat.FileName, stream => SamusFullBodyCycleColorFile.Read(stream).ToColours());
         crystal = SamusIsolationArtworkEdits.Colors(source, artwork.Installation,
             CrystalFlashColorFormat.FileName, CrystalFlashColorFile.Read);
         using var stream = File.OpenRead(Path.Combine(source.ProjectileDirectory, BeamPaletteDefinitions.FileName));
@@ -108,7 +108,7 @@ internal sealed class InstalledSamusIsolationTests
         /// <summary>Selected base suit palette catalog.</summary>
         internal readonly InstalledSamusSuitColors Suits;
         /// <summary>Selected full-body cycle color catalog.</summary>
-        internal readonly InstalledSamusFullBodyCycleColors Cycles;
+        internal readonly SamusFullBodyCycleColours Cycles;
         /// <summary>Selected Crystal Flash color catalog.</summary>
         internal readonly InstalledCrystalFlashColors Crystal;
 

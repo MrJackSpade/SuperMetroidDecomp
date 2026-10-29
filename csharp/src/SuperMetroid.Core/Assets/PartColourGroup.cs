@@ -31,7 +31,7 @@ public readonly record struct PartColourGroup
     internal static PartColourGroup Keeping(ImageColourGroup group) => Every[group.Number + ImageColourGroup.Count];
 
     /// <summary>Whether the installed image may store <paramref name="code"/> for a pixel's part group.</summary>
-    internal static bool IsCode(int code) => code >= 0 && code < Codes;
+    internal static bool IsCode(int code) => code is >= 0 and < Codes;
 
     /// <summary>The part group the installed image stores as <paramref name="code"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The code names no part group.</exception>

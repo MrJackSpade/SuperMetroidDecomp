@@ -23,6 +23,13 @@ internal static class ScreenColourGroups
     /// <exception cref="InvalidOperationException"><paramref name="colouring"/> is not a whole sprite set.</exception>
     public static int SpriteSet(ScreenColourGroup colouring) => Placement(colouring).DrawnSpriteSet();
 
+    /// <summary>The screen colour cell that holds the first colour of <paramref name="group"/>.</summary>
+    public static ScreenColourCell FirstCell(ScreenColourGroup group)
+    {
+        ScreenColourPlacement placement = Placement(group);
+        return new ScreenColourCell(placement.Owner, placement.Set, placement.Colour);
+    }
+
     /// <summary>Where the screen holds <paramref name="group"/>.</summary>
     private static ScreenColourPlacement Placement(ScreenColourGroup group) =>
         ScreenColourGroupDefinitions.Groups.TryGetValue(group, out ScreenColourPlacement? placement)

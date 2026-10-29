@@ -305,7 +305,7 @@ internal static class RoomBackgroundsFixtures
                 if (index % (twoBpp ? 4 : 16) != 0 && index / 16 < 8)
                     groups = groups.With(ImageColourGroup.OfInk(index));
             }
-            frames.Add(frame, new SpriteSheetFrameDocument { Corner = corner, Size = frameSize, Origin = default, ColourGroups = groups, Parts = [] });
+            frames.Add(frame, new SpriteSheetFrameDocument { Corner = corner, Size = frameSize, Origin = default, ColourGroups = groups.ManifestMembers, Parts = [] });
         }
         var document = new SpriteSheetDocument
         {

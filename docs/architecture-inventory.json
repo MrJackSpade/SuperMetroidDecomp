@@ -18675,6 +18675,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Areas.Ceres.CeresBabyShade",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresBabyShade.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Areas.Ceres.CeresDoorAnimations",
       "kind": "static class",
       "scope": "product",
@@ -45772,6 +45785,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyAuxiliaryColourFrames",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyAuxiliaryColourFrames.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Artwork.EnemyAuxiliaryPalette",
       "kind": "enum",
       "scope": "product",
@@ -45796,19 +45822,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyAuxiliaryPaletteRows",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyAuxiliaryPaletteRows.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.EnemyBg2FrameCatalog",
@@ -130962,14 +130975,14 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Verification.Areas.Ceres.CeresBabyNativeListAddressesPaletteRow",
+      "type": "SuperMetroid.Verification.Areas.Ceres.CeresBabyNativeListAddressesShadeOperand",
       "kind": "record struct",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresBabyNativeListAddressesPaletteRow.cs"
+        "csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresBabyNativeListAddressesShadeOperand.cs"
       ],
       "partial": "none",
       "disposition": "value"

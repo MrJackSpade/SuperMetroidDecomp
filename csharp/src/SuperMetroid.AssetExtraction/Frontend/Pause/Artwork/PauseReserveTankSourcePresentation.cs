@@ -18,9 +18,16 @@ public sealed class PauseReserveTankSourcePresentation : PauseReserveTankPresent
     /// <summary>Edited sprite compositions for the ten native reserve visual roles.</summary>
     internal readonly FrameSet frames;
 
-    /// <summary>Stores independent anchor edits, frame art, and selected reserve palette.</summary>
-    private PauseReserveTankSourcePresentation(Dictionary<int, AnchorOverride> anchorOverrides, FrameSet frames, int palette)
-        : base(anchorOverrides, palette) => this.frames = frames;
+    /// <summary>Stores independent anchor edits, frame art, and the sprite set the strip's frames are composed in.</summary>
+    private PauseReserveTankSourcePresentation(Dictionary<int, AnchorOverride> anchorOverrides, FrameSet frames, int spriteSet)
+        : base(anchorOverrides)
+    {
+        this.frames = frames;
+        SpriteSet = spriteSet;
+    }
+
+    /// <summary>The sprite set the pause sheet composes every reserve-strip frame in.</summary>
+    internal int SpriteSet { get; }
 
     /// <summary>
     /// One reserve visual as a whole frame (#1392): its authored composition, or the stock single character, which takes

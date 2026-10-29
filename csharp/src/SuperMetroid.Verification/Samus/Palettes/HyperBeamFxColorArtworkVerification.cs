@@ -120,7 +120,7 @@ internal static class HyperBeamFxColorArtworkVerification
         }
         for (int color = 4; color < 8; color++)
             AssertEqual(ReadVerificationWord(bus, 0x8dd906 + 40 + color * 2),
-                SamusHyperBeamColorFormat.YellowFromGreen(RgbColor.FromWord(checked(ReadVerificationWord(bus, 0x8dd906 + 80 + color * 2)))),
+                HyperBeamHues.YellowFromGreen(RgbColor.FromWord(checked(ReadVerificationWord(bus, 0x8dd906 + 80 + color * 2)))),
                 "Every original yellow highlight derives from its green hue");
         for (int ink = 4; ink <= 7; ink++)
             AssertEqual(ReadVerificationWord(bus, 0x8dd906 + 2 * ink),
@@ -141,18 +141,18 @@ internal static class HyperBeamFxColorArtworkVerification
             AssertThrows<ArgumentOutOfRangeException>(() => HyperBeamFxColorFormat.RedHighlight(new RgbColor(0, 0, 0), new RgbColor(0, 0, 0), invalidInk), "Highlight ink bounds");
         foreach (var shade in new[] { new VerifyHyperBeamFxColorArtworkCase(Frame:0, Ink:2), new VerifyHyperBeamFxColorArtworkCase(Frame:4, Ink:5), new VerifyHyperBeamFxColorArtworkCase(Frame:8, Ink:2), new VerifyHyperBeamFxColorArtworkCase(Frame:8, Ink:5) })
             AssertEqual(ReadVerificationWord(bus, 0x8dd906 + 20 * shade.Frame + 2 * shade.Ink),
-                SamusHyperBeamColorFormat.HueMidpoint(
+                HyperBeamHues.HueMidpoint(
                     RgbColor.FromWord(checked(ReadVerificationWord(bus, 0x8dd906 + 20 * shade.Frame + 2 * (shade.Ink - 1)))),
                     RgbColor.FromWord(checked(ReadVerificationWord(bus, 0x8dd906 + 20 * shade.Frame + 2 * (shade.Ink + 1))))),
                 "Every original within-hue shade midpoint");
         ushort nativeRedEndpoint = ReadVerificationWord(bus, 0x8dd90c);
         AssertEqual(ReadVerificationWord(bus, 0x8dd964), HyperBeamFxColorFormat.GreenFromRed(RgbColor.FromWord(checked(nativeRedEndpoint))), "Original saturated green endpoint");
-        AssertEqual(ReadVerificationWord(bus, 0x8dd9a8), SamusHyperBeamColorFormat.MagentaFromRed(RgbColor.FromWord(checked(nativeRedEndpoint))), "Original saturated magenta endpoint");
+        AssertEqual(ReadVerificationWord(bus, 0x8dd9a8), HyperBeamHues.MagentaFromRed(RgbColor.FromWord(checked(nativeRedEndpoint))), "Original saturated magenta endpoint");
         for (int rgb = 0; rgb < 32768; rgb++)
         {
             int redComponent = rgb % 32, greenComponent = rgb / 32 % 32, blueComponent = rgb / 1024;
             AssertEqual((ushort)(greenComponent + 32 * redComponent + 1024 * blueComponent), HyperBeamFxColorFormat.GreenFromRed(RgbColor.FromWord(checked((ushort)rgb))), "Complete RGB5 red-to-green domain");
-            AssertEqual((ushort)(redComponent + 32 * greenComponent + 1024 * redComponent), SamusHyperBeamColorFormat.MagentaFromRed(RgbColor.FromWord(checked((ushort)rgb))), "Complete RGB5 red-to-magenta domain");
+            AssertEqual((ushort)(redComponent + 32 * greenComponent + 1024 * redComponent), HyperBeamHues.MagentaFromRed(RgbColor.FromWord(checked((ushort)rgb))), "Complete RGB5 red-to-magenta domain");
         }
         var extracted = new HyperBeamPaletteFxState();
         var nativeCgram = new SnesCgram();

@@ -1,8 +1,10 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
 /// Authored Samus full-body colors keyed by the already-compiled native palette pointers.
@@ -214,12 +216,21 @@ public sealed class InstalledSamusFullBodyCycleColors
         return value;
     }
 
-    /// <summary>Shows the cycle palette's sixteen colours as Samus's suit colours.</summary>
-    public void Apply(SamusColours colours, SamusFullBodyCyclePalette palette)
+    /// <summary>
+    /// The decoded colours keyed by what they show (#1464): every cycle palette's suit colours, by family, suit and shade.
+    /// The document's row order ends here.
+    /// </summary>
+    public SamusFullBodyCycleColours ToColours()
     {
-        Ensure.NotNull(colours);
-        for (int index = 0; index < SamusFullBodyCycleColorFormat.ColorsPerPalette; index++)
-            colours.Suit.Write(index,
-                Resolve(palette, index));
+        var palettes = new Dictionary<SamusFullBodyCyclePalette, ImmutableArray<RgbColor>>();
+        foreach (SamusFullBodyCycleFamily family in Enum.GetValues<SamusFullBodyCycleFamily>())
+        foreach (SamusSuit suit in SamusSuitDefinitions.ListOrder)
+        for (int shade = 0; shade < SamusFullBodyCycleColorFormat.ShadesPerSuit; shade++)
+        {
+            var palette = new SamusFullBodyCyclePalette(family, suit, shade);
+            palettes.Add(palette, [.. Enumerable.Range(0, SamusFullBodyCycleColorFormat.ColorsPerPalette)
+                .Select(color => Resolve(palette, color))]);
+        }
+        return new(palettes);
     }
 }

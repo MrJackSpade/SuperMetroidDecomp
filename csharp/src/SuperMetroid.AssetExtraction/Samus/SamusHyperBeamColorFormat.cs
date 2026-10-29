@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Installed-resource identity and native row geometry for the full-body Hyper Beam RGB5 cycle.</summary>
 public static class SamusHyperBeamColorFormat
@@ -38,7 +39,7 @@ public static class SamusHyperBeamColorFormat
     /// This states the exact color construction,not the original tool's identity.</remarks>
     internal static RgbColor CyanTransitionMiddle(RgbColor magenta, RgbColor cyan)
     {
-        return HueMidpoint(magenta, cyan).WithRed(HueMidpoint(magenta, cyan, direction: HueRounding.Down).Red);
+        return HyperBeamHues.HueMidpoint(magenta, cyan).WithRed(HyperBeamHues.HueMidpoint(magenta, cyan, direction: HueRounding.Down).Red);
     }
 
     /// <summary>Builds the lower and upper shadows around the magenta-cyan middle ink.</summary>
@@ -83,7 +84,7 @@ public static class SamusHyperBeamColorFormat
         int? green = frame == 1 ? greenHue.Red : null;
         if (color == 13)
         {
-            RgbColor middle = HueMidpoint(lowShadow, highShadow);
+            RgbColor middle = HyperBeamHues.HueMidpoint(lowShadow, highShadow);
             if (frame == 1) red = middle.Red;
             if (frame == 5) red = lowShadow.Red;
             if (frame is 5 or 9) green = middle.Green;
@@ -121,31 +122,6 @@ public static class SamusHyperBeamColorFormat
         value = new RgbColor(red, green, blue);
         return true;
     }
-    /// <summary>Turns the red endpoint into magenta by raising blue to red.</summary>
-    /// <remarks>Original projectile frame8 ink1 ($8D:D9A8) derives from
-    /// frame0 ink3 ($D90C). Body-cycle frame1 also has blue=red,including
-    /// its independently edited shade-red channels. Red/green stay fixed; copying red into blue
-    /// needs no rounding,saturation or overflow. Edits remain independent.</remarks>
-    internal static RgbColor MagentaFromRed(RgbColor red) =>
-        red.WithBlue(red.Red);
-    /// <summary>Interpolates RGB5 colors by half with the caller's channel rounding convention.</summary>
-    /// <remarks>Even frames interpolate the adjacent odd hue endpoints, with
-    /// frame0 wrapping between9/1. Frame6 uses the green-to-yellow red ramp.
-    /// Only independently edited channels differing from the selected color
-    /// construction are stored; original intermediate colors need no corrections.
-    /// matching channels are always calculated, never stored as generated words.
-    /// Upward rounding is the default for hue blends. The magenta-cyan
-    /// middle shadow selects downward red and upward green/blue rounding.
-    /// Each independent channel numerator is0..63; no saturation or overflow.</remarks>
-    internal static RgbColor HueMidpoint(RgbColor first, RgbColor second, HueRounding direction = HueRounding.Up)
-    {
-        int rounding = direction == HueRounding.Up ? 1 : 0;
-        int red = ((first.Red) + (second.Red) + rounding) / 2;
-        int green = ((first.Green) + (second.Green) + rounding) / 2;
-        int blue = ((first.Blue) + (second.Blue) + rounding) / 2;
-        return new RgbColor(red, green, blue);
-    }
-
     /// <summary>Interpolates red halfway from green-frame red to its green value, rounding upward.</summary>
     /// <remarks>Original frame6 ($9B:A2A0) preserves frame5 green/blue;
     /// nine canonical opaque inks also have red=ceil((red5+green5)/2).
@@ -170,14 +146,6 @@ public static class SamusHyperBeamColorFormat
         value = green.WithRed(red);
         return true;
     }
-
-    /// <summary>Changes the green Hyper Beam hue into yellow by raising red to green.</summary>
-    /// <remarks>Every opaque original frame7 word ($9B:A280) equals frame5
-    /// ($9B:A2C0) with red replaced by green. Green/blue remain unchanged.
-    /// RGB5 component copying needs no rounding or saturation. Transparent
-    /// payloads are outside the hue transform; differing asset values override it.</remarks>
-    internal static RgbColor YellowFromGreen(RgbColor green) =>
-        green.WithRed(green.Green);
 
     /// <summary>Shares repeated Hyper Beam sprite inks and transparent payloads.</summary>
     /// <remarks>Original ten rows selected by91D99E have slots6=2,15=3,

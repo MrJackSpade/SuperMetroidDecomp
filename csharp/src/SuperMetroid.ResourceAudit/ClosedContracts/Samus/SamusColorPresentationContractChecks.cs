@@ -23,31 +23,30 @@ internal static class SamusColorPresentationContractChecks
             using SuperMetroid.Core.Samus.Artwork;
             using SuperMetroid.Core.Samus.Palettes;
             class ColorConsumer {
-                void Inspect(InstalledSamusFullBodyCycleColors body, InstalledSamusSuitColors suit,
-                    InstalledSamusChargeColors charge, InstalledSamusHurtColors hurt,
-                    InstalledSamusHyperBeamColors hyper, InstalledSamusVisorColors visor,
+                void Inspect(SamusFullBodyCycleColours body, InstalledSamusSuitColors suit,
+                    SamusChargeColours charge, InstalledSamusHurtColors hurt,
+                    SamusHyperBeamColours hyper, InstalledSamusVisorColors visor,
                     InstalledCrystalFlashColors flash, InstalledPowerBombFixedColors bomb,
                     InstalledHyperBeamFxColors fx, SamusColours colours, ColourRun run) {
                     body.Apply(colours, new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
-                        SamusSuit.Gravity, SamusFullBodyCycleColorFormat.ShadesPerSuit - 1));
+                        SamusSuit.Gravity, 3));
                     body.Apply(colours, new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
-                        (SamusSuit)SamusFullBodyCycleColorFormat.SuitCount, 0));
+                        (SamusSuit)3, 0));
                     body.Resolve(new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
-                        SamusSuit.Gravity, SamusFullBodyCycleColorFormat.ShadesPerSuit - 1),
-                        SamusFullBodyCycleColorFormat.ColorsPerPalette - 1);
+                        SamusSuit.Gravity, 3), SamusPaletteDefinitions.Common.ColoursPerRow - 1);
                     body.Resolve(new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
-                        SamusSuit.Gravity, SamusFullBodyCycleColorFormat.ShadesPerSuit - 1),
-                        SamusFullBodyCycleColorFormat.ColorsPerPalette);
+                        SamusSuit.Gravity, 3), SamusPaletteDefinitions.Common.ColoursPerRow);
                     suit.Apply(run, SamusSuit.Gravity);
                     suit.Apply(run, (SamusSuit)int.MaxValue);
-                    charge.ApplyCharge(colours, false, SamusSuit.Gravity, SamusChargeColorFormat.PhasesPerSuit - 1);
-                    charge.ApplyCharge(colours, true, SamusSuit.Power, SamusChargeColorFormat.PhasesPerSuit);
-                    charge.ApplyHyper(colours, SamusChargeColorFormat.HyperFrameCount - 1);
-                    charge.ApplyHyper(colours, SamusChargeColorFormat.HyperFrameCount);
+                    charge.ApplyCharge(colours, false, SamusSuit.Gravity, SamusChargePaletteDefinitions.ChargeSteps - 1);
+                    charge.ApplyCharge(colours, true, SamusSuit.Power, SamusChargePaletteDefinitions.ChargeSteps);
+                    charge.ApplyHyper(colours, SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount - 1);
+                    charge.ApplyHyper(colours, SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount);
                     hurt.Resolve(SamusHurtColorVariant.Intro, SamusHurtColorFormat.ColorsPerPalette - 1);
                     hurt.Resolve((SamusHurtColorVariant)int.MaxValue, 0);
-                    hyper.Resolve(SamusHyperBeamColorFormat.FrameCount - 1, SamusHyperBeamColorFormat.ColorsPerFrame - 1);
-                    hyper.Resolve(SamusHyperBeamColorFormat.FrameCount, 0);
+                    hyper.Resolve(SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount - 1,
+                        SamusPaletteDefinitions.Common.ColoursPerRow - 1);
+                    hyper.Resolve(SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount, 0);
                     visor.Resolve(SamusVisorColorFormat.ColorCount - 1);
                     visor.Resolve(SamusVisorColorFormat.ColorCount);
                     flash.ApplyBody(colours, CrystalFlashColorFormat.BodyFrameCount - 1);

@@ -1,8 +1,10 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Editable Samus body colors during beam charge, pseudo-Screw, and Hyper-shot glow.</summary>
 /// <remarks>Charge base rows9B9820/9920/9A20 exactly alias full-body bases
@@ -46,29 +48,26 @@ public sealed class InstalledSamusChargeColors
         this.hyperShot = hyperShot;
     }
 
-    /// <summary>Gets packed RGB5 ink 0–15 from Hyper-shot playback frame 0–9 in the native $91:D82B reverse-cycle pointer order; this asset's edits are independent of the full-body Hyper cycle.</summary>
-    public RgbColor ResolveHyper(int frame, int color)
+    /// <summary>
+    /// The decoded colours keyed by what they show (#1464): every charge palette's suit colours, by sequence, suit and
+    /// step, and the Hyper-shot cycle. The document's suit-then-step row order ends here.
+    /// </summary>
+    public SamusChargeColours ToColours()
     {
-        if ((uint)frame >= SamusChargeColorFormat.HyperFrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
-        return hyperShot.Resolve(SamusChargeColorFormat.HyperFrameCount - 1 - frame, color);
+        var palettes = new Dictionary<SamusChargePalette, ImmutableArray<RgbColor>>();
+        foreach (SamusSuit suit in SamusSuitDefinitions.ListOrder)
+        for (int phase = 0; phase < SamusChargeColorFormat.PhasesPerSuit; phase++)
+        {
+            palettes.Add(new(SamusChargeKind.ChargedBeam, suit, phase), Row(chargedBeam, suit, phase));
+            palettes.Add(new(SamusChargeKind.PseudoScrew, suit, phase), Row(pseudoScrew, suit, phase));
+        }
+        return new(palettes, hyperShot.ToColours());
     }
 
-    /// <summary>Shows all sixteen selected charge or pseudo-Screw inks as Samus's suit colours, including the retained transparent-slot word; charge admission and phase advancement remain Samus behavior.</summary>
-    /// <param name="colours">Samus's colours, whose suit colours change.</param>
-    /// <param name="pseudo">True for pseudo-Screw's bright/normal holds; false for the charged-beam whitening pulse.</param>
-    /// <param name="suit">The suit Samus shows.</param>
-    /// <param name="phase">Playback phase 0–5; stock charge shades follow 0/1/2/3/2/1, while pseudo-Screw holds bright for 0–2 and normal for 3–5.</param>
-    public void ApplyCharge(SamusColours colours, bool pseudo, SamusSuit suit, int phase) =>
-        Apply(colours, pseudo ? pseudoScrew : chargedBeam, suit.ListPlace(), phase);
-
-    /// <summary>Shows all sixteen Hyper-shot inks as Samus's suit colours for playback frame 0–9; shot-glow timing and the native decrementing palette cursor remain engine-owned.</summary>
-    public void ApplyHyper(SamusColours colours, int frame)
-    {
-        Ensure.NotNull(colours);
-        if ((uint)frame >= SamusChargeColorFormat.HyperFrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
-        for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
-            colours.Suit.Write(color, ResolveHyper(frame, color));
-    }
+    /// <summary>The suit colours <paramref name="source"/> resolves for <paramref name="suit"/> at <paramref name="phase"/>.</summary>
+    private static ImmutableArray<RgbColor> Row(ChargeInputs source, SamusSuit suit, int phase) =>
+        [.. Enumerable.Range(0, SamusChargeColorFormat.ColorsPerPalette)
+            .Select(color => source.Resolve(suit.ListPlace(), phase, color))];
 
     /// <summary>Shares native repeated phases without caching calculated palette rows.</summary>
     /// <remarks>Bank91 lists D7DB/D7E7/D7F3 select charge shades0,1,2,3,2,1;
@@ -141,14 +140,5 @@ public sealed class InstalledSamusChargeColors
             RgbColor expected = SamusPaletteFade.EighthTowardWhite(Resolve(suit, 0, color), phase);
             return fadeInputs.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
         }
-    }
-
-    /// <summary>Copies the selected sixteen-ink row into Samus's OBJ palette without altering phase timing.</summary>
-    private static void Apply(SamusColours colours, ChargeInputs source, int suit, int phase)
-    {
-        Ensure.NotNull(colours);
-        for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
-            colours.Suit.Write(color,
-                source.Resolve(suit, phase, color));
     }
 }

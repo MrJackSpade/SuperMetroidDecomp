@@ -191,7 +191,7 @@ internal static class TileWordSheetComposer
             if (index % rowColours != 0)
                 coloured = coloured.With(ImageColourGroup.OfInk(index));
         }
-        return new SpriteSheetFrameDocument { Corner = corner, Size = size, Origin = default, ColourGroups = coloured, Parts = [] };
+        return new SpriteSheetFrameDocument { Corner = corner, Size = size, Origin = default, ColourGroups = coloured.ManifestMembers, Parts = [] };
     }
 
     /// <summary>The parts <paramref name="writer"/> writes, each named, in a stable order.</summary>

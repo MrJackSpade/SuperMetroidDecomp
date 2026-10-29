@@ -63,7 +63,7 @@ internal static class RoomBlockFixtures
                 Corner = new Position16<ImagePixels>((ushort)left, (ushort)top),
                 Size = new Extent16<ImagePixels>(side, side),
                 Origin = default,
-                ColourGroups = coloured,
+                ColourGroups = coloured.ManifestMembers,
                 Parts = [],
             });
         }
@@ -111,7 +111,7 @@ internal static class RoomBlockFixtures
                 Corner = default,
                 Size = new Extent16<ImagePixels>(RoomBackgroundImage.PagePixels, RoomBackgroundImage.Pages * RoomBackgroundImage.PagePixels),
                 Origin = default,
-                ColourGroups = coloured,
+                ColourGroups = coloured.ManifestMembers,
                 Parts = [],
             },
         };

@@ -172,7 +172,7 @@ public sealed class SpriteSheet
     {
         try
         {
-            return new SpriteSheetFrame(image, document.Corner, document.Size, document.Origin, document.ColourGroups, parts);
+            return new SpriteSheetFrame(image, document.Corner, document.Size, document.Origin, ImageColourGroups.FromManifest(document.ColourGroups), parts);
         }
         catch (ArgumentException error)
         {

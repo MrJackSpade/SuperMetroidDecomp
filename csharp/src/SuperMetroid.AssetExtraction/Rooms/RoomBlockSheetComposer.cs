@@ -100,7 +100,7 @@ internal static class RoomBlockSheetComposer
                 Corner = default,
                 Size = canvas.Size,
                 Origin = default,
-                ColourGroups = groups,
+                ColourGroups = groups.ManifestMembers,
                 Parts = [],
             },
         };
@@ -184,7 +184,7 @@ internal static class RoomBlockSheetComposer
                 Corner = corner,
                 Size = new Extent16<ImagePixels>(RoomBlockSheet.BlockPixels, RoomBlockSheet.BlockPixels),
                 Origin = default,
-                ColourGroups = coloured,
+                ColourGroups = coloured.ManifestMembers,
                 Parts = [],
             });
             index++;

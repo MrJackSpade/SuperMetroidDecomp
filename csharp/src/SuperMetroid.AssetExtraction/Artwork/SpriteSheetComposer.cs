@@ -83,7 +83,7 @@ internal static class SpriteSheetComposer
                 Corner = corners[index],
                 Size = bounds[index].Size,
                 Origin = new(checked((short)-bounds[index].TopLeft.X), checked((short)-bounds[index].TopLeft.Y)),
-                ColourGroups = groups,
+                ColourGroups = groups.ManifestMembers,
                 Parts = isPart ? [] : frameParts[index],
             };
             (isPart ? partManifest : manifest).Add(laid[index].Name, document);

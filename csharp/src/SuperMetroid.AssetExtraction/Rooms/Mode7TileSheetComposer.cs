@@ -66,7 +66,7 @@ internal static class Mode7TileSheetComposer
                 Corner = default,
                 Size = new Extent16<ImagePixels>((ushort)side, (ushort)side),
                 Origin = default,
-                ColourGroups = coloured,
+                ColourGroups = coloured.ManifestMembers,
                 Parts = [],
             },
         };

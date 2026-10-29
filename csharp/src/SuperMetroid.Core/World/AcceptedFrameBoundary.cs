@@ -267,10 +267,7 @@ internal sealed class AcceptedFrameBoundary
         {
             RoomBackgroundImageResolver skyImage = scope.SkyImage
                 ?? throw new InvalidDataException($"{scope.Room.Definition.Name} shows a scrolling sky with no installed sky image.");
-            SkyTilemap rows = (_artwork.RoomSkyTilemapArt ?? throw new InvalidOperationException("A sky room has no installed sky rows."))
-                .Tilemap(scrollingSky.Variant);
-            skyImage.Image.AssertPictures(rows.Tiles);
-            sky = new SkyPictures(skyImage.Resolve(_backgrounds, animatedBlocks), rows);
+            sky = new SkyPictures(skyImage.Resolve(_backgrounds, animatedBlocks), scrollingSky.Variant);
         }
         // Where BG2 shows the tilemap its library background loaded, it draws the background's image (#1392): not over a
         // streaming layer-2 plane, the sky's rows or a boss body that owns BG2.

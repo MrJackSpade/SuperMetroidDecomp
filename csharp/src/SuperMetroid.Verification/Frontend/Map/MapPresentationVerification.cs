@@ -218,10 +218,7 @@ internal static class MapPresentationVerification
         private readonly RoomLevelArtworks visualLayouts;
         /// <summary>Installed room level streams supplying collision and BTS at room entry.</summary>
         private readonly InstalledRoomLevelStreams levelStreams;
-        /// <summary>Installed background tilemaps for the room renderer.</summary>
-        private readonly RoomBackgroundTilemaps backgrounds;
-        /// <summary>Installed sky tilemaps for rooms that use a scrolling sky.</summary>
-        private readonly RoomSkyTilemaps skies;
+
         /// <summary>Installed beam palettes bound to Samus's projectile presentation.</summary>
         private readonly InstalledBeamPalettes? beamPalettes;
         /// <summary>Installed elevator platform art used by the room PLM owner.</summary>
@@ -243,8 +240,7 @@ internal static class MapPresentationVerification
             roomBlockSheets = installation.LoadRoomBlockSheets();
             visualLayouts = installation.LoadRoomVisualLayouts();
             levelStreams = installation.LoadRoomLevelStreams();
-            backgrounds = installation.LoadRoomBackgroundTilemaps();
-            skies = installation.LoadRoomSkyTilemaps();
+
             EnemyTiles = installation.LoadEnemyTiles();
             var projectiles = installation.LoadProjectiles();
             beamPalettes = projectiles.BeamTiles.Palettes;
@@ -260,8 +256,7 @@ internal static class MapPresentationVerification
             runtime.Artwork.RoomBlockSheets = roomBlockSheets;
             runtime.Artwork.RoomVisualLayouts = visualLayouts;
             runtime.Artwork.RoomLevelStreams = levelStreams;
-            runtime.Artwork.RoomBackgroundTilemapArt = backgrounds;
-            runtime.Artwork.RoomSkyTilemapArt = skies;
+
             runtime.EnemySession.TileArtwork = EnemyTiles.Enemies;
             runtime.EnemySession.Sheets = SuperMetroid.TestSupport.RepositoryInstallation.Verification.EnemySheetFixtures.For(EnemyTiles.Enemies);
             runtime.BossArtwork.Artwork = EnemyTiles.Bosses;

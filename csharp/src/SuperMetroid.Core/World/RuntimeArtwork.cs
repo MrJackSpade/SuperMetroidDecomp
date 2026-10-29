@@ -234,9 +234,7 @@ internal sealed class RuntimeArtwork
         pendingBeamPalette = null;
     }
 
-    /// <summary>Host-selected BG tilemaps, rebound after debugger-state restoration.</summary>
-    [field: NonSerialized]
-    public RoomBackgroundTilemaps? RoomBackgroundTilemapArt { get; set; }
+
     /// <summary>Gets or binds the host-owned CRE and graphics-set character catalog used by subsequent room loads; the reference is excluded from debugger snapshots.</summary>
     [field: NonSerialized]
     public RoomCharacterAtlases? RoomCharacterArt { get; set; }
@@ -245,9 +243,7 @@ internal sealed class RuntimeArtwork
     /// <summary>Host-selected base room palettes, rebound after debugger-state restore.</summary>
     [field: NonSerialized]
     public RoomStaticPalettes? RoomPaletteArt { get; set; }
-    /// <summary>Installed scrolling-sky pages, rebound after debugger-state restoration.</summary>
-    [field: NonSerialized]
-    public RoomSkyTilemaps? RoomSkyTilemapArt { get; set; }
+
     /// <summary>Host-selected visual room layouts, rebound after debugger-state restore.</summary>
     [field: NonSerialized]
     public RoomLevelArtworks? RoomVisualLayouts { get; set; }

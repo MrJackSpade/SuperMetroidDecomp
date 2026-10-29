@@ -70,13 +70,6 @@ public sealed class RoomBackgroundImage
     /// <summary>The installed name of the sky <paramref name="variant"/>'s rows in a room of <paramref name="tileset"/>.</summary>
     public static string SkyNameOf(ScrollingSkyChunkTable variant, TilesetDefinition tileset) => $"Sky{variant}.{RoomBlockSheet.NameOf(tileset)}";
 
-    /// <summary>Checks <paramref name="tiles"/> are the tiles the image pictures, as a sky's rows must be.</summary>
-    /// <exception cref="InvalidDataException">The tiles differ.</exception>
-    public void AssertPictures(ReadOnlySpan<BackgroundTile> tiles)
-    {
-        if (!tiles.SequenceEqual(Tiles.AsSpan()))
-            throw new InvalidDataException($"The tilemap shown is not the one room background {Name} pictures.");
-    }
 
     /// <summary>
     /// The installed name of <paramref name="background"/>'s picture in a room of <paramref name="tileset"/>: the picture a

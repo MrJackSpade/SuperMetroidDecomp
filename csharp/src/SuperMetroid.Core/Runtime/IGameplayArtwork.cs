@@ -132,11 +132,6 @@ internal interface IGameplayArtwork
     /// <summary>X-ray reveal operands and item and special-room overlays.</summary>
     InstalledXrayReveals? XrayRevealVisuals { get; }
 
-    /// <summary>Room background tilemaps.</summary>
-    RoomBackgroundTilemaps? RoomBackgroundTilemapArt { get; }
-
-    /// <summary>Room sky tilemaps.</summary>
-    RoomSkyTilemaps? RoomSkyTilemapArt { get; }
 
     /// <summary>Timed projectile frame sprite choices.</summary>
     InstalledProjectileFrameBindings? ProjectileFrameBindings { get; }

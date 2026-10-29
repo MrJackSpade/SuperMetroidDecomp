@@ -33,7 +33,8 @@ internal static class OceanSkyVerification
         ScrollingSkyState sky = runtime.Room.ScrollingSky ?? throw new InvalidOperationException("Ocean main installs the scrolling sky.");
         AssertEqual(ScrollingSkyChunkTable.Ocean, sky.Variant, "the ocean main reads the ocean chunk table, not the land table");
         AssertTrue(runtime.PublishDisplayFrame().FrameEnd.ScrollingSky is not null, "The ocean frame publishes its sky layer.");
-        SkyTilemap shown = (runtime.Artwork.RoomSkyTilemapArt ?? throw new InvalidOperationException("The ocean room has no installed sky rows."))
+        // The installed sky pages the import pictured; the runtime holds only their picture (#1466).
+        SkyTilemap shown = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.LoadRoomSkyTilemaps()
             .Tilemap(sky.Variant);
         AssertTrue(ordinary.Rooms.Sky is { } drawn && drawn.RowsShown.SequenceEqual(Enumerable.Range(0, SkyTilemap.Rows).Select(shown.RowShown)),
             "the ocean's BG2 shows the published sky rows");

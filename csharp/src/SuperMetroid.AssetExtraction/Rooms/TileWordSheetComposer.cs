@@ -95,7 +95,7 @@ internal static class TileWordSheetComposer
         IReadOnlyList<BgCharacterUpload> load = RoomBlockUploads.LoadUploads(inputs, tileset);
         Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = load.Append(RoomBlockUploads.HudCharacters(inputs)).Concat(bindings.Options).Concat(bindings.Bound)
             .GroupBy(upload => upload.Identity).ToDictionary(group => group.Key, group => group.First().Bytes);
-        RgbColor[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).PackedColours.Span);
+        RgbColor[] colours = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
 
         var tiles = new List<TileWordSheetTile>();
         var pictured = new HashSet<ShownWord>();

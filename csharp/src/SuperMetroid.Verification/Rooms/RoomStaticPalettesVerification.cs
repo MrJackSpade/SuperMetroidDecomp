@@ -42,7 +42,7 @@ internal static class RoomStaticPalettesVerification
             var expected = new SnesCgram();
             var actual = new SnesCgram();
             expected.LoadBytes(native.AsSpan(0, RoomStaticPaletteFormat.ByteCount));
-            new CgramPalettes(actual).Background.LoadPortBytes(palette.PackedColours.Span);
+            new CgramPalettes(actual).Background.LoadPortBytes(RoomStaticPaletteImage.PackedColours(palette));
             AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)),
                 $"graphics-set palette ${source:X6} keeps all 128 native CGRAM colors");
             compiled.Add(source, palette);
@@ -75,8 +75,8 @@ internal static class RoomStaticPalettesVerification
             new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(edited)));
         var stockCgram = new SnesCgram();
         var editedCgram = new SnesCgram();
-        new CgramPalettes(stockCgram).Background.LoadPortBytes(catalog.GetAt(selectedSource).PackedColours.Span);
-        new CgramPalettes(editedCgram).Background.LoadPortBytes(replacement.PackedColours.Span);
+        new CgramPalettes(stockCgram).Background.LoadPortBytes(RoomStaticPaletteImage.PackedColours(catalog.GetAt(selectedSource)));
+        new CgramPalettes(editedCgram).Background.LoadPortBytes(RoomStaticPaletteImage.PackedColours(replacement));
         AssertTrue(stockCgram.Colors[0] != editedCgram.Colors[0] &&
             stockCgram.Colors[1..RoomStaticPaletteFormat.ColorCount]
                 .SequenceEqual(editedCgram.Colors[1..RoomStaticPaletteFormat.ColorCount]),

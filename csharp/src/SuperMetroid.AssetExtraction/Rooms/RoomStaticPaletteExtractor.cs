@@ -58,7 +58,7 @@ public static class RoomStaticPaletteExtractor
             var compiledCgram = new SnesCgram();
             new CgramPalettes(nativeCgram).All.LoadPortBytes(decompressed.AsSpan(
                 0, RoomStaticPaletteFormat.ByteCount));
-            new CgramPalettes(compiledCgram).Background.LoadPortBytes(compiled.PackedColours.Span);
+            new CgramPalettes(compiledCgram).Background.LoadPortBytes(RoomStaticPaletteImage.PackedColours(compiled));
             if (!new CgramPalettes(nativeCgram).Image.SequenceEqual(new CgramPalettes(compiledCgram).Image))
                 throw new InvalidDataException(
                     $"Room palette JSON {name} changed base CGRAM colors at extraction.");

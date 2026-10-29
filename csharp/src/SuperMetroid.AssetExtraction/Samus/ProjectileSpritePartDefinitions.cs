@@ -33,7 +33,7 @@ public static class ProjectileSpritePartDefinitions
     internal const int PowerPriority = 2;
 
     /// <summary>$90:ACDE-ACE8 loads the active beam colors into Samus's beam ink row, which the Power-beam poses select.</summary>
-    internal const int PowerPalette = SamusColourDefinitions.BeamInkRow;
+    internal static readonly int PowerPalette = SamusColourDefinitions.BeamColourGroup.Number;
 
     /// <summary>$82:E13E-E148 restores9A:81A0 at SpriteP5/CGRAM208. Fixed projectile artwork selects that installed sixteen-color row; its color payload remains required.</summary>
     internal const int FixedProjectilePalette = (GameplayColourPositionDefinitions.EnemyProjectilesFirst - GameplayColourPositionDefinitions.SpriteSetsFirst) /
@@ -94,7 +94,7 @@ public static class ProjectileSpritePartDefinitions
     internal const int BeamExplosionQuadGlyphStart = 0x60;
 
     /// <summary>$93:ABC1-AC18: four mirrored quadrant beam-explosion stages use consecutive glyphs60-63 and the installed beam-color row. Glyph selection/priority/pixels remain REQUIRED.</summary>
-    internal const int BeamExplosionPalette = PowerPalette;
+    internal static readonly int BeamExplosionPalette = PowerPalette;
 
     /// <summary>Where each Spazer orientation's seed composition sits; the third diagonal orientation lacks its last spread.</summary>
     internal static readonly int[] SpazerSeeds = [0, 6, 12, 17, 23, 29, 35, 41];

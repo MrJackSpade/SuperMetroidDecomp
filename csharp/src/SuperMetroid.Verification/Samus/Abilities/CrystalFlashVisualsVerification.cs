@@ -86,7 +86,7 @@ internal static class CrystalFlashVisualsVerification
         public void Overlay(ImageColourGroup group, Span<RgbColor> colours)
         {
             samus.Overlay(group, colours);
-            if (group.Number == SamusColourDefinitions.BeamInkRow)
+            if (group == SamusColourDefinitions.BeamColourGroup)
                 colours.Clear();
         }
     }

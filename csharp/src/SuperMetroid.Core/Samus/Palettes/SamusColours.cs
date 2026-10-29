@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Samus.Palettes;
 /// </summary>
 /// <remarks>
 /// Effects address her colours by what they are for: the suit's, the visor, the beams', the Crystal Flash's body and
-/// bubble, the Hyper Beam's cycle, her suitless body's and the grapple flare. Which of her sheets' ink rows show them,
-/// and so which sprite sets show her colours over their own, is this owner's alone (#1464).
+/// bubble, the Hyper Beam's cycle, her suitless body's and the grapple flare. Which of her sheets' image colour groups
+/// show them, and so which sprite sets show her colours over their own, is this owner's alone (#1464).
 /// </remarks>
 public sealed class SamusColours : IGameplayColourOwner
 {
@@ -22,21 +22,23 @@ public sealed class SamusColours : IGameplayColourOwner
     /// <summary>The beams' colours.</summary>
     private readonly RgbColor[] beam = new RgbColor[SamusColourDefinitions.RowColours];
 
-    /// <summary>For each ink row of Samus's sheets, the colours she holds in it, or null where she holds none.</summary>
-    private readonly ColourRun?[] heldByInkRow;
+    /// <summary>For each image colour group of Samus's sheets she holds colours in, the colours she holds in it.</summary>
+    private readonly ImmutableDictionary<ImageColourGroup, ColourRun> heldByGroup;
 
-    /// <summary>Lays out which colours each of her sheets' ink rows shows: hers, and the sprite colours she shares.</summary>
+    /// <summary>Lays out which colours each of her sheets' colour groups shows: hers, and the sprite colours she shares.</summary>
     /// <param name="spriteSets">Gameplay's sprite colour sets, which hold her suitless body's colours and her grapple flare's.</param>
     public SamusColours(SpriteColourSets spriteSets)
     {
         Ensure.NotNull(spriteSets);
         GrappleFlare = SamusColourDefinitions.FlareStore.In(spriteSets).Slice(SamusColourDefinitions.FlareColour, 1);
         Suitless = SamusColourDefinitions.SuitlessStore.In(spriteSets);
-        heldByInkRow = new ColourRun?[SamusColourDefinitions.InkRows];
-        heldByInkRow[SamusColourDefinitions.SuitInkRow] = Suit;
-        heldByInkRow[SamusColourDefinitions.BeamInkRow] = Beam;
-        heldByInkRow[SamusColourDefinitions.SuitlessInkRow] = Suitless;
-        heldByInkRow[SamusColourDefinitions.FlareInkRow] = GrappleFlare;
+        heldByGroup = ImmutableDictionary.CreateRange<ImageColourGroup, ColourRun>(
+        [
+            KeyValuePair.Create(SamusColourDefinitions.SuitColourGroup, Suit),
+            KeyValuePair.Create(SamusColourDefinitions.BeamColourGroup, Beam),
+            KeyValuePair.Create(SamusColourDefinitions.SuitlessColourGroup, Suitless),
+            KeyValuePair.Create(SamusColourDefinitions.FlareColourGroup, GrappleFlare),
+        ]);
     }
 
     /// <summary>The suit's colours.</summary>
@@ -95,7 +97,7 @@ public sealed class SamusColours : IGameplayColourOwner
     {
         // A held run fills its group from the group's start, or, for the flare's one colour, ends at the group's end; her
         // draws show their images' own colours everywhere else.
-        if (heldByInkRow[group.Number] is not { } held)
+        if (!heldByGroup.TryGetValue(group, out ColourRun held))
             return;
         int first = held.Count == colours.Length ? 0 : colours.Length - held.Count;
         held.Colors.CopyTo(colours[first..]);

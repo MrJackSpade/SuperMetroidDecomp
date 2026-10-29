@@ -37,7 +37,7 @@ internal static class ProjectileSheetComposer
             basePage = IntroObjectPage.Of(intro);
             beams = SamusBeamCombination.Power;
             // `$8B:A3AC` loads the beam palette, then the intro's whole palette over it.
-            SamusProjectileSystem.LoadBeamPalette(cgram.SpriteSets.Set(SamusColourDefinitions.BeamInkRow), beams, projectiles.BeamTiles.Palettes);
+            SamusProjectileSystem.LoadBeamPalette(SamusColourDefinitions.BeamColourGroup.Store.In(cgram.SpriteSets), beams, projectiles.BeamTiles.Palettes);
             intro.Palette.LoadTo(cgram);
         }
         else
@@ -45,7 +45,7 @@ internal static class ProjectileSheetComposer
             cgram = inputs.RoomLoadColours();
             basePage = inputs.StandardObjects;
             beams = Combination(sheet);
-            SamusProjectileSystem.LoadBeamPalette(cgram.SpriteSets.Set(SamusColourDefinitions.BeamInkRow), beams, projectiles.BeamTiles.Palettes);
+            SamusProjectileSystem.LoadBeamPalette(SamusColourDefinitions.BeamColourGroup.Store.In(cgram.SpriteSets), beams, projectiles.BeamTiles.Palettes);
         }
         SpriteArtwork page = new ProjectileObjectPages(basePage, projectiles.BeamTiles, projectiles.TrailTiles).For(beams);
 

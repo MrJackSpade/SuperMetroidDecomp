@@ -13152,6 +13152,45 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundCommand",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/LibraryBackgroundCommand.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundDestination",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/LibraryBackgroundDestination.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundInstruction",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/LibraryBackgroundInstruction.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundOperands",
       "kind": "static class",
       "scope": "product",
@@ -13160,6 +13199,126 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Rooms/LibraryBackgroundOperands.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgram",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/LibraryBackgroundProgram.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgramDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/LibraryBackgroundProgramDefinitions.Generated.cs",
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/LibraryBackgroundProgramDefinitions.cs"
+      ],
+      "partial": "generated-boundary",
+      "disposition": "generated-boundary"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgramDefinitionsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Rooms/LibraryBackgroundProgramDefinitionsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgramDefinitionsAccess.extension(SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgram)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Rooms/LibraryBackgroundProgramDefinitionsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgramDefinitionsAccess.extension(SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgramDefinitions)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Rooms/LibraryBackgroundProgramDefinitionsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgramDefinitionsAccess.extension(SuperMetroid.Core.World.RoomStates.RoomStateSettings)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Rooms/LibraryBackgroundProgramDefinitionsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgramDefinitionsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Rooms/LibraryBackgroundProgramDefinitionsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundPrograms",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/LibraryBackgroundPrograms.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -13189,6 +13348,110 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundSource",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/LibraryBackgroundSource.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundSource.CompressedTilemap",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/LibraryBackgroundSource.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundSource.HudCharacterSet",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/LibraryBackgroundSource.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundSource.NothingRead",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/LibraryBackgroundSource.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundSource.SkyPage",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/LibraryBackgroundSource.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundSource.StagedEnemyTilemap",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/LibraryBackgroundSource.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundSource.StagedTilemap",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/LibraryBackgroundSource.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundSource.StatueGhostCharacters",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/LibraryBackgroundSource.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundSourceDefinitions",
@@ -14995,6 +15258,19 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.TileWordWriter",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/TileWordWriter.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Rooms.XrayRoomOverlaySourceDefinitions",
@@ -90327,38 +90603,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Gameplay.GameplayLayer3CharacterWords",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Gameplay/GameplayLayer3CharacterWords.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Gameplay.GameplayLayer3CharacterWords.extension(SuperMetroid.Core.Gameplay.GameplayDisplayState)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Gameplay/GameplayLayer3CharacterWords.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Gameplay.GameplayOptions",
       "kind": "class",
       "scope": "product",
@@ -96324,19 +96568,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.Artwork.TileWordWriter",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Artwork/TileWordWriter.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Rooms.Backgrounds.AffineFloor",
       "kind": "class",
       "scope": "product",
@@ -96518,267 +96749,31 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundCommand",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackgroundCommand.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDestination",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackgroundDestination.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundExecutionResult",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackgroundExecutionResult.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundInstruction",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackgroundInstruction.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundProgram",
+      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackground",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackgroundProgram.cs"
+        "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackground.cs"
       ],
       "partial": "none",
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundProgramDefinitions",
+      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackgroundProgramDefinitions.Generated.cs",
-        "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackgroundProgramDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackgroundDefinitions.Generated.cs",
+        "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackgroundDefinitions.cs"
       ],
       "partial": "generated-boundary",
       "disposition": "generated-boundary"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundProgramDefinitionsAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Rooms/Backgrounds/LibraryBackgroundProgramDefinitionsAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundProgramDefinitionsAccess.extension(SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundProgram)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Rooms/Backgrounds/LibraryBackgroundProgramDefinitionsAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundProgramDefinitionsAccess.extension(SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundProgramDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Rooms/Backgrounds/LibraryBackgroundProgramDefinitionsAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundProgramDefinitionsAccess.extension(SuperMetroid.Core.World.RoomStates.RoomStateSettings)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Rooms/Backgrounds/LibraryBackgroundProgramDefinitionsAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundProgramDefinitionsConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Rooms/Backgrounds/LibraryBackgroundProgramDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundSource",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackgroundSource.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundSource.CompressedTilemap",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackgroundSource.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundSource.HudCharacterSet",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackgroundSource.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundSource.NothingRead",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackgroundSource.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundSource.SkyPage",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackgroundSource.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundSource.StagedEnemyTilemap",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackgroundSource.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundSource.StagedTilemap",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackgroundSource.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundSource.StatueGhostCharacters",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackgroundSource.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Rooms.Backgrounds.RevealedBlock",
@@ -107073,6 +107068,38 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Scrolling.SkyTilemapAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rooms/Scrolling/SkyTilemapAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Scrolling.SkyTilemapAccess.extension(SuperMetroid.Core.Rooms.Scrolling.SkyTilemap)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rooms/Scrolling/SkyTilemapAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Rooms.SpriteObjects.RoomSpriteObjectAnimations",
@@ -120281,32 +120308,6 @@
       ],
       "partial": "none",
       "disposition": "contract"
-    },
-    {
-      "type": "SuperMetroid.Core.World.LibraryBackgroundCharacterArtwork",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/World/LibraryBackgroundCharacterArtwork.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.World.LibraryBackgroundLoader",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/World/LibraryBackgroundLoader.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.World.MessageBoxFlow",

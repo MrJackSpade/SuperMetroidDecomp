@@ -6,7 +6,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Artwork;

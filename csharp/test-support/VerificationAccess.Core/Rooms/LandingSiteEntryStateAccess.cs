@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Rooms;

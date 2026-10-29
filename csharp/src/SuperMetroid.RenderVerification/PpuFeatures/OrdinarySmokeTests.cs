@@ -8,7 +8,6 @@ using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.TestSupport.FrameRendering;
 
@@ -31,7 +30,7 @@ internal static class OrdinarySmokeTests
         var sky = rooms with
         {
             Bg2 = null,
-            Sky = new SkyPictures(RoomBackgroundsFixtures.SeededSky(random, colors), RoomSkyTilemapFixtures.Numbered().Tilemap(ScrollingSkyChunkTable.Ocean)),
+            Sky = new SkyPictures(RoomBackgroundsFixtures.SeededSky(random, colors), ScrollingSkyChunkTable.Ocean),
         };
         ushort[] x = Enumerable.Range(0, 192).Select(i => unchecked((ushort)(65535 - i * 17))).ToArray();
         ushort[] y = Enumerable.Range(0, 192).Select(i => unchecked((ushort)(511 + i * 3))).ToArray();

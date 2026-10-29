@@ -5,7 +5,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Xray;
 using SuperMetroid.Core.Rooms.LevelData;

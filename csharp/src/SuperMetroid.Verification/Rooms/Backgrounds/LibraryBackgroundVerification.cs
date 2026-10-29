@@ -209,7 +209,7 @@ private static void VerifyLibraryBackgroundBankEndWrap(byte[] rom)
     var wrappedBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
     wrappedBus.WriteByte(0x8f0000, 0);
     var wrapped = new LibraryBackgroundTypedReadGuard(wrappedBus);
-    _ = SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(
+    SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(
         wrapped, new SnesVram(), 0xffff, activeDoorPointer: 0);
     AssertEqual(1, SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.Read(wrappedBus, 0xffff).Instructions.Count + 1,
         "bank-end native library-background terminator executes once");

@@ -17,13 +17,10 @@ public sealed class SkyTilemap
     public const int Rows = 256;
 
     /// <summary>Rows in one chunk: the 32 rows of one tilemap page.</summary>
-    private const int RowsPerChunk = 32;
+    internal const int RowsPerChunk = 32;
 
     /// <summary>The tiles of every row, row-major.</summary>
     private readonly BackgroundTile[] tiles = new BackgroundTile[Rows * Columns];
-
-    /// <summary>Whether each row selects a sky page; the ocean table's last chunks select none.</summary>
-    private readonly bool[] shown = new bool[Rows];
 
     /// <summary>Reads each row from the page its chunk selects in <paramref name="variant"/>'s table.</summary>
     /// <param name="pages">The installed sky pages.</param>
@@ -36,16 +33,12 @@ public sealed class SkyTilemap
             if (!ScrollingSkyChunks.TryGetPage(variant, row / RowsPerChunk, out int page))
                 continue;
             RoomSkyTilemaps.Row(pages, page, row % RowsPerChunk).CopyTo(tiles.AsSpan(row * Columns, Columns));
-            shown[row] = true;
         }
     }
 
     /// <summary>The land or ocean chunk table the rows follow.</summary>
     public ScrollingSkyChunkTable Variant { get; }
 
-    /// <summary>The tiles of every row, row-major; a row <see cref="RowShown"/> rejects holds blank tiles.</summary>
+    /// <summary>The tiles of every row, row-major; a row whose chunk selects no page (the ocean table's last chunks) holds blank tiles.</summary>
     public ReadOnlySpan<BackgroundTile> Tiles => tiles;
-
-    /// <summary>Whether <paramref name="row"/> selects a sky page.</summary>
-    public bool RowShown(int row) => shown[row];
 }

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Escape.Artwork;
+namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
 /// <summary>Native timer glyph grouping and calculated outline/shape relationships. The exact residual font contours, four edge decisions and chosen typography have a narrow approved nonsense disposition: digit values do not determine this bitmap typeface. RGB colors, timing and other artwork are excluded.</summary>
 internal static class EscapeTimerGlyphDefinitions

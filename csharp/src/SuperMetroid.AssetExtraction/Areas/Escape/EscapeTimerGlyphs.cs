@@ -1,6 +1,7 @@
-using static SuperMetroid.Core.Escape.Artwork.EscapeTimerGlyphDefinitions;
+using SuperMetroid.Core.Escape.Artwork;
+using static SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerGlyphDefinitions;
 
-namespace SuperMetroid.Core.Escape.Artwork;
+namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
 /// <summary>
 /// Draws the escape timer's glyphs from their chosen metrics (<see cref="EscapeTimerGlyphDefinitions"/>): the calculated digit and

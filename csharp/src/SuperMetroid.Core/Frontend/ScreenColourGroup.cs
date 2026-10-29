@@ -168,6 +168,12 @@ public enum ScreenColourGroup
     /// </summary>
     IntroCrossFadeObjects,
 
+    /// <summary>
+    /// The opening narration's neutral ramp: after its transparent colour, a four-shade neutral cycle stepping down from
+    /// one foreground colour.
+    /// </summary>
+    IntroNarrationNeutralRamp,
+
     /// <summary>The colours the opening's explosions draw in.</summary>
     IntroExplosions,
 

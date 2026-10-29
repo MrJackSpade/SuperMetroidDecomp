@@ -61,6 +61,7 @@ internal static class ScreenColourGroupDefinitions
             [ScreenColourGroup.EndingShot] = ScreenSpriteSetPlacement.WholeSet(4),
             [ScreenColourGroup.IntroDiscoveryActors] = ScreenSpriteSetPlacement.WholeSet(7),
             [ScreenColourGroup.IntroCrossFadeObjects] = ScreenSpriteSetPlacement.WholeSet(6),
+            [ScreenColourGroup.IntroNarrationNeutralRamp] = ScreenSpriteSetPlacement.WholeSet(0),
             [ScreenColourGroup.IntroExplosions] = ScreenSpriteSetPlacement.WholeSet(5),
             [ScreenColourGroup.CeresFlightSpaceObjects] = ScreenSpriteSetPlacement.WholeSet(4),
             [ScreenColourGroup.CeresFlightStation] = ScreenSpriteSetPlacement.WholeSet(6),

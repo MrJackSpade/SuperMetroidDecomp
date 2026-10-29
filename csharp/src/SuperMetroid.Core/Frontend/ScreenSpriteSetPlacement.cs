@@ -22,6 +22,9 @@ internal sealed record ScreenSpriteSetPlacement(int Set, int Colour, int ColourC
         Ensure.NotNull(values).SpriteColours(Set, Colour, ColourCount);
 
     /// <inheritdoc />
+    internal override ScreenColourOwner Owner => ScreenColourOwner.Sprites;
+
+    /// <inheritdoc />
     internal override int DrawnSpriteSet() => this == WholeSet(Set)
         ? Set
         : throw new InvalidOperationException("A sprite draws in one whole sprite set's colours.");

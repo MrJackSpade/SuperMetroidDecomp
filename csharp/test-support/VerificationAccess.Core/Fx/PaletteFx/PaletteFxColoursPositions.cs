@@ -1,22 +1,25 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
 /// Verification access: the cartridge colour a palette-FX colour group starts at (#1464), for checks that compare
-/// programs and definitions with their bank-$8D data and for native snapshot import. The background sets are the
-/// colour memory's first half and the sprite sets its second, except where Samus's suit and beams are.
+/// programs and definitions with their bank-$8D data and for native snapshot import. Where each owner lies in the
+/// native image is the import pipeline's <see cref="GameplayColourPositionDefinitions"/>.
 /// </summary>
 internal static class PaletteFxColoursPositions
 {
-    /// <summary>The cartridge colour each owner's first colour is.</summary>
-    private static int FirstCartridgeColour(PaletteFxColourOwner owner) => owner switch
+    /// <summary>The cartridge colour a placement's first written colour is: where its owner's colour lies in the native image.</summary>
+    private static int CartridgeColour(PaletteFxColourPlacement placement) => placement switch
     {
-        PaletteFxColourOwner.Background => 0,
-        PaletteFxColourOwner.Sprite => 128,
-        PaletteFxColourOwner.SamusSuit => 192,
-        PaletteFxColourOwner.SamusBeams => 224,
-        _ => throw new ArgumentOutOfRangeException(nameof(owner), owner, "Unknown palette-FX colour owner."),
+        BackgroundSetPlacement background => GameplayColourPositionDefinitions.BackgroundSetsFirst
+            + background.Set * GameplayColourPositionDefinitions.SetColours + background.Colour,
+        SpriteSetPlacement sprite => GameplayColourPositionDefinitions.SpriteSetsFirst
+            + sprite.Set * GameplayColourPositionDefinitions.SetColours + sprite.Colour,
+        SamusSuitPlacement suit => GameplayColourPositionDefinitions.SamusSuitFirst + suit.Colour,
+        SamusBeamsPlacement beams => GameplayColourPositionDefinitions.SamusBeamsFirst + beams.Colour,
+        _ => throw new ArgumentOutOfRangeException(nameof(placement), placement, "Unknown palette-FX colour placement."),
     };
 
     /// <summary>Native view of a palette-FX colour group.</summary>
@@ -25,11 +28,7 @@ internal static class PaletteFxColoursPositions
         /// <summary>The cartridge colour the group's first written colour is.</summary>
         internal int CartridgeColour
         {
-            get
-            {
-                PaletteFxColourPlacement placement = PaletteFxColourPlacementDefinitions.Placements[self];
-                return FirstCartridgeColour(placement.Owner) + placement.Colour;
-            }
+            get => CartridgeColour(PaletteFxColourPlacementDefinitions.Placements[self]);
         }
 
         /// <summary>The CGRAM byte index the native SetColorIndex command stores for the group.</summary>

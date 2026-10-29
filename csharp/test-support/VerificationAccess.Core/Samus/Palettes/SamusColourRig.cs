@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -35,7 +34,16 @@ internal sealed class SamusColourRig : IPaletteColors, IPaletteFxColourOwners
     public SamusColours Samus { get; }
 
     /// <inheritdoc />
-    public ColourRun Colours(PaletteFxColourOwner owner) => new GameplayPaletteFxColours(Gameplay, Samus).Colours(owner);
+    public ColourRun BackgroundSets => Gameplay.BackgroundSets.All;
+
+    /// <inheritdoc />
+    public ColourRun SpriteSets => Gameplay.SpriteSets.All;
+
+    /// <inheritdoc />
+    public ColourRun SamusSuit => Samus.Suit;
+
+    /// <inheritdoc />
+    public ColourRun SamusBeams => Samus.Beam;
 
     /// <summary>Gameplay's colours, which hold Samus's as one of their owners.</summary>
     public GameplayColours Gameplay { get; }

@@ -6,10 +6,10 @@ internal static class ImageSpriteDrawAccess
     /// <summary>Exposes <see cref="ImageSpriteDraw"/> state that only verification reads.</summary>
     extension(ImageSpriteDraw self)
     {
-        /// <summary>The palette row times sixteen plus colour of the image pixel shown at <paramref name="cell"/>.</summary>
+        /// <summary>The colour group's place times sixteen plus colour of the image pixel shown at <paramref name="cell"/>.</summary>
         public int PaletteIndexAt(Position16<ScreenPixels> cell) => self.Image.Sheet.Inks[self.SheetIndex(cell)].PaletteIndex;
-        /// <summary>The part palette row of the image pixel shown at <paramref name="cell"/>, with its fixed-row flag.</summary>
-        public int PartRowAt(Position16<ScreenPixels> cell) => self.Image.Sheet.Inks[self.SheetIndex(cell)].PartRow;
+        /// <summary>The part colour group of the image pixel shown at <paramref name="cell"/>.</summary>
+        public PartColourGroup PartGroupAt(Position16<ScreenPixels> cell) => self.Image.Sheet.Inks[self.SheetIndex(cell)].PartGroup;
         /// <summary>The priority against the backgrounds 0..3 of the image pixel shown at <paramref name="cell"/>.</summary>
         public int PriorityAt(Position16<ScreenPixels> cell) => self.Image.Sheet.Inks[self.SheetIndex(cell)].Priority;
         /// <summary>Where on the sheet the pixel shown at <paramref name="cell"/> lies.</summary>

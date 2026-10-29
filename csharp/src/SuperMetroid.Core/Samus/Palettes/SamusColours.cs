@@ -91,11 +91,11 @@ public sealed class SamusColours : IGameplayColourOwner
     }
 
     /// <inheritdoc />
-    public void Overlay(int inkRow, Span<RgbColor> colours)
+    public void Overlay(ImageColourGroup group, Span<RgbColor> colours)
     {
-        // A held run fills its row from the row's start, or, for the flare's one colour, ends at the row's end; her draws
-        // show their images' own colours everywhere else.
-        if (heldByInkRow[Ensure.BetweenInclusive(0, SamusColourDefinitions.InkRows - 1, inkRow)] is not { } held)
+        // A held run fills its group from the group's start, or, for the flare's one colour, ends at the group's end; her
+        // draws show their images' own colours everywhere else.
+        if (heldByInkRow[group.Number] is not { } held)
             return;
         int first = held.Count == colours.Length ? 0 : colours.Length - held.Count;
         held.Colors.CopyTo(colours[first..]);

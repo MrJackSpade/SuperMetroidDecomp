@@ -23,11 +23,11 @@ internal static class DrawnColouringAccess
         internal int HoldingRow => self.Placement.StoreOf(self.Shows).Set;
 
         /// <summary>
-        /// The sprite palette row a pixel of part row <paramref name="partRow"/> shows under the draw, as the cartridge
+        /// The sprite palette row a pixel of part group <paramref name="part"/> shows under the draw, as the cartridge
         /// forms it: the part's own row when the part keeps it, otherwise the part's row with the draw's palette bits ORed in.
         /// </summary>
-        internal int RowOverPart(int partRow) => (partRow & SpriteImage.FixedPartRow) != 0
-            ? partRow & SpriteImage.MaximumPaletteRow
-            : partRow | self.HoldingRow;
+        internal int RowOverPart(PartColourGroup part) => part.KeepsOwnColours
+            ? part.Group.Number
+            : part.Group.Number | self.HoldingRow;
     }
 }

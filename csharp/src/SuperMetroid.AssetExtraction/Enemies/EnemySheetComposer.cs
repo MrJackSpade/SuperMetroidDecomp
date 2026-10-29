@@ -256,7 +256,7 @@ internal static class EnemySheetComposer
         hash.AppendData(MemoryMarshal.AsBytes(sheet.Pixels.AsSpan()));
         hash.AppendData(sheet.PaletteIndices);
         hash.AppendData(sheet.Priorities);
-        hash.AppendData(sheet.PartRows);
+        hash.AppendData(sheet.PartGroups);
         hash.AppendData(SpriteSheet.Write(sheet.Manifest));
         return Convert.ToHexString(hash.GetHashAndReset());
     }

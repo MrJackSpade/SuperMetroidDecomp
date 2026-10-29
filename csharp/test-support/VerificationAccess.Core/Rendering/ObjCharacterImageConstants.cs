@@ -52,7 +52,7 @@ internal static class ObjCharacterImageConstants
             var pixels = new RgbaPixel[size.X * size.Y];
             var indices = new byte[pixels.Length];
             var priorities = new byte[pixels.Length];
-            var partRows = new byte[pixels.Length];
+            var partGroups = new byte[pixels.Length];
             for (int cell = 0; cell < cells; cell++)
             {
                 SpriteScreenPart placed = composition.Place(part + cell);
@@ -68,14 +68,14 @@ internal static class ObjCharacterImageConstants
                     int pixel = (placed.Position.Y - top + row) * size.X + placed.Position.X - left + column;
                     indices[pixel] = (byte)(placed.Palette * 16 + colour);
                     priorities[pixel] = (byte)placed.Priority;
-                    partRows[pixel] = (byte)(placed.Palette | SpriteImage.FixedPartRow);
+                    partGroups[pixel] = (byte)PartColourGroup.Keeping(ImageColourGroup.Numbered(placed.Palette)).Code;
                     pixels[pixel] = black;
                 }
             }
             var image = new SpriteImage($"frontend OAM record {index} ({Interlocked.Increment(ref pictured)})", new(size.X, size.Y),
-                pixels, indices, standard, priorities, partRows);
+                pixels, indices, standard, priorities, partGroups);
             var frame = new SpriteSheetFrame(image, default, new(size.X, size.Y), default,
-                SpritePaletteRowSet.Rows[corner.Palette], []);
+                ImageColourGroups.Of(ImageColourGroup.Numbered(corner.Palette)), []);
             // The picture stands for the record's cells, as a composed sheet frame stands for its composition.
             SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.Register(frame,
                 new SpriteFrame(image.Name, cellParts.MoveToImmutable()), composition.Artwork, sizes);

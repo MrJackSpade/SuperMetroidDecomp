@@ -220,7 +220,7 @@ internal static class ScreenTileSheetComposer
         int tiles = pixels.Length / FloorCharacterSheet.TileBytes;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(FloorCharacterSheet.TilesPerRow * FloorCharacterSheet.TilePixels, checked((ushort)(FloorCharacterSheet.RowsOf(tiles) * FloorCharacterSheet.TilePixels))));
         RgbColor[] colours = palette[..SpriteImage.ColourCountOf(SpriteImageColours.FullPalette)].ToArray();
-        SpritePaletteRows coloured = SpritePaletteRows.None;
+        ImageColourGroups coloured = ImageColourGroups.None;
         for (int tile = 0; tile < tiles; tile++)
         {
             Position16<ImagePixels> corner = FloorCharacterSheet.Corner(tile);
@@ -228,7 +228,7 @@ internal static class ScreenTileSheetComposer
             {
                 int index = pixels[tile * FloorCharacterSheet.TileBytes + pixel];
                 if (index % 16 != 0 && index < SpriteImage.SpriteColourCount)
-                    coloured |= SpritePaletteRowSet.Rows[index / 16];
+                    coloured = coloured.With(ImageColourGroup.OfInk(index));
                 canvas.PaintIndex(new(checked((ushort)(corner.X + pixel % FloorCharacterSheet.TilePixels)), checked((ushort)(corner.Y + pixel / FloorCharacterSheet.TilePixels))), index, colours);
             }
         }
@@ -239,7 +239,7 @@ internal static class ScreenTileSheetComposer
                 Corner = default,
                 Size = canvas.Size,
                 Origin = default,
-                Rows = coloured,
+                ColourGroups = coloured,
                 Parts = [],
             },
         };

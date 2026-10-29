@@ -44,6 +44,9 @@ public readonly record struct SpriteColourStore
     /// </summary>
     public static readonly SpriteColourStore EnemiesFourth = new(7);
 
+    /// <summary>The lowest store number whose shown pixels blend with what lies behind them.</summary>
+    private const int FirstBlendingSet = 4;
+
     /// <summary>Every store, in the order the sprite colour sets hold them.</summary>
     public static ImmutableArray<SpriteColourStore> Every { get; } =
         [Common, EnemiesFirst, EnemiesSecond, EnemiesThird, SamusSuit, EnemyProjectiles, SamusBeams, EnemiesFourth];
@@ -54,6 +57,9 @@ public readonly record struct SpriteColourStore
 
     /// <summary>The number the sprite colour sets give this store, which their colours are read and written by.</summary>
     internal int Set { get; }
+
+    /// <summary>Whether pixels shown in this store's colours blend with what lies behind them.</summary>
+    internal bool Blends => Set >= FirstBlendingSet;
 
     /// <summary>This store's colours among <paramref name="sets"/>, read and written in place.</summary>
     internal ColourRun In(IColourSets sets) => Ensure.NotNull(sets).Set(Set);

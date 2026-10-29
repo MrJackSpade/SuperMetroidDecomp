@@ -6,9 +6,10 @@ internal static class DrawColoursAccess
     /// <summary>Exposes <see cref="DrawColours"/> state that only verification reads.</summary>
     extension(DrawColours self)
     {
-        /// <summary>The key a pixel of ink row <paramref name="inkRow"/> and part row <paramref name="partRow"/> takes.</summary>
-        public int Key(int inkRow, int partRow) => self.FollowsPartRows
-            ? Ensure.BetweenInclusive(0, DrawColours.Keys - 1, partRow)
-            : Ensure.BetweenInclusive(0, DrawColours.InkRows - 1, inkRow);
+        /// <summary>
+        /// The key a pixel inked in colour group <paramref name="inkGroup"/> of part group <paramref name="partGroup"/> takes.
+        /// </summary>
+        public int Key(ImageColourGroup inkGroup, PartColourGroup partGroup) =>
+            self.FollowsPartGroups ? partGroup.Code : inkGroup.Number;
     }
 }

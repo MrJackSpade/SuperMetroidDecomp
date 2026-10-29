@@ -53,7 +53,7 @@ internal static class SpriteColouringAccess
         /// <exception cref="ArgumentOutOfRangeException">The row is not a sprite palette row.</exception>
         internal SpriteColouring ColouringInRow(int row)
         {
-            Ensure.BetweenInclusive(0, SpriteImage.MaximumPaletteRow, row);
+            Ensure.BetweenInclusive(0, ColourSets.SetCount - 1, row);
             if (RoleRows.TryGetValue(row, out SharedSpriteColouring? role))
                 return role;
             for (int index = self.Entries.Count - 1; index >= 0; index--)

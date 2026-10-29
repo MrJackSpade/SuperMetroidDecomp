@@ -74,7 +74,7 @@ internal static class Layer3CellsFixtures
         };
         ComposedSpriteSheet composed = canvas.ToRoomSheet(colours, frames, SpriteImageColours.TwoBppBackground);
         SpriteSheet sheet = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(composed.Manifest), writable: false), "bg3-fixture",
-            composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities, composed.PartRows);
+            composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities, composed.PartGroups);
         SpriteSheetFrame picture = sheet.Frame("tiles");
         var pictures = new BgTilePicture?[words.Length];
         for (int cell = 0; cell < words.Length; cell++)

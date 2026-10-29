@@ -82,16 +82,16 @@ internal static class RoomBlockSheetComposer
             .ToDictionary(group => group.Key, group => group.First().Bytes);
         RgbColor[] colours = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(RoomBackgroundImage.PagePixels, checked((ushort)(background.Words.Length / RoomBackgroundImage.PageTiles * RoomTileCanvas.CharacterPixels))));
-        SpritePaletteRows rows = SpritePaletteRows.None;
+        ImageColourGroups groups = ImageColourGroups.None;
         for (int index = 0; index < background.Words.Length; index++)
         {
             var word = new SnesBgTilemapWord(background.Words[index]);
             int character = word.CharacterIndex;
             if (!background.Content.TryShowing(BgCharacterSet.Tiles, character, 1, out BgArtworkShown shown))
                 throw new InvalidDataException($"Room background {background.Name} reads tile character {character}, which its room loads nothing over.");
-            rows |= canvas.PaintTile(index % RoomBackgroundImage.PageTiles * RoomTileCanvas.CharacterPixels,
+            groups = groups.Union(canvas.PaintTile(index % RoomBackgroundImage.PageTiles * RoomTileCanvas.CharacterPixels,
                 index / RoomBackgroundImage.PageTiles * RoomTileCanvas.CharacterPixels, word,
-                bytes[shown.Artwork].Span.Slice(shown.WordOffset * sizeof(ushort), RoomTileCanvas.CharacterBytes), colours);
+                bytes[shown.Artwork].Span.Slice(shown.WordOffset * sizeof(ushort), RoomTileCanvas.CharacterBytes), colours));
         }
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
         {
@@ -100,7 +100,7 @@ internal static class RoomBlockSheetComposer
                 Corner = default,
                 Size = canvas.Size,
                 Origin = default,
-                Rows = rows,
+                ColourGroups = groups,
                 Parts = [],
             },
         };
@@ -172,19 +172,19 @@ internal static class RoomBlockSheetComposer
         {
             var corner = new Position16<ImagePixels>((ushort)(index % SheetColumns * RoomBlockSheet.BlockPixels),
                 (ushort)(index / SheetColumns * RoomBlockSheet.BlockPixels));
-            SpritePaletteRows coloured = SpritePaletteRows.None;
+            ImageColourGroups coloured = ImageColourGroups.None;
             for (int tile = 0; tile < RoomMetatileFormat.TilesPerBlock; tile++)
             {
-                coloured |= canvas.PaintTile(corner.X + tile % 2 * RoomTileCanvas.CharacterPixels, corner.Y + tile / 2 * RoomTileCanvas.CharacterPixels,
+                coloured = coloured.Union(canvas.PaintTile(corner.X + tile % 2 * RoomTileCanvas.CharacterPixels, corner.Y + tile / 2 * RoomTileCanvas.CharacterPixels,
                     picture.Tiles[tile], bytes[picture.Shown[tile].Artwork].Span.Slice(
-                        picture.Shown[tile].WordOffset * sizeof(ushort), RoomTileCanvas.CharacterBytes), colours);
+                        picture.Shown[tile].WordOffset * sizeof(ushort), RoomTileCanvas.CharacterBytes), colours));
             }
             frames.Add(name, new SpriteSheetFrameDocument
             {
                 Corner = corner,
                 Size = new Extent16<ImagePixels>(RoomBlockSheet.BlockPixels, RoomBlockSheet.BlockPixels),
                 Origin = default,
-                Rows = coloured,
+                ColourGroups = coloured,
                 Parts = [],
             });
             index++;

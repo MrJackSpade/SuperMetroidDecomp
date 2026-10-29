@@ -16,7 +16,7 @@ public abstract class PauseReserveTankPresentation
     /// <param name="anchorOverrides">Per-coordinate deviations from the stock anchors.</param>
     /// <param name="palette">The palette row every reserve-strip part draws in.</param>
     internal PauseReserveTankPresentation(Dictionary<int, AnchorOverride> anchorOverrides, int palette)
-    { this.anchorOverrides = anchorOverrides; Palette = Ensure.BetweenInclusive(0, SpriteImage.MaximumPaletteRow, palette); }
+    { this.anchorOverrides = anchorOverrides; Palette = Ensure.BetweenInclusive(0, ImageColourGroup.Count - 1, palette); }
 
     /// <summary>Gets one reserve-strip screen anchor, falling back independently to each stock coordinate.</summary>
     /// <param name="index">Zero-based tank or trailing-cap position from 0 through 5.</param>

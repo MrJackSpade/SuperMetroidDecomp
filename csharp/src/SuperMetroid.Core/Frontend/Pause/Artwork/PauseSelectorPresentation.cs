@@ -26,7 +26,7 @@ public abstract class PauseSelectorPresentation
     /// <summary>Retains only authored anchor, frame, and timing differences.</summary>
     /// <param name="parts">The validated selector anchors, frame sequences and timing.</param>
     internal PauseSelectorPresentation(PauseSelectorParts parts)
-    { Ensure.NotNull(parts); this.anchorOverrides = parts.AnchorOverrides; this.reserve = parts.Reserve; this.beam = parts.Beam; this.equipment = parts.Equipment; PhaseCount = parts.PhaseCount; this.durationOverrides = parts.DurationOverrides; InitialDurationTicks = parts.InitialDuration; ObjectPalette = Ensure.BetweenInclusive(0, SpriteImage.MaximumPaletteRow, parts.Palette); }
+    { Ensure.NotNull(parts); this.anchorOverrides = parts.AnchorOverrides; this.reserve = parts.Reserve; this.beam = parts.Beam; this.equipment = parts.Equipment; PhaseCount = parts.PhaseCount; this.durationOverrides = parts.DurationOverrides; InitialDurationTicks = parts.InitialDuration; ObjectPalette = Ensure.BetweenInclusive(0, ImageColourGroup.Count - 1, parts.Palette); }
     /// <summary>Applies a named screen-pixel override to the category and item's compiled stock anchor.</summary>
     public Position16<SpritePixels> Anchor(PauseEquipmentCategory category, int item)
     {

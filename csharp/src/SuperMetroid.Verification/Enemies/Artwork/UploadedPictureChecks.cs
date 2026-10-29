@@ -61,9 +61,9 @@ internal static class UploadedPictureChecks
             {
                 var cell = new Position16<ScreenPixels>(x, y);
                 int entry = image.PaletteIndexAt(cell);
-                // A draw's colouring shows each part in its part row with the colouring's row ORed in, as the frame does.
+                // A draw's colouring shows each part in its part group's row with the colouring's row ORed in, as the frame does.
                 if (entry != 0 && image.Colouring is { } overriding)
-                    entry = overriding.RowOverPart(image.PartRowAt(cell)) * 16 + entry % 16;
+                    entry = overriding.RowOverPart(image.PartGroupAt(cell)) * 16 + entry % 16;
                 if (entry != 0)
                     Ink(actual, image.Corner.X + x, image.Corner.Y + y, entry, image.PriorityAt(cell));
             }

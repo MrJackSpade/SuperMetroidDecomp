@@ -20,7 +20,7 @@ internal static class FramePaintTestsVerification
             new SpriteImagePalette(SpriteImageColours.Sprite, [.. new RgbColor[SpriteImage.SpriteColourCount]]), new byte[64], new byte[64]);
         sprites.BeginFrame();
         sprites.Add(new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), new SpriteSheetFrame(image, default, new(8, 8), default,
-            SpritePaletteRows.None, []), new(10, 20), SpriteMirror.None));
+            ImageColourGroups.None, []), new(10, 20), SpriteMirror.None));
         sprites.FinalizeFrame();
         RgbColor[] expectedPalette = cgram.Colors.ToArray();
 

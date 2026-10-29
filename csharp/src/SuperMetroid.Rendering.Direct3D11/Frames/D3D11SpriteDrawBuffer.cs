@@ -18,12 +18,12 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     /// <summary>Words per packed record: position, extent, flags, the image's place, first colour word.</summary>
     private const int RecordWords = 5;
     /// <summary>
-    /// Words of a recoloured draw's colours: a word of one blending bit per key, with the part-row keying flag above
+    /// Words of a recoloured draw's colours: a word of one blending bit per key, with the part-group keying flag above
     /// them, then each key's sixteen colours.
     /// </summary>
-    private const int ColourWords = 1 + DrawColours.Keys * DrawColours.RowColours;
-    /// <summary>Colour header bit: the draw's pixels take their part row's colours rather than their ink row's.</summary>
-    private const uint FollowsPartRowsFlag = 1 << 16;
+    private const int ColourWords = 1 + DrawColours.Keys * DrawColours.KeyColours;
+    /// <summary>Colour header bit: the draw's pixels take their part colour group's colours rather than their ink's group's.</summary>
+    private const uint FollowsPartGroupsFlag = 1 << 16;
     /// <summary>Allocation for a frame with no or few draws; larger frames grow it.</summary>
     private const int InitialWords = 1024;
     /// <summary>Flags bit mirroring a record horizontally.</summary>
@@ -117,25 +117,24 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     }
 
     /// <summary>
-    /// Packs a recoloured draw's colours: one blending bit per key and the part-row keying flag, then each key's sixteen
+    /// Packs a recoloured draw's colours: one blending bit per key and the part-group keying flag, then each key's sixteen
     /// colours, its image's own where the key shows them.
     /// </summary>
     private static void PackColours(Span<uint> words, ImageSpriteDraw draw)
     {
         DrawColours colours = draw.Colours!;
         ReadOnlySpan<RgbColor> own = draw.Image.Sheet.StandardColours;
-        uint header = colours.FollowsPartRows ? FollowsPartRowsFlag : 0;
-        int keys = colours.FollowsPartRows ? DrawColours.Keys : SpriteImage.MaximumPaletteRow + 1;
-        for (int key = 0; key < keys; key++)
+        uint header = colours.FollowsPartGroups ? FollowsPartGroupsFlag : 0;
+        for (int key = 0; key < colours.KeyCount; key++)
         {
             if (colours.Blends(key))
                 header |= 1u << key;
-            for (int colour = 0; colour < DrawColours.RowColours; colour++)
+            for (int colour = 0; colour < DrawColours.KeyColours; colour++)
             {
                 RgbaPixel shown = (colours.ShowsOwnColours(key)
-                    ? own[key * DrawColours.RowColours + colour]
+                    ? own[key * DrawColours.KeyColours + colour]
                     : colours.Colour(key, colour)).ToRgbaPixel();
-                words[1 + key * DrawColours.RowColours + colour] = D3D11ConstantPacking.Bytes(shown.R, shown.G, shown.B, byte.MaxValue);
+                words[1 + key * DrawColours.KeyColours + colour] = D3D11ConstantPacking.Bytes(shown.R, shown.G, shown.B, byte.MaxValue);
             }
         }
         words[0] = header;

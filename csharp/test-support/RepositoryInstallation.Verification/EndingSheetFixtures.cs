@@ -46,7 +46,7 @@ internal static class EndingSheetFixtures
             {
                 ComposedSpriteSheet tiles = ScreenTileSheetComposer.Compose(sheet, tileSources);
                 sheets[sheet] = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(tiles.Manifest), writable: false),
-                    $"{SpriteSheetDefinitions.FileNames[sheet]}-fixture-{key[..8]}", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.Priorities, tiles.PartRows);
+                    $"{SpriteSheetDefinitions.FileNames[sheet]}-fixture-{key[..8]}", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.Priorities, tiles.PartGroups);
             }
             return new InstalledSpriteSheets(sheets);
         });
@@ -64,7 +64,7 @@ internal static class EndingSheetFixtures
         {
             ComposedSpriteSheet tiles = ScreenTileSheetComposer.ComposeMode7(sheet, tileSources);
             sheets[sheet] = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(tiles.Manifest), writable: false),
-                $"{SpriteSheetDefinitions.FileNames[sheet]}-fixture", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.Priorities, tiles.PartRows);
+                $"{SpriteSheetDefinitions.FileNames[sheet]}-fixture", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.Priorities, tiles.PartGroups);
         }
         return new InstalledSpriteSheets(sheets);
     }

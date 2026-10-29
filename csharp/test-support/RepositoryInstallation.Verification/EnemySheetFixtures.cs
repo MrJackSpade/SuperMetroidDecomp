@@ -137,7 +137,7 @@ internal static class EnemySheetFixtures
         {
             ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(sources, 0, 0);
             SpriteSheet loaded = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(sheet.Manifest), writable: false), name, sheet.Size,
-                sheet.Pixels, sheet.PaletteIndices, sheet.Priorities, sheet.PartRows);
+                sheet.Pixels, sheet.PaletteIndices, sheet.Priorities, sheet.PartGroups);
             SheetFrameSources.Register(loaded, sources);
             return loaded;
         }

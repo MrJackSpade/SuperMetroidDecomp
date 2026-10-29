@@ -37,9 +37,6 @@ internal interface IGameplayArtwork
     /// <summary>Samus body tiles, palettes and death palettes.</summary>
     InstalledSamusBodyArtwork? SamusBodyArt { get; }
 
-    /// <summary>Room tileset characters.</summary>
-    RoomCharacterAtlases? RoomCharacterArt { get; }
-
     /// <summary>Room static palettes.</summary>
     RoomStaticPalettes? RoomPaletteArt { get; }
 

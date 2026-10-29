@@ -66,10 +66,6 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 SamusSpeed: DoorSamusSpeed.None,
                 SetupCode: DoorSetupCode.None);
 
-            // A door arrives with the HUD's characters at their ordinary base, which a direct load from mid-fight in Kraid's
-            // room, where his tilemap covers them, would not (#1392).
-            if (self.Hud.IsInitialized)
-                self.HudSetup.ShowHudCharacters();
             InitialViewportResult viewport = self.RoomLoader.LoadRoom(
                 door,
                 room,

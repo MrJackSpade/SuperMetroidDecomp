@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -17,9 +16,6 @@ public abstract record LibraryBackgroundSource
 
     /// <summary>The source's name in diagnostics and artwork identities.</summary>
     public abstract string Name { get; }
-
-    /// <summary>The identity of the characters a transfer from the source brings, as extraction composes pictures over them.</summary>
-    public BgArtworkIdentity CharacterArtwork => new($"library characters {Name}");
 
     /// <summary>No source: a clear command's.</summary>
     public static LibraryBackgroundSource None { get; } = new NothingRead();

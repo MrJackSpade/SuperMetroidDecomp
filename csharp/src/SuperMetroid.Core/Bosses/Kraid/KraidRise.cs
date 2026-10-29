@@ -79,7 +79,7 @@ internal sealed class KraidRise
             LoadKraidColorBand(KraidPaletteSource.RoomBackdrop, _presentation.BossColours().KraidRoomBackdrop);
             state.WorkingTop = state.WorkingBottom = KraidBodyPage.Blank;
             state.BackgroundTilemapsPrepared = true;
-            UploadKraidRoomBackgroundTiles();
+            ShowKraidRoomBackdrop();
             _frameResults.KraidPlms.AddRange(KraidPlmDefinitions.DefeatedRoom);
             // The body is the owner of `$A7:C715-$C815`; deleting it here skips the two
             // BG2 clears and four standard-BG3 restoration DMAs. The other seven physical
@@ -122,14 +122,11 @@ internal sealed class KraidRise
                 : KraidCamera.InitialScroll(index));
     }
 
-    /// <summary>Binds the fixed room backdrop characters among the room's tile characters (#1352, #1406).</summary>
-    internal void UploadKraidRoomBackgroundTiles()
-    {
-        KraidBackgroundArtwork art = _bossArtwork.Artwork?.KraidBackground
-            ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters.");
-        _presentation.Backgrounds.Bind(KraidBehavior.KraidRoomBackgroundIdentity, BgCharacterSet.Tiles, KraidBackgroundDefinitions.RoomBackgroundFirstCharacter,
-            BgCharacterSet.Tiles.CharactersIn(art.RoomBackgroundTiles.Characters.Length));
-    }
+    /// <summary>
+    /// Shows the fixed room backdrop over the room's tiles (#1352, #1406, #1466): the blocks and cells it shows over show
+    /// their pictures with it from here.
+    /// </summary>
+    internal void ShowKraidRoomBackdrop() => _presentation.Appearance.ShowKraidBackdrop();
 
     /// <summary>
     /// Ports <c>$A7:AD3A</c>'s priority-bit pass before second phase. It runs only on the composed body; a defeated
@@ -223,7 +220,7 @@ internal sealed class KraidRise
                 // initializes palette-six fading. Without it, BG1's authored repeating
                 // room-background blocks decode an uninitialized character as transparent,
                 // exposing Kraid BG2's `$0338` filler rectangle above his head.
-                UploadKraidRoomBackgroundTiles();
+                ShowKraidRoomBackdrop();
                 return;
 
             case KraidAiFunction.GrowFadeInRoomBackground:

@@ -36,9 +36,6 @@ public static class KraidBackgroundDefinitions
     /// <summary>The blank tile Kraid's working map's final row and every unshown page cell hold: tile 824 under colour variant zero, unmirrored, low priority.</summary>
     public static BackgroundTile BlankTile { get; } = new(824, 0, highPriority: false);
 
-    /// <summary>The first of the room's tile characters the room backdrop binds over.</summary>
-    public const int RoomBackgroundFirstCharacter = 1008;
-
     /// <summary>The size of the background plane Kraid's body shows on: two screens wide and two screens tall.</summary>
     public static Extent16<TilemapCells> BodyPlaneSize { get; } = new(64, 64);
 }

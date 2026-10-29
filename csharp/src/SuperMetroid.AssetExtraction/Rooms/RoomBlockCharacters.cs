@@ -1,14 +1,14 @@
 using System.Collections.Immutable;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.LevelData;
 
-namespace SuperMetroid.Core.Rooms.Artwork;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
-/// The characters each block of one block set reads (#1431), as asset extraction recorded them when it pictured the
-/// blocks: for every block, by its index in what a room of the set loads, the runs of characters its picture reads, each
-/// shown by one artwork. A room names the picture a block shows by the block and what shows over each run, so this is the
-/// only thing about a block the room needs to choose its picture.
+/// The characters each block of one block set reads (#1431, #1466), as asset extraction composes the blocks' pictures: for
+/// every block, by its index in what a room of the set loads, the runs of characters its picture reads, each shown by one
+/// artwork. Extraction pictures each block over what each appearance input can show at its runs; the room names the
+/// picture by the inputs alone.
 /// </summary>
 public sealed class RoomBlockCharacters
 {
@@ -51,20 +51,4 @@ public sealed class RoomBlockCharacters
     public ImmutableArray<RoomBlockCharacterRun> RunsOf(int block) =>
         (uint)block < (uint)blocks.Length ? blocks[block]
             : throw new InvalidDataException($"Block {block} is not among the {blocks.Length} blocks of {Set}.");
-
-    /// <summary>Appends every block's runs to a content identity.</summary>
-    internal void AppendIdentity(SelectedPresentationHash content)
-    {
-        content.AppendName("block-set", Set.ToString());
-        content.Append("blocks", blocks.Length);
-        foreach (ImmutableArray<RoomBlockCharacterRun> runs in blocks)
-        {
-            content.Append("runs", runs.Length);
-            foreach (RoomBlockCharacterRun run in runs)
-            {
-                content.Append("first", run.FirstCharacter);
-                content.Append("count", run.CharacterCount);
-            }
-        }
-    }
 }

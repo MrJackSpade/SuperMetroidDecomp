@@ -1,6 +1,6 @@
-namespace SuperMetroid.Core.Rooms.LevelData;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>Where a room's load and its collectibles bind among the tile characters its blocks name (#1406).</summary>
+/// <summary>Where a room's load, its collectibles and Kraid's backdrop bind among the tile characters its blocks name (#1406).</summary>
 public static class RoomTileCharacters
 {
     /// <summary>The first of the room tileset's characters.</summary>
@@ -20,4 +20,7 @@ public static class RoomTileCharacters
 
     /// <summary>The first of the four collectible slots instruction <c>$84:8764</c> rotates through: the last 32 characters.</summary>
     public const int CollectiblesFirst = Characters - CollectibleSlots * CollectibleSlotCharacters;
+
+    /// <summary>The first of the room's tile characters Kraid's backdrop binds over.</summary>
+    public const int KraidBackdropFirst = 1008;
 }

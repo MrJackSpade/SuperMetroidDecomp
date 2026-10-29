@@ -28,7 +28,7 @@ internal sealed class AcceptedFrameBoundary
 {
     /// <summary>Latches the controllers and advances the frame counters after publication.</summary>
     private readonly AcceptedFrameInput _input;
-    /// <summary>Publishes rebound HUD, beam, and trail art after accepted VRAM transfers.</summary>
+    /// <summary>Publishes rebound beam art after accepted VRAM transfers.</summary>
     private readonly RuntimeArtwork _artwork;
     /// <summary>Captures the BG1 and BG2 scroll registers visible with the accepted NMI.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
@@ -36,7 +36,7 @@ internal sealed class AcceptedFrameBoundary
     private readonly GameplayDisplayState _display;
     /// <summary>Sprite frame made visible at each accepted NMI.</summary>
     private readonly SpriteFrameBuffer _displayedSprites;
-    /// <summary>The session's OBJ character table, which the displayed gameplay object page binds.</summary>
+    /// <summary>The session's shown sprite looks, which the Ceres Ridley arena's blocks show (#1466).</summary>
     private readonly EnemySession _enemySession;
 
     /// <summary>
@@ -57,8 +57,6 @@ internal sealed class AcceptedFrameBoundary
     /// <summary>Supplies the loaded room, door, and scrolling sky whose register shadows are latched.</summary>
     private readonly ActiveRoomState _room;
 
-    /// <summary>The background character bindings the room's block pictures are resolved over (#1392).</summary>
-    private readonly BgArtworkBindings _backgrounds;
     /// <summary>Supplies the suit pickup whose colour is latched.</summary>
     private readonly SamusSuitPickupState _suitPickup;
     /// <summary>Supplies the frozen X-ray reveal map the publication latches.</summary>
@@ -77,7 +75,6 @@ internal sealed class AcceptedFrameBoundary
         _sprites = dependencies.Sprites;
         _player = dependencies.Player;
         _room = dependencies.Room;
-        _backgrounds = dependencies.Backgrounds;
         _roomFx = dependencies.RoomFx;
         _hud = dependencies.Hud;
         _suitPickup = dependencies.SuitPickup;
@@ -155,8 +152,7 @@ internal sealed class AcceptedFrameBoundary
             null,
             CaptureRoomBackgrounds(),
             _room.Scope is null ? null : CaptureLayer3Plane());
-        _artwork.PublishReboundHudArtwork(_backgrounds);
-        // The planes' blocks show what this NMI's pictures bound, as the characters they read did (#1392).
+        // The planes' blocks show the pictures named by what gameplay has shown so far (#1392, #1466).
         if (_display.Latched.Rooms is { } rooms)
             _display.Latched = WithBlockPictures(_display.Latched, rooms, reveal);
         // A rebound snapshot may retain old CGRAM; apply current content only at this accepted NMI.
@@ -233,32 +229,30 @@ internal sealed class AcceptedFrameBoundary
             // What actors wrote over BG1 and BG2 is drawn once this NMI's uploads have bound (WithBlockPictures).
             null,
             Floor: scope.FloorMap?.Publish(),
-            Characters: RoomScope.CharactersOf(_room.ActiveRoom));
+            BlockArtwork: RoomScope.BlockArtworkOf(_room.ActiveRoom));
     }
 
     /// <summary>
     /// <paramref name="latched"/> with <paramref name="rooms"/>' BG1 and BG2 planes, and the X-ray reveal showing
-    /// <paramref name="reveal"/>'s blocks (#1431), showing the pictures their blocks show over what the bindings show now (#1392);
-    /// unchanged while the planes draw from the object character page, where X-ray is never used.
+    /// <paramref name="reveal"/>'s blocks (#1431), showing the pictures their blocks show for the values the room's
+    /// appearance inputs take now (#1392, #1466); X-ray is never used while the blocks show the sprites' artwork.
     /// </summary>
-    /// <exception cref="InvalidOperationException">X-ray reveals a room whose planes draw from the object character page.</exception>
+    /// <exception cref="InvalidOperationException">X-ray reveals a room whose blocks show the sprites' artwork.</exception>
     private GameplayDisplayLatch WithBlockPictures(GameplayDisplayLatch latched, RoomBackgrounds rooms, ImmutableArray<RevealedBlock?>? reveal)
     {
-        // While a Ceres room shows its Mode 7 map, the map draws its tiles' pictures, which its characters must still show
-        // (#1392); Ceres Ridley's getaway writes its warning's and doors' characters over them once his Mode 7 ends.
+        // While a Ceres room shows its Mode 7 map, the map draws its tiles' pictures (#1392); Ceres Ridley's getaway writes
+        // its warning and doors over the arena once his Mode 7 ends.
         RoomScope scope = _room.Scope ?? throw new InvalidOperationException("Room backgrounds were captured with no room loaded.");
         if (latched.ShowsPerspectiveFloor && scope.FloorMap is { } floorMap)
-            floorMap.Tiles.AssertShownBy(_backgrounds, floorMap.NamedTiles);
-        if (rooms.Characters != RoomBackgroundCharacters.Tileset && reveal is not null)
-            throw new InvalidOperationException("X-ray reveals a room whose planes draw from the object character page.");
-        // The Ceres Ridley arena's backgrounds read the OBJ character table's uploads (#1392).
-        RoomCharacterSource characters = RoomCharacterSource.Of(rooms.Characters, _backgrounds, _enemySession,
-            scope.AnimatedCharacters, scope.ArtworkFrames);
-        // A background image's and the sky's tiles read the room tileset's characters, which its animations paint too (#1406).
-        var animatedBlocks = new AnimatedCharacterView(scope.AnimatedCharacters.Blocks, scope.ArtworkFrames);
+            floorMap.Tiles.AssertPictured(floorMap.NamedTiles);
+        if (rooms.BlockArtwork != RoomBlockArtwork.Tileset && reveal is not null)
+            throw new InvalidOperationException("X-ray reveals a room whose blocks show the sprites' artwork.");
+        // The room's pictures are named by what gameplay showed over its load, the frames its animations selected and, in
+        // the Ceres Ridley arena, the looks shown on the sprites' artwork (#1466).
+        var appearance = new RoomAppearanceView(scope.Appearance, scope.ArtworkFrames, _enemySession);
         // The planes the latch shows are the level data's, which nothing changes before this NMI's pictures resolve.
         RoomBlockPictureTable pictures = scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane,
-            rooms.Bg2 is null ? null : scope.LevelData.BackgroundPlane, characters,
+            rooms.Bg2 is null ? null : scope.LevelData.BackgroundPlane, rooms.BlockArtwork, appearance,
             reveal?.OfType<RevealedBlock>().Select(block => block.Definition) ?? []);
         // A sky room's BG2 shows the sky's rows, drawn from their image (#1392, #1403), once the room has configured the
         // sky's band HDMA; without it, BG2 shows the room's own background.
@@ -267,26 +261,26 @@ internal sealed class AcceptedFrameBoundary
         {
             RoomBackgroundImageResolver skyImage = scope.SkyImage
                 ?? throw new InvalidDataException($"{scope.Room.Definition.Name} shows a scrolling sky with no installed sky image.");
-            sky = new SkyPictures(skyImage.Resolve(_backgrounds, animatedBlocks), scrollingSky.Variant);
+            sky = new SkyPictures(skyImage.Resolve(appearance), scrollingSky.Variant);
         }
         // Where BG2 shows the tilemap its library background loaded, it draws the background's image (#1392): not over a
         // streaming layer-2 plane, the sky's rows or a boss body that owns BG2.
         RoomBackgroundImagePlane? image = null;
         if (rooms.Bg2 is null && sky is null && latched.Bosses.Body is null && scope.BackgroundImage is { } background)
         {
-            image = background.Resolve(_backgrounds, animatedBlocks);
+            image = background.Resolve(appearance);
         }
         // A boss body shows each part's picture for the frame its animation selected (#1466).
         ShownBossBody? shownBody = latched.Bosses.Body?.Show(scope.ArtworkFrames);
         // Words written over BG2 draw from the sheet's pictures the same way.
         RoomOverlayPictures? bg2Overlay = scope.Bg2Overlay is { } overlay
             ? new RoomOverlayPictures((scope.Bg2OverlayPictures ?? throw new InvalidDataException(
-                $"{scope.Room.Definition.Name} writes over BG2 with no installed tile word sheet.")).Resolve(overlay, characters))
+                $"{scope.Room.Definition.Name} writes over BG2 with no installed tile word sheet.")).Resolve(overlay, appearance))
             : null;
         // Words written over BG1, as the Ceres escape's warning, draw from the sheet's pictures the same way.
         RoomOverlayPictures? bg1Overlay = scope.Bg1Overlay is { } written
             ? new RoomOverlayPictures((scope.Bg1OverlayPictures ?? throw new InvalidDataException(
-                $"{scope.Room.Definition.Name} writes over BG1 with no installed tile word sheet.")).Resolve(written, characters))
+                $"{scope.Room.Definition.Name} writes over BG1 with no installed tile word sheet.")).Resolve(written, appearance))
             : null;
         return latched with
         {
@@ -299,9 +293,9 @@ internal sealed class AcceptedFrameBoundary
                 Sky = sky,
                 Bg2Overlay = bg2Overlay,
                 Bg1Overlay = bg1Overlay,
-                // The HUD and the room effect's page draw from the BG3 sheet's pictures over the layer-3 characters.
+                // The HUD and the room effect's page draw from the BG3 sheet's pictures, as the effects' animations select them.
                 Bg3 = new Layer3Cells(scope.Bg3Pictures.Resolve(latched.Layer3 ?? throw new InvalidOperationException("A room's NMI latches its BG3 words."),
-                    _backgrounds, BgCharacterSet.Layer3, new AnimatedCharacterView(scope.AnimatedCharacters.Bg3, scope.ArtworkFrames))),
+                    appearance)),
             },
             XrayReveal = reveal is null ? null : new XrayRevealPlane(reveal.Value.AsSpan(), pictures),
         };

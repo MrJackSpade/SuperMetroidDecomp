@@ -8,7 +8,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Gameplay;
 
@@ -61,10 +60,8 @@ internal sealed class RuntimeArtwork
     /// <summary>Installed colors used at construction and on each room-entry palette restore.</summary>
     [field: NonSerialized]
     public GameplayBasePalette? InitialPaletteArt { get; set; }
-    /// <summary>Whether the next accepted NMI must refresh already initialized HUD characters.</summary>
-    [NonSerialized] private HudTileAtlas? pendingHudTiles;
     /// <summary>Gets or binds the host-owned presentation catalog used by maps, HUD, messages, room effects, Samus/enemy colors, and named VRAM assets.</summary>
-    /// <remarks>Binding nonnull artwork schedules an initialized HUD refresh and rebinds compiled bus-source identities; assigning null removes presentation owners without rewriting already published VRAM.</remarks>
+    /// <remarks>Binding nonnull artwork rebinds the presentation owners; assigning null removes them. The HUD shows the BG3 word sheet's pictures, so no characters are shown again.</remarks>
     [field: NonSerialized]     public IGameplayPresentationContent? MapPresentation
     {
         get;
@@ -86,8 +83,6 @@ internal sealed class RuntimeArtwork
             _bossArtwork.CeresRidleyFloorColors = value?.CeresRidleyFloorColors;
             _bossArtwork.CeresRidleyFloorUpdates = value?.CeresRidleyFloorUpdates;
             _room.Scope?.Enemies.RebindEscapeTypewriters(value?.EscapeTypewriter);
-            // An initialized HUD shows the new characters again at the next accepted NMI.
-            pendingHudTiles = value is not null && _hud.IsInitialized ? value.HudTiles : null;
         }
     }
 
@@ -107,17 +102,6 @@ internal sealed class RuntimeArtwork
         _player.Samus.Presentation.BodyFrames.BindArtwork(SamusBodyArt);
         _player.Samus.Presentation.BodyFrames.BindSheets(SpriteSheets);
         _player.Samus.ArmCannon.Artwork = SamusBodyArt?.ArmCannon;
-    }
-
-    /// <summary>Shows rebound HUD characters over the layer-3 characters BG3 reads, from the accepted NMI.</summary>
-    /// <param name="backgrounds">The background artwork bindings, which show the HUD characters.</param>
-    internal void PublishReboundHudArtwork(BgArtworkBindings backgrounds)
-    {
-        if (pendingHudTiles is null) return;
-        // Binding a restored session changes content ownership, not the already
-        // published frame. Refresh at accepted NMI, before native queued writes.
-        HudTileAtlas.ShowCharactersAgain(backgrounds, BgCharacterSet.Layer3);
-        pendingHudTiles = null;
     }
 
     /// <summary>Rebinds authored visual frame choices to both native projectile slot owners.</summary>
@@ -234,9 +218,6 @@ internal sealed class RuntimeArtwork
     }
 
 
-    /// <summary>Gets or binds the host-owned CRE and graphics-set character catalog used by subsequent room loads; the reference is excluded from debugger snapshots.</summary>
-    [field: NonSerialized]
-    public RoomCharacterAtlases? RoomCharacterArt { get; set; }
     /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>
     public InstalledRoomArtwork? RoomBlockSheets { get; set; }
     /// <summary>Host-selected base room palettes, rebound after debugger-state restore.</summary>

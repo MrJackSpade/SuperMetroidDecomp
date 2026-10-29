@@ -83,12 +83,16 @@ public sealed class EnemySession : ISpriteObjectPage
         SpriteLooks.Show(look);
     }
 
-    /// <summary>The artwork the Ceres Ridley arena's backgrounds show, which point at the sprites' artwork (#1422, #1463).</summary>
+    /// <summary>
+    /// Whether <paramref name="look"/> shows on the sprites' artwork the Ceres Ridley arena's backgrounds show (#1463,
+    /// #1466): it was shown and no later look has hidden it.
+    /// </summary>
     /// <exception cref="InvalidOperationException">No enemy sheets are installed.</exception>
-    internal IBgCharacterArtwork ObjectPage() =>
-        (Sheets ?? throw new InvalidOperationException("Showing the sprites' artwork as a background requires installed enemy sheets.")).Looks.ObjectPage(SpriteLooks);
+    internal bool Shows(SpriteArtworkSource look) =>
+        SpriteLooks.VisibleNewestFirst((Sheets ?? throw new InvalidOperationException("Showing the sprites' artwork as a background requires installed enemy sheets.")).Looks)
+            .Contains(Ensure.NotNull(look));
 
     /// <inheritdoc />
-    IBgCharacterArtwork ISpriteObjectPage.ObjectPage() => ObjectPage();
+    bool ISpriteObjectPage.Shows(SpriteArtworkSource look) => Shows(look);
 
 }

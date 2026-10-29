@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -186,13 +185,12 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         CollectiblePresentation presentation)
     {
         RoomLevelData level = room.Level;
-        BgArtworkBindings backgrounds = room.Backgrounds;
         SharedGameState system = room.System;
         RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
         bool collected = slot.Argument is CollectedItemArgument placedItem &&
             system.HasCollectedItemBit(placedItem.ItemBit);
         int graphicsSlot = UsesDynamicGraphics(kind)
-            ? ShowInNextGraphicsSlot(backgrounds, kind)
+            ? ShowInNextGraphicsSlot(room.Appearance, kind)
             : -1;
 
         RoomLevelWord setupWord = original.PackedWord.WithCollisionType(
@@ -242,27 +240,20 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     }
 
     /// <summary>
-    /// Shows <paramref name="kind"/> over the next collectible graphics slot (#1350, #1453): the collectible is bound by
-    /// name over the slot's characters, and the slot's blocks show the room block sheet's pictures named for that
-    /// collectible over the slot (#1431). Nothing is uploaded; the pictures are the only collectible artwork.
+    /// Shows <paramref name="kind"/> in the next collectible graphics slot (#1350, #1453, #1466): the slot's blocks, and
+    /// whatever else shows the slot, show the room block sheet's pictures named for that collectible in that slot (#1431).
+    /// Nothing is uploaded; the pictures are the only collectible artwork.
     /// </summary>
-    private int ShowInNextGraphicsSlot(BgArtworkBindings backgrounds, InWorldCollectibleKind kind)
+    private int ShowInNextGraphicsSlot(RoomAppearance appearance, InWorldCollectibleKind kind)
     {
         int graphicsSlot = _nextCollectibleGraphicsSlot;
         _nextCollectibleGraphicsSlot = (_nextCollectibleGraphicsSlot + 1) & 3;
-        SlotCharacters(RoomBgArtwork.Collectible(kind), graphicsSlot, RoomTileCharacters.CollectibleSlotCharacters).BindTo(backgrounds);
+        appearance.ShowCollectible(graphicsSlot, kind);
         return graphicsSlot;
     }
 
     /// <summary>The collectible graphic slots instruction <c>$84:8764</c> rotates through.</summary>
     internal const int GraphicsSlots = 4;
-
-    /// <summary>
-    /// A collectible's two frames, <paramref name="characterCount"/> characters of <paramref name="identity"/>, over the
-    /// characters of slot <paramref name="graphicsSlot"/> (#1350).
-    /// </summary>
-    internal static BgCharacterPlacement SlotCharacters(BgArtworkIdentity identity, int graphicsSlot, int characterCount) =>
-        new(identity, BgCharacterSet.Tiles, RoomTileCharacters.CollectiblesFirst + graphicsSlot * RoomTileCharacters.CollectibleSlotCharacters, characterCount);
 
     /// <summary>Advances one item's reveal, pickup, message wait, or shot-block respawn list.</summary>
     internal bool TryStepCollectible(RoomLevelData level, PlmSlot slot)

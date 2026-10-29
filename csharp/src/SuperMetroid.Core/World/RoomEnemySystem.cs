@@ -844,7 +844,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         GunshipBehavior.BeginRoomLoad(request.GunshipScenario, request.Samus);
         FrameContext.BeginRoomLoad(request.DeferLoaderTimeCameraReads);
         DeathsAndDrops.BindSamus(request.Samus);
-        Presentation.BindBackgrounds(request.Backgrounds, request.ArtworkFrames);
+        Presentation.BindBackgrounds(request.Appearance, request.ArtworkFrames);
         Presentation.BindColours(request.Colours);
         FrameResults.Begin();
         BossFrameResults.Begin();

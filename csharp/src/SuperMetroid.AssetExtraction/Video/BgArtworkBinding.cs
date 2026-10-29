@@ -1,8 +1,8 @@
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
-/// One background artwork binding (#1422): artwork shown over a run of a set's characters from one onward. The artwork is
-/// named, never held: the import pipeline resolves a name to its characters.
+/// One background artwork binding (#1422): artwork shown over a run of a set's characters from one onward, as the import
+/// pipeline replays what a room binds. The artwork is named, never held: the pipeline resolves a name to its characters.
 /// </summary>
 /// <param name="Identity">The artwork shown.</param>
 /// <param name="Set">The characters it shows over.</param>

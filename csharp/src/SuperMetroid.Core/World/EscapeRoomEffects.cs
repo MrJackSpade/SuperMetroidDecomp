@@ -58,7 +58,7 @@ internal sealed class EscapeRoomEffects
                 RoomSetupCallback.SetPausingCodeForDraygon or RoomSetupCallback.SetCollectedMap or
                 RoomSetupCallback.ReturnBeforeZebesTimebombSetup or
                 RoomSetupCallback.TurnCeresDoorToSolidBlocksAndSpawnHaze or RoomSetupCallback.SpawnCeresHaze or
-                RoomSetupCallback.SetCeresRidleyBgCharacterBaseAndSpawnHaze => null,
+                RoomSetupCallback.ShowSpritesOnCeresRidleyBackgroundsAndSpawnHaze => null,
             _ => throw new InvalidOperationException($"Undefined RoomSetupCallback {setup}."),
         };
         if (type is { } quake)

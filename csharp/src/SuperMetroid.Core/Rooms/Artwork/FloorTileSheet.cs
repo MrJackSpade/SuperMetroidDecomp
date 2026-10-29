@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// <summary>
 /// The installed pre-coloured floor tiles of one Ceres tileset (#1392): each of the 256 tiles whose characters the room's
 /// load binds, sixteen to a row, coloured with the tileset's standard palette and the sprite half as a room load leaves
-/// it, what showed at each tile's characters when it was pictured (a tile nothing binds is not pictured), and the
-/// floor map a room of the tileset starts from, which extraction imports (#1422).
+/// it, which tiles it pictures (a tile whose characters the room's load leaves empty is not), and the floor map a room
+/// of the tileset starts from, which extraction imports (#1422).
 /// </summary>
 public sealed class FloorTileSheet
 {
@@ -27,20 +27,17 @@ public sealed class FloorTileSheet
     /// <summary>VRAM words one tile's characters occupy, whose high bytes are its pixels.</summary>
     public const int TileWords = TilePixels * TilePixels;
 
-    /// <summary>The room tile characters whose bytes one floor tile's pixels share.</summary>
-    public const int TileCharacters = 4;
-
     /// <summary>
-    /// Checks the picture holds every tile and is background-coloured, that each tile records what it shows over, and that
-    /// the map names a tile for every cell.
+    /// Checks the picture holds every tile and is background-coloured, that each tile records whether it is pictured, and
+    /// that the map names a tile for every cell.
     /// </summary>
-    /// <exception cref="InvalidDataException">The picture is not every tile's size or colours, a tile's artwork is missing, or the map is not every cell.</exception>
-    public FloorTileSheet(TilesetDefinition tileset, SpriteSheet sheet, IReadOnlyList<BgArtworkShown?> shown, ReadOnlySpan<byte> map)
+    /// <exception cref="InvalidDataException">The picture is not every tile's size or colours, a tile's record is missing, or the map is not every cell.</exception>
+    public FloorTileSheet(TilesetDefinition tileset, SpriteSheet sheet, IReadOnlyList<bool> pictured, ReadOnlySpan<byte> map)
     {
         Tileset = tileset;
         Sheet = Ensure.NotNull(sheet);
         Picture = sheet.Frame(FrameName);
-        Shown = [.. Ensure.NotNull(shown)];
+        Pictured = [.. Ensure.NotNull(pictured)];
         if (map.Length != FloorMap.Cells)
             throw new InvalidDataException($"{Name}'s floor map holds {map.Length} cells, not {FloorMap.Cells}.");
         this.map = map.ToArray();
@@ -48,8 +45,8 @@ public sealed class FloorTileSheet
             throw new InvalidDataException($"{Name} is {Picture.Size.X}x{Picture.Size.Y}, not every tile's size.");
         if (Picture.Sheet.Colours != SpriteImageColours.FullPalette)
             throw new InvalidDataException($"{Name} is not coloured from the full palette.");
-        if (Shown.Count != Tiles)
-            throw new InvalidDataException($"{Name} records what {Shown.Count} tiles show over, not {Tiles}.");
+        if (Pictured.Count != Tiles)
+            throw new InvalidDataException($"{Name} records whether {Pictured.Count} tiles are pictured, not {Tiles}.");
     }
 
     /// <summary>The floor map a room of the tileset starts from: its tile numbers, row-major.</summary>
@@ -70,27 +67,24 @@ public sealed class FloorTileSheet
     /// <summary>The picture of every tile.</summary>
     public SpriteSheetFrame Picture { get; }
 
-    /// <summary>What showed at each tile's characters when it was pictured, by tile; null for a tile not pictured.</summary>
-    public IReadOnlyList<BgArtworkShown?> Shown { get; }
+    /// <summary>Whether each tile is pictured, by tile.</summary>
+    public IReadOnlyList<bool> Pictured { get; }
 
     /// <summary>The top-left pixel of tile <paramref name="tile"/> within <see cref="Picture"/>.</summary>
     public static Position16<ImagePixels> Corner(int tile) =>
         new((ushort)(tile % TilesPerRow * TilePixels), (ushort)(tile / TilesPerRow * TilePixels));
 
     /// <summary>
-    /// Checks every tile <paramref name="tiles"/> names is pictured, and that <paramref name="bindings"/> show its
-    /// characters as they were pictured over.
+    /// Checks every tile <paramref name="tiles"/> names is pictured: nothing a Ceres room shows over its load reaches the
+    /// floor's tiles (#1466), so a pictured tile shows as it was pictured.
     /// </summary>
-    /// <exception cref="InvalidDataException">A named tile is not pictured, or its characters show other artwork.</exception>
-    public void AssertShownBy(BgArtworkBindings bindings, IEnumerable<byte> tiles)
+    /// <exception cref="InvalidDataException">A named tile is not pictured.</exception>
+    public void AssertPictured(IEnumerable<byte> tiles)
     {
-        Ensure.NotNull(bindings);
         foreach (int tile in Ensure.NotNull(tiles))
         {
-            BgArtworkShown pictured = Shown[tile] ?? throw new InvalidDataException($"The floor map names tile {tile}, whose characters {Name} does not picture.");
-            BgArtworkShown now = bindings.Showing(BgCharacterSet.Tiles, tile * TileCharacters, TileCharacters);
-            if (now != pictured)
-                throw new InvalidDataException($"floor tile {tile} shows {now.Artwork.Name} at {now.WordOffset}, not the {pictured.Artwork.Name} {Name} pictures.");
+            if (!Pictured[tile])
+                throw new InvalidDataException($"The floor map names tile {tile}, whose characters {Name} does not picture.");
         }
     }
 

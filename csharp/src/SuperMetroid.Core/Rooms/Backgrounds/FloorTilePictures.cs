@@ -20,8 +20,8 @@ public sealed class FloorTilePictures
 
     /// <summary>What each tile of a Ceres room's <paramref name="sheet"/> shows: its picture, or nothing where it is not pictured.</summary>
     public static FloorTilePictures Of(FloorTileSheet sheet) => roomSheets.GetValue(Ensure.NotNull(sheet), tiles => new FloorTilePictures(
-        [.. Enumerable.Range(0, Tiles).Select(tile => tiles.Shown[tile] is null ? (BgTilePicture?)null : new BgTilePicture(tiles.Picture, FloorTileSheet.Corner(tile)))],
-        [.. Enumerable.Range(0, Tiles).Select(tile => tiles.Shown[tile] is null)]));
+        [.. Enumerable.Range(0, Tiles).Select(tile => !tiles.Pictured[tile] ? (BgTilePicture?)null : new BgTilePicture(tiles.Picture, FloorTileSheet.Corner(tile)))],
+        [.. Enumerable.Range(0, Tiles).Select(tile => !tiles.Pictured[tile])]));
 
     /// <summary>Holds each tile's picture, and which tiles hold characters nothing pictures.</summary>
     /// <exception cref="ArgumentException">The pictures or the unpictured tiles do not cover every tile.</exception>

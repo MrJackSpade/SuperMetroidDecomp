@@ -1,17 +1,15 @@
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
-/// The background character artwork a frame shows (#1350, #1406): room tilesets, library backgrounds, collectibles,
-/// animated tiles and the HUD's characters, bound by identity over the characters of the set each layer reads. A later
-/// binding shows over an earlier one where they share characters of one set.
+/// The background character artwork a room's load leaves (#1350, #1406, #1466): room tilesets, library backgrounds,
+/// collectibles, animated tiles and the HUD's characters, bound by identity over the characters of the set each layer
+/// reads, as the import pipeline replays what the cartridge copies. A later binding shows over an earlier one where they
+/// share characters of one set. Gameplay names what it shows over a room's load by appearance inputs instead.
 /// </summary>
 public sealed class BgArtworkBindings
 {
     /// <summary>The live bindings, oldest first.</summary>
     internal readonly List<BgArtworkBinding> bindings = [];
-
-    /// <summary>What each set's characters show, as a layer reading them asks.</summary>
-    [NonSerialized] private Dictionary<BgCharacterSet, IBgCharacterArtwork>? views;
 
     /// <summary>
     /// Binds the first <paramref name="characterCount"/> characters of <paramref name="identity"/> over
@@ -30,26 +28,11 @@ public sealed class BgArtworkBindings
         bindings.Add(binding);
     }
 
-    /// <summary>What <paramref name="set"/>'s characters show, as a layer reading them asks.</summary>
-    public IBgCharacterArtwork Of(BgCharacterSet set)
-    {
-        views ??= [];
-        if (!views.TryGetValue(set, out IBgCharacterArtwork? view))
-            views.Add(set, view = new SetArtwork(this, set));
-        return view;
-    }
-
     /// <summary>
     /// What shows over <paramref name="characterCount"/> of <paramref name="set"/>'s characters from
     /// <paramref name="firstCharacter"/> (#1392): the newest binding over them, which must cover them all, and how far into
-    /// its artwork they begin.
+    /// its artwork they begin; false where no binding covers any of them.
     /// </summary>
-    /// <exception cref="InvalidDataException">No binding covers the characters, or the newest over them covers only some.</exception>
-    public BgArtworkShown Showing(BgCharacterSet set, int firstCharacter, int characterCount) =>
-        TryShowing(set, firstCharacter, characterCount, out BgArtworkShown shown) ? shown
-            : throw new InvalidDataException($"No background artwork is bound over {set} characters {firstCharacter}..{firstCharacter + characterCount - 1}.");
-
-    /// <summary>What shows over the characters, as <see cref="Showing"/> finds it; false where no binding covers any of them.</summary>
     /// <exception cref="InvalidDataException">The newest binding over the characters covers only some.</exception>
     public bool TryShowing(BgCharacterSet set, int firstCharacter, int characterCount, out BgArtworkShown shown)
     {
@@ -67,14 +50,5 @@ public sealed class BgArtworkBindings
         }
         shown = default;
         return false;
-    }
-
-    /// <summary>What one set's characters show.</summary>
-    /// <param name="bindings">The bindings.</param>
-    /// <param name="set">The set.</param>
-    private sealed class SetArtwork(BgArtworkBindings bindings, BgCharacterSet set) : IBgCharacterArtwork
-    {
-        /// <inheritdoc />
-        public BgArtworkShown Showing(int firstCharacter, int characterCount) => bindings.Showing(set, firstCharacter, characterCount);
     }
 }

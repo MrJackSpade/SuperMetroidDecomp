@@ -5,74 +5,68 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
-/// Resolves what tiles written over a room's BG1 or BG2 show (#1392): each tile's picture in the room's tile word
-/// sheet over what the tile's character shows, Crocomire's melt among it, pictured at each of its states.
+/// Resolves what tiles written over a room's background show (#1392, #1466): each tile's picture in the room's tile word
+/// sheet for the values the appearance inputs it depends on take now.
 /// </summary>
 public sealed class TileWordPictureResolver(TileWordSheet sheet)
 {
-    /// <summary>The tiles last resolved: a body tilemap's array or an overlay.</summary>
+    /// <summary>The tiles last resolved: an overlay or a BG3 plane.</summary>
     private object? source;
 
-    /// <summary>What each tile's character showed when last resolved.</summary>
-    private BgArtworkShown[] shown = [];
+    /// <summary>Each tile as it showed when last resolved.</summary>
+    private TileWordAppearance[] shown = [];
 
     /// <summary>The pictures last resolved, null where a tile is unwritten.</summary>
     private ImmutableArray<BgTilePicture?> pictures;
 
-    /// <summary>What each character shows this resolution, by character.</summary>
-    private readonly Dictionary<int, BgArtworkShown> characters = [];
+    /// <summary>How each tile shows this resolution, by tile.</summary>
+    private readonly Dictionary<BackgroundTile, TileWordAppearance> appearances = [];
 
     /// <summary>The sheet.</summary>
     public TileWordSheet Sheet { get; } = Ensure.NotNull(sheet);
 
-    /// <summary>The picture of each tile written in <paramref name="overlay"/> over what the room's <paramref name="characters"/> show now.</summary>
-    /// <exception cref="InvalidDataException">The sheet pictures a tile over nothing its character shows.</exception>
-    public ImmutableArray<BgTilePicture?> Resolve(RoomTilemapOverlay overlay, RoomCharacterSource characters)
-    {
-        ImmutableArray<BackgroundTile?> tiles = Ensure.NotNull(overlay).Tiles;
-        return ResolveWords(overlay, tiles.Length, index => tiles[index], Bg12Artwork(characters), characters.Animated);
-    }
-
-    /// <summary>What shows over the characters BG1 and BG2's words name: <paramref name="characters"/>'.</summary>
+    /// <summary>The picture of each tile written in <paramref name="overlay"/> while the room's inputs take the values <paramref name="appearance"/> reads.</summary>
     /// <exception cref="InvalidOperationException">The sheet pictures another layer's words.</exception>
-    private IBgCharacterArtwork Bg12Artwork(RoomCharacterSource characters) => Sheet.Layer == TileWordLayer.Bg12 ? characters.Artwork
-        : throw new InvalidOperationException($"{Sheet.Name} pictures no {TileWordLayer.Bg12} words.");
+    /// <exception cref="InvalidDataException">The sheet pictures a tile for no such values.</exception>
+    public ImmutableArray<BgTilePicture?> Resolve(RoomTilemapOverlay overlay, RoomAppearanceView appearance)
+    {
+        if (Sheet.Layer != TileWordLayer.Bg12)
+            throw new InvalidOperationException($"{Sheet.Name} pictures no {TileWordLayer.Bg12} words.");
+        ImmutableArray<BackgroundTile?> tiles = Ensure.NotNull(overlay).Tiles;
+        return ResolveWords(overlay, tiles.Length, index => tiles[index], appearance);
+    }
 
     /// <summary>
     /// The picture of each of <paramref name="count"/> tiles <paramref name="tileAt"/> gives, null for none, re-resolving only
-    /// the tiles whose characters show something else since <paramref name="words"/> was last resolved. The layer that owns
-    /// the tiles gives them, as the BG3 plane's do (Layer3PictureResolution). A character an animation paints shows the
-    /// frame <paramref name="animated"/> says it selected (#1406); any other shows what is bound over it.
+    /// the tiles that show otherwise since <paramref name="words"/> was last resolved. The layer that owns the tiles gives
+    /// them, as the BG3 plane's do (Layer3PictureResolution).
     /// </summary>
-    internal ImmutableArray<BgTilePicture?> ResolveWords(object words, int count, Func<int, BackgroundTile?> tileAt, IBgCharacterArtwork bindings,
-        AnimatedCharacterView animated)
+    /// <exception cref="InvalidDataException">The sheet pictures a tile for no such values.</exception>
+    internal ImmutableArray<BgTilePicture?> ResolveWords(object words, int count, Func<int, BackgroundTile?> tileAt, RoomAppearanceView appearance)
     {
-        int characterWords = TileWordSheet.CharacterWordsOf(Sheet.Layer);
-        Ensure.NotNull(bindings);
         bool fresh = !ReferenceEquals(words, source);
         if (fresh)
         {
             source = words;
-            shown = new BgArtworkShown[count];
+            shown = new TileWordAppearance[count];
         }
-        characters.Clear();
+        appearances.Clear();
         BgTilePicture?[]? next = null;
         for (int index = 0; index < count; index++)
         {
             if (tileAt(index) is not { } tile)
                 continue;
-            if (!characters.TryGetValue(tile.Tile, out BgArtworkShown now))
+            if (!appearances.TryGetValue(tile, out TileWordAppearance now))
             {
-                if (!animated.TryShowing(tile.Tile, characterWords, out now))
-                    now = bindings.Showing(tile.Tile, 1);
-                characters.Add(tile.Tile, now);
+                now = Sheet.AppearanceOf(tile, appearance);
+                appearances.Add(tile, now);
             }
             if (!fresh && now == shown[index])
                 continue;
             shown[index] = now;
             next ??= fresh ? new BgTilePicture?[count] : [.. pictures];
-            next[index] = Sheet.TryPicture(new BgTileArtwork(tile, now), out BgTilePicture picture) ? picture
-                : throw new InvalidDataException($"{Sheet.Name} pictures no tile {tile} over {now.Artwork.Name} at word {now.WordOffset}.");
+            next[index] = Sheet.TryPicture(now, out BgTilePicture picture) ? picture
+                : throw new InvalidDataException($"{Sheet.Name} pictures no tile {tile} for{(now.Appearance.Length == 0 ? " the room's load" : " " + now.Appearance)}.");
         }
         if (next is not null)
             pictures = [.. next];

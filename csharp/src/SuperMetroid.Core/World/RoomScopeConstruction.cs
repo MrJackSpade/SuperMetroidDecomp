@@ -38,6 +38,9 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>The frame each of the room's animations shows (#1406), which the animations the load builds select into.</summary>
     public ArtworkFrameSelections ArtworkFrames { get; } = new();
 
+    /// <summary>What gameplay shows over the room's load (#1466), which the PLMs and enemies the load builds show into.</summary>
+    public RoomAppearance Appearance { get; } = new();
+
     /// <summary>The level allocation, once the level step has run.</summary>
     public RoomLevelData? LevelData { get; set; }
 
@@ -110,12 +113,12 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         LevelData = LevelData ?? throw Missing(nameof(LevelData)),
         Camera = Camera ?? throw Missing(nameof(Camera)),
         ArtworkFrames = ArtworkFrames,
-        AnimatedCharacters = Assets.Pictures.AnimationsOf(Assets.Tileset),
+        Appearance = Appearance,
         BlockPictures = new RoomBlockPictureResolver(Assets.BlockSheet),
         BackgroundImage = Room.State.Background is { } background
             ? new RoomBackgroundImageResolver(
                 Assets.Pictures.Background(RoomBackgroundImage.NameOf(background, background.PictureDoor(Door), Assets.Tileset)),
-                Assets.BlockSheet, RoomLoadArtwork())
+                Assets.BlockSheet)
             : null,
         Bg2OverlayPictures = Assets.Pictures.TileWords.TryGetValue(Assets.Tileset, out TileWordSheet? words) ? new TileWordPictureResolver(words) : null,
         Bg1OverlayPictures = words is null ? null : new TileWordPictureResolver(words),
@@ -123,7 +126,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         MessageBoxes = Assets.Pictures.MessageBox(Assets.Tileset),
         SkyImage = ScrollingSky is { } sky
             ? new RoomBackgroundImageResolver(Assets.Pictures.Background(RoomBackgroundImage.SkyNameOf(sky.Variant, Assets.Tileset)),
-                Assets.BlockSheet, RoomLoadArtwork())
+                Assets.BlockSheet)
             : null,
         ScrollingSky = ScrollingSky,
         FloorMap = FloorMap,
@@ -144,13 +147,6 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         Plms = Plms ?? throw Missing(nameof(Plms)),
         Services = Services ?? throw Missing(nameof(Services)),
     };
-
-    /// <summary>
-    /// The artwork the room's own load binds, which its library background's and sky's images show: its common room
-    /// elements and tileset.
-    /// </summary>
-    private HashSet<BgArtworkIdentity> RoomLoadArtwork() =>
-        [.. LoadedRoomAssets.CharacterPlacements(Assets.Tileset, Assets.CreCharacterCount, Assets.TilesetCharacterCount).Select(placement => placement.Identity)];
 
     /// <summary>The failure for a load that completed without building <paramref name="part"/>.</summary>
     private static InvalidOperationException Missing(string part) =>

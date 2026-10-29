@@ -1,5 +1,6 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -16,6 +17,14 @@ internal static class CollectibleSlotBlocks
 
     /// <summary>The blocks one slot writes: one per animation frame.</summary>
     internal const int BlocksPerSlot = RoomTileCharacters.CollectibleSlotCharacters / RoomMetatileFormat.TilesPerBlock;
+
+    /// <summary>
+    /// The graphics of collectible <paramref name="kind"/>, <paramref name="characters"/>, as its two frames lie over the
+    /// characters of slot <paramref name="graphicsSlot"/> (#1350).
+    /// </summary>
+    internal static BgCharacterUpload SlotUpload(InWorldCollectibleKind kind, int graphicsSlot, ReadOnlyMemory<byte> characters) =>
+        new(RoomBgArtwork.Collectible(kind), BgCharacterSet.Tiles,
+            RoomTileCharacters.CollectiblesFirst + graphicsSlot * RoomTileCharacters.CollectibleSlotCharacters, characters);
 
     /// <summary>The first block slot <paramref name="graphicsSlot"/> writes.</summary>
     internal static int FirstBlockOf(int graphicsSlot) => FirstBlock + graphicsSlot * BlocksPerSlot;

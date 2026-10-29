@@ -19,6 +19,9 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 internal static class Mode7TileSheetComposer
 {
+    /// <summary>The room tile characters whose bytes one floor tile's pixels share.</summary>
+    private const int TileCharacters = 4;
+
     /// <summary>Composes <paramref name="tileset"/>'s tiles over <paramref name="content"/>, the room as it has loaded.</summary>
     /// <exception cref="InvalidDataException">The installed palettes are invalid.</exception>
     internal static ComposedMode7Tiles Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset, BgArtworkBindings content)
@@ -46,7 +49,7 @@ internal static class Mode7TileSheetComposer
         for (int tile = 0; tile < FloorTileSheet.Tiles; tile++)
         {
             // A tile whose characters nothing binds is not pictured; the map may not name it.
-            if (!content.TryShowing(BgCharacterSet.Tiles, tile * FloorTileSheet.TileCharacters, FloorTileSheet.TileCharacters, out BgArtworkShown bound))
+            if (!content.TryShowing(BgCharacterSet.Tiles, tile * TileCharacters, TileCharacters, out BgArtworkShown bound))
                 continue;
             shown[tile] = bound;
             Position16<ImagePixels> corner = FloorTileSheet.Corner(tile);

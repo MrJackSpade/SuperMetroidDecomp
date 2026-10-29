@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
 /// What shows over a run of background character words (#1392): the artwork bound there and how far into it the run

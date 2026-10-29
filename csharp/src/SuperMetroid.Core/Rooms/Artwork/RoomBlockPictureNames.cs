@@ -1,34 +1,27 @@
+using System.Collections.Immutable;
 using System.Globalization;
-using System.Text;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
-/// Names a pre-coloured block picture by the block it pictures and what shows over the characters it reads (#1392, #1431):
-/// the block's index among those its room loads, then, for each run of characters the block reads, the artwork bound over
-/// the run and how far into that artwork the run begins. A collectible bound over a slot's characters, or an animation
-/// that paints a block's characters, therefore names another picture of the same block, and extraction and the room resolve
-/// the same name.
+/// Names a pre-coloured block picture (#1392, #1431, #1466): the block's index among those its room loads, marked when
+/// it shows the sprites' artwork, then the values of the appearance inputs it depends on. A collectible shown in a slot,
+/// Kraid's backdrop or an animation's frame therefore names another picture of the same block, and extraction and the
+/// room resolve the same name.
 /// </summary>
 public static class RoomBlockPictureNames
 {
-    /// <summary>VRAM words in one four-bpp background character.</summary>
-    public const int CharacterWords = 16;
+    /// <summary>The mark of a block picture over the sprites' artwork.</summary>
+    private const string OverSprites = "@sprites";
 
-    /// <summary>The name of the picture of block <paramref name="block"/> over <paramref name="shown"/>.</summary>
+    /// <summary>The name of the picture of block <paramref name="block"/> over <paramref name="artwork"/> while <paramref name="inputs"/> take <paramref name="values"/>.</summary>
     /// <param name="block">The block's index among those its room loads.</param>
-    /// <param name="shown">What shows over each run of characters the block reads, in the order its runs are recorded.</param>
+    /// <param name="artwork">The artwork the room's blocks show.</param>
+    /// <param name="inputs">The inputs the block depends on over that artwork.</param>
+    /// <param name="values">The value of each input, in the same order.</param>
     /// <exception cref="ArgumentOutOfRangeException">The block index is negative.</exception>
-    /// <exception cref="ArgumentException">Nothing shows over any run.</exception>
-    public static string Of(int block, ReadOnlySpan<BgArtworkShown> shown)
-    {
-        Ensure.AtLeastZero(block);
-        if (shown.IsEmpty)
-            throw new ArgumentException("A block picture shows at least one run of characters.", nameof(shown));
-        var name = new StringBuilder(block.ToString("X3", CultureInfo.InvariantCulture));
-        foreach (BgArtworkShown run in shown)
-            name.Append('|').Append(run.Artwork.Name).Append('+').Append(run.WordOffset.ToString("X4", CultureInfo.InvariantCulture));
-        return name.ToString();
-    }
+    /// <exception cref="ArgumentException">There is not one value for each input.</exception>
+    public static string Of(int block, RoomBlockArtwork artwork, ImmutableArray<AppearanceInput> inputs, ReadOnlySpan<string> values) =>
+        AppearancePictureNames.Of(Ensure.AtLeastZero(block).ToString("X3", CultureInfo.InvariantCulture)
+            + (artwork == RoomBlockArtwork.Sprites ? OverSprites : ""), inputs, values);
 }

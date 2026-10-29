@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Gunship;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Enemies;
@@ -16,8 +17,8 @@ public interface IRoomEnemyLoad : IRoomEnemyPopulationSource, IRoomEnemyActorCon
     /// <summary>Whether camera reads made at load time are deferred because the room streams in through a door.</summary>
     bool DeferLoaderTimeCameraReads { get; }
 
-    /// <summary>The room's background artwork bindings, over the VRAM its enemies load into (#1352).</summary>
-    BgArtworkBindings Backgrounds { get; }
+    /// <summary>What gameplay shows over the room's load (#1466), which its enemies show into.</summary>
+    RoomAppearance Appearance { get; }
 
     /// <summary>The frame each of the room's animations shows (#1406), which its enemies select their pictures into.</summary>
     ArtworkFrameSelections ArtworkFrames { get; }

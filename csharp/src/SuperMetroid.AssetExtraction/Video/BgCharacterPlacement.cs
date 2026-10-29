@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Assets;
+using SuperMetroid.Core;
+
+namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
 /// Artwork bound over background characters (#1392, #1406, #1422): what it is, the set and first character it shows over

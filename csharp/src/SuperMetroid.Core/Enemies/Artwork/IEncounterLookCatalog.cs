@@ -20,10 +20,4 @@ public interface IEncounterLookCatalog : ISpriteArtworkOverlap
     /// <paramref name="shown"/> pairs with it.
     /// </summary>
     string PictureName(string frame, int layer, IReadOnlyList<LookRegionContent> shown);
-
-    /// <summary>
-    /// The artwork the Ceres Ridley arena's backgrounds show, which point at the sprites' artwork (#1392, #1422): what
-    /// <paramref name="looks"/> leave visible there.
-    /// </summary>
-    IBgCharacterArtwork ObjectPage(ShownSpriteArtwork looks);
 }

@@ -29,8 +29,6 @@ public sealed class LoadedRoomAssets
         Header = header;
         LevelData = levelData;
         Scrolls = scrolls;
-        CreCharacterCount = tileset.CreCharacterCount;
-        TilesetCharacterCount = tileset.TilesetCharacterCount;
         TilesetColours = tileset.Colours;
         Tileset = tileset.Tileset;
         Pictures = tileset.Pictures;
@@ -42,10 +40,6 @@ public sealed class LoadedRoomAssets
     public RoomLevelData LevelData { get; }
     /// <summary>Room's screen-indexed scroll-control grid used to initialize the boundary camera, separate from current camera position or editable map-marker artwork.</summary>
     public RoomScrollGrid Scrolls { get; }
-    /// <summary>The installed common room elements' characters the room binds first; a Ceres tileset binds over them all.</summary>
-    public int CreCharacterCount { get; }
-    /// <summary>The installed tileset's characters the room binds over the common room elements' (#1422).</summary>
-    public int TilesetCharacterCount { get; }
     /// <summary>The tileset's colours for each background set, which <see cref="LoadGraphics"/> gives the sets, leaving the sprite sets alone.</summary>
     public ShownBackgroundColourSets TilesetColours { get; }
     /// <summary>Compiled graphics-set source identities selected by the room-state index and used to resolve installed block pictures, characters, and palette artwork.</summary>
@@ -63,7 +57,6 @@ public sealed class LoadedRoomAssets
         Ensure.NotNull(scrollStorage);
         Ensure.NotNull(header);
         Ensure.NotNull(catalogs);
-        RoomCharacterAtlases characterArt = catalogs.Characters;
         RoomStaticPalettes paletteArt = catalogs.Palettes;
         RoomLevelArtworks visualLayouts = catalogs.VisualLayouts;
         TilesetDefinition tileset = RoomTilesets.Get(header.State.GraphicsSet);
@@ -78,9 +71,7 @@ public sealed class LoadedRoomAssets
             header,
             levelData,
             scrolls,
-            new RoomTilesetArtwork(tileset, BgCharacterSet.Tiles.CharactersIn(characterArt.Cre.Characters.Length),
-                BgCharacterSet.Tiles.CharactersIn(characterArt.Get(tileset.Characters).Characters.Length),
-                paletteArt.Get(tileset.Palette).Sets, catalogs.BlockSheets));
+            new RoomTilesetArtwork(tileset, paletteArt.Get(tileset.Palette).Sets, catalogs.BlockSheets));
     }
 
     /// <summary>
@@ -95,33 +86,10 @@ public sealed class LoadedRoomAssets
     }
 
     /// <summary>
-    /// The two character sets a room of <paramref name="tileset"/> binds as it loads, in order: the common room elements,
-    /// then the tileset's characters over them (#1350).
+    /// Gives every background set the tileset's colours for it (#1464). The room's tileset artwork shows in its block sheet's
+    /// pictures (#1392, #1466), so nothing is bound.
     /// </summary>
-    /// <param name="tileset">The tileset the room loads.</param>
-    /// <param name="commonRoomElementCharacters">The common room elements' characters.</param>
-    /// <param name="tilesetCharacters">The tileset's characters.</param>
-    public static IReadOnlyList<BgCharacterPlacement> CharacterPlacements(TilesetDefinition tileset, int commonRoomElementCharacters,
-        int tilesetCharacters) =>
-    [
-        // Preserve $82:E783's transfer order, not merely its two destinations. Ordinary
-        // area art ends before the common room elements' characters, but Ceres tileset $11 holds all
-        // 1024 tile characters. The tileset must therefore bind over the common room elements;
-        // reversing these produces the vertical-stripe corruption seen when CRE replaces Ceres tiles.
-        new(RoomBgArtwork.CommonRoomElements, BgCharacterSet.Tiles, RoomTileCharacters.CommonRoomElementsFirst, commonRoomElementCharacters),
-        new(RoomBgArtwork.Tileset(tileset.Characters), BgCharacterSet.Tiles, RoomTileCharacters.TilesetFirst, tilesetCharacters),
-    ];
-
-    /// <summary>Binds the room's two character regions (#1350) and gives every background set the tileset's colours for it.</summary>
-    public void LoadGraphics(BgArtworkBindings backgrounds, BackgroundColourSets colours)
-    {
-        Ensure.NotNull(backgrounds);
-        Ensure.NotNull(colours);
-
-        foreach (BgCharacterPlacement placement in CharacterPlacements(Tileset, CreCharacterCount, TilesetCharacterCount))
-            placement.BindTo(backgrounds);
-        TilesetColours.CopyTo(colours);
-    }
+    public void LoadGraphics(BackgroundColourSets colours) => TilesetColours.CopyTo(Ensure.NotNull(colours));
 
     /// <summary>Parses BG1, BTS, and BG2 while retaining native allocation tails beyond visible room screens.</summary>
     private static RoomLevelData ParseLevelData(

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -58,18 +59,18 @@ internal static class BossSpriteEntriesVerification
         var uploads = new SpriteArtworkPlacements();
         var queue = new VramWriteQueue();
         var statue = new TourianStatuePictureCharacters(AnimatedTileObject.TourianStatuePhantoon, TourianStatueTilePicture.Released);
-        var artwork = RuntimeArtworkContent.Of(runtime);
-        ReadOnlyMemory<byte> picture = statue.Resolve(artwork);
+        var content = RuntimeArtworkContent.Of(runtime);
+        ReadOnlyMemory<byte> picture = SpriteArtworkBytes.Of(statue, content);
         queue.EnqueueSource(statue, checked((ushort)picture.Length), VramDmaDestinationConstants.At(GameplayVramLayoutConstants.ObjectCharacters));
         var staging = new VramStagingBuffer(64);
         staging.ByteView(0, 64)[3] = 0x5a;
         queue.EnqueueStaging(64, 0x7e9000, staging, 0, VramDmaDestinationConstants.At(GameplayVramLayoutConstants.ObjectCharacters, 0x400));
-        queue.DrainTo(new SnesVram(), artwork, uploads, BgArtworkFixtures.For(new SnesVram()));
+        queue.DrainTo(new SnesVram(), content, uploads, BgArtworkFixtures.For(new SnesVram()));
         staging.ByteView(0, 64)[3] = 0;
         AssertEqual(2, uploads.Uploads.Count, "Both uploads reach the OBJ page");
         AssertEqual<SpriteArtworkSource>(statue, uploads.Uploads[0].Source, "The statue picture is bound by its identity");
         AssertTrue(uploads.Uploads[1].Source is StagedObjCharacters, "A staged corpse upload keeps the bytes it read");
-        SpriteArtwork page = new ObjCharacterTablePage().Page(uploads, artwork);
+        SpriteArtwork page = new ObjCharacterTablePage().Page(uploads, content);
         AssertTrue(page.Characters.Slice(0, picture.Length).SequenceEqual(picture.Span), "The page shows the statue picture");
         AssertEqual((byte)0x5a, page.Characters[0x800 + 3], "The page shows the staged bytes as uploaded, not as later changed");
 

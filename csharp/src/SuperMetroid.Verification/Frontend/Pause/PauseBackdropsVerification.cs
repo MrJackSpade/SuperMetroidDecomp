@@ -77,14 +77,16 @@ internal static class PauseBackdropsVerification
                 if (area != everyTickArea && !checkpoint) continue;
                 var snapshot = pause.CaptureRenderSnapshot();
                 byte[] snapshotVram = pause.ShownVram();
-                AssertTrue(native.ShownVram().SequenceEqual(snapshotVram), "every stock transition frame retains exact native VRAM");
+                var shownNative = native.ShownVram();
+                AssertTrue(shownNative.SequenceEqual(snapshotVram), "every stock transition frame retains exact native VRAM");
                 var pixels = pause.Render();
                 AssertTrue(native.Render().SequenceEqual(pixels), "seven-area stock pixels match native path with frame, buttons and label ROM reads blocked");
                 var selection = new PauseBackdropsSelection(pause.ScreenMode, pause.SelectedCategory, pause.SelectedItem, pause.MapScroll);
                 pause.BindFixtureArtwork(edited);
                 var changed = pause.CaptureRenderSnapshot();
                 byte[] changedVram = pause.ShownVram();
-                AssertTrue(changedVram.SequenceEqual(persistentEdit.ShownVram()),
+                var shownPersistentEdit = persistentEdit.ShownVram();
+                AssertTrue(changedVram.SequenceEqual(shownPersistentEdit),
                     "fresh edited session and live rebind retain the same artwork through equipment return and Start");
                 AssertTrue(snapshotVram.AsSpan(0x6000, 0x1000).SequenceEqual(changedVram.AsSpan(0x6000, 0x1000)), "backdrop rebind leaves shared map/equipment BG1 untouched");
                 AssertEqual(selection, new PauseBackdropsSelection(pause.ScreenMode, pause.SelectedCategory, pause.SelectedItem, pause.MapScroll), "backdrop rebind leaves navigation and scroll untouched");

@@ -12,7 +12,6 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Frontend.Menus;
 
@@ -100,9 +99,9 @@ internal static class MenuScreenPublicationVerification
         AssertTrue(memory.Colors.SequenceEqual(screen.Palette.Colors), $"{menu} draws its own palette");
         AssertTrue(screen.Objects.Draws.Length > 0, $"{menu} places sprite entries");
         AssertTrue(PaintedSpriteEntries.AreOwn(memory.SpriteDraws, screen.Objects.Draws), $"{menu} draws its own sprite entries");
-        // A screen's single objects draw from the menu OBJ page; its whole frames from its sheet.
+        // A screen's sprites draw whole frames from its sheet.
         foreach (SpriteDraw draw in memory.SpriteDraws)
-            AssertTrue(draw is ImageSpriteDraw || ReferenceEquals(MapSpriteArtwork.Of(screen.Sprites).Page, draw.Artwork), $"{menu} sprite entries draw from the menu OBJ page");
+            AssertTrue(draw is ImageSpriteDraw, $"{menu} sprite entries draw sheet frames");
     }
 
     /// <summary>Runs the screen sprite placement and menu screen publication checks.</summary>

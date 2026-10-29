@@ -15,6 +15,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal static class IntroScreenMemory
 {
     /// <summary>The character image of <paramref name="artwork"/> and <paramref name="installedFont"/>, as `$8B:A469-$A529` upload them.</summary>
+    [WholeImageFixture("the intro's character image")]
     internal static byte[] Characters(IntroCinematicArtwork artwork, IntroFontAtlas installedFont, bool japaneseGlyphsBlanked)
     {
         IntroCinematicState.RequireFont(installedFont);
@@ -42,6 +43,7 @@ internal static class IntroScreenMemory
     }
 
     /// <summary>The memory image <paramref name="intro"/> shows: its bound characters with its portrait and narration tilemaps over them.</summary>
+    [WholeImageFixture("the intro's memory image")]
     internal static byte[] Compose(IntroCinematicState intro)
     {
         IntroCinematicArtwork artwork = intro.CharacterArtwork ?? throw new InvalidOperationException(
@@ -52,6 +54,7 @@ internal static class IntroScreenMemory
     }
 
     /// <summary>The memory image of <paramref name="characters"/> with <paramref name="tilemaps"/> over them.</summary>
+    [WholeImageFixture("the intro's memory image")]
     internal static byte[] Compose(ReadOnlySpan<byte> characters, IntroTilemaps tilemaps)
     {
         var vram = new SnesVram();

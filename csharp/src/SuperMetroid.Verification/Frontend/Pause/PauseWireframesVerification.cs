@@ -78,10 +78,12 @@ internal static class PauseWireframesVerification
                 ChangePausePage(pause, ControllerButton.L, StepBoth);
                 AssertPixels();
                 AssertEqual(PauseScreenMode.Map, pause.ScreenMode, "wireframe fixture returns to the map page");
+                var shownPause = pause.ShownVram();
                 // Rebind on the map must not replace the map's shared BG1 page.
-                byte[] map = pause.ShownVram().AsSpan(0x6000, 0x1000).ToArray();
+                byte[] map = shownPause.AsSpan(0x6000, 0x1000).ToArray();
                 pause.BindFixtureArtwork(edited);
-                AssertTrue(map.SequenceEqual(pause.ShownVram().AsSpan(0x6000, 0x1000)), "wireframe edit while viewing map does not overwrite BG1 map");
+                var shownPause2 = pause.ShownVram();
+                AssertTrue(map.SequenceEqual(shownPause2.AsSpan(0x6000, 0x1000)), "wireframe edit while viewing map does not overwrite BG1 map");
                 EnterEquipment(pause);
                 AssertPage(pause, edited, kind);
                 var editedPixels = pause.Render();

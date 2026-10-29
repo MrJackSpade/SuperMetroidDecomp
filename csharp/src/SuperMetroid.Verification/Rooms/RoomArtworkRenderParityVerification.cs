@@ -45,7 +45,9 @@ internal static class RoomArtworkRenderParityVerification
                 AssertTrue((native.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")).Assets.TilesetCharacterCount * BgCharacterSet.Tiles.CharacterBytes() >
                     RoomGraphicsToolingLayout.CommonRoomElementCharacters.Offset * sizeof(ushort),
                     "Ceres parity exercises room characters overlapping the CRE VRAM region");
-            AssertTrue(native.ComposedVram().AsSpan().SequenceEqual(installed.ComposedVram()),
+            byte[] nativeComposed = native.ComposedVram();
+            byte[] installedComposed = installed.ComposedVram();
+            AssertTrue(nativeComposed.AsSpan().SequenceEqual(installedComposed),
                 $"{name} installed artwork binds the same background characters");
             RgbaPixel[] nativeFrame = FrontendScenePixelsAccess.Pixels(native.PublishDisplayFrame());
             RgbaPixel[] installedFrame = FrontendScenePixelsAccess.Pixels(installed.PublishDisplayFrame());

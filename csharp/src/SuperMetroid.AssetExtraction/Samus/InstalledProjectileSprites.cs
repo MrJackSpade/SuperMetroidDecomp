@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;

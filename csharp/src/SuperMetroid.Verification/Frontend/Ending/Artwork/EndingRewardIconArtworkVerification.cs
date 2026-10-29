@@ -166,7 +166,8 @@ internal static class EndingRewardIconArtworkVerification
                 }
                 AssertEqual(EndingCreditsPhase.PostCreditsShot, scene.Stage.Phase,
                     $"{name} edited icon reaches the native shooting phase");
-                AssertTrue(scene.ShownVram()
+                var shownScene = scene.ShownVram();
+                AssertTrue(shownScene
                         [..EndingRewardIconArtworkFormat.ByteCount]
                         .SequenceEqual(edited.RewardIcon.Bytes.Span),
                     $"{name} supplies every final native upload byte");

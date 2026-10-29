@@ -59,11 +59,15 @@ internal static class ScreenTilePicturesVerification
         for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
         {
             FileSelectAreaMapGraphics world = InstalledFixtures.CreateFileSelectAreaMap(area);
-            Check(world.CaptureRenderSnapshot(used, AreaMapColorMath.WithBackdrop), world.ShownVram(), $"{(AreaId)area} area map");
-            Check(world.CaptureRenderSnapshot(used, AreaMapColorMath.ForegroundOnly), world.ShownVram(), $"{(AreaId)area} area map without its backdrop");
+            var shownWorld = world.ShownVram();
+            Check(world.CaptureRenderSnapshot(used, AreaMapColorMath.WithBackdrop), shownWorld, $"{(AreaId)area} area map");
+            var shownWorld2 = world.ShownVram();
+            Check(world.CaptureRenderSnapshot(used, AreaMapColorMath.ForegroundOnly), shownWorld2, $"{(AreaId)area} area map without its backdrop");
             var room = new FileSelectRoomMapGraphics(explored, (AreaId)area, mapPresentation: maps, sheets: InstalledFixtures.SpriteSheets);
-            Check(room.CaptureRenderSnapshot(), room.ShownVram(), $"{(AreaId)area} room map");
-            Check(room.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly), room.ShownVram(), $"{(AreaId)area} room map frame");
+            var shownRoom = room.ShownVram();
+            Check(room.CaptureRenderSnapshot(), shownRoom, $"{(AreaId)area} room map");
+            var shownRoom2 = room.ShownVram();
+            Check(room.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly), shownRoom2, $"{(AreaId)area} room map frame");
         }
         Console.WriteLine($"Screen tile pictures: {screens} menu screens draw all {layers} of their background layers from their tiles, as their characters do.");
     }
@@ -87,7 +91,8 @@ internal static class ScreenTilePicturesVerification
         IntroCinematicState intro = CreateRetailIntroFixture(audio);
         for (int tick = 0; !intro.CeresFlightFinished; tick++)
         {
-            Check(intro.CaptureTranslatedRenderSnapshot(), intro.ShownVram(), intro.CurrentCeresFlight is { } flight && intro.Phase == IntroCinematicPhase.CeresFlight
+            var shownIntro = intro.ShownVram();
+            Check(intro.CaptureTranslatedRenderSnapshot(), shownIntro, intro.CurrentCeresFlight is { } flight && intro.Phase == IntroCinematicPhase.CeresFlight
                 ? $"Ceres flight {flight.Phase}" : $"intro {intro.Phase}");
             intro.Step(tick % 47 == 0 ? ControllerButton.A : 0);
             audio.AdvanceFrame(default);
@@ -95,7 +100,8 @@ internal static class ScreenTilePicturesVerification
         CeresDestructionCinematicState destruction = CreateRetailDestructionFixture();
         for (int frame = 0; frame < 5000 && !destruction.Finished; frame++)
         {
-            Check(destruction.CaptureRenderSnapshot(), destruction.ShownVram(), $"Ceres destruction {destruction.Phase}");
+            var shownDestruction = destruction.ShownVram();
+            Check(destruction.CaptureRenderSnapshot(), shownDestruction, $"Ceres destruction {destruction.Phase}");
             destruction.Step();
         }
         AssertTrue(destruction.Finished, $"the Ceres destruction finishes within 5000 updates (stopped in {destruction.Phase})");
@@ -123,7 +129,10 @@ internal static class ScreenTilePicturesVerification
                 LayeredScene scene = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
                 if (scene.Layers.ToArray().Any(layer => layer is ScreenTilesLayer or ScreenTilesViewportLayer or AddedScreenTilesLayer or TurningFloorLayer)
                     && sampled.Add($"{hours} hours, {ending.Stage.Phase}"))
-                    layers += AssertDrawnFromTiles(scene, ending.ShownVram(), $"ending at {hours} hours, {ending.Stage.Phase}");
+                {
+                    var shownEnding = ending.ShownVram();
+                    layers += AssertDrawnFromTiles(scene, shownEnding, $"ending at {hours} hours, {ending.Stage.Phase}");
+                }
                 ending.Step();
                 audio.AdvanceFrame(default);
             }
@@ -146,8 +155,9 @@ internal static class ScreenTilePicturesVerification
             if (scene.Floor is { } floor && sampled.Add($"{title.Phase} {floor.Tiles.GetHashCode()}"))
             {
                 RgbaPixel[] pictured = DisplayRendering.Render(new DisplayPacket(DisplayRendering.NextFrame(), scene)).ToArray();
+                var shownTitle = title.ShownVram();
                 RgbaPixel[] characters = DisplayRendering.Render(new DisplayPacket(DisplayRendering.NextFrame(), new FloorScene(scene.Paint,
-                    scene.Background, scene.Brightness, scene.Gradient, AffineFloorFixtures.Floor(title.ShownVram(), scene.Paint.Colors)))).ToArray();
+                    scene.Background, scene.Brightness, scene.Gradient, AffineFloorFixtures.Floor(shownTitle, scene.Paint.Colors)))).ToArray();
                 AssertTrue(pictured.SequenceEqual(characters), $"title {title.Phase}: drawn from its pictures, the Mode 7 background matches its characters");
             }
             title.Step(0);

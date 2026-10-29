@@ -11,6 +11,7 @@ namespace SuperMetroid.Core.Frontend.Title;
 internal static class TitleScreenMemory
 {
     /// <summary>The memory image of <paramref name="artwork"/> with Baby Metroid source page <paramref name="babySourcePage"/> shown.</summary>
+    [WholeImageFixture("the title screen's memory image")]
     internal static byte[] Compose(TitleGraphicsPresentation artwork, int babySourcePage)
     {
         ReadOnlySpan<byte> characters = artwork.FloorCharacters;
@@ -40,6 +41,7 @@ internal static class TitleScreenMemory
     }
 
     /// <summary>The memory image <paramref name="title"/> shows at its current Baby Metroid frame.</summary>
+    [WholeImageFixture("the title screen's memory image")]
     internal static byte[] Compose(TitleSequenceState title) =>
         Compose(title.TitleGraphics ?? throw new InvalidOperationException("Title rendering requires installed title artwork."),
             TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages[title.BabyFrame]);

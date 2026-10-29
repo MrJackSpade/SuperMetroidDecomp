@@ -94,7 +94,7 @@ internal static class LookupStream5Verification
             for (int phase = 0; phase < 2; phase++)
             {
                 CrocomireMeltingIllustration source = phase == 0 ? CrocomireMeltingIllustration.First : CrocomireMeltingIllustration.Second;
-                native[phase] = Enumerable.Range(0, 256).Select(i => ReadVerificationWord(oracle, (int)source + i * 2)).ToArray();
+                native[phase] = Enumerable.Range(0, 256).Select(i => ReadVerificationWord(oracle, SuperMetroid.AssetExtraction.Enemies.CrocomireMeltingSources.Tilemap(source) + i * 2)).ToArray();
                 var calculated = new CrocomireMeltingTilemap((phase != 0) ? CrocomireMeltingIllustration.Second : CrocomireMeltingIllustration.First, BackgroundTileWordBytes.Tiles(native[phase]));
                 AssertEqual(0, calculated.edits.Count,
                     "Every native melt tilemap word calculates without fallback");
@@ -121,7 +121,7 @@ internal static class LookupStream5Verification
                 content.AppendTiles("first-map", BackgroundTileWordBytes.Tiles(native[0])); content.AppendTiles("second-map", BackgroundTileWordBytes.Tiles(native[1]));
             });
             AssertEqual(expectedIdentity, art.ContentIdentity, "Original canonical melt identity");
-            AssertThrows<InvalidDataException>(() => { _ = art.Tilemap(0); }, "Unknown map identity rejects");
+            AssertThrows<InvalidDataException>(() => { _ = art.Tilemap(CrocomireMeltingIllustration.Second + 1); }, "Unknown map identity rejects");
             Console.WriteLine("Crocomire melt layouts: 512 native words, 512 isolated full-word edits, input ownership, both actual guarded BG2 uploads and canonical identity pass.");
         }
         finally { if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true); }

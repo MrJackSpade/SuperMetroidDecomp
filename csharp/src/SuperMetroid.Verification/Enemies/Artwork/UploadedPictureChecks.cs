@@ -7,7 +7,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 

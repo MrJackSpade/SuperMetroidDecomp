@@ -14,12 +14,6 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <param name="Areas">The Ceres door and escape artwork and the Tourian statues' colors.</param>
 public sealed record InstalledEnemyArtwork(EnemyTileSourceArtwork Enemies, BossSourceArtwork Bosses, AreaSourceArtwork Areas)
 {
-    /// <summary>
-    /// The selected presentation of the whole enemy directory: an edit to any of its enemy, boss or area artwork
-    /// changes it. This is computed rather than persisted in an exact debugger snapshot.
-    /// </summary>
-    public string ContentIdentity => DirectoryIdentity(Enemies, Bosses, Areas);
-
     /// <summary>The selected presentation of a whole enemy directory bound as the catalogs gameplay reads.</summary>
     /// <param name="enemies">The ordinary enemies' artwork.</param>
     /// <param name="bosses">The bosses' artwork.</param>

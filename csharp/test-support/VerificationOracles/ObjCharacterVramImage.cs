@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -14,6 +15,7 @@ internal static class ObjCharacterVramImage
     /// <summary>The VRAM image of the page <paramref name="uploads"/> show as <paramref name="resolver"/> resolves them.</summary>
     /// <param name="uploads">The OBJ character table's uploads.</param>
     /// <param name="resolver">Resolves the uploads' named artwork.</param>
+    [WholeImageFixture("the sprite character VRAM image")]
     internal static SnesVram Of(SpriteArtworkPlacements uploads, IInstalledArtworkContent resolver)
     {
         var vram = new SnesVram();

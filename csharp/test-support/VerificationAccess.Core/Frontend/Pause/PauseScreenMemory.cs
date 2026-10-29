@@ -14,6 +14,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 internal static class PauseScreenMemory
 {
     /// <summary>The character image of <paramref name="artwork"/>, as <c>GameState_13</c> uploads it.</summary>
+    [WholeImageFixture("the pause screen's character image")]
     internal static byte[] Characters(AreaMapPresentation artwork)
     {
         var image = new SnesVram();
@@ -26,6 +27,7 @@ internal static class PauseScreenMemory
     }
 
     /// <summary>The memory image <paramref name="screen"/> shows: its characters with its tilemaps over them.</summary>
+    [WholeImageFixture("the pause screen's memory image")]
     internal static byte[] Compose(PauseScreen screen)
     {
         var image = new SnesVram();

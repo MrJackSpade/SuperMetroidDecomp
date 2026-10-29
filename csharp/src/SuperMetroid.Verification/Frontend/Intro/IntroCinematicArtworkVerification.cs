@@ -379,15 +379,18 @@ internal static class IntroCinematicArtworkVerification
                 nativeVram.AsSpan(ObjCharacterNativeWords.Of(ProjectileObjectPageDefinitions.BeamFirstCharacter) * 2,
                     BeamTileAtlasDefinitions.ByteCount).CopyTo(expected.AsSpan(
                         ObjCharacterNativeWords.Of(ProjectileObjectPageDefinitions.BeamFirstCharacter) * 2));
+                var shownEditedState = editedState.ShownVram();
                 AssertTrue(!expected.SequenceEqual(nativeVram) &&
-                        editedState.ShownVram().SequenceEqual(expected),
+                        shownEditedState.SequenceEqual(expected),
                     $"edited {name} reaches the exact production VRAM transfer without changing other scene bytes");
                 installed.BindFixtureIntroArtwork(edited);
-                AssertTrue(installed.ShownVram().SequenceEqual(expected),
+                var shownInstalled = installed.ShownVram();
+                AssertTrue(shownInstalled.SequenceEqual(expected),
                     $"restored cinematic state rebinds edited {name} with native transfer ordering");
                 File.Delete(overridePath);
                 installed.BindFixtureIntroArtwork(stock);
-                AssertTrue(installed.ShownVram().SequenceEqual(nativeVram),
+                var shownInstalled2 = installed.ShownVram();
+                AssertTrue(shownInstalled2.SequenceEqual(nativeVram),
                     $"removing {name} override restores stock cinematic VRAM");
             }
             for (int page = 0; page < IntroCinematicArtworkFormat.BackgroundPageCount; page++)
@@ -426,9 +429,10 @@ internal static class IntroCinematicArtworkVerification
                 byte[] expected = nativeVram.ToArray();
                 BackgroundTileWordBytes.Of(edited.BackgroundPages.Span).CopyTo(expected.AsSpan(
                     (IntroVramLayout.BackgroundPages.Offset * 2)));
+                var shownImage = CreateRetailIntroFixture(characterArtwork: edited)
+                            .ShownVram();
                 AssertTrue(!expected.SequenceEqual(nativeVram) &&
-                        CreateRetailIntroFixture(characterArtwork: edited)
-                            .ShownVram().SequenceEqual(expected),
+                        shownImage.SequenceEqual(expected),
                     $"edited {name} reaches exactly its production BG page transfer");
                 if (page == 0)
                 {
@@ -456,11 +460,13 @@ internal static class IntroCinematicArtworkVerification
                         "edited opening BG page produces visible flashback pixels");
                 }
                 installed.BindFixtureIntroArtwork(edited);
-                AssertTrue(installed.ShownVram().SequenceEqual(expected),
+                var shownInstalled3 = installed.ShownVram();
+                AssertTrue(shownInstalled3.SequenceEqual(expected),
                     $"restored cinematic rebinds edited {name} without changing another page");
                 File.Delete(overridePath);
                 installed.BindFixtureIntroArtwork(stock);
-                AssertTrue(installed.ShownVram().SequenceEqual(nativeVram),
+                var shownInstalled4 = installed.ShownVram();
+                AssertTrue(shownInstalled4.SequenceEqual(nativeVram),
                     $"removing {name} override restores stock BG VRAM");
             }
             foreach ((string name, int destination, Func<IntroCinematicArtwork, ReadOnlyMemory<byte>> transfer)
@@ -493,20 +499,20 @@ internal static class IntroCinematicArtworkVerification
                 IntroCinematicArtwork edited = installation.LoadIntroCinematicArt();
                 byte[] expected = nativeVram.ToArray();
                 transfer(edited).Span.CopyTo(expected.AsSpan(destination));
-                AssertTrue(!expected.SequenceEqual(nativeVram) &&
-                        CreateRetailIntroFixture(characterArtwork: edited)
-                            .ShownVram().SequenceEqual(expected),
+                byte[] editedShown = CreateRetailIntroFixture(characterArtwork: edited).ShownVram();
+                AssertTrue(!expected.SequenceEqual(nativeVram) && editedShown.SequenceEqual(expected),
                     $"edited {name} reaches only its initial cinematic VRAM page");
                 var restoredEarly = CreateRetailIntroFixture(characterArtwork: stock);
                 restoredEarly.BindFixtureIntroArtwork(edited);
-                AssertTrue(restoredEarly.ShownVram().SequenceEqual(expected),
+                byte[] earlyShown = restoredEarly.ShownVram();
+                AssertTrue(earlyShown.SequenceEqual(expected),
                     $"restored first narration/portrait state receives edited {name}");
 
                 var restoredLate = CreateRetailIntroFixture(characterArtwork: stock);
                 restoredLate.SetupFirstIllustratedPage();
-                byte[] lateBefore = restoredLate.ShownVram().ToArray();
+                byte[] lateBefore = restoredLate.ShownVram();
                 restoredLate.BindFixtureIntroArtwork(edited);
-                byte[] lateAfter = restoredLate.ShownVram().ToArray();
+                byte[] lateAfter = restoredLate.ShownVram();
                 if (name == IntroCinematicArtworkFormat.InitialNarrationTilemapFileName)
                     AssertTrue(lateAfter.SequenceEqual(lateBefore),
                         "later typewriter map survives rebinding an edited initial narration page");
@@ -644,7 +650,9 @@ internal static class IntroCinematicArtworkVerification
         {
             native.Step(0);
             installed.Step(0);
-            AssertTrue(IntroTilemapsFixtures.Vram(installedVram).ImageEquals(IntroTilemapsFixtures.Vram(nativeVram)),
+            var shownInstalledVram = IntroTilemapsFixtures.Vram(installedVram);
+            var shownNativeVram = IntroTilemapsFixtures.Vram(nativeVram);
+            AssertTrue(shownInstalledVram.ImageEquals(shownNativeVram),
                 $"installed normal eye blink preserves native VRAM at frame {frame}");
         }
         native.StartEnglishPageSix();
@@ -653,7 +661,9 @@ internal static class IntroCinematicArtworkVerification
         {
             native.Step(0);
             installed.Step(0);
-            AssertTrue(IntroTilemapsFixtures.Vram(installedVram).ImageEquals(IntroTilemapsFixtures.Vram(nativeVram)),
+            var shownInstalledVram2 = IntroTilemapsFixtures.Vram(installedVram);
+            var shownNativeVram2 = IntroTilemapsFixtures.Vram(nativeVram);
+            AssertTrue(shownInstalledVram2.ImageEquals(shownNativeVram2),
                 $"installed page-six eye blink preserves native VRAM at frame {frame}");
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,

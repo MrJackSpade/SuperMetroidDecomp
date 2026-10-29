@@ -27,7 +27,7 @@ public sealed class PauseReserveTankSourcePresentation : PauseReserveTankPresent
     /// </summary>
     internal SpriteFrame ToFrame(PauseReserveTankVisual visual, string frameName) =>
         Composition(visual) is { } composition ? composition.ToFrame(frameName, 0)
-            : new(frameName, [SpritePart.Single(PauseReserveTankStockParts.StockTile(visual), 0, 3)
+            : new(frameName, [SpritePart.Single(PauseReserveTankStockPartDefinitions.StockTile(visual), 0, 3)
                 .ToFramePart(0, SpritePartFrames.StandardSizes, inheritPalette: true)]);
 
     /// <summary>The authored composition of one reserve visual, or null where the stock character stands.</summary>
@@ -68,7 +68,7 @@ public sealed class PauseReserveTankSourcePresentation : PauseReserveTankPresent
         {
             if (!document.Frames.TryGetValue(name, out var parts) || parts is null)
                 throw new InvalidDataException($"Missing reserve tank frame {name}.");
-            return parts.Length == 1 && parts[0] == PauseReserveTankStockParts.StockPart(identity)
+            return parts.Length == 1 && parts[0] == PauseReserveTankStockPartDefinitions.StockPart(identity)
                 ? null : MenuSpriteCompiler.Compile(parts, name);
         }
         var anchorOverrides = new Dictionary<int, AnchorOverride>();

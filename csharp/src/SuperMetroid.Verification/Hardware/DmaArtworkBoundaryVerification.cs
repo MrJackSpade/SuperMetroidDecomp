@@ -69,7 +69,8 @@ internal static class DmaArtworkBoundaryVerification
                     KraidBackgroundDefinitionsConstants.StandardBg3TilesAddress + quarter * KraidHudRestoration.QuarterBytes,
                     KraidHudRestoration.QuarterBytes,
                     (ushort)(KraidBackgroundDefinitions.StandardBg3VramWord + quarter * KraidHudRestoration.QuarterBytes / 2));
-                AssertTrue(BgArtworkFixtures.ComposedVram(actual, new BgArtworkBytes().WithHud(maps.HudTiles)).ImageEquals(expected),
+                var shownActual = BgArtworkFixtures.ComposedVram(actual, new BgArtworkBytes().WithHud(maps.HudTiles));
+                AssertTrue(shownActual.ImageEquals(expected),
                     $"Kraid BG3 quarter {quarter} matches the native reference");
                 AssertEqual(quarter + 1, state.RestoredBg3Quarters, "Kraid retains the four-frame restoration cadence");
                 AssertEqual(KraidAiFunction.DeathFadeInBackground, state.Parts[0].Function,

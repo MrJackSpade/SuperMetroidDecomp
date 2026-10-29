@@ -39,7 +39,9 @@ internal static class PauseReserveUiAssetsVerification
         {
             native.Step(0, 0, frameCounterByte: (byte)frame);
             installed.Step(0, 0, frameCounterByte: (byte)frame);
-            AssertTrue(native.ShownVram().SequenceEqual(installed.ShownVram()),
+            var shownNative = native.ShownVram();
+            var shownInstalled = installed.ShownVram();
+            AssertTrue(shownNative.SequenceEqual(shownInstalled),
                 "installed reserve labels/digits/arrow tile palettes match native with their ROM sources forbidden");
             AssertTrue(native.CaptureRenderSnapshot().Paint.Colors.SequenceEqual(installed.CaptureRenderSnapshot().Paint.Colors),
                 "all 32 reserve-arrow color phases match native");

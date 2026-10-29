@@ -36,8 +36,10 @@ internal static class MapScreensVerification
         {
             var native = World(bus, original, index);
             var installed = World(guard, original, index);
-            byte[] usedNativeVram = MenuScreenFixtures.Vram(native.screen).Bytes.ToArray();
-            AssertTrue(usedNativeVram.SequenceEqual(MenuScreenFixtures.Vram(installed.screen).Bytes),
+            var shownScreen = MenuScreenFixtures.Vram(native.screen);
+            byte[] usedNativeVram = shownScreen.Bytes.ToArray();
+            var shownScreen2 = MenuScreenFixtures.Vram(installed.screen);
+            AssertTrue(usedNativeVram.SequenceEqual(shownScreen2.Bytes),
                 "stock world resources reproduce native VRAM");
             foreach (bool backdropMath in new[] { false, true })
                 AssertTrue(native.RenderBackgrounds(backdropMath).SequenceEqual(installed.RenderBackgrounds(backdropMath)), "all six world layers preserve native additive pixels");
@@ -48,7 +50,9 @@ internal static class MapScreensVerification
             var nativeRoom = new FileSelectRoomMapGraphics(system, area,
                 mapPresentation: original, sheets: MenuSheetFixtures.For(original));
             var installedRoom = new FileSelectRoomMapGraphics(system, area, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
-            AssertTrue(MenuScreenFixtures.Vram(nativeRoom.screen).ImageEquals(MenuScreenFixtures.Vram(installedRoom.screen)), "stock resolved frame/footer/area label matches full native VRAM");
+            var shownScreen3 = MenuScreenFixtures.Vram(nativeRoom.screen);
+            var shownScreen4 = MenuScreenFixtures.Vram(installedRoom.screen);
+            AssertTrue(shownScreen3.ImageEquals(shownScreen4), "stock resolved frame/footer/area label matches full native VRAM");
             AssertTrue(nativeRoom.RenderFrameOnly().SequenceEqual(installedRoom.RenderFrameOnly()), "native frame-only transition pixels match");
             foreach (ushort scroll in new ushort[] { 0, 8, 127, 255 })
                 AssertTrue(nativeRoom.RenderBackgrounds(new(scroll, scroll)).SequenceEqual(installedRoom.RenderBackgrounds(new(scroll, scroll))), "fixed room frame remains exact while map scrolls");

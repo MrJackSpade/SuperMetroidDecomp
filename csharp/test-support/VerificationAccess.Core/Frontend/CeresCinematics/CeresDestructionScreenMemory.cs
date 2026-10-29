@@ -15,6 +15,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 internal static class CeresDestructionScreenMemory
 {
     /// <summary>The image <paramref name="uploads"/> leave over <paramref name="artwork"/>, in order.</summary>
+    [WholeImageFixture("the Ceres destruction's memory image")]
     internal static byte[] Compose(IntroCinematicArtwork artwork, IReadOnlyList<CeresDestructionUpload> uploads, bool withSamus)
     {
         var vram = new SnesVram();
@@ -52,6 +53,7 @@ internal static class CeresDestructionScreenMemory
     }
 
     /// <summary>The image <paramref name="scene"/>'s uploads leave over its bound artwork.</summary>
+    [WholeImageFixture("the Ceres destruction's memory image")]
     internal static byte[] Compose(CeresDestructionCinematicState scene) =>
         Compose(scene.Artwork ?? throw new InvalidOperationException("Ceres destruction rendering requires installed cinematic artwork."),
             scene.Uploads, scene.WithSamus);

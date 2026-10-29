@@ -1488,9 +1488,10 @@ internal static class MapPresentationVerification
         byte[] expected = BackgroundTileWordBytes.Of(AreaMapTilemapBuilder.Build(edited.Get(AreaId.Crateria), system, MapTileWords.FileSelectUndownloadedBlank));
         byte[] unchanged = BackgroundTileWordBytes.Of(AreaMapTilemapBuilder.Build(original.Get(AreaId.Crateria), system, MapTileWords.FileSelectUndownloadedBlank));
         AssertTrue(!expected.SequenceEqual(unchanged), "override changes a visible file-select cell");
+        var shownInstalled = MenuScreenFixtures.Vram(installed.screen);
         for (int i = 0; i < expected.Length / 2; i++)
             AssertEqual(System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(expected.AsSpan(i * 2)),
-                MenuScreenFixtures.Vram(installed.screen).ReadWord(SuperMetroid.Core.Frontend.Menus.MenuVramLayout.Bg1TilemapWord + i), "file-select rebind writes exact edited tilemap");
+                shownInstalled.ReadWord(SuperMetroid.Core.Frontend.Menus.MenuVramLayout.Bg1TilemapWord + i), "file-select rebind writes exact edited tilemap");
         using var snapshot = new MemoryStream();
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(snapshot, installed);
         snapshot.Position = 0;

@@ -42,7 +42,7 @@ internal static class EnemyContentIdentityVerification
             .Where(property => property.Name != nameof(EnemyTileSourceArtwork.ContentIdentity))
             .Select(property => property.PropertyType)).ToArray();
         AssertEqual(35, childTypes.Length, "all enemy bundle subdomains are accounted for");
-        foreach (Type type in childTypes.Concat(catalogs).Append(typeof(InstalledEnemyArtwork)).Append(typeof(EnemyPaletteSheet)))
+        foreach (Type type in childTypes.Concat(catalogs).Append(typeof(EnemyPaletteSheet)))
         {
             AssertTrue(MetadataShape.DeclaresProperty(type, "ContentIdentity"),
                 type.Name + " exposes typed selected content identity");

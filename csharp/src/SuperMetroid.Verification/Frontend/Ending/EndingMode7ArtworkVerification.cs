@@ -158,9 +158,11 @@ internal static class EndingMode7ArtworkVerification
                     partial.Step();
                     partialAudio.AdvanceFrame(default);
                 }
-                byte[] partiallyUploaded = partial.ShownVram().ToArray();
+                var shownPartial = partial.ShownVram();
+                byte[] partiallyUploaded = shownPartial.ToArray();
                 partial.Stage.BindFloorArtwork(editedMap);
-                byte[] rebound = partial.ShownVram().ToArray();
+                var shownPartial2 = partial.ShownVram();
+                byte[] rebound = shownPartial2.ToArray();
                 for (int word = 0; word < EndingArtworkExtentDefinitions.FlyawayChunkBytes; word++)
                     AssertEqual(partiallyUploaded[word * 2], rebound[word * 2],
                         $"edited explosion retains already-transferred map word {word}");

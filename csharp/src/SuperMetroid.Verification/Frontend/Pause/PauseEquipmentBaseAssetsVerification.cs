@@ -42,7 +42,9 @@ internal static class PauseEquipmentBaseAssetsVerification
             ControllerButton input = frame == 0 ? ControllerButton.R : frame == toMap ? ControllerButton.L : 0;
             native.Step(input, input, frameCounterByte: (byte)frame);
             installed.Step(input, input, frameCounterByte: (byte)frame);
-            AssertTrue(native.ShownVram().SequenceEqual(installed.ShownVram()),
+            var shownNative = native.ShownVram();
+            var shownInstalled = installed.ShownVram();
+            AssertTrue(shownNative.SequenceEqual(shownInstalled),
                 "equipment base migration retains exact native VRAM through both page transitions");
             AssertTrue(native.Render().SequenceEqual(installed.Render()),
                 "equipment base migration retains native pixels with its source forbidden");

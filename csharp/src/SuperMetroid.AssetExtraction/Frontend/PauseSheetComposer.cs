@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -19,8 +18,6 @@ internal static class PauseSheetComposer
     /// <summary>CGRAM's first sprite colour.</summary>
     private const int SpriteColours = 128;
 
-    /// <summary>OBSEL value the pause-screen PPU setup installs: the sprite sizes the pause sheet's frames are composed in.</summary>
-    internal const byte PauseObjectSelection = 0x01;
 
     /// <summary>What the pause sheet composes.</summary>
     internal static SpriteSheetSources Sources(AreaMapPresentation maps) =>
@@ -50,7 +47,7 @@ internal static class PauseSheetComposer
         }));
         var cgram = new SnesCgram();
         new CgramPalettes(cgram).LoadImage(maps.Palettes.Pause);
-        return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(PauseObjectSelection),
+        return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(PauseSheetDefinitions.ObjectSelection),
             PartsKeepOwnRows: true);
     }
 

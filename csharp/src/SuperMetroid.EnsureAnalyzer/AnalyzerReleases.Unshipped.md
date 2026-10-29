@@ -53,3 +53,4 @@ SME6448 | Design | Error | HostConcernAnalyzer
 SME6449 | Design | Error | DisplayRegisterAnalyzer
 SME6450 | Design | Error | EnumValueReadAnalyzer
 SME6451 | Design | Error | CatalogDecisionAnalyzer
+SME6452 | Performance | Error | WholeImageFixtureInLoopAnalyzer

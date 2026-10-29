@@ -99,8 +99,10 @@ internal static class EndingSnapshotTestsVerification
                 {
                     var burst = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
                     var sub = burst.LayersOf<AddedScreenTilesLayer>().Single();
-                    AssertTrue(ShowsTilemap(legacy.ShownVram(), sub.Cells, 0x7c00), "F2B7 selects burst BG2 map");
-                    AssertTrue(ShowsTilemap(legacy.ShownVram(), (sub.MainCoverage ?? throw new InvalidOperationException("Verification requires sub.MainCoverage.")).Cells, 0x7000),
+                    var shownLegacy = legacy.ShownVram();
+                    AssertTrue(ShowsTilemap(shownLegacy, sub.Cells, 0x7c00), "F2B7 selects burst BG2 map");
+                    var shownLegacy2 = legacy.ShownVram();
+                    AssertTrue(ShowsTilemap(shownLegacy2, (sub.MainCoverage ?? throw new InvalidOperationException("Verification requires sub.MainCoverage.")).Cells, 0x7000),
                         "F2B7 keeps BG1 map and excludes backdrop color math");
 
                     burstDisplayFrames++;
@@ -110,7 +112,8 @@ internal static class EndingSnapshotTestsVerification
                 {
                     var finale = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
                     var backgrounds = finale.LayersOf<ScreenTilesLayer>();
-                    AssertTrue(backgrounds.Zip(new[] { 0x7800, 0x7400, 0x7800, 0x7400 }).All(shown => ShowsTilemap(legacy.ShownVram(), shown.First.Cells, shown.Second)),
+                    var shownLegacy3 = legacy.ShownVram();
+                    AssertTrue(backgrounds.Zip(new[] { 0x7800, 0x7400, 0x7800, 0x7400 }).All(shown => ShowsTilemap(shownLegacy3, shown.First.Cells, shown.Second)),
                         "native explosion finale selects both background maps in main-screen priority order");
                     AssertTrue(backgrounds.All(bg => ShowsCharacters(bg.Cells, legacy.LayerTiles(EndingTileLayer.Explosion, TileInkDepth.SixteenColours))),
                         "explosion finale uses Mode1 character base, not stale Mode7 decoding");
@@ -163,7 +166,8 @@ internal static class EndingSnapshotTestsVerification
                         "live reward jump consumes native flight and landing durations before shooting");
                     byte[] icon = RomDataReader.Decompress(bus, EndingSourceDefinitions.Artwork.PostCreditsFloorCharacters,
                         EndingSourceDefinitions.Artwork.DecompressionLimit);
-                    AssertTrue(icon.AsSpan(0, 0x8000).SequenceEqual(legacy.ShownVram()[..0x8000]),
+                    var shownLegacy4 = legacy.ShownVram();
+                    AssertTrue(icon.AsSpan(0, 0x8000).SequenceEqual(shownLegacy4[..0x8000]),
                         "live landing uploads all sixteen chunks of the native interleaved icon graphics");
                 }
                 if (firstPhaseFrame && legacy.Stage.Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
@@ -176,10 +180,11 @@ internal static class EndingSnapshotTestsVerification
                     var add = flash.LayersOf<ScreenTintLayer>().Single();
                     AssertEqual((byte)Math.Max(0, 31 - elapsed), add.Red, "native post-shot white fade component");
                     var textPlane = flash.LayersOf<ScreenTilesLayer>().Single();
+                    var shownLegacy5 = legacy.ShownVram();
                     // The lower screen is off screen at zero scroll until its own upload replaces it (#1404), so only the
                     // upper screen is the native one here.
-                    AssertTrue(ShowsUpperScreen(legacy.ShownVram(), textPlane.Cells, 0x4c00),
-                        "final text uses native upper screen" + TilemapDifference(legacy.ShownVram(), textPlane.Cells, 0x4c00));
+                    AssertTrue(ShowsUpperScreen(shownLegacy5, textPlane.Cells, 0x4c00),
+                        "final text uses native upper screen" + TilemapDifference(shownLegacy5, textPlane.Cells, 0x4c00));
                     AssertEqual(64, textPlane.MapSize.Y, "final text map is two screens tall");
                     if (firstPhaseFrame)
                         AssertTrue(legacy.Render().All(pixel => pixel == new RgbaPixel(255, 255, 255)), "post-shot flash begins fully white");
@@ -233,7 +238,8 @@ internal static class EndingSnapshotTestsVerification
                     var copyright = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
                     AssertTrue(!copyright.Layers.Any(layer => layer is SpritesLayer),
                         "native E293 hides reward actors during copyright panel");
-                    AssertTrue(ShowsTilemap(legacy.ShownVram(), copyright.LayersOf<ScreenTilesLayer>().Single().Cells, 0x4800),
+                    var shownLegacy6 = legacy.ShownVram();
+                    AssertTrue(ShowsTilemap(shownLegacy6, copyright.LayersOf<ScreenTilesLayer>().Single().Cells, 0x4800),
                         "native E293 selects copyright BG1 after first 64 reveal frames");
                 }
                 if (legacy.Stage.Phase is EndingCreditsPhase.WaitForPlanetEscapeMusic or EndingCreditsPhase.WaitForPlanetEscapeMusicQueue)
@@ -252,7 +258,8 @@ internal static class EndingSnapshotTestsVerification
                     AssertEqual(hours >= 10 ? 0 : 1, backgrounds.Length, "native reward reveal background enable mask");
                     if (hours < 10)
                     {
-                        AssertTrue(ShowsTilemap(legacy.ShownVram(), backgrounds[0].Cells, 0x4c00), "reward reveal selects waiting BG2, not producer BG1");
+                        var shownLegacy7 = legacy.ShownVram();
+                        AssertTrue(ShowsTilemap(shownLegacy7, backgrounds[0].Cells, 0x4c00), "reward reveal selects waiting BG2, not producer BG1");
                         AssertTrue(ShowsCharacters(backgrounds[0].Cells, legacy.LayerTiles(EndingTileLayer.Waiting, TileInkDepth.SixteenColours)),
                             "reward reveal uses waiting BG2 characters");
                     }
@@ -317,7 +324,8 @@ internal static class EndingSnapshotTestsVerification
                         AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8ce7e9 + color * 2),
                             memory.Colors[color], "native end-credits Intro4 palette");
                     byte[] reward = RomDataReader.Decompress(bus, hours < 3 ? 0x97b957 : 0x979803, 0x8000);
-                    AssertTrue(reward.AsSpan(0, 0x4000).SequenceEqual(legacy.ShownVram().AsSpan(0, 0x4000)),
+                    var shownLegacy8 = legacy.ShownVram();
+                    AssertTrue(reward.AsSpan(0, 0x4000).SequenceEqual(shownLegacy8.AsSpan(0, 0x4000)),
                         "reward branch uses native contiguous OBJ characters");
                 }
                 DisplayPacket? packet = null;

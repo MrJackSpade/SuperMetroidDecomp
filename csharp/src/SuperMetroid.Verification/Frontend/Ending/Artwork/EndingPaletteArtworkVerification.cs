@@ -362,10 +362,12 @@ internal static class EndingPaletteArtworkVerification
                     stockState.Step();
                 }
                 while (editedState.ResumesAfterFrameWait);
+                var shownEditedState = editedState.ShownVram();
+                var shownStockState = stockState.ShownVram();
                 AssertTrue(!EndingCreditsPresentation.CaptureRenderSnapshot(editedState).Paint.Colors.SequenceEqual(
                         EndingCreditsPresentation.CaptureRenderSnapshot(stockState).Paint.Colors) &&
-                    editedState.ShownVram().SequenceEqual(
-                        stockState.ShownVram()),
+                    shownEditedState.SequenceEqual(
+                        shownStockState),
                     "edited escape palette reaches the active CGRAM image");
             }
             if (id is EndingPaletteId.LogoInitial or EndingPaletteId.LogoCrossfade)

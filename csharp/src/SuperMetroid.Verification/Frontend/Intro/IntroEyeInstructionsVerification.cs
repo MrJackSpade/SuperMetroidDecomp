@@ -52,12 +52,13 @@ internal static class IntroEyeInstructionsVerification
             string at = $"intro eye {phase} update {update}";
             AssertEqual(native.Timer, objects.EyeInstructionTimer.RawValue, $"{at}: countdown");
             ushort[] expected = BackgroundTileWordBytes.Words(artwork.FrameTiles(native.Frame));
+            var shownTilemaps = IntroTilemapsFixtures.Vram(vram);
             for (int row = 0; row < size.Y; row++)
             for (int column = 0; column < size.X; column++)
             {
                 int word = IntroVramWords.PortraitTilemapWord +
                     (cell.Y + row) * IntroCinematicDefinitions.Tilemaps.TilemapWidth + cell.X + column;
-                AssertEqual(expected[row * size.X + column], IntroTilemapsFixtures.Vram(vram).ReadWord(word), $"{at}: portrait eye frame");
+                AssertEqual(expected[row * size.X + column], shownTilemaps.ReadWord(word), $"{at}: portrait eye frame");
             }
         }
     }

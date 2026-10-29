@@ -4,7 +4,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Frontend.FileSelect;
 
 /// <summary>File-copy arrow compositions $82:CDCD/CE15/CE5D/CECD, which the file-select sheet pictures.</summary>
-internal static class FileCopyArrowParts
+internal static class FileCopyArrowPartDefinitions
 {
     /// <summary>Exposes the selected native OAM part order for the four file-copy arrow shapes.</summary>
     internal static ReadOnlySpan<CompiledSpritePart> Parts(int shape) => Shapes[shape];

@@ -55,6 +55,8 @@ internal static class FileSelectRoomMapVerification
             if (downloaded) system.SetAreaMapAcquired(area);
             var graphics = new FileSelectRoomMapGraphics(system, area, mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));
             byte[] pause = BackgroundTileWordBytes.Of(AreaMapTilemapBuilder.Build(map, system, MapTileWords.PauseBlank));
+            // The room map's image is built once and every cell and frame word read from it.
+            var shownRoomMap = MenuScreenFixtures.Vram(graphics.screen);
             for (int y = 0; y < 32; y++)
             for (int x = 0; x < 64; x++)
             {
@@ -65,7 +67,7 @@ internal static class FileSelectRoomMapVerification
                 ushort expected = explored ? (ushort)(raw & 0xfbff)
                     : downloaded && map.IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))) ? raw
                     : downloaded ? (ushort)31 : (ushort)15;
-                AssertEqual(expected, MenuScreenFixtures.Vram(graphics.screen).ReadWord((ushort)(0x5000 + offset / 2)),
+                AssertEqual(expected, shownRoomMap.ReadWord((ushort)(0x5000 + offset / 2)),
                     $"room-select area {areaIndex} downloaded={downloaded} cell {x},{y}");
                 ushort pauseExpected = !explored && !(downloaded && map.IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))))
                     ? (ushort)31 : expected;
@@ -84,7 +86,7 @@ internal static class FileSelectRoomMapVerification
                         : (ushort)0x2801;
                 if (word is >= 170 and < 182)
                     expected = (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x820000 | (label + (word - 170) * 2)) & 0xefff);
-                AssertEqual(expected, MenuScreenFixtures.Vram(graphics.screen).ReadWord((ushort)(0x5800 + word)), "native room-select frame and area label");
+                AssertEqual(expected, shownRoomMap.ReadWord((ushort)(0x5800 + word)), "native room-select frame and area label");
             }
             RgbaPixel[] pixels = graphics.RenderBackgrounds(new(0, unchecked((ushort)-40)));
             AssertEqual(256 * 224, pixels.Length, "room map visible viewport");

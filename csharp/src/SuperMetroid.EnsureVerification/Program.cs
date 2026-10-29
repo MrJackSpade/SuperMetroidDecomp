@@ -43,6 +43,11 @@ internal static class Program
                 VerifyCartridgeEncodingAnalyzer();
                 return 0;
             }
+            if (args is ["--whole-image-fixture"])
+            {
+                WholeImageFixtureInLoopAnalyzerTests.VerifyWholeImageFixtureInLoopAnalyzer();
+                return 0;
+            }
             // Every suite runs even after one fails, so a single run reports every failure in full.
             AnalyzerSuite[] suites =
             [
@@ -73,6 +78,7 @@ internal static class Program
                 new AnalyzerSuite(nameof(CartridgeAddressAnalyzerTests.VerifyCartridgeAddressAnalyzer), CartridgeAddressAnalyzerTests.VerifyCartridgeAddressAnalyzer),
                 new AnalyzerSuite(nameof(EnumValueReadAnalyzerTests.VerifyEnumValueReadAnalyzer), EnumValueReadAnalyzerTests.VerifyEnumValueReadAnalyzer),
                 new AnalyzerSuite(nameof(CatalogDecisionAnalyzerTests.VerifyCatalogDecisionAnalyzer), CatalogDecisionAnalyzerTests.VerifyCatalogDecisionAnalyzer),
+                new AnalyzerSuite(nameof(WholeImageFixtureInLoopAnalyzerTests.VerifyWholeImageFixtureInLoopAnalyzer), WholeImageFixtureInLoopAnalyzerTests.VerifyWholeImageFixtureInLoopAnalyzer),
                 new AnalyzerSuite(nameof(HostConcernAnalyzerTests.VerifyHostConcernAnalyzer), HostConcernAnalyzerTests.VerifyHostConcernAnalyzer),
                 new AnalyzerSuite(nameof(DisplayRegisterAnalyzerTests.VerifyDisplayRegisterAnalyzer), DisplayRegisterAnalyzerTests.VerifyDisplayRegisterAnalyzer),
                 new AnalyzerSuite(nameof(AudioRequestAnalyzerTests.VerifyAudioRequestAnalyzer), AudioRequestAnalyzerTests.VerifyAudioRequestAnalyzer),

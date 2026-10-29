@@ -141,7 +141,8 @@ internal static class CeresFlightArtworkVerification
             CeresFlightArtwork edited = installation.LoadIntroCinematicArt().CeresFlight;
             bool isRearMap = name == CeresFlightArtworkFormat.MapFileName;
             var fresh = new IntroCeresFlightState(new AudioQueues(), edited, sheets: CinematicSheetFixtures.WithFlight(edited));
-            AssertTrue(fresh.ShownVram().SequenceEqual(
+            var shownFresh = fresh.ShownVram();
+            AssertTrue(shownFresh.SequenceEqual(
                     ExpectedCeresFlightVram(edited, rear: false)),
                 $"edited {name} reaches exact front-view VRAM without changing other bytes");
             var restored = new IntroCeresFlightState(new AudioQueues(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
@@ -155,7 +156,8 @@ internal static class CeresFlightArtworkVerification
                     installation.IntroCinematicDirectory, null));
             parent.CurrentCeresFlight = restored;
             parent.BindFixtureIntroArtwork(installation.LoadIntroCinematicArt());
-            AssertTrue(restored.ShownVram().SequenceEqual(
+            var shownRestored = restored.ShownVram();
+            AssertTrue(shownRestored.SequenceEqual(
                     ExpectedCeresFlightVram(edited, rear: true)),
                 $"restored rear view rebinds edited {name} with native map ordering");
             if (isRearMap)

@@ -1,7 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>The installed enemy palettes, extended frames and colour catalogs an enemy artwork catalog holds for gameplay (#1463).</summary>
-[ArchitectureReview("context-bag", "A record of installed artwork catalogs; its members are data, not services.")]
 public sealed record EnemyGameplayArtworkParts
 {
     /// <summary>Each enemy's palette.</summary>

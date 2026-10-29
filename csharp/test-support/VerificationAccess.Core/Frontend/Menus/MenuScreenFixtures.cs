@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Frontend.Menus;
 internal static class MenuScreenFixtures
 {
     /// <summary>A VRAM holding the image <paramref name="screen"/> shows.</summary>
+    [WholeImageFixture("the menu's 64 KiB VRAM image")]
     internal static SnesVram Vram(MenuScreen screen)
     {
         var vram = new SnesVram();

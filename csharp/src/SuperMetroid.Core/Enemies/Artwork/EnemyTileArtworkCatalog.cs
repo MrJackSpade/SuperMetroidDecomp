@@ -15,12 +15,11 @@ public abstract class EnemyTileArtworkCatalog
 
     /// <summary>Copies the installed palettes and catalogs.</summary>
     /// <param name="parts">The installed artwork gameplay reads.</param>
-    protected EnemyTileArtworkCatalog(EnemyGameplayArtworkParts parts)
-    {
-        Ensure.NotNull(parts);
-        Ensure.NotNull(parts.Palettes);
-        installed = parts with { Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(parts.Palettes) };
-    }
+    protected EnemyTileArtworkCatalog(EnemyGameplayArtworkParts parts) =>
+        installed = Ensure.NotNull(parts) with
+        {
+            Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(Ensure.NotNull(parts.Palettes)),
+        };
 
     /// <summary>
     /// Complete selected enemy presentation, including legacy-override merges, display

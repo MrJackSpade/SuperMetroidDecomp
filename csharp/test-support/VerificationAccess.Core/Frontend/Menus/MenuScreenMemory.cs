@@ -14,16 +14,20 @@ namespace SuperMetroid.Core.Frontend.Menus;
 internal static class MenuScreenMemory
 {
     /// <summary>The character image of <paramref name="screen"/>'s bound artwork.</summary>
+    [WholeImageFixture("the menu's character image")]
     internal static byte[] Characters(MenuScreen screen)
     {
         var image = new SnesVram();
         screen.WorldArtwork.LoadTo(image);
         screen.MapTiles.LoadTo(new VramRegion(image, MenuVramLayout.MapCharacters));
-        screen.Sprites.LoadArtworkTo(new VramRegion(image, MenuVramLayout.ObjectCharacters));
+        // The menu's sprite page is installed artwork, the same for every menu screen (#1463).
+        SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.Sprites
+            .LoadArtworkTo(new VramRegion(image, MenuVramLayout.ObjectCharacters));
         return image.CaptureImage();
     }
 
     /// <summary>The memory image <paramref name="screen"/> shows: its characters with its tilemaps over them.</summary>
+    [WholeImageFixture("the menu's 64 KiB memory image")]
     internal static byte[] Compose(MenuScreen screen)
     {
         byte[] image = Characters(screen);

@@ -3,7 +3,6 @@ using SuperMetroid.Core.Rooms.Artwork;
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>The ending's tilemaps the game binds (#633, #1463); the character atlases the ending's sheets are composed from belong to the import pipeline.</summary>
-[ArchitectureReview("context-bag", "A record of the ending scene's installed artwork; its members are data, not services.")]
 public record EndingObjectSceneParts
 {
     /// <summary>Four 32-by-32-cell explosion maps, ordered by <see cref="EndingObjectFragmentId"/>.</summary>

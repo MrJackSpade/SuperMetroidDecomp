@@ -53,7 +53,8 @@ internal static class EndingScreenPublicationVerification
             restored.InstalledArtwork.BindStaffCredits(InstalledFixtures.Maps.StaffCredits);
             restored.InstalledArtwork.BindEndingText(InstalledFixtures.Maps.EndingText);
             FramePaint restoredShown = EndingCreditsPresentation.CaptureRenderSnapshot(restored).Paint;
-            AssertTrue(shownVram.SequenceEqual(restored.ShownVram()), $"a restored ending shows the same image at {target}");
+            var shownRestored = restored.ShownVram();
+            AssertTrue(shownVram.SequenceEqual(shownRestored), $"a restored ending shows the same image at {target}");
             AssertTrue(shown.Colors.SequenceEqual(restoredShown.Colors), $"a restored ending shows the same palette at {target}");
             AssertTrue(PlacedSpritePart.Of(shown.SpriteDraws).SequenceEqual(PlacedSpritePart.Of(restoredShown.SpriteDraws)),
                 $"a restored ending places the same sprite entries at {target}");

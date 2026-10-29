@@ -71,7 +71,7 @@ internal static class PauseReserveFramesVerification
             AssertEqual((ushort)1, ReadVerificationWord(rom, pointer), "native reserve part count");
             var x = new SnesSpritemapXWord(ReadVerificationWord(rom, pointer + 2));
             var attributes = new SnesObjAttributeWord(ReadVerificationWord(rom, pointer + 5));
-            var stockPart = PauseReserveTankStockParts.StockPart((PauseReserveTankVisual)frame.Id);
+            var stockPart = PauseReserveTankStockPartDefinitions.StockPart((PauseReserveTankVisual)frame.Id);
             AssertEqual(x.SignedOffset, stockPart.OffsetX, "native reserve X offset");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(pointer + 4)), stockPart.OffsetY, "native reserve Y offset");
             AssertEqual(x.IsLarge ? 16 : 8, stockPart.Size, "native reserve sprite size");

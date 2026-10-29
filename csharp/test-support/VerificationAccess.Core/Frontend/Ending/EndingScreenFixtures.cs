@@ -7,9 +7,11 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal static class EndingScreenFixtures
 {
     /// <summary>A VRAM holding the tilemap transfers <paramref name="screen"/> recorded, which read no installed artwork.</summary>
+    [WholeImageFixture("the ending's VRAM image")]
     internal static SnesVram Vram(EndingScreen screen) => Vram(screen, new EndingScreenArtwork(null, null, null, null, EndingReward.Armored));
 
     /// <summary>A VRAM holding the transfers <paramref name="screen"/> recorded, replayed over <paramref name="artwork"/>.</summary>
+    [WholeImageFixture("the ending's VRAM image")]
     internal static SnesVram Vram(EndingScreen screen, EndingScreenArtwork artwork)
     {
         var vram = new SnesVram();

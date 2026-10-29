@@ -166,9 +166,10 @@ internal static class EndingPlanetBoundaryVerification
                 // The native comparison replays exactly this sample's graphics and OAM under the retail registers.
                 LayeredScene sample = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
                 capture.Snapshots[frame] = sample;
+                var shownEnding = ending.ShownVram();
                 File.WriteAllBytes(Path.Combine(capture.Directory, $"later-{frame:D4}-{ending.Stage.Phase}.ppu"),
-                    NativeProbeInput(sample, ending.ShownVram(), ScreenSpritesFixtures.ToOam(EndingCreditsPresentation.PrepareSprites(ending, EndingCreditsPresentation.CurrentEscapeObjectSheet(ending))),
-                        SuperMetroid.AssetExtraction.Frontend.Ending.EndingSheetObjectSelection.Of(EndingCreditsPresentation.CurrentEscapeObjectSheet(ending))));
+                    NativeProbeInput(sample, shownEnding, ScreenSpritesFixtures.ToOam(EndingCreditsPresentation.PrepareSprites(ending, EndingCreditsPresentation.CurrentEscapeObjectSheet(ending))),
+                        SuperMetroid.AssetExtraction.Frontend.Ending.EndingSheetObjectSelectionDefinitions.Of(EndingCreditsPresentation.CurrentEscapeObjectSheet(ending))));
             }
             ending.Step();
             audio.AdvanceFrame(default);

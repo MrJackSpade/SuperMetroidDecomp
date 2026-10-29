@@ -23,6 +23,7 @@ internal static class SuperMetroidRuntimeVramAccess
         /// A copy of the runtime's VRAM image with its background character artwork composed over it (#1350), each
         /// binding's bytes read from the artwork the runtime has installed (#1422).
         /// </summary>
+        [WholeImageFixture("the runtime's composed VRAM image")]
         internal byte[] ComposedVram() => BgArtworkFixtures.Composed(self.Vram, self.BgArtwork, self.BackgroundArtwork());
 
         /// <summary>

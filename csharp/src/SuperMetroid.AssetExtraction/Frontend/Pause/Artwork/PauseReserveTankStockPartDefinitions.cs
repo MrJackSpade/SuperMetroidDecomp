@@ -6,7 +6,7 @@ using SuperMetroid.Core.Frontend.Pause;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>The stock single-character reserve-strip compositions the pause sheet's reserve frames are recognised from.</summary>
-internal static class PauseReserveTankStockParts
+internal static class PauseReserveTankStockPartDefinitions
 {
     /// <summary>Reserve spritemaps $82:C35B/C369/C3D9..C410 are one stationary small sprite: partial levels 1..6 advance
     /// through sheet tiles 47..4C, level 7 uses the full tile 4E, 4D is empty and 4F is the end cap.</summary>

@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal static class IntroTilemapsFixtures
 {
     /// <summary>A VRAM holding <paramref name="tilemaps"/> at their native words.</summary>
+    [WholeImageFixture("the intro tilemaps' VRAM image")]
     internal static SnesVram Vram(IntroTilemaps tilemaps)
     {
         var vram = new SnesVram();

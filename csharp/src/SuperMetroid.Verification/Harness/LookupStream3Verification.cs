@@ -3049,59 +3049,53 @@ internal static class LookupStream3Verification
     /// <summary>Checks the first narration tilemap against decompressed ROM words and the intro upload path.</summary>
     internal static void VerifyStream3InitialNarrationMap()
     {
-        using var rootScratch = new TestScratchDirectory("initial-narration");
-        string root = rootScratch.Root;
-        try
+        string source = Path.GetFullPath("Super Metroid.smc");
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(source);
+        byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
+            IntroCinematicSourceDefinitions.FirstNarrationTilemap, maximumOutputBytes: 2048);
+        var installation = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation;
+        IntroCinematicSourceArtwork stock = installation.LoadIntroCinematicArt();
+        static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(BackgroundTileWordBytes.Tiles(bytes));
+        RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span.Slice(index * 1024, 1024)))).ToArray();
+        IntroCinematicSourceArtwork Copy(byte[] narration) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), InitialNarrationTilemap = Page(narration), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction, CeresDestructionSprites = stock.CeresDestructionSprites });
+        AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 initial narration words match native");
+        AssertTrue(stock.suppliedInitialNarration is null, "stock initial narration stores no page array");
+        var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
+        var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
+            beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes) { Random = new SharedRandom() };
+        byte[] nativeFont = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
+            IntroCinematicSourceDefinitions.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
+        AssertTrue(intro.ShownVram().AsSpan(
+            (IntroVramLayout.FontOne.Offset * 2), nativeFont.Length).SequenceEqual(nativeFont),
+            "actual opening constructor transfers all calculated font bytes");
+        AssertTrue(intro.ShownVram().AsSpan(
+            (IntroVramLayout.NarrationTilemap.Offset * 2), native.Length).SequenceEqual(native),
+            "actual opening constructor transfers calculated narration to native VRAM destination");
+        intro.SetupFirstIllustratedPage();
+        var subtitleUpload = intro.ShownVram().AsSpan(
+            (IntroVramLayout.NarrationTilemap.Offset * 2) + IntroCinematicDefinitions.Text.FinalLineFirstCell * 2,
+            IntroFinalLineTilemapFormat.CellCount * 2);
+        for (int index = 0; index < IntroFinalLineTilemapFormat.CellCount; index++)
+            AssertEqual(ReadVerificationWord(rom, IntroCinematicSourceDefinitions.FinalTextLine + index * 2),
+                LittleEndianBytes.Word(subtitleUpload[index * 2], subtitleUpload[index * 2 + 1]), "actual Japanese subtitle staging upload");
+        string hash = stock.ContentIdentity;
+        for (int word = 0; word < 1024; word++)
         {
-            string source = Path.GetFullPath("Super Metroid.smc");
-            var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(source);
-            byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
-                IntroCinematicSourceDefinitions.FirstNarrationTilemap, maximumOutputBytes: 2048);
-            var installation = SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(source, root);
-            IntroCinematicSourceArtwork stock = installation.LoadIntroCinematicArt();
-            static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(BackgroundTileWordBytes.Tiles(bytes));
-            RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span.Slice(index * 1024, 1024)))).ToArray();
-            IntroCinematicSourceArtwork Copy(byte[] narration) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), InitialNarrationTilemap = Page(narration), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction, CeresDestructionSprites = stock.CeresDestructionSprites });
-            AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 initial narration words match native");
-            AssertTrue(stock.suppliedInitialNarration is null, "stock initial narration stores no page array");
-            var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
-            var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
-                beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes) { Random = new SharedRandom() };
-            byte[] nativeFont = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
-                IntroCinematicSourceDefinitions.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
-            AssertTrue(intro.ShownVram().AsSpan(
-                (IntroVramLayout.FontOne.Offset * 2), nativeFont.Length).SequenceEqual(nativeFont),
-                "actual opening constructor transfers all calculated font bytes");
-            AssertTrue(intro.ShownVram().AsSpan(
-                (IntroVramLayout.NarrationTilemap.Offset * 2), native.Length).SequenceEqual(native),
-                "actual opening constructor transfers calculated narration to native VRAM destination");
-            intro.SetupFirstIllustratedPage();
-            var subtitleUpload = intro.ShownVram().AsSpan(
-                (IntroVramLayout.NarrationTilemap.Offset * 2) + IntroCinematicDefinitions.Text.FinalLineFirstCell * 2,
-                IntroFinalLineTilemapFormat.CellCount * 2);
-            for (int index = 0; index < IntroFinalLineTilemapFormat.CellCount; index++)
-                AssertEqual(ReadVerificationWord(rom, IntroCinematicSourceDefinitions.FinalTextLine + index * 2),
-                    LittleEndianBytes.Word(subtitleUpload[index * 2], subtitleUpload[index * 2 + 1]), "actual Japanese subtitle staging upload");
-            string hash = stock.ContentIdentity;
-            for (int word = 0; word < 1024; word++)
-            {
-                byte[] edited = native.ToArray();
-                edited[word * 2] ^= 0xff;
-                edited[word * 2 + 1] ^= 0xff;
-                var selected = Copy(edited);
-                AssertTrue(BackgroundTileWordBytes.Of(selected.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(edited), $"independent narration word {word}");
-                if (word == 0) AssertTrue(selected.ContentIdentity != hash, "edited narration changes selected bundle identity");
-                edited[word * 2] ^= 1;
-                AssertTrue(BackgroundTileWordBytes.Of(selected.InitialNarrationTilemap.Span)[word * 2] != edited[word * 2], "narration owns supplied bytes");
-            }
-            AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "edits do not cross-mutate stock");
-            AssertEqual(hash, Copy(native).ContentIdentity, "equivalent stock bundle preserves canonical identity");
-            BackgroundTile[] first = stock.InitialNarrationTilemap.ToArray();
-            first[0] = first[0] with { Tile = first[0].Tile ^ 1 };
-            AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "calculated page is not a mutable cached table");
-            Console.WriteLine("Initial narration: 1024 native words, 1024 independent word edits, ownership, empty stock storage and canonical bundle identity pass.");
+            byte[] edited = native.ToArray();
+            edited[word * 2] ^= 0xff;
+            edited[word * 2 + 1] ^= 0xff;
+            var selected = Copy(edited);
+            AssertTrue(BackgroundTileWordBytes.Of(selected.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(edited), $"independent narration word {word}");
+            if (word == 0) AssertTrue(selected.ContentIdentity != hash, "edited narration changes selected bundle identity");
+            edited[word * 2] ^= 1;
+            AssertTrue(BackgroundTileWordBytes.Of(selected.InitialNarrationTilemap.Span)[word * 2] != edited[word * 2], "narration owns supplied bytes");
         }
-        finally { if (Directory.Exists(root)) Directory.Delete(root, recursive: true); }
+        AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "edits do not cross-mutate stock");
+        AssertEqual(hash, Copy(native).ContentIdentity, "equivalent stock bundle preserves canonical identity");
+        BackgroundTile[] first = stock.InitialNarrationTilemap.ToArray();
+        first[0] = first[0] with { Tile = first[0].Tile ^ 1 };
+        AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "calculated page is not a mutable cached table");
+        Console.WriteLine("Initial narration: 1024 native words, 1024 independent word edits, ownership, empty stock storage and canonical bundle identity pass.");
     }
 
     /// <summary>Checks file-select sprite compositions, border parts, and edited layout against native OAM data.</summary>
@@ -3229,55 +3223,49 @@ internal static class LookupStream3Verification
     /// <summary>Checks intro background map pages against decompressed ROM and loaded presentation edits.</summary>
     internal static void VerifyStream3BackgroundMaps()
     {
-        using var rootScratch = new TestScratchDirectory("background-maps");
-        string root = rootScratch.Root;
-        try
+        string source = Path.GetFullPath("Super Metroid.smc");
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(source);
+        byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
+            IntroCinematicSourceDefinitions.BackgroundPageTilemaps, maximumOutputBytes: 8192);
+        var installation = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation;
+        IntroCinematicSourceArtwork stock = installation.LoadIntroCinematicArt();
+        static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(BackgroundTileWordBytes.Tiles(bytes));
+        IntroCinematicSourceArtwork Copy(byte[] background)
         {
-            string source = Path.GetFullPath("Super Metroid.smc");
-            var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(source);
-            byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
-                IntroCinematicSourceDefinitions.BackgroundPageTilemaps, maximumOutputBytes: 8192);
-            var installation = SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(source, root);
-            IntroCinematicSourceArtwork stock = installation.LoadIntroCinematicArt();
-            static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(BackgroundTileWordBytes.Tiles(bytes));
-            IntroCinematicSourceArtwork Copy(byte[] background)
-            {
-                RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(background.AsSpan(index * 2048, 2048).ToArray())).ToArray();
-                return new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), InitialNarrationTilemap = Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction, CeresDestructionSprites = stock.CeresDestructionSprites });
-            }
-            byte[] calculated = BackgroundTileWordBytes.Of(IntroBackgroundPages.Compile());
-            var mismatches = new List<string>();
-            for (int cell = 0; cell < native.Length / 2; cell++)
-            {
-                ushort expected = BitConverter.ToUInt16(native, cell * 2), actual = BitConverter.ToUInt16(calculated, cell * 2);
-                if (expected != actual) mismatches.Add($"page{cell / 1024} ({cell % 32},{cell % 1024 / 32}) expected{expected:X4}/actual{actual:X4}");
-            }
-            AssertTrue(mismatches.Count == 0, "all 4096 background words match native: " + string.Join("; ", mismatches.Take(32)));
-            AssertTrue(stock.suppliedBackgroundPages is null,
-                "native background pages store no output array");
-            string hash = stock.ContentIdentity;
-            for (int word = 0; word < native.Length / 2; word++)
-            {
-                byte[] edit = native.ToArray();
-                edit[word * 2] ^= 0xff;
-                edit[word * 2 + 1] ^= 0xff;
-                var selected = Copy(edit);
-                AssertTrue(BackgroundTileWordBytes.Of(selected.BackgroundPages.Span).AsSpan().SequenceEqual(edit), "independent background full-word edit");
-                if (word % 1024 == 0) AssertTrue(hash != selected.ContentIdentity, "each edited page changes bundle identity");
-                edit[word * 2] ^= 1;
-                AssertTrue(BackgroundTileWordBytes.Of(selected.BackgroundPages.Span)[word * 2] != edit[word * 2], "background owns supplied data");
-            }
-            AssertTrue(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span).AsSpan().SequenceEqual(native), "background edits do not cross-couple pages");
-            AssertEqual(hash, Copy(native).ContentIdentity, "equivalent backgrounds preserve canonical hash");
-            var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
-            var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
-                beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes) { Random = new SharedRandom() };
-            AssertTrue(intro.ShownVram().AsSpan(
-                (IntroVramLayout.BackgroundPages.Offset * 2), native.Length).SequenceEqual(native),
-                "actual opening constructor uploads all four calculated background pages");
-            Console.WriteLine("Intro backgrounds: 4096 native words, 4096 independent edits, owned fallback, canonical hash and actual four-page VRAM upload pass.");
+            RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(background.AsSpan(index * 2048, 2048).ToArray())).ToArray();
+            return new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), InitialNarrationTilemap = Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction, CeresDestructionSprites = stock.CeresDestructionSprites });
         }
-        finally { if (Directory.Exists(root)) Directory.Delete(root, recursive: true); }
+        byte[] calculated = BackgroundTileWordBytes.Of(IntroBackgroundPages.Compile());
+        var mismatches = new List<string>();
+        for (int cell = 0; cell < native.Length / 2; cell++)
+        {
+            ushort expected = BitConverter.ToUInt16(native, cell * 2), actual = BitConverter.ToUInt16(calculated, cell * 2);
+            if (expected != actual) mismatches.Add($"page{cell / 1024} ({cell % 32},{cell % 1024 / 32}) expected{expected:X4}/actual{actual:X4}");
+        }
+        AssertTrue(mismatches.Count == 0, "all 4096 background words match native: " + string.Join("; ", mismatches.Take(32)));
+        AssertTrue(stock.suppliedBackgroundPages is null,
+            "native background pages store no output array");
+        string hash = stock.ContentIdentity;
+        for (int word = 0; word < native.Length / 2; word++)
+        {
+            byte[] edit = native.ToArray();
+            edit[word * 2] ^= 0xff;
+            edit[word * 2 + 1] ^= 0xff;
+            var selected = Copy(edit);
+            AssertTrue(BackgroundTileWordBytes.Of(selected.BackgroundPages.Span).AsSpan().SequenceEqual(edit), "independent background full-word edit");
+            if (word % 1024 == 0) AssertTrue(hash != selected.ContentIdentity, "each edited page changes bundle identity");
+            edit[word * 2] ^= 1;
+            AssertTrue(BackgroundTileWordBytes.Of(selected.BackgroundPages.Span)[word * 2] != edit[word * 2], "background owns supplied data");
+        }
+        AssertTrue(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span).AsSpan().SequenceEqual(native), "background edits do not cross-couple pages");
+        AssertEqual(hash, Copy(native).ContentIdentity, "equivalent backgrounds preserve canonical hash");
+        var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
+        var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
+            beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes) { Random = new SharedRandom() };
+        AssertTrue(intro.ShownVram().AsSpan(
+            (IntroVramLayout.BackgroundPages.Offset * 2), native.Length).SequenceEqual(native),
+            "actual opening constructor uploads all four calculated background pages");
+        Console.WriteLine("Intro backgrounds: 4096 native words, 4096 independent edits, owned fallback, canonical hash and actual four-page VRAM upload pass.");
     }
 
     /// <summary>Checks all 27 Work Robot frame identities and their native spritemap ordering.</summary>
@@ -3374,45 +3362,39 @@ BranchesToSharedBody:true),
     /// <summary>Checks the opening portrait tilemap against decompressed ROM and the actual VRAM upload.</summary>
     internal static void VerifyStream3PortraitMap()
     {
-        using var rootScratch = new TestScratchDirectory("portrait-map");
-        string root = rootScratch.Root;
-        try
+        string source = Path.GetFullPath("Super Metroid.smc");
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(source);
+        byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
+            IntroCinematicSourceDefinitions.SamusHeadTilemap, maximumOutputBytes: 2048);
+        var installation = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation;
+        IntroCinematicSourceArtwork stock = installation.LoadIntroCinematicArt();
+        static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(BackgroundTileWordBytes.Tiles(bytes));
+        RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span.Slice(index * 1024, 1024)))).ToArray();
+        IntroCinematicSourceArtwork Copy(byte[] portrait) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(portrait), InitialNarrationTilemap = Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction, CeresDestructionSprites = stock.CeresDestructionSprites });
+        AssertTrue(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 calculated portrait words match native");
+        AssertTrue(stock.suppliedPortrait is null,
+            "native portrait stores no output word array");
+        string hash = stock.ContentIdentity;
+        for (int word = 0; word < 1024; word++)
         {
-            string source = Path.GetFullPath("Super Metroid.smc");
-            var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(source);
-            byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
-                IntroCinematicSourceDefinitions.SamusHeadTilemap, maximumOutputBytes: 2048);
-            var installation = SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(source, root);
-            IntroCinematicSourceArtwork stock = installation.LoadIntroCinematicArt();
-            static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(BackgroundTileWordBytes.Tiles(bytes));
-            RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span.Slice(index * 1024, 1024)))).ToArray();
-            IntroCinematicSourceArtwork Copy(byte[] portrait) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(portrait), InitialNarrationTilemap = Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction, CeresDestructionSprites = stock.CeresDestructionSprites });
-            AssertTrue(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 calculated portrait words match native");
-            AssertTrue(stock.suppliedPortrait is null,
-                "native portrait stores no output word array");
-            string hash = stock.ContentIdentity;
-            for (int word = 0; word < 1024; word++)
-            {
-                byte[] edit = native.ToArray();
-                edit[word * 2] ^= 0xff;
-                edit[word * 2 + 1] ^= 0xff;
-                var selected = Copy(edit);
-                AssertTrue(BackgroundTileWordBytes.Of(selected.PortraitTilemap.Span).AsSpan().SequenceEqual(edit), "independent portrait word preserves identity/style/position edit");
-                if (word == 0) AssertTrue(hash != selected.ContentIdentity, "portrait edit changes content identity");
-                edit[word * 2] ^= 1;
-                AssertTrue(BackgroundTileWordBytes.Of(selected.PortraitTilemap.Span)[word * 2] != edit[word * 2], "portrait owns supplied data");
-            }
-            AssertTrue(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span).AsSpan().SequenceEqual(native), "portrait edits do not cross-mutate stock");
-            AssertEqual(hash, Copy(native).ContentIdentity, "equivalent portrait preserves canonical hash");
-            var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
-            var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
-                beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes) { Random = new SharedRandom() };
-            AssertTrue(intro.ShownVram().AsSpan(
-                (IntroVramLayout.PortraitTilemap.Offset * 2), native.Length).SequenceEqual(native),
-                "actual opening constructor uploads calculated portrait map");
-            Console.WriteLine("Portrait map: 1024 native words, 1024 independent edits, owned fallback, canonical hash and actual VRAM upload pass.");
+            byte[] edit = native.ToArray();
+            edit[word * 2] ^= 0xff;
+            edit[word * 2 + 1] ^= 0xff;
+            var selected = Copy(edit);
+            AssertTrue(BackgroundTileWordBytes.Of(selected.PortraitTilemap.Span).AsSpan().SequenceEqual(edit), "independent portrait word preserves identity/style/position edit");
+            if (word == 0) AssertTrue(hash != selected.ContentIdentity, "portrait edit changes content identity");
+            edit[word * 2] ^= 1;
+            AssertTrue(BackgroundTileWordBytes.Of(selected.PortraitTilemap.Span)[word * 2] != edit[word * 2], "portrait owns supplied data");
         }
-        finally { if (Directory.Exists(root)) Directory.Delete(root, recursive: true); }
+        AssertTrue(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span).AsSpan().SequenceEqual(native), "portrait edits do not cross-mutate stock");
+        AssertEqual(hash, Copy(native).ContentIdentity, "equivalent portrait preserves canonical hash");
+        var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
+        var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
+            beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes) { Random = new SharedRandom() };
+        AssertTrue(intro.ShownVram().AsSpan(
+            (IntroVramLayout.PortraitTilemap.Offset * 2), native.Length).SequenceEqual(native),
+            "actual opening constructor uploads calculated portrait map");
+        Console.WriteLine("Portrait map: 1024 native words, 1024 independent edits, owned fallback, canonical hash and actual VRAM upload pass.");
     }
 
     /// <summary>Runs the retail-ROM room-flash color and mirror comparison from the command line.</summary>

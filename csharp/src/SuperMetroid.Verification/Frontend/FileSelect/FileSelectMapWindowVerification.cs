@@ -139,9 +139,11 @@ internal static class FileSelectMapWindowVerification
             AssertEqual(activeColors[area], graphics.screen.Palette.Colors[indices[area]], $"area {area} active map color");
             if (area != 0)
                 AssertEqual(0x4a52, graphics.screen.Palette.Colors[86], "switching area restores Crateria inactive color");
+            // The selected area's image is built once and every tilemap byte read from it.
+            var shownArea = MenuScreenFixtures.Vram(graphics.screen);
             for (int offset = 0; offset < MapSourceDefinitions.Menu.TilemapBytes; offset++)
                 AssertEqual(FileSelectAreaMapGraphicsRomByte(bus, MapSourceDefinitions.FileSelectMap.AreaBackgrounds + area * MapSourceDefinitions.Menu.TilemapBytes + offset),
-                    MenuScreenFixtures.Vram(graphics.screen).ReadByte(FileSelectMapNativeSources.AreaBackgroundVram * 2 + offset), "selected area BG3 DMA bytes");
+                    shownArea.ReadByte(FileSelectMapNativeSources.AreaBackgroundVram * 2 + offset), "selected area BG3 DMA bytes");
             RgbaPixel[] frame = graphics.RenderBackgrounds();
             AssertEqual(256 * 224, frame.Length, "area map physical viewport size");
             AssertTrue(frame.All(pixel => pixel.A == 255), "area map backdrop is opaque");

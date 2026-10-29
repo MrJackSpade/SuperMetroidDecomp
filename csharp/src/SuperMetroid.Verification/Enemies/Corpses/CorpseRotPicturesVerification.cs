@@ -79,7 +79,7 @@ internal static class CorpseRotPicturesVerification
             string name = EnemySheetDefinitions.FrameName(frame);
             AssertEqual(rot.Kind.Name, sheets.RotCorpse(set, enemy, name), $"{context}: frame {name} shows its kind's rot");
             painted += AssertSelected(runtime, sheets.For(set, enemy), expected.PictureName(name), sprites, new SpriteSource(SpriteSourceKind.Enemy, slot.SlotIndex),
-                new EnemySpritemapDraw { Frame = frame, Origin = default, PaletteBits = slot.PaletteRow, BaseTileIndex = slot.TileIndexBase }, rottingArt,
+                new EnemySpritemapDraw { Frame = frame, Origin = default, PaletteBits = SuperMetroid.Core.Assets.NativeSpriteGraphicsWords.PaletteBits(slot.PaletteRow), BaseTileIndex = slot.TileIndexBase }, rottingArt,
                 $"{context} after update {updates}");
             if (enemy == EnemyDefinitionId.CorpseTorizo)
             {

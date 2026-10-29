@@ -63,7 +63,8 @@ internal static class EndingPostShotVerification
                 tiles.AsSpan(offset, 0x800).CopyTo(expected.AsSpan(0xc000 + offset));
             }
             if (frame == 53) map.AsSpan(0, 0x800).CopyTo(expected.AsSpan(0xa800));
-            AssertTrue(expected.AsSpan().SequenceEqual(EndingScreenFixtures.Vram(screen, artwork).Bytes), "each native logo transfer changes exactly its intended VRAM bytes");
+            var shownScreen = EndingScreenFixtures.Vram(screen, artwork);
+            AssertTrue(expected.AsSpan().SequenceEqual(shownScreen.Bytes), "each native logo transfer changes exactly its intended VRAM bytes");
         }
         AssertEqual(0, guardedBus.ForbiddenReadAttempts,
             "post-shot uploads never reread the fixed cartridge transfer table");

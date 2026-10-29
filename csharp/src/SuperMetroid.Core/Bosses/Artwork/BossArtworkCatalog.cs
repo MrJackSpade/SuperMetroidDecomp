@@ -15,6 +15,7 @@ namespace SuperMetroid.Core.Bosses.Artwork;
 /// Brain's corpse characters and each boss's colors. Each boss reads only its own entries. The characters the bosses'
 /// pre-coloured pictures are composed from belong to the import pipeline's subclass (#1463).
 /// </summary>
+[ArchitectureReview("context-bag", "The bosses' installed artwork catalogs gameplay reads; its members are data, not services.")]
 public abstract record BossArtworkCatalog
 {
     /// <summary>Both of Crocomire's melts; optional only for constructed fixtures.</summary>

@@ -103,6 +103,7 @@ using static SuperMetroid.Verification.Audio.DspControlsVerification;
 using static SuperMetroid.Verification.Enemies.Elevator.ElevatorStandUpContactVerification;
 using static SuperMetroid.Verification.Areas.Maridia.ElevatubeScrollingVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.EmptyExtendedFrameShotsVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyExtendedFramePlacementsVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingSetupNmiWaitsVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingSnapshotTestsVerification;
 using static SuperMetroid.Verification.Enemies.EnemyAngleDivisionVerification;
@@ -819,6 +820,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyKraidArmSamusContact), () => VerifyKraidArmSamusContact()),
         new(nameof(VerifyShaktoolSamusContact), () => VerifyShaktoolSamusContact()),
         new(nameof(VerifyEmptyExtendedFrameShots), () => VerifyEmptyExtendedFrameShots()),
+        new(nameof(VerifyEnemyExtendedFramePlacements), () => VerifyEnemyExtendedFramePlacements()),
         new(nameof(VerifyElevatorStandUpContact), () => VerifyElevatorStandUpContact()),
         new(nameof(VerifyImplicitScrollResidue), () => VerifyImplicitScrollResidue()),
         new(nameof(VerifySuperMissileDeathAnimation), () => VerifySuperMissileDeathAnimation()),

@@ -126,13 +126,18 @@ public sealed class GameplayHudPresentation
         DrawDigits(tiles, parts.AmmoDigits, SamusQuantity.Encode(value), anchor, digits);
     }
 
-    /// <summary>Draws the AUTO reserve indicator for the requested reserve-energy state.</summary>
+    /// <summary>Draws the AUTO reserve indicator as <paramref name="indicator"/> shows it, clearing its cells when it is cleared.</summary>
     /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
-    /// <param name="containsEnergy">Whether the reserve tank currently contains energy.</param>
-    public void ApplyAutoReserve(Span<BackgroundTile> tiles, bool containsEnergy)
+    /// <param name="indicator">What the indicator shows.</param>
+    public void ApplyAutoReserve(Span<BackgroundTile> tiles, HudReserveIndicator indicator)
     {
         ValidateTilemap(tiles);
-        ImmutableArray<BackgroundTile> shown = containsEnergy ? parts.AutoReserveFilled : parts.AutoReserveEmpty;
+        if (indicator == HudReserveIndicator.Cleared)
+        {
+            ClearAutoReserve(tiles);
+            return;
+        }
+        ImmutableArray<BackgroundTile> shown = indicator == HudReserveIndicator.Filled ? parts.AutoReserveFilled : parts.AutoReserveEmpty;
         for (int index = 0; index < GameplayHudDefinitions.AutoReserveCellCount; index++)
             tiles[Index(parts.AutoReserveCells[index])] = shown[index];
     }

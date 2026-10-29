@@ -27,8 +27,7 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
     {
         Ensure.NotNull(cells);
         Ensure.NotNull(rules);
-        if (cells.Length != AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles)
-            throw new ArgumentException($"An area map has exactly {AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles} cells.", nameof(cells));
+        Ensure.LengthEqual<MapCell>(cells, AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles);
         this.cells = cells;
         Area = rules.Area;
         discoverable = new bool[cells.Length];

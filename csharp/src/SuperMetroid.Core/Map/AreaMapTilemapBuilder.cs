@@ -23,10 +23,10 @@ public static class AreaMapTilemapBuilder
         {
             var cell = new Position16<MapTiles>(unchecked((ushort)x), unchecked((ushort)y));
             bool explored = system.IsMapTileExplored(map.Area, cell);
-            BackgroundTile tile = explored ? map.Cell(cell).Tile(explored: true)
+            BackgroundTile tile = explored ? map.Cell(cell).ExploredTile
                 : AreaMapVisibility.IsVisible(explored, downloaded, map.IsRevealedByMapStation(cell), map.IsDiscoverable(cell), revealMode)
-                    ? map.Cell(cell).Tile(explored: false)
-                    : hiddenCell.Tile(explored: false);
+                    ? map.Cell(cell).UnexploredTile
+                    : hiddenCell.UnexploredTile;
             tiles[AreaMapPages.GetTilemapWordIndex(cell)] = tile;
         }
         return tiles;

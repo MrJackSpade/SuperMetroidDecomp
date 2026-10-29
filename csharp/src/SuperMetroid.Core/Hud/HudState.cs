@@ -327,22 +327,8 @@ public sealed class HudState
         for (int counter = 0; counter < ammoCounts.Length; counter++)
             if (ammoCounts[counter] is { } count)
                 presentation.ApplyAmmo(drawn, counter, count);
-        switch (reserveIndicator)
-        {
-            case HudReserveIndicator.Filled:
-                presentation.ApplyAutoReserve(drawn, containsEnergy: true);
-                break;
-            case HudReserveIndicator.Empty:
-                presentation.ApplyAutoReserve(drawn, containsEnergy: false);
-                break;
-            case HudReserveIndicator.Cleared:
-                presentation.ClearAutoReserve(drawn);
-                break;
-            case null:
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined reserve indicator {reserveIndicator}.");
-        }
+        if (reserveIndicator is { } indicator)
+            presentation.ApplyAutoReserve(drawn, indicator);
         int columns = GameplayHudPresentation.MinimapSize.X;
         for (int index = 0; index < Minimap.Length; index++)
             if (Minimap[index] is { } cell)

@@ -904,7 +904,7 @@ internal static class LookupStream2Verification
         {
             PauseBackdropCell[] blank = document.Blank.ToArray();
             if (edited >= 0)
-                blank[edited] = PauseTileGrid.FromWord((ushort)(0x8000 | edited + 1), "Blank edit");
+                blank[edited] = SuperMetroid.AssetExtraction.Frontend.Pause.PauseTileWords.FromWord((ushort)(0x8000 | edited + 1), "Blank edit");
             var selected = document with { Blank = blank };
             using var output = new MemoryStream();
             PauseEquipmentLabelPresentation.Write(output, selected);

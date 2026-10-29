@@ -58,11 +58,4 @@ public readonly record struct BackgroundTile(int Tile, int ColourVariant, bool F
         FlipHorizontally = FlipHorizontally ^ ((flip & TileFlip.Horizontal) != TileFlip.None),
         FlipVertically = FlipVertically ^ ((flip & TileFlip.Vertical) != TileFlip.None),
     };
-
-    /// <summary>The same placement mirrored by <paramref name="flip"/> instead of its own mirroring.</summary>
-    public BackgroundTile WithFlip(TileFlip flip) => this with
-    {
-        FlipHorizontally = (flip & TileFlip.Horizontal) != TileFlip.None,
-        FlipVertically = (flip & TileFlip.Vertical) != TileFlip.None,
-    };
 }

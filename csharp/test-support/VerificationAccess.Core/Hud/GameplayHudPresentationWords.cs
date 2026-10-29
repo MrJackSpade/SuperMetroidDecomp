@@ -33,7 +33,7 @@ internal static class GameplayHudPresentationWords
 
         /// <summary>Draws the AUTO reserve indicator into packed words.</summary>
         internal void ApplyAutoReserve(Span<ushort> words, bool containsEnergy) =>
-            Edit(words, tiles => presentation.ApplyAutoReserve(tiles, containsEnergy));
+            Edit(words, tiles => presentation.ApplyAutoReserve(tiles, containsEnergy ? HudReserveIndicator.Filled : HudReserveIndicator.Empty));
 
         /// <summary>Clears the AUTO reserve indicator in packed words.</summary>
         internal void ClearAutoReserve(Span<ushort> words) => Edit(words, tiles => presentation.ClearAutoReserve(tiles));

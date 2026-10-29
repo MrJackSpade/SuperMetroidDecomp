@@ -102,8 +102,14 @@ internal static class RoomCharacterInstallationVerification
             SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeGhostVram,
                 ghostTransfer.ListPointer, activeDoorPointer: 0);
             SnesVram installedGhostVram = ShownVram(LibraryBackgroundProgramDefinitions.Get(ghostTransfer.ListPointer), new LibraryBackgroundArtwork { TilemapArt = RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps(), CharacterArt = stock });
+            // The ghost's characters reach sprite characters only the statue ghost would draw, and it draws nothing, so the
+            // installed replay writes them nowhere (#1466); the check above compares the installed characters byte for byte. The rest
+            // of the upload matches the native one with that range left as the fresh video memory holds it.
+            nativeGhostVram.ExecuteQueuedAssetWrite(
+                new byte[LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount],
+                LibraryBackgroundOperands.DestinationWord(LibraryBackgroundDestination.StatueGhostSpriteCharacters));
             AssertTrue(nativeGhostVram.ImageEquals(installedGhostVram),
-                "installed statue-ghost PNG matches the complete native library upload");
+                "installed statue-ghost library upload matches the native one apart from the characters only the ghost would draw");
             int ghostTileCount = nativeGhost.Length / RoomCharacterAtlasFormat.BytesPerTile;
             int ghostColumns = Math.Min(RoomCharacterAtlasFormat.TileColumns, ghostTileCount);
             int ghostRows = (ghostTileCount + ghostColumns - 1) / ghostColumns;

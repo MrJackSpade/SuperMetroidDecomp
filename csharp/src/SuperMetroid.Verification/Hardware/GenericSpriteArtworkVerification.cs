@@ -22,6 +22,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
 /// <summary>Compares installed title and intro sprite compositions and OAM wrapping with retail spritemaps.</summary>
 internal static class GenericSpriteArtworkVerification

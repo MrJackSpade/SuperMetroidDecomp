@@ -1,7 +1,8 @@
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Title;
 
-namespace SuperMetroid.Core.Frontend.Title.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
 /// <summary>One installed title OBJ composition; all parts inherit the active title palette.</summary>
 public sealed record TitleSpriteFrame

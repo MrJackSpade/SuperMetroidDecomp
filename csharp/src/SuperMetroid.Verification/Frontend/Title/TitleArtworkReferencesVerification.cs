@@ -7,6 +7,7 @@ using SuperMetroid.Core.Frontend.Title.Artwork;
 namespace SuperMetroid.Verification.Frontend.Title;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Frontend.Title;
+using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
 /// <summary>Checks title-artwork selector coverage and editable OAM without entering gameplay.</summary>
 internal static class TitleArtworkReferencesVerification
@@ -30,7 +31,7 @@ internal static class TitleArtworkReferencesVerification
         byte[] objects = Png(TitleGraphicsFormat.ObjectWidth, TitleGraphicsFormat.ObjectHeight, 16);
         byte[] baby = Png(TitleGraphicsFormat.BabyWidth, TitleGraphicsFormat.BabyHeight, 256);
         _ = Load(document);
-        using (var stream = new MemoryStream()) TitleGraphicsPresentation.WriteMap(stream, document);
+        using (var stream = new MemoryStream()) TitleGraphicsCharacters.WriteMap(stream, document);
         foreach (TitleSpriteFrame frame in frames)
             TitleGraphicsPresentation.DrawSprite(MenuSheetFixtures.WithTitle(Load(document)).Get(SpriteSheetId.Title), frame.Sprite, ScreenSpritesFixtures.Blank(), new(0, 0), 0);
 
@@ -47,7 +48,7 @@ internal static class TitleArtworkReferencesVerification
             AssertThrows<InvalidDataException>(() =>
             {
                 using var stream = new MemoryStream();
-                TitleGraphicsPresentation.WriteMap(stream, invalid);
+                TitleGraphicsCharacters.WriteMap(stream, invalid);
             }, $"authoring rejects missing title composition {frames[index].Sprite}");
         }
         _ = Load(document with { Sprites = frames.Reverse().ToArray() });

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
@@ -47,7 +48,7 @@ internal static class TitleGraphicsExtractor
             [TitleGraphicsFormat.BabyTilesFile] = Png(babySize, babyPixels, 256),
         };
         using var mapJson = new MemoryStream();
-        TitleGraphicsPresentation.WriteMap(mapJson, new TitleFloorMapDocument
+        TitleGraphicsCharacters.WriteMap(mapJson, new TitleFloorMapDocument
         {
             Version = TitleGraphicsFormat.Version,
             Width = TitleGraphicsFormat.MapWidth,

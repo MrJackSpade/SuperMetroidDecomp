@@ -23,8 +23,6 @@ public static class CreditsPresentationDefinitions
     public const int ExpectedCompiledRows = 520;
     /// <summary>The Font-3 blank tile, used for empty rows and spaces without applying a line's colour variant.</summary>
     public static BackgroundTile BlankTile { get; } = new(0x07f, 0, highPriority: false);
-    /// <summary>Largest accepted colour variant, seven; this is a palette-row identity, not an RGB value.</summary>
-    public const int MaximumPalette = 7;
     /// <summary>Font-3 tile used by the upper half of the credits ampersand.</summary>
     public const int LargeAmpersandTop = 0x007b;
     /// <summary>Font-3 tile used by the lower half of the credits ampersand.</summary>

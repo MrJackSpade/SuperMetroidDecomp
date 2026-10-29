@@ -3,9 +3,6 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>Fixed actor and explosion-layout definitions for the intro Mother Brain scene.</summary>
 internal static class IntroMotherBrainDefinitions
 {
-    /// <summary>The sprite row Mother Brain's hurt flash turns white and back.</summary>
-    public const int HurtFlashSpriteRow = 7;
-
     /// <summary><c>$8B:CE55</c>, intro Mother Brain initialization, pre-instruction, and initial list.</summary>
     public static IntroMotherBrainActorDefinition MotherBrain =>
         new(CinematicSpriteProgram.IntroMotherBrain);

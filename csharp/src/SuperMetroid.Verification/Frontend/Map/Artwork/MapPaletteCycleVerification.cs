@@ -7,6 +7,7 @@ using System.Text.Json;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Pause;
@@ -88,8 +89,8 @@ internal static class MapPaletteCycleVerification
             pause.Step(0, 0); nativePause.Step(0, 0);
             var editedMemory = pause.CaptureRenderSnapshot().Paint;
             var stockMemory = nativePause.CaptureRenderSnapshot().Paint;
-            cycleColorsChanged |= !editedMemory.Colors.Slice(ScreenColourPositions.Sprite(MapScreenDefinitions.HighlightSpriteRow), 16)
-                .SequenceEqual(stockMemory.Colors.Slice(ScreenColourPositions.Sprite(MapScreenDefinitions.HighlightSpriteRow), 16));
+            cycleColorsChanged |= !editedMemory.Colors.Slice(ScreenColourPositions.Of(ScreenColourGroup.MapHighlight), 16)
+                .SequenceEqual(stockMemory.Colors.Slice(ScreenColourPositions.Of(ScreenColourGroup.MapHighlight), 16));
             AssertTrue(editedMemory.Colors.Slice(240, 16).SequenceEqual(stockMemory.Colors.Slice(240, 16)),
                 "highlight edit leaves the native palette-seven pause cursor colors unchanged");
             // Since #1251 the pause-map scroll arrows draw with OBJ palette 3 as on the cartridge,
@@ -99,8 +100,8 @@ internal static class MapPaletteCycleVerification
             var stockPalette3 = new HashSet<RgbaPixel>();
             for (int color = 0; color < 16; color++)
             {
-                editedPalette3.Add(editedMemory.Colors[ScreenColourPositions.Sprite(MapScreenDefinitions.HighlightSpriteRow) + color].ToRgbaPixel());
-                stockPalette3.Add(stockMemory.Colors[ScreenColourPositions.Sprite(MapScreenDefinitions.HighlightSpriteRow) + color].ToRgbaPixel());
+                editedPalette3.Add(editedMemory.Colors[ScreenColourPositions.Of(ScreenColourGroup.MapHighlight) + color].ToRgbaPixel());
+                stockPalette3.Add(stockMemory.Colors[ScreenColourPositions.Of(ScreenColourGroup.MapHighlight) + color].ToRgbaPixel());
             }
             var editedPixels = pause.Render();
             var stockPixels = nativePause.Render();

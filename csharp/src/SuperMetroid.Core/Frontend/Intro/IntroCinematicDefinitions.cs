@@ -71,35 +71,19 @@ public static class IntroCinematicDefinitions
         public const ushort CrossfadeInitialCounter = 127;
         /// <summary>Updates per crossfade colour step.</summary>
         public const int CrossfadeStepFrames = 4;
-        /// <summary>Colour runs faded for the gameplay flashback.</summary>
-        public static IReadOnlyList<IntroPaletteSpan> Gameplay { get; } = [GameplayBackground, GameplayEnvironment, GameplaySamus];
-        /// <summary>Colour runs cleared when the gameplay flashback begins.</summary>
-        public static IReadOnlyList<IntroPaletteSpan> GameplayClear { get; } = [GameplayClearBackground, GameplayEnvironment, GameplaySamus];
-        /// <summary>Colour runs faded for the narration screens.</summary>
-        public static IReadOnlyList<IntroPaletteSpan> Narration { get; } = [NarrationText, NarrationBackground, NarrationPortrait, NarrationObjects];
-        /// <summary>Colour runs faded for the Metroid discovery scene.</summary>
-        public static IReadOnlyList<IntroPaletteSpan> Discovery { get; } = [DiscoveryBackground, DiscoveryObjects];
-
-        /// <summary>The gameplay flashback's first background row and four colours of the next.</summary>
-        private static IntroPaletteSpan GameplayBackground => new(0, 16 + 4);
-        /// <summary>Gameplay initialization clears only the first background row.</summary>
-        private static IntroPaletteSpan GameplayClearBackground => new(0, 16);
-        /// <summary>The gameplay flashback's background row 3.</summary>
-        private static IntroPaletteSpan GameplayEnvironment => new(3 * 16, 16);
-        /// <summary>Samus's six colours at sprite row 6, colour 9.</summary>
-        private static IntroPaletteSpan GameplaySamus => new((8 + 6) * 16 + 9, 6);
-        /// <summary>The narration text's three colours at background row 1, colour 4.</summary>
-        private static IntroPaletteSpan NarrationText => new(16 + 4, 3);
-        /// <summary>The narration's background row 7.</summary>
-        private static IntroPaletteSpan NarrationBackground => new(7 * 16, 16);
-        /// <summary>The narration portrait's two sprite rows starting at row 4.</summary>
-        private static IntroPaletteSpan NarrationPortrait => new((8 + 4) * 16, 2 * 16);
-        /// <summary>The narration's sprite row 7.</summary>
-        private static IntroPaletteSpan NarrationObjects => new((8 + 7) * 16, 16);
-        /// <summary>The discovery scene's background row 2.</summary>
-        private static IntroPaletteSpan DiscoveryBackground => new(2 * 16, 16);
-        /// <summary>The scientists' nine colours in sprite row 6.</summary>
-        private static IntroPaletteSpan DiscoveryObjects => new((8 + 6) * 16, 9);
+        /// <summary>The screen colours faded for the gameplay flashback.</summary>
+        public static IReadOnlyList<ScreenColourGroup> Gameplay { get; } =
+            [ScreenColourGroup.IntroGameplayBackground, ScreenColourGroup.IntroGameplayEnvironment, ScreenColourGroup.IntroGameplaySamus];
+        /// <summary>The screen colours cleared when the gameplay flashback begins.</summary>
+        public static IReadOnlyList<ScreenColourGroup> GameplayClear { get; } =
+            [ScreenColourGroup.IntroGameplayClearedBackground, ScreenColourGroup.IntroGameplayEnvironment, ScreenColourGroup.IntroGameplaySamus];
+        /// <summary>The screen colours faded for the narration screens.</summary>
+        public static IReadOnlyList<ScreenColourGroup> Narration { get; } =
+            [ScreenColourGroup.IntroNarrationText, ScreenColourGroup.IntroNarrationBackground,
+                ScreenColourGroup.IntroNarrationPortrait, ScreenColourGroup.IntroNarrationObjects];
+        /// <summary>The screen colours faded for the Metroid discovery scene.</summary>
+        public static IReadOnlyList<ScreenColourGroup> Discovery { get; } =
+            [ScreenColourGroup.IntroDiscoveryBackground, ScreenColourGroup.IntroDiscoveryScientists];
     }
 
     /// <summary>The music the opening's scene changes start.</summary>

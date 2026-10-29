@@ -79,7 +79,7 @@ public sealed class FileSelectRoomMapGraphics
         icons.BindLandmarks(catalog?.Landmarks);
 
         if (catalog is not null)
-            screen.Palette.LoadExcept(catalog.Palettes.FileSelect, screen.Palette.SpriteRow(MapScreenDefinitions.HighlightSpriteRow));
+            screen.Palette.LoadExcept(catalog.Palettes.FileSelect, screen.Palette.Colours(ScreenColourGroup.MapHighlight));
         screen.BindMapTiles((catalog ?? throw new InvalidOperationException(
             "Room-map graphics require installed map presentation assets.")).Tiles);
         var system = icons.MapSystem;

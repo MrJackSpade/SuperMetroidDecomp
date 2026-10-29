@@ -317,7 +317,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         // $8B:A3AC performs the ordinary beam palette load before copying the full intro palette, which
         // replaces it; the flashback projectile pages bind the beam's characters.
-        SamusProjectileSystem.LoadBeamPalette(palette.SpriteRow(SamusColourDefinitions.BeamInkRow), equippedBeams: 0, beamPalettes);
+        SamusProjectileSystem.LoadBeamPalette(palette.Colours(ScreenColourGroup.SamusBeams), equippedBeams: 0, beamPalettes);
         characterArtwork.Palette.LoadTo(palette);
 
         // The PPU loads above are invisible: the intro stays in forced blank until its fade.
@@ -1139,7 +1139,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
         // `$90:E84D` runs the ordinary Samus palette handler even in intro-demo state.
         // This supplies the alternating hurt colors and eventual suit-palette restoration;
         // invincibility flicker remains independently enforced by Samus.Draw.
-        SamusHurtFlashPalette.Update(palette.SpriteRow(SamusColourDefinitions.SuitInkRow), samus, demoInput, samusHurtColors);
+        SamusHurtFlashPalette.Update(palette.Colours(ScreenColourGroup.SamusSuit), samus, demoInput, samusHurtColors);
 
         // `$8B:8E0D` ages the two hit words after both Samus state handlers, but before the
         // cinematic-object walker can publish a new Rinka collision later in this frame.
@@ -1368,25 +1368,25 @@ level, samus, FrameCounterWord(elapsedUpdates));
         textTilemap.AsSpan(0, IntroCinematicDefinitions.Tilemaps.VisibleTextCellCount).CopyTo(tilemaps.Narration);
     }
 
-    /// <summary>Clears selected CGRAM spans before an incoming scene palette begins crossfading.</summary>
-    private void ClearPaletteSpans(IReadOnlyList<IntroPaletteSpan> spans)
+    /// <summary>Clears the selected screen colours before an incoming scene palette begins crossfading.</summary>
+    private void ClearPaletteSpans(IReadOnlyList<ScreenColourGroup> groups)
     {
-        foreach (IntroPaletteSpan span in spans)
-            PaletteFader.Clear(span);
+        foreach (ScreenColourGroup group in groups)
+            PaletteFader.Clear(group);
     }
 
-    /// <summary>Raises selected CGRAM components toward the prepared palette target for the incoming scene.</summary>
-    private void FadeInPaletteSpans(IReadOnlyList<IntroPaletteSpan> spans)
+    /// <summary>Raises the selected screen colours' components toward the prepared palette target for the incoming scene.</summary>
+    private void FadeInPaletteSpans(IReadOnlyList<ScreenColourGroup> groups)
     {
-        foreach (IntroPaletteSpan span in spans)
-            PaletteFader.FadeIn(span);
+        foreach (ScreenColourGroup group in groups)
+            PaletteFader.FadeIn(group);
     }
 
-    /// <summary>Reduces selected palette components during a scene-to-text or text-to-scene fade.</summary>
-    private void FadeOutPaletteSpans(IReadOnlyList<IntroPaletteSpan> spans)
+    /// <summary>Reduces the selected screen colours' components during a scene-to-text or text-to-scene fade.</summary>
+    private void FadeOutPaletteSpans(IReadOnlyList<ScreenColourGroup> groups)
     {
-        foreach (IntroPaletteSpan span in spans)
-            PaletteFader.FadeOut(span);
+        foreach (ScreenColourGroup group in groups)
+            PaletteFader.FadeOut(group);
     }
 
     /// <summary>Rejects truncated installed graphics before their native-sized VRAM transfers.</summary>

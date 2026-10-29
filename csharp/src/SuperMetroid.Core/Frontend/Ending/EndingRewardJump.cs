@@ -57,7 +57,7 @@ internal sealed class EndingRewardJump
             if (BodyY < EndingRewardJumpDefinitions.SheetSwitchY)
             {
                 FallingSheetSelected = true;
-                body.SetPalette(6);
+                body.SetPalette(ScreenColourGroups.SpriteRow(ScreenColourGroup.EndingFallingSamus));
                 body.Start(CinematicSpriteProgram.Falling);
                 body.InstallPreInstruction(CinematicSpritePreInstruction.RewardLanding);
             }
@@ -107,7 +107,7 @@ internal sealed class EndingRewardJump
                 RequireHead().WholePosition = new((ushort)(helmeted ? 120 : 121), (ushort)(helmeted ? 114 : 116));
                 return;
             case CinematicSpriteCueKind.Shoot:
-                body.SetPalette(7);
+                body.SetPalette(ScreenColourGroups.SpriteRow(ScreenColourGroup.EndingShootingSamus));
                 ShotRequested = true;
                 return;
             case CinematicSpriteCueKind.SetPreInstruction:
@@ -157,7 +157,7 @@ internal sealed class EndingRewardJump
             EndingRewardActors.GetInitialization(record.Initialization);
         var actor = new IntroDiscoverySprite(
             initialization.Position,
-            initialization.Palette,
+            ScreenColourGroups.SpriteRow(initialization.Colouring),
             record.Program);
         actor.InstallPreInstruction(record.PreInstruction);
         return actor;

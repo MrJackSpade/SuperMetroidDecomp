@@ -1,10 +1,11 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Verification.Harness;
 
-/// <summary>Where a screen palette's rows lie among the colours a frame publishes (#1404).</summary>
+/// <summary>Where a frontend screen's colour groups lie among the colours a frame publishes (#1404, #1464).</summary>
 internal static class ScreenColourPositions
 {
-    /// <summary>The position of colour <paramref name="colour"/> of sprite row <paramref name="row"/>.</summary>
-    internal static int Sprite(int row, int colour = 0) => new ScreenPalette().SpriteRow(row).First + colour;
+    /// <summary>The published position of colour <paramref name="colour"/> of <paramref name="group"/>.</summary>
+    internal static int Of(ScreenColourGroup group, int colour = 0) => new ScreenPalette().Colours(group).First + colour;
 }

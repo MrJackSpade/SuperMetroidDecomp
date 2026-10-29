@@ -113,7 +113,7 @@ internal sealed class EndingEscapeScenes
         {
             case CinematicSpriteCueKind.FadeExplosionPalette:
                 _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.FadePlanet, 0);
-                screen.Palette.SpriteRow(EndingColourRowDefinitions.GlowSpriteRow).Write(EndingColourRowDefinitions.GlowColour, new RgbColor(1, 0, 0));
+                screen.Palette.Colours(ScreenColourGroup.EndingExplodingPlanetGlow).Fill(new RgbColor(1, 0, 0));
                 return;
 
             case CinematicSpriteCueKind.SpawnExplosionSilhouette:
@@ -148,8 +148,8 @@ internal sealed class EndingEscapeScenes
                 // F32B disables TM/TS without deleting the actors: the stars must still
                 // advance and become visible again when Func120 starts the flyaway.
                 screen.Palette.Backdrop = EndingScreenDefinitions.WhiteColor;
-                screen.Palette.SpriteRow(EndingColourRowDefinitions.ClearedSpriteRow).Write(0, EndingScreenDefinitions.WhiteColor);
-                screen.Palette.BackgroundRow(EndingColourRowDefinitions.LogoBackgroundRow).Fill(EndingScreenDefinitions.WhiteColor);
+                screen.Palette.Colours(ScreenColourGroup.EndingFlashSpriteTransparent).Fill(EndingScreenDefinitions.WhiteColor);
+                screen.Palette.Colours(ScreenColourGroup.EndingFlashBackground).Fill(EndingScreenDefinitions.WhiteColor);
                 _stage.PhaseTimer = 120;
                 _stage.Phase = EndingCreditsPhase.WaitForPlanetEscapeMusic;
                 return;
@@ -226,7 +226,7 @@ internal sealed class EndingEscapeScenes
         int normalized = Math.Clamp(digit, 0, 9);
         _stage.SpawnSprite(
             new(checked((ushort)x), EndingActorDefinitions.ClearTimeDigitY),
-            0,
+            ScreenColourGroup.EndingClearTimeDigits,
             ClearTimeDigitProgram(normalized),
             EndingSpriteRole.ClearTimeDigit);
     }

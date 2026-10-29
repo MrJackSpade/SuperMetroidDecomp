@@ -37,14 +37,12 @@ internal sealed class EndingLogo
             CinematicActorDefinition definition = EndingLogoActors.Actor(i);
             actors[i] = new IntroDiscoverySprite(
                 EndingLogoActors.Origin(i),
-                7,
+                ScreenColourGroups.SpriteRow(ScreenColourGroup.EndingLogoSprites),
                 definition.Program);
             actors[i].InstallPreInstruction(definition.PreInstruction);
         }
-        Ensure.NotNull(colours).BackgroundRow(EndingColourRowDefinitions.LogoBackgroundRow).Fill(RgbColor.Black);
-        (paletteArtwork ?? throw new InvalidOperationException(
-            "Ending logo requires installed palette artwork."))
-            [EndingPaletteId.LogoInitial].LoadTo(colours.SpriteRow(EndingColourRowDefinitions.LogoSpriteRow), 0);
+        Ensure.NotNull(colours).Colours(ScreenColourGroup.EndingLogoBackground).Fill(RgbColor.Black);
+        RequirePaletteArtwork()[EndingPaletteId.LogoInitial].LoadTo(colours.Colours(ScreenColourGroup.EndingLogoSprites), 0);
     }
 
     /// <summary>Restored scene state keeps its current CGRAM; only future transfers change.</summary>
@@ -58,15 +56,9 @@ internal sealed class EndingLogo
         // pair is copied on the call after F25E, not during the call that requests it.
         if (CrossfadeStarted)
         {
-            for (int palette = 0; palette < 2; palette++)
-            {
-                for (int i = 15; i >= 0; i--)
-                    (palette == 0 ? colours.BackgroundRow(EndingColourRowDefinitions.LogoBackgroundRow)
-                        : colours.SpriteRow(EndingColourRowDefinitions.LogoSpriteRow)).Write(i,
-                        (paletteArtwork ?? throw new InvalidOperationException(
-                            "Ending logo requires installed palette artwork."))
-                            [EndingPaletteId.LogoCrossfade].Color((PaletteStep * 2 + palette) * 16 + i));
-            }
+            EndingPalette crossfade = RequirePaletteArtwork()[EndingPaletteId.LogoCrossfade];
+            LoadCrossfadeStep(Ensure.NotNull(colours).Colours(ScreenColourGroup.EndingLogoBackground), crossfade, EndingLogoLayer.Background);
+            LoadCrossfadeStep(colours.Colours(ScreenColourGroup.EndingLogoSprites), crossfade, EndingLogoLayer.Sprites);
             if (++PaletteStep == EndingLogoDefinitions.PaletteSteps) return;
         }
         for (int i = 0; i < actors.Length; i++)
@@ -75,6 +67,17 @@ internal sealed class EndingLogo
             actors[i].Step(HandleCue);
         }
     }
+
+    /// <summary>Loads the current crossfade step's colours of <paramref name="layer"/> into that layer's screen colours.</summary>
+    private void LoadCrossfadeStep(ColourRun layerColours, EndingPalette crossfade, EndingLogoLayer layer)
+    {
+        for (int colour = 0; colour < layerColours.Count; colour++)
+            layerColours.Write(colour, crossfade.LogoCrossfadeColour(PaletteStep, layer, colour));
+    }
+
+    /// <summary>The installed ending palettes the logo loads its colours from.</summary>
+    private EndingPaletteSet RequirePaletteArtwork() => paletteArtwork ?? throw new InvalidOperationException(
+        "Ending logo requires installed palette artwork.");
 
     /// <summary>Accelerates one logo half toward its landing point and signals arrival for the top half.</summary>
     private void MoveHalf(int index)

@@ -64,7 +64,7 @@ internal static class ClosedPresentationContractChecks
                     gameOver.DrawBaby(oam, sheet, SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame.Open);
                     gameOver.DrawBaby(oam, sheet, (SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame)99);
                     reserve.ApplyLabel(cells, dynamicIndex > 0 ? PauseReserveLabel.Auto : PauseReserveLabel.Manual);
-                    reserve.ApplyArrowColors(screen.BackgroundRow(0), true, dynamicIndex);
+                    reserve.ApplyArrowColors(screen, true, dynamicIndex);
                     reserve.ApplyDigit(cells, 0, 10);
                     beam.LoadTo(screen.SpriteRow(6), 0);
                     beam.LoadTo(screen.SpriteRow(6), (SuperMetroid.Core.Progression.SamusBeamCombination)12);

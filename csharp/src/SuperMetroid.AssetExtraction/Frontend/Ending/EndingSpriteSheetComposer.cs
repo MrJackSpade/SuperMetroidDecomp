@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rendering;
@@ -147,8 +148,7 @@ internal static class EndingSpriteSheetComposer
     private static void PostCreditsColours(EndingPaletteSet palettes, ScreenPalette colours)
     {
         palettes[EndingPaletteId.Credits].LoadTo(colours.Background, 0);
-        ColourRun restored = colours.All.Slice(EndingColourRowDefinitions.PostCreditsKeptColours,
-            ScreenPalette.ColorCount - EndingColourRowDefinitions.PostCreditsKeptColours);
+        ColourRun restored = colours.Colours(ScreenColourGroup.EndingPostCreditsRestored);
         palettes[EndingPaletteId.PostCredits].LoadTo(restored, palettes[EndingPaletteId.PostCredits].FirstColorFor(restored));
     }
 

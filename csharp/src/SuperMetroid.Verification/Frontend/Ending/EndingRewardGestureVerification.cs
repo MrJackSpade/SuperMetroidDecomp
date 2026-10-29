@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Frontend.Ending.EndingCloudMotionVerifica
 using static SuperMetroid.Verification.Frontend.Ending.EndingLogoVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingPostShotVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -169,7 +170,7 @@ internal static class EndingRewardGestureVerification
                 EndingRewardNativeWords.Initializations.Decode(initializer, "reward initialization"));
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((code + 1)), origin.Position.X, "reward native initial X");
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((code + 7)), origin.Position.Y, "reward native initial Y");
-            PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(bus).ReadCartridgeWord((code + 13)), origin.Palette, "reward native initial palette");
+            PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(bus).ReadCartridgeWord((code + 13)), ScreenColourGroups.SpriteRow(origin.Colouring), "reward native initial palette selects the reward colouring's row");
         }
         AssertEqual(4, initializers.Count, "reward initializer domain");
         AssertEqual(RewardActorPointers.Length, Enum.GetValues<EndingRewardActor>().Length, "reward record domain");

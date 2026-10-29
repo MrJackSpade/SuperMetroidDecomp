@@ -48,9 +48,9 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
         return new TitlePalettePresentation(colors, animatedColors, skipCopyrightWhite, skipCopyrightRed);
     }
 
-    /// <summary>Selected BGR555 copyright highlight restored at CGRAM color 201 by the title fast-skip route and title-screen presentation rebinding.</summary>
+    /// <summary>Selected BGR555 copyright white the title fast-skip route and title-screen presentation rebinding restore to the copyright glyph's white.</summary>
     public RgbColor SkipCopyrightWhite { get; }
-    /// <summary>Selected BGR555 copyright tint restored at CGRAM color 202 on fast skip; the legacy Red name does not restrict its channels, and the stock word is $7D80.</summary>
+    /// <summary>Selected BGR555 copyright tint the fast skip restores to the copyright glyph's red; the legacy Red name does not restrict its channels, and the stock word is $7D80.</summary>
     public RgbColor SkipCopyrightRed { get; }
 
     /// <inheritdoc />

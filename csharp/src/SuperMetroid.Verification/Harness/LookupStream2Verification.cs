@@ -34,6 +34,7 @@ using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.PipeBugs;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Enemies.Yard;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -1691,9 +1692,9 @@ internal static class LookupStream2Verification
         var cgram = new ScreenPalette();
         for (int frame = 0; frame < 32; frame++)
         {
-            stock.ApplyArrowColors(cgram.BackgroundRow(0), true, frame);
-            AssertEqual(ReadVerificationWord(rom, 0x82ad5d + 2 * frame), cgram.Colors[6], "Native arrow color6 reaches CGRAM");
-            AssertEqual(ReadVerificationWord(rom, 0x82ad9d + 2 * frame), cgram.Colors[11], "Native arrow color11 reaches CGRAM");
+            stock.ApplyArrowColors(cgram, true, frame);
+            AssertEqual(ReadVerificationWord(rom, 0x82ad5d + 2 * frame), cgram.Colours(ScreenColourGroup.PauseReserveArrowShade)[0], "Native arrow color6 reaches the arrow's shade colour");
+            AssertEqual(ReadVerificationWord(rom, 0x82ad9d + 2 * frame), cgram.Colours(ScreenColourGroup.PauseReserveArrowLight)[0], "Native arrow color11 reaches the arrow's light colour");
         }
         Check(stock, document);
         for (int frame = 0; frame < 32; frame++)
@@ -1733,14 +1734,14 @@ internal static class LookupStream2Verification
             var cgram = new ScreenPalette();
             for (int frame = -1; frame <= 32; frame++)
             {
-                presentation.ApplyArrowColors(cgram.BackgroundRow(0), true, frame);
+                presentation.ApplyArrowColors(cgram, true, frame);
                 var row = expected.Arrow.Frames[frame & 31];
-                AssertEqual(Pack(row.Color6), cgram.Colors[6], "Independent supplied color6");
-                AssertEqual(Pack(row.Color11), cgram.Colors[11], "Independent supplied color11");
+                AssertEqual(Pack(row.Color6), cgram.Colours(ScreenColourGroup.PauseReserveArrowShade)[0], "Independent supplied color6");
+                AssertEqual(Pack(row.Color11), cgram.Colours(ScreenColourGroup.PauseReserveArrowLight)[0], "Independent supplied color11");
             }
-            presentation.ApplyArrowColors(cgram.BackgroundRow(0), false, 0);
-            AssertEqual(Pack(expected.Arrow.SolidColor6), cgram.Colors[6], "Solid arrow color6");
-            AssertEqual(Pack(expected.Arrow.SolidColor11), cgram.Colors[11], "Solid arrow color11");
+            presentation.ApplyArrowColors(cgram, false, 0);
+            AssertEqual(Pack(expected.Arrow.SolidColor6), cgram.Colours(ScreenColourGroup.PauseReserveArrowShade)[0], "Solid arrow color6");
+            AssertEqual(Pack(expected.Arrow.SolidColor11), cgram.Colours(ScreenColourGroup.PauseReserveArrowLight)[0], "Solid arrow color11");
         }
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
     }

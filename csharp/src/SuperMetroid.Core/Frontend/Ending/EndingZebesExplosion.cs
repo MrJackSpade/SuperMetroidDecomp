@@ -67,8 +67,8 @@ internal sealed class EndingZebesExplosion
         _stage.ResetPaletteFx();
         explosionFadeSource = screen.Palette.Colors.ToArray();
         explosionFadeStep = 0;
-        ApplyExplosionFade(screen.Palette.SpriteRow(EndingColourRowDefinitions.ExplosionFirstSpriteRow), 0);
-        ApplyExplosionFade(screen.Palette.SpriteRow(EndingColourRowDefinitions.ExplosionSecondSpriteRow), 0);
+        ApplyExplosionFade(screen.Palette.Colours(ScreenColourGroup.EndingExplosionLava), 0);
+        ApplyExplosionFade(screen.Palette.Colours(ScreenColourGroup.EndingExplodingPlanet), 0);
         _stage.PhaseTimer = EndingExplosionFadeDefinitions.InitialCountdown;
     }
 
@@ -79,10 +79,10 @@ internal sealed class EndingZebesExplosion
         if ((_stage.PhaseTimer & 1) == 0)
         {
             explosionFadeStep++;
-            ApplyExplosionFade(screen.Palette.BackgroundRow(EndingColourRowDefinitions.ExplosionBackgroundRow),
+            ApplyExplosionFade(screen.Palette.Colours(ScreenColourGroup.EndingExplosionBackground),
                 EndingExplosionFadeDefinitions.Steps - explosionFadeStep);
-            ApplyExplosionFade(screen.Palette.SpriteRow(EndingColourRowDefinitions.ExplosionFirstSpriteRow), explosionFadeStep);
-            ApplyExplosionFade(screen.Palette.SpriteRow(EndingColourRowDefinitions.ExplosionSecondSpriteRow), explosionFadeStep);
+            ApplyExplosionFade(screen.Palette.Colours(ScreenColourGroup.EndingExplosionLava), explosionFadeStep);
+            ApplyExplosionFade(screen.Palette.Colours(ScreenColourGroup.EndingExplodingPlanet), explosionFadeStep);
         }
         if (--_stage.PhaseTimer < 0)
         {
@@ -92,7 +92,7 @@ internal sealed class EndingZebesExplosion
         }
     }
 
-    /// <summary>Scales one row of the explosion's colours from those captured when the crossfade began.</summary>
+    /// <summary>Scales one colour group of the explosion's colours from those captured when the crossfade began.</summary>
     private void ApplyExplosionFade(ColourRun row, int factor)
     {
         ReadOnlySpan<RgbColor> source = row.SamePositionsIn(explosionFadeSource);

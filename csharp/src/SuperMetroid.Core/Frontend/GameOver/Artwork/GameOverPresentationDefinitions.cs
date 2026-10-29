@@ -15,8 +15,6 @@ public static class GameOverPresentationDefinitions
     public const int TilemapCellCount = TilemapWidth * TilemapHeight;
     /// <summary>The menu atlas cell of the blank glyph, shown by every page cell no text element writes.</summary>
     public const ushort BlankTile = 15;
-    /// <summary>The sprite row the Baby's animated colours change.</summary>
-    public const int BabySpriteRow = 4;
     /// <summary>Four frames in the looping missile-cursor animation.</summary>
     public const int CursorFrameCount = 4;
     /// <summary>Schema sprite identity of the egg composition, drawn at the Baby anchor.</summary>

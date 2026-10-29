@@ -11,8 +11,12 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 /// This identifies the exact quantizer, not the historical tool that generated it.</summary>
 internal sealed class EndingLogoPaletteFade
 {
-    /// <summary>Sixteen steps of two sixteen-color palette rows.</summary>
-    internal const int ColorCount = 16 * 2 * 16;
+    /// <summary>The colours of one layer at one crossfade step.</summary>
+    internal const int ColoursPerLayer = 16;
+    /// <summary>The layers each crossfade step holds: the background's colours, then the sprites'.</summary>
+    private const int LayersPerStep = 2;
+    /// <summary>Every step's colours of both layers.</summary>
+    internal const int ColorCount = EndingLogoDefinitions.PaletteSteps * LayersPerStep * ColoursPerLayer;
     /// <summary>Caller-supplied drawing colors. Stock $8C:EFE9 uses independent yellow
     /// face, blue/cyan edging, orange-sector shades and a dark outline, as confirmed by
     /// the original $99:E089 tiles and final OAM compositions. These selected hues are
@@ -49,6 +53,18 @@ internal sealed class EndingLogoPaletteFade
             if (fade.Color(index) != RgbColor.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(bytes.Slice(index * 2))))
                 return null;
         return fade;
+    }
+
+    /// <summary>
+    /// Where the crossfade holds colour <paramref name="colour"/> of <paramref name="layer"/> at step <paramref name="step"/>:
+    /// steps in order, each step's background colours before its sprite colours.
+    /// </summary>
+    internal static int Position(int step, EndingLogoLayer layer, int colour)
+    {
+        Ensure.BetweenInclusive(0, EndingLogoDefinitions.PaletteSteps - 1, step);
+        Ensure.BetweenInclusive(0, ColoursPerLayer - 1, colour);
+        int layerIndex = layer == EndingLogoLayer.Background ? 0 : 1;
+        return (step * LayersPerStep + layerIndex) * ColoursPerLayer + colour;
     }
 
     /// <summary>Flattened [step0..15][BG,OBJ][color0..15]. BG gains brightness while

@@ -46,7 +46,7 @@ public sealed class EndingPalette
     public int ColorCount => colorBytes is not null ? colorBytes.Length / RgbColor.ByteCount : EndingLogoPaletteFade.ColorCount;
 
     /// <summary>Reads one selected color, evaluating a recognized logo fade directly rather than materializing its transfer image.</summary>
-    /// <param name="index">Zero-based color position within <see cref="ColorCount"/>; crossfade positions use (step * 2 + palette) * 16 + color, with BG palette 0 and OBJ palette 1.</param>
+    /// <param name="index">Zero-based color position within <see cref="ColorCount"/>; the logo crossfade is read by step and layer through <see cref="LogoCrossfadeColour"/>.</param>
     /// <returns>A compiled BGR555 word: red in bits 0..4, green in 5..9 and blue in 10..14.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside this resource.</exception>
     public RgbColor Color(int index)
@@ -57,6 +57,11 @@ public sealed class EndingPalette
         return RgbColor.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(
             colorBytes.AsSpan(index * RgbColor.ByteCount)));
     }
+
+    /// <summary>The logo crossfade's colour <paramref name="colour"/> of <paramref name="layer"/> at crossfade step <paramref name="step"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The step or colour is outside the crossfade, or this resource is shorter than one.</exception>
+    internal RgbColor LogoCrossfadeColour(int step, EndingLogoLayer layer, int colour) =>
+        Color(EndingLogoPaletteFade.Position(step, layer, colour));
 
     /// <summary>Changes <paramref name="destination"/> to this resource's colours from <paramref name="sourceColor"/>.</summary>
     /// <param name="destination">The screen colours to change; the others keep theirs.</param>

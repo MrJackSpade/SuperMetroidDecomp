@@ -107,7 +107,7 @@ internal sealed class EndingRewardGesture
             EndingRewardActors.GetInitialization(record.Initialization);
         var actor = new IntroDiscoverySprite(
             initialization.Position,
-            initialization.Palette,
+            ScreenColourGroups.SpriteRow(initialization.Colouring),
             record.Program);
         actor.InstallPreInstruction(record.PreInstruction);
         actors.Add(actor);

@@ -106,10 +106,7 @@ public readonly record struct MapTileWord(ushort Raw)
     /// The cell the game shows for this word: its character as the shape, its palette as the colour variant, the palette
     /// <c>$82:943D</c> leaves once the cell is explored, its mirroring and its priority.
     /// </summary>
-    /// <exception cref="InvalidDataException">The word selects a character outside the installed map pictures.</exception>
-    public MapCell ToCell() => CharacterIndex < MapCellShape.Count
-        ? new(new MapCellShape(CharacterIndex), PaletteIndex, AsExplored().PaletteIndex, Mirroring, HasPriority)
-        : throw new InvalidDataException($"Map cell word {Raw:x4} selects character {CharacterIndex}, beyond the installed map pictures.");
+    public MapCell ToCell() => new(new MapCellShape(CharacterIndex), PaletteIndex, AsExplored().PaletteIndex, Mirroring, HasPriority);
 
     /// <summary>The cartridge word that shows <paramref name="cell"/> before it is explored.</summary>
     public static MapTileWord Of(MapCell cell) => new(checked((ushort)(

@@ -7,8 +7,8 @@ public static class MapPresentationFormat
     public const int Version = 1;
     /// <summary>Number of 8-pixel picture columns in the shared map pictures; picture row times 32 plus column names a cell's shape.</summary>
     public const int AtlasColumns = 32;
-    /// <summary>Number of 8-pixel picture rows in the shared map pictures, bounding editable tile-row values.</summary>
-    public const int AtlasRows = MapCellShape.Count / AtlasColumns;
+    /// <summary>Number of 8-pixel picture rows in the shared 64-pixel-high map pictures, bounding editable tile-row values.</summary>
+    public const int AtlasRows = 8;
     /// <summary>Eight selectable colour variants a document cell may name.</summary>
     public const int PaletteCount = 8;
 }

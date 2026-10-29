@@ -7,6 +7,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -20,7 +21,7 @@ namespace SuperMetroid.Verification.Fx;
 /// <summary>Checks the HUD, room effect and typewriter descriptions a frame publishes instead of BG3 VRAM (#1348).</summary>
 internal static class Layer3PlaneVerification
 {
-    /// <summary>The published BG3 plane's top rows are the HUD's: its static top row and the rows HudState owns.</summary>
+    /// <summary>The published BG3 plane's top rows are the HUD's: its static top row and the rows its values draw.</summary>
     internal static void VerifyPublishedHudRows()
     {
         var runtime = CreateRetailRuntimeFixture();
@@ -34,19 +35,21 @@ internal static class Layer3PlaneVerification
         ushort[] topRow = BackgroundTileWordBytes.Words((runtime.Artwork.MapPresentation ?? throw new InvalidOperationException(
             "The retail fixture installs the HUD artwork.")).GameplayHud.TopRow());
         AssertTrue(first.Words[..Layer3Plane.Columns].SequenceEqual(topRow), "row zero is the HUD's static top row");
-        AssertTrue(first.Words[Layer3Plane.Columns..(Layer3Plane.HudRows * Layer3Plane.Columns)].SequenceEqual(BackgroundTileWordBytes.Words(runtime.Hud.MutableRows)),
-            "rows one through three are the rows HudState owns");
+        AssertTrue(first.Words[Layer3Plane.Columns..(Layer3Plane.HudRows * Layer3Plane.Columns)].SequenceEqual(runtime.Hud.TileWords),
+            "rows one through three are the rows the HUD's values draw");
 
-        // A HUD change reaches the next NMI's plane; the published one keeps its rows. The new word is one the HUD's
-        // artwork shows, so the NMI can picture it (#1392).
-        const int cell = 7;
-        ushort before = runtime.Hud.Tiles[cell].PackedWord;
-        ushort changed = topRow.First(word => word != before);
-        runtime.Hud.Tiles[cell] = BackgroundTileWordBytes.Tile(changed);
+        // A HUD change reaches the next NMI's plane; the published one keeps its rows. Lost energy redraws the energy
+        // count with digits the HUD's artwork shows, so the NMI can picture them (#1392).
+        ushort[] before = runtime.Hud.TileWords;
+        SamusState samus = runtime.Player.IntroducedSamus;
+        samus.Health = samus.Health == 42 ? 37 : 42;
+        runtime.Hud.UpdateGameplayCounters(samus);
+        ushort[] after = runtime.Hud.TileWords;
+        int cell = Enumerable.Range(0, after.Length).First(index => after[index] != before[index]);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(changed, Published(runtime).Words[Layer3Plane.Columns + cell], "the next NMI's plane shows the HUD change");
-        AssertEqual(before, first.Words[Layer3Plane.Columns + cell], "an earlier published plane keeps its rows");
-        Console.WriteLine("  BG3 plane: the HUD rows publish from HudState at each NMI.");
+        AssertEqual(after[cell], Published(runtime).Words[Layer3Plane.Columns + cell], "the next NMI's plane shows the HUD change");
+        AssertEqual(before[cell], first.Words[Layer3Plane.Columns + cell], "an earlier published plane keeps its rows");
+        Console.WriteLine("  BG3 plane: the HUD rows publish from the HUD's values at each NMI.");
     }
 
     /// <summary>A water effect at a constructed level shows its authored page below the HUD and captures from that plane.</summary>

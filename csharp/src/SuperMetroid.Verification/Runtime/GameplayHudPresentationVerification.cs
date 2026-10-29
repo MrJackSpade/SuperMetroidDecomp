@@ -12,6 +12,7 @@ using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Hud;
 namespace SuperMetroid.Verification.Runtime;
 
 /// <summary>Checks installed gameplay HUD art, live tile updates, and editable layout overrides.</summary>
@@ -26,7 +27,7 @@ internal static class GameplayHudPresentationVerification
         byte[] extracted = SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationExtractor.Extract(bus);
         AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
             "installed gameplay HUD JSON is the deterministic cartridge extraction");
-        GameplayHudPresentation presentation = GameplayHudPresentation.Load(new MemoryStream(extracted));
+        GameplayHudPresentation presentation = GameplayHudPresentationFile.Read(new MemoryStream(extracted));
         ushort[] stockTopRow = BackgroundTileWordBytes.Words(presentation.TopRow());
         for (int column = 0; column < GameplayHudDefinitions.TopRowCellCount; column++)
             AssertEqual((ushort)(GameplayHudPresentationAssetsRomByte(bus, HudSourceDefinitions.TopRow + column * 2)
@@ -107,7 +108,7 @@ internal static class GameplayHudPresentationVerification
         Directory.CreateDirectory(overrides);
         string replacement = Path.Combine(overrides, GameplayHudDefinitions.FileName);
         using (var output = File.Create(replacement))
-            GameplayHudPresentation.Write(output, document);
+            GameplayHudPresentationFile.Write(output, document);
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "gameplay HUD override changes selected catalog identity");
@@ -149,23 +150,23 @@ internal static class GameplayHudPresentationVerification
         AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides),
             "corrupt gameplay HUD override fails loudly");
         using (var output = File.Create(replacement))
-            GameplayHudPresentation.Write(output, document);
+            GameplayHudPresentationFile.Write(output, document);
 
-        AssertThrows<InvalidDataException>(() => GameplayHudPresentation.Write(Stream.Null,
+        AssertThrows<InvalidDataException>(() => GameplayHudPresentationFile.Write(Stream.Null,
             document with { SelectedPalette = 8 }), "HUD rejects invalid highlight palette");
-        AssertThrows<InvalidDataException>(() => GameplayHudPresentation.Write(Stream.Null,
+        AssertThrows<InvalidDataException>(() => GameplayHudPresentationFile.Write(Stream.Null,
             document with { Template = document.Template[..^1] }), "HUD rejects incomplete template");
-        AssertThrows<InvalidDataException>(() => GameplayHudPresentation.Write(Stream.Null,
+        AssertThrows<InvalidDataException>(() => GameplayHudPresentationFile.Write(Stream.Null,
             document with { TopRow = document.TopRow[..^1] }), "HUD rejects incomplete immutable row");
         var overlap = RequiredJson.Deserialize<GameplayHudPresentationDocument>(extracted,
             ArtworkJson.Options);
         overlap = overlap with { Digits = overlap.Digits with { HealthAnchor = new(8, 0) } };
-        AssertThrows<InvalidDataException>(() => GameplayHudPresentation.Write(Stream.Null, overlap),
+        AssertThrows<InvalidDataException>(() => GameplayHudPresentationFile.Write(Stream.Null, overlap),
             "HUD rejects overlapping visual owners");
         var missingIcon = RequiredJson.Deserialize<GameplayHudPresentationDocument>(extracted,
             ArtworkJson.Options);
         missingIcon.Icons.Remove("XRay");
-        AssertThrows<InvalidDataException>(() => GameplayHudPresentation.Write(Stream.Null, missingIcon),
+        AssertThrows<InvalidDataException>(() => GameplayHudPresentationFile.Write(Stream.Null, missingIcon),
             "HUD rejects missing named icons");
 
         Console.WriteLine("Gameplay HUD presentation: exact stock/live parity, ROM guard, layout/art edits, rebind and strict failures pass.");

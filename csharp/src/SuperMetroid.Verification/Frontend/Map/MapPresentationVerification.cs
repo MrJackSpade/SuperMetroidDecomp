@@ -143,7 +143,7 @@ internal static class MapPresentationVerification
             // cartridge reader supplies its stock fixture; minimap updates below use
             // the ROM-free bus and still exercise the production HUD owner.
             var source = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-            var hudArt = GameplayHudPresentation.Load(new MemoryStream(
+            var hudArt = SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationFile.Read(new MemoryStream(
                 SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationExtractor.Extract(source)));
             var hud = new HudState();
             hud.BindPresentation(hudArt);

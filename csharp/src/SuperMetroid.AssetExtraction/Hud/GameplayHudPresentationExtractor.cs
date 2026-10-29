@@ -22,47 +22,46 @@ public static class GameplayHudPresentationExtractor
         int sourceWord = 0;
         for (int item = 0; item < GameplayHudDefinitions.IconNames.Length; item++)
         {
-            int width = item == 0 ? 3 : 2;
-            int count = width * 2;
-            icons.Add(GameplayHudTiles.IconName(item), new()
+            int count = GameplayHudStockDefinitions.IconWidths[item] * 2;
+            icons.Add(GameplayHudDefinitions.IconNames[item], new()
             {
-                Anchor = Point(GameplayHudTiles.ItemCell(item)),
+                Anchor = Point(GameplayHudStockCells.ItemCell(item)),
                 Cells = ReadCells(bus, HudSourceDefinitions.Icons + sourceWord * sizeof(ushort), count),
             });
             sourceWord += count;
         }
 
         using var output = new MemoryStream();
-        GameplayHudPresentation.Write(output, new()
+        GameplayHudPresentationFile.Write(output, new()
         {
-            Version = GameplayHudDefinitions.Version,
+            Version = GameplayHudStockDefinitions.Version,
             TopRow = ReadCells(bus, HudSourceDefinitions.TopRow,
                 GameplayHudDefinitions.TopRowCellCount),
             Template = ReadCells(bus, HudSourceDefinitions.Template, GameplayHudDefinitions.CellCount),
-            Blank = Cell(BackgroundTileWords.ToWord(GameplayHudDefinitions.Blank)),
-            SelectedPalette = GameplayHudDefinitions.SelectedPalette,
-            DeselectedPalette = GameplayHudDefinitions.DeselectedPalette,
-            MinimapAnchor = new(26, 0),
+            Blank = Cell(BackgroundTileWords.ToWord(GameplayHudStockDefinitions.Blank)),
+            SelectedPalette = GameplayHudStockDefinitions.SelectedPalette,
+            DeselectedPalette = GameplayHudStockDefinitions.DeselectedPalette,
+            MinimapAnchor = GameplayHudStockDefinitions.MinimapAnchor,
             EnergyTanks = new()
             {
                 Anchors = Enumerable.Range(0, GameplayHudDefinitions.EnergyTankCount)
-                    .Select(tank => Point(GameplayHudTiles.EnergyTankCell(tank))).ToArray(),
-                Filled = Cell(BackgroundTileWords.ToWord(GameplayHudDefinitions.FilledEnergyTank)),
-                Empty = Cell(BackgroundTileWords.ToWord(GameplayHudDefinitions.EmptyEnergyTank)),
+                    .Select(tank => Point(GameplayHudStockCells.EnergyTankCell(tank))).ToArray(),
+                Filled = Cell(BackgroundTileWords.ToWord(GameplayHudStockDefinitions.FilledEnergyTank)),
+                Empty = Cell(BackgroundTileWords.ToWord(GameplayHudStockDefinitions.EmptyEnergyTank)),
             },
             Digits = new()
             {
                 Health = ReadCells(bus, HudSourceDefinitions.HealthDigits, 10),
                 Ammo = ReadCells(bus, HudSourceDefinitions.AmmoDigits, 10),
-                HealthAnchor = Point(GameplayHudDefinitions.HealthAnchorByteOffset / sizeof(ushort)),
-                MissileAnchor = Point(GameplayHudDefinitions.MissileAnchorByteOffset / sizeof(ushort)),
-                SuperMissileAnchor = Point(GameplayHudDefinitions.SuperMissileAnchorByteOffset / sizeof(ushort)),
-                PowerBombAnchor = Point(GameplayHudDefinitions.PowerBombAnchorByteOffset / sizeof(ushort)),
+                HealthAnchor = Point(GameplayHudStockDefinitions.HealthAnchorByteOffset / sizeof(ushort)),
+                MissileAnchor = Point(GameplayHudStockDefinitions.MissileAnchorByteOffset / sizeof(ushort)),
+                SuperMissileAnchor = Point(GameplayHudStockDefinitions.SuperMissileAnchorByteOffset / sizeof(ushort)),
+                PowerBombAnchor = Point(GameplayHudStockDefinitions.PowerBombAnchorByteOffset / sizeof(ushort)),
             },
             AutoReserve = new()
             {
                 Anchors = Enumerable.Range(0, GameplayHudDefinitions.AutoReserveCellCount)
-                    .Select(cell => Point(GameplayHudTiles.AutoReserveCellIndex(cell))).ToArray(),
+                    .Select(cell => Point(GameplayHudStockCells.AutoReserveCellIndex(cell))).ToArray(),
                 ContainsEnergy = ReadCells(bus, HudSourceDefinitions.AutoReserve, 6),
                 Empty = ReadCells(bus, HudSourceDefinitions.AutoReserve + HudSourceDefinitions.AutoReserveEmptyOffset, 6),
             },

@@ -111,7 +111,7 @@ public static class MapPresentationFiles
         PauseEquipmentLabelPresentation pauseEquipmentLabels = Resource(PauseEquipmentLabelDefinitions.FileName, "pause equipment labels", s => PauseEquipmentLabelPresentation.Load(s));
         EscapeTimerPresentation escapeTimer = Resource(EscapeTimerPresentationDefinitions.FileName, "escape timer presentation", s => EscapeTimerPresentation.Load(s));
         EscapeTimerTileAtlas escapeTimerTiles = Resource(EscapeTimerTileAtlasFormat.FileName, "escape timer artwork", s => EscapeTimerCharacters.Read(s));
-        GameplayHudPresentation gameplayHud = Resource(GameplayHudDefinitions.FileName, "gameplay HUD presentation", s => GameplayHudPresentation.Load(s));
+        GameplayHudPresentation gameplayHud = Resource(GameplayHudDefinitions.FileName, "gameplay HUD presentation", s => GameplayHudPresentationFile.Read(s));
         GameOverPresentation gameOver = Resource(GameOverPresentationDefinitions.FileName, "game-over presentation", s => GameOverSourcePresentation.Load(s));
         GameOptionsPresentation gameOptions = Resource(GameOptionsPresentationDefinitions.FileName, "options-menu presentation", s => GameOptionsSourcePresentation.Load(s));
         FileSelectPresentation fileSelect = Resource(FileSelectPresentationDefinitions.FileName, "file-select presentation", s => FileSelectSourcePresentation.Load(s));

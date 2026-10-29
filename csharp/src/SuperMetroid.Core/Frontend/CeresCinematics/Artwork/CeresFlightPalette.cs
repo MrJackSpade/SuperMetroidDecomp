@@ -10,33 +10,6 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 /// </summary>
 public sealed class CeresFlightPalette
 {
-    /// <summary>The background set whose colours one to eight interpolate between their two endpoints.</summary>
-    private const int RampSet = 6;
-
-    /// <summary>The ramp's first endpoint colour.</summary>
-    private const int RampFirstColour = 1;
-
-    /// <summary>The ramp's last endpoint colour.</summary>
-    private const int RampLastColour = 8;
-
-    /// <summary>The background sets, from the first, whose visible colours repeat the neutral fill.</summary>
-    private const int FillSets = 4;
-
-    /// <summary>The first visible colour of the first background set that the neutral fill covers; the colours before it are independent.</summary>
-    private const int FirstFillColour = 4;
-
-    /// <summary>The sprite set whose colours are the sprites' own, not repeats of the background set of the same identity.</summary>
-    private const int OwnSpriteSet = 5;
-
-    /// <summary>The sprite set holding the five hue colours that are the sprites' own.</summary>
-    private const int HueSpriteSet = 7;
-
-    /// <summary>The first of the sprites' own hue colours.</summary>
-    private const int FirstHueColour = 9;
-
-    /// <summary>The last of the sprites' own hue colours.</summary>
-    private const int LastHueColour = 13;
-
     /// <summary>The backdrop, the first background set's transparent colour.</summary>
     private static readonly ScreenColourCell Backdrop = new(ScreenColourOwner.Backgrounds, 0, 0);
 
@@ -49,11 +22,29 @@ public sealed class CeresFlightPalette
     /// <summary>The neutral fill the first background sets repeat.</summary>
     private static readonly ScreenColourCell NeutralFill = new(ScreenColourOwner.Backgrounds, 0, 2);
 
-    /// <summary>The ramp's first endpoint.</summary>
-    private static readonly ScreenColourCell RampStart = new(ScreenColourOwner.Backgrounds, RampSet, RampFirstColour);
+    /// <summary>The ramp's first endpoint, the sixth background set's first visible colour.</summary>
+    private static readonly ScreenColourCell RampStart = new(ScreenColourOwner.Backgrounds, 6, 1);
 
     /// <summary>The ramp's last endpoint.</summary>
-    private static readonly ScreenColourCell RampEnd = new(ScreenColourOwner.Backgrounds, RampSet, RampLastColour);
+    private static readonly ScreenColourCell RampEnd = new(ScreenColourOwner.Backgrounds, 6, 8);
+
+    /// <summary>The six colours between the ramp's endpoints, which interpolate them.</summary>
+    private static readonly ScreenColourRegion RampInterior = new(ScreenColourOwner.Backgrounds, 6, 2, 6);
+
+    /// <summary>
+    /// The first background sets' visible colours after the first set's independent ones, which repeat the neutral fill.
+    /// </summary>
+    private static readonly ScreenColourRegion NeutralFillColours = new(ScreenColourOwner.Backgrounds, 0, 4, 60);
+
+    /// <summary>
+    /// The sprite colours that are the sprites' own: the fifth set's and five hue colours of the seventh. Every other
+    /// visible sprite colour repeats the background colour of the same set and colour.
+    /// </summary>
+    private static readonly ScreenColourRegion[] SpritesOwnColours =
+    [
+        new(ScreenColourOwner.Sprites, 5, 0, 16),
+        new(ScreenColourOwner.Sprites, 7, 9, 5),
+    ];
 
     /// <summary>Independent painted colors; only repeated sections and endpoint-defined ramps are calculated.</summary>
     internal readonly Dictionary<ScreenColourCell, RgbColor> colors = [];
@@ -95,25 +86,21 @@ public sealed class CeresFlightPalette
     {
         if (cell.Colour == 0)
             return cell == Backdrop ? Backdrop : cell.Owner == ScreenColourOwner.Backgrounds ? BackgroundTransparent : SpriteTransparent;
-        if (cell.Owner == ScreenColourOwner.Sprites && cell.Set != OwnSpriteSet &&
-            !(cell.Set == HueSpriteSet && cell.Colour is >= FirstHueColour and <= LastHueColour))
+        if (cell.Owner == ScreenColourOwner.Sprites && !SpritesOwnColours.Any(region => region.Contains(cell)))
             cell = cell with { Owner = ScreenColourOwner.Backgrounds };
-        if (cell.Owner == ScreenColourOwner.Backgrounds && cell.Set < FillSets && (cell.Set > 0 || cell.Colour >= FirstFillColour))
-            return NeutralFill;
-        return cell;
+        return NeutralFillColours.Contains(cell) ? NeutralFill : cell;
     }
 
     /// <summary>$8C:E6AB-E6BA and E7AB-E7BA: eight colors interpolate RGB5 endpoints with nearest-integer rounding.</summary>
-    private static bool IsRampInterior(ScreenColourCell cell) =>
-        cell.Owner == ScreenColourOwner.Backgrounds && cell.Set == RampSet && cell.Colour is > RampFirstColour and < RampLastColour;
+    private static bool IsRampInterior(ScreenColourCell cell) => RampInterior.Contains(cell);
 
     /// <summary>Calculates repeated colours or interpolated ramp colors from independent inputs.</summary>
     private RgbColor Calculate(ScreenColourCell cell)
     {
         ScreenColourCell source = Source(cell);
         if (!IsRampInterior(source)) return colors[source];
-        int step = source.Colour - RampFirstColour;
-        int steps = RampLastColour - RampFirstColour;
+        int step = source.Colour - RampStart.Colour;
+        int steps = RampEnd.Colour - RampStart.Colour;
         RgbColor first = colors[RampStart], last = colors[RampEnd];
         return first.Zip(last, (_, start, end) => (start * (steps - step) + end * step + steps / 2) / steps);
     }

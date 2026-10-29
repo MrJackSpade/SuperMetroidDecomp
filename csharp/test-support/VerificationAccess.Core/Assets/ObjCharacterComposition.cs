@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Enemies;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>The uploads and source bytes a composed object character page was built from.</summary>

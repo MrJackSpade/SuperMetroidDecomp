@@ -214,7 +214,7 @@ internal static class RoomBlockPicturesVerification
                 overlay = overlay.With(typed.Cell, [typed.Tile]);
         }
         ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver(sheet).Resolve(overlay,
-            RoomCharacterSource.Of(RoomBackgroundCharacters.Tileset, runtime.BgArtwork, runtime.EnemySession.SpriteCharacters,
+            RoomCharacterSource.Of(RoomBackgroundCharacters.Tileset, runtime.BgArtwork, runtime.EnemySession,
                 RoomScopeOf(runtime).AnimatedCharacters, RoomScopeOf(runtime).ArtworkFrames));
         int glyphs = 0;
         for (int index = 0; index < RoomTilemapOverlay.WordCount; index++)
@@ -256,7 +256,7 @@ internal static class RoomBlockPicturesVerification
         foreach ((string name, ImmutableArray<BackgroundTile> tiles) in bodies(runtime))
         {
             ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver(sheet).Resolve(tiles,
-                RoomCharacterSource.Of(RoomBackgroundCharacters.Tileset, runtime.BgArtwork, runtime.EnemySession.SpriteCharacters,
+                RoomCharacterSource.Of(RoomBackgroundCharacters.Tileset, runtime.BgArtwork, runtime.EnemySession,
                 RoomScopeOf(runtime).AnimatedCharacters, RoomScopeOf(runtime).ArtworkFrames));
             for (int tile = 0; tile < tiles.Length; tile++)
             {
@@ -490,11 +490,11 @@ internal static class RoomBlockPicturesVerification
             runtime.Artwork.MapPresentation?.RoomFxAnimatedTiles ?? throw new InvalidOperationException("The runtime has no installed animated tiles.");
         RoomBackgrounds rooms = runtime.Display.Latched.Rooms ?? throw new InvalidOperationException($"{where}: no room backgrounds are displayed.");
         RoomBlockPictureTable table = rooms.Bg1.Pictures ?? throw new InvalidOperationException($"{where}: BG1 shows no block pictures.");
-        RoomCharacterSource characters = RoomCharacterSource.Of(rooms.Characters, runtime.BgArtwork, runtime.EnemySession.SpriteCharacters,
+        RoomCharacterSource characters = RoomCharacterSource.Of(rooms.Characters, runtime.BgArtwork, runtime.EnemySession,
                 RoomScopeOf(runtime).AnimatedCharacters, latched);
         // The Ceres Ridley arena's blocks read the OBJ character page its uploads compose; any other room's, the bound tiles.
         byte[] tiles = rooms.Characters == RoomBackgroundCharacters.ObjectCharacterPage
-            ? RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteCharacters).Characters.ToArray()
+            ? RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteLooks).Characters.ToArray()
             : runtime.ComposedVram()[(BgCharacterWordsConstants.WordOf(BgCharacterSet.Tiles, 0) * sizeof(ushort))..];
         RoomScope scope = RoomScopeOf(runtime);
         bool ceres = scope.Room.AreaIndex == AreaId.Ceres;

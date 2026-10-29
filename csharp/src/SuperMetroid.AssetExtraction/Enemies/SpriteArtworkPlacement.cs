@@ -1,16 +1,19 @@
-namespace SuperMetroid.Core.Assets;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
+
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
-/// Artwork shown over the sprite characters (#1392, #1406, #1422): the source and the characters it shows over, from its
-/// first. A room's load, its setup and its encounters show their artwork this way, and a pre-coloured frame drawn over
-/// those characters has a picture for each placement that can be there.
+/// Where a sprite look lands among the cartridge's OBJ characters (#1392, #1406, #1422, #1463): the look and the characters
+/// it shows over, from its first. The import pipeline alone knows it; the pictures of frames drawn over those characters are
+/// composed from it.
 /// </summary>
-/// <param name="Source">The artwork shown.</param>
+/// <param name="Source">The look shown.</param>
 /// <param name="FirstCharacter">The sprite character it shows from.</param>
 /// <param name="CharacterCount">The characters it shows.</param>
 public sealed record SpriteArtworkPlacement(SpriteArtworkSource Source, int FirstCharacter, int CharacterCount)
 {
-    /// <summary>The artwork shown.</summary>
+    /// <summary>The look shown.</summary>
     public SpriteArtworkSource Source { get; } = Ensure.NotNull(Source);
 
     /// <summary>The sprite character it shows from.</summary>
@@ -18,6 +21,12 @@ public sealed record SpriteArtworkPlacement(SpriteArtworkSource Source, int Firs
 
     /// <summary>The characters it shows.</summary>
     public int CharacterCount { get; } = Ensure.BetweenInclusive(1, SpriteArtworkPlacements.CharacterCount - FirstCharacter, CharacterCount);
+
+    /// <summary>The table byte the placement shows from.</summary>
+    internal int FirstByte => FirstCharacter * SpriteArtworkPlacements.CharacterByteCount;
+
+    /// <summary>The table bytes the placement shows.</summary>
+    internal int ByteCount => CharacterCount * SpriteArtworkPlacements.CharacterByteCount;
 
     /// <summary>Whether the placement shares a character with <paramref name="characterCount"/> characters from <paramref name="firstCharacter"/>.</summary>
     public bool Overlaps(int firstCharacter, int characterCount) =>

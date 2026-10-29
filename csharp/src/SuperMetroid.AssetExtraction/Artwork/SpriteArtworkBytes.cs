@@ -30,7 +30,6 @@ internal static class SpriteArtworkBytes
         return source switch
         {
             InstalledArtworkCharacters named => installed.Resolve(named.Artwork),
-            ArtworkFrameCharacters frame => Of(frame.Characters, installed),
             CeresDoorCharacters => (Areas(installed).CeresDoorVisual ?? throw new InvalidDataException(
                 "Installed area artwork has no Ceres door visuals.")).Characters,
             CeresEscapeTileCharacters escape => (Areas(installed).CeresEscapeTiles ?? throw new InvalidDataException(

@@ -67,7 +67,7 @@ internal static class CorpseRotPicturesVerification
             if (!rot.Rotting())
                 after++;
             rotted = Math.Max(rotted, checked((int)rot.Steps()));
-            SpriteArtwork rottingArt = Rotted(RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteCharacters), simulation, expected,
+            SpriteArtwork rottingArt = Rotted(RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteLooks), simulation, expected,
                 $"{context} after update {updates}");
             var sprites = new SpriteFrameBuffer();
             sprites.BeginFrame();

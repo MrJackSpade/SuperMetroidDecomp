@@ -47,7 +47,7 @@ internal static class GunshipEscapeTimerVerification
         runtime.EscapeTimer.SetTime(PackedDecimal.FromDecimal(2), PackedDecimal.FromDecimal(59), PackedDecimal.FromDecimal(50));
         runtime.ShowEscapeTimerSpriteTiles();
         runtime.StepFrame(0);
-        var timerTilesBefore = new ObjCharacterTablePage().Page(runtime.Enemies.Room.Session.SpriteCharacters, RuntimeArtworkContent.Of(runtime))
+        var timerTilesBefore = new ObjCharacterTablePage().Page(runtime.Enemies.Room.Session.SpriteLooks, RuntimeArtworkContent.Of(runtime))
             .Characters.Slice(0x3c00, 0x400).ToArray();
         AssertTrue(samus.Control.Mode.Beta != SamusBetaHandler.Gunship, "Idle ship retains normal Samus handler");
         AssertTrue(TimerSpritesPresent(), "Ordinary escape timer remains visible before boarding");
@@ -74,7 +74,7 @@ internal static class GunshipEscapeTimerVerification
         }
         AssertTrue(sawDustUpload, "Confirmation reaches the actual liftoff dust upload");
         // The final dust page shows on the update that recorded it, over the characters the timer drew from (#1406).
-        byte[] shownObjects = new ObjCharacterTablePage().Page(runtime.Enemies.Room.Session.SpriteCharacters, RuntimeArtworkContent.Of(runtime)).Characters.ToArray();
+        byte[] shownObjects = new ObjCharacterTablePage().Page(runtime.Enemies.Room.Session.SpriteLooks, RuntimeArtworkContent.Of(runtime)).Characters.ToArray();
         AssertTrue(!shownObjects.AsSpan(0x3c00, 0x400).SequenceEqual(timerTilesBefore), "Liftoff actually repurposes the timer tiles");
         AssertTrue(!TimerSpritesPresent(), "No stale timer draw remains once the dust page shows");
         AssertEqual(timeBeforeBoarding, Time(), "Liftoff keeps the timer suspended");

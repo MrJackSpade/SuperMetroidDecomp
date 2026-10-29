@@ -63,8 +63,7 @@ internal sealed class GameplayHudSetup
     /// here (#1406). Setup selects them while the screen is blank, before any room loads its enemies' characters.
     /// </summary>
     internal void ShowStandardObjectCharacters() =>
-        _enemySession.SpriteCharacters.Show(new SpriteArtworkPlacement(new InstalledArtworkCharacters(InstalledArtworkId.StandardObjectTiles), 0,
-            StandardObjectArtworkFormat.ByteCount / SpriteArtworkPlacements.CharacterByteCount));
+        _enemySession.SpriteLooks.Show(new InstalledArtworkCharacters(InstalledArtworkId.StandardObjectTiles));
 
     /// <summary>
     /// Selects the standard BG3 and sprite characters and initializes the HUD tilemap, as <c>$82:82E2</c> and

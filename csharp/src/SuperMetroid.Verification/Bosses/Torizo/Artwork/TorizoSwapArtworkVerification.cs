@@ -63,7 +63,7 @@ internal static class TorizoSwapArtworkVerification
                     installed.Span[offset],
                     $"Torizo transfer $AA:{instruction:X4} byte {offset:X4}");
             ShowTorizoArtwork(installedEnemies, installedSlot, new TorizoArtworkSwap(transferIndex));
-            ReadOnlySpan<byte> shown = new ObjCharacterTablePage().Page(installedEnemies.Room.Session.SpriteCharacters,
+            ReadOnlySpan<byte> shown = new ObjCharacterTablePage().Page(installedEnemies.Room.Session.SpriteLooks,
                 new EnemyTileTransfers(stock)).Characters.Slice(PlacedUploads.Of(new TorizoArtworkSwapCharacters(transferIndex)).FirstByte);
             for (int offset = 0; offset < transfer.ByteCount; offset++)
                 AssertEqual(installed.Span[offset], shown[offset],
@@ -132,9 +132,9 @@ internal static class TorizoSwapArtworkVerification
             "Golden Torizo's initial swap shows its awakening sheet");
         ShowTorizoArtwork(editedEnemies, editedSlot, goldenSwap);
         AssertEqual<SpriteArtworkSource>(new TorizoArtworkSwapCharacters(goldenUpload),
-            editedEnemies.Room.Session.SpriteCharacters.Uploads.Single().Source,
+            editedEnemies.Room.Session.SpriteLooks.Uploads.Single().Source,
             "Golden Torizo's swap shows its installed transfer by entry");
-        AssertEqual(editedBytes.Span[0], new ObjCharacterTablePage().Page(editedEnemies.Room.Session.SpriteCharacters,
+        AssertEqual(editedBytes.Span[0], new ObjCharacterTablePage().Page(editedEnemies.Room.Session.SpriteLooks,
                 new EnemyTileTransfers(edited)).Characters[(0x6d00 - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2],
             "edited Golden Torizo PNG changes the pictured awakening sheet");
         AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)

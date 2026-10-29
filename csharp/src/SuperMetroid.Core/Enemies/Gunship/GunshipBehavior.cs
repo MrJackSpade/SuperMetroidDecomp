@@ -543,7 +543,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         int page = Part(top).NextLiftoffPage;
         if ((uint)page >= GunshipLiftoffTransferDefinitions.Pages.Count)
             throw new InvalidDataException("Gunship takeoff page escaped its five pages.");
-        _room.Session.ShowCharacters(GunshipLiftoffTransferDefinitions.Pages[page]);
+        _room.Session.ShowLook(GunshipLiftoffTransferDefinitions.Pages[page]);
 
         Part(top).NextLiftoffPage = page + 1;
         if (Part(top).NextLiftoffPage >= GunshipLiftoffTransferDefinitions.Pages.Count)

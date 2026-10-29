@@ -148,7 +148,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         InstalledEnemyArtwork stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas };
-        SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.SpriteCharacters,
+        SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.SpriteLooks.Placed,
             new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles, (BossSourceArtwork?)enemies.BossArtwork ?? InstalledFixtures.BossArtwork, (AreaSourceArtwork?)enemies.AreaArtwork ?? InstalledFixtures.AreaArtwork)));
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
 
@@ -167,7 +167,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             AssertEqual(completed ? 0 : page + 1, state.NextLegTilePage,
                 $"Mother Brain leg-loading page {page} next page, back to the first after the last");
             int nativeTableByte = nativeDestination * 2 - ObjectCharactersByte;
-            SpriteArtworkPlacement shown = enemies.Room.Session.SpriteCharacters.LastOver(
+            SpriteArtworkPlacement shown = enemies.Room.Session.SpriteLooks.LastOver(
                 nativeTableByte / SpriteArtworkPlacements.CharacterByteCount, nativeSize / SpriteArtworkPlacements.CharacterByteCount)
                 ?? throw new InvalidOperationException($"Mother Brain leg-loading page {page} shows nothing.");
             AssertEqual(nativeTableByte, shown.FirstByte,
@@ -202,7 +202,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         {
             TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas,
         };
-        SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.SpriteCharacters, new EnemyTileTransfers(stock, timer: timer));
+        SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.SpriteLooks.Placed, new EnemyTileTransfers(stock, timer: timer));
 
         EscapeTimerTilePage[] pages = Enum.GetValues<EscapeTimerTilePage>();
         for (int page = 0; page < pages.Length; page++)
@@ -246,7 +246,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         InstalledEnemyArtwork artwork, MotherBrainSpecialSpriteSheetDefinition sheet)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
-        SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.SpriteCharacters,
+        SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.SpriteLooks.Placed,
             new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles, (BossSourceArtwork?)enemies.BossArtwork ?? InstalledFixtures.BossArtwork, (AreaSourceArtwork?)enemies.AreaArtwork ?? InstalledFixtures.AreaArtwork)));
         MotherBrainSpritePageSheet shown = sheet.Sheet;
         for (int page = 0; page < sheet.PageCount; page++)

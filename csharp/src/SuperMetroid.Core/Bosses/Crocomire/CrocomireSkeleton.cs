@@ -263,7 +263,7 @@ internal sealed class CrocomireSkeleton
         int chunk = death.SkeletonChunksShown;
         if (chunk == CrocomireSkeletonTransferDefinitions.FrameCount)
             return;
-        _presentation.ShowCharacters(CrocomireSkeletonTransferDefinitions.Sources[chunk]);
+        _presentation.ShowLook(CrocomireSkeletonTransferDefinitions.Sources[chunk]);
         death.SkeletonChunksShown++;
     }
 

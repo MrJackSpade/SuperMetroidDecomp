@@ -22,7 +22,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 internal static class EnemySheetComposer
 {
     /// <summary>The byte of the OBJ character table the enemy tile region begins at.</summary>
-    private const int EnemyRegionTableByte = EnemyGraphicsSet.EnemyTileAreaFirstCharacter * SpriteArtworkPlacements.CharacterByteCount;
+    private const int EnemyRegionTableByte = EncounterCharacterPlacementDefinitions.EnemyTileAreaFirstCharacter * SpriteArtworkPlacements.CharacterByteCount;
 
     /// <summary>CGRAM's first sprite colour.</summary>
     private const int SpriteColours = 128;

@@ -37,7 +37,7 @@ internal sealed class DraygonIntro
         {
             if (state.FunctionTimer.IsZero)
             {
-                _presentation.ShowCharacters(DraygonIntroPresentationDefinitions.EvirTiles);
+                _presentation.ShowLook(DraygonIntroPresentationDefinitions.EvirTiles);
                 state.IntroEvirGraphicsLoaded = true;
 
                 // CreateSpriteAtPos searches descending, so these become native indexes

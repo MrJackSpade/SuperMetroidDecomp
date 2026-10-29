@@ -142,7 +142,7 @@ internal static class MotherBrainCorpseArtworkVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.RowCount; page++)
             enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, page));
-        return new ObjCharacterTablePage().Page(enemies.Room.Session.SpriteCharacters, new EnemyTileTransfers(artwork))
+        return new ObjCharacterTablePage().Page(enemies.Room.Session.SpriteLooks, new EnemyTileTransfers(artwork))
             .Characters[..SpriteArtworkPlacements.TableByteCount].ToArray();
     }
 

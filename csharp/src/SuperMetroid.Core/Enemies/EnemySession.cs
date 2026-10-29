@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>
 /// The enemy-side words that outlive each room, as the cartridge's WRAM does across enemy loading (#1329): the
 /// elevator journey, the shared fade counter, Ceres's escape progress, the critical-energy drop bias, the language
-/// flag, the random enemy counter, the death quota an empty population keeps, the staging surfaces and the Mode 7
-/// transfer residue; and the host's installed enemy artwork, which every room's enemies draw from.
+/// flag, the random enemy counter, the death quota an empty population keeps, the staging surfaces, the Mode 7
+/// transfer residue and the sprite looks shown; and the host's installed enemy artwork, which every room's enemies draw from.
 /// </summary>
 public sealed class EnemySession
 {
@@ -55,10 +55,11 @@ public sealed class EnemySession
     internal SuperMetroid.Core.Compatibility.FloorUpdateResidue? FloorQueueResidue { get; set; }
 
     /// <summary>
-    /// The gameplay OBJ character table's bindings, which enemy-format sprites draw from. Uploads that bypass the NMI
-    /// queue (Draygon's Evir sheet, Crocomire's skeleton chunks) record themselves here; the runtime shares its table.
+    /// The sprite looks gameplay has shown, which enemy frames select their pictures from (#1463): the standard sprites,
+    /// each room's graphics-set members and its encounters' looks, in the order shown. They outlive each room, as what a
+    /// room showed stays shown until something replaces it.
     /// </summary>
-    internal SpriteArtworkPlacements SpriteCharacters { get; } = new();
+    internal ShownSpriteArtwork SpriteLooks { get; } = new();
 
     /// <summary>
     /// Installed enemy presentation. Drawing or a named artwork transfer requires its corresponding catalog; null
@@ -71,10 +72,20 @@ public sealed class EnemySession
     [field: NonSerialized]
     internal IEnemySheetSource? Sheets { get; set; }
 
-    /// <summary>Shows <paramref name="source"/> over the sprite characters where the installed catalogue places it (#1406).</summary>
+    /// <summary>Shows an encounter's <paramref name="look"/> over what showed before it (#1406, #1463).</summary>
     /// <exception cref="InvalidOperationException">No enemy sheets are installed.</exception>
-    internal void ShowCharacters(SpriteArtworkSource source) =>
-        SpriteCharacters.Show((Sheets ?? throw new InvalidOperationException("Showing an encounter's characters requires installed enemy sheets."))
-            .Encounters.Placement(source));
+    /// <exception cref="InvalidDataException">No catalogued encounter shows the look, so no sheet pictures it.</exception>
+    internal void ShowLook(SpriteArtworkSource look)
+    {
+        IEncounterLookCatalog catalog = (Sheets ?? throw new InvalidOperationException("Showing an encounter's look requires installed enemy sheets.")).Looks;
+        if (!catalog.IsEncounterLook(Ensure.NotNull(look)))
+            throw new InvalidDataException($"No catalogued encounter shows {look}.");
+        SpriteLooks.Show(look);
+    }
+
+    /// <summary>The artwork the Ceres Ridley arena's backgrounds show, which point at the sprites' artwork (#1422, #1463).</summary>
+    /// <exception cref="InvalidOperationException">No enemy sheets are installed.</exception>
+    internal IBgCharacterArtwork ObjectPage() =>
+        (Sheets ?? throw new InvalidOperationException("Showing the sprites' artwork as a background requires installed enemy sheets.")).Looks.ObjectPage(SpriteLooks);
 
 }

@@ -52,7 +52,7 @@ internal static class DraygonEvirPicturesVerification
         string frame = EnemySheetDefinitions.SpriteObjectFrameName(RoomSpriteObjectVisualDefinitions.ShownFrames.Of(evir.Frame));
         // The runtime draws from the sheets it loaded with its installation.
         IEnemySheetSource sheets = runtime.EnemySession.Sheets ?? throw new InvalidOperationException("The runtime loads the enemy sheets.");
-        IReadOnlyList<CharacterRegion[]> layers = sheets.SpawnedLayers(set, tileBase, frame);
+        IReadOnlyList<LookRegion[]> layers = sheets.SpawnedLayers(set, tileBase, frame);
         AssertTrue(layers.Count > 0, $"the Evir's frame {frame} is drawn over characters Draygon's opening uploads");
         SpriteSheet sheet = sheets.Spawned(set, tileBase).Sheet;
         IReadOnlyList<string> setPictures = UploadedPictureChecks.ExpectedPictures(sheets, set, frame, layers, []);
@@ -60,7 +60,7 @@ internal static class DraygonEvirPicturesVerification
 
         UploadedPictureChecks.AssertDrawnPictures(sheet, setPictures, AssertDrawnLikeParts(runtime, evir, "before the opening upload"),
             "an Evir drawn before the opening upload shows the pictures of the set's own characters");
-        runtime.EnemySession.SpriteCharacters.Record(PlacedUploads.Of(DraygonIntroPresentationDefinitions.EvirTiles));
+        runtime.EnemySession.SpriteLooks.Record(PlacedUploads.Of(DraygonIntroPresentationDefinitions.EvirTiles));
         UploadedPictureChecks.AssertDrawnPictures(sheet, evirPictures, AssertDrawnLikeParts(runtime, evir, "after the opening upload"),
             "an Evir drawn after the opening upload shows the pictures of the Evirs' tiles");
         Console.WriteLine($"Draygon Evir pictures: {string.Join(", ", setPictures)} before her opening upload and {string.Join(", ", evirPictures)} after, each painting its frame over the live characters.");
@@ -72,7 +72,7 @@ internal static class DraygonEvirPicturesVerification
     /// </summary>
     private static ImmutableArray<SpriteDraw> AssertDrawnLikeParts(SuperMetroidRuntime runtime, RoomSpriteObjectSlot evir, string when)
     {
-        SpriteArtwork live = RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteCharacters);
+        SpriteArtwork live = RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteLooks);
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
         runtime.Enemies.SpriteObjects.DrawRoomSpriteObjects(sprites, Position16<RoomPixels>.Zero);

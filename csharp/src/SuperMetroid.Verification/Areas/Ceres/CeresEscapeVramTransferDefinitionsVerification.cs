@@ -70,7 +70,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             .SkipWhile(record => record.Pointer != CeresEscapeVramTransferDefinitions.TimerSprites)
             .TakeWhile(record => record.Pointer < 0xc4fc)];
         AssertEqual(7, spriteList.Length, "Ceres timer-sprite list length");
-        SpriteArtworkPlacements shown = system.Presentation.SpriteCharacters;
+        ShownSpriteArtwork shown = system.Presentation.SpriteLooks;
         var state = new RidleyEnemyState { CeresEscapePages = CeresEscapePageCursor.Objects };
         for (int index = 0; index < spriteList.Length; index++)
         {

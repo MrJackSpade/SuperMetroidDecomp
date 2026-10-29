@@ -93,7 +93,7 @@ internal static class UploadedPictureChecks
     /// </summary>
     internal static void AssertPicturesPaintOverLive(SuperMetroidRuntime runtime, ImmutableArray<SpriteDraw> pictures, string message)
     {
-        SpriteArtwork live = RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteCharacters);
+        SpriteArtwork live = RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteLooks);
         AssertPaintsLikeParts(pictures,
             [.. pictures.Select(draw => SheetFrameSources.CharacterDraw(AssertIs<ImageSpriteDraw>(draw, $"{message}: draws from a sheet"), live))],
             message);
@@ -105,12 +105,12 @@ internal static class UploadedPictureChecks
     /// set's own characters before any is.
     /// </summary>
     internal static IReadOnlyList<string> ExpectedPictures(IEnemySheetSource sheets, RoomEnemyGraphicsSetDefinition set, string frame,
-        IReadOnlyList<CharacterRegion[]> layers, IReadOnlyList<SpriteArtworkPlacement> made)
+        IReadOnlyList<LookRegion[]> layers, IReadOnlyList<SpriteArtworkPlacement> made)
     {
-        SetCharacterCoverage coverage = sheets.Coverage(set);
-        return layers.Count == 0 ? [frame] : [.. layers.Select((regions, layer) => sheets.Encounters.PictureName(frame, layer,
-            [.. regions.Select(region => new CharacterRegionContent(region,
-                made.LastOrDefault(upload => coverage.Covers(upload.Source, region))))]))];
+        SetLookCoverage coverage = sheets.Coverage(set);
+        return layers.Count == 0 ? [frame] : [.. layers.Select((regions, layer) => sheets.Looks.PictureName(frame, layer,
+            [.. regions.Select(region => new LookRegionContent(region,
+                made.LastOrDefault(upload => coverage.Covers(upload.Source, region))?.Source))]))];
     }
 
     /// <summary>Asserts <paramref name="drawn"/> are exactly <paramref name="sheet"/>'s pictures named <paramref name="expected"/>, in order.</summary>
@@ -124,34 +124,34 @@ internal static class UploadedPictureChecks
 
     /// <summary>
     /// Makes <paramref name="uploads"/> over the runtime's characters in order and asserts, before the first and after
-    /// each, that the draw selects for every region the loaded set's uploads make the upload made last over it, or the
-    /// room load's characters before any is, and that the live characters there are exactly the bytes that picture
-    /// composes from.
+    /// each, that the draw selects for every region the loaded set's uploads make the look of the upload made last over
+    /// it, or the room load's look before any is, and that the characters the shown looks leave there are exactly the
+    /// bytes that picture composes from.
     /// </summary>
     internal static void AssertRegionsFollowUploads(SuperMetroidRuntime runtime, IReadOnlyList<SpriteArtworkPlacement> uploads, string message)
     {
         IEnemySheetSource sheets = runtime.EnemySession.Sheets ?? throw new InvalidOperationException("The runtime loads the enemy sheets.");
         RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;
-        IReadOnlyList<SpriteArtworkPlacement> setUploads = sheets.Encounters.Of(set);
-        SetCharacterCoverage coverage = sheets.Coverage(set);
+        IReadOnlyList<SpriteArtworkSource> setLooks = sheets.Looks.EncounterLooks(set);
+        SetLookCoverage coverage = sheets.Coverage(set);
         SetRegions ranges = InstalledSetRegions.Of(set);
-        IReadOnlyList<CharacterRegion> regions = [.. coverage.Regions.Where(region => setUploads.Any(upload => coverage.Covers(upload.Source, region)))];
+        IReadOnlyList<LookRegion> regions = [.. coverage.Regions.Where(region => setLooks.Any(look => coverage.Covers(look, region)))];
         AssertTrue(regions.Count > 0, $"{message}: the loaded set's encounter uploads over its characters");
-        byte[] loaded = RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteCharacters).Characters.ToArray();
+        byte[] loaded = RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteLooks).Characters.ToArray();
         var made = new List<SpriteArtworkPlacement>();
         for (int step = 0; step <= uploads.Count; step++)
         {
             if (step > 0)
             {
-                runtime.EnemySession.SpriteCharacters.Record(uploads[step - 1]);
+                runtime.EnemySession.SpriteLooks.Record(uploads[step - 1]);
                 made.Add(uploads[step - 1]);
             }
-            ReadOnlySpan<byte> live = RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteCharacters).Characters;
-            foreach (CharacterRegion region in regions)
+            ReadOnlySpan<byte> live = RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteLooks).Characters;
+            foreach (LookRegion region in regions)
             {
                 SpriteArtworkPlacement? expected = made.LastOrDefault(upload => coverage.Covers(upload.Source, region));
-                AssertEqual(expected, sheets.Encounters.Showing(runtime.EnemySession.SpriteCharacters, setUploads, region, new SuperMetroid.Core.Assets.ArtworkFrameSelections(), coverage).Placement,
-                    $"{message}: after {step} uploads the draw selects the upload made last over region {region.Name}");
+                AssertEqual(expected?.Source, coverage.Showing(runtime.EnemySession.SpriteLooks, sheets.Looks, setLooks, region).Look,
+                    $"{message}: after {step} uploads the draw selects the look of the upload made last over region {region.Name}");
                 CharacterRange range = ranges.RangeOf(region);
                 ReadOnlySpan<byte> composed = expected is null ? loaded.AsSpan(range.FirstByte, range.ByteCount)
                     : expected.Source.Resolve(RuntimeArtworkContent.Of(runtime)).Span.Slice(range.FirstByte - expected.FirstByte, range.ByteCount);

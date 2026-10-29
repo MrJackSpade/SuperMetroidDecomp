@@ -55,7 +55,7 @@ internal static class CeresEscapeTileArtworkVerification
             {
             }
         }
-        SpriteArtworkPlacements shown = installed.Presentation.SpriteCharacters;
+        ShownSpriteArtwork shown = installed.Presentation.SpriteLooks;
         AssertEqual(7, shown.Uploads.Count, "Ceres escape production shows the timer-sprite list's seven pages");
         ReadOnlySpan<byte> installedPage = new ObjCharacterTablePage().Page(shown, new EnemyTileTransfers(stock, timer: timer)).Characters;
 
@@ -126,7 +126,7 @@ internal static class CeresEscapeTileArtworkVerification
                 record.Pointer == CeresEscapeVramTransferDefinitions.TimerSprites);
         var editedState = new RidleyEnemyState { CeresEscapePages = CeresEscapePageCursor.Objects with { Shown = firstWarningPage } };
         _ = editedEnemies.CeresRidleyBehavior.Getaway.ShowNextCeresEscapePage(editedState);
-        ReadOnlySpan<byte> editedPage = new ObjCharacterTablePage().Page(editedEnemies.Presentation.SpriteCharacters,
+        ReadOnlySpan<byte> editedPage = new ObjCharacterTablePage().Page(editedEnemies.Presentation.SpriteLooks,
             new EnemyTileTransfers(edited, timer: timer)).Characters;
         AssertTrue(CeresEscapeVramTransferDefinitions.TryGet(
                 CeresEscapeVramTransferDefinitions.WarningTextFirstTransfer,

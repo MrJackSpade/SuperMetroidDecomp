@@ -30,39 +30,28 @@ internal sealed class EnemyGraphicsSet
 
 
     /// <summary>
-    /// Shows the set's enemy characters over the OBJ character table, after the standard sprite characters room setup
-    /// selected (#1406): each entry's installed tiles from its place in the enemy tile area, in set order.
+    /// Shows the set's members' looks, after the standard sprites room setup selected (#1406, #1463): each entry's look as
+    /// the room loaded it, in set order.
     /// </summary>
     /// <remarks>
-    /// Standard sprite graphics cover the beginning of the enemy tile area, so the enemies' characters are shown after
-    /// them, as LoadEnemyTileData's copies follow the standard room graphics; the cartridge queues them before any enemy
-    /// AI's own transfer, which these records also precede.
+    /// The members' looks are shown after the standard sprites, as LoadEnemyTileData's copies follow the standard room
+    /// graphics; the cartridge queues them before any enemy AI's own transfer, which these showings also precede.
     /// </remarks>
-    /// <exception cref="InvalidDataException">An entry's tiles are not whole characters from a character's start.</exception>
     public void ShowGraphics()
     {
         _room.EnsureLoaded();
         foreach (RoomEnemyGraphicsSetEntry entry in Entries)
-        {
-            if (entry.StagingOffset % SpriteArtworkPlacements.CharacterByteCount != 0 || entry.TileByteCount % SpriteArtworkPlacements.CharacterByteCount != 0)
-                throw new InvalidDataException($"{entry.DefinitionId}'s tiles are not whole sprite characters from a character's start.");
-            _room.Session.SpriteCharacters.Show(new SpriteArtworkPlacement(new GraphicsSetTileCharacters(entry.DefinitionId),
-                EnemyTileAreaFirstCharacter + entry.StagingOffset / SpriteArtworkPlacements.CharacterByteCount,
-                entry.TileByteCount / SpriteArtworkPlacements.CharacterByteCount));
-        }
+            _room.Session.SpriteLooks.Show(new GraphicsSetTileCharacters(entry));
     }
 
-    /// <summary>The sprite character the enemy tile area begins at: the first after the standard sprites' area.</summary>
-    internal const int EnemyTileAreaFirstCharacter = 192;
-
-    /// <summary>The bytes of the enemy tile area: 320 characters, through the end of the OBJ character table.</summary>
-    private const int EnemyTileAreaByteCount = 320 * SpriteArtworkPlacements.CharacterByteCount;
+    /// <summary>The bytes of the enemy tile area, through the end of the sprites' tile memory.</summary>
+    private const int EnemyTileAreaByteCount = EnemyTileDataMasks.EnemyTileAreaByteCount;
 
     /// <summary>
-    /// Where the set's first member that follows the previous one shows its tiles: 64 characters into the enemy tile
-    /// area, after the share the fixed sprite set keeps.
+    /// Where the set's first member that follows the previous one shows its tiles: into the enemy tile area, after the
+    /// share the fixed sprite set keeps.
     /// </summary>
-    private const int OrdinaryTilesStart = 64 * SpriteArtworkPlacements.CharacterByteCount;
+    private const int OrdinaryTilesStart = EnemyTileDataMasks.OrdinaryTilesStart;
 
     /// <summary>Stages selected enemy tiles and OBJ palettes in graphics-set record order.</summary>
     internal void LoadGraphicsSet(
@@ -145,7 +134,7 @@ internal sealed class EnemyGraphicsSet
                 byteCount));
 
             followsFixedBlock = atFixedBlock;
-            nextEnemyTileIndex += byteCount / SpriteArtworkPlacements.CharacterByteCount;
+            nextEnemyTileIndex += byteCount / EnemyTileDataMasks.TileByteCount;
             nextStagingOffset += byteCount;
         }
         return entries;

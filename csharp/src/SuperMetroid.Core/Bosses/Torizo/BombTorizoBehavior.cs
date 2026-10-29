@@ -246,7 +246,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void ShowTorizoArtwork(TorizoArtworkSwap swap)
     {
-        _presentation.ShowCharacters(TorizoArtworkSwapDefinitions.Sources[swap.Ordinal]);
+        _presentation.ShowLook(TorizoArtworkSwapDefinitions.Sources[swap.Ordinal]);
     }
 
     /// <summary>

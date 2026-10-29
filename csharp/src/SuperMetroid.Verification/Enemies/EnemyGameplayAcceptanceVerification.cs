@@ -124,7 +124,7 @@ internal static class EnemyGameplayAcceptanceVerification
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockPath, overridePath);
         (RoomEnemySystem changed, byte[] afterCharacters, SamusColourRig afterColors) = Load(edited);
         RoomEnemyGraphicsSetEntry[] entries = [.. baseline.GraphicsSet.Entries];
-        SpriteArtworkPlacement[] uploads = [.. baseline.Room.Session.SpriteCharacters.Uploads];
+        SpriteArtworkPlacement[] uploads = [.. baseline.Room.Session.SpriteLooks.Uploads];
         AssertEqual(entries.Length, uploads.Length, "each selected enemy tile set lands as one OBJ character upload");
         byte[] expectedCharacters = beforeCharacters.ToArray();
         for (int index = 0; index < entries.Length; index++)
@@ -165,7 +165,7 @@ internal static class EnemyGameplayAcceptanceVerification
             // The room's enemy tile set reaches the OBJ characters as named transfers.
             var transfers = new EnemyTileTransfers(artwork);
             enemies.GraphicsSet.ShowGraphics();
-            byte[] characters = new ObjCharacterTablePage().Page(enemies.Room.Session.SpriteCharacters, transfers).Characters.ToArray();
+            byte[] characters = new ObjCharacterTablePage().Page(enemies.Room.Session.SpriteLooks, transfers).Characters.ToArray();
             return new LoadResult(enemies, characters, colors);
         }
 

@@ -3,6 +3,7 @@ using System.Buffers.Binary;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -147,14 +148,31 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
     /// <summary>Bytes in one two-bit character.</summary>
     internal const int TwoBppCharacterBytes = 16;
 
-    /// <summary>The painted planes as a background sheet coloured as <paramref name="kind"/> with <paramref name="frames"/> cut from it.</summary>
+    /// <summary>
+    /// The painted planes as a frontend screen's background sheet coloured as <paramref name="kind"/> with
+    /// <paramref name="frames"/> cut from it; its colour groups show the screen's sets of the same identity.
+    /// </summary>
     internal ComposedSpriteSheet ToSheet(RgbColor[] colours, Dictionary<string, SpriteSheetFrameDocument> frames,
+        SpriteImageColours kind = SpriteImageColours.Background) => Sheet(colours, frames, kind, null);
+
+    /// <summary>
+    /// The painted planes as a gameplay background sheet coloured as <paramref name="kind"/> with <paramref name="frames"/>
+    /// cut from it, painted from the cartridge's background colours, so each colour group draws in the gameplay
+    /// background set of its order (#1464).
+    /// </summary>
+    internal ComposedSpriteSheet ToRoomSheet(RgbColor[] colours, Dictionary<string, SpriteSheetFrameDocument> frames,
         SpriteImageColours kind = SpriteImageColours.Background) =>
+        Sheet(colours, frames, kind, [.. BackgroundColourSetImage.ImageGroups]);
+
+    /// <summary>The painted planes as a sheet whose colour groups draw in <paramref name="backgroundSets"/>, or in none named.</summary>
+    private ComposedSpriteSheet Sheet(RgbColor[] colours, Dictionary<string, SpriteSheetFrameDocument> frames,
+        SpriteImageColours kind, BackgroundColourSet[]? backgroundSets) =>
         new(Size, Pixels, PaletteIndices, Priorities, PartRows, new SpriteSheetDocument
         {
             Version = SpriteSheet.Version,
             Palette = kind,
             Colours = [.. colours.Select(colour => colour.ToWord())],
+            BackgroundSets = backgroundSets,
             Frames = frames,
             PartImages = [],
         });

@@ -17,23 +17,21 @@ public sealed class GameplayStartingColours
     private readonly RgbColor[] enemyProjectiles;
 
     /// <summary>Keeps the decoded colours, which nothing else holds.</summary>
-    /// <param name="backgroundSets">Every background set's colours, set after set.</param>
+    /// <param name="backgroundSets">Every background set's colours, by set.</param>
     /// <param name="spriteSets">Every sprite set's colours, set after set.</param>
     /// <param name="samusSuit">Samus's suit colours.</param>
     /// <param name="samusBeams">Samus's beam colours.</param>
     /// <param name="enemyProjectiles">The enemy projectiles' colours.</param>
     /// <exception cref="ArgumentException">A part does not hold its owner's number of colours.</exception>
-    internal GameplayStartingColours(RgbColor[] backgroundSets, RgbColor[] spriteSets, RgbColor[] samusSuit,
+    internal GameplayStartingColours(BackgroundColourSets backgroundSets, RgbColor[] spriteSets, RgbColor[] samusSuit,
         RgbColor[] samusBeams, RgbColor[] enemyProjectiles)
     {
-        Ensure.LengthEqual<RgbColor>(backgroundSets, ColourSets.SetCount * ColourSets.SetColours);
+        Ensure.NotNull(backgroundSets);
         Ensure.LengthEqual<RgbColor>(spriteSets, ColourSets.SetCount * ColourSets.SetColours);
         Ensure.LengthEqual<RgbColor>(samusSuit, ColourSets.SetColours);
         Ensure.LengthEqual<RgbColor>(samusBeams, ColourSets.SetColours);
         Ensure.LengthEqual<RgbColor>(enemyProjectiles, ColourSets.SetColours);
-        var backgrounds = new BackgroundColourSets();
-        backgrounds.All.CopyFrom(backgroundSets);
-        Backgrounds = ShownColourSets.Of(backgrounds);
+        Backgrounds = ShownBackgroundColourSets.Of(backgroundSets);
         var sprites = new SpriteColourSets();
         sprites.All.CopyFrom(spriteSets);
         Sprites = ShownColourSets.Of(sprites);
@@ -52,7 +50,7 @@ public sealed class GameplayStartingColours
     public ReadOnlySpan<RgbColor> EnemyProjectiles => enemyProjectiles;
 
     /// <summary>The background sets' starting colours.</summary>
-    public ShownColourSets Backgrounds { get; }
+    public ShownBackgroundColourSets Backgrounds { get; }
 
     /// <summary>The sprite sets' starting colours, those Samus's draws show over among them.</summary>
     public ShownColourSets Sprites { get; }

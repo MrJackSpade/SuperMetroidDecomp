@@ -250,8 +250,10 @@ internal sealed class CeresRidleyGetaway
             case 0:
                 // $A6:C062 copies four already-live colors before the warning graphics
                 // replace their tiles. These are palette indices, not byte offsets.
-                CopyCeresWarningColors(_presentation.BackgroundSets.Set(0), _presentation.BackgroundSets.Set(6));
-                CopyCeresWarningColors(_presentation.BackgroundSets.Set(1), _presentation.BackgroundSets.Set(5));
+                CopyCeresWarningColors(_presentation.BackgroundSets.Set(RidleyColourDefinitions.CeresWarningFirstSource),
+                    _presentation.BackgroundSets.Set(RidleyColourDefinitions.CeresWarningFirstDestination));
+                CopyCeresWarningColors(_presentation.BackgroundSets.Set(RidleyColourDefinitions.CeresWarningSecondSource),
+                    _presentation.BackgroundSets.Set(RidleyColourDefinitions.CeresWarningSecondDestination));
                 state.CeresEscapePages = CeresEscapePageCursor.Objects;
                 state.FunctionTimer = WrappingCountdown.Start(2);
                 goto case 2;

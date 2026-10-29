@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class SpriteSheet
 {
     /// <summary>The manifest schema revision this catalog reads.</summary>
-    public const int Version = 3;
+    public const int Version = 4;
 
     /// <summary>The frames by name.</summary>
     private readonly Dictionary<string, SpriteSheetFrame> frames;
@@ -35,6 +35,8 @@ public sealed class SpriteSheet
     {
         content.AppendName("sheet", Image.Name);
         content.AppendName("palette", Image.Colours.ToString());
+        foreach (BackgroundColourSet set in Image.BackgroundSets)
+            content.AppendName("background set", set.ToString());
         content.Append("width", Image.Size.X);
         content.Append("height", Image.Size.Y);
         content.Append("pixels", System.Runtime.InteropServices.MemoryMarshal.AsBytes(Image.Pixels));
@@ -130,7 +132,7 @@ public sealed class SpriteSheet
 
     /// <summary>The standard colours a sheet manifest names.</summary>
     private static SpriteImagePalette PaletteOf(SpriteSheetDocument document) =>
-        new(document.Palette, [.. (document.Colours ?? []).Select(RgbColor.FromWord)]);
+        new(document.Palette, [.. (document.Colours ?? []).Select(RgbColor.FromWord)]) { BackgroundSets = [.. document.BackgroundSets ?? []] };
 
     /// <summary>Cuts a manifest's part images and frames from the sheet image.</summary>
     /// <exception cref="InvalidDataException">The manifest places a frame off the image or names a missing part image.</exception>

@@ -128,7 +128,7 @@ internal static class RoomAssetRomDataVerification
                 $"room $8F:{roomPointer:X4} resolves compiled graphics metadata");
             AssertTrue(native.CreCharactersIn(characters).Span.SequenceEqual(guarded.CreCharactersIn(characters).Span) &&
                 native.TilesetCharactersIn(characters).Span.SequenceEqual(guarded.TilesetCharactersIn(characters).Span) &&
-                native.PaletteBytes.SequenceEqual(guarded.PaletteBytes) &&
+                ReferenceEquals(native.TilesetColours, guarded.TilesetColours) &&
                 // The room's blocks are its tileset's block pictures and the characters each reads (#1431).
                 ReferenceEquals(native.BlockSheet, guarded.BlockSheet) && native.BlockSheet.Characters.Set == native.Tileset.Blocks,
                 $"room $8F:{roomPointer:X4} retains exact decompressed visual inputs");

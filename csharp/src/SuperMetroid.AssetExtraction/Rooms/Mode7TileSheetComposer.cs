@@ -33,7 +33,7 @@ internal static class Mode7TileSheetComposer
         // The sprite half as a room load leaves it: gameplay starts from the initial palette, and each room load restores
         // the common sprite and enemy-projectile rows; an actor's own row shows its live colours over these.
         var loaded = new ScreenPalette();
-        inputs.Objects.Palettes.LoadInitial(loaded.BackgroundSets, loaded.SpriteSets);
+        BackgroundColourSetImage.LoadStarting(inputs.Objects.Palettes, loaded);
         inputs.Objects.Palettes.LoadCommonSprites(loaded.SpriteSets.Set(SpriteColourSetDefinitions.Common));
         inputs.Objects.Palettes.LoadEnemyProjectileSprites(loaded.SpriteSets.Set(SpriteColourSetDefinitions.EnemyProjectiles));
         var colours = new RgbColor[SpriteImage.ColourCountOf(SpriteImageColours.FullPalette)];
@@ -73,6 +73,6 @@ internal static class Mode7TileSheetComposer
         var map = new byte[FloorMap.Cells];
         for (int cell = 0; cell < map.Length; cell++)
             map[cell] = tiles[cell * 2];
-        return new ComposedMode7Tiles(tileset, canvas.ToSheet(colours, frames, SpriteImageColours.FullPalette), shown, map);
+        return new ComposedMode7Tiles(tileset, canvas.ToRoomSheet(colours, frames, SpriteImageColours.FullPalette), shown, map);
     }
 }

@@ -53,7 +53,7 @@ internal static class MessageBoxSheetComposer
     {
         Ensure.NotNull(inputs);
         RgbColor[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).PackedColours.Span);
-        int textSet = GameplayMessageBoxDefinitions.Palette.TextSet * PpuMemoryLayout.ColorsPerRow;
+        int textSet = BackgroundColourSetImage.First(GameplayMessageBoxDefinitions.Palette.TextSet);
         colours[textSet + GameplayMessageBoxDefinitions.Palette.TemporaryLightColour] = GameplayMessageBoxDefinitions.Palette.TemporaryLightColor;
         colours[textSet + GameplayMessageBoxDefinitions.Palette.TemporaryDarkColour] = GameplayMessageBoxDefinitions.Palette.TemporaryDarkColor;
         int width = GameplayMessageBoxDefinitions.Layout.TilemapWidth;
@@ -74,6 +74,6 @@ internal static class MessageBoxSheetComposer
             frames.Add(name, TileWordSheetComposer.Frame(canvas, top, messageRows, TileWordLayer.Bg3));
             top += messageRows;
         }
-        return canvas.ToSheet(colours, frames, SpriteImageColours.TwoBppBackground);
+        return canvas.ToRoomSheet(colours, frames, SpriteImageColours.TwoBppBackground);
     }
 }

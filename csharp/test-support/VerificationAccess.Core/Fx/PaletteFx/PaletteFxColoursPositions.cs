@@ -14,7 +14,9 @@ internal static class PaletteFxColoursPositions
     private static int CartridgeColour(PaletteFxColourPlacement placement) => placement switch
     {
         BackgroundSetPlacement background => GameplayColourPositionDefinitions.BackgroundSetsFirst
-            + background.Set * GameplayColourPositionDefinitions.SetColours + background.Colour,
+            + BackgroundColourSetImage.First(background.Set) + background.Colour,
+        ScreenBackgroundPlacement screen => GameplayColourPositionDefinitions.BackgroundSetsFirst
+            + screen.Set * GameplayColourPositionDefinitions.SetColours + screen.Colour,
         SpriteSetPlacement sprite => GameplayColourPositionDefinitions.SpriteSetsFirst
             + sprite.Set * GameplayColourPositionDefinitions.SetColours + sprite.Colour,
         SamusSuitPlacement suit => GameplayColourPositionDefinitions.SamusSuitFirst + suit.Colour,

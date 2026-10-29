@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
@@ -19,6 +21,9 @@ public sealed class SpriteImage
 
     /// <summary>The colours the image was coloured with.</summary>
     private readonly RgbColor[] standardColours;
+
+    /// <summary>The gameplay background set each of the image's background colour groups draws in, or none.</summary>
+    private readonly ImmutableArray<BackgroundColourSet> backgroundSets;
 
     /// <summary>Copies the pixels, palette indices and standard colours of a named image.</summary>
     /// <param name="name">The image's installed name, which names it in diagnostics.</param>
@@ -74,12 +79,28 @@ public sealed class SpriteImage
             throw new ArgumentException($"Sprite image {name} has no pixels.", nameof(size));
         ReadOnlySpan<RgbColor> colours = palette.Standard.AsSpan();
         Ensure.LengthEqual(colours, ColourCountOf(palette.Half));
+        if (!palette.BackgroundSets.IsDefaultOrEmpty &&
+            (palette.Half == SpriteImageColours.Sprite || palette.BackgroundSets.Length != SpriteColourCount / ColourSets.SetColours))
+        {
+            throw new ArgumentException(
+                $"Sprite image {name} names {palette.BackgroundSets.Length} background sets for a {palette.Half} image.", nameof(palette));
+        }
         Name = name;
         Size = size;
         Colours = palette.Half;
         standardColours = colours.ToArray();
+        backgroundSets = palette.BackgroundSets.IsDefault ? [] : palette.BackgroundSets;
         this.content = content;
     }
+
+    /// <summary>The gameplay background sets the image's background groups draw in, group after group, or none.</summary>
+    public ImmutableArray<BackgroundColourSet> BackgroundSets => backgroundSets;
+
+    /// <summary>The gameplay background set the image's background colour group <paramref name="group"/> draws in.</summary>
+    /// <exception cref="InvalidDataException">The import pipeline named no background sets for the image.</exception>
+    public BackgroundColourSet BackgroundSet(int group) => backgroundSets.IsEmpty
+        ? throw new InvalidDataException($"Image {Name} names no gameplay background set for its colour groups.")
+        : backgroundSets[Ensure.BetweenInclusive(0, backgroundSets.Length - 1, group)];
 
     /// <summary>Checks one image's layers against its size and keeps its pixels and inks.</summary>
     /// <exception cref="ArgumentException">A length does not match, a priority exceeds 3 or a part row names no sprite row.</exception>

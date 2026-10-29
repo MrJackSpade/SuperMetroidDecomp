@@ -25,7 +25,7 @@ internal static class GameplayColoursAccess
         {
             Ensure.BetweenInclusive(0, NativeColourImage.ColorCount - 1, position);
             if (position < GameplayColourPositionDefinitions.SpriteSetsFirst)
-                return self.BackgroundSets.All.Slice(position - GameplayColourPositionDefinitions.BackgroundSetsFirst, 1);
+                return NativeBackgroundSets.At(self.BackgroundSets, position - GameplayColourPositionDefinitions.BackgroundSetsFirst);
             int sprite = position - GameplayColourPositionDefinitions.SpriteSetsFirst;
             int set = sprite / ColourSets.SetColours;
             int colour = sprite % ColourSets.SetColours;

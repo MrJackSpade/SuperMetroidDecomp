@@ -12,6 +12,12 @@ public sealed record SpriteSheetDocument
     /// <summary>The 128 colours of that half the sheet was coloured with, as CGRAM words.</summary>
     public required ushort[] Colours { get; init; }
 
+    /// <summary>
+    /// The gameplay background set each of a gameplay background sheet's colour groups draws in, group after group, which
+    /// the import pipeline decides as it installs the sheet (#1464); absent for an actor's sheet and a frontend screen's.
+    /// </summary>
+    public BackgroundColourSet[]? BackgroundSets { get; init; }
+
     /// <summary>The frames by name.</summary>
     public required Dictionary<string, SpriteSheetFrameDocument> Frames { get; init; }
 

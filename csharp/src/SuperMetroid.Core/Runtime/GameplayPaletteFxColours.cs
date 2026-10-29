@@ -10,7 +10,11 @@ namespace SuperMetroid.Core.Runtime;
 internal sealed class GameplayPaletteFxColours(GameplayColours colours, SamusColours samus) : IPaletteFxColourOwners
 {
     /// <inheritdoc />
-    public ColourRun BackgroundSets => colours.BackgroundSets.All;
+    public ColourRun BackgroundSet(BackgroundColourSet set) => colours.BackgroundSets.Set(set);
+
+    /// <inheritdoc />
+    public ColourRun ScreenBackgroundSet(int set) =>
+        throw new InvalidOperationException($"Gameplay names each background set; it has no frontend screen's set {set}.");
 
     /// <inheritdoc />
     public ColourRun SpriteSets => colours.SpriteSets.All;

@@ -10,7 +10,7 @@ internal static class ColourSetRunPositions
     /// <summary>The cartridge colour index of <paramref name="run"/>'s first colour.</summary>
     internal static int First(IColourSetRun run) => run switch
     {
-        BackgroundColourRun background => background.Set * ColourSets.SetColours + background.Colour,
+        BackgroundColourRun background => SuperMetroid.AssetExtraction.Video.BackgroundColourSetImage.First(background.Set) + background.Colour,
         SpriteColourRun sprite => ColourSets.SetCount * ColourSets.SetColours + sprite.Set * ColourSets.SetColours + sprite.Colour,
         _ => throw new ArgumentOutOfRangeException(nameof(run), run, "Unknown colour set run."),
     };

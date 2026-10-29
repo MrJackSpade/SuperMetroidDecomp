@@ -20,7 +20,7 @@ public sealed class GameplayColours
     }
 
     /// <summary>A copy of every owner's colours as they are now.</summary>
-    public ColourImage Capture() => new([.. owners.SelectMany(owner => owner.Stores), SpriteSets.All, BackgroundSets.All]);
+    public ColourImage Capture() => new([.. owners.SelectMany(owner => owner.Stores), SpriteSets.All, .. BackgroundSets.EverySet]);
 
     /// <summary>The sprite colour sets, which hold the sprite colours no other owner holds.</summary>
     public SpriteColourSets SpriteSets { get; }
@@ -29,7 +29,7 @@ public sealed class GameplayColours
     public BackgroundColourSets BackgroundSets { get; } = new();
 
     /// <summary>The background sets as a frame shows them now.</summary>
-    public ShownColourSets ShownBackgrounds() => ShownColourSets.Of(BackgroundSets);
+    public ShownBackgroundColourSets ShownBackgrounds() => ShownBackgroundColourSets.Of(BackgroundSets);
 
     /// <summary>The sprite sets as a frame shows them now, each with the colours the owners hold for it over its own.</summary>
     public ShownColourSets ShownSprites() => ShownColourSets.Of(SpriteSets, new ShownOverSprites(owners));

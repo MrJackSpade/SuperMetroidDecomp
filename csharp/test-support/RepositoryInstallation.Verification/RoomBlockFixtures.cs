@@ -67,7 +67,7 @@ internal static class RoomBlockFixtures
                 Parts = [],
             });
         }
-        ComposedSpriteSheet composed = canvas.ToSheet(colours, frames);
+        ComposedSpriteSheet composed = canvas.ToRoomSheet(colours, frames);
         SpriteSheet sheet = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(composed.Manifest), writable: false), "blocks-fixture",
             composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities, composed.PartRows);
         return new RoomBlockPictureTable(new RoomBlockSheet(default(TilesetDefinition), sheet, Characters(count)),
@@ -115,7 +115,7 @@ internal static class RoomBlockFixtures
                 Parts = [],
             },
         };
-        ComposedSpriteSheet composed = canvas.ToSheet(colours, frames);
+        ComposedSpriteSheet composed = canvas.ToRoomSheet(colours, frames);
         SpriteSheet sheet = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(composed.Manifest), writable: false), "loaded-background-fixture",
             composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities, composed.PartRows);
         var background = new RoomBackgroundImage("loaded-background-fixture", sheet, [.. BackgroundTileWordBytes.Tiles(words)]);

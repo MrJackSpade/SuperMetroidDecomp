@@ -29,15 +29,6 @@ public sealed class GameplayBasePalette
     /// <summary>Gives every owner of gameplay's colours its starting colours.</summary>
     public void LoadInitial(GameplayColours colours) => Ensure.NotNull(colours).LoadStarting(starting);
 
-    /// <summary>Loads the starting colours into a screen's background and sprite sets.</summary>
-    /// <param name="backgrounds">The screen's background sets.</param>
-    /// <param name="sprites">The screen's sprite sets, which show Samus's starting colours where her draws would.</param>
-    public void LoadInitial(IColourSets backgrounds, IColourSets sprites)
-    {
-        starting.Backgrounds.CopyTo(backgrounds);
-        starting.Sprites.CopyTo(sprites);
-    }
-
     /// <summary>Loads the selected sixteen common sprite colours into <paramref name="set"/>.</summary>
     public void LoadCommonSprites(ColourRun set) => set.CopyFrom(commonSprites);
 

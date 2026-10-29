@@ -270,7 +270,7 @@ public sealed class SamusDeathSequenceState
             "Samus death whiteout requires installed palette artwork.")).WhiteoutColor(AnimationCounter);
         // Everything but Samus's suit and her suitless sprite set whitens: the room, the sprite sets below her
         // suit's and between her two, and her flare and beam colours among them.
-        colours.BackgroundSets.All.Fill(shade);
+        colours.BackgroundSets.Fill(shade);
         colours.SpriteSets.Sets(0, 4).Fill(shade);
         colours.SpriteSets.Sets(5, 2).Fill(shade);
         samusColours.GrappleFlare.Fill(shade);

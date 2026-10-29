@@ -26,14 +26,14 @@ public readonly struct BossColours(GameplayColours colours)
     /// <summary>Crocomire wall spikes.</summary>
     public ColourRun CrocomireWallSpikes => BossColourDefinitions.CrocomireWallSpikes.In(colours.SpriteSets);
 
-    /// <summary>Torizo body row.</summary>
+    /// <summary>The Torizos' body colours.</summary>
     public ColourRun TorizoBody => BossColourDefinitions.TorizoBody.In(colours.SpriteSets);
-    /// <summary>Torizo belly row.</summary>
+    /// <summary>The Torizos' belly colours.</summary>
     public ColourRun TorizoBelly => BossColourDefinitions.TorizoBelly.In(colours.SpriteSets);
-    /// <summary>First shared Torizo row.</summary>
-    public ColourRun TorizoSharedFirst => BossColourDefinitions.TorizoSharedFirst.In(colours.SpriteSets);
-    /// <summary>Second shared Torizo row.</summary>
-    public ColourRun TorizoSharedSecond => BossColourDefinitions.TorizoSharedSecond.In(colours.SpriteSets);
+    /// <summary>A Torizo's body and belly colours, body first.</summary>
+    public ColourRunSequence TorizoBodyAndBelly => SpriteColourRun.InOrder(BossColourDefinitions.TorizoBodyAndBelly, colours.SpriteSets);
+    /// <summary>The colours both Torizos share: orbs and flames, then statue shading.</summary>
+    public ColourRunSequence TorizoShared => SpriteColourRun.InOrder(BossColourDefinitions.TorizoShared, colours.SpriteSets);
     /// <summary>Botwoon's body palette.</summary>
     public ColourRun BotwoonBody => BossColourDefinitions.BotwoonBody.In(colours.SpriteSets);
     /// <summary>OBJ palette 7 colours cleared at Ceres Ridley start.</summary>

@@ -611,34 +611,34 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         SporeSpawnEnemyState state = SporeSpawn ?? throw new InvalidOperationException(
             "Spore Spawn palette instruction ran without the boss state.");
-        CopySporeSpawnPaletteRow(
+        WriteSporeSpawnDeathColours(
             SporeSpawnDeathPaletteLayer.Sprite,
             step,
             state,
             copy == SporeSpawnPaletteCopy.TargetOnly);
-        CopySporeSpawnPaletteRow(
+        WriteSporeSpawnDeathColours(
             SporeSpawnDeathPaletteLayer.Level,
             step,
             state,
             copy == SporeSpawnPaletteCopy.TargetOnly);
-        CopySporeSpawnPaletteRow(
+        WriteSporeSpawnDeathColours(
             SporeSpawnDeathPaletteLayer.Background,
             step,
             state,
             copy == SporeSpawnPaletteCopy.TargetOnly);
     }
 
-    /// <summary>Writes one installed death-color row to its native destination or target buffer.</summary>
-    private void CopySporeSpawnPaletteRow(
+    /// <summary>Writes death fade step <paramref name="step"/>'s colours for <paramref name="layer"/> to its live colours or the fade's targets.</summary>
+    private void WriteSporeSpawnDeathColours(
         SporeSpawnDeathPaletteLayer layer,
-        int frame,
+        int step,
         SporeSpawnEnemyState state,
         bool targetOnly)
     {
         for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
         {
             RgbColor value = (_bossArtwork.Artwork?.SporeSpawnColors ?? throw new InvalidDataException(
-                "Spore Spawn death palette requires installed artwork.")).ResolveDeath(layer, frame, color);
+                "Spore Spawn death palette requires installed artwork.")).ResolveDeath(layer, step, color);
             if (targetOnly)
                 state.WriteTargetColor(DeathColours(layer), color, value);
             else

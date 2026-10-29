@@ -2628,7 +2628,7 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        foreach (var palette in new[] { stock.rows[EnemyAuxiliaryPalette.FaceBlock], stock.rows[EnemyAuxiliaryPalette.DeadSidehopper], stock.rows[EnemyAuxiliaryPalette.GoldenTorizoBody], stock.rows[EnemyAuxiliaryPalette.GoldenTorizoBelly] })
+        foreach (var palette in new[] { stock.families[EnemyAuxiliaryPalette.FaceBlock], stock.families[EnemyAuxiliaryPalette.DeadSidehopper], stock.families[EnemyAuxiliaryPalette.GoldenTorizoBody], stock.families[EnemyAuxiliaryPalette.GoldenTorizoBelly] })
         {
             AssertTrue(palette.supplied is null,
                 "stream 3 calculated auxiliary cycles have no stored frame rows");

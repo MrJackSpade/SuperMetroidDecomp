@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
@@ -36,11 +37,11 @@ public sealed class CeresRidleyColorCatalog
     /// <summary>Copies the 32 startup colors from native $A6:E16F into CGRAM entries 160..191, initializing the door/container and Baby OBJ palettes.</summary>
     public void ApplyStart(GameplayColours colours) => CeresRidleyColors.ApplyStart(this, colours);
 
-    /// <summary>Copies one eye-fade row, index 0..15, to CGRAM entries 252..254; native $A6:E2AA's three-color rows fade from full eye paint to black.</summary>
-    public void ApplyEyeFade(GameplayColours colours, int row) => CeresRidleyColors.ApplyEyeFade(this, colours, row);
+    /// <summary>Shows eye-fade shade <paramref name="shade"/>, 0..15, in Ceres Ridley's eye colours; the three-colour shades fade from full eye paint to black.</summary>
+    public void ApplyEyeFade(GameplayColours colours, int shade) => CeresRidleyColors.ApplyEyeFade(this, colours, shade);
 
-    /// <summary>Copies one eleven-color body-fade row, index 0..15, to both BG CGRAM entries 145..155 and OBJ entries 241..251; native $A6:E30A progresses from black to full body paint.</summary>
-    public void ApplyBodyFade(GameplayColours colours, int row) => CeresRidleyColors.ApplyBodyFade(this, colours, row);
+    /// <summary>Shows body-fade shade <paramref name="shade"/>, 0..15, in Ceres Ridley's background and sprite body colours; the eleven-colour shades progress from black to full body paint.</summary>
+    public void ApplyBodyFade(GameplayColours colours, int shade) => CeresRidleyColors.ApplyBodyFade(this, colours, shade);
     /// <summary>Copies one fourteen-color health row, index 0..2, from the shared $A6:E46A palette family to CGRAM entries 241..254; encounter AI separately selects by Ceres shot count or Norfair health.</summary>
     public void ApplyHealth(GameplayColours colours, int row) => CeresRidleyColors.ApplyHealth(this, colours, row);
 
@@ -50,6 +51,6 @@ public sealed class CeresRidleyColorCatalog
     /// <summary>Installs the retreat's fifteen BG colors at CGRAM 81..95 and eight shared colors at both BG 33..40 and OBJ 241..248, matching $A6:A9E3/$AA01.</summary>
     public void ApplyRetreat(GameplayColours colours) => CeresRidleyColors.ApplyRetreat(this, colours);
 
-    /// <summary>Copies one private Baby/container draw shade, index 0..3, from native $A6:E1F1 to OBJ palette-three entries 177..191; row selection and pose timing remain owned by the Baby draw callback.</summary>
-    public void ApplyBaby(GameplayColours colours, int row) => CeresRidleyColors.ApplyBaby(this, colours, row);
+    /// <summary>Shows the Baby/container's <paramref name="shade"/> in the Baby's colours; shade selection and pose timing remain owned by the Baby's animation.</summary>
+    public void ApplyBaby(GameplayColours colours, CeresBabyShade shade) => CeresRidleyColors.ApplyBaby(this, colours, shade);
 }

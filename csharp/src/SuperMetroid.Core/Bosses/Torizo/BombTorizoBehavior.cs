@@ -86,14 +86,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             new ColourImage([.. TorizoBodyColours.Runs]), TorizoPaletteDefinitions.FadeDenominator, _presentation.GradualColorChange);
 
     /// <summary>The body and belly colours the statue's fades change, body first.</summary>
-    private ColourRunSequence TorizoBodyColours
-    {
-        get
-        {
-            BossColours colours = _presentation.BossColours();
-            return new ColourRunSequence(colours.TorizoBody, colours.TorizoBelly);
-        }
-    }
+    private ColourRunSequence TorizoBodyColours => _presentation.BossColours().TorizoBodyAndBelly;
 
     /// <summary>Sets the authored palette fade's target colors: the body's, then the belly's.</summary>
     private void SetTorizoPaletteTarget(TorizoEnemyState state, ReadOnlySpan<RgbColor> colors) =>

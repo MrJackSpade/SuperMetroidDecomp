@@ -34,12 +34,12 @@ internal static class CeresRidleyColorsVerification
         var forbidden = new HashSet<int>();
         Check(RidleySourceDefinitions.Ceres.StartColors,
             CeresRidleyPaletteDefinitions.StartColorCount, native.ResolveStart);
-        for (int row = 0; row < CeresRidleyPaletteDefinitions.EyeFadeRowCount; row++)
+        for (int row = 0; row < CeresRidleyPaletteDefinitions.EyeFadeShadeCount; row++)
             Check(EnemySourceDefinitions.CeresRidleyEyeFadeRows + row *
                 CeresRidleyPaletteDefinitions.EyeFadeColorCount * sizeof(ushort),
                 CeresRidleyPaletteDefinitions.EyeFadeColorCount,
                 color => native.ResolveEyeFade(row, color));
-        for (int row = 0; row < CeresRidleyPaletteDefinitions.BodyFadeRowCount; row++)
+        for (int row = 0; row < CeresRidleyPaletteDefinitions.BodyFadeShadeCount; row++)
             Check(RidleySourceDefinitions.Ceres.BodyFadeColors + row *
                 CeresRidleyPaletteDefinitions.BodyFadeColorCount * sizeof(ushort),
                 CeresRidleyPaletteDefinitions.BodyFadeColorCount,
@@ -58,7 +58,7 @@ internal static class CeresRidleyColorsVerification
             CeresRidleyPaletteDefinitions.RetreatBgColorCount, native.ResolveRetreatBg);
         Check(RidleySourceDefinitions.Ceres.RetreatSharedColors,
             CeresRidleyPaletteDefinitions.RetreatSharedColorCount, native.ResolveRetreatShared);
-        for (int row = 0; row < CeresRidleyPaletteDefinitions.BabyRowCount; row++)
+        for (int row = 0; row < CeresRidleyPaletteDefinitions.BabyShadeCount; row++)
             Check(RidleySourceDefinitions.Ceres.BabyColors + row *
                     CeresRidleyPaletteDefinitions.BabyColorCount * sizeof(ushort),
                 CeresRidleyPaletteDefinitions.BabyColorCount,
@@ -112,11 +112,11 @@ internal static class CeresRidleyColorsVerification
         var state = new RidleyEnemyState { Function = RidleyAiFunction.FadeInEyes };
         for (ushort step = 0; step < CeresRidleyEyeFadeDefinitions.PaletteStepCount; step++)
         {
-            state.FadePaletteOffset = step;
+            state.FadeStep = step;
             state.FunctionTimer = WrappingCountdown.Start(0);
             eyeTick(state);
-            int row = CeresRidleyEyeFade.Get(step).PaletteRow;
-            AssertEqual(unchecked((ushort)(step + 1)), state.FadePaletteOffset,
+            int row = CeresRidleyEyeFade.Get(step).Shade;
+            AssertEqual(unchecked((ushort)(step + 1)), state.FadeStep,
                 $"edited eye fade step {step} advances");
             CheckCgram(CeresRidleyPaletteDefinitions.EyeFadeColorCount,
                 CeresRidleyPaletteDefinitionsConstants.EyeFadeCgramIndex,
@@ -124,13 +124,13 @@ internal static class CeresRidleyColorsVerification
                 $"Ceres Ridley eye fade step {step}");
         }
         state.Function = RidleyAiFunction.FadeInBody;
-        for (int row = 0; row < CeresRidleyPaletteDefinitions.BodyFadeRowCount; row++)
+        for (int row = 0; row < CeresRidleyPaletteDefinitions.BodyFadeShadeCount; row++)
         {
-            state.FadePaletteOffset = row;
+            state.FadeStep = row;
             state.FunctionTimer = WrappingCountdown.Start(1);
             bodyTick(slot, state);
-            AssertEqual(row == CeresRidleyPaletteDefinitions.BodyFadeRowCount - 1 ? 0 : row + 1,
-                state.FadePaletteOffset, $"edited body fade row {row} advances to the next row, or resets after the last");
+            AssertEqual(row == CeresRidleyPaletteDefinitions.BodyFadeShadeCount - 1 ? 0 : row + 1,
+                state.FadeStep, $"edited body fade row {row} advances to the next row, or resets after the last");
             CheckCgram(CeresRidleyPaletteDefinitions.BodyFadeColorCount,
                 CeresRidleyPaletteDefinitionsConstants.BodyFadeBgCgramIndex,
                 color => edited.CeresRidleyColors.ResolveBodyFade(row, color),

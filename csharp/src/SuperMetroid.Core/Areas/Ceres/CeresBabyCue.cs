@@ -15,9 +15,9 @@ internal abstract record CeresBabyCue
     /// <param name="Target">The program a branch continues at.</param>
     internal sealed record GoToIfMoving(CeresBabyProgram Target) : CeresBabyCue;
 
-    /// <summary>Loads a palette row (<c>Instruction_BabyMetroidCutscene_UpdateColors</c>, $A6:BFE1).</summary>
-    /// <param name="PaletteRow">The palette row an <see cref="UpdateColors"/> cue loads.</param>
-    internal sealed record UpdateColors(int PaletteRow) : CeresBabyCue;
+    /// <summary>Shows one of the Baby's shades (<c>Instruction_BabyMetroidCutscene_UpdateColors</c>, $A6:BFE1).</summary>
+    /// <param name="Shade">The shade an <see cref="UpdateColors"/> cue shows.</param>
+    internal sealed record UpdateColors(CeresBabyShade Shade) : CeresBabyCue;
 
     /// <summary>
     /// Cries, or, while the baby is still and the live random word's low bit is set, continues silently at the target

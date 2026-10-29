@@ -24,7 +24,7 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
                 $"Ceres Ridley eye-fade offset {offset} remains active");
             AssertEqual(
                 rom.ReadCartridgeByte(CeresRidleyEyeFadeDefinitions.NativeScheduleAddress + offset),
-                compiled.PaletteRow,
+                compiled.Shade,
                 $"Ceres Ridley eye-fade row {offset}");
         }
 
@@ -56,29 +56,29 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
              offset < CeresRidleyEyeFadeDefinitions.PaletteStepCount;
              offset++)
         {
-            state.FadePaletteOffset = offset;
+            state.FadeStep = offset;
             state.FunctionTimer = WrappingCountdown.Start(0);
             tick(state);
 
             CeresRidleyEyeFadeStep expected = CeresRidleyEyeFade.Get(offset);
-            AssertEqual(unchecked((ushort)(offset + 1)), state.FadePaletteOffset,
+            AssertEqual(unchecked((ushort)(offset + 1)), state.FadeStep,
                 $"production Ceres eye-fade offset {offset} advances");
             AssertEqual(RidleyAiFunction.FadeInEyes, state.Function,
                 $"production Ceres eye-fade offset {offset} remains in fade phase");
             for (int color = 0; color < 3; color++)
             {
                 int source = EnemyRomTablePointers.Ceres.RidleyEyeFadePaletteRows +
-                    expected.PaletteRow * 6 + color * 2;
+                    expected.Shade * 6 + color * 2;
                 ushort expectedColor = CartridgeImportSource.Require(rom).ReadCartridgeWord(source);
                 AssertEqual(expectedColor, cgram.Colors[252 + color],
                     $"production Ceres eye-fade offset {offset} color {color}");
             }
         }
 
-        state.FadePaletteOffset = CeresRidleyEyeFadeDefinitions.PaletteStepCount;
+        state.FadeStep = CeresRidleyEyeFadeDefinitions.PaletteStepCount;
         state.FunctionTimer = WrappingCountdown.Start(0);
         tick(state);
-        AssertEqual(0, state.FadePaletteOffset,
+        AssertEqual(0, state.FadeStep,
             "production Ceres eye-fade terminator resets its offset");
         AssertEqual(RidleyAiFunction.FadeInBody, state.Function,
             "production Ceres eye-fade terminator enters body fade");

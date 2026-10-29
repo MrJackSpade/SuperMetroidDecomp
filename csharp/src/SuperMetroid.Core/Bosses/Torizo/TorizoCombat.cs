@@ -92,17 +92,17 @@ internal sealed class TorizoCombat
             BeginBombTorizoDeath(torizo, state);
     }
 
-    /// <summary>Restores the normal body rows on alternating Bomb Torizo hurt frames.</summary>
+    /// <summary>Restores the normal body colours on alternating Bomb Torizo hurt frames.</summary>
     private void LoadTorizoDeathPalette() =>
-        _body.LoadTorizoBodyPalette(TorizoPaletteDefinitions.Normal[..16], TorizoPaletteDefinitions.Normal[16..]);
+        _body.LoadTorizoBodyColours(TorizoPaletteDefinitions.Normal);
 
-    /// <summary>Selects Golden Torizo's body and belly gradient row from health bits 11 through 14.</summary>
+    /// <summary>Selects Golden Torizo's body and belly health band from health bits 11 through 14.</summary>
     private void LoadGoldenTorizoHealthPalette(int health)
     {
-        // $84:8000 selects one of eight 16-color rows using bits 11..14 of health, clamping
-        // the upper half to row seven; each band resolves its colours from the installed health palettes.
-        int row = checked((ushort)health) / TorizoCombatDefinitions.HealthPerPaletteBand % TorizoCombatDefinitions.HealthPaletteBands;
-        int band = Math.Min(row, TorizoCombatDefinitions.LastHealthPaletteRow);
+        // $84:8000 selects one of eight health bands using bits 11..14 of health, clamping
+        // the upper half to the last band; each band resolves its colours from the installed health palettes.
+        int healthBand = checked((ushort)health) / TorizoCombatDefinitions.HealthPerPaletteBand % TorizoCombatDefinitions.HealthPaletteBands;
+        int band = Math.Min(healthBand, TorizoCombatDefinitions.LastHealthBand);
         var colors = _room.Artwork?.AuxiliaryColors ?? throw new InvalidDataException(
             "Golden Torizo health palettes require installed artwork.");
         for (int color = 0; color < 16; color++)

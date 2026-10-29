@@ -10,29 +10,29 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// independently supplied rows remain data. $A9:EBCC-EC7C Sidehopper draining interpolates
 /// actual RGB5 endpoints to nearest over five intervals; EC8C is separate corpse paint.
 /// </summary>
-internal sealed class EnemyAuxiliaryPaletteRows
+internal sealed class EnemyAuxiliaryColourFrames
 {
-    /// <summary>Initial per-color interpolation endpoints for non-stock derived rows.</summary>
+    /// <summary>Initial per-color interpolation endpoints for non-stock derived frames.</summary>
     internal readonly RgbColor[] first;
-    /// <summary>Final per-color interpolation endpoints for non-stock derived rows.</summary>
+    /// <summary>Final per-color interpolation endpoints for non-stock derived frames.</summary>
     internal readonly RgbColor[] last;
-    /// <summary>Exact supplied rows when their colors do not match a known native progression.</summary>
+    /// <summary>Exact supplied frames when their colors do not match a known native progression.</summary>
     internal readonly RgbColor[][]? supplied;
-    /// <summary>Whether non-stock rows mirror a face-block glow rise and fall.</summary>
+    /// <summary>Whether non-stock frames mirror a face-block glow rise and fall.</summary>
     private readonly bool faceGlow;
     /// <summary>Stock paint recognition and Torizo rear-palette selection flags.</summary>
     private readonly bool stockTorizo, rearTorizo, stockSidehopperDrain, stockFaceGlow;
     /// <summary>The face-block accent color used for the active portion of its mirrored glow.</summary>
     private readonly RgbColor glowAccentStart;
-    /// <summary>The independently authored terminal sidehopper corpse row.</summary>
+    /// <summary>The independently authored terminal sidehopper corpse frame.</summary>
     internal readonly RgbColor[]? corpse;
 
     /// <summary>Number of authored stages or health bands in this family.</summary>
     internal int FrameCount { get; }
-    /// <summary>Colors supplied per row, excluding sidehopper's native transparent slot zero.</summary>
+    /// <summary>Colors supplied per frame, excluding sidehopper's native transparent slot zero.</summary>
     internal int ColorCount { get; }
     /// <summary>Accepts a calculated paint progression only when every supplied RGB5 word matches it.</summary>
-    internal EnemyAuxiliaryPaletteRows(RgbColor[][] rows, AuxiliaryPaint paint)
+    internal EnemyAuxiliaryColourFrames(RgbColor[][] rows, AuxiliaryPaint paint)
     {
         bool healthGradient = paint is AuxiliaryPaint.TorizoFront or AuxiliaryPaint.TorizoRear;
         bool faceGlow = paint == AuxiliaryPaint.FaceGlow;

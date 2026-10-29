@@ -24,6 +24,12 @@ internal static class CeresBabyNativeListAddresses
         [0xbff8] = null,
     };
 
-    /// <summary>Each palette operand the lists use, by the row it loads.</summary>
-    internal static readonly CeresBabyNativeListAddressesPaletteRow[] PaletteRows = [new CeresBabyNativeListAddressesPaletteRow(0, 0xe1f1), new CeresBabyNativeListAddressesPaletteRow(1, 0xe20f), new CeresBabyNativeListAddressesPaletteRow(2, 0xe22d), new CeresBabyNativeListAddressesPaletteRow(3, 0xe24b)];
+    /// <summary>Each palette operand the lists use, by the shade it shows.</summary>
+    internal static readonly CeresBabyNativeListAddressesShadeOperand[] ShadeOperands =
+    [
+        new(CeresBabyShade.Resting, 0xe1f1),
+        new(CeresBabyShade.HorizontalSquish, 0xe20f),
+        new(CeresBabyShade.Round, 0xe22d),
+        new(CeresBabyShade.VerticalSquish, 0xe24b),
+    ];
 }

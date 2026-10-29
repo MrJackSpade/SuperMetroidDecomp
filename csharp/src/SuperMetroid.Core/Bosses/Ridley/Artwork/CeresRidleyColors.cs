@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
@@ -82,24 +83,24 @@ internal static class CeresRidleyColors
             new RidleyColours(colours).CeresStart.Write(color, colors.selection.Start.Resolve(color));
     }
 
-    /// <summary>Copies one eye-fade row, index 0..15, to CGRAM entries 252..254.</summary>
-    internal static void ApplyEyeFade(CeresRidleyColorCatalog colors, GameplayColours colours, int row)
+    /// <summary>Shows eye-fade shade <paramref name="shade"/>, 0..15, in Ceres Ridley's eye colours.</summary>
+    internal static void ApplyEyeFade(CeresRidleyColorCatalog colors, GameplayColours colours, int shade)
     {
-        colors.selection.EyeFade.ValidateRow(row);
+        colors.selection.EyeFade.ValidateRow(shade);
         Ensure.NotNull(colours);
         for (int color = 0; color < CeresRidleyPaletteDefinitions.EyeFadeColorCount; color++)
-            new RidleyColours(colours).CeresEyeFade.Write(color, colors.selection.EyeFade.Resolve(row, color));
+            new RidleyColours(colours).CeresEyeFade.Write(color, colors.selection.EyeFade.Resolve(shade, color));
     }
 
-    /// <summary>Copies one eleven-color body-fade row, index 0..15, to both BG CGRAM entries 145..155 and OBJ entries 241..251.</summary>
-    internal static void ApplyBodyFade(CeresRidleyColorCatalog colors, GameplayColours colours, int row)
+    /// <summary>Shows body-fade shade <paramref name="shade"/>, 0..15, in both the background and the sprite body colours.</summary>
+    internal static void ApplyBodyFade(CeresRidleyColorCatalog colors, GameplayColours colours, int shade)
     {
-        colors.selection.BodyFade.ValidateRow(row);
+        colors.selection.BodyFade.ValidateRow(shade);
         Ensure.NotNull(colours);
         for (int color = 0; color < CeresRidleyPaletteDefinitions.BodyFadeColorCount; color++)
-            new RidleyColours(colours).CeresBodyFadeShadow.Write(color, colors.selection.BodyFade.Resolve(row, color));
+            new RidleyColours(colours).CeresBodyFadeShadow.Write(color, colors.selection.BodyFade.Resolve(shade, color));
         for (int color = 0; color < CeresRidleyPaletteDefinitions.BodyFadeColorCount; color++)
-            new RidleyColours(colours).CeresBodyFade.Write(color, colors.selection.BodyFade.Resolve(row, color));
+            new RidleyColours(colours).CeresBodyFade.Write(color, colors.selection.BodyFade.Resolve(shade, color));
     }
 
     /// <summary>Copies one fourteen-color health row, index 0..2, to CGRAM entries 241..254.</summary>
@@ -134,12 +135,25 @@ internal static class CeresRidleyColors
         }
     }
 
-    /// <summary>Copies one private Baby/container draw shade, index 0..3, to OBJ palette-three entries 177..191.</summary>
-    internal static void ApplyBaby(CeresRidleyColorCatalog colors, GameplayColours colours, int row)
+    /// <summary>Shows the Baby/container's <paramref name="shade"/> in the Baby's colours.</summary>
+    internal static void ApplyBaby(CeresRidleyColorCatalog colors, GameplayColours colours, CeresBabyShade shade)
     {
-        _ = colors.selection.Baby.Resolve(row, 0);
+        int step = InstalledBabyStep(shade);
         Ensure.NotNull(colours);
         for (int color = 0; color < CeresRidleyPaletteDefinitions.BabyColorCount; color++)
-            new RidleyColours(colours).CeresBaby.Write(color, colors.selection.Baby.Resolve(row, color));
+            new RidleyColours(colours).CeresBaby.Write(color, colors.selection.Baby.Resolve(step, color));
     }
+
+    /// <summary>
+    /// The installed Baby colour step that holds <paramref name="shade"/>: the installed shades run from resting through
+    /// the horizontal squish and round pose to the vertical squish, each brighter than the one before.
+    /// </summary>
+    private static int InstalledBabyStep(CeresBabyShade shade) => shade switch
+    {
+        CeresBabyShade.Resting => 0,
+        CeresBabyShade.HorizontalSquish => 1,
+        CeresBabyShade.Round => 2,
+        CeresBabyShade.VerticalSquish => 3,
+        _ => throw new ArgumentOutOfRangeException(nameof(shade), shade, "Undefined Ceres Baby shade."),
+    };
 }

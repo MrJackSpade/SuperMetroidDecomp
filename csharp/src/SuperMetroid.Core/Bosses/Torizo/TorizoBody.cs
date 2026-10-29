@@ -12,7 +12,7 @@ internal sealed class TorizoBody
 {
     /// <summary>Supplies the live room services, boss flag, random state, and artwork for both statue variants.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Exposes the two live CGRAM rows occupied by Torizo's body.</summary>
+    /// <summary>Exposes the live body and belly colours Torizo's body colouring loads.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function word their branches test.</summary>
     private readonly TorizoEncounterAccess _access;
@@ -28,17 +28,9 @@ internal sealed class TorizoBody
         _attacks = attacks;
     }
 
-    /// <summary>Copies the supplied body and belly rows into their live boss-palette slots.</summary>
-    internal void LoadTorizoBodyPalette(
-        ReadOnlySpan<RgbColor> rowNine,
-        ReadOnlySpan<RgbColor> rowTen)
-    {
-        for (int color = 0; color < 16; color++)
-        {
-            _presentation.BossColours().TorizoBody.Write(color, rowNine[color]);
-            _presentation.BossColours().TorizoBelly.Write(color, rowTen[color]);
-        }
-    }
+    /// <summary>Loads <paramref name="bodyAndBelly"/>, the body's colours then the belly's, into the live Torizo body colours.</summary>
+    internal void LoadTorizoBodyColours(ReadOnlySpan<RgbColor> bodyAndBelly) =>
+        _presentation.BossColours().TorizoBodyAndBelly.CopyFrom(bodyAndBelly);
 
     /// <summary>Uses the room RNG to emit drool only while a living Torizo is below the head-break threshold.</summary>
     internal void MaybeSpawnBombTorizoLowHealthDrool(RoomEnemySlot torizo)

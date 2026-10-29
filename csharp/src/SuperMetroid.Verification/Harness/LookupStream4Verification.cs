@@ -2748,7 +2748,7 @@ internal static class LookupStream4Verification
                     tick(slot, state);
                     int row = Math.Min(call / 3, 14);
                     AssertEqual((ushort)(2 - call % 3), state.FunctionTimer.RawValue, "Actual three-call producer cadence preserved");
-                    AssertEqual(call < 45 ? (ushort)(row + 1) : (ushort)0, state.FadePaletteOffset, "Actual row and zero terminator progression");
+                    AssertEqual(call < 45 ? (ushort)(row + 1) : (ushort)0, state.FadeStep, "Actual row and zero terminator progression");
                     for (int color = 0; color < 256; color++)
                         AssertEqual(color is >= 113 and < 127 ? Pack(document.Reveal[row][color - 113])
                             : color is >= 160 and < 192 ? Pack(document.Initial[color - 160])
@@ -3193,7 +3193,7 @@ internal static class LookupStream4Verification
                 if (color is >= 160 and < 192)
                     AssertEqual(expected, selected.ResolveStart(color - 160), "Independent supplied start word");
             }
-            selected.ApplyBaby(cgram, 0);
+            selected.ApplyBaby(cgram, CeresBabyShade.Resting);
             for (int color = 0; color < 15; color++)
                 AssertEqual((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xA6E1F1 + color * 2)) ^ (edit == color + 32 ? 1 << (channel * 5) : 0)),
                     cgram.Colors[CeresRidleyPaletteDefinitionsConstants.BabyCgramIndex + color], "Baby source edits remain independent from start");
@@ -3246,11 +3246,13 @@ internal static class LookupStream4Verification
                 if (edit < 60) rows[edit / 15][edit % 15] = replacement; else body[15][8 + edit - 60] = replacement;
             }
             var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Baby = rows, BodyFade = body })));
+            // Each shade shows the native Baby row of the same rank: resting, then the horizontal, round and vertical poses.
+            CeresBabyShade[] shadeOfRow = [CeresBabyShade.Resting, CeresBabyShade.HorizontalSquish, CeresBabyShade.Round, CeresBabyShade.VerticalSquish];
             for (int row = 0; row < 4; row++)
             {
                 var cgram = new GameplayColours(new SpriteColourSets());
                 for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, RgbColor.FromWord(0x1234));
-                selected.ApplyBaby(cgram, row);
+                selected.ApplyBaby(cgram, shadeOfRow[row]);
                 for (int color = 0; color < 256; color++)
                 {
                     ushort expected = color is >= 177 and < 192

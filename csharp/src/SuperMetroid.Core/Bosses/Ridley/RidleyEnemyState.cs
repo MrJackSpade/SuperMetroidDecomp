@@ -55,10 +55,10 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the current AI phase's native countdown word; Ceres self-destruct reuses it as the even dispatch index 0, 2, 4, 6, 8, 10, or 12.</summary>
     public WrappingCountdown FunctionTimer { get; internal set; }
     /// <summary>
-    /// Gets the shared reveal fade's progress: the eye-fade schedule step (zero through 64), the body-fade row (zero through
-    /// fifteen), or the Lower Norfair reveal row (zero through fifteen). Each fade resets it to zero when it completes.
+    /// Gets the shared reveal fade's step: the eye-fade schedule step (zero through 64), the body-fade shade (zero through
+    /// fifteen), or the Lower Norfair reveal step (zero through fifteen). Each fade resets it to zero when it completes.
     /// </summary>
-    public int FadePaletteOffset { get; internal set; }
+    public int FadeStep { get; internal set; }
     /// <summary>Gets the movement clamp's minimum whole-pixel corner, retaining negative limits as wrapped native words.</summary>
     public Position16<RoomPixels> MovementMinimum { get; internal set; }
     /// <summary>Gets the movement clamp's maximum whole-pixel corner.</summary>

@@ -36,9 +36,11 @@ public static class EndingPaletteFile
                     $"Ending {id} palette color {index} requires red, green and blue in 0..31.");
             compiled[index] = color.ToRgbColor();
         }
-        return count == ScreenColours.ColourCount
-            ? EndingPalette.FromScreen(ScreenColourImage.Decode(compiled))
-            : EndingPalette.FromColours(id, compiled);
+        if (count == ScreenColours.ColourCount)
+            return EndingPalette.FromScreen(ScreenColourImage.Decode(compiled));
+        return id == EndingPaletteId.LogoCrossfade
+            ? EndingPalette.FromCrossfade(EndingLogoCrossfadeImage.Decode(compiled))
+            : EndingPalette.FromRun(compiled);
     }
 
     /// <summary>Serializes and validates the entire selected palette before writing its UTF-8 JSON bytes.</summary>

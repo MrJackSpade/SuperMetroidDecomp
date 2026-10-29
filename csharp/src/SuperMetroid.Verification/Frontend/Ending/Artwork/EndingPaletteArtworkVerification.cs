@@ -75,12 +75,12 @@ internal static class EndingPaletteArtworkVerification
                 reordered[second] = held1;
             }
         }
-        EndingLogoPaletteFade reorderedFade = EndingLogoPaletteFade.TryCreate(reordered)
+        EndingLogoPaletteFade reorderedFade = EndingLogoPaletteFade.TryCreate(EndingLogoCrossfadeImage.DecodeWords(reordered))
             ?? throw new InvalidOperationException("Reordered endpoint shades still have the original temporal fade.");
         for (int index = 0; index < 512; index++)
             AssertEqual(LittleEndianBytes.Word(reordered[index * 2], reordered[index * 2 + 1]), reorderedFade.Color(index),
                 "temporal fade preserves edited endpoint order");
-        EndingLogoPaletteFade fade = EndingLogoPaletteFade.TryCreate(original)
+        EndingLogoPaletteFade fade = EndingLogoPaletteFade.TryCreate(EndingLogoCrossfadeImage.DecodeWords(original))
             ?? throw new InvalidOperationException("Original logo fade must use computed interpolation.");
         EndingPalette Load(PaletteRgb5[] supplied)
         {
@@ -94,7 +94,7 @@ internal static class EndingPaletteArtworkVerification
         {
             ushort expected = LittleEndianBytes.Word(original[index * 2], original[index * 2 + 1]);
             AssertEqual(expected, fade.Color(index), "all original logo fade colors computed exactly");
-            AssertEqual(expected, loaded.Color(index), "computed fade reaches palette accessor");
+            AssertEqual(expected, loaded.CrossfadeColorAt(index), "computed fade reaches palette accessor");
             int palette = index / 16 % 2, step = index / 32;
             PaletteRgb5 endpoint = colors[(palette == 0 ? 15 * 32 : 16) + index % 16];
             foreach (int channel in new[] { endpoint.Red, endpoint.Green, endpoint.Blue })
@@ -102,16 +102,15 @@ internal static class EndingPaletteArtworkVerification
         }
         AssertEqual(0x7fff, remaindersSeen, "original data exercises every quantization remainder");
         AssertTrue(loaded.Bytes.Span.SequenceEqual(original), "computed fade preserves complete exported bytes");
-        var cgram = new ScreenPalette();
+        // The logo reads each step's colours by layer; the native resource holds each step's background colours, then its
+        // sprite colours.
         for (int step = 0; step < 16; step++)
+        for (int color = 0; color < 32; color++)
         {
-            loaded.LoadTo(cgram.BackgroundSets.All.Slice(64, 32), step * 32);
-            for (int color = 0; color < 32; color++)
-            {
-                int offset = (step * 32 + color) * 2;
-                AssertEqual(LittleEndianBytes.Word(original[offset], original[offset + 1]), cgram.BackgroundSets.All[64 + color],
-                    "computed fade partial CGRAM transfer");
-            }
+            int offset = (step * 32 + color) * 2;
+            AssertEqual(LittleEndianBytes.Word(original[offset], original[offset + 1]),
+                loaded.LogoCrossfadeColour(step, color < 16 ? EndingLogoLayer.Background : EndingLogoLayer.Sprites, color % 16),
+                "computed fade step colour by layer");
         }
         // Independent edits to a dark frame, an intermediate frame and an endpoint
         // must survive even though they no longer describe a linear fade.
@@ -121,18 +120,18 @@ internal static class EndingPaletteArtworkVerification
         for (int index = 0; index < 512; index++)
         {
             PaletteRgb5 color = colors[index];
-            AssertEqual((ushort)(color.Red | color.Green << 5 | color.Blue << 10), custom.Color(index),
+            AssertEqual((ushort)(color.Red | color.Green << 5 | color.Blue << 10), custom.CrossfadeColorAt(index),
                 "independent edited fade samples survive unchanged");
         }
-        AssertTrue(EndingLogoPaletteFade.TryCreate(custom.Bytes.Span) is null, "nonlinear edits remain caller-owned content");
+        AssertTrue(EndingLogoPaletteFade.TryCreate(EndingLogoCrossfadeImage.DecodeWords(custom.Bytes.Span)) is null, "nonlinear edits remain caller-owned content");
         foreach (int invalid in new[] { int.MinValue, -1, 512, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => fade.Color(invalid), "computed fade index domain");
-            AssertThrows<ArgumentOutOfRangeException>(() => loaded.Color(invalid), "loaded fade index domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => loaded.CrossfadeColorAt(invalid), "loaded fade index domain");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => loaded.LoadTo(cgram.BackgroundSets.All.Slice(0, 2), 511), "computed fade source transfer bounds");
-        AssertThrows<ArgumentOutOfRangeException>(() => loaded.LoadTo(cgram.BackgroundSets.All.Slice(112, 32), 0), "computed fade destination transfer bounds");
-        loaded.LoadTo(cgram.BackgroundSets.All.Slice(128, 0), 512);
+        AssertThrows<ArgumentOutOfRangeException>(() => loaded.LogoCrossfadeColour(16, EndingLogoLayer.Background, 0), "computed fade step bounds");
+        AssertThrows<ArgumentOutOfRangeException>(() => loaded.LogoCrossfadeColour(0, EndingLogoLayer.Sprites, 16), "computed fade colour bounds");
+        AssertThrows<InvalidOperationException>(() => loaded.Color(0), "the crossfade is read by step and layer, not as a run");
         AssertEqual(512, loaded.ColorCount, "computed fade retains published resource size");
     }
 

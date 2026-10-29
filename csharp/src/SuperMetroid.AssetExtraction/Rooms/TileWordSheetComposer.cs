@@ -84,7 +84,7 @@ internal static class TileWordSheetComposer
                 HudImageTiles image = placed.Image;
                 for (int row = 0; row < image.Size.Y; row++)
                     runs.Add(new BodyRun(new(placed.Cell.X, (ushort)(placed.Cell.Y + row)),
-                        BackgroundTileWords.ToWords(image.Tiles.AsSpan(row * image.Size.X, image.Size.X))));
+                        BackgroundTileWords.ToWords(image.Tiles.AsSpan().Slice(row * image.Size.X, image.Size.X))));
             }
             yield return new NamedPart(HudShelfName(shelf), new BodyPart([.. runs]));
         }

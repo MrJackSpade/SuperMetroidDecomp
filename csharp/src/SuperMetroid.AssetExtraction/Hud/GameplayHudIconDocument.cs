@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.Core.Spatial;
+
+namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Serializable item-icon anchor and tile cells.</summary>
 public sealed record GameplayHudIconDocument

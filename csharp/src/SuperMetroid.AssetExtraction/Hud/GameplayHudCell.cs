@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Hud.Artwork;
+namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Serializable components of one SNES BG tilemap word.</summary>
 public sealed record GameplayHudCell

@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.Core.Spatial;
+
+namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Serializable versioned document describing the editable gameplay HUD.</summary>
 public sealed record GameplayHudPresentationDocument

@@ -29,14 +29,13 @@ internal sealed class BeamChargeState
     public WrappingCountdown ChargedShotGlowTimer { get; internal set; }
 
     /// <summary>
-    /// WRAM <c>$0B62</c>, a byte offset into the active six-word charge-palette list.
-    /// Native values are exactly 0, 2, 4, 6, 8, and 10; the sixth call wraps to zero. An imported value is 0 through
-    /// 65535.
+    /// The charge colour cycle's next step, 0 through 5: each charge-palette call shows it and advances it, and the
+    /// sixth call wraps it to zero.
     /// </summary>
-    public int SamusChargePaletteIndex
+    public int ChargePaletteStep
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, SamusChargePaletteDefinitions.ChargeSteps - 1, value);
     }
 
     /// <summary>The most recent `$91:D743` charged-shot palette sub-handler result, which survives room loads.</summary>

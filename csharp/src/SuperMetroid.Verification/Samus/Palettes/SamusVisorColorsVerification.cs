@@ -51,8 +51,7 @@ internal static class SamusVisorColorsVerification
 
         Suite(nameof(VerifyInstalledRoomVisorCycle), () => VerifyInstalledRoomVisorCycle(rom, catalog));
         Suite(nameof(VerifyInstalledXrayVisorCycle), () => VerifyInstalledXrayVisorCycle(rom, catalog));
-        AssertTrue(!catalog.TryResolveByteOffset(1, out _), "odd visor offsets are outside the installed color domain");
-        AssertTrue(!catalog.TryResolveByteOffset(12, out _), "adjacent visor bytes are outside the installed color domain");
+        AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(SamusVisorColorFormat.ColorCount), "shades past the last are outside the installed color domain");
         AssertThrows<InvalidDataException>(() => SamusVisorColorFile.Read(
             new MemoryStream([1, 2, 3])), "corrupt visor JSON fails loudly");
         AssertThrows<InvalidDataException>(() => SamusVisorColorFile.Read(
@@ -91,7 +90,7 @@ internal static class SamusVisorColorsVerification
         var guarded = NewForbiddenVisorColorBus(rom);
         for (int frame = 0; frame < 32; frame++)
         {
-            int sourceOffset = native.PaletteByteOffset;
+            int sourceShade = native.NextShade;
             native.Update(nativeCgram.Samus, 0,
                 LayerBlendingConfiguration.VisorBackdrop28);
             installed.Update(installedCgram.Samus, 0,
@@ -101,12 +100,12 @@ internal static class SamusVisorColorsVerification
             bool expectedWrite = native.Timer == SamusPaletteDefinitions.Visor.FrameDelay;
             bool actualWrite = installed.Timer == SamusPaletteDefinitions.Visor.FrameDelay;
             if (expectedWrite)
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusSourceDefinitions.VisorColors.Value + sourceOffset), installedCgram.Colors[196],
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusSourceDefinitions.VisorColors.Value + sourceShade * sizeof(ushort)), installedCgram.Samus.Visor,
                     $"room visor frame {frame} matches native color word");
             AssertEqual(expectedWrite, actualWrite, $"room visor frame {frame} action");
-            AssertEqual(new VerifySamusVisorPaletteCase(native.Timer, native.PaletteByteOffset), new VerifySamusVisorPaletteCase(installed.Timer, installed.PaletteByteOffset),
+            AssertEqual(new VerifySamusVisorPaletteCase(native.Timer, native.NextShade), new VerifySamusVisorPaletteCase(installed.Timer, installed.NextShade),
                 $"room visor frame {frame} timer and index");
-            AssertEqual(nativeCgram.Colors[196], installedCgram.Colors[196],
+            AssertEqual(nativeCgram.Samus.Visor, installedCgram.Samus.Visor,
                 $"room visor frame {frame} CGRAM");
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts, "installed room cycle does not read visor ROM table");
@@ -128,17 +127,17 @@ internal static class SamusVisorColorsVerification
         void Compare(int call)
         {
             // This fixture enters the full-beam stage immediately before call 11;
-            // native $91:DCEA restarts that stage at color byte offset six.
-            ushort sourceOffset = call == 11 ? (ushort)6 : checked((ushort)native.Xray.SpecialPaletteFrame);
+            // native $91:DCEA restarts that stage at the full-beam cycle's first shade.
+            int sourceShade = call == 11 ? XrayScopeDefinitions.Palette.FullCycleFirstShade : native.Xray.VisorShade;
             bool expected = native.Xray.UpdatePalette(nativeCgram.Samus, native.EquippedItems);
             bool actual = installed.Xray.UpdatePalette(installedCgram.Samus, installed.EquippedItems);
             if (expected)
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusSourceDefinitions.VisorColors.Value + sourceOffset), installedCgram.Colors[196],
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusSourceDefinitions.VisorColors.Value + sourceShade * sizeof(ushort)), installedCgram.Samus.Visor,
                     $"X-ray visor call {call} matches native color word");
             AssertEqual(expected, actual, $"X-ray visor call {call} write");
-            AssertEqual(native.Xray.SpecialPaletteFrame, installed.Xray.SpecialPaletteFrame,
-                $"X-ray visor call {call} next offset");
-            AssertEqual(nativeCgram.Colors[196], installedCgram.Colors[196],
+            AssertEqual(native.Xray.VisorShade, installed.Xray.VisorShade,
+                $"X-ray visor call {call} next shade");
+            AssertEqual(nativeCgram.Samus.Visor, installedCgram.Samus.Visor,
                 $"X-ray visor call {call} CGRAM");
         }
 

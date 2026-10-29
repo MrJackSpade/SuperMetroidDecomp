@@ -435,8 +435,8 @@ internal static void VerifySamusPowerBeamProjectiles()
             chargeSamus.EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(suitEquipment[suit]);
             for (int palette = 0; palette < 6; palette++)
             {
-                // `$0B62` holds the byte offset of the palette this call installs.
-                AssertEqual(palette * 2, chargeProjectiles.Charge.SamusChargePaletteIndex,
+                // The charge palette step is the palette this call installs.
+                AssertEqual(palette, chargeProjectiles.Charge.ChargePaletteStep,
                     $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} selects palette ordinal");
                 SamusBeamChargePaletteStepResult liveChargeStep =
                     chargeProjectiles.UpdateBeamChargePalette(liveChargeCgram.Samus, chargeSamus);
@@ -453,12 +453,12 @@ internal static void VerifySamusPowerBeamProjectiles()
                     ushort expectedColor = unchecked((ushort)(
                         (pseudoScrew ? 0x4000 : 0x3000) +
                         suit * 0x100 + palette * 0x20 + color));
-                    AssertEqual(expectedColor, liveChargeCgram.Colors[192 + color],
+                    AssertEqual(expectedColor, liveChargeCgram.Samus.Suit[color],
                         $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} suit {suit} " +
                         $"palette {palette} color {color}");
                 }
             }
-            AssertEqual(0, chargeProjectiles.Charge.SamusChargePaletteIndex,
+            AssertEqual(0, chargeProjectiles.Charge.ChargePaletteStep,
                 $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} six-entry list wraps");
         }
     }
@@ -469,15 +469,15 @@ internal static void VerifySamusPowerBeamProjectiles()
     chargeSamus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.None;
     chargeSamus.EquippedItems = 0;
     chargeProjectiles.UpdateBeamChargePalette(liveChargeCgram.Samus, chargeSamus);
-    AssertEqual(2, chargeProjectiles.Charge.SamusChargePaletteIndex,
-        "one live charge-palette call advances byte offset to two");
+    AssertEqual(1, chargeProjectiles.Charge.ChargePaletteStep,
+        "one live charge-palette call advances to the second step");
     chargeSamus.Grapple.Phase = GrapplePhase.Firing;
     SamusBeamChargePaletteStepResult grappleSuppressesCharge =
         chargeProjectiles.UpdateBeamChargePalette(liveChargeCgram.Samus, chargeSamus);
     AssertEqual(SamusBeamChargePaletteAction.Inactive, grappleSuppressesCharge.Action,
         "active grapple suppresses charge-body palette");
-    AssertEqual(0, chargeProjectiles.Charge.SamusChargePaletteIndex,
-        "active grapple resets charge-palette byte offset");
+    AssertEqual(0, chargeProjectiles.Charge.ChargePaletteStep,
+        "active grapple resets the charge-palette step");
     chargeSamus.Grapple.Phase = GrapplePhase.Inactive;
 
     chargeBombs.StepFrame(new SamusTerrain { Level = air }, chargeSamus, 0, 0);

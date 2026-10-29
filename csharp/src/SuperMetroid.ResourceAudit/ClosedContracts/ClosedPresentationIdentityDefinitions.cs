@@ -14,6 +14,7 @@ using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.World.RoomStates;
@@ -39,7 +40,8 @@ internal static class ClosedPresentationIdentityDefinitions
             [(int)GameplayMessageId.SaveConfirmation, (int)GameplayMessageId.GunshipSaveConfirmation],
         ("InstalledSamusFullBodyCycleColors", "Apply" or "Resolve", "palette.Family") =>
             Enum.GetValues<SamusFullBodyCycleFamily>().Select(family => (int)family).ToArray(),
-        ("InstalledSamusSuitColors", "Apply" or "Resolve", "suitTableOffset") => [0, 2, 4],
+        ("InstalledSamusSuitColors", "Apply" or "Resolve", "shown" or "suit") =>
+            Enum.GetValues<SamusSuit>().Select(suit => (int)suit).ToArray(),
         ("EnemyAuxiliaryColorCatalog", "Resolve", "palette") => EnemyAuxiliaryColorDefinitions.All
             .Select(definition => (int)definition.Id).ToArray(),
         ("KraidColorCatalog", "Resolve", "source") => Enum.GetValues<KraidPaletteSource>().Select(id => (int)id).ToArray(),

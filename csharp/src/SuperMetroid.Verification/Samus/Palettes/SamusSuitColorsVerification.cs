@@ -91,15 +91,15 @@ internal static class SamusSuitColorsVerification
             for (int color = 0; color < SamusSuitColorFormat.ColorsPerSuit; color++)
                 AssertEqual(
                     (ushort)(ReadNativeSuitColor(cartridge, sourceAddresses[suit], color) & 0x7fff),
-                    cgram.Colors[SamusPaletteDefinitions.Common.SuitFirstColour + color],
+                    cgram.Samus.Suit[color],
                     $"suit {suit} color {color} is installed without a runtime bus");
         }
 
         var power = new SamusColourRig();
         SamusNormalSuitPalette.LoadPower(power.Samus.Suit, colors);
         for (int color = 0; color < SamusSuitColorFormat.ColorsPerSuit; color++)
-            AssertEqual(colors.Resolve(0, color),
-                power.Colors[SamusPaletteDefinitions.Common.SuitFirstColour + color],
+            AssertEqual(colors.Resolve(SamusSuit.Power, color),
+                power.Samus.Suit[color],
                 $"Power Suit color {color} is installed without a runtime bus");
 
         AssertThrows<InvalidOperationException>(
@@ -129,7 +129,7 @@ internal static class SamusSuitColorsVerification
             SamusSourceDefinitions.VariaSuitPalette.Value,
             SamusSourceDefinitions.GravitySuitPalette.Value,
         ];
-        ushort[] offsets = [0, 2, 4];
+        SamusSuit[] offsets = [SamusSuit.Power, SamusSuit.Varia, SamusSuit.Gravity];
         for (int suit = 0; suit < offsets.Length; suit++)
         for (int color = 0; color < SamusSuitColorFormat.ColorsPerSuit; color++)
             AssertEqual(ReadNativeSuitColor(CartridgeImportSource.Require(bus), sourceAddresses[suit], color),
@@ -163,9 +163,9 @@ internal static class SamusSuitColorsVerification
             samus.EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment[suit]);
             samus.Presentation.LoadSuitPalette(samus, cgram.Samus);
             AssertEqual(edited.SamusSuitColors.Resolve(offsets[suit], 1),
-                cgram.Colors[SamusPaletteDefinitions.Common.SuitFirstColour + 1],
+                cgram.Samus.Suit[1],
                 $"edited suit {suit} reaches live Samus CGRAM");
-            AssertTrue(cgram.Colors[SamusPaletteDefinitions.Common.SuitFirstColour + 1] !=
+            AssertTrue(cgram.Samus.Suit[1] !=
                 original.SamusSuitColors.Resolve(offsets[suit], 1),
                 $"edited suit {suit} differs from stock");
         }
@@ -175,27 +175,27 @@ internal static class SamusSuitColorsVerification
         AssertTrue(samus.HorizontalSpeed.ApplyPendingNormalSuitPaletteRestore(
                 cgram.Samus, samus.EquippedItems, edited.SamusSuitColors),
             "momentum cancellation admits installed normal suit restoration");
-        AssertEqual(edited.SamusSuitColors.Resolve(2, 1),
-            cgram.Colors[SamusPaletteDefinitions.Common.SuitFirstColour + 1],
+        AssertEqual(edited.SamusSuitColors.Resolve(SamusSuit.Varia, 1),
+            cgram.Samus.Suit[1],
             "momentum cancellation preserves edited Varia color");
 
         samus.HurtFlashCounter = 2;
         // Overwrite the restored color first so only a real normal-suit reload passes.
-        ushort hurtRestoreSentinel = unchecked((ushort)(edited.SamusSuitColors.Resolve(2, 1).ToWord() ^ 0x7fff));
-        cgram.SetColor(SamusPaletteDefinitions.Common.SuitFirstColour + 1, RgbColor.FromWord(checked(hurtRestoreSentinel)));
+        ushort hurtRestoreSentinel = unchecked((ushort)(edited.SamusSuitColors.Resolve(SamusSuit.Varia, 1).ToWord() ^ 0x7fff));
+        cgram.Samus.Suit.Write(1, RgbColor.FromWord(checked(hurtRestoreSentinel)));
         SamusHurtFlashPalette.Update(
             cgram.Samus.Suit, samus, controllerInput: 0);
-        AssertTrue(cgram.Colors[SamusPaletteDefinitions.Common.SuitFirstColour + 1].ToWord() != hurtRestoreSentinel,
+        AssertTrue(cgram.Samus.Suit[1].ToWord() != hurtRestoreSentinel,
             "even hurt-flash frame restores the normal suit");
-        AssertEqual(edited.SamusSuitColors.Resolve(2, 1),
-            cgram.Colors[SamusPaletteDefinitions.Common.SuitFirstColour + 1],
+        AssertEqual(edited.SamusSuitColors.Resolve(SamusSuit.Varia, 1),
+            cgram.Samus.Suit[1],
             "hurt-flash recovery preserves edited Varia color");
 
         samus.EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.ScrewAttack);
         AssertTrue(samus.HorizontalSpeed.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = samus.EquippedItems }, suitColors: edited.SamusSuitColors),
             "Screw Attack recovery frame restores the normal suit");
-        AssertEqual(edited.SamusSuitColors.Resolve(2, 1),
-            cgram.Colors[SamusPaletteDefinitions.Common.SuitFirstColour + 1],
+        AssertEqual(edited.SamusSuitColors.Resolve(SamusSuit.Varia, 1),
+            cgram.Samus.Suit[1],
             "Screw Attack recovery preserves edited Varia color");
 
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
@@ -204,8 +204,8 @@ internal static class SamusSuitColorsVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        AssertEqual(edited.SamusSuitColors.Resolve(0, 1),
-            runtime.Colours.Colors[SamusPaletteDefinitions.Common.SuitFirstColour + 1],
+        AssertEqual(edited.SamusSuitColors.Resolve(SamusSuit.Power, 1),
+            runtime.Player.Colours.Suit[1],
             "installed production Ceres entry uses edited Power Suit color");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "installed normal suit paths do not reread the three cartridge palettes");

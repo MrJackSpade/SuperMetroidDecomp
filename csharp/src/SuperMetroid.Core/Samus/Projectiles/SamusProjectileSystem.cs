@@ -220,23 +220,19 @@ public sealed class SamusProjectileSystem
             if (chargePaletteActive)
             {
                 bool pseudoScrew = samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.PseudoScrew;
-                int suitOffset = ProjectileAnimation.GetSuitPaletteOffset(samus.EquippedItems);
-
-                // The installed path compiles the two list levels for bounded native offsets.
+                // The installed path compiles each suit's list for the bounded charge steps.
                 bool catalogued = samus.Presentation.ChargeColors is not null &&
-                    SamusChargePalettes.IsCompiledChargePhase(
-                        suitOffset, checked((ushort)Charge.SamusChargePaletteIndex));
+                    SamusChargePalettes.IsCompiledChargeStep(Charge.ChargePaletteStep);
                 if (!catalogued)
                     throw new InvalidDataException(
-                        $"Charge palette offset {Charge.SamusChargePaletteIndex} is not compiled.");
-                int paletteIndex = Charge.SamusChargePaletteIndex / 2;
+                        $"Charge palette step {Charge.ChargePaletteStep} is not compiled.");
                 (samus.Presentation.ChargeColors ?? throw new InvalidOperationException(
                     "Charge palette requires installed colors."))
-                    .ApplyCharge(colours, pseudoScrew, suitOffset / 2, paletteIndex);
+                    .ApplyCharge(colours, pseudoScrew, samus.EquippedItems.ShownSuit(), Charge.ChargePaletteStep);
 
-                Charge.SamusChargePaletteIndex = Charge.SamusChargePaletteIndex >= 10
+                Charge.ChargePaletteStep = Charge.ChargePaletteStep >= SamusChargePaletteDefinitions.ChargeSteps - 1
                     ? 0
-                    : unchecked((ushort)(Charge.SamusChargePaletteIndex + 2));
+                    : Charge.ChargePaletteStep + 1;
                 LastBeamChargePaletteStep = new(
                     pseudoScrew
                         ? SamusBeamChargePaletteAction.PseudoScrewCycle
@@ -247,7 +243,7 @@ public sealed class SamusProjectileSystem
             // `$91:D7B0` resets the sequence whenever charge is below threshold or grapple
             // owns its function pointer. This guarantees the next eligible call starts at
             // palette zero rather than resuming a partially completed cycle.
-            Charge.SamusChargePaletteIndex = 0;
+            Charge.ChargePaletteStep = 0;
             LastVisorPaletteStep = samus.VisorPalette.Update(
                 colours,
                 samus.Xray.SpecialPaletteKind,
@@ -732,7 +728,7 @@ public sealed class SamusProjectileSystem
         Charge.ClearFlare();
         LastBeamChargePaletteStep = default;
         LastVisorPaletteStep = default;
-        Charge.SamusChargePaletteIndex = 0;
+        Charge.ChargePaletteStep = 0;
     }
 
     /// <summary>

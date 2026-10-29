@@ -18,7 +18,7 @@ internal static class SamusPaletteNative
     /// <summary>Every cycle palette the catalog installs.</summary>
     internal static IEnumerable<SamusFullBodyCyclePalette> All =>
         from family in Enum.GetValues<SamusFullBodyCycleFamily>()
-        from suit in Enumerable.Range(0, SamusFullBodyCycleColorFormat.SuitCount)
+        from suit in SamusSuitDefinitions.ListOrder
         from shade in Enumerable.Range(0, SamusFullBodyCycleColorFormat.ShadesPerSuit)
         select new SamusFullBodyCyclePalette(family, suit, shade);
 
@@ -30,7 +30,7 @@ internal static class SamusPaletteNative
         SamusFullBodyCycleFamily.ActiveShinespark => 0x9c20,
         SamusFullBodyCycleFamily.ScrewAttack => 0x9ca0,
         _ => throw new ArgumentOutOfRangeException(nameof(palette)),
-    } + palette.Suit * SuitStride + palette.Shade * ShadeStride));
+    } + palette.Suit.ListPlace() * SuitStride + palette.Shade * ShadeStride));
 
     /// <summary>Whether a cycle palette is stored at bank-$9B <paramref name="address"/>.</summary>
     internal static bool IsCyclePalette(int address) => All.Any(palette => Address(palette) == address);
@@ -55,16 +55,41 @@ internal static class SamusPaletteNative
             return false;
         }
         int phase = phaseByteOffset / 2;
-        pointer = Address(new(family, suitByteOffset / 2,
+        pointer = Address(new(family, SuitAtTableByteOffset(suitByteOffset),
             shape == PaletteCycleShape.PingPong ? Math.Min(phase, 6 - phase) : phase));
         return true;
     }
+
+    /// <summary>The native suit-table byte offset of <paramref name="suit"/>: two bytes per suit, in list order.</summary>
+    internal static ushort SuitTableByteOffset(SamusSuit suit) => checked((ushort)(suit.ListPlace() * sizeof(ushort)));
+
+    /// <summary>The suit an even native suit-table byte offset selects.</summary>
+    internal static SamusSuit SuitAtTableByteOffset(int byteOffset) => (byteOffset & 1) == 0
+        ? SamusSuits.AtListPlace(byteOffset / sizeof(ushort))
+        : throw new ArgumentOutOfRangeException(nameof(byteOffset), byteOffset, "An odd suit-table offset selects no suit.");
+
+    /// <summary>The cycle step a native list byte offset selects; odd offsets straddle two entries.</summary>
+    internal static int StepAtByteOffset(int byteOffset) => (byteOffset & 1) == 0
+        ? byteOffset / sizeof(ushort)
+        : throw new InvalidDataException($"List read at odd byte {byteOffset} straddles two entries and selects no cycle palette.");
 
     /// <summary>The bank-$9B address of a found cycle palette, or zero when none was found.</summary>
     private static bool Pointer(bool found, SamusFullBodyCyclePalette palette, out ushort pointer)
     {
         pointer = found ? Address(palette) : (ushort)0;
         return found;
+    }
+
+    /// <summary>
+    /// The suit and cycle step a native suit-table byte offset and list byte offset name, or false when either is odd or
+    /// the suit offset is past the table.
+    /// </summary>
+    private static bool TryNativeSuitAndStep(ushort suitByteOffset, ushort phaseByteOffset, out SamusSuit suit, out int step)
+    {
+        bool valid = suitByteOffset <= 4 && (suitByteOffset & 1) == 0 && (phaseByteOffset & 1) == 0;
+        suit = valid ? SuitAtTableByteOffset(suitByteOffset) : default;
+        step = phaseByteOffset / sizeof(ushort);
+        return valid;
     }
 
     /// <summary>The normal suit palette the native suit table selects, by its bank-$9B address.</summary>
@@ -85,7 +110,7 @@ internal static class SamusPaletteNative
     {
         /// <summary>$91:D998: the special Super-palette flash's cycle palette pointer.</summary>
         internal static ushort SpeedBoostPalettePointer(ushort byteOffset) =>
-            Address(SamusFullBodyCyclePalettes.SpeedBoostPalette(byteOffset));
+            Address(SamusFullBodyCyclePalettes.SpeedBoostPalette(SuitAtTableByteOffset(byteOffset)));
 
         /// <summary>The Screw Attack palette pointer for a bounded suit and phase.</summary>
         internal static bool TryScrewAttackPalettePointer(ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
@@ -98,24 +123,33 @@ internal static class SamusPaletteNative
                 out pointer);
 
         /// <summary>The stored-shine palette pointer for a bounded suit and phase.</summary>
-        internal static bool TryStoredShinePalettePointer(ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
-            Pointer(SamusFullBodyCyclePalettes.TryStoredShinePalette(suitByteOffset, phaseByteOffset,
-                out SamusFullBodyCyclePalette palette), palette, out pointer);
+        internal static bool TryStoredShinePalettePointer(ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer)
+        {
+            SamusFullBodyCyclePalette palette = default;
+            bool found = TryNativeSuitAndStep(suitByteOffset, phaseByteOffset, out SamusSuit suit, out int step) &&
+                SamusFullBodyCyclePalettes.TryStoredShinePalette(suit, step, out palette);
+            return Pointer(found, palette, out pointer);
+        }
 
         /// <summary>The active-shinespark palette pointer for a bounded suit and phase.</summary>
-        internal static bool TryActiveShinesparkPalettePointer(ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
-            Pointer(SamusFullBodyCyclePalettes.TryActiveShinesparkPalette(suitByteOffset, phaseByteOffset,
-                out SamusFullBodyCyclePalette palette), palette, out pointer);
+        internal static bool TryActiveShinesparkPalettePointer(ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer)
+        {
+            SamusFullBodyCyclePalette palette = default;
+            bool found = TryNativeSuitAndStep(suitByteOffset, phaseByteOffset, out SamusSuit suit, out int step) &&
+                SamusFullBodyCyclePalettes.TryActiveShinesparkPalette(suit, step, out palette);
+            return Pointer(found, palette, out pointer);
+        }
 
         /// <summary>The Screw Attack list word read anywhere in its compiled allocation.</summary>
         internal static ushort ReadScrewAttackPalettePointer(ushort suitByteOffset, ushort phaseByteOffset) =>
-            Address(SamusFullBodyCyclePalettes.ReadScrewAttackPalette(suitByteOffset, phaseByteOffset));
+            Address(SamusFullBodyCyclePalettes.ReadScrewAttackPalette(SuitAtTableByteOffset(suitByteOffset),
+                StepAtByteOffset(phaseByteOffset)));
 
         /// <summary>The active Speed Booster list word read anywhere in its compiled allocation, or an overrun's operand.</summary>
         internal static ushort ReadActiveSpeedBoosterPalettePointer(ushort suitByteOffset, ushort phaseByteOffset)
         {
             SpeedBoosterPaletteSource source = SamusFullBodyCyclePalettes.ReadActiveSpeedBoosterPalette(
-                suitByteOffset, phaseByteOffset);
+                SuitAtTableByteOffset(suitByteOffset), StepAtByteOffset(phaseByteOffset));
             return source.Overrun switch
             {
                 SpeedBoosterPaletteOverrun.Expansion => 0x68ad,
@@ -137,7 +171,7 @@ internal static class SamusPaletteNative
         /// <summary>The bank-$9B address of a family's shade for a suit.</summary>
         internal static ushort Pointer(SamusFullBodyCycleFamily family, int suit, int shade) =>
             (uint)suit < SamusFullBodyCycleColorFormat.SuitCount && (uint)shade < SamusFullBodyCycleColorFormat.ShadesPerSuit
-                ? Address(new(family, suit, shade))
+                ? Address(new(family, SamusSuits.AtListPlace(suit), shade))
                 : throw new ArgumentOutOfRangeException(nameof(suit), "Suit and shade must be catalogued.");
 
         /// <summary>The artwork row of the cycle palette at bank-$9B <paramref name="pointer"/>.</summary>
@@ -160,7 +194,7 @@ internal static class SamusPaletteNative
         /// <summary>$91:D7D5: the charged-beam palette pointer for a suit and phase, shade sequence 0/1/2/3/2/1.</summary>
         internal static bool TryChargedBeam(ushort suitOffset, ushort phaseOffset, out ushort pointer)
         {
-            if (!SamusChargePalettes.IsCompiledChargePhase(suitOffset, phaseOffset))
+            if (!IsNativeChargePhase(suitOffset, phaseOffset))
             {
                 pointer = 0;
                 return false;
@@ -173,16 +207,21 @@ internal static class SamusPaletteNative
         /// <summary>$91:D7FF: the pseudo-screw palette pointer, the active-shinespark shade three then the normal suit.</summary>
         internal static bool TryPseudoScrew(ushort suitOffset, ushort phaseOffset, out ushort pointer)
         {
-            if (!SamusChargePalettes.IsCompiledChargePhase(suitOffset, phaseOffset))
+            if (!IsNativeChargePhase(suitOffset, phaseOffset))
             {
                 pointer = 0;
                 return false;
             }
             pointer = phaseOffset / sizeof(ushort) < 3
-                ? Address(new(SamusFullBodyCycleFamily.ActiveShinespark, suitOffset / sizeof(ushort), 3))
+                ? Address(new(SamusFullBodyCycleFamily.ActiveShinespark, SuitAtTableByteOffset(suitOffset), 3))
                 : SamusPaletteDefinitions.Common.NormalSuitPalettePointer(suitOffset);
             return true;
         }
+
+        /// <summary>Whether a native suit offset and charge byte offset name one of the six steps of a suit's list.</summary>
+        private static bool IsNativeChargePhase(ushort suitOffset, ushort phaseOffset) =>
+            suitOffset <= 4 && (suitOffset & 1) == 0 && (phaseOffset & 1) == 0 &&
+            SamusChargePalettes.IsCompiledChargeStep(phaseOffset / sizeof(ushort));
 
         /// <summary>$91:D829: the Hyper-shot glow palette pointer, frames nine down to zero.</summary>
         internal static bool TryHyperShot(ushort tableOffset, out ushort pointer)

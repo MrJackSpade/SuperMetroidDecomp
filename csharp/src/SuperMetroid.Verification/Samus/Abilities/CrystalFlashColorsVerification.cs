@@ -89,8 +89,8 @@ internal static class CrystalFlashColorsVerification
             AssertEqual(nativeSamus.CrystalFlash.BodyPaletteRecordOffset,
                 samus.CrystalFlash.BodyPaletteRecordOffset,
                 $"color edit preserves body cursor on call {call}");
-            AssertEqual(nativeSamus.CrystalFlash.SpecialPaletteFrame,
-                samus.CrystalFlash.SpecialPaletteFrame,
+            AssertEqual(nativeSamus.CrystalFlash.BubbleStep,
+                samus.CrystalFlash.BubbleStep,
                 $"color edit preserves bubble cursor on call {call}");
             int bodyFrame = call / duration;
             int bubbleFrame = call / 5 % CrystalFlashColorFormat.BubbleFrameCount;

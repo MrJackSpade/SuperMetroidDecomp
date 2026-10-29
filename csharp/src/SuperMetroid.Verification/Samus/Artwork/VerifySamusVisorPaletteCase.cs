@@ -1,6 +1,6 @@
 namespace SuperMetroid.Verification.Samus.Artwork;
 
-/// <summary>The timer and palette byte offset of one verify samus visor palette case.</summary>
+/// <summary>The timer and next visor shade of one verify samus visor palette case.</summary>
 /// <param name="Timer">The timer.</param>
-/// <param name="PaletteByteOffset">The palette byte offset.</param>
-internal readonly record struct VerifySamusVisorPaletteCase(int Timer, int PaletteByteOffset);
+/// <param name="NextShade">The visor shade shown next.</param>
+internal readonly record struct VerifySamusVisorPaletteCase(int Timer, int NextShade);

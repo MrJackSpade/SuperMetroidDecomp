@@ -5,7 +5,6 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Death;
 
@@ -289,17 +288,15 @@ public sealed class SamusDeathSequenceState
         int paletteIndex,
         InstalledSamusDeathPalettes? artwork)
     {
-        // SuitPaletteIndex is 0/2/4. Multiplying it by ten skips each twenty-byte pointer
-        // family (ten little-endian pointers) and exactly reproduces `$9B:B5D1-$B5E6`.
-        int suitIndex = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit) ? 4 :
-            samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? 2 : 0;
+        // Each suit's ten death palettes follow the previous suit's, as `$9B:B5D1-$B5E6` selects them.
+        int suitList = samus.EquippedItems.ShownSuit().ListPlace();
         if (artwork is not null)
         {
             for (int color = 0; color < InstalledSamusDeathPalettes.ColorCount; color++)
             {
                 samusColours.Suit.Write(color,
-                    artwork.SuitedColor(suitIndex / 2, paletteIndex, color));
-                colours.SpriteSets.Set(SamusColourDefinitions.SuitlessSpriteSet).Write(color,
+                    artwork.SuitedColor(suitList, paletteIndex, color));
+                samusColours.Suitless.Write(color,
                     artwork.SuitlessColor(paletteIndex, color));
             }
             return;

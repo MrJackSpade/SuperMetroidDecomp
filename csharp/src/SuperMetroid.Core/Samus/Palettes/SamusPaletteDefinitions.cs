@@ -13,12 +13,8 @@ public static class SamusPaletteDefinitions
     /// <summary>Shared full-body OBJ palette layout and suit selection table.</summary>
     public static class Common
     {
-        /// <summary>The gameplay colour position of the first colour of Samus's suit row, sprite colour set four.</summary>
-        public const int SuitFirstColour = 192;
-        /// <summary>The colours in one colour row.</summary>
+        /// <summary>The colours in each of Samus's colour sets: her suit's, her beams' and every palette her effects show.</summary>
         public const int ColoursPerRow = 16;
-        /// <summary>Samus-palette-relative visor color index.</summary>
-        public const int VisorColorOffset = 4;
     }
 
     /// <summary>Shared visor colors used by room animation and the X-ray Scope.</summary>
@@ -26,10 +22,10 @@ public static class SamusPaletteDefinitions
     {
         /// <summary>Timer reloaded after one visor color is copied.</summary>
         public const ushort FrameDelay = 5;
-        /// <summary>First byte offset in the three-color steady visor cycle.</summary>
-        public const byte CycleFirstByteOffset = 6;
-        /// <summary>Exclusive byte offset ending the three-color steady visor cycle.</summary>
-        public const byte CycleEndByteOffset = 12;
+        /// <summary>The first visor shade of the three-shade steady visor cycle; the shades before it widen the X-ray beam.</summary>
+        public const int CycleFirstShade = 3;
+        /// <summary>The visor shade count, which ends the steady visor cycle.</summary>
+        public const int CycleEndShade = 6;
     }
 
     /// <summary>The suit-and-phase lists the special full-body palette handlers select their cycle palettes from.</summary>
@@ -37,6 +33,30 @@ public static class SamusPaletteDefinitions
     {
         /// <summary>Number of full-body Hyper Beam palettes.</summary>
         public const int HyperBeamPaletteCount = 10;
+        /// <summary>The steps in each suit's Screw Attack cycle list; the cycle wraps to its first step after the last.</summary>
+        public const int ScrewAttackSteps = 6;
+        /// <summary>The steps in each suit's active Speed Booster cycle list.</summary>
+        public const int SpeedBoosterSteps = 4;
+        /// <summary>The Speed Booster step the cycle holds once reached: its list's last.</summary>
+        public const int SpeedBoosterLastStep = SpeedBoosterSteps - 1;
+        /// <summary>The steps in each suit's stored-shine cycle list.</summary>
+        public const int StoredShineSteps = 6;
+        /// <summary>The steps in each suit's active-shinespark cycle list.</summary>
+        public const int ActiveShinesparkSteps = 4;
+        /// <summary>The step count a ping-pong cycle mirrors across: step <c>s</c> past the middle shows shade <c>PingPongSpan - s</c>.</summary>
+        public const int PingPongSpan = 6;
+        /// <summary>The Speed Booster shade the Metroid-attachment flash alternates with the normal suit: the family's brightest.</summary>
+        public const int SpeedBoostFlashShade = 3;
+        /// <summary>
+        /// The Speed Booster step, inherited from a Screw Attack cycle, at which Gravity's read runs past the lists into
+        /// the unconnected expansion window.
+        /// </summary>
+        public const int GravityExpansionOverrunStep = 4;
+        /// <summary>
+        /// The Speed Booster step, inherited from a Screw Attack cycle, at which Gravity's read runs past the lists into
+        /// the grapple handler's code.
+        /// </summary>
+        public const int GravityGrappleCodeOverrunStep = 5;
     }
 
     /// <summary>Bank-$8D palette object spawned with the Hyper Beam.</summary>

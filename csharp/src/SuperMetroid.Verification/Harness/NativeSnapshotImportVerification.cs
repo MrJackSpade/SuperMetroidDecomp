@@ -150,7 +150,10 @@ internal static class NativeSnapshotImportVerification
         runtime.Projectiles.Charge.PreviousBeamChargeCounter = W(NativeSnapshotMemory.PreviousCharge);
         runtime.Projectiles.Firing.ProjectileInvincibilityTimer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.ProjectileInteractionImmunity));
         runtime.Projectiles.Charge.ChargedShotGlowTimer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.ChargedShotGlow));
-        runtime.Projectiles.Charge.SamusChargePaletteIndex = W(NativeSnapshotMemory.ChargePaletteIndex);
+        int chargePaletteByteOffset = W(NativeSnapshotMemory.ChargePaletteIndex);
+        runtime.Projectiles.Charge.ChargePaletteStep = (chargePaletteByteOffset & 1) == 0
+            ? chargePaletteByteOffset / sizeof(ushort)
+            : throw new InvalidDataException($"Native charge palette byte offset {chargePaletteByteOffset} names no step.");
         runtime.BombProjectiles.BombCounter = W(NativeSnapshotMemory.BombCount);
         samus.BombSpreadChargeTimeoutCounter = W(NativeSnapshotMemory.BombSpreadChargeTimeout);
         samus.PoseTransitionShotDirection = W(NativeSnapshotMemory.PoseShotDirection);

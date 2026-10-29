@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Palettes;
 
 namespace SuperMetroid.Core.Samus.Abilities;
@@ -35,7 +34,7 @@ public static class SamusSpecialSuperPalette
             (samus.Presentation.FullBodyCycleColors ?? throw new InvalidOperationException(
                 "Metroid-attachment palette requires installed Samus full-body cycle colors."))
                 .Apply(colours, SamusFullBodyCyclePalettes.SpeedBoostPalette(
-                    samus.EquippedItems.GetSuitPaletteTableOffset()));
+                    samus.EquippedItems.ShownSuit()));
         // The phase is below the drained branch here, so advancing it never wraps.
         samus.SpecialSuperPaletteFlags = phase + 1;
         return true;

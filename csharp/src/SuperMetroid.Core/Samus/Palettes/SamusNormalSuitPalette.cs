@@ -4,34 +4,32 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Palettes;
 
-/// <summary>Shared normal-suit CGRAM copy; every owner uses the same selected visual source.</summary>
+/// <summary>Shared normal-suit colour restore; every owner shows the same selected suit colours.</summary>
 public static class SamusNormalSuitPalette
 {
-    /// <summary>Restores Samus's sixteen normal OBJ palette colors from installed artwork, selecting Gravity before Varia before Power without changing equipment or animation state.</summary>
+    /// <summary>Restores Samus's sixteen normal suit colours from installed artwork for the suit her equipment shows, without changing equipment or animation state.</summary>
     /// <param name="suit">Samus's suit colours, all sixteen of which change.</param>
-    /// <param name="equippedItems">Native equipped-item bitfield; only the Gravity/Varia suit bits select the normal palette.</param>
-    /// <param name="colors">Required installed suit-color catalog; displayed words may differ from stock cartridge colors.</param>
-    /// <exception cref="ArgumentNullException">CGRAM is null.</exception>
+    /// <param name="equippedItems">Samus's equipment; only the Gravity and Varia suits choose the suit shown.</param>
+    /// <param name="colors">Required installed suit-color catalog; displayed colours may differ from stock cartridge colors.</param>
     /// <exception cref="InvalidOperationException">Installed suit colors are absent.</exception>
-    public static void Load(ColourRun suit, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
+    public static void Load(ColourRun suit, SamusEquipmentFlags equippedItems,
         InstalledSamusSuitColors? colors)
     {
         if (colors is null)
             throw new InvalidOperationException(
                 "Normal suit palette requires installed Samus suit colors.");
-        colors.Apply(suit, equippedItems.GetSuitPaletteTableOffset());
+        colors.Apply(suit, equippedItems.ShownSuit());
     }
 
-    /// <summary>Restores the installed normal Power-suit colors to Samus's sixteen OBJ palette slots regardless of equipped suit flags, without changing gameplay state.</summary>
+    /// <summary>Restores the installed normal Power-suit colours regardless of equipped suits, without changing gameplay state.</summary>
     /// <param name="suit">Samus's suit colours, all sixteen of which change.</param>
-    /// <param name="colors">Required installed normal-suit artwork; selects its Power palette at native table offset zero.</param>
-    /// <exception cref="ArgumentNullException">CGRAM is null.</exception>
+    /// <param name="colors">Required installed normal-suit artwork.</param>
     /// <exception cref="InvalidOperationException">Installed suit colors are absent.</exception>
     public static void LoadPower(ColourRun suit, InstalledSamusSuitColors? colors)
     {
         if (colors is null)
             throw new InvalidOperationException(
                 "Power suit palette requires installed Samus suit colors.");
-        colors.Apply(suit, 0);
+        colors.Apply(suit, SamusSuit.Power);
     }
 }

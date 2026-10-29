@@ -53,7 +53,7 @@ internal sealed class BeamFiring
     /// </summary>
     public void ConsumePseudoScrewCharge(SamusColours colours, SamusState samus)
     {
-        _charge.SamusChargePaletteIndex = 0;
+        _charge.ChargePaletteStep = 0;
         _charge.FlareCounter = 0;
         samus.ProjectileFlareCounter = 0;
         _animation.ClearFlareAnimationState();

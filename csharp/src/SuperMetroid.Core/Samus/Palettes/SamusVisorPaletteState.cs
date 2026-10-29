@@ -2,20 +2,19 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
 
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Samus.Palettes;
 
 /// <summary>
 /// Room visor-colour animation run by <c>HandleVisorPalette</c> at <c>$91:D83F-$91:D8A4</c>: a countdown of
-/// palette-handler calls and the byte offset of the next visor colour.
+/// palette-handler calls and the visor shade shown next.
 /// </summary>
 /// <remarks>
 /// This is intentionally not a generic color tween. In rooms whose default layer-blending configuration animates
-/// the visor, the routine rotates only Samus OBJ palette-four color four through the last three of the six visor
-/// colours. The countdown and the offset are only ever set by this type: the reset installs countdown one at offset
-/// six, and every expiry reloads the countdown to the frame delay and moves the offset through six, eight and ten.
-/// The countdown therefore holds one through the frame delay between calls and never decrements from zero, which is
-/// why the cartridge's word-wide decrement of the two adjacent bytes never borrows into the offset.
+/// the visor, the routine rotates only Samus's visor colour through the last three of the six visor shades. The
+/// countdown and the shade are only ever set by this type: the reset installs countdown one at the cycle's first shade,
+/// and every expiry reloads the countdown to the frame delay and moves through the cycle's three shades. The countdown
+/// therefore holds one through the frame delay between calls and never decrements from zero, which is why the
+/// cartridge's word-wide decrement of the countdown and the shade beside it never borrows into the shade.
 /// </remarks>
 public sealed class SamusVisorPaletteState
 {
@@ -33,13 +32,13 @@ public sealed class SamusVisorPaletteState
     public int Timer { get; private set; } = ResetTimer;
 
     /// <summary>
-    /// Byte offset of the next visor colour in the six-colour visor table: six, eight or ten, the three
-    /// room-cycle colours. It is a byte offset, not an ordinal.
+    /// The visor shade shown next: one of the steady cycle's three, from
+    /// <see cref="SamusPaletteDefinitions.Visor.CycleFirstShade"/> up to the shade count.
     /// </summary>
-    public int PaletteByteOffset { get; private set; } = SamusPaletteDefinitions.Visor.CycleFirstByteOffset;
+    public int NextShade { get; private set; } = SamusPaletteDefinitions.Visor.CycleFirstShade;
 
     /// <summary>
-    /// Advances one palette-handler call and optionally writes CGRAM color 196.
+    /// Advances one palette-handler call and optionally shows the next shade as Samus's visor colour.
     /// </summary>
     public SamusVisorPaletteStepResult Update(
         SamusColours colours,
@@ -49,7 +48,7 @@ public sealed class SamusVisorPaletteState
         Ensure.NotNull(colours);
 
         // X-ray handler eight owns this same visor color. `$91:D842` returns immediately,
-        // preserving the countdown and offset so ordinary room animation resumes where it stopped.
+        // preserving the countdown and shade so ordinary room animation resumes where it stopped.
         if (specialSamusPaletteType == SamusSpecialPaletteType.Xray)
         {
             return new SamusVisorPaletteStepResult();
@@ -57,11 +56,11 @@ public sealed class SamusVisorPaletteState
 
         // Every other room resets the animation on every call. Besides disabling the animation,
         // this primes an immediate color write on the first call after entering a backdrop-
-        // color-math room: countdown one expires before the table is consulted.
+        // color-math room: countdown one expires before the shade is consulted.
         if (!layerBlendingDefaultConfig.AnimatesVisor())
         {
             Timer = ResetTimer;
-            PaletteByteOffset = SamusPaletteDefinitions.Visor.CycleFirstByteOffset;
+            NextShade = SamusPaletteDefinitions.Visor.CycleFirstShade;
             return new SamusVisorPaletteStepResult();
         }
 
@@ -71,27 +70,25 @@ public sealed class SamusVisorPaletteState
             return new SamusVisorPaletteStepResult();
         }
 
-        // `$91:D864` reloads the expired countdown to the frame delay and keeps the table offset.
+        // `$91:D864` reloads the expired countdown to the frame delay and keeps the shade.
         Timer = SamusPaletteDefinitions.Visor.FrameDelay;
-        int sourceOffset = PaletteByteOffset;
-        if (PresentationColors is null ||
-            !PresentationColors.TryResolveByteOffset(sourceOffset, out RgbColor color))
-            throw new InvalidDataException($"Visor palette offset {sourceOffset} has no installed color.");
-        colours.Visor.Write(0, color);
+        int shade = NextShade;
+        colours.ShowVisor((PresentationColors ?? throw new InvalidDataException(
+            $"Visor shade {shade} has no installed color.")).Resolve(shade));
 
-        // Only offsets 6, 8, and 10 belong to the room-backdrop cycle. Offsets 0/2/4 are
-        // X-ray widening colors and are selected by the separate X-ray palette handler.
-        int nextOffset = sourceOffset + 2;
-        PaletteByteOffset = nextOffset < SamusPaletteDefinitions.Visor.CycleEndByteOffset
-            ? nextOffset
-            : SamusPaletteDefinitions.Visor.CycleFirstByteOffset;
+        // Only the cycle's three shades belong to the room-backdrop cycle. The shades before
+        // them are X-ray widening colors and are selected by the separate X-ray palette handler.
+        int nextShade = shade + 1;
+        NextShade = nextShade < SamusPaletteDefinitions.Visor.CycleEndShade
+            ? nextShade
+            : SamusPaletteDefinitions.Visor.CycleFirstShade;
 
         return new SamusVisorPaletteStepResult();
     }
 
     /// <summary>
     /// One call's countdown step. The countdown is one or more on every call (see the remarks), so the step never
-    /// reaches the cartridge's borrow into the offset byte; a zero countdown is a broken invariant and fails.
+    /// reaches the cartridge's borrow into the shade; a zero countdown is a broken invariant and fails.
     /// </summary>
     private static int DecrementTimer(int timer)
     {

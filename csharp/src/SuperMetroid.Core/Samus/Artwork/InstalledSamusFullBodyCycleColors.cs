@@ -214,7 +214,7 @@ public sealed class InstalledSamusFullBodyCycleColors
         return value;
     }
 
-    /// <summary>Copies sixteen display colors to Samus OBJ palette four.</summary>
+    /// <summary>Shows the cycle palette's sixteen colours as Samus's suit colours.</summary>
     public void Apply(SamusColours colours, SamusFullBodyCyclePalette palette)
     {
         Ensure.NotNull(colours);

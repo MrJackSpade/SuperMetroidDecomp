@@ -707,7 +707,7 @@ empty, screwRepeat, ControllerButton.A, 0, ControllerButton.A);
         AssertEqual(unchecked((ushort)(0x1200 + Math.Min(frame, 6 - frame))), cgram.Colors[192],
             $"Screw palette frame {frame} ROM color");
     }
-    AssertEqual(0, palettes.SpecialPaletteFrame, "six Screw palettes wrap to offset zero");
+    AssertEqual(0, palettes.CyclePaletteStep, "six Screw palettes wrap to step zero");
 
     // A Screw landing requests the same normal palette reload performed by `$91:F433`.
     SamusPoseTransitions.ApplyAerialLanding(screwRepeat, wasSpinning: true);

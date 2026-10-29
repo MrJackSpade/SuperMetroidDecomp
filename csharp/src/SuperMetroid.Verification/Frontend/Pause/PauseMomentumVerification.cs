@@ -21,7 +21,7 @@ internal static class PauseMomentumVerification
                 BaseSpeed = new UnsignedSixteenSixteen(1, 0x4000),
                 ExtraRunSpeed = new UnsignedSixteenSixteen(2, 0x8000),
                 SpeedBoostCounter = new SamusSpeedBoostCounter(0x0402),
-                SpecialPaletteFrame = 6,
+                CyclePaletteStep = 3,
                 SpecialPaletteTimer = WrappingCountdown.Start(3),
             };
             // Populate both echo slots through their production capture path, then
@@ -41,7 +41,7 @@ internal static class PauseMomentumVerification
             AssertEqual(expectedCounter, speed.SpeedBoostCounter.RawValue, "unpause preserves, arms or clears boost countdown");
             if (!equipped)
             {
-                AssertEqual(0, speed.SpecialPaletteFrame, "unpause clears boost palette frame");
+                AssertEqual(0, speed.CyclePaletteStep, "unpause clears boost palette frame");
                 AssertEqual(0, speed.SpecialPaletteTimer.RawValue, "unpause clears boost palette timer");
                 AssertEqual(0, speed.SpeedEchoIndex, "unpause resets echo index without departure mode");
                 AssertTrue(speed.FirstSpeedEchoPosition.X == 0 && speed.SecondSpeedEchoPosition.X == 0 &&
@@ -50,7 +50,7 @@ internal static class PauseMomentumVerification
             }
             else if (momentum && counter == 0)
             {
-                AssertEqual(0, speed.SpecialPaletteFrame, "newly enabled boost resets palette frame");
+                AssertEqual(0, speed.CyclePaletteStep, "newly enabled boost resets palette frame");
                 AssertEqual(0, speed.SpecialPaletteTimer.RawValue, "unpause arms boost with native zero palette timer");
             }
         }

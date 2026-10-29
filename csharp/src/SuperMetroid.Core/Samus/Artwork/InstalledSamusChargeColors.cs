@@ -53,15 +53,15 @@ public sealed class InstalledSamusChargeColors
         return hyperShot.Resolve(SamusChargeColorFormat.HyperFrameCount - 1 - frame, color);
     }
 
-    /// <summary>Installs all sixteen selected charge or pseudo-Screw inks at CGRAM 192–207, including the retained transparent-slot word; charge admission and phase advancement remain Samus behavior.</summary>
-    /// <param name="colours">Current Samus OBJ palette destination.</param>
+    /// <summary>Shows all sixteen selected charge or pseudo-Screw inks as Samus's suit colours, including the retained transparent-slot word; charge admission and phase advancement remain Samus behavior.</summary>
+    /// <param name="colours">Samus's colours, whose suit colours change.</param>
     /// <param name="pseudo">True for pseudo-Screw's bright/normal holds; false for the charged-beam whitening pulse.</param>
-    /// <param name="suit">Suit index: Power 0, Varia 1, Gravity 2.</param>
+    /// <param name="suit">The suit Samus shows.</param>
     /// <param name="phase">Playback phase 0–5; stock charge shades follow 0/1/2/3/2/1, while pseudo-Screw holds bright for 0–2 and normal for 3–5.</param>
-    public void ApplyCharge(SamusColours colours, bool pseudo, int suit, int phase) =>
-        Apply(colours, pseudo ? pseudoScrew : chargedBeam, suit, phase);
+    public void ApplyCharge(SamusColours colours, bool pseudo, SamusSuit suit, int phase) =>
+        Apply(colours, pseudo ? pseudoScrew : chargedBeam, suit.ListPlace(), phase);
 
-    /// <summary>Installs all sixteen Hyper-shot inks at CGRAM 192–207 for playback frame 0–9; shot-glow timing and the native decrementing palette cursor remain engine-owned.</summary>
+    /// <summary>Shows all sixteen Hyper-shot inks as Samus's suit colours for playback frame 0–9; shot-glow timing and the native decrementing palette cursor remain engine-owned.</summary>
     public void ApplyHyper(SamusColours colours, int frame)
     {
         Ensure.NotNull(colours);

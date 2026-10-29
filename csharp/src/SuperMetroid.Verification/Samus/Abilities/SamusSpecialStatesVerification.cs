@@ -161,8 +161,8 @@ internal static void VerifySamusCrystalFlash()
         "Crystal Flash body timer comes from interleaved ROM record");
     AssertEqual(4, samus.CrystalFlash.BodyPaletteRecordOffset,
         "Crystal Flash body record advances four bytes");
-    AssertEqual(2, samus.HorizontalSpeed.SpecialPaletteFrame,
-        "Crystal Flash publishes aliased $0ACE palette frame");
+    AssertEqual(1, samus.HorizontalSpeed.CyclePaletteStep,
+        "Crystal Flash publishes its bubble step into the shared cycle step");
     AssertEqual(4, samus.HorizontalSpeed.SpecialPaletteTimer.RawValue,
         "Crystal Flash publishes aliased $0AD0 record offset");
 
@@ -437,11 +437,11 @@ internal static void VerifySamusXray()
         "generic animation follows X-ray movement timer write");
 
     // Palette handler eight runs in the palette-FX phase. Timer one expires immediately,
-    // writes only visor color four, advances byte offset zero to two, and reloads five.
+    // writes only the visor colour, advances shade zero to one, and reloads five.
     AssertTrue(standing.Xray.UpdatePalette(cgram.Samus, standing.EquippedItems, xraySuitColors),
         "X-ray widening palette writes first visor color");
-    AssertEqual(0x3be0, cgram.Colors[196], "first widening visor color");
-    AssertEqual(2, standing.Xray.SpecialPaletteFrame, "widening palette offset advances");
+    AssertEqual(0x3be0, cgram.Samus.Visor, "first widening visor color");
+    AssertEqual(1, standing.Xray.VisorShade, "widening visor shade advances");
     AssertEqual(XrayScopeDefinitions.Palette.FrameDelay, standing.Xray.CommonPaletteTimer.RawValue,
         "widening palette timer reload");
 
@@ -495,8 +495,8 @@ internal static void VerifySamusXray()
     AssertTrue(standing.Xray.UpdatePalette(cgram.Samus, standing.EquippedItems, xraySuitColors),
         "full beam enters visor cycle");
     AssertEqual(XrayVisorPaletteMode.FullBeam, standing.Xray.VisorPaletteMode, "full beam palette mode");
-    AssertEqual(0x43ff, cgram.Colors[196], "first full-beam visor color");
-    AssertEqual(8, standing.Xray.SpecialPaletteFrame, "full-beam palette offset advances");
+    AssertEqual(0x43ff, cgram.Samus.Visor, "first full-beam visor color");
+    AssertEqual(4, standing.Xray.VisorShade, "full-beam visor shade advances");
 
     // Full-beam aiming moves one angle unit per call and Up wins over Down. Width ten clamps
     // the right-facing center at angle ten, so 80 calls cannot wrap into left-facing space.

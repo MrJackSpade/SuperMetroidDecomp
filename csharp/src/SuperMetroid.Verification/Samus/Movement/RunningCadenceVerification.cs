@@ -141,11 +141,11 @@ internal static class RunningCadenceVerification
         speed.HandleExtraRunSpeed(SamusMovementType.Running, ControllerButton.B, true);
         AssertEqual(1, speed.SpeedBoostCounter.RawValue, "First running frame seeds native countdown");
         AssertEqual(0x1000, speed.ExtraRunSpeed.Fraction, "Cadence migration leaves run acceleration intact");
-        speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0); speed.SpecialPaletteTimer = WrappingCountdown.Start(8); speed.SpecialPaletteFrame = 6;
+        speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0); speed.SpecialPaletteTimer = WrappingCountdown.Start(8); speed.CyclePaletteStep = 3;
         speed.ReconcilePauseSpeedBoosterState(true);
         AssertEqual(1, speed.SpeedBoostCounter.RawValue, "Pause equipment reconciliation seeds native countdown");
         AssertEqual(0, speed.SpecialPaletteTimer.RawValue, "Pause reconciliation palette timer differs from initial run");
-        AssertEqual(0, speed.SpecialPaletteFrame, "Pause reconciliation palette frame reset");
+        AssertEqual(0, speed.CyclePaletteStep, "Pause reconciliation palette frame reset");
         Console.WriteLine("Running cadence: 90 bounded bytes, all native Max6 selections, 10240 command/gate cases, 1536 sound-return words, mutable stage-five alias, and loud non-native rejection pass.");
     }
 

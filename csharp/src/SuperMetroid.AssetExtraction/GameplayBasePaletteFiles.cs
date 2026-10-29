@@ -93,10 +93,14 @@ public static class GameplayBasePaletteFiles
             json, GameplayBasePaletteFormat.JsonOptions, "gameplay base palette");
         if (document.Version != GameplayBasePaletteFormat.Version)
             throw new InvalidDataException("Gameplay base palette has an unsupported version.");
-        return new GameplayBasePalette(
-            Compile(document.Initial, CgramPalettes.ColorCount, "initial"),
-            Compile(document.CommonSprites, GameplayBasePaletteFormat.SpriteColorCount,
-                "commonSprites"));
+        RgbColor[] initial = Compile(document.Initial, CgramPalettes.ColorCount, "initial");
+        RgbColor[] commonSprites = Compile(document.CommonSprites, GameplayBasePaletteFormat.SpriteColorCount, "commonSprites");
+        return new GameplayBasePalette(GameplayColourImage.Decode(initial), commonSprites,
+            SelectedPresentationHash.Create(nameof(GameplayBasePalette), content =>
+            {
+                content.AppendColors("initial", initial);
+                content.AppendColors("common sprites", commonSprites);
+            }));
     }
 
     /// <summary>Validates and serializes a gameplay base-palette document as JSON.</summary>
@@ -135,10 +139,11 @@ public static class GameplayBasePaletteFiles
         var document = new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
             ReadColors(bus, GameplayBasePaletteSourceDefinitions.InitialPalette, CgramPalettes.ColorCount),
             ReadColors(bus, GameplayBasePaletteSourceDefinitions.CommonSpritePalette, GameplayBasePaletteFormat.SpriteColorCount));
-        GameplayBasePalette catalog = Read(new MemoryStream(Write(document), writable: false));
+        _ = Read(new MemoryStream(Write(document), writable: false));
+        RgbColor[] initial = Compile(document.Initial, CgramPalettes.ColorCount, "initial");
         int first = FirstSpriteColour;
-        RgbColor[] colours = catalog.initial.AsSpan(first, CgramPalettes.ColorCount - first).ToArray();
-        catalog.commonSprites.CopyTo(colours, 0);
+        RgbColor[] colours = initial.AsSpan(first, CgramPalettes.ColorCount - first).ToArray();
+        Compile(document.CommonSprites, GameplayBasePaletteFormat.SpriteColorCount, "commonSprites").CopyTo(colours, 0);
         return colours;
     }
 

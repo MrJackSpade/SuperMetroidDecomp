@@ -413,8 +413,8 @@ public sealed class RoomPaletteFxSystem
         PaletteFxColours animated = slot.Target ?? throw new InvalidOperationException(
             $"Palette-FX object {slot.Object} showed record {frame.Record} before its program named the colours it animates.");
         PaletteFxColourPlacement placement = PaletteFxColourPlacementDefinitions.Placements[animated];
-        ColourRun target = owners.Colours(placement.Owner);
-        int colorIndex = placement.Colour;
+        ColourRun target = placement.From(owners);
+        int colorIndex = 0;
         int written = 0;
         foreach (PaletteFxRecordPart part in PaletteFxRecordDefinitions.Layout(frame))
         {
@@ -430,7 +430,7 @@ public sealed class RoomPaletteFxSystem
                 if (colorIndex >= target.Count)
                 {
                     throw new InvalidDataException(
-                        $"Palette-FX object {slot.Object} wrote {animated} past {placement.Owner}'s colours.");
+                        $"Palette-FX object {slot.Object} wrote {animated} past the colours of its owner, {placement}.");
                 }
                 target.Write(colorIndex, color);
                 colorIndex++;

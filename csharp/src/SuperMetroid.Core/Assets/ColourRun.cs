@@ -50,6 +50,17 @@ public readonly struct ColourRun
         return new ColourRun(colours, First + start, count);
     }
 
+    /// <summary>
+    /// The run's colours from colour <paramref name="colour"/> of its set <paramref name="set"/> to its last, the run
+    /// holding whole colour sets set after set.
+    /// </summary>
+    public ColourRun FromSet(int set, int colour)
+    {
+        ColourRun sets = Slice(Ensure.BetweenInclusive(0, Count / ColourSets.SetColours - 1, set) * ColourSets.SetColours,
+            Count - set * ColourSets.SetColours);
+        return sets.Slice(Ensure.BetweenInclusive(0, ColourSets.SetColours - 1, colour), sets.Count - colour);
+    }
+
     /// <summary>The colours at the run's positions in <paramref name="ownerColours"/>, colours laid out as its owner's.</summary>
     public ReadOnlySpan<RgbColor> SamePositionsIn(ReadOnlySpan<RgbColor> ownerColours)
     {

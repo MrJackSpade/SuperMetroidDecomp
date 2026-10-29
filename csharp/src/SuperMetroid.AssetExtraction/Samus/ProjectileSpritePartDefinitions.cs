@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -36,8 +36,8 @@ public static class ProjectileSpritePartDefinitions
     internal const int PowerPalette = SamusColourDefinitions.BeamInkRow;
 
     /// <summary>$82:E13E-E148 restores9A:81A0 at SpriteP5/CGRAM208. Fixed projectile artwork selects that installed sixteen-color row; its color payload remains required.</summary>
-    internal const int FixedProjectilePalette = (GameplayBasePaletteFormat.EnemyProjectileInitialColor - GameplayColours.ColorCount / 2) /
-        GameplayBasePaletteFormat.SpriteColorCount;
+    internal const int FixedProjectilePalette = (GameplayColourPositionDefinitions.EnemyProjectilesFirst - GameplayColourPositionDefinitions.SpriteSetsFirst) /
+        GameplayColourPositionDefinitions.SetColours;
 
     /// <summary>$93:ADDC/ADF9: independently selected horizontal/vertical SuperMissile glyph roots and priority. These artwork inputs remain required under frames; palette selects the installed fixed-projectile CGRAM row.</summary>
     internal const int SuperMissileHorizontalGlyph = 0x65;

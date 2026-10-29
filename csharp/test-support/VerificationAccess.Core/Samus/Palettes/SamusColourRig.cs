@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -7,8 +6,10 @@ using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Samus.Palettes;
 
 /// <summary>
-/// Gameplay's colours as a check reads them back by position, with Samus's held by her own colours (#1405): her
-/// effects write <see cref="Samus"/>, and the check reads every colour, hers among them, through the router.
+/// Gameplay's owner-keyed colours with Samus's own, as a check reads and writes them by native position (#1405, #1464):
+/// her effects write <see cref="Samus"/>, and the check addresses every colour, hers among them, at the native boundary.
+/// A read or write of one position touches only the owner colour it decodes to; <see cref="Colors"/> builds the whole
+/// native image from the owners.
 /// </summary>
 internal sealed class SamusColourRig : IPaletteColors, IPaletteFxColourOwners
 {
@@ -20,23 +21,41 @@ internal sealed class SamusColourRig : IPaletteColors, IPaletteFxColourOwners
         Gameplay = new GameplayColours(spriteSets, Samus);
     }
 
+    /// <summary>Fresh colours holding <paramref name="image"/>, a native 256-colour image, as the cartridge's initial load leaves them.</summary>
+    [WholeImageFixture("gameplay's colours from a 256-colour native colour image")]
+    public static SamusColourRig Starting(ReadOnlySpan<RgbColor> image)
+    {
+        var rig = new SamusColourRig();
+        rig.Gameplay.LoadStartingImage(image);
+        return rig;
+    }
+
     /// <summary>Samus's colours, which her effects write.</summary>
     public SamusColours Samus { get; }
 
     /// <inheritdoc />
-    public ColourRun Colours(PaletteFxColourOwner owner) => new GameplayPaletteFxColours(Gameplay, Samus).Colours(owner);
+    public ColourRun BackgroundSets => Gameplay.BackgroundSets.All;
 
-    /// <summary>The router, for what takes gameplay's colours: it routes Samus's positions to <see cref="Samus"/>.</summary>
+    /// <inheritdoc />
+    public ColourRun SpriteSets => Gameplay.SpriteSets.All;
+
+    /// <inheritdoc />
+    public ColourRun SamusSuit => Samus.Suit;
+
+    /// <inheritdoc />
+    public ColourRun SamusBeams => Samus.Beam;
+
+    /// <summary>Gameplay's colours, which hold Samus's as one of their owners.</summary>
     public GameplayColours Gameplay { get; }
 
     /// <inheritdoc />
     public ReadOnlySpan<RgbColor> Colors => Gameplay.Colors;
 
     /// <inheritdoc />
-    public void SetColor(int index, RgbColor color) => Gameplay.AsPaletteColors().SetColor(index, color);
+    public void SetColor(int index, RgbColor color) => Gameplay.AtPosition(index).Write(0, color);
 
     /// <summary>The colour at <paramref name="index"/> expanded to 8-bit RGBA.</summary>
-    public RgbaPixel GetRgba(int index) => Gameplay.AsPaletteColors().GetRgba(index);
+    public RgbaPixel GetRgba(int index) => Gameplay.AtPosition(index)[0].ToRgbaPixel();
 
     /// <inheritdoc />
     public void LoadBytes(ReadOnlySpan<byte> bytes, int destinationIndex = 0) => Gameplay.AsPaletteColors().LoadBytes(bytes, destinationIndex);

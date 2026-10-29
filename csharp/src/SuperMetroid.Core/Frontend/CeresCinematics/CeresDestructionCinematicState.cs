@@ -939,7 +939,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         }
         if (CaptureStationExplosion() is { } blast)
             layers = [.. layers, blast];
-        return new(new FramePaint(palette.Colors, objects.Draws), layers, checked((byte)brightness));
+        return new(new FramePaint(palette.Shown(), objects.Draws), layers, checked((byte)brightness));
     }
 
     /// <summary>One Ceres actor's native OBJ slot.</summary>

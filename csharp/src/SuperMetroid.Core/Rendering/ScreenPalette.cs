@@ -45,6 +45,12 @@ public sealed class ScreenPalette : ISpriteColourSets
     /// <inheritdoc />
     public ColourRun Set(int set) => SpriteRow(set);
 
+    /// <summary>The background rows, as the colour sets a screen's background images show.</summary>
+    public IColourSets BackgroundSets => new Rows(BackgroundRow);
+
+    /// <summary>The screen's colours as a frame shows them now.</summary>
+    public BackgroundColours Shown() => new(ShownColourSets.Of(BackgroundSets), ShownColourSets.Of(this));
+
     /// <summary>The colour behind every layer, where nothing is drawn.</summary>
     public RgbColor Backdrop
     {
@@ -79,5 +85,13 @@ public sealed class ScreenPalette : ISpriteColourSets
                 return true;
         }
         return false;
+    }
+
+    /// <summary>One kind of the screen's rows, as colour sets.</summary>
+    /// <param name="row">The row of the kind each set is.</param>
+    private sealed class Rows(Func<int, ColourRun> row) : IColourSets
+    {
+        /// <inheritdoc />
+        public ColourRun Set(int set) => row(set);
     }
 }

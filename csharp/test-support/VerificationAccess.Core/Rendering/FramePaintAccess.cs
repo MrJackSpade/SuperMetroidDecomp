@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
@@ -21,15 +22,25 @@ internal static class FramePaintAccess
             oam.LoadUploadPayload(oamUpload, spriteCount);
             var image = new SnesVram();
             image.LoadBytes(0, vram);
-            return new(cgram, ObjCharacterImageConstants.Draws(oam, image, objectSelection));
+            return FramePaint.FromNative(cgram, ObjCharacterImageConstants.Draws(oam, image, objectSelection));
+        }
+
+        /// <summary>A frame whose colour memory holds <paramref name="nativeColours"/>, a native 256-colour image.</summary>
+        internal static FramePaint FromNative(ReadOnlySpan<RgbColor> nativeColours, ImmutableArray<SpriteDraw> spriteDraws)
+        {
+            BackgroundColours colours = NativeColourImage.Decode(nativeColours);
+            return new FramePaint(colours, spriteDraws);
         }
     }
 
     /// <summary>Reads what a captured frame description shows.</summary>
     extension(FramePaint memory)
     {
-        /// <summary>The colour each ink shows, in ink order, for fixtures that compare or rebuild a frame's colours.</summary>
-        internal ReadOnlySpan<RgbColor> Colors => memory.Backgrounds.AllColours;
+        /// <summary>
+        /// The frame's colours in the cartridge's colour order, for fixtures that compare or rebuild a frame's colours;
+        /// built once per frame, as a published frame's colours never change.
+        /// </summary>
+        internal ReadOnlySpan<RgbColor> Colors => NativeColourImage.Of(memory.Backgrounds);
 
         /// <summary>Every sprite part the frame shows, frontmost first.</summary>
         internal PlacedSpritePart[] SpriteParts() => PlacedSpritePart.Of(memory.SpriteDraws);

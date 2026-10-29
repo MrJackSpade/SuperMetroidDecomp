@@ -148,8 +148,8 @@ internal static class CoreAccess
     /// <summary>Reads the installed initial gameplay palette for exact color comparisons.</summary>
     extension(GameplayBasePalette palettes)
     {
-        /// <summary>Initial gameplay CGRAM colors retained by the loaded palette catalog.</summary>
-        internal ReadOnlySpan<RgbColor> Initial => palettes.initial;
+        /// <summary>The native starting image the catalog's starting colours were decoded from, rebuilt from its owners once.</summary>
+        internal ReadOnlySpan<RgbColor> Initial => NativeColourImage.Of(palettes.starting);
     }
 
 

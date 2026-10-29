@@ -1433,7 +1433,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
             sprites.FinalizeFrame();
             // The first card is opaque and unscrolled; later text is transparent
             // and cropped one tile down. Do not conflate those two PPU setups.
-            return new(new FramePaint(palette.Colors, sprites.Draws),
+            return new(new FramePaint(palette.Shown(), sprites.Draws),
                 new DisplayLayer[] { new ScreenTilesViewportLayer(NarrationCells(), 0, false, null) }, Brightness.Level);
         }
         else
@@ -1445,7 +1445,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
         var text = new ScreenTilesViewportLayer(NarrationCells(), GameplayFlashbackBg1VerticalScroll, true, false);
         // Mode 1 with high-priority BG3: preserve both the OBJ winner and the
         // insertion points of text/room priority planes during palette crossfades.
-        return new(new FramePaint(palette.Colors, sprites.Draws), new DisplayLayer[]
+        return new(new FramePaint(palette.Shown(), sprites.Draws), new DisplayLayer[]
         {
             new SpriteDepthLayer(0), text, new SpriteDepthLayer(1), room,
             new SpriteDepthLayer(2), room with { Priority = true },

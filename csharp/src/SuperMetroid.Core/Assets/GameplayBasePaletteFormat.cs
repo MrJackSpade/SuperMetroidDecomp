@@ -13,8 +13,6 @@ public static class GameplayBasePaletteFormat
     public const string ManifestFileName = "gameplay-base-palettes-manifest.json";
     /// <summary>Number of colors in one complete sprite palette.</summary>
     public const int SpriteColorCount = 16;
-    /// <summary>The enemy-projectile sprite colours begin at colour 208 of the starting image.</summary>
-    public const int EnemyProjectileInitialColor = 208;
     /// <summary>Shared camel-case, case-insensitive JSON options that reject unknown fields.</summary>
     public static readonly JsonSerializerOptions JsonOptions = new()
     {

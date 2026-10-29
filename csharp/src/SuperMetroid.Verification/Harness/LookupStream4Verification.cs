@@ -1746,8 +1746,7 @@ internal static class LookupStream4Verification
             }
             for (int selection = 0; selection < 12; selection++)
             {
-                var actual = new SamusColourRig();
-                actual.Gameplay.LoadStartingImage(filler);
+                var actual = SamusColourRig.Starting(filler);
                 if (edit is -1 or 0 or 575)
                     SamusProjectileSystem.LoadBeamPalette(actual.Samus.Beam,
                         (SamusBeamFlags)((ushort)(selection | 0x1000)), selected);

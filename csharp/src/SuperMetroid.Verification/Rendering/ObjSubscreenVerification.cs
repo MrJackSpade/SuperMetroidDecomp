@@ -131,7 +131,7 @@ internal static class ObjSubscreenVerification
         colors[20] = 31 << 10;
         // The subscreen and its coverage are the one-screen maps at a tilemap word, read as the fixture stands when drawn.
         ScreenTileMap Cells(int tilemapWord) => VramTileFixtures.Cells(vram, ToColors(colors), tilemapWord, 0, TileInkDepth.SixteenColours, ScreenTilesViewportLayer.MapSize);
-        var memory = new FramePaint(ToColors(colors), []);
+        var memory = FramePaint.FromNative(ToColors(colors), []);
         var packet = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory,
             new DisplayLayer[] { new AddedScreenTilesLayer(Cells(0x7000)) }, 15));
         AssertTrue(DisplayRendering.Render(packet).All(pixel => pixel == new RgbaPixel(255, 0, 255)),

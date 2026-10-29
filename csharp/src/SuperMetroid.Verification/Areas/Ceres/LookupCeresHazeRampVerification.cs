@@ -57,7 +57,7 @@ internal static class LookupCeresHazeRampVerification
                 int flags = ReadVerificationWord(rom, dead ? 0x88de16 : 0x88de11);
                 var captured = GameplayEffectCapture.CaptureCeresHaze(dead, counter);
                 // The haze over a black screen, as the display renderer draws it.
-                RgbaPixel[] drawn = DisplayRendering.Render(new LayeredScene(new FramePaint(new RgbColor[SnesCgram.ColorCount], []),
+                RgbaPixel[] drawn = DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []),
                     new DisplayLayer[] { captured }, DisplayBrightness.Full));
                 for (int y = 0; y < original.Length; y++)
                 {

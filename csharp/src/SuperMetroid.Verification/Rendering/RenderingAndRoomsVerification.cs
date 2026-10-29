@@ -77,7 +77,7 @@ internal static void VerifyObjRendering()
     // The frontend capture converts the screen's OAM storage into the sprite draw it stands for;
     // the display renderer then shows that draw over the backdrop.
     RgbaPixel[] backdrop = DisplayRendering.Render(new LayeredScene(
-        new FramePaint(cgram.Colors, []), new DisplayLayer[] { new SpritesLayer() }, DisplayBrightness.Full));
+        FramePaint.FromNative(cgram.Colors, []), new DisplayLayer[] { new SpritesLayer() }, DisplayBrightness.Full));
     RgbaPixel[] pixels = DisplayRendering.Render(new LayeredScene(
         FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0), new DisplayLayer[] { new SpritesLayer() }, DisplayBrightness.Full));
     AssertEqual(new RgbaPixel(255, 0, 0), pixels[20 * 256 + 10], "OBJ colored planar pixel");
@@ -968,7 +968,7 @@ internal static void VerifyBg2ScreenLayout()
 
     // The frame the display renderer draws of the gameplay layer alone, with no sprites.
     static RgbaPixel[] RenderOrdinaryGameplay(SnesCgram cgram, GameplaySceneLayer layer) =>
-        DisplayRendering.Render(new LayeredScene(new FramePaint(cgram.Colors, []), new DisplayLayer[] { layer }, DisplayBrightness.Full));
+        DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(cgram.Colors, []), new DisplayLayer[] { layer }, DisplayBrightness.Full));
 }
 
 /// <summary>The native first pre-scaled power-bomb profile's half width for <paramref name="row"/> at $88:9F06.</summary>

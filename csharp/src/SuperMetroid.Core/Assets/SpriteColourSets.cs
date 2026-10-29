@@ -6,11 +6,4 @@ namespace SuperMetroid.Core.Assets;
 /// sprite shows the set its graphics set gives it, or one its AI or a hit flash selects. The colours Samus holds are
 /// hers, not the sets'.
 /// </summary>
-public sealed class SpriteColourSets : ColourSets, ISpriteColourSets
-{
-    /// <summary>Empty sets.</summary>
-    public SpriteColourSets()
-        : base(128)
-    {
-    }
-}
+public sealed class SpriteColourSets : ColourSets, ISpriteColourSets;

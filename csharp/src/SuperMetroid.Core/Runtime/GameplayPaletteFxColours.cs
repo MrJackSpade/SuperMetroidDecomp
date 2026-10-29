@@ -10,12 +10,14 @@ namespace SuperMetroid.Core.Runtime;
 internal sealed class GameplayPaletteFxColours(GameplayColours colours, SamusColours samus) : IPaletteFxColourOwners
 {
     /// <inheritdoc />
-    public ColourRun Colours(PaletteFxColourOwner owner) => owner switch
-    {
-        PaletteFxColourOwner.Background => colours.BackgroundSets.All,
-        PaletteFxColourOwner.Sprite => colours.SpriteSets.All,
-        PaletteFxColourOwner.SamusSuit => samus.Suit,
-        PaletteFxColourOwner.SamusBeams => samus.Beam,
-        _ => throw new ArgumentOutOfRangeException(nameof(owner), owner, "Unknown palette-FX colour owner."),
-    };
+    public ColourRun BackgroundSets => colours.BackgroundSets.All;
+
+    /// <inheritdoc />
+    public ColourRun SpriteSets => colours.SpriteSets.All;
+
+    /// <inheritdoc />
+    public ColourRun SamusSuit => samus.Suit;
+
+    /// <inheritdoc />
+    public ColourRun SamusBeams => samus.Beam;
 }

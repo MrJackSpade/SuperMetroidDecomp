@@ -49,8 +49,10 @@ public sealed record MessageBoxLayer : DisplayLayer
     /// and dark text colours in place of the two inks they replace while the box is open.
     /// </summary>
     public static BackgroundColours ShownIn(BackgroundColours room) => Ensure.NotNull(room)
-        .With(GameplayMessageBoxDefinitions.Palette.TemporaryLightIndex, GameplayMessageBoxDefinitions.Palette.TemporaryLightColor)
-        .With(GameplayMessageBoxDefinitions.Palette.TemporaryDarkIndex, GameplayMessageBoxDefinitions.Palette.TemporaryDarkColor);
+        .WithBackgroundColour(GameplayMessageBoxDefinitions.Palette.TextSet, GameplayMessageBoxDefinitions.Palette.TemporaryLightColour,
+            GameplayMessageBoxDefinitions.Palette.TemporaryLightColor)
+        .WithBackgroundColour(GameplayMessageBoxDefinitions.Palette.TextSet, GameplayMessageBoxDefinitions.Palette.TemporaryDarkColour,
+            GameplayMessageBoxDefinitions.Palette.TemporaryDarkColor);
 
     /// <summary>Publishes the image of the currently exposed message (#1392); inactive or zero-radius messages emit none.</summary>
     /// <param name="messageBox">The message box state.</param>

@@ -41,7 +41,7 @@ internal static class EndingCreditsPresentation
             layers.Add(new ScreenTilesLayer(ending.Cells(EndingPlane.Credits, new Extent16<TilemapCells>(32, 32),
                 EndingTileLayer.Credits, TileInkDepth.SixteenColours), ending.Credits.ScrollPosition, null));
             // Credits intentionally do not run the sprite draw routine.
-            memory = new FramePaint(ending.screen.Palette.Colors, []);
+            memory = new FramePaint(ending.screen.Palette.Shown(), []);
         }
         else
         {
@@ -154,7 +154,7 @@ internal static class EndingCreditsPresentation
 
     /// <summary>The scene's colours with this frame's sprite entries over the OBJ page of <paramref name="objectSheet"/>.</summary>
     internal static FramePaint CaptureMemory(EndingCreditsState ending, EndingObjectSheet objectSheet) =>
-        new(ending.screen.Palette.Colors, PrepareSprites(ending, objectSheet).Draws);
+        new(ending.screen.Palette.Shown(), PrepareSprites(ending, objectSheet).Draws);
 
     /// <summary>
     /// Places the scene's sprite entries at the simulation display boundary without advancing sprite state, each drawn

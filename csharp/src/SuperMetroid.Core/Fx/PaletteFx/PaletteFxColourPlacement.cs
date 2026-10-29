@@ -1,9 +1,14 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
-/// Where a palette-FX colour group's first colour is held until colour sets are keyed by owner (#1464): an owner's
-/// colours, from one colour on. Only <see cref="PaletteFxColourPlacementDefinitions"/> names placements.
+/// Which owner's colours a palette-FX colour group is, and the owner's colour its first written colour is (#1464): a
+/// colour of a background or sprite set, or of Samus's suit or beams. Only
+/// <see cref="PaletteFxColourPlacementDefinitions"/> names placements.
 /// </summary>
-/// <param name="Owner">Whose colours the records write.</param>
-/// <param name="Colour">The first colour written, among the owner's.</param>
-internal readonly record struct PaletteFxColourPlacement(PaletteFxColourOwner Owner, int Colour);
+internal abstract record PaletteFxColourPlacement
+{
+    /// <summary>The owner's colours from the group's first written colour to the owner's last.</summary>
+    internal abstract ColourRun From(IPaletteFxColourOwners owners);
+}

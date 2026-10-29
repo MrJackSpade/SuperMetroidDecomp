@@ -59,12 +59,14 @@ public static class GameplayMessageBoxDefinitions
     /// <summary>The two colours the message box replaces while it is open.</summary>
     public static class Palette
     {
-        /// <summary>The colour index the light message colour replaces.</summary>
-        public const int TemporaryLightIndex = 25;
+        /// <summary>The background set whose colours the message box's text shows.</summary>
+        public const int TextSet = 1;
+        /// <summary>The colour of the text set the light message colour replaces.</summary>
+        public const int TemporaryLightColour = 9;
         /// <summary>The light colour installed for the message box.</summary>
         public static RgbColor TemporaryLightColor => RgbColor.FromWord(0x0bb1);
-        /// <summary>The colour index the dark message colour replaces.</summary>
-        public const int TemporaryDarkIndex = 26;
+        /// <summary>The colour of the text set the dark message colour replaces.</summary>
+        public const int TemporaryDarkColour = 10;
         /// <summary>The dark colour installed for the message box.</summary>
         public static RgbColor TemporaryDarkColor => new(31, 0, 0);
     }

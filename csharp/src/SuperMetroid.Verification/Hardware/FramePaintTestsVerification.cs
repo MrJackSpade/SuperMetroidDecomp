@@ -38,14 +38,14 @@ internal static class FramePaintTestsVerification
         AssertTrue(first.Colors.SequenceEqual(expectedPalette) && first.SpriteDraws.Length == 1,
             "later simulation writes changed a published frame");
 
-        var fromFixture = new FramePaint(expectedPalette, first.SpriteDraws);
+        var fromFixture = FramePaint.FromNative(expectedPalette, first.SpriteDraws);
         // Flip every color bit (the PPU stores fifteen).
         expectedPalette[0] = RgbColor.FromWord((ushort)(expectedPalette[0].ToWord() ^ 0x7fff));
         AssertTrue(fromFixture.Colors.SequenceEqual(first.Colors) && Order(fromFixture.SpriteDraws).SequenceEqual(Order(first.SpriteDraws)),
             "fixture arrays escaped into frame ownership");
 
-        AssertThrows<ArgumentException>(() => new FramePaint(ToColors(new ushort[1]), []), "short CGRAM");
-        AssertThrows<ArgumentException>(() => new FramePaint(expectedPalette, default), "missing draw list");
+        AssertThrows<ArgumentException>(() => FramePaint.FromNative(ToColors(new ushort[1]), []), "short CGRAM");
+        AssertThrows<ArgumentException>(() => FramePaint.FromNative(expectedPalette, default), "missing draw list");
         Console.WriteLine("Frame paint: CGRAM parity, draw retention, ownership and size checks passed.");
 
         // The paint resolves each draw's colours (#1405), so a draw is known by what it shows and where, in order.

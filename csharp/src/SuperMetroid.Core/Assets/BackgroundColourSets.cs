@@ -6,11 +6,4 @@ namespace SuperMetroid.Core.Assets;
 /// the first two sets read four colours at a time, so a writer names its colours as a <see cref="BackgroundColourRun"/>
 /// or a set.
 /// </summary>
-public sealed class BackgroundColourSets : ColourSets
-{
-    /// <summary>Empty sets.</summary>
-    public BackgroundColourSets()
-        : base(0)
-    {
-    }
-}
+public sealed class BackgroundColourSets : ColourSets;

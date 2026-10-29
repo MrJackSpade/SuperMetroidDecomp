@@ -111,5 +111,5 @@ internal sealed class MenuScreen
 
 
     /// <summary>What the screen paints with: its palette and sprite entries.</summary>
-    internal FramePaint Paint() => new(Palette.Colors, Objects.Draws);
+    internal FramePaint Paint() => new(Palette.Shown(), Objects.Draws);
 }

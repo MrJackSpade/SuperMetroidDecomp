@@ -41,7 +41,7 @@ internal static class NorfairGlowCaptureTests
             RgbColor[] colors = original.Paint.Colors.ToArray();
             foreach (int index in NorfairGlowFixture.ColorIndices)
                 colors[index] = scene.Paint.Colors[index];
-            var memory = new FramePaint(colors, original.Paint.SpriteDraws);
+            var memory = FramePaint.FromNative(colors, original.Paint.SpriteDraws);
             var originalLayer = (GameplaySceneLayer)original.Layers[0];
             var registers = originalLayer.View;
             var foreground = new LayeredScene(memory,

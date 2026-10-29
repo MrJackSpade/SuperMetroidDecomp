@@ -12,12 +12,14 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class ScreenPaletteFxColours(ScreenPalette palette) : IPaletteFxColourOwners
 {
     /// <inheritdoc />
-    public ColourRun Colours(PaletteFxColourOwner owner) => owner switch
-    {
-        PaletteFxColourOwner.Background => palette.Background,
-        PaletteFxColourOwner.Sprite => palette.Sprites,
-        PaletteFxColourOwner.SamusSuit => palette.Colours(ScreenColourGroup.SamusSuit),
-        PaletteFxColourOwner.SamusBeams => palette.Colours(ScreenColourGroup.SamusBeams),
-        _ => throw new ArgumentOutOfRangeException(nameof(owner), owner, "Unknown palette-FX colour owner."),
-    };
+    public ColourRun BackgroundSets => palette.Background;
+
+    /// <inheritdoc />
+    public ColourRun SpriteSets => palette.Sprites;
+
+    /// <inheritdoc />
+    public ColourRun SamusSuit => palette.Colours(ScreenColourGroup.SamusSuit);
+
+    /// <inheritdoc />
+    public ColourRun SamusBeams => palette.Colours(ScreenColourGroup.SamusBeams);
 }

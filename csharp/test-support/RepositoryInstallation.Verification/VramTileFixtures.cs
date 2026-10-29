@@ -43,7 +43,7 @@ internal static class VramTileFixtures
         }
         ComposedSpriteSheet composed = ScreenTileSheetComposer.Compose(bytes, depth, palette);
         SpriteSheet sheet = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(composed.Manifest), writable: false),
-            $"vram-fixture-{characterWord:X4}-{depth}", composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities, composed.PartRows);
+            $"vram-fixture-{characterWord:X4}-{depth}", composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities, composed.PartGroups);
         var tiles = new ScreenTileSheet(SpriteSheetId.MenuForegroundTiles, sheet, depth);
         var pictures = new ScreenTilePicture?[ScreenLayerPictures.CharacterIndices];
         for (int place = 0; place < shown.Length; place++)

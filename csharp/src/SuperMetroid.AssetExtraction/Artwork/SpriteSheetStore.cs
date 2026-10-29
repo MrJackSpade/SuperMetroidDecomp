@@ -87,7 +87,7 @@ internal sealed class SpriteSheetStore
         using var image = new MemoryStream();
         RgbaPng.Write(image, composed.Size, composed.Pixels);
         using var palette = new MemoryStream();
-        RgbaPng.Write(palette, composed.Size, PaletteImage(composed.PaletteIndices, composed.Priorities, composed.PartRows));
+        RgbaPng.Write(palette, composed.Size, PaletteImage(composed.PaletteIndices, composed.Priorities, composed.PartGroups));
         return new(name, image.ToArray(), palette.ToArray(), SpriteSheet.Write(composed.Manifest));
     }
 
@@ -114,7 +114,7 @@ internal sealed class SpriteSheetStore
             // A player's image is read whole now, so a malformed one fails as the sheet loads.
             SpriteImageLayers layers = Decode(name, out Extent16<ImagePixels> size);
             return SpriteSheet.Load(new MemoryStream(frames, writable: false), name, size, layers.Pixels,
-                layers.PaletteIndices, layers.Priorities, layers.PartRows);
+                layers.PaletteIndices, layers.Priorities, layers.PartGroups);
         }
         // A stock image's files passed their hashes when the installation was published and opened; its pixels are
         // decoded when it is first drawn (#1430).
@@ -162,22 +162,22 @@ internal sealed class SpriteSheetStore
             throw new InvalidDataException($"Sprite sheet {PaletteFile(name)} is not the size of {ImageFile(name)}.");
         var paletteIndices = new byte[indices.Length];
         var priorities = new byte[indices.Length];
-        var partRows = new byte[indices.Length];
+        var partGroups = new byte[indices.Length];
         for (int pixel = 0; pixel < indices.Length; pixel++)
         {
             paletteIndices[pixel] = indices[pixel].R;
             priorities[pixel] = indices[pixel].G;
-            partRows[pixel] = indices[pixel].B;
+            partGroups[pixel] = indices[pixel].B;
         }
-        return new SpriteImageLayers(pixels, paletteIndices, priorities, partRows);
+        return new SpriteImageLayers(pixels, paletteIndices, priorities, partGroups);
     }
 
     /// <summary>A sheet's image file name.</summary>
     internal static string ImageFile(string name) => name + ".png";
 
     /// <summary>
-    /// A sheet's palette-index image file name: each pixel's palette row times sixteen plus its colour in red, its
-    /// priority in green and its part palette row in blue.
+    /// A sheet's palette-index image file name: each pixel's colour group's place times sixteen plus its colour in red,
+    /// its priority in green and its part colour group's code in blue.
     /// </summary>
     internal static string PaletteFile(string name) => name + ".palette.png";
 
@@ -185,14 +185,14 @@ internal sealed class SpriteSheetStore
     internal static string FrameFile(string name) => name + ".json";
 
     /// <summary>
-    /// The palette-index image: each index in red, priority in green and part palette row in blue, opaque where a colour
-    /// is shown.
+    /// The palette-index image: each index in red, priority in green and part colour group's code in blue, opaque where
+    /// a colour is shown.
     /// </summary>
-    private static RgbaPixel[] PaletteImage(ReadOnlySpan<byte> indices, ReadOnlySpan<byte> priorities, ReadOnlySpan<byte> partRows)
+    private static RgbaPixel[] PaletteImage(ReadOnlySpan<byte> indices, ReadOnlySpan<byte> priorities, ReadOnlySpan<byte> partGroups)
     {
         var pixels = new RgbaPixel[indices.Length];
         for (int pixel = 0; pixel < indices.Length; pixel++)
-            pixels[pixel] = new RgbaPixel(indices[pixel], priorities[pixel], partRows[pixel], indices[pixel] == 0 ? (byte)0 : byte.MaxValue);
+            pixels[pixel] = new RgbaPixel(indices[pixel], priorities[pixel], partGroups[pixel], indices[pixel] == 0 ? (byte)0 : byte.MaxValue);
         return pixels;
     }
 

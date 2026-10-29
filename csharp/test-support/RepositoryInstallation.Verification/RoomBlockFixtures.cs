@@ -46,7 +46,7 @@ internal static class RoomBlockFixtures
         for (int block = 0; block < count; block++)
         {
             int left = block % columns * side, top = block / columns * side;
-            SpritePaletteRows coloured = SpritePaletteRows.None;
+            ImageColourGroups coloured = ImageColourGroups.None;
             for (int corner = 0; corner < 4; corner++)
             {
                 BackgroundTile word = definitions[block * BlockTiles + corner];
@@ -56,20 +56,20 @@ internal static class RoomBlockFixtures
                     character[part * 2] = image[at];
                     character[part * 2 + 1] = image[at + 1];
                 }
-                coloured |= canvas.PaintTile(left + corner % 2 * tile, top + corner / 2 * tile, word, character, colours);
+                coloured = coloured.Union(canvas.PaintTile(left + corner % 2 * tile, top + corner / 2 * tile, word, character, colours));
             }
             frames.Add($"{block}", new SpriteSheetFrameDocument
             {
                 Corner = new Position16<ImagePixels>((ushort)left, (ushort)top),
                 Size = new Extent16<ImagePixels>(side, side),
                 Origin = default,
-                Rows = coloured,
+                ColourGroups = coloured,
                 Parts = [],
             });
         }
         ComposedSpriteSheet composed = canvas.ToRoomSheet(colours, frames);
         SpriteSheet sheet = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(composed.Manifest), writable: false), "blocks-fixture",
-            composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities, composed.PartRows);
+            composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities, composed.PartGroups);
         return new RoomBlockPictureTable(new RoomBlockSheet(default(TilesetDefinition), sheet, Characters(count)),
             [.. Enumerable.Range(0, count).Select(block => (SpriteSheetFrame?)sheet.Frame($"{block}"))]);
     }
@@ -88,7 +88,7 @@ internal static class RoomBlockFixtures
         RgbColor[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
         var character = new byte[characterWords * sizeof(ushort)];
         var words = new ushort[RoomBackgroundImage.Words];
-        SpritePaletteRows coloured = SpritePaletteRows.None;
+        ImageColourGroups coloured = ImageColourGroups.None;
         for (int index = 0; index < words.Length; index++)
         {
             int at = SnesVramAddressingConstants.ByteOffsetOfWord(tilemapWord + index);
@@ -101,8 +101,8 @@ internal static class RoomBlockFixtures
                 character[part * 2 + 1] = image[from + 1];
             }
             int page = index / pageWords, within = index % pageWords;
-            coloured |= canvas.PaintTile(within % RoomBackgroundImage.PageTiles * tile,
-                page * RoomBackgroundImage.PagePixels + within / RoomBackgroundImage.PageTiles * tile, word, character, colours);
+            coloured = coloured.Union(canvas.PaintTile(within % RoomBackgroundImage.PageTiles * tile,
+                page * RoomBackgroundImage.PagePixels + within / RoomBackgroundImage.PageTiles * tile, word, character, colours));
         }
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
         {
@@ -111,13 +111,13 @@ internal static class RoomBlockFixtures
                 Corner = default,
                 Size = new Extent16<ImagePixels>(RoomBackgroundImage.PagePixels, RoomBackgroundImage.Pages * RoomBackgroundImage.PagePixels),
                 Origin = default,
-                Rows = coloured,
+                ColourGroups = coloured,
                 Parts = [],
             },
         };
         ComposedSpriteSheet composed = canvas.ToRoomSheet(colours, frames);
         SpriteSheet sheet = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(composed.Manifest), writable: false), "loaded-background-fixture",
-            composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities, composed.PartRows);
+            composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities, composed.PartGroups);
         var background = new RoomBackgroundImage("loaded-background-fixture", sheet, [.. BackgroundTileWordBytes.Tiles(words)]);
         return new RoomBackgroundImagePlane(background, new SpriteSheetFrame?[background.CellCount]);
     }

@@ -48,18 +48,24 @@ public abstract class SpriteColourPlacement
         StoreOf(drawn).Set == imageGroup ? null : new DrawnColouring(drawn, this);
 
     /// <summary>
-    /// The colours a draw in <paramref name="drawn"/> shows over its image's part group <paramref name="partGroup"/> among
+    /// The colours a draw in <paramref name="drawn"/> shows over its image's part group <paramref name="part"/> among
     /// <paramref name="sets"/>, and whether they blend with what lies behind them. A part that keeps its own colours shows
-    /// its own set; any other shows the set the cartridge selects by ORing the drawn colouring's palette bits into the
-    /// part's.
+    /// its own group's store; a following part shows the store its group combines with the drawn colouring's into.
     /// </summary>
-    internal ReadOnlySpan<RgbColor> ShownOver(SpriteColouring drawn, int partGroup, ShownColourSets sets, out bool blends)
+    internal ReadOnlySpan<RgbColor> ShownOver(SpriteColouring drawn, PartColourGroup part, ShownColourSets sets, out bool blends)
     {
         Ensure.NotNull(sets);
-        int set = (partGroup & SpriteImage.FixedPartRow) != 0
-            ? partGroup & SpriteImage.MaximumPaletteRow
-            : partGroup | StoreOf(drawn).Set;
-        blends = DrawColours.SetBlends(set);
-        return sets.Set(set);
+        SpriteColourStore shown = part.KeepsOwnColours ? part.Group.Store : Combined(part.Group, StoreOf(drawn));
+        blends = shown.Blends;
+        return sets.Set(shown.Set);
     }
+
+    /// <summary>
+    /// The store a following part of colour group <paramref name="partGroup"/> shows under a colouring held in
+    /// <paramref name="drawn"/>. The cartridge selects it by ORing the colouring's palette bits into the part's own, so a
+    /// part whose group shares bits with the colouring's store shows a third store rather than the colouring's; that
+    /// combination is kept exactly.
+    /// </summary>
+    private static SpriteColourStore Combined(ImageColourGroup partGroup, SpriteColourStore drawn) =>
+        new(partGroup.Number | drawn.Set);
 }

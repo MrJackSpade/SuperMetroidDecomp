@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class SpriteSheet
 {
     /// <summary>The manifest schema revision this catalog reads.</summary>
-    public const int Version = 4;
+    public const int Version = 5;
 
     /// <summary>The frames by name.</summary>
     private readonly Dictionary<string, SpriteSheetFrame> frames;
@@ -45,7 +45,7 @@ public sealed class SpriteSheet
         content.Append("palette indices", inks.SelectToArray(ink => (byte)ink.PaletteIndex));
         content.Append("standard colours", System.Runtime.InteropServices.MemoryMarshal.AsBytes(Image.StandardColours));
         content.Append("priorities", inks.SelectToArray(ink => (byte)ink.Priority));
-        content.Append("part rows", inks.SelectToArray(ink => (byte)ink.PartRow));
+        content.Append("part groups", inks.SelectToArray(ink => (byte)ink.PartGroup.Code));
         foreach ((string name, SpriteSheetFrame frame) in frames.OrderBy(pair => pair.Key, StringComparer.Ordinal))
         {
             content.AppendName("frame", name);
@@ -55,8 +55,8 @@ public sealed class SpriteSheet
             content.Append("height", frame.Size.Y);
             content.Append("origin x", frame.Origin.X);
             content.Append("origin y", frame.Origin.Y);
-            foreach (SpritePaletteRows row in SpritePaletteRowSet.Rows)
-                content.Append("row", (frame.Rows & row) != SpritePaletteRows.None ? 1 : 0);
+            foreach (ImageColourGroup group in ImageColourGroup.Every)
+                content.Append("colour group", frame.ColourGroups.Contains(group) ? 1 : 0);
             foreach (SpriteSheetFramePart part in frame.Parts)
             {
                 content.Append("part corner x", part.Image.Corner.X);
@@ -74,18 +74,18 @@ public sealed class SpriteSheet
     /// <param name="name">The sheet's installed name.</param>
     /// <param name="size">The image's width and height.</param>
     /// <param name="pixels">The image's pixels.</param>
-    /// <param name="paletteIndices">Each pixel's palette row times sixteen plus its colour.</param>
+    /// <param name="paletteIndices">Each pixel's colour group's place times sixteen plus its colour.</param>
     /// <param name="priorities">Each pixel's priority against the backgrounds 0..3.</param>
-    /// <param name="partRows">Each pixel's part palette row 0..7.</param>
+    /// <param name="partGroups">Each pixel's <see cref="PartColourGroup.Code"/>.</param>
     /// <exception cref="InvalidDataException">The manifest is malformed, of another revision, or places a frame off the image.</exception>
     public static SpriteSheet Load(Stream manifest, string name, Extent16<ImagePixels> size, ReadOnlySpan<RgbaPixel> pixels,
-        ReadOnlySpan<byte> paletteIndices, ReadOnlySpan<byte> priorities, ReadOnlySpan<byte> partRows)
+        ReadOnlySpan<byte> paletteIndices, ReadOnlySpan<byte> priorities, ReadOnlySpan<byte> partGroups)
     {
         SpriteSheetDocument document = ReadDocument(manifest, name);
         SpriteImage image;
         try
         {
-            image = new SpriteImage(name, size, pixels, paletteIndices, PaletteOf(document), priorities, partRows);
+            image = new SpriteImage(name, size, pixels, paletteIndices, PaletteOf(document), priorities, partGroups);
         }
         catch (ArgumentException error)
         {
@@ -101,7 +101,7 @@ public sealed class SpriteSheet
     /// <param name="manifest">The frame list and standard colours.</param>
     /// <param name="name">The sheet's installed name.</param>
     /// <param name="size">The image's width and height.</param>
-    /// <param name="decode">Produces the image's pixels, palette indices, priorities and part rows.</param>
+    /// <param name="decode">Produces the image's pixels, palette indices, priorities and part groups.</param>
     /// <exception cref="InvalidDataException">The manifest is malformed, of another revision, or places a frame off the image.</exception>
     public static SpriteSheet Load(Stream manifest, string name, Extent16<ImagePixels> size, Func<SpriteImageLayers> decode)
     {
@@ -158,7 +158,7 @@ public sealed class SpriteSheet
                 SpriteSheetFrame partImage = partImages.TryGetValue(part.Image, out SpriteSheetFrame? found) ? found
                     : throw new InvalidDataException($"Sprite sheet {name} frame {frameName} names missing part image {part.Image}.");
                 // The part lands at its place from the frame's origin when drawn at that origin.
-                var placed = new SpriteSheetFrame(image, partImage.Corner, partImage.Size, partImage.Origin + -part.Offset, partImage.Rows, []);
+                var placed = new SpriteSheetFrame(image, partImage.Corner, partImage.Size, partImage.Origin + -part.Offset, partImage.ColourGroups, []);
                 return new SpriteSheetFramePart(placed, part.Offset);
             })];
             frames.Add(frameName, Cut(image, name, frameName, frame, parts));
@@ -172,7 +172,7 @@ public sealed class SpriteSheet
     {
         try
         {
-            return new SpriteSheetFrame(image, document.Corner, document.Size, document.Origin, document.Rows, parts);
+            return new SpriteSheetFrame(image, document.Corner, document.Size, document.Origin, document.ColourGroups, parts);
         }
         catch (ArgumentException error)
         {

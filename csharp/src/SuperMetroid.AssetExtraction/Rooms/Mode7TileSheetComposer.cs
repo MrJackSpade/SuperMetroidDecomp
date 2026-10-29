@@ -39,7 +39,7 @@ internal static class Mode7TileSheetComposer
         var colours = new RgbColor[SpriteImage.ColourCountOf(SpriteImageColours.FullPalette)];
         ScreenColourImage.Encode(loaded).CopyTo(colours, 0);
         background.CopyTo(colours, 0);
-        SpritePaletteRows coloured = SpritePaletteRows.None;
+        ImageColourGroups coloured = ImageColourGroups.None;
         int side = FloorTileSheet.TilesPerRow * FloorTileSheet.TilePixels;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)(side)), checked((ushort)(side))));
         var shown = new BgArtworkShown?[FloorTileSheet.Tiles];
@@ -54,11 +54,11 @@ internal static class Mode7TileSheetComposer
             {
                 int index = tiles[(tile * FloorTileSheet.TileWords + pixel) * 2 + 1];
                 if (index % 16 != 0 && index < SpriteImage.SpriteColourCount)
-                    coloured |= SpritePaletteRowSet.Rows[index / 16];
+                    coloured = coloured.With(ImageColourGroup.OfInk(index));
                 canvas.PaintIndex(new(checked((ushort)(corner.X + pixel % FloorTileSheet.TilePixels)), checked((ushort)(corner.Y + pixel / FloorTileSheet.TilePixels))), index, colours);
             }
         }
-        // The frame's rows name the background rows it is coloured from; its sprite rows are the room load's own.
+        // The frame's colour groups name the background groups it is coloured from; its sprite groups are the room load's own.
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
         {
             [FloorTileSheet.FrameName] = new SpriteSheetFrameDocument
@@ -66,7 +66,7 @@ internal static class Mode7TileSheetComposer
                 Corner = default,
                 Size = new Extent16<ImagePixels>((ushort)side, (ushort)side),
                 Origin = default,
-                Rows = coloured,
+                ColourGroups = coloured,
                 Parts = [],
             },
         };

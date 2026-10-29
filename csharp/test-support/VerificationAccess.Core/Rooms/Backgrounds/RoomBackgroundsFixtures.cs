@@ -270,7 +270,7 @@ internal static class RoomBackgroundsFixtures
         var image = new RgbaPixel[pixels];
         var indices = new byte[pixels];
         var priorities = new byte[pixels];
-        var partRows = new byte[pixels];
+        var partGroups = new byte[pixels];
         for (int pixel = 0; pixel < pixels; pixel++)
         {
             // A two-bit pixel keeps its row times four plus its colour, colour zero included and transparent.
@@ -281,31 +281,31 @@ internal static class RoomBackgroundsFixtures
                 priorities[pixel] = (byte)random.Next(2);
                 if (colour == 0)
                     continue;
-                partRows[pixel] = (byte)(indices[pixel] / 16 | SpriteImage.FixedPartRow);
+                partGroups[pixel] = (byte)PartColourGroup.Keeping(ImageColourGroup.OfInk(indices[pixel])).Code;
                 image[pixel] = RgbColor.FromWord(standard[indices[pixel]]).ToRgbaPixel();
                 continue;
             }
             if (random.Next(3) == 0)
                 continue;
-            // A full-palette pixel names any of the 256 colours and has no part row.
+            // A full-palette pixel names any of the 256 colours and has no part group.
             int row = random.Next(fullPalette ? 16 : 8);
             indices[pixel] = (byte)(row * 16 + random.Next(1, 16));
             priorities[pixel] = fullPalette ? (byte)0 : (byte)random.Next(2);
-            partRows[pixel] = fullPalette ? (byte)0 : (byte)(row | SpriteImage.FixedPartRow);
+            partGroups[pixel] = fullPalette ? (byte)0 : (byte)PartColourGroup.Keeping(ImageColourGroup.Numbered(row)).Code;
             image[pixel] = RgbColor.FromWord(standard[indices[pixel]]).ToRgbaPixel();
         }
         var frames = new Dictionary<string, SpriteSheetFrameDocument>();
         foreach ((string frame, Position16<ImagePixels> corner) in corners)
         {
-            SpritePaletteRows rows = SpritePaletteRows.None;
+            ImageColourGroups groups = ImageColourGroups.None;
             for (int y = 0; y < frameSize.Y; y++)
             for (int x = 0; x < frameSize.X; x++)
             {
                 byte index = indices[(corner.Y + y) * size.X + corner.X + x];
                 if (index % (twoBpp ? 4 : 16) != 0 && index / 16 < 8)
-                    rows |= SpritePaletteRowSet.Rows[index / 16];
+                    groups = groups.With(ImageColourGroup.OfInk(index));
             }
-            frames.Add(frame, new SpriteSheetFrameDocument { Corner = corner, Size = frameSize, Origin = default, Rows = rows, Parts = [] });
+            frames.Add(frame, new SpriteSheetFrameDocument { Corner = corner, Size = frameSize, Origin = default, ColourGroups = groups, Parts = [] });
         }
         var document = new SpriteSheetDocument
         {
@@ -319,7 +319,7 @@ internal static class RoomBackgroundsFixtures
             PartImages = [],
         };
         return SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(document), writable: false), name, size, image,
-            indices, priorities, partRows);
+            indices, priorities, partGroups);
     }
 
     /// <summary>

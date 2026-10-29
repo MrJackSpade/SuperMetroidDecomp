@@ -46,13 +46,13 @@ public sealed class GameplayColours
 
     /// <summary>The owners' colours laid over the sprite sets in order, the last owner's over the earlier's.</summary>
     /// <param name="owners">The owners.</param>
-    private sealed class ShownOverSprites(IGameplayColourOwner[] owners) : IInkRowColours
+    private sealed class ShownOverSprites(IGameplayColourOwner[] owners) : IImageGroupColours
     {
         /// <inheritdoc />
-        public void Overlay(int inkRow, Span<RgbColor> colours)
+        public void Overlay(ImageColourGroup group, Span<RgbColor> colours)
         {
             foreach (IGameplayColourOwner owner in owners)
-                owner.Overlay(inkRow, colours);
+                owner.Overlay(group, colours);
         }
     }
 }

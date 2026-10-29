@@ -76,14 +76,14 @@ internal static class SpriteSheetComposer
         var partManifest = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         for (int index = 0; index < laid.Length; index++)
         {
-            SpritePaletteRows rows = canvas.Paint(laid[index], bounds[index], corners[index], sources, palette, priority);
+            ImageColourGroups groups = canvas.Paint(laid[index], bounds[index], corners[index], sources, palette, priority);
             bool isPart = index >= frames.Count;
             var document = new SpriteSheetFrameDocument
             {
                 Corner = corners[index],
                 Size = bounds[index].Size,
                 Origin = new(checked((short)-bounds[index].TopLeft.X), checked((short)-bounds[index].TopLeft.Y)),
-                Rows = rows,
+                ColourGroups = groups,
                 Parts = isPart ? [] : frameParts[index],
             };
             (isPart ? partManifest : manifest).Add(laid[index].Name, document);
@@ -92,7 +92,7 @@ internal static class SpriteSheetComposer
         for (int colour = 0; colour < colours.Length; colour++)
             colours[colour] = spriteColours[colour].ToWord();
         return new ComposedSpriteSheet(size, canvas.Pixels, canvas.PaletteIndices, canvas.Priorities,
-            canvas.PartRows, new SpriteSheetDocument { Version = SpriteSheet.Version, Palette = SpriteImageColours.Sprite, Colours = colours, Frames = manifest, PartImages = partManifest });
+            canvas.PartGroups, new SpriteSheetDocument { Version = SpriteSheet.Version, Palette = SpriteImageColours.Sprite, Colours = colours, Frames = manifest, PartImages = partManifest });
     }
 
     /// <summary>
@@ -159,31 +159,32 @@ internal static class SpriteSheetComposer
         /// <summary>Each pixel's colour.</summary>
         internal RgbaPixel[] Pixels { get; } = new RgbaPixel[size.X * size.Y];
 
-        /// <summary>Each pixel's palette row times sixteen plus its colour.</summary>
+        /// <summary>Each pixel's colour group's place times sixteen plus its colour.</summary>
         internal byte[] PaletteIndices { get; } = new byte[size.X * size.Y];
 
         /// <summary>Each pixel's priority against the backgrounds.</summary>
         internal byte[] Priorities { get; } = new byte[size.X * size.Y];
 
-        /// <summary>Each pixel's part row, with the fixed-row flag where its part keeps its own.</summary>
-        internal byte[] PartRows { get; } = new byte[size.X * size.Y];
+        /// <summary>Each pixel's <see cref="PartColourGroup.Code"/>.</summary>
+        internal byte[] PartGroups { get; } = new byte[size.X * size.Y];
 
-        /// <summary>Paints <paramref name="source"/> at <paramref name="corner"/> and returns the rows it was coloured from.</summary>
-        internal SpritePaletteRows Paint(SheetFrameSource source, FrameBounds bound, Position16<ImagePixels> corner, SpriteSheetSources sources,
+        /// <summary>Paints <paramref name="source"/> at <paramref name="corner"/> and returns the colour groups it was coloured from.</summary>
+        internal ImageColourGroups Paint(SheetFrameSource source, FrameBounds bound, Position16<ImagePixels> corner, SpriteSheetSources sources,
             int palette, int priority)
         {
             int framePalette = source.Palette ?? palette;
-            SpritePaletteRows rows = SpritePaletteRows.None;
+            ImageColourGroups groups = ImageColourGroups.None;
             // Back to front, so the first part ends in front.
             for (int partIndex = source.Frame.Parts.Length - 1; partIndex >= 0; partIndex--)
             {
                 SpriteFramePart part = source.Frame.Parts[partIndex];
-                // A part taking its draw's palette is coloured in the frame's and keeps no row of its own, so an
-                // override replaces it; a part naming its own keeps it under an override when the family says so.
+                // A part taking its draw's palette is coloured in the frame's and has no group bits of its own, so a drawn
+                // colouring replaces it; a part naming its own keeps it under a colouring when the family says so.
                 int paletteRow = (part.Palette ?? framePalette) | sources.PaletteBits;
-                int partRow = part.Palette is not int own ? 0
-                    : sources.PartsKeepOwnRows ? own | SpriteImage.FixedPartRow : own;
-                rows |= SpritePaletteRowSet.Rows[paletteRow];
+                PartColourGroup partGroup = part.Palette is not int own ? PartColourGroup.Following(ImageColourGroup.Every[0])
+                    : sources.PartsKeepOwnRows ? PartColourGroup.Keeping(ImageColourGroup.Numbered(own))
+                    : PartColourGroup.Following(ImageColourGroup.Numbered(own));
+                groups = groups.With(ImageColourGroup.Numbered(paletteRow));
                 for (int row = 0; row < part.Size.Y; row++)
                 {
                     for (int column = 0; column < part.Size.X; column++)
@@ -197,11 +198,11 @@ internal static class SpriteSheetComposer
                         PaletteIndices[at] = (byte)(paletteRow * RowColours + colour);
                         // Parts are laid back to front, so each pixel ends with the priority of the part in front.
                         Priorities[at] = (byte)(part.Priority ?? priority);
-                        PartRows[at] = (byte)partRow;
+                        PartGroups[at] = (byte)partGroup.Code;
                     }
                 }
             }
-            return rows;
+            return groups;
         }
     }
 }

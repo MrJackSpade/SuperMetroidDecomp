@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// The pixel planes of a pre-coloured room sheet, painted one four-bpp tile at a time over a tileset's background colours
-/// (#1392): each pixel's colour, palette index, tile priority and row.
+/// (#1392): each pixel's colour, palette index, tile priority and colour group.
 /// </summary>
 /// <param name="size">The sheet's size.</param>
 internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
@@ -31,30 +31,30 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
     /// <summary>Each pixel's colour.</summary>
     internal RgbaPixel[] Pixels { get; } = new RgbaPixel[size.X * size.Y];
 
-    /// <summary>Each pixel's palette row times sixteen plus its colour; zero where transparent.</summary>
+    /// <summary>Each pixel's colour group's place times sixteen plus its colour; zero where transparent.</summary>
     internal byte[] PaletteIndices { get; } = new byte[size.X * size.Y];
 
     /// <summary>Each pixel's tile priority.</summary>
     internal byte[] Priorities { get; } = new byte[size.X * size.Y];
 
-    /// <summary>Each pixel's row, which no draw overrides.</summary>
-    internal byte[] PartRows { get; } = new byte[size.X * size.Y];
+    /// <summary>Each pixel's <see cref="PartColourGroup.Code"/>: its colour group, which no drawn colouring replaces.</summary>
+    internal byte[] PartGroups { get; } = new byte[size.X * size.Y];
 
     /// <summary>
     /// Paints <paramref name="tile"/> over <paramref name="character"/>'s 32 bytes with its top-left pixel at
-    /// (<paramref name="left"/>, <paramref name="top"/>), and returns the rows it was coloured from.
+    /// (<paramref name="left"/>, <paramref name="top"/>), and returns the colour groups it was coloured from.
     /// </summary>
-    internal SpritePaletteRows PaintTile(int left, int top, BackgroundTile tile, ReadOnlySpan<byte> character, RgbColor[] colours) =>
+    internal ImageColourGroups PaintTile(int left, int top, BackgroundTile tile, ReadOnlySpan<byte> character, RgbColor[] colours) =>
         PaintTile(left, top, new SnesBgTilemapWord(BackgroundTileWords.ToWord(tile)), character, colours);
 
     /// <summary>
     /// Paints tile word <paramref name="word"/> over <paramref name="character"/>'s 32 bytes with its top-left pixel at
-    /// (<paramref name="left"/>, <paramref name="top"/>), and returns the rows it was coloured from.
+    /// (<paramref name="left"/>, <paramref name="top"/>), and returns the colour groups it was coloured from.
     /// </summary>
-    internal SpritePaletteRows PaintTile(int left, int top, SnesBgTilemapWord word, ReadOnlySpan<byte> character, RgbColor[] colours)
+    internal ImageColourGroups PaintTile(int left, int top, SnesBgTilemapWord word, ReadOnlySpan<byte> character, RgbColor[] colours)
     {
         Ensure.LengthEqual(character, CharacterBytes);
-        SpritePaletteRows rows = SpritePaletteRows.None;
+        ImageColourGroups groups = ImageColourGroups.None;
         for (int y = 0; y < CharacterPixels; y++)
         {
             int row = word.FlipVertically ? CharacterPixels - 1 - y : y;
@@ -70,11 +70,12 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
                 PaletteIndices[pixel] = (byte)index;
                 Pixels[pixel] = colours[index].ToRgbaPixel();
                 Priorities[pixel] = word.HasPriority ? (byte)1 : (byte)0;
-                PartRows[pixel] = (byte)(word.PaletteIndex | SpriteImage.FixedPartRow);
-                rows |= SpritePaletteRowSet.Rows[word.PaletteIndex];
+                ImageColourGroup group = ImageColourGroup.Numbered(word.PaletteIndex);
+                PartGroups[pixel] = (byte)PartColourGroup.Keeping(group).Code;
+                groups = groups.With(group);
             }
         }
-        return rows;
+        return groups;
     }
 
     /// <summary>
@@ -82,18 +83,18 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
     /// (<paramref name="left"/>, <paramref name="top"/>), as <see cref="PaintTwoBppTile(int, int, SnesBgTilemapWord, ReadOnlySpan{byte}, RgbColor[])"/>
     /// paints its word.
     /// </summary>
-    internal SpritePaletteRows PaintTwoBppTile(int left, int top, BackgroundTile tile, ReadOnlySpan<byte> character, RgbColor[] colours) =>
+    internal ImageColourGroups PaintTwoBppTile(int left, int top, BackgroundTile tile, ReadOnlySpan<byte> character, RgbColor[] colours) =>
         PaintTwoBppTile(left, top, new SnesBgTilemapWord(BackgroundTileWords.ToWord(tile)), character, colours);
 
     /// <summary>
     /// Paints two-bit tile word <paramref name="word"/> over <paramref name="character"/>'s 16 bytes with its top-left pixel
     /// at (<paramref name="left"/>, <paramref name="top"/>), keeping each pixel's row times four plus its colour, colour
-    /// zero included, as BG3's sheets do; returns the rows it was coloured from.
+    /// zero included, as BG3's sheets do; returns the colour groups it was coloured from.
     /// </summary>
-    internal SpritePaletteRows PaintTwoBppTile(int left, int top, SnesBgTilemapWord word, ReadOnlySpan<byte> character, RgbColor[] colours)
+    internal ImageColourGroups PaintTwoBppTile(int left, int top, SnesBgTilemapWord word, ReadOnlySpan<byte> character, RgbColor[] colours)
     {
         Ensure.LengthEqual(character, TwoBppCharacterBytes);
-        SpritePaletteRows rows = SpritePaletteRows.None;
+        ImageColourGroups groups = ImageColourGroups.None;
         for (int y = 0; y < CharacterPixels; y++)
         {
             int row = word.FlipVertically ? CharacterPixels - 1 - y : y;
@@ -108,21 +109,22 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
                 if (colour == 0)
                 {
                     Pixels[pixel] = default;
-                    PartRows[pixel] = 0;
+                    PartGroups[pixel] = 0;
                     continue;
                 }
                 Pixels[pixel] = colours[index].ToRgbaPixel();
-                PartRows[pixel] = (byte)(index / RowColours | SpriteImage.FixedPartRow);
-                rows |= SpritePaletteRowSet.Rows[index / RowColours];
+                ImageColourGroup group = ImageColourGroup.OfInk(index);
+                PartGroups[pixel] = (byte)PartColourGroup.Keeping(group).Code;
+                groups = groups.With(group);
             }
         }
-        return rows;
+        return groups;
     }
 
     /// <summary>
     /// Paints one pixel of colour <paramref name="index"/> at <paramref name="at"/>, as a Mode 7 tile
-    /// names its colours directly from all 256; colour zero is transparent. Such a pixel has no part row, as no draw
-    /// overrides a background's rows.
+    /// names its colours directly from all 256; colour zero is transparent. Such a pixel has no part group, as no drawn
+    /// colouring replaces a background's colours.
     /// </summary>
     internal void PaintIndex(Position16<ImagePixels> at, int index, RgbColor[] colours)
     {
@@ -157,7 +159,7 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
     /// <summary>The painted planes as a sheet whose colour groups draw in <paramref name="backgroundSets"/>, or in none named.</summary>
     private ComposedSpriteSheet Sheet(RgbColor[] colours, Dictionary<string, SpriteSheetFrameDocument> frames,
         SpriteImageColours kind, BackgroundColourSet[]? backgroundSets) =>
-        new(Size, Pixels, PaletteIndices, Priorities, PartRows, new SpriteSheetDocument
+        new(Size, Pixels, PaletteIndices, Priorities, PartGroups, new SpriteSheetDocument
         {
             Version = SpriteSheet.Version,
             Palette = kind,

@@ -183,15 +183,15 @@ internal static class TileWordSheetComposer
         int rowColours = layer == TileWordLayer.Bg3 ? 4 : 16;
         var corner = new Position16<ImagePixels>(0, (ushort)(top * RoomTileCanvas.CharacterPixels));
         var size = new Extent16<ImagePixels>((ushort)canvas.Width, (ushort)(rows * RoomTileCanvas.CharacterPixels));
-        SpritePaletteRows coloured = SpritePaletteRows.None;
+        ImageColourGroups coloured = ImageColourGroups.None;
         for (int y = 0; y < size.Y; y++)
         for (int x = 0; x < size.X; x++)
         {
             int index = canvas.PaletteIndices[(corner.Y + y) * canvas.Width + x];
             if (index % rowColours != 0)
-                coloured |= SpritePaletteRowSet.Rows[index / 16];
+                coloured = coloured.With(ImageColourGroup.OfInk(index));
         }
-        return new SpriteSheetFrameDocument { Corner = corner, Size = size, Origin = default, Rows = coloured, Parts = [] };
+        return new SpriteSheetFrameDocument { Corner = corner, Size = size, Origin = default, ColourGroups = coloured, Parts = [] };
     }
 
     /// <summary>The parts <paramref name="writer"/> writes, each named, in a stable order.</summary>

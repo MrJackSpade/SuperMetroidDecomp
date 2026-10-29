@@ -80,13 +80,13 @@ internal static class CrystalFlashVisualsVerification
     }
 
     /// <summary>Samus's colours with her beam ink row, which the Crystal Flash's body and bubble show, blank.</summary>
-    private sealed class MutedBeamInkRow(SamusColours samus) : IInkRowColours
+    private sealed class MutedBeamInkRow(SamusColours samus) : IImageGroupColours
     {
         /// <inheritdoc />
-        public void Overlay(int inkRow, Span<RgbColor> colours)
+        public void Overlay(ImageColourGroup group, Span<RgbColor> colours)
         {
-            samus.Overlay(inkRow, colours);
-            if (inkRow == SamusColourDefinitions.BeamInkRow)
+            samus.Overlay(group, colours);
+            if (group.Number == SamusColourDefinitions.BeamInkRow)
                 colours.Clear();
         }
     }

@@ -22,14 +22,16 @@ public sealed class ShownColourSets
     /// </summary>
     /// <param name="owner">The sets.</param>
     /// <param name="shownOver">The owner whose colours some sets show in place of their own, or none.</param>
-    public static ShownColourSets Of(IColourSets owner, IInkRowColours? shownOver)
+    public static ShownColourSets Of(IColourSets owner, IImageGroupColours? shownOver)
     {
         Ensure.NotNull(owner);
         var sets = new RgbColor[ColourSets.SetCount][];
         for (int set = 0; set < ColourSets.SetCount; set++)
         {
             sets[set] = owner.Set(set).Colors.ToArray();
-            shownOver?.Overlay(set, sets[set]);
+            // An image colour group shows the set of its own place while nothing recolours it, so each set shows what
+            // the owner holds for that group.
+            shownOver?.Overlay(ImageColourGroup.Numbered(set), sets[set]);
         }
         return new ShownColourSets(sets);
     }

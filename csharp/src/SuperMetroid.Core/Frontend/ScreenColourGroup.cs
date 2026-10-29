@@ -191,4 +191,19 @@ public enum ScreenColourGroup
 
     /// <summary>The colours the title's copyright line draws in, among them its white and red glyph colours.</summary>
     TitleCopyright,
+
+    /// <summary>The map's bright label colours: the world map's title, the selected area's label and the elevator labels.</summary>
+    MapLabels,
+
+    /// <summary>The colours of the world map's unselected area labels.</summary>
+    MapDimLabels,
+
+    /// <summary>The colours a defeated boss's map marker draws in.</summary>
+    MapDefeatedBossMarker,
+
+    /// <summary>
+    /// The colours the map's station, boss and gunship markers, the load-station marker and Samus's position indicator draw
+    /// in.
+    /// </summary>
+    MapMarkers,
 }

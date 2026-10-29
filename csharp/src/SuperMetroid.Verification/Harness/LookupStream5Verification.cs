@@ -712,10 +712,10 @@ internal static class LookupStream5Verification
                     if (x == 0xfffe) continue;
                     if ((bits & 1) != 0)
                     {
-                        Draw(MapSpriteId.MarkerDefeatedBoss, x, y, FileSelectMapDefinitions.StationMarkerPalette);
-                        Draw(MapSpriteId.MarkerBoss, x, y, FileSelectMapDefinitions.DefeatedBossPalette);
+                        Draw(MapSpriteId.MarkerDefeatedBoss, x, y, ScreenColourGroup.MapMarkers);
+                        Draw(MapSpriteId.MarkerBoss, x, y, ScreenColourGroup.MapDefeatedBossMarker);
                     }
-                    else if (downloaded) Draw(MapSpriteId.MarkerBoss, x, y, FileSelectMapDefinitions.StationMarkerPalette);
+                    else if (downloaded) Draw(MapSpriteId.MarkerBoss, x, y, ScreenColourGroup.MapMarkers);
                 }
             if (area != AreaId.Ceres)
             {
@@ -723,20 +723,20 @@ internal static class LookupStream5Verification
                 if (area == AreaId.Crateria)
                 {
                     int ship = Root((int)FrontendSourceDefinitions.SavePointMapPointers, area);
-                    Draw(MapSpriteId.MarkerGunship, Read(ship), Read(ship + 2), FileSelectMapDefinitions.StationMarkerPalette);
+                    Draw(MapSpriteId.MarkerGunship, Read(ship), Read(ship + 2), ScreenColourGroup.MapMarkers);
                 }
                 if (downloaded)
                 {
                     pointer = Root(MapSourceDefinitions.Landmarks.ElevatorLists, area);
                     for (int i = 0; Read(pointer + i * 6) != ushort.MaxValue; i++)
-                        Draw(MapSpriteOrdinals.Spritemaps.Decode((ushort)Read(pointer + i * 6 + 4), "map spritemap ordinal"), Read(pointer + i * 6), Read(pointer + i * 6 + 2), 0);
+                        Draw(MapSpriteOrdinals.Spritemaps.Decode((ushort)Read(pointer + i * 6 + 4), "map spritemap ordinal"), Read(pointer + i * 6), Read(pointer + i * 6 + 2), ScreenColourGroup.MapLabels);
                 }
             }
             actual.FinishFrame(); expected.FinishFrame();
             AssertTrue(actual.ImageEquals(expected), "Actual native ordered landmark OAM");
             AssertEqual(defeated ? (byte)1 : (byte)0, system.GetBossBitsRaw(area), "Drawing preserves boss bits");
             AssertEqual(downloaded, system.HasAreaMap(area), "Drawing preserves map state");
-            void Draw(MapSpriteId id, int x, int y, ushort palette) => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(sprites), id, expected, new(unchecked((ushort)(x + adjustment - 7)), unchecked((ushort)(y + adjustment - 9))), palette);
+            void Draw(MapSpriteId id, int x, int y, ScreenColourGroup colouring) => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(sprites), id, expected, new(unchecked((ushort)(x + adjustment - 7)), unchecked((ushort)(y + adjustment - 9))), colouring);
         }
         AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarks.Bosses((AreaId)7), "Invalid boss area");
         AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarks.Elevators(AreaId.Ceres), "Ceres has no elevator labels");

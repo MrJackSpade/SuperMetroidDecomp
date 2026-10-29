@@ -35,7 +35,7 @@ internal static class PauseSelectorsVerification
         byte[] bytes = File.ReadAllBytes(stockPath);
         var document = RequiredJson.Deserialize<PauseSelectorDocument>(bytes, ArtworkJson.Options);
         var guard = NewPauseSelectorReadGuard(bus);
-        PaletteRowWords.AssertSelectsOnlyPaletteRow(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82b9c9), PauseMenuLayout.MapMarkerPalette, "compiled map caller palette matches native word");
+        PaletteRowWords.AssertSelectsOnlyPaletteRow(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82b9c9), ScreenColourGroups.SpriteSet(ScreenColourGroup.MapMarkers), "the map caller's colouring selects the native word's sprite set");
         Suite(nameof(VerifyPauseSelectorAnchors), () => VerifyPauseSelectorAnchors(bus));
         Suite(nameof(VerifyPauseSelectorNativeDurations), () => VerifyPauseSelectorNativeDurations(bus, catalog.PauseSelectors));
         for (int group = 0; group < 3; group++) VerifyPauseSelectorNativeCompositions(bus, catalog.PauseSelectors, group);

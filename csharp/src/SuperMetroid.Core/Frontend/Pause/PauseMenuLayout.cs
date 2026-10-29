@@ -13,7 +13,4 @@ internal static class PauseMenuLayout
     public const int ButtonRowsTileCount = 0x0040;
     /// <summary>$7E:3400 button source expressed relative to the $7E:3000 native word indexes.</summary>
     public const int ButtonSourceWordOrigin = 0x0200;
-
-    /// <summary>The sprite palette row the Samus position indicator draws in, independently overridable by authored sprite parts.</summary>
-    public const int MapMarkerPalette = 7;
 }

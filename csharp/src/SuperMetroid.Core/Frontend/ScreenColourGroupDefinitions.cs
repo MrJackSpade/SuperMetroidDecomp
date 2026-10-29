@@ -69,5 +69,9 @@ internal static class ScreenColourGroupDefinitions
             [ScreenColourGroup.TitleText] = ScreenSpriteSetPlacement.WholeSet(1),
             [ScreenColourGroup.TitleLogo] = ScreenSpriteSetPlacement.WholeSet(2),
             [ScreenColourGroup.TitleCopyright] = ScreenSpriteSetPlacement.WholeSet(4),
+            [ScreenColourGroup.MapLabels] = ScreenSpriteSetPlacement.WholeSet(0),
+            [ScreenColourGroup.MapDimLabels] = ScreenSpriteSetPlacement.WholeSet(1),
+            [ScreenColourGroup.MapDefeatedBossMarker] = ScreenSpriteSetPlacement.WholeSet(6),
+            [ScreenColourGroup.MapMarkers] = ScreenSpriteSetPlacement.WholeSet(7),
         };
 }

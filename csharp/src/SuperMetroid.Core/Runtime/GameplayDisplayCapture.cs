@@ -146,7 +146,7 @@ public static class GameplayDisplayCapture
             };
         var layer = new GameplaySceneLayer(view, rooms, new BackgroundLineScrolls(
             VisibleLines(bg2HorizontalScrolls),
-            VisibleLines(crocomireBg2Scroll is not null ? live.CrocomireMeltingScrolls : lavaY)),
+            VisibleLines(crocomireBody is not null ? live.CrocomireMeltingScrolls : lavaY)),
             live.DoorTransitionMainScreenLayers is null && live.MotherBrainAscentShowing
                 ? MotherBrainAscentDisplay.BuildGameplayLayers() : default);
         return new(frame.Paint, new DisplayLayer[] { layer },

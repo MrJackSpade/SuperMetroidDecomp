@@ -70,11 +70,11 @@ public sealed class SamusCrystalFlashState
     public SamusSpecialPaletteType SpecialPaletteKind { get; internal set; }
 
     /// <summary>
-    /// Byte offset of the current bubble colour set, 0 through twice the bubble-set count minus two, in steps of
-    /// two. Each bubble-timer expiry advances it by two and wraps it to zero after the last set; it is mirrored
-    /// into the shared special-palette frame the next special-palette owner inherits.
+    /// The bubble colour step shown next, 0 through the bubble-set count minus one. Each bubble-timer expiry advances
+    /// it by one and wraps it to zero after the last set; it is mirrored into the shared cycle step the next
+    /// special-palette owner inherits.
     /// </summary>
-    public int SpecialPaletteFrame { get; private set; }
+    public int BubbleStep { get; private set; }
 
     /// <summary>WRAM <c>$0A68</c>; <c>$FFFF</c> requests beam-palette restoration at finish.</summary>
     public WrappingCountdown SpecialPaletteTimer { get; internal set; }
@@ -182,12 +182,12 @@ public sealed class SamusCrystalFlashState
         RaisedPosition = Position16<RoomPixels>.Zero;
         CrystalPaletteTimer = WrappingCountdown.Start(1);
         SpecialPaletteKind = SamusSpecialPaletteType.CrystalFlash;
-        SpecialPaletteFrame = 0;
+        BubbleStep = 0;
         SpecialPaletteTimer = WrappingCountdown.Start(1);
-        // `$90:D5A2` clears shared `$0ACE` but does not write shared `$0AD0`. The latter
-        // is also Speed Booster's palette timer, so preserve the live aliased word rather
-        // than silently inventing the usual zero initialization.
-        samus.HorizontalSpeed.SpecialPaletteFrame = 0;
+        // `$90:D5A2` clears the shared cycle step but does not write the shared timer. The
+        // latter is also Speed Booster's palette timer, so preserve the live aliased value
+        // rather than silently inventing the usual zero initialization.
+        samus.HorizontalSpeed.CyclePaletteStep = 0;
         BodyPaletteRecordOffset = samus.HorizontalSpeed.SpecialPaletteTimer.RawValue;
         BubbleEffectRequested = false;
         ActivationSoundRequested = false;
@@ -377,7 +377,7 @@ public sealed class SamusCrystalFlashState
                 "Crystal Flash requires installed beam palettes.")).LoadTo(colours.Beam, beamType);
 
             SpecialPaletteKind = SamusSpecialPaletteType.None;
-            SpecialPaletteFrame = 0;
+            BubbleStep = 0;
             BodyPaletteRecordOffset = 0;
             SpecialPaletteTimer = WrappingCountdown.Start(0);
             CrystalPaletteTimer = WrappingCountdown.Start(0);
@@ -392,18 +392,16 @@ public sealed class SamusCrystalFlashState
         if (specialPaletteTimer.IsZeroOrNegative)
         {
             SpecialPaletteTimer = WrappingCountdown.Start(5);
-            if (colors is null || (SpecialPaletteFrame & 1) != 0 ||
-                SpecialPaletteFrame >= SamusPaletteDefinitions.CrystalFlash.BubblePaletteCount * sizeof(ushort))
+            if (colors is null || BubbleStep >= SamusPaletteDefinitions.CrystalFlash.BubblePaletteCount)
                 throw new InvalidDataException(
-                    $"Crystal Flash bubble frame {SpecialPaletteFrame} has no installed color.");
-            colors.ApplyBubble(colours, SpecialPaletteFrame / sizeof(ushort));
+                    $"Crystal Flash bubble step {BubbleStep} has no installed color.");
+            colors.ApplyBubble(colours, BubbleStep);
 
-            // The frame was validated below the table end above, so this advance stays far below any wrap.
-            int nextBubbleFrame = SpecialPaletteFrame + sizeof(ushort);
-            SpecialPaletteFrame = nextBubbleFrame <
-                SamusPaletteDefinitions.CrystalFlash.BubblePaletteCount * sizeof(ushort)
-                    ? nextBubbleFrame
-                    : 0;
+            // The step was validated below the set count above, so this advance stays far below any wrap.
+            int nextBubbleStep = BubbleStep + 1;
+            BubbleStep = nextBubbleStep < SamusPaletteDefinitions.CrystalFlash.BubblePaletteCount
+                ? nextBubbleStep
+                : 0;
         }
 
         CountdownStep crystalPaletteTimer =
@@ -446,7 +444,7 @@ public sealed class SamusCrystalFlashState
         // X-ray, and several other special handlers reuse the same two physical words.
         // Their handlers are mutually exclusive, but exposing the alias keeps breakpoint
         // inspection and the next owner's initial state faithful to WRAM.
-        samus.HorizontalSpeed.SpecialPaletteFrame = checked((ushort)SpecialPaletteFrame);
+        samus.HorizontalSpeed.CyclePaletteStep = BubbleStep;
         samus.HorizontalSpeed.SpecialPaletteTimer = WrappingCountdown.FromRaw(checked((ushort)BodyPaletteRecordOffset));
     }
 }

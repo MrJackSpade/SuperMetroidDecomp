@@ -4,7 +4,12 @@ using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.Core.Samus.Palettes;
 
-/// <summary>Where Samus's colours lie in her sheets' inks, and which of the frame's sprites show them (#1405).</summary>
+/// <summary>
+/// Where Samus's colours lie in her sheets' inks and among gameplay's colour positions, and which of the frame's
+/// sprites show them (#1405). Only <see cref="SamusColours"/> reads the positions, and besides it only the composers
+/// of her sheets read the ink rows: the colour router and her sheets' inks still address her colours that way until
+/// owner-keyed colour sets replace both (#1464).
+/// </summary>
 internal static class SamusColourDefinitions
 {
     /// <summary>The ink row Samus's suit is coloured in.</summary>
@@ -29,13 +34,16 @@ internal static class SamusColourDefinitions
     public const int FlareColour = 15;
 
     /// <summary>The visor's colour within the suit.</summary>
-    public const int VisorColour = SamusPaletteDefinitions.Common.VisorColorOffset;
+    public const int VisorColour = 4;
+
+    /// <summary>The gameplay colour position of Samus's first suit colour, which the colour router addresses.</summary>
+    public const int SuitFirstPosition = 0xc0;
+
+    /// <summary>The gameplay colour position of Samus's first beam colour, which the colour router addresses.</summary>
+    public const int BeamFirstPosition = 0xe0;
 
     /// <summary>The first beam colour the Crystal Flash's bubble shows.</summary>
     public const int CrystalFlashBubbleFirstColour = 10;
-
-    /// <summary>The colour index Samus's sixteen beam colours start at, in the sprite colours.</summary>
-    public const int BeamFirstColour = 0xe0;
 
     /// <summary>The first beam colour the Hyper Beam's cycle shows.</summary>
     public const int HyperBeamFirstColour = 1;

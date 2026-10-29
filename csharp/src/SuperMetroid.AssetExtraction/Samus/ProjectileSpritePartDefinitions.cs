@@ -32,9 +32,8 @@ public static class ProjectileSpritePartDefinitions
     /// <summary>$93:A252: Power-beam poses select OBJ tile $30..32 with priority2; those artwork choices remain required, while palette selects the installed CGRAM row.</summary>
     internal const int PowerPriority = 2;
 
-    /// <summary>$90:ACDE-ACE8 loads the active beam colors at CGRAM224. OBJ attributes select a sixteen-color row in CGRAM's upper half, so its palette field derives from that destination.</summary>
-    internal const int PowerPalette = (SamusColourDefinitions.BeamFirstColour - GameplayColours.ColorCount / 2) /
-        GameplayBasePaletteFormat.SpriteColorCount;
+    /// <summary>$90:ACDE-ACE8 loads the active beam colors into Samus's beam ink row, which the Power-beam poses select.</summary>
+    internal const int PowerPalette = SamusColourDefinitions.BeamInkRow;
 
     /// <summary>$82:E13E-E148 restores9A:81A0 at SpriteP5/CGRAM208. Fixed projectile artwork selects that installed sixteen-color row; its color payload remains required.</summary>
     internal const int FixedProjectilePalette = (GameplayBasePaletteFormat.EnemyProjectileInitialColor - GameplayColours.ColorCount / 2) /

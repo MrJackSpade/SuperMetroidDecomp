@@ -31,8 +31,8 @@ internal static class XrayScopeDefinitionsPaletteConstants
         internal static int VisorWords => XrayScopeDefinitionsPaletteConstants.VisorWords;
     }
         /// <summary>First CGRAM color occupied by Samus's OBJ palette.</summary>
-        public const int SamusCgramIndex = SamusPaletteDefinitions.Common.SuitFirstColour;
+        public const int SamusCgramIndex = 0xc0;
         /// <summary>CGRAM color within Samus's palette occupied by the visor.</summary>
         public const int VisorCgramIndex =
-            SamusCgramIndex + SamusPaletteDefinitions.Common.VisorColorOffset;
+            SamusCgramIndex + 4;
 }

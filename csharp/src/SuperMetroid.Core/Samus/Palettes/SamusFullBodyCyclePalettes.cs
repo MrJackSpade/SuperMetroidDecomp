@@ -1,111 +1,94 @@
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
+using static SuperMetroid.Core.Samus.Palettes.SamusPaletteDefinitions.FullBodyCycles;
+
 namespace SuperMetroid.Core.Samus.Palettes;
 
-/// <summary>Which cycle palette the special full-body palette handlers select for a suit and phase.</summary>
+/// <summary>Which cycle palette the special full-body palette handlers select for a suit and cycle step.</summary>
 public static class SamusFullBodyCyclePalettes
 {
     /// <summary>$91:D998: the cycle palette the special Super-palette flash alternates with normal suit colors, the Speed Booster family's last shade.</summary>
-    /// <param name="suitByteOffset">Even byte offset 0 (Power), 2 (Varia) or 4 (Gravity) into the native suit table.</param>
-    internal static SamusFullBodyCyclePalette SpeedBoostPalette(int suitByteOffset) =>
-        new(SamusFullBodyCycleFamily.SpeedBooster, Suit(suitByteOffset), 3);
+    /// <param name="suit">The suit Samus shows.</param>
+    internal static SamusFullBodyCyclePalette SpeedBoostPalette(SamusSuit suit) =>
+        new(SamusFullBodyCycleFamily.SpeedBooster, suit, SpeedBoostFlashShade);
 
     /// <summary>
-    /// Reads the Screw Attack palette anywhere in the compiled three-suit list allocation, including a restored phase
-    /// that runs on into the next suit's list.
+    /// Reads the Screw Attack palette anywhere in the three suits' consecutive lists, including a restored step that
+    /// runs on into the next suit's list.
     /// </summary>
-    internal static SamusFullBodyCyclePalette ReadScrewAttackPalette(
-        int suitByteOffset, int phaseByteOffset) =>
-        ReadCompiledList(suitByteOffset, phaseByteOffset, phaseCount: 6,
-            SamusFullBodyCycleFamily.ScrewAttack, PaletteCycleShape.PingPong);
+    /// <param name="suit">The suit Samus shows.</param>
+    /// <param name="step">The cycle step, counted from the suit's first entry.</param>
+    internal static SamusFullBodyCyclePalette ReadScrewAttackPalette(SamusSuit suit, int step) =>
+        ReadCompiledList(suit, step, ScrewAttackSteps, SamusFullBodyCycleFamily.ScrewAttack, PaletteCycleShape.PingPong);
 
     /// <summary>
-    /// Reads the active Speed Booster palette anywhere in the compiled three-suit list allocation. Gravity phases
-    /// eight and ten, inherited from the shared Screw Attack phase word, instead read the instruction bytes after
-    /// the lists.
+    /// Reads the active Speed Booster palette anywhere in the three suits' consecutive lists. Gravity's steps four and
+    /// five, inherited from the shared Screw Attack step, instead read the instruction bytes after the lists.
     /// </summary>
-    internal static SpeedBoosterPaletteSource ReadActiveSpeedBoosterPalette(
-        int suitByteOffset, int phaseByteOffset) =>
-        new SpeedBoosterPaletteOffsets(suitByteOffset, phaseByteOffset) switch
+    /// <param name="suit">The suit Samus shows.</param>
+    /// <param name="step">The cycle step, counted from the suit's first entry.</param>
+    internal static SpeedBoosterPaletteSource ReadActiveSpeedBoosterPalette(SamusSuit suit, int step) =>
+        new SpeedBoosterPaletteSelection(suit, step) switch
         {
-            (4, 8) => SpeedBoosterPaletteSource.Of(SpeedBoosterPaletteOverrun.Expansion),
-            (4, 10) => SpeedBoosterPaletteSource.Of(SpeedBoosterPaletteOverrun.GrappleCode),
-            _ => SpeedBoosterPaletteSource.Of(ReadCompiledList(suitByteOffset, phaseByteOffset, phaseCount: 4,
+            (SamusSuit.Gravity, GravityExpansionOverrunStep) => SpeedBoosterPaletteSource.Of(SpeedBoosterPaletteOverrun.Expansion),
+            (SamusSuit.Gravity, GravityGrappleCodeOverrunStep) => SpeedBoosterPaletteSource.Of(SpeedBoosterPaletteOverrun.GrappleCode),
+            _ => SpeedBoosterPaletteSource.Of(ReadCompiledList(suit, step, SpeedBoosterSteps,
                 SamusFullBodyCycleFamily.SpeedBooster, PaletteCycleShape.Linear)),
         };
 
-    /// <summary>
-    /// Resolves the bounded $91:DB10/$91:DB16 stored-shine suit and phase lists to a cycle palette.
-    /// </summary>
-    public static bool TryStoredShinePalette(
-        int suitByteOffset, int phaseByteOffset, out SamusFullBodyCyclePalette palette) =>
-        TryPalette(suitByteOffset, phaseByteOffset, 10, SamusFullBodyCycleFamily.StoredShine,
-            PaletteCycleShape.PingPong, out palette);
+    /// <summary>Resolves a stored-shine cycle step of the suit's own list ($91:DB10/$91:DB16) to a cycle palette.</summary>
+    public static bool TryStoredShinePalette(SamusSuit suit, int step, out SamusFullBodyCyclePalette palette) =>
+        TryPalette(suit, step, StoredShineSteps, SamusFullBodyCycleFamily.StoredShine, PaletteCycleShape.PingPong,
+            out palette);
+
+    /// <summary>Resolves an active-shinespark cycle step of the suit's own list ($91:DB75/$91:DB7B) to a cycle palette.</summary>
+    public static bool TryActiveShinesparkPalette(SamusSuit suit, int step, out SamusFullBodyCyclePalette palette) =>
+        TryPalette(suit, step, ActiveShinesparkSteps, SamusFullBodyCycleFamily.ActiveShinespark, PaletteCycleShape.Linear,
+            out palette);
 
     /// <summary>
-    /// Resolves the bounded $91:DB75/$91:DB7B active-shinespark suit and phase lists to a cycle palette.
-    /// </summary>
-    public static bool TryActiveShinesparkPalette(
-        int suitByteOffset, int phaseByteOffset, out SamusFullBodyCyclePalette palette) =>
-        TryPalette(suitByteOffset, phaseByteOffset, 6, SamusFullBodyCycleFamily.ActiveShinespark,
-            PaletteCycleShape.Linear, out palette);
-
-    /// <summary>
-    /// Resolves a valid suit/phase pair to a family's palette, mirroring later phases back toward the first shade
-    /// for ping-pong cycles.
+    /// Resolves a step within the suit's own list to a family's palette, mirroring later steps back toward the first
+    /// shade for ping-pong cycles; false for a step outside the list.
     /// </summary>
     private static bool TryPalette(
-        int suitByteOffset,
-        int phaseByteOffset,
-        int lastPhaseByteOffset,
+        SamusSuit suit,
+        int step,
+        int steps,
         SamusFullBodyCycleFamily family,
         PaletteCycleShape shape,
         out SamusFullBodyCyclePalette palette)
     {
-        if (suitByteOffset > 4 || (suitByteOffset & 1) != 0 ||
-            phaseByteOffset > lastPhaseByteOffset || (phaseByteOffset & 1) != 0)
+        if ((uint)step >= (uint)steps)
         {
             palette = default;
             return false;
         }
 
-        palette = new(family, suitByteOffset / 2, Shade(phaseByteOffset / 2, shape));
+        palette = new(family, suit, Shade(step, shape));
         return true;
     }
 
     /// <summary>
-    /// Reads the selected entry of a family's contiguous three-suit list allocation. The native two-level lookup
-    /// adds the full 16-bit phase word to the selected suit's list, so a phase can run on into the next suit's
-    /// list; a read that leaves the allocation, or straddles two entries, selects no cycle palette.
+    /// Reads the selected entry of a family's three consecutive suit lists. The cartridge adds the whole step to the
+    /// selected suit's list, so a step can run on into the next suit's list; a read that leaves the three lists selects
+    /// no cycle palette.
     /// </summary>
     private static SamusFullBodyCyclePalette ReadCompiledList(
-        int suitByteOffset,
-        int phaseByteOffset,
-        int phaseCount,
+        SamusSuit suit,
+        int step,
+        int steps,
         SamusFullBodyCycleFamily family,
         PaletteCycleShape shape)
     {
-        if (suitByteOffset > 4 || (suitByteOffset & 1) != 0)
-            throw new ArgumentOutOfRangeException(nameof(suitByteOffset));
-
-        int byteOffset = suitByteOffset / 2 * phaseCount * sizeof(ushort) + phaseByteOffset;
-        if (byteOffset + 1 >= 3 * phaseCount * sizeof(ushort))
+        int entry = suit.ListPlace() * steps + step;
+        if ((uint)entry >= (uint)(SamusSuitDefinitions.ListOrder.Length * steps))
             throw new InvalidDataException(
-                $"{family} palette list read at byte {byteOffset} is outside the compiled list allocation.");
-        if ((byteOffset & 1) != 0)
-            throw new InvalidDataException(
-                $"{family} palette list read at odd byte {byteOffset} straddles two entries and selects no cycle palette.");
+                $"{family} palette list read at entry {entry} is outside the compiled lists.");
 
-        int entry = byteOffset / sizeof(ushort);
-        return new(family, entry / phaseCount, Shade(entry % phaseCount, shape));
+        return new(family, SamusSuits.AtListPlace(entry / steps), Shade(entry % steps, shape));
     }
 
-    /// <summary>The shade a cycle phase shows: linear cycles step through their shades, ping-pong cycles return.</summary>
-    private static int Shade(int phase, PaletteCycleShape shape) =>
-        shape == PaletteCycleShape.PingPong ? Math.Min(phase, 6 - phase) : phase;
-
-    /// <summary>The suit an even native suit-table byte offset selects.</summary>
-    private static int Suit(int suitByteOffset) => suitByteOffset is 0 or 2 or 4
-        ? suitByteOffset / 2
-        : throw new ArgumentOutOfRangeException(nameof(suitByteOffset));
+    /// <summary>The shade a cycle step shows: linear cycles step through their shades, ping-pong cycles return.</summary>
+    private static int Shade(int step, PaletteCycleShape shape) =>
+        shape == PaletteCycleShape.PingPong ? Math.Min(step, PingPongSpan - step) : step;
 }

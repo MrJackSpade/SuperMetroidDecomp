@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Samus.Palettes;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
@@ -46,18 +47,18 @@ public sealed class InstalledSamusSuitColors
         return differences;
     }
 
-    /// <summary>Resolves one packed RGB555 color from the selected normal suit palette.</summary>
-    /// <param name="suitTableOffset">Native categorical table offset: 0 for Power, 2 for Varia, or 4 for Gravity.</param>
-    /// <param name="colorIndex">OBJ palette slot from 0 through 15, including the transparent slot.</param>
-    /// <returns>The selected packed SNES RGB555 word.</returns>
-    public RgbColor Resolve(int suitTableOffset, int colorIndex)
+    /// <summary>Resolves one of a suit's normal colours.</summary>
+    /// <param name="suit">The suit whose colours are read.</param>
+    /// <param name="colorIndex">The suit colour, 0 through 15, including the transparent one.</param>
+    /// <returns>The suit's colour.</returns>
+    public RgbColor Resolve(SamusSuit suit, int colorIndex)
     {
-        Dictionary<ColourCell, RgbColor>? differences = suitTableOffset switch
+        Dictionary<ColourCell, RgbColor>? differences = suit switch
         {
-            0 => null,
-            2 => varia,
-            4 => gravity,
-            _ => throw new ArgumentOutOfRangeException(nameof(suitTableOffset)),
+            SamusSuit.Power => null,
+            SamusSuit.Varia => varia,
+            SamusSuit.Gravity => gravity,
+            _ => throw new ArgumentOutOfRangeException(nameof(suit)),
         };
         if ((uint)colorIndex >= SamusSuitColorFormat.ColorsPerSuit)
             throw new ArgumentOutOfRangeException(nameof(colorIndex));
@@ -65,11 +66,14 @@ public sealed class InstalledSamusSuitColors
             ? color : power[colorIndex];
     }
 
-    /// <summary>Writes only Samus's sixteen OBJ colors; no equipment or phase state changes.</summary>
-    public void Apply(ColourRun suit, int suitTableOffset)
+    /// <summary>
+    /// Shows <paramref name="shown"/>'s normal colours in <paramref name="suit"/>, Samus's suit colours or the intro's
+    /// copy of them; no equipment or phase state changes.
+    /// </summary>
+    public void Apply(ColourRun suit, SamusSuit shown)
     {
         for (int index = 0; index < SamusSuitColorFormat.ColorsPerSuit; index++)
             suit.Write(index,
-                Resolve(suitTableOffset, index));
+                Resolve(shown, index));
     }
 }

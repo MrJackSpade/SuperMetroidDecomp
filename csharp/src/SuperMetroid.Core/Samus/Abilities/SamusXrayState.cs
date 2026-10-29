@@ -5,7 +5,6 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Artwork;
 
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
@@ -113,10 +112,10 @@ public sealed class SamusXrayState
     public SamusSpecialPaletteType SpecialPaletteKind { get; private set; }
 
     /// <summary>
-    /// Byte offset of the visor colour shown next, an even value from 0 through 10: widening shows 0, 2 and 4 and
-    /// holds 4; the full beam cycles 6, 8 and 10. Every advance is bounded by those comparisons.
+    /// The visor shade shown next, 0 through 5: widening shows 0, 1 and 2 and holds 2; the full beam cycles 3, 4
+    /// and 5. Every advance is bounded by those comparisons.
     /// </summary>
-    public int SpecialPaletteFrame { get; private set; }
+    public int VisorShade { get; private set; }
 
     /// <summary>WRAM `$0AD0`, the shared five-frame palette cadence timer.</summary>
     public WrappingCountdown CommonPaletteTimer { get; private set; }
@@ -267,7 +266,7 @@ public sealed class SamusXrayState
         // `$0A68` even when an interrupted Flash, not a normal charge, owns it.
         samus.CrystalFlash.RelinquishMovementHandler();
         samus.CrystalFlash.RelinquishPaletteHandler();
-        SpecialPaletteFrame = 0;
+        VisorShade = 0;
         CommonPaletteTimer = WrappingCountdown.Start(1);
         ActivationSoundRequested = true;
         OwnsSamusControl = true;
@@ -323,7 +322,7 @@ public sealed class SamusXrayState
         AngularWideningSpeed = SignedSixteenSixteen.Zero;
         VisorPaletteMode = XrayVisorPaletteMode.Widening;
         SpecialPaletteKind = SamusSpecialPaletteType.None;
-        SpecialPaletteFrame = 0;
+        VisorShade = 0;
         CommonPaletteTimer = WrappingCountdown.Start(0);
     }
 
@@ -331,7 +330,7 @@ public sealed class SamusXrayState
     internal void RelinquishPaletteHandler()
     {
         SpecialPaletteKind = SamusSpecialPaletteType.None;
-        SpecialPaletteFrame = 0;
+        VisorShade = 0;
         CommonPaletteTimer = WrappingCountdown.Start(0);
         VisorPaletteMode = XrayVisorPaletteMode.Widening;
     }
@@ -517,7 +516,7 @@ public sealed class SamusXrayState
             // complete normal suit palette, then clears every X-ray palette word.
             SamusNormalSuitPalette.Load(colours.Suit, equippedItems, suitColors);
             SpecialPaletteKind = SamusSpecialPaletteType.None;
-            SpecialPaletteFrame = 0;
+            VisorShade = 0;
             CommonPaletteTimer = WrappingCountdown.Start(0);
             VisorPaletteMode = XrayVisorPaletteMode.Widening;
             return true;
@@ -528,8 +527,8 @@ public sealed class SamusXrayState
 
         if (VisorPaletteMode == XrayVisorPaletteMode.Widening && BeamPhase is not (XrayBeamPhase.NoBeam or XrayBeamPhase.Widening))
         {
-            // `$91:DCEA` enters the full-beam three-color loop at byte offset six.
-            SpecialPaletteFrame = XrayScopeDefinitions.Palette.FullCycleFirstWordOffset;
+            // `$91:DCEA` enters the full-beam three-color loop at its first shade.
+            VisorShade = XrayScopeDefinitions.Palette.FullCycleFirstShade;
             CommonPaletteTimer = WrappingCountdown.Start(1);
             VisorPaletteMode = XrayVisorPaletteMode.FullBeam;
         }
@@ -540,27 +539,22 @@ public sealed class SamusXrayState
             return false;
 
         CommonPaletteTimer = WrappingCountdown.Start(XrayScopeDefinitions.Palette.FrameDelay);
-        // Keep the cartridge read for non-catalog offsets reachable through externally
-        // edited debugger state; ordinary widening/cycling uses installed artwork.
-        if (PresentationColors is null ||
-            !PresentationColors.TryResolveByteOffset(SpecialPaletteFrame, out RgbColor visorColor))
-            throw new InvalidDataException(
-                $"X-ray visor offset {SpecialPaletteFrame} has no installed color.");
-        colours.Visor.Write(0, visorColor);
+        colours.ShowVisor((PresentationColors ?? throw new InvalidDataException(
+            $"X-ray visor shade {VisorShade} has no installed color.")).Resolve(VisorShade));
 
         if (VisorPaletteMode == XrayVisorPaletteMode.Widening)
         {
-            // Widening uses offsets 0,2,4 and then pins four until state two is observed.
-            if (SpecialPaletteFrame < XrayScopeDefinitions.Palette.WideningFinalWordOffset)
-                SpecialPaletteFrame += sizeof(ushort);
+            // Widening shows shades 0,1,2 and then pins the last until state two is observed.
+            if (VisorShade < XrayScopeDefinitions.Palette.WideningFinalShade)
+                VisorShade++;
         }
         else
         {
-            // Full beam cycles offsets 6,8,10,6... with the comparison after increment.
-            int next = SpecialPaletteFrame + sizeof(ushort);
-            SpecialPaletteFrame = next < XrayScopeDefinitions.Palette.FullCycleEndWordOffset
+            // Full beam cycles shades 3,4,5,3... with the comparison after increment.
+            int next = VisorShade + 1;
+            VisorShade = next < XrayScopeDefinitions.Palette.FullCycleEndShade
                 ? next
-                : XrayScopeDefinitions.Palette.FullCycleFirstWordOffset;
+                : XrayScopeDefinitions.Palette.FullCycleFirstShade;
         }
 
         return true;

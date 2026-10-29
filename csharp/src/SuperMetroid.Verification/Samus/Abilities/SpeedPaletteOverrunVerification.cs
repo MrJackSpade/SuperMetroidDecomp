@@ -31,7 +31,7 @@ internal static class SpeedPaletteOverrunVerification
             ushort equipped = ((SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.SpeedBooster).ToEquipmentWord());
             for (int call = 0; call < phase / 2; call++)
                 speed.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipped) }, cycleColors: colors, overreads: InstalledFixtures.SamusOverreads);
-            AssertEqual(phase, speed.SpecialPaletteFrame, "Screw Attack leaves its shared phase for the next movement handler");
+            AssertEqual(phase / sizeof(ushort), speed.CyclePaletteStep, "Screw Attack leaves its shared step for the next movement handler");
             AssertTrue(speed.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.NormalJumping, AnimationFrame = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipped) }, cycleColors: colors, overreads: InstalledFixtures.SamusOverreads),
                 "leaving Screw Attack while boosted copies the native overrun palette without a crash");
             ushort pointer = Read(0x910000 | (Read(0x91daad) + phase));
@@ -40,12 +40,12 @@ internal static class SpeedPaletteOverrunVerification
                 // $91:DD64..DDD0 uses LDA $0000..001E,X. At the $68AD expansion
                 // pointer each high operand byte drives zero onto the undriven bus.
                 ushort expected = pointer == 0x68ad ? (ushort)0 : (ushort)(Read(0x9b0000 | (pointer + color * 2)) & 0x7fff);
-                AssertEqual(expected, cgram.Colors[192 + color], $"phase {phase} native overrun color {color}");
+                AssertEqual(expected, cgram.Samus.Suit[color], $"phase {phase} native overrun color {color}");
             }
-            AssertEqual(6, speed.SpecialPaletteFrame, "native clamps the phase only after the overrun read");
+            AssertEqual(SamusPaletteDefinitions.FullBodyCycles.SpeedBoosterLastStep, speed.CyclePaletteStep, "native clamps the step only after the overrun read");
             AssertEqual((ushort)4, speed.SpecialPaletteTimer.RawValue, "native reloads the four-frame timer");
-            string actualTrace = $"{phase},{speed.SpecialPaletteFrame},{speed.SpecialPaletteTimer.RawValue}," +
-                string.Concat(cgram.Colors.Slice(192, 16).SelectToArray(color => color.ToWord().ToString("X4")));
+            string actualTrace = $"{phase},{speed.CyclePaletteStep * sizeof(ushort)},{speed.SpecialPaletteTimer.RawValue}," +
+                string.Concat(cgram.Samus.Suit.Colors.SelectToArray(color => color.ToWord().ToString("X4")));
             AssertEqual(nativeTrace[traceRow++], actualTrace, "port colors/phase/timer match execution of original ROM on the 65816 core");
             var first = cgram.Colors.ToArray();
             for (int call = 0; call < 3; call++)
@@ -55,7 +55,7 @@ internal static class SpeedPaletteOverrunVerification
             }
             speed.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.NormalJumping, AnimationFrame = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipped) }, cycleColors: colors, overreads: InstalledFixtures.SamusOverreads);
             for (int color = 0; color < 16; color++)
-                AssertEqual((ushort)(Read(0x9b9f80 + color * 2) & 0x7fff), cgram.Colors[192 + color], "next tick restores native final Gravity boost shade");
+                AssertEqual((ushort)(Read(0x9b9f80 + color * 2) & 0x7fff), cgram.Samus.Suit[color], "next tick restores native final Gravity boost shade");
         }
         Console.WriteLine("Speed palette overrun: Screw Attack phases 8/10, exact native colors, four-frame hold and next-tick recovery pass without gameplay ROM access.");
         ushort Read(int address) => ReadNativeSpeedOverrunPaletteWord(cart, address);

@@ -266,7 +266,7 @@ internal static void VerifySamusHorizontalSpeed()
     AssertTrue(booster.UpdateSpeedBoosterPalette(boostCgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = SamusEquipmentFlags.SpeedBooster }, suitColors: SuitColors(), cycleColors: CycleColors()),
         "stage-four palette timer one copies immediately");
     AssertEqual(0x1234, boostCgram.Colors[192], "first Speed Booster palette comes from bank $9B");
-    AssertEqual(2, booster.SpecialPaletteFrame, "Speed Booster palette advances to pointer offset two");
+    AssertEqual(1, booster.CyclePaletteStep, "Speed Booster palette advances to its second step");
     AssertEqual(4, booster.SpecialPaletteTimer.RawValue, "Speed Booster palette reloads four-frame timer");
     for (int paletteTick = 0; paletteTick < 3; paletteTick++)
     {
@@ -295,7 +295,7 @@ internal static void VerifySamusHorizontalSpeed()
         "submerged Speed Booster leaves live Samus palette untouched");
     AssertEqual(0, submergedBoost.SpecialPaletteTimer.RawValue,
         "submerged Speed Booster freezes common palette timer");
-    AssertEqual(0, submergedBoost.SpecialPaletteFrame,
+    AssertEqual(0, submergedBoost.CyclePaletteStep,
         "submerged Speed Booster freezes palette-list offset");
     AssertTrue(submergedBoost.UpdateSpeedBoosterPalette(submergedBoostCgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.SpeedBooster), BottomBoundarySubmerged = true }, suitColors: SuitColors(), cycleColors: CycleColors()),
         "submerged Gravity Suit bypasses Speed Booster palette suppression");
@@ -314,7 +314,7 @@ internal static void VerifySamusHorizontalSpeed()
         "submerged Power Suit suppresses active Screw Attack palette copy");
     AssertEqual(0x2222, submergedScrewCgram.Colors[192],
         "submerged Screw Attack retains the current suit colors");
-    AssertEqual(0, submergedScrew.SpecialPaletteFrame,
+    AssertEqual(0, submergedScrew.CyclePaletteStep,
         "submerged Screw Attack freezes palette-list offset");
     AssertTrue(submergedScrew.UpdateSpeedBoosterPalette(submergedScrewCgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 26, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack), BottomBoundarySubmerged = true }, suitColors: SuitColors(), cycleColors: CycleColors()),
         "submerged Gravity Suit bypasses Screw Attack palette suppression");

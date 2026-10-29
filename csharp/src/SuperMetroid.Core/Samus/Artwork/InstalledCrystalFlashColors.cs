@@ -93,8 +93,8 @@ public sealed class InstalledCrystalFlashColors
         return new RgbColor(31, channel, channel);
     }
 
-    /// <summary>Copies one body frame to CGRAM colors $E0-$E9 without changing the bubble colors or advancing any gameplay timer.</summary>
-    /// <param name="colours">Destination color memory.</param>
+    /// <summary>Shows one body frame as Samus's Crystal Flash body colours without changing the bubble colors or advancing any gameplay timer.</summary>
+    /// <param name="colours">Samus's colours.</param>
     /// <param name="frame">Zero-based body playback record index, 0 through 9.</param>
     /// <exception cref="ArgumentNullException"><paramref name="colours"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The body frame index is outside the sequence.</exception>
@@ -105,8 +105,8 @@ public sealed class InstalledCrystalFlashColors
             colours.CrystalFlashBody.Write(color,
                 ResolveBody(frame, color));
     }
-    /// <summary>Copies one bubble frame to CGRAM colors $EA-$EF without changing the body colors or advancing any gameplay timer.</summary>
-    /// <param name="colours">Destination color memory.</param>
+    /// <summary>Shows one bubble frame as Samus's Crystal Flash bubble colours without changing the body colors or advancing any gameplay timer.</summary>
+    /// <param name="colours">Samus's colours.</param>
     /// <param name="frame">Zero-based bubble palette index, 0 through 5.</param>
     /// <exception cref="ArgumentNullException"><paramref name="colours"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The bubble frame index is outside the sequence.</exception>

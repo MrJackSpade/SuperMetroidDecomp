@@ -30,7 +30,7 @@ internal static class NormalSuitPalettePointersVerification
         ushort[] expectedPointers = [0x9400, 0x9520, 0x9800, 0x9800];
         for (int selection = 0; selection < equipment.Length; selection++)
         {
-            ushort offset = equipment[selection].GetSuitPaletteTableOffset();
+            ushort offset = SamusPaletteNative.SuitTableByteOffset(equipment[selection].ShownSuit());
             int source = SamusPaletteDefinitions.Common.NormalSuitPointers + offset;
             ushort nativePointer = LittleEndianBytes.Word(CpuBusRegionRead.Read(rom, source), CpuBusRegionRead.Read(rom, source + 1));
             AssertEqual(expectedPointers[selection], nativePointer,
@@ -50,7 +50,7 @@ internal static class NormalSuitPalettePointersVerification
             for (int color = 0; color < SamusSuitColorFormat.ColorsPerSuit; color++)
                 AssertEqual((ushort)(RomDataReader.ReadWordFixedBank(rom,
                         SamusSourceDefinitions.PaletteBank.Value | (nativePointer + color * sizeof(ushort))) & 0x7fff),
-                    installedColors.Colors[SamusPaletteDefinitions.Common.SuitFirstColour + color],
+                    installedColors.Samus.Suit[color],
                     $"normal suit CGRAM selection {selection}, color {color} matches ROM");
             AssertEqual(3, samus.SpecialSuperPaletteFlags,
                 "special palette counter increments");

@@ -12,12 +12,12 @@ public static class XrayScopeDefinitions
     /// <summary>Palette words copied into Samus's visor colors while X-ray is active.</summary>
     public static class Palette
     {
-        /// <summary>Final visor word offset retained while the beam widens.</summary>
-        public const ushort WideningFinalWordOffset = 4;
-        /// <summary>First visor word offset in the full-beam cycle.</summary>
-        public const ushort FullCycleFirstWordOffset = SamusPaletteDefinitions.Visor.CycleFirstByteOffset;
-        /// <summary>Exclusive visor word offset ending the full-beam cycle.</summary>
-        public const ushort FullCycleEndWordOffset = SamusPaletteDefinitions.Visor.CycleEndByteOffset;
+        /// <summary>The last widening visor shade, held while the beam widens.</summary>
+        public const int WideningFinalShade = 2;
+        /// <summary>The first visor shade of the full-beam cycle.</summary>
+        public const int FullCycleFirstShade = SamusPaletteDefinitions.Visor.CycleFirstShade;
+        /// <summary>The visor shade count, which ends the full-beam cycle.</summary>
+        public const int FullCycleEndShade = SamusPaletteDefinitions.Visor.CycleEndShade;
         /// <summary>Frames between visor color advances.</summary>
         public const ushort FrameDelay = SamusPaletteDefinitions.Visor.FrameDelay;
     }

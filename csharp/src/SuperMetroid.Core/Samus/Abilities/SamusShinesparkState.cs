@@ -52,10 +52,10 @@ public sealed class SamusShinesparkState
     public WrappingCountdown ShineTimer { get; private set; }
 
     /// <summary>
-    /// Byte offset of the next shine palette phase, an even value below twelve for the stored shine and below eight
-    /// while sparking: each palette call advances it by two and returns it to zero at that limit.
+    /// The next step of the shine colour cycle, below the stored-shine list's six steps for the stored shine and below the
+    /// active list's four while sparking: each palette call advances it by one and returns it to zero at that limit.
     /// </summary>
-    public int PaletteFrameOffset { get; private set; }
+    public int PaletteStep { get; private set; }
 
     /// <summary>WRAM <c>$0A64</c>, the shared 30-frame windup/crash countdown.</summary>
     public WrappingCountdown StartStopTimer { get; internal set; }
@@ -107,7 +107,7 @@ public sealed class SamusShinesparkState
         Phase = ShinesparkPhase.Inactive;
         ShineTimer = WrappingCountdown.Start(0);
         PaletteType = SamusSpecialPaletteType.None;
-        PaletteFrameOffset = 0;
+        PaletteStep = 0;
     }
 
     /// <summary>Set at stored timer 170, matching SFX queue three `$0C`.</summary>
@@ -234,7 +234,7 @@ public sealed class SamusShinesparkState
     {
         ShineTimer = WrappingCountdown.Start(0);
         PaletteType = SamusSpecialPaletteType.None;
-        PaletteFrameOffset = 0;
+        PaletteStep = 0;
         if (Phase == ShinesparkPhase.Stored)
             Phase = ShinesparkPhase.Inactive;
     }
@@ -263,7 +263,7 @@ public sealed class SamusShinesparkState
 
         ShineTimer = WrappingCountdown.Start(180);
         PaletteType = SamusSpecialPaletteType.SpeedBoosterShine;
-        PaletteFrameOffset = 0;
+        PaletteStep = 0;
         Phase = ShinesparkPhase.Stored;
         StoredShineWarningSoundRequested = false;
         return true;
@@ -333,7 +333,7 @@ public sealed class SamusShinesparkState
         StartStopTimer = WrappingCountdown.Start(30);
         ShineTimer = WrappingCountdown.Start(60);
         PaletteType = SamusSpecialPaletteType.Shinesparking;
-        PaletteFrameOffset = 0;
+        PaletteStep = 0;
         Phase = ShinesparkPhase.Windup;
         samus.HurtFlashCounter = 0;
         LaunchSoundRequested = false;
@@ -757,31 +757,32 @@ false);
         if (expired)
         {
             PaletteType = SamusSpecialPaletteType.None;
-            PaletteFrameOffset = 0;
+            PaletteStep = 0;
             if (Phase == ShinesparkPhase.Stored)
                 Phase = ShinesparkPhase.Inactive;
             SamusNormalSuitPalette.Load(colours.Suit, equippedItems, suitColors);
             return true;
         }
 
-        int suitOffset = equippedItems.GetSuitPaletteTableOffset();
-        int phaseOffset = checked((ushort)PaletteFrameOffset);
+        SamusSuit suit = equippedItems.ShownSuit();
         bool catalogued = PaletteType == SamusSpecialPaletteType.SpeedBoosterShine
             ? SamusFullBodyCyclePalettes.TryStoredShinePalette(
-                suitOffset, phaseOffset, out SamusFullBodyCyclePalette palette)
+                suit, PaletteStep, out SamusFullBodyCyclePalette palette)
             : SamusFullBodyCyclePalettes.TryActiveShinesparkPalette(
-                suitOffset, phaseOffset, out palette);
+                suit, PaletteStep, out palette);
         if (!catalogued)
             throw new InvalidDataException(
-                $"Shinespark palette type {PaletteType} offset {PaletteFrameOffset} is not compiled.");
+                $"Shinespark palette type {PaletteType} step {PaletteStep} is not compiled.");
         (cycleColors ?? throw new InvalidOperationException(
             "Shinespark palette requires installed color assets.")).Apply(colours, palette);
 
-        int exclusiveLimit = PaletteType == SamusSpecialPaletteType.SpeedBoosterShine ? 12 : 8;
-        // The offset is always below its limit before this advance, so it never approaches a wrap.
-        PaletteFrameOffset += 2;
-        if (PaletteFrameOffset >= exclusiveLimit)
-            PaletteFrameOffset = 0;
+        int steps = PaletteType == SamusSpecialPaletteType.SpeedBoosterShine
+            ? SamusPaletteDefinitions.FullBodyCycles.StoredShineSteps
+            : SamusPaletteDefinitions.FullBodyCycles.ActiveShinesparkSteps;
+        // The step is always below its limit before this advance, so it never approaches a wrap.
+        PaletteStep++;
+        if (PaletteStep >= steps)
+            PaletteStep = 0;
         return true;
     }
 

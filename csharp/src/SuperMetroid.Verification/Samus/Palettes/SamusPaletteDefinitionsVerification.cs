@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Samus.Movement.SamusMovementDefinitionsVerification;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Samus.Palettes;
 
@@ -19,10 +20,12 @@ internal static class SamusPaletteDefinitionsVerification
     /// </summary>
     internal static void VerifySamusPaletteRomData()
     {
-        AssertEqual(
-            SamusPaletteDefinitions.Common.SuitFirstColour +
-                SamusPaletteDefinitions.Common.VisorColorOffset,
-            XrayScopeDefinitionsPaletteConstants.VisorCgramIndex,
+        // Samus's visor colour, written through her colour owner, is the one the native X-ray catalog names.
+        var visorRig = new SamusColourRig();
+        var visorGreen = new RgbColor(0, 31, 0);
+        visorRig.Samus.ShowVisor(visorGreen);
+        AssertEqual(visorGreen, visorRig.Samus.Visor, "the visor shows the colour written to it");
+        AssertEqual(visorGreen, visorRig.Colors[XrayScopeDefinitionsPaletteConstants.VisorCgramIndex],
             "shared visor destination agrees with X-ray catalog");
         AssertEqual(
             SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount,
@@ -54,7 +57,7 @@ internal static class SamusPaletteDefinitionsVerification
             SamusPaletteDefinitions.Common.ColoursPerRow * sizeof(ushort),
             "intro Samus colors");
         TouchRange(bus, SamusSourceDefinitions.VisorColors.Value,
-            SamusPaletteDefinitions.Visor.CycleEndByteOffset,
+            SamusPaletteDefinitions.Visor.CycleEndShade * sizeof(ushort),
             "Samus visor colors");
 
         foreach (int table in new[]

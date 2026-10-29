@@ -5,7 +5,6 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -180,10 +179,6 @@ internal sealed class ProjectileAnimation
         SamusColours colours,
         SamusState samus) =>
         SamusNormalSuitPalette.Load(colours.Suit, samus.EquippedItems, samus.Presentation.SuitColors);
-
-    /// <summary>Maps equipped suit bits to the native normal-suit palette table offset.</summary>
-    internal static ushort GetSuitPaletteOffset(SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems) =>
-        equippedItems.GetSuitPaletteTableOffset();
 
     /// <summary>Installed timed-frame sprite choices; null retains the cartridge diagnostic path.</summary>
     [field: NonSerialized]

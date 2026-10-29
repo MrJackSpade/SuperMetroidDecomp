@@ -17,19 +17,4 @@ public static class SamusEquipmentFlagExtensions
     /// <param name="flags">One or more beam bits to test.</param>
     /// <returns><see langword="true"/> when the two sets share any set bit.</returns>
     public static bool HasAny(this SamusBeamFlags beams, SamusBeamFlags flags) => (beams & flags) != SamusBeamFlags.None;
-
-    /// <summary>
-    /// Resolves the byte offset used by every native suit-palette pointer table. Gravity
-    /// wins when both suit bits are set, exactly matching the cartridge's branch order;
-    /// this is an ordinary three-way discriminator, not another flag set.
-    /// </summary>
-    public static ushort GetSuitPaletteTableOffset(this SamusEquipmentFlags equippedItems)
-    {
-        if (equippedItems.HasAny(SamusEquipmentFlags.GravitySuit))
-            return 4;
-
-        return equippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-            ? (ushort)2
-            : (ushort)0;
-    }
 }

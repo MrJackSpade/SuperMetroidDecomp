@@ -48,9 +48,6 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
         return SamusSuitColorFile.Read(json);
     }
 
-    /// <summary>The Power Suit's place in the suit colour tables.</summary>
-    private const ushort PowerSuit = 0;
-
     /// <summary>CGRAM's first sprite colour.</summary>
     private const int SpriteColours = 128;
 
@@ -61,7 +58,7 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
     internal RgbColor[] SuitedColours()
     {
         ScreenPalette cgram = RoomLoadColours();
-        SuitColors.Apply(cgram.SpriteRow(SamusColourDefinitions.SuitInkRow), PowerSuit);
+        SuitColors.Apply(cgram.SpriteRow(SamusColourDefinitions.SuitInkRow), SamusSuit.Power);
         SamusProjectileSystem.LoadBeamPalette(cgram.SpriteRow(SamusColourDefinitions.BeamInkRow), SamusBeamCombination.Power, Projectiles.BeamTiles.Palettes);
         return cgram.Colors[SpriteColours..].ToArray();
     }

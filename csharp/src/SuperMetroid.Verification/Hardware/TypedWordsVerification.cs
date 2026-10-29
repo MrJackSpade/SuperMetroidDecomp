@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
@@ -76,18 +77,17 @@ internal static void VerifyTypedNativeWords()
     AssertEqual(-1, SamusQuantity.DecrementWord(0), "the unchecked decrement takes zero to -1");
     AssertEqual(SamusQuantity.MaximumValue, SamusQuantity.DecrementWord(SamusQuantity.MinimumValue), "the unchecked decrement wraps the smallest count");
 
-    // Suit palette tables use byte offsets rather than enum ordinals. Verify all three
-    // branches plus the native Gravity-over-Varia priority that motivated centralization.
-    AssertEqual(0, SamusEquipmentFlags.None.GetSuitPaletteTableOffset(),
-        "Power Suit palette table offset");
-    AssertEqual(2, SamusEquipmentFlags.VariaSuit.GetSuitPaletteTableOffset(),
-        "Varia Suit palette table offset");
-    AssertEqual(4, SamusEquipmentFlags.GravitySuit.GetSuitPaletteTableOffset(),
-        "Gravity Suit palette table offset");
-    AssertEqual(4,
-        (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit)
-            .GetSuitPaletteTableOffset(),
-        "Gravity Suit palette table priority");
+    // The shown suit is a three-way choice. Verify all three branches plus the native
+    // Gravity-over-Varia priority that motivated centralization.
+    AssertEqual(SamusSuit.Power, SamusEquipmentFlags.None.ShownSuit(),
+        "Power Suit shown without Varia or Gravity");
+    AssertEqual(SamusSuit.Varia, SamusEquipmentFlags.VariaSuit.ShownSuit(),
+        "Varia Suit shown with Varia");
+    AssertEqual(SamusSuit.Gravity, SamusEquipmentFlags.GravitySuit.ShownSuit(),
+        "Gravity Suit shown with Gravity");
+    AssertEqual(SamusSuit.Gravity,
+        (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit).ShownSuit(),
+        "Gravity Suit shown over Varia");
 
     // Facing is an ordinary discriminator, not a flag set. The typed view recognizes left and right and faces
     // neither way for every other record; the record's own byte stays exact in the pose-record codec.

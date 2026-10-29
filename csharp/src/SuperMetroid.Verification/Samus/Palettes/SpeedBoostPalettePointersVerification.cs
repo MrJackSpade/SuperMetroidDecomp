@@ -29,7 +29,7 @@ internal static class SpeedBoostPalettePointersVerification
         ushort[] expectedPointers = [0x9b80, 0x9d80, 0x9f80, 0x9f80];
         for (int selection = 0; selection < equipment.Length; selection++)
         {
-            ushort offset = equipment[selection].GetSuitPaletteTableOffset();
+            ushort offset = SamusPaletteNative.SuitTableByteOffset(equipment[selection].ShownSuit());
             int source = SamusPaletteDefinitions.FullBodyCycles.SpeedBoostPointers + offset;
             ushort nativePointer = rom.ReadCartridgeWord(source);
             AssertEqual(expectedPointers[selection], nativePointer,
@@ -49,7 +49,7 @@ internal static class SpeedBoostPalettePointersVerification
                 "installed special palette loads Speed Booster shade without a CPU bus");
             for (int color = 0; color < SamusFullBodyCycleColorFormat.ColorsPerPalette; color++)
                 AssertEqual((ushort)(ReadNativeSpeedBoosterShadeColor(rom, nativePointer, color) & 0x7fff),
-                    installedColors.Colors[SamusPaletteDefinitions.Common.SuitFirstColour + color],
+                    installedColors.Samus.Suit[color],
                     $"Speed Booster CGRAM selection {selection}, color {color} matches ROM");
             AssertEqual(2, samus.SpecialSuperPaletteFlags,
                 "special palette counter increments");

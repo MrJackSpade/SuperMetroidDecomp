@@ -54,11 +54,16 @@ public sealed class SamusHorizontalSpeedState
     public bool IsActivelySpeedBoosting => SpeedBoostCounter.IsActivelySpeedBoosting;
 
     /// <summary>
-    /// Byte offset of the current Speed Booster or Screw Attack palette within its six-entry
-    /// cycle: an even number from 0 through 10, or 12 in fixtures that read past the list.
-    /// Reset when Speed Booster momentum begins or cancels.
+    /// The step of the Speed Booster or Screw Attack colour cycle shown next, counted from the shown suit's first
+    /// entry: 0 through 5, or 6 in fixtures that read past the list. The two cycles share it, so Speed Booster can
+    /// inherit a Screw Attack step past its own list's end; Crystal Flash publishes its bubble step into it. Reset when
+    /// Speed Booster momentum begins or cancels.
     /// </summary>
-    public int SpecialPaletteFrame { get; set; }
+    public int CyclePaletteStep
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>WRAM <c>$0AD0</c>, seeded to one on the first boosted running frame.</summary>
     public WrappingCountdown SpecialPaletteTimer { get; set; }
@@ -228,7 +233,7 @@ public sealed class SamusHorizontalSpeedState
                 // frame/timer state is movement-visible and therefore retained here.
                 HasRunningMomentum = true;
                 SpecialPaletteTimer = WrappingCountdown.Start(1);
-                SpecialPaletteFrame = 0;
+                CyclePaletteStep = 0;
                 SpeedBoostCounter = new SamusSpeedBoostCounter(SamusRunningCadenceBytes.ReadResetWord(0));
             }
 
@@ -361,7 +366,7 @@ public sealed class SamusHorizontalSpeedState
         Ensure.NotNull(colours);
 
         bool paletteCopied = ApplyPendingNormalSuitPaletteRestore(colours, frame.EquippedItems, suitColors);
-        int suitTableOffset = frame.EquippedItems.GetSuitPaletteTableOffset();
+        SamusSuit suit = frame.EquippedItems.ShownSuit();
 
         // Stored-shine and shinespark handlers have priority in `$91:D6F7`. Cancellation's
         // immediate normal-palette copy above still occurs, but handler zero must not advance
@@ -388,7 +393,7 @@ public sealed class SamusHorizontalSpeedState
             {
                 // `$91:DA43` resets only the palette-list byte offset. Frame zero retains
                 // the already loaded normal suit colors; it does not emit a Screw palette.
-                SpecialPaletteFrame = 0;
+                CyclePaletteStep = 0;
                 return paletteCopied;
             }
 
@@ -401,7 +406,7 @@ public sealed class SamusHorizontalSpeedState
                 return true;
             }
 
-            CopyAndAdvanceScrewAttackPalette(colours, suitTableOffset, cycleColors);
+            CopyAndAdvanceScrewAttackPalette(colours, suit, cycleColors);
             return true;
         }
 
@@ -414,11 +419,11 @@ public sealed class SamusHorizontalSpeedState
             {
                 // Wall-jump command `$FB` reserves frames 0..2 for the normal suit colors;
                 // its Screw family begins on frame three and shares the same six pointers.
-                SpecialPaletteFrame = 0;
+                CyclePaletteStep = 0;
                 return paletteCopied;
             }
 
-            CopyAndAdvanceScrewAttackPalette(colours, suitTableOffset, cycleColors);
+            CopyAndAdvanceScrewAttackPalette(colours, suit, cycleColors);
             return true;
         }
 
@@ -435,14 +440,14 @@ public sealed class SamusHorizontalSpeedState
         SpecialPaletteTimer = WrappingCountdown.Start(4);
 
         SpeedBoosterPaletteSource source = SamusFullBodyCyclePalettes.ReadActiveSpeedBoosterPalette(
-            suitTableOffset, checked((ushort)SpecialPaletteFrame));
+            suit, CyclePaletteStep);
         SamusSpeedBoosterPalette.Apply(colours, source, cycleColors, overreads);
 
-        // The native clamp is AFTER the copy. Screw Attack can leave phase eight or ten
-        // in this shared word; retain that one bounded overrun before pinning phase six.
-        SpecialPaletteFrame = SpecialPaletteFrame >= 6
-            ? 6
-            : SpecialPaletteFrame + 2;
+        // The native clamp is AFTER the copy. Screw Attack can leave step four or five in
+        // this shared step; retain that one bounded overrun before pinning the last step.
+        CyclePaletteStep = CyclePaletteStep >= SamusPaletteDefinitions.FullBodyCycles.SpeedBoosterLastStep
+            ? SamusPaletteDefinitions.FullBodyCycles.SpeedBoosterLastStep
+            : CyclePaletteStep + 1;
         return true;
     }
 
@@ -473,20 +478,20 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Copies one of the six ROM-authored Screw Attack palettes and wraps its offset.</summary>
     private void CopyAndAdvanceScrewAttackPalette(
         SamusColours colours,
-        int suitTableOffset,
+        SamusSuit suit,
         InstalledSamusFullBodyCycleColors? cycleColors)
     {
         SamusFullBodyCyclePalette palette = SamusFullBodyCyclePalettes.ReadScrewAttackPalette(
-            suitTableOffset, checked((ushort)SpecialPaletteFrame));
+            suit, CyclePaletteStep);
         (cycleColors ?? throw new InvalidOperationException(
             "Screw Attack palette requires installed Samus full-body cycle colors."))
             .Apply(colours, palette);
 
-        // Offsets 0,2,4,6,8,10 form the six-frame cycle. The native CMP uses the current
-        // offset, so ten wraps to zero only after its palette has been copied.
-        SpecialPaletteFrame = SpecialPaletteFrame >= 10
+        // Steps 0 through 5 form the six-frame cycle. The native CMP uses the current
+        // step, so the last wraps to zero only after its palette has been copied.
+        CyclePaletteStep = CyclePaletteStep >= SamusPaletteDefinitions.FullBodyCycles.ScrewAttackSteps - 1
             ? 0
-            : SpecialPaletteFrame + 2;
+            : CyclePaletteStep + 1;
     }
 
     /// <summary>Loads the normal Power/Varia/Gravity palette selected by the native suit index.</summary>
@@ -604,7 +609,7 @@ public sealed class SamusHorizontalSpeedState
         {
             HasRunningMomentum = false;
             SpeedBoostCounter = default;
-            SpecialPaletteFrame = 0;
+            CyclePaletteStep = 0;
             SpecialPaletteTimer = WrappingCountdown.Start(0);
             NormalSuitPaletteRestoreRequested = true;
         }
@@ -634,7 +639,7 @@ public sealed class SamusHorizontalSpeedState
             if (HasRunningMomentum && SpeedBoostCounter == default)
             {
                 SpecialPaletteTimer = WrappingCountdown.Start(0);
-                SpecialPaletteFrame = 0;
+                CyclePaletteStep = 0;
                 SpeedBoostCounter = new SamusSpeedBoostCounter(SamusRunningCadenceBytes.ReadResetWord(0));
             }
             return;
@@ -642,7 +647,7 @@ public sealed class SamusHorizontalSpeedState
 
         HasRunningMomentum = false;
         SpecialPaletteTimer = WrappingCountdown.Start(0);
-        SpecialPaletteFrame = 0;
+        CyclePaletteStep = 0;
         SpeedBoostCounter = default;
         SpeedEchoIndex = 0;
         FirstSpeedEchoVelocity = SecondSpeedEchoVelocity = Offset16<RoomPixels>.Zero;

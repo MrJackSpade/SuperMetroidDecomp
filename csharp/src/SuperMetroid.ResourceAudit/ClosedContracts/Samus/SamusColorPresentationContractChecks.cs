@@ -29,26 +29,25 @@ internal static class SamusColorPresentationContractChecks
                     InstalledCrystalFlashColors flash, InstalledPowerBombFixedColors bomb,
                     InstalledHyperBeamFxColors fx, SamusColours colours, ColourRun run) {
                     body.Apply(colours, new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
-                        SamusFullBodyCycleColorFormat.SuitCount - 1, SamusFullBodyCycleColorFormat.ShadesPerSuit - 1));
+                        SamusSuit.Gravity, SamusFullBodyCycleColorFormat.ShadesPerSuit - 1));
                     body.Apply(colours, new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
-                        SamusFullBodyCycleColorFormat.SuitCount, 0));
+                        (SamusSuit)SamusFullBodyCycleColorFormat.SuitCount, 0));
                     body.Resolve(new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
-                        SamusFullBodyCycleColorFormat.SuitCount - 1, SamusFullBodyCycleColorFormat.ShadesPerSuit - 1),
+                        SamusSuit.Gravity, SamusFullBodyCycleColorFormat.ShadesPerSuit - 1),
                         SamusFullBodyCycleColorFormat.ColorsPerPalette - 1);
                     body.Resolve(new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
-                        SamusFullBodyCycleColorFormat.SuitCount - 1, SamusFullBodyCycleColorFormat.ShadesPerSuit - 1),
+                        SamusSuit.Gravity, SamusFullBodyCycleColorFormat.ShadesPerSuit - 1),
                         SamusFullBodyCycleColorFormat.ColorsPerPalette);
-                    suit.Apply(run, 4);
-                    suit.Apply(run, 1);
-                    charge.ApplyCharge(colours, false, SamusChargeColorFormat.SuitCount - 1, SamusChargeColorFormat.PhasesPerSuit - 1);
-                    charge.ApplyCharge(colours, true, 0, SamusChargeColorFormat.PhasesPerSuit);
+                    suit.Apply(run, SamusSuit.Gravity);
+                    suit.Apply(run, (SamusSuit)int.MaxValue);
+                    charge.ApplyCharge(colours, false, SamusSuit.Gravity, SamusChargeColorFormat.PhasesPerSuit - 1);
+                    charge.ApplyCharge(colours, true, SamusSuit.Power, SamusChargeColorFormat.PhasesPerSuit);
                     charge.ApplyHyper(colours, SamusChargeColorFormat.HyperFrameCount - 1);
                     charge.ApplyHyper(colours, SamusChargeColorFormat.HyperFrameCount);
                     hurt.Resolve(SamusHurtColorVariant.Intro, SamusHurtColorFormat.ColorsPerPalette - 1);
                     hurt.Resolve((SamusHurtColorVariant)int.MaxValue, 0);
                     hyper.Resolve(SamusHyperBeamColorFormat.FrameCount - 1, SamusHyperBeamColorFormat.ColorsPerFrame - 1);
                     hyper.Resolve(SamusHyperBeamColorFormat.FrameCount, 0);
-                    visor.TryResolveByteOffset(SamusVisorColorFormat.ColorCount * sizeof(ushort) - 1, out _);
                     visor.Resolve(SamusVisorColorFormat.ColorCount - 1);
                     visor.Resolve(SamusVisorColorFormat.ColorCount);
                     flash.ApplyBody(colours, CrystalFlashColorFormat.BodyFrameCount - 1);
@@ -81,13 +80,11 @@ internal static class SamusColorPresentationContractChecks
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, before);
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, report, adapter);
         }
-        Require(before.UnresolvedCount == 27, "twenty-seven calls must reproduce the missing adapters first" + " (" + before.Describe() + ")");
-        Require(report.Classifications.Count == 14 && report.UnresolvedCount == 13 && report.MissingCount == 0 &&
-            report.Consumers.Count == 27, "complete supported domains and false membership queries qualify; bad selectors still fail" + " (" + report.Describe() + ")");
+        Require(before.UnresolvedCount == 26, "twenty-six calls must reproduce the missing adapters first" + " (" + before.Describe() + ")");
+        Require(report.Classifications.Count == 13 && report.UnresolvedCount == 13 && report.MissingCount == 0 &&
+            report.Consumers.Count == 26, "complete supported domains qualify; bad selectors still fail" + " (" + report.Describe() + ")");
         Require(report.Findings.Any(item => item.Message.Contains("selected PreExplosion", StringComparison.Ordinal)),
             "a known short pre-explosion stream must not borrow explosion capacity");
-        Require(report.Classifications.Any(item => item.Owner == "InstalledSamusVisorColors.TryResolveByteOffset"),
-            "an unsupported queried visor offset is valid false, not a demanded resource");
     }
 
     /// <summary>Reports a Samus-color source contract regression with its failed condition.</summary>

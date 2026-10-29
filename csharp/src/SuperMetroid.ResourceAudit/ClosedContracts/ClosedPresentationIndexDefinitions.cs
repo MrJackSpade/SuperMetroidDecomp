@@ -97,8 +97,6 @@ internal static class ClosedPresentationIndexDefinitions
         ("InstalledSamusHyperBeamColors", "Resolve", "frame") => new(0, SamusHyperBeamColorFormat.FrameCount),
         ("InstalledSamusHyperBeamColors", "Resolve", "color") => new(0, SamusHyperBeamColorFormat.ColorsPerFrame),
         ("InstalledSamusVisorColors", "Resolve", "index") => new(0, SamusVisorColorFormat.ColorCount),
-        // Unsupported TryResolveByteOffset values validly return false; this
-        // membership query does not demand a seventh or unaligned color.
         ("InstalledCrystalFlashColors", "ApplyBody" or "ResolveBody", "frame") => new(0, CrystalFlashColorFormat.BodyFrameCount),
         ("InstalledCrystalFlashColors", "ResolveBody", "color") => new(0, CrystalFlashColorFormat.BodyColorCount),
         ("InstalledCrystalFlashColors", "ApplyBubble" or "ResolveBubble", "frame") => new(0, CrystalFlashColorFormat.BubbleFrameCount),

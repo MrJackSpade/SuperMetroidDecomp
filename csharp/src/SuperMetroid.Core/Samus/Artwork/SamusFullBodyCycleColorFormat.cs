@@ -288,7 +288,7 @@ public static class SamusFullBodyCycleColorFormat
     /// stored shine, active shinespark and Screw Attack, the order the color formulas index.</remarks>
     internal static int PaletteIndex(SamusFullBodyCyclePalette palette)
     {
-        if ((uint)palette.Suit >= SuitCount || (uint)palette.Shade >= ShadesPerSuit)
+        if ((uint)palette.Shade >= ShadesPerSuit)
             throw new ArgumentOutOfRangeException(nameof(palette), $"Uncatalogued full-body palette {palette}.");
         int family = palette.Family switch
         {
@@ -298,7 +298,7 @@ public static class SamusFullBodyCycleColorFormat
             SamusFullBodyCycleFamily.ScrewAttack => 3,
             _ => throw new ArgumentOutOfRangeException(nameof(palette), $"Uncatalogued full-body palette family {palette.Family}."),
         };
-        return palette.Suit * (PaletteCount / SuitCount) + family * ShadesPerSuit + palette.Shade;
+        return palette.Suit.ListPlace() * (PaletteCount / SuitCount) + family * ShadesPerSuit + palette.Shade;
     }
 
 }

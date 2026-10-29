@@ -2562,7 +2562,6 @@ internal static class LookupStream1Verification
         }
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(-1), "visor rejects negative index");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(6), "visor rejects next index");
-        AssertTrue(!stock.TryResolveByteOffset(-2, out _), "visor rejects negative offset");
         Console.WriteLine("Visor: six direct native defaults, exact two-color/step basis, zero stock overrides and six independent edits pass.");
     }
 

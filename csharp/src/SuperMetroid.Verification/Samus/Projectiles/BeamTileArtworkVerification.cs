@@ -103,7 +103,7 @@ internal static class BeamTileArtworkVerification
         int colors = SamusSourceDefinitions.MovementBank.Value |
             CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.PalettePointers.Value + selection * 2));
         for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
-            cgram.SetColor(SamusColourDefinitions.BeamFirstColour + i, RgbColor.FromWord(checked(CartridgeImportSource.Require(bus).ReadCartridgeWord((colors + i * 2)))));
+            cgram.SetColor(SamusColourNative.BeamFirstCgram + i, RgbColor.FromWord(checked(CartridgeImportSource.Require(bus).ReadCartridgeWord((colors + i * 2)))));
     }
 
     /// <summary>Runs beam artwork and runtime transfer checks with the retail cartridge oracle.</summary>

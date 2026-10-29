@@ -204,17 +204,13 @@ public sealed class AreaMapPresentation : IInstalledArtworkContent, IGameplayPre
     public CeresRidleyFloorUpdateSources CeresRidleyFloorUpdates { get; }
     /// <summary>Samus Hyper Beam palette-cycle colors, separate from charged-beam presentation and other suit cycles.</summary>
     public SamusHyperBeamColours SamusHyperBeamColors { get; }
-    /// <summary>Resolves installed HUD, Kraid HUD-restoration, or escape-timer character bytes for a VRAM transfer.</summary>
+    /// <summary>Resolves installed HUD or escape-timer character bytes for a VRAM transfer.</summary>
     /// <param name="asset">The transfer identity; this provider supports only the HUD and escape-timer identities in its catalog.</param>
     /// <returns>Read-only planar character bytes for the requested transfer.</returns>
     /// <exception cref="InvalidDataException">The requested identity is not supported by this provider.</exception>
     public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) => asset switch
     {
         InstalledArtworkId.StandardHudTiles => HudTiles.Bytes,
-        InstalledArtworkId.KraidBg3RestoreQuarter0 => HudTiles.KraidRestoreQuarter(0),
-        InstalledArtworkId.KraidBg3RestoreQuarter1 => HudTiles.KraidRestoreQuarter(1),
-        InstalledArtworkId.KraidBg3RestoreQuarter2 => HudTiles.KraidRestoreQuarter(2),
-        InstalledArtworkId.KraidBg3RestoreQuarter3 => HudTiles.KraidRestoreQuarter(3),
         InstalledArtworkId.EscapeTimerFirstTiles or InstalledArtworkId.EscapeTimerSecondTiles => EscapeTimerTiles.Resolve(asset),
         InstalledArtworkId.BeamPowerTiles or
             InstalledArtworkId.BeamWaveTiles or

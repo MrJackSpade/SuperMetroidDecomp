@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 
@@ -36,8 +36,13 @@ public sealed class BossArtworkBinding
     /// <summary>The escape typewriters' installed text, bound with the map presentation.</summary>
     public EscapeTypewriterPresentation? EscapeTypewriterPresentation { get; set; }
 
-    /// <summary>The installed standard BG3 characters Kraid's death restores, bound with the map presentation.</summary>
-    public HudTileAtlas? HudTileArtwork { get; set; }
+    /// <summary>Every boss's installed body sheet, or null before any is installed (#1466).</summary>
+    public BossBodySheets? BodySheets { get; set; }
+
+    /// <summary><paramref name="owner"/>'s installed body sheet; a boss that draws its body fails when none is installed.</summary>
+    /// <exception cref="InvalidOperationException">No body sheets are installed.</exception>
+    internal BossBodySheet Body(BossBodyOwner owner) =>
+        (BodySheets ?? throw new InvalidOperationException($"No boss body sheets are installed to draw {owner}.")).Of(owner);
 
     /// <summary>The installed boss artwork; a boss that needs it fails when none is installed.</summary>
     internal BossArtworkCatalog Installed =>

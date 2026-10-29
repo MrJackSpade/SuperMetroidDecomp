@@ -30,7 +30,6 @@ internal static class AreaMapPresentationContractChecks
                     maps.Get(AreaId.Ceres);
                     maps.Get((AreaId)7);
                     maps.Resolve(InstalledArtworkId.StandardHudTiles);
-                    maps.Resolve(InstalledArtworkId.KraidBg3RestoreQuarter3);
                     maps.Resolve(InstalledArtworkId.EscapeTimerFirstTiles);
                     maps.Resolve(InstalledArtworkId.EscapeTimerSecondTiles);
                     maps.Resolve(default);
@@ -57,9 +56,9 @@ internal static class AreaMapPresentationContractChecks
         CSharpCompilation compilation = Compile(trees);
         FixtureConsumerBinding.Require(compilation, calls, "AreaMapPresentationContractChecks");
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 10, "the fixture must first expose absent adapters" + " (" + before.Describe() + ")");
-        Require(after.Classifications.Count == 6 && after.UnresolvedCount == 4 && after.MissingCount == 0 &&
-            after.Consumers.Count == 10, "all installed areas and owned transfers qualify, not unknown areas or another provider's IDs" + " (" + after.Describe() + ")");
+        Require(before.UnresolvedCount == 9, "the fixture must first expose absent adapters" + " (" + before.Describe() + ")");
+        Require(after.Classifications.Count == 5 && after.UnresolvedCount == 4 && after.MissingCount == 0 &&
+            after.Consumers.Count == 9, "all installed areas and owned transfers qualify, not unknown areas or another provider's IDs" + " (" + after.Describe() + ")");
         Require(after.Findings.Any(item => item.Owner == "EnemyTileArtworkCatalog.LoadPaletteTo"),
             "an enemy catalog without its own reviewed sources must not borrow the atomic map install proof");
     }

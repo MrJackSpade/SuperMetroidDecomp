@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus.Abilities;
 using System.Collections.Immutable;
 using Vortice.Direct3D11;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
@@ -17,7 +18,7 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// and 2 and a door's source room), the door window, the layer-1 overlay, sky, layer-3 and layer-2 overlay offsets; then each plane's
 /// blocks (#1403), each plane's picture of each block and the pictures themselves with their sheets' standard
 /// colours (#1392), the layer-1 and layer-2 overlays' pictures (#1348, #1403), the sky's rows (#1347), the layer-3 plane's pictures,
-/// a Mode 7 floor (#1349, #1403) and a boss body's pictures (#1352, #1403).
+/// a Mode 7 floor (#1349, #1403) and a boss body's parts (#1352, #1466).
 /// The GPU resolves every room pixel from these and the image texture. Repacked only when the published
 /// planes, their pictures, offsets, door or overlay change.
 /// </summary>
@@ -39,14 +40,14 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// <summary>Header word of the door window's scrolled origin.</summary>
     private const int DoorWindowWord = PlaneSlots * RecordWords;
     /// <summary>
-    /// Header word of the layer-1 overlay's pictures (#1403), laid out as <see cref="BossBg2Word"/>'s with no picture
-    /// where nothing was written, or zero without an overlay.
+    /// Header word of the layer-1 overlay's pictures (#1403), or zero without an overlay: two words per tilemap cell, its
+    /// picture's offset, zero where nothing was written, then its corner in the picture, x below y.
     /// </summary>
     private const int OverlayWord = DoorWindowWord + 1;
     /// <summary>Header word of the sky's rows, one word each, nonzero where a row selects a page, or zero without a sky (#1347, #1403).</summary>
     private const int SkyWord = OverlayWord + 1;
     /// <summary>
-    /// Header word of the layer-3 plane's pictures (#1403), laid out as <see cref="BossBg2Word"/>'s, or zero without
+    /// Header word of the layer-3 plane's pictures (#1403), laid out as <see cref="OverlayWord"/>'s, or zero without
     /// a plane.
     /// </summary>
     private const int Bg3Word = SkyWord + 1;
@@ -58,15 +59,18 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// </summary>
     private const int FloorSheetsWord = Bg2OverlayWord + 1;
     /// <summary>
-    /// Header word of a boss body's pictures (#1352, #1403), or zero without one: two words per tilemap cell, its picture's
-    /// offset, then its corner in the picture, x below y.
+    /// Header word of a boss body's parts (#1352, #1466), or zero without one: the count of parts, then four words each (its
+    /// picture's offset, the layer row its picture's top edge lies on, its first row shown with the rows it spans in the
+    /// high half, and the offset of its row masks), then each part's row masks, a bit per cell it shows.
     /// </summary>
-    private const int BossBg2Word = FloorSheetsWord + 1;
+    private const int BossBodyWord = FloorSheetsWord + 1;
+    /// <summary>Words of a boss body part's record.</summary>
+    private const int BossBodyPartWords = 4;
     /// <summary>
     /// Header word of the X-ray reveal's first block, or zero without one (#1392): each block its picture's offset, with its
     /// arrangement in the top four bits.
     /// </summary>
-    private const int XrayRevealWord = BossBg2Word + 1;
+    private const int XrayRevealWord = BossBodyWord + 1;
     /// <summary>
     /// Header word of a library background's image (#1392), or zero without one: the image picture's offset, then each
     /// 16x16 cell's picture offset, zero where the image shows.
@@ -145,7 +149,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         SkyPictures? sky = frame.Sky;
         Layer3Cells? bg3 = frame.Bg3;
         AffineFloor? mode7 = frame.Floor;
-        BossBodyPictures? bossBg2 = frame.BossBg2;
+        ShownBossBody? bossBody = frame.BossBg2;
         XrayRevealPlane? reveal = frame.XrayReveal;
         RoomBackgroundImagePlane? image = frame.Bg2Image, skyImage = sky?.Image;
         SpriteSheetFrame? message = frame.MessagePicture;
@@ -199,8 +203,9 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         int skyImageOffset = skyImage is null ? 0 : words;
         if (skyImage is not null)
             words += 1 + skyImage.CellCount;
-        ImmutableArray<BgTilePicture?> bodyPictures = bossBg2 is null ? default : [.. bossBg2.Pictures.Select(picture => (BgTilePicture?)picture)];
-        int bossBg2Offset = ReserveTilePictures(bodyPictures, bodyPictures.IsDefault ? 0 : bodyPictures.Length);
+        int bossBodyOffset = bossBody is null ? 0 : words;
+        if (bossBody is not null)
+            words += 1 + bossBody.Parts.Length * BossBodyPartWords + bossBody.Parts.Sum(part => part.Shows.Rows.Length);
         ImmutableArray<BgTilePicture?> bg2OverlayPictures = bg2Overlay?.Pictures ?? default;
         int bg2OverlayOffset = ReserveTilePictures(bg2OverlayPictures, RoomTilemapOverlay.WordCount);
         ImmutableArray<BgTilePicture?> overlayPictures = overlay?.Pictures ?? default;
@@ -322,8 +327,9 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
                 upload[revealOffset + block] = (uint)pictureWords[picture] | ShaderArrangement(shown.Arrangement) << ArrangementShift;
             }
         }
-        upload[BossBg2Word] = (uint)bossBg2Offset;
-        PackTilePictures(upload, bodyPictures, bossBg2Offset, bodyPictures.IsDefault ? 0 : bodyPictures.Length, pictureWords);
+        upload[BossBodyWord] = (uint)bossBodyOffset;
+        if (bossBody is not null)
+            PackBossBody(upload, bossBody, bossBodyOffset, pictureWords);
         upload[Bg3Word] = (uint)bg3PicturesOffset;
         upload[MessagePictureWord] = message is null ? 0 : (uint)pictureWords[message];
         PackTilePictures(upload, bg3Pictures, bg3PicturesOffset, Layer3Plane.Rows * Layer3Plane.Columns, pictureWords);
@@ -332,14 +338,36 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         return true;
     }
 
+    /// <summary>
+    /// Packs <paramref name="body"/>'s parts from <paramref name="offset"/>, as <see cref="BossBodyWord"/> describes: the
+    /// count, each part's record, then each part's row masks.
+    /// </summary>
+    private static void PackBossBody(Span<uint> upload, ShownBossBody body, int offset, Dictionary<SpriteSheetFrame, int> pictureWords)
+    {
+        ImmutableArray<ShownBossBodyPart> parts = body.Parts;
+        upload[offset] = (uint)parts.Length;
+        int masks = offset + 1 + parts.Length * BossBodyPartWords;
+        for (int index = 0; index < parts.Length; index++)
+        {
+            ShownBossBodyPart part = parts[index];
+            int record = offset + 1 + index * BossBodyPartWords;
+            upload[record] = (uint)pictureWords[part.Picture];
+            upload[record + 1] = (uint)part.Top;
+            upload[record + 2] = D3D11ConstantPacking.Halves(checked((ushort)part.Shows.Top), checked((ushort)part.Shows.Rows.Length));
+            upload[record + 3] = (uint)masks;
+            foreach (uint mask in part.Shows.Rows)
+                upload[masks++] = mask;
+        }
+    }
+
     /// <summary>The tile pictures of an overlay, or none.</summary>
     private static ImmutableArray<BgTilePicture?> Tiles(ImmutableArray<BgTilePicture?>? pictures) =>
         pictures is { IsDefault: false } shown ? shown : [];
 
     /// <summary>
     /// Every picture <paramref name="frame"/> draws and how it is coloured, in packing order: the planes' and the reveal's
-    /// block pictures, the background images, the message, the frontend tile sheets, then the boss
-    /// body's, the overlays' and the layer-3 plane's tile pictures. A picture may appear more than once.
+    /// block pictures, the background images, the message, the frontend tile sheets, the boss body's parts, then the
+    /// overlays' and the layer-3 plane's tile pictures. A picture may appear more than once.
     /// </summary>
     private static IEnumerable<(SpriteSheetFrame Picture, D3D11PictureColouring Colouring)> Pictures(RoomLevelLayers frame)
     {
@@ -373,9 +401,10 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             foreach (ScreenTileSheet sheet in screen.Sheets)
                 yield return (sheet.Picture, D3D11PictureColouring.Frame);
         }
+        foreach (ShownBossBodyPart part in frame.BossBg2?.Parts ?? [])
+            yield return (part.Picture, D3D11PictureColouring.Frame);
         IEnumerable<BgTilePicture?>[] tilePictures =
         [
-            frame.BossBg2 is null ? [] : frame.BossBg2.Pictures.Select(picture => (BgTilePicture?)picture),
             Tiles(frame.Bg2Overlay?.Pictures),
             Tiles(frame.Overlay?.Pictures),
             frame.Bg3 is null ? [] : frame.Bg3.Pictures.Select(picture => (BgTilePicture?)picture),

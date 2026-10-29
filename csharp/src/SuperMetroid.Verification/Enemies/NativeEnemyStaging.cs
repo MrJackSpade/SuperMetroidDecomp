@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies;
 internal sealed class NativeEnemyStaging
 {
     /// <summary>Group A, <c>$7E:2000-$2FFF</c>.</summary>
-    internal readonly VramStagingBuffer Bg2 = new(EnemyStagingDefinitions.Bg2ByteCount);
+    internal readonly VramStagingBuffer Bg2 = new(SuperMetroid.AssetExtraction.CartridgeTables.EnemySourceDefinitions.EnemyBg2StagingBytes);
 
     /// <summary>Group B, <c>$7E:9000-$97FF</c>.</summary>
     internal readonly VramStagingBuffer RottingHeap = new(EnemyStagingDefinitions.RottingHeapByteCount);

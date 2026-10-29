@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
@@ -105,10 +106,6 @@ internal sealed class MotherBrainBody
                 $"Mother Brain's body requires native slot zero, not slot {body.SlotIndex}.");
         }
 
-        // Prepare the future body image without replacing the visible pipe background.
-        // The phase-two transition owns the first transfer from staging into VRAM.
-        _room.Staging.EnemyBg2Tilemap.AsSpan(0, MotherBrainBg2Definitions.ClearCellCount).Fill(MotherBrainBg2Definitions.BlankTile);
-
         body.InstructionTimer = WrappingCountdown.Start(1);
         body.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.MotherBrainBody];
         body.Properties = body.Properties.With(
@@ -130,7 +127,9 @@ internal sealed class MotherBrainBody
             BrainFunction = MotherBrainBrainFunction.SetupBrainToBeDrawn,
             Function = MotherBrainBodyFunction.FirstPhase,
             BackgroundTilemapPrepared = true,
-            EnemyBg2TilemapSize = MotherBrainBg2Definitions.InitialTilemapByteCount,
+            // Her body is staged on a cleared canvas, without replacing the visible pipe background; her phase-two
+            // transition shows it.
+            StagedBody = new BossBodyCanvas(_bossArtwork.Body(BossBodyOwner.MotherBrain), BossBodyDefinitions.SharedBodyRows),
         };
         // The first LoadFxEntry, which the room loader applies after enemy initialization.
         _frameResults.MotherBrainFxEntry = 1;

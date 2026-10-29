@@ -79,7 +79,6 @@ internal sealed class RuntimeArtwork
             _roomFx.PaletteBlendColors = value?.RoomFxPaletteBlends;
             BindSamusPalettePresentation();
             _bossArtwork.EscapeTypewriterPresentation = value?.EscapeTypewriter;
-            _bossArtwork.HudTileArtwork = value?.HudTiles;
             _bossArtwork.MotherBrainHealthColors = value?.MotherBrainHealthPalette;
             _bossArtwork.MotherBrainRainbowColors = value?.MotherBrainRainbowPalette;
             _bossArtwork.MotherBrainRoomColors = value?.MotherBrainRoomColors;

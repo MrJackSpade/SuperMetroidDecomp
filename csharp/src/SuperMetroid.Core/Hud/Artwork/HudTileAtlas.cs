@@ -9,18 +9,8 @@ public sealed class HudTileAtlas
     internal readonly byte[] bytes;
     /// <summary>Retains the HUD characters and their cleared half.</summary>
     internal HudTileAtlas(byte[] bytes) => this.bytes = bytes;
-    /// <summary>The HUD characters and their cleared half, which restoration slices divide.</summary>
+    /// <summary>The HUD characters and their cleared half.</summary>
     internal ReadOnlyMemory<byte> Bytes => bytes;
-
-    /// <summary>One native 0x400-byte death-restoration slice of the shared BG3 characters.</summary>
-    public ReadOnlyMemory<byte> KraidRestoreQuarter(int index)
-    {
-        if ((uint)index >= HudTileAtlasFormat.RestoreQuarterCount)
-            throw new ArgumentOutOfRangeException(nameof(index));
-        return bytes.AsMemory(
-            index * HudTileAtlasFormat.RestoreQuarterBytes,
-            HudTileAtlasFormat.RestoreQuarterBytes);
-    }
 
     /// <summary>
     /// Shows rebound artwork without the cleared half, under the identity the characters are already shown as, so the

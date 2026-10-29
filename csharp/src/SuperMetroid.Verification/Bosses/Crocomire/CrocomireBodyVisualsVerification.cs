@@ -20,6 +20,8 @@ using SuperMetroid.Core.World;
 
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.World.Artwork;
+using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 
 /// <summary>Retail comparisons for Crocomire's mixed OAM/BG2 body frames and installed editable artwork.</summary>
@@ -229,8 +231,9 @@ internal static class CrocomireBodyVisualsVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
             var vram = new SnesVram();
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
-            // His fight attaches the BG2 image his body frames draw into.
-            EnemyBg2Image image = EnemyBg2ImageFixtures.AttachBlank(enemies.Presentation);
+            // His fight attaches the body layer his body frames draw on.
+            BossBodyCanvas image = BossBodyCanvasFixtures.AttachBlank(enemies, RepositoryInstallation.Artwork.BossBodySheets
+                ?? throw new InvalidOperationException("The repository installation has no boss body sheets."), BossBodyOwner.Crocomire);
             enemies.Drawing.Enqueue(0, 0);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Crocomire, slot.Definition);
@@ -249,7 +252,7 @@ internal static class CrocomireBodyVisualsVerification
             slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
             var oam = new OamBuffer();
             enemies.Drawing.DrawLayersAsOam(oam, new(0, 0), 0, 0);
-            return new DrawNativeResult(oam, EnemyBg2ImageFixtures.AsVram(image, EnemyBg2FrameLayoutConstants.VramBase, vram.Bytes.Length));
+            return new DrawNativeResult(oam, BossBodyCanvasFixtures.AsVram(image, enemies, EnemyBg2FrameLayoutConstants.VramBase, vram.Bytes.Length));
         }
 
         // The graphics set Crocomire's room loads, which gives the tile base and colours his room draws him at.

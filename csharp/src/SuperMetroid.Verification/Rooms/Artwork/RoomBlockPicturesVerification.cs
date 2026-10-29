@@ -6,14 +6,9 @@ using SuperMetroid.Core.World;
 using SuperMetroid.Core;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Crocomire;
-using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Bosses.Kraid.Artwork;
-using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Bosses.Phantoon.Artwork;
-using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Fx;
@@ -166,36 +161,18 @@ internal static class RoomBlockPicturesVerification
     }
 
     /// <summary>
-    /// Confirms words written over BG2 draw from the room's tile word sheet (#1392): in each boss's room as loaded, every
-    /// frame the boss writes resolves each tile to a picture painting what the tile paints over the room's characters, and
-    /// so does the whole Zebes escape warning typed over Mother Brain's room.
+    /// Confirms each boss's body sheet (#1466) and the room's tile word sheet (#1392) picture what they draw: in each boss's
+    /// room as loaded, every part of every frame the boss draws paints, at each cell it covers, what the frame's tile word
+    /// paints over the room's characters; and the whole Zebes escape warning typed over Mother Brain's room draws from the
+    /// tile word sheet the same way.
     /// </summary>
     internal static void VerifyTileWordPictures()
     {
-        CheckBody(RoomHeaderDefinitions.Kraid, runtime =>
-        {
-            KraidBackgroundArtwork art = runtime.BossArtwork.Installed.KraidBackground ?? throw new InvalidOperationException("No Kraid artwork.");
-            BackgroundTile[] working = KraidBodyTilemap.ComposeWorkingMap(art);
-            return art.Heads.Keys.Order().SelectMany(stage => new[]
-            {
-                ($"head {stage}", KraidBodyTilemap.Resolve(new KraidBodyFrame(KraidBodyPage.Body, KraidHeadFrame.Closed with { MouthStage = stage },
-                    KraidBodyPage.Body), working, art).Tiles),
-                ($"grown head {stage}", KraidBodyTilemap.Resolve(new KraidBodyFrame(KraidBodyPage.PriorityBody,
-                    KraidHeadFrame.Closed with { MouthStage = stage }, KraidBodyPage.PriorityBody), working, art).Tiles),
-            }).Append(("blank", KraidBodyTilemap.Resolve(KraidBodyFrame.Blank, working, art).Tiles));
-        });
-        CheckBody(RoomHeaderDefinitions.Phantoon, runtime => BodyFrames(
-            (runtime.BossArtwork.Installed.PhantoonBg2Frames ?? throw new InvalidOperationException("No Phantoon frames.")).Writes,
-            PhantoonBg2FrameDefinitions.BlankTile));
-        CheckBody(RoomHeaderDefinitions.Draygon, runtime => BodyFrames(
-            (runtime.BossArtwork.Installed.DraygonBg2Frames ?? throw new InvalidOperationException("No Draygon frames.")).Writes,
-            EnemyBg2SurfaceDefinitions.BlankTile));
-        CheckBody(RoomHeaderDefinitions.Crocomire, runtime => BodyFrames(
-            (runtime.BossArtwork.Installed.CrocomireBg2Frames ?? throw new InvalidOperationException("No Crocomire frames.")).Writes,
-            CrocomireBg2.CrocomireBlankBg2Tile));
-        CheckBody(RoomHeaderDefinitions.MotherBrain, runtime => BodyFrames(
-            (runtime.BossArtwork.Installed.MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("No Mother Brain frames.")).Writes,
-            MotherBrainBg2Definitions.BlankTile));
+        CheckBody(RoomHeaderDefinitions.Kraid, BossBodyOwner.Kraid);
+        CheckBody(RoomHeaderDefinitions.Phantoon, BossBodyOwner.Phantoon);
+        CheckBody(RoomHeaderDefinitions.Draygon, BossBodyOwner.Draygon);
+        CheckBody(RoomHeaderDefinitions.Crocomire, BossBodyOwner.Crocomire);
+        CheckBody(RoomHeaderDefinitions.MotherBrain, BossBodyOwner.MotherBrain);
         CheckTypedWarning(RoomHeaderDefinitions.MotherBrain);
     }
 
@@ -236,44 +213,40 @@ internal static class RoomBlockPicturesVerification
         Console.WriteLine($"Tile word pictures: {sheet.Name} pictured the {glyphs} glyphs of the Zebes escape warning.");
     }
 
-    /// <summary>Each frame of <paramref name="catalog"/> written over an image filled with <paramref name="fill"/>.</summary>
-    private static IEnumerable<(string, ImmutableArray<BackgroundTile>)> BodyFrames(EnemyBg2FrameCatalog catalog, BackgroundTile fill) =>
-        catalog.Frames.Select(frame =>
-        {
-            var image = new EnemyBg2Image(fill);
-            foreach (EnemyBg2TilemapWrite write in frame.Value)
-                image.Write(write.FirstCell, write.Tiles.Span);
-            return (frame.Key.ToString(), image.Publish().Tiles);
-        });
-
-    /// <summary>Loads boss room <paramref name="room"/> and checks each body tilemap <paramref name="bodies"/> gives resolves to its pictures.</summary>
-    private static void CheckBody(RoomHeaderDefinition room, Func<SuperMetroidRuntime, IEnumerable<(string Name, ImmutableArray<BackgroundTile> Tiles)>> bodies)
+    /// <summary>
+    /// Loads boss room <paramref name="room"/> and checks every still picture of <paramref name="owner"/>'s body sheet paints,
+    /// at each cell its part covers, the tile word its frame writes there over the room's characters as it loads.
+    /// </summary>
+    private static void CheckBody(RoomHeaderDefinition room, BossBodyOwner owner)
     {
         SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
-        TileWordSheet sheet = (runtime.Room.Scope?.BodyPictures ?? throw new InvalidOperationException($"{room.Name} has no tile words.")).Sheet;
+        BossBodySheet sheet = (runtime.BossArtwork.BodySheets ?? throw new InvalidOperationException("No boss body sheets are installed.")).Of(owner);
+        BossArtworkCatalog bosses = runtime.BossArtwork.Artwork ?? throw new InvalidOperationException("No boss artwork is installed.");
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
-        int frames = 0;
-        foreach ((string name, ImmutableArray<BackgroundTile> tiles) in bodies(runtime))
+        int parts = 0;
+        foreach (BossBodyFrameSource frame in BossBodySheetComposer.Frames(bosses, owner))
         {
-            ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver(sheet).Resolve(tiles,
-                RoomCharacterSource.Of(RoomBackgroundCharacters.Tileset, runtime.BgArtwork, runtime.EnemySession,
-                RoomScopeOf(runtime).AnimatedCharacters, RoomScopeOf(runtime).ArtworkFrames));
-            for (int tile = 0; tile < tiles.Length; tile++)
+            foreach (BossBodyPart part in sheet.Frame(frame.Name).Parts)
             {
-                BgTilePicture picture = pictures[tile] ?? throw new InvalidOperationException($"{sheet.Name} {name}: tile {tile} draws from its character.");
-                var word = new SnesBgTilemapWord(tiles[tile].PackedWord);
-                for (int y = 0; y < CharacterPixels; y++)
-                for (int x = 0; x < CharacterPixels; x++)
+                foreach ((int cell, BackgroundTile tile) in frame.Cells)
                 {
-                    AssertPaintsTile($"{sheet.Name} {name} tile {tile} pixel ({x}, {y})", vram, word, x, y, picture.Picture,
-                        new Position16<ImagePixels>((ushort)(picture.Corner.X + x), (ushort)(picture.Corner.Y + y)));
+                    int row = cell / BossBodyDefinitions.ColumnCount, column = cell % BossBodyDefinitions.ColumnCount;
+                    if (!part.Footprint.Covers(row, column))
+                        continue;
+                    var word = new SnesBgTilemapWord(tile.PackedWord);
+                    for (int y = 0; y < CharacterPixels; y++)
+                    for (int x = 0; x < CharacterPixels; x++)
+                    {
+                        AssertPaintsTile($"{owner} {part.Name} cell {cell} pixel ({x}, {y})", vram, word, x, y, part.Picture,
+                            new Position16<ImagePixels>((ushort)(column * CharacterPixels + x), (ushort)((row - part.Top) * CharacterPixels + y)));
+                    }
                 }
+                parts++;
             }
-            frames++;
         }
-        AssertTrue(frames > 0, $"{room.Name}'s boss writes frames");
-        Console.WriteLine($"Tile word pictures: {sheet.Name} pictured {frames} body frames over {room.Name} as it loads.");
+        AssertTrue(parts > 0, $"{room.Name}'s boss draws frames");
+        Console.WriteLine($"Boss body pictures: {owner}'s sheet pictured {parts} parts over {room.Name} as it loads.");
     }
 
     /// <summary>

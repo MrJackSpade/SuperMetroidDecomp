@@ -68,19 +68,12 @@ internal sealed class BgArtworkBytes
     }
 
     /// <summary>
-    /// The HUD's characters as <paramref name="hud"/> installs them: the standard HUD artwork and the quarters Kraid's
-    /// death restores.
+    /// The HUD's characters as <paramref name="hud"/> installs them: the standard HUD artwork.
     /// </summary>
     internal BgArtworkBytes WithHud(HudTileAtlas hud)
     {
         Ensure.NotNull(hud);
         Add(BgArtworkIdentity.Asset(InstalledArtworkId.StandardHudTiles), () => hud.Bytes);
-
-        for (int quarter = 0; quarter < KraidHudRestoration.QuarterCount; quarter++)
-        {
-            int restored = quarter;
-            Add(BgArtworkIdentity.Asset(KraidHudRestoration.AssetForQuarter(restored)), () => hud.KraidRestoreQuarter(restored));
-        }
         return this;
     }
 

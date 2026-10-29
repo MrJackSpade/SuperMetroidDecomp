@@ -14,6 +14,8 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -37,8 +39,12 @@ internal static class EnemyEffectsFixtureVerification
             services: new VerificationRoomEnemyServices(null));
         /// <summary>Crocomire body state bound to the first two enemy slots.</summary>
         internal CrocomireEnemyState Actor { get; }
-        /// <summary>Seeded melt phase with recognizable graphics and BG2 state.</summary>
-        internal CrocomireDeathState Effect { get; } = new();
+        /// <summary>Seeded melt phase with recognizable graphics and the body canvases Crocomire's initialization attaches.</summary>
+        internal CrocomireDeathState Effect { get; }
+
+        /// <summary>The installed boss body sheets the fixture draws from.</summary>
+        internal static BossBodySheets Sheets => RepositoryInstallation.Artwork.BossBodySheets
+            ?? throw new InvalidOperationException("The repository installation has no boss body sheets.");
 
         /// <summary>The frame band <paramref name="band"/>'s animation shows in the room, or null before any pass shows it.</summary>
         internal ArtworkFrame? MeltBand(int band) =>
@@ -59,14 +65,12 @@ internal static class EnemyEffectsFixtureVerification
             Enemies.SlotTable.Slots[1].SetSpeciesState(tongueState, tongueState.ClearWithRecord);
             Actor.Body.Position = Actor.Body.Position.WithWhole(new(400, 144));
             Actor.Tongue.Position = Actor.Tongue.Position.WithWholeY(160);
+            // The fight's initialization attaches the cleared body canvases the melting body is drawn on (#1466).
+            Effect = BossBodyCanvasFixtures.AttachCrocomire(Enemies, Sheets);
             Effect.AcidSmokeTimer = WrappingCountdown.Start(1);
-            Effect.MutableBg2WorkingTilemap.Fill(BackgroundTileWordBytes.Tile(0x137));
             Effect.MutableBg2ScrollByScanline.Fill(19);
             Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
-            // The fight's initialization attaches the cleared BG2 image the melting body draws into.
-            Enemies.Presentation.AttachBg2Image(new EnemyBg2Image(CrocomireBg2.CrocomireBlankBg2Tile));
             Enemies.CrocomireBehavior.Access.Crocomire = Actor;
-            Enemies.CrocomireBehavior.Access.CrocomireDeath = Effect;
             Enemies.VerificationServices().ReadRandom = () => 0x1234;
         }
 

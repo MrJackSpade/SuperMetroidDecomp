@@ -2,6 +2,7 @@ using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.BossBodies;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
@@ -11,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
 internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyBg2Frames, IEnemyPrivateShotCallback
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IBossBodyFrames, IEnemyPrivateShotCallback
 {
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork = bossArtwork;
@@ -49,14 +50,8 @@ internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot,
             : base.FindBombSpecialAfterNoOp(context);
 
     /// <inheritdoc/>
-    public EnemyBg2FrameLookup? FindBg2Frame(EnemyFrameId selected, EnemyRoomBinding room)
-    {
-        if (!DraygonBg2FrameDefinitions.FrameIds.Contains(selected))
-            return null;
-        ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
-        bool found = _bossArtwork.Installed.DraygonBg2Frames?.TryGet(selected, out writes) == true;
-        return new("Draygon", found, writes);
-    }
+    public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
+        DraygonBg2FrameDefinitions.FrameIds.Contains(selected) ? _bossArtwork.Body(BossBodyOwner.Draygon).Frame(selected) : null;
 
     /// <summary>Only the body's contact and shots enter the extended-spritemap walker over its own hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>

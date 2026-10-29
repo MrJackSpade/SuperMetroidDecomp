@@ -71,6 +71,7 @@ using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Enemies.Yard;
 using SuperMetroid.Core.Enemies.Zoa;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -539,9 +540,11 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <inheritdoc/>
     RidleyEnemyState? IEnemyDisplaySources.CeresRidley => RidleyEncounter.CeresRidley;
     /// <inheritdoc/>
-    BossBg2Layer? IEnemyDisplaySources.KraidBody => KraidBehavior.BodyLayer.CaptureBodyLayer();
+    BossBodyLayer? IEnemyDisplaySources.BossBody => KraidBehavior.BodyLayer.CaptureBodyLayer()
+        ?? (Presentation.BossBody is { } body ? body.Publish(BossArtworkBinding.BodySheets
+            ?? throw new InvalidOperationException("A boss shows its body with no installed boss body sheets.")) : null);
     /// <inheritdoc/>
-    EnemyBg2ImageSnapshot? IEnemyDisplaySources.EnemyBg2 => Presentation.Bg2Image?.Publish();
+    Position16<BackgroundPixels>? IEnemyDisplaySources.KraidBodyScroll => KraidBehavior.BodyLayer.BodyScroll;
     /// <inheritdoc/>
     Position16<BackgroundPixels>? IEnemyDisplaySources.CrocomireBg2Scroll =>
         CrocomireBehavior.Access.Crocomire is not null ? CrocomireBehavior.Bg2.CrocomireBg2Scroll : null;
@@ -695,7 +698,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         BoyonBehavior = new BoyonBehavior();
         BoulderBehavior = new BoulderBehavior(Terrain, Projectiles);
         BotwoonBehavior = new BotwoonBehavior(new BotwoonBehaviorDependencies { Room = Room, Projectiles = Projectiles, SpriteObjects = SpriteObjects, SlotTable = SlotTable, Presentation = Presentation, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults , BossArtwork = BossArtworkBinding });
-        Instructions = new EnemyInstructionInterpreter(new BossBg2Copies(CrocomireBehavior, MotherBrainEncounter, Room), Presentation, Room);
+        Instructions = new EnemyInstructionInterpreter(new BossBodyCopies(CrocomireBehavior, MotherBrainEncounter), Presentation);
         Drawing = new EnemyDrawList(new EnemyDrawListDependencies { DeadTorizoBehavior = DeadTorizoBehavior, FrameContext = FrameContext, Instructions = Instructions, MotherBrainBehavior = MotherBrainBehavior, Presentation = Presentation, Room = Room, SlotTable = SlotTable });
         BombTorizoBehavior = new BombTorizoBehavior(new BombTorizoBehaviorDependencies { Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops });
         BlueBrinstarFaceBlockBehavior = new BlueBrinstarFaceBlockBehavior(Room, Presentation, ElevatorBehavior);

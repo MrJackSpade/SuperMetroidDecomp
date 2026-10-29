@@ -1,12 +1,13 @@
-﻿using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Bosses.Kraid.Artwork;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Kraid's BG2 body layer: his working map composed from the installed artwork and the tilemap of the frame he shows.</summary>
+/// <summary>
+/// Kraid's body layer (#1352, #1466): his body frame drawn from his installed body sheet, the upper body over the
+/// top-left page with his head over it, and the lower body over the bottom-left page.
+/// </summary>
 [RoomLifetime]
 internal sealed class KraidBodyLayer
 {
@@ -15,6 +16,9 @@ internal sealed class KraidBodyLayer
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
 
+    /// <summary>The last body frame drawn, and its layer.</summary>
+    [NonSerialized]
+    private KraidShownBody? shown;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal KraidBodyLayer(KraidEncounterAccess access, BossArtworkBinding bossArtwork)
@@ -24,42 +28,34 @@ internal sealed class KraidBodyLayer
     }
 
     /// <summary>
-    /// The body tilemap Kraid shows while he owns BG2, at his BG2 scroll (#1352); null when he does not. Resolved from
-    /// his installed artwork once per distinct body frame.
+    /// The body layer Kraid shows while he owns it (#1352); null when he does not. Drawn from his installed body sheet once
+    /// per distinct body frame.
     /// </summary>
-    internal BossBg2Layer? CaptureBodyLayer()
+    /// <exception cref="InvalidOperationException">No boss body sheets are installed.</exception>
+    internal BossBodyLayer? CaptureBodyLayer()
     {
         if (_access.Kraid is not { OwnsBg2Tilemap: true } state)
             return null;
-        if (bodyTilemap is not { } cached || cached.Frame != state.DisplayedBody)
-        {
-            KraidBackgroundArtwork art = RequireBackgroundArtwork();
-            bodyTilemap = cached = new KraidBodyTilemapCache(state.DisplayedBody, KraidBodyTilemap.Resolve(state.DisplayedBody, WorkingMap(), art));
-        }
-        return new BossBg2Layer(cached.Tilemap, state.Bg2Scroll);
+        BossBodySheet sheet = _bossArtwork.Body(BossBodyOwner.Kraid);
+        if (shown is not { } cached || cached.Frame != state.DisplayedBody || !ReferenceEquals(cached.Sheet, sheet))
+            shown = cached = new KraidShownBody(state.DisplayedBody, sheet, Draw(state.DisplayedBody, sheet));
+        return cached.Layer;
     }
 
-    /// <summary>The last body frame resolved, and its tilemap.</summary>
-    [NonSerialized]
-    private KraidBodyTilemapCache? bodyTilemap;
+    /// <summary>Where Kraid's body layer is viewed from while he owns it (#1352); otherwise null.</summary>
+    internal Position16<BackgroundPixels>? BodyScroll => _access.Kraid is { OwnsBg2Tilemap: true } state ? state.Bg2Scroll : null;
 
-    /// <summary>Kraid's working map composed from his installed artwork, and that artwork.</summary>
-    [NonSerialized]
-    private KraidWorkingMap? workingMap;
-
-    /// <summary>The body the installed artwork composes; a rebound installation recomposes it.</summary>
-    internal BackgroundTile[] WorkingMap()
+    /// <summary>The layer <paramref name="frame"/> shows: its pages and head drawn from <paramref name="sheet"/> over his blank.</summary>
+    /// <exception cref="InvalidDataException">The sheet lacks a frame the body frame shows.</exception>
+    private static BossBodyLayer Draw(KraidBodyFrame frame, BossBodySheet sheet)
     {
-        KraidBackgroundArtwork art = RequireBackgroundArtwork();
-        if (workingMap is { } composed && ReferenceEquals(composed.Art, art))
-            return composed.Tiles;
-        BackgroundTile[] tiles = KraidBodyTilemap.ComposeWorkingMap(art);
-        workingMap = new KraidWorkingMap(art, tiles);
-        bodyTilemap = null;
-        return tiles;
+        var canvas = new BossBodyCanvas(sheet, KraidBodyLayout.LayerRows);
+        if (KraidBodyFrameNames.Of(frame.Top, KraidBodyHalf.Upper) is { } upper)
+            canvas.Draw(sheet.Frame(upper));
+        if (frame.Head is { } head)
+            canvas.Draw(sheet.Frame(KraidBodyFrameNames.Head(head.MouthStage)));
+        if (KraidBodyFrameNames.Of(frame.Bottom, KraidBodyHalf.Lower) is { } lower)
+            canvas.Draw(sheet.Frame(lower));
+        return canvas.Publish(sheet);
     }
-
-    /// <summary>Kraid's installed BG2 artwork.</summary>
-    private KraidBackgroundArtwork RequireBackgroundArtwork() =>
-        _bossArtwork.Artwork?.KraidBackground ?? throw new InvalidOperationException("Kraid BG2 requires installed enemy artwork.");
 }

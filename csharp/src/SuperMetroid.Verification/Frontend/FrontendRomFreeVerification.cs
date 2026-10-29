@@ -31,6 +31,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Enemies.BossBodies;
 namespace SuperMetroid.Verification.Frontend;
 
 using SuperMetroid.Verification.Bosses.Torizo;
@@ -449,9 +450,12 @@ internal static class FrontendRomFreeVerification
         nativeRoom.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Kraid);
         installedRoom.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Kraid);
 
-        // Kraid's body is a published frame (#1352), not VRAM pages.
+        // Kraid's body is a published body layer (#1352, #1466), not VRAM pages.
         static ushort[] Body(SuperMetroidGame game) =>
-            [.. game.GameplayRuntimeForVerification.Enemies.KraidBehavior.BodyLayer.CaptureBodyLayer()?.Tilemap.Words ?? []];
+            game.GameplayRuntimeForVerification.Enemies.KraidBehavior.BodyLayer.CaptureBodyLayer() is { } layer
+                ? BossBodyWords.Of(layer, BossBodyOwner.Kraid, game.GameplayRuntimeForVerification.BossArtwork.Artwork
+                    ?? throw new InvalidOperationException("The game installs boss artwork."))
+                : [];
         AssertTrue(Body(nativeRoom).Length != 0 && Body(nativeRoom).SequenceEqual(Body(installedRoom)),
             "restored Kraid body matches before the first accepted NMI");
         FrontendFrame expected = nativeRoom.Step(0);

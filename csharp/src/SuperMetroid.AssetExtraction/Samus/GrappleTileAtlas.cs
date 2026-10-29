@@ -95,10 +95,6 @@ public sealed class GrappleTileAtlas : IInstalledArtworkContent
                 InstalledArtworkId.BeamPlasmaIceWaveTiles or
                 InstalledArtworkId.ProjectileIceWaveTrailTiles or
                 InstalledArtworkId.ProjectileMissileTrailTiles or
-                InstalledArtworkId.KraidBg3RestoreQuarter0 or
-                InstalledArtworkId.KraidBg3RestoreQuarter1 or
-                InstalledArtworkId.KraidBg3RestoreQuarter2 or
-                InstalledArtworkId.KraidBg3RestoreQuarter3 or
                 InstalledArtworkId.GunshipLiftoffFirstTiles or
                 InstalledArtworkId.GunshipLiftoffSecondTiles or
                 InstalledArtworkId.GunshipLiftoffThirdTiles or

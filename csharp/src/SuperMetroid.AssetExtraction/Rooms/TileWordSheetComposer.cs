@@ -4,15 +4,6 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Bosses.Crocomire;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
-using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Bosses.Kraid.Artwork;
-using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Bosses.Phantoon.Artwork;
-using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Fx;
@@ -30,7 +21,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// Pre-assembles and pre-colours the tile words written over each tileset's rooms (#1392): one image of each part each
-/// writer writes over BG1 or BG2 (a boss's body frames, typed text) or BG3 (the HUD, an effect's page), coloured with the
+/// writer writes over BG1 or BG2 (typed text) or BG3 (the HUD, an effect's page), coloured with the
 /// tileset's standard palette over the characters the room has loaded, and each tile word pictured again over each
 /// artwork the room binds after loading at its character.
 /// </summary>
@@ -198,7 +189,6 @@ internal static class TileWordSheetComposer
     /// <exception cref="InvalidDataException">The writer's installed artwork is missing.</exception>
     private static IEnumerable<NamedPart> Parts(RoomBlockSheetInputs inputs, TileWordWriter writer)
     {
-        BossArtworkCatalog bosses = inputs.Bosses;
         switch (writer)
         {
             case TileWordWriter.ZebesEscapeText:
@@ -208,51 +198,9 @@ internal static class TileWordSheetComposer
                 foreach (NamedPart part in CeresWarningParts(inputs))
                     yield return part;
                 break;
-            case TileWordWriter.Kraid:
-                foreach (NamedPart part in KraidParts(bosses.KraidBackground ?? throw Missing(writer)))
-                    yield return part;
-                break;
-            case TileWordWriter.Phantoon:
-                foreach (NamedPart part in FrameParts((bosses.PhantoonBg2Frames ?? throw Missing(writer)).Writes))
-                    yield return part;
-                yield return Fill(PhantoonBg2FrameDefinitions.BlankTile);
-                break;
-            case TileWordWriter.Draygon:
-                foreach (NamedPart part in FrameParts((bosses.DraygonBg2Frames ?? throw Missing(writer)).Writes))
-                    yield return part;
-                yield return Fill(EnemyBg2SurfaceDefinitions.BlankTile);
-                break;
-            case TileWordWriter.Crocomire:
-                foreach (NamedPart part in FrameParts((bosses.CrocomireBg2Frames ?? throw Missing(writer)).Writes))
-                    yield return part;
-                CrocomireMeltingArtwork melting = bosses.CrocomireMelting ?? throw Missing(writer);
-                foreach (CrocomireMeltingIllustration image in Enum.GetValues<CrocomireMeltingIllustration>())
-                    yield return new NamedPart($"Melting{image}Tilemap", Rows(BackgroundTileWords.ToWords(melting.Tilemap(image))));
-                yield return Fill(CrocomireBg2.CrocomireBlankBg2Tile);
-                break;
-            case TileWordWriter.MotherBrain:
-                foreach (NamedPart part in FrameParts((bosses.MotherBrainBodyBg2Frames ?? throw Missing(writer)).Writes))
-                    yield return part;
-                yield return Fill(MotherBrainBg2Definitions.BlankTile);
-                break;
             default:
                 throw new InvalidDataException($"Undefined tile word writer {writer}.");
         }
-    }
-
-    /// <summary>Kraid's body pages, with and without the priority his growth sets, and his head frames.</summary>
-    private static IEnumerable<NamedPart> KraidParts(KraidBackgroundArtwork art)
-    {
-        BackgroundTile[] working = KraidBodyTilemap.ComposeWorkingMap(art);
-        BackgroundTile[] upper = working[..KraidBackgroundDefinitions.PageCells];
-        BackgroundTile[] lower = working.AsSpan(KraidBackgroundDefinitions.LowerPageFirstCell, KraidBackgroundDefinitions.PageCells).ToArray();
-        yield return new NamedPart("Upper", Rows(BackgroundTileWords.ToWords(upper)));
-        yield return new NamedPart("UpperPriority", Rows(WithPriority(upper)));
-        yield return new NamedPart("Lower", Rows(BackgroundTileWords.ToWords(lower)));
-        yield return new NamedPart("LowerPriority", Rows(WithPriority(lower)));
-        foreach ((int mouthStage, KraidHeadTilemapAtlas head) in art.Heads.OrderBy(entry => entry.Key))
-            yield return new NamedPart($"Head{mouthStage}", Rows(BackgroundTileWords.ToWords(head.Tiles.Span)));
-        yield return Fill(KraidBackgroundDefinitions.BlankTile);
     }
 
     /// <summary>
@@ -371,12 +319,7 @@ internal static class TileWordSheetComposer
     /// <summary>A room effect's page, as the tilemap words of its tiles lay it out.</summary>
     private static BodyPart Page(ReadOnlySpan<BackgroundTile> page) => Rows(BackgroundTileWords.ToWords(page));
 
-    /// <summary>Each frame of a catalog: its writes, at the tilemap words they write.</summary>
-    private static IEnumerable<NamedPart> FrameParts(EnemyBg2FrameCatalog catalog) =>
-        catalog.Frames.OrderBy(frame => frame.Key.ToString(), StringComparer.Ordinal).Select(frame => new NamedPart(frame.Key.ToString(),
-            new BodyPart([.. frame.Value.SelectMany(write => Runs(write.FirstCell, BackgroundTileWords.ToWords(write.Tiles.Span)))])));
-
-    /// <summary>The tile a boss fills its tilemap with, as one part.</summary>
+    /// <summary>The tile a page is cleared with, as one part.</summary>
     private static NamedPart Fill(BackgroundTile tile) => new("Fill", new BodyPart([new BodyRun(default, [BackgroundTileWords.ToWord(tile)])]));
 
     /// <summary><paramref name="words"/> laid out from the top-left, 32 to a row.</summary>
@@ -393,11 +336,6 @@ internal static class TileWordSheetComposer
         }
     }
 
-    /// <summary>The words of <paramref name="tiles"/> in the upper priority tier, as Kraid shows his body once grown.</summary>
-    private static ushort[] WithPriority(BackgroundTile[] tiles) => [.. tiles.Select(tile => BackgroundTileWords.ToWord(tile with { HighPriority = true }))];
-
-    /// <summary>The failure for a writer whose installed artwork is missing.</summary>
-    private static InvalidDataException Missing(TileWordWriter writer) => new($"The installed enemy artwork has no {writer} body.");
 
     /// <summary>One part: the runs of words it writes, laid out at their tilemap positions.</summary>
     /// <param name="Runs">The runs.</param>

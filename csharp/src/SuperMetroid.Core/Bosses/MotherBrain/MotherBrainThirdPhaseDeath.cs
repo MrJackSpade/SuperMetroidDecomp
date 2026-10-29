@@ -71,11 +71,8 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// <summary>Number of calls made to the body flicker producer at `$A9:AFB6`.</summary>
     public uint BodyFlickerCallCount { get; private set; }
 
-    /// <summary>
-    /// Host witness for the `$02C6..0` BG2 tilemap clear and following NMI transfer request.
-    /// Rendering code can consume this without pretending the global WRAM tilemap is local.
-    /// </summary>
-    public bool EnemyBg2TilemapClearRequested { get; private set; }
+    /// <summary>Whether the death has reached the point where the start of Mother Brain's body is cleared (#1466).</summary>
+    public bool BodyClearRequested { get; private set; }
 
     /// <summary>How many of the six corpse pages have shown (<c>$A9:9003</c>), which is also the next to show.</summary>
     public int CorpsePagesShown { get; private set; }
@@ -371,7 +368,7 @@ internal sealed class MotherBrainThirdPhaseDeath
             requests.PaletteRequested |= paletteIndex < 16;
             if (paletteIndex >= 16)
             {
-                EnemyBg2TilemapClearRequested = true;
+                BodyClearRequested = true;
                 BodyProperties = BodyProperties
                     .With(EnemyProperties.Invisible)
                     .Without(EnemyProperties.ProcessInstructions);

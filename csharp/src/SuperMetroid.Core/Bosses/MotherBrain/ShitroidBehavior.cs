@@ -81,10 +81,6 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (Shitroid is not null)
             throw new InvalidDataException("A room population contains more than one Shitroid.");
 
-        // The cutscene's scratch surface is the enemy BG2 staging image Mother Brain stages her body in; its
-        // initialization clears all of it.
-        _room.Staging.ClearEnemyBg2Tilemap();
-
         // `$2000` is the scheduler's instruction-processing bit; `$1000` blocks plasma
         // from piercing the actor. The upstream C symbol calls `$2000` DisableSamusColl,
         // but the executable scheduler also consumes that same bit for instructions, so

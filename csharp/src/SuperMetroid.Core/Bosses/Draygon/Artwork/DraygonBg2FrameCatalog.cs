@@ -18,10 +18,6 @@ public sealed class DraygonBg2FrameCatalog
     /// <summary>Wraps the validated common BG2 catalog after Draygon's required poses have been admitted.</summary>
     private DraygonBg2FrameCatalog(EnemyBg2FrameCatalog frames) => Writes = frames;
 
-    /// <summary>Finds ordered BG2 tilemap writes for a compiled Draygon body pose; absent pointers leave the caller's frame unresolved.</summary>
-    internal bool TryGet(EnemyFrameId frame, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes) =>
-        Writes.TryGet(frame, out writes);
-
     /// <summary>Compiles BG2 tilemap writes for the thirty-four bank-$A5 body roots: seventeen left-facing and seventeen right-facing poses; the forty-eight ordinary OAM roots use a separate presentation catalog.</summary>
     /// <param name="json">Caller-owned JSON stream, left open, with every pointer-named pose containing ordered horizontal runs of placed tiles in 32-by-64 tilemap-cell coordinates.</param>
     /// <returns>Installed visual writes selected by native extended-frame identity; collision callbacks and the new-instruction-frame write gate remain engine-owned.</returns>

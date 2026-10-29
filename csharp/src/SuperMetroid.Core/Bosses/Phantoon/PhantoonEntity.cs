@@ -3,6 +3,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.BossBodies;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
@@ -12,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
 internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyBg2Frames, IEnemyContactHooks, IEnemyPrivateShotCallback
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IBossBodyFrames, IEnemyContactHooks, IEnemyPrivateShotCallback
 {
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork = bossArtwork;
@@ -42,14 +43,8 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
     public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback) => PhantoonCombat.FindPhantoonHitboxCallback(Slot, probe, out callback);
 
     /// <inheritdoc/>
-    public EnemyBg2FrameLookup? FindBg2Frame(EnemyFrameId selected, EnemyRoomBinding room)
-    {
-        if (!PhantoonBg2FrameDefinitions.FrameIds.Contains(selected))
-            return null;
-        ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
-        bool found = _bossArtwork.Installed.PhantoonBg2Frames?.TryGet(selected, out writes) == true;
-        return new("Phantoon", found, writes);
-    }
+    public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
+        PhantoonBg2FrameDefinitions.FrameIds.Contains(selected) ? _bossArtwork.Body(BossBodyOwner.Phantoon).Frame(selected) : null;
 
     /// <summary>
     /// Phantoon's body resolves its projectile hits before the ordinary passes: a retained Plasma hit must publish its hurt

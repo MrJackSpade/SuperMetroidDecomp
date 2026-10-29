@@ -31,8 +31,6 @@ internal sealed class KraidRise
     private readonly EnemyPresentation _presentation;
     /// <summary>Coordinates Zebetite behavior registered alongside Kraid's room actors.</summary>
     private readonly ZebetiteBehavior _zebetiteBehavior;
-    /// <summary>Kraid's BG2 body layer: his working map composed from the installed artwork and the tilemap of the frame he shows.</summary>
-    private readonly KraidBodyLayer _bodyLayer;
     /// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
     /// <summary>Kraid's room background: its fade, color transitions, top and bottom tilemap transfers and the ceiling rocks.</summary>
@@ -54,7 +52,6 @@ internal sealed class KraidRise
         _slotTable = dependencies.SlotTable;
         _presentation = dependencies.Presentation;
         _zebetiteBehavior = dependencies.ZebetiteBehavior;
-        _bodyLayer = dependencies.BodyLayer;
         _access = dependencies.Access;
         _background = dependencies.Background;
         _head = dependencies.Head;
@@ -126,12 +123,11 @@ internal sealed class KraidRise
     }
 
     /// <summary>
-    /// Ports the working-map construction performed by <c>$A7:AAC6</c>: the installed body composes once and is kept
-    /// beside the state, which records only that the working map now holds the body (#1352).
+    /// Kraid's body is ready to show (<c>$A7:AAC6</c>): both his pages hold his body, which his installed body sheet
+    /// pictures, and he owns his body layer from here (#1352, #1466).
     /// </summary>
     internal void InitializeKraidBackground(KraidEnemyState state)
     {
-        _ = _bodyLayer.WorkingMap();
         state.WorkingTop = state.WorkingBottom = KraidBodyPage.Body;
         state.BackgroundTilemapsPrepared = true;
         state.OwnsBg2Tilemap = true;
@@ -281,10 +277,10 @@ internal sealed class KraidRise
             case KraidAiFunction.DeathSink:
             case KraidAiFunction.DeathClearTopTilemap:
             case KraidAiFunction.DeathClearBottomTilemap:
-            case KraidAiFunction.DeathLoadBg3Quarter1:
-            case KraidAiFunction.DeathLoadBg3Quarter2:
-            case KraidAiFunction.DeathLoadBg3Quarter3:
-            case KraidAiFunction.DeathLoadBg3Quarter4:
+            case KraidAiFunction.DeathWaitBeforeFadeIn1:
+            case KraidAiFunction.DeathWaitBeforeFadeIn2:
+            case KraidAiFunction.DeathWaitBeforeFadeIn3:
+            case KraidAiFunction.DeathWaitBeforeFadeIn4:
             case KraidAiFunction.DeathFadeInBackground:
             case KraidAiFunction.DeathFinishedWasAlive:
             case KraidAiFunction.DeathFinishedWasDead:
@@ -481,10 +477,10 @@ internal sealed class KraidRise
             case KraidAiFunction.DeathSink:
             case KraidAiFunction.DeathClearTopTilemap:
             case KraidAiFunction.DeathClearBottomTilemap:
-            case KraidAiFunction.DeathLoadBg3Quarter1:
-            case KraidAiFunction.DeathLoadBg3Quarter2:
-            case KraidAiFunction.DeathLoadBg3Quarter3:
-            case KraidAiFunction.DeathLoadBg3Quarter4:
+            case KraidAiFunction.DeathWaitBeforeFadeIn1:
+            case KraidAiFunction.DeathWaitBeforeFadeIn2:
+            case KraidAiFunction.DeathWaitBeforeFadeIn3:
+            case KraidAiFunction.DeathWaitBeforeFadeIn4:
             case KraidAiFunction.DeathFadeInBackground:
             case KraidAiFunction.DeathFinishedWasAlive:
             case KraidAiFunction.DeathFinishedWasDead:

@@ -2,6 +2,7 @@ using static SuperMetroid.Verification.Enemies.EnemyEffectsFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Enemies.BossBodies;
 namespace SuperMetroid.Verification.Enemies;
 
 using SuperMetroid.Verification.Harness;
@@ -31,7 +32,8 @@ internal static class EnemyEffectResourcesVerification
         var actual = new CrocomireEffectFixture(art);
         AssertThrows<InvalidDataException>(() => operation(actual), context + " fails loudly");
         AssertCrocomireEffectMechanics(expected, actual, context);
-        AssertTrue(expected.Effect.Bg2WorkingTilemap.SequenceEqual(actual.Effect.Bg2WorkingTilemap), context + " tilemap unchanged");
+        AssertTrue(BossBodyCanvasFixtures.ShowSame(expected.Effect.WorkingBody!, actual.Effect.WorkingBody!, CrocomireEffectFixture.Sheets),
+            context + " working canvas unchanged");
         AssertTrue(expected.Vram.ImageEquals(actual.Vram), context + " VRAM unchanged");
     }
 

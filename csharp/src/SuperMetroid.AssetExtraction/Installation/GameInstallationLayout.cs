@@ -43,6 +43,8 @@ public static class GameInstallationLayout
     public const string RoomMetatileDirectoryName = "room-blocks";
     /// <summary>Pre-coloured room block sheets, one per tileset (#1392).</summary>
     public const string RoomBlockSheetDirectoryName = "room-block-sheets";
+    /// <summary>Pre-assembled boss body sheets, one per boss (#1466).</summary>
+    public const string BossBodySheetDirectoryName = "boss-body-sheets";
     /// <summary>Content child directory shared by background tilemaps and sky tilemaps.</summary>
     public const string RoomBackgroundTilemapDirectoryName = "room-backgrounds";
     /// <summary>Content child directory for visual room-block references independent of native collision and BTS.</summary>

@@ -19,7 +19,10 @@ uint2 XrayBackground(uint roomSource, uint map, uint2 size, uint2 position, bool
         if (source == SourceLayer3)
             shown = Bg3Picture(map, size.y, position & 65535, within, picture);
         else if (source == SourceBossBody)
-            BossBg2Picture(position, size, within, picture);
+        {
+            BossBodyPicture(position, size, within, picture);
+            shown = picture != 0;
+        }
         else if (source == SourceXrayReveal)
             shown = RevealPicture(position & 65535, picture, within);
         else if (source == SourceLibraryBackground)

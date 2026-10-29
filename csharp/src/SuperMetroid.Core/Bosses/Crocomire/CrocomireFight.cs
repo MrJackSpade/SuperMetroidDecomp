@@ -2,6 +2,7 @@ using SuperMetroid.Core.Bosses.Artwork;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
@@ -68,11 +69,11 @@ internal sealed class CrocomireFight
         var state = new CrocomireEnemyState(slot);
         slot.SetSpeciesState(state, state.ClearWithRecord);
         _access.Crocomire = state;
-        _access.CrocomireDeath = new CrocomireDeathState();
-        _bg2.ClearCrocomireBg2WorkingTilemap();
-        // The room's library background uploads this cleared staging image to BG2. Crocomire owns that image
-        // (#1355): his body frames and staged transfers draw into it and it publishes as his body on BG2.
-        _presentation.AttachBg2Image(new EnemyBg2Image(CrocomireBg2.CrocomireBlankBg2Tile));
+        // Crocomire shows his body on a cleared body layer (#1355, #1466): his body frames, and what his death assembles
+        // on its working canvas, are drawn on it.
+        BossBodySheet body = _bossArtwork.Body(BossBodyOwner.Crocomire);
+        _access.CrocomireDeath = new CrocomireDeathState { WorkingBody = new BossBodyCanvas(body, BossBodyDefinitions.SharedBodyRows) };
+        _presentation.AttachBossBody(new BossBodyCanvas(body, BossBodyDefinitions.SharedBodyRows));
 
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaMiniBoss))
         {
@@ -93,7 +94,7 @@ internal sealed class CrocomireFight
             _access.PublishCrocomirePlm(new Position16<RoomBlocks>(32, 3), PlmHeaderId.ClearCrocomireInvisibleWall);
             _access.PublishCrocomirePlm(new Position16<RoomBlocks>(30, 3), PlmHeaderId.ClearCrocomireInvisibleWall);
             _access.PublishCrocomirePlm(new Position16<RoomBlocks>(97, 11), PlmHeaderId.ClearCrocomireBridge);
-            _bg2.WriteCrocomireBg2Cells(0, 1024);
+            _bg2.ShowCrocomireWorkingCells(0, BossBodyDefinitions.PageRows * BossBodyDefinitions.ColumnCount);
             return;
         }
 

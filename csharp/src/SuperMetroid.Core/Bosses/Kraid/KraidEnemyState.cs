@@ -144,8 +144,6 @@ public sealed class KraidEnemyState
     public int SinkTableEventCount { get; internal set; }
     /// <summary>Gets the number of pickup actors requested by Kraid's authored death scatter, independent of pool allocation success.</summary>
     public int DeathDropRequestCount { get; internal set; }
-    /// <summary>Gets how many of the four standard BG3 character quarters the death sequence has restored so far.</summary>
-    public int RestoredBg3Quarters { get; internal set; }
     /// <summary>Gets whether this encounter's death handoff newly wrote the persistent area-boss defeat bit.</summary>
     public bool BossDefeatPersisted { get; internal set; }
     /// <summary>Gets whether background restoration and the death music/persistence handoff have reached the terminal death entry.</summary>

@@ -9,6 +9,7 @@ using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
+using SuperMetroid.Core.Enemies.BossBodies;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 /// <summary>Checks Mother Brain's body as a published image and placement instead of VRAM and BG2 registers (#1356).</summary>
@@ -33,19 +34,20 @@ internal static class MotherBrainBodyPublicationVerification
 
         // Phase one: the body is only staged; the room's pipe background shows.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertTrue(runtime.Display.Latched.Bosses.EnemyBg2 is null && runtime.Display.Latched.Bosses.MotherBrainBody is null,
+        AssertTrue(runtime.Display.Latched.Bosses.Body is null && runtime.Display.Latched.Bosses.MotherBrainBody is null,
             "phase one publishes no body over the pipe background");
 
-        // Phase two: the transition publishes the staged image; her posture scroll places it.
-        ushort[] staged = Enumerable.Range(0, state.EnemyBg2TilemapSize / 2)
-            .Select(cell => runtime.Enemies.Room.Staging.EnemyBg2Tilemap[cell].PackedWord).ToArray();
+        // Phase two: the transition publishes the staged body's first page; her posture scroll places it.
+        BossBodySheets sheets = runtime.BossArtwork.BodySheets ?? throw new InvalidOperationException("The retail runtime installs boss body sheets.");
+        ushort[] staged = Words((state.StagedBody ?? throw new InvalidOperationException("Mother Brain stages her body.")).Publish(sheets), runtime)
+            [..MotherBrainBodyDefinitions.ShownCells];
         runtime.Enemies.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(state);
         state.Bg2Scroll = new Position16<BackgroundPixels>(unchecked((ushort)-27), unchecked((ushort)-217));
         state.HasBg2ScrollOverride = true;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        EnemyBg2ImageSnapshot image = runtime.Display.Latched.Bosses.EnemyBg2
+        BossBodyLayer image = runtime.Display.Latched.Bosses.Body
             ?? throw new InvalidOperationException("The phase-two transition publishes her body image.");
-        AssertTrue(image.Words.AsSpan(0, staged.Length).SequenceEqual(staged), "phase two publishes the staged body image");
+        AssertTrue(Words(image, runtime).AsSpan(0, staged.Length).SequenceEqual(staged), "phase two publishes the staged body image");
         AssertEqual(new MotherBrainBodyPlacement(state.Bg2Scroll, false), runtime.Display.Latched.Bosses.MotherBrainBody,
             "phase two publishes her body at her posture scroll");
         AssertEqual(roomScroll, runtime.BackgroundScroll.Bg2Scroll, "Mother Brain leaves the room's BG2 scroll alone");
@@ -72,4 +74,9 @@ internal static class MotherBrainBodyPublicationVerification
         Suite(nameof(VerifyMotherBrainBodyPublication), () => VerifyMotherBrainBodyPublication());
         return 0;
     }
+
+    /// <summary>The tilemap entry each cell of Mother Brain's <paramref name="layer"/> shows, from the frames the runtime's artwork installs (#1466).</summary>
+    private static ushort[] Words(BossBodyLayer layer, SuperMetroidRuntime runtime) =>
+        BossBodyWords.Of(layer, BossBodyOwner.MotherBrain, runtime.BossArtwork.Artwork
+            ?? throw new InvalidOperationException("The runtime installs boss artwork."));
 }

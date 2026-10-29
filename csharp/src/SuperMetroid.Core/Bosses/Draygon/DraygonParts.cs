@@ -2,6 +2,7 @@
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
@@ -63,9 +64,9 @@ internal sealed class DraygonParts
         (_bossArtwork.Artwork?.DraygonColors ?? throw new InvalidOperationException(
             "Draygon requires installed color artwork.")).ApplyIntro(_presentation.Colours);
 
-        // $7E:2000 is the enemy BG2 staging surface: all $800 words are filled, not merely the currently visible page.
-        // Draygon owns that image (#1354); his body frames draw into it and it publishes as his body on BG2.
-        _presentation.AttachBg2Image(new EnemyBg2Image(EnemyBg2SurfaceDefinitions.BlankTile));
+        // Draygon shows his body on a cleared body layer, both pages of it, not merely the one shown (#1354, #1466); his
+        // body frames are drawn on it.
+        _presentation.AttachBossBody(new BossBodyCanvas(_bossArtwork.Body(BossBodyOwner.Draygon), BossBodyDefinitions.SharedBodyRows));
 
         body.Colouring = new EncounterSpriteColouring(BossColourDefinitions.DraygonSprite);
         body.InstructionTimer = WrappingCountdown.Start(1);

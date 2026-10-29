@@ -57,6 +57,7 @@ public static class InstalledArtworkIdentity
             .Append(KeyValuePair.Create(GameInstallationLayout.SpriteSheetDirectoryName, Require(artwork.SpriteSheets).ContentIdentity))
             .Append(KeyValuePair.Create(GameInstallationLayout.EnemySheetDirectoryName, Require(artwork.EnemySheets).ContentIdentity))
             .Append(KeyValuePair.Create(GameInstallationLayout.RoomBlockSheetDirectoryName, Require(artwork.RoomBlockSheets).ContentIdentity))
+            .Append(KeyValuePair.Create(GameInstallationLayout.BossBodySheetDirectoryName, Require(artwork.BossBodySheets).ContentIdentity))
             .Append(KeyValuePair.Create(GameInstallationLayout.EnemyTileDirectoryName, InstalledEnemyArtwork.DirectoryIdentity(
                 Require(artwork.EnemyTileArtwork), Require(artwork.BossArtwork), Require(artwork.AreaArtwork))));
     }

@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.Plms;
@@ -8,7 +9,6 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
@@ -161,23 +161,20 @@ internal sealed class CrocomireBridgeCollapse
             : throw new ArgumentOutOfRangeException(nameof(puff));
 
     /// <summary>
-    /// Erases the 32-tile circular-map row selected by <c>(BG2VOFS+288)&amp;$FFF8</c> while
-    /// Crocomire sinks. This is the visual producer that makes the body disappear into acid;
-    /// merely moving the enemy's Y word leaves a stale full-height BG2 image behind.
+    /// Erases the body layer row two hundred and eighty-eight pixels below the top of Crocomire's view while he sinks:
+    /// this is what makes his body disappear into the acid. Merely moving the enemy leaves a stale full-height body behind.
     /// </summary>
-    private void ClearCrocomireBg2SinkRow()
+    /// <exception cref="InvalidDataException">The row lies outside his body layer.</exception>
+    private void ClearCrocomireSinkRow()
     {
-        int byteOffset = 8 * (unchecked((ushort)(_bg2.CrocomireBg2Scroll.Y + 288)) & ~7);
-        int firstCell = byteOffset >> 1;
-        Span<BackgroundTile> tilemap = _access.RequireCrocomireDeath().MutableBg2WorkingTilemap;
-        if (firstCell < 0 || firstCell + 32 > tilemap.Length)
-        {
-            throw new InvalidDataException(
-                $"Crocomire sink selected BG2 cell {firstCell}, outside the {tilemap.Length}-cell buffer.");
-        }
-        tilemap.Slice(firstCell, 32).Fill(CrocomireBg2.CrocomireBlankBg2Tile);
-        _bg2.WriteCrocomireBg2Cells(firstCell, 32);
+        int row = unchecked((ushort)(_bg2.CrocomireBg2Scroll.Y + SinkRowDepth)) / BossBodyDefinitions.CellPixels;
+        int firstCell = row * BossBodyDefinitions.ColumnCount;
+        _bg2.WorkingBody.Clear(firstCell, BossBodyDefinitions.ColumnCount);
+        _bg2.ShowCrocomireWorkingCells(firstCell, BossBodyDefinitions.ColumnCount);
     }
+
+    /// <summary>How far below the top of Crocomire's view, in pixels, the row his sinking erases lies.</summary>
+    private const int SinkRowDepth = 288;
 
     /// <summary>Runs the paired body and BG2 presentation while Crocomire sinks into acid.</summary>
     internal void RunCrocomireSinkingComposite(
@@ -237,7 +234,7 @@ internal sealed class CrocomireBridgeCollapse
             return;
         }
 
-        ClearCrocomireBg2SinkRow();
+        ClearCrocomireSinkRow();
         body.ExtraProperties = body.ExtraProperties.Without(
             EnemyExtraProperties.NewInstructionFrame);
 

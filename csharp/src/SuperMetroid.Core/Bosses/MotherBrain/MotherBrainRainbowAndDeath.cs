@@ -88,17 +88,12 @@ internal sealed class MotherBrainRainbowAndDeath
             if (step.PaletteRequested)
                 LoadMotherBrainDeathBodyFade(sequence.State.GreyTransitionCounter - 1);
         }
-        if (sequence.ThirdPhaseDeath.EnemyBg2TilemapClearRequested && !state.DeathBg2Cleared)
+        if (sequence.ThirdPhaseDeath.BodyClearRequested && !state.DeathBg2Cleared)
         {
             state.DeathBg2Cleared = true;
             state.DeathBg2Hidden = false;
             state.Body.Properties = sequence.ThirdPhaseDeath.BodyProperties;
-            var cleared = new BackgroundTile[MotherBrainBg2Definitions.DeathClearLastByte / 2 + 1];
-            Array.Fill(cleared, MotherBrainBg2Definitions.BlankTile);
-            cleared.CopyTo(_room.Staging.EnemyBg2Tilemap.AsSpan());
-            _presentation.RequireBg2Image().Write(0, cleared);
-            state.EnemyBg2TilemapSize = MotherBrainBg2Definitions.DeathClearLastByte;
-            state.EnemyBg2TilemapTransferRequested = true;
+            _presentation.RequireBossBody().Clear(0, MotherBrainBodyDefinitions.DeathClearedCells);
         }
         if (sequence.ThirdPhaseDeath.BrainDrawSetupRequested)
         {

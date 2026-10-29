@@ -46,8 +46,6 @@ internal sealed class RuntimeArtworkContent(SuperMetroidRuntime runtime, RoomCha
                 InstalledArtworkId.GunshipLiftoffFifthTiles
             ? (EnemyTiles.GunshipLiftoff ?? throw new InvalidOperationException("Gunship takeoff artwork is not bound.")).Resolve(asset)
             : asset is InstalledArtworkId.StandardHudTiles or
-                InstalledArtworkId.KraidBg3RestoreQuarter0 or InstalledArtworkId.KraidBg3RestoreQuarter1 or
-                InstalledArtworkId.KraidBg3RestoreQuarter2 or InstalledArtworkId.KraidBg3RestoreQuarter3 or
                 InstalledArtworkId.EscapeTimerFirstTiles or InstalledArtworkId.EscapeTimerSecondTiles
             ? (runtime.Artwork.MapPresentation ?? throw new InvalidOperationException("Map presentation artwork is not bound.")).Resolve(asset)
             : throw new ArgumentOutOfRangeException(nameof(asset), asset, "The runtime binds no characters for this asset.");

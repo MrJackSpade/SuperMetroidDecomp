@@ -101,8 +101,6 @@ public sealed class BeamTileCatalog : IInstalledArtworkContent
             InstalledArtworkId.GrapplePointSecondTiles or InstalledArtworkId.GrapplePointThirdTiles or
             InstalledArtworkId.GrapplePointFourthTiles or InstalledArtworkId.GrappleHorizontalSegmentTiles or
             InstalledArtworkId.GrappleDiagonalSegmentTiles or InstalledArtworkId.GrappleVerticalSegmentTiles or
-            InstalledArtworkId.KraidBg3RestoreQuarter0 or InstalledArtworkId.KraidBg3RestoreQuarter1 or
-            InstalledArtworkId.KraidBg3RestoreQuarter2 or InstalledArtworkId.KraidBg3RestoreQuarter3 or
             InstalledArtworkId.GunshipLiftoffFirstTiles or InstalledArtworkId.GunshipLiftoffSecondTiles or
             InstalledArtworkId.GunshipLiftoffThirdTiles or InstalledArtworkId.GunshipLiftoffFourthTiles or
             InstalledArtworkId.GunshipLiftoffFifthTiles => throw new InvalidDataException($"Beam catalog cannot resolve {asset}."),

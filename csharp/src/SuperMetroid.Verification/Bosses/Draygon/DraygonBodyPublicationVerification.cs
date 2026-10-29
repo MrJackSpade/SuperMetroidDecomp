@@ -43,8 +43,8 @@ internal static class DraygonBodyPublicationVerification
                 ?? throw new InvalidOperationException("Draygon publishes his body placement.");
             AssertEqual(new DraygonBodyPlacement(body, expected, false), placement, $"Draygon at {body} publishes his body position and placement");
             AssertEqual(roomScroll, runtime.BackgroundScroll.Bg2Scroll, "Draygon leaves the room's BG2 scroll alone");
-            _ = runtime.Display.Latched.Bosses.EnemyBg2
-                ?? throw new InvalidOperationException("Draygon publishes his enemy BG2 image.");
+            _ = runtime.Display.Latched.Bosses.Body
+                ?? throw new InvalidOperationException("Draygon publishes his body layer.");
             var drawn = (GameplaySceneLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
             AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), $"Draygon at {body} shows his body image on BG2");
             AssertEqual(expected + runtime.Display.Latched.Scrolls.RoomShake.Bg2, drawn.View.BackgroundScroll, $"Draygon at {body} places the image at his body");

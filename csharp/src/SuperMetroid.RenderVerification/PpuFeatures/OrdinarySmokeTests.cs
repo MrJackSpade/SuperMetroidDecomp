@@ -97,7 +97,7 @@ internal static class OrdinarySmokeTests
         var boss = rooms with
         {
             Bg2 = null,
-            BossBg2 = new BossBodyPictures(new(64, 64), RoomBackgroundsFixtures.SeededBodyPictures(random, colors, 64 * 64)),
+            BossBg2 = RoomBackgroundsFixtures.SeededBody(random, colors, 128),
         };
         for (int hdma = 0; hdma < 4; hdma++)
         {

@@ -18,10 +18,6 @@ public sealed class PhantoonBg2FrameCatalog
     /// <summary>Wraps validated BG2 frame writes without changing engine-owned timing or hitboxes.</summary>
     private PhantoonBg2FrameCatalog(EnemyBg2FrameCatalog frames) => Writes = frames;
 
-    /// <summary>Finds the installed tilemap writes for a native frame root, if that root is defined.</summary>
-    internal bool TryGet(EnemyFrameId frame, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes) =>
-        Writes.TryGet(frame, out writes);
-
     /// <summary>Compiles BG2 artwork for all twenty-two bank-$A7 body/eye, tentacle, and mouth roots selected by Phantoon's compiled instruction programs.</summary>
     /// <param name="json">Caller-owned JSON stream, left open, with every named frame containing ordered horizontal runs of placed tiles in 32-by-64 tilemap-cell coordinates.</param>
     /// <returns>Installed visual writes keyed by extended-frame roots; body/eye hitboxes, gaze selection, instruction timing, and new-frame write gating remain engine-owned.</returns>

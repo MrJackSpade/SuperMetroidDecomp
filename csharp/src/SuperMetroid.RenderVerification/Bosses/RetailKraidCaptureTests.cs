@@ -14,6 +14,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.RenderVerification.Rooms;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.Core.Enemies.BossBodies;
 namespace SuperMetroid.RenderVerification.Bosses;
 
 using SuperMetroid.TestSupport.FrameCapture;
@@ -123,12 +124,12 @@ internal static class RetailKraidCaptureTests
             if (boss.DeathSequenceComplete) break;
             runtime.StepFrame(0);
         }
-        if (!boss.DeathSequenceComplete || boss.RestoredBg3Quarters != 4 ||
+        if (!boss.DeathSequenceComplete || !deathPhases.Contains(KraidAiFunction.DeathWaitBeforeFadeIn4) ||
             !deathPhases.Contains(KraidAiFunction.DeathSink) ||
             !deathPhases.Contains(KraidAiFunction.DeathFadeInBackground))
-            throw new InvalidOperationException("Kraid death missed sinking, background fade or four BG3 restores.");
+            throw new InvalidOperationException("Kraid death missed sinking, the wait before the fade-in or the background fade.");
         RequireBlankBg2(runtime, $"{device.Kind}: defeated Kraid");
-        Console.WriteLine($"{device.Kind}: Kraid death: {deathSamples} exact samples across {deathPhases.Count} AI states; sinking, fade, BG3 restore and blank BG2 verified.");
+        Console.WriteLine($"{device.Kind}: Kraid death: {deathSamples} exact samples across {deathPhases.Count} AI states; sinking, wait, fade and blank BG2 verified.");
         RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, new RetailDoorCase { Door = KraidAuditDefinitions.LeftExitDoor, Destination = KraidAuditDefinitions.LeftExitDestination }, "defeated Kraid left", RequireSteadyHud(runtime, $"{device.Kind}: defeated Kraid left"));
         // The second route starts from the saved defeat bit, as in the existing
         // regression. Run the defeated-room restoration before opening the other door.
@@ -153,8 +154,9 @@ internal static class RetailKraidCaptureTests
         var gameplay = (GameplaySceneLayer)scene.Layers[0];
         if (gameplay.Rooms.BossBg2 is null)
             throw new InvalidOperationException($"{context}: BG2 shows the room's own background where Kraid's tilemap was expected.");
-        var shown = new SortedSet<ushort>(runtime.Display.Latched.Bosses.KraidBody?.Tilemap.Words
-            ?? throw new InvalidOperationException($"{context}: BG2 shows a boss body Kraid has not latched."));
+        var shown = new SortedSet<ushort>(BossBodyWords.Of(runtime.Display.Latched.Bosses.Body
+            ?? throw new InvalidOperationException($"{context}: BG2 shows a boss body Kraid has not latched."), BossBodyOwner.Kraid,
+            runtime.BossArtwork.Artwork ?? throw new InvalidOperationException($"{context}: the runtime installs no boss artwork.")));
         if (shown.Any(word => word != KraidBackgroundDefinitions.BlankTile.PackedWord))
             throw new InvalidOperationException($"{context}: BG2 shows {string.Join(", ", shown.Select(word => $"${word:X4}"))}; only the blank tile ${KraidBackgroundDefinitions.BlankTile.PackedWord:X4} remains on the cartridge.");
     }

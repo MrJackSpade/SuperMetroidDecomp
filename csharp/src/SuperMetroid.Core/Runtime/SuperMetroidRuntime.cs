@@ -256,6 +256,7 @@ internal sealed class SuperMetroidRuntime
         Bind(a => a.BeamPalettes, value => Artwork.BeamPalettes = value);
         Bind(a => a.HyperBeamFxColors, value => Artwork.HyperBeamFxColors = value);
         Bind(a => a.BossArtwork, value => BossArtwork.Artwork = value);
+        Bind(a => a.BossBodySheets, value => BossArtwork.BodySheets = value);
         Bind(a => a.AreaArtwork, value => AreaArtwork.Artwork = value);
         Bind(a => a.EnemyTileArtwork, value => EnemySession.TileArtwork = value);
     }

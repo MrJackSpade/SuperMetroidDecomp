@@ -14,6 +14,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Enemies.BossBodies;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
@@ -44,6 +45,9 @@ internal static class DraygonTilemapProductionVerification
             Pose = SamusPoseId.FacingRightNormalPose };
         SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => false } }) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
+        BossBodySheets sheets = RepositoryInstallation.Artwork.BossBodySheets
+            ?? throw new InvalidOperationException("The repository installation has no boss body sheets.");
+        enemies.BossArtworkBinding.BodySheets = sheets;
         enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(vram), cgram.Gameplay) { Level = assets.LevelData, Samus = samus });
         var boss = enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Fresh Draygon population did not load.");
         // Observe which native enemy indexes were actually scheduled, without adding
@@ -51,10 +55,12 @@ internal static class DraygonTilemapProductionVerification
         // or queue construction; it isolates the downstream tilemap/DMA producer.
         var staging = Enumerable.Repeat((ushort)0x0338, 2048).ToArray();
         var expectedVram = staging.ToArray();
-        // Draygon's body draws into his published enemy BG2 image (#1354), not VRAM.
-        ushort Shown(int word) => enemies.Presentation.RequireBg2Image().Publish().Words[word];
+        // Draygon's body draws on his published body layer (#1354, #1466), not VRAM.
+        ushort[] Shown() => BossBodyWords.Of(enemies.Presentation.RequireBossBody().Publish(sheets), BossBodyOwner.Draygon,
+            enemies.BossArtwork ?? throw new InvalidOperationException("The fixture binds boss artwork."));
+        ushort[] fresh = Shown();
         for (int word = 0; word < expectedVram.Length; word++)
-            AssertEqual(expectedVram[word], Shown(word), "fresh Draygon BG2 starts entirely blank before any draw");
+            AssertEqual(expectedVram[word], fresh[word], "fresh Draygon BG2 starts entirely blank before any draw");
         var destinations = new HashSet<int>(); var streams = new HashSet<int>();
         var functions = new HashSet<DraygonAiFunction>();
         int commands = 0, transfers = 0; long comparisons = 0;
@@ -96,9 +102,10 @@ internal static class DraygonTilemapProductionVerification
                 transfers++;
             }
             oam.BeginFrame(); enemies.Drawing.DrawLayersAsOam(oam, new(0, 0), 0, 7); oam.FinalizeFrame();
+            ushort[] shown = Shown();
             for (int word = 0; word < expectedVram.Length; word++)
             {
-                ushort actual = Shown(word);
+                ushort actual = shown[word];
                 if (expectedVram[word] != actual)
                     throw new InvalidOperationException($"Fresh Draygon frame {frame}, BG2 word {word:X3}: native staging/DMA {expectedVram[word]:X4}, actual {actual:X4}; published={queuedTransfer}.");
                 comparisons++;

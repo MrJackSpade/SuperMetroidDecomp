@@ -9,6 +9,9 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 /// <summary>Provides a mutable-RAM Mother Brain body fixture for instruction and drawing verification.</summary>
 internal static class MotherBrainBodyPresentationFixtureVerification
@@ -40,7 +43,8 @@ internal static class MotherBrainBodyPresentationFixtureVerification
             SpawnedObjectFixtures.LoadSetDrawing(Inner.Enemies, bodyId, Body);
             State = new MotherBrainEnemyState(Body) { Head = Inner.Enemies.SlotTable.Slots[1], Form = MotherBrainForm.DrainedByBabyMetroid };
             Inner.Enemies.MotherBrainEncounter.MotherBrain = State;
-            // Her phase-two transition attaches the enemy BG2 image her body draws into (#1356), filled with her blank tile.
+            // Her phase-two transition attaches the body layer her body draws on (#1356, #1466), showing her blank.
+            Inner.Enemies.BossArtworkBinding.BodySheets = Sheets;
             ClearBg2();
             Inner.Enemies.Drawing.Enqueue(0, Body.EnemyIndex);
             instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton>(EnemyInstructionInterpreter.ProcessInstructions);
@@ -65,17 +69,22 @@ internal static class MotherBrainBodyPresentationFixtureVerification
                 ScrollCalls.Add(State.Bg2Scroll);
         }
 
-        /// <summary>The words of the BG2 image her body draws into.</summary>
-        internal ushort[] Bg2Words => [.. Inner.Enemies.Presentation.RequireBg2Image().Publish().Words];
+        /// <summary>The tilemap entry each cell of the body layer her body draws on shows, from the frames her artwork installs (#1466).</summary>
+        internal ushort[] Bg2Words => BossBodyWords.Of(Inner.Enemies.Presentation.RequireBossBody().Publish(Sheets), BossBodyOwner.MotherBrain,
+            Inner.Enemies.BossArtwork ?? throw new InvalidOperationException("The fixture binds boss artwork."));
 
-        /// <summary>The tile her BG2 image holds where none of her frames has drawn.</summary>
-        internal static BackgroundTile Bg2FillTile => MotherBrainBg2Definitions.BlankTile;
+        /// <summary>The tile her body layer shows where none of her frames has drawn.</summary>
+        internal static BackgroundTile Bg2FillTile => BossBodySheetComposer.BlankOf(BossBodyOwner.MotherBrain);
 
-        /// <summary>Writes <paramref name="word"/> at the start of her BG2 image.</summary>
-        internal void MarkBg2(ushort word) => Inner.Enemies.Presentation.RequireBg2Image().Write(0, [BackgroundTileWordBytes.Tile(word)]);
+        /// <summary>Clears the first cell of her body layer, which a later redraw of a frame writing it would cover.</summary>
+        internal void MarkBg2() => Inner.Enemies.Presentation.RequireBossBody().Clear(0, 1);
+
+        /// <summary>The installed boss body sheets the fixture draws from.</summary>
+        private static BossBodySheets Sheets => RepositoryInstallation.Artwork.BossBodySheets
+            ?? throw new InvalidOperationException("The repository installation has no boss body sheets.");
         /// <summary>Runs the fixture's production enemy drawing path.</summary>
         internal OamBuffer Draw() => Inner.Draw();
-        /// <summary>Attaches a fresh BG2 image holding her fill, as her phase-two transition does, before checking fresh publication.</summary>
-        internal void ClearBg2() => Inner.Enemies.Presentation.AttachBg2Image(new EnemyBg2Image(Bg2FillTile));
+        /// <summary>Attaches a fresh body layer showing her blank, as her phase-two transition does, before checking fresh publication.</summary>
+        internal void ClearBg2() => Inner.Enemies.Presentation.AttachBossBody(new BossBodyCanvas(Sheets.Of(BossBodyOwner.MotherBrain), BossBodyDefinitions.SharedBodyRows));
     }
 }

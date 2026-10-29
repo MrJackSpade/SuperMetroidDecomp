@@ -82,6 +82,9 @@ internal static class EnemySourceDefinitions
     /// <summary>$7E:2000: the work-memory enemy BG2 staging image, whose corpse rows a rot upload may read (#1412).</summary>
     internal const int EnemyBg2Staging = 0x7e2000;
 
+    /// <summary>The bytes of the work-memory enemy BG2 staging image.</summary>
+    internal const int EnemyBg2StagingBytes = 0x1000;
+
     /// <summary>$7E:9000: the work-memory corpse-rotting heap (#1412).</summary>
     internal const int CorpseRottingHeap = 0x7e9000;
 

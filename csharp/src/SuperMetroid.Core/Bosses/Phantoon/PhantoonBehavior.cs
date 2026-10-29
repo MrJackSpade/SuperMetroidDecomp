@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
@@ -83,9 +84,9 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             BackgroundTilemapPrepared = true,
         };
 
-        // Native clears all $1000 bytes of the enemy BG2 working image to tile $0338. Phantoon owns that image
-        // (#1353): ProcessExtendedTilemap draws the body maps into it and it publishes as his body on BG2.
-        _presentation.AttachBg2Image(new EnemyBg2Image(PhantoonBg2FrameDefinitions.BlankTile));
+        // Phantoon shows his body on a cleared body layer (#1353, #1466): his body, eye, tentacle and mouth frames are
+        // drawn on it.
+        _presentation.AttachBossBody(new BossBodyCanvas(_bossArtwork.Body(BossBodyOwner.Phantoon), BossBodyDefinitions.SharedBodyRows));
 
         // Target BG palette seven is black at fight start. In the software PPU CGRAM is the
         // renderer-visible incarnation of native current/target palette storage; clearing

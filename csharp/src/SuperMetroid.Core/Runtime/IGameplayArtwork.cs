@@ -2,6 +2,7 @@ using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -165,6 +166,9 @@ internal interface IGameplayArtwork
 
     /// <summary>The bosses' melts, BG2 frames, corpse characters and colors.</summary>
     BossArtworkCatalog? BossArtwork { get; }
+
+    /// <summary>Every boss's pre-assembled body frames (#1466).</summary>
+    BossBodySheets? BossBodySheets { get; }
 
     /// <summary>The Ceres door and escape overlay and the Tourian statues' colors.</summary>
     AreaArtworkBundle? AreaArtwork { get; }

@@ -8,6 +8,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Enemies.BossBodies;
 namespace SuperMetroid.Verification.Enemies;
 
 using SuperMetroid.Verification.Harness;
@@ -29,10 +30,9 @@ internal static class EnemyEffectIsolationVerification
             CrocomireMeltingIllustration source = pass;
             baseline.InitializeMap(source); edited.InitializeMap(source);
             AssertCrocomireEffectMechanics(baseline, edited, "melt map replacement");
-            AssertTrue(!baseline.Effect.Bg2WorkingTilemap.SequenceEqual(edited.Effect.Bg2WorkingTilemap), "authored melt map reaches scratch");
-            // Crocomire's body draws into the enemy BG2 image (#1353).
-            AssertTrue(!baseline.Enemies.Presentation.RequireBg2Image().Publish().Words.SequenceEqual(
-                edited.Enemies.Presentation.RequireBg2Image().Publish().Words), "authored melt map reaches the BG2 image");
+            // Both variants draw the installed melt image's parts on the same cells (#1466); its pictures are the import's.
+            AssertTrue(BossBodyCanvasFixtures.ShowSame(baseline.Enemies.Presentation.RequireBossBody(), edited.Enemies.Presentation.RequireBossBody(),
+                CrocomireEffectFixture.Sheets), "both visual variants show the melt image's parts on the same cells");
 
             baseline.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, pass));
             edited.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, pass));
@@ -69,7 +69,8 @@ internal static class EnemyEffectIsolationVerification
             }
             baseline.Call(c => c.Melting.FinishCrocomireMeltingPass); edited.Call(c => c.Melting.FinishCrocomireMeltingPass);
             AssertCrocomireEffectMechanics(baseline, edited, "finished melt pass");
-            AssertTrue(baseline.Effect.Bg2WorkingTilemap.SequenceEqual(edited.Effect.Bg2WorkingTilemap), "both visual variants clear the completed melt tilemap");
+            AssertTrue(BossBodyCanvasFixtures.ShowSame(baseline.Effect.WorkingBody!, edited.Effect.WorkingBody!, CrocomireEffectFixture.Sheets),
+                "both visual variants clear the completed melt canvas");
             AssertTrue(baseline.Vram.Bytes.Slice(EnemyBg2FrameLayoutConstants.VramBase * 2, 2048)
                 .SequenceEqual(edited.Vram.Bytes.Slice(EnemyBg2FrameLayoutConstants.VramBase * 2, 2048)), "exact cleared BG2 upload");
         }

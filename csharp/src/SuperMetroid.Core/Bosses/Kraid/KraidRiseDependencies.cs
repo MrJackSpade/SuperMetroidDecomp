@@ -32,8 +32,6 @@ internal sealed record KraidRiseDependencies
     /// <summary>Coordinates Zebetite behavior registered alongside Kraid's room actors.</summary>
     public required ZebetiteBehavior ZebetiteBehavior { get; init; }
 
-    /// <summary>Kraid's BG2 body layer: his working map composed from the installed artwork and the tilemap of the frame he shows.</summary>
-    public required KraidBodyLayer BodyLayer { get; init; }
 
     /// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and the sound he last requested.</summary>
     public required KraidEncounterAccess Access { get; init; }

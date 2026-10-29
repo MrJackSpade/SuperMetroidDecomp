@@ -73,7 +73,7 @@ internal static class DraygonEvirPicturesVerification
     /// </summary>
     private static ImmutableArray<SpriteDraw> AssertDrawnLikeParts(SuperMetroidRuntime runtime, RoomSpriteObjectSlot evir, string when)
     {
-        SpriteArtwork live = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.SpriteCharacters);
+        SpriteArtwork live = RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteCharacters);
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
         runtime.Enemies.SpriteObjects.DrawRoomSpriteObjects(sprites, Position16<RoomPixels>.Zero);

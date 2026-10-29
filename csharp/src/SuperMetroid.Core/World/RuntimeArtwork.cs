@@ -1,9 +1,7 @@
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -12,46 +10,21 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
-using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Host-installed artwork catalogs (room tiles, palettes, layouts, sky, Samus, beams, grapple, map presentation)
-/// and the VRAM asset and installed-artwork transfer source the runtime's VRAM queue resolves through.
+/// Host-installed artwork catalogs (room tiles, palettes, layouts, sky, Samus, beams, grapple, map presentation) the
+/// runtime's owners draw and colour from.
 /// </summary>
-internal sealed class RuntimeArtwork : IInstalledArtworkContent, IInstalledSpriteCharacterArtwork, IInstalledBossSpriteCharacterArtwork, IInstalledAreaSpriteCharacterArtwork
+internal sealed class RuntimeArtwork
 {
-    /// <inheritdoc/>
-    BossArtworkCatalog IInstalledBossSpriteCharacterArtwork.BossTiles => _bossArtwork.Installed;
-
-    /// <inheritdoc/>
-    AreaArtworkBundle IInstalledAreaSpriteCharacterArtwork.AreaTiles => _areaArtwork.Installed;
-
-    /// <inheritdoc/>
-    EnemyTileArtworkCatalog IInstalledSpriteCharacterArtwork.EnemyTiles =>
-        _enemySession.TileArtwork ?? throw new InvalidOperationException("No enemy artwork is installed.");
-
-    /// <inheritdoc/>
-    RoomFxAnimatedTileAtlas IInstalledSpriteCharacterArtwork.AnimatedTiles =>
-        MapPresentation?.RoomFxAnimatedTiles ?? throw new InvalidOperationException("No map presentation is installed.");
-
-
-    /// <summary>Resolves a typed VRAM asset from its currently bound artwork catalog.</summary>
-    ReadOnlyMemory<byte> IInstalledArtworkContent.Resolve(InstalledArtworkId asset) => ResolveCharacters(asset);
-
     /// <summary>Locates the current HUD character base in VRAM.</summary>
     private readonly GameplayDisplayState _display;
-    /// <summary>Receives enemy artwork and presentation catalogs for every room's enemies.</summary>
-    private readonly EnemySession _enemySession;
 
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
-
-    /// <summary>The session's installed area artwork.</summary>
-    private readonly AreaArtworkBinding _areaArtwork;
     /// <summary>The loaded room, whose active escape typewriters follow a rebound escape-warning text.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Receives gameplay HUD presentation and reports initialization state.</summary>
@@ -81,9 +54,7 @@ internal sealed class RuntimeArtwork : IInstalledArtworkContent, IInstalledSprit
     internal RuntimeArtwork(RuntimeArtworkDependencies dependencies)
     {
         _display = dependencies.Display;
-        _enemySession = dependencies.EnemySession;
         _bossArtwork = dependencies.BossArtwork;
-        _areaArtwork = dependencies.AreaArtwork;
         _room = dependencies.Room;
         _hud = dependencies.Hud;
         _messageBox = dependencies.MessageBox;
@@ -156,12 +127,6 @@ internal sealed class RuntimeArtwork : IInstalledArtworkContent, IInstalledSprit
         HudTileAtlas.ShowCharactersAgain(backgrounds, _display.Layer3Characters);
         pendingHudTiles = null;
     }
-
-    /// <summary>Complete installed standard OBJ sheet, which the standard OBJ character placement names.</summary>
-    /// <remarks>Host content is rebound after restoring a graph; saved state must not freeze an old user override into
-    /// the simulation.</remarks>
-    [field: NonSerialized]
-    public RoomCharacterAtlas? StandardObjectArt { get; set; }
 
     /// <summary>Rebinds authored visual frame choices to both native projectile slot owners.</summary>
     [field: NonSerialized]     public InstalledProjectileFrameBindings? ProjectileFrameBindings
@@ -275,29 +240,6 @@ internal sealed class RuntimeArtwork : IInstalledArtworkContent, IInstalledSprit
             beamPalettes.LoadTo(_player.Colours.Beam, selection);
         pendingBeamPalette = null;
     }
-
-    /// <summary>
-    /// Resolves the characters a typed asset names from its bound standard sprite, gunship or HUD catalog. Beam, trail and grapple
-    /// characters are composed into the installed projectile and grapple sheets, so the runtime holds none.
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The runtime binds no characters for the asset.</exception>
-    internal ReadOnlyMemory<byte> ResolveCharacters(InstalledArtworkId asset) =>
-        asset == InstalledArtworkId.StandardObjectTiles
-            ? (StandardObjectArt ?? throw new InvalidOperationException("Standard OBJ artwork is not bound.")).Characters
-            : asset is InstalledArtworkId.GunshipLiftoffFirstTiles or
-            InstalledArtworkId.GunshipLiftoffSecondTiles or
-            InstalledArtworkId.GunshipLiftoffThirdTiles or
-            InstalledArtworkId.GunshipLiftoffFourthTiles or
-            InstalledArtworkId.GunshipLiftoffFifthTiles
-            ? (_enemySession.TileArtwork?.GunshipLiftoff ??
-                throw new InvalidOperationException("Gunship takeoff artwork is not bound.")).Resolve(asset)
-            : asset is InstalledArtworkId.StandardHudTiles or
-                InstalledArtworkId.KraidBg3RestoreQuarter0 or InstalledArtworkId.KraidBg3RestoreQuarter1 or
-                InstalledArtworkId.KraidBg3RestoreQuarter2 or InstalledArtworkId.KraidBg3RestoreQuarter3 or
-                InstalledArtworkId.EscapeTimerFirstTiles or InstalledArtworkId.EscapeTimerSecondTiles
-            ? (MapPresentation ?? throw new InvalidOperationException("Map presentation artwork is not bound.")).Resolve(asset)
-            : throw new ArgumentOutOfRangeException(nameof(asset), asset, "The runtime binds no characters for this asset.");
-
 
     /// <summary>Host-selected BG tilemaps, rebound after debugger-state restoration.</summary>
     [field: NonSerialized]

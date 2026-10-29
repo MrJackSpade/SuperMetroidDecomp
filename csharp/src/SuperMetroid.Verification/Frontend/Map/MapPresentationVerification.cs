@@ -206,8 +206,6 @@ internal static class MapPresentationVerification
     /// </summary>
     internal sealed class MapPresentationInstalledRoomAssets
     {
-        /// <summary>Installed standard-object tiles required by the real-room fixture.</summary>
-        private readonly RoomCharacterAtlas standardObjects;
         /// <summary>Installed room-specific character sheets bound before room initialization.</summary>
         private readonly RoomCharacterAtlases roomCharacters;
         /// <summary>Installed room palette data used instead of cartridge graphics fallback.</summary>
@@ -239,7 +237,6 @@ internal static class MapPresentationVerification
         public MapPresentationInstalledRoomAssets(SuperMetroid.AssetExtraction.Installation.GameInstallation installation)
         {
             InitialPalettes = installation.LoadGameplayBasePalettes();
-            standardObjects = installation.LoadStandardObjects();
             roomCharacters = installation.LoadRoomCharacters();
             roomPalettes = installation.LoadRoomPalettes();
             roomBlockSheets = installation.LoadRoomBlockSheets();
@@ -257,7 +254,6 @@ internal static class MapPresentationVerification
         /// <summary>Installs all fixture artwork owners before Ceres room setup can request graphics.</summary>
         public void Bind(SuperMetroidRuntime runtime)
         {
-            runtime.Artwork.StandardObjectArt = standardObjects;
             runtime.Artwork.RoomCharacterArt = roomCharacters;
             runtime.Artwork.RoomPaletteArt = roomPalettes;
             runtime.Artwork.RoomBlockSheets = roomBlockSheets;

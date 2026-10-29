@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Areas;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
@@ -15,14 +13,8 @@ internal sealed record RuntimeArtworkDependencies
     /// <summary>Display.</summary>
     public required GameplayDisplayState Display { get; init; }
 
-    /// <summary>The session that holds every room's installed enemy artwork.</summary>
-    public required EnemySession EnemySession { get; init; }
-
     /// <summary>The session's installed boss artwork.</summary>
     public required BossArtworkBinding BossArtwork { get; init; }
-
-    /// <summary>The session's installed area artwork.</summary>
-    public required AreaArtworkBinding AreaArtwork { get; init; }
 
     /// <summary>The loaded room, whose active escape typewriters follow a rebound escape-warning text.</summary>
     public required ActiveRoomState Room { get; init; }

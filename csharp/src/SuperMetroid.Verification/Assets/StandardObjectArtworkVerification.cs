@@ -20,13 +20,13 @@ internal static class StandardObjectArtworkVerification
     private const int NativeStandardObjects = 0x9ad200;
 
     /// <summary>The bytes the OBJ character table shows over the standard sheet's span, as the session records them.</summary>
-    private static ReadOnlySpan<byte> ShownStandardObjects(SuperMetroidRuntime runtime)
+    private static ReadOnlySpan<byte> ShownStandardObjects(SuperMetroidRuntime runtime, RoomCharacterAtlas standardObjects)
     {
         SpriteArtworkPlacement shown = runtime.EnemySession.SpriteCharacters.LastOver(0, StandardObjectArtworkFormat.ByteCount)
             ?? throw new InvalidOperationException("Nothing is shown over the standard OBJ characters.");
         AssertEqual(0, shown.FirstByte, "the standard OBJ characters start the table");
         AssertEqual(StandardObjectArtworkFormat.ByteCount, shown.ByteCount, "the whole standard sheet is shown");
-        return shown.Source.Resolve(runtime.Artwork).Span;
+        return shown.Source.Resolve(new RuntimeArtworkContent(runtime, standardObjects)).Span;
     }
 
     /// <summary>Compares every native OBJ byte, then checks the edited PNG, provenance, and the ROM-free setup selection.</summary>
@@ -51,9 +51,8 @@ internal static class StandardObjectArtworkVerification
             var guard = NewFrontendCartridgeReadGuard(
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom));
             var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: palettes);
-            runtime.Artwork.StandardObjectArt = baseline;
             runtime.HudSetup.ShowStandardObjectCharacters();
-            AssertTrue(ShownStandardObjects(runtime).SequenceEqual(baseline.Characters.Span),
+            AssertTrue(ShownStandardObjects(runtime, baseline).SequenceEqual(baseline.Characters.Span),
                 "gameplay setup selects the installed OBJ bytes without reading ROM");
 
             string stockPath = Path.Combine(stock, StandardObjectArtworkFormat.FileName);
@@ -73,9 +72,8 @@ internal static class StandardObjectArtworkVerification
             AssertTrue(!edited.Characters.Span.SequenceEqual(baseline.Characters.Span),
                 "selected indexed PNG changes the native standard OBJ transfer");
             var editedRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: palettes);
-            editedRuntime.Artwork.StandardObjectArt = edited;
             editedRuntime.HudSetup.ShowStandardObjectCharacters();
-            AssertTrue(ShownStandardObjects(editedRuntime).SequenceEqual(edited.Characters.Span),
+            AssertTrue(ShownStandardObjects(editedRuntime, edited).SequenceEqual(edited.Characters.Span),
                 "edited OBJ tile is what gameplay setup selects over the OBJ characters");
             StandardObjectArtworkFiles.Extract(native, stock, SupportedCartridge.Sha256);
             AssertTrue(StandardObjectArtworkFiles.Load(stock, overrides).Characters.Span

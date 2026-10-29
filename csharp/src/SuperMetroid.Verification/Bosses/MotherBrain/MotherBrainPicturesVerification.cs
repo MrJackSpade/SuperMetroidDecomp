@@ -62,7 +62,7 @@ internal static class MotherBrainPicturesVerification
 
         void Draw(string context)
         {
-            SpriteArtwork live = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.SpriteCharacters);
+            SpriteArtwork live = RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteCharacters);
             byte[] characters = live.Characters[..SpriteArtworkPlacements.TableByteCount].ToArray();
             foreach ((CorpseRotRow row, int step) in shown)
                 corpse.RowBytes(row, step).CopyTo(characters.AsSpan(row.FirstByte));

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.TestSupport.VerificationOracles;
 

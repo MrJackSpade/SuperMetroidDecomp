@@ -30,6 +30,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Frontend;
 
 using SuperMetroid.Verification.Bosses.Torizo;
@@ -702,7 +703,7 @@ internal static class FrontendRomFreeVerification
                     "installed Draygon Evir intro characters match native with bank-$B1 reads forbidden");
 
                 static ReadOnlySpan<byte> ShownObjects(SuperMetroid.Core.Runtime.SuperMetroidRuntime runtime) =>
-                    new ObjCharacterTablePage().Page(runtime.Enemies.Room.Session.SpriteCharacters, runtime.Artwork).Characters;
+                    new ObjCharacterTablePage().Page(runtime.Enemies.Room.Session.SpriteCharacters, RuntimeArtworkContent.Of(runtime)).Characters;
             }
         }
         if (awakenedGoldenTorizo is not null)

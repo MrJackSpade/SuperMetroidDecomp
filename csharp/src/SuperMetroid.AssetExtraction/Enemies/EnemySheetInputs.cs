@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Escape;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 

@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Areas;
+﻿using SuperMetroid.Core.Areas;
+
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>The installed area artwork that area sprite character sources name.</summary>
 internal interface IInstalledAreaSpriteCharacterArtwork

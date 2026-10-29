@@ -8,8 +8,4 @@ public sealed class AreaArtworkBinding
 {
     /// <summary>The installed area artwork, or null before any is installed.</summary>
     public AreaArtworkBundle? Artwork { get; set; }
-
-    /// <summary>The installed area artwork; an actor that needs it fails when none is installed.</summary>
-    internal AreaArtworkBundle Installed =>
-        Artwork ?? throw new InvalidOperationException("No area artwork is installed.");
 }

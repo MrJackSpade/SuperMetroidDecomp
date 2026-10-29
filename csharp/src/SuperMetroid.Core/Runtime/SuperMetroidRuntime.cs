@@ -151,7 +151,7 @@ internal sealed class SuperMetroidRuntime
         Freeze = new GameplayTimeFreeze(Player);
         Tester = new TesterTools(Colours, Player, System);
         TourianStatueDependencies = new TourianStatueSequenceDependencies { Colours = Colours, Player = Player, Room = Room, System = System, Tester = Tester, Freeze = Freeze };
-        Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, Room = Room, RoomFx = RoomFx, Display = Display, Hud = Hud, MessageBox = MessageBox, Player = Player });
+        Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies { BossArtwork = BossArtwork, Room = Room, RoomFx = RoomFx, Display = Display, Hud = Hud, MessageBox = MessageBox, Player = Player });
         HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Backgrounds = BgArtwork, Artwork = Artwork, Display = Display, Hud = Hud, Player = Player, EnemySession = EnemySession, Room = Room });
         ScreenLayers = new GameplayScreenLayers(Room);
         Xray = new XrayReveal(BackgroundScroll, Room, System);
@@ -212,7 +212,6 @@ internal sealed class SuperMetroidRuntime
 
         Bind(a => a.MapPresentation, value => Artwork.MapPresentation = value);
         Bind(a => a.GameplayBasePalettes, value => Artwork.InitialPaletteArt = value);
-        Bind(a => a.StandardObjectArt, value => Artwork.StandardObjectArt = value);
         Bind(a => a.SamusBodyArt, value => Artwork.SamusBodyArt = value);
         Bind(a => a.RoomCharacterArt, value => Artwork.RoomCharacterArt = value);
         Bind(a => a.RoomPaletteArt, value => Artwork.RoomPaletteArt = value);

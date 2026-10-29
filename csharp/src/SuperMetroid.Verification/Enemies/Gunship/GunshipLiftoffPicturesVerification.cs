@@ -11,6 +11,7 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.World;
 using SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
@@ -58,7 +59,7 @@ internal static class GunshipLiftoffPicturesVerification
                 made.Add(upload);
             }
             runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = camera, TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData });
-            SpriteArtwork live = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.SpriteCharacters);
+            SpriteArtwork live = RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteCharacters);
             var sprites = new SpriteFrameBuffer();
             sprites.BeginFrame();
             runtime.Enemies.Drawing.AdvanceLayers(camera, 0, 7);

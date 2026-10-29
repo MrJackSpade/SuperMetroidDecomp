@@ -14,6 +14,7 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.World;
 using SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
@@ -67,7 +68,7 @@ internal static class CorpseRotPicturesVerification
             if (!rot.Rotting())
                 after++;
             rotted = Math.Max(rotted, checked((int)rot.Steps()));
-            SpriteArtwork rottingArt = Rotted(runtime.Artwork.GameplayObjectPage(runtime.EnemySession.SpriteCharacters), simulation, expected,
+            SpriteArtwork rottingArt = Rotted(RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteCharacters), simulation, expected,
                 $"{context} after update {updates}");
             var sprites = new SpriteFrameBuffer();
             sprites.BeginFrame();

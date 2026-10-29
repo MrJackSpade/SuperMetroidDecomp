@@ -33,9 +33,6 @@ internal interface IGameplayArtwork
     /// <summary>Gameplay base palettes a new runtime starts from.</summary>
     GameplayBasePalette? GameplayBasePalettes { get; }
 
-    /// <summary>Common gameplay sprite characters (standard objects).</summary>
-    RoomCharacterAtlas? StandardObjectArt { get; }
-
     /// <summary>Samus body tiles, palettes and death palettes.</summary>
     InstalledSamusBodyArtwork? SamusBodyArt { get; }
 

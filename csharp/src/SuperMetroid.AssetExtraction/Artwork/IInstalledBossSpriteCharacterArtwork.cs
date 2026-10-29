@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Bosses.Artwork;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>The installed boss artwork that boss sprite character sources name.</summary>
 internal interface IInstalledBossSpriteCharacterArtwork

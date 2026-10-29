@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>The installed gameplay artwork that domain sprite character sources name.</summary>
 internal interface IInstalledSpriteCharacterArtwork

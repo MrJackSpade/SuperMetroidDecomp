@@ -131,11 +131,7 @@ internal sealed class TorizoCombat
         }
         else
         {
-            for (int color = 0; color < 16; color++)
-            {
-                _presentation.BossColours().TorizoBody.Write(color, RgbColor.White);
-                _presentation.BossColours().TorizoBelly.Write(color, RgbColor.White);
-            }
+            _presentation.BossColours().TorizoBodyAndBelly.Fill(RgbColor.White);
         }
     }
 

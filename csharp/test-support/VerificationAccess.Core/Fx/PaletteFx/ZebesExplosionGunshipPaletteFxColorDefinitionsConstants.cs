@@ -19,6 +19,4 @@ internal static class ZebesExplosionGunshipPaletteFxColorDefinitionsConstants
     }
     /// <summary>The instruction-list entry at <c>$8D:D6BA</c>.</summary>
     public const ushort ProgramStart = 0xd6ba;
-    /// <summary>The reveal writes CGRAM from byte index <c>$00A0</c>.</summary>
-    public const ushort ColorByteIndex = 0x00a0;
 }

@@ -17,8 +17,6 @@ internal static class RedBrinstarGlowPaletteFxColorDefinitionsConstants
         /// <inheritdoc cref="RedBrinstarGlowPaletteFxColorDefinitionsConstants.DefinitionPointer"/>
         internal static ushort DefinitionPointer => RedBrinstarGlowPaletteFxColorDefinitionsConstants.DefinitionPointer;
     }
-    /// <summary>The byte index of the first Red Brinstar glow color in CGRAM.</summary>
-    public const ushort ColorByteIndex = 0x00c8;
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
     public static PaletteFxColorKey Color(int frame, int color) => RedBrinstarGlowPaletteFxColorDefinitions.Rows.Color(frame, color);
     /// <summary>Fourteen ten-frame records form one complete glow cycle.</summary>

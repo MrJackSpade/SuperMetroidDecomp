@@ -12,8 +12,6 @@ internal static class TourianStatueGreyPaletteFxColorToolingDefinitions
     internal const ushort FirstDefinition = 0xf749;
     /// <summary>$8D:E222: first color-index/goto entry; the final entry falls through.</summary>
     internal const ushort FirstProgram = 0xe222;
-    /// <summary>CGRAM byte $C0: first statue palette, with palette row eight skipped.</summary>
-    internal const ushort FirstColorByte = 0xc0;
     /// <summary>Four boss-specific entries sharing the eight-frame grey-out program.</summary>
     internal static readonly IReadOnlyList<TourianStatueGreyPaletteFxColorDefinition> Definitions = new ProgramEntries();
     /// <summary>Computes consecutive definition and program addresses without storing duplicate records.</summary>
@@ -21,7 +19,7 @@ internal static class TourianStatueGreyPaletteFxColorToolingDefinitions
     {
         /// <summary>Draygon, Kraid, Ridley, and Phantoon each have one setup entry.</summary>
         public int Count => 4;
-        /// <summary>Maps a boss index to its definition, instruction start, and CGRAM row.</summary>
+        /// <summary>Maps a boss index to its definition and instruction start.</summary>
         public TourianStatueGreyPaletteFxColorDefinition this[int index]
         {
             get
@@ -31,7 +29,6 @@ internal static class TourianStatueGreyPaletteFxColorToolingDefinitions
                 return new((TourianStatueBoss)index,
                     (ushort)(FirstDefinition + 4 * index),
                     (ushort)(FirstProgram + 8 * index),
-                    (ushort)(FirstColorByte + 32 * (index + (index >= 2 ? 1 : 0))),
                     usesGoto: index < Count - 1);
             }
         }

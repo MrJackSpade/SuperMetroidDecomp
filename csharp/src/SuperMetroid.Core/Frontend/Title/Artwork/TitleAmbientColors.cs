@@ -16,7 +16,7 @@ internal static class TitleAmbientColors
         var tube = TitleScreenAmbientPaletteFxColorDefinitions.TubeLight;
         if (tube.Rows.TryLocate(key, out int frame, out int index))
         {
-            RgbColor first = initial[tube.ColorByteIndex / RgbColor.ByteCount + index];
+            RgbColor first = initial[InitialPosition(tube.Colours) + index];
             if (frame == 0) { color = first; return true; }
             if (supplied.TryGetValue(tube.Color(0, index), out RgbColor edited)) first = edited;
             int phase = Math.Min(frame, tube.FrameCount - frame);
@@ -26,7 +26,7 @@ internal static class TitleAmbientColors
         var displays = TitleScreenAmbientPaletteFxColorDefinitions.Displays;
         if (displays.Rows.TryLocate(key, out frame, out index))
         {
-            int paletteIndex = frame == 0 ? displays.ColorByteIndex / RgbColor.ByteCount + index
+            int paletteIndex = frame == 0 ? InitialPosition(displays.Colours) + index
                 : index == 0 ? DimWarmPaint : DimGreenPaint;
             color = initial[paletteIndex];
             return true;
@@ -34,6 +34,16 @@ internal static class TitleAmbientColors
         color = RgbColor.Black;
         return false;
     }
+
+    /// <summary>
+    /// Where the title's initial palette holds the first of <paramref name="colours"/>, which are background colours,
+    /// the palette's first part. The title palette is still a run of positions until colour sets are keyed by owner
+    /// (#1464 slice 2).
+    /// </summary>
+    private static int InitialPosition(PaletteFxColours colours) =>
+        PaletteFxColourPlacementDefinitions.Placements[colours] is { Owner: PaletteFxColourOwner.Background } placement
+            ? placement.Colour
+            : throw new InvalidOperationException($"The title's {colours} are not background colours.");
 
     /// <summary>Dims one RGB5 channel by the reviewed three-unit scale with exact nearest-even integer rounding.</summary>
     private static int Channel(int first, int phase)

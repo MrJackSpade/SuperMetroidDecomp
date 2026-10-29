@@ -17,8 +17,6 @@ internal static class UnusedCinematicFadePaletteFxColorDefinitionsConstants
         /// <inheritdoc cref="UnusedCinematicFadePaletteFxColorDefinitionsConstants.DefinitionPointer"/>
         internal static ushort DefinitionPointer => UnusedCinematicFadePaletteFxColorDefinitionsConstants.DefinitionPointer;
     }
-    /// <summary>The fade writes CGRAM from byte index <c>$00A0</c>.</summary>
-    public const ushort ColorByteIndex = 0x00a0;
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
     public static PaletteFxColorKey Color(int frame, int color) => UnusedCinematicFadePaletteFxColorDefinitions.Rows.Color(frame, color);
     /// <summary>The one-shot fade contains eleven timed records.</summary>

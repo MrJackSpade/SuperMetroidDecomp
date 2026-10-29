@@ -61,7 +61,7 @@ internal static class PaletteJsonContractsVisibleVerification
             AssertSameBytes(stockBus.WorkRam, editedBus.WorkRam, "color replacement preserves all live WRAM");
             foreach (var definition in TitleScreenAmbientPaletteFxColorDefinitions.All)
             {
-                int destination = definition.ColorByteIndex / sizeof(ushort) + 1;
+                int destination = definition.Colours.CartridgeColour + 1;
                 AssertEqual((ushort)(stockCgram.Colors[destination].ToWord() ^ 0x7fff), editedCgram.Colors[destination],
                     "exact authored color inversion reaches the compiled native destination");
                 AssertPaletteContractPixels(stockCgram, editedCgram, destination);

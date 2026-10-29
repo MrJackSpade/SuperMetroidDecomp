@@ -14,8 +14,6 @@ public sealed class OldTourianEscapeAccentPaletteFxColorDefinition
     /// <summary>The palette-FX object that installs this program.</summary>
     public required PaletteFxObject Object { get; init; }
 
-    /// <summary>The first destination byte in CGRAM.</summary>
-    public required int ColorByteIndex { get; init; }
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public required PaletteFxColorRows Rows { get; init; }

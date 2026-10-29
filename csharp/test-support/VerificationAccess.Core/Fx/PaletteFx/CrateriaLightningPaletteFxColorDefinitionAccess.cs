@@ -15,9 +15,5 @@ internal static class CrateriaLightningPaletteFxColorDefinitionAccess
 
         /// <summary>Displayed records across neutral, active, and recovery phases.</summary>
         internal int DisplayedRecordsPerCycle => 1 + 14 + self.NeutralCount + 4 + 1;
-        /// <summary>Surface uses CGRAM byte $A8; unused dark lightning uses byte $82.</summary>
-        public ushort ColorByteIndex => self.Owner == CrateriaLightningPaletteOwner.SurfaceLightning
-            ? CrateriaLightningPaletteFxColorDefinitionConstants.SurfaceColorByteIndex
-            : CrateriaLightningPaletteFxColorDefinitionConstants.DarkColorByteIndex;
     }
 }

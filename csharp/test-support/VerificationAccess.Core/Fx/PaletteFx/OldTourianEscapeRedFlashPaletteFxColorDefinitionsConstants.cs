@@ -17,8 +17,6 @@ internal static class OldTourianEscapeRedFlashPaletteFxColorDefinitionsConstants
         /// <inheritdoc cref="OldTourianEscapeRedFlashPaletteFxColorDefinitionsConstants.DefinitionPointer"/>
         internal static ushort DefinitionPointer => OldTourianEscapeRedFlashPaletteFxColorDefinitionsConstants.DefinitionPointer;
     }
-    /// <summary>The first CGRAM destination byte for the old-Tourian red flash.</summary>
-    public const ushort ColorByteIndex = 0x00a2;
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
     public static PaletteFxColorKey Color(int frame, int color) => OldTourianEscapeRedFlashPaletteFxColorDefinitions.Rows.Color(frame, color);
     /// <summary>The loop contains fourteen timed records.</summary>

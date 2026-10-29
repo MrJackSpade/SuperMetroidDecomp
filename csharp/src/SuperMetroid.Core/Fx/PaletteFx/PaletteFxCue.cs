@@ -13,7 +13,7 @@ public abstract record PaletteFxCue
     public sealed record QueueSoundLibrary2(SoundEffectId? Sound) : PaletteFxCue;
 
     /// <summary><c>$8D:C655</c>: later records write from these colours.</summary>
-    /// <param name="Target">The owner's colour a <see cref="SetColours"/> cue makes the object's next record start at.</param>
+    /// <param name="Target">The colours a <see cref="SetColours"/> cue makes the object's later records colour.</param>
     public sealed record SetColours(PaletteFxColours Target) : PaletteFxCue;
 
     /// <summary><c>$8D:F1C6</c>: publishes the Norfair heat palette index.</summary>

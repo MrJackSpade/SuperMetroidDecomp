@@ -92,7 +92,9 @@ internal static class NativeSnapshotImportVerification
         {
             var paletteSlot = initialPaletteSlots[slot];
             paletteSlot.Id = W(NativeSnapshotMemory.PaletteFxId + slot * 2);
-            paletteSlot.Target = SuperMetroid.Core.Fx.PaletteFx.PaletteFxColoursPositions.FromCartridge(
+            // The native colour index names the colours the object animates: of the colour groups its programs name, the one
+            // starting there.
+            paletteSlot.Target = SuperMetroid.Core.Fx.PaletteFx.PaletteFxColoursPositions.FromCartridge(paletteSlot.Object,
                 RoomPaletteFxSystemConstants.PaletteFxColorIndex(W(NativeSnapshotMemory.PaletteFxColor + slot * 2), paletteSlot.Id));
             // The pre-instruction values are arbitrary (#1415): a live object's routine word translates through the native view.
             paletteSlot.PreInstruction = paletteSlot.Id == 0

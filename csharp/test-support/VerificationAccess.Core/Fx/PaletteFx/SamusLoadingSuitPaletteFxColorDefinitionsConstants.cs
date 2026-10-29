@@ -13,8 +13,6 @@ internal static class SamusLoadingSuitPaletteFxColorDefinitionsConstants
         /// <inheritdoc cref="SamusLoadingSuitPaletteFxColorDefinitionsConstants.CycleFrames"/>
         internal static int CycleFrames => SamusLoadingSuitPaletteFxColorDefinitionsConstants.CycleFrames;
     }
-    /// <summary>All programs write CGRAM from byte index <c>$0180</c>.</summary>
-    public const ushort ColorByteIndex = 0x0180;
     /// <summary>Each complete program contains eight counted records and one final record.</summary>
     public static int FrameCount => SamusLoadingSuitPaletteFxColorDefinitions.All[0].Rows.FrameCount;
 }

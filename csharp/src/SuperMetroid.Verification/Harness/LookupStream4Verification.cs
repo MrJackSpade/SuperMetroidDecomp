@@ -328,7 +328,7 @@ internal static class LookupStream4Verification
                         ? document.BabyMetroidTubeLight : document.FlickeringDisplays;
                     int frame = tick / program.FrameDuration % program.FrameCount;
                     for (int index = 0; index < program.ColorsPerFrame; index++)
-                        expected[program.ColorByteIndex / 2 + index] = Pack(rows[frame][index]);
+                        expected[program.Colours.CartridgeColour + index] = Pack(rows[frame][index]);
                 }
                 AssertTrue(ToColors(expected).SequenceEqual(cgram.Colors), "Actual simultaneous title loops preserve stock/source-edited/frame-edited output and wrap");
             }
@@ -482,7 +482,7 @@ internal static class LookupStream4Verification
         for (int owner = 0; owner < 2; owner++)
         {
             AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | (0xE1B2 + owner * 4)), all[owner].ProgramStart, "native text definition target");
-            AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | (all[owner].ProgramStart + 2)), all[owner].ColorByteIndex, "native text color destination");
+            AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | (all[owner].ProgramStart + 2)), all[owner].AnimatedColours.CartridgeByteIndex, "native text colours start where the text colour group is placed");
         }
         byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
         var stock = RoomPaletteFxPresentationFile.Read(new MemoryStream(json));
@@ -720,7 +720,7 @@ internal static class LookupStream4Verification
             int pointer = rom.ReadCartridgeWordFixedBank(0x8D0000 | (0xF795 + index * 4 + 2));
             AssertEqual((ushort)pointer, definition.ProgramStart, "native definition selects calculated setup");
             AssertEqual((MaridiaEnvironmentalPaletteOwner)index, definition.Owner, "owner order");
-            AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | (pointer + 2)), definition.ColorByteIndex, "native destination palette bytes");
+            AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | (pointer + 2)), definition.AnimatedColours.CartridgeByteIndex, "native colours start where the definition's colour group is placed");
             pointer += 4;
             int frame = 0;
             while (rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer) < 0x8000)

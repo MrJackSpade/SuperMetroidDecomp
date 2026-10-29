@@ -29,29 +29,29 @@ public static class TitleScreenAmbientPaletteFxColorDefinitions
     internal const int TubeDimmingSteps = 4;
     /// <summary>$8D:C866/C86E: bright and dim display states alternate on consecutive palette updates.</summary>
     internal const int DisplayStates = 2;
-    /// <summary>$8D:C7FC: first tube material color is CGRAM42; four material slots end at45.</summary>
-    internal const int TubeFirstColor = 42, TubeLastColor = 45;
-    /// <summary>$8D:C864: the adjacent display material slots end at CGRAM47.</summary>
-    internal const int DisplayLastColor = 47;
+    /// <summary>$8D:C7FC: the tube light's four material colours.</summary>
+    internal const int TubeColourCount = 4;
+    /// <summary>$8D:C864: the displays' two material colours, just after the tube's.</summary>
+    internal const int DisplayColourCount = 2;
     /// <summary>$8D:E1A0 / $C7FA: the eight-frame baby-Metroid tube light.</summary>
     public static TitleScreenAmbientPaletteFxColorDefinition TubeLight { get; } =
         new()
         {
             Owner = TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight,
-            ColorByteIndex = TubeFirstColor * sizeof(ushort),
+            Colours = PaletteFxColours.BabyMetroidTubeLight,
             FrameCount = 2 * TubeDimmingSteps,
-            ColorsPerFrame = TubeLastColor - TubeFirstColor + 1,
-            Rows = PaletteFxColorRows.Of(PaletteFxProgram.TitleScreenBabyMetroidTubeLight1, TubeLastColor - TubeFirstColor + 1),
+            ColorsPerFrame = TubeColourCount,
+            Rows = PaletteFxColorRows.Of(PaletteFxProgram.TitleScreenBabyMetroidTubeLight1, TubeColourCount),
         };
     /// <summary>$8D:E1A4 / $C862: the two-frame flickering displays.</summary>
     public static TitleScreenAmbientPaletteFxColorDefinition Displays { get; } =
         new()
         {
             Owner = TitleScreenAmbientPaletteFxProgramOwner.FlickeringDisplays,
-            ColorByteIndex = (TubeLastColor + 1) * sizeof(ushort),
+            Colours = PaletteFxColours.TitleScreenDisplays,
             FrameCount = DisplayStates,
-            ColorsPerFrame = DisplayLastColor - (TubeLastColor + 1) + 1,
-            Rows = PaletteFxColorRows.Of(PaletteFxProgram.TitleScreenFlickeringDisplays1, DisplayLastColor - (TubeLastColor + 1) + 1),
+            ColorsPerFrame = DisplayColourCount,
+            Rows = PaletteFxColorRows.Of(PaletteFxProgram.TitleScreenFlickeringDisplays1, DisplayColourCount),
         };
 
     /// <summary>The two semantic palette owners in native definition order.</summary>

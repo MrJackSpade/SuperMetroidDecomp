@@ -18,10 +18,6 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class CinematicGlowPaletteFxColorDefinitions
 {
 
-    /// <summary>$0028: CGRAM byte destination of the old Mother Brain lights.</summary>
-    private const ushort MotherBrainColorByte = 0x0028;
-    /// <summary>$01FE: CGRAM byte destination of the cinematic gunship glow.</summary>
-    private const ushort GunshipColorByte = 0x01fe;
 
     /// <summary>
     /// The old-Mother-Brain and gunship glow programs in definition order: the three-color, six-frame light pulse,
@@ -33,7 +29,6 @@ public static class CinematicGlowPaletteFxColorDefinitions
         {
             Owner = CinematicGlowPaletteFxProgramOwner.OldMotherBrainBackgroundLights,
             Object = PaletteFxObject.OldMotherBrainFightBackgroundLights,
-            ColorByteIndex = MotherBrainColorByte,
             ColorsPerFrame = 3,
             FrameDuration = 6,
             Rows = PaletteFxColorRows.Of(PaletteFxProgram.OldMotherBrainFightBGLights1, 3),
@@ -42,7 +37,6 @@ public static class CinematicGlowPaletteFxColorDefinitions
         {
             Owner = CinematicGlowPaletteFxProgramOwner.GunshipGlow,
             Object = PaletteFxObject.GunshipGlow,
-            ColorByteIndex = GunshipColorByte,
             ColorsPerFrame = 1,
             FrameDuration = 5,
             Rows = PaletteFxColorRows.Of(PaletteFxProgram.GunshipGlow1, 1),

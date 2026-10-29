@@ -13,8 +13,6 @@ internal static class TorizoBellyPaletteFxColorDefinitionsConstants
         /// <inheritdoc cref="TorizoBellyPaletteFxColorDefinitionsConstants.CycleFrames"/>
         internal static int CycleFrames => TorizoBellyPaletteFxColorDefinitionsConstants.CycleFrames;
     }
-    /// <summary>The byte index of the first Torizo belly color in CGRAM.</summary>
-    public const ushort ColorByteIndex = 0x0132;
     /// <summary>Six timed records form one complete belly-color cycle.</summary>
     public static int FrameCount => TorizoBellyPaletteFxColorDefinitions.All[0].Rows.FrameCount;
 }

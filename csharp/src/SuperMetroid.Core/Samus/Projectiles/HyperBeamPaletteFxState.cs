@@ -17,8 +17,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </remarks>
 public sealed class HyperBeamPaletteFxState
 {
-    /// <summary>The colour position the Hyper Beam palette program names, which its object checks the program against.</summary>
-    private static readonly PaletteFxColours ProgramColours = new(PaletteFxColourOwner.SamusBeams, 1);
+    /// <summary>The colours the Hyper Beam palette program names, which its object checks the program against.</summary>
+    private const PaletteFxColours ProgramColours = PaletteFxColours.HyperBeam;
 
     /// <summary>Where the object's typed program resumes between palette handler calls.</summary>
     private AnimationProgramCursor<PaletteFxProgram> cursor;

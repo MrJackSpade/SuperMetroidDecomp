@@ -19,6 +19,4 @@ internal static class PlanetZebesTextPaletteFxColorDefinitionsConstants
     }
     /// <summary>$8D:C910/C966: CGRAM palette 8 for the cinematic text.</summary>
     internal const int TextPalette = 8;
-    /// <summary>$8D:C910/C966: first text color 1 within the selected palette.</summary>
-    internal const int FirstTextColor = 1;
 }

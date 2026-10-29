@@ -31,7 +31,6 @@ public static class ZebesExplosionLayerFadePaletteFxColorDefinitions
         {
             Owner = ZebesExplosionLayerFadePaletteFxProgramOwner.Crust,
             Object = PaletteFxObject.FadeOutExplodingZebesCrust,
-            ColorByteIndex = 0x0082,
             FrameDuration = 20,
             Rows = PaletteFxColorRows.Of(PaletteFxProgram.FadeOutExplodingZebesCrust, ColorsPerFrame),
         },
@@ -39,7 +38,6 @@ public static class ZebesExplosionLayerFadePaletteFxColorDefinitions
         {
             Owner = ZebesExplosionLayerFadePaletteFxProgramOwner.GreyClouds,
             Object = PaletteFxObject.FadeOutExplodingZebesGreyClouds,
-            ColorByteIndex = 0x00a2,
             FrameDuration = 14,
             Rows = PaletteFxColorRows.Of(PaletteFxProgram.FadeOutExplodingZebesGreyClouds, ColorsPerFrame),
         },

@@ -11,7 +11,7 @@ public sealed class CrateriaLightningPaletteFxColorDefinition
     /// <summary>Program identity selecting either the live $F765 surface lightning or retained unused $F769 dark-lightning mechanics and color resource.</summary>
     public required CrateriaLightningPaletteOwner Owner { get; init; }
 
-    /// <summary>Live BGR555 words per timed record: eight targeting CGRAM colors 84..91 for surface lightning, or seven targeting colors 65..71 for dark lightning.</summary>
+    /// <summary>Live BGR555 words per timed record: eight for surface lightning, or seven for dark lightning.</summary>
     public required int ColorsPerFrame { get; init; }
 
     /// <summary>The dark program inserts a second 240-update neutral record before its last flash group.</summary>

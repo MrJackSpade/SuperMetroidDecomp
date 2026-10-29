@@ -15,8 +15,6 @@ public sealed class ZebesExplosionAmbientPaletteFxColorDefinition
     /// <remarks><c>$8D:E1D4</c> is afterglow and <c>$8D:E1D8</c> is lava.</remarks>
     public required PaletteFxObject Object { get; init; }
 
-    /// <summary>The first destination byte in CGRAM.</summary>
-    public required int ColorByteIndex { get; init; }
 
     /// <summary>The number of live BGR555 colors written by each timed record.</summary>
     public required int ColorsPerFrame { get; init; }

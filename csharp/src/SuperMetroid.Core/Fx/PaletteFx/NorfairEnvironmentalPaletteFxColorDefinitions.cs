@@ -28,8 +28,6 @@ public static class NorfairEnvironmentalPaletteFxColorDefinitions
         NorfairEnvironmentalPaletteOwner.ForegroundPalette5,
         NorfairEnvironmentalPaletteOwner.ForegroundPalette6,
     ];
-    /// <summary>The definition-order position of the first regular (palette four) program.</summary>
-    internal const int FirstRegularProgram = 1;
     /// <summary>The palette-FX object of each program, by owner.</summary>
     internal static readonly PaletteFxObject[] Objects =
     [
@@ -46,14 +44,6 @@ public static class NorfairEnvironmentalPaletteFxColorDefinitions
         PaletteFxProgram.Norfair81,
         PaletteFxProgram.Norfair101,
     ];
-    /// <summary>$8D:F08E publishes heat phases while writing foreground palette three.</summary>
-    internal const int HeatPalette = 3;
-    /// <summary>The heat program's $006A CGRAM index starts at color five.</summary>
-    internal const int HeatFirstColor = 5;
-    /// <summary>The first regular program writes foreground palette four; later programs advance the palette.</summary>
-    internal const int RegularFirstPalette = 4;
-    /// <summary>All three regular programs start their writes at color one.</summary>
-    internal const int RegularFirstColor = 1;
 
     /// <summary>The four real environmental programs in definition order.</summary>
     public static IReadOnlyList<NorfairEnvironmentalPaletteFxColorDefinition> All { get; } = new NorfairEnvironmentalPalettePrograms();

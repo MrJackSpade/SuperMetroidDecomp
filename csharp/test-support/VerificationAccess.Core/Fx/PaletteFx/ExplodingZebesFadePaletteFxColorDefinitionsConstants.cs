@@ -17,8 +17,6 @@ internal static class ExplodingZebesFadePaletteFxColorDefinitionsConstants
         /// <inheritdoc cref="ExplodingZebesFadePaletteFxColorDefinitionsConstants.DefinitionPointer"/>
         internal static ushort DefinitionPointer => ExplodingZebesFadePaletteFxColorDefinitionsConstants.DefinitionPointer;
     }
-    /// <summary>The fade writes CGRAM from byte index <c>$01E0</c>.</summary>
-    public const ushort ColorByteIndex = 0x01e0;
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
     public static PaletteFxColorKey Color(int frame, int color) => ExplodingZebesFadePaletteFxColorDefinitions.Rows.Color(frame, color);
     /// <summary>The one-shot fade contains seven timed records.</summary>

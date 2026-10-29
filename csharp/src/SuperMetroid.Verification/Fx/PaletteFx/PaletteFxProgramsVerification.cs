@@ -108,9 +108,13 @@ internal static class PaletteFxProgramsVerification
                     cursor = unchecked((ushort)(cursor + 3));
                     continue;
                 case PaletteFxInstruction.SetColorIndex:
-                    // The native operand is a CGRAM byte index; the typed cue names the colour it starts at.
+                    // The native operand is a CGRAM byte index; the typed cue names the colour group, which must be
+                    // placed where the operand starts.
                     AssertTrue(operandWord % sizeof(ushort) == 0, $"{at}: colour byte index is word-aligned");
-                    AssertCue(step, new PaletteFxCue.SetColours(PaletteFxColoursPositions.FromCartridge(operandWord / sizeof(ushort))), at);
+                    var colourCue = AssertIs<AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.CueStep>(step, $"{at}: command");
+                    var setColours = AssertIs<PaletteFxCue.SetColours>(colourCue.Cue, $"{at}: colours cue");
+                    AssertEqual(operandWord / sizeof(ushort), setColours.Target.CartridgeColour,
+                        $"{at}: {setColours.Target} starts at the native colour");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case PaletteFxInstruction.SetPreInstruction:

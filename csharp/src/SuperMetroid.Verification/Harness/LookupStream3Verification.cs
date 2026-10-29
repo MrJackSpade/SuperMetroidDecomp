@@ -3329,11 +3329,9 @@ internal static class LookupStream3Verification
         {
             new VerifyStream3NintendoFadeEntriesCase(DefinitionPointer:NintendoLogoFadePaletteFxColorDefinitions.BootLogoDefinitionPointer,
 ProgramStart:NintendoLogoFadePaletteFxColorDefinitionsConstants.BootLogoEntry,
-ColorByteIndex:NintendoLogoFadePaletteFxColorDefinitionsConstants.BootLogoColorByteIndex,
 BranchesToSharedBody:false),
             new VerifyStream3NintendoFadeEntriesCase(DefinitionPointer:NintendoLogoFadePaletteFxColorDefinitions.CopyrightDefinitionPointer,
 ProgramStart:NintendoLogoFadePaletteFxColorDefinitionsConstants.CopyrightEntry,
-ColorByteIndex:NintendoLogoFadePaletteFxColorDefinitionsConstants.CopyrightColorByteIndex,
 BranchesToSharedBody:true),
         })
         {
@@ -3341,8 +3339,9 @@ BranchesToSharedBody:true),
                 "native definition selects exact semantic program entry");
             AssertEqual((ushort)PaletteFxInstruction.SetColorIndex, ReadVerificationWord(rom, 0x8d0000 | entry.ProgramStart),
                 "each entry sets its own CGRAM slot");
-            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | (entry.ProgramStart + 2)), entry.ColorByteIndex,
-                "each entry preserves the native CGRAM byte index");
+            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | (entry.ProgramStart + 2)),
+                PaletteFxObjectAccess.FromNative(entry.DefinitionPointer).AnimatedColours.CartridgeByteIndex,
+                "each entry's native colours start where its object's colour group is placed");
             if (entry.BranchesToSharedBody)
             {
                 AssertEqual((ushort)PaletteFxInstruction.Goto, ReadVerificationWord(rom, 0x8d0000 | (entry.ProgramStart + 4)),

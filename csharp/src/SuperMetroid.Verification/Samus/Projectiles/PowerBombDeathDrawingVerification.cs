@@ -33,7 +33,7 @@ internal static class PowerBombDeathDrawingVerification
             var enemies = fixture.System;
             enemies.TileArtwork = artwork;
             // The room's graphics set loads the enemy, as every room that holds one does.
-            var set = new RoomEnemyGraphicsSetDefinition($"power-bomb {header}", [new RoomEnemyGraphicsSetHeader(header, PaletteRow: 1)]);
+            var set = new RoomEnemyGraphicsSetDefinition($"power-bomb {header}", [new RoomEnemyGraphicsSetHeader(header, ColourStore: new(1))]);
             enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set, new SpriteColourSets());
             RoomEnemyGraphicsSetEntry graphics = enemies.GraphicsSet.Entry(header);
             var actor = enemies.SlotTable.Slots[0];

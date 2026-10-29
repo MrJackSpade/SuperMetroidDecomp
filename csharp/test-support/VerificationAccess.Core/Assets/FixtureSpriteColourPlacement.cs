@@ -17,5 +17,5 @@ internal sealed class FixtureSpriteColourPlacement : SpriteColourPlacement
     }
 
     /// <inheritdoc />
-    internal override int HoldingSet(SpriteColouring colouring) => GraphicsSetColourPlacement.FixedSet(colouring);
+    internal override SpriteColourStore StoreOf(SpriteColouring colouring) => GraphicsSetColourPlacement.FixedStore(colouring);
 }

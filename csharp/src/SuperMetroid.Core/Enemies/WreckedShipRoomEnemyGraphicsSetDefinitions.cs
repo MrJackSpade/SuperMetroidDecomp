@@ -7,31 +7,31 @@ internal static class WreckedShipRoomEnemyGraphicsSetDefinitions
     internal static RoomEnemyGraphicsSetDefinition[] Build() =>
     [
         new(nameof(RoomEnemyGraphicsSetDefinitions.SpongeBath1), [
-            new(EnemyDefinitionId.Bull, PaletteRow: 1),
+            new(EnemyDefinitionId.Bull, ColourStore: new(1)),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipETank1), [
-            new(EnemyDefinitionId.Kamer2, PaletteRow: 1),
-            new(EnemyDefinitionId.Skultera, PaletteRow: 2),
+            new(EnemyDefinitionId.Kamer2, ColourStore: new(1)),
+            new(EnemyDefinitionId.Skultera, ColourStore: new(2)),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipMainShaft0), [
-            new(EnemyDefinitionId.Coven, PaletteRow: 1),
-            new(EnemyDefinitionId.KzanTop, PaletteRow: 2),
-            new(EnemyDefinitionId.Atomic, PaletteRow: 3),
-            new(EnemyDefinitionId.Sbug, PaletteRow: 3),
+            new(EnemyDefinitionId.Coven, ColourStore: new(1)),
+            new(EnemyDefinitionId.KzanTop, ColourStore: new(2)),
+            new(EnemyDefinitionId.Atomic, ColourStore: new(3)),
+            new(EnemyDefinitionId.Sbug, ColourStore: new(3)),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.BowlingAlley0), [
-            new(EnemyDefinitionId.Chozo, PaletteRow: 1),
-            new(EnemyDefinitionId.Sbug, PaletteRow: 7),
+            new(EnemyDefinitionId.Chozo, ColourStore: new(1)),
+            new(EnemyDefinitionId.Sbug, ColourStore: new(7)),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Attic1), [
-            new(EnemyDefinitionId.KihunterYellow, PaletteRow: 1),
-            new(EnemyDefinitionId.Atomic, PaletteRow: 2),
-            new(EnemyDefinitionId.Spark, PaletteRow: 3),
+            new(EnemyDefinitionId.KihunterYellow, ColourStore: new(1)),
+            new(EnemyDefinitionId.Atomic, ColourStore: new(2)),
+            new(EnemyDefinitionId.Spark, ColourStore: new(3)),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Basement1), [
-            new(EnemyDefinitionId.Robot, PaletteRow: 1),
-            new(EnemyDefinitionId.Atomic, PaletteRow: 2),
-            new(EnemyDefinitionId.Spark, PaletteRow: 3),
+            new(EnemyDefinitionId.Robot, ColourStore: new(1)),
+            new(EnemyDefinitionId.Atomic, ColourStore: new(2)),
+            new(EnemyDefinitionId.Spark, ColourStore: new(3)),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipMap1), [
         ]),
@@ -46,8 +46,8 @@ internal static class WreckedShipRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.ElectricDeath0), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.BowlingAlley1), [
-            new(EnemyDefinitionId.Chozo, PaletteRow: 1),
-            new(EnemyDefinitionId.Robot, PaletteRow: 3),
+            new(EnemyDefinitionId.Chozo, ColourStore: new(1)),
+            new(EnemyDefinitionId.Robot, ColourStore: new(3)),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.AssemblyLine0), [
         ]),
@@ -58,62 +58,62 @@ internal static class WreckedShipRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.GravitySuit0), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipMap0), [
-            new(EnemyDefinitionId.Coven, PaletteRow: 1),
-            new(EnemyDefinitionId.Sbug, PaletteRow: 7),
-            new(EnemyDefinitionId.Bull, PaletteRow: 7),
+            new(EnemyDefinitionId.Coven, ColourStore: new(1)),
+            new(EnemyDefinitionId.Sbug, ColourStore: new(7)),
+            new(EnemyDefinitionId.Bull, ColourStore: new(7)),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.GravitySuit1), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Basement0), [
-            new(EnemyDefinitionId.RobotNoPower, PaletteRow: 7),
-            new(EnemyDefinitionId.Sbug, PaletteRow: 7),
+            new(EnemyDefinitionId.RobotNoPower, ColourStore: new(7)),
+            new(EnemyDefinitionId.Sbug, ColourStore: new(7)),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipEntrance0), [
-            new(EnemyDefinitionId.Sbug, PaletteRow: 1),
+            new(EnemyDefinitionId.Sbug, ColourStore: new(1)),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.AssemblyLine1), [
-            new(EnemyDefinitionId.Spark, PaletteRow: 1),
-            new(EnemyDefinitionId.Puyo, PaletteRow: 2),
-            new(EnemyDefinitionId.Robot, PaletteRow: 3),
+            new(EnemyDefinitionId.Spark, ColourStore: new(1)),
+            new(EnemyDefinitionId.Puyo, ColourStore: new(2)),
+            new(EnemyDefinitionId.Robot, ColourStore: new(3)),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipSave1), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WSWestSuper1), [
-            new(EnemyDefinitionId.Spark, PaletteRow: 1),
+            new(EnemyDefinitionId.Spark, ColourStore: new(1)),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Attic0), [
-            new(EnemyDefinitionId.Coven, PaletteRow: 1),
-            new(EnemyDefinitionId.Atomic, PaletteRow: 2),
-            new(EnemyDefinitionId.Sbug, PaletteRow: 2),
+            new(EnemyDefinitionId.Coven, ColourStore: new(1)),
+            new(EnemyDefinitionId.Atomic, ColourStore: new(2)),
+            new(EnemyDefinitionId.Sbug, ColourStore: new(2)),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WSEastSuper0), [
-            new(EnemyDefinitionId.Coven, PaletteRow: 1),
-            new(EnemyDefinitionId.Atomic, PaletteRow: 2),
-            new(EnemyDefinitionId.Sbug, PaletteRow: 2),
-            new(EnemyDefinitionId.RobotNoPower, PaletteRow: 7),
+            new(EnemyDefinitionId.Coven, ColourStore: new(1)),
+            new(EnemyDefinitionId.Atomic, ColourStore: new(2)),
+            new(EnemyDefinitionId.Sbug, ColourStore: new(2)),
+            new(EnemyDefinitionId.RobotNoPower, ColourStore: new(7)),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipSave0), [
-            new(EnemyDefinitionId.Coven, PaletteRow: 1),
-            new(EnemyDefinitionId.Sbug, PaletteRow: 2),
+            new(EnemyDefinitionId.Coven, ColourStore: new(1)),
+            new(EnemyDefinitionId.Sbug, ColourStore: new(2)),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.ElectricDeath1), [
-            new(EnemyDefinitionId.Spark, PaletteRow: 1),
+            new(EnemyDefinitionId.Spark, ColourStore: new(1)),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.SpikyDeath1), [
-            new(EnemyDefinitionId.KzanTop, PaletteRow: 7),
+            new(EnemyDefinitionId.KzanTop, ColourStore: new(7)),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WSEastSuper1), [
-            new(EnemyDefinitionId.Robot, PaletteRow: 1),
-            new(EnemyDefinitionId.Bull, PaletteRow: 2),
-            new(EnemyDefinitionId.Spark, PaletteRow: 3),
+            new(EnemyDefinitionId.Robot, ColourStore: new(1)),
+            new(EnemyDefinitionId.Bull, ColourStore: new(2)),
+            new(EnemyDefinitionId.Spark, ColourStore: new(3)),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Phantoon0), [
-            new(EnemyDefinitionId.PhantoonBody, PaletteRow: 7),
+            new(EnemyDefinitionId.PhantoonBody, ColourStore: new(7)),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipMainShaft1), [
-            new(EnemyDefinitionId.Spark, PaletteRow: 1),
-            new(EnemyDefinitionId.Atomic, PaletteRow: 2),
-            new(EnemyDefinitionId.KzanTop, PaletteRow: 3),
+            new(EnemyDefinitionId.Spark, ColourStore: new(1)),
+            new(EnemyDefinitionId.Atomic, ColourStore: new(2)),
+            new(EnemyDefinitionId.KzanTop, ColourStore: new(3)),
         ]),
     ];
 }

@@ -25,14 +25,13 @@ internal sealed class EnemyPresentation
     {
         _room = room;
         _graphicsSet = graphicsSet;
-        Placement = new GraphicsSetColourPlacement(graphicsSet);
     }
 
     /// <summary>
-    /// Where the room's loaded graphics set places the sprite colourings drawn under it, and so which of them hold the
-    /// same colours (#1464).
+    /// Where the room's graphics set, as it last loaded, places the sprite colourings drawn under it, and so which of them
+    /// hold the same colours (#1464). Each load records a new placement; a draw keeps the one current when it is published.
     /// </summary>
-    internal GraphicsSetColourPlacement Placement { get; }
+    internal GraphicsSetColourPlacement Placement => _graphicsSet.Placement;
 
     /// <summary>Gameplay's background colour sets (#1405).</summary>
     internal BackgroundColourSets BackgroundSets => Colours.BackgroundSets;

@@ -20,7 +20,7 @@ internal sealed class ScreenSpriteColourPlacement : SpriteColourPlacement
     /// <exception cref="InvalidOperationException">
     /// The colouring is not a screen colour group, or its group is not one whole sprite set.
     /// </exception>
-    internal override int HoldingSet(SpriteColouring colouring) => Ensure.NotNull(colouring) is ScreenSpriteColouring screen
-        ? ScreenColourGroups.SpriteSet(screen.Group)
+    internal override SpriteColourStore StoreOf(SpriteColouring colouring) => Ensure.NotNull(colouring) is ScreenSpriteColouring screen
+        ? new SpriteColourStore(ScreenColourGroups.SpriteSet(screen.Group))
         : throw new InvalidOperationException($"A frontend screen places no sprite colouring {colouring}.");
 }

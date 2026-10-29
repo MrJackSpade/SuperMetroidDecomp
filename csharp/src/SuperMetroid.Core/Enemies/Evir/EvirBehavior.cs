@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies.Evir.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Drawing;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies.Evir;
 
@@ -22,15 +21,15 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs normal touch handling before Evir's shared combat tail.</summary>
     private readonly EnemyCollision _collision;
 
-    /// <summary>Where the room places the colours whose palette selection Evir reads as a number.</summary>
-    private readonly SpriteColourPlacement _placement;
+    /// <summary>The room's enemy presentation, whose current placement holds the colours whose palette selection Evir reads as a number.</summary>
+    private readonly EnemyPresentation _presentation;
 
     /// <summary>Binds slot and collision owners for the three-record Evir actor.</summary>
-    internal EvirBehavior(EnemySlotTable slotTable, EnemyCollision collision, SpriteColourPlacement placement)
+    internal EvirBehavior(EnemySlotTable slotTable, EnemyCollision collision, EnemyPresentation presentation)
     {
         _slotTable = slotTable;
         _collision = collision;
-        _placement = placement;
+        _presentation = presentation;
     }
 
     /// <summary>Carries out one cue of the Evir projectile's animations: the spit sound and the regeneration steps.</summary>
@@ -129,7 +128,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 EvirHalfCycleSourceField.PopulationParameter2 => checked((ushort)enemy.Spawn.Population.Parameter2),
                 // The cartridge reads the enemy's palette selection as the count.
-                EvirHalfCycleSourceField.Palette => _placement.SelectionNumber(enemy.Colouring),
+                EvirHalfCycleSourceField.Palette => _presentation.Placement.SelectionNumber(enemy.Colouring),
                 _ => throw new InvalidOperationException($"Undefined {nameof(EvirHalfCycleSourceField)} {source.Field}."),
             };
             return WrappingCountdown.Start(source.Field == EvirHalfCycleSourceField.Palette

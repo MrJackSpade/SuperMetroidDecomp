@@ -21,7 +21,7 @@ internal static class DrawnColouringAccess
     extension(DrawnColouring self)
     {
         /// <summary>The sprite palette row the draw's placement holds its colours in: the palette bits the cartridge ORs in.</summary>
-        internal int HoldingRow => self.Placement.HoldingSet(self.Shows);
+        internal int HoldingRow => self.Placement.StoreOf(self.Shows).Set;
 
         /// <summary>
         /// The sprite palette row a pixel of part row <paramref name="partRow"/> shows under the draw, as the cartridge

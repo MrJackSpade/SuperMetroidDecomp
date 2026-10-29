@@ -16,9 +16,10 @@ internal static class PhantoonColors
             Span<RgbColor> target = stackalloc RgbColor[PhantoonColorDefinitions.FadeOutCount];
             for (int color = 0; color < target.Length; color++) target[color] = colors.ResolveFadeOut(color);
             content.AppendColors("fadeOut", target);
-            var power = new RgbColor[PhantoonColorDefinitions.PowerOnCount];
-            for (int color = 0; color < power.Length; color++) power[color] = colors.ResolvePowerOn(color);
-            content.AppendColors("powerOn", power);
+            var power = new List<RgbColor>(PhantoonColorDefinitions.PowerOnSets.Length * ColourSets.SetColours);
+            foreach (BackgroundColourSet set in PhantoonColorDefinitions.PowerOnSets)
+                for (int color = 0; color < ColourSets.SetColours; color++) power.Add(colors.ResolvePowerOn(set, color));
+            content.AppendColors("powerOn", power.ToArray());
             var frames = new RgbColor[PhantoonColorDefinitions.HealthBandCount][];
             for (int band = 0; band < frames.Length; band++)
             {
@@ -48,12 +49,27 @@ internal static class PhantoonColors
         return edits;
     }
 
-    /// <summary>Keeps the powered-ship colours that differ from the calculated paint palette.</summary>
-    internal static Dictionary<ColourCell, RgbColor> PowerEdits(RgbColor[] powerOn)
+    /// <summary>
+    /// Keeps the powered-ship colours that differ from the calculated paint, each under the background set it targets.
+    /// Every set the power-on fades must be supplied with all of its colours, and no other set.
+    /// </summary>
+    internal static Dictionary<BackgroundSetColour, RgbColor> PowerEdits(IReadOnlyDictionary<BackgroundColourSet, RgbColor[]> powerOn)
     {
-        var edits = new Dictionary<ColourCell, RgbColor>();
-        for (int color = 0; color < powerOn.Length; color++)
-            if (powerOn[color] != WreckedShipPowerPaint.Color(color)) edits.Add(new ColourCell(0, color), powerOn[color]);
+        Ensure.NotNull(powerOn);
+        if (powerOn.Count != PhantoonColorDefinitions.PowerOnSets.Length)
+            throw new ArgumentException("The power-on targets must name exactly the sets the power-on fades.", nameof(powerOn));
+        var edits = new Dictionary<BackgroundSetColour, RgbColor>();
+        foreach (BackgroundColourSet set in PhantoonColorDefinitions.PowerOnSets)
+        {
+            RgbColor[] colours = powerOn.TryGetValue(set, out RgbColor[]? supplied)
+                ? supplied
+                : throw new ArgumentException($"The power-on targets have no colours for {set}.", nameof(powerOn));
+            if (colours.Length != ColourSets.SetColours)
+                throw new ArgumentException($"The power-on targets of {set} must hold one set's colours.", nameof(powerOn));
+            for (int color = 0; color < colours.Length; color++)
+                if (colours[color] != WreckedShipPowerPaint.Color(set, color))
+                    edits.Add(new BackgroundSetColour(set, color), colours[color]);
+        }
         return edits;
     }
 
@@ -75,11 +91,13 @@ internal static class PhantoonColors
         return edits.GetValueOrDefault(new ColourCell(0, color));
     }
 
-    /// <summary>Resolves one powered-ship colour from its edit or the calculated paint.</summary>
-    internal static RgbColor PowerOn(Dictionary<ColourCell, RgbColor> edits, int color)
+    /// <summary>Resolves one powered-ship colour of a faded set from its edit or the calculated paint.</summary>
+    internal static RgbColor PowerOn(Dictionary<BackgroundSetColour, RgbColor> edits, BackgroundColourSet set, int color)
     {
-        if ((uint)color >= PhantoonColorDefinitions.PowerOnCount) throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(new ColourCell(0, color), out RgbColor edit) ? edit : WreckedShipPowerPaint.Color(color);
+        if (!PhantoonColorDefinitions.PowerOnSets.Contains(set))
+            throw new ArgumentOutOfRangeException(nameof(set), set, "The Wrecked Ship's power-on does not fade this set.");
+        if ((uint)color >= ColourSets.SetColours) throw new ArgumentOutOfRangeException(nameof(color));
+        return edits.TryGetValue(new BackgroundSetColour(set, color), out RgbColor edit) ? edit : WreckedShipPowerPaint.Color(set, color);
     }
 
     /// <summary>Rejects a health palette index outside the eight Phantoon bands.</summary>

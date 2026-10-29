@@ -3,6 +3,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
@@ -27,7 +29,20 @@ public static class PhantoonColorFile
                 Compile(band, PhantoonColorDefinitions.HealthBandColorCount,
                     $"health palette {index}")).ToArray(),
             Compile(document.FadeOut, PhantoonColorDefinitions.FadeOutCount, "fade-out"),
-            Compile(document.PowerOn, PhantoonColorDefinitions.PowerOnCount, "power-on"));
+            PowerOnBySet(Compile(document.PowerOn, PhantoonSourceDefinitions.PowerOnColourCount, "power-on")));
+    }
+
+    /// <summary>
+    /// Decodes the power-on target, which keeps the cartridge's background colours in its order, into the background set
+    /// each run of a set's colours targets.
+    /// </summary>
+    private static Dictionary<BackgroundColourSet, RgbColor[]> PowerOnBySet(RgbColor[] colours)
+    {
+        var sets = new Dictionary<BackgroundColourSet, RgbColor[]>();
+        for (int first = 0; first < colours.Length; first += ColourSets.SetColours)
+            sets.Add(BackgroundColourSetPositionDefinitions.InCartridgeOrder[first / ColourSets.SetColours],
+                colours[first..(first + ColourSets.SetColours)]);
+        return sets;
     }
 
     /// <summary>Validates and serializes a Phantoon color document as UTF-8 JSON.</summary>

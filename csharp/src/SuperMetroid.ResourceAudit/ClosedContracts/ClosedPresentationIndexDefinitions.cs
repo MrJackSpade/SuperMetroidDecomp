@@ -62,7 +62,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("PhantoonColorCatalog", "ResolveHealth", "band") => new(0, PhantoonColorDefinitions.HealthBandCount),
         ("PhantoonColorCatalog", "ResolveHealth", "color") => new(0, PhantoonColorDefinitions.HealthBandColorCount),
         ("PhantoonColorCatalog", "ResolveFadeOut", "color") => new(0, PhantoonColorDefinitions.FadeOutCount),
-        ("PhantoonColorCatalog", "ResolvePowerOn", "color") => new(0, PhantoonColorDefinitions.PowerOnCount),
+        ("PhantoonColorCatalog", "ResolvePowerOn", "color") => new(0, ColourSets.SetColours),
         ("TourianStatuePalettes", "ApplyEye", "doubledBossParameter") => new(0, TourianStatueColorDefinitions.EyeRowCount, sizeof(ushort)),
         ("SporeSpawnColorCatalog", "ResolveSpore" or "ResolveHealth" or "ResolveDeath", "color") => new(0, SporeSpawnColorDefinitions.ColorsPerFrame),
         ("SporeSpawnColorCatalog", "ResolveHealth", "frame") => new(0, SporeSpawnColorDefinitions.HealthFrameCount),

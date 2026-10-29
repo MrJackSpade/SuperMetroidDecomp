@@ -32,7 +32,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         Suite(nameof(VerifyBand), () => VerifyBand(PhantoonSourceDefinitions.FadeOutColors,
             PhantoonColorDefinitions.FadeOutCount, native.ResolveFadeOut, "fade-out"));
         Suite(nameof(VerifyBand), () => VerifyBand(PhantoonSourceDefinitions.PowerOnColors,
-            PhantoonColorDefinitions.PowerOnCount, native.ResolvePowerOn, "power-on"));
+            PhantoonSourceDefinitions.PowerOnColourCount, color => native.ResolvePowerOnAtNative(color), "power-on"));
         for (int band = 0; band < PhantoonColorDefinitions.HealthBandCount; band++)
         for (int color = 0; color < PhantoonColorDefinitions.HealthBandColorCount; color++)
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
@@ -61,7 +61,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             "Phantoon health color edit changes selected RGB5 word");
         AssertTrue(colors.ResolveFadeOut(1) != native.ResolveFadeOut(1),
             "Phantoon fade-out edit changes selected RGB5 word");
-        AssertTrue(colors.ResolvePowerOn(1) != native.ResolvePowerOn(1),
+        AssertTrue(colors.ResolvePowerOnAtNative(1) != native.ResolvePowerOnAtNative(1),
             "Phantoon power-on edit changes selected RGB5 word");
         for (int band = 0; band < PhantoonColorDefinitions.HealthBandCount; band++)
         for (int color = 0; color < PhantoonColorDefinitions.HealthBandColorCount; color++)
@@ -71,11 +71,11 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
                     $"Phantoon health edit leaves palette {band} color {color} unchanged");
         CheckUnchangedBand(PhantoonColorDefinitions.FadeOutCount,
             native.ResolveFadeOut, colors.ResolveFadeOut, "fade-out");
-        CheckUnchangedBand(PhantoonColorDefinitions.PowerOnCount,
-            native.ResolvePowerOn, colors.ResolvePowerOn, "power-on");
-        AssertEqual(colors.ResolvePowerOn(1),
+        CheckUnchangedBand(PhantoonSourceDefinitions.PowerOnColourCount,
+            color => native.ResolvePowerOnAtNative(color), color => colors.ResolvePowerOnAtNative(color), "power-on");
+        AssertEqual(colors.ResolvePowerOnAtNative(1),
             (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .Bosses.PhantoonColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .PhantoonColors.")).ResolvePowerOn(1),
+                .Bosses.PhantoonColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .PhantoonColors.")).ResolvePowerOnAtNative(1),
             "Phantoon override survives catalog reload");
 
         // Drive the actual boss palette handlers. The complete authored color range is
@@ -136,8 +136,8 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         state.Parts[eye.SlotIndex].FadeNumerator = 1;
         bool complete = enemies.PhantoonBehavior.Death.AdvanceWreckedShipPowerPalette(state.Parts[eye.SlotIndex]);
         AssertTrue(!complete, "Phantoon ship power-on remains active on target frame");
-        for (int color = 0; color < PhantoonColorDefinitions.PowerOnCount; color++)
-            AssertEqual(colors.ResolvePowerOn(color),
+        for (int color = 0; color < PhantoonSourceDefinitions.PowerOnColourCount; color++)
+            AssertEqual(colors.ResolvePowerOnAtNative(color),
                 cgram.Colors[PhantoonColorDestinations.PowerOnDestination + color],
                 $"Phantoon live ship power-on target {color}");
         AssertEqual(2, state.Parts[eye.SlotIndex].FadeNumerator,

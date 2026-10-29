@@ -15,7 +15,10 @@ public sealed class PhantoonColorCatalog
     internal readonly PhantoonColorSelection selection;
 
     /// <summary>Retains only authored deviations from the calculated health, fade, and ship-power colors.</summary>
-    internal PhantoonColorCatalog(RgbColor[][] healthBands, RgbColor[] fadeOut, RgbColor[] powerOn) =>
+    /// <param name="healthBands">The health palettes' colours.</param>
+    /// <param name="fadeOut">The materialization fade-out target.</param>
+    /// <param name="powerOn">Each background set the power-on fades, with its sixteen target colours.</param>
+    internal PhantoonColorCatalog(RgbColor[][] healthBands, RgbColor[] fadeOut, IReadOnlyDictionary<BackgroundColourSet, RgbColor[]> powerOn) =>
         selection = new(PhantoonColors.HealthEdits(healthBands), PhantoonColors.FadeOutEdits(fadeOut), PhantoonColors.PowerEdits(powerOn));
 
     /// <summary>
@@ -29,6 +32,9 @@ public sealed class PhantoonColorCatalog
     /// body palette component to black. Independent supplied target edits override it.
     /// </summary>
     public RgbColor ResolveFadeOut(int color) => PhantoonColors.FadeOut(selection.FadeOutEdits, color);
-    /// <summary>$A7:CA61-CB40: all seven powered ship material palettes calculate; supplied words remain independently editable.</summary>
-    public RgbColor ResolvePowerOn(int color) => PhantoonColors.PowerOn(selection.PowerEdits, color);
+    /// <summary>
+    /// $A7:CA61-CB40: the powered ship's target colour <paramref name="color"/> of background set <paramref name="set"/>,
+    /// one of the sets the power-on fades. Every set's colours calculate; supplied colours remain independently editable.
+    /// </summary>
+    public RgbColor ResolvePowerOn(BackgroundColourSet set, int color) => PhantoonColors.PowerOn(selection.PowerEdits, set, color);
 }

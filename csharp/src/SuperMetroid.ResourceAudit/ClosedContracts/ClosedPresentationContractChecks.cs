@@ -77,8 +77,8 @@ internal static class ClosedPresentationContractChecks
                     draygon.ApplyHealthBand(cgram, 7);
                     draygon.ApplyHealthBand(cgram, 8);
                     draygon.ApplyHurt(cgram, true, 8);
-                    phantoon.ResolvePowerOn(111);
-                    phantoon.ResolvePowerOn(112);
+                    phantoon.ResolvePowerOn(BackgroundColourSet.TilesFifth, 15);
+                    phantoon.ResolvePowerOn(BackgroundColourSet.TilesFifth, 16);
                     statues.ApplyEye(cgram, 6);
                     statues.ApplyEye(cgram, 1);
                     rainbow.TryReadBeamColor(38, out _);

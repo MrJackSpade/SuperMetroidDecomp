@@ -291,7 +291,7 @@ internal static class EnemyContentIdentityFixtureVerification
                     new EnemyContentIdentityFixtureField("sprite", 0, DraygonColorDefinitions.SpriteCount), new EnemyContentIdentityFixtureField("whiteFlash", 0, DraygonColorDefinitions.WhiteFlashCount),
                     new EnemyContentIdentityFixtureField("healthBands", DraygonColorDefinitions.HealthBandCount, DraygonColorDefinitions.HealthBandColorCount)), PhantoonColors = ColorCatalog(PhantoonColorFile.Read,
                     new EnemyContentIdentityFixtureField("healthBands", PhantoonColorDefinitions.HealthBandCount, PhantoonColorDefinitions.HealthBandColorCount),
-                    new EnemyContentIdentityFixtureField("fadeOut", 0, PhantoonColorDefinitions.FadeOutCount), new EnemyContentIdentityFixtureField("powerOn", 0, PhantoonColorDefinitions.PowerOnCount)), SporeSpawnColors = ColorCatalog(SporeSpawnColorFile.Read,
+                    new EnemyContentIdentityFixtureField("fadeOut", 0, PhantoonColorDefinitions.FadeOutCount), new EnemyContentIdentityFixtureField("powerOn", 0, PhantoonSourceDefinitions.PowerOnColourCount)), SporeSpawnColors = ColorCatalog(SporeSpawnColorFile.Read,
                     new EnemyContentIdentityFixtureField("spores", 0, SporeSpawnColorDefinitions.ColorsPerFrame), new EnemyContentIdentityFixtureField("health", SporeSpawnColorDefinitions.HealthFrameCount, SporeSpawnColorDefinitions.ColorsPerFrame),
                     new EnemyContentIdentityFixtureField("deathSprite", SporeSpawnColorDefinitions.DeathSpriteFrameCount, SporeSpawnColorDefinitions.ColorsPerFrame),
                     new EnemyContentIdentityFixtureField("deathLevel", SporeSpawnColorDefinitions.DeathSceneFrameCount, SporeSpawnColorDefinitions.ColorsPerFrame),

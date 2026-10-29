@@ -35,15 +35,16 @@ internal static class PauseSheetComposer
         Ensure.NotNull(maps);
         SpriteArtwork page = MapSpriteArtwork.Of(maps.Sprites).Page;
         PauseReserveTankSourcePresentation tankSource = PauseReserveTankSourcePresentation.Of(tanks);
-        List<SheetFrameSource> frames = [.. PauseSelectorSourcePresentation.Of(selectors).Visuals.Select(visual =>
+        PauseSelectorSourcePresentation selectorSource = PauseSelectorSourcePresentation.Of(selectors);
+        List<SheetFrameSource> frames = [.. selectorSource.Visuals.Select(visual =>
         {
             string name = PauseSelectorAnchors.SheetFrameName(visual.Name);
-            return new SheetFrameSource(name, visual.ToFrame(name), page, selectors.ObjectPalette);
+            return new SheetFrameSource(name, visual.ToFrame(name), page, selectorSource.SpriteSet);
         })];
         frames.AddRange(PauseReserveTankParts.Frames().Select(frame =>
         {
             string name = PauseReserveTankParts.SheetFrameName(frame.Name);
-            return new SheetFrameSource(name, tankSource.ToFrame(frame.Id, name), page, tanks.Palette);
+            return new SheetFrameSource(name, tankSource.ToFrame(frame.Id, name), page, tankSource.SpriteSet);
         }));
         var cgram = new SnesCgram();
         new CgramPalettes(cgram).LoadImage(ScreenColourImage.Encode(maps.Palettes.Pause));

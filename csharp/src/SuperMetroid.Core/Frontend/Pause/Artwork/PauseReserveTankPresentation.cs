@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
 /// <summary>
-/// Editable reserve-strip origins and palette, independent of reserve energy and fill selection. The strip is drawn from
+/// Editable reserve-strip origins, independent of reserve energy and fill selection. The strip is drawn from
 /// the installed pause sheet, whose reserve compositions belong to the import pipeline that reads the installed
 /// presentation (#1463).
 /// </summary>
@@ -12,11 +12,10 @@ public abstract class PauseReserveTankPresentation
 {
     /// <summary>Per-coordinate deviations from the six stock reserve-strip anchors.</summary>
     internal readonly Dictionary<int, AnchorOverride> anchorOverrides;
-    /// <summary>Stores independent anchor edits and the selected reserve palette.</summary>
+    /// <summary>Stores independent anchor edits.</summary>
     /// <param name="anchorOverrides">Per-coordinate deviations from the stock anchors.</param>
-    /// <param name="palette">The palette row every reserve-strip part draws in.</param>
-    internal PauseReserveTankPresentation(Dictionary<int, AnchorOverride> anchorOverrides, int palette)
-    { this.anchorOverrides = anchorOverrides; Palette = Ensure.BetweenInclusive(0, SpriteImage.MaximumPaletteRow, palette); }
+    internal PauseReserveTankPresentation(Dictionary<int, AnchorOverride> anchorOverrides) =>
+        this.anchorOverrides = anchorOverrides;
 
     /// <summary>Gets one reserve-strip screen anchor, falling back independently to each stock coordinate.</summary>
     /// <param name="index">Zero-based tank or trailing-cap position from 0 through 5.</param>
@@ -26,9 +25,6 @@ public abstract class PauseReserveTankPresentation
         var basis = PauseReserveTankParts.StockAnchor(index);
         return anchorOverrides.TryGetValue(index, out var value) ? new(checked((ushort)(value.X ?? basis.X)), checked((ushort)(value.Y ?? basis.Y))) : basis;
     }
-    /// <summary>The palette row every reserve-strip part draws in.</summary>
-    internal int Palette { get; }
-
     /// <summary>Draws one full, empty, partially filled, or end-cap reserve frame of the pause sheet at a strip position.</summary>
     /// <param name="entries">The screen's sprite entries.</param>
     /// <param name="sheet">The pause sheet.</param>

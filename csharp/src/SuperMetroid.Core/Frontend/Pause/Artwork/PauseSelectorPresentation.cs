@@ -19,14 +19,12 @@ public abstract class PauseSelectorPresentation
     internal readonly Dictionary<int, int>? durationOverrides;
     /// <summary>Dwell time before the selector enters its cyclic animation.</summary>
     public int InitialDurationTicks { get; }
-    /// <summary>The authored sprite palette row the selector draws in.</summary>
-    public int ObjectPalette { get; }
     /// <summary>Number of phases used to wrap the live selector counter.</summary>
     public int PhaseCount { get; }
     /// <summary>Retains only authored anchor, frame, and timing differences.</summary>
     /// <param name="parts">The validated selector anchors, frame sequences and timing.</param>
     internal PauseSelectorPresentation(PauseSelectorParts parts)
-    { Ensure.NotNull(parts); this.anchorOverrides = parts.AnchorOverrides; this.reserve = parts.Reserve; this.beam = parts.Beam; this.equipment = parts.Equipment; PhaseCount = parts.PhaseCount; this.durationOverrides = parts.DurationOverrides; InitialDurationTicks = parts.InitialDuration; ObjectPalette = Ensure.BetweenInclusive(0, SpriteImage.MaximumPaletteRow, parts.Palette); }
+    { Ensure.NotNull(parts); this.anchorOverrides = parts.AnchorOverrides; this.reserve = parts.Reserve; this.beam = parts.Beam; this.equipment = parts.Equipment; PhaseCount = parts.PhaseCount; this.durationOverrides = parts.DurationOverrides; InitialDurationTicks = parts.InitialDuration; }
     /// <summary>Applies a named screen-pixel override to the category and item's compiled stock anchor.</summary>
     public Position16<SpritePixels> Anchor(PauseEquipmentCategory category, int item)
     {
@@ -104,8 +102,5 @@ public abstract class PauseSelectorPresentation
 
         /// <summary>Delay before the first selector animation phase.</summary>
         public required int InitialDuration { get; init; }
-
-        /// <summary>OBJ palette index encoded when drawing a selector frame.</summary>
-        public required int Palette { get; init; }
     }
 }

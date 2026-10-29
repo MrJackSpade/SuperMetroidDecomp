@@ -26,8 +26,10 @@ internal static class GoldenTorizoStrideGeometryDefinitions
     internal const int FootTiles = 3;
     /// <summary>Width of one floor-strip tile.</summary>
     internal const int TilePixels = 8;
-    /// <summary>The sprite palette row the first leg's foot strip draws in.</summary>
-    internal const int FirstLegPalette = 1;
-    /// <summary>The sprite palette row the second leg's foot strip draws in.</summary>
-    internal const int SecondLegPalette = 2;
+    /// <summary>The leg whose foot strip draws in each sprite palette row; a strip in any other row is not a foot.</summary>
+    internal static IReadOnlyDictionary<int, GoldenTorizoLeg> LegsByPalette { get; } = new Dictionary<int, GoldenTorizoLeg>
+    {
+        [1] = GoldenTorizoLeg.First,
+        [2] = GoldenTorizoLeg.Second,
+    };
 }

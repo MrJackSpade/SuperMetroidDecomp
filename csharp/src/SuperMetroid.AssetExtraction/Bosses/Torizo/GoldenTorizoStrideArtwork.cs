@@ -19,7 +19,7 @@ internal static class GoldenTorizoStrideArtwork
         int phase = WalkingFrames.IndexOf(frame);
         if (componentIndex != BodyComponent || phase < 0)
             return supplied;
-        int supportPalette = SupportPalette(phase);
+        GoldenTorizoLeg supportLeg = SupportLeg(phase);
         bool doublePlant = phase % PhasesPerHalf == 0;
         int seen = 0;
         var footIndices = new List<int>();
@@ -28,9 +28,8 @@ internal static class GoldenTorizoStrideArtwork
             SpritePart part = supplied[index];
             int column = part.Character - FirstFootTile;
             if ((uint)column >= FootTiles) continue;
-            int palette = part.Palette;
-            if (palette is not (FirstLegPalette or SecondLegPalette) || (!doublePlant && palette != supportPalette)) return supplied;
-            bool departing = palette != supportPalette;
+            if (!LegsByPalette.TryGetValue(part.Palette, out GoldenTorizoLeg leg) || (!doublePlant && leg != supportLeg)) return supplied;
+            bool departing = leg != supportLeg;
             int bit = 1 << (column + (departing ? FootTiles : 0));
             int anchor = departing ? DepartingFootX : SupportFootXs[phase];
             if ((seen & bit) != 0 || part.Offset.X != anchor + column * TilePixels) return supplied;
@@ -41,8 +40,8 @@ internal static class GoldenTorizoStrideArtwork
         return seen == expected ? new FootParts(supplied, phase, footIndices.ToArray()) : supplied;
     }
 
-    /// <summary>The palette row of the leg supporting the body in <paramref name="phase"/>: the first leg's in the stride's first half.</summary>
-    private static int SupportPalette(int phase) => phase < PhasesPerHalf ? FirstLegPalette : SecondLegPalette;
+    /// <summary>The leg supporting the body in <paramref name="phase"/>: the first leg in the stride's first half.</summary>
+    private static GoldenTorizoLeg SupportLeg(int phase) => phase < PhasesPerHalf ? GoldenTorizoLeg.First : GoldenTorizoLeg.Second;
 
     /// <summary>Retains each authored foot tile's non-X appearance while deriving its planted origin.</summary>
     private readonly record struct FootAppearance(SpritePart Part)

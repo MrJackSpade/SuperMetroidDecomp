@@ -139,15 +139,15 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
 
     /// <summary>Validated JSON placement tables before their separately loaded tile PNG is attached.</summary>
     /// <remarks>Placement and PNG admission remain distinct so installation identifies the failing file.</remarks>
-    internal sealed record Placement(int[] PoseDescriptors, byte[] DrawingData,
+    internal sealed record DescriptorTables(int[] PoseDescriptors, byte[] DrawingData,
         SpritePart[] Attributes, int[][] CoverTiles);
 
     /// <summary>Combines validated descriptor tables with the installed indexed tile sheet.</summary>
-    internal static SamusArmCannonSourceArtwork FromPlacement(Placement placement, RoomCharacterAtlas tiles) =>
+    internal static SamusArmCannonSourceArtwork FromPlacement(DescriptorTables placement, RoomCharacterAtlas tiles) =>
         new(placement.PoseDescriptors, placement.DrawingData, placement.Attributes, placement.CoverTiles, tiles);
 
     /// <summary>Parses arm-cannon JSON and validates descriptor, attribute, and tile-source geometry.</summary>
-    internal static Placement LoadPlacement(Stream json)
+    internal static DescriptorTables LoadPlacement(Stream json)
     {
         SamusArmCannonArtworkDocument document;
         document = JsonAssetDocument.Read<SamusArmCannonArtworkDocument>(json, Options, "arm-cannon artwork");
@@ -182,7 +182,7 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
                     $"Arm-cannon direction {direction} selects a missing tile.");
             coverTiles[direction] = [.. row];
         }
-        return new Placement(descriptors, data, attributes, coverTiles);
+        return new DescriptorTables(descriptors, data, attributes, coverTiles);
     }
 
     /// <summary>Serializes the placement document as indented camel-case UTF-8 JSON for <c>samus-arm-cannon.json</c>; table bounds and selector validation occur when placement is loaded, not here.</summary>

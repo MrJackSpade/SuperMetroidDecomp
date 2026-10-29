@@ -114,7 +114,9 @@ public sealed class SamusSpritemapSources : InstalledSamusSpritemaps
                 }
             }
         }
-        return new SamusBodyHalvesShown(top, bottom);
+        if (top)
+            return bottom ? SamusBodyHalvesShown.Both : SamusBodyHalvesShown.Top;
+        return bottom ? SamusBodyHalvesShown.Bottom : SamusBodyHalvesShown.Neither;
     }
 
     /// <summary>The column of <paramref name="character"/> within its sixteen-wide character row, 0 through 15.</summary>

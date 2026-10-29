@@ -133,7 +133,9 @@ public abstract class InstalledSamusSpritemaps
             return false;
         }
         SamusBodyHalvesShown shown = halves[composition.Ordinal];
-        key = new SamusBodyFrameKey(composition, shown.Top ? records.Top : null, shown.Bottom ? records.Bottom : null);
+        key = new SamusBodyFrameKey(composition,
+            shown is SamusBodyHalvesShown.Top or SamusBodyHalvesShown.Both ? records.Top : null,
+            shown is SamusBodyHalvesShown.Bottom or SamusBodyHalvesShown.Both ? records.Bottom : null);
         return true;
     }
 

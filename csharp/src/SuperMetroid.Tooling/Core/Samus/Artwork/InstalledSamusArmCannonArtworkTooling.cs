@@ -12,7 +12,7 @@ internal static class InstalledSamusArmCannonArtworkTooling
     {
         Ensure.NotNull(json);
         Ensure.NotNull(tilePng);
-        SamusArmCannonSourceArtwork.Placement placement = SamusArmCannonSourceArtwork.LoadPlacement(json);
+        SamusArmCannonSourceArtwork.DescriptorTables placement = SamusArmCannonSourceArtwork.LoadPlacement(json);
         RoomCharacterAtlas tiles = RoomCharacterAtlasPng.Read(tilePng,
             SamusArmCannonArtworkFormat.CoverTileCount *
                 SamusArmCannonArtworkFormat.CoverTileByteCount);

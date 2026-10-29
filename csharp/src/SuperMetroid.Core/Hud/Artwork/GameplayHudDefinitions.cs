@@ -94,8 +94,14 @@ public static class GameplayHudDefinitions
     /// </summary>
     internal const int MinimapEmptyGlyph = 0x12, MinimapConnectorStartGlyph = 0x22;
 
-    /// <summary>The colour variant the starter picture's explored cells use; the blank's other cells use variant three.</summary>
+    /// <summary>The colour variant the starter picture's explored cells and the live minimap's explored cells use.</summary>
     internal const int MinimapExploredColourVariant = 2;
+
+    /// <summary>The colour variant the live minimap shows a revealed cell Samus has not explored in.</summary>
+    internal const int MinimapUnexploredColourVariant = 3;
+
+    /// <summary>The minimap cell <c>$90:A91B</c> shows where nothing is revealed: the empty map shape, unexplored.</summary>
+    internal static BackgroundTile MinimapHidden { get; } = new(0x1f, MinimapUnexploredColourVariant, highPriority: true);
 
     /// <summary>
     /// $80:99A3-99CE selects HUD item pictograms from $9A:B200 characters.

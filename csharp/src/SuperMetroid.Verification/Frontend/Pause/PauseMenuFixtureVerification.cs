@@ -72,6 +72,7 @@ internal static class PauseMenuFixtureVerification
         var parts = new AreaMapPresentationParts
         {
             Areas = areas,
+            HiddenCells = stock.HiddenCells,
             ContentIdentity = "constructed-pause-interaction-fixture",
             Tiles = new MapTileCharacters(Read(MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount)),
             HudTiles = new HudTileAtlas(hud),

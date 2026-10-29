@@ -66,7 +66,7 @@ public static class PauseEquipmentLabelExtractor
     /// <summary>Decodes a bank-$82 label tilemap into editable atlas coordinates, palette, priority, and flips.</summary>
     private static PauseBackdropCell[] ReadCells(ISnesAddressSpace bus, int source, int count, string name) =>
         Enumerable.Range(0, count)
-            .Select(index => PauseTileGrid.FromWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            .Select(index => PauseTileWords.FromWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 CartridgeBankWindow.At(PauseMenuSourceDefinitions.MenuBank, unchecked((ushort)(source + index * 2)))), $"{name}.{index}"))
             .ToArray();
 }

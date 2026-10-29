@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Map;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.TestSupport.RenderFixtures;
 using SuperMetroid.Core;
 using SuperMetroid.Core.World.RoomStates;

@@ -929,8 +929,8 @@ internal static class LookupStream5Verification
     {
         /// <summary>Uses Crateria's area-map coordinate domain.</summary>
         public AreaId Area => AreaId.Crateria;
-        /// <summary>Supplies a blank tile so scroll assertions do not depend on map art.</summary>
-        public MapTileWord GetTile(Position16<MapTiles> cell) => default;
+        /// <summary>Supplies a blank cell so scroll assertions do not depend on map art.</summary>
+        public MapCell Cell(Position16<MapTiles> cell) => default;
         /// <summary>Admits every fixture cell for scroll selection.</summary>
         public bool IsDiscoverable(Position16<MapTiles> cell) => true;
         /// <summary>Leaves station-driven visibility out of this scroll fixture.</summary>

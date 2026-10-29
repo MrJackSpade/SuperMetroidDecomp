@@ -3,15 +3,16 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Map;
 
-/// <summary>Shared exploration projection for $82:943D pause and $82:9517 room-select maps.</summary>
+/// <summary>Shared exploration projection for the pause and room-select maps.</summary>
 public static class AreaMapTilemapBuilder
 {
     /// <summary>
-    /// Projects immutable cartridge cells into native two-page VRAM order. The caller
-    /// supplies its screen's hidden-cell character; reveal overrides never modify SRAM.
+    /// Places each cell of <paramref name="map"/> on a map screen's two-page layer: an explored cell in its explored
+    /// colour variant, a revealed one as it is, and any other as the screen's <paramref name="hiddenCell"/>. Reveal
+    /// overrides never modify saved exploration.
     /// </summary>
     public static BackgroundTile[] Build(IAreaMapView map, SharedGameState system,
-        MapTileWord hiddenCell, MapRevealMode revealMode = MapRevealMode.None)
+        MapCell hiddenCell, MapRevealMode revealMode = MapRevealMode.None)
     {
         Ensure.NotNull(map);
         Ensure.NotNull(system);
@@ -21,14 +22,12 @@ public static class AreaMapTilemapBuilder
         for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
         {
             var cell = new Position16<MapTiles>(unchecked((ushort)x), unchecked((ushort)y));
-            MapTileWord word = map.GetTile(cell);
             bool explored = system.IsMapTileExplored(map.Area, cell);
-            if (explored)
-                word = word.AsExplored();
-            else if (!AreaMapVisibility.IsVisible(explored, downloaded,
-                         map.IsRevealedByMapStation(cell), map.IsDiscoverable(cell), revealMode))
-                word = hiddenCell;
-            tiles[AreaMapPages.GetTilemapWordIndex(cell)] = word.ToTile();
+            BackgroundTile tile = explored ? map.Cell(cell).Tile(explored: true)
+                : AreaMapVisibility.IsVisible(explored, downloaded, map.IsRevealedByMapStation(cell), map.IsDiscoverable(cell), revealMode)
+                    ? map.Cell(cell).Tile(explored: false)
+                    : hiddenCell.Tile(explored: false);
+            tiles[AreaMapPages.GetTilemapWordIndex(cell)] = tile;
         }
         return tiles;
     }

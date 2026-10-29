@@ -46,7 +46,7 @@ public sealed class HudState
         for (int x = 0; x < 5; x++)
         {
             var cell = new Position16<TilemapCells>((ushort)x, (ushort)y);
-            Tiles[presentation?.MinimapCellIndex(cell) ?? StockMinimapCellIndex(cell)] = MapTileWords.HudBlank.ToTile();
+            Tiles[presentation?.MinimapCellIndex(cell) ?? StockMinimapCellIndex(cell)] = GameplayHudDefinitions.MinimapHidden;
         }
     }
 
@@ -262,7 +262,7 @@ public sealed class HudState
                 int mapX = (centerX + outputX - 2) & 63;
                 if ((uint)mapY >= 32)
                 {
-                    Tiles[destination] = MapTileWords.HudBlank.ToTile();
+                    Tiles[destination] = GameplayHudDefinitions.MinimapHidden;
                     continue;
                 }
 
@@ -272,7 +272,7 @@ public sealed class HudState
 
                 // A 64x32 SNES map is two adjacent 32x32 screens in VRAM order, not one
                 // linear 64-word row. Preserve that page split when reading bank-$B5 data.
-                MapTileWord mapTile = frame.PresentationMap.GetTile(cell);
+                MapCell mapTile = frame.PresentationMap.Cell(cell);
                 if (!AreaMapVisibility.IsVisible(
                         explored,
                         hasAreaMap,
@@ -280,11 +280,13 @@ public sealed class HudState
                         frame.PresentationMap.IsDiscoverable(cell),
                         frame.MapRevealMode))
                 {
-                    Tiles[destination] = MapTileWords.HudBlank.ToTile();
+                    Tiles[destination] = GameplayHudDefinitions.MinimapHidden;
                     continue;
                 }
 
-                Tiles[destination] = mapTile.ForHud(explored).ToTile();
+                Tiles[destination] = new BackgroundTile(mapTile.Shape.Picture, explored
+                    ? GameplayHudDefinitions.MinimapExploredColourVariant
+                    : GameplayHudDefinitions.MinimapUnexploredColourVariant, highPriority: true, mapTile.Mirroring);
                 // The center slope also explores the corner above it. The native top
                 // row has already been rendered and its explored bits latched, so that
                 // cell acquires the explored palette on the next minimap update.

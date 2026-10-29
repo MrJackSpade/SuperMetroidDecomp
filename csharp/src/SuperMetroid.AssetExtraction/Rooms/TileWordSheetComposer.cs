@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
@@ -357,7 +358,7 @@ internal static class TileWordSheetComposer
             for (int y = 0; y < 32; y++)
             for (int x = 0; x < 64; x++)
             {
-                MapTileWord tile = map.GetTile(new Position16<MapTiles>((ushort)x, (ushort)y));
+                MapTileWord tile = MapTileWord.Of(map.Cell(new Position16<MapTiles>((ushort)x, (ushort)y)));
                 foreach (MapTileWord shown in new[] { tile.ForHud(true), tile.ForHud(false) })
                 {
                     words.Add((ushort)shown);

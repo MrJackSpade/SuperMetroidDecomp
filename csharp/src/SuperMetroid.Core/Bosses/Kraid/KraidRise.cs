@@ -37,14 +37,11 @@ internal sealed class KraidRise
     private readonly KraidBackground _background;
     /// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health palettes.</summary>
     private readonly KraidHead _head;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal KraidRise(KraidRiseDependencies dependencies)
     {
-        _bossArtwork = dependencies.BossArtwork;
         _frameResults = dependencies.FrameResults;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;

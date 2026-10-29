@@ -100,10 +100,9 @@ internal sealed class TorizoCombat
     private void LoadGoldenTorizoHealthPalette(int health)
     {
         // $84:8000 selects one of eight 16-color rows using bits 11..14 of health, clamping
-        // the upper half to row seven. Deriving the row start algebraically preserves the
-        // original descending copy while keeping the loop natural for debugger inspection.
+        // the upper half to row seven; each band resolves its colours from the installed health palettes.
         int row = checked((ushort)health) / TorizoCombatDefinitions.HealthPerPaletteBand % TorizoCombatDefinitions.HealthPaletteBands;
-        int sourceWord = Math.Min(row, TorizoCombatDefinitions.LastHealthPaletteRow) * 16;
+        int band = Math.Min(row, TorizoCombatDefinitions.LastHealthPaletteRow);
         var colors = _room.Artwork?.AuxiliaryColors ?? throw new InvalidDataException(
             "Golden Torizo health palettes require installed artwork.");
         for (int color = 0; color < 16; color++)
@@ -111,11 +110,11 @@ internal sealed class TorizoCombat
             _presentation.BossColours().TorizoBody.Write(
                 color,
                 colors.Resolve(SuperMetroid.Core.Enemies.Artwork.EnemyAuxiliaryPalette.GoldenTorizoBody,
-                    sourceWord / 16, color));
+                    band, color));
             _presentation.BossColours().TorizoBelly.Write(
                 color,
                 colors.Resolve(SuperMetroid.Core.Enemies.Artwork.EnemyAuxiliaryPalette.GoldenTorizoBelly,
-                    sourceWord / 16, color));
+                    band, color));
         }
     }
 

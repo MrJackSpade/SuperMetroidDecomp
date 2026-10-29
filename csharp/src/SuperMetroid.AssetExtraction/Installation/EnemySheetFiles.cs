@@ -48,7 +48,9 @@ public static class EnemySheetFiles
             throw new InvalidDataException($"Enemy sheet manifest {manifestPath} has revision {manifest.Version}, not {EnemySheetDefinitions.ManifestVersion}.");
         string[] names = [.. manifest.Sets.Values.SelectMany(members => members.Values)
             .Concat(manifest.Spawned.Values.SelectMany(bases => bases.Values.Select(entry => entry.Sheet))).Distinct(StringComparer.Ordinal)];
-        SpriteSheetStore store = SpriteSheetStore.Open(stockDirectory, overrideDirectory, ProvenanceFileName, names.Length);
+        // A player's sheet written before enemy frames were named for their meaning names them by their older keys (#1465).
+        SpriteSheetStore store = SpriteSheetStore.Open(stockDirectory, overrideDirectory, ProvenanceFileName, names.Length,
+            EnemySheetLegacyFrameNames.Current);
         var loaded = names.ToDictionary(name => name, store.Read, StringComparer.Ordinal);
         var sheets = new Dictionary<EnemySheetKey, SpriteSheet>();
         var pictures = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, LookRegion[][]>>();

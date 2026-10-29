@@ -42,9 +42,9 @@ internal static class BossDisplayBindingsDocumentsVerification
                         FlipX = edited, FlipY = edited }] } ];
                 if (edited) (Oam.DisplayFrames ?? throw new InvalidOperationException("Verification requires Oam.DisplayFrames."))[frame.Name] = family[(index + 1) % family.Length].Name;
             }
-            Crocomire = Bg2(CrocomireBg2FrameDefinitions.Frames, edited);
-            Phantoon = Bg2(PhantoonBg2FrameDefinitions.Frames, edited);
-            Draygon = Bg2(DraygonBg2FrameDefinitions.Frames, edited);
+            Crocomire = Bg2(CrocomireBg2FrameDefinitions.Frames, CrocomireBg2FrameDefinitions.Version, edited);
+            Phantoon = Bg2(PhantoonBg2FrameDefinitions.Frames, PhantoonBg2FrameDefinitions.Version, edited);
+            Draygon = Bg2(DraygonBg2FrameDefinitions.Frames, DraygonBg2FrameDefinitions.Version, edited);
         }
 
         /// <summary>Loads fixture documents into an artwork catalog, optionally omitting one BG2 family.</summary>
@@ -83,17 +83,17 @@ internal static class BossDisplayBindingsDocumentsVerification
         {
             EnemySpritemapDefinition[] all = EnemyExtendedFrameDefinitions.Frames.ToArray();
             yield return new FamiliesResult(EnemyDefinitionId.Crocomire, all.Where(frame =>
-                frame.Bank == CrocomireBodyVisualToolingDefinitions.Bank && frame.Name.StartsWith("crocomire_body_oam_", StringComparison.Ordinal)).ToArray());
+                frame.Bank == CrocomireBodyVisualToolingDefinitions.Bank && frame.Name.StartsWith("crocomire_body_", StringComparison.Ordinal)).ToArray());
             yield return new FamiliesResult(EnemyDefinitionId.PhantoonBody, all.Where(frame =>
                 frame.Bank == PhantoonBg2FrameDefinitionsConstants.Bank && PhantoonBg2FrameDefinitionsConstants.IsFrame(frame.Pointer)).ToArray());
             yield return new FamiliesResult(EnemyDefinitionId.DraygonBody, all.Where(frame => frame.Bank == DraygonBg2FrameToolingDefinitions.Bank &&
-                (frame.Name.StartsWith("draygon_oam_", StringComparison.Ordinal) || frame.Name.StartsWith("draygon_bg2_", StringComparison.Ordinal))).ToArray());
+                frame.Name.StartsWith("draygon_", StringComparison.Ordinal)).ToArray());
         }
 
         /// <summary>Gives each BG2 frame distinctive tiles, authored by their tilemap entries, and relocates one write when edited.</summary>
-        private static EnemyBg2FrameDocument Bg2(ImmutableArray<EnemySpritemapDefinition> definitions, bool edited) => new()
+        private static EnemyBg2FrameDocument Bg2(ImmutableArray<EnemySpritemapDefinition> definitions, int version, bool edited) => new()
         {
-            Version = 2,
+            Version = version,
             Frames = definitions.SelectToArray((frame, index) => KeyValuePair.Create(frame.Name,
                 new EnemyBg2WriteDocument[]
                 { new() { X = 3, Y = 2, Tiles = RoomBackgroundTilemapCellWords.Cells(100 + index, 200 + index) },

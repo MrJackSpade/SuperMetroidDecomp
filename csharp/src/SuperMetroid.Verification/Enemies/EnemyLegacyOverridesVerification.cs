@@ -45,10 +45,10 @@ internal static class EnemyLegacyOverridesVerification
             EnemySpritemapDocument document = stockDocument with
             {
                 Version = version,
-                Frames = authored.ToDictionary(frame => frame.Name,
+                Frames = authored.ToDictionary(frame => AuthoredName(frame, version),
                     frame => stockDocument.Frames[frame.Name].ToArray(), StringComparer.Ordinal),
-                DisplayFrames = hasBindings ? authored.ToDictionary(frame => frame.Name,
-                    frame => frame.Name, StringComparer.Ordinal) : null,
+                DisplayFrames = hasBindings ? authored.ToDictionary(frame => AuthoredName(frame, version),
+                    frame => AuthoredName(frame, version), StringComparer.Ordinal) : null,
             };
             document.Frames[native.Name] =
                 [document.Frames[native.Name][0] with { OffsetX = -11, OffsetY = 5, TileColumn = 5 }];
@@ -63,14 +63,15 @@ internal static class EnemyLegacyOverridesVerification
                 prefix + "reload preserves selected content identity");
             foreach (EnemySpritemapDefinition frame in definitions)
             {
-                SpriteVisualPart[] expectedNative = document.Frames.GetValueOrDefault(frame.Name)
+                string key = AuthoredName(frame, version);
+                SpriteVisualPart[] expectedNative = document.Frames.GetValueOrDefault(key)
                     ?? stockDocument.Frames[frame.Name];
                 AssertTrue(merged.TryGet(frame.Bank, frame.Pointer, out var nativeParts),
                     prefix + frame.Name + " retains its native identity");
                 AssertTrue(nativeParts.SequenceEqual(EnemySpritemapCompiler.CompileParts(expectedNative, frame.Name)),
                     prefix + frame.Name + " preserves authored art or inherits new stock art");
 
-                string selectedName = document.DisplayFrames?.GetValueOrDefault(frame.Name)
+                string selectedName = document.DisplayFrames?.GetValueOrDefault(key)
                     ?? stockDocument.DisplayFrames[frame.Name];
                 SpriteVisualPart[] expectedDisplay = document.Frames.GetValueOrDefault(selectedName)
                     ?? stockDocument.Frames[selectedName];
@@ -104,7 +105,7 @@ internal static class EnemyLegacyOverridesVerification
                 prefix + "unknown selected frames are rejected");
             var crossBank = new Dictionary<string, string>(document.DisplayFrames, StringComparer.Ordinal)
             {
-                [native.Name] = authored.First(frame => frame.Bank != native.Bank).Name,
+                [native.Name] = AuthoredName(authored.First(frame => frame.Bank != native.Bank), version),
             };
             AssertThrows<InvalidDataException>(() => Load(document with { DisplayFrames = crossBank }, stock),
                 prefix + "cross-bank remaps are rejected");
@@ -122,6 +123,10 @@ internal static class EnemyLegacyOverridesVerification
             using var json = fixture.Json(value);
             return EnemySpritemapDocuments.Load(json, baseline);
         }
+
+        // Schemas up to PreSemanticNames named some frames by where the cartridge stores them (#1465).
+        static string AuthoredName(EnemySpritemapDefinition frame, int version) =>
+            version > EnemySpritemapSchema.PreSemanticNames.Revision ? frame.Name : frame.LegacyName;
     }
 
     /// <summary>

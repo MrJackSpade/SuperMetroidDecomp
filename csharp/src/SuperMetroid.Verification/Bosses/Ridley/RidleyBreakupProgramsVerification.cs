@@ -61,13 +61,14 @@ internal static class RidleyBreakupProgramsVerification
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = RequiredJson.Deserialize<EnemySpritemapDocument>(stockBytes, options);
         var previous = EnemySpritemapDefinitions.Frames.Take(EnemySpritemapDefinitions.PreRidleyBreakupFrameCount).ToArray();
+        // Schema 68 named frames as they were named before frames were named for their meaning (#1465).
         var legacy = document with
         {
             Version = EnemySpritemapSchema.PreRidleyBreakup.Revision,
-            Frames = previous.ToDictionary(frame => frame.Name, frame => document.Frames[frame.Name]),
-            DisplayFrames = previous.ToDictionary(frame => frame.Name, frame => frame.Name),
+            Frames = previous.ToDictionary(frame => frame.LegacyName, frame => document.Frames[frame.Name]),
+            DisplayFrames = previous.ToDictionary(frame => frame.LegacyName, frame => frame.LegacyName),
         };
-        string edited = previous[0].Name;
+        string edited = previous[0].LegacyName;
         legacy.Frames[edited] = [legacy.Frames[edited][0] with { OffsetX = -11 }];
         byte[] legacyBytes = JsonSerializer.SerializeToUtf8Bytes(legacy, options);
         var merged = EnemySpritemapDocuments.Load(new MemoryStream(legacyBytes), stock);

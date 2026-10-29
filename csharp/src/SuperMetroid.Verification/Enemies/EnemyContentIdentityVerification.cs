@@ -78,10 +78,13 @@ internal static class EnemyContentIdentityVerification
             "inherited new stock OAM changes are not hidden by an unchanged old override");
 
         EnemyExtendedFrameCatalog stockExtended = baseline.Extended();
-        var legacyExtended = baseline.ExtendedDocument() with
+        EnemyExtendedFrameDocument stockExtendedDocument = baseline.ExtendedDocument();
+        // Schema 3 named frames as they were named before frames were named for their meaning (#1465).
+        var legacyExtended = stockExtendedDocument with
         {
             Version = EnemyExtendedFrameSchema.PreDisplayBindings.Revision,
-            Frames = baseline.ExtendedDocument().Frames.Take(EnemyExtendedFrameDefinitions.PirateFrameCount).ToDictionary(),
+            Frames = EnemyExtendedFrameDefinitions.Frames.Take(EnemyExtendedFrameDefinitions.PirateFrameCount)
+                .ToDictionary(frame => frame.LegacyName, frame => stockExtendedDocument.Frames[frame.Name], StringComparer.Ordinal),
             DisplayFrames = null,
         };
         AssertEqual(stockExtended.ContentIdentity,

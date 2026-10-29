@@ -93,9 +93,12 @@ internal static class EnemyExtendedLegacyOverridesVerification
             using var json = fixture.Json(value);
             return EnemyExtendedFrameDocuments.Load(json, baseline);
         }
+        // Schemas up to PreSemanticNames named frames by where the cartridge stores them (#1465); schema six named Spore
+        // Spawn's frames as Draygon's.
         static string AuthoredName(EnemySpritemapDefinition frame, int version) =>
-            version == EnemyExtendedFrameSchema.PreSporeIdentity.Revision && frame.Name.StartsWith("spore_spawn_oam_", StringComparison.Ordinal)
-                ? $"draygon_oam_{frame.Pointer:X4}" : frame.Name;
+            version > EnemyExtendedFrameSchema.PreSemanticNames.Revision ? frame.Name
+            : version == EnemyExtendedFrameSchema.PreSporeIdentity.Revision && frame.LegacyName.StartsWith("spore_spawn_oam_", StringComparison.Ordinal)
+                ? $"draygon_oam_{frame.Pointer:X4}" : frame.LegacyName;
         static void AssertComponents(EnemyExtendedVisualComponent[] expected, ReadOnlySpan<EnemyExtendedDrawComponent> actual, string context)
         {
             AssertEqual(expected.Length, actual.Length, context + " component count");
@@ -121,7 +124,8 @@ internal static class EnemyExtendedLegacyOverridesVerification
 
         int HistoricalCount(string name, EnemyExtendedFrameSchema schema)
         {
-            if (schema == EnemyExtendedFrameSchema.Current) return EnemyExtendedFrameDefinitions.ExpectedFrameCount;
+            if (schema == EnemyExtendedFrameSchema.Current || schema == EnemyExtendedFrameSchema.PreSemanticNames)
+                return EnemyExtendedFrameDefinitions.ExpectedFrameCount;
             if (schema == EnemyExtendedFrameSchema.First) return EnemyExtendedFrameDefinitions.WalkingFrameCount;
             if (schema == EnemyExtendedFrameSchema.Previous)
                 return EnemyExtendedFrameDefinitions.WalkingFrameCount + EnemyExtendedFrameDefinitions.WallFrameCount;

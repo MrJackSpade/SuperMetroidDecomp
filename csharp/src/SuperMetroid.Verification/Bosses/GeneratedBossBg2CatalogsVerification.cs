@@ -103,7 +103,7 @@ internal static class GeneratedBossBg2CatalogsVerification
         AssertEqual(expected.Length, frames.Length, $"{family} catalog count");
         for (int index = 0; index < expected.Length; index++)
         {
-            AssertEqual(expected[index], new SpritemapFrameDefinition(frames[index].Pointer, frames[index].Name), $"{family} published identity/name");
+            AssertEqual(expected[index], new SpritemapFrameDefinition(frames[index].Pointer, frames[index].LegacyName), $"{family} published identity and its name before #1465");
             int root = ((int)new SnesAddress(bank, expected[index].Pointer));
             int components = family == "Phantoon" && index is >= 16 and < 19 ? 2 : 1;
             AssertEqual((ushort)components, Word(root), $"{family} native count determines stride");

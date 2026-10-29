@@ -57,13 +57,14 @@ internal static class GunshipInstalledCompositionsVerification
         var stockDocument = RequiredJson.Deserialize<EnemySpritemapDocument>(
             File.ReadAllText(Path.Combine(directory, EnemySpritemapDefinitions.FileName)), jsonOptions);
         var oldFrames = EnemySpritemapDefinitions.Frames[..EnemySpritemapDefinitions.PreGunshipFrameCount].ToArray();
+        // Schema 60 named frames as they were named before frames were named for their meaning (#1465).
         var legacy = stockDocument with
         {
             Version = EnemySpritemapSchema.PreGunship.Revision,
-            Frames = oldFrames.ToDictionary(frame => frame.Name, frame => stockDocument.Frames[frame.Name].ToArray()),
-            DisplayFrames = oldFrames.ToDictionary(frame => frame.Name, frame => frame.Name),
+            Frames = oldFrames.ToDictionary(frame => frame.LegacyName, frame => stockDocument.Frames[frame.Name].ToArray()),
+            DisplayFrames = oldFrames.ToDictionary(frame => frame.LegacyName, frame => frame.LegacyName),
         };
-        string editedName = oldFrames[0].Name;
+        string editedName = oldFrames[0].LegacyName;
         legacy.Frames[editedName][0] = legacy.Frames[editedName][0] with { OffsetX = 7 };
         using var legacyJson = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(legacy, jsonOptions));
         var merged = EnemySpritemapDocuments.Load(legacyJson, compositions);

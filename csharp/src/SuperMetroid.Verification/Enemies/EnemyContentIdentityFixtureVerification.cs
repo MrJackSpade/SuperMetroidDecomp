@@ -307,8 +307,8 @@ internal static class EnemyContentIdentityFixtureVerification
                     new EnemyContentIdentityFixtureField("corpseFade", MotherBrainDeathDefinitions.CorpseFadeFrameCount, MotherBrainDeathDefinitions.CorpseColorCount),
                     new EnemyContentIdentityFixtureField("explodedDoor", 0, MotherBrainDeathDefinitions.BodyColorCount)), ZebetiteColors = ColorCatalog(ZebetiteColorFile.Read, new EnemyContentIdentityFixtureField("frames", ZebetiteColorFormat.FrameCount, ZebetiteColorFormat.ColorsPerFrame)), NorfairRidleyColors = ColorCatalog(NorfairRidleyColorFile.Read,
                     new EnemyContentIdentityFixtureField("initial", 0, NorfairRidleyPaletteDefinitions.InitialColorCount),
-                    new EnemyContentIdentityFixtureField("reveal", NorfairRidleyPaletteDefinitions.RevealStepCount, NorfairRidleyPaletteDefinitions.RevealColorCount)), PhantoonBg2Frames = Shared("phantoon-bg2", () => PhantoonBg2FrameCatalog.Load(Bg2("phantoon-bg2", PhantoonBg2FrameDefinitions.Frames))), DraygonBg2Frames = Shared("draygon-bg2", () => DraygonBg2FrameCatalog.Load(Bg2("draygon-bg2", DraygonBg2FrameDefinitions.Frames))), CrocomireBg2Frames = Shared("crocomire-bg2", () => CrocomireBg2FrameCatalog.Load(Bg2("crocomire-bg2", CrocomireBg2FrameDefinitions.Frames))), MotherBrainBodyBg2Frames = motherBrainBodyBg2Frames ?? MotherBrainBodyBg2FrameCatalog.Load(
-                    Bg2("mother-brain-body-bg2", MotherBrainBodyVisualDefinitions.Bg2Frames)), MotherBrainCorpse = Characters("mother-brain-corpse", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainEscapeText = Characters("mother-brain-text", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainSpecialSprites = special, CrocomireSkeleton = CrocomireSkeletonArtwork.Load(RoomCharacterAtlasPng.Read(Png("crocomire-skeleton", CrocomireSkeletonCharacterDefinitions.TotalByteCount), CrocomireSkeletonCharacterDefinitions.TotalByteCount)), TorizoSwaps = torizo },
+                    new EnemyContentIdentityFixtureField("reveal", NorfairRidleyPaletteDefinitions.RevealStepCount, NorfairRidleyPaletteDefinitions.RevealColorCount)), PhantoonBg2Frames = Shared("phantoon-bg2", () => PhantoonBg2FrameCatalog.Load(Bg2("phantoon-bg2", PhantoonBg2FrameDefinitions.Frames, PhantoonBg2FrameDefinitions.Version))), DraygonBg2Frames = Shared("draygon-bg2", () => DraygonBg2FrameCatalog.Load(Bg2("draygon-bg2", DraygonBg2FrameDefinitions.Frames, DraygonBg2FrameDefinitions.Version))), CrocomireBg2Frames = Shared("crocomire-bg2", () => CrocomireBg2FrameCatalog.Load(Bg2("crocomire-bg2", CrocomireBg2FrameDefinitions.Frames, CrocomireBg2FrameDefinitions.Version))), MotherBrainBodyBg2Frames = motherBrainBodyBg2Frames ?? MotherBrainBodyBg2FrameCatalog.Load(
+                    Bg2("mother-brain-body-bg2", MotherBrainBodyVisualDefinitions.Bg2Frames, MotherBrainBodyVisualDefinitions.Bg2Version)), MotherBrainCorpse = Characters("mother-brain-corpse", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainEscapeText = Characters("mother-brain-text", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainSpecialSprites = special, CrocomireSkeleton = CrocomireSkeletonArtwork.Load(RoomCharacterAtlasPng.Read(Png("crocomire-skeleton", CrocomireSkeletonCharacterDefinitions.TotalByteCount), CrocomireSkeletonCharacterDefinitions.TotalByteCount)), TorizoSwaps = torizo },
                 new AreaSourceArtwork { CeresDoorVisual = door, TourianStatueColors = ColorCatalog(TourianStatueColorFile.Read,
                     new EnemyContentIdentityFixtureField("base", 0, TourianStatueColorDefinitions.BaseColorCount), new EnemyContentIdentityFixtureField("statue", 0, TourianStatueColorDefinitions.StatueColorCount),
                     new EnemyContentIdentityFixtureField("eye", TourianStatueColorDefinitions.EyeRowCount, TourianStatueColorDefinitions.EyeColorCount), new EnemyContentIdentityFixtureField("grey", 0, TourianStatueColorDefinitions.GreyColorCount)), CeresEscapeTiles = ceresTiles, CeresEscapeOverlayTilemaps = overlay });
@@ -419,8 +419,8 @@ internal static class EnemyContentIdentityFixtureVerification
         /// <summary>Compiles both projectile frame namespaces into one installed catalog.</summary>
         public EnemyProjectileSpritemapCatalog Projectiles() => Shared("projectiles", () => EnemyProjectileSpritemapDocuments.Load(Json(ProjectileDocument())));
 
-        /// <summary>Builds BG2 frame writes whose tiles, placement, order, count, or run boundaries can vary.</summary>
-        private MemoryStream Bg2(string family, ImmutableArray<EnemySpritemapDefinition> definitions)
+        /// <summary>Builds BG2 frame writes whose tiles, placement, order, count, or run boundaries can vary, at the family's document revision.</summary>
+        private MemoryStream Bg2(string family, ImmutableArray<EnemySpritemapDefinition> definitions, int version)
         {
             foreach (string component in new[] { "tiles", "x", "y", "order", "count", "run-boundary" }) Register(family + "-" + component);
             var frames = definitions.SelectToArray((frame, index) =>
@@ -440,7 +440,7 @@ internal static class EnemyContentIdentityFixtureVerification
                     : [a, b];
                 return KeyValuePair.Create(frame.Name, writes);
             });
-            return Json(new EnemyBg2FrameDocument { Version = 2, Frames = Ordered(frames) });
+            return Json(new EnemyBg2FrameDocument { Version = version, Frames = Ordered(frames) });
         }
     }
 }

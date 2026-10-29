@@ -50,17 +50,18 @@ public static class EnemySpritemapDocuments
         var identities = new Dictionary<string, EnemyFrameId>(StringComparer.Ordinal);
         foreach (EnemySpritemapDefinition frame in expected)
         {
-            if (!document.Frames.TryGetValue(frame.Name, out SpriteVisualPart[]? visual) ||
+            string authoredName = schema.NameOf(frame);
+            if (!document.Frames.TryGetValue(authoredName, out SpriteVisualPart[]? visual) ||
                 visual is null || visual.Length > EnemySpritemapCompiler.MaximumParts)
                 throw new InvalidDataException(
-                    $"Enemy composition {frame.Name} is missing or exceeds OAM capacity.");
+                    $"Enemy composition {authoredName} is missing or exceeds OAM capacity.");
             EnemySpritemapParts parts = BabyMetroidSpriteParts.Compile(frame.Frame,
                 EnemySpritemapCompiler.CompileParts(visual, frame.Name), ref sharedBabyBody);
             parts = ChozoStrideArtwork.Compile(frame.Frame, parts);
             if (!frames.TryAdd(frame.Frame, parts))
                 throw new InvalidDataException(
                     $"Enemy composition {frame.Name} repeats a visual identity.");
-            identities.Add(frame.Name, frame.Frame);
+            identities.Add(authoredName, frame.Frame);
         }
         var displayFrames = new Dictionary<EnemyFrameId, EnemyFrameId>();
         // Every accepted schema after the binding boundary owns its authored

@@ -51,15 +51,16 @@ internal static class BotwoonVisualsVerification
             current, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         // Version 59 ends before Botwoon; removing only Botwoon from today's
         // catalog incorrectly retains every family added in subsequent versions.
-        HashSet<string> previousNames = EnemySpritemapDefinitions.Frames
-            .Take(EnemySpritemapDefinitions.PreBotwoonFrameCount)
-            .Select(frame => frame.Name).ToHashSet(StringComparer.Ordinal);
-        var previousFrames = document.Frames
-            .Where(pair => previousNames.Contains(pair.Key))
-            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
-        var previousBindings = (document.DisplayFrames ?? throw new InvalidOperationException("Verification requires document.DisplayFrames."))
-            .Where(pair => previousFrames.ContainsKey(pair.Key))
-            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        // Version 59 named frames as they were named before frames were named for their meaning (#1465).
+        EnemySpritemapDefinition[] previous = EnemySpritemapDefinitions.Frames
+            .Take(EnemySpritemapDefinitions.PreBotwoonFrameCount).ToArray();
+        Dictionary<string, string> legacyNames = EnemySpritemapDefinitions.Frames
+            .ToDictionary(frame => frame.Name, frame => frame.LegacyName, StringComparer.Ordinal);
+        var previousFrames = previous
+            .ToDictionary(frame => frame.LegacyName, frame => document.Frames[frame.Name], StringComparer.Ordinal);
+        Dictionary<string, string> bindings = document.DisplayFrames ?? throw new InvalidOperationException("Verification requires document.DisplayFrames.");
+        var previousBindings = previous
+            .ToDictionary(frame => frame.LegacyName, frame => legacyNames[bindings[frame.Name]], StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreBotwoonFrameCount,
             previousFrames.Count, "version-fifty-nine composition schema count");
         using var previousJson = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(

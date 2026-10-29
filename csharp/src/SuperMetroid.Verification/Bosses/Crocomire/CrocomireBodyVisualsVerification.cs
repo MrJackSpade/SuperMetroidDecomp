@@ -19,6 +19,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.World;
 
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.World.Artwork;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 
 /// <summary>Retail comparisons for Crocomire's mixed OAM/BG2 body frames and installed editable artwork.</summary>
@@ -63,8 +64,9 @@ internal static class CrocomireBodyVisualsVerification
         AssertEqual(42, expected.Length, "native Crocomire BG2 catalog size");
         AssertEqual(expected.Length, CrocomireBg2FrameDefinitions.Frames.Length, "generated BG2 definition count");
         for (int i = 0; i < expected.Length; i++)
-            AssertEqual(expected[i], new SpritemapFrameDefinition(CrocomireBg2FrameDefinitions.Frames[i].Pointer, CrocomireBg2FrameDefinitions.Frames[i].Name),
-                "native BG2 pointer and published artwork name");
+            AssertEqual(expected[i], new SpritemapFrameDefinition(CrocomireBg2FrameDefinitions.Frames[i].Pointer,
+                    EnemyFrameLegacyNameDefinitions.CrocomireBg2Frames[CrocomireBg2FrameDefinitions.Frames[i].Frame]),
+                "native BG2 pointer and the name revision-2 documents gave it (#1465)");
 
         // Confirm the extractor and loader carry every native stream under its published key.
         byte[] generatedJson = CrocomireBg2FrameFiles.Extract(rom);
@@ -73,6 +75,27 @@ internal static class CrocomireBodyVisualsVerification
         foreach (var frame in expected)
             AssertTrue(loaded.TryGet(frame.Pointer, out var writes) && writes.Length > 0,
                 "generated catalog loads every native BG2 stream by its published key");
+
+        // A player's revision-2 document named each frame by where the cartridge stores it; the import carries it onto
+        // the frames' semantic names and the current revision before the loader reads it (#1465).
+        var generated = RequiredJson.Deserialize<EnemyBg2FrameDocument>(generatedJson,
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        var legacyDocument = generated with
+        {
+            Version = EnemyFrameLegacyNameDefinitions.LastBg2FrameRevision,
+            Frames = CrocomireBg2FrameDefinitions.Frames.ToDictionary(
+                frame => EnemyFrameLegacyNameDefinitions.CrocomireBg2Frames[frame.Frame], frame => generated.Frames[frame.Name], StringComparer.Ordinal),
+        };
+        byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(legacyDocument, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        AssertThrows<InvalidDataException>(() => CrocomireBg2FrameCatalog.Load(new MemoryStream(legacyJson, writable: false)),
+            "the loader itself reads only the current revision's names");
+        var upgraded = CrocomireBg2FrameCatalog.Load(new MemoryStream(EnemyBg2FrameDocumentUpgrade.Upgrade(legacyJson,
+            CrocomireBg2FrameDefinitions.Frames, CrocomireBg2FrameDefinitions.Version, EnemyFrameLegacyNameDefinitions.CrocomireBg2Frames, "Crocomire"),
+            writable: false));
+        foreach (var frame in expected)
+            AssertTrue(upgraded.TryGet(frame.Pointer, out var legacyWrites) && loaded.TryGet(frame.Pointer, out var currentWrites) &&
+                legacyWrites.Length == currentWrites.Length,
+                "a revision-2 Crocomire BG2 document keyed by its older names installs every frame its current equal does");
         AssertTrue(!loaded.TryGet(0xca7e, out _), "pure-OAM frame excluded from BG2 catalog");
     }
     /// <summary>Compares installed OAM and VRAM output for every body frame with visual ROM reads denied, then checks a BG2 edit obeys the new-frame gate.</summary>

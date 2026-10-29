@@ -30,14 +30,17 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyCollision _collision;
     /// <summary>Starts ordinary death processing after the delayed spike burst.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>Where the room places the body's colours, whose sharing with the common colours a full pool's death animation reads.</summary>
-    private readonly SpriteColourPlacement _placement;
+    /// <summary>
+    /// The room's enemy presentation, whose current placement holds the body's colours, whose sharing with the common
+    /// colours a full pool's death animation reads.
+    /// </summary>
+    private readonly EnemyPresentation _presentation;
 
     /// <summary>Connects Powamp's paired body and balloon AI to terrain, projectile, and collision services.</summary>
     internal PowampBehavior(EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemySlotTable slotTable, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops,
-        SpriteColourPlacement placement)
+        EnemyPresentation presentation)
     {
-        _placement = placement;
+        _presentation = presentation;
         _terrain = terrain;
         _projectiles = projectiles;
         _slotTable = slotTable;
@@ -621,7 +624,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// held where the palette bits read as zero, so it is the body's tile base; any other colours put it past every animation.
     /// </summary>
     private int FullPoolDeathAnimation(RoomEnemySlot body) =>
-        _placement.SharesColours(body.Colouring, SharedSpriteColouring.Common) ? body.TileIndexBase : 0;
+        _presentation.Placement.SharesColours(body.Colouring, SharedSpriteColouring.Common) ? body.TileIndexBase : 0;
 
     /// <summary>Ports <c>PreInstruction_EnemyProjectile_PowampSpike</c> at $86:D263.</summary>
     internal static void RunPowampSpikePreInstruction(

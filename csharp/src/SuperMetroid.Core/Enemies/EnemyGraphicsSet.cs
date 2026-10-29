@@ -13,7 +13,11 @@ internal sealed class EnemyGraphicsSet
     private readonly EnemyRoomBinding _room;
 
     /// <summary>Binds the room whose artwork the graphics set stages.</summary>
-    internal EnemyGraphicsSet(EnemyRoomBinding room) => _room = room;
+    internal EnemyGraphicsSet(EnemyRoomBinding room)
+    {
+        _room = room;
+        Placement = GraphicsSetColourPlacement.Of(LoadedSet, Entries);
+    }
 
     /// <summary>Resolved graphics records in room-set order, used for DMA scheduling and per-enemy tile/palette indexes.</summary>
     internal readonly List<RoomEnemyGraphicsSetEntry> Entries = new();
@@ -24,9 +28,19 @@ internal sealed class EnemyGraphicsSet
     /// </summary>
     internal RoomEnemyGraphicsSetDefinition LoadedSet { get; private set; } = RoomEnemyGraphicsSetDefinitions.SessionStart;
 
+    /// <summary>
+    /// Where the set's latest load placed the sprite colourings drawn under it (#1464): a record taken when the set loads
+    /// or is inherited, which draws carry as they are published, so no draw reaches the set's live entries.
+    /// </summary>
+    internal GraphicsSetColourPlacement Placement { get; private set; }
+
     /// <summary>Draws under the set the outgoing room left loaded, until this room loads its own.</summary>
     /// <param name="graphicsSet">The outgoing room's loaded set.</param>
-    internal void Inherit(RoomEnemyGraphicsSetDefinition graphicsSet) => LoadedSet = Ensure.NotNull(graphicsSet);
+    internal void Inherit(RoomEnemyGraphicsSetDefinition graphicsSet)
+    {
+        LoadedSet = Ensure.NotNull(graphicsSet);
+        Placement = GraphicsSetColourPlacement.Of(LoadedSet, Entries);
+    }
 
 
     /// <summary>
@@ -62,15 +76,14 @@ internal sealed class EnemyGraphicsSet
         LoadedSet = graphicsSet;
         foreach (RoomEnemyGraphicsSetEntry entry in LayOut(definitions, graphicsSet))
         {
-            // ProcessEnemyTilesets copies one complete sixteen-color OBJ palette from the
-            // enemy's selected code/data bank. Its assembly masks the entire low byte before
-            // adding the native eight-row OBJ bias. Retail records use values zero through
-            // seven, but retaining the wider mask makes corrupt data fail visibly.
+            // ProcessEnemyTilesets copies one complete sixteen-colour palette from the enemy's selected code/data bank
+            // into the shared store the record names.
             (_room.Artwork ?? throw new InvalidOperationException(
                 "Enemy population requires installed palette artwork."))
-                .LoadPaletteTo(entry.DefinitionId, sets.Set(entry.PaletteRow));
+                .LoadPaletteTo(entry.DefinitionId, entry.ColourStore.In(sets));
             Entries.Add(entry);
         }
+        Placement = GraphicsSetColourPlacement.Of(LoadedSet, Entries);
     }
 
     /// <summary>
@@ -128,7 +141,7 @@ internal sealed class EnemyGraphicsSet
 
             entries.Add(new RoomEnemyGraphicsSetEntry(
                 enemy,
-                source.PaletteRow,
+                source.ColourStore,
                 nextEnemyTileIndex,
                 stagingOffset,
                 byteCount));

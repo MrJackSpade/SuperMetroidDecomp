@@ -110,9 +110,9 @@ internal static void VerifyRoomEnemyLoading()
     SeedRoomEnemyLoadingArtworkAndSpawnData(bus, primaryPaletteBytes, specialPaletteBytes, primaryTileBytes, specialTileBytes);
 
     SeedRoomEnemyGraphicsSet(bus, tilesetPointer,
-        new(primaryDefinitionPointer, PaletteRow: 3),
+        new(primaryDefinitionPointer, ColourStore: new(3)),
         // Row 4 is Samus's own colours (#1405), which no retail set loads an enemy into; the fixed-block member uses row 2.
-        new(specialDefinitionPointer, PaletteRow: 2, StagingBlock: 1));
+        new(specialDefinitionPointer, ColourStore: new(2), StagingBlock: 1));
 
     SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 1,
         new RoomEnemyPopulationRecord(primaryDefinitionPointer, new(0x0456, 0x0789), 0xabcd, EnemyPropertyWord.FromWord(0x2000), EnemyExtraPropertyWord.FromWord(0x0004), 0x1357, 0x2468));
@@ -456,7 +456,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     // The compiled native Ripper record makes Power Beam and missiles ineffective,
     // freezes on Ice, and gives Super Missiles multiplier two.
 
-    SeedRoomEnemyGraphicsSet(bus, tilesetPointer, new RoomEnemyGraphicsSetHeader(definitionPointer, 0));
+    SeedRoomEnemyGraphicsSet(bus, tilesetPointer, new RoomEnemyGraphicsSetHeader(definitionPointer, new(0)));
 
     SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 1,
         new RoomEnemyPopulationRecord(definitionPointer, new(80, 64), 0, EnemyPropertyWord.FromWord(0x2800), default, 16, 1));

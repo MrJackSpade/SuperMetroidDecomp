@@ -22,7 +22,7 @@ internal static class SpriteColouringAccess
     extension(RoomEnemySlot self)
     {
         /// <summary>The row holding the slot's colours under <paramref name="enemies"/>' loaded graphics set.</summary>
-        internal int PaletteRowIn(RoomEnemySystem enemies) => enemies.Presentation.Placement.HoldingSet(self.Colouring);
+        internal int PaletteRowIn(RoomEnemySystem enemies) => enemies.Presentation.Placement.StoreOf(self.Colouring).Set;
 
         /// <summary>Gives the slot the colours native row <paramref name="row"/> denotes under <paramref name="enemies"/>' loaded set.</summary>
         internal void SetPaletteRow(RoomEnemySystem enemies, int row) => self.Colouring = enemies.GraphicsSet.ColouringInRow(row);
@@ -32,17 +32,17 @@ internal static class SpriteColouringAccess
     extension(SpriteGraphics self)
     {
         /// <summary>The row holding the graphics' colours under <paramref name="enemies"/>' loaded graphics set.</summary>
-        internal int PaletteRowIn(RoomEnemySystem enemies) => enemies.Presentation.Placement.HoldingSet(self.Colouring);
+        internal int PaletteRowIn(RoomEnemySystem enemies) => enemies.Presentation.Placement.StoreOf(self.Colouring).Set;
 
         /// <summary>The row holding colours that need no graphics set: a shared role's or an encounter's.</summary>
-        internal int FixedPaletteRow => GraphicsSetColourPlacement.FixedSet(self.Colouring);
+        internal int FixedPaletteRow => GraphicsSetColourPlacement.FixedStore(self.Colouring).Set;
     }
 
     /// <summary>Rows of a loaded graphics set's members.</summary>
     extension(EnemyGraphicsSet self)
     {
         /// <summary>The row holding the colours <paramref name="enemy"/> draws in under the set.</summary>
-        internal int DrawRow(EnemyDefinitionId enemy) => new GraphicsSetColourPlacement(self).HoldingSet(self.DrawIndexes(enemy).Colouring);
+        internal int DrawRow(EnemyDefinitionId enemy) => self.Placement.StoreOf(self.DrawIndexes(enemy).Colouring).Set;
 
         /// <summary>
         /// The colouring native sprite palette row <paramref name="row"/> denotes under the set, for state imported as
@@ -58,7 +58,7 @@ internal static class SpriteColouringAccess
                 return role;
             for (int index = self.Entries.Count - 1; index >= 0; index--)
             {
-                if (self.Entries[index].PaletteRow == row)
+                if (self.Entries[index].ColourStore.Set == row)
                     return new GraphicsSetMemberColouring(self.Entries[index].DefinitionId);
             }
             return SpriteColouring.InFixtureSet(row);

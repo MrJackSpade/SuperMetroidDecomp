@@ -9,7 +9,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
-using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -142,7 +141,7 @@ internal static class EnemySheetComposer
                 continue;
             SpriteGraphics indexes = graphics.DrawIndexes(enemy);
             // The sheet is coloured in the sprite set the set places the enemy's colours in.
-            int paletteBits = new GraphicsSetColourPlacement(graphics).HoldingSet(indexes.Colouring);
+            int paletteBits = graphics.Placement.StoreOf(indexes.Colouring).Set;
             var pictures = new Dictionary<string, CharacterRange[][]>(StringComparer.Ordinal);
             var rots = new Dictionary<string, string>(StringComparer.Ordinal);
             var frames = new List<SheetFrameSource>();

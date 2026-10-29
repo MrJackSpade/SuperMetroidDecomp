@@ -1,9 +1,10 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// The colours a draw shows in place of the ones its image was coloured with (#1464): what they are, and the load that
-/// placed them when the draw was published, a room's graphics set or a frontend screen. The placement is the draw's
-/// because a frame is published after its draws, and a room load in between places colourings anew.
+/// The colours a draw shows in place of the ones its image was coloured with (#1464): what they are, and the placement
+/// the load current when the draw was published made, a room's graphics set or a frontend screen. The placement is the
+/// draw's because a frame is published after its draws, and a room load in between places colourings anew; it is an
+/// immutable record of that load, so the draw reaches no live gameplay state.
 /// </summary>
 public sealed record DrawnColouring
 {

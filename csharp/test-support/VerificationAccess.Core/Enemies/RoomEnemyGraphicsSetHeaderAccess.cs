@@ -1,8 +1,11 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The oracles' codec for a bank-$B4 graphics-set record's second word: its low byte is the OBJ palette row and bits
-/// 12 and 13 the fixed staging block. The cartridge reads no other bit.
+/// The oracles' codec for a bank-$B4 graphics-set record's second word: its low byte is the OBJ palette row, which names
+/// the shared sprite colour store the member's colours load into, and bits 12 and 13 the fixed staging block. The
+/// cartridge reads no other bit.
 /// </summary>
 internal static class RoomEnemyGraphicsSetHeaderAccess
 {
@@ -19,14 +22,15 @@ internal static class RoomEnemyGraphicsSetHeaderAccess
     extension(RoomEnemyGraphicsSetHeader)
     {
         /// <summary>The member a native record holds, from its definition and its second word.</summary>
+        /// <exception cref="ArgumentOutOfRangeException">The word's palette row is not one of the eight sprite stores'.</exception>
         internal static RoomEnemyGraphicsSetHeader FromNative(EnemyDefinitionId definition, ushort placement) =>
-            new(definition, placement & PaletteRowBits, (placement & StagingBlockBits) >> StagingBlockShift);
+            new(definition, new SpriteColourStore(placement & PaletteRowBits), (placement & StagingBlockBits) >> StagingBlockShift);
     }
 
     /// <summary>Encodes a member's native record word.</summary>
     extension(RoomEnemyGraphicsSetHeader self)
     {
         /// <summary>The record's second word.</summary>
-        internal ushort NativePlacement => checked((ushort)(self.PaletteRow | self.StagingBlock << StagingBlockShift));
+        internal ushort NativePlacement => checked((ushort)(self.ColourStore.Set | self.StagingBlock << StagingBlockShift));
     }
 }

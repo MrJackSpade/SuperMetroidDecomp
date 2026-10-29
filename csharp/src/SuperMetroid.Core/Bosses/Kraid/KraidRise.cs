@@ -75,7 +75,7 @@ internal sealed class KraidRise
             // removed floor spikes cannot return when the player exits and re-enters.
             LoadKraidColorBand(KraidPaletteSource.RoomBackdrop, _presentation.BossColours().KraidRoomBackdrop);
             state.BodyAppearance = KraidBodyAppearance.Hidden;
-            UploadKraidRoomBackgroundTiles();
+            ShowKraidRoomBackdrop();
             _frameResults.KraidPlms.AddRange(KraidPlmDefinitions.DefeatedRoom);
             // The body owns `$A7:C715-$C815`: a defeated room's body starts at hiding his body layer's halves and
             // the death's four-update wait. The other seven physical records take their own dead initializer and
@@ -118,10 +118,11 @@ internal sealed class KraidRise
                 : KraidCamera.InitialScroll(index));
     }
 
-    /// <summary>Binds the fixed room backdrop characters among the room's tile characters (#1352, #1406).</summary>
-    internal void UploadKraidRoomBackgroundTiles() =>
-        _presentation.Backgrounds.Bind(KraidBehavior.KraidRoomBackgroundIdentity, BgCharacterSet.Tiles, KraidBackgroundDefinitions.RoomBackgroundFirstCharacter,
-            KraidBackgroundDefinitions.RoomBackgroundCharacterCount);
+    /// <summary>
+    /// Shows the fixed room backdrop over the room's tiles (#1352, #1406, #1466): the blocks and cells it shows over show
+    /// their pictures with it from here.
+    /// </summary>
+    internal void ShowKraidRoomBackdrop() => _presentation.Appearance.ShowKraidBackdrop();
 
     /// <summary>
     /// <c>$A7:AD3A</c>: brings Kraid's grown body in front of the room's sprites before his second phase. Only a risen
@@ -210,7 +211,7 @@ internal sealed class KraidRise
                 // initializes palette-six fading. Without it, BG1's authored repeating
                 // room-background blocks decode an uninitialized character as transparent,
                 // exposing Kraid BG2's `$0338` filler rectangle above his head.
-                UploadKraidRoomBackgroundTiles();
+                ShowKraidRoomBackdrop();
                 return;
 
             case KraidAiFunction.GrowFadeInRoomBackground:

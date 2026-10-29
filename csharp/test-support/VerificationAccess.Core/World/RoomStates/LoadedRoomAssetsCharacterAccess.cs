@@ -1,28 +1,34 @@
-using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>
-/// Verification access to the characters a loaded room binds (#1422): the room names its common room elements and its
-/// tileset and counts their characters, and the import pipeline's resolver reads them from the catalog a test installed.
+/// Verification access to the characters a loaded room's load shows (#1422, #1466): the room names its tileset, and the
+/// import pipeline's catalog a test installed holds the common room elements' and the tileset's characters.
 /// </summary>
 internal static class LoadedRoomAssetsCharacterAccess
 {
-    /// <summary>The bytes of the characters the room binds, as a character catalog installs them.</summary>
+    /// <summary>The bytes of the characters the room's load shows, as a character catalog installs them.</summary>
     extension(LoadedRoomAssets self)
     {
-        /// <summary>The common room elements' characters the room binds, as <paramref name="characters"/> installs them.</summary>
-        internal ReadOnlyMemory<byte> CreCharactersIn(RoomCharacterAtlases characters) =>
-            Bound(characters, RoomBgArtwork.CommonRoomElements, self.CreCharacterCount);
+        /// <summary>The common room elements' characters the room's load shows, as <paramref name="characters"/> installs them.</summary>
+        internal ReadOnlyMemory<byte> CreCharactersIn(RoomCharacterAtlases characters) => Ensure.NotNull(characters).Cre.Characters;
 
-        /// <summary>The tileset's characters the room binds, as <paramref name="characters"/> installs them.</summary>
+        /// <summary>The tileset's characters the room's load shows, as <paramref name="characters"/> installs them.</summary>
         internal ReadOnlyMemory<byte> TilesetCharactersIn(RoomCharacterAtlases characters) =>
-            Bound(characters, RoomBgArtwork.Tileset(self.Tileset.Characters), self.TilesetCharacterCount);
-    }
+            Ensure.NotNull(characters).Get(self.Tileset.Characters).Characters;
 
-    /// <summary>The first <paramref name="characterCount"/> tile characters <paramref name="artwork"/> names in the catalog.</summary>
-    private static ReadOnlyMemory<byte> Bound(RoomCharacterAtlases characters, BgArtworkIdentity artwork, int characterCount) =>
-        new BgArtworkBytes().WithRoomCharacters(characters).Of(new BgArtworkBinding(artwork, BgCharacterSet.Tiles, 0, characterCount));
+        /// <summary>
+        /// Loads the room into a test's VRAM fixture: gives the background sets the tileset's colours, as gameplay does,
+        /// and records that the fixture's image shows the room's load under <paramref name="appearance"/> (#1466).
+        /// </summary>
+        internal void LoadGraphics(RoomAppearance appearance, BackgroundColourSets colours)
+        {
+            self.LoadGraphics(colours);
+            BgArtworkFixtures.RecordLoad(appearance, self.Tileset);
+        }
+    }
 }

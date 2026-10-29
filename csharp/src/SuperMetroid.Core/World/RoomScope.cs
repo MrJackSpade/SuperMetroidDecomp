@@ -43,8 +43,11 @@ internal sealed record RoomScope
     /// </summary>
     public required ArtworkFrameSelections ArtworkFrames { get; init; }
 
-    /// <summary>The characters the room tileset's animations paint, as asset extraction declared them (#1406).</summary>
-    public required RoomAnimatedCharacters AnimatedCharacters { get; init; }
+    /// <summary>
+    /// What gameplay has shown over the room's load (#1466): the collectibles its slots show and Kraid's backdrop. With the
+    /// frames its animations selected, the display names its blocks', cells' and words' pictures by it.
+    /// </summary>
+    public required RoomAppearance Appearance { get; init; }
 
     /// <summary>Resolves the pre-coloured picture each block the room's planes show draws as (#1392).</summary>
     public required RoomBlockPictureResolver BlockPictures { get; init; }
@@ -68,14 +71,13 @@ internal sealed record RoomScope
     public required MessageBoxSheet MessageBoxes { get; init; }
 
     /// <summary>
-    /// Which character page the planes of <paramref name="room"/> draw from: setup ASM $8F:C97B points the Ceres Ridley
-    /// arena's BG1 and BG2 at the object character page (#1357); every other room, and the frames before a room is
-    /// active, draw from the tileset.
+    /// Which artwork the blocks of <paramref name="room"/> show: the Ceres Ridley arena's setup points its BG1 and BG2 at
+    /// the sprites' artwork (#1357); every other room, and the frames before a room is active, show the tileset's.
     /// </summary>
-    internal static RoomBackgroundCharacters CharactersOf(SelectedRoom? room) =>
-        room?.State.SetupCallback == RoomSetupCallback.SetCeresRidleyBgCharacterBaseAndSpawnHaze
-            ? RoomBackgroundCharacters.ObjectCharacterPage
-            : RoomBackgroundCharacters.Tileset;
+    internal static RoomBlockArtwork BlockArtworkOf(SelectedRoom? room) =>
+        room?.State.SetupCallback == RoomSetupCallback.ShowSpritesOnCeresRidleyBackgroundsAndSpawnHaze
+            ? RoomBlockArtwork.Sprites
+            : RoomBlockArtwork.Tileset;
 
     /// <summary>Words the room's actors wrote over its BG1 tilemap (the Ceres escape warning), or null (#1346).</summary>
     public RoomTilemapOverlay? Bg1Overlay { get; private set; }

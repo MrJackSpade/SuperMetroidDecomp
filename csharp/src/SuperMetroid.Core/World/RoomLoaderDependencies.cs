@@ -102,9 +102,6 @@ internal sealed record RoomLoaderDependencies
     public required TesterTools Tester { get; init; }
 
 
-    /// <summary>The background character artwork the room binds (#1350).</summary>
-    public required BgArtworkBindings Backgrounds { get; init; }
-
 
 
 }

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -11,13 +12,13 @@ namespace SuperMetroid.Core.Enemies;
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 public sealed record RoomEnemyLoadRequest : IRoomEnemyLoad
 {
-    /// <summary>Creates a load of <paramref name="population"/> into the room's <paramref name="backgrounds"/> and their VRAM.</summary>
+    /// <summary>Creates a load of <paramref name="population"/> into the room whose load <paramref name="appearance"/> shows over.</summary>
     public RoomEnemyLoadRequest(RoomEnemyPopulationDefinition population,
-        RoomEnemyGraphicsSetDefinition graphicsSet, BgArtworkBindings backgrounds, GameplayColours colours)
+        RoomEnemyGraphicsSetDefinition graphicsSet, RoomAppearance appearance, GameplayColours colours)
     {
         Population = Ensure.NotNull(population);
         GraphicsSet = Ensure.NotNull(graphicsSet);
-        Backgrounds = Ensure.NotNull(backgrounds);
+        Appearance = Ensure.NotNull(appearance);
         Colours = Ensure.NotNull(colours);
     }
 
@@ -30,7 +31,7 @@ public sealed record RoomEnemyLoadRequest : IRoomEnemyLoad
     /// <inheritdoc />
 
     /// <inheritdoc />
-    public BgArtworkBindings Backgrounds { get; }
+    public RoomAppearance Appearance { get; }
 
     /// <inheritdoc />
     public GameplayColours Colours { get; }

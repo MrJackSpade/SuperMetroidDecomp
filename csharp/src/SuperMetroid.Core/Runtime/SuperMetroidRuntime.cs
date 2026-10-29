@@ -144,7 +144,6 @@ internal sealed class SuperMetroidRuntime
         Clock = Ensure.NotNull(clock);
         Options = new GameplayOptions();
         FloorQueueResidue = Ensure.NotNull(floorQueueResidue);
-        BgArtwork = new BgArtworkBindings();
         EnemySession.FloorQueueResidue = FloorQueueResidue;
 
         BeamCharge = new BeamChargeState();
@@ -152,10 +151,10 @@ internal sealed class SuperMetroidRuntime
         Tester = new TesterTools(Colours, Player, System);
         TourianStatueDependencies = new TourianStatueSequenceDependencies { Colours = Colours, Player = Player, Room = Room, System = System, Tester = Tester, Freeze = Freeze };
         Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies { BossArtwork = BossArtwork, Room = Room, RoomFx = RoomFx, Hud = Hud, MessageBox = MessageBox, Player = Player });
-        HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Backgrounds = BgArtwork, Artwork = Artwork, Hud = Hud, Player = Player, EnemySession = EnemySession, Room = Room });
+        HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Artwork = Artwork, Hud = Hud, Player = Player, EnemySession = EnemySession, Room = Room });
         ScreenLayers = new GameplayScreenLayers(Room);
         Xray = new XrayReveal(BackgroundScroll, Room, System);
-        FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { Input = new AcceptedFrameInput(Controller1, PhysicalController1, Options, Clock), Backgrounds = BgArtwork, EnemySession = EnemySession, RoomFx = RoomFx, Artwork = Artwork, Hud = Hud, BackgroundScroll = BackgroundScroll, Display = Display, DisplayedSprites = DisplayedSprites, ScreenLayers = ScreenLayers, Sprites = Sprites, Player = Player, Room = Room, SuitPickup = SuitPickup, Xray = Xray });
+        FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { Input = new AcceptedFrameInput(Controller1, PhysicalController1, Options, Clock), EnemySession = EnemySession, RoomFx = RoomFx, Artwork = Artwork, Hud = Hud, BackgroundScroll = BackgroundScroll, Display = Display, DisplayedSprites = DisplayedSprites, ScreenLayers = ScreenLayers, Sprites = Sprites, Player = Player, Room = Room, SuitPickup = SuitPickup, Xray = Xray });
         BackgroundPhase = new BackgroundScrollPhase(BackgroundScroll, Room);
         ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, Display = Display, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room});
         EnemyRoomEffects = new EnemyRoomEffects(new EnemyRoomEffectsDependencies { Colours = Colours, Display = Display, EscapeTimer = EscapeTimer, Player = Player, Room = Room, System = System});
@@ -164,7 +163,7 @@ internal sealed class SuperMetroidRuntime
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing, BackgroundScroll = BackgroundScroll, Display = Display, EnemyPhase = EnemyPhase, PerLineEffects = PerLineEffects, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
         ShotBlockVisuals = new PlmShotBlockVisuals();
-        RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Colours = Colours, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System, Tester = Tester, Backgrounds = BgArtwork});
+        RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Colours = Colours, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System, Tester = Tester});
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { EnemySession = EnemySession, Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System});
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Colours = Colours, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
@@ -213,7 +212,6 @@ internal sealed class SuperMetroidRuntime
         Bind(a => a.MapPresentation, value => Artwork.MapPresentation = value);
         Bind(a => a.GameplayBasePalettes, value => Artwork.InitialPaletteArt = value);
         Bind(a => a.SamusBodyArt, value => Artwork.SamusBodyArt = value);
-        Bind(a => a.RoomCharacterArt, value => Artwork.RoomCharacterArt = value);
         Bind(a => a.RoomPaletteArt, value => Artwork.RoomPaletteArt = value);
         Bind(a => a.RoomBlockSheets, value => Artwork.RoomBlockSheets = value);
         Bind(a => a.RoomVisualLayouts, value => Artwork.RoomVisualLayouts = value);
@@ -312,9 +310,6 @@ internal sealed class SuperMetroidRuntime
     /// <exception cref="InvalidOperationException">No NMI has latched the HUD yet.</exception>
     public ShownHud AcceptedHud =>
         Display.Latched.Hud ?? throw new InvalidOperationException("No accepted NMI has latched the HUD.");
-
-    /// <summary>The background character artwork the frame shows (#1350, #1406).</summary>
-    public BgArtworkBindings BgArtwork { get; }
 
     /// <summary>
     /// Gameplay's colours, initialized from the installed initial palette; the positions Samus holds are her colours

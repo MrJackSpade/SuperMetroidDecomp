@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Core.Rooms;
@@ -13,6 +14,8 @@ internal static class RoomCharacterAtlasesNative
         internal RoomCharacterAtlas GetAt(int address) => catalog.Get(RoomTilesetNative.CharacterSetAt(address));
 
         /// <summary>The content identity the installation records for the catalog.</summary>
-        internal string ContentIdentity => RoomTilesetSources.CharacterIdentity(catalog);
+        internal string ContentIdentity => SelectedPresentationHash.FromNamedTransfers(
+            nameof(RoomCharacterAtlases), catalog.Sheets.ToDictionary(pair => pair.Key.ToString(), pair => pair.Value),
+            atlas => atlas.Characters, catalog.Cre.Characters);
     }
 }

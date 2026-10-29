@@ -127,13 +127,10 @@ internal static class FrontendRomFreeVerification
         var objects = installation.LoadStandardObjects();
         var intro = installation.LoadIntroCinematicArt();
         var samus = installation.LoadSamusBodyArt();
-        var characters = installation.LoadRoomCharacters();
         var roomPalettes = installation.LoadRoomPalettes();
         var blockSheets = installation.LoadRoomBlockSheets();
         var visualLayouts = installation.LoadRoomVisualLayouts();
         var levelStreams = installation.LoadRoomLevelStreams();
-        var backgrounds = installation.LoadRoomBackgroundTilemaps();
-        var sky = installation.LoadRoomSkyTilemaps();
         var samusEaterVisuals = installation.LoadRoomPlmSamusEaterVisuals();
         var assetRoomPlmShotBlockVisuals = installation.LoadRoomPlmShotBlockVisuals();
         var assetRoomPlmGrappleBlockVisuals = installation.LoadRoomPlmGrappleBlockVisuals();
@@ -216,13 +213,10 @@ internal static class FrontendRomFreeVerification
             game.BindArtwork(game.Artwork with
             {
                 SamusBodyArt = samus,
-                RoomCharacterArt = characters,
                 RoomPaletteArt = roomPalettes,
                 RoomBlockSheets = blockSheets,
                 RoomVisualLayouts = visualLayouts,
                 RoomLevelStreams = levelStreams,
-                RoomBackgroundTilemapArt = backgrounds,
-                RoomSkyTilemapArt = sky,
                 RoomPlmSamusEaterVisuals = samusEaterVisuals,
                 BeamPalettes = projectiles.BeamTiles.Palettes,
                 HyperBeamFxColors = projectiles.BeamTiles.HyperBeamFxColors,

@@ -80,7 +80,6 @@ internal static class RoomVisualLayoutsVerification
         // Exercise the real room loader for every selectable state, not merely
         // representative addresses. Each state's compressed level source is
         // forbidden, so an accidental ROM fallback fails at its first read.
-        RoomCharacterAtlases characters = installed.LoadRoomCharacters();
         RoomStaticPalettes palettes = installed.LoadRoomPalettes();
         int stateCount = 0;
         int slopeBlocks = 0;
@@ -98,7 +97,7 @@ internal static class RoomVisualLayoutsVerification
                 int bg2Offset = 2 + layerBytes + blockCount;
                 int availableBg2 = Math.Min(layerBytes, native.Length - bg2Offset);
                 RoomLevelData loaded = LoadFixtureRoomAssets(room,
-                    characterArt: characters, paletteArt: palettes,
+                    paletteArt: palettes,
                     visualLayouts: stock, levelStreams: levelStreams).LevelData;
                 AssertEqual(blockCount, loaded.Size.X * loaded.Size.Y,
                     $"room ${header.Pointer:X4} state ${statePointer:X4} physical allocation");

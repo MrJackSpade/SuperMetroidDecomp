@@ -5,8 +5,9 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
-/// The installed pre-coloured room artwork (#1392): the block sheet of each tileset a room can load, and the image of each
-/// library background a room state loads.
+/// The installed pre-coloured room artwork (#1392, #1466): the block sheet of each tileset a room can load with the
+/// appearance inputs its blocks depend on, the image of each library background a room state loads, and the sheets of the
+/// words written over the rooms' backgrounds.
 /// </summary>
 public sealed class InstalledRoomArtwork
 {
@@ -67,17 +68,6 @@ public sealed class InstalledRoomArtwork
     /// <summary>The sheets of the HUD's and room effects' BG3 words, by the tileset whose colours they show in.</summary>
     public IReadOnlyDictionary<TilesetDefinition, TileWordSheet> Bg3Words { get; }
 
-    /// <summary>
-    /// The characters animations paint in each tileset's rooms (#1406), as asset extraction declared them when it pictured
-    /// the animations' frames; a tileset absent here has none.
-    /// </summary>
-    public IReadOnlyDictionary<TilesetDefinition, RoomAnimatedCharacters> Animations { get; init; } =
-        new Dictionary<TilesetDefinition, RoomAnimatedCharacters>();
-
-    /// <summary>The characters animations paint in <paramref name="tileset"/>'s rooms; none when extraction declared none.</summary>
-    public RoomAnimatedCharacters AnimationsOf(TilesetDefinition tileset) =>
-        Animations.TryGetValue(tileset, out RoomAnimatedCharacters? animations) ? animations : RoomAnimatedCharacters.None;
-
     /// <summary>The floor tiles of each Ceres tileset.</summary>
     public IReadOnlyDictionary<TilesetDefinition, FloorTileSheet> FloorTiles { get; }
 
@@ -107,23 +97,25 @@ public sealed class InstalledRoomArtwork
         {
             content.AppendName("tileset", RoomBlockSheet.NameOf(tileset));
             sheet.Sheet.AppendIdentity(content);
-            sheet.Characters.AppendIdentity(content);
+            sheet.Inputs.AppendIdentity(content);
         }
         foreach ((string name, RoomBackgroundImage background) in Backgrounds.OrderBy(entry => entry.Key, StringComparer.Ordinal))
         {
             content.AppendName("background", name);
             background.Sheet.AppendIdentity(content);
-            content.AppendTiles("tiles", background.Tiles.AsSpan());
+            foreach (RoomBackgroundCell cell in background.Cells)
+            {
+                content.Append("cell", cell.Cell);
+                content.AppendName("picture", cell.Picture);
+                AppendInputs(content, cell.Inputs);
+            }
         }
         foreach (FloorTileSheet tiles in FloorTiles.Values.OrderBy(tiles => tiles.Name, StringComparer.Ordinal))
         {
             content.AppendName("mode7", tiles.Name);
             tiles.Sheet.AppendIdentity(content);
-            foreach (BgArtworkShown? shown in tiles.Shown)
-            {
-                content.AppendName("artwork", shown?.Artwork.Name ?? "");
-                content.Append("offset", shown?.WordOffset ?? -1);
-            }
+            foreach (bool pictured in tiles.Pictured)
+                content.AppendName("pictured", pictured ? "yes" : "no");
         }
         foreach (MessageBoxSheet messages in MessageBoxes.Values.OrderBy(messages => messages.Name, StringComparer.Ordinal))
         {
@@ -135,21 +127,6 @@ public sealed class InstalledRoomArtwork
                 content.AppendTiles("tiles", tiles.AsSpan());
             }
         }
-        foreach ((TilesetDefinition tileset, RoomAnimatedCharacters animations) in Animations.OrderBy(entry => RoomBlockSheet.NameOf(entry.Key), StringComparer.Ordinal))
-        {
-            content.AppendName("animated", RoomBlockSheet.NameOf(tileset));
-            foreach (AnimatedPage animated in new AnimatedPage[] { new("blocks", animations.Blocks), new("objects", animations.ObjectPage), new("bg3", animations.Bg3) })
-            {
-                string page = animated.Name;
-                AnimatedCharacters characters = animated.Characters;
-                foreach (AnimatedCharacterRun run in characters.Runs)
-                {
-                    content.AppendName(page, run.Animation.Name);
-                    content.Append("first", run.FirstCharacter);
-                    content.Append("count", run.CharacterCount);
-                }
-            }
-        }
         foreach (TileWordSheet words in TileWords.Values.Concat(Bg3Words.Values).OrderBy(words => words.Name, StringComparer.Ordinal))
         {
             content.AppendName("words", words.Name);
@@ -157,14 +134,28 @@ public sealed class InstalledRoomArtwork
             foreach (TileWordSheetTile tile in words.Tiles)
             {
                 content.AppendTiles("tile", [tile.Tile.Tile]);
-                content.AppendName("artwork", tile.Tile.Shown.Artwork.Name);
-                content.Append("offset", tile.Tile.Shown.WordOffset);
+                content.AppendName("appearance", tile.Tile.Appearance);
                 content.AppendName("frame", tile.Frame);
                 content.Append("x", tile.Corner.X);
                 content.Append("y", tile.Corner.Y);
             }
+            foreach ((BackgroundTile tile, ImmutableArray<AppearanceInput> inputs) in words.Inputs.OrderBy(entry => entry.Key.Tile)
+                .ThenBy(entry => entry.Key.ColourVariant).ThenBy(entry => entry.Key.FlipHorizontally).ThenBy(entry => entry.Key.FlipVertically)
+                .ThenBy(entry => entry.Key.HighPriority))
+            {
+                content.AppendTiles("depends", [tile]);
+                AppendInputs(content, inputs);
+            }
         }
     });
+
+    /// <summary>Appends the tokens of <paramref name="inputs"/> to a content identity.</summary>
+    private static void AppendInputs(SelectedPresentationHash content, ImmutableArray<AppearanceInput> inputs)
+    {
+        content.Append("inputs", inputs.Length);
+        foreach (AppearanceInput input in inputs)
+            content.AppendName("input", input.Token);
+    }
 
     /// <summary>The library background image named <paramref name="name"/>.</summary>
     /// <exception cref="InvalidDataException">No such image is installed.</exception>
@@ -176,7 +167,4 @@ public sealed class InstalledRoomArtwork
     /// <exception cref="InvalidDataException">No sheet is installed for the tileset.</exception>
     public RoomBlockSheet Get(TilesetDefinition tileset) =>
         Sheets.TryGetValue(tileset, out RoomBlockSheet? sheet) ? sheet : throw new InvalidDataException($"No block sheet is installed for {tileset}.");
-
-    /// <summary>One of a tileset's animated character pages, by the name its runs are written under.</summary>
-    private sealed record AnimatedPage(string Name, AnimatedCharacters Characters);
 }

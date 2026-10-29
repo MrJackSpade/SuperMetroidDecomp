@@ -1,7 +1,6 @@
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -34,7 +33,7 @@ internal static class RoomBackgroundTilemapsVerification
         {
             byte[] native = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), source);
             RoomBackgroundTilemapAtlas atlas = RoomBackgroundTilemapAtlas.Load(
-                new MemoryStream(files[RoomBackgroundTilemapFormat.FileName(tilemap)],
+                new MemoryStream(files[RoomBackgroundTilemapArtworkFiles.FileName(tilemap)],
                     writable: false), native.Length);
             AssertTrue(atlas.Bytes.Span.SequenceEqual(native),
                 $"background tilemap {tilemap} preserves all native tile words");
@@ -54,7 +53,7 @@ internal static class RoomBackgroundTilemapsVerification
             "Ceres library BG executes installed tilemap with exact VRAM parity and no source reread");
 
         byte[] original = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), ceresSource);
-        JsonNode edited = JsonNode.Parse(files[RoomBackgroundTilemapFormat.FileName(ceresTilemap)])
+        JsonNode edited = JsonNode.Parse(files[RoomBackgroundTilemapArtworkFiles.FileName(ceresTilemap)])
             ?? throw new InvalidDataException("Ceres background JSON is empty.");
         JsonNode firstCell = edited.Required("pages").Required(0).Required("cells").Required(0);
         firstCell["tileColumn"] = (firstCell.Required("tileColumn").GetValue<int>() + 1)

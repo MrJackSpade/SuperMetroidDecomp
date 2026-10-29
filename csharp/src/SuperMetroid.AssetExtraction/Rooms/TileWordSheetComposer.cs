@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.Video;
@@ -8,17 +9,17 @@ using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Artwork;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
-/// Pre-assembles and pre-colours the tile words written over each tileset's rooms (#1392): one image of each part each
-/// writer writes over BG1 or BG2 (typed text) or BG3 (an effect's page), coloured with the tileset's standard palette
-/// over the characters the room has loaded, and each tile word pictured again over each artwork the room binds after
-/// loading at its character. BG3's sheet also pictures each of the HUD's images as its own frame (#1466).
+/// Pre-assembles and pre-colours the tile words written over each tileset's rooms (#1392, #1466): one image of each part
+/// each writer writes over BG1 or BG2 (typed text) or BG3 (an effect's page), coloured with the tileset's standard
+/// palette over the characters the room has loaded, and each tile word pictured again for each value of the appearance
+/// inputs that reach its character, with the inputs each word depends on. BG3's sheet also pictures each of the HUD's
+/// images as its own frame.
 /// </summary>
 internal static class TileWordSheetComposer
 {
@@ -41,22 +42,21 @@ internal static class TileWordSheetComposer
         Ensure.NotNull(uploads);
         List<NamedPart> parts = [.. Ensure.NotNull(writers).Order()
             .SelectMany(writer => Parts(inputs, writer).Select(part => new NamedPart($"{writer}.{part.Name}", part.Part)))];
-        // Words over the OBJ character table show only what its load and encounters place there, never the tileset's.
-        return Compose(inputs, tileset, TileWordLayer.Bg12, parts, content, new TileWordBindings(
-            uploads.WordCharacters == RoomBackgroundCharacters.ObjectCharacterPage ? [] : uploads.Uploads, [BgCharacterSet.Tiles], uploads.WordUploads));
+        // Words over the sprites' artwork show only what its load and encounters place there, never the tileset's.
+        return Compose(inputs, tileset, TileWordLayer.Bg12, parts, content, new TileWordOptions(
+            uploads.WordArtwork == RoomBlockArtwork.Sprites ? [] : uploads.Options, BgCharacterSet.Tiles, uploads.WordUploads));
     }
 
     /// <summary>
     /// Composes the sheet of the BG3 words a room of <paramref name="tileset"/> shows: each of the HUD's images as its own
-    /// frame (#1466) and the pages of the room effects its rooms run, over the HUD's and effects' characters in each set
-    /// BG3 reads, and over each of <paramref name="bg3Uploads"/>, what any room binds over BG3's characters.
+    /// frame (#1466) and the pages of the room effects its rooms run, over the HUD's characters, and again for each frame
+    /// its rooms' effects animate over BG3's characters (#1406).
     /// </summary>
     /// <exception cref="InvalidDataException">
-    /// A part reads a character nothing the room loads is bound over, or a HUD image reads a character a room can show
-    /// other artwork at.
+    /// A part reads a character nothing the room loads is bound over, or a HUD image reads a character an appearance input
+    /// can show other artwork at.
     /// </exception>
-    internal static ComposedTileWordSheet ComposeBg3(RoomBlockSheetInputs inputs, TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads,
-        IReadOnlyList<BgCharacterUpload> bg3Uploads)
+    internal static ComposedTileWordSheet ComposeBg3(RoomBlockSheetInputs inputs, TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads)
     {
         Ensure.NotNull(inputs);
         Ensure.NotNull(uploads);
@@ -66,7 +66,7 @@ internal static class TileWordSheetComposer
             Fill(Layer3Plane.ClearedCell)];
         return Compose(inputs, tileset, TileWordLayer.Bg3, parts,
             uploads.Bg3Content ?? throw new InvalidDataException($"No room of {tileset} records what BG3 shows over."),
-            new TileWordBindings([RoomBlockUploads.HudCharacters(inputs), .. bg3Uploads, .. uploads.Uploads], [BgCharacterSet.Layer3], []),
+            new TileWordOptions(uploads.Bg3Options, BgCharacterSet.Layer3, []),
             [.. HudFrames(hud)]);
     }
 
@@ -96,8 +96,8 @@ internal static class TileWordSheetComposer
 
     /// <summary>
     /// Composes <paramref name="layer"/>'s sheet of <paramref name="parts"/> over <paramref name="content"/>, which binds
-    /// <paramref name="bindings"/>' bound artwork beyond the room's load, each word's character read in the first of its
-    /// sets, and each word pictured again over each of its options covering its character in any of them; each of
+    /// <paramref name="options"/>' bound artwork beyond the room's load, each word's character read in the options' set,
+    /// and each word pictured again for each value of the inputs whose options reach its character; each of
     /// <paramref name="partFrames"/> is cut from within its part.
     /// </summary>
     /// <exception cref="InvalidDataException">
@@ -105,19 +105,21 @@ internal static class TileWordSheetComposer
     /// option shows other artwork at.
     /// </exception>
     private static ComposedTileWordSheet Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset, TileWordLayer layer,
-        List<NamedPart> parts, BgArtworkBindings content, TileWordBindings bindings, IReadOnlyList<PartFrame>? partFrames = null)
+        List<NamedPart> parts, BgArtworkBindings content, TileWordOptions options, IReadOnlyList<PartFrame>? partFrames = null)
     {
         Ensure.NotNull(content);
-        int characterWords = TileWordSheet.CharacterWordsOf(layer);
+        int characterWords = CharacterWordsOf(layer);
         IReadOnlyList<BgCharacterUpload> load = RoomBlockUploads.LoadUploads(inputs, tileset);
-        Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = load.Append(RoomBlockUploads.HudCharacters(inputs)).Concat(bindings.Options).Concat(bindings.Bound)
+        Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = load.Append(RoomBlockUploads.HudCharacters(inputs))
+            .Concat(options.Options.Select(option => option.Upload)).Concat(options.Bound)
             .GroupBy(upload => upload.Identity).ToDictionary(group => group.Key, group => group.First().Bytes);
         RgbColor[] colours = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
 
         var tiles = new List<TileWordSheetTile>();
-        // The parts frames are cut from picture fixed images, whose characters no room may show otherwise.
+        // The parts frames are cut from picture fixed images, whose characters no appearance input may show otherwise.
         HashSet<string> imageParts = [.. (partFrames ?? []).Select(frame => frame.Part)];
-        var pictured = new HashSet<ShownWord>();
+        var wordInputs = new Dictionary<BackgroundTile, ImmutableArray<AppearanceInput>>();
+        var pictured = new HashSet<TileWordAppearance>();
         var placed = new List<PlacedWord>();
         int top = 0;
         foreach (NamedPart part in parts)
@@ -134,31 +136,37 @@ internal static class TileWordSheetComposer
                 Position16<TilemapCells> cell = entry.Key;
                 var word = new SnesBgTilemapWord(entry.Value);
                 int character = word.CharacterIndex;
-                if (!content.TryShowing(bindings.Sets[0], character, 1, out BgArtworkShown shown))
-                    throw new InvalidDataException($"{TileWordSheet.NameOf(layer, tileset)} part {part.Name} reads {bindings.Sets[0]} character {character}, which its room loads nothing over.");
-                // A HUD image is one fixed picture (#1466): no room may show other artwork at a character it reads.
-                if (imageParts.Contains(part.Name))
-                    RequireFixedCharacter(bindings, shown, bytes, character, characterWords, $"{TileWordSheet.NameOf(layer, tileset)} part {part.Name}");
-                var shownWord = new ShownWord(word, shown);
-                placed.Add(new PlacedWord(top, shownWord, cell));
-                if (pictured.Add(shownWord))
-                    tiles.Add(new TileWordSheetTile(new BgTileArtwork(BackgroundTileWords.ToTile(word.Raw), shown), part.Name, Corner(cell)));
+                BackgroundTile tile = BackgroundTileWords.ToTile(word.Raw);
+                ImmutableArray<AppearanceInput> depends = InputsOf(tile, character);
+                // A HUD image is one fixed picture (#1466): no appearance input may show other artwork at a character it reads.
+                if (imageParts.Contains(part.Name) && !depends.IsEmpty)
+                    throw new InvalidDataException(
+                        $"{TileWordSheet.NameOf(layer, tileset)} part {part.Name} reads {options.Set} character {character}, which a room can show other artwork at.");
+                string[] loaded = [.. Enumerable.Repeat(RoomAppearanceValues.Loaded, depends.Length)];
+                if (!RoomAppearanceComposition.TryShowing(options.Set, character, 1, depends, loaded, options.Options, content, out BgArtworkShown shown))
+                    throw new InvalidDataException($"{TileWordSheet.NameOf(layer, tileset)} part {part.Name} reads {options.Set} character {character}, which its room loads nothing over.");
+                var appearance = new TileWordAppearance(tile, AppearancePictureNames.Spelling(depends, loaded));
+                placed.Add(new PlacedWord(top, new ShownWord(word, shown), cell));
+                if (pictured.Add(appearance))
+                    tiles.Add(new TileWordSheetTile(appearance, part.Name, Corner(cell)));
             }
             top += part.Part.Rows;
         }
-        // A word the room shows over artwork it binds after loading is pictured once more over that artwork.
-        var rebound = new List<ShownWord>();
+        // A word an appearance input reaches is pictured once more for each value of its inputs but the room's load.
+        var rebound = new List<ReboundWord>();
         foreach (SnesBgTilemapWord word in placed.Select(tile => tile.Shown.Word).Distinct())
         {
             int character = word.CharacterIndex;
-            foreach (BgCharacterSet set in bindings.Sets)
+            BackgroundTile tile = BackgroundTileWords.ToTile(word.Raw);
+            ImmutableArray<AppearanceInput> depends = InputsOf(tile, character);
+            foreach (string[] values in RoomAppearanceComposition.Assignments(depends, options.Options, withLoaded: true))
             {
-                foreach (BgCharacterUpload placement in bindings.Options.Where(placement => placement.Covers(set, character)))
-                {
-                    var again = new ShownWord(word, placement.ShownAt(character));
-                    if (pictured.Add(again))
-                        rebound.Add(again);
-                }
+                if (values.All(value => value == RoomAppearanceValues.Loaded)
+                    || !RoomAppearanceComposition.TryShowing(options.Set, character, 1, depends, values, options.Options, content, out BgArtworkShown shown))
+                    continue;
+                var again = new TileWordAppearance(tile, AppearancePictureNames.Spelling(depends, values));
+                if (pictured.Add(again))
+                    rebound.Add(new ReboundWord(new ShownWord(word, shown), again));
             }
         }
         int reboundRows = (rebound.Count + PartTiles - 1) / PartTiles;
@@ -168,9 +176,8 @@ internal static class TileWordSheetComposer
         for (int index = 0; index < rebound.Count; index++)
         {
             var cell = new Position16<TilemapCells>((ushort)(index % PartTiles), (ushort)(index / PartTiles));
-            Paint(new(cell.X, (ushort)(top + cell.Y)), rebound[index]);
-            tiles.Add(new TileWordSheetTile(new BgTileArtwork(BackgroundTileWords.ToTile(rebound[index].Word.Raw), rebound[index].Shown),
-                TileWordSheet.ReboundFrameName, Corner(cell)));
+            Paint(new(cell.X, (ushort)(top + cell.Y)), rebound[index].Shown);
+            tiles.Add(new TileWordSheetTile(rebound[index].Appearance, TileWordSheet.ReboundFrameName, Corner(cell)));
         }
 
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
@@ -189,7 +196,16 @@ internal static class TileWordSheetComposer
             var corner = new Position16<TilemapCells>(frame.Cell.X, checked((ushort)(partTops[frame.Part] + frame.Cell.Y)));
             frames.Add(frame.Name, Frame(canvas, HudImageSheet.Pixels(corner), HudImageSheet.Pixels(frame.Size), layer));
         }
-        return new ComposedTileWordSheet(layer, tileset, canvas.ToRoomSheet(colours, frames, TileWordSheet.ColoursOf(layer)), tiles);
+        return new ComposedTileWordSheet(layer, tileset, canvas.ToRoomSheet(colours, frames, TileWordSheet.ColoursOf(layer)), tiles, wordInputs);
+
+        // The inputs whose options reach `tile`'s character, recorded for the tile when there are any.
+        ImmutableArray<AppearanceInput> InputsOf(BackgroundTile tile, int character)
+        {
+            ImmutableArray<AppearanceInput> depends = RoomAppearanceComposition.InputsOver(options.Set, [character], options.Options);
+            if (!depends.IsEmpty)
+                wordInputs[tile] = depends;
+            return depends;
+        }
 
         void Paint(Position16<TilemapCells> cell, ShownWord word)
         {
@@ -201,6 +217,10 @@ internal static class TileWordSheetComposer
                 canvas.PaintTile(x, y, word.Word, character, colours);
         }
     }
+
+    /// <summary>VRAM words in one of <paramref name="layer"/>'s characters: BG3's are two-bit, BG1's and BG2's four-bit.</summary>
+    private static int CharacterWordsOf(TileWordLayer layer) =>
+        (layer == TileWordLayer.Bg3 ? BgCharacterSet.Layer3 : BgCharacterSet.Tiles).CharacterBytes() / sizeof(ushort);
 
     /// <summary>The pixel corner of the tile at <paramref name="cell"/> within its frame.</summary>
     private static Position16<ImagePixels> Corner(Position16<TilemapCells> cell) =>
@@ -289,27 +309,6 @@ internal static class TileWordSheetComposer
         return new BodyPart([.. runs]);
     }
 
-    /// <summary>
-    /// Requires that no option shows other artwork at <paramref name="character"/> than <paramref name="shown"/>, the
-    /// artwork a fixed image cut from <paramref name="part"/> pictures there (#1466): a HUD image is one picture, which no
-    /// room's bindings re-resolve.
-    /// </summary>
-    /// <exception cref="InvalidDataException">An option shows other bytes at the character.</exception>
-    private static void RequireFixedCharacter(TileWordBindings bindings, BgArtworkShown shown,
-        Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes, int character, int characterWords, string part)
-    {
-        int length = characterWords * sizeof(ushort);
-        ReadOnlySpan<byte> pictured = bytes[shown.Artwork].Span.Slice(shown.WordOffset * sizeof(ushort), length);
-        foreach (BgCharacterUpload option in bindings.Options)
-        {
-            if (!option.Covers(bindings.Sets[0], character))
-                continue;
-            BgArtworkShown other = option.ShownAt(character);
-            if (!option.Bytes.Span.Slice(other.WordOffset * sizeof(ushort), length).SequenceEqual(pictured))
-                throw new InvalidDataException($"{part} pictures {bindings.Sets[0]} character {character} as {shown.Artwork.Name} shows it, but {option.Identity.Name} can show other artwork there.");
-        }
-    }
-
     /// <summary>A room effect's page, as the tilemap words of its tiles lay it out.</summary>
     private static BodyPart Page(ReadOnlySpan<BackgroundTile> page) => Rows(BackgroundTileWords.ToWords(page));
 
@@ -364,6 +363,11 @@ internal static class TileWordSheetComposer
     /// <param name="Shown">The artwork it shows.</param>
     private readonly record struct ShownWord(SnesBgTilemapWord Word, BgArtworkShown Shown);
 
+    /// <summary>A word pictured again for other values of its inputs.</summary>
+    /// <param name="Shown">The word as it shows for them.</param>
+    /// <param name="Appearance">The word and the values it is pictured for.</param>
+    private readonly record struct ReboundWord(ShownWord Shown, TileWordAppearance Appearance);
+
     /// <summary>A word placed in its part.</summary>
     /// <param name="PartTop">The sheet row its part starts at.</param>
     /// <param name="Shown">The word as it shows.</param>
@@ -371,9 +375,9 @@ internal static class TileWordSheetComposer
     private readonly record struct PlacedWord(int PartTop, ShownWord Shown, Position16<TilemapCells> Cell);
 
     /// <summary>What a layer's words are shown over beyond the room's load.</summary>
-    /// <param name="Options">Artwork any room binds over the layer's characters, each word pictured again over.</param>
-    /// <param name="Sets">The character sets the layer reads, the first the one its words are read in.</param>
-    /// <param name="Bound">Artwork the room binds beyond its load.</param>
-    private sealed record TileWordBindings(IReadOnlyList<BgCharacterUpload> Options, BgCharacterSet[] Sets, IReadOnlyList<BgCharacterUpload> Bound);
+    /// <param name="Options">What the rooms show over the layer's characters after loading, each word pictured again for.</param>
+    /// <param name="Set">The character set the layer's words read.</param>
+    /// <param name="Bound">Artwork the room binds beyond its load, which its words show over.</param>
+    private sealed record TileWordOptions(IReadOnlyList<AppearanceOption> Options, BgCharacterSet Set, IReadOnlyList<BgCharacterUpload> Bound);
 }
 

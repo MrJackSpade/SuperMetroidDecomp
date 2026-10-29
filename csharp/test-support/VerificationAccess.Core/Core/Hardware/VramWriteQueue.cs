@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Rooms.Artwork;
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>
@@ -128,9 +129,12 @@ public sealed class VramWriteQueue
     /// <param name="vram">VRAM receiving the transfers.</param>
     /// <param name="assets">Resolves installed artwork transfers and named owned sources.</param>
     /// <param name="objects">Records what each transfer that reaches the OBJ character table shows, when gameplay draws from it.</param>
-    /// <param name="backgrounds">Binds the queued background character artwork (#1350); required when any is queued.</param>
+    /// <param name="backgrounds">
+    /// The room appearance whose native bindings the queued background character artwork binds into (#1350, #1466); required
+    /// when any is queued.
+    /// </param>
     public void DrainTo(SnesVram vram, IInstalledArtworkContent? assets = null, SpriteArtworkPlacements? objects = null,
-        BgArtworkBindings? backgrounds = null)
+        RoomAppearance? backgrounds = null)
     {
         Ensure.NotNull(vram);
 
@@ -196,15 +200,16 @@ public sealed class VramWriteQueue
     }
 
     /// <summary>Binds a queued background artwork transfer at its destination; it moves consecutive words.</summary>
-    private static void BindBackground(BgArtworkBindings? backgrounds, VramWriteEntry entry, BgArtworkIdentity identity, ReadOnlySpan<byte> bytes)
+    private static void BindBackground(RoomAppearance? backgrounds, VramWriteEntry entry, BgArtworkIdentity identity, ReadOnlySpan<byte> bytes)
     {
         if (backgrounds is null)
             throw new InvalidOperationException($"Queued background artwork {identity.Name} has no bindings to drain into.");
         if (entry.Destination.WordIncrement != 1)
             throw new InvalidDataException($"Background artwork {identity.Name} must upload consecutive words.");
         byte[] artwork = bytes.ToArray();
-        BgCharacterWords.Place(identity, entry.Destination.Word, artwork).BindTo(backgrounds);
-        BgArtworkFixtures.RecordDrained(backgrounds, identity, artwork);
+        BgArtworkBindings bindings = BgArtworkFixtures.BindingsOf(backgrounds);
+        BgCharacterWords.Place(identity, entry.Destination.Word, artwork).BindTo(bindings);
+        BgArtworkFixtures.RecordDrained(bindings, identity, artwork);
     }
 
     /// <summary>

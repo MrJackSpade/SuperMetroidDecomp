@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -52,10 +53,10 @@ internal sealed class EnemyPresentation
         get => field ?? throw new InvalidOperationException("Enemy presentation has no bound CGRAM; the room's video memory must be bound first.");
         private set;
     }
-    /// <summary>The room's background artwork bindings, through which enemy background characters show (#1352).</summary>
-    internal BgArtworkBindings Backgrounds
+    /// <summary>What gameplay shows over the room's load (#1466), as Kraid's rise shows his backdrop.</summary>
+    internal RoomAppearance Appearance
     {
-        get => field ?? throw new InvalidOperationException("Enemy presentation has no bound background artwork; the room's video memory must be bound first.");
+        get => field ?? throw new InvalidOperationException("Enemy presentation has no bound room appearance; the room must be bound first.");
         private set;
     }
 
@@ -66,12 +67,12 @@ internal sealed class EnemyPresentation
     internal ArtworkFrameSelections ArtworkFrames { get; private set; } = new();
 
     /// <summary>
-    /// Room load: binds the room's background artwork and the room's animation frames, or a fresh set no animation has
-    /// selected in when <paramref name="frames"/> is null.
+    /// Room load: binds what gameplay shows over the room's backgrounds and the room's animation frames, or a fresh set no
+    /// animation has selected in when <paramref name="frames"/> is null.
     /// </summary>
-    internal void BindBackgrounds(BgArtworkBindings backgrounds, ArtworkFrameSelections? frames = null)
+    internal void BindBackgrounds(RoomAppearance appearance, ArtworkFrameSelections? frames = null)
     {
-        Backgrounds = Ensure.NotNull(backgrounds);
+        Appearance = Ensure.NotNull(appearance);
         ArtworkFrames = frames ?? new ArtworkFrameSelections();
     }
 

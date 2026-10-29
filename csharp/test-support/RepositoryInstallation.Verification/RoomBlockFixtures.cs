@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Assets;
@@ -20,11 +21,11 @@ internal static class RoomBlockFixtures
     private const int BlockTiles = 4;
 
     /// <summary>
-    /// The characters each of <paramref name="count"/> fixture blocks reads (#1431): a fixture table names its pictures by
-    /// block, so each block records one run, which only satisfies the sheet's record of its blocks.
+    /// The appearance inputs each of <paramref name="count"/> fixture blocks depends on (#1466): a fixture table names its
+    /// pictures by block, so no block depends on any, which only satisfies the sheet's record of its blocks.
     /// </summary>
-    internal static RoomBlockCharacters Characters(int count) => new(default(TilesetDefinition).Blocks,
-        Enumerable.Range(0, count).Select(_ => new[] { new RoomBlockCharacterRun(0, 1) }));
+    internal static RoomBlockAppearances Appearances(int count) =>
+        new([.. Enumerable.Range(0, count).Select(_ => ImmutableArray<AppearanceInput>.Empty)], null);
 
     /// <summary>
     /// The picture of each of <paramref name="definitions"/>' blocks, four tiles each, its characters read from <paramref name="characterWord"/>
@@ -70,7 +71,7 @@ internal static class RoomBlockFixtures
         ComposedSpriteSheet composed = canvas.ToRoomSheet(colours, frames);
         SpriteSheet sheet = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(composed.Manifest), writable: false), "blocks-fixture",
             composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities, composed.PartGroups);
-        return new RoomBlockPictureTable(new RoomBlockSheet(default(TilesetDefinition), sheet, Characters(count)),
+        return new RoomBlockPictureTable(new RoomBlockSheet(default(TilesetDefinition), sheet, Appearances(count)),
             [.. Enumerable.Range(0, count).Select(block => (SpriteSheetFrame?)sheet.Frame($"{block}"))]);
     }
 
@@ -118,7 +119,7 @@ internal static class RoomBlockFixtures
         ComposedSpriteSheet composed = canvas.ToRoomSheet(colours, frames);
         SpriteSheet sheet = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(composed.Manifest), writable: false), "loaded-background-fixture",
             composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities, composed.PartGroups);
-        var background = new RoomBackgroundImage("loaded-background-fixture", sheet, [.. BackgroundTileWordBytes.Tiles(words)]);
+        var background = new RoomBackgroundImage("loaded-background-fixture", sheet, []);
         return new RoomBackgroundImagePlane(background, new SpriteSheetFrame?[background.CellCount]);
     }
 }

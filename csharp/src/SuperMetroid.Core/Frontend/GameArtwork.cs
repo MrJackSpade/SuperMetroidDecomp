@@ -64,9 +64,6 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>Ending palettes.</summary>
     public EndingPaletteSet? EndingPaletteArt { get; init; }
 
-    /// <summary>Room tileset characters.</summary>
-    public RoomCharacterAtlases? RoomCharacterArt { get; init; }
-
     /// <summary>Room static palettes.</summary>
     public RoomStaticPalettes? RoomPaletteArt { get; init; }
 
@@ -159,12 +156,6 @@ public sealed record GameArtwork : IGameplayArtwork
 
     /// <summary>X-ray reveal operands and item and special-room overlays.</summary>
     public InstalledXrayReveals? XrayRevealVisuals { get; init; }
-
-    /// <summary>Room background tilemaps.</summary>
-    public RoomBackgroundTilemaps? RoomBackgroundTilemapArt { get; init; }
-
-    /// <summary>Room sky tilemaps.</summary>
-    public RoomSkyTilemaps? RoomSkyTilemapArt { get; init; }
 
     /// <summary>Timed projectile frame sprite choices.</summary>
     public InstalledProjectileFrameBindings? ProjectileFrameBindings { get; init; }

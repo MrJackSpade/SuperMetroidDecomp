@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <summary>
 /// The uploads each encounter makes over the OBJ characters after its room loads, and the picture of a frame drawn over
 /// them that shows (#1392, #1463). Core names the looks; this catalogue knows where each lands, which looks replace which,
-/// how a picture's name spells what each region shows, and what the Ceres Ridley arena's backgrounds read.
+/// and how a picture's name spells what each region shows.
 /// </summary>
 /// <param name="byEnemy">Each enemy's encounter's uploads, by the enemy whose graphics set loads the encounter.</param>
 internal sealed class EncounterCharacterCatalog(IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<SpriteArtworkPlacement>> byEnemy)
@@ -29,6 +29,16 @@ internal sealed class EncounterCharacterCatalog(IReadOnlyDictionary<EnemyDefinit
         SpriteArtworkPlacement[] matches = [.. all.Where(upload => upload.Source == source)];
         return matches.Length == 1 ? matches[0]
             : throw new InvalidDataException(matches.Length == 0 ? $"No catalogued encounter shows {source}." : $"{source} is catalogued in {matches.Length} places.");
+    }
+
+    /// <summary>The catalogued look whose name is <paramref name="name"/>, as an appearance input spells it (#1466).</summary>
+    /// <exception cref="InvalidDataException">No catalogued encounter shows a look of that name, or several do.</exception>
+    internal SpriteArtworkSource LookNamed(string name)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(name);
+        SpriteArtworkSource[] matches = [.. all.Select(upload => upload.Source).Distinct().Where(source => $"{source}" == name)];
+        return matches.Length == 1 ? matches[0]
+            : throw new InvalidDataException(matches.Length == 0 ? $"No catalogued encounter shows a look named {name}." : $"{matches.Length} catalogued looks are named {name}.");
     }
 
     /// <summary>The uploads the encounters of graphics set <paramref name="set"/>'s members make, in catalogue order.</summary>
@@ -65,11 +75,4 @@ internal sealed class EncounterCharacterCatalog(IReadOnlyDictionary<EnemyDefinit
         SpriteArtworkPlacement hidden = EncounterCharacterPlacements.Placed(earlier);
         return EncounterCharacterPlacements.Placed(later).Covers(hidden.FirstCharacter, hidden.CharacterCount);
     }
-
-    /// <inheritdoc/>
-    public IBgCharacterArtwork ObjectPage(ShownSpriteArtwork looks) =>
-        objectPages.GetValue(Ensure.NotNull(looks), shown => new ObjectPageBackground(shown));
-
-    /// <summary>Each shown-look record's background, which replays its placements only after another look is shown.</summary>
-    private readonly System.Runtime.CompilerServices.ConditionalWeakTable<ShownSpriteArtwork, ObjectPageBackground> objectPages = new();
 }

@@ -92,8 +92,6 @@ internal sealed class RoomLoader
     private readonly SharedGameState _system;
     /// <summary>Applies tester inventory overrides after saved state is restored.</summary>
     private readonly TesterTools _tester;
-    /// <summary>The background character artwork the room binds (#1350).</summary>
-    private readonly BgArtworkBindings _backgrounds;
 
 
     /// <summary>Captures the owners of room, player, graphics, and door state used by the loader.</summary>
@@ -124,7 +122,6 @@ internal sealed class RoomLoader
         _tourianStatueDependencies = dependencies.TourianStatueDependencies;
         _system = dependencies.System;
         _tester = dependencies.Tester;
-        _backgrounds = dependencies.Backgrounds;
 
     }
     /// <summary>
@@ -867,7 +864,7 @@ internal sealed class RoomLoader
             ? new ScrollingSkyState(ScrollingSkyState.VariantOf(room.State.MainCallback), skyHasBands)
             : null;
 
-        assets.LoadGraphics(_backgrounds, _colours.BackgroundSets);
+        assets.LoadGraphics(_colours.BackgroundSets);
         // Ceres rooms draw Mode 7 from their own map, which the door and Ridley then patch (#1349).
         scope.FloorMap = room.Definition.AreaIndex == AreaId.Ceres ? assets.CreateFloorMap() : null;
 
@@ -943,7 +940,7 @@ internal sealed class RoomLoader
         // serves the room's PLMs and enemies.
         var progress = new RoomAreaProgress(_system, room.AreaIndex);
         var plmServices = new RoomPlmRuntimeServices(scope, _player, _room, _system);
-        var plmRoom = new PlmRoom(assets.LevelData, _backgrounds, _system, room.AreaIndex);
+        var plmRoom = new PlmRoom(assets.LevelData, scope.Appearance, _system, room.AreaIndex);
         var plmBindings = new RoomPlmServices
         {
             Samus = plmServices,
@@ -1003,7 +1000,7 @@ internal sealed class RoomLoader
         enemies.Load(new RoomEnemyLoadRequest(
             room.State.EnemyPopulation,
             room.State.EnemyGraphicsSet,
-            _backgrounds,
+            scope.Appearance,
             _colours)
         {
             Level = assets.LevelData,
@@ -1234,19 +1231,17 @@ internal sealed class RoomLoader
     private RoomBlockPictureTable SourceScreenPictures()
     {
         RoomScope scope = _room.Scope ?? throw new InvalidOperationException("A door began with no room loaded.");
-        return scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane, null,
-            RoomCharacterSource.Of(RoomScope.CharactersOf(_room.ActiveRoom), _backgrounds, _enemySession, scope.AnimatedCharacters,
-                scope.ArtworkFrames), []);
+        return scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane, null, RoomScope.BlockArtworkOf(_room.ActiveRoom),
+            new RoomAppearanceView(scope.Appearance, scope.ArtworkFrames, _enemySession), []);
     }
 
     /// <summary>The host-bound room catalogs; room loading never substitutes cartridge artwork.</summary>
     private RoomAssetCatalogs RequireRoomAssetCatalogs() =>
-        _artwork.RoomCharacterArt is { } characters && _artwork.RoomPaletteArt is { } palettes &&
-        _artwork.RoomVisualLayouts is { } layouts &&
+        _artwork.RoomPaletteArt is { } palettes && _artwork.RoomVisualLayouts is { } layouts &&
         _artwork.RoomLevelStreams is { } levelStreams && _artwork.RoomBlockSheets is { } blockSheets
-            ? new RoomAssetCatalogs(characters, palettes, layouts, levelStreams, blockSheets)
+            ? new RoomAssetCatalogs(palettes, layouts, levelStreams, blockSheets)
             : throw new InvalidOperationException(
-                "Room loading requires installed character, palette, visual-layout, level-stream and block-sheet assets.");
+                "Room loading requires installed palette, visual-layout, level-stream and block-sheet assets.");
 
 
     /// <summary>The 16-pixel block a coordinate lies in within its 256-pixel screen.</summary>

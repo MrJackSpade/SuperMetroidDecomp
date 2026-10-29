@@ -204,7 +204,7 @@ internal static class EnemyTileArtworkKraidVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
-        Action upload = enemies.KraidBehavior.Rise.UploadKraidRoomBackgroundTiles;
+        Action upload = enemies.KraidBehavior.Rise.ShowKraidRoomBackdrop;
         upload();
         return BgArtworkFixtures.ComposedVram(vram, new BgArtworkBytes().WithKraidBackground(artwork.Bosses.KraidBackground
             ?? throw new InvalidOperationException("Verification requires installed Kraid background characters.")));

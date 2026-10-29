@@ -71,6 +71,6 @@ public enum RoomSetupCallback
     TurnCeresDoorToSolidBlocksAndSpawnHaze,
     /// <summary><c>$8F:C976 SetupASM_SpawnCeresHaze</c>: spawns the Ceres room haze during setup.</summary>
     SpawnCeresHaze,
-    /// <summary><c>$8F:C97B SetupASM_SetBG1_2_TilesBaseAddress_SpawnCeresHaze</c>: sets Ceres Ridley's background character base and spawns haze.</summary>
-    SetCeresRidleyBgCharacterBaseAndSpawnHaze,
+    /// <summary><c>$8F:C97B SetupASM_SetBG1_2_TilesBaseAddress_SpawnCeresHaze</c>: points the Ceres Ridley arena's backgrounds at the sprites' artwork and spawns haze.</summary>
+    ShowSpritesOnCeresRidleyBackgroundsAndSpawnHaze,
 }

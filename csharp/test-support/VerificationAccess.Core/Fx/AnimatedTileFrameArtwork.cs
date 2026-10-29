@@ -18,11 +18,11 @@ internal static class AnimatedTileFrameArtwork
 
     /// <summary>The cartridge source of <paramref name="frame"/>'s characters, as the cartridge's copy names it.</summary>
     /// <exception cref="InvalidDataException">No animated-tile frame is <paramref name="frame"/>.</exception>
-    internal static int SourceOf(ArtworkFrame frame) => Find(frame.Artwork).Source;
+    internal static int SourceOf(ArtworkFrame frame) => Find(BgArtworkIdentity.Frame(frame)).Source;
 
     /// <summary>The animated-tile frame <paramref name="frame"/> names, with its characters' cartridge source and how the atlas holds them.</summary>
     private static FramePicture Find(BgArtworkIdentity frame) =>
-        Frames().FirstOrDefault(candidate => candidate.Frame.Artwork == frame) ??
+        Frames().FirstOrDefault(candidate => BgArtworkIdentity.Frame(candidate.Frame) == frame) ??
             throw new InvalidDataException($"{frame.Name} is not an animated-tile frame.");
 
     /// <summary>One animated-tile frame: its characters' cartridge source and how the installed atlas holds them.</summary>

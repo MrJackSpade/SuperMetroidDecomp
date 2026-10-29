@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using System.Buffers.Binary;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -24,7 +23,7 @@ public static class RoomBackgroundTilemapExtractor
         foreach ((RoomBackgroundTilemap tilemap, int source) in RoomBackgroundSourceDefinitions.Tilemaps.OrderBy(pair => pair.Key))
         {
             byte[] native = RomDataReader.Decompress(CartridgeImportSource.Require(bus), source);
-            files.Add(RoomBackgroundTilemapFormat.FileName(tilemap), Encode(native));
+            files.Add(RoomBackgroundTilemapArtworkFiles.FileName(tilemap), Encode(native));
         }
         return files;
     }

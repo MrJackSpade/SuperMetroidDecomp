@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -22,7 +21,7 @@ internal static class CompiledDynamicCollectibleGraphicsVerification
 {
     /// <summary>
     /// Checks the compiled item graphics against the cartridge, then that a real room load names the Bombs item over its
-    /// graphics slot, which selects the slot blocks' pictures, while blocking compiled graphics ROM reads.
+    /// graphics slot, which selects the slot blocks' pictures, while blocking compiled graphics ROM reads (#1466).
     /// </summary>
     internal static void VerifyCompiledDynamicCollectibleGraphics(
         SuperMetroidAddressSpace rom)
@@ -37,16 +36,14 @@ internal static class CompiledDynamicCollectibleGraphicsVerification
         var guarded = NewRetailCollectibleGraphicsReadGuard(rom);
         const int width = 64;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64), new RoomLevelPlanes(new ushort[width * 64], new byte[width * 64], new ushort[width * 64]));
-        BgArtworkBindings backgrounds = BgArtworkFixtures.For(new SnesVram());
+        RoomAppearance appearance = BgArtworkFixtures.For(new SnesVram());
         var plms = PlmFixtures.Unbound();
-        PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, backgrounds, new SharedGameState(), AreaId.Crateria), RoomPlmPopulationDefinitions.Get(0x83fe), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, appearance, new SharedGameState(), AreaId.Crateria), RoomPlmPopulationDefinitions.Get(0x83fe), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         CollectiblePlmSnapshot bombs = plms.CollectiblePlms.Collectibles.Single(item => item.Kind == InWorldCollectibleKind.Bombs);
-        // The slot's blocks name their pictures by the collectible shown over the slot's characters (#1431, #1453); nothing
-        // is uploaded over them.
-        AssertEqual(RoomBgArtwork.Collectible(InWorldCollectibleKind.Bombs), backgrounds.Showing(BgCharacterSet.Tiles,
-                RoomTileCharacters.CollectiblesFirst + bombs.GraphicsSlot * RoomTileCharacters.CollectibleSlotCharacters,
-                RoomTileCharacters.CollectibleSlotCharacters).Artwork,
-            "retail Bombs item shows over all of its graphics slot's characters");
+        // The slot's blocks name their pictures by the collectible shown in the slot (#1431, #1453, #1466); nothing is
+        // uploaded.
+        AssertEqual<InWorldCollectibleKind?>(InWorldCollectibleKind.Bombs, appearance.CollectibleIn(bombs.GraphicsSlot),
+            "retail Bombs item shows in its graphics slot");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "retail collectible loader does not reread compiled character or palette bytes");
     }

@@ -139,9 +139,6 @@ public sealed record GameInstallation(string Root)
         EndingPaletteArtworkFiles.Load(EndingPaletteDirectory, EndingPaletteOverrideDirectory);
     /// <summary>Editable room character art stays outside the replaceable stock game directory.</summary>
     public string RoomCharacterOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomCharacterDirectoryName);
-    /// <summary>Loads validated room character atlases, selecting compatible user tile artwork for each supplied replacement.</summary>
-    public RoomCharacterAtlases LoadRoomCharacters() =>
-        RoomCharacterArtworkFiles.Load(RoomCharacterDirectory, RoomCharacterOverrideDirectory);
     /// <summary>Stock RGB5 room palettes and their source-hash manifest.</summary>
     public string RoomPaletteDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPaletteDirectoryName);
     /// <summary>Persistent RGB5 room palette replacements, preserved when stock content is rebuilt.</summary>
@@ -389,12 +386,6 @@ public sealed record GameInstallation(string Root)
         XrayRevealVisualFiles.Load(XrayRevealVisualDirectory, XrayRevealVisualOverrideDirectory);
     /// <summary>Editable BG tilemaps survive replacement of stock game content.</summary>
     public string RoomBackgroundTilemapOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomBackgroundTilemapDirectoryName);
-    /// <summary>Loads validated room background tilemaps and compatible replacements from the persistent override tree.</summary>
-    public RoomBackgroundTilemaps LoadRoomBackgroundTilemaps() =>
-        RoomBackgroundTilemapArtworkFiles.Load(RoomBackgroundTilemapDirectory, RoomBackgroundTilemapOverrideDirectory);
-    /// <summary>Loads validated sky tilemaps from the shared room-background directory and its compatible user replacements.</summary>
-    public RoomSkyTilemaps LoadRoomSkyTilemaps() =>
-        RoomSkyTilemapArtworkFiles.Load(RoomBackgroundTilemapDirectory, RoomBackgroundTilemapOverrideDirectory);
     /// <summary>Persistent projectile artwork and presentation replacements, preserved during stock rebuilds.</summary>
     public string ProjectileOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.ProjectileDirectoryName);
     /// <summary>Loads validated projectile presentation with compatible user artwork and visual-selector replacements.</summary>
@@ -431,7 +422,6 @@ public sealed record GameInstallation(string Root)
             EndingFloorArt = LoadEndingMode7Art(),
             EndingObjectArt = LoadEndingObjectArt(),
             EndingPaletteArt = LoadEndingPalettes(),
-            RoomCharacterArt = LoadRoomCharacters(),
             RoomPaletteArt = LoadRoomPalettes(),
             RoomBlockSheets = LoadRoomBlockSheets(),
             RoomVisualLayouts = LoadRoomVisualLayouts(),
@@ -463,8 +453,6 @@ public sealed record GameInstallation(string Root)
             RoomPlmMotherBrainFakeDeathVisuals = LoadRoomPlmMotherBrainFakeDeathVisuals(),
             RoomPlmCollectibleVisuals = LoadRoomPlmCollectibleVisuals(),
             XrayRevealVisuals = LoadXrayRevealVisuals(),
-            RoomBackgroundTilemapArt = LoadRoomBackgroundTilemaps(),
-            RoomSkyTilemapArt = LoadRoomSkyTilemaps(),
             ProjectileFrameBindings = projectiles.FrameBindings,
             BeamPalettes = projectiles.BeamTiles.Palettes,
             HyperBeamFxColors = projectiles.BeamTiles.HyperBeamFxColors,

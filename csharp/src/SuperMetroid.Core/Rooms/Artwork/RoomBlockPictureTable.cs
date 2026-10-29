@@ -3,8 +3,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
-/// The picture each block a room's planes use shows at one moment (#1392, #1431): the block over what the room's character
-/// bindings show. Immutable; the room resolves a new table when a block it shows or a binding it reads changes.
+/// The picture each block a room's planes use shows at one moment (#1392, #1431, #1466): the block for the values its
+/// appearance inputs take. Immutable; the room resolves a new table when a block it shows or an input it reads changes.
 /// </summary>
 public sealed class RoomBlockPictureTable
 {

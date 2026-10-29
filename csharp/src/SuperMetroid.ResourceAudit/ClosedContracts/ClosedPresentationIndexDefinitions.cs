@@ -19,7 +19,6 @@ using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.ResourceAudit.Reports;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
@@ -132,8 +131,6 @@ internal static class ClosedPresentationIndexDefinitions
         ("IntroEyeTilemapPresentation", "FrameTiles", "index") => new(0, IntroEyeTilemapFormat.FrameCount),
         ("CeresDoorVisuals", "LoadAnimationColors", "row") => new(0, CeresDoorVisualDefinitions.AnimationRowCount),
         ("CeresDoorVisuals", "PlatformFrame", "frame") => new(0, CeresDoorVisualDefinitions.PlatformFrameCount),
-        ("RoomSkyTilemaps", "Row" or "Page", "page") => new(0, RoomSkyTilemapFormat.PageCount),
-        ("RoomSkyTilemaps", "Row", "row") => new(0, RoomSkyTilemapFormat.RowsPerPage),
         ("ChargeFlarePlacements", "Resolve", "direction") => new(0, ChargeFlarePlacementDefinitions.DirectionCount),
         ("ChargeFlareSprites", "Frame", "selector") => new(0, ChargeFlareSpriteSelection.Selectors.Count),
         ("InstalledGrappleSprites", "Segment", "frame") => new(0, GrappleSpriteDefinitions.SegmentFrameCount),

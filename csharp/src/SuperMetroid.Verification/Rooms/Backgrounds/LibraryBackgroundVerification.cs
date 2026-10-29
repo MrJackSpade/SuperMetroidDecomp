@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms;
 
 using static SuperMetroid.Verification.Rooms.Backgrounds.LibraryBackgroundProgramsVerification;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;

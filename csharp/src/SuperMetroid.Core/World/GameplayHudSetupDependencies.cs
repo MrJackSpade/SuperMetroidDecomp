@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Hud;
@@ -23,7 +22,4 @@ internal sealed record GameplayHudSetupDependencies
 
     /// <summary>The room whose loaded enemy characters show again over the standard sprite characters.</summary>
     public required ActiveRoomState Room { get; init; }
-
-    /// <summary>The background artwork bindings the HUD's characters are shown through.</summary>
-    public required BgArtworkBindings Backgrounds { get; init; }
 }

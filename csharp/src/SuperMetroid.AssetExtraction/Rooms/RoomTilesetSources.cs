@@ -40,11 +40,6 @@ internal static class RoomTilesetSources
         return new(characters.ToFrozenDictionary(), blocks.ToFrozenDictionary(), palettes.ToFrozenDictionary());
     }
 
-    /// <summary>The installed content identity of the selected character sheets.</summary>
-    internal static string CharacterIdentity(RoomCharacterAtlases catalog) => SelectedPresentationHash.FromNamedTransfers(
-        nameof(RoomCharacterAtlases), catalog.Sheets.ToDictionary(pair => pair.Key.ToString(), pair => pair.Value),
-        atlas => atlas.Characters, catalog.Cre.Characters);
-
     /// <summary>The installed content identity of the selected room palettes.</summary>
     internal static string PaletteIdentity(RoomStaticPalettes catalog) => SelectedPresentationHash.FromNamedTransfers(
         nameof(RoomStaticPalettes), catalog.Palettes.ToDictionary(pair => pair.Key.ToString(), pair => pair.Value),

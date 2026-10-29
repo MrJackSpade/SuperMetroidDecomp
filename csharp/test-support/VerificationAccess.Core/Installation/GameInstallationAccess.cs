@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.AssetExtraction.Installation;
+﻿using SuperMetroid.AssetExtraction.Rooms;
+
+namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>Verification access to <see cref="GameInstallation"/> members production does not use.</summary>
 internal static class GameInstallationAccess
@@ -11,5 +13,26 @@ internal static class GameInstallationAccess
         /// (#1431); a room's blocks are changed only through their pictures in the block sheet.
         /// </summary>
         public string RoomMetatileDirectory => Path.Combine(self.ContentDirectory, GameInstallationLayout.RoomMetatileDirectoryName);
+
+        /// <summary>
+        /// Loads validated room character atlases, selecting compatible user tile artwork for each supplied replacement: the
+        /// import pipeline's input to the rooms' pictures, which no host binds (#1466).
+        /// </summary>
+        public RoomCharacterAtlases LoadRoomCharacters() =>
+            RoomCharacterArtworkFiles.Load(self.RoomCharacterDirectory, self.RoomCharacterOverrideDirectory);
+
+        /// <summary>
+        /// Loads validated room background tilemaps and compatible replacements from the persistent override tree: the
+        /// import pipeline's input to the room backgrounds' images, which no host binds (#1466).
+        /// </summary>
+        public RoomBackgroundTilemaps LoadRoomBackgroundTilemaps() =>
+            RoomBackgroundTilemapArtworkFiles.Load(self.RoomBackgroundTilemapDirectory, self.RoomBackgroundTilemapOverrideDirectory);
+
+        /// <summary>
+        /// Loads validated sky tilemaps from the shared room-background directory and its compatible user replacements: the
+        /// import pipeline's input to the sky's images, which no host binds (#1466).
+        /// </summary>
+        public RoomSkyTilemaps LoadRoomSkyTilemaps() =>
+            RoomSkyTilemapArtworkFiles.Load(self.RoomBackgroundTilemapDirectory, self.RoomBackgroundTilemapOverrideDirectory);
     }
 }

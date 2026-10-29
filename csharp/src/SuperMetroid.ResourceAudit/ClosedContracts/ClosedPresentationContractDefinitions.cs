@@ -34,7 +34,6 @@ internal static class ClosedPresentationContractDefinitions
         .. AreaMapClosedContractDefinitions.All,
         .. NativeArtworkAliasContractDefinitions.All,
         .. RoomRevealClosedContractDefinitions.All,
-        .. LibraryBackgroundClosedContractDefinitions.All,
         .. RoomLayoutClosedContractDefinitions.All,
         .. RoomLevelStreamClosedContractDefinitions.All,
         .. MotherBrainSheetsClosedContractDefinitions.All,

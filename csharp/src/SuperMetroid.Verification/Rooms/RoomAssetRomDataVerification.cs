@@ -11,6 +11,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Rooms;
@@ -122,15 +123,15 @@ internal static class RoomAssetRomDataVerification
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
             SelectedRoom header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
-            LoadedRoomAssets native = LoadFixtureRoomAssets(header, characters, palettes, layouts);
-            LoadedRoomAssets guarded = LoadFixtureRoomAssets(header, characters, palettes, layouts);
+            LoadedRoomAssets native = LoadFixtureRoomAssets(header, palettes, layouts);
+            LoadedRoomAssets guarded = LoadFixtureRoomAssets(header, palettes, layouts);
             AssertEqual(native.Tileset, guarded.Tileset,
                 $"room $8F:{roomPointer:X4} resolves compiled graphics metadata");
             AssertTrue(native.CreCharactersIn(characters).Span.SequenceEqual(guarded.CreCharactersIn(characters).Span) &&
                 native.TilesetCharactersIn(characters).Span.SequenceEqual(guarded.TilesetCharactersIn(characters).Span) &&
                 ReferenceEquals(native.TilesetColours, guarded.TilesetColours) &&
-                // The room's blocks are its tileset's block pictures and the characters each reads (#1431).
-                ReferenceEquals(native.BlockSheet, guarded.BlockSheet) && native.BlockSheet.Characters.Set == native.Tileset.Blocks,
+                // The room's blocks are its tileset's block pictures and the inputs each depends on (#1431, #1466).
+                ReferenceEquals(native.BlockSheet, guarded.BlockSheet) && native.BlockSheet.Tileset == native.Tileset,
                 $"room $8F:{roomPointer:X4} retains exact decompressed visual inputs");
             var nativeVram = new SnesVram();
             var guardedVram = new SnesVram();
@@ -197,7 +198,7 @@ internal static class RoomAssetRomDataVerification
         {
             SelectedRoom room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
             LoadedRoomAssets native = LoadFixtureRoomAssets(room);
-            LoadedRoomAssets installed = LoadFixtureRoomAssets(room, catalog);
+            LoadedRoomAssets installed = LoadFixtureRoomAssets(room);
             AssertTrue(installed.CreCharactersIn(catalog).Span.SequenceEqual(native.CreCharactersIn(FixtureRoomCharacters).Span) &&
                 installed.TilesetCharactersIn(catalog).Span.SequenceEqual(native.TilesetCharactersIn(FixtureRoomCharacters).Span),
                 $"room $8F:{roomPointer:X4} loads compiled characters with source reads forbidden");
@@ -229,7 +230,7 @@ internal static class RoomAssetRomDataVerification
         compiledBySource[landingSource] = RoomCharacterAtlasPng.Read(
             new MemoryStream(paintedPng.ToArray()), landingNative.Length);
         var editedCatalog = new RoomCharacterAtlases(compiledCre, compiledBySource.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.CharacterSetAt(pair.Key), pair => pair.Value));
-        LoadedRoomAssets editedRoom = LoadFixtureRoomAssets(landing, editedCatalog);
+        LoadedRoomAssets editedRoom = LoadFixtureRoomAssets(landing);
         AssertTrue(!editedRoom.TilesetCharactersIn(editedCatalog).Span.SequenceEqual(landingNative),
             "edited installed room PNG changes real room-loader character bytes");
 

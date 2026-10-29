@@ -8,6 +8,6 @@ public static class RoomCallbackDefinitions
     {
         RoomSetupCallback.TurnCeresDoorToSolidBlocksAndSpawnHaze,
         RoomSetupCallback.SpawnCeresHaze,
-        RoomSetupCallback.SetCeresRidleyBgCharacterBaseAndSpawnHaze,
+        RoomSetupCallback.ShowSpritesOnCeresRidleyBackgroundsAndSpawnHaze,
     };
 }

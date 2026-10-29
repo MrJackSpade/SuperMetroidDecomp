@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
@@ -134,9 +133,6 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         Projectiles.RunKraidNailMain(slot, frame.Level);
     }
-
-    /// <summary>The room backdrop characters Kraid reveals.</summary>
-    internal static readonly BgArtworkIdentity KraidRoomBackgroundIdentity = new("Kraid room background characters");
 
     /// <summary>
     /// The counter-indexed shot view both passes use. The cartridge starts at the count

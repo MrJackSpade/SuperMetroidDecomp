@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>Cartridge values and helpers of <see cref="BgCharacterWords"/> that only verification reads.</summary>

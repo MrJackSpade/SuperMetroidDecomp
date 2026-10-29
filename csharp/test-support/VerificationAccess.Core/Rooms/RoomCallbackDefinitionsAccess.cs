@@ -64,7 +64,7 @@ internal static class RoomCallbackDefinitionsAccess
         [RoomSetupCallback.SetupEscapeRoom4PlmAndMediumHorizontalShaking] = 0xc953,
         [RoomSetupCallback.TurnCeresDoorToSolidBlocksAndSpawnHaze] = 0xc96e,
         [RoomSetupCallback.SpawnCeresHaze] = 0xc976,
-        [RoomSetupCallback.SetCeresRidleyBgCharacterBaseAndSpawnHaze] = 0xc97b,
+        [RoomSetupCallback.ShowSpritesOnCeresRidleyBackgroundsAndSpawnHaze] = 0xc97b,
     };
 
     /// <summary>The room-main callback each bank-$8F code offset names.</summary>

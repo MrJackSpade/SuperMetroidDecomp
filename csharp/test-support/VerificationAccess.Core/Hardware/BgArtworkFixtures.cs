@@ -1,24 +1,40 @@
-using SuperMetroid.Core.Assets;
 using System.Runtime.CompilerServices;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>
-/// Background artwork bindings for tests that own a VRAM image (#1350, #1406, #1422). Bindings name their artwork and
-/// count its characters; the image a capture shows composes the bytes the import pipeline's resolver reads for each name
-/// from the artwork the test installed, and the bytes a test VRAM queue resolved as it drained.
+/// Room appearances and background artwork bindings for tests that own a VRAM image (#1350, #1406, #1422, #1466).
+/// Gameplay shows what it puts over a room's load through a <see cref="RoomAppearance"/>; the image a capture shows
+/// composes what the test bound natively (a room's load, a test VRAM queue's drained uploads) and then what the appearance
+/// shows, each from the bytes the import pipeline's resolver reads for its name.
 /// </summary>
 internal static class BgArtworkFixtures
 {
-    /// <summary>One bindings object per test VRAM, so bindings made through it accumulate like a runtime's.</summary>
-    private static readonly ConditionalWeakTable<SnesVram, BgArtworkBindings> Bindings = new();
+    /// <summary>One appearance per test VRAM, so what is shown through it accumulates like a room's.</summary>
+    private static readonly ConditionalWeakTable<SnesVram, RoomAppearance> Appearances = new();
+
+    /// <summary>The bindings a test made natively under each appearance: a room's load and drained queue uploads.</summary>
+    private static readonly ConditionalWeakTable<RoomAppearance, BgArtworkBindings> Bindings = new();
 
     /// <summary>The bytes a test VRAM queue resolved for each artwork it bound, per bindings object.</summary>
     private static readonly ConditionalWeakTable<BgArtworkBindings, Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>>> Drained = new();
 
-    /// <summary>The bindings composed over <paramref name="vram"/>.</summary>
-    internal static BgArtworkBindings For(SnesVram vram) => Bindings.GetValue(vram, _ => new BgArtworkBindings());
+    /// <summary>The tileset whose room each appearance's image shows the load of, once a test loaded one.</summary>
+    private static readonly ConditionalWeakTable<RoomAppearance, LoadedTileset> Loads = new();
+
+    /// <summary>The appearance of the room composed over <paramref name="vram"/>.</summary>
+    internal static RoomAppearance For(SnesVram vram) => Appearances.GetValue(Ensure.NotNull(vram), _ => new RoomAppearance());
+
+    /// <summary>Records that <paramref name="appearance"/>'s image shows the load of a room of <paramref name="tileset"/>.</summary>
+    internal static void RecordLoad(RoomAppearance appearance, TilesetDefinition tileset) =>
+        Loads.AddOrUpdate(Ensure.NotNull(appearance), new LoadedTileset(tileset));
+
+    /// <summary>The bindings a test made natively under <paramref name="appearance"/>.</summary>
+    internal static BgArtworkBindings BindingsOf(RoomAppearance appearance) => Bindings.GetValue(Ensure.NotNull(appearance), _ => new BgArtworkBindings());
 
     /// <summary>
     /// Records the bytes a test VRAM queue resolved for <paramref name="identity"/> as it bound them into
@@ -34,20 +50,29 @@ internal static class BgArtworkFixtures
     }
 
     /// <summary>
-    /// A VRAM holding the image a capture shows of <paramref name="vram"/>, for renderers that read a VRAM: its bindings'
-    /// artwork read through <paramref name="artwork"/>.
+    /// A VRAM holding the image a capture shows of <paramref name="vram"/>, for renderers that read a VRAM: what was bound
+    /// over it and what its room's appearance shows, read through <paramref name="artwork"/>.
     /// </summary>
     [WholeImageFixture("a composed VRAM image")]
     internal static SnesVram ComposedVram(SnesVram vram, BgArtworkBytes artwork)
     {
         var composed = new SnesVram();
-        composed.LoadBytes(0, Composed(vram, For(vram), artwork));
+        composed.LoadBytes(0, Composed(vram, artwork));
         return composed;
     }
 
-    /// <summary>The image a capture shows of <paramref name="vram"/>: its bindings' artwork read through <paramref name="artwork"/>.</summary>
+    /// <summary>The image a capture shows of <paramref name="vram"/>: what was bound over it and what its room's appearance shows.</summary>
     [WholeImageFixture("a composed VRAM image")]
-    internal static byte[] Composed(SnesVram vram, BgArtworkBytes artwork) => Composed(vram, For(vram), artwork);
+    internal static byte[] Composed(SnesVram vram, BgArtworkBytes artwork)
+    {
+        RoomAppearance appearance = For(vram);
+        byte[] image = vram.Bytes.ToArray();
+        if (Loads.TryGetValue(appearance, out LoadedTileset? loaded))
+            RoomAppearanceBindings.Load(loaded.Tileset, artwork).ComposeOver(image, artwork);
+        BindingsOf(appearance).ComposeOver(image, artwork);
+        RoomAppearanceBindings.Shown(appearance, artwork).ComposeOver(image, artwork);
+        return image;
+    }
 
     /// <summary>The image a capture shows: <paramref name="vram"/> with <paramref name="bindings"/> composed over it.</summary>
     [WholeImageFixture("a composed VRAM image")]
@@ -71,7 +96,7 @@ internal static class BgArtworkFixtures
         /// </exception>
         internal void ComposeOver(Span<byte> image, BgArtworkBytes artwork)
         {
-            Ensure.LengthEqual(image, SnesVram.ByteCount);
+            Ensure.LengthEqual<byte>(image, SnesVram.ByteCount);
             Ensure.NotNull(artwork);
             Drained.TryGetValue(self, out Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>>? drained);
             foreach (BgArtworkBinding binding in self.Bound)
@@ -90,4 +115,8 @@ internal static class BgArtworkFixtures
             throw new InvalidDataException($"{binding.Identity.Name} drained from the test VRAM queue differs from the installed artwork.");
         return shown;
     }
+
+    /// <summary>The tileset whose room's load an image shows.</summary>
+    /// <param name="Tileset">The tileset.</param>
+    private sealed record LoadedTileset(TilesetDefinition Tileset);
 }

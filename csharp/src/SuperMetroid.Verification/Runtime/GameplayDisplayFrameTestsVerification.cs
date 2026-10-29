@@ -12,7 +12,6 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.TestSupport.FrameRendering;
@@ -215,9 +214,9 @@ internal static class GameplayDisplayFrameTestsVerification
         GameplayDisplayLatch arena = runtime.PublishDisplayFrame().Latched;
         AssertTrue(arena.PerspectiveFloor is null,
             "door setup $8F:E513 removes the elevator shaft's floor");
-        AssertTrue(arena.Rooms?.Characters != RoomBackgroundCharacters.ObjectCharacterPage, "room setup BG12NBA waits for the NMI");
+        AssertTrue(arena.Rooms?.BlockArtwork != RoomBlockArtwork.Sprites, "room setup BG12NBA waits for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(RoomBackgroundCharacters.ObjectCharacterPage, runtime.PublishDisplayFrame().Latched.Rooms?.Characters,
+        AssertEqual(RoomBlockArtwork.Sprites, runtime.PublishDisplayFrame().Latched.Rooms?.BlockArtwork,
             "the accepted NMI publishes the Ceres Ridley BG12NBA");
 
         RidleyEnemyState getaway = runtime.Enemies.RidleyEncounter.CeresRidley

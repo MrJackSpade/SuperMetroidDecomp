@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 
@@ -12,9 +11,9 @@ using SuperMetroid.Core.Rooms.Plms;
 namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
-/// The bytes each background artwork name stands for (#1422): Core binds artwork by <see cref="BgArtworkIdentity"/> and
-/// character count, and this resolves the names against the installed artwork and the import pipeline's own data, the one
-/// place the names meet their bytes. Each source registers the names it holds; a name nothing registered fails.
+/// The bytes each background artwork name stands for (#1422, #1466): the import pipeline and verification's replay of what
+/// a room binds name artwork by <see cref="BgArtworkIdentity"/> and character count, and this resolves the names against
+/// the installed artwork and the import pipeline's own data, the one place the names meet their bytes. Each source registers the names it holds; a name nothing registered fails.
 /// </summary>
 internal sealed class BgArtworkBytes
 {
@@ -81,7 +80,7 @@ internal sealed class BgArtworkBytes
     internal BgArtworkBytes WithKraidBackground(KraidBackgroundArtwork kraid)
     {
         Ensure.NotNull(kraid);
-        return Add(KraidBehavior.KraidRoomBackgroundIdentity, () => kraid.RoomBackgroundTiles.Characters);
+        return Add(RoomBgArtwork.KraidBackdrop, () => kraid.RoomBackgroundTiles.Characters);
     }
 
     /// <summary>

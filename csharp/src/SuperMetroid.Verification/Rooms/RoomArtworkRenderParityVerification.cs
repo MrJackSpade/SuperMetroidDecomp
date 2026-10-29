@@ -9,6 +9,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Installation;
 
 namespace SuperMetroid.Verification.Rooms;
@@ -41,7 +42,7 @@ internal static class RoomArtworkRenderParityVerification
                     "Landing Site enters through its real landing door with its scrolling sky");
             }
             else
-                AssertTrue((native.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")).Assets.TilesetCharacterCount * BgCharacterSet.Tiles.CharacterBytes() >
+                AssertTrue(native.Artwork.RoomCharacterArt.Get((native.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")).Assets.Tileset.Characters).Characters.Length >
                     RoomGraphicsToolingLayout.CommonRoomElementCharacters.Offset * sizeof(ushort),
                     "Ceres parity exercises room characters overlapping the CRE VRAM region");
             byte[] nativeComposed = native.ComposedVram();

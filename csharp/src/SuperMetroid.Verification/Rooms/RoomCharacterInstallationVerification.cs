@@ -12,7 +12,6 @@ using static SuperMetroid.Verification.Rooms.RoomBackgroundLibraryParityVerifica
 using static SuperMetroid.Verification.Rooms.RoomVisualLayoutsVerification;
 using static SuperMetroid.Verification.Samus.Abilities.XrayRevealVisualInstallationVerification;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -59,7 +58,7 @@ internal static class RoomCharacterInstallationVerification
             VerifyRoomVisualLayouts(installed, bus, landing);
             VerifyXrayRevealVisualInstallation(installed);
             LoadedRoomAssets native = LoadFixtureRoomAssets(landing);
-            LoadedRoomAssets installedRoom = LoadFixtureRoomAssets(landing, stock);
+            LoadedRoomAssets installedRoom = LoadFixtureRoomAssets(landing);
             ReadOnlyMemory<byte> nativeCharacters = native.TilesetCharactersIn(FixtureRoomCharacters);
             AssertTrue(installedRoom.CreCharactersIn(stock).Span.SequenceEqual(native.CreCharactersIn(FixtureRoomCharacters).Span) &&
                 installedRoom.TilesetCharactersIn(stock).Span.SequenceEqual(nativeCharacters.Span),
@@ -79,7 +78,7 @@ internal static class RoomCharacterInstallationVerification
             using (var output = File.Create(overridePath))
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
             RoomCharacterAtlases edited = installed.LoadRoomCharacters();
-            LoadedRoomAssets editedRoom = LoadFixtureRoomAssets(landing, edited);
+            LoadedRoomAssets editedRoom = LoadFixtureRoomAssets(landing);
             AssertTrue(!editedRoom.TilesetCharactersIn(edited).Span.SequenceEqual(nativeCharacters.Span),
                 "installed PNG override changes the real room-loader output");
             AssertTrue(stock.GetAt(source).Characters.Span.SequenceEqual(nativeCharacters.Span),
@@ -165,14 +164,14 @@ internal static class RoomCharacterInstallationVerification
                     RoomMetatileArtworkFiles.ManifestFileName)),
                 "room-block stock manifest is installed");
             // The stock block compositions are extraction input (#1431): the block sheets are composed from them and each
-            // block set records the characters its blocks read beside its sheets. Rooms load no composition.
+            // tileset records the appearance inputs its blocks depend on beside its sheets (#1466). Rooms load no composition.
             RoomMetatileCatalog stockBlocks = RoomMetatileArtworkFiles.Load(installed.RoomMetatileDirectory);
             InstalledRoomArtwork installedSheets = installed.LoadRoomBlockSheets();
-            AssertTrue(File.Exists(Path.Combine(installed.RoomBlockSheetDirectory, RoomBlockCharacterFiles.FileNameOf(native.Tileset.Blocks))),
-                "the Landing Site block set's character record is installed beside its block sheets");
+            AssertTrue(File.Exists(Path.Combine(installed.RoomBlockSheetDirectory, RoomBlockAppearanceFiles.FileNameOf(native.Tileset))),
+                "the Landing Site tileset's block appearance record is installed beside its block sheets");
             AssertEqual((stockBlocks.Cre.BlockTiles.Length + stockBlocks.Get(native.Tileset.Blocks).BlockTiles.Length) / RoomMetatileFormat.TilesPerBlock,
-                installedSheets.Get(native.Tileset).Characters.Count,
-                "the installed character record covers every block a Landing Site room loads");
+                installedSheets.Get(native.Tileset).Inputs.Count,
+                "the installed appearance record covers every block a Landing Site room loads");
             string blockName = RoomMetatileFormat.CreFileName;
             string blockStockPath = Path.Combine(installed.RoomMetatileDirectory, blockName);
 
@@ -301,7 +300,7 @@ internal static class RoomCharacterInstallationVerification
                 File.Exists(Path.Combine(repaired.RoomBackgroundTilemapDirectory, skyName)),
                 "scrolling-sky stock is restored while its override survives repair");
             RoomCharacterAtlases repairedCharacters = repaired.LoadRoomCharacters();
-            LoadedRoomAssets repairedEdited = LoadFixtureRoomAssets(landing, repairedCharacters);
+            LoadedRoomAssets repairedEdited = LoadFixtureRoomAssets(landing);
             AssertTrue(repairedEdited.TilesetCharactersIn(repairedCharacters).Span.SequenceEqual(editedRoom.TilesetCharactersIn(edited).Span),
                 "repaired installation retains the selected user room artwork");
             LoadedRoomAssets repairedPaletteRoom = LoadFixtureRoomAssets(landing,

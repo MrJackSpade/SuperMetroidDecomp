@@ -15,6 +15,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.Core.World.RoomStates;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
@@ -36,8 +37,7 @@ internal static class DraygonTilemapProductionVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, RoomHeaderDefinitions.Draygon.Pointer);
         var installation = RepositoryInstallation.Installation;
-        var assets = LoadFixtureRoomAssets(room, installation.LoadRoomCharacters(),
-            installation.LoadRoomPalettes(), installation.LoadRoomVisualLayouts());
+        var assets = LoadFixtureRoomAssets(room, installation.LoadRoomPalettes(), installation.LoadRoomVisualLayouts());
         var vram = new SnesVram(); var cgram = new SamusColourRig(); assets.LoadGraphics(BgArtworkFixtures.For(vram), cgram.Gameplay.BackgroundSets);
         var random = new SharedGameState();
         random.SetRandomNumber(0x1234);

@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Intro;
@@ -37,11 +38,16 @@ internal static class InstalledFixtures
     /// <summary>The installation's starting and common sprite colours.</summary>
     internal static GameplayBasePalette GameplayBasePalettes => gameplayBasePalettes.Value;
 
-    /// <summary>Lazy stock character, palette, visual-layout, level-stream and block-sheet catalogs.</summary>
+    /// <summary>Lazy stock palette, visual-layout, level-stream and block-sheet catalogs.</summary>
     private static readonly Lazy<RoomAssetCatalogs> roomAssets = new(() => new RoomAssetCatalogs(
-        RepositoryInstallation.Installation.LoadRoomCharacters(), RepositoryInstallation.Installation.LoadRoomPalettes(),
-        RepositoryInstallation.Installation.LoadRoomVisualLayouts(), RepositoryInstallation.Installation.LoadRoomLevelStreams(),
-        RepositoryInstallation.Installation.LoadRoomBlockSheets()));
+        RepositoryInstallation.Installation.LoadRoomPalettes(), RepositoryInstallation.Installation.LoadRoomVisualLayouts(),
+        RepositoryInstallation.Installation.LoadRoomLevelStreams(), RepositoryInstallation.Installation.LoadRoomBlockSheets()));
+
+    /// <summary>
+    /// Lazy stock room character catalog, which extraction composes the block sheets from and verification composes VRAM
+    /// images of rooms from (#1466); gameplay reads none.
+    /// </summary>
+    private static readonly Lazy<RoomCharacterAtlases> roomCharacters = new(() => RepositoryInstallation.Installation.LoadRoomCharacters());
 
     /// <summary>Lazy stock block compositions, which extraction composes the block sheets from (#1431).</summary>
     private static readonly Lazy<RoomMetatileCatalog> blockCompositions = new(() =>
@@ -68,6 +74,9 @@ internal static class InstalledFixtures
 
     /// <summary>The installation's stock room catalogs, the cartridge reference extracted from the ROM.</summary>
     internal static RoomAssetCatalogs RoomAssets => roomAssets.Value;
+
+    /// <summary>The installation's stock room character catalog.</summary>
+    internal static RoomCharacterAtlases RoomCharacters => roomCharacters.Value;
 
     /// <summary>The installation's stock block compositions, which extraction composes the block sheets from (#1431).</summary>
     internal static RoomMetatileCatalog BlockCompositions => blockCompositions.Value;

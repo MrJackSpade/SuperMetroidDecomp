@@ -6,7 +6,6 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Artwork;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -129,11 +128,10 @@ internal static class CollectibleBlockFrameOverrideVerification
         (runtime.Display.Latched.Rooms ?? throw new InvalidOperationException($"{where}: no room backgrounds are displayed.")).Bg1.Pictures
             ?? throw new InvalidOperationException($"{where}: BG1 shows no block pictures.");
 
-    /// <summary>Whether <paramref name="block"/> is a graphics slot's block and the Morph Ball shows over that slot's characters.</summary>
+    /// <summary>Whether <paramref name="block"/> is a graphics slot's block and the room shows the Morph Ball in that slot (#1466).</summary>
     private static bool ShowsCollectible(SuperMetroidRuntime runtime, int block) =>
         CollectibleSlotBlocks.SlotOf(block, CollectiblePlms.GraphicsSlots) is { } slot &&
-        runtime.BgArtwork.Showing(BgCharacterSet.Tiles, RoomTileCharacters.CollectiblesFirst + slot * RoomTileCharacters.CollectibleSlotCharacters,
-            RoomTileCharacters.CollectibleSlotCharacters).Artwork == RoomBgArtwork.Collectible(ShownItem);
+        (runtime.Room.Scope ?? throw new InvalidOperationException("The Morph Ball room has no room scope.")).Appearance.CollectibleIn(slot) == ShownItem;
 
     /// <summary>The colour an override's repaint gives <paramref name="pixel"/>: each colour channel inverted.</summary>
     private static RgbaPixel Inverted(RgbaPixel pixel) => pixel with { R = (byte)~pixel.R, G = (byte)~pixel.G, B = (byte)~pixel.B };

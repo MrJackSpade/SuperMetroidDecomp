@@ -237,7 +237,7 @@ internal static class RoomBackgroundsFixtures
             FloorTileSheet.Tiles / FloorTileSheet.TilesPerRow * FloorTileSheet.TilePixels);
         SpriteSheet sheet = SeededSheet(random, scene, size, new Dictionary<string, Position16<ImagePixels>> { [FloorTileSheet.FrameName] = default },
             size, "seeded Mode 7 tiles", SpriteImageColours.FullPalette);
-        return new FloorTileSheet(default, sheet, [.. Enumerable.Repeat((BgArtworkShown?)default(BgArtworkShown), FloorTileSheet.Tiles)],
+        return new FloorTileSheet(default, sheet, [.. Enumerable.Repeat(true, FloorTileSheet.Tiles)],
             new byte[FloorMap.Cells]);
     }
 
@@ -252,8 +252,7 @@ internal static class RoomBackgroundsFixtures
         var size = new Extent16<ImagePixels>(RoomBackgroundImage.PagePixels, (ushort)(tileRows * 8));
         SpriteSheet sheet = SeededSheet(random, scene, size, new Dictionary<string, Position16<ImagePixels>> { [RoomBackgroundImage.FrameName] = default },
             size, "seeded background");
-        ushort[] words = [.. Enumerable.Range(0, tileRows * RoomBackgroundImage.PageTiles).Select(_ => (ushort)random.Next(65536))];
-        var image = new RoomBackgroundImage("seeded background", sheet, [.. BackgroundTileWordBytes.Tiles(words)]);
+        var image = new RoomBackgroundImage("seeded background", sheet, []);
         var cells = new SpriteSheetFrame?[image.CellCount];
         for (int cell = 0; cell < cells.Length; cell++)
             cells[cell] = random.Next(4) == 0 ? blocks.Picture(random.Next(Definitions)) : null;
@@ -279,7 +278,7 @@ internal static class RoomBackgroundsFixtures
         var shown = new SpriteSheetFrame?[Definitions];
         for (int definition = 0; definition < shown.Length; definition++)
             shown[definition] = sheet.Frame($"{random.Next(SeededPictureCount)}");
-        return new RoomBlockPictureTable(new RoomBlockSheet(default(TilesetDefinition), sheet, RoomBlockFixtures.Characters(Definitions)), shown);
+        return new RoomBlockPictureTable(new RoomBlockSheet(default(TilesetDefinition), sheet, RoomBlockFixtures.Appearances(Definitions)), shown);
     }
 
     /// <summary>

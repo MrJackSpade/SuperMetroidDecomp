@@ -31,9 +31,9 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Rooms.Artwork;
 
 /// <summary>
-/// Checks rooms draw their blocks from the installed pre-coloured block sheets (#1392): each block the displayed planes
-/// show is a picture that paints exactly what its tiles paint over the characters the room's bindings show, as those
-/// bindings change under animated tiles and collectibles.
+/// Checks rooms draw their blocks from the installed pre-coloured block sheets (#1392, #1466): each block the displayed
+/// planes show is a picture that paints exactly what its tiles paint over the characters the cartridge would show, as the
+/// room's appearance inputs change under animated tiles and collectibles.
 /// </summary>
 internal static class RoomBlockPicturesVerification
 {
@@ -42,6 +42,16 @@ internal static class RoomBlockPicturesVerification
 
     /// <summary>Pixels along a character's side.</summary>
     private const int CharacterPixels = 8;
+
+    /// <summary>VRAM words in one four-bit room tile character.</summary>
+    private static readonly int TileCharacterWords = BgCharacterSet.Tiles.CharacterBytes() / sizeof(ushort);
+
+    /// <summary>
+    /// What each tileset's rooms show over their characters after loading, as the import pipeline replays it (#1466): the
+    /// test's reference for which characters an animation paints and what the room's load leaves.
+    /// </summary>
+    private static readonly Lazy<IReadOnlyDictionary<TilesetDefinition, RoomBlockUploads.TilesetUploads>> TilesetUploads =
+        new(() => RoomBlockUploads.ByTileset(RoomBlockSheetInputs.Load(SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.ContentDirectory)));
 
     /// <summary>
     /// In the Landing Site, whose blocks show its load alone, in the Wasteland, whose spikes animate, in the Morph Ball
@@ -133,7 +143,7 @@ internal static class RoomBlockPicturesVerification
     {
         int pixelRow = word.FlipVertically ? CharacterPixels - 1 - y : y;
         int bit = 7 - (word.FlipHorizontally ? CharacterPixels - 1 - x : x);
-        int address = word.CharacterIndex * RoomBlockPictureNames.CharacterWords * sizeof(ushort) + pixelRow * 2;
+        int address = word.CharacterIndex * TileCharacterWords * sizeof(ushort) + pixelRow * 2;
         int colour = (vram[address] >> bit & 1) | (vram[address + 1] >> bit & 1) << 1
             | (vram[address + 16] >> bit & 1) << 2 | (vram[address + 17] >> bit & 1) << 3;
         int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
@@ -190,9 +200,7 @@ internal static class RoomBlockPicturesVerification
             if (glyph is { } typed)
                 overlay = overlay.With(typed.Cell, [typed.Tile]);
         }
-        ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver(sheet).Resolve(overlay,
-            RoomCharacterSource.Of(RoomBackgroundCharacters.Tileset, runtime.BgArtwork, runtime.EnemySession,
-                RoomScopeOf(runtime).AnimatedCharacters, RoomScopeOf(runtime).ArtworkFrames));
+        ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver(sheet).Resolve(overlay, AppearanceOf(runtime, RoomScopeOf(runtime).ArtworkFrames));
         int glyphs = 0;
         for (int index = 0; index < RoomTilemapOverlay.WordCount; index++)
         {
@@ -275,10 +283,12 @@ internal static class RoomBlockPicturesVerification
             ReadOnlySpan<byte> vram = runtime.ComposedVram();
             BgCharacterSet layer3 = BgCharacterSet.Layer3;
             int characterBase = BgCharacterWordsConstants.WordOf(layer3, 0);
-            var animated = new AnimatedCharacterView(RoomScopeOf(runtime).AnimatedCharacters.Bg3, RoomScopeOf(runtime).ArtworkFrames);
+            ArtworkFrameSelections frames = RoomScopeOf(runtime).ArtworkFrames;
+            IReadOnlyList<AppearanceOption> effects = UploadsOf(runtime).Bg3Options;
+            RoomFxAnimatedTileAtlas animatedTiles = runtime.Artwork.MapPresentation?.RoomFxAnimatedTiles
+                ?? throw new InvalidOperationException($"{room.Name}: the runtime has no installed animated tiles.");
             ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver((runtime.Room.Scope
-                ?? throw new InvalidOperationException($"{room.Name} has no room scope.")).Bg3Pictures.Sheet).Resolve(plane, runtime.BgArtwork, layer3,
-                animated);
+                ?? throw new InvalidOperationException($"{room.Name} has no room scope.")).Bg3Pictures.Sheet).Resolve(plane, AppearanceOf(runtime, frames));
             for (int index = 0; index < Layer3Plane.Columns * Layer3Plane.Rows; index++)
             {
                 BgTilePicture picture = pictures[index] ?? throw new InvalidOperationException($"{room.Name}: BG3 word {index} draws from its character.");
@@ -290,10 +300,8 @@ internal static class RoomBlockPicturesVerification
                     int pixelRow = word.FlipVertically ? CharacterPixels - 1 - y : y;
                     int bit = 7 - (word.FlipHorizontally ? CharacterPixels - 1 - x : x);
                     // A character an effect's animation paints shows the frame it selected (#1406), which VRAM never holds.
-                    ReadOnlySpan<byte> bytes = animated.TryShowing(word.CharacterIndex, 8, out BgArtworkShown frame)
-                        ? AnimatedTileFrameArtwork.Bytes(frame.Artwork, runtime.Artwork.MapPresentation?.RoomFxAnimatedTiles
-                            ?? throw new InvalidOperationException($"{room.Name}: the runtime has no installed animated tiles.")).Span[(frame.WordOffset * sizeof(ushort))..]
-                        : vram[((characterBase + word.CharacterIndex * 8) * sizeof(ushort))..];
+                    ReadOnlySpan<byte> bytes = CharacterBytes(effects, frames, layer3, word.CharacterIndex, animatedTiles,
+                        vram[(characterBase * sizeof(ushort))..], out _);
                     int address = pixelRow * 2;
                     int colour = (bytes[address] >> bit & 1) | (bytes[address + 1] >> bit & 1) << 1;
                     int expected = word.PaletteIndex * 4 + colour;
@@ -321,13 +329,13 @@ internal static class RoomBlockPicturesVerification
         AssertTrue(runtime.Display.Latched.Rooms?.Floor is not null, $"{room.Name} shows its Mode 7 map");
         FloorMap map = runtime.Room.LoadedScope.FloorMap ?? throw new InvalidOperationException($"{room.Name} has no Mode 7 map.");
         FloorTileSheet tiles = map.Tiles;
-        AssertTrue(map.NamedTiles.All(tile => tiles.Shown[tile] is not null), $"{room.Name}'s Mode 7 map names only pictured tiles");
+        AssertTrue(map.NamedTiles.All(tile => tiles.Pictured[tile]), $"{room.Name}'s Mode 7 map names only pictured tiles");
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
         SpriteImage sheet = tiles.Picture.Sheet;
         int pictured = 0;
         for (int tile = 0; tile < FloorTileSheet.Tiles; tile++)
         {
-            if (tiles.Shown[tile] is null)
+            if (!tiles.Pictured[tile])
                 continue;
             pictured++;
             Position16<ImagePixels> corner = FloorTileSheet.Corner(tile);
@@ -354,7 +362,7 @@ internal static class RoomBlockPicturesVerification
         int rebound = 0;
         for (int frame = 0; frame < Frames; frame++)
         {
-            ArtworkFrameSelections latched = SelectionsOf(RoomScopeOf(runtime));
+            ArtworkFrameSelections latched = SelectionsOf(runtime);
             runtime.StepFrame(0);
             rebound += AssertBackgroundPaintsTiles(runtime, latched, $"{room.Name} frame {frame}");
         }
@@ -364,20 +372,21 @@ internal static class RoomBlockPicturesVerification
 
     /// <summary>
     /// Asserts BG2's library background paints, pixel for pixel over both pages, the palette index, priority and standard
-    /// colour the image's tilemap tiles paint over the characters the bindings compose into VRAM; returns its rebound cells.
+    /// colour the image's tilemap tiles paint over the characters the cartridge would show; returns its rebound cells.
     /// </summary>
     private static int AssertBackgroundPaintsTiles(SuperMetroidRuntime runtime, ArtworkFrameSelections latched, string where)
     {
-        // A character an animation paints shows the frame it selected (#1406), which the composed VRAM never holds.
-        var animated = new AnimatedCharacterView(RoomScopeOf(runtime).AnimatedCharacters.Blocks, latched);
+        IReadOnlyList<AppearanceOption> options = UploadsOf(runtime).AllOptions;
         RoomFxAnimatedTileAtlas animatedTiles = runtime.Artwork.MapPresentation?.RoomFxAnimatedTiles
             ?? throw new InvalidOperationException($"{where}: the runtime has no installed animated tiles.");
         RoomBackgroundImagePlane plane = runtime.Display.Latched.Rooms?.Bg2Image
             ?? throw new InvalidOperationException($"{where}: BG2 shows no library background image.");
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
-        // The room's load selects the image by name (#1406); its tilemap words are the pages the library list builds.
-        ImmutableArray<ushort> words = [.. BackgroundTileWordBytes.Words((runtime.Room.Scope?.BackgroundImage
-            ?? throw new InvalidOperationException($"{where}: the room selects no library background image.")).Image.Tiles.AsSpan())];
+        // The room's load selects the image by name (#1406); its tilemap words are the pages the library list builds, as
+        // the import pipeline replays them (#1466).
+        string name = (runtime.Room.Scope?.BackgroundImage
+            ?? throw new InvalidOperationException($"{where}: the room selects no library background image.")).Image.Name;
+        ImmutableArray<ushort> words = [.. UploadsOf(runtime).Backgrounds.Single(background => background.Name == name).Words];
         // A 32x64 map lays the two pages out one above the other, as the image does.
         for (int y = 0; y < RoomBackgroundImage.Pages * RoomBackgroundImage.PagePixels; y++)
         for (int x = 0; x < RoomBackgroundImage.PagePixels; x++)
@@ -385,9 +394,8 @@ internal static class RoomBlockPicturesVerification
             var word = new SnesBgTilemapWord(words[y / CharacterPixels * RoomBackgroundImage.PageTiles + x / CharacterPixels]);
             int pixelRow = word.FlipVertically ? CharacterPixels - 1 - y % CharacterPixels : y % CharacterPixels;
             int bit = 7 - (word.FlipHorizontally ? CharacterPixels - 1 - x % CharacterPixels : x % CharacterPixels);
-            ReadOnlySpan<byte> bytes = animated.TryShowing(word.CharacterIndex, RoomBlockPictureNames.CharacterWords, out BgArtworkShown frame)
-                ? AnimatedTileFrameArtwork.Bytes(frame.Artwork, animatedTiles).Span[(frame.WordOffset * sizeof(ushort))..]
-                : vram[(word.CharacterIndex * RoomBlockPictureNames.CharacterWords * sizeof(ushort))..];
+            // A character an animation paints shows the frame it selected (#1406), which the composed VRAM never holds.
+            ReadOnlySpan<byte> bytes = CharacterBytes(options, latched, BgCharacterSet.Tiles, word.CharacterIndex, animatedTiles, vram, out _);
             int address = pixelRow * 2;
             int colour = (bytes[address] >> bit & 1) | (bytes[address + 1] >> bit & 1) << 1
                 | (bytes[address + 16] >> bit & 1) << 2 | (bytes[address + 17] >> bit & 1) << 3;
@@ -427,7 +435,7 @@ internal static class RoomBlockPicturesVerification
         {
             // The frame boundary resolves the pictures from the frames the animations selected by the previous update; the
             // update after it selects the next ones (#1406).
-            ArtworkFrameSelections latched = SelectionsOf(RoomScopeOf(runtime));
+            ArtworkFrameSelections latched = SelectionsOf(runtime);
             runtime.StepFrame(0);
             (int pictures, int over) = AssertPicturesPaintLive(runtime, latched, $"{room.Name} frame {frame}");
             checkedPictures += pictures;
@@ -438,35 +446,71 @@ internal static class RoomBlockPicturesVerification
         Console.WriteLine($"Room block pictures: {room.Name} showed {checkedPictures} pictures, {uploaded} over artwork bound after its load.");
     }
 
-    /// <summary>A copy of the frames <paramref name="scope"/>'s animations show now, read through every run the room declares.</summary>
-    private static ArtworkFrameSelections SelectionsOf(RoomScope scope)
+    /// <summary>
+    /// A copy of the frames the loaded room's animations show now, read through every animation its tileset's rooms run
+    /// over their tile and BG3 characters.
+    /// </summary>
+    private static ArtworkFrameSelections SelectionsOf(SuperMetroidRuntime runtime)
     {
+        RoomScope scope = RoomScopeOf(runtime);
+        RoomBlockUploads.TilesetUploads uploads = UploadsOf(runtime);
         var copy = new ArtworkFrameSelections();
-        RoomAnimatedCharacters animated = scope.AnimatedCharacters;
-        foreach (AnimatedCharacterRun run in animated.Blocks.Runs.Concat(animated.ObjectPage.Runs).Concat(animated.Bg3.Runs))
+        foreach (AnimationAppearance animation in uploads.AllOptions.Concat(uploads.Bg3Options).Select(option => option.Input)
+            .OfType<AnimationAppearance>().Distinct())
         {
-            if (scope.ArtworkFrames.TryShown(run.Animation, out ArtworkFrame frame))
+            if (scope.ArtworkFrames.TryShown(animation.Animation, out ArtworkFrame frame))
                 copy.Select(frame);
         }
         return copy;
     }
 
+    /// <summary>What the loaded room of <paramref name="runtime"/> shows over its load, with <paramref name="frames"/> its animations selected.</summary>
+    private static RoomAppearanceView AppearanceOf(SuperMetroidRuntime runtime, ArtworkFrameSelections frames) =>
+        new(RoomScopeOf(runtime).Appearance, frames, runtime.EnemySession);
+
+    /// <summary>What the loaded room's tileset's rooms show over their characters, as the import pipeline replays it.</summary>
+    private static RoomBlockUploads.TilesetUploads UploadsOf(SuperMetroidRuntime runtime) => TilesetUploads.Value[RoomScopeOf(runtime).Assets.Tileset];
+
     /// <summary>
-    /// Asserts each picture the displayed BG1 resolves by block identity (#1431) paints, pixel for pixel, the palette index,
-    /// priority and standard colour the block's tiles paint over the characters the bindings compose into VRAM: the tiles
-    /// the cartridge's block tables compose, or for a collectible slot's block, those the collectible bound over the slot
-    /// writes. Returns the pictures checked and those over artwork bound after the room's load.
+    /// The bytes of <paramref name="set"/>'s character <paramref name="character"/> as the room shows it: the frame an
+    /// animation of <paramref name="options"/> that paints it selected in <paramref name="frames"/>, which no VRAM image
+    /// holds, or else its bytes in <paramref name="characters"/>, the set's characters from its first.
+    /// </summary>
+    private static ReadOnlySpan<byte> CharacterBytes(IReadOnlyList<AppearanceOption> options, ArtworkFrameSelections frames, BgCharacterSet set,
+        int character, RoomFxAnimatedTileAtlas animatedTiles, ReadOnlySpan<byte> characters, out bool animated)
+    {
+        int characterWords = set.CharacterBytes() / sizeof(ushort);
+        foreach (AppearanceOption option in options.Where(option => option.Input is AnimationAppearance && option.Upload.Covers(set, character))
+            .OrderBy(option => option.Input.Token, StringComparer.Ordinal))
+        {
+            if (!frames.TryShown(((AnimationAppearance)option.Input).Animation, out ArtworkFrame frame))
+                continue;
+            animated = true;
+            int offset = (character - option.Upload.FirstCharacter) * characterWords;
+            return AnimatedTileFrameArtwork.Bytes(BgArtworkIdentity.Frame(frame), animatedTiles).Span[(offset * sizeof(ushort))..];
+        }
+        animated = false;
+        return characters[(character * characterWords * sizeof(ushort))..];
+    }
+
+    /// <summary>
+    /// Asserts each picture the displayed BG1 resolves by block identity and appearance (#1431, #1466) paints, pixel for
+    /// pixel, the palette index, priority and standard colour the block's tiles paint over the characters the cartridge
+    /// would show: the tiles the cartridge's block tables compose, or for a collectible slot's block, those the collectible
+    /// shown in the slot writes. Returns the pictures checked and those shown for inputs that no longer show the room's load.
     /// </summary>
     private static (int Pictures, int Uploaded) AssertPicturesPaintLive(SuperMetroidRuntime runtime, ArtworkFrameSelections latched, string where)
     {
-        static RoomFxAnimatedTileAtlas AnimatedTiles(SuperMetroidRuntime runtime) =>
-            runtime.Artwork.MapPresentation?.RoomFxAnimatedTiles ?? throw new InvalidOperationException("The runtime has no installed animated tiles.");
+        RoomFxAnimatedTileAtlas animatedTiles = runtime.Artwork.MapPresentation?.RoomFxAnimatedTiles
+            ?? throw new InvalidOperationException("The runtime has no installed animated tiles.");
         RoomBackgrounds rooms = runtime.Display.Latched.Rooms ?? throw new InvalidOperationException($"{where}: no room backgrounds are displayed.");
         RoomBlockPictureTable table = rooms.Bg1.Pictures ?? throw new InvalidOperationException($"{where}: BG1 shows no block pictures.");
-        RoomCharacterSource characters = RoomCharacterSource.Of(rooms.Characters, runtime.BgArtwork, runtime.EnemySession,
-                RoomScopeOf(runtime).AnimatedCharacters, latched);
-        // The Ceres Ridley arena's blocks read the OBJ character page its uploads compose; any other room's, the bound tiles.
-        byte[] tiles = rooms.Characters == RoomBackgroundCharacters.ObjectCharacterPage
+        RoomAppearanceView appearance = AppearanceOf(runtime, latched);
+        // The Ceres Ridley arena's blocks read the OBJ character page its uploads compose; any other room's, the bound tiles,
+        // and the frames its animations paint over them.
+        bool sprites = rooms.BlockArtwork == RoomBlockArtwork.Sprites;
+        IReadOnlyList<AppearanceOption> options = sprites ? [] : UploadsOf(runtime).AllOptions;
+        byte[] tiles = sprites
             ? RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteLooks).Characters.ToArray()
             : runtime.ComposedVram()[(BgCharacterWordsConstants.WordOf(BgCharacterSet.Tiles, 0) * sizeof(ushort))..];
         RoomScope scope = RoomScopeOf(runtime);
@@ -479,21 +523,16 @@ internal static class RoomBlockPicturesVerification
                 continue;
             pictures++;
             SpriteImage sheet = picture.Sheet;
-            bool overUpload = false;
+            bool overUpload = scope.Assets.BlockSheet.Inputs.Of(block, rooms.BlockArtwork)
+                .Any(input => appearance.ValueOf(input) != RoomAppearanceValues.Loaded);
             ushort[] blockWords = !ceres && CollectibleSlotBlocks.SlotOf(block, CollectiblePlms.GraphicsSlots) is { } slot
-                ? CollectibleSlotWords(characters, slot, block)
+                ? CollectibleSlotWords(scope.Appearance, slot, block)
                 : stock[(block * BlockTiles)..((block + 1) * BlockTiles)];
             for (int tile = 0; tile < BlockTiles; tile++)
             {
                 var word = new SnesBgTilemapWord(blockWords[tile]);
                 // A character an animation paints shows the frame it selected (#1406), which the composed VRAM never holds.
-                bool animated = characters.Animated.TryShowing(word.CharacterIndex, RoomBlockPictureNames.CharacterWords, out BgArtworkShown shown);
-                if (!animated)
-                    shown = characters.Artwork.Showing(word.CharacterIndex, 1);
-                overUpload |= animated || shown.Artwork != RoomBgArtwork.CommonRoomElements && !shown.Artwork.Name.StartsWith("tileset characters ", StringComparison.Ordinal);
-                ReadOnlySpan<byte> bytes = animated
-                    ? AnimatedTileFrameArtwork.Bytes(shown.Artwork, AnimatedTiles(runtime)).Span[(shown.WordOffset * sizeof(ushort))..]
-                    : tiles.AsSpan((word.CharacterIndex * RoomBlockPictureNames.CharacterWords * sizeof(ushort))..);
+                ReadOnlySpan<byte> bytes = CharacterBytes(options, latched, BgCharacterSet.Tiles, word.CharacterIndex, animatedTiles, tiles, out bool animated);
                 for (int y = 0; y < CharacterPixels; y++)
                 {
                     int row = word.FlipVertically ? CharacterPixels - 1 - y : y;
@@ -508,7 +547,7 @@ internal static class RoomBlockPicturesVerification
                         AssertTrue(sheet.Inks[pixel].PaletteIndex == expected && (colour == 0 || (sheet.Inks[pixel].Priority != 0) == word.HasPriority)
                             && (colour == 0 || sheet.Pixels[pixel] == sheet.StandardColours[expected].ToRgbaPixel()),
                             $"{where}: block {block}'s picture paints index {sheet.Inks[pixel].PaletteIndex} priority {sheet.Inks[pixel].Priority} " +
-                            $"at tile {tile} pixel ({x}, {y}), where its tile ${word.Raw:X4} paints index {expected} over {shown.Artwork.Name}+{shown.WordOffset:X4}");
+                            $"at tile {tile} pixel ({x}, {y}), where its tile ${word.Raw:X4} paints index {expected}{(animated ? " in its animation's frame" : "")}");
                     }
                 }
             }
@@ -523,13 +562,12 @@ internal static class RoomBlockPicturesVerification
 
     /// <summary>
     /// The tile words of collectible slot <paramref name="slot"/>'s block <paramref name="block"/>, as the collectible
-    /// <paramref name="characters"/> show bound over the slot writes them (#1431).
+    /// <paramref name="appearance"/> shows in the slot writes them (#1431, #1466).
     /// </summary>
-    private static ushort[] CollectibleSlotWords(RoomCharacterSource characters, int slot, int block)
+    private static ushort[] CollectibleSlotWords(RoomAppearance appearance, int slot, int block)
     {
-        BgArtworkIdentity bound = characters.Artwork.Showing(
-            RoomTileCharacters.CollectiblesFirst + slot * RoomTileCharacters.CollectibleSlotCharacters, RoomTileCharacters.CollectibleSlotCharacters).Artwork;
-        InWorldCollectibleKind kind = RoomPlmDynamicCollectibleGraphicsDefinitions.Kinds.Single(candidate => RoomBgArtwork.Collectible(candidate) == bound);
+        InWorldCollectibleKind kind = appearance.CollectibleIn(slot)
+            ?? throw new InvalidOperationException($"BG1 shows collectible slot {slot}'s block with no collectible in the slot.");
         // The collectible's cartridge palette selectors colour the slot's blocks.
         BackgroundTile[] tiles = CollectibleSlotBlocks.Tiles(slot, DynamicCollectibleGraphics.Get(kind).PaletteOffsets.Span);
         int first = (block - CollectibleSlotBlocks.FirstBlockOf(slot)) * BlockTiles;

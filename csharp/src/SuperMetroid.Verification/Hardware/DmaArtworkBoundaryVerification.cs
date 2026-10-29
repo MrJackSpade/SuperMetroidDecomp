@@ -38,7 +38,7 @@ internal static class DmaArtworkBoundaryVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
         var background = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(background));
-        Action upload = new Action(enemies.KraidBehavior.Rise.UploadKraidRoomBackgroundTiles);
+        Action upload = new Action(enemies.KraidBehavior.Rise.ShowKraidRoomBackdrop);
         upload();
         var expected = new SnesVram();
         ImportedVramOracle.ExecuteQueued(expected, reference,

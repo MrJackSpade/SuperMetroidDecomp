@@ -37,9 +37,10 @@ internal static class RoomContentIdentityVerification
         // CRE is not keyed by a graphics-set source; it must not escape the identity.
         AssertTrue(baseline.Characters.ContentIdentity != CreateRoomIdentityFixture("cre-characters").Characters.ContentIdentity,
             "shared CRE character edits are fingerprinted");
-        // How a room's blocks look is their block sheet's identity (#1431), which covers the characters each block reads.
-        AssertTrue(BlockSheetIdentity(firstCharacter: 0) != BlockSheetIdentity(firstCharacter: 1),
-            "the characters a block reads are fingerprinted with its block sheet");
+        // How a room's blocks look is their block sheet's identity (#1431), which covers the appearance inputs each block
+        // depends on (#1466).
+        AssertTrue(BlockSheetIdentity([]) != BlockSheetIdentity([KraidBackdropAppearance.Instance]),
+            "the inputs a block depends on are fingerprinted with its block sheet");
 
         var callerOwned = new Dictionary<string, string>(hashes);
         Guid build = Guid.Parse("01234567-89ab-cdef-0123-456789abcdef");
@@ -56,19 +57,17 @@ internal static class RoomContentIdentityVerification
             .Contains(first, StringComparison.Ordinal), "room-art drift is explained by its domain");
         Suite(nameof(VerifyGameContentIdentityComposition), () => VerifyGameContentIdentityComposition());
         Suite(nameof(VerifyControllerInputRecording), () => VerifyControllerInputRecording());
-        Console.WriteLine("  Selected room content: three domains, CRE, block characters, canonical ordering, isolated edits, " +
+        Console.WriteLine("  Selected room content: three domains, CRE, block inputs, canonical ordering, isolated edits, " +
             "aggregate drift, immutable snapshots and recording compatibility pass without a ROM.");
     }
 
     /// <summary>
-    /// The content identity of a one-block sheet whose block reads the character run from <paramref name="firstCharacter"/>,
-    /// pictured the same either way.
+    /// The content identity of a one-block sheet whose block depends on <paramref name="inputs"/>, pictured the same either way.
     /// </summary>
-    private static string BlockSheetIdentity(int firstCharacter)
+    private static string BlockSheetIdentity(AppearanceInput[] inputs)
     {
         RoomBlockSheet pictured = RoomBlockFixtures.Pictures(new BackgroundTile[4], new byte[64], new RgbColor[256]).Sheet;
-        var sheet = new RoomBlockSheet(default(TilesetDefinition), pictured.Sheet,
-            new RoomBlockCharacters(default(TilesetDefinition).Blocks, [[new RoomBlockCharacterRun(firstCharacter, 1)]]));
+        var sheet = new RoomBlockSheet(default(TilesetDefinition), pictured.Sheet, new RoomBlockAppearances([inputs], null));
         return new InstalledRoomArtwork(new Dictionary<TilesetDefinition, RoomBlockSheet> { [default] = sheet },
             new Dictionary<string, RoomBackgroundImage>(), new Dictionary<TilesetDefinition, TileWordSheet>(),
             new Dictionary<TilesetDefinition, TileWordSheet>(), new Dictionary<TilesetDefinition, MessageBoxSheet>(),

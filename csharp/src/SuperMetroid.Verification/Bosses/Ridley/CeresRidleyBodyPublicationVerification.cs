@@ -29,7 +29,7 @@ internal static class CeresRidleyBodyPublicationVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(RoomBackgroundCharacters.ObjectCharacterPage, runtime.Display.Latched.Rooms?.Characters,
+        AssertEqual(RoomBlockArtwork.Sprites, runtime.Display.Latched.Rooms?.BlockArtwork,
             "the arena's backgrounds draw from the object character page");
 
         RidleyEnemyState ridley = runtime.Enemies.RidleyEncounter.CeresRidley

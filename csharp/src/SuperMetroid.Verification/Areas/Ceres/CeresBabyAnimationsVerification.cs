@@ -9,7 +9,7 @@ namespace SuperMetroid.Verification.Areas.Ceres;
 
 /// <summary>
 /// #1290: the Ceres Baby's typed cutscene programs, each matched step by step to its private bank-$A6 draw list: every
-/// pose's duration and spritemap, every cue's branch target and palette row, and the list's own goto.
+/// pose's duration and spritemap, every cue's branch target and shade, and the list's own goto.
 /// </summary>
 internal static class CeresBabyAnimationsVerification
 {
@@ -65,7 +65,7 @@ internal static class CeresBabyAnimationsVerification
             switch (cueStep.Cue)
             {
                 case CeresBabyCue.UpdateColors updateColors:
-                    AssertEqual(operand, PaletteRows.Single(item => item.Row == updateColors.PaletteRow).Operand, $"{at}: palette row");
+                    AssertEqual(operand, ShadeOperands.Single(item => item.Shade == updateColors.Shade).Operand, $"{at}: shade");
                     break;
                 case CeresBabyCue.CryOrGoTo cryOrGoTo:
                     AssertEqual(operand, Entries.Single(item => item.Program == cryOrGoTo.Target).Entry, $"{at}: branch target");

@@ -28,10 +28,10 @@ internal static class CeresBabyAnimations
             Cue(new CeresBabyCue.CryOrGoTo(Target: P.Initial)),
             .. ExpressivePoses.SelectMany(pose => new[]
             {
-                Cue(new CeresBabyCue.UpdateColors(PaletteRow: PaletteRow(pose.Pose))),
+                Cue(new CeresBabyCue.UpdateColors(Shade: Shade(pose.Pose))),
                 Show(pose.Pose, pose.Duration),
             }),
-            Cue(new CeresBabyCue.UpdateColors(PaletteRow: 0)),
+            Cue(new CeresBabyCue.UpdateColors(Shade: CeresBabyShade.Resting)),
             Cue(new CeresBabyCue.GoToIfMoving(Target: P.ExpressiveLoop)),
             GoTo(P.Initial),
         ],
@@ -53,12 +53,12 @@ internal static class CeresBabyAnimations
         _ => F.Round,
     };
 
-    /// <summary>The palette row that accompanies <paramref name="pose"/> in the expressive loop.</summary>
-    private static int PaletteRow(F pose) => pose switch
+    /// <summary>The shade that accompanies <paramref name="pose"/> in the expressive loop.</summary>
+    private static CeresBabyShade Shade(F pose) => pose switch
     {
-        F.Horizontal => 1,
-        F.Round => 2,
-        F.Vertical => 3,
+        F.Horizontal => CeresBabyShade.HorizontalSquish,
+        F.Round => CeresBabyShade.Round,
+        F.Vertical => CeresBabyShade.VerticalSquish,
         _ => throw new ArgumentOutOfRangeException(nameof(pose), pose, "Undefined Ceres Baby pose."),
     };
 

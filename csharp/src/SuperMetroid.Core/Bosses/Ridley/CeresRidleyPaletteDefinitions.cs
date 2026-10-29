@@ -9,19 +9,19 @@ public static class CeresRidleyPaletteDefinitions
     /// <summary>The colours Ceres Ridley's initialization loads: the door and Baby container colours and the Baby's initial colours.</summary>
     public const int StartColorCount = 32;
 
-    /// <summary>The Baby's colour rows: resting, horizontal squish, round and vertical squish, selected by its animation.</summary>
-    public const int BabyRowCount = 4;
-    /// <summary>The colours of one Baby row, excluding the transparent colour zero.</summary>
+    /// <summary>The Baby's shades: resting, horizontal squish, round and vertical squish, selected by its animation.</summary>
+    public const int BabyShadeCount = 4;
+    /// <summary>The colours of one Baby shade, excluding the transparent colour zero.</summary>
     public const int BabyColorCount = 15;
 
-    /// <summary>The eye shades, traversed from the last row to the first and then held at the first.</summary>
-    public const int EyeFadeRowCount = 16;
-    /// <summary>The eye colours of one eye-fade row.</summary>
+    /// <summary>The eye shades, traversed from the last to the first and then held at the first.</summary>
+    public const int EyeFadeShadeCount = 16;
+    /// <summary>The eye colours of one eye-fade shade.</summary>
     public const int EyeFadeColorCount = 3;
 
     /// <summary>The black-to-visible body shades, one shown every two Ceres Ridley updates.</summary>
-    public const int BodyFadeRowCount = 16;
-    /// <summary>The body colours of one body-fade row, leaving the eye colours alone.</summary>
+    public const int BodyFadeShadeCount = 16;
+    /// <summary>The body colours of one body-fade shade, leaving the eye colours alone.</summary>
     public const int BodyFadeColorCount = 11;
 
     /// <summary>The damage shades shared by both Ridley encounters: by health in Norfair, by accepted hits in Ceres.</summary>

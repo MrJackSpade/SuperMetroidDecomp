@@ -111,7 +111,7 @@ internal sealed class CeresRidleyBehavior
                 state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
                 if (state.FunctionTimer.IsNegative)
                 {
-                    state.FadePaletteOffset = 0;
+                    state.FadeStep = 0;
                     CeresRidleyFlight.StartRidleyProgram(state, slot, RidleyBodyProgram.TransitionToFlying);
                     // Function_Ridley_RoarBeforeFly at $A6:A4B4-A4CB primes the wing
                     // timer, enables every tail segment, and selects neutral tail AI in

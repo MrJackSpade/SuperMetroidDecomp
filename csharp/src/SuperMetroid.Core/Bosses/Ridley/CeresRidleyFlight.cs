@@ -549,7 +549,7 @@ internal sealed class CeresRidleyFlight
             return;
 
         state.Function = RidleyAiFunction.FadeInEyes;
-        state.FadePaletteOffset = 0;
+        state.FadeStep = 0;
         state.FunctionTimer = WrappingCountdown.Start(0);
     }
 

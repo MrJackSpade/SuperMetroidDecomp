@@ -22,10 +22,10 @@ public static class CeresRidleyColorExtractor
             Start = ReadColors(RidleySourceDefinitions.Ceres.StartColors,
                 CeresRidleyPaletteDefinitions.StartColorCount),
             EyeFade = ReadRows(EnemySourceDefinitions.CeresRidleyEyeFadeRows,
-                CeresRidleyPaletteDefinitions.EyeFadeRowCount,
+                CeresRidleyPaletteDefinitions.EyeFadeShadeCount,
                 CeresRidleyPaletteDefinitions.EyeFadeColorCount),
             BodyFade = ReadRows(RidleySourceDefinitions.Ceres.BodyFadeColors,
-                CeresRidleyPaletteDefinitions.BodyFadeRowCount,
+                CeresRidleyPaletteDefinitions.BodyFadeShadeCount,
                 CeresRidleyPaletteDefinitions.BodyFadeColorCount),
             Health = ReadRows(RidleySourceDefinitions.Ceres.HealthColors,
                 CeresRidleyPaletteDefinitions.HealthRowCount,
@@ -38,7 +38,7 @@ public static class CeresRidleyColorExtractor
             RetreatShared = ReadColors(RidleySourceDefinitions.Ceres.RetreatSharedColors,
                 CeresRidleyPaletteDefinitions.RetreatSharedColorCount),
             Baby = ReadRows(RidleySourceDefinitions.Ceres.BabyColors,
-                CeresRidleyPaletteDefinitions.BabyRowCount,
+                CeresRidleyPaletteDefinitions.BabyShadeCount,
                 CeresRidleyPaletteDefinitions.BabyColorCount),
         });
 

@@ -21,7 +21,7 @@ internal sealed class CeresRidleyFades
         _presentation = presentation;
     }
 
-    /// <summary>Advances eye palette rows on each AI call before enabling the body fade.</summary>
+    /// <summary>Advances the eye-fade schedule one step on each AI call before enabling the body fade.</summary>
     internal void TickCeresRidleyEyeFade(RidleyEnemyState state)
     {
         // The original INC/BNE sequence advances once per AI call for every reachable
@@ -32,10 +32,10 @@ internal sealed class CeresRidleyFades
         state.FunctionTimer = WrappingCountdown.Start(0);
 
         CeresRidleyEyeFadeStep fadeStep =
-            CeresRidleyEyeFade.Get(state.FadePaletteOffset);
+            CeresRidleyEyeFade.Get(state.FadeStep);
         if (fadeStep.IsComplete)
         {
-            state.FadePaletteOffset = 0;
+            state.FadeStep = 0;
             state.Function = RidleyAiFunction.FadeInBody;
             state.MovementAnimationEnabled = true;
             return;
@@ -43,11 +43,11 @@ internal sealed class CeresRidleyFades
 
         (_bossArtwork.CeresRidleyColors ?? throw new InvalidOperationException(
             "Ceres Ridley eye fade requires installed colors."))
-            .ApplyEyeFade(_presentation.Colours, fadeStep.PaletteRow);
-        state.FadePaletteOffset++;
+            .ApplyEyeFade(_presentation.Colours, fadeStep.Shade);
+        state.FadeStep++;
     }
 
-    /// <summary>Reveals body palette rows, clears intangible collision and queues the battle track at the final row.</summary>
+    /// <summary>Reveals the body one shade per step, clears intangible collision and queues the battle track at the final shade.</summary>
     internal void TickCeresRidleyBodyFade(RoomEnemySlot slot, RidleyEnemyState state)
     {
         state.FunctionTimer = state.FunctionTimer.AddFrames(1);
@@ -55,24 +55,24 @@ internal sealed class CeresRidleyFades
             return;
         state.FunctionTimer = WrappingCountdown.Start(0);
 
-        // The cartridge steps a colour offset one row of colours at a time; the row it reaches is the fade's progress.
-        int row = state.FadePaletteOffset;
+        // Each step of the body fade shows the next shade, from black to the full body colours.
+        int shade = state.FadeStep;
         if (_bossArtwork.CeresRidleyColors is { } bodyColors &&
-            row < CeresRidleyPaletteDefinitions.BodyFadeRowCount)
-            bodyColors.ApplyBodyFade(_presentation.Colours, row);
+            shade < CeresRidleyPaletteDefinitions.BodyFadeShadeCount)
+            bodyColors.ApplyBodyFade(_presentation.Colours, shade);
         else throw new InvalidOperationException(
-            $"Ceres Ridley body-fade row {row} is outside the installed color rows.");
-        state.FadePaletteOffset++;
-        if (state.FadePaletteOffset < CeresRidleyPaletteDefinitions.BodyFadeRowCount)
+            $"Ceres Ridley body-fade shade {shade} is outside the installed shades.");
+        state.FadeStep++;
+        if (state.FadeStep < CeresRidleyPaletteDefinitions.BodyFadeShadeCount)
             return;
 
-        // CeresRidley_Func_5 clears tangible bit $0400 after the final palette row, waits
+        // CeresRidley_Func_5 clears tangible bit $0400 after the final shade, waits
         // five dispatcher calls, then begins the opening-roar list.
         slot.Properties = slot.Properties.Without(EnemyProperties.IgnoreSamusCollision);
-        state.FadePaletteOffset = 0;
+        state.FadeStep = 0;
         state.Function = RidleyAiFunction.WaitBeforeRoar;
         state.FunctionTimer = WrappingCountdown.Start(4);
-        // `$A6:A449` queues track five immediately after the final body-palette row.
+        // `$A6:A449` queues track five immediately after the final body shade.
         // This is the Ceres battle/escape track; it intentionally continues after Ridley
         // retreats, so omitting this single publication silences both scenes.
         state.MusicRequest = MusicRequest.SelectTrack(5);

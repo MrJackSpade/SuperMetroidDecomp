@@ -38,7 +38,7 @@ internal sealed class CeresRidleyFade
         ? CeresRidleyPaletteDefinitions.EyeFadeColorCount : CeresRidleyPaletteDefinitions.BodyFadeColorCount;
     /// <summary>Number of native fade steps for the selected table.</summary>
     private int Rows => kind == CeresRidleyFadeKind.Eyes
-        ? CeresRidleyPaletteDefinitions.EyeFadeRowCount : CeresRidleyPaletteDefinitions.BodyFadeRowCount;
+        ? CeresRidleyPaletteDefinitions.EyeFadeShadeCount : CeresRidleyPaletteDefinitions.BodyFadeShadeCount;
 
     /// <summary>Retains selected endpoint paints and exceptions to the shared fade formula.</summary>
     internal CeresRidleyFade(CeresRidleyFadeKind kind, RgbColor[][] rows)

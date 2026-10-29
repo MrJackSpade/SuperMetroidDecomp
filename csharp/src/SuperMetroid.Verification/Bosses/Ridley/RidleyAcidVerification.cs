@@ -52,7 +52,7 @@ internal static class RidleyAcidVerification
         // the terminator. This does not inject a liquid command into the fixture.
         state.Function = RidleyAiFunction.WaitBeforeLiftoff;
         state.FunctionTimer = WrappingCountdown.Start(0);
-        state.FadePaletteOffset = 0;
+        state.FadeStep = 0;
         for (int frame = 0; frame < 200 && state.Function == RidleyAiFunction.WaitBeforeLiftoff; frame++)
             runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData, SharedProjectiles = runtime.BombProjectiles });
         AssertEqual((ushort)440, fx.TargetSurface.Y, "native reveal writes acid rise target to shared FX");

@@ -129,7 +129,7 @@ internal sealed class NorfairRidleyCombat
             return;
 
         state.FunctionTimer = WrappingCountdown.Start(2);
-        int row = state.FadePaletteOffset;
+        int row = state.FadeStep;
         bool hasPalette;
         var colors = _bossArtwork.Artwork?.NorfairRidleyColors ?? throw new InvalidOperationException(
             "Norfair Ridley reveal requires installed colors.");
@@ -138,13 +138,13 @@ internal sealed class NorfairRidleyCombat
         hasPalette = row < NorfairRidleyPaletteDefinitions.RevealRowCount;
         if (hasPalette)
             colors.ApplyReveal(_presentation.Colours, row);
-        state.FadePaletteOffset++;
+        state.FadeStep++;
         if (hasPalette)
             return;
 
         RidleyLiquidMotion.Publish(_roomFx, state, RidleyLiquidDefinitions.BattleHeight,
             RidleyLiquidDefinitions.RiseVelocity, RidleyLiquidDefinitions.RiseDelay);
-        state.FadePaletteOffset = 0;
+        state.FadeStep = 0;
         CeresRidleyFlight.StartRidleyProgram(state, slot, RidleyBodyProgram.TransitionToFlying);
         state.WingAnimationTimer = WrappingCountdown.Start(8);
         state.WingAnimationTimerDelta = 8;

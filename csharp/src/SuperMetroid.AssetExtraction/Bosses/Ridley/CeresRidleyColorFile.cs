@@ -23,10 +23,10 @@ public static class CeresRidleyColorFile
         if (!Enum.IsDefined(version) ||
             version != CeresRidleyColorVersion.Current && stockForLegacyOverride is null)
             throw new InvalidDataException("Ceres Ridley colors require the supported version.");
-        RgbColor[][] bodyFade = CompileRows(document.BodyFade, CeresRidleyPaletteDefinitions.BodyFadeRowCount,
+        RgbColor[][] bodyFade = CompileRows(document.BodyFade, CeresRidleyPaletteDefinitions.BodyFadeShadeCount,
             CeresRidleyPaletteDefinitions.BodyFadeColorCount, "body fade");
         RgbColor[] start = Compile(document.Start, CeresRidleyPaletteDefinitions.StartColorCount, "start");
-        RgbColor[][] eyeFade = CompileRows(document.EyeFade, CeresRidleyPaletteDefinitions.EyeFadeRowCount,
+        RgbColor[][] eyeFade = CompileRows(document.EyeFade, CeresRidleyPaletteDefinitions.EyeFadeShadeCount,
             CeresRidleyPaletteDefinitions.EyeFadeColorCount, "eye fade");
         RgbColor[][] health = CompileRows(document.Health, CeresRidleyPaletteDefinitions.HealthRowCount,
             CeresRidleyPaletteDefinitions.HealthColorCount, "health");
@@ -41,7 +41,7 @@ public static class CeresRidleyColorFile
             "retreat shared");
         RgbColor[][]? baby = version == CeresRidleyColorVersion.PreBaby
             ? null
-            : CompileRows(document.Baby, CeresRidleyPaletteDefinitions.BabyRowCount,
+            : CompileRows(document.Baby, CeresRidleyPaletteDefinitions.BabyShadeCount,
                 CeresRidleyPaletteDefinitions.BabyColorCount, "Baby");
         return CeresRidleyColors.Create(new CeresRidleyColorRows
         {

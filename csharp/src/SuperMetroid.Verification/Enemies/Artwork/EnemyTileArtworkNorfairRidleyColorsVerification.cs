@@ -58,7 +58,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         {
             TickReference(nativeCgram, nativeState);
             Tick(installed, installedSlot, installedState);
-            AssertEqual(nativeState.FadePaletteOffset, installedState.FadePaletteOffset,
+            AssertEqual(nativeState.FadeStep, installedState.FadeStep,
                 $"Norfair Ridley reveal call {call} row/terminator position");
             AssertEqual(nativeState.FunctionTimer.RawValue, installedState.FunctionTimer.RawValue,
                 $"Norfair Ridley reveal call {call} three-call cadence");
@@ -95,12 +95,12 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         {
             Tick(editedEnemy, editedSlot, editedState);
             TickReference(controlCgram, controlState);
-            AssertEqual(controlState.FadePaletteOffset, editedState.FadePaletteOffset,
+            AssertEqual(controlState.FadeStep, editedState.FadeStep,
                 $"Norfair Ridley edited reveal call {call} preserves row selection");
             AssertEqual(controlState.FunctionTimer.RawValue, editedState.FunctionTimer.RawValue,
                 $"Norfair Ridley edited reveal call {call} preserves cadence");
         }
-        AssertEqual(8, editedState.FadePaletteOffset,
+        AssertEqual(8, editedState.FadeStep,
             "Norfair Ridley edited reveal row seven is selected");
         CheckEditedCgram("Norfair Ridley edited reveal row seven", revealRowVisible: true);
         Tick(editedEnemy, editedSlot, editedState);
@@ -109,7 +109,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         TickReference(controlCgram, controlState);
         Tick(editedEnemy, editedSlot, editedState);
         TickReference(controlCgram, controlState);
-        AssertEqual(9, editedState.FadePaletteOffset,
+        AssertEqual(9, editedState.FadeStep,
             "Norfair Ridley reveal advances after three calls");
         CheckEditedCgram("Norfair Ridley next row replaces edit", revealRowVisible: false);
 
@@ -185,15 +185,15 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             if (!state.FunctionTimer.IsNegative)
                 return;
             state.FunctionTimer = WrappingCountdown.Start(2);
-            ushort pointer = ReadReferenceWord(0xa6a4eb + state.FadePaletteOffset * 2);
-            state.FadePaletteOffset++;
+            ushort pointer = ReadReferenceWord(0xa6a4eb + state.FadeStep * 2);
+            state.FadeStep++;
             if (pointer != 0)
             {
                 for (int color = 0; color < 14; color++)
                     cgram.SetColor(113 + color, RgbColor.FromWord(checked(ReadReferenceWord(0xa60000 + pointer + color * 2))));
                 return;
             }
-            state.FadePaletteOffset = 0;
+            state.FadeStep = 0;
             state.Function = RidleyAiFunction.ClearVelocity;
         }
 

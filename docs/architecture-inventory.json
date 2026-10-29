@@ -17302,6 +17302,32 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Video.GameplayColourImage",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Video/GameplayColourImage.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Video.GameplayColourPositionDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Video/GameplayColourPositionDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Video.GameplayVramLayout",
       "kind": "static class",
       "scope": "product",
@@ -21539,6 +21565,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Assets.GameplayColours.ShownOverSprites",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/GameplayColours.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Assets.GameplayColoursAccess",
       "kind": "static class",
       "scope": "test",
@@ -21587,6 +21626,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Assets.GameplayStartingColours",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/GameplayStartingColours.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Assets.IBgCharacterArtwork",
       "kind": "interface",
       "scope": "product",
@@ -21608,6 +21660,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Assets/IColourSetRun.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.Core.Assets.IColourSets",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/IColourSets.cs"
       ],
       "partial": "none",
       "disposition": "contract"
@@ -21841,6 +21906,22 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Assets.NativeColourImage",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Assets/NativeColourImage.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Assets.NativeSpriteGraphicsWords",
@@ -22182,6 +22263,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Assets.ShownColourSets",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/ShownColourSets.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Assets.ShownSpriteArtwork",
@@ -83441,6 +83535,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Fx.PaletteFx.BackgroundSetPlacement",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/BackgroundSetPlacement.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Fx.PaletteFx.BeaconPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -85008,21 +85115,8 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxColourOwner",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxColourOwner.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxColourPlacement",
-      "kind": "record struct",
+      "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -85031,7 +85125,7 @@
         "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxColourPlacement.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxColourPlacementDefinitions",
@@ -86153,6 +86247,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Fx.PaletteFx.SamusBeamsPlacement",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/SamusBeamsPlacement.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinition",
       "kind": "class",
       "scope": "product",
@@ -86254,6 +86361,32 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.PaletteFx.SamusSuitPlacement",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/SamusSuitPlacement.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.PaletteFx.SpriteSetPlacement",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/SpriteSetPlacement.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Fx.PaletteFx.TitleLogoFadePaletteFxColorDefinitions",
@@ -94152,6 +94285,19 @@
     },
     {
       "type": "SuperMetroid.Core.Rendering.ScreenPalette",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/ScreenPalette.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.ScreenPalette.Rows",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -113063,17 +113209,36 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Palettes.SamusColours.Place",
-      "kind": "record struct",
-      "scope": "product",
+      "type": "SuperMetroid.Core.Samus.Palettes.SamusColoursAccess",
+      "kind": "static class",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusColours.cs"
+        "csharp/test-support/VerificationAccess.Core/Samus/Palettes/SamusColoursAccess.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Palettes.SamusColoursAccess.extension(SuperMetroid.Core.Samus.Palettes.SamusColours)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/Palettes/SamusColoursAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Samus.Palettes.SamusFullBodyCyclePalettes",

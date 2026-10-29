@@ -57,7 +57,7 @@ internal sealed class EnemyGraphicsSet
     internal void LoadGraphicsSet(
         IRoomEnemyDefinitionSource definitions,
         RoomEnemyGraphicsSetDefinition graphicsSet,
-        ISpriteColourSets sets)
+        IColourSets sets)
     {
         LoadedSet = graphicsSet;
         foreach (RoomEnemyGraphicsSetEntry entry in LayOut(definitions, graphicsSet))

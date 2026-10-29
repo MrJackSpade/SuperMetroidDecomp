@@ -45,9 +45,7 @@ internal static class FirefleaEyeVerification
         var baseLayer = (GameplaySceneLayer)source.Layers[0];
         // Isolate the actual room OBJ pixels on a black backdrop, retaining the
         // retail graphics/palette and the production source-aware color-math kernel.
-        var palette = memory.Colors.ToArray();
-        palette[0] = RgbColor.Black;
-        memory = new(palette, memory.SpriteDraws);
+        memory = new(memory.Backgrounds.WithBackdrop(RgbColor.Black), memory.SpriteDraws);
         var objects = new GameplaySceneLayer(baseLayer.View with { MainScreenLayers = ScreenLayers.Sprites }, baseLayer.Rooms);
         RgbaPixel[]? bright = null;
         foreach (byte darkness in new byte[] { 0, 6, 12, 18, 24, 25, 31 })

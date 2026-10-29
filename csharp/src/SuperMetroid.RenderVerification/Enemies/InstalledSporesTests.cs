@@ -156,7 +156,7 @@ internal static class InstalledSporesTests
                         layer.Lines.All(line => line.Left > line.Right) && layer.BlendPlane is not null,
                         "Spore capture does not blend the background, the sprites and the backdrop with the spores.");
                     packets.Add(new(new(packets.Count + 1, 1, 0), new LayeredScene(
-                        new(editedColors.Colors, []), [layer], 15)));
+                        FramePaint.FromNative(editedColors.Colors, []), [layer], 15)));
                 }
                 comparisons++;
             }

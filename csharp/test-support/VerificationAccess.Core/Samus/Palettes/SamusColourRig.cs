@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Samus.Palettes;

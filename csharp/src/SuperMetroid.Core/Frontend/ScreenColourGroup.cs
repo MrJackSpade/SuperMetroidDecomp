@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend;
 /// in, named by their meaning on that screen. Effects and draws address a screen's colours only through these keys;
 /// <see cref="ScreenColourGroups"/> alone knows where the screen holds each group.
 /// </summary>
-internal enum ScreenColourGroup
+public enum ScreenColourGroup
 {
     /// <summary>The colours of Samus's suit on a screen that shows her, which palette effects and her hurt flash write.</summary>
     SamusSuit,

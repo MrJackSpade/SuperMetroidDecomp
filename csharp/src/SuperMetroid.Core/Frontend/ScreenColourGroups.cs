@@ -18,14 +18,25 @@ internal static class ScreenColourGroups
     }
 
     /// <summary>
-    /// The colours of <paramref name="group"/> in <paramref name="screenColours"/>, a whole screen's colours laid out as a
-    /// screen palette's.
+    /// The entries for <paramref name="group"/> in <paramref name="screenOrdered"/>, one entry per colour of a whole screen,
+    /// laid out as a screen palette's colours.
     /// </summary>
-    public static ReadOnlySpan<RgbColor> In(ReadOnlySpan<RgbColor> screenColours, ScreenColourGroup group)
+    public static ReadOnlySpan<T> In<T>(ReadOnlySpan<T> screenOrdered, ScreenColourGroup group)
     {
-        Ensure.LengthEqual(screenColours, ScreenPalette.ColorCount);
+        Ensure.LengthEqual(screenOrdered, ScreenPalette.ColorCount);
         ScreenColourGroupDefinition definition = Definition(group);
-        return screenColours.Slice(First(definition), definition.ColourCount);
+        return screenOrdered.Slice(First(definition), definition.ColourCount);
+    }
+
+    /// <summary>
+    /// The entries for <paramref name="group"/> in <paramref name="screenOrdered"/>, one entry per colour of a whole screen,
+    /// laid out as a screen palette's colours, to change in place.
+    /// </summary>
+    public static Span<T> InPlace<T>(Span<T> screenOrdered, ScreenColourGroup group)
+    {
+        Ensure.LengthEqual<T>(screenOrdered, ScreenPalette.ColorCount);
+        ScreenColourGroupDefinition definition = Definition(group);
+        return screenOrdered.Slice(First(definition), definition.ColourCount);
     }
 
     /// <summary>The colour <paramref name="group"/>, a single-colour group, in <paramref name="screenColours"/>.</summary>

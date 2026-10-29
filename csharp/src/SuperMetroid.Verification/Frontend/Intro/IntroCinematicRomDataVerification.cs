@@ -1,8 +1,10 @@
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Enemies.EnemyInstructionCodePointersVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Title;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -129,18 +131,14 @@ internal static class IntroCinematicRomDataVerification
     /// <summary>Reads a cartridge byte to validate a named cinematic code or list pointer.</summary>
     private static byte CinematicCodePointerCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Checks that a cinematic palette span is aligned, nonempty, and inside CGRAM.</summary>
+    /// <summary>Checks that each faded screen colour group of a cinematic fade is nonempty and lies among the screen's colours.</summary>
     private static void AssertIntroPaletteSpans(
-        IReadOnlyList<IntroPaletteSpan> spans,
+        IReadOnlyList<ScreenColourGroup> groups,
         string context)
     {
-        AssertTrue(spans.Count != 0, $"intro {context} palette span list is nonempty");
-        foreach (IntroPaletteSpan span in spans)
-        {
-            AssertTrue(span.FirstColor >= 0, $"intro {context} span starts inside CGRAM");
-            AssertTrue(span.ColorCount > 0, $"intro {context} span is nonempty");
-            AssertTrue(span.FirstColor + span.ColorCount <= SnesCgram.ColorCount,
-                $"intro {context} span fits CGRAM");
-        }
+        AssertTrue(groups.Count != 0, $"intro {context} colour group list is nonempty");
+        var screen = new ScreenPalette();
+        foreach (ScreenColourGroup group in groups)
+            AssertTrue(screen.Colours(group).Count > 0, $"intro {context} colour group {group} is nonempty and inside the screen's colours");
     }
 }

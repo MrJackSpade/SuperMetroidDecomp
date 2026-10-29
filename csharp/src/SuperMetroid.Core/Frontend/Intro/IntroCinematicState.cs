@@ -1368,25 +1368,25 @@ level, samus, FrameCounterWord(elapsedUpdates));
         textTilemap.AsSpan(0, IntroCinematicDefinitions.Tilemaps.VisibleTextCellCount).CopyTo(tilemaps.Narration);
     }
 
-    /// <summary>Clears selected CGRAM spans before an incoming scene palette begins crossfading.</summary>
-    private void ClearPaletteSpans(IReadOnlyList<IntroPaletteSpan> spans)
+    /// <summary>Clears the selected screen colours before an incoming scene palette begins crossfading.</summary>
+    private void ClearPaletteSpans(IReadOnlyList<ScreenColourGroup> groups)
     {
-        foreach (IntroPaletteSpan span in spans)
-            PaletteFader.Clear(span);
+        foreach (ScreenColourGroup group in groups)
+            PaletteFader.Clear(group);
     }
 
-    /// <summary>Raises selected CGRAM components toward the prepared palette target for the incoming scene.</summary>
-    private void FadeInPaletteSpans(IReadOnlyList<IntroPaletteSpan> spans)
+    /// <summary>Raises the selected screen colours' components toward the prepared palette target for the incoming scene.</summary>
+    private void FadeInPaletteSpans(IReadOnlyList<ScreenColourGroup> groups)
     {
-        foreach (IntroPaletteSpan span in spans)
-            PaletteFader.FadeIn(span);
+        foreach (ScreenColourGroup group in groups)
+            PaletteFader.FadeIn(group);
     }
 
-    /// <summary>Reduces selected palette components during a scene-to-text or text-to-scene fade.</summary>
-    private void FadeOutPaletteSpans(IReadOnlyList<IntroPaletteSpan> spans)
+    /// <summary>Reduces the selected screen colours' components during a scene-to-text or text-to-scene fade.</summary>
+    private void FadeOutPaletteSpans(IReadOnlyList<ScreenColourGroup> groups)
     {
-        foreach (IntroPaletteSpan span in spans)
-            PaletteFader.FadeOut(span);
+        foreach (ScreenColourGroup group in groups)
+            PaletteFader.FadeOut(group);
     }
 
     /// <summary>Rejects truncated installed graphics before their native-sized VRAM transfers.</summary>

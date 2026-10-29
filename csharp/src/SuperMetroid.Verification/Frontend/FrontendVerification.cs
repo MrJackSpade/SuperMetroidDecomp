@@ -2,10 +2,12 @@ using SuperMetroid.Verification.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
@@ -420,42 +422,45 @@ internal static void VerifyIntroGameplayFlashbackVerticalScroll()
     Console.WriteLine("  Intro: Mother Brain and SR388 BG1 retain the native eight-pixel vertical scroll.");
 }
 
-/// <summary>Checks native byte-offset clearing and fixed-point fade rounding over 32 cinematic palette steps.</summary>
+/// <summary>
+/// Checks group clearing and fixed-point fade rounding over 32 cinematic palette steps on the narration text's colours: the
+/// fade is asserted on the group's first colour, whose target is the only non-black one.
+/// </summary>
 internal static void VerifyCinematicPaletteFader()
 {
     var target = new ushort[SnesCgram.ColorCount];
     // Component four produces step $0020, making the fixed-point rounding boundary easy
     // to see: seven calls compose to zero and the eighth composes to component one.
-    target[20] = 0x1084;
+    target[ScreenColourPositions.Of(ScreenColourGroup.IntroNarrationText)] = 0x1084;
     var cgram = new ScreenPalette();
     var fader = new CinematicPaletteFader(ToColors(target));
 
-    // $8B:B018 clears incoming range $28/$03. Because X is a byte offset, the first
-    // affected entry is color 20; the span names that color directly.
-    var color20 = new IntroPaletteSpan(20, 1);
-    fader.Clear(new IntroPaletteSpan(20, 3));
+    // $8B:B018 clears incoming range $28/$03, the narration text's three colours.
+    fader.Clear(ScreenColourGroup.IntroNarrationText);
     fader.ComposeInto(cgram);
-    AssertEqual(0x0000, cgram.Colors[20], "cinematic clear starts at the span's first color");
+    AssertEqual(0x0000, NarrationText(cgram), "cinematic clear blackens the narration text's first colour");
 
     // One retail step adds component four << 3 = $0020. Compose takes the high byte,
     // so the first seven calls remain black and the eighth produces component one.
     for (int step = 0; step < 7; step++)
-        fader.FadeIn(color20);
+        fader.FadeIn(ScreenColourGroup.IntroNarrationText);
     fader.ComposeInto(cgram);
-    AssertEqual(0x0000, cgram.Colors[20], "8.8 cinematic fade preserves early rounding");
-    fader.FadeIn(color20);
+    AssertEqual(0x0000, NarrationText(cgram), "8.8 cinematic fade preserves early rounding");
+    fader.FadeIn(ScreenColourGroup.IntroNarrationText);
     fader.ComposeInto(cgram);
-    AssertEqual(0x0421, cgram.Colors[20], "eighth fade step reaches BGR component one");
+    AssertEqual(0x0421, NarrationText(cgram), "eighth fade step reaches BGR component one");
 
     for (int step = 8; step < 32; step++)
-        fader.FadeIn(color20);
+        fader.FadeIn(ScreenColourGroup.IntroNarrationText);
     fader.ComposeInto(cgram);
-    AssertEqual(0x1084, cgram.Colors[20], "32 fade-in calls reach exact target");
+    AssertEqual(0x1084, NarrationText(cgram), "32 fade-in calls reach exact target");
 
     for (int step = 0; step < 32; step++)
-        fader.FadeOut(color20);
+        fader.FadeOut(ScreenColourGroup.IntroNarrationText);
     fader.ComposeInto(cgram);
-    AssertEqual(0x0000, cgram.Colors[20], "32 fade-out calls reach exact black");
+    AssertEqual(0x0000, NarrationText(cgram), "32 fade-out calls reach exact black");
+
+    static RgbColor NarrationText(ScreenPalette colours) => colours.Colours(ScreenColourGroup.IntroNarrationText)[0];
 }
 
 /// <summary>Checks the Mother Brain flashback's typed demo program: held and new input edges, record timing and its end routine.</summary>

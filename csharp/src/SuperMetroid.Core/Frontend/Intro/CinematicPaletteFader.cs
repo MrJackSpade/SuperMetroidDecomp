@@ -12,6 +12,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <c>component &lt;&lt; 8</c>; its per-update step is <c>component &lt;&lt; 3</c>, so exactly
 /// 32 calls move between black and the target. Keeping those words here reproduces the
 /// observable rounding and 16-bit wrapping instead of substituting floating-point lerp.
+/// The fader holds one accumulator per screen colour and addresses them by the screen's colour groups (#1464).
 /// </remarks>
 public sealed class CinematicPaletteFader
 {
@@ -32,32 +33,30 @@ public sealed class CinematicPaletteFader
         }
     }
 
-    /// <summary>Ports <c>ClearYColorsFromIndexX</c> at $8B:8C5E: the span's colors become black.</summary>
-    /// <param name="span">The colors to clear.</param>
-    public void Clear(IntroPaletteSpan span)
-    {
-        (int firstColor, int exclusiveEnd) = ValidateRange(span);
-        Array.Fill(current, default, firstColor, exclusiveEnd - firstColor);
-    }
+    /// <summary>Ports <c>ClearYColorsFromIndexX</c> at $8B:8C5E: the group's colours become black.</summary>
+    /// <param name="group">The colours to clear.</param>
+    internal void Clear(ScreenColourGroup group) => ScreenColourGroups.InPlace(current.AsSpan(), group).Clear();
 
-    /// <summary>Ports <c>FadeOutYColorsFromIndexX</c> at $8B:8C83: the span's colors take one step toward black.</summary>
-    /// <param name="span">The colors to fade.</param>
-    public void FadeOut(IntroPaletteSpan span)
+    /// <summary>Ports <c>FadeOutYColorsFromIndexX</c> at $8B:8C83: the group's colours take one step toward black.</summary>
+    /// <param name="group">The colours to fade.</param>
+    internal void FadeOut(ScreenColourGroup group)
     {
-        (int firstColor, int exclusiveEnd) = ValidateRange(span);
-        // The known intro ranges reach exactly zero after 32 calls, but preserving the native
+        Span<CinematicFadeColor> colours = ScreenColourGroups.InPlace(current.AsSpan(), group);
+        ReadOnlySpan<CinematicFadeColor> steps = ScreenColourGroups.In<CinematicFadeColor>(step, group);
+        // The known intro groups reach exactly zero after 32 calls, but preserving the native
         // wrap makes this helper faithful and makes accidental over-stepping visible in a debugger.
-        for (int color = firstColor; color < exclusiveEnd; color++)
-            current[color] = current[color].Minus(step[color]);
+        for (int color = 0; color < colours.Length; color++)
+            colours[color] = colours[color].Minus(steps[color]);
     }
 
-    /// <summary>Ports <c>FadeInYColorsFromIndexX</c> at $8B:8CB2: the span's colors take one step toward their target.</summary>
-    /// <param name="span">The colors to fade.</param>
-    public void FadeIn(IntroPaletteSpan span)
+    /// <summary>Ports <c>FadeInYColorsFromIndexX</c> at $8B:8CB2: the group's colours take one step toward their target.</summary>
+    /// <param name="group">The colours to fade.</param>
+    internal void FadeIn(ScreenColourGroup group)
     {
-        (int firstColor, int exclusiveEnd) = ValidateRange(span);
-        for (int color = firstColor; color < exclusiveEnd; color++)
-            current[color] = current[color].PlusWrapped(step[color]);
+        Span<CinematicFadeColor> colours = ScreenColourGroups.InPlace(current.AsSpan(), group);
+        ReadOnlySpan<CinematicFadeColor> steps = ScreenColourGroups.In<CinematicFadeColor>(step, group);
+        for (int color = 0; color < colours.Length; color++)
+            colours[color] = colours[color].PlusWrapped(steps[color]);
     }
 
     /// <summary>Ports <c>ComposeFadingPalettes</c> at $8B:8CEA into the screen's colours.</summary>
@@ -68,14 +67,5 @@ public sealed class CinematicPaletteFader
         for (int color = 0; color < image.Length; color++)
             image[color] = current[color].Visible;
         colours.Load(image);
-    }
-
-    /// <summary>Converts a nonempty span to a bounded palette color interval.</summary>
-    private static PaletteColorRange ValidateRange(IntroPaletteSpan span)
-    {
-        // The native do/while routine handles at least one color, and the run stays inside the 256-color buffer.
-        int firstColor = Ensure.BetweenInclusive(0, ScreenPalette.ColorCount - 1, span.FirstColor);
-        int colorCount = Ensure.BetweenInclusive(1, ScreenPalette.ColorCount - firstColor, span.ColorCount);
-        return new PaletteColorRange(firstColor, firstColor + colorCount);
     }
 }

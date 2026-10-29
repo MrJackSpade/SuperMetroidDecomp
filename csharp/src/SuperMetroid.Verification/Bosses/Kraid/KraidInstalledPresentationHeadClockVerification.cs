@@ -154,7 +154,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
             this.art = art;
             Enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
             State = new KraidEnemyState();
-            Enemies.KraidBehavior.Rise.InitializeKraidBackground(State);
+            State.InitializeBodyLayer();
             step = new Func<RoomEnemySlot, KraidEnemyState, ushort>(Enemies.KraidBehavior.Head.ProcessKraidHeadInstruction);
             hit = CoreAccess.KraidMouthHitboxOverlapsShot;
             Body.Position = Body.Position.WithWhole(new(512, 512));

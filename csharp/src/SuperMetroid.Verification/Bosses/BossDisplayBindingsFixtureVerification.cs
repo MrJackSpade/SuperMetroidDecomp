@@ -3,7 +3,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.AssetExtraction.Bosses;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -13,6 +12,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.World;
 
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Verification.Bosses;
 
 /// <summary>Builds a RAM-only boss actor fixture for queued OAM and hitbox checks.</summary>
@@ -41,12 +41,13 @@ internal static class BossDisplayBindingsFixtureVerification
         internal BackgroundTile Bg2FillTile => BossBodySheetComposer.BlankOf(BodyOwner);
 
         /// <summary>The tilemap entry each cell of the boss's body layer shows now, from the frames its artwork installs (#1466).</summary>
-        internal ushort[] Bg2Words => BossBodyWords.Of(Enemies.Presentation.RequireBossBody().Publish(Sheets), BodyOwner,
-            Enemies.BossArtwork ?? throw new InvalidOperationException("The fixture binds boss artwork."));
+        internal ushort[] Bg2Words => BossBodyWords.Of(Enemies.Presentation.RequireBossBody().Publish(Sheets), BodyOwner, bodies.Frames);
 
-        /// <summary>The installed boss body sheets the fixture draws from.</summary>
-        private static BossBodySheets Sheets => RepositoryInstallation.Artwork.BossBodySheets
-            ?? throw new InvalidOperationException("The repository installation has no boss body sheets.");
+        /// <summary>The fixture's boss frames and the body sheets composed from them, which its bosses draw from.</summary>
+        private readonly BossBodyArtworkFixture bodies;
+
+        /// <summary>The body sheets composed from the fixture's boss frames.</summary>
+        private BossBodySheets Sheets => bodies.Sheets;
         /// <summary>Bound production instruction interpreter for one actor step.</summary>
         private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton> instructions;
         /// <summary>Bound extended-hitbox query used by the collision check.</summary>
@@ -64,6 +65,8 @@ internal static class BossDisplayBindingsFixtureVerification
                 TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas,
             };
             Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
+            bodyOwner = BodyOwnerOf(definition);
+            bodies = bodyOwner is { } drawn ? BossBodySheetFixtures.For(artwork.Bosses, drawn) : BossBodySheetFixtures.Stock;
             Enemies.BossArtworkBinding.BodySheets = Sheets;
             Enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
             Actor.Bind(definition, Actor.Definition);
@@ -76,11 +79,14 @@ internal static class BossDisplayBindingsFixtureVerification
             // The boss draws under the retail graphics set its room loads, whose sheets hold its frames.
             SpawnedObjectFixtures.LoadSetDrawing(Enemies, definition, Actor);
             // A boss that owns BG2 attaches its body layer as its initialisation does, before any of its frames draw on it.
-            bodyOwner = BodyOwners.TryGetValue(definition, out BossBodyOwner owner) ? owner : null;
             ClearBg2();
             instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton>(EnemyInstructionInterpreter.ProcessInstructions);
             hitbox = new HitboxQuery(Enemies.Collision.TryFindExtendedHitboxCallback);
         }
+
+        /// <summary>The boss whose body layer <paramref name="definition"/> draws on, or null for one that draws none.</summary>
+        internal static BossBodyOwner? BodyOwnerOf(EnemyDefinitionId definition) =>
+            BodyOwners.TryGetValue(definition, out BossBodyOwner owner) ? owner : null;
 
         /// <summary>Each part of a boss that owns a body layer (#1446, #1466), with the boss whose layer it draws on.</summary>
         private static readonly Dictionary<EnemyDefinitionId, BossBodyOwner> BodyOwners = new()

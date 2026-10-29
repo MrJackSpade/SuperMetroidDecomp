@@ -23,7 +23,7 @@ public sealed class BossBodyPart
         IReadOnlyDictionary<string, SpriteSheetFrame>? animationPictures = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
-        ArgumentOutOfRangeException.ThrowIfNegative(top);
+        Ensure.AtLeastZero(top);
         if ((animation is null) != (animationPictures is null or { Count: 0 }))
             throw new ArgumentException($"Boss body part {name} must picture every frame of its animation, and only an animated part has frames.",
                 nameof(animationPictures));

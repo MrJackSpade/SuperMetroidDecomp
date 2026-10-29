@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using System.Collections.Immutable;
-using System.Runtime.InteropServices;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Rooms.Artwork;
@@ -25,14 +24,6 @@ public sealed class TileWordPictureResolver(TileWordSheet sheet)
 
     /// <summary>The sheet.</summary>
     public TileWordSheet Sheet { get; } = Ensure.NotNull(sheet);
-
-    /// <summary>The picture of each of a boss body <paramref name="tilemap"/>'s tiles over what the room's <paramref name="characters"/> show now.</summary>
-    /// <exception cref="InvalidDataException">The sheet pictures a tile over nothing its character shows.</exception>
-    public ImmutableArray<BgTilePicture?> Resolve(ImmutableArray<BackgroundTile> tilemap, RoomCharacterSource characters)
-    {
-        BackgroundTile[] tiles = ImmutableCollectionsMarshal.AsArray(tilemap) ?? throw new ArgumentException("A default tilemap has no tiles.", nameof(tilemap));
-        return ResolveWords(tiles, tiles.Length, index => tiles[index], Bg12Artwork(characters), characters.Animated);
-    }
 
     /// <summary>The picture of each tile written in <paramref name="overlay"/> over what the room's <paramref name="characters"/> show now.</summary>
     /// <exception cref="InvalidDataException">The sheet pictures a tile over nothing its character shows.</exception>

@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -68,11 +69,14 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
     }
 
     /// <summary>
-    /// The sheet of every frame added and of <paramref name="blank"/>, the boss's blank cell, the pictures laid out in up to
-    /// <paramref name="columns"/> columns.
+    /// The sheet of every frame added and of <paramref name="blank"/>, the boss's blank cell. Pictures that paint the same
+    /// cells with the same characters share one place, and the places are laid out in as many full-width columns as the
+    /// largest sheet holds.
     /// </summary>
-    /// <exception cref="InvalidDataException">The blank reads a character its room rebinds after loading or animates.</exception>
-    internal ComposedBossBodySheet Compose(BackgroundTile blank, int columns)
+    /// <exception cref="InvalidDataException">
+    /// The blank reads a character its room rebinds after loading or animates, or the pictures do not fit the largest sheet.
+    /// </exception>
+    internal ComposedBossBodySheet Compose(BackgroundTile blank)
     {
         if (room.Rebound.Any(upload => upload.Covers(BgCharacterSet.Tiles, blank.Tile)) || AnimationOf(blank.Tile) is not null)
             throw new InvalidDataException($"{owner}'s blank reads character {blank.Tile}, which its room rebinds or animates.");
@@ -80,41 +84,75 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
         var blankPart = new ComposedBossBodyPart(BlankPartName, 0, BossBodyFootprint.OfCells(0, 1), null,
             new Dictionary<string, string>(StringComparer.Ordinal));
 
-        // Each picture goes to the column with the fewest rows so far.
-        int across = Math.Min(columns, pictures.Count);
-        var used = new int[across];
-        var corners = new Position16<ImagePixels>[pictures.Count];
+        // Pictures that paint the same cells with the same characters share the first one's place.
+        var placeOf = new Dictionary<string, int>(StringComparer.Ordinal);
+        var places = new List<BossBodyPicture>();
+        var placeIndex = new int[pictures.Count];
         for (int index = 0; index < pictures.Count; index++)
         {
-            int column = Array.IndexOf(used, used.Min());
-            corners[index] = new Position16<ImagePixels>(checked((ushort)(column * BossBodyDefinitions.ColumnCount * RoomTileCanvas.CharacterPixels)),
-                checked((ushort)(used[column] * RoomTileCanvas.CharacterPixels)));
-            used[column] += pictures[index].Rows;
+            string content = ContentKey(pictures[index]);
+            if (!placeOf.TryGetValue(content, out int place))
+            {
+                place = places.Count;
+                placeOf.Add(content, place);
+                places.Add(pictures[index]);
+            }
+            placeIndex[index] = place;
         }
-        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)(across * BossBodyDefinitions.ColumnCount * RoomTileCanvas.CharacterPixels)),
-            checked((ushort)(used.Max() * RoomTileCanvas.CharacterPixels))));
+
+        // Each place goes to the column with the fewest rows so far.
+        int columnPixels = BossBodyDefinitions.ColumnCount * RoomTileCanvas.CharacterPixels;
+        int across = Math.Min(RgbaPng.MaximumDimension / columnPixels, places.Count);
+        int maximumRows = RgbaPng.MaximumDimension / RoomTileCanvas.CharacterPixels;
+        var used = new int[across];
+        var corners = new Position16<ImagePixels>[places.Count];
+        for (int place = 0; place < places.Count; place++)
+        {
+            int column = Array.IndexOf(used, used.Min());
+            if (used[column] + places[place].Rows > maximumRows)
+                throw new InvalidDataException(
+                    $"{owner}'s body pictures need more than one {RgbaPng.MaximumDimension}-pixel sheet.");
+            corners[place] = new Position16<ImagePixels>((ushort)(column * columnPixels), (ushort)(used[column] * RoomTileCanvas.CharacterPixels));
+            used[column] += places[place].Rows;
+        }
+        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>((ushort)(across * columnPixels), (ushort)(used.Max() * RoomTileCanvas.CharacterPixels)));
+        var coloured = new ImageColourGroups[places.Count];
+        for (int place = 0; place < places.Count; place++)
+        {
+            foreach (BossBodyPaintedCell cell in places[place].Cells)
+            {
+                coloured[place] = coloured[place].Union(canvas.PaintTile(corners[place].X + cell.Column * RoomTileCanvas.CharacterPixels,
+                    corners[place].Y + cell.Row * RoomTileCanvas.CharacterPixels, cell.Tile, cell.Character.Span, colours));
+            }
+        }
         var documents = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         for (int index = 0; index < pictures.Count; index++)
         {
             BossBodyPicture picture = pictures[index];
-            Position16<ImagePixels> corner = corners[index];
-            ImageColourGroups coloured = ImageColourGroups.None;
-            foreach (BossBodyPaintedCell cell in picture.Cells)
-            {
-                coloured = coloured.Union(canvas.PaintTile(corner.X + cell.Column * RoomTileCanvas.CharacterPixels,
-                    corner.Y + cell.Row * RoomTileCanvas.CharacterPixels, cell.Tile, cell.Character.Span, colours));
-            }
+            int place = placeIndex[index];
             documents.Add(picture.Name, new SpriteSheetFrameDocument
             {
-                Corner = corner,
-                Size = new Extent16<ImagePixels>(checked((ushort)(picture.Columns * RoomTileCanvas.CharacterPixels)),
-                    checked((ushort)(picture.Rows * RoomTileCanvas.CharacterPixels))),
+                Corner = corners[place],
+                Size = new Extent16<ImagePixels>((ushort)(picture.Columns * RoomTileCanvas.CharacterPixels), (ushort)(picture.Rows * RoomTileCanvas.CharacterPixels)),
                 Origin = default,
-                ColourGroups = coloured.ManifestMembers,
+                ColourGroups = coloured[place].ManifestMembers,
                 Parts = [],
             });
         }
         return new ComposedBossBodySheet(owner, canvas.ToRoomSheet(colours, documents), blankPart, frames);
+    }
+
+    /// <summary>What <paramref name="picture"/> paints: its size and each cell's place, tile and character bytes.</summary>
+    private static string ContentKey(BossBodyPicture picture)
+    {
+        var key = new System.Text.StringBuilder();
+        key.Append(picture.Columns).Append('x').Append(picture.Rows);
+        foreach (BossBodyPaintedCell cell in picture.Cells)
+        {
+            key.Append('|').Append(cell.Column).Append(',').Append(cell.Row).Append(',').Append(cell.Tile).Append(',')
+                .Append(Convert.ToHexString(cell.Character.Span));
+        }
+        return key.ToString();
     }
 
     /// <summary>

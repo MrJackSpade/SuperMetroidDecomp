@@ -96,7 +96,7 @@ internal sealed class KraidRise
 
         // `$A7:AAC6` constructs the private WRAM tilemap which subsequent rise, head,
         // growth, and death functions upload in independently timed slices.
-        InitializeKraidBackground(state);
+        state.InitializeBodyLayer();
         state.HurtFrame = 0;
         state.HurtFrameTimer = WrappingCountdown.Start(0);
 
@@ -120,17 +120,6 @@ internal sealed class KraidRise
             _room.Services.RoomScroll.Write(index, layout == KraidScrollLayout.Grown
                 ? KraidCamera.GrownScroll(index)
                 : KraidCamera.InitialScroll(index));
-    }
-
-    /// <summary>
-    /// Kraid's body is ready to show (<c>$A7:AAC6</c>): both his pages hold his body, which his installed body sheet
-    /// pictures, and he owns his body layer from here (#1352, #1466).
-    /// </summary>
-    internal void InitializeKraidBackground(KraidEnemyState state)
-    {
-        state.WorkingTop = state.WorkingBottom = KraidBodyPage.Body;
-        state.BackgroundTilemapsPrepared = true;
-        state.OwnsBg2Tilemap = true;
     }
 
     /// <summary>Binds the fixed room backdrop characters among the room's tile characters (#1352, #1406).</summary>

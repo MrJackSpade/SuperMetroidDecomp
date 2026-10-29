@@ -10,10 +10,10 @@ namespace SuperMetroid.Core.Enemies.BossBodies;
 public sealed class BossBodySheet
 {
     /// <summary>The frames by name.</summary>
-    private readonly IReadOnlyDictionary<string, BossBodyFrame> frames;
+    private readonly Dictionary<string, BossBodyFrame> frames;
 
     /// <summary>Every part of every frame, and the blank, by name.</summary>
-    private readonly IReadOnlyDictionary<string, BossBodyPart> parts;
+    private readonly Dictionary<string, BossBodyPart> parts;
 
     /// <summary>Holds <paramref name="owner"/>'s frames cut from <paramref name="sheet"/>.</summary>
     /// <exception cref="InvalidDataException">

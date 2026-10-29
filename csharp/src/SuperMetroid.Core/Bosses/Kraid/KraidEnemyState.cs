@@ -111,6 +111,17 @@ public sealed class KraidEnemyState
     /// </summary>
     public bool OwnsBg2Tilemap { get; internal set; }
 
+    /// <summary>
+    /// Kraid's body is ready to show (<c>$A7:AAC6</c>): both his pages hold his body, which his installed body sheet
+    /// pictures, and he owns his body layer from here (#1352, #1466).
+    /// </summary>
+    internal void InitializeBodyLayer()
+    {
+        WorkingTop = WorkingBottom = KraidBodyPage.Body;
+        BackgroundTilemapsPrepared = true;
+        OwnsBg2Tilemap = true;
+    }
+
     /// <summary>Live BG2HOFS/BG2VOFS calculated by Kraid main AI from the camera and body position.</summary>
     public Position16<BackgroundPixels> Bg2Scroll { get; internal set; }
 

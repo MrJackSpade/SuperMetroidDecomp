@@ -11,6 +11,8 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Enemies.BossBodies;
 namespace SuperMetroid.Verification.Bosses;
 
 /// <summary>Checks boss BG2 resource requirements, display bindings, and legacy document inheritance.</summary>
@@ -22,13 +24,14 @@ internal static class BossDisplayBindingsResourcesVerification
         foreach ((EnemyDefinitionId definition, EnemySpritemapDefinition[] family) in BossDisplayDocuments.Families())
         {
             EnemySpritemapDefinition frame = family.First(frame => edits.Writes(frame.Bank, edits.Selected(frame).Pointer).Length != 0);
-            var missing = new BossDisplayFixture(definition, edits.Build(omitBg2Bank: frame.Bank));
-            missing.SetFrame(frame.Pointer, fresh: true);
-            byte[] unchanged = missing.Vram.Bytes.ToArray();
-            AssertThrows<InvalidDataException>(() => missing.Draw(), "selected BG2 resource is mandatory");
-            AssertTrue(unchanged.SequenceEqual(missing.Vram.Bytes), "missing selected BG2 cannot mutate VRAM");
+            // The body's pictures are composed at install (#1466), so missing BG2 frames fail there, before anything draws.
+            BossBodyOwner bodyOwner = BossDisplayFixture.BodyOwnerOf(definition)
+                ?? throw new InvalidOperationException($"{definition} writes BG2 frames without a body layer.");
+            AssertThrows<InvalidDataException>(() => BossBodySheetFixtures.For(edits.Build(omitBg2Bank: frame.Bank).Bosses, bodyOwner),
+                "selected BG2 resource is mandatory");
             var noBindings = new BossDisplayFixture(definition, edits.Build(extended: false));
             noBindings.SetFrame(frame.Pointer, fresh: true);
+            byte[] unchanged = noBindings.Vram.Bytes.ToArray();
             AssertThrows<InvalidDataException>(() => noBindings.Draw(), "BG2 cannot bypass mandatory shared composition bindings");
             AssertTrue(unchanged.SequenceEqual(noBindings.Vram.Bytes), "missing composition cannot write BG2 then fail");
         }

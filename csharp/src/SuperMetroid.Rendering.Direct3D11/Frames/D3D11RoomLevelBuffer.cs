@@ -155,10 +155,18 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         SpriteSheetFrame? message = frame.MessagePicture;
         ImmutableArray<ScreenLayerPictures> screens = frame.Screens?.Layers ?? [];
         ImmutableArray<ScreenTileMap> screenCells = frame.Screens?.Maps ?? [];
-        // No dispatch samples t3 without one of these, so such a scene keeps the last packed room unread.
-        if (packed == frame && packedGeneration == images.Generation || (bg1 is null && bg2 is null && sky is null && bg3 is null
-            && mode7 is null && reveal is null && image is null && message is null && screens.IsEmpty))
+        if (packed == frame && packedGeneration == images.Generation)
             return false;
+        // No dispatch samples t3 without one of these, so such a scene keeps the last packed room unread. It colours no
+        // picture either, so the last room's colour slots go: the scene's colours are packed for none of its images, and a
+        // later frame showing that room again packs it afresh.
+        if (bg1 is null && bg2 is null && sky is null && bg3 is null && mode7 is null && reveal is null && image is null
+            && message is null && screens.IsEmpty)
+        {
+            colourSlots.Clear();
+            packed = null;
+            return false;
+        }
         RoomBackgroundLayer?[] planes = [bg1, bg2, door?.SourceRoom];
         int words = HeaderWords;
         // Each frontend layer's tile table comes first, so its word fits the half a dispatch names it in (#1392).

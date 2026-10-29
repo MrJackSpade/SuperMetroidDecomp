@@ -28,14 +28,20 @@ public static class BossBodySheetFiles
     /// <param name="content">Installed stock content holding the frames, characters and palettes the sheets compose from.</param>
     /// <param name="directory">Destination directory, created if absent.</param>
     /// <param name="sourceCartridgeSha256">Identity written into the provenance manifest.</param>
-    public static void Extract(string content, string directory, string sourceCartridgeSha256)
+    public static void Extract(string content, string directory, string sourceCartridgeSha256) =>
+        Write(BossBodySheetComposer.Compose(RoomBlockSheetInputs.Load(content)), directory, sourceCartridgeSha256);
+
+    /// <summary>Writes composed <paramref name="sheets"/> and their manifest, as <see cref="Load"/> reads them.</summary>
+    /// <param name="sheets">Every boss's composed body sheet.</param>
+    /// <param name="directory">Destination directory, created if absent.</param>
+    /// <param name="sourceCartridgeSha256">Identity written into the provenance manifest.</param>
+    internal static void Write(IReadOnlyList<ComposedBossBodySheet> sheets, string directory, string sourceCartridgeSha256)
     {
-        IReadOnlyList<ComposedBossBodySheet> sheets = BossBodySheetComposer.Compose(RoomBlockSheetInputs.Load(content));
         SpriteSheetStore store = SpriteSheetStore.Create(directory, ProvenanceFileName);
         store.WriteAll([.. sheets.Select(sheet => new NamedComposedSheet(BossBodySheetComposer.SheetNameOf(sheet.Owner), sheet.Sheet))]);
         store.Finish(sourceCartridgeSha256);
-        var manifest = new Manifest(ManifestVersion, sheets.ToDictionary(sheet => sheet.Owner.ToString(), sheet => new SheetDocument(
-            Document(sheet.Blank), sheet.Frames.ToDictionary(frame => frame.Key, frame => frame.Value.Select(Document).ToArray(), StringComparer.Ordinal)),
+        var manifest = new Manifest(ManifestVersion, sheets.ToDictionary(sheet => sheet.Owner.ToString(), sheet => (SheetDocument?)new SheetDocument(
+            Document(sheet.Blank), sheet.Frames.ToDictionary(frame => frame.Key, frame => (PartDocument[]?)frame.Value.Select(Document).ToArray(), StringComparer.Ordinal)),
             StringComparer.Ordinal));
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName), JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }

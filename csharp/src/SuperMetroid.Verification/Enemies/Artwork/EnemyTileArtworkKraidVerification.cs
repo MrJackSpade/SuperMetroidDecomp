@@ -43,7 +43,7 @@ internal static class EnemyTileArtworkKraidVerification
         ushort[] native = ReadImportedKraidWorkingMap(rom);
         AssertTrue(BuildKraidWorkingMap(stock).SequenceEqual(native),
             "installed Kraid BG2 construction preserves all native working words");
-        KraidEnemyState initialized = InitializeKraidBackground(stock);
+        KraidEnemyState initialized = InitializeKraidBackground();
         AssertTrue(initialized.BackgroundTilemapsPrepared && initialized.OwnsBg2Tilemap,
             "Kraid BG2 initialization prepares the map and takes BG2");
         AssertTrue(initialized.WorkingTop == KraidBodyPage.Body && initialized.WorkingBottom == KraidBodyPage.Body,
@@ -223,19 +223,17 @@ internal static class EnemyTileArtworkKraidVerification
     internal static ushort[] BuildKraidWorkingMap(InstalledEnemyArtwork artwork) => KraidBodyFixtures.WorkingMap(artwork.Bosses);
 
     /// <summary>Runs Kraid's background initializer against installed art without cartridge reads.</summary>
-    private static KraidEnemyState InitializeKraidBackground(InstalledEnemyArtwork artwork)
+    private static KraidEnemyState InitializeKraidBackground()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
-        Action<KraidEnemyState> initialize = enemies.KraidBehavior.Rise.InitializeKraidBackground;
         var state = new KraidEnemyState();
-        initialize(state);
+        state.InitializeBodyLayer();
         return state;
     }
 
     /// <summary>Shows both BG2 working-map pages and checks that they are what Kraid displays.</summary>
     private static ushort[] ShowKraidVisiblePages(InstalledEnemyArtwork artwork)
     {
-        KraidEnemyState state = InitializeKraidBackground(artwork);
+        KraidEnemyState state = InitializeKraidBackground();
         KraidBackground.TransferKraidTopTilemap(state);
         KraidBackground.TransferKraidBottomTilemap(state);
         AssertTrue(state.DisplayedBody.Top == state.WorkingTop && state.DisplayedBody.Bottom == state.WorkingBottom,

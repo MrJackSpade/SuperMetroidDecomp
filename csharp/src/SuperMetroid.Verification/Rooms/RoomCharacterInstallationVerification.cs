@@ -123,13 +123,12 @@ internal static class RoomCharacterInstallationVerification
                     ghostImage.Pixels, ghostImage.Colours);
             RoomCharacterAtlases editedGhost = installed.LoadRoomCharacters();
             SnesVram editedGhostVram = ShownVram(LibraryBackgroundProgramDefinitions.Get(ghostTransfer.ListPointer), new LibraryBackgroundArtwork { TilemapArt = RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps(), CharacterArt = editedGhost });
-            int ghostDestinationByte = ghostTransfer.VramDestination.Value * 2;
-            AssertTrue(nativeGhostVram.ReadByte(ghostDestinationByte) !=
-                    editedGhostVram.ReadByte(ghostDestinationByte) &&
-                nativeGhostVram.Bytes.Slice(ghostDestinationByte + 1, nativeGhost.Length - 1)
-                    .SequenceEqual(editedGhostVram.Bytes.Slice(
-                        ghostDestinationByte + 1, nativeGhost.Length - 1)),
-                "edited statue-ghost pixel changes only its selected live VRAM byte");
+            // The edit reaches the installed ghost characters only: the replay writes them to no shown video memory (#1466).
+            ReadOnlySpan<byte> editedGhostCharacters = editedGhost.GetAt(ghostSource).Characters.Span;
+            AssertTrue(editedGhostCharacters[0] != nativeGhost[0] && editedGhostCharacters[1..].SequenceEqual(nativeGhost.AsSpan(1)),
+                "edited statue-ghost pixel changes only its selected character byte");
+            AssertTrue(editedGhostVram.ImageEquals(installedGhostVram),
+                "an edited statue-ghost character leaves the shown library upload unchanged");
 
             AssertTrue(File.Exists(Path.Combine(installed.RoomPaletteDirectory,
                     RoomStaticPaletteArtworkFiles.ManifestFileName)),

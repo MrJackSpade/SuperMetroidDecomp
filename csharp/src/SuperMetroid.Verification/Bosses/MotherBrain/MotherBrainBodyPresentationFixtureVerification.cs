@@ -5,13 +5,11 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationFixtureVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.Core.Enemies.BossBodies;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 /// <summary>Provides a mutable-RAM Mother Brain body fixture for instruction and drawing verification.</summary>
 internal static class MotherBrainBodyPresentationFixtureVerification
@@ -43,7 +41,9 @@ internal static class MotherBrainBodyPresentationFixtureVerification
             SpawnedObjectFixtures.LoadSetDrawing(Inner.Enemies, bodyId, Body);
             State = new MotherBrainEnemyState(Body) { Head = Inner.Enemies.SlotTable.Slots[1], Form = MotherBrainForm.DrainedByBabyMetroid };
             Inner.Enemies.MotherBrainEncounter.MotherBrain = State;
-            // Her phase-two transition attaches the body layer her body draws on (#1356, #1466), showing her blank.
+            // Her phase-two transition attaches the body layer her body draws on (#1356, #1466), showing her blank. Her
+            // body draws from sheets composed from the fixture's own frames, as an installation of them would hold.
+            bodies = BossBodySheetFixtures.For(artwork.Bosses, BossBodyOwner.MotherBrain);
             Inner.Enemies.BossArtworkBinding.BodySheets = Sheets;
             ClearBg2();
             Inner.Enemies.Drawing.Enqueue(0, Body.EnemyIndex);
@@ -71,7 +71,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
 
         /// <summary>The tilemap entry each cell of the body layer her body draws on shows, from the frames her artwork installs (#1466).</summary>
         internal ushort[] Bg2Words => BossBodyWords.Of(Inner.Enemies.Presentation.RequireBossBody().Publish(Sheets), BossBodyOwner.MotherBrain,
-            Inner.Enemies.BossArtwork ?? throw new InvalidOperationException("The fixture binds boss artwork."));
+            bodies.Frames);
 
         /// <summary>The tile her body layer shows where none of her frames has drawn.</summary>
         internal static BackgroundTile Bg2FillTile => BossBodySheetComposer.BlankOf(BossBodyOwner.MotherBrain);
@@ -79,9 +79,11 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         /// <summary>Clears the first cell of her body layer, which a later redraw of a frame writing it would cover.</summary>
         internal void MarkBg2() => Inner.Enemies.Presentation.RequireBossBody().Clear(0, 1);
 
-        /// <summary>The installed boss body sheets the fixture draws from.</summary>
-        private static BossBodySheets Sheets => RepositoryInstallation.Artwork.BossBodySheets
-            ?? throw new InvalidOperationException("The repository installation has no boss body sheets.");
+        /// <summary>The fixture's boss frames and the body sheets composed from them, which her body draws from.</summary>
+        private readonly BossBodyArtworkFixture bodies;
+
+        /// <summary>The body sheets composed from the fixture's boss frames.</summary>
+        private BossBodySheets Sheets => bodies.Sheets;
         /// <summary>Runs the fixture's production enemy drawing path.</summary>
         internal OamBuffer Draw() => Inner.Draw();
         /// <summary>Attaches a fresh body layer showing her blank, as her phase-two transition does, before checking fresh publication.</summary>

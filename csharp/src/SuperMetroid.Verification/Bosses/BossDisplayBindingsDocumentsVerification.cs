@@ -94,11 +94,12 @@ internal static class BossDisplayBindingsDocumentsVerification
         private static EnemyBg2FrameDocument Bg2(ImmutableArray<EnemySpritemapDefinition> definitions, int version, bool edited) => new()
         {
             Version = version,
+            // Each write names characters every boss room loads, which a body's sheet is composed over (#1466).
             Frames = definitions.SelectToArray((frame, index) => KeyValuePair.Create(frame.Name,
                 new EnemyBg2WriteDocument[]
-                { new() { X = 3, Y = 2, Tiles = RoomBackgroundTilemapCellWords.Cells(100 + index, 200 + index) },
-                  new() { X = 4, Y = 2, Tiles = RoomBackgroundTilemapCellWords.Cells(edited ? 500 + index : 300 + index, 400 + index) },
-                  new() { X = 1, Y = edited ? 4 : 3, Tiles = RoomBackgroundTilemapCellWords.Cells(600 + index) } })).ToDictionary(),
+                { new() { X = 3, Y = 2, Tiles = RoomBackgroundTilemapCellWords.Cells(100 + index, 160 + index) },
+                  new() { X = 4, Y = 2, Tiles = RoomBackgroundTilemapCellWords.Cells(edited ? 340 + index : 220 + index, 280 + index) },
+                  new() { X = 1, Y = edited ? 4 : 3, Tiles = RoomBackgroundTilemapCellWords.Cells(400 + index) } })).ToDictionary(),
         };
     }
 }

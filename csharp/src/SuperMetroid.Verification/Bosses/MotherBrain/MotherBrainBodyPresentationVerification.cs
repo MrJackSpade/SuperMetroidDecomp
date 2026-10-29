@@ -21,6 +21,7 @@ using SuperMetroid.Core.World;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Enemies.BossBodies;
 
 /// <summary>Checks Mother Brain's installed OAM limbs and BG2 body art while preserving animation mechanics.</summary>
 internal static class MotherBrainBodyPresentationVerification
@@ -84,9 +85,9 @@ internal static class MotherBrainBodyPresentationVerification
             }
         }
         AssertTrue(baseline.ScrollCalls.Count > 0, "production body bytecode actually moves and counter-scrolls");
-        var missing = new MotherBrainPresentationFixture(Build(stockOam, bg2: null));
-        missing.SetFrame(mixed[0].Pointer, fresh: true);
-        AssertThrows<InvalidDataException>(() => missing.Draw(), "missing mixed-frame BG2 art fails explicitly");
+        // Her body's pictures are composed at install (#1466), so missing BG2 art fails there, before anything draws.
+        AssertThrows<InvalidDataException>(() => BossBodySheetFixtures.For(Build(stockOam, bg2: null).Bosses, BossBodyOwner.MotherBrain),
+            "missing mixed-frame BG2 art fails explicitly");
         // Installed artwork is not part of debugger states: the room binding holds it as non-serialized, and the host
         // reinstalls it after a restore.
         Console.WriteLine($"PASS Mother Brain: all 17 exact OAM/BG2 poses, mixed remaps, new-frame gating, " +
@@ -126,7 +127,7 @@ internal static class MotherBrainBodyPresentationVerification
             Frames = MotherBrainBodyVisualDefinitions.Bg2Frames.SelectToArray((frame, index) =>
                 KeyValuePair.Create(frame.Name, new EnemyBg2WriteDocument[]
                 { new() { X = edited ? 3 : 0, Y = edited ? 2 : 0, Tiles = RoomBackgroundTilemapCellWords.Cells(100 + index, 200 + index) },
-                  new() { X = edited ? 4 : 1, Y = edited ? 3 : 1, Tiles = RoomBackgroundTilemapCellWords.Cells(300 + index, edited ? 600 + index : 400 + index) } })).ToDictionary(),
+                  new() { X = edited ? 4 : 1, Y = edited ? 3 : 1, Tiles = RoomBackgroundTilemapCellWords.Cells(300 + index, edited ? 460 + index : 400 + index) } })).ToDictionary(),
         };
     }
 

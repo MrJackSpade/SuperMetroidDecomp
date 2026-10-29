@@ -1,4 +1,3 @@
-using SuperMetroid.ResourceAudit.Reports;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Bosses;
 

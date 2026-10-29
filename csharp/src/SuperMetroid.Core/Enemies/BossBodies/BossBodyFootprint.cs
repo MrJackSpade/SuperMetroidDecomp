@@ -18,7 +18,7 @@ public sealed class BossBodyFootprint
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="top"/> is negative.</exception>
     public BossBodyFootprint(int top, ImmutableArray<uint> rows)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(top);
+        Ensure.AtLeastZero(top);
         int first = 0, end = rows.IsDefault ? 0 : rows.Length;
         while (first < end && rows[first] == 0)
             first++;
@@ -49,8 +49,8 @@ public sealed class BossBodyFootprint
     /// <exception cref="ArgumentOutOfRangeException">The first cell or the count is negative.</exception>
     public static BossBodyFootprint OfCells(int firstCell, int count)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(firstCell);
-        ArgumentOutOfRangeException.ThrowIfNegative(count);
+        Ensure.AtLeastZero(firstCell);
+        Ensure.AtLeastZero(count);
         if (count == 0)
             return Empty;
         int top = firstCell / BossBodyDefinitions.ColumnCount, end = firstCell + count;

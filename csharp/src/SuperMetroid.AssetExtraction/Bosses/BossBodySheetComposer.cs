@@ -23,9 +23,6 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// </summary>
 internal static class BossBodySheetComposer
 {
-    /// <summary>Part pictures laid out across the sheet before a column grows downward.</summary>
-    private const int SheetColumns = 8;
-
     /// <summary>The enemy whose rooms each boss's body is drawn in.</summary>
     private static readonly Dictionary<BossBodyOwner, EnemyDefinitionId> Enemies = new()
     {
@@ -69,7 +66,7 @@ internal static class BossBodySheetComposer
         var painter = new BossBodyPainter(owner, characters, RoomStaticPaletteImage.Colours(inputs.Palettes.Get(characters.Tileset.Palette)));
         foreach (BossBodyFrameSource frame in Frames(inputs.Bosses, owner))
             painter.Add(frame);
-        return painter.Compose(BlankOf(owner), SheetColumns);
+        return painter.Compose(BlankOf(owner));
     }
 
     /// <summary>The installed sheet name of <paramref name="owner"/>'s body sheet.</summary>

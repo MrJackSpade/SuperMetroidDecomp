@@ -5,7 +5,6 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -13,6 +12,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 
 /// <summary>Checks the body frame Kraid publishes on BG2 instead of writing tilemap pages into VRAM (#1352).</summary>

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.BossBodies;
 public sealed class BossBodySheets
 {
     /// <summary>The sheets by boss.</summary>
-    private readonly IReadOnlyDictionary<BossBodyOwner, BossBodySheet> sheets;
+    private readonly Dictionary<BossBodyOwner, BossBodySheet> sheets;
 
     /// <summary>Holds one sheet for each boss.</summary>
     /// <exception cref="InvalidDataException">A boss has no sheet, or two.</exception>

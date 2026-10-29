@@ -302,20 +302,21 @@ internal static class RoomBlockUploads
 
     /// <summary>
     /// What a boss's body is shown over in <paramref name="state"/> of <paramref name="room"/> (#1466): what the room loads
-    /// and its library background binds, what the room binds after loading, and the frames its animations paint over its
+    /// and its library background leaves, what the room binds after loading, and the frames its animations paint over its
     /// tile characters, Crocomire's melt bands among them in his room.
     /// </summary>
     internal static BossRoomCharacters ShownUnderBoss(RoomBlockSheetInputs inputs, RoomHeaderDefinition room, RoomStateSettings state)
     {
         Ensure.NotNull(inputs);
         TilesetDefinition tileset = RoomTilesets.Get(state.GraphicsSet);
-        BgArtworkBindings content = state.Background is { } program
-            ? Replay(inputs, room, tileset, program, DoorVariants(program).First()).Content : Loaded(inputs, tileset);
+        LibraryBackgroundProgram? library = state.Background is { } background ? LibraryBackgroundPrograms.Of(background) : null;
+        BgArtworkBindings content = library is not null
+            ? Replay(inputs, room, tileset, library, DoorVariants(library).First()).Content : Loaded(inputs, tileset);
         AnimatedCharacterPlacement[] animated = [.. AnimatedFrames(inputs, room, state).Where(frame => frame.Set == BgCharacterSet.Tiles),
             .. state.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Crocomire)
                 ? CrocomireMeltBandFrames(inputs) : []];
         return new BossRoomCharacters(tileset, content,
-            [.. LoadUploads(inputs, tileset), HudCharacters(inputs), .. LibraryPlacements(inputs, state)], [.. Of(inputs, state).Where(OverTiles)], animated);
+            [.. LoadUploads(inputs, tileset), HudCharacters(inputs)], [.. Of(inputs, state).Where(OverTiles)], animated);
     }
 
     /// <summary>

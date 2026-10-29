@@ -64,6 +64,8 @@ public static class SamusPaletteDefinitions
     {
         /// <summary>Expected no-op setup callback in the object definition.</summary>
         public const PaletteFxSetup SetupCallback = PaletteFxSetup.Null;
+        /// <summary>The frames of the Hyper Beam's own colour cycle: red, yellow, green, blue and magenta, each followed by its blend into the next.</summary>
+        public const int CycleFrameCount = 10;
     }
 
     /// <summary>Palette tables consumed by the fatal-damage sequence.</summary>

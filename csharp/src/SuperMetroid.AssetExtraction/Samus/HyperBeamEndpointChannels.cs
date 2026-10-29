@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>The red and green channels a hyper beam endpoint shares, where it shares them.</summary>
 /// <param name="Red">The red.</param>

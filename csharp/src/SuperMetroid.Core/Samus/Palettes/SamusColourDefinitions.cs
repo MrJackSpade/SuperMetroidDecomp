@@ -57,7 +57,7 @@ internal static class SamusColourDefinitions
     public const int CrystalFlashBubbleColours = CrystalFlashColorFormat.BubbleColorCount;
 
     /// <summary>The beam colours the Hyper Beam's cycle shows.</summary>
-    public const int HyperBeamColours = HyperBeamFxColorFormat.ColorsPerFrame;
+    public const int HyperBeamColours = 8;
 
     /// <summary>The sprites that show Samus's colours: her body, her equipment's and her weapons' draws.</summary>
     public static ImmutableHashSet<SpriteSourceKind> Sources { get; } =

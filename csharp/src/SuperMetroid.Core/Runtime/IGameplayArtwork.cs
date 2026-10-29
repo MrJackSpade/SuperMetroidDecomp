@@ -163,7 +163,7 @@ internal interface IGameplayArtwork
     InstalledBeamPalettes? BeamPalettes { get; }
 
     /// <summary>The Hyper Beam palette effect's colour cycle.</summary>
-    InstalledHyperBeamFxColors? HyperBeamFxColors { get; }
+    HyperBeamFxColours? HyperBeamFxColors { get; }
 
     /// <summary>Enemy palettes, extended frames and colour catalogs.</summary>
     EnemyTileArtworkCatalog? EnemyTileArtwork { get; }

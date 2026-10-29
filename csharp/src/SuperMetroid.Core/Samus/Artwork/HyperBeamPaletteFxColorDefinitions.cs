@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Samus.Palettes;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
@@ -11,5 +12,5 @@ internal static class HyperBeamPaletteFxColorDefinitions
 {
 
     /// <summary>The ten records of the Hyper Beam program and the eight colours each writes.</summary>
-    internal static PaletteFxColorRows Rows { get; } = PaletteFxColorRows.Of(PaletteFxProgram.HyperBeam1, HyperBeamFxColorFormat.ColorsPerFrame);
+    internal static PaletteFxColorRows Rows { get; } = PaletteFxColorRows.Of(PaletteFxProgram.HyperBeam1, SamusColourDefinitions.HyperBeamColours);
 }

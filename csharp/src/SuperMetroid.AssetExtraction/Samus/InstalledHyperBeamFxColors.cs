@@ -1,7 +1,9 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Editable Hyper Beam projectile hues with shared white and calculated intermediate frames.</summary>
 /// <remarks>The remaining34 independent RGB5 components are color-design
@@ -156,14 +158,12 @@ public sealed class InstalledHyperBeamFxColors
         }
     }
 
-    /// <summary>Resolves and writes the eight colors of one projectile palette row without advancing animation state; the native Hyper Beam handler targets OBJ palette 6 colors 1..8, CGRAM entries 225..232.</summary>
-    /// <param name="destination">The colours the cycle shows, eight of them.</param>
-    /// <param name="frame">Zero-based palette row, from 0 through 9.</param>
-    public void Apply(ColourRun destination, int frame)
-    {
-        if ((uint)frame >= HyperBeamFxColorFormat.FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
-        Ensure.LengthEqual(destination.Colors, HyperBeamFxColorFormat.ColorsPerFrame);
-        for (int color = 0; color < HyperBeamFxColorFormat.ColorsPerFrame; color++)
-            destination.Write(color, Resolve(frame, color));
-    }
+    /// <summary>
+    /// The decoded colours keyed by what they show (#1464): each cycle frame's eight beam colours, in cycle order. The
+    /// document's frame-by-colour layout and the relationship keys above end here.
+    /// </summary>
+    public HyperBeamFxColours ToColours() =>
+        new([.. Enumerable.Range(0, HyperBeamFxColorFormat.FrameCount).Select(frame =>
+            Enumerable.Range(0, HyperBeamFxColorFormat.ColorsPerFrame).Select(color => Resolve(frame, color))
+                .ToImmutableArray())]);
 }

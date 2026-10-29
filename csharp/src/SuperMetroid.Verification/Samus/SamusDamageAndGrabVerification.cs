@@ -92,7 +92,7 @@ internal static void VerifySamusDrainedController()
     var rainbowColors = SamusHyperBeamColorFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.SamusHyperBeamColorExtractor.Extract(bus)));
     var projectileColors = HyperBeamFxColorFile.Read(new MemoryStream(
-        SuperMetroid.AssetExtraction.Samus.HyperBeamFxColorExtractor.Extract(bus)));
+        SuperMetroid.AssetExtraction.Samus.HyperBeamFxColorExtractor.Extract(bus))).ToColours();
     var drainedCgram = new SamusColourRig();
 
     const int width = 8;

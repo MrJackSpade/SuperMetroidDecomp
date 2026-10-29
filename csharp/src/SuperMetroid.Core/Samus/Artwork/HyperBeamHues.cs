@@ -3,8 +3,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
-/// The hue operations both Hyper Beam colour cycles share (#1464): Samus's full-body cycle, which the import pipeline
-/// decodes, and the beam's own colour effect.
+/// The hue operations both Hyper Beam colour cycles share (#1464): Samus's full-body cycle and the beam's own colour
+/// effect, both of which the import pipeline decodes.
 /// </summary>
 public static class HyperBeamHues
 {

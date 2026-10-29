@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>An enemy whose drawing adds to the common writer's.</summary>
 internal interface IEnemyDrawHooks : IEnemyEntity
 {
-    /// <summary>The palette row the common writer uses for the occupant, when its AI owns it; otherwise null.</summary>
-    int? CommonDrawPalette();
+    /// <summary>The colours the common writer uses for the occupant, when its AI owns them; otherwise null.</summary>
+    SpriteColouring? CommonDrawColouring();
 
     /// <summary>Publishes supplemental sprites before the common writer publishes the occupant's body.</summary>
     /// <param name="sprites">The frame's sprite description.</param>

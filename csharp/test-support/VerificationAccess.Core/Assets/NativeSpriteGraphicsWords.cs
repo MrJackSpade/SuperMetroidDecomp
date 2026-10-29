@@ -1,10 +1,11 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// The cartridge's packed forms of a sprite's graphics, for the native oracles and native-memory comparisons that pack
-/// or read words exactly as the cartridge does. Production carries <see cref="SpriteGraphics"/> and palette rows; the
+/// or read words exactly as the cartridge does. Production carries <see cref="SpriteGraphics"/> and colourings; the
 /// words are encoded here once, by the import pipeline's attribute-word codec.
 /// </summary>
 internal static class NativeSpriteGraphicsWords
@@ -19,8 +20,9 @@ internal static class NativeSpriteGraphicsWords
 
     /// <summary>
     /// <paramref name="graphics"/> as the cartridge's graphics word holds it: the tile base in the character field and
-    /// the palette row in the palette field, the word the native writers add to and OR into each part's attributes.
+    /// <paramref name="paletteRow"/>, the row holding its colours, in the palette field, the word the native writers add
+    /// to and OR into each part's attributes.
     /// </summary>
-    public static ushort GraphicsWord(SpriteGraphics graphics) =>
-        SnesObjAttributeWord.Create(tileNumber: graphics.TileBase, paletteIndex: graphics.PaletteRow, priority: 0).Raw;
+    public static ushort GraphicsWord(SpriteGraphics graphics, int paletteRow) =>
+        SnesObjAttributeWord.Create(tileNumber: graphics.TileBase, paletteIndex: paletteRow, priority: 0).Raw;
 }

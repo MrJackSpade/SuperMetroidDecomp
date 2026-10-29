@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 
@@ -41,8 +42,10 @@ internal static class NativeSnapshotImportMotherBrainVerification
         state.FakeDeathExplosionTimer = WrappingCountdown.FromRaw(W(MotherBrainMemory.FakeDeathExplosionTimer));
         state.FakeDeathExplosionIndex = W(MotherBrainMemory.FakeDeathExplosionIndex);
         state.EnableUnpauseHook = W(MotherBrainMemory.EnableUnpauseHook) != 0;
-        state.NeckPalette = SnesObjAttributeWordConstants.FromPaletteBits(W(MotherBrainMemory.NeckPaletteIndex)).PaletteIndex;
-        state.BrainPalette = SnesObjAttributeWordConstants.FromPaletteBits(W(MotherBrainMemory.BrainPaletteIndex)).PaletteIndex;
+        // The native palette words name rows; the colourings they denote are decoded under the room's loaded set.
+        SpriteColouringRows colouringRows = runtime.Enemies.Presentation.ColouringRows;
+        state.NeckColouring = colouringRows.InRow(SnesObjAttributeWordConstants.FromPaletteBits(W(MotherBrainMemory.NeckPaletteIndex)).PaletteIndex);
+        state.BrainColouring = colouringRows.InRow(SnesObjAttributeWordConstants.FromPaletteBits(W(MotherBrainMemory.BrainPaletteIndex)).PaletteIndex);
         ushort brain = W(MotherBrainMemory.BrainInstructionList);
         // Bit 15 clear means the brain list is not live.
         state.BrainCursor = unchecked((short)brain) >= 0 ? null : MotherBrainNativeListAddresses.CompareHead(cartridge)[brain];
@@ -94,7 +97,7 @@ internal static class NativeSnapshotImportMotherBrainVerification
         state.OnionRingsTargetAngle = W(MotherBrainMemory.OnionRingsTargetAngle);
         state.RainbowBeamAngularWidth = W(MotherBrainMemory.RainbowBeamAngularWidth);
         if (RainbowSequenceFunctions.Contains(state.Function))
-            ImportNativeMotherBrainRainbowSequence(state, state.Function, W);
+            ImportNativeMotherBrainRainbowSequence(state, state.Function, W, colouringRows);
     }
 
     /// <summary>The body functions the live rainbow sequence runs, which a recorded function in this set resumes.</summary>
@@ -177,7 +180,7 @@ internal static class NativeSnapshotImportMotherBrainVerification
     /// before each step, so only the sequence-owned words are imported here.
     /// </summary>
     private static void ImportNativeMotherBrainRainbowSequence(MotherBrainEnemyState state,
-        MotherBrainBodyFunction phase, Func<int, ushort> W)
+        MotherBrainBodyFunction phase, Func<int, ushort> W, SpriteColouringRows colouringRows)
     {
         var sequence = new MotherBrainRainbowBeamAttackSequence();
         sequence.State.Phase = phase;
@@ -193,7 +196,8 @@ internal static class NativeSnapshotImportMotherBrainVerification
         sequence.State.GreyTransitionCounter = W(MotherBrainMemory.GreyTransitionCounter);
         sequence.State.Phase2CorpseState = DecodePhase2CorpseState(W(MotherBrainMemory.Phase2CorpseState));
         sequence.Revival.BabyMetroidAttackCounter = W(MotherBrainMemory.BabyMetroidAttackCounter);
-        sequence.ThirdPhaseDeath.BrainPalette = SnesObjAttributeWordConstants.FromPaletteBits(W(MotherBrainMemory.BrainPaletteIndex)).PaletteIndex;
+        sequence.ThirdPhaseDeath.BrainColouring = colouringRows.InRow(
+            SnesObjAttributeWordConstants.FromPaletteBits(W(MotherBrainMemory.BrainPaletteIndex)).PaletteIndex);
         sequence.ThirdPhaseDeath.MotherBrainUnpauseHookEnabled = W(MotherBrainMemory.EnableUnpauseHook) != 0;
         sequence.FinishSamusOff.RainbowBeamPaletteAnimationIndex = W(MotherBrainMemory.RainbowPaletteIndex);
         sequence.ThirdPhaseDeath.DeathExplosionIntervalTimer = WrappingCountdown.FromRaw(W(MotherBrainMemory.BrainSubFunction));

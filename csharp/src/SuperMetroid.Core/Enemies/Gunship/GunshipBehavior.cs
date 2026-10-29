@@ -8,6 +8,7 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies.Gunship;
 
@@ -116,7 +117,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         _shipPrograms[slot.SlotIndex] = AnimationProgramCursor<GunshipProgram>.Start(GunshipProgram.TopHull);
-        slot.PaletteRow = 7;
+        slot.Colouring = new UnnamedSpriteRowColouring(7);
         if (_gunshipLoadScenario == GunshipLoadScenario.EscapingCeres)
         {
             SamusState samus = _samusAtEnemyInitialization
@@ -157,7 +158,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (slot.SlotIndex == 0)
             throw new InvalidDataException("Gunship bottom cannot occupy enemy slot zero.");
         slot.TileIndexBase = _slotTable.Slots[slot.SlotIndex - 1].TileIndexBase;
-        slot.PaletteRow = 7;
+        slot.Colouring = new UnnamedSpriteRowColouring(7);
 
         if (slot.Spawn.Population.Parameter2 != 0)
         {

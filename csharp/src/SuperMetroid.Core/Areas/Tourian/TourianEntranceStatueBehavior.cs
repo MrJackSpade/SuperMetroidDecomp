@@ -3,6 +3,7 @@ using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
@@ -66,7 +67,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
                 "is outside the three-entry instruction table.");
         }
 
-        statue.PaletteRow = 0;
+        statue.Colouring = SharedSpriteColouring.Common;
         statue.InstructionTimer = WrappingCountdown.Start(1);
         statue.Timer = WrappingCountdown.Start(0);
         Extensions[statue.SlotIndex].Program = AnimationProgramCursor<TourianEntranceStatueProgram>.Start(

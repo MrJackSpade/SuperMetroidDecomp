@@ -73,7 +73,7 @@ internal static class MotherBrainPicturesVerification
                 var source = new SpriteSource(SpriteSourceKind.MotherBrainBrain);
                 var camera = new Position16<RoomPixels>(unchecked((ushort)(head.Position.X.Whole - 128)), unchecked((ushort)(head.Position.Y.Whole - 112)));
                 runtime.Enemies.MotherBrainBehavior.Head.DrawMotherBrainWorldSpritemap(sprites, source,
-                    new MotherBrainWorldFrame(frame, head.Position.Whole, head.PaletteRow), camera);
+                    new MotherBrainWorldFrame(frame, head.Position.Whole, head.Colouring), camera);
                 sprites.FinalizeFrame();
                 ImmutableArray<SpriteDraw> pictures = [.. sprites.Draws];
                 UploadedPictureChecks.AssertPaintsLikeParts(pictures,

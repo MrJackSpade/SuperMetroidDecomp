@@ -8,6 +8,7 @@ using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -47,7 +48,8 @@ internal static class CopiedCharacterIndexesVerification
             {
                 AssertEqual(composed.TileBase, slot.TileIndexBase, $"{child} in {room.Name} draws at the character index its sheet is composed at");
                 if (EnemyTileBaseDefinitions.DrawsInPaletteOf.ContainsKey(child))
-                    AssertEqual(composed.PaletteRow, slot.PaletteRow, $"{child} in {room.Name} draws in the palette its sheet is coloured in");
+                    AssertEqual(runtime.Enemies.GraphicsSet.DrawRow(child), slot.PaletteRowIn(runtime.Enemies),
+                        $"{child} in {room.Name} draws in the row its sheet is coloured in");
                 slots++;
             }
         }

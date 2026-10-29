@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.Verification.Harness;
 
@@ -34,11 +35,11 @@ internal static class CeresElevatorArrivalVerification
         var arrival = new CeresElevatorArrivalState(samus);
         arrival.Step(samus);
 
-        // With tile base zero and palette row zero, each actor shows its composition at tile base zero in the parts' own
-        // palettes; leaked enemy graphics would add a base tile and select another palette row.
-        var noGraphics = new SpriteGraphics(TileBase: 0, PaletteRow: 0);
+        // With tile base zero in the common colours, whose row is zero, each actor shows its composition at tile base zero
+        // in the parts' own palettes; leaked enemy graphics would add a base tile and select other colours.
+        var noGraphics = SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.Common);
         VerificationAssert.AssertTrue(arrival.pad.Graphics == noGraphics && arrival.platform.Graphics == noGraphics,
-            "Ceres arrival actors draw with tile base zero and palette row zero");
+            "Ceres arrival actors draw with tile base zero in the common sprite colours");
         var oam = new OamBuffer();
         oam.BeginFrame();
         arrival.DrawAsOam(oam, SpawnedObjectFixtures.Presentation(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElev0),

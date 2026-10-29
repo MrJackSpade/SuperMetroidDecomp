@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Enemies.Corpses;
 
@@ -60,7 +61,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         program = AnimationProgramCursor<DeadTorizoProgram>.Start(Corpses.DeadTorizoProgram.Stationary);
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        slot.PaletteRow = 1;
+        slot.Colouring = new GraphicsSetMemberColouring(EnemyDefinitionId.CorpseTorizo);
 
         DeadTorizoCorpseDefinition definition = DeadTorizoCorpseDefinitions.Corpse;
         int yLimit = definition.EntryCount - 1;
@@ -275,7 +276,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (unchecked((short)screenY) < 0)
             return;
         _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.DeadTorizoHook), DeadTorizoArtworkDefinitions.HookFrame,
-            new Position16<ScreenPixels>(unchecked((ushort)(296 - camera.X)), checked((ushort)screenY)), palette: 0, rot: ShownRot(state));
+            new Position16<ScreenPixels>(unchecked((ushort)(296 - camera.X)), checked((ushort)screenY)), colouring: SharedSpriteColouring.Common, rot: ShownRot(state));
     }
 
     /// <summary>Requires the initialized slot-zero corpse state and rejects unrelated enemy slots.</summary>

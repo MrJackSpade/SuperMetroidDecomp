@@ -9,7 +9,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
 
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>Bomb and Golden Torizo's setup and movement: walking, jumps, falls and air transitions under gravity.</summary>
@@ -77,7 +77,7 @@ internal sealed class TorizoMovement
         torizo.Radius = definition.Radius;
         torizo.InstructionTimer = WrappingCountdown.Start(1);
         torizo.Timer = WrappingCountdown.Start(0);
-        torizo.PaletteRow = 0;
+        torizo.Colouring = SharedSpriteColouring.Common;
         torizo.Frame = EnemyFrameId.BombTorizoDormant;
 
         state.Function = TorizoFunction.Falling;

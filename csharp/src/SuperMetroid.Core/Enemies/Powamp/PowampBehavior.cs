@@ -5,6 +5,8 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Enemies.Powamp;
 
@@ -28,10 +30,14 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyCollision _collision;
     /// <summary>Starts ordinary death processing after the delayed spike burst.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
+    /// <summary>Places the body's colours in their row, which a full pool's death animation reads.</summary>
+    private readonly SpriteColouringRows _colouringRows;
 
     /// <summary>Connects Powamp's paired body and balloon AI to terrain, projectile, and collision services.</summary>
-    internal PowampBehavior(EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemySlotTable slotTable, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops)
+    internal PowampBehavior(EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemySlotTable slotTable, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops,
+        SpriteColouringRows colouringRows)
     {
+        _colouringRows = colouringRows;
         _terrain = terrain;
         _projectiles = projectiles;
         _slotTable = slotTable;
@@ -345,16 +351,16 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the body-only private tail of <c>EnemyTouch_Powamp</c>.</summary>
     private void ResolvePowampTouch(RoomEnemySlot body, SamusState samus)
     {
-        int originalPalette = body.PaletteRow;
+        SpriteColouring originalColouring = body.Colouring;
         _collision.ResolveNormalEnemyTouch(body, samus);
         if (body.Health != 0)
             return;
 
         PowampBalloon balloon = RequirePowampBalloon(body);
         balloon.Slot.Properties = balloon.Slot.Properties.With(EnemyProperties.Deleted);
-        body.PaletteRow = originalPalette;
+        body.Colouring = originalColouring;
         SpawnPowampSpikeBurst(body);
-        body.PaletteRow = 5;
+        body.Colouring = SharedSpriteColouring.EnemyProjectiles;
     }
 
     /// <summary>Copies common shot/freeze presentation from the body to its balloon.</summary>
@@ -611,10 +617,11 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// The death animation a Powamp dies with when its spike burst found the projectile pool full. The cartridge leaves
     /// the body's graphics, read as one number, as the animation, and EnemyDeath treats any number past its animations
-    /// as the default animation 0. That number names an animation only for a body drawing in palette row zero, where it
-    /// is the body's tile base; any other palette row puts it past every animation.
+    /// as the default animation 0. That number names an animation only for a body whose colours are held in palette
+    /// row zero, the common colours' row, where it is the body's tile base; any other row puts it past every animation.
     /// </summary>
-    private static int FullPoolDeathAnimation(RoomEnemySlot body) => body.PaletteRow == 0 ? body.TileIndexBase : 0;
+    private int FullPoolDeathAnimation(RoomEnemySlot body) =>
+        _colouringRows.SameRow(body.Colouring, SharedSpriteColouring.Common) ? body.TileIndexBase : 0;
 
     /// <summary>Ports <c>PreInstruction_EnemyProjectile_PowampSpike</c> at $86:D263.</summary>
     internal static void RunPowampSpikePreInstruction(

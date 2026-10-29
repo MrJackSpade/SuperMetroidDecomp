@@ -94,7 +94,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
         {
             var position = actor.Position;
             DrawImportedEnemyProjectileSpritemap(source, elevatorExpected, actor.SpritemapPointer,
-                position.ToScreen(Position16<RoomPixels>.Zero).ToSpritePosition(), NativeSpriteGraphicsWords.GraphicsWord(actor.Graphics), (LittleEndianBytes.HighByteInPlace(position.Y)) == 0);
+                position.ToScreen(Position16<RoomPixels>.Zero).ToSpritePosition(), NativeSpriteGraphicsWords.GraphicsWord(actor.Graphics, actor.Graphics.FixedPaletteRow), (LittleEndianBytes.HighByteInPlace(position.Y)) == 0);
         }
         Equal(elevatorExpected, elevatorActual, "Ceres elevator owner ordering and placements");
 

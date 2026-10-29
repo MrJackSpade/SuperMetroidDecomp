@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Verification.Enemies;
 
@@ -20,12 +21,12 @@ using SuperMetroid.Core.World;
 /// </summary>
 internal static class EnemyFormatDrawEntriesVerification
 {
-    /// <summary>The projectile's palette row.</summary>
+    /// <summary>The row holding the projectile's colours, the enemy projectiles'.</summary>
     private const byte ProjectilePalette = 5;
     /// <summary>The projectile's tile base: character zero, where its set composes every object it can spawn.</summary>
     private const ushort ProjectileTileBase = 0;
-    /// <summary>The projectile's graphics: its tile base in its palette row.</summary>
-    private static readonly SpriteGraphics ProjectileGraphics = SpriteGraphics.Of(ProjectileTileBase, ProjectilePalette);
+    /// <summary>The projectile's graphics: its tile base in the enemy projectiles' colours.</summary>
+    private static readonly SpriteGraphics ProjectileGraphics = new(ProjectileTileBase, SharedSpriteColouring.EnemyProjectiles);
     /// <summary>A palette row neither enemy is loaded in, which a draw then shows its frame in.</summary>
     private const int OtherRow = 6;
 
@@ -51,7 +52,7 @@ internal static class EnemyFormatDrawEntriesVerification
         ordinary.Bind(EnemyDefinitionId.Beetom, default(RoomEnemyDefinition));
         ordinary.Frame = ordinaryFrame;
         ordinary.TileIndexBase = checked((ushort)beetom.TileIndexBase);
-        ordinary.PaletteRow = beetom.PaletteRow;
+        ordinary.Colouring = new GraphicsSetMemberColouring(beetom.DefinitionId);
         ordinary.Position = ordinary.Position.WithWhole(new(100, 80));
         enemies.Drawing.Enqueue(0, 0);
 
@@ -63,7 +64,7 @@ internal static class EnemyFormatDrawEntriesVerification
         extended.ExtraProperties = extended.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
         extended.Frame = extendedFrame;
         extended.TileIndexBase = checked((ushort)pirate.TileIndexBase);
-        extended.PaletteRow = pirate.PaletteRow;
+        extended.Colouring = new GraphicsSetMemberColouring(pirate.DefinitionId);
         extended.InstructionTimer = WrappingCountdown.Start(7);
         extended.Position = extended.Position.WithWhole(new(120, 110));
         enemies.Drawing.Enqueue(1, EnemySlotTable.EnemyIndexStride);
@@ -111,14 +112,14 @@ internal static class EnemyFormatDrawEntriesVerification
         AssertEqual(draws.Length, entry, "No other entries are published");
 
         // An enemy drawn in a row its set did not load it in shows its frame in that row.
-        ordinary.PaletteRow = OtherRow;
+        ordinary.Colouring = new UnnamedSpriteRowColouring(OtherRow);
         sprites.BeginFrame();
         enemies.Drawing.AdvanceLayers(Position16<RoomPixels>.Zero, 0, 0);
         enemies.Drawing.DrawLayers(sprites, Position16<RoomPixels>.Zero, 0, 0);
         sprites.FinalizeFrame();
         AssertImage(sprites.Draws[0], new SpriteSource(SpriteSourceKind.Enemy, 0), beetomSheet.Frame(EnemySheetDefinitions.FrameName(ordinaryFrame)),
             new(100, 80), OtherRow, "Ordinary enemy in another row");
-        ordinary.PaletteRow = beetom.PaletteRow;
+        ordinary.Colouring = new GraphicsSetMemberColouring(beetom.DefinitionId);
 
         // The shake tick belongs to the advance: it is consumed identically whether or not the frame is drawn.
         ordinary.FrameCounter = 0;
@@ -141,7 +142,7 @@ internal static class EnemyFormatDrawEntriesVerification
             AssertEqual(source, image.Source, $"{subject} names its slot");
             AssertTrue(ReferenceEquals(frame, image.Image), $"{subject} shows its sheet's frame");
             AssertEqual(origin, image.Origin, $"{subject} is placed at its screen origin");
-            AssertEqual(row, image.PaletteOverride, $"{subject} shows its frame in the row it is drawn in");
+            AssertEqual(row, image.Colouring?.Row, $"{subject} shows its frame in the row holding the colours it is drawn in");
         }
     }
 

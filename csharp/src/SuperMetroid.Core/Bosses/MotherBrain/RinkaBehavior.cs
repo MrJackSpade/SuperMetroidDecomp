@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -44,8 +45,11 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     private const ushort RinkaInitialDelay = 26;
     /// <summary>Health restored to a special Rinka after its death delay.</summary>
     private const ushort RinkaHealth = 10;
-    /// <summary>Enemy palette selected for both ordinary and Mother Brain variants.</summary>
-    private const int RinkaPaletteIndex = 2;
+    /// <summary>
+    /// The colours both ordinary and Mother Brain variants draw in: the Rinka's own, which every graphics set holding
+    /// Rinkas loads.
+    /// </summary>
+    private static readonly GraphicsSetMemberColouring RinkaColouring = new(EnemyDefinitionId.Rinka);
     /// <summary>Flight speed in 8.8 pixels per update (1 + 32/256 pixels), resolved along the cartridge angle into flight velocity.</summary>
     private const ushort RinkaSpeed = 288;
     /// <summary>Number of Mother Brain Rinka actors sharing the eleven spawn resources.</summary>
@@ -140,7 +144,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 EnemyProperties.IgnoreSamusCollision);
         }
 
-        slot.PaletteRow = RinkaPaletteIndex;
+        slot.Colouring = RinkaColouring;
         InitializeRinkaLife(slot, state);
     }
 

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
@@ -74,9 +75,6 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
                 throw new InvalidOperationException($"Undefined Ceres steam cue {cue}.");
         }
     }
-
-    /// <summary>Preloaded Ceres palette row selected by the steam initializer.</summary>
-    private const int CeresSteamPaletteIndex = 5;
     /// <summary>Health restored by steam's main and touch routines so the vent cannot be destroyed.</summary>
     private const ushort CeresSteamIndestructibleHealth = 32767;
 
@@ -96,7 +94,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
             EnemyExtraProperties.UsesExtendedSpritemap);
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        slot.PaletteRow = CeresSteamPaletteIndex;
+        slot.Colouring = SharedSpriteColouring.EnemyProjectiles;
 
         // `$A6:EFD9-$EFE0` masks the live RNG to 0..31 and adds one. The delay is then
         // consumed by instruction `$F127`, giving each vent a cartridge-authored stagger.

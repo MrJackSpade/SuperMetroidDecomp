@@ -40,7 +40,7 @@ internal sealed class KraidLimbs
         }
         KraidEncounterAccess.EnsureKraidSlot(arm, 1, "arm");
         KraidEncounterAccess.AttachKraidPart(arm, state);
-        arm.PaletteRow = _slotTable.Slots[0].PaletteRow;
+        arm.Colouring = _slotTable.Slots[0].Colouring;
         state.Parts[arm.SlotIndex].Function = KraidAiFunction.NoOperation;
         _access.StartKraidPartProgram(arm, KraidPartProgram.ArmRisingOrSinking);
         state.Parts[arm.SlotIndex].NextFunction = KraidAiFunction.NoOperation;
@@ -57,7 +57,7 @@ internal sealed class KraidLimbs
         }
         KraidEncounterAccess.EnsureKraidSlot(foot, 5, "foot");
         KraidEncounterAccess.AttachKraidPart(foot, state);
-        foot.PaletteRow = _slotTable.Slots[0].PaletteRow;
+        foot.Colouring = _slotTable.Slots[0].Colouring;
         _access.StartKraidPartProgram(foot, KraidPartProgram.FootInitial);
         state.Parts[foot.SlotIndex].Function = KraidAiFunction.NoOperation;
         state.Parts[foot.SlotIndex].NextFunction = 0;

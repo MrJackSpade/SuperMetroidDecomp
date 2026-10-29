@@ -334,9 +334,6 @@ internal sealed class CeresRidleyBehavior
             CeresRidleyBabyScene.TickCeresBaby(slot, state);
     }
 
-    /// <summary>Palette row zero, which the tail and wings select on hurt-flash updates.</summary>
-    internal const int HurtFlashSpritemapPalette = 0;
-
     /// <summary>The fastest 8.8 speed the acceleration clamps to toward a lower target: five pixels per update.</summary>
     internal const ushort CeresRidleyMaximumSpeed = 1280;
     /// <summary>The fastest 8.8 speed toward a higher target, as the native two's-complement word.</summary>

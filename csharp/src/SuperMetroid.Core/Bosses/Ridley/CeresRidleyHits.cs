@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -126,15 +127,15 @@ internal sealed class CeresRidleyHits
         RidleyEnemyState state,
         int enemyMainExecutionCounter)
     {
-        state.CommonDrawPalette = !slot.FlashTimer.IsZero &&
+        state.CommonDrawColouring = !slot.FlashTimer.IsZero &&
             (enemyMainExecutionCounter & 2) != 0
-                ? 0
-                : slot.PaletteRow;
+                ? SharedSpriteColouring.Common
+                : slot.Colouring;
 
-        state.SpritemapPalette = slot.FlashTimer.RawValue > 1 &&
+        state.SpritemapColouring = slot.FlashTimer.RawValue > 1 &&
             ((enemyMainExecutionCounter + 1) & 2) != 0
-                ? CeresRidleyBehavior.HurtFlashSpritemapPalette
-                : 7;
+                ? SharedSpriteColouring.Common
+                : RidleyEnemyState.OwnColours;
     }
 
     /// <summary>

@@ -104,12 +104,12 @@ internal sealed class EnemyDrawList
                         ((slot.FrameCounter & 2) != 0 ? -1 : 1))));
                     slot.ShakeTimer = slot.ShakeTimer.Decrement().Remaining;
                 }
-                int drawPaletteIndex = SelectCommonEnemyDrawPalette(slot);
+                SpriteColouring drawColouring =SelectCommonEnemyDrawColouring(slot);
                 if (!slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))
                 {
                     EnemyFrameId frame = slot.Frame ?? throw new InvalidDataException(
                         $"Enemy {slot.DefinitionId} draws before showing a frame.");
-                    prepared.Add(new PreparedEnemyDraw(layer, slot, enemyIndex, origin, drawPaletteIndex, frame, null, null));
+                    prepared.Add(new PreparedEnemyDraw(layer, slot, enemyIndex, origin, drawColouring, frame, null, null));
                     continue;
                 }
 
@@ -121,7 +121,7 @@ internal sealed class EnemyDrawList
                     // continue to belong to compiled animation and collision programs.
                     EnemyFrameId selected = _room.Artwork.ExtendedFramePlacements.GetDisplayFrame(shown);
                     _instructions.ApplyInstalledEnemyBg2Frame(slot, selected);
-                    prepared.Add(new PreparedEnemyDraw(layer, slot, enemyIndex, origin, drawPaletteIndex, null, shown, installed));
+                    prepared.Add(new PreparedEnemyDraw(layer, slot, enemyIndex, origin, drawColouring, null, shown, installed));
                     continue;
                 }
 
@@ -173,7 +173,7 @@ internal sealed class EnemyDrawList
                     if (frame == EnemyFrameId.Empty)
                         continue;
                     _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(slot.DefinitionId, EnemySheetDefinitions.FrameName(frame),
-                        new Position16<ScreenPixels>(draw.Origin.X, draw.Origin.Y), draw.PaletteRow,
+                        new Position16<ScreenPixels>(draw.Origin.X, draw.Origin.Y), draw.Colouring,
                         (slot.Entity as IShowsCorpseRot)?.ShownRot));
                     continue;
                 }
@@ -192,7 +192,7 @@ internal sealed class EnemyDrawList
                     _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(slot.DefinitionId,
                         EnemySheetDefinitions.ComponentFrameName(draw.ExtendedFrame ?? throw new InvalidOperationException(
                             "An extended enemy draw was prepared without its frame."), index),
-                        new Position16<ScreenPixels>(componentOrigin.X, componentOrigin.Y), draw.PaletteRow,
+                        new Position16<ScreenPixels>(componentOrigin.X, componentOrigin.Y), draw.Colouring,
                         (slot.Entity as IShowsCorpseRot)?.ShownRot));
                 }
             }
@@ -214,12 +214,12 @@ internal sealed class EnemyDrawList
     /// <param name="Slot">The enemy.</param>
     /// <param name="EnemyIndex">The enemy's index.</param>
     /// <param name="Origin">Its shaken screen origin.</param>
-    /// <param name="PaletteRow">The common draw palette row selected for this frame.</param>
+    /// <param name="Colouring">The colours the common draw selected for this frame.</param>
     /// <param name="Frame">An ordinary enemy's frame; null for an extended enemy.</param>
     /// <param name="ExtendedFrame">The extended frame an extended enemy shows, which names its components' sheet frames; null for an ordinary enemy.</param>
     /// <param name="Components">Where an extended enemy's installed components are placed; null for an ordinary enemy.</param>
     private readonly record struct PreparedEnemyDraw(int Layer, RoomEnemySlot Slot, int EnemyIndex,
-        Position16<ScreenPixels> Origin, int PaletteRow, EnemyFrameId? Frame, EnemyFrameId? ExtendedFrame,
+        Position16<ScreenPixels> Origin, SpriteColouring Colouring, EnemyFrameId? Frame, EnemyFrameId? ExtendedFrame,
         ReadOnlyMemory<EnemyExtendedComponentPlacement>? Components);
 
     /// <summary>
@@ -227,30 +227,30 @@ internal sealed class EnemyDrawList
     /// <c>WriteEnemyOams</c> emits either an ordinary or extended enemy spritemap.
     /// </summary>
     /// <remarks>
-    /// A hit does not replace an enemy's stored graphics-set palette. On alternating
-    /// phases of the shared enemy frame counter, the writer temporarily supplies OBJ
-    /// palette zero; the following draw restores the actor's assigned palette. Frozen
-    /// flashing similarly selects OBJ palette six. Keeping this at the common writer is
+    /// A hit does not replace an enemy's stored colouring. On alternating phases of the
+    /// shared enemy frame counter, the writer temporarily supplies the common sprite
+    /// colours; the following draw restores the actor's own. Frozen flashing similarly
+    /// selects the frozen colours. Keeping this at the common writer is
     /// important: Space Pirates are merely the first ordinary enemies whose missing flash
-    /// was obvious, and a family-specific palette mutation would corrupt every later draw.
-    /// Ridley's translated AI already publishes the exact common-writer palette because
+    /// was obvious, and a family-specific colouring change would corrupt every later draw.
+    /// Ridley's translated AI already publishes the exact common-writer colouring because
     /// its body, wings, and tail must share one latched phase.
     /// </remarks>
-    private int SelectCommonEnemyDrawPalette(RoomEnemySlot slot)
+    private SpriteColouring SelectCommonEnemyDrawColouring(RoomEnemySlot slot)
     {
-        if (slot.Entity is IEnemyDrawHooks drawHooks && drawHooks.CommonDrawPalette() is { } owned)
+        if (slot.Entity is IEnemyDrawHooks drawHooks && drawHooks.CommonDrawColouring() is { } owned)
             return owned;
 
         // A hit flash shows the common sprite colours on alternate phases.
         if (!slot.FlashTimer.IsZero && (_frameContext.RandomEnemyCounter & 2) != 0)
-            return SpriteColourSetDefinitions.Common;
+            return SharedSpriteColouring.Common;
 
         if (!slot.FrozenTimer.IsZero &&
             (slot.FrozenTimer.RawValue >= 90 || (slot.FrozenTimer.RawValue & 2) != 0))
         {
-            return SpriteColourSetDefinitions.Frozen;
+            return SharedSpriteColouring.Frozen;
         }
 
-        return slot.PaletteRow;
+        return slot.Colouring;
     }
 }

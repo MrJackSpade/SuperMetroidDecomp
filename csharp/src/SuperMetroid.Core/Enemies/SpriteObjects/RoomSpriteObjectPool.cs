@@ -143,7 +143,7 @@ internal sealed class RoomSpriteObjectPool
 
             EnemyFrameId shown = RoomSpriteObjectVisualDefinitions.ShownFrames.Of(slot.Frame);
             _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.RoomSpriteObject, index),
-                EnemySheetDefinitions.SpriteObjectFrameName(shown), screen, slot.Graphics.TileBase, slot.Graphics.PaletteRow);
+                EnemySheetDefinitions.SpriteObjectFrameName(shown), screen, slot.Graphics.TileBase, slot.Graphics.Colouring);
         }
     }
 }

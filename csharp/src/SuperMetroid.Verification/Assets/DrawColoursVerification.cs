@@ -31,7 +31,7 @@ internal static class DrawColoursVerification
             colours[ScreenPalette.ColorCount / 2 + 7 * 16 + colour] = white;
 
         // The override ORs row 5 into part row 2, which shows row 7 and blends; the fixed part keeps row 3.
-        var flashed = new ImageSpriteDraw(new(SpriteSourceKind.Enemy), frame, default, SpriteMirror.None, paletteOverride: 5);
+        var flashed = new ImageSpriteDraw(new(SpriteSourceKind.Enemy), frame, default, SpriteMirror.None, DrawnColouring.InUnnamedRow(5));
         DrawColours shown = DrawColours.Resolve(flashed, colours);
         AssertTrue(shown.FollowsPartRows, "an overridden draw keys its pixels by part row");
         int overridden = shown.Key(indices[0] / 16, partRows[0]), fixedPart = shown.Key(indices[1] / 16, partRows[1]);

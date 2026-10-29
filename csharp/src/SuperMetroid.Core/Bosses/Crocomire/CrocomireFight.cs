@@ -12,7 +12,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
@@ -138,7 +138,7 @@ internal sealed class CrocomireFight
                 "Crocomire initializer");
         var tongueState = new CrocomireTongueState { BodyXOffset = CrocomireBehavior.CrocomireTongueBodyXOffset };
         slot.SetSpeciesState(tongueState, tongueState.ClearWithRecord);
-        slot.PaletteRow = 7;
+        slot.Colouring = new GraphicsSetMemberColouring(EnemyDefinitionId.Crocomire);
     }
 
     /// <summary>Ports the artificial left-side wall in <c>$A4:8C95</c>.</summary>
@@ -606,7 +606,7 @@ internal sealed class CrocomireFight
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.CrocomireProjectile,
-            graphics: SpriteGraphics.InPalette(5));
+            graphics: SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.EnemyProjectiles));
         projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.Mouth));
         projectile.Velocity = new(SignedEightEight.FromSignedRaw(-512), new SignedEightEight(1));
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole - 32)), unchecked((ushort)(body.Position.Y.Whole - 16))));

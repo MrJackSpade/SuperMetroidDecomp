@@ -8,6 +8,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Verification.Enemies.Chozo;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -72,7 +73,7 @@ internal static class StatueSplashVerification
                         var expectedOam = new OamBuffer();
                         expectedOam.BeginFrame();
                         DrawImportedEnemyProjectileSpritemap(bus, expectedOam, NativeEnemyProjectileSpritemap(bus, splash),
-                            new(unchecked((ushort)(splashX - 32)), 164), NativeSpriteGraphicsWords.GraphicsWord(splash.Graphics), true);
+                            new(unchecked((ushort)(splashX - 32)), 164), NativeSpriteGraphicsWords.GraphicsWord(splash.Graphics, splash.Graphics.PaletteRowIn(enemies)), true);
                         expectedOam.FinalizeFrame();
                         var actualOam = new OamBuffer();
                         actualOam.BeginFrame();

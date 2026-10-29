@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.SpriteObjects;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies.Nuclear;
 

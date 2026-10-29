@@ -93,7 +93,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
                 Enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, graphicsSet, Colors.Gameplay.SpriteSets);
                 SpriteGraphics indexes = Enemies.GraphicsSet.DrawIndexes(Actor.DefinitionId);
                 Actor.TileIndexBase = indexes.TileBase;
-                Actor.PaletteRow = indexes.PaletteRow;
+                Actor.Colouring = indexes.Colouring;
             }
             if (golden)
             {

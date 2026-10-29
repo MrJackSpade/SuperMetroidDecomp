@@ -10,10 +10,10 @@ internal static class FrontendSheetPalette
     internal const int FramePalette = 0;
 
     /// <summary>
-    /// The override that places a frame's palette-inheriting parts in palette row <paramref name="palette"/>, or null
-    /// where that is the row the sheet coloured them in.
+    /// The colouring that places a frame's palette-inheriting parts in palette row <paramref name="palette"/>, whose
+    /// screen colour owner is not yet named (#1464), or null where that is the row the sheet coloured them in.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The row is outside the eight sprite palette rows.</exception>
-    internal static int? Override(int palette) =>
-        Ensure.BetweenInclusive(0, SpriteImage.MaximumPaletteRow, palette) == FramePalette ? null : palette;
+    internal static DrawnColouring? Override(int palette) =>
+        Ensure.BetweenInclusive(0, SpriteImage.MaximumPaletteRow, palette) == FramePalette ? null : DrawnColouring.InUnnamedRow(palette);
 }

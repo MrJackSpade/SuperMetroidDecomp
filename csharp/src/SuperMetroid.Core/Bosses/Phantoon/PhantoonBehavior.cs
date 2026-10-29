@@ -7,7 +7,6 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Rooms;
 
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>The Phantoon species owner: its per-room state, AI routines and the interactions it registers.</summary>
@@ -137,7 +136,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         part.Frame = EnemyFrameId.Empty;
         part.InstructionTimer = WrappingCountdown.Start(1);
         part.Timer = WrappingCountdown.Start(0);
-        part.PaletteRow = state.Body.PaletteRow;
+        part.Colouring = state.Body.Colouring;
         part.TileIndexBase = state.Body.TileIndexBase;
         state.PartProgram(part) = AnimationProgramCursor<PhantoonPartProgram>.Start(program);
         PhantoonPartState words = state.Parts[part.SlotIndex];

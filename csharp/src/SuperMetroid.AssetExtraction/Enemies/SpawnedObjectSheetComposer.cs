@@ -9,6 +9,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.SpriteObjects;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -47,7 +48,8 @@ internal static class SpawnedObjectSheetComposer
             if (!plans[0].Spawners.Contains(enemy))
                 plans[0].Spawners.Add(enemy);
             SpriteGraphics indexes = graphics.DrawIndexes(enemy);
-            int palette = indexes.PaletteRow;
+            // The objects' sheet is coloured in the row the set holds their spawner's colours in.
+            int palette = new SpriteColouringRows(graphics).Row(indexes.Colouring);
             // A projectile draws at its tile base's place in its page, a sprite object at the tile base itself, and some
             // spawners' objects also at characters of their own choosing.
             int[] alsoAt = EnemyTileBaseDefinitions.SpawnsAlsoAt.GetValueOrDefault(enemy, []);

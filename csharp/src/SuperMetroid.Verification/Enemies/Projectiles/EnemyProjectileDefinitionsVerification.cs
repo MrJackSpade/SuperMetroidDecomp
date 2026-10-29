@@ -19,6 +19,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Verification.Enemies.Projectiles;
 
 using SuperMetroid.Verification.Harness;
@@ -57,7 +58,7 @@ internal static class EnemyProjectileDefinitionsVerification
         {
             EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
             projectile.Clear();
-            initialize(projectile, kind, SpriteGraphics.InPalette(6));
+            initialize(projectile, kind, SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.Frozen));
             AssertEqual(kind, projectile.Kind, $"{kind} production kind");
             AssertEqual(definition.PreInstruction, projectile.PreInstruction,
                 $"{kind} production pre-instruction");
@@ -80,8 +81,8 @@ internal static class EnemyProjectileDefinitionsVerification
                 $"{kind} production persistence property");
             AssertEqual(definition.BlocksSamusProjectiles, projectile.BlocksSamusProjectiles,
                 $"{kind} production projectile-blocking property");
-            AssertEqual(SpriteGraphics.InPalette(6), projectile.Graphics,
-                $"{kind} production graphics: the spawner's tile base and palette row");
+            AssertEqual(SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.Frozen), projectile.Graphics,
+                $"{kind} production graphics: the spawner's tile base and colours");
 
             projectile.Position = projectile.Position.WithWhole(new(0x0100, 0x0100));
             projectile.Radius = new(1, 1);
@@ -124,7 +125,7 @@ internal static class EnemyProjectileDefinitionsVerification
                 AssertTrue(ReferenceEquals(initialProgram, projectile.Animation), $"{kind} production touch keeps its program");
             }
 
-            initialize(projectile, kind, new SpriteGraphics(TileBase: 0, PaletteRow: 0));
+            initialize(projectile, kind, SpriteGraphics.Emptied);
             projectile.Position = projectile.Position.WithWhole(new(0x0100, 0x0100));
             projectile.BlocksSamusProjectiles = true;
             projectile.CollisionOption = EnemyProjectileCollisionOption.RunShotList;

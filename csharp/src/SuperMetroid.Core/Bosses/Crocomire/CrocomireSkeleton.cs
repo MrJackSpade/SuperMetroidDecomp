@@ -8,7 +8,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
@@ -153,7 +153,7 @@ internal sealed class CrocomireSkeleton
         _access.PublishCrocomirePlm(new Position16<RoomBlocks>(112, 11), PlmHeaderId.ClearCrocomireBridge);
         _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.Crumble;
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFallsApart);
-        body.PaletteRow = 0;
+        body.Colouring = SharedSpriteColouring.Common;
         (_bossArtwork.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
             "Crocomire skeleton requires installed colors.")).ApplySkeletonArm(_presentation.Colours);
 
@@ -198,7 +198,7 @@ internal sealed class CrocomireSkeleton
 
         _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.BigExplosion;
         if (state.Tongue is { } tongue)
-            tongue.PaletteRow = state.Body.PaletteRow;
+            tongue.Colouring = state.Body.Colouring;
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFallsApart);
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }

@@ -58,6 +58,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Cartridge-oracle checks for the second set of gameplay, artwork, and pause-screen catalogs.</summary>
@@ -168,7 +169,7 @@ internal static class LookupStream2Verification
         var cgram = new SamusColourRig();
         enemies.Presentation.BindColours(cgram.Gameplay);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.PaletteRow = 0;
+        slot.Colouring = SharedSpriteColouring.Common;
         var state = new WreckedShipGhostEnemyState { PhaseTimer = WrappingCountdown.Start(2) };
         Action<RoomEnemySlot, WreckedShipGhostEnemyState> brightening = enemies.WreckedShipGhostBehavior.RunWreckedShipGhostBrightening;
         Func<RoomEnemySlot, WreckedShipGhostEnemyState, int> fade = enemies.WreckedShipGhostBehavior.StepWreckedShipGhostPaletteTowardTarget;

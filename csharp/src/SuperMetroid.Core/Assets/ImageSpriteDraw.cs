@@ -11,27 +11,24 @@ public sealed record ImageSpriteDraw : SpriteDraw
     /// <param name="image">The sheet frame shown.</param>
     /// <param name="origin">The screen point the frame's origin lands on; each coordinate is a signed 16-bit value.</param>
     /// <param name="mirror">Mirrors the frame about its origin.</param>
-    /// <param name="paletteOverride">
-    /// The palette row ORed into each pixel's part row in place of the one the image was coloured with, as an enemy's
-    /// hit or freeze flash supplies, or null for the image's own colours.
+    /// <param name="colouring">
+    /// The colours shown in place of the ones the image was coloured with, as an enemy's hit or freeze flash supplies,
+    /// their row ORed into each pixel's part row; or null for the image's own colours.
     /// </param>
-    /// <exception cref="ArgumentOutOfRangeException">The override is not a sprite palette row.</exception>
     public ImageSpriteDraw(SpriteSource source, SpriteSheetFrame image, Position16<ScreenPixels> origin, SpriteMirror mirror,
-        int? paletteOverride = null)
+        DrawnColouring? colouring = null)
         : base(source, origin)
     {
-        if (paletteOverride is < 0 or > SpriteImage.MaximumPaletteRow)
-            throw new ArgumentOutOfRangeException(nameof(paletteOverride), paletteOverride, "Sprite palette rows are 0..7.");
         Image = Ensure.NotNull(image);
         Mirror = mirror;
-        PaletteOverride = paletteOverride;
+        Colouring = colouring;
     }
 
     /// <summary>
-    /// The palette row ORed into each pixel's part row in place of the one the image was coloured with, or null for the
-    /// image's own colours.
+    /// The colours shown in place of the ones the image was coloured with, their row ORed into each pixel's part row, or
+    /// null for the image's own colours (#1464).
     /// </summary>
-    public int? PaletteOverride { get; }
+    public DrawnColouring? Colouring { get; }
 
     /// <summary>What the draw's pixels show, resolved when its frame is published; null until then.</summary>
     public DrawColours? Colours { get; init; }

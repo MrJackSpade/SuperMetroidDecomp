@@ -8,7 +8,6 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.SpriteObjects;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
@@ -522,7 +521,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state)
     {
-        SpriteGraphics graphics = default;
+        SpriteGraphics graphics = SpriteGraphics.Emptied;
         if (_spriteObjects.SpawnRoomSpriteObject(
                 new(unchecked((ushort)(slot.Position.X.Whole - 8)), unchecked((ushort)(slot.Position.Y.Whole + 28))),
                 RoomSpriteObjectKind.NinjaPirateLandingDust,
@@ -609,8 +608,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 state.Function = setFunction.Function;
                 return null;
             case NinjaSpacePirateCue.SetPalette setPalette:
-                slot.PaletteRow = setPalette.Palette ?? throw new InvalidOperationException(
-                    "A ninja Space Pirate palette cue carries no palette.");
+                slot.Colouring = _presentation.ColouringRows.InRow(setPalette.Palette ?? throw new InvalidOperationException(
+                    "A ninja Space Pirate palette cue carries no palette."));
                 return null;
             case NinjaSpacePirateCue.PlaySound playSound:
                 _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = playSound.Sound ?? throw new InvalidOperationException(

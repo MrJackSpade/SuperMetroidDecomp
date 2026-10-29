@@ -56,10 +56,10 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
     private const ushort FixtureGraphicsIndex = 0x0a04;
 
     /// <summary>
-    /// The graphics the production-drawn checks give a projectile: palette row five at character zero, where every
-    /// set composes each object it can spawn (#1392).
+    /// The graphics the production-drawn checks give a projectile: the enemy projectiles' colours, palette row five, at
+    /// character zero, where every set composes each object it can spawn (#1392).
     /// </summary>
-    private static readonly SpriteGraphics SpawnedGraphics = SpriteGraphics.InPalette(5);
+    private static readonly SpriteGraphics SpawnedGraphics = SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.EnemyProjectiles);
 
     /// <summary>Projectile kinds whose typed programs (#641) present frames by key instead of running a native list.</summary>
     private static readonly HashSet<RoomEnemyProjectileKind> TypedProgramKinds =
@@ -954,8 +954,9 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                      })
             {
                 EnemyDefinitionId spawner = BurstSpawner(program);
-                OamBuffer native = DrawReferenceBurst(program, bus,
-                    BurstSystem(artwork, spawner).GraphicsSet.DrawIndexes(spawner));
+                RoomEnemySystem burstSystem = BurstSystem(artwork, spawner);
+                OamBuffer native = DrawReferenceBurst(program, bus, NativeSpriteGraphicsWords.GraphicsWord(
+                    burstSystem.GraphicsSet.DrawIndexes(spawner), burstSystem.GraphicsSet.DrawRow(spawner)));
                 OamBuffer installedBurst = DrawBurst(artwork, program,
                     NewEnemyProjectileVisualGuard(bus));
                 AssertTrue(native.NextByteOffset > 0 &&
@@ -974,12 +975,13 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             var oam = new OamBuffer();
             oam.BeginFrame();
             DrawImportedEnemyProjectileSpritemap(source, oam, pointer, new(128, 96),
-                NativeSpriteGraphicsWords.GraphicsWord(SpawnedGraphics), originYIsOnScreen: true);
+                NativeSpriteGraphicsWords.GraphicsWord(SpawnedGraphics, SpawnedGraphics.FixedPaletteRow), originYIsOnScreen: true);
             return oam;
         }
 
-        // The native particles draw with their spawner's graphics word (#1455): its palette row and its set's tile base.
-        static OamBuffer DrawReferenceBurst(ushort program, ISnesAddressSpace source, SpriteGraphics spawner)
+        // The native particles draw with their spawner's graphics word (#1455): the row holding its colours and its set's
+        // tile base.
+        static OamBuffer DrawReferenceBurst(ushort program, ISnesAddressSpace source, ushort spawnerWord)
         {
             ushort pointer = ReadNativeEnemyProjectileProgramWord(source, unchecked((ushort)(program + 2)));
             var oam = new OamBuffer();
@@ -988,7 +990,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             // Initialization offsets X by six; no motion tick precedes this draw.
             foreach (ushort x in new ushort[] { 134, 134, 122, 122 })
                 DrawImportedEnemyProjectileSpritemap(source, oam, pointer, new(x, 96),
-                    NativeSpriteGraphicsWords.GraphicsWord(spawner), originYIsOnScreen: true);
+                    spawnerWord, originYIsOnScreen: true);
             return oam;
         }
 
@@ -1004,10 +1006,10 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
             };
-            // The spawner holds the tile base and palette row its set gives it, as a room's spawn would.
+            // The spawner holds the tile base and colours its set gives it, as a room's spawn would.
             SpriteGraphics graphics = enemies.GraphicsSet.DrawIndexes(spawner);
             enemy.TileIndexBase = graphics.TileBase;
-            enemy.PaletteRow = graphics.PaletteRow;
+            enemy.Colouring = graphics.Colouring;
             spawn(enemy);
             foreach (RoomEnemyProjectileSlot particle in enemies.Projectiles.EnemyProjectiles
                          .Where(particle => particle.IsActive))

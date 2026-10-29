@@ -18,6 +18,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Verification.Bosses;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.World.Artwork;
@@ -59,7 +60,7 @@ internal static class BossDisplayBindingsStockVerification
                     parts += original.Parts.Length;
                     expectedOam.AddEnemySpritemap(original.Parts,
                         new Position16<SpritePixels>(unchecked((ushort)(fixture.Actor.Position.X.Whole + original.Offset.X)), unchecked((ushort)(fixture.Actor.Position.Y.Whole + original.Offset.Y))),
-                        NativeSpriteGraphicsWords.PaletteBits(fixture.Actor.PaletteRow), checked((ushort)fixture.Actor.TileIndexBase),
+                        NativeSpriteGraphicsWords.PaletteBits(fixture.Actor.PaletteRowIn(fixture.Enemies)), checked((ushort)fixture.Actor.TileIndexBase),
                         clipVerticalWrap: true, originYIsOnScreen: (EightEight.WholeOf(fixture.Actor.Position.Y.Whole + original.Offset.Y)) == 0);
                 }
                 ReadOnlyMemory<EnemyBg2TilemapWrite> writes = StockBossWrites(installed, frame);

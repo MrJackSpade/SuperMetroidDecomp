@@ -355,6 +355,6 @@ internal sealed class CrocomireBridgeCollapse
         projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(0));
         // $86:92A5 reads RandomNumberSeed; it does not advance it.
         projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)((_room.Random.Read() & 63) + 64))));
-        projectile.Graphics = SpriteGraphics.InPalette(2);
+        projectile.Graphics = SpriteGraphics.CharacterZeroIn(new UnnamedSpriteRowColouring(2));
     }
 }

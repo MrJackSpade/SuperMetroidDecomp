@@ -2,6 +2,7 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Evir.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Enemies.Evir;
 
@@ -20,11 +21,15 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs normal touch handling before Evir's shared combat tail.</summary>
     private readonly EnemyCollision _collision;
 
+    /// <summary>Places the colours a palette word read as a number holds in their row.</summary>
+    private readonly SpriteColouringRows _colouringRows;
+
     /// <summary>Binds slot and collision owners for the three-record Evir actor.</summary>
-    internal EvirBehavior(EnemySlotTable slotTable, EnemyCollision collision)
+    internal EvirBehavior(EnemySlotTable slotTable, EnemyCollision collision, SpriteColouringRows colouringRows)
     {
         _slotTable = slotTable;
         _collision = collision;
+        _colouringRows = colouringRows;
     }
 
     /// <summary>Carries out one cue of the Evir projectile's animations: the spit sound and the regeneration steps.</summary>
@@ -122,7 +127,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             int value = source.Field switch
             {
                 EvirHalfCycleSourceField.PopulationParameter2 => checked((ushort)enemy.Spawn.Population.Parameter2),
-                EvirHalfCycleSourceField.Palette => enemy.PaletteRow,
+                // The cartridge reads the enemy's palette word as the count: the row holding its colours.
+                EvirHalfCycleSourceField.Palette => _colouringRows.Row(enemy.Colouring),
                 _ => throw new InvalidOperationException($"Undefined {nameof(EvirHalfCycleSourceField)} {source.Field}."),
             };
             return WrappingCountdown.Start(source.Field == EvirHalfCycleSourceField.Palette
@@ -151,7 +157,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot body = RequireEvirRelativeSlot(slot, -2, EnemyDefinitionId.Evir, "projectile body", initializing: true);
         // The projectile definition has no graphics-set entry of its own. Native copies the
         // body's resolved palette/tile indexes so the projectile map addresses the Evir art.
-        slot.PaletteRow = body.PaletteRow;
+        slot.Colouring = body.Colouring;
         slot.TileIndexBase = body.TileIndexBase;
         ResetEvirProjectilePosition(slot, state);
 

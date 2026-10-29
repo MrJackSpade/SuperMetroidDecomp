@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Rooms.SpriteObjects;
 
@@ -31,8 +31,8 @@ public sealed class RoomSpriteObjectSlot
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
 
-    /// <summary>Native $7E:F078 plus the slot offset: the sheet characters and palette row the object draws with.</summary>
-    public SpriteGraphics Graphics { get; internal set; }
+    /// <summary>Native $7E:F078 plus the slot offset: the sheet characters and colours the object draws with.</summary>
+    public SpriteGraphics Graphics { get; internal set; } = SpriteGraphics.Emptied;
 
     /// <summary>Where the object's program resumes, or null for a free slot.</summary>
     internal AnimationProgramCursor<RoomSpriteObjectProgram>? Cursor { get; set; }
@@ -51,7 +51,7 @@ public sealed class RoomSpriteObjectSlot
     {
         Kind = RoomSpriteObjectKind.None;
         Position = FixedPosition<RoomPixels>.Zero;
-        Graphics = default;
+        Graphics = SpriteGraphics.Emptied;
         Cursor = null;
         Timer = default;
         Frame = default;

@@ -72,11 +72,11 @@ internal static class SheetFrameSources
         TileFlip flip = ((draw.Mirror & SpriteMirror.Horizontal) != 0 ? TileFlip.Horizontal : TileFlip.None) |
             ((draw.Mirror & SpriteMirror.Vertical) != 0 ? TileFlip.Vertical : TileFlip.None);
         // A frontend draw's override places the parts that take their draw's palette in its row and leaves the others.
-        if (source.PartsKeepOwnRows && draw.PaletteOverride is int row)
+        if (source.PartsKeepOwnRows && draw.Colouring is { Row: var row })
             return new CharacterSpriteDraw(draw.Source, source.Frame, characters ?? source.Page, draw.Origin, flip, row, 0);
         // A family's palette bits, or the draw's override in their place, OR into each part's own row, as the
         // cartridge ORs an enemy's.
-        int bits = draw.PaletteOverride ?? source.PaletteBits;
+        int bits = draw.Colouring?.Row ?? source.PaletteBits;
         SpriteFrame frame = bits == 0 ? source.Frame
             : new SpriteFrame(source.Frame.Name, [.. source.Frame.Parts.Select(part => part with { Palette = (part.Palette ?? 0) | bits })]);
         return new CharacterSpriteDraw(draw.Source, frame, characters ?? source.Page, draw.Origin, flip, source.FramePalette ?? 0, 0);

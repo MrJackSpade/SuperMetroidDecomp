@@ -6,6 +6,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Verification.Enemies.Dragon;
 
@@ -27,7 +28,7 @@ internal static class DragonFireballBehaviorVerification
         body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
         body.Position = body.Position.WithWhole(new(384, 160));
         body.TileIndexBase = 512;
-        body.PaletteRow = 5;
+        body.Colouring = SharedSpriteColouring.EnemyProjectiles;
         DragonBehavior.InitializeDragon(body);
         DragonEnemyState state = enemies.DragonStates[0] ?? throw new InvalidOperationException("Verification requires the Dragon's state.");
 

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -203,7 +204,9 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     {
         slot.Position = baby.Position;
         slot.Properties = baby.Properties;
-        slot.PaletteRow = baby.HitFlashPaletteShown ? 0 : 7;
+        slot.Colouring = baby.HitFlashPaletteShown
+            ? SharedSpriteColouring.Common
+            : new EncounterSpriteColouring(BossColourDefinitions.BabyMetroidCutscene);
         slot.TileIndexBase = baby.TileBase;
         slot.Health = baby.Health;
     }

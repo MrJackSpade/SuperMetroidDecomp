@@ -24,7 +24,7 @@ internal static class DownwardGateProjectileBehaviorVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyProjectileSlot gate = enemies.Projectiles.EnemyProjectiles[0];
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(gate, RoomEnemyProjectileKind.DownwardGateMoving,
-            new SuperMetroid.Core.Assets.SpriteGraphics(TileBase: 0, PaletteRow: 0));
+            SuperMetroid.Core.Enemies.SpriteGraphics.Emptied);
         AssertTrue(gate.Animation is DownwardGateProjectileAnimation { Cursor.Program: DownwardGateProjectileProgram.Moving }, "the moving gate starts its program");
 
         DownwardGateProjectileProgram current = DownwardGateProjectileProgram.Moving;

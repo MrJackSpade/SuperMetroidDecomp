@@ -4,6 +4,8 @@ using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Bosses.Artwork;
 
 namespace SuperMetroid.Verification.Bosses.Draygon;
 
@@ -62,7 +64,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
                 $"Draygon burial Evir {entry} spawned X");
             AssertEqual(definition.Initial.Y, sprite.Position.Y.Whole,
                 $"Draygon burial Evir {entry} spawned Y");
-            AssertEqual(SuperMetroid.Core.Assets.SpriteGraphics.InPalette(7), sprite.Graphics,
+            AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.DraygonSprite)), sprite.Graphics,
                 $"Draygon burial Evir {entry} palette");
         }
 

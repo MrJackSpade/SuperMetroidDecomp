@@ -15,6 +15,7 @@ using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
@@ -61,7 +62,7 @@ internal static class CeresRidleyPicturesVerification
         {
             MovementAnimationEnabled = true,
             FacingDirection = RidleyFacing.Left,
-            SpritemapPalette = 1,
+            SpritemapColouring = new GraphicsSetMemberColouring(EnemyDefinitionId.RidleyCeres),
             TailSegments = [.. Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
             {
                 Position = new Position16<RoomPixels>(unchecked((ushort)(80 + index * 10)), unchecked((ushort)(120 + index * 3))),

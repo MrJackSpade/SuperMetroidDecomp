@@ -9,6 +9,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -77,7 +78,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         enemies.MagdolliteBehavior.MagdollitePaletteAnimationInstalled = true;
         enemies.MagdolliteBehavior.MagdollitePaletteAnimationTimer = WrappingCountdown.Start(8);
         enemies.MagdolliteBehavior.MagdollitePaletteFrame = 0;
-        enemies.MagdolliteBehavior.MagdolliteColourSet = 0;
+        enemies.MagdolliteBehavior.MagdolliteColouring = SharedSpriteColouring.Common;
         Action step = enemies.MagdolliteBehavior.StepMagdollitePaletteAnimation;
         const int destination = 0x80 + MagdollitePaletteDefinitions.FirstAnimatedColor;
         RoomEnemySlot untouched = enemies.SlotTable.Slots[0];

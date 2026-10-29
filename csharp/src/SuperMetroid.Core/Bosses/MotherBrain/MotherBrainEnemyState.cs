@@ -3,6 +3,8 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -95,11 +97,11 @@ public sealed class MotherBrainEnemyState
     /// <summary>True after all <c>$800</c> enemy-BG2 words have been filled with tile <c>$0338</c>.</summary>
     public bool BackgroundTilemapPrepared { get; internal set; }
 
-    /// <summary>OBJ palette selection shared by the five neck joints; converted to palette bits only when drawn.</summary>
-    public int NeckPalette { get; internal set; }
+    /// <summary>The colours the five neck joints draw in (#1464).</summary>
+    public SpriteColouring NeckColouring { get; internal set; } = SharedSpriteColouring.Common;
 
-    /// <summary>OBJ palette selection the custom brain draw applies outside its white hurt-flash frames.</summary>
-    public int BrainPalette { get; internal set; }
+    /// <summary>The colours the custom brain draw applies outside its white hurt-flash frames (#1464).</summary>
+    public SpriteColouring BrainColouring { get; internal set; } = SharedSpriteColouring.Common;
 
     /// <summary>
     /// The brain's own program (#641), separate from the head enemy's dummy program: the cursor rests on the frame

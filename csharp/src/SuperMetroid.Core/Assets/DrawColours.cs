@@ -62,7 +62,7 @@ public sealed class DrawColours
     /// <summary>
     /// The colours <paramref name="draw"/> shows under <paramref name="frameColours"/>, a frame's 256 colours. A plain
     /// draw shows each ink row the frame uses, keeping its image's own colours while that row holds them. A draw with
-    /// an override shows, for each part row, the row the override leaves it.
+    /// a drawn colouring shows, for each part row, the row the colouring's row leaves it.
     /// </summary>
     public static DrawColours Resolve(ImageSpriteDraw draw, ReadOnlySpan<RgbColor> frameColours)
     {
@@ -70,11 +70,11 @@ public sealed class DrawColours
         Ensure.LengthEqual(frameColours, FrameColours);
         var shown = new RgbColor[]?[Keys];
         int blending = 0;
-        if (draw.PaletteOverride is int overriding)
+        if (draw.Colouring is { } overriding)
         {
             for (int partRow = 0; partRow < Keys; partRow++)
             {
-                int row = SpriteImage.OverriddenRow(partRow, overriding);
+                int row = SpriteImage.OverriddenRow(partRow, overriding.Row);
                 shown[partRow] = Row(frameColours, row).ToArray();
                 if (row >= FirstBlendingRow)
                     blending |= 1 << partRow;
@@ -105,8 +105,8 @@ public sealed class DrawColours
     {
         Ensure.NotNull(draw);
         Ensure.NotNull(owner);
-        if (draw.PaletteOverride is not null)
-            throw new InvalidOperationException("An owner colours its draws itself; an override selects colours from a row.");
+        if (draw.Colouring is not null)
+            throw new InvalidOperationException("An owner colours its draws itself; a drawn colouring selects colours from a row.");
         ReadOnlySpan<RgbColor> standard = draw.Image.Sheet.StandardColours;
         var shown = new RgbColor[]?[Keys];
         Span<RgbColor> colours = stackalloc RgbColor[RowColours];

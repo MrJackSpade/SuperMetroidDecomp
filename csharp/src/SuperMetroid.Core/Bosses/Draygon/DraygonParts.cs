@@ -67,7 +67,7 @@ internal sealed class DraygonParts
         // Draygon owns that image (#1354); his body frames draw into it and it publishes as his body on BG2.
         _presentation.AttachBg2Image(new EnemyBg2Image(EnemyBg2SurfaceDefinitions.BlankTile));
 
-        body.PaletteRow = 7;
+        body.Colouring = new EncounterSpriteColouring(BossColourDefinitions.DraygonSprite);
         body.InstructionTimer = WrappingCountdown.Start(1);
 
         _frameContext.RequestFullSweep();
@@ -105,7 +105,7 @@ internal sealed class DraygonParts
             case DraygonPart.Tail:
                 if (part.SlotIndex != 2)
                     throw new InvalidDataException("Draygon's tail must own native slot $0080.");
-                part.PaletteRow = 7;
+                part.Colouring = new EncounterSpriteColouring(BossColourDefinitions.DraygonSprite);
                 state.Tail = part;
                 state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.TailFacingLeftInitialFakeWhip));
                 return;
@@ -115,7 +115,7 @@ internal sealed class DraygonParts
                     throw new InvalidDataException("Draygon's arms must own native slot $00C0.");
                 // Body init briefly writes $9813 before this record exists. Retail part init
                 // clears that lost write and installs the ordinary idle loop at $97E7.
-                part.PaletteRow = 7;
+                part.Colouring = new EncounterSpriteColouring(BossColourDefinitions.DraygonSprite);
                 part.Layer = 2;
                 state.Arms = part;
                 state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.ArmsFacingLeftIdle));
@@ -374,7 +374,7 @@ internal sealed class DraygonParts
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             goop,
             RoomEnemyProjectileKind.DraygonGoop,
-            graphics: SpriteGraphics.InPalette(2));
+            graphics: SpriteGraphics.CharacterZeroIn(new UnnamedSpriteRowColouring(2)));
         goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.Goop));
         goop.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(state.Body.Position.X.Whole + (movingRight ? 24 : -28))), unchecked((ushort)(state.Body.Position.Y.Whole - 16))));
 

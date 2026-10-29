@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
@@ -100,12 +100,12 @@ internal sealed class KraidBackground
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             rock,
             RoomEnemyProjectileKind.KraidCeilingRock,
-            graphics: SpriteGraphics.InPalette(3));
+            graphics: SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.KraidSprites)));
         rock.StartAnimation(new KraidRockAnimation(KraidRockProgram.SharedPose));
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(checked((ushort)xPosition), 312));
         rock.Velocity = rock.Velocity.WithX(new SignedEightEight(0));
         rock.Velocity = rock.Velocity.WithY(new SignedEightEight(unchecked((ushort)((_access.ReadKraidRandomNumber() & 63) + 64))));
-        rock.Graphics = SpriteGraphics.InPalette(3);
+        rock.Graphics = SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.KraidSprites));
         return true;
     }
 }

@@ -2,6 +2,8 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Bosses.Artwork;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -59,7 +61,8 @@ internal static class KraidRockLaunchDefinitionsVerification
             AssertEqual(unchecked((ushort)(ushort.MaxValue - raw - 96)), rock.Position.Y.Whole, "Kraid mouth Y offset and wrap");
             AssertEqual((ushort)0, rock.Position.X.Fraction, "Clear stale rock X fraction");
             AssertEqual((ushort)0, rock.Position.Y.Fraction, "Clear stale rock Y fraction");
-            AssertEqual(SuperMetroid.Core.Assets.SpriteGraphics.InPalette(3), rock.Graphics, "Native rock palette row three at tile base zero");
+            AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.KraidSprites)), rock.Graphics,
+                "Native rock: Kraid's sprite colours, sprite set three, at tile base zero");
         }
         foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Kind = RoomEnemyProjectileKind.KraidSpitRock;
         ushort previousX = rock.Position.X.Whole;

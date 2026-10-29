@@ -16,6 +16,7 @@ using SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Artwork;
 
 namespace SuperMetroid.Verification.Bosses.Draygon;
 
@@ -45,7 +46,7 @@ internal static class DraygonEvirPicturesVerification
         // The room load's uploads reach the OBJ characters when its first frame drains them.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         RoomSpriteObjectSlot evir = runtime.Enemies.SpriteObjects.SpawnRoomSpriteObject(EvirPosition,
-            RoomSpriteObjectKind.DraygonIntroEvir, SpriteGraphics.InPalette(7)) ?? throw new InvalidOperationException(
+            RoomSpriteObjectKind.DraygonIntroEvir, SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.DraygonSprite))) ?? throw new InvalidOperationException(
             "Draygon's room has a free sprite-object slot for an opening Evir.");
 
         RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;
@@ -84,7 +85,7 @@ internal static class DraygonEvirPicturesVerification
         EnemyFrameId shown = RoomSpriteObjectVisualDefinitions.ShownFrames.Of(evir.Frame);
         AssertTrue((InstalledFixtures.EnemyTiles.Spritemaps ?? throw new InvalidOperationException("Verification requires the installed compositions."))
             .TryGetDisplay(shown, out EnemySpritemapParts parts), $"the Evir's frame {shown} has an installed composition");
-        int paletteRow = evir.Graphics.PaletteRow;
+        int paletteRow = evir.Graphics.PaletteRowIn(runtime.Enemies);
         CharacterSpriteDraw parted = EnemyPartComposition.Parts(live, drawn[0].Source,
             SuperMetroid.AssetExtraction.Enemies.EnemySpriteFrames.Frame(parts, evir.Graphics.TileBase, paletteRow),
             drawn[0].Origin, NativeSpriteGraphicsWords.PaletteBits(paletteRow));

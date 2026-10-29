@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -132,20 +133,23 @@ public sealed class RoomEnemySlot
     }
     /// <summary>Enemy.instTimer at +$1C: animation instruction countdown in processing updates; initialization starts it at one.</summary>
     public WrappingCountdown InstructionTimer { get; internal set; }
-    /// <summary>Enemy.palette at +$1E: the sprite palette row the enemy draws in, 0 through 7, normally its graphics-set row.</summary>
-    public int PaletteRow
+    /// <summary>
+    /// Enemy.palette at +$1E: what colours the enemy draws in (#1464), normally the colours its graphics set loads for
+    /// it; an emptied record draws in the common sprite colours.
+    /// </summary>
+    public SpriteColouring Colouring
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, SpriteImage.MaximumPaletteRow, value);
-    }
+        internal set => field = Ensure.NotNull(value);
+    } = SharedSpriteColouring.Common;
     /// <summary>Enemy.GFXOffset at +$20: sprite character-index offset assigned by the graphics set, in 32-byte planar tile units.</summary>
     public int TileIndexBase
     {
         get;
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
-    /// <summary>The sheet characters and palette row the enemy draws with, as the projectiles and sprite objects it spawns take them.</summary>
-    public SpriteGraphics Graphics => SpriteGraphics.Of(TileIndexBase, PaletteRow);
+    /// <summary>The sheet characters and colours the enemy draws with, as the projectiles and sprite objects it spawns take them.</summary>
+    public SpriteGraphics Graphics => new(TileIndexBase, Colouring);
     /// <summary>
     /// Enemy.layer at +$22, 0 through 65535: drawing-queue layer word, initialized from the definition's byte-sized
     /// layer; the draw queue reads its low three bits.
@@ -204,7 +208,7 @@ public sealed class RoomEnemySlot
         FlashTimer = WrappingCountdown.Start(0);
         Layer = 0;
         TileIndexBase = 0;
-        PaletteRow = 0;
+        Colouring = SharedSpriteColouring.Common;
         FrameCounter = 0;
         ShakeTimer = WrappingCountdown.Start(0);
         InvincibilityTimer = WrappingCountdown.Start(0);

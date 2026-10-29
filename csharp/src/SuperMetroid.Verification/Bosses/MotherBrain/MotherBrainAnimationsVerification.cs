@@ -204,7 +204,7 @@ internal static class MotherBrainAnimationsVerification
             AssertEqual(native.Timer, projectile.InstructionTimer.RawValue, $"{at}: timer");
             AssertEqual(native.Operand, projectile.PresentationOperandAddress, $"{at}: frame");
             if (native.PaletteCleared)
-                AssertEqual(new SuperMetroid.Core.Assets.SpriteGraphics(TileBase: 0, PaletteRow: 0), projectile.Graphics, $"{at}: palette zero");
+                AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.Emptied, projectile.Graphics, $"{at}: the cleared graphics word, in the common colours");
             if (native.PreInstructionCleared)
                 AssertEqual(EnemyProjectilePreInstruction.RTS_868170, projectile.PreInstruction, $"{at}: pre-instruction cleared");
         }

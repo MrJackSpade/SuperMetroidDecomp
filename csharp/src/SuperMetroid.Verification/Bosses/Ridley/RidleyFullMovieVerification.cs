@@ -41,6 +41,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Map;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
 using SuperMetroid.Verification.Harness;
@@ -1292,8 +1293,8 @@ internal static class RidleyFullMovieVerification
                 Check(owner + " ExtraProperties", actor.ExtraProperties.ToWord(), address + 16);
                 Check(owner + " AiStates", actor.AiStates.Word, address + 18);
                 Check(owner + " Timer", actor.Timer.RawValue, address + 24);
-                // The port holds the palette row; it is compared as the native palette word that row is stored as.
-                Check(owner + " PaletteRow", NativeSpriteGraphicsWords.PaletteBits(actor.PaletteRow), address + 30);
+                // The port holds the colouring; the row holding it is compared as the native palette word that row is stored as.
+                Check(owner + " PaletteRow", NativeSpriteGraphicsWords.PaletteBits(actor.PaletteRowIn(runtime.Enemies)), address + 30);
                 Check(owner + " TileIndexBase", actor.TileIndexBase, address + 32);
                 Check(owner + " Layer", actor.Layer, address + 34);
                 Check(owner + " FlashTimer", actor.FlashTimer.RawValue, address + 36);
@@ -1520,8 +1521,10 @@ internal static class RidleyFullMovieVerification
                 if (!projectile.IsActive || W(NativeSnapshotMemory.EnemyProjectileId + index) == 0) continue;
                 Check(owner + " X", projectile.Position.X.Whole, NativeSnapshotMemory.EnemyProjectileX + index);
                 Check(owner + " Y", projectile.Position.Y.Whole, NativeSnapshotMemory.EnemyProjectileY + index);
-                // The port holds a tile base and palette row; they are compared as the native graphics word that stores them.
-                Check(owner + " Graphics", NativeSpriteGraphicsWords.GraphicsWord(projectile.Graphics), NativeSnapshotMemory.EnemyProjectileGraphics + index);
+                // The port holds a tile base and colouring; they are compared, with the row holding the colouring, as the native
+                // graphics word that stores them.
+                Check(owner + " Graphics", NativeSpriteGraphicsWords.GraphicsWord(projectile.Graphics, projectile.Graphics.PaletteRowIn(runtime.Enemies)),
+                    NativeSnapshotMemory.EnemyProjectileGraphics + index);
                 Check(owner + " Timer", projectile.GeneralTimer, NativeSnapshotMemory.EnemyProjectileTimer + index);
                 Check(owner + " PreInstruction", projectile.PreInstructionWord, NativeSnapshotMemory.EnemyProjectilePreInstruction + index);
                 Check(owner + " XFraction", projectile.Position.X.Fraction, NativeSnapshotMemory.EnemyProjectileXFraction + index);

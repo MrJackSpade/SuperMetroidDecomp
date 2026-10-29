@@ -1,15 +1,16 @@
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Poses;
-using static SuperMetroid.Core.Samus.Artwork.SamusArmCannonPlacementDefinitions;
+using static SuperMetroid.AssetExtraction.Samus.SamusArmCannonPlacementDefinitions;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Where each pose places the arm cannon's cover and which pose owns each placement.</summary>
 internal static class SamusArmCannonPlacements
 {
     /// <summary>Finds a pose's extreme body-sprite tip and applies its authored cannon join for a drawing-coordinate byte.</summary>
-    /// <remarks>Returns false for unowned coordinates or missing editable body artwork, leaving the installed value intact.</remarks>
-    internal static bool TryCoordinate(InstalledSamusBodyArtwork body, int position, out int value)
+    /// <remarks>Returns false for unowned coordinates or missing editable body compositions, leaving the installed value intact.</remarks>
+    internal static bool TryCoordinate(SamusSpritemapSources spritemaps, int position, out int value)
     {
         value = 0;
         if (!TryOwner(position, out SamusPoseId pose, out int phase, out bool yComponent)) return false;
@@ -343,9 +344,9 @@ internal static class SamusArmCannonPlacements
             default:
                 throw new InvalidOperationException($"{pose} does not own an arm-cannon drawing allocation.");
         }
-        int index = body.Spritemaps.TopBase(pose) + sourcePhase;
+        int index = spritemaps.TopBase(pose) + sourcePhase;
         if ((uint)index >= InstalledSamusSpritemaps.EntryCount ||
-            !body.Spritemaps.TryGet((ushort)index, out SamusSpritemapDefinition? map) ||
+            !spritemaps.TryGet((ushort)index, out SamusSpritemapDefinition? map) ||
             map.Parts.Length == 0) return false;
         int best = int.MinValue, selectedX = 0, selectedY = 0;
         foreach (SpritePart part in map.Parts)

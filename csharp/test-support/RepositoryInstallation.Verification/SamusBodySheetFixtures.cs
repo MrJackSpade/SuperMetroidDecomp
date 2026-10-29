@@ -99,7 +99,7 @@ internal static class SamusBodySheetFixtures
         InstalledSamusAtmosphericArtwork attributes = atmosphere;
         return atmospheres.GetOrCreateValue(spritemaps).GetValue(attributes, key =>
         {
-            SpriteSheetSources sources = SamusAtmosphereSheetComposer.Sources(inputs.Value, spritemaps, key);
+            SpriteSheetSources sources = SamusAtmosphereSheetComposer.Sources(inputs.Value, spritemaps.Source, key.Source);
             return Replace(InstalledFixtures.SpriteSheets, SpriteSheetId.SamusAtmosphere, sources,
                 $"fixture-{RuntimeHelpers.GetHashCode(spritemaps):X8}-{RuntimeHelpers.GetHashCode(key):X8}");
         });
@@ -144,7 +144,7 @@ internal static class SamusBodySheetFixtures
         InstalledSpriteSheets sheets = basis;
         foreach (SpriteSheetId id in ids)
         {
-            SpriteSheetSources sources = id == SpriteSheetId.SamusOverlays ? SamusOverlaySheetComposer.Sources(fixture, cannon)
+            SpriteSheetSources sources = id == SpriteSheetId.SamusOverlays ? SamusOverlaySheetComposer.Sources(fixture, cannon.Source)
                 : SamusSheetSources.For(fixture, id);
             sheets = Replace(sheets, id, sources, suffix);
         }

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Artwork;
@@ -37,7 +38,7 @@ internal static class SamusSpritemapDrawsAccess
         SamusSpritemapArtwork artwork,
         SpriteSource source)
     {
-        if (artwork.Spritemaps.TryGetFrame(spritemapIndex, out SpriteFrame? frame))
+        if (artwork.Spritemaps.Source.TryGetFrame(spritemapIndex, out SpriteFrame? frame))
         {
             // A spritemap that names a character beyond its own sheet reads the rest of the OBJ table there.
             SpriteArtwork characters = frame.LastCharacter < artwork.Characters.CharacterCount

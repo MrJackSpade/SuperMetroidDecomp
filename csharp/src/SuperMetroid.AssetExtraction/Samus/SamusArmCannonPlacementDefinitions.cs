@@ -1,5 +1,7 @@
 
-namespace SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Spatial;
+
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Body-sprite attachment geometry for the native arm-cannon overlay.</summary>
 /// <remarks>

@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Artwork;
@@ -14,13 +15,13 @@ internal static class SamusArmCannonNative
     {
         /// <summary>The bank-$90 address of pose <paramref name="pose"/>'s drawing descriptor.</summary>
         internal ushort PoseDrawingData(int pose) =>
-            checked((ushort)(SamusSourceDefinitions.ArmCannonDrawingData + cannon.PoseDescriptor(pose)));
+            checked((ushort)(SamusSourceDefinitions.ArmCannonDrawingData + cannon.Source.PoseDescriptor(pose)));
 
         /// <summary>The installed drawing byte stored at bank-$90 <paramref name="address"/>.</summary>
-        internal byte ReadDrawingByteAt(int address) => cannon.ReadDrawingByte(address - SamusSourceDefinitions.ArmCannonDrawingData);
+        internal byte ReadDrawingByteAt(int address) => cannon.Source.ReadDrawingByte(address - SamusSourceDefinitions.ArmCannonDrawingData);
 
         /// <summary>The bank-$9A source of the cover tile <paramref name="direction"/> shows at <paramref name="frame"/>, or zero for the closed cover.</summary>
-        internal ushort TileSource(int direction, int frame) => cannon.CoverTileIndex(direction, frame) is { } tile
+        internal ushort TileSource(int direction, int frame) => cannon.Source.CoverTileIndex(direction, frame) is { } tile
             ? ArmCannonTileSources.CoverTileDmaSources[tile]
             : (ushort)0;
     }

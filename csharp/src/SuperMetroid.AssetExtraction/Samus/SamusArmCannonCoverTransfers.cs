@@ -1,7 +1,5 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -9,12 +7,12 @@ namespace SuperMetroid.AssetExtraction.Samus;
 internal static class SamusArmCannonCoverTransfers
 {
     /// <summary>Recognizes cover-tile transfers.</summary>
-    extension(InstalledSamusArmCannonArtwork self)
+    extension(SamusArmCannonSourceArtwork self)
     {
         /// <summary>The installed cover tile a native <paramref name="byteCount"/>-byte transfer from <paramref name="sourceAddress"/> copies.</summary>
         internal bool TryResolveTile(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
         {
-            if (byteCount == SamusDrawingDefinitions.ArmCannon.TileByteCount
+            if (byteCount == SamusArmCannonArtworkFormat.CoverTileByteCount
                 && SnesAddressMath.BankBase(sourceAddress) == SamusSourceDefinitions.CharacterDataBank.Value
                 && ArmCannonTileSources.CoverTileDmaSources.IndexOf(unchecked((ushort)SnesAddressMath.OffsetInBank(sourceAddress))) is int index and >= 0)
             {

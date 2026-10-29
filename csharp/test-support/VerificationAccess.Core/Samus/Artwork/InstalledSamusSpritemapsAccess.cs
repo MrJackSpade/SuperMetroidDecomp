@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Samus;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
@@ -9,7 +10,7 @@ internal static class InstalledSamusSpritemapsAccess
     extension(InstalledSamusSpritemaps self)
     {
         /// <summary>The stored compositions, each at its identity's ordinal, without recreating stock art.</summary>
-        internal IReadOnlyList<SamusSpritemapDefinition> Definitions => self.definitions;
+        internal IReadOnlyList<SamusSpritemapDefinition> Definitions => self.Source.Definitions;
     }
 
     /// <summary>Where the cartridge stores the tables the catalog installs.</summary>

@@ -47,7 +47,7 @@ internal static class SamusBodySheetComposer
     /// </summary>
     private static IEnumerable<KeyValuePair<SamusBodyFrameKey, SpriteFrame>> Frames(InstalledSamusBodyArtwork body, SpriteSheetId sheet)
     {
-        InstalledSamusSpritemaps spritemaps = body.Spritemaps;
+        SamusSpritemapSources spritemaps = body.Spritemaps.Source;
         int?[] inheritedBottoms = [null, .. Selections(body)
             .Where(entry => entry.Selection.NamesBottom)
             .Select(entry => (int?)body.DefinitionRecord(SamusBodyHalf.Bottom, entry.Selection.BottomSet, entry.Selection.BottomPosition))
@@ -61,13 +61,12 @@ internal static class SamusBodySheetComposer
             foreach (int index in new[] { spritemaps.TopBase(pose) + animationFrame, spritemaps.BottomBase(pose) + animationFrame })
             {
                 if (index >= InstalledSamusSpritemaps.EntryCount ||
-                    !spritemaps.TryGetComposition(index, out SamusSpritemapId composition) ||
                     !spritemaps.TryGetFrame(index, out SpriteFrame? frame))
                     continue;
                 foreach (int? bottom in bottoms)
                 {
-                    SamusBodyFrameKey key = SamusBodySheets.Key(composition, frame, top, bottom);
-                    if (SamusBodySheets.Sheet(key) == sheet && names.Add(key.Name))
+                    if (spritemaps.TryGetFrameKey(index, new SamusBodyRecords(top, bottom), out SamusBodyFrameKey key) &&
+                        SamusBodySheets.Sheet(key) == sheet && names.Add(key.Name))
                         yield return KeyValuePair.Create(key, frame);
                 }
             }

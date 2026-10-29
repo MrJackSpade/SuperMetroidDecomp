@@ -41,10 +41,10 @@ public sealed class InstalledSamusBodyArtwork
     /// <summary>The first numbered half picture any set holds; every record from it to the last is installed.</summary>
     private readonly int firstRecord;
 
-    /// <summary>Editable bank-$92 OAM composition for these body frames.</summary>
+    /// <summary>Which body picture each pose-half table entry selects for these body frames.</summary>
     public InstalledSamusSpritemaps Spritemaps { get; }
 
-    /// <summary>Editable direct small-OBJ attributes for Samus's atmospheric effects.</summary>
+    /// <summary>The selected appearance of Samus's atmospheric effects.</summary>
     public InstalledSamusAtmosphericArtwork Atmosphere { get; }
 
     /// <summary>Editable fatal-damage suit, suitless, and whiteout colors.</summary>
@@ -56,7 +56,7 @@ public sealed class InstalledSamusBodyArtwork
     /// <summary>Identity of the selected body characters, whose pre-coloured sheets are installed separately.</summary>
     public string BodyCharactersContentIdentity { get; }
 
-    /// <summary>Editable pose placement and cover characters for the independent arm-cannon OBJ.</summary>
+    /// <summary>Where each pose places the independent arm-cannon cover.</summary>
     public InstalledSamusArmCannonArtwork ArmCannon { get; }
 
     /// <summary>Creates and validates a complete editable Samus body-art catalog.</summary>
@@ -124,7 +124,7 @@ public sealed class InstalledSamusBodyArtwork
         DeathPalettes = parts.DeathPalettes;
         DeathTilesContentIdentity = parts.DeathTilesContentIdentity;
         BodyCharactersContentIdentity = bodyCharactersContentIdentity;
-        ArmCannon = parts.ArmCannon.WithBodyGeometry(this);
+        ArmCannon = parts.ArmCannon;
         // Each set's half pictures run from its start to the next start in sorted order, so together they number every
         // record from the lowest start to the last.
         firstRecord = SamusBodyDefinitionStarts.GroupLengths(parts.TopSetStarts, parts.BottomSetStarts).Keys.Min();

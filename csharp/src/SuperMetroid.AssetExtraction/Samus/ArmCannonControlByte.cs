@@ -1,5 +1,5 @@
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>A control byte of an arm cannon drawing.</summary>
 /// <param name="Drawing">Where the drawing's descriptor starts in the drawing window.</param>

@@ -96,12 +96,12 @@ internal static class SamusContentIdentityVerification
             new([SpritePart.Create(offset: Offset16<ScreenPixels>.Of(0, edit == "spritemap-part" ? 1 : 0), large: false, character: 0, palette: 0, priority: 0)]),
             new([SpritePart.Create(offset: Offset16<ScreenPixels>.Of(1, 0), large: false, character: 1, palette: 0, priority: 0)]),
         ];
-        var spritemaps = new InstalledSamusSpritemaps(topBases, bottomBases, entries, definitions);
+        var spritemaps = new SamusSpritemapSources(topBases, bottomBases, entries, definitions);
         var one = new SpritePart[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount];
         var shared = new SpritePart[one.Length];
         if (edit == "atmosphere-one") one[0] = SpritePart.Single(character: 1, palette: 0, priority: 0);
         if (edit == "atmosphere-shared") shared[0] = SpritePart.Single(character: 1, palette: 0, priority: 0);
-        var atmosphere = new InstalledSamusAtmosphericArtwork(one, shared);
+        var atmosphere = new SamusAtmosphericSourceArtwork(one, shared);
         ushort[][] Rows() => Enumerable.Range(0, SamusPaletteDefinitions.Death.PaletteCount)
             .Select(_ => new ushort[InstalledSamusDeathPalettes.ColorCount]).ToArray();
         ushort[][][] suited = Enumerable.Range(0, InstalledSamusDeathPalettes.SuitCount).Select(_ => Rows()).ToArray();
@@ -132,7 +132,7 @@ internal static class SamusContentIdentityVerification
         if (edit == "cannon-sources") cannonDocument.CoverTiles[0][0] = 1;
         int cannonWidth = SamusArmCannonArtworkFormat.CoverTileCount * 8;
         InstalledSamusArmCannonArtwork cannon = InstalledSamusArmCannonArtworkTooling.Load(
-            new MemoryStream(InstalledSamusArmCannonArtwork.Write(cannonDocument)),
+            new MemoryStream(SamusArmCannonSourceArtwork.Write(cannonDocument)),
             Png(cannonWidth, 8, edit == "cannon-tiles"));
         return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = topStarts, BottomSetStarts = bottomStarts, PoseFirstFrames = poses, GraphicsYOffsets = graphics, Frames = frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTilesContentIdentity = deathTiles.ContentIdentity, ArmCannon = cannon, LandingYOffsets = landing, PostureYOffsets = posture, DrainedYOffsets = drained }, Half(topStarts.Length, "top-characters"), Half(bottomStarts.Length, "bottom-characters"));
 

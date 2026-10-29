@@ -232,19 +232,20 @@ public static class SamusBodyArtworkFiles
             manifest, true);
         SamusBodyTileTransfer[][] bottom = LoadHalf(stockDirectory, overrideDirectory,
             manifest, false);
-        var spritemaps = new InstalledSamusSpritemaps(manifest.SpritemapTopBases,
+        var spritemaps = new SamusSpritemapSources(manifest.SpritemapTopBases,
             manifest.SpritemapBottomBases,
             [.. manifest.SpritemapEntries.Select(entry => entry is { } ordinal ? new SamusSpritemapId(ordinal) : (SamusSpritemapId?)null)],
             [.. manifest.Spritemaps.Select(parts => new SamusSpritemapDefinition(
                 [.. parts.Select(part => part.ToSpritePart(SpriteArtwork.CharactersPerRow))]))]);
-        InstalledSamusAtmosphericArtwork atmosphere = SamusAtmosphericArtworkFiles.Load(
+        SamusAtmosphericSourceArtwork atmosphere = SamusAtmosphericArtworkFiles.Load(
             stockDirectory, overrideDirectory);
         InstalledSamusDeathPalettes deathPalettes = SamusDeathPaletteArtworkFiles.Load(
             stockDirectory, overrideDirectory);
         SamusDeathTileAtlas deathTiles = SamusDeathTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
-        InstalledSamusArmCannonArtwork armCannon = SamusArmCannonArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        // Cover coordinates the stock rules derive from the body's compositions are stored only where they differ.
+        SamusArmCannonSourceArtwork armCannon = SamusArmCannonArtworkFiles.Load(
+            stockDirectory, overrideDirectory).WithBodyGeometry(spritemaps);
         return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = manifest.TopSetStarts, BottomSetStarts = manifest.BottomSetStarts, PoseFirstFrames = manifest.PoseFirstFrames, GraphicsYOffsets = manifest.GraphicsYOffsets, Frames = manifest.Frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTilesContentIdentity = deathTiles.ContentIdentity, ArmCannon = armCannon, LandingYOffsets = manifest.LandingYOffsets, PostureYOffsets = manifest.PostureYOffsets, DrainedYOffsets = manifest.DrainedYOffsets }, top, bottom);
     }
 

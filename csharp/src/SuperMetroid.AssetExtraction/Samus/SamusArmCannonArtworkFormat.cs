@@ -1,8 +1,10 @@
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Bounded retail arm-cannon visual geometry, separate from open/close mechanics.</summary>
 public static class SamusArmCannonArtworkFormat
@@ -20,6 +22,8 @@ public static class SamusArmCannonArtworkFormat
     public const int FramesPerDirection = 4;
     /// <summary>Installed cover tiles: three opening frames for each of the four artwork orientations.</summary>
     public const int CoverTileCount = 12;
+    /// <summary>Bytes of one installed cover tile: a single 4bpp 8x8 character.</summary>
+    public const int CoverTileByteCount = 32;
     /// <summary>
     /// Where pose 0–252's stock drawing descriptor begins within the drawing data: $90:C7DF-$C9D8, ArmCannonDrawingData,
     /// named descriptor selection for the existing 253-pose installed domain.

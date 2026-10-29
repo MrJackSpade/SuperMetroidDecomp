@@ -20,10 +20,10 @@ internal static class SamusOverlaySheetComposer
     private static readonly SpritePart ChestCoverAppearance = SpritePart.Single(character: 33, palette: 4, priority: 3);
 
     /// <summary>What the overlay sheet composes with the body's arm cannon.</summary>
-    internal static SpriteSheetSources Sources(SamusSheetInputs inputs) => Sources(inputs, Ensure.NotNull(inputs).SamusBody.Body.ArmCannon);
+    internal static SpriteSheetSources Sources(SamusSheetInputs inputs) => Sources(inputs, Ensure.NotNull(inputs).SamusBody.Body.ArmCannon.Source);
 
     /// <summary>What the overlay sheet composes with <paramref name="cannon"/>.</summary>
-    internal static SpriteSheetSources Sources(SamusSheetInputs inputs, InstalledSamusArmCannonArtwork cannon)
+    internal static SpriteSheetSources Sources(SamusSheetInputs inputs, SamusArmCannonSourceArtwork cannon)
     {
         Ensure.NotNull(inputs);
         Ensure.NotNull(cannon);

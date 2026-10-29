@@ -58,9 +58,9 @@ internal static class SamusBodyTransferContractChecks
         SamusBodyTileTransfer[][] groups = Enumerable.Range(0, count).Select(index =>
             Enumerable.Range(0, index == 0 && !shortFirstGroup ? 2 : 1).Select(_ =>
                 new SamusBodyTileTransfer(32, 0, new byte[32])).ToArray()).ToArray();
-        var sprites = new InstalledSamusSpritemaps(new ushort[InstalledSamusBodyArtwork.PoseCount],
+        var sprites = new SamusSpritemapSources(new ushort[InstalledSamusBodyArtwork.PoseCount],
             new ushort[InstalledSamusBodyArtwork.PoseCount], new SamusSpritemapId?[InstalledSamusSpritemaps.EntryCount], []);
-        var atmosphere = new InstalledSamusAtmosphericArtwork(
+        var atmosphere = new SamusAtmosphericSourceArtwork(
             new SpritePart[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount],
             new SpritePart[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount]);
         RgbColor[][] Rows() => Enumerable.Range(0, SamusPaletteDefinitions.Death.PaletteCount)
@@ -78,7 +78,7 @@ internal static class SamusBodyTransferContractChecks
                 .Select(_ => SpriteVisualPart.FromSpritePart(SpritePart.Single(0, 0, 0), SpriteArtwork.CharactersPerRow)).ToArray(),
             CoverTiles = Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount).Select(_ =>
                 new int[SamusArmCannonArtworkFormat.FramesPerDirection - 1]).ToArray() };
-        using var cannonJson = new MemoryStream(InstalledSamusArmCannonArtwork.Write(cannonDocument));
+        using var cannonJson = new MemoryStream(SamusArmCannonSourceArtwork.Write(cannonDocument));
         using var cannonPng = Png(new(SamusArmCannonArtworkFormat.CoverTileCount * 8, 8));
         InstalledSamusArmCannonArtwork cannon = InstalledSamusArmCannonArtworkTooling.Load(cannonJson, cannonPng);
         var frames = new SamusBodyFrameSelection[InstalledSamusBodyArtwork.FrameCount];

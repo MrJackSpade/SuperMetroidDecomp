@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Drawing;
@@ -77,7 +78,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
     /// <summary>Checks frame expiry and delayed handoff for each of the seven atmospheric effect types.</summary>
     internal static void VerifyProductionAtmosphericCadence()
     {
-        var atmosphericArt = new InstalledSamusAtmosphericArtwork(
+        var atmosphericArt = new SamusAtmosphericSourceArtwork(
             new SpritePart[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount],
             new SpritePart[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount]);
         for (byte type = 1; type <= 7; type++)

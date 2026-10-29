@@ -113,7 +113,7 @@ internal static class SamusRenderingFixtureVerification
             }
             return new SamusSpritemapDefinition(parts);
         }).ToArray();
-        var sprites = new InstalledSamusSpritemaps(
+        var sprites = new SamusSpritemapSources(
             Words(InstalledSamusSpritemaps.TopBaseAddress, InstalledSamusBodyArtwork.PoseCount),
             Words(InstalledSamusSpritemaps.BottomBaseAddress, InstalledSamusBodyArtwork.PoseCount), SamusSpritemapNative.Entries(spritePointers), maps);
         ushort[] landing = stock.LandingYOffsets.ToArray();

@@ -30,7 +30,7 @@ internal static class SamusBodyTransfers
                     (upper ? frame.TopPosition : frame.BottomPosition) != position) continue;
                 int mapIndex = baseIndex + phase;
                 if ((uint)mapIndex >= InstalledSamusSpritemaps.EntryCount ||
-                    !body.Spritemaps.TryGet((ushort)mapIndex, out SamusSpritemapDefinition? map)) continue;
+                    !body.Spritemaps.Source.TryGet((ushort)mapIndex, out SamusSpritemapDefinition? map)) continue;
                 foreach (SpritePart part in map.Parts)
                 {
                     int tile = part.Character - (upper ? 0 : 8);

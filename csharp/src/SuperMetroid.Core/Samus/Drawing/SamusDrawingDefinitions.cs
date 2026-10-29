@@ -20,15 +20,9 @@ public static class SamusDrawingDefinitions
 
 
 
-    /// <summary>Arm-cannon cover state, OAM, character-list, and DMA definitions.</summary>
+    /// <summary>The arm-cannon cover's aim directions.</summary>
     public static class ArmCannon
     {
-
-
-
-        /// <summary>Bytes uploaded for the cover's single 4bpp 8x8 character.</summary>
-        public const ushort TileByteCount = 0x20;
-
         /// <summary>Number of direction selectors accepted by the native dispatcher.</summary>
         public const int DirectionCount = 10;
     }

@@ -82,7 +82,7 @@ internal static class SamusArtworkPresentationContractChecks
         }
         AuditReport partial = Inspect(Compile(trees.Append(CSharpSyntaxTree.ParseText("""
             namespace SuperMetroid.Core.Samus.Artwork {
-                public sealed partial class InstalledSamusBodyArtwork { void Change() { graphicsYOffsets[0] = 0; } }
+                public abstract partial class InstalledSamusBodyArtwork { void Change() { graphicsYOffsets[0] = 0; } }
             }
             """, path: "fixture-extra-body-partial.cs"))), true);
         Require(partial.Classifications.Count == 7 && partial.UnresolvedCount == 13,

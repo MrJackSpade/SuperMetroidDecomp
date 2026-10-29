@@ -23,12 +23,12 @@ internal sealed class SamusPresentation
     public SamusBodyHalfFrame? BottomSpritemap { get; internal set; }
 
     /// <summary>
-    /// The definition records the body showed when its pictures were last chosen, which the speed-booster echoes show
+    /// The half pictures the body showed when its pictures were last chosen, which the speed-booster echoes show
     /// with those pictures. The cartridge's echoes read whatever characters are in VRAM, so while invincibility
     /// flicker hides the body they can show an earlier spritemap over later characters; a pre-coloured frame keeps the
     /// characters it was shown with (#1392).
     /// </summary>
-    public SamusBodyRecords ShownRecords { get; internal set; }
+    public SamusBodyPictures ShownPictures { get; internal set; }
 
     /// <summary>Last screen-space origin calculated from world position and layer-1 scroll.</summary>
     public Position16<ScreenPixels> SpritemapPosition { get; internal set; }
@@ -594,8 +594,8 @@ internal sealed class SamusPresentation
         // `$92:8000` follows these spritemaps natively, but it only chooses the transfers the next NMI shows with
         // them. Selecting first lets the draws bind the characters they are displayed with; nothing between reads it.
         BodyFrames.Select(samus.Pose, samus.AnimationFrame);
-        ShownRecords = BodyFrames.Shown;
-        sprites.AddSamusBody(top, drawOrigin, spritemaps, BodySheets, ShownRecords, new SpriteSource(SpriteSourceKind.Samus, 0));
+        ShownPictures = BodyFrames.Shown;
+        sprites.AddSamusBody(top, drawOrigin, spritemaps, BodySheets, ShownPictures, new SpriteSource(SpriteSourceKind.Samus, 0));
 
         // `$90:868D-$90:86C4` writes one small OBJ directly between the top and bottom
         // spritemap calls when unsuited pose `$00` faces the screen. This is not a visor:
@@ -675,7 +675,7 @@ internal sealed class SamusPresentation
         {
             var bottom = new SamusBodyHalfFrame(samus.Pose, SamusBodyHalf.Bottom, samus.AnimationFrame);
             BottomSpritemap = bottom;
-            sprites.AddSamusBody(bottom, drawOrigin, spritemaps, BodySheets, ShownRecords, new SpriteSource(SpriteSourceKind.Samus, 1));
+            sprites.AddSamusBody(bottom, drawOrigin, spritemaps, BodySheets, ShownPictures, new SpriteSource(SpriteSourceKind.Samus, 1));
         }
 
         return true;
@@ -827,8 +827,8 @@ internal sealed class SamusPresentation
         var origin = Position16<ScreenPixels>.Of(screenX, unchecked((ushort)screenY));
         // An echo repeats the pictures the body last drew; before the body has been drawn there is nothing to repeat.
         if (TopSpritemap is { } top)
-            sprites.AddSamusBody(top, origin, spritemaps, BodySheets, ShownRecords, new SpriteSource(SpriteSourceKind.SamusEcho, slot * 2));
+            sprites.AddSamusBody(top, origin, spritemaps, BodySheets, ShownPictures, new SpriteSource(SpriteSourceKind.SamusEcho, slot * 2));
         if (BottomSpritemap is { } bottom)
-            sprites.AddSamusBody(bottom, origin, spritemaps, BodySheets, ShownRecords, new SpriteSource(SpriteSourceKind.SamusEcho, slot * 2 + 1));
+            sprites.AddSamusBody(bottom, origin, spritemaps, BodySheets, ShownPictures, new SpriteSource(SpriteSourceKind.SamusEcho, slot * 2 + 1));
     }
 }

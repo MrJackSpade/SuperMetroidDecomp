@@ -5,14 +5,14 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>
-/// Which pictures Samus's body shows: the top-half and bottom-half definitions the current pose and animation frame
+/// Which pictures Samus's body shows: the top-half and bottom-half pictures the current pose and animation frame
 /// select, and the installed artwork they are drawn from.
 /// </summary>
 /// <remarks>
-/// Every animation frame names one top-half definition, and most name one bottom-half definition too. A frame that
-/// names no bottom half keeps showing the bottom half an earlier frame selected (the suited forward pose's frames do
-/// this), and before any frame has named one the bottom half is blank. That retained-bottom rule is gameplay-visible
-/// presentation the body sheets are composed for: each sheet frame is keyed by the pair of definitions it shows.
+/// Every animation frame selects one top-half picture, and most select one bottom-half picture too. A frame that
+/// selects no bottom half keeps showing the bottom half an earlier frame selected (the suited forward pose's frames do
+/// this), and before any frame has selected one the bottom half is blank. That retained-bottom rule is gameplay-visible
+/// presentation the body sheets are composed for: each sheet frame is keyed by the pair of pictures it shows.
 /// </remarks>
 public sealed class SamusBodyFrameState
 {
@@ -20,7 +20,7 @@ public sealed class SamusBodyFrameState
     [field: NonSerialized]
     public InstalledSamusBodyArtwork? Artwork { get; private set; }
 
-    /// <summary>Rebinds the installed body artwork without changing the shown definitions.</summary>
+    /// <summary>Rebinds the installed body artwork without changing the shown pictures.</summary>
     public void BindArtwork(InstalledSamusBodyArtwork? value) => Artwork = value;
 
     /// <summary>The installed pre-coloured sheets the body draws from; never part of save state.</summary>
@@ -31,10 +31,10 @@ public sealed class SamusBodyFrameState
     public void BindSheets(InstalledSpriteSheets? value) => Sheets = value;
 
     /// <summary>
-    /// The definition records whose pictures the body shows: the top half the latest selection named, and the bottom
-    /// half the latest selection that named one chose, or null for a half no selection has named yet.
+    /// The half pictures the body shows: the top half the latest selection named, and the bottom half the latest
+    /// selection that named one chose, or null for a half no selection has named yet.
     /// </summary>
-    public SamusBodyRecords Shown { get; private set; }
+    public SamusBodyPictures Shown { get; private set; }
 
     /// <summary>
     /// Selects the pictures of <paramref name="animationFrame"/> of <paramref name="pose"/>, porting
@@ -45,11 +45,7 @@ public sealed class SamusBodyFrameState
     {
         InstalledSamusBodyArtwork installed = Artwork ?? throw new InvalidOperationException(
             "Samus body frame selection requires installed body artwork.");
-        SamusBodyFrameSelection frame = installed.Frame(pose, animationFrame);
-        int top = installed.DefinitionRecord(SamusBodyHalf.Top, frame.TopSet, frame.TopPosition);
-        int? bottom = frame.NamesBottom
-            ? installed.DefinitionRecord(SamusBodyHalf.Bottom, frame.BottomSet, frame.BottomPosition)
-            : Shown.Bottom;
-        Shown = new SamusBodyRecords(top, bottom);
+        SamusBodyFramePictures frame = installed.Frame(pose, animationFrame);
+        Shown = new SamusBodyPictures(frame.Top, frame.Bottom ?? Shown.Bottom);
     }
 }

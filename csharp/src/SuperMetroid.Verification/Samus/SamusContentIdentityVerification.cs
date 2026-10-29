@@ -59,10 +59,10 @@ internal static class SamusContentIdentityVerification
     /// <summary>Builds a minimal Samus art catalog and its characters, optionally changing one visual family or spritemap order.</summary>
     internal static SamusBodyCharacterArtwork CreateSamusIdentityCharacters(string? edit = null)
     {
-        int firstRecord = SamusBodyDefinitionLayout.RecordCount -
-            (InstalledSamusBodyArtwork.TopSetCount + InstalledSamusBodyArtwork.BottomSetCount);
-        int[] topStarts = [.. Enumerable.Range(0, InstalledSamusBodyArtwork.TopSetCount).Select(index => firstRecord + index)];
-        int[] bottomStarts = [.. Enumerable.Range(InstalledSamusBodyArtwork.TopSetCount, InstalledSamusBodyArtwork.BottomSetCount)
+        int firstRecord = SamusBodySources.RecordCount -
+            (SamusBodySources.TopSetCount + SamusBodySources.BottomSetCount);
+        int[] topStarts = [.. Enumerable.Range(0, SamusBodySources.TopSetCount).Select(index => firstRecord + index)];
+        int[] bottomStarts = [.. Enumerable.Range(SamusBodySources.TopSetCount, SamusBodySources.BottomSetCount)
             .Select(index => firstRecord + index)];
         var poses = new int[InstalledSamusBodyArtwork.PoseCount];
         if (edit == "pose-pointer") poses[0] += 1;
@@ -74,7 +74,7 @@ internal static class SamusContentIdentityVerification
         if (edit == "posture-offset") posture[0] = -1;
         var drained = new sbyte[SamusDrawingDefinitions.BodyOffsets.DrainedVerticalOffsetByteCount];
         if (edit == "drained-offset") drained[0] = 1;
-        var frames = new SamusBodyFrameSelection[InstalledSamusBodyArtwork.FrameCount];
+        var frames = new SamusBodyFrameSelection[SamusBodySources.FrameCount];
         if (edit == "frame-selector") frames[0] = new SamusBodyFrameSelection(1, 0, 0, 0);
         SamusBodyTileTransfer[][] Half(int count, string family) => Enumerable.Range(0, count)
             .Select(index =>

@@ -44,9 +44,9 @@ public sealed class SamusBodyCharacterArtwork
         Body = Ensure.NotNull(body);
         Ensure.NotNull(top);
         Ensure.NotNull(bottom);
-        if (top.Length != InstalledSamusBodyArtwork.TopSetCount || bottom.Length != InstalledSamusBodyArtwork.BottomSetCount)
+        if (top.Length != SamusBodySources.TopSetCount || bottom.Length != SamusBodySources.BottomSetCount)
             throw new InvalidDataException("Samus body selector tables have an invalid length.");
-        int[] topStarts = body.TopSetStarts.ToArray(), bottomStarts = body.BottomSetStarts.ToArray();
+        int[] topStarts = body.Source.TopSetStarts.ToArray(), bottomStarts = body.Source.BottomSetStarts.ToArray();
         this.top = CloneAndValidate(topStarts, top);
         this.bottom = CloneAndValidate(bottomStarts, bottom);
         ValidateCompleteGroups(topStarts, bottomStarts, this.top, this.bottom);
@@ -70,7 +70,7 @@ public sealed class SamusBodyCharacterArtwork
     public static SamusBodyCharacterArtwork Create(SamusBodyArtworkParts parts, SamusBodyTileTransfer[][] top, SamusBodyTileTransfer[][] bottom)
     {
         Ensure.NotNull(parts);
-        return new(new InstalledSamusBodyArtwork(parts, ContentIdentityOf(parts.TopSetStarts, parts.BottomSetStarts, top, bottom)), top, bottom);
+        return new(new SamusBodySources(parts, ContentIdentityOf(parts.TopSetStarts, parts.BottomSetStarts, top, bottom)), top, bottom);
     }
 
     /// <summary>SHA-256 of each numbered half picture's transfer sizes and characters, in record order.</summary>
@@ -115,8 +115,8 @@ public sealed class SamusBodyCharacterArtwork
     /// <summary>Resolves each definition's native transfer geometry against the selected frame tables.</summary>
     private void BindTransfers(SamusBodyHalf half, SamusBodyTileTransfer[][] groups)
     {
-        ReadOnlySpan<int> firstFrames = Body.PoseFirstFrames;
-        ReadOnlySpan<SamusBodyFrameSelection> frameSnapshot = Body.Frames;
+        ReadOnlySpan<int> firstFrames = Body.Source.PoseFirstFrames;
+        ReadOnlySpan<SamusBodyFrameSelection> frameSnapshot = Body.Source.Frames;
         for (int set = 0; set < groups.Length; set++)
         for (int position = 0; position < groups[set].Length; position++)
             groups[set][position] = groups[set][position].WithTransferGeometry(this, half == SamusBodyHalf.Top, set, position, firstFrames, frameSnapshot);
@@ -130,12 +130,14 @@ public sealed class SamusBodyCharacterArtwork
     /// <summary>
     /// Samus's 32 body characters as the selected definitions make them visible: each definition's first transfer
     /// fills one eight-character half row (top: characters 0-7, bottom: 8-15) and its second transfer the half row
-    /// below it (top: 16-23, bottom: 24-31). A half with no selected definition is blank.
+    /// below it (top: 16-23, bottom: 24-31). A half with no selected picture is blank.
     /// </summary>
-    /// <param name="topRecord">The selected top definition's record, or null.</param>
-    /// <param name="bottomRecord">The selected bottom definition's record, or null.</param>
-    public SpriteArtwork BodyArtwork(int? topRecord, int? bottomRecord)
+    /// <param name="topPicture">The selected top half picture, or null.</param>
+    /// <param name="bottomPicture">The selected bottom half picture, or null.</param>
+    public SpriteArtwork BodyArtwork(SamusBodyPicture? topPicture, SamusBodyPicture? bottomPicture)
     {
+        int? topRecord = topPicture is { } shownTop ? SamusBodySources.Record(shownTop) : null;
+        int? bottomRecord = bottomPicture is { } shownBottom ? SamusBodySources.Record(shownBottom) : null;
         int topOrdinal = topRecord is { } upper ? definitionOrdinals[upper] : -1;
         int bottomOrdinal = bottomRecord is { } lower ? definitionOrdinals[lower] : -1;
         return bodyArtwork.GetOrAdd(new SamusBodyArtworkKey(topOrdinal, bottomOrdinal), key =>
@@ -168,7 +170,7 @@ public sealed class SamusBodyCharacterArtwork
     /// <summary>Indexes each tile definition at its physical record.</summary>
     private void IndexDefinitions(SamusBodyHalf half, SamusBodyTileTransfer[][] groups)
     {
-        ReadOnlySpan<int> starts = half == SamusBodyHalf.Top ? Body.TopSetStarts : Body.BottomSetStarts;
+        ReadOnlySpan<int> starts = half == SamusBodyHalf.Top ? Body.Source.TopSetStarts : Body.Source.BottomSetStarts;
         for (int set = 0; set < groups.Length; set++)
         for (int position = 0; position < groups[set].Length; position++)
         {
@@ -206,7 +208,7 @@ public sealed class SamusBodyCharacterArtwork
     private static void ValidateCompleteGroups(int[] topStarts, int[] bottomStarts,
         SamusBodyTileTransfer[][] top, SamusBodyTileTransfer[][] bottom)
     {
-        IReadOnlyDictionary<int, int> counts = SamusBodyDefinitionStarts.GroupLengths(topStarts, bottomStarts);
+        IReadOnlyDictionary<int, int> counts = SamusBodySources.GroupLengths(topStarts, bottomStarts);
         ValidateHalf(topStarts, top);
         ValidateHalf(bottomStarts, bottom);
 

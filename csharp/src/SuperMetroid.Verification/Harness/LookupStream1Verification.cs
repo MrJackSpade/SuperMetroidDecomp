@@ -68,9 +68,6 @@ internal static class LookupStream1Verification
     /// <summary>The four escape-timer pixels whose native values still deviate from the calculated shapes.</summary>
     private static readonly int[] RetainedTimerDeviations =
         [1161, 1163, 189, 999];
-    /// <summary>Header row of the required Samus body-frame report.</summary>
-    private static readonly string[] BodyFrameCsvHeader =
-        ["Component, NativeAddress, Value"];
     /// <summary>Bank-$92 body-frame records outside the contiguous runs, each covering four bytes.</summary>
     private static readonly int[] BodyFrameRecordAddresses =
         [0xe050, 0xe0d0, 0xe150, 0xe158, 0xe1d8, 0xe258, 0xe2c0, 0xe37c, 0xe4c8, 0xe4d0, 0xe4f0, 0xe4fc,
@@ -595,7 +592,7 @@ internal static class LookupStream1Verification
     /// <summary>Checks X-Ray pose/frame selection and independent edited Samus body components against native data.</summary>
     internal static void VerifyLookupStream1XrayBodyFrames(ISnesAddressSpace rom, bool basisOnly = false, bool finalOnly = false)
     {
-        int count = InstalledSamusBodyArtwork.FrameCount * 4;
+        int count = SamusBodySources.FrameCount * 4;
         byte[] native = Enumerable.Range(0, count).Select(index => LookupStream1XrayBodyFramesRomByte(rom, 0x92db48 + index)).ToArray();
         ushort[] Words(int address, int length) => Enumerable.Range(0, length).Select(index =>
             LittleEndianBytes.Word(LookupStream1XrayBodyFramesRomByte(rom, address + index * 2), LookupStream1XrayBodyFramesRomByte(rom, address + index * 2 + 1))).ToArray();
@@ -612,187 +609,23 @@ internal static class LookupStream1Verification
         SamusBodyFrameSelection[] Decode(byte[] data) => Enumerable.Range(0, count / 4).Select(index =>
             new SamusBodyFrameSelection(data[index * 4], data[index * 4 + 1], data[index * 4 + 2], data[index * 4 + 3])).ToArray();
         InstalledSamusBodyArtwork Create(byte[] data) => SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = SamusBodyNative.Records(top), BottomSetStarts = SamusBodyNative.Records(bottom), PoseFirstFrames = SamusBodyNative.Frames(poses), GraphicsYOffsets = template.GraphicsYOffsets.ToArray(), Frames = Decode(data), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTilesContentIdentity = template.DeathTilesContentIdentity, ArmCannon = template.ArmCannon, LandingYOffsets = template.LandingYOffsets.ToArray(), PostureYOffsets = template.PostureYOffsets.ToArray(), DrainedYOffsets = template.DrainedYOffsets.ToArray() }, upper, lower).Body;
-        int SourceStep(int index)
-        {
-            int address = 0xdb48 + index;
-            if (address is >= 0xe888 and < 0xe890) return index - 8;
-            if (address is >= 0xe298 and < 0xe2b8) return index - 36;
-            if (address is >= 0xe2b8 and < 0xe374)
-            {
-                int offset = address - 0xe2b8, phase = offset / 4, component = offset % 4, basis = phase;
-                if (component < 2 && phase is >= 13 and <= 20) basis = 13;
-                if (phase >= 23)
-                {
-                    int relative = phase - 23;
-                    basis = component >= 2 ? 23 + relative % 8 : relative / 3 % 2 == 1 ? 13 : 23 + relative / 3 * 3;
-                }
-                if (basis != phase) return index - (phase - basis) * 4;
-            }
-            if (address is >= 0xe050 and < 0xe260)
-            {
-                int start = address < 0xe158 ? 0xe050 : 0xe158, offset = address - start, phase = offset / 4;
-                if (offset % 4 >= 2 && phase < 64)
-                {
-                    int within = phase % 16, basis = within switch { 4 => 3, 6 => 5, 8 or 9 => 7, 11 => 10, 13 => 12, _ => within };
-                    return start - 0xdb48 + (phase - within + basis) * 4 + offset % 4;
-                }
-            }
-            if (address >= 0xdf28 && address < 0xe018 && address % 4 < 2)
-            {
-                int offset = (address - 0xdf28) % 40, phase = offset / 4 % 5;
-                int basis = phase is 0 or 1 ? 0 : phase == 4 ? 2 : phase;
-                return address - offset - 0xdb48 + basis * 4 + offset % 4;
-            }
-            if (address is >= 0xdce8 and < 0xdd18 or >= 0xe450 and < 0xe4b0)
-            {
-                int range = address < 0xdd18 ? 0xdce8 : 0xe450, offset = (address - range) % 24;
-                if (offset % 4 < 2) return address - offset - 0xdb48 + (offset / 4 % 3 == 0 ? 0 : 1) * 4 + offset % 4;
-                if (range == 0xe450) return 0xdd00 - 0xdb48 + offset;
-            }
-            if (address is >= 0xe890 and < 0xe908)
-            {
-                int offset = (address - 0xe890) % 60, phase = offset / 4, component = offset % 4;
-                int basis = phase switch { 5 or 10 or 11 => 4, 6 => 2, 9 => 7, 12 => 1, _ => phase };
-                if (component >= 2 && (phase == 3 || phase is >= 6 and <= 9)) basis = 2;
-                if (phase == 13) basis = component < 2 ? 1 : 0;
-                if (basis != phase) return address - offset - 0xdb48 + basis * 4 + component;
-            }
-            if (address is >= 0xe938 and < 0xe9f4)
-            {
-                bool left = address >= 0xe974;
-                int start = left ? 0xe974 : 0xe938, offset = address - start, phase = offset / 4, component = offset % 4;
-                int basis = left ? phase switch
-                {
-                    >= 3 and <= 6 => 2, 11 => 9, 13 or 17 or 18 or 24 or 25 or 27 or 28 or 30 or 31 => 12,
-                    >= 19 and <= 23 => 14 + Math.Min(phase - 19, 23 - phase), 26 or 29 => 8, _ => phase
-                } : phase switch { >= 4 and <= 7 => 3, 11 => 9, 13 => 12, _ => phase };
-                if (component >= 2 && phase is >= 9 and <= 11) basis = 8;
-                if (basis != phase) return start - 0xdb48 + basis * 4 + component;
-            }
-            if (address >= 0xe9f4 && address < 0xea24 && (address - 0xe9f4) % 24 < 16)
-            {
-                int offset = (address - 0xe9f4) % 24, phase = offset / 4;
-                return address - offset - 0xdb48 + (offset % 4 >= 2 ? 0 : phase == 3 ? 1 : phase) * 4 + offset % 4;
-            }
-            if (address is >= 0xe050 and < 0xe260)
-            {
-                int start = address < 0xe158 ? 0xe050 : 0xe158, offset = address - start, phase = offset / 4;
-                if (offset % 4 < 2 && phase >= 32)
-                    return start - 0xdb48 + (phase < 64 ? phase % 32 : 16) * 4 + offset % 4;
-            }
-            if (address is >= 0xe798 and < 0xe828)
-            {
-                int pair = (address - 0xe798) / 24, offset = (address - 0xe798) % 24;
-                if (offset >= 12) return 0xe798 + pair * 24 + (2 - (offset - 12) / 4) * 4 + offset % 4 - 0xdb48;
-                if (pair is 1 or 2 && offset % 4 >= 2) return 0xe798 - 0xdb48 + offset;
-                if (pair >= 3 && offset % 4 < 2) return 0xe798 + (pair - 3) * 24 - 0xdb48 + offset;
-                if (pair >= 4 && offset % 4 >= 2) return 0xe7e0 - 0xdb48 + offset;
-            }
-            if (address >= 0xea24)
-            {
-                bool suited = address >= 0xeba4;
-                int start = suited ? 0xeba4 : 0xea24, offset = address - start, phase = offset / 4, component = offset % 4;
-                if (suited && phase >= 1 && component < 2) return 0xea24 - 0xdb48 + offset;
-                if (phase >= 2 && component >= 2) return start - 0xdb48 + 8 + component;
-                if (suited && phase == 1) return 0xea24 - 0xdb48 + offset;
-                if (!suited && phase >= 3 && component < 2)
-                {
-                    int basis = phase % 2 == 1 ? 3 : phase < 80 ? 2 + (phase - 2) % 6 : phase >= 90 ? phase - 6 : phase;
-                    return 0xea24 - 0xdb48 + basis * 4 + component;
-                }
-            }
-            if (address is >= 0xe37c and < 0xe430) return index - 188;
-            if (address is >= 0xe530 and < 0xe5f8)
-            {
-                int list = (address - 0xe508) / 40, offset = (address - 0xe508) % 40;
-                int phase = offset / 4;
-                return 0xe508 - 0xdb48 + ((list % 2 == 1 && phase < 8) ? 7 - phase : phase) * 4 + offset % 4;
-            }
-            if (address is >= 0xe4c8 and < 0xe4d8)
-            {
-                int offset = (address - 0xe4c8) % 8;
-                return 0xe4b8 - 0xdb48 + (address - 0xe4c8) / 8 * 8 + (1 - offset / 4) * 4 + offset % 4;
-            }
-            if (address is >= 0xe4f0 and < 0xe508)
-            {
-                int offset = (address - 0xe4f0) % 12;
-                return 0xe4d8 - 0xdb48 + (address - 0xe4f0) / 12 * 12 + (2 - offset / 4) * 4 + offset % 4;
-            }
-            if (address is >= 0xe5f8 and < 0xe798)
-            {
-                int list = address < 0xe6b8 ? (address - 0xe5f8) / 48 : 4 + (address - 0xe6b8) / 112;
-                int offset = address < 0xe6b8 ? (address - 0xe5f8) % 48 : (address - 0xe6b8) % 112;
-                int phase = offset / 4, wall = list % 2 == 0 ? 0xe2b8 : 0xe374;
-                int last = list < 4 ? 11 : 27;
-                if (phase == last)
-                {
-                    if (list >= 2) return 0xe5f8 + list % 2 * 48 + 44 - 0xdb48 + offset % 4;
-                }
-                else
-                {
-                    int wallPhase = phase == 0 ? 1 : list < 2 ? phase + 2 : list < 4 ? phase + 12 : phase < 25 ? phase + 22 : phase - 4;
-                    return wall - 0xdb48 + wallPhase * 4 + offset % 4;
-                }
-            }
-            if (address is >= 0xdb48 and < 0xdb90)
-            {
-                int offset = (address - 0xdb48) % 36;
-                int phase = offset / 4;
-                int first = address - offset;
-                int basis = phase switch { 3 or 6 or 8 => 1, 5 => 0, 7 when offset % 4 >= 2 => 2, _ => phase };
-                return first - 0xdb48 + basis * 4 + offset % 4;
-            }
-            if (address >= 0xdba0 && address < 0xdbb8 && address % 4 < 2)
-            {
-                int side = (address - 0xdba0) / 12, phase = (address - 0xdba0) % 12 / 4;
-                return 0xdb90 + side * 8 - 0xdb48 + (1 - phase % 2) * 4 + address % 4;
-            }
-            if (address >= 0xdbb8 && address < 0xdbf8 && address % 4 >= 2)
-                return 0xdb90 + (address - 0xdbb8) / 8 % 2 * 8 - 0xdb48 + (address - 0xdbb8) % 8;
-            if (address >= 0xdbf8 && address < 0xdc48 && address % 4 >= 2)
-                return 0xdbf8 + (address - 0xdbf8) / 20 * 20 - 0xdb48 + address % 4;
-            if (address >= 0xdc20 && address < 0xdc48 && (address - 0xdc20) % 4 < 2) return index - 40;
-            if (address >= 0xdc70 && address < 0xdce8 && (address - 0xdc48) % 4 >= 2) return 0xdc48 - 0xdb48 + (address - 0xdc48) % 40;
-            if (address >= 0xdf28 && address < 0xe018 && (address - 0xdf28) % 4 >= 2) return 0xdc48 - 0xdb48 + (address - 0xdf28) % 40;
-            if (address >= 0xde18 && address < 0xde60 && (address - 0xde18) % 4 < 2) return address - 0xde18;
-            if (address is >= 0xdd48 and < 0xdd58) return 0xdd28 - 0xdb48 + address - 0xdd48;
-            if (address is >= 0xdeb0 and < 0xdec0) return 0xdd18 - 0xdb48 + address - 0xdeb0;
-            return index;
-        }
-        int Source(int index)
-        {
-            int source = SourceStep(index);
-            while (source != index) { index = source; source = SourceStep(index); }
-            return source;
-        }
-        bool Direct(int index)
-        {
-            int address = 0xdb48 + index;
-            int record = address & ~3;
-            if (record is 0xdb58 or 0xdb7c or 0xde28 or 0xde4c or 0xe2c0 or 0xe2e4 or 0xe2e8 or 0xe30c or 0xe310 or
-                0xe8a0 or 0xe8dc or 0xe968 or 0xe9a4 or 0xea04 or 0xea1c or 0xe528 or 0xea28 or 0xeba8) return true;            return address % 4 < 2 && (address >= 0xe050 && address < 0xe0d0 || address >= 0xe158 && address < 0xe1d8);
-        }
-        Dictionary<int, byte> Stored(InstalledSamusBodyArtwork value) =>
-            value.frames;
         var stock = Create(native);
-        AssertEqual(Enumerable.Range(0, count).Count(index => Source(index) == index && !Direct(index)), Stored(stock).Count, "Exact native shared-component basis");
-        for (int index = 0; index < count; index++)
-        {
-            AssertEqual(Source(index), SamusBodyFrameSharing.SourceComponent(index), "Exact native crouching/standing component relation domain");
-            AssertEqual(native[index], native[Source(index)], "Direct native source relationship");
-            AssertEqual(Direct(index), SamusBodyFrameSharing.TryComponent(index, out int calculated), "Exact direct angular-allocation domain");
-            if (Direct(index)) AssertEqual(native[index], calculated, "Direct native angular allocation set/position");
-            AssertEqual(Source(index) == index && !Direct(index), Stored(stock).ContainsKey(index), "Exact required source-key membership without stock fallbacks");
-        }
         AssertTrue(stock.Frames.SequenceEqual(Decode(native)), "All supplied frame components preserved");
         AssertEqual(CanonicalBodyHash(template, top, bottom, poses, Decode(native), upper, lower), stock.ContentIdentity, "Original canonical frame hash");
-        Directory.CreateDirectory("csharp/test-temp");
-        File.WriteAllLines("csharp/test-temp/samus-body-frame-required.csv", BodyFrameCsvHeader
-            .Concat(Stored(stock).OrderBy(pair => pair.Key).Select(pair => $"{pair.Key:X4},{0x92db48 + pair.Key:X6},{pair.Value:X2}")));
         if (basisOnly)
         {
-            Console.WriteLine($"Body frame basis:{count} native components,{count - Stored(stock).Count} calculated/aliased components,{Stored(stock).Count} independent source components,zero stock alias fallbacks/canonical hash pass.");
+            Console.WriteLine($"Body frame basis:{count} native components preserved and canonical hash pass.");
             return;
+        }
+        // A pose frame shows the half pictures its native selector names: the top definition, and the bottom one when
+        // the selector names a bottom half (#1465).
+        void CheckFrame(InstalledSamusBodyArtwork edited, SamusBodyFrameSelection[] decoded, SamusPoseId pose, int frame, string context)
+        {
+            SamusBodyFrameSelection selection = edited.Selection(pose, frame);
+            AssertEqual(decoded[(poses[(int)pose] - 0xdb48) / 4 + frame], selection, context);
+            AssertEqual(new SamusBodyFramePictures(SamusBodySources.Picture(edited.DefinitionRecord(SamusBodyHalf.Top, selection.TopSet, selection.TopPosition)),
+                    selection.NamesBottom ? SamusBodySources.Picture(edited.DefinitionRecord(SamusBodyHalf.Bottom, selection.BottomSet, selection.BottomPosition)) : null),
+                edited.Frame(pose, frame), context + ": the frame shows the pictures its selector names");
         }
         IEnumerable<int> editAddresses = Enumerable.Range(0xdbf8, 240).Concat(Enumerable.Range(0xdf28, 240))
             .Concat(Enumerable.Range(0xdb48, 176)).Concat(Enumerable.Range(0xde18, 72))
@@ -807,15 +640,13 @@ internal static class LookupStream1Verification
             byte[] supplied = (byte[])native.Clone(); supplied[address - 0xdb48] ^= 1;
             var edited = Create(supplied);
             AssertTrue(edited.Frames.SequenceEqual(Decode(supplied)), "Independent source/derived/lower component edits preserved");
-            for (int index = 0; index < count; index++)
-                AssertEqual(Source(index) != index ? supplied[index] != supplied[Source(index)] : !Direct(index) || supplied[index] != native[index], Stored(edited).ContainsKey(index), "Exact required basis and independent exception membership");
             foreach (SamusPoseId pose in new[]
             {
                 SamusPoseId.XrayingStandingRightPose, SamusPoseId.XrayingStandingLeftPose,
                 SamusPoseId.XrayingCrouchingRightPose, SamusPoseId.XrayingCrouchingLeftPose
             })
             for (ushort frame = 0; frame < 5; frame++)
-                AssertEqual(Decode(supplied)[(poses[(int)pose] - 0xdb48) / 4 + frame], edited.Frame(pose, frame), "Actual four X-ray pose selections resolve independent supplied components");
+                CheckFrame(edited, Decode(supplied), pose, frame, "Actual four X-ray pose selections resolve independent supplied components");
             foreach (SamusPoseId pose in new[]
             {
                 SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose,
@@ -825,14 +656,14 @@ internal static class LookupStream1Verification
                 SamusPoseId.RunningAimDiagonalDownRightPose, SamusPoseId.RunningAimDiagonalDownLeftPose
             })
             for (ushort frame = 0; frame < 10; frame++)
-                AssertEqual(Decode(supplied)[(poses[(int)pose] - 0xdb48) / 4 + frame], edited.Frame(pose, frame), "Actual ten moving poses resolve independent supplied lower gait and upper components");
+                CheckFrame(edited, Decode(supplied), pose, frame, "Actual ten moving poses resolve independent supplied lower gait and upper components");
             foreach (SamusPoseId pose in new[]
             {
                 SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose,
                 SamusPoseId.CrouchingRightPose, SamusPoseId.CrouchingLeftPose
             })
             for (ushort frame = 0; frame < 9; frame++)
-                AssertEqual(Decode(supplied)[(poses[(int)pose] - 0xdb48) / 4 + frame], edited.Frame(pose, frame), "Actual standing/crouching normal upper selection");
+                CheckFrame(edited, Decode(supplied), pose, frame, "Actual standing/crouching normal upper selection");
             foreach (SamusPoseId pose in new[]
             {
                 SamusPoseId.NormalJumpGunExtendedRightPose, SamusPoseId.NormalJumpGunExtendedLeftPose,
@@ -841,13 +672,11 @@ internal static class LookupStream1Verification
                 SamusPoseId.FallingAimDownRightPose, SamusPoseId.FallingAimDownLeftPose
             })
             for (ushort frame = 0; frame < 2; frame++)
-                AssertEqual(Decode(supplied)[(poses[(int)pose] - 0xdb48) / 4 + frame], edited.Frame(pose, frame), "Actual stationary/forward jump and downward-aim jump/fall selection");
+                CheckFrame(edited, Decode(supplied), pose, frame, "Actual stationary/forward jump and downward-aim jump/fall selection");
             AssertEqual(CanonicalBodyHash(template, top, bottom, poses, Decode(supplied), upper, lower), edited.ContentIdentity, "Original canonical edited frame hash");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => SamusBodyFrameSharing.SourceComponent(-1), "Negative component rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => SamusBodyFrameSharing.SourceComponent(count), "Component end rejected");
         AssertThrows<InvalidDataException>(() => stock.Frame((SamusPoseId)0xfd, 0), "Original pose bound preserved");
-        Console.WriteLine($"Body frames:{count - Stored(stock).Count} calculated/aliased components, exact remaining basis,{edits} independent component edits, actual pose selection and original canonical hashes pass.");
+        Console.WriteLine($"Body frames:{count} native components,{edits} independent component edits, actual pose pictures and original canonical hashes pass.");
     }
 
     /// <summary>Reads native X-Ray body selection words for the pose-frame oracle.</summary>
@@ -861,38 +690,33 @@ internal static class LookupStream1Verification
         ushort[] top = template.TopSetPointers.ToArray(), bottom = template.BottomSetPointers.ToArray();
         var topGroups = Enumerable.Range(0, 13).Select(set => templateCharacters.TopSet(set).ToArray()).ToArray();
         var bottomGroups = Enumerable.Range(0, 11).Select(set => templateCharacters.BottomSet(set).ToArray()).ToArray();
-        var frames = Enumerable.Range(0, InstalledSamusBodyArtwork.FrameCount)
+        var frames = Enumerable.Range(0, SamusBodySources.FrameCount)
             .Select(index => new SamusBodyFrameSelection((byte)(index % 13), 0, (byte)(index % 11), 0)).ToArray();
         InstalledSamusBodyArtwork Create(ushort[] selected) => SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = SamusBodyNative.Records(top), BottomSetStarts = SamusBodyNative.Records(bottom), PoseFirstFrames = SamusBodyNative.Frames(selected), GraphicsYOffsets = template.GraphicsYOffsets.ToArray(), Frames = frames, Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTilesContentIdentity = template.DeathTilesContentIdentity, ArmCannon = template.ArmCannon, LandingYOffsets = template.LandingYOffsets.ToArray(), PostureYOffsets = template.PostureYOffsets.ToArray(), DrainedYOffsets = template.DrainedYOffsets.ToArray() }, topGroups, bottomGroups).Body;
         InstalledSamusBodyArtwork stock = Create(native);
-        int Count(InstalledSamusBodyArtwork value) => value.poseFirstFrames.Count;
-        AssertEqual(0, Count(stock), "No stock pose-pointer override survives");
         AssertEqual(CanonicalBodyHash(template, top, bottom, native, frames, topGroups, bottomGroups), stock.ContentIdentity, "Exact old canonical stock pose hash");
         AssertTrue(stock.Frames.SequenceEqual(frames), "Independent frame payload remains intact");
         for (int pose = 0; pose < 253; pose++)
         {
-            AssertEqual(native[pose], SamusBodyNative.FramePointer(SamusBodyPoseFrames.DefaultFirstFrame((SamusPoseId)pose)), "Named semantic pose dispatch matches native list identity");
             int index = (native[pose] - 0xdb48) / 4;
-            AssertEqual(frames[index], stock.Frame((SamusPoseId)pose, 0), "Runtime selects supplied frame payload through native default");
+            AssertEqual(frames[index], stock.Selection((SamusPoseId)pose, 0), "Import selects supplied frame payload through the native frame list");
             ushort[] selected = (ushort[])native.Clone();
             selected[pose] = native[pose] + 4 < 0xed24 ? (ushort)(native[pose] + 4) : (ushort)0xdb48;
             InstalledSamusBodyArtwork changed = Create(selected);
-            AssertEqual(1, Count(changed), "Exactly one independent valid pose-pointer edit");
             AssertTrue(changed.PosePointers.SequenceEqual(selected), "All supplied pose-pointer identities preserved");
             AssertTrue(changed.Frames.SequenceEqual(frames), "Pointer edit never changes independent frame records");
-            AssertEqual(frames[(selected[pose] - 0xdb48) / 4], changed.Frame((SamusPoseId)pose, 0), "Runtime honors edited frame-list identity");
+            AssertEqual(frames[(selected[pose] - 0xdb48) / 4], changed.Selection((SamusPoseId)pose, 0), "Import honors edited frame-list identity");
             AssertEqual(CanonicalBodyHash(template, top, bottom, selected, frames, topGroups, bottomGroups), changed.ContentIdentity, "Exact old canonical edited pose hash");
             AssertTrue(changed.ContentIdentity != stock.ContentIdentity, "Independent pose edit changes hash");
         }
         foreach (SamusPoseId pose in new[] { (SamusPoseId)0xfd, (SamusPoseId)0xfe, (SamusPoseId)0xff })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusBodyPoseFrames.DefaultFirstFrame(pose), "Default pose dispatch excludes adjacent data");
             AssertThrows<InvalidDataException>(() => stock.Frame(pose, 0), "Installed pose domain stays bounded");
         }
-        ushort[] invalid = (ushort[])native.Clone(); invalid[0] = SamusBodyNative.FramePointer(InstalledSamusBodyArtwork.FrameCount);
+        ushort[] invalid = (ushort[])native.Clone(); invalid[0] = SamusBodyNative.FramePointer(SamusBodySources.FrameCount);
         AssertThrows<InvalidDataException>(() => Create(invalid), "Edited pose frame list retains bounds validation");
         AssertTrue(stock.PosePointers.SequenceEqual(native), "Stock pose identities immutable");
-        Console.WriteLine("Body pose pointers:253 native semantic cases,156 list identities, zero stock overrides,253 independent edits, supplied frame resolution and exact canonical hashes pass.");
+        Console.WriteLine("Body pose pointers:253 native frame lists,253 independent edits, supplied frame resolution and exact canonical hashes pass.");
     }
 
     /// <summary>Reads native Samus body pose pointer bytes from the cartridge table.</summary>
@@ -957,10 +781,6 @@ internal static class LookupStream1Verification
         string Canonical(ushort[] upper, ushort[] lower, SamusBodyTileTransfer[][] upperGroups, SamusBodyTileTransfer[][] lowerGroups) =>
             CanonicalBodyHash(template, upper, lower, template.PosePointers.ToArray(), template.Frames.ToArray(), upperGroups, lowerGroups);
         InstalledSamusBodyArtwork stock = Create(top, bottom, topGroups, bottomGroups);
-        AssertEqual(0, stock.topSetStarts.Count, "Zero stock top pointer overrides");
-        AssertEqual(0, stock.bottomSetStarts.Count, "Zero stock bottom pointer overrides");
-        for (int set = 0; set < 13; set++) AssertEqual(top[set], SamusBodyNative.RecordPointer(SamusBodyDefinitionStarts.DefaultTopStart(set)), "Named top allocation matches original ROM");
-        for (int set = 0; set < 11; set++) AssertEqual(bottom[set], SamusBodyNative.RecordPointer(SamusBodyDefinitionStarts.DefaultBottomStart(set)), "Named bottom allocation matches original ROM");
         AssertEqual(Canonical(top, bottom, topGroups, bottomGroups), stock.ContentIdentity, "Exact pre-conversion canonical stock hash");
         for (int edit = 0; edit < physical.Length; edit++)
         {
@@ -975,18 +795,15 @@ internal static class LookupStream1Verification
                 groups[previous.Set] = groups[previous.Set].Append(sample).ToArray();
             }
             InstalledSamusBodyArtwork changed = Create(upper, lower, upperGroups, lowerGroups);
-            AssertEqual(1, changed.topSetStarts.Count + changed.bottomSetStarts.Count, "Exactly one valid independent pointer override");
             AssertTrue(changed.TopSetPointers.SequenceEqual(upper) && changed.BottomSetPointers.SequenceEqual(lower), "Independent selected allocation identities preserved");
             AssertEqual(0x920000 | (item.Pointer + 7), changed.DefinitionAddress(item.Upper ? SamusBodyHalf.Top : SamusBodyHalf.Bottom, (byte)item.Set, 0), "Runtime definition selection honors arbitrary valid edited pointer");
             AssertEqual(Canonical(upper, lower, upperGroups, lowerGroups), changed.ContentIdentity, "Exact pre-conversion canonical edited hash");
             AssertTrue(changed.ContentIdentity != stock.ContentIdentity, "Each allocation edit changes identity");
         }
         AssertTrue(stock.TopSetPointers.SequenceEqual(top) && stock.BottomSetPointers.SequenceEqual(bottom), "Stock pointer snapshots remain immutable");
-        AssertThrows<ArgumentOutOfRangeException>(() => SamusBodyDefinitionStarts.DefaultTopStart(13), "Top allocation selector bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => SamusBodyDefinitionStarts.DefaultBottomStart(11), "Bottom allocation selector bound");
         AssertThrows<InvalidDataException>(() => stock.DefinitionRecord(SamusBodyHalf.Top, 13, 0), "Installed top selector retains rejection");
         AssertThrows<InvalidDataException>(() => stock.DefinitionRecord(SamusBodyHalf.Bottom, 11, 0), "Installed bottom selector retains rejection");
-        Console.WriteLine("Body allocation pointers:24 native semantic identities, zero stock overrides,24 valid independent allocation edits, runtime addresses and exact canonical hashes pass.");
+        Console.WriteLine("Body allocation pointers:24 native group starts,24 valid independent allocation edits, import-side addresses and exact canonical hashes pass.");
     }
 
     /// <summary>Reads native upper and lower body tile-set pointer bytes.</summary>
@@ -997,7 +814,7 @@ internal static class LookupStream1Verification
     {
         sbyte[] native = Enumerable.Range(0, 253).Select(pose => unchecked((sbyte)LookupStream1BodyGraphicsOriginsRomByte(rom, 0x91b62d + pose * 8))).ToArray();
         InstalledSamusBodyArtwork template = CreateSamusIdentityFixture();
-        InstalledSamusBodyArtwork Create(sbyte[] selected) => new(new SamusBodyArtworkParts { TopSetStarts = template.TopSetStarts.ToArray(), BottomSetStarts = template.BottomSetStarts.ToArray(), PoseFirstFrames = template.PoseFirstFrames.ToArray(), GraphicsYOffsets = selected, Frames = template.Frames.ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTilesContentIdentity = template.DeathTilesContentIdentity, ArmCannon = template.ArmCannon, LandingYOffsets = template.LandingYOffsets.ToArray(), PostureYOffsets = template.PostureYOffsets.ToArray(), DrainedYOffsets = template.DrainedYOffsets.ToArray() }, template.BodyCharactersContentIdentity);
+        InstalledSamusBodyArtwork Create(sbyte[] selected) => new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = template.TopSetStarts.ToArray(), BottomSetStarts = template.BottomSetStarts.ToArray(), PoseFirstFrames = template.PoseFirstFrames.ToArray(), GraphicsYOffsets = selected, Frames = template.Frames.ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTilesContentIdentity = template.DeathTilesContentIdentity, ArmCannon = template.ArmCannon, LandingYOffsets = template.LandingYOffsets.ToArray(), PostureYOffsets = template.PostureYOffsets.ToArray(), DrainedYOffsets = template.DrainedYOffsets.ToArray() }, template.BodyCharactersContentIdentity);
         InstalledSamusBodyArtwork stock = Create(native);
         int Count(InstalledSamusBodyArtwork value) => value.graphicsYOffsets.Count;
         AssertEqual(0, Count(stock), "No stock graphics-origin override survives");
@@ -1042,7 +859,7 @@ internal static class LookupStream1Verification
         InstalledSamusBodyArtwork stock = stockArt.Body;
         sbyte[] native = Enumerable.Range(0, 32).Select(index => unchecked((sbyte)LookupStream1DrainedGeometryRomByte(rom, 0x908def + index))).ToArray();
         InstalledSamusBodyArtwork Create(sbyte[] offsets, InstalledSamusSpritemaps? maps = null,
-            SamusBodyTileTransfer[][]? upper = null, SamusBodyTileTransfer[][]? lower = null, sbyte[]? graphics = null) => SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = stock.TopSetStarts.ToArray(), BottomSetStarts = stock.BottomSetStarts.ToArray(), PoseFirstFrames = stock.PoseFirstFrames.ToArray(), GraphicsYOffsets = graphics ?? stock.GraphicsYOffsets.ToArray(), Frames = stock.Frames.ToArray(), Spritemaps = maps ?? stock.Spritemaps, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTilesContentIdentity = stock.DeathTilesContentIdentity, ArmCannon = stock.ArmCannon, LandingYOffsets = stock.LandingYOffsets.ToArray(), PostureYOffsets = stock.PostureYOffsets.ToArray(), DrainedYOffsets = offsets }, upper ?? Enumerable.Range(0, InstalledSamusBodyArtwork.TopSetCount).Select(index => stockArt.TopSet(index).ToArray()).ToArray(), lower ?? Enumerable.Range(0, InstalledSamusBodyArtwork.BottomSetCount).Select(index => stockArt.BottomSet(index).ToArray()).ToArray()).Body;
+            SamusBodyTileTransfer[][]? upper = null, SamusBodyTileTransfer[][]? lower = null, sbyte[]? graphics = null) => SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = stock.TopSetStarts.ToArray(), BottomSetStarts = stock.BottomSetStarts.ToArray(), PoseFirstFrames = stock.PoseFirstFrames.ToArray(), GraphicsYOffsets = graphics ?? stock.GraphicsYOffsets.ToArray(), Frames = stock.Frames.ToArray(), Spritemaps = maps ?? stock.Spritemaps, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTilesContentIdentity = stock.DeathTilesContentIdentity, ArmCannon = stock.ArmCannon, LandingYOffsets = stock.LandingYOffsets.ToArray(), PostureYOffsets = stock.PostureYOffsets.ToArray(), DrainedYOffsets = offsets }, upper ?? Enumerable.Range(0, SamusBodySources.TopSetCount).Select(index => stockArt.TopSet(index).ToArray()).ToArray(), lower ?? Enumerable.Range(0, SamusBodySources.BottomSetCount).Select(index => stockArt.BottomSet(index).ToArray()).ToArray()).Body;
         for (int index = 0; index < 32; index++)
         {
             sbyte[] changed = (sbyte[])native.Clone(); changed[index] ^= 1;
@@ -1073,7 +890,7 @@ internal static class LookupStream1Verification
         var zeroPointers = new SamusSpritemapSources(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
             new SamusSpritemapId?[SamusSpritemapSources.EntryCount], []);
         AssertTrue(Create(native, zeroPointers).DrainedYOffsets.SequenceEqual(native), "Mutable-zero-pointer art preserves offset schema");
-        SamusBodyTileTransfer[][] Blank(bool top) => Enumerable.Range(0, top ? InstalledSamusBodyArtwork.TopSetCount : InstalledSamusBodyArtwork.BottomSetCount)
+        SamusBodyTileTransfer[][] Blank(bool top) => Enumerable.Range(0, top ? SamusBodySources.TopSetCount : SamusBodySources.BottomSetCount)
             .Select(set => (top ? stockArt.TopSet(set) : stockArt.BottomSet(set)).Select(definition =>
                 new SamusBodyTileTransfer(definition.FirstSize, definition.SecondSize, new byte[definition.Planar.Length])).ToArray()).ToArray();
         var blankPixels = Create(native, upper: Blank(true), lower: Blank(false));
@@ -1102,7 +919,7 @@ internal static class LookupStream1Verification
         InstalledSamusBodyArtwork stock = stockArt.Body;
         sbyte[] native = Enumerable.Range(0, 24).Select(index => unchecked((sbyte)LookupStream1PostureGeometryRomByte(rom, 0x908d80 + index))).ToArray();
         InstalledSamusBodyArtwork Create(sbyte[] offsets, InstalledSamusSpritemaps? maps = null,
-            SamusBodyTileTransfer[][]? upper = null, SamusBodyTileTransfer[][]? lower = null) => SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = stock.TopSetStarts.ToArray(), BottomSetStarts = stock.BottomSetStarts.ToArray(), PoseFirstFrames = stock.PoseFirstFrames.ToArray(), GraphicsYOffsets = stock.GraphicsYOffsets.ToArray(), Frames = stock.Frames.ToArray(), Spritemaps = maps ?? stock.Spritemaps, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTilesContentIdentity = stock.DeathTilesContentIdentity, ArmCannon = stock.ArmCannon, LandingYOffsets = stock.LandingYOffsets.ToArray(), PostureYOffsets = offsets, DrainedYOffsets = stock.DrainedYOffsets.ToArray() }, upper ?? Enumerable.Range(0, InstalledSamusBodyArtwork.TopSetCount).Select(index => stockArt.TopSet(index).ToArray()).ToArray(), lower ?? Enumerable.Range(0, InstalledSamusBodyArtwork.BottomSetCount).Select(index => stockArt.BottomSet(index).ToArray()).ToArray()).Body;
+            SamusBodyTileTransfer[][]? upper = null, SamusBodyTileTransfer[][]? lower = null) => SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = stock.TopSetStarts.ToArray(), BottomSetStarts = stock.BottomSetStarts.ToArray(), PoseFirstFrames = stock.PoseFirstFrames.ToArray(), GraphicsYOffsets = stock.GraphicsYOffsets.ToArray(), Frames = stock.Frames.ToArray(), Spritemaps = maps ?? stock.Spritemaps, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTilesContentIdentity = stock.DeathTilesContentIdentity, ArmCannon = stock.ArmCannon, LandingYOffsets = stock.LandingYOffsets.ToArray(), PostureYOffsets = offsets, DrainedYOffsets = stock.DrainedYOffsets.ToArray() }, upper ?? Enumerable.Range(0, SamusBodySources.TopSetCount).Select(index => stockArt.TopSet(index).ToArray()).ToArray(), lower ?? Enumerable.Range(0, SamusBodySources.BottomSetCount).Select(index => stockArt.BottomSet(index).ToArray()).ToArray()).Body;
         for (int index = 0; index < 24; index++)
         {
             sbyte[] changed = (sbyte[])native.Clone(); changed[index] ^= 1;
@@ -1136,7 +953,7 @@ internal static class LookupStream1Verification
         var zeroPointers = new SamusSpritemapSources(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
             new SamusSpritemapId?[SamusSpritemapSources.EntryCount], []);
         AssertTrue(Create(native, zeroPointers).PostureYOffsets.SequenceEqual(native), "Mutable-zero-pointer art preserves offset schema");
-        SamusBodyTileTransfer[][] Blank(bool top) => Enumerable.Range(0, top ? InstalledSamusBodyArtwork.TopSetCount : InstalledSamusBodyArtwork.BottomSetCount)
+        SamusBodyTileTransfer[][] Blank(bool top) => Enumerable.Range(0, top ? SamusBodySources.TopSetCount : SamusBodySources.BottomSetCount)
             .Select(set => (top ? stockArt.TopSet(set) : stockArt.BottomSet(set)).Select(definition =>
                 new SamusBodyTileTransfer(definition.FirstSize, definition.SecondSize, new byte[definition.Planar.Length])).ToArray()).ToArray();
         var blankPixels = Create(native, upper: Blank(true), lower: Blank(false));
@@ -1158,7 +975,7 @@ internal static class LookupStream1Verification
         ushort[] landing = Enumerable.Range(0, 17).Select(index => (ushort)LookupStream1BodyFacingOffsetsRomByte(rom, 0x908d28 + index)).ToArray();
         sbyte[] posture = Enumerable.Range(0, 24).Select(index => unchecked((sbyte)LookupStream1BodyFacingOffsetsRomByte(rom, 0x908d80 + index))).ToArray();
         InstalledSamusBodyArtwork template = CreateSamusIdentityFixture();
-        InstalledSamusBodyArtwork Create(ushort[] selectedLanding, sbyte[] selectedPosture) => new(new SamusBodyArtworkParts { TopSetStarts = template.TopSetStarts.ToArray(), BottomSetStarts = template.BottomSetStarts.ToArray(), PoseFirstFrames = template.PoseFirstFrames.ToArray(), GraphicsYOffsets = template.GraphicsYOffsets.ToArray(), Frames = template.Frames.ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTilesContentIdentity = template.DeathTilesContentIdentity, ArmCannon = template.ArmCannon, LandingYOffsets = selectedLanding, PostureYOffsets = selectedPosture, DrainedYOffsets = template.DrainedYOffsets.ToArray() }, template.BodyCharactersContentIdentity);
+        InstalledSamusBodyArtwork Create(ushort[] selectedLanding, sbyte[] selectedPosture) => new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = template.TopSetStarts.ToArray(), BottomSetStarts = template.BottomSetStarts.ToArray(), PoseFirstFrames = template.PoseFirstFrames.ToArray(), GraphicsYOffsets = template.GraphicsYOffsets.ToArray(), Frames = template.Frames.ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTilesContentIdentity = template.DeathTilesContentIdentity, ArmCannon = template.ArmCannon, LandingYOffsets = selectedLanding, PostureYOffsets = selectedPosture, DrainedYOffsets = template.DrainedYOffsets.ToArray() }, template.BodyCharactersContentIdentity);
         InstalledSamusBodyArtwork stock = Create(landing, posture);
         var landingBasis = stock.landingYOffsets;
 

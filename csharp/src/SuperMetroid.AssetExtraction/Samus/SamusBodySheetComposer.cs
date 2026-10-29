@@ -26,7 +26,7 @@ internal static class SamusBodySheetComposer
         var frames = new List<SheetFrameSource>();
         foreach ((SamusBodyFrameKey key, SpriteFrame frame) in Frames(body.Body, sheet))
         {
-            SpriteArtwork characters = body.BodyArtwork(key.TopRecord, key.BottomRecord);
+            SpriteArtwork characters = body.BodyArtwork(key.TopPicture, key.BottomPicture);
             // A spritemap naming characters past the body's reads the standard OBJ sheet there.
             if (frame.LastCharacter >= characters.CharacterCount)
                 characters = SpriteArtwork.Overlay(new SpriteArtworkId(SpriteArtworkKind.SamusBodyOnStandardObjects, characters.Id.Variant),
@@ -47,24 +47,23 @@ internal static class SamusBodySheetComposer
     private static IEnumerable<KeyValuePair<SamusBodyFrameKey, SpriteFrame>> Frames(InstalledSamusBodyArtwork body, SpriteSheetId sheet)
     {
         SamusSpritemapSources spritemaps = body.Spritemaps.Source;
-        int?[] inheritedBottoms = [null, .. Selections(body)
-            .Where(entry => entry.Selection.NamesBottom)
-            .Select(entry => (int?)body.DefinitionRecord(SamusBodyHalf.Bottom, entry.Selection.BottomSet, entry.Selection.BottomPosition))
+        SamusBodyPicture?[] inheritedBottoms = [null, .. Selections(body)
+            .Where(entry => entry.Pictures.Bottom is not null)
+            .Select(entry => entry.Pictures.Bottom)
             .Distinct()];
         var names = new HashSet<string>(StringComparer.Ordinal);
-        foreach ((SamusPoseId pose, int animationFrame, SamusBodyFrameSelection selection) in Selections(body))
+        foreach ((SamusPoseId pose, int animationFrame, SamusBodyFramePictures pictures) in Selections(body))
         {
-            int top = body.DefinitionRecord(SamusBodyHalf.Top, selection.TopSet, selection.TopPosition);
-            int?[] bottoms = !selection.NamesBottom ? inheritedBottoms
-                : [body.DefinitionRecord(SamusBodyHalf.Bottom, selection.BottomSet, selection.BottomPosition)];
+            SamusBodyPicture top = pictures.Top;
+            SamusBodyPicture?[] bottoms = pictures.Bottom is null ? inheritedBottoms : [pictures.Bottom];
             foreach (SamusBodyHalf half in Halves)
             {
                 var halfFrame = new SamusBodyHalfFrame(pose, half, animationFrame);
                 if (!spritemaps.TryGetFrame(halfFrame, out SpriteFrame? frame))
                     continue;
-                foreach (int? bottom in bottoms)
+                foreach (SamusBodyPicture? bottom in bottoms)
                 {
-                    if (spritemaps.TryGetFrameKey(halfFrame, new SamusBodyRecords(top, bottom), out SamusBodyFrameKey key) &&
+                    if (spritemaps.TryGetFrameKey(halfFrame, new SamusBodyPictures(top, bottom), out SamusBodyFrameKey key) &&
                         SamusBodySheets.Sheet(key) == sheet && names.Add(key.Name))
                         yield return KeyValuePair.Create(key, frame);
                 }
@@ -72,22 +71,22 @@ internal static class SamusBodySheetComposer
         }
     }
 
-    /// <summary>Every animation frame the tables hold a selection for, in table order.</summary>
+    /// <summary>Every animation frame the body shows installed pictures at, in pose and frame order.</summary>
     private static IEnumerable<SelectedFrame> Selections(InstalledSamusBodyArtwork body)
     {
         for (int pose = 0; pose < InstalledSamusBodyArtwork.PoseCount; pose++)
         {
             for (int animationFrame = 0; animationFrame < SamusBodySheetDefinitions.AnimationFrames; animationFrame++)
             {
-                if (body.TryFrame((SamusPoseId)pose, animationFrame, out SamusBodyFrameSelection selection))
-                    yield return new SelectedFrame((SamusPoseId)pose, animationFrame, selection);
+                if (body.TryFrame((SamusPoseId)pose, animationFrame, out SamusBodyFramePictures pictures))
+                    yield return new SelectedFrame((SamusPoseId)pose, animationFrame, pictures);
             }
         }
     }
 
-    /// <summary>An animation frame the body tables select a picture for.</summary>
+    /// <summary>An animation frame the body shows installed pictures at.</summary>
     /// <param name="Pose">The pose.</param>
     /// <param name="AnimationFrame">The pose's animation frame.</param>
-    /// <param name="Selection">What the tables select.</param>
-    private readonly record struct SelectedFrame(SamusPoseId Pose, int AnimationFrame, SamusBodyFrameSelection Selection);
+    /// <param name="Pictures">The half pictures the frame selects.</param>
+    private readonly record struct SelectedFrame(SamusPoseId Pose, int AnimationFrame, SamusBodyFramePictures Pictures);
 }

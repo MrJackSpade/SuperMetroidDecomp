@@ -3,10 +3,10 @@ using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Samus;
 
-/// <summary>Rejects provably invalid constants without inventing per-set bounds for native cross-group selection.</summary>
+/// <summary>Rejects a provably invalid constant pose in a body frame-picture lookup.</summary>
 internal static class SamusBodyTransferDomainAudit
 {
-    /// <summary>Returns a finding only when a constant pose or half-specific set is provably outside its admitted domain.</summary>
+    /// <summary>Returns a finding only when a constant pose is provably outside its admitted domain.</summary>
     internal static string? InvalidConstants(IInvocationOperation operation)
     {
         if (operation.TargetMethod.ContainingType.ToDisplayString() != typeof(InstalledSamusBodyArtwork).FullName) return null;
@@ -14,11 +14,6 @@ internal static class SamusBodyTransferDomainAudit
             .Value.ConstantValue is { HasValue: true, Value: not null } value ? Convert.ToInt32(value.Value) : null;
         if (operation.TargetMethod.Name == "Frame" && Constant("pose") is int pose && pose >= InstalledSamusBodyArtwork.PoseCount)
             return "Known Samus pose has no admitted body frame list.";
-        if (operation.TargetMethod.Name == "DefinitionRecord" && Constant("set") is int set)
-        {
-            int count = Constant("half") == (int)SamusBodyHalf.Bottom ? InstalledSamusBodyArtwork.BottomSetCount : InstalledSamusBodyArtwork.TopSetCount;
-            if (set >= count) return "Known Samus definition set is outside the selected half's domain.";
-        }
         return null;
     }
 }

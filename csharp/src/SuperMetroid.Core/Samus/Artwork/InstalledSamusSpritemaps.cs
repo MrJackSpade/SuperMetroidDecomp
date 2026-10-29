@@ -57,11 +57,11 @@ public abstract class InstalledSamusSpritemaps
     internal bool Covers(SamusBodyHalfFrame frame) => (uint)frame.AnimationFrame < (uint)Frames(frame).Count;
 
     /// <summary>
-    /// The pre-coloured body picture <paramref name="frame"/> shows with <paramref name="records"/> selected: its
-    /// composition with the selected record of each half the picture shows. False only for a frame with no composition,
-    /// which draws nothing.
+    /// The pre-coloured body picture <paramref name="frame"/> shows with <paramref name="pictures"/> selected: its
+    /// composition with the selected half picture of each half the composition shows. False only for a frame with no
+    /// composition, which draws nothing.
     /// </summary>
-    public bool TryGetFrameKey(SamusBodyHalfFrame frame, SamusBodyRecords records, out SamusBodyFrameKey key)
+    public bool TryGetFrameKey(SamusBodyHalfFrame frame, SamusBodyPictures pictures, out SamusBodyFrameKey key)
     {
         if (!TryGetComposition(frame, out SamusSpritemapId composition))
         {
@@ -70,8 +70,8 @@ public abstract class InstalledSamusSpritemaps
         }
         SamusBodyHalvesShown shown = halves[composition.Ordinal];
         key = new SamusBodyFrameKey(composition,
-            shown is SamusBodyHalvesShown.Top or SamusBodyHalvesShown.Both ? records.Top : null,
-            shown is SamusBodyHalvesShown.Bottom or SamusBodyHalvesShown.Both ? records.Bottom : null);
+            shown is SamusBodyHalvesShown.Top or SamusBodyHalvesShown.Both ? pictures.Top : null,
+            shown is SamusBodyHalvesShown.Bottom or SamusBodyHalvesShown.Both ? pictures.Bottom : null);
         return true;
     }
 

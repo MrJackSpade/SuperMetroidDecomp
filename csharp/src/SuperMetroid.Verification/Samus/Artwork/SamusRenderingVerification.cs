@@ -253,7 +253,7 @@ internal static void VerifySamusRenderingSlice()
     samus.EquippedItems = SamusEquipmentFlags.VariaSuit;
     SamusPoseMetadata.ApplyForwardFacingPoseSetup(samus);
     AssertEqual(SamusPoseId.ForwardFacingSuitedPose, samus.Pose, "Varia selects suited forward pose");
-    int? bottomBeforeSuited = samus.Presentation.BodyFrames.Shown.Bottom;
+    SamusBodyPicture? bottomBeforeSuited = samus.Presentation.BodyFrames.Shown.Bottom;
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(samus, oamFrame, layer1: new(0x0400, 0));
@@ -278,7 +278,7 @@ internal static void VerifySamusRenderingSlice()
     // cannon test: `$90:C663` has a similar-looking but stricter condition of its own.
     samus.InvincibilityTimer = WrappingCountdown.Start(1);
     samus.KnockbackTimer = WrappingCountdown.Start(0);
-    SamusBodyRecords shownBeforeHidden = samus.Presentation.BodyFrames.Shown;
+    SamusBodyPictures shownBeforeHidden = samus.Presentation.BodyFrames.Shown;
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(samus, oamFrame, layer1: new(0x0400, 0), frameCounter: 1);

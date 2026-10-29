@@ -88,7 +88,7 @@ internal static class InstalledSamusFileContractTests
             }
             // Required references are inventoried from catalog construction, not
             // discovered by playing poses until one happens to request missing art.
-            BodyMutation(root => root.Required("poseFirstFrames")[0] = InstalledSamusBodyArtwork.FrameCount, "pose first frame");
+            BodyMutation(root => root.Required("poseFirstFrames")[0] = SamusBodySources.FrameCount, "pose first frame");
             BodyMutation(root => root.Required("spritemapTopBases")[0] = SamusSpritemapSources.EntryCount,
                 "spritemap base");
             BodyMutation(root => root.Required("spritemaps").Required(0)["parts"] = null, "spritemap parts");

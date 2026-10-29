@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
 /// One animation frame's body-tile selection: which upper and lower definition group is used and which definition

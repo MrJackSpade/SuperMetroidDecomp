@@ -25,7 +25,7 @@ internal static class SamusRenderingFixtureVerification
     {
         if (graphicsOffsetFixtures.TryGetValue(offset, out var existing)) return existing;
         var stock = renderingFixtureStock.Value;
-        var result = new InstalledSamusBodyArtwork(new SamusBodyArtworkParts { TopSetStarts = stock.TopSetStarts.ToArray(), BottomSetStarts = stock.BottomSetStarts.ToArray(), PoseFirstFrames = stock.PoseFirstFrames.ToArray(), GraphicsYOffsets = Enumerable.Repeat(offset, InstalledSamusBodyArtwork.PoseCount).ToArray(), Frames = stock.Frames.ToArray(), Spritemaps = stock.Spritemaps, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTilesContentIdentity = stock.DeathTilesContentIdentity, ArmCannon = stock.ArmCannon, LandingYOffsets = stock.LandingYOffsets.ToArray(), PostureYOffsets = stock.PostureYOffsets.ToArray(), DrainedYOffsets = stock.DrainedYOffsets.ToArray() }, stock.BodyCharactersContentIdentity);
+        var result = new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = stock.TopSetStarts.ToArray(), BottomSetStarts = stock.BottomSetStarts.ToArray(), PoseFirstFrames = stock.PoseFirstFrames.ToArray(), GraphicsYOffsets = Enumerable.Repeat(offset, InstalledSamusBodyArtwork.PoseCount).ToArray(), Frames = stock.Frames.ToArray(), Spritemaps = stock.Spritemaps, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTilesContentIdentity = stock.DeathTilesContentIdentity, ArmCannon = stock.ArmCannon, LandingYOffsets = stock.LandingYOffsets.ToArray(), PostureYOffsets = stock.PostureYOffsets.ToArray(), DrainedYOffsets = stock.DrainedYOffsets.ToArray() }, stock.BodyCharactersContentIdentity);
         graphicsOffsetFixtures.Add(offset, result);
         return result;
     }

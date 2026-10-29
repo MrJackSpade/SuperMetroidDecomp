@@ -74,7 +74,7 @@ internal sealed class SamusMechanicsSnapshot
                     "<TopSpritemap>k__BackingField" or
                     "<BottomSpritemap>k__BackingField" or
                     "<SpritemapPosition>k__BackingField" or
-                    "<ShownRecords>k__BackingField")) continue;
+                    "<ShownPictures>k__BackingField")) continue;
             result.Add(field);
         }
         return result.ToArray();

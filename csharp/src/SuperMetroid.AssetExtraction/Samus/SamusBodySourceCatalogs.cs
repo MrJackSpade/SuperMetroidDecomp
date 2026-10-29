@@ -9,6 +9,15 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 internal static class SamusBodySourceCatalogs
 {
+    /// <summary>The body's native definition groups, frame lists and frame selections.</summary>
+    extension(InstalledSamusBodyArtwork self)
+    {
+        /// <summary>The body with the native tables the import pipeline resolved its pictures from.</summary>
+        /// <exception cref="InvalidDataException">The body was not built by the import pipeline.</exception>
+        internal SamusBodySources Source => self as SamusBodySources ??
+            throw new InvalidDataException("Samus body artwork was not built from installed frame selections.");
+    }
+
     /// <summary>The pose-half table's compositions.</summary>
     extension(InstalledSamusSpritemaps self)
     {

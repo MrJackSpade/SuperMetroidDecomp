@@ -18,7 +18,7 @@ internal sealed record ScreenBackgroundSetPlacement(int Set, int Colour, int Col
         Ensure.NotNull(screen).BackgroundSets.Colours(Set, Colour, ColourCount);
 
     /// <inheritdoc />
-    internal override Span<T> In<T>(ScreenColourValues<T> values) =>
+    internal override Span<T> In<T>(PerScreenColour<T> values) =>
         Ensure.NotNull(values).BackgroundColours(Set, Colour, ColourCount);
 
     /// <inheritdoc />

@@ -22,8 +22,4 @@ public sealed record DrawnColouring
 
     /// <summary>The sprite palette row holding them when the draw was published.</summary>
     public int Row { get; }
-
-    /// <summary>A draw in the colours of sprite row <paramref name="row"/>, whose owner is not yet named.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The row is not a sprite palette row.</exception>
-    public static DrawnColouring InUnnamedRow(int row) => new(new UnnamedSpriteRowColouring(row), row);
 }

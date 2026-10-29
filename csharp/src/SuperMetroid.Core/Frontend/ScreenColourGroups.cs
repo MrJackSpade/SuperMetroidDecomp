@@ -15,7 +15,7 @@ internal static class ScreenColourGroups
     public static ColourRun Colours(this ScreenPalette screen, ScreenColourGroup group) => Placement(group).In(screen);
 
     /// <summary>The values of <paramref name="group"/>'s colours among <paramref name="values"/>, to change in place.</summary>
-    public static Span<T> In<T>(ScreenColourValues<T> values, ScreenColourGroup group) => Placement(group).In(values);
+    public static Span<T> In<T>(PerScreenColour<T> values, ScreenColourGroup group) => Placement(group).In(values);
 
     /// <summary>
     /// The sprite set a sprite drawn in <paramref name="colouring"/> shows; the colouring must be one whole sprite set.

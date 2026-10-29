@@ -14,7 +14,7 @@ public sealed class ScreenColours
     public const int ColourCount = 2 * ColourSets.SetCount * ColourSets.SetColours;
 
     /// <summary>The colours by owner, which nothing else holds.</summary>
-    private readonly ScreenColourValues<RgbColor> colours = new();
+    private readonly PerScreenColour<RgbColor> colours = new();
 
     /// <summary>Copies the decoded owners' colours.</summary>
     /// <param name="backgroundSets">Every background set's colours, set after set.</param>

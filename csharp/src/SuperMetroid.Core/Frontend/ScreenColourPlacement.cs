@@ -18,7 +18,7 @@ internal abstract record ScreenColourPlacement(int Set, int Colour, int ColourCo
     internal abstract ColourRun In(ScreenPalette screen);
 
     /// <summary>The group's values among <paramref name="values"/>, kept for each screen colour by owner.</summary>
-    internal abstract Span<T> In<T>(ScreenColourValues<T> values);
+    internal abstract Span<T> In<T>(PerScreenColour<T> values);
 
     /// <summary>The sprite set a sprite drawn in the group's colours shows.</summary>
     /// <exception cref="InvalidOperationException">The group is not one whole sprite set.</exception>

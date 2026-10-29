@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend;
 /// values as to its colours.
 /// </summary>
 /// <typeparam name="T">The value kept for each colour.</typeparam>
-public sealed class ScreenColourValues<T>
+public sealed class PerScreenColour<T>
 {
     /// <summary>The values of every background set's colours, set after set.</summary>
     private readonly T[] backgrounds = new T[ColourSets.SetCount * ColourSets.SetColours];

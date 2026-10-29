@@ -18,9 +18,9 @@ namespace SuperMetroid.Core.Frontend.Intro;
 public sealed class CinematicPaletteFader
 {
     /// <summary>Current 8.8 colour for each of the screen's colours.</summary>
-    private readonly ScreenColourValues<CinematicFadeColor> current = new();
+    private readonly PerScreenColour<CinematicFadeColor> current = new();
     /// <summary>One thirty-second of each target colour in 8.8 form.</summary>
-    private readonly ScreenColourValues<CinematicFadeColor> step = new();
+    private readonly PerScreenColour<CinematicFadeColor> step = new();
 
     /// <summary>Ports <c>DecomposePaletteDataForFading</c> at $8B:8C09.</summary>
     /// <param name="target">The screen colours the fade reaches.</param>

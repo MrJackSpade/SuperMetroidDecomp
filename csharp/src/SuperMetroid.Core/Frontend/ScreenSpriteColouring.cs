@@ -9,6 +9,9 @@ namespace SuperMetroid.Core.Frontend;
 /// <param name="Group">The screen colour group, one whole sprite set, the sprite draws in.</param>
 public sealed record ScreenSpriteColouring(ScreenColourGroup Group) : SpriteColouring
 {
+    /// <summary>The sprite set the screen holds the group's colours in.</summary>
+    internal int SpriteSet => ScreenColourGroups.SpriteSet(Group);
+
     /// <summary>
     /// What a frontend sheet frame's palette-inheriting parts show when drawn in <paramref name="group"/>'s colours, or
     /// null where the sheet coloured them in that very set.
@@ -16,7 +19,7 @@ public sealed record ScreenSpriteColouring(ScreenColourGroup Group) : SpriteColo
     /// <exception cref="InvalidOperationException"><paramref name="group"/> is not one whole sprite set.</exception>
     internal static DrawnColouring? Drawn(ScreenColourGroup group)
     {
-        int set = ScreenColourGroups.SpriteSet(group);
-        return set == FrontendSheetPalette.FramePalette ? null : new DrawnColouring(new ScreenSpriteColouring(group), set);
+        var colouring = new ScreenSpriteColouring(group);
+        return colouring.SpriteSet == FrontendSheetPalette.FramePalette ? null : new DrawnColouring(colouring, colouring.SpriteSet);
     }
 }

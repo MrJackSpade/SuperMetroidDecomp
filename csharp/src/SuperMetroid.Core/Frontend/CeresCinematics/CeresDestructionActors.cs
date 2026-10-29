@@ -55,12 +55,12 @@ internal static class CeresDestructionActors
         };
         return index switch
         {
-            0 => new(                flight.ActivePreInstruction, CinematicSpriteProgram.CeresDestructionLargeAsteroid, flight.Position, flight.Palette,
+            0 => new(                flight.ActivePreInstruction, CinematicSpriteProgram.CeresDestructionLargeAsteroid, flight.Position, flight.Colouring,
                 flight.HorizontalDelta, flight.WrapX, 0, null, false),
             1 => new(                flight.ActivePreInstruction, flight.Program, flight.Position,
-                flight.Palette, flight.HorizontalDelta, flight.WrapX, 0, null, false),
+                flight.Colouring, flight.HorizontalDelta, flight.WrapX, 0, null, false),
             // Parameter zero makes BFA0 replace BFC6 with the BFD9 no-op and use X=$70.
-            2 => new(                CinematicSpritePreInstruction.CeresStationaryVortexNoOp, flight.Program, flight.Position.WithX(112), flight.Palette,
+            2 => new(                CinematicSpritePreInstruction.CeresStationaryVortexNoOp, flight.Program, flight.Position.WithX(112), flight.Colouring,
                 0, false, 0, null, false),
             _ => throw new InvalidOperationException("Validated Ceres actor index became invalid."),
         };
@@ -95,7 +95,7 @@ internal static class CeresDestructionActors
 wait,
             ZebesStarSheets[quadrant],
             new((ushort)(48 + 160 * (quadrant & 1)), (ushort)(47 + 160 * (quadrant >> 1))),
-            4, 0, false, 32,
+            ScreenColourGroup.CeresFlightSpaceObjects, 0, false, 32,
             completesScene ? CinematicSpritePreInstruction.ZebesStarsCompletionSlideSceneAway : CinematicSpritePreInstruction.ZebesStarsSlideSceneAway,
             completesScene);
     }

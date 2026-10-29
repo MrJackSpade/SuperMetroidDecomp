@@ -35,7 +35,7 @@ internal static class CeresInitialActorMetadataVerification
             CeresDestructionActors.InitialActor(2);
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfa6), vortex.Position.X, "destruction vortex X");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfba), vortex.Position.Y, "destruction vortex Y");
-        PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfc0), vortex.Palette,
+        PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfc0), ScreenColourGroups.SpriteSet(vortex.Colouring),
             "destruction vortex attributes");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfac), vortex.ActivePreInstruction.NativeAddress,
             "destruction vortex no-op callback override");

@@ -9,6 +9,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Frontend;
 
 /// <summary>Retail comparison and ROM-read boundary for intro Baby actor definitions, discovery instructions and demo input.</summary>
 internal static class IntroBabyActorDefinitionsVerification
@@ -59,7 +60,7 @@ internal static class IntroBabyActorDefinitionsVerification
                 $"intro baby actor {index} initializer X immediate");
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((initializer + 7)), actual.Position.Y,
                 $"intro baby actor {index} initializer Y immediate");
-            PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord((initializer + 13)), actual.Palette,
+            PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord((initializer + 13)), ScreenColourGroups.SpriteSet(actual.Colouring),
                 $"intro baby actor {index} initializer palette immediate");
         }
 

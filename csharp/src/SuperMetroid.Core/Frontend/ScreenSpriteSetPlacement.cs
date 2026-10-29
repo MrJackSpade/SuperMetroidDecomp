@@ -18,7 +18,7 @@ internal sealed record ScreenSpriteSetPlacement(int Set, int Colour, int ColourC
         Ensure.NotNull(screen).SpriteSets.Colours(Set, Colour, ColourCount);
 
     /// <inheritdoc />
-    internal override Span<T> In<T>(ScreenColourValues<T> values) =>
+    internal override Span<T> In<T>(PerScreenColour<T> values) =>
         Ensure.NotNull(values).SpriteColours(Set, Colour, ColourCount);
 
     /// <inheritdoc />

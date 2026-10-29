@@ -22,7 +22,7 @@ internal static class CeresFlightActorMetadataVerification
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe84), front.InitialTimer, "front stars initial timer");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe8a), front.Position.X, "front stars X");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe90), front.Position.Y, "front stars Y");
-        PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe96), front.Palette, "front stars attributes");
+        PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe96), ScreenColourGroups.SpriteSet(front.Colouring), "front stars attributes");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbec3),
             CeresFlightActorDefinitions.FrontStarAcceleration,
             "front stars acceleration");

@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
@@ -105,7 +106,7 @@ internal static class EndingScreenImage
     /// <summary>The waiting, shooting and reward characters with the post-credits map fragments.</summary>
     private static void ReplayCreditsCharacterArt(EndingVram ending, EndingScreenArtwork artwork)
     {
-        EndingObjectArtwork objects = Objects(artwork);
+        EndingObjectSourceArtwork objects = Objects(artwork);
         ReadOnlySpan<byte> waiting = objects.WaitingSamus.Characters.Span;
         ending.WaitingCharacters.Load(waiting[..EndingArtworkExtentDefinitions.WaitingCharacterBytes]);
         ending.PostCreditsObjects.Load(objects.ShootingScreen.Characters.Span[..EndingArtworkExtentDefinitions.ShootingCharacterBytes]);
@@ -148,9 +149,9 @@ internal static class EndingScreenImage
     private static EndingFloorArtwork Mode7(EndingScreenArtwork artwork) =>
         artwork.Floor ?? throw new InvalidOperationException("Ending Mode-7 scenes require installed artwork.");
 
-    /// <summary>The bound OBJ artwork.</summary>
-    private static EndingObjectArtwork Objects(EndingScreenArtwork artwork) =>
-        artwork.Objects ?? throw new InvalidOperationException("Ending objects require installed artwork.");
+    /// <summary>The bound OBJ artwork as the import pipeline read it, with its character atlases.</summary>
+    private static EndingObjectSourceArtwork Objects(EndingScreenArtwork artwork) =>
+        EndingObjectSourceArtwork.Of(artwork.Objects ?? throw new InvalidOperationException("Ending objects require installed artwork."));
 
     /// <summary>The bound ending font.</summary>
     private static EndingFontCharacters Font(EndingScreenArtwork artwork) =>

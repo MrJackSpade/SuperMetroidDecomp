@@ -69,23 +69,21 @@ internal sealed class EndingArtwork
         screen.Invalidate();
     }
 
-    /// <summary>Transfers the cloud object's character sheet into the ending OBJ lane.</summary>
+    /// <summary>
+    /// Transfers the cloud object's character sheet into the ending OBJ lane; the installed sheet the clouds draw from
+    /// holds those characters, whose length the import pipeline enforces (#1463).
+    /// </summary>
     internal void LoadEscapeCloudCharacters()
     {
-        byte[] clouds = (_stage.ObjectArtwork ?? throw new InvalidOperationException(
-            "Escape clouds require installed object artwork.")).Clouds.Characters.ToArray();
-        EndingStage.RequireMinimum(clouds, EndingArtworkExtentDefinitions.FloorBytes, "escape cloud characters");
+        _ = _stage.ObjectArtwork ?? throw new InvalidOperationException("Escape clouds require installed object artwork.");
         screen.Record(EndingUploadKind.EscapeClouds);
     }
 
     /// <summary>Uploads explosion OBJ art, four fragments and the ending font at their native VRAM destinations.</summary>
     internal void LoadEndingObjectCharacters()
     {
-        byte[] main = (_stage.ObjectArtwork ?? throw new InvalidOperationException(
-            "Ending objects require installed artwork.")).Explosion.Characters.ToArray();
-        // $8B:D8C1 uploads the complete explosion object sheet from $7F:8000.
-        EndingStage.RequireMinimum(main, EndingArtworkExtentDefinitions.ExplosionObjectBytes,
-            "ending OBJ characters");
+        // $8B:D8C1 uploads the complete explosion object sheet from $7F:8000; the installed sheet holds it.
+        _ = _stage.ObjectArtwork ?? throw new InvalidOperationException("Ending objects require installed artwork.");
         screen.Record(EndingUploadKind.ExplosionObjects);
         LoadObjectFragment(EndingObjectFragmentId.Segment70);
         LoadObjectFragment(EndingObjectFragmentId.Segment74);
@@ -137,26 +135,13 @@ internal sealed class EndingArtwork
     {
         EndingObjectArtwork artwork = _stage.ObjectArtwork ?? throw new InvalidOperationException(
             "Post-credits scenes require installed object artwork.");
-        byte[] waiting = artwork.WaitingSamus.Characters.ToArray();
-        byte[] shooting = artwork.ShootingScreen.Characters.ToArray();
         int waitingMapCells = artwork.WaitingTilemap.Tiles.Length;
-        byte[] fragmentA = artwork.PostCreditsFragmentA.Characters.ToArray();
         int fragmentBCells = artwork.PostCreditsFragmentB.Tiles.Length;
-        byte[] result = _stage.EndingReward == EndingReward.Suitless
-            ? artwork.SuitlessSamus.Characters.ToArray()
-            : waiting;
-        EndingStage.RequireMinimum(waiting, EndingArtworkExtentDefinitions.FloorBytes,
-            "waiting-Samus characters");
-        EndingStage.RequireMinimum(shooting, EndingArtworkExtentDefinitions.ShootingCharacterBytes,
-            "post-credits OBJ characters");
         EndingStage.RequireMinimum(waitingMapCells, EndingScreenPlanes.Cells, "waiting-Samus tilemap");
-        EndingStage.RequireMinimum(fragmentA, EndingArtworkExtentDefinitions.PostCreditsFragmentABytes,
-            "post-credits tile fragment A");
         EndingStage.RequireMinimum(fragmentBCells, EndingScreenPlanes.Cells, "post-credits transformation map");
-        EndingStage.RequireMinimum(result, EndingArtworkExtentDefinitions.FloorBytes,
-            "post-credits reward characters");
         // Function 126 selects suitless (<3h) or suited (>=3h) art; the
-        // latter deliberately reuses the waiting-scene sheet, not Mode-7 art.
+        // latter deliberately reuses the waiting-scene sheet, not Mode-7 art. The installed sheets hold the characters,
+        // whose lengths the import pipeline enforces (#1463).
         screen.Record(EndingUploadKind.CreditsCharacterArt);
     }
 

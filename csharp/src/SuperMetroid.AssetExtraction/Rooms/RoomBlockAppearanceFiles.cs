@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -55,11 +56,11 @@ public static class RoomBlockAppearanceFiles
         }
 
         // Each block's inputs, as the record spells them.
-        static IEnumerable<IEnumerable<AppearanceInput>> Inputs(string?[]?[]? blocks) =>
-            (blocks ?? throw new InvalidDataException("A block appearance record lists no blocks.")).Select((tokens, block) =>
-                (tokens ?? throw new InvalidDataException($"Block {block} lists no inputs.")).Select(token =>
+        static ImmutableArray<AppearanceInput>[] Inputs(string?[]?[]? blocks) =>
+            [.. (blocks ?? throw new InvalidDataException("A block appearance record lists no blocks.")).Select((tokens, block) =>
+                ImmutableArray.CreateRange((tokens ?? throw new InvalidDataException($"Block {block} lists no inputs.")).Select(token =>
                     AppearanceInputTokens.Parse(token ?? throw new InvalidDataException($"Block {block} lists a null input."),
-                        EncounterCharacterPlacements.Catalog.LookNamed)).ToArray());
+                        EncounterCharacterPlacements.Catalog.LookNamed))))];
     }
 
     /// <summary>Each block's inputs over <paramref name="artwork"/>, as the record spells them.</summary>

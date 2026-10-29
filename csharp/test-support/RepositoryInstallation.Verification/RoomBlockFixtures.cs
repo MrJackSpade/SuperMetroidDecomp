@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Assets;
@@ -24,7 +25,7 @@ internal static class RoomBlockFixtures
     /// pictures by block, so no block depends on any, which only satisfies the sheet's record of its blocks.
     /// </summary>
     internal static RoomBlockAppearances Appearances(int count) =>
-        new(Enumerable.Range(0, count).Select(_ => Array.Empty<AppearanceInput>()), null);
+        new([.. Enumerable.Range(0, count).Select(_ => ImmutableArray<AppearanceInput>.Empty)], null);
 
     /// <summary>
     /// The picture of each of <paramref name="definitions"/>' blocks, four tiles each, its characters read from <paramref name="characterWord"/>

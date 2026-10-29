@@ -22,10 +22,12 @@ public sealed class RoomBlockAppearances
     /// <param name="tileset">Each block's inputs over the tileset's artwork, by block index.</param>
     /// <param name="sprites">Each block's inputs over the sprites' artwork, or null where no room of the tileset shows it.</param>
     /// <exception cref="InvalidDataException">The tileset has no blocks, or the two artworks describe different blocks.</exception>
-    public RoomBlockAppearances(IEnumerable<IEnumerable<AppearanceInput>> tileset, IEnumerable<IEnumerable<AppearanceInput>>? sprites)
+    public RoomBlockAppearances(IReadOnlyList<ImmutableArray<AppearanceInput>> tileset, IReadOnlyList<ImmutableArray<AppearanceInput>>? sprites)
     {
-        this.tileset = [.. Ensure.NotNull(tileset).Select(inputs => ImmutableArray.CreateRange(Ensure.NotNull(inputs)))];
-        this.sprites = sprites is null ? null : [.. sprites.Select(inputs => ImmutableArray.CreateRange(Ensure.NotNull(inputs)))];
+        this.tileset = [.. Ensure.NotNull(tileset)];
+        this.sprites = sprites is null ? null : [.. sprites];
+        if (this.tileset.Any(inputs => inputs.IsDefault) || this.sprites?.Any(inputs => inputs.IsDefault) == true)
+            throw new InvalidDataException("A tileset's block appearances leave a block's inputs unrecorded.");
         if (this.tileset.Length == 0)
             throw new InvalidDataException("A tileset's block appearances record no blocks.");
         if (this.sprites is { } shown && shown.Length != this.tileset.Length)

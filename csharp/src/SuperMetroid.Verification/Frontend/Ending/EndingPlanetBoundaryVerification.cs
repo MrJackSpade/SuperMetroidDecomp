@@ -168,7 +168,7 @@ internal static class EndingPlanetBoundaryVerification
                 capture.Snapshots[frame] = sample;
                 File.WriteAllBytes(Path.Combine(capture.Directory, $"later-{frame:D4}-{ending.Stage.Phase}.ppu"),
                     NativeProbeInput(sample, ending.ShownVram(), ScreenSpritesFixtures.ToOam(EndingCreditsPresentation.PrepareSprites(ending, EndingCreditsPresentation.CurrentEscapeObjectSheet(ending))),
-                        EndingCreditsPresentation.ObjectSelection(EndingCreditsPresentation.CurrentEscapeObjectSheet(ending))));
+                        SuperMetroid.AssetExtraction.Frontend.Ending.EndingSheetObjectSelection.Of(EndingCreditsPresentation.CurrentEscapeObjectSheet(ending))));
             }
             ending.Step();
             audio.AdvanceFrame(default);

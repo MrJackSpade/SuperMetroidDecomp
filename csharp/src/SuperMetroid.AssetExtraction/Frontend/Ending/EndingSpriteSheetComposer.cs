@@ -28,7 +28,7 @@ internal static class EndingSpriteSheetComposer
         Ensure.NotNull(palettes);
         EndingPage page = Page(sheet);
         byte[] image = EndingScreenImage.Compose(page.Transfers, new EndingScreenArtwork(null, null, objects, font, page.Reward));
-        int objectSelection = EndingCreditsPresentation.ObjectSelection(page.ObjectSheet);
+        int objectSelection = EndingSheetObjectSelection.Of(page.ObjectSheet);
         SpriteArtwork characters = ObjCharacterImage.Page(image, objectSelection);
         ScreenObjectSizes sizes = ObjectSelectionCodec.Sizes(objectSelection);
         List<SheetFrameSource> frames = [.. IntroSpriteSheetComposer.Frames(page.Families(EndingObjectSourceArtwork.Of(objects)), characters, sizes)];
@@ -36,7 +36,7 @@ internal static class EndingSpriteSheetComposer
             frames.AddRange(EndingShootingStarDefinitions.SheetFrames.Select(frame =>
             {
                 string name = EndingShootingStarFrames.SheetFrameName(frame);
-                return new SheetFrameSource(name, new SpriteFrame(name, [EndingShootingStarFrames.Appearance(frame).ToFramePart(0, sizes)]), characters,
+                return new SheetFrameSource(name, new SpriteFrame(name, [EndingShootingStarParts.Appearance(frame).ToFramePart(0, sizes)]), characters,
                     FrontendSheetPalette.FramePalette);
             }));
         var colours = new ScreenPalette();

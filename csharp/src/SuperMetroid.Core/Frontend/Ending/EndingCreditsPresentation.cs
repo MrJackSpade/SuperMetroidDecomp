@@ -110,15 +110,6 @@ internal static class EndingCreditsPresentation
     internal static EndingObjectSheet CurrentEscapeObjectSheet(EndingCreditsState ending) => EndingCreditsPhaseGroups.BeforeZebesExplosion.Contains(ending.Stage.Phase)
         ? EndingObjectSheet.Clouds : EndingObjectSheet.Explosion;
 
-    /// <summary>The OBJ selection the render snapshot needs to draw actors from <paramref name="sheet"/>.</summary>
-    internal static byte ObjectSelection(EndingObjectSheet sheet) => sheet switch
-    {
-        EndingObjectSheet.Clouds => EndingScreenDefinitions.CloudObjectSelection,
-        EndingObjectSheet.Explosion => EndingScreenDefinitions.EscapeObjectSelection,
-        EndingObjectSheet.Reward => EndingScreenDefinitions.RewardObjectSelection,
-        EndingObjectSheet.RewardFalling => EndingScreenDefinitions.FallingRewardObjectSelection,
-        _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined ending object sheet."),
-    };
 
     /// <summary>Whether atmospheric scenes use the Mode 7 wrap policy from SetupPpu_5_Mode7.</summary>
     private static bool AtmosphericMapWraps(EndingCreditsState ending) => EndingCreditsPhaseGroups.BeforeZebesExplosion.Contains(ending.Stage.Phase);

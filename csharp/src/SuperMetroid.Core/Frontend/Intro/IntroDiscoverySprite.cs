@@ -24,7 +24,7 @@ internal sealed class IntroDiscoverySprite
         CinematicSpriteProgram program)
     {
         Position = new(new(position.X, 0), new(position.Y, 0));
-        Palette = Ensure.BetweenInclusive(0, SpritePart.MaximumPalette, palette);
+        Palette = Ensure.BetweenInclusive(0, SpriteImage.MaximumPaletteRow, palette);
         Program = AnimationProgramCursor<CinematicSpriteProgram>.Start(program);
     }
 
@@ -46,7 +46,7 @@ internal sealed class IntroDiscoverySprite
 
     /// <summary>Applies a cinematic callback's palette change.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The row is outside the eight sprite palette rows.</exception>
-    public void SetPalette(int palette) => Palette = Ensure.BetweenInclusive(0, SpritePart.MaximumPalette, palette);
+    public void SetPalette(int palette) => Palette = Ensure.BetweenInclusive(0, SpriteImage.MaximumPaletteRow, palette);
 
     /// <summary>The pose the program most recently showed; null before its first frame and after deletion.</summary>
     internal CinematicSpritePose? Pose { get; private set; }

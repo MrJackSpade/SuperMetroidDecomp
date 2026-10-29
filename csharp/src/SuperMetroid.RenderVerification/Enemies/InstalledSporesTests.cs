@@ -148,7 +148,7 @@ internal static class InstalledSporesTests
                     var gameplay = new GameplaySceneLayer(new(default, default, new Extent16<TilemapCells>(64, 32),
                         ScreenLayers.Background), RoomBackgroundsFixtures.Blank() with
                         {
-                            Bg3 = Layer3CellsFixtures.FromWords(Layer3Plane.Compose(new BackgroundTile[Layer3Plane.HudRows * Layer3Plane.Columns],
+                            Bg3 = Layer3CellsFixtures.FromWords(Layer3Plane.Compose(
                                 replacement.EffectPageTiles()).Words, new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]),
                         });
                     var layer = GameplayEffectCapture.CaptureSpores(gameplay, (replacement.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires replacement.CaptureForDisplay().")));

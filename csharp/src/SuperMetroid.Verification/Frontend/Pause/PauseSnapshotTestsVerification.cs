@@ -8,7 +8,6 @@ using static SuperMetroid.Verification.Frontend.Pause.PauseReserveManualVerifica
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveTanksVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
@@ -18,7 +17,8 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks pause-menu render packets through map, equipment, and fade states.</summary>
@@ -38,12 +38,11 @@ internal static class PauseSnapshotTestsVerification
         var system = new SharedGameState();
         system.SetAreaMapAcquired((byte)AreaId.Maridia);
         system.MarkExploredMapTile((byte)AreaId.Maridia, new(30, 5));
-        // Seed retained HUD words rather than testing only the cleared menu background.
-        var gameplayVram = new SnesVram();
-        ushort[] hud = new ushort[128];
-        for (int i = 0; i < hud.Length; i++) hud[i] = (ushort)(0x2000 | (i % 64));
-        gameplayVram.ExecuteWordTransfer(hud, GameplayVramLayoutConstants.HudTilemapWord, 1);
-        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Maridia, RoomMapPosition = new(28, 1), GameplayLayer3 = Layer3PlaneFixtures.FromVram(gameplayVram) });
+        // Retain a drawn HUD rather than testing only the cleared menu background (#1466).
+        var gameplayHud = new HudState();
+        gameplayHud.BindPresentation(InstalledFixtures.Maps.GameplayHud);
+        gameplayHud.Initialize(HudSnapshot.CeresDebug);
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Maridia, RoomMapPosition = new(28, 1), GameplayHud = gameplayHud.Shown() });
         var pages = new HashSet<PauseScreenMode>();
         var levels = new HashSet<int>();
         for (int frame = 0; frame < 128; frame++)

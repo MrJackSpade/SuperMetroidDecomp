@@ -219,7 +219,7 @@ internal static class InstalledFixtures
 
     /// <summary>Creates a pause menu while retaining the supplied state and installed map presentation.</summary>
     internal static PauseMenuState CreatePause(PauseMenuEntry entry) =>
-        new(new PauseMenuEntry { Samus = entry.Samus, System = entry.System, AreaIndex = entry.AreaIndex, RoomMapPosition = entry.RoomMapPosition, Audio = entry.Audio, GameplayLayer3 = entry.GameplayLayer3, MapRevealMode = entry.MapRevealMode, MapPresentation = Maps, SpriteSheets = SpriteSheets });
+        new(new PauseMenuEntry { Samus = entry.Samus, System = entry.System, AreaIndex = entry.AreaIndex, RoomMapPosition = entry.RoomMapPosition, Audio = entry.Audio, GameplayHud = entry.GameplayHud, MapRevealMode = entry.MapRevealMode, MapPresentation = Maps, SpriteSheets = SpriteSheets });
 
     /// <summary>
     /// A private copy of the installation for a check that corrupts and restores stock files, so

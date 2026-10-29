@@ -52,8 +52,10 @@ internal sealed class AcceptedFrameBoundary
     private readonly SamusFrameState _player;
     /// <summary>Supplies the room's fixed colour.</summary>
     private readonly RoomFxSession _roomFx;
-    /// <summary>The HUD whose rows the BG3 plane shows.</summary>
+    /// <summary>The HUD whose images cover the BG3 plane's top rows.</summary>
     private readonly HudState _hud;
+    /// <summary>The pictures of the HUD's images in the room's BG3 sheet, looked up once per sheet (#1466).</summary>
+    private HudPictures? _hudPictures;
     /// <summary>Supplies the loaded room, door, and scrolling sky whose register shadows are latched.</summary>
     private readonly ActiveRoomState _room;
 
@@ -154,7 +156,9 @@ internal sealed class AcceptedFrameBoundary
             // The reveal and the room's planes are drawn once this NMI's uploads have bound (WithBlockPictures).
             null,
             CaptureRoomBackgrounds(),
-            _room.Scope is null ? null : CaptureLayer3Plane());
+            _room.Scope is null ? null : CaptureLayer3Plane(),
+            // The HUD's images as gameplay last placed them, which this NMI shows as the cartridge's NMI uploads its rows.
+            _hud.Shown());
         _artwork.PublishReboundHudArtwork(_backgrounds);
         // The planes' blocks show what this NMI's pictures bound, as the characters they read did (#1392).
         if (_display.Latched.Rooms is { } rooms)
@@ -299,21 +303,37 @@ internal sealed class AcceptedFrameBoundary
                 Sky = sky,
                 Bg2Overlay = bg2Overlay,
                 Bg1Overlay = bg1Overlay,
-                // The HUD and the room effect's page draw from the BG3 sheet's pictures over the layer-3 characters.
-                Bg3 = new Layer3Cells(scope.Bg3Pictures.Resolve(latched.Layer3 ?? throw new InvalidOperationException("A room's NMI latches its BG3 words."),
-                    _backgrounds, BgCharacterSet.Layer3, new AnimatedCharacterView(scope.AnimatedCharacters.Bg3, scope.ArtworkFrames))),
+                // The room effect's page draws from the BG3 sheet's pictures over the layer-3 characters; the HUD's images
+                // from the same sheet cover its top rows (#1466).
+                Bg3 = new Layer3Cells(UnderHud(scope.Bg3Pictures.Resolve(latched.Layer3 ?? throw new InvalidOperationException("A room's NMI latches its BG3 words."),
+                    _backgrounds, BgCharacterSet.Layer3, new AnimatedCharacterView(scope.AnimatedCharacters.Bg3, scope.ArtworkFrames)),
+                    HudPicturesIn(scope.Bg3Pictures.Sheet.Sheet).CellPictures(latched.Hud ?? ShownHud.Nothing))),
             },
             XrayReveal = reveal is null ? null : new XrayRevealPlane(reveal.Value.AsSpan(), pictures),
         };
     }
 
+    /// <summary>The room effect's part of the BG3 plane this NMI displays (#1348); the HUD's images cover its top rows (#1466).</summary>
+    private Layer3Plane CaptureLayer3Plane() => Layer3Plane.Compose(_room.Layer3Fx?.EffectPageTiles() ?? []);
+
+    /// <summary>The pictures of the HUD's images in <paramref name="sheet"/>, the room's BG3 sheet.</summary>
+    private HudPictures HudPicturesIn(SpriteSheet sheet) =>
+        _hudPictures is { } shown && ReferenceEquals(shown.Sheet, sheet) ? shown : _hudPictures = new HudPictures(sheet);
+
     /// <summary>
-    /// The BG3 plane this NMI displays (#1348): the HUD's four rows as its artwork draws the values gameplay last gave it
-    /// (#1466), which this NMI latches as the cartridge's NMI uploads them, over the room effect's area. A state import
-    /// that resumes inside pause takes the plane gameplay would have latched from it (#1351).
+    /// <paramref name="plane"/>'s cell pictures with each cell <paramref name="hud"/> pictures in its top rows showing the
+    /// HUD's picture instead (#1466).
     /// </summary>
-    internal Layer3Plane CaptureLayer3Plane() =>
-        Layer3Plane.Compose(_hud.Rows(), _room.Layer3Fx?.EffectPageTiles() ?? []);
+    private static ImmutableArray<BgTilePicture?> UnderHud(ImmutableArray<BgTilePicture?> plane, ImmutableArray<BgTilePicture?> hud)
+    {
+        BgTilePicture?[] cells = [.. plane];
+        for (int cell = 0; cell < hud.Length; cell++)
+        {
+            if (hud[cell] is { } picture)
+                cells[cell] = picture;
+        }
+        return [.. cells];
+    }
 
     /// <summary>The fixed colours effects chose during the previous main loop.</summary>
     private GameplayLatchedFixedColors CaptureFixedColors()

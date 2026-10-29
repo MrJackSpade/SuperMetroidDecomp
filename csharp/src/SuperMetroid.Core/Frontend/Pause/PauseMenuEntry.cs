@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Map;
-using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Hud;
 
 namespace SuperMetroid.Core.Frontend.Pause;
 
@@ -25,8 +25,8 @@ internal sealed record PauseMenuEntry
     /// <summary>Audio.</summary>
     public AudioQueues? Audio { get; init; } = null;
 
-    /// <summary>The BG3 plane gameplay displayed at its last NMI (#1351), whose HUD rows pause keeps resident.</summary>
-    public Layer3Plane? GameplayLayer3 { get; init; } = null;
+    /// <summary>The HUD gameplay displayed at its last NMI (#1351, #1466), which pause keeps resident.</summary>
+    public ShownHud? GameplayHud { get; init; } = null;
 
     /// <summary>Map reveal mode.</summary>
     public MapRevealMode MapRevealMode { get; init; } = MapRevealMode.None;

@@ -12,7 +12,6 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Frontend.Title.Artwork;
-using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -67,8 +66,6 @@ internal static class ScreenTileSheetComposer
             SpriteSheetId.MenuMapTiles => Compose(MapTileCharacters.Of(maps.Tiles).Characters, TileInkDepth.SixteenColours, ScreenColourImage.Encode(maps.Palettes.FileSelect)),
             SpriteSheetId.PauseMapTiles => Compose(MapTileCharacters.Of(maps.Tiles).Characters, TileInkDepth.SixteenColours, ScreenColourImage.Encode(maps.Palettes.Pause)),
             SpriteSheetId.PauseInterfaceTiles => Compose(MapTileCharacters.Of(maps.PauseTiles).Characters, TileInkDepth.SixteenColours, ScreenColourImage.Encode(maps.Palettes.Pause)),
-            SpriteSheetId.PauseHudTiles => Compose(maps.HudTiles.Bytes.Span[..HudTileAtlasFormat.CharacterByteCount], TileInkDepth.FourColours,
-                ScreenColourImage.Encode(maps.Palettes.Pause)),
             SpriteSheetId.AreaMapForegroundTilesCrateria or SpriteSheetId.AreaMapForegroundTilesBrinstar or
                 SpriteSheetId.AreaMapForegroundTilesNorfair or SpriteSheetId.AreaMapForegroundTilesWreckedShip or
                 SpriteSheetId.AreaMapForegroundTilesMaridia or SpriteSheetId.AreaMapForegroundTilesTourian =>
@@ -77,7 +74,7 @@ internal static class ScreenTileSheetComposer
                 SpriteSheetId.AreaMapBackgroundTilesNorfair or SpriteSheetId.AreaMapBackgroundTilesWreckedShip or
                 SpriteSheetId.AreaMapBackgroundTilesMaridia or SpriteSheetId.AreaMapBackgroundTilesTourian =>
                 Compose(WorldMapCharacters.Of(maps.WorldArtwork).BackgroundCharacters(), TileInkDepth.FourColours, ScreenColourImage.Encode(maps.Palettes.World(AreaFor(ScreenTileSheetDefinitions.AreaMapBackgrounds, sheet)))),
-            SpriteSheetId.EscapeTimer or SpriteSheetId.Grapple or SpriteSheetId.SamusBodyTop or
+            SpriteSheetId.PauseHud or SpriteSheetId.EscapeTimer or SpriteSheetId.Grapple or SpriteSheetId.SamusBodyTop or
                 SpriteSheetId.SamusBodyBottom or SpriteSheetId.SamusOverlays or SpriteSheetId.SamusAtmosphere or
                 SpriteSheetId.SamusDeath or SpriteSheetId.GameOver or SpriteSheetId.FileSelect or
                 SpriteSheetId.GameOptions or SpriteSheetId.MapSprites or SpriteSheetId.PauseSprites or
@@ -183,7 +180,7 @@ internal static class ScreenTileSheetComposer
                 SpriteSheetId.AreaMapBackgroundTilesCrateria or SpriteSheetId.AreaMapBackgroundTilesBrinstar or
                 SpriteSheetId.AreaMapBackgroundTilesNorfair or SpriteSheetId.AreaMapBackgroundTilesWreckedShip or
                 SpriteSheetId.AreaMapBackgroundTilesMaridia or SpriteSheetId.AreaMapBackgroundTilesTourian or
-                SpriteSheetId.PauseMapTiles or SpriteSheetId.PauseInterfaceTiles or SpriteSheetId.PauseHudTiles or
+                SpriteSheetId.PauseMapTiles or SpriteSheetId.PauseInterfaceTiles or SpriteSheetId.PauseHud or
                 SpriteSheetId.IntroSceneTiles or SpriteSheetId.IntroFontTiles or
                 SpriteSheetId.CeresFlightObjectTiles or SpriteSheetId.CeresIntroObjectTiles or
                 SpriteSheetId.ZebesRevealTiles or SpriteSheetId.EndingCreditsFontTiles or

@@ -15,6 +15,12 @@ public static class GameplayHudDefinitions
     public static Extent16<TilemapCells> Size => new(Width, Height);
     /// <summary>Thirty-two cells in the static minimap-border row.</summary>
     public const int TopRowCellCount = Width;
+    /// <summary>The HUD's rows: the static top row, then the three rows its values are drawn over.</summary>
+    public const int Rows = Height + 1;
+    /// <summary>Pixels across and down one HUD cell.</summary>
+    public const int CellPixels = 8;
+    /// <summary>The decimal numerals a counter's digits show.</summary>
+    public const int Numerals = 10;
 
     /// <summary>Required case-sensitive icon keys in zero-based layout order: Missile, SuperMissile, PowerBomb, Grapple and XRay. The array reference is fixed but its entries are not protected from caller mutation.</summary>
     public static readonly string[] IconNames = ["Missile", "SuperMissile", "PowerBomb", "Grapple", "XRay"];

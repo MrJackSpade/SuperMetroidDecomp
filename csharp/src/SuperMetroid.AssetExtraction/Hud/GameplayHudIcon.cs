@@ -1,7 +1,8 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Hud.Artwork;
+namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>One installed item icon (#1466): where its two rows of cells sit on the HUD and the tile each shows.</summary>
 /// <param name="Anchor">The cell its upper-left tile sits in.</param>

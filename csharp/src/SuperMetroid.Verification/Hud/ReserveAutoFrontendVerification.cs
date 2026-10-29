@@ -126,7 +126,7 @@ internal static class ReserveAutoFrontendVerification
             var pixels = DisplayRendering.Render(capture.Snapshot);
             foreach ((int index, int digit) in new[] { new VerifyReserveAutoFrontendCase(70, frame / 10), new VerifyReserveAutoFrontendCase(71, frame % 10) })
             {
-                AssertEqual(ReadRetailHudDigitTile(bus, digit), runtime.AcceptedLayer3Plane.Words[Layer3Plane.Columns + index],
+                AssertEqual(ReadRetailHudDigitTile(bus, digit), runtime.AcceptedHudWords[Layer3Plane.Columns + index],
                     "automatic refill digit becomes visible on the following accepted NMI");
             }
             var onesPixels = Enumerable.Range(24, 8).SelectMany(y =>
@@ -149,7 +149,7 @@ internal static class ReserveAutoFrontendVerification
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "presentation sequence returns to gameplay");
         foreach ((int index, int offset) in new[] { new VerifyReserveAutoFrontendCase(8, 0), new VerifyReserveAutoFrontendCase(9, 2), new VerifyReserveAutoFrontendCase(40, 4), new VerifyReserveAutoFrontendCase(41, 6), new VerifyReserveAutoFrontendCase(72, 8), new VerifyReserveAutoFrontendCase(73, 10) })
         {
-            AssertEqual(ReadRetailEmptyAutoReserveTile(bus, offset), runtime.AcceptedLayer3Plane.Words[Layer3Plane.Columns + index],
+            AssertEqual(ReadRetailEmptyAutoReserveTile(bus, offset), runtime.AcceptedHudWords[Layer3Plane.Columns + index],
                 "completed automatic refill publishes the native empty AUTO indicator");
         }
         samus.HealthWarning.Update(30, audio);

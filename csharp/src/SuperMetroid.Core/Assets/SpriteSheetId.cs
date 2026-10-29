@@ -126,8 +126,8 @@ public enum SpriteSheetId
     PauseMapTiles,
     /// <summary>The pause interface characters under the pause palette (#1392).</summary>
     PauseInterfaceTiles,
-    /// <summary>The HUD characters pause loads for BG3, under the pause palette (#1392).</summary>
-    PauseHudTiles,
+    /// <summary>The HUD's images and the cleared cell pause shows on its HUD plane, under the pause palette (#1392, #1466).</summary>
+    PauseHud,
     /// <summary>The opening cinematic's scene characters under its palette (#1392).</summary>
     IntroSceneTiles,
     /// <summary>The opening cinematic's narration font under its palette (#1392).</summary>

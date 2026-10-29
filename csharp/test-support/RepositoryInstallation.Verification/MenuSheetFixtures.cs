@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend;
+using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
@@ -149,6 +150,8 @@ internal static class MenuSheetFixtures
                 $"{SpriteSheetDefinitions.FileNames[id]}-fixture-maps-{RuntimeHelpers.GetHashCode(maps):X8}", tiles.Size, tiles.Pixels,
                 tiles.PaletteIndices, tiles.Priorities, tiles.PartGroups);
         }
+        // Pause's HUD plane draws the HUD's images, pictured from the maps' HUD artwork and characters (#1466).
+        sheets[SpriteSheetId.PauseHud] = LoadTiles(SpriteSheetId.PauseHud, HudImageSheet.ComposePause(maps), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
         return new InstalledSpriteSheets(sheets);
     }
 

@@ -3,10 +3,10 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// The BG3 plane a gameplay frame shows (#1348): 32 columns by 64 rows of tiles. The HUD's four rows sit at the top;
-/// below them the room effect's area, every cell the cleared tile, with the effect's authored page from row 31 down. The
-/// HUD band, liquids (the whole plane) and atmospheres (its lower 32 rows) all read it, so nothing is written into VRAM
-/// for them.
+/// The room effect's part of the BG3 plane a gameplay frame shows (#1348): 32 columns by 64 rows of tiles, every cell the
+/// cleared tile, with the effect's authored page from row 31 down. The HUD's images cover its top four rows (#1466): the
+/// frame's plane takes those rows' pictures from the HUD, so the HUD band, liquids (the whole plane) and atmospheres (its
+/// lower 32 rows) all read one plane, and nothing is written into VRAM for them.
 /// </summary>
 public sealed class Layer3Plane
 {
@@ -16,7 +16,7 @@ public sealed class Layer3Plane
     /// <summary>Tile rows.</summary>
     public const int Rows = 64;
 
-    /// <summary>The HUD's rows at the top of the plane.</summary>
+    /// <summary>The rows at the top of the plane the HUD's images cover.</summary>
     public const int HudRows = 4;
 
     /// <summary>The row the effect's authored page begins on (<c>$5BE0</c>).</summary>
@@ -37,20 +37,18 @@ public sealed class Layer3Plane
     }
 
     /// <summary>
-    /// The plane a room shows: the HUD's rows, then the effect area cleared to <see cref="ClearedCell"/> with the
-    /// room effect's authored page from row <see cref="EffectPageFirstRow"/>, when the effect has one.
+    /// The plane a room shows: every cell cleared to <see cref="ClearedCell"/>, with the room effect's authored page from
+    /// row <see cref="EffectPageFirstRow"/>, when the effect has one. The HUD's images cover the top
+    /// <see cref="HudRows"/> rows.
     /// </summary>
-    /// <param name="hudRows">The HUD's four rows: its static top row, then the three rows <see cref="Hud.HudState"/> owns.</param>
     /// <param name="effectPage">The effect's authored page tiles, or empty when the effect shows none.</param>
-    public static Layer3Plane Compose(ReadOnlySpan<BackgroundTile> hudRows, ReadOnlySpan<BackgroundTile> effectPage)
+    public static Layer3Plane Compose(ReadOnlySpan<BackgroundTile> effectPage)
     {
-        Ensure.LengthEqual(hudRows, HudRows * Columns);
         int pageStart = EffectPageFirstRow * Columns;
         if (effectPage.Length > Columns * Rows - pageStart)
             throw new ArgumentException($"An effect page of {effectPage.Length} tiles runs past the plane.", nameof(effectPage));
         var plane = new BackgroundTile[Columns * Rows];
-        hudRows.CopyTo(plane);
-        plane.AsSpan(hudRows.Length).Fill(ClearedCell);
+        plane.AsSpan().Fill(ClearedCell);
         effectPage.CopyTo(plane.AsSpan(pageStart));
         return new Layer3Plane(plane);
     }

@@ -1,235 +1,131 @@
-using System.Collections.Immutable;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Hud.Artwork;
 
 /// <summary>
-/// The installed gameplay HUD's artwork (#1466): the tile each element shows and the cells it sits in, and how each of
-/// the HUD's values is drawn from them. The import pipeline decodes and validates the editable HUD document into it;
-/// the HUD's state is values, which <see cref="HudState.Rows"/> draws through these writers.
+/// The installed gameplay HUD's layout (#1466): where each of the HUD's images is placed for each of its values. The import
+/// pipeline decodes and validates the editable HUD document into it and pictures every image; <see cref="HudState.Shown"/>
+/// places the images the HUD's values select. Placements are on the HUD's four rows: the static top row, then the three
+/// rows the values are drawn over.
 /// </summary>
-public sealed class GameplayHudPresentation
+public class GameplayHudPresentation
 {
-    /// <summary>The decoded pictures and layout.</summary>
+    /// <summary>The decoded layout.</summary>
     private readonly GameplayHudPresentationParts parts;
 
-    /// <summary>Takes the import's decoded, validated HUD artwork.</summary>
+    /// <summary>Takes the import's decoded, validated HUD layout.</summary>
     internal GameplayHudPresentation(GameplayHudPresentationParts parts)
     {
         this.parts = Ensure.NotNull(parts);
-        if (parts.TopRow.Length != GameplayHudDefinitions.TopRowCellCount || parts.Template.Length != GameplayHudDefinitions.CellCount ||
-            parts.EnergyTankCells.Length != GameplayHudDefinitions.EnergyTankCount || parts.AutoReserveCells.Length != GameplayHudDefinitions.AutoReserveCellCount ||
-            parts.AutoReserveFilled.Length != GameplayHudDefinitions.AutoReserveCellCount || parts.AutoReserveEmpty.Length != GameplayHudDefinitions.AutoReserveCellCount ||
-            parts.HealthDigits.Length != Numerals || parts.AmmoDigits.Length != Numerals || parts.Icons.Length != GameplayHudDefinitions.ItemCount)
-            throw new ArgumentException("The gameplay HUD's artwork does not hold one picture for each of its cells.", nameof(parts));
+        if (parts.EnergyTankCells.Length != GameplayHudDefinitions.EnergyTankCount ||
+            parts.AutoReserveCells.Length != GameplayHudDefinitions.AutoReserveCellCount ||
+            parts.IconAnchors.Length != GameplayHudDefinitions.ItemCount || parts.IconsShowOverTemplate.Length != GameplayHudDefinitions.ItemCount)
+            throw new ArgumentException("The gameplay HUD's layout does not place each of its elements.", nameof(parts));
     }
-
-    /// <summary>The decimal numerals a counter's digits show.</summary>
-    private const int Numerals = 10;
 
     /// <summary>Gets the SHA-256 identity of the source presentation document.</summary>
     public string ContentIdentity => parts.ContentIdentity;
 
-    /// <summary>The HUD's static top row, with any installed edits (#1348).</summary>
-    public BackgroundTile[] TopRow() => [.. parts.TopRow];
+    /// <summary>The five-by-three minimap's size in HUD cells.</summary>
+    public static Extent16<TilemapCells> MinimapSize => new(5, 3);
 
-    /// <summary>Gets the tile used to clear mutable HUD cells.</summary>
-    public BackgroundTile Blank => parts.Blank;
-    /// <summary>Gets the tile for a filled energy tank.</summary>
-    public BackgroundTile FilledEnergyTank => parts.FilledEnergyTank;
-    /// <summary>Gets the tile for an empty energy tank.</summary>
-    public BackgroundTile EmptyEnergyTank => parts.EmptyEnergyTank;
-    /// <summary>Gets the colour variant applied to the selected item icon.</summary>
-    public int SelectedPalette => parts.SelectedPalette;
-    /// <summary>Gets the colour variant applied to deselected item icons.</summary>
-    public int DeselectedPalette => parts.DeselectedPalette;
-    /// <summary>Gets the tile coordinate of the two health digits.</summary>
-    public Position16<TilemapCells> HealthAnchor => parts.HealthAnchor;
-    /// <summary>Gets the tile coordinate of the three missile-ammo digits.</summary>
-    public Position16<TilemapCells> MissileAmmoAnchor => parts.MissileAmmoAnchor;
-    /// <summary>Gets the tile coordinate of the two Super Missile ammo digits.</summary>
-    public Position16<TilemapCells> SuperMissileAmmoAnchor => parts.SuperMissileAmmoAnchor;
-    /// <summary>Gets the tile coordinate of the two Power Bomb ammo digits.</summary>
-    public Position16<TilemapCells> PowerBombAmmoAnchor => parts.PowerBombAmmoAnchor;
-    /// <summary>Gets the upper-left tile coordinate of the five-by-three minimap.</summary>
-    public Position16<TilemapCells> MinimapAnchor => parts.MinimapAnchor;
+    /// <summary>The static top row, across the HUD's first row.</summary>
+    public static PlacedHudImage TopRow => new(HudTopRowImage.Instance, Position16<TilemapCells>.Zero);
 
-    /// <summary>Writes the complete editable HUD template into a mutable tilemap.</summary>
-    /// <param name="tiles">The 32-by-3 HUD tilemap to populate.</param>
-    public void ApplyTemplate(Span<BackgroundTile> tiles)
-    {
-        ValidateTilemap(tiles);
-        parts.Template.AsSpan().CopyTo(tiles);
-    }
+    /// <summary>The template, across the three rows the HUD's values are drawn over.</summary>
+    public static PlacedHudImage Template => new(HudTemplateImage.Instance, Drawn(Position16<TilemapCells>.Zero));
 
     /// <summary>
     /// Whether item <paramref name="itemIndex"/>'s icon draws when the HUD adds it: the cartridge draws an icon only over
     /// a blank anchor, and nothing but the template ever sits under an icon.
     /// </summary>
     /// <param name="itemIndex">The zero-based item icon index.</param>
-    public bool IconShowsOverTemplate(int itemIndex) =>
-        parts.Template[Index(Icon(itemIndex).Anchor)].Tile == Blank.Tile;
+    public bool IconShowsOverTemplate(int itemIndex) => parts.IconsShowOverTemplate[ItemIndex(itemIndex)];
 
-    /// <summary>Draws an item icon when its anchor cell is currently blank.</summary>
-    /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
+    /// <summary>
+    /// Item <paramref name="itemIndex"/>'s cells: the icon where it has been added over a template that leaves room for it,
+    /// otherwise the template, in the shade the selection last gave them; null where they show the template unshaded.
+    /// </summary>
     /// <param name="itemIndex">The zero-based item icon index.</param>
-    public void TryApplyIcon(Span<BackgroundTile> tiles, int itemIndex)
+    /// <param name="added">Whether the HUD has added the icon.</param>
+    /// <param name="shade">The shade the selection last gave the cells, or null.</param>
+    public PlacedHudImage? Icon(int itemIndex, bool added, HudIconShade? shade)
     {
-        ValidateTilemap(tiles);
-        GameplayHudIcon icon = Icon(itemIndex);
-        if (tiles[Index(icon.Anchor)].Tile != Blank.Tile)
-            return;
-        for (int cell = 0; cell < icon.Cells.Length; cell++)
-            tiles[Index(icon.CellAt(cell))] = icon.Cells[cell];
+        int item = ItemIndex(itemIndex);
+        HudIconCover cover = added && parts.IconsShowOverTemplate[item] ? HudIconCover.Icon : HudIconCover.Template;
+        return cover == HudIconCover.Template && shade is null ? null
+            : new PlacedHudImage(new HudIconImage(item, cover, shade), Drawn(parts.IconAnchors[item]));
     }
 
-    /// <summary>Draws one energy tank full or empty.</summary>
-    /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
+    /// <summary>One energy tank full or empty.</summary>
     /// <param name="tank">The tank, 0 through 13.</param>
     /// <param name="shown">Whether the tank is full or empty.</param>
-    public void DrawEnergyTank(Span<BackgroundTile> tiles, int tank, HudEnergyTank shown)
-    {
-        ValidateTilemap(tiles);
-        tiles[Index(parts.EnergyTankCells[Ensure.BetweenInclusive(0, GameplayHudDefinitions.EnergyTankCount - 1, tank)])] = shown switch
-        {
-            HudEnergyTank.Full => FilledEnergyTank,
-            HudEnergyTank.Empty => EmptyEnergyTank,
-            _ => throw new ArgumentOutOfRangeException(nameof(shown), shown, "Undefined energy tank state."),
-        };
-    }
+    public PlacedHudImage EnergyTank(int tank, HudEnergyTank shown) =>
+        new(new HudEnergyTankImage(shown), Drawn(parts.EnergyTankCells[Ensure.BetweenInclusive(0, GameplayHudDefinitions.EnergyTankCount - 1, tank)]));
 
-    /// <summary>Draws the two-digit energy count.</summary>
-    /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
+    /// <summary>The two-digit energy count.</summary>
     /// <param name="remainder">The energy beyond full tanks, 0 through 99.</param>
-    public void DrawEnergyCount(Span<BackgroundTile> tiles, int remainder)
-    {
-        ValidateTilemap(tiles);
-        DrawDigits(tiles, parts.HealthDigits, remainder, HealthAnchor, 2);
-    }
+    public IEnumerable<PlacedHudImage> EnergyCount(int remainder) =>
+        Digits(remainder, parts.HealthAnchor, 2).Select(digit => new PlacedHudImage(new HudEnergyDigitImage(digit.Numeral), digit.Cell));
 
-    /// <summary>Draws the ammunition count for a projectile item.</summary>
-    /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
+    /// <summary>The ammunition count for a projectile item.</summary>
     /// <param name="itemIndex">Zero for missiles, one for Super Missiles, or two for Power Bombs.</param>
     /// <param name="value">The ammunition count to display.</param>
-    public void ApplyAmmo(Span<BackgroundTile> tiles, int itemIndex, int value)
+    public IEnumerable<PlacedHudImage> Ammo(int itemIndex, int value)
     {
-        ValidateTilemap(tiles);
         (Position16<TilemapCells> anchor, int digits) = itemIndex switch
         {
-            0 => new HudAmmoField(MissileAmmoAnchor, 3),
-            1 => new HudAmmoField(SuperMissileAmmoAnchor, 2),
-            2 => new HudAmmoField(PowerBombAmmoAnchor, 2),
+            0 => new HudAmmoField(parts.MissileAmmoAnchor, 3),
+            1 => new HudAmmoField(parts.SuperMissileAmmoAnchor, 2),
+            2 => new HudAmmoField(parts.PowerBombAmmoAnchor, 2),
             _ => throw new ArgumentOutOfRangeException(nameof(itemIndex)),
         };
         // The digits divide the stored word, so a count the cartridge has drained below zero draws as its word.
-        DrawDigits(tiles, parts.AmmoDigits, SamusQuantity.Encode(value), anchor, digits);
+        return Digits(SamusQuantity.Encode(value), anchor, digits).Select(digit => new PlacedHudImage(new HudAmmoDigitImage(digit.Numeral), digit.Cell));
     }
 
-    /// <summary>Draws the AUTO reserve indicator as <paramref name="indicator"/> shows it, clearing its cells when it is cleared.</summary>
-    /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
+    /// <summary>The AUTO reserve indicator's cells as <paramref name="indicator"/> shows them; a cleared indicator shows blank cells.</summary>
     /// <param name="indicator">What the indicator shows.</param>
-    public void ApplyAutoReserve(Span<BackgroundTile> tiles, HudReserveIndicator indicator)
+    public IEnumerable<PlacedHudImage> AutoReserve(HudReserveIndicator indicator)
     {
-        ValidateTilemap(tiles);
-        if (indicator == HudReserveIndicator.Cleared)
-        {
-            ClearAutoReserve(tiles);
-            return;
-        }
-        ImmutableArray<BackgroundTile> shown = indicator == HudReserveIndicator.Filled ? parts.AutoReserveFilled : parts.AutoReserveEmpty;
-        for (int index = 0; index < GameplayHudDefinitions.AutoReserveCellCount; index++)
-            tiles[Index(parts.AutoReserveCells[index])] = shown[index];
+        if (!Enum.IsDefined(indicator))
+            throw new ArgumentOutOfRangeException(nameof(indicator), indicator, "Undefined reserve indicator.");
+        for (int cell = 0; cell < GameplayHudDefinitions.AutoReserveCellCount; cell++)
+            yield return new PlacedHudImage(new HudReserveCellImage(indicator, cell), Drawn(parts.AutoReserveCells[cell]));
     }
 
-    /// <summary>Replaces every AUTO reserve-indicator cell with the configured blank tile.</summary>
-    /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
-    public void ClearAutoReserve(Span<BackgroundTile> tiles)
-    {
-        ValidateTilemap(tiles);
-        foreach (Position16<TilemapCells> cell in parts.AutoReserveCells)
-            tiles[Index(cell)] = Blank;
-    }
-
-    /// <summary>Applies a colour variant to every nonblank cell of the selected item icon.</summary>
-    /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
-    /// <param name="selectedItem">The selected item.</param>
-    /// <param name="palette">The colour variant to apply.</param>
-    public void ToggleItemHighlight(Span<BackgroundTile> tiles, HudItem selectedItem, int palette)
-    {
-        ValidateTilemap(tiles);
-        if ((uint)palette >= BackgroundTile.ColourVariants) throw new ArgumentOutOfRangeException(nameof(palette));
-        int itemIndex = Array.IndexOf(GameplayHudDefinitions.IconItems, selectedItem);
-        if (itemIndex < 0) return;
-        GameplayHudIcon icon = Icon(itemIndex);
-        for (int cell = 0; cell < icon.Cells.Length; cell++)
-        {
-            int destination = Index(icon.CellAt(cell));
-            if (tiles[destination] != Blank)
-                tiles[destination] = tiles[destination] with { ColourVariant = palette };
-        }
-    }
-
-    /// <summary>The five-by-three minimap's size in HUD tilemap cells.</summary>
-    public static Extent16<TilemapCells> MinimapSize => new(5, 3);
-
-    /// <summary>Returns the linear HUD tilemap index for a minimap output coordinate.</summary>
-    /// <param name="output">The zero-based minimap column and row.</param>
-    /// <returns>The corresponding cell index in the 32-by-3 HUD tilemap.</returns>
-    public int MinimapCellIndex(Position16<TilemapCells> output)
-    {
-        if (!MinimapSize.Contains(output)) throw new ArgumentOutOfRangeException(nameof(output));
-        return Index(MinimapAnchor + (output - Position16<TilemapCells>.Zero));
-    }
-
-    /// <summary>Draws one minimap cell: a revealed map cell's shape and mirroring in its shade, or the empty cell.</summary>
-    /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
+    /// <summary>One minimap cell: a revealed map cell's shape and mirroring in its shade, or the empty cell.</summary>
     /// <param name="output">The zero-based minimap column and row.</param>
     /// <param name="cell">What the minimap cell shows.</param>
-    public void DrawMinimapCell(Span<BackgroundTile> tiles, Position16<TilemapCells> output, MinimapCell cell)
+    public PlacedHudImage MinimapCell(Position16<TilemapCells> output, MinimapCell cell)
     {
-        ValidateTilemap(tiles);
-        tiles[MinimapCellIndex(output)] = Ensure.NotNull(cell) switch
+        if (!MinimapSize.Contains(output)) throw new ArgumentOutOfRangeException(nameof(output));
+        HudImage image = Ensure.NotNull(cell) switch
         {
-            MinimapHiddenCell => parts.MinimapHidden,
-            MinimapMapCell shown => new BackgroundTile(shown.Shape.Picture, ShadeColourVariant(shown.Shade), highPriority: true, shown.Mirroring),
+            MinimapHiddenCell => HudMinimapHiddenImage.Instance,
+            MinimapMapCell shown => HudMinimapCellImage.Of(shown),
             _ => throw new ArgumentOutOfRangeException(nameof(cell), cell, "Undefined minimap cell."),
         };
+        return new PlacedHudImage(image, Drawn(parts.MinimapAnchor + (output - Position16<TilemapCells>.Zero)));
     }
 
-    /// <summary>The colour variant the minimap shows a revealed cell in under <paramref name="shade"/>.</summary>
-    private int ShadeColourVariant(MinimapShade shade) => shade switch
-    {
-        MinimapShade.Unexplored => parts.MinimapUnexploredColourVariant,
-        MinimapShade.Explored => parts.MinimapExploredColourVariant,
-        MinimapShade.SamusLocation => parts.MinimapLocationColourVariant,
-        _ => throw new ArgumentOutOfRangeException(nameof(shade), shade, "Undefined minimap shade."),
-    };
-
-    /// <summary>Writes two or three decimal digits.</summary>
-    private static void DrawDigits(Span<BackgroundTile> tiles, ImmutableArray<BackgroundTile> glyphs, int value, Position16<TilemapCells> anchor, int count)
+    /// <summary>Each digit of <paramref name="value"/>'s last <paramref name="count"/> decimal digits and the cell it sits in.</summary>
+    private static IEnumerable<HudDigitPlacement> Digits(int value, Position16<TilemapCells> anchor, int count)
     {
         int divisor = count == 3 ? 100 : 10;
         for (int digit = 0; digit < count; digit++)
         {
-            int numeral = (value / divisor) % 10;
-            tiles[Index(anchor + new Offset16<TilemapCells>(checked((short)digit), 0))] = glyphs[numeral];
-            divisor /= 10;
+            yield return new HudDigitPlacement((value / divisor) % GameplayHudDefinitions.Numerals,
+                Drawn(anchor + new Offset16<TilemapCells>(checked((short)digit), 0)));
+            divisor /= GameplayHudDefinitions.Numerals;
         }
     }
 
-    /// <summary>Resolves a zero-based item icon index to its installed icon.</summary>
-    private GameplayHudIcon Icon(int itemIndex) => (uint)itemIndex < (uint)parts.Icons.Length
-        ? parts.Icons[itemIndex]
+    /// <summary>A cell of the three drawn rows, placed below the static top row.</summary>
+    private static Position16<TilemapCells> Drawn(Position16<TilemapCells> cell) => cell + new Offset16<TilemapCells>(0, 1);
+
+    /// <summary>Requires a zero-based item icon index.</summary>
+    private static int ItemIndex(int itemIndex) => (uint)itemIndex < GameplayHudDefinitions.ItemCount
+        ? itemIndex
         : throw new ArgumentOutOfRangeException(nameof(itemIndex));
-
-    /// <summary>Converts an HUD tile coordinate to the mutable row-major cell index.</summary>
-    private static int Index(Position16<TilemapCells> point) => GameplayHudDefinitions.Size.RowMajorIndex(point);
-
-    /// <summary>Requires a destination span for exactly three 32-cell HUD rows.</summary>
-    private static void ValidateTilemap(Span<BackgroundTile> tiles)
-    {
-        if (tiles.Length != GameplayHudDefinitions.CellCount)
-            throw new ArgumentException("Gameplay HUD requires exactly 96 mutable cells.", nameof(tiles));
-    }
 }

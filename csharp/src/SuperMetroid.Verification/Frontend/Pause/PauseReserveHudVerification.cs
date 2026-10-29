@@ -39,7 +39,7 @@ internal static class PauseReserveHudVerification
         samus.CollectedBeams = SamusBeamFlags.Charge;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug with { Health = 20, ReserveHealth = 2, ReserveMode = ReserveTankMode.Auto });
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayLayer3 = runtime.AcceptedLayer3Plane });
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayHud = runtime.AcceptedHud });
         EnterPauseEquipment(pause);
         pause.Step(0, ControllerButton.Up);
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
@@ -49,10 +49,10 @@ internal static class PauseReserveHudVerification
         game.Session.Show(pause);
         game.GameState = SuperMetroidGameState.PausedB;
         // The pause screen's BG3 words: the HUD's static top row, its three mutable rows, then the cleared effect rows.
-        ushort Shown(int hudCell) => pause.screen.Tilemaps.Bg3[Layer3Plane.Columns + hudCell].PackedWord;
+        ushort Shown(int hudCell) => pause.screen.Bg3Tiles[Layer3Plane.Columns + hudCell].PackedWord;
         ushort originalAuto = Shown(8);
-        ushort[] initialHud = BackgroundTileWordBytes.Words(pause.screen.Tilemaps.Bg3.Slice(Layer3Plane.Columns, HudState.MutableTileCount));
-        ushort[] initialFx = BackgroundTileWordBytes.Words(pause.screen.Tilemaps.Bg3.Slice(Layer3Plane.HudRows * Layer3Plane.Columns, PauseClearedEffectWords));
+        ushort[] initialHud = BackgroundTileWordBytes.Words(pause.screen.Bg3Tiles.AsSpan(Layer3Plane.Columns, HudState.MutableTileCount));
+        ushort[] initialFx = BackgroundTileWordBytes.Words(pause.screen.Bg3Tiles.AsSpan(Layer3Plane.HudRows * Layer3Plane.Columns, PauseClearedEffectWords));
         long sequence = 0;
         void Step(ControllerButton input = ControllerButton.None) => game.StepCaptured(input, ++sequence, 1);
         Step(ControllerButton.A);
@@ -81,7 +81,7 @@ internal static class PauseReserveHudVerification
             AssertEqual(bus.ReadCartridgeWord((0x809997 + offset)), Shown(index), "empty AUTO uses native table");
         foreach (int index in Enumerable.Range(0, HudState.MutableTileCount).Except(ReserveDisplayCells))
             AssertEqual(initialHud[index], Shown(index), "reserve updates preserve other HUD cells");
-        AssertTrue(initialFx.AsSpan().SequenceEqual(BackgroundTileWordBytes.Words(pause.screen.Tilemaps.Bg3.Slice(Layer3Plane.HudRows * Layer3Plane.Columns, PauseClearedEffectWords))),
+        AssertTrue(initialFx.AsSpan().SequenceEqual(BackgroundTileWordBytes.Words(pause.screen.Bg3Tiles.AsSpan(Layer3Plane.HudRows * Layer3Plane.Columns, PauseClearedEffectWords))),
             "HUD synchronization preserves cleared pause FX rows");
         for (int frame = 0; frame < 8 && game.GameState == SuperMetroidGameState.PausedB; frame++)
         {

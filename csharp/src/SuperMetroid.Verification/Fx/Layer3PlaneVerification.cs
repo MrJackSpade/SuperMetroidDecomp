@@ -15,13 +15,17 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Hud;
 
 namespace SuperMetroid.Verification.Fx;
 
 /// <summary>Checks the HUD, room effect and typewriter descriptions a frame publishes instead of BG3 VRAM (#1348).</summary>
 internal static class Layer3PlaneVerification
 {
-    /// <summary>The published BG3 plane's top rows are the HUD's: its static top row and the rows its values draw.</summary>
+    /// <summary>
+    /// The HUD each NMI latches, whose images cover the published BG3 plane's top rows (#1466), lays out its static top row
+    /// and the rows its values draw.
+    /// </summary>
     internal static void VerifyPublishedHudRows()
     {
         var runtime = CreateRetailRuntimeFixture();
@@ -31,11 +35,13 @@ internal static class Layer3PlaneVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        Layer3Plane first = Published(runtime);
-        ushort[] topRow = BackgroundTileWordBytes.Words((runtime.Artwork.MapPresentation ?? throw new InvalidOperationException(
-            "The retail fixture installs the HUD artwork.")).GameplayHud.TopRow());
-        AssertTrue(first.Words[..Layer3Plane.Columns].SequenceEqual(topRow), "row zero is the HUD's static top row");
-        AssertTrue(first.Words[Layer3Plane.Columns..(Layer3Plane.HudRows * Layer3Plane.Columns)].SequenceEqual(runtime.Hud.TileWords),
+        GameplayHudArtwork artwork = GameplayHudArtwork.Of((runtime.Artwork.MapPresentation ?? throw new InvalidOperationException(
+            "The retail fixture installs the HUD artwork.")).GameplayHud);
+        ShownHud first = runtime.AcceptedHud;
+        ushort[] firstWords = runtime.AcceptedHudWords;
+        ushort[] topRow = BackgroundTileWordBytes.Words(artwork.TopRowTiles());
+        AssertTrue(firstWords[..Layer3Plane.Columns].SequenceEqual(topRow), "row zero is the HUD's static top row");
+        AssertTrue(firstWords[Layer3Plane.Columns..(Layer3Plane.HudRows * Layer3Plane.Columns)].SequenceEqual(runtime.Hud.TileWords),
             "rows one through three are the rows the HUD's values draw");
 
         // A HUD change reaches the next NMI's plane; the published one keeps its rows. Lost energy redraws the energy
@@ -47,9 +53,9 @@ internal static class Layer3PlaneVerification
         ushort[] after = runtime.Hud.TileWords;
         int cell = Enumerable.Range(0, after.Length).First(index => after[index] != before[index]);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(after[cell], Published(runtime).Words[Layer3Plane.Columns + cell], "the next NMI's plane shows the HUD change");
-        AssertEqual(before[cell], first.Words[Layer3Plane.Columns + cell], "an earlier published plane keeps its rows");
-        Console.WriteLine("  BG3 plane: the HUD rows publish from the HUD's values at each NMI.");
+        AssertEqual(after[cell], runtime.AcceptedHudWords[Layer3Plane.Columns + cell], "the next NMI's HUD shows the HUD change");
+        AssertEqual(before[cell], BackgroundTileWordBytes.Words(artwork.Rows(first))[Layer3Plane.Columns + cell], "an earlier latched HUD keeps its images");
+        Console.WriteLine("  BG3 plane: the HUD's images publish from the HUD's values at each NMI.");
     }
 
     /// <summary>A water effect at a constructed level shows its authored page below the HUD and captures from that plane.</summary>
@@ -63,10 +69,7 @@ internal static class Layer3PlaneVerification
         RoomLayer3FxState water = RoomLayer3FxState.ForDefinition(session, new GameplayColours(new SpriteColourSets()), record, 0);
         AssertEqual<RoomFxType?>(RoomFxType.Water, water.EffectPageType, "the water room shows the water page");
 
-        var hudRows = new ushort[Layer3Plane.HudRows * Layer3Plane.Columns];
-        for (int index = 0; index < hudRows.Length; index++)
-            hudRows[index] = (ushort)(0x2000 + index);
-        Layer3Plane plane = Layer3Plane.Compose(BackgroundTileWordBytes.Tiles(hudRows), water.EffectPageTiles());
+        Layer3Plane plane = Layer3Plane.Compose(water.EffectPageTiles());
         ReadOnlySpan<byte> page = presentation.RoomFxLayer3Tilemaps.ResolveBytes(RoomFxType.Water);
         for (int row = Layer3Plane.HudRows; row < Layer3Plane.Rows; row++)
         for (int column = 0; column < Layer3Plane.Columns; column++)
@@ -77,7 +80,8 @@ internal static class Layer3PlaneVerification
                 : Layer3Plane.ClearedCell.PackedWord;
             AssertEqual(expected, plane.Words[row * Layer3Plane.Columns + column], $"BG3 row {row} column {column}: cleared, with the water page from row 31");
         }
-        AssertTrue(plane.Words[..hudRows.Length].SequenceEqual(hudRows), "the HUD rows stay above the effect");
+        AssertTrue(plane.Words[..(Layer3Plane.HudRows * Layer3Plane.Columns)].All(word => word == Layer3Plane.ClearedCell.PackedWord),
+            "the rows the HUD's images cover stay cleared above the effect");
 
         RoomLayer3FxRenderSnapshot shown = water.CaptureForDisplay() ?? throw new InvalidOperationException("Water is a renderable effect.");
         AssertEqual((ushort)0x0080, shown.Surface.Y, "the published effect carries the constructed liquid level");
@@ -117,9 +121,6 @@ internal static class Layer3PlaneVerification
         }
         Console.WriteLine($"  BG3 plane: the typewriter typed {typed.Count} glyphs over {steps} steps at their destinations.");
     }
-
-    /// <summary>The BG3 plane's words the runtime's last NMI latched.</summary>
-    private static Layer3Plane Published(SuperMetroidRuntime runtime) => runtime.AcceptedLayer3Plane;
 
     /// <summary>Runs the BG3 plane checks.</summary>
     [VerificationCommand("--bg3-plane")]

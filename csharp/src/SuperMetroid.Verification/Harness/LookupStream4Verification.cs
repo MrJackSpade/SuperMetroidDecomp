@@ -1453,7 +1453,7 @@ internal static class LookupStream4Verification
                 var cell=document.Template[index];ushort expected=SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,(cell.FlipX?TileFlip.Horizontal:0)|(cell.FlipY?TileFlip.Vertical:0)).Raw;
                 AssertEqual(expected,tiles[index],"Independent template cell and all untouched neighbors");
             }
-            AssertTrue(selected.TopRow().SequenceEqual(stock.TopRow()),"Template edits leave immutable top row independent");
+            AssertTrue(selected.TopRowTiles().SequenceEqual(stock.TopRowTiles()),"Template edits leave immutable top row independent");
             if(edit is -1 or 390 or 570)
             {
                 var hud=new HudState();hud.BindPresentation(selected);hud.Initialize(HudSnapshot.CeresDebug);
@@ -1470,7 +1470,7 @@ internal static class LookupStream4Verification
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);
         var stock=GameplayHudPresentationFile.Read(new MemoryStream(json));
         {
-            ushort[] native=BackgroundTileWordBytes.Words(stock.TopRow());
+            ushort[] native=BackgroundTileWordBytes.Words(stock.TopRowTiles());
             for(int column=0;column<32;column++)AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x80988b+column*2),native[column],"Native top-row word");
         }
         for(int edit=-1;edit<192;edit++)
@@ -1484,7 +1484,7 @@ internal static class LookupStream4Verification
             using var output=new MemoryStream();GameplayHudPresentationFile.Write(output,document);byte[] bytes=output.ToArray();
             var selected=GameplayHudPresentationFile.Read(new MemoryStream(bytes));
             AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)),selected.ContentIdentity,"Top row exact serialized content identity");
-            ushort[] row=BackgroundTileWordBytes.Words(selected.TopRow());
+            ushort[] row=BackgroundTileWordBytes.Words(selected.TopRowTiles());
             AssertEqual(32,row.Length,"Top row covers every HUD column");
             for(int column=0;column<32;column++)
             {
@@ -1547,7 +1547,7 @@ internal static class LookupStream4Verification
         byte[] json = GameplayHudPresentationExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        GameplayHudPresentation stock = GameplayHudPresentationFile.Read(new MemoryStream(json));
+        GameplayHudArtwork stock = GameplayHudPresentationFile.Read(new MemoryStream(json));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         AssertTrue(!MetadataShape.DeclaresField(typeof(GameplayHudPresentation), "autoReserveBasis", flags), "AUTO no longer stores whole-word basis cells");
         ushort[] tiles = new ushort[96];
@@ -1568,7 +1568,7 @@ internal static class LookupStream4Verification
         using var editedJson = new MemoryStream();
         GameplayHudPresentationFile.Write(editedJson, document);
         editedJson.Position = 0;
-        GameplayHudPresentation edited = GameplayHudPresentationFile.Read(editedJson);
+        GameplayHudArtwork edited = GameplayHudPresentationFile.Read(editedJson);
         for (int state = 0; state < 2; state++)
         {
             edited.ApplyAutoReserve(tiles, state == 0);
@@ -1590,7 +1590,7 @@ internal static class LookupStream4Verification
         byte[] json = GameplayHudPresentationExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        GameplayHudPresentation stock = GameplayHudPresentationFile.Read(new MemoryStream(json));
+        GameplayHudArtwork stock = GameplayHudPresentationFile.Read(new MemoryStream(json));
         ushort[] tiles = new ushort[96];
         for (int digit = 0; digit < 10; digit++)
         {
@@ -1606,7 +1606,7 @@ internal static class LookupStream4Verification
         using var changedJson = new MemoryStream();
         GameplayHudPresentationFile.Write(changedJson, document);
         changedJson.Position = 0;
-        GameplayHudPresentation changed = GameplayHudPresentationFile.Read(changedJson);
+        GameplayHudArtwork changed = GameplayHudPresentationFile.Read(changedJson);
         changed.ApplyEnergy(tiles, 23, 99);
         changed.ApplyAmmo(tiles, 0, 234);
         AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dbf + 4)), tiles[70], "unedited health digit unchanged");
@@ -3497,7 +3497,7 @@ internal static class LookupStream4Verification
         byte[] json = GameplayHudPresentationExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        GameplayHudPresentation stock = GameplayHudPresentationFile.Read(new MemoryStream(json));
+        GameplayHudArtwork stock = GameplayHudPresentationFile.Read(new MemoryStream(json));
         for (int tank = 0; tank < 14; tank++)
         {
             int native = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809cce + tank * 2));
@@ -3539,7 +3539,7 @@ internal static class LookupStream4Verification
         using var editedJson = new MemoryStream();
         GameplayHudPresentationFile.Write(editedJson, document);
         editedJson.Position = 0;
-        GameplayHudPresentation edited = GameplayHudPresentationFile.Read(editedJson);
+        GameplayHudArtwork edited = GameplayHudPresentationFile.Read(editedJson);
         edited.ApplyEnergy(tiles, 100, 1400);
         AssertEqual(edited.FilledEnergyTank.PackedWord, tiles[0x44 / 2], "edited first tank moves to second native anchor");
         AssertEqual(edited.EmptyEnergyTank.PackedWord, tiles[0x42 / 2], "edited second tank moves to first native anchor");

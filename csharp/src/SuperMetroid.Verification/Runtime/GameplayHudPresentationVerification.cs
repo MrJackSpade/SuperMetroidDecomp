@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hud;
@@ -27,8 +26,8 @@ internal static class GameplayHudPresentationVerification
         byte[] extracted = SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationExtractor.Extract(bus);
         AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
             "installed gameplay HUD JSON is the deterministic cartridge extraction");
-        GameplayHudPresentation presentation = GameplayHudPresentationFile.Read(new MemoryStream(extracted));
-        ushort[] stockTopRow = BackgroundTileWordBytes.Words(presentation.TopRow());
+        GameplayHudArtwork presentation = GameplayHudPresentationFile.Read(new MemoryStream(extracted));
+        ushort[] stockTopRow = BackgroundTileWordBytes.Words(presentation.TopRowTiles());
         for (int column = 0; column < GameplayHudDefinitions.TopRowCellCount; column++)
             AssertEqual((ushort)(GameplayHudPresentationAssetsRomByte(bus, HudSourceDefinitions.TopRow + column * 2)
                     | GameplayHudPresentationAssetsRomByte(bus, HudSourceDefinitions.TopRow + column * 2 + 1) << 8),
@@ -114,10 +113,11 @@ internal static class GameplayHudPresentationVerification
             "gameplay HUD override changes selected catalog identity");
         var editedTopRowRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
         editedTopRowRuntime.Artwork.MapPresentation = edited;
-        AssertTrue(editedTopRowRuntime.FrameBoundary.CaptureLayer3Plane().Tiles[..GameplayHudDefinitions.TopRowCellCount]
-            .SequenceEqual(edited.GameplayHud.TopRow()),
-            "edited top-row cell reaches the BG3 plane the NMI latches");
-        AssertTrue(!edited.GameplayHud.TopRow().SequenceEqual(original.GameplayHud.TopRow()),
+        GameplayHudArtwork editedArtwork = GameplayHudArtwork.Of(edited.GameplayHud);
+        AssertTrue(editedArtwork.Rows(editedTopRowRuntime.Hud.Shown())[..GameplayHudDefinitions.TopRowCellCount]
+            .SequenceEqual(editedArtwork.TopRowTiles()),
+            "edited top-row cell reaches the HUD the NMI latches");
+        AssertTrue(!editedArtwork.TopRowTiles().SequenceEqual(GameplayHudArtwork.Of(original.GameplayHud).TopRowTiles()),
             "edited top-row cell changes the shown row");
 
         var editedHud = new HudState();

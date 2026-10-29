@@ -30,7 +30,6 @@ public static class ScreenTileSheetDefinitions
         [SpriteSheetId.AreaMapBackgroundTilesTourian] = TileInkDepth.FourColours,
         [SpriteSheetId.PauseMapTiles] = TileInkDepth.SixteenColours,
         [SpriteSheetId.PauseInterfaceTiles] = TileInkDepth.SixteenColours,
-        [SpriteSheetId.PauseHudTiles] = TileInkDepth.FourColours,
         [SpriteSheetId.IntroSceneTiles] = TileInkDepth.SixteenColours,
         [SpriteSheetId.IntroFontTiles] = TileInkDepth.FourColours,
         [SpriteSheetId.CeresFlightObjectTiles] = TileInkDepth.SixteenColours,

@@ -20,6 +20,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Hud;
 
 namespace SuperMetroid.AssetExtraction.Installation;
 
@@ -107,7 +108,7 @@ public static class SpriteSheetFiles
             SpriteSheetId.AreaMapBackgroundTilesCrateria or SpriteSheetId.AreaMapBackgroundTilesBrinstar or
             SpriteSheetId.AreaMapBackgroundTilesNorfair or SpriteSheetId.AreaMapBackgroundTilesWreckedShip or
             SpriteSheetId.AreaMapBackgroundTilesMaridia or SpriteSheetId.AreaMapBackgroundTilesTourian or
-            SpriteSheetId.PauseMapTiles or SpriteSheetId.PauseInterfaceTiles or SpriteSheetId.PauseHudTiles or
+            SpriteSheetId.PauseMapTiles or SpriteSheetId.PauseInterfaceTiles or
             SpriteSheetId.IntroSceneTiles or SpriteSheetId.IntroFontTiles or SpriteSheetId.CeresFlightObjectTiles or
             SpriteSheetId.CeresIntroObjectTiles or SpriteSheetId.ZebesRevealTiles or
             SpriteSheetId.EndingCreditsFontTiles or SpriteSheetId.EndingTextFontTiles or
@@ -130,6 +131,7 @@ public static class SpriteSheetFiles
         SpriteSheetId.GameOptions => GameOptionsNames.SheetFrames,
         SpriteSheetId.MapSprites => MapSpriteNames.SheetFrames,
         SpriteSheetId.PauseSprites => PauseSheetComposer.FrameNames(maps.Value),
+        SpriteSheetId.PauseHud => HudImageSheet.PauseFrameNames(maps.Value),
         SpriteSheetId.Title => TitleSpriteDefinitions.All.Select(TitleSpriteDefinitions.FrameName),
         SpriteSheetId.IntroSprites => IntroSpriteSheetComposer.FrameNames(intro.Value),
         SpriteSheetId.CeresFlightSprites => IntroSpriteSheetComposer.CeresFlightFrameNames(intro.Value.CeresFlight),

@@ -1,9 +1,8 @@
-namespace SuperMetroid.Core.Rooms.Backgrounds;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
-/// Immutable bank-$8F room-background command programs for every retail room state.
-/// These are engine-owned transfer/decompression instructions, not replaceable art;
-/// their referenced character sheets and tilemaps are installed separately.
+/// Immutable bank-$8F room-background command programs, one for each library background retail room states show. The
+/// import pipeline runs each once and installs the pictures it leaves (#1466); the simulation names only the backgrounds.
 /// </summary>
 /// <remarks>
 /// The programs are generated from the pinned cartridge by tools/generate-library-background-programs.ps1, holding

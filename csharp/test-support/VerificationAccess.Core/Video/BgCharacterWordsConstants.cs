@@ -10,7 +10,7 @@ internal static class BgCharacterWordsConstants
     {
         BgCharacterSet.Tiles => RoomGraphicsLayout.AreaCharacters.Offset + character * (set.CharacterBytes() / sizeof(ushort)),
         BgCharacterSet.Layer3 => GameplayVramLayout.HudCharacters.Offset + character * (set.CharacterBytes() / sizeof(ushort)),
-        BgCharacterSet.KraidLayer3 => Core.Rooms.LibraryBackgroundListConstants.KraidHudCharacterBaseWord + character * (set.CharacterBytes() / sizeof(ushort)),
+
         _ => throw new ArgumentOutOfRangeException(nameof(set), set, "Unknown background character set."),
     };
 }

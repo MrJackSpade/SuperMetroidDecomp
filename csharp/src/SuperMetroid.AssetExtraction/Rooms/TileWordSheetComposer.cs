@@ -77,8 +77,7 @@ internal static class TileWordSheetComposer
             Fill(Layer3Plane.ClearedCell)];
         return Compose(inputs, tileset, TileWordLayer.Bg3, parts,
             uploads.Bg3Content ?? throw new InvalidDataException($"No room of {tileset} records what BG3 shows over."),
-            new TileWordBindings([RoomBlockUploads.HudCharacters(inputs), .. bg3Uploads, .. uploads.Uploads],
-                [uploads.Bg3ContentSet, .. uploads.Bg3CharacterSets.Where(set => set != uploads.Bg3ContentSet).Order()], []));
+            new TileWordBindings([RoomBlockUploads.HudCharacters(inputs), .. bg3Uploads, .. uploads.Uploads], [BgCharacterSet.Layer3], []));
     }
 
     /// <summary>

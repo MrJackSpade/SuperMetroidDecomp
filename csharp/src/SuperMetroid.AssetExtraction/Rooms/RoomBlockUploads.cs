@@ -29,8 +29,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <summary>
 /// What each tileset's rooms bind over the background characters after loading (#1392), so its block sheet pictures
 /// every block over each artwork that can show under it: the animated tiles their room effects run, the Tourian statues'
-/// frames, the collectibles' graphics in each slot with the blocks they show there, the characters their library
-/// backgrounds transfer, and Kraid's room backdrop.
+/// frames, the collectibles' graphics in each slot with the blocks they show there, and Kraid's room backdrop.
 /// </summary>
 internal static class RoomBlockUploads
 {
@@ -67,8 +66,7 @@ internal static class RoomBlockUploads
                     foreach (AnimatedCharacterPlacement frame in CrocomireMeltBandFrames(inputs))
                         uploads.AddAnimated(frame);
                 }
-                foreach (BgCharacterUpload placement in LibraryPlacements(inputs, state))
-                    uploads.Add(placement);
+                LibraryBackgroundProgram? library = state.Background is { } background ? LibraryBackgroundPrograms.Of(background) : null;
                 RoomBackgroundCharacters characters = RoomScope.CharactersOf(new SelectedRoom(room, state));
                 BgCharacterUpload[] loadedObjects = [], encounterObjects = [];
                 if (characters == RoomBackgroundCharacters.ObjectCharacterPage)
@@ -77,17 +75,14 @@ internal static class RoomBlockUploads
                     encounterObjects = [.. EncounterObjectUploads(inputs, state)];
                     uploads.AddObjectPage(loadedObjects, encounterObjects);
                 }
-                if (state.Background is { } program)
+                if (library is not null)
                 {
-                    foreach (DoorDefinition? door in DoorVariants(program))
-                        uploads.AddBackground(Replay(inputs, room, tileset, program, door));
+                    foreach (DoorDefinition? door in DoorVariants(library))
+                        uploads.AddBackground(Replay(inputs, room, tileset, library, door));
                 }
-                // BG3 shows the HUD over what the room's load and its library background bind, from the copy of the HUD's
-                // characters Kraid's library background makes where it makes one, and its effects' pages over their characters.
-                RoomBackgroundMap? replayed = state.Background is { } bg3Program ? Replay(inputs, room, tileset, bg3Program, DoorVariants(bg3Program).First()) : null;
-                uploads.AddBg3(replayed?.Content ?? Loaded(inputs, tileset),
-                    replayed?.SelectsKraidHudCharacters == true ? BgCharacterSet.KraidLayer3 : BgCharacterSet.Layer3,
-                    EffectsIn(state), [.. Bg3LibraryUploads(inputs, state), .. Bg3BossUploads(inputs, state)]);
+                // BG3 shows the HUD over the layer-3 characters the room's load binds, and its effects' pages over their
+                // characters.
+                uploads.AddBg3(Loaded(inputs, tileset), EffectsIn(state), [.. Bg3LibraryUploads(inputs, library), .. Bg3BossUploads(inputs, state)]);
                 TileWordWriter[] writers = [.. WritersIn(state)];
                 if (writers.Length > 0 && characters == RoomBackgroundCharacters.ObjectCharacterPage)
                 {
@@ -101,19 +96,15 @@ internal static class RoomBlockUploads
                 }
                 else if (writers.Length > 0)
                 {
-                    // Words written over the room show over what its load and its library background bind.
-                    uploads.AddWriters(writers, state.Background is { } wordsProgram
-                        ? Replay(inputs, room, tileset, wordsProgram, DoorVariants(wordsProgram).First()).Content : Loaded(inputs, tileset),
-                        characters, []);
+                    // Words written over the room show over what its load binds.
+                    uploads.AddWriters(writers, Loaded(inputs, tileset), characters, []);
                 }
                 if (ScrollingSkyState.IsScrollingSkyRoomMain(state.MainCallback))
                 {
-                    // The sky's rows show over what the room's load and its library background bind.
+                    // The sky's rows show over what the room's load binds.
                     ScrollingSkyChunkTable variant = ScrollingSkyState.VariantOf(state.MainCallback);
-                    BgArtworkBindings content = state.Background is { } skyProgram
-                        ? Replay(inputs, room, tileset, skyProgram, null).Content : Loaded(inputs, tileset);
                     uploads.AddBackground(new RoomBackgroundMap(RoomBackgroundImage.SkyNameOf(variant, tileset),
-                        BackgroundTileWords.ToWords(inputs.Skies.Tilemap(variant).Tiles), content));
+                        BackgroundTileWords.ToWords(inputs.Skies.Tilemap(variant).Tiles), Loaded(inputs, tileset)));
                 }
             }
         }
@@ -189,35 +180,12 @@ internal static class RoomBlockUploads
         }
     }
 
-    /// <summary>
-    /// The characters one state's library background binds as its room loads, from the transfers the cartridge copies among
-    /// the block characters: the HUD's, which Kraid's list copies for layer 3 to read while his body covers the standard
-    /// ones.
-    /// </summary>
-    /// <exception cref="InvalidDataException">It copies other artwork among the block characters.</exception>
-    private static IEnumerable<BgCharacterUpload> LibraryPlacements(RoomBlockSheetInputs inputs, RoomStateSettings state)
-    {
-        foreach (LibraryBackgroundInstruction transfer in state.Background?.Instructions ?? [])
-        {
-            if (!transfer.Transfers || !BgCharacterWords.AmongTiles(LibraryBackgroundOperands.DestinationWord(transfer.Destination)))
-                continue;
-            if (transfer.Command != LibraryBackgroundCommand.TransferForKraid || transfer.Source != LibraryBackgroundSource.HudCharacters
-                || transfer.ByteCount != HudTileAtlasFormat.CharacterByteCount)
-                throw new InvalidDataException(
-                    $"{state.Name}'s library background transfers {transfer.Source} over the block characters, which no installed character artwork names.");
-            yield return new BgCharacterUpload(RoomBgArtwork.Library(transfer.Source), BgCharacterSet.KraidLayer3, 0,
-                inputs.Hud.Bytes[..HudTileAtlasFormat.CharacterByteCount]);
-        }
-    }
-
-    /// <summary>The doors <paramref name="program"/> transfers for, each a variant of its background, and no door.</summary>
-    private static IEnumerable<DoorDefinition?> DoorVariants(LibraryBackgroundProgram program) =>
-        [null, .. program.Instructions.Where(instruction => instruction.Command == LibraryBackgroundCommand.TransferForDoor)
-            .Select(instruction => instruction.Door).Distinct()];
+    /// <summary>No door, for the background's ordinary picture, and each door that shows its own picture of it.</summary>
+    private static IEnumerable<DoorDefinition?> DoorVariants(LibraryBackgroundProgram program) => [null, .. program.Background.PictureDoors];
 
     /// <summary>
     /// Replays <paramref name="program"/> as a room of <paramref name="tileset"/> entered through <paramref name="door"/>
-    /// runs it, over the characters the room loads: the BG2 pages it leaves and what shows at each character then.
+    /// runs it: the BG2 pages it leaves, over the characters the room loads.
     /// </summary>
     private static RoomBackgroundMap Replay(RoomBlockSheetInputs inputs, RoomHeaderDefinition room, TilesetDefinition tileset,
         LibraryBackgroundProgram program, DoorDefinition? door)
@@ -227,17 +195,16 @@ internal static class RoomBlockUploads
         // A door no transfer names stands for every door the program does not tell apart.
         DoorDefinition entry = door ?? new DoorDefinition("no library background door", room,
             new DoorOrientation(DoorDirection.Right, DoorClosingBehavior.None), default, default, DoorSamusSpeed.None, DoorSetupCode.None);
-        LibraryBackgroundExecutionResult result = LibraryBackgroundReplay.Execute(vram, program,
+        LibraryBackgroundReplay.Execute(vram, program,
             entry, new LibraryBackgroundArtwork
             {
                 TilemapArt = inputs.BackgroundTilemaps,
                 SkyArt = inputs.Skies,
                 HudArt = inputs.Hud,
                 CharacterArt = inputs.Characters,
-                Backgrounds = content,
             });
         ushort[] words = [.. Enumerable.Range(0, RoomBackgroundImage.Words).Select(word => vram.ReadWord(GameplayVramLayout.Bg2TilemapWord + word))];
-        return new RoomBackgroundMap(RoomBackgroundImage.NameOf(program, door, tileset), words, content, result.SelectsKraidHudCharacters);
+        return new RoomBackgroundMap(RoomBackgroundImage.NameOf(program.Background, door, tileset), words, content);
     }
 
     /// <summary>What each enemy writes over its room's BG1 or BG2: a boss's body, and Mother Brain's escape warning.</summary>
@@ -302,14 +269,13 @@ internal static class RoomBlockUploads
     }
 
     /// <summary>
-    /// The characters <paramref name="state"/>'s library background transfers over BG3's. A tilemap it stages in work RAM
-    /// or a sky's rows lands there as words, not characters, as Kraid's BG2 map does once his library moves the HUD's
-    /// characters to his base.
+    /// The characters <paramref name="library"/> transfers over BG3's, none when the state shows no library background. A
+    /// tilemap it stages in work RAM or a sky's rows lands there as words, not characters.
     /// </summary>
     /// <exception cref="InvalidDataException">A transfer over BG3's characters names no installed character artwork.</exception>
-    private static IEnumerable<BgCharacterUpload> Bg3LibraryUploads(RoomBlockSheetInputs inputs, RoomStateSettings state)
+    private static IEnumerable<BgCharacterUpload> Bg3LibraryUploads(RoomBlockSheetInputs inputs, LibraryBackgroundProgram? library)
     {
-        foreach (LibraryBackgroundInstruction transfer in state.Background?.Instructions ?? [])
+        foreach (LibraryBackgroundInstruction transfer in library?.Instructions ?? [])
         {
             if (!transfer.Transfers)
                 continue;
@@ -322,8 +288,8 @@ internal static class RoomBlockUploads
             ReadOnlyMemory<byte> characters = transfer.Source == LibraryBackgroundSource.HudCharacters
                 ? inputs.Hud.Bytes[..transfer.ByteCount]
                 : throw new InvalidDataException(
-                    $"{state.Name}'s library background transfers {transfer.Source} over BG3's characters, which no installed character artwork names.");
-            yield return BgCharacterWords.Place(RoomBgArtwork.Library(transfer.Source), firstWord, characters);
+                    $"{library?.Name}'s library background transfers {transfer.Source} over BG3's characters, which no installed character artwork names.");
+            yield return BgCharacterWords.Place(transfer.Source.CharacterArtwork, firstWord, characters);
         }
     }
 
@@ -454,34 +420,19 @@ internal static class RoomBlockUploads
         /// <summary>What the first room shows BG3's words over, or null before a room is recorded.</summary>
         internal BgArtworkBindings? Bg3Content { get; private set; }
 
-        /// <summary>The characters BG3 reads in the first room, where <see cref="Bg3Content"/> is read.</summary>
-        internal BgCharacterSet Bg3ContentSet { get; private set; }
-
         /// <summary>The room effects whose BG3 pages the tileset's rooms show.</summary>
         internal HashSet<RoomFxType> FxTypes { get; } = [];
-
-        /// <summary>
-        /// The characters BG3 reads in the tileset's rooms, the standard ones always among them: a room that reads a copy
-        /// returns BG3 to them once its boss restores them, as Kraid's death does.
-        /// </summary>
-        internal HashSet<BgCharacterSet> Bg3CharacterSets { get; } = [BgCharacterSet.Layer3];
 
         /// <summary>What the tileset's rooms bind over BG3's characters after loading: their effects' frames and library transfers.</summary>
         internal List<BgCharacterUpload> Bg3Uploads { get; } = [];
 
         /// <summary>
-        /// Records a room showing BG3 over <paramref name="content"/>'s <paramref name="set"/>, with
-        /// <paramref name="effects"/>' pages and <paramref name="library"/>'s transfers over BG3's characters.
+        /// Records a room showing BG3 over <paramref name="content"/>'s layer-3 characters, with <paramref name="effects"/>'
+        /// pages and <paramref name="library"/>'s transfers over BG3's characters.
         /// </summary>
-        internal void AddBg3(BgArtworkBindings content, BgCharacterSet set, IEnumerable<RoomFxType> effects,
-            IEnumerable<BgCharacterUpload> library)
+        internal void AddBg3(BgArtworkBindings content, IEnumerable<RoomFxType> effects, IEnumerable<BgCharacterUpload> library)
         {
-            if (Bg3Content is null)
-            {
-                Bg3Content = content;
-                Bg3ContentSet = set;
-            }
-            Bg3CharacterSets.Add(set);
+            Bg3Content ??= content;
             foreach (RoomFxType effect in effects)
             {
                 if (!FxTypes.Add(effect))
@@ -579,9 +530,8 @@ internal static class RoomBlockUploads
     /// <summary>The BG2 pages a library background leaves, under its installed name, and what then shows at each character.</summary>
     /// <param name="Name">The background's installed name.</param>
     /// <param name="Words">The pages' tilemap words.</param>
-    /// <param name="Content">The bindings the room's load and the background leave.</param>
-    /// <param name="SelectsKraidHudCharacters">Whether the background moved the HUD's characters to Kraid's base.</param>
-    internal sealed record RoomBackgroundMap(string Name, ushort[] Words, BgArtworkBindings Content, bool SelectsKraidHudCharacters = false);
+    /// <param name="Content">The bindings the room's load leaves.</param>
+    internal sealed record RoomBackgroundMap(string Name, ushort[] Words, BgArtworkBindings Content);
 
     /// <summary>A collectible's graphics bound in one slot and the blocks it shows there.</summary>
     /// <param name="Characters">The graphics bound.</param>

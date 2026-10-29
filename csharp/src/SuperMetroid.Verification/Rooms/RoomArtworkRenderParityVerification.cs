@@ -154,8 +154,7 @@ internal static class RoomArtworkRenderParityVerification
                 if (installedArt)
                 {
                     runtime.Artwork.RoomCharacterArt = installation.LoadRoomCharacters();
-                    runtime.Artwork.RoomBackgroundTilemapArt = installation.LoadRoomBackgroundTilemaps();
-                    runtime.Artwork.RoomSkyTilemapArt = installation.LoadRoomSkyTilemaps();
+
                     runtime.Artwork.RoomBlockSheets = installation.LoadRoomBlockSheets();
                 }
                 runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

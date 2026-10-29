@@ -67,8 +67,7 @@ internal sealed class RoomLoader
     private readonly GameTimeState _gameTime;
     /// <summary>Holds HUD values carried into the loaded room.</summary>
     private readonly HudState _hud;
-    /// <summary>Initializes the HUD presentation after room assets are available.</summary>
-    private readonly GameplayHudSetup _hudSetup;
+
     /// <summary>Receives the door IRQ's request to advance the NMI counter.</summary>
     private readonly FrameClock _clock;
     /// <summary>Restores the saved controller and movement options.</summary>
@@ -113,7 +112,7 @@ internal sealed class RoomLoader
         _escapeEffects = dependencies.EscapeEffects;
         _gameTime = dependencies.GameTime;
         _hud = dependencies.Hud;
-        _hudSetup = dependencies.HudSetup;
+
         _clock = dependencies.Clock;
         _options = dependencies.Options;
         _player = dependencies.Player;
@@ -468,12 +467,6 @@ internal sealed class RoomLoader
         PublishDoorCameraPosition(DoorOpeningScrollState.GetSetupCamera(door));
     }
 
-    /// <summary>
-    /// <c>$82:E37F</c>: the door's room-setup step runs <c>$88:82C1</c>, whose BG34NBA=$04 returns the HUD's characters
-    /// to word $4000 before the destination's tiles upload. Kraid's room moves them to $2000, which those tiles
-    /// overwrite; selecting the base only with the destination drew one frame of room tiles as the HUD (#1428).
-    /// </summary>
-    internal void SelectDoorDestinationHudCharacterBase() => _hudSetup.SelectGameplayHudCharacterBase();
 
     /// <summary>Rebases Samus and publishes the first moving IRQ during tile loading.</summary>
     internal void PlaceSamusForDoorTileLoading()
@@ -805,9 +798,6 @@ internal sealed class RoomLoader
                 : default,
             _room.Scope is { } previous ? EnemyRoomResidue.Of(previous.Enemies) : EnemyRoomResidue.None);
         RoomScopeConstruction scope = _room.BeginConstruction(door, room, assets, entry.LoadStation);
-        // Gameplay PPU initialization selects BG34NBA=$04 for every ordinary room load.
-        // A later library-background command eight may override it to $02 for Kraid.
-        _hudSetup.SelectGameplayHudCharacterBase();
         var wreckedShipTreadmill = new WreckedShipTreadmillAnimatedTilesState();
         scope.WreckedShipTreadmill = wreckedShipTreadmill;
         var maridiaElevatube = new MaridiaElevatubeRoomMainState(
@@ -926,16 +916,6 @@ internal sealed class RoomLoader
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaMiniBoss));
         scope.PaletteFx = roomPaletteFx;
 
-        // A room state's library background is the room's BG2 picture: the scope selects its image by name and entry door,
-        // and the load binds the characters it brings, at the point bank $82's interpreter ran its list, before enemies
-        // and PLMs bind over them.
-        if (room.State.Background is { } background)
-        {
-            LibraryBackgroundExecutionResult backgroundResult = LibraryBackgroundLoader.BindCharacters(background, door,
-                new LibraryBackgroundCharacterArtwork { Backgrounds = _backgrounds, HudArt = _artwork.MapPresentation?.HudTiles, CharacterArt = _artwork.RoomCharacterArt });
-            if (backgroundResult.SelectsKraidHudCharacters)
-                _display.SelectKraidHudCharacterBase();
-        }
 
         // `$82:E43A-$E472` destroys room-owned objects before constructing the destination: the
         // destination's projectiles and bombs are built new here, before Load/beam upload, so no

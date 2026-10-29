@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.TestSupport.VerificationImporters;
 

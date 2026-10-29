@@ -1,8 +1,9 @@
-namespace SuperMetroid.Core.Rooms.Backgrounds;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// The operations a room's library-background list performs. Values are arbitrary identities (#1414); extraction
-/// translates the cartridge's command words, and a list's end is the end of its instructions.
+/// translates the cartridge's command words, runs each list once and installs the pictures it leaves (#1466), and a
+/// list's end is the end of its instructions.
 /// </summary>
 public enum LibraryBackgroundCommand
 {
@@ -12,7 +13,7 @@ public enum LibraryBackgroundCommand
     Decompress,
     /// <summary>Fill and copy the shared layer-3 effect tilemap.</summary>
     ClearFxTilemap,
-    /// <summary>Copy a source to its destination and move the HUD's characters to Kraid's base.</summary>
+    /// <summary>Copy a source to its destination, as only Kraid's list does with the HUD's characters.</summary>
     TransferForKraid,
     /// <summary>Clear the background layer's two tilemap pages.</summary>
     ClearBg2,

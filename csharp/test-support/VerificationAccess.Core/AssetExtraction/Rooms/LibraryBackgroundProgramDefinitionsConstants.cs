@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Rooms.Backgrounds;
+﻿namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Cartridge values and helpers of <see cref="LibraryBackgroundProgramDefinitions"/> that only verification reads.</summary>
 internal static class LibraryBackgroundProgramDefinitionsConstants

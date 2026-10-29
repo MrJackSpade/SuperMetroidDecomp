@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.Backgrounds;
-
-namespace SuperMetroid.AssetExtraction.Rooms;
+﻿namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The bank-$8F pointer the cartridge stores for each compiled library-background program.</summary>
 internal static class LibraryBackgroundSourceDefinitions

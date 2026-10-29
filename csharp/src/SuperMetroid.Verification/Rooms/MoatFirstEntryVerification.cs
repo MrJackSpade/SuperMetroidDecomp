@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Gameplay;
+
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -111,7 +111,7 @@ internal static class MoatFirstEntryVerification
                     "pause/equipment history leaves identical first-entry water and scene pixels");
 
             }
-            Console.WriteLine($"Moat first entry from {source:X4}, pause={pauseBeforeEntry}: FX={runtime.RoomLayer3Fx.Type}, BG3 characters={runtime.Display.GameplayHudCharacterBaseWord:X4}, camera={runtime.Room.LoadedCamera.PixelPosition.X}/{runtime.Room.LoadedCamera.PixelPosition.Y}. Captured {transitionFrames} transition frames and four gameplay frames; visual diagnosis remains required.");
+            Console.WriteLine($"Moat first entry from {source:X4}, pause={pauseBeforeEntry}: FX={runtime.RoomLayer3Fx.Type}, camera={runtime.Room.LoadedCamera.PixelPosition.X}/{runtime.Room.LoadedCamera.PixelPosition.Y}. Captured {transitionFrames} transition frames and four gameplay frames; visual diagnosis remains required.");
         }
     }
 

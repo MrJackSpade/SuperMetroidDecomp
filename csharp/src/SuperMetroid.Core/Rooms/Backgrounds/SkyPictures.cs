@@ -10,12 +10,17 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// </summary>
 public sealed class SkyPictures
 {
-    /// <summary>Holds the sky's image and which of <paramref name="rows"/>' rows select a page.</summary>
-    public SkyPictures(RoomBackgroundImagePlane image, SkyTilemap rows)
+    /// <summary>Tile rows over the 2048-pixel span the sky covers before it repeats.</summary>
+    public const int Rows = 256;
+
+    /// <summary>Tile rows in one chunk of the sky, which shows one page or none.</summary>
+    private const int RowsPerChunk = 32;
+
+    /// <summary>Holds the sky's image and which of its rows <paramref name="variant"/>'s chunks show.</summary>
+    public SkyPictures(RoomBackgroundImagePlane image, ScrollingSkyChunkTable variant)
     {
         Image = Ensure.NotNull(image);
-        Ensure.NotNull(rows);
-        RowsShown = [.. Enumerable.Range(0, SkyTilemap.Rows).Select(rows.RowShown)];
+        RowsShown = [.. Enumerable.Range(0, Rows).Select(row => ScrollingSkyChunks.TryGetPage(variant, row / RowsPerChunk, out _))];
     }
 
     /// <summary>The sky's image and its rebound cells' pictures.</summary>

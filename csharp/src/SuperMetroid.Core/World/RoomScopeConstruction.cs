@@ -112,10 +112,10 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         ArtworkFrames = ArtworkFrames,
         AnimatedCharacters = Assets.Pictures.AnimationsOf(Assets.Tileset),
         BlockPictures = new RoomBlockPictureResolver(Assets.BlockSheet),
-        BackgroundImage = Room.State.Background is { } program
+        BackgroundImage = Room.State.Background is { } background
             ? new RoomBackgroundImageResolver(
-                Assets.Pictures.Background(RoomBackgroundImage.NameOf(program, RoomBackgroundImage.DoorVariant(program, Door), Assets.Tileset)),
-                Assets.BlockSheet, LoadedArtwork(program))
+                Assets.Pictures.Background(RoomBackgroundImage.NameOf(background, background.PictureDoor(Door), Assets.Tileset)),
+                Assets.BlockSheet, RoomLoadArtwork())
             : null,
         BodyPictures = Assets.Pictures.TileWords.TryGetValue(Assets.Tileset, out TileWordSheet? words) ? new TileWordPictureResolver(words) : null,
         Bg2OverlayPictures = words is null ? null : new TileWordPictureResolver(words),
@@ -124,7 +124,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         MessageBoxes = Assets.Pictures.MessageBox(Assets.Tileset),
         SkyImage = ScrollingSky is { } sky
             ? new RoomBackgroundImageResolver(Assets.Pictures.Background(RoomBackgroundImage.SkyNameOf(sky.Variant, Assets.Tileset)),
-                Assets.BlockSheet, Room.State.Background is { } skyProgram ? LoadedArtwork(skyProgram) : RoomLoadArtwork())
+                Assets.BlockSheet, RoomLoadArtwork())
             : null,
         ScrollingSky = ScrollingSky,
         FloorMap = FloorMap,
@@ -147,17 +147,9 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     };
 
     /// <summary>
-    /// The artwork the room binds as it loads, which its library background's image shows: its common room elements and
-    /// tileset, and the characters <paramref name="program"/> transfers.
+    /// The artwork the room's own load binds, which its library background's and sky's images show: its common room
+    /// elements and tileset.
     /// </summary>
-    private HashSet<BgArtworkIdentity> LoadedArtwork(LibraryBackgroundProgram program) =>
-    [
-        .. RoomLoadArtwork(),
-        .. program.Instructions.Where(instruction => instruction.Transfers)
-            .Select(instruction => RoomBgArtwork.Library(instruction.Source)),
-    ];
-
-    /// <summary>The artwork the room's own load binds: its common room elements and tileset.</summary>
     private HashSet<BgArtworkIdentity> RoomLoadArtwork() =>
         [.. LoadedRoomAssets.CharacterPlacements(Assets.Tileset, Assets.CreCharacterCount, Assets.TilesetCharacterCount).Select(placement => placement.Identity)];
 

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.Artwork;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Something that writes tile words over a room's BG1 or BG2 after the room loads (#1392).</summary>
 public enum TileWordWriter

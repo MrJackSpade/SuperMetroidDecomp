@@ -164,14 +164,13 @@ internal sealed class AcceptedFrameBoundary
     }
 
     /// <summary>
-    /// The room's part of the scene: the characters layer 3 reads, the room's blending (<c>$88:8000</c>), and the
-    /// sky's layer-2 map and vertical scroll (<c>$88:AFB2</c>).
+    /// The room's part of the scene: the room's blending (<c>$88:8000</c>), and the sky's layer-2 map and vertical scroll
+    /// (<c>$88:AFB2</c>).
     /// </summary>
     private GameplayLatchedScene CaptureScene()
     {
         var room = _room.ActiveRoom;
         return new(
-            _display.Layer3Characters,
             // Before the first room no FX record is selected and no blending is configured.
             _room.Layer3Fx?.Type ?? RoomFxType.None,
             _room.Layer3Fx?.LayerBlendConfiguration ?? LayerBlendingConfiguration.Unconfigured,
@@ -268,10 +267,7 @@ internal sealed class AcceptedFrameBoundary
         {
             RoomBackgroundImageResolver skyImage = scope.SkyImage
                 ?? throw new InvalidDataException($"{scope.Room.Definition.Name} shows a scrolling sky with no installed sky image.");
-            SkyTilemap rows = (_artwork.RoomSkyTilemapArt ?? throw new InvalidOperationException("A sky room has no installed sky rows."))
-                .Tilemap(scrollingSky.Variant);
-            skyImage.Image.AssertPictures(rows.Tiles);
-            sky = new SkyPictures(skyImage.Resolve(_backgrounds, animatedBlocks), rows);
+            sky = new SkyPictures(skyImage.Resolve(_backgrounds, animatedBlocks), scrollingSky.Variant);
         }
         // Where BG2 shows the tilemap its library background loaded, it draws the background's image (#1392): not over a
         // streaming layer-2 plane, the sky's rows or a boss body that owns BG2.
@@ -308,9 +304,9 @@ internal sealed class AcceptedFrameBoundary
                 Sky = sky,
                 Bg2Overlay = bg2Overlay,
                 Bg1Overlay = bg1Overlay,
-                // The HUD and the room effect's page draw from the BG3 sheet's pictures over the characters BG3 reads.
+                // The HUD and the room effect's page draw from the BG3 sheet's pictures over the layer-3 characters.
                 Bg3 = new Layer3Cells(scope.Bg3Pictures.Resolve(latched.Layer3 ?? throw new InvalidOperationException("A room's NMI latches its BG3 words."),
-                    _backgrounds, latched.Scene.Layer3Characters, new AnimatedCharacterView(scope.AnimatedCharacters.Bg3, scope.ArtworkFrames))),
+                    _backgrounds, BgCharacterSet.Layer3, new AnimatedCharacterView(scope.AnimatedCharacters.Bg3, scope.ArtworkFrames))),
             },
             XrayReveal = reveal is null ? null : new XrayRevealPlane(reveal.Value.AsSpan(), pictures),
         };

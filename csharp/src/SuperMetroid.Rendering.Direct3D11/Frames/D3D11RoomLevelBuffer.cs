@@ -8,7 +8,6 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus.Abilities;
 using System.Collections.Immutable;
 using Vortice.Direct3D11;
-using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
@@ -219,7 +218,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         }
         int skyOffset = sky is null ? 0 : words;
         if (sky is not null)
-            words += SkyTilemap.Rows;
+            words += SkyPictures.Rows;
         int floorOffset = mode7 is null ? 0 : words;
         if (mode7 is not null)
             words += mode7.Tiles.Sheets.Length;
@@ -298,7 +297,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         PackTilePictures(upload, overlayPictures, overlayOffset, RoomTilemapOverlay.WordCount, pictureWords);
         upload[SkyWord] = (uint)skyOffset;
         if (sky is not null)
-            for (int row = 0; row < SkyTilemap.Rows; row++)
+            for (int row = 0; row < SkyPictures.Rows; row++)
                 upload[skyOffset + row] = sky.RowsShown[row] ? 1u : 0u;
         upload[Bg2OverlayWord] = (uint)bg2OverlayOffset;
         PackTilePictures(upload, bg2OverlayPictures, bg2OverlayOffset, RoomTilemapOverlay.WordCount, pictureWords);

@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 /// <remarks>
 /// <see cref="ProcessFrame"/> ports <c>$88:ADC2</c> and the vertical scroll of <c>$88:AFA3</c>. The sky's rows are
-/// drawn from <see cref="SkyTilemap"/>, so the cartridge's circular row streaming is not modeled; the bands are
-/// published with <see cref="Publish"/>.
+/// drawn from its installed picture (<see cref="SuperMetroid.Core.Rooms.Backgrounds.SkyPictures"/>), so the cartridge's
+/// circular row streaming is not modeled; the bands are published with <see cref="Publish"/>.
 /// </remarks>
 /// <param name="variant">The land or ocean chunk table the room main selects.</param>
 /// <param name="hasBands">Whether the sky FX or setup spawned the band HDMA object.</param>

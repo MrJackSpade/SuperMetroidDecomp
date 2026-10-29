@@ -1,12 +1,11 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>
-/// What the gameplay display currently shows: the elevator shaft's transform, the latched scene, the HUD's characters
-/// and the default layer blending.
+/// What the gameplay display currently shows: the elevator shaft's transform, the latched scene and the default layer
+/// blending.
 /// </summary>
 internal sealed class GameplayDisplayState
 {
@@ -32,14 +31,6 @@ internal sealed class GameplayDisplayState
     /// </summary>
     public GameplayDisplayLatch Latched { get; internal set; } = InitialLatch;
 
-    /// <summary>
-    /// The characters BG3 reads, selected by gameplay initialization or a room's library-background command list (#1406):
-    /// Kraid's room selects the copy his list makes while his body covers the standard ones.
-    /// </summary>
-    public BgCharacterSet Layer3Characters { get; internal set; } = BgCharacterSet.Layer3;
-
-    /// <summary>Selects the copy of the HUD's characters Kraid's library background makes, as his list's transfer does.</summary>
-    internal void SelectKraidHudCharacterBase() => Layer3Characters = BgCharacterSet.KraidLayer3;
 
     /// <summary>
     /// Door setup shows the elevator shaft's floor before the room is exposed (<c>$8F:E4E0</c>), or removes it
@@ -58,7 +49,7 @@ internal sealed class GameplayDisplayState
     /// <summary>The latch in effect before any accepted frame: nothing scrolled, no floor and no active effects.</summary>
     private static GameplayDisplayLatch InitialLatch => new(
         default, default, null, null, null, null, 0,
-        new GameplayLatchedScene(BgCharacterSet.Layer3, default,
+        new GameplayLatchedScene(default,
             LayerBlendingConfiguration.Unconfigured, null, null, 0),
         default, default, null, null);
 }

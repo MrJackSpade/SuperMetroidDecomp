@@ -2,7 +2,6 @@ using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.World;
 
@@ -10,8 +9,6 @@ namespace SuperMetroid.Core.World;
 internal sealed record RuntimeArtworkDependencies
 {
 
-    /// <summary>Display.</summary>
-    public required GameplayDisplayState Display { get; init; }
 
     /// <summary>The session's installed boss artwork.</summary>
     public required BossArtworkBinding BossArtwork { get; init; }

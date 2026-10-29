@@ -4,7 +4,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Assets;
+
 using static SuperMetroid.Verification.Rooms.Backgrounds.LibraryBackgroundProgramsVerification;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Hud.Artwork;
@@ -107,12 +107,10 @@ static void VerifyKraidLibraryHudArtwork(
     }
 
     var stockVram = new SnesVram();
-    LibraryBackgroundExecutionResult native = SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, stockVram,
+    SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, stockVram,
         transfer.ListPointer, activeDoorPointer: 0);
-    // The HUD's characters bind instead of writing VRAM (#1350); the frame composes the binding over the image.
-    (SnesVram installedVram, LibraryBackgroundExecutionResult installed) = ReplayShown(LibraryBackgroundProgramDefinitions.Get(transfer.ListPointer),
+    SnesVram installedVram = Replay(LibraryBackgroundProgramDefinitions.Get(transfer.ListPointer),
         new LibraryBackgroundArtwork { TilemapArt = RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps(), HudArt = Compile(pixels) });
-    AssertEqual(native, installed, "Kraid command results stay unchanged with installed HUD art");
     int destinationByte = (transfer.VramDestination ?? throw new InvalidOperationException("Verification requires transfer.VramDestination.")) * 2;
     for (int index = 0; index < planar.Length; index++)
         AssertEqual(stockVram.ReadByte(destinationByte + index),
@@ -120,7 +118,7 @@ static void VerifyKraidLibraryHudArtwork(
             $"Kraid installed HUD VRAM byte {index}");
 
     pixels[0] = (byte)((pixels[0] + 1) & 3);
-    (SnesVram editedVram, _) = ReplayShown(LibraryBackgroundProgramDefinitions.Get(transfer.ListPointer),
+    SnesVram editedVram = Replay(LibraryBackgroundProgramDefinitions.Get(transfer.ListPointer),
         new LibraryBackgroundArtwork { TilemapArt = RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps(), HudArt = Compile(pixels) });
     if (editedVram.ReadByte(destinationByte) == stockVram.ReadByte(destinationByte))
         throw new InvalidDataException("Edited HUD pixel did not reach Kraid's native VRAM destination.");
@@ -156,11 +154,9 @@ internal static void VerifyLibraryBackgroundLoader()
 
     var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
     var vram = new SnesVram();
-    LibraryBackgroundExecutionResult result =
-        SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, vram, 0xe000, activeDoorPointer: 0);
+    SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, vram, 0xe000, activeDoorPointer: 0);
     AssertEqual(4, SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.Read(bus, 0xe000).Instructions.Count + 1,
         "library-background command count includes terminator");
-    AssertEqual(false, result.SelectsKraidHudCharacters, "ordinary library list leaves BG3 base unchanged");
     AssertEqual(0x2211, vram.ReadWord(0x4800), "library background first BG2 page word");
     AssertEqual(0x4433, vram.ReadWord(0x4801), "library background first BG2 page tail");
     AssertEqual(0x2211, vram.ReadWord(0x4c00), "library background second BG2 page word");
@@ -168,10 +164,8 @@ internal static void VerifyLibraryBackgroundLoader()
 
     var typed = new LibraryBackgroundTypedReadGuard(bus);
     var nativeVram = new SnesVram();
-    LibraryBackgroundExecutionResult native =
-        SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(typed, nativeVram,
-            0xe000, activeDoorPointer: 0);
-    AssertEqual(result, native, "typed source routing preserves native command execution");
+    SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(typed, nativeVram,
+        0xe000, activeDoorPointer: 0);
     AssertTrue(nativeVram.ImageEquals(vram),
         "typed native library-background reads preserve the complete VRAM result");
     AssertTrue(typed.CartridgeReads > 0 && typed.WorkRamReads > 0,
@@ -195,21 +189,14 @@ internal static void VerifyLibraryBackgroundLoader()
 }
 
 /// <summary>
-/// Replays <paramref name="program"/> entered through no door it names, and returns VRAM as a frame shows it: the
-/// characters it brings bind instead of writing VRAM (#1350), and the frame composes them over the image.
+/// Replays <paramref name="program"/> entered through no door it names, and returns the VRAM it leaves: Kraid's copy of
+/// the HUD's characters writes their installed artwork where the cartridge's does (#1466).
 /// </summary>
-private static (SnesVram Shown, LibraryBackgroundExecutionResult Result) ReplayShown(LibraryBackgroundProgram program,
-    LibraryBackgroundArtwork artwork)
+private static SnesVram Replay(LibraryBackgroundProgram program, LibraryBackgroundArtwork artwork)
 {
     var vram = new SnesVram();
-    var bindings = new BgArtworkBindings();
-    LibraryBackgroundExecutionResult result = LibraryBackgroundReplay.Execute(vram, program, FixtureRoomHeaders.UnmatchedDoor,
-        artwork with { Backgrounds = bindings });
-    byte[] image = vram.Bytes.ToArray();
-    bindings.ComposeOver(image, artwork.HudArt is { } hud ? new BgArtworkBytes().WithHud(hud) : new BgArtworkBytes());
-    var shown = new SnesVram();
-    shown.LoadBytes(0, image);
-    return (shown, result);
+    LibraryBackgroundReplay.Execute(vram, program, FixtureRoomHeaders.UnmatchedDoor, artwork);
+    return vram;
 }
 
 /// <summary>

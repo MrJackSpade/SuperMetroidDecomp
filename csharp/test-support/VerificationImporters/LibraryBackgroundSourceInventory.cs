@@ -1,6 +1,6 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World.RoomStates;
 

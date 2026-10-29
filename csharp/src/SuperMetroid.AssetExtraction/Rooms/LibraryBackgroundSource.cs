@@ -1,4 +1,8 @@
-namespace SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rooms.Backgrounds;
+
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// What one library-background command reads (#1414): a compressed tilemap, a staged tilemap, a sky page or a set of
@@ -14,6 +18,9 @@ public abstract record LibraryBackgroundSource
 
     /// <summary>The source's name in diagnostics and artwork identities.</summary>
     public abstract string Name { get; }
+
+    /// <summary>The identity of the characters a transfer from the source brings, as extraction composes pictures over them.</summary>
+    public BgArtworkIdentity CharacterArtwork => new($"library characters {Name}");
 
     /// <summary>No source: a clear command's.</summary>
     public static LibraryBackgroundSource None { get; } = new NothingRead();

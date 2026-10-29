@@ -7,7 +7,7 @@ public static class BgCharacterSets
     public static int CharacterBytes(this BgCharacterSet set) => set switch
     {
         BgCharacterSet.Tiles => 32,
-        BgCharacterSet.Layer3 or BgCharacterSet.KraidLayer3 => 16,
+        BgCharacterSet.Layer3 => 16,
         _ => throw new ArgumentOutOfRangeException(nameof(set), set, "Unknown background character set."),
     };
 
@@ -21,7 +21,7 @@ public static class BgCharacterSets
     public static int CharacterCount(this BgCharacterSet set) => set switch
     {
         BgCharacterSet.Tiles => 1024,
-        BgCharacterSet.Layer3 or BgCharacterSet.KraidLayer3 => 256,
+        BgCharacterSet.Layer3 => 256,
         _ => throw new ArgumentOutOfRangeException(nameof(set), set, "Unknown background character set."),
     };
 }

@@ -35,8 +35,8 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>Fixed cinematic screen origin from definition $8B:CE55.</summary>
     public static Position16<ScreenPixels> Position => IntroMotherBrainDefinitions.MotherBrainOrigin;
 
-    /// <summary>The sprite palette row the discovery cinematic object draws in.</summary>
-    public static int Palette => IntroCinematicDefinitions.Objects.DiscoveryPalette;
+    /// <summary>The sprite palette row Mother Brain's colours select, which her hurt flash animates.</summary>
+    public static int Palette => ScreenColourGroups.SpriteRow(ScreenColourGroup.IntroMotherBrain);
 
     /// <summary>The pose Mother Brain's program shows; null before its first frame and after deletion.</summary>
     public CinematicSpritePose? Pose => actor.Pose;
@@ -102,7 +102,7 @@ internal sealed class IntroMotherBrainSpriteState
             return;
 
         bool normalPalette = (hurtFlashTimer.RawValue & 1) != 0;
-        ColourRun row = colours.SpriteRow(IntroMotherBrainDefinitions.HurtFlashSpriteRow);
+        ColourRun row = colours.Colours(ScreenColourGroup.IntroMotherBrain);
         if (normalPalette)
             row.CopyFrom(row.SamePositionsIn(introPalette));
         else

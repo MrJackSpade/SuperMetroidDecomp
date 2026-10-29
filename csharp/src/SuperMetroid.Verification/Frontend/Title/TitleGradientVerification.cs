@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Assets;
 using System.Text.Json;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -266,11 +267,11 @@ internal static class TitleGradientVerification
             installedSkip.Step(0);
         }
         AssertEqual(nativeSkip.Phase, installedSkip.Phase, "title skip phase unaffected by installed colors");
-        AssertEqual(nativeSkip.PaletteColors[ScreenColourPositions.Sprite(TitleCopyrightColourDefinitions.SpriteRow, TitleCopyrightColourDefinitions.WhiteColour)],
-            installedSkip.PaletteColors[ScreenColourPositions.Sprite(TitleCopyrightColourDefinitions.SpriteRow, TitleCopyrightColourDefinitions.WhiteColour)],
+        AssertEqual(nativeSkip.PaletteColors[ScreenColourPositions.Of(ScreenColourGroup.TitleCopyrightWhite)],
+            installedSkip.PaletteColors[ScreenColourPositions.Of(ScreenColourGroup.TitleCopyrightWhite)],
             "installed title skip white matches native");
-        AssertEqual(nativeSkip.PaletteColors[ScreenColourPositions.Sprite(TitleCopyrightColourDefinitions.SpriteRow, TitleCopyrightColourDefinitions.RedColour)],
-            installedSkip.PaletteColors[ScreenColourPositions.Sprite(TitleCopyrightColourDefinitions.SpriteRow, TitleCopyrightColourDefinitions.RedColour)],
+        AssertEqual(nativeSkip.PaletteColors[ScreenColourPositions.Of(ScreenColourGroup.TitleCopyrightRed)],
+            installedSkip.PaletteColors[ScreenColourPositions.Of(ScreenColourGroup.TitleCopyrightRed)],
             "installed title skip red matches native");
         Console.WriteLine(
             $"  Title palette presentation: {SnesCgram.ColorCount} initial, 36 ambient, and two skip " +

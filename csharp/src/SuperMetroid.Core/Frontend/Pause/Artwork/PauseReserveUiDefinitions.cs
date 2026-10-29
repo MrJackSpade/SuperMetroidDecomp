@@ -13,12 +13,6 @@ public static class PauseReserveUiDefinitions
     public const int TilemapColumns = 32, TilemapRows = 32;
     /// <summary>Fixed label lengths, digit glyph count, and arrow pulse-frame count.</summary>
     public const int LabelWords = 7, ModeWords = 4, DigitCount = 10, ArrowFrames = 32;
-    /// <summary>The background row holding the reserve arrow's two animated colours.</summary>
-    public const int ArrowBackgroundRow = 6;
-    /// <summary>The row's first animated arrow colour.</summary>
-    public const int ArrowFirstColour = 6;
-    /// <summary>The row's second animated arrow colour.</summary>
-    public const int ArrowSecondColour = 11;
     /// <summary>Number of decimal places in the reserve-supply display.</summary>
     public const int SupplyDigitPlaces = 3;
     /// <summary>$82:AB47 destination for MANUAL/AUTO replacement text.</summary>

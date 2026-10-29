@@ -519,9 +519,8 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>Writes the copyright glyph's white and red colours.</summary>
     private void WriteCopyright(RgbColor white, RgbColor red)
     {
-        ColourRun row = palette.SpriteRow(TitleCopyrightColourDefinitions.SpriteRow);
-        row.Write(TitleCopyrightColourDefinitions.WhiteColour, white);
-        row.Write(TitleCopyrightColourDefinitions.RedColour, red);
+        palette.Colours(ScreenColourGroup.TitleCopyrightWhite).Fill(white);
+        palette.Colours(ScreenColourGroup.TitleCopyrightRed).Fill(red);
     }
 
     /// <summary>Installs the logo, gradient, copyright colors, and identity Mode 7 scene used after a skip.</summary>

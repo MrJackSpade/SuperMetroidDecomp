@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.AssetExtraction.World.Artwork;
@@ -1355,7 +1356,7 @@ internal static class LookupStream5Verification
         foreach (int count in new[] { 1, 15, 255 })
             Check(original with { Frames = Enumerable.Range(0, count).Select(i => frames[i % 14]).ToArray() });
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Duration(-1), "Highlight lower frame bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Apply(new ScreenPalette().SpriteRow(MapScreenDefinitions.HighlightSpriteRow), 14), "Highlight upper frame bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Apply(new ScreenPalette().Colours(ScreenColourGroup.MapHighlight), 14), "Highlight upper frame bound");
         Console.WriteLine("Map highlight: 224 native colors,14 timing/phase records, all independent color/hold edits and custom frame counts pass actual CGRAM application; eight color seed rows remain pending.");
 
         static MapPaletteCycle Check(MapPaletteCycleDocument document)
@@ -1367,12 +1368,12 @@ internal static class LookupStream5Verification
             for (int frame = 0; frame < cycle.FrameCount; frame++)
             {
                 AssertEqual((byte)document.Frames[frame].DurationTicks, cycle.Duration(frame), "Independent highlight hold");
-                cycle.Apply(cgram.SpriteRow(MapScreenDefinitions.HighlightSpriteRow), frame);
+                cycle.Apply(cgram.Colours(ScreenColourGroup.MapHighlight), frame);
                 for (int color = 0; color < 16; color++)
                 {
                     var rgb = document.Frames[frame].Colors[color];
                     AssertEqual((ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10),
-                        cgram.Colors[ScreenColourPositions.Sprite(MapScreenDefinitions.HighlightSpriteRow) + color], "Independent highlight CGRAM color");
+                        cgram.Colours(ScreenColourGroup.MapHighlight)[color], "Independent highlight CGRAM color");
                 }
             }
             return cycle;

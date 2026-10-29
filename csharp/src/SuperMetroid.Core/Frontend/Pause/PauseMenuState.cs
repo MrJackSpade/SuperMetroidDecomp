@@ -933,9 +933,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         screen.BindArtwork(catalog);
         // Live highlights and reserve-arrow colors belong to their animation
         // owners. Replacing the static base must not reset their phase.
-        ColourRun arrow = screen.Palette.BackgroundRow(PauseReserveUiDefinitions.ArrowBackgroundRow);
-        screen.Palette.LoadExcept(catalog.Palettes.Pause, screen.Palette.SpriteRow(MapScreenDefinitions.HighlightSpriteRow),
-            arrow.Slice(PauseReserveUiDefinitions.ArrowFirstColour, 1), arrow.Slice(PauseReserveUiDefinitions.ArrowSecondColour, 1));
+        screen.Palette.LoadExcept(catalog.Palettes.Pause, screen.Palette.Colours(ScreenColourGroup.MapHighlight),
+            screen.Palette.Colours(ScreenColourGroup.PauseReserveArrowShade), screen.Palette.Colours(ScreenColourGroup.PauseReserveArrowLight));
         LoadPauseBackdrop();
         RefreshPauseButtonArtwork();
         // Refresh the authored base and rebuild the now-semantic inventory layer. The
@@ -1032,7 +1031,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     {
         PauseReserveUiPresentation presentation = (mapPresentation ?? throw new InvalidOperationException(
             "Reserve arrow requires installed presentation assets.")).PauseReserveUi;
-        presentation.ApplyArrowColors(screen.Palette.BackgroundRow(PauseReserveUiDefinitions.ArrowBackgroundRow),
+        presentation.ApplyArrowColors(screen.Palette,
             state == ReserveArrowState.Animated, frameCounterByte);
         presentation.ApplyArrowTilePalettes(equipmentTilemap, state != ReserveArrowState.Hidden);
         reserveArrowLatched = true;

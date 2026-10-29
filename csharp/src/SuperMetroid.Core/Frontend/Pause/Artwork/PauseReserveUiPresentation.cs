@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
@@ -45,9 +46,9 @@ public sealed class PauseReserveUiPresentation
         arrowGreyLevels = new ReserveArrowGreyLevels(middle.Color6.Red, middle.Color11.Red);
         for (int frame = 0; frame < parts.ArrowFrames.Length; frame++)
         {
-            if (parts.ArrowFrames[frame].Color6 != CalculateArrowColor(frame, ReserveArrowColorSlot.Color6))
+            if (parts.ArrowFrames[frame].Color6 != CalculateArrowColor(frame, ReserveArrowBevel.Shade))
                 arrowColorEdits.Add(new ColourCell(frame, 0), parts.ArrowFrames[frame].Color6);
-            if (parts.ArrowFrames[frame].Color11 != CalculateArrowColor(frame, ReserveArrowColorSlot.Color11))
+            if (parts.ArrowFrames[frame].Color11 != CalculateArrowColor(frame, ReserveArrowBevel.Light))
                 arrowColorEdits.Add(new ColourCell(frame, 1), parts.ArrowFrames[frame].Color11);
         }
     }
@@ -106,14 +107,14 @@ public sealed class PauseReserveUiPresentation
     }
 
     /// <summary>Writes the two selected arrow bevel colours to the screen's colours, using either the pulse frame or the solid appearance.</summary>
-    /// <param name="arrowRow">The background row whose two arrow colours change.</param>
+    /// <param name="colours">The screen's colours, whose reserve-arrow bevel colours change.</param>
     /// <param name="animated">Whether to sample the 32-phase pulse rather than the solid colors; the pause owner decides when AUTO selection should animate.</param>
     /// <param name="frame">Pulse phase, masked to its low five bits; normally the accepted eight-bit frame counter and ignored for solid colors.</param>
-    public void ApplyArrowColors(ColourRun arrowRow, bool animated, int frame)
+    public void ApplyArrowColors(ScreenPalette colours, bool animated, int frame)
     {
-        var colors = animated ? new ReserveArrowColors(ArrowColor(frame, ReserveArrowColorSlot.Color6), ArrowColor(frame, ReserveArrowColorSlot.Color11)) : new ReserveArrowColors(solidColor6, solidColor11);
-        arrowRow.Write(PauseReserveUiDefinitions.ArrowFirstColour, colors.Color6);
-        arrowRow.Write(PauseReserveUiDefinitions.ArrowSecondColour, colors.Color11);
+        var colors = animated ? new ReserveArrowColors(ArrowColor(frame, ReserveArrowBevel.Shade), ArrowColor(frame, ReserveArrowBevel.Light)) : new ReserveArrowColors(solidColor6, solidColor11);
+        Ensure.NotNull(colours).Colours(ScreenColourGroup.PauseReserveArrowShade).Fill(colors.Color6);
+        colours.Colours(ScreenColourGroup.PauseReserveArrowLight).Fill(colors.Color11);
     }
 
     /// <summary>
@@ -125,12 +126,12 @@ public sealed class PauseReserveUiPresentation
     /// different choices paint a different pulse. Held magnitudes derive from the prior shade;
     /// independently supplied differences stay sparse.
     /// </summary>
-    private RgbColor CalculateArrowColor(int frame, ReserveArrowColorSlot slot)
+    private RgbColor CalculateArrowColor(int frame, ReserveArrowBevel bevel)
     {
         int last = PauseReserveUiDefinitions.ArrowFrames - 1;
         int phase = Math.Min(frame, last - frame);
         int steps = last / 2;
-        bool second = slot == ReserveArrowColorSlot.Color11;
+        bool second = bevel == ReserveArrowBevel.Light;
         RgbColor start = second ? arrowStartEdits.Color11 ?? solidColor6 : arrowStartEdits.Color6 ?? solidColor11;
         int grey = second ? arrowGreyLevels.Color11 : arrowGreyLevels.Color6;
         if (phase == steps) return new(grey, grey, grey);
@@ -151,11 +152,11 @@ public sealed class PauseReserveUiPresentation
     }
 
     /// <summary>Uses the supplied independent bevel shade when present; otherwise mirrors the calculated 32-phase ramp.</summary>
-    private RgbColor ArrowColor(int frame, ReserveArrowColorSlot slot)
+    private RgbColor ArrowColor(int frame, ReserveArrowBevel bevel)
     {
         frame &= PauseReserveUiDefinitions.ArrowFrames - 1;
-        return arrowColorEdits.TryGetValue(new ColourCell(frame, (slot == ReserveArrowColorSlot.Color11 ? 1 : 0)), out RgbColor supplied)
-            ? supplied : CalculateArrowColor(frame, slot);
+        return arrowColorEdits.TryGetValue(new ColourCell(frame, (bevel == ReserveArrowBevel.Light ? 1 : 0)), out RgbColor supplied)
+            ? supplied : CalculateArrowColor(frame, bevel);
     }
 
     /// <summary>Compiles the selected reserve labels, digit words, arrow placements and arrow colours into a presentation.</summary>

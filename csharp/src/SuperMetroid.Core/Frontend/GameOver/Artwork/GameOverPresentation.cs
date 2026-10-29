@@ -111,7 +111,7 @@ public abstract class GameOverPresentation
     public void ApplyBabyPalette(ScreenPalette colours, GameOverBabyPalette palette)
     {
         _ = GameOverPresentationNames.BabyPaletteName(palette);
-        ColourRun row = Ensure.NotNull(colours).SpriteRow(GameOverPresentationDefinitions.BabySpriteRow);
+        ColourRun row = Ensure.NotNull(colours).Colours(ScreenColourGroup.GameOverBaby);
         for (int index = 0; index < row.Count; index++)
             row.Write(index, babyPalettes.Read(palette, index));
     }

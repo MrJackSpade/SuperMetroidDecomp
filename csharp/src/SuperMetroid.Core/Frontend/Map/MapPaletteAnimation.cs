@@ -36,7 +36,7 @@ public sealed class MapPaletteAnimation
         bool wrapped = next >= cycle.FrameCount;
         Frame = wrapped ? 0 : next;
         Timer = cycle.Duration(Frame);
-        cycle.Apply(Ensure.NotNull(colours).SpriteRow(MapScreenDefinitions.HighlightSpriteRow), Frame);
+        cycle.Apply(Ensure.NotNull(colours).Colours(ScreenColourGroup.MapHighlight), Frame);
         return wrapped;
     }
 }

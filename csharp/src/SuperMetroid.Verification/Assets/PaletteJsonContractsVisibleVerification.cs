@@ -80,7 +80,7 @@ internal static class PaletteJsonContractsVisibleVerification
             AssertEqual(stockMap.Step(stockCgram), editedMap.Step(editedCgram), "map cycle sound/wrap timing unchanged");
             AssertEqual(stockMap.Timer, editedMap.Timer, "map cycle frame/timer unchanged");
             AssertEqual(stockMap.Frame, editedMap.Frame, "map cycle frame/timer unchanged");
-            int destination = ScreenColourPositions.Sprite(MapScreenDefinitions.HighlightSpriteRow) + 1;
+            int destination = ScreenColourPositions.Of(ScreenColourGroup.MapHighlight, 1);
             AssertEqual((ushort)(stockCgram.Colors[destination].ToWord() ^ 0x7fff), editedCgram.Colors[destination],
                 "map replacement changes exactly the selected color");
             AssertPaletteContractPixels(stockCgram, editedCgram, destination);

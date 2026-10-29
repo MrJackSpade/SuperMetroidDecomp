@@ -32,12 +32,13 @@ internal static class SingleFrameEnemyVisualsVerification
         var document = RequiredJson.Deserialize<EnemySpritemapDocument>(stockBytes, options);
         EnemySpritemapDefinition[] previous = EnemySpritemapDefinitions.Frames
             .Take(EnemySpritemapDefinitions.PreSingleFrameFrameCount).ToArray();
-        string edited = previous[0].Name;
+        // Schema 67 named frames as they were named before frames were named for their meaning (#1465).
+        string edited = previous[0].LegacyName;
         var legacy = document with
         {
             Version = EnemySpritemapSchema.PreSingleFrame.Revision,
-            Frames = previous.ToDictionary(frame => frame.Name, frame => document.Frames[frame.Name]),
-            DisplayFrames = previous.ToDictionary(frame => frame.Name, frame => frame.Name),
+            Frames = previous.ToDictionary(frame => frame.LegacyName, frame => document.Frames[frame.Name]),
+            DisplayFrames = previous.ToDictionary(frame => frame.LegacyName, frame => frame.LegacyName),
         };
         legacy.Frames[edited] = [legacy.Frames[edited][0] with { OffsetX = -11 }];
         byte[] legacyBytes = JsonSerializer.SerializeToUtf8Bytes(legacy, options);

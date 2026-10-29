@@ -41,7 +41,7 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
                 continue;
             if (sporePointers.Contains(frame.Pointer))
             {
-                AssertTrue(frame.Name.StartsWith("spore_spawn_oam_",
+                AssertTrue(frame.Name.StartsWith("spore_spawn_",
                         StringComparison.Ordinal),
                     $"Spore Spawn frame {frame.Pointer:X4} has its own author key");
                 AssertTrue(!DraygonCollisionDefinitions.IsEmptyOamFrame(frame.Pointer),
@@ -52,7 +52,7 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
 
             AssertTrue(DraygonCollisionDefinitions.IsEmptyOamFrame(frame.Pointer),
                 $"Draygon OAM frame {frame.Name} has a compiled no-hitbox identity");
-            AssertTrue(frame.Name.StartsWith("draygon_oam_",
+            AssertTrue(frame.Name.StartsWith("draygon_",
                     StringComparison.Ordinal),
                 $"Draygon frame {frame.Pointer:X4} retains its author family");
             AssertEqual(0,

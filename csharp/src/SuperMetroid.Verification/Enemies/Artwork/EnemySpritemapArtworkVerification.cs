@@ -343,7 +343,7 @@ internal static class EnemySpritemapArtworkVerification
             "post-Gunship installed composition groups account for the complete current catalog");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             
-            .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
+            .Where(frame => frame.LegacyName.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
             .Select(frame => frame.Pointer)
             .ToHashSet();
         AssertTrue(KiHunterAnimationsConstants.Spritemaps(Enum.GetValues<KiHunterProgram>()).ToHashSet().SetEquals(
@@ -352,7 +352,7 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(41, installedHunterPointers.Count, "KiHunter's programs show 41 distinct OAM frames");
         HashSet<ushort> installedMawPointers = EnemySpritemapDefinitions.Frames
             
-            .Where(frame => frame.Name.StartsWith("yapping_maw_a8_", StringComparison.Ordinal))
+            .Where(frame => frame.LegacyName.StartsWith("yapping_maw_a8_", StringComparison.Ordinal))
             .Select(frame => frame.Pointer)
             .ToHashSet();
         AssertTrue(YappingMawAnimationsConstants.Spritemaps(Enum.GetValues<YappingMawProgram>()).ToHashSet().SetEquals(installedMawPointers),
@@ -377,13 +377,13 @@ internal static class EnemySpritemapArtworkVerification
                     frame.Name.StartsWith("namihe_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
             "the Fune's and Namihe's programs show exactly their installed frames");
         AssertTrue(RioAnimationsConstants.Spritemaps(Enum.GetValues<RioProgram>()).ToHashSet().SetEquals(
-                EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("rio_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
+                EnemySpritemapDefinitions.Frames.Where(frame => frame.LegacyName.StartsWith("rio_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
             "the Rio's programs show exactly its eight installed frames");
         AssertTrue(LowerNorfairRioAnimationsConstants.Spritemaps(Enum.GetValues<LowerNorfairRioProgram>()).ToHashSet().SetEquals(
-                EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("lower_norfair_rio_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
+                EnemySpritemapDefinitions.Frames.Where(frame => frame.LegacyName.StartsWith("lower_norfair_rio_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
             "the Lower Norfair Rio's programs show exactly its installed frames");
         AssertTrue(NorfairRioAnimationsConstants.Spritemaps(Enum.GetValues<NorfairRioProgram>()).ToHashSet().SetEquals(
-                EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("norfair_rio_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
+                EnemySpritemapDefinitions.Frames.Where(frame => frame.LegacyName.StartsWith("norfair_rio_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
             "the Norfair Rio's programs show exactly its installed frames");
         Suite(nameof(VerifyInstalledPuyoInstructionFrames), () => VerifyInstalledPuyoInstructionFrames(stock));
         Suite(nameof(VerifyInstalledBullInstructionFrames), () => VerifyInstalledBullInstructionFrames(stock));
@@ -489,7 +489,7 @@ internal static class EnemySpritemapArtworkVerification
             // use Mother Brain's encounter route. Test that route separately below.
             if (frame.Bank == MotherBrainVisualToolingDefinitions.Bank)
                 continue;
-            if (frame.Name.StartsWith("ridley_supplement_", StringComparison.Ordinal))
+            if (frame.LegacyName.StartsWith("ridley_supplement_", StringComparison.Ordinal))
                 continue;
             // A room draws a frame as the enemy whose behaviour shows it; a frame only an enemy drawing from the characters
             // it uploads shows, as Ridley carrying the Ceres Baby, draws through that enemy's own route instead.
@@ -528,15 +528,23 @@ internal static class EnemySpritemapArtworkVerification
 
         EnemySpritemapDocument document = RequiredJson.Deserialize<EnemySpritemapDocument>(
             original, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        // Historical schemas named frames as they were named before frames were named for their meaning (#1465); the
+        // historical fixtures below carry the stock document, and later its edited copy, onto those names.
+        Dictionary<string, string> legacyNames = EnemySpritemapDefinitions.Frames
+            .ToDictionary(frame => frame.Name, frame => frame.LegacyName, StringComparer.Ordinal);
+        Dictionary<string, SpriteVisualPart[]> LegacyFrames() => document.Frames
+            .ToDictionary(pair => legacyNames[pair.Key], pair => pair.Value, StringComparer.Ordinal);
+        Dictionary<string, string> LegacyBindings() => (document.DisplayFrames ?? throw new InvalidOperationException("Verification requires document.DisplayFrames."))
+            .ToDictionary(pair => legacyNames[pair.Key], pair => legacyNames[pair.Value], StringComparer.Ordinal);
         // Construct the historical version boundary, not today's catalog minus
         // a few known families. Every older fixture below derives from this set.
         HashSet<string> preYardNames = EnemySpritemapDefinitions.Frames
             .Take(EnemySpritemapDefinitions.PreYardFrameCount)
-            .Select(frame => frame.Name).ToHashSet(StringComparer.Ordinal);
-        var preYardFrames = document.Frames
+            .Select(frame => frame.LegacyName).ToHashSet(StringComparer.Ordinal);
+        var preYardFrames = LegacyFrames()
             .Where(pair => preYardNames.Contains(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
-        var preYardBindings = (document.DisplayFrames ?? throw new InvalidOperationException("Verification requires document.DisplayFrames."))
+        var preYardBindings = LegacyBindings()
             .Where(pair => preYardFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreYardFrameCount,
@@ -700,7 +708,7 @@ internal static class EnemySpritemapArtworkVerification
         var preViolaFrames = preRinkaFrames
             .Where(pair => !pair.Key.StartsWith("viola_spin_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
-        var preViolaBindings = document.DisplayFrames
+        var preViolaBindings = LegacyBindings()
             .Where(pair => preViolaFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreViolaFrameCount, preViolaFrames.Count,
@@ -722,7 +730,7 @@ internal static class EnemySpritemapArtworkVerification
         var preChozoStatueFrames = preViolaFrames
             .Where(pair => !pair.Key.StartsWith("chozo_statue_aa_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
-        var preChozoStatueBindings = document.DisplayFrames
+        var preChozoStatueBindings = LegacyBindings()
             .Where(pair => preChozoStatueFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreChozoStatueFrameCount,
@@ -745,7 +753,7 @@ internal static class EnemySpritemapArtworkVerification
         var preNorfairLavaJumperFrames = preChozoStatueFrames
             .Where(pair => !pair.Key.StartsWith("norfair_lava_jumper_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
-        var preNorfairLavaJumperBindings = document.DisplayFrames
+        var preNorfairLavaJumperBindings = LegacyBindings()
             .Where(pair => preNorfairLavaJumperFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreNorfairLavaJumperFrameCount,
@@ -768,7 +776,7 @@ internal static class EnemySpritemapArtworkVerification
         var preMultiviolaFrames = preNorfairLavaJumperFrames
             .Where(pair => !pair.Key.StartsWith("multiviola_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
-        var preMultiviolaBindings = document.DisplayFrames
+        var preMultiviolaBindings = LegacyBindings()
             .Where(pair => preMultiviolaFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreMultiviolaFrameCount,
@@ -790,7 +798,7 @@ internal static class EnemySpritemapArtworkVerification
         var preDragonFrames = preMultiviolaFrames
             .Where(pair => !pair.Key.StartsWith("dragon_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
-        var preDragonBindings = document.DisplayFrames
+        var preDragonBindings = LegacyBindings()
             .Where(pair => preDragonFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreDragonFrameCount,
@@ -812,7 +820,7 @@ internal static class EnemySpritemapArtworkVerification
         var preTripperKamerFrames = preDragonFrames
             .Where(pair => !pair.Key.StartsWith("tripper_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
-        var preTripperKamerBindings = document.DisplayFrames
+        var preTripperKamerBindings = LegacyBindings()
             .Where(pair => preTripperKamerFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreTripperKamerFrameCount,
@@ -835,7 +843,7 @@ internal static class EnemySpritemapArtworkVerification
             .Where(pair => !pair.Key.StartsWith("shaktool_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("tripper_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
-        var preShaktoolBindings = document.DisplayFrames
+        var preShaktoolBindings = LegacyBindings()
             .Where(pair => preShaktoolFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreShaktoolFrameCount,
@@ -934,18 +942,18 @@ internal static class EnemySpritemapArtworkVerification
         {
             OffsetY = ceresBabyPart.OffsetY + 1,
         };
-        SpriteVisualPart rioPart = document.Frames["rio_bd6c"][0];
-        document.Frames["rio_bd6c"][0] = rioPart with
+        SpriteVisualPart rioPart = document.Frames["rio_pose_0"][0];
+        document.Frames["rio_pose_0"][0] = rioPart with
         {
             OffsetY = rioPart.OffsetY + 1,
         };
-        SpriteVisualPart lowerRioPart = document.Frames["lower_norfair_rio_c8bd"][0];
-        document.Frames["lower_norfair_rio_c8bd"][0] = lowerRioPart with
+        SpriteVisualPart lowerRioPart = document.Frames["lower_norfair_rio_pose_0"][0];
+        document.Frames["lower_norfair_rio_pose_0"][0] = lowerRioPart with
         {
             OffsetY = lowerRioPart.OffsetY + 1,
         };
-        SpriteVisualPart norfairRioPart = document.Frames["norfair_rio_c442"][0];
-        document.Frames["norfair_rio_c442"][0] = norfairRioPart with
+        SpriteVisualPart norfairRioPart = document.Frames["norfair_rio_pose_1"][0];
+        document.Frames["norfair_rio_pose_1"][0] = norfairRioPart with
         {
             OffsetY = norfairRioPart.OffsetY + 1,
         };
@@ -1009,38 +1017,40 @@ internal static class EnemySpritemapArtworkVerification
         {
             OffsetX = draygonIntroPart.OffsetX + 1,
         };
-        SpriteVisualPart sharedSpritePart = document.Frames["room_sprite_b4_dc3f"][0];
-        document.Frames["room_sprite_b4_dc3f"][0] = sharedSpritePart with
+        SpriteVisualPart sharedSpritePart = document.Frames["sprite_object_evir_facing_right_0"][0];
+        document.Frames["sprite_object_evir_facing_right_0"][0] = sharedSpritePart with
         {
             OffsetY = sharedSpritePart.OffsetY + 1,
         };
         ushort mawIdlePointer = YappingMawVisualDefinitionsConstants.IdleFrame;
-        string mawIdleName = $"yapping_maw_a8_{mawIdlePointer:x4}";
+        string mawIdleName = EnemySpritemapDefinitions.Frames
+            .Single(frame => frame.LegacyName == $"yapping_maw_a8_{mawIdlePointer:x4}").Name;
         SpriteVisualPart mawPart = document.Frames[mawIdleName][0];
         document.Frames[mawIdleName][0] = mawPart with
         {
             OffsetY = mawPart.OffsetY + 1,
         };
         ushort hunterIdlePointer = KiHunterVisualDefinitionsConstants.IdleFrame;
-        string hunterIdleName = $"ki_hunter_a8_{hunterIdlePointer:x4}";
+        string hunterIdleName = EnemySpritemapDefinitions.Frames
+            .Single(frame => frame.LegacyName == $"ki_hunter_a8_{hunterIdlePointer:x4}").Name;
         SpriteVisualPart hunterPart = document.Frames[hunterIdleName][0];
         document.Frames[hunterIdleName][0] = hunterPart with
         {
             OffsetY = hunterPart.OffsetY + 1,
         };
-        const string motherBrainHeadName = "mother_brain_a9_a586";
+        const string motherBrainHeadName = "mother_brain_head_0";
         SpriteVisualPart motherBrainHeadPart = document.Frames[motherBrainHeadName][0];
         document.Frames[motherBrainHeadName][0] = motherBrainHeadPart with
         {
             OffsetX = motherBrainHeadPart.OffsetX + 1,
         };
-        const string deadTorizoName = "dead_torizo_corpse_a9_d761";
+        const string deadTorizoName = "dead_torizo_corpse_hook";
         SpriteVisualPart deadTorizoPart = document.Frames[deadTorizoName][0];
         document.Frames[deadTorizoName][0] = deadTorizoPart with
         {
             OffsetX = deadTorizoPart.OffsetX + 1,
         };
-        const string ridleyWingName = "ridley_supplement_a6_dd4a";
+        const string ridleyWingName = "ridley_wing_left_0";
         SpriteVisualPart ridleyWingPart = document.Frames[ridleyWingName][0];
         document.Frames[ridleyWingName][0] = ridleyWingPart with
         {
@@ -1100,25 +1110,25 @@ internal static class EnemySpritemapArtworkVerification
         {
             OffsetX = multiviolaPart.OffsetX + 1,
         };
-        const string lavaJumperFrameName = "norfair_lava_jumper_c02c";
+        const string lavaJumperFrameName = "norfair_lava_jumper_pose_1";
         SpriteVisualPart lavaJumperPart = document.Frames[lavaJumperFrameName][0];
         document.Frames[lavaJumperFrameName][0] = lavaJumperPart with
         {
             OffsetX = lavaJumperPart.OffsetX + 1,
         };
-        const string chozoFrameName = "chozo_statue_aa_efd8";
+        const string chozoFrameName = "chozo_statue_pose_17";
         SpriteVisualPart chozoPart = document.Frames[chozoFrameName][0];
         document.Frames[chozoFrameName][0] = chozoPart with
         {
             OffsetX = chozoPart.OffsetX + 1,
         };
-        const string violaFrameName = "viola_spin_b689";
+        const string violaFrameName = "viola_spin_0";
         SpriteVisualPart violaPart = document.Frames[violaFrameName][0];
         document.Frames[violaFrameName][0] = violaPart with
         {
             OffsetX = violaPart.OffsetX + 1,
         };
-        const string rinkaFrameName = "rinka_spin_ba38";
+        const string rinkaFrameName = "rinka_spin_0";
         SpriteVisualPart rinkaPart = document.Frames[rinkaFrameName][0];
         document.Frames[rinkaFrameName][0] = rinkaPart with
         {
@@ -1689,9 +1699,9 @@ internal static class EnemySpritemapArtworkVerification
         // Preserve the edited values while selecting exactly the pre-Dragon schema.
         HashSet<string> historicalNames = EnemySpritemapDefinitions.Frames
             .Take(EnemySpritemapDefinitions.PreDragonFrameCount)
-            .Select(frame => frame.Name).ToHashSet(StringComparer.Ordinal);
+            .Select(frame => frame.LegacyName).ToHashSet(StringComparer.Ordinal);
         IEnumerable<KeyValuePair<string, SpriteVisualPart[]>> HistoricalFrames() =>
-            document.Frames.Where(pair => historicalNames.Contains(pair.Key));
+            LegacyFrames().Where(pair => historicalNames.Contains(pair.Key));
         var preMetroidFrames = HistoricalFrames()
             .Where(pair => !pair.Key.StartsWith("metroid_body_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("shaktool_", StringComparison.Ordinal) &&
@@ -1699,7 +1709,7 @@ internal static class EnemySpritemapArtworkVerification
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreMetroidFrameCount,
             preMetroidFrames.Count, "pre-Metroid composition schema count");
-        var preMetroidBindings = document.DisplayFrames
+        var preMetroidBindings = LegacyBindings()
             .Where(pair => preMetroidFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -1725,7 +1735,7 @@ internal static class EnemySpritemapArtworkVerification
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreShutterFrameCount,
             preShutterFrames.Count, "pre-shutter composition schema count");
-        var preShutterBindings = document.DisplayFrames
+        var preShutterBindings = LegacyBindings()
             .Where(pair => preShutterFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -1751,7 +1761,7 @@ internal static class EnemySpritemapArtworkVerification
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreMorphBallEyeFrameCount,
             preMorphBallEyeFrames.Count, "pre-Morph-Ball-eye composition schema count");
-        var preMorphBallEyeBindings = document.DisplayFrames
+        var preMorphBallEyeBindings = LegacyBindings()
             .Where(pair => preMorphBallEyeFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -1777,7 +1787,7 @@ internal static class EnemySpritemapArtworkVerification
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreFaceBlockFrameCount,
             preFaceBlockFrames.Count, "pre-face-block composition schema frame count");
-        var preFaceBlockBindings = document.DisplayFrames
+        var preFaceBlockBindings = LegacyBindings()
             .Where(pair => preFaceBlockFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -1803,7 +1813,7 @@ internal static class EnemySpritemapArtworkVerification
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreKagoFrameCount,
             preKagoFrames.Count, "pre-Kago composition schema frame count");
-        var preKagoBindings = document.DisplayFrames
+        var preKagoBindings = LegacyBindings()
             .Where(pair => preKagoFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -1829,7 +1839,7 @@ internal static class EnemySpritemapArtworkVerification
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreFlyFrameCount,
             preFlyFrames.Count, "pre-fly composition schema frame count");
-        var preFlyBindings = document.DisplayFrames
+        var preFlyBindings = LegacyBindings()
             .Where(pair => preFlyFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -1855,7 +1865,7 @@ internal static class EnemySpritemapArtworkVerification
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreSciserFrameCount,
             preSciserFrames.Count, "pre-Sciser composition schema frame count");
-        var preSciserBindings = document.DisplayFrames
+        var preSciserBindings = LegacyBindings()
             .Where(pair => preSciserFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -1881,7 +1891,7 @@ internal static class EnemySpritemapArtworkVerification
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreRidleySupplementFrameCount,
             preRidleyFrames.Count, "pre-Ridley-supplement composition schema frame count");
-        var preRidleyBindings = document.DisplayFrames
+        var preRidleyBindings = LegacyBindings()
             .Where(pair => preRidleyFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -1907,7 +1917,7 @@ internal static class EnemySpritemapArtworkVerification
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreDeadTorizoFrameCount,
             preDeadTorizoFrames.Count, "pre-Dead-Torizo composition schema frame count");
-        var preDeadTorizoBindings = document.DisplayFrames
+        var preDeadTorizoBindings = LegacyBindings()
             .Where(pair => preDeadTorizoFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -1933,7 +1943,7 @@ internal static class EnemySpritemapArtworkVerification
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreMotherBrainFrameCount,
             preMotherBrainFrames.Count, "pre-Mother-Brain composition schema frame count");
-        var preMotherBrainBindings = document.DisplayFrames
+        var preMotherBrainBindings = LegacyBindings()
             .Where(pair => preMotherBrainFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -1960,7 +1970,7 @@ internal static class EnemySpritemapArtworkVerification
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreKiHunterFrameCount,
             preHunterFrames.Count, "pre-KiHunter composition schema frame count");
-        var preHunterBindings = document.DisplayFrames
+        var preHunterBindings = LegacyBindings()
             .Where(pair => preHunterFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -1983,7 +1993,7 @@ internal static class EnemySpritemapArtworkVerification
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreYappingMawFrameCount,
             preMawFrames.Count, "pre-Yapping-Maw composition schema frame count");
-        var preMawBindings = document.DisplayFrames
+        var preMawBindings = LegacyBindings()
             .Where(pair => preMawFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -2007,7 +2017,7 @@ internal static class EnemySpritemapArtworkVerification
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreRoomSpriteObjectFrameCount,
             preRoomSpriteFrames.Count, "pre-shared-sprite-object composition schema frame count");
-        var preRoomSpriteBindings = document.DisplayFrames
+        var preRoomSpriteBindings = LegacyBindings()
             .Where(pair => preRoomSpriteFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -2020,7 +2030,7 @@ internal static class EnemySpritemapArtworkVerification
         EnemySpritemapCatalog preRoomSpriteUpgraded = LoadSpritemapOverride();
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
-            if (!frame.Name.StartsWith("room_sprite_b4_", StringComparison.Ordinal))
+            if (!frame.LegacyName.StartsWith("room_sprite_b4_", StringComparison.Ordinal))
                 continue;
             AssertTrue(preRoomSpriteUpgraded.TryGetDisplay(
                     EnemySpritemapDefinitions.RoomSpriteObjectBank, frame.Pointer, out _),
@@ -2076,7 +2086,7 @@ internal static class EnemySpritemapArtworkVerification
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreElevatorFrameCount,
             preElevatorFrames.Count, "pre-elevator composition schema frame count");
-        var preElevatorBindings = document.DisplayFrames
+        var preElevatorBindings = LegacyBindings()
             .Where(pair => preElevatorFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -2098,7 +2108,7 @@ internal static class EnemySpritemapArtworkVerification
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreKamerFrameCount,
             preKamerFrames.Count, "pre-Kamer composition schema frame count");
-        var preKamerBindings = document.DisplayFrames
+        var preKamerBindings = LegacyBindings()
             .Where(pair => preKamerFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -2122,7 +2132,7 @@ internal static class EnemySpritemapArtworkVerification
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreFuneNamiheFrameCount,
             preFuneFrames.Count, "pre-Fune/Namihe composition schema frame count");
-        var preFuneBindings = document.DisplayFrames
+        var preFuneBindings = LegacyBindings()
             .Where(pair => preFuneFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -2152,7 +2162,7 @@ internal static class EnemySpritemapArtworkVerification
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreSbugFrameCount,
             preSbugFrames.Count, "pre-Sbug composition schema frame count");
-        var preSbugBindings = document.DisplayFrames
+        var preSbugBindings = LegacyBindings()
             .Where(pair => preSbugFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         preSbugBindings["boyon_idle_0"] = "boyon_idle_1";
@@ -2182,7 +2192,7 @@ internal static class EnemySpritemapArtworkVerification
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreHZoomerFrameCount,
             preHZoomerFrames.Count, "pre-HZoomer composition schema frame count");
-        var preHZoomerBindings = document.DisplayFrames
+        var preHZoomerBindings = LegacyBindings()
             .Where(pair => preHZoomerFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         preHZoomerBindings["boyon_idle_0"] = "boyon_idle_1";

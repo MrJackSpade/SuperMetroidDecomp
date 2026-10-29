@@ -11,10 +11,11 @@ internal static class ExtendedFrameSequenceVerification
     internal static void VerifyExtendedFrameSequence()
     {
         var frames = EnemyExtendedFrameDefinitions.Frames.ToArray();
-        string identity = string.Join("\n", frames.Select(frame => $"{frame.Bank:X2}:{frame.Pointer:X4}:{frame.Name}"));
+        string identity = string.Join("\n", frames.Select(frame => $"{frame.Bank:X2}:{frame.Pointer:X4}:{frame.LegacyName}"));
         // Captured from the original cached catalog at 1f7c6f72 before replacing
         // its storage. UTF-8, uppercase bank/pointer, colon fields, LF separators,
-        // no trailing LF. This oracle covers all published names and their order.
+        // no trailing LF. This oracle covers all published names, as they were named
+        // before frames were named for their meaning (#1465), and their order.
         AssertEqual("3C4FA3A572E604B69A4CE48F276BD1985E930C5EA3DFC239D8AD882D5CBAFB40",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
                 System.Text.Encoding.UTF8.GetBytes(identity))), "original extended-frame roster");

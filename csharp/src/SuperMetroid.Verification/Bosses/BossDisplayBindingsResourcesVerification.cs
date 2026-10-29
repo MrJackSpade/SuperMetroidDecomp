@@ -10,6 +10,7 @@ using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
 namespace SuperMetroid.Verification.Bosses;
 
 /// <summary>Checks boss BG2 resource requirements, display bindings, and legacy document inheritance.</summary>
@@ -38,23 +39,27 @@ internal static class BossDisplayBindingsResourcesVerification
         AssertThrows<InvalidDataException>(() => EnemyExtendedFrameDocuments.Load(json.Json(stock.Oam with { Frames = bad })),
             "empty components are permitted only on declared BG2-only physical roots");
         var cross = new Dictionary<string, string>((edits.Oam.DisplayFrames ?? throw new InvalidOperationException("Verification requires edits.Oam.DisplayFrames.")), StringComparer.Ordinal);
-        string phantoon = cross.Keys.First(name => name.StartsWith("phantoon_bg2_", StringComparison.Ordinal));
-        string draygon = cross.Keys.First(name => name.StartsWith("draygon_bg2_", StringComparison.Ordinal));
+        string phantoon = EnemyExtendedFrameDefinitions.Frames.First(frame => PhantoonBg2FrameDefinitions.FrameIds.Contains(frame.Frame)).Name;
+        string draygon = EnemyExtendedFrameDefinitions.Frames.First(frame => DraygonBg2FrameDefinitions.FrameIds.Contains(frame.Frame)).Name;
         cross[phantoon] = draygon;
         AssertThrows<InvalidDataException>(() => EnemyExtendedFrameDocuments.Load(json.Json(edits.Oam with { DisplayFrames = cross })),
             "BG2 bindings cannot select another boss's visuals");
         // Version 26 retains every prior user edit/binding and inherits the 56 new
         // stock roots. It must not discard or silently synthesize the new bindings.
+        // Schema 26 named frames by where the cartridge stores them (#1465).
         EnemySpritemapDefinition[] old = EnemyExtendedFrameDefinitions.Frames.ToArray()[..EnemyExtendedFrameDefinitions.PreBg2BossBindingsFrameCount];
+        Dictionary<string, string> legacyNames = EnemyExtendedFrameDefinitions.Frames
+            .ToDictionary(frame => frame.Name, frame => frame.LegacyName, StringComparer.Ordinal);
         var legacy = edits.Oam with
         {
             Version = EnemyExtendedFrameSchema.PreBg2BossBindings.Revision,
-            Frames = old.ToDictionary(frame => frame.Name, frame => edits.Oam.Frames[frame.Name]),
-            DisplayFrames = old.ToDictionary(frame => frame.Name, frame => edits.Oam.DisplayFrames[frame.Name]),
+            Frames = old.ToDictionary(frame => frame.LegacyName, frame => edits.Oam.Frames[frame.Name]),
+            DisplayFrames = old.ToDictionary(frame => frame.LegacyName, frame => legacyNames[edits.Oam.DisplayFrames[frame.Name]]),
         };
         // Older Draygon bindings cannot point at the new BG2 keys. Use an authored
         // old OAM target just as a real schema-26 file does.
-        string oldDraygon = old.First(frame => frame.Name.StartsWith("draygon_oam_", StringComparison.Ordinal)).Name;
+        string oldDraygon = old.First(frame => frame.Name.StartsWith("draygon_", StringComparison.Ordinal) &&
+            !DraygonBg2FrameDefinitions.FrameIds.Contains(frame.Frame)).LegacyName;
         foreach (string name in legacy.DisplayFrames.Keys.ToArray())
             if (!legacy.Frames.ContainsKey(legacy.DisplayFrames[name])) legacy.DisplayFrames[name] = oldDraygon;
         EnemyExtendedFrameCatalog baseline = (stock.Build().Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.Build().ExtendedFrames."));

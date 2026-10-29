@@ -61,12 +61,15 @@ internal static class EnemyCompositionResourceChecks
             "the family's schema append must contain exactly the identified missing identities");
         EnemySpritemapDefinition edited = expected[0];
         EnemySpritemapDefinition[] previous = expected[..previousFrameCount];
+        // An older schema names each frame as its documents did (#1465).
+        EnemySpritemapSchema previousSchema = EnemySpritemapSchema.FromRevision(previousVersion)
+            ?? throw new InvalidOperationException($"Enemy composition schema {previousVersion} is not accepted.");
         var legacy = document with
         {
             Version = previousVersion,
-            Frames = previous.ToDictionary(frame => frame.Name,
+            Frames = previous.ToDictionary(frame => previousSchema.NameOf(frame),
                 frame => frame == edited ? new[] { Part(-1) } : document.Frames[frame.Name], StringComparer.Ordinal),
-            DisplayFrames = previous.ToDictionary(frame => frame.Name, frame => frame.Name, StringComparer.Ordinal),
+            DisplayFrames = previous.ToDictionary(frame => previousSchema.NameOf(frame), frame => previousSchema.NameOf(frame), StringComparer.Ordinal),
         };
         EnemySpritemapCatalog merged = Load(legacy, stock);
         Require(merged.TryGetDisplay(edited.Bank, edited.Pointer, out var oldParts) &&

@@ -625,10 +625,11 @@ internal static class LookupStream3Verification
     /// <summary>Checks the ordered named frame registry and derived room-sprite additions without duplicate identities.</summary>
     internal static void VerifyStream3EnemyFrameRegistration(ISnesAddressSpace rom)
     {
-        // Ordered bank:pointer:name snapshot of the 472 source registrations at commit 723df7b36.
+        // Ordered bank:pointer:name snapshot of the 472 source registrations at commit 723df7b36, under the names they had
+        // before frames were named for their meaning (#1465).
         const string originalNamedIdentity = "421A60158BA376F9A6AD58EA817315553AD268A44B411B87A4B25059EE5DFE92";
         var named = EnemySpritemapDefinitions.Frames.Take(472).ToArray();
-        string identity = string.Join("|", named.Select(frame => $"{frame.Bank:x2}:{frame.Pointer:x4}:{frame.Name}"));
+        string identity = string.Join("|", named.Select(frame => $"{frame.Bank:x2}:{frame.Pointer:x4}:{frame.LegacyName}"));
         AssertEqual(originalNamedIdentity, Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
             System.Text.Encoding.UTF8.GetBytes(identity))), "enemy named registration exact ordered source identities");
         var all = EnemySpritemapDefinitions.Frames.ToArray();

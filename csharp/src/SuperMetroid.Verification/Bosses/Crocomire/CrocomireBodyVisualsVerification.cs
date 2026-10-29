@@ -19,6 +19,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.World;
 
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.World.Artwork;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 
 /// <summary>Retail comparisons for Crocomire's mixed OAM/BG2 body frames and installed editable artwork.</summary>
@@ -63,8 +64,9 @@ internal static class CrocomireBodyVisualsVerification
         AssertEqual(42, expected.Length, "native Crocomire BG2 catalog size");
         AssertEqual(expected.Length, CrocomireBg2FrameDefinitions.Frames.Length, "generated BG2 definition count");
         for (int i = 0; i < expected.Length; i++)
-            AssertEqual(expected[i], new SpritemapFrameDefinition(CrocomireBg2FrameDefinitions.Frames[i].Pointer, CrocomireBg2FrameDefinitions.Frames[i].Name),
-                "native BG2 pointer and published artwork name");
+            AssertEqual(expected[i], new SpritemapFrameDefinition(CrocomireBg2FrameDefinitions.Frames[i].Pointer,
+                    EnemyFrameLegacyNameDefinitions.CrocomireBg2Frames[CrocomireBg2FrameDefinitions.Frames[i].Frame]),
+                "native BG2 pointer and the name revision-2 documents gave it (#1465)");
 
         // Confirm the extractor and loader carry every native stream under its published key.
         byte[] generatedJson = CrocomireBg2FrameFiles.Extract(rom);

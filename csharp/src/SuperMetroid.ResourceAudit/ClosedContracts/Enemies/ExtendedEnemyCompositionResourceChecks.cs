@@ -23,13 +23,16 @@ internal static class ExtendedEnemyCompositionResourceChecks
         EnemySpritemapDefinition edited = expected[0];
         EnemySpritemapDefinition alternate = expected[1];
         var previous = expected[..previousCount];
+        // An older schema names each frame as its documents did (#1465).
+        EnemyExtendedFrameSchema previousSchema = EnemyExtendedFrameSchema.FromRevision(previousVersion)
+            ?? throw new InvalidOperationException($"Extended enemy composition schema {previousVersion} is not accepted.");
         var legacy = document with
         {
             Version = previousVersion,
-            Frames = previous.ToDictionary(frame => frame.Name, frame => frame == alternate
+            Frames = previous.ToDictionary(frame => previousSchema.NameOf(frame), frame => frame == alternate
                 ? new[] { Component(-1) } : document.Frames[frame.Name]),
-            DisplayFrames = previous.ToDictionary(frame => frame.Name,
-                frame => frame == edited ? alternate.Name : frame.Name),
+            DisplayFrames = previous.ToDictionary(frame => previousSchema.NameOf(frame),
+                frame => previousSchema.NameOf(frame == edited ? alternate : frame)),
         };
         EnemyExtendedFrameCatalog merged = Load(legacy, stock);
         Require(merged.TryGetDisplay(edited.Bank, edited.Pointer, out var old) &&

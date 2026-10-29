@@ -141,8 +141,8 @@ public static class EnemyExtendedFrameDocuments
                 return right.StartsWith("bomb_torizo_", StringComparison.Ordinal);
             if (left.StartsWith("torizo_jump_back_", StringComparison.Ordinal))
                 return right.StartsWith("torizo_jump_back_", StringComparison.Ordinal);
-            if (left.StartsWith("torizo_falling_left_", StringComparison.Ordinal))
-                return right.StartsWith("torizo_falling_left_", StringComparison.Ordinal);
+            if (left.StartsWith("torizo_falling_left", StringComparison.Ordinal))
+                return right.StartsWith("torizo_falling_left", StringComparison.Ordinal);
             if (left.StartsWith("spore_spawn_", StringComparison.Ordinal))
                 return right.StartsWith("spore_spawn_", StringComparison.Ordinal);
             if (left.StartsWith("phantoon_", StringComparison.Ordinal))

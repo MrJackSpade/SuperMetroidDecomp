@@ -2,6 +2,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Palettes;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -55,7 +56,7 @@ public static class SamusFullBodyCycleColorFile
                             $"{family} suit {suit}, shade {shade}, color {index} requires RGB5 channels 0..31.");
                     words[index] = rgb.ToRgbColor();
                 }
-                int paletteIndex = SamusFullBodyCycleColorFormat.PaletteIndex(new(family, suit, shade));
+                int paletteIndex = SamusFullBodyCycleColorFormat.PaletteIndex(new(family, SamusSuits.AtListPlace(suit), shade));
                 if (destination[paletteIndex] is not null)
                     throw new InvalidDataException($"Duplicate full-body palette {family} suit {suit}, shade {shade}.");
                 destination[paletteIndex] = words;

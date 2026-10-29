@@ -42,9 +42,6 @@ public sealed class SamusColours : IGameplayColourOwner, IInkRowColours
     /// <summary>The suit's colours.</summary>
     public ColourRun Suit => new(suit, 0, suit.Length);
 
-    /// <summary>The visor's colour, within the suit's.</summary>
-    public RgbColor Visor => Suit[SamusColourDefinitions.VisorColour];
-
     /// <summary>The beams' colours.</summary>
     public ColourRun Beam => new(beam, 0, beam.Length);
 

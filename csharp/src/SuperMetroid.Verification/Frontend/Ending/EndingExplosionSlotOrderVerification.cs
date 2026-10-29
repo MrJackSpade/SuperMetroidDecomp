@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
@@ -27,7 +28,7 @@ internal static class EndingExplosionSlotOrderVerification
         for (int frame = 0; frame < 100; frame++) ending.Step();
         var definition = EndingActorDefinitions.ExplosionAfterglow;
         var afterglow = new IntroDiscoverySprite(new(definition.Position.X, definition.Position.Y),
-            definition.Palette, definition.Program);
+            ScreenColourGroups.SpriteRow(definition.Colouring), definition.Program);
         afterglow.Step();
         var expected = ScreenSpritesFixtures.Blank();
         expected.BeginFrame();

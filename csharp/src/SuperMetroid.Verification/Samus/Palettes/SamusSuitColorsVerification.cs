@@ -47,12 +47,11 @@ internal static class SamusSuitColorsVerification
                 if (powerColor != suitColor) AssertEqual(RgbColor.FromWordIgnoringTopBit(suitColor), stored, "Differing native word is preserved");
             }
         }
-        for (int offset = 0; offset <= ushort.MaxValue; offset++)
-            if (offset is not (0 or 2 or 4))
-                AssertThrows<ArgumentOutOfRangeException>(() => colors.Resolve((ushort)offset, 0), "Complete invalid suit-offset domain");
-        foreach (ushort offset in new ushort[] { 0, 2, 4 })
+        // A suit outside the three the cartridge shows is rejected, as the 0/2/4 table offsets were.
+        AssertThrows<ArgumentOutOfRangeException>(() => colors.Resolve((SamusSuit)Enum.GetValues<SamusSuit>().Length, 0), "Undefined suit");
+        foreach (SamusSuit shownSuit in Enum.GetValues<SamusSuit>())
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => colors.Resolve(offset, invalid), "Normal color index bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => colors.Resolve(shownSuit, invalid), "Normal color index bounds");
         foreach (bool powerOnly in new[] { false, true })
         {
             var document = RequiredJson.Deserialize<SamusSuitColorDocument>(extracted, ArtworkJson.Options);
@@ -68,7 +67,7 @@ internal static class SamusSuitColorsVerification
             {
                 int source = suit == 0 ? 0x9b9400 : suit == 1 ? 0x9b9520 : 0x9b9800;
                 ushort expected = !powerOnly || suit == 0 ? (ushort)ordinal : ReadVerificationWord(cartridge, source + 2 * color);
-                AssertEqual(expected, edited.Resolve((ushort)(2 * suit), color), "Every supplied suit color survives independent Power/suit edits");
+                AssertEqual(expected, edited.Resolve(SamusSuits.AtListPlace(suit), color), "Every supplied suit color survives independent Power/suit edits");
             }
         }
         ushort[] equipment =

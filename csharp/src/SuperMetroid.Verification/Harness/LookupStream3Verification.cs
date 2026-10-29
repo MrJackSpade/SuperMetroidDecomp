@@ -1015,10 +1015,13 @@ internal static class LookupStream3Verification
         foreach (int invalid in new[] { -1, 16, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBeamQuadrants.DirectionForPair(invalid),
                 "stream 3 beam dispatcher preserves span index bounds");
-        IReadOnlyList<IntroPaletteSpan>[] introRegions =
-        [IntroCinematicDefinitions.Palette.Gameplay, IntroCinematicDefinitions.Palette.GameplayClear,
-         IntroCinematicDefinitions.Palette.Narration, IntroCinematicDefinitions.Palette.Discovery];
-        IntroPaletteSpan[][] expectedIntroRegions =
+        // Each scene's fade groups, as the colours of a screen palette they cover: first colour and colour count.
+        (int FirstColor, int ColorCount)[][] introRegions = [.. new[]
+        {
+            IntroCinematicDefinitions.Palette.Gameplay, IntroCinematicDefinitions.Palette.GameplayClear,
+            IntroCinematicDefinitions.Palette.Narration, IntroCinematicDefinitions.Palette.Discovery,
+        }.Select(scene => scene.Select(group => new ScreenPalette().Colours(group)).Select(run => (run.First, run.Count)).ToArray())];
+        (int FirstColor, int ColorCount)[][] expectedIntroRegions =
         [
             [new(0, 20), new(48, 16), new(233, 6)],
             [new(0, 16), new(48, 16), new(233, 6)],
@@ -1043,7 +1046,7 @@ internal static class LookupStream3Verification
                 AssertEqual(introRegions[group][index].ColorCount,
                     CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 4), "stream 3 intro native count");
             }
-            foreach (int invalid in new[] { -1, introRegions[group].Count, int.MaxValue })
+            foreach (int invalid in new[] { -1, introRegions[group].Length, int.MaxValue })
                 AssertThrows<IndexOutOfRangeException>(() => _ = introRegions[group][invalid], "stream 3 intro region bounds");
         }
         ushort[] motherBrainRoots =

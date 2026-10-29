@@ -149,7 +149,7 @@ public sealed class SamusDeathSequenceState
                 {
                     // `$9B:B498` loads palette pair zero, resets the reused counters, and immediately
                     // draws explosion spritemap zero in this very same game-state-17 call.
-                    WritePalettePair(samus, colours, samusColours, paletteIndex: 0, artwork);
+                    WritePalettePair(samus, samusColours, paletteIndex: 0, artwork);
                     paletteChanged = true;
                     AnimationTimer =
                         WrappingCountdown.FromRaw(SamusDeathExplosionTiming.DurationForIndex(index: 0));
@@ -178,7 +178,7 @@ public sealed class SamusDeathSequenceState
                             AnimationIndex = 0;
                             AnimationTimer = WrappingCountdown.Start(3);
                         }
-                        WritePalettePair(samus, colours, samusColours, AnimationIndex, artwork);
+                        WritePalettePair(samus, samusColours, AnimationIndex, artwork);
                         paletteChanged = true;
                     }
                     drawPose = true;
@@ -252,7 +252,7 @@ public sealed class SamusDeathSequenceState
             WrappingCountdown.FromRaw(SamusDeathExplosionTiming.DurationForIndex(AnimationIndex));
         int paletteIndex = (artwork ?? throw new InvalidOperationException(
             "Samus death requires installed palette artwork.")).ExplosionPaletteIndex(AnimationIndex);
-        WritePalettePair(samus, colours, samusColours, paletteIndex, artwork);
+        WritePalettePair(samus, samusColours, paletteIndex, artwork);
         paletteChanged = true;
         return true;
     }
@@ -284,7 +284,7 @@ public sealed class SamusDeathSequenceState
     /// <summary>Loads suited and suitless death colors selected by equipment and animation frame.</summary>
     private static void WritePalettePair(
         SamusState samus,
-        GameplayColours colours, SamusColours samusColours,
+        SamusColours samusColours,
         int paletteIndex,
         InstalledSamusDeathPalettes? artwork)
     {

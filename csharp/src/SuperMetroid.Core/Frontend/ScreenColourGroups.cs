@@ -10,6 +10,12 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 internal static class ScreenColourGroups
 {
+    /// <summary>Where a screen's background colours start among its colours.</summary>
+    private const int BackgroundColoursStart = 0;
+
+    /// <summary>Where a screen's sprite colours start among its colours: after every background row.</summary>
+    private const int SpriteColoursStart = ScreenPalette.RowsPerKind * ScreenPalette.ColoursPerRow;
+
     /// <summary>The colours of <paramref name="group"/> among <paramref name="colours"/>, read and written in place.</summary>
     public static ColourRun Colours(this ScreenPalette colours, ScreenColourGroup group)
     {
@@ -54,21 +60,21 @@ internal static class ScreenColourGroups
     public static int SpriteRow(ScreenColourGroup colouring)
     {
         ScreenColourGroupDefinition definition = Definition(colouring);
-        return definition.IsWholeSpriteRow
+        return definition is SpriteColourGroupDefinition sprite && sprite == SpriteColourGroupDefinition.WholeRow(sprite.Row)
             ? definition.Row
             : throw new ArgumentOutOfRangeException(nameof(colouring), colouring, "A sprite draws in a whole sprite row's colours.");
     }
 
     /// <summary>The definition of <paramref name="group"/>.</summary>
     private static ScreenColourGroupDefinition Definition(ScreenColourGroup group) =>
-        ScreenColourGroupDefinitions.Groups.TryGetValue(group, out ScreenColourGroupDefinition definition)
+        ScreenColourGroupDefinitions.Groups.TryGetValue(group, out ScreenColourGroupDefinition? definition)
             ? definition
             : throw new ArgumentOutOfRangeException(nameof(group), group, "Undefined screen colour group.");
 
     /// <summary>The position of the group's first colour among a screen's colours.</summary>
     private static int First(ScreenColourGroupDefinition definition)
     {
-        int kindStart = definition.Kind == ScreenColourKind.Sprite ? ScreenPalette.RowsPerKind * ScreenPalette.ColoursPerRow : 0;
+        int kindStart = definition is SpriteColourGroupDefinition ? SpriteColoursStart : BackgroundColoursStart;
         return kindStart + definition.Row * ScreenPalette.ColoursPerRow + definition.FirstColour;
     }
 }

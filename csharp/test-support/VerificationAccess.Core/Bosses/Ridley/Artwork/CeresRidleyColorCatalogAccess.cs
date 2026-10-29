@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
@@ -23,7 +24,7 @@ internal static class CeresRidleyColorCatalogAccess
         /// <summary>Reads the Ceres alarm-paint sequence at a selected row.</summary>
         internal RgbColor ResolveAlarm(int row, int color) => self.selection.Alarm.Resolve(row, color);
 
-        /// <summary>Reads the baby-Metroid paint sequence at a selected row.</summary>
-        internal RgbColor ResolveBaby(int row, int color) => self.selection.Baby.Resolve(row, color);
+        /// <summary>Reads one colour of a Baby Metroid shade.</summary>
+        internal RgbColor ResolveBaby(CeresBabyShade shade, int color) => self.selection.Baby.Resolve(shade, color);
     }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -20,29 +21,38 @@ public static class CeresRidleyColorFile
         CeresRidleyColorDocument document;
         document = JsonAssetDocument.Read<CeresRidleyColorDocument>(json, ArtworkJson.Options, "Ceres Ridley color");
         var version = (CeresRidleyColorVersion)document.Version;
-        if (!Enum.IsDefined(version) ||
-            version != CeresRidleyColorVersion.Current && stockForLegacyOverride is null)
+        bool inheritsFromStock = version is CeresRidleyColorVersion.PreBaby or CeresRidleyColorVersion.PreAlarm;
+        if (!Enum.IsDefined(version) || inheritsFromStock && stockForLegacyOverride is null)
             throw new InvalidDataException("Ceres Ridley colors require the supported version.");
         RgbColor[][] bodyFade = CompileRows(document.BodyFade, CeresRidleyPaletteDefinitions.BodyFadeShadeCount,
             CeresRidleyPaletteDefinitions.BodyFadeColorCount, "body fade");
         RgbColor[] start = Compile(document.Start, CeresRidleyPaletteDefinitions.StartColorCount, "start");
         RgbColor[][] eyeFade = CompileRows(document.EyeFade, CeresRidleyPaletteDefinitions.EyeFadeShadeCount,
             CeresRidleyPaletteDefinitions.EyeFadeColorCount, "eye fade");
-        RgbColor[][] health = CompileRows(document.Health, CeresRidleyPaletteDefinitions.HealthRowCount,
+        RgbColor[][] health = CompileRows(document.Health, CeresRidleyPaletteDefinitions.HealthBandCount,
             CeresRidleyPaletteDefinitions.HealthColorCount, "health");
         // A legacy override predates the alarm (and, before version two, the Baby) colours; the
         // version check above guarantees stock is supplied for the catalog to inherit them from.
-        RgbColor[][]? alarm = version != CeresRidleyColorVersion.Current
+        RgbColor[][]? alarm = inheritsFromStock
             ? null
-            : CompileRows(document.Alarm, CeresRidleyPaletteDefinitions.AlarmRowCount,
+            : CompileRows(document.Alarm, CeresRidleyPaletteDefinitions.AlarmStepCount,
                 CeresRidleyPaletteDefinitions.AlarmColorCount, "alarm");
         RgbColor[] retreatBg = Compile(document.RetreatBg, CeresRidleyPaletteDefinitions.RetreatBgColorCount, "retreat BG");
         RgbColor[] retreatShared = Compile(document.RetreatShared, CeresRidleyPaletteDefinitions.RetreatSharedColorCount,
             "retreat shared");
-        RgbColor[][]? baby = version == CeresRidleyColorVersion.PreBaby
-            ? null
-            : CompileRows(document.Baby, CeresRidleyPaletteDefinitions.BabyShadeCount,
-                CeresRidleyPaletteDefinitions.BabyColorCount, "Baby");
+        CeresBabyShadeColours? baby = version switch
+        {
+            CeresRidleyColorVersion.PreBaby => null,
+            // Versions two and three stored the Baby's colours as the cartridge's ordered steps.
+            CeresRidleyColorVersion.PreAlarm or CeresRidleyColorVersion.BabySteps => CompileShades(
+                CeresBabyCartridgeShades.FromSteps(document.Baby
+                    ?? throw new InvalidDataException("Ceres Ridley Baby requires its colour steps."))),
+            CeresRidleyColorVersion.Current => document.Baby is not null
+                ? throw new InvalidDataException("Ceres Ridley colors name the Baby's colours by shade, not by step.")
+                : CompileShades(document.BabyShades
+                    ?? throw new InvalidDataException("Ceres Ridley Baby requires its shades.")),
+            _ => throw new InvalidDataException("Ceres Ridley colors require the supported version."),
+        };
         return CeresRidleyColors.Create(new CeresRidleyColorRows
         {
             Start = start, EyeFade = eyeFade, BodyFade = bodyFade, Health = health, Alarm = alarm,
@@ -65,6 +75,19 @@ public static class CeresRidleyColorFile
             compiled[row] = Compile(rows[row], colorsPerRow, $"{name} row {row}");
         return compiled;
     }
+
+    /// <summary>Validates each Baby shade's fifteen colours.</summary>
+    private static CeresBabyShadeColours CompileShades(CeresBabyShadeColorsDocument shades) => new()
+    {
+        Resting = CompileShade(shades, CeresBabyShade.Resting),
+        HorizontalSquish = CompileShade(shades, CeresBabyShade.HorizontalSquish),
+        Round = CompileShade(shades, CeresBabyShade.Round),
+        VerticalSquish = CompileShade(shades, CeresBabyShade.VerticalSquish),
+    };
+
+    /// <summary>Validates one Baby shade's fifteen colours.</summary>
+    private static RgbColor[] CompileShade(CeresBabyShadeColorsDocument shades, CeresBabyShade shade) =>
+        Compile(shades.Of(shade), CeresRidleyPaletteDefinitions.BabyColorCount, $"Baby {shade}");
 
     /// <summary>Converts an exact-width RGB5 row to BGR555 after rejecting missing colors and channels outside five-bit range.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? colors, int count, string name) =>

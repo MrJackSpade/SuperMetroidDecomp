@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// The shapes of Ceres Ridley's palettes and the rules that select their rows (#1413). Where each palette sits in the
+/// The shapes of Ceres Ridley's palettes and the rules that select their steps (#1413). Where each palette sits in the
 /// cartridge is the import's knowledge (<c>AssetExtraction/CartridgeTables/RidleySourceDefinitions</c>).
 /// </summary>
 public static class CeresRidleyPaletteDefinitions
@@ -24,21 +24,21 @@ public static class CeresRidleyPaletteDefinitions
     /// <summary>The body colours of one body-fade shade, leaving the eye colours alone.</summary>
     public const int BodyFadeColorCount = 11;
 
-    /// <summary>The damage shades shared by both Ridley encounters: by health in Norfair, by accepted hits in Ceres.</summary>
-    public const int HealthRowCount = 3;
-    /// <summary>The colours of one damage shade.</summary>
+    /// <summary>The health bands shared by both Ridley encounters, each with its own damage shade: entered by health in Norfair, by accepted hits in Ceres.</summary>
+    public const int HealthBandCount = 3;
+    /// <summary>The colours of one health band's damage shade.</summary>
     public const int HealthColorCount = 14;
-    /// <summary>The damage shade Ceres Ridley shows from his fiftieth to his sixty-ninth accepted hit while fighting.</summary>
-    public const int HealthMidRow = 0;
+    /// <summary>The health band Ceres Ridley shows from his fiftieth to his sixty-ninth accepted hit while fighting.</summary>
+    public const int HealthMidBand = 0;
     /// <summary>
-    /// The damage shade Ceres Ridley shows from his seventieth accepted hit on: the cartridge omits the branch after its
-    /// ninety-hit comparison, so the middle shade is never shown in Ceres.
+    /// The health band Ceres Ridley shows from his seventieth accepted hit on: the cartridge omits the branch after its
+    /// ninety-hit comparison, so the middle band is never shown in Ceres.
     /// </summary>
-    public const int HealthLateRow = 2;
+    public const int HealthLateBand = 2;
 
-    /// <summary>The self-destruct alarm's EMERGENCY-text shades, one every fourth frame, cycling.</summary>
-    public const int AlarmRowCount = 16;
-    /// <summary>The text colours of one alarm shade, excluding the transparent colour.</summary>
+    /// <summary>The self-destruct alarm's EMERGENCY-text steps, one every fourth frame, cycling.</summary>
+    public const int AlarmStepCount = 16;
+    /// <summary>The text colours of one alarm step, excluding the transparent colour.</summary>
     public const int AlarmColorCount = 3;
 
     /// <summary>The getaway backdrop's colours one to fifteen, installed when Ridley's real retreat begins.</summary>
@@ -46,8 +46,8 @@ public static class CeresRidleyPaletteDefinitions
     /// <summary>The retreat colours shared by the getaway's background and Ridley's sprite palette.</summary>
     public const int RetreatSharedColorCount = 8;
 
-    /// <summary>The getaway's zoom shades, selected by the whole part of the getaway zoom (zero to eight).</summary>
-    public const int GetawayZoomRowCount = 9;
-    /// <summary>The colours of one getaway zoom shade, leaving colour zero alone.</summary>
+    /// <summary>The getaway's zoom steps, selected by the whole part of the getaway zoom (zero to eight).</summary>
+    public const int GetawayZoomStepCount = 9;
+    /// <summary>The colours of one getaway zoom step, leaving colour zero alone.</summary>
     public const int GetawayZoomColorCount = 15;
 }

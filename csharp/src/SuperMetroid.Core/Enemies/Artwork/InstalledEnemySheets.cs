@@ -112,7 +112,7 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
         {
             content.Append("spawned-set", System.Text.Encoding.UTF8.GetBytes(key.Set));
             content.Append("tile-base", key.TileBase);
-            content.Append("palette", sheet.Palette);
+            content.Append("palette", sheet.ColourGroup.Number);
             sheet.Sheet.AppendIdentity(content);
         }
         AppendPictures(content, "pictures", pictures.Select(entry => new PictureOwner(entry.Key.Set, entry.Key.Enemy.ToString(), entry.Value)));

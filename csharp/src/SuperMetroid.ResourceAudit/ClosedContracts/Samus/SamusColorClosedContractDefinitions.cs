@@ -47,9 +47,8 @@ internal static class SamusColorClosedContractDefinitions
         new("SuperMetroid.Core.Samus.Artwork.InstalledPowerBombFixedColors", "power-bomb-complete-fixed-colors", ["Resolve"],
             [PaletteDefinitions, FullBodyCyclePalettes,
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/InstalledPowerBombFixedColors.cs")]),
-        new("SuperMetroid.Core.Samus.Artwork.InstalledHyperBeamFxColors", "hyper-beam-fx-complete-color-frames", ["Apply"],
-            [new("csharp/src/SuperMetroid.Core/Samus/Artwork/InstalledHyperBeamFxColors.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Artwork/HyperBeamHues.cs"),
-             new("csharp/src/SuperMetroid.Core/Fx/Artwork/LoadingPaletteInputView.cs")]),
+        new("SuperMetroid.Core.Samus.Artwork.HyperBeamFxColours", "hyper-beam-fx-complete-color-frames", ["Apply"],
+            [PaletteDefinitions,
+             new("csharp/src/SuperMetroid.Core/Samus/Artwork/HyperBeamFxColours.cs")]),
     ];
 }

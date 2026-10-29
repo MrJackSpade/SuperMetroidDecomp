@@ -17,7 +17,7 @@ public static class NorfairRidleyColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var reveal = new PaletteRgb5[NorfairRidleyPaletteDefinitions.RevealRowCount][];
+        var reveal = new PaletteRgb5[NorfairRidleyPaletteDefinitions.RevealStepCount][];
         for (int row = 0; row < reveal.Length; row++)
         {
             int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),

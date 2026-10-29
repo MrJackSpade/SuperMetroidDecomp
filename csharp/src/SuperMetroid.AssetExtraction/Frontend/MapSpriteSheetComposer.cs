@@ -29,7 +29,7 @@ internal static class MapSpriteSheetComposer
         Ensure.NotNull(maps);
         MapSpriteArtwork artwork = MapSpriteArtwork.Of(sprites);
         List<SheetFrameSource> frames = [.. MapSpriteNames.Frames.Select(frame =>
-            new SheetFrameSource(frame.Name, artwork.Frame(frame.Id), artwork.Page, FrontendSheetPalette.FramePalette))];
+            new SheetFrameSource(frame.Name, artwork.Frame(frame.Id), artwork.Page, FrontendSheetPalette.FrameColourGroup.Number))];
         var cgram = new SnesCgram();
         new CgramPalettes(cgram).LoadImage(ScreenColourImage.Encode(maps.Palettes.FileSelect));
         return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true);

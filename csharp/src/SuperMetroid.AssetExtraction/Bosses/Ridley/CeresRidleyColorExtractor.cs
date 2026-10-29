@@ -28,18 +28,18 @@ public static class CeresRidleyColorExtractor
                 CeresRidleyPaletteDefinitions.BodyFadeShadeCount,
                 CeresRidleyPaletteDefinitions.BodyFadeColorCount),
             Health = ReadRows(RidleySourceDefinitions.Ceres.HealthColors,
-                CeresRidleyPaletteDefinitions.HealthRowCount,
+                CeresRidleyPaletteDefinitions.HealthBandCount,
                 CeresRidleyPaletteDefinitions.HealthColorCount),
             Alarm = ReadRows(RidleySourceDefinitions.Ceres.AlarmColors,
-                CeresRidleyPaletteDefinitions.AlarmRowCount,
+                CeresRidleyPaletteDefinitions.AlarmStepCount,
                 CeresRidleyPaletteDefinitions.AlarmColorCount),
             RetreatBg = ReadColors(RidleySourceDefinitions.Ceres.RetreatBgColors,
                 CeresRidleyPaletteDefinitions.RetreatBgColorCount),
             RetreatShared = ReadColors(RidleySourceDefinitions.Ceres.RetreatSharedColors,
                 CeresRidleyPaletteDefinitions.RetreatSharedColorCount),
-            Baby = ReadRows(RidleySourceDefinitions.Ceres.BabyColors,
+            BabyShades = CeresBabyCartridgeShades.FromSteps(ReadRows(RidleySourceDefinitions.Ceres.BabyColors,
                 CeresRidleyPaletteDefinitions.BabyShadeCount,
-                CeresRidleyPaletteDefinitions.BabyColorCount),
+                CeresRidleyPaletteDefinitions.BabyColorCount)),
         });
 
         PaletteRgb5[][] ReadRows(int source, int rows, int colorsPerRow)

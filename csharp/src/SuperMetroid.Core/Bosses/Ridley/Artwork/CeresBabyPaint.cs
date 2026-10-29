@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using static SuperMetroid.Core.Bosses.Ridley.Artwork.CeresBabyPaintDefinitions;
@@ -19,58 +20,77 @@ internal sealed class CeresBabyPaint
     private readonly CeresRidleyFade? body;
     /// <summary>Standalone Norfair body paint when no Ceres fade owner is present.</summary>
     private readonly CeresRidleyBodyPaint? standaloneBody;
-    /// <summary>Number of preserved palette rows, four for Ceres or one for Norfair.</summary>
-    private readonly int rowCount;
-    /// <summary>Independent glass-channel inputs retained from the supplied first row.</summary>
+    /// <summary>Which shades this paint holds: every shade for Ceres, only the resting colours for Norfair.</summary>
+    private readonly CeresBabyPaintShades shades;
+    /// <summary>Independent glass-channel inputs retained from the supplied resting colours.</summary>
     private readonly int glassRed, glassBlue, glassMiddleRed, glassGreenStep;
-    /// <summary>Independent dome and outline inputs retained from the supplied first row.</summary>
+    /// <summary>Independent dome and outline inputs retained from the supplied resting colours.</summary>
     private readonly int domeTint, domeGreen, domeShadeStep, outlineRed;
     /// <summary>Supplied colors that depart from the calculated material composition.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
+    internal readonly Dictionary<CeresBabyColourCell, RgbColor> edits = [];
 
-    /// <summary>Matches four Ceres pose rows to shared body paint while preserving independent color edits.</summary>
-    internal CeresBabyPaint(RgbColor[][] rows, CeresRidleyFade body)
-        : this(rows[0], 4)
+    /// <summary>Matches the four Ceres shades to shared body paint while preserving independent color edits.</summary>
+    internal CeresBabyPaint(CeresBabyShadeColours colours, CeresRidleyFade body)
+        : this(colours.Resting, CeresBabyPaintShades.Every)
     {
         this.body = body;
-        for (int row = 0; row < rowCount; row++)
-            for (int color = 0; color < 15; color++)
-                if (Calculate(row, color) != rows[row][color]) edits.Add(new ColourCell(row, color), rows[row][color]);
+        foreach (CeresBabyShade shade in Enum.GetValues<CeresBabyShade>())
+        {
+            RgbColor[] supplied = colours.Of(shade);
+            for (int color = 0; color < CeresRidleyPaletteDefinitions.BabyColorCount; color++)
+                if (Calculate(shade, color) != supplied[color]) edits.Add(new CeresBabyColourCell(shade, color), supplied[color]);
+        }
     }
 
     /// <summary>The same material at Norfair Ridley $A6:E1F1-E20E, with its own supplied values.</summary>
     internal CeresBabyPaint(ReadOnlySpan<RgbColor> initial)
-        : this(initial, 1)
+        : this(initial, CeresBabyPaintShades.RestingOnly)
     {
         standaloneBody = new(initial[4], initial[5], initial[6]);
-        for (int color = 0; color < 15; color++)
-            if (Calculate(0, color) != initial[color]) edits.Add(new ColourCell(0, color), initial[color]);
+        for (int color = 0; color < CeresRidleyPaletteDefinitions.BabyColorCount; color++)
+            if (Calculate(CeresBabyShade.Resting, color) != initial[color])
+                edits.Add(new CeresBabyColourCell(CeresBabyShade.Resting, color), initial[color]);
     }
 
-    /// <summary>Extracts glass, dome, and outline material inputs from a fifteen-color source row.</summary>
-    private CeresBabyPaint(ReadOnlySpan<RgbColor> initial, int rowCount)
+    /// <summary>Extracts glass, dome, and outline material inputs from the fifteen resting colours.</summary>
+    private CeresBabyPaint(ReadOnlySpan<RgbColor> initial, CeresBabyPaintShades shades)
     {
-        if (initial.Length != 15) throw new ArgumentException("Baby paint requires fifteen colors.", nameof(initial));
-        this.rowCount = rowCount;
+        if (initial.Length != CeresRidleyPaletteDefinitions.BabyColorCount)
+            throw new ArgumentException("Baby paint requires fifteen colors.", nameof(initial));
+        this.shades = shades;
         glassRed = initial[0].Red; glassBlue = initial[0].Blue;
         glassMiddleRed = initial[12].Red; glassGreenStep = Maximum - initial[12].Green;
         domeTint = initial[1].Red; domeGreen = initial[1].Green;
         domeShadeStep = domeGreen - initial[2].Green; outlineRed = initial[8].Red;
     }
 
-    /// <summary>Returns an edited color when supplied, otherwise the calculated row and material color.</summary>
-    internal RgbColor Resolve(int row, int color)
+    /// <summary>Returns an edited color when supplied, otherwise the calculated shade and material color.</summary>
+    internal RgbColor Resolve(CeresBabyShade shade, int color)
     {
-        if ((uint)row >= rowCount) throw new ArgumentOutOfRangeException(nameof(row));
-        if ((uint)color >= 15) throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(new ColourCell(row, color), out RgbColor edited) ? edited : Calculate(row, color);
+        _ = BrighteningSteps(shade);
+        if (shades == CeresBabyPaintShades.RestingOnly && shade != CeresBabyShade.Resting)
+            throw new ArgumentOutOfRangeException(nameof(shade), shade, "This Baby paint holds only the resting colours.");
+        if ((uint)color >= CeresRidleyPaletteDefinitions.BabyColorCount) throw new ArgumentOutOfRangeException(nameof(color));
+        return edits.TryGetValue(new CeresBabyColourCell(shade, color), out RgbColor edited) ? edited : Calculate(shade, color);
     }
 
+    /// <summary>
+    /// How many brightness steps <paramref name="shade"/> adds to the resting colours: the horizontal squish keeps them,
+    /// and the round pose and the vertical squish each brighten once more than the shade before.
+    /// </summary>
+    private static int BrighteningSteps(CeresBabyShade shade) => shade switch
+    {
+        CeresBabyShade.Resting or CeresBabyShade.HorizontalSquish => 0,
+        CeresBabyShade.Round => RoundBrighteningSteps,
+        CeresBabyShade.VerticalSquish => VerticalSquishBrighteningSteps,
+        _ => throw new ArgumentOutOfRangeException(nameof(shade), shade, "Undefined Ceres Baby shade."),
+    };
+
     /// <summary>Applies clipped pose brightening with delayed red for the tooth pulse.</summary>
-    private RgbColor Calculate(int row, int color)
+    private RgbColor Calculate(CeresBabyShade shade, int color)
     {
         RgbColor basis = Initial(color);
-        int phase = Math.Max(0, row - 1);
+        int phase = BrighteningSteps(shade);
         int addition = BrightnessStep * phase;
         // The selected tooth pulse delays red by one pose step while G/B brighten.
         int redAddition = color is >= 9 and <= 11 ? BrightnessStep * Math.Max(0, phase - 1) : addition;

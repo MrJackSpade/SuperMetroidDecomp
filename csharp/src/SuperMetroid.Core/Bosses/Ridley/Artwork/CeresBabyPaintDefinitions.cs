@@ -7,4 +7,8 @@ internal static class CeresBabyPaintDefinitions
     internal const int Maximum = (1 << 5) - 1;
     /// <summary>Per-pose increase applied to the Baby/container paint channels.</summary>
     internal const int BrightnessStep = 3;
+    /// <summary>The brightness steps the round pose adds to the Baby's resting colours.</summary>
+    internal const int RoundBrighteningSteps = 1;
+    /// <summary>The brightness steps the vertical squish, the brightest shade, adds to the Baby's resting colours.</summary>
+    internal const int VerticalSquishBrighteningSteps = 2;
 }

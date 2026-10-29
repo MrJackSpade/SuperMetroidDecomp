@@ -31,9 +31,9 @@ internal static class GameplayColoursAccess
             int colour = sprite % ColourSets.SetColours;
             foreach (IGameplayColourOwner owner in self.owners)
             {
-                if (owner is SamusColours samus && set == SamusColourDefinitions.SuitInkRow)
+                if (owner is SamusColours samus && set == SamusColourDefinitions.SuitColourGroup.Number)
                     return samus.Suit.Slice(colour, 1);
-                if (owner is SamusColours beams && set == SamusColourDefinitions.BeamInkRow)
+                if (owner is SamusColours beams && set == SamusColourDefinitions.BeamColourGroup.Number)
                     return beams.Beam.Slice(colour, 1);
             }
             return self.SpriteSets.All.Slice(sprite, 1);

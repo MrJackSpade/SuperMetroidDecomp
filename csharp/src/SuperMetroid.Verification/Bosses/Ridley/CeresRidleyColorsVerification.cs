@@ -17,6 +17,8 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Verification.Areas.Ceres;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
 /// <summary>Checks Ceres and Norfair Ridley palette installation against native CGRAM rows.</summary>
@@ -44,12 +46,12 @@ internal static class CeresRidleyColorsVerification
                 CeresRidleyPaletteDefinitions.BodyFadeColorCount * sizeof(ushort),
                 CeresRidleyPaletteDefinitions.BodyFadeColorCount,
                 color => native.ResolveBodyFade(row, color));
-        for (int row = 0; row < CeresRidleyPaletteDefinitions.HealthRowCount; row++)
+        for (int row = 0; row < CeresRidleyPaletteDefinitions.HealthBandCount; row++)
             Check(RidleySourceDefinitions.Ceres.HealthColors + row *
                 CeresRidleyPaletteDefinitions.HealthColorCount * sizeof(ushort),
                 CeresRidleyPaletteDefinitions.HealthColorCount,
                 color => native.ResolveHealth(row, color));
-        for (int row = 0; row < CeresRidleyPaletteDefinitions.AlarmRowCount; row++)
+        for (int row = 0; row < CeresRidleyPaletteDefinitions.AlarmStepCount; row++)
             Check(RidleySourceDefinitions.Ceres.AlarmColors + row *
                 CeresRidleyPaletteDefinitions.AlarmColorCount * sizeof(ushort),
                 CeresRidleyPaletteDefinitions.AlarmColorCount,
@@ -58,11 +60,11 @@ internal static class CeresRidleyColorsVerification
             CeresRidleyPaletteDefinitions.RetreatBgColorCount, native.ResolveRetreatBg);
         Check(RidleySourceDefinitions.Ceres.RetreatSharedColors,
             CeresRidleyPaletteDefinitions.RetreatSharedColorCount, native.ResolveRetreatShared);
-        for (int row = 0; row < CeresRidleyPaletteDefinitions.BabyShadeCount; row++)
-            Check(RidleySourceDefinitions.Ceres.BabyColors + row *
-                    CeresRidleyPaletteDefinitions.BabyColorCount * sizeof(ushort),
+        // Each Baby shade is read where the native draw list's palette operand for that shade points.
+        foreach (CeresBabyNativeListAddressesShadeOperand shadeOperand in CeresBabyNativeListAddresses.ShadeOperands)
+            Check(CeresBabyNativeListAddresses.Bank << 16 | shadeOperand.Operand,
                 CeresRidleyPaletteDefinitions.BabyColorCount,
-                color => native.ResolveBaby(row, color));
+                color => native.ResolveBaby(shadeOperand.Shade, color));
 
         CeresRidleyColorDocument document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(
             File.ReadAllBytes(Path.Combine(stockDirectory, CeresRidleyColorFormat.FileName)),
@@ -77,7 +79,7 @@ internal static class CeresRidleyColorsVerification
         Paint((document.Alarm ?? throw new InvalidOperationException("Verification requires document.Alarm."))[7]);
         Paint(document.RetreatBg);
         Paint(document.RetreatShared);
-        Paint((document.Baby ?? throw new InvalidOperationException("Verification requires document.Baby."))[1]);
+        Paint((document.BabyShades ?? throw new InvalidOperationException("Verification requires document.BabyShades.")).HorizontalSquish);
         string replacement = Path.Combine(overrideDirectory, CeresRidleyColorFormat.FileName);
         File.WriteAllBytes(replacement, CeresRidleyColorFile.Write(document));
         AreaMapPresentation edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
@@ -145,8 +147,8 @@ internal static class CeresRidleyColorsVerification
         {
             state.HitCounter = count;
             healthTick(state);
-            int row = count < 70 ? CeresRidleyPaletteDefinitions.HealthMidRow :
-                CeresRidleyPaletteDefinitions.HealthLateRow;
+            int row = count < 70 ? CeresRidleyPaletteDefinitions.HealthMidBand :
+                CeresRidleyPaletteDefinitions.HealthLateBand;
             CheckCgram(CeresRidleyPaletteDefinitions.HealthColorCount,
                 CeresRidleyPaletteDefinitionsConstants.HealthCgramIndex,
                 color => edited.CeresRidleyColors.ResolveHealth(row, color),
@@ -179,7 +181,7 @@ internal static class CeresRidleyColorsVerification
         // Ridley edits and supply only the new Baby colors from verified stock.
         byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(
             document with { Version = (int)CeresRidleyColorVersion.PreBaby,
-                Baby = null, Alarm = null },
+                BabyShades = null, Alarm = null },
             ArtworkJson.Options);
         File.WriteAllBytes(replacement, legacyJson);
         AreaMapPresentation migrated =
@@ -187,21 +189,38 @@ internal static class CeresRidleyColorsVerification
         AssertEqual(edited.CeresRidleyColors.ResolveStart(1),
             migrated.CeresRidleyColors.ResolveStart(1),
             "version-one Ceres Ridley override retains an edited color");
-        AssertEqual(original.CeresRidleyColors.ResolveBaby(1, 0),
-            migrated.CeresRidleyColors.ResolveBaby(1, 0),
+        AssertEqual(original.CeresRidleyColors.ResolveBaby(CeresBabyShade.HorizontalSquish, 0),
+            migrated.CeresRidleyColors.ResolveBaby(CeresBabyShade.HorizontalSquish, 0),
             "version-one Ceres Ridley override inherits stock Baby colors");
         AssertEqual(original.CeresRidleyColors.ResolveAlarm(7, 1),
             migrated.CeresRidleyColors.ResolveAlarm(7, 1),
             "version-one Ceres Ridley override inherits stock alarm colors");
+        // Versions two and three stored the Baby's colours as the cartridge's ordered steps, the order of the native
+        // draw lists' palette operands.
+        CeresBabyShadeColorsDocument editedShades = document.BabyShades
+            ?? throw new InvalidOperationException("Verification requires document.BabyShades.");
+        PaletteRgb5[][] babySteps = [.. CeresBabyNativeListAddresses.ShadeOperands
+            .OrderBy(shadeOperand => shadeOperand.Operand).Select(shadeOperand => editedShades.Of(shadeOperand.Shade))];
         byte[] preAlarmJson = JsonSerializer.SerializeToUtf8Bytes(
-            document with { Version = (int)CeresRidleyColorVersion.PreAlarm, Alarm = null },
+            document with { Version = (int)CeresRidleyColorVersion.PreAlarm, Alarm = null, Baby = babySteps, BabyShades = null },
             ArtworkJson.Options);
         File.WriteAllBytes(replacement, preAlarmJson);
         AreaMapPresentation preAlarm =
             MapPresentationFiles.Load(stockDirectory, overrideDirectory);
-        AssertEqual(edited.CeresRidleyColors.ResolveBaby(1, 1),
-            preAlarm.CeresRidleyColors.ResolveBaby(1, 1),
+        AssertEqual(edited.CeresRidleyColors.ResolveBaby(CeresBabyShade.HorizontalSquish, 1),
+            preAlarm.CeresRidleyColors.ResolveBaby(CeresBabyShade.HorizontalSquish, 1),
             "version-two Ridley override retains its edited Baby colors");
+        byte[] babyStepsJson = JsonSerializer.SerializeToUtf8Bytes(
+            document with { Version = (int)CeresRidleyColorVersion.BabySteps, Baby = babySteps, BabyShades = null },
+            ArtworkJson.Options);
+        File.WriteAllBytes(replacement, babyStepsJson);
+        AreaMapPresentation babyStepsOverride =
+            MapPresentationFiles.Load(stockDirectory, overrideDirectory);
+        foreach (CeresBabyShade shade in Enum.GetValues<CeresBabyShade>())
+            for (int color = 0; color < CeresRidleyPaletteDefinitions.BabyColorCount; color++)
+                AssertEqual(edited.CeresRidleyColors.ResolveBaby(shade, color),
+                    babyStepsOverride.CeresRidleyColors.ResolveBaby(shade, color),
+                    "version-three Ridley override names its ordered Baby steps by shade");
         AssertEqual(original.CeresRidleyColors.ResolveAlarm(7, 1),
             preAlarm.CeresRidleyColors.ResolveAlarm(7, 1),
             "version-two Ridley override inherits stock alarm colors");
@@ -252,7 +271,7 @@ internal static class CeresRidleyColorsVerification
             var nativeState = new RidleyEnemyState();
             var stockState = new RidleyEnemyState();
             var editedState = new RidleyEnemyState();
-            for (ushort frame = 0; frame < CeresRidleyPaletteDefinitions.AlarmRowCount * 4; frame++)
+            for (ushort frame = 0; frame < CeresRidleyPaletteDefinitions.AlarmStepCount * 4; frame++)
             {
                 nativeTick(nativeState, frame);
                 stockTick(stockState, frame);

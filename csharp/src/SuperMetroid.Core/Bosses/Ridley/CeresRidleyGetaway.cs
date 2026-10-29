@@ -209,15 +209,15 @@ internal sealed class CeresRidleyGetaway
     {
         // SetCeresRidleyPaletteAccordingToZoomLevel uses this wrapped bank-$A6 expression.
         // There are fifteen colors; palette entry zero remains the shared transparent color.
-        int zoomHighByte = UnsignedEightEight.Whole(zoom);
+        int zoomStep = UnsignedEightEight.Whole(zoom);
         if (_bossArtwork.CeresRidleyFloorColors is { } installed &&
-            zoomHighByte < CeresRidleyPaletteDefinitions.GetawayZoomRowCount)
+            zoomStep < CeresRidleyPaletteDefinitions.GetawayZoomStepCount)
         {
-            installed.Apply(_presentation.Colours, zoomHighByte);
+            installed.Apply(_presentation.Colours, zoomStep);
             return;
         }
         throw new InvalidOperationException(
-            $"Ceres Ridley Mode 7 zoom row {zoomHighByte} is not in the installed palette catalog.");
+            $"Ceres Ridley Mode 7 zoom step {zoomStep} is not in the installed palette catalog.");
     }
 
     /// <summary>

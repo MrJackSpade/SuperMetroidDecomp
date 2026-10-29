@@ -14,10 +14,10 @@ public sealed class BeamTileCatalog : IInstalledArtworkContent
     /// <summary>Gets the optional installed beam and grapple palette catalog paired with these tile sheets.</summary>
     public InstalledBeamPalettes? Palettes { get; }
     /// <summary>Gets the optional installed fixed-color cycle used by the Hyper Beam visual effect.</summary>
-    public InstalledHyperBeamFxColors? HyperBeamFxColors { get; }
+    public HyperBeamFxColours? HyperBeamFxColors { get; }
     /// <summary>Establishes primary-sheet pixel sharing before whole-sheet combination aliases.</summary>
     internal BeamTileCatalog(BeamTileAtlas[] sheets, InstalledBeamPalettes? palettes,
-        InstalledHyperBeamFxColors? hyperBeamFxColors)
+        HyperBeamFxColours? hyperBeamFxColors)
     {
         // Establish the five primary sheets before their combination aliases. Immutable
         // references share only matching pixels; separately supplied edits remain isolated.
@@ -42,7 +42,7 @@ public sealed class BeamTileCatalog : IInstalledArtworkContent
 
     /// <summary>Builds a catalog from file-context-validated atlases without decoding PNGs twice.</summary>
     internal static BeamTileCatalog FromAtlases(BeamTileAtlas[] sheets, InstalledBeamPalettes palettes,
-        InstalledHyperBeamFxColors hyperBeamFxColors)
+        HyperBeamFxColours hyperBeamFxColors)
     {
         Ensure.NotNull(sheets);
         if (sheets.Length != BeamTileAtlasDefinitions.ArtworkCount || sheets.Any(sheet => sheet is null))

@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>A hyper beam colour and the channels it supplies.</summary>
 /// <param name="Value">The value.</param>

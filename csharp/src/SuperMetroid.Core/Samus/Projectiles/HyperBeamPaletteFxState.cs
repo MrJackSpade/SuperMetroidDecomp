@@ -66,7 +66,7 @@ public sealed class HyperBeamPaletteFxState
 
     /// <summary>Runs one call of <c>PaletteFXObject_Handler</c> for the Hyper Beam object.</summary>
     public HyperBeamPaletteFxStepResult Step(SamusColours colours,
-        InstalledHyperBeamFxColors? presentationColors = null)
+        HyperBeamFxColours? presentationColors = null)
     {
         Ensure.NotNull(colours);
 

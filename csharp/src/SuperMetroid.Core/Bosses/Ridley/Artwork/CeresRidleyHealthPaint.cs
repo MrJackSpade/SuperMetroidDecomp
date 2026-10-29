@@ -14,36 +14,37 @@ internal sealed class CeresRidleyHealthPaint
 {
     /// <summary>Source healthy body and eye paints from which the three damage bands are calculated.</summary>
     private readonly CeresRidleyFade body, eyes;
-    /// <summary>Authored departures from the calculated health shades, keyed by row and color.</summary>
+    /// <summary>Authored departures from the calculated health shades, keyed by band and color.</summary>
     internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>Records only input colors that differ from the calculated healthy-to-membrane tint.</summary>
-    internal CeresRidleyHealthPaint(RgbColor[][] rows,
+    internal CeresRidleyHealthPaint(RgbColor[][] bands,
         CeresRidleyFade body, CeresRidleyFade eyes)
     {
         this.body = body; this.eyes = eyes;
-        for (int row = 0; row < 3; row++) for (int color = 0; color < 14; color++)
-            if (Calculate(row, color) != rows[row][color]) edits.Add(new ColourCell(row, color), rows[row][color]);
+        for (int band = 0; band < CeresRidleyPaletteDefinitions.HealthBandCount; band++)
+        for (int color = 0; color < CeresRidleyPaletteDefinitions.HealthColorCount; color++)
+            if (Calculate(band, color) != bands[band][color]) edits.Add(new ColourCell(band, color), bands[band][color]);
     }
 
     /// <summary>Uses an authored override where present, otherwise calculates the selected damage-band shade.</summary>
-    internal RgbColor Resolve(int row, int color)
+    internal RgbColor Resolve(int band, int color)
     {
-        if ((uint)row >= 3) throw new ArgumentOutOfRangeException(nameof(row));
-        if ((uint)color >= 14) throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(new ColourCell(row, color), out RgbColor edited) ? edited : Calculate(row, color);
+        if ((uint)band >= CeresRidleyPaletteDefinitions.HealthBandCount) throw new ArgumentOutOfRangeException(nameof(band));
+        if ((uint)color >= CeresRidleyPaletteDefinitions.HealthColorCount) throw new ArgumentOutOfRangeException(nameof(color));
+        return edits.TryGetValue(new ColourCell(band, color), out RgbColor edited) ? edited : Calculate(band, color);
     }
 
     /// <summary>Tints healthy armor or eyes toward middle membrane paint, preserving two chosen channel shades.</summary>
-    private RgbColor Calculate(int row, int color)
+    private RgbColor Calculate(int band, int color)
     {
         RgbColor healthy = color < 11 ? body.Resolve(15, color) : eyes.Resolve(0, color - 11);
         RgbColor target = body.Resolve(15, 9);
-        int strength = 2 + row;
+        int strength = 2 + band;
         return healthy.Zip(target, (channel, original, toward) =>
         {
-            if (row == 0 && color == 2 && channel == ColorChannel.Green) return original;
-            if (row == 1 && color == 5 && channel == ColorChannel.Blue) return Calculate(0, color).Blue;
+            if (band == 0 && color == 2 && channel == ColorChannel.Green) return original;
+            if (band == 1 && color == 5 && channel == ColorChannel.Blue) return Calculate(0, color).Blue;
             return (original * (20 - strength) + toward * strength) / 20;
         });
     }

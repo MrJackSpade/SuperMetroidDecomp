@@ -637,7 +637,7 @@ internal static class LookupStream4Verification
         for (int row = 0; row < 16; row++)
         for (int color = 0; color < 3; color++)
         {
-            AssertEqual(Native(row, color), Native(CeresRidleyAlarmColors.SourceRow(row), color), "direct reflected/native relationship");
+            AssertEqual(Native(row, color), Native(CeresRidleyAlarmColors.Phase(row), color), "direct reflected/native relationship");
 
             AssertEqual(Native(row, color), stock.ResolveAlarm(row, color), "installed native alarm color");
         }
@@ -2775,7 +2775,7 @@ internal static class LookupStream4Verification
     {
         ushort[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + i * 2))).ToArray();
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
-        static void NoEdits(Dictionary<ColourCell, RgbColor> edits) =>
+        static void NoEdits<TCell>(Dictionary<TCell, RgbColor> edits) where TCell : notnull =>
             AssertEqual(0, edits.Count, "Native material has no unexplained output overrides");
         byte[] json = NorfairRidleyColorExtractor.Extract(rom);
         var original = RequiredJson.Deserialize<NorfairRidleyColorDocument>(json, ArtworkJson.Options);
@@ -3168,19 +3168,20 @@ internal static class LookupStream4Verification
         for (int edit = -1; edit < 47; edit++)
         {
             var starts = document.Start.ToArray();
-            var babies = (document.Baby ?? throw new InvalidOperationException("Verification requires document.Baby.")).Select(row => row.ToArray()).ToArray();
+            var babyShades = document.BabyShades ?? throw new InvalidOperationException("Verification requires document.BabyShades.");
+            var resting = babyShades.Resting.ToArray();
             if (edit >= 0)
             {
-                PaletteRgb5 source = edit < 32 ? starts[edit] : babies[0][edit - 32];
+                PaletteRgb5 source = edit < 32 ? starts[edit] : resting[edit - 32];
                 PaletteRgb5 changed = channel switch
                 {
                     0 => source with { Red = source.Red ^ 1 },
                     1 => source with { Green = source.Green ^ 1 },
                     _ => source with { Blue = source.Blue ^ 1 },
                 };
-                if (edit < 32) starts[edit] = changed; else babies[0][edit - 32] = changed;
+                if (edit < 32) starts[edit] = changed; else resting[edit - 32] = changed;
             }
-            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Start = starts, Baby = babies })));
+            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Start = starts, BabyShades = babyShades with { Resting = resting } })));
             var cgram = new GameplayColours(new SpriteColourSets());
             for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, RgbColor.FromWord(0x1234));
             selected.ApplyStart(cgram);
@@ -3214,6 +3215,10 @@ internal static class LookupStream4Verification
             int a = 0xa6e1f1 + (row * 15 + color) * 2;
             return CartridgeImportSource.Require(rom).ReadCartridgeWord(a);
         }
+        // Each shade shows the native Baby row of the same rank: resting, then the horizontal, round and vertical poses.
+        CeresBabyShade[] shadeOfRow = [CeresBabyShade.Resting, CeresBabyShade.HorizontalSquish, CeresBabyShade.Round, CeresBabyShade.VerticalSquish];
+        CeresBabyShadeColorsDocument babyShades = document.BabyShades ?? throw new InvalidOperationException("Verification requires document.BabyShades.");
+        PaletteRgb5[][] NativeOrderedRows() => [.. shadeOfRow.Select(shade => babyShades.Of(shade).ToArray())];
         var definition = stock.selection.Baby;
         var overrides = definition.edits;
         AssertEqual(0, overrides.Count, "No unexplained native Baby residuals");
@@ -3224,15 +3229,15 @@ internal static class LookupStream4Verification
         }
         foreach (var source in new[] { new VerifyLookupStream4CeresBabyCase(Address:0xa994e6, Color:9), new VerifyLookupStream4CeresBabyCase(Address:0xa994ea, Color:11) })
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(source.Address), Native(0, source.Color), "Exact native shared fang source identities");
-        byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(document with { Version = (int)CeresRidleyColorVersion.PreBaby, Baby = null }, ArtworkJson.Options);
+        byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(document with { Version = (int)CeresRidleyColorVersion.PreBaby, BabyShades = null }, ArtworkJson.Options);
         var legacy = CeresRidleyColorFile.Read(new MemoryStream(legacyJson), stock);
         for (int row = 0; row < 4; row++) for (int color = 0; color < 15; color++)
-            AssertEqual(Native(row, color), legacy.ResolveBaby(row, color), "Legacy document preserves the independently installed Baby owner");
+            AssertEqual(Native(row, color), legacy.ResolveBaby(shadeOfRow[row], color), "Legacy document preserves the independently installed Baby owner");
         for (int row = 0; row < 4; row++) for (int color = 0; color < 15; color++)
-            AssertEqual(Native(row, color), stock.ResolveBaby(row, color), "All60 native Baby colors calculate");
+            AssertEqual(Native(row, color), stock.ResolveBaby(shadeOfRow[row], color), "All60 native Baby colors calculate");
         for (int channel = 0; channel < 3; channel++) for (int edit = -1; edit < 63; edit++)
         {
-            var rows = (document.Baby ?? throw new InvalidOperationException("Verification requires document.Baby.")).Select(row => row.ToArray()).ToArray();
+            var rows = NativeOrderedRows();
             var body = document.BodyFade.Select(row => row.ToArray()).ToArray();
             if (edit >= 0)
             {
@@ -3245,9 +3250,7 @@ internal static class LookupStream4Verification
                 };
                 if (edit < 60) rows[edit / 15][edit % 15] = replacement; else body[15][8 + edit - 60] = replacement;
             }
-            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Baby = rows, BodyFade = body })));
-            // Each shade shows the native Baby row of the same rank: resting, then the horizontal, round and vertical poses.
-            CeresBabyShade[] shadeOfRow = [CeresBabyShade.Resting, CeresBabyShade.HorizontalSquish, CeresBabyShade.Round, CeresBabyShade.VerticalSquish];
+            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { BabyShades = CeresBabyCartridgeShades.FromSteps(rows), BodyFade = body })));
             for (int row = 0; row < 4; row++)
             {
                 var cgram = new GameplayColours(new SpriteColourSets());
@@ -3267,10 +3270,10 @@ internal static class LookupStream4Verification
         foreach (int variation in new[] { -1, 0, 1 })
         {
             var bodyRows = document.BodyFade.Select(row => row.ToArray()).ToArray();
-            var babyRows = (document.Baby ?? throw new InvalidOperationException("Verification requires document.Baby.")).Select(row => row.ToArray()).ToArray();
+            var babyRows = NativeOrderedRows();
             if (variation == 0) babyRows[2][0] = babyRows[2][0] with { Red = babyRows[2][0].Red ^ 1 };
             if (variation == 1) bodyRows[15][9] = bodyRows[15][9] with { Green = bodyRows[15][9].Green ^ 1 };
-            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Baby = babyRows, BodyFade = bodyRows })));
+            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { BabyShades = CeresBabyCartridgeShades.FromSteps(babyRows), BodyFade = bodyRows })));
             var cgram = new SamusColourRig();
             var enemies = new RoomEnemySystem(new EnemySession()) { BossArtworkBinding = { CeresRidleyColors = selected } };
             enemies.Presentation.BindColours(cgram.Gameplay);
@@ -3288,10 +3291,8 @@ internal static class LookupStream4Verification
                     AssertEqual((ushort)(Native(row, color) ^ (variation == 0 && row == 2 && color == 0 ? 1 : 0)), cgram.Colors[177 + color], "Actual pose-selected palette preserves independent edits");
             }
         }
-        foreach (int row in new[] { -1, 4, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBaby(row, 0), "Baby row domain");
         foreach (int color in new[] { -1, 15, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBaby(0, color), "Baby color domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBaby(CeresBabyShade.Resting, color), "Baby color domain");
         Console.WriteLine("Ceres Baby:60 native colors,zero native overrides,180 independent output RGB edits/9 body-source edits,768 actual15-color copies,36 native interpreter shape selections and startup independence pass.");
     }
 

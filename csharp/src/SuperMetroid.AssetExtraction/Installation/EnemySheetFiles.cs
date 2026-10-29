@@ -108,7 +108,7 @@ public static class EnemySheetFiles
                 if (!sheet.HoldsExactly(SpawnedObjectSheetComposer.FrameNames(spawners, entry.Anywhere).SelectMany(frame => PictureNames(frame,
                         regions, framePictures, frameRots, setCorpses[set], SpawnedObjectSheetComposer.ShowsRot(frame)))))
                     throw new InvalidDataException($"Spawned-object sheet {entry.Sheet} does not hold exactly the pictures of the objects its spawners spawn.");
-                spawned.Add(new SpawnedObjectSheetKey(set, tileBase), new SpawnedObjectSheet(sheet, entry.Palette));
+                spawned.Add(new SpawnedObjectSheetKey(set, tileBase), new SpawnedObjectSheet(sheet, ImageColourGroup.Numbered(entry.Palette)));
                 if (framePictures.Count > 0)
                     spawnedPictures.Add(new SpawnedObjectSheetKey(set, tileBase), Named(framePictures, regions));
                 if (frameRots.Count > 0)

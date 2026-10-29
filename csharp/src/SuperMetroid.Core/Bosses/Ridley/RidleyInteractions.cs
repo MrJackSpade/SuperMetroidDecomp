@@ -38,13 +38,13 @@ internal sealed class RidleyInteractions
         if (state.HealthStage == 0)
             return;
 
-        // Norfair and Ceres select the same authored $A6:E46A health rows. Keep
+        // Norfair and Ceres select the same authored $A6:E46A health bands. Keep
         // Norfair's health thresholds here, but use the installed palette so
         // editing that one asset updates both encounters consistently.
-        int row = state.HealthStage - 1;
+        int band = state.HealthStage - 1;
         (_bossArtwork.CeresRidleyColors ?? throw new InvalidOperationException(
             "Ridley damage requires installed health colors."))
-            .ApplyHealth(_presentation.Colours, row);
+            .ApplyHealth(_presentation.Colours, band);
     }
 
     /// <summary>

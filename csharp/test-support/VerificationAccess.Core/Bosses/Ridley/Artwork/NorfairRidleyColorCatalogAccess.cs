@@ -11,7 +11,7 @@ internal static class NorfairRidleyColorCatalogAccess
         /// <summary>Reads a pre-reveal Ridley color.</summary>
         internal RgbColor ResolveInitial(int color) => self.selection.Initial.ColorAt(color);
 
-        /// <summary>Reads a row and color from Ridley's reveal paint sequence.</summary>
-        internal RgbColor ResolveReveal(int row, int color) => self.selection.Reveal.ColorAt(row, color);
+        /// <summary>Reads a step and color from Ridley's reveal paint sequence.</summary>
+        internal RgbColor ResolveReveal(int step, int color) => self.selection.Reveal.ColorAt(step, color);
     }
 }

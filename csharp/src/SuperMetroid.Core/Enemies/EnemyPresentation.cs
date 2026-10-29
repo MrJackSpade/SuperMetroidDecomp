@@ -146,7 +146,7 @@ internal sealed class EnemyPresentation
         int tileBase, SpriteColouring drawn, CorpseRotView? rot = null)
     {
         SpawnedObjectSheet sheet = Sheets.Spawned(LoadedSet, tileBase);
-        DrawnColouring? shown = Placement.InPlaceOfGroup(drawn, sheet.Palette);
+        DrawnColouring? shown = Placement.InPlaceOfGroup(drawn, sheet.ColourGroup);
         foreach (string picture in Pictures(frame, Sheets.SpawnedLayers(LoadedSet, tileBase, frame),
                      Sheets.SpawnedRotCorpse(LoadedSet, tileBase, frame), rot))
             sprites.Add(new ImageSpriteDraw(source, sheet.Sheet.Frame(picture), origin, SpriteMirror.None, shown));

@@ -44,8 +44,8 @@ public abstract class SpriteColourPlacement
     /// <paramref name="imageGroup"/>: none while that group's store holds the drawn colours, otherwise the drawn colouring
     /// as this load places it.
     /// </summary>
-    internal DrawnColouring? InPlaceOfGroup(SpriteColouring drawn, int imageGroup) =>
-        StoreOf(drawn).Set == imageGroup ? null : new DrawnColouring(drawn, this);
+    internal DrawnColouring? InPlaceOfGroup(SpriteColouring drawn, ImageColourGroup imageGroup) =>
+        StoreOf(drawn) == imageGroup.Store ? null : new DrawnColouring(drawn, this);
 
     /// <summary>
     /// The colours a draw in <paramref name="drawn"/> shows over its image's part group <paramref name="part"/> among

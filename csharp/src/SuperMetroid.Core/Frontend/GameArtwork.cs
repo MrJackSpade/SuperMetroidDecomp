@@ -172,7 +172,7 @@ public sealed record GameArtwork : IGameplayArtwork
     public InstalledBeamPalettes? BeamPalettes { get; init; }
 
     /// <summary>The Hyper Beam palette effect's colour cycle.</summary>
-    public InstalledHyperBeamFxColors? HyperBeamFxColors { get; init; }
+    public HyperBeamFxColours? HyperBeamFxColors { get; init; }
 
     /// <summary>Enemy palettes, extended frames and colour catalogs.</summary>
     public EnemyTileArtworkCatalog? EnemyTileArtwork { get; init; }

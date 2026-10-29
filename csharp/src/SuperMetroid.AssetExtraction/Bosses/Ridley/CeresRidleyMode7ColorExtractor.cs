@@ -16,7 +16,7 @@ public static class CeresRidleyMode7ColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var rows = new PaletteRgb5[CeresRidleyPaletteDefinitions.GetawayZoomRowCount][];
+        var rows = new PaletteRgb5[CeresRidleyPaletteDefinitions.GetawayZoomStepCount][];
         for (int row = 0; row < rows.Length; row++)
         {
             byte[] bytes = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),

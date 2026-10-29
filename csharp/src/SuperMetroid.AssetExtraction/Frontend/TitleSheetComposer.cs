@@ -29,7 +29,7 @@ internal static class TitleSheetComposer
         List<SheetFrameSource> frames = [.. TitleSpriteDefinitions.All.Select(sprite =>
         {
             string name = TitleSpriteDefinitions.FrameName(sprite);
-            return new SheetFrameSource(name, characters.Frame(sprite, name), characters.ObjectPage, FrontendSheetPalette.FramePalette);
+            return new SheetFrameSource(name, characters.Frame(sprite, name), characters.ObjectPage, FrontendSheetPalette.FrameColourGroup.Number);
         })];
         var colours = new ScreenPalette();
         palette.Apply(colours);

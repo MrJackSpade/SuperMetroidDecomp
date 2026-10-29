@@ -25,6 +25,13 @@ public readonly struct ColourRunSequence
         run.Write(colour, value);
     }
 
+    /// <summary>Changes every colour of every run to <paramref name="value"/>.</summary>
+    public void Fill(RgbColor value)
+    {
+        foreach (ColourRun run in Runs)
+            run.Fill(value);
+    }
+
     /// <summary>Changes the sequence's colours to <paramref name="source"/>, which holds exactly as many, run after run.</summary>
     public void CopyFrom(ReadOnlySpan<RgbColor> source)
     {

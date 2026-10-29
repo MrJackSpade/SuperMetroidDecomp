@@ -140,20 +140,20 @@ internal sealed class CeresRidleyHits
 
     /// <summary>
     /// Ports $A6:D4B5-$D4D7. Ceres uses shot count in place of health, including the
-    /// original missing branch after the 90-shot comparison: 50-69 selects palette zero,
-    /// and every value from 70 onward selects palette two.
+    /// original missing branch after the 90-shot comparison: 50-69 selects health band zero,
+    /// and every value from 70 onward selects health band two.
     /// </summary>
     internal void UpdateCeresRidleyHealthPalette(RidleyEnemyState state)
     {
         if (state.FightMode == RidleyFightMode.NotFighting || state.HitCounter < 50)
             return;
 
-        int paletteIndex = state.HitCounter < 70
-            ? CeresRidleyPaletteDefinitions.HealthMidRow
-            : CeresRidleyPaletteDefinitions.HealthLateRow;
+        int band = state.HitCounter < 70
+            ? CeresRidleyPaletteDefinitions.HealthMidBand
+            : CeresRidleyPaletteDefinitions.HealthLateBand;
         (_bossArtwork.CeresRidleyColors ?? throw new InvalidOperationException(
             "Ceres Ridley damage requires installed health colors."))
-            .ApplyHealth(_presentation.Colours, paletteIndex);
+            .ApplyHealth(_presentation.Colours, band);
     }
 
     /// <summary>Routes exploding normal bombs to Ceres Ridley's shot counter after common bank-$A0 overlap.</summary>

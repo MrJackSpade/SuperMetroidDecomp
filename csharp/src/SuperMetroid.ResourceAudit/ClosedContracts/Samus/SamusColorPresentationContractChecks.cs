@@ -27,7 +27,7 @@ internal static class SamusColorPresentationContractChecks
                     SamusChargeColours charge, InstalledSamusHurtColors hurt,
                     SamusHyperBeamColours hyper, InstalledSamusVisorColors visor,
                     InstalledCrystalFlashColors flash, InstalledPowerBombFixedColors bomb,
-                    InstalledHyperBeamFxColors fx, SamusColours colours, ColourRun run) {
+                    HyperBeamFxColours fx, SamusColours colours, ColourRun run) {
                     body.Apply(colours, new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
                         SamusSuit.Gravity, 3));
                     body.Apply(colours, new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
@@ -57,8 +57,8 @@ internal static class SamusColorPresentationContractChecks
                     bomb.Resolve(PowerBombFixedColorSequence.PreExplosion, SamusPaletteDefinitions.PowerBomb.PreExplosionColorCount - 1);
                     bomb.Resolve(PowerBombFixedColorSequence.PreExplosion, SamusPaletteDefinitions.PowerBomb.PreExplosionColorCount);
                     bomb.Resolve((PowerBombFixedColorSequence)int.MaxValue, 0);
-                    fx.Apply(run, HyperBeamFxColorFormat.FrameCount - 1);
-                    fx.Apply(run, HyperBeamFxColorFormat.FrameCount);
+                    fx.Apply(run, SamusPaletteDefinitions.HyperBeamFx.CycleFrameCount - 1);
+                    fx.Apply(run, SamusPaletteDefinitions.HyperBeamFx.CycleFrameCount);
                 }
             }
             """;

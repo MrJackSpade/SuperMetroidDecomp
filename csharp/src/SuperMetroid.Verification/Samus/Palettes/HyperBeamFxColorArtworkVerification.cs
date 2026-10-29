@@ -24,6 +24,7 @@ internal static class HyperBeamFxColorArtworkVerification
     {
         byte[] json = HyperBeamFxColorExtractor.Extract(bus);
         var catalog = HyperBeamFxColorFile.Read(new MemoryStream(json));
+        HyperBeamFxColours colours = catalog.ToColours();
         AssertEqual(HyperBeamPaletteFxColorDefinitionsConstants.FrameCount,
             HyperBeamFxColorFormat.FrameCount, "Extracted Hyper Beam frame count matches compiled control");
         AssertEqual(HyperBeamPaletteFxColorDefinitions.ColorsPerFrame,
@@ -174,7 +175,7 @@ internal static class HyperBeamFxColorArtworkVerification
                 nativeCgram.SetColor(225 + color, RgbColor.FromWord(checked(ReadVerificationWord(bus, 0x8dd906 + 20 * expectedFrame + 2 * color))));
             int frameBefore = extracted.CurrentFrameIndex;
             extracted.Step(
-                extractedCgram.Samus, catalog);
+                extractedCgram.Samus, colours);
             AssertEqual(expectedFrame, extracted.CurrentFrameIndex, "Native FX frame order including loop");
             AssertEqual((call & 1) == 0, extracted.CurrentFrameIndex != frameBefore, "Native FX paint/hold cadence");
             AssertEqual((ushort)((call & 1) == 0 ? originalDuration : originalDuration - 1), extracted.InstructionTimer.RawValue, "Native FX timer");
@@ -190,8 +191,8 @@ internal static class HyperBeamFxColorArtworkVerification
             new MemoryStream(Encoding.UTF8.GetBytes(edit.ToJsonString())));
         var nativeRig = new SamusColourRig();
         var extractedRig = new SamusColourRig();
-        catalog.Apply(nativeRig.Samus.HyperBeam, 3);
-        edited.Apply(extractedRig.Samus.HyperBeam, 3);
+        colours.Apply(nativeRig.Samus.HyperBeam, 3);
+        edited.ToColours().Apply(extractedRig.Samus.HyperBeam, 3);
         nativeCgram = new SnesCgram();
         extractedCgram = new SamusColourRig();
         for (int color = 0; color < SnesCgram.ColorCount; color++)
@@ -205,7 +206,7 @@ internal static class HyperBeamFxColorArtworkVerification
                 "Hyper Beam FX edit changes only the selected visual color channel");
 
         foreach (int invalidFrame in new[] { -1, 10, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => catalog.Apply(new SamusColourRig().Samus.HyperBeam, invalidFrame), "FX frame bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => colours.Apply(new SamusColourRig().Samus.HyperBeam, invalidFrame), "FX frame bounds");
         foreach (string editScope in new[] { "all", "even", "green", "red", "white", "shade-sources" })
         {
             var document = RequiredJson.Deserialize<HyperBeamFxColorDocument>(json, ArtworkJson.Options);
@@ -218,7 +219,7 @@ internal static class HyperBeamFxColorArtworkVerification
                 int value = 1000 + frame * 8 + color;
                 document.Frames[frame][color] = new PaletteRgb5 { Red = value & 31, Green = value >> 5 & 31, Blue = value >> 10 & 31 };
             }
-            var modified = HyperBeamFxColorFile.Read(new MemoryStream(HyperBeamFxColorFile.Write(document)));
+            var modified = HyperBeamFxColorFile.Read(new MemoryStream(HyperBeamFxColorFile.Write(document))).ToColours();
             var result = new SamusColourRig();
             for (int frame = 0; frame < 10; frame++)
             {

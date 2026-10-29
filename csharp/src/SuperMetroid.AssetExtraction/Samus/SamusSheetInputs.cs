@@ -56,8 +56,8 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
     internal RgbColor[] SuitedColours()
     {
         ScreenPalette cgram = RoomLoadColours();
-        SuitColors.Apply(cgram.SpriteSets.Set(SamusColourDefinitions.SuitInkRow), SamusSuit.Power);
-        SamusProjectileSystem.LoadBeamPalette(cgram.SpriteSets.Set(SamusColourDefinitions.BeamInkRow), SamusBeamCombination.Power, Projectiles.BeamTiles.Palettes);
+        SuitColors.Apply(SamusColourDefinitions.SuitColourGroup.Store.In(cgram.SpriteSets), SamusSuit.Power);
+        SamusProjectileSystem.LoadBeamPalette(SamusColourDefinitions.BeamColourGroup.Store.In(cgram.SpriteSets), SamusBeamCombination.Power, Projectiles.BeamTiles.Palettes);
         return cgram.SpriteSets.All.Colors.ToArray();
     }
 

@@ -204,7 +204,7 @@ internal sealed class RuntimeArtwork
 
     /// <summary>Current Hyper Beam palette effect colours.</summary>
     [field: NonSerialized]
-    public InstalledHyperBeamFxColors? HyperBeamFxColors { get; set; }
+    public HyperBeamFxColours? HyperBeamFxColors { get; set; }
 
     /// <summary>
     /// The equipped-beam word whose characters <c>Update_Beam_Tiles_and_Palette</c> ($90:AC8D) last loaded. The

@@ -15,7 +15,7 @@ public static class CeresRidleyMode7ColorFile
     /// <exception cref="InvalidDataException">The document schema, row dimensions, or RGB5 colors are invalid.</exception>
     public static CeresRidleyFloorColorCatalog Read(Stream json)
     {
-        FixedGridShape zoomShape = new(CeresRidleyPaletteDefinitions.GetawayZoomRowCount,
+        FixedGridShape zoomShape = new(CeresRidleyPaletteDefinitions.GetawayZoomStepCount,
             CeresRidleyPaletteDefinitions.GetawayZoomColorCount);
         Ensure.NotNull(json);
         CeresRidleyMode7ColorDocument document;
@@ -23,7 +23,7 @@ public static class CeresRidleyMode7ColorFile
         if (document.Version != CeresRidleyFloorColorFormat.Version ||
             !zoomShape.HasRows(document.ZoomRows))
             throw new InvalidDataException("Ceres Ridley Mode-7 colors require version one and nine zoom rows.");
-        var rows = new RgbColor[CeresRidleyPaletteDefinitions.GetawayZoomRowCount][];
+        var rows = new RgbColor[CeresRidleyPaletteDefinitions.GetawayZoomStepCount][];
         for (int row = 0; row < rows.Length; row++)
         {
             PaletteRgb5[]? colors = document.ZoomRows[row];

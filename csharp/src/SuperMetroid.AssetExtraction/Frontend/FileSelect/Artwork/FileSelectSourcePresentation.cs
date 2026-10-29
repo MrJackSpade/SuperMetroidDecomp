@@ -4,7 +4,7 @@ using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
-using SuperMetroid.Core.Frontend.Menus.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Spatial;
 

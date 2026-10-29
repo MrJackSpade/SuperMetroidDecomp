@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
-using SuperMetroid.Core.Frontend.Menus.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Menus;
 
 namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 

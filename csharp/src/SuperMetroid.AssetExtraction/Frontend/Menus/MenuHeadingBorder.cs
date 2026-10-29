@@ -1,8 +1,10 @@
 using System.Collections;
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Frontend.Menus.Artwork.MenuHeadingBorderDefinitions;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Spatial;
+using static SuperMetroid.AssetExtraction.Frontend.Menus.MenuHeadingBorderDefinitions;
 
-namespace SuperMetroid.Core.Frontend.Menus.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Menus;
 
 /// <summary>$82:D00B/D0AD/D177 and D24B/D2F7/D41B: file-select/options heading outlines. Stock bounds follow immutable heading typography;
 /// independently edited title pages or sprite parts do not change these stock layout definitions. Exact title/padding, glyph roles and traversal are selected display content. Native82:8CA1 feeds ordered OAM; order may affect hardware limits and is preserved. Pixels, colors and timing are excluded.</summary>

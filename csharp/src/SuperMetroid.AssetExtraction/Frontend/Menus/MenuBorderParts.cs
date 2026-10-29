@@ -1,7 +1,8 @@
 using System.Collections;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.Menus.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Menus;
 
 /// <summary>
 /// $82:D00B/D0AD/D177 and D24B/D2F7/D41B: file-select/options rectangular borders of eight-pixel OBJ tiles.

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Menus.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Menus;
 
 /// <summary>A menu heading glyph or border cell's tile position.</summary>
 /// <param name="Column">The tile column.</param>

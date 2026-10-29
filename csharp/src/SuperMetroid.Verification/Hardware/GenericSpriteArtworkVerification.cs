@@ -20,7 +20,7 @@ namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 

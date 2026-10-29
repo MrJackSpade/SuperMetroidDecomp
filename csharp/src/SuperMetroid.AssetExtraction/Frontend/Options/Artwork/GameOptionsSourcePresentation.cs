@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Menus.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Input;

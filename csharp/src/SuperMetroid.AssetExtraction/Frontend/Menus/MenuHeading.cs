@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Menus.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Menus;
 
 /// <summary>One of the bordered menu headings the file-select and options menus draw.</summary>
 internal enum MenuHeading

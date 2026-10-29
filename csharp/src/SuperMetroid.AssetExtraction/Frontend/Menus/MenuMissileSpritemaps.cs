@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.Core.Frontend.Menus;
+
+namespace SuperMetroid.AssetExtraction.Frontend.Menus;
 
 /// <summary>Selects the selection missile's spritemap for each animation frame (<see cref="MenuMissileAnimationDefinitions"/>).</summary>
 public static class MenuMissileSpritemaps
@@ -11,11 +13,11 @@ public static class MenuMissileSpritemaps
     /// The four consecutive menu spritemaps play in reverse ID order.
     /// Native indexing doubles the frame to select a word; wrap belongs to the caller.
     /// Reject unsupported indices with ArgumentOutOfRangeException,
-    /// rather than masking them. All three menu views and extraction share this function.
+    /// rather than masking them. Extraction reads each frame's spritemap with it.
     /// </remarks>
     public static ushort SpritemapId(int frame)
     {
         if ((uint)frame >= MenuMissileAnimationDefinitions.FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
-        return (ushort)(MenuMissileAnimationDefinitions.FirstFrameSpritemap - frame);
+        return (ushort)(MenuMissileSpriteDefinitions.FirstFrameSpritemap - frame);
     }
 }

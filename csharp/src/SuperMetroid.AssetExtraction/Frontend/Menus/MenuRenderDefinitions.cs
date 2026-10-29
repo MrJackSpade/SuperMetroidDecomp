@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Menus;
+namespace SuperMetroid.AssetExtraction.Frontend.Menus;
 
 /// <summary>PPU register definitions shared by file-select and options composition.</summary>
 internal static class MenuRenderDefinitions

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Menus.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Menus;
 
 /// <summary>$82:D24B/D2F7/D41B: the file-select and options heading outlines' words, traversal runs and border tiles,
 /// drawn by <see cref="MenuHeadingBorder"/>.</summary>

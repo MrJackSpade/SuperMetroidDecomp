@@ -8,8 +8,6 @@ internal static class EnemyBg2FrameLayout
     /// <summary>Number of rows available in the enemy BG2 tilemap.</summary>
     internal const int TilemapHeight = 64;
 
-    /// <summary>The cells of the enemy BG2 tilemap: 32 columns by 64 rows.</summary>
-    internal const int TilemapCellCount = TilemapWidth * TilemapHeight;
     /// <summary>The most native components one BG2 frame draws: Mother Brain's body poses, the largest.</summary>
     internal const int MaximumComponents = 10;
     /// <summary>Defensive bound for one BG2 command stream's terminated command list.</summary>

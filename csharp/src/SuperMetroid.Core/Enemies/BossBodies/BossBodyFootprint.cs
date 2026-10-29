@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Numerics;
 
 namespace SuperMetroid.Core.Enemies.BossBodies;
 
@@ -41,15 +40,8 @@ public sealed class BossBodyFootprint
     /// <summary>Whether no cell is covered.</summary>
     public bool IsEmpty => Rows.IsEmpty;
 
-    /// <summary>The cells covered.</summary>
-    public int CellCount => Rows.Sum(row => BitOperations.PopCount(row));
-
     /// <summary>The cells of row <paramref name="row"/> covered; none outside the footprint.</summary>
     public uint Row(int row) => row >= Top && row < End ? Rows[row - Top] : 0;
-
-    /// <summary>Whether the cell at <paramref name="column"/> of <paramref name="row"/> is covered.</summary>
-    public bool Covers(int row, int column) =>
-        (uint)column < BossBodyDefinitions.ColumnCount && (Row(row) & (1u << column)) != 0;
 
     /// <summary>
     /// The <paramref name="count"/> cells from <paramref name="firstCell"/> in reading order: by row, then by column.

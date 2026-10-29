@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
@@ -11,7 +12,7 @@ internal static class SpacetimeBeamGraphicsDefinitions
     /// Every colour of the SpaceTime beam palette. The cartridge's <c>$90:ACCD</c> reads its colours through
     /// <c>$90:C3E5</c>'s colour word used as a pointer, <c>$90:19FF</c>: live enemy-projectile timers and
     /// pre-instructions in WRAM. The port does not keep that native layout, so the palette is a defined one instead
-    /// (owner decision on #1318).
+    /// (owner decision on #1318): black.
     /// </summary>
-    internal const ushort PaletteWord = 0x0000;
+    internal static RgbColor PaletteColour => RgbColor.Black;
 }

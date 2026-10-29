@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Where each arm-cannon drawing descriptor selected by Samus pose starts in the drawing window.</summary>
 internal static class ArmCannonDescriptorDefinitions

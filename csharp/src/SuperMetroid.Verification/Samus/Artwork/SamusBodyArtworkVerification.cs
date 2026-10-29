@@ -82,7 +82,7 @@ internal static class SamusBodyArtworkVerification
         }
         AssertEqual(435, definitions, "complete Samus body DMA definition count");
 
-        InstalledSamusSpritemaps sprites = stock.Spritemaps;
+        SamusSpritemapSources sprites = stock.Spritemaps.Source;
         for (int pose = 0; pose < InstalledSamusBodyArtwork.PoseCount; pose++)
         {
             int topAddress = InstalledSamusSpritemaps.TopBaseAddress + pose * 2;
@@ -181,7 +181,7 @@ internal static class SamusBodyArtworkVerification
             int source = SamusSourceDefinitions.MovementBank.Value | (pointer + frame * sizeof(ushort));
             // The cartridge's attribute word is decoded by the import codec into the single piece it describes.
             SpritePart expectedAttributes = new SnesObjAttributeWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(source)).ToSinglePart();
-            AssertTrue(stock.Atmosphere.TryResolve(type, frame, out SpritePart installedAttributes),
+            AssertTrue(stock.Atmosphere.Source.TryResolve(type, frame, out SpritePart installedAttributes),
                 $"atmospheric type {type} frame {frame} has installed artwork");
             AssertEqual(expectedAttributes, installedAttributes,
                 $"atmospheric type {type} frame {frame} imported the native character, palette row, priority and flips");
@@ -199,7 +199,7 @@ internal static class SamusBodyArtworkVerification
                 nativeEffects.Slots[0].AnimationTimer.RawValue == installedEffects.Slots[0].AnimationTimer.RawValue,
                 $"direct atmospheric type {type} frame {frame} installed/native OAM and timing parity");
         }
-        AssertTrue(!stock.Atmosphere.TryResolve(2, 0, out _),
+        AssertTrue(!stock.Atmosphere.Source.TryResolve(2, 0, out _),
             "atmospheric type two retains its retail pointer-zero address-space path");
         var deathSamus = new SamusState
         {
@@ -408,11 +408,11 @@ internal static class SamusBodyArtworkVerification
                 replacement.ArmCannon.ReadDrawingByteAt(armXAddress),
             "edited arm-cannon JSON changes a pose OAM X offset");
         ReadOnlyMemory<byte> editedArmTile = default;
-        AssertTrue(stock.ArmCannon.TryResolveTile(
+        AssertTrue(stock.ArmCannon.Source.TryResolveTile(
                 SamusSourceDefinitions.CharacterDataBank.Value |
                     selectedArmTileSource, 32,
                 out var stockArmTile) &&
-            replacement.ArmCannon.TryResolveTile(
+            replacement.ArmCannon.Source.TryResolveTile(
                 SamusSourceDefinitions.CharacterDataBank.Value |
                     selectedArmTileSource, 32,
                 out editedArmTile) &&
@@ -594,7 +594,7 @@ internal static class SamusBodyArtworkVerification
     private static void VerifySamusArmCannonArtwork(ISnesAddressSpace bus,
         InstalledSamusBodyArtwork body)
     {
-        InstalledSamusArmCannonArtwork armCannon = body.ArmCannon;
+        SamusArmCannonSourceArtwork armCannon = body.ArmCannon.Source;
         for (int pose = 0; pose < InstalledSamusBodyArtwork.PoseCount; pose++)
         {
             int source = SamusSourceDefinitions.PoseDrawingDataPointers.Value + pose * 2;
@@ -622,11 +622,34 @@ internal static class SamusBodyArtworkVerification
                     $"arm-cannon direction {direction} frame {frame} tile source");
             }
         }
+        int drawingWindowEnd = SamusSourceDefinitions.MovementBank.Value |
+            (SamusSourceDefinitions.ArmCannonDrawingData + SamusArmCannonArtworkFormat.DrawingDataByteCount);
+        for (int pose = 0; pose < InstalledSamusBodyArtwork.PoseCount; pose++)
+        {
+            // The typed placement gameplay reads holds what the pose's native descriptor does (#1463): its drawing mode,
+            // its direction at frame zero and, when the direction byte's top bit is set, after it, then one signed X/Y
+            // displacement per animation frame up to the end of the drawing window.
+            int descriptor = SamusSourceDefinitions.MovementBank.Value |
+                CartridgeImportSource.Require(bus).ReadCartridgeWord(SamusSourceDefinitions.PoseDrawingDataPointers.Value + pose * 2);
+            int direction = bus.ReadCartridgeByte(descriptor);
+            bool frameDependent = (direction & 0x80) != 0;
+            SamusArmCannonPlacement placement = body.ArmCannon.Placement((SamusPoseId)pose);
+            AssertEqual((int)bus.ReadCartridgeByte(descriptor + 1), placement.DrawingMode, $"arm-cannon pose {pose:X2} drawing mode");
+            AssertEqual(direction & 0x7f, placement.FirstDirection, $"arm-cannon pose {pose:X2} first direction");
+            AssertEqual(frameDependent ? bus.ReadCartridgeByte(descriptor + 2) & 0x7f : (int?)null, placement.LaterDirection,
+                $"arm-cannon pose {pose:X2} later direction");
+            int displacements = descriptor + (frameDependent ? 4 : 2);
+            AssertEqual((drawingWindowEnd - displacements) / 2, placement.FrameCount, $"arm-cannon pose {pose:X2} placed frames");
+            for (int frame = 0; frame < placement.FrameCount; frame++)
+                AssertEqual(Offset16<RoomPixels>.Of(unchecked((sbyte)bus.ReadCartridgeByte(displacements + frame * 2)),
+                        unchecked((sbyte)bus.ReadCartridgeByte(displacements + frame * 2 + 1))), placement.Offset(frame),
+                    $"arm-cannon pose {pose:X2} frame {frame} displacement");
+        }
         foreach (ushort pointer in SamusArmCannonArtworkFormat.TileSourcePointers)
         {
             int source = SamusSourceDefinitions.CharacterDataBank.Value | pointer;
             AssertTrue(armCannon.TryResolveTile(source,
-                SamusDrawingDefinitions.ArmCannon.TileByteCount, out var tile),
+                SamusArmCannonArtworkFormat.CoverTileByteCount, out var tile),
                 $"arm-cannon character ${source:X6} installed");
             for (int offset = 0; offset < tile.Length; offset++)
                 AssertEqual(bus.ReadCartridgeByte(source + offset), tile.Span[offset],
@@ -669,7 +692,7 @@ internal static class SamusBodyArtworkVerification
         AssertEqual(SheetFrameSources.CharacterDraw((ImageSpriteDraw)nativeFrame.Draws[0]).Artwork.Id,
             SheetFrameSources.CharacterDraw((ImageSpriteDraw)installedFrame.Draws[0]).Artwork.Id,
             "installed arm-cannon cover shows the frame composed over the native cover character");
-        Console.WriteLine("Arm-cannon artwork: 253 pose pointers, drawing bytes, ten direction selectors and twelve PNG tiles match retail; guarded cover draw and binding parity pass.");
+        Console.WriteLine("Arm-cannon artwork: 253 pose pointers, drawing bytes, typed pose placements, ten direction selectors and twelve PNG tiles match retail; guarded cover draw and binding parity pass.");
     }
 
     /// <summary>Import-only oracle for Samus's bank-$92 OAM record format.</summary>

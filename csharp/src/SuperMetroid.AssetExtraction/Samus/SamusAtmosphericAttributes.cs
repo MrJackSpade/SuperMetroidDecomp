@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Movement;
-using static SuperMetroid.Core.Samus.Artwork.SamusAtmosphericArtworkDefinitions;
+using static SuperMetroid.AssetExtraction.Samus.SamusAtmosphericArtworkDefinitions;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>The sprite attributes of each atmospheric effect frame.</summary>
 internal static class SamusAtmosphericAttributes

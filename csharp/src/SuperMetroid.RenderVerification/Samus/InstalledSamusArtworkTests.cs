@@ -133,7 +133,7 @@ internal static class InstalledSamusArtworkTests
         foreach (ushort source in ArmCannonTileSources.CoverTileDmaSources)
         {
             Check(SamusSourceDefinitions.CharacterDataBank.Value | source,
-                SamusDrawingDefinitions.ArmCannon.TileByteCount,
+                SamusArmCannonArtworkFormat.CoverTileByteCount,
                 SamusDrawingDefinitionsArmCannonConstants.TileVramDestination, $"cannon {source:X4}");
             count++;
         }
@@ -160,7 +160,7 @@ internal static class InstalledSamusArtworkTests
     {
         /// <summary>Resolves a queued transfer from the installed cannon catalog.</summary>
         public bool TryResolve(int source, int length, out ReadOnlyMemory<byte> data) =>
-            artwork.ArmCannon.TryResolveTile(source, length, out data);
+            artwork.ArmCannon.Source.TryResolveTile(source, length, out data);
         /// <summary>Rejects typed assets outside this fixture's address-based Samus uploads.</summary>
         public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) =>
             throw new InvalidDataException($"Unexpected typed transfer {asset} in Samus upload fixture.");

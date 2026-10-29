@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Native atmospheric OBJ identity progression and palette routing, with narrowly retained drawn-layer priority.</summary>
 internal static class SamusAtmosphericArtworkDefinitions

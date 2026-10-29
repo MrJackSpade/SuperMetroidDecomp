@@ -19,10 +19,11 @@ internal static class SamusArtworkPresentationContractChecks
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText("""
+            using SuperMetroid.AssetExtraction.Samus;
             using SuperMetroid.Core.Samus.Artwork;
             class SamusArtConsumer {
-                void Inspect(InstalledSamusBodyArtwork body, InstalledSamusSpritemaps sprites,
-                    InstalledSamusAtmosphericArtwork atmosphere, InstalledSamusArmCannonArtwork arm) {
+                void Inspect(InstalledSamusBodyArtwork body, InstalledSamusSpritemaps sprites, SamusSpritemapSources compositions,
+                    SamusAtmosphericSourceArtwork atmosphere, SamusArmCannonSourceArtwork arm) {
                     body.GraphicsYOffset((SuperMetroid.Core.Samus.Poses.SamusPoseId)252);
                     body.GraphicsYOffset((SuperMetroid.Core.Samus.Poses.SamusPoseId)253);
                     body.TryLandingYOffset(int.MaxValue, out _);
@@ -33,8 +34,8 @@ internal static class SamusArtworkPresentationContractChecks
                     sprites.TopBase((SuperMetroid.Core.Samus.Poses.SamusPoseId)253);
                     sprites.BottomBase((SuperMetroid.Core.Samus.Poses.SamusPoseId)252);
                     sprites.BottomBase((SuperMetroid.Core.Samus.Poses.SamusPoseId)253);
-                    sprites.TryGet(InstalledSamusSpritemaps.EntryCount - 1, out _);
-                    sprites.TryGet(InstalledSamusSpritemaps.EntryCount, out _);
+                    compositions.TryGet(InstalledSamusSpritemaps.EntryCount - 1, out _);
+                    compositions.TryGet(InstalledSamusSpritemaps.EntryCount, out _);
                     atmosphere.TryResolve(byte.MaxValue, byte.MaxValue, out _);
                     arm.PoseDescriptor(252);
                     arm.PoseDescriptor(253);
@@ -70,12 +71,12 @@ internal static class SamusArtworkPresentationContractChecks
             "offset closure must not imply DMA frame-selector closure");
 
         foreach (string external in new[] {
-            "class ExternalArm { object Make() => SuperMetroid.Core.Samus.Artwork.InstalledSamusArmCannonArtwork.FromPlacement(null!, null!); }" })
+            "class ExternalArm { object Make() => SuperMetroid.AssetExtraction.Samus.SamusArmCannonSourceArtwork.FromPlacement(null!, null!); }" })
         {
             AuditReport revoked = Inspect(Compile(trees.Append(CSharpSyntaxTree.ParseText(external,
                 path: "fixture-external-arm.cs"))), true);
             Require(revoked.Classifications.Count == 8 && revoked.UnresolvedCount == 12 &&
-                revoked.Findings.Count(item => item.Owner.StartsWith("InstalledSamusArmCannonArtwork.", StringComparison.Ordinal) &&
+                revoked.Findings.Count(item => item.Owner.StartsWith("SamusArmCannonSourceArtwork.", StringComparison.Ordinal) &&
                     item.Message.Contains("stale", StringComparison.Ordinal)) == 7,
                 "unvalidated placement construction must revoke the arm proof" + " (" + revoked.Describe() + ")");
         }

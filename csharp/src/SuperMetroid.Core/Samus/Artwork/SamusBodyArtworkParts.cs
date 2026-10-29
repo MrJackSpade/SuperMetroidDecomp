@@ -18,10 +18,10 @@ public sealed record SamusBodyArtworkParts
     /// <summary>The contiguous native frame-selector interval.</summary>
     public required SamusBodyFrameSelection[] Frames { get; init; }
 
-    /// <summary>Editable Samus OAM compositions.</summary>
+    /// <summary>Which body picture each pose-half table entry selects.</summary>
     public required InstalledSamusSpritemaps Spritemaps { get; init; }
 
-    /// <summary>Editable atmospheric-effect OBJ attributes.</summary>
+    /// <summary>The selected appearance of the atmospheric effects.</summary>
     public required InstalledSamusAtmosphericArtwork Atmosphere { get; init; }
 
     /// <summary>Editable fatal-damage and death palettes.</summary>
@@ -30,7 +30,7 @@ public sealed record SamusBodyArtworkParts
     /// <summary>Identity of the selected death-explosion characters.</summary>
     public required string DeathTilesContentIdentity { get; init; }
 
-    /// <summary>Editable arm-cannon placement and cover artwork.</summary>
+    /// <summary>Where each pose places the arm-cannon cover.</summary>
     public required InstalledSamusArmCannonArtwork ArmCannon { get; init; }
 
     /// <summary>Native landing vertical-offset bytes.</summary>

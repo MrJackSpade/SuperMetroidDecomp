@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// </summary>
 /// <remarks>
 /// The cannon is not baked into every Samus body frame. Missile, Super Missile, and
-/// grapple HUD selections open a four-state cover, then the draw routine places tile $1F
-/// separately and uploads one direction/frame-specific 4bpp tile to VRAM word $61F0.
+/// grapple HUD selections open a four-state cover, then the draw routine places the cover's
+/// direction- and frame-specific picture separately at the pose's placement (#1463).
 /// Keeping this independent from pose art preserves its native before/after-body priority.
 /// </remarks>
 public sealed class SamusArmCannonState
@@ -93,8 +93,7 @@ public sealed class SamusArmCannonState
         if (CloseFlag != 0 || TryStartTransition(samus.SelectedHudItem))
             AdvanceFrame();
 
-        int descriptor = PoseDescriptor(SamusPoseNumbering.Number(samus.Pose));
-        DrawingMode = ReadDrawingByte(descriptor + 1);
+        DrawingMode = Placement(samus.Pose).DrawingMode;
         return new SamusArmCannonUpdateResult();
     }
 
@@ -116,24 +115,17 @@ public sealed class SamusArmCannonState
         if (Frame == 0 || (!samus.InvincibilityTimer.IsZero && (frameCounter & 1) != 0))
             return new SamusArmCannonDrawResult();
 
-        int descriptor = PoseDescriptor(SamusPoseNumbering.Number(samus.Pose));
-        int firstSelector = ReadDrawingByte(descriptor);
-        bool frameDependentSelector = unchecked((sbyte)firstSelector) < 0;
-        int selector = frameDependentSelector && samus.AnimationFrame != 0
-            ? unchecked((byte)(ReadDrawingByte(descriptor + 2) & sbyte.MaxValue))
-            : unchecked((byte)(firstSelector & sbyte.MaxValue));
+        SamusArmCannonPlacement placement = Placement(samus.Pose);
+        int selector = placement.Direction(samus.AnimationFrame);
         if (selector >= SamusDrawingDefinitions.ArmCannon.DirectionCount)
             throw new InvalidDataException($"Arm-cannon direction selector {selector} is outside 0..9.");
 
-        int offsetsBase = descriptor + (frameDependentSelector ? 4 : 2);
-        int offsetsAt = offsetsBase + samus.AnimationFrame * 2;
-        int xOffset = unchecked((sbyte)ReadDrawingByte(offsetsAt));
-        int yOffset = unchecked((sbyte)ReadDrawingByte(offsetsAt + 1));
+        Offset16<RoomPixels> offset = placement.Offset(samus.AnimationFrame);
         int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
 
-        int screenX = unchecked((short)(samus.Position.X.Whole + xOffset - layer1.X));
+        int screenX = unchecked((short)(samus.Position.X.Whole + offset.X - layer1.X));
         int screenY = unchecked((short)(
-            samus.Position.Y.Whole + yOffset - graphicsYOffset - layer1.Y));
+            samus.Position.Y.Whole + offset.Y - graphicsYOffset - layer1.Y));
         bool spriteWritten = screenX >= 0 && screenX < 256 && screenY >= 0 && screenY < 256;
         if (spriteWritten)
         {
@@ -169,15 +161,10 @@ public sealed class SamusArmCannonState
         return true;
     }
 
-    /// <summary>Resolves where the installed pose descriptor that selects cannon direction and offsets begins.</summary>
-    private int PoseDescriptor(int pose) =>
+    /// <summary>Where the installed artwork places the cover for <paramref name="pose"/>.</summary>
+    private SamusArmCannonPlacement Placement(SamusPoseId pose) =>
         (Artwork ?? throw new InvalidOperationException(
-            "Arm cannon requires installed drawing definitions.")).PoseDescriptor(pose);
-
-    /// <summary>Reads a byte from installed arm-cannon drawing definitions.</summary>
-    private byte ReadDrawingByte(int offset) =>
-        (Artwork ?? throw new InvalidOperationException(
-            "Arm cannon requires installed drawing definitions.")).ReadDrawingByte(offset);
+            "Arm cannon requires installed drawing definitions.")).Placement(pose);
 
     /// <summary>Moves the cover one native frame toward open three or closed zero, then clears the transition flag.</summary>
     private void AdvanceFrame()

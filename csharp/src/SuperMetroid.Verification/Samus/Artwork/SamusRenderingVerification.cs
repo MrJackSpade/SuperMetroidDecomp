@@ -493,7 +493,7 @@ internal static void VerifySamusRenderingSlice()
 }
 
 /// <summary>
-/// Whether <paramref name="draw"/> is the unmirrored sheet frame of the spritemap at <paramref name="index"/> over the
+/// Whether <paramref name="draw"/> is the unmirrored sheet picture the entry at <paramref name="index"/> selects with the
 /// definition records Samus's transfers select.
 /// </summary>
 private static bool ShowsBodyFrame(SamusState samus, SpriteDraw draw, int index)
@@ -502,10 +502,8 @@ private static bool ShowsBodyFrame(SamusState samus, SpriteDraw draw, int index)
         ?? throw new InvalidOperationException("Verification requires bound Samus spritemaps.");
     InstalledSpriteSheets sheets = samus.Presentation.BodyFrames.Sheets
         ?? throw new InvalidOperationException("Verification requires bound Samus sprite sheets.");
-    if (!spritemaps.TryGetComposition(index, out SamusSpritemapId composition) || !spritemaps.TryGetFrame(index, out SpriteFrame? frame))
+    if (!spritemaps.TryGetFrameKey(index, samus.Presentation.BodyFrames.Shown, out SamusBodyFrameKey key))
         throw new InvalidOperationException($"Body spritemap {index:X4} is not installed.");
-    SamusBodyRecords records = samus.Presentation.BodyFrames.Shown;
-    SamusBodyFrameKey key = SamusBodySheets.Key(composition, frame, records.Top, records.Bottom);
     return draw is ImageSpriteDraw { Mirror: SpriteMirror.None } image &&
         ReferenceEquals(sheets.Get(SamusBodySheets.Sheet(key)).Frame(key.Name), image.Image);
 }

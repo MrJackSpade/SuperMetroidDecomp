@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Bosses.Crocomire;
+using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.World.Artwork;
@@ -22,7 +24,6 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Bosses;
@@ -149,7 +150,7 @@ public static class EnemyTileArtworkFiles
             CrocomireMeltingArtworkFormat.SecondTilemapFileName), secondMeltTilemap);
         byte[] skeletonPlanar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             CrocomireSourceDefinitions.SkeletonChunk(0),
-            CrocomireSkeletonTransferDefinitions.TotalByteCount);
+            CrocomireSkeletonCharacterDefinitions.TotalByteCount);
         byte[] skeletonPixels = SnesGraphics.DecodePlanarTiles(skeletonPlanar, 4,
             RoomCharacterAtlasFormat.TileColumns,
             out Extent16<ImagePixels> skeletonSize);
@@ -158,18 +159,18 @@ public static class EnemyTileArtworkFiles
             skeletonPixels, SnesGraphics.DiagnosticPalette(16));
         byte[] skeletonPng = skeletonImage.ToArray();
         CrocomireSkeletonArtwork skeletonRoundtrip = CrocomireSkeletonArtwork.Load(RoomCharacterAtlasPng.Read(
-            new MemoryStream(skeletonPng, writable: false), CrocomireSkeletonTransferDefinitions.TotalByteCount));
+            new MemoryStream(skeletonPng, writable: false), CrocomireSkeletonCharacterDefinitions.TotalByteCount));
         for (int index = 0; index < CrocomireSkeletonTransferDefinitions.FrameCount; index++)
         {
             ReadOnlySpan<byte> expected = skeletonPlanar.AsSpan(
-                index * CrocomireSkeletonTransferDefinitions.ChunkByteCount,
-                CrocomireSkeletonTransferDefinitions.ChunkByteCount);
+                index * CrocomireSkeletonCharacterDefinitions.ChunkByteCount,
+                CrocomireSkeletonCharacterDefinitions.ChunkByteCount);
             if (!skeletonRoundtrip.Chunk(index).Span.SequenceEqual(expected))
                 throw new InvalidDataException(
                     $"Crocomire skeleton PNG changed native chunk {index} during extraction.");
         }
         File.WriteAllBytes(Path.Combine(directory,
-            CrocomireSkeletonTransferDefinitions.FileName), skeletonPng);
+            CrocomireSkeletonCharacterDefinitions.FileName), skeletonPng);
         byte[] spritemapJson = EnemySpritemapFiles.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory, EnemySpritemapDefinitions.FileName),
             spritemapJson);
@@ -550,13 +551,13 @@ public static class EnemyTileArtworkFiles
             CrocomireMeltingArtworkFormat.SecondTilemapFileName,
             manifest.CrocomireSecondTilemapSha256);
         byte[] skeletonPng = ReadStockOrOverride(
-            CrocomireSkeletonTransferDefinitions.FileName,
+            CrocomireSkeletonCharacterDefinitions.FileName,
             manifest.CrocomireSkeletonSha256);
         CrocomireSkeletonArtwork skeleton;
         try
         {
             skeleton = CrocomireSkeletonArtwork.Load(RoomCharacterAtlasPng.Read(
-                new MemoryStream(skeletonPng, writable: false), CrocomireSkeletonTransferDefinitions.TotalByteCount));
+                new MemoryStream(skeletonPng, writable: false), CrocomireSkeletonCharacterDefinitions.TotalByteCount));
         }
         catch (InvalidDataException error)
         {

@@ -153,13 +153,13 @@ internal sealed class SetCharacters
     }
 
     /// <summary>The characters with each upload <paramref name="contents"/> names shown over its region.</summary>
-    private SpriteArtwork Page(IReadOnlyList<CharacterRegionContent> contents)
+    private SpriteArtwork Page(IReadOnlyList<LookRegionContent> contents)
     {
         string key = SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog.PictureName("page", 0, contents);
         if (pages.TryGetValue(key, out SpriteArtwork? page))
             return page;
         byte[] shown = [.. table];
-        foreach (CharacterRegionContent content in contents)
+        foreach (LookRegionContent content in contents)
         {
             CharacterRange range = regions.RangeOf(content.Region);
             if (content.RotStep is not null)
@@ -167,8 +167,9 @@ internal sealed class SetCharacters
                 regions.RotBytes(content).CopyTo(shown.AsSpan(range.FirstByte));
                 continue;
             }
-            if (content.Placement is not { } upload)
+            if (content.Look is not { } look)
                 continue;
+            SpriteArtworkPlacement upload = regions.Uploads.First(placed => placed.Source == look);
             ReadOnlySpan<byte> bytes = SpriteArtworkBytes.Of(upload.Source, resolver).Span;
             int offset = range.FirstByte - upload.FirstByte;
             if (bytes.Length < offset + range.ByteCount)

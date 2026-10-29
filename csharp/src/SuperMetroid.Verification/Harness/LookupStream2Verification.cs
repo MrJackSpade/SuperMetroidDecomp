@@ -1660,7 +1660,7 @@ internal static class LookupStream2Verification
         var slot = enemies.SlotTable.Slots[0];
         var part = new GunshipPartState();
         slot.SetSpeciesState(part, part.ClearWithRecord);
-        SpriteArtworkPlacements shown = enemies.Room.Session.SpriteCharacters;
+        ShownSpriteArtwork shown = enemies.Room.Session.SpriteLooks;
         int enumerated = 0;
         foreach (var transfer in transfers)
         {

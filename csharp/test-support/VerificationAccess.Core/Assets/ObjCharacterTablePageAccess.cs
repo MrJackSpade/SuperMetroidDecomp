@@ -39,5 +39,9 @@ internal static class ObjCharacterTablePageAccess
             self.composedFrom = new ObjCharacterComposition(current, resolved);
             return self.page;
         }
+
+        /// <summary>The page the shown <paramref name="looks"/> leave, each placed where the cartridge shows it, with their artwork as <paramref name="resolver"/> resolves it now.</summary>
+        /// <exception cref="InvalidDataException">A look's artwork is shorter than the range it shows.</exception>
+        public SpriteArtwork Page(ShownSpriteArtwork looks, IInstalledArtworkContent resolver) => self.Page(SpriteArtworkPlacements.Of(looks), resolver);
     }
 }

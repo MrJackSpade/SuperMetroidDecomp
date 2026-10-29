@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace SuperMetroid.Core.Bosses.Torizo.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.Torizo;
 
 /// <summary>The installed Torizo character pages: each page's size and file; where it comes from in the cartridge is extraction's knowledge.</summary>
 internal static class TorizoSwapArtworkDefinitions

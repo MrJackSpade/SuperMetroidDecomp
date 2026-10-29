@@ -253,7 +253,7 @@ internal sealed class AcceptedFrameBoundary
         if (rooms.Characters != RoomBackgroundCharacters.Tileset && reveal is not null)
             throw new InvalidOperationException("X-ray reveals a room whose planes draw from the object character page.");
         // The Ceres Ridley arena's backgrounds read the OBJ character table's uploads (#1392).
-        RoomCharacterSource characters = RoomCharacterSource.Of(rooms.Characters, _backgrounds, _enemySession.SpriteCharacters,
+        RoomCharacterSource characters = RoomCharacterSource.Of(rooms.Characters, _backgrounds, _enemySession,
             scope.AnimatedCharacters, scope.ArtworkFrames);
         // A background image's and the sky's tiles read the room tileset's characters, which its animations paint too (#1406).
         var animatedBlocks = new AnimatedCharacterView(scope.AnimatedCharacters.Blocks, scope.ArtworkFrames);

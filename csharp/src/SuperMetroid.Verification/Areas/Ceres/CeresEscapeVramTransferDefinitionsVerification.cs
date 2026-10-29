@@ -70,7 +70,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             .SkipWhile(record => record.Pointer != CeresEscapeVramTransferDefinitions.TimerSprites)
             .TakeWhile(record => record.Pointer < 0xc4fc)];
         AssertEqual(7, spriteList.Length, "Ceres timer-sprite list length");
-        SpriteArtworkPlacements shown = system.Presentation.SpriteCharacters;
+        ShownSpriteArtwork shown = system.Presentation.SpriteLooks;
         var state = new RidleyEnemyState { CeresEscapePages = CeresEscapePageCursor.Objects };
         for (int index = 0; index < spriteList.Length; index++)
         {
@@ -84,7 +84,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
                 $"Ceres transfer ${expected.Pointer:X4} page's place among the OBJ characters");
             AssertEqual<SpriteArtworkSource?>(expected.Pointer is 0xc4cb or 0xc4d2
                     ? new InstalledArtworkCharacters(expected.Pointer == 0xc4cb ? InstalledArtworkId.EscapeTimerFirstTiles : InstalledArtworkId.EscapeTimerSecondTiles)
-                    : CeresEscapeTileCharactersConstants.ForTransfer(expected.SourceAddress, expected.ByteCount),
+                    : CeresWarningTextPageConstants.ForTransfer(expected.SourceAddress, expected.ByteCount),
                 page.Source, $"Ceres transfer ${expected.Pointer:X4} names its installed page");
         }
         // The background list's records land in characters the Ridley arena does not show: it takes one update for each.

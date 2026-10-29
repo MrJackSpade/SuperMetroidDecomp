@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using System.Collections.Immutable;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -54,11 +55,11 @@ internal static class GunshipLiftoffPicturesVerification
             if (step > 0)
             {
                 SpriteArtworkPlacement upload = PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages)[step - 1];
-                runtime.EnemySession.SpriteCharacters.Record(upload);
+                runtime.EnemySession.SpriteLooks.Record(upload);
                 made.Add(upload);
             }
             runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = camera, TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData });
-            SpriteArtwork live = RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteCharacters);
+            SpriteArtwork live = RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteLooks);
             var sprites = new SpriteFrameBuffer();
             sprites.BeginFrame();
             runtime.Enemies.Drawing.AdvanceLayers(camera, 0, 7);
@@ -68,7 +69,7 @@ internal static class GunshipLiftoffPicturesVerification
             {
                 EnemyFrameId frame = part.Frame ?? throw new InvalidOperationException($"The ship's {part.DefinitionId} shows a frame.");
                 string name = EnemySheetDefinitions.FrameName(frame);
-                IReadOnlyList<CharacterRegion[]> layers = sheets.Layers(set, part.DefinitionId, name);
+                IReadOnlyList<LookRegion[]> layers = sheets.Layers(set, part.DefinitionId, name);
                 if (layers.Count > 0)
                     pictured++;
                 var source = new SpriteSource(SpriteSourceKind.Enemy, part.SlotIndex);

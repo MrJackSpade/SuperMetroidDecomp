@@ -1,22 +1,18 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
-/// The sprite artwork a background shows as its characters (#1392, #1422): the Ceres Ridley arena points its backgrounds
-/// at the sprite characters, so its blocks show the artwork placed there. A placement shows under the name of its source.
+/// The sprite artwork a background shows (#1392, #1422, #1463): the Ceres Ridley arena points its backgrounds at the
+/// sprites' artwork, so its blocks show the looks shown there, as the installed enemy sheets resolve them when a block is
+/// drawn.
 /// </summary>
-/// <param name="placements">The sprite characters' artwork placements.</param>
-public sealed class SpriteArtworkBackground(SpriteArtworkPlacements placements) : IBgCharacterArtwork
+/// <param name="session">The enemy session whose shown sprite looks the background shows.</param>
+public sealed class SpriteArtworkBackground(EnemySession session) : IBgCharacterArtwork
 {
     /// <inheritdoc />
-    public BgArtworkShown Showing(int firstCharacter, int characterCount)
-    {
-        SpriteArtworkPlacement shown = Ensure.NotNull(placements).LastOver(firstCharacter, characterCount)
-            ?? throw new InvalidDataException($"Nothing is shown over sprite characters {firstCharacter}..{firstCharacter + characterCount - 1}.");
-        if (!shown.Covers(firstCharacter, characterCount))
-            throw new InvalidDataException($"{shown.Source} shows over only some of sprite characters {firstCharacter}..{firstCharacter + characterCount - 1}.");
-        return new BgArtworkShown(new BgArtworkIdentity($"{shown.Source}"),
-            (firstCharacter - shown.FirstCharacter) * SpriteArtworkPlacements.CharacterByteCount / sizeof(ushort));
-    }
+    /// <exception cref="InvalidOperationException">No enemy sheets are installed.</exception>
+    public BgArtworkShown Showing(int firstCharacter, int characterCount) =>
+        Ensure.NotNull(session).ObjectPage().Showing(firstCharacter, characterCount);
 }

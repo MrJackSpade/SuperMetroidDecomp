@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.Torizo.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.Torizo;
 
 /// <summary>The pages of installed Torizo characters, in the installed manifest and content-hash order.</summary>
 internal enum TorizoTilePage

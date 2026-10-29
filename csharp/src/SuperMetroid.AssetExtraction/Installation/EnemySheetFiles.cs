@@ -51,9 +51,9 @@ public static class EnemySheetFiles
         SpriteSheetStore store = SpriteSheetStore.Open(stockDirectory, overrideDirectory, ProvenanceFileName, names.Length);
         var loaded = names.ToDictionary(name => name, store.Read, StringComparer.Ordinal);
         var sheets = new Dictionary<EnemySheetKey, SpriteSheet>();
-        var pictures = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, CharacterRegion[][]>>();
-        var spawnedPictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, CharacterRegion[][]>>();
-        var coverage = new Dictionary<string, SetCharacterCoverage>(StringComparer.Ordinal);
+        var pictures = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, LookRegion[][]>>();
+        var spawnedPictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, LookRegion[][]>>();
+        var coverage = new Dictionary<string, SetLookCoverage>(StringComparer.Ordinal);
         var rotPictures = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, string>>();
         var spawnedRotPictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, string>>();
         // The sheets' frames are named from the stock enemy compositions installed beside them.
@@ -120,7 +120,7 @@ public static class EnemySheetFiles
     }
 
     /// <summary>Each frame's layers over the regions Core names by ordinal.</summary>
-    internal static IReadOnlyDictionary<string, CharacterRegion[][]> Named(IReadOnlyDictionary<string, CharacterRange[][]> frames, SetRegions regions) =>
+    internal static IReadOnlyDictionary<string, LookRegion[][]> Named(IReadOnlyDictionary<string, CharacterRange[][]> frames, SetRegions regions) =>
         frames.ToDictionary(entry => entry.Key, entry => entry.Value.Select(layer => layer.Select(regions.RegionOf).ToArray()).ToArray(), StringComparer.Ordinal);
 
     /// <summary>

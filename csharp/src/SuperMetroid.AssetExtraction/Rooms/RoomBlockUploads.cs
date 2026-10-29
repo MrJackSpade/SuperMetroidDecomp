@@ -266,8 +266,8 @@ internal static class RoomBlockUploads
         foreach (RoomEnemyGraphicsSetEntry entry in EnemyGraphicsSet.LayOut(CompiledRoomEnemyDefinitions.Instance, state.EnemyGraphicsSet))
         {
             ReadOnlyMemory<byte> tiles = inputs.Objects.Enemies.TilesOf(entry.DefinitionId);
-            yield return new BgCharacterUpload(new BgArtworkIdentity($"{new GraphicsSetTileCharacters(entry.DefinitionId)}"), BgCharacterSet.Tiles,
-                EnemyGraphicsSet.EnemyTileAreaFirstCharacter + entry.StagingOffset / SpriteArtworkPlacements.CharacterByteCount, tiles);
+            SpriteArtworkPlacement placed = EncounterCharacterPlacements.Placed(new GraphicsSetTileCharacters(entry));
+            yield return new BgCharacterUpload(new BgArtworkIdentity($"{placed.Source}"), BgCharacterSet.Tiles, placed.FirstCharacter, tiles);
         }
     }
 

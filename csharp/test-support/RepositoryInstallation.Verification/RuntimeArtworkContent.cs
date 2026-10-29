@@ -55,4 +55,8 @@ internal sealed class RuntimeArtworkContent(SuperMetroidRuntime runtime, RoomCha
     /// <summary>The gameplay OBJ character page enemy-format sprites draw from: the table's uploads over the bound artwork.</summary>
     /// <param name="uploads">The OBJ character table's uploads.</param>
     internal SpriteArtwork GameplayObjectPage(SpriteArtworkPlacements uploads) => new ObjCharacterTablePage().Page(uploads, this);
+
+    /// <summary>The gameplay OBJ character page the shown sprite looks leave, each placed where the cartridge shows it, over the bound artwork.</summary>
+    /// <param name="looks">Gameplay's shown sprite looks.</param>
+    internal SpriteArtwork GameplayObjectPage(ShownSpriteArtwork looks) => GameplayObjectPage(SpriteArtworkPlacements.Of(looks));
 }

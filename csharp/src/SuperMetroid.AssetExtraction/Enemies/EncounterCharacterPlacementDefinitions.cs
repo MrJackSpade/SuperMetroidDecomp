@@ -1,10 +1,11 @@
-using SuperMetroid.Core.Enemies;
-
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Where the cartridge places each encounter's characters among the sprite characters (#1392, #1406).</summary>
 internal static class EncounterCharacterPlacementDefinitions
 {
+    /// <summary>The sprite character the enemy tile area begins at: the first after the standard sprites' area.</summary>
+    internal const int EnemyTileAreaFirstCharacter = 192;
+
     /// <summary>The character the gunship's first liftoff page begins at, $160, from the destination list at $A2:AC11.</summary>
     internal const int GunshipFirstCharacter = 0x160;
 
@@ -12,7 +13,7 @@ internal static class EncounterCharacterPlacementDefinitions
     internal const int CeresDoorFirstCharacter = 0x100;
 
     /// <summary>The character the Evir tiles Draygon's opening shows begin at: sixteen past the enemy tile area's start.</summary>
-    internal const int EvirFirstCharacter = EnemyGraphicsSet.EnemyTileAreaFirstCharacter + 0x10;
+    internal const int EvirFirstCharacter = EnemyTileAreaFirstCharacter + 0x10;
 
     /// <summary>The bytes of the Evir tiles Draygon's opening copies ($A5:871B): the Evir's whole graphics-set sheet.</summary>
     internal const int EvirByteCount = 0x0600;

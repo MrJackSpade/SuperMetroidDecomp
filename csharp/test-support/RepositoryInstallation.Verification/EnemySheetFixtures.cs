@@ -58,28 +58,28 @@ internal static class EnemySheetFixtures
         }
 
         /// <inheritdoc/>
-        public EncounterCharacterCatalog Encounters => SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog;
+        public IEncounterLookCatalog Looks => SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog;
 
         /// <inheritdoc/>
-        public SetCharacterCoverage Coverage(RoomEnemyGraphicsSetDefinition set) =>
+        public SetLookCoverage Coverage(RoomEnemyGraphicsSetDefinition set) =>
             installed is not null && RoomEnemyGraphicsSetDefinitions.DrawnUnder.Contains(set) ? installed.Coverage(set) : sets.GetValue(set, Compose).Coverage;
 
         /// <inheritdoc/>
-        public IReadOnlyList<CharacterRegion[]> Layers(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame)
+        public IReadOnlyList<LookRegion[]> Layers(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame)
         {
             if (installed is not null && RoomEnemyGraphicsSetDefinitions.DrawnUnder.Contains(set))
                 return installed.Layers(set, enemy, frame);
-            return sets.GetValue(set, Compose).Pictures.TryGetValue(enemy, out IReadOnlyDictionary<string, CharacterRegion[][]>? frames)
-                && frames.TryGetValue(frame, out CharacterRegion[][]? layers) ? layers : [];
+            return sets.GetValue(set, Compose).Pictures.TryGetValue(enemy, out IReadOnlyDictionary<string, LookRegion[][]>? frames)
+                && frames.TryGetValue(frame, out LookRegion[][]? layers) ? layers : [];
         }
 
         /// <inheritdoc/>
-        public IReadOnlyList<CharacterRegion[]> SpawnedLayers(RoomEnemyGraphicsSetDefinition set, int tileBase, string frame)
+        public IReadOnlyList<LookRegion[]> SpawnedLayers(RoomEnemyGraphicsSetDefinition set, int tileBase, string frame)
         {
             if (installed is not null && RoomEnemyGraphicsSetDefinitions.DrawnUnder.Contains(set))
                 return installed.SpawnedLayers(set, tileBase, frame);
-            return sets.GetValue(set, Compose).SpawnedPictures.TryGetValue(tileBase, out IReadOnlyDictionary<string, CharacterRegion[][]>? frames)
-                && frames.TryGetValue(frame, out CharacterRegion[][]? layers) ? layers : [];
+            return sets.GetValue(set, Compose).SpawnedPictures.TryGetValue(tileBase, out IReadOnlyDictionary<string, LookRegion[][]>? frames)
+                && frames.TryGetValue(frame, out LookRegion[][]? layers) ? layers : [];
         }
 
         /// <inheritdoc/>
@@ -110,7 +110,7 @@ internal static class EnemySheetFixtures
             // A name of its own keeps its frames apart from the installed sheets' in the frame-source registry.
             string owner = $"fixture-{RuntimeHelpers.GetHashCode(inputs.Enemies):X8}-{set.Name}-{RuntimeHelpers.GetHashCode(set):X8}";
             var enemies = new Dictionary<EnemyDefinitionId, SpriteSheet>();
-            var pictures = new Dictionary<EnemyDefinitionId, IReadOnlyDictionary<string, CharacterRegion[][]>>();
+            var pictures = new Dictionary<EnemyDefinitionId, IReadOnlyDictionary<string, LookRegion[][]>>();
             var rotPictures = new Dictionary<EnemyDefinitionId, IReadOnlyDictionary<string, string>>();
             foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources, IReadOnlyDictionary<string, SuperMetroid.AssetExtraction.Enemies.CharacterRange[][]> framePictures,
                          IReadOnlyDictionary<string, string> frameRots) in setSources.Enemies)
@@ -120,7 +120,7 @@ internal static class EnemySheetFixtures
                 rotPictures[enemy] = frameRots;
             }
             var spawned = new Dictionary<int, SpawnedObjectSheet>();
-            var spawnedPictures = new Dictionary<int, IReadOnlyDictionary<string, CharacterRegion[][]>>();
+            var spawnedPictures = new Dictionary<int, IReadOnlyDictionary<string, LookRegion[][]>>();
             var spawnedRotPictures = new Dictionary<int, IReadOnlyDictionary<string, string>>();
             foreach ((SpawnedObjectSheetPlan plan, SpriteSheetSources sources, IReadOnlyDictionary<string, SuperMetroid.AssetExtraction.Enemies.CharacterRange[][]> framePictures,
                          IReadOnlyDictionary<string, string> frameRots) in setSources.Spawned)
@@ -153,8 +153,8 @@ internal static class EnemySheetFixtures
     /// <param name="Coverage">What covers each region of the set's characters.</param>
     private sealed record ComposedSet(IReadOnlyDictionary<EnemyDefinitionId, SpriteSheet> Enemies,
         IReadOnlyDictionary<int, SpawnedObjectSheet> Spawned,
-        IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyDictionary<string, CharacterRegion[][]>> Pictures,
-        IReadOnlyDictionary<int, IReadOnlyDictionary<string, CharacterRegion[][]>> SpawnedPictures,
+        IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyDictionary<string, LookRegion[][]>> Pictures,
+        IReadOnlyDictionary<int, IReadOnlyDictionary<string, LookRegion[][]>> SpawnedPictures,
         IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyDictionary<string, string>> RotPictures,
-        IReadOnlyDictionary<int, IReadOnlyDictionary<string, string>> SpawnedRotPictures, SetCharacterCoverage Coverage);
+        IReadOnlyDictionary<int, IReadOnlyDictionary<string, string>> SpawnedRotPictures, SetLookCoverage Coverage);
 }

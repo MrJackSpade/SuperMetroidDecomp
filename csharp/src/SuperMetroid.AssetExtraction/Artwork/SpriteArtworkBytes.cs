@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Areas.Tourian;
@@ -30,14 +31,14 @@ internal static class SpriteArtworkBytes
         return source switch
         {
             InstalledArtworkCharacters named => installed.Resolve(named.Artwork),
-            ArtworkFrameCharacters frame => Of(frame.Characters, installed),
             CeresDoorCharacters => (Areas(installed).CeresDoorVisual ?? throw new InvalidDataException(
                 "Installed area artwork has no Ceres door visuals.")).Characters,
-            CeresEscapeTileCharacters escape => (Areas(installed).CeresEscapeTiles ?? throw new InvalidDataException(
+            CeresWarningTextPage warning => (Areas(installed).CeresEscapeTiles ?? throw new InvalidDataException(
                     "Installed Ceres escape has no editable character pages."))
-                .TryResolve(escape.Page, escape.Offset, escape.ByteCount, out ReadOnlyMemory<byte> characters)
+                .TryResolve(CeresWarningTextPageDefinitions.InstalledPage, CeresWarningTextPages.ByteOffset(warning), CeresWarningTextPages.ByteCount(warning),
+                    out ReadOnlyMemory<byte> characters)
                 ? characters
-                : throw new InvalidDataException($"Installed Ceres escape page {escape.Page} has no {escape.ByteCount} bytes at {escape.Offset}."),
+                : throw new InvalidDataException($"Installed Ceres escape warning text has no characters for {warning}."),
             TourianStatuePictureCharacters statue => TourianStatue(statue, installed),
             CrocomireSkeletonChunkCharacters chunk => (Bosses(installed).CrocomireSkeleton ?? throw new InvalidOperationException(
                 "Installed Crocomire artwork is missing its skeleton characters.")).Chunk(chunk.Entry),
@@ -69,7 +70,7 @@ internal static class SpriteArtworkBytes
         MotherBrainSpecialSpriteSheetDefinition sheet = MotherBrainSpecialSpriteArtworkDefinitions.All[special.Sheet];
         MotherBrainSpecialSpriteArtworkCatalog artwork = Bosses(installed).MotherBrainSpecialSprites ??
             throw new InvalidDataException($"Installed enemy artwork is missing {sheet.FileName}.");
-        return artwork.Get(sheet.Sheet).Characters.Slice(special.Page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount, special.ByteCount);
+        return artwork.Get(sheet.Sheet).Characters.Slice(special.Page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount, MotherBrainSpecialSpriteSheetDefinition.PageByteCount);
     }
 
     /// <summary>The installed characters one Torizo artwork swap shows.</summary>

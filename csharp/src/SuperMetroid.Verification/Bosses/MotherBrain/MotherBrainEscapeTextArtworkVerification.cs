@@ -98,7 +98,7 @@ internal static class MotherBrainEscapeTextArtworkVerification
         InstalledEnemyArtwork artwork)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
-        SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.SpriteCharacters,
+        SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.SpriteLooks.Placed,
             new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles, (BossSourceArtwork?)enemies.BossArtwork ?? InstalledFixtures.BossArtwork, (AreaSourceArtwork?)enemies.AreaArtwork ?? InstalledFixtures.AreaArtwork)));
         for (int page = 0; page < EscapeTextArtworkDefinitions.PageCount; page++)
             enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.EscapeText, page));

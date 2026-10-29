@@ -170,7 +170,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         if (variant == 2)
         {
             _ = SelectedCeresDoorVisual;
-            _presentation.ShowCharacters(CeresDoorCharacters.Shown);
+            _presentation.ShowLook(CeresDoorCharacters.Shown);
         }
 
         if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped && variant == 3)

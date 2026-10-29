@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Areas.Ceres;
+using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire;
@@ -12,8 +14,8 @@ using SuperMetroid.AssetExtraction.Bosses.Torizo;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
-/// Where each encounter's characters land among the sprite characters (#1392, #1406): the cartridge's placement, which
-/// extraction alone knows, paired with what each encounter shows to make the installed upload catalogue.
+/// Where each sprite look lands among the sprite characters (#1392, #1406, #1463): the cartridge's placement, which
+/// extraction alone knows, paired with what each encounter shows to make the installed look catalogue.
 /// </summary>
 internal static class EncounterCharacterPlacements
 {
@@ -22,10 +24,17 @@ internal static class EncounterCharacterPlacements
     internal static EncounterCharacterCatalog Catalog { get; } = new(EncounterCharacterDefinitions.Encounters.ToDictionary(
         entry => entry.Key, entry => (IReadOnlyList<SpriteArtworkPlacement>)[.. entry.Value.Select(Placed)]));
 
-    /// <summary>The upload of <paramref name="source"/> where the cartridge shows it.</summary>
-    /// <exception cref="InvalidDataException">The cartridge shows no such source among the sprite characters.</exception>
+    /// <summary>
+    /// The upload of <paramref name="source"/> where the cartridge shows it: the standard sprites from the first character,
+    /// a graphics-set member's tiles from its staging offset into the enemy tile area, or an encounter's look where the
+    /// encounter copies it.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The cartridge shows no such source among the sprite characters, or a member's tiles are not whole characters from a character's start.</exception>
     internal static SpriteArtworkPlacement Placed(SpriteArtworkSource source) => source switch
     {
+        InstalledArtworkCharacters { Artwork: InstalledArtworkId.StandardObjectTiles } => new(source, 0, Characters(StandardObjectArtworkFormat.ByteCount)),
+        GraphicsSetTileCharacters member => new(source,
+            EncounterCharacterPlacementDefinitions.EnemyTileAreaFirstCharacter + Characters(member.Entry.StagingOffset), Characters(member.Entry.TileByteCount)),
         InstalledArtworkCharacters { Artwork: >= InstalledArtworkId.GunshipLiftoffFirstTiles and <= InstalledArtworkId.GunshipLiftoffFirstTiles + 4 } liftoff =>
             new(source, EncounterCharacterPlacementDefinitions.GunshipFirstCharacter + (liftoff.Artwork - InstalledArtworkId.GunshipLiftoffFirstTiles) * Characters(GunshipLiftoffTransferDefinitions.ByteCount),
                 Characters(GunshipLiftoffTransferDefinitions.ByteCount)),
@@ -34,14 +43,15 @@ internal static class EncounterCharacterPlacements
         TorizoArtworkSwapCharacters swap =>
             new(source, EncounterCharacterPlacementDefinitions.TorizoDestinations[swap.Entry].FirstCharacter, Characters(TorizoArtworkSwapPageDefinitions.Entries[swap.Entry].ByteCount)),
         CrocomireSkeletonChunkCharacters chunk => new(source, SkeletonFirstCharacter(chunk.Entry),
-            Characters(SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireSkeletonTransferDefinitions.ChunkByteCount)),
+            Characters(CrocomireSkeletonCharacterDefinitions.ChunkByteCount)),
         EnemyTileCharacters { Enemy: EnemyDefinitionId.Evir } => new(source, EncounterCharacterPlacementDefinitions.EvirFirstCharacter,
             Characters(EncounterCharacterPlacementDefinitions.EvirByteCount)),
         CeresDoorCharacters => new(source, EncounterCharacterPlacementDefinitions.CeresDoorFirstCharacter, Characters(SuperMetroid.Core.Areas.Ceres.Artwork.CeresDoorVisualDefinitions.CharacterBytes)),
-        CeresEscapeTileCharacters warning => new(source,
-            SuperMetroid.Core.Areas.Ceres.Artwork.CeresEscapeOverlayTilemapDefinitions.WarningFirstCharacter + Characters(warning.Offset), Characters(warning.ByteCount)),
+        CeresWarningTextPage warning => new(source,
+            SuperMetroid.Core.Areas.Ceres.Artwork.CeresEscapeOverlayTilemapDefinitions.WarningFirstCharacter + Characters(CeresWarningTextPages.ByteOffset(warning)),
+            Characters(CeresWarningTextPages.ByteCount(warning))),
         MotherBrainSpecialSpriteCharacters special => new(source,
-            MotherBrainSpecialSprites.PageFirstCharacter(MotherBrainSpecialSpriteArtworkDefinitions.All[special.Sheet], special.Page), Characters(special.ByteCount)),
+            MotherBrainSpecialSprites.PageFirstCharacter(MotherBrainSpecialSpriteArtworkDefinitions.All[special.Sheet], special.Page), Characters(MotherBrainSpecialSpriteSheetDefinition.PageByteCount)),
         MotherBrainCorpseCharacters corpse => new(source,
             MotherBrainCorpseSheet.PageFirstCharacter(corpse.Page), Characters(MotherBrainCorpseArtworkDefinitions.PageByteCount)),
         MotherBrainEscapeTextCharacters text => new(source,

@@ -49,8 +49,8 @@ internal sealed class EnemyPresentation
     }
 
     /// <summary>
-    /// The frame each of the room's animations shows (#1406): a frame drawn over OBJ characters an encounter's catalogued
-    /// animation paints shows the picture of the frame selected here.
+    /// The frame each of the room's animations shows (#1406), which an encounter's animated looks, such as Crocomire's
+    /// melting bands, select their pictures by.
     /// </summary>
     internal ArtworkFrameSelections ArtworkFrames { get; private set; } = new();
 
@@ -79,21 +79,18 @@ internal sealed class EnemyPresentation
 
     /// <summary>Room load: binds the CGRAM the room's enemy palettes write.</summary>
     internal void BindColours(GameplayColours colours) => Colours = Ensure.NotNull(colours);
-    /// <summary>
-    /// The session's gameplay OBJ character table bindings, which enemy-format sprites draw from. Uploads that bypass
-    /// the NMI queue (Draygon's Evir sheet, Crocomire's skeleton chunks) record themselves here.
-    /// </summary>
-    internal SpriteArtworkPlacements SpriteCharacters => _room.Session.SpriteCharacters;
+    /// <summary>The session's shown sprite looks, which enemy frames select their pictures from (#1463).</summary>
+    internal ShownSpriteArtwork SpriteLooks => _room.Session.SpriteLooks;
 
-    /// <summary>Shows an encounter's <paramref name="source"/> over the sprite characters (#1406).</summary>
-    internal void ShowCharacters(SpriteArtworkSource source) => _room.Session.ShowCharacters(source);
+    /// <summary>Shows an encounter's <paramref name="look"/> over what showed before it (#1406, #1463).</summary>
+    internal void ShowLook(SpriteArtworkSource look) => _room.Session.ShowLook(look);
 
-    /// <summary>The rot step each region Mother Brain's rotting corpse uploads shows (#1392).</summary>
+    /// <summary>The rot step each region Mother Brain's rotting corpse shows its rows over shows (#1392).</summary>
     internal CorpseRotSteps RotSteps { get; } = new();
 
     /// <summary>Records that Mother Brain's corpse shows its row <paramref name="row"/> as rot step <paramref name="step"/> left it (#1406).</summary>
     internal void ShowRotRow(int row, int step) =>
-        RotSteps.Show(Sheets.Coverage(LoadedSet).RotRow(row), step, SpriteCharacters.Recorded);
+        RotSteps.Show(Sheets.Coverage(LoadedSet).RotRow(row), step, SpriteLooks.Recorded);
 
     /// <summary>
     /// The session's shared <c>PaletteChangeNumerator</c>. Enemies and the runtime's door and death
@@ -146,11 +143,11 @@ internal sealed class EnemyPresentation
     /// <summary>
     /// The pictures <paramref name="frame"/> draws as, front first: the frame whole; for a frame drawn over a rotting
     /// corpse's rows, its picture of the <paramref name="rot"/> its draw selected (#1406); or, for a frame drawn over
-    /// characters the room's encounter uploads, the picture of each of its <paramref name="layers"/> showing what each region
-    /// it reads holds now, the upload made last over it or the graphics set's own characters.
+    /// regions the room's encounters show looks over, the picture of each of its <paramref name="layers"/> showing what each
+    /// region it reads shows now: the rot step a corpse left there, the look shown last over it or the graphics set's own.
     /// </summary>
     /// <exception cref="InvalidDataException">The frame shows a corpse's rot and the draw selects none, or another corpse's.</exception>
-    private IEnumerable<string> Pictures(string frame, IReadOnlyList<CharacterRegion[]> layers, string? rotCorpse, CorpseRotView? rot)
+    private IEnumerable<string> Pictures(string frame, IReadOnlyList<LookRegion[]> layers, string? rotCorpse, CorpseRotView? rot)
     {
         if (rotCorpse is not null)
         {
@@ -162,13 +159,13 @@ internal sealed class EnemyPresentation
         }
         if (layers.Count == 0)
             return [frame];
-        EncounterCharacterCatalog catalog = Sheets.Encounters;
-        IReadOnlyList<SpriteArtworkPlacement> uploads = catalog.Of(LoadedSet);
-        SetCharacterCoverage coverage = Sheets.Coverage(LoadedSet);
+        IEncounterLookCatalog catalog = Sheets.Looks;
+        IReadOnlyList<SpriteArtworkSource> setLooks = catalog.EncounterLooks(LoadedSet);
+        SetLookCoverage coverage = Sheets.Coverage(LoadedSet);
         return layers.Select((regions, layer) => catalog.PictureName(frame, layer,
             [.. regions.Select(region => RotSteps.TryShowing(region, out int step, out long stamp)
-                    && !SpriteCharacters.ShownAfter(stamp).Any(shown => coverage.Covers(shown, region))
-                ? new CharacterRegionContent(region, null, step) : catalog.Showing(SpriteCharacters, uploads, region, ArtworkFrames, coverage))]));
+                    && !SpriteLooks.ShownAfter(stamp).Any(shown => coverage.Covers(shown, region))
+                ? new LookRegionContent(region, null, step) : coverage.Showing(SpriteLooks, catalog, setLooks, region))]));
     }
 
     /// <summary>

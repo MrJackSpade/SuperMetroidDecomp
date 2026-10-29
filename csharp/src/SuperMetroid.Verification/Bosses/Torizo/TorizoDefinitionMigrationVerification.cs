@@ -1,6 +1,6 @@
+using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Bosses.Torizo;
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Verification.Harness;
 

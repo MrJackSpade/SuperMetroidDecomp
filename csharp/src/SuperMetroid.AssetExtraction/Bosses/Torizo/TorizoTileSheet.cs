@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.Torizo.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.Torizo;
 
 /// <summary>One page of installed Torizo characters, copied from the cartridge as one file.</summary>
 /// <param name="Page">The page.</param>

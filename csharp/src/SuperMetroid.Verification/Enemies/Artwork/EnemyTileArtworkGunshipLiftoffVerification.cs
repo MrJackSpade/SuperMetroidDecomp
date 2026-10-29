@@ -120,8 +120,8 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
             for (int index = 0; index < GunshipLiftoffTransferDefinitions.Frames.Length; index++)
                 enemies.GunshipBehavior.ShowGunshipTakeoffPage(top);
             AssertEqual(GunshipLiftoffTransferDefinitions.Frames.Length,
-                enemies.Room.Session.SpriteCharacters.Uploads.Count, "five native takeoff calls show five pages");
-            return enemies.Room.Session.SpriteCharacters;
+                enemies.Room.Session.SpriteLooks.Uploads.Count, "five native takeoff calls show five pages");
+            return enemies.Room.Session.SpriteLooks.Placed;
         }
     }
 }

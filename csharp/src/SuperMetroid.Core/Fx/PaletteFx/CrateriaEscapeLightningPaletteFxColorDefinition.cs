@@ -12,8 +12,6 @@ public sealed class CrateriaEscapeLightningPaletteFxColorDefinition
     public required CrateriaEscapeLightningPaletteOwner Owner { get; init; }
     /// <summary>The palette-FX object that installs this program.</summary>
     public required PaletteFxObject Object { get; init; }
-    /// <summary>The first destination byte in CGRAM.</summary>
-    public required int ColorByteIndex { get; init; }
     /// <summary>The number of live BGR555 colors in every record.</summary>
     public required int ColorsPerFrame { get; init; }
 

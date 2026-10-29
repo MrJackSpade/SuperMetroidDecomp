@@ -10,7 +10,7 @@ internal sealed class NorfairEnvironmentalPalettePrograms : IReadOnlyList<Norfai
 {
     /// <summary>The four adjacent definition identities at $8D:F785 through $F791.</summary>
     public int Count => 4;
-    /// <summary>Calculates one program's entry, frame, loop, and CGRAM addresses from its owner index.</summary>
+    /// <summary>Builds one program's definition from its owner index.</summary>
     public NorfairEnvironmentalPaletteFxColorDefinition this[int index]
     {
         get
@@ -18,14 +18,10 @@ internal sealed class NorfairEnvironmentalPalettePrograms : IReadOnlyList<Norfai
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             NorfairEnvironmentalPaletteOwner owner = Owners[index];
             bool heat = owner == NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase;
-            int regular = index - FirstRegularProgram;
-            int palette = heat ? HeatPalette : RegularFirstPalette + regular;
-            int color = heat ? HeatFirstColor : RegularFirstColor;
             return new()
             {
                 Owner = owner,
                 Object = Objects[index],
-                ColorByteIndex = (ushort)((palette * 16 + color) * sizeof(ushort)),
                 PublishesHeatPhase = heat,
                 Rows = PaletteFxColorRows.Of(NorfairEnvironmentalPaletteFxColorDefinitions.Programs[index], NorfairEnvironmentalPaletteFxColorDefinitions.ColorsPerFrame),
             };

@@ -44,12 +44,8 @@ internal static class CeresCinematicLightPaletteFxColorDefinitionsConstants
     public const ushort GunshipEngineColorIndex = 0x00be;
     /// <summary><c>PalFxInstList_CutsceneCeresNavigationLightsSprite</c> at <c>$8D:C88E</c>.</summary>
     public const ushort SpriteNavigationLightsProgramStart = 0xc88e;
-    /// <summary>The sprite-Ceres navigation lights write CGRAM word index <c>$01DA</c>.</summary>
-    public const ushort SpriteNavigationLightsColorIndex = 0x01da;
     /// <summary><c>PalFxInstList_CutsceneCeresNavigationLightsBg</c> at <c>$8D:C906</c>.</summary>
     public const ushort BackgroundNavigationLightsProgramStart = 0xc906;
-    /// <summary>The background-Ceres navigation lights write CGRAM word index <c>$00DA</c>.</summary>
-    public const ushort BackgroundNavigationLightsColorIndex = 0x00da;
     /// <summary>The gunship-engine loop contains two timed records.</summary>
     public const int GunshipEngineFrameCount = 2;
     /// <summary>The shared Ceres navigation-light loop contains fourteen timed records.</summary>

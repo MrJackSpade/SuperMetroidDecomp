@@ -14,8 +14,8 @@ namespace SuperMetroid.Core.Fx;
 /// <remarks>
 /// Room graphics load a useful static palette, but many rooms immediately replace part of
 /// it with bytecode selected by the active bank-$83 FX record. Landing Site is one of them:
-/// palette-FX bit zero writes colors 84 onward, which are used by the scrolling-sky horizon.
-/// Keeping the native pointers, timers, and byte-indexed destination here avoids encoding a
+/// palette-FX bit zero flashes the scrolling-sky horizon's lightning colours. Keeping the
+/// programs, timers, and the colours each object animates here avoids encoding a
 /// screenshot's colors as a room-specific correction.
 /// </remarks>
 [RoomLifetime]
@@ -199,7 +199,7 @@ public sealed class RoomPaletteFxSystem
 
         RoomPaletteFxDefinition compiled = RoomPaletteFxSelection.Get(definition);
         slot.Object = definition;
-        slot.Target = default;
+        slot.Target = null;
         slot.PreInstruction = PaletteFxPreInstruction.Null;
         slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(compiled.InitialProgram);
         slot.InstructionTimer = WrappingCountdown.Start(1);
@@ -282,24 +282,23 @@ public sealed class RoomPaletteFxSystem
                 return;
 
             case PaletteFxPreInstruction.InspectAdjacentSlot:
-                // X is the native byte offset, not a count of objects spawned. F621
-                // deliberately indexes from Enable rather than IDs. Use the live owner
-                // arrays so deletions earlier in this descending pass are visible.
-                // Slot 0 reads the enable word, which is always set while the handler runs; the
-                // current-index slot reads its own nonzero byte offset.
-                bool adjacentWordSet = slotIndex switch
-                {
-                    0 => true,
-                    PaletteFxMemoryLayout.CurrentIndexWordOffset => true,
-                    _ => slots[slotIndex - PaletteFxMemoryLayout.IdArrayWordOffset].Object is not null,
-                };
-                if (adjacentWordSet) slot.Clear();
+                if (InspectedNeighbourIsSet(slotIndex)) slot.Clear();
                 return;
 
             default:
                 throw new InvalidOperationException($"Undefined palette-FX pre-instruction {preInstruction}.");
         }
     }
+
+    /// <summary>
+    /// Whether the neighbour the inspecting pre-instruction looks at is set. It looks
+    /// <see cref="PaletteFxSlotInspectionDefinitions.InspectedSlotDistance"/> slots below its own, reading the live
+    /// slots so deletions earlier in this descending pass are visible. A slot with no slot that far below looks at
+    /// the handler's own enable and running-slot state instead, which are always set while the handler runs.
+    /// </summary>
+    private bool InspectedNeighbourIsSet(int slotIndex) =>
+        slotIndex < PaletteFxSlotInspectionDefinitions.InspectedSlotDistance
+        || slots[slotIndex - PaletteFxSlotInspectionDefinitions.InspectedSlotDistance].Object is not null;
 
     /// <summary>
     /// Ports <c>PreInstruction_PaletteFXObject_SamusInHeat</c> at $8D:E379. The palette
@@ -401,15 +400,21 @@ public sealed class RoomPaletteFxSystem
         }
     }
 
-    /// <summary>Writes one timed colour record to the slot's target colours, skipping the colours its layout skips.</summary>
+    /// <summary>
+    /// Writes one timed colour record to the colours the slot animates, skipping the colours its layout skips. A
+    /// program names its colours before its first record, so a record shown before that is a defect in the program.
+    /// </summary>
     private static void WritePaletteRecord(
         IPaletteFxColourOwners owners,
         IPaletteFxColorSource colors,
         PaletteFxSlot slot,
         PaletteFxFrame frame)
     {
-        ColourRun target = owners.Colours(slot.Target.Owner);
-        int colorIndex = slot.Target.Colour;
+        PaletteFxColours animated = slot.Target ?? throw new InvalidOperationException(
+            $"Palette-FX object {slot.Object} showed record {frame.Record} before its program named the colours it animates.");
+        PaletteFxColourPlacement placement = PaletteFxColourPlacementDefinitions.Placements[animated];
+        ColourRun target = owners.Colours(placement.Owner);
+        int colorIndex = placement.Colour;
         int written = 0;
         foreach (PaletteFxRecordPart part in PaletteFxRecordDefinitions.Layout(frame))
         {
@@ -425,7 +430,7 @@ public sealed class RoomPaletteFxSystem
                 if (colorIndex >= target.Count)
                 {
                     throw new InvalidDataException(
-                        $"Palette-FX object {slot.Object} wrote past {slot.Target.Owner}'s colours at colour {colorIndex}.");
+                        $"Palette-FX object {slot.Object} wrote {animated} past {placement.Owner}'s colours.");
                 }
                 target.Write(colorIndex, color);
                 colorIndex++;
@@ -439,8 +444,11 @@ public sealed class RoomPaletteFxSystem
     {
         /// <summary>The palette-FX object the slot runs; null marks an available slot.</summary>
         public PaletteFxObject? Object { get; set; }
-        /// <summary>The colours the most recent <see cref="PaletteFxCue.SetColours"/> cue selected.</summary>
-        public PaletteFxColours Target { get; set; }
+        /// <summary>
+        /// The colours the most recent <see cref="PaletteFxCue.SetColours"/> cue selected; none until the object's
+        /// program names them.
+        /// </summary>
+        public PaletteFxColours? Target { get; set; }
         /// <summary>
         /// Pre-instruction evaluated before this slot's program timer; none while the slot is free, which never runs
         /// because the slot is skipped while free.
@@ -457,7 +465,7 @@ public sealed class RoomPaletteFxSystem
         public void Clear()
         {
             Object = null;
-            Target = default;
+            Target = null;
             PreInstruction = null;
             Cursor = default;
             InstructionTimer = WrappingCountdown.Start(0);

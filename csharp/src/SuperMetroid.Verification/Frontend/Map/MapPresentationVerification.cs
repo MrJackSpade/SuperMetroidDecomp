@@ -971,203 +971,64 @@ internal static class MapPresentationVerification
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "room palette-FX override changes installed-content identity");
 
-        NorfairEnvironmentalPaletteFxColorDefinition definition =
-            NorfairEnvironmentalPaletteFxColorDefinitions.All.Single(item =>
-                item.Owner == NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase);
-        AssertOverride(definition.DefinitionPointer, definition.ColorByteIndex,
+        // Each override is checked on the colours its palette-FX object animates, read where that colour group is held.
+        AssertOverride(NorfairEnvironmentalPaletteFxColorDefinitions.All.Single(item =>
+                item.Owner == NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase).DefinitionPointer,
             "selected Norfair");
-
-        MaridiaEnvironmentalPaletteFxColorDefinition waterfallDefinition =
-            MaridiaEnvironmentalPaletteFxColorDefinitions.All.Single(item =>
-                item.Owner == MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls);
-        AssertOverride(waterfallDefinition.DefinitionPointer,
-            waterfallDefinition.ColorByteIndex, "selected Maridia");
-        AssertOverride(
-            WreckedShipGreenLightPaletteFxColorDefinitions.PoweredDefinition,
-            WreckedShipGreenLightPaletteFxColorDefinitionsConstants.ColorByteIndex,
-            "Wrecked Ship");
-        AssertOverride(
-            RedBrinstarGlowPaletteFxColorDefinitions.DefinitionPointer,
-            RedBrinstarGlowPaletteFxColorDefinitionsConstants.ColorByteIndex,
-            "Red Brinstar");
-        AssertOverride(
-            TourianGlowPaletteFxColorDefinitions.LiveDefinitionPointer,
-            TourianGlowPaletteFxColorDefinitionsConstants.ColorByteIndex,
-            "Tourian");
-        BrinstarBlueSporePaletteFxColorDefinition blueSporeDefinition =
-            BrinstarBlueSporePaletteFxColorDefinitions.All.Single(item =>
-                item.Owner == BrinstarBlueSporePaletteOwner.StandardRooms);
-        AssertOverride(blueSporeDefinition.DefinitionPointer,
-            BrinstarBlueSporePaletteFxColorDefinitionsConstants.ColorByteIndex,
+        AssertOverride(MaridiaEnvironmentalPaletteFxColorDefinitions.All.Single(item =>
+                item.Owner == MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls).DefinitionPointer,
+            "selected Maridia");
+        AssertOverride(WreckedShipGreenLightPaletteFxColorDefinitions.PoweredDefinition, "Wrecked Ship");
+        AssertOverride(RedBrinstarGlowPaletteFxColorDefinitions.DefinitionPointer, "Red Brinstar");
+        AssertOverride(TourianGlowPaletteFxColorDefinitions.LiveDefinitionPointer, "Tourian");
+        AssertOverride(BrinstarBlueSporePaletteFxColorDefinitions.All.Single(item =>
+                item.Owner == BrinstarBlueSporePaletteOwner.StandardRooms).DefinitionPointer,
             "Brinstar blue-spore");
-        foreach (TorizoBellyPaletteFxColorDefinition torizoDefinition in
-                 TorizoBellyPaletteFxColorDefinitions.All)
-        {
-            AssertOverride(torizoDefinition.DefinitionPointer,
-                TorizoBellyPaletteFxColorDefinitionsConstants.ColorByteIndex,
-                $"{torizoDefinition.Owner} belly");
-        }
-        TourianStatueGreyPaletteFxColorDefinition statueDefinition =
-            TourianStatueGreyPaletteFxColorToolingDefinitions.All[0];
-        AssertOverride(statueDefinition.DefinitionPointer,
-            statueDefinition.ColorByteIndex, "Tourian statue grey-out");
-        foreach (CrateriaLightningPaletteFxColorDefinition lightningDefinition in
-                 CrateriaLightningPaletteFxColorDefinitions.All)
-        {
-            AssertOverride(
-                lightningDefinition.DefinitionPointer,
-                lightningDefinition.ColorByteIndex,
-                $"Crateria {lightningDefinition.Owner}");
-        }
-        AssertOverride(
-            CeresCinematicLightPaletteFxColorDefinitions
-                .GunshipEngineDefinitionPointer,
-            CeresCinematicLightPaletteFxColorDefinitionsConstants.GunshipEngineColorIndex,
-            "Ceres gunship engine");
-        AssertOverride(
-            CeresCinematicLightPaletteFxColorDefinitions
-                .SpriteNavigationLightsDefinitionPointer,
-            CeresCinematicLightPaletteFxColorDefinitionsConstants
-                .SpriteNavigationLightsColorIndex,
+        foreach (TorizoBellyPaletteFxColorDefinition torizoDefinition in TorizoBellyPaletteFxColorDefinitions.All)
+            AssertOverride(torizoDefinition.DefinitionPointer, $"{torizoDefinition.Owner} belly");
+        AssertOverride(TourianStatueGreyPaletteFxColorToolingDefinitions.All[0].DefinitionPointer, "Tourian statue grey-out");
+        foreach (CrateriaLightningPaletteFxColorDefinition lightningDefinition in CrateriaLightningPaletteFxColorDefinitions.All)
+            AssertOverride(lightningDefinition.DefinitionPointer, $"Crateria {lightningDefinition.Owner}");
+        AssertOverride(CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineDefinitionPointer, "Ceres gunship engine");
+        AssertOverride(CeresCinematicLightPaletteFxColorDefinitions.SpriteNavigationLightsDefinitionPointer,
             "sprite Ceres navigation lights");
-        AssertOverride(
-            CeresCinematicLightPaletteFxColorDefinitions
-                .BackgroundNavigationLightsDefinitionPointer,
-            CeresCinematicLightPaletteFxColorDefinitionsConstants
-                .BackgroundNavigationLightsColorIndex,
+        AssertOverride(CeresCinematicLightPaletteFxColorDefinitions.BackgroundNavigationLightsDefinitionPointer,
             "background Ceres navigation lights");
-        foreach (PlanetZebesTextPaletteFxColorDefinition fadeDefinition in
-                 PlanetZebesTextPaletteFxColorDefinitions.All)
-        {
-            AssertOverride(
-                fadeDefinition.DefinitionPointer,
-                fadeDefinition.ColorByteIndex,
-                $"PLANET ZEBES {fadeDefinition.Owner}");
-        }
-        foreach (CinematicGlowPaletteFxColorDefinition glowDefinition in
-                 CinematicGlowPaletteFxColorDefinitions.All)
-        {
-            AssertOverride(
-                glowDefinition.DefinitionPointer,
-                glowDefinition.ColorByteIndex,
-                $"cinematic glow {glowDefinition.Owner}");
-        }
-        AssertOverride(
-            ExplodingZebesFadePaletteFxColorDefinitions.DefinitionPointer,
-            ExplodingZebesFadePaletteFxColorDefinitionsConstants.ColorByteIndex,
-            "exploding Zebes fade");
-        AssertOverride(
-            UnusedCinematicFadePaletteFxColorDefinitions.DefinitionPointer,
-            UnusedCinematicFadePaletteFxColorDefinitionsConstants.ColorByteIndex,
-            "unused cinematic fade");
-        AssertOverride(
-            TitleLogoFadePaletteFxColorDefinitions.DefinitionPointer,
-            TitleLogoFadePaletteFxColorDefinitionsConstants.ColorByteIndex,
-            "title-logo fade");
-        foreach ((string owner, ushort definitionPointer,
-                     ushort colorByteIndex) in new[]
-                 {
-                     new VerifyRoomPaletteFxOverrideCase("BootLogo",
-                         NintendoLogoFadePaletteFxColorDefinitions.BootLogoDefinitionPointer,
-                         NintendoLogoFadePaletteFxColorDefinitionsConstants.BootLogoColorByteIndex),
-                     new VerifyRoomPaletteFxOverrideCase("Copyright",
-                         NintendoLogoFadePaletteFxColorDefinitions.CopyrightDefinitionPointer,
-                         NintendoLogoFadePaletteFxColorDefinitionsConstants.CopyrightColorByteIndex),
-                 })
-        {
-            AssertOverride(definitionPointer, colorByteIndex, $"Nintendo shared fade {owner}");
-        }
-        AssertOverride(
-            ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer,
-            ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.ColorByteIndex,
-            "Zebes explosion foreground");
-        AssertOverride(
-            ZebesExplosionFinalePaletteFxColorDefinitions.DefinitionPointer,
-            ZebesExplosionFinalePaletteFxColorDefinitionsConstants.ColorByteIndex,
-            "Zebes explosion finale");
-        foreach ((string owner, ushort definitionPointer,
-                     ushort colorByteIndex) in new[]
-                 {
-                     new VerifyRoomPaletteFxOverrideCase("WideExplosionBackground",
-                         ZebesExplosionWhiteoutPaletteFxColorDefinitions
-                             .WideExplosionBackgroundDefinitionPointer,
-                         ZebesExplosionWhiteoutPaletteFxColorDefinitionsConstants
-                             .WideExplosionBackgroundColorByteIndex),
-                     new VerifyRoomPaletteFxOverrideCase("SpaceWhiteout",
-                         ZebesExplosionWhiteoutPaletteFxColorDefinitions
-                             .SpaceWhiteoutDefinitionPointer,
-                         ZebesExplosionWhiteoutPaletteFxColorDefinitionsConstants
-                             .SpaceWhiteoutColorByteIndex),
-                 })
-        {
-            AssertOverride(definitionPointer, colorByteIndex,
-                $"Zebes explosion whiteout {owner}");
-        }
-        foreach (ZebesExplosionAmbientPaletteFxColorDefinition ambientDefinition in
-                 ZebesExplosionAmbientPaletteFxColorDefinitions.All)
-        {
-            AssertOverride(ambientDefinition.DefinitionPointer,
-                ambientDefinition.ColorByteIndex,
-                $"Zebes explosion ambient {ambientDefinition.Owner}");
-        }
-        foreach (ZebesExplosionLayerFadePaletteFxColorDefinition layerDefinition in
-                 ZebesExplosionLayerFadePaletteFxColorDefinitions.All)
-        {
-            AssertOverride(layerDefinition.DefinitionPointer, layerDefinition.ColorByteIndex,
-                $"Zebes explosion layer fade {layerDefinition.Owner}");
-        }
-        AssertOverride(
-            ZebesExplosionGunshipPaletteFxColorDefinitions.DefinitionPointer,
-            ZebesExplosionGunshipPaletteFxColorDefinitionsConstants.ColorByteIndex,
-            "Zebes explosion gunship");
-        foreach (SamusLoadingSuitPaletteFxColorDefinition suitDefinition in
-                 SamusLoadingSuitPaletteFxColorDefinitions.All)
-        {
-            AssertOverride(suitDefinition.DefinitionPointer,
-                SamusLoadingSuitPaletteFxColorDefinitionsConstants.ColorByteIndex,
-                $"Samus loading {suitDefinition.Owner}");
-        }
-        AssertOverride(
-            PostCreditsIconGlarePaletteFxColorDefinitions.DefinitionPointer,
-            PostCreditsIconGlarePaletteFxColorDefinitionsConstants.ColorByteIndex,
-            "post-credits icon glare");
-        foreach (TourianEscapeRedFlashPaletteFxColorDefinition flashDefinition in
-                 TourianEscapeRedFlashPaletteFxColorDefinitions.All)
-        {
-            AssertOverride(flashDefinition.DefinitionPointer, flashDefinition.ColorByteIndex,
-                $"Tourian escape {flashDefinition.Owner}");
-        }
+        foreach (PlanetZebesTextPaletteFxColorDefinition fadeDefinition in PlanetZebesTextPaletteFxColorDefinitions.All)
+            AssertOverride(fadeDefinition.DefinitionPointer, $"PLANET ZEBES {fadeDefinition.Owner}");
+        foreach (CinematicGlowPaletteFxColorDefinition glowDefinition in CinematicGlowPaletteFxColorDefinitions.All)
+            AssertOverride(glowDefinition.DefinitionPointer, $"cinematic glow {glowDefinition.Owner}");
+        AssertOverride(ExplodingZebesFadePaletteFxColorDefinitions.DefinitionPointer, "exploding Zebes fade");
+        AssertOverride(UnusedCinematicFadePaletteFxColorDefinitions.DefinitionPointer, "unused cinematic fade");
+        AssertOverride(TitleLogoFadePaletteFxColorDefinitions.DefinitionPointer, "title-logo fade");
+        AssertOverride(NintendoLogoFadePaletteFxColorDefinitions.BootLogoDefinitionPointer, "Nintendo shared fade BootLogo");
+        AssertOverride(NintendoLogoFadePaletteFxColorDefinitions.CopyrightDefinitionPointer, "Nintendo shared fade Copyright");
+        AssertOverride(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer, "Zebes explosion foreground");
+        AssertOverride(ZebesExplosionFinalePaletteFxColorDefinitions.DefinitionPointer, "Zebes explosion finale");
+        AssertOverride(ZebesExplosionWhiteoutPaletteFxColorDefinitions.WideExplosionBackgroundDefinitionPointer,
+            "Zebes explosion whiteout WideExplosionBackground");
+        AssertOverride(ZebesExplosionWhiteoutPaletteFxColorDefinitions.SpaceWhiteoutDefinitionPointer,
+            "Zebes explosion whiteout SpaceWhiteout");
+        foreach (ZebesExplosionAmbientPaletteFxColorDefinition ambientDefinition in ZebesExplosionAmbientPaletteFxColorDefinitions.All)
+            AssertOverride(ambientDefinition.DefinitionPointer, $"Zebes explosion ambient {ambientDefinition.Owner}");
+        foreach (ZebesExplosionLayerFadePaletteFxColorDefinition layerDefinition in ZebesExplosionLayerFadePaletteFxColorDefinitions.All)
+            AssertOverride(layerDefinition.DefinitionPointer, $"Zebes explosion layer fade {layerDefinition.Owner}");
+        AssertOverride(ZebesExplosionGunshipPaletteFxColorDefinitions.DefinitionPointer, "Zebes explosion gunship");
+        foreach (SamusLoadingSuitPaletteFxColorDefinition suitDefinition in SamusLoadingSuitPaletteFxColorDefinitions.All)
+            AssertOverride(suitDefinition.DefinitionPointer, $"Samus loading {suitDefinition.Owner}");
+        AssertOverride(PostCreditsIconGlarePaletteFxColorDefinitions.DefinitionPointer, "post-credits icon glare");
+        foreach (TourianEscapeRedFlashPaletteFxColorDefinition flashDefinition in TourianEscapeRedFlashPaletteFxColorDefinitions.All)
+            AssertOverride(flashDefinition.DefinitionPointer, $"Tourian escape {flashDefinition.Owner}");
         foreach (TourianEscapeSharedRedFlashPaletteFxColorDefinition sharedDefinition in
                  TourianEscapeSharedRedFlashPaletteFxColorToolingDefinitions.All)
-        {
-            AssertOverride(sharedDefinition.DefinitionPointer, sharedDefinition.ColorByteIndex,
-                $"Tourian escape shared {sharedDefinition.Owner}");
-        }
-        AssertOverride(
-            OldTourianEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer,
-            OldTourianEscapeRedFlashPaletteFxColorDefinitionsConstants.ColorByteIndex,
-            "old Tourian escape red flash");
-        foreach (OldTourianEscapeAccentPaletteFxColorDefinition accentDefinition in
-                 OldTourianEscapeAccentPaletteFxColorDefinitions.All)
-        {
-            AssertOverride(accentDefinition.DefinitionPointer, accentDefinition.ColorByteIndex,
-                $"old Tourian escape {accentDefinition.Owner}");
-        }
-        AssertOverride(
-            UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer,
-            UpperCrateriaEscapeRedFlashPaletteFxColorDefinitionsConstants.ColorByteIndex,
-            "upper Crateria escape red flash");
-        foreach (CrateriaEscapeLightningPaletteFxColorDefinition lightningDefinition in
-                 CrateriaEscapeLightningPaletteFxColorDefinitions.All)
-        {
-            AssertOverride(lightningDefinition.DefinitionPointer,
-                lightningDefinition.ColorByteIndex,
-                $"Crateria escape {lightningDefinition.Owner}");
-        }
-        AssertOverride(
-            BeaconPaletteFxColorDefinitions.DefinitionPointer,
-            BeaconPaletteFxColorDefinitionsConstants.ColorByteIndex,
-            "Crateria and Brinstar beacon flash");
+            AssertOverride(sharedDefinition.DefinitionPointer, $"Tourian escape shared {sharedDefinition.Owner}");
+        AssertOverride(OldTourianEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer, "old Tourian escape red flash");
+        foreach (OldTourianEscapeAccentPaletteFxColorDefinition accentDefinition in OldTourianEscapeAccentPaletteFxColorDefinitions.All)
+            AssertOverride(accentDefinition.DefinitionPointer, $"old Tourian escape {accentDefinition.Owner}");
+        AssertOverride(UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer, "upper Crateria escape red flash");
+        foreach (CrateriaEscapeLightningPaletteFxColorDefinition lightningDefinition in CrateriaEscapeLightningPaletteFxColorDefinitions.All)
+            AssertOverride(lightningDefinition.DefinitionPointer, $"Crateria escape {lightningDefinition.Owner}");
+        AssertOverride(BeaconPaletteFxColorDefinitions.DefinitionPointer, "Crateria and Brinstar beacon flash");
 
         File.Delete(replacement);
         AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
@@ -1187,9 +1048,9 @@ internal static class MapPresentationVerification
             };
         }
 
-        void AssertOverride(ushort definitionPointer, int colorByteIndex,
-            string description)
+        void AssertOverride(ushort definitionPointer, string description)
         {
+            PaletteFxColours animated = PaletteFxObjectAccess.FromNative(definitionPointer).AnimatedColours;
             var stockRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
             stockRuntime.Artwork.MapPresentation = original;
             var editedRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
@@ -1201,9 +1062,9 @@ internal static class MapPresentationVerification
             stockPaletteFx.Step(stockRuntime.PaletteFxColours, original.RoomPaletteFx, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             editedPaletteFx.Step(editedRuntime.PaletteFxColours, edited.RoomPaletteFx, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             AssertTrue(
-                stockRuntime.Colours.Colors[colorByteIndex / sizeof(ushort)] !=
-                editedRuntime.Colours.Colors[colorByteIndex / sizeof(ushort)],
-                $"runtime catalog binding consumes {description} palette-FX override");
+                stockRuntime.Colours.Colors[animated.CartridgeColour] !=
+                editedRuntime.Colours.Colors[animated.CartridgeColour],
+                $"runtime catalog binding consumes {description} palette-FX override in its {animated}");
         }
     }
 
@@ -1291,8 +1152,8 @@ internal static class MapPresentationVerification
             TitleScreenAmbientPaletteFxColorDefinitions.All.Single(
                 definition => definition.Owner ==
                     TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight);
-        AssertTrue(stockTitle.PaletteColors[tube.ColorByteIndex / 2] !=
-            editedTitle.PaletteColors[tube.ColorByteIndex / 2],
+        AssertTrue(stockTitle.PaletteColors[tube.Colours.CartridgeColour] !=
+            editedTitle.PaletteColors[tube.Colours.CartridgeColour],
             "production title consumes selected ambient palette override");
         AssertTrue(!stockTitle.Render().SequenceEqual(editedTitle.Render()),
             "palette override visibly changes production title output");

@@ -17,8 +17,6 @@ public sealed class CinematicGlowPaletteFxColorDefinition
     /// </remarks>
     public required PaletteFxObject Object { get; init; }
 
-    /// <summary>The first destination byte in CGRAM.</summary>
-    public required int ColorByteIndex { get; init; }
 
     /// <summary>The number of live BGR555 colors written by each timed record.</summary>
     public required int ColorsPerFrame { get; init; }

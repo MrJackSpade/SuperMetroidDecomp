@@ -13,8 +13,6 @@ public sealed class NorfairEnvironmentalPaletteFxColorDefinition
     public required NorfairEnvironmentalPaletteOwner Owner { get; init; }
     /// <summary>The palette-FX object that installs this program.</summary>
     public required PaletteFxObject Object { get; init; }
-    /// <summary>The first destination byte in CGRAM.</summary>
-    public required int ColorByteIndex { get; init; }
     /// <summary>Whether each record begins with a byte-sized heat-phase publication.</summary>
     public required bool PublishesHeatPhase { get; init; }
 

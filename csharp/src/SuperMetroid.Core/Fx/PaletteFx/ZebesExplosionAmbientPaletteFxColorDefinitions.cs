@@ -31,7 +31,6 @@ public static class ZebesExplosionAmbientPaletteFxColorDefinitions
         {
             Owner = ZebesExplosionAmbientPaletteFxProgramOwner.PlanetAfterglow,
             Object = PaletteFxObject.ZebesExplosionPlanetAfterglow,
-            ColorByteIndex = 0x01c2,
             ColorsPerFrame = 8,
             CycleFrames = 96,
             Rows = PaletteFxColorRows.Of(PaletteFxProgram.ZebesExplosionPlanetAfterGlow1, 8),
@@ -40,7 +39,6 @@ public static class ZebesExplosionAmbientPaletteFxColorDefinitions
         {
             Owner = ZebesExplosionAmbientPaletteFxProgramOwner.Lava,
             Object = PaletteFxObject.ExplodingZebesLava,
-            ColorByteIndex = 0x0080,
             ColorsPerFrame = 1,
             CycleFrames = 70,
             Rows = PaletteFxColorRows.Of(PaletteFxProgram.ExplodingZebesLava1, 1),

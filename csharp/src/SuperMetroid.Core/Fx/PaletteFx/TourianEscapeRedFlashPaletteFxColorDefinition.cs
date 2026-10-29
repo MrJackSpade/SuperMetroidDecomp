@@ -14,8 +14,6 @@ public sealed class TourianEscapeRedFlashPaletteFxColorDefinition
     /// <summary>The palette-FX object that installs this program.</summary>
     public required PaletteFxObject Object { get; init; }
 
-    /// <summary>The first destination byte in CGRAM.</summary>
-    public required int ColorByteIndex { get; init; }
 
     /// <summary>The uniform display duration for every record.</summary>
     public required int Duration { get; init; }

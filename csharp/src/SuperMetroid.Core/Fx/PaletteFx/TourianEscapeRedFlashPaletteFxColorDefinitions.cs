@@ -16,7 +16,6 @@ public static class TourianEscapeRedFlashPaletteFxColorDefinitions
         {
             Owner = TourianEscapeRedFlashPaletteOwner.Shutter,
             Object = PaletteFxObject.TourianShutterRedFlashing,
-            ColorByteIndex = 0x0132,
             Duration = 2,
             ColorsPerFrame = 6,
             Rows = PaletteFxColorRows.Of(PaletteFxProgram.Tourian81, 6),
@@ -25,7 +24,6 @@ public static class TourianEscapeRedFlashPaletteFxColorDefinitions
         {
             Owner = TourianEscapeRedFlashPaletteOwner.Background,
             Object = PaletteFxObject.TourianBackgroundRedFlashing,
-            ColorByteIndex = 0x0070,
             Duration = 4,
             ColorsPerFrame = 4,
             Rows = PaletteFxColorRows.Of(PaletteFxProgram.Tourian101, 4),

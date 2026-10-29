@@ -17,8 +17,6 @@ internal static class TitleLogoFadePaletteFxColorDefinitionsConstants
         /// <inheritdoc cref="TitleLogoFadePaletteFxColorDefinitionsConstants.DefinitionPointer"/>
         internal static ushort DefinitionPointer => TitleLogoFadePaletteFxColorDefinitionsConstants.DefinitionPointer;
     }
-    /// <summary>The fade writes CGRAM from byte index <c>$0142</c>.</summary>
-    public const ushort ColorByteIndex = 0x0142;
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
     public static PaletteFxColorKey Color(int frame, int color) => TitleLogoFadePaletteFxColorDefinitions.Rows.Color(frame, color);
     /// <summary>The one-shot fade contains eight timed records.</summary>

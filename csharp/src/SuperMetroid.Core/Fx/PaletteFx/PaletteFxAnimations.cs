@@ -16,7 +16,7 @@ public static class PaletteFxAnimations
     {
         [P.FadeInSuperMetroidTitleLogo] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Sprite, 33))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.TitleLogo)),
             Show(0, 3),
             Show(1, 3),
             Show(2, 3),
@@ -29,7 +29,7 @@ public static class PaletteFxAnimations
         ],
         [P.FadeInNintendoBootLogo] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Sprite, 25))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.NintendoBootLogo)),
             FallInto(P.CommonFadeInLogo),
         ],
         [P.CommonFadeInLogo] =
@@ -46,12 +46,12 @@ public static class PaletteFxAnimations
         ],
         [P.FadeInNintendoCopyright] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.SamusSuit, 9))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.NintendoCopyright)),
             GoTo(P.CommonFadeInLogo),
         ],
         [P.TitleScreenBabyMetroidTubeLight0] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 42))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.BabyMetroidTubeLight)),
             FallInto(P.TitleScreenBabyMetroidTubeLight1),
         ],
         [P.TitleScreenBabyMetroidTubeLight1] =
@@ -68,7 +68,7 @@ public static class PaletteFxAnimations
         ],
         [P.TitleScreenFlickeringDisplays0] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 46))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.TitleScreenDisplays)),
             FallInto(P.TitleScreenFlickeringDisplays1),
         ],
         [P.TitleScreenFlickeringDisplays1] =
@@ -79,7 +79,7 @@ public static class PaletteFxAnimations
         ],
         [P.CutsceneGunshipEngineFlicker0] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 95))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.CutsceneGunshipEngine)),
             FallInto(P.CutsceneGunshipEngineFlicker1),
         ],
         [P.CutsceneGunshipEngineFlicker1] =
@@ -90,7 +90,7 @@ public static class PaletteFxAnimations
         ],
         [P.CutsceneCeresNavigationLightSprite] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.SamusBeams, 13))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.CeresNavigationLightsSprite)),
             FallInto(P.CommonCeresNavigationLights),
         ],
         [P.CommonCeresNavigationLights] =
@@ -113,12 +113,12 @@ public static class PaletteFxAnimations
         ],
         [P.CutsceneCeresNavigationLightsBG] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 109))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.CeresNavigationLightsBackground)),
             GoTo(P.CommonCeresNavigationLights),
         ],
         [P.FadeInPlanetZebesText] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Sprite, 1))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.PlanetZebesText)),
             Show(42, 3),
             Show(43, 3),
             Show(44, 3),
@@ -131,7 +131,7 @@ public static class PaletteFxAnimations
         ],
         [P.FadeOutPlanetZebesText] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Sprite, 1))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.PlanetZebesText)),
             Show(50, 3),
             Show(51, 3),
             Show(52, 3),
@@ -144,7 +144,7 @@ public static class PaletteFxAnimations
         ],
         [P.OldMotherBrainFightBGLights0] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 20))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.OldMotherBrainBackgroundLights)),
             FallInto(P.OldMotherBrainFightBGLights1),
         ],
         [P.OldMotherBrainFightBGLights1] =
@@ -167,7 +167,7 @@ public static class PaletteFxAnimations
         ],
         [P.GunshipGlow0] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Sprite, 127))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.GunshipGlow)),
             FallInto(P.GunshipGlow1),
         ],
         [P.GunshipGlow1] =
@@ -190,7 +190,7 @@ public static class PaletteFxAnimations
         ],
         [P.FadeOutZoomedOutExplodingZebes] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Sprite, 112))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.ZoomedOutExplodingZebes)),
             Show(86, 8),
             Show(87, 8),
             Show(88, 8),
@@ -202,7 +202,7 @@ public static class PaletteFxAnimations
         ],
         [P.WidePartOfZebesExplosionForeground] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 1))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.WideZebesExplosionForeground)),
             Show(93, 4),
             Show(94, 4),
             Show(95, 4),
@@ -223,7 +223,7 @@ public static class PaletteFxAnimations
         ],
         [P.ZebesExplosionFinale] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 1))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.ZebesExplosionFinale)),
             Show(109, 2),
             Show(110, 2),
             Show(111, 2),
@@ -273,12 +273,12 @@ public static class PaletteFxAnimations
         ],
         [P.WidePartOfZebesExplosionBackground] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 17))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.WideZebesExplosionBackground)),
             GoTo(P.CommonZebesExplosion),
         ],
         [P.WhiteOutSpaceDuringZebesExplosion] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 0))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.SpaceDuringZebesExplosion)),
             FallInto(P.CommonZebesExplosion),
         ],
         [P.CommonZebesExplosion] =
@@ -302,7 +302,7 @@ public static class PaletteFxAnimations
         ],
         [P.ZebesExplosionPlanetAfterGlow0] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.SamusBeams, 1))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.ZebesPlanetAfterglow)),
             FallInto(P.ZebesExplosionPlanetAfterGlow1),
         ],
         [P.ZebesExplosionPlanetAfterGlow1] =
@@ -317,7 +317,7 @@ public static class PaletteFxAnimations
         ],
         [P.ExplodingZebesLava0] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 64))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.ExplodingZebesLava)),
             FallInto(P.ExplodingZebesLava1),
         ],
         [P.ExplodingZebesLava1] =
@@ -336,7 +336,7 @@ public static class PaletteFxAnimations
         ],
         [P.FadeOutExplodingZebesCrust] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 65))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.ExplodingZebesCrust)),
             Show(185, 20),
             Show(186, 20),
             Show(187, 20),
@@ -349,7 +349,7 @@ public static class PaletteFxAnimations
         ],
         [P.FadeOutExplodingZebesGreyClouds] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 81))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.ExplodingZebesGreyClouds)),
             Show(193, 14),
             Show(194, 14),
             Show(195, 14),
@@ -362,7 +362,7 @@ public static class PaletteFxAnimations
         ],
         [P.GunshipEmergingFromZebesExplosion] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 80))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.GunshipEmergingFromExplosion)),
             Show(201, 24),
             Show(202, 24),
             Show(203, 24),
@@ -383,7 +383,7 @@ public static class PaletteFxAnimations
         ],
         [P.HyperBeam0] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.SamusBeams, 1))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.HyperBeam)),
             FallInto(P.HyperBeam1),
         ],
         [P.HyperBeam1] =
@@ -402,7 +402,7 @@ public static class PaletteFxAnimations
         ],
         [P.ListD9D0] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 80))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.UnusedCinematicFade)),
             Show(227, 2),
             Show(228, 2),
             Show(229, 2),
@@ -418,7 +418,7 @@ public static class PaletteFxAnimations
         ],
         [P.SamusLoadingPowerSuit0] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.SamusSuit, 0))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.SamusLoadingSuit)),
             SetCounter(36),
             FallInto(P.SamusLoadingPowerSuit1),
         ],
@@ -456,7 +456,7 @@ public static class PaletteFxAnimations
         ],
         [P.SamusLoadingVairaSuit0] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.SamusSuit, 0))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.SamusLoadingSuit)),
             SetCounter(36),
             FallInto(P.SamusLoadingVairaSuit1),
         ],
@@ -494,7 +494,7 @@ public static class PaletteFxAnimations
         ],
         [P.SamusLoadingGravitySuit0] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.SamusSuit, 0))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.SamusLoadingSuit)),
             SetCounter(36),
             FallInto(P.SamusLoadingGravitySuit1),
         ],
@@ -532,7 +532,7 @@ public static class PaletteFxAnimations
         ],
         [P.PostCreditsSuperMetroidIconGlare] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Sprite, 112))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.PostCreditsSuperMetroidIcon)),
             Show(265, 1),
             Show(266, 1),
             Show(267, 1),
@@ -555,22 +555,22 @@ public static class PaletteFxAnimations
         ],
         [P.GreyOutTourianStatueDraygon] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 96))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.DraygonStatue)),
             GoTo(P.CommonGreyOutTourianStatue),
         ],
         [P.GreyOutTourianStatueKraid] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 112))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.KraidStatue)),
             GoTo(P.CommonGreyOutTourianStatue),
         ],
         [P.GreyOutTourianStatueRidley] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Sprite, 16))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.RidleyStatue)),
             GoTo(P.CommonGreyOutTourianStatue),
         ],
         [P.GreyOutTourianStatuePhantoon] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Sprite, 32))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.PhantoonStatue)),
             FallInto(P.CommonGreyOutTourianStatue),
         ],
         [P.CommonGreyOutTourianStatue] =
@@ -587,7 +587,7 @@ public static class PaletteFxAnimations
         ],
         [P.BombTorizoBelly0] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Sprite, 25))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.TorizoBelly)),
             Cue(new PaletteFxCue.SetPreInstruction(PreInstruction: PaletteFxPreInstruction.DeleteWhenEnemyZeroDies)),
             FallInto(P.BombTorizoBelly1),
         ],
@@ -603,7 +603,7 @@ public static class PaletteFxAnimations
         ],
         [P.GoldenTorizoBelly0] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Sprite, 25))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.TorizoBelly)),
             Cue(new PaletteFxCue.SetPreInstruction(PreInstruction: PaletteFxPreInstruction.DeleteWhenEnemyZeroDies)),
             FallInto(P.GoldenTorizoBelly1),
         ],
@@ -620,7 +620,7 @@ public static class PaletteFxAnimations
         [P.SamusInHeatPowerSuit0] =
         [
             Cue(new PaletteFxCue.SetPreInstruction(PreInstruction: PaletteFxPreInstruction.Heat)),
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.SamusSuit, 1))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.HeatSuitGlow)),
             FallInto(P.SamusInHeatPowerSuit1),
         ],
         [P.SamusInHeatPowerSuit1] =
@@ -706,7 +706,7 @@ public static class PaletteFxAnimations
         [P.SamusInHeatVariaSuit0] =
         [
             Cue(new PaletteFxCue.SetPreInstruction(PreInstruction: PaletteFxPreInstruction.Heat)),
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.SamusSuit, 1))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.HeatSuitGlow)),
             FallInto(P.SamusInHeatVariaSuit2),
         ],
         [P.SamusInHeatVariaSuit2] =
@@ -792,7 +792,7 @@ public static class PaletteFxAnimations
         [P.SamusInHeatGravitySuit0] =
         [
             Cue(new PaletteFxCue.SetPreInstruction(PreInstruction: PaletteFxPreInstruction.Heat)),
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.SamusSuit, 1))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.HeatSuitGlow)),
             FallInto(P.SamusInHeatGravitySuit2),
         ],
         [P.SamusInHeatGravitySuit2] =
@@ -877,7 +877,7 @@ public static class PaletteFxAnimations
         ],
         [P.WreckedShip10] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 76))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.WreckedShipGreenLights)),
             FallInto(P.WreckedShip11),
         ],
         [P.WreckedShip11] =
@@ -895,7 +895,7 @@ public static class PaletteFxAnimations
         [P.Crateria10] =
         [
             Cue(new PaletteFxCue.SetPreInstruction(PreInstruction: PaletteFxPreInstruction.SwitchAboveY380)),
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 84))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.LandingSiteLightning)),
             FallInto(P.Crateria11),
         ],
         [P.Crateria11] =
@@ -930,7 +930,7 @@ public static class PaletteFxAnimations
         [P.ListEC6E] =
         [
             Cue(new PaletteFxCue.SetPreInstruction(PreInstruction: PaletteFxPreInstruction.SwitchAboveY380Second)),
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 65))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.UnusedDarkLightning)),
             FallInto(P.CrateriaAboveY380Second),
         ],
         [P.CrateriaAboveY380Second] =
@@ -965,7 +965,7 @@ public static class PaletteFxAnimations
         ],
         [P.Brinstar10] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 113))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.BrinstarBlueSpores)),
             FallInto(P.Brinstar11),
         ],
         [P.Brinstar11] =
@@ -989,7 +989,7 @@ public static class PaletteFxAnimations
         [P.Brinstar80] =
         [
             Cue(new PaletteFxCue.SetPreInstruction(PreInstruction: PaletteFxPreInstruction.DeleteWhenAreaMiniBossDies)),
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 113))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.BrinstarBlueSpores)),
             FallInto(P.Brinstar81),
         ],
         [P.Brinstar81] =
@@ -1012,7 +1012,7 @@ public static class PaletteFxAnimations
         ],
         [P.Brinstar20] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 100))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.BrinstarRedGlow)),
             FallInto(P.Brinstar21),
         ],
         [P.Brinstar21] =
@@ -1035,7 +1035,7 @@ public static class PaletteFxAnimations
         ],
         [P.Crateria80Brinstar40] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 113))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.Beacon)),
             FallInto(P.Crateria80Brinstar41),
         ],
         [P.Crateria80Brinstar41] =
@@ -1055,7 +1055,7 @@ public static class PaletteFxAnimations
         ],
         [P.Norfair20] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 53))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.NorfairHeatForeground)),
             FallInto(P.Norfair21),
         ],
         [P.Norfair21] =
@@ -1096,7 +1096,7 @@ public static class PaletteFxAnimations
         ],
         [P.Norfair40] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 65))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.NorfairForegroundPalette4)),
             FallInto(P.Norfair41),
         ],
         [P.Norfair41] =
@@ -1121,7 +1121,7 @@ public static class PaletteFxAnimations
         ],
         [P.Norfair80] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 81))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.NorfairForegroundPalette5)),
             FallInto(P.Norfair81),
         ],
         [P.Norfair81] =
@@ -1146,7 +1146,7 @@ public static class PaletteFxAnimations
         ],
         [P.Norfair100] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 97))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.NorfairForegroundPalette6)),
             FallInto(P.Norfair101),
         ],
         [P.Norfair101] =
@@ -1171,7 +1171,7 @@ public static class PaletteFxAnimations
         ],
         [P.Maridia10] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 36))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.MaridiaSandPits)),
             FallInto(P.Maridia11),
         ],
         [P.Maridia11] =
@@ -1184,7 +1184,7 @@ public static class PaletteFxAnimations
         ],
         [P.Maridia20] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 40))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.MaridiaSandFalls)),
             FallInto(P.Maridia21),
         ],
         [P.Maridia21] =
@@ -1197,7 +1197,7 @@ public static class PaletteFxAnimations
         ],
         [P.Maridia40] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 52))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.MaridiaBackgroundWaterfalls)),
             FallInto(P.Maridia41),
         ],
         [P.Maridia41] =
@@ -1214,12 +1214,12 @@ public static class PaletteFxAnimations
         ],
         [P.Tourian4] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 116))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.TourianArkanoidBlocksAndOrbs)),
             GoTo(P.CommonTourian2Tourian40),
         ],
         [P.Tourian2] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 116))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.TourianArkanoidBlocksAndOrbs)),
             FallInto(P.CommonTourian2Tourian40),
         ],
         [P.CommonTourian2Tourian40] =
@@ -1244,7 +1244,7 @@ public static class PaletteFxAnimations
         ],
         [P.Tourian80] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Sprite, 25))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.TourianShutters)),
             FallInto(P.Tourian81),
         ],
         [P.Tourian81] =
@@ -1267,7 +1267,7 @@ public static class PaletteFxAnimations
         ],
         [P.Tourian100] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 56))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.TourianBackground)),
             FallInto(P.Tourian101),
         ],
         [P.Tourian101] =
@@ -1290,12 +1290,12 @@ public static class PaletteFxAnimations
         ],
         [P.Tourian20] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 84))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.TourianLevel)),
             GoTo(P.CommonTourian20Tourian40),
         ],
         [P.Tourian40] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 116))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.TourianArkanoidBlocksAndOrbs)),
             FallInto(P.CommonTourian20Tourian40),
         ],
         [P.CommonTourian20Tourian40] =
@@ -1318,7 +1318,7 @@ public static class PaletteFxAnimations
         ],
         [P.Crateria80] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 81))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.OldTourianLevel)),
             FallInto(P.Crateria81),
         ],
         [P.Crateria81] =
@@ -1341,7 +1341,7 @@ public static class PaletteFxAnimations
         ],
         [P.Crateria100] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 105))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.OldTourianRailings)),
             FallInto(P.Crateria101),
         ],
         [P.Crateria101] =
@@ -1365,7 +1365,7 @@ public static class PaletteFxAnimations
         ],
         [P.Crateria200] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 85))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.OldTourianPanels)),
             FallInto(P.Crateria201),
         ],
         [P.Crateria201] =
@@ -1389,7 +1389,7 @@ public static class PaletteFxAnimations
         ],
         [P.Crateria20] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 65))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.UpperCrateriaLevel)),
             FallInto(P.Crateria21),
         ],
         [P.Crateria21] =
@@ -1412,7 +1412,7 @@ public static class PaletteFxAnimations
         ],
         [P.Crateria40] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 81))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.CrateriaEscapeLightning)),
             FallInto(P.Crateria41),
         ],
         [P.Crateria41] =
@@ -1432,7 +1432,7 @@ public static class PaletteFxAnimations
         ],
         [P.Crateria400] =
         [
-            Cue(new PaletteFxCue.SetColours(new(PaletteFxColourOwner.Background, 87))),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.CreBlockPixel)),
             FallInto(P.Crateria401),
         ],
         [P.Crateria401] =

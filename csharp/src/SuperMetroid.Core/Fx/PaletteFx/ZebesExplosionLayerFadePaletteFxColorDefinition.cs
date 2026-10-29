@@ -15,8 +15,6 @@ public sealed class ZebesExplosionLayerFadePaletteFxColorDefinition
     /// <remarks><c>$8D:E1DC</c> is crust and <c>$8D:E1E0</c> is grey clouds.</remarks>
     public required PaletteFxObject Object { get; init; }
 
-    /// <summary>The first destination byte in CGRAM.</summary>
-    public required int ColorByteIndex { get; init; }
 
     /// <summary>The cartridge-authored duration of each timed record.</summary>
     public required int FrameDuration { get; init; }

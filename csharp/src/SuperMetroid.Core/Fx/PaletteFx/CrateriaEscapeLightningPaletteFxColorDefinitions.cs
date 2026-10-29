@@ -14,7 +14,6 @@ public static class CrateriaEscapeLightningPaletteFxColorDefinitions
     {
         Owner = CrateriaEscapeLightningPaletteOwner.YellowLightning,
         Object = PaletteFxObject.CrateriaEscapeYellowLightning,
-        ColorByteIndex = 0x00a2,
         ColorsPerFrame = 11,
         Rows = PaletteFxColorRows.Of(PaletteFxProgram.Crateria41, 11),
     };
@@ -23,7 +22,6 @@ public static class CrateriaEscapeLightningPaletteFxColorDefinitions
     {
         Owner = CrateriaEscapeLightningPaletteOwner.CreBlockPixel,
         Object = PaletteFxObject.CrateriaEscapeCreBlockPixel,
-        ColorByteIndex = 0x00ae,
         ColorsPerFrame = 5,
         Rows = PaletteFxColorRows.Of(PaletteFxProgram.Crateria401, 5),
     };

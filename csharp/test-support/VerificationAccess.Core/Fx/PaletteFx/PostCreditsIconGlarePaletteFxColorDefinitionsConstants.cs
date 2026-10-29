@@ -19,6 +19,4 @@ internal static class PostCreditsIconGlarePaletteFxColorDefinitionsConstants
     }
     /// <summary>The instruction-list entry at <c>$8D:DF94</c>.</summary>
     public const ushort ProgramStart = 0xdf94;
-    /// <summary>The glare writes CGRAM from byte index <c>$01E0</c>.</summary>
-    public const ushort ColorByteIndex = 0x01e0;
 }

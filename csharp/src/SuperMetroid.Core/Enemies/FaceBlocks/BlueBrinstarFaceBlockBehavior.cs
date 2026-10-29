@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Enemies.FaceBlocks;
 
 /// <summary>The blue Brinstar face block species owner: its per-room state, AI routines and the interactions it registers.</summary>
@@ -60,8 +61,8 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     private WrappingCountdown _blueBrinstarFaceBlockPaletteTimer;
     /// <summary>Shared eight-frame color index, 0 through 7, intentionally retained when an actor activates.</summary>
     private int _blueBrinstarFaceBlockPaletteFrame;
-    /// <summary>OBJ palette row selected by the last eligible block processed by main AI.</summary>
-    private int _blueBrinstarFaceBlockPaletteRow;
+    /// <summary>The colours of the last eligible block processed by main AI, whose set the animation writes.</summary>
+    private SpriteColouring _blueBrinstarFaceBlockColouring = SharedSpriteColouring.Common;
 
     /// <summary>Ports <c>BlueBrinstarFaceBlock_Init</c> at <c>$A8:E82E</c>.</summary>
     internal void InitializeBlueBrinstarFaceBlock(RoomEnemySlot slot, SamusState? samus)
@@ -155,7 +156,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         // `((palette_index * 16) & $FF00) >> 8`, followed by `(offset >> 1) + 137`,
         // simplifies to OBJ palette N color nine. Keep that PPU meaning explicit so a
         // debugger sees an actual palette row rather than a mysterious WRAM byte offset.
-        _blueBrinstarFaceBlockPaletteRow = slot.PaletteRow;
+        _blueBrinstarFaceBlockColouring = slot.Colouring;
     }
 
     /// <summary>
@@ -177,7 +178,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         int frame = _blueBrinstarFaceBlockPaletteFrame & (BlueBrinstarFaceBlockPaletteFrameCount - 1);
         var colors = _room.Artwork?.AuxiliaryColors ?? throw new InvalidDataException(
             "Face-block palette animation requires installed artwork.");
-        ColourRun animated = _presentation.ColourSet(_blueBrinstarFaceBlockPaletteRow)
+        ColourRun animated = _presentation.ColourSetOf(_blueBrinstarFaceBlockColouring)
             .Slice(FirstAnimatedFaceBlockPaletteColor, BlueBrinstarFaceBlockAnimatedColorCount);
         for (int color = 0; color < BlueBrinstarFaceBlockAnimatedColorCount; color++)
         {

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Enemies.Animals;
 
@@ -68,7 +69,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        slot.PaletteRow = 0;
+        slot.Colouring = SharedSpriteColouring.Common;
 
         EscapeEtecoonInitialization initialization =
             EscapeEtecoons.Initialization(checked((ushort)slot.Spawn.Population.Parameter1));

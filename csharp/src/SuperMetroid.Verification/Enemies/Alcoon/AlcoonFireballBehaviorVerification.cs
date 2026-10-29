@@ -8,6 +8,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Enemies.Alcoon;
 
@@ -27,7 +28,7 @@ internal static class AlcoonFireballBehaviorVerification
         source.Bind(EnemyDefinitionId.Alcoon, source.Definition);
         source.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
         source.TileIndexBase = 512;
-        source.PaletteRow = 6;
+        source.Colouring = new UnnamedSpriteRowColouring(6);
         var state = new AlcoonEnemyState();
         source.SetSpeciesState(state);
         foreach (short direction in new short[] { -2, 2 })

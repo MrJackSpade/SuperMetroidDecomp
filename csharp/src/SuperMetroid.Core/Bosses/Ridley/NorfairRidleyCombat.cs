@@ -9,7 +9,6 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Norfair Ridley's arrival and fight: hovering, swoops, pogo and ground attacks, and grabbing Samus.</summary>
@@ -71,7 +70,7 @@ internal sealed class NorfairRidleyCombat
                 EnemyProperties.Invisible);
             return;
         }
-        slot.PaletteRow = 7;
+        slot.Colouring = RidleyEnemyState.OwnColours;
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
 
         // Native property $1000 blocks Plasma Beam penetration. Its meaning is established
@@ -85,8 +84,8 @@ internal sealed class NorfairRidleyCombat
         {
             Function = RidleyAiFunction.WaitForDoorTransition,
             FightMode = RidleyFightMode.NotFighting,
-            SpritemapPalette = 7,
-            CommonDrawPalette = 7,
+            SpritemapColouring = RidleyEnemyState.OwnColours,
+            CommonDrawColouring = RidleyEnemyState.OwnColours,
             MovementAnimationEnabled = true,
             FacingDirection = RidleyFacing.Right,
             IdleTailWhipEnabled = false,

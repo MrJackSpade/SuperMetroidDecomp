@@ -38,7 +38,7 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
         RoomEnemyPopulationRecord population,
         RoomEnemyDefinition definition)
     {
-        (int tileIndex, int paletteRow) = _graphics.FindGraphicsIndexes(population.DefinitionId);
+        SpriteGraphics loaded = _graphics.FindGraphicsIndexes(population.DefinitionId);
 
         slot.Bind(population.DefinitionId, definition);
         slot.Radius = new(definition.Radius.X, definition.Radius.Y);
@@ -53,8 +53,8 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.FrameCounter = 0;
         slot.HurtAiTime = definition.HurtAiTime;
-        slot.PaletteRow = paletteRow;
-        slot.TileIndexBase = tileIndex;
+        slot.Colouring = loaded.Colouring;
+        slot.TileIndexBase = loaded.TileBase;
         slot.Spawn = new RoomEnemySpawnSnapshot(population);
     }
 

@@ -174,7 +174,7 @@ public sealed class CeresElevatorArrivalState
 
         presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.CeresElevatorArrival, instance),
             EnemySheetDefinitions.ProjectileFrameName(CeresElevatorArrivalAnimations.Frame(pose)), screen,
-            EnemyProjectileEngine.ProjectileTileBase(projectile.Graphics), projectile.Graphics.PaletteRow);
+            EnemyProjectileEngine.ProjectileTileBase(projectile.Graphics), projectile.Graphics.Colouring);
     }
 
     /// <summary>Small per-slot state for the two Ceres arrival enemy projectiles.</summary>
@@ -191,7 +191,7 @@ public sealed class CeresElevatorArrivalState
             Graphics = graphics;
         }
 
-        /// <summary>The sheet characters and palette row the projectile draws with.</summary>
+        /// <summary>The sheet characters and colours the projectile draws with.</summary>
         public SpriteGraphics Graphics { get; }
         /// <summary>Whether the projectile still occupies its arrival slot.</summary>
         public bool Active { get; set; } = true;

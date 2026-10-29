@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
@@ -47,7 +48,7 @@ internal sealed class KraidProjectiles
         }
         KraidEncounterAccess.EnsureKraidSlot(lint, expectedSlot, "lint");
         KraidEncounterAccess.AttachKraidPart(lint, state);
-        lint.PaletteRow = _slotTable.Slots[0].PaletteRow;
+        lint.Colouring = _slotTable.Slots[0].Colouring;
         lint.InstructionTimer = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
         _access.SetKraidPartProgram(lint, KraidPartProgram.LintInitial);
         lint.Frame = EnemyFrameId.KraidLint00;
@@ -65,7 +66,7 @@ internal sealed class KraidProjectiles
         KraidEnemyState state = _access.RequireKraidState(nail);
         KraidEncounterAccess.EnsureKraidSlot(nail, expectedSlot, "fingernail");
         KraidEncounterAccess.AttachKraidPart(nail, state);
-        nail.PaletteRow = _slotTable.Slots[0].PaletteRow;
+        nail.Colouring = _slotTable.Slots[0].Colouring;
         KraidPartState nailPart = state.Parts[nail.SlotIndex];
         nailPart.NailVelocity = nailPart.NailVelocity.WithX(nailPart.NailVelocity.X.WithFraction(40));
         nail.Properties = nail.Properties.With(EnemyProperties.Invisible);
@@ -433,7 +434,9 @@ internal sealed class KraidProjectiles
     /// <summary>Advances the visible lint charge before firing.</summary>
     private void ChargeKraidLint(RoomEnemySlot lint)
     {
-        lint.PaletteRow = (_access.Part(lint).FunctionTimer & 1) != 0 ? 7 : 0;
+        lint.Colouring = (_access.Part(lint).FunctionTimer & 1) != 0
+            ? new GraphicsSetMemberColouring(EnemyDefinitionId.Kraid)
+            : SharedSpriteColouring.Common;
         lint.Position = lint.Position.WithWholeX(unchecked((ushort)(
             _access.Part(lint).LintXOffset + _slotTable.Slots[0].Position.X.Whole - _access.Part(lint).LintTravel)));
         CountdownStep charge = WrappingCountdown.FromRaw(checked((ushort)_access.Part(lint).FunctionTimer)).Decrement();

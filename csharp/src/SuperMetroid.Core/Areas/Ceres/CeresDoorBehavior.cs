@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
@@ -161,7 +162,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         slot.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.CeresDoor];
-        slot.PaletteRow = 2;
+        slot.Colouring = new EncounterSpriteColouring(CeresDoorColourDefinitions.Inactive);
         var state = new CeresDoorEnemyState { Function = initialization.MainFunction };
         slot.SetSpeciesState(state, state.ClearWithRecord);
         DoorPrograms[slot.SlotIndex] = AnimationProgramCursor<CeresDoorProgram>.Start(initialization.Program);
@@ -181,7 +182,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        slot.PaletteRow = 7;
+        slot.Colouring = new EncounterSpriteColouring(CeresDoorColourDefinitions.Active);
         if (_ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
             SelectedCeresDoorVisual.LoadEscapeColors(CeresDoorColourDefinitions.Active.In(_presentation.Colours));
         else
@@ -210,7 +211,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
                 if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyEscaped)
                 {
-                    slot.PaletteRow = 7;
+                    slot.Colouring = new EncounterSpriteColouring(CeresDoorColourDefinitions.Active);
                     slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
                 }
                 return;

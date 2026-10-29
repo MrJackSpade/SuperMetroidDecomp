@@ -13,6 +13,7 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Verification.Bosses;
 
@@ -112,7 +113,7 @@ internal static class BossSpriteEntriesVerification
         {
             MovementAnimationEnabled = true,
             FacingDirection = SuperMetroid.Core.Bosses.Ridley.RidleyFacing.Left,
-            SpritemapPalette = 1,
+            SpritemapColouring = new GraphicsSetMemberColouring(EnemyDefinitionId.RidleyCeres),
             TailSegments = [.. Enumerable.Range(0, 7).Select(index => new SuperMetroid.Core.Bosses.Ridley.RidleyTailSegment
             {
                 Position = new Position16<RoomPixels>(unchecked((ushort)(80 + index * 10)), unchecked((ushort)(120 + index * 3))),

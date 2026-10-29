@@ -129,10 +129,15 @@ internal static class EnemyExtendedFrameArtworkVerification
                      })
             {
                 RoomEnemySlot? drawn = null;
-                OamBuffer installed = DrawExtendedForBank(stock, frame.Bank, frame.Pointer, new(x, y), slot => drawn = slot);
+                int drawnRow = 0;
+                OamBuffer installed = DrawExtendedForBank(stock, frame.Bank, frame.Pointer, new(x, y), (slot, system) =>
+                {
+                    drawn = slot;
+                    drawnRow = slot.PaletteRowIn(system);
+                });
                 OamBuffer native = DrawReferenceExtendedFrame(rom,
                     frame.Bank, frame.Pointer, new(x, y),
-                    NativeSpriteGraphicsWords.PaletteBits((drawn ?? throw new InvalidOperationException("Verification requires the drawn slot.")).PaletteRow),
+                    NativeSpriteGraphicsWords.PaletteBits(drawn is null ? throw new InvalidOperationException("Verification requires the drawn slot.") : drawnRow),
                     checked((ushort)drawn.TileIndexBase));
                 AssertTrue(native.ImageEquals(installed) &&
                            native.NextByteOffset == installed.NextByteOffset,
@@ -1327,7 +1332,7 @@ internal static class EnemyExtendedFrameArtworkVerification
     /// <summary>Draws a bank-$B2 installed frame through the production enemy-layer path for OAM comparison.</summary>
     private static OamBuffer DrawExtended(InstalledEnemyArtwork art,
         ushort pointer, Position16<RoomPixels> position,
-        Action<RoomEnemySlot>? inspect = null)
+        Action<RoomEnemySlot, RoomEnemySystem>? inspect = null)
     {
         return DrawExtendedForBank(art, EnemyExtendedFrameDefinitions.Bank,
             pointer, position, inspect);
@@ -1336,7 +1341,7 @@ internal static class EnemyExtendedFrameArtworkVerification
     /// <summary>Installs a chosen extended frame on a fixture enemy and captures the production layer draw for its bank.</summary>
     internal static OamBuffer DrawExtendedForBank(InstalledEnemyArtwork? art,
         byte bank, ushort pointer, Position16<RoomPixels> position,
-        Action<RoomEnemySlot>? inspect = null)
+        Action<RoomEnemySlot, RoomEnemySystem>? inspect = null)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art?.Enemies, BossArtwork = art?.Bosses, AreaArtwork = art?.Areas };
         enemies.Drawing.Enqueue(0, 0);
@@ -1350,12 +1355,12 @@ internal static class EnemyExtendedFrameArtworkVerification
             enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(slot.DefinitionId), new SpriteColourSets());
             SpriteGraphics indexes = enemies.GraphicsSet.DrawIndexes(slot.DefinitionId);
             slot.TileIndexBase = indexes.TileBase;
-            slot.PaletteRow = indexes.PaletteRow;
+            slot.Colouring = indexes.Colouring;
         }
         // Ridley's scene draws his tail and wings before his body while his movement animation runs, and his AI latches
-        // the palette his body draws in; this fixture's animation is off and its latch holds the slot's palette.
+        // the colours his body draws in; this fixture's animation is off and its latch holds the slot's colours.
         if (slot.DefinitionId == EnemyDefinitionId.Ridley)
-            enemies.RidleyEncounter.Ridley = new RidleyEnemyState { CommonDrawPalette = slot.PaletteRow };
+            enemies.RidleyEncounter.Ridley = new RidleyEnemyState { CommonDrawColouring = slot.Colouring };
         slot.ExtraProperties = slot.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
         slot.Frame = frame;
@@ -1363,7 +1368,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         slot.Position = slot.Position.WithWhole(position);
         var oam = new OamBuffer();
         enemies.Drawing.DrawLayersAsOam(oam, new(0, 0), 0, 0);
-        inspect?.Invoke(slot);
+        inspect?.Invoke(slot, enemies);
         return oam;
     }
 

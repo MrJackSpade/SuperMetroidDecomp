@@ -222,7 +222,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             }
 
             BabyTurtleEnemyState childState = child.RequireSpeciesState<BabyTurtleEnemyState>();
-            child.PaletteRow = mama.PaletteRow;
+            child.Colouring = mama.Colouring;
             child.TileIndexBase = mama.TileIndexBase;
             childState.ParentSlotIndex = mama.SlotIndex;
         }

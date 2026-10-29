@@ -27,7 +27,7 @@ internal static class FrozenMetroidShellVerification
         slot.Position = slot.Position.WithWhole(new(120, 100));
         slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
         slot.TileIndexBase = indexes.TileBase;
-        slot.PaletteRow = indexes.PaletteRow;
+        slot.Colouring = indexes.Colouring;
         enemies.MetroidBehavior.InitializeMetroid(slot);
         var state = enemies.MetroidStates[0];
         (state ?? throw new InvalidOperationException("Verification requires state.")).OuterBodyA.Position = state.OuterBodyA.Position.WithWholeX(500); // Isolate the shell from the electrical overlay.

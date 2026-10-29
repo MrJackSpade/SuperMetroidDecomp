@@ -6,7 +6,6 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Ceres Ridley's flight: liftoff, hovering, fireballs, lunges, swoops, the fake retreat and taking the baby, and the movement integration they share.</summary>
@@ -60,7 +59,7 @@ internal sealed class CeresRidleyFlight
         // $A6:A10B-A12E clears the shared boss tilemap workspace, disables the minimap, and
         // marks the room explored. Those consumers are not yet represented by RoomEnemySystem;
         // every actor-owned write that follows is retained below.
-        slot.PaletteRow = 7;
+        slot.Colouring = RidleyEnemyState.OwnColours;
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
 
         // Native bits $1000 and $0400 are proven by the initializer, but $1000 has not yet
@@ -76,8 +75,8 @@ internal sealed class CeresRidleyFlight
             Function = RidleyAiFunction.WaitForDoorTransition,
             FightMode = RidleyFightMode.NotFighting,
             HitCounter = 0,
-            SpritemapPalette = 7,
-            CommonDrawPalette = 7,
+            SpritemapColouring = RidleyEnemyState.OwnColours,
+            CommonDrawColouring = RidleyEnemyState.OwnColours,
             MovementAnimationEnabled = false,
             FacingDirection = RidleyFacing.Left,
             IdleTailWhipEnabled = true,

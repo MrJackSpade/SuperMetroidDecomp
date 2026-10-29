@@ -141,9 +141,9 @@ internal sealed class EnemyGraphicsSet
     }
 
     /// <summary>
-    /// The sheet characters and palette row <paramref name="enemy"/> draws with in this set: its record's, or the
-    /// standard fallback for an enemy the set does not load, with the character index and palette its initialization
-    /// copies from the enemy it follows, or fixes, in place of the set's where it does.
+    /// The sheet characters and colours <paramref name="enemy"/> draws with in this set: its record's, or the standard
+    /// fallback for an enemy the set does not load, with the character index and colours its initialization copies
+    /// from the enemy it follows, or fixes, in place of the set's where it does.
     /// </summary>
     internal SpriteGraphics DrawIndexes(EnemyDefinitionId enemy)
     {
@@ -151,24 +151,25 @@ internal sealed class EnemyGraphicsSet
         if (EnemyTileBaseDefinitions.DrawsAtTilesOf.TryGetValue(enemy, out EnemyDefinitionId tileOwner))
             indexes = indexes with { TileBase = FindGraphicsIndexes(tileOwner).TileBase };
         if (EnemyTileBaseDefinitions.DrawsInPaletteOf.TryGetValue(enemy, out EnemyDefinitionId paletteOwner))
-            indexes = indexes with { PaletteRow = FindGraphicsIndexes(paletteOwner).PaletteRow };
+            indexes = indexes.In(FindGraphicsIndexes(paletteOwner).Colouring);
         return indexes with { TileBase = EnemyTileBaseDefinitions.Fixed.GetValueOrDefault(enemy, indexes.TileBase) };
     }
 
-    /// <summary>Finds the room-set characters and palette row, falling back to standard sprite character zero and palette row five.</summary>
+    /// <summary>
+    /// Finds the room-set characters and the colours the set loads for the enemy, falling back to standard sprite
+    /// character zero and the enemy projectiles' colours.
+    /// </summary>
     internal SpriteGraphics FindGraphicsIndexes(EnemyDefinitionId definitionId)
     {
         foreach (RoomEnemyGraphicsSetEntry entry in Entries)
         {
-            // Loading the entry checked its row is one of the eight sprite rows, so the cartridge's low-nibble
-            // palette decode reads the row unchanged.
             if (entry.DefinitionId == definitionId)
-                return SpriteGraphics.Of(entry.TileIndexBase, entry.PaletteRow);
+                return new SpriteGraphics(entry.TileIndexBase, new GraphicsSetMemberColouring(entry.DefinitionId));
         }
 
-        // LoadEnemyGfxIndexes uses standard sprite character zero and palette row five when an
-        // actor has no room graphics-set record. That fallback supports invisible/control
+        // LoadEnemyGfxIndexes uses standard sprite character zero and palette row five, the enemy projectiles'
+        // colours, when an actor has no room graphics-set record. That fallback supports invisible/control
         // enemies without synthesizing an asset association.
-        return SpriteGraphics.InPalette(SpriteColourSetDefinitions.EnemyProjectiles);
+        return SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.EnemyProjectiles);
     }
 }

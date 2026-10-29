@@ -9,7 +9,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Enemies.SpriteObjects;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Enemies.Metroids;
 
@@ -250,13 +250,13 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
         if ((slot.FlashTimer.RawValue & 2) != 0)
         {
-            state.OuterBodyA.Graphics = state.OuterBodyA.Graphics.InRow(slot.PaletteRow);
-            state.OuterBodyB.Graphics = state.OuterBodyB.Graphics.InRow(slot.PaletteRow);
+            state.OuterBodyA.Graphics = state.OuterBodyA.Graphics.In(slot.Colouring);
+            state.OuterBodyB.Graphics = state.OuterBodyB.Graphics.In(slot.Colouring);
             return;
         }
 
-        state.OuterBodyA.Graphics = state.OuterBodyA.Graphics.InRow(0);
-        state.OuterBodyB.Graphics = state.OuterBodyB.Graphics.InRow(0);
+        state.OuterBodyA.Graphics = state.OuterBodyA.Graphics.In(SharedSpriteColouring.Common);
+        state.OuterBodyB.Graphics = state.OuterBodyB.Graphics.In(SharedSpriteColouring.Common);
     }
 
     /// <summary>Ports ordinary/contact-damage branches of <c>Metroid_Touch</c>.</summary>

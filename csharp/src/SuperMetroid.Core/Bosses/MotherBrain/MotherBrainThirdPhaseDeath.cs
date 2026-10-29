@@ -4,6 +4,9 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using System.Diagnostics.CodeAnalysis;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Bosses.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -62,8 +65,8 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     public WrappingCountdown DeathAndEscapeExplosionIndex { get; internal set; }
 
-    /// <summary>OBJ palette selection forced to palette seven when the dying brain effects shut down.</summary>
-    public int BrainPalette { get; internal set; }
+    /// <summary>The brain's colours, forced to the corpse colours when the dying brain effects shut down (#1464).</summary>
+    public SpriteColouring BrainColouring { get; internal set; } = SharedSpriteColouring.Common;
 
     /// <summary>Number of calls made to the body flicker producer at `$A9:AFB6`.</summary>
     public uint BodyFlickerCallCount { get; private set; }
@@ -317,7 +320,7 @@ internal sealed class MotherBrainThirdPhaseDeath
             _state.DisableSmallPurpleBreathGeneration();
             _state.BrainPaletteHandlingEnabled = false;
             _state.HealthBasedPaletteHandlingEnabled = false;
-            BrainPalette = 7;
+            BrainColouring = new EncounterSpriteColouring(BossColourDefinitions.MotherBrainCorpse);
             requests.PaletteRequested = true;
             // `$AF91/$AF94` clear words $0FF0 and $0FF2 before the fade-out explosions.
             DeathExplosionIntervalTimer = WrappingCountdown.Start(0);

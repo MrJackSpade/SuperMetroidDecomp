@@ -10,7 +10,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
 
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's rainbow beam, its palette, and her death.</summary>
@@ -73,7 +72,7 @@ internal sealed class MotherBrainRainbowAndDeath
             step.PhaseAfter != step.PhaseBefore)
         {
             _presentation.BossColours().MotherBrainCorpse.CopyFrom(_presentation.BossColours().MotherBrainBrain.Colors);
-            state.BrainPalette = sequence.ThirdPhaseDeath.BrainPalette;
+            state.BrainColouring = sequence.ThirdPhaseDeath.BrainColouring;
             state.BrainPaletteHandlingEnabled = false;
             state.DroolGenerationEnabled = false;
         }

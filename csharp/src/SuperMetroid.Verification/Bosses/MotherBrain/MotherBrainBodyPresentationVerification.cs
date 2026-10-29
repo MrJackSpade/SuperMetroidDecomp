@@ -16,6 +16,8 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.World;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -51,9 +53,9 @@ internal static class MotherBrainBodyPresentationVerification
             replacement.SetFrame(frame.Pointer, fresh: true);
             baseline.ClearBg2(); replacement.ClearBg2();
             OamBuffer original = baseline.Draw(), changed = replacement.Draw();
-            AssertBodyOam(original, stockOam.Frames[frame.Name], baseline.Body);
+            AssertBodyOam(original, stockOam.Frames[frame.Name], baseline.Body, baseline.Inner.Enemies);
             string selected = (editedOam.DisplayFrames ?? throw new InvalidOperationException("Verification requires editedOam.DisplayFrames."))[frame.Name];
-            AssertBodyOam(changed, editedOam.Frames[selected], replacement.Body);
+            AssertBodyOam(changed, editedOam.Frames[selected], replacement.Body, replacement.Inner.Enemies);
             AssertBodyBg2(baseline.Bg2Words, stockBg2, frame.Name);
             AssertBodyBg2(replacement.Bg2Words, editedBg2, selected);
             AssertEnemyAnimationMechanics(baseline.Inner, replacement.Inner, frame.Pointer);
@@ -62,7 +64,7 @@ internal static class MotherBrainBodyPresentationVerification
             replacement.SetFrame(frame.Pointer, fresh: false);
             replacement.MarkBg2(0xbeef);
             ushort[] retained = replacement.Bg2Words;
-            AssertBodyOam(replacement.Draw(), editedOam.Frames[selected], replacement.Body);
+            AssertBodyOam(replacement.Draw(), editedOam.Frames[selected], replacement.Body, replacement.Inner.Enemies);
             AssertTrue(retained.SequenceEqual(replacement.Bg2Words),
                 "repeat OAM draws do not rewrite BG2 without the native new-frame bit");
         }
@@ -129,7 +131,7 @@ internal static class MotherBrainBodyPresentationVerification
     }
 
     /// <summary>Checks each authored limb's OAM position, tile, palette, flip, size, and drawing order.</summary>
-    internal static void AssertBodyOam(OamBuffer actual, EnemyExtendedVisualComponent[] authored, RoomEnemySlot body)
+    internal static void AssertBodyOam(OamBuffer actual, EnemyExtendedVisualComponent[] authored, RoomEnemySlot body, RoomEnemySystem enemies)
     {
         var expected = new byte[authored.Length * 4];
         byte high = 0;
@@ -139,8 +141,8 @@ internal static class MotherBrainBodyPresentationVerification
             SpriteVisualPart part = component.Parts.Single();
             int x = body.Position.X.Whole + component.OffsetX + part.OffsetX;
             int y = body.Position.Y.Whole + component.OffsetY + part.OffsetY;
-            // The cartridge adds the body's tile base to each part and ORs its palette row into the part's (#1446).
-            int palette = (part.Palette ?? throw new InvalidDataException("Body OAM fixture requires an explicit palette.")) | body.PaletteRow;
+            // The cartridge adds the body's tile base to each part and ORs the row holding its colours into the part's (#1446).
+            int palette = (part.Palette ?? throw new InvalidDataException("Body OAM fixture requires an explicit palette.")) | body.PaletteRowIn(enemies);
             ushort tile = checked((ushort)(part.TileRow * 16 + part.TileColumn + body.TileIndexBase | palette << 9 |
                 part.Priority << 12 | (part.FlipX ? 0x4000 : 0) | (part.FlipY ? 0x8000 : 0)));
             expected[index * 4] = unchecked((byte)x); expected[index * 4 + 1] = unchecked((byte)y);

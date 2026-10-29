@@ -14,7 +14,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Baby Metroid (Shitroid) species owner: its per-room state, AI routines and the interactions it registers.</summary>
@@ -90,7 +90,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // the translated property enum retains the directly observed scheduler meaning.
         slot.Properties = slot.Properties.With(
             EnemyProperties.BlocksPlasmaBeam | EnemyProperties.ProcessInstructions);
-        slot.PaletteRow = 2;
+        slot.Colouring = new EncounterSpriteColouring(BossColourDefinitions.ShitroidBody);
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 

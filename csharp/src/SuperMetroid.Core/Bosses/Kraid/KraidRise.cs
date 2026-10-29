@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
@@ -339,7 +340,7 @@ internal sealed class KraidRise
         if (rock is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(rock, kind, graphics: SpriteGraphics.InPalette(3));
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(rock, kind, graphics: SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.KraidSprites)));
         rock.StartAnimation(new KraidRockAnimation(kind == RoomEnemyProjectileKind.KraidRisingRockRight
             ? KraidRockProgram.RisingRightPose
             : KraidRockProgram.SharedPose));
@@ -349,7 +350,7 @@ internal sealed class KraidRise
             randomOffset = unchecked((short)~randomOffset);
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(body.Position.X.Whole + randomOffset)), 432));
         rock.Velocity = new(new SignedEightEight(unchecked((ushort)(random & 1008))), SignedEightEight.FromSignedRaw(-1280));
-        rock.Graphics = SpriteGraphics.InPalette(3);
+        rock.Graphics = SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.KraidSprites));
         state.SpawnedRiseRockCount++;
         _access.LastKraidSoundEffect = new KraidSoundRequest(KraidSoundDefinitions.RockSpit);
     }

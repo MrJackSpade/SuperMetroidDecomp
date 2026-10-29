@@ -4,7 +4,6 @@ using SuperMetroid.Core.Enemies.Nuclear.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Enemies.SpriteObjects;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies.Nuclear;
 

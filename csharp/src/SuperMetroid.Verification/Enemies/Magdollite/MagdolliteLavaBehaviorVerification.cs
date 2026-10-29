@@ -6,6 +6,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Enemies.Magdollite;
 
@@ -26,7 +27,7 @@ internal static class MagdolliteLavaBehaviorVerification
         RoomEnemySlot source = enemies.SlotTable.Slots[0];
         source.Position = source.Position.WithWhole(new(288, 128));
         source.TileIndexBase = 512;
-        source.PaletteRow = 6;
+        source.Colouring = new UnnamedSpriteRowColouring(6);
         enemies.MagdolliteBehavior.SpawnMagdolliteLava(source, throwsRight: false);
         enemies.MagdolliteBehavior.SpawnMagdolliteLava(source, throwsRight: true);
         foreach ((ushort direction, MagdolliteLavaProgram program) in new VerifyMagdolliteLavaBehaviorCase[] { new VerifyMagdolliteLavaBehaviorCase(0, MagdolliteLavaProgram.Left), new VerifyMagdolliteLavaBehaviorCase(1, MagdolliteLavaProgram.Right) })

@@ -8,6 +8,7 @@ using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -119,7 +120,7 @@ internal sealed class CeresRidleyBabyScene
             DrawRidleyWorldSpritemap(
                 sprites,
                 new SpriteSource(SpriteSourceKind.RidleyTail, 6),
-                state.SpritemapPalette,
+                state.SpritemapColouring,
                 tip,
                 tipFrame,
                 camera);
@@ -131,7 +132,7 @@ internal sealed class CeresRidleyBabyScene
                 DrawRidleyWorldSpritemap(
                     sprites,
                     new SpriteSource(SpriteSourceKind.RidleyTail, index),
-                    state.SpritemapPalette,
+                    state.SpritemapColouring,
                     state.TailSegments[index],
                     RidleySupplementalVisualDefinitions.SegmentFrames.Of(index),
                     camera);
@@ -143,7 +144,7 @@ internal sealed class CeresRidleyBabyScene
         EnemyFrameId wingFrame = RidleySupplementalVisualDefinitions.WingFrames.Of(
             wingFrameIndex);
         _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.RidleyWings), wingFrame,
-            new(unchecked((ushort)(slot.Position.X.Whole - camera.X)), unchecked((ushort)(slot.Position.Y.Whole - camera.Y))), state.SpritemapPalette);
+            new(unchecked((ushort)(slot.Position.X.Whole - camera.X)), unchecked((ushort)(slot.Position.Y.Whole - camera.Y))), state.SpritemapColouring);
     }
 
     /// <summary>
@@ -200,7 +201,7 @@ internal sealed class CeresRidleyBabyScene
             if (AdvanceCeresBabyDrawInstruction(state) is { } babyFrame)
             {
                 _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.CeresBaby), babyFrame,
-                    state.BabyPosition.Whole.ToScreen(camera), 0);
+                    state.BabyPosition.Whole.ToScreen(camera), SharedSpriteColouring.Common);
             }
         }
 
@@ -218,7 +219,8 @@ internal sealed class CeresRidleyBabyScene
             // bytes 00,00,FC,FF become signed X offsets 0,0,-4,-1.
             int quakeXOffset = CeresDoorQuake.XOffset(_earthquake.EarthquakeTimer.RawValue);
             _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.CeresDoorOverlay), CeresDoorFrameDefinitions.RidleyPrivateOverlayFrame,
-                new(unchecked((ushort)(door.Position.X.Whole - camera.X + quakeXOffset)), unchecked((ushort)(door.Position.Y.Whole - camera.Y))), 2);
+                new(unchecked((ushort)(door.Position.X.Whole - camera.X + quakeXOffset)), unchecked((ushort)(door.Position.Y.Whole - camera.Y))),
+                new EncounterSpriteColouring(CeresDoorColourDefinitions.Inactive));
         }
     }
 
@@ -281,12 +283,12 @@ internal sealed class CeresRidleyBabyScene
     private void DrawRidleyWorldSpritemap(
         SpriteFrameBuffer sprites,
         SpriteSource source,
-        int palette,
+        SpriteColouring colouring,
         RidleyTailSegment segment,
         EnemyFrameId frame,
         Position16<RoomPixels> camera)
     {
         Position16<ScreenPixels> screen = segment.Position.ToScreen(camera);
-        _presentation.PublishEncounterFrame(sprites, source, frame, screen, palette);
+        _presentation.PublishEncounterFrame(sprites, source, frame, screen, colouring);
     }
 }

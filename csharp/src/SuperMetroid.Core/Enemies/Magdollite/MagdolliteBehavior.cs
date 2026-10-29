@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
@@ -53,8 +54,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal WrappingCountdown MagdollitePaletteAnimationTimer { get; set; }
     /// <summary>The palette cycle's current row, 0 through <see cref="MagdollitePaletteDefinitions.FrameCount"/> minus one; each step advances it around the cycle.</summary>
     internal int MagdollitePaletteFrame { get; set; }
-    /// <summary>The sprite colour set the final initialized Magdollite record selects, whose colours the cycle animates.</summary>
-    internal int MagdolliteColourSet { get; set; }
+    /// <summary>The colours the final initialized Magdollite record draws in, whose set the cycle animates.</summary>
+    internal SpriteColouring MagdolliteColouring { get; set; } = SharedSpriteColouring.Common;
     /// <summary>Whether any Magdollite initializer installed the room's palette hook.</summary>
     internal bool MagdollitePaletteAnimationInstalled { get; set; }
 
@@ -102,7 +103,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         // Retail's last Magdollite record therefore resets this clock to eight and selects
         // its OBJ palette. Model the resulting singleton hook, not nine independent cycles.
         MagdollitePaletteAnimationInstalled = true;
-        MagdolliteColourSet = slot.PaletteRow;
+        MagdolliteColouring = slot.Colouring;
         MagdollitePaletteAnimationTimer = WrappingCountdown.Start(8);
         MagdollitePaletteFrame = 0;
     }
@@ -532,7 +533,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         MagdollitePaletteAnimationTimer = WrappingCountdown.Start(8);
         MagdollitePaletteFrame = (MagdollitePaletteFrame + 1) % MagdollitePaletteDefinitions.FrameCount;
         int paletteFrame = MagdollitePaletteFrame;
-        ColourRun animated = _presentation.ColourSet(MagdolliteColourSet)
+        ColourRun animated = _presentation.ColourSetOf(MagdolliteColouring)
             .Slice(MagdollitePaletteDefinitions.FirstAnimatedColor, MagdollitePaletteDefinitions.AnimatedColorCount);
         (_room.Artwork?.MagdollitePaletteCycle ?? throw new InvalidDataException(
             "Magdollite palette animation requires installed artwork."))

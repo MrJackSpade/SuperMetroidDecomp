@@ -34,9 +34,9 @@ internal static class BossDisplayBindingsVerification
                 frames++;
                 baseline.SetFrame(frame.Pointer, fresh: true); replacement.SetFrame(frame.Pointer, fresh: true);
                 baseline.ClearBg2(); replacement.ClearBg2();
-                AssertBodyOam(baseline.Draw(), stock.Oam.Frames[frame.Name], baseline.Actor);
+                AssertBodyOam(baseline.Draw(), stock.Oam.Frames[frame.Name], baseline.Actor, baseline.Enemies);
                 string selected = (edits.Oam.DisplayFrames ?? throw new InvalidOperationException("Verification requires edits.Oam.DisplayFrames."))[frame.Name];
-                AssertBodyOam(replacement.Draw(), edits.Oam.Frames[selected], replacement.Actor);
+                AssertBodyOam(replacement.Draw(), edits.Oam.Frames[selected], replacement.Actor, replacement.Enemies);
                 AssertBossBg2(baseline, stock.Writes(frame.Bank, frame.Pointer));
                 AssertBossBg2(replacement, edits.Writes(frame.Bank,
                     edits.Selected(frame).Pointer));
@@ -55,7 +55,7 @@ internal static class BossDisplayBindingsVerification
                 replacement.SetFrame(frame.Pointer, fresh: false);
                 replacement.Vram.ExecuteWordTransfer(new ushort[] { 0xbeef }, EnemyBg2FrameLayoutConstants.VramBase, 1);
                 byte[] retained = replacement.Vram.Bytes.ToArray();
-                AssertBodyOam(replacement.Draw(), edits.Oam.Frames[selected], replacement.Actor);
+                AssertBodyOam(replacement.Draw(), edits.Oam.Frames[selected], replacement.Actor, replacement.Enemies);
                 AssertTrue(retained.SequenceEqual(replacement.Vram.Bytes), frame.Name + " retains native new-frame gate");
                 if (edits.Writes(frame.Bank, edits.Selected(frame).Pointer).Length == 0)
                 {

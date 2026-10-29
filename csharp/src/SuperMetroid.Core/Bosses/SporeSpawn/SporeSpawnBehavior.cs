@@ -11,6 +11,7 @@ using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
@@ -688,7 +689,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DeathDropRequested = true;
     }
     /// <summary>Graphics bits assigned to newly spawned spores.</summary>
-    private static readonly SpriteGraphics SporeSpawnGraphicsIndex = SpriteGraphics.InPalette(1);
+    private static readonly SpriteGraphics SporeSpawnGraphicsIndex =
+        SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.SporeSpawnBody));
 
     /// <summary>Ports projectile definition $86:DE6C and initializer $86:DCA3.</summary>
     internal void SpawnSporeSpawnStalk(RoomEnemySlot body, int spawnArgument)

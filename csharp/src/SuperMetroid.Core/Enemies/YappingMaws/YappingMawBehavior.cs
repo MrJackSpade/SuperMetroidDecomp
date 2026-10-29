@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 
@@ -91,7 +92,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             Origin = slot.Position.Whole,
             ActivationDistance = slot.Spawn.Population.Parameter1,
             RetractedDelayTimer = WrappingCountdown.Start(YappingMawRetractedDelayFrames),
-            OriginalPalette = slot.PaletteRow,
+            OriginalColouring = slot.Colouring,
         };
         slot.SetSpeciesState(state);
 
@@ -460,32 +461,32 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         YappingMawEnemyState state)
     {
-        int palette = SelectYappingMawFrozenPalette(
-            state.OriginalPalette,
+        SpriteColouring colouring = SelectYappingMawFrozenColouring(
+            state.OriginalColouring,
             slot.FrozenTimer.RawValue);
         foreach (RoomEnemyProjectileSlot? body in state.BodyProjectiles)
         {
             if (body is not null)
-                body.Graphics = body.Graphics.InRow(palette);
+                body.Graphics = body.Graphics.In(colouring);
         }
 
         if (state.RootSpriteObject is not null)
-            state.RootSpriteObject.Graphics = state.RootSpriteObject.Graphics.InRow(palette);
+            state.RootSpriteObject.Graphics = state.RootSpriteObject.Graphics.In(colouring);
     }
 
-    /// <summary>Flashes frozen palette row six against original colors during the last 89 ticks.</summary>
-    private static int SelectYappingMawFrozenPalette(
-        int originalPalette,
+    /// <summary>Flashes the frozen colours against the original colours during the last 89 ticks.</summary>
+    private static SpriteColouring SelectYappingMawFrozenColouring(
+        SpriteColouring originalColouring,
         int frozenTimer)
     {
         if (frozenTimer == 0)
-            return originalPalette;
+            return originalColouring;
 
-        // Frozen palette row six flashes back to the actor palette on alternating pairs
-        // only during the final 89 ticks. The strict signed comparison excludes timer 90.
+        // The frozen colours flash back to the actor's own on alternating pairs only
+        // during the final 89 ticks. The strict signed comparison excludes timer 90.
         if (unchecked((short)(frozenTimer - 90)) < 0 && (frozenTimer & 2) == 0)
-            return originalPalette;
-        return SpriteColourSetDefinitions.Frozen;
+            return originalColouring;
+        return SharedSpriteColouring.Frozen;
     }
 
     /// <summary>Animation callback used by all six held-Samus offset opcodes.</summary>

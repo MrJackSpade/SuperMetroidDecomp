@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rendering;
 /// A frontend screen's own 256 colours (#1358, #1404): eight background rows of sixteen, then eight sprite rows, each row
 /// the colours that one colour variant of the screen's pre-coloured tiles shows. The screen publishes them with its frame.
 /// </summary>
-public sealed class ScreenPalette : ISpriteColourSets
+public sealed class ScreenPalette : IColourSets
 {
     /// <summary>The number of colours a screen palette holds.</summary>
     public const int ColorCount = 2 * RowsPerKind * ColoursPerRow;

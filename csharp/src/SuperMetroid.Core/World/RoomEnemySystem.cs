@@ -640,7 +640,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         RidleyBehavior = new RidleyBehavior(new RidleyBehaviorDependencies { Dispatch = Dispatch, Room = Room, Earthquake = Earthquake, Audio = Audio, Presentation = BossPresentation, DeathsAndDrops = DeathsAndDrops, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, CeresRidleyBehavior = CeresRidleyBehavior, RidleyProjectiles = RidleyProjectiles, RoomStatus = RoomStatus, RoomFx = RoomFx  });
         PuyoBehavior = new PuyoBehavior(Room, Terrain);
         PrePhantoonRoomBehavior = new PrePhantoonRoomBehavior(Room, Projectiles);
-        PowampBehavior = new PowampBehavior(Terrain, Projectiles, SlotTable, Collision, DeathsAndDrops);
+        PowampBehavior = new PowampBehavior(Terrain, Projectiles, SlotTable, Collision, DeathsAndDrops, Presentation.ColouringRows);
         PolypBehavior = new PolypBehavior(Room, Projectiles);
         PlatformsBehavior = new PlatformsBehavior(Terrain);
         PipeBugsBehavior = new PipeBugsBehavior(SlotTable);
@@ -674,7 +674,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         FirefleaBehavior = new FirefleaBehavior(Collision, DeathsAndDrops, RoomStatus);
         FakeKraidBehavior = new FakeKraidBehavior(Room, Terrain, Projectiles, Collision, DeathsAndDrops);
         EyeDoorBehavior = new EyeDoorBehavior(Room, Projectiles);
-        EvirBehavior = new EvirBehavior(SlotTable, Collision);
+        EvirBehavior = new EvirBehavior(SlotTable, Collision, Presentation.ColouringRows);
         EtecoonBehavior = new EtecoonBehavior(Terrain, Earthquake, ElevatorBehavior);
         EscapeExplosionsBehavior = new EscapeExplosionsBehavior(Audio, SpriteObjects);
         EscapeAnimalsBehavior = new EscapeAnimalsBehavior(Room, Terrain);

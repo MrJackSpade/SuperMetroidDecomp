@@ -229,7 +229,7 @@ internal sealed class NorfairRidleyDeath
         fragment.InstructionTimer = WrappingCountdown.Start(1);
         fragment.Timer = WrappingCountdown.Start(0);
         fragment.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.RidleyExplosion];
-        fragment.PaletteRow = 7;
+        fragment.Colouring = RidleyEnemyState.OwnColours;
         int random = _room.Random.Generate();
         int horizontalMagnitude =
             RidleyExplosionDefinitions.FragmentSpeedSixteenths.Of(random) * RidleyExplosionDefinitions.SixteenthPixelSpeed +

@@ -112,7 +112,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
 
         slot.Position = slot.Position.WithWhole(new(488, 184));
-        slot.PaletteRow = 1;
+        slot.Colouring = SharedSpriteColouring.DeadSidehopperFade;
         slot.Radius = slot.Radius.WithY(21);
         SetDeadSidehopperProgram(slot, DeadTourianProgram.SidehopperIdle);
 
@@ -128,7 +128,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Ports the already-dead Tourian layout at <c>$A9:D825</c>.</summary>
     private void InitializeAlternateDeadSidehopper(RoomEnemySlot slot)
     {
-        slot.PaletteRow = 7;
+        slot.Colouring = new UnnamedSpriteRowColouring(7);
         SetDeadSidehopperProgram(slot, DeadTourianProgram.SidehopperInitiallyDead);
 
         DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(

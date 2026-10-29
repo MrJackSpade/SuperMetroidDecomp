@@ -400,7 +400,7 @@ internal sealed class EnemyProjectileEngine
             if (frame != EnemyProjectileFrameId.Blank)
                 _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile, projectileIndex),
                     EnemySheetDefinitions.ProjectileFrameName(frame), screen, ProjectileTileBase(projectile.Graphics),
-                    projectile.Graphics.PaletteRow);
+                    projectile.Graphics.Colouring);
         }
     }
 
@@ -859,7 +859,7 @@ internal sealed class EnemyProjectileEngine
         RoomEnemyProjectileKind kind = dark
             ? RoomEnemyProjectileKind.CeresFallingDebrisDark
             : RoomEnemyProjectileKind.CeresFallingDebrisLight;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics: SpriteGraphics.InPalette(7));
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics: SpriteGraphics.CharacterZeroIn(new UnnamedSpriteRowColouring(7)));
         projectile.Position = projectile.Position.WithWhole(new(checked((ushort)xPosition), 42));
         projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(16));
         projectile.Variable0 = 0;

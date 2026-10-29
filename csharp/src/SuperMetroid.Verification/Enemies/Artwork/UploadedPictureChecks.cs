@@ -61,8 +61,8 @@ internal static class UploadedPictureChecks
             {
                 var cell = new Position16<ScreenPixels>(x, y);
                 int entry = image.PaletteIndexAt(cell);
-                // A draw's palette override shows each part in its part row with the override ORed in, as the frame does.
-                if (entry != 0 && image.PaletteOverride is int overriding)
+                // A draw's colouring shows each part in its part row with the colouring's row ORed in, as the frame does.
+                if (entry != 0 && image.Colouring is { Row: var overriding })
                     entry = SpriteImage.OverriddenRow(image.PartRowAt(cell), overriding) * 16 + entry % 16;
                 if (entry != 0)
                     Ink(actual, image.Corner.X + x, image.Corner.Y + y, entry, image.PriorityAt(cell));

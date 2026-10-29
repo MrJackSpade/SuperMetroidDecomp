@@ -12,6 +12,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -86,7 +87,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         Type type = typeof(RoomEnemySystem);
         enemies.Presentation.BindColours(cgram.Gameplay);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.PaletteRow = 1;
+        slot.Colouring = new UnnamedSpriteRowColouring(1);
         slot.Position = slot.Position.WithWhole(new(96, 96));
         slot.Radius = new(8, 8);
         var state = new DachoraEnemyState();
@@ -154,8 +155,8 @@ internal static class EnemyTileArtworkDachoraColorsVerification
 
         void CheckLive(DachoraPalettePhase phase, int frame)
         {
-            // The slot holds its palette row (#1458), whose colours are that sprite colour set's.
-            ColourRun live = cgram.Gameplay.SpriteSets.Set(slot.PaletteRow);
+            // The slot holds its colouring (#1458, #1464), whose colours are the sprite colour set holding it.
+            ColourRun live = cgram.Gameplay.SpriteSets.Set(slot.PaletteRowIn(enemies));
             for (int color = 0; color < DachoraColorDefinitions.ColorsPerFrame; color++)
                 AssertEqual(colors.Resolve(phase, frame, color),
                     live[color],

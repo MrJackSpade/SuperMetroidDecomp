@@ -69,8 +69,8 @@ internal sealed class RidleyEntity(
     /// <summary>Ceres Ridley never enters the ordinary shot pass; its encounter resolves its own shots.</summary>
     public bool AdmitsShots() => Slot.DefinitionId != EnemyDefinitionId.RidleyCeres;
 
-    /// <summary>Ridley's AI publishes the common writer's palette: its body, wings and tail share one latched phase.</summary>
-    public int? CommonDrawPalette() => IsBody ? encounter.Ridley?.CommonDrawPalette : null;
+    /// <summary>Ridley's AI publishes the common writer's colours: its body, wings and tail share one latched phase.</summary>
+    public SpriteColouring? CommonDrawColouring() => IsBody ? encounter.Ridley?.CommonDrawColouring : null;
 
     /// <summary>Both Ridley mains call DrawRidleyTail/DrawRidleyWings before the common writer emits the body.</summary>
     public void DrawBeforeBody(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)

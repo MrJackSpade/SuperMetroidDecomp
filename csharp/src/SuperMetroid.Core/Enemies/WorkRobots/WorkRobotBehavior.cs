@@ -6,6 +6,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Enemies.WorkRobots;
 
@@ -66,8 +67,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// hook resolves back to record zero before loading.
     /// </summary>
     internal int WorkRobotPaletteAnimationRecord { get; set; }
-    /// <summary>The OBJ palette row, 0 through 7, the robot graphics-drawn hook animates.</summary>
-    internal int WorkRobotPaletteAnimationPaletteRow { get; set; }
+    /// <summary>The colours whose set the robot graphics-drawn hook animates.</summary>
+    internal SpriteColouring WorkRobotPaletteAnimationColouring { get; set; } = SharedSpriteColouring.Common;
 
     /// <summary>
     /// Most recent library-two sound requested by robot feet ($68) or a robot laser ($67).
@@ -108,7 +109,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // clock/table and remembers this actor's OBJ palette exactly as $A8:CB83-$CBCB does.
         WorkRobotPaletteAnimationTimer = WrappingCountdown.Start(1);
         WorkRobotPaletteAnimationRecord = 0;
-        WorkRobotPaletteAnimationPaletteRow = slot.PaletteRow;
+        WorkRobotPaletteAnimationColouring = slot.Colouring;
     }
 
     /// <summary>Ports <c>InitAI_RobotNoPower</c> at $A8:CBCC.</summary>
@@ -363,7 +364,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         int record = WorkRobotPaletteAnimationRecord;
         int recordByteOffset = checked((ushort)(record * WorkRobotPaletteTimingDefinitions.RecordByteCount));
 
-        ColourRun animated = _presentation.ColourSet(WorkRobotPaletteAnimationPaletteRow)
+        ColourRun animated = _presentation.ColourSetOf(WorkRobotPaletteAnimationColouring)
             .Slice(WorkRobotPaletteDefinitions.FirstAnimatedColor, WorkRobotPaletteDefinitions.ColorCount);
         (_room.Artwork?.WorkRobotPaletteCycle ?? throw new InvalidDataException(
             "Work Robot palette animation requires installed artwork."))

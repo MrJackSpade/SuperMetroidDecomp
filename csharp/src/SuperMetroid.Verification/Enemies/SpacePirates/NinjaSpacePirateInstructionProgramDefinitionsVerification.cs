@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -220,7 +221,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             RunFrames(enemies, slot, samus, 3);
             AssertEqual(function, (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NinjaSpacePirateStates[0].")).Function,
                 $"ninja Pirate dive program {program} function");
-            AssertEqual(7, slot.PaletteRow,
+            AssertEqual(7, slot.PaletteRowIn(enemies),
                 $"ninja Pirate dive program {program} palette");
             AssertEqual(NinjaSpacePirateSoundDefinitions.Attack, (enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect.")),
                 $"ninja Pirate dive program {program} sound");

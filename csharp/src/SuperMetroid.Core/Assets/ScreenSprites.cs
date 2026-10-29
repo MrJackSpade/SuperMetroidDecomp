@@ -58,12 +58,12 @@ public sealed class ScreenSprites
     /// </summary>
     /// <param name="frame">The frame placed.</param>
     /// <param name="origin">Where the frame's origin lands.</param>
-    /// <param name="paletteOverride">The row the draw places the frame's palette-inheriting parts in, or null for the row they were coloured in.</param>
+    /// <param name="paletteOverride">The colours the draw shows the frame's palette-inheriting parts in, or null for the ones they were coloured in.</param>
     /// <param name="side">
     /// Which spritemap loader the cartridge draws the frame with: on screen, the origin's low Y byte lies on or below the
     /// screen; off screen, it lies above it.
     /// </param>
-    public void AddImage(SpriteSheetFrame frame, Position16<SpritePixels> origin, int? paletteOverride = null,
+    public void AddImage(SpriteSheetFrame frame, Position16<SpritePixels> origin, DrawnColouring? paletteOverride = null,
         SpriteOrigin side = SpriteOrigin.OnScreen)
     {
         Ensure.NotNull(frame);
@@ -127,6 +127,6 @@ public sealed class ScreenSprites
     /// One placed frame at its position (nine-bit X as stored in sixteen bits, eight-bit Y), standing for the objects of
     /// its parts, with the row its palette-inheriting parts take and the loader that reads its origin.
     /// </summary>
-    private readonly record struct ScreenObject(Position16<SpritePixels> Position, SpriteSheetFrame Image, int Objects, int? PaletteOverride,
+    private readonly record struct ScreenObject(Position16<SpritePixels> Position, SpriteSheetFrame Image, int Objects, DrawnColouring? PaletteOverride,
         SpriteOrigin Side);
 }

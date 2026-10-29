@@ -19,6 +19,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
@@ -63,8 +65,13 @@ internal static class EnemyDefinitionBoundaryVerification
             // The port draws Torizo as its room's set loads it; the cartridge ORs that palette into each part and adds that
             // tile base, so the reference draws the spritemaps with the same graphics (#1441).
             SpriteGraphics drawn = default;
+            int drawnRow = 0;
             OamBuffer actual = DrawExtendedForBank(artwork, TorizoFrameDefinitionsConstants.Bank, frame, new(x, y),
-                slot => drawn = slot.Graphics);
+                (slot, system) =>
+                {
+                    drawn = slot.Graphics;
+                    drawnRow = slot.PaletteRowIn(system);
+                });
             var expected = new OamBuffer();
             int count = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xaa0000 | frame));
             for (int index = 0; index < count; index++)
@@ -76,7 +83,7 @@ internal static class EnemyDefinitionBoundaryVerification
                     continue;
                 // The cartridge's extended clip parks wrapped parts at Y=$F0; #1308 drops that presentation quirk, so the
                 // reference keeps the parts at their wrapped coordinates as the whole-frame draws do.
-                DrawImportedEnemySpritemap(source, expected, new NativeEnemySpritemapDraw { Bank = TorizoFrameDefinitionsConstants.Bank, Pointer = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((component + 4)), Origin = new(cx, cy), PaletteBits = NativeSpriteGraphicsWords.PaletteBits(drawn.PaletteRow), BaseTileIndex = drawn.TileBase });
+                DrawImportedEnemySpritemap(source, expected, new NativeEnemySpritemapDraw { Bank = TorizoFrameDefinitionsConstants.Bank, Pointer = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((component + 4)), Origin = new(cx, cy), PaletteBits = NativeSpriteGraphicsWords.PaletteBits(drawnRow), BaseTileIndex = drawn.TileBase });
             }
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "Torizo composed OAM count");
             AssertTrue(expected.ImageEquals(actual),

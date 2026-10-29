@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Skree.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Enemies.Skree;
 
@@ -127,7 +128,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BurrowTimer = state.BurrowTimer.Decrement().Remaining;
         if (state.BurrowTimer.IsZero)
         {
-            slot.PaletteRow = 5;
+            slot.Colouring = SharedSpriteColouring.EnemyProjectiles;
             slot.TileIndexBase = 0;
             slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
             return;

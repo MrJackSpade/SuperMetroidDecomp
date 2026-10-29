@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Verification.Enemies.WorkRobots;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -94,7 +95,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
         enemies.Presentation.BindColours(cgram.Gameplay);
         enemies.WorkRobotBehavior.WorkRobotPaletteAnimationTimer = WrappingCountdown.Start(1);
         enemies.WorkRobotBehavior.WorkRobotPaletteAnimationRecord = 0;
-        enemies.WorkRobotBehavior.WorkRobotPaletteAnimationPaletteRow = 0;
+        enemies.WorkRobotBehavior.WorkRobotPaletteAnimationColouring = SharedSpriteColouring.Common;
         var step = new Action(enemies.WorkRobotBehavior.StepWorkRobotPaletteAnimation);
 
         int[] loadCalls = [0, 64, 80, 96, 160, 176, 192];

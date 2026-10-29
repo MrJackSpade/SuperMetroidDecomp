@@ -11,7 +11,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -114,7 +114,7 @@ internal sealed class MotherBrainBody
             EnemyProperties.BlocksPlasmaBeam |
             EnemyProperties.IgnoreSamusCollision |
             EnemyProperties.Invisible);
-        body.PaletteRow = 0;
+        body.Colouring = SharedSpriteColouring.Common;
 
         // Both source labels include transparent color zero. `$A9:86B3/$86C0` deliberately
         // begin at +2 and copy only colors 1..15 into the otherwise unrelated room palette
@@ -400,12 +400,12 @@ internal sealed class MotherBrainBody
         MotherBrainProjectileStarts.Initialize(
             beam,
             RoomEnemyProjectileKind.MotherBrainHandBeamCharging,
-            graphics: SpriteGraphics.Of(EnemyTileBaseDefinitions.MotherBrainObjectCharacters, 0));
+            graphics: new SpriteGraphics(EnemyTileBaseDefinitions.MotherBrainObjectCharacters, SharedSpriteColouring.Common));
         beam.Variable0 = 0;
         beam.Variable1 = 0;
         beam.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         beam.Position = beam.Position.WithFractionX(0).WithFractionY(0);
-        beam.Graphics = SpriteGraphics.InPalette(2);
+        beam.Graphics = SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(MotherBrainColourDefinitions.PhaseTwoAttack));
         beam.Position = beam.Position.WithWhole(new(unchecked((ushort)(state.Body.Position.X.Whole + 64)), unchecked((ushort)(state.Body.Position.Y.Whole - 48))));
 
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromWhole(beam.Position.Whole);

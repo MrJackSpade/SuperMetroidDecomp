@@ -109,7 +109,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         statue.Frame = EnemyFrameId.Empty;
         statue.InstructionTimer = WrappingCountdown.Start(1);
         statue.Timer = WrappingCountdown.Start(0);
-        statue.PaletteRow = 0;
+        statue.Colouring = SharedSpriteColouring.Common;
 
         var state = new ChozoStatueState
         {

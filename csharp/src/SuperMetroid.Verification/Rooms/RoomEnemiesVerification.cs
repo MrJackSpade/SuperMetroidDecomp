@@ -183,7 +183,7 @@ internal static void VerifyRoomEnemyLoading()
     RoomEnemySlot slot = enemies.SlotTable.Slots[0];
     AssertEqual(0x0456, slot.Position.X.Whole, "population X position");
     AssertEqual(0x0789, slot.Position.Y.Whole, "population Y position");
-    AssertEqual(3, slot.PaletteRow, "graphics-set OBJ palette row");
+    AssertEqual(3, slot.PaletteRowIn(enemies), "graphics-set OBJ palette row holding the slot's colours");
     AssertEqual(0, slot.TileIndexBase, "first graphics-set tile index");
     AssertEqual(EnemyCallbackBody.ImmediateReturn, slot.Definition.NoOpCallbackBody,
         "definition bank $A2 runs the shared no-op callback as an immediate return");
@@ -904,7 +904,8 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertEqual(0x00ba, ridley.Position.X.Whole, "Ceres Ridley init X");
     AssertEqual(0x00a9, ridley.Position.Y.Whole, "Ceres Ridley init Y overrides population Y");
     AssertEqual(AnimationProgramCursor<RidleyBodyProgram>.Start(RidleyBodyProgram.Initial), state.BodyProgram, "Ceres Ridley starts its initial program");
-    AssertEqual(7, ridley.PaletteRow, "Ceres Ridley dedicated OBJ palette row");
+    AssertEqual(SuperMetroid.Core.Bosses.Ridley.RidleyEnemyState.OwnColours, ridley.Colouring, "Ceres Ridley's own colours");
+    AssertEqual(7, ridley.PaletteRowIn(enemies), "Ceres Ridley dedicated OBJ palette row");
     AssertEqual(0x3c00, ridley.Properties.ToWord(), "Ceres Ridley native initialized properties");
     AssertEqual(0x804f, ridley.SpritemapPointer, "Ceres Ridley post-init empty extended map");
     AssertEqual((ushort)RidleyAiFunction.WaitForDoorTransition, (ushort)state.Function,
@@ -1111,8 +1112,8 @@ internal static void VerifyCeresRidleyRoomEntry()
         AssertEqual(1, enemies.CeresRidleyBehavior.Hits.ResolveCeresRidleyProjectileHits(
             projectiles, sharedProjectiles),
             $"Ceres Ridley hit {hit + 1} reaches enemy shot AI");
-        observedNormalRidleyPalette |= state.CommonDrawPalette == 7;
-        observedFlashRidleyPalette |= state.CommonDrawPalette == 0;
+        observedNormalRidleyPalette |= state.CommonDrawColouring == SuperMetroid.Core.Bosses.Ridley.RidleyEnemyState.OwnColours;
+        observedFlashRidleyPalette |= state.CommonDrawColouring == SharedSpriteColouring.Common;
         if (hit == 49)
             AssertEqual(0x7000, cgram.Colors[0xf1],
                 "Ceres Ridley 50-hit health palette");

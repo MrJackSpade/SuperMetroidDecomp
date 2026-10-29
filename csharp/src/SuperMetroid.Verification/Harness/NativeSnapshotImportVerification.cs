@@ -27,6 +27,7 @@ using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Verification.Harness;
 
 using SuperMetroid.Verification.Samus.Projectiles;
@@ -247,7 +248,8 @@ internal static class NativeSnapshotImportVerification
             initialPlms[index].Delete();
         }
         foreach (var projectile in runtime.Enemies.Projectiles.EnemyProjectiles)
-            ImportNativeEnemyProjectile(projectile, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);
+            ImportNativeEnemyProjectile(projectile, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W,
+                runtime.Enemies.Presentation.ColouringRows);
         // This is a one-time initial snapshot import. No native state is fed back during replay.
         runtime.System.SetRandomNumber(W(NativeSnapshotMemory.Random));
         runtime.Enemies.FrameContext.SeedRandomEnemyCounter(W(NativeSnapshotMemory.MainEnemyRoutineCount));
@@ -288,7 +290,8 @@ internal static class NativeSnapshotImportVerification
             slot.Timer = WrappingCountdown.FromRaw(W(address + 24));
             slot.CurrentInstruction = W(address + 26);
             slot.InstructionTimer = WrappingCountdown.FromRaw(W(address + 28));
-            slot.PaletteRow = NativeSpriteGraphicsWords.PaletteRow(W(address + 30));
+            // The native palette word names a row; the colouring it denotes is decoded under the room's loaded set.
+            slot.SetPaletteRow(runtime.Enemies, NativeSpriteGraphicsWords.PaletteRow(W(address + 30)));
             slot.TileIndexBase = W(address + 32);
             slot.Layer = W(address + 34);
             slot.FlashTimer = WrappingCountdown.FromRaw(W(address + 36));
@@ -352,7 +355,8 @@ internal static class NativeSnapshotImportVerification
     /// definition-derived radii and properties must already agree with them. Free slots keep
     /// their stale position and velocity words, which later spawns can read.
     /// </summary>
-    private static void ImportNativeEnemyProjectile(RoomEnemyProjectileSlot projectile, IImportCartridgeSource cartridge, Func<int, ushort> W)
+    private static void ImportNativeEnemyProjectile(RoomEnemyProjectileSlot projectile, IImportCartridgeSource cartridge, Func<int, ushort> W,
+        SpriteColouringRows colouringRows)
     {
         int index = projectile.SlotIndex * 2;
         ushort id = W(NativeSnapshotMemory.EnemyProjectileId + index);
@@ -367,10 +371,11 @@ internal static class NativeSnapshotImportVerification
             RoomEnemyProjectileKind kind = EnemyProjectileNativeWords.Kinds.Decode(id, "enemy projectile definition");
             AssertTrue(NativeSlotOnlyEnemyProjectileKinds.Contains(kind),
                 $"initial native enemy projectile {projectile.SlotIndex} kind ${id:X4} has a verified slot-only import");
-            // The snapshot's graphics word packs the projectile's tile base and palette row as an attribute word does.
+            // The snapshot's graphics word packs the projectile's tile base and palette row as an attribute word does; the
+            // row is decoded into the colouring it denotes under the room's loaded set.
             var graphics = new SnesObjAttributeWord(W(NativeSnapshotMemory.EnemyProjectileGraphics + index));
             FamilyProjectileStarts.Initialize(
-                projectile, kind, SpriteGraphics.Of(graphics.TileNumber, graphics.PaletteIndex));
+                projectile, kind, new SpriteGraphics(graphics.TileNumber, colouringRows.InRow(graphics.PaletteIndex)));
             projectile.PreInstructionWord = W(NativeSnapshotMemory.EnemyProjectilePreInstruction + index);
             ushort instruction = W(NativeSnapshotMemory.NativeEnemyProjectileInstruction + index);
             // The typed family resumes at the step the recorded native pointer stands for.

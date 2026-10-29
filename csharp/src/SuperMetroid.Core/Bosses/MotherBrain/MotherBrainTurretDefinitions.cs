@@ -1,12 +1,16 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Compiled placement, rotation and bullet-physics definitions.</summary>
 internal static class MotherBrainTurretDefinitions
 {
-    /// <summary>Graphics installed by both projectile initializers at $86:BE58/$86:BF5F: character zero in palette row two.</summary>
-    internal static SpriteGraphics Graphics { get; } = SpriteGraphics.InPalette(2);
+    /// <summary>
+    /// Graphics installed by both projectile initializers at $86:BE58/$86:BF5F: character zero in the third sprite
+    /// colour set, whose owner in both Mother Brain phases is not yet named (#1464).
+    /// </summary>
+    internal static SpriteGraphics Graphics { get; } = SpriteGraphics.CharacterZeroIn(new UnnamedSpriteRowColouring(2));
 
     /// <summary>Minimum random rotation delay applied by $86:BFDF.</summary>
     internal const ushort MinimumRotationDelay = 0x0020;

@@ -165,12 +165,12 @@ internal interface IGameplayArtwork
     /// <summary>The Hyper Beam palette effect's colour cycle.</summary>
     InstalledHyperBeamFxColors? HyperBeamFxColors { get; }
 
-    /// <summary>Enemy sprite sheets, palettes and enemy-projectile spritemaps.</summary>
+    /// <summary>Enemy palettes, extended frames and colour catalogs.</summary>
     EnemyTileArtworkCatalog? EnemyTileArtwork { get; }
 
-    /// <summary>The bosses' melts, skeletons, BG2 frames, special pages and colors.</summary>
+    /// <summary>The bosses' melts, BG2 frames, corpse characters and colors.</summary>
     BossArtworkCatalog? BossArtwork { get; }
 
-    /// <summary>The Ceres door and escape artwork and the Tourian statues' colors.</summary>
+    /// <summary>The Ceres door and escape overlay and the Tourian statues' colors.</summary>
     AreaArtworkBundle? AreaArtwork { get; }
 }

@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.Core.World;
 
@@ -10,9 +10,10 @@ internal static class RoomEnemySystemArtworkAccess
     extension(RoomEnemySystem self)
     {
         /// <summary>The session's installed enemy presentation, and the enemy sheets drawn with it.</summary>
-        internal EnemyTileArtworkCatalog? TileArtwork
+        /// <remarks>Fixtures install the import pipeline's artwork, whose compositions the sheets are composed from.</remarks>
+        internal EnemyTileSourceArtwork? TileArtwork
         {
-            get => self.Room.Session.TileArtwork;
+            get => (EnemyTileSourceArtwork?)self.Room.Session.TileArtwork;
             set
             {
                 self.Room.Session.TileArtwork = value;

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
@@ -10,6 +9,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.Verification.Harness;
 
@@ -39,7 +39,7 @@ internal static class RetailRuntimeFixtureVerification
         RepositoryInstallation.BindRuntime(runtime);
 
     /// <summary>The shared installation's stock enemy artwork, loaded once per process.</summary>
-    internal static EnemyTileArtworkCatalog FixtureEnemyTileArtwork() => InstalledFixtures.EnemyTiles;
+    internal static EnemyTileSourceArtwork FixtureEnemyTileArtwork() => InstalledFixtures.EnemyTiles;
 
     /// <summary>The installed character catalog <see cref="LoadFixtureRoomAssets"/> loads rooms from unless given another.</summary>
     internal static RoomCharacterAtlases FixtureRoomCharacters => InstalledFixtures.RoomAssets.Characters;

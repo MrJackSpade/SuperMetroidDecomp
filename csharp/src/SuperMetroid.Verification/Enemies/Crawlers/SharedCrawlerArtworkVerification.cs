@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Crawlers;
 using SuperMetroid.AssetExtraction.World.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.Verification.Enemies.Crawlers;
 
@@ -9,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.Crawlers;
 internal static class SharedCrawlerArtworkVerification
 {
     /// <summary>Confirms every pose the shared crawler loops show has installed artwork.</summary>
-    internal static void VerifyInstalledSharedCrawlerFrames(EnemyTileArtworkCatalog stock)
+    internal static void VerifyInstalledSharedCrawlerFrames(EnemyTileSourceArtwork stock)
     {
         // Zeela, Sova, Zoomer and Stone Zoomer share the orange Zoomer's installed compositions.
         foreach (ushort pose in CrawlerAnimationsConstants.Spritemaps(CrawlerProgram.SharedUpsideRightLoop, CrawlerProgram.SharedUpsideLeftLoop,

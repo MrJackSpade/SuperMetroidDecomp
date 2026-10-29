@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Areas;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Frontend;
@@ -86,16 +84,16 @@ internal static class InstalledFixtures
     internal static AreaMapPresentation Maps => maps.Value;
 
     /// <summary>The installation's stock enemy artwork, loaded once per process.</summary>
-    internal static EnemyTileArtworkCatalog EnemyTiles => enemyArtwork.Value.Enemies;
+    internal static EnemyTileSourceArtwork EnemyTiles => enemyArtwork.Value.Enemies;
 
     /// <summary>The installation's stock enemy, boss and area artwork, loaded once per process.</summary>
     internal static InstalledEnemyArtwork EnemyArtwork => enemyArtwork.Value;
 
     /// <summary>The installation's stock boss artwork, loaded once per process with the enemy artwork.</summary>
-    internal static BossArtworkCatalog BossArtwork => enemyArtwork.Value.Bosses;
+    internal static BossSourceArtwork BossArtwork => enemyArtwork.Value.Bosses;
 
     /// <summary>The installation's stock area artwork, loaded once per process with the enemy artwork.</summary>
-    internal static AreaArtworkBundle AreaArtwork => enemyArtwork.Value.Areas;
+    internal static AreaSourceArtwork AreaArtwork => enemyArtwork.Value.Areas;
 
 
     /// <summary>The installation's projectile artwork and frame bindings, loaded once per process.</summary>

@@ -149,7 +149,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas };
         SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.SpriteCharacters,
-            new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles, enemies.BossArtwork ?? InstalledFixtures.BossArtwork, enemies.AreaArtwork ?? InstalledFixtures.AreaArtwork)));
+            new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles, (BossSourceArtwork?)enemies.BossArtwork ?? InstalledFixtures.BossArtwork, (AreaSourceArtwork?)enemies.AreaArtwork ?? InstalledFixtures.AreaArtwork)));
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
 
         for (int page = 0; page < MotherBrainEnemyState.LegLoadPageCount; page++)
@@ -247,7 +247,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.SpriteCharacters,
-            new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles, enemies.BossArtwork ?? InstalledFixtures.BossArtwork, enemies.AreaArtwork ?? InstalledFixtures.AreaArtwork)));
+            new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles, (BossSourceArtwork?)enemies.BossArtwork ?? InstalledFixtures.BossArtwork, (AreaSourceArtwork?)enemies.AreaArtwork ?? InstalledFixtures.AreaArtwork)));
         MotherBrainSpritePageSheet shown = sheet.Sheet;
         for (int page = 0; page < sheet.PageCount; page++)
             enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(shown, page));

@@ -1,20 +1,17 @@
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Areas;
 
 /// <summary>
-/// The areas' installed artwork beside the shared enemy sheets (#1395): the Ceres door, the Ceres escape's tiles and
-/// overlay, and the Tourian statues' colors.
+/// The areas' installed artwork beside the shared enemy sheets (#1395) that gameplay reads: the Ceres door, the Ceres
+/// escape's overlay, and the Tourian statues' colors. The Ceres escape's character pages, which only the pre-coloured
+/// sheets are composed from, belong to the import pipeline's subclass (#1463).
 /// </summary>
-public sealed record AreaArtworkBundle
+public abstract record AreaArtworkBundle
 {
     /// <summary>The Ceres door actor's special tile transfer and RGB5 rows.</summary>
     public CeresDoorVisuals? CeresDoorVisual { get; init; }
-
-    /// <summary>Editable warning-text and door character pages for the Ceres escape.</summary>
-    public CeresEscapeTileArtwork? CeresEscapeTiles { get; init; }
 
     /// <summary>Editable English and Japanese visual tile words for the Ceres warning overlay.</summary>
     public CeresEscapeOverlays? CeresEscapeOverlayTilemaps { get; init; }
@@ -23,20 +20,5 @@ public sealed record AreaArtworkBundle
     public TourianStatuePalettes? TourianStatueColors { get; init; }
 
     /// <summary>The selected area presentation, computed rather than persisted in an exact debugger snapshot.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("area-bundle-v1", content =>
-    {
-        content.AppendIdentity("CeresDoorVisual", CeresDoorVisual?.ContentIdentity);
-        content.AppendIdentity("CeresEscapeTiles", CeresEscapeTiles?.ContentIdentity);
-        content.AppendIdentity("CeresEscapeOverlayTilemaps", CeresEscapeOverlayTilemaps?.ContentIdentity);
-        content.AppendIdentity("TourianStatueColors", TourianStatueColors?.ContentIdentity);
-    });
-
-    /// <summary>Returns installed area artwork, which must carry both Ceres transfer providers the room-entry queue resolves.</summary>
-    public static AreaArtworkBundle FromInstalledArtwork(AreaArtworkBundle artwork)
-    {
-        Ensure.NotNull(artwork);
-        if (artwork.CeresEscapeTiles is null || artwork.CeresEscapeOverlayTilemaps is null)
-            throw new InvalidDataException("Installed area artwork requires both Ceres transfer providers.");
-        return artwork;
-    }
+    public abstract string ContentIdentity { get; }
 }

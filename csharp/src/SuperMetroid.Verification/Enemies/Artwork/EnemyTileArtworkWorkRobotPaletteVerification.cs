@@ -16,7 +16,7 @@ internal static class EnemyTileArtworkWorkRobotPaletteVerification
 
     /// <summary>Compares 24 retail RGB5 words, persistent single-color override, and invalid document rejection.</summary>
     internal static void VerifyInstalledWorkRobotPaletteCycle(
-        ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
+        ISnesAddressSpace rom, string stockDirectory, EnemyTileSourceArtwork stock)
     {
         WorkRobotPaletteCycle native = stock.WorkRobotPaletteCycle ??
             throw new InvalidDataException("Installed enemy art has no Work Robot palette cycle.");

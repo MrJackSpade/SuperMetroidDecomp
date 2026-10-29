@@ -2,8 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Areas;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
@@ -21,7 +19,7 @@ internal static class EnemyTileArtworkPresentationContractChecks
     internal static void Run()
     {
         bool rejected = false;
-        try { _ = EnemyTileArtworkCatalog.FromInstalledArtwork(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }); }
+        try { _ = EnemyTileSourceArtwork.FromInstalledArtwork(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }); }
         catch (InvalidDataException) { rejected = true; }
         if (!rejected) throw new InvalidOperationException(
             "Enemy artwork confirmation failed: production construction must reject an empty ordinary installation.");
@@ -60,13 +58,13 @@ internal static class EnemyTileArtworkPresentationContractChecks
         CeresEscapeOverlays overlays = CeresEscapeOverlays.Load(overlayJson);
         var torizo = new TorizoSwapArtwork(TorizoSwapArtworkDefinitions.All
             .Select(page => Sheet(page.ByteCount)).ToArray());
-        EnemyTileArtworkCatalog Install() => EnemyTileArtworkCatalog.FromInstalledArtwork(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes });
+        EnemyTileSourceArtwork Install() => EnemyTileSourceArtwork.FromInstalledArtwork(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes });
         EnemyTileSourceDefinition first = EnemyTileSourceDefinitions.All[0];
-        EnemyTileArtworkCatalog catalog = Install();
-        _ = AreaArtworkBundle.FromInstalledArtwork(new AreaArtworkBundle { CeresEscapeTiles = ceres, CeresEscapeOverlayTilemaps = overlays });
-        _ = BossArtworkCatalog.FromInstalledArtwork(new BossArtworkCatalog { TorizoSwaps = torizo });
-        Reject(() => AreaArtworkBundle.FromInstalledArtwork(new AreaArtworkBundle { CeresEscapeTiles = ceres }), "required Ceres DMA extensions");
-        Reject(() => BossArtworkCatalog.FromInstalledArtwork(new BossArtworkCatalog()), "required Torizo DMA extension");
+        EnemyTileSourceArtwork catalog = Install();
+        _ = AreaSourceArtwork.FromInstalledArtwork(new AreaSourceArtwork { CeresEscapeTiles = ceres, CeresEscapeOverlayTilemaps = overlays });
+        _ = BossSourceArtwork.FromInstalledArtwork(new BossSourceArtwork { TorizoSwaps = torizo });
+        Reject(() => AreaSourceArtwork.FromInstalledArtwork(new AreaSourceArtwork { CeresEscapeTiles = ceres }), "required Ceres DMA extensions");
+        Reject(() => BossSourceArtwork.FromInstalledArtwork(new BossSourceArtwork()), "required Torizo DMA extension");
         RoomCharacterAtlas original = sheets[first.DefinitionId];
         sheets.Remove(first.DefinitionId); sheets.Add(0, original);
         Reject(() => Install(), "same-count substituted identity");

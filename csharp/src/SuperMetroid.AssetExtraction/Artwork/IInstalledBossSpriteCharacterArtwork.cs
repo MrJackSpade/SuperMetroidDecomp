@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
+﻿using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 
@@ -7,5 +7,5 @@ internal interface IInstalledBossSpriteCharacterArtwork
 {
     /// <summary>The installed boss artwork.</summary>
     /// <exception cref="InvalidOperationException">No boss artwork is installed.</exception>
-    BossArtworkCatalog BossTiles { get; }
+    BossSourceArtwork BossTiles { get; }
 }

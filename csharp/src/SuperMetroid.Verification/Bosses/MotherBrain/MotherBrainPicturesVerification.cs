@@ -40,7 +40,7 @@ internal static class MotherBrainPicturesVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         RoomEnemySlot head = (runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidOperationException("Mother Brain's room loads her.")).Head;
         EnemyFrameId[] frames = [.. MotherBrainVisualDefinitions.HeadFrames.Select(entry => entry.Value).Append(MotherBrainVisualDefinitions.NeckJointFrame).Distinct()];
-        CorpseRotSimulation corpse = CorpseRotSimulation.Of(runtime.EnemySession.TileArtwork ?? throw new InvalidOperationException("The runtime loads the enemy tiles."),
+        CorpseRotSimulation corpse = CorpseRotSimulation.Of(RuntimeArtworkContent.Of(runtime).EnemyTiles,
             runtime.Enemies.BossArtworkBinding.Artwork ?? throw new InvalidOperationException("The runtime loads the boss art."), [EnemyDefinitionId.MotherBrainHead]).Single();
         var shown = new Dictionary<CorpseRotRow, int>();
         int drawn = 0;

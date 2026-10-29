@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Bosses.Artwork;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies;
@@ -9,6 +8,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.AssetExtraction.Enemies;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -69,7 +69,7 @@ internal static class CrocomireRumbleDefinitionsVerification
             new MemoryStream(CrocomireColorExtractor.Extract(rom), writable: false));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
-            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), BossArtwork = new BossArtworkCatalog { CrocomireColors = colors },
+            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), BossArtwork = new BossSourceArtwork { CrocomireColors = colors },
         };
         var cgram = new SamusColourRig();
         var death = new CrocomireDeathState

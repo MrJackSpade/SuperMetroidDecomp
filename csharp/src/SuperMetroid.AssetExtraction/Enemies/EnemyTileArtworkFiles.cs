@@ -24,8 +24,6 @@ using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
-using SuperMetroid.Core.Areas;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
@@ -1115,14 +1113,14 @@ public static class EnemyTileArtworkFiles
         var auxiliaryColors = EnemyAuxiliaryColorFiles.Read(new MemoryStream(
             ReadStockOrOverride(EnemyAuxiliaryColorFormat.FileName, manifest.AuxiliaryColorsSha256), writable: false));
         return new InstalledEnemyArtwork(
-            EnemyTileArtworkCatalog.FromInstalledArtwork(new EnemyTileArtworkParts
+            EnemyTileSourceArtwork.FromInstalledArtwork(new EnemyTileArtworkParts
             {
                 Sheets = sheets, Palettes = palettes, Spritemaps = spritemaps, ExtendedFrames = extendedFrames,
                 GunshipLiftoff = gunshipLiftoff, ProjectileSpritemaps = projectileSpritemaps,
                 MagdollitePaletteCycle = magdollitePaletteCycle, WorkRobotPaletteCycle = workRobotPaletteCycle,
                 ChozoAndTubeColors = chozoAndTubeColors, DachoraColors = dachoraColors, AuxiliaryColors = auxiliaryColors,
             }),
-            BossArtworkCatalog.FromInstalledArtwork(new BossArtworkCatalog
+            BossSourceArtwork.FromInstalledArtwork(new BossSourceArtwork
             {
                 CrocomireMelting = crocomire, CrocomireSkeleton = skeleton, CrocomireBg2Frames = crocomireBg2Frames,
                 CrocomireColors = crocomireColors, TorizoSwaps = torizoInstructionVram,
@@ -1136,7 +1134,7 @@ public static class EnemyTileArtworkFiles
                 ZebetiteColors = zebetiteColors, SporeSpawnColors = sporeSpawnColors, BotwoonColors = botwoonColors,
                 NorfairRidleyColors = norfairRidleyColors,
             }),
-            AreaArtworkBundle.FromInstalledArtwork(new AreaArtworkBundle
+            AreaSourceArtwork.FromInstalledArtwork(new AreaSourceArtwork
             {
                 CeresDoorVisual = ceresDoorVisual, CeresEscapeTiles = ceresEscapeTiles,
                 CeresEscapeOverlayTilemaps = ceresEscapeOverlay, TourianStatueColors = tourianStatueColors,

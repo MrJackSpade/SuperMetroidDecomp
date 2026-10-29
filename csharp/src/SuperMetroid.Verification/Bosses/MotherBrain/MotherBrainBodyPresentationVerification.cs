@@ -1,6 +1,4 @@
 using SuperMetroid.AssetExtraction.World.Artwork;
-using SuperMetroid.Core.Areas;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -95,11 +93,11 @@ internal static class MotherBrainBodyPresentationVerification
         // the extended frames and body BG2 frames it authors (#1459), as #1446's boss fixture does.
         InstalledEnemyArtwork Build(EnemyExtendedFrameDocument oam, EnemyBg2FrameDocument? bg2)
         {
-            EnemyTileArtworkCatalog tiles = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.LoadEnemyTiles().Enemies;
+            EnemyTileSourceArtwork tiles = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.LoadEnemyTiles().Enemies;
             tiles.ExtendedFrames = EnemyExtendedFrameDocuments.Load(author.Json(oam));
             return new(tiles,
-                new BossArtworkCatalog { MotherBrainBodyBg2Frames = bg2 is null ? null : MotherBrainBodyBg2FrameCatalog.Load(author.Json(bg2)) },
-                new AreaArtworkBundle());
+                new BossSourceArtwork { MotherBrainBodyBg2Frames = bg2 is null ? null : MotherBrainBodyBg2FrameCatalog.Load(author.Json(bg2)) },
+                new AreaSourceArtwork());
         }
 
         EnemyExtendedFrameDocument BodyOam(bool edited)

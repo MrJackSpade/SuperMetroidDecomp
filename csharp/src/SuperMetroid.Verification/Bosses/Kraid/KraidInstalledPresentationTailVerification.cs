@@ -1,13 +1,13 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
 using System.Buffers.Binary;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
 using static SuperMetroid.Verification.Rooms.TilemapJsonContractsVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 
 /// <summary>Checks how installed Kraid background pages populate the working tilemap.</summary>
@@ -32,7 +32,7 @@ internal static class KraidInstalledPresentationTailVerification
         RoomBackgroundTilemapAtlas upper = Map(0), lower = Map(SnesBgTilemapWord.PriorityMask);
         var art = new KraidBackgroundArtwork(upper, lower, new Dictionary<int, KraidHeadTilemapAtlas>(),
             (new EnemyIdentityFixture().Build().Bosses.KraidBackground ?? throw new InvalidOperationException("Verification requires new EnemyIdentityFixture().Build().KraidBackground.")).RoomBackgroundTiles);
-        ushort[] working = KraidBodyFixtures.WorkingMap(new BossArtworkCatalog { KraidBackground = art });
+        ushort[] working = KraidBodyFixtures.WorkingMap(new BossSourceArtwork { KraidBackground = art });
         for (int word = 0; word < KraidBackgroundDefinitions.WorkingMapCells; word++)
         {
             ReadOnlySpan<byte> source = word < KraidBackgroundDefinitions.PageCells ? upper.Bytes.Span : lower.Bytes.Span;

@@ -214,7 +214,7 @@ internal static class EnemySheetComposer
     }
 
     /// <summary>The names of the frames an enemy's sheets hold, in composition order.</summary>
-    internal static IEnumerable<string> FrameNames(EnemyTileArtworkCatalog enemies, EnemyDefinitionId enemy) =>
+    internal static IEnumerable<string> FrameNames(EnemyTileSourceArtwork enemies, EnemyDefinitionId enemy) =>
         EnemyDefinitionFrameDefinitions.Frames.TryGetValue(enemy, out IReadOnlyList<EnemyFrameId>? shown)
             ? Composed(enemies, shown).Select(frame => frame.Name) : [];
 
@@ -222,7 +222,7 @@ internal static class EnemySheetComposer
     /// Each shown frame's pictures over the set's characters: an ordinary frame whole, an extended frame component by
     /// component.
     /// </summary>
-    private static IEnumerable<FramePictures> Frames(EnemyTileArtworkCatalog enemies, IReadOnlyList<EnemyFrameId> shown,
+    private static IEnumerable<FramePictures> Frames(EnemyTileSourceArtwork enemies, IReadOnlyList<EnemyFrameId> shown,
         int tileBase, SetCharacters characters, bool showsRot) =>
         // The palette bits are the sheet's, ORed in at composition, so each pixel keeps its part's own row.
         Composed(enemies, shown).Select(frame => characters.Pictures(frame.Name, EnemySpriteFrames.Frame(frame.Parts, tileBase, 0), showsRot));
@@ -231,7 +231,7 @@ internal static class EnemySheetComposer
     /// Each shown frame's composition by sheet frame name: an ordinary frame whole, an extended frame component by
     /// component. A frame no installed composition shows draws nothing to compose.
     /// </summary>
-    private static IEnumerable<ComposedFrame> Composed(EnemyTileArtworkCatalog enemies, IReadOnlyList<EnemyFrameId> shown)
+    private static IEnumerable<ComposedFrame> Composed(EnemyTileSourceArtwork enemies, IReadOnlyList<EnemyFrameId> shown)
     {
         EnemySpritemapCatalog spritemaps = enemies.Spritemaps ?? throw new InvalidDataException("Enemy sheets require the installed enemy compositions.");
         EnemyExtendedFrameCatalog extended = enemies.ExtendedFrames ?? throw new InvalidDataException("Enemy sheets require the installed extended frames.");

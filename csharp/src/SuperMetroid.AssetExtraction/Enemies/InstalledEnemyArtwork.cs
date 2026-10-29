@@ -12,16 +12,23 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <param name="Enemies">The ordinary enemy sheets, palettes, spritemaps and enemy colors.</param>
 /// <param name="Bosses">The bosses' melts, skeletons, BG2 frames, special pages and colors.</param>
 /// <param name="Areas">The Ceres door and escape artwork and the Tourian statues' colors.</param>
-public sealed record InstalledEnemyArtwork(EnemyTileArtworkCatalog Enemies, BossArtworkCatalog Bosses, AreaArtworkBundle Areas)
+public sealed record InstalledEnemyArtwork(EnemyTileSourceArtwork Enemies, BossSourceArtwork Bosses, AreaSourceArtwork Areas)
 {
     /// <summary>
     /// The selected presentation of the whole enemy directory: an edit to any of its enemy, boss or area artwork
     /// changes it. This is computed rather than persisted in an exact debugger snapshot.
     /// </summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("enemy-directory-v1", content =>
-    {
-        content.AppendIdentity("enemies", Enemies.ContentIdentity);
-        content.AppendIdentity("bosses", Bosses.ContentIdentity);
-        content.AppendIdentity("areas", Areas.ContentIdentity);
-    });
+    public string ContentIdentity => DirectoryIdentity(Enemies, Bosses, Areas);
+
+    /// <summary>The selected presentation of a whole enemy directory bound as the catalogs gameplay reads.</summary>
+    /// <param name="enemies">The ordinary enemies' artwork.</param>
+    /// <param name="bosses">The bosses' artwork.</param>
+    /// <param name="areas">The areas' artwork.</param>
+    public static string DirectoryIdentity(EnemyTileArtworkCatalog enemies, BossArtworkCatalog bosses, AreaArtworkBundle areas) =>
+        SelectedPresentationHash.Create("enemy-directory-v1", content =>
+        {
+            content.AppendIdentity("enemies", enemies.ContentIdentity);
+            content.AppendIdentity("bosses", bosses.ContentIdentity);
+            content.AppendIdentity("areas", areas.ContentIdentity);
+        });
 }

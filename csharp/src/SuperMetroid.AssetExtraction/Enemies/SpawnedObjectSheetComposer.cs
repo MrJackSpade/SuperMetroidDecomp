@@ -63,7 +63,7 @@ internal static class SpawnedObjectSheetComposer
     }
 
     /// <summary>What the spawned-object sheet of <paramref name="plan"/> composes over <paramref name="characters"/>.</summary>
-    internal static SpawnedObjectSheetSource Sources(EnemyTileArtworkCatalog enemies, SpawnedObjectSheetPlan plan, SetCharacters characters,
+    internal static SpawnedObjectSheetSource Sources(EnemyTileSourceArtwork enemies, SpawnedObjectSheetPlan plan, SetCharacters characters,
         RgbColor[] colours)
     {
         Ensure.NotNull(enemies);

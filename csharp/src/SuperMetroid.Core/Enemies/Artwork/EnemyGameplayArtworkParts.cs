@@ -1,28 +1,14 @@
-using SuperMetroid.Core.Rooms.Artwork;
-
 namespace SuperMetroid.Core.Enemies.Artwork;
 
-/// <summary>The installed enemy sheets, palettes, spritemaps and per-enemy artwork catalogs an enemy tile artwork catalog is built from (#633).</summary>
+/// <summary>The installed enemy palettes, extended frames and colour catalogs an enemy artwork catalog holds for gameplay (#1463).</summary>
 [ArchitectureReview("context-bag", "A record of installed artwork catalogs; its members are data, not services.")]
-public sealed record EnemyTileArtworkParts
+public sealed record EnemyGameplayArtworkParts
 {
-    /// <summary>Sheets.</summary>
-    public required IReadOnlyDictionary<EnemyDefinitionId, RoomCharacterAtlas> Sheets { get; init; }
-
-    /// <summary>Palettes.</summary>
+    /// <summary>Each enemy's palette.</summary>
     public required IReadOnlyDictionary<EnemyDefinitionId, EnemyPaletteSheet> Palettes { get; init; }
-
-    /// <summary>Spritemaps.</summary>
-    public EnemySpritemapCatalog? Spritemaps { get; init; } = null;
 
     /// <summary>Extended frames.</summary>
     public EnemyExtendedFrameCatalog? ExtendedFrames { get; init; } = null;
-
-    /// <summary>Gunship liftoff.</summary>
-    public GunshipLiftoffArtworkCatalog? GunshipLiftoff { get; init; } = null;
-
-    /// <summary>Projectile spritemaps.</summary>
-    public EnemyProjectileSpritemapCatalog? ProjectileSpritemaps { get; init; } = null;
 
     /// <summary>Magdollite palette cycle.</summary>
     public MagdollitePaletteCycle? MagdollitePaletteCycle { get; init; } = null;
@@ -38,5 +24,4 @@ public sealed record EnemyTileArtworkParts
 
     /// <summary>Auxiliary colors.</summary>
     public EnemyAuxiliaryColorCatalog? AuxiliaryColors { get; init; } = null;
-
 }

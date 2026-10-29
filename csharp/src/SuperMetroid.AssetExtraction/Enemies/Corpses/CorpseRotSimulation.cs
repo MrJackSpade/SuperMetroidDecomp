@@ -102,7 +102,7 @@ internal sealed class CorpseRotSimulation
     /// The rotting corpses among <paramref name="drawn"/>, each rotted from installed <paramref name="enemies"/> or
     /// <paramref name="bosses"/> art.
     /// </summary>
-    internal static IReadOnlyList<CorpseRotSimulation> Of(EnemyTileArtworkCatalog enemies, BossArtworkCatalog bosses, IEnumerable<EnemyDefinitionId> drawn)
+    internal static IReadOnlyList<CorpseRotSimulation> Of(EnemyTileSourceArtwork enemies, BossArtworkCatalog bosses, IEnumerable<EnemyDefinitionId> drawn)
     {
         Ensure.NotNull(enemies);
         Ensure.NotNull(bosses);
@@ -129,7 +129,7 @@ internal sealed class CorpseRotSimulation
     }
 
     /// <summary>The Sidehopper corpse of graphics variant <paramref name="graphicsVariant"/> (population parameter 0 or 2).</summary>
-    private static CorpseRotSimulation Sidehopper(EnemyTileArtworkCatalog enemies, int graphicsVariant, DeadSidehopperCorpseDefinition definition)
+    private static CorpseRotSimulation Sidehopper(EnemyTileSourceArtwork enemies, int graphicsVariant, DeadSidehopperCorpseDefinition definition)
     {
         CorpseStaging staged = CorpseStaging.Sidehopper(
             Atlas(enemies, CorpseSheetDefinitions.DeadMonsterSheet, CorpseSheetDefinitions.DeadMonsterSheetByteCount), graphicsVariant);
@@ -139,7 +139,7 @@ internal sealed class CorpseRotSimulation
     }
 
     /// <summary>Variant <paramref name="variant"/> of a dead Zoomer, Ripper or Skree.</summary>
-    private static CorpseRotSimulation Tourian(EnemyTileArtworkCatalog enemies, EnemyDefinitionId enemy, DeadTourianCorpseSpecies species, int variant)
+    private static CorpseRotSimulation Tourian(EnemyTileSourceArtwork enemies, EnemyDefinitionId enemy, DeadTourianCorpseSpecies species, int variant)
     {
         DeadTourianCorpseVariant layout = DeadTourianCorpseStagingDefinitions.Variants(species)[variant];
         DeadTourianCorpseDefinition definition = DeadTourianCorpses.For(species, variant);
@@ -218,7 +218,7 @@ internal sealed class CorpseRotSimulation
     /// The dead Torizo, which uploads half its rows each frame from its first, alternating halves, while its sand falls into
     /// two strips every fifteenth frame of its rot.
     /// </summary>
-    private static CorpseRotSimulation Torizo(EnemyTileArtworkCatalog enemies)
+    private static CorpseRotSimulation Torizo(EnemyTileSourceArtwork enemies)
     {
         ReadOnlySpan<byte> atlas = Atlas(enemies, CorpseSheetDefinitions.DeadTorizoSheet, CorpseSheetDefinitions.DeadTorizoSheetByteCount);
         CorpseStaging staged = CorpseStaging.Torizo(atlas);
@@ -307,7 +307,7 @@ internal sealed class CorpseRotSimulation
             .Count(record => record.DefinitionId == enemy && record.Parameter1 == parameter)));
 
     /// <summary>The installed tiles a corpse copies its staged characters from.</summary>
-    private static ReadOnlySpan<byte> Atlas(EnemyTileArtworkCatalog enemies, EnemyDefinitionId sheet, int byteCount)
+    private static ReadOnlySpan<byte> Atlas(EnemyTileSourceArtwork enemies, EnemyDefinitionId sheet, int byteCount)
     {
         ReadOnlyMemory<byte> tiles = enemies.TilesOf(sheet);
         return tiles.Length == byteCount ? tiles.Span

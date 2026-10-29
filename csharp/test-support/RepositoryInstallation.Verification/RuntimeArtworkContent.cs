@@ -1,8 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Areas;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Runtime;
@@ -23,20 +21,20 @@ internal sealed class RuntimeArtworkContent(SuperMetroidRuntime runtime, RoomCha
     internal static RuntimeArtworkContent Of(SuperMetroidRuntime runtime) => new(runtime, InstalledFixtures.StandardObjects);
 
     /// <inheritdoc/>
-    public EnemyTileArtworkCatalog EnemyTiles =>
-        runtime.EnemySession.TileArtwork ?? throw new InvalidOperationException("No enemy artwork is installed.");
+    public EnemyTileSourceArtwork EnemyTiles =>
+        (EnemyTileSourceArtwork?)runtime.EnemySession.TileArtwork ?? throw new InvalidOperationException("No enemy artwork is installed.");
 
     /// <inheritdoc/>
     public RoomFxAnimatedTileAtlas AnimatedTiles =>
         runtime.Artwork.MapPresentation?.RoomFxAnimatedTiles ?? throw new InvalidOperationException("No map presentation is installed.");
 
     /// <inheritdoc/>
-    public BossArtworkCatalog BossTiles =>
-        runtime.BossArtwork.Artwork ?? throw new InvalidOperationException("No boss artwork is installed.");
+    public BossSourceArtwork BossTiles =>
+        (BossSourceArtwork?)runtime.BossArtwork.Artwork ?? throw new InvalidOperationException("No boss artwork is installed.");
 
     /// <inheritdoc/>
-    public AreaArtworkBundle AreaTiles =>
-        runtime.AreaArtwork.Artwork ?? throw new InvalidOperationException("No area artwork is installed.");
+    public AreaSourceArtwork AreaTiles =>
+        (AreaSourceArtwork?)runtime.AreaArtwork.Artwork ?? throw new InvalidOperationException("No area artwork is installed.");
 
     /// <summary>The characters a typed asset names, from the standard OBJ sheet, the gunship's takeoff pages or the map presentation.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No bound catalog holds characters for the asset.</exception>

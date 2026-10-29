@@ -78,7 +78,7 @@ internal static class GunshipLiftoffPicturesVerification
                     UploadedPictureChecks.ExpectedPictures(sheets, set, name, layers, made), drawn,
                     $"after {step} liftoff uploads the ship's {part.DefinitionId}");
 
-                CharacterSpriteDraw parted = EnemyPartComposition.Spritemap(live, source, runtime.EnemySession.TileArtwork?.Spritemaps
+                CharacterSpriteDraw parted = EnemyPartComposition.Spritemap(live, source, RuntimeArtworkContent.Of(runtime).EnemyTiles.Spritemaps
                     ?? throw new InvalidOperationException("The runtime loads the enemy compositions."), new EnemySpritemapDraw
                 {
                     Frame = frame, Origin = new(drawn[0].Origin.X, drawn[0].Origin.Y), PaletteBits = NativeSpriteGraphicsWords.PaletteBits(part.PaletteRow), BaseTileIndex = part.TileIndexBase,

@@ -57,8 +57,8 @@ public static class InstalledArtworkIdentity
             .Append(KeyValuePair.Create(GameInstallationLayout.SpriteSheetDirectoryName, Require(artwork.SpriteSheets).ContentIdentity))
             .Append(KeyValuePair.Create(GameInstallationLayout.EnemySheetDirectoryName, Require(artwork.EnemySheets).ContentIdentity))
             .Append(KeyValuePair.Create(GameInstallationLayout.RoomBlockSheetDirectoryName, Require(artwork.RoomBlockSheets).ContentIdentity))
-            .Append(KeyValuePair.Create(GameInstallationLayout.EnemyTileDirectoryName, new InstalledEnemyArtwork(
-                Require(artwork.EnemyTileArtwork), Require(artwork.BossArtwork), Require(artwork.AreaArtwork)).ContentIdentity));
+            .Append(KeyValuePair.Create(GameInstallationLayout.EnemyTileDirectoryName, InstalledEnemyArtwork.DirectoryIdentity(
+                Require(artwork.EnemyTileArtwork), Require(artwork.BossArtwork), Require(artwork.AreaArtwork))));
     }
 
     /// <summary>Fails identity collection when a bound installation omits any required artwork catalog.</summary>

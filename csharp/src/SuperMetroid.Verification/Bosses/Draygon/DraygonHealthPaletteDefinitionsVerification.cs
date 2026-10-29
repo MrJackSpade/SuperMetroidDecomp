@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -8,6 +7,7 @@ using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.Verification.Bosses.Draygon;
 
@@ -48,7 +48,7 @@ internal static class DraygonHealthPaletteDefinitionsVerification
         using var colors = new MemoryStream(DraygonColorExtractor.Extract(rom), writable: false);
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
-            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), BossArtwork = new BossArtworkCatalog { DraygonColors = DraygonColorFile.Read(colors) },
+            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), BossArtwork = new BossSourceArtwork { DraygonColors = DraygonColorFile.Read(colors) },
         };
         enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
         Action<DraygonEnemyState> update = enemies.DraygonBehavior.Combat.UpdateDraygonHealthPalette;

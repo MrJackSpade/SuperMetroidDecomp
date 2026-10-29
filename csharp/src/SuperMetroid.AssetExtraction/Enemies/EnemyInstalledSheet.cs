@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>One enemy's installed tile sheet and the palette it is drawn with.</summary>
 /// <param name="Definition">The enemy the sheet belongs to.</param>

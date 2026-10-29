@@ -34,7 +34,7 @@ internal static class BossSpriteEntriesVerification
     /// <summary>Stage 1: Dead Torizo's hook frame, the Tourian statue pictures and staged corpse uploads.</summary>
     internal static void VerifyBossSpriteEntriesStage1()
     {
-        EnemyTileArtworkCatalog artwork = InstalledFixtures.EnemyTiles;
+        EnemyTileSourceArtwork artwork = InstalledFixtures.EnemyTiles;
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.CorpseTorizo);
         enemies.DeadTorizoBehavior.InitializeDeadTorizo(enemies.SlotTable.Slots[0]);

@@ -1,13 +1,14 @@
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
 
-/// <summary>Development-tool instance members of <see cref="EnemyTileArtworkCatalog"/>.</summary>
+/// <summary>Development-tool instance members of <see cref="EnemyTileSourceArtwork"/>.</summary>
 internal static class EnemyTileArtworkCatalogToolingExtensions
 {
-    /// <summary>Development-tool instance members of <see cref="EnemyTileArtworkCatalog"/>.</summary>
-    extension(EnemyTileArtworkCatalog self)
+    /// <summary>Development-tool instance members of <see cref="EnemyTileSourceArtwork"/>.</summary>
+    extension(EnemyTileSourceArtwork self)
     {
         /// <summary>Uploads the complete sheet selected by a room graphics-set record.</summary>
         public void LoadTo(EnemyDefinitionId definitionPointer, int byteCount, VramRegion destination, int byteOffset)

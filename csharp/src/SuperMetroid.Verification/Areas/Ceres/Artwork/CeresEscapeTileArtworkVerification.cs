@@ -5,7 +5,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Escape;
@@ -150,7 +149,7 @@ internal static class CeresEscapeTileArtworkVerification
 
         // The pictures of the warning pages are composed from the installed characters; composing them without those
         // characters fails rather than falling back to cartridge bytes.
-        var missing = new EnemyTileTransfers(new InstalledEnemyArtwork(stock.Enemies, stock.Bosses, new AreaArtworkBundle()), timer: timer);
+        var missing = new EnemyTileTransfers(new InstalledEnemyArtwork(stock.Enemies, stock.Bosses, new AreaSourceArtwork()), timer: timer);
         AssertThrows<InvalidDataException>(() => SpriteArtworkBytes.Of(CeresEscapeObjectPages.ObjectPages[firstWarningPage], missing),
             "Ceres warning pictures reject missing installed character artwork");
         Console.WriteLine(

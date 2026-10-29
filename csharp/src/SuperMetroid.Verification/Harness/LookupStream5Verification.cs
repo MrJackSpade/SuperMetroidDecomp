@@ -8,7 +8,6 @@ using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Enemies.Callbacks;
-using SuperMetroid.Core.Areas;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -368,7 +367,7 @@ internal static class LookupStream5Verification
         {
             var system = new RoomEnemySystem(new EnemySession())
             {
-                TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkBundle { CeresDoorVisual = visual },
+                TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoorVisual = visual },
             };
             var vram = new SnesVram();
             int destination = CeresDoorVisualDefinitions.PlatformFloorCell;
@@ -496,7 +495,7 @@ internal static class LookupStream5Verification
             var overlay = new RecordedBg1Overlay();
             var system = new RoomEnemySystem(new EnemySession(), services: overlay.Services())
             {
-                TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkBundle { CeresEscapeOverlayTilemaps = result },
+                TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresEscapeOverlayTilemaps = result },
             };
             system.CeresRidleyBehavior.Getaway.DrawCeresEmergencyText();
             int first = ReadVerificationWord(rom, 0xa6c162) - GameplayVramLayout.Bg1TilemapWord;
@@ -1469,7 +1468,7 @@ internal static class LookupStream5Verification
         Enumerable.Range(0, count).Select(offset => rom.ReadCartridgeByte(address + offset)).ToArray();
 
     /// <summary>Builds a corpse-art fixture with cartridge Sidehopper palette and tile bytes.</summary>
-    internal static EnemyTileArtworkCatalog LookupStream5CorpseFixtureArtwork(SuperMetroidAddressSpace rom)
+    internal static EnemyTileSourceArtwork LookupStream5CorpseFixtureArtwork(SuperMetroidAddressSpace rom)
     {
         byte[] planar = Enumerable.Range(0,CorpseSheetDefinitions.DeadMonsterSheetByteCount)
             .Select(index => rom.ReadCartridgeByte(SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileDataSource(rom, CorpseSheetDefinitions.DeadMonsterSheet)+index)).ToArray();
@@ -2014,7 +2013,7 @@ internal static class LookupStream5Verification
             for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Normal[color]), basis.ColorAt(color), "Every supplied normal channel remains independent");
             foreach (ushort variant in new ushort[] { 0, 3 })
             {
-                var system = new RoomEnemySystem(new EnemySession()) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkBundle { CeresDoorVisual = visual } };
+                var system = new RoomEnemySystem(new EnemySession()) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoorVisual = visual } };
                 var cgram = new SamusColourRig();
                 system.Presentation.BindColours(cgram.Gameplay);
                 var slot = system.SlotTable.Slots[0]; slot.SetSpawnParameter1(variant);
@@ -2078,7 +2077,7 @@ internal static class LookupStream5Verification
             for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Escape[color]), basis.ColorAt(color), "Every supplied escape channel remains independent");
             foreach (ushort variant in new ushort[] { 0, 3 })
             {
-                var system = new RoomEnemySystem(new EnemySession()) { RidleyEncounter = { CeresStatus = CeresEscapeStatus.SelfDestructStarted }, TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkBundle { CeresDoorVisual = visual } };
+                var system = new RoomEnemySystem(new EnemySession()) { RidleyEncounter = { CeresStatus = CeresEscapeStatus.SelfDestructStarted }, TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoorVisual = visual } };
                 var cgram = new SamusColourRig();
                 system.Presentation.BindColours(cgram.Gameplay);
                 var slot = system.SlotTable.Slots[0]; slot.SetSpawnParameter1(variant);
@@ -2143,7 +2142,7 @@ internal static class LookupStream5Verification
             var visual = CeresDoorVisualFiles.Read(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualFiles.Write(document)));
             for (int row = 0; row < 8; row++) for (int color = 0; color < 6; color++)
                 AssertEqual(Pack(document.Animation[row][color]), basis.ColorAt(row, color), "Every supplied beacon channel remains independent");
-            var system = new RoomEnemySystem(new EnemySession(), services: new StandaloneRoomEnemyServices(() => 0) { FloorMap = new FloorMap(new byte[FloorMap.Cells], default, RoomBackgroundsFixtures.FloorTiles()) }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkBundle { CeresDoorVisual = visual } };
+            var system = new RoomEnemySystem(new EnemySession(), services: new StandaloneRoomEnemyServices(() => 0) { FloorMap = new FloorMap(new byte[FloorMap.Cells], default, RoomBackgroundsFixtures.FloorTiles()) }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoorVisual = visual } };
             var cgram = new SamusColourRig();
             system.Presentation.BindColours(cgram.Gameplay);
             system.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));

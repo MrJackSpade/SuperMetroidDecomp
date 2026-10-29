@@ -1,7 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Areas;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
@@ -57,7 +55,7 @@ internal static class DeadTourianCorpseArtworkVerification
             }
         }
 
-        var missing = new InstalledEnemyArtwork(EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), new BossArtworkCatalog(), new AreaArtworkBundle());
+        var missing = new InstalledEnemyArtwork(EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), new BossSourceArtwork(), new AreaSourceArtwork());
         AssertThrows<InvalidDataException>(() => InitializeDeadSidehopperArtwork(missing, 0),
             "bound dead-sidehopper art cannot silently fall back to ROM");
 
@@ -99,7 +97,7 @@ internal static class DeadTourianCorpseArtworkVerification
 
     /// <summary>Matches the installed OAM compositions of every corpse pose the typed programs show to retail spritemaps.</summary>
     private static void VerifyDeadTourianCorpseVisuals(
-        EnemyTileArtworkCatalog stock)
+        EnemyTileSourceArtwork stock)
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         DeadTourianProgram[] corpsePrograms =

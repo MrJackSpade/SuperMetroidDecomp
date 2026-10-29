@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Areas;
+﻿using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 
@@ -7,5 +7,5 @@ internal interface IInstalledAreaSpriteCharacterArtwork
 {
     /// <summary>The installed area artwork.</summary>
     /// <exception cref="InvalidOperationException">No area artwork is installed.</exception>
-    AreaArtworkBundle AreaTiles { get; }
+    AreaSourceArtwork AreaTiles { get; }
 }

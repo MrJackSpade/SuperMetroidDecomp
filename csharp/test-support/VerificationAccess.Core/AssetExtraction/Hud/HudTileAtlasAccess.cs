@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Hardware;
 
-namespace SuperMetroid.Core.Hud.Artwork;
+namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Verification access to <see cref="HudTileAtlas"/> members production does not use.</summary>
 internal static class HudTileAtlasAccess
@@ -11,6 +11,6 @@ internal static class HudTileAtlasAccess
     {
         /// <summary>Writes all $2000 bytes at the standard BG3 character base: the characters followed by the zero-filled BG2 tilemap-clearing half.</summary>
         /// <param name="vram">Destination VRAM whose existing bytes are overwritten.</param>
-        public void LoadTo(SnesVram vram) => new VramRegion(vram, GameplayVramLayoutConstants.HudCharacterUpload).Load(self.bytes);
+        public void LoadTo(SnesVram vram) => new VramRegion(vram, GameplayVramLayoutConstants.HudCharacterUpload).Load(self.Bytes.Span);
     }
 }

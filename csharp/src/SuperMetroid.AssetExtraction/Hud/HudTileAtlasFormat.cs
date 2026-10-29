@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
-namespace SuperMetroid.Core.Hud.Artwork;
+namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Installed HUD atlas identity and geometry.</summary>
 public static class HudTileAtlasFormat

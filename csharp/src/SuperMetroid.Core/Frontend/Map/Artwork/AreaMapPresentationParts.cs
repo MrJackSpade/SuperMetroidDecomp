@@ -11,7 +11,6 @@ using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Map;
-using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
@@ -27,12 +26,6 @@ internal sealed record AreaMapPresentationParts
 
     /// <summary>Uppercase SHA-256 identity of length-framed stock map rules, station masks, and selected presentation resources in fixed order; override edits affect identity without changing stock provenance.</summary>
     public required string ContentIdentity { get; init; }
-
-    /// <summary>Selected map-screen character atlas; pause-menu artwork is supplied separately by <see cref="PauseTiles"/>.</summary>
-    public required MapTileAtlas Tiles { get; init; }
-
-    /// <summary>Standard gameplay HUD character transfers, including the four BG3 quarters restored after Kraid.</summary>
-    public required HudTileAtlas HudTiles { get; init; }
 
     /// <summary>Selected highlight color frames used by map presentation; animation progression remains engine-owned.</summary>
     public required MapPaletteCycle HighlightCycle { get; init; }
@@ -63,9 +56,6 @@ internal sealed record AreaMapPresentationParts
 
     /// <summary>Selected map sprite shapes and indexed PNG artwork used to draw map icons.</summary>
     public required MapSpriteCompositions Sprites { get; init; }
-
-    /// <summary>Selected pause-menu character atlas, separate from map-screen characters in <see cref="Tiles"/>.</summary>
-    public required MapTileAtlas PauseTiles { get; init; }
 
     /// <summary>Pause-screen backdrop tilemap presentation, independent of equipment and map state.</summary>
     public required PauseBackdropPresentation PauseBackdrops { get; init; }

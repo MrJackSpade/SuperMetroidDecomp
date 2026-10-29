@@ -9,16 +9,15 @@ using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;
-using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.AssetExtraction.Hud;
 namespace SuperMetroid.Verification.Hud;
 
 //// <summary>Checks installed HUD artwork against the native characters and rendered minimap pixels.</summary>
@@ -38,7 +37,7 @@ internal static class HudAtlasVerification
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
         byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), NativeHudCharacters, HudTileAtlasFormat.ByteCount);
-        AssertTrue(source.SequenceEqual(original.Resolve(InstalledArtworkId.StandardHudTiles).Span), "HUD PNG and compiled padding match all native bytes");
+        AssertTrue(source.SequenceEqual(MapCharacterArtwork.Of(original).Hud.Bytes.Span), "HUD PNG and compiled padding match all native bytes");
         var guard = NewMapDataGuard(bus, rules);
         var native = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
         native.Artwork.MapPresentation = original;
@@ -79,7 +78,7 @@ internal static class HudAtlasVerification
         AssertTrue(previousBindings.SequenceEqual(displayed.BgArtwork.Bound), "catalog binding binds nothing new before the accepted NMI");
         displayed.FrameBoundary.BeginAcceptedFrame(0);
         byte[] shownAfterRebind = displayed.ComposedVram();
-        AssertTrue(edited.Resolve(InstalledArtworkId.StandardHudTiles).Span[..HudTileAtlasFormat.CharacterByteCount]
+        AssertTrue(MapCharacterArtwork.Of(edited).Hud.Bytes.Span[..HudTileAtlasFormat.CharacterByteCount]
             .SequenceEqual(shownAfterRebind.AsSpan(characterStart, HudTileAtlasFormat.CharacterByteCount)),
             "accepted NMI shows the newly bound PNG over an already displayed HUD");
         AssertTrue(previousDisplay.AsSpan(0, characterStart).SequenceEqual(shownAfterRebind.AsSpan(0, characterStart)) &&
@@ -96,7 +95,7 @@ internal static class HudAtlasVerification
         fixtureAssets.Bind(restored);
         restored.Artwork.MapPresentation = edited;
         restored.FrameBoundary.BeginAcceptedFrame(0);
-        AssertTrue(edited.Resolve(InstalledArtworkId.StandardHudTiles).Span.SequenceEqual(
+        AssertTrue(MapCharacterArtwork.Of(edited).Hud.Bytes.Span.SequenceEqual(
             restored.ComposedVram().AsSpan(GameplayVramLayout.HudCharacterWord * 2, HudTileAtlasFormat.ByteCount)),
             "a HUD set up before its first accepted NMI shows the newly bound PNG, not captured old pixels");
         RgbaPixel[] modified = Render(restored);

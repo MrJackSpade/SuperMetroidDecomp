@@ -1,7 +1,7 @@
+using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Hud.Artwork;
-using SuperMetroid.Core.Map.Artwork;
 
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Frontend.Pause;
@@ -19,10 +19,11 @@ internal static class PauseScreenMemory
     {
         var image = new SnesVram();
         var pause = new PauseVram(image);
-        artwork.Tiles.LoadTo(pause.MapCharacters);
-        artwork.PauseTiles.LoadTo(pause.InterfaceCharacters);
+        MapCharacterArtwork characters = MapCharacterArtwork.Of(artwork);
+        characters.Map.LoadTo(pause.MapCharacters);
+        characters.Pause.LoadTo(pause.InterfaceCharacters);
         artwork.Sprites.LoadArtworkTo(pause.ObjectCharacters);
-        artwork.HudTiles.LoadTo(image);
+        characters.Hud.LoadTo(image);
         return image.CaptureImage();
     }
 

@@ -16,10 +16,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// </summary>
 public interface IGameplayPresentationContent : IAreaMapSource, IInstalledArtworkContent
 {
-    /// <summary>Standard gameplay HUD character transfers, including the four BG3 quarters restored after Kraid.</summary>
-    HudTileAtlas HudTiles { get; }
-
-    /// <summary>Gameplay HUD tilemap and display presentation, separate from the standard HUD character atlas.</summary>
+    /// <summary>The gameplay HUD's layout, which places its installed images (#1466).</summary>
     GameplayHudPresentation GameplayHud { get; }
 
     /// <summary>Escape countdown visual layout and digit presentation.</summary>

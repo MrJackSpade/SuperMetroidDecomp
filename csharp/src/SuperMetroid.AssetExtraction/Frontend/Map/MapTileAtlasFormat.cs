@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Map.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Shared pause/file-select character atlas geometry and fixed installed filename.</summary>
 public static class MapTileAtlasFormat

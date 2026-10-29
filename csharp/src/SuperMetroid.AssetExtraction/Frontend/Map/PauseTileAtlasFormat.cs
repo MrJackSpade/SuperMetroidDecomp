@@ -1,6 +1,4 @@
-using SuperMetroid.Core.Map.Artwork;
-
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Additional pause-menu characters, separate from the shared map atlas and its overrides.</summary>
 public static class PauseTileAtlasFormat

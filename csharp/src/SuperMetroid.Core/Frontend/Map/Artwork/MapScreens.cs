@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Progression;
 using static SuperMetroid.Core.Frontend.Map.Artwork.MapScreenDefinitions;
 
@@ -20,7 +19,7 @@ public static class MapScreens
         foreach (AreaId area in AreaIds.Zebes)
         {
             yield return new(WorldBackground(area), WorldMapArtworkFormat.TileColumns, WorldMapArtworkFormat.BackgroundTileCount);
-            yield return new(RoomFrame(area), MapTileAtlasFormat.TileColumns, MapTileAtlasFormat.ByteCount / 32);
+            yield return new(RoomFrame(area), MapTileColumns, MapTileCount);
         }
     }
 }

@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Artwork;
-using SuperMetroid.Core.Frontend.Pause.Artwork;
-using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Frontend.Pause;
@@ -18,9 +17,9 @@ internal static class PauseScreenTiles
     {
         Ensure.NotNull(sheets);
         return new ScreenTileSet(TileInkDepth.SixteenColours)
-            .Place(ScreenTileSheets.Of(sheets, SpriteSheetId.PauseMapTiles), PauseTileSetDefinitions.MapFirstTile, 0, MapTileAtlasFormat.CharacterCount)
+            .Place(ScreenTileSheets.Of(sheets, SpriteSheetId.PauseMapTiles), PauseTileSetDefinitions.MapFirstTile, 0, MapScreenDefinitions.MapTileCount)
             .Place(ScreenTileSheets.Of(sheets, SpriteSheetId.PauseInterfaceTiles), PauseTileSetDefinitions.InterfaceFirstTile, 0,
-                PauseTileAtlasFormat.ByteCount / (ScreenTileSheet.CharacterWordsOf(TileInkDepth.SixteenColours) * sizeof(ushort)))
+                MapScreenDefinitions.MapTileCount)
             .Pictures();
     }
 }

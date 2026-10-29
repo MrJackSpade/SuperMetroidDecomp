@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
@@ -116,7 +117,7 @@ internal static class HudImageSheet
     internal static ComposedSpriteSheet ComposePause(AreaMapPresentation maps)
     {
         Ensure.NotNull(maps);
-        ReadOnlyMemory<byte> characters = maps.HudTiles.Bytes[..HudTileAtlasFormat.CharacterByteCount];
+        ReadOnlyMemory<byte> characters = MapCharacterArtwork.Of(maps).Hud.Bytes[..HudTileAtlasFormat.CharacterByteCount];
         HudSheetLayout layout = Layout(GameplayHudArtwork.Of(maps.GameplayHud), Maps(maps));
         const int cell = RoomTileCanvas.CharacterPixels;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(ShelfCells * cell, checked((ushort)((layout.Rows + 1) * cell))));

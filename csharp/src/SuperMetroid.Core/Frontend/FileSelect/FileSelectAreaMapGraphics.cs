@@ -3,7 +3,6 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 
@@ -35,7 +34,7 @@ public sealed class FileSelectAreaMapGraphics
         AreaMapPresentation presentation, InstalledSpriteSheets sheets)
     {
         Ensure.NotNull(presentation);
-        var graphics = new FileSelectAreaMapGraphics(selectedArea, presentation.Tiles, presentation.Palettes,
+        var graphics = new FileSelectAreaMapGraphics(selectedArea, presentation.Palettes,
             presentation.Screens, presentation.WorldArtwork, sheets);
         graphics.BindLabels(presentation.Labels);
         return graphics;
@@ -43,7 +42,6 @@ public sealed class FileSelectAreaMapGraphics
 
     /// <summary>Initializes the unmasked world-map BG/palette owners from installed artwork and selects the requested Zebes area; labels must be bound separately or through <see cref="FromPresentation"/>.</summary>
     /// <param name="selectedArea">Game-area identity 0..5, not the file-select label display-order ordinal.</param>
-    /// <param name="mapTiles">Required installed map-character atlas.</param>
     /// <param name="mapPalettes">Required world-map palettes, including area-specific selections.</param>
     /// <param name="mapScreens">Required foreground and per-area background tilemap resources.</param>
     /// <param name="worldArtwork">Required world-map character artwork.</param>
@@ -51,17 +49,17 @@ public sealed class FileSelectAreaMapGraphics
     /// <param name="sheets">Required installed sprite sheets: the map sprites the title and labels draw from, and the background tiles.</param>
     /// <exception cref="InvalidOperationException">Any required presentation resource is absent despite its optional parameter default.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The selected area is outside the six Zebes identities.</exception>
-    public FileSelectAreaMapGraphics(int selectedArea, MapTileAtlas? mapTiles = null, MapStaticPalettes? mapPalettes = null,
+    public FileSelectAreaMapGraphics(int selectedArea, MapStaticPalettes? mapPalettes = null,
         MapScreenPresentation? mapScreens = null, WorldMapArtwork? worldArtwork = null,
         InstalledSpriteSheets? sheets = null)
     {
-        if (mapTiles is null || mapPalettes is null || mapScreens is null ||
+        if (mapPalettes is null || mapScreens is null ||
             worldArtwork is null || sheets is null)
             throw new InvalidOperationException("Area-map graphics require installed presentation assets.");
         Palettes = mapPalettes;
         screens = mapScreens;
         mapSheet = sheets.Get(SpriteSheetId.MapSprites);
-        screen = new MenuScreen(mapTiles, mapPalettes, worldArtwork, sheets);
+        screen = new MenuScreen(mapPalettes, worldArtwork, sheets);
         LoadForeground();
         // State one completes its first-two-palette fade with these entries black.
         FileSelectMapEntry.BlackenEntryColours(screen.Palette);
@@ -107,7 +105,6 @@ public sealed class FileSelectAreaMapGraphics
         BindLabels(catalog?.Labels);
         BindPalettes(catalog?.Palettes);
         BindScreens(catalog?.Screens, catalog?.WorldArtwork);
-        screen.BindMapTiles(catalog?.Tiles);
     }
 
     /// <summary>Refresh current layer artwork without selecting another area or restarting its palette fade.</summary>

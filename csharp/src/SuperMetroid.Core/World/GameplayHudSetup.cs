@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Hud.Artwork;
 
 namespace SuperMetroid.Core.World;
 
@@ -50,7 +49,7 @@ internal sealed class GameplayHudSetup
         if (_artwork.MapPresentation is null)
             throw new InvalidOperationException("Showing the HUD's characters requires installed HUD artwork.");
         _backgrounds.Bind(BgArtworkIdentity.Asset(InstalledArtworkId.StandardHudTiles), BgCharacterSet.Layer3, 0,
-            BgCharacterSet.Layer3.CharactersIn(HudTileAtlasFormat.CharacterByteCount));
+            BgCharacterSet.Layer3.CharacterCount());
     }
 
     /// <summary>

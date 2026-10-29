@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
 using System.Diagnostics.CodeAnalysis;
@@ -14,12 +13,10 @@ namespace SuperMetroid.Core.Frontend.Menus;
 /// </summary>
 internal sealed class MenuScreen
 {
-    /// <summary>Installs the shared world, map and palette artwork, and the sheets its backgrounds draw from.</summary>
-    public MenuScreen(MapTileAtlas? mapTiles, MapStaticPalettes? mapPalettes, WorldMapArtwork? worldArtwork,
-        InstalledSpriteSheets? sheets)
+    /// <summary>Installs the shared world and palette artwork, and the sheets its backgrounds draw from.</summary>
+    public MenuScreen(MapStaticPalettes? mapPalettes, WorldMapArtwork? worldArtwork, InstalledSpriteSheets? sheets)
     {
         WorldArtwork = RequireWorldArtwork(worldArtwork);
-        MapTiles = RequireMapTiles(mapTiles);
         Objects = new ScreenSprites();
         BindMapPalettes(mapPalettes);
         BindScreenTiles(sheets);
@@ -66,11 +63,6 @@ internal sealed class MenuScreen
     [AllowNull]
     public WorldMapArtwork WorldArtwork { get => field ?? throw new InvalidOperationException("The menu's world-map characters are rebound after debugger restoration."); private set; }
 
-    /// <summary>The installed map characters.</summary>
-    [field: NonSerialized]
-    [AllowNull]
-    public MapTileAtlas MapTiles { get => field ?? throw new InvalidOperationException("The menu's map characters are rebound after debugger restoration."); private set; }
-
 
     /// <summary>The menu's tilemaps.</summary>
     public MenuTilemaps Tilemaps { get; } = new();
@@ -87,12 +79,6 @@ internal sealed class MenuScreen
         WorldArtwork = RequireWorldArtwork(worldArtwork);
     }
 
-    /// <summary>Rebinds the map characters.</summary>
-    public void BindMapTiles(MapTileAtlas? mapTiles)
-    {
-        MapTiles = RequireMapTiles(mapTiles);
-    }
-
 
     /// <summary>Loads the file-select palette image.</summary>
     public void BindMapPalettes(MapStaticPalettes? mapPalettes)
@@ -104,10 +90,6 @@ internal sealed class MenuScreen
     /// <summary>The installed world-map characters, which a menu cannot draw without.</summary>
     private static WorldMapArtwork RequireWorldArtwork(WorldMapArtwork? worldArtwork) =>
         worldArtwork ?? throw new InvalidOperationException("Menus require installed world-map artwork.");
-
-    /// <summary>The installed map characters, which a menu cannot draw without.</summary>
-    private static MapTileAtlas RequireMapTiles(MapTileAtlas? mapTiles) =>
-        mapTiles ?? throw new InvalidOperationException("Menus require installed map tiles.");
 
 
     /// <summary>What the screen paints with: its palette and sprite entries.</summary>

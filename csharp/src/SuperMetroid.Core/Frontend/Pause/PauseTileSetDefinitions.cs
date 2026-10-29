@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Pause;
 
@@ -9,5 +9,5 @@ internal static class PauseTileSetDefinitions
     internal const int MapFirstTile = 0;
 
     /// <summary>The tile number of the first pause interface character on those planes, after the map characters.</summary>
-    internal const int InterfaceFirstTile = MapTileAtlasFormat.CharacterCount;
+    internal const int InterfaceFirstTile = MapScreenDefinitions.MapTileCount;
 }

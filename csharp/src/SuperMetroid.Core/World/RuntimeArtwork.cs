@@ -8,7 +8,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Gameplay;
 
@@ -61,8 +60,8 @@ internal sealed class RuntimeArtwork
     /// <summary>Installed colors used at construction and on each room-entry palette restore.</summary>
     [field: NonSerialized]
     public GameplayBasePalette? InitialPaletteArt { get; set; }
-    /// <summary>Whether the next accepted NMI must refresh already initialized HUD characters.</summary>
-    [NonSerialized] private HudTileAtlas? pendingHudTiles;
+    /// <summary>Whether the next accepted NMI shows the HUD's characters again over layer 3, after rebound artwork.</summary>
+    [NonSerialized] private bool hudCharactersPending;
     /// <summary>Gets or binds the host-owned presentation catalog used by maps, HUD, messages, room effects, Samus/enemy colors, and named VRAM assets.</summary>
     /// <remarks>Binding nonnull artwork schedules an initialized HUD refresh and rebinds compiled bus-source identities; assigning null removes presentation owners without rewriting already published VRAM.</remarks>
     [field: NonSerialized]     public IGameplayPresentationContent? MapPresentation
@@ -87,7 +86,7 @@ internal sealed class RuntimeArtwork
             _bossArtwork.CeresRidleyFloorUpdates = value?.CeresRidleyFloorUpdates;
             _room.Scope?.Enemies.RebindEscapeTypewriters(value?.EscapeTypewriter);
             // An initialized HUD shows the new characters again at the next accepted NMI.
-            pendingHudTiles = value is not null && _hud.IsInitialized ? value.HudTiles : null;
+            hudCharactersPending = value is not null && _hud.IsInitialized;
         }
     }
 
@@ -113,11 +112,25 @@ internal sealed class RuntimeArtwork
     /// <param name="backgrounds">The background artwork bindings, which show the HUD characters.</param>
     internal void PublishReboundHudArtwork(BgArtworkBindings backgrounds)
     {
-        if (pendingHudTiles is null) return;
+        if (!hudCharactersPending) return;
         // Binding a restored session changes content ownership, not the already
         // published frame. Refresh at accepted NMI, before native queued writes.
-        HudTileAtlas.ShowCharactersAgain(backgrounds, BgCharacterSet.Layer3);
-        pendingHudTiles = null;
+        ShowHudCharactersAgain(Ensure.NotNull(backgrounds));
+        hudCharactersPending = false;
+    }
+
+    /// <summary>
+    /// Shows rebound artwork over every layer-3 character again, under the identity the HUD's characters are already shown
+    /// as, so the effect pages' pictures over them still name what they show (#1392).
+    /// </summary>
+    /// <exception cref="InvalidDataException">The HUD characters' binding does not begin with them.</exception>
+    private static void ShowHudCharactersAgain(BgArtworkBindings backgrounds)
+    {
+        int characters = BgCharacterSet.Layer3.CharacterCount();
+        BgArtworkShown shown = backgrounds.Showing(BgCharacterSet.Layer3, 0, characters);
+        if (shown.WordOffset != 0)
+            throw new InvalidDataException($"{shown.Artwork.Name} shows the HUD characters from word {shown.WordOffset} of its artwork, not its first.");
+        backgrounds.Bind(shown.Artwork, BgCharacterSet.Layer3, 0, characters);
     }
 
     /// <summary>Rebinds authored visual frame choices to both native projectile slot owners.</summary>

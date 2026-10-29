@@ -2,7 +2,8 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
@@ -19,7 +20,7 @@ public static class MapStaticPalettesFile
             json, ArtworkJson.Options, "map palettes");
         if (document.Version != MapStaticPalettesFormat.Version || document.World is null || document.World.Count != AreaIds.RetailCount - 1)
             throw new InvalidDataException("Map palettes require version 1 and the six Zebes world-map selections.");
-        var world = new Dictionary<AreaId, RgbColor[]>();
+        var world = new Dictionary<AreaId, ScreenColours>();
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
             if (area == AreaId.Ceres) continue;
@@ -30,10 +31,10 @@ public static class MapStaticPalettesFile
         return new(Compile(document.Pause, "pause"), Compile(document.FileSelect, "fileSelect"), world);
     }
 
-    /// <summary>Requires exactly 256 RGB5 entries and converts each validated channel triplet to a SNES color word.</summary>
-    private static RgbColor[] Compile(PaletteRgb5[]? colors, string name)
+    /// <summary>Requires exactly 256 RGB5 entries and decodes the validated colours into the screen's owners.</summary>
+    private static ScreenColours Compile(PaletteRgb5[]? colors, string name)
     {
-        if (colors is null || colors.Length != ScreenPalette.ColorCount)
+        if (colors is null || colors.Length != ScreenColourImage.ColorCount)
             throw new InvalidDataException($"Map palette {name} requires 256 RGB colors.");
         var result = new RgbColor[colors.Length];
         for (int i = 0; i < colors.Length; i++)
@@ -43,7 +44,7 @@ public static class MapStaticPalettesFile
                 throw new InvalidDataException($"Map palette {name}, color {i} requires RGB components from 0 to 31.");
             result[i] = color.ToRgbColor();
         }
-        return result;
+        return ScreenColourImage.Decode(result);
     }
 
     /// <summary>Validates and writes a map-palette document as JSON.</summary>

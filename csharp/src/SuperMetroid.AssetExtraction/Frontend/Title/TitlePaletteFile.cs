@@ -2,7 +2,7 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
@@ -22,14 +22,14 @@ public static class TitlePaletteFile
 
         if (document.Version != TitlePaletteFormat.Version ||
             document.Colors is null ||
-            document.Colors.Length != ScreenPalette.ColorCount)
+            document.Colors.Length != ScreenColourImage.ColorCount)
         {
             throw new InvalidDataException(
                 $"Title palette requires version {TitlePaletteFormat.Version} and " +
-                $"{ScreenPalette.ColorCount} RGB5 colors.");
+                $"{ScreenColourImage.ColorCount} RGB5 colors.");
         }
 
-        var colors = new RgbColor[ScreenPalette.ColorCount];
+        var colors = new RgbColor[ScreenColourImage.ColorCount];
         for (int index = 0; index < colors.Length; index++)
         {
             PaletteRgb5? color = document.Colors[index];
@@ -89,7 +89,7 @@ public static class TitlePaletteFile
             }
         }
 
-        return TitlePalettePresentation.Create(colors, animatedColors,
+        return TitlePalettePresentation.Create(ScreenColourImage.Decode(colors), animatedColors,
             PackColor(document.SkipCopyrightWhite, "skip copyright white"),
             PackColor(document.SkipCopyrightRed, "skip copyright red"));
     }

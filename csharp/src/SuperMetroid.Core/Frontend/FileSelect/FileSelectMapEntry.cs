@@ -39,11 +39,11 @@ public sealed class FileSelectMapEntry
     public FileSelectMapEntry(MapStaticPalettes mapPalettes)
     {
         Ensure.NotNull(mapPalettes);
-        Palette.Load(mapPalettes.FileSelect);
+        mapPalettes.FileSelect.LoadTo(Palette);
         // File select runs outside gameplay; no other fade advances the counter meanwhile.
-        palette = new GradualPaletteTransition(
-            new ColourImage(Palette.All), FileSelectMapDefinitions.EntryPaletteDenominator, new GradualColorChangeCounter());
-        EntryTarget(mapPalettes.FileSelect).CopyTo(palette.Target.Of(Palette.All));
+        palette = new GradualPaletteTransition(Palette.Capture(), FileSelectMapDefinitions.EntryPaletteDenominator,
+            new GradualColorChangeCounter());
+        LoadEntryTarget(mapPalettes.FileSelect);
         // The gradual first-two-palettes routine starts at transition number one,
         // unlike the global door/death fade. Consume only the shared helper's no-op.
         palette.Step();
@@ -55,23 +55,24 @@ public sealed class FileSelectMapEntry
         if (content is null) return;
         // Update the destination without restarting the ongoing fade or replacing
         // current interpolated colors. The native two cleared entries stay black.
-        EntryTarget(content.FileSelect).CopyTo(palette.Target.Of(Palette.All));
+        LoadEntryTarget(content.FileSelect);
     }
 
-    /// <summary>The colours the entry fade reaches: <paramref name="fileSelect"/> with the entry's black colours.</summary>
-    private static RgbColor[] EntryTarget(ReadOnlySpan<RgbColor> fileSelect)
+    /// <summary>Makes the entry fade reach <paramref name="fileSelect"/> with the entry's black colours, by owner.</summary>
+    private void LoadEntryTarget(ScreenColours fileSelect)
     {
         var target = new ScreenPalette();
-        target.Load(fileSelect);
+        fileSelect.LoadTo(target);
         BlackenEntryColours(target);
-        return target.Colors.ToArray();
+        target.BackgroundSets.All.Colors.CopyTo(palette.Target.Of(Palette.BackgroundSets.All));
+        target.SpriteSets.All.Colors.CopyTo(palette.Target.Of(Palette.SpriteSets.All));
     }
 
-    /// <summary>Makes the colour the entry fade holds black in each of the first background rows.</summary>
+    /// <summary>Makes the colour the entry fade holds black in each of the first background sets.</summary>
     internal static void BlackenEntryColours(ScreenPalette palette)
     {
-        for (int row = 0; row < FileSelectEntryColourDefinitions.BlackRows; row++)
-            palette.BackgroundRow(row).Write(FileSelectEntryColourDefinitions.BlackColour, RgbColor.Black);
+        for (int set = 0; set < FileSelectEntryColourDefinitions.BlackRows; set++)
+            Ensure.NotNull(palette).BackgroundSets.Set(set).Write(FileSelectEntryColourDefinitions.BlackColour, RgbColor.Black);
     }
 
     /// <summary>Advances the palette fade, setup coroutine, or centered reveal by one frontend update.</summary>

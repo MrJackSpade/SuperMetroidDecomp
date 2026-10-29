@@ -25,8 +25,6 @@ internal static class EnemySheetComposer
     /// <summary>The byte of the OBJ character table the enemy tile region begins at.</summary>
     private const int EnemyRegionTableByte = EncounterCharacterPlacementDefinitions.EnemyTileAreaFirstCharacter * SpriteArtworkPlacements.CharacterByteCount;
 
-    /// <summary>CGRAM's first sprite colour.</summary>
-    private const int SpriteColours = 128;
 
     /// <summary>Every graphics set's sheets, each distinct sheet once.</summary>
     internal static EnemySheetComposition Compose(EnemySheetInputs inputs)
@@ -174,7 +172,7 @@ internal static class EnemySheetComposer
         var graphics = new EnemyGraphicsSet(new EnemyRoomBinding(new EnemySession { TileArtwork = inputs.Enemies },
             CompiledRoomEnemyDefinitions.Instance, services: null));
         ScreenPalette cgram = RoomLoadPalettes.Colours(inputs.Palettes);
-        graphics.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set, cgram);
+        graphics.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set, cgram.SpriteSets);
         List<EnemyDefinitionId> members = [.. graphics.Entries.Select(entry => entry.DefinitionId)];
         IEnumerable<EnemyDefinitionId> placed = RoomStateDefinitions.All.Where(state => state.EnemyGraphicsSet.Name == set.Name)
             .SelectMany(state => state.EnemyPopulation.Records.Span.SelectToArray(record => record.DefinitionId))
@@ -187,7 +185,7 @@ internal static class EnemySheetComposer
         IReadOnlyList<CorpseRotSimulation> corpses = CorpseRotSimulation.Of(inputs.Enemies, inputs.Bosses, drawn);
         var regions = new SetRegions(SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog.Of(set), [.. corpses.Where(corpse => corpse.Kind is null)]);
         return new LoadedGraphicsSet(graphics, new SetCharacters(Table(inputs, graphics), regions, inputs,
-            [.. corpses.Where(corpse => corpse.Kind is not null)]), cgram.Colors[SpriteColours..].ToArray(), drawn);
+            [.. corpses.Where(corpse => corpse.Kind is not null)]), cgram.SpriteSets.All.Colors.ToArray(), drawn);
     }
 
     /// <summary>A room graphics set as a room load leaves it.</summary>

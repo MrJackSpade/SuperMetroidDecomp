@@ -19,8 +19,9 @@ public abstract class TitleGraphicsPresentation
     /// <summary>64-by-64 title map of Mode-7 character indexes.</summary>
     public ReadOnlySpan<byte> FloorMap => floorMap;
 
-    /// <summary>Places one title frame of the title sheet, its parts in palette row <paramref name="palette"/>.</summary>
-    public static void DrawSprite(SpriteSheet sheet, TitleSprite sprite, ScreenSprites sprites, Position16<SpritePixels> origin, int palette) =>
+    /// <summary>Places one title frame of the title sheet, its parts in the title's colours <paramref name="colouring"/>.</summary>
+    public static void DrawSprite(SpriteSheet sheet, TitleSprite sprite, ScreenSprites sprites, Position16<SpritePixels> origin,
+        ScreenColourGroup colouring) =>
         Ensure.NotNull(sprites).AddImage(Ensure.NotNull(sheet).Frame(TitleSpriteDefinitions.FrameName(sprite)), origin,
-            FrontendSheetPalette.Override(palette));
+            ScreenSpriteColouring.Drawn(colouring));
 }

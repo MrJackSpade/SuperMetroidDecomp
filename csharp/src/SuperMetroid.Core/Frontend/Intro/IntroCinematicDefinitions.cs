@@ -106,15 +106,9 @@ public static class IntroCinematicDefinitions
         public const ushort FinishFade = 1;
     }
 
-    /// <summary>The actors' palettes and sounds.</summary>
+    /// <summary>The actors' sounds.</summary>
     public static class Objects
     {
-        /// <summary>The sprite palette of the discovery scene's actors.</summary>
-        public const int DiscoveryPalette = 7;
-        /// <summary>The sprite palette of the scientists.</summary>
-        public const int ScientistPalette = 6;
-        /// <summary>The sprite palette of the cinematic explosions.</summary>
-        public const int ExplosionPalette = 5;
         /// <summary>The queue limit the opening's sounds are requested under.</summary>
         public static readonly SoundQueueLimit MaximumQueuedSounds = SoundQueueLimit.Max6;
         /// <summary>The Baby Metroid's first cry.</summary>

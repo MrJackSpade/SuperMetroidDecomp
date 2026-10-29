@@ -137,8 +137,7 @@ public sealed class FileSelectAreaMapGraphics
     /// <summary>Loads the selected area's installed world colors into menu CGRAM.</summary>
     private void LoadInstalledPalette(AreaId selectedArea)
     {
-        var colors = Palettes.World(selectedArea);
-        screen.Palette.Load(colors);
+        Palettes.World(selectedArea).LoadTo(screen.Palette);
     }
 
     /// <summary>Builds title and valid used-station labels in display order, highlighting the selected area.</summary>

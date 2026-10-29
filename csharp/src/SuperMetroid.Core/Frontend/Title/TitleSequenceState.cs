@@ -90,8 +90,8 @@ public sealed class TitleSequenceState : IFrontendScreen
     internal TitleSprite? ActiveSprite { get; set; }
     /// <summary>Screen origin used when drawing the active title spritemap.</summary>
     internal Position16<ScreenPixels> ActiveOrigin { get; set; }
-    /// <summary>Object attributes (the OBJ palette) applied to every part of the active composition.</summary>
-    internal int ActiveObjectPalette { get; set; }
+    /// <summary>The title's colours, one whole sprite set, every part of the active composition draws in.</summary>
+    internal ScreenColourGroup ActiveObjectColouring { get; set; }
     /// <summary>The floor's pan position, whose whole words are interpreted as signed pixels.</summary>
     private FixedPosition<FloorPixels> panPosition;
     /// <summary>Native 8.8 Mode 7 matrix scale animated from the close-up scene to identity.</summary>
@@ -277,7 +277,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                 {
                     ActiveSprite = TitleSprite.SuperMetroidLogo;
                     ActiveOrigin = TitleSequenceDefinitions.Sprites.LogoOrigin;
-                    ActiveObjectPalette = TitleSequenceDefinitions.Sprites.LogoPalette;
+                    ActiveObjectColouring = ScreenColourGroup.TitleLogo;
                     Phase = TitleSequencePhase.TitleLogoFade;
                     PhaseTimer = TitleSequenceDefinitions.Timing.LogoHoldFrames;
                 }
@@ -429,7 +429,7 @@ public sealed class TitleSequenceState : IFrontendScreen
             // after masking the ROM attributes with `$F1FF`. It does not add a base tile;
             // confusing it with the enemy loader makes the title art uniformly blue.
             TitleGraphicsPresentation.DrawSprite(sheet, sprite, objects,
-                ActiveOrigin.ToSpritePosition(), ActiveObjectPalette);
+                ActiveOrigin.ToSpritePosition(), ActiveObjectColouring);
         }
 
         if (Phase is TitleSequencePhase.CopyrightFade or TitleSequencePhase.SkipFadeOut or TitleSequencePhase.TitleScreenFadeIn or
@@ -437,7 +437,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         {
             TitleGraphicsPresentation.DrawSprite(sheet, TitleSprite.NintendoCopyright, objects,
                 TitleSequenceDefinitions.Sprites.CopyrightOrigin.ToSpritePosition(),
-                TitleSequenceDefinitions.Sprites.CopyrightPalette);
+                ScreenColourGroup.TitleCopyright);
         }
 
         objects.FinishFrame();
@@ -506,7 +506,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         sequenceEntryTimer = 1;
         ActiveSprite = null;
         ActiveOrigin = definition.Origin;
-        ActiveObjectPalette = definition.Palette;
+        ActiveObjectColouring = definition.Colouring;
         panPosition = new(panPosition.X.WithFraction(0), panPosition.Y.WithFraction(0));
 
         // Initial setup and each of the first three completed pan functions hide the floor,
@@ -534,7 +534,7 @@ public sealed class TitleSequenceState : IFrontendScreen
             titlePalettePresentation?.SkipCopyrightRed ?? TitleSequenceDefinitions.Palette.CopyrightRed);
         ActiveSprite = TitleSprite.SuperMetroidLogo;
         ActiveOrigin = TitleSequenceDefinitions.Sprites.LogoOrigin;
-        ActiveObjectPalette = TitleSequenceDefinitions.Sprites.LogoPalette;
+        ActiveObjectColouring = ScreenColourGroup.TitleLogo;
         floorBackgroundEnabled = true;
         panPosition = new(panPosition.X.WithWhole(0), panPosition.Y.WithWhole(0));
         Zoom = TitleSequenceDefinitions.Scenes.IdentityScale;

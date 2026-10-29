@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Exact sizes and file identities for ending colors.</summary>
@@ -17,10 +16,10 @@ public static class EndingPaletteDefinitions
     internal static readonly IReadOnlyDictionary<EndingPaletteId, int> ColorCounts =
         new Dictionary<EndingPaletteId, int>
         {
-            [EndingPaletteId.Escape] = ScreenPalette.ColorCount,
-            [EndingPaletteId.PostCredits] = ScreenPalette.ColorCount,
-            [EndingPaletteId.Credits] = ScreenPalette.ColorCount,
-            [EndingPaletteId.Explosion] = ScreenPalette.ColorCount,
+            [EndingPaletteId.Escape] = ScreenColours.ColourCount,
+            [EndingPaletteId.PostCredits] = ScreenColours.ColourCount,
+            [EndingPaletteId.Credits] = ScreenColours.ColourCount,
+            [EndingPaletteId.Explosion] = ScreenColours.ColourCount,
             [EndingPaletteId.FinalGunship] = 16,
             [EndingPaletteId.LogoInitial] = 16,
             [EndingPaletteId.LogoCrossfade] = EndingLogoDefinitions.PaletteSteps * 2 * 16,

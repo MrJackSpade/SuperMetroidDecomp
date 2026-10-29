@@ -3,7 +3,7 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
@@ -19,10 +19,10 @@ public static class IntroCinematicPaletteFile
         IntroCinematicPaletteDocument document = JsonAssetDocument.Read<IntroCinematicPaletteDocument>(
             json, ArtworkJson.Options, "opening palette");
         if (document.Version != IntroCinematicPaletteFormat.Version ||
-            document.Colors is not { Length: ScreenPalette.ColorCount })
+            document.Colors is not { Length: ScreenColourImage.ColorCount })
             throw new InvalidDataException("Opening palette requires 256 RGB5 colors.");
 
-        var image = new RgbColor[ScreenPalette.ColorCount];
+        var image = new RgbColor[ScreenColourImage.ColorCount];
         for (int index = 0; index < document.Colors.Length; index++)
         {
             PaletteRgb5? color = document.Colors[index];
@@ -32,7 +32,7 @@ public static class IntroCinematicPaletteFile
                     $"Opening palette color {index} requires red, green and blue in 0..31.");
             image[index] = color.ToRgbColor();
         }
-        return IntroCinematicPalette.FromColours(image);
+        return IntroCinematicPalette.FromColours(ScreenColourImage.Decode(image));
     }
 
     /// <summary>Serializes the complete opening palette as UTF-8 JSON and validates it through <see cref="Read"/> before writing any destination bytes.</summary>

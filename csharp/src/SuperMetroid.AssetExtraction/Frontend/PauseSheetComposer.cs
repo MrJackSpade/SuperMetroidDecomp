@@ -46,7 +46,7 @@ internal static class PauseSheetComposer
             return new SheetFrameSource(name, tankSource.ToFrame(frame.Id, name), page, tanks.Palette);
         }));
         var cgram = new SnesCgram();
-        new CgramPalettes(cgram).LoadImage(maps.Palettes.Pause);
+        new CgramPalettes(cgram).LoadImage(ScreenColourImage.Encode(maps.Palettes.Pause));
         return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(PauseSheetDefinitions.ObjectSelection),
             PartsKeepOwnRows: true);
     }

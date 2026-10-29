@@ -1,74 +1,69 @@
 using SuperMetroid.Core.Rendering;
-using System.Buffers.Binary;
-
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
-/// <summary>The opening narration's full, editable 256 screen colours.</summary>
+/// <summary>
+/// The opening narration's full, editable screen colours (#1464): its background sets and sprite sets, each set held as
+/// exact colours or the authored relationship that reproduces them.
+/// </summary>
 public sealed class IntroCinematicPalette
 {
-    /// <summary>Decoded sixteen-color rows; empty when the installed bytes match compiled stock paint.</summary>
-    internal readonly PaletteRow[] rows;
+    /// <summary>Decoded background sets; empty when the installed colours match the compiled stock paint.</summary>
+    internal readonly PaletteRow[] backgroundSets;
 
-    /// <summary>Keeps the opening's 256 selected colours, recognising stock, neutral-cycle and shared cross-fade rows.</summary>
-    /// <param name="colours">The selected colours in screen-palette order.</param>
-    internal static IntroCinematicPalette FromColours(ReadOnlySpan<RgbColor> colours)
-    {
-        var transfer = new byte[colours.Length * RgbColor.ByteCount];
-        for (int index = 0; index < colours.Length; index++)
-            BinaryPrimitives.WriteUInt16LittleEndian(transfer.AsSpan(index * RgbColor.ByteCount), colours[index].ToWord());
-        return new IntroCinematicPalette(transfer);
-    }
+    /// <summary>Decoded sprite sets; empty when the installed colours match the compiled stock paint.</summary>
+    internal readonly PaletteRow[] spriteSets;
 
-    /// <summary>Retains exact supplied colors while recognizing stock, neutral-cycle, and shared cross-fade rows.</summary>
-    /// <param name="transfer">The 256 selected colours as the palette transfer packs them.</param>
-    private IntroCinematicPalette(byte[] transfer)
+    /// <summary>Keeps the opening's selected colours, recognising stock, neutral-cycle and shared cross-fade sets.</summary>
+    /// <param name="colours">The selected colours by owner, which the import pipeline decoded.</param>
+    internal static IntroCinematicPalette FromColours(ScreenColours colours) => new(Ensure.NotNull(colours));
+
+    /// <summary>Retains exact supplied colors while recognizing stock, neutral-cycle, and shared cross-fade sets.</summary>
+    /// <param name="colours">The selected colours by owner.</param>
+    private IntroCinematicPalette(ScreenColours colours)
     {
-        if (IntroCinematicPaint.Matches(transfer)) { rows = []; return; }
-        rows = new PaletteRow[ScreenPalette.ColorCount / IntroCinematicPaletteFormat.ColorsPerRow];
-        for (int row = 0; row < rows.Length; row++)
+        if (IntroCinematicPaint.Matches(colours))
         {
-            var colors = new RgbColor[IntroCinematicPaletteFormat.ColorsPerRow];
-            for (int color = 0; color < colors.Length; color++)
-                colors[color] = RgbColor.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(transfer.AsSpan(2 * (row * colors.Length + color))));
-            bool neutralCycle = row == IntroCinematicPaletteFormat.NeutralCycleRow;
-            PaletteRow? crossFadeSource = row == IntroCinematicPaletteFormat.CrossFadeRow
-                ? rows[IntroCinematicPaletteFormat.SharedCrossFadeSourceRow] : null;
-            rows[row] = new PaletteRow(colors, neutralCycle, crossFadeSource);
+            backgroundSets = [];
+            spriteSets = [];
+            return;
+        }
+        backgroundSets = new PaletteRow[ColourSets.SetCount];
+        for (int set = 0; set < backgroundSets.Length; set++)
+            backgroundSets[set] = new PaletteRow(colours.BackgroundSet(set).ToArray(), allowCycle: false, crossFadeSource: null);
+        spriteSets = new PaletteRow[ColourSets.SetCount];
+        for (int set = 0; set < spriteSets.Length; set++)
+        {
+            bool neutralCycle = set == IntroCinematicPaletteFormat.NeutralCycleSpriteSet;
+            PaletteRow? crossFadeSource = set == IntroCinematicPaletteFormat.CrossFadeSpriteSet
+                ? backgroundSets[IntroCinematicPaletteFormat.SharedCrossFadeSourceBackgroundSet] : null;
+            spriteSets[set] = new PaletteRow(colours.SpriteSet(set).ToArray(), neutralCycle, crossFadeSource);
         }
     }
 
-    /// <summary>The installed colours, in screen order.</summary>
-    public RgbColor[] Colors
+    /// <summary>The installed colours by owner.</summary>
+    public ScreenColours Colours
     {
         get
         {
-            var output = new RgbColor[ScreenPalette.ColorCount];
-            for (int row = 0; row < ScreenPalette.ColorCount / IntroCinematicPaletteFormat.ColorsPerRow; row++)
-            for (int color = 0; color < IntroCinematicPaletteFormat.ColorsPerRow; color++)
-                output[row * IntroCinematicPaletteFormat.ColorsPerRow + color] = rows.Length == 0 ? IntroCinematicPaint.Color(row, color) : rows[row].Resolve(color);
-            return output;
-        }
-    }
-
-    /// <summary>The installed colours as little-endian words, for the content identity.</summary>
-    public ReadOnlyMemory<byte> ColorWords
-    {
-        get
-        {
-            RgbColor[] colors = Colors;
-            var output = new byte[colors.Length * RgbColor.ByteCount];
-            for (int color = 0; color < colors.Length; color++)
-                BinaryPrimitives.WriteUInt16LittleEndian(output.AsSpan(color * RgbColor.ByteCount), colors[color].ToWord());
-            return output;
+            var screen = new ScreenPalette();
+            for (int set = 0; set < ColourSets.SetCount; set++)
+            for (int color = 0; color < ColourSets.SetColours; color++)
+            {
+                screen.BackgroundSets.Set(set).Write(color,
+                    backgroundSets.Length == 0 ? IntroCinematicPaint.Background(set, color) : backgroundSets[set].Resolve(color));
+                screen.SpriteSets.Set(set).Write(color,
+                    spriteSets.Length == 0 ? IntroCinematicPaint.Sprite(set, color) : spriteSets[set].Resolve(color));
+            }
+            return ScreenColours.Of(screen);
         }
     }
 
     /// <summary>Replaces every colour of the screen with the installed opening palette, corresponding to $8C:E3E9-E5E8; does not advance or reset cinematic fade timers.</summary>
     /// <param name="colours">The screen's colours, every one of which the palette replaces.</param>
-    public void LoadTo(ScreenPalette colours) => Ensure.NotNull(colours).Load(Colors);
+    public void LoadTo(ScreenPalette colours) => Colours.LoadTo(colours);
 
-    /// <summary>One CGRAM row represented by exact colors or an equivalent authored color relationship.</summary>
+    /// <summary>One colour set represented by exact colors or an equivalent authored color relationship.</summary>
     internal sealed class PaletteRow
     {
         /// <summary>Background and common foreground inks for flat or derived neutral-cycle rows.</summary>

@@ -98,7 +98,7 @@ internal sealed class MenuScreen
     public void BindMapPalettes(MapStaticPalettes? mapPalettes)
     {
         MapStaticPalettes palettes = mapPalettes ?? throw new InvalidOperationException("Menus require installed palettes.");
-        Palette.Load(palettes.FileSelect);
+        palettes.FileSelect.LoadTo(Palette);
     }
 
     /// <summary>The installed world-map characters, which a menu cannot draw without.</summary>

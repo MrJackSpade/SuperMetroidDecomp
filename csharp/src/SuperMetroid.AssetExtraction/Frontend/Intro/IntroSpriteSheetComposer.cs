@@ -18,8 +18,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// </summary>
 internal static class IntroSpriteSheetComposer
 {
-    /// <summary>CGRAM's first sprite colour.</summary>
-    private const int SpriteColours = 128;
 
     /// <summary>The intro's cinematic families.</summary>
     private static IEnumerable<ICinematicSpriteFrames> Families(IntroCinematicArtwork intro)
@@ -89,7 +87,7 @@ internal static class IntroSpriteSheetComposer
         var colours = new ScreenPalette();
         loadColours(colours);
         ScreenObjectSizes sizes = ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection);
-        return new SpriteSheetSources([.. Frames(families, page, sizes)], colours.Colors[SpriteColours..].ToArray(), sizes,
+        return new SpriteSheetSources([.. Frames(families, page, sizes)], colours.SpriteSets.All.Colors.ToArray(), sizes,
             PartsKeepOwnRows: true);
     }
 

@@ -37,7 +37,7 @@ internal sealed class EndingLogo
             CinematicActorDefinition definition = EndingLogoActors.Actor(i);
             actors[i] = new IntroDiscoverySprite(
                 EndingLogoActors.Origin(i),
-                ScreenColourGroups.SpriteRow(ScreenColourGroup.EndingLogoSprites),
+                ScreenColourGroup.EndingLogoSprites,
                 definition.Program);
             actors[i].InstallPreInstruction(definition.PreInstruction);
         }

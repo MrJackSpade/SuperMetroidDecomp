@@ -153,7 +153,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // orange `1` glyph. Copying only the live HUD without replaying this queued DMA
         // consequently tiled `1` through every otherwise-empty map cell.
         screen.Tilemaps.ClearFx(PauseMenuLayout.Bg3FxClearTile);
-        screen.Palette.Load(entry.MapPresentation.Palettes.Pause);
+        entry.MapPresentation.Palettes.Pause.LoadTo(screen.Palette);
 
         // LoadPauseScreenBaseTilemaps does *not* leave the bottom two button-label rows
         // solely in the $B6:E000 BG2 image. It keeps a mutable $B6:E400 copy at WRAM
@@ -933,7 +933,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         screen.BindArtwork(catalog);
         // Live highlights and reserve-arrow colors belong to their animation
         // owners. Replacing the static base must not reset their phase.
-        screen.Palette.LoadExcept(catalog.Palettes.Pause, screen.Palette.Colours(ScreenColourGroup.MapHighlight),
+        catalog.Palettes.Pause.LoadToExcept(screen.Palette, screen.Palette.Colours(ScreenColourGroup.MapHighlight),
             screen.Palette.Colours(ScreenColourGroup.PauseReserveArrowShade), screen.Palette.Colours(ScreenColourGroup.PauseReserveArrowLight));
         LoadPauseBackdrop();
         RefreshPauseButtonArtwork();

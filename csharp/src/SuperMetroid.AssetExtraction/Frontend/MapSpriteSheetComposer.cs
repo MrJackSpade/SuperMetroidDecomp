@@ -31,7 +31,7 @@ internal static class MapSpriteSheetComposer
         List<SheetFrameSource> frames = [.. MapSpriteNames.Frames.Select(frame =>
             new SheetFrameSource(frame.Name, artwork.Frame(frame.Id), artwork.Page, FrontendSheetPalette.FramePalette))];
         var cgram = new SnesCgram();
-        new CgramPalettes(cgram).LoadImage(maps.Palettes.FileSelect);
+        new CgramPalettes(cgram).LoadImage(ScreenColourImage.Encode(maps.Palettes.FileSelect));
         return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true);
     }
 }

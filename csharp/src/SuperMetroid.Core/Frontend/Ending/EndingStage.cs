@@ -105,7 +105,7 @@ internal sealed class EndingStage
         };
         if (slot < 0) throw new InvalidOperationException("Ending cinematic actor slots exhausted.");
         sprites.RemoveAll(actor => actor.TraversalSlot == slot);
-        sprites.Add(new EndingSprite(new IntroDiscoverySprite(position, ScreenColourGroups.SpriteRow(colouring), program), role)
+        sprites.Add(new EndingSprite(new IntroDiscoverySprite(position, colouring, program), role)
             { TraversalSlot = slot });
         if (role == EndingSpriteRole.ExplosionStarsLeft)
             sprites[^1].Sprite.InstallPreInstruction(CinematicSpritePreInstruction.ZebesExplosionStarsWaitForFlyaway);
@@ -145,9 +145,8 @@ internal sealed class EndingStage
         PaletteFxSystem = new RoomPaletteFxSystem(new PaletteFxSessionState());
     }
 
-    /// <summary>Copies a range of authored ending colors into the live CGRAM destination.</summary>
-    internal void LoadStaticPalette(EndingPaletteId id, ColourRun destination) =>
-        LoadStaticPalette(id, destination, Palette(id).FirstColorFor(destination));
+    /// <summary>The installed whole-screen ending colours <paramref name="id"/>, by owner.</summary>
+    internal ScreenColours StaticScreen(EndingPaletteId id) => Palette(id).Screen;
 
     /// <summary>Loads <paramref name="destination"/> from <paramref name="id"/>'s colours from <paramref name="sourceColor"/>.</summary>
     internal void LoadStaticPalette(EndingPaletteId id, ColourRun destination, int sourceColor) =>

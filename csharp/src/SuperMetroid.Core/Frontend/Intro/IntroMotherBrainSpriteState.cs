@@ -17,7 +17,7 @@ internal sealed class IntroMotherBrainSpriteState
 {
     /// <summary>The cinematic sprite object running the Mother Brain's typed program (#641).</summary>
     private readonly IntroDiscoverySprite actor =
-        new(IntroMotherBrainDefinitions.MotherBrainOrigin, IntroCinematicDefinitions.Objects.DiscoveryPalette,
+        new(IntroMotherBrainDefinitions.MotherBrainOrigin, ScreenColourGroup.IntroMotherBrain,
             IntroMotherBrainDefinitions.MotherBrain.Program);
     /// <summary>Remaining palette alternations after a missile hit.</summary>
     private WrappingCountdown hurtFlashTimer;
@@ -35,8 +35,8 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>Fixed cinematic screen origin from definition $8B:CE55.</summary>
     public static Position16<ScreenPixels> Position => IntroMotherBrainDefinitions.MotherBrainOrigin;
 
-    /// <summary>The sprite palette row Mother Brain's colours select, which her hurt flash animates.</summary>
-    public static int Palette => ScreenColourGroups.SpriteRow(ScreenColourGroup.IntroMotherBrain);
+    /// <summary>The screen colours Mother Brain draws in, which her hurt flash animates.</summary>
+    public static ScreenColourGroup Colouring => ScreenColourGroup.IntroMotherBrain;
 
     /// <summary>The pose Mother Brain's program shows; null before its first frame and after deletion.</summary>
     public CinematicSpritePose? Pose => actor.Pose;
@@ -62,7 +62,7 @@ internal sealed class IntroMotherBrainSpriteState
     /// </summary>
     public void RunPreInstruction(
         ScreenPalette colours,
-        ReadOnlySpan<RgbColor> introPalette,
+        ScreenColours introPalette,
         int cinematicFrameCounter,
         int introCrossfadeTimer)
     {
@@ -95,16 +95,17 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>
     /// Eight-frame white/normal alternation loaded into OBJ palette seven by <c>$8B:B846</c>.
     /// </summary>
-    public void ApplyHurtFlash(ScreenPalette colours, ReadOnlySpan<RgbColor> introPalette)
+    public void ApplyHurtFlash(ScreenPalette colours, ScreenColours introPalette)
     {
         Ensure.NotNull(colours);
+        Ensure.NotNull(introPalette);
         if (hurtFlashTimer.IsZero)
             return;
 
         bool normalPalette = (hurtFlashTimer.RawValue & 1) != 0;
         ColourRun row = colours.Colours(ScreenColourGroup.IntroMotherBrain);
         if (normalPalette)
-            row.CopyFrom(row.SamePositionsIn(introPalette));
+            row.CopyFrom(introPalette.Colours(ScreenColourGroup.IntroMotherBrain));
         else
             row.Fill(RgbColor.White);
         hurtFlashTimer = hurtFlashTimer.Decrement().Remaining;

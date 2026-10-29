@@ -17,8 +17,6 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// </summary>
 internal static class GameOverSheetComposer
 {
-    /// <summary>CGRAM's first sprite colour.</summary>
-    private const int SpriteColours = 128;
 
     /// <summary>What the game-over sheet composes.</summary>
     internal static SpriteSheetSources Sources(AreaMapPresentation maps)
@@ -33,9 +31,9 @@ internal static class GameOverSheetComposer
         for (int frame = 0; frame < GameOverPresentationDefinitions.CursorFrameCount; frame++)
             frames.Add(Frame(GameOverPresentationNames.CursorFrameName(frame), gameOver.cursorSprites[frame], page, gameOver.CursorPaletteIndex));
         var colours = new ScreenPalette();
-        colours.Load(maps.Palettes.FileSelect);
+        maps.Palettes.FileSelect.LoadTo(colours);
         gameOver.ApplyBabyPalette(colours, GameOverBabyPalette.Idle);
-        return new SpriteSheetSources(frames, colours.Colors[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true);
+        return new SpriteSheetSources(frames, colours.SpriteSets.All.Colors.ToArray(), ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true);
     }
 
     /// <summary>A composition as a sheet frame, its palette-inheriting parts in the palette its draw selects.</summary>

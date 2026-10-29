@@ -119,7 +119,7 @@ public static class EnemyTileArtworkFiles
                 var compiledCgram = new ScreenPalette();
                 new CgramPalettes(nativeCgram).All.LoadPortBytes(nativeColors);
                 EnemyPaletteSheetFile.Read(new MemoryStream(paletteJson, writable: false))
-                    .LoadTo(compiledCgram.BackgroundRow(0));
+                    .LoadTo(compiledCgram.BackgroundSets.Set(0));
                 if (!new CgramPalettes(nativeCgram).Image.SequenceEqual(new CgramPalettes(compiledCgram).Image))
                     throw new InvalidDataException($"Enemy ${headerWord:X4} palette JSON changed native colors.");
                 File.WriteAllBytes(Path.Combine(directory,

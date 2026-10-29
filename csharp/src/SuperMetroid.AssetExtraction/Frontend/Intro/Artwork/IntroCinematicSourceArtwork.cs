@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
@@ -72,7 +73,7 @@ public sealed class IntroCinematicSourceArtwork : IntroCinematicArtwork
         content.Append("egg-sprites", Convert.FromHexString(EggEffectSprites.ContentIdentity));
         content.Append("discovery-sprites", Convert.FromHexString(DiscoveryActorSprites.ContentIdentity));
         content.Append("scientist-sprites", Convert.FromHexString(ScientistSprites.ContentIdentity));
-        content.Append("palette", Palette.ColorWords.Span);
+        content.Append("palette", ScreenColourImage.Words(Palette.Colours));
         content.Append("ceres-flight", Convert.FromHexString(CeresFlight.ContentIdentity));
         content.Append("ceres-destruction", Convert.FromHexString(CeresDestruction.ContentIdentity));
         content.Append("ceres-destruction-sprites", Convert.FromHexString(CeresDestructionSprites.ContentIdentity));

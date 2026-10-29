@@ -154,8 +154,8 @@ public static class IntroCinematicArtworkFiles
                 Colors = colors,
             });
             byte[] encoded = json.ToArray();
-            if (!IntroCinematicPaletteFile.Read(new MemoryStream(encoded, writable: false))
-                .ColorWords.Span.SequenceEqual(native))
+            if (!ScreenColourImage.Words(IntroCinematicPaletteFile.Read(new MemoryStream(encoded, writable: false))
+                .Colours).AsSpan().SequenceEqual(native))
                 throw new InvalidDataException("Opening palette JSON did not round-trip cartridge colors.");
             string name = IntroCinematicPaletteFormat.FileName;
             using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))

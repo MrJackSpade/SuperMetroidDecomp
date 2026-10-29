@@ -58,7 +58,7 @@ internal static class FileSelectSheetComposer
                 .SelectToArray(part => SpritePartFrames.Part(part.Part, firstCharacter: 0))]), page));
         }
         var cgram = new SnesCgram();
-        new CgramPalettes(cgram).LoadImage(maps.Palettes.FileSelect);
+        new CgramPalettes(cgram).LoadImage(ScreenColourImage.Encode(maps.Palettes.FileSelect));
         return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true);
     }
 }

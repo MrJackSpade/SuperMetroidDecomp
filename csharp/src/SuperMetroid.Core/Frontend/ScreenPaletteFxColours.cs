@@ -12,10 +12,10 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class ScreenPaletteFxColours(ScreenPalette palette) : IPaletteFxColourOwners
 {
     /// <inheritdoc />
-    public ColourRun BackgroundSets => palette.Background;
+    public ColourRun BackgroundSets => palette.BackgroundSets.All;
 
     /// <inheritdoc />
-    public ColourRun SpriteSets => palette.Sprites;
+    public ColourRun SpriteSets => palette.SpriteSets.All;
 
     /// <inheritdoc />
     public ColourRun SamusSuit => palette.Colours(ScreenColourGroup.SamusSuit);

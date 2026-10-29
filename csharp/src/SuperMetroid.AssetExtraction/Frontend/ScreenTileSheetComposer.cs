@@ -23,6 +23,7 @@ using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -62,20 +63,20 @@ internal static class ScreenTileSheetComposer
                 TileInkDepth.FourColours, EndingColours(sources, EndingPaletteId.PostCredits)),
             SpriteSheetId.EndingExplosionTiles => Compose(sources.EndingObjects.Explosion.Characters.Span[..EndingArtworkExtentDefinitions.ExplosionObjectBytes],
                 TileInkDepth.SixteenColours, EndingColours(sources, EndingPaletteId.Explosion)),
-            SpriteSheetId.MenuForegroundTiles => Compose(WorldMapCharacters.Of(maps.WorldArtwork).ForegroundCharacters(), TileInkDepth.SixteenColours, maps.Palettes.FileSelect),
-            SpriteSheetId.MenuMapTiles => Compose(MapTileCharacters.Of(maps.Tiles).Characters, TileInkDepth.SixteenColours, maps.Palettes.FileSelect),
-            SpriteSheetId.PauseMapTiles => Compose(MapTileCharacters.Of(maps.Tiles).Characters, TileInkDepth.SixteenColours, maps.Palettes.Pause),
-            SpriteSheetId.PauseInterfaceTiles => Compose(MapTileCharacters.Of(maps.PauseTiles).Characters, TileInkDepth.SixteenColours, maps.Palettes.Pause),
+            SpriteSheetId.MenuForegroundTiles => Compose(WorldMapCharacters.Of(maps.WorldArtwork).ForegroundCharacters(), TileInkDepth.SixteenColours, ScreenColourImage.Encode(maps.Palettes.FileSelect)),
+            SpriteSheetId.MenuMapTiles => Compose(MapTileCharacters.Of(maps.Tiles).Characters, TileInkDepth.SixteenColours, ScreenColourImage.Encode(maps.Palettes.FileSelect)),
+            SpriteSheetId.PauseMapTiles => Compose(MapTileCharacters.Of(maps.Tiles).Characters, TileInkDepth.SixteenColours, ScreenColourImage.Encode(maps.Palettes.Pause)),
+            SpriteSheetId.PauseInterfaceTiles => Compose(MapTileCharacters.Of(maps.PauseTiles).Characters, TileInkDepth.SixteenColours, ScreenColourImage.Encode(maps.Palettes.Pause)),
             SpriteSheetId.PauseHudTiles => Compose(maps.HudTiles.Bytes.Span[..HudTileAtlasFormat.CharacterByteCount], TileInkDepth.FourColours,
-                maps.Palettes.Pause),
+                ScreenColourImage.Encode(maps.Palettes.Pause)),
             SpriteSheetId.AreaMapForegroundTilesCrateria or SpriteSheetId.AreaMapForegroundTilesBrinstar or
                 SpriteSheetId.AreaMapForegroundTilesNorfair or SpriteSheetId.AreaMapForegroundTilesWreckedShip or
                 SpriteSheetId.AreaMapForegroundTilesMaridia or SpriteSheetId.AreaMapForegroundTilesTourian =>
-                Compose(WorldMapCharacters.Of(maps.WorldArtwork).ForegroundCharacters(), TileInkDepth.SixteenColours, maps.Palettes.World(AreaFor(ScreenTileSheetDefinitions.AreaMapForegrounds, sheet))),
+                Compose(WorldMapCharacters.Of(maps.WorldArtwork).ForegroundCharacters(), TileInkDepth.SixteenColours, ScreenColourImage.Encode(maps.Palettes.World(AreaFor(ScreenTileSheetDefinitions.AreaMapForegrounds, sheet)))),
             SpriteSheetId.AreaMapBackgroundTilesCrateria or SpriteSheetId.AreaMapBackgroundTilesBrinstar or
                 SpriteSheetId.AreaMapBackgroundTilesNorfair or SpriteSheetId.AreaMapBackgroundTilesWreckedShip or
                 SpriteSheetId.AreaMapBackgroundTilesMaridia or SpriteSheetId.AreaMapBackgroundTilesTourian =>
-                Compose(WorldMapCharacters.Of(maps.WorldArtwork).BackgroundCharacters(), TileInkDepth.FourColours, maps.Palettes.World(AreaFor(ScreenTileSheetDefinitions.AreaMapBackgrounds, sheet))),
+                Compose(WorldMapCharacters.Of(maps.WorldArtwork).BackgroundCharacters(), TileInkDepth.FourColours, ScreenColourImage.Encode(maps.Palettes.World(AreaFor(ScreenTileSheetDefinitions.AreaMapBackgrounds, sheet)))),
             SpriteSheetId.EscapeTimer or SpriteSheetId.Grapple or SpriteSheetId.SamusBodyTop or
                 SpriteSheetId.SamusBodyBottom or SpriteSheetId.SamusOverlays or SpriteSheetId.SamusAtmosphere or
                 SpriteSheetId.SamusDeath or SpriteSheetId.GameOver or SpriteSheetId.FileSelect or
@@ -259,7 +260,7 @@ internal static class ScreenTileSheetComposer
     {
         var colours = new ScreenPalette();
         Ensure.NotNull(palette).Apply(colours);
-        return colours.Colors;
+        return ScreenColourImage.Encode(colours);
     }
 
     /// <summary>The Ceres flight's object characters under its palette, which its caption shows.</summary>
@@ -269,9 +270,7 @@ internal static class ScreenTileSheetComposer
     /// <summary>The opening cinematic's palette.</summary>
     private static ReadOnlySpan<RgbColor> IntroColours(IntroCinematicArtwork intro)
     {
-        var colours = new ScreenPalette();
-        intro.Palette.LoadTo(colours);
-        return colours.Colors;
+        return ScreenColourImage.Encode(intro.Palette.Colours);
     }
 
     /// <summary>The ending's palette <paramref name="palette"/>, whose colours its scenes load where they lie.</summary>
@@ -280,17 +279,13 @@ internal static class ScreenTileSheetComposer
     /// <summary>The ending's palette <paramref name="palette"/> from <paramref name="palettes"/>.</summary>
     private static ReadOnlySpan<RgbColor> EndingColours(EndingPaletteSet palettes, EndingPaletteId palette)
     {
-        var colours = new ScreenPalette();
-        palettes[palette].LoadTo(colours.All, 0);
-        return colours.Colors;
+        return ScreenColourImage.Encode(palettes[palette].Screen);
     }
 
     /// <summary>The Ceres flight's palette.</summary>
     private static ReadOnlySpan<RgbColor> FlightColours(CeresFlightArtwork flight)
     {
-        var colours = new ScreenPalette();
-        flight.Palette.LoadTo(colours);
-        return colours.Colors;
+        return ScreenColourImage.Encode(flight.Palette.Colours);
     }
 
     /// <summary>The area whose sheet <paramref name="sheet"/> is among <paramref name="sheets"/>.</summary>

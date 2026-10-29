@@ -75,12 +75,12 @@ internal static class EndingPaletteArtworkVerification
                 reordered[second] = held1;
             }
         }
-        EndingLogoPaletteFade reorderedFade = EndingLogoPaletteFade.TryCreate(EndingLogoCrossfadeImage.DecodeWords(reordered))
+        EndingLogoPaletteFade reorderedFade = EndingLogoPaletteFade.TryCreate(EndingLogoPaletteFadeAccess.DecodeWords(reordered))
             ?? throw new InvalidOperationException("Reordered endpoint shades still have the original temporal fade.");
         for (int index = 0; index < 512; index++)
             AssertEqual(LittleEndianBytes.Word(reordered[index * 2], reordered[index * 2 + 1]), reorderedFade.Color(index),
                 "temporal fade preserves edited endpoint order");
-        EndingLogoPaletteFade fade = EndingLogoPaletteFade.TryCreate(EndingLogoCrossfadeImage.DecodeWords(original))
+        EndingLogoPaletteFade fade = EndingLogoPaletteFade.TryCreate(EndingLogoPaletteFadeAccess.DecodeWords(original))
             ?? throw new InvalidOperationException("Original logo fade must use computed interpolation.");
         EndingPalette Load(PaletteRgb5[] supplied)
         {
@@ -123,7 +123,7 @@ internal static class EndingPaletteArtworkVerification
             AssertEqual((ushort)(color.Red | color.Green << 5 | color.Blue << 10), custom.CrossfadeColorAt(index),
                 "independent edited fade samples survive unchanged");
         }
-        AssertTrue(EndingLogoPaletteFade.TryCreate(EndingLogoCrossfadeImage.DecodeWords(custom.Bytes.Span)) is null, "nonlinear edits remain caller-owned content");
+        AssertTrue(EndingLogoPaletteFade.TryCreate(EndingLogoPaletteFadeAccess.DecodeWords(custom.Bytes.Span)) is null, "nonlinear edits remain caller-owned content");
         foreach (int invalid in new[] { int.MinValue, -1, 512, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => fade.Color(invalid), "computed fade index domain");

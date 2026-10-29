@@ -51,14 +51,6 @@ public static class ScreenColourImage
         return words;
     }
 
-    /// <summary>The image position of colour <paramref name="colour"/> of the sprite sets, set after set.</summary>
-    public static int SpritePosition(int colour) =>
-        GameplayColourPositionDefinitions.SpriteSetsFirst + Ensure.BetweenInclusive(0, GameplayColourPositionDefinitions.SetsColours - 1, colour);
-
-    /// <summary>The image position of colour <paramref name="colour"/> of the background sets, set after set.</summary>
-    public static int BackgroundPosition(int colour) =>
-        GameplayColourPositionDefinitions.BackgroundSetsFirst + Ensure.BetweenInclusive(0, GameplayColourPositionDefinitions.SetsColours - 1, colour);
-
     /// <summary>The image of a background and a sprite owner's colours.</summary>
     private static RgbColor[] Encode(ReadOnlySpan<RgbColor> backgrounds, ReadOnlySpan<RgbColor> sprites)
     {

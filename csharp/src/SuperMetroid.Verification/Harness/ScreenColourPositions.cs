@@ -20,8 +20,8 @@ internal static class ScreenColourPositions
         int ownerColour = placement.Set * ColourSets.SetColours + placement.Colour + colour;
         return placement switch
         {
-            ScreenBackgroundSetPlacement => ScreenColourImage.BackgroundPosition(ownerColour),
-            ScreenSpriteSetPlacement => ScreenColourImage.SpritePosition(ownerColour),
+            ScreenBackgroundSetPlacement => GameplayColourPositionDefinitions.BackgroundSetsFirst + ownerColour,
+            ScreenSpriteSetPlacement => GameplayColourPositionDefinitions.SpriteSetsFirst + ownerColour,
             _ => throw new ArgumentOutOfRangeException(nameof(group), group, "Undefined screen colour owner."),
         };
     }

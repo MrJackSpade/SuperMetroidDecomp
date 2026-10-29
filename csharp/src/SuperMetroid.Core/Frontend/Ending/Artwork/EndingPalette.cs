@@ -44,9 +44,6 @@ public sealed class EndingPalette
     internal static EndingPalette FromCrossfade(EndingLogoCrossfadeColours colours) =>
         EndingLogoPaletteFade.TryCreate(colours) is { } fade ? new EndingPalette(fade) : new EndingPalette(colours);
 
-    /// <summary>Whether this resource holds a whole screen's colours.</summary>
-    public bool IsWholeScreen => screen is not null;
-
     /// <summary>The whole screen's colours by owner.</summary>
     /// <exception cref="InvalidOperationException">This resource is a run of colours, not a whole screen's.</exception>
     public ScreenColours Screen => screen ?? throw new InvalidOperationException("This ending palette is a run of colours, not a whole screen's.");

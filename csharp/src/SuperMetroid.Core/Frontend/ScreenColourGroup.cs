@@ -206,4 +206,40 @@ public enum ScreenColourGroup
     /// in.
     /// </summary>
     MapMarkers,
+
+    /// <summary>The colours of the gunship's engine in the opening cutscene, which its flicker animates.</summary>
+    CinematicGunshipEngine,
+
+    /// <summary>The colours of Ceres station's background-drawn navigation lights, which their blink animates.</summary>
+    CeresNavigationLights,
+
+    /// <summary>The background lights of the opening's old Mother Brain fight, which their cycle animates.</summary>
+    IntroOldMotherBrainLights,
+
+    /// <summary>The foreground colours of the wide part of Zebes's explosion in the ending.</summary>
+    EndingWideExplosionForeground,
+
+    /// <summary>The background colours of the wide part of Zebes's explosion in the ending.</summary>
+    EndingWideExplosionBackground,
+
+    /// <summary>The colours the finale of Zebes's explosion in the ending flashes.</summary>
+    EndingExplosionFinale,
+
+    /// <summary>The colours of space, which the ending whites out as Zebes explodes.</summary>
+    EndingExplosionSpace,
+
+    /// <summary>The colours of the exploding planet's lava drawn on the ending's background.</summary>
+    EndingExplodingZebesLava,
+
+    /// <summary>The colours of the exploding planet's crust, which the ending fades out.</summary>
+    EndingExplodingZebesCrust,
+
+    /// <summary>The colours of the exploding planet's grey clouds, which the ending fades out.</summary>
+    EndingExplodingZebesGreyClouds,
+
+    /// <summary>The colours of the gunship as it emerges from Zebes's explosion in the ending.</summary>
+    EndingGunshipEmerging,
+
+    /// <summary>The colours the unused cinematic fade program fades.</summary>
+    UnusedCinematicFade,
 }

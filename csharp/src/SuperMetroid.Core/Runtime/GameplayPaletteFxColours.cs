@@ -13,8 +13,8 @@ internal sealed class GameplayPaletteFxColours(GameplayColours colours, SamusCol
     public ColourRun BackgroundSet(BackgroundColourSet set) => colours.BackgroundSets.Set(set);
 
     /// <inheritdoc />
-    public ColourRun ScreenBackgroundSet(int set) =>
-        throw new InvalidOperationException($"Gameplay names each background set; it has no frontend screen's set {set}.");
+    public ColourRun ScreenColours(PaletteFxColours colours) =>
+        throw new InvalidOperationException($"Gameplay holds no frontend screen's colours for {colours}.");
 
     /// <inheritdoc />
     public ColourRun SpriteSets => colours.SpriteSets.All;

@@ -133,7 +133,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
-      "files": 1393,
+      "files": 1394,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets",
@@ -13864,6 +13864,7 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
@@ -17024,7 +17025,8 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Assets"
+        "csharp/src/SuperMetroid.Core/Assets",
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -24886,7 +24888,8 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Assets"
+        "csharp/src/SuperMetroid.Core/Assets",
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -33579,6 +33582,19 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Corpses/Artwork/TourianCorpseColourDefinitions.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.Corpses.Artwork",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Assets"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Enemies/Corpses/CorpseDustDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
@@ -33919,7 +33935,6 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Samus"
@@ -34818,9 +34833,6 @@
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Assets"
       ]
     },
     {
@@ -37316,7 +37328,6 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Audio",
         "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Input",
@@ -44108,6 +44119,7 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Core/Spatial"
       ]
@@ -44140,6 +44152,7 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Audio",
         "csharp/src/SuperMetroid.Core/Spatial"
       ]
@@ -127402,6 +127415,7 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/World"

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>Which sprite colour set each shared role uses (#1405).</summary>

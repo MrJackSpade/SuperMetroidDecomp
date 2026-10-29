@@ -50029,6 +50029,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Corpses.Artwork.TourianCorpseColourDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Corpses/Artwork/TourianCorpseColourDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Corpses.CorpseDustDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -66043,7 +66056,7 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateCue.SetFunction",
+      "type": "SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateCue.SetColouring",
       "kind": "record",
       "scope": "product",
       "assemblies": [
@@ -66056,7 +66069,7 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateCue.SetPalette",
+      "type": "SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateCue.SetFunction",
       "kind": "record",
       "scope": "product",
       "assemblies": [

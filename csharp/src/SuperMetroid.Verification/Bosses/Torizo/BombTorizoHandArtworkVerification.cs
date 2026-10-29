@@ -1,7 +1,7 @@
+using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.TestSupport.VerificationOracles;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;

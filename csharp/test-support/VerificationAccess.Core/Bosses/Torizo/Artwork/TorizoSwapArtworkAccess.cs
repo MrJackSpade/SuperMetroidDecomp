@@ -1,6 +1,6 @@
-﻿using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
-namespace SuperMetroid.Core.Bosses.Torizo.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.Torizo;
 
 /// <summary>Verification access to <see cref="TorizoSwapArtwork"/> members production does not use.</summary>
 internal static class TorizoSwapArtworkAccess

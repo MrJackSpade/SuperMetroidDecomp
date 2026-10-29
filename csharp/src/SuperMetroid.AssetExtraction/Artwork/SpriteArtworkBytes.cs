@@ -68,7 +68,7 @@ internal static class SpriteArtworkBytes
         MotherBrainSpecialSpriteSheetDefinition sheet = MotherBrainSpecialSpriteArtworkDefinitions.All[special.Sheet];
         MotherBrainSpecialSpriteArtworkCatalog artwork = Bosses(installed).MotherBrainSpecialSprites ??
             throw new InvalidDataException($"Installed enemy artwork is missing {sheet.FileName}.");
-        return artwork.Get(sheet.Sheet).Characters.Slice(special.Page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount, special.ByteCount);
+        return artwork.Get(sheet.Sheet).Characters.Slice(special.Page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount, MotherBrainSpecialSpriteSheetDefinition.PageByteCount);
     }
 
     /// <summary>The installed characters one Torizo artwork swap shows.</summary>

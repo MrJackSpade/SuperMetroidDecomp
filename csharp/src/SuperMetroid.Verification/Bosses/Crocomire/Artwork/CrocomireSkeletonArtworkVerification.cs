@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Assets;
@@ -38,7 +39,7 @@ internal static class CrocomireSkeletonArtworkVerification
                 $"Crocomire skeleton destination {index} matches the cartridge");
             AssertEqual(0xad0000 | source, chunkSource,
                 $"Crocomire skeleton source {index} matches the cartridge");
-            AssertEqual(CrocomireSkeletonTransferDefinitions.ChunkByteCount,
+            AssertEqual(CrocomireSkeletonCharacterDefinitions.ChunkByteCount,
                 artwork.Chunk(index).Length,
                 $"Crocomire skeleton upload {index} has the native length");
             for (int offset = 0; offset < artwork.Chunk(index).Length; offset++)
@@ -78,7 +79,7 @@ internal static class CrocomireSkeletonArtworkVerification
         AssertEqual(0, denied.ForbiddenReadAttempts,
             "installed Crocomire skeleton upload reads no ROM bytes");
 
-        string fileName = CrocomireSkeletonTransferDefinitions.FileName;
+        string fileName = CrocomireSkeletonCharacterDefinitions.FileName;
         string stockPath = Path.Combine(stockDirectory, fileName);
         byte[] original = File.ReadAllBytes(stockPath);
         string overrides = Path.Combine(stockDirectory, "crocomire-skeleton-overrides");

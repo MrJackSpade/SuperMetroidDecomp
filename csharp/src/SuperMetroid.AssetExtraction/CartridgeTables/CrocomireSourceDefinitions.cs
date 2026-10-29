@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
@@ -30,5 +31,5 @@ internal static class CrocomireSourceDefinitions
     /// <summary>The cartridge source of skeleton chunk <paramref name="index"/>; the end-of-sequence entry has none.</summary>
     internal static int SkeletonChunk(int index) =>
         SkeletonFirstChunk + Ensure.BetweenInclusive(0, CrocomireSkeletonTransferDefinitions.FrameCount - 1, index) *
-            CrocomireSkeletonTransferDefinitions.ChunkByteCount;
+            CrocomireSkeletonCharacterDefinitions.ChunkByteCount;
 }

@@ -1,9 +1,9 @@
+using SuperMetroid.AssetExtraction.Bosses.Crocomire;
+using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;

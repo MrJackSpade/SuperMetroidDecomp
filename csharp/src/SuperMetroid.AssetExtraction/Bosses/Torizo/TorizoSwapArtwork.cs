@@ -1,7 +1,8 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
 
-namespace SuperMetroid.Core.Bosses.Torizo.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.Torizo;
 
 /// <summary>
 /// Editable indexed characters for the native Torizo instruction uploads.

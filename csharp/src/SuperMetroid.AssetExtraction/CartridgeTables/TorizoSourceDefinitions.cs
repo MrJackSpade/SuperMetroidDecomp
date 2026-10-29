@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Torizo;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 

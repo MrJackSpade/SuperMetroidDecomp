@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire;
@@ -41,14 +42,14 @@ internal static class EncounterCharacterPlacements
         TorizoArtworkSwapCharacters swap =>
             new(source, EncounterCharacterPlacementDefinitions.TorizoDestinations[swap.Entry].FirstCharacter, Characters(TorizoArtworkSwapPageDefinitions.Entries[swap.Entry].ByteCount)),
         CrocomireSkeletonChunkCharacters chunk => new(source, SkeletonFirstCharacter(chunk.Entry),
-            Characters(SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireSkeletonTransferDefinitions.ChunkByteCount)),
+            Characters(CrocomireSkeletonCharacterDefinitions.ChunkByteCount)),
         EnemyTileCharacters { Enemy: EnemyDefinitionId.Evir } => new(source, EncounterCharacterPlacementDefinitions.EvirFirstCharacter,
             Characters(EncounterCharacterPlacementDefinitions.EvirByteCount)),
         CeresDoorCharacters => new(source, EncounterCharacterPlacementDefinitions.CeresDoorFirstCharacter, Characters(SuperMetroid.Core.Areas.Ceres.Artwork.CeresDoorVisualDefinitions.CharacterBytes)),
         CeresEscapeTileCharacters warning => new(source,
             SuperMetroid.Core.Areas.Ceres.Artwork.CeresEscapeOverlayTilemapDefinitions.WarningFirstCharacter + Characters(warning.Offset), Characters(warning.ByteCount)),
         MotherBrainSpecialSpriteCharacters special => new(source,
-            MotherBrainSpecialSprites.PageFirstCharacter(MotherBrainSpecialSpriteArtworkDefinitions.All[special.Sheet], special.Page), Characters(special.ByteCount)),
+            MotherBrainSpecialSprites.PageFirstCharacter(MotherBrainSpecialSpriteArtworkDefinitions.All[special.Sheet], special.Page), Characters(MotherBrainSpecialSpriteSheetDefinition.PageByteCount)),
         MotherBrainCorpseCharacters corpse => new(source,
             MotherBrainCorpseSheet.PageFirstCharacter(corpse.Page), Characters(MotherBrainCorpseArtworkDefinitions.PageByteCount)),
         MotherBrainEscapeTextCharacters text => new(source,

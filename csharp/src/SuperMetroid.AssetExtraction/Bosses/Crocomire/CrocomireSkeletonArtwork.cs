@@ -1,7 +1,9 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 
-namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.Crocomire;
 
 /// <summary>Editable 4-bpp characters for Crocomire's six ordered skeleton uploads.</summary>
 public sealed class CrocomireSkeletonArtwork
@@ -21,8 +23,8 @@ public sealed class CrocomireSkeletonArtwork
     /// <returns>Owned selected character bytes; the death sequence retains upload cadence and fixed OBJ placement, while skeleton poses use separate OAM compositions.</returns>
     /// <exception cref="InvalidDataException">The characters are not the required skeleton character stream's length.</exception>
     public static CrocomireSkeletonArtwork Load(RoomCharacterAtlas characters) =>
-        Ensure.NotNull(characters).Characters.Length == CrocomireSkeletonTransferDefinitions.TotalByteCount ? new CrocomireSkeletonArtwork(characters)
-            : throw new InvalidDataException($"Crocomire skeleton holds {characters.Characters.Length} bytes; expected {CrocomireSkeletonTransferDefinitions.TotalByteCount}.");
+        Ensure.NotNull(characters).Characters.Length == CrocomireSkeletonCharacterDefinitions.TotalByteCount ? new CrocomireSkeletonArtwork(characters)
+            : throw new InvalidDataException($"Crocomire skeleton holds {characters.Characters.Length} bytes; expected {CrocomireSkeletonCharacterDefinitions.TotalByteCount}.");
 
     /// <summary>
     /// Whether <paramref name="index"/> names one of the skeleton's chunks: false only for the entry after the last,
@@ -46,7 +48,7 @@ public sealed class CrocomireSkeletonArtwork
             throw new InvalidDataException(
                 "Crocomire skeleton's terminal entry has no character upload.");
         return atlas.Characters.Slice(index *
-            CrocomireSkeletonTransferDefinitions.ChunkByteCount,
-            CrocomireSkeletonTransferDefinitions.ChunkByteCount);
+            CrocomireSkeletonCharacterDefinitions.ChunkByteCount,
+            CrocomireSkeletonCharacterDefinitions.ChunkByteCount);
     }
 }

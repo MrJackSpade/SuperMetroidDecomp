@@ -225,7 +225,7 @@ internal static class RoomBlockPicturesVerification
         BossArtworkCatalog bosses = runtime.BossArtwork.Artwork ?? throw new InvalidOperationException("No boss artwork is installed.");
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
         int parts = 0;
-        foreach (BossBodyFrameSource frame in BossBodySheetComposer.Frames(bosses, owner))
+        foreach (BossBodyFrameSource frame in BossBodySheetComposer.Frames(bosses.Sources, owner))
         {
             foreach (BossBodyPart part in sheet.Frame(frame.Name).Parts)
             {

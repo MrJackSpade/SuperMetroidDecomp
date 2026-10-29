@@ -532,10 +532,13 @@ internal static class EnemySpritemapArtworkVerification
         // historical fixtures below carry the stock document, and later its edited copy, onto those names.
         Dictionary<string, string> legacyNames = EnemySpritemapDefinitions.Frames
             .ToDictionary(frame => frame.Name, frame => frame.LegacyName, StringComparer.Ordinal);
+        // The stock document carries current names; the historical documents the fixtures later make it carry the old
+        // ones. No old name is a current name, so a current name is carried onto its old one and an old one kept.
+        string Legacy(string name) => legacyNames.TryGetValue(name, out string? legacy) ? legacy : name;
         Dictionary<string, SpriteVisualPart[]> LegacyFrames() => document.Frames
-            .ToDictionary(pair => legacyNames[pair.Key], pair => pair.Value, StringComparer.Ordinal);
+            .ToDictionary(pair => Legacy(pair.Key), pair => pair.Value, StringComparer.Ordinal);
         Dictionary<string, string> LegacyBindings() => (document.DisplayFrames ?? throw new InvalidOperationException("Verification requires document.DisplayFrames."))
-            .ToDictionary(pair => legacyNames[pair.Key], pair => legacyNames[pair.Value], StringComparer.Ordinal);
+            .ToDictionary(pair => Legacy(pair.Key), pair => Legacy(pair.Value), StringComparer.Ordinal);
         // Construct the historical version boundary, not today's catalog minus
         // a few known families. Every older fixture below derives from this set.
         HashSet<string> preYardNames = EnemySpritemapDefinitions.Frames

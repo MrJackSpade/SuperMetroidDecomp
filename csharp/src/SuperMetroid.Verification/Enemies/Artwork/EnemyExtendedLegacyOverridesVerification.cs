@@ -53,7 +53,9 @@ internal static class EnemyExtendedLegacyOverridesVerification
                 AssertTrue(merged.TryGet(frame.Bank, frame.Pointer, out var actualNative), prefix + frame.Name + " retains native identity");
                 AssertComponents(art, actualNative.Span, prefix + frame.Name + " authored/inherited art");
                 string displayedName = document.DisplayFrames?.GetValueOrDefault(key) ?? stockDocument.DisplayFrames[frame.Name];
-                EnemyExtendedVisualComponent[] display = document.Frames.GetValueOrDefault(displayedName) ?? stockDocument.Frames[displayedName];
+                // An inherited stock binding names the current frame, which this schema's document keys by its own name.
+                EnemyExtendedVisualComponent[] display = document.Frames.GetValueOrDefault(expectedNames.GetValueOrDefault(displayedName) ?? displayedName)
+                    ?? stockDocument.Frames[displayedName];
                 AssertTrue(merged.TryGetDisplay(frame.Bank, frame.Pointer, out var actualDisplay), prefix + frame.Name + " resolves display identity");
                 AssertComponents(display, actualDisplay.Span, prefix + frame.Name + " exact display selection");
             }

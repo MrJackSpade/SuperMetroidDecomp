@@ -41,7 +41,7 @@ internal static class GeneratedBossBg2CatalogsVerification
         new(0xdffd, "mouth_2"),
 
         ];
-        byte[] json = VerifyGeneratedBg2Catalog(rom, 0xa7, "Phantoon", expected, PhantoonBg2FrameDefinitions.Frames, new Bg2CatalogAccess { IsFrame = PhantoonBg2FrameDefinitions.FrameIds.Contains, Extract = () => PhantoonBg2FrameFiles.Extract(rom) });
+        byte[] json = VerifyGeneratedBg2Catalog(rom, 0xa7, "Phantoon", expected, PhantoonBg2FrameDefinitions.Frames, frame => frame.Name, new Bg2CatalogAccess { IsFrame = PhantoonBg2FrameDefinitions.FrameIds.Contains, Extract = () => PhantoonBg2FrameFiles.Extract(rom) });
         using var stream = new MemoryStream(json, writable: false);
         var loaded = PhantoonBg2FrameCatalog.Load(stream);
         foreach (var frame in expected)
@@ -89,21 +89,25 @@ internal static class GeneratedBossBg2CatalogsVerification
         new(0xa6e3, "draygon_bg2_A6E3"),
 
         ];
-        byte[] json = VerifyGeneratedBg2Catalog(rom, 0xa5, "Draygon", expected, DraygonBg2FrameDefinitions.Frames, new Bg2CatalogAccess { IsFrame = DraygonBg2FrameDefinitions.FrameIds.Contains, Extract = () => DraygonBg2FrameFiles.Extract(rom) });
+        byte[] json = VerifyGeneratedBg2Catalog(rom, 0xa5, "Draygon", expected, DraygonBg2FrameDefinitions.Frames, frame => frame.LegacyName, new Bg2CatalogAccess { IsFrame = DraygonBg2FrameDefinitions.FrameIds.Contains, Extract = () => DraygonBg2FrameFiles.Extract(rom) });
         using var stream = new MemoryStream(json, writable: false);
         var loaded = DraygonBg2FrameCatalog.Load(stream);
         foreach (var frame in expected)
             AssertTrue(loaded.TryGet(FrameAt(0xa5, frame.Pointer), out var writes) && writes.Length > 0,
                 "Draygon generated catalog loads native stream");
     }
-    /// <summary>Compares one family's exact frame domain, native stream markers, and extracted JSON bytes.</summary>
-    private static byte[] VerifyGeneratedBg2Catalog(SuperMetroidAddressSpace rom, byte bank, string family, SpritemapFrameDefinition[] expected, ImmutableArray<EnemySpritemapDefinition> frames, Bg2CatalogAccess access)
+    /// <summary>
+    /// Compares one family's exact frame domain, native stream markers, and extracted JSON bytes. Each frame's name
+    /// before #1465 is read by <paramref name="nameBefore1465"/>: Phantoon's BG2 frames kept theirs, while Draygon's took
+    /// their extended compositions' semantic names.
+    /// </summary>
+    private static byte[] VerifyGeneratedBg2Catalog(SuperMetroidAddressSpace rom, byte bank, string family, SpritemapFrameDefinition[] expected, ImmutableArray<EnemySpritemapDefinition> frames, Func<EnemySpritemapDefinition, string> nameBefore1465, Bg2CatalogAccess access)
     {
         ushort Word(int address) => LittleEndianBytes.Word(GeneratedBg2CatalogRomByte(rom, address), GeneratedBg2CatalogRomByte(rom, address + 1));
         AssertEqual(expected.Length, frames.Length, $"{family} catalog count");
         for (int index = 0; index < expected.Length; index++)
         {
-            AssertEqual(expected[index], new SpritemapFrameDefinition(frames[index].Pointer, frames[index].LegacyName), $"{family} published identity and its name before #1465");
+            AssertEqual(expected[index], new SpritemapFrameDefinition(frames[index].Pointer, nameBefore1465(frames[index])), $"{family} published identity and its name before #1465");
             int root = ((int)new SnesAddress(bank, expected[index].Pointer));
             int components = family == "Phantoon" && index is >= 16 and < 19 ? 2 : 1;
             AssertEqual((ushort)components, Word(root), $"{family} native count determines stride");

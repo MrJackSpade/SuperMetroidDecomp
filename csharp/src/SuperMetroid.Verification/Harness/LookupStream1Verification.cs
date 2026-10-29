@@ -2766,7 +2766,7 @@ internal static class LookupStream1Verification
                 AssertThrows<InvalidDataException>(() => stock.TryGetComposition(poseFrame, out _), "A frame past the covered frames is outside installed art");
                 break;
             }
-            AssertEqual(native[index], stock.TryGetComposition(poseFrame, out SamusSpritemapId composition) ? composition : (SamusSpritemapId?)null,
+            AssertEqual(native[index], stock.TryGetComposition(poseFrame, out SamusSpritemapId composition) ? composition : null,
                 $"Pose {pose:X2} {half} frame {frame} shows native entry {index:X4}");
             poseFrames++;
         }

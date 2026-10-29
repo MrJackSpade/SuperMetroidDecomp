@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.RenderVerification.Samus;

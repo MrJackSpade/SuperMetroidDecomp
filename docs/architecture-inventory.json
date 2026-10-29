@@ -552,6 +552,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Artwork.JsonFrameNames",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/JsonFrameNames.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Artwork.NamedComposedSheet",
       "kind": "record struct",
       "scope": "product",
@@ -6436,6 +6449,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyBg2FrameDocumentUpgrade",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyBg2FrameDocumentUpgrade.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.EnemyBg2FrameFiles",
       "kind": "static class",
       "scope": "product",
@@ -7028,6 +7054,19 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemySheetLegacyFrameNames",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemySheetLegacyFrameNames.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.EnemySheetManifestDocument",
@@ -16490,6 +16529,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkParts",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusBodyArtworkParts.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Samus.SamusBodyCharacterArtwork",
       "kind": "class",
       "scope": "product",
@@ -16501,6 +16553,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusBodyFrameSelection",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusBodyFrameSelection.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.SamusBodyPixelDefinitions",
@@ -16607,6 +16672,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusBodySourceCatalogs.extension(SuperMetroid.Core.Samus.Artwork.InstalledSamusBodyArtwork)",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusBodySourceCatalogs.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Samus.SamusBodySourceCatalogs.extension(SuperMetroid.Core.Samus.Artwork.InstalledSamusSpritemaps)",
       "kind": "class",
       "scope": "product",
@@ -16618,6 +16696,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusBodySources",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusBodySources.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.SamusBodyTileKey",
@@ -18017,6 +18108,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.World.Artwork.EnemyFrameLegacyNameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/World/Artwork/EnemyFrameLegacyNameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.AssetExtraction.World.Artwork.EnemySpritemapCompiler",
@@ -109876,6 +109980,38 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Artwork.InstalledSamusBodyArtworkAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/Artwork/InstalledSamusBodyArtworkAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Artwork.InstalledSamusBodyArtworkAccess.extension(SuperMetroid.Core.Samus.Artwork.InstalledSamusBodyArtwork)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/Artwork/InstalledSamusBodyArtworkAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Artwork.InstalledSamusDeathPalettes",
       "kind": "class",
       "scope": "product",
@@ -110395,56 +110531,17 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Artwork.SamusBodyArtworkParts",
+      "type": "SuperMetroid.Core.Samus.Artwork.SamusBodyArtworkContent",
       "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyArtworkParts.cs"
+        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyArtworkContent.cs"
       ],
       "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Artwork.SamusBodyDefinitionLayout",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyDefinitionLayout.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Artwork.SamusBodyDefinitionStarts",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyDefinitionStarts.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Artwork.SamusBodyFrameDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyFrameDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "constructor-parameters"
     },
     {
       "type": "SuperMetroid.Core.Samus.Artwork.SamusBodyFrameKey",
@@ -110460,30 +110557,17 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Artwork.SamusBodyFrameSelection",
+      "type": "SuperMetroid.Core.Samus.Artwork.SamusBodyFramePictures",
       "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyFrameSelection.cs"
+        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyFramePictures.cs"
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Artwork.SamusBodyFrameSharing",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyFrameSharing.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Samus.Artwork.SamusBodyHalf",
@@ -110494,6 +110578,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyHalf.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Artwork.SamusBodyHalfFrame",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyHalfFrame.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -110560,6 +110657,32 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Artwork.SamusBodyPicture",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyPicture.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Artwork.SamusBodyPictures",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyPictures.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Artwork.SamusBodyPlacementDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -110584,45 +110707,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Artwork.SamusBodyPoseDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyPoseDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Artwork.SamusBodyPoseFrames",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyPoseFrames.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Artwork.SamusBodyRecords",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyRecords.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Samus.Artwork.SamusBodySheets",
@@ -110916,17 +111000,17 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Artwork.SamusSpritemapFrameDefinitions",
-      "kind": "static class",
+      "type": "SuperMetroid.Core.Samus.Artwork.SamusPoseSpritemaps",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusSpritemapFrameDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusPoseSpritemaps.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Samus.Artwork.SamusSpritemapId",
@@ -110953,45 +111037,6 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Samus/Artwork/SamusSpritemapNative.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Artwork.SamusSpritemapPoseBases",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusSpritemapPoseBases.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Artwork.SamusSpritemapPoseDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusSpritemapPoseDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Artwork.SamusSpritemapSharing",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusSpritemapSharing.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

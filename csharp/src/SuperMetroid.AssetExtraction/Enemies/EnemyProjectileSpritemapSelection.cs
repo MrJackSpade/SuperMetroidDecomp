@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Projectiles;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>The installed enemy-projectile compositions and timed program frames.</summary>
 /// <param name="Frames">Installed ordered OAM parts of each composition frame.</param>

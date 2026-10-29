@@ -1,10 +1,11 @@
 using System.Collections.Immutable;
+using SuperMetroid.Core.Enemies.Artwork;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
-/// Applies the four native Chozo stride foot positions to matching supplied spritemaps
-/// while preserving the appearance and order of their other artwork parts.
+/// The Chozo stride poses whose support-foot glyphs the import pipeline places at the stride's planted-foot positions,
+/// and the glyphs it places, while preserving the appearance and order of the poses' other artwork parts.
 /// </summary>
 internal static class ChozoStrideGeometryDefinitions
 {
@@ -14,6 +15,8 @@ internal static class ChozoStrideGeometryDefinitions
         EnemyFrameId.ChozoStatuePose4, EnemyFrameId.ChozoStatuePose5, EnemyFrameId.ChozoStatuePose6, EnemyFrameId.ChozoStatuePose7,
         EnemyFrameId.ChozoStatuePose8, EnemyFrameId.ChozoStatuePose9, EnemyFrameId.ChozoStatuePose10, EnemyFrameId.ChozoStatuePose11,
     ];
+    /// <summary>The stride phases in one stride, the length of the support-foot cycle.</summary>
+    internal const int PhasesPerStride = 4;
     /// <summary>Width of one OBJ glyph, the distance from the left foot to the adjacent right foot.</summary>
     internal const int TilePixels = 8;
 
@@ -26,10 +29,4 @@ internal static class ChozoStrideGeometryDefinitions
     internal static readonly FootHalf LeftHalf = new(0x170, 0);
     /// <summary>The support foot's right half, one glyph to the right of the left half.</summary>
     internal static readonly FootHalf RightHalf = new(0x171, TilePixels);
-    /// <summary>$AA:E959/E9C4/EA34/EAA4: chosen left-foot origins -31/-28/-14/-7.</summary>
-    private const int WeightShiftFootX = -31, EarlySupportFootX = -28,
-        LateSupportFootX = -14, PushOffFootX = -7;
-
-    /// <summary>The left support-foot origin for each of the four stride phases.</summary>
-    internal static readonly int[] SupportFootXs = [WeightShiftFootX, EarlySupportFootX, LateSupportFootX, PushOffFootX];
 }

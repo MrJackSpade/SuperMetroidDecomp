@@ -18,8 +18,8 @@ FRAME_ENUM = os.path.join(CORE, 'Enemies', 'Projectiles', 'EnemyProjectileFrameI
 # Tables that name every kind or frame, this generator's own output among them; reading them would make every kind
 # every spawner's.
 TABLES = {os.path.join(CORE, 'Enemies', 'Projectiles', name) for name in
-          ('EnemyProjectileTypedStarts.cs', 'EnemyProjectileDefinitionCatalog.cs', 'EnemyProjectileFrames.cs')} | {
-    OUTPUT, os.path.join(CORE, 'Enemies', 'Artwork', 'EnemyProjectileSpritemapCatalog.cs'),
+          ('EnemyProjectileTypedStarts.cs', 'EnemyProjectileDefinitionCatalog.cs')} | {
+    OUTPUT,
     os.path.join(CORE, 'Enemies', 'SpriteObjects', 'RoomSpriteObjectVisualDefinitions.cs'),
     os.path.join(CORE, 'Rooms', 'SpriteObjects', 'RoomSpriteObjectDefinitions.cs')}
 # Types every family names that carry no frames of their own; following them would merge unrelated families.

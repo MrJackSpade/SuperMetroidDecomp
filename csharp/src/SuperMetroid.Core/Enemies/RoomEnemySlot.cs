@@ -136,7 +136,7 @@ public sealed class RoomEnemySlot
     public int PaletteRow
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, SpritePart.MaximumPalette, value);
+        internal set => field = Ensure.BetweenInclusive(0, SpriteImage.MaximumPaletteRow, value);
     }
     /// <summary>Enemy.GFXOffset at +$20: sprite character-index offset assigned by the graphics set, in 32-byte planar tile units.</summary>
     public int TileIndexBase

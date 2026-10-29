@@ -1,6 +1,11 @@
-namespace SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
-/// <summary>Installed enemy OAM compositions keyed by native visual identity.</summary>
+namespace SuperMetroid.AssetExtraction.Enemies;
+
+/// <summary>
+/// Installed enemy OAM compositions keyed by native visual identity, which the import pipeline composes the enemy sheets'
+/// pictures from (#1463).
+/// </summary>
 public sealed class EnemySpritemapCatalog
 {
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>

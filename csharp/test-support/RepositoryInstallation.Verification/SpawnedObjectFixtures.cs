@@ -65,7 +65,7 @@ internal static class SpawnedObjectFixtures
     }
 
     /// <summary>The installed enemy artwork with <paramref name="spritemaps"/> in place of its compositions.</summary>
-    internal static SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtwork InstalledTilesWith(SuperMetroid.Core.Enemies.Artwork.EnemySpritemapCatalog spritemaps)
+    internal static SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtwork InstalledTilesWith(SuperMetroid.AssetExtraction.Enemies.EnemySpritemapCatalog spritemaps)
     {
         SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtwork catalog = RepositoryInstallation.Installation.LoadEnemyTiles().Enemies;
         catalog.Spritemaps = spritemaps;

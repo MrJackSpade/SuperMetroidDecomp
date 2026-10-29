@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Enemies.Artwork;
 
-/// <summary>The installed enemy palettes, extended frames and colour catalogs an enemy artwork catalog holds for gameplay (#1463).</summary>
+/// <summary>The installed enemy palettes, extended frame placements and colour catalogs an enemy artwork catalog holds for gameplay (#1463).</summary>
 public sealed record EnemyGameplayArtworkParts
 {
     /// <summary>Each enemy's palette.</summary>
     public required IReadOnlyDictionary<EnemyDefinitionId, EnemyPaletteSheet> Palettes { get; init; }
 
-    /// <summary>Extended frames.</summary>
-    public EnemyExtendedFrameCatalog? ExtendedFrames { get; init; } = null;
+    /// <summary>Extended frames' component placements and display bindings.</summary>
+    public EnemyExtendedFramePlacementCatalog? ExtendedFramePlacements { get; init; } = null;
 
     /// <summary>Magdollite palette cycle.</summary>
     public MagdollitePaletteCycle? MagdollitePaletteCycle { get; init; } = null;

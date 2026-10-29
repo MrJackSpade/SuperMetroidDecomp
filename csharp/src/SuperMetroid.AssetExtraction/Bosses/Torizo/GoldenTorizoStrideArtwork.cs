@@ -1,35 +1,26 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
-using static SuperMetroid.Core.Bosses.Torizo.Artwork.GoldenTorizoStrideGeometryDefinitions;
+using SuperMetroid.Core.Spatial;
+using static SuperMetroid.AssetExtraction.Bosses.Torizo.GoldenTorizoStrideGeometryDefinitions;
+using static SuperMetroid.Core.Bosses.Torizo.GoldenTorizoStrideDefinitions;
 
-namespace SuperMetroid.Core.Bosses.Torizo.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.Torizo;
 
 /// <summary>
-/// Golden Torizo's planted-foot stride: how far each walking pose advances the body, and the walking frames' foot
-/// strips placed at their calculated planted origins.
+/// Golden Torizo's walking frames as the import pipeline composes them: the body components' foot strips placed at the
+/// stride's planted-foot positions.
 /// </summary>
-internal static class GoldenTorizoStride
+internal static class GoldenTorizoStrideArtwork
 {
-    /// <summary>
-    /// $AA:D59A-D5C1: each pose transition cancels the existing planted foot's local
-    /// displacement. At phases0/5 the outgoing foot moves to the double-plant origin;
-    /// otherwise the current support strip remains fixed. No independent speed is stored.
-    /// </summary>
-    internal static int HorizontalAdvance(int phase)
-    {
-        if ((uint)phase >= 10) throw new ArgumentOutOfRangeException(nameof(phase));
-        int next = phase % 5 == 0 ? DepartingFootX : SupportFootXs[phase];
-        return next - SupportFootXs[(phase + 9) % 10];
-    }
-
     /// <summary>Replaces matching body-component foot strips with calculated planted geometry.</summary>
     internal static EnemySpritemapParts Compile(EnemyFrameId frame, int componentIndex, EnemySpritemapParts supplied)
     {
         int phase = WalkingFrames.IndexOf(frame);
         if (componentIndex != BodyComponent || phase < 0)
             return supplied;
-        int supportPalette = phase < 5 ? 1 : 2;
-        bool doublePlant = phase % 5 == 0;
+        int supportPalette = SupportPalette(phase);
+        bool doublePlant = phase % PhasesPerHalf == 0;
         int seen = 0;
         var footIndices = new List<int>();
         for (int index = 0; index < supplied.Count; index++)
@@ -38,7 +29,7 @@ internal static class GoldenTorizoStride
             int column = part.Character - FirstFootTile;
             if ((uint)column >= FootTiles) continue;
             int palette = part.Palette;
-            if (palette is not (1 or 2) || (!doublePlant && palette != supportPalette)) return supplied;
+            if (palette is not (FirstLegPalette or SecondLegPalette) || (!doublePlant && palette != supportPalette)) return supplied;
             bool departing = palette != supportPalette;
             int bit = 1 << (column + (departing ? FootTiles : 0));
             int anchor = departing ? DepartingFootX : SupportFootXs[phase];
@@ -50,6 +41,9 @@ internal static class GoldenTorizoStride
         return seen == expected ? new FootParts(supplied, phase, footIndices.ToArray()) : supplied;
     }
 
+    /// <summary>The palette row of the leg supporting the body in <paramref name="phase"/>: the first leg's in the stride's first half.</summary>
+    private static int SupportPalette(int phase) => phase < PhasesPerHalf ? FirstLegPalette : SecondLegPalette;
+
     /// <summary>Retains each authored foot tile's non-X appearance while deriving its planted origin.</summary>
     private readonly record struct FootAppearance(SpritePart Part)
     {
@@ -58,8 +52,7 @@ internal static class GoldenTorizoStride
         /// <summary>Repositions a support or departing foot tile for the current stride pose.</summary>
         internal SpritePart At(int phase)
         {
-            int supportPalette = phase < 5 ? 1 : 2;
-            int anchor = Part.Palette == supportPalette ? SupportFootXs[phase] : DepartingFootX;
+            int anchor = Part.Palette == SupportPalette(phase) ? SupportFootXs[phase] : DepartingFootX;
             int x = anchor + (Part.Character - FirstFootTile) * TilePixels;
             return Part.At(Offset16<ScreenPixels>.Of(SpritePart.WrapX(x), Part.Offset.Y));
         }

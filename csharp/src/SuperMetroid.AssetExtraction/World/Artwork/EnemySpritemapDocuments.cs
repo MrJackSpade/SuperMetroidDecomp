@@ -1,6 +1,7 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using System.Text.Json.Serialization;
@@ -54,7 +55,7 @@ public static class EnemySpritemapDocuments
                     $"Enemy composition {frame.Name} is missing or exceeds OAM capacity.");
             EnemySpritemapParts parts = BabyMetroidSpriteParts.Compile(frame.Frame,
                 EnemySpritemapCompiler.CompileParts(visual, frame.Name), ref sharedBabyBody);
-            parts = ChozoStride.Compile(frame.Frame, parts);
+            parts = ChozoStrideArtwork.Compile(frame.Frame, parts);
             if (!frames.TryAdd(frame.Frame, parts))
                 throw new InvalidDataException(
                     $"Enemy composition {frame.Name} repeats a visual identity.");

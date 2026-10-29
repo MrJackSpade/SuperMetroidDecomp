@@ -1,6 +1,7 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Torizo;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using System.Text.Json.Serialization;
 using System.Text.Json;
@@ -69,7 +70,7 @@ public static class EnemyExtendedFrameDocuments
                         $"Extended enemy frame {definition.Name} exceeds OAM capacity.");
                 compiled[index] = new EnemyExtendedDrawComponent(
                     new((short)component.OffsetX, (short)component.OffsetY),
-                    GoldenTorizoStride.Compile(definition.Frame,
+                    GoldenTorizoStrideArtwork.Compile(definition.Frame,
                         index, EnemySpritemapParts.FromOwnedArray(parts)));
             }
             if (!frames.TryAdd(definition.Frame, compiled))

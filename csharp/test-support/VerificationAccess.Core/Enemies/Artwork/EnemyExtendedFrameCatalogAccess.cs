@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Enemies.Artwork;
+﻿using SuperMetroid.AssetExtraction.Enemies;
+
+namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Verification access to <see cref="EnemyExtendedFrameCatalog"/> members production does not use.</summary>
 internal static class EnemyExtendedFrameCatalogAccess

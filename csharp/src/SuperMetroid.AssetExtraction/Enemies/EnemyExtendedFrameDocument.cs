@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Versioned editable extended-enemy-frame compositions.</summary>
 public sealed record EnemyExtendedFrameDocument

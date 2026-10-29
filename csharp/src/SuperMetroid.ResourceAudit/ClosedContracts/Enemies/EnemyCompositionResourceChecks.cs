@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.World.Artwork;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;

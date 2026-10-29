@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>The installed enemy OAM compositions and the display choice made for each frame an enemy shows.</summary>
 /// <param name="Frames">Compiled OAM parts of each authored frame.</param>

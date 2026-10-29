@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyExtendedLegacyOverridesVerification;

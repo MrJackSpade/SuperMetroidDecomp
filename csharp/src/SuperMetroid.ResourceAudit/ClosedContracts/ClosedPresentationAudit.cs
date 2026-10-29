@@ -85,7 +85,7 @@ internal sealed class ClosedPresentationAudit
                                 source.Path == declaration.SyntaxTree.FilePath)));
             }
             if (valid && contract.Methods.Contains("TryGetDisplay", StringComparer.Ordinal) &&
-                contract.Type is "SuperMetroid.Core.Enemies.Artwork.EnemySpritemapCatalog" or "SuperMetroid.Core.Enemies.Artwork.EnemyExtendedFrameCatalog")
+                contract.Type is "SuperMetroid.AssetExtraction.Enemies.EnemySpritemapCatalog" or "SuperMetroid.Core.Enemies.Artwork.EnemyExtendedFramePlacementCatalog")
             {
                 string[] definitions = contract.Type == typeof(EnemySpritemapCatalog).FullName
                     ? [ContractTypeNames.MetadataName(typeof(EnemySpritemapDefinitions)), ContractTypeNames.MetadataName(typeof(EnemySpritemapCompositions))]

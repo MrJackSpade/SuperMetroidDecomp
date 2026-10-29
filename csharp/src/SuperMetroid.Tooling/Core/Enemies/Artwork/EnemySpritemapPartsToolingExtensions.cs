@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Enemies.Artwork;
+﻿using SuperMetroid.AssetExtraction.Enemies;
+
+namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Development-tool instance members of <see cref="EnemySpritemapParts"/>.</summary>
 internal static class EnemySpritemapPartsToolingExtensions

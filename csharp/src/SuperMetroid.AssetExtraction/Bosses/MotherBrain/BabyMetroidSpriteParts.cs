@@ -1,7 +1,10 @@
+using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Exact bilateral composition of the three native Baby poses; independent half-artwork and drawing order remain required.</summary>
 internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts

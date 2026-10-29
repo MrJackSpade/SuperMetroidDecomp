@@ -114,12 +114,12 @@ internal sealed class EnemyDrawList
                 }
 
                 if (slot.Frame is { } shown &&
-                    _room.Artwork?.ExtendedFrames?.TryGetDisplay(shown, out ReadOnlyMemory<EnemyExtendedDrawComponent> installed) == true)
+                    _room.Artwork?.ExtendedFramePlacements?.TryGetDisplay(shown, out ReadOnlyMemory<EnemyExtendedComponentPlacement> installed) == true)
                 {
                     // Resolve both halves through one presentation binding. Validate
                     // the composition before any BG2 side effects; physical selectors
                     // continue to belong to compiled animation and collision programs.
-                    EnemyFrameId selected = _room.Artwork.ExtendedFrames.GetDisplayFrame(shown);
+                    EnemyFrameId selected = _room.Artwork.ExtendedFramePlacements.GetDisplayFrame(shown);
                     _instructions.ApplyInstalledEnemyBg2Frame(slot, selected);
                     prepared.Add(new PreparedEnemyDraw(layer, slot, enemyIndex, origin, drawPaletteIndex, null, shown, installed));
                     continue;
@@ -178,14 +178,14 @@ internal sealed class EnemyDrawList
                     continue;
                 }
 
-                // This installed frame owns only the composite's visual offsets and parts.
+                // This installed frame owns only where each component's sheet picture is placed.
                 // Collision still uses the original engine-owned extended hitbox records,
                 // never the editable JSON geometry.
-                ReadOnlySpan<EnemyExtendedDrawComponent> components = (draw.Components ?? throw new InvalidOperationException(
+                ReadOnlySpan<EnemyExtendedComponentPlacement> components = (draw.Components ?? throw new InvalidOperationException(
                     "An extended enemy draw was prepared without its components.")).Span;
                 for (int index = 0; index < components.Length; index++)
                 {
-                    EnemyExtendedDrawComponent component = components[index];
+                    EnemyExtendedComponentPlacement component = components[index];
                     Position16<SpritePixels> componentOrigin = draw.Origin.ToSpritePosition() + component.Offset;
                     if (!EnemyDrawRange.Contains(componentOrigin))
                         continue;
@@ -217,10 +217,10 @@ internal sealed class EnemyDrawList
     /// <param name="PaletteRow">The common draw palette row selected for this frame.</param>
     /// <param name="Frame">An ordinary enemy's frame; null for an extended enemy.</param>
     /// <param name="ExtendedFrame">The extended frame an extended enemy shows, which names its components' sheet frames; null for an ordinary enemy.</param>
-    /// <param name="Components">An extended enemy's installed components; null for an ordinary enemy.</param>
+    /// <param name="Components">Where an extended enemy's installed components are placed; null for an ordinary enemy.</param>
     private readonly record struct PreparedEnemyDraw(int Layer, RoomEnemySlot Slot, int EnemyIndex,
         Position16<ScreenPixels> Origin, int PaletteRow, EnemyFrameId? Frame, EnemyFrameId? ExtendedFrame,
-        ReadOnlyMemory<EnemyExtendedDrawComponent>? Components);
+        ReadOnlyMemory<EnemyExtendedComponentPlacement>? Components);
 
     /// <summary>
     /// Ports the palette selection at <c>$A0:9473-$A0:949A</c>, immediately before

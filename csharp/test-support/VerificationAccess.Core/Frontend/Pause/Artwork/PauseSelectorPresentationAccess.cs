@@ -1,15 +1,16 @@
-using SuperMetroid.Core;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
 /// <summary>Verification access to <see cref="PauseSelectorPresentation"/> members production does not use.</summary>
 internal static class PauseSelectorPresentationAccess
 {
-    /// <summary>Whether a selector visual stores authored parts rather than its calculated stock composition.</summary>
-    private static bool StoresParts(PauseSelectorVisual visual) => visual.authored is not null;
+    /// <summary>Whether a selector frame stores authored parts rather than its calculated stock composition.</summary>
+    private static bool StoresParts(PauseSelectorPresentation presentation, string frame) =>
+        PauseSelectorSourcePresentation.Of(presentation).visuals[frame].authored is not null;
 
-    /// <summary>The reserve, beam and equipment phase compositions.</summary>
-    private static PauseSelectorPresentation.PhaseComposition[] Categories(PauseSelectorPresentation presentation) =>
+    /// <summary>The reserve, beam and equipment phase frame sequences.</summary>
+    private static PauseSelectorPresentation.PhaseFrames[] Categories(PauseSelectorPresentation presentation) =>
         [presentation.reserve, presentation.beam, presentation.equipment];
 
     /// <summary>Inspects timing, composition, and anchor overrides across reserve, beam, and equipment selectors.</summary>
@@ -20,7 +21,7 @@ internal static class PauseSelectorPresentationAccess
 
         /// <summary>Checks authored parts in any selector basis or override frame.</summary>
         internal bool StoresCompositionParts => Categories(self).Any(category =>
-            StoresParts(category.basis) || (category.Overrides?.Values.Any(StoresParts) ?? false));
+            StoresParts(self, category.basis) || (category.Overrides?.Values.Any(frame => StoresParts(self, frame)) ?? false));
 
         /// <summary>Counts replaced selector compositions across all three categories.</summary>
         internal int StoredCompositionOverrideCount => Categories(self).Sum(category =>

@@ -14,6 +14,7 @@ using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Progression;
 
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Builds a constructed pause presentation from retail source data and isolated fixture visuals.</summary>
@@ -86,8 +87,8 @@ internal static class PauseMenuFixtureVerification
             PauseTiles = new MapTileCharacters(Read(MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount)),
             PauseBackdrops = backdrops,
             PauseWireframes = stock.PauseWireframes,
-            PauseSelectors = PauseSelectorPresentation.Load(selectorJson),
-            PauseReserveTanks = PauseReserveTankPresentation.Load(reserveJson),
+            PauseSelectors = PauseSelectorSourcePresentation.Load(selectorJson),
+            PauseReserveTanks = PauseReserveTankSourcePresentation.Load(reserveJson),
             PauseReserveUi = stock.PauseReserveUi,
             PauseEquipmentBase = stock.PauseEquipmentBase,
             PauseEquipmentLabels = stock.PauseEquipmentLabels,

@@ -57,7 +57,7 @@ internal static class PauseClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Frontend/Pause/Artwork/PauseReserveUiTiles.cs")]),
         new("SuperMetroid.Core.Frontend.Pause.Artwork.PauseSelectorPresentation", "pause-selector-complete-anchors-and-bound-phases", ["Anchor", "NormalizePhase", "Duration", "Draw"],
             [new("csharp/src/SuperMetroid.Core/Frontend/Pause/Artwork/PauseSelectorPresentation.cs"),
-             new("csharp/src/SuperMetroid.Core/Frontend/Pause/Artwork/PauseSelectorVisual.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Pause/Artwork/PauseSelectorVisual.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Menus/MenuSelectorTiming.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Pause/Artwork/PauseSelectorDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Pause/Artwork/PauseSelectorAnchors.cs"),

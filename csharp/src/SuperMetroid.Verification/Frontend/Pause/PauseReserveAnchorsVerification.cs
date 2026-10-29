@@ -10,6 +10,7 @@ using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
@@ -21,7 +22,7 @@ internal static class PauseReserveAnchorsVerification
     {
         byte[] bytes = PauseReserveTankExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseReserveTankDocument>(bytes, ArtworkJson.Options);
-        var stock = PauseReserveTankPresentation.Load(new MemoryStream(bytes));
+        var stock = PauseReserveTankSourcePresentation.Load(new MemoryStream(bytes));
         AssertEqual(0, stock.StoredAnchorComponentCount, "stock reserve coordinates are calculated");
         Suite(nameof(VerifyPauseReserveAnchorField), () => VerifyPauseReserveAnchorField(rom, document, stock, true));
         Suite(nameof(VerifyPauseReserveAnchorField), () => VerifyPauseReserveAnchorField(rom, document, stock, false));
@@ -44,8 +45,8 @@ internal static class PauseReserveAnchorsVerification
             {
                 var anchors = (Position16<SpritePixels>[])document.Anchors.Clone();
                 anchors[index] = horizontal ? new(checked((ushort)value), anchors[index].Y) : new(anchors[index].X, checked((ushort)value));
-                using var stream = new MemoryStream(); PauseReserveTankPresentation.Write(stream, document with { Anchors = anchors }); stream.Position = 0;
-                var edited = PauseReserveTankPresentation.Load(stream);
+                using var stream = new MemoryStream(); PauseReserveTankSourcePresentation.Write(stream, document with { Anchors = anchors }); stream.Position = 0;
+                var edited = PauseReserveTankSourcePresentation.Load(stream);
                 AssertEqual(1, edited.StoredAnchorComponentCount, "independent reserve coordinate edit");
                 for (int other = 0; other < 6; other++) AssertEqual(anchors[other], edited.Anchor(other), "all other reserve fields preserved");
                 int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + 0x1b * 2);
@@ -61,7 +62,7 @@ internal static class PauseReserveAnchorsVerification
         {
             var anchors = (Position16<SpritePixels>[])document.Anchors.Clone();
             anchors[0] = horizontal ? new(unchecked((ushort)invalid), anchors[0].Y) : new(anchors[0].X, unchecked((ushort)invalid));
-            AssertThrows<InvalidDataException>(() => PauseReserveTankPresentation.Write(new MemoryStream(), document with { Anchors = anchors }),
+            AssertThrows<InvalidDataException>(() => PauseReserveTankSourcePresentation.Write(new MemoryStream(), document with { Anchors = anchors }),
                 "invalid authored reserve coordinate");
         }
     }

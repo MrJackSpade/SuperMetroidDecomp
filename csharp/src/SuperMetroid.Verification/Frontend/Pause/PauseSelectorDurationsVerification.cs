@@ -6,6 +6,7 @@ using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Pause;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
@@ -17,7 +18,7 @@ internal static class PauseSelectorDurationsVerification
     {
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseSelectorDocument>(bytes, ArtworkJson.Options);
-        var stock = PauseSelectorPresentation.Load(new MemoryStream(bytes));
+        var stock = PauseSelectorSourcePresentation.Load(new MemoryStream(bytes));
         Suite(nameof(VerifyPauseSelectorNativeDurations), () => VerifyPauseSelectorNativeDurations(rom, stock));
         AssertEqual(0, stock.StoredDurationCount, "selector stock timing stores no phase values");
         for (int editedPhase = 0; editedPhase < stock.PhaseCount; editedPhase++)
@@ -50,8 +51,8 @@ internal static class PauseSelectorDurationsVerification
         }
         static PauseSelectorPresentation Load(PauseSelectorDocument document)
         {
-            using var stream = new MemoryStream(); PauseSelectorPresentation.Write(stream, document); stream.Position = 0;
-            return PauseSelectorPresentation.Load(stream);
+            using var stream = new MemoryStream(); PauseSelectorSourcePresentation.Write(stream, document); stream.Position = 0;
+            return PauseSelectorSourcePresentation.Load(stream);
         }
     }
 

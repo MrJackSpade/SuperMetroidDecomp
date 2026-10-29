@@ -19,6 +19,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks reserve tank visuals across supply, flicker, edits, restore, and health transfer.</summary>
@@ -66,7 +67,7 @@ internal static class PauseReserveTankAssetsVerification
                 Palette = null, Priority = 3, FlipX = true, FlipY = true }], ["EndCap"] = [],
         };
         var custom = document with { Anchors = anchors, Palette = 5, Frames = frames };
-        using (var output = File.Create(path)) PauseReserveTankPresentation.Write(output, custom);
+        using (var output = File.Create(path)) PauseReserveTankSourcePresentation.Write(output, custom);
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(catalog.ContentIdentity != edited.ContentIdentity, "reserve-only edit changes content identity");
         var samus = new SamusState { MaxReserveEnergy = 100, ReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Manual, Health = 50, MaxHealth = 99 };
@@ -78,7 +79,7 @@ internal static class PauseReserveTankAssetsVerification
         tankParts.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, true), new SnesSpritemapYByte(0),
             SnesObjAttributeWord.Create(50, 5, 3, TileFlip.Horizontal | TileFlip.Vertical), new Position16<SpritePixels>(132, 136));
         tankParts.FinalizeFrame();
-        PlacedSpritePart[] tank = PlacedSpritePart.OfOamObjects(tankParts, PauseMenuLayout.ObjectSelection, MapSpriteArtwork.Of(edited.Sprites).Page.Id);
+        PlacedSpritePart[] tank = PlacedSpritePart.OfOamObjects(tankParts, SuperMetroid.AssetExtraction.Frontend.PauseSheetComposer.PauseObjectSelection, MapSpriteArtwork.Of(edited.Sprites).Page.Id);
         AssertTrue(snapshot.Paint.SpriteParts()[^tank.Length..].SequenceEqual(tank),
             "actual menu draws the custom tank's position, size, tile, palette, priority and flips");
         var editedPixels = menu.Render();
@@ -95,7 +96,7 @@ internal static class PauseReserveTankAssetsVerification
         menu.Step(0, ControllerButton.Down); menu.Step(0, ControllerButton.A);
         AssertEqual(51, samus.Health, "custom reserve art cannot change transfer amount");
         AssertEqual(99, samus.ReserveEnergy, "custom reserve art cannot change reserve consumption");
-        void Reject(PauseReserveTankDocument invalid) => AssertThrows<InvalidDataException>(() => PauseReserveTankPresentation.Write(new MemoryStream(), invalid), "invalid reserve presentation rejected");
+        void Reject(PauseReserveTankDocument invalid) => AssertThrows<InvalidDataException>(() => PauseReserveTankSourcePresentation.Write(new MemoryStream(), invalid), "invalid reserve presentation rejected");
         Reject(document with { Version = 2 }); Reject(document with { Palette = 8 }); Reject(document with { Anchors = [] }); Reject(document with { Frames = [] });
         var badAnchors = anchors.ToArray(); badAnchors[0] = new(256, 0); Reject(document with { Anchors = badAnchors });
         Reject(custom with { Frames = new(frames) { ["Full"] = [frames["Full"][0] with { TileColumn = 15 }] } });

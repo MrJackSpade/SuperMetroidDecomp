@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Frontend.Menus.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>
 /// Selector14 at82:C29F is one cursor at(-4,-4). Selectors15/16 atC2B7/C2F5 are
@@ -36,13 +37,13 @@ internal sealed class PauseSelectorVisual
     private static CompiledSpritePart Part(int group, int index)
     {
         if ((uint)index >= (uint)Count(group)) throw new ArgumentOutOfRangeException(nameof(index));
-        if (group == 0) return new(SpritePart.Create(Offset16<ScreenPixels>.Of(-4, -4), false, PauseSelectorDefinitions.CursorCell, 0, 3), true);
+        if (group == 0) return new(SpritePart.Create(Offset16<ScreenPixels>.Of(-4, -4), false, PauseSelectorSpriteDefinitions.CursorCell, 0, 3), true);
         int width = group == 1 ? 6 : 10;
         int cell = group == 1 ? BeamOrder[index] : EquipmentOrder[index];
         int column = cell % width, row = cell / width;
         int x = (group == 1 ? -16 : -36) + 8 * column;
-        int tile = column == width - 1 ? (row == 0 ? PauseSelectorDefinitions.GridTopRightCell : PauseSelectorDefinitions.GridRightCell)
-            : column == 0 && row == 0 ? PauseSelectorDefinitions.GridTopLeftCell : PauseSelectorDefinitions.GridCell;
+        int tile = column == width - 1 ? (row == 0 ? PauseSelectorSpriteDefinitions.GridTopRightCell : PauseSelectorSpriteDefinitions.GridRightCell)
+            : column == 0 && row == 0 ? PauseSelectorSpriteDefinitions.GridTopLeftCell : PauseSelectorSpriteDefinitions.GridCell;
         return new(SpritePart.Create(Offset16<ScreenPixels>.Of(x, -4 + 8 * row), false,
             tile, 0, 3), true);
     }

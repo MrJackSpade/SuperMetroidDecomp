@@ -21,6 +21,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks pause equipment selector placement, animation, editable art, and restored-state rebinding.</summary>
@@ -76,7 +77,7 @@ internal static class PauseSelectorsVerification
             Frames = new() { ["Hidden"] = [], ["Visible"] = parts }, Animation =
             [new() { DurationTicks = 2, Reserve = "Hidden", Beam = "Hidden", Equipment = "Hidden" },
              new() { DurationTicks = 3, Reserve = "Visible", Beam = "Visible", Equipment = "Visible" }] };
-        using (var output = File.Create(path)) PauseSelectorPresentation.Write(output, custom);
+        using (var output = File.Create(path)) PauseSelectorSourcePresentation.Write(output, custom);
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(catalog.ContentIdentity != edited.ContentIdentity, "selector-only edit changes catalog identity");
         var customSamus = new SamusState { CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge };
@@ -135,7 +136,7 @@ internal static class PauseSelectorsVerification
         for (int tick = 0; tick < 40; tick++) empty.Step(0, 0);
         AssertEqual(emptyTiming, empty.ItemSelectorAnimationState, "empty inventory retains native animation gating");
         AssertEqual(0, empty.CaptureRenderSnapshot().Paint.SpriteParts().Length, "custom selector cannot appear without any available equipment");
-        void Reject(PauseSelectorDocument invalid) => AssertThrows<InvalidDataException>(() => PauseSelectorPresentation.Write(new MemoryStream(), invalid), "invalid selector document rejected");
+        void Reject(PauseSelectorDocument invalid) => AssertThrows<InvalidDataException>(() => PauseSelectorSourcePresentation.Write(new MemoryStream(), invalid), "invalid selector document rejected");
         Reject(document with { Version = 2 }); Reject(document with { InitialDurationTicks = 0 }); Reject(document with { Palette = 8 });
         Reject(document with { Anchors = [] }); Reject(document with { Frames = [] }); Reject(document with { Animation = [] });
         Reject(document with { Anchors = new(document.Anchors) { ["Beam.Charge"] = new(256, 90) } });

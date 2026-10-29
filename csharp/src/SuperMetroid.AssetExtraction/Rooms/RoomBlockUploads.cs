@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Video;
@@ -240,14 +241,10 @@ internal static class RoomBlockUploads
         return new RoomBackgroundMap(RoomBackgroundImage.NameOf(program, door, tileset), words, content, result.SelectsKraidHudCharacters);
     }
 
-    /// <summary>What each enemy writes over its room's BG1 or BG2: a boss's body, and Mother Brain's escape warning.</summary>
+    /// <summary>What each enemy writes over its room's BG1 or BG2: the escape warnings Mother Brain and Ceres Ridley type.</summary>
     private static readonly Dictionary<EnemyDefinitionId, TileWordWriter[]> EnemyWriters = new()
     {
-        [EnemyDefinitionId.Kraid] = [TileWordWriter.Kraid],
-        [EnemyDefinitionId.PhantoonBody] = [TileWordWriter.Phantoon],
-        [EnemyDefinitionId.DraygonBody] = [TileWordWriter.Draygon],
-        [EnemyDefinitionId.Crocomire] = [TileWordWriter.Crocomire],
-        [EnemyDefinitionId.MotherBrainBody] = [TileWordWriter.MotherBrain, TileWordWriter.ZebesEscapeText],
+        [EnemyDefinitionId.MotherBrainBody] = [TileWordWriter.ZebesEscapeText],
         [EnemyDefinitionId.RidleyCeres] = [TileWordWriter.CeresEscapeText],
     };
 
@@ -335,6 +332,24 @@ internal static class RoomBlockUploads
         foreach (BgCharacterUpload placement in LoadUploads(inputs, tileset))
             placement.BindTo(content);
         return content;
+    }
+
+    /// <summary>
+    /// What a boss's body is shown over in <paramref name="state"/> of <paramref name="room"/> (#1466): what the room loads
+    /// and its library background binds, what the room binds after loading, and the frames its animations paint over its
+    /// tile characters, Crocomire's melt bands among them in his room.
+    /// </summary>
+    internal static BossRoomCharacters ShownUnderBoss(RoomBlockSheetInputs inputs, RoomHeaderDefinition room, RoomStateSettings state)
+    {
+        Ensure.NotNull(inputs);
+        TilesetDefinition tileset = RoomTilesets.Get(state.GraphicsSet);
+        BgArtworkBindings content = state.Background is { } program
+            ? Replay(inputs, room, tileset, program, DoorVariants(program).First()).Content : Loaded(inputs, tileset);
+        AnimatedCharacterPlacement[] animated = [.. AnimatedFrames(inputs, room, state).Where(frame => frame.Set == BgCharacterSet.Tiles),
+            .. state.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Crocomire)
+                ? CrocomireMeltBandFrames(inputs) : []];
+        return new BossRoomCharacters(tileset, content,
+            [.. LoadUploads(inputs, tileset), HudCharacters(inputs), .. LibraryPlacements(inputs, state)], [.. Of(inputs, state).Where(OverTiles)], animated);
     }
 
     /// <summary>

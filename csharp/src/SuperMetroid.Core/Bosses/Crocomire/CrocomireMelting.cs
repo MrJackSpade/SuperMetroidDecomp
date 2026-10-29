@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Rooms;
@@ -35,8 +36,7 @@ internal sealed class CrocomireMelting
     /// </summary>
     internal void LoadFirstCrocomireMeltingTilemap(CrocomireEnemyState state)
     {
-        ReadOnlySpan<BackgroundTile> tilemap = RequireCrocomireMeltingTilemap(
-            CrocomireMeltingIllustration.First);
+        _ = RequireCrocomireMeltingTilemap(CrocomireMeltingIllustration.First);
         StartCrocomireMeltingTilemap(state, CrocomireBodyProgram.MeltingOneTopRow);
 
         if (state.Tongue is { } tongue)
@@ -53,8 +53,8 @@ internal sealed class CrocomireMelting
             tongue.Position = tongue.Position.WithWhole(new(state.Body.Position.X.Whole, unchecked((ushort)(state.Body.Position.Y.Whole + 16))));
         }
 
-        // $A4:938D-93A2 clears the first $400 bytes.
-        WriteCrocomireMeltingTilemap(tilemap, clearedCells: 512);
+        // $A4:938D-93A2 clears the first sixteen rows.
+        ShowCrocomireMeltingImage(CrocomireMeltingIllustration.First, clearedCells: 512);
     }
 
     /// <summary>
@@ -63,12 +63,11 @@ internal sealed class CrocomireMelting
     /// </summary>
     internal void LoadSecondCrocomireMeltingTilemap(CrocomireEnemyState state)
     {
-        ReadOnlySpan<BackgroundTile> tilemap = RequireCrocomireMeltingTilemap(
-            CrocomireMeltingIllustration.Second);
+        _ = RequireCrocomireMeltingTilemap(CrocomireMeltingIllustration.Second);
         _bg2.FillCrocomireBg2ScrollTable(_bg2.CrocomireBg2Scroll.Y);
         StartCrocomireMeltingTilemap(state, CrocomireBodyProgram.MeltingTwoTopRow);
-        // $A4:940E-941D clears the first $800 bytes.
-        WriteCrocomireMeltingTilemap(tilemap, clearedCells: 1024);
+        // $A4:940E-941D clears the first thirty-two rows.
+        ShowCrocomireMeltingImage(CrocomireMeltingIllustration.Second, clearedCells: 1024);
     }
 
     /// <summary>Requires a complete installed melting map before phase, actor, scratch, or VRAM state changes.</summary>
@@ -83,18 +82,22 @@ internal sealed class CrocomireMelting
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, bodyProgram);
     }
 
-    /// <summary>Stages the melting map with its native blank lead-in and uploads the bounded BG2 span.</summary>
-    private void WriteCrocomireMeltingTilemap(ReadOnlySpan<BackgroundTile> tilemap, int clearedCells)
+    /// <summary>
+    /// Assembles melt image <paramref name="illustration"/> on the working canvas below its first
+    /// <paramref name="clearedCells"/> cleared cells and shows it, with the first sixteen rows of the canvas before it.
+    /// </summary>
+    private void ShowCrocomireMeltingImage(CrocomireMeltingIllustration illustration, int clearedCells)
     {
-        Span<BackgroundTile> working = _access.RequireCrocomireDeath().MutableBg2WorkingTilemap;
-        working[..clearedCells].Fill(CrocomireBg2.CrocomireBlankBg2Tile);
-        int copiedCells = tilemap.Length;
-        tilemap.CopyTo(working[32..]);
-
-        // $A4:93BE receives byte count `tilemap bytes + $0400`, so the initial upload also
-        // includes 512 blank leading cells and retains blank space after the compact image.
-        _bg2.WriteCrocomireBg2Cells(0, 512 + copiedCells);
+        int imageCells = RequireCrocomireMeltingTilemap(illustration).Length;
+        BossBodyCanvas working = _bg2.WorkingBody;
+        working.Clear(0, clearedCells);
+        working.Draw(_bossArtwork.Body(BossBodyOwner.Crocomire).Frame(CrocomireMeltingFrameNames.Of(illustration)));
+        // The image is shown with the sixteen rows the cartridge's transfer leads it with, and what follows it there.
+        _bg2.ShowCrocomireWorkingCells(0, MeltLeadCells + imageCells);
     }
+
+    /// <summary>The cells shown ahead of a melt image's own: the canvas's first sixteen rows.</summary>
+    private const int MeltLeadCells = 512;
 
     /// <summary>
     /// Begins <paramref name="pass"/>'s melt (<c>$A4:943D</c>): resets the BG2 scroll table and the distortion, and starts
@@ -263,8 +266,8 @@ internal sealed class CrocomireMelting
     internal void FinishCrocomireMeltingPass(CrocomireEnemyState state)
     {
         state.StartVerticalMotion(EightEight.FromWhole(CrocomireBehavior.SinkStartingAccelerationWhole));
-        _bg2.ClearCrocomireBg2WorkingTilemap();
-        _bg2.WriteCrocomireBg2Cells(0, 1024);
+        _bg2.ClearCrocomireWorkingBody();
+        _bg2.ShowCrocomireWorkingCells(0, BossBodyDefinitions.PageRows * BossBodyDefinitions.ColumnCount);
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }
 }

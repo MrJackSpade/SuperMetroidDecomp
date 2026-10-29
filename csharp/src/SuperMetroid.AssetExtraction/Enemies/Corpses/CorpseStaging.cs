@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 internal sealed class CorpseStaging
 {
     /// <summary>The enemy BG2 buffer the Tourian corpses and the dead Torizo stage in.</summary>
-    private readonly StagedBytes bg2 = new(EnemySourceDefinitions.EnemyBg2Staging, EnemyStagingDefinitions.Bg2ByteCount);
+    private readonly StagedBytes bg2 = new(EnemySourceDefinitions.EnemyBg2Staging, EnemySourceDefinitions.EnemyBg2StagingBytes);
 
     /// <summary>The rotting heap Mother Brain's corpse stages in and the dead Torizo's sand falls into.</summary>
     private readonly StagedBytes heap = new(EnemySourceDefinitions.CorpseRottingHeap, EnemyStagingDefinitions.RottingHeapByteCount);
@@ -48,7 +48,7 @@ internal sealed class CorpseStaging
     internal static CorpseStaging Torizo(ReadOnlySpan<byte> atlas)
     {
         var staged = new CorpseStaging();
-        staged.bg2.Clear(0, EnemyStagingDefinitions.Bg2ByteCount);
+        staged.bg2.Clear(0, EnemySourceDefinitions.EnemyBg2StagingBytes);
         staged.heap.Clear(EnemyStagingDefinitions.DeadTorizoSandOffset, EnemyStagingDefinitions.DeadTorizoSandByteCount);
         for (int row = 0; row < DeadTorizoGeometryDefinitions.Rows; row++)
             staged.Copy(atlas, DeadTorizoGeometryDefinitions.InitialCopy(row));

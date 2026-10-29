@@ -2,6 +2,7 @@ using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.BossBodies;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -11,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
 internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyBg2Frames, IEnemyPrivateShotCallback
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IBossBodyFrames, IEnemyPrivateShotCallback
 {
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork = bossArtwork;
@@ -45,14 +46,9 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
     public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback) => MotherBrainCombat.FindMotherBrainHitboxCallback(Slot, probe, out callback);
 
     /// <inheritdoc/>
-    public EnemyBg2FrameLookup? FindBg2Frame(EnemyFrameId selected, EnemyRoomBinding room)
-    {
-        if (Slot.DefinitionId != EnemyDefinitionId.MotherBrainBody || !MotherBrainBodyVisualDefinitions.Bg2FrameIds.Contains(selected))
-            return null;
-        ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
-        bool found = _bossArtwork.Installed.MotherBrainBodyBg2Frames?.TryGet(selected, out writes) == true;
-        return new("Mother Brain body", found, writes);
-    }
+    public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
+        Slot.DefinitionId == EnemyDefinitionId.MotherBrainBody && MotherBrainBodyVisualDefinitions.Bg2FrameIds.Contains(selected)
+            ? _bossArtwork.Body(BossBodyOwner.MotherBrain).Frame(selected) : null;
 
     /// <summary>The body's and head's shots enter the extended-spritemap walker; their contact and the tubes' use the header radius.</summary>
     public override EnemyCapabilities Capabilities =>

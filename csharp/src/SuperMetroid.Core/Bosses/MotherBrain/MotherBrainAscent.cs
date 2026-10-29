@@ -1,7 +1,7 @@
 ﻿using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -52,14 +52,12 @@ internal sealed class MotherBrainAscent
             .ApplyPhaseTwoInitial(_presentation.Colours);
         state.EnableUnpauseHook = true;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain;
-        // The native transition now requests the prepared enemy image, replacing the
-        // room's pipe background before the articulated body becomes visible. Its one
-        // 32x32 screen is the whole BG2 map she shows; she owns that image from here (#1356).
-        ReadOnlySpan<BackgroundTile> staged = _room.Staging.EnemyBg2Tilemap.AsSpan(0, state.EnemyBg2TilemapSize / 2);
-        var image = new EnemyBg2Image(MotherBrainBg2Definitions.BlankTile);
-        image.Write(0, staged);
-        _presentation.AttachBg2Image(image);
-        state.EnemyBg2TilemapTransferRequested = true;
+        // The transition shows her staged body, replacing the room's pipe background before the articulated body becomes
+        // visible. Its first page is the whole of what her room shows; she owns her body layer from here (#1356, #1466).
+        var body = new BossBodyCanvas(_bossArtwork.Body(BossBodyOwner.MotherBrain), BossBodyDefinitions.SharedBodyRows);
+        body.Copy(state.StagedBody ?? throw new InvalidOperationException("Mother Brain's phase two began with no staged body."),
+            0, MotherBrainBodyDefinitions.ShownCells);
+        _presentation.AttachBossBody(body);
     }
 
     /// <summary>Attaches the phase-two head and prepares its first animation and position.</summary>
@@ -204,8 +202,6 @@ internal sealed class MotherBrainAscent
         if (state.Body.Position.Y.Whole >= 189)
             return;
 
-        state.EnemyBg2TilemapSize = 320;
-        state.EnemyBg2TilemapTransferRequested = true;
         state.Body.Position = state.Body.Position.WithWholeY(188);
         _earthquake.EarthquakeTimer = WrappingCountdown.Start(0);
         state.RisingFloorClipActive = false;

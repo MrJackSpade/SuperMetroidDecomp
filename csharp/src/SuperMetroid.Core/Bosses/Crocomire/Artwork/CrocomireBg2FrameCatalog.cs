@@ -15,10 +15,6 @@ public sealed class CrocomireBg2FrameCatalog
     /// <summary>Retains the validated frame catalog after loading its complete pointer set.</summary>
     private CrocomireBg2FrameCatalog(EnemyBg2FrameCatalog frames) => Writes = frames;
 
-    /// <summary>Finds the ordered tilemap writes for a compiled mixed-body frame pointer.</summary>
-    internal bool TryGet(EnemyFrameId frame, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes) =>
-        Writes.TryGet(frame, out writes);
-
     /// <summary>Compiles BG2 artwork for all forty-two selected mixed fight-body roots in bank $A4; pure-OAM death transitions and skeleton poses are not part of this catalog.</summary>
     /// <param name="json">Caller-owned JSON stream, left open, with every pointer-named frame containing ordered horizontal runs of placed tiles in 32-by-64 tilemap-cell coordinates.</param>
     /// <returns>Installed body-frame writes; the enemy's instruction-frame gate, hitboxes, motion, and separate OAM presentation remain engine-owned.</returns>

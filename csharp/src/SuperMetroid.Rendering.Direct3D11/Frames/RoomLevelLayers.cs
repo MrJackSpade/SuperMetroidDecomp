@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus.Abilities;
@@ -18,4 +19,4 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// <param name="Bg2Image">The room's library background drawn from its image, or null (#1392).</param>
 /// <param name="MessagePicture">The image of the message box the frame shows, or null (#1392).</param>
 /// <param name="Screens">The frontend layers' cells and tiles the frame draws, or null (#1392).</param>
-internal readonly record struct RoomLevelLayers(RoomBackgroundLayer? Bg1, RoomBackgroundLayer? Bg2, RoomDoorBackground? Door, RoomOverlayPictures? Overlay, SkyPictures? Sky, Layer3Cells? Bg3, RoomOverlayPictures? Bg2Overlay, AffineFloor? Floor, BossBodyPictures? BossBg2, XrayRevealPlane? XrayReveal, RoomBackgroundImagePlane? Bg2Image, SuperMetroid.Core.Assets.SpriteSheetFrame? MessagePicture, ScreenPictureTables? Screens);
+internal readonly record struct RoomLevelLayers(RoomBackgroundLayer? Bg1, RoomBackgroundLayer? Bg2, RoomDoorBackground? Door, RoomOverlayPictures? Overlay, SkyPictures? Sky, Layer3Cells? Bg3, RoomOverlayPictures? Bg2Overlay, AffineFloor? Floor, ShownBossBody? BossBg2, XrayRevealPlane? XrayReveal, RoomBackgroundImagePlane? Bg2Image, SuperMetroid.Core.Assets.SpriteSheetFrame? MessagePicture, ScreenPictureTables? Screens);

@@ -42,7 +42,7 @@ static const uint SourceScreenCells = 9;
 static const uint CellHigh = 1048576, CellFlipX = 2097152, CellFlipY = 4194304;
 static const uint SourceLayer2Overlay = 256;
 static const uint RoomRecordWords = 6, RoomDoorSlot = 2, RoomDoorWindowWord = 18, RoomOverlayWord = 19, RoomSkyWord = 20;
-static const uint RoomBg3Word = 21, RoomBg2OverlayWord = 22, RoomFloorSheetsWord = 23, RoomBossBg2Word = 24, RoomXrayRevealWord = 25;
+static const uint RoomBg3Word = 21, RoomBg2OverlayWord = 22, RoomFloorSheetsWord = 23, RoomBossBodyWord = 24, RoomXrayRevealWord = 25;
 // A library background (RoomBackgroundImagePlane): its image picture's offset, then each 16x16 cell's picture offset.
 static const uint RoomBg2ImageWord = 26;
 // The scrolling sky's image, laid out as a library background's: its image picture's offset, then each cell's.
@@ -125,20 +125,36 @@ bool Bg2OverlayPicture(uint2 scrolled, uint2 size, out uint picture, out uint2 w
     }
     return picture != 0;
 }
-// A boss body's picture (BossBodyPictures, #1403) at a scrolled position of its tilemap in the hardware's screen order,
-// at the pass's map size, with `within` its pixel in it: two words per cell, its picture's offset, then its corner in the
-// picture, x below y. Every layer-2 sampler reads the boss through this, so a color-math pass shows the same body as an
-// ordinary one (#1426).
-void BossBg2Picture(uint2 scrolled, uint2 size, out uint2 within, out uint picture)
+// A boss body (ShownBossBody, #1466) at a scrolled position of its layer at the pass's map size: the map size lays the
+// layer's 32-row pages out, and the part showing the position's cell gives `picture` and `within`, its pixel there. Each
+// part is four words: its picture's offset, the layer row its picture's top edge lies on, its first row shown and the
+// rows it spans (that in the high half), and the offset of one word per row, a bit per cell it shows. A picture repeats
+// across and down from the layer's left edge and its top row, as the one-cell blank does. Every layer-2 sampler reads the
+// boss through this, so a color-math pass shows the same body as an ordinary one (#1426).
+void BossBodyPicture(uint2 scrolled, uint2 size, out uint2 within, out uint picture)
 {
     uint2 position = scrolled & 65535 & (size * 8 - 1);
     uint2 tile = position >> 3;
-    uint page = ((tile.y >> 5) * (size.x >> 5) + (tile.x >> 5)) * 1024;
-    uint index = page + (tile.y & 31) * 32 + (tile.x & 31);
-    uint pictures = RoomLevels[RoomBossBg2Word];
-    picture = RoomLevels[pictures + 2 * index];
-    uint corner = RoomLevels[pictures + 2 * index + 1];
-    within = (position & 7) + uint2(corner & 65535, corner >> 16);
+    uint page = (tile.y >> 5) * (size.x >> 5) + (tile.x >> 5);
+    uint column = tile.x & 31;
+    uint row = page * 32 + (tile.y & 31);
+    uint2 layerPixel = uint2(column * 8 + (position.x & 7), row * 8 + (position.y & 7));
+    uint table = RoomLevels[RoomBossBodyWord];
+    uint parts = RoomLevels[table];
+    picture = 0;
+    within = uint2(0, 0);
+    for (uint part = 0; part < parts; part++)
+    {
+        uint record = table + 1 + part * 4;
+        uint shows = RoomLevels[record + 2];
+        uint first = shows & 65535;
+        if (row < first || row >= first + (shows >> 16)) continue;
+        if (((RoomLevels[RoomLevels[record + 3] + row - first] >> column) & 1) == 0) continue;
+        picture = RoomLevels[record];
+        uint extent = RoomLevels[picture + PictureSizeWord];
+        within = (layerPixel - uint2(0, RoomLevels[record + 1] * 8)) % uint2(extent & 65535, extent >> 16);
+        return;
+    }
 }
 // The X-ray reveal's block picture and pixel at a scrolled layer-2 position (#1392); false past the blocks it builds,
 // which layer 2's scroll never shows.
@@ -431,7 +447,7 @@ void Main(uint3 id : SV_DispatchThreadID)
             if (!Bg3Picture(TilemapWord, MapHeight, scrolled, within, picture)) return;
         }
         else if (source == SourceBossBody)
-            BossBg2Picture(scrolled, uint2(MapWidth, MapHeight), within, picture);
+            BossBodyPicture(scrolled, uint2(MapWidth, MapHeight), within, picture);
         else if (source == SourceXrayReveal)
         {
             if (!RevealPicture(scrolled, picture, within)) return;

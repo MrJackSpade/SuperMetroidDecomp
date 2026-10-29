@@ -2,6 +2,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Enemies.Drawing;
 
@@ -75,17 +76,18 @@ internal sealed class EnemyPresentation
     }
 
     /// <summary>
-    /// The enemy BG2 image the room's boss draws its body into (#1353), once a boss that owns it attaches it; bosses
-    /// not yet converted (#1354-#1357) draw into VRAM instead.
+    /// The body layer the room's boss draws its body on (#1353, #1466), once a boss that shows one attaches it; Kraid
+    /// publishes his own.
     /// </summary>
-    internal EnemyBg2Image? Bg2Image { get; private set; }
+    internal BossBodyCanvas? BossBody { get; private set; }
 
-    /// <summary>A boss's initialization: attaches the cleared enemy BG2 image it draws its body into.</summary>
-    internal void AttachBg2Image(EnemyBg2Image image) => Bg2Image = Ensure.NotNull(image);
+    /// <summary>A boss's initialization: attaches the cleared body layer it draws its body on.</summary>
+    internal void AttachBossBody(BossBodyCanvas body) => BossBody = Ensure.NotNull(body);
 
-    /// <summary>The attached enemy BG2 image.</summary>
-    internal EnemyBg2Image RequireBg2Image() =>
-        Bg2Image ?? throw new InvalidOperationException("No boss has attached the enemy BG2 image.");
+    /// <summary>The attached body layer.</summary>
+    /// <exception cref="InvalidOperationException">No boss has attached one.</exception>
+    internal BossBodyCanvas RequireBossBody() =>
+        BossBody ?? throw new InvalidOperationException("No boss has attached its body layer.");
 
     /// <summary>Room load: binds the CGRAM the room's enemy palettes write.</summary>
     internal void BindColours(GameplayColours colours) => Colours = Ensure.NotNull(colours);

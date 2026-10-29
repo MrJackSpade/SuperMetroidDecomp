@@ -1,16 +1,12 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The sizes of the enemies' two staging surfaces, the BG2 staging image and the corpse-rotting heap, and where in the
-/// heap Mother Brain's rot table and Dead Torizo's sand strips sit. Where the cartridge keeps the surfaces in work memory
-/// is the import's knowledge (#1412).
+/// The size of the corpse-rotting heap, and where in it Mother Brain's rot table and Dead Torizo's sand strips sit. Where
+/// the cartridge keeps the heap in work memory is the import's knowledge (#1412).
 /// </summary>
-[EncodingOwner("enemy staging surface and corpse heap sizes")]
+[EncodingOwner("corpse heap sizes")]
 internal static class EnemyStagingDefinitions
 {
-    /// <summary>The bytes of the BG2 staging image.</summary>
-    internal const int Bg2ByteCount = 0x1000;
-
     /// <summary>The bytes of the corpse-rotting heap.</summary>
     internal const int RottingHeapByteCount = 0x800;
 

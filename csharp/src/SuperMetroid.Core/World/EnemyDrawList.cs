@@ -115,11 +115,11 @@ internal sealed class EnemyDrawList
                 if (slot.Frame is { } shown &&
                     _room.Artwork?.ExtendedFramePlacements?.TryGetDisplay(shown, out ReadOnlyMemory<EnemyExtendedComponentPlacement> installed) == true)
                 {
-                    // Resolve both halves through one presentation binding. Validate
-                    // the composition before any BG2 side effects; physical selectors
-                    // continue to belong to compiled animation and collision programs.
+                    // Resolve the sprite half and the body frame through one presentation binding. Validate the
+                    // composition before the body is drawn; physical selectors continue to belong to compiled animation
+                    // and collision programs.
                     EnemyFrameId selected = _room.Artwork.ExtendedFramePlacements.GetDisplayFrame(shown);
-                    _instructions.ApplyInstalledEnemyBg2Frame(slot, selected);
+                    _instructions.DrawBossBodyFrame(slot, selected);
                     prepared.Add(new PreparedEnemyDraw(layer, slot, enemyIndex, origin, drawColouring, null, shown, installed));
                     continue;
                 }

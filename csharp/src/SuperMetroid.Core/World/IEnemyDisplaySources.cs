@@ -3,8 +3,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies.MorphBallEye;
-using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.BossBodies;
 
 namespace SuperMetroid.Core.World;
 
@@ -26,11 +25,14 @@ internal interface IEnemyDisplaySources
     /// <summary>Ceres Ridley, if loaded.</summary>
     RidleyEnemyState? CeresRidley { get; }
 
-    /// <summary>Kraid's body on BG2 while he owns it (#1352); otherwise null.</summary>
-    BossBg2Layer? KraidBody { get; }
+    /// <summary>
+    /// The body layer a boss shows (#1352, #1353, #1466): Kraid's while he owns it, otherwise the one a boss attached;
+    /// null without either.
+    /// </summary>
+    BossBodyLayer? BossBody { get; }
 
-    /// <summary>The enemy BG2 image a boss draws its body into, once one attaches it (#1353); otherwise null.</summary>
-    EnemyBg2ImageSnapshot? EnemyBg2 { get; }
+    /// <summary>Where Kraid's body layer is viewed from while he owns it (#1352); otherwise null.</summary>
+    Position16<BackgroundPixels>? KraidBodyScroll { get; }
 
     /// <summary>Crocomire's BG2 scroll while Crocomire is loaded; otherwise null.</summary>
     Position16<BackgroundPixels>? CrocomireBg2Scroll { get; }

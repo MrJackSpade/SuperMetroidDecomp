@@ -1,9 +1,8 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.SpriteObjects;
 
@@ -43,27 +42,18 @@ internal sealed class CrocomireBg2
         tongue.Timer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>The tile that clears Crocomire's working background rows.</summary>
-    internal static BackgroundTile CrocomireBlankBg2Tile => CrocomireMeltingTilemap.BlankGlyph;
+    /// <summary>The canvas Crocomire's death assembles his body on.</summary>
+    /// <exception cref="InvalidOperationException">Crocomire has no death state, or it has no working canvas.</exception>
+    internal BossBodyCanvas WorkingBody => _access.RequireCrocomireDeath().WorkingBody
+        ?? throw new InvalidOperationException("Crocomire's death has no working body canvas.");
 
-    /// <summary>Clears the working BG2 map before death and melting scene transfers.</summary>
-    internal void ClearCrocomireBg2WorkingTilemap()
-    {
-        Span<BackgroundTile> tilemap = _access.RequireCrocomireDeath().MutableBg2WorkingTilemap;
-        tilemap.Fill(CrocomireBlankBg2Tile);
-    }
+    /// <summary>Clears the whole working canvas before a melt image is assembled on it.</summary>
+    internal void ClearCrocomireWorkingBody() => WorkingBody.Clear(0, WorkingBody.Rows * BossBodyDefinitions.ColumnCount);
 
-    /// <summary>Copies a bounded working-map span into the corresponding cells of the shown enemy BG2 image (#1355).</summary>
-    internal void WriteCrocomireBg2Cells(int startCell, int cellCount)
-    {
-        if (startCell < 0 || cellCount < 0 ||
-            startCell + cellCount > CrocomireDeathState.Bg2WorkingCellCount)
-        {
-            throw new ArgumentOutOfRangeException(nameof(startCell));
-        }
-
-        _presentation.RequireBg2Image().Write(startCell, _access.RequireCrocomireDeath().Bg2WorkingTilemap.Slice(startCell, cellCount));
-    }
+    /// <summary>Shows the working canvas's <paramref name="cellCount"/> cells from <paramref name="startCell"/> on his body layer (#1355).</summary>
+    /// <exception cref="InvalidDataException">The cells leave the canvas.</exception>
+    internal void ShowCrocomireWorkingCells(int startCell, int cellCount) =>
+        _presentation.RequireBossBody().Copy(WorkingBody, startCell, cellCount);
 
     /// <summary>Writes a uniform vertical offset to the per-scanline BG2 scroll table.</summary>
     /// <param name="verticalScroll">The vertical scroll every line shows, 0 through 65535.</param>

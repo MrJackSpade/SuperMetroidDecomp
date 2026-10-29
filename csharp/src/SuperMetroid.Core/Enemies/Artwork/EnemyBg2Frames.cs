@@ -6,8 +6,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// Phantoon's and Draygon's extended-enemy BG2 frames: loading and validating their named frame documents, finding a
-/// frame's tilemap writes, and their identity.
+/// The bosses' installed BG2 frame documents: loading and validating their named frames, which the import composes the
+/// bosses' body sheets from (#1466), and their identity.
 /// </summary>
 internal static class EnemyBg2Frames
 {
@@ -26,19 +26,6 @@ internal static class EnemyBg2Frames
                 }
             }
         });
-
-    /// <summary>Retrieves the ordered tilemap writes <paramref name="frame"/> selects, if present.</summary>
-    internal static bool TryGet(Dictionary<EnemyFrameId, EnemyBg2TilemapWrite[]> frames, EnemyFrameId frame,
-        out ReadOnlyMemory<EnemyBg2TilemapWrite> writes)
-    {
-        if (frames.TryGetValue(frame, out EnemyBg2TilemapWrite[]? found))
-        {
-            writes = found;
-            return true;
-        }
-        writes = default;
-        return false;
-    }
 
     /// <summary>Validates a complete named frame document and compiles its horizontal tile runs to BG2 destinations.</summary>
     internal static EnemyBg2FrameCatalog Load(Stream json,

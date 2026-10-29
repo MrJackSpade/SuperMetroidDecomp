@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Assets;
@@ -207,10 +208,11 @@ public sealed class MotherBrainEnemyState
     /// <summary>Live escape message owner installed by $A6:C23F.</summary>
     public EscapeTypewriterState? EscapeTypewriter { get; internal set; }
 
-    /// <summary>Byte length of the visible prefix of the enemy BG2 staging tilemap requested at ascent completion.</summary>
-    public int EnemyBg2TilemapSize { get; internal set; }
-    /// <summary>Witness that body setup, ascent completion, or death has requested its staging BG2 tilemap update; size names the requested prefix.</summary>
-    public bool EnemyBg2TilemapTransferRequested { get; internal set; }
+    /// <summary>
+    /// The body Mother Brain stages from her initialization until her phase-two transition shows it (#1356, #1466): her
+    /// body frames are drawn on it meanwhile.
+    /// </summary>
+    internal BossBodyCanvas? StagedBody { get; init; }
 
     /// <summary>Four-frame cadence cursor for the eight ascent dust positions.</summary>
     public WrappingCountdown BodySubFunctionTimer { get; internal set; }

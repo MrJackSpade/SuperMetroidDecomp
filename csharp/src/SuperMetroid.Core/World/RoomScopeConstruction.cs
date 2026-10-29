@@ -117,8 +117,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
                 Assets.Pictures.Background(RoomBackgroundImage.NameOf(program, RoomBackgroundImage.DoorVariant(program, Door), Assets.Tileset)),
                 Assets.BlockSheet, LoadedArtwork(program))
             : null,
-        BodyPictures = Assets.Pictures.TileWords.TryGetValue(Assets.Tileset, out TileWordSheet? words) ? new TileWordPictureResolver(words) : null,
-        Bg2OverlayPictures = words is null ? null : new TileWordPictureResolver(words),
+        Bg2OverlayPictures = Assets.Pictures.TileWords.TryGetValue(Assets.Tileset, out TileWordSheet? words) ? new TileWordPictureResolver(words) : null,
         Bg1OverlayPictures = words is null ? null : new TileWordPictureResolver(words),
         Bg3Pictures = new TileWordPictureResolver(Assets.Pictures.Bg3(Assets.Tileset)),
         MessageBoxes = Assets.Pictures.MessageBox(Assets.Tileset),

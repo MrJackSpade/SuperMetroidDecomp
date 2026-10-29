@@ -52,12 +52,6 @@ internal static class Program
                 Console.WriteLine("Enemy artwork admission/resolver static contracts passed.");
                 return 0;
             }
-            if (args is ["--bg2-catalog-contract-check"])
-            {
-                BackgroundTransferPresentationContractChecks.Run(bg2Only: true);
-                Console.WriteLine("Generated BG2 catalog source contracts and stale-source revocation passed.");
-                return 0;
-            }
             if (args is ["--extended-display-contract-check"])
             {
                 EnemyDisplayArtworkContractChecks.Run();
@@ -115,7 +109,7 @@ internal static class Program
                     case "--json" when index + 1 < args.Length: jsonPath = args[++index]; break;
                     default: throw new ArgumentException("Usage: --root REPOSITORY [--json REPORT] | " +
                         "--self-check | --enemy-visual-program-audit REPOSITORY REPORT_JSON | --enemy-visual-audit-self-check | " +
-                        "--bg2-catalog-contract-check | --extended-display-contract-check | " +
+                        "--extended-display-contract-check | " +
                         "--work-robot-resource-check | --mama-turtle-resource-check | --zero-resource-check | " +
                         "--friendly-animal-resource-check FAMILY | --ordinary-enemy-resource-check FAMILY | " +
                         "--crocomire-skeleton-resource-check | --kraid-part-resource-check Foot|Lint | " +

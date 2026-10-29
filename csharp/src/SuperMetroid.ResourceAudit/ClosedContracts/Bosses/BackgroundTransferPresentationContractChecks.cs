@@ -7,38 +7,26 @@ using SuperMetroid.ResourceAudit.Resources;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Bosses;
 
-/// <summary>Confirms the identified complete BG2/effect/fragment and owned-length contracts using source fixtures.</summary>
+/// <summary>Confirms the identified complete effect/fragment and owned-length contracts using source fixtures.</summary>
 internal static class BackgroundTransferPresentationContractChecks
 {
-    /// <summary>Compiles source-backed BG2 and transfer call fixtures, then checks accepted and revoked audit classifications.</summary>
-    internal static void Run(bool bg2Only = false)
+    /// <summary>Compiles source-backed transfer call fixtures, then checks accepted and revoked audit classifications.</summary>
+    internal static void Run()
     {
-        var contracts = BackgroundTransferClosedContractDefinitions.All.Where(contract =>
-            !bg2Only || contract.Rule.EndsWith("-complete-bg2-membership", StringComparison.Ordinal));
-        var trees = contracts.SelectMany(contract => contract.Sources)
+        var trees = BackgroundTransferClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText("""
             using SuperMetroid.Core.Assets;
-            using SuperMetroid.Core.Bosses.Crocomire.Artwork;
-            using SuperMetroid.Core.Bosses.Draygon.Artwork;
-            using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-            using SuperMetroid.Core.Bosses.Phantoon.Artwork;
             using SuperMetroid.AssetExtraction.Enemies;
             using SuperMetroid.Core.Enemies.Artwork;
             using SuperMetroid.Core.Frontend.Ending.Artwork;
             using SuperMetroid.Core.Fx;
             using SuperMetroid.Core.Fx.Artwork;
             class BackgroundConsumer {
-                void Inspect(PhantoonBg2FrameCatalog phantoon, DraygonBg2FrameCatalog draygon,
-                    CrocomireBg2FrameCatalog crocomire, MotherBrainBodyBg2FrameCatalog motherBrain,
-                    RoomFxLayer3Pages pages, RoomFxBlendInks blends,
+                void Inspect(RoomFxLayer3Pages pages, RoomFxBlendInks blends,
                     EndingObjectArtwork ending, GunshipLiftoffArtworkCatalog ship, SuperMetroid.Core.Assets.BackgroundColourSets backgrounds) {
-                    phantoon.TryGet(0, out _);
-                    draygon.TryGet(0, out _);
-                    crocomire.TryGet(0, out _);
-                    motherBrain.TryGet(SuperMetroid.Core.Enemies.Artwork.EnemyFrameId.MotherBrainBodyInitialDummy, out _);
                     pages.Resolve(RoomFxType.Lava);
                     pages.Resolve((RoomFxType)255);
                     blends.Apply(backgrounds, 0);
@@ -54,22 +42,6 @@ internal static class BackgroundTransferPresentationContractChecks
                 }
             }
             """, path: "fixture-bg-transfer-consumer.cs");
-        if (bg2Only)
-            calls = CSharpSyntaxTree.ParseText("""
-                using SuperMetroid.Core.Bosses.Crocomire.Artwork;
-                using SuperMetroid.Core.Bosses.Draygon.Artwork;
-                using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-                using SuperMetroid.Core.Bosses.Phantoon.Artwork;
-                class BackgroundConsumer {
-                    void Inspect(PhantoonBg2FrameCatalog phantoon, DraygonBg2FrameCatalog draygon,
-                        CrocomireBg2FrameCatalog crocomire, MotherBrainBodyBg2FrameCatalog motherBrain) {
-                        phantoon.TryGet(0, out _);
-                        draygon.TryGet(0, out _);
-                        crocomire.TryGet(0, out _);
-                        motherBrain.TryGet(SuperMetroid.Core.Enemies.Artwork.EnemyFrameId.MotherBrainBodyInitialDummy, out _);
-                    }
-                }
-                """, path: "fixture-bg-transfer-consumer.cs");
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("BackgroundTransferProviderFixture", sources,
@@ -87,9 +59,9 @@ internal static class BackgroundTransferPresentationContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == (bg2Only ? 4 : 16), "constructed calls must first expose the missing adapters" + " (" + before.Describe() + ")");
-        Require(after.Classifications.Count == (bg2Only ? 4 : 11) && after.UnresolvedCount == (bg2Only ? 0 : 5) && after.MissingCount == 0 &&
-            after.Consumers.Count == (bg2Only ? 4 : 16), "complete owned sets/false queries qualify; bad selections and owned lengths fail" + " (" + after.Describe() + ")");
+        Require(before.UnresolvedCount == 12, "constructed calls must first expose the missing adapters" + " (" + before.Describe() + ")");
+        Require(after.Classifications.Count == 7 && after.UnresolvedCount == 5 && after.MissingCount == 0 &&
+            after.Consumers.Count == 12, "complete owned sets/false queries qualify; bad selections and owned lengths fail" + " (" + after.Describe() + ")");
     }
 
     /// <summary>Fails the contract fixture with the specific classification mismatch.</summary>

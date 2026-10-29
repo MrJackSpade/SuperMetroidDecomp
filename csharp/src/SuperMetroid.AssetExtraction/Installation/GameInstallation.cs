@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
@@ -154,6 +155,12 @@ public sealed record GameInstallation(string Root)
     public string RoomBlockSheetOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomBlockSheetDirectoryName);
     /// <summary>Loads every tileset's pre-coloured block sheet, preferring the player's edits (#1392).</summary>
     public InstalledRoomArtwork LoadRoomBlockSheets() => RoomBlockSheetFiles.Load(RoomBlockSheetDirectory, RoomBlockSheetOverrideDirectory);
+    /// <summary>Stock pre-assembled boss body sheets under the replaceable content tree (#1466).</summary>
+    public string BossBodySheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.BossBodySheetDirectoryName);
+    /// <summary>Edited boss body pictures survive stock content replacement.</summary>
+    public string BossBodySheetOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.BossBodySheetDirectoryName);
+    /// <summary>Loads every boss's pre-assembled body sheet, preferring the player's edits (#1466).</summary>
+    public BossBodySheets LoadBossBodySheets() => BossBodySheetFiles.Load(BossBodySheetDirectory, BossBodySheetOverrideDirectory);
     /// <summary>Stock background tilemaps, including sky tilemaps, under the replaceable content tree.</summary>
     public string RoomBackgroundTilemapDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomBackgroundTilemapDirectoryName);
     /// <summary>Stock visual room-block references under the replaceable content tree.</summary>
@@ -470,6 +477,7 @@ public sealed record GameInstallation(string Root)
             SamusOverreads = LoadSamusOverreads(),
             SpriteSheets = LoadSpriteSheets(),
             EnemySheets = LoadEnemySheets(),
+            BossBodySheets = LoadBossBodySheets(),
         };
     }
 }

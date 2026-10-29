@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -193,15 +194,15 @@ internal sealed class AcceptedFrameBoundary
         : null;
 
     /// <summary>
-    /// The bodies bosses draw as layer 2: Kraid's body (#1352), the enemy layer-2 image, Draygon's and Mother Brain's
-    /// placements, and Crocomire's scroll.
+    /// The body a boss shows on its body layer (#1352-#1356, #1466): the layer, and where Kraid, Draygon, Crocomire and
+    /// Mother Brain view theirs from.
     /// </summary>
     private GameplayLatchedBossBackgrounds CaptureBossBackgrounds()
     {
         var motherBrain = Displays?.MotherBrain;
         return new(
-            Displays?.KraidBody,
-            Displays?.EnemyBg2,
+            Displays?.BossBody,
+            Displays?.KraidBodyScroll,
             Displays?.Draygon is { } draygon
                 ? new DraygonBodyPlacement(draygon.Body.Position.Whole, draygon.BodyBg2Scroll, draygon.Body.Properties.HasAny(EnemyProperties.Deleted))
                 : null,
@@ -276,17 +277,12 @@ internal sealed class AcceptedFrameBoundary
         // Where BG2 shows the tilemap its library background loaded, it draws the background's image (#1392): not over a
         // streaming layer-2 plane, the sky's rows or a boss body that owns BG2.
         RoomBackgroundImagePlane? image = null;
-        if (rooms.Bg2 is null && sky is null && latched.Bosses.KraidBody is null && latched.Bosses.EnemyBg2 is null
-            && scope.BackgroundImage is { } background)
+        if (rooms.Bg2 is null && sky is null && latched.Bosses.Body is null && scope.BackgroundImage is { } background)
         {
             image = background.Resolve(_backgrounds, animatedBlocks);
         }
-        // A boss body that owns BG2 draws each tile from its body sheet's picture over what the tile's character shows.
-        ImmutableArray<BackgroundTile>? body = latched.Bosses.KraidBody?.Tilemap.Tiles ?? latched.Bosses.EnemyBg2?.Tiles;
-        ImmutableArray<BgTilePicture?> bodyPictures = body is { } bodyWords
-            ? (scope.BodyPictures ?? throw new InvalidDataException($"{scope.Room.Definition.Name} shows a boss body with no installed tile word sheet."))
-                .Resolve(bodyWords, characters)
-            : default;
+        // A boss body shows each part's picture for the frame its animation selected (#1466).
+        ShownBossBody? shownBody = latched.Bosses.Body?.Show(scope.ArtworkFrames);
         // Words written over BG2 draw from the sheet's pictures the same way.
         RoomOverlayPictures? bg2Overlay = scope.Bg2Overlay is { } overlay
             ? new RoomOverlayPictures((scope.Bg2OverlayPictures ?? throw new InvalidDataException(
@@ -299,7 +295,7 @@ internal sealed class AcceptedFrameBoundary
             : null;
         return latched with
         {
-            Bosses = latched.Bosses with { BodyPictures = bodyPictures },
+            Bosses = latched.Bosses with { ShownBody = shownBody },
             Rooms = rooms with
             {
                 Bg1 = rooms.Bg1 with { Pictures = pictures },

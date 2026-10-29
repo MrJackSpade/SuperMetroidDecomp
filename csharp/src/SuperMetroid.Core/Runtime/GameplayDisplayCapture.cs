@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -7,7 +8,6 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Gameplay;
-using SuperMetroid.Core.Rooms.Backgrounds;
 
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Runtime;
@@ -108,19 +108,19 @@ public static class GameplayDisplayCapture
             ? GameplayEffectCapture.BuildLavaAcidBackgroundHorizontalScrolls(lava, bg2Scroll) : null;
         ushort[]? lavaY = fx is { } vertical
             ? GameplayEffectCapture.BuildLavaAcidBackgroundVerticalScrolls(vertical, bg2Scroll.Y) : null;
-        BossBg2Layer? kraidBody = bosses.KraidBody;
+        Position16<BackgroundPixels>? kraidBody = bosses.KraidBodyScroll;
         // Draygon's body shows only on the scanlines around it ($88:DF94), placed against the frame's camera (#1354).
         DraygonBodyScanlines bg2Lines = bosses.DraygonBody?.VisibleLines(scrolls.Layer1Position) ?? new DraygonBodyScanlines(32, 224);
         Position16<BackgroundPixels>? crocomireBg2Scroll = bosses.CrocomireBg2Scroll;
         bool verticalStatueMap = scene.FxType == RoomFxType.TourianEntranceStatue;
         ScreenLayers displayedMainScreen = latched.MainScreen;
         var view = new GameplaySceneView(bg1Scroll,
-            new Position16<BackgroundPixels>(kraidBody is { } kraidX ? Add(kraidX.Scroll.X, shake.Bg2.X)
+            new Position16<BackgroundPixels>(kraidBody is { } kraidX ? Add(kraidX.X, shake.Bg2.X)
                 : crocomireBg2Scroll is { } crocomireX ? Add(crocomireX.X, shake.Bg2.X) : bg2Scroll.X,
-                kraidBody is { } kraidY ? Add(kraidY.Scroll.Y, shake.Bg2.Y)
+                kraidBody is { } kraidY ? Add(kraidY.Y, shake.Bg2.Y)
                 : crocomireBg2Scroll is { } crocomireY ? Add(crocomireY.Y, shake.Bg2.Y)
                 : sky is { } latchedSky ? Add(latchedSky.Bg2Scroll.Y, shake.Bg2.Y) : bg2Scroll.Y),
-            kraidBody is { } kraidMap ? kraidMap.Tilemap.Size
+            kraidBody is not null ? KraidBackgroundDefinitions.BodyPlaneSize
                 : bosses.MotherBrainBody is { Scroll: not null } ? new Extent16<TilemapCells>(32, 32)
                 : sky?.ShowsBands != true && !verticalStatueMap ? new Extent16<TilemapCells>(64, 32)
                 : new Extent16<TilemapCells>(32, 64),
@@ -136,13 +136,13 @@ public static class GameplayDisplayCapture
         IReadOnlyList<ushort>? bg2HorizontalScrolls = lavaX ?? waterX ?? skyX;
         if (latched.Phantoon?.Wave is { } phantoonWave)
             bg2HorizontalScrolls = phantoonWave.GameplayScrolls();
-        // A sky room shows the sky's rows on BG2 (#1347); Kraid shows his body there while he owns it (#1352), and a
-        // boss that owns the enemy BG2 image shows it through BG2's map size (#1353), each from its pictures (#1403).
-        Extent16<TilemapCells>? bodySize = kraidBody?.Tilemap.Size ?? (bosses.EnemyBg2 is null ? null : view.BackgroundMapSize);
+        // A sky room shows the sky's rows on BG2 (#1347); a boss shows its body layer there while it owns it (#1352,
+        // #1353), its pages laid out by BG2's map size, each part from its picture (#1466).
         RoomBackgrounds rooms = (latched.Rooms
             ?? throw new InvalidOperationException("Ordinary gameplay capture has no room backgrounds.")) with
             {
-                BossBg2 = bodySize is { } size ? new BossBodyPictures(size, bosses.BodyPictures) : null,
+                BossBg2 = bosses.Body is null ? null
+                    : bosses.ShownBody ?? throw new InvalidOperationException("A boss body is shown once the accepted frame resolves its pictures."),
             };
         var layer = new GameplaySceneLayer(view, rooms, new BackgroundLineScrolls(
             VisibleLines(bg2HorizontalScrolls),

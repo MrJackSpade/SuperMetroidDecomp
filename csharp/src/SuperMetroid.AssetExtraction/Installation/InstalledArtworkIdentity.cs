@@ -16,8 +16,7 @@ public static class InstalledArtworkIdentity
     public static IEnumerable<KeyValuePair<string, string>> Create(GameArtwork artwork)
     {
         Ensure.NotNull(artwork);
-        return RoomPresentationIdentity.Create(Require(artwork.RoomCharacterArt), Require(artwork.RoomPaletteArt),
-                Require(artwork.RoomVisualLayouts))
+        return RoomPresentationIdentity.Create(Require(artwork.RoomPaletteArt), Require(artwork.RoomVisualLayouts))
             .Append(KeyValuePair.Create(GameInstallationLayout.SamusBodyDirectoryName, Require(artwork.SamusBodyArt).ContentIdentity))
             .Concat(RoomPlmPresentationIdentity.Create(new RoomPlmVisualCatalogSet
             {

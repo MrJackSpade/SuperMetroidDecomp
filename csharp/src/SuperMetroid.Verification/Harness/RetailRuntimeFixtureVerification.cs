@@ -10,6 +10,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.Verification.Harness;
 

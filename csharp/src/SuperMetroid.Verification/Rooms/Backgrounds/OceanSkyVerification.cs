@@ -12,6 +12,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>Checks West Ocean's published scrolling-sky rows against ROM.</summary>
 internal static class OceanSkyVerification

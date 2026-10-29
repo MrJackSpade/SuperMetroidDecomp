@@ -1,8 +1,13 @@
+using SuperMetroid.Core;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 
-namespace SuperMetroid.Core.Rooms.Artwork;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>The installed room background character sheets.</summary>
+/// <summary>
+/// The installed room background character sheets, which the import pipeline composes the rooms' pre-coloured pictures
+/// from (#1392, #1466); gameplay reads none.
+/// </summary>
 public sealed class RoomCharacterAtlases
 {
     /// <summary>Copied lookup by character sheet; the RoomCharacterAtlas instances are shared and immutable.</summary>

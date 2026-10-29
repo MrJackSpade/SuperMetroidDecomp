@@ -15,6 +15,13 @@ internal static class GameInstallationAccess
         public string RoomMetatileDirectory => Path.Combine(self.ContentDirectory, GameInstallationLayout.RoomMetatileDirectoryName);
 
         /// <summary>
+        /// Loads validated room character atlases, selecting compatible user tile artwork for each supplied replacement: the
+        /// import pipeline's input to the rooms' pictures, which no host binds (#1466).
+        /// </summary>
+        public RoomCharacterAtlases LoadRoomCharacters() =>
+            RoomCharacterArtworkFiles.Load(self.RoomCharacterDirectory, self.RoomCharacterOverrideDirectory);
+
+        /// <summary>
         /// Loads validated room background tilemaps and compatible replacements from the persistent override tree: the
         /// import pipeline's input to the room backgrounds' images, which no host binds (#1466).
         /// </summary>

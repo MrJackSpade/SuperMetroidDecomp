@@ -1,5 +1,5 @@
 using System.Runtime.CompilerServices;
-using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Core.World;

@@ -22,7 +22,7 @@ internal static class RoomContentIdentityVerification
         RoomIdentityFixture baseline = CreateRoomIdentityFixture();
         IReadOnlyDictionary<string, string> hashes = baseline.Identity;
         RoomIdentityFixture reordered = CreateRoomIdentityFixture(reverse: true);
-        AssertEqual(3, hashes.Count, "three independent room-art identities");
+        AssertEqual(2, hashes.Count, "two independent room-art identities");
         foreach ((string name, string digest) in hashes)
             AssertEqual(digest, reordered.Identity[name], $"{name} identity ignores insertion order");
 
@@ -57,7 +57,7 @@ internal static class RoomContentIdentityVerification
             .Contains(first, StringComparison.Ordinal), "room-art drift is explained by its domain");
         Suite(nameof(VerifyGameContentIdentityComposition), () => VerifyGameContentIdentityComposition());
         Suite(nameof(VerifyControllerInputRecording), () => VerifyControllerInputRecording());
-        Console.WriteLine("  Selected room content: three domains, CRE, block inputs, canonical ordering, isolated edits, " +
+        Console.WriteLine("  Selected room content: two domains, CRE, block inputs, canonical ordering, isolated edits, " +
             "aggregate drift, immutable snapshots and recording compatibility pass without a ROM.");
     }
 
@@ -120,14 +120,17 @@ internal static class RoomContentIdentityVerification
         static MemoryStream Json<T>(T document) => new(JsonSerializer.SerializeToUtf8Bytes(document));
     }
 
-    /// <summary>Three independent room presentation catalogs used to measure selected-content identity.</summary>
+    /// <summary>
+    /// Room presentation catalogs used to measure selected-content identity: the palettes and layouts a host records, and
+    /// the characters the import pipeline composes pictures from, which only fingerprint themselves (#1466).
+    /// </summary>
     internal sealed record RoomIdentityFixture(RoomCharacterAtlases Characters,
         RoomStaticPalettes Palettes,
         RoomLevelArtworks Layouts)
     {
         /// <summary>Per-domain hashes for the fixture's selected room artwork.</summary>
         public IReadOnlyDictionary<string, string> Identity => RoomPresentationIdentity.Create(
-            Characters, Palettes, Layouts);
+            Palettes, Layouts);
     }
 
     /// <summary>Runs ROM-free room-art identity and aggregate compatibility checks.</summary>

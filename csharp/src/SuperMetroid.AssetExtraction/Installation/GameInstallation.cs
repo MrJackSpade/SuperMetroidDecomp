@@ -139,9 +139,6 @@ public sealed record GameInstallation(string Root)
         EndingPaletteArtworkFiles.Load(EndingPaletteDirectory, EndingPaletteOverrideDirectory);
     /// <summary>Editable room character art stays outside the replaceable stock game directory.</summary>
     public string RoomCharacterOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomCharacterDirectoryName);
-    /// <summary>Loads validated room character atlases, selecting compatible user tile artwork for each supplied replacement.</summary>
-    public RoomCharacterAtlases LoadRoomCharacters() =>
-        RoomCharacterArtworkFiles.Load(RoomCharacterDirectory, RoomCharacterOverrideDirectory);
     /// <summary>Stock RGB5 room palettes and their source-hash manifest.</summary>
     public string RoomPaletteDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPaletteDirectoryName);
     /// <summary>Persistent RGB5 room palette replacements, preserved when stock content is rebuilt.</summary>
@@ -425,7 +422,6 @@ public sealed record GameInstallation(string Root)
             EndingFloorArt = LoadEndingMode7Art(),
             EndingObjectArt = LoadEndingObjectArt(),
             EndingPaletteArt = LoadEndingPalettes(),
-            RoomCharacterArt = LoadRoomCharacters(),
             RoomPaletteArt = LoadRoomPalettes(),
             RoomBlockSheets = LoadRoomBlockSheets(),
             RoomVisualLayouts = LoadRoomVisualLayouts(),

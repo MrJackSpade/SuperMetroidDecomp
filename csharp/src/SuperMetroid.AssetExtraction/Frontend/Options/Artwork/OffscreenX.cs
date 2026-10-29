@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Options.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 /// <summary>Whether an options anchor may lie off screen horizontally.</summary>
 public enum OffscreenX

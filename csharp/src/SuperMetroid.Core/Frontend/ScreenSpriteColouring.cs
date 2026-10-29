@@ -15,5 +15,5 @@ public sealed record ScreenSpriteColouring(ScreenColourGroup Group) : SpriteColo
     /// </summary>
     /// <exception cref="InvalidOperationException"><paramref name="group"/> is not one whole sprite set.</exception>
     internal static DrawnColouring? Drawn(ScreenColourGroup group) =>
-        ScreenSpriteColourPlacement.Instance.InPlaceOfGroup(new ScreenSpriteColouring(group), FrontendSheetPalette.FramePalette);
+        ScreenSpriteColourPlacement.Instance.InPlaceOfGroup(new ScreenSpriteColouring(group), FrontendSheetPalette.FrameColourGroup);
 }

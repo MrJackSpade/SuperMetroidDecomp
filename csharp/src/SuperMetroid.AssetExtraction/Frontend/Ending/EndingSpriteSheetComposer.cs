@@ -36,7 +36,7 @@ internal static class EndingSpriteSheetComposer
             {
                 string name = EndingShootingStarFrames.SheetFrameName(frame);
                 return new SheetFrameSource(name, new SpriteFrame(name, [EndingShootingStarParts.Appearance(frame).ToFramePart(0, sizes)]), characters,
-                    FrontendSheetPalette.FramePalette);
+                    FrontendSheetPalette.FrameColourGroup.Number);
             }));
         var colours = new ScreenPalette();
         page.LoadColours(palettes, colours);

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>
 /// Draws the map's markers, elevator and area labels, arrows and position indicator from the map sprite sheet (#1392),
-/// whose frames colour the parts that take their draw's colours in <see cref="FrontendSheetPalette.FramePalette"/>.
+/// whose frames colour the parts that take their draw's colours in <see cref="FrontendSheetPalette.FrameColourGroup"/>.
 /// </summary>
 internal static class MapSpriteSheet
 {

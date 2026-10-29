@@ -108,7 +108,7 @@ internal static class EnemyFormatDrawEntriesVerification
         SpawnedObjectSheet projectileSheet = InstalledFixtures.EnemySheets.Spawned(set, ProjectileTileBase);
         AssertImage(draws[entry++], new SpriteSource(SpriteSourceKind.EnemyProjectile, 17),
             projectileSheet.Sheet.Frame(EnemySheetDefinitions.ProjectileFrameName(projectileFrame)), new(30, 40),
-            projectileSheet.Palette == ProjectilePalette ? null : ProjectilePalette, "Enemy projectile");
+            projectileSheet.ColourGroup.Number == ProjectilePalette ? null : ProjectilePalette, "Enemy projectile");
         AssertEqual(draws.Length, entry, "No other entries are published");
 
         // An enemy drawn in a row its set did not load it in shows its frame in that row.

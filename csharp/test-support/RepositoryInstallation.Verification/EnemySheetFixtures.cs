@@ -125,7 +125,7 @@ internal static class EnemySheetFixtures
             foreach ((SpawnedObjectSheetPlan plan, SpriteSheetSources sources, IReadOnlyDictionary<string, SuperMetroid.AssetExtraction.Enemies.CharacterRange[][]> framePictures,
                          IReadOnlyDictionary<string, string> frameRots) in setSources.Spawned)
             {
-                spawned[plan.TileBase] = new SpawnedObjectSheet(Load(sources, $"Spawned-{plan.TileBase:X3}-{owner}"), plan.Palette);
+                spawned[plan.TileBase] = new SpawnedObjectSheet(Load(sources, $"Spawned-{plan.TileBase:X3}-{owner}"), ImageColourGroup.Numbered(plan.Palette));
                 spawnedPictures[plan.TileBase] = SuperMetroid.AssetExtraction.Installation.EnemySheetFiles.Named(framePictures, regions);
                 spawnedRotPictures[plan.TileBase] = frameRots;
             }

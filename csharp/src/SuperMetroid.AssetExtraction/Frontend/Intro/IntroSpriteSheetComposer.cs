@@ -100,7 +100,7 @@ internal static class IntroSpriteSheetComposer
         Ensure.NotNull(families).SelectMany(family => family.Frames.OrderBy(pair => pair.Key.Index).Select(pair =>
         {
             string name = CinematicSpriteSheet.FrameName(family.Family, pair.Key);
-            return new SheetFrameSource(name, pair.Value.ToFrame(name, 0, sizes), page, FrontendSheetPalette.FramePalette);
+            return new SheetFrameSource(name, pair.Value.ToFrame(name, 0, sizes), page, FrontendSheetPalette.FrameColourGroup.Number);
         }));
 
     /// <summary>The frames a sheet of <paramref name="families"/> holds.</summary>

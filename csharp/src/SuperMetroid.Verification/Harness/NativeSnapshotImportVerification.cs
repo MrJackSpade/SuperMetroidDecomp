@@ -249,7 +249,7 @@ internal static class NativeSnapshotImportVerification
         }
         foreach (var projectile in runtime.Enemies.Projectiles.EnemyProjectiles)
             ImportNativeEnemyProjectile(projectile, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W,
-                runtime.Enemies.Presentation.ColouringRows);
+                runtime.Enemies.GraphicsSet);
         // This is a one-time initial snapshot import. No native state is fed back during replay.
         runtime.System.SetRandomNumber(W(NativeSnapshotMemory.Random));
         runtime.Enemies.FrameContext.SeedRandomEnemyCounter(W(NativeSnapshotMemory.MainEnemyRoutineCount));
@@ -356,7 +356,7 @@ internal static class NativeSnapshotImportVerification
     /// their stale position and velocity words, which later spawns can read.
     /// </summary>
     private static void ImportNativeEnemyProjectile(RoomEnemyProjectileSlot projectile, IImportCartridgeSource cartridge, Func<int, ushort> W,
-        SpriteColouringRows colouringRows)
+        EnemyGraphicsSet graphicsSet)
     {
         int index = projectile.SlotIndex * 2;
         ushort id = W(NativeSnapshotMemory.EnemyProjectileId + index);
@@ -375,7 +375,7 @@ internal static class NativeSnapshotImportVerification
             // row is decoded into the colouring it denotes under the room's loaded set.
             var graphics = new SnesObjAttributeWord(W(NativeSnapshotMemory.EnemyProjectileGraphics + index));
             FamilyProjectileStarts.Initialize(
-                projectile, kind, new SpriteGraphics(graphics.TileNumber, colouringRows.InRow(graphics.PaletteIndex)));
+                projectile, kind, new SpriteGraphics(graphics.TileNumber, graphicsSet.ColouringInRow(graphics.PaletteIndex)));
             projectile.PreInstructionWord = W(NativeSnapshotMemory.EnemyProjectilePreInstruction + index);
             ushort instruction = W(NativeSnapshotMemory.NativeEnemyProjectileInstruction + index);
             // The typed family resumes at the step the recorded native pointer stands for.

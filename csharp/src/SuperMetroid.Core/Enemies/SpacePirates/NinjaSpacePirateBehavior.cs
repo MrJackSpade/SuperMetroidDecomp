@@ -608,9 +608,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             case NinjaSpacePirateCue.SetFunction setFunction:
                 state.Function = setFunction.Function;
                 return null;
-            case NinjaSpacePirateCue.SetPalette setPalette:
-                slot.Colouring = _presentation.ColouringRows.InRow(setPalette.Palette ?? throw new InvalidOperationException(
-                    "A ninja Space Pirate palette cue carries no palette."));
+            case NinjaSpacePirateCue.SetColouring setColouring:
+                slot.Colouring = setColouring.Colouring ?? throw new InvalidOperationException(
+                    "A ninja Space Pirate colouring cue carries no colouring.");
                 return null;
             case NinjaSpacePirateCue.PlaySound playSound:
                 _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = playSound.Sound ?? throw new InvalidOperationException(

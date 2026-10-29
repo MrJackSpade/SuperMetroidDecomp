@@ -54,25 +54,6 @@ internal sealed class SpriteColouringRows
         return row == imageRow ? null : new DrawnColouring(drawn, row);
     }
 
-    /// <summary>
-    /// The colouring a cartridge sprite palette row denotes under the graphics set, for state imported or recorded as
-    /// rows: the shared set its role places there, the member the set loaded into it last, whose colours it holds, or,
-    /// for a row neither names, that unnamed row. <see cref="Row"/> places the result back in <paramref name="row"/>.
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The row is not a sprite palette row.</exception>
-    internal SpriteColouring InRow(int row)
-    {
-        Ensure.BetweenInclusive(0, SpriteImage.MaximumPaletteRow, row);
-        if (SpriteColourSetDefinitions.RoleRows.TryGetValue(row, out SharedSpriteColouring? role))
-            return role;
-        for (int index = _graphicsSet.Entries.Count - 1; index >= 0; index--)
-        {
-            if (_graphicsSet.Entries[index].PaletteRow == row)
-                return new GraphicsSetMemberColouring(_graphicsSet.Entries[index].DefinitionId);
-        }
-        return new UnnamedSpriteRowColouring(row);
-    }
-
     /// <summary>The row the graphics set loads <paramref name="enemy"/>'s colours into.</summary>
     /// <exception cref="InvalidOperationException">The set does not load the enemy.</exception>
     private int MemberRow(EnemyDefinitionId enemy)
@@ -95,6 +76,7 @@ internal sealed class SpriteColouringRows
         SharedSpriteColours.Frozen => SpriteColourSetDefinitions.Frozen,
         SharedSpriteColours.DeadSidehopperFade => SpriteColourSetDefinitions.DeadSidehopper,
         SharedSpriteColours.NinjaSpacePirateGoldWall => SpriteColourSetDefinitions.NinjaSpacePirate,
+        SharedSpriteColours.NinjaSpacePirateStance => SpriteColourSetDefinitions.NinjaSpacePirateStance,
         _ => throw new ArgumentOutOfRangeException(nameof(set), set, "Undefined shared sprite colour set."),
     };
 }

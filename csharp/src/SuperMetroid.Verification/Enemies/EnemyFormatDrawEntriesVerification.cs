@@ -112,7 +112,7 @@ internal static class EnemyFormatDrawEntriesVerification
         AssertEqual(draws.Length, entry, "No other entries are published");
 
         // An enemy drawn in a row its set did not load it in shows its frame in that row.
-        ordinary.Colouring = new UnnamedSpriteRowColouring(OtherRow);
+        ordinary.Colouring = SpriteColouring.InFixtureSet(OtherRow);
         sprites.BeginFrame();
         enemies.Drawing.AdvanceLayers(Position16<RoomPixels>.Zero, 0, 0);
         enemies.Drawing.DrawLayers(sprites, Position16<RoomPixels>.Zero, 0, 0);
@@ -142,7 +142,7 @@ internal static class EnemyFormatDrawEntriesVerification
             AssertEqual(source, image.Source, $"{subject} names its slot");
             AssertTrue(ReferenceEquals(frame, image.Image), $"{subject} shows its sheet's frame");
             AssertEqual(origin, image.Origin, $"{subject} is placed at its screen origin");
-            AssertEqual(row, image.Colouring?.Row, $"{subject} shows its frame in the row holding the colours it is drawn in");
+            AssertEqual(row, image.Colouring?.HoldingRow, $"{subject} shows its frame in the row holding the colours it is drawn in");
         }
     }
 

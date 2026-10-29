@@ -141,8 +141,8 @@ internal static class EnemySheetComposer
             if (!EnemyDefinitionFrameDefinitions.Frames.TryGetValue(enemy, out IReadOnlyList<EnemyFrameId>? shown))
                 continue;
             SpriteGraphics indexes = graphics.DrawIndexes(enemy);
-            // The sheet is coloured in the row the set holds the enemy's colours in.
-            int paletteBits = new SpriteColouringRows(graphics).Row(indexes.Colouring);
+            // The sheet is coloured in the sprite set the set places the enemy's colours in.
+            int paletteBits = new GraphicsSetColourPlacement(graphics).HoldingSet(indexes.Colouring);
             var pictures = new Dictionary<string, CharacterRange[][]>(StringComparer.Ordinal);
             var rots = new Dictionary<string, string>(StringComparer.Ordinal);
             var frames = new List<SheetFrameSource>();

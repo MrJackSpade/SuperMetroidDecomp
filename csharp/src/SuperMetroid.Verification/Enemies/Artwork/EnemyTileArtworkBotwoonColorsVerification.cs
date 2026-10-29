@@ -68,7 +68,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         var state = new BotwoonEnemyState()
         {
-            PaletteFirstColour = BotwoonHealthPaletteDefinitions.FirstColour,
+            HealthColouring = new SuperMetroid.Core.Enemies.Drawing.EncounterSpriteColouring(SuperMetroid.Core.Bosses.Artwork.BossColourDefinitions.BotwoonBody),
         };
         cgram.SetColor(BotwoonHealthPaletteDefinitions.FirstColour - 1, RgbColor.FromWord(0x1234));
         for (int band = 0; band < BotwoonHealthPaletteDefinitions.PaletteCount; band++)
@@ -91,10 +91,11 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "live Botwoon health palette avoids migrated RGB5 ROM reads");
         state.PalettePhase = 0;
-        state.PaletteFirstColour = BotwoonHealthPaletteDefinitions.FirstColour - BotwoonHealthPaletteDefinitions.ColorsPerPalette;
+        // Over the set before the body's, the cartridge's copy would run on past the authored band.
+        state.HealthColouring = SpriteColouring.InFixtureSet(SuperMetroid.Core.Bosses.Artwork.BossColourDefinitions.BotwoonBody.Set - 1);
         head.Health = 0;
         AssertThrows<InvalidDataException>(() => update(head, state),
-            "installed Botwoon rejects a non-retail palette destination");
+            "installed Botwoon rejects health colours other than its body's");
 
         File.WriteAllBytes(overrideFile, [0]);
         AssertThrows<InvalidDataException>(

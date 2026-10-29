@@ -118,15 +118,11 @@ public sealed class SpriteImage
     /// <summary>The highest sprite palette row.</summary>
     public const int MaximumPaletteRow = 7;
 
-    /// <summary>The part-row flag of a pixel whose part names its own row, which a draw's override leaves alone.</summary>
-    public const byte FixedPartRow = 8;
-
     /// <summary>
-    /// The row a pixel of part row <paramref name="partRow"/> shows under a draw's override: its own row when the part
-    /// names it, otherwise its part row with the override ORed in, as the cartridge ORs a draw's palette bits.
+    /// The part-row flag of a pixel whose part keeps its own colours under a draw's colouring; the draw's
+    /// <see cref="SpriteColourPlacement"/> decides what every other part group shows.
     /// </summary>
-    public static int OverriddenRow(int partRow, int overriding) =>
-        (partRow & FixedPartRow) != 0 ? partRow & MaximumPaletteRow : partRow | overriding;
+    public const byte FixedPartRow = 8;
 
     /// <summary>The image's installed name.</summary>
     public string Name { get; }

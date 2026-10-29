@@ -59,7 +59,7 @@ public sealed class DrawColours
     /// <summary>
     /// The colours <paramref name="draw"/> shows under <paramref name="spriteSets"/>, a frame's sprite sets. A plain
     /// draw shows each ink row the frame uses, keeping its image's own colours while that row holds them. A draw with
-    /// a drawn colouring shows, for each part row, the row the colouring's row leaves it.
+    /// a drawn colouring shows, for each part group, what the colouring's placement shows over it (#1464).
     /// </summary>
     public static DrawColours Resolve(ImageSpriteDraw draw, ShownColourSets spriteSets)
     {
@@ -69,19 +69,18 @@ public sealed class DrawColours
         int blending = 0;
         if (draw.Colouring is { } overriding)
         {
-            for (int partRow = 0; partRow < Keys; partRow++)
+            for (int partGroup = 0; partGroup < Keys; partGroup++)
             {
-                int row = SpriteImage.OverriddenRow(partRow, overriding.Row);
-                shown[partRow] = spriteSets.Set(row).ToArray();
-                if (row >= FirstBlendingRow)
-                    blending |= 1 << partRow;
+                shown[partGroup] = overriding.Placement.ShownOver(overriding.Shows, partGroup, spriteSets, out bool blends).ToArray();
+                if (blends)
+                    blending |= 1 << partGroup;
             }
             return new DrawColours(ColourKeying.PartRow, shown, blending);
         }
         ReadOnlySpan<RgbColor> standard = draw.Image.Sheet.StandardColours;
         for (int row = 0; row < InkRows; row++)
         {
-            if (row >= FirstBlendingRow)
+            if (SetBlends(row))
                 blending |= 1 << row;
             if ((draw.Image.Rows & SpritePaletteRowSet.Rows[row]) == SpritePaletteRows.None)
                 continue;
@@ -103,7 +102,7 @@ public sealed class DrawColours
         Ensure.NotNull(draw);
         Ensure.NotNull(owner);
         if (draw.Colouring is not null)
-            throw new InvalidOperationException("An owner colours its draws itself; a drawn colouring selects colours from a row.");
+            throw new InvalidOperationException("An owner colours its draws itself; a drawn colouring shows colours another load placed.");
         ReadOnlySpan<RgbColor> standard = draw.Image.Sheet.StandardColours;
         var shown = new RgbColor[]?[Keys];
         Span<RgbColor> colours = stackalloc RgbColor[RowColours];
@@ -148,6 +147,9 @@ public sealed class DrawColours
             bits |= 1 << row;
         return bits;
     }
+
+    /// <summary>Whether pixels shown in sprite set <paramref name="set"/> blend with what lies behind them.</summary>
+    internal static bool SetBlends(int set) => set >= FirstBlendingRow;
 
     /// <summary>Checks that <paramref name="key"/> is one of the draw's.</summary>
     private int CheckKey(int key) => Ensure.BetweenInclusive(0, (FollowsPartRows ? Keys : InkRows) - 1, key);

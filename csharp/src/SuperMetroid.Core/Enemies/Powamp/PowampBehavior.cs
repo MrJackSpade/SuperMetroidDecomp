@@ -30,14 +30,14 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyCollision _collision;
     /// <summary>Starts ordinary death processing after the delayed spike burst.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>Places the body's colours in their row, which a full pool's death animation reads.</summary>
-    private readonly SpriteColouringRows _colouringRows;
+    /// <summary>Where the room places the body's colours, whose sharing with the common colours a full pool's death animation reads.</summary>
+    private readonly SpriteColourPlacement _placement;
 
     /// <summary>Connects Powamp's paired body and balloon AI to terrain, projectile, and collision services.</summary>
     internal PowampBehavior(EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemySlotTable slotTable, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops,
-        SpriteColouringRows colouringRows)
+        SpriteColourPlacement placement)
     {
-        _colouringRows = colouringRows;
+        _placement = placement;
         _terrain = terrain;
         _projectiles = projectiles;
         _slotTable = slotTable;
@@ -617,11 +617,11 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// The death animation a Powamp dies with when its spike burst found the projectile pool full. The cartridge leaves
     /// the body's graphics, read as one number, as the animation, and EnemyDeath treats any number past its animations
-    /// as the default animation 0. That number names an animation only for a body whose colours are held in palette
-    /// row zero, the common colours' row, where it is the body's tile base; any other row puts it past every animation.
+    /// as the default animation 0. That number names an animation only for a body whose colours are the common colours,
+    /// held where the palette bits read as zero, so it is the body's tile base; any other colours put it past every animation.
     /// </summary>
     private int FullPoolDeathAnimation(RoomEnemySlot body) =>
-        _colouringRows.SameRow(body.Colouring, SharedSpriteColouring.Common) ? body.TileIndexBase : 0;
+        _placement.SharesColours(body.Colouring, SharedSpriteColouring.Common) ? body.TileIndexBase : 0;
 
     /// <summary>Ports <c>PreInstruction_EnemyProjectile_PowampSpike</c> at $86:D263.</summary>
     internal static void RunPowampSpikePreInstruction(

@@ -28,7 +28,7 @@ internal static class AlcoonFireballBehaviorVerification
         source.Bind(EnemyDefinitionId.Alcoon, source.Definition);
         source.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
         source.TileIndexBase = 512;
-        source.Colouring = new UnnamedSpriteRowColouring(6);
+        source.Colouring = SpriteColouring.InFixtureSet(6);
         var state = new AlcoonEnemyState();
         source.SetSpeciesState(state);
         foreach (short direction in new short[] { -2, 2 })

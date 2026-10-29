@@ -13,7 +13,7 @@ public sealed record ImageSpriteDraw : SpriteDraw
     /// <param name="mirror">Mirrors the frame about its origin.</param>
     /// <param name="colouring">
     /// The colours shown in place of the ones the image was coloured with, as an enemy's hit or freeze flash supplies,
-    /// their row ORed into each pixel's part row; or null for the image's own colours.
+    /// shown over each part group as their placement decides; or null for the image's own colours.
     /// </param>
     public ImageSpriteDraw(SpriteSource source, SpriteSheetFrame image, Position16<ScreenPixels> origin, SpriteMirror mirror,
         DrawnColouring? colouring = null)
@@ -25,8 +25,8 @@ public sealed record ImageSpriteDraw : SpriteDraw
     }
 
     /// <summary>
-    /// The colours shown in place of the ones the image was coloured with, their row ORed into each pixel's part row, or
-    /// null for the image's own colours (#1464).
+    /// The colours shown in place of the ones the image was coloured with, shown over each part group as their placement
+    /// decides, or null for the image's own colours (#1464).
     /// </summary>
     public DrawnColouring? Colouring { get; }
 

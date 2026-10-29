@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
@@ -75,8 +76,11 @@ public sealed class BotwoonEnemyState
     internal BotwoonHeadProgram HeadProgram { get; set; } = BotwoonHeadProgram.Hidden;
     /// <summary>The next step of the head animation's timeline.</summary>
     internal int HeadAnimationPosition { get; set; }
-    /// <summary>CGRAM destination color; retail initialization targets color $F0, the start of OBJ palette seven.</summary>
-    public int PaletteFirstColour { get; internal set; }
+    /// <summary>
+    /// The colours the health bands are written over: the head's, as initialization found it drawn; retail Botwoon's
+    /// head draws in its body's colours (#1464).
+    /// </summary>
+    public SpriteColouring? HealthColouring { get; internal set; }
     /// <summary>Band 0 through 7 selecting the next health threshold/palette; 8 marks completion of all eight palette steps.</summary>
     public int PalettePhase { get; internal set; }
     /// <summary>Head health retained from initialization, independently of subsequent damage and the palette threshold table.</summary>

@@ -45,6 +45,9 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
 
+    /// <summary>The colours Botwoon's body loads for itself, which its health bands rewrite.</summary>
+    private static readonly EncounterSpriteColouring BodyColouring = new(BossColourDefinitions.BotwoonBody);
+
 
     /// <summary>Binds Botwoon's head, body, palette, collision, and drop services.</summary>
     internal BotwoonBehavior(BotwoonBehaviorDependencies dependencies)
@@ -129,8 +132,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HalfHealth = head.Health >> 1;
         state.QuarterHealth = head.Health >> 2;
         state.PreviousHealth = head.Health;
-        state.PaletteFirstColour = SpriteImage.SpriteColourCount
-            + _presentation.ColouringRows.Row(head.Colouring) * GameplayBasePaletteFormat.SpriteColorCount;
+        state.HealthColouring = head.Colouring;
         // `$B3:961B` ORs $0400: the head starts hidden in its hole, out of every collision pass.
         head.Properties = head.Properties.With(EnemyProperties.IgnoreSamusCollision);
 
@@ -696,19 +698,16 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!BotwoonHealthPalette.ShouldAdvance(state.PalettePhase, head.Health))
             return;
 
-        int destinationColor = state.PaletteFirstColour;
-        int colorCount = 256 - destinationColor;
         if (_bossArtwork.Artwork?.BotwoonColors is { } colors)
         {
-            // The retail actor owns OBJ palette seven. A restored/non-retail offset
-            // would copy past this authored image into adjacent ROM data; do not
-            // silently substitute a different visual result for that state.
-            if (destinationColor != BotwoonHealthPaletteDefinitions.FirstColour ||
-                colorCount != BotwoonHealthPaletteDefinitions.ColorsPerPalette)
+            // The cartridge writes the bands from the head's colours to the end of the sprite colours, one whole set only
+            // where the head draws in the last set, its body's. Over any other colours the copy would run past this
+            // authored image into adjacent ROM data; do not silently substitute a different visual result for that state.
+            if (state.HealthColouring is not { } health || !_presentation.Placement.SharesColours(health, BodyColouring))
                 throw new InvalidDataException(
-                    $"Botwoon palette destination {destinationColor} is outside the retail sprite palette.");
+                    $"Botwoon's health colours {state.HealthColouring?.ToString() ?? "(none)"} are not its body's, the retail sprite set.");
             int band = state.PalettePhase;
-            for (int color = 0; color < colorCount; color++)
+            for (int color = 0; color < BotwoonHealthPaletteDefinitions.ColorsPerPalette; color++)
                 _presentation.BossColours().BotwoonBody.Write(color, colors.HealthColor(band, color));
         }
         else throw new InvalidOperationException("Botwoon requires installed health colors.");
@@ -1025,7 +1024,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot segment,
         int randomEnemyCounter)
     {
-        segment.Graphics = segment.Graphics.In(new EncounterSpriteColouring(BossColourDefinitions.BotwoonBody));
+        segment.Graphics = segment.Graphics.In(BodyColouring);
         RoomEnemySlot head = _slotTable.Slots[0];
         if (!head.FlashTimer.IsZero && (randomEnemyCounter & 2) != 0)
             segment.Graphics = segment.Graphics.In(SharedSpriteColouring.Common);

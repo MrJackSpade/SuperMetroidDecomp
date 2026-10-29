@@ -62,8 +62,6 @@ internal sealed record RoomLoaderDependencies
     /// <summary>Hud.</summary>
     public required HudState Hud { get; init; }
 
-    /// <summary>Hud setup.</summary>
-    public required GameplayHudSetup HudSetup { get; init; }
 
 
     /// <summary>The frame clock.</summary>

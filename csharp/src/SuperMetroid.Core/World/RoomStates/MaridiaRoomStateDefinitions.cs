@@ -49,7 +49,7 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The disassembly's RoomState_CrabTunnel.</summary>
     public static RoomStateSettings CrabTunnel { get; } =
-        new(nameof(CrabTunnel), RoomLevelDefinitions.CrabTunnel, 0x0B, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(6)), SuperMetroid.Core.Fx.RoomFxDefinitions.CrabTunnel, Enemies.RoomEnemyPopulationDefinitions.CrabTunnel, Enemies.RoomEnemyGraphicsSetDefinitions.CrabTunnel, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0xC1, 0xC1), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.CrabTunnel, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.CrabTunnel, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundProgramDefinitions.MaridiaBBrownWall, RoomSetupCallback.BossRoomReturnB);
+        new(nameof(CrabTunnel), RoomLevelDefinitions.CrabTunnel, 0x0B, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(6)), SuperMetroid.Core.Fx.RoomFxDefinitions.CrabTunnel, Enemies.RoomEnemyPopulationDefinitions.CrabTunnel, Enemies.RoomEnemyGraphicsSetDefinitions.CrabTunnel, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0xC1, 0xC1), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.CrabTunnel, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.CrabTunnel, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.MaridiaBBrownWall, RoomSetupCallback.BossRoomReturnB);
 
 
     /// <summary>The disassembly's RoomState_MtEverest.</summary>
@@ -144,7 +144,7 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The disassembly's RoomState_WestSandHall.</summary>
     public static RoomStateSettings WestSandHall { get; } =
-        new(nameof(WestSandHall), RoomLevelDefinitions.WestSandHall, 0x0C, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.WestSandHall, Enemies.RoomEnemyPopulationDefinitions.WestSandHall, Enemies.RoomEnemyGraphicsSetDefinitions.WestSandHall, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0xC1, 0x01), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.WestSandHall, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundProgramDefinitions.MaridiaCGreenWall, RoomSetupCallback.BossRoomReturnC);
+        new(nameof(WestSandHall), RoomLevelDefinitions.WestSandHall, 0x0C, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.WestSandHall, Enemies.RoomEnemyPopulationDefinitions.WestSandHall, Enemies.RoomEnemyGraphicsSetDefinitions.WestSandHall, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0xC1, 0x01), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.WestSandHall, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.MaridiaCGreenWall, RoomSetupCallback.BossRoomReturnC);
 
 
     /// <summary>The disassembly's RoomState_Oasis.</summary>
@@ -154,7 +154,7 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The disassembly's RoomState_EastSandHall.</summary>
     public static RoomStateSettings EastSandHall { get; } =
-        new(nameof(EastSandHall), RoomLevelDefinitions.EastSandHall, 0x0C, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.EastSandHall, Enemies.RoomEnemyPopulationDefinitions.EastSandHall, Enemies.RoomEnemyGraphicsSetDefinitions.EastSandHall, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0xC1, 0x01), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.EastSandHall, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundProgramDefinitions.MaridiaCGreenWall, RoomSetupCallback.BossRoomReturnC);
+        new(nameof(EastSandHall), RoomLevelDefinitions.EastSandHall, 0x0C, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.EastSandHall, Enemies.RoomEnemyPopulationDefinitions.EastSandHall, Enemies.RoomEnemyGraphicsSetDefinitions.EastSandHall, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0xC1, 0x01), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.EastSandHall, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.MaridiaCGreenWall, RoomSetupCallback.BossRoomReturnC);
 
 
     /// <summary>The disassembly's RoomState_WestSandHole.</summary>
@@ -304,10 +304,10 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The disassembly's RoomState_Draygon_0.</summary>
     public static RoomStateSettings Draygon0 { get; } =
-        new(nameof(Draygon0), RoomLevelDefinitions.Draygon, 0x1C, new RoomMusic(MusicDataSet.BossFight1, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.DraygonState01, Enemies.RoomEnemyPopulationDefinitions.Draygon0, Enemies.RoomEnemyGraphicsSetDefinitions.Draygon0, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0x01, 0x01), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Draygon, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.DraygonState01, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundProgramDefinitions.DraygonState0, RoomSetupCallback.SetPausingCodeForDraygon);
+        new(nameof(Draygon0), RoomLevelDefinitions.Draygon, 0x1C, new RoomMusic(MusicDataSet.BossFight1, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.DraygonState01, Enemies.RoomEnemyPopulationDefinitions.Draygon0, Enemies.RoomEnemyGraphicsSetDefinitions.Draygon0, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0x01, 0x01), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Draygon, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.DraygonState01, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.DraygonState0, RoomSetupCallback.SetPausingCodeForDraygon);
 
 
     /// <summary>The disassembly's RoomState_Draygon_1.</summary>
     public static RoomStateSettings Draygon1 { get; } =
-        new(nameof(Draygon1), RoomLevelDefinitions.Draygon, 0x1C, new RoomMusic(null, RoomMusicTrack.Plays(3)), SuperMetroid.Core.Fx.RoomFxDefinitions.DraygonState01, Enemies.RoomEnemyPopulationDefinitions.DraygonState1MotherBrainState2, Enemies.RoomEnemyGraphicsSetDefinitions.Draygon1MotherBrain2, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0x01, 0x01), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Draygon, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.DraygonState01, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundProgramDefinitions.PhantoonDraygonState1, RoomSetupCallback.SetPausingCodeForDraygon);
+        new(nameof(Draygon1), RoomLevelDefinitions.Draygon, 0x1C, new RoomMusic(null, RoomMusicTrack.Plays(3)), SuperMetroid.Core.Fx.RoomFxDefinitions.DraygonState01, Enemies.RoomEnemyPopulationDefinitions.DraygonState1MotherBrainState2, Enemies.RoomEnemyGraphicsSetDefinitions.Draygon1MotherBrain2, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0x01, 0x01), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Draygon, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.DraygonState01, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.PhantoonDraygonState1, RoomSetupCallback.SetPausingCodeForDraygon);
 }

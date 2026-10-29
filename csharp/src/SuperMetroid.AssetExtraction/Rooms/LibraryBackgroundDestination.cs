@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.Backgrounds;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// Where one library-background command puts what it reads (#1414), named for what the room shows there rather than the

@@ -14,10 +14,4 @@ public enum BgCharacterSet
 
     /// <summary>The characters layer 3 names: the HUD's, the minimap's and the room effects' glyphs.</summary>
     Layer3,
-
-    /// <summary>
-    /// The copy of layer 3's characters Kraid's library background makes, which layer 3 reads while his body covers the
-    /// standard ones.
-    /// </summary>
-    KraidLayer3,
 }

@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rooms.Doors;
 
-namespace SuperMetroid.Core.Rooms.Backgrounds;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// One library-background command (#1414): what it reads, where it puts it and how much, named for the room's background

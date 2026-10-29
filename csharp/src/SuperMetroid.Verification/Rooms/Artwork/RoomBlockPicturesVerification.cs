@@ -300,7 +300,7 @@ internal static class RoomBlockPicturesVerification
             Layer3Plane plane = latched.Layer3 ?? throw new InvalidOperationException($"{room.Name} latches no BG3 plane.");
             AssertTrue(latched.Rooms?.Bg3 is not null, $"{room.Name}: BG3 draws from its pictures");
             ReadOnlySpan<byte> vram = runtime.ComposedVram();
-            BgCharacterSet layer3 = latched.Scene.Layer3Characters;
+            BgCharacterSet layer3 = BgCharacterSet.Layer3;
             int characterBase = BgCharacterWordsConstants.WordOf(layer3, 0);
             var animated = new AnimatedCharacterView(RoomScopeOf(runtime).AnimatedCharacters.Bg3, RoomScopeOf(runtime).ArtworkFrames);
             ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver((runtime.Room.Scope

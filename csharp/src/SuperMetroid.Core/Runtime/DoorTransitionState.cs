@@ -164,7 +164,6 @@ internal sealed class DoorTransitionState
                 // native exposes this function separately from scrolling and tile upload.
                 runtime.RunBlankGameplayFrame(controllerInput);
                 runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(perLineEffects: PerLineEffectProcessing.Skipped, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
-                runtime.RoomLoader.SelectDoorDestinationHudCharacterBase();
                 Phase = DoorTransitionPhase.SetupScrolling;
                 break;
 

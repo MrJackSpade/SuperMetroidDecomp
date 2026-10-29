@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hud;
 
 namespace SuperMetroid.Core.World;
@@ -12,8 +11,6 @@ internal sealed record GameplayHudSetupDependencies
     /// <summary>The installed artwork the HUD's presentation and characters come from.</summary>
     public required RuntimeArtwork Artwork { get; init; }
 
-    /// <summary>The display state whose BG3 character base the HUD selects.</summary>
-    public required GameplayDisplayState Display { get; init; }
 
     /// <summary>The HUD tilemap initialization fills.</summary>
     public required HudState Hud { get; init; }

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
-using SuperMetroid.Core.Rooms.Backgrounds;
+
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
@@ -68,14 +68,14 @@ internal sealed class BgArtworkBytes
     }
 
     /// <summary>
-    /// The HUD's characters as <paramref name="hud"/> installs them: the standard HUD artwork, the copy Kraid's library
-    /// background makes and the quarters his death restores.
+    /// The HUD's characters as <paramref name="hud"/> installs them: the standard HUD artwork and the quarters Kraid's
+    /// death restores.
     /// </summary>
     internal BgArtworkBytes WithHud(HudTileAtlas hud)
     {
         Ensure.NotNull(hud);
         Add(BgArtworkIdentity.Asset(InstalledArtworkId.StandardHudTiles), () => hud.Bytes);
-        Add(RoomBgArtwork.Library(LibraryBackgroundSource.HudCharacters), () => hud.Bytes);
+
         for (int quarter = 0; quarter < KraidHudRestoration.QuarterCount; quarter++)
         {
             int restored = quarter;

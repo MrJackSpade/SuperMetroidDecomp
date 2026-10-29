@@ -448,8 +448,7 @@ internal static class FrontendRomFreeVerification
         bindInstalled(installedRoom, false);
         nativeRoom.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Kraid);
         installedRoom.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Kraid);
-        AssertEqual(BgCharacterSet.KraidLayer3, installedRoom.GameplayRuntimeForVerification.Display.Layer3Characters,
-            "restored Kraid room selects the copy of the HUD's characters");
+
         // Kraid's body is a published frame (#1352), not VRAM pages.
         static ushort[] Body(SuperMetroidGame game) =>
             [.. game.GameplayRuntimeForVerification.Enemies.KraidBehavior.BodyLayer.CaptureBodyLayer()?.Tilemap.Words ?? []];

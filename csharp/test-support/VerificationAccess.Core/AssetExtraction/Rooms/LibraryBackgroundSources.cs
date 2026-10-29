@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.Backgrounds;
-
-namespace SuperMetroid.AssetExtraction.Rooms;
+﻿namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// The import pipeline's map between the bank-$8F command-list pointers room states store and the compiled

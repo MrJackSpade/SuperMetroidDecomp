@@ -79,16 +79,12 @@ public sealed class RoomBackgroundImage
     }
 
     /// <summary>
-    /// The installed name of the background <paramref name="program"/> loads in a room of <paramref name="tileset"/>,
-    /// entered through <paramref name="door"/> when the program transfers for that door, otherwise through no such door.
+    /// The installed name of <paramref name="background"/>'s picture in a room of <paramref name="tileset"/>: the picture a
+    /// room entered through <paramref name="door"/> shows when that door shows its own picture, otherwise, for no door,
+    /// the ordinary one.
     /// </summary>
-    public static string NameOf(LibraryBackgroundProgram program, DoorDefinition? door, TilesetDefinition tileset) =>
-        $"{Ensure.NotNull(program).Name}{(door is null ? "" : "." + door.Name)}.{RoomBlockSheet.NameOf(tileset)}";
-
-    /// <summary>The door <paramref name="program"/>'s transfers depend on when entered through <paramref name="door"/>, or null.</summary>
-    public static DoorDefinition? DoorVariant(LibraryBackgroundProgram program, DoorDefinition door) =>
-        Ensure.NotNull(program).Instructions.Any(instruction => instruction.Command == LibraryBackgroundCommand.TransferForDoor
-            && instruction.Door == door) ? door : null;
+    public static string NameOf(LibraryBackground background, DoorDefinition? door, TilesetDefinition tileset) =>
+        $"{Ensure.NotNull(background).Name}{(door is null ? "" : "." + door.Name)}.{RoomBlockSheet.NameOf(tileset)}";
 
     /// <summary>
     /// The 16x16 cells of 32-tile-wide <paramref name="tiles"/>, row by row, each its four tiles: top left, top right,

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Assets;
+
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -45,19 +45,14 @@ internal static class RoomBackgroundLibraryParityVerification
             {
                 SuperMetroidAddressSpace nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
                 var nativeVram = new SnesVram();
-                LibraryBackgroundExecutionResult native =
-                    LibraryBackgroundProgramImporter.ExecuteReference(
-                        nativeBus, nativeVram, program.Pointer, door);
+                LibraryBackgroundProgramImporter.ExecuteReference(
+                    nativeBus, nativeVram, program.Pointer, door);
 
+                // Installed transfers write the installed artwork where the native transfer writes the cartridge's;
+                // the statue ghost's characters alone are written nowhere.
                 var selectedVram = new SnesVram();
-                // Installed character transfers bind their artwork instead of writing VRAM (#1350); the frame composes
-                // them over the VRAM image, which is what the native transfer left in VRAM.
-                var bindings = new BgArtworkBindings();
-                LibraryBackgroundExecutionResult selected = LibraryBackgroundReplay.Execute(selectedVram, LibraryBackgroundProgramDefinitions.Get(program.Pointer), door == 0 ? FixtureRoomHeaders.UnmatchedDoor : DoorDefinitions.Get(door), new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters, Backgrounds = bindings });
+                LibraryBackgroundReplay.Execute(selectedVram, LibraryBackgroundProgramDefinitions.Get(program.Pointer), door == 0 ? FixtureRoomHeaders.UnmatchedDoor : DoorDefinitions.Get(door), new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });
                 byte[] selectedImage = selectedVram.Bytes.ToArray();
-                bindings.ComposeOver(selectedImage, new BgArtworkBytes().WithHud(hud));
-                AssertEqual(native, selected,
-                    $"library background $8F:{program.Pointer:X4}, door ${door:X4} command result");
                 Range ghost = VerifyStatueGhostCharactersBindNowhere(program, nativeVram, selectedImage, characters);
                 for (int index = 0; index < nativeVram.Bytes.Length; index++)
                 {
@@ -145,7 +140,7 @@ internal static class RoomBackgroundLibraryParityVerification
     {
         const ushort listPointer = 0xf000;
 
-        var partialSky = new LibraryBackgroundProgram("partial sky page",
+        var partialSky = new LibraryBackgroundProgram(new LibraryBackground("partial sky page", []),
             [new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.Sky(0), LibraryBackgroundDestination.BackgroundFirstPage, 2, null)]);
         AssertThrows<InvalidDataException>(
             () => LibraryBackgroundReplay.Execute(new SnesVram(), partialSky, FixtureRoomHeaders.UnmatchedDoor, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters }),

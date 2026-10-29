@@ -1,19 +1,19 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.World;
+using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
-/// Replays a room state's library-background command list as bank $82's interpreter runs it (#1406). Only extraction runs
-/// the list: it decompresses tilemaps into the cartridge's tilemap staging, copies staged and sky tilemaps to BG2's pages,
-/// fills pages with the blank tile, and binds the characters the list brings through the runtime's own decision. The BG2
-/// pages the replay leaves are pictured as the background's image, which the runtime selects by name instead.
+/// Replays a room state's library-background command list as bank $82's interpreter runs it (#1406, #1466). Only extraction
+/// runs the list: it decompresses tilemaps into the cartridge's tilemap staging, copies staged and sky tilemaps to BG2's
+/// pages and the HUD's characters where Kraid's list copies them, and fills pages with the blank tile. The BG2 pages the
+/// replay leaves are pictured as the background's image, which the runtime selects by name instead.
 /// </summary>
 internal static class LibraryBackgroundReplay
 {
@@ -26,7 +26,7 @@ internal static class LibraryBackgroundReplay
     /// The list holds a command the interpreter does not accept, a zero-length transfer, or a transfer from ROM that no
     /// installed artwork owns.
     /// </exception>
-    internal static LibraryBackgroundExecutionResult Execute(SnesVram vram, LibraryBackgroundProgram program,
+    internal static void Execute(SnesVram vram, LibraryBackgroundProgram program,
         DoorDefinition activeDoor, LibraryBackgroundArtwork artwork, ReadOnlyMemory<byte> enemyBg2Staging = default)
     {
         Ensure.NotNull(vram);
@@ -35,14 +35,13 @@ internal static class LibraryBackgroundReplay
         if (enemyBg2Staging.Length > LibraryBackgroundStagingDefinitions.EnemyBg2StagingByteCount)
             throw new ArgumentOutOfRangeException(nameof(enemyBg2Staging), enemyBg2Staging.Length, "The enemy BG2 staging is 4 KiB.");
         var staging = new Staging(enemyBg2Staging);
-        LibraryBackgroundCharacterArtwork characters = artwork.CharactersOver(artwork.Backgrounds ?? new BgArtworkBindings());
-        bool selectsKraidHudCharacters = false;
         foreach (LibraryBackgroundInstruction instruction in program.Instructions)
         {
             switch (instruction.Command)
             {
                 case LibraryBackgroundCommand.Transfer:
-                    Transfer(staging, vram, instruction, artwork, characters);
+                case LibraryBackgroundCommand.TransferForKraid:
+                    Transfer(staging, vram, instruction, artwork);
                     break;
                 case LibraryBackgroundCommand.Decompress:
                     if (instruction.Destination != LibraryBackgroundDestination.TilemapStaging || instruction.Source is not LibraryBackgroundSource.CompressedTilemap compressed)
@@ -53,10 +52,6 @@ internal static class LibraryBackgroundReplay
                     break;
                 case LibraryBackgroundCommand.ClearFxTilemap:
                     FillAndTransfer(staging, vram, LibraryBackgroundStagingDefinitions.ClearFx);
-                    break;
-                case LibraryBackgroundCommand.TransferForKraid:
-                    Transfer(staging, vram, instruction, artwork, characters);
-                    selectsKraidHudCharacters = true;
                     break;
                 case LibraryBackgroundCommand.ClearBg2:
                     FillAndTransfer(staging, vram, LibraryBackgroundStagingDefinitions.ClearBg2);
@@ -70,23 +65,26 @@ internal static class LibraryBackgroundReplay
                     break;
                 case LibraryBackgroundCommand.TransferForDoor:
                     if (instruction.Door == activeDoor)
-                        Transfer(staging, vram, instruction, artwork, characters);
+                        Transfer(staging, vram, instruction, artwork);
                     break;
                 default:
                     throw new InvalidDataException(
                         $"Unknown compiled library-background command {instruction.Command} in list {program.Name}.");
             }
         }
-        return new LibraryBackgroundExecutionResult(selectsKraidHudCharacters);
     }
 
     /// <summary>
-    /// One transfer command: characters bind as the runtime binds them; a staged source copies the staging; a sky page
-    /// copies its installed rows.
+    /// One transfer command: a staged source copies the staging; the HUD's characters, which only Kraid's list copies,
+    /// copy their installed artwork; the Tourian statue ghost's characters reach the sprite characters, which only the
+    /// statue ghost would draw, and it draws nothing, so they are written nowhere; a sky page copies its installed rows.
     /// </summary>
-    /// <exception cref="InvalidDataException">The transfer is empty, or reads a source no installed artwork owns.</exception>
-    private static void Transfer(Staging staging, SnesVram vram, LibraryBackgroundInstruction transfer, LibraryBackgroundArtwork artwork,
-        LibraryBackgroundCharacterArtwork characters)
+    /// <exception cref="InvalidDataException">
+    /// The transfer is empty, reads a source no installed artwork owns, moves only part of the statue ghost's characters,
+    /// or moves the HUD's characters from a list other than Kraid's.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">The transfer brings characters whose installed artwork is not supplied.</exception>
+    private static void Transfer(Staging staging, SnesVram vram, LibraryBackgroundInstruction transfer, LibraryBackgroundArtwork artwork)
     {
         if (transfer.ByteCount == 0)
             throw new InvalidDataException($"Library-background transfer from {transfer.Source} uses unsupported DMA size zero.");
@@ -94,14 +92,40 @@ internal static class LibraryBackgroundReplay
         int destination = LibraryBackgroundOperands.DestinationWord(transfer.Destination);
         if (staging.TryRead(transfer.Source, transfer.ByteCount, out ReadOnlySpan<byte> staged))
             vram.ExecuteQueuedAssetWrite(staged, destination);
-        else if (LibraryBackgroundLoader.TryBindTransferredCharacters(transfer, characters))
-            return;
+        else if (transfer.Source == LibraryBackgroundSource.TourianStatueGhostCharacters)
+            RequireWholeStatueGhost(transfer, artwork);
+        else if (transfer.Source == LibraryBackgroundSource.HudCharacters && transfer.ByteCount == HudTileAtlasFormat.CharacterByteCount)
+            vram.ExecuteQueuedAssetWrite(KraidHudCharacters(transfer, artwork).Span, destination);
         else if (transfer.Source is LibraryBackgroundSource.SkyPage sky && artwork.SkyArt is { } skies)
             vram.ExecuteQueuedAssetWrite(BackgroundTileWords.ToBytes(skies.Page(sky.Page, transfer.ByteCount / sizeof(ushort)).Span), destination);
         else
             // A source no bound catalog owns must not fall back to the cartridge's bytes.
             throw new InvalidDataException(
                 $"Library-background transfer from {transfer.Source} ({transfer.ByteCount} bytes) has no installed artwork.");
+    }
+
+    /// <summary>Checks the statue ghost's transfer brings all of its installed characters.</summary>
+    /// <exception cref="InvalidOperationException">No room characters are installed.</exception>
+    /// <exception cref="InvalidDataException">The transfer brings only some of them.</exception>
+    private static void RequireWholeStatueGhost(LibraryBackgroundInstruction transfer, LibraryBackgroundArtwork artwork)
+    {
+        RoomCharacterAtlases characters = artwork.CharacterArt
+            ?? throw new InvalidOperationException("The Tourian statue ghost's library characters have no installed character artwork.");
+        ReadOnlyMemory<byte> ghost = characters.Get(RoomCharacterSet.TourianStatueGhost).Characters;
+        if (transfer.ByteCount != ghost.Length)
+            throw new InvalidDataException($"Tourian statue-ghost transfer requested {transfer.ByteCount} bytes, not its {ghost.Length}.");
+    }
+
+    /// <summary>The installed HUD characters Kraid's list copies.</summary>
+    /// <exception cref="InvalidDataException">A list other than Kraid's copies them.</exception>
+    /// <exception cref="InvalidOperationException">No HUD characters are installed.</exception>
+    private static ReadOnlyMemory<byte> KraidHudCharacters(LibraryBackgroundInstruction transfer, LibraryBackgroundArtwork artwork)
+    {
+        if (transfer.Command != LibraryBackgroundCommand.TransferForKraid)
+            throw new InvalidDataException($"A library background's {transfer.Command} moves the HUD's characters, which only Kraid's list copies.");
+        HudTileAtlas hud = artwork.HudArt
+            ?? throw new InvalidOperationException("Kraid's library background moves the HUD's characters, which have no installed artwork.");
+        return hud.Bytes[..transfer.ByteCount];
     }
 
     /// <summary>Fills the staging as <paramref name="clear"/> names, then transfers it to its VRAM destination.</summary>

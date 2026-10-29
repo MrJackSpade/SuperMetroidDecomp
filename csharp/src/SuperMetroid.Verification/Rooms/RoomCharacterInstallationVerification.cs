@@ -343,20 +343,14 @@ internal static class RoomCharacterInstallationVerification
     }
 
     /// <summary>
-    /// Runs a library background program with installed character art and returns VRAM as a frame shows it: installed
-    /// character transfers bind their artwork instead of writing VRAM (#1350), and the frame composes them over the image.
+    /// Runs a library background program with installed character art and returns the VRAM it leaves: the statue ghost's
+    /// characters are written nowhere, as only the statue ghost would draw them and it draws nothing.
     /// </summary>
     private static SnesVram ShownVram(LibraryBackgroundProgram program, LibraryBackgroundArtwork artwork)
     {
         var vram = new SnesVram();
-        var bindings = new BgArtworkBindings();
-        LibraryBackgroundReplay.Execute(vram, program,
-            activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: artwork with { Backgrounds = bindings });
-        byte[] image = vram.Bytes.ToArray();
-        bindings.ComposeOver(image, artwork.HudArt is { } hud ? new BgArtworkBytes().WithHud(hud) : new BgArtworkBytes());
-        var shown = new SnesVram();
-        shown.LoadBytes(0, image);
-        return shown;
+        LibraryBackgroundReplay.Execute(vram, program, activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: artwork);
+        return vram;
     }
 
     /// <summary>Runs the room-art installation contract through the character-focused command alias.</summary>

@@ -1,21 +1,19 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hud.Artwork;
 
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Gameplay HUD initialization and the gameplay HUD character-base selection.
+/// Gameplay HUD initialization: the HUD's presentation, its characters and the standard sprite characters.
 /// </summary>
 internal sealed class GameplayHudSetup
 {
     /// <summary>Selects installed HUD artwork.</summary>
     private readonly RuntimeArtwork _artwork;
-    /// <summary>Receives the gameplay BG3 character-base selection.</summary>
-    private readonly GameplayDisplayState _display;
+
     /// <summary>Owns the live HUD tilemap and its palette or map presentation binding.</summary>
     private readonly HudState _hud;
     /// <summary>Supplies Samus state for HUD item and resource display.</summary>
@@ -31,7 +29,7 @@ internal sealed class GameplayHudSetup
     internal GameplayHudSetup(GameplayHudSetupDependencies dependencies)
     {
         _artwork = dependencies.Artwork;
-        _display = dependencies.Display;
+
         _hud = dependencies.Hud;
         _player = dependencies.Player;
         _enemySession = dependencies.EnemySession;
@@ -39,8 +37,6 @@ internal sealed class GameplayHudSetup
         _backgrounds = dependencies.Backgrounds;
     }
 
-    /// <summary>Selects the standard layer-3 characters, as gameplay PPU initialization does.</summary>
-    internal void SelectGameplayHudCharacterBase() => _display.Layer3Characters = BgCharacterSet.Layer3;
 
     /// <summary>
     /// Shows the standard BG3 characters over the standard layer-3 characters (#1406): a game has them there whenever it

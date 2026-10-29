@@ -32,9 +32,12 @@ and that encoding is the hardware's, not the game's (v0.9.0 manifesto, section 2
 // Before, in Core: a shadow of the register the cartridge writes during vertical blank.
 public byte Bg34Nba { get; set; }
 
-// After: the scene names what the register selects.
-public BackgroundCharacters Layer3Characters { get; init; }
+// After: nothing. The register chose where layer 3 read its characters; layer 3 shows pre-coloured pictures (#1466),
+// so the scene has no character selection to name, and Kraid's room no longer moves the HUD's characters.
 ```
+
+A register shadow is first renamed for what it selects only when the selection itself survives as a gameplay or display
+fact; when the selection existed only to address video memory, the shadow is deleted with its last reader.
 
 ## Allowance
 

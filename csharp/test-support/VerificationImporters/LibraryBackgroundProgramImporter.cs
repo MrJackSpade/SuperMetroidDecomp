@@ -39,7 +39,7 @@ internal static class LibraryBackgroundProgramImporter
             if (decoded is not { } command)
             {
                 byteSpan = (ushort)(cursor - pointer);
-                return new LibraryBackgroundProgram($"$8F:{pointer:X4}", instructions.ToArray());
+                return new LibraryBackgroundProgram(new LibraryBackground($"$8F:{pointer:X4}", []), instructions.ToArray());
             }
             ushort door = 0;
             if (command == LibraryBackgroundCommand.TransferForDoor)
@@ -81,11 +81,10 @@ internal static class LibraryBackgroundProgramImporter
     /// Reference VRAM/WRAM image for an explicitly imported list, independent of the
     /// installed artwork executor. Used by cartridge-versus-asset diagnostics only.
     /// </summary>
-    public static LibraryBackgroundExecutionResult ExecuteReference(ISnesAddressSpace source,
+    public static void ExecuteReference(ISnesAddressSpace source,
         SnesVram vram, ushort pointer, ushort activeDoorPointer)
     {
         LibraryBackgroundProgram program = Read(source, pointer);
-        bool selectsKraidHudCharacters = false;
         foreach (LibraryBackgroundInstruction instruction in program.Instructions)
         {
             switch (instruction.Command)
@@ -100,8 +99,6 @@ internal static class LibraryBackgroundProgramImporter
                     SnesAddress start = SnesAddress.FromBusAddress(LibraryBackgroundOperandDecoding.Address(instruction.Source));
                     for (int i = 0; i < bytes.Length; i++) bytes[i] = ReadImportByte(source, (int)start.AddWithinBank(i));
                     vram.ExecuteQueuedAssetWrite(bytes, LibraryBackgroundOperands.DestinationWord(instruction.Destination));
-                    if (instruction.Command == LibraryBackgroundCommand.TransferForKraid)
-                        selectsKraidHudCharacters = true;
                     break;
                 case LibraryBackgroundCommand.Decompress:
                     byte[] expanded = RomDataReader.Decompress(CartridgeImportSource.Require(source), LibraryBackgroundOperandDecoding.Address(instruction.Source));
@@ -122,7 +119,6 @@ internal static class LibraryBackgroundProgramImporter
                     throw new InvalidDataException($"Unsupported imported background command {instruction.Command}.");
             }
         }
-        return new(selectsKraidHudCharacters);
 
         void ClearAndTransfer(LibraryBackgroundClear transfer, bool includeKraidPage)
         {

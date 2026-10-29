@@ -20,7 +20,7 @@ public sealed record RoomStateSettings(
     SuperMetroid.Core.Rooms.Xray.XrayRoomOverlayDefinition? XrayOverlay,
     RoomMainCallback MainCallback,
     SuperMetroid.Core.Rooms.Plms.RoomPlmPopulation PlmPopulation,
-    SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundProgram? Background,
+    SuperMetroid.Core.Rooms.Backgrounds.LibraryBackground? Background,
     RoomSetupCallback SetupCallback)
 {
     /// <summary>The state's name, the disassembly's label for it without its prefix.</summary>

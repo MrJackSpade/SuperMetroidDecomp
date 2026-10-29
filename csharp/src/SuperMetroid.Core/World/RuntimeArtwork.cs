@@ -20,8 +20,6 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 internal sealed class RuntimeArtwork
 {
-    /// <summary>Locates the current HUD character base in VRAM.</summary>
-    private readonly GameplayDisplayState _display;
 
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
@@ -53,7 +51,6 @@ internal sealed class RuntimeArtwork
     /// <summary>Captures the runtime owners that consume host-installed visual assets.</summary>
     internal RuntimeArtwork(RuntimeArtworkDependencies dependencies)
     {
-        _display = dependencies.Display;
         _bossArtwork = dependencies.BossArtwork;
         _room = dependencies.Room;
         _hud = dependencies.Hud;
@@ -113,18 +110,14 @@ internal sealed class RuntimeArtwork
         _player.Samus.ArmCannon.Artwork = SamusBodyArt?.ArmCannon;
     }
 
-    /// <summary>Shows rebound HUD characters in the layer-3 characters BG3 currently reads, from the accepted NMI.</summary>
+    /// <summary>Shows rebound HUD characters over the layer-3 characters BG3 reads, from the accepted NMI.</summary>
     /// <param name="backgrounds">The background artwork bindings, which show the HUD characters.</param>
     internal void PublishReboundHudArtwork(BgArtworkBindings backgrounds)
     {
         if (pendingHudTiles is null) return;
         // Binding a restored session changes content ownership, not the already
         // published frame. Refresh at accepted NMI, before native queued writes.
-        // The original upload's clearing half may now lie under live BG2 words.
-        // Kraid's room moves the HUD characters to his base while his BG2 tilemap
-        // covers the ordinary one. A restored-state art rebind must honor the
-        // *current* characters, or the next NMI paints HUD pixels across Kraid.
-        HudTileAtlas.ShowCharactersAgain(backgrounds, _display.Layer3Characters);
+        HudTileAtlas.ShowCharactersAgain(backgrounds, BgCharacterSet.Layer3);
         pendingHudTiles = null;
     }
 

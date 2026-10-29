@@ -1,13 +1,11 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
-using SuperMetroid.Core.World;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// The installed artwork a library background's command list is replayed over (#1406): the tilemaps it decompresses, the
-/// sky pages it copies, and the character artwork it brings, bound into <see cref="Backgrounds"/>.
+/// sky pages it copies, and the character artwork it brings.
 /// </summary>
 internal sealed record LibraryBackgroundArtwork
 {
@@ -22,15 +20,4 @@ internal sealed record LibraryBackgroundArtwork
 
     /// <summary>The installed room characters, which hold the Tourian statue ghost's.</summary>
     public RoomCharacterAtlases? CharacterArt { get; init; }
-
-    /// <summary>The bindings the list's characters bind into; null binds them into the replay's own.</summary>
-    public BgArtworkBindings? Backgrounds { get; init; }
-
-    /// <summary>The character artwork the runtime's load binds from, bound into <paramref name="backgrounds"/>.</summary>
-    public LibraryBackgroundCharacterArtwork CharactersOver(BgArtworkBindings backgrounds) => new()
-    {
-        Backgrounds = backgrounds,
-        HudArt = HudArt,
-        CharacterArt = CharacterArt,
-    };
 }

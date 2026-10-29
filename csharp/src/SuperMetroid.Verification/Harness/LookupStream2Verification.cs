@@ -58,7 +58,6 @@ using SuperMetroid.Core.World;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Cartridge-oracle checks for the second set of gameplay, artwork, and pause-screen catalogs.</summary>

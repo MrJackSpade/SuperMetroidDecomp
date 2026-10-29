@@ -5,7 +5,6 @@ using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 
 using SuperMetroid.Verification.Harness;

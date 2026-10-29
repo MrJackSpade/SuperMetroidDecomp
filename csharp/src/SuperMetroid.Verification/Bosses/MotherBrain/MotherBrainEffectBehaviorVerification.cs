@@ -33,7 +33,7 @@ internal static class MotherBrainEffectBehaviorVerification
 
         RoomEnemySystem bombEnemies = CreateRoomEnemySystem();
         RoomEnemyProjectileSlot bomb = bombEnemies.Projectiles.EnemyProjectiles[^1];
-        FamilyProjectileStarts.Initialize(bomb, RoomEnemyProjectileKind.MotherBrainBomb, SuperMetroid.Core.Enemies.SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(MotherBrainColourDefinitions.PhaseTwoAttack)));
+        FamilyProjectileStarts.Initialize(bomb, RoomEnemyProjectileKind.MotherBrainBomb, SuperMetroid.Core.Assets.SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(MotherBrainColourDefinitions.PhaseTwoAttack)));
         RunForcedTicks(rom, bombEnemies, bomb, samus, 10);
         AssertTrue(bomb.IsActive && bomb.Animation is MotherBrainEffectAnimation { Cursor.Program: MotherBrainEffectProgram.Bomb },
             "room-system Mother Brain bomb keeps looping its program");
@@ -183,7 +183,7 @@ internal static class MotherBrainEffectBehaviorVerification
             // The ring's own movement routine handles its Samus hits; its definition's touch list is reached through the
             // common contact path, opened and kept alive here as the definitions check does.
             ring.PreInstruction = EnemyProjectilePreInstruction.MotherBrainsOnionRings;
-            ring.Graphics = SuperMetroid.Core.Enemies.SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(MotherBrainColourDefinitions.PhaseTwoAttack));
+            ring.Graphics = SuperMetroid.Core.Assets.SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(MotherBrainColourDefinitions.PhaseTwoAttack));
             ring.CanDamageSamus = true;
             ring.PersistsOnSamusContact = true;
             var touching = new SamusState { Position = ring.Position, Health = ushort.MaxValue };
@@ -193,7 +193,7 @@ internal static class MotherBrainEffectBehaviorVerification
             for (int frame = 0; frame < 30; frame++)
                 Process(rom, ringEnemies, ring, samus);
             AssertTrue(ring.IsActive, "onion-ring impact survives all six five-frame stages");
-            AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.Emptied, ring.Graphics, "onion-ring impact clears its graphics to the common colours");
+            AssertEqual(SuperMetroid.Core.Assets.SpriteGraphics.Emptied, ring.Graphics, "onion-ring impact clears its graphics to the common colours");
             AssertEqual(EnemyProjectilePreInstruction.RTS_868170, ring.PreInstruction, "onion-ring impact clears its movement");
             Process(rom, ringEnemies, ring, samus);
             AssertTrue(!ring.IsActive, "onion-ring impact deletes on the frame after its 30-frame lifetime");

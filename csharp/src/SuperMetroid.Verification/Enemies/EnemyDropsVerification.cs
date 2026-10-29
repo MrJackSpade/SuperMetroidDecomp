@@ -381,7 +381,7 @@ internal static class EnemyDropsVerification
             EnemyDeathExplosions.Program(0),
             ProgramOf(explosion),
             "out-of-range death variant clamps to native table entry zero");
-        AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.Emptied, explosion.Graphics,
+        AssertEqual(SuperMetroid.Core.Assets.SpriteGraphics.Emptied, explosion.Graphics,
             "enemy-death initializer replaces the dying actor's room graphics with the cleared word's common colours");
 
         EnemyDeathProjectileProgram converted = fixture.System.DeathsAndDrops.ConvertEnemyDeathExplosionToPickup(explosion);

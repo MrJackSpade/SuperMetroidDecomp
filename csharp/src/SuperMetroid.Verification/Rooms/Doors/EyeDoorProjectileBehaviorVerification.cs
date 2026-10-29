@@ -24,7 +24,7 @@ internal static class EyeDoorProjectileBehaviorVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyProjectileSlot shot = enemies.Projectiles.EnemyProjectiles[0];
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(shot, RoomEnemyProjectileKind.EyeDoorProjectile,
-            SuperMetroid.Core.Enemies.SpriteGraphics.Emptied);
+            SuperMetroid.Core.Assets.SpriteGraphics.Emptied);
         shot.Position = shot.Position.WithWhole(new(64, 32));
         AssertTrue(shot.Animation is EyeDoorProjectileAnimation { Cursor.Program: EyeDoorProjectileProgram.Initial }, "the shot starts its flight");
         (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, shot,

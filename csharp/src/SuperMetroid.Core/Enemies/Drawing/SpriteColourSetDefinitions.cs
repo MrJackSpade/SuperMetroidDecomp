@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>Which sprite colour set each shared role uses (#1405).</summary>
@@ -29,4 +30,12 @@ internal static class SpriteColourSetDefinitions
 
     /// <summary>The set the Ninja Space Pirates' gold wall colours load into.</summary>
     public const int NinjaSpacePirate = 7;
+
+    /// <summary>The shared set each role row holds, which a row imported or recorded as a number denotes.</summary>
+    public static IReadOnlyDictionary<int, SharedSpriteColouring> RoleRows { get; } = new Dictionary<int, SharedSpriteColouring>
+    {
+        [Common] = SharedSpriteColouring.Common,
+        [EnemyProjectiles] = SharedSpriteColouring.EnemyProjectiles,
+        [Frozen] = SharedSpriteColouring.Frozen,
+    };
 }

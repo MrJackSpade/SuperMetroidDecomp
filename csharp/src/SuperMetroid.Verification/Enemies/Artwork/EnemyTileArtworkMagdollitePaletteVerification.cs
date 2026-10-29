@@ -9,7 +9,6 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 

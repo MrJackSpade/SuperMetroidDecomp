@@ -1,6 +1,4 @@
-using SuperMetroid.Core.Assets;
-
-namespace SuperMetroid.Core.Enemies.Drawing;
+namespace SuperMetroid.Core.Assets;
 
 /// <summary>The colours of a shared sprite colour set, named by its role (#1464).</summary>
 /// <param name="Set">The shared set shown.</param>
@@ -18,6 +16,4 @@ internal sealed record SharedSpriteColouring(SharedSpriteColours Set) : SpriteCo
     /// <summary>The colours dead Sidehoppers fade in.</summary>
     internal static SharedSpriteColouring DeadSidehopperFade { get; } = new(SharedSpriteColours.DeadSidehopperFade);
 
-    /// <summary>The colours the Ninja Space Pirates' gold wall colours load into.</summary>
-    internal static SharedSpriteColouring NinjaSpacePirateGoldWall { get; } = new(SharedSpriteColours.NinjaSpacePirateGoldWall);
 }

@@ -9,7 +9,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Enemies.SpriteObjects;
-using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies.Metroids;
 

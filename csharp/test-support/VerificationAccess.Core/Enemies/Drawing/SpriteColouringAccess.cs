@@ -1,4 +1,5 @@
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies.Drawing;
 

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Enemies.WorkRobots;
 
@@ -21,7 +22,7 @@ internal static class WorkRobotLaserBehaviorVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             Radius = new(12, 16),
             TileIndexBase = 512,
-            PaletteRow = 6,
+            Colouring = SharedSpriteColouring.Frozen,
         };
         var state = new WorkRobotEnemyState();
         foreach ((WorkRobotLaser definition, short xVelocity) in new VerifyWorkRobotLaserBehaviorCase[]

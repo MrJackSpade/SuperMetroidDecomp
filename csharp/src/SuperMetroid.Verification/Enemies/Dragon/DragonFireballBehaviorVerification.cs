@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Enemies.Dragon;
 

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Drawing;
+namespace SuperMetroid.Core.Assets;
 
 /// <summary>The shared sprite colour sets actors draw in, named by their role in the room (#1464).</summary>
 internal enum SharedSpriteColours

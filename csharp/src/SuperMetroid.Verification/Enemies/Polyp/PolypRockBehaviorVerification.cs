@@ -9,6 +9,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Enemies.Polyp;
 
@@ -28,7 +29,7 @@ internal static class PolypRockBehaviorVerification
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             TileIndexBase = 512,
-            PaletteRow = 6,
+            Colouring = SharedSpriteColouring.Frozen,
         };
         enemies.PolypBehavior.SpawnPolypRock(source, 16, unchecked((ushort)-256));
         RoomEnemyProjectileSlot rock = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.PolypRock);

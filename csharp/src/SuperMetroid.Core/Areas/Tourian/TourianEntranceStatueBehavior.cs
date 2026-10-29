@@ -3,7 +3,7 @@ using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 

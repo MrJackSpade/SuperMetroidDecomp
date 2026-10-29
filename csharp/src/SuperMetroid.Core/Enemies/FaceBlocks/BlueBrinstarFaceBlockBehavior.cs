@@ -6,7 +6,6 @@ using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Enemies.FaceBlocks;
 
 /// <summary>The blue Brinstar face block species owner: its per-room state, AI routines and the interactions it registers.</summary>

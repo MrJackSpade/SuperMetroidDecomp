@@ -6,6 +6,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Enemies.KiHunters;
 
@@ -26,7 +27,7 @@ internal static class KiHunterAcidSpitBehaviorVerification
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             TileIndexBase = 512,
-            PaletteRow = 6,
+            Colouring = SharedSpriteColouring.Frozen,
         };
         enemies.KiHunterBehavior.SpawnKiHunterAcidSpit(body, false);
         enemies.KiHunterBehavior.SpawnKiHunterAcidSpit(body, true);

@@ -10,6 +10,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Assets;
 
 /// <summary>Checks Fake Kraid's typed spit and spike programs against the retail lists through the real producers.</summary>
 internal static class FakeKraidProjectileInstructionProgramDefinitionsVerification
@@ -44,7 +45,7 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             TileIndexBase = 0x0200,
-            PaletteRow = 6,
+            Colouring = SharedSpriteColouring.Frozen,
         };
         var state = new FakeKraidEnemyState();
 

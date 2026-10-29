@@ -19,7 +19,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Verification.Enemies.Projectiles;
 
 using SuperMetroid.Verification.Harness;

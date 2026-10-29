@@ -1,7 +1,4 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies.Drawing;
-
-namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// Where on a shared sprite sheet a sprite takes its characters, and what colours it draws in (#1464): what an enemy, or

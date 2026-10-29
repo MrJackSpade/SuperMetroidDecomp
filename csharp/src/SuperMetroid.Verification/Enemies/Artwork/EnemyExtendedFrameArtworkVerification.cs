@@ -1167,7 +1167,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         OamBuffer targetOam = DrawExtended(stock, targetPointer,
             new(0x0040, 0x0080));
         OamBuffer remappedOam = DrawExtended(swapped, sourcePointer,
-            new(0x0040, 0x0080), slot =>
+            new(0x0040, 0x0080), (slot, _) =>
             {
                 AssertEqual(sourcePointer, slot.SpritemapPointer,
                     "Pirate visual binding retains the native hitbox-frame pointer");

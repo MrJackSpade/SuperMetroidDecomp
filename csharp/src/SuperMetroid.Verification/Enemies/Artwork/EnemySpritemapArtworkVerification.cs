@@ -1364,7 +1364,7 @@ internal static class EnemySpritemapArtworkVerification
             0xfa13, EnemyDefinitionId.CeresDoor);
         OamBuffer editedCeresDoor = DrawEnemy(edited, NewFrameReadGuard(rom),
             0xfa13, EnemyDefinitionId.CeresDoor,
-            slot =>
+            (slot, _) =>
             {
                 AssertEqual((ushort)0xfa13, slot.SpritemapPointer,
                     "Ceres door art edit retains the native selected pose");
@@ -2766,7 +2766,7 @@ internal static class EnemySpritemapArtworkVerification
         OamBuffer nativeSecond = DrawEnemy(stock, NewFrameReadGuard(rom), 0x88e1,
             EnemyDefinitionId.Boyon);
         OamBuffer displayedSecond = DrawEnemy(swappedArt, NewFrameReadGuard(rom),
-            0x88da, EnemyDefinitionId.Boyon, slot =>
+            0x88da, EnemyDefinitionId.Boyon, (slot, _) =>
             {
                 AssertEqual((ushort)0x88da, slot.SpritemapPointer,
                     "display override retains native collision frame pointer");

@@ -64,7 +64,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
                 $"Draygon burial Evir {entry} spawned X");
             AssertEqual(definition.Initial.Y, sprite.Position.Y.Whole,
                 $"Draygon burial Evir {entry} spawned Y");
-            AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.DraygonSprite)), sprite.Graphics,
+            AssertEqual(SuperMetroid.Core.Assets.SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.DraygonSprite)), sprite.Graphics,
                 $"Draygon burial Evir {entry} palette");
         }
 

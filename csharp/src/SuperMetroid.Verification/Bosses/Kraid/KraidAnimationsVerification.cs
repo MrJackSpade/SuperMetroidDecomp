@@ -13,6 +13,7 @@ using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Assets;
 
 /// <summary>
 /// #1284: Kraid's typed foot, arm, lint, fingernail and rock programs against the retail cartridge. The typed part
@@ -194,7 +195,7 @@ internal static class KraidAnimationsVerification
     {
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 224)),
         TileIndexBase = 512,
-        PaletteRow = 6,
+        Colouring = SharedSpriteColouring.Frozen,
     };
 
     /// <summary>Every real rock producer, and Kago's bug, starts the typed pose its native list starts.</summary>

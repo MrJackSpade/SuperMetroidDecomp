@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 

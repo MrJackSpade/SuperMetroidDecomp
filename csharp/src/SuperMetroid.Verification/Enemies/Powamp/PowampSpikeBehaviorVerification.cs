@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Powamp;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Enemies.Powamp;
 
@@ -23,7 +24,7 @@ internal static class PowampSpikeBehaviorVerification
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             TileIndexBase = 512,
-            PaletteRow = 6,
+            Colouring = SharedSpriteColouring.Frozen,
         };
         enemies.PowampBehavior.SpawnPowampSpikeBurst(body);
         RoomEnemyProjectileSlot[] spikes = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.Kind == RoomEnemyProjectileKind.PowampSpike)];

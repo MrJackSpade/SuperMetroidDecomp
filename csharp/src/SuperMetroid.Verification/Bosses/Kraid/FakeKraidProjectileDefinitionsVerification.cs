@@ -6,6 +6,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Bosses.Kraid;
 
@@ -39,7 +40,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
                 TileIndexBase = 0x0200,
-                PaletteRow = 6,
+                Colouring = SharedSpriteColouring.Frozen,
             };
             var state = new FakeKraidEnemyState();
             enemies.FakeKraidBehavior.SpawnFakeKraidSpitPair(source, state, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
@@ -77,7 +78,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
                 TileIndexBase = 0x0200,
-                PaletteRow = 6,
+                Colouring = SharedSpriteColouring.Frozen,
             };
             var state = new FakeKraidEnemyState() { FacingDelta = facingDelta };
             bool spawned = enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source, state, row);

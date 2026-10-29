@@ -4,7 +4,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 

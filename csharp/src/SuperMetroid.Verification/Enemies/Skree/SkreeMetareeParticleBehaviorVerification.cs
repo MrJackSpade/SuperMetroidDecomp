@@ -6,6 +6,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Enemies.Skree;
 
@@ -25,7 +26,7 @@ internal static class SkreeMetareeParticleBehaviorVerification
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
             TileIndexBase = 512,
-            PaletteRow = 6,
+            Colouring = SharedSpriteColouring.Frozen,
         };
         foreach ((Action<RoomEnemySlot> spawn, SkreeMetareeParticleProgram program) in new VerifySkreeMetareeParticleBehaviorCase[]
                  {

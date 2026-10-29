@@ -19,7 +19,7 @@ internal static class StokeProjectileBehaviorVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[0];
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.StokeProjectile,
-            SuperMetroid.Core.Enemies.SpriteGraphics.Emptied);
+            SuperMetroid.Core.Assets.SpriteGraphics.Emptied);
         AssertTrue(projectile.Animation is StokeProjectileAnimation { Cursor.Program: StokeProjectileProgram.Initial }, "the projectile starts its loop");
         (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, projectile,
             StokeProjectileNativeListAddresses.Entry(StokeProjectileProgram.Initial), 60, "Stoke projectile");

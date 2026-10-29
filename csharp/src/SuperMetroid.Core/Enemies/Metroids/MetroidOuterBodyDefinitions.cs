@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Rooms.SpriteObjects;
-using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>A frozen Metroid's two outer-body sprite objects: their frozen programs and palette.</summary>

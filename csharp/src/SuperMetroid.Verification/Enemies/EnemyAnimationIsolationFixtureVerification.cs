@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
@@ -20,6 +19,7 @@ namespace SuperMetroid.Verification.Enemies;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Assets;
 
 /// <summary>Provides matching cartridge-free enemy rooms and mechanical state comparisons.</summary>
 internal static class EnemyAnimationIsolationFixtureVerification

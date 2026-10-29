@@ -63,12 +63,8 @@ internal sealed class SpriteColouringRows
     internal SpriteColouring InRow(int row)
     {
         Ensure.BetweenInclusive(0, SpriteImage.MaximumPaletteRow, row);
-        if (row == SpriteColourSetDefinitions.Common)
-            return SharedSpriteColouring.Common;
-        if (row == SpriteColourSetDefinitions.EnemyProjectiles)
-            return SharedSpriteColouring.EnemyProjectiles;
-        if (row == SpriteColourSetDefinitions.Frozen)
-            return SharedSpriteColouring.Frozen;
+        if (SpriteColourSetDefinitions.RoleRows.TryGetValue(row, out SharedSpriteColouring? role))
+            return role;
         for (int index = _graphicsSet.Entries.Count - 1; index >= 0; index--)
         {
             if (_graphicsSet.Entries[index].PaletteRow == row)

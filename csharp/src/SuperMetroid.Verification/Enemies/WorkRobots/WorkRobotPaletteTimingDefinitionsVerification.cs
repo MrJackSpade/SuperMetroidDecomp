@@ -8,11 +8,11 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Verification.Enemies.WorkRobots;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Assets;
 
 /// <summary>Checks the Work Robot's palette record timing and installed colors against bank A3.</summary>
 internal static class WorkRobotPaletteTimingDefinitionsVerification

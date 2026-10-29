@@ -40,7 +40,7 @@ internal static class TorizoInitializationDefinitionsVerification
                 actor.Radius = new(0xffff, 0xffff);
                 actor.Position = new(new(0xffff, 0x1234), new(0xffff, 0xabcd));
                 actor.Health = 0x3456;
-                actor.Colouring = new UnnamedSpriteRowColouring(7);
+                actor.Colouring = SpriteColouring.InFixtureSet(7);
                 actor.Timer = WrappingCountdown.Start(0xffff);
                 actor.InstructionTimer = WrappingCountdown.Start(0xffff);
                 actor.CurrentInstruction = 0xffff;

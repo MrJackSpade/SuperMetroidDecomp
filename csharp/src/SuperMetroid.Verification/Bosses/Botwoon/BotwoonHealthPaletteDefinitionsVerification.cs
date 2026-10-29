@@ -48,8 +48,8 @@ internal static class BotwoonHealthPaletteDefinitionsVerification
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         var state = new BotwoonEnemyState()
         {
-            // Sprite palette seven starts at CGRAM color 240.
-            PaletteFirstColour = BotwoonHealthPaletteDefinitions.FirstColour,
+            // Retail Botwoon's head draws in its body's colours, which the health bands rewrite.
+            HealthColouring = new SuperMetroid.Core.Enemies.Drawing.EncounterSpriteColouring(SuperMetroid.Core.Bosses.Artwork.BossColourDefinitions.BotwoonBody),
         };
 
         for (int phase = 0; phase < BotwoonHealthPaletteDefinitions.CompletePhase; phase++)

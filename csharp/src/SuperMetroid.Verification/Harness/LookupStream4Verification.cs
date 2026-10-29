@@ -1666,7 +1666,7 @@ internal static class LookupStream4Verification
             ushort entry = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb4bda8 + 2 * (ushort)kind));
             AssertEqual(entry, RoomSpriteObjectDefinitions.InstructionPointer(kind), "room sprite native program case");
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomSpriteObjectSlot? spawned = spriteSpawn(enemies, new(0x1234, 0x5678), kind, SpriteGraphics.CharacterZeroIn(new UnnamedSpriteRowColouring(3)));
+            RoomSpriteObjectSlot? spawned = spriteSpawn(enemies, new(0x1234, 0x5678), kind, SpriteGraphics.CharacterZeroIn(SpriteColouring.InFixtureSet(3)));
             AssertTrue(spawned is not null, "room sprite native case allocates real slot");
             AssertEqual(entry, (spawned ?? throw new InvalidOperationException("Verification requires spawned.")).InstructionPointer, "room sprite actual initial program");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | entry)), spawned.InstructionTimer, "room sprite actual initial native duration");
@@ -1674,7 +1674,7 @@ internal static class LookupStream4Verification
             AssertEqual(kind, spawned.Kind, "room sprite selected kind preserved");
             AssertEqual((ushort)0x1234, spawned.Position.X.Whole, "room sprite spawn X preserved");
             AssertEqual((ushort)0x5678, spawned.Position.Y.Whole, "room sprite spawn Y preserved");
-            AssertEqual(SpriteGraphics.CharacterZeroIn(new UnnamedSpriteRowColouring(3)), spawned.Graphics, "room sprite tile base and colouring argument preserved");
+            AssertEqual(SpriteGraphics.CharacterZeroIn(SpriteColouring.InFixtureSet(3)), spawned.Graphics, "room sprite tile base and colouring argument preserved");
             kinds++;
         }
         foreach (ushort invalid in new ushort[] { 62, 0x8000, 0xffff })
@@ -2910,7 +2910,7 @@ internal static class LookupStream4Verification
                 enemies.Presentation.BindColours(cgram.Gameplay);
                 Action<RoomEnemySlot, BotwoonEnemyState> update = enemies.BotwoonBehavior.UpdateBotwoonHealthPalette;
                 RoomEnemySlot head = enemies.SlotTable.Slots[0];
-                var state = new BotwoonEnemyState() { PaletteFirstColour = BotwoonHealthPaletteDefinitions.FirstColour };
+                var state = new BotwoonEnemyState() { HealthColouring = new SuperMetroid.Core.Enemies.Drawing.EncounterSpriteColouring(SuperMetroid.Core.Bosses.Artwork.BossColourDefinitions.BotwoonBody) };
                 for (int band = 0; band < 8; band++)
                 {
                     for (int color = 0; color < 256; color++) cgram.SetColor(color, RgbColor.FromWord(0x1234));

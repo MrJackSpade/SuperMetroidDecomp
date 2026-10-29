@@ -353,7 +353,7 @@ internal static class EnemyDropsVerification
         enemy.Bind((EnemyDefinitionId)enemyHeader, enemy.Definition);
         enemy.Position = enemy.Position.WithWhole(new(321, 123));
         enemy.TileIndexBase = 0x0200;
-        enemy.Colouring = new UnnamedSpriteRowColouring(6);
+        enemy.Colouring = SpriteColouring.InFixtureSet(6);
         enemy.Properties = new EnemyPropertyWord(EnemyProperties.RespawnIfKilled);
 
         // Variant nine proves the common routine applies the native >=5 clamp before it

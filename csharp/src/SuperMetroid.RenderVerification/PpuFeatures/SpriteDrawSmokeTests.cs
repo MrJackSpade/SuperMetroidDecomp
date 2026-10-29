@@ -126,7 +126,7 @@ internal static class SpriteDrawSmokeTests
                     SpritePaletteRowSet.Rows.Where(_ => random.Next(2) == 0).Aggregate(SpritePaletteRows.None, (rows, row) => rows | row), []);
                 var origin = new Position16<ScreenPixels>(unchecked((ushort)random.Next(-60, 300)), unchecked((ushort)random.Next(-60, 270)));
                 draws.Insert(random.Next(draws.Count + 1), new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer, 100 + index), image, origin,
-                    (SpriteMirror)random.Next(4), random.Next(3) == 0 ? DrawnColouring.InUnnamedRow(random.Next(8)) : null));
+                    (SpriteMirror)random.Next(4), random.Next(3) == 0 ? DrawnColouring.InFixtureSet(random.Next(8)) : null));
             }
             var memory = FramePaint.FromNative(palette, draws.ToImmutable());
             ScreenTileMap cells = VramTileFixtures.Cells(vram, palette, GameplayVramLayout.Bg2TilemapWord, GameplayVramLayout.HudCharacterWord, TileInkDepth.SixteenColours,

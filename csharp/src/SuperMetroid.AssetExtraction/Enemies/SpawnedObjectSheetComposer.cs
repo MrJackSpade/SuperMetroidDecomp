@@ -49,7 +49,7 @@ internal static class SpawnedObjectSheetComposer
                 plans[0].Spawners.Add(enemy);
             SpriteGraphics indexes = graphics.DrawIndexes(enemy);
             // The objects' sheet is coloured in the row the set holds their spawner's colours in.
-            int palette = new SpriteColouringRows(graphics).Row(indexes.Colouring);
+            int palette = new GraphicsSetColourPlacement(graphics).HoldingSet(indexes.Colouring);
             // A projectile draws at its tile base's place in its page, a sprite object at the tile base itself, and some
             // spawners' objects also at characters of their own choosing.
             int[] alsoAt = EnemyTileBaseDefinitions.SpawnsAlsoAt.GetValueOrDefault(enemy, []);

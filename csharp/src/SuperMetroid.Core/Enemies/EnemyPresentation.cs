@@ -25,11 +25,14 @@ internal sealed class EnemyPresentation
     {
         _room = room;
         _graphicsSet = graphicsSet;
-        ColouringRows = new SpriteColouringRows(graphicsSet);
+        Placement = new GraphicsSetColourPlacement(graphicsSet);
     }
 
-    /// <summary>Places the room's sprite colourings in the rows its loaded graphics set holds them in (#1464).</summary>
-    internal SpriteColouringRows ColouringRows { get; }
+    /// <summary>
+    /// Where the room's loaded graphics set places the sprite colourings drawn under it, and so which of them hold the
+    /// same colours (#1464).
+    /// </summary>
+    internal GraphicsSetColourPlacement Placement { get; }
 
     /// <summary>Gameplay's background colour sets (#1405).</summary>
     internal BackgroundColourSets BackgroundSets => Colours.BackgroundSets;
@@ -37,8 +40,8 @@ internal sealed class EnemyPresentation
     /// <summary>Sprite colour set <paramref name="set"/> (#1405).</summary>
     internal ColourRun ColourSet(int set) => Colours.SpriteSets.Set(set);
 
-    /// <summary>The sprite colour set holding <paramref name="colouring"/> (#1405, #1464).</summary>
-    internal ColourRun ColourSetOf(SpriteColouring colouring) => ColourSet(ColouringRows.Row(colouring));
+    /// <summary>The sprite colours <paramref name="colouring"/> holds (#1405, #1464).</summary>
+    internal ColourRun ColourSetOf(SpriteColouring colouring) => Placement.ColoursOf(colouring, Colours.SpriteSets);
 
     /// <summary>The sprite colour set holding the colours <paramref name="slot"/> draws in (#1405, #1464).</summary>
     internal ColourRun ColourSetOf(RoomEnemySlot slot) => ColourSetOf(slot.Colouring);
@@ -108,8 +111,9 @@ internal sealed class EnemyPresentation
 
     /// <summary>
     /// Publishes one frame of the enemy <paramref name="draw"/> shows from its installed sheet (#1392): the sheet its room's graphics set
-    /// names. While the draw's colours are not held in the row the set loaded the enemy's colours into, as on a hit or
-    /// freeze flash or after its AI moves it to other colours, the frame shows their row ORed into each part's own row.
+    /// names. While the draw's colours are not the ones the sheet was coloured in, the enemy's own as the set loads them,
+    /// as on a hit or freeze flash or after its AI moves it to other colours, the frame shows the drawn colouring over
+    /// each part as the set's placement decides.
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="source">The actor shown.</param>
@@ -118,7 +122,7 @@ internal sealed class EnemyPresentation
     internal void PublishSheetFrame(SpriteFrameBuffer sprites, SpriteSource source, EnemySheetDraw draw)
     {
         (EnemyDefinitionId enemy, string frame, Position16<ScreenPixels> origin, SpriteColouring drawn, CorpseRotView? rot) = draw;
-        DrawnColouring? shown = ColouringRows.InPlaceOf(drawn, ColouringRows.Row(_graphicsSet.DrawIndexes(enemy).Colouring));
+        DrawnColouring? shown = Placement.InPlaceOf(drawn, _graphicsSet.DrawIndexes(enemy).Colouring);
         SpriteSheet sheet = Sheets.For(LoadedSet, enemy);
         foreach (string picture in Pictures(frame, Sheets.Layers(LoadedSet, enemy, frame), Sheets.RotCorpse(LoadedSet, enemy, frame), rot))
             sprites.Add(new ImageSpriteDraw(source, sheet.Frame(picture), origin, SpriteMirror.None, shown));
@@ -126,8 +130,8 @@ internal sealed class EnemyPresentation
 
     /// <summary>
     /// Publishes one spawned object's frame from the loaded graphics set's sheet for the tile base it draws at (#1392).
-    /// While the draw's colours are not held in the row the sheet was coloured with, the frame shows their row ORed into
-    /// each part's own row, as the cartridge ORs it into each part.
+    /// While the draw's colours are not held in the colour group the sheet was coloured in, the frame shows the drawn
+    /// colouring over each part as the set's placement decides.
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="source">The object shown.</param>
@@ -143,7 +147,7 @@ internal sealed class EnemyPresentation
         int tileBase, SpriteColouring drawn, CorpseRotView? rot = null)
     {
         SpawnedObjectSheet sheet = Sheets.Spawned(LoadedSet, tileBase);
-        DrawnColouring? shown = ColouringRows.InPlaceOf(drawn, sheet.Palette);
+        DrawnColouring? shown = Placement.InPlaceOfGroup(drawn, sheet.Palette);
         foreach (string picture in Pictures(frame, Sheets.SpawnedLayers(LoadedSet, tileBase, frame),
                      Sheets.SpawnedRotCorpse(LoadedSet, tileBase, frame), rot))
             sprites.Add(new ImageSpriteDraw(source, sheet.Sheet.Frame(picture), origin, SpriteMirror.None, shown));

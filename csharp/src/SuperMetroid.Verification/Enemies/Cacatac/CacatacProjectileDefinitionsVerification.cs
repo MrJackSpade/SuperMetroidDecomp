@@ -19,7 +19,7 @@ internal static class CacatacProjectileDefinitionsVerification
         Action<RoomEnemySlot, CacatacSpikeDirection> spawn = enemies.CacatacBehavior.SpawnCacatacSpike;
         RoomEnemySlot source = enemies.SlotTable.Slots[0];
         source.Position = new(new(0x1234, 0x5678), new(0x9abc, 0xdef0));
-        source.Colouring = new UnnamedSpriteRowColouring(6);
+        source.Colouring = SpriteColouring.InFixtureSet(6);
         source.TileIndexBase = 0x0123;
 
         foreach (CacatacSpikeDirection direction in Enum.GetValues<CacatacSpikeDirection>())

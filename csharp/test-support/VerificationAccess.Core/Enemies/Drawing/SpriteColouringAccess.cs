@@ -4,9 +4,9 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>
-/// Verification access: the sprite palette rows actors' colourings occupy (#1464), for checks that compare against the
-/// cartridge's palette words, and the colourings a native row denotes under a loaded graphics set, for checks that
-/// import native state.
+/// Verification access at the native boundary (#1464): the sprite palette rows actors' colourings occupy, for checks that
+/// compare against the cartridge's palette words, and the colourings a native row denotes under a loaded graphics set,
+/// for checks that import native state.
 /// </summary>
 internal static class SpriteColouringAccess
 {
@@ -22,7 +22,7 @@ internal static class SpriteColouringAccess
     extension(RoomEnemySlot self)
     {
         /// <summary>The row holding the slot's colours under <paramref name="enemies"/>' loaded graphics set.</summary>
-        internal int PaletteRowIn(RoomEnemySystem enemies) => enemies.Presentation.ColouringRows.Row(self.Colouring);
+        internal int PaletteRowIn(RoomEnemySystem enemies) => enemies.Presentation.Placement.HoldingSet(self.Colouring);
 
         /// <summary>Gives the slot the colours native row <paramref name="row"/> denotes under <paramref name="enemies"/>' loaded set.</summary>
         internal void SetPaletteRow(RoomEnemySystem enemies, int row) => self.Colouring = enemies.GraphicsSet.ColouringInRow(row);
@@ -32,22 +32,22 @@ internal static class SpriteColouringAccess
     extension(SpriteGraphics self)
     {
         /// <summary>The row holding the graphics' colours under <paramref name="enemies"/>' loaded graphics set.</summary>
-        internal int PaletteRowIn(RoomEnemySystem enemies) => enemies.Presentation.ColouringRows.Row(self.Colouring);
+        internal int PaletteRowIn(RoomEnemySystem enemies) => enemies.Presentation.Placement.HoldingSet(self.Colouring);
 
-        /// <summary>The row holding colours that need no graphics set: a shared set's, an encounter's or an unnamed row.</summary>
-        internal int FixedPaletteRow => SpriteColouringRows.FixedRow(self.Colouring);
+        /// <summary>The row holding colours that need no graphics set: a shared role's or an encounter's.</summary>
+        internal int FixedPaletteRow => GraphicsSetColourPlacement.FixedSet(self.Colouring);
     }
 
     /// <summary>Rows of a loaded graphics set's members.</summary>
     extension(EnemyGraphicsSet self)
     {
         /// <summary>The row holding the colours <paramref name="enemy"/> draws in under the set.</summary>
-        internal int DrawRow(EnemyDefinitionId enemy) => new SpriteColouringRows(self).Row(self.DrawIndexes(enemy).Colouring);
+        internal int DrawRow(EnemyDefinitionId enemy) => new GraphicsSetColourPlacement(self).HoldingSet(self.DrawIndexes(enemy).Colouring);
 
         /// <summary>
         /// The colouring native sprite palette row <paramref name="row"/> denotes under the set, for state imported as
         /// rows: the shared set its role places there, the member the set loaded into it last, whose colours it holds,
-        /// or, for a row neither names, that unnamed row. <see cref="SpriteColouringRows.Row"/> places the result back
+        /// or, for a row neither names, a fixture colouring held in that row. The set's placement places the result back
         /// in <paramref name="row"/>.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">The row is not a sprite palette row.</exception>
@@ -61,7 +61,7 @@ internal static class SpriteColouringAccess
                 if (self.Entries[index].PaletteRow == row)
                     return new GraphicsSetMemberColouring(self.Entries[index].DefinitionId);
             }
-            return new UnnamedSpriteRowColouring(row);
+            return SpriteColouring.InFixtureSet(row);
         }
     }
 }

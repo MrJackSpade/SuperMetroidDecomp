@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 
@@ -53,10 +54,11 @@ internal static class EnemyDisplayArtworkContractChecks
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText($$"""
+            using SuperMetroid.AssetExtraction.Enemies;
             using SuperMetroid.Core.Enemies.Artwork;
             using SuperMetroid.Core.Enemies.Drawing;
             class EnemyDisplayConsumer {
-                void Inspect(EnemySpritemapCatalog simple, EnemyExtendedFrameCatalog extended, EnemyFrameId frame) {
+                void Inspect(EnemySpritemapCatalog simple, EnemyExtendedFramePlacementCatalog extended, EnemyFrameId frame) {
                     simple.TryGetDisplay(EnemyFrameId.{{simple.Frame}}, out _);
                     simple.TryGetDisplay(EnemyFrameId.Empty, out _);
                     simple.TryGetDisplay(frame, out _);
@@ -70,7 +72,8 @@ internal static class EnemyDisplayArtworkContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("EnemyDisplayFixture", sources,
-            platforms.Append(typeof(EnemySpritemapCatalog).Assembly.Location).Distinct().Select(path => MetadataReference.CreateFromFile(path)),
+            platforms.Append(typeof(EnemySpritemapCatalog).Assembly.Location).Append(typeof(EnemyFrameId).Assembly.Location).Distinct()
+                .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)
         {

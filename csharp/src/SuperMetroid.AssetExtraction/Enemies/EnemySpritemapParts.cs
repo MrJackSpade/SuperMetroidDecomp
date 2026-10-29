@@ -1,7 +1,7 @@
 using System.Collections;
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Immutable indexed enemy sprite composition; parts may calculate instead of occupying a complete stored array.</summary>
 public abstract class EnemySpritemapParts : IReadOnlyList<SpritePart>

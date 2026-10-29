@@ -3,7 +3,6 @@ using SuperMetroid.Core;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;

@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Editable, visual-only coordinates and OAM parts of one component.</summary>
 [SpatialComponents("External format: the extended-frame JSON stores each component displacement as offsetX/offsetY.")]

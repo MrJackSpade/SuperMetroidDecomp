@@ -1,9 +1,12 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Projectiles;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
-/// <summary>Named, editable bank-$8D enemy-projectile OAM compositions.</summary>
+/// <summary>
+/// Named, editable bank-$8D enemy-projectile OAM compositions, which the import pipeline composes the spawned-object
+/// sheets' projectile pictures from (#1463).
+/// </summary>
 public sealed class EnemyProjectileSpritemapCatalog
 {
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>

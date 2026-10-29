@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.Crocomire;

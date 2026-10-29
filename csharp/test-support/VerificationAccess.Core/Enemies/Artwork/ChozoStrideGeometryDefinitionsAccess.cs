@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Enemies;
+
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Verification access to <see cref="ChozoStrideGeometryDefinitions"/> members production does not use.</summary>

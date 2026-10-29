@@ -7,7 +7,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -61,7 +60,7 @@ internal static class EnemyProjectileArtworkContractChecks
             .Select(source => CSharpSyntaxTree.ParseText(File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText($$"""
-            using SuperMetroid.Core.Enemies.Artwork;
+            using SuperMetroid.AssetExtraction.Enemies;
             using SuperMetroid.Core.Enemies.Projectiles;
             class ProjectileArtworkConsumer {
                 void Inspect(EnemyProjectileSpritemapCatalog art, EnemyProjectileFrameId frame, EnemyProjectileFrameId program) {
@@ -78,7 +77,8 @@ internal static class EnemyProjectileArtworkContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("EnemyProjectileArtworkFixture", sources,
-            platforms.Append(typeof(EnemyProjectileSpritemapCatalog).Assembly.Location).Distinct()
+            platforms.Append(typeof(EnemyProjectileSpritemapCatalog).Assembly.Location)
+                .Append(typeof(EnemyProjectileFrameId).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)
@@ -96,7 +96,7 @@ internal static class EnemyProjectileArtworkContractChecks
         Require(after.MissingCount == 0 && after.UnresolvedCount == 2 && after.Classifications.Count == 5 && after.Consumers.Count == 7,
             "valid direct/program IDs and blank qualify; unknown IDs stay findings" + " (" + after.Describe() + ")");
         SyntaxTree external = CSharpSyntaxTree.ParseText("""
-            namespace SuperMetroid.Core.Enemies.Artwork;
+            namespace SuperMetroid.AssetExtraction.Enemies;
             class ExternalProjectileDefinitions {
                 object Escape() => EnemyProjectileSpritemapDefinitions.FrameNames;
             }

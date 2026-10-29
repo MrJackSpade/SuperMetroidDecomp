@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Artwork;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
 /// The installed enemy OAM compositions: the composition displayed for the frame gameplay shows, and their identity.

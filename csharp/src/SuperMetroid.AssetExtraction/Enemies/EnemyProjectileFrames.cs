@@ -1,11 +1,12 @@
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Projectiles;
 
-namespace SuperMetroid.Core.Enemies.Projectiles;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
-/// The presentation boundary of enemy projectile frames: the installed program frame or bank-$8D composition an
-/// <see cref="EnemyProjectileFrameId"/> shows, bound to the installed schema by frame name.
+/// The import pipeline's view of enemy projectile frames (#1463): the installed program frame or bank-$8D composition
+/// an <see cref="EnemyProjectileFrameId"/> shows, bound to the installed schema by frame name, which the spawned-object
+/// sheet composer composes each frame's picture from. Gameplay draws those pictures by the frame's identity.
 /// </summary>
 internal static class EnemyProjectileFrames
 {

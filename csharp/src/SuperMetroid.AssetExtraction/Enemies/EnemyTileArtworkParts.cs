@@ -42,11 +42,11 @@ public sealed record EnemyTileArtworkParts
     /// <summary>Auxiliary colors.</summary>
     public EnemyAuxiliaryColorCatalog? AuxiliaryColors { get; init; } = null;
 
-    /// <summary>The palettes, extended frames and colour catalogs gameplay reads.</summary>
+    /// <summary>The palettes, extended frame placements and colour catalogs gameplay reads.</summary>
     internal EnemyGameplayArtworkParts Gameplay => new()
     {
         Palettes = Palettes,
-        ExtendedFrames = ExtendedFrames,
+        ExtendedFramePlacements = ExtendedFrames?.Placements,
         MagdollitePaletteCycle = MagdollitePaletteCycle,
         WorkRobotPaletteCycle = WorkRobotPaletteCycle,
         ChozoAndTubeColors = ChozoAndTubeColors,

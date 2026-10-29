@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Artwork;
 using static SuperMetroid.Core.Enemies.Chozo.ChozoCarryMotionDefinitions;
 
 namespace SuperMetroid.Core.Enemies.Chozo;

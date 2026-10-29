@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 

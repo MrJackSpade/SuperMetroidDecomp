@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using System.Reflection;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;

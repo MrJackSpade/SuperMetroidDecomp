@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
 /// The installed enemy artwork as the import pipeline holds it (#1463): beside the palettes and colour catalogs gameplay
-/// reads, each enemy's characters, the enemy and enemy-projectile compositions and the gunship's takeoff pages that the
+/// reads, each enemy's characters, the enemy, extended-frame and enemy-projectile compositions and the gunship's takeoff pages that the
 /// sheet composers compose the pre-coloured enemy sheets from, and the identity of the whole selected presentation.
 /// </summary>
 public sealed class EnemyTileSourceArtwork : EnemyTileArtworkCatalog
@@ -22,6 +22,7 @@ public sealed class EnemyTileSourceArtwork : EnemyTileArtworkCatalog
     {
         sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(parts.Sheets);
         Spritemaps = parts.Spritemaps;
+        ExtendedFrames = parts.ExtendedFrames;
         GunshipLiftoff = parts.GunshipLiftoff;
         ProjectileSpritemaps = parts.ProjectileSpritemaps;
     }
@@ -59,6 +60,20 @@ public sealed class EnemyTileSourceArtwork : EnemyTileArtworkCatalog
 
     /// <summary>Installed visual-only OAM frames; null for constructed legacy fixtures.</summary>
     public EnemySpritemapCatalog? Spritemaps { get; internal set; }
+
+    /// <summary>
+    /// Installed extended frame compositions the sheet composer composes the components' pictures from; replacing them
+    /// replaces the placements gameplay reads with theirs.
+    /// </summary>
+    public EnemyExtendedFrameCatalog? ExtendedFrames
+    {
+        get;
+        internal set
+        {
+            field = value;
+            ExtendedFramePlacements = value?.Placements;
+        }
+    }
 
     /// <summary>Five editable gunship takeoff character uploads; null for constructed fixtures.</summary>
     public GunshipLiftoffArtworkCatalog? GunshipLiftoff { get; }

@@ -1,19 +1,17 @@
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Enemies.Artwork.ChozoStrideGeometryDefinitions;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Chozo;
+using SuperMetroid.Core.Spatial;
+using static SuperMetroid.AssetExtraction.Enemies.ChozoStrideGeometryDefinitions;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
-/// The Chozo statue's stride: where its support foot is planted in each phase, and the stride poses' foot glyphs placed
-/// there while the appearance and order of their other artwork parts are preserved.
+/// The Chozo statue's stride poses as the import pipeline composes them: the poses' foot glyphs placed at the stride's
+/// planted-foot positions while the appearance and order of their other artwork parts are preserved.
 /// </summary>
-internal static class ChozoStride
+internal static class ChozoStrideArtwork
 {
-    /// <summary>Gets the left support-foot origin for one of the four stride phases.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="phase"/> is outside zero through three.</exception>
-    internal static int SupportFootX(int phase) =>
-        (uint)phase < (uint)SupportFootXs.Length ? SupportFootXs[phase] : throw new ArgumentOutOfRangeException(nameof(phase));
-
     /// <summary>
     /// Uses phase-derived foot positions only when the supplied pose has exactly one matching glyph pair. Parts drawn
     /// with neither foot character are the body's other artwork and keep their supplied positions.
@@ -22,19 +20,19 @@ internal static class ChozoStride
     {
         int pose = Poses.IndexOf(frame);
         if (pose < 0) return supplied;
-        int phase = pose % 4;
+        int phase = pose % PhasesPerStride;
         int left = -1, right = -1;
         for (int index = 0; index < supplied.Count; index++)
         {
             SpritePart part = supplied[index];
             if (part.Character == LeftHalf.Tile)
             {
-                if (left >= 0 || part.Offset.X != SupportFootX(phase) + LeftHalf.OffsetFromLeft) return supplied;
+                if (left >= 0 || part.Offset.X != ChozoStride.SupportFootX(phase) + LeftHalf.OffsetFromLeft) return supplied;
                 left = index;
             }
             else if (part.Character == RightHalf.Tile)
             {
-                if (right >= 0 || part.Offset.X != SupportFootX(phase) + RightHalf.OffsetFromLeft) return supplied;
+                if (right >= 0 || part.Offset.X != ChozoStride.SupportFootX(phase) + RightHalf.OffsetFromLeft) return supplied;
                 right = index;
             }
         }
@@ -82,8 +80,8 @@ internal static class ChozoStride
             get
             {
                 if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-                if (index == leftIndex) return left.At(SupportFootX(phase));
-                if (index == rightIndex) return right.At(SupportFootX(phase) + RightHalf.OffsetFromLeft);
+                if (index == leftIndex) return left.At(ChozoStride.SupportFootX(phase));
+                if (index == rightIndex) return right.At(ChozoStride.SupportFootX(phase) + RightHalf.OffsetFromLeft);
                 return otherParts[index - (index > leftIndex ? 1 : 0) - (index > rightIndex ? 1 : 0)];
             }
         }

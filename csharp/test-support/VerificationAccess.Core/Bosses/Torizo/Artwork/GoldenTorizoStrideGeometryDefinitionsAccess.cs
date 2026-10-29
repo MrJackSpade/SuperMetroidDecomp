@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Torizo.Artwork;

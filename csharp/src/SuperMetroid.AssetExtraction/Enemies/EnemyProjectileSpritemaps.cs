@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Projectiles;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
 /// The installed enemy-projectile OAM compositions: finding a composition or timed program frame, and their identity.

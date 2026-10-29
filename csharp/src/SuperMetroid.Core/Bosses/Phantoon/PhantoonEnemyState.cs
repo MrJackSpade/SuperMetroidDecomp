@@ -43,10 +43,10 @@ public sealed class PhantoonEnemyState
     }
 
     /// <summary>
-    /// Modeled BG2 scroll registers written after the body has moved: camera minus body plus
-    /// forty whole pixels on each axis when ordinary synchronization runs.
+    /// Where Phantoon's body layer is placed, written after the body has moved: camera minus body plus forty whole
+    /// pixels on each axis when ordinary synchronization runs. His room shows his body layer as its background layer.
     /// </summary>
-    public Position16<BackgroundPixels> Bg2Scroll { get; internal set; }
+    public Position16<BackgroundPixels> BodyLayerPlacement { get; internal set; }
 
     /// <summary>
     /// Whether Phantoon draws translucent: the native layer-blending bit <c>$4000</c>, the only bit Phantoon sets or
@@ -54,8 +54,6 @@ public sealed class PhantoonEnemyState
     /// </summary>
     public bool SemiTransparent { get; internal set; }
 
-    /// <summary>True once the room's 2048-word enemy BG2 map has been cleared to tile $0338.</summary>
-    public bool BackgroundTilemapPrepared { get; internal set; }
 
     /// <summary>The eight requested/allocated starting flames are counted independently.</summary>
     public int StartingFlameRequests { get; internal set; }
@@ -85,8 +83,6 @@ public sealed class PhantoonEnemyState
     /// </summary>
     public int MosaicBlockSize { get; internal set; } = 1;
 
-    /// <summary>Final Wrecked Ship activation effects owned outside the enemy record.</summary>
-    public bool MainScreenBg2Enabled { get; internal set; }
     /// <summary>Gets whether the terminal activation routine has requested the authored sixteen-pickup arena scatter.</summary>
     public bool ItemDropRequested { get; internal set; }
     /// <summary>Gets whether the terminal activation routine has published the persistent area-boss defeat bit.</summary>

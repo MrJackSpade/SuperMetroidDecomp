@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Hardware;
 
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Runtime;
 
@@ -38,7 +39,7 @@ internal static class SuperMetroidRuntimeVramAccess
                 artwork.WithRoomCharacters(characters);
             if (self.Artwork.MapPresentation is { } presentation)
                 artwork.WithHud(presentation.HudTiles);
-            if (self.BossArtwork.Artwork?.KraidBackground is { } kraid)
+            if ((self.BossArtwork.Artwork as BossSourceArtwork)?.KraidBackground is { } kraid)
                 artwork.WithKraidBackground(kraid);
             artwork.WithCollectibles();
             return artwork;

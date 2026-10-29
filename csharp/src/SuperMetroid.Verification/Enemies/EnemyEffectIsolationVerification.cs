@@ -4,8 +4,8 @@ using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationFixtureVer
 using static SuperMetroid.Verification.Enemies.EnemyEffectsFixtureVerification;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies.BossBodies;

@@ -81,17 +81,17 @@ internal sealed class MotherBrainRainbowAndDeath
         if (bodyFade)
         {
             // ADF41C flickers the body and BG2 together on every call, not just palette ticks.
-            state.DeathBg2Hidden = (state.Body.FrameCounter & 1) == 0;
-            state.Body.Properties = state.DeathBg2Hidden
+            state.DeathHidesBodyLayer = (state.Body.FrameCounter & 1) == 0;
+            state.Body.Properties = state.DeathHidesBodyLayer
                 ? state.Body.Properties.With(EnemyProperties.Invisible)
                 : state.Body.Properties.Without(EnemyProperties.Invisible);
             if (step.PaletteRequested)
                 LoadMotherBrainDeathBodyFade(sequence.State.GreyTransitionCounter - 1);
         }
-        if (sequence.ThirdPhaseDeath.BodyClearRequested && !state.DeathBg2Cleared)
+        if (sequence.ThirdPhaseDeath.BodyClearRequested && !state.DeathBodyLayerCleared)
         {
-            state.DeathBg2Cleared = true;
-            state.DeathBg2Hidden = false;
+            state.DeathBodyLayerCleared = true;
+            state.DeathHidesBodyLayer = false;
             state.Body.Properties = sequence.ThirdPhaseDeath.BodyProperties;
             _presentation.RequireBossBody().Clear(0, MotherBrainBodyDefinitions.DeathClearedCells);
         }
@@ -124,7 +124,7 @@ internal sealed class MotherBrainRainbowAndDeath
                 : new(EscapeTypewriterProgramId.Zebes, EscapeTypewriterDefinitions.ZebesTileBase);
             _presentation.ColoursOf(EscapeTypewriterColourDefinitions.Text)
                 .CopyFrom(EscapeTypewriterColourDefinitions.Source.In(_presentation.BackgroundSets).Colors);
-            state.Bg2Scroll = Position16<BackgroundPixels>.Zero;
+            state.BodyLayerPlacement = Position16<BackgroundPixels>.Zero;
         }
         if (step.ExplodedDoorPaletteRequested)
             LoadMotherBrainDeathDoorPalette();

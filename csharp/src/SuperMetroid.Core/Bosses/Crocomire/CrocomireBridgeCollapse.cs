@@ -168,7 +168,7 @@ internal sealed class CrocomireBridgeCollapse
     /// <exception cref="InvalidDataException">The row lies outside his body layer.</exception>
     private void ClearCrocomireSinkRow()
     {
-        int row = unchecked((ushort)(_bg2.CrocomireBg2Scroll.Y + SinkRowDepth)) / BossBodyDefinitions.CellPixels;
+        int row = unchecked((ushort)(_bg2.BodyLayerPlacement.Y + SinkRowDepth)) / BossBodyDefinitions.CellPixels;
         int firstCell = row * BossBodyDefinitions.ColumnCount;
         _bg2.WorkingBody.Clear(firstCell, BossBodyDefinitions.ColumnCount);
         _bg2.ShowCrocomireWorkingCells(firstCell, BossBodyDefinitions.ColumnCount);
@@ -223,9 +223,9 @@ internal sealed class CrocomireBridgeCollapse
     /// <summary>Byte-for-byte fixed-point fall from <c>SinkCrocomireDown</c> at $A4:91C1.</summary>
     internal void RunCrocomireSink(CrocomireEnemyState state)
     {
-        _bg2.FillCrocomireBg2ScrollTable(_bg2.CrocomireBg2Scroll.Y);
+        _bg2.FillCrocomireBg2ScrollTable(_bg2.BodyLayerPlacement.Y);
         state.FightFlags &= ~CrocomireFightFlags.DamageReactionPending;
-        _bg2.UpdateCrocomireBg2Scroll(state);
+        _bg2.PlaceCrocomireBodyLayer(state);
         RoomEnemySlot body = state.Body;
 
         if (unchecked((short)(body.Position.Y.Whole - 280)) >= 0)
@@ -266,7 +266,7 @@ internal sealed class CrocomireBridgeCollapse
     /// <summary>Byte-for-byte fixed-point rise from $A4:92D8.</summary>
     internal void RunCrocomireRise(CrocomireEnemyState state)
     {
-        _bg2.FillCrocomireBg2ScrollTable(_bg2.CrocomireBg2Scroll.Y);
+        _bg2.FillCrocomireBg2ScrollTable(_bg2.BodyLayerPlacement.Y);
         RoomEnemySlot body = state.Body;
         if (unchecked((short)(body.Position.Y.Whole - 218)) < 0)
         {
@@ -274,7 +274,7 @@ internal sealed class CrocomireBridgeCollapse
             return;
         }
 
-        _bg2.UpdateCrocomireBg2Scroll(state);
+        _bg2.PlaceCrocomireBodyLayer(state);
         int acceleration = Math.Min(
             state.VerticalAcceleration + EightEight.FromWhole(1),
             EightEight.FromWhole(CrocomireBehavior.MaximumRiseAccelerationWhole));

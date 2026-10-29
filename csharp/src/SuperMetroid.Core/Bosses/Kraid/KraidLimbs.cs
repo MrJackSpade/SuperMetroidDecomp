@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 [RoomLifetime]
 internal sealed class KraidLimbs
 {
-    /// <summary>Room scratch memory, services, and tilemap state used throughout the Kraid fight.</summary>
+    /// <summary>Room scratch memory and services used throughout the Kraid fight.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Publishes arena shake during growth, death, and heavy movement.</summary>
     private readonly RoomEarthquake _earthquake;
@@ -242,8 +242,8 @@ internal sealed class KraidLimbs
                 RunKraidSecondPhaseWalkingLeft(body, foot);
                 return;
             case KraidAiFunction.GrowBreakCeilingPlatforms:
-            case KraidAiFunction.GrowSetBg2Priority:
-            case KraidAiFunction.GrowFinishBg2Update:
+            case KraidAiFunction.GrowBringBodyInFront:
+            case KraidAiFunction.GrowShowLowerBodyInFront:
             case KraidAiFunction.GrowDrawRoomBackground:
             case KraidAiFunction.GrowFadeInRoomBackground:
             case KraidAiFunction.MainloopThinking:
@@ -265,11 +265,11 @@ internal sealed class KraidLimbs
             case KraidAiFunction.GrowReleaseCamera:
             case KraidAiFunction.DeathInitialize:
             case KraidAiFunction.DeathFadeOut:
-            case KraidAiFunction.DeathUpdateTopTilemap:
-            case KraidAiFunction.DeathUpdateBottomTilemap:
+            case KraidAiFunction.DeathShowUpperBody:
+            case KraidAiFunction.DeathShowLowerBody:
             case KraidAiFunction.DeathSink:
-            case KraidAiFunction.DeathClearTopTilemap:
-            case KraidAiFunction.DeathClearBottomTilemap:
+            case KraidAiFunction.DeathHideUpperBody:
+            case KraidAiFunction.DeathHideLowerBody:
             case KraidAiFunction.DeathWaitBeforeFadeIn1:
             case KraidAiFunction.DeathWaitBeforeFadeIn2:
             case KraidAiFunction.DeathWaitBeforeFadeIn3:
@@ -279,7 +279,7 @@ internal sealed class KraidLimbs
             case KraidAiFunction.DeathFinishedWasDead:
             case KraidAiFunction.RestrictSamusToFirstScreen:
             case KraidAiFunction.RaiseKraidThroughFloor:
-            case KraidAiFunction.RaiseLoadBottomTilemap:
+            case KraidAiFunction.RaiseShowLowerBody:
             case KraidAiFunction.RaiseRocksEvery16Frames:
             case KraidAiFunction.RaiseRocksEvery8Frames:
             case KraidAiFunction.RaiseBody:

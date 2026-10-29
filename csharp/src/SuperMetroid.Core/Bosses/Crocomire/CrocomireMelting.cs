@@ -36,7 +36,7 @@ internal sealed class CrocomireMelting
     /// </summary>
     internal void LoadFirstCrocomireMeltingTilemap(CrocomireEnemyState state)
     {
-        _ = RequireCrocomireMeltingTilemap(CrocomireMeltingIllustration.First);
+        _ = RequireCrocomireMeltingImage(CrocomireMeltingIllustration.First);
         StartCrocomireMeltingTilemap(state, CrocomireBodyProgram.MeltingOneTopRow);
 
         if (state.Tongue is { } tongue)
@@ -63,17 +63,21 @@ internal sealed class CrocomireMelting
     /// </summary>
     internal void LoadSecondCrocomireMeltingTilemap(CrocomireEnemyState state)
     {
-        _ = RequireCrocomireMeltingTilemap(CrocomireMeltingIllustration.Second);
-        _bg2.FillCrocomireBg2ScrollTable(_bg2.CrocomireBg2Scroll.Y);
+        _ = RequireCrocomireMeltingImage(CrocomireMeltingIllustration.Second);
+        _bg2.FillCrocomireBg2ScrollTable(_bg2.BodyLayerPlacement.Y);
         StartCrocomireMeltingTilemap(state, CrocomireBodyProgram.MeltingTwoTopRow);
         // $A4:940E-941D clears the first thirty-two rows.
         ShowCrocomireMeltingImage(CrocomireMeltingIllustration.Second, clearedCells: 1024);
     }
 
-    /// <summary>Requires a complete installed melting map before phase, actor, scratch, or VRAM state changes.</summary>
-    internal ReadOnlySpan<BackgroundTile> RequireCrocomireMeltingTilemap(CrocomireMeltingIllustration illustration) =>
-        (_bossArtwork.Artwork?.CrocomireMelting ?? throw new InvalidDataException(
-            "Crocomire melting requires installed tilemap artwork.")).Tilemap(illustration);
+    /// <summary>
+    /// Requires melt image <paramref name="illustration"/> in Crocomire's installed body sheet before any phase, actor or
+    /// body state changes (#1466).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">No boss body sheets are installed.</exception>
+    /// <exception cref="InvalidDataException">His body sheet has no such melt image.</exception>
+    internal BossBodyFrame RequireCrocomireMeltingImage(CrocomireMeltingIllustration illustration) =>
+        _bossArtwork.Body(BossBodyOwner.Crocomire).Frame(CrocomireMeltingFrameNames.Of(illustration));
 
     /// <summary>Starts the selected body melting list and synchronizes actor state with the new BG2 map.</summary>
     private static void StartCrocomireMeltingTilemap(CrocomireEnemyState state, CrocomireBodyProgram bodyProgram)
@@ -88,16 +92,12 @@ internal sealed class CrocomireMelting
     /// </summary>
     private void ShowCrocomireMeltingImage(CrocomireMeltingIllustration illustration, int clearedCells)
     {
-        int imageCells = RequireCrocomireMeltingTilemap(illustration).Length;
         BossBodyCanvas working = _bg2.WorkingBody;
         working.Clear(0, clearedCells);
-        working.Draw(_bossArtwork.Body(BossBodyOwner.Crocomire).Frame(CrocomireMeltingFrameNames.Of(illustration)));
+        working.Draw(RequireCrocomireMeltingImage(illustration));
         // The image is shown with the sixteen rows the cartridge's transfer leads it with, and what follows it there.
-        _bg2.ShowCrocomireWorkingCells(0, MeltLeadCells + imageCells);
+        _bg2.ShowCrocomireWorkingCells(0, CrocomireMeltingDefinitions.ShownMeltCells);
     }
-
-    /// <summary>The cells shown ahead of a melt image's own: the canvas's first sixteen rows.</summary>
-    private const int MeltLeadCells = 512;
 
     /// <summary>
     /// Begins <paramref name="pass"/>'s melt (<c>$A4:943D</c>): resets the BG2 scroll table and the distortion, and starts
@@ -108,9 +108,8 @@ internal sealed class CrocomireMelting
     internal void BeginCrocomireMeltPass(CrocomireEnemyState state, CrocomireMeltingIllustration pass)
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
-        _ = _bossArtwork.Artwork?.CrocomireMelting ?? throw new InvalidDataException(
-            "Crocomire melting requires installed graphics artwork.");
-        _bg2.FillCrocomireBg2ScrollTable(_bg2.CrocomireBg2Scroll.Y);
+        _ = RequireCrocomireMeltingImage(pass);
+        _bg2.FillCrocomireBg2ScrollTable(_bg2.BodyLayerPlacement.Y);
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
         death.DistortionStep = 256;
         death.LowestDistortionSourceRow = CrocomireMeltingDefinitions.LowestDistortionSourceRow;
@@ -174,9 +173,9 @@ internal sealed class CrocomireMelting
         death.MeltingScrollActive = true;
         int lineCount = Math.Clamp((state.Tongue?.Position.Y.Whole ?? state.Body.Position.Y.Whole) - 72, 0, 256);
         Span<ushort> scrolls = death.MutableBg2ScrollByScanline;
-        scrolls.Slice(0, lineCount).Fill(_bg2.CrocomireBg2Scroll.Y);
+        scrolls.Slice(0, lineCount).Fill(_bg2.BodyLayerPlacement.Y);
         if (lineCount < scrolls.Length)
-            scrolls.Slice(lineCount).Fill(_bg2.CrocomireBg2Scroll.Y);
+            scrolls.Slice(lineCount).Fill(_bg2.BodyLayerPlacement.Y);
 
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
         death.BodyXBeforeMelting = state.Body.Position.X.Whole;
@@ -193,8 +192,8 @@ internal sealed class CrocomireMelting
 
         EraseNextCrocomireMeltingColumn();
 
-        // $A4:95D5 refreshes the BG2 scroll, which also moves the tongue onto the body.
-        _bg2.UpdateCrocomireBg2Scroll(state);
+        // $A4:95D5 places his body layer again, which also moves the tongue onto the body.
+        _bg2.PlaceCrocomireBodyLayer(state);
         int nextAdjustedY = death.DistortionSourceRow - 3;
         if (death.DistortionSourceRow < 19)
         {
@@ -242,7 +241,7 @@ internal sealed class CrocomireMelting
                adjustedY < death.LowestDistortionSourceRow)
         {
             output[line++] = unchecked((ushort)(
-                _bg2.CrocomireBg2Scroll.Y + adjustedY - currentY));
+                _bg2.BodyLayerPlacement.Y + adjustedY - currentY));
             bool carry = false;
             fraction = WordCarry.AddWithCarry((ushort)fraction, checked((ushort)death.DistortionStep), ref carry);
             if (!carry)
@@ -250,7 +249,7 @@ internal sealed class CrocomireMelting
             currentY++;
         }
         if (line < output.Length)
-            output.Slice(line).Fill(_bg2.CrocomireBg2Scroll.Y);
+            output.Slice(line).Fill(_bg2.BodyLayerPlacement.Y);
     }
 
     /// <summary>Ends the current dissolve and selects the next death-scene instruction phase.</summary>

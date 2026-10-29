@@ -2,9 +2,10 @@ using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core;
 using System.Text.Json;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
+using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -63,11 +64,11 @@ internal static class EnemyExtendedFrameFiles
         // high byte as native presentation metadata.
         int expectedPadding = definition.Name.StartsWith("ceres_steam_",
             StringComparison.Ordinal) ? CeresSteamHeaderHighByte : 0;
-        bool motherBrainMixed = MotherBrainBodyVisualDefinitions.Bg2FrameIds.Contains(definition.Frame);
+        bool motherBrainMixed = MotherBrainBodyVisualDefinitions.BodyLayerFrames.Contains(definition.Frame);
         bool bg2Only = EnemyExtendedFrameBounds.IsBg2Only(definition);
         int maximumNativeComponents = motherBrainMixed
-            ? MotherBrainBodyVisualDefinitions.MaximumComponents
-            : bg2Only ? PhantoonBg2FrameDefinitions.FrameIds.Contains(definition.Frame)
+            ? MotherBrainBodyBg2FrameDefinitions.MaximumComponents
+            : bg2Only ? PhantoonBodyLayerFrameDefinitions.Frames.Contains(definition.Frame)
                 ? PhantoonBg2FrameDefinitions.MaximumComponents : DraygonBg2FrameDefinitions.MaximumComponents
                 : EnemyExtendedFrameBounds.MaximumSpriteComponents(definition);
         if (count < 1 || count > maximumNativeComponents ||

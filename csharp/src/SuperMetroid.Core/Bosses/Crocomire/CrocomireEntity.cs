@@ -55,7 +55,7 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
 
     /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
-        Slot.DefinitionId == EnemyDefinitionId.Crocomire && CrocomireBg2FrameDefinitions.FrameIds.Contains(selected)
+        Slot.DefinitionId == EnemyDefinitionId.Crocomire && CrocomireBodyLayerFrameDefinitions.Frames.Contains(selected)
             ? _bossArtwork.Body(BossBodyOwner.Crocomire).Frame(selected) : null;
 
     /// <summary>The body's and tongue's contact and shots both enter the extended-spritemap walker over their own hitboxes.</summary>

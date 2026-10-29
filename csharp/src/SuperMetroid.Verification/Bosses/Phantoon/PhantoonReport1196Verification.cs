@@ -53,7 +53,7 @@ internal static class PhantoonReport1196Verification
     {
         var enemies = CreatePhantoonSystem();
         var boss = enemies.PhantoonBehavior.Combat.Phantoon;
-        (boss ?? throw new InvalidOperationException("Verification requires boss.")).Bg2Scroll = boss.Bg2Scroll.WithX(9);
+        (boss ?? throw new InvalidOperationException("Verification requires boss.")).BodyLayerPlacement = boss.BodyLayerPlacement.WithX(9);
         boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude = 3072;
         boss.Parts[boss.Mouth.SlotIndex].WavyPhaseDelta = 8;
         var wave = boss.Wave;
@@ -63,7 +63,7 @@ internal static class PhantoonReport1196Verification
         AssertTrue(wave.ScrollCycle.CountDistinct() > 1, "fixture retains a used introductory wave");
         boss.Parts[boss.Eye.SlotIndex].WaveMode = 0;
         wave.Step(boss);
-        boss.Bg2Scroll = boss.Bg2Scroll.WithX(13);
+        boss.BodyLayerPlacement = boss.BodyLayerPlacement.WithX(13);
         boss.Body.Health = 0;
         enemies.PhantoonBehavior.Combat.ResolvePhantoonShotReaction(boss.Body, boss, new SamusProjectileTypeWord(0x0100), 100);
         PhantoonDeath.BeginPhantoonWavyMosaicDeath(boss.Body, boss);

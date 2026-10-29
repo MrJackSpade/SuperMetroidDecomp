@@ -18,7 +18,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new KraidEntity(this, slot, common);
-    /// <summary>Kraid's BG2 body layer: his working map composed from the installed artwork and the tilemap of the frame he shows.</summary>
+    /// <summary>Kraid's body layer: the body frame he shows, drawn from his installed body sheet.</summary>
     internal KraidBodyLayer BodyLayer { get; }
 
     /// <summary>Kraid's arrival: his room setup, the rise through the floor and his growth into the second phase.</summary>
@@ -27,13 +27,13 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and the sound he last requested.</summary>
     internal KraidEncounterAccess Access { get; }
 
-    /// <summary>Kraid's room background: its fade, color transitions, top and bottom tilemap transfers and the ceiling rocks.</summary>
+    /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
     internal KraidBackground Background { get; }
 
     /// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health palettes.</summary>
     internal KraidHead Head { get; }
 
-    /// <summary>Kraid's death: the sink below the floor, the tilemap clears and the background fade.</summary>
+    /// <summary>Kraid's death: the sink below the floor, hiding his body and the background fade.</summary>
     internal KraidDeath Death { get; }
 
     /// <summary>Kraid's arm and foot: their setup, programs, lunges, retreats and walks.</summary>
@@ -57,7 +57,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         BodyLayer = new KraidBodyLayer(Access, _bossArtwork);
         Background = new KraidBackground(dependencies.Projectiles, dependencies.Presentation.Surfaces, Access, _bossArtwork);
         Head = new KraidHead(dependencies.Room, dependencies.Projectiles, dependencies.SlotTable, dependencies.Presentation.Surfaces, Access, Background);
-        Rise = new KraidRise(new KraidRiseDependencies { FrameResults = dependencies.FrameResults, Room = dependencies.Room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, SlotTable = dependencies.SlotTable, Presentation = dependencies.Presentation.Surfaces, ZebetiteBehavior = dependencies.ZebetiteBehavior, Access = Access, Background = Background, Head = Head , BossArtwork = _bossArtwork });
+        Rise = new KraidRise(new KraidRiseDependencies { FrameResults = dependencies.FrameResults, Room = dependencies.Room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, SlotTable = dependencies.SlotTable, Presentation = dependencies.Presentation.Surfaces, ZebetiteBehavior = dependencies.ZebetiteBehavior, Access = Access, Background = Background, Head = Head });
         Death = new KraidDeath(new KraidDeathDependencies { FrameResults = dependencies.FrameResults, Room = dependencies.Room, Earthquake = dependencies.Earthquake, SlotTable = dependencies.SlotTable, Presentation = dependencies.Presentation.Surfaces, DeathsAndDrops = dependencies.DeathsAndDrops, ZebetiteBehavior = dependencies.ZebetiteBehavior, Access = Access, Background = Background, Head = Head });
         Limbs = new KraidLimbs(dependencies.Room, dependencies.Earthquake, dependencies.SlotTable, Access);
         Projectiles = new KraidProjectiles(dependencies.Room, dependencies.Terrain, dependencies.SlotTable, dependencies.Collision, dependencies.DeathsAndDrops, Access);
@@ -91,9 +91,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             Combat.ResolveKraidBodyProjectileHits(body, state, bodyShots);
         if (samus is not null)
             Combat.ResolveKraidBodyContact(body, state, samus);
-        // `$A7:AC21` makes BG2 follow Kraid rather than the room. X radius is the native
+        // `$A7:AC21` places his body layer to follow Kraid rather than the room. X radius is the native
         // body's right-edge origin adjustment; 152 is the authored vertical anchor.
-        state.Bg2Scroll = new Position16<BackgroundPixels>(
+        state.BodyLayerPlacement = new Position16<BackgroundPixels>(
             unchecked((ushort)(camera.X - body.Position.X.Whole + body.Radius.X)),
             unchecked((ushort)(camera.Y - body.Position.Y.Whole + 152)));
         KraidAiFunction function = state.Parts[body.SlotIndex].Function;
@@ -282,8 +282,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case KraidAiFunction.GrowReleaseCamera:
             case KraidAiFunction.GrowBreakCeilingPlatforms:
-            case KraidAiFunction.GrowSetBg2Priority:
-            case KraidAiFunction.GrowFinishBg2Update:
+            case KraidAiFunction.GrowBringBodyInFront:
+            case KraidAiFunction.GrowShowLowerBodyInFront:
             case KraidAiFunction.GrowDrawRoomBackground:
             case KraidAiFunction.GrowFadeInRoomBackground:
                 Rise.RunKraidGrowthFunction(body, state);
@@ -295,11 +295,11 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case KraidAiFunction.DeathInitialize:
             case KraidAiFunction.DeathFadeOut:
-            case KraidAiFunction.DeathUpdateTopTilemap:
-            case KraidAiFunction.DeathUpdateBottomTilemap:
+            case KraidAiFunction.DeathShowUpperBody:
+            case KraidAiFunction.DeathShowLowerBody:
             case KraidAiFunction.DeathSink:
-            case KraidAiFunction.DeathClearTopTilemap:
-            case KraidAiFunction.DeathClearBottomTilemap:
+            case KraidAiFunction.DeathHideUpperBody:
+            case KraidAiFunction.DeathHideLowerBody:
             case KraidAiFunction.DeathWaitBeforeFadeIn1:
             case KraidAiFunction.DeathWaitBeforeFadeIn2:
             case KraidAiFunction.DeathWaitBeforeFadeIn3:
@@ -331,7 +331,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case KraidAiFunction.FootFirstPhaseRetreat:
             case KraidAiFunction.RestrictSamusToFirstScreen:
             case KraidAiFunction.RaiseKraidThroughFloor:
-            case KraidAiFunction.RaiseLoadBottomTilemap:
+            case KraidAiFunction.RaiseShowLowerBody:
             case KraidAiFunction.RaiseRocksEvery16Frames:
             case KraidAiFunction.RaiseRocksEvery8Frames:
             case KraidAiFunction.RaiseBody:

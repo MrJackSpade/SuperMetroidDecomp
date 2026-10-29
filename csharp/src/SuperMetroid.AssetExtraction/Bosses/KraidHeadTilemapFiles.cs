@@ -3,8 +3,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
@@ -17,7 +15,7 @@ internal static class KraidHeadTilemapFiles
     /// <exception cref="InvalidDataException">The source length is incorrect or the JSON round-trip changes a tile.</exception>
     internal static byte[] Encode(ReadOnlySpan<byte> tilemap)
     {
-        if (tilemap.Length != KraidBackgroundDefinitions.HeadImageCells * sizeof(ushort))
+        if (tilemap.Length != KraidWorkingMapDefinitions.HeadImageCells * sizeof(ushort))
             throw new InvalidDataException("Kraid head tilemap source has wrong length.");
         BackgroundTile[] tiles = BackgroundTileWords.ToTiles(tilemap);
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(new KraidHeadTilemapDocument

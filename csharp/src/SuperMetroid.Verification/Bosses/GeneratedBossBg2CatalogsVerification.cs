@@ -41,7 +41,7 @@ internal static class GeneratedBossBg2CatalogsVerification
         new(0xdffd, "mouth_2"),
 
         ];
-        byte[] json = VerifyGeneratedBg2Catalog(rom, 0xa7, "Phantoon", expected, PhantoonBg2FrameDefinitions.Frames, frame => frame.Name, new Bg2CatalogAccess { IsFrame = PhantoonBg2FrameDefinitions.FrameIds.Contains, Extract = () => PhantoonBg2FrameFiles.Extract(rom) });
+        byte[] json = VerifyGeneratedBg2Catalog(rom, 0xa7, "Phantoon", expected, PhantoonBg2FrameDefinitions.Frames, frame => frame.Name, new Bg2CatalogAccess { IsFrame = PhantoonBodyLayerFrameDefinitions.Frames.Contains, Extract = () => PhantoonBg2FrameFiles.Extract(rom) });
         using var stream = new MemoryStream(json, writable: false);
         var loaded = PhantoonBg2FrameCatalog.Load(stream);
         foreach (var frame in expected)
@@ -89,7 +89,7 @@ internal static class GeneratedBossBg2CatalogsVerification
         new(0xa6e3, "draygon_bg2_A6E3"),
 
         ];
-        byte[] json = VerifyGeneratedBg2Catalog(rom, 0xa5, "Draygon", expected, DraygonBg2FrameDefinitions.Frames, frame => frame.LegacyName, new Bg2CatalogAccess { IsFrame = DraygonBg2FrameDefinitions.FrameIds.Contains, Extract = () => DraygonBg2FrameFiles.Extract(rom) });
+        byte[] json = VerifyGeneratedBg2Catalog(rom, 0xa5, "Draygon", expected, DraygonBg2FrameDefinitions.Frames, frame => frame.LegacyName, new Bg2CatalogAccess { IsFrame = DraygonBodyLayerFrameDefinitions.Frames.Contains, Extract = () => DraygonBg2FrameFiles.Extract(rom) });
         using var stream = new MemoryStream(json, writable: false);
         var loaded = DraygonBg2FrameCatalog.Load(stream);
         foreach (var frame in expected)

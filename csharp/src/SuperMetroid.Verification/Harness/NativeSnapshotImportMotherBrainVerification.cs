@@ -255,7 +255,7 @@ internal static class NativeSnapshotImportMotherBrainVerification
         BossArtworkCatalog bosses = runtime.BossArtwork.Artwork ?? throw new InvalidOperationException("The runtime installs no boss artwork.");
         BossBodySheet sheet = sheets.Of(BossBodyOwner.MotherBrain);
         var image = new BossBodyCanvas(sheet, BossBodyDefinitions.SharedBodyRows);
-        BossBodyFrameSource? staged = BossBodySheetComposer.Frames(bosses, BossBodyOwner.MotherBrain).FirstOrDefault(frame =>
+        BossBodyFrameSource? staged = BossBodySheetComposer.Frames(bosses.Sources, BossBodyOwner.MotherBrain).FirstOrDefault(frame =>
             frame.Cells.All(entry => entry.Key < screen.Length && screen[entry.Key] == entry.Value.PackedWord));
         if (staged is not null)
             image.Draw(sheet.Frame(staged.Name));

@@ -6,8 +6,6 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Rooms.TilemapJsonContractsEnvironmentVerification;
-using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Bosses;
@@ -57,7 +55,7 @@ internal static class TilemapJsonContractsVerification
             }
         }
 
-        byte[] headWords = TilemapContractWords(KraidBackgroundDefinitions.HeadImageCells);
+        byte[] headWords = TilemapContractWords(KraidWorkingMapDefinitions.HeadImageCells);
         string headJson = Encoding.UTF8.GetString(KraidHeadTilemapFiles.Encode(headWords));
         void LoadHead(string text)
         {

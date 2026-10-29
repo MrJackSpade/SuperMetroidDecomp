@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 
-/// <summary>Cartridge values and helpers of <see cref="DraygonBg2FrameDefinitions"/> that only verification reads.</summary>
+/// <summary>Cartridge values and helpers of <see cref="AssetExtraction.Bosses.DraygonBg2FrameDefinitions"/> that only verification reads.</summary>
 internal static class DraygonBg2FrameDefinitionsConstants
 {
     /// <summary>$A5:A31B, first left-facing one-component BG2 body frame.</summary>

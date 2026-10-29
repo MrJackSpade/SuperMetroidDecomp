@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
@@ -50,7 +51,7 @@ internal static class RetailKraidCaptureTests
         for (int tick = 0; tick < 1200; tick++)
         {
             bool changed = phases.Add(BodyFunction());
-            ownedBackground |= boss.OwnsBg2Tilemap;
+            ownedBackground |= boss.ShowsBodyLayer;
             bool mainLoop = BodyFunction() == KraidAiFunction.MainloopThinking;
             if (changed || tick % 8 == 0 || mainLoop)
             {
@@ -94,7 +95,7 @@ internal static class RetailKraidCaptureTests
             if (finished) { completed = true; break; }
             runtime.StepFrame(0);
         }
-        if (!completed || !boss.CameraReleasedForSecondPhase || !boss.Bg2PriorityBitsSet)
+        if (!completed || !boss.CameraReleasedForSecondPhase || boss.BodyAppearance != KraidBodyAppearance.InFrontOfSprites)
             throw new InvalidOperationException("Kraid growth missed camera/priority/second-phase handoff.");
         Console.WriteLine($"{device.Kind}: Kraid growth: {growthSamples} exact samples across {growthPhases.Count} AI states, camera and BG2 priority handoff verified.");
         int deathWait = 0;
@@ -156,8 +157,8 @@ internal static class RetailKraidCaptureTests
         var shown = new SortedSet<ushort>(BossBodyWords.Of(runtime.Display.Latched.Bosses.Body
             ?? throw new InvalidOperationException($"{context}: BG2 shows a boss body Kraid has not latched."), BossBodyOwner.Kraid,
             runtime.BossArtwork.Artwork ?? throw new InvalidOperationException($"{context}: the runtime installs no boss artwork.")));
-        if (shown.Any(word => word != KraidBackgroundDefinitions.BlankTile.PackedWord))
-            throw new InvalidOperationException($"{context}: BG2 shows {string.Join(", ", shown.Select(word => $"${word:X4}"))}; only the blank tile ${KraidBackgroundDefinitions.BlankTile.PackedWord:X4} remains on the cartridge.");
+        if (shown.Any(word => word != KraidWorkingMapDefinitions.BlankTile.PackedWord))
+            throw new InvalidOperationException($"{context}: BG2 shows {string.Join(", ", shown.Select(word => $"${word:X4}"))}; only the blank tile ${KraidWorkingMapDefinitions.BlankTile.PackedWord:X4} remains on the cartridge.");
     }
 
     /// <summary>

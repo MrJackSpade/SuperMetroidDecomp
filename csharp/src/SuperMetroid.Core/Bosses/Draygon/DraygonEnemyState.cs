@@ -37,8 +37,6 @@ public sealed class DraygonEnemyState
     /// <summary>Native enemy slot $00C0, installed by the arms initializer; its animation follows the body's authoritative coordinates.</summary>
     public RoomEnemySlot Arms { get => field ?? throw new InvalidOperationException("Draygon's arms part is not attached; part initialization attaches it."); internal set; }
 
-    /// <summary>True after the $1000-byte enemy BG2 surface has been filled with tile $338.</summary>
-    public bool BackgroundTilemapPrepared { get; internal set; }
 
     /// <summary>Room-loading IRQ command selected by Draygon's body instruction stream.</summary>
     public RoomLoadingInterruptCommand RoomLoadingIrqCommand { get; internal set; }
@@ -80,10 +78,11 @@ public sealed class DraygonEnemyState
     public Offset16<BackgroundPixels> BodyGraphicsDisplacement { get; internal set; }
 
     /// <summary>
-    /// The BG2 scroll that places the body image (#1354), derived after enemies draw from the final camera, the body
-    /// position and <see cref="BodyGraphicsDisplacement"/>; it is Draygon's own, never the room's BG2 scroll.
+    /// Where Draygon's body layer is placed (#1354): the layer position shown at the screen's top-left, derived after
+    /// enemies draw from the final camera, the body position and <see cref="BodyGraphicsDisplacement"/>. It is
+    /// Draygon's own, never the room's background placement.
     /// </summary>
-    public Position16<BackgroundPixels> BodyBg2Scroll { get; internal set; }
+    public Position16<BackgroundPixels> BodyLayerPlacement { get; internal set; }
 
     /// <summary>
     /// The native table at $7E:9002 is written every four bytes and addressed by a byte

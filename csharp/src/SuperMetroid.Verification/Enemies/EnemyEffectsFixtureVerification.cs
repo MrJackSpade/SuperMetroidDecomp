@@ -85,7 +85,7 @@ internal static class EnemyEffectsFixtureVerification
             else if (illustration == CrocomireMeltingIllustration.Second)
                 Enemies.CrocomireBehavior.Melting.LoadSecondCrocomireMeltingTilemap(Actor);
             else
-                _ = Enemies.CrocomireBehavior.Melting.RequireCrocomireMeltingTilemap(illustration);
+                _ = Enemies.CrocomireBehavior.Melting.RequireCrocomireMeltingImage(illustration);
         }
 
         /// <summary>Runs one Crocomire melting step, selected from the fixture's Crocomire behavior, on its actor.</summary>

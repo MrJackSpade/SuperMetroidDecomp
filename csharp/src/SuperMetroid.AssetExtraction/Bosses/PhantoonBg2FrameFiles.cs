@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.AssetExtraction.Bosses;

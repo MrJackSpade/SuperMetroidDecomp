@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsClippingVerification;
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsDocumentsVerification;
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsFixtureVerification;

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 [RoomLifetime]
 internal sealed class KraidEncounterAccess
 {
-    /// <summary>Room scratch memory, services, and tilemap state used throughout the Kraid fight.</summary>
+    /// <summary>Room scratch memory and services used throughout the Kraid fight.</summary>
     private readonly EnemyRoomBinding _room;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>

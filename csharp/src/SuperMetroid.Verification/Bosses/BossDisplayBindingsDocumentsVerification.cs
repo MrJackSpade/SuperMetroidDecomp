@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.World.Artwork;
+using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
 using SuperMetroid.Core.Enemies;

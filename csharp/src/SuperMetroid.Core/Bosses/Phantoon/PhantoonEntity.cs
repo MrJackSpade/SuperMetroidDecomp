@@ -44,7 +44,7 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
 
     /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
-        PhantoonBg2FrameDefinitions.FrameIds.Contains(selected) ? _bossArtwork.Body(BossBodyOwner.Phantoon).Frame(selected) : null;
+        PhantoonBodyLayerFrameDefinitions.Frames.Contains(selected) ? _bossArtwork.Body(BossBodyOwner.Phantoon).Frame(selected) : null;
 
     /// <summary>
     /// Phantoon's body resolves its projectile hits before the ordinary passes: a retained Plasma hit must publish its hurt

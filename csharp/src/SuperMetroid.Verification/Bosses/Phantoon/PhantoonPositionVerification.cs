@@ -62,12 +62,12 @@ internal static class PhantoonPositionVerification
         for (int frame = 0; frame < 1400; frame++)
         {
             var phantoon = runtime.Enemies.PhantoonBehavior.Combat.Phantoon ?? throw new InvalidOperationException("Verification requires the loaded Phantoon.");
-            ushort displayedX = phantoon.Bg2Scroll.X;
-            ushort displayedY = phantoon.Bg2Scroll.Y;
+            ushort displayedX = phantoon.BodyLayerPlacement.X;
+            ushort displayedY = phantoon.BodyLayerPlacement.Y;
             ushort displayedBodyX = (ushort)(phantoon.Body.Position.X.Whole - runtime.Room.LoadedCamera.PixelPosition.X);
             ushort displayedBodyY = (ushort)(phantoon.Body.Position.Y.Whole - runtime.Room.LoadedCamera.PixelPosition.Y);
             runtime.StepFrame(0);
-            AssertEqual(phantoon.Bg2Scroll, runtime.BackgroundScroll.Bg2Scroll,
+            AssertEqual(phantoon.BodyLayerPlacement, runtime.BackgroundScroll.Bg2Scroll,
                 $"Phantoon live BG2 handoff frame {frame}");
             if (frame == 0) continue;
             var layer = (GameplaySceneLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];

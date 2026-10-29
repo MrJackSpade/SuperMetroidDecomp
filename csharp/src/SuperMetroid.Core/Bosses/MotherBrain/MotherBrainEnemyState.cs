@@ -94,8 +94,6 @@ public sealed class MotherBrainEnemyState
     /// <summary>Whether the unpause hook must restore Mother Brain's BG2 image and beam SFX.</summary>
     public bool EnableUnpauseHook { get; internal set; }
 
-    /// <summary>True after all <c>$800</c> enemy-BG2 words have been filled with tile <c>$0338</c>.</summary>
-    public bool BackgroundTilemapPrepared { get; internal set; }
 
     /// <summary>The colours the five neck joints draw in (#1464).</summary>
     public SpriteColouring NeckColouring { get; internal set; } = SharedSpriteColouring.Common;
@@ -194,17 +192,16 @@ public sealed class MotherBrainEnemyState
     public LayerBlendingConfiguration LayerBlendingDefaultConfig { get; internal set; } = LayerBlendingConfiguration.Unconfigured;
 
     /// <summary>
-    /// Direct BG2 scroll-register mirrors owned by the phase-two body art. The vertical word is
-    /// updated oppositely to physical body Y movement, keeping the large background-rendered
-    /// body attached.
+    /// Where her phase-two body layer is placed: the layer position shown at the screen's top-left. Its vertical
+    /// coordinate moves oppositely to the body's vertical movement, keeping the large body attached.
     /// </summary>
-    public Position16<BackgroundPixels> Bg2Scroll { get; internal set; }
-    /// <summary>Whether body AI has published encounter-owned BG2 scroll values for the runtime to apply instead of ordinary room scrolling.</summary>
-    public bool HasBg2ScrollOverride { get; internal set; }
-    /// <summary>ADF41C's main-screen BG2 flicker, separate from the OAM invisibility bit.</summary>
-    public bool DeathBg2Hidden { get; internal set; }
-    /// <summary>One-shot latch for the AFE0 body tilemap clear.</summary>
-    public bool DeathBg2Cleared { get; internal set; }
+    public Position16<BackgroundPixels> BodyLayerPlacement { get; internal set; }
+    /// <summary>Whether body AI has placed her body layer, which then shows in place of the room's background layer.</summary>
+    public bool PlacesBodyLayer { get; internal set; }
+    /// <summary>ADF41C's death flicker hiding her body layer this frame, separate from the sprites' invisibility.</summary>
+    public bool DeathHidesBodyLayer { get; internal set; }
+    /// <summary>One-shot latch for the AFE0 clearing of her body layer.</summary>
+    public bool DeathBodyLayerCleared { get; internal set; }
     /// <summary>Live escape message owner installed by $A6:C23F.</summary>
     public EscapeTypewriterState? EscapeTypewriter { get; internal set; }
 

@@ -13,7 +13,7 @@ internal static class EnemyExtendedFrameBounds
 {
     /// <summary>These frames contain BG2 streams only; stock legitimately has no OAM components.</summary>
     internal static bool IsBg2Only(EnemySpritemapDefinition frame) =>
-        PhantoonBg2FrameDefinitions.FrameIds.Contains(frame.Frame) || DraygonBg2FrameDefinitions.FrameIds.Contains(frame.Frame);
+        PhantoonBodyLayerFrameDefinitions.Frames.Contains(frame.Frame) || DraygonBodyLayerFrameDefinitions.Frames.Contains(frame.Frame);
 
     /// <summary>Skeleton fragmentation needs thirteen components; all other sprite families retain their existing bound.</summary>
     internal static int MaximumSpriteComponents(EnemySpritemapDefinition frame) =>

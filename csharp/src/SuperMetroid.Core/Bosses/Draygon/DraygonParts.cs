@@ -74,7 +74,6 @@ internal sealed class DraygonParts
         _frameContext.RequestFullSweep();
         Draygon = new DraygonEnemyState(body)
         {
-            BackgroundTilemapPrepared = true,
             RoomLoadingIrqCommand = RoomLoadingInterruptCommand.BeginHudDraw,
             MinimapDisabledAndBossTilesExplored = true,
             Function = DraygonAiFunction.IntroInitialDelay,

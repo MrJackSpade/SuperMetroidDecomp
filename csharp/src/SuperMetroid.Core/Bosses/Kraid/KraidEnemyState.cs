@@ -91,39 +91,45 @@ public sealed class KraidEnemyState
     private const int MaximumPendingMouthReopens = 255;
 
     /// <summary>
-    /// What the upper half of native $7E:2000-$2FFF, Kraid's working BG2 map, holds (#1352). Rise, growth, head
-    /// animation and sinking upload its pages only on their authored frames, so the shown body lags it.
+    /// How Kraid's body appears when a half of it is next shown (#1352, #1466): behind the room's sprites once his body is
+    /// ready, in front of them once he has grown, hidden in a defeated room and once his death clears his layer. Rise,
+    /// growth and death show each half only on their authored updates, so his shown body lags it.
     /// </summary>
-    internal KraidBodyPage WorkingTop { get; set; }
+    internal KraidBodyAppearance BodyAppearance { get; set; }
 
-    /// <summary>What the lower half of Kraid's working BG2 map holds.</summary>
-    internal KraidBodyPage WorkingBottom { get; set; }
-
-    /// <summary>The body frame Kraid's uploads last showed on BG2 (#1352).</summary>
-    internal KraidBodyFrame DisplayedBody { get; set; } = KraidBodyFrame.Blank;
-
-    /// <summary>True after `$A7:AAC6` prepared Kraid's two decompressed BG2 tilemaps.</summary>
-    public bool BackgroundTilemapsPrepared { get; internal set; }
+    /// <summary>The body frame Kraid's body layer shows (#1352).</summary>
+    internal KraidBodyFrame ShownBody { get; set; } = KraidBodyFrame.Hidden;
 
     /// <summary>
-    /// True while Kraid's plane is the room's second background layer: his two-by-two-screen body plane from his room's
-    /// load, and after his death the blank plane for the rest of the visit (#1427).
+    /// True while Kraid's body layer stands in for the room's background layer behind the level: his two-by-two-screen
+    /// body layer from his room's load, and after his death the hidden layer for the rest of the visit (#1427).
     /// </summary>
-    public bool OwnsBg2Tilemap { get; internal set; }
+    public bool ShowsBodyLayer { get; internal set; }
 
     /// <summary>
-    /// Kraid's body is ready to show (<c>$A7:AAC6</c>): both his pages hold his body, which his installed body sheet
-    /// pictures, and he owns his body layer from here (#1352, #1466).
+    /// Kraid's body is ready to show (<c>$A7:AAC6</c>): his body appears behind the room's sprites, which his installed
+    /// body sheet pictures, and his body layer is shown from here (#1352, #1466).
     /// </summary>
     internal void InitializeBodyLayer()
     {
-        WorkingTop = WorkingBottom = KraidBodyPage.Body;
-        BackgroundTilemapsPrepared = true;
-        OwnsBg2Tilemap = true;
+        BodyAppearance = KraidBodyAppearance.BehindSprites;
+        ShowsBodyLayer = true;
     }
 
-    /// <summary>Live BG2HOFS/BG2VOFS calculated by Kraid main AI from the camera and body position.</summary>
-    public Position16<BackgroundPixels> Bg2Scroll { get; internal set; }
+    /// <summary>Shows the upper half of his body as it now appears, covering any head drawn over it.</summary>
+    internal void ShowUpperBody() => ShownBody = ShownBody with { Upper = BodyAppearance, Head = null };
+
+    /// <summary>Shows the lower half of his body as it now appears.</summary>
+    internal void ShowLowerBody() => ShownBody = ShownBody with { Lower = BodyAppearance };
+
+    /// <summary>Draws head pose <paramref name="frame"/> over the upper half of his body.</summary>
+    internal void ShowHead(KraidHeadFrame frame) => ShownBody = ShownBody with { Head = frame };
+
+    /// <summary>
+    /// Where Kraid's body layer is placed: the layer position shown at the screen's top-left, which his AI sets from the
+    /// camera and his body's position. It is set at AI time and latched with the frame.
+    /// </summary>
+    public Position16<BackgroundPixels> BodyLayerPlacement { get; internal set; }
 
     /// <summary>Number of `$A7:C995` rock/quake spawn requests made by retail cadence.</summary>
     public int RiseRockSpawnRequestCount { get; internal set; }
@@ -145,8 +151,6 @@ public sealed class KraidEnemyState
     /// <summary>Gets the number of growth-sequence ceiling rocks that acquired a live bank-$86 projectile slot.</summary>
     public int CeilingRockSpawnCount { get; internal set; }
 
-    /// <summary>Gets whether growth has installed the priority bits in Kraid's private BG2 tilemap.</summary>
-    public bool Bg2PriorityBitsSet { get; internal set; }
     /// <summary>Gets whether growth has relinquished the first-screen camera lock for the enlarged encounter.</summary>
     public bool CameraReleasedForSecondPhase { get; internal set; }
     /// <summary>Gets the sinking sound countdown, initially forty-three and reloaded to thirty after each request.</summary>

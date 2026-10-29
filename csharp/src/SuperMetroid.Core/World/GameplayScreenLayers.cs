@@ -37,7 +37,7 @@ internal sealed class GameplayScreenLayers
     {
         Chosen = _room.DoorTransitionMainScreenLayers ??
             (ScreenLayers.Foreground | ScreenLayers.Sprites |
-                (room.Enemies.DisplaySources.MotherBrain?.DeathBg2Hidden == true
+                (room.Enemies.DisplaySources.MotherBrain?.DeathHidesBodyLayer == true
                     ? ScreenLayers.None
                     : ScreenLayers.Background));
         if (_room.DoorTransitionMainScreenLayers is null &&

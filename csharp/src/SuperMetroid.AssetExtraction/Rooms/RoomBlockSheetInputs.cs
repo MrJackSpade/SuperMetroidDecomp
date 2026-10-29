@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Installation;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
@@ -30,7 +29,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </param>
 internal sealed record RoomBlockSheetInputs(RoomCharacterAtlases Characters, RoomMetatileCatalog Metatiles,
     RoomStaticPalettes Palettes, RoomFxAnimatedTileAtlas AnimatedTiles,
-    BossArtworkCatalog Bosses, HudTileAtlas Hud, RoomBackgroundTilemaps BackgroundTilemaps, RoomSkyTilemaps Skies,
+    BossSourceArtwork Bosses, HudTileAtlas Hud, RoomBackgroundTilemaps BackgroundTilemaps, RoomSkyTilemaps Skies,
     EscapeTypewriterPresentation EscapeTypewriter, AreaMapPresentation Maps, EnemySheetInputs Objects)
 {
     /// <summary>Loads the stock artwork from installed content.</summary>

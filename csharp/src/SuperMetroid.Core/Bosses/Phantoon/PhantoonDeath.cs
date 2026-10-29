@@ -213,8 +213,6 @@ internal sealed class PhantoonDeath
         if (!AdvanceWreckedShipPowerPalette(state.Parts[state.Eye.SlotIndex]))
             return;
 
-        state.MainScreenBg2Enabled = true;
-
         // $A0:B95D scatters sixteen room-graphics pickups over the visible boss arena.
         // The coordinates are absolute room coordinates, not offsets from Phantoon's body.
         _deathsAndDrops.SpawnEnemyDropScatter(

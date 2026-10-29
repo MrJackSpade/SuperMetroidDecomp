@@ -5,7 +5,6 @@ using static SuperMetroid.Verification.Bosses.Kraid.KraidHeadInstructionsVerific
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -26,7 +25,7 @@ internal static class KraidGrowthCommandCursorVerification
         var guard = new KraidHeadProgramReadGuard(rom);
         var referenceArt = new EnemyIdentityFixture().Build().Bosses.KraidBackground;
         var head = KraidHeadTilemapAtlas.Load(new MemoryStream(KraidHeadTilemapFiles.Encode(
-            new byte[KraidBackgroundDefinitions.HeadImageCells * 2])));
+            new byte[KraidWorkingMapDefinitions.HeadImageCells * 2])));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), BossArtwork = new BossSourceArtwork { KraidBackground = new KraidBackgroundArtwork((referenceArt ?? throw new InvalidOperationException("Verification requires referenceArt.")).Upper, referenceArt.Lower,

@@ -27,8 +27,8 @@ internal sealed class CrocomireBg2
         _access = access;
     }
 
-    /// <summary>Literal BG2 scroll owned by Crocomire while its extended tilemap is active.</summary>
-    public Position16<BackgroundPixels> CrocomireBg2Scroll { get; internal set; }
+    /// <summary>Where Crocomire's body layer is placed: the layer position shown at the screen's top-left.</summary>
+    public Position16<BackgroundPixels> BodyLayerPlacement { get; internal set; }
 
     /// <summary>Switches an actor's instruction pointer and resets its timer for the next native list.</summary>
     /// <summary>Starts the tongue's <paramref name="program"/> from its first step once <paramref name="timer"/> expires.</summary>
@@ -60,11 +60,11 @@ internal sealed class CrocomireBg2
     internal void FillCrocomireBg2ScrollTable(int verticalScroll) =>
         _access.RequireCrocomireDeath().MutableBg2ScrollByScanline.Fill(checked((ushort)verticalScroll));
 
-    /// <summary>Ports $A4:8B5B: places BG2 vertically at the body, then falls through into $A4:8BA4.</summary>
-    internal void UpdateCrocomireBg2Scroll(CrocomireEnemyState state)
+    /// <summary>Ports $A4:8B5B: places his body layer vertically at the body, then falls through into $A4:8BA4.</summary>
+    internal void PlaceCrocomireBodyLayer(CrocomireEnemyState state)
     {
         RoomEnemySlot body = state.Body;
-        CrocomireBg2Scroll = CrocomireBg2Scroll.WithY(CrocomireBg2Alignment.VerticalScroll(
+        BodyLayerPlacement = BodyLayerPlacement.WithY(CrocomireBg2Alignment.VerticalScroll(
             body.Position.Y.Whole, body.Frame));
         UpdateCrocomireTongueAndBg2Horizontal(state);
     }
@@ -86,7 +86,7 @@ internal sealed class CrocomireBg2
         bool onScreen = unchecked((short)(body.Position.X.Whole - state.Camera.X)) >= 0
             ? unchecked((short)(body.Position.X.Whole - 128 - (state.Camera.X + 256))) < 0
             : unchecked((short)(body.Position.X.Whole + 128 - state.Camera.X)) >= 0;
-        CrocomireBg2Scroll = CrocomireBg2Scroll.WithX(onScreen
+        BodyLayerPlacement = BodyLayerPlacement.WithX(onScreen
             ? CalculateOnScreenCrocomireBg2Horizontal(body.Position.X.Whole, state.Camera)
             : (ushort)256);
     }

@@ -38,12 +38,12 @@ internal static class RetailCrocomireCaptureTests
         {
             // Crocomire AI writes the BG2HOFS/BG2VOFS shadows during the main loop; the
             // next accepted NMI uploads them with the rest of that frame's latch (#1307).
-            Position16<BackgroundPixels> previousScroll = runtime.Enemies.CrocomireBehavior.Bg2.CrocomireBg2Scroll;
+            Position16<BackgroundPixels> previousScroll = runtime.Enemies.CrocomireBehavior.Bg2.BodyLayerPlacement;
             runtime.StepFrame(0);
             GameplayDisplayFrame published = runtime.PublishDisplayFrame();
-            if (published.Latched.Bosses.CrocomireBg2Scroll != previousScroll)
+            if (published.Latched.Bosses.CrocomireBodyPlacement != previousScroll)
                 throw new InvalidOperationException($"Crocomire BG2 scroll was not published by the following NMI at tick {tick}.");
-            if (previousScroll != runtime.Enemies.CrocomireBehavior.Bg2.CrocomireBg2Scroll) latchedScrollChanges++;
+            if (previousScroll != runtime.Enemies.CrocomireBehavior.Bg2.BodyLayerPlacement) latchedScrollChanges++;
             var scene = GameplayDisplayCapture.Capture(published);
             var baseLayer = (GameplaySceneLayer)scene.Layers[0];
             if (baseLayer.BackgroundLineScrolls.VerticalShown || (death ?? throw new InvalidOperationException("Verification requires death.")).MeltingScrollActive)

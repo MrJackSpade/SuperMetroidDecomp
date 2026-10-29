@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using System.Collections.Immutable;
+using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;

@@ -32,4 +32,10 @@ internal static class CrocomireMeltingDefinitions
 
     /// <summary>Height at which the distortion band stops, in both passes.</summary>
     public const int DistortionEndY = 48;
+
+    /// <summary>
+    /// The body-layer cells a melt image's drawing shows, from the layer's first: the sixteen rows the cartridge's transfer
+    /// leads the image with, then the eight rows the image covers.
+    /// </summary>
+    public const int ShownMeltCells = 768;
 }

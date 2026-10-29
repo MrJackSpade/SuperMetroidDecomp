@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 [RoomLifetime]
 internal sealed class KraidHead
 {
-    /// <summary>Room scratch memory, services, and tilemap state used throughout the Kraid fight.</summary>
+    /// <summary>Room scratch memory and services used throughout the Kraid fight.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns rocks, lint, and other fight projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -22,7 +22,7 @@ internal sealed class KraidHead
     private readonly EnemyPresentation _presentation;
     /// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
-    /// <summary>Kraid's room background: its fade, color transitions, top and bottom tilemap transfers and the ceiling rocks.</summary>
+    /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
     private readonly KraidBackground _background;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -83,16 +83,6 @@ internal sealed class KraidHead
                 color,
                 _background.ReadKraidColor(KraidPaletteSource.Secondary, sourceColor + color));
         }
-    }
-
-    /// <summary>
-    /// Draws the head pose Kraid's private eight-byte instruction record at <c>$A7:AF3D</c> selected over the upper
-    /// page. <c>$A7:AF5D</c> sends it straight to the display; mirroring it into the working map would change later
-    /// growth and sink uploads, which is not native behavior.
-    /// </summary>
-    internal static void TransferKraidHeadTilemap(KraidEnemyState state, KraidHeadFrame frame)
-    {
-        state.DisplayedBody = state.DisplayedBody with { Head = frame };
     }
 
     /// <summary>Restores the small-body thinking state after an attack.</summary>
@@ -184,7 +174,8 @@ internal sealed class KraidHead
             case AnimationProgramAdvance<KraidHeadFrame>.Show shown:
                 state.Parts[body.SlotIndex].HeadTimer = checked((ushort)shown.Duration);
                 state.DisplayedHeadFrame = shown.Frame;
-                TransferKraidHeadTilemap(state, shown.Frame);
+                // `$A7:AF5D` draws the pose straight over the upper half of his body; the next showing of that half covers it.
+                state.ShowHead(shown.Frame);
                 return 1;
 
             case AnimationProgramAdvance<KraidHeadFrame>.Wait or AnimationProgramAdvance<KraidHeadFrame>.Stop:

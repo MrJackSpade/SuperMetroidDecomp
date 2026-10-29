@@ -1,5 +1,7 @@
 using static SuperMetroid.Verification.Enemies.EnemyEffectsFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Enemies.BossBodies;
@@ -14,13 +16,14 @@ internal static class EnemyEffectResourcesVerification
     internal static void VerifyEnemyEffectResources()
     {
         // Mother Brain's corpse art is staged and rotted by the extraction (#1392), which fails on missing art; the
-        // runtime reads none.
-        CheckCrocomireResourceFailure(null, fixture => fixture.InitializeMap(CrocomireMeltingIllustration.First),
-            "missing melt tilemap");
-        CheckCrocomireResourceFailure(null, fixture => fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.First)),
-            "missing melt graphics");
+        // runtime reads none. Crocomire's melt images are composed into his body sheet at installation (#1466), which
+        // fails on missing melt art; gameplay reads only his installed body sheet.
+        AssertThrows<InvalidDataException>(() => BossBodySheetComposer.Frames(new BossSourceArtwork(), BossBodyOwner.Crocomire),
+            "missing melt art fails the installation");
         CrocomireMeltingArtwork art = MeltEffectArtwork();
-        CheckCrocomireResourceFailure(art, fixture => fixture.InitializeMap((CrocomireMeltingIllustration)(-1)), "unknown melt tilemap");
+        CheckCrocomireResourceFailure(art, fixture => fixture.InitializeMap((CrocomireMeltingIllustration)(-1)), "unknown melt image");
+        CheckCrocomireResourceFailure(art, fixture => fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, (CrocomireMeltingIllustration)(-1))),
+            "unknown melt pass");
         Console.WriteLine("  Enemy effect resources: missing/unknown art fails before changing WRAM, phases, actors, graphics or VRAM.");
     }
 

@@ -18,7 +18,7 @@ internal static class TileSmokeTests
         var random = new Random(32111);
         byte[] bytes = new byte[SnesVram.ByteCount]; random.NextBytes(bytes);
         RgbColor[] palette = Enumerable.Range(0, SnesCgram.ColorCount).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
-        var memory = new FramePaint(palette, []);
+        var memory = FramePaint.FromNative(palette, []);
         ScreenLayerPictures upper = VramTileFixtures.Tiles(bytes, palette, 0x6000, TileInkDepth.SixteenColours);
         ScreenTileMap Cells(int tilemapWord, ushort width, ushort height, ScreenLayerPictures tiles) =>
             ScreenTileMapConstants.Capture(bytes, tilemapWord, new Extent16<TilemapCells>(width, height), tiles);
@@ -71,7 +71,7 @@ internal static class TileSmokeTests
             System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(vram.AsSpan(0x4000 * 2 + i * 2), 0xec04);
         var palette = new RgbColor[SnesCgram.ColorCount];
         palette[3 * 16 + 2] = new RgbColor(31, 0, 0); palette[3 * 16 + 10] = new RgbColor(0, 0, 31);
-        var memory = new FramePaint(palette, []);
+        var memory = FramePaint.FromNative(palette, []);
         var frame = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory,
             new DisplayLayer[] { new ScreenTilesLayer(VramTileFixtures.Cells(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(32, 32)),
                 new Position16<TilePlanePixels>(0, 0), null) }, 15));

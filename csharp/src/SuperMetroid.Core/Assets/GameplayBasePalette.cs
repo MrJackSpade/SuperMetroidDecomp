@@ -1,38 +1,46 @@
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>Editable starting colour image and common sprite colors restored on room entry.</summary>
+/// <summary>
+/// Editable starting colours and the common sprite colours restored on room entry. The import pipeline decodes the
+/// installed starting image into its owners' colours (#1464); this catalog never addresses a colour by its position.
+/// </summary>
 public sealed class GameplayBasePalette
 {
-    /// <summary>Owned 256-color starting image loaded at gameplay startup.</summary>
-    internal readonly RgbColor[] initial;
+    /// <summary>The starting colours, by owner.</summary>
+    internal readonly GameplayStartingColours starting;
+
     /// <summary>Owned sixteen-color palette reused by common room sprites.</summary>
     internal readonly RgbColor[] commonSprites;
 
-    /// <summary>Retains validated RGB5 arrays detached from the editable document.</summary>
-    internal GameplayBasePalette(RgbColor[] initial, RgbColor[] commonSprites)
+    /// <summary>Retains the decoded starting colours and common sprite colours, detached from the editable document.</summary>
+    /// <param name="starting">The starting colours, by owner.</param>
+    /// <param name="commonSprites">The sixteen common sprite colours.</param>
+    /// <param name="contentIdentity">The identity of the selected colours, which the import pipeline derives from the document.</param>
+    internal GameplayBasePalette(GameplayStartingColours starting, RgbColor[] commonSprites, string contentIdentity)
     {
-        this.initial = initial;
-        this.commonSprites = commonSprites;
+        this.starting = Ensure.NotNull(starting);
+        this.commonSprites = Ensure.NotNull(commonSprites);
+        ContentIdentity = Ensure.NotNull(contentIdentity);
     }
 
     /// <summary>Identity of the decoded selected colors, independent of JSON encoding.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(GameplayBasePalette), content =>
+    public string ContentIdentity { get; }
+
+    /// <summary>Gives every owner of gameplay's colours its starting colours.</summary>
+    public void LoadInitial(GameplayColours colours) => Ensure.NotNull(colours).LoadStarting(starting);
+
+    /// <summary>Loads the starting colours into a screen's background and sprite sets.</summary>
+    /// <param name="backgrounds">The screen's background sets.</param>
+    /// <param name="sprites">The screen's sprite sets, which show Samus's starting colours where her draws would.</param>
+    public void LoadInitial(IColourSets backgrounds, IColourSets sprites)
     {
-        content.AppendColors("initial", initial);
-        content.AppendColors("common sprites", commonSprites);
-    });
-
-    /// <summary>Loads the complete selected 256-colour starting image into gameplay's colours.</summary>
-    public void LoadInitial(GameplayColours colours) => Ensure.NotNull(colours).LoadStartingImage(initial);
-
-    /// <summary>Loads the complete selected 256-colour starting image into a screen's colours.</summary>
-    /// <param name="colours">Every colour of the screen, all 256.</param>
-    public void LoadInitial(ColourRun colours) => colours.CopyFrom(initial);
+        starting.Backgrounds.CopyTo(backgrounds);
+        starting.Sprites.CopyTo(sprites);
+    }
 
     /// <summary>Loads the selected sixteen common sprite colours into <paramref name="set"/>.</summary>
     public void LoadCommonSprites(ColourRun set) => set.CopyFrom(commonSprites);
 
-    /// <summary>Copies the sixteen enemy-projectile colours of the initial image into <paramref name="set"/>.</summary>
-    public void LoadEnemyProjectileSprites(ColourRun set) =>
-        set.CopyFrom(initial.AsSpan(GameplayBasePaletteFormat.EnemyProjectileInitialColor, GameplayBasePaletteFormat.SpriteColorCount));
+    /// <summary>Copies the sixteen starting enemy-projectile colours into <paramref name="set"/>.</summary>
+    public void LoadEnemyProjectileSprites(ColourRun set) => set.CopyFrom(starting.EnemyProjectiles);
 }

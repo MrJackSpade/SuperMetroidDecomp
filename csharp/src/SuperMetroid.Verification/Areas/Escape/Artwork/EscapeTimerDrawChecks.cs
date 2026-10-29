@@ -61,7 +61,7 @@ internal static class EscapeTimerDrawChecks
             AssertTrue(draw is ImageSpriteDraw, message + ": timer draws are sheet images");
         }
         var cgram = new ScreenPalette();
-        palettes.LoadInitial(cgram.All);
+        palettes.LoadInitial(cgram.BackgroundSets, cgram);
         palettes.LoadCommonSprites(cgram.SpriteRow(SpriteColourSetDefinitions.Common));
         palettes.LoadEnemyProjectileSprites(cgram.SpriteRow(SpriteColourSetDefinitions.EnemyProjectiles));
 
@@ -69,8 +69,8 @@ internal static class EscapeTimerDrawChecks
         vram.LoadBytes(ObjCharacterImage.ResolveTileByteAddress(FirstCharacter, TimerObjectSelection), characters.Characters);
         native.FinalizeFrame();
         RgbaPixel[] expected = Render(FramePaintConstants.CaptureFrontend(vram, cgram, native, TimerObjectSelection));
-        RgbaPixel[] actual = Render(new FramePaint(cgram.Colors, [.. draws]));
-        RgbaPixel[] backdrop = Render(new FramePaint(cgram.Colors, []));
+        RgbaPixel[] actual = Render(FramePaint.FromNative(cgram.Colors, [.. draws]));
+        RgbaPixel[] backdrop = Render(FramePaint.FromNative(cgram.Colors, []));
         int opaque = 0;
         for (int index = 0; index < expected.Length; index++)
         {

@@ -101,9 +101,9 @@ internal static class FileMapSnapshotTestsVerification
     private static void VerifyWindowedSceneContract()
     {
         var palette = new ushort[SnesCgram.ColorCount]; palette[0] = 31;
-        var red = new FramePaint(ToColors(palette), []);
+        var red = FramePaint.FromNative(ToColors(palette), []);
         palette[0] = 31 << 10;
-        var blue = new FramePaint(ToColors(palette), []);
+        var blue = FramePaint.FromNative(ToColors(palette), []);
         var child = new LayeredScene(blue, new DisplayLayer[] { new SpritesLayer() }, 15);
         var window = new InsetSceneLayer(child, 127, 111, 130, 113);
         var parent = new LayeredScene(red, new DisplayLayer[] { window }, 15);

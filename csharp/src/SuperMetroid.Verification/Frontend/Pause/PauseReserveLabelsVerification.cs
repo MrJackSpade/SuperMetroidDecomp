@@ -59,7 +59,7 @@ internal static class PauseReserveLabelsVerification
                         BinaryPrimitives.WriteUInt16LittleEndian(expectedVram.AsSpan(offset), (ushort)((before & 0xfc00) | source));
                     }
             }
-            var expectedMemory = new FramePaint(snapshot.Paint.Colors,
+            var expectedMemory = FramePaint.FromNative(snapshot.Paint.Colors,
                 snapshot.Paint.SpriteDraws);
             var expectedPixels = DisplayRendering.Render(new LayeredScene(expectedMemory, snapshot.Layers, snapshot.Brightness));
             var actualPixels = pause.Render();

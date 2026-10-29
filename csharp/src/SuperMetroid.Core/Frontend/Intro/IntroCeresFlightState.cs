@@ -228,7 +228,7 @@ internal sealed class IntroCeresFlightState
         {
             layers.Add(new ScreenTintLayer(checked((byte)flashIntensity), checked((byte)flashIntensity), checked((byte)flashIntensity)));
         }
-        return new(new FramePaint(palette.Colors, objects.Draws), layers.ToArray(), checked((byte)brightness));
+        return new(new FramePaint(palette.Shown(), objects.Draws), layers.ToArray(), checked((byte)brightness));
     }
 
     /// <summary>Places the front stars or surviving rear-view actors as this frame's sprite entries.</summary>

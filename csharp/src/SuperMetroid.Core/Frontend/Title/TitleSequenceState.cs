@@ -381,7 +381,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     public FloorScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
-        return new(new FramePaint(palette.Colors, objects.Draws),
+        return new(new FramePaint(palette.Shown(), objects.Draws),
             floorBackgroundEnabled
                 ? new AffineTransform(unchecked((short)Zoom), TitleSequenceDefinitions.Scenes.Rotation.TableIndex,
                     0, unchecked((short)Zoom), new Offset16<FloorPixels>(128, 128), panPosition.Whole.AsSignedWord())

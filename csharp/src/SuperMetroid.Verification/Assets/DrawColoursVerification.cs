@@ -24,11 +24,11 @@ internal static class DrawColoursVerification
             new SpriteImagePalette(SpriteImageColours.Sprite, [.. standard]), [0, 0], partRows);
         var frame = new SpriteSheetFrame(sheet, default, new(2, 1), default,
             SpritePaletteRows.None | SpritePaletteRowSet.Rows[2] | SpritePaletteRowSet.Rows[3], []);
-        var colours = new RgbColor[ScreenPalette.ColorCount];
-        standard.CopyTo(colours, ScreenPalette.ColorCount / 2);
+        var colourSets = new SpriteColourSets();
+        colourSets.All.CopyFrom(standard);
         var white = new RgbColor(31, 31, 31);
-        for (int colour = 0; colour < 16; colour++)
-            colours[ScreenPalette.ColorCount / 2 + 7 * 16 + colour] = white;
+        colourSets.Set(7).Fill(white);
+        ShownColourSets colours = ShownColourSets.Of(colourSets);
 
         // The override ORs row 5 into part row 2, which shows row 7 and blends; the fixed part keeps row 3.
         var flashed = new ImageSpriteDraw(new(SpriteSourceKind.Enemy), frame, default, SpriteMirror.None, paletteOverride: 5);
@@ -44,24 +44,24 @@ internal static class DrawColoursVerification
         // Without an override, an untouched frame keeps the image's own colours; a changed row shows the frame's.
         var plain = new ImageSpriteDraw(new(SpriteSourceKind.Enemy), frame, default, SpriteMirror.None);
         AssertTrue(DrawColours.Resolve(plain, colours).IsOwn, "a row the frame does not use leaves a plain draw in its own colours");
-        var untouched = new RgbColor[ScreenPalette.ColorCount];
-        standard.CopyTo(untouched, ScreenPalette.ColorCount / 2);
-        AssertTrue(DrawColours.Resolve(plain, untouched).IsOwn, "a draw whose rows hold its image's colours shows its own");
-        untouched[ScreenPalette.ColorCount / 2 + 2 * 16 + 5] = white;
-        DrawColours changed = DrawColours.Resolve(plain, untouched);
+        var untouched = new SpriteColourSets();
+        untouched.All.CopyFrom(standard);
+        AssertTrue(DrawColours.Resolve(plain, ShownColourSets.Of(untouched)).IsOwn, "a draw whose rows hold its image's colours shows its own");
+        untouched.Set(2).Write(5, white);
+        DrawColours changed = DrawColours.Resolve(plain, ShownColourSets.Of(untouched));
         AssertTrue(!changed.FollowsPartRows, "a plain draw keys its pixels by ink row");
         AssertEqual(white, changed.Colour(changed.Key(2, partRows[0]), 5), "a changed row shows the frame's colour");
         AssertTrue(changed.ShowsOwnColours(changed.Key(3, partRows[1])), "an unchanged row keeps the image's own colours");
 
         // The frame publishes its draws resolved.
-        var paint = new FramePaint(untouched, [plain]);
+        var paint = new FramePaint(new BackgroundColours(ShownColourSets.Of(new BackgroundColourSets()), ShownColourSets.Of(untouched)), [plain]);
         AssertEqual(white, ((ImageSpriteDraw)paint.SpriteDraws[0]).Colours!.Colour(2, 5), "a frame publishes its draws' colours");
         // An ink row the part row does not name: a plain draw shows the ink row, as the hardware shows a pixel's index.
         var inked = new SpriteImage("Inked", new(1, 1), [standard[4 * 16 + 1].ToRgbaPixel()], [4 * 16 + 1],
             new SpriteImagePalette(SpriteImageColours.Sprite, [.. standard]), [0], [0]);
         var inkedFrame = new SpriteSheetFrame(inked, default, new(1, 1), default, SpritePaletteRows.None | SpritePaletteRowSet.Rows[4], []);
-        untouched[ScreenPalette.ColorCount / 2 + 4 * 16 + 1] = white;
-        DrawColours ink = DrawColours.Resolve(new ImageSpriteDraw(new(SpriteSourceKind.Enemy), inkedFrame, default, SpriteMirror.None), untouched);
+        untouched.Set(4).Write(1, white);
+        DrawColours ink = DrawColours.Resolve(new ImageSpriteDraw(new(SpriteSourceKind.Enemy), inkedFrame, default, SpriteMirror.None), ShownColourSets.Of(untouched));
         AssertEqual(white, ink.Colour(ink.Key(4, 0), 1), "a plain draw shows its pixel's ink row, not its part row");
         AssertTrue(ink.Blends(ink.Key(4, 0)), "a pixel inked in row 4 blends");
     }

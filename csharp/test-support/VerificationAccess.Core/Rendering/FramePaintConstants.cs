@@ -12,7 +12,7 @@ internal static class FramePaintConstants
     {
         Ensure.NotNull(cgram);
         Ensure.NotNull(sprites);
-        return new(cgram.Colors, sprites.Draws);
+        return FramePaint.FromNative(cgram.Colors, sprites.Draws);
     }
 
     /// <summary>Captures a screen's colours and the displayed frame's whole-frame sprite draws.</summary>
@@ -26,7 +26,7 @@ internal static class FramePaintConstants
     {
         Ensure.NotNull(vram);
         Ensure.NotNull(cgram);
-        return new(cgram.Colors, ObjCharacterImageConstants.Draws(oam, vram, objectSelection));
+        return FramePaint.FromNative(cgram.Colors, ObjCharacterImageConstants.Draws(oam, vram, objectSelection));
     }
 
     /// <summary>Captures a frontend screen's memories, with its own colours in place of a CGRAM.</summary>

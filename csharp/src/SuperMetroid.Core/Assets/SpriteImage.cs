@@ -137,9 +137,6 @@ public sealed class SpriteImage
     /// <summary>Which half of CGRAM the palette indices name.</summary>
     public SpriteImageColours Colours { get; }
 
-    /// <summary>The CGRAM colour palette index zero names: 128 for a sprite image, 0 for a background one.</summary>
-    public int FirstColour => Colours == SpriteImageColours.Sprite ? SpriteColourCount : 0;
-
     /// <summary>
     /// Whether a pixel inked <paramref name="ink"/> shows colour zero, which a layer either leaves transparent or, where
     /// <see cref="ColourZeroKeepsGroup"/>, shows in its group's colour zero (#1408).

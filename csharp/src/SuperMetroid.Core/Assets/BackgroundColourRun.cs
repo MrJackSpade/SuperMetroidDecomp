@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Assets;
 public readonly record struct BackgroundColourRun(int Set, int Colour, int Count) : IColourSetRun
 {
     /// <summary>These colours of <paramref name="sets"/>.</summary>
-    public ColourRun In(BackgroundColourSets sets) => Ensure.NotNull(sets).All.Slice(Set * ColourSets.SetColours + Colour, Count);
+    public ColourRun In(BackgroundColourSets sets) => Ensure.NotNull(sets).Colours(Set, Colour, Count);
 
     /// <inheritdoc />
     public ColourRun In(GameplayColours colours) => In(Ensure.NotNull(colours).BackgroundSets);

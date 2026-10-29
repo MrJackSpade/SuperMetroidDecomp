@@ -122,7 +122,7 @@ internal static class RoomFxPaletteBlendsVerification
         AssertEqual(stockLine, GameplayEffectCapture.CaptureCeresHaze(false).Windows[120],
             "cosmetic override does not mutate stock presentation");
         // The edited haze over a black screen, as the display renderer draws it.
-        RgbaPixel[] pixels = DisplayRendering.Render(new LayeredScene(new FramePaint(new RgbColor[SnesCgram.ColorCount], []),
+        RgbaPixel[] pixels = DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []),
             new DisplayLayer[] { GameplayEffectCapture.CaptureCeresHaze(false, colors: edited) }, DisplayBrightness.Full));
         AssertEqual(editedLine.Green, pixels[120 * DisplayScreen.Width].G,
             "the display renderer draws the same edited Ceres tint the capture holds");

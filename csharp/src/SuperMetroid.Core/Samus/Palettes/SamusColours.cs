@@ -11,10 +11,10 @@ namespace SuperMetroid.Core.Samus.Palettes;
 /// </summary>
 /// <remarks>
 /// Effects address her colours by what they are for: the suit's, the visor, the beams', the Crystal Flash's body and
-/// bubble, the Hyper Beam's cycle, her suitless body's and the grapple flare. Where those lie among gameplay's colour
-/// positions and her sheets' ink rows is this owner's alone, until owner-keyed colour sets replace positions (#1464).
+/// bubble, the Hyper Beam's cycle, her suitless body's and the grapple flare. Which of her sheets' ink rows show them,
+/// and so which sprite sets show her colours over their own, is this owner's alone (#1464).
 /// </remarks>
-public sealed class SamusColours : IGameplayColourOwner, IInkRowColours
+public sealed class SamusColours : IGameplayColourOwner
 {
     /// <summary>The suit's colours.</summary>
     private readonly RgbColor[] suit = new RgbColor[SamusColourDefinitions.RowColours];
@@ -98,35 +98,10 @@ public sealed class SamusColours : IGameplayColourOwner, IInkRowColours
     }
 
     /// <inheritdoc />
-    public bool Holds(int position) => Locate(position) is not null;
-
-    /// <inheritdoc />
-    public RgbColor At(int position)
+    public void LoadStarting(GameplayStartingColours starting)
     {
-        Place place = Locate(position) ?? throw new ArgumentOutOfRangeException(nameof(position), position, "Samus holds no colour there.");
-        return place.Colours[place.Index];
+        Ensure.NotNull(starting);
+        Suit.CopyFrom(starting.SamusSuit);
+        Beam.CopyFrom(starting.SamusBeams);
     }
-
-    /// <inheritdoc />
-    public void Set(int position, RgbColor colour)
-    {
-        Place place = Locate(position) ?? throw new ArgumentOutOfRangeException(nameof(position), position, "Samus holds no colour there.");
-        place.Colours[place.Index] = colour;
-    }
-
-    /// <summary>
-    /// Where a colour addressed by its gameplay position lies among Samus's, for the colour router, which still
-    /// addresses colours by position: her suit's and her beams' rows.
-    /// </summary>
-    private Place? Locate(int position) => position switch
-    {
-        >= SamusColourDefinitions.SuitFirstPosition and < SamusColourDefinitions.SuitFirstPosition + SamusColourDefinitions.RowColours
-            => new Place(suit, position - SamusColourDefinitions.SuitFirstPosition),
-        >= SamusColourDefinitions.BeamFirstPosition and < SamusColourDefinitions.BeamFirstPosition + SamusColourDefinitions.RowColours
-            => new Place(beam, position - SamusColourDefinitions.BeamFirstPosition),
-        _ => null,
-    };
-
-    /// <summary>One of Samus's colours: the colours it lies among and its index there.</summary>
-    private readonly record struct Place(RgbColor[] Colours, int Index);
 }

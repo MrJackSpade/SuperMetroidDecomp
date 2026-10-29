@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Spatial;
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hud;
@@ -52,8 +53,9 @@ internal static class MessageBoxSheetComposer
     {
         Ensure.NotNull(inputs);
         RgbColor[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).PackedColours.Span);
-        colours[GameplayMessageBoxDefinitions.Palette.TemporaryLightIndex] = GameplayMessageBoxDefinitions.Palette.TemporaryLightColor;
-        colours[GameplayMessageBoxDefinitions.Palette.TemporaryDarkIndex] = GameplayMessageBoxDefinitions.Palette.TemporaryDarkColor;
+        int textSet = GameplayMessageBoxDefinitions.Palette.TextSet * PpuMemoryLayout.ColorsPerRow;
+        colours[textSet + GameplayMessageBoxDefinitions.Palette.TemporaryLightColour] = GameplayMessageBoxDefinitions.Palette.TemporaryLightColor;
+        colours[textSet + GameplayMessageBoxDefinitions.Palette.TemporaryDarkColour] = GameplayMessageBoxDefinitions.Palette.TemporaryDarkColor;
         int width = GameplayMessageBoxDefinitions.Layout.TilemapWidth;
         int rows = messages.Values.Sum(tiles => tiles.Length / width);
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)(width * RoomTileCanvas.CharacterPixels)), checked((ushort)(rows * RoomTileCanvas.CharacterPixels))));

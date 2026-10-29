@@ -141,7 +141,7 @@ internal static class EndingPlanetBoundaryVerification
             DisplayLayer[] nativeLayers = [new TurningFloorLayer(projection.Transform with { Outside = FloorOverflowMode.Wrap },
                     AffineFloorFixtures.Floor(nativeVram, snapshot.Paint.Colors)),
                 new SpritesLayer(AddToScreen: true)];
-            var nativeMemory = new FramePaint(snapshot.Paint.Colors, snapshot.Paint.SpriteDraws);
+            var nativeMemory = FramePaint.FromNative(snapshot.Paint.Colors, snapshot.Paint.SpriteDraws);
             var expected = DisplayRendering.Render(new LayeredScene(nativeMemory, nativeLayers, snapshot.Brightness));
             var actual = ending.Render();
             int changed = actual.Zip(expected, (first, second) => first != second).Count(differs => differs);

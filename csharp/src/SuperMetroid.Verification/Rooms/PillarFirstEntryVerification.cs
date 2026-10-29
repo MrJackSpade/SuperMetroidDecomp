@@ -86,7 +86,7 @@ internal static class PillarFirstEntryVerification
             // head-local windows, and the two owners are separated by 320 pixels.
             var memory = snapshot.Paint;
             var withoutObjects = new LayeredScene(
-                new FramePaint(memory.Colors, []),
+                FramePaint.FromNative(memory.Colors, []),
                 snapshot.Layers, snapshot.Brightness);
             var background = DisplayRendering.Render(withoutObjects);
             for (int actor = 0; actor < 2; actor++)

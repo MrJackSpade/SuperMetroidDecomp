@@ -19,9 +19,6 @@ public sealed class DrawColours
     /// <summary>The ink rows an image's pixels are coloured in.</summary>
     internal const int InkRows = SpriteImage.MaximumPaletteRow + 1;
 
-    /// <summary>The colours of a frame: the background rows' colours, then the sprite rows'.</summary>
-    private const int FrameColours = 2 * SpriteImage.SpriteColourCount;
-
     /// <summary>The lowest row whose pixels blend.</summary>
     private const int FirstBlendingRow = 4;
 
@@ -60,14 +57,14 @@ public sealed class DrawColours
     public bool Blends(int key) => (blending >> CheckKey(key) & 1) != 0;
 
     /// <summary>
-    /// The colours <paramref name="draw"/> shows under <paramref name="frameColours"/>, a frame's 256 colours. A plain
+    /// The colours <paramref name="draw"/> shows under <paramref name="spriteSets"/>, a frame's sprite sets. A plain
     /// draw shows each ink row the frame uses, keeping its image's own colours while that row holds them. A draw with
     /// an override shows, for each part row, the row the override leaves it.
     /// </summary>
-    public static DrawColours Resolve(ImageSpriteDraw draw, ReadOnlySpan<RgbColor> frameColours)
+    public static DrawColours Resolve(ImageSpriteDraw draw, ShownColourSets spriteSets)
     {
         Ensure.NotNull(draw);
-        Ensure.LengthEqual(frameColours, FrameColours);
+        Ensure.NotNull(spriteSets);
         var shown = new RgbColor[]?[Keys];
         int blending = 0;
         if (draw.PaletteOverride is int overriding)
@@ -75,7 +72,7 @@ public sealed class DrawColours
             for (int partRow = 0; partRow < Keys; partRow++)
             {
                 int row = SpriteImage.OverriddenRow(partRow, overriding);
-                shown[partRow] = Row(frameColours, row).ToArray();
+                shown[partRow] = spriteSets.Set(row).ToArray();
                 if (row >= FirstBlendingRow)
                     blending |= 1 << partRow;
             }
@@ -88,7 +85,7 @@ public sealed class DrawColours
                 blending |= 1 << row;
             if ((draw.Image.Rows & SpritePaletteRowSet.Rows[row]) == SpritePaletteRows.None)
                 continue;
-            ReadOnlySpan<RgbColor> colours = Row(frameColours, row);
+            ReadOnlySpan<RgbColor> colours = spriteSets.Set(row);
             // Colour zero is transparent and never shown.
             if (!colours[1..].SequenceEqual(standard.Slice(row * RowColours, RowColours)[1..]))
                 shown[row] = colours.ToArray();
@@ -125,17 +122,17 @@ public sealed class DrawColours
     }
 
     /// <summary>
-    /// <paramref name="draws"/> with the colours of those no owner coloured resolved under <paramref name="frameColours"/>,
-    /// a frame's 256 colours, as the frame publishes them. An owner's draws keep the colours it gave them.
+    /// <paramref name="draws"/> with the colours of those no owner coloured resolved under <paramref name="spriteSets"/>,
+    /// a frame's sprite sets, as the frame publishes them. An owner's draws keep the colours it gave them.
     /// </summary>
     /// <exception cref="InvalidDataException">A draw is not an image draw.</exception>
-    public static ImmutableArray<SpriteDraw> ResolveAll(ImmutableArray<SpriteDraw> draws, ReadOnlySpan<RgbColor> frameColours)
+    public static ImmutableArray<SpriteDraw> ResolveAll(ImmutableArray<SpriteDraw> draws, ShownColourSets spriteSets)
     {
         var resolved = ImmutableArray.CreateBuilder<SpriteDraw>(draws.Length);
         foreach (SpriteDraw draw in draws)
         {
             var image = draw as ImageSpriteDraw ?? throw new InvalidDataException($"A {draw.GetType().Name} has no image to colour.");
-            resolved.Add(image.Colours is null ? image with { Colours = Resolve(image, frameColours) } : image);
+            resolved.Add(image.Colours is null ? image with { Colours = Resolve(image, spriteSets) } : image);
         }
         return resolved.MoveToImmutable();
     }
@@ -151,10 +148,6 @@ public sealed class DrawColours
             bits |= 1 << row;
         return bits;
     }
-
-    /// <summary>The sixteen colours of sprite row <paramref name="row"/> in <paramref name="frameColours"/>.</summary>
-    private static ReadOnlySpan<RgbColor> Row(ReadOnlySpan<RgbColor> frameColours, int row) =>
-        frameColours.Slice(SpriteImage.SpriteColourCount + row * RowColours, RowColours);
 
     /// <summary>Checks that <paramref name="key"/> is one of the draw's.</summary>
     private int CheckKey(int key) => Ensure.BetweenInclusive(0, (FollowsPartRows ? Keys : InkRows) - 1, key);

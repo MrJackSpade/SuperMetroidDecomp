@@ -1250,7 +1250,7 @@ internal static void VerifyCeresRidleyRoomEntry()
                 actual.Source, $"Ceres timer {index} installed source identity");
         }
         else
-            AssertEqual<SpriteArtworkSource?>(CeresEscapeTileCharactersConstants.ForTransfer(expected.SourceAddress, expected.SizeInBytes), actual.Source,
+            AssertEqual<SpriteArtworkSource?>(CeresWarningTextPageConstants.ForTransfer(expected.SourceAddress, expected.SizeInBytes), actual.Source,
                 $"Ceres page {index} names its installed character page");
     }
     CeresEscapeOverlayTilemapDefinition emergency = CeresEscapeOverlayTilemapDefinitions.Emergency;

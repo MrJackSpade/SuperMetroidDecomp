@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Areas.Tourian;
@@ -32,11 +33,12 @@ internal static class SpriteArtworkBytes
             InstalledArtworkCharacters named => installed.Resolve(named.Artwork),
             CeresDoorCharacters => (Areas(installed).CeresDoorVisual ?? throw new InvalidDataException(
                 "Installed area artwork has no Ceres door visuals.")).Characters,
-            CeresEscapeTileCharacters escape => (Areas(installed).CeresEscapeTiles ?? throw new InvalidDataException(
+            CeresWarningTextPage warning => (Areas(installed).CeresEscapeTiles ?? throw new InvalidDataException(
                     "Installed Ceres escape has no editable character pages."))
-                .TryResolve(escape.Page, escape.Offset, escape.ByteCount, out ReadOnlyMemory<byte> characters)
+                .TryResolve(CeresWarningTextPageDefinitions.InstalledPage, CeresWarningTextPages.ByteOffset(warning), CeresWarningTextPages.ByteCount(warning),
+                    out ReadOnlyMemory<byte> characters)
                 ? characters
-                : throw new InvalidDataException($"Installed Ceres escape page {escape.Page} has no {escape.ByteCount} bytes at {escape.Offset}."),
+                : throw new InvalidDataException($"Installed Ceres escape warning text has no characters for {warning}."),
             TourianStatuePictureCharacters statue => TourianStatue(statue, installed),
             CrocomireSkeletonChunkCharacters chunk => (Bosses(installed).CrocomireSkeleton ?? throw new InvalidOperationException(
                 "Installed Crocomire artwork is missing its skeleton characters.")).Chunk(chunk.Entry),

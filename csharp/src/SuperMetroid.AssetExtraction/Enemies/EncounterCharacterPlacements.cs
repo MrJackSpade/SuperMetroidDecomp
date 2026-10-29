@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
@@ -46,8 +47,9 @@ internal static class EncounterCharacterPlacements
         EnemyTileCharacters { Enemy: EnemyDefinitionId.Evir } => new(source, EncounterCharacterPlacementDefinitions.EvirFirstCharacter,
             Characters(EncounterCharacterPlacementDefinitions.EvirByteCount)),
         CeresDoorCharacters => new(source, EncounterCharacterPlacementDefinitions.CeresDoorFirstCharacter, Characters(SuperMetroid.Core.Areas.Ceres.Artwork.CeresDoorVisualDefinitions.CharacterBytes)),
-        CeresEscapeTileCharacters warning => new(source,
-            SuperMetroid.Core.Areas.Ceres.Artwork.CeresEscapeOverlayTilemapDefinitions.WarningFirstCharacter + Characters(warning.Offset), Characters(warning.ByteCount)),
+        CeresWarningTextPage warning => new(source,
+            SuperMetroid.Core.Areas.Ceres.Artwork.CeresEscapeOverlayTilemapDefinitions.WarningFirstCharacter + Characters(CeresWarningTextPages.ByteOffset(warning)),
+            Characters(CeresWarningTextPages.ByteCount(warning))),
         MotherBrainSpecialSpriteCharacters special => new(source,
             MotherBrainSpecialSprites.PageFirstCharacter(MotherBrainSpecialSpriteArtworkDefinitions.All[special.Sheet], special.Page), Characters(MotherBrainSpecialSpriteSheetDefinition.PageByteCount)),
         MotherBrainCorpseCharacters corpse => new(source,

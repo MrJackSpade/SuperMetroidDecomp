@@ -84,7 +84,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
                 $"Ceres transfer ${expected.Pointer:X4} page's place among the OBJ characters");
             AssertEqual<SpriteArtworkSource?>(expected.Pointer is 0xc4cb or 0xc4d2
                     ? new InstalledArtworkCharacters(expected.Pointer == 0xc4cb ? InstalledArtworkId.EscapeTimerFirstTiles : InstalledArtworkId.EscapeTimerSecondTiles)
-                    : CeresEscapeTileCharactersConstants.ForTransfer(expected.SourceAddress, expected.ByteCount),
+                    : CeresWarningTextPageConstants.ForTransfer(expected.SourceAddress, expected.ByteCount),
                 page.Source, $"Ceres transfer ${expected.Pointer:X4} names its installed page");
         }
         // The background list's records land in characters the Ridley arena does not show: it takes one update for each.

@@ -133,15 +133,17 @@ internal static class BossSpriteEntriesVerification
             + string.Join(", ", published.Select(source => $"{source.Kind} {source.Instance}")));
         AssertEqual(new Position16<ScreenPixels>(140, 138), sprites.Draws[0].Origin, "The tail tip sits at its segment's screen point");
 
-        CeresEscapeTileCharacters characters = CeresEscapeTileCharactersConstants.ForTransfer(CeresEscapeNativeSources.PageSource(0) + 64, 128)
+        CeresWarningTextPage characters = CeresWarningTextPageConstants.ForTransfer(CeresEscapeNativeSources.PageSource(0) + 512, 512)
             ?? throw new InvalidOperationException("The warning page holds the transfer.");
-        AssertEqual(new CeresEscapeTileCharacters(0, 64, 128), characters, "A warning-text transfer names its page range");
-        AssertTrue(CeresEscapeTileCharactersConstants.ForTransfer(0x7e9000, 64) is null, "A transfer outside both pages names no page");
+        AssertEqual(new CeresWarningTextPage(1), characters, "A warning-text transfer names the warning page it copies");
+        AssertTrue(CeresWarningTextPageConstants.ForTransfer(CeresEscapeNativeSources.PageSource(0) + 64, 128) is null,
+            "A transfer that copies no warning page whole names no page");
+        AssertTrue(CeresWarningTextPageConstants.ForTransfer(0x7e9000, 64) is null, "A transfer outside both pages names no page");
         AssertTrue((artwork.Areas.CeresEscapeTiles ?? throw new InvalidOperationException("The installation has no Ceres escape pages."))
-                .TryResolve(0, 64, 128, out ReadOnlyMemory<byte> installed) &&
+                .TryResolve(0, 512, 512, out ReadOnlyMemory<byte> installed) &&
             characters.Resolve(new EnemyTileTransfers(artwork)).Span.SequenceEqual(installed.Span),
-            "The page range resolves to the installed warning characters");
-        Console.WriteLine("Boss sprite entries stage 3: Ridley's tail and wings publish named entries in order; Ceres escape pages bind by range.");
+            "The warning page look resolves to the installed warning characters");
+        Console.WriteLine("Boss sprite entries stage 3: Ridley's tail and wings publish named entries in order; Ceres warning pages name their looks.");
     }
 
     /// <summary>Stage 4: Mother Brain's page selections show installed pages, and a page her sheets do not have is refused (#1406).</summary>

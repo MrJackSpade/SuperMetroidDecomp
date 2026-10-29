@@ -43,10 +43,10 @@ public sealed class PhantoonEnemyState
     }
 
     /// <summary>
-    /// Modeled BG2 scroll registers written after the body has moved: camera minus body plus
-    /// forty whole pixels on each axis when ordinary synchronization runs.
+    /// Where Phantoon's body layer is placed, written after the body has moved: camera minus body plus forty whole
+    /// pixels on each axis when ordinary synchronization runs. His room shows his body layer as its background layer.
     /// </summary>
-    public Position16<BackgroundPixels> Bg2Scroll { get; internal set; }
+    public Position16<BackgroundPixels> BodyLayerPlacement { get; internal set; }
 
     /// <summary>
     /// Whether Phantoon draws translucent: the native layer-blending bit <c>$4000</c>, the only bit Phantoon sets or

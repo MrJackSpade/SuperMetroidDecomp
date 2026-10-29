@@ -49,7 +49,7 @@ internal static class PhantoonBodyPublicationVerification
             write.Words.CopyTo(expected.AsSpan(write.FirstCell));
 
         // Wavy fade-in: the intro wave set up and built once.
-        state.Bg2Scroll = new Position16<BackgroundPixels>(40, 0);
+        state.BodyLayerPlacement = new Position16<BackgroundPixels>(40, 0);
         state.Parts[state.Mouth.SlotIndex].WaveAmplitude = 3072;
         state.Parts[state.Mouth.SlotIndex].WavyPhaseDelta = 8;
         state.Wave.Begin(PhantoonWaveDefinitions.IntroMode);

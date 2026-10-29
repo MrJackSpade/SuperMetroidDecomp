@@ -137,8 +137,8 @@ internal static class MotherBrainAnimationsVerification
             for (int update = 0; update < 256; update++)
             {
                 enemies.MotherBrainBehavior.Body.AdvanceMotherBrainSlotAnimation(state.Body, samus: null);
-                if (state.HasBg2ScrollOverride)
-                    scrolls.Add(state.Bg2Scroll);
+                if (state.PlacesBodyLayer)
+                    scrolls.Add(state.BodyLayerPlacement);
             }
         }
         Run(MotherBrainBodyProgram.WalkForwardReallyFast);

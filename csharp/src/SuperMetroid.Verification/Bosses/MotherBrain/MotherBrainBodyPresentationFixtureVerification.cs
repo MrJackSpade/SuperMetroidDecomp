@@ -65,8 +65,8 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         internal void Step()
         {
             instructions(Body, Inner.Samus, Inner.Level, Position16<RoomPixels>.Zero, 0);
-            if (State.HasBg2ScrollOverride)
-                ScrollCalls.Add(State.Bg2Scroll);
+            if (State.PlacesBodyLayer)
+                ScrollCalls.Add(State.BodyLayerPlacement);
         }
 
         /// <summary>The tilemap entry each cell of the body layer her body draws on shows, from the frames her artwork installs (#1466).</summary>

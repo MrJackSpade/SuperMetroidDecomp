@@ -285,7 +285,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Eye.Position = state.Eye.Position.WithWholeY(body.Position.Y.Whole);
         if (state.Parts[state.Eye.SlotIndex].WaveMode == 0)
         {
-            state.Bg2Scroll = new(
+            state.BodyLayerPlacement = new(
                 unchecked((ushort)(camera.X - body.Position.X.Whole + 40)),
                 unchecked((ushort)(camera.Y - body.Position.Y.Whole + 40)));
         }

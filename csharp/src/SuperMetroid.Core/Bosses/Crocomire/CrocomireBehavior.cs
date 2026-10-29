@@ -107,7 +107,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeScreen, RoomScrollState.Blue);
             // Main state zero always finishes through $A4:8B5B, including the frame in
             // which $8D5E changes the death index to two.
-            Bg2.UpdateCrocomireBg2Scroll(state);
+            Bg2.PlaceCrocomireBodyLayer(state);
         }
         else
         {
@@ -266,7 +266,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
                 return;
             case CrocomireDeathPhase.PinDefeatedRoomBg2Scroll:
-                Bg2.CrocomireBg2Scroll = Position16<BackgroundPixels>.Zero;
+                Bg2.BodyLayerPlacement = Position16<BackgroundPixels>.Zero;
                 return;
             case CrocomireDeathPhase.RiverSkeletonDetour:
                 CrocomireSkeleton.RunCrocomireSkeletonRiver(state);

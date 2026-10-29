@@ -35,7 +35,7 @@ internal interface IEnemyDisplaySources
     Position16<BackgroundPixels>? KraidBodyPlacement { get; }
 
     /// <summary>Crocomire's BG2 scroll while Crocomire is loaded; otherwise null.</summary>
-    Position16<BackgroundPixels>? CrocomireBg2Scroll { get; }
+    Position16<BackgroundPixels>? CrocomireBodyPlacement { get; }
 
     /// <summary>The morph-ball eye's beam.</summary>
     MorphBallEyeBeamState MorphBallEyeBeam { get; }

@@ -92,7 +92,7 @@ public static class GameplayDisplayCapture
         Position16<RoomPixels> bg1Scroll = scrolls.Bg1Scroll + shake.Bg1;
         // Draygon (#1354) and Mother Brain (#1356) place their body images with their own BG2 scrolls, which the room's
         // water waves then displace.
-        Position16<BackgroundPixels> bg2Scroll = (bosses.DraygonBody?.Scroll ?? bosses.MotherBrainBody?.Scroll ?? scrolls.Bg2Scroll) + shake.Bg2;
+        Position16<BackgroundPixels> bg2Scroll = (bosses.DraygonBody?.LayerPlacement ?? bosses.MotherBrainBody?.LayerPlacement ?? scrolls.Bg2Scroll) + shake.Bg2;
         if (live.TourianStatuesEnabled)
             // $88:DBCB supplies BG2VOFS through HDMA after the ordinary scroll
             // register upload. It replaces, rather than adds to, the quake-adjusted
@@ -111,17 +111,17 @@ public static class GameplayDisplayCapture
         Position16<BackgroundPixels>? kraidBody = bosses.KraidBodyPlacement;
         // Draygon's body shows only on the scanlines around it ($88:DF94), placed against the frame's camera (#1354).
         DraygonBodyScanlines bg2Lines = bosses.DraygonBody?.VisibleLines(scrolls.Layer1Position) ?? new DraygonBodyScanlines(32, 224);
-        Position16<BackgroundPixels>? crocomireBg2Scroll = bosses.CrocomireBg2Scroll;
+        Position16<BackgroundPixels>? crocomireBody = bosses.CrocomireBodyPlacement;
         bool verticalStatueMap = scene.FxType == RoomFxType.TourianEntranceStatue;
         ScreenLayers displayedMainScreen = latched.MainScreen;
         var view = new GameplaySceneView(bg1Scroll,
             new Position16<BackgroundPixels>(kraidBody is { } kraidX ? Add(kraidX.X, shake.Bg2.X)
-                : crocomireBg2Scroll is { } crocomireX ? Add(crocomireX.X, shake.Bg2.X) : bg2Scroll.X,
+                : crocomireBody is { } crocomireX ? Add(crocomireX.X, shake.Bg2.X) : bg2Scroll.X,
                 kraidBody is { } kraidY ? Add(kraidY.Y, shake.Bg2.Y)
-                : crocomireBg2Scroll is { } crocomireY ? Add(crocomireY.Y, shake.Bg2.Y)
+                : crocomireBody is { } crocomireY ? Add(crocomireY.Y, shake.Bg2.Y)
                 : sky is { } latchedSky ? Add(latchedSky.Bg2Scroll.Y, shake.Bg2.Y) : bg2Scroll.Y),
             kraidBody is not null ? KraidBackgroundDefinitions.BodyPlaneSize
-                : bosses.MotherBrainBody is { Scroll: not null } ? new Extent16<TilemapCells>(32, 32)
+                : bosses.MotherBrainBody is { LayerPlacement: not null } ? new Extent16<TilemapCells>(32, 32)
                 : sky?.ShowsBands != true && !verticalStatueMap ? new Extent16<TilemapCells>(64, 32)
                 : new Extent16<TilemapCells>(32, 64),
             live.DoorTransitionMainScreenLayers ??

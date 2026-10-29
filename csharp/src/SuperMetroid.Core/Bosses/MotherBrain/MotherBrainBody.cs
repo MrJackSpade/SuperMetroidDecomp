@@ -431,9 +431,9 @@ internal sealed class MotherBrainBody
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain body bytecode ran without its multipart encounter state.");
         state.Body.Position += displacement;
-        PublishMotherBrainBg2Scroll(state, new(
+        PlaceMotherBrainBodyLayer(state, new(
             unchecked((ushort)(34 - state.Body.Position.X.Whole)),
-            unchecked((ushort)(state.Bg2Scroll.Y - displacement.Y))));
+            unchecked((ushort)(state.BodyLayerPlacement.Y - displacement.Y))));
     }
 
     /// <summary>
@@ -447,9 +447,9 @@ internal sealed class MotherBrainBody
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain posture bytecode ran without its multipart encounter state.");
         state.Body.Position = state.Body.Position.WithWholeY(unchecked((ushort)(state.Body.Position.Y.Whole + yDisplacement)));
-        PublishMotherBrainBg2Scroll(state, new(
+        PlaceMotherBrainBodyLayer(state, new(
             unchecked((ushort)(34 + horizontalScrollBias - state.Body.Position.X.Whole)),
-            unchecked((ushort)(state.Bg2Scroll.Y - yDisplacement))));
+            unchecked((ushort)(state.BodyLayerPlacement.Y - yDisplacement))));
     }
 
     /// <summary>Shared four-frame earthquake produced by each planted walking frame.</summary>
@@ -464,13 +464,13 @@ internal sealed class MotherBrainBody
             _motherBrainEncounter.MotherBrain.LastSoundEffectLibrary3 = Library3Sound.MotherBrainFootstep;
     }
 
-    /// <summary>Sets the BG2 offset placing her body for the current motion; the NMI publishes it with her body (#1356).</summary>
-    internal static void PublishMotherBrainBg2Scroll(
+    /// <summary>Places her body layer for the current motion; the accepted frame publishes it with her body (#1356).</summary>
+    internal static void PlaceMotherBrainBodyLayer(
         MotherBrainEnemyState state,
-        Position16<BackgroundPixels> scroll)
+        Position16<BackgroundPixels> placement)
     {
-        state.Bg2Scroll = scroll;
-        state.HasBg2ScrollOverride = true;
+        state.BodyLayerPlacement = placement;
+        state.PlacesBodyLayer = true;
     }
 
     /// <summary>

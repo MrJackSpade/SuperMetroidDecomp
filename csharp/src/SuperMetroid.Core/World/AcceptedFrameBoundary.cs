@@ -202,11 +202,11 @@ internal sealed class AcceptedFrameBoundary
             Displays?.BossBody,
             Displays?.KraidBodyPlacement,
             Displays?.Draygon is { } draygon
-                ? new DraygonBodyPlacement(draygon.Body.Position.Whole, draygon.BodyBg2Scroll, draygon.Body.Properties.HasAny(EnemyProperties.Deleted))
+                ? new DraygonBodyPlacement(draygon.Body.Position.Whole, draygon.BodyLayerPlacement, draygon.Body.Properties.HasAny(EnemyProperties.Deleted))
                 : null,
-            Displays?.CrocomireBg2Scroll,
-            motherBrain is { HasBg2ScrollOverride: true } or { DeathBg2Hidden: true }
-                ? new MotherBrainBodyPlacement(motherBrain.HasBg2ScrollOverride ? motherBrain.Bg2Scroll : null, motherBrain.DeathBg2Hidden)
+            Displays?.CrocomireBodyPlacement,
+            motherBrain is { PlacesBodyLayer: true } or { DeathHidesBodyLayer: true }
+                ? new MotherBrainBodyPlacement(motherBrain.PlacesBodyLayer ? motherBrain.BodyLayerPlacement : null, motherBrain.DeathHidesBodyLayer)
                 : null);
     }
 

@@ -370,7 +370,7 @@ internal sealed class PhantoonCombat
                 : PhantoonAiFunction.DyingFadeInOut;
         state.Parts[state.Eye.SlotIndex].FigureEightReversed = false;
         state.Parts[state.Eye.SlotIndex].FadeComplete = false;
-        state.Wave.InitializeDeathScroll(state.Bg2Scroll.X);
+        state.Wave.InitializeDeathScroll(state.BodyLayerPlacement.X);
         state.SemiTransparent = true;
         state.Parts[state.Mouth.SlotIndex].ShotPattern = 1;
     }

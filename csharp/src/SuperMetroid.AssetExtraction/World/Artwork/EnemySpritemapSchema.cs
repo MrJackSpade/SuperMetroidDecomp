@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.AssetExtraction.World.Artwork;
 
@@ -137,8 +138,10 @@ internal sealed record EnemySpritemapSchema(int Revision, int FrameCount)
     internal static readonly EnemySpritemapSchema PreSingleFrame = new(67, EnemySpritemapDefinitions.PreSingleFrameFrameCount);
     /// <summary>Schema before Ridley's eight ordinary breakup body compositions.</summary>
     internal static readonly EnemySpritemapSchema PreRidleyBreakup = new(68, EnemySpritemapDefinitions.PreRidleyBreakupFrameCount);
-    /// <summary>The current schema, holding every named frame.</summary>
-    internal static readonly EnemySpritemapSchema Current = new(69, EnemySpritemapDefinitions.Frames.Length);
+    /// <summary>Every named frame, the last schema whose documents named some frames by where the cartridge stores them.</summary>
+    internal static readonly EnemySpritemapSchema PreSemanticNames = new(69, EnemySpritemapDefinitions.Frames.Length);
+    /// <summary>The current schema, holding every named frame, each named for its owner and meaning (#1465).</summary>
+    internal static readonly EnemySpritemapSchema Current = new(70, EnemySpritemapDefinitions.Frames.Length);
 
     /// <summary>Every accepted revision, oldest first.</summary>
     internal static readonly ImmutableArray<EnemySpritemapSchema> Supported =
@@ -208,6 +211,7 @@ internal sealed record EnemySpritemapSchema(int Revision, int FrameCount)
         PreNuclearWaffle,
         PreSingleFrame,
         PreRidleyBreakup,
+        PreSemanticNames,
         Current,
     ];
 
@@ -216,6 +220,16 @@ internal sealed record EnemySpritemapSchema(int Revision, int FrameCount)
     /// <see cref="PreDisplayBindings"/>; earlier revisions inherit the stock bindings.
     /// </summary>
     internal bool OwnsDisplayBindings => Supported.IndexOf(this) > Supported.IndexOf(PreDisplayBindings);
+
+    /// <summary>
+    /// The name documents of this revision give <paramref name="definition"/>'s frame: its composition name, or for
+    /// revisions up to <see cref="PreSemanticNames"/> the name it had before frames were named for their meaning.
+    /// </summary>
+    internal string NameOf(EnemySpritemapDefinition definition) =>
+        Supported.IndexOf(this) <= Supported.IndexOf(PreSemanticNames) &&
+        EnemyFrameLegacyNameDefinitions.OrdinaryCompositions.TryGetValue(definition.Frame, out string? legacy)
+            ? legacy
+            : definition.Name;
 
     /// <summary>The accepted revision a document stores as <paramref name="revision"/>, or null when none is.</summary>
     internal static EnemySpritemapSchema? FromRevision(int revision) => Supported.FirstOrDefault(schema => schema.Revision == revision);

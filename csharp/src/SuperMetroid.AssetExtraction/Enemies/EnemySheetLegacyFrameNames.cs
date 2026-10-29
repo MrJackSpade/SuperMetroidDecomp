@@ -14,8 +14,8 @@ internal static class EnemySheetLegacyFrameNames
 {
     /// <summary>Each older sheet key and the current key of its frame.</summary>
     private static readonly Lazy<Dictionary<string, string>> CurrentKeys = new(() =>
-        EnemyFrameLegacyNameDefinitions.ExtendedCompositions.ToDictionary(entry => PascalCase(entry.Value),
-            entry => EnemyFrameSheetKeys.Of(entry.Key), StringComparer.Ordinal));
+        EnemyFrameLegacyNameDefinitions.OrdinaryCompositions.Concat(EnemyFrameLegacyNameDefinitions.ExtendedCompositions)
+            .ToDictionary(entry => PascalCase(entry.Value), entry => EnemyFrameSheetKeys.Of(entry.Key), StringComparer.Ordinal));
 
     /// <summary><paramref name="picture"/> with each older frame key in it replaced by that frame's current key.</summary>
     internal static string Current(string picture)

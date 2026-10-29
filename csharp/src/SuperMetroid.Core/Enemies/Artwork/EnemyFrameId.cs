@@ -532,97 +532,97 @@ public enum EnemyFrameId
     CeresBabyRound,
     /// <summary><c>ceres_baby_vertical</c>, an installed spritemap.</summary>
     CeresBabyVertical,
-    /// <summary><c>rio_bd6c</c>, an installed spritemap.</summary>
+    /// <summary><c>rio_pose_0</c>, an installed spritemap.</summary>
     RioPose0,
-    /// <summary><c>rio_bd82</c>, an installed spritemap.</summary>
+    /// <summary><c>rio_pose_1</c>, an installed spritemap.</summary>
     RioPose1,
-    /// <summary><c>rio_bd98</c>, an installed spritemap.</summary>
+    /// <summary><c>rio_pose_2</c>, an installed spritemap.</summary>
     RioPose2,
-    /// <summary><c>rio_bdae</c>, an installed spritemap.</summary>
+    /// <summary><c>rio_pose_3</c>, an installed spritemap.</summary>
     RioPose3,
-    /// <summary><c>rio_bdc4</c>, an installed spritemap.</summary>
+    /// <summary><c>rio_pose_4</c>, an installed spritemap.</summary>
     RioPose4,
-    /// <summary><c>rio_bdda</c>, an installed spritemap.</summary>
+    /// <summary><c>rio_pose_5</c>, an installed spritemap.</summary>
     RioPose5,
-    /// <summary><c>rio_bdf0</c>, an installed spritemap.</summary>
+    /// <summary><c>rio_pose_6</c>, an installed spritemap.</summary>
     RioPose6,
-    /// <summary><c>rio_be06</c>, an installed spritemap.</summary>
+    /// <summary><c>rio_pose_7</c>, an installed spritemap.</summary>
     RioPose7,
-    /// <summary><c>lower_norfair_rio_c8bd</c>, an installed spritemap.</summary>
+    /// <summary><c>lower_norfair_rio_pose_0</c>, an installed spritemap.</summary>
     LowerNorfairRioPose0,
-    /// <summary><c>lower_norfair_rio_c8d3</c>, an installed spritemap.</summary>
+    /// <summary><c>lower_norfair_rio_pose_1</c>, an installed spritemap.</summary>
     LowerNorfairRioPose1,
-    /// <summary><c>lower_norfair_rio_c8e9</c>, an installed spritemap.</summary>
+    /// <summary><c>lower_norfair_rio_pose_2</c>, an installed spritemap.</summary>
     LowerNorfairRioPose2,
-    /// <summary><c>lower_norfair_rio_c8ff</c>, an installed spritemap.</summary>
+    /// <summary><c>lower_norfair_rio_pose_3</c>, an installed spritemap.</summary>
     LowerNorfairRioPose3,
-    /// <summary><c>lower_norfair_rio_c915</c>, an installed spritemap.</summary>
+    /// <summary><c>lower_norfair_rio_pose_4</c>, an installed spritemap.</summary>
     LowerNorfairRioPose4,
-    /// <summary><c>lower_norfair_rio_c92b</c>, an installed spritemap.</summary>
+    /// <summary><c>lower_norfair_rio_pose_5</c>, an installed spritemap.</summary>
     LowerNorfairRioPose5,
-    /// <summary><c>lower_norfair_rio_c941</c>, an installed spritemap.</summary>
+    /// <summary><c>lower_norfair_rio_pose_6</c>, an installed spritemap.</summary>
     LowerNorfairRioPose6,
-    /// <summary><c>lower_norfair_rio_c957</c>, an installed spritemap.</summary>
+    /// <summary><c>lower_norfair_rio_pose_7</c>, an installed spritemap.</summary>
     LowerNorfairRioPose7,
-    /// <summary><c>lower_norfair_rio_c96d</c>, an installed spritemap.</summary>
+    /// <summary><c>lower_norfair_rio_pose_8</c>, an installed spritemap.</summary>
     LowerNorfairRioPose8,
-    /// <summary><c>lower_norfair_rio_c983</c>, an installed spritemap.</summary>
+    /// <summary><c>lower_norfair_rio_pose_9</c>, an installed spritemap.</summary>
     LowerNorfairRioPose9,
-    /// <summary><c>lower_norfair_rio_c999</c>, an installed spritemap.</summary>
+    /// <summary><c>lower_norfair_rio_pose_10</c>, an installed spritemap.</summary>
     LowerNorfairRioPose10,
-    /// <summary><c>lower_norfair_rio_c9af</c>, an installed spritemap.</summary>
+    /// <summary><c>lower_norfair_rio_pose_11</c>, an installed spritemap.</summary>
     LowerNorfairRioPose11,
-    /// <summary><c>lower_norfair_rio_c9c5</c>, an installed spritemap.</summary>
+    /// <summary><c>lower_norfair_rio_pose_12</c>, an installed spritemap.</summary>
     LowerNorfairRioPose12,
-    /// <summary><c>lower_norfair_rio_c9db</c>, an installed spritemap.</summary>
+    /// <summary><c>lower_norfair_rio_pose_13</c>, an installed spritemap.</summary>
     LowerNorfairRioPose13,
-    /// <summary><c>lower_norfair_rio_c9f1</c>, an installed spritemap.</summary>
+    /// <summary><c>lower_norfair_rio_pose_14</c>, an installed spritemap.</summary>
     LowerNorfairRioPose14,
-    /// <summary><c>lower_norfair_rio_ca07</c>, an installed spritemap.</summary>
+    /// <summary><c>lower_norfair_rio_pose_15</c>, an installed spritemap.</summary>
     LowerNorfairRioPose15,
-    /// <summary><c>lower_norfair_rio_ca13</c>, an installed spritemap.</summary>
+    /// <summary><c>lower_norfair_rio_pose_16</c>, an installed spritemap.</summary>
     LowerNorfairRioPose16,
-    /// <summary><c>lower_norfair_rio_ca1f</c>, an installed spritemap.</summary>
+    /// <summary><c>lower_norfair_rio_pose_17</c>, an installed spritemap.</summary>
     LowerNorfairRioPose17,
-    /// <summary><c>norfair_rio_c427</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_rio_pose_0</c>, an installed spritemap.</summary>
     NorfairRioPose0,
-    /// <summary><c>norfair_rio_c442</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_rio_pose_1</c>, an installed spritemap.</summary>
     NorfairRioPose1,
-    /// <summary><c>norfair_rio_c45d</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_rio_pose_2</c>, an installed spritemap.</summary>
     NorfairRioPose2,
-    /// <summary><c>norfair_rio_c493</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_rio_pose_3</c>, an installed spritemap.</summary>
     NorfairRioPose3,
-    /// <summary><c>norfair_rio_c49f</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_rio_pose_4</c>, an installed spritemap.</summary>
     NorfairRioPose4,
-    /// <summary><c>norfair_rio_c4ab</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_rio_pose_5</c>, an installed spritemap.</summary>
     NorfairRioPose5,
-    /// <summary><c>norfair_rio_c4b7</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_rio_pose_6</c>, an installed spritemap.</summary>
     NorfairRioPose6,
-    /// <summary><c>norfair_rio_c4d2</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_rio_pose_7</c>, an installed spritemap.</summary>
     NorfairRioPose7,
-    /// <summary><c>norfair_rio_c4ed</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_rio_pose_8</c>, an installed spritemap.</summary>
     NorfairRioPose8,
-    /// <summary><c>norfair_rio_c508</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_rio_pose_9</c>, an installed spritemap.</summary>
     NorfairRioPose9,
-    /// <summary><c>norfair_rio_c523</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_rio_pose_10</c>, an installed spritemap.</summary>
     NorfairRioPose10,
-    /// <summary><c>norfair_rio_c534</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_rio_pose_11</c>, an installed spritemap.</summary>
     NorfairRioPose11,
-    /// <summary><c>norfair_rio_c54f</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_rio_pose_12</c>, an installed spritemap.</summary>
     NorfairRioPose12,
-    /// <summary><c>norfair_rio_c56a</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_rio_pose_13</c>, an installed spritemap.</summary>
     NorfairRioPose13,
-    /// <summary><c>norfair_rio_c585</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_rio_pose_14</c>, an installed spritemap.</summary>
     NorfairRioPose14,
-    /// <summary><c>norfair_rio_c5a0</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_rio_pose_15</c>, an installed spritemap.</summary>
     NorfairRioPose15,
-    /// <summary><c>norfair_rio_c5bb</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_rio_pose_16</c>, an installed spritemap.</summary>
     NorfairRioPose16,
-    /// <summary><c>norfair_rio_c5d6</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_rio_pose_17</c>, an installed spritemap.</summary>
     NorfairRioPose17,
-    /// <summary><c>norfair_rio_c5e2</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_rio_pose_18</c>, an installed spritemap.</summary>
     NorfairRioPose18,
-    /// <summary><c>norfair_rio_c5ee</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_rio_pose_19</c>, an installed spritemap.</summary>
     NorfairRioPose19,
     /// <summary><c>puyo_ground_0</c>, an installed spritemap.</summary>
     PuyoGround0,
@@ -952,761 +952,761 @@ public enum EnemyFrameId
     DraygonBreathBubble7,
     /// <summary><c>draygon_breath_bubble_8</c>, an installed spritemap.</summary>
     DraygonBreathBubble8,
-    /// <summary><c>room_sprite_b4_bda6</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_empty</c>, an installed spritemap.</summary>
     SpriteObjectEmpty,
-    /// <summary><c>room_sprite_b4_c630</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_30_frame_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject30Frame0,
-    /// <summary><c>room_sprite_b4_c637</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_30_frame_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject30Frame1,
-    /// <summary><c>room_sprite_b4_c63e</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_30_frame_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject30Frame2,
-    /// <summary><c>room_sprite_b4_c645</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_31_frame_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject31Frame0,
-    /// <summary><c>room_sprite_b4_c64c</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_31_frame_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject31Frame1,
-    /// <summary><c>room_sprite_b4_c653</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_31_frame_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject31Frame2,
-    /// <summary><c>room_sprite_b4_c65a</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_32_frame_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject32Frame0,
-    /// <summary><c>room_sprite_b4_c661</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_32_frame_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject32Frame1,
-    /// <summary><c>room_sprite_b4_c668</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_32_frame_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject32Frame2,
-    /// <summary><c>room_sprite_b4_c66f</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_33_frame_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject33Frame0,
-    /// <summary><c>room_sprite_b4_c676</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_33_frame_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject33Frame1,
-    /// <summary><c>room_sprite_b4_c67d</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_33_frame_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject33Frame2,
-    /// <summary><c>room_sprite_b4_c684</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_34_frame_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject34Frame0,
-    /// <summary><c>room_sprite_b4_c68b</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_34_frame_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject34Frame1,
-    /// <summary><c>room_sprite_b4_c692</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_34_frame_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject34Frame2,
-    /// <summary><c>room_sprite_b4_c699</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_35_frame_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject35Frame0,
-    /// <summary><c>room_sprite_b4_c6a0</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_35_frame_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject35Frame1,
-    /// <summary><c>room_sprite_b4_c6a7</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_35_frame_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject35Frame2,
-    /// <summary><c>room_sprite_b4_c6ae</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_36_frame_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject36Frame0,
-    /// <summary><c>room_sprite_b4_c6b5</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_36_frame_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject36Frame1,
-    /// <summary><c>room_sprite_b4_c6bc</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_36_frame_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject36Frame2,
-    /// <summary><c>room_sprite_b4_c6c3</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_37_frame_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject37Frame0,
-    /// <summary><c>room_sprite_b4_c6ca</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_37_frame_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject37Frame1,
-    /// <summary><c>room_sprite_b4_c6d1</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_37_frame_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject37Frame2,
-    /// <summary><c>room_sprite_b4_c6d8</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_rock_particles_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedRockParticles0,
-    /// <summary><c>room_sprite_b4_c6ee</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_rock_particles_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedRockParticles1,
-    /// <summary><c>room_sprite_b4_c704</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_rock_particles_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedRockParticles2,
-    /// <summary><c>room_sprite_b4_c71a</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_rock_particles_3</c>, an installed spritemap.</summary>
     SpriteObjectUnusedRockParticles3,
-    /// <summary><c>room_sprite_b4_c730</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_rock_particles_4</c>, an installed spritemap.</summary>
     SpriteObjectUnusedRockParticles4,
-    /// <summary><c>room_sprite_b4_c746</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_rock_particles_5</c>, an installed spritemap.</summary>
     SpriteObjectUnusedRockParticles5,
-    /// <summary><c>room_sprite_b4_c75c</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_rock_particles_6</c>, an installed spritemap.</summary>
     SpriteObjectUnusedRockParticles6,
-    /// <summary><c>room_sprite_b4_c772</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_rock_particles_7</c>, an installed spritemap.</summary>
     SpriteObjectUnusedRockParticles7,
-    /// <summary><c>room_sprite_b4_c788</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_rock_particles_8</c>, an installed spritemap.</summary>
     SpriteObjectUnusedRockParticles8,
-    /// <summary><c>room_sprite_b4_c79e</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_rock_particles_9</c>, an installed spritemap.</summary>
     SpriteObjectUnusedRockParticles9,
-    /// <summary><c>room_sprite_b4_c7b4</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_rock_particles_10</c>, an installed spritemap.</summary>
     SpriteObjectUnusedRockParticles10,
-    /// <summary><c>room_sprite_b4_c7ca</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_rock_particles_11</c>, an installed spritemap.</summary>
     SpriteObjectUnusedRockParticles11,
-    /// <summary><c>room_sprite_b4_c7e0</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_rock_particles_12</c>, an installed spritemap.</summary>
     SpriteObjectUnusedRockParticles12,
-    /// <summary><c>room_sprite_b4_c7f6</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_rock_particles_13</c>, an installed spritemap.</summary>
     SpriteObjectUnusedRockParticles13,
-    /// <summary><c>room_sprite_b4_c80c</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_rock_particles_14</c>, an installed spritemap.</summary>
     SpriteObjectUnusedRockParticles14,
-    /// <summary><c>room_sprite_b4_c822</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_rock_particles_15</c>, an installed spritemap.</summary>
     SpriteObjectUnusedRockParticles15,
-    /// <summary><c>room_sprite_b4_c838</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_big_dust_cloud_0</c>, an installed spritemap.</summary>
     SpriteObjectBigDustCloud0,
-    /// <summary><c>room_sprite_b4_c83f</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_big_dust_cloud_1</c>, an installed spritemap.</summary>
     SpriteObjectBigDustCloud1,
-    /// <summary><c>room_sprite_b4_c84b</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_big_dust_cloud_2</c>, an installed spritemap.</summary>
     SpriteObjectBigDustCloud2,
-    /// <summary><c>room_sprite_b4_c85c</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_big_dust_cloud_3</c>, an installed spritemap.</summary>
     SpriteObjectBigDustCloud3,
-    /// <summary><c>room_sprite_b4_c872</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_big_dust_cloud_4</c>, an installed spritemap.</summary>
     SpriteObjectBigDustCloud4,
-    /// <summary><c>room_sprite_b4_c888</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_big_dust_cloud_5</c>, an installed spritemap.</summary>
     SpriteObjectBigDustCloud5,
-    /// <summary><c>room_sprite_b4_c899</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_big_dust_cloud_6</c>, an installed spritemap.</summary>
     SpriteObjectBigDustCloud6,
-    /// <summary><c>room_sprite_b4_c8a5</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_big_dust_cloud_7</c>, an installed spritemap.</summary>
     SpriteObjectBigDustCloud7,
-    /// <summary><c>room_sprite_b4_c8ac</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_dust_cloud_beam_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedDustCloudBeam0,
-    /// <summary><c>room_sprite_b4_c8b3</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_dust_cloud_beam_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedDustCloudBeam1,
-    /// <summary><c>room_sprite_b4_c8ba</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_dust_cloud_beam_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedDustCloudBeam2,
-    /// <summary><c>room_sprite_b4_c8c6</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_dust_cloud_beam_3</c>, an installed spritemap.</summary>
     SpriteObjectUnusedDustCloudBeam3,
-    /// <summary><c>room_sprite_b4_c8d2</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_dust_cloud_beam_4</c>, an installed spritemap.</summary>
     SpriteObjectUnusedDustCloudBeam4,
-    /// <summary><c>room_sprite_b4_c8e3</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_dust_cloud_beam_5</c>, an installed spritemap.</summary>
     SpriteObjectUnusedDustCloudBeam5,
-    /// <summary><c>room_sprite_b4_c8f4</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_dust_cloud_beam_6</c>, an installed spritemap.</summary>
     SpriteObjectUnusedDustCloudBeam6,
-    /// <summary><c>room_sprite_b4_c90a</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_dust_cloud_beam_7</c>, an installed spritemap.</summary>
     SpriteObjectUnusedDustCloudBeam7,
-    /// <summary><c>room_sprite_b4_c9a0</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_save_station_electricity_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedSaveStationElectricity0,
-    /// <summary><c>room_sprite_b4_c9b6</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_save_station_electricity_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedSaveStationElectricity1,
-    /// <summary><c>room_sprite_b4_c9cc</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_save_station_electricity_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedSaveStationElectricity2,
-    /// <summary><c>room_sprite_b4_c9e2</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_save_station_electricity_3</c>, an installed spritemap.</summary>
     SpriteObjectUnusedSaveStationElectricity3,
-    /// <summary><c>room_sprite_b4_c9f8</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_save_station_electricity_4</c>, an installed spritemap.</summary>
     SpriteObjectUnusedSaveStationElectricity4,
-    /// <summary><c>room_sprite_b4_ca0e</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_save_station_electricity_5</c>, an installed spritemap.</summary>
     SpriteObjectUnusedSaveStationElectricity5,
-    /// <summary><c>room_sprite_b4_ca24</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_save_station_electricity_6</c>, an installed spritemap.</summary>
     SpriteObjectUnusedSaveStationElectricity6,
-    /// <summary><c>room_sprite_b4_ca3a</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_save_station_electricity_7</c>, an installed spritemap.</summary>
     SpriteObjectUnusedSaveStationElectricity7,
-    /// <summary><c>room_sprite_b4_ca50</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_vertical_gate_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedVerticalGate0,
-    /// <summary><c>room_sprite_b4_ca5c</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_vertical_gate_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedVerticalGate1,
-    /// <summary><c>room_sprite_b4_ca63</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_vertical_gate_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedVerticalGate2,
-    /// <summary><c>room_sprite_b4_ca6f</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_vertical_gate_3</c>, an installed spritemap.</summary>
     SpriteObjectUnusedVerticalGate3,
-    /// <summary><c>room_sprite_b4_ca7b</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_vertical_gate_4</c>, an installed spritemap.</summary>
     SpriteObjectUnusedVerticalGate4,
-    /// <summary><c>room_sprite_b4_ca8c</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_vertical_gate_5</c>, an installed spritemap.</summary>
     SpriteObjectUnusedVerticalGate5,
-    /// <summary><c>room_sprite_b4_ca9d</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_vertical_gate_6</c>, an installed spritemap.</summary>
     SpriteObjectUnusedVerticalGate6,
-    /// <summary><c>room_sprite_b4_cab3</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_vertical_gate_7</c>, an installed spritemap.</summary>
     SpriteObjectUnusedVerticalGate7,
-    /// <summary><c>room_sprite_b4_cac9</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_beam_charge_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedBeamCharge0,
-    /// <summary><c>room_sprite_b4_cad0</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_beam_charge_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedBeamCharge1,
-    /// <summary><c>room_sprite_b4_cad7</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_beam_charge_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedBeamCharge2,
-    /// <summary><c>room_sprite_b4_cade</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_beam_charge_3</c>, an installed spritemap.</summary>
     SpriteObjectUnusedBeamCharge3,
-    /// <summary><c>room_sprite_b4_caf4</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_mother_brain_elbow_particle_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedMotherBrainElbowParticle0,
-    /// <summary><c>room_sprite_b4_cb05</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_mother_brain_elbow_particle_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedMotherBrainElbowParticle1,
-    /// <summary><c>room_sprite_b4_cb16</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_mother_brain_elbow_particle_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedMotherBrainElbowParticle2,
-    /// <summary><c>room_sprite_b4_cb27</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_mother_brain_elbow_particle_3</c>, an installed spritemap.</summary>
     SpriteObjectUnusedMotherBrainElbowParticle3,
-    /// <summary><c>room_sprite_b4_cb38</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_mother_brain_elbow_particle_4</c>, an installed spritemap.</summary>
     SpriteObjectUnusedMotherBrainElbowParticle4,
-    /// <summary><c>room_sprite_b4_cb49</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_mother_brain_elbow_particle_5</c>, an installed spritemap.</summary>
     SpriteObjectUnusedMotherBrainElbowParticle5,
-    /// <summary><c>room_sprite_b4_cb5a</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_mother_brain_elbow_energy_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedMotherBrainElbowEnergy0,
-    /// <summary><c>room_sprite_b4_cb6b</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_mother_brain_elbow_energy_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedMotherBrainElbowEnergy1,
-    /// <summary><c>room_sprite_b4_cb7c</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_mother_brain_elbow_energy_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedMotherBrainElbowEnergy2,
-    /// <summary><c>room_sprite_b4_cb8d</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_mother_brain_elbow_energy_3</c>, an installed spritemap.</summary>
     SpriteObjectUnusedMotherBrainElbowEnergy3,
-    /// <summary><c>room_sprite_b4_cb9e</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_mother_brain_elbow_energy_4</c>, an installed spritemap.</summary>
     SpriteObjectUnusedMotherBrainElbowEnergy4,
-    /// <summary><c>room_sprite_b4_cbaf</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_mother_brain_elbow_energy_5</c>, an installed spritemap.</summary>
     SpriteObjectUnusedMotherBrainElbowEnergy5,
-    /// <summary><c>room_sprite_b4_cbc0</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_small_explosion_0</c>, an installed spritemap.</summary>
     SpriteObjectSmallExplosion0,
-    /// <summary><c>room_sprite_b4_cbc7</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_small_explosion_1</c>, an installed spritemap.</summary>
     SpriteObjectSmallExplosion1,
-    /// <summary><c>room_sprite_b4_cbdd</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_small_explosion_2</c>, an installed spritemap.</summary>
     SpriteObjectSmallExplosion2,
-    /// <summary><c>room_sprite_b4_cbf3</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_small_explosion_3</c>, an installed spritemap.</summary>
     SpriteObjectSmallExplosion3,
-    /// <summary><c>room_sprite_b4_cc09</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_small_explosion_4</c>, an installed spritemap.</summary>
     SpriteObjectSmallExplosion4,
-    /// <summary><c>room_sprite_b4_cc1f</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_small_explosion_5</c>, an installed spritemap.</summary>
     SpriteObjectSmallExplosion5,
-    /// <summary><c>room_sprite_b4_cc35</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_bomb_explosion_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedBombExplosion0,
-    /// <summary><c>room_sprite_b4_cc4b</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_bomb_explosion_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedBombExplosion1,
-    /// <summary><c>room_sprite_b4_cc61</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_bomb_explosion_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedBombExplosion2,
-    /// <summary><c>room_sprite_b4_cc77</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_bomb_explosion_3</c>, an installed spritemap.</summary>
     SpriteObjectUnusedBombExplosion3,
-    /// <summary><c>room_sprite_b4_cc8d</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_bomb_explosion_4</c>, an installed spritemap.</summary>
     SpriteObjectUnusedBombExplosion4,
-    /// <summary><c>room_sprite_b4_ccb9</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_beam_trail_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedBeamTrail0,
-    /// <summary><c>room_sprite_b4_ccc0</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_beam_trail_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedBeamTrail1,
-    /// <summary><c>room_sprite_b4_ccc7</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_beam_trail_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedBeamTrail2,
-    /// <summary><c>room_sprite_b4_ccce</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_beam_trail_3</c>, an installed spritemap.</summary>
     SpriteObjectUnusedBeamTrail3,
-    /// <summary><c>room_sprite_b4_ccd5</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_power_bomb_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedPowerBomb0,
-    /// <summary><c>room_sprite_b4_ccdc</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_power_bomb_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedPowerBomb1,
-    /// <summary><c>room_sprite_b4_cce3</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_power_bomb_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedPowerBomb2,
-    /// <summary><c>room_sprite_b4_ccf1</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_dud_shot_0</c>, an installed spritemap.</summary>
     SpriteObjectDudShot0,
-    /// <summary><c>room_sprite_b4_ccf8</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_dud_shot_1</c>, an installed spritemap.</summary>
     SpriteObjectDudShot1,
-    /// <summary><c>room_sprite_b4_ccff</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_dud_shot_2</c>, an installed spritemap.</summary>
     SpriteObjectDudShot2,
-    /// <summary><c>room_sprite_b4_cd15</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_dud_shot_3</c>, an installed spritemap.</summary>
     SpriteObjectDudShot3,
-    /// <summary><c>room_sprite_b4_cd2b</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_dud_shot_4</c>, an installed spritemap.</summary>
     SpriteObjectDudShot4,
-    /// <summary><c>room_sprite_b4_cd41</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_dud_shot_5</c>, an installed spritemap.</summary>
     SpriteObjectDudShot5,
-    /// <summary><c>room_sprite_b4_cd57</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_elevator_pad_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedElevatorPad0,
-    /// <summary><c>room_sprite_b4_cd6d</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_elevator_pad_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedElevatorPad1,
-    /// <summary><c>room_sprite_b4_cd99</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_small_dust_cloud_0</c>, an installed spritemap.</summary>
     SpriteObjectSmallDustCloud0,
-    /// <summary><c>room_sprite_b4_cda0</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_small_dust_cloud_1</c>, an installed spritemap.</summary>
     SpriteObjectSmallDustCloud1,
-    /// <summary><c>room_sprite_b4_cda7</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_small_dust_cloud_2</c>, an installed spritemap.</summary>
     SpriteObjectSmallDustCloud2,
-    /// <summary><c>room_sprite_b4_cdae</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_small_dust_cloud_3</c>, an installed spritemap.</summary>
     SpriteObjectSmallDustCloud3,
-    /// <summary><c>room_sprite_b4_cdb5</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_pirate_landing_dust_cloud_0</c>, an installed spritemap.</summary>
     SpriteObjectPirateLandingDustCloud0,
-    /// <summary><c>room_sprite_b4_cdbc</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_pirate_landing_dust_cloud_1</c>, an installed spritemap.</summary>
     SpriteObjectPirateLandingDustCloud1,
-    /// <summary><c>room_sprite_b4_cdc3</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_pirate_landing_dust_cloud_2</c>, an installed spritemap.</summary>
     SpriteObjectPirateLandingDustCloud2,
-    /// <summary><c>room_sprite_b4_cdca</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_pirate_landing_dust_cloud_3</c>, an installed spritemap.</summary>
     SpriteObjectPirateLandingDustCloud3,
-    /// <summary><c>room_sprite_b4_cdd1</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_eye_door_sweat_drop_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedEyeDoorSweatDrop0,
-    /// <summary><c>room_sprite_b4_cdd8</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_eye_door_sweat_drop_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedEyeDoorSweatDrop1,
-    /// <summary><c>room_sprite_b4_cddf</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_eye_door_sweat_drop_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedEyeDoorSweatDrop2,
-    /// <summary><c>room_sprite_b4_cde6</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_eye_door_sweat_drop_3</c>, an installed spritemap.</summary>
     SpriteObjectUnusedEyeDoorSweatDrop3,
-    /// <summary><c>room_sprite_b4_cded</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_smoke_0</c>, an installed spritemap.</summary>
     SpriteObjectSmoke0,
-    /// <summary><c>room_sprite_b4_cdf4</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_smoke_1</c>, an installed spritemap.</summary>
     SpriteObjectSmoke1,
-    /// <summary><c>room_sprite_b4_cdfb</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_smoke_2</c>, an installed spritemap.</summary>
     SpriteObjectSmoke2,
-    /// <summary><c>room_sprite_b4_ce02</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_smoke_3</c>, an installed spritemap.</summary>
     SpriteObjectSmoke3,
-    /// <summary><c>room_sprite_b4_ce1e</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_small_energy_drop_object_13_frame_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedSmallEnergyDropObject13Frame0,
-    /// <summary><c>room_sprite_b4_ce25</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_small_energy_drop_object_13_frame_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedSmallEnergyDropObject13Frame1,
-    /// <summary><c>room_sprite_b4_ce2c</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_small_energy_drop_object_13_frame_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedSmallEnergyDropObject13Frame2,
-    /// <summary><c>room_sprite_b4_ce33</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_small_energy_drop_object_13_frame_3</c>, an installed spritemap.</summary>
     SpriteObjectUnusedSmallEnergyDropObject13Frame3,
-    /// <summary><c>room_sprite_b4_ce3a</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_big_energy_drop_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedBigEnergyDrop0,
-    /// <summary><c>room_sprite_b4_ce50</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_big_energy_drop_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedBigEnergyDrop1,
-    /// <summary><c>room_sprite_b4_ce66</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_big_energy_drop_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedBigEnergyDrop2,
-    /// <summary><c>room_sprite_b4_ce7c</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_big_energy_drop_3</c>, an installed spritemap.</summary>
     SpriteObjectUnusedBigEnergyDrop3,
-    /// <summary><c>room_sprite_b4_ce83</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_bomb_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedBomb0,
-    /// <summary><c>room_sprite_b4_ce8a</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_bomb_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedBomb1,
-    /// <summary><c>room_sprite_b4_ce91</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_bomb_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedBomb2,
-    /// <summary><c>room_sprite_b4_ce98</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_bomb_3</c>, an installed spritemap.</summary>
     SpriteObjectUnusedBomb3,
-    /// <summary><c>room_sprite_b4_cf87</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_small_energy_drop_object_16_frame_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedSmallEnergyDropObject16Frame0,
-    /// <summary><c>room_sprite_b4_cf8e</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_small_energy_drop_object_16_frame_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedSmallEnergyDropObject16Frame1,
-    /// <summary><c>room_sprite_b4_cf95</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_small_energy_drop_object_16_frame_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedSmallEnergyDropObject16Frame2,
-    /// <summary><c>room_sprite_b4_cfa3</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_big_explosion_0</c>, an installed spritemap.</summary>
     SpriteObjectBigExplosion0,
-    /// <summary><c>room_sprite_b4_cfb9</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_big_explosion_1</c>, an installed spritemap.</summary>
     SpriteObjectBigExplosion1,
-    /// <summary><c>room_sprite_b4_cfcf</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_big_explosion_2</c>, an installed spritemap.</summary>
     SpriteObjectBigExplosion2,
-    /// <summary><c>room_sprite_b4_cfe5</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_big_explosion_3</c>, an installed spritemap.</summary>
     SpriteObjectBigExplosion3,
-    /// <summary><c>room_sprite_b4_d023</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_big_explosion_4</c>, an installed spritemap.</summary>
     SpriteObjectBigExplosion4,
-    /// <summary><c>room_sprite_b4_d04d</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_big_explosion_5</c>, an installed spritemap.</summary>
     SpriteObjectBigExplosion5,
-    /// <summary><c>room_sprite_b4_d08b</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_38_frame_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject38Frame0,
-    /// <summary><c>room_sprite_b4_d0ba</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_38_frame_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject38Frame1,
-    /// <summary><c>room_sprite_b4_d0e9</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_38_frame_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject38Frame2,
-    /// <summary><c>room_sprite_b4_d118</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_38_frame_3</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject38Frame3,
-    /// <summary><c>room_sprite_b4_d147</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_38_frame_4</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject38Frame4,
-    /// <summary><c>room_sprite_b4_d176</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_38_frame_5</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject38Frame5,
-    /// <summary><c>room_sprite_b4_d1d4</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_39_frame_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject39Frame0,
-    /// <summary><c>room_sprite_b4_d1ef</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_39_frame_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject39Frame1,
-    /// <summary><c>room_sprite_b4_d20a</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_39_frame_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject39Frame2,
-    /// <summary><c>room_sprite_b4_d225</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_39_frame_3</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject39Frame3,
-    /// <summary><c>room_sprite_b4_d245</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_39_frame_4</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject39Frame4,
-    /// <summary><c>room_sprite_b4_d2ac</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_42</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject42,
-    /// <summary><c>room_sprite_b4_d2b3</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_40_frame_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject40Frame0,
-    /// <summary><c>room_sprite_b4_d2e2</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_40_frame_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject40Frame1,
-    /// <summary><c>room_sprite_b4_d311</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_40_frame_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject40Frame2,
-    /// <summary><c>room_sprite_b4_d340</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_40_frame_3</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject40Frame3,
-    /// <summary><c>room_sprite_b4_d36f</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_40_frame_4</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject40Frame4,
-    /// <summary><c>room_sprite_b4_d39e</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_40_frame_5</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject40Frame5,
-    /// <summary><c>room_sprite_b4_d3fc</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_41_frame_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject41Frame0,
-    /// <summary><c>room_sprite_b4_d417</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_41_frame_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject41Frame1,
-    /// <summary><c>room_sprite_b4_d432</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_41_frame_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject41Frame2,
-    /// <summary><c>room_sprite_b4_d44d</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_41_frame_3</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject41Frame3,
-    /// <summary><c>room_sprite_b4_d46d</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_41_frame_4</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject41Frame4,
-    /// <summary><c>room_sprite_b4_d4be</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_0</c>, an installed spritemap.</summary>
     SpriteObjectPuromi0,
-    /// <summary><c>room_sprite_b4_d4c5</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_1</c>, an installed spritemap.</summary>
     SpriteObjectPuromi1,
-    /// <summary><c>room_sprite_b4_d4cc</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_2</c>, an installed spritemap.</summary>
     SpriteObjectPuromi2,
-    /// <summary><c>room_sprite_b4_d4d3</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_3</c>, an installed spritemap.</summary>
     SpriteObjectPuromi3,
-    /// <summary><c>room_sprite_b4_d4da</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_4</c>, an installed spritemap.</summary>
     SpriteObjectPuromi4,
-    /// <summary><c>room_sprite_b4_d4e1</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_5</c>, an installed spritemap.</summary>
     SpriteObjectPuromi5,
-    /// <summary><c>room_sprite_b4_d4e8</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_6</c>, an installed spritemap.</summary>
     SpriteObjectPuromi6,
-    /// <summary><c>room_sprite_b4_d4ef</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_7</c>, an installed spritemap.</summary>
     SpriteObjectPuromi7,
-    /// <summary><c>room_sprite_b4_d4f6</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_right_explosion_0</c>, an installed spritemap.</summary>
     SpriteObjectPuromiRightExplosion0,
-    /// <summary><c>room_sprite_b4_d4fd</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_right_explosion_1</c>, an installed spritemap.</summary>
     SpriteObjectPuromiRightExplosion1,
-    /// <summary><c>room_sprite_b4_d504</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_right_explosion_2</c>, an installed spritemap.</summary>
     SpriteObjectPuromiRightExplosion2,
-    /// <summary><c>room_sprite_b4_d50b</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_right_explosion_3</c>, an installed spritemap.</summary>
     SpriteObjectPuromiRightExplosion3,
-    /// <summary><c>room_sprite_b4_d512</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_right_explosion_4</c>, an installed spritemap.</summary>
     SpriteObjectPuromiRightExplosion4,
-    /// <summary><c>room_sprite_b4_d519</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_right_explosion_5</c>, an installed spritemap.</summary>
     SpriteObjectPuromiRightExplosion5,
-    /// <summary><c>room_sprite_b4_d520</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_right_explosion_6</c>, an installed spritemap.</summary>
     SpriteObjectPuromiRightExplosion6,
-    /// <summary><c>room_sprite_b4_d527</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_left_explosion_0</c>, an installed spritemap.</summary>
     SpriteObjectPuromiLeftExplosion0,
-    /// <summary><c>room_sprite_b4_d52e</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_left_explosion_1</c>, an installed spritemap.</summary>
     SpriteObjectPuromiLeftExplosion1,
-    /// <summary><c>room_sprite_b4_d535</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_left_explosion_2</c>, an installed spritemap.</summary>
     SpriteObjectPuromiLeftExplosion2,
-    /// <summary><c>room_sprite_b4_d53c</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_left_explosion_3</c>, an installed spritemap.</summary>
     SpriteObjectPuromiLeftExplosion3,
-    /// <summary><c>room_sprite_b4_d543</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_left_explosion_4</c>, an installed spritemap.</summary>
     SpriteObjectPuromiLeftExplosion4,
-    /// <summary><c>room_sprite_b4_d54a</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_left_explosion_5</c>, an installed spritemap.</summary>
     SpriteObjectPuromiLeftExplosion5,
-    /// <summary><c>room_sprite_b4_d551</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_left_explosion_6</c>, an installed spritemap.</summary>
     SpriteObjectPuromiLeftExplosion6,
-    /// <summary><c>room_sprite_b4_d558</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_splash_0</c>, an installed spritemap.</summary>
     SpriteObjectPuromiSplash0,
-    /// <summary><c>room_sprite_b4_d564</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_splash_1</c>, an installed spritemap.</summary>
     SpriteObjectPuromiSplash1,
-    /// <summary><c>room_sprite_b4_d570</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_splash_2</c>, an installed spritemap.</summary>
     SpriteObjectPuromiSplash2,
-    /// <summary><c>room_sprite_b4_d588</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_puromi_splash_4</c>, an installed spritemap.</summary>
     SpriteObjectPuromiSplash4,
-    /// <summary><c>room_sprite_b4_d594</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_47</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject47,
-    /// <summary><c>room_sprite_b4_d59b</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_falling_spark_trail_0</c>, an installed spritemap.</summary>
     SpriteObjectFallingSparkTrail0,
-    /// <summary><c>room_sprite_b4_d5a2</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_falling_spark_trail_1</c>, an installed spritemap.</summary>
     SpriteObjectFallingSparkTrail1,
-    /// <summary><c>room_sprite_b4_d5a9</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_falling_spark_trail_2</c>, an installed spritemap.</summary>
     SpriteObjectFallingSparkTrail2,
-    /// <summary><c>room_sprite_b4_d5b0</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_falling_spark_trail_3</c>, an installed spritemap.</summary>
     SpriteObjectFallingSparkTrail3,
-    /// <summary><c>room_sprite_b4_d5b7</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_shell_0</c>, an installed spritemap.</summary>
     SpriteObjectMetroidShell0,
-    /// <summary><c>room_sprite_b4_d5eb</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_shell_1</c>, an installed spritemap.</summary>
     SpriteObjectMetroidShell1,
-    /// <summary><c>room_sprite_b4_d61f</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_shell_2</c>, an installed spritemap.</summary>
     SpriteObjectMetroidShell2,
-    /// <summary><c>room_sprite_b4_d653</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_metroid_insides_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedMetroidInsides0,
-    /// <summary><c>room_sprite_b4_d67d</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_metroid_insides_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedMetroidInsides1,
-    /// <summary><c>room_sprite_b4_d69d</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_metroid_insides_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedMetroidInsides2,
-    /// <summary><c>room_sprite_b4_d6c7</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_metroid_insides_3</c>, an installed spritemap.</summary>
     SpriteObjectUnusedMetroidInsides3,
-    /// <summary><c>room_sprite_b4_d6f1</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_electricity_0</c>, an installed spritemap.</summary>
     SpriteObjectMetroidElectricity0,
-    /// <summary><c>room_sprite_b4_d702</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_electricity_1</c>, an installed spritemap.</summary>
     SpriteObjectMetroidElectricity1,
-    /// <summary><c>room_sprite_b4_d713</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_electricity_2</c>, an installed spritemap.</summary>
     SpriteObjectMetroidElectricity2,
-    /// <summary><c>room_sprite_b4_d724</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_electricity_3</c>, an installed spritemap.</summary>
     SpriteObjectMetroidElectricity3,
-    /// <summary><c>room_sprite_b4_d73a</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_electricity_4</c>, an installed spritemap.</summary>
     SpriteObjectMetroidElectricity4,
-    /// <summary><c>room_sprite_b4_d750</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_electricity_5</c>, an installed spritemap.</summary>
     SpriteObjectMetroidElectricity5,
-    /// <summary><c>room_sprite_b4_d766</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_electricity_6</c>, an installed spritemap.</summary>
     SpriteObjectMetroidElectricity6,
-    /// <summary><c>room_sprite_b4_d777</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_electricity_7</c>, an installed spritemap.</summary>
     SpriteObjectMetroidElectricity7,
-    /// <summary><c>room_sprite_b4_d788</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_electricity_8</c>, an installed spritemap.</summary>
     SpriteObjectMetroidElectricity8,
-    /// <summary><c>room_sprite_b4_d799</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_electricity_9</c>, an installed spritemap.</summary>
     SpriteObjectMetroidElectricity9,
-    /// <summary><c>room_sprite_b4_d7af</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_electricity_10</c>, an installed spritemap.</summary>
     SpriteObjectMetroidElectricity10,
-    /// <summary><c>room_sprite_b4_d7c5</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_electricity_11</c>, an installed spritemap.</summary>
     SpriteObjectMetroidElectricity11,
-    /// <summary><c>room_sprite_b4_d7db</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_electricity_12</c>, an installed spritemap.</summary>
     SpriteObjectMetroidElectricity12,
-    /// <summary><c>room_sprite_b4_d7e7</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_electricity_13</c>, an installed spritemap.</summary>
     SpriteObjectMetroidElectricity13,
-    /// <summary><c>room_sprite_b4_d7ee</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_electricity_14</c>, an installed spritemap.</summary>
     SpriteObjectMetroidElectricity14,
-    /// <summary><c>room_sprite_b4_d7fa</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_electricity_15</c>, an installed spritemap.</summary>
     SpriteObjectMetroidElectricity15,
-    /// <summary><c>room_sprite_b4_d806</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_electricity_16</c>, an installed spritemap.</summary>
     SpriteObjectMetroidElectricity16,
-    /// <summary><c>room_sprite_b4_d812</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_electricity_17</c>, an installed spritemap.</summary>
     SpriteObjectMetroidElectricity17,
-    /// <summary><c>room_sprite_b4_d81e</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_electricity_18</c>, an installed spritemap.</summary>
     SpriteObjectMetroidElectricity18,
-    /// <summary><c>room_sprite_b4_d82a</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_electricity_19</c>, an installed spritemap.</summary>
     SpriteObjectMetroidElectricity19,
-    /// <summary><c>room_sprite_b4_d836</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_electricity_20</c>, an installed spritemap.</summary>
     SpriteObjectMetroidElectricity20,
-    /// <summary><c>room_sprite_b4_d842</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_electricity_21</c>, an installed spritemap.</summary>
     SpriteObjectMetroidElectricity21,
-    /// <summary><c>room_sprite_b4_d849</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_electricity_22</c>, an installed spritemap.</summary>
     SpriteObjectMetroidElectricity22,
-    /// <summary><c>room_sprite_b4_d850</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_metroid_electricity_23</c>, an installed spritemap.</summary>
     SpriteObjectMetroidElectricity23,
-    /// <summary><c>room_sprite_b4_d857</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_enemy_shot_0</c>, an installed spritemap.</summary>
     SpriteObjectEnemyShot0,
-    /// <summary><c>room_sprite_b4_d86d</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_enemy_shot_1</c>, an installed spritemap.</summary>
     SpriteObjectEnemyShot1,
-    /// <summary><c>room_sprite_b4_d883</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_enemy_shot_2</c>, an installed spritemap.</summary>
     SpriteObjectEnemyShot2,
-    /// <summary><c>room_sprite_b4_d899</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_enemy_shot_3</c>, an installed spritemap.</summary>
     SpriteObjectEnemyShot3,
-    /// <summary><c>room_sprite_b4_d8af</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_yapping_maw_base_facing_down</c>, an installed spritemap.</summary>
     SpriteObjectYappingMawBaseFacingDown,
-    /// <summary><c>room_sprite_b4_d8b6</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_yapping_maw_base_facing_up</c>, an installed spritemap.</summary>
     SpriteObjectYappingMawBaseFacingUp,
-    /// <summary><c>room_sprite_b4_d8bd</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_58_frame_0</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject58Frame0,
-    /// <summary><c>room_sprite_b4_d905</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_58_frame_1</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject58Frame1,
-    /// <summary><c>room_sprite_b4_d957</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_58_frame_2</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject58Frame2,
-    /// <summary><c>room_sprite_b4_d9a9</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_58_frame_3</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject58Frame3,
-    /// <summary><c>room_sprite_b4_d9fb</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_58_frame_4</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject58Frame4,
-    /// <summary><c>room_sprite_b4_da48</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_58_frame_5</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject58Frame5,
-    /// <summary><c>room_sprite_b4_da90</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_58_frame_6</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject58Frame6,
-    /// <summary><c>room_sprite_b4_dad8</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_unused_object_58_frame_7</c>, an installed spritemap.</summary>
     SpriteObjectUnusedObject58Frame7,
-    /// <summary><c>room_sprite_b4_dc3f</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_evir_facing_right_0</c>, an installed spritemap.</summary>
     SpriteObjectEvirFacingRight0,
-    /// <summary><c>room_sprite_b4_dc7d</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_evir_facing_right_1</c>, an installed spritemap.</summary>
     SpriteObjectEvirFacingRight1,
-    /// <summary><c>room_sprite_b4_dcbb</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_evir_facing_right_2</c>, an installed spritemap.</summary>
     SpriteObjectEvirFacingRight2,
-    /// <summary><c>room_sprite_b4_dcf9</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_evir_facing_right_3</c>, an installed spritemap.</summary>
     SpriteObjectEvirFacingRight3,
-    /// <summary><c>room_sprite_b4_dd51</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_draygon_foaming_at_the_mouth_0</c>, an installed spritemap.</summary>
     SpriteObjectDraygonFoamingAtTheMouth0,
-    /// <summary><c>room_sprite_b4_dd58</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_draygon_foaming_at_the_mouth_1</c>, an installed spritemap.</summary>
     SpriteObjectDraygonFoamingAtTheMouth1,
-    /// <summary><c>room_sprite_b4_dd5f</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_draygon_foaming_at_the_mouth_2</c>, an installed spritemap.</summary>
     SpriteObjectDraygonFoamingAtTheMouth2,
-    /// <summary><c>room_sprite_b4_dd66</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_draygon_foaming_at_the_mouth_3</c>, an installed spritemap.</summary>
     SpriteObjectDraygonFoamingAtTheMouth3,
-    /// <summary><c>room_sprite_b4_dd6d</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_draygon_foaming_at_the_mouth_4</c>, an installed spritemap.</summary>
     SpriteObjectDraygonFoamingAtTheMouth4,
-    /// <summary><c>room_sprite_b4_dd74</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_draygon_foaming_at_the_mouth_5</c>, an installed spritemap.</summary>
     SpriteObjectDraygonFoamingAtTheMouth5,
-    /// <summary><c>room_sprite_b4_dd7b</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_draygon_foaming_at_the_mouth_6</c>, an installed spritemap.</summary>
     SpriteObjectDraygonFoamingAtTheMouth6,
-    /// <summary><c>room_sprite_b4_dd82</c>, an installed spritemap.</summary>
+    /// <summary><c>sprite_object_draygon_foaming_at_the_mouth_7</c>, an installed spritemap.</summary>
     SpriteObjectDraygonFoamingAtTheMouth7,
-    /// <summary><c>yapping_maw_a8_a8ee</c>, an installed spritemap.</summary>
+    /// <summary><c>yapping_maw_pose_0</c>, an installed spritemap.</summary>
     YappingMawPose0,
-    /// <summary><c>yapping_maw_a8_a909</c>, an installed spritemap.</summary>
+    /// <summary><c>yapping_maw_pose_1</c>, an installed spritemap.</summary>
     YappingMawPose1,
-    /// <summary><c>yapping_maw_a8_a91a</c>, an installed spritemap.</summary>
+    /// <summary><c>yapping_maw_pose_2</c>, an installed spritemap.</summary>
     YappingMawPose2,
-    /// <summary><c>yapping_maw_a8_a935</c>, an installed spritemap.</summary>
+    /// <summary><c>yapping_maw_pose_3</c>, an installed spritemap.</summary>
     YappingMawPose3,
-    /// <summary><c>yapping_maw_a8_a946</c>, an installed spritemap.</summary>
+    /// <summary><c>yapping_maw_pose_4</c>, an installed spritemap.</summary>
     YappingMawPose4,
-    /// <summary><c>yapping_maw_a8_a961</c>, an installed spritemap.</summary>
+    /// <summary><c>yapping_maw_pose_5</c>, an installed spritemap.</summary>
     YappingMawPose5,
-    /// <summary><c>yapping_maw_a8_a972</c>, an installed spritemap.</summary>
+    /// <summary><c>yapping_maw_pose_6</c>, an installed spritemap.</summary>
     YappingMawPose6,
-    /// <summary><c>yapping_maw_a8_a98d</c>, an installed spritemap.</summary>
+    /// <summary><c>yapping_maw_pose_7</c>, an installed spritemap.</summary>
     YappingMawPose7,
-    /// <summary><c>yapping_maw_a8_a99e</c>, an installed spritemap.</summary>
+    /// <summary><c>yapping_maw_pose_8</c>, an installed spritemap.</summary>
     YappingMawPose8,
-    /// <summary><c>yapping_maw_a8_a9b9</c>, an installed spritemap.</summary>
+    /// <summary><c>yapping_maw_pose_9</c>, an installed spritemap.</summary>
     YappingMawPose9,
-    /// <summary><c>yapping_maw_a8_a9ca</c>, an installed spritemap.</summary>
+    /// <summary><c>yapping_maw_pose_10</c>, an installed spritemap.</summary>
     YappingMawPose10,
-    /// <summary><c>yapping_maw_a8_a9e5</c>, an installed spritemap.</summary>
+    /// <summary><c>yapping_maw_pose_11</c>, an installed spritemap.</summary>
     YappingMawPose11,
-    /// <summary><c>yapping_maw_a8_a9f6</c>, an installed spritemap.</summary>
+    /// <summary><c>yapping_maw_pose_12</c>, an installed spritemap.</summary>
     YappingMawPose12,
-    /// <summary><c>yapping_maw_a8_aa11</c>, an installed spritemap.</summary>
+    /// <summary><c>yapping_maw_pose_13</c>, an installed spritemap.</summary>
     YappingMawPose13,
-    /// <summary><c>yapping_maw_a8_aa22</c>, an installed spritemap.</summary>
+    /// <summary><c>yapping_maw_pose_14</c>, an installed spritemap.</summary>
     YappingMawPose14,
-    /// <summary><c>yapping_maw_a8_aa3d</c>, an installed spritemap.</summary>
+    /// <summary><c>yapping_maw_pose_15</c>, an installed spritemap.</summary>
     YappingMawPose15,
-    /// <summary><c>yapping_maw_a8_aa4e</c>, an installed spritemap.</summary>
+    /// <summary><c>yapping_maw_pose_16</c>, an installed spritemap.</summary>
     YappingMawPose16,
-    /// <summary><c>yapping_maw_a8_aa69</c>, an installed spritemap.</summary>
+    /// <summary><c>yapping_maw_pose_17</c>, an installed spritemap.</summary>
     YappingMawPose17,
-    /// <summary><c>yapping_maw_a8_aa7a</c>, an installed spritemap.</summary>
+    /// <summary><c>yapping_maw_pose_18</c>, an installed spritemap.</summary>
     YappingMawPose18,
-    /// <summary><c>yapping_maw_a8_aa95</c>, an installed spritemap.</summary>
+    /// <summary><c>yapping_maw_pose_19</c>, an installed spritemap.</summary>
     YappingMawPose19,
-    /// <summary><c>yapping_maw_a8_aaa6</c>, an installed spritemap.</summary>
+    /// <summary><c>yapping_maw_pose_20</c>, an installed spritemap.</summary>
     YappingMawPose20,
-    /// <summary><c>yapping_maw_a8_aac1</c>, an installed spritemap.</summary>
+    /// <summary><c>yapping_maw_pose_21</c>, an installed spritemap.</summary>
     YappingMawPose21,
-    /// <summary><c>yapping_maw_a8_aad2</c>, an installed spritemap.</summary>
+    /// <summary><c>yapping_maw_pose_22</c>, an installed spritemap.</summary>
     YappingMawPose22,
-    /// <summary><c>yapping_maw_a8_aaed</c>, an installed spritemap.</summary>
+    /// <summary><c>yapping_maw_pose_23</c>, an installed spritemap.</summary>
     YappingMawPose23,
-    /// <summary><c>ki_hunter_a8_eb2e</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_0</c>, an installed spritemap.</summary>
     KiHunterPose0,
-    /// <summary><c>ki_hunter_a8_eb58</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_1</c>, an installed spritemap.</summary>
     KiHunterPose1,
-    /// <summary><c>ki_hunter_a8_eb82</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_2</c>, an installed spritemap.</summary>
     KiHunterPose2,
-    /// <summary><c>ki_hunter_a8_ebac</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_3</c>, an installed spritemap.</summary>
     KiHunterPose3,
-    /// <summary><c>ki_hunter_a8_ebc2</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_4</c>, an installed spritemap.</summary>
     KiHunterPose4,
-    /// <summary><c>ki_hunter_a8_ebce</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_5</c>, an installed spritemap.</summary>
     KiHunterPose5,
-    /// <summary><c>ki_hunter_a8_ebf7</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_6</c>, an installed spritemap.</summary>
     KiHunterPose6,
-    /// <summary><c>ki_hunter_a8_ec21</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_7</c>, an installed spritemap.</summary>
     KiHunterPose7,
-    /// <summary><c>ki_hunter_a8_ec4b</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_8</c>, an installed spritemap.</summary>
     KiHunterPose8,
-    /// <summary><c>ki_hunter_a8_ec75</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_9</c>, an installed spritemap.</summary>
     KiHunterPose9,
-    /// <summary><c>ki_hunter_a8_ec8b</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_10</c>, an installed spritemap.</summary>
     KiHunterPose10,
-    /// <summary><c>ki_hunter_a8_ec97</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_11</c>, an installed spritemap.</summary>
     KiHunterPose11,
-    /// <summary><c>ki_hunter_a8_eca8</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_12</c>, an installed spritemap.</summary>
     KiHunterPose12,
-    /// <summary><c>ki_hunter_a8_ecc0</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_13</c>, an installed spritemap.</summary>
     KiHunterPose13,
-    /// <summary><c>ki_hunter_a8_ecea</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_14</c>, an installed spritemap.</summary>
     KiHunterPose14,
-    /// <summary><c>ki_hunter_a8_ed14</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_15</c>, an installed spritemap.</summary>
     KiHunterPose15,
-    /// <summary><c>ki_hunter_a8_ed3e</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_16</c>, an installed spritemap.</summary>
     KiHunterPose16,
-    /// <summary><c>ki_hunter_a8_ed68</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_17</c>, an installed spritemap.</summary>
     KiHunterPose17,
-    /// <summary><c>ki_hunter_a8_ed92</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_18</c>, an installed spritemap.</summary>
     KiHunterPose18,
-    /// <summary><c>ki_hunter_a8_edbc</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_19</c>, an installed spritemap.</summary>
     KiHunterPose19,
-    /// <summary><c>ki_hunter_a8_ede6</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_20</c>, an installed spritemap.</summary>
     KiHunterPose20,
-    /// <summary><c>ki_hunter_a8_ee10</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_21</c>, an installed spritemap.</summary>
     KiHunterPose21,
-    /// <summary><c>ki_hunter_a8_ee3a</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_22</c>, an installed spritemap.</summary>
     KiHunterPose22,
-    /// <summary><c>ki_hunter_a8_ee64</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_23</c>, an installed spritemap.</summary>
     KiHunterPose23,
-    /// <summary><c>ki_hunter_a8_ee8e</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_24</c>, an installed spritemap.</summary>
     KiHunterPose24,
-    /// <summary><c>ki_hunter_a8_eeb8</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_25</c>, an installed spritemap.</summary>
     KiHunterPose25,
-    /// <summary><c>ki_hunter_a8_eee2</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_26</c>, an installed spritemap.</summary>
     KiHunterPose26,
-    /// <summary><c>ki_hunter_a8_ef0c</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_27</c>, an installed spritemap.</summary>
     KiHunterPose27,
-    /// <summary><c>ki_hunter_a8_ef36</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_28</c>, an installed spritemap.</summary>
     KiHunterPose28,
-    /// <summary><c>ki_hunter_a8_ef60</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_29</c>, an installed spritemap.</summary>
     KiHunterPose29,
-    /// <summary><c>ki_hunter_a8_ef8a</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_30</c>, an installed spritemap.</summary>
     KiHunterPose30,
-    /// <summary><c>ki_hunter_a8_efb4</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_31</c>, an installed spritemap.</summary>
     KiHunterPose31,
-    /// <summary><c>ki_hunter_a8_efde</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_32</c>, an installed spritemap.</summary>
     KiHunterPose32,
-    /// <summary><c>ki_hunter_a8_f00d</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_33</c>, an installed spritemap.</summary>
     KiHunterPose33,
-    /// <summary><c>ki_hunter_a8_f03c</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_34</c>, an installed spritemap.</summary>
     KiHunterPose34,
-    /// <summary><c>ki_hunter_a8_f06b</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_35</c>, an installed spritemap.</summary>
     KiHunterPose35,
-    /// <summary><c>ki_hunter_a8_f09a</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_36</c>, an installed spritemap.</summary>
     KiHunterPose36,
-    /// <summary><c>ki_hunter_a8_f0c4</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_37</c>, an installed spritemap.</summary>
     KiHunterPose37,
-    /// <summary><c>ki_hunter_a8_f0f3</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_38</c>, an installed spritemap.</summary>
     KiHunterPose38,
-    /// <summary><c>ki_hunter_a8_f122</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_39</c>, an installed spritemap.</summary>
     KiHunterPose39,
-    /// <summary><c>ki_hunter_a8_f151</c>, an installed spritemap.</summary>
+    /// <summary><c>ki_hunter_pose_40</c>, an installed spritemap.</summary>
     KiHunterPose40,
-    /// <summary><c>mother_brain_a9_a586</c>, an installed spritemap.</summary>
+    /// <summary><c>mother_brain_head_0</c>, an installed spritemap.</summary>
     MotherBrainHead0,
-    /// <summary><c>mother_brain_a9_a5bf</c>, an installed spritemap.</summary>
+    /// <summary><c>mother_brain_head_1</c>, an installed spritemap.</summary>
     MotherBrainHead1,
-    /// <summary><c>mother_brain_a9_a5f8</c>, an installed spritemap.</summary>
+    /// <summary><c>mother_brain_head_2</c>, an installed spritemap.</summary>
     MotherBrainHead2,
-    /// <summary><c>mother_brain_a9_a62c</c>, an installed spritemap.</summary>
+    /// <summary><c>mother_brain_head_3</c>, an installed spritemap.</summary>
     MotherBrainHead3,
-    /// <summary><c>mother_brain_a9_a660</c>, an installed spritemap.</summary>
+    /// <summary><c>mother_brain_head_4</c>, an installed spritemap.</summary>
     MotherBrainHead4,
-    /// <summary><c>mother_brain_a9_a694</c>, an installed spritemap.</summary>
+    /// <summary><c>mother_brain_neck_joint</c>, an installed spritemap.</summary>
     MotherBrainNeckJoint,
-    /// <summary><c>mother_brain_a9_a69b</c>, an installed spritemap.</summary>
+    /// <summary><c>mother_brain_head_6</c>, an installed spritemap.</summary>
     MotherBrainHead6,
-    /// <summary><c>mother_brain_a9_a6d9</c>, an installed spritemap.</summary>
+    /// <summary><c>mother_brain_head_7</c>, an installed spritemap.</summary>
     MotherBrainHead7,
-    /// <summary><c>mother_brain_a9_a717</c>, an installed spritemap.</summary>
+    /// <summary><c>mother_brain_head_8</c>, an installed spritemap.</summary>
     MotherBrainHead8,
-    /// <summary><c>mother_brain_a9_a750</c>, an installed spritemap.</summary>
+    /// <summary><c>mother_brain_head_9</c>, an installed spritemap.</summary>
     MotherBrainHead9,
-    /// <summary><c>mother_brain_a9_a789</c>, an installed spritemap.</summary>
+    /// <summary><c>mother_brain_head_10</c>, an installed spritemap.</summary>
     MotherBrainHead10,
-    /// <summary><c>mother_brain_a9_ad3e</c>, an installed spritemap.</summary>
+    /// <summary><c>mother_brain_head_11</c>, an installed spritemap.</summary>
     MotherBrainHead11,
-    /// <summary><c>mother_brain_a9_ad6d</c>, an installed spritemap.</summary>
+    /// <summary><c>mother_brain_head_12</c>, an installed spritemap.</summary>
     MotherBrainHead12,
-    /// <summary><c>mother_brain_a9_ada1</c>, an installed spritemap.</summary>
+    /// <summary><c>mother_brain_tube_0</c>, an installed spritemap.</summary>
     MotherBrainTube0,
-    /// <summary><c>mother_brain_a9_add5</c>, an installed spritemap.</summary>
+    /// <summary><c>mother_brain_tube_1</c>, an installed spritemap.</summary>
     MotherBrainTube1,
-    /// <summary><c>mother_brain_a9_ae09</c>, an installed spritemap.</summary>
+    /// <summary><c>mother_brain_tube_2</c>, an installed spritemap.</summary>
     MotherBrainTube2,
-    /// <summary><c>mother_brain_a9_ae33</c>, an installed spritemap.</summary>
+    /// <summary><c>mother_brain_tube_3</c>, an installed spritemap.</summary>
     MotherBrainTube3,
-    /// <summary><c>mother_brain_a9_ae5d</c>, an installed spritemap.</summary>
+    /// <summary><c>mother_brain_tube_4</c>, an installed spritemap.</summary>
     MotherBrainTube4,
-    /// <summary><c>dead_torizo_corpse_a9_d761</c>, an installed spritemap.</summary>
+    /// <summary><c>dead_torizo_corpse_hook</c>, an installed spritemap.</summary>
     DeadTorizoCorpseHook,
-    /// <summary><c>ridley_supplement_a6_dc90</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_tail_segment_small</c>, an installed spritemap.</summary>
     RidleyTailSegmentSmall,
-    /// <summary><c>ridley_supplement_a6_dc97</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_tail_segment_medium</c>, an installed spritemap.</summary>
     RidleyTailSegmentMedium,
-    /// <summary><c>ridley_supplement_a6_dc9e</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_tail_segment_large</c>, an installed spritemap.</summary>
     RidleyTailSegmentLarge,
-    /// <summary><c>ridley_supplement_a6_dcda</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_tail_tip_12</c>, an installed spritemap.</summary>
     RidleyTailTip12,
-    /// <summary><c>ridley_supplement_a6_dce1</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_tail_tip_11</c>, an installed spritemap.</summary>
     RidleyTailTip11,
-    /// <summary><c>ridley_supplement_a6_dce8</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_tail_tip_10</c>, an installed spritemap.</summary>
     RidleyTailTip10,
-    /// <summary><c>ridley_supplement_a6_dcef</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_tail_tip_9</c>, an installed spritemap.</summary>
     RidleyTailTip9,
-    /// <summary><c>ridley_supplement_a6_dcf6</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_tail_tip_8</c>, an installed spritemap.</summary>
     RidleyTailTip8,
-    /// <summary><c>ridley_supplement_a6_dcfd</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_tail_tip_7</c>, an installed spritemap.</summary>
     RidleyTailTip7,
-    /// <summary><c>ridley_supplement_a6_dd04</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_tail_tip_6</c>, an installed spritemap.</summary>
     RidleyTailTip6,
-    /// <summary><c>ridley_supplement_a6_dd0b</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_tail_tip_5</c>, an installed spritemap.</summary>
     RidleyTailTip5,
-    /// <summary><c>ridley_supplement_a6_dd12</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_tail_tip_4</c>, an installed spritemap.</summary>
     RidleyTailTip4,
-    /// <summary><c>ridley_supplement_a6_dd19</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_tail_tip_3</c>, an installed spritemap.</summary>
     RidleyTailTip3,
-    /// <summary><c>ridley_supplement_a6_dd20</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_tail_tip_2</c>, an installed spritemap.</summary>
     RidleyTailTip2,
-    /// <summary><c>ridley_supplement_a6_dd27</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_tail_tip_1</c>, an installed spritemap.</summary>
     RidleyTailTip1,
-    /// <summary><c>ridley_supplement_a6_dd2e</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_tail_tip_0</c>, an installed spritemap.</summary>
     RidleyTailTip0,
-    /// <summary><c>ridley_supplement_a6_dd35</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_tail_tip_15</c>, an installed spritemap.</summary>
     RidleyTailTip15,
-    /// <summary><c>ridley_supplement_a6_dd3c</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_tail_tip_14</c>, an installed spritemap.</summary>
     RidleyTailTip14,
-    /// <summary><c>ridley_supplement_a6_dd43</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_tail_tip_13</c>, an installed spritemap.</summary>
     RidleyTailTip13,
-    /// <summary><c>ridley_supplement_a6_dd4a</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_wing_left_0</c>, an installed spritemap.</summary>
     RidleyWingLeft0,
-    /// <summary><c>ridley_supplement_a6_dd6a</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_wing_left_1</c>, an installed spritemap.</summary>
     RidleyWingLeft1,
-    /// <summary><c>ridley_supplement_a6_dd85</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_wing_left_2</c>, an installed spritemap.</summary>
     RidleyWingLeft2,
-    /// <summary><c>ridley_supplement_a6_dd96</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_wing_left_3</c>, an installed spritemap.</summary>
     RidleyWingLeft3,
-    /// <summary><c>ridley_supplement_a6_dda7</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_wing_left_4</c>, an installed spritemap.</summary>
     RidleyWingLeft4,
-    /// <summary><c>ridley_supplement_a6_ddc2</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_wing_left_5</c>, an installed spritemap.</summary>
     RidleyWingLeft5,
-    /// <summary><c>ridley_supplement_a6_dde2</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_wing_right_0</c>, an installed spritemap.</summary>
     RidleyWingRight0,
-    /// <summary><c>ridley_supplement_a6_de02</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_wing_right_1</c>, an installed spritemap.</summary>
     RidleyWingRight1,
-    /// <summary><c>ridley_supplement_a6_de1d</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_wing_right_2</c>, an installed spritemap.</summary>
     RidleyWingRight2,
-    /// <summary><c>ridley_supplement_a6_de2e</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_wing_right_3</c>, an installed spritemap.</summary>
     RidleyWingRight3,
-    /// <summary><c>ridley_supplement_a6_de3f</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_wing_right_4</c>, an installed spritemap.</summary>
     RidleyWingRight4,
-    /// <summary><c>ridley_supplement_a6_de5a</c>, an installed spritemap.</summary>
+    /// <summary><c>ridley_wing_right_5</c>, an installed spritemap.</summary>
     RidleyWingRight5,
     /// <summary><c>sciser_upside_right_0</c>, an installed spritemap.</summary>
     SciserUpsideRight0,
@@ -1924,107 +1924,107 @@ public enum EnemyFrameId
     MultiviolaSpin6,
     /// <summary><c>multiviola_spin_7</c>, an installed spritemap.</summary>
     MultiviolaSpin7,
-    /// <summary><c>norfair_lava_jumper_c02c</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_lava_jumper_pose_1</c>, an installed spritemap.</summary>
     NorfairLavaJumperPose1,
-    /// <summary><c>norfair_lava_jumper_c042</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_lava_jumper_pose_2</c>, an installed spritemap.</summary>
     NorfairLavaJumperPose2,
-    /// <summary><c>norfair_lava_jumper_c058</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_lava_jumper_pose_3</c>, an installed spritemap.</summary>
     NorfairLavaJumperPose3,
-    /// <summary><c>norfair_lava_jumper_c064</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_lava_jumper_pose_4</c>, an installed spritemap.</summary>
     NorfairLavaJumperPose4,
-    /// <summary><c>norfair_lava_jumper_c070</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_lava_jumper_pose_5</c>, an installed spritemap.</summary>
     NorfairLavaJumperPose5,
-    /// <summary><c>norfair_lava_jumper_c086</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_lava_jumper_pose_6</c>, an installed spritemap.</summary>
     NorfairLavaJumperPose6,
-    /// <summary><c>norfair_lava_jumper_c09c</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_lava_jumper_pose_7</c>, an installed spritemap.</summary>
     NorfairLavaJumperPose7,
-    /// <summary><c>norfair_lava_jumper_c0ad</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_lava_jumper_pose_8</c>, an installed spritemap.</summary>
     NorfairLavaJumperPose8,
-    /// <summary><c>norfair_lava_jumper_804d</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_lava_jumper_pose_0</c>, an installed spritemap.</summary>
     NorfairLavaJumperPose0,
-    /// <summary><c>norfair_lava_jumper_c0c5</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_lava_jumper_pose_10</c>, an installed spritemap.</summary>
     NorfairLavaJumperPose10,
-    /// <summary><c>norfair_lava_jumper_c0b9</c>, an installed spritemap.</summary>
+    /// <summary><c>norfair_lava_jumper_pose_9</c>, an installed spritemap.</summary>
     NorfairLavaJumperPose9,
-    /// <summary><c>chozo_statue_aa_efd8</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_17</c>, an installed spritemap.</summary>
     ChozoStatuePose17,
-    /// <summary><c>chozo_statue_aa_f034</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_18</c>, an installed spritemap.</summary>
     ChozoStatuePose18,
-    /// <summary><c>chozo_statue_aa_f08b</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_19</c>, an installed spritemap.</summary>
     ChozoStatuePose19,
-    /// <summary><c>chozo_statue_aa_f0e2</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_20</c>, an installed spritemap.</summary>
     ChozoStatuePose20,
-    /// <summary><c>chozo_statue_aa_f4b4</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_21</c>, an installed spritemap.</summary>
     ChozoStatuePose21,
-    /// <summary><c>chozo_statue_aa_f510</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_22</c>, an installed spritemap.</summary>
     ChozoStatuePose22,
-    /// <summary><c>chozo_statue_aa_f56c</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_23</c>, an installed spritemap.</summary>
     ChozoStatuePose23,
-    /// <summary><c>chozo_statue_aa_f5c8</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_24</c>, an installed spritemap.</summary>
     ChozoStatuePose24,
-    /// <summary><c>chozo_statue_aa_f624</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_25</c>, an installed spritemap.</summary>
     ChozoStatuePose25,
-    /// <summary><c>chozo_statue_aa_e7dd</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_0</c>, an installed spritemap.</summary>
     ChozoStatuePose0,
-    /// <summary><c>chozo_statue_aa_e839</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_1</c>, an installed spritemap.</summary>
     ChozoStatuePose1,
-    /// <summary><c>chozo_statue_aa_e890</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_2</c>, an installed spritemap.</summary>
     ChozoStatuePose2,
-    /// <summary><c>chozo_statue_aa_e8e7</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_3</c>, an installed spritemap.</summary>
     ChozoStatuePose3,
-    /// <summary><c>chozo_statue_aa_ecb9</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_12</c>, an installed spritemap.</summary>
     ChozoStatuePose12,
-    /// <summary><c>chozo_statue_aa_ed15</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_13</c>, an installed spritemap.</summary>
     ChozoStatuePose13,
-    /// <summary><c>chozo_statue_aa_ed71</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_14</c>, an installed spritemap.</summary>
     ChozoStatuePose14,
-    /// <summary><c>chozo_statue_aa_edcd</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_15</c>, an installed spritemap.</summary>
     ChozoStatuePose15,
-    /// <summary><c>chozo_statue_aa_ee29</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_16</c>, an installed spritemap.</summary>
     ChozoStatuePose16,
-    /// <summary><c>chozo_statue_aa_ec49</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_11</c>, an installed spritemap.</summary>
     ChozoStatuePose11,
-    /// <summary><c>chozo_statue_aa_e943</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_4</c>, an installed spritemap.</summary>
     ChozoStatuePose4,
-    /// <summary><c>chozo_statue_aa_e9ae</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_5</c>, an installed spritemap.</summary>
     ChozoStatuePose5,
-    /// <summary><c>chozo_statue_aa_ea1e</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_6</c>, an installed spritemap.</summary>
     ChozoStatuePose6,
-    /// <summary><c>chozo_statue_aa_ea8e</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_7</c>, an installed spritemap.</summary>
     ChozoStatuePose7,
-    /// <summary><c>chozo_statue_aa_eafe</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_8</c>, an installed spritemap.</summary>
     ChozoStatuePose8,
-    /// <summary><c>chozo_statue_aa_eb69</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_9</c>, an installed spritemap.</summary>
     ChozoStatuePose9,
-    /// <summary><c>chozo_statue_aa_ebd9</c>, an installed spritemap.</summary>
+    /// <summary><c>chozo_statue_pose_10</c>, an installed spritemap.</summary>
     ChozoStatuePose10,
-    /// <summary><c>viola_spin_b689</c>, an installed spritemap.</summary>
+    /// <summary><c>viola_spin_0</c>, an installed spritemap.</summary>
     ViolaSpin0,
-    /// <summary><c>viola_spin_b690</c>, an installed spritemap.</summary>
+    /// <summary><c>viola_spin_1</c>, an installed spritemap.</summary>
     ViolaSpin1,
-    /// <summary><c>viola_spin_b697</c>, an installed spritemap.</summary>
+    /// <summary><c>viola_spin_2</c>, an installed spritemap.</summary>
     ViolaSpin2,
-    /// <summary><c>viola_spin_b69e</c>, an installed spritemap.</summary>
+    /// <summary><c>viola_spin_3</c>, an installed spritemap.</summary>
     ViolaSpin3,
-    /// <summary><c>viola_spin_b6a5</c>, an installed spritemap.</summary>
+    /// <summary><c>viola_spin_4</c>, an installed spritemap.</summary>
     ViolaSpin4,
-    /// <summary><c>viola_spin_b6ac</c>, an installed spritemap.</summary>
+    /// <summary><c>viola_spin_5</c>, an installed spritemap.</summary>
     ViolaSpin5,
-    /// <summary><c>viola_spin_b6b3</c>, an installed spritemap.</summary>
+    /// <summary><c>viola_spin_6</c>, an installed spritemap.</summary>
     ViolaSpin6,
-    /// <summary><c>viola_spin_b6ba</c>, an installed spritemap.</summary>
+    /// <summary><c>viola_spin_7</c>, an installed spritemap.</summary>
     ViolaSpin7,
-    /// <summary><c>rinka_spin_ba38</c>, an installed spritemap.</summary>
+    /// <summary><c>rinka_spin_0</c>, an installed spritemap.</summary>
     RinkaSpin0,
-    /// <summary><c>rinka_spin_ba3f</c>, an installed spritemap.</summary>
+    /// <summary><c>rinka_spin_1</c>, an installed spritemap.</summary>
     RinkaSpin1,
-    /// <summary><c>rinka_spin_ba46</c>, an installed spritemap.</summary>
+    /// <summary><c>rinka_spin_2</c>, an installed spritemap.</summary>
     RinkaSpin2,
-    /// <summary><c>rinka_spin_ba4d</c>, an installed spritemap.</summary>
+    /// <summary><c>rinka_spin_3</c>, an installed spritemap.</summary>
     RinkaSpin3,
-    /// <summary><c>rinka_spin_ba54</c>, an installed spritemap.</summary>
+    /// <summary><c>rinka_spin_4</c>, an installed spritemap.</summary>
     RinkaSpin4,
-    /// <summary><c>dead_torizo_stationary_a9_d6e2</c>, an installed spritemap.</summary>
+    /// <summary><c>dead_torizo_stationary</c>, an installed spritemap.</summary>
     DeadTorizoStationary,
     /// <summary><c>dead_zoomer_corpse_0</c>, an installed spritemap.</summary>
     DeadZoomerCorpse0,

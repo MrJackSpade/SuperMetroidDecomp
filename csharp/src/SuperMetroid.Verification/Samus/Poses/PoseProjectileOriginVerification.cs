@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Poses;
 using SuperMetroid.Verification.Harness;
@@ -34,7 +35,7 @@ internal static class PoseProjectileOriginVerification
         InstalledSamusBodyArtwork template = CreateSamusIdentityFixture();
         // The graphics-Y byte only enters as a signed offset, so one artwork fixture per signed
         // byte class covers it.
-        var artwork = SignedByteClasses.Select(art => new InstalledSamusBodyArtwork(new SamusBodyArtworkParts { TopSetStarts = template.TopSetStarts.ToArray(), BottomSetStarts = template.BottomSetStarts.ToArray(), PoseFirstFrames = template.PoseFirstFrames.ToArray(), GraphicsYOffsets = Enumerable.Repeat(unchecked((sbyte)art), InstalledSamusBodyArtwork.PoseCount).ToArray(), Frames = template.Frames.ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTilesContentIdentity = template.DeathTilesContentIdentity, ArmCannon = template.ArmCannon, LandingYOffsets = template.LandingYOffsets.ToArray(), PostureYOffsets = template.PostureYOffsets.ToArray(), DrainedYOffsets = template.DrainedYOffsets.ToArray() }, template.BodyCharactersContentIdentity)).ToArray();
+        var artwork = SignedByteClasses.Select(art => new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = template.TopSetStarts.ToArray(), BottomSetStarts = template.BottomSetStarts.ToArray(), PoseFirstFrames = template.PoseFirstFrames.ToArray(), GraphicsYOffsets = Enumerable.Repeat(unchecked((sbyte)art), InstalledSamusBodyArtwork.PoseCount).ToArray(), Frames = template.Frames.ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTilesContentIdentity = template.DeathTilesContentIdentity, ArmCannon = template.ArmCannon, LandingYOffsets = template.LandingYOffsets.ToArray(), PostureYOffsets = template.PostureYOffsets.ToArray(), DrainedYOffsets = template.DrainedYOffsets.ToArray() }, template.BodyCharactersContentIdentity)).ToArray();
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
             byte expected = rom.ReadCartridgeByte(0x91b629 + pose * 8 + 4);

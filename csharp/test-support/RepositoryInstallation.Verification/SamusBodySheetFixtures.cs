@@ -69,8 +69,8 @@ internal static class SamusBodySheetFixtures
         if (body.BodyCharactersContentIdentity != stock.Body.BodyCharactersContentIdentity)
             throw new InvalidOperationException("A fixture body with its own characters registers them before composing its sheets.");
         return characters.GetValue(body, key => new SamusBodyCharacterArtwork(key,
-            [.. Enumerable.Range(0, InstalledSamusBodyArtwork.TopSetCount).Select(set => stock.TopSet(set).ToArray())],
-            [.. Enumerable.Range(0, InstalledSamusBodyArtwork.BottomSetCount).Select(set => stock.BottomSet(set).ToArray())]));
+            [.. Enumerable.Range(0, SamusBodySources.TopSetCount).Select(set => stock.TopSet(set).ToArray())],
+            [.. Enumerable.Range(0, SamusBodySources.BottomSetCount).Select(set => stock.BottomSet(set).ToArray())]));
     }
 
     /// <summary>The sheets <paramref name="body"/> draws from, with the overlay sheet <paramref name="cannon"/> composes.</summary>

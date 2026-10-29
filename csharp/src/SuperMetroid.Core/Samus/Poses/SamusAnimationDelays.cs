@@ -288,11 +288,6 @@ internal static class SamusAnimationDelays
         };
     }
 
-    /// <summary>How many program bytes follow the start of compiled <paramref name="list"/> before the running cadences.</summary>
-    internal static int BytesToStreamEnd(SamusAnimationDelayList list) => ProgramsByteCount -
-        SamusAnimationDelayPrograms.segments[list.Segment ??
-            throw new ArgumentException("An invalid pose's program is not compiled.", nameof(list))].Offset;
-
     /// <summary>Read an immutable delay/command byte, retaining the reads that land in the transfer queue residue.</summary>
     /// <remarks>
     /// An index wraps within sixteen bits, so a program index past its end reads the following programs. An invalid pose's

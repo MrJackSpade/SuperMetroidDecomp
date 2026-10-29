@@ -10,6 +10,6 @@ internal static class SamusBodyTileTransferAccess
     {
         /// <summary>Derives transfer layout from one upper or lower tile slot and installed body art.</summary>
         internal SamusBodyTileTransfer WithTransferGeometry(SamusBodyCharacterArtwork body, bool upper, int set, int position) =>
-            self.WithTransferGeometry(body, upper, set, position, body.Body.PoseFirstFrames, body.Body.Frames);
+            self.WithTransferGeometry(body, upper, set, position, body.Body.Source.PoseFirstFrames, body.Body.Source.Frames);
     }
 }

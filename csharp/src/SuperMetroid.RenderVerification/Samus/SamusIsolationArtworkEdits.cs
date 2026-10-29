@@ -26,9 +26,9 @@ internal static class SamusIsolationArtworkEdits
             // only each valid DMA character selection, not the compiled delay program.
             foreach (JsonNode? frame in document.Required("frames").AsArray().RequiredElements())
             {
-                if (frame.Required("topSet").GetValue<int>() < InstalledSamusBodyArtwork.TopSetCount)
+                if (frame.Required("topSet").GetValue<int>() < SamusBodySources.TopSetCount)
                     frame["topPosition"] = 0;
-                if (frame.Required("bottomSet").GetValue<int>() < InstalledSamusBodyArtwork.BottomSetCount)
+                if (frame.Required("bottomSet").GetValue<int>() < SamusBodySources.BottomSetCount)
                     frame["bottomPosition"] = 0;
             }
         });

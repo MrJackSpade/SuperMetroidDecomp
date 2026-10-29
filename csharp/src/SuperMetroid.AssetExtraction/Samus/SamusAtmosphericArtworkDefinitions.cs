@@ -18,4 +18,8 @@ internal static class SamusAtmosphericArtworkDefinitions
     /// <remarks>This materially determines visibility against background layers. Only the eight
     /// original attribute words are covered; independent tile pixels, RGB colors and timing are not exempt.</remarks>
     internal const int Priority = 2;
+    /// <summary>The pose-half table entry ($92:808D index $18F) whose composition is the diving splash's first frame; later frames follow it.</summary>
+    internal const int DivingSplashFirstEntry = 0x18f;
+    /// <summary>The pose-half table entry ($92:808D index $186) whose composition is the bubbles' first frame; later frames follow it.</summary>
+    internal const int BubblesFirstEntry = 0x186;
 }

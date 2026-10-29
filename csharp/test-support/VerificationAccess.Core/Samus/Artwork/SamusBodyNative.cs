@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Samus.Artwork;
@@ -38,13 +39,13 @@ internal static class SamusBodyNative
     extension(InstalledSamusBodyArtwork body)
     {
         /// <summary>The bank-$92 address of each upper-body definition group.</summary>
-        internal ushort[] TopSetPointers => [.. body.TopSetStarts.ToArray().Select(RecordPointer)];
+        internal ushort[] TopSetPointers => [.. body.Source.TopSetStarts.ToArray().Select(RecordPointer)];
 
         /// <summary>The bank-$92 address of each lower-body definition group.</summary>
-        internal ushort[] BottomSetPointers => [.. body.BottomSetStarts.ToArray().Select(RecordPointer)];
+        internal ushort[] BottomSetPointers => [.. body.Source.BottomSetStarts.ToArray().Select(RecordPointer)];
 
         /// <summary>The bank-$92 address of each pose's frame list.</summary>
-        internal ushort[] PosePointers => [.. body.PoseFirstFrames.ToArray().Select(FramePointer)];
+        internal ushort[] PosePointers => [.. body.Source.PoseFirstFrames.ToArray().Select(FramePointer)];
 
         /// <summary>The SNES address of the record a native body set and position select.</summary>
         internal int DefinitionAddress(SamusBodyHalf half, int set, int position) =>
@@ -64,11 +65,11 @@ internal static class SamusBodyNative
     /// <summary>Native views of the shown body definitions.</summary>
     extension(SamusBodyFrameState frames)
     {
-        /// <summary>The SNES address of the shown top-half definition record.</summary>
-        internal int TopDefinitionAddress => 0x920000 | RecordPointer(frames.Shown.Top ??
-            throw new InvalidOperationException("No top-half definition is shown."));
+        /// <summary>The SNES address of the definition record the shown top-half picture is.</summary>
+        internal int TopDefinitionAddress => 0x920000 | RecordPointer(SamusBodySources.Record(frames.Shown.Top ??
+            throw new InvalidOperationException("No top-half picture is shown.")));
 
-        /// <summary>The SNES address of the shown bottom-half definition record, or null before any frame named one.</summary>
-        internal int? BottomDefinitionAddress => frames.Shown.Bottom is int bottom ? 0x920000 | RecordPointer(bottom) : null;
+        /// <summary>The SNES address of the definition record the shown bottom-half picture is, or null before any frame named one.</summary>
+        internal int? BottomDefinitionAddress => frames.Shown.Bottom is { } bottom ? 0x920000 | RecordPointer(SamusBodySources.Record(bottom)) : null;
     }
 }

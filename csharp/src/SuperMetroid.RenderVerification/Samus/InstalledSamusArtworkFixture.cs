@@ -44,7 +44,7 @@ internal sealed class InstalledSamusArtworkFixture : IDisposable
             for (int half = 0; half < 2; half++)
             {
                 bool top = half == 0;
-                int sets = top ? InstalledSamusBodyArtwork.TopSetCount : InstalledSamusBodyArtwork.BottomSetCount;
+                int sets = top ? SamusBodySources.TopSetCount : SamusBodySources.BottomSetCount;
                 for (int set = 0; set < sets; set++)
                     Edit($"{(top ? "top" : "bottom")}-{set:X2}.png", 64,
                         (top ? Stock.TopSet(set) : Stock.BottomSet(set)).Count * 16);
@@ -53,8 +53,8 @@ internal sealed class InstalledSamusArtworkFixture : IDisposable
                 SamusArmCannonArtworkFormat.CoverTileCount * 8, 8);
             Edit(SamusDeathTileAtlasFormat.ArtworkFileName,
                 SamusDeathTileAtlasFormat.Width, SamusDeathTileAtlasFormat.Height);
-            EditedPngCount = InstalledSamusBodyArtwork.TopSetCount +
-                InstalledSamusBodyArtwork.BottomSetCount + 2;
+            EditedPngCount = SamusBodySources.TopSetCount +
+                SamusBodySources.BottomSetCount + 2;
             if (editLayout) SamusIsolationArtworkEdits.WriteBody(installation);
             Edited = SamusBodyArtworkFiles.LoadCharacters(installation.SamusBodyDirectory, installation.SamusBodyOverrideDirectory);
             if (Stock.Body.ContentIdentity == Edited.Body.ContentIdentity)

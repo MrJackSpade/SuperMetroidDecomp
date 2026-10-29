@@ -52,10 +52,10 @@ public static class SamusBodyArtworkFiles
         Directory.CreateDirectory(directory);
         ushort[] topPointers = ReadPointers(bus,
             SamusSourceDefinitions.TopDefinitionListPointers.Value,
-            InstalledSamusBodyArtwork.TopSetCount);
+            SamusBodySources.TopSetCount);
         ushort[] bottomPointers = ReadPointers(bus,
             SamusSourceDefinitions.BottomDefinitionListPointers.Value,
-            InstalledSamusBodyArtwork.BottomSetCount);
+            SamusBodySources.BottomSetCount);
         ushort[] posePointers = ReadPointers(bus,
             SamusSourceDefinitions.AnimationDefinitionListPointers.Value,
             InstalledSamusBodyArtwork.PoseCount);
@@ -67,7 +67,7 @@ public static class SamusBodyArtworkFiles
                 SamusSourceDefinitions.PoseDefinitions.Value +
                 pose * SamusSourceDefinitions.PoseDefinitionByteCount + 4)))
             .ToArray();
-        var frames = new SamusBodyFrameSelection[InstalledSamusBodyArtwork.FrameCount];
+        var frames = new SamusBodyFrameSelection[SamusBodySources.FrameCount];
         for (int index = 0; index < frames.Length; index++)
         {
             int address = SamusSourceDefinitions.BodyFrames.Value + index * 4;
@@ -84,7 +84,7 @@ public static class SamusBodyArtworkFiles
         ushort[] spritemapBottomBases = ReadPointers(bus,
             SamusSourceDefinitions.SpritemapBottomBases.Value, InstalledSamusBodyArtwork.PoseCount);
         ushort[] spritemapPointers = ReadPointers(bus,
-            SamusSourceDefinitions.SpritemapPointers.Value, InstalledSamusSpritemaps.EntryCount);
+            SamusSourceDefinitions.SpritemapPointers.Value, SamusSpritemapSources.EntryCount);
         // Compositions install in record order, so a composition's identity is its place among the referenced records.
         ushort[] compositions = [.. spritemapPointers.Distinct().Where(pointer => pointer != 0).Order()];
         SpriteVisualPart[][] spritemaps = [.. compositions.Select(pointer => ReadSpritemap(bus, pointer))];
@@ -188,7 +188,7 @@ public static class SamusBodyArtworkFiles
         {
             int start = pointers[set];
             int order = Array.IndexOf(sortedPointers, pointers[set]);
-            int end = order + 1 == sortedPointers.Length ? SamusSourceDefinitions.FirstBodyDefinition + SamusBodyDefinitionLayout.RecordCount * SamusSourceDefinitions.BodyDefinitionBytes : sortedPointers[order + 1];
+            int end = order + 1 == sortedPointers.Length ? SamusSourceDefinitions.FirstBodyDefinition + SamusBodySources.RecordCount * SamusSourceDefinitions.BodyDefinitionBytes : sortedPointers[order + 1];
             if (start < SnesBusLayout.RomWindowStart || end <= start || (end - start) % 7 != 0)
                 throw new InvalidDataException($"Samus body set {set:X2} has invalid native bounds.");
             int count = (end - start) / 7;
@@ -309,8 +309,8 @@ public static class SamusBodyArtworkFiles
             manifest.SpritemapEntries is null || manifest.Spritemaps is null ||
             manifest.LandingYOffsets is null || manifest.PostureYOffsets is null ||
             manifest.DrainedYOffsets is null ||
-            manifest.Hashes is null || manifest.Top.Length != InstalledSamusBodyArtwork.TopSetCount ||
-            manifest.Bottom.Length != InstalledSamusBodyArtwork.BottomSetCount ||
+            manifest.Hashes is null || manifest.Top.Length != SamusBodySources.TopSetCount ||
+            manifest.Bottom.Length != SamusBodySources.BottomSetCount ||
             manifest.GraphicsYOffsets.Length != InstalledSamusBodyArtwork.PoseCount ||
             manifest.Top.Any(set => set is null || set.Length == 0 || set.Any(entry => entry is null)) ||
             manifest.Bottom.Any(set => set is null || set.Length == 0 || set.Any(entry => entry is null)) ||

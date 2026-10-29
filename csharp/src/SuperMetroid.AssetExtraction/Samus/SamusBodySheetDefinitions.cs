@@ -13,4 +13,7 @@ internal static class SamusBodySheetDefinitions
 
     /// <summary>The columns of each character row the top half holds; the bottom half holds the rest of the row.</summary>
     internal const int TopHalfColumns = 8;
+
+    /// <summary>The animation frames a pose's body pictures are covered for: the animation frame is a byte.</summary>
+    internal const int AnimationFrames = 256;
 }

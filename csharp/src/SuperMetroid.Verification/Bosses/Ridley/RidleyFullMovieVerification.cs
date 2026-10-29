@@ -949,8 +949,11 @@ internal static class RidleyFullMovieVerification
             return words.ToArray();
         }
         int pairedBodyDraws = 0, phaseShiftedBodyDraws = 0, retainedHiddenBodyRecords = 0;
+        // The body records the pose half and frame it drew; the cartridge's index for that picture is compared.
+        int SpritemapIndex(SamusBodyHalfFrame? drawn) => SamusSpritemapNative.Index(samus.Presentation.BodyFrames.Artwork?.Spritemaps ??
+            throw new InvalidOperationException("Verification requires installed Samus spritemaps."), drawn);
         BodyRecordResult BodyRecord() =>
-            new BodyRecordResult(samus.Presentation.TopSpritemapIndex, samus.Presentation.BottomSpritemapIndex,
+            new BodyRecordResult(SpritemapIndex(samus.Presentation.TopSpritemap), SpritemapIndex(samus.Presentation.BottomSpritemap),
                 samus.Presentation.SpritemapPosition.X, samus.Presentation.SpritemapPosition.Y);
         var previousBodyRecord = BodyRecord();
         for (int frame = 0; frame <= length; frame++)
@@ -1030,8 +1033,8 @@ internal static class RidleyFullMovieVerification
                 // origin/indices. Compare newly published records when both draws execute.
                 if (frame == 0 || (nativeBodyVisible && normalizedBodyVisible))
                 {
-                    Check("Samus top spritemap", samus.Presentation.TopSpritemapIndex, NativeSnapshotMemory.SamusTopSpritemap);
-                    Check("Samus bottom spritemap", samus.Presentation.BottomSpritemapIndex, NativeSnapshotMemory.SamusBottomSpritemap);
+                    Check("Samus top spritemap", SpritemapIndex(samus.Presentation.TopSpritemap), NativeSnapshotMemory.SamusTopSpritemap);
+                    Check("Samus bottom spritemap", SpritemapIndex(samus.Presentation.BottomSpritemap), NativeSnapshotMemory.SamusBottomSpritemap);
                     Check("Samus sprite X", samus.Presentation.SpritemapPosition.X, NativeSnapshotMemory.SamusSpriteX);
                     Check("Samus sprite Y", samus.Presentation.SpritemapPosition.Y, NativeSnapshotMemory.SamusSpriteY);
                 }

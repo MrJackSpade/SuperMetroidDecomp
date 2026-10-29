@@ -43,7 +43,7 @@ internal static class SamusBodyArtworkVerification
             AssertEqual(unchecked((sbyte)bus.ReadCartridgeByte(graphicsAddress)),
                 stock.GraphicsYOffset((SamusPoseId)pose), $"Samus pose {pose:X2} visual Y origin");
         }
-        for (int index = 0; index < InstalledSamusBodyArtwork.FrameCount; index++)
+        for (int index = 0; index < SamusBodySources.FrameCount; index++)
         {
             int address = InstalledSamusBodyArtwork.FirstFrameAddress + index * 4;
             SamusBodyFrameSelection frame = stock.Frames[index];
@@ -55,7 +55,7 @@ internal static class SamusBodyArtworkVerification
         for (int half = 0; half < 2; half++)
         {
             bool upper = half == 0;
-            int setCount = upper ? InstalledSamusBodyArtwork.TopSetCount : InstalledSamusBodyArtwork.BottomSetCount;
+            int setCount = upper ? SamusBodySources.TopSetCount : SamusBodySources.BottomSetCount;
             int pointerTable = upper ? 0x92D91E : 0x92D938;
             for (int set = 0; set < setCount; set++)
             {
@@ -94,10 +94,10 @@ internal static class SamusBodyArtworkVerification
         }
         var spritemapGuard = NewFrontendCartridgeReadGuard(bus);
         int nonzeroSpritemaps = 0;
-        ushort[] nativePointers = [.. Enumerable.Range(0, InstalledSamusSpritemaps.EntryCount).Select(index =>
+        ushort[] nativePointers = [.. Enumerable.Range(0, SamusSpritemapSources.EntryCount).Select(index =>
             CartridgeImportSource.Require(bus).ReadCartridgeWord(InstalledSamusSpritemaps.PointerTableAddress + index * 2))];
         SamusSpritemapId?[] nativeEntries = SamusSpritemapNative.Entries(nativePointers);
-        for (int index = 0; index < InstalledSamusSpritemaps.EntryCount; index++)
+        for (int index = 0; index < SamusSpritemapSources.EntryCount; index++)
         {
             ushort pointer = nativePointers[index];
             AssertEqual(nativeEntries[index], sprites.Entries[index], $"Samus OAM pointer index {index}");
@@ -305,11 +305,12 @@ internal static class SamusBodyArtworkVerification
             var frames = new SamusBodyFrameState();
             frames.BindArtwork(stock);
             frames.Select((SamusPoseId)pose, 0);
-            SamusBodyFrameSelection selection = stock.Frame((SamusPoseId)pose, 0);
-            AssertEqual(stock.DefinitionRecord(SamusBodyHalf.Top, selection.TopSet, selection.TopPosition),
-                frames.Shown.Top ?? -1, $"Samus pose {pose:X2} shows its frame-zero top definition");
+            // The pictures shown are the definition records the cartridge's frame-zero selector names (#1465).
+            SamusBodyFrameSelection selection = stock.Selection((SamusPoseId)pose, 0);
+            AssertEqual(SamusBodySources.Picture(stock.DefinitionRecord(SamusBodyHalf.Top, selection.TopSet, selection.TopPosition)),
+                frames.Shown.Top, $"Samus pose {pose:X2} shows its frame-zero top definition");
             AssertEqual(selection.NamesBottom
-                    ? stock.DefinitionRecord(SamusBodyHalf.Bottom, selection.BottomSet, selection.BottomPosition) : null,
+                    ? SamusBodySources.Picture(stock.DefinitionRecord(SamusBodyHalf.Bottom, selection.BottomSet, selection.BottomPosition)) : null,
                 frames.Shown.Bottom, $"Samus pose {pose:X2} shows its frame-zero bottom definition, or none before any is named");
         }
 

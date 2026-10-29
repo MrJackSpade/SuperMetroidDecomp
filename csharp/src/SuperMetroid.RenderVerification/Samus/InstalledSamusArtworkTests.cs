@@ -92,7 +92,7 @@ internal static class InstalledSamusArtworkTests
         for (int half = 0; half < 2; half++)
         {
             bool upper = half == 0;
-            int sets = upper ? InstalledSamusBodyArtwork.TopSetCount : InstalledSamusBodyArtwork.BottomSetCount;
+            int sets = upper ? SamusBodySources.TopSetCount : SamusBodySources.BottomSetCount;
             // A definition's first part fills a half row (top from character 0, bottom from 8), its second the half row below.
             int firstCharacter = upper ? 0 : SpriteArtwork.CharactersPerRow / 2;
             int secondCharacter = firstCharacter + SpriteArtwork.CharactersPerRow;
@@ -106,10 +106,11 @@ internal static class InstalledSamusArtworkTests
                     SamusBodyTileTransfer a = stock[position], b = edited[position];
                     Require(a.FirstSize == b.FirstSize && a.SecondSize == b.SecondSize,
                         "PNG changed definition split size");
-                    int record = fixture.Stock.Body.DefinitionRecord(upper ? SamusBodyHalf.Top : SamusBodyHalf.Bottom, (byte)set, (byte)position);
+                    SamusBodyPicture picture = SamusBodySources.Picture(fixture.Stock.Body.DefinitionRecord(
+                        upper ? SamusBodyHalf.Top : SamusBodyHalf.Bottom, (byte)set, (byte)position));
                     var va = new SnesVram(); var vb = new SnesVram();
-                    va.LoadBytes(ObjectCharacterByte(0), fixture.Stock.BodyArtwork(upper ? record : null, upper ? null : record).Characters);
-                    vb.LoadBytes(ObjectCharacterByte(0), fixture.Edited.BodyArtwork(upper ? record : null, upper ? null : record).Characters);
+                    va.LoadBytes(ObjectCharacterByte(0), fixture.Stock.BodyArtwork(upper ? picture : null, upper ? null : picture).Characters);
+                    vb.LoadBytes(ObjectCharacterByte(0), fixture.Edited.BodyArtwork(upper ? picture : null, upper ? null : picture).Characters);
                     var oam = TileGallery(ObjectCharacterWord(firstCharacter), a.FirstSize, ObjectCharacterWord(secondCharacter), a.SecondSize);
                     check.Pair(va, vb, oam, $"{(upper ? "top" : "bottom")}/{set:X2}/{position:X2}");
                     count++;

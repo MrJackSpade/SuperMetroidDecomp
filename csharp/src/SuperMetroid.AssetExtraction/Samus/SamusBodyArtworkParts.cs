@@ -1,6 +1,12 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 
-/// <summary>Samus's body pointer tables, frame selections, offsets and dependent artwork catalogs (#633).</summary>
+namespace SuperMetroid.AssetExtraction.Samus;
+
+/// <summary>
+/// Samus's body as the import reads it (#633, #1465): the cartridge's definition-group starts, per-pose frame lists and
+/// frame selections, from which the import resolves the half pictures each pose frame shows, with the offsets and
+/// dependent artwork catalogs.
+/// </summary>
 public sealed record SamusBodyArtworkParts
 {
     /// <summary>Each upper-body definition group's first record.</summary>
@@ -18,7 +24,7 @@ public sealed record SamusBodyArtworkParts
     /// <summary>The contiguous native frame-selector interval.</summary>
     public required SamusBodyFrameSelection[] Frames { get; init; }
 
-    /// <summary>Which body picture each pose-half table entry selects.</summary>
+    /// <summary>Which body picture each pose half shows at each animation frame.</summary>
     public required InstalledSamusSpritemaps Spritemaps { get; init; }
 
     /// <summary>The selected appearance of the atmospheric effects.</summary>

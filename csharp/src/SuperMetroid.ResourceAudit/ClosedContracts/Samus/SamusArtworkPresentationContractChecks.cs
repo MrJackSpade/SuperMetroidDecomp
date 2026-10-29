@@ -30,12 +30,12 @@ internal static class SamusArtworkPresentationContractChecks
                     body.TryPostureYOffset(-1, out _);
                     body.TryDrainedYOffset(int.MaxValue, out _);
                     body.Frame(0, 0);
-                    sprites.TopBase((SuperMetroid.Core.Samus.Poses.SamusPoseId)252);
-                    sprites.TopBase((SuperMetroid.Core.Samus.Poses.SamusPoseId)253);
-                    sprites.BottomBase((SuperMetroid.Core.Samus.Poses.SamusPoseId)252);
-                    sprites.BottomBase((SuperMetroid.Core.Samus.Poses.SamusPoseId)253);
-                    compositions.TryGet(InstalledSamusSpritemaps.EntryCount - 1, out _);
-                    compositions.TryGet(InstalledSamusSpritemaps.EntryCount, out _);
+                    sprites.TryGetComposition(new SamusBodyHalfFrame((SuperMetroid.Core.Samus.Poses.SamusPoseId)252, SamusBodyHalf.Top, 0), out _);
+                    sprites.TryGetComposition(new SamusBodyHalfFrame((SuperMetroid.Core.Samus.Poses.SamusPoseId)253, SamusBodyHalf.Top, 0), out _);
+                    sprites.TryGetFrameKey(new SamusBodyHalfFrame((SuperMetroid.Core.Samus.Poses.SamusPoseId)252, SamusBodyHalf.Bottom, 0), default, out _);
+                    sprites.TryGetFrameKey(new SamusBodyHalfFrame((SuperMetroid.Core.Samus.Poses.SamusPoseId)253, SamusBodyHalf.Bottom, 0), default, out _);
+                    compositions.TryGet(SamusSpritemapSources.EntryCount - 1, out _);
+                    compositions.TryGet(SamusSpritemapSources.EntryCount, out _);
                     atmosphere.TryResolve(byte.MaxValue, byte.MaxValue, out _);
                     arm.PoseDescriptor(252);
                     arm.PoseDescriptor(253);
@@ -82,7 +82,7 @@ internal static class SamusArtworkPresentationContractChecks
         }
         AuditReport partial = Inspect(Compile(trees.Append(CSharpSyntaxTree.ParseText("""
             namespace SuperMetroid.Core.Samus.Artwork {
-                public sealed partial class InstalledSamusBodyArtwork { void Change() { graphicsYOffsets[0] = 0; } }
+                public abstract partial class InstalledSamusBodyArtwork { void Change() { graphicsYOffsets[0] = 0; } }
             }
             """, path: "fixture-extra-body-partial.cs"))), true);
         Require(partial.Classifications.Count == 7 && partial.UnresolvedCount == 13,

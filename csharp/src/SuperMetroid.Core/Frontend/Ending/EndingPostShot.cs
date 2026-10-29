@@ -32,11 +32,11 @@ internal sealed class EndingPostShot
         ScreenPalette colours = screen.Palette;
         if (ReadyForWhiteFlash) throw new InvalidOperationException("Post-shot white-flash handoff must be consumed.");
         calls++;
-        ApplyFade(colours.SpriteRow(EndingColourRowDefinitions.ShootingSpriteRow),
+        ApplyFade(colours.Colours(ScreenColourGroup.EndingShot),
             Math.Min(calls, EndingPostShotDefinitions.FadeFrames));
         int samusFade = Math.Clamp(calls - EndingPostShotDefinitions.SamusFadeDelay, 0,
             EndingPostShotDefinitions.FadeFrames);
-        ApplyFade(colours.SpriteRow(EndingColourRowDefinitions.SamusSpriteRow), samusFade);
+        ApplyFade(colours.Colours(ScreenColourGroup.EndingShootingSamus), samusFade);
         if (!RotationFinished)
         {
             Angle = Angle.AddTableUnits(-EndingPostShotDefinitions.AngleStep);
@@ -58,7 +58,7 @@ internal sealed class EndingPostShot
         }
     }
 
-    /// <summary>Fades one row from its captured colours using the 32-step component progression.</summary>
+    /// <summary>Fades one colour group from its captured colours using the 32-step component progression.</summary>
     private void ApplyFade(ColourRun row, int elapsed)
     {
         int remaining = EndingPostShotDefinitions.FadeFrames - elapsed;

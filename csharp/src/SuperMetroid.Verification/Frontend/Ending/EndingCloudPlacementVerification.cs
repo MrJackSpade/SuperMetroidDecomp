@@ -38,7 +38,7 @@ internal static class EndingCloudPlacementVerification
             EndingActorDefinitions.EscapeBCloudTopB, EndingActorDefinitions.EscapeBCloudBottomA,
             EndingActorDefinitions.EscapeBCloudBottomB];
         var actors = definitions.Select((definition, index) => new EndingSprite(
-            new IntroDiscoverySprite(new(128, unchecked((ushort)nativeY[index])), definition.Palette,
+            new IntroDiscoverySprite(new(128, unchecked((ushort)nativeY[index])), ScreenColourGroups.SpriteRow(definition.Colouring),
                 definition.Program), roles[index])).ToArray();
         var cloudSprites = CinematicSheetFixtures.Drawer(RepositoryInstallation.Installation.LoadEndingObjectArt().CloudSprites);
         int checkedFrames = 0;

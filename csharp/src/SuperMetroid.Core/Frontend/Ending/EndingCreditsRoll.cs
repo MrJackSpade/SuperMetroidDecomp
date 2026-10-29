@@ -66,8 +66,7 @@ internal sealed class EndingCreditsRoll
     {
         // F6FE copies Intro4 colors $04-$FF, disables text glow, forces blank, and arms
         // function 129 for sixty calls. Preserve colors zero through three as native does.
-        _stage.LoadStaticPalette(EndingPaletteId.PostCredits, screen.Palette.All.Slice(EndingColourRowDefinitions.PostCreditsKeptColours,
-            ScreenPalette.ColorCount - EndingColourRowDefinitions.PostCreditsKeptColours));
+        _stage.LoadStaticPalette(EndingPaletteId.PostCredits, screen.Palette.Colours(ScreenColourGroup.EndingPostCreditsRestored));
         _stage.Brightness = 0;
         UploadPostCreditsTilemap();
         _stage.PhaseTimer = 60;
@@ -101,7 +100,7 @@ internal sealed class EndingCreditsRoll
 
     /// <summary>Fades the post-credits waiting backdrop toward its authored palette.</summary>
     internal void ApplyWaitingBackdropPalette(int step)
-        => ApplyPostCreditsPaletteRange(screen.Palette.BackgroundRow(EndingColourRowDefinitions.WaitingBackgroundRow), step);
+        => ApplyPostCreditsPaletteRange(screen.Palette.Colours(ScreenColourGroup.EndingWaitingBackdrop), step);
 
     /// <summary>Interpolation step for suitless or helmetless reward colors.</summary>
     private int rewardPaletteStep;
@@ -111,9 +110,9 @@ internal sealed class EndingCreditsRoll
     {
         if (_stage.EndingReward == EndingReward.Armored) return;
         ApplyWaitingBackdropPalette(EndingSequenceDefinitions.Timing.WaitingPaletteFadeFrames - rewardPaletteStep);
-        ApplyPostCreditsPaletteRange(screen.Palette.SpriteRow(EndingColourRowDefinitions.SuitlessRewardSpriteRow), rewardPaletteStep);
+        ApplyPostCreditsPaletteRange(screen.Palette.Colours(ScreenColourGroup.EndingSuitlessSamus), rewardPaletteStep);
         if (_stage.EndingReward == EndingReward.Helmetless)
-            ApplyPostCreditsPaletteRange(screen.Palette.SpriteRow(EndingColourRowDefinitions.SuitedRewardSpriteRow), rewardPaletteStep);
+            ApplyPostCreditsPaletteRange(screen.Palette.Colours(ScreenColourGroup.EndingSuitedSamus), rewardPaletteStep);
     }
 
     /// <summary>Fades one post-credits row toward its authored colours with 8.8 component truncation.</summary>
@@ -148,7 +147,7 @@ internal sealed class EndingCreditsRoll
         CurrentPostShot = null;
         // E48A restores the shooting palette and selects BG1SC=$4E: the final
         // text map is two screens tall, not the credits' single-screen map.
-        _stage.LoadStaticPalette(EndingPaletteId.PostCredits, screen.Palette.SpriteRow(EndingColourRowDefinitions.ShootingSpriteRow));
+        _stage.LoadStaticPalette(EndingPaletteId.PostCredits, screen.Palette.Colours(ScreenColourGroup.EndingShot));
         PostCreditsTextTilemap = EndingTextTilemap.FinalText;
         PostCreditsMapHeight = EndingPostShotDefinitions.FinalTextMapHeight;
         _stage.PostCreditsScroll = Position16<TilePlanePixels>.Zero;

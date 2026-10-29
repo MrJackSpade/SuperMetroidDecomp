@@ -47,8 +47,8 @@ internal sealed class EndingFlyaway
     {
         // Func120 clears the explosion flash's backdrop and transparent palette entries.
         screen.Palette.Backdrop = RgbColor.Black;
-        screen.Palette.BackgroundRow(EndingColourRowDefinitions.LogoBackgroundRow).Write(0, RgbColor.Black);
-        screen.Palette.SpriteRow(EndingColourRowDefinitions.ClearedSpriteRow).Write(0, RgbColor.Black);
+        screen.Palette.Colours(ScreenColourGroup.EndingFlashBackgroundTransparent).Fill(RgbColor.Black);
+        screen.Palette.Colours(ScreenColourGroup.EndingFlashSpriteTransparent).Fill(RgbColor.Black);
         _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.PlanetAfterglow, 0);
         _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.GunshipEmergence, 0);
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(unchecked((ushort)-72)), new(unchecked((ushort)-104), 0));
@@ -94,7 +94,7 @@ internal sealed class EndingFlyaway
             if (crittersEscaped)
             {
                 _stage.SpawnSprite(new(EndingAnimalEscapeDefinitions.Origin, EndingAnimalEscapeDefinitions.Origin),
-                    EndingAnimalEscapeDefinitions.Palette, CinematicSpriteProgram.EndingAnimalEscape,
+                    ScreenColourGroup.EndingAnimalEscape, CinematicSpriteProgram.EndingAnimalEscape,
                     EndingSpriteRole.AnimalEscape);
                 IntroDiscoverySprite pod = sprites[^1].Sprite;
                 pod.GeneralTimer = EndingAnimalEscapeDefinitions.GeneralTimer;
@@ -121,7 +121,7 @@ internal sealed class EndingFlyaway
         if (_stage.FloorZoom < EndingMotionDefinitions.PlanetExitScale)
         {
             _stage.LoadStaticPalette(EndingPaletteId.FinalGunship,
-                screen.Palette.BackgroundRow(EndingColourRowDefinitions.FinalGunshipBackgroundRow), 0);
+                screen.Palette.Colours(ScreenColourGroup.EndingFinalGunship), 0);
             _stage.SpawnSprite(
                 EndingActorDefinitions.OperationWasText,
                 EndingSpriteRole.OperationWasText);

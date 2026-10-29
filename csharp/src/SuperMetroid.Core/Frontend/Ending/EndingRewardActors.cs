@@ -26,13 +26,13 @@ internal static class EndingRewardActors
         _ => throw new InvalidOperationException($"Undefined {nameof(EndingRewardActor)} {definition}."),
     };
 
-    /// <summary>The starting position and palette bits each reward initialization gives its actor.</summary>
+    /// <summary>The starting position and screen colours each reward initialization gives its actor.</summary>
     public static EndingRewardActorInitializationDefinition GetInitialization(EndingRewardInitialization initialization) => initialization switch
     {
-        EndingRewardInitialization.Suitless => new(new(120, 136), 5),
-        EndingRewardInitialization.SuitedBody => new(new(120, 152), 6),
-        EndingRewardInitialization.HelmetedHead => new(new(124, 108), 6),
-        EndingRewardInitialization.HelmetlessHead => new(new(121, 107), 5),
+        EndingRewardInitialization.Suitless => new(new(120, 136), ScreenColourGroup.EndingSuitlessSamus),
+        EndingRewardInitialization.SuitedBody => new(new(120, 152), ScreenColourGroup.EndingSuitedSamus),
+        EndingRewardInitialization.HelmetedHead => new(new(124, 108), ScreenColourGroup.EndingSuitedSamus),
+        EndingRewardInitialization.HelmetlessHead => new(new(121, 107), ScreenColourGroup.EndingSuitlessSamus),
         _ => throw new InvalidOperationException($"Undefined {nameof(EndingRewardInitialization)} {initialization}."),
     };
 }

@@ -58,6 +58,11 @@ public sealed class EndingPalette
             colorBytes.AsSpan(index * RgbColor.ByteCount)));
     }
 
+    /// <summary>The logo crossfade's colour <paramref name="colour"/> of <paramref name="layer"/> at crossfade step <paramref name="step"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The step or colour is outside the crossfade, or this resource is shorter than one.</exception>
+    internal RgbColor LogoCrossfadeColour(int step, EndingLogoLayer layer, int colour) =>
+        Color(EndingLogoPaletteFade.Position(step, layer, colour));
+
     /// <summary>Changes <paramref name="destination"/> to this resource's colours from <paramref name="sourceColor"/>.</summary>
     /// <param name="destination">The screen colours to change; the others keep theirs.</param>
     /// <param name="sourceColor">Zero-based starting color in this resource.</param>

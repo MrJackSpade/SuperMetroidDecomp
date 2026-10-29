@@ -82,7 +82,7 @@ internal sealed class EndingStage
     /// <summary>Allocates or replaces a native cinematic actor slot, reserving fixed slots for stars, afterglow and animals.</summary>
     internal void SpawnSprite(
         Position16<ScreenPixels> position,
-        int palette,
+        ScreenColourGroup colouring,
         CinematicSpriteProgram program,
         EndingSpriteRole role)
     {
@@ -105,7 +105,7 @@ internal sealed class EndingStage
         };
         if (slot < 0) throw new InvalidOperationException("Ending cinematic actor slots exhausted.");
         sprites.RemoveAll(actor => actor.TraversalSlot == slot);
-        sprites.Add(new EndingSprite(new IntroDiscoverySprite(position, palette, program), role)
+        sprites.Add(new EndingSprite(new IntroDiscoverySprite(position, ScreenColourGroups.SpriteRow(colouring), program), role)
             { TraversalSlot = slot });
         if (role == EndingSpriteRole.ExplosionStarsLeft)
             sprites[^1].Sprite.InstallPreInstruction(CinematicSpritePreInstruction.ZebesExplosionStarsWaitForFlyaway);
@@ -115,7 +115,7 @@ internal sealed class EndingStage
     internal void SpawnSprite(EndingSpriteDefinition definition, EndingSpriteRole role) =>
         SpawnSprite(
             definition.Position,
-            definition.Palette,
+            definition.Colouring,
             definition.Program,
             role);
 

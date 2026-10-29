@@ -82,6 +82,9 @@ internal enum ScreenColourGroup
     /// <summary>The Ceres destruction's explosions' colours.</summary>
     CeresExplosions,
 
+    /// <summary>The ending clear-time digits' and colon's colours.</summary>
+    EndingClearTimeDigits,
+
     /// <summary>The ending clear-time label's colours.</summary>
     EndingTimeLabel,
 
@@ -127,6 +130,12 @@ internal enum ScreenColourGroup
     /// <summary>The ending logo's sprite colours, which the logo crossfade darkens.</summary>
     EndingLogoSprites,
 
+    /// <summary>
+    /// Every post-credits colour the post-credits scenes load from their own colours: all but the first few background
+    /// colours, which keep the credits' colours.
+    /// </summary>
+    EndingPostCreditsRestored,
+
     /// <summary>The post-credits waiting backdrop's colours.</summary>
     EndingWaitingBackdrop,
 
@@ -135,6 +144,9 @@ internal enum ScreenColourGroup
 
     /// <summary>The colours of suited Samus in the post-credits reward.</summary>
     EndingSuitedSamus,
+
+    /// <summary>The colours of Samus as she falls back down in the suitless post-credits jump.</summary>
+    EndingFallingSamus,
 
     /// <summary>The colours of Samus as she shoots at the end of the post-credits reward, which fade out after the shot.</summary>
     EndingShootingSamus,

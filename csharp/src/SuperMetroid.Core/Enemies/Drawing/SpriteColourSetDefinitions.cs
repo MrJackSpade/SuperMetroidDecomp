@@ -31,11 +31,10 @@ internal static class SpriteColourSetDefinitions
     /// <summary>The set the Ninja Space Pirates' gold wall colours load into.</summary>
     public const int NinjaSpacePirate = 7;
 
-    /// <summary>The shared set each role row holds, which a row imported or recorded as a number denotes.</summary>
-    public static IReadOnlyDictionary<int, SharedSpriteColouring> RoleRows { get; } = new Dictionary<int, SharedSpriteColouring>
-    {
-        [Common] = SharedSpriteColouring.Common,
-        [EnemyProjectiles] = SharedSpriteColouring.EnemyProjectiles,
-        [Frozen] = SharedSpriteColouring.Frozen,
-    };
+    /// <summary>
+    /// The set a Ninja Space Pirate's divekick flashes back to and lands in. The Metal Pirates room loads the gold
+    /// Ninja Space Pirates' own colours there; the escape's Climb loads its silver one into the next set, so there the
+    /// divekick leaves it in whatever colours this set holds, as on the cartridge.
+    /// </summary>
+    public const int NinjaSpacePirateStance = 1;
 }

@@ -2,7 +2,8 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// The colours a sprite palette row holds where what they are is not yet named (#1464): a frontend screen's sprite row,
-/// which the screen's colour owners will name, and the actor sites the species slice has still to name. It is the one
+/// which the screen's colour owners will name. Gameplay actors no longer draw in it; verification still gives it to
+/// actors as a fixture colouring and decodes native rows that no member or shared role names into it. It is the one
 /// colouring still identified by a row, and it is removed as those owners are named.
 /// </summary>
 /// <param name="Row">The sprite palette row, 0 through <see cref="SpriteImage.MaximumPaletteRow"/>.</param>

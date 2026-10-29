@@ -54,7 +54,7 @@ internal static class NinjaSpacePirateNativeListAddresses
     internal static readonly Dictionary<ushort, NativeCueShape<NinjaSpacePirateCue>> Instructions = new()
     {
         [0xef83] = NativeCueShape<NinjaSpacePirateCue>.Of<NinjaSpacePirateCue.SetFunction>("E"),
-        [0xf536] = NativeCueShape<NinjaSpacePirateCue>.Of<NinjaSpacePirateCue.SetPalette>("V"),
+        [0xf536] = NativeCueShape<NinjaSpacePirateCue>.Of<NinjaSpacePirateCue.SetColouring>("V"),
         [0xf546] = NativeCueShape<NinjaSpacePirateCue>.Of<NinjaSpacePirateCue.PlaySound>("V"),
         [0xf564] = NativeCueShape<NinjaSpacePirateCue>.Of<NinjaSpacePirateCue.ThrowClaw>("VSY"),
         [0xf590] = NativeCueShape<NinjaSpacePirateCue>.Exactly(new NinjaSpacePirateCue.Command(NinjaSpacePirateCueKind.StartActive)),

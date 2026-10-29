@@ -25,7 +25,8 @@ internal static class NinjaSpacePirateAnimationsVerification
                     'V' => cue switch
                     {
                         NinjaSpacePirateCue.PlaySound playSound => (ushort)SoundEffectCommands.Command(playSound.Sound ?? throw new InvalidOperationException($"{at}: a sound cue carries no sound.")),
-                        NinjaSpacePirateCue.SetPalette setPalette => SuperMetroid.Core.Assets.NativeSpriteGraphicsWords.PaletteBits(setPalette.Palette ?? throw new InvalidOperationException($"{at}: a palette cue carries no palette.")),
+                        // A colouring cue's operand is the palette word of the row its shared set occupies.
+                        NinjaSpacePirateCue.SetColouring setColouring => SuperMetroid.Core.Assets.NativeSpriteGraphicsWords.PaletteBits(SuperMetroid.Core.Enemies.Drawing.SpriteColouringRows.FixedRow(setColouring.Colouring ?? throw new InvalidOperationException($"{at}: a colouring cue carries no colouring."))),
                         NinjaSpacePirateCue.ThrowClaw throwClaw => throwClaw.Throw == HorizontalDirection.Right ? (ushort)1 : (ushort)0,
                         NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.ResetSpeed } or NinjaSpacePirateCue.SetFunction or NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.StartActive } or NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.StartLeftDivekick } or NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.StartRightDivekick } => throw new InvalidOperationException($"{at}: {cue} has no word operand."),
                         _ => throw new InvalidOperationException($"{at}: {cue} has no word operand."),

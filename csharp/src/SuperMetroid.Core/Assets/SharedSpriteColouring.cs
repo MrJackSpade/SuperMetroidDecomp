@@ -16,4 +16,9 @@ internal sealed record SharedSpriteColouring(SharedSpriteColours Set) : SpriteCo
     /// <summary>The colours dead Sidehoppers fade in.</summary>
     internal static SharedSpriteColouring DeadSidehopperFade { get; } = new(SharedSpriteColours.DeadSidehopperFade);
 
+    /// <summary>The gold wall colours a Ninja Space Pirate's divekick flashes in.</summary>
+    internal static SharedSpriteColouring NinjaSpacePirateGoldWall { get; } = new(SharedSpriteColours.NinjaSpacePirateGoldWall);
+
+    /// <summary>The colours a Ninja Space Pirate's divekick flashes back to and lands in.</summary>
+    internal static SharedSpriteColouring NinjaSpacePirateStance { get; } = new(SharedSpriteColours.NinjaSpacePirateStance);
 }

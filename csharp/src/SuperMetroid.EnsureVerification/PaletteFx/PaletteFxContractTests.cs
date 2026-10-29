@@ -13,8 +13,11 @@ namespace SuperMetroid.EnsureVerification.PaletteFx;
 /// <summary>Checks that palette FX execution requires a supplied color source at compile and runtime.</summary>
 internal static class PaletteFxContractTests
 {
-    /// <summary>The gunship engine writes CGRAM word index <c>$00BE</c>.</summary>
-    private const ushort GunshipEngineColorIndex = 0x00be;
+    /// <summary>The background set whose last colour the gunship engine's flicker writes first.</summary>
+    private const int GunshipEngineSet = 5;
+
+    /// <summary>The colour of <see cref="GunshipEngineSet"/> the gunship engine's flicker writes first.</summary>
+    private const int GunshipEngineColour = 15;
 
     /// <summary>
     /// Confirms #1152's required color dependency using compiler-only fixtures.
@@ -52,9 +55,8 @@ internal static class PaletteFxContractTests
         var fxSession = new PaletteFxSessionState();
         var fx = new RoomPaletteFxSystem(fxSession);
         fx.SpawnDefinition(PaletteFxObject.CutsceneGunshipEngineFlicker, 0);
-        int colorIndex = GunshipEngineColorIndex / sizeof(ushort);
         fx.Step(new SuperMetroid.Core.Runtime.GameplayPaletteFxColours(cgram, samus), new ContractPaletteColors(), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-        if (cgram.Colors[colorIndex] != new RgbColor(31, 0, 0) || fx.ActiveCount != 1)
+        if (cgram.BackgroundSets.Set(GunshipEngineSet)[GunshipEngineColour] != new RgbColor(31, 0, 0) || fx.ActiveCount != 1)
             throw new InvalidOperationException("The first palette step did not paint the supplied colors.");
         Console.WriteLine("#1152: eight compiler dependency contracts and the supplied-colors step pass; no gameplay search.");
     }

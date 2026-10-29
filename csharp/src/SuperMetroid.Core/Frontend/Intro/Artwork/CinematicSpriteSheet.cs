@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>
 /// Draws one cinematic family's frames from its screen's sprite sheet (#1392): each pose's frame, its palette-inheriting
-/// parts in the row a draw's palette selects, read from the origin as the chosen spritemap loader reads it.
+/// parts in the screen colours a draw names, read from the origin as the chosen spritemap loader reads it.
 /// </summary>
 /// <param name="sheet">The screen's sprite sheet.</param>
 /// <param name="family">The family whose frames are drawn.</param>
@@ -14,11 +14,11 @@ internal sealed class CinematicSpriteSheet(SpriteSheet sheet, CinematicSpriteFam
     internal static string FrameName(CinematicSpriteFamily family, CinematicSpritePose pose) => $"{family}.{pose.Index}";
 
     /// <inheritdoc/>
-    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<SpritePixels> origin, int palette, bool originIsOnScreen) =>
+    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<SpritePixels> origin, ScreenColourGroup colouring, bool originIsOnScreen) =>
         Ensure.NotNull(objects).AddImage(Ensure.NotNull(sheet).Frame(FrameName(family, pose)), origin,
-            FrontendSheetPalette.Override(palette), originIsOnScreen ? SpriteOrigin.OnScreen : SpriteOrigin.OffScreen);
+            ScreenSpriteColouring.Drawn(colouring), originIsOnScreen ? SpriteOrigin.OnScreen : SpriteOrigin.OffScreen);
 
     /// <summary>Draws <paramref name="pose"/>'s frame through the on-screen loader.</summary>
-    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<SpritePixels> origin, int palette) =>
-        Draw(pose, objects, origin, palette, originIsOnScreen: true);
+    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<SpritePixels> origin, ScreenColourGroup colouring) =>
+        Draw(pose, objects, origin, colouring, originIsOnScreen: true);
 }

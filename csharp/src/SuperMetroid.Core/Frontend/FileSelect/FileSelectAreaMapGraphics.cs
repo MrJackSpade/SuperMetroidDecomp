@@ -137,8 +137,7 @@ public sealed class FileSelectAreaMapGraphics
     /// <summary>Loads the selected area's installed world colors into menu CGRAM.</summary>
     private void LoadInstalledPalette(AreaId selectedArea)
     {
-        var colors = Palettes.World(selectedArea);
-        screen.Palette.Load(colors);
+        Palettes.World(selectedArea).LoadTo(screen.Palette);
     }
 
     /// <summary>Builds title and valid used-station labels in display order, highlighting the selected area.</summary>
@@ -150,7 +149,7 @@ public sealed class FileSelectAreaMapGraphics
         entries.BeginFrame();
         if (labels is null || mapSheet is null)
             throw new InvalidOperationException("World-map labels require installed layout and sprite assets.");
-        Draw(MapSpriteId.WorldTitle, new(128, 16), 0);
+        Draw(MapSpriteId.WorldTitle, new(128, 16), ScreenColourGroup.MapLabels);
         for (int displayArea = 0; displayArea < FileSelectMapDefinitions.AreaCount; displayArea++)
         {
             AreaId area = FileSelectMapAreaOrder.Get(displayArea);
@@ -165,12 +164,12 @@ public sealed class FileSelectAreaMapGraphics
         void DrawArea(AreaId shown, int shownIndex)
         {
             Draw(MapSpriteNames.WorldLabel(shown), labels.Get(shownIndex),
-                shownIndex == SelectedArea ? 0 : 1);
+                shownIndex == SelectedArea ? ScreenColourGroup.MapLabels : ScreenColourGroup.MapDimLabels);
         }
 
-        void Draw(MapSpriteId id, Position16<SpritePixels> origin, int palette)
+        void Draw(MapSpriteId id, Position16<SpritePixels> origin, ScreenColourGroup colouring)
         {
-            MapSpriteSheet.Draw(mapSheet, id, entries, origin, palette);
+            MapSpriteSheet.Draw(mapSheet, id, entries, origin, colouring);
         }
     }
 

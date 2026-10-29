@@ -21,7 +21,7 @@ internal sealed class IntroScientistCutsceneState
         // Definitions $CE61/$CE67 use separate laboratory pages and mirrored pan axes.
         baby = new IntroDiscoverySprite(
             definition.Position,
-            definition.Palette,
+            definition.Colouring,
             definition.Program);
         baby.InstallPreInstruction(definition.PreInstruction);
         Background = delivery ? new(32, 8) : new(0, unchecked((ushort)-24));

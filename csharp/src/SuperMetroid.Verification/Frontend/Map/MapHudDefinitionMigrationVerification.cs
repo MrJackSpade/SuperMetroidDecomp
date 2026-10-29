@@ -9,6 +9,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
@@ -30,8 +31,8 @@ internal static class MapHudDefinitionMigrationVerification
         AssertEqual(4, FileSelectMapDefinitions.EntryWindowSpeed, "entry window speed");
         AssertEqual(32, FileSelectMapDefinitions.LoadBlackFrames, "load black frames");
         AssertEqual(15, FileSelectMapDefinitions.EntryPaletteDenominator, "entry fade steps");
-        AssertEqual(7, FileSelectMapDefinitions.StationMarkerPalette, "station marker palette row (the cartridge's $0E00 palette bits)");
-        AssertEqual(6, FileSelectMapDefinitions.DefeatedBossPalette, "defeated boss palette row (the cartridge's $0C00 palette bits)");
+        AssertEqual(7, ScreenColourGroups.SpriteSet(ScreenColourGroup.MapMarkers), "markers' colouring is sprite set seven (the cartridge's $0E00 palette bits)");
+        AssertEqual(6, ScreenColourGroups.SpriteSet(ScreenColourGroup.MapDefeatedBossMarker), "defeated boss marker's colouring is sprite set six (the cartridge's $0C00 palette bits)");
         AssertEqual(4, MapScrollDefinitions.PulseTick, "scroll pulse tick");
         AssertEqual(8, MapScrollDefinitions.StepTicks, "scroll step ticks");
         AssertEqual(8, MapScrollDefinitions.StepPixels, "scroll step pixels");

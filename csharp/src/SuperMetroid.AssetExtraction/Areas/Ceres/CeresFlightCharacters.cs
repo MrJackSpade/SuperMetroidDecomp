@@ -2,6 +2,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
@@ -50,9 +51,7 @@ public sealed class CeresFlightCharacters : CeresFlightArtwork
         content.Append("mode7-characters", FloorCharacters.Span);
         content.Append("mode7-maps", FloorMaps.Span);
         content.Append("object-characters", ObjectCharacters.Span);
-        Span<byte> paletteBytes = stackalloc byte[CeresFlightPalette.ColorWordBytes];
-        Palette.CopyColorWordsTo(paletteBytes);
-        content.Append("palette", paletteBytes);
+        content.Append("palette", ScreenColourImage.Words(Palette.Colours));
         content.Append("sprites", Convert.FromHexString(Sprites.ContentIdentity));
         content.Append("actors", Convert.FromHexString(Actors.ContentIdentity));
     });

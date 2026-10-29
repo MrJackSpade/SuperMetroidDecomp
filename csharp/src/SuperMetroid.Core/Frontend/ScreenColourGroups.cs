@@ -4,77 +4,28 @@ using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
-/// The frontend screens' colour groups resolved to the colours the screen holds them in (#1464). This is the one place a
-/// screen colour group meets a position among the screen's colours; effects and actors name a <see cref="ScreenColourGroup"/>
-/// and this owner resolves it.
+/// The frontend screens' colour groups resolved to the owner that holds them (#1464): a group's colours are a run of the
+/// screen's background sets or sprite sets, and a sprite drawn in a whole-set group shows that sprite set. Effects and
+/// actors name a <see cref="ScreenColourGroup"/>, and this owner resolves it through
+/// <see cref="ScreenColourGroupDefinitions"/>.
 /// </summary>
 internal static class ScreenColourGroups
 {
-    /// <summary>Where a screen's background colours start among its colours.</summary>
-    private const int BackgroundColoursStart = 0;
+    /// <summary>The colours of <paramref name="group"/> on <paramref name="screen"/>, read and written in place.</summary>
+    public static ColourRun Colours(this ScreenPalette screen, ScreenColourGroup group) => Placement(group).In(screen);
 
-    /// <summary>Where a screen's sprite colours start among its colours: after every background row.</summary>
-    private const int SpriteColoursStart = ScreenPalette.RowsPerKind * ScreenPalette.ColoursPerRow;
-
-    /// <summary>The colours of <paramref name="group"/> among <paramref name="colours"/>, read and written in place.</summary>
-    public static ColourRun Colours(this ScreenPalette colours, ScreenColourGroup group)
-    {
-        ScreenColourGroupDefinition definition = Definition(group);
-        return Ensure.NotNull(colours).All.Slice(First(definition), definition.ColourCount);
-    }
+    /// <summary>The values of <paramref name="group"/>'s colours among <paramref name="values"/>, to change in place.</summary>
+    public static Span<T> In<T>(ScreenColourValues<T> values, ScreenColourGroup group) => Placement(group).In(values);
 
     /// <summary>
-    /// The entries for <paramref name="group"/> in <paramref name="screenOrdered"/>, one entry per colour of a whole screen,
-    /// laid out as a screen palette's colours.
+    /// The sprite set a sprite drawn in <paramref name="colouring"/> shows; the colouring must be one whole sprite set.
     /// </summary>
-    public static ReadOnlySpan<T> In<T>(ReadOnlySpan<T> screenOrdered, ScreenColourGroup group)
-    {
-        Ensure.LengthEqual(screenOrdered, ScreenPalette.ColorCount);
-        ScreenColourGroupDefinition definition = Definition(group);
-        return screenOrdered.Slice(First(definition), definition.ColourCount);
-    }
+    /// <exception cref="InvalidOperationException"><paramref name="colouring"/> is not a whole sprite set.</exception>
+    public static int SpriteSet(ScreenColourGroup colouring) => Placement(colouring).DrawnSpriteSet();
 
-    /// <summary>
-    /// The entries for <paramref name="group"/> in <paramref name="screenOrdered"/>, one entry per colour of a whole screen,
-    /// laid out as a screen palette's colours, to change in place.
-    /// </summary>
-    public static Span<T> InPlace<T>(Span<T> screenOrdered, ScreenColourGroup group)
-    {
-        Ensure.LengthEqual<T>(screenOrdered, ScreenPalette.ColorCount);
-        ScreenColourGroupDefinition definition = Definition(group);
-        return screenOrdered.Slice(First(definition), definition.ColourCount);
-    }
-
-    /// <summary>The colour <paramref name="group"/>, a single-colour group, in <paramref name="screenColours"/>.</summary>
-    public static RgbColor ColourIn(ReadOnlySpan<RgbColor> screenColours, ScreenColourGroup group)
-    {
-        ReadOnlySpan<RgbColor> colours = In(screenColours, group);
-        Ensure.LengthEqual(colours, 1);
-        return colours[0];
-    }
-
-    /// <summary>
-    /// The sprite row a sprite drawn in <paramref name="colouring"/> selects; the colouring must be one whole sprite row.
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="colouring"/> is not a whole sprite row.</exception>
-    public static int SpriteRow(ScreenColourGroup colouring)
-    {
-        ScreenColourGroupDefinition definition = Definition(colouring);
-        return definition is SpriteColourGroupDefinition sprite && sprite == SpriteColourGroupDefinition.WholeRow(sprite.Row)
-            ? definition.Row
-            : throw new ArgumentOutOfRangeException(nameof(colouring), colouring, "A sprite draws in a whole sprite row's colours.");
-    }
-
-    /// <summary>The definition of <paramref name="group"/>.</summary>
-    private static ScreenColourGroupDefinition Definition(ScreenColourGroup group) =>
-        ScreenColourGroupDefinitions.Groups.TryGetValue(group, out ScreenColourGroupDefinition? definition)
-            ? definition
+    /// <summary>Where the screen holds <paramref name="group"/>.</summary>
+    private static ScreenColourPlacement Placement(ScreenColourGroup group) =>
+        ScreenColourGroupDefinitions.Groups.TryGetValue(group, out ScreenColourPlacement? placement)
+            ? placement
             : throw new ArgumentOutOfRangeException(nameof(group), group, "Undefined screen colour group.");
-
-    /// <summary>The position of the group's first colour among a screen's colours.</summary>
-    private static int First(ScreenColourGroupDefinition definition)
-    {
-        int kindStart = definition is SpriteColourGroupDefinition ? SpriteColoursStart : BackgroundColoursStart;
-        return kindStart + definition.Row * ScreenPalette.ColoursPerRow + definition.FirstColour;
-    }
 }

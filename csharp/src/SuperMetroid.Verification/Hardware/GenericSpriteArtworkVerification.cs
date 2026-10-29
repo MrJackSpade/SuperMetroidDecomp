@@ -23,6 +23,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
+using SuperMetroid.Core.Frontend;
 
 /// <summary>Compares installed title and intro sprite compositions and OAM wrapping with retail spritemaps.</summary>
 internal static class GenericSpriteArtworkVerification
@@ -56,11 +57,13 @@ internal static class GenericSpriteArtworkVerification
         foreach (TitleSpriteFrame frame in document.Sprites)
         foreach (ushort x in new ushort[] { 0, 255, ushort.MaxValue })
         foreach (ushort y in new ushort[] { 0, 1, 223, 255, ushort.MaxValue })
-        foreach (int palette in new[] { 0, 7 })
+        // Two title colourings, whose sprite sets the cartridge oracle takes as its palette bits.
+        foreach (ScreenColourGroup colouring in new[] { ScreenColourGroup.TitleText, ScreenColourGroup.TitleLogo })
         {
+            int palette = ScreenColourGroups.SpriteSet(colouring);
             title.ActiveSprite = frame.Sprite;
             title.ActiveOrigin = new(x, y);
-            title.ActiveObjectPalette = palette;
+            title.ActiveObjectColouring = colouring;
             title.PrepareRenderSprites();
             expected = new OamBuffer(); expected.BeginFrame();
             DrawImportedSpritemap(reference, expected,
@@ -78,7 +81,7 @@ internal static class GenericSpriteArtworkVerification
             (int)new SnesAddress(FrontendSourceDefinitions.TitleSpritemapBank,
                 FrontendSourceDefinitions.TitleCopyrightSpritemap),
             new(TitleSequenceDefinitions.Sprites.CopyrightOrigin.X, TitleSequenceDefinitions.Sprites.CopyrightOrigin.Y),
-            SnesObjAttributeWord.Create(0, TitleSequenceDefinitions.Sprites.CopyrightPalette, 0).PaletteBits);
+            SnesObjAttributeWord.Create(0, ScreenColourGroups.SpriteSet(ScreenColourGroup.TitleCopyright), 0).PaletteBits);
         expected.FinalizeFrame();
         EqualSprites(expected, title.objects, "title copyright owner parity");
 
@@ -99,7 +102,7 @@ internal static class GenericSpriteArtworkVerification
         expected = new OamBuffer(); expected.BeginFrame();
         DrawImportedSpritemap(reference, expected,
             (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank, SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps.Of(caret.CaretPose)),
-            new(caret.Caret.X, caret.Caret.Y), SnesObjAttributeWord.Create(0, IntroCinematicDefinitions.Objects.ScientistPalette, 0).PaletteBits);
+            new(caret.Caret.X, caret.Caret.Y), SnesObjAttributeWord.Create(0, ScreenColourGroups.SpriteSet(ScreenColourGroup.IntroCrossFadeObjects), 0).PaletteBits);
         expected.FinalizeFrame();
         EqualParts(PlacedSpritePart.OfOamObjects(expected, MenuRenderDefinitions.ObjectSelection, new SpriteArtworkId(SpriteArtworkKind.IntroObjects)), actualParts, "illustrated-page caret owner parity");
 
@@ -116,7 +119,7 @@ internal static class GenericSpriteArtworkVerification
         DrawImportedSpritemap(reference, motherBrainOam,
             (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank, SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps.Of(motherBrain.Pose)),
             new(IntroMotherBrainSpriteState.Position.X, IntroMotherBrainSpriteState.Position.Y),
-            SnesObjAttributeWord.Create(0, IntroMotherBrainSpriteState.Palette, 0).PaletteBits);
+            SnesObjAttributeWord.Create(0, ScreenColourGroups.SpriteSet(IntroMotherBrainSpriteState.Colouring), 0).PaletteBits);
         motherBrainOam.FinalizeFrame();
         expectedFrame.FinalizeFrame();
         EqualParts([.. PlacedSpritePart.Of(expectedFrame.Draws), .. PlacedSpritePart.OfOamObjects(motherBrainOam, MenuRenderDefinitions.ObjectSelection, new SpriteArtworkId(SpriteArtworkKind.IntroObjects))],
@@ -137,7 +140,7 @@ internal static class GenericSpriteArtworkVerification
             DrawImportedSpritemap(reference, expected,
                 (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank, pointer),
                 new(actor.Position.X, actor.Position.Y),
-                SnesObjAttributeWord.Create(0, IntroCinematicDefinitions.Objects.ExplosionPalette, 0).PaletteBits);
+                SnesObjAttributeWord.Create(0, ScreenColourGroups.SpriteSet(ScreenColourGroup.IntroExplosions), 0).PaletteBits);
         }
         expected.FinalizeFrame();
         EqualSprites(expected, actual, "intro explosion owner preserves native placements and ordering");

@@ -146,9 +146,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         {
             // A restored fade keeps its current CGRAM/accumulators, but later scene
             // targets must use the currently selected installed palette.
-            var baseline = new ScreenPalette();
-            value.Palette.LoadTo(baseline);
-            baseline.Colors.CopyTo(introColours);
+            introColours = value.Palette.Colours;
             if (Phase is IntroCinematicPhase.Initial or IntroCinematicPhase.WaitForInitialMusicQueue)
                 value.Palette.LoadTo(palette);
             if (IntroCinematicPhaseGroups.NarrationPages.Contains(Phase))
@@ -198,8 +196,8 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Staging tiles for progressively written BG3 narration pages.</summary>
     private readonly BackgroundTile[] textTilemap =
         new BackgroundTile[IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount];
-    /// <summary>Target palette restored by transitions back from gameplay flashbacks.</summary>
-    private readonly RgbColor[] introColours = new RgbColor[ScreenPalette.ColorCount];
+    /// <summary>The installed intro colours, by owner, that transitions back from gameplay flashbacks restore.</summary>
+    private ScreenColours introColours;
     /// <summary>Persistent bank-$8C actor and caret walker for illustrated pages.</summary>
     internal IntroCinematicObjectSystem? CurrentObjects { get; private set; }
     /// <summary>The intro's sprite objects, which exist from the first text page onward.</summary>
@@ -296,7 +294,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             "Opening cinematic requires installed artwork.");
         this.samusBodyArtwork = samusBodyArtwork;
         characterArtwork.Palette.LoadTo(palette);
-        palette.Colors.CopyTo(introColours);
+        introColours = characterArtwork.Palette.Colours;
 
         RequireMinimum(introFont.CharacterCount * (IntroFontAtlasFormat.ByteCount / IntroFontAtlasFormat.TileCount),
             IntroCinematicDefinitions.Artwork.FontOneBytes, "intro font one");
@@ -1215,7 +1213,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
             IntroSprites(CinematicSpriteFamily.IntroMotherBrain).Draw(
                 motherBrainPose, objectSprites,
                 IntroMotherBrainSpriteState.Position.ToSpritePosition(),
-                IntroMotherBrainSpriteState.Palette);
+                IntroMotherBrainSpriteState.Colouring);
         }
         objectSprites.FinishFrame();
         foreach (SpriteDraw draw in objectSprites.Draws)
@@ -1285,7 +1283,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
             // initial $9A:D200 -> VMADD $6000 DMA.
             IntroSprites(CinematicSpriteFamily.IntroCaret).Draw(
                 caretPose, objectSprites, Objects.Caret.ToSpritePosition(),
-                IntroCinematicDefinitions.Objects.ScientistPalette);
+                ScreenColourGroup.IntroCrossFadeObjects);
         }
         objectSprites.FinishFrame();
         foreach (SpriteDraw draw in objectSprites.Draws)

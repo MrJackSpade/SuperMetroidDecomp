@@ -68,7 +68,7 @@ internal static class CeresDestructionArtworkVerification
                 var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
                 CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).CeresDestructionSprites).Draw(frame.Pose, installedOam,
-                    new(120, y), 4, onScreen);
+                    new(120, y), ScreenColourGroup.CeresFlightSpaceObjects, onScreen);
                 installedOam.FinalizeFrame();
                 AssertTrue(installedOam.ImageEquals(nativeOam) &&
                         installedOam.LastFinalizedSpriteCount == nativeOam.LastFinalizedSpriteCount,

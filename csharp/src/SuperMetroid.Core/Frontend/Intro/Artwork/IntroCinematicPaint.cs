@@ -11,34 +11,53 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// </summary>
 internal static class IntroCinematicPaint
 {
-    /// <summary>Checks all 256 intro CGRAM words against the calculated row and ink painting.</summary>
-    internal static bool Matches(ReadOnlySpan<byte> bytes)
+    /// <summary>Checks every colour of both of the intro screen's owners against the calculated set and ink painting.</summary>
+    internal static bool Matches(ScreenColours colours)
     {
-        for (int index = 0; index < 256; index++)
-            if (RgbColor.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(bytes.Slice(index * 2, 2))) != Color(index / 16, index % 16)) return false;
+        Ensure.NotNull(colours);
+        for (int set = 0; set < ColourSets.SetCount; set++)
+        for (int ink = 0; ink < ColourSets.SetColours; ink++)
+        {
+            if (colours.BackgroundSet(set)[ink] != Background(set, ink) || colours.SpriteSet(set)[ink] != Sprite(set, ink))
+                return false;
+        }
         return true;
     }
 
-    /// <summary>Selects a font, portrait, sepia scene, object, or crossfade color for one intro palette cell.</summary>
-    internal static RgbColor Color(int row, int ink)
+    /// <summary>Selects a font, portrait, sepia scene or fill colour for one colour of an intro background set.</summary>
+    internal static RgbColor Background(int set, int ink)
     {
-        if ((uint)row >= 16 || (uint)ink >= 16) throw new ArgumentOutOfRangeException(nameof(row));
-        if (row == 0) return Font(ink);
-        if (ink == 0) return row >= 8 ? ObjectZero : RgbColor.Black;
-        return row switch
+        Ensure.BetweenInclusive(0, ColourSets.SetCount - 1, set);
+        Ensure.BetweenInclusive(0, ColourSets.SetColours - 1, ink);
+        if (set == 0) return Font(ink);
+        if (ink == 0) return RgbColor.Black;
+        return set switch
         {
             1 => ink switch { 1 or 4 => Neutral(31), 2 or 14 => RgbColor.Black, 3 or 6 => Neutral(TextGray), _ => Neutral(Fill) },
             2 => ink <= 8 ? Sepia(ink) : ink == 15 ? RgbColor.Black : Neutral(Fill),
             3 => Portrait(ink),
-            4 or 5 or 6 or 10 or 11 => Neutral(Fill),
+            4 or 5 or 6 => Neutral(Fill),
             7 => Scene(ink),
-            8 => Neutral(31 - (ink - 1) % WhiteCycleLength * WhiteCycleStep),
-            9 => ObjectOne(ink),
-            12 => ObjectFour(ink),
-            13 => ObjectFive(ink),
-            14 => Crossfade(ink),
-            15 => MotherBrain(ink),
-            _ => throw new ArgumentOutOfRangeException(nameof(row)),
+            _ => throw new ArgumentOutOfRangeException(nameof(set)),
+        };
+    }
+
+    /// <summary>Selects a neutral-cycle, object, crossfade or Mother Brain colour for one colour of an intro sprite set.</summary>
+    internal static RgbColor Sprite(int set, int ink)
+    {
+        Ensure.BetweenInclusive(0, ColourSets.SetCount - 1, set);
+        Ensure.BetweenInclusive(0, ColourSets.SetColours - 1, ink);
+        if (ink == 0) return ObjectZero;
+        return set switch
+        {
+            0 => Neutral(31 - (ink - 1) % WhiteCycleLength * WhiteCycleStep),
+            1 => ObjectOne(ink),
+            2 or 3 => Neutral(Fill),
+            4 => ObjectFour(ink),
+            5 => ObjectFive(ink),
+            6 => Crossfade(ink),
+            7 => MotherBrain(ink),
+            _ => throw new ArgumentOutOfRangeException(nameof(set)),
         };
     }
 

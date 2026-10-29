@@ -5,7 +5,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// A bank-$8B cinematic sprite object: its position, palette and pre-instruction, running one of the typed
+/// A bank-$8B cinematic sprite object: its position, colouring and pre-instruction, running one of the typed
 /// <see cref="CinematicSpriteProgram"/>s (#641) where the generic cinematic sprite handler ran its native list.
 /// </summary>
 /// <remarks>
@@ -17,14 +17,14 @@ internal sealed class IntroDiscoverySprite
     /// <summary>Countdown before the next sprite instruction is decoded; setup may stagger the first frame.</summary>
     private WrappingCountdown instructionTimer = WrappingCountdown.Start(1);
 
-    /// <summary>Creates an actor at a whole-pixel origin with its starting sprite palette row and program.</summary>
+    /// <summary>Creates an actor at a whole-pixel origin with the screen colours it starts drawing in and its program.</summary>
     public IntroDiscoverySprite(
         Position16<ScreenPixels> position,
-        int palette,
+        ScreenColourGroup colouring,
         CinematicSpriteProgram program)
     {
         Position = new(new(position.X, 0), new(position.Y, 0));
-        Palette = Ensure.BetweenInclusive(0, SpriteImage.MaximumPaletteRow, palette);
+        Colouring = colouring;
         Program = AnimationProgramCursor<CinematicSpriteProgram>.Start(program);
     }
 
@@ -41,12 +41,11 @@ internal sealed class IntroDiscoverySprite
         set => Position = new(Position.X.WithWhole(value.X), Position.Y.WithWhole(value.Y));
     }
 
-    /// <summary>The sprite palette row the current pose's palette-inheriting parts draw in.</summary>
-    public int Palette { get; private set; }
+    /// <summary>The screen colours the current pose's palette-inheriting parts draw in, one whole sprite set.</summary>
+    public ScreenColourGroup Colouring { get; private set; }
 
-    /// <summary>Applies a cinematic callback's palette change.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The row is outside the eight sprite palette rows.</exception>
-    public void SetPalette(int palette) => Palette = Ensure.BetweenInclusive(0, SpriteImage.MaximumPaletteRow, palette);
+    /// <summary>Applies a cinematic callback's change of the colours the actor draws in.</summary>
+    public void SetColouring(ScreenColourGroup colouring) => Colouring = colouring;
 
     /// <summary>The pose the program most recently showed; null before its first frame and after deletion.</summary>
     internal CinematicSpritePose? Pose { get; private set; }
@@ -194,6 +193,6 @@ internal sealed class IntroDiscoverySprite
             y < CinematicSpriteDrawDefinitions.OnScreenOriginYLimit;
         (installedArt ?? throw new InvalidOperationException(
             "Cinematic sprites require installed artwork."))
-            .Draw(pose, objects, origin.ToSpritePosition(), Palette, originIsOnScreen);
+            .Draw(pose, objects, origin.ToSpritePosition(), Colouring, originIsOnScreen);
     }
 }

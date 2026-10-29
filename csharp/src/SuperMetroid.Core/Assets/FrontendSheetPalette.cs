@@ -1,19 +1,12 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// The palette of a frontend sheet frame drawn with a palette chosen per draw (#1392): the sheet colours the frame's
-/// palette-inheriting parts in <see cref="FramePalette"/>, and a draw in another row overrides it for those parts.
+/// The colours of a frontend sheet frame drawn in colours chosen per draw (#1392, #1464): the sheet colours the frame's
+/// palette-inheriting parts in sprite set <see cref="FramePalette"/>, and a draw in a screen colouring held in another set
+/// shows that set's colours for those parts.
 /// </summary>
 internal static class FrontendSheetPalette
 {
-    /// <summary>The row a frontend sheet colours each frame's palette-inheriting parts in.</summary>
+    /// <summary>The sprite set a frontend sheet colours each frame's palette-inheriting parts in.</summary>
     internal const int FramePalette = 0;
-
-    /// <summary>
-    /// The colouring that places a frame's palette-inheriting parts in palette row <paramref name="palette"/>, whose
-    /// screen colour owner is not yet named (#1464), or null where that is the row the sheet coloured them in.
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The row is outside the eight sprite palette rows.</exception>
-    internal static DrawnColouring? Override(int palette) =>
-        Ensure.BetweenInclusive(0, SpriteImage.MaximumPaletteRow, palette) == FramePalette ? null : DrawnColouring.InUnnamedRow(palette);
 }

@@ -18,8 +18,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// </summary>
 internal static class EndingSpriteSheetComposer
 {
-    /// <summary>CGRAM's first sprite colour.</summary>
-    private const int SpriteColours = 128;
 
     /// <summary>What ending sheet <paramref name="sheet"/> composes.</summary>
     internal static SpriteSheetSources Sources(SpriteSheetId sheet, EndingObjectArtwork objects, EndingPaletteSet palettes,
@@ -42,7 +40,7 @@ internal static class EndingSpriteSheetComposer
             }));
         var colours = new ScreenPalette();
         page.LoadColours(palettes, colours);
-        return new SpriteSheetSources(frames, colours.Colors[SpriteColours..].ToArray(), sizes, PartsKeepOwnRows: true);
+        return new SpriteSheetSources(frames, colours.SpriteSets.All.Colors.ToArray(), sizes, PartsKeepOwnRows: true);
     }
 
     /// <summary>The frames ending sheet <paramref name="sheet"/> holds.</summary>
@@ -74,7 +72,7 @@ internal static class EndingSpriteSheetComposer
                 (palettes, cgram) =>
                 {
                     EscapeColours(palettes, cgram);
-                    palettes[EndingPaletteId.Explosion].LoadTo(cgram.Sprites, palettes[EndingPaletteId.Explosion].FirstColorFor(cgram.Sprites));
+                    palettes[EndingPaletteId.Explosion].Screen.LoadSpritesTo(cgram);
                 }),
             SpriteSheetId.EndingSuitedRewardSprites => Reward(EndingReward.Armored),
             SpriteSheetId.EndingSuitlessRewardSprites => Reward(EndingReward.Suitless),
@@ -142,14 +140,15 @@ internal static class EndingSpriteSheetComposer
 
     /// <summary>The escape scenes' colours.</summary>
     private static void EscapeColours(EndingPaletteSet palettes, ScreenPalette colours) =>
-        palettes[EndingPaletteId.Escape].LoadTo(colours.All, 0);
+        palettes[EndingPaletteId.Escape].Screen.LoadTo(colours);
 
     /// <summary>The post-credits colours: the credits' background half under the post-credits scenes' own.</summary>
     private static void PostCreditsColours(EndingPaletteSet palettes, ScreenPalette colours)
     {
-        palettes[EndingPaletteId.Credits].LoadTo(colours.Background, 0);
-        ColourRun restored = colours.Colours(ScreenColourGroup.EndingPostCreditsRestored);
-        palettes[EndingPaletteId.PostCredits].LoadTo(restored, palettes[EndingPaletteId.PostCredits].FirstColorFor(restored));
+        palettes[EndingPaletteId.Credits].Screen.LoadBackgroundsTo(colours);
+        ScreenColours postCredits = palettes[EndingPaletteId.PostCredits].Screen;
+        postCredits.LoadTo(colours, ScreenColourGroup.EndingPostCreditsRestoredBackground);
+        postCredits.LoadTo(colours, ScreenColourGroup.EndingPostCreditsRestoredSprites);
     }
 
     /// <summary>

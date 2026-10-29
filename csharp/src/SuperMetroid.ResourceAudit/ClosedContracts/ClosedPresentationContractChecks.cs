@@ -66,8 +66,8 @@ internal static class ClosedPresentationContractChecks
                     reserve.ApplyLabel(cells, dynamicIndex > 0 ? PauseReserveLabel.Auto : PauseReserveLabel.Manual);
                     reserve.ApplyArrowColors(screen, true, dynamicIndex);
                     reserve.ApplyDigit(cells, 0, 10);
-                    beam.LoadTo(screen.SpriteRow(6), 0);
-                    beam.LoadTo(screen.SpriteRow(6), (SuperMetroid.Core.Progression.SamusBeamCombination)12);
+                    beam.LoadTo(screen.SpriteSets.Set(6), 0);
+                    beam.LoadTo(screen.SpriteSets.Set(6), (SuperMetroid.Core.Progression.SamusBeamCombination)12);
                     ridley.ApplyHealth(cgram, 0);
                     ridley.ApplyHealth(cgram, 3);
                     crocomire.ApplyFightBody(cgram);
@@ -89,9 +89,9 @@ internal static class ClosedPresentationContractChecks
                     rainbow.ApplyFakeDeathFromGrey(cgram, 8);
                     death.BodyColor(15, 13);
                     death.CorpseColor(8, 0);
-                    chozo.ApplyLowerNorfair(screen.Sprites.Slice(16, 32));
+                    chozo.ApplyLowerNorfair(screen.SpriteSets.All.Slice(16, 32));
                     chozo.ResolveTubeCracks(0);
-                    basePalette.LoadEnemyProjectileSprites(screen.SpriteRow(dynamicIndex));
+                    basePalette.LoadEnemyProjectileSprites(screen.SpriteSets.Set(dynamicIndex));
                     samusDeath.SuitedColor(2, 9, 15);
                     samusDeath.SuitedColor(3, 9, 15);
                     samusDeath.ExplosionPaletteIndex(8);

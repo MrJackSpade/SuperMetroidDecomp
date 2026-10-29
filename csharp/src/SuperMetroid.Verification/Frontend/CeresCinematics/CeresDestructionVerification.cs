@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Frontend;
 
 /// <summary>Synthetic-map verification of the complete Ceres destruction cinematic and its native transition order.</summary>
 internal static class CeresDestructionVerification
@@ -33,7 +34,7 @@ internal static void VerifyCeresDestructionCinematic()
     // Ceres' five initial explosions share one program but seed instruction timers 1/16/32/48/64.
     // Prove the reusable object keeps that timer distinct from GeneralTimer, which belongs
     // to the program's counted loops and must remain untouched.
-    var delayedExplosion = new IntroDiscoverySprite(new(0, 0), 0, CinematicSpriteProgram.CeresSmallExplosion);
+    var delayedExplosion = new IntroDiscoverySprite(new(0, 0), ScreenColourGroup.CeresExplosions, CinematicSpriteProgram.CeresSmallExplosion);
     delayedExplosion.DelayFirstInstruction(3);
     delayedExplosion.Step();
     delayedExplosion.Step();

@@ -10,6 +10,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.Verification.Frontend.CeresCinematics.Artwork;
 
@@ -89,7 +90,7 @@ internal static class CeresStationPartsVerification
             else reference.DrawOffScreen(expected, new(120, y), 0x0a00);
             expected.FinalizeFrame();
             var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
-            CinematicSheetFixtures.Drawer(presentation).Draw(pose, actual, new(120, y), 5, y == 72);
+            CinematicSheetFixtures.Drawer(presentation).Draw(pose, actual, new(120, y), ScreenColourGroup.CeresExplosions, y == 72);
             actual.FinalizeFrame();
             AssertTrue(expected.ImageEquals(actual)
                 && expected.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount,

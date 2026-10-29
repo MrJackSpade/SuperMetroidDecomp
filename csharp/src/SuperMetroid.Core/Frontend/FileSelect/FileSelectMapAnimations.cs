@@ -82,7 +82,7 @@ public sealed class FileSelectMapAnimations
         {
             if (!arrow.Visible) continue;
             MapSpriteSheet.Draw(installed, arrow.Base, entries, arrow.Position + new Offset16<SpritePixels>(0, unchecked((short)verticalOffset)),
-                3);
+                ScreenColourGroup.MapHighlight);
         }
     }
 

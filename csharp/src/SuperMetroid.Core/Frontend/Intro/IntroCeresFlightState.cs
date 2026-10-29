@@ -300,7 +300,7 @@ internal sealed class IntroCeresFlightState
     {
         var actor = new IntroDiscoverySprite(
             definition.Position,
-            definition.Palette,
+            definition.Colouring,
             definition.Program)
         {
             GeneralTimer = definition.InitialTimer,

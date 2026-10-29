@@ -21,6 +21,7 @@ using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
@@ -66,9 +67,10 @@ internal static class MapSpritesVerification
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity, "composition changes catalog identity");
         Suite(nameof(VerifyRenderedEdit), () => VerifyRenderedEdit(edited));
-        for (int palette = 0; palette < 8; palette++)
+        // Every colouring the map draws in.
+        foreach (ScreenColourGroup colouring in new[] { ScreenColourGroup.MapLabels, ScreenColourGroup.MapDimLabels, ScreenColourGroup.MapHighlight, ScreenColourGroup.MapDefeatedBossMarker, ScreenColourGroup.MapMarkers })
         {
-            authored.BeginFrame(); MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(edited.Sprites), MapSpriteId.MarkerBoss, authored, new(100, 100), palette); authored.FinishFrame();
+            authored.BeginFrame(); MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(edited.Sprites), MapSpriteId.MarkerBoss, authored, new(100, 100), colouring); authored.FinishFrame();
             AssertEqual((byte)112, authored.LowTable[0], "authored horizontal offset reaches OAM");
             AssertEqual((byte)96, authored.LowTable[1], "authored vertical offset reaches OAM");
             var attributes = new SnesObjAttributeWord(LittleEndianBytes.Word(authored.LowTable[2], authored.LowTable[3]));
@@ -80,7 +82,7 @@ internal static class MapSpritesVerification
         }
         frames["Marker.Boss"] = [];
         File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, options));
-        authored.BeginFrame(); MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(MapPresentationFiles.Load(stock, overrides).Sprites), MapSpriteId.MarkerBoss, authored, new(0, 0), 0); authored.FinishFrame();
+        authored.BeginFrame(); MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(MapPresentationFiles.Load(stock, overrides).Sprites), MapSpriteId.MarkerBoss, authored, new(0, 0), ScreenColourGroup.MapLabels); authored.FinishFrame();
         AssertEqual(0, authored.LastFinalizedSpriteCount, "authored empty visual frame is valid");
         frames.Remove("Marker.Boss");
         File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, options));

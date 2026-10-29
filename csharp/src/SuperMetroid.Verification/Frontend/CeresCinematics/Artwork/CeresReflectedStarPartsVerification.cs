@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.Verification.Frontend.CeresCinematics.Artwork;
 
@@ -58,7 +59,7 @@ internal static class CeresReflectedStarPartsVerification
                 else reference.DrawOffScreen(expectedOam, new(120, y), 0x0800);
                 expectedOam.FinalizeFrame();
                 var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
-                CinematicSheetFixtures.Drawer(loaded).Draw(CeresFlightSpritePoses.VortexPose(CeresVortexFrame.Even), actual, new(120, y), 4, y == 72); actual.FinalizeFrame();
+                CinematicSheetFixtures.Drawer(loaded).Draw(CeresFlightSpritePoses.VortexPose(CeresVortexFrame.Even), actual, new(120, y), ScreenColourGroup.CeresFlightSpaceObjects, y == 72); actual.FinalizeFrame();
                 AssertTrue(expectedOam.ImageEquals(actual)
                     && expectedOam.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount, "reflection loader preserves independent and paired edits");
             }

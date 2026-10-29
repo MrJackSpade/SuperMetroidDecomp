@@ -2,6 +2,7 @@ using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Frontend.Intro.CinematicSpriteNativeListAddresses;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.Verification.Frontend.Intro;
 
@@ -153,7 +154,7 @@ internal static class CinematicSpriteAnimationsVerification
     /// </summary>
     private static int ComparePlayback(IImportCartridgeSource cartridge, CinematicSpriteProgram program, ushort entry)
     {
-        var actor = new IntroDiscoverySprite(default, 0, program);
+        var actor = new IntroDiscoverySprite(default, ScreenColourGroup.IntroDiscoveryActors, program);
         var native = new NativeReader(cartridge, entry);
         var cues = new List<CinematicSpriteCueKind>();
         for (int update = 0; update < PlaybackUpdates; update++)

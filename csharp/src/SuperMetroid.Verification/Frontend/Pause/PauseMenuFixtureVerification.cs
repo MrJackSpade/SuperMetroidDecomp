@@ -39,9 +39,9 @@ internal static class PauseMenuFixtureVerification
         byte[] paletteBytes = Read(0xb6f000, CgramPalettes.ByteCount);
         for (int i = 0; i < pauseColors.Length; i++)
             pauseColors[i] = RgbColor.FromWordIgnoringTopBit(LittleEndianBytes.Word(paletteBytes[i * 2], paletteBytes[i * 2 + 1]));
-        var palettes = new MapStaticPalettes(pauseColors, stock.Palettes.FileSelect.ToArray(),
+        var palettes = new MapStaticPalettes(ScreenColourImage.Decode(pauseColors), stock.Palettes.FileSelect,
             Enum.GetValues<AreaId>().Where(area => area != AreaId.Ceres)
-                .ToDictionary(area => area, area => stock.Palettes.World(area).ToArray()));
+                .ToDictionary(area => area, stock.Palettes.World));
         var areas = Enum.GetValues<AreaId>().Select(stock.Get).ToArray();
         areas[AreaIds.ToIndex(AreaId.Crateria)] = AreaMapImporter.Load(bus, AreaId.Crateria);
         var backdrops = PauseBackdropPresentation.FromTilemaps(

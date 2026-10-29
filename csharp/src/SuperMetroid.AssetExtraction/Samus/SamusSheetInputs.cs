@@ -48,8 +48,6 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
         return SamusSuitColorFile.Read(json);
     }
 
-    /// <summary>CGRAM's first sprite colour.</summary>
-    private const int SpriteColours = 128;
 
     /// <summary>
     /// The sprite colours Samus is drawn with in the Power Suit with the power beam; the other suits and palette effects
@@ -58,9 +56,9 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
     internal RgbColor[] SuitedColours()
     {
         ScreenPalette cgram = RoomLoadColours();
-        SuitColors.Apply(cgram.SpriteRow(SamusColourDefinitions.SuitInkRow), SamusSuit.Power);
-        SamusProjectileSystem.LoadBeamPalette(cgram.SpriteRow(SamusColourDefinitions.BeamInkRow), SamusBeamCombination.Power, Projectiles.BeamTiles.Palettes);
-        return cgram.Colors[SpriteColours..].ToArray();
+        SuitColors.Apply(cgram.SpriteSets.Set(SamusColourDefinitions.SuitInkRow), SamusSuit.Power);
+        SamusProjectileSystem.LoadBeamPalette(cgram.SpriteSets.Set(SamusColourDefinitions.BeamInkRow), SamusBeamCombination.Power, Projectiles.BeamTiles.Palettes);
+        return cgram.SpriteSets.All.Colors.ToArray();
     }
 
     /// <summary>CGRAM as a room load leaves it: the starting image with the common and enemy-projectile sprite rows.</summary>

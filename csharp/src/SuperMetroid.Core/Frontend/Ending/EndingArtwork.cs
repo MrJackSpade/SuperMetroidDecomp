@@ -109,7 +109,7 @@ internal sealed class EndingArtwork
         if (creditsAssetsLoaded)
             return;
 
-        _stage.LoadStaticPalette(EndingPaletteId.Credits, screen.Palette.Background);
+        _stage.StaticScreen(EndingPaletteId.Credits).LoadBackgroundsTo(screen.Palette);
         EndingStage.RequireMinimum(_stage.ResolveEndingFont(), EndingArtworkExtentDefinitions.FontCharacterBytes,
             "credits font");
 

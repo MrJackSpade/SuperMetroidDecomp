@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rendering;
 
 /// <summary>Checks pause map-arrow OAM, palette timing, and visibility at scroll boundaries.</summary>
 internal static class PauseMapArrowsVerification

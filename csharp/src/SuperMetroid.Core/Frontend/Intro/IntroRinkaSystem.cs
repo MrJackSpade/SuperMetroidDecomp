@@ -175,7 +175,7 @@ internal sealed class IntroRinkaSystem
         IntroRinkaPhysicalDefinition definition = IntroRinkaLaunches.Rinka(parameter);
         var rinka = new IntroDiscoverySprite(
             definition.Position,
-            palette: IntroCinematicDefinitions.Objects.DiscoveryPalette,
+            colouring: ScreenColourGroup.IntroDiscoveryActors,
             program: IntroRinkaDefinitions.RinkaActor.Program)
         {
             GeneralTimer = (ushort)parameter,

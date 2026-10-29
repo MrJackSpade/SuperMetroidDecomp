@@ -39,7 +39,7 @@ internal sealed class EndingEscapeScenes
     /// <summary>Loads the first cloud scene, resets its Mode-7 transform and queues escape music.</summary>
     internal void SetupEscapeSceneA()
     {
-        _stage.LoadStaticPalette(EndingPaletteId.Escape, screen.Palette.All);
+        _stage.StaticScreen(EndingPaletteId.Escape).LoadTo(screen.Palette);
         _stage.LoadFloor(EndingFloorSceneId.EscapeA);
         _artwork.LoadEscapeCloudCharacters();
         sprites.Clear();

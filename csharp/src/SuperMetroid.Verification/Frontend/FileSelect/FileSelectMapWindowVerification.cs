@@ -15,6 +15,7 @@ namespace SuperMetroid.Verification.Frontend.FileSelect;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.Core.Rendering;
 
 /// <summary>Checks area-map graphics and the file-select room-map transition window.</summary>
 internal static class FileSelectMapWindowVerification

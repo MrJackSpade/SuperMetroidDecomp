@@ -39,8 +39,8 @@ internal static class InterfacePresentationContractChecks
             using SuperMetroid.Core.Fx.PaletteFx;
             class InterfaceConsumer {
                 void Inspect(IIntroCinematicSpritePresentation sprites, IPaletteFxColorSource colors, SuperMetroid.Core.Frontend.Intro.CinematicSpritePose pose, PaletteFxColorKey key, SuperMetroid.Core.Assets.ScreenSprites oam) {
-                    sprites.Draw(pose, oam, default, 0, true);
-                    sprites.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(26), oam, default, 0, true);
+                    sprites.Draw(pose, oam, default, SuperMetroid.Core.Frontend.ScreenColourGroup.IntroDiscoveryActors, true);
+                    sprites.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(26), oam, default, SuperMetroid.Core.Frontend.ScreenColourGroup.IntroDiscoveryActors, true);
                     colors.TryReadColor(key, out _);
                 }
             }

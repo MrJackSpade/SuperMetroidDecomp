@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 
@@ -15,7 +16,7 @@ internal static class EndingCloudMotionVerification
         {
             bool side = role is EndingSpriteRole.CloudRightA or EndingSpriteRole.CloudRightB or EndingSpriteRole.CloudLeftA or EndingSpriteRole.CloudLeftB;
             bool negative = role is EndingSpriteRole.CloudRightA or EndingSpriteRole.CloudRightB or EndingSpriteRole.CloudBottomA or EndingSpriteRole.CloudBottomB;
-            var sprite = new IntroDiscoverySprite(new(200, 200), 0, 0);
+            var sprite = new IntroDiscoverySprite(new(200, 200), ScreenColourGroup.EndingClouds, 0);
             var wrapper = new EndingSprite(sprite, role);
             EndingCloudMotion.Step(wrapper, side ? 95 : 176);
             AssertTrue(!wrapper.CloudMoving, "cloud waits for native zoom threshold");

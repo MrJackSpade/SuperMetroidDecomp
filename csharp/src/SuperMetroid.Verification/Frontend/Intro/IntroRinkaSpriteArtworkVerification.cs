@@ -17,6 +17,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.Verification.Frontend.Intro;
 
@@ -32,7 +33,7 @@ internal static class IntroRinkaSpriteArtworkVerification
         if (unchecked((ushort)(y + CinematicSpriteDrawDefinitions.OriginYBias)) >= CinematicSpriteDrawDefinitions.BiasedOriginYLimit) return;
         DrawImportedSpritemap(bus, oam,
             ((int)new SnesAddress(            IntroCinematicSourceDefinitions.SpritemapBank, spritemap)),
-            new(actor.WholePosition.X, y), SnesObjAttributeWord.Create(0, actor.Palette, 0).PaletteBits,
+            new(actor.WholePosition.X, y), SnesObjAttributeWord.Create(0, ScreenColourGroups.SpriteSet(actor.Colouring), 0).PaletteBits,
             originIsOnScreen: y < CinematicSpriteDrawDefinitions.OnScreenOriginYLimit);
     }
     /// <summary>Compares installed Rinka OAM and flashback pixels with native art, then verifies a palette override and rebinding.</summary>
@@ -40,8 +41,8 @@ internal static class IntroRinkaSpriteArtworkVerification
         IntroCinematicArtwork stock, GameInstallation installation)
     {
         const ushort x = 120;
-        int palette = IntroCinematicDefinitions.Objects.DiscoveryPalette;
-        ushort paletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits;
+        ScreenColourGroup palette = ScreenColourGroup.IntroDiscoveryActors;
+        ushort paletteBits = SnesObjAttributeWord.Create(0, ScreenColourGroups.SpriteSet(palette), 0).PaletteBits;
         foreach (CinematicSpriteFrameDefinition definition in IntroRinkaSpriteDefinitions.Frames)
         {
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })

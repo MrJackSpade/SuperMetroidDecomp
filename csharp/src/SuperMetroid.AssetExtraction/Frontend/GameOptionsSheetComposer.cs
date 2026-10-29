@@ -43,7 +43,7 @@ internal static class GameOptionsSheetComposer
             frames.Add(new(name, source.cursorSprites[frame].ToFrame(name, 0), page, palette));
         }
         var cgram = new SnesCgram();
-        new CgramPalettes(cgram).LoadImage(maps.Palettes.FileSelect);
+        new CgramPalettes(cgram).LoadImage(ScreenColourImage.Encode(maps.Palettes.FileSelect));
         return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true);
     }
 }

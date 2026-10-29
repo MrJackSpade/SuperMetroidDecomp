@@ -590,7 +590,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         var actor = new IntroDiscoverySprite(
             definition.Position,
-            definition.Palette,
+            definition.Colouring,
             definition.Program);
         actor.InstallPreInstruction(definition.ActivePreInstruction);
         return actor;
@@ -718,7 +718,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         var cinematicExplosion = new IntroDiscoverySprite(
             new(unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.Whole)),
                 unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.Whole))),
-            ScreenColourGroups.SpriteRow(ScreenColourGroup.CeresExplosions),
+            ScreenColourGroup.CeresExplosions,
             CeresExplosionDefinitions.StationBlastActor.Program);
         cinematicExplosion.InstallPreInstruction(
             CeresExplosionDefinitions.StationBlastActor.PreInstruction);
@@ -737,7 +737,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                     unchecked((short)Background.X.Whole) + placement.Offset.X)),
                 unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.Y -
                     unchecked((short)Background.Y.Whole) + placement.Offset.Y))),
-            ScreenColourGroups.SpriteRow(ScreenColourGroup.CeresExplosions),
+            ScreenColourGroup.CeresExplosions,
             definition.Program);
         actor.InstallPreInstruction(definition.PreInstruction);
 

@@ -15,8 +15,6 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// </summary>
 internal static class TitleSheetComposer
 {
-    /// <summary>CGRAM's first sprite colour.</summary>
-    private const int SpriteColours = 128;
 
     /// <summary>What the title sheet composes.</summary>
     internal static SpriteSheetSources Sources(AreaMapPresentation maps) =>
@@ -35,7 +33,7 @@ internal static class TitleSheetComposer
         })];
         var colours = new ScreenPalette();
         palette.Apply(colours);
-        return new SpriteSheetSources(frames, colours.Colors[SpriteColours..].ToArray(),
+        return new SpriteSheetSources(frames, colours.SpriteSets.All.Colors.ToArray(),
             ObjectSelectionCodec.Sizes(TitleSourceDefinitions.ObjectSizeAndBaseSelector), PartsKeepOwnRows: true);
     }
 }

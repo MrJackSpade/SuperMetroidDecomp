@@ -20,8 +20,6 @@ internal static class GrappleSheetComposer
     /// <summary>The first and last of the four rope characters an orientation uploads.</summary>
     private const int FirstRopeCharacter = EndpointCharacter + 1, LastRopeCharacter = EndpointCharacter + 4;
 
-    /// <summary>CGRAM's first sprite colour.</summary>
-    private const int SpriteColours = 128;
 
     /// <summary>What the grapple sheet composes.</summary>
     /// <exception cref="InvalidDataException">The endpoint names a rope character, or a rope segment the endpoint's.</exception>
@@ -56,6 +54,6 @@ internal static class GrappleSheetComposer
                 }
             }
         }
-        return new SpriteSheetSources(frames, inputs.RoomLoadColours().Colors[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection));
+        return new SpriteSheetSources(frames, inputs.RoomLoadColours().SpriteSets.All.Colors.ToArray(), ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection));
     }
 }

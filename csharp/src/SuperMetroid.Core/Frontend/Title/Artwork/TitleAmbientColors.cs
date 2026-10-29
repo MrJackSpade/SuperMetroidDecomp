@@ -10,13 +10,13 @@ namespace SuperMetroid.Core.Frontend.Title.Artwork;
 internal static class TitleAmbientColors
 {
     /// <summary>Derives a title tube shade or display paint from the selected initial palette and any supplied first-frame edit.</summary>
-    internal static bool TryCalculate(PaletteFxColorKey key, ReadOnlySpan<RgbColor> initial,
+    internal static bool TryCalculate(PaletteFxColorKey key, ScreenColours initial,
         IReadOnlyDictionary<PaletteFxColorKey, RgbColor> supplied, out RgbColor color)
     {
         var tube = TitleScreenAmbientPaletteFxColorDefinitions.TubeLight;
         if (tube.Rows.TryLocate(key, out int frame, out int index))
         {
-            RgbColor first = ScreenColourGroups.In(initial, ScreenColourGroup.TitleTubeLight)[index];
+            RgbColor first = initial.Colours(ScreenColourGroup.TitleTubeLight)[index];
             if (frame == 0) { color = first; return true; }
             if (supplied.TryGetValue(tube.Color(0, index), out RgbColor edited)) first = edited;
             int phase = Math.Min(frame, tube.FrameCount - frame);
@@ -26,8 +26,8 @@ internal static class TitleAmbientColors
         var displays = TitleScreenAmbientPaletteFxColorDefinitions.Displays;
         if (displays.Rows.TryLocate(key, out frame, out index))
         {
-            color = frame == 0 ? ScreenColourGroups.In(initial, ScreenColourGroup.TitleDisplays)[index]
-                : ScreenColourGroups.ColourIn(initial, index == 0 ? ScreenColourGroup.TitleDimWarmPaint : ScreenColourGroup.TitleDimGreenPaint);
+            color = frame == 0 ? initial.Colours(ScreenColourGroup.TitleDisplays)[index]
+                : initial.Colour(index == 0 ? ScreenColourGroup.TitleDimWarmPaint : ScreenColourGroup.TitleDimGreenPaint);
             return true;
         }
         color = RgbColor.Black;

@@ -410,11 +410,11 @@ internal static void VerifyIntroGameplayFlashbackVerticalScroll()
     for (int hit = 0; hit < 4; hit++)
         motherBrain.RecordMissileHit();
     var cgram = new ScreenPalette();
-    var introPalette = new ushort[SnesCgram.ColorCount];
-    motherBrain.RunPreInstruction(cgram, ToColors(introPalette), cinematicFrameCounter: 2, introCrossfadeTimer: 0x7f);
+    ScreenColours introPalette = ScreenColourImage.Decode(ToColors(new ushort[SnesCgram.ColorCount]));
+    motherBrain.RunPreInstruction(cgram, introPalette, cinematicFrameCounter: 2, introCrossfadeTimer: 0x7f);
     AssertEqual(12, motherBrain.Background.Y,
         "intro Mother Brain even-frame shake adds four to inherited scroll");
-    motherBrain.RunPreInstruction(cgram, ToColors(introPalette), cinematicFrameCounter: 3, introCrossfadeTimer: 0x7f);
+    motherBrain.RunPreInstruction(cgram, introPalette, cinematicFrameCounter: 3, introCrossfadeTimer: 0x7f);
     AssertEqual(8, motherBrain.Background.Y,
         "intro Mother Brain odd-frame shake returns to inherited scroll");
     AssertEqual(0, motherBrain.Background.X, "intro Mother Brain shake leaves BG1 horizontal scroll at zero");
@@ -433,7 +433,7 @@ internal static void VerifyCinematicPaletteFader()
     // to see: seven calls compose to zero and the eighth composes to component one.
     target[ScreenColourPositions.Of(ScreenColourGroup.IntroNarrationText)] = 0x1084;
     var cgram = new ScreenPalette();
-    var fader = new CinematicPaletteFader(ToColors(target));
+    var fader = new CinematicPaletteFader(ScreenColourImage.Decode(ToColors(target)));
 
     // $8B:B018 clears incoming range $28/$03, the narration text's three colours.
     fader.Clear(ScreenColourGroup.IntroNarrationText);

@@ -131,10 +131,13 @@ public enum ScreenColourGroup
     EndingLogoSprites,
 
     /// <summary>
-    /// Every post-credits colour the post-credits scenes load from their own colours: all but the first few background
-    /// colours, which keep the credits' colours.
+    /// The background colours the post-credits scenes load from their own colours: all but the first few, which keep the
+    /// credits' colours.
     /// </summary>
-    EndingPostCreditsRestored,
+    EndingPostCreditsRestoredBackground,
+
+    /// <summary>The sprite colours the post-credits scenes load from their own colours: every one.</summary>
+    EndingPostCreditsRestoredSprites,
 
     /// <summary>The post-credits waiting backdrop's colours.</summary>
     EndingWaitingBackdrop,
@@ -153,4 +156,54 @@ public enum ScreenColourGroup
 
     /// <summary>The post-credits shot graphic's colours, which fade out as it turns.</summary>
     EndingShot,
+
+    /// <summary>
+    /// The colours the opening's discovery actors draw in: the Metroid egg, the hatched baby, the egg's particles and
+    /// slime, the Rinkas, and the flashback's Mother Brain.
+    /// </summary>
+    IntroDiscoveryActors,
+
+    /// <summary>
+    /// The opening's cross-fade colours, which the laboratory scenes' scientists and baby and the narration caret draw in.
+    /// </summary>
+    IntroCrossFadeObjects,
+
+    /// <summary>The colours the opening's explosions draw in.</summary>
+    IntroExplosions,
+
+    /// <summary>The colours the Ceres approach's asteroids, stars and vortex draw in.</summary>
+    CeresFlightSpaceObjects,
+
+    /// <summary>The colours the Ceres station draws in as the approach shows it under attack.</summary>
+    CeresFlightStation,
+
+    /// <summary>The colours planet Zebes draws in as the Ceres destruction's escape reaches it.</summary>
+    CeresDestructionZebes,
+
+    /// <summary>The colours of the planet's name shown as the Ceres destruction's escape reaches Zebes.</summary>
+    CeresDestructionTitle,
+
+    /// <summary>The colours the title's opening text cards draw in.</summary>
+    TitleText,
+
+    /// <summary>The colours the title logo draws in.</summary>
+    TitleLogo,
+
+    /// <summary>The colours the title's copyright line draws in, among them its white and red glyph colours.</summary>
+    TitleCopyright,
+
+    /// <summary>The map's bright label colours: the world map's title, the selected area's label and the elevator labels.</summary>
+    MapLabels,
+
+    /// <summary>The colours of the world map's unselected area labels.</summary>
+    MapDimLabels,
+
+    /// <summary>The colours a defeated boss's map marker draws in.</summary>
+    MapDefeatedBossMarker,
+
+    /// <summary>
+    /// The colours the map's station, boss and gunship markers, the load-station marker and Samus's position indicator draw
+    /// in.
+    /// </summary>
+    MapMarkers,
 }

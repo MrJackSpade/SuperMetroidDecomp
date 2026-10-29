@@ -61,19 +61,9 @@ public readonly struct ColourRun
         return sets.Slice(Ensure.BetweenInclusive(0, ColourSets.SetColours - 1, colour), sets.Count - colour);
     }
 
-    /// <summary>The colours at the run's positions in <paramref name="ownerColours"/>, colours laid out as its owner's.</summary>
-    public ReadOnlySpan<RgbColor> SamePositionsIn(ReadOnlySpan<RgbColor> ownerColours)
-    {
-        Ensure.LengthEqual(ownerColours, colours.Length);
-        return ownerColours.Slice(First, Count);
-    }
-
     /// <summary>Whether <paramref name="other"/>'s colours are all among this run's, of the same owner.</summary>
     internal bool Contains(ColourRun other) =>
         ReferenceEquals(colours, other.colours) && other.First >= First && other.First + other.Count <= First + Count;
-
-    /// <summary>Whether the owner's colour at <paramref name="position"/> is in the run.</summary>
-    internal bool Covers(int position) => position >= First && position < First + Count;
 
     /// <summary>Checks that <paramref name="colour"/> is one of the run's.</summary>
     private int Check(int colour) => Ensure.BetweenInclusive(0, Count - 1, colour);

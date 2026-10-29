@@ -40,20 +40,20 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
                 remainingBits >>= 1;
                 if (dead)
                 {
-                    Draw(MapSpriteId.MarkerDefeatedBoss, point, FileSelectMapDefinitions.StationMarkerPalette);
-                    Draw(MapSpriteId.MarkerBoss, point, FileSelectMapDefinitions.DefeatedBossPalette);
+                    Draw(MapSpriteId.MarkerDefeatedBoss, point, ScreenColourGroup.MapMarkers);
+                    Draw(MapSpriteId.MarkerBoss, point, ScreenColourGroup.MapDefeatedBossMarker);
                     continue;
                 }
                 if (system.HasAreaMap(area))
                 {
-                    Draw(MapSpriteId.MarkerBoss, point, FileSelectMapDefinitions.StationMarkerPalette);
+                    Draw(MapSpriteId.MarkerBoss, point, ScreenColourGroup.MapMarkers);
                     continue;
                 }
             }
             remainingBits >>= 1;
         }
-        void Draw(MapSpriteId id, Position16<MapPixels> position, int palette) =>
-            Add(entries, id, position, scroll, palette);
+        void Draw(MapSpriteId id, Position16<MapPixels> position, ScreenColourGroup colouring) =>
+            Add(entries, id, position, scroll, colouring);
     }
 
     /// <summary>Native $82:B6DD draws these objects before Samus's selected-station indicator.</summary>
@@ -70,10 +70,10 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
                 "Map station icons require installed station layout.");
             foreach (var rule in MapStationDiscoveryRules.Get(area, kind))
                 if (system.IsMapTileExplored(area, rule.Cell))
-                    Draw(id, layout.Get(rule.Id), FileSelectMapDefinitions.StationMarkerPalette);
+                    Draw(id, layout.Get(rule.Id), ScreenColourGroup.MapMarkers);
         }
-        void Draw(MapSpriteId id, Position16<MapPixels> position, int palette) =>
-            Add(entries, id, position, scroll, palette);
+        void Draw(MapSpriteId id, Position16<MapPixels> position, ScreenColourGroup colouring) =>
+            Add(entries, id, position, scroll, colouring);
     }
 
     /// <summary>Normal file select adds the gunship and downloaded elevator labels, not debug save icons.</summary>
@@ -83,7 +83,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
         {
             var point = (landmarks ?? throw new InvalidOperationException(
                 "Gunship icon requires installed landmark layout.")).Get(MapLandmarkDefinitions.Gunship);
-            Add(entries, MapSpriteId.MarkerGunship, point, scroll, FileSelectMapDefinitions.StationMarkerPalette);
+            Add(entries, MapSpriteId.MarkerGunship, point, scroll, ScreenColourGroup.MapMarkers);
         }
         drawArrows?.Invoke();
         DrawElevatorLabels(entries, scroll);
@@ -98,13 +98,14 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
         foreach (var label in MapLandmarks.Elevators(area))
         {
             Add(entries, MapLandmarks.ElevatorSpritemap(label.Destination),
-                elevatorLayout.Get(label.Id), scroll, 0);
+                elevatorLayout.Get(label.Id), scroll, ScreenColourGroup.MapLabels);
         }
     }
     /// <summary>Converts a map-space landmark to OAM and draws it with installed sprite art.</summary>
-    private void Add(ScreenSprites entries, MapSpriteId id, Position16<MapPixels> position, Position16<MapPixels> scroll, int palette)
+    private void Add(ScreenSprites entries, MapSpriteId id, Position16<MapPixels> position, Position16<MapPixels> scroll,
+        ScreenColourGroup colouring)
     {
         MapSpriteSheet.Draw(sheet ?? throw new InvalidOperationException("Map icons require the installed map sprite sheet."),
-            id, entries, position.ToScreen(scroll).ToSpritePosition(), palette);
+            id, entries, position.ToScreen(scroll).ToSpritePosition(), colouring);
     }
 }

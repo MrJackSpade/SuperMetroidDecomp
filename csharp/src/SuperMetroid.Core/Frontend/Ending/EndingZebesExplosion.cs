@@ -34,7 +34,7 @@ internal sealed class EndingZebesExplosion
     {
         _stage.LoadFloor(EndingFloorSceneId.PlanetExplosion);
         _artwork.LoadEndingObjectCharacters();
-        _stage.LoadStaticPalette(EndingPaletteId.Explosion, screen.Palette.Sprites);
+        _stage.StaticScreen(EndingPaletteId.Explosion).LoadSpritesTo(screen.Palette);
         sprites.Clear();
         _stage.SpawnSprite(EndingActorDefinitions.ExplodingZebes, EndingSpriteRole.ExplodingZebes);
         _stage.SpawnSprite(EndingActorDefinitions.ExplosionLava, EndingSpriteRole.ExplosionLava);
@@ -49,8 +49,8 @@ internal sealed class EndingZebesExplosion
         _stage.Phase = EndingCreditsPhase.FadeInZebesExplosion;
     }
 
-    /// <summary>CGRAM snapshot taken before the planet explosion's object/background crossfade.</summary>
-    private RgbColor[] explosionFadeSource = [];
+    /// <summary>The screen's colours, by owner, captured before the planet explosion's object/background crossfade.</summary>
+    private ColourImage? explosionFadeSource;
 
     /// <summary>Current native palette interpolation step during the explosion crossfade.</summary>
     private int explosionFadeStep;
@@ -65,7 +65,7 @@ internal sealed class EndingZebesExplosion
         // Func115 clears the previous cloud palette programs before taking its source
         // snapshot; otherwise their next instruction can overwrite the new OBJ fade.
         _stage.ResetPaletteFx();
-        explosionFadeSource = screen.Palette.Colors.ToArray();
+        explosionFadeSource = screen.Palette.Capture();
         explosionFadeStep = 0;
         ApplyExplosionFade(screen.Palette.Colours(ScreenColourGroup.EndingExplosionLava), 0);
         ApplyExplosionFade(screen.Palette.Colours(ScreenColourGroup.EndingExplodingPlanet), 0);
@@ -95,7 +95,8 @@ internal sealed class EndingZebesExplosion
     /// <summary>Scales one colour group of the explosion's colours from those captured when the crossfade began.</summary>
     private void ApplyExplosionFade(ColourRun row, int factor)
     {
-        ReadOnlySpan<RgbColor> source = row.SamePositionsIn(explosionFadeSource);
+        ReadOnlySpan<RgbColor> source = (explosionFadeSource ?? throw new InvalidOperationException(
+            "The explosion crossfade has not captured its colours.")).Of(row);
         for (int colour = 0; colour < row.Count; colour++)
             row.Write(colour, source[colour].Map((_, channel) => channel * factor / EndingExplosionFadeDefinitions.Steps));
     }

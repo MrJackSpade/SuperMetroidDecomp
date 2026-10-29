@@ -9,6 +9,7 @@ using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 
@@ -87,7 +88,7 @@ internal static class IntroScientistPartsVerification
                 json.Position = 0;
                 var presentation = IntroCaretSpritePresentation.Load(json);
                 var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
-                CinematicSheetFixtures.Drawer(presentation).Draw(pose, actual, new(120, 72), 6);
+                CinematicSheetFixtures.Drawer(presentation).Draw(pose, actual, new(120, 72), ScreenColourGroup.IntroCrossFadeObjects);
                 actual.FinalizeFrame();
                 AssertTrue(expected.ImageEquals(actual)
                     && expected.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount,

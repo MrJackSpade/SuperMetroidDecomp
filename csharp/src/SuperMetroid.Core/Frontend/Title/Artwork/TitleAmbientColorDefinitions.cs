@@ -8,8 +8,4 @@ internal static class TitleAmbientColorDefinitions
 {
     /// <summary>$8D:C800-C85B: nominal three-unit RGB5 dimming step, with shorter channels distributed to black.</summary>
     internal const int ShadeStep = 3;
-    /// <summary>$8D:C870: dim warm display paint reuses title palette slot3 ($8C:E1EF).</summary>
-    internal const int DimWarmPaint = 3;
-    /// <summary>$8D:C872: dim green display paint reuses title palette slot19 ($8C:E20F).</summary>
-    internal const int DimGreenPaint = 19;
 }

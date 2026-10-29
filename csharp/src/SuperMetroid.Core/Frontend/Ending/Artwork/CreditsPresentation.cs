@@ -98,7 +98,7 @@ public sealed class CreditsPresentation
             }
             if (line.Text is null || line.Text.Length == 0)
                 throw new InvalidDataException($"Credits line '{definition.Id}' cannot be empty.");
-            if ((uint)line.Palette > CreditsPresentationDefinitions.MaximumPalette)
+            if ((uint)line.Palette >= BackgroundTile.ColourVariants)
                 throw new InvalidDataException($"Credits line '{definition.Id}' has invalid palette {line.Palette}.");
             if (line.Column < 0 || line.Column + line.Text.Length >
                 CreditsPresentationDefinitions.TilemapWidth)

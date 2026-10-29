@@ -121,8 +121,6 @@ internal static class CeresDestructionSceneDefinitions
         internal const int VortexSlot = 0;
         /// <summary>The slot of the invisible actor that spawns the explosions.</summary>
         internal const int SpawnerSlot = 14;
-        /// <summary>The sprite palette the Ceres explosions are drawn with.</summary>
-        internal const int ExplosionPalette = 5;
         /// <summary>The Zebes approach's starting horizontal scroll, in pixels.</summary>
         internal const ushort ZebesInitialBackgroundX = 128;
     }

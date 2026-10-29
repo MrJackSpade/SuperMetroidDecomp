@@ -16,7 +16,7 @@ internal static class TitleAmbientColors
         var tube = TitleScreenAmbientPaletteFxColorDefinitions.TubeLight;
         if (tube.Rows.TryLocate(key, out int frame, out int index))
         {
-            RgbColor first = initial[tube.ColorByteIndex / RgbColor.ByteCount + index];
+            RgbColor first = ScreenColourGroups.In(initial, ScreenColourGroup.TitleTubeLight)[index];
             if (frame == 0) { color = first; return true; }
             if (supplied.TryGetValue(tube.Color(0, index), out RgbColor edited)) first = edited;
             int phase = Math.Min(frame, tube.FrameCount - frame);
@@ -26,9 +26,8 @@ internal static class TitleAmbientColors
         var displays = TitleScreenAmbientPaletteFxColorDefinitions.Displays;
         if (displays.Rows.TryLocate(key, out frame, out index))
         {
-            int paletteIndex = frame == 0 ? displays.ColorByteIndex / RgbColor.ByteCount + index
-                : index == 0 ? DimWarmPaint : DimGreenPaint;
-            color = initial[paletteIndex];
+            color = frame == 0 ? ScreenColourGroups.In(initial, ScreenColourGroup.TitleDisplays)[index]
+                : ScreenColourGroups.ColourIn(initial, index == 0 ? ScreenColourGroup.TitleDimWarmPaint : ScreenColourGroup.TitleDimGreenPaint);
             return true;
         }
         color = RgbColor.Black;

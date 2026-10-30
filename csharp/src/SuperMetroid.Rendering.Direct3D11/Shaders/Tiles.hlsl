@@ -17,12 +17,12 @@ cbuffer TileParameters : register(b0)
     int CenterX, CenterY, OffsetX, OffsetY;
     uint FloorOutside, FirstScanline, EndScanline;
     uint Reserved27;
-    // A described line displacement (#1468, D3D11LineDisplacement): its kind, its band of lines (first, then the line
-    // after its last in the high half), its scale and its shape word.
-    uint DisplacementKind, DisplacementBand, DisplacementScale, DisplacementShape;
+    uint Reserved28, Reserved29, Reserved30, Reserved31;
     uint4 ScanlineParameters[224];
     // The window an operation tests pixels against (Window.hlsli, #1468): a header row and two rows per shape.
     uint4 WindowShapes[9];
+    // The pass's described line scrolls (#1468): four slots and their data rows; LineScroll reads them.
+    uint4 LineScrolls[24];
 };
 // The scene's colours (D3D11SceneColourBuffer): the backdrop, then each colour slot's table's word, then the tables:
 // a word of one bit per sixteen-ink group still showing its image's own colours, then each ink's colour.
@@ -327,8 +327,14 @@ uint PicturePixel(uint picture, uint2 pixel, out uint index, out bool high)
     return TexelColour(texel, RoomLevels[picture + PictureColoursWord], index, high);
 }
 
-// These kinds match D3D11LineDisplacementKind.cs (#1468).
-static const uint DisplacementWave = 1, DisplacementStretch = 2;
+/// A pass's described line scrolls (#1468, D3D11LineScrolls): LineScrolls' first four rows are slots, each one axis of
+// one plane (a pass's own plane horizontally then vertically, then the plane an X-ray pass blends with); each slot's
+// data rows follow them. A slot row holds its kind in the low byte of x with its base scroll in the high half, its band
+// (first line, then the line after its last in the high half) in y, its scale in z and its shape word in w.
+// These kinds match D3D11LineScrollKind.cs.
+static const uint ScrollBandsKind = 0, ScrollWaveKind = 1, ScrollStretchKind = 2, ScrollSampledKind = 3;
+static const uint LineScrollSlots = 4, LineScrollDataRows = 5;
+static const uint SlotHorizontal = 0, SlotVertical = 1, SlotBlendHorizontal = 2, SlotBlendVertical = 3;
 // The game's signed sine samples over a quarter turn of its 256-step angle (Trigonometry.SignedSine): 256 times the
 // sine, rounded down, with the quarter turn itself at 256. A wave reads these, not the device's sine, so every device
 // draws the same lines.
@@ -338,34 +344,71 @@ static const int QuarterSine[65] =
     157, 162, 167, 171, 176, 181, 185, 189, 193, 197, 201, 205, 209, 212, 216, 219, 222, 225, 228, 231, 234, 236, 238,
     241, 243, 244, 246, 248, 249, 251, 252, 253, 254, 254, 255, 255, 255, 256
 };
-// The described shape's displacement of screen line `screenY` (#1468), in pixels. A wave (ScrollWave) pushes each line of
-// its band sideways by its amplitude (1/256ths of a pixel) times the sine at the line's angle: the angle at line zero
-// advanced by the line's share of the period's whole turn, rounded toward zero. A stretch (ScrollStretch) sags each line
-// of its band upward through the plane by its slope (1/65536ths of a row) for each line below the band's first, and
-// moves the lines above its band by its shape word.
-int2 LineDisplacement(uint screenY)
+// Word `index` of slot `slot`'s data rows.
+uint LineScrollData(uint slot, uint index)
 {
-    int2 displacement = int2(0, 0);
-    uint bandFirst = DisplacementBand & 65535, bandEnd = DisplacementBand >> 16;
-    bool inBand = screenY >= bandFirst && screenY < bandEnd;
-    if (DisplacementKind == DisplacementWave && inBand)
-    {
-        uint period = DisplacementShape >> 16;
-        uint angle = ((DisplacementShape & 255) + screenY * 256 / period) & 255;
-        uint quarter = angle & 127;
-        if (quarter > 64) quarter = 128 - quarter;
-        int magnitude = (int)(((uint)QuarterSine[quarter] * DisplacementScale) >> 16);
-        displacement.x = angle >= 128 ? -magnitude : magnitude;
-    }
-    else if (DisplacementKind == DisplacementStretch)
-    {
-        if (screenY < bandFirst) displacement.y = (int)DisplacementShape;
-        else if (inBand) displacement.y = -(int)(((screenY - bandFirst) * DisplacementScale) >> 16);
-    }
-    return displacement;
+    return LineScrolls[LineScrollSlots + slot * LineScrollDataRows + index / 4][index & 3];
 }
-// A screen line's scroll displaced by the pass's described shape, wrapped as a sixteen-bit scroll.
-uint2 DisplacedScroll(uint2 scroll, uint screenY) { return (uint2)((int2)scroll + LineDisplacement(screenY)) & 65535; }
+// The scroll slot `slot` gives screen line `screenY`, a sixteen-bit scroll.
+// Bands (ScrollBands): the line takes the scroll of the last band beginning on or above it, or the base above the
+// first; each band's data word holds its scroll, then its first line in the high half, and w counts them.
+// A wave (ScrollWave): each line of its band moves by its amplitude (1/256ths of a pixel) times the sine at the line's
+// angle, the angle at line zero (w's low byte) advanced by the line's share of the period's (w's high half) whole turn,
+// rounded toward zero.
+// A stretch (ScrollStretch): each line of its band falls behind by its slope (1/65536ths of a row) for each line below
+// the band's first, and the lines above its band move by w.
+// A sampled wave (SampledScrollWave): each line of its band moves by its sample times its amplitude (1/256ths of a
+// pixel), rounded down; line y reads sample (phase + y) mod period, the phase in w's low half and the period in its
+// high half, the samples signed bytes four to a data word from the low byte up.
+uint LineScroll(uint slot, uint screenY)
+{
+    uint4 shape = LineScrolls[slot];
+    uint kind = shape.x & 255, scroll = shape.x >> 16;
+    uint bandFirst = shape.y & 65535, bandEnd = shape.y >> 16;
+    bool inBand = screenY >= bandFirst && screenY < bandEnd;
+    int moved = 0;
+    if (kind == ScrollBandsKind)
+    {
+        [loop] for (uint band = 0; band < shape.w; band++)
+        {
+            uint word = LineScrollData(slot, band);
+            if ((word >> 16) > screenY) break;
+            scroll = word & 65535;
+        }
+    }
+    else if (kind == ScrollWaveKind)
+    {
+        if (inBand)
+        {
+            uint period = shape.w >> 16;
+            uint angle = ((shape.w & 255) + screenY * 256 / period) & 255;
+            uint quarter = angle & 127;
+            if (quarter > 64) quarter = 128 - quarter;
+            int magnitude = (int)(((uint)QuarterSine[quarter] * shape.z) >> 16);
+            moved = angle >= 128 ? -magnitude : magnitude;
+        }
+    }
+    else if (kind == ScrollStretchKind)
+    {
+        if (screenY < bandFirst) moved = (int)shape.w;
+        else if (inBand) moved = -(int)(((screenY - bandFirst) * shape.z) >> 16);
+    }
+    else if (kind == ScrollSampledKind)
+    {
+        if (inBand)
+        {
+            uint index = ((shape.w & 65535) + screenY) % (shape.w >> 16);
+            int sample = ((int)(LineScrollData(slot, index / 4) << (24 - (index & 3) * 8))) >> 24;
+            moved = (sample * (int)shape.z) >> 8;
+        }
+    }
+    return (uint)((int)scroll + moved) & 65535;
+}
+// A plane's scroll on screen line `screenY` from its two slots, horizontal then vertical.
+uint2 LineScrollPair(uint horizontal, uint vertical, uint screenY)
+{
+    return uint2(LineScroll(horizontal, screenY), LineScroll(vertical, screenY));
+}
 
 #include "SpriteLayer.hlsli"
 #include "Window.hlsli"
@@ -522,7 +565,8 @@ void Main(uint3 id : SV_DispatchThreadID)
         Output[id.xy] = Pack((c << 3) | (c >> 2), 255); return;
     }
     bool backgroundMath = Operation == OpAddLayer || Operation == OpSubtractLayer;
-    uint2 scroll = DisplacedScroll((backgroundMath || Reserved3 != 0) ? ScanlineParameters[id.y].xy : uint2(HorizontalScroll, VerticalScroll), id.y);
+    // Background math and passes that mark Reserved3 take each line's scroll from their described line scrolls (#1468).
+    uint2 scroll = (backgroundMath || Reserved3 != 0) ? LineScrollPair(SlotHorizontal, SlotVertical, id.y) : uint2(HorizontalScroll, VerticalScroll);
     // The mosaic groups screen pixels before the line's own scroll.
     uint2 sampleScreen = id.xy;
     if (Operation == OpLayer && Reserved27 > 1) sampleScreen -= sampleScreen % Reserved27;

@@ -32,8 +32,9 @@ internal static class OrdinarySmokeTests
             Bg2 = null,
             Sky = new SkyPictures(RoomBackgroundsFixtures.SeededSky(random, colors), ScrollingSkyChunkTable.Ocean),
         };
-        ushort[] x = Enumerable.Range(0, 192).Select(i => unchecked((ushort)(65535 - i * 17))).ToArray();
-        ushort[] y = Enumerable.Range(0, 192).Select(i => unchecked((ushort)(511 + i * 3))).ToArray();
+        // Line scrolls described as shapes (#1468): a falling sixteen-sample ramp across, a rising one down.
+        LineScroll x = new SampledScrollWave(65535, [.. Enumerable.Range(0, 16).Select(i => -i)], 17 * 256, 0, 32, 224);
+        LineScroll y = new SampledScrollWave(511, [.. Enumerable.Range(0, 16)], 3 * 256, 0, 32, 224);
         int count = 0;
         foreach (var geometry in new[] { new OrdinarySmokeRunCase(64,32), new OrdinarySmokeRunCase(32,64), new OrdinarySmokeRunCase(64,64) })
         for (int mask = 0; mask < 8; mask++)
@@ -45,8 +46,7 @@ internal static class OrdinarySmokeTests
             var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511),
                 new Extent16<TilemapCells>((ushort)geometry.First, (ushort)geometry.Second), flags);
             var layer = new GameplaySceneLayer(registers,
-                hdma % 2 == 0 || geometry is { First: 64, Second: 64 } && hdma == 3 ? rooms : hdma == 1 ? sky : loaded, new BackgroundLineScrolls(
-                (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
+                hdma % 2 == 0 || geometry is { First: 64, Second: 64 } && hdma == 3 ? rooms : hdma == 1 ? sky : loaded, new BackgroundLineScrolls { Horizontal = (hdma & 1) != 0 ? x : null, Vertical = (hdma & 2) != 0 ? y : null });
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory,
                 new DisplayLayer[] { layer }, 15));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
@@ -72,8 +72,7 @@ internal static class OrdinarySmokeTests
             if ((mask & 4) != 0) flags |= ScreenLayers.Sprites;
             var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511),
                 new Extent16<TilemapCells>(64, 32), flags);
-            var layer = new GameplaySceneLayer(registers, pictured, new BackgroundLineScrolls(
-                (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
+            var layer = new GameplaySceneLayer(registers, pictured, new BackgroundLineScrolls { Horizontal = (hdma & 1) != 0 ? x : null, Vertical = (hdma & 2) != 0 ? y : null });
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, block pictures, layers {flags}, HDMA {hdma}");
@@ -86,8 +85,7 @@ internal static class OrdinarySmokeTests
             var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511),
                 new Extent16<TilemapCells>((ushort)geometry.First, (ushort)geometry.Second),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
-            var layer = new GameplaySceneLayer(registers, background, new BackgroundLineScrolls(
-                (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
+            var layer = new GameplaySceneLayer(registers, background, new BackgroundLineScrolls { Horizontal = (hdma & 1) != 0 ? x : null, Vertical = (hdma & 2) != 0 ? y : null });
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, background image, geometry {geometry}, HDMA {hdma}");
@@ -103,8 +101,7 @@ internal static class OrdinarySmokeTests
         {
             var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511),
                 new Extent16<TilemapCells>(64, 64), ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
-            var layer = new GameplaySceneLayer(registers, boss, new BackgroundLineScrolls(
-                (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
+            var layer = new GameplaySceneLayer(registers, boss, new BackgroundLineScrolls { Horizontal = (hdma & 1) != 0 ? x : null, Vertical = (hdma & 2) != 0 ? y : null });
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, boss BG2 tilemap, HDMA {hdma}");
@@ -115,8 +112,7 @@ internal static class OrdinarySmokeTests
         {
             var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511),
                 new Extent16<TilemapCells>(64, 32), ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
-            var layer = new GameplaySceneLayer(registers, hudPictured, new BackgroundLineScrolls(
-                (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
+            var layer = new GameplaySceneLayer(registers, hudPictured, new BackgroundLineScrolls { Horizontal = (hdma & 1) != 0 ? x : null, Vertical = (hdma & 2) != 0 ? y : null });
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, BG3 pictures, HDMA {hdma}");

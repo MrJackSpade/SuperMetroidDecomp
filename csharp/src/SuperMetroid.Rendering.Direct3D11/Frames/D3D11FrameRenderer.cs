@@ -221,7 +221,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         shown is null || ReferenceEquals(shown, plane) ? plane
             : throw new InvalidOperationException("A frame's layers show two different layer-3 planes.");
 
-    /// <summary>Adds or subtracts the room effect's layer-3 rows, each line at its own scroll.</summary>
+    /// <summary>Adds or subtracts the room effect's layer-3 rows, each line at the scroll its described line scrolls give it (#1468).</summary>
     private unsafe void DispatchBackgroundMath(OverlayBlendLayer layer)
     {
         var data = ClearUploadConstants();
@@ -232,12 +232,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[5] = 32; data[6] = (uint)layer.MapHeightTiles; data[8] = 1;
         data[14] = (uint)D3D11RoomSource.Layer3;
         data[25] = (uint)layer.FirstLine; data[26] = 224;
-        for (int y = 0; y < layer.Scrolls.Length; y++)
-        {
-            int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + y * 4;
-            data[offset] = layer.Scrolls[y].X;
-            data[offset + 1] = layer.Scrolls[y].Y;
-        }
+        D3D11LineScrolls.Pack(data, D3D11LineScrolls.Horizontal, layer.Horizontal, 0, 0);
+        D3D11LineScrolls.Pack(data, D3D11LineScrolls.Vertical, layer.Vertical, 0, 0);
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
@@ -325,22 +321,22 @@ public sealed class D3D11FrameRenderer : IDisposable
         for (int y = 32; y < 224; y++)
         {
             int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + y * 4, line = y - 32;
-            var scroll = layer.Gameplay.BackgroundScrollAt(line);
-            data[offset] = scroll.X;
-            data[offset + 1] = unchecked((ushort)(scroll.Y + D3D11Screen.LayerLineOffset));
             // The third byte holds the layers this line shows.
             var mainScreen = layer.Gameplay.LayersShownByLine.IsEmpty
                 ? r.MainScreenLayers : layer.Gameplay.LayersShownByLine[line];
             // Draygon's room hides layer 2 outside its band even while the X-ray blends.
             if (y < r.BackgroundFirstLine || y >= r.BackgroundEndLine) mainScreen &= ~ScreenLayers.Background;
             data[offset + 2] = D3D11ConstantPacking.Bytes(0, 0, (byte)mainScreen, 0);
-            if (layer.BlendPlane is { } bg3)
-                data[offset + 3] = D3D11ConstantPacking.Halves(bg3.Scrolls[y].X, bg3.Scrolls[y].Y);
         }
         // The X-ray's cone (#1468): inside it the room shows unblended.
         D3D11WindowPacking.Pack(data, layer.Window);
-        // Layer 2's described wave or stretch displaces each line from the base scroll packed above (#1468).
-        D3D11LineDisplacement.Pack(data, layer.Gameplay.BackgroundLineScrolls.HorizontalWave, layer.Gameplay.BackgroundLineScrolls.VerticalStretch);
+        // Layer 2's scrolls and the blend plane's, described line by line (#1468).
+        PackBackgroundScrolls(data, layer.Gameplay);
+        if (layer.BlendPlane is { } bg3)
+        {
+            D3D11LineScrolls.Pack(data, D3D11LineScrolls.BlendPlaneHorizontal, bg3.Horizontal, 0, 0);
+            D3D11LineScrolls.Pack(data, D3D11LineScrolls.BlendPlaneVertical, bg3.Vertical, 0, 0);
+        }
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
@@ -424,7 +420,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         }
     }
 
-    /// <summary>Draws the room's layer 2 at one priority in a band, each line at its own scroll, with its mosaic.</summary>
+    /// <summary>Draws the room's layer 2 at one priority in a band, each line at the scroll its line scrolls give it (#1468), with its mosaic.</summary>
     private unsafe void DispatchRoomLayer2(GameplaySceneLayer layer, bool high, int first, int end)
     {
         var r = layer.View;
@@ -436,18 +432,20 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[25] = (uint)Math.Max(r.BackgroundFirstLine, first); data[26] = (uint)Math.Min(r.BackgroundEndLine, end);
         // Header word 27 is the mosaic's block size (zero elsewhere).
         data[27] = (uint)r.BackgroundPixelation.Size;
-        for (int y = D3D11Screen.HudHeight; y < D3D11Screen.Height; y++)
-        {
-            int line = y - D3D11Screen.HudHeight;
-            int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + y * 4;
-            var scroll = layer.BackgroundScrollAt(line);
-            data[offset] = scroll.X;
-            data[offset + 1] = unchecked((ushort)(scroll.Y + D3D11Screen.LayerLineOffset));
-        }
-        // The described wave or stretch displaces each line from the base scroll packed above (#1468).
-        D3D11LineDisplacement.Pack(data, layer.BackgroundLineScrolls.HorizontalWave, layer.BackgroundLineScrolls.VerticalStretch);
+        PackBackgroundScrolls(data, layer);
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
+    }
+
+    /// <summary>
+    /// Packs the room's layer-2 scrolls into the pass's own line-scroll slots (#1468): each axis's described shape, or
+    /// the view's background scroll on every line, the vertical moved by the room planes' one-line offset.
+    /// </summary>
+    private static void PackBackgroundScrolls(uint[] data, GameplaySceneLayer layer)
+    {
+        Position16<BackgroundPixels> own = layer.View.BackgroundScroll;
+        D3D11LineScrolls.Pack(data, D3D11LineScrolls.Horizontal, layer.BackgroundLineScrolls.Horizontal, own.X, 0);
+        D3D11LineScrolls.Pack(data, D3D11LineScrolls.Vertical, layer.BackgroundLineScrolls.Vertical, own.Y, D3D11Screen.LayerLineOffset);
     }
 
     /// <summary>
@@ -459,8 +457,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.AddLayerBehind;
         data[1] = roomLevels.PlaneTable(layer.Plane);
-        data[4] = (uint)layer.VerticalScroll;
-        data[5] = layer.Plane.Size.X; data[6] = layer.Plane.Size.Y; data[8] = 1; data[26] = 224;
+        data[5] = layer.Plane.Size.X; data[6] = layer.Plane.Size.Y; data[8] = 1; data[15] = 1; data[26] = 224;
         data[14] = (uint)D3D11RoomSource.PicturedPlane;
         data[10] = layer.IncludeObjects ? 1u : 0u;
         data[11] = layer.MainObjects ? 1u : 0u;
@@ -473,12 +470,8 @@ public sealed class D3D11FrameRenderer : IDisposable
             data[offset + 4] = coverage.Plane.Size.X; data[offset + 5] = coverage.Plane.Size.Y;
             data[offset + 6] = Priority(coverage.Priority); data[offset + 7] = 1;
         }
-        if (layer.HorizontalWave is { } wave)
-        {
-            // Every line starts at the wave's base scroll; the shader adds the wave's displacement at the line.
-            data[3] = (uint)wave.BaseScroll;
-            D3D11LineDisplacement.Pack(data, wave, null);
-        }
+        D3D11LineScrolls.Pack(data, D3D11LineScrolls.Horizontal, layer.HorizontalWave, 0, 0);
+        D3D11LineScrolls.Pack(data, D3D11LineScrolls.Vertical, null, layer.VerticalScroll, 0);
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }

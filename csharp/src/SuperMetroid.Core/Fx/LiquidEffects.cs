@@ -1,8 +1,22 @@
+using System.Collections.Immutable;
+
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>The waveforms liquid surfaces and heat haze follow, and lava's choice of bubbling sound (#1415).</summary>
 public static class LiquidEffects
 {
+    /// <summary>One period of the water wave, sixteen samples (#1468): the waveform a water surface's waves are drawn from.</summary>
+    public static ImmutableArray<int> WaterWaveform { get; } =
+        [.. Enumerable.Range(0, WaterWaveDefinitions.WaveDisplacementCount).Select(index => (int)WaterWaveDisplacement(index))];
+
+    /// <summary>One period of the vertical heat haze, sixteen samples (#1468).</summary>
+    public static ImmutableArray<int> HeatVerticalWaveform { get; } =
+        [.. Enumerable.Range(0, LavaAcidWaveDefinitions.WaveDisplacementCount).Select(index => (int)HeatVerticalWaveDisplacement(index))];
+
+    /// <summary>One period of the horizontal heat haze, sixteen samples (#1468).</summary>
+    public static ImmutableArray<int> HeatHorizontalWaveform { get; } =
+        [.. Enumerable.Range(0, LavaAcidWaveDefinitions.WaveDisplacementCount).Select(index => (int)HeatHorizontalWaveDisplacement(index))];
+
     /// <summary>Calculates the signed scanline displacement for a water wave index 0..15.</summary>
     /// <remarks>The original $88:C46E waveform consists of two identical eight-sample
     /// periods. Within each four-sample half-wave, reflect the integer ramp around

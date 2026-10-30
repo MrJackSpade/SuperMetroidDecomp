@@ -36,8 +36,10 @@ internal static class BackgroundMosaicTests
         var memory = FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0);
         // BG1's plane and BG2's loaded tilemap show tile word zero, the pattern, drawn from their pictures (#1403).
         var rooms = RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, default);
-        ushort[] horizontal = Enumerable.Range(0, 192).Select(y => (ushort)(y * 3 + 7)).ToArray();
-        ushort[] vertical = Enumerable.Range(0, 192).Select(y => (ushort)(65530 + y)).ToArray();
+        // Every gameplay line scrolls differently on both axes (#1468): a sixteen-sample ramp across and down.
+        System.Collections.Immutable.ImmutableArray<int> ramp = [.. Enumerable.Range(0, 16)];
+        var horizontal = new SampledScrollWave(7, ramp, 3 * 256, 0, 32, 224);
+        var vertical = new SampledScrollWave(65530, ramp, 256, 0, 32, 224);
         int cases = 0;
         foreach (int size in Enumerable.Range(1, 16))
         foreach (int mode in Enumerable.Range(0, 4))
@@ -46,7 +48,7 @@ internal static class BackgroundMosaicTests
                 ScreenLayers.Sprites | (mode == 2 ? ScreenLayers.None : ScreenLayers.Background) |
                     (mode == 3 ? ScreenLayers.Foreground : ScreenLayers.None),
                 BackgroundPixelation: new(size));
-            var ordinary = new GameplaySceneLayer(registers, rooms, new BackgroundLineScrolls(horizontal, vertical));
+            var ordinary = new GameplaySceneLayer(registers, rooms, new BackgroundLineScrolls { Horizontal = horizontal, Vertical = vertical });
             DisplayLayer layer = mode is 0 or 3 ? ordinary : new GameplayBlendLayer(ordinary, ScreenWindow.Closed, false, new SceneBlend { Layers = mode == 2 ? ColorBlend.Backdrop : ColorBlend.None, BlendsWithLayersBehind = mode == 2, FixedColor = RgbColor.Black }, subscreenUsesBg2: mode == 2);
             var scene = new LayeredScene(memory, [layer], 15);
             var packet = new DisplayPacket(new(++cases, 1, 0), scene);
@@ -59,8 +61,8 @@ internal static class BackgroundMosaicTests
                 {
                     // Independent scalar oracle: choose the screen block, then
                     // current-row scroll, wrap within the authored 8x8 pattern.
-                    int sx = (x / size * size + horizontal[y - 32]) & 7;
-                    int sy = (y / size * size + 1 + vertical[y - 32]) & 7;
+                    int sx = (x / size * size + ScrollShapeLines.Scroll(horizontal, y)) & 7;
+                    int sy = (y / size * size + 1 + ScrollShapeLines.Scroll(vertical, y)) & 7;
                     if (mode == 3) { sx = x & 7; sy = (y + 1) & 7; }
                     expectedColor = 1 + (sx + 2 * sy) % 15;
                 }

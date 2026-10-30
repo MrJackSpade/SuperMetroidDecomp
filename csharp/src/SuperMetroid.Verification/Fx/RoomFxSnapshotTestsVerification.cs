@@ -50,14 +50,11 @@ internal static class RoomFxSnapshotTestsVerification
             AssertTrue(actual.AsSpan(0, 256 * 32).SequenceEqual(baseline.AsSpan(0, 256 * 32)),
                 $"room FX {type}/{blend} at {surface}, phase {phase}, Y {currentY} preserves HUD band");
         }
-        var lines = new Position16<TilePlanePixels>[224];
-        var owned = new OverlayBlendLayer(plane, 0, 64, 32, BlendOperation.Add, lines);
-        Array.Fill(lines, new Position16<TilePlanePixels>(1234, 5678));
-        AssertTrue(owned.Scrolls.All(line => line == default), "BG math owns register rows");
-        AssertThrows<ArgumentException>(() => new OverlayBlendLayer(plane, 0, 64, 32,
-            BlendOperation.Add, new Position16<TilePlanePixels>[223]), "BG math rejects truncated register table");
+        var owned = new OverlayBlendLayer(plane, 0, 64, 32, BlendOperation.Add, ScrollBands.Uniform(0), ScrollBands.Uniform(0));
+        AssertThrows<ArgumentNullException>(() => new OverlayBlendLayer(plane, 0, 64, 32,
+            BlendOperation.Add, null!, ScrollBands.Uniform(0)), "BG math requires its described line scrolls");
         AssertThrows<ArgumentOutOfRangeException>(() => new OverlayBlendLayer(plane, 0, 64, 32,
-            (BlendOperation)255, lines), "BG math rejects unknown equation");
+            (BlendOperation)255, ScrollBands.Uniform(0), ScrollBands.Uniform(0)), "BG math rejects unknown equation");
         var encoded = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory, [owned], 15));
         AssertThrows<InvalidDataException>(() => GameplayEffectCapture.CaptureRoomLayer3Fx(
             new(RoomFxType.Water, LayerBlendingConfiguration.Rain, Position16<OverlayPixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue)), plane), "capture preserves invalid water configuration failure");

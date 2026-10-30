@@ -134,7 +134,7 @@ internal static class HudAtlasVerification
             Layer3Cells plane = Layer3CellsFixtures.FromWords(runtime.FrameBoundary.CaptureLayer3Plane().WordsIn(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.RoomFxPagesOf(InstalledFixtures.Maps)), runtime.ComposedVram(),
                 runtime.Colours.Colors);
             var layer = new OverlayBlendLayer(plane, 0, Layer3Plane.Rows, 0, BlendOperation.Add,
-                new Position16<TilePlanePixels>[ScreenGeometry.ScreenHeightPixels]);
+                ScrollBands.Uniform(0), ScrollBands.Uniform(0));
             RgbaPixel[] frame = DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(runtime.Colours.Colors, []),
                 new DisplayLayer[] { layer }, DisplayBrightness.Full));
             return frame[..(DisplayScreen.HudHeight * DisplayScreen.Width)];

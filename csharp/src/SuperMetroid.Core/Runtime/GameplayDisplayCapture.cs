@@ -99,13 +99,13 @@ public static class GameplayDisplayCapture
             bg2Scroll = bg2Scroll.WithY(unchecked((ushort)(scrolls.Layer1Position.Y + latched.TourianStatueVerticalOffset)));
         RoomLayer3FxRenderSnapshot? fx = latched.RoomLayer3Fx;
         LatchedScrollingSky? sky = scene.ScrollingSky;
-        ushort[]? skyX = SkyHorizontalScrolls(live, shake);
+        ScrollBands? skyX = SkyHorizontalScrolls(live, shake);
 
-        ushort[]? waterX = fx is { } water
+        SampledScrollWave? waterX = fx is { } water
             ? GameplayEffectCapture.BuildWaterBackgroundHorizontalScrolls(water, bg2Scroll) : null;
-        ushort[]? lavaX = fx is { } lava
+        SampledScrollWave? lavaX = fx is { } lava
             ? GameplayEffectCapture.BuildLavaAcidBackgroundHorizontalScrolls(lava, bg2Scroll) : null;
-        ushort[]? lavaY = fx is { } vertical
+        SampledScrollWave? lavaY = fx is { } vertical
             ? GameplayEffectCapture.BuildLavaAcidBackgroundVerticalScrolls(vertical, bg2Scroll.Y) : null;
         Position16<BackgroundPixels>? kraidBody = bosses.KraidBodyPlacement;
         // Draygon's body shows only on the band of lines around it, placed against the frame's camera (#1354, #1468).
@@ -130,13 +130,11 @@ public static class GameplayDisplayCapture
                     : displayedMainScreen),
             bg2Lines.FirstLine, bg2Lines.EndLine,
             BackgroundPixelation: latched.Phantoon is { } phantoonDisplay ? new BackgroundPixelation(phantoonDisplay.MosaicBlockSize) : default);
-        // Producers can return longer HDMA storage; the renderer consumes only the
-        // gameplay region. Own exactly those visible register values in the packet.
         // Phantoon's wave owns the BG2 horizontal scroll while it shows; otherwise lava, water or the sky does.
-        ScrollWave? phantoonWave = latched.Phantoon?.Wave is { } wave ? BossLineScrolls.Of(wave) : null;
-        IReadOnlyList<ushort>? bg2HorizontalScrolls = phantoonWave is null ? lavaX ?? waterX ?? skyX : null;
+        LineScroll? bg2Horizontal = latched.Phantoon?.Wave is { } wave ? BossLineScrolls.Of(wave) : (LineScroll?)lavaX ?? waterX ?? skyX;
         // Crocomire's melt owns the BG2 vertical scroll while it shows on his body layer; otherwise lava's does.
-        ScrollStretch? crocomireMelt = crocomireBody is not null && live.CrocomireMelt is { } melt ? BossLineScrolls.Of(melt) : null;
+        LineScroll? bg2Vertical = crocomireBody is null ? (LineScroll?)lavaY
+            : live.CrocomireMelt is { } melt ? BossLineScrolls.Of(melt) : null;
         // A sky room shows the sky's rows on BG2 (#1347); a boss shows its body layer there while it owns it (#1352,
         // #1353), its pages laid out by BG2's map size, each part from its picture (#1466).
         RoomBackgrounds rooms = (latched.Rooms
@@ -145,13 +143,7 @@ public static class GameplayDisplayCapture
                 BossBody = bosses.Body is null ? null
                     : bosses.ShownBody ?? throw new InvalidOperationException("A boss body is shown once the accepted frame resolves its pictures."),
             };
-        var layer = new GameplaySceneLayer(view, rooms, new BackgroundLineScrolls(
-            VisibleLines(bg2HorizontalScrolls),
-            VisibleLines(crocomireBody is not null ? null : lavaY))
-            {
-                HorizontalWave = phantoonWave,
-                VerticalStretch = crocomireMelt,
-            },
+        var layer = new GameplaySceneLayer(view, rooms, new BackgroundLineScrolls { Horizontal = bg2Horizontal, Vertical = bg2Vertical },
             live.DoorTransitionMainScreenLayers is null && live.MotherBrainAscentShowing
                 ? MotherBrainAscentDisplay.BuildGameplayLayers() : default);
         return new(frame.Paint, new DisplayLayer[] { layer, Hud(latched) },
@@ -170,15 +162,12 @@ public static class GameplayDisplayCapture
     private static Layer3Cells Bg3(GameplayDisplayLatch latched) => (latched.Rooms
         ?? throw new InvalidOperationException("A gameplay frame shows BG3 only once a room is loaded.")).ShownBg3;
 
-    /// <summary>The sky's HDMA BG2HOFS per gameplay line with the latched room shake added, or null without one.</summary>
-    internal static ushort[]? SkyHorizontalScrolls(GameplayFrameEndDisplayInputs live, RoomShakeFrameResult shake)
-    {
-        if (live.ScrollingSky?.GameplayLineScrolls() is not { } table) return null;
-        // Room shake is added to the live BG2HOFS register after HDMA supplies each band value.
-        var lines = new ushort[table.Length];
-        for (int line = 0; line < lines.Length; line++) lines[line] = Add(table[line], shake.Bg2.X);
-        return lines;
-    }
+    /// <summary>
+    /// The sky's bands of BG2 horizontal scroll (#1468) with the latched room shake added, or null without a sky. Room
+    /// shake is added to the live BG2HOFS register after HDMA supplies each band's value.
+    /// </summary>
+    internal static ScrollBands? SkyHorizontalScrolls(GameplayFrameEndDisplayInputs live, RoomShakeFrameResult shake) =>
+        live.ScrollingSky is { } sky ? SkyBandScrolls.Of(sky, shake.Bg2.X) : null;
 
     /// <summary>The rainbow beam's live window description drawn in the colour the accepted frame latched.</summary>
     internal static MotherBrainRainbowBeamRenderSnapshot? RainbowBeam(GameplayDisplayFrame frame)
@@ -203,17 +192,6 @@ public static class GameplayDisplayCapture
     {
         if (frame.FrameEnd.SuitPickupBeam is not { } beam) return null;
         return new(beam, frame.Latched.FixedColors.SuitPickup);
-    }
-
-    /// <summary>Copies only gameplay scanlines from a published HDMA table and rejects coverage shorter than the viewport.</summary>
-    private static ushort[] VisibleLines(IReadOnlyList<ushort>? values)
-    {
-        if (values is null) return [];
-        int count = ScreenGeometry.ScreenHeightPixels - ScreenGeometry.GameplayHudHeightPixels;
-        if (values.Count < count) throw new InvalidDataException("Published HDMA does not cover the gameplay viewport.");
-        var result = new ushort[count];
-        for (int i = 0; i < count; i++) result[i] = values[i];
-        return result;
     }
 
     /// <summary>Adds signed quake displacement to a 16-bit PPU scroll register with native wrapping.</summary>
@@ -323,7 +301,7 @@ public static class GameplayDisplayCapture
                 Layer3Plane.Rows,
                 ScreenGeometry.GameplayHudHeightPixels,
                 BlendOperation.Add,
-                new Position16<TilePlanePixels>[ScreenGeometry.ScreenHeightPixels]);
+                ScrollBands.Uniform(0), ScrollBands.Uniform(0));
         }
         // The arithmetic sign belongs to the room's blend configuration, even when
         // its liquid plane is currently offscreen/disabled and supplies no pixels.

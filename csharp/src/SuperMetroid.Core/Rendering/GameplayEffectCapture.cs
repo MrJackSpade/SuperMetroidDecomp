@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Fx;
@@ -9,8 +10,9 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
-/// Captures each gameplay effect as the display model describes it, at the frame boundary (#1409): per-line scrolls for
-/// the liquids' waves, colours added through window shapes for beams, the Power Bomb and the Ceres haze, the X-ray's cone, and the
+/// Captures each gameplay effect as the display model describes it, at the frame boundary (#1409): sampled waves for
+/// the liquids' waves and the heat haze (#1468), colours added through window shapes for beams, the Power Bomb and the
+/// Ceres haze, the X-ray's cone, and the
 /// room effects' layer blends. The backend draws these descriptions; nothing here draws.
 /// </summary>
 public static class GameplayEffectCapture
@@ -21,39 +23,31 @@ public static class GameplayEffectCapture
     private const int Height = DisplayScreen.Height;
     /// <summary>The lines the HUD fills at the top of the screen.</summary>
     private const int HudHeight = DisplayScreen.HudHeight;
+    /// <summary>The liquids' and the heat haze's amplitude: a sample of one moves a line one whole pixel, in 1/256 pixel.</summary>
+    private static readonly int OnePixelPerSample = EightEight.FromWhole(1);
 
     /// <summary>
-    /// Resolves water's optional per-scanline BG2 distortion from <c>$88:C5E4</c>. The
-    /// ordinary compositor already accepts the resulting 192-line HDMA projection.
+    /// Describes water's optional BG2 wave from <c>$88:C5E4</c> (#1468): below the surface, BG2's horizontal scroll follows
+    /// the water waveform one sample a line, counted from the line below the surface and advanced by the wave's phase and
+    /// BG2's fine vertical scroll; the lines above keep BG2's own scroll. Null without the wave.
     /// </summary>
-    public static ushort[]? BuildWaterBackgroundHorizontalScrolls(
+    public static SampledScrollWave? BuildWaterBackgroundHorizontalScrolls(
         RoomLayer3FxRenderSnapshot fx,
         Position16<BackgroundPixels> bg2Scroll)
     {
         if (fx.Type != RoomFxType.Water || (fx.LiquidOptions & RoomLiquidOptions.Bg2Wave) == RoomLiquidOptions.None)
             return null;
-
-        var result = Enumerable.Repeat(bg2Scroll.X, Height - HudHeight).ToArray();
-        int verticalPhase = bg2Scroll.Y & 15;
-        for (int screenY = Math.Max(HudHeight, fx.WaterSurfaceScreenY + 1);
-             screenY < Height;
-             screenY++)
-        {
-            int index = (fx.WaterBg2WavePhase + verticalPhase +
-                screenY - fx.WaterSurfaceScreenY - 1) &
-                (WaterWaveDefinitions.WaveDisplacementCount - 1);
-            result[screenY - HudHeight] = unchecked((ushort)(
-                bg2Scroll.X + LiquidEffects.WaterWaveDisplacement(index)));
-        }
-        return result;
+        int belowSurface = fx.WaterSurfaceScreenY + 1;
+        return new SampledScrollWave(bg2Scroll.X, LiquidEffects.WaterWaveform, OnePixelPerSample,
+            SampledScrollWave.PhaseWhere(fx.WaterBg2WavePhase + (bg2Scroll.Y & 15), belowSurface, LiquidEffects.WaterWaveform.Length),
+            Math.Clamp(belowSurface, HudHeight, Height), Height);
     }
 
     /// <summary>
-    /// Resolves the optional lava/acid BG2HOFS waveform from <c>$88:B53B</c>. Vertical
-    /// distortion has cartridge priority when both option bits are set, matching the
-    /// branch order in <c>$88:B4D5</c>.
+    /// Describes the optional lava/acid BG2HOFS heat haze from <c>$88:B53B</c> (#1468), or null without it. Vertical
+    /// distortion has cartridge priority when both option bits are set, matching the branch order in <c>$88:B4D5</c>.
     /// </summary>
-    public static ushort[]? BuildLavaAcidBackgroundHorizontalScrolls(
+    public static SampledScrollWave? BuildLavaAcidBackgroundHorizontalScrolls(
         RoomLayer3FxRenderSnapshot fx,
         Position16<BackgroundPixels> bg2Scroll)
     {
@@ -65,15 +59,11 @@ public static class GameplayEffectCapture
         if (!isLavaAcid || usesVertical || !usesHorizontal)
             return null;
 
-        return BuildLavaAcidBg2Wave(
-            bg2Scroll.X,
-            bg2Scroll.Y,
-            fx.LavaAcidBg2WavePhase,
-            axis: Axis.Horizontal);
+        return HeatHaze(bg2Scroll.X, bg2Scroll.Y, fx.LavaAcidBg2WavePhase, LiquidEffects.HeatHorizontalWaveform);
     }
 
-    /// <summary>Resolves the Norfair heat-haze BG2VOFS waveform from <c>$88:B5A9</c>.</summary>
-    public static ushort[]? BuildLavaAcidBackgroundVerticalScrolls(
+    /// <summary>Describes the Norfair heat-haze BG2VOFS wave from <c>$88:B5A9</c> (#1468), or null without it.</summary>
+    public static SampledScrollWave? BuildLavaAcidBackgroundVerticalScrolls(
         RoomLayer3FxRenderSnapshot fx,
         int bg2VerticalScroll)
     {
@@ -83,37 +73,19 @@ public static class GameplayEffectCapture
             return null;
         }
 
-        return BuildLavaAcidBg2Wave(
-            bg2VerticalScroll,
-            bg2VerticalScroll,
-            fx.LavaAcidBg2WavePhase,
-            axis: Axis.Vertical);
+        return HeatHaze(bg2VerticalScroll, bg2VerticalScroll, fx.LavaAcidBg2WavePhase, LiquidEffects.HeatVerticalWaveform);
     }
 
-    /// <summary>Expands the rotating sixteen-entry heat-haze wave into one BG2 scroll word per gameplay scanline.</summary>
-    private static ushort[] BuildLavaAcidBg2Wave(
-        int baseScroll,
-        int bg2VerticalScroll,
-        int wavePhase,
-        Axis axis)
-    {
-        var result = new ushort[Height - HudHeight];
-        int verticalPhase = bg2VerticalScroll & 15;
-        for (int line = 0; line < result.Length; line++)
-        {
-            // `$88:C0B1` is 16 one-scanline indirect entries repeated through the frame.
-            // Its pointer starts at BG2VOFS's low nibble, while `$88:B53B/$B5A9` rotates
-            // the sixteen resident words backward through A. HUD height is 32, exactly two
-            // waveform periods, so gameplay-local and physical scanline indices coincide.
-            int waveIndex = (verticalPhase + line + wavePhase) &
-                (LavaAcidWaveDefinitions.WaveDisplacementCount - 1);
-            int displacement = axis == Axis.Vertical
-                ? LiquidEffects.HeatVerticalWaveDisplacement(waveIndex)
-                : LiquidEffects.HeatHorizontalWaveDisplacement(waveIndex);
-            result[line] = unchecked((ushort)(baseScroll + displacement));
-        }
-        return result;
-    }
+    /// <summary>
+    /// The rotating sixteen-sample heat haze over every gameplay line (#1468). <c>$88:C0B1</c> is sixteen one-line indirect
+    /// entries repeated through the frame: its pointer starts at BG2VOFS's low nibble, while <c>$88:B53B/$B5A9</c> rotates
+    /// the sixteen resident words backward through A, so the first gameplay line reaches the sample at that nibble plus the
+    /// wave's phase.
+    /// </summary>
+    private static SampledScrollWave HeatHaze(int baseScroll, int bg2VerticalScroll, int wavePhase, ImmutableArray<int> waveform) =>
+        new(baseScroll, waveform, OnePixelPerSample,
+            SampledScrollWave.PhaseWhere((bg2VerticalScroll & 15) + wavePhase, HudHeight, waveform.Length),
+            HudHeight, Height);
 
     /// <summary>Converts the eye's aim and half-width into the cone its beam lights.</summary>
     /// <remarks>The cone's apex is one line above the eye's position.</remarks>
@@ -180,21 +152,23 @@ public static class GameplayEffectCapture
         bool liquid = fx.Type is RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid;
         if (liquid && unchecked((short)fx.Surface.Y) < 0) return null;
         bool atmosphere = fx.Type is RoomFxType.Rain or RoomFxType.Fog or RoomFxType.Spores;
-        var scrolls = new Position16<TilePlanePixels>[Height];
+        // Below a water surface the plane moves sideways with the water waveform, one sample a line counted from the line
+        // below the surface and drawn back by the wave's phase (#1468).
+        int belowSurface = fx.WaterSurfaceScreenY + 1;
+        LineScroll horizontal = RoomFxTypes.UsesWater(fx.Type)
+            ? new SampledScrollWave(fx.Scroll.X, LiquidEffects.WaterWaveform, OnePixelPerSample,
+                SampledScrollWave.PhaseWhere(-fx.WaterBg3WavePhase, belowSurface, LiquidEffects.WaterWaveform.Length),
+                Math.Clamp(belowSurface, HudHeight, Height), Height)
+            : ScrollBands.Uniform(fx.Scroll.X);
+        // A liquid's lines above the tile row holding its surface show the plane's top row.
         int firstSurfaceLine = fx.WaterSurfaceScreenY - (ScreenGeometry.BackgroundTileSizePixels - 1);
-        for (int y = HudHeight; y < Height; y++)
-        {
-            int wave = RoomFxTypes.UsesWater(fx.Type) && y > fx.WaterSurfaceScreenY
-                ? LiquidEffects.WaterWaveDisplacement((y - fx.WaterSurfaceScreenY - 1 - fx.WaterBg3WavePhase +
-                    WaterWaveDefinitions.WaveDisplacementCount) % WaterWaveDefinitions.WaveDisplacementCount) : 0;
-            scrolls[y] = new(unchecked((ushort)(fx.Scroll.X + wave)), liquid && y < firstSurfaceLine ? (ushort)0 : fx.Scroll.Y);
-        }
+        LineScroll vertical = liquid ? ScrollBands.Split(0, firstSurfaceLine, fx.Scroll.Y) : ScrollBands.Uniform(fx.Scroll.Y);
         bool subtract = RoomFxTypes.UsesWater(fx.Type) && fx.LayerBlendConfiguration is
             LayerBlendingConfiguration.WaterSubtractive or LayerBlendingConfiguration.WaterfallSubtractive;
         // Liquids sample the whole plane; atmospheres repeat its lower 32 rows.
         return new(plane, atmosphere ? Layer3Plane.Rows / 2 : 0,
             atmosphere ? Layer3Plane.Rows / 2 : Layer3Plane.Rows,
-            HudHeight, subtract ? BlendOperation.Subtract : BlendOperation.Add, scrolls);
+            HudHeight, subtract ? BlendOperation.Subtract : BlendOperation.Add, horizontal, vertical);
     }
 
     /// <summary>

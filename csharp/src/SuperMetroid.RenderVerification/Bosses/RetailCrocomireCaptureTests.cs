@@ -46,7 +46,7 @@ internal static class RetailCrocomireCaptureTests
             if (previousScroll != runtime.Enemies.CrocomireBehavior.BodyLayer.Placement) latchedScrollChanges++;
             var scene = GameplayDisplayCapture.Capture(published);
             var baseLayer = (GameplaySceneLayer)scene.Layers[0];
-            if (baseLayer.BackgroundLineScrolls.VerticalStretch is not null || baseLayer.BackgroundLineScrolls.VerticalShown || (death ?? throw new InvalidOperationException("Verification requires death.")).MeltingScrollActive)
+            if (baseLayer.BackgroundLineScrolls.Vertical is not null || (death ?? throw new InvalidOperationException("Verification requires death.")).MeltingScrollActive)
                 throw new InvalidOperationException("Crocomire fight incorrectly enabled melting HDMA.");
             var packet = new DisplayPacket(new(tick + 1, 1, (ushort)tick), scene);
             PixelComparison.Verify(packet, FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()),

@@ -51,10 +51,10 @@ internal static class ColorWindowSmokeTests
         foreach (BlendOperation operation in Enum.GetValues<BlendOperation>())
         foreach (ushort offset in new ushort[] { 0, 255, 511, ushort.MaxValue })
         {
-            var scrolls = new Position16<TilePlanePixels>[224];
-            for (int y = 0; y < scrolls.Length; y++)
-                scrolls[y] = new(unchecked((ushort)(offset + y * 7)), unchecked((ushort)(offset - y * 3)));
-            var math = new OverlayBlendLayer(bg3, height == 32 ? 32 : 0, height, first, operation, scrolls);
+            // Each line scrolls on both axes by a described sixteen-sample ramp (#1468).
+            var math = new OverlayBlendLayer(bg3, height == 32 ? 32 : 0, height, first, operation,
+                new SampledScrollWave(offset, [.. Enumerable.Range(0, 16)], 7 * 256, 0, 0, 224),
+                new SampledScrollWave(offset, [.. Enumerable.Range(0, 16).Select(sample => -sample)], 3 * 256, 0, 0, 224));
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory,
                 new DisplayLayer[] { background, math }, 15));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),

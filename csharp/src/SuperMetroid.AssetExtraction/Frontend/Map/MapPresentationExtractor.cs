@@ -27,7 +27,6 @@ using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Progression;
 

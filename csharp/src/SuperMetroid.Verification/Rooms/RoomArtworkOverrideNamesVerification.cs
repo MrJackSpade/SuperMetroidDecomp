@@ -1,7 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;

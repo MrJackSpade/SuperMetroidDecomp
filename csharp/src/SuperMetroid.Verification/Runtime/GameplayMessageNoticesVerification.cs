@@ -6,7 +6,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Hud.Artwork;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;

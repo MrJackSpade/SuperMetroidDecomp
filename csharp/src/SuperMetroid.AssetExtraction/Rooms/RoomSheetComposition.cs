@@ -1,6 +1,4 @@
-using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 

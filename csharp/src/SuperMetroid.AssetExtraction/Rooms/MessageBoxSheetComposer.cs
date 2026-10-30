@@ -27,7 +27,7 @@ internal static class MessageBoxSheetComposer
         colours[textSet + GameplayMessageBoxDefinitions.Palette.TemporaryLightColour] = GameplayMessageBoxDefinitions.Palette.TemporaryLightColor;
         colours[textSet + GameplayMessageBoxDefinitions.Palette.TemporaryDarkColour] = GameplayMessageBoxDefinitions.Palette.TemporaryDarkColor;
         int width = GameplayMessageBoxDefinitions.Layout.TilemapWidth;
-        (ShownMessage Form, BackgroundTile[] Tiles)[] forms = [.. GameplayMessageArtwork.Forms().Select(form => (form, messages.Tiles(form)))];
+        MessageForm[] forms = [.. GameplayMessageArtwork.Forms().Select(form => new MessageForm(form, messages.Tiles(form)))];
         int rows = forms.Sum(form => form.Tiles.Length / width);
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)(width * RoomTileCanvas.CharacterPixels)), checked((ushort)(rows * RoomTileCanvas.CharacterPixels))));
         ReadOnlySpan<byte> characters = inputs.Hud.Bytes.Span;
@@ -47,4 +47,9 @@ internal static class MessageBoxSheetComposer
         }
         return canvas.ToRoomSheet(colours, frames, SpriteImageColours.TwoBppBackground);
     }
+
+    /// <summary>One form of a message the sheet pictures, with the tiles it lays out.</summary>
+    /// <param name="Form">The form.</param>
+    /// <param name="Tiles">Its tiles, row by row across the message box.</param>
+    private sealed record MessageForm(ShownMessage Form, BackgroundTile[] Tiles);
 }

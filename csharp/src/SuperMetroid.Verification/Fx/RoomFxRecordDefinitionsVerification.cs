@@ -48,8 +48,6 @@ internal static class RoomFxRecordDefinitionsVerification
         var compiledCgram = new GameplayColours(new SpriteColourSets());
         RoomFxBlendInks colors = RoomFxPaletteBlendFile.Read(
             new MemoryStream(RoomFxPaletteBlendExtractor.Extract(bus)));
-        RoomFxLayer3Pages tilemaps = RoomFxLayer3Pages.Load(
-            new MemoryStream(RoomFxLayer3TilemapExtractor.Extract(bus)));
         var nativeFxSession = new RoomFxSession{ PaletteBlendColors = colors };
         RoomLayer3FxState nativeFx;
         var compiledFxSession = new RoomFxSession{ PaletteBlendColors = colors };

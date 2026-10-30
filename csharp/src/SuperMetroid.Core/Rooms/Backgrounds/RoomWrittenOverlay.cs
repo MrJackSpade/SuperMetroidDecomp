@@ -27,7 +27,7 @@ public sealed class RoomWrittenOverlay
     public RoomWrittenOverlay With(WrittenPicture written)
     {
         ArgumentException.ThrowIfNullOrEmpty(written.Picture);
-        if (written.Cell < 0 || written.Cell >= CellCount)
+        if (written.Cell is < 0 or >= CellCount)
             throw new ArgumentOutOfRangeException(nameof(written), written.Cell, "A picture is written outside the two-screen tilemap.");
         return new(Pictures.Add(written));
     }

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;

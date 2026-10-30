@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;

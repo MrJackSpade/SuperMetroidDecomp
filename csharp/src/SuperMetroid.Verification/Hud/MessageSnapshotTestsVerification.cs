@@ -78,7 +78,7 @@ internal static class MessageSnapshotTestsVerification
         }
 
         // An image the sheet holds of each height takes every reveal radius.
-        foreach (IGrouping<int, ShownMessage> height in GameplayMessageArtwork.Forms().GroupBy(form => messages.Picture(form).Size.Y))
+        foreach (IGrouping<ushort, ShownMessage> height in GameplayMessageArtwork.Forms().GroupBy(form => messages.Picture(form).Size.Y))
         {
             for (int radius = 0; radius <= GameplayMessageBoxDefinitions.Timing.MaximumRadiusPixels; radius++)
             {

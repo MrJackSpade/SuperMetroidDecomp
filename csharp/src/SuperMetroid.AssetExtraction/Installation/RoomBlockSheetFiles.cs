@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Enemies;
 using System.Text.Json;
@@ -6,7 +5,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Installation;
 
@@ -172,10 +170,6 @@ public static class RoomBlockSheetFiles
     /// <param name="Pictured">Whether the sheet pictures each tile, by tile.</param>
     /// <param name="Map">The floor map a room of the tileset starts from: 16384 tile numbers, row-major.</param>
     private sealed record FloorTilesDocument(bool[]? Pictured, byte[] Map);
-
-    /// <summary>The message box manifest: the words each message box image pictures, the same in every tileset's sheet.</summary>
-    /// <param name="Version">The schema revision.</param>
-    /// <param name="Words">Each image's words, by image name.</param>
 
     /// <summary>The written picture manifest: each written picture sheet and the inputs each of its pictures depends on.</summary>
     /// <param name="Version">The schema revision.</param>

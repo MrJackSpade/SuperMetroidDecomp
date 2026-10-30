@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.Artwork;
-
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The names room palette files had before #1363, which carried their cartridge source.</summary>

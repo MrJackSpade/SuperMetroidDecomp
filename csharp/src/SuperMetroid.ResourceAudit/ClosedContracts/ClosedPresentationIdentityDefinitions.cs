@@ -11,7 +11,6 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.Samus;

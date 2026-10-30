@@ -1962,7 +1962,7 @@ internal static class LookupStream4Verification
                 AssertThrows<ArgumentOutOfRangeException>(() => GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(id), "Message button patch exact native domain");
                 continue;
             }
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x858749 + (raw - 1) * 2));
+            int expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x858749 + (raw - 1) * 2));
             AssertEqual(expected, GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(id), "Native message button placement case");
             if (!panels.Contains(id))
                 continue;

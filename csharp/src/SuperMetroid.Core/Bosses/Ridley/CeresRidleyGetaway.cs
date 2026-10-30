@@ -1,12 +1,11 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;

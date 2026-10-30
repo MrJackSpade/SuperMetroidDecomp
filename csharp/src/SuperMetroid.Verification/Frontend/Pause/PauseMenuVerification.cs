@@ -122,9 +122,9 @@ internal static class PauseMenuVerification
         AssertEqual(0x080b, pause.ReadReserveSupplyDigit(2).Raw,
             "pause equipment reserve-supply ones digit renders current supply");
         RgbaPixel[] firstPauseFrame = pause.Render();
-        HudLayer retainedHud = pause.CaptureRenderSnapshot().Layers.ToArray().OfType<HudLayer>().First();
+        HudLayer drawnHud = pause.CaptureRenderSnapshot().Layers.ToArray().OfType<HudLayer>().First();
         AssertTrue(ReferenceEquals(MenuSheetFixtures.For(presentation).Get(SpriteSheetId.PauseHud).Frame(HudTopRowImage.Instance.FrameName),
-            retainedHud.Hud.Pictures[0].Picture), "pause retains and draws the gameplay HUD's top row on the HUD's layer");
+            drawnHud.Hud.Pictures[0].Picture), "pause retains and draws the gameplay HUD's top row on the HUD's layer");
         AssertEqual(new RgbaPixel(0, 255, 0, 255), firstPauseFrame[80 * 256 + 80],
             "high-priority pause holder clips the fully revealed low-priority map");
         AssertEqual(124, pause.MapScroll.X,

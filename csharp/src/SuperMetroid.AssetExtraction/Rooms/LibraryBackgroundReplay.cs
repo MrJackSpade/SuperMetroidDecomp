@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 

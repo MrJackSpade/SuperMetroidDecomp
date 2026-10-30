@@ -20,12 +20,9 @@ public readonly record struct ShownMessage(GameplayMessageId Message, Controller
     public string FrameName => $"{Message}{ButtonName}{ChoiceName}";
 
     /// <summary>The button part of <see cref="FrameName"/>.</summary>
-    private string ButtonName => Button switch
-    {
-        null => "",
-        ControllerButton.None => ".Unbound",
-        { } button => $".{button}",
-    };
+    private string ButtonName => Button is not { } button ? ""
+        : button == ControllerButton.None ? ".Unbound"
+        : $".{button}";
 
     /// <summary>The choice part of <see cref="FrameName"/>.</summary>
     private string ChoiceName => ChoiceYes switch

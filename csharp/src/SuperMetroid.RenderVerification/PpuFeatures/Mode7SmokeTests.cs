@@ -24,8 +24,8 @@ internal static class Mode7SmokeTests
         RgbColor[] palette = Enumerable.Range(0, 256).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
         var memory = FramePaint.FromOam(vram, palette, oam, 128, 3);
         // The HUD is its own layer (#1466), drawn over the lines the floor leaves to it.
-        PicturedHud pictured = PicturedHudFixtures.FromVram(vram, palette, 0x4000);
-        var hudLayer = new HudLayer(pictured, TransparentColorZero: false, Priority: null);
+        PicturedHud hudPictures = PicturedHudFixtures.FromVram(vram, palette, 0x4000);
+        var hudLayer = new HudLayer(hudPictures, TransparentColorZero: false, Priority: null);
         AffineFloor map = AffineFloorFixtures.Floor(vram, palette);
         // Below the floor band, the room's layer-2 plane drawn from its block pictures (#1403).
         RoomBackgroundLayer floorRoom = RoomBackgroundsFixtures.Seeded(random, default, new Position16<TilePlanePixels>(17, 65535), pictureColours: palette).Bg2

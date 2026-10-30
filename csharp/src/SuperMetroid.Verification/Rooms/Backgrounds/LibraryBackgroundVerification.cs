@@ -13,7 +13,6 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.Backgrounds;
@@ -288,10 +287,10 @@ private static void WriteLibraryByte(byte[] rom, ushort pointer, byte value)
     internal static int LibraryBackgroundArtworkBoundaryCommand()
     {
         string libraryArtworkRom = RepositoryRomPath;
-        using var directory = new TestScratchDirectory("map-catalog");
-        var installation = GameAssetInstaller.Install(libraryArtworkRom, directory.Root);
         Suite(nameof(VerifyLibraryBackgroundLoader), () => VerifyLibraryBackgroundLoader());
-        Suite(nameof(VerifyLibraryBackgroundInstalledParity), () => VerifyLibraryBackgroundInstalledParity(libraryArtworkRom, installation));
+        // The parity check only reads installed artwork, so it reads the repository installation.
+        Suite(nameof(VerifyLibraryBackgroundInstalledParity),
+            () => VerifyLibraryBackgroundInstalledParity(libraryArtworkRom, RepositoryInstallation.Installation));
         return 0;
     }
 }

@@ -1,6 +1,4 @@
-﻿using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Rooms.Artwork;
-using SuperMetroid.Core.Rooms.LevelData;
+﻿using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 

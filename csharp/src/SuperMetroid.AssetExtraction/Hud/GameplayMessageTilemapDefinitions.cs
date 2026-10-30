@@ -38,7 +38,7 @@ public static class GameplayMessageTilemapDefinitions
     }.ToFrozenDictionary();
 
     /// <summary>The byte offset of the button glyph in each panel that names a button.</summary>
-    public static FrozenDictionary<GameplayMessageId, ushort> GlyphByteOffsets { get; } = new Dictionary<GameplayMessageId, ushort>
+    public static FrozenDictionary<GameplayMessageId, int> GlyphByteOffsets { get; } = new Dictionary<GameplayMessageId, int>
     {
         [GameplayMessageId.MissileTank] = 0x12a,
         [GameplayMessageId.SuperMissileTank] = 0x12a,

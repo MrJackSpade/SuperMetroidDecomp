@@ -49,14 +49,12 @@ internal static class RoomFxPaletteBlendsVerification
         Suite(nameof(VerifyFxWeatherThirdGreen), () => VerifyFxWeatherThirdGreen(rom, catalog));
         Suite(nameof(VerifyFxWeatherThirdBlue), () => VerifyFxWeatherThirdBlue(rom, catalog));
         Suite(nameof(VerifyFxBlendPageDispatch), () => VerifyFxBlendPageDispatch(rom, catalog));
-        RoomFxLayer3Pages tilemaps = RoomFxLayer3Pages.Load(
-            new MemoryStream(RoomFxLayer3TilemapExtractor.Extract(rom)));
         foreach (RoomFxPaletteBlend id in RoomFxPaletteBlendRules.Ids)
         {
             ReadOnlySpan<RgbColor> compiled = catalog.Resolve(id);
 
             (RoomLayer3FxState state, CartridgeReadGuard bus, GameplayColours cgram) =
-                ConstructBlendLoad(catalog, tilemaps, id);
+                ConstructBlendLoad(catalog, id);
             for (int index = 0; index < compiled.Length; index++)
                 AssertEqual(compiled[index], cgram.Colors[RoomFxNativeSources.PaletteBlendDestinationIndex + index],
                     $"room-FX blend {id} installed load color {index}");
@@ -69,7 +67,7 @@ internal static class RoomFxPaletteBlendsVerification
             AssertEqual(0, bus.ForbiddenReadAttempts, $"room-FX blend {id} FX entry does not read bank-$89");
         }
         (RoomLayer3FxState emptyState, CartridgeReadGuard emptyBus, GameplayColours emptyCgram) =
-            ConstructBlendLoad(catalog, tilemaps, RoomFxPaletteBlend.None);
+            ConstructBlendLoad(catalog, RoomFxPaletteBlend.None);
         _ = emptyState;
         AssertEqual(0x1234, emptyCgram.Colors[25], "zero blend preserves color 25");
         AssertEqual(0x2345, emptyCgram.Colors[26], "zero blend preserves color 26");
@@ -172,8 +170,7 @@ internal static class RoomFxPaletteBlendsVerification
         AssertTrue(expected != baseline.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava)[0],
             "room-FX blend edit changes the authored color");
         (_, CartridgeReadGuard bus, GameplayColours cgram) = ConstructBlendLoad(
-            edited.RoomFxPaletteBlends, edited.RoomFxLayer3Tilemaps,
-            RoomFxPaletteBlend.Lava);
+            edited.RoomFxPaletteBlends, RoomFxPaletteBlend.Lava);
         AssertEqual(expected, cgram.Colors[RoomFxNativeSources.PaletteBlendDestinationIndex],
             "edited room-FX blend color reaches production CGRAM");
         AssertEqual(0, bus.ForbiddenReadAttempts, "edited room-FX blend does not read native palette table");
@@ -196,8 +193,7 @@ internal static class RoomFxPaletteBlendsVerification
 
     /// <summary>Loads a selected compiled FX record into CGRAM through a bus that forbids bank-$89 reads.</summary>
     private static ConstructBlendLoadResult
-        ConstructBlendLoad(RoomFxBlendInks catalog,
-            RoomFxLayer3Pages tilemaps, RoomFxPaletteBlend selection)
+        ConstructBlendLoad(RoomFxBlendInks catalog, RoomFxPaletteBlend selection)
     {
         RoomFxRecordDefinition record = SelectCompiledBlendRecord(selection);
         var memory = new TestAddressSpace();

@@ -1,11 +1,8 @@
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Frontend.Pause;
 

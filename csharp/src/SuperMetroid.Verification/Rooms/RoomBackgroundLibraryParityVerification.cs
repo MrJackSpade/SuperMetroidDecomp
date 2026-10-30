@@ -1,4 +1,3 @@
-
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -14,7 +13,6 @@ using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 

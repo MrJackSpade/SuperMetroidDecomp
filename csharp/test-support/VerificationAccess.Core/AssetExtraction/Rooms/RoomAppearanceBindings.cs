@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.Artwork;

@@ -42,8 +42,7 @@ internal sealed class MenuTilemaps
     internal static void LoadAreaMap(Span<BackgroundTile> destination, ShownAreaMap map)
     {
         Ensure.NotNull(map);
-        if (destination.Length != AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles)
-            throw new ArgumentException("An area map fills a whole two-page layer.", nameof(destination));
+        Ensure.LengthEqual(destination, AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles);
         for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
         for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
         {

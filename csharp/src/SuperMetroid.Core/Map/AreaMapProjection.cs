@@ -21,10 +21,10 @@ public static class AreaMapProjection
         {
             var cell = new Position16<MapTiles>(unchecked((ushort)x), unchecked((ushort)y));
             bool explored = system.IsMapTileExplored(map.Area, cell);
-            cells[y * AreaMapLayout.WidthInTiles + x] = explored ? new ShownMapCell(map.Cell(cell), Explored: true)
+            cells[y * AreaMapLayout.WidthInTiles + x] = explored ? ShownMapCell.Explored(map.Cell(cell))
                 : AreaMapVisibility.IsVisible(explored, downloaded, map.IsRevealedByMapStation(cell), map.IsDiscoverable(cell), revealMode)
-                    ? new ShownMapCell(map.Cell(cell), Explored: false)
-                    : new ShownMapCell(hiddenCell, Explored: false);
+                    ? ShownMapCell.Unexplored(map.Cell(cell))
+                    : ShownMapCell.Unexplored(hiddenCell);
         }
         return new ShownAreaMap([.. cells]);
     }

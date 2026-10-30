@@ -1,14 +1,14 @@
 ﻿namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>Door-cap orientation shared by colored and blue BTS tables.</summary>
+/// <summary>Door-cap orientation shared by colored caps and blue-door behaviours.</summary>
 public enum ColoredDoorOrientation
 {
-    /// <summary>Left-facing cap; orientation index 0 corresponds to blue-door BTS $40.</summary>
+    /// <summary>Left-facing cap.</summary>
     Left,
-    /// <summary>Right-facing cap; orientation index 1 corresponds to blue-door BTS $41.</summary>
+    /// <summary>Right-facing cap.</summary>
     Right,
-    /// <summary>Upward-facing cap; orientation index 2 corresponds to blue-door BTS $42.</summary>
+    /// <summary>Upward-facing cap.</summary>
     Up,
-    /// <summary>Downward-facing cap; orientation index 3 corresponds to blue-door BTS $43.</summary>
+    /// <summary>Downward-facing cap.</summary>
     Down,
 }

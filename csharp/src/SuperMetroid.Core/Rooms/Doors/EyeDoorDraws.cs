@@ -64,13 +64,13 @@ internal static class EyeDoorDraws
         /// <summary>Whether the run writes cells vertically rather than horizontally.</summary>
         internal bool Vertical => Part is Component.Eye or Component.Clear;
         /// <summary>Gets the cell count for an eye, middle, bottom, or clear component.</summary>
-        internal int WordCount => EyeDoorPlmDrawDefinitions.Cells[this].Count;
-        /// <summary>The level word of <paramref name="cell"/> in native run order.</summary>
-        internal ushort WordAt(int cell)
+        internal int BlockCount => EyeDoorPlmDrawDefinitions.Cells[this].Count;
+        /// <summary>The terrain of <paramref name="cell"/> in run order.</summary>
+        internal RoomTerrainBlock BlockAt(int cell)
         {
-            IReadOnlyList<RoomLevelWord> cells = EyeDoorPlmDrawDefinitions.Cells[this];
+            IReadOnlyList<RoomTerrainBlock> cells = EyeDoorPlmDrawDefinitions.Cells[this];
             if ((uint)cell >= (uint)cells.Count) throw new ArgumentOutOfRangeException(nameof(cell));
-            return cells[cell].Raw;
+            return cells[cell];
         }
     }
 
@@ -109,11 +109,11 @@ internal static class EyeDoorDraws
     internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         if (!TryDescribe(request, out var draw)) { list = default; return false; }
-        var words = new ushort[draw.WordCount];
-        for (int cell = 0; cell < words.Length; cell++) words[cell] = draw.WordAt(cell);
+        var blocks = new RoomTerrainBlock[draw.BlockCount];
+        for (int cell = 0; cell < blocks.Length; cell++) blocks[cell] = draw.BlockAt(cell);
         list = new(request, new RoomPlmShotBlockDrawDefinitions.Run[]
         {
-            new(draw.Vertical ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal, words, new(0, 0)),
+            new(draw.Vertical ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal, blocks, new(0, 0)),
         });
         return true;
     }

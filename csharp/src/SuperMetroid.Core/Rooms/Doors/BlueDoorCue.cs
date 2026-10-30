@@ -7,6 +7,6 @@ internal enum BlueDoorCue
     QueueOpenSound,
     /// <summary>Queues the door-closing sound.</summary>
     QueueCloseSound,
-    /// <summary>Restores the cap's shootable blue-door BTS for its facing.</summary>
-    RestoreBlueBts,
+    /// <summary>Restores the cap's shootable blue-door behaviour for its facing.</summary>
+    RestoreBlueBehavior,
 }

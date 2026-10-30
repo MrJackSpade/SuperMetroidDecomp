@@ -7,7 +7,7 @@ internal enum BlueDoorProgram
     LeftOpening,
     /// <summary>The left-facing cap closes behind Samus, then runs into <see cref="LeftClosed"/>.</summary>
     LeftClosing,
-    /// <summary>Restores the left-facing cap's shootable BTS, draws it and deletes.</summary>
+    /// <summary>Restores the left-facing cap's shootable behaviour, draws it and deletes.</summary>
     LeftClosed,
     /// <summary>A shot opens the right-facing cap.</summary>
     RightOpening,

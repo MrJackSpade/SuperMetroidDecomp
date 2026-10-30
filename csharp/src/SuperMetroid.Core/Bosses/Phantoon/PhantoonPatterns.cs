@@ -786,7 +786,7 @@ internal sealed class PhantoonPatterns
             case PhantoonFlameSpawnType.Enraged:
                 flame.Velocity = flame.Velocity.WithX(new SignedEightEight(unchecked((ushort)(index >= 8
                     ? -PhantoonFlameMotionDefinitions.RageAngleStep : PhantoonFlameMotionDefinitions.RageAngleStep))));
-                flame.Variable0 = PhantoonFlameSpawns.RageAngle(index);
+                flame.State = new PhantoonOrbitingFlameState(new ByteAngle(PhantoonFlameSpawns.RageAngle(index)));
                 flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, unchecked((ushort)(body.Position.Y.Whole + 32))));
                 flame.PreInstruction =
                     EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Enraged;
@@ -809,7 +809,7 @@ internal sealed class PhantoonPatterns
                 if (index > 7)
                     throw new InvalidDataException($"Phantoon spiral direction {index} exceeds seven.");
                 flame.Velocity = flame.Velocity.WithX(new SignedEightEight(128));
-                flame.Variable0 = PhantoonFlameSpawns.SpiralAngle(index);
+                flame.State = new PhantoonOrbitingFlameState(new ByteAngle(PhantoonFlameSpawns.SpiralAngle(index)));
                 flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, unchecked((ushort)(body.Position.Y.Whole + 16))));
                 flame.PreInstruction =
                     EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Spiral;

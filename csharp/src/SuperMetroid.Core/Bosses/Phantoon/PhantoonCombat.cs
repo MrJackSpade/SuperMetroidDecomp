@@ -411,11 +411,12 @@ internal sealed class PhantoonCombat
             }
         }
 
-        flame.Variable0 = unchecked((byte)(flame.Variable0 + 1));
+        PhantoonOrbitingFlameState orbit = flame.StateOf<PhantoonOrbitingFlameState>();
+        orbit.Angle = orbit.Angle.AddTableUnits(1);
         PositionPhantoonFlameAroundBody(
             flame,
             state.Body,
-            checked(new ByteAngle(unchecked((byte)((ushort)flame.Variable0)))),
+            orbit.Angle,
             unchecked((byte)flame.Velocity.Y.RawValue));
     }
 
@@ -434,7 +435,7 @@ internal sealed class PhantoonCombat
             EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_HitGround;
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.CasualHitGround));
         flame.InstructionTimer = WrappingCountdown.Start(1);
-        flame.Variable0 = 8;
+        flame.State = new PhantoonCasualFlameState();
         flame.Position = flame.Position.WithWholeY(unchecked((ushort)(flame.Position.Y.Whole + 8)));
     }
 
@@ -443,9 +444,9 @@ internal sealed class PhantoonCombat
         RoomEnemyProjectileSlot flame,
         int frameCounter)
     {
-        CountdownStep pauseStep = WrappingCounter.Decrement(checked((ushort)flame.Variable0));
-        flame.Variable0 = pauseStep.Value;
-        if (!pauseStep.IsZeroOrNegative)
+        PhantoonCasualFlameState casual = flame.StateOf<PhantoonCasualFlameState>();
+        casual.ImpactPause--;
+        if (casual.ImpactPause != 0)
             return;
 
         flame.PreInstruction =
@@ -454,7 +455,6 @@ internal sealed class PhantoonCombat
         flame.InstructionTimer = WrappingCountdown.Start(1);
         flame.Position = flame.Position.WithWholeY(unchecked((ushort)(flame.Position.Y.Whole - 8)));
         flame.Velocity = flame.Velocity.WithY(SignedEightEight.FromSignedRaw(-768));
-        flame.Variable0 = 0;
         // $86:99EB reads the 16-bit NMI_FrameCounter.
         flame.Velocity = flame.Velocity.WithX(SignedEightEight.FromSignedRaw((frameCounter & 1) == 0 ? (short)128 : (short)-128));
     }
@@ -467,10 +467,11 @@ internal sealed class PhantoonCombat
         flame.Velocity = flame.Velocity.WithY(new SignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + 16))));
         if (EnemyProjectileEngine.MoveProjectileAxis(flame, level, axis: Axis.Vertical))
         {
-            flame.Variable0 = WrappingCounter.IncrementWord(flame.Variable0);
-            if (flame.Variable0 < 3)
+            PhantoonCasualFlameState casual = flame.StateOf<PhantoonCasualFlameState>();
+            casual.Bounces++;
+            if (casual.Bounces < 3)
             {
-                flame.Velocity = flame.Velocity.WithY(SignedEightEight.FromSignedRaw(flame.Variable0 == 1 ? (short)-512 : (short)-256));
+                flame.Velocity = flame.Velocity.WithY(SignedEightEight.FromSignedRaw(casual.Bounces == 1 ? (short)-512 : (short)-256));
                 return;
             }
             RestPhantoonCasualFlame(flame);
@@ -499,11 +500,12 @@ internal sealed class PhantoonCombat
         }
 
         flame.Velocity = flame.Velocity.WithY(new SignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + PhantoonFlameMotionDefinitions.RageRadiusStep))));
-        flame.Variable0 = unchecked((byte)(flame.Variable0 + (byte)flame.Velocity.X.RawValue));
+        PhantoonOrbitingFlameState orbit = flame.StateOf<PhantoonOrbitingFlameState>();
+        orbit.Angle = orbit.Angle.AddTableUnits(unchecked((byte)flame.Velocity.X.RawValue));
         PositionPhantoonFlameAroundBody(
             flame,
             state.Body,
-            checked(new ByteAngle(unchecked((byte)((ushort)flame.Variable0)))),
+            orbit.Angle,
             unchecked((byte)flame.Velocity.Y.RawValue));
         DeletePhantoonFlameOutsideRoom(flame);
     }
@@ -543,11 +545,12 @@ internal sealed class PhantoonCombat
         }
 
         flame.Velocity = flame.Velocity.WithY(new SignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + PhantoonFlameMotionDefinitions.SpiralRadiusStep))));
-        flame.Variable0 = unchecked((byte)(flame.Variable0 + PhantoonFlameMotionDefinitions.SpiralAngleStep));
+        PhantoonOrbitingFlameState orbit = flame.StateOf<PhantoonOrbitingFlameState>();
+        orbit.Angle = orbit.Angle.AddTableUnits(PhantoonFlameMotionDefinitions.SpiralAngleStep);
         PositionPhantoonFlameAroundBody(
             flame,
             state.Body,
-            checked(new ByteAngle(unchecked((byte)((ushort)flame.Variable0)))),
+            orbit.Angle,
             unchecked((byte)flame.Velocity.Y.RawValue));
         DeletePhantoonFlameOutsideRoom(flame);
     }

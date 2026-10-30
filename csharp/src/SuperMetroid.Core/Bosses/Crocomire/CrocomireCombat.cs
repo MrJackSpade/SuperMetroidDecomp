@@ -433,7 +433,7 @@ internal sealed class CrocomireCombat
         // instruction bytes; do not clamp the final shot to the last authored gradient.
         // The native angle starts at up, not right: Y uses negative cosine.
         projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateBearing(
-            new(-64, CrocomireVolley.GradientForSpawnParameter(projectile.DirectionParameter))));
+            new(-64, CrocomireVolley.GradientForSpawnParameter(projectile.StateOf<CrocomireProjectileState>().VolleyParameter))));
         projectile.PreInstruction =
             EnemyProjectilePreInstruction.CrocomiresProjectile_Fired;
     }
@@ -462,12 +462,16 @@ internal sealed class CrocomireCombat
                 CrocomireProjectileDefinitions.VelocityMultiplier)));
     }
 
+    /// <summary>The gravity a falling spike-wall piece gains each update.</summary>
+    private static readonly SignedSixteenSixteen SpikeWallPieceGravity = SignedSixteenSixteen.FromSixteenthsOfPixel(3);
+
     /// <summary>Ports the byte-precise slot-dependent shard motion at $86:9115.</summary>
     internal void RunCrocomireSpikeWallPiece(RoomEnemyProjectileSlot projectile)
     {
         int slot = projectile.SlotIndex;
         int maximumAcceleration = CrocomireSpikeMotion.MaximumAcceleration(slot);
-        int acceleration = projectile.Variable0;
+        CrocomireSpikeWallPieceState piece = projectile.StateOf<CrocomireSpikeWallPieceState>();
+        int acceleration = piece.Acceleration;
         if (acceleration != maximumAcceleration)
         {
             acceleration = unchecked((ushort)(
@@ -475,7 +479,7 @@ internal sealed class CrocomireCombat
             if (acceleration >= maximumAcceleration)
                 acceleration = maximumAcceleration;
         }
-        projectile.Variable0 = acceleration;
+        piece.Acceleration = acceleration;
 
         // The 65816 switches to 8-bit A here. The high acceleration byte is added to the
         // fractional velocity byte; carry advances the signed integral velocity byte, which
@@ -498,14 +502,9 @@ internal sealed class CrocomireCombat
             .AddEightEightToHighFraction(xVelocity.RawValue);
         projectile.Position = projectile.Position.WithFractionX(x.Fraction).WithWholeX(x.Whole);
 
-        // Y velocity and position are ordinary signed 16.16 pairs, with $3000 acceleration.
-        uint velocity = unchecked(SixteenSixteen.Compose(projectile.Velocity.Y.RawValue, checked((ushort)projectile.Variable1)));
-        velocity = unchecked(velocity + 12288u);
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(SixteenSixteen.WholeOf(velocity)))));
-        projectile.Variable1 = unchecked((ushort)velocity);
-        uint position = unchecked(projectile.Position.Y.RawValue);
-        position = unchecked(position + velocity);
-        projectile.Position = projectile.Position.WithY(FixedCoordinate.FromRaw(unchecked(position)));
+        // The fall is ordinary signed 16.16 motion, with three sixteenths of a pixel of gravity per update.
+        piece.FallSpeed += SpikeWallPieceGravity;
+        projectile.Position = projectile.Position.AdvanceY(piece.FallSpeed);
 
         if (projectile.Position.Y.Whole < 168)
             return;

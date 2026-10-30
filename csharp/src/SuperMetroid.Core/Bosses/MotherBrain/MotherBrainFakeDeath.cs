@@ -278,7 +278,7 @@ internal sealed class MotherBrainFakeDeath
         MotherBrainProjectileStarts.Initialize(projectile, kind, graphics: SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(MotherBrainColourDefinitions.TubeProjectiles)));
         projectile.Position = projectile.Position.WithWhole(position);
         projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
-        projectile.Variable0 = MotherBrainProjectiles.TopTubeDustPending;
+        projectile.State = new MotherBrainTopTubeState();
     }
 
     /// <summary>Creates the falling tube enemy of <paramref name="piece"/>.</summary>

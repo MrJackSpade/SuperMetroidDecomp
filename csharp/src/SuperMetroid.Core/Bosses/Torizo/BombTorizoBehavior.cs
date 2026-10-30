@@ -439,12 +439,12 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 Attacks.SpawnBombTorizoChozoOrb(torizo);
                 return null;
 
-            case TorizoCue.ParameterizedSpawn { Kind: TorizoParameterizedSpawnKind.SpawnBombTorizoSonicBoom } parameterizedSpawn:
-                Attacks.SpawnBombTorizoSonicBoom(torizo, parameterizedSpawn.Parameter);
+            case TorizoCue.ParameterizedSpawn { Kind: TorizoParameterizedSpawnKind.SpawnBombTorizoSonicBoom }:
+                Attacks.SpawnBombTorizoSonicBoom(torizo);
                 return null;
 
-            case TorizoCue.ParameterizedSpawn { Kind: TorizoParameterizedSpawnKind.SpawnGoldenTorizoSonicBoom } parameterizedSpawn:
-                Attacks.SpawnGoldenTorizoSonicBoom(torizo, parameterizedSpawn.Parameter);
+            case TorizoCue.ParameterizedSpawn { Kind: TorizoParameterizedSpawnKind.SpawnGoldenTorizoSonicBoom }:
+                Attacks.SpawnGoldenTorizoSonicBoom(torizo);
                 return null;
 
             case TorizoCue.ParameterizedSpawn { Kind: TorizoParameterizedSpawnKind.SpawnExplosiveSwipe } parameterizedSpawn:
@@ -522,8 +522,8 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     inputs.Samus,
                     branch.Target);
 
-            case TorizoCue.ParameterizedSpawn { Kind: TorizoParameterizedSpawnKind.SpawnEyeBeam } parameterizedSpawn:
-                Attacks.SpawnGoldenTorizoEyeBeam(torizo, parameterizedSpawn.Parameter);
+            case TorizoCue.ParameterizedSpawn { Kind: TorizoParameterizedSpawnKind.SpawnEyeBeam }:
+                Attacks.SpawnGoldenTorizoEyeBeam(torizo);
                 return null;
 
             case TorizoCue.Branch { Kind: TorizoBranchKind.CallSometimesIfSamusMorphedInFront } branch:

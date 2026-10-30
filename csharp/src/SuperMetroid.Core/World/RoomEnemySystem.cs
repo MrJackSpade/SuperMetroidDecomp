@@ -547,7 +547,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     Position16<BackgroundPixels>? IEnemyDisplaySources.KraidBodyPlacement => KraidBehavior.BodyLayer.BodyPlacement;
     /// <inheritdoc/>
     Position16<BackgroundPixels>? IEnemyDisplaySources.CrocomireBodyPlacement =>
-        CrocomireBehavior.Access.Crocomire is not null ? CrocomireBehavior.Bg2.BodyLayerPlacement : null;
+        CrocomireBehavior.Access.Crocomire is not null ? CrocomireBehavior.BodyLayer.Placement : null;
     /// <inheritdoc/>
     MorphBallEyeBeamState IEnemyDisplaySources.MorphBallEyeBeam => MorphBallEyeBehavior.MorphBallEyeBeam;
 

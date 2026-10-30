@@ -24,7 +24,7 @@ public enum CrocomireDeathPhase
     SecondHopRise,
     /// <summary>Second hop sinking phase.</summary>
     SecondHopSink,
-    /// <summary>Installs the first melting tilemap and tongue/arm actor.</summary>
+    /// <summary>Shows the first melt image and the tongue/arm actor.</summary>
     InstallFirstMeltImage,
     /// <summary>Begins the first melt pass.</summary>
     BeginFirstMeltPass,
@@ -36,7 +36,7 @@ public enum CrocomireDeathPhase
     StartFirstDissolve,
     /// <summary>Dissolves the first body image.</summary>
     DissolveFirstImage,
-    /// <summary>Clears BG2 after the first body image is gone.</summary>
+    /// <summary>Clears his body layer after the first body image is gone.</summary>
     ClearFirstMeltImage,
     /// <summary>Fourth hop sinking phase.</summary>
     FourthHopSink,
@@ -52,7 +52,7 @@ public enum CrocomireDeathPhase
     FifthHopRise,
     /// <summary>Sixth hop sinking phase.</summary>
     SixthHopSink,
-    /// <summary>Installs the second melting tilemap.</summary>
+    /// <summary>Shows the second melt image.</summary>
     InstallSecondMeltImage,
     /// <summary>Begins the second melt pass.</summary>
     BeginSecondMeltPass,
@@ -66,7 +66,7 @@ public enum CrocomireDeathPhase
     StartSecondDissolve,
     /// <summary>Dissolves the second body image.</summary>
     DissolveSecondImage,
-    /// <summary>Clears BG2 after the second body image is gone.</summary>
+    /// <summary>Clears his body layer after the second body image is gone.</summary>
     ClearSecondMeltImage,
     /// <summary>Final sink before selecting the river-skeleton detour.</summary>
     FinalSink,
@@ -94,8 +94,8 @@ public enum CrocomireDeathPhase
     InertCorpse,
     /// <summary>Already-defeated initializer's one-frame advance.</summary>
     DefeatedRoomAdvance,
-    /// <summary>Pins BG2 scrolls at zero in the already-defeated room.</summary>
-    PinDefeatedRoomBg2Scroll,
+    /// <summary>Pins his body layer's placement at zero in the already-defeated room.</summary>
+    PinDefeatedRoomBodyLayerPlacement,
     /// <summary>River detour sequenced between the final sink and wall wait.</summary>
     RiverSkeletonDetour,
 }

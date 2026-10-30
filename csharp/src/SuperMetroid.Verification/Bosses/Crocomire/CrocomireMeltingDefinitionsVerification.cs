@@ -184,8 +184,8 @@ internal static class CrocomireMeltingDefinitionsVerification
         // #1269 split the loader into the two native phases ($A4:9341 and $A4:93ED).
         Action<CrocomireEnemyState> initialize = source switch
         {
-            CrocomireMeltingIllustration.First => enemies.CrocomireBehavior.Melting.LoadFirstCrocomireMeltingTilemap,
-            CrocomireMeltingIllustration.Second => enemies.CrocomireBehavior.Melting.LoadSecondCrocomireMeltingTilemap,
+            CrocomireMeltingIllustration.First => enemies.CrocomireBehavior.Melting.ShowFirstCrocomireMeltImage,
+            CrocomireMeltingIllustration.Second => enemies.CrocomireBehavior.Melting.ShowSecondCrocomireMeltImage,
             _ => throw new ArgumentOutOfRangeException(nameof(source)),
         };
 

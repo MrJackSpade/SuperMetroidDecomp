@@ -20,8 +20,8 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Accesses the active room, enemy slots, and shared RNG.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Crocomire's BG2 body: its scroll, scroll table, the words it writes into his BG2 image and the acid smoke drawn with it.</summary>
-    internal CrocomireBg2 Bg2 { get; }
+    /// <summary>Crocomire's body layer: where it is placed, the canvas his death assembles it on, the tongue placed with it and the acid smoke drawn with it.</summary>
+    internal CrocomireBodyLayer BodyLayer { get; }
 
     /// <summary>Crocomire's setup, its body and tongue programs and their cues, and the invisible wall that holds Samus back.</summary>
     internal CrocomireFight Fight { get; }
@@ -35,7 +35,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The bridge giving way under Crocomire: its fragments, the sink into the acid, the rise and the final sink.</summary>
     internal CrocomireBridgeCollapse BridgeCollapse { get; }
 
-    /// <summary>Crocomire melting in the acid: the melting tilemaps and graphics and the dissolve passes.</summary>
+    /// <summary>Crocomire melting in the acid: the melt images and the dissolve passes.</summary>
     internal CrocomireMelting Melting { get; }
 
     /// <summary>Crocomire's skeleton: waiting behind the wall, breaking through, its arc and collapse, and the fight's end.</summary>
@@ -51,11 +51,11 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         _bossArtwork = dependencies.Presentation.Artwork;
         _room = dependencies.Room;
         Access = new CrocomireEncounterAccess(dependencies.FrameResults, _room, dependencies.Projectiles);
-        Bg2 = new CrocomireBg2(dependencies.SpriteObjects, dependencies.Presentation.Surfaces, Access);
-        Fight = new CrocomireFight(new CrocomireFightDependencies { Room = _room, Terrain = dependencies.Terrain, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Presentation = dependencies.Presentation.Surfaces, Collision = dependencies.Collision, ZebetiteBehavior = dependencies.ZebetiteBehavior, RoomStatus = dependencies.RoomStatus, Bg2 = Bg2, Access = Access , BossArtwork = _bossArtwork });
+        BodyLayer = new CrocomireBodyLayer(dependencies.SpriteObjects, dependencies.Presentation.Surfaces, Access);
+        Fight = new CrocomireFight(new CrocomireFightDependencies { Room = _room, Terrain = dependencies.Terrain, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Presentation = dependencies.Presentation.Surfaces, Collision = dependencies.Collision, ZebetiteBehavior = dependencies.ZebetiteBehavior, RoomStatus = dependencies.RoomStatus, BodyLayer = BodyLayer, Access = Access , BossArtwork = _bossArtwork });
         Combat = new CrocomireCombat(dependencies.Projectiles, dependencies.Presentation.Surfaces, dependencies.FrameContext, dependencies.Collision, dependencies.DeathsAndDrops, Access, _bossArtwork);
-        BridgeCollapse = new CrocomireBridgeCollapse(_room, dependencies.Projectiles, dependencies.ZebetiteBehavior, Bg2, Access);
-        Melting = new CrocomireMelting(dependencies.Presentation.Surfaces, Bg2, Access, _bossArtwork);
+        BridgeCollapse = new CrocomireBridgeCollapse(_room, dependencies.Projectiles, dependencies.ZebetiteBehavior, BodyLayer, Access);
+        Melting = new CrocomireMelting(dependencies.Presentation.Surfaces, BodyLayer, Access, _bossArtwork);
         Skeleton = new CrocomireSkeleton(_room, dependencies.Projectiles, dependencies.Presentation.Surfaces, dependencies.DeathsAndDrops, dependencies.ZebetiteBehavior, Access, _bossArtwork);
     }
 
@@ -107,7 +107,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeScreen, RoomScrollState.Blue);
             // Main state zero always finishes through $A4:8B5B, including the frame in
             // which $8D5E changes the death index to two.
-            Bg2.PlaceCrocomireBodyLayer(state);
+            BodyLayer.PlaceCrocomireBodyLayer(state);
         }
         else
         {
@@ -132,7 +132,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             case CrocomireDeathPhase.FirstSubmergedPause:
                 BridgeCollapse.RunCrocomireAcidSoundTimer();
-                Bg2.UpdateCrocomireTongueAndBg2Horizontal(state);
+                BodyLayer.PlaceCrocomireTongueAndBodyLayerHorizontally(state);
                 CrocomireBridgeCollapse.RunCrocomireSubmergedPause(state);
                 return;
             case CrocomireDeathPhase.FirstHopRise:
@@ -145,7 +145,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             case CrocomireDeathPhase.SecondSubmergedPause:
                 BridgeCollapse.RunCrocomireAcidSoundTimer();
-                Bg2.UpdateCrocomireTongueAndBg2Horizontal(state);
+                BodyLayer.PlaceCrocomireTongueAndBodyLayerHorizontally(state);
                 CrocomireBridgeCollapse.RunCrocomireSubmergedPause(state);
                 return;
             case CrocomireDeathPhase.SecondHopRise:
@@ -157,7 +157,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 BridgeCollapse.RunCrocomireSinkingComposite(state, samus);
                 return;
             case CrocomireDeathPhase.InstallFirstMeltImage:
-                Melting.LoadFirstCrocomireMeltingTilemap(state);
+                Melting.ShowFirstCrocomireMeltImage(state);
                 return;
             case CrocomireDeathPhase.BeginFirstMeltPass:
                 Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.First);
@@ -200,7 +200,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 BridgeCollapse.RunCrocomireSinkingComposite(state, samus);
                 return;
             case CrocomireDeathPhase.InstallSecondMeltImage:
-                Melting.LoadSecondCrocomireMeltingTilemap(state);
+                Melting.ShowSecondCrocomireMeltImage(state);
                 return;
             case CrocomireDeathPhase.BeginSecondMeltPass:
                 Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.Second);
@@ -213,7 +213,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             case CrocomireDeathPhase.SixthHopRise:
                 CrocomireBridgeCollapse.SelectCrocomireRisingInstruction(state);
-                Bg2.SpawnCrocomireAcidSmoke(state, samus);
+                BodyLayer.SpawnCrocomireAcidSmoke(state, samus);
                 BridgeCollapse.RunCrocomireRise(state);
                 return;
             case CrocomireDeathPhase.StartSecondDissolve:
@@ -265,8 +265,8 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             case CrocomireDeathPhase.DefeatedRoomAdvance:
                 state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
                 return;
-            case CrocomireDeathPhase.PinDefeatedRoomBg2Scroll:
-                Bg2.BodyLayerPlacement = Position16<BackgroundPixels>.Zero;
+            case CrocomireDeathPhase.PinDefeatedRoomBodyLayerPlacement:
+                BodyLayer.Placement = Position16<BackgroundPixels>.Zero;
                 return;
             case CrocomireDeathPhase.RiverSkeletonDetour:
                 CrocomireSkeleton.RunCrocomireSkeletonRiver(state);

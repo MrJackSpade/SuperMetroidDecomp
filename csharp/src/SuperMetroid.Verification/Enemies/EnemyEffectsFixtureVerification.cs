@@ -81,9 +81,9 @@ internal static class EnemyEffectsFixtureVerification
         internal void InitializeMap(CrocomireMeltingIllustration illustration)
         {
             if (illustration == CrocomireMeltingIllustration.First)
-                Enemies.CrocomireBehavior.Melting.LoadFirstCrocomireMeltingTilemap(Actor);
+                Enemies.CrocomireBehavior.Melting.ShowFirstCrocomireMeltImage(Actor);
             else if (illustration == CrocomireMeltingIllustration.Second)
-                Enemies.CrocomireBehavior.Melting.LoadSecondCrocomireMeltingTilemap(Actor);
+                Enemies.CrocomireBehavior.Melting.ShowSecondCrocomireMeltImage(Actor);
             else
                 _ = Enemies.CrocomireBehavior.Melting.RequireCrocomireMeltingImage(illustration);
         }

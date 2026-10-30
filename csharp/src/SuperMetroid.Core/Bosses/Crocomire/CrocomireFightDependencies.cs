@@ -35,8 +35,8 @@ internal sealed record CrocomireFightDependencies
     /// <summary>Updates boss completion and room-state flags.</summary>
     public required EnemyRoomStatus RoomStatus { get; init; }
 
-    /// <summary>Crocomire's BG2 body: its scroll, scroll table, the words it writes into his BG2 image and the acid smoke drawn with it.</summary>
-    public required CrocomireBg2 Bg2 { get; init; }
+    /// <summary>Crocomire's body layer: where it is placed, the canvas his death assembles it on, the tongue placed with it and the acid smoke drawn with it.</summary>
+    public required CrocomireBodyLayer BodyLayer { get; init; }
 
     /// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and the sound and music it last requested.</summary>
     public required CrocomireEncounterAccess Access { get; init; }

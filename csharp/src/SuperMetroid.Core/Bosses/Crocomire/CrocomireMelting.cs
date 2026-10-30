@@ -8,12 +8,12 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Crocomire melting in the acid: the melting tilemaps and graphics and the dissolve passes.</summary>
+/// <summary>Crocomire melting in the acid: the melt images and the dissolve passes.</summary>
 [RoomLifetime]
 internal sealed class CrocomireMelting
 {
-    /// <summary>Crocomire's BG2 body: its scroll, scroll table, the words it writes into his BG2 image and the acid smoke drawn with it.</summary>
-    private readonly CrocomireBg2 _bg2;
+    /// <summary>Crocomire's body layer: where it is placed, the canvas his death assembles it on, the tongue placed with it and the acid smoke drawn with it.</summary>
+    private readonly CrocomireBodyLayer _bodyLayer;
     /// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
     /// <summary>The session's installed boss artwork.</summary>
@@ -22,11 +22,11 @@ internal sealed class CrocomireMelting
     private readonly EnemyPresentation _presentation;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CrocomireMelting(EnemyPresentation presentation, CrocomireBg2 bg2, CrocomireEncounterAccess access, BossArtworkBinding bossArtwork)
+    internal CrocomireMelting(EnemyPresentation presentation, CrocomireBodyLayer bodyLayer, CrocomireEncounterAccess access, BossArtworkBinding bossArtwork)
     {
         _presentation = presentation;
         _bossArtwork = bossArtwork;
-        _bg2 = bg2;
+        _bodyLayer = bodyLayer;
         _access = access;
     }
 
@@ -34,14 +34,14 @@ internal sealed class CrocomireMelting
     /// <c>MainAI_Crocomire_DeathSequence_10_Hop_3_LoadMeltingTilemap</c> ($A4:9341). Only
     /// this first melt hands the tongue its melting program and moves it onto the body.
     /// </summary>
-    internal void LoadFirstCrocomireMeltingTilemap(CrocomireEnemyState state)
+    internal void ShowFirstCrocomireMeltImage(CrocomireEnemyState state)
     {
         _ = RequireCrocomireMeltingImage(CrocomireMeltingIllustration.First);
-        StartCrocomireMeltingTilemap(state, CrocomireBodyProgram.MeltingOneTopRow);
+        StartCrocomireMeltingBodyProgram(state, CrocomireBodyProgram.MeltingOneTopRow);
 
         if (state.Tongue is { } tongue)
         {
-            CrocomireBg2.StartCrocomireTongueProgram(state, CrocomireTongueProgram.Melting, WrappingCountdown.Start(1));
+            CrocomireBodyLayer.StartCrocomireTongueProgram(state, CrocomireTongueProgram.Melting, WrappingCountdown.Start(1));
             tongue.Properties = tongue.Properties.Replace(
                 EnemyProperties.ProcessInstructions |
                     EnemyProperties.ProcessOffScreen |
@@ -61,11 +61,11 @@ internal sealed class CrocomireMelting
     /// <c>MainAI_Crocomire_DeathSequence_2C_Hop_6_LoadMeltingTilemap</c> ($A4:93ED). It
     /// first refills the BG2 Y-scroll HDMA table ($A4:93DF) and leaves the tongue alone.
     /// </summary>
-    internal void LoadSecondCrocomireMeltingTilemap(CrocomireEnemyState state)
+    internal void ShowSecondCrocomireMeltImage(CrocomireEnemyState state)
     {
         _ = RequireCrocomireMeltingImage(CrocomireMeltingIllustration.Second);
-        _bg2.FillCrocomireBg2ScrollTable(_bg2.BodyLayerPlacement.Y);
-        StartCrocomireMeltingTilemap(state, CrocomireBodyProgram.MeltingTwoTopRow);
+        _bodyLayer.FillCrocomireBg2ScrollTable(_bodyLayer.Placement.Y);
+        StartCrocomireMeltingBodyProgram(state, CrocomireBodyProgram.MeltingTwoTopRow);
         // $A4:940E-941D clears the first thirty-two rows.
         ShowCrocomireMeltingImage(CrocomireMeltingIllustration.Second, clearedCells: 1024);
     }
@@ -79,8 +79,8 @@ internal sealed class CrocomireMelting
     internal BossBodyFrame RequireCrocomireMeltingImage(CrocomireMeltingIllustration illustration) =>
         _bossArtwork.Body(BossBodyOwner.Crocomire).Frame(CrocomireMeltingFrameNames.Of(illustration));
 
-    /// <summary>Starts the selected body melting list and synchronizes actor state with the new BG2 map.</summary>
-    private static void StartCrocomireMeltingTilemap(CrocomireEnemyState state, CrocomireBodyProgram bodyProgram)
+    /// <summary>Starts the selected body melting list, which the melt image just shown on his body layer goes with.</summary>
+    private static void StartCrocomireMeltingBodyProgram(CrocomireEnemyState state, CrocomireBodyProgram bodyProgram)
     {
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, bodyProgram);
@@ -92,11 +92,11 @@ internal sealed class CrocomireMelting
     /// </summary>
     private void ShowCrocomireMeltingImage(CrocomireMeltingIllustration illustration, int clearedCells)
     {
-        BossBodyCanvas working = _bg2.WorkingBody;
+        BossBodyCanvas working = _bodyLayer.WorkingBody;
         working.Clear(0, clearedCells);
         working.Draw(RequireCrocomireMeltingImage(illustration));
         // The image is shown with the sixteen rows the cartridge's transfer leads it with, and what follows it there.
-        _bg2.ShowCrocomireWorkingCells(0, CrocomireMeltingDefinitions.ShownMeltCells);
+        _bodyLayer.ShowCrocomireWorkingCells(0, CrocomireMeltingDefinitions.ShownMeltCells);
     }
 
     /// <summary>
@@ -109,7 +109,7 @@ internal sealed class CrocomireMelting
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         _ = RequireCrocomireMeltingImage(pass);
-        _bg2.FillCrocomireBg2ScrollTable(_bg2.BodyLayerPlacement.Y);
+        _bodyLayer.FillCrocomireBg2ScrollTable(_bodyLayer.Placement.Y);
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
         death.DistortionStep = 256;
         death.LowestDistortionSourceRow = CrocomireMeltingDefinitions.LowestDistortionSourceRow;
@@ -166,16 +166,16 @@ internal sealed class CrocomireMelting
     internal static ArtworkFrame MeltBandFrame(CrocomireMeltBandPicture picture, int band) =>
         new(MeltBandAnimation(band), $"{picture.Pass} step {picture.Step}");
 
-    /// <summary>Starts Crocomire's dissolve after installed graphics and tilemap data are ready.</summary>
+    /// <summary>Starts Crocomire's dissolve once his melt image shows.</summary>
     internal void BeginCrocomireMelting(CrocomireEnemyState state)
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         death.MeltingScrollActive = true;
         int lineCount = Math.Clamp((state.Tongue?.Position.Y.Whole ?? state.Body.Position.Y.Whole) - 72, 0, 256);
         Span<ushort> scrolls = death.MutableBg2ScrollByScanline;
-        scrolls.Slice(0, lineCount).Fill(_bg2.BodyLayerPlacement.Y);
+        scrolls.Slice(0, lineCount).Fill(_bodyLayer.Placement.Y);
         if (lineCount < scrolls.Length)
-            scrolls.Slice(lineCount).Fill(_bg2.BodyLayerPlacement.Y);
+            scrolls.Slice(lineCount).Fill(_bodyLayer.Placement.Y);
 
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
         death.BodyXBeforeMelting = state.Body.Position.X.Whole;
@@ -184,7 +184,7 @@ internal sealed class CrocomireMelting
     /// <summary>Updates the acid dissolve, BG2 distortion, tongue placement, and scheduled melting graphics.</summary>
     internal void RunCrocomireMelting(CrocomireEnemyState state, SamusState? samus)
     {
-        _bg2.SpawnCrocomireAcidSmoke(state, samus);
+        _bodyLayer.SpawnCrocomireAcidSmoke(state, samus);
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         death.MeltShakeCounter = death.MeltShakeCounter.Decrement().Remaining;
         state.Body.Position = state.Body.Position.WithWholeX(unchecked((ushort)(
@@ -193,7 +193,7 @@ internal sealed class CrocomireMelting
         EraseNextCrocomireMeltingColumn();
 
         // $A4:95D5 places his body layer again, which also moves the tongue onto the body.
-        _bg2.PlaceCrocomireBodyLayer(state);
+        _bodyLayer.PlaceCrocomireBodyLayer(state);
         int nextAdjustedY = death.DistortionSourceRow - 3;
         if (death.DistortionSourceRow < 19)
         {
@@ -241,7 +241,7 @@ internal sealed class CrocomireMelting
                adjustedY < death.LowestDistortionSourceRow)
         {
             output[line++] = unchecked((ushort)(
-                _bg2.BodyLayerPlacement.Y + adjustedY - currentY));
+                _bodyLayer.Placement.Y + adjustedY - currentY));
             bool carry = false;
             fraction = WordCarry.AddWithCarry((ushort)fraction, checked((ushort)death.DistortionStep), ref carry);
             if (!carry)
@@ -249,7 +249,7 @@ internal sealed class CrocomireMelting
             currentY++;
         }
         if (line < output.Length)
-            output.Slice(line).Fill(_bg2.BodyLayerPlacement.Y);
+            output.Slice(line).Fill(_bodyLayer.Placement.Y);
     }
 
     /// <summary>Ends the current dissolve and selects the next death-scene instruction phase.</summary>
@@ -261,12 +261,12 @@ internal sealed class CrocomireMelting
         death.NextMeltBand = 0;
     }
 
-    /// <summary>Restores the BG2 presentation and actor state after the final melting pass.</summary>
+    /// <summary>Clears his body layer and moves the actor on after the final melting pass.</summary>
     internal void FinishCrocomireMeltingPass(CrocomireEnemyState state)
     {
         state.StartVerticalMotion(EightEight.FromWhole(CrocomireBehavior.SinkStartingAccelerationWhole));
-        _bg2.ClearCrocomireWorkingBody();
-        _bg2.ShowCrocomireWorkingCells(0, BossBodyDefinitions.PageRows * BossBodyDefinitions.ColumnCount);
+        _bodyLayer.ClearCrocomireWorkingBody();
+        _bodyLayer.ShowCrocomireWorkingCells(0, BossBodyDefinitions.PageRows * BossBodyDefinitions.ColumnCount);
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }
 }

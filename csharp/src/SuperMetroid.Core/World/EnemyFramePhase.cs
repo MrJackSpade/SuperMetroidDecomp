@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 internal sealed class EnemyFramePhase
 {
-    /// <summary>Receives enemy-authored BG2 scroll changes before the next NMI latches the frame.</summary>
+    /// <summary>Receives Phantoon's body-layer placement before the next NMI latches the frame.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Supplies current and newly pressed controller words to EnemyMain.</summary>
     private readonly ControllerInputState _controller1;

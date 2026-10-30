@@ -152,7 +152,7 @@ internal static class RetailKraidCaptureTests
     {
         LayeredScene scene = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var gameplay = (GameplaySceneLayer)scene.Layers[0];
-        if (gameplay.Rooms.BossBg2 is null)
+        if (gameplay.Rooms.BossBody is null)
             throw new InvalidOperationException($"{context}: BG2 shows the room's own background where Kraid's tilemap was expected.");
         var shown = new SortedSet<ushort>(BossBodyWords.Of(runtime.Display.Latched.Bosses.Body
             ?? throw new InvalidOperationException($"{context}: BG2 shows a boss body Kraid has not latched."), BossBodyOwner.Kraid,

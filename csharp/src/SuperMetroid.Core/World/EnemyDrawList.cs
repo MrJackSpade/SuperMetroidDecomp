@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// EnemyMain's draw phase (<c>WriteEnemyOams</c>): the per-layer queues the enemy pass fills, the common
-/// draw-palette selection, and the ordinary, extended and supplemental sprite output with its BG2 frame side effects.
+/// draw-palette selection, and the ordinary, extended and supplemental sprite output with the boss body frames it draws.
 /// </summary>
 [RoomLifetime]
 internal sealed class EnemyDrawList
@@ -18,7 +18,7 @@ internal sealed class EnemyDrawList
     private readonly DeadTorizoBehavior _deadTorizoBehavior;
     /// <summary>Supplies the shared enemy frame counter used for hit-flash palette phases.</summary>
     private readonly EnemyFrameContext _frameContext;
-    /// <summary>Applies installed extended-frame BG2 changes before drawing visual parts.</summary>
+    /// <summary>Draws an extended enemy's boss body frame before drawing its visual parts.</summary>
     private readonly EnemyInstructionInterpreter _instructions;
     /// <summary>Runs Mother Brain's draw hook on its authored layer-five pass.</summary>
     private readonly MotherBrainBehavior _motherBrainBehavior;
@@ -61,8 +61,8 @@ internal sealed class EnemyDrawList
 
     /// <summary>
     /// The simulation half of <c>WriteEnemyOams</c> for an inclusive layer range, in native slot order: each queued
-    /// enemy's shake tick is consumed while its origin is formed, and an extended enemy's installed BG2 frame is
-    /// applied. These run whenever the cartridge's draw pass runs, whether or not the frame is shown.
+    /// enemy's shake tick is consumed while its origin is formed, and an extended enemy's boss body frame is
+    /// drawn. These run whenever the cartridge's draw pass runs, whether or not the frame is shown.
     /// </summary>
     /// <param name="camera">Layer-one camera position (viewport top-left) in whole room pixels.</param>
     /// <param name="firstLayer">First native draw layer, inclusively, in the range 0..7.</param>

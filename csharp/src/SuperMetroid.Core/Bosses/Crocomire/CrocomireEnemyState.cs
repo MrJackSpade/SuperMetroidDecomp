@@ -29,7 +29,7 @@ public sealed class CrocomireEnemyState
     /// </summary>
     private int _projectileSubpixelOrSkeletonWholeWord;
 
-    /// <summary>Physical $DDBF body record owning the fight/death state words and room-pixel coordinates; BG2 body artwork follows this actor.</summary>
+    /// <summary>Physical $DDBF body record owning the fight/death state words and room-pixel coordinates; his body layer follows this actor.</summary>
     public RoomEnemySlot Body { get; }
     /// <summary>Where the body's typed program resumes; it replaces the native instruction pointer.</summary>
     internal AnimationProgramCursor<CrocomireBodyProgram> BodyCursor { get; set; }
@@ -43,7 +43,7 @@ public sealed class CrocomireEnemyState
     /// </summary>
     internal CrocomireBodyProgram BodyResidentProgram => CrocomireBodyAnimations.Programs.ResidentProgram(BodyCursor);
 
-    /// <summary>The camera position the last main update saw; its X places the BG2 body and decides whether the body is on screen.</summary>
+    /// <summary>The camera position the last main update saw; its X places his body layer and decides whether the body is on screen.</summary>
     internal Position16<RoomPixels> Camera { get; set; }
 
     /// <summary>The tongue's animation program.</summary>

@@ -957,7 +957,7 @@ internal static void VerifyBg2ScreenLayout()
             // Kraid's body is the 64x64 map he loads at $4000, drawn from its pictures (#1403).
             RoomBackgroundsFixtures.Blank() with
             {
-                BossBg2 = RoomBackgroundsFixtures.BodyFromTilemap(gameplayVram.Bytes, gameplayCgram.Colors, kraidBg2BaseWord,
+                BossBody = RoomBackgroundsFixtures.BodyFromTilemap(gameplayVram.Bytes, gameplayCgram.Colors, kraidBg2BaseWord,
                     new Extent16<TilemapCells>(64, 64)),
             }));
     AssertEqual(new RgbaPixel(255, 0, 0),

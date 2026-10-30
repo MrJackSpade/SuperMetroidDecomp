@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 public enum KraidSinkCallback
 {
     /// <summary>
-    /// <c>RTS_A7C6A6</c> at $A7:C6A6. Rows that only clear another BG2 tilemap strip
+    /// <c>RTS_A7C6A6</c> at $A7:C6A6. Rows that only clear another strip of his body
     /// select this callback so the indirect JSR returns without spawning rocks or PLMs.
     /// </summary>
     NoOperation,

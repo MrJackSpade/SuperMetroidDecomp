@@ -552,7 +552,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                 bg3 = SameBg3(bg3, window.Plane);
         }
         var levels = new RoomLevelLayers(rooms?.Bg1, rooms?.Bg2 ?? floor, rooms?.DoorSource, rooms?.Bg1Overlay, rooms?.Sky, bg3,
-            rooms?.Bg2Overlay, floorMap, rooms?.BossBg2, rooms?.XrayReveal, rooms?.Bg2Image,
+            rooms?.Bg2Overlay, floorMap, rooms?.BossBody, rooms?.XrayReveal, rooms?.Bg2Image,
             messagePicture, screens.Count == 0 ? null : new ScreenPictureTables([.. screens]));
         // The image texture holds every image the scene shows before either buffer names a place in it (#1408).
         images.Needed.Clear();

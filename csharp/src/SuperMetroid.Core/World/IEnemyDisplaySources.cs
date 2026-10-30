@@ -34,7 +34,7 @@ internal interface IEnemyDisplaySources
     /// <summary>Where Kraid's body layer is placed while it is shown (#1352); otherwise null.</summary>
     Position16<BackgroundPixels>? KraidBodyPlacement { get; }
 
-    /// <summary>Crocomire's BG2 scroll while Crocomire is loaded; otherwise null.</summary>
+    /// <summary>Where Crocomire's body layer is placed while Crocomire is loaded; otherwise null.</summary>
     Position16<BackgroundPixels>? CrocomireBodyPlacement { get; }
 
     /// <summary>The morph-ball eye's beam.</summary>

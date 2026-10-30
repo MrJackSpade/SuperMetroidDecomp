@@ -15,7 +15,7 @@ internal static class D3D11RoomSources
     /// </summary>
     /// <exception cref="InvalidOperationException">The frame publishes nothing layer 2 shows.</exception>
     internal static uint Layer2Of(RoomBackgrounds rooms) =>
-        (uint)(rooms.BossBg2 is not null ? D3D11RoomSource.BossBody
+        (uint)(rooms.BossBody is not null ? D3D11RoomSource.BossBody
             : rooms.Bg2 is not null ? D3D11RoomSource.Layer2
             : rooms.XrayReveal is not null ? D3D11RoomSource.XrayReveal
             : rooms.Sky is not null ? D3D11RoomSource.Sky

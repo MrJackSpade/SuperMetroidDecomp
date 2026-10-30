@@ -8,9 +8,9 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Crocomire's BG2 body: its scroll, scroll table, the tiles it writes into his BG2 image and the acid smoke drawn with it.</summary>
+/// <summary>Crocomire's body layer: where it is placed, the canvas his death assembles it on, the tongue placed with it and the acid smoke drawn with it.</summary>
 [RoomLifetime]
-internal sealed class CrocomireBg2
+internal sealed class CrocomireBodyLayer
 {
     /// <summary>Allocates arena debris and cinematic sprite objects.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
@@ -20,7 +20,7 @@ internal sealed class CrocomireBg2
     private readonly CrocomireEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CrocomireBg2(RoomSpriteObjectPool spriteObjects, EnemyPresentation presentation, CrocomireEncounterAccess access)
+    internal CrocomireBodyLayer(RoomSpriteObjectPool spriteObjects, EnemyPresentation presentation, CrocomireEncounterAccess access)
     {
         _spriteObjects = spriteObjects;
         _presentation = presentation;
@@ -28,9 +28,8 @@ internal sealed class CrocomireBg2
     }
 
     /// <summary>Where Crocomire's body layer is placed: the layer position shown at the screen's top-left.</summary>
-    public Position16<BackgroundPixels> BodyLayerPlacement { get; internal set; }
+    public Position16<BackgroundPixels> Placement { get; internal set; }
 
-    /// <summary>Switches an actor's instruction pointer and resets its timer for the next native list.</summary>
     /// <summary>Starts the tongue's <paramref name="program"/> from its first step once <paramref name="timer"/> expires.</summary>
     internal static void StartCrocomireTongueProgram(CrocomireEnemyState state, CrocomireTongueProgram program, WrappingCountdown timer)
     {
@@ -64,18 +63,18 @@ internal sealed class CrocomireBg2
     internal void PlaceCrocomireBodyLayer(CrocomireEnemyState state)
     {
         RoomEnemySlot body = state.Body;
-        BodyLayerPlacement = BodyLayerPlacement.WithY(CrocomireBg2Alignment.VerticalScroll(
+        Placement = Placement.WithY(CrocomireBodyLayerAlignment.VerticalPlacement(
             body.Position.Y.Whole, body.Frame));
-        UpdateCrocomireTongueAndBg2Horizontal(state);
+        PlaceCrocomireTongueAndBodyLayerHorizontally(state);
     }
 
-    /// <summary>Ports $A4:8BA4: places the tongue and BG2 horizontally at the body.</summary>
-    internal void UpdateCrocomireTongueAndBg2Horizontal(CrocomireEnemyState state)
+    /// <summary>Ports $A4:8BA4: places the tongue and his body layer horizontally at the body.</summary>
+    internal void PlaceCrocomireTongueAndBodyLayerHorizontally(CrocomireEnemyState state)
     {
         RoomEnemySlot body = state.Body;
 
         // The tongue is a normal second enemy actor placed at its body-relative X offset.
-        // $8BA4 updates it even while the body's bulk is represented by BG2.
+        // $8BA4 updates it even while the body's bulk is shown on his body layer.
         if (state.Tongue is { } tongue)
         {
             int offset = (tongue.SpeciesState<CrocomireTongueState>()
@@ -86,15 +85,15 @@ internal sealed class CrocomireBg2
         bool onScreen = unchecked((short)(body.Position.X.Whole - state.Camera.X)) >= 0
             ? unchecked((short)(body.Position.X.Whole - 128 - (state.Camera.X + 256))) < 0
             : unchecked((short)(body.Position.X.Whole + 128 - state.Camera.X)) >= 0;
-        BodyLayerPlacement = BodyLayerPlacement.WithX(onScreen
-            ? CalculateOnScreenCrocomireBg2Horizontal(body.Position.X.Whole, state.Camera)
+        Placement = Placement.WithX(onScreen
+            ? OnScreenCrocomireBodyLayerX(body.Position.X.Whole, state.Camera)
             : (ushort)256);
     }
 
-    /// <summary>Converts the body X position into the BG2 horizontal scroll used to keep Crocomire onscreen.</summary>
+    /// <summary>Converts the body X position into his body layer's horizontal placement, which keeps Crocomire onscreen.</summary>
     /// <param name="bodyX">The body's whole X coordinate, 0 through 65535.</param>
     /// <param name="camera">The camera position.</param>
-    private static ushort CalculateOnScreenCrocomireBg2Horizontal(int bodyX, Position16<RoomPixels> camera)
+    private static ushort OnScreenCrocomireBodyLayerX(int bodyX, Position16<RoomPixels> camera)
     {
         int relative = unchecked((ushort)(camera.X - bodyX + 51));
         return EnemyMath.WrappedMagnitude((ushort)relative) >= 284 ? (ushort)256 : (ushort)relative;

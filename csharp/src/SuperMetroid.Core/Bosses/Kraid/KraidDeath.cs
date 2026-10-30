@@ -292,7 +292,7 @@ internal sealed class KraidDeath
         {
             state.SinkTableEventCount++;
             // Every eight-pixel sinking row invokes its cartridge callback, including the
-            // deliberately empty RTS used by rows whose only job is the BG2 strip upload.
+            // deliberately empty RTS used by rows whose only job is clearing a strip of his body.
             // Do not merge that address with the adjacent $C6A7 crumble routine: they are
             // distinct legal indirect-JSR targets in the retail table.
             if (KraidPlms.ForSinkCallback(function) is { } request)

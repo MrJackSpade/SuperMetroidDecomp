@@ -90,7 +90,7 @@ public static class GameplayDisplayCapture
         GameplayLatchedBossBackgrounds bosses = latched.Bosses;
         RoomShakeFrameResult shake = scrolls.RoomShake;
         Position16<RoomPixels> bg1Scroll = scrolls.Bg1Scroll + shake.Bg1;
-        // Draygon (#1354) and Mother Brain (#1356) place their body images with their own BG2 scrolls, which the room's
+        // Draygon (#1354) and Mother Brain (#1356) place their body images at their body layers' placements, which the room's
         // water waves then displace.
         Position16<BackgroundPixels> bg2Scroll = (bosses.DraygonBody?.LayerPlacement ?? bosses.MotherBrainBody?.LayerPlacement ?? scrolls.Bg2Scroll) + shake.Bg2;
         if (live.TourianStatuesEnabled)
@@ -141,7 +141,7 @@ public static class GameplayDisplayCapture
         RoomBackgrounds rooms = (latched.Rooms
             ?? throw new InvalidOperationException("Ordinary gameplay capture has no room backgrounds.")) with
             {
-                BossBg2 = bosses.Body is null ? null
+                BossBody = bosses.Body is null ? null
                     : bosses.ShownBody ?? throw new InvalidOperationException("A boss body is shown once the accepted frame resolves its pictures."),
             };
         var layer = new GameplaySceneLayer(view, rooms, new BackgroundLineScrolls(

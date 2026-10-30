@@ -23,18 +23,18 @@ internal sealed class CrocomireBridgeCollapse
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Owns camera-distance mode changes during Crocomire's arena sequence.</summary>
     private readonly ZebetiteBehavior _zebetiteBehavior;
-    /// <summary>Crocomire's BG2 body: its scroll, scroll table, the words it writes into his BG2 image and the acid smoke drawn with it.</summary>
-    private readonly CrocomireBg2 _bg2;
+    /// <summary>Crocomire's body layer: where it is placed, the canvas his death assembles it on, the tongue placed with it and the acid smoke drawn with it.</summary>
+    private readonly CrocomireBodyLayer _bodyLayer;
     /// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CrocomireBridgeCollapse(EnemyRoomBinding room, EnemyProjectileEngine projectiles, ZebetiteBehavior zebetiteBehavior, CrocomireBg2 bg2, CrocomireEncounterAccess access)
+    internal CrocomireBridgeCollapse(EnemyRoomBinding room, EnemyProjectileEngine projectiles, ZebetiteBehavior zebetiteBehavior, CrocomireBodyLayer bodyLayer, CrocomireEncounterAccess access)
     {
         _room = room;
         _projectiles = projectiles;
         _zebetiteBehavior = zebetiteBehavior;
-        _bg2 = bg2;
+        _bodyLayer = bodyLayer;
         _access = access;
     }
 
@@ -70,7 +70,7 @@ internal sealed class CrocomireBridgeCollapse
         if (state.Tongue is { } tongue)
         {
             // The sleep is installed behind the native maximum timer, so it is reached only after 32767 updates.
-            CrocomireBg2.StartCrocomireTongueProgram(state, CrocomireTongueProgram.Sleep, WrappingCountdown.Start(32767));
+            CrocomireBodyLayer.StartCrocomireTongueProgram(state, CrocomireTongueProgram.Sleep, WrappingCountdown.Start(32767));
             tongue.Properties = tongue.Properties.With(EnemyProperties.Invisible);
         }
     }
@@ -168,30 +168,30 @@ internal sealed class CrocomireBridgeCollapse
     /// <exception cref="InvalidDataException">The row lies outside his body layer.</exception>
     private void ClearCrocomireSinkRow()
     {
-        int row = unchecked((ushort)(_bg2.BodyLayerPlacement.Y + SinkRowDepth)) / BossBodyDefinitions.CellPixels;
+        int row = unchecked((ushort)(_bodyLayer.Placement.Y + SinkRowDepth)) / BossBodyDefinitions.CellPixels;
         int firstCell = row * BossBodyDefinitions.ColumnCount;
-        _bg2.WorkingBody.Clear(firstCell, BossBodyDefinitions.ColumnCount);
-        _bg2.ShowCrocomireWorkingCells(firstCell, BossBodyDefinitions.ColumnCount);
+        _bodyLayer.WorkingBody.Clear(firstCell, BossBodyDefinitions.ColumnCount);
+        _bodyLayer.ShowCrocomireWorkingCells(firstCell, BossBodyDefinitions.ColumnCount);
     }
 
     /// <summary>How far below the top of Crocomire's view, in pixels, the row his sinking erases lies.</summary>
     private const int SinkRowDepth = 288;
 
-    /// <summary>Runs the paired body and BG2 presentation while Crocomire sinks into acid.</summary>
+    /// <summary>Runs the body and its body layer while Crocomire sinks into acid.</summary>
     internal void RunCrocomireSinkingComposite(
         CrocomireEnemyState state,
         SamusState? samus)
     {
-        _bg2.SpawnCrocomireAcidSmoke(state, samus);
+        _bodyLayer.SpawnCrocomireAcidSmoke(state, samus);
         RunCrocomireSink(state);
     }
 
-    /// <summary>Runs the paired body and BG2 presentation as Crocomire resurfaces.</summary>
+    /// <summary>Runs the body and its body layer as Crocomire resurfaces.</summary>
     internal void RunCrocomireRisingComposite(
         CrocomireEnemyState state,
         SamusState? samus)
     {
-        _bg2.SpawnCrocomireAcidSmoke(state, samus);
+        _bodyLayer.SpawnCrocomireAcidSmoke(state, samus);
         RunCrocomireRise(state);
     }
 
@@ -223,9 +223,9 @@ internal sealed class CrocomireBridgeCollapse
     /// <summary>Byte-for-byte fixed-point fall from <c>SinkCrocomireDown</c> at $A4:91C1.</summary>
     internal void RunCrocomireSink(CrocomireEnemyState state)
     {
-        _bg2.FillCrocomireBg2ScrollTable(_bg2.BodyLayerPlacement.Y);
+        _bodyLayer.FillCrocomireBg2ScrollTable(_bodyLayer.Placement.Y);
         state.FightFlags &= ~CrocomireFightFlags.DamageReactionPending;
-        _bg2.PlaceCrocomireBodyLayer(state);
+        _bodyLayer.PlaceCrocomireBodyLayer(state);
         RoomEnemySlot body = state.Body;
 
         if (unchecked((short)(body.Position.Y.Whole - 280)) >= 0)
@@ -266,7 +266,7 @@ internal sealed class CrocomireBridgeCollapse
     /// <summary>Byte-for-byte fixed-point rise from $A4:92D8.</summary>
     internal void RunCrocomireRise(CrocomireEnemyState state)
     {
-        _bg2.FillCrocomireBg2ScrollTable(_bg2.BodyLayerPlacement.Y);
+        _bodyLayer.FillCrocomireBg2ScrollTable(_bodyLayer.Placement.Y);
         RoomEnemySlot body = state.Body;
         if (unchecked((short)(body.Position.Y.Whole - 218)) < 0)
         {
@@ -274,7 +274,7 @@ internal sealed class CrocomireBridgeCollapse
             return;
         }
 
-        _bg2.PlaceCrocomireBodyLayer(state);
+        _bodyLayer.PlaceCrocomireBodyLayer(state);
         int acceleration = Math.Min(
             state.VerticalAcceleration + EightEight.FromWhole(1),
             EightEight.FromWhole(CrocomireBehavior.MaximumRiseAccelerationWhole));
@@ -311,7 +311,7 @@ internal sealed class CrocomireBridgeCollapse
     internal void RunCrocomireFinalSink(CrocomireEnemyState state, SamusState? samus)
     {
         SelectCrocomireRisingInstruction(state);
-        _bg2.SpawnCrocomireAcidSmoke(state, samus);
+        _bodyLayer.SpawnCrocomireAcidSmoke(state, samus);
         RunCrocomireSink(state);
         if (state.DeathSequenceIndex != CrocomireDeathPhase.WaitForSamusAtWall)
             return;

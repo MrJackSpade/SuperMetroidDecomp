@@ -8,5 +8,5 @@ internal static class BossBodyDisplay
 {
     /// <summary>Whether <paramref name="drawn"/> shows the body the accepted frame latched: the parts it resolved, as it resolved them.</summary>
     internal static bool ShowsLatchedBody(GameplaySceneLayer drawn, SuperMetroidRuntime runtime) =>
-        drawn.Rooms.BossBg2 is { } shown && ReferenceEquals(shown, runtime.Display.Latched.Bosses.ShownBody);
+        drawn.Rooms.BossBody is { } shown && ReferenceEquals(shown, runtime.Display.Latched.Bosses.ShownBody);
 }

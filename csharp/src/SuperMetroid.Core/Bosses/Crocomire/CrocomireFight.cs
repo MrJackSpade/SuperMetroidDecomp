@@ -38,8 +38,8 @@ internal sealed class CrocomireFight
     private readonly ZebetiteBehavior _zebetiteBehavior;
     /// <summary>Updates boss completion and room-state flags.</summary>
     private readonly EnemyRoomStatus _roomStatus;
-    /// <summary>Crocomire's BG2 body: its scroll, scroll table, the words it writes into his BG2 image and the acid smoke drawn with it.</summary>
-    private readonly CrocomireBg2 _bg2;
+    /// <summary>Crocomire's body layer: where it is placed, the canvas his death assembles it on, the tongue placed with it and the acid smoke drawn with it.</summary>
+    private readonly CrocomireBodyLayer _bodyLayer;
     /// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
     /// <summary>The session's installed boss artwork.</summary>
@@ -58,7 +58,7 @@ internal sealed class CrocomireFight
         _collision = dependencies.Collision;
         _zebetiteBehavior = dependencies.ZebetiteBehavior;
         _roomStatus = dependencies.RoomStatus;
-        _bg2 = dependencies.Bg2;
+        _bodyLayer = dependencies.BodyLayer;
         _access = dependencies.Access;
     }
 
@@ -94,7 +94,7 @@ internal sealed class CrocomireFight
             _access.PublishCrocomirePlm(new Position16<RoomBlocks>(32, 3), PlmHeaderId.ClearCrocomireInvisibleWall);
             _access.PublishCrocomirePlm(new Position16<RoomBlocks>(30, 3), PlmHeaderId.ClearCrocomireInvisibleWall);
             _access.PublishCrocomirePlm(new Position16<RoomBlocks>(97, 11), PlmHeaderId.ClearCrocomireBridge);
-            _bg2.ShowCrocomireWorkingCells(0, BossBodyDefinitions.PageRows * BossBodyDefinitions.ColumnCount);
+            _bodyLayer.ShowCrocomireWorkingCells(0, BossBodyDefinitions.PageRows * BossBodyDefinitions.ColumnCount);
             return;
         }
 
@@ -132,7 +132,7 @@ internal sealed class CrocomireFight
         CrocomireEnemyState state = _access.Crocomire ??
             throw new InvalidOperationException("Crocomire's tongue initialized before its body.");
         state.Tongue = slot;
-        CrocomireBg2.StartCrocomireTongueProgram(state, CrocomireTongueProgram.Fight, WrappingCountdown.Start(1));
+        CrocomireBodyLayer.StartCrocomireTongueProgram(state, CrocomireTongueProgram.Fight, WrappingCountdown.Start(1));
         slot.ExtraProperties = slot.ExtraProperties
             .With(EnemyExtraProperties.UsesExtendedSpritemap)
             .WithUntranslatedBits(

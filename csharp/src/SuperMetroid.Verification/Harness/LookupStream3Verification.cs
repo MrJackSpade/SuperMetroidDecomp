@@ -61,6 +61,7 @@ using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
+using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Verification.Harness;
 
 using SuperMetroid.Core.Progression;

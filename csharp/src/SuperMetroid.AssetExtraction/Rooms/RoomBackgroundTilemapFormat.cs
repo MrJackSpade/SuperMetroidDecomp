@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.Artwork;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Editable tile-reference schema limits and file names for library-background maps.</summary>
 public static class RoomBackgroundTilemapFormat

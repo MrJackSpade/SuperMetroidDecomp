@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.Artwork;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Editable schema for one or two ordered native BG tilemap pages; contains visual references rather than room collision or metatile data.</summary>
 public sealed record RoomBackgroundTilemapDocument

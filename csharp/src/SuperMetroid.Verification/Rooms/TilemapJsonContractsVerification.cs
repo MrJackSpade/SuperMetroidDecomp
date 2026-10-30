@@ -9,6 +9,7 @@ using static SuperMetroid.Verification.Rooms.TilemapJsonContractsEnvironmentVeri
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 

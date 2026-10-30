@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.Artwork;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>One 32-by-32 BG page containing exactly 1024 ordered tile-reference cells.</summary>
 public sealed record RoomBackgroundTilemapPage

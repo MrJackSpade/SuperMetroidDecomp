@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Rooms.Artwork;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Decoded fields of one sixteen-bit SNES BG tilemap word, separating the character-sheet selector from its destination cell.</summary>
 public sealed record RoomBackgroundTilemapCell

@@ -69,6 +69,7 @@ internal sealed class NoobTubeBehavior
                 projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(
                     blockX * 16 + NoobTubeDebrisDefinitions.CrackXOffset)), unchecked((ushort)(
                     blockY * 16 + NoobTubeDebrisDefinitions.CrackYOffset))));
+                projectile.State = new NoobTubeCrackState();
                 return;
 
             case RoomEnemyProjectileKind.NoobTubeShard:
@@ -77,10 +78,9 @@ internal sealed class NoobTubeBehavior
                     request.Parameter,
                     NoobTubeDebrisDefinitions.ShardOffsets.Length,
                     "shard");
-                projectile.Variable1 = unchecked((ushort)(
+                projectile.State = new NoobTubeDebrisState(
                     blockX * 16 + NoobTubeDebrisDefinitions.CrackXOffset +
-                    NoobTubeDebrisDefinitions.ShardOffsets[index].X));
-                projectile.Variable0 = 0;
+                    NoobTubeDebrisDefinitions.ShardOffsets[index].X);
                 projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
                     blockY * 16 + NoobTubeDebrisDefinitions.CrackYOffset +
                     NoobTubeDebrisDefinitions.ShardOffsets[index].Y)));
@@ -95,9 +95,8 @@ internal sealed class NoobTubeBehavior
                     request.Parameter,
                     NoobTubeDebrisDefinitions.BubbleOffsets.Length,
                     "released-air bubble");
-                projectile.Variable1 = unchecked((ushort)(
-                    blockX * 16 + NoobTubeDebrisDefinitions.BubbleOffsets[index].X));
-                projectile.Variable0 = 0;
+                projectile.State = new NoobTubeDebrisState(
+                    blockX * 16 + NoobTubeDebrisDefinitions.BubbleOffsets[index].X);
                 projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
                     blockY * 16 + NoobTubeDebrisDefinitions.BubbleOffsets[index].Y)));
                 projectile.Velocity = projectile.Velocity.WithY(NoobTubeDebrisDefinitions.BubbleInitialYVelocity);
@@ -254,12 +253,15 @@ internal sealed class NoobTubeBehavior
         switch (preInstruction)
         {
             case EnemyProjectilePreInstruction.NoobTubeCrackFlickering:
+            {
+                NoobTubeCrackState crack = projectile.StateOf<NoobTubeCrackState>();
                 if (projectile.Position.X.Whole != NoobTubeDebrisDefinitions.HiddenXPosition)
-                    projectile.Variable0 = projectile.Position.X.Whole;
+                    crack.ShownX = projectile.Position.X.Whole;
                 projectile.Position = projectile.Position.WithWholeX((_projectiles.CurrentFrame8 & 1) != 0
                     ? NoobTubeDebrisDefinitions.HiddenXPosition
-                    : checked((ushort)projectile.Variable0));
+                    : checked((ushort)crack.ShownX));
                 return;
+            }
 
             case EnemyProjectilePreInstruction.NoobTubeCrackFalling:
                 projectile.Position = projectile.Position.AdvanceY(NoobTubeDebrisDefinitions.CrackFallVelocity.ToSixteenSixteenDelta());
@@ -402,30 +404,28 @@ internal sealed class NoobTubeBehavior
         }
     }
 
-    /// <summary>Advances the shard's separate 16.16 horizontal position, kept in its projectile variables one and zero.</summary>
+    /// <summary>Advances the debris's own 16.16 horizontal position.</summary>
     private static void AdvanceNoobTubeShardX(RoomEnemyProjectileSlot projectile, SignedEightEight velocity)
     {
-        FixedCoordinate x = EnemyMath.AddEightBitVelocity(
-            new FixedCoordinate(checked((ushort)projectile.Variable1), checked((ushort)projectile.Variable0)), velocity);
-        projectile.Variable1 = x.Whole;
-        projectile.Variable0 = x.Fraction;
+        NoobTubeDebrisState debris = projectile.StateOf<NoobTubeDebrisState>();
+        debris.X = EnemyMath.AddEightBitVelocity(debris.X, velocity);
     }
 
-    /// <summary>Uses the native sine table to advance the projectile's separate horizontal word and fraction, then steps its angle.</summary>
+    /// <summary>Uses the sine of the debris's sway to advance its own horizontal position, then steps the sway.</summary>
     internal static void MoveNoobTubeProjectileHorizontallyAlongArc(
         RoomEnemyProjectileSlot projectile,
         int angleStep)
     {
-        // The native even table offset ORs in a quarter turn: the angle's bit 6.
-        int sine = Trigonometry.SignedSine(unchecked(new ByteAngle((byte)((projectile.Velocity.X.RawValue >> 1) | 64))));
+        NoobTubeDebrisState debris = projectile.StateOf<NoobTubeDebrisState>();
+        int sine = Trigonometry.SignedSine(debris.SwayAngle);
         AdvanceNoobTubeShardX(projectile, SignedEightEight.FromSignedRaw(checked((short)(sine >> 2))));
-        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)(projectile.Velocity.X.RawValue + angleStep))));
+        debris.AdvanceSway(angleStep);
     }
 
-    /// <summary>Advances the bubble by its vertical velocity and publishes its separately accumulated horizontal word.</summary>
+    /// <summary>Advances the bubble by its vertical velocity and publishes its own horizontal position.</summary>
     private static void MoveNoobTubeBubbleVertically(RoomEnemyProjectileSlot projectile)
     {
-        projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta()).WithWholeX(checked((ushort)projectile.Variable1));
+        projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta()).WithWholeX(projectile.StateOf<NoobTubeDebrisState>().X.Whole);
     }
 
     /// <summary>Connects all six native projectile pre-instruction identities to the shared room callback.</summary>
@@ -449,19 +449,21 @@ internal sealed class NoobTubeBehavior
         {
             case NoobTubeProjectileCueKind.FlickerReflected:
                 // Odd frames show the first pose at the shard's column; even frames the reflected pose, mirrored across the tube.
+                int column = projectile.StateOf<NoobTubeDebrisState>().X.Whole;
                 projectile.Position = projectile.Position.WithWholeX(oddFrame
-                    ? checked((ushort)projectile.Variable1)
-                    : unchecked((ushort)(NoobTubeDebrisDefinitions.ShardMirrorSpan - projectile.Variable1)));
+                    ? checked((ushort)column)
+                    : unchecked((ushort)(NoobTubeDebrisDefinitions.ShardMirrorSpan - column)));
                 ShardAnimation(projectile).ShowsReflectedPose = !oddFrame;
                 break;
             case NoobTubeProjectileCueKind.FlickerHidden:
-                projectile.Position = projectile.Position.WithWholeX(oddFrame ? checked((ushort)projectile.Variable1) : NoobTubeDebrisDefinitions.HiddenXPosition);
+                projectile.Position = projectile.Position.WithWholeX(oddFrame ? projectile.StateOf<NoobTubeDebrisState>().X.Whole : NoobTubeDebrisDefinitions.HiddenXPosition);
                 break;
             case NoobTubeProjectileCueKind.AssignShardFallingAngle:
-                projectile.Velocity = new(new SignedEightEight(SharedRandomState.UpperByte(_room.Random.Generate())), NoobTubeDebrisDefinitions.ShardFallYVelocity);
+                projectile.StateOf<NoobTubeDebrisState>().SwayPhase = SharedRandomState.UpperByte(_room.Random.Generate());
+                projectile.Velocity = projectile.Velocity.WithY(NoobTubeDebrisDefinitions.ShardFallYVelocity);
                 break;
             case NoobTubeProjectileCueKind.AssignBubbleFallingAngle:
-                projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(SharedRandomState.UpperByte(_room.Random.Generate())));
+                projectile.StateOf<NoobTubeDebrisState>().SwayPhase = SharedRandomState.UpperByte(_room.Random.Generate());
                 break;
             case NoobTubeProjectileCueKind.SetPreInstruction:
                 projectile.PreInstruction = cue.PreInstruction;

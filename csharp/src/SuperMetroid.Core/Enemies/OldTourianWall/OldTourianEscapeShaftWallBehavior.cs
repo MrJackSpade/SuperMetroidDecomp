@@ -27,7 +27,7 @@ internal sealed class OldTourianEscapeShaftWallBehavior
     /// <summary>
     /// Spawns enemy projectile $86:B4B1 for PLM pre-instruction $84:B927. Its initializer
     /// ($86:B49D) ignores the spawn parameter and places the explosion on the middle of the
-    /// breaking wall, saving that point in Var0/Var1.
+    /// breaking wall.
     /// </summary>
     public void SpawnOldTourianEscapeShaftWallExplosion()
     {
@@ -43,9 +43,7 @@ internal sealed class OldTourianEscapeShaftWallBehavior
             graphics: default);
         projectile.StartAnimation(new OldTourianWallExplosionAnimation(OldTourianWallExplosionProgram.Start));
         projectile.Position = projectile.Position.WithWholeX(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.XPosition);
-        projectile.Variable0 = OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.XPosition;
         projectile.Position = projectile.Position.WithWholeY(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.YPosition);
-        projectile.Variable1 = OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.YPosition;
     }
 
 

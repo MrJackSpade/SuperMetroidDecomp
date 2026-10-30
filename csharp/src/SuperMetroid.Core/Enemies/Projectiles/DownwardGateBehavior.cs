@@ -42,7 +42,7 @@ internal sealed class DownwardGateBehavior
         }
     }
 
-    /// <summary>Allocates a gate actor at its PLM block and records the native byte-index association used for waking.</summary>
+    /// <summary>Allocates a gate actor at its PLM block and ties it to its gate's block for waking.</summary>
     private void SpawnDownwardGateProjectile(
         DownwardGateProjectileRequest request,
         int roomWidthInBlocks)
@@ -69,17 +69,13 @@ internal sealed class DownwardGateBehavior
                 ? DownwardGateDefinitions.ClosedPositionOffsetPixels
                 : 0)))));
 
-        // Native eproj_E stores PLM_BlockIndices[x], whose unit is bytes. This association
-        // is later searched by $84:BBF0 when the gate needs to open again.
-        projectile.Variable0 = checked((ushort)(
-            request.PlmBlockIndex * DownwardGateDefinitions.BlockAssociationScale));
+        // The gate's block ties the actor to its gate; $84:BBF0 searches for it when the gate needs to open again.
+        projectile.State = new DownwardGateState(request.PlmBlockIndex);
     }
 
     /// <summary>Finds the matching gate actor from the pool's end and advances its sleeping instruction.</summary>
     private void WakeDownwardGateProjectile(int plmBlockIndex)
     {
-        int associatedBlock = checked((ushort)(
-            plmBlockIndex * DownwardGateDefinitions.BlockAssociationScale));
         RoomEnemyProjectileSlot? projectile = null;
         for (int index = _projectiles.EnemyProjectiles.Count - 1; index >= 0; index--)
         {
@@ -87,7 +83,7 @@ internal sealed class DownwardGateBehavior
             if (candidate.IsActive &&
                 candidate.Kind is (RoomEnemyProjectileKind.DownwardGateMoving or
                     RoomEnemyProjectileKind.DownwardGateClosed) &&
-                candidate.Variable0 == associatedBlock)
+                candidate.StateOf<DownwardGateState>().PlmBlockIndex == plmBlockIndex)
             {
                 projectile = candidate;
                 break;

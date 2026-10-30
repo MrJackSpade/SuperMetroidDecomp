@@ -20,9 +20,4 @@ internal static class DownwardGateDefinitions
     public const int PixelsPerRoomBlock = 16;
     /// <summary>Positions the closed gate projectile four blocks below its PLM origin.</summary>
     public const int ClosedPositionOffsetPixels = 64;
-    /// <summary>
-    /// The gate projectile records its PLM's block as twice the block index; spawning and the wake search scale the
-    /// index by this.
-    /// </summary>
-    public const int BlockAssociationScale = 2;
 }

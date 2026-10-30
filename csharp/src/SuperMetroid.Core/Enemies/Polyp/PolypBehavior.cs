@@ -11,13 +11,6 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 [RoomLifetime]
 internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <summary>The phase a rock keeps in its variable zero.</summary>
-    private static readonly ParameterVariants<PolypRockFunction> RockFunctions = new(new Dictionary<int, PolypRockFunction>
-    {
-        [1] = PolypRockFunction.Rising,
-        [2] = PolypRockFunction.Falling,
-    });
-
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.LavaRocks];
 
@@ -177,7 +170,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
             source.Graphics);
         projectile.InstallAnimation(new PolypRockAnimation(PolypRockProgram.Initial));
         projectile.PreInstruction = PolypRockPreInstruction;
-        projectile.Variable0 = RockFunctions.Parameter(PolypRockFunction.Rising);
+        projectile.State = new PolypRockState();
         projectile.Velocity = new(new SignedEightEight(checked((ushort)xVelocity)), new SignedEightEight(checked((ushort)initialYSpeed)));
         projectile.Position = source.Position;
     }
@@ -187,7 +180,8 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
-        switch (RockFunctions.Decode(projectile.Variable0))
+        PolypRockFunction phase = projectile.StateOf<PolypRockState>().Phase;
+        switch (phase)
         {
             case PolypRockFunction.Rising:
                 StepRisingPolypRock(projectile);
@@ -197,7 +191,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Polyp rock function {projectile.Variable0} is not translated.");
+                    $"Undefined {nameof(PolypRockFunction)} {phase}.");
         }
 
         CacatacBehavior.DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);
@@ -213,7 +207,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
             // Crossing below zero consumes an entire apex frame: retail installs falling
             // state and returns before either vertical or horizontal movement.
             projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(0));
-            projectile.Variable0 = RockFunctions.Parameter(PolypRockFunction.Falling);
+            projectile.StateOf<PolypRockState>().Phase = PolypRockFunction.Falling;
             return;
         }
 
@@ -245,9 +239,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Adds one positive or cartridge-stored negative 16.16 record from $A0:CBC7. Variable
-    /// one is real scratch WRAM: after each sample it contains the whole word because the
-    /// assembly overwrites its earlier fractional copy before returning.
+    /// Adds one positive or cartridge-stored negative 16.16 record from $A0:CBC7.
     /// </summary>
     internal static void AddPolypRockQuadraticStep(
         RoomEnemyProjectileSlot projectile,
@@ -263,7 +255,6 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         int record = tableIndex * EnemyQuadraticSpeedDefinitions.RecordSize +
             (half == QuadraticSpeedHalf.Negative ? 4 : 0);
         int fraction = EnemyQuadraticSpeeds.ReadWord(record);
-        projectile.Variable1 = fraction;
         // Both fractions are words, so their sum fits an int; a sum past the word carries into the whole pixel.
         int fractionalSum = projectile.Position.Y.Fraction + fraction;
         projectile.Position = projectile.Position.WithFractionY(unchecked((ushort)fractionalSum));
@@ -271,7 +262,6 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 1)));
 
         int whole = EnemyQuadraticSpeeds.ReadWord(record + 2);
-        projectile.Variable1 = whole;
         projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + whole)));
     }
 

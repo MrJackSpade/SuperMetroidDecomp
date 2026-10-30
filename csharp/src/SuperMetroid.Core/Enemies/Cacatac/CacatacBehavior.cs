@@ -223,84 +223,22 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile,
             RoomEnemyProjectileKind.CacatacSpike,
             source.Graphics);
-        int selector = CacatacProjectileDefinitions.SpikeSelectors.Parameter(direction);
-        projectile.DirectionParameter = selector;
-        projectile.Variable0 = selector;
         projectile.InstallAnimation(new CacatacProjectileAnimation(program));
         projectile.Position = source.Position;
-        CacatacSpikeSpeedPair speeds = CacatacSpikes.SpeedPair(direction);
-        projectile.Velocity = new(speeds.Positive, speeds.Negative);
+        projectile.Velocity = CacatacSpikes.Velocity(direction);
     }
 
     /// <summary>
-    /// Ports pre-instruction $86:D9DB and the ten callback pointers at
-    /// $86:D97E-$86:D991, selected by even direction bytes $00..$12.
-    /// In selector order the native callbacks are $DA8E, $DA98, $DA93,
-    /// $DA8E, $DA9D, $DA93, $DAA2, $DAB2, $DAAA, $DABA. The two left-facing
-    /// and two right-facing variants share callbacks; diagonals compose one
-    /// horizontal and one vertical signed-speed move. The native
-    /// pre-instruction culls the projectile after its selected movement.
-    /// These authored callback addresses do not form a uniform pointer stride.
+    /// Ports pre-instruction $86:D9DB: the spike moves along its velocity, horizontally then vertically, then is culled
+    /// once outside the view.
     /// </summary>
     internal static void RunCacatacSpikePreInstruction(
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
-        CacatacSpikeDirection direction = CacatacProjectileDefinitions.SpikeSelectors.Decode(projectile.Variable0);
-        switch (direction)
-        {
-            case CacatacSpikeDirection.LeftFacingUp:
-            case CacatacSpikeDirection.LeftFacingDown:
-                MoveCacatacSpikeX(projectile, projectile.Velocity.Y.RawValue);
-                break;
-            case CacatacSpikeDirection.Up:
-                MoveCacatacSpikeY(projectile, projectile.Velocity.Y.RawValue);
-                break;
-            case CacatacSpikeDirection.RightFacingUp:
-            case CacatacSpikeDirection.RightFacingDown:
-                MoveCacatacSpikeX(projectile, projectile.Velocity.X.RawValue);
-                break;
-            case CacatacSpikeDirection.Down:
-                MoveCacatacSpikeY(projectile, projectile.Velocity.X.RawValue);
-                break;
-            case CacatacSpikeDirection.UpLeft:
-                MoveCacatacSpikeX(projectile, projectile.Velocity.Y.RawValue);
-                MoveCacatacSpikeY(projectile, projectile.Velocity.Y.RawValue);
-                break;
-            case CacatacSpikeDirection.UpRight:
-                MoveCacatacSpikeX(projectile, projectile.Velocity.X.RawValue);
-                MoveCacatacSpikeY(projectile, projectile.Velocity.Y.RawValue);
-                break;
-            case CacatacSpikeDirection.DownLeft:
-                MoveCacatacSpikeX(projectile, projectile.Velocity.Y.RawValue);
-                MoveCacatacSpikeY(projectile, projectile.Velocity.X.RawValue);
-                break;
-            case CacatacSpikeDirection.DownRight:
-                MoveCacatacSpikeX(projectile, projectile.Velocity.X.RawValue);
-                MoveCacatacSpikeY(projectile, projectile.Velocity.X.RawValue);
-                break;
-            default:
-                throw new InvalidDataException(
-                    $"Cacatac spike direction ${projectile.Variable0:X4} is not translated.");
-        }
-
+        projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
+        projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
         DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);
-    }
-
-    /// <summary>Advances one spike horizontally using its signed 8.8 velocity as a 16.16 delta.</summary>
-    private static void MoveCacatacSpikeX(
-        RoomEnemyProjectileSlot projectile,
-        int velocity)
-    {
-        projectile.Position = projectile.Position.AdvanceX(new SignedEightEight(checked((ushort)velocity)).ToSixteenSixteenDelta());
-    }
-
-    /// <summary>Advances one spike vertically using its signed 8.8 velocity as a 16.16 delta.</summary>
-    private static void MoveCacatacSpikeY(
-        RoomEnemyProjectileSlot projectile,
-        int velocity)
-    {
-        projectile.Position = projectile.Position.AdvanceY(new SignedEightEight(checked((ushort)velocity)).ToSixteenSixteenDelta());
     }
 
     /// <summary>

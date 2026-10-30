@@ -11,21 +11,6 @@ internal static class CacatacProjectileDefinitions
         [2] = CacatacDirection.InitialStop,
     });
 
-    /// <summary>The selector a spike keeps for its direction: the authored even direction byte of its spawn cue.</summary>
-    internal static readonly ParameterVariants<CacatacSpikeDirection> SpikeSelectors = new(new Dictionary<int, CacatacSpikeDirection>
-    {
-        [0] = CacatacSpikeDirection.LeftFacingUp,
-        [2] = CacatacSpikeDirection.Up,
-        [4] = CacatacSpikeDirection.RightFacingUp,
-        [6] = CacatacSpikeDirection.LeftFacingDown,
-        [8] = CacatacSpikeDirection.Down,
-        [10] = CacatacSpikeDirection.RightFacingDown,
-        [12] = CacatacSpikeDirection.UpLeft,
-        [14] = CacatacSpikeDirection.UpRight,
-        [16] = CacatacSpikeDirection.DownLeft,
-        [18] = CacatacSpikeDirection.DownRight,
-    });
-
     /// <summary>
     /// Native immediate operands $86:D9BB/$86:D9C1: a cardinal spike moves two pixels per update
     /// (signed 8.8 raw 512) toward its negative or positive side.

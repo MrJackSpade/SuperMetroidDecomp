@@ -538,6 +538,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         }
     }
 
+    /// <summary>A thrown claw's launch speed, eight pixels per update, in 1/256 pixel per update.</summary>
+    private const int NinjaPirateClawLaunchSpeed = 2048;
+
+    /// <summary>How much a claw's speed changes each update, in 1/256 pixel per update.</summary>
+    private const int NinjaPirateClawSpeedChange = 32;
+
     /// <summary>Allocates a claw with the selected throw direction, offset, graphics, and outbound speed.</summary>
     internal void SpawnNinjaPirateClaw(
         RoomEnemySlot source,
@@ -554,13 +560,11 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             RoomEnemyProjectileKind.PirateClaw,
             source.Graphics);
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(source.Position.Whole + spawnOffset);
-        projectile.DirectionParameter = throwsRight ? (ushort)1 : (ushort)0;
         projectile.StartAnimation(new SpacePirateProjectileAnimation(throwsRight
             ? SpacePirateProjectileProgram.ClawRight
             : SpacePirateProjectileProgram.ClawLeft));
         projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_86A05B;
-        projectile.Variable0 = 2048;
-        projectile.Variable1 = 1;
+        projectile.State = new NinjaPirateClawState(NinjaPirateClawLaunchSpeed);
         state.SpawnedClawCount++;
     }
 
@@ -569,8 +573,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
-        int pixels = UnsignedEightEight.Whole(projectile.Variable0);
-        bool outbound = projectile.Variable1 != 0;
+        NinjaPirateClawState claw = projectile.StateOf<NinjaPirateClawState>();
+        int pixels = UnsignedEightEight.Whole(claw.Speed);
+        bool outbound = claw.Outbound;
         bool thrownRight = projectile.PreInstruction == EnemyProjectilePreInstruction.PirateClaw_Right;
         int direction = thrownRight ? 1 : -1;
 
@@ -579,10 +584,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         // check deletes the claw. Y advances one pixel on both halves of the flight.
         projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(projectile.Position.X.Whole +
             (outbound ? direction * pixels : -direction * pixels))));
-        projectile.Variable0 = unchecked((ushort)(projectile.Variable0 +
-            (outbound ? -32 : 32)));
-        if (outbound && projectile.Variable0 == 0)
-            projectile.Variable1 = 0;
+        claw.Speed = unchecked((ushort)(claw.Speed + (outbound ? -NinjaPirateClawSpeedChange : NinjaPirateClawSpeedChange)));
+        if (outbound && claw.Speed == 0)
+            claw.Outbound = false;
         projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 1)));
 
         int right = unchecked((ushort)(camera.X + 256));

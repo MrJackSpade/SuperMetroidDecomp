@@ -23,20 +23,17 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Receives the short quake requested by each shell hit.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Resolves a bug's native parent index when enabling shot collision and homing jumps.</summary>
-    private readonly EnemySlotTable _slotTable;
     /// <summary>Creates the parent-header drop requested by a shot Kago bug.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>Tracks the Kago death request in the room's defeated-enemy count.</summary>
     private readonly EnemyRoomStatus _roomStatus;
 
     /// <summary>Binds shell AI and bug projectile behavior to the shared room systems that own their effects.</summary>
-    internal KagoBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemySlotTable slotTable, EnemyDeathsAndDrops deathsAndDrops, EnemyRoomStatus roomStatus)
+    internal KagoBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyDeathsAndDrops deathsAndDrops, EnemyRoomStatus roomStatus)
     {
         _room = room;
         _projectiles = projectiles;
         _earthquake = earthquake;
-        _slotTable = slotTable;
         _deathsAndDrops = deathsAndDrops;
         _roomStatus = roomStatus;
     }
@@ -219,14 +216,16 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemyProjectileKind.KagoBug,
             source.Graphics);
 
-        projectile.Variable1 = source.EnemyIndex;
         projectile.Position = projectile.Position.WithWhole(source.Position.Whole);
 
         // Kago samples the existing random word and never advances it. SpawnEprojInner has
         // already cleared subpositions, velocities, flags, and collision scratch for us.
-        int initialIdleTimer = unchecked((ushort)((ReadKagoRandomNumber() & 7) + 1));
-        projectile.CollidedProjectileType = initialIdleTimer;
-        projectile.Variable0 = unchecked((ushort)(initialIdleTimer + 4));
+        int initialIdleFrames = (ReadKagoRandomNumber() & 7) + 1;
+        projectile.State = new KagoBugState(source)
+        {
+            IdleFrames = initialIdleFrames,
+            SoundDelay = initialIdleFrames + 4,
+        };
         projectile.PreInstruction =
             EnemyProjectilePreInstruction.KagoBug_Idle;
         projectile.StartAnimation(new KraidRockAnimation(KraidRockProgram.SharedPose));
@@ -236,13 +235,12 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the library-two sound countdown shared by every live bug state.</summary>
     private void StepKagoBugSound(RoomEnemyProjectileSlot projectile)
     {
-        WrappingCountdown soundTimer = WrappingCountdown.FromRaw(checked((ushort)projectile.Variable0));
-        if (soundTimer.IsZero)
+        KagoBugState bug = projectile.StateOf<KagoBugState>();
+        if (bug.SoundDelay == 0)
             return;
 
-        soundTimer = soundTimer.DecrementToZero();
-        projectile.Variable0 = soundTimer.RawValue;
-        if (soundTimer.IsZero)
+        bug.SoundDelay--;
+        if (bug.SoundDelay == 0)
             LastKagoBugSoundEffect = EnemySoundEffectDefinitions.KagoBugSoundEffect;
     }
 
@@ -252,7 +250,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void EnableKagoBugShotCollisionWhenSeparated(RoomEnemyProjectileSlot projectile)
     {
-        RoomEnemySlot source = _slotTable.SlotAtEnemyIndex(checked((ushort)projectile.Variable1));
+        RoomEnemySlot source = projectile.StateOf<KagoBugState>().Source;
         int distance = Math.Abs(unchecked((short)(source.Position.X.Whole - projectile.Position.X.Whole)));
         if (distance >= KagoBugSourceCollisionEnableDistance)
             projectile.BlocksSamusProjectiles = true;
@@ -266,9 +264,10 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The transition occurs only when the counter was already zero on entry. A value
         // of one therefore decrements to zero and remains idle until the following frame.
-        if (projectile.CollidedProjectileType != 0)
+        KagoBugState bug = projectile.StateOf<KagoBugState>();
+        if (bug.IdleFrames != 0)
         {
-            projectile.CollidedProjectileType = WrappingCounter.Decrement(checked((ushort)projectile.CollidedProjectileType)).Value;
+            bug.IdleFrames--;
             return;
         }
 
@@ -345,7 +344,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         int upwardMagnitude = (KagoDefinitions.JumpHeightSteps.Of(random) * KagoDefinitions.JumpHeightStep) + 2048;
         projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)-upwardMagnitude)));
 
-        RoomEnemySlot source = _slotTable.SlotAtEnemyIndex(checked((ushort)projectile.Variable1));
+        RoomEnemySlot source = projectile.StateOf<KagoBugState>().Source;
         int sourceDelta = unchecked((short)(source.Position.X.Whole - projectile.Position.X.Whole));
         bool jumpLeft;
         if (Math.Abs(sourceDelta) >= KagoBugSourceHomingDistance)
@@ -370,8 +369,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports landed-list instruction <c>$86:D1B6</c>.</summary>
     internal void StartKagoBugIdle(RoomEnemyProjectileSlot projectile)
     {
-        projectile.CollidedProjectileType = unchecked((ushort)(
-            (ReadKagoRandomNumber() & 31) + 1));
+        projectile.StateOf<KagoBugState>().IdleFrames = (ReadKagoRandomNumber() & 31) + 1;
         projectile.PreInstruction =
             EnemyProjectilePreInstruction.KagoBug_Idle;
     }

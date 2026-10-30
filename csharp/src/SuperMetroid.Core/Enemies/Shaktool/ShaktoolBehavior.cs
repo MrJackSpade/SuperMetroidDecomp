@@ -593,15 +593,18 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
+    /// <summary>
+    /// The projectile slot a middle or back attack circle follows. Nothing that spawns the circles names the circle they
+    /// follow, so they follow the first slot and vanish once it is free.
+    /// </summary>
+    private const int LinkedCircleOwnerSlot = 0;
+
     /// <summary>Ports middle/back linked-circle pre-instruction <c>$86:BE12</c>.</summary>
     internal void RunShaktoolLinkedCirclePreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        int ownerProjectileOffset = checked((ushort)projectile.Variable0);
-        if ((ownerProjectileOffset & 1) != 0 ||
-            ownerProjectileOffset >= _projectiles.EnemyProjectiles.Count * 2 ||
-            !_projectiles.EnemyProjectiles[ownerProjectileOffset >> 1].IsActive)
+        if (!_projectiles.EnemyProjectiles[LinkedCircleOwnerSlot].IsActive)
         {
             projectile.Clear();
             return;

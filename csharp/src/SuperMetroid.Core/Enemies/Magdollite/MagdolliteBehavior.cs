@@ -768,10 +768,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 ResolveMagdolliteCombatAfterCommon(context.Slot);
             });
     }
-    /// <summary>Positive 8.8 speed used for rightward thrown lava.</summary>
-    private const ushort MagdolliteLavaHorizontalSpeed = 768;
-    /// <summary>Negative 8.8 value that the leftward routine reads from the projectile's Y velocity field.</summary>
-    private const ushort MagdolliteLavaUpwardSpeed = unchecked((ushort)-768);
+    /// <summary>Signed 8.8 sideways speed of thrown lava, three pixels per update, negated for a leftward throw.</summary>
+    private const int MagdolliteLavaHorizontalSpeed = 768;
 
     /// <summary>Ports <c>EprojInit_NorfairLavaMan</c> at $86:E000.</summary>
     internal void SpawnMagdolliteLava(RoomEnemySlot source, bool throwsRight)
@@ -785,32 +783,26 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemyProjectileKind.LavaThrownByMagdollite,
             source.Graphics);
 
-        // SpawnEprojInner has already cleared all generic scratch words. The initializer
-        // copies both subpixels from the throwing overlay, starts two pixels below it, and
-        // stores the one-bit facing parameter exactly as supplied by the enemy bytecode.
-        projectile.DirectionParameter = throwsRight ? (ushort)1 : (ushort)0;
+        // The initializer copies both subpixels from the throwing overlay, starts two pixels below it, and throws the
+        // lava sideways in the overlay's facing.
         projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(unchecked((ushort)(source.Position.Y.Whole + 2)), source.Position.Y.Fraction));
-        projectile.Velocity = new(new SignedEightEight(MagdolliteLavaHorizontalSpeed), new SignedEightEight(MagdolliteLavaUpwardSpeed));
+        projectile.Velocity = new(
+            SignedEightEight.FromSignedRaw(throwsRight ? MagdolliteLavaHorizontalSpeed : -MagdolliteLavaHorizontalSpeed),
+            new SignedEightEight(0));
         projectile.PreInstruction =
             EnemyProjectilePreInstruction.MagdolliteLava;
         projectile.InstallAnimation(new MagdolliteLavaAnimation(throwsRight ? MagdolliteLavaProgram.Right : MagdolliteLavaProgram.Left));
     }
 
-    /// <summary>Ports $86:E049-$E09B, including the cartridge's asymmetric velocity use.</summary>
+    /// <summary>Ports $86:E049-$E09B: the lava flies sideways at its speed until it leaves the view.</summary>
     internal static void RunMagdolliteLavaPreInstruction(
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
-        // The left routine at $E050 deliberately adds the Y-velocity word to X. The right
-        // routine at $E07A uses X velocity. They begin as -$0300 and +$0300 respectively,
-        // so expressing this oddity literally keeps debugger state aligned with the ROM.
-        int horizontalVelocity = projectile.DirectionParameter == 0
-            ? projectile.Velocity.Y.RawValue
-            : projectile.Velocity.X.RawValue;
-        projectile.Position = projectile.Position.AdvanceX(new SignedEightEight(checked((ushort)horizontalVelocity)).ToSixteenSixteenDelta());
+        projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
 
         // $86:E049 deletes actors outside the inclusive 256x256 camera square after their
-        // horizontal move. No vertical movement occurs despite the field's directional use.
+        // horizontal move. The lava never moves vertically.
         if (unchecked((ushort)(projectile.Position.X.Whole - camera.X)) >= 256 ||
             unchecked((ushort)(projectile.Position.Y.Whole - camera.Y)) >= 256)
         {

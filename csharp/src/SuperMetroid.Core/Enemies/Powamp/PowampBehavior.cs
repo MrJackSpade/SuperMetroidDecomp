@@ -610,7 +610,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
                 body.Graphics);
             spike.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole);
             spike.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
-            spike.DirectionParameter = unchecked((ushort)direction);
+            spike.State = new PowampSpikeState(direction);
             accumulator = unchecked((ushort)(spike.SlotIndex * 2));
         }
         return accumulator;
@@ -630,12 +630,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot spike,
         RoomLevelData level)
     {
-        int direction = spike.DirectionParameter;
-        if ((uint)direction >= PowampMotionDefinitions.SpikeDirectionCount)
-        {
-            throw new InvalidDataException(
-                $"Powamp spike direction {direction} exceeds the eight-entry ROM table.");
-        }
+        int direction = spike.StateOf<PowampSpikeState>().Direction;
 
         spike.Velocity = spike.Velocity.WithX(new SignedEightEight(unchecked((ushort)(
             unchecked((short)spike.Velocity.X.RawValue) + PowampMotion.SpikeXAcceleration(direction)))));

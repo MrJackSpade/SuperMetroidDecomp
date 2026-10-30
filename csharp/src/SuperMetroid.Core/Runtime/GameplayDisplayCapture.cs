@@ -133,9 +133,8 @@ public static class GameplayDisplayCapture
         // Producers can return longer HDMA storage; the renderer consumes only the
         // gameplay region. Own exactly those visible register values in the packet.
         // Phantoon's wave owns the BG2 horizontal scroll while it shows; otherwise lava, water or the sky does.
-        IReadOnlyList<ushort>? bg2HorizontalScrolls = lavaX ?? waterX ?? skyX;
-        if (latched.Phantoon?.Wave is { } phantoonWave)
-            bg2HorizontalScrolls = phantoonWave.GameplayScrolls();
+        ScrollWave? phantoonWave = latched.Phantoon?.Wave;
+        IReadOnlyList<ushort>? bg2HorizontalScrolls = phantoonWave is null ? lavaX ?? waterX ?? skyX : null;
         // A sky room shows the sky's rows on BG2 (#1347); a boss shows its body layer there while it owns it (#1352,
         // #1353), its pages laid out by BG2's map size, each part from its picture (#1466).
         RoomBackgrounds rooms = (latched.Rooms
@@ -146,7 +145,10 @@ public static class GameplayDisplayCapture
             };
         var layer = new GameplaySceneLayer(view, rooms, new BackgroundLineScrolls(
             VisibleLines(bg2HorizontalScrolls),
-            VisibleLines(crocomireBody is not null ? live.CrocomireMeltingScrolls : lavaY)),
+            VisibleLines(crocomireBody is not null ? live.CrocomireMeltingScrolls : lavaY))
+            {
+                HorizontalWave = phantoonWave,
+            },
             live.DoorTransitionMainScreenLayers is null && live.MotherBrainAscentShowing
                 ? MotherBrainAscentDisplay.BuildGameplayLayers() : default);
         return new(frame.Paint, new DisplayLayer[] { layer, Hud(latched) },

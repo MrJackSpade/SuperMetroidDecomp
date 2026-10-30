@@ -60,7 +60,7 @@ internal static class PhantoonReport1196Verification
         wave.Begin(PhantoonWaveDefinitions.IntroMode);
         wave.Step(boss);
         wave.Step(boss);
-        AssertTrue(wave.ScrollCycle.CountDistinct() > 1, "fixture retains a used introductory wave");
+        AssertTrue(wave.CurrentWave is { Amplitude: 3072 }, "fixture retains a used introductory wave");
         boss.Parts[boss.Eye.SlotIndex].WaveMode = 0;
         wave.Step(boss);
         boss.BodyLayerPlacement = boss.BodyLayerPlacement.WithX(13);
@@ -71,12 +71,14 @@ internal static class PhantoonReport1196Verification
         wave.LatchDisplay();
         AssertEqual(PhantoonWaveDefinitions.InitialPhase, wave.Phase, "first death HDMA call remains setup-only");
 
-        // Any stale per-line X offset would split the body: every displayed line takes BG2's own X.
-        AssertTrue((wave.DisplayedWave?.GameplayScrolls().ToArray() ?? throw new InvalidOperationException("Verification requires a latched Phantoon wave.")).All(scroll => scroll == 13), "every first-frame death scroll equals native BG2 X");
+        // Any stale amplitude would split the body: the displayed wave is flat at BG2's own X on every line.
+        AssertTrue((wave.DisplayedWave ?? throw new InvalidOperationException("Verification requires a latched Phantoon wave.")) is { BaseScroll: 13, Amplitude: 0 },
+            "every first-frame death scroll equals native BG2 X");
         boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude = 3072;
         wave.Step(boss);
         AssertEqual(14, wave.Phase, "following HDMA pass resumes native phase advancement");
-        AssertTrue(wave.ScrollCycle.Any(scroll => scroll != 13), "following pass rebuilds the animated wave");
+        AssertTrue(wave.CurrentWave is { BaseScroll: 13, Amplitude: 3072, Period: PhantoonWaveDefinitions.LongPeriod } rebuilt && rebuilt.Phase == new ByteAngle(7),
+            "following pass rebuilds the animated death wave from the resumed phase");
         Console.WriteLine("Phantoon death: retained intro data is initialized before setup-only death frame; every displayed line aligns before wave advancement.");
     }
 

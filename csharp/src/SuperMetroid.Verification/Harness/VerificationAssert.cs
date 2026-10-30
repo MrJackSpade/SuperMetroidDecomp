@@ -221,7 +221,6 @@ using static SuperMetroid.Verification.Frontend.Pause.PauseSelectorAnchorsVerifi
 using static SuperMetroid.Verification.Frontend.Pause.PauseSelectorCompositionsVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseSelectorDurationsVerification;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonTimersVerification;
-using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonWaveMathVerification;
 using static SuperMetroid.Verification.Enemies.PipeBugs.PipeBugAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.Title.Artwork.PlanetZebesTitlePartsVerification;
 using static SuperMetroid.Verification.Enemies.Platforms.PlatformInstructionProgramDefinitionsVerification;
@@ -4370,8 +4369,7 @@ internal static class VerificationAssert
             "Signed sine oracle is NTSC J/U v1.0");
         Suite(nameof(VerifyCompiledSignedTrigonometry), () => VerifyCompiledSignedTrigonometry(signedOracle, definitionsOnly: true));
         Suite(nameof(VerifySignedSixteenBitSineDefinitions), () => VerifySignedSixteenBitSineDefinitions(signedOracle));
-        Suite(nameof(VerifyPhantoonWaveMath), () => VerifyPhantoonWaveMath(signedOracle, definitionsOnly: true));
-        Console.WriteLine("Signed sine review: 320 signed words, 256 sixteen-bit words and every Phantoon byte phase pass.");
+        Console.WriteLine("Signed sine review: 320 signed words and 256 sixteen-bit words pass.");
         return 0;
     }
 

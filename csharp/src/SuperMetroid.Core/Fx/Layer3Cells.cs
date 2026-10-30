@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx;
 /// <summary>
 /// The BG3 plane a gameplay frame shows (#1403): the picture of each of its <see cref="Layer3Plane.Columns"/> by
 /// <see cref="Layer3Plane.Rows"/> cells, each its word's pre-coloured tile from the room's BG3 sheet (#1392), mirrored,
-/// coloured and prioritised as the word was. The HUD's rows sit at the top; the room effect's area below.
+/// coloured and prioritised as the word was: the room effect's page and nothing else. The HUD is its own layer (#1466).
 /// </summary>
 public sealed class Layer3Cells
 {

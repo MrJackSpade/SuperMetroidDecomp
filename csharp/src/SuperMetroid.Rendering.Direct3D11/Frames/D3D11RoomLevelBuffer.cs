@@ -10,6 +10,8 @@ using System.Collections.Immutable;
 using Vortice.Direct3D11;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Hud.Artwork;
 
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
@@ -18,7 +20,7 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// and 2 and a door's source room), the door window, the layer-1 overlay, sky, layer-3 and layer-2 overlay offsets; then each plane's
 /// blocks (#1403), each plane's picture of each block and the pictures themselves with their sheets' standard
 /// colours (#1392), the layer-1 and layer-2 overlays' pictures (#1348, #1403), the sky's rows (#1347), the layer-3 plane's pictures,
-/// a Mode 7 floor (#1349, #1403) and a boss body's parts (#1352, #1466).
+/// a Mode 7 floor (#1349, #1403), a boss body's parts (#1352, #1466) and the HUD's placed pictures (#1466).
 /// The GPU resolves every room pixel from these and the image texture. Repacked only when the published
 /// planes, their pictures, offsets, door or overlay change.
 /// </summary>
@@ -36,7 +38,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int PlaneSlots = 3;
     /// <summary>Header words: the plane records, the door window origin, and the offsets of the layer-1 overlay, the sky rows,
     /// the layer-3 plane, the layer-2 overlay and the other tables.</summary>
-    private const int HeaderWords = PlaneSlots * RecordWords + 11;
+    private const int HeaderWords = PlaneSlots * RecordWords + 12;
     /// <summary>Header word of the door window's scrolled origin.</summary>
     private const int DoorWindowWord = PlaneSlots * RecordWords;
     /// <summary>
@@ -80,6 +82,13 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int SkyImageWord = Bg2ImageWord + 1;
     /// <summary>Header word of the image of the message box the frame shows, or zero without one (#1392).</summary>
     private const int MessagePictureWord = SkyImageWord + 1;
+    /// <summary>
+    /// Header word of the HUD's placed pictures (#1466), or zero without a HUD: the count of pictures, then two words each in
+    /// drawing order, its picture's offset and its upper-left pixel on the screen, x below y.
+    /// </summary>
+    private const int HudWord = MessagePictureWord + 1;
+    /// <summary>Words of a placed HUD picture's record.</summary>
+    private const int HudPictureWords = 2;
     /// <summary>The bit an X-ray reveal block's arrangement starts at.</summary>
     private const int ArrangementShift = 28;
     /// <summary>Words of a frontend layer's tile table: three for each tile its cells name (#1392).</summary>
@@ -139,7 +148,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// Packs the frame's room planes against the image texture's places; false when they match the last packing and the
     /// texture has kept every picture where it was.
     /// </summary>
-    /// <param name="frame">The planes, overlays, layer 3, floor, boss body and X-ray reveal the frame shows.</param>
+    /// <param name="frame">The planes, overlays, layer 3, floor, boss body, X-ray reveal and HUD the frame shows.</param>
     /// <param name="images">The image texture, holding every picture <see cref="Collect"/> named.</param>
     internal bool Pack(RoomLevelLayers frame, D3D11ImageAtlas images)
     {
@@ -153,6 +162,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         XrayRevealPlane? reveal = frame.XrayReveal;
         RoomBackgroundImagePlane? image = frame.Bg2Image, skyImage = sky?.Image;
         SpriteSheetFrame? message = frame.MessagePicture;
+        PicturedHud? hud = frame.Hud;
         ImmutableArray<ScreenLayerPictures> screens = frame.Screens?.Layers ?? [];
         ImmutableArray<ScreenTileMap> screenCells = frame.Screens?.Maps ?? [];
         if (packed == frame && packedGeneration == images.Generation)
@@ -161,7 +171,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         // picture either, so the last room's colour slots go: the scene's colours are packed for none of its images, and a
         // later frame showing that room again packs it afresh.
         if (bg1 is null && bg2 is null && sky is null && bg3 is null && mode7 is null && reveal is null && image is null
-            && message is null && screens.IsEmpty)
+            && message is null && screens.IsEmpty && hud is null)
         {
             colourSlots.Clear();
             packed = null;
@@ -211,6 +221,9 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         int skyImageOffset = skyImage is null ? 0 : words;
         if (skyImage is not null)
             words += 1 + skyImage.CellCount;
+        int hudOffset = hud is null ? 0 : words;
+        if (hud is not null)
+            words += 1 + hud.Pictures.Length * HudPictureWords;
         int bossBodyOffset = bossBody is null ? 0 : words;
         if (bossBody is not null)
             words += 1 + bossBody.Parts.Length * BossBodyPartWords + bossBody.Parts.Sum(part => part.Shows.Rows.Length);
@@ -335,6 +348,9 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
                 upload[revealOffset + block] = (uint)pictureWords[picture] | ShaderArrangement(shown.Arrangement) << ArrangementShift;
             }
         }
+        upload[HudWord] = (uint)hudOffset;
+        if (hud is not null)
+            PackHud(upload, hud, hudOffset, pictureWords);
         upload[BossBodyWord] = (uint)bossBodyOffset;
         if (bossBody is not null)
             PackBossBody(upload, bossBody, bossBodyOffset, pictureWords);
@@ -368,14 +384,32 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         }
     }
 
+    /// <summary>
+    /// Packs <paramref name="hud"/>'s placed pictures from <paramref name="offset"/>, as <see cref="HudWord"/> describes: the
+    /// count, then each picture's offset and its upper-left pixel on the screen, where the HUD's cells start at the top.
+    /// </summary>
+    private static void PackHud(Span<uint> upload, PicturedHud hud, int offset, Dictionary<SpriteSheetFrame, int> pictureWords)
+    {
+        ImmutableArray<PlacedHudPicture> pictures = hud.Pictures;
+        upload[offset] = (uint)pictures.Length;
+        for (int index = 0; index < pictures.Length; index++)
+        {
+            PlacedHudPicture placed = pictures[index];
+            int record = offset + 1 + index * HudPictureWords;
+            upload[record] = (uint)pictureWords[placed.Picture];
+            upload[record + 1] = D3D11ConstantPacking.Halves(checked((ushort)(placed.Cell.X * GameplayHudDefinitions.CellPixels)),
+                checked((ushort)(placed.Cell.Y * GameplayHudDefinitions.CellPixels)));
+        }
+    }
+
     /// <summary>The tile pictures of an overlay, or none.</summary>
     private static ImmutableArray<BgTilePicture?> Tiles(ImmutableArray<BgTilePicture?>? pictures) =>
         pictures is { IsDefault: false } shown ? shown : [];
 
     /// <summary>
     /// Every picture <paramref name="frame"/> draws and how it is coloured, in packing order: the planes' and the reveal's
-    /// block pictures, the background images, the message, the frontend tile sheets, the boss body's parts, then the
-    /// overlays' and the layer-3 plane's tile pictures. A picture may appear more than once.
+    /// block pictures, the background images, the message, the frontend tile sheets, the boss body's parts, the HUD's
+    /// pictures, then the overlays' and the layer-3 plane's tile pictures. A picture may appear more than once.
     /// </summary>
     private static IEnumerable<(SpriteSheetFrame Picture, D3D11PictureColouring Colouring)> Pictures(RoomLevelLayers frame)
     {
@@ -411,6 +445,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         }
         foreach (ShownBossBodyPart part in frame.BossBody?.Parts ?? [])
             yield return (part.Picture, D3D11PictureColouring.Frame);
+        foreach (PlacedHudPicture placed in frame.Hud?.Pictures ?? [])
+            yield return (placed.Picture, D3D11PictureColouring.Frame);
         IEnumerable<BgTilePicture?>[] tilePictures =
         [
             Tiles(frame.Bg2Overlay?.Pictures),

@@ -146,10 +146,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         }
 
         // GameState_13 finishes pause setup by calling QueueClearingOfFxTilemap at
-        // `$80:A211`, which blanks every BG3 row beneath the four HUD rows. Pause's HUD
-        // plane shows the cleared cell everywhere the HUD does not cover (PauseScreen.HudPlane):
-        // without the clear, every otherwise-empty map cell showed pause character zero,
-        // the visible orange `1` glyph.
+        // `$80:A211`, which blanks every BG3 row beneath the four HUD rows. Pause draws
+        // only the HUD's own layer (PauseScreen.RetainedHudPictures), so every otherwise-empty map
+        // cell shows nothing rather than pause character zero, the visible orange `1` glyph.
         entry.MapPresentation.Palettes.Pause.LoadTo(screen.Palette);
 
         // LoadPauseScreenBaseTilemaps does *not* leave the bottom two button-label rows
@@ -287,14 +286,14 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             mapScroll, false);
         var bg2 = new ScreenTilesLayer(ScreenTileMap.Of(screen.Tilemaps.Bg2, new Extent16<TilemapCells>(32, 32), planes),
             new Position16<TilePlanePixels>(0, ScreenGeometry.BackgroundRowOffset), false);
-        // The HUD plane shows its first screen through the viewport, drawn from the HUD's images (#1466).
-        var bg3 = new Layer3ViewportLayer(screen.HudPlane(), ScreenGeometry.BackgroundRowOffset, false);
+        // The retained HUD is its own layer at the HUD's place, drawn from its images in their priority tiers (#1466).
+        var hud = new HudLayer(screen.RetainedHudPictures(), TransparentColorZero: true, Priority: false);
         DisplayLayer[] layers =
         [
-            new SpriteDepthLayer(0), bg3,
+            new SpriteDepthLayer(0), hud,
             new SpriteDepthLayer(1), bg2, bg1,
             new SpriteDepthLayer(2), bg2 with { Priority = true }, bg1 with { Priority = true },
-            new SpriteDepthLayer(3), bg3 with { Priority = true },
+            new SpriteDepthLayer(3), hud with { Priority = true },
         ];
         return new(screen.Paint(), layers, checked((byte)(Transition == PauseMenuTransition.None ? 15 : TransitionBrightness)));
     }

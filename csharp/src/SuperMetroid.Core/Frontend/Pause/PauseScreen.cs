@@ -34,7 +34,7 @@ internal sealed class PauseScreen
         Sheets = sheets ?? throw new InvalidOperationException("Pause requires the installed sprite sheets.");
         PlaneTiles = null;
         HudPictures = null;
-        hudPlane = null;
+        pictured = null;
     }
 
     /// <summary>What the map, equipment and frame planes show under the pause palette (#1392).</summary>
@@ -53,39 +53,28 @@ internal sealed class PauseScreen
     /// </summary>
     public ShownHud Hud { get; private set; } = ShownHud.Nothing;
 
-    /// <summary>The HUD plane last built, while neither the HUD nor the sheets have changed.</summary>
-    [NonSerialized] private Layer3Cells? hudPlane;
+    /// <summary>The retained HUD's pictures last resolved, while neither the HUD nor the sheets have changed.</summary>
+    [NonSerialized] private PicturedHud? pictured;
 
     /// <summary>Keeps <paramref name="gameplay"/>, the HUD gameplay displayed at its last NMI, resident.</summary>
     internal void RetainHud(ShownHud gameplay)
     {
         Hud = Ensure.NotNull(gameplay);
-        hudPlane = null;
+        pictured = null;
     }
 
     /// <summary>Mirrors the rows <paramref name="gameplay"/> draws, keeping the static top row pause retained.</summary>
     internal void MirrorAcceptedHud(ShownHud gameplay)
     {
         Hud = Hud.WithDrawnRowsOf(gameplay);
-        hudPlane = null;
+        pictured = null;
     }
 
     /// <summary>
-    /// The HUD plane pause shows (#1466): the retained HUD's images under the pause palette over its top rows, and every
-    /// other cell the cleared cell <c>QueueClearingOfFxTilemap</c> fills it with, which a cell the HUD leaves uncovered
-    /// shows too.
+    /// The HUD pause shows (#1466): the retained HUD's images under the pause palette, drawn on the HUD's own layer. The
+    /// cleared cells <c>QueueClearingOfFxTilemap</c> leaves beneath and around the HUD show nothing, so pause draws none.
     /// </summary>
-    internal Layer3Cells HudPlane()
-    {
-        if (hudPlane is { } built)
-            return built;
-        var cleared = new BgTilePicture(Sheets.Get(SpriteSheetId.PauseHud).Frame(PauseHudDefinitions.ClearedCellFrame), Position16<ImagePixels>.Zero);
-        ImmutableArray<BgTilePicture?> hud = HudPictures.CellPictures(Hud);
-        var cells = new BgTilePicture?[Layer3Plane.Columns * Layer3Plane.Rows];
-        for (int cell = 0; cell < cells.Length; cell++)
-            cells[cell] = cell < hud.Length && hud[cell] is { } picture ? picture : cleared;
-        return hudPlane = new Layer3Cells([.. cells]);
-    }
+    internal PicturedHud RetainedHudPictures() => pictured ??= HudPictures.Pictured(Hud);
 
     /// <summary>The installed artwork the screen draws.</summary>
     [field: NonSerialized]

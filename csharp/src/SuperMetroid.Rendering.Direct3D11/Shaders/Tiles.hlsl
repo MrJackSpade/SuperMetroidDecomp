@@ -29,14 +29,16 @@ StructuredBuffer<uint> Colours : register(t0);
 // and the pre-coloured block pictures the planes' definitions show (#1392).
 StructuredBuffer<uint> RoomLevels : register(t3);
 // RoomSource: what a layer pass draws: the room's layer 1 or 2 as level data shows it, the sky's rows, the layer-3
-// plane, a boss body, the X-ray reveal, a library background or a frontend layer's cells. SourceLayer2Overlay added to it
-// lays words written over layer 2 on top.
+// plane, a boss body, the X-ray reveal, a library background, a frontend layer's cells or the HUD. SourceLayer2Overlay
+// added to it lays words written over layer 2 on top.
 static const uint SourceLayer1 = 1, SourceLayer2 = 2, SourceSky = 3, SourceLayer3 = 4;
 static const uint SourceBossBody = 6, SourceXrayReveal = 7, SourceLibraryBackground = 8;
 // A frontend layer's cells drawn from their tiles' pre-coloured pictures (#1392), its table's word in RoomSource's
 // high half: three words a tile, the tile's picture (zero where no artwork shows it), the corner
 // of its palette row zero tile, x below y, and the pixels from one palette row's block to the next.
 static const uint SourceScreenCells = 9;
+// The HUD's placed pictures (PicturedHud, #1466), at the HUD's place at the top of the screen.
+static const uint SourceHud = 10;
 // A frontend layer's cell (D3D11RoomLevelBuffer.PackScreenMap): its tile in the low half, its colour variant above it,
 // then its priority and its mirroring.
 static const uint CellHigh = 1048576, CellFlipX = 2097152, CellFlipY = 4194304;
@@ -49,6 +51,9 @@ static const uint RoomBg2ImageWord = 26;
 static const uint RoomSkyImageWord = 27;
 // The image of the message box the frame shows (#1392).
 static const uint RoomMessagePictureWord = 28;
+// The HUD's placed pictures (#1466): their count, then two words each in drawing order, the picture's offset and its
+// upper-left screen pixel, x below y.
+static const uint RoomHudWord = 29;
 // The X-ray reveal (XrayRevealPlane): 17 block columns by 16 rows, each its picture's offset with its arrangement in the
 // top four bits: as defined, mirrored horizontally, vertically or both, or its tile rows swapped.
 static const uint RevealColumns = 17, RevealRows = 16;
@@ -108,6 +113,30 @@ bool Bg3Picture(uint firstRow, uint rows, uint2 scrolled, out uint2 within, out 
     uint corner = RoomLevels[pictures + 2 * index + 1];
     within = (scrolled & 7) + uint2(corner & 65535, corner >> 16);
     return picture != 0;
+}
+// The HUD's picture at a screen position (#1466): the last placed picture covering it, as `picture`, with `within` its
+// pixel there; false where no picture covers it, which shows nothing.
+bool HudPicture(uint2 screen, out uint2 within, out uint picture)
+{
+    picture = 0;
+    within = uint2(0, 0);
+    uint table = RoomLevels[RoomHudWord];
+    if (table == 0) return false;
+    for (uint placed = RoomLevels[table]; placed > 0; placed--)
+    {
+        uint record = table + 1 + (placed - 1) * 2;
+        uint shown = RoomLevels[record];
+        uint corner = RoomLevels[record + 1];
+        uint2 origin = uint2(corner & 65535, corner >> 16);
+        uint extent = RoomLevels[shown + PictureSizeWord];
+        if (screen.x < origin.x || screen.y < origin.y) continue;
+        uint2 offset = screen - origin;
+        if (offset.x >= (extent & 65535) || offset.y >= (extent >> 16)) continue;
+        picture = shown;
+        within = offset;
+        return true;
+    }
+    return false;
 }
 // The picture of a word written over layer 2 (RoomOverlayPictures, #1403) at the cell a `size` layout places the
 // scrolled position, laid out as a boss body's pictures with none where nothing was written; `within` its pixel in it.
@@ -455,6 +484,10 @@ void Main(uint3 id : SV_DispatchThreadID)
         else if (source == SourceLibraryBackground)
         {
             if (!Bg2ImagePicture(scrolled, uint2(MapWidth, MapHeight), picture, within)) return;
+        }
+        else if (source == SourceHud)
+        {
+            if (!HudPicture(id.xy, within, picture)) return;
         }
         else if (source == SourceScreenCells)
         {

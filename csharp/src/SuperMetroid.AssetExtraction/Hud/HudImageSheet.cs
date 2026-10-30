@@ -21,7 +21,7 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// Pictures every image the gameplay HUD can place (#1466): its top row and template, each energy tank, each numeral,
 /// each item icon's cells in each shade, each AUTO cell as the indicator shows and every minimap cell the installed maps
 /// can show, each its own frame named by the image. Each room tileset's BG3 sheet pictures them under its palette; the
-/// pause HUD sheet pictures them under the pause palette, with the cleared cell pause fills its HUD plane with.
+/// pause HUD sheet pictures them under the pause palette.
 /// </summary>
 internal static class HudImageSheet
 {
@@ -105,14 +105,14 @@ internal static class HudImageSheet
         return new HudSheetLayout([.. shelves], placements.ToImmutable());
     }
 
-    /// <summary>The frame names of the pause HUD sheet: each HUD image the installed maps let the HUD place, and the cleared cell.</summary>
+    /// <summary>The frame names of the pause HUD sheet: each HUD image the installed maps let the HUD place.</summary>
     internal static IEnumerable<string> PauseFrameNames(AreaMapPresentation maps) =>
-        [.. Images(Maps(maps)).Select(image => image.FrameName), PauseHudDefinitions.ClearedCellFrame];
+        [.. Images(Maps(maps)).Select(image => image.FrameName)];
 
     /// <summary>
     /// Composes the pause HUD sheet: every HUD image <paramref name="maps"/>' HUD can place, painted from the HUD's
-    /// characters under the pause palette, then the cleared cell pause fills its HUD plane with beneath the HUD. A tile
-    /// naming a character beyond the HUD's shows nothing, as pause shows nothing there.
+    /// characters under the pause palette (#1466). A tile naming a character beyond the HUD's shows nothing, as pause shows
+    /// nothing there.
     /// </summary>
     internal static ComposedSpriteSheet ComposePause(AreaMapPresentation maps)
     {
@@ -120,7 +120,7 @@ internal static class HudImageSheet
         ReadOnlyMemory<byte> characters = MapCharacterArtwork.Of(maps).Hud.Bytes[..HudTileAtlasFormat.CharacterByteCount];
         HudSheetLayout layout = Layout(GameplayHudArtwork.Of(maps.GameplayHud), Maps(maps));
         const int cell = RoomTileCanvas.CharacterPixels;
-        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(ShelfCells * cell, checked((ushort)((layout.Rows + 1) * cell))));
+        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(ShelfCells * cell, checked((ushort)(layout.Rows * cell))));
         RgbColor[] colours = ScreenColourImage.Encode(maps.Palettes.Pause)[..SpriteImage.SpriteColourCount];
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         foreach (HudSheetPlacement placed in layout.Placements)
@@ -132,9 +132,6 @@ internal static class HudImageSheet
                 Paint(new Position16<TilemapCells>((ushort)(corner.X + x), (ushort)(corner.Y + y)), image.Tiles[y * image.Size.X + x]);
             frames.Add(image.Image.FrameName, WrittenPictureSheetComposer.Frame(canvas, Pixels(corner), Pixels(image.Size), WrittenPictureLayer.Bg3));
         }
-        var cleared = new Position16<TilemapCells>(0, checked((ushort)layout.Rows));
-        Paint(cleared, PauseHudPlaneDefinitions.ClearedCell);
-        frames.Add(PauseHudDefinitions.ClearedCellFrame, WrittenPictureSheetComposer.Frame(canvas, Pixels(cleared), Pixels(new Extent16<TilemapCells>(1, 1)), WrittenPictureLayer.Bg3));
         return canvas.ToSheet(colours, frames, ScreenTileSheet.ColoursOf(TileInkDepth.FourColours));
 
         void Paint(Position16<TilemapCells> at, BackgroundTile tile)

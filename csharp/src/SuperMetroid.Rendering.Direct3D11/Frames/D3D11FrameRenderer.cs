@@ -14,6 +14,7 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hud;
 
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
@@ -350,7 +351,10 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.Dispatch(32, 28, 1);
     }
 
-    /// <summary>Composes a room with a perspective floor: the floor, the sprites and layer 2 by priority, and the opaque HUD.</summary>
+    /// <summary>
+    /// Composes a room with a perspective floor below the HUD's lines: the floor, the sprites and layer 2 by priority. The
+    /// HUD is its own layer (#1466).
+    /// </summary>
     private void DispatchFloorRoom(TurningRoomLayer layer)
     {
         // Clipping is in screen lines. Never move the floor's origin to the start of the band: the transform is the
@@ -371,14 +375,12 @@ public sealed class D3D11FrameRenderer : IDisposable
             void Sprites(uint priority) => DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { Priority = priority + 1, FirstScanline = (uint)floorStart });
             void Background(bool high) => DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Layer2, Scroll = floor.Scroll.AsBgPlaneScroll(), MapSize = floor.MapSize, Priority = Priority(high), FirstScanline = (uint)floorStart });
         }
-        // The HUD's colour zero is opaque, and no sprite shows over this band.
-        if (layer.HudLines != 0)
-            DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Layer3, Map = 0, TransparentZero = 0, EndScanline = (uint)layer.HudLines });
     }
 
     /// <summary>
     /// Composes a room: sprites of priority 0 and 1, layer 2 then layer 1 at low priority, sprites of priority 2, layer 2
-    /// then layer 1 at high priority, sprites of priority 3; in bands split where the layers a line shows change.
+    /// then layer 1 at high priority, sprites of priority 3; in bands split where the layers a line shows change, below
+    /// the HUD's band. The HUD is its own layer (#1466).
     /// </summary>
     private void DispatchOrdinaryGameplay(GameplaySceneLayer layer)
     {
@@ -398,7 +400,6 @@ public sealed class D3D11FrameRenderer : IDisposable
             Sprites(2); Background2(true); Background1(true); Sprites(3);
             first = end;
         }
-        DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Layer3, Map = 0, TransparentZero = 0, EndScanline = D3D11Screen.HudHeight });
 
         void Sprites(uint priority)
         {
@@ -504,14 +505,19 @@ public sealed class D3D11FrameRenderer : IDisposable
     {
         // Reject unimplemented operations before changing GPU state. No CPU fallback.
         foreach (DisplayLayer layer in scene.Layers)
-            if (layer is not (ScreenTilesLayer or ScreenTilesViewportLayer or Layer3ViewportLayer or ScreenTintLayer or SpritesLayer or SpriteDepthLayer or TurningFloorLayer or TurningRoomLayer or ColourAddBandsLayer or OverlayBlendLayer or AddedScreenTilesLayer or MessageBoxLayer or GameplaySceneLayer or InsetSceneLayer or GameplayBlendLayer))
+            if (layer is not (ScreenTilesLayer or ScreenTilesViewportLayer or HudLayer or ScreenTintLayer or SpritesLayer or SpriteDepthLayer or TurningFloorLayer or TurningRoomLayer or ColourAddBandsLayer or OverlayBlendLayer or AddedScreenTilesLayer or MessageBoxLayer or GameplaySceneLayer or InsetSceneLayer or GameplayBlendLayer))
                 throw new NotSupportedException($"GPU layer {layer.GetType().Name} is not implemented yet.");
         SuperMetroid.Core.Assets.SpriteSheetFrame? messagePicture = null;
+        PicturedHud? hud = null;
         foreach (DisplayLayer layer in scene.Layers)
         {
             if (layer is MessageBoxLayer message)
                 messagePicture = messagePicture is null || ReferenceEquals(messagePicture, message.Picture) ? message.Picture
                     : throw new InvalidOperationException("A frame shows two different message boxes.");
+            // A frame shows one HUD, which every HUD pass draws from the room buffer (#1466).
+            else if (layer is HudLayer shownHud)
+                hud = hud is null || ReferenceEquals(hud, shownHud.Hud) ? shownHud.Hud
+                    : throw new InvalidOperationException("A frame shows two different HUDs.");
         }
         // The gameplay base layer publishes the room backgrounds; a Mode-7 floor band shows the room's layer-2 plane.
         RoomBackgrounds? rooms = scene.Layers.IsEmpty ? null : scene.Layers[0] switch
@@ -541,19 +547,16 @@ public sealed class D3D11FrameRenderer : IDisposable
             if (layer is TurningRoomLayer mode7)
             {
                 floor = mode7.Floor?.Room ?? floor;
-                bg3 = SameBg3(bg3, mode7.Hud);
                 floorMap = SameFloor(floorMap, mode7.Map);
             }
             else if (layer is OverlayBlendLayer math)
                 bg3 = SameBg3(bg3, math.Plane);
             else if (layer is GameplayBlendLayer { BlendPlane: { } sub })
                 bg3 = SameBg3(bg3, sub.Plane);
-            else if (layer is Layer3ViewportLayer window)
-                bg3 = SameBg3(bg3, window.Plane);
         }
         var levels = new RoomLevelLayers(rooms?.Bg1, rooms?.Bg2 ?? floor, rooms?.DoorSource, rooms?.Bg1Overlay, rooms?.Sky, bg3,
             rooms?.Bg2Overlay, floorMap, rooms?.BossBody, rooms?.XrayReveal, rooms?.Bg2Image,
-            messagePicture, screens.Count == 0 ? null : new ScreenPictureTables([.. screens]));
+            messagePicture, screens.Count == 0 ? null : new ScreenPictureTables([.. screens]), hud);
         // The image texture holds every image the scene shows before either buffer names a place in it (#1408).
         images.Needed.Clear();
         D3D11SpriteDrawBuffer.Collect(scene.Paint.SpriteDraws.AsSpan(), images.Needed);
@@ -623,13 +626,12 @@ public sealed class D3D11FrameRenderer : IDisposable
                 case ScreenTilesViewportLayer bg:
                     DispatchScreenTiles(D3D11TileOperation.Layer, bg.Cells, new Position16<TilePlanePixels>(0, checked((ushort)bg.VerticalScroll)), bg.Priority, bg.TransparentColorZero);
                     break;
-                case Layer3ViewportLayer window:
-                    // The window's rows of the layer-3 plane from its first, each pixel in its picture's priority tier (#1466).
+                case HudLayer hudLayer:
+                    // The HUD's placed pictures at the top of the screen, each pixel in its picture's priority tier (#1466).
                     DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
                     {
-                        RoomSource = D3D11RoomSource.Layer3, Map = 0, TransparentZero = 1, Priority = Priority(window.Priority),
-                        Scroll = new Position16<TilePlanePixels>(0, checked((ushort)window.VerticalScroll)),
-                        MapSize = new Extent16<TilemapCells>(32, Layer3ViewportLayer.WindowRows),
+                        RoomSource = D3D11RoomSource.Hud, TransparentZero = hudLayer.TransparentColorZero ? 1u : 0u,
+                        Priority = Priority(hudLayer.Priority), EndScanline = D3D11Screen.HudHeight,
                     });
                     break;
                 case ScreenTintLayer add:

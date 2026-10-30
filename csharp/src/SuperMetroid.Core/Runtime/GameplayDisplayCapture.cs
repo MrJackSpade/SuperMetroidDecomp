@@ -73,7 +73,7 @@ public static class GameplayDisplayCapture
     }
 
     /// <summary>
-    /// Captures the ordinary Mode-1 base only. Room color math, windows, messages and
+    /// Captures the ordinary Mode-1 base only: the room and the HUD's layer. Room color math, windows, messages and
     /// suit effects are deliberately excluded; this is not a substitute for a complete frame.
     /// Mode-7 rooms are rejected rather than silently interpreting their memory as tiles.
     /// </summary>
@@ -149,9 +149,17 @@ public static class GameplayDisplayCapture
             VisibleLines(crocomireBody is not null ? live.CrocomireMeltingScrolls : lavaY)),
             live.DoorTransitionMainScreenLayers is null && live.MotherBrainAscentShowing
                 ? MotherBrainAscentDisplay.BuildGameplayLayers() : default);
-        return new(frame.Paint, new DisplayLayer[] { layer },
+        return new(frame.Paint, new DisplayLayer[] { layer, Hud(latched) },
             DisplayBrightness.Full);
     }
+
+    /// <summary>
+    /// The HUD the accepted NMI latched, its own layer drawn straight after the room (#1466): gameplay's HUD band shows its
+    /// pictures with their colour zero opaque, in front of everything the band holds.
+    /// </summary>
+    private static HudLayer Hud(GameplayDisplayLatch latched) => new(latched.PicturedHud
+        ?? throw new InvalidOperationException("A gameplay frame shows the HUD once the accepted NMI that latched it resolves its pictures."),
+        TransparentColorZero: false, Priority: null);
 
     /// <summary>The BG3 plane the accepted NMI displays (#1348).</summary>
     private static Layer3Cells Bg3(GameplayDisplayLatch latched) => (latched.Rooms
@@ -218,7 +226,7 @@ public static class GameplayDisplayCapture
         return new(ordinary, closed, revealBlocks: false, blend: new SceneBlend { Layers = ColorBlend.Bg2 | ColorBlend.Backdrop | ColorBlend.Subtract, BlendsWithLayersBehind = false, FixedColor = fixedColor });
     }
 
-    /// <summary>Captures the latched perspective floor and the HUD, adding the layer-2 band below the floor during Ridley's getaway.</summary>
+    /// <summary>Captures the latched perspective floor and the HUD's layer, adding the layer-2 band below the floor during Ridley's getaway.</summary>
     private static LayeredScene CapturePerspectiveFloorBase(GameplayDisplayFrame frame)
     {
         GameplayDisplayLatch latched = frame.Latched;
@@ -238,9 +246,9 @@ public static class GameplayDisplayCapture
                 new Extent16<TilemapCells>(64, 32),
                 latched.Rooms?.Bg2 ?? throw new InvalidOperationException("Ceres Ridley's room shows its layer-2 plane below the Mode 7 floor."))
             : null;
-        var layer = new TurningRoomLayer(transform, Bg3(latched), (latched.Rooms?.Floor
+        var layer = new TurningRoomLayer(transform, (latched.Rooms?.Floor
                 ?? throw new InvalidOperationException("A Mode 7 gameplay frame shows a Ceres room's Mode 7 map.")), ScreenGeometry.GameplayHudHeightPixels, floor);
-        return new(frame.Paint, new DisplayLayer[] { layer }, DisplayBrightness.Full);
+        return new(frame.Paint, new DisplayLayer[] { layer, Hud(latched) }, DisplayBrightness.Full);
     }
 
     /// <summary>Removes BG2 when Phantoon is hidden, or uses it as an additive subscreen when the body is semitransparent.</summary>
@@ -336,6 +344,6 @@ public static class GameplayDisplayCapture
         var lines = closed ? Enumerable.Repeat(new XrayWindowLine(255, 0), ScreenGeometry.ScreenHeightPixels).ToArray()
             : GameplayEffectCapture.CaptureXrayWindowLines(xray, scrolls.Layer1Position);
         var layer = new GameplayBlendLayer(gameplay, lines, reveal, new SceneBlend { Layers = control, BlendsWithLayersBehind = mode != XrayRoomBlendMode.Fireflea, FixedColor = new RgbColor(red, green, blue) }, sub);
-        return new(paint, new DisplayLayer[] { layer }, basis.Brightness);
+        return new(paint, new DisplayLayer[] { layer, Hud(latched) }, basis.Brightness);
     }
 }

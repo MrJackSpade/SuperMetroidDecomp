@@ -41,11 +41,12 @@ internal static class RuntimeOverlayTests
         runtime.SuitPickup.Begin(runtime.Player.IntroducedSamus, new(0, 0), SamusSuitPickupKind.Varia);
         runtime.SuitPickup.Step(runtime.Player.IntroducedSamus, runtime.Player.Colours);
         var initial = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
-        if (initial.Layers.Length != 4 || initial.Layers[0] is not GameplaySceneLayer
-            || initial.Layers[1] is not ColourAddBandsLayer
-            || initial.Layers[2] is not MessageBoxLayer
-            || initial.Layers[3] is not ColourAddBandsLayer)
-            throw new InvalidOperationException("Fixture missed base/Power Bomb/message/suit composition order.");
+        if (initial.Layers.Length != 5 || initial.Layers[0] is not GameplaySceneLayer
+            || initial.Layers[1] is not HudLayer
+            || initial.Layers[2] is not ColourAddBandsLayer
+            || initial.Layers[3] is not MessageBoxLayer
+            || initial.Layers[4] is not ColourAddBandsLayer)
+            throw new InvalidOperationException("Fixture missed base/HUD/Power Bomb/message/suit composition order.");
 
         for (int tick = 0; tick < 90; tick++)
         {

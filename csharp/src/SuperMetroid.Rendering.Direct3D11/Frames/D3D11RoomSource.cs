@@ -11,7 +11,7 @@ internal enum D3D11RoomSource : uint
     Layer2 = 2,
     /// <summary>The scrolling sky's rows (#1347).</summary>
     Sky = 3,
-    /// <summary>Layer 3: the HUD and the room effect (#1348).</summary>
+    /// <summary>Layer 3: the room effect (#1348).</summary>
     Layer3 = 4,
     /// <summary>A boss body's tilemap, which layer 2 shows (#1352).</summary>
     BossBody = 6,
@@ -21,4 +21,6 @@ internal enum D3D11RoomSource : uint
     LibraryBackground = 8,
     /// <summary>A frontend layer's cells, drawn from their tiles' pre-coloured pictures (#1392, #1403).</summary>
     ScreenCells = 9,
+    /// <summary>The HUD's placed pictures, at the HUD's place at the top of the screen (#1466).</summary>
+    Hud = 10,
 }

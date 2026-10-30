@@ -1,6 +1,4 @@
-using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Hud;
 
@@ -27,6 +25,6 @@ public sealed class HudPictures(SpriteSheet sheet)
         return picture;
     }
 
-    /// <summary>The picture each of <paramref name="hud"/>'s cells shows under this sheet's palette, as <see cref="ShownHud.CellPictures"/> lays them out.</summary>
-    public ImmutableArray<BgTilePicture?> CellPictures(ShownHud hud) => Ensure.NotNull(hud).CellPictures(PictureOf);
+    /// <summary><paramref name="hud"/> as the backend draws it under this sheet's palette (#1466).</summary>
+    public PicturedHud Pictured(ShownHud hud) => Ensure.NotNull(hud).Pictured(PictureOf);
 }

@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hud.Artwork;
-using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Hud;
 
@@ -42,30 +41,12 @@ public sealed class ShownHud
         .. Ensure.NotNull(drawn).Images.Where(placed => placed.Cell.Y != 0),
     ]);
 
-    /// <summary>
-    /// The picture each of the HUD's cells shows, row by row across its four rows: the part of the last image placed over
-    /// the cell, or null where no image is.
-    /// </summary>
+    /// <summary>The HUD as the backend draws it: each placed image's installed picture, in drawing order (#1466).</summary>
     /// <param name="pictureOf">The installed picture of each image, under the palette the HUD shows in.</param>
-    /// <exception cref="InvalidDataException">A picture is not whole cells, or runs past the HUD's edge.</exception>
-    public ImmutableArray<BgTilePicture?> CellPictures(Func<HudImage, SpriteSheetFrame> pictureOf)
+    /// <exception cref="ArgumentException">A picture is not whole cells, or runs past the HUD's edge.</exception>
+    public PicturedHud Pictured(Func<HudImage, SpriteSheetFrame> pictureOf)
     {
         Ensure.NotNull(pictureOf);
-        const int cell = GameplayHudDefinitions.CellPixels;
-        var cells = new BgTilePicture?[GameplayHudDefinitions.Width * GameplayHudDefinitions.Rows];
-        foreach (PlacedHudImage placed in Images)
-        {
-            SpriteSheetFrame picture = pictureOf(placed.Image);
-            if (picture.Size.X % cell != 0 || picture.Size.Y % cell != 0)
-                throw new InvalidDataException($"HUD picture {placed.Image.FrameName} is not whole cells.");
-            int columns = picture.Size.X / cell, rows = picture.Size.Y / cell;
-            if (placed.Cell.X + columns > GameplayHudDefinitions.Width || placed.Cell.Y + rows > GameplayHudDefinitions.Rows)
-                throw new InvalidDataException($"HUD picture {placed.Image.FrameName} runs past the HUD's edge.");
-            for (int y = 0; y < rows; y++)
-            for (int x = 0; x < columns; x++)
-                cells[(placed.Cell.Y + y) * GameplayHudDefinitions.Width + placed.Cell.X + x] =
-                    new BgTilePicture(picture, new Position16<ImagePixels>(checked((ushort)(x * cell)), checked((ushort)(y * cell))));
-        }
-        return [.. cells];
+        return new PicturedHud([.. Images.Select(placed => new PlacedHudPicture(pictureOf(placed.Image), placed.Cell))]);
     }
 }

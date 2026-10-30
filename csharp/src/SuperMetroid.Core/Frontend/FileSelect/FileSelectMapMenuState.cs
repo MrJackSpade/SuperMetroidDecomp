@@ -243,7 +243,11 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         return new(scene.Paint, scene.Layers, checked((byte)brightness));
     }
 
-    /// <summary>Projects the native clipped room/area transition into render layers, including completed and off-screen windows.</summary>
+    /// <summary>
+    /// Shows the room scene inset in the area scene through the transition's window rectangle (#1468), including
+    /// completed and off-screen windows. The rectangle's edges are whole screen columns and lines, each kept to the
+    /// screen's byte-wide range as the window's motion leaves them.
+    /// </summary>
     private static LayeredScene Window(LayeredScene areaScene, LayeredScene roomScene, FileSelectMapWindow window)
     {
         if (window.IsComplete) return window.IsReturning ? areaScene : roomScene;
@@ -251,8 +255,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         int top = (byte)topLeft.Y;
         int bottom = Math.Min(ScreenGeometry.ScreenHeightPixels, top + Math.Max(1, (int)unchecked((byte)(bottomRight.Y - topLeft.Y))));
         int left = (byte)topLeft.X, right = (byte)bottomRight.X;
-        // The legacy HDMA projection performs no row copies for a wholly off-screen
-        // interval or crossed horizontal edges; resolve that before contract validation.
+        // A window whose edges have crossed, or that covers no line, shows none of the room: the area scene shows whole.
         if (left > right || top >= bottom) return areaScene;
         return Insert(areaScene, roomScene, left, top, right + 1, bottom);
     }

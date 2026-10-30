@@ -1,10 +1,13 @@
 namespace SuperMetroid.Core.Frontend.Title.Artwork;
 
-/// <summary>One title zoom bucket corresponding to a pointer in native TitleSequenceHDMATables at $8C:BC5D, expanded into screen scanlines.</summary>
+/// <summary>The title's gradient for one zoom bucket, described by its stops (#1468).</summary>
 public sealed record TitleGradientVariant
 {
-    /// <summary>Zero through fifteen; native selects this with zoom bits four through seven.</summary>
+    /// <summary>Zero through fifteen: the zoom bucket the title selects this gradient in.</summary>
     public required int ZoomHighNibble { get; init; }
-    /// <summary>Exactly 224 nonnull scanlines indexed by visible screen Y from 0 through 223, not HDMA commands or run lengths.</summary>
-    public required TitleGradientScanline[] Lines { get; init; }
+    /// <summary>
+    /// The gradient's stops top to bottom, the first on line 0, each on a lower line than the one before; the last band runs
+    /// to the bottom of the screen.
+    /// </summary>
+    public required TitleGradientStop[] Stops { get; init; }
 }

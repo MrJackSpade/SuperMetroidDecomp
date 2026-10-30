@@ -16,8 +16,13 @@ internal static class D3D11ShaderLayout
     internal const string SolidResourceName = "SuperMetroid.Shaders.Solid.cso";
     /// <summary>Embedded compute shader for tile, object, and color-composition dispatches.</summary>
     internal const string TileResourceName = "SuperMetroid.Shaders.Tiles.cso";
-    /// <summary>Embedded shader for the title-screen gradient pass.</summary>
-    internal const string TitleGradientResourceName = "SuperMetroid.Shaders.TitleGradient.cso";
+    /// <summary>Embedded shader for the gradient pass (#1468).</summary>
+    internal const string ScreenGradientResourceName = "SuperMetroid.Shaders.ScreenGradient.cso";
+    /// <summary>
+    /// How far a gradient stop's row shifts the line its band begins on above its blend; matches ScreenGradient.hlsl's
+    /// StopLineShift.
+    /// </summary>
+    internal const int GradientStopLineShift = 8;
     /// <summary>Embedded vertex shader placing each sprite draw's quad (#1408).</summary>
     internal const string SpriteVertexResourceName = "SuperMetroid.Shaders.SpriteVertex.cso";
     /// <summary>Embedded pixel shader drawing each sprite draw's image into the sprite layer (#1408).</summary>

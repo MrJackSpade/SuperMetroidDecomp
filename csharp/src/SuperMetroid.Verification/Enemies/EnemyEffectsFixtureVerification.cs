@@ -15,7 +15,6 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
@@ -69,7 +68,7 @@ internal static class EnemyEffectsFixtureVerification
             // The fight's initialization attaches the cleared body canvases the melting body is drawn on (#1466).
             Effect = BossBodyCanvasFixtures.AttachCrocomire(Enemies, Sheets);
             Effect.AcidSmokeTimer = WrappingCountdown.Start(1);
-            Effect.MeltDistortion = ScrollStretch.Level(19);
+            Effect.MeltDistortion = CrocomireMeltDistortion.Level(19);
             Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
             Enemies.CrocomireBehavior.Access.Crocomire = Actor;
             Enemies.VerificationServices().ReadRandom = () => 0x1234;

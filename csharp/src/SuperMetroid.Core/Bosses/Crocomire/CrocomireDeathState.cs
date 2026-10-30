@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
-using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
@@ -104,7 +103,7 @@ public sealed class CrocomireDeathState
     /// start and stretched through a band below the tongue as the dissolve runs. The display shows it while
     /// <see cref="MeltingScrollActive"/>.
     /// </summary>
-    public ScrollStretch MeltDistortion { get; internal set; } = ScrollStretch.Level(0);
+    public CrocomireMeltDistortion MeltDistortion { get; internal set; } = CrocomireMeltDistortion.Level(0);
 
     /// <summary>
     /// Whether the melting's per-line scroll distortion is running: $A4:9555 starts it and $A4:95CE ends it.

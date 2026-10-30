@@ -5,7 +5,6 @@ using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
@@ -247,7 +246,7 @@ internal sealed class CrocomireMelting
         int row = SixteenSixteen.FromWhole(1);
         int bandLines = rows <= 0 ? 0 : (rows - 1) * row / (row - death.DistortionStep) + 1;
         int endLine = Math.Min(firstLine + bandLines, CrocomireMeltingDefinitions.DistortionLines);
-        death.MeltDistortion = new ScrollStretch(death.MeltDistortion.ScrollAbove, _bodyLayer.Placement.Y,
+        death.MeltDistortion = new CrocomireMeltDistortion(death.MeltDistortion.ScrollAbove, _bodyLayer.Placement.Y,
             ScreenLine(firstLine), ScreenLine(endLine), death.DistortionStep);
 
         // The distortion's lines start at the first gameplay line; those below the screen are never shown.

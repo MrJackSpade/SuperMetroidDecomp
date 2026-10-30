@@ -30,7 +30,7 @@ internal static class PhantoonWaveVerification
         AssertEqual(2, boss.Parts[boss.Eye.SlotIndex].WaveMode, "the wave's setup copies the pending mode to the eye");
         AssertEqual(PhantoonWaveDefinitions.InitialPhase, wave.Phase, "the setup update only seeds the phase");
         // The setup does not run the scroll pre-instruction: the wave is flat at the scroll it was last built from.
-        AssertEqual(new ScrollWave(0, 0, new ByteAngle(0), PhantoonWaveDefinitions.ShortPeriod, 0, ScreenGeometry.ScreenHeightPixels),
+        AssertEqual(new PhantoonWave(0, 0, new ByteAngle(0), PhantoonWaveDefinitions.ShortPeriod),
             wave.CurrentWave, "setup does not run the scroll pre-instruction");
         // Original CPU lifecycle capture: zero base, amplitude $C00, phase delta 8. The described wave's first line gives
         // the cartridge's first scroll word.
@@ -38,13 +38,13 @@ internal static class PhantoonWaveVerification
         {
             wave.Step(boss);
             AssertEqual(phase, wave.Phase, "original-CPU phase progression");
-            ScrollWave current = wave.CurrentWave ?? throw new InvalidOperationException("Verification requires a set-up Phantoon wave.");
-            AssertEqual(new ScrollWave(0, 3072, new ByteAngle((byte)(phase / 2)), PhantoonWaveDefinitions.ShortPeriod, 0, ScreenGeometry.ScreenHeightPixels),
-                current, "the wave is described by its base scroll, amplitude, phase's angle, period and band");
-            AssertEqual(first, ScrollShapeLines.WaveScroll(current, 0), "original-CPU first scroll word");
+            PhantoonWave current = wave.CurrentWave ?? throw new InvalidOperationException("Verification requires a set-up Phantoon wave.");
+            AssertEqual(new PhantoonWave(0, 3072, new ByteAngle((byte)(phase / 2)), PhantoonWaveDefinitions.ShortPeriod),
+                current, "the wave stands at its base scroll, amplitude, phase's angle and period");
+            AssertEqual(first, ScrollShapeLines.WaveScroll(BossLineScrolls.Of(current), 0), "original-CPU first scroll word");
         }
         wave.LatchDisplay();
-        ScrollWave savedDisplay = wave.DisplayedWave ?? throw new InvalidOperationException("Verification requires a latched Phantoon wave.");
+        PhantoonWave savedDisplay = wave.DisplayedWave ?? throw new InvalidOperationException("Verification requires a latched Phantoon wave.");
         wave.Step(boss);
         AssertEqual(savedDisplay, wave.DisplayedWave, "a live wave update leaves the latched display unchanged");
         using var stream = new MemoryStream();
@@ -55,7 +55,7 @@ internal static class PhantoonWaveVerification
         AssertEqual(wave.CurrentWave, restored.CurrentWave, "wave data survives exact debugger state");
         AssertEqual(savedDisplay, restored.DisplayedWave, "latched wave survives debugger state");
         boss.Parts[boss.Eye.SlotIndex].WaveMode = 0;
-        ScrollWave? retained = wave.CurrentWave;
+        PhantoonWave? retained = wave.CurrentWave;
         wave.Step(boss);
         AssertTrue(!wave.Active && retained == wave.CurrentWave, "native deletion retains data");
         wave.LatchDisplay();

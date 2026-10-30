@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;

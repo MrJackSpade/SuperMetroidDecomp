@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.FileSelect;

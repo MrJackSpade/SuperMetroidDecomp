@@ -437,10 +437,10 @@ internal static void VerifyEndingCreditsState()
         "item-percentage object reaches its native scroll handoff");
     // The digits and the percent sign are pictures written left to right from the hundreds digit's cell (#1467).
     ShownEndingText[] digits = [.. percentagePage.Written.Where(text => text.Cell.Y == EndingResultTextLayout.PercentageHundredsCell.Y)];
-    AssertTrue(digits.Select(text => text.Picture).SequenceEqual([EndingPictureNames.PercentDigit(1), EndingPictureNames.PercentDigit(0),
-            EndingPictureNames.PercentDigit(0), EndingPictureNames.PercentSign]),
-        "100% shows one, zero, zero and the percent sign");
-    AssertTrue(digits.Select(text => (int)text.Cell.X).SequenceEqual(Enumerable.Range(EndingResultTextLayout.PercentageHundredsCell.X, 4)),
+    string[] hundredPercent = [EndingPictureNames.PercentDigit(1), EndingPictureNames.PercentDigit(0), EndingPictureNames.PercentDigit(0),
+        EndingPictureNames.PercentSign];
+    AssertTrue(digits.Select(text => text.Picture).SequenceEqual(hundredPercent), "100% shows one, zero, zero and the percent sign");
+    AssertTrue(digits.Select(text => (int)text.Cell.X).SequenceEqual(Enumerable.Range(EndingResultTextLayout.PercentageHundredsCell.X, hundredPercent.Length)),
         "100% places its glyphs in consecutive cells from the hundreds digit");
 
     Console.WriteLine(

@@ -129,7 +129,7 @@ internal static class PlmDoorPresentationContractChecks
             new RoomPlmVisualEntry(EyeDoorDraws.VisualId(frame.Draw), VisualRuns(frame)[0])));
         PlmDraw mirrored = EyeDoorPlmDrawDefinitions.MirroredOpeningClear;
         Require(Enumerable.Range(0, 4).All(word => eye.GetWord(mirrored, word) ==
-            (eye.GetWord(EyeDoorDraws.VisualSource(mirrored), word) ^ (ushort)LevelBlockFlipFlags.Horizontal)),
+            (eye.GetWord(EyeDoorDraws.VisualSource(mirrored), word) ^ (ushort)BlockMirroring.Horizontal)),
             "mirrored clear uses the required authored clear with horizontal flip");
     }
 

@@ -18,10 +18,10 @@ internal static class XrayTilemapVerification
     {
         // Every BG1 block shows its own index, mirrored each of the four ways in turn, so a copied cell names the one
         // location it was read from and how the level mirrors it.
-        LevelBlockFlipFlags[] mirrorings =
+        BlockMirroring[] mirrorings =
         [
-            LevelBlockFlipFlags.None, LevelBlockFlipFlags.Horizontal, LevelBlockFlipFlags.Vertical,
-            LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical,
+            BlockMirroring.None, BlockMirroring.Horizontal, BlockMirroring.Vertical,
+            BlockMirroring.Horizontal | BlockMirroring.Vertical,
         ];
         RevealedBlockArrangement[] arrangements =
         [

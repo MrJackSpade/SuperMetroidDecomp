@@ -11,9 +11,9 @@ internal static class IntroMotherBrainCollisionDefinitions
     /// <summary>Fourteen imported rows; the native copy is448 bytes.</summary>
     internal const int SourceRows = 14;
     /// <summary>A solid block with no visual tile.</summary>
-    internal static ushort Solid => RoomLevelWord.Create(0, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock).Raw;
+    internal static ushort Solid => RoomLevelWord.Create(0, BlockMirroring.None, RoomCollisionType.SolidBlock).Raw;
     /// <summary>A slope block of shape zero with no visual tile: the platforms' top collision cells.</summary>
-    internal static ushort PlatformTop => RoomLevelWord.Create(0, LevelBlockFlipFlags.None, RoomCollisionType.Slope).Raw;
+    internal static ushort PlatformTop => RoomLevelWord.Create(0, BlockMirroring.None, RoomCollisionType.Slope).Raw;
     /// <summary>First and last nonzero full-width source rows.</summary>
     internal const int CeilingRow = 1, FloorRow = 13;
     /// <summary>Upper central formation spans rows2/3,centered on column9.</summary>

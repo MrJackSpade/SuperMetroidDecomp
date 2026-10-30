@@ -19,7 +19,7 @@ internal static class MaridiaElevatubePlmDefinitions
     internal static PlmFrameDraw<Draw> BlockDraw { get; } = PlmDraw.Of(Draw.Block);
 
     /// <summary>The elevatube's level entry: a solid block showing visual block $180, the block Kraid's physical draw also shows.</summary>
-    internal static RoomLevelWord PhysicalWord { get; } = RoomLevelWord.Create(0x180, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock);
+    internal static RoomLevelWord PhysicalWord { get; } = RoomLevelWord.Create(0x180, BlockMirroring.None, RoomCollisionType.SolidBlock);
 
     /// <summary>Temporary artwork description for export; gameplay draws the single physical word directly.</summary>
     internal static RoomPlmShotBlockDrawDefinitions.DrawList BlockDrawList =>

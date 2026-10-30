@@ -66,44 +66,44 @@ internal static class DraygonCannonPlmDrawDefinitions
     };
 
     /// <summary>The empty cell a damaged frame leaves beside its core.</summary>
-    private static RoomLevelWord Empty => RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air);
+    private static RoomLevelWord Empty => RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air);
 
     /// <summary>A right shield frame: the shootable core then its rim, over the core's extension and the lower rim.</summary>
     private static RoomLevelWord[][] RightShield(int frame) =>
     [
         [
-            RoomLevelWord.Create(0x114 + frame * 2, LevelBlockFlipFlags.Horizontal, RoomCollisionType.ShootableBlock),
-            RoomLevelWord.Create(0x113 + frame * 2, LevelBlockFlipFlags.Horizontal, RoomCollisionType.Air),
+            RoomLevelWord.Create(0x114 + frame * 2, BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock),
+            RoomLevelWord.Create(0x113 + frame * 2, BlockMirroring.Horizontal, RoomCollisionType.Air),
         ],
         [
-            RoomLevelWord.Create(0x134 + frame * 2, LevelBlockFlipFlags.Horizontal, RoomCollisionType.VerticalExtension),
-            RoomLevelWord.Create(0x133 + frame * 2, LevelBlockFlipFlags.Horizontal, RoomCollisionType.Air),
+            RoomLevelWord.Create(0x134 + frame * 2, BlockMirroring.Horizontal, RoomCollisionType.VerticalExtension),
+            RoomLevelWord.Create(0x133 + frame * 2, BlockMirroring.Horizontal, RoomCollisionType.Air),
         ],
     ];
 
     /// <summary>A right damaged frame: the spiked core over its lower half, each beside an empty cell.</summary>
     private static RoomLevelWord[][] RightDamaged(int frame) =>
     [
-        [RoomLevelWord.Create(0x180 + frame, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SpikeBlock), Empty],
-        [RoomLevelWord.Create(0x1a0 + frame, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SpikeBlock), Empty],
+        [RoomLevelWord.Create(0x180 + frame, BlockMirroring.Horizontal, RoomCollisionType.SpikeBlock), Empty],
+        [RoomLevelWord.Create(0x1a0 + frame, BlockMirroring.Horizontal, RoomCollisionType.SpikeBlock), Empty],
     ];
 
     /// <summary>A left shield frame: the shootable core, the rim to its left, then the lower rim and core extension.</summary>
     private static RoomLevelWord[][] LeftShield(int frame) =>
     [
-        [RoomLevelWord.Create(0x114 + frame * 2, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock)],
-        [RoomLevelWord.Create(0x113 + frame * 2, LevelBlockFlipFlags.None, RoomCollisionType.Air)],
+        [RoomLevelWord.Create(0x114 + frame * 2, BlockMirroring.None, RoomCollisionType.ShootableBlock)],
+        [RoomLevelWord.Create(0x113 + frame * 2, BlockMirroring.None, RoomCollisionType.Air)],
         [
-            RoomLevelWord.Create(0x133 + frame * 2, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-            RoomLevelWord.Create(0x134 + frame * 2, LevelBlockFlipFlags.None, RoomCollisionType.VerticalExtension),
+            RoomLevelWord.Create(0x133 + frame * 2, BlockMirroring.None, RoomCollisionType.Air),
+            RoomLevelWord.Create(0x134 + frame * 2, BlockMirroring.None, RoomCollisionType.VerticalExtension),
         ],
     ];
 
     /// <summary>A left damaged frame: the spiked core, an empty cell to its left, then an empty cell and the lower half.</summary>
     private static RoomLevelWord[][] LeftDamaged(int frame) =>
     [
-        [RoomLevelWord.Create(0x180 + frame, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock)],
+        [RoomLevelWord.Create(0x180 + frame, BlockMirroring.None, RoomCollisionType.SpikeBlock)],
         [Empty],
-        [Empty, RoomLevelWord.Create(0x1a0 + frame, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock)],
+        [Empty, RoomLevelWord.Create(0x1a0 + frame, BlockMirroring.None, RoomCollisionType.SpikeBlock)],
     ];
 }

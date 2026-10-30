@@ -4,17 +4,24 @@ using SuperMetroid.Core.Rooms.Plms;
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>
-/// Lossless typed view of one room block's BTS byte. BTS has no single global enum:
-/// the collision nibble selects the routine that gives this byte its meaning. Callers
-/// must therefore use the context-specific views below instead of treating unrelated
-/// meanings that happen to share a numeric value as one domain.
+/// The behaviour parameter of one room block. It has no single global meaning: the block's collision kind selects the
+/// reaction that reads it. Callers therefore use the context-specific views below instead of treating unrelated meanings
+/// that happen to share a value as one domain. A block whose collision kind changes keeps its parameter, and the new kind
+/// reads it through its own view.
 /// </summary>
-/// <param name="Value">The unchanged block-type-specific BTS byte from the room's behavior data.</param>
+/// <param name="Value">The parameter, 0 through 255.</param>
 public readonly record struct RoomBlockBehavior(int Value)
 {
-    /// <summary>The unchanged block-type-specific BTS byte, 0 through 255.</summary>
-    [PackedFields("block BTS byte whose meaning the block type decodes")]
+    /// <summary>The parameter, 0 through 255; its kind-specific views below give it meaning.</summary>
+    [PackedFields("block behaviour parameter whose meaning the block's collision kind decodes")]
     public int Value { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, Value);
+
+    /// <summary>
+    /// The behaviour a downward gate's trigger block takes from its own picture: the low part of the trigger's block
+    /// number, so the trigger's picture also selects the gate's colour and side.
+    /// </summary>
+    /// <param name="trigger">What the trigger block shows.</param>
+    public static RoomBlockBehavior OfGateTrigger(RoomBlockAppearance trigger) => new(trigger.Block & byte.MaxValue);
 
     /// <summary>The low five bits: a slope's shape.</summary>
     private const int SlopeShapeBits = (1 << 5) - 1;
@@ -25,19 +32,19 @@ public readonly record struct RoomBlockBehavior(int Value)
     /// <summary>The low seven bits: an area or grapple reaction index.</summary>
     private const int LowSevenBits = HighBit - 1;
 
-    /// <summary>Signed block displacement used by horizontal and vertical extensions: the BTS byte read as signed, -128 through 127.</summary>
+    /// <summary>Signed block displacement used by horizontal and vertical extensions, -128 through 127.</summary>
     public int ExtensionOffset => unchecked((sbyte)Value);
 
-    /// <summary>Low-five-bit index into the bank-$94 slope-shape tables.</summary>
+    /// <summary>The slope's shape: the low five bits, an index into the slope-shape tables.</summary>
     public int SlopeShape => Value & SlopeShapeBits;
 
     /// <summary>Whether the slope selects the non-square height-table dispatcher.</summary>
     public bool IsNonSquareSlope => SlopeShape >= 5;
 
-    /// <summary>Horizontal reflection bit when this byte belongs to a slope block.</summary>
+    /// <summary>Whether a slope block's shape is reflected horizontally.</summary>
     public bool SlopeFlipsHorizontally => (Value & HorizontalFlipBit) != 0;
 
-    /// <summary>Vertical reflection bit when this byte belongs to a slope block.</summary>
+    /// <summary>Whether a slope block's shape is reflected vertically.</summary>
     public bool SlopeFlipsVertically => (Value & HighBit) != 0;
 
     /// <summary>Two-bit slope orientation/quadrant selector stored in bits six and seven.</summary>
@@ -51,7 +58,7 @@ public readonly record struct RoomBlockBehavior(int Value)
 
     /// <summary>
     /// The entry of the room's door list a door block selects: the low seven bits. Bit seven is not part of the index;
-    /// elevator and special-door bytes share the same seven-bit lookup.
+    /// elevator and special-door behaviours share the same seven-bit lookup.
     /// </summary>
     public int DoorListIndex => Value & LowSevenBits;
 
@@ -104,30 +111,30 @@ public readonly record struct RoomBlockBehavior(int Value)
         !UsesAreaReactionTable && Value is 10 or 11;
 
     /// <summary>
-    /// Shootable-table entry $10 selects header <c>$84:B974</c>. Bank $94 also publishes
-    /// its collision-result sentinel before spawning that one-frame no-op PLM.
+    /// Shootable-table entry 16: the collision probe that publishes its collision result before spawning a one-frame
+    /// object that does nothing.
     /// </summary>
     public bool IsShootableCollisionProbe => Value == RoomBlockBehaviorValues.ShootableCollisionProbe.Value;
 
-    /// <summary>$94:9EA6 entries $11..$3F and $4E point to the native nothing PLM.</summary>
+    /// <summary>Shootable-table entries 17 through 63 and 78 spawn the object that does nothing.</summary>
     public bool IsUnusedShootableReaction => Value is >= 17 and <= 63 or 78;
 
     /// <summary>Decodes the four contiguous blue-door cap values.</summary>
     public bool TryGetBlueDoorOrientation(out ColoredDoorOrientation orientation) =>
         RoomBlockBehaviorCodec.TryBlueDoorOrientation(this, out orientation);
 
-    /// <summary>Decodes a map, recharge, or save-station access byte.</summary>
+    /// <summary>Decodes a map, recharge, or save-station access behaviour.</summary>
     public bool TryGetStationAccess(out StationAccessBehavior access) =>
         RoomBlockBehaviorCodec.TryStationAccess(this, out access);
 
     /// <summary>
     /// Decodes the eight shootable-block values reserved for downward gate triggers.
-    /// These bytes overlap unrelated meanings in other collision families, so the caller
-    /// must first establish that the level word is a shootable block.
+    /// These values overlap unrelated meanings in other collision families, so the caller
+    /// must first establish that the block is a shootable block.
     /// </summary>
     public bool TryGetDownwardGateTrigger(out DownwardGateTriggerBehavior trigger) =>
         RoomBlockBehaviorCodec.TryDownwardGateTrigger(this, out trigger);
 
-    /// <summary>Formats the native BTS byte as a two-digit hexadecimal value.</summary>
+    /// <summary>Formats the parameter as a two-digit hexadecimal value.</summary>
     public override string ToString() => $"${Value:X2}";
 }

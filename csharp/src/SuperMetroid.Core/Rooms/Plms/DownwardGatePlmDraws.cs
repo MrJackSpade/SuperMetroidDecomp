@@ -117,15 +117,15 @@ internal static class DownwardGatePlmDraws
             if ((uint)word >= WordCount(run)) throw new ArgumentOutOfRangeException(nameof(word));
             if (Column)
                 return word == 0
-                    ? Word(Frame is 0 or 5 ? StationaryTopBlock : MovingTopBlock, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock)
-                    : Word(BodyBlock, LevelBlockFlipFlags.None, word <= Frame ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air);
-            if (run == 0 && word == 0) return Word(NeighbourBlock, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock);
-            return Word(TriggerFirstBlock - Frame, Right ? LevelBlockFlipFlags.Horizontal : LevelBlockFlipFlags.None,
+                    ? Word(Frame is 0 or 5 ? StationaryTopBlock : MovingTopBlock, BlockMirroring.None, RoomCollisionType.ShootableBlock)
+                    : Word(BodyBlock, BlockMirroring.None, word <= Frame ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air);
+            if (run == 0 && word == 0) return Word(NeighbourBlock, BlockMirroring.None, RoomCollisionType.SolidBlock);
+            return Word(TriggerFirstBlock - Frame, Right ? BlockMirroring.Horizontal : BlockMirroring.None,
                 RoomCollisionType.ShootableBlock);
         }
 
         /// <summary>The level word of one cell.</summary>
-        private static ushort Word(int block, LevelBlockFlipFlags flips, RoomCollisionType collision) =>
+        private static ushort Word(int block, BlockMirroring flips, RoomCollisionType collision) =>
             RoomLevelWord.Create(block, flips, collision).Raw;
     }
 }

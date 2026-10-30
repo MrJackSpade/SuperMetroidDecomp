@@ -4,194 +4,122 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>
-/// Decompressed native room allocation: BG1 level words, one-byte BTS metadata and BG2 level
-/// words. Each visual word names a whole 16x16 block by its index; how a block looks is its
-/// picture in the room tileset's block sheet (#1431), not part of the level data.
+/// A room's block grid (#1469): each foreground block's terrain (what it shows and how it collides) and behaviour, what
+/// each foreground block shows, and what each background block shows. How a block looks is its picture in the room
+/// tileset's block sheet (#1431), selected by its appearance. What lies past the grid is
+/// <see cref="TerrainBeyondRoom{TTerrain, TBehavior}"/>'s.
 /// </summary>
 /// <remarks>
-/// Bank $82 installs these planes together, but their consumers are different: bank $80
-/// expands the low visual bits for VRAM streaming while bank $94 reads BG1's high nibble
-/// and the parallel BTS byte for collision. Keeping one object prevents rendering and
-/// physics from quietly loading different room revisions or indexing conventions.
+/// Collision, room objects and the display read the same grid, so rendering and physics never see different revisions
+/// of a room. The foreground shows its terrain's appearance unless an installed layout or a room object's draw shows
+/// another picture over the same terrain.
 /// </remarks>
 [RoomLifetime]
 public sealed class RoomLevelData
 {
-    /// <summary>The solid word an out-of-room block reads as: the allocation is prefilled with solid air.</summary>
-    private static readonly ushort PrefilledSolidWord = new RoomLevelWord(0).WithCollisionType(RoomCollisionType.SolidBlock).Raw;
+    /// <summary>Each foreground block's terrain, row by row; collision and room objects read and change it.</summary>
+    internal readonly RoomTerrainBlock[] Terrain;
 
-    /// <summary>Mutable logical BG1 level words shared by terrain collision and room rendering.</summary>
-    private readonly ushort[] _foregroundEntries;
-    /// <summary>Parallel BTS bytes interpreted according to each BG1 word's collision nibble.</summary>
-    internal readonly byte[] BehaviorBytes;
-    /// <summary>Logical BG2 level words kept in the room's authored row-major dimensions.</summary>
-    internal readonly ushort[] BackgroundEntries;
-    /// <summary>Native-sized BG1 allocation, including the decompressed tail used by streaming.</summary>
-    internal readonly ushort[] StreamingForegroundAllocation;
-    /// <summary>Native-sized BG2 allocation, including its decompressed tail.</summary>
-    internal readonly ushort[] StreamingBackgroundAllocation;
-    /// <summary>Editable BG1 visual references kept separate from collision words.</summary>
-    internal readonly ushort[] VisualStreamingForegroundAllocation;
-    /// <summary>Editable BG2 visual references used by background streaming.</summary>
-    internal readonly ushort[] VisualStreamingBackgroundAllocation;
-    /// <summary>Bounded level-data storage for PLM writes outside the authored room plane.</summary>
-    internal readonly ushort[] PlmForegroundAllocation;
-    /// <summary>BTS storage paired with native PLM indices, including their bounded tail.</summary>
-    internal readonly byte[] PlmBehaviorAllocation;
-    /// <summary>The BG1 plane last published for display, until the next visual write; derived, never saved.</summary>
+    /// <summary>Each foreground block's behaviour, row by row; its terrain's collision kind gives it meaning.</summary>
+    internal readonly RoomBlockBehavior[] Behaviors;
+
+    /// <summary>What each foreground block shows, row by row: its terrain's appearance unless a layout or draw shows another.</summary>
+    internal readonly RoomBlockAppearance[] ShownForeground;
+
+    /// <summary>What each background block shows, row by row; nothing changes it after loading.</summary>
+    private readonly RoomBlockAppearance[] background;
+
+    /// <summary>The terrain past the grid, which room objects and probes past the room's last block reach.</summary>
+    internal readonly TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior> BeyondRoom;
+
+    /// <summary>The foreground plane last published for display, until the next visual write; derived, never saved.</summary>
     [field: NonSerialized]
     private RoomLevelPlane? PublishedForeground { get; set; }
 
-    /// <summary>Copies the logical BG1/BTS/BG2 planes into one mutable room allocation, retaining bounded native streaming tails and prefilled PLM storage; an installed layout changes only initial visual references.</summary>
+    /// <summary>Copies a room's grid; an installed layout changes only what the blocks initially show.</summary>
     /// <param name="size">Room size in 16-pixel blocks: the width is the row-major stride, 1..255, and the height is positive.</param>
-    /// <param name="planes">The logical BG1, BTS and BG2 planes, each exactly width times height entries in row-major order.</param>
-    /// <param name="streaming">Optional copied native BG1/BG2 allocations including decompressed overread tails; an empty allocation uses its logical plane, and a supplied allocation cannot be shorter.</param>
-    /// <param name="doors">Optional door list; null is suitable only for fixtures that never resolve a type-$9 door collision.</param>
-    /// <param name="visualLayout">Optional matching-sized initial BG1/BG2 artwork; collision words, BTS, and native allocation tails remain unchanged.</param>
+    /// <param name="planes">The foreground terrain, behaviour and background appearances, each exactly width times height entries in row-major order.</param>
+    /// <param name="doors">Optional door list; null is suitable only for fixtures that never resolve a door block.</param>
+    /// <param name="visualLayout">Optional matching-sized initial appearances of both planes; terrain, behaviours and the terrain beyond the room stay unchanged.</param>
+    /// <param name="beyondRoom">
+    /// The terrain past the grid, built for this room's lifetime from its installed level; a fixture that never reaches
+    /// past its grid leaves it out, and has none.
+    /// </param>
     /// <exception cref="ArgumentOutOfRangeException">Width is outside 1..255 or height is nonpositive.</exception>
-    /// <exception cref="ArgumentException">A logical plane or streaming allocation has an invalid size.</exception>
+    /// <exception cref="ArgumentException">A plane has the wrong size.</exception>
     /// <exception cref="InvalidDataException">The selected visual layout does not match the room dimensions.</exception>
-    /// <exception cref="OverflowException">The logical dimension product exceeds the signed 32-bit range.</exception>
     public RoomLevelData(
         Extent16<RoomBlocks> size,
         RoomLevelPlanes planes,
-        RoomLevelStreaming streaming = default,
         IReadOnlyList<DoorListEntry>? doors = null,
-        RoomLevelArtwork? visualLayout = null)
+        RoomLevelArtwork? visualLayout = null,
+        TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior>? beyondRoom = null)
     {
-        ReadOnlySpan<ushort> foregroundEntries = planes.Foreground;
-        ReadOnlySpan<byte> behaviorBytes = planes.Behavior;
-        ReadOnlySpan<ushort> backgroundEntries = planes.Background;
-        ReadOnlySpan<ushort> streamingForegroundAllocation = streaming.Foreground;
-        ReadOnlySpan<ushort> streamingBackgroundAllocation = streaming.Background;
         if (size.X is <= 0 or > byte.MaxValue)
             throw new ArgumentOutOfRangeException(nameof(size), "Room width must be 1..255 blocks.");
         if (size.Y <= 0)
             throw new ArgumentOutOfRangeException(nameof(size), "Room height must be positive.");
 
         int expectedBlocks = size.Area;
-        if (foregroundEntries.Length != expectedBlocks)
-            throw new ArgumentException("BG1 must contain exactly one word per room block.", nameof(planes));
-        if (behaviorBytes.Length != expectedBlocks)
-            throw new ArgumentException("BTS must contain exactly one byte per room block.", nameof(planes));
-        if (backgroundEntries.Length != expectedBlocks)
-            throw new ArgumentException("BG2 must contain exactly one word per room block.", nameof(planes));
+        if (planes.Foreground.Length != expectedBlocks)
+            throw new ArgumentException("The foreground must hold exactly one terrain block per room block.", nameof(planes));
+        if (planes.Behavior.Length != expectedBlocks)
+            throw new ArgumentException("The behaviours must hold exactly one behaviour per room block.", nameof(planes));
+        if (planes.Background.Length != expectedBlocks)
+            throw new ArgumentException("The background must hold exactly one appearance per room block.", nameof(planes));
 
         Size = size;
         Doors = doors;
-        _foregroundEntries = foregroundEntries.ToArray();
-        BehaviorBytes = behaviorBytes.ToArray();
-        BackgroundEntries = backgroundEntries.ToArray();
+        Terrain = planes.Foreground.ToArray();
+        Behaviors = planes.Behavior.ToArray();
+        beyondRoom ??= new TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior>(
+            [], 0, RoomTerrainBlocks.EdgeSolid, RoomBlockBehaviorValues.None);
+        BeyondRoom = beyondRoom;
 
-        // The cartridge's initial 17-column fill can read past logical BG1 into adjacent
-        // decompressed planes at the room's bottom edge. LandingSiteStreamingData supplies
-        // that complete native allocation. Synthetic/general callers default to logical
-        // BG1 only, which remains sufficient for in-bounds streaming and all collision.
-        StreamingForegroundAllocation = streamingForegroundAllocation.IsEmpty
-            ? _foregroundEntries.ToArray()
-            : streamingForegroundAllocation.ToArray();
-        if (StreamingForegroundAllocation.Length < expectedBlocks)
+        if (visualLayout is null)
         {
-            throw new ArgumentException(
-                "The streaming BG1 allocation cannot be shorter than logical BG1.",
-                nameof(streaming));
+            ShownForeground = [.. Terrain.Select(block => block.Appearance)];
+            background = planes.Background.ToArray();
+            return;
         }
-
-        // Room PLM coordinates are converted to a row-major native block index before
-        // their setup callback runs. Retail contains two deliberately off-room colored
-        // doors whose setup writes into the harmless prefilled tail of level_data. Keep a
-        // bounded image of that native allocation so those writes retain cartridge order
-        // without exposing adjacent host memory or weakening logical rendering/collision
-        // bounds. Copy the decompressed allocation because its tail is exactly what the
-        // cartridge would observe before the PLM population is constructed.
-        int plmAllocationLength = Math.Max(
-            RoomLevelMemoryLayout.PrefilledStreamingWordCount,
-            StreamingForegroundAllocation.Length);
-        PlmForegroundAllocation = new ushort[plmAllocationLength];
-        Array.Fill(PlmForegroundAllocation, RoomLevelMemoryLayout.PrefilledLevelWord);
-        StreamingForegroundAllocation.CopyTo(PlmForegroundAllocation, 0);
-        PlmBehaviorAllocation = new byte[plmAllocationLength];
-        BehaviorBytes.CopyTo(PlmBehaviorAllocation, 0);
-
-        // BG2 is copied to another region of the same pre-cleared WRAM allocation and can
-        // be overread by the same 17-column/row camera fill. Keep its logical plane exact
-        // for collision-independent inspection while giving bank $80 the native tail when
-        // a cartridge loader supplies it.
-        StreamingBackgroundAllocation = streamingBackgroundAllocation.IsEmpty
-            ? BackgroundEntries.ToArray()
-            : streamingBackgroundAllocation.ToArray();
-        if (StreamingBackgroundAllocation.Length < expectedBlocks)
-        {
-            throw new ArgumentException(
-                "The streaming BG2 allocation cannot be shorter than logical BG2.",
-                nameof(streaming));
-        }
-
-        // Collision and PLM scripts retain the unmodified native words. Only bank $80's
-        // visual producer sees an installed layout, and only in the authored room plane;
-        // native overread tails, BTS adjacency, and out-of-room prefill remain unchanged.
-        VisualStreamingForegroundAllocation = visualLayout is null
-            ? StreamingForegroundAllocation
-            : StreamingForegroundAllocation.ToArray();
-        VisualStreamingBackgroundAllocation = visualLayout is null
-            ? StreamingBackgroundAllocation
-            : StreamingBackgroundAllocation.ToArray();
-        if (visualLayout is not null)
-        {
-            if (visualLayout.Size != size)
-                throw new InvalidDataException("Installed room layout dimensions do not match the native allocation.");
-            for (int index = 0; index < expectedBlocks; index++)
-            {
-                VisualStreamingForegroundAllocation[index] =
-                    new RoomLevelWord(_foregroundEntries[index]).WithVisualWord(visualLayout.ForegroundVisualWords.Span[index]).Raw;
-                VisualStreamingBackgroundAllocation[index] =
-                    new RoomLevelWord(BackgroundEntries[index]).WithVisualWord(visualLayout.BackgroundVisualWords.Span[index]).Raw;
-            }
-        }
+        if (visualLayout.Size != size)
+            throw new InvalidDataException("Installed room layout dimensions do not match the room's grid.");
+        ShownForeground = visualLayout.Foreground.ToArray();
+        background = visualLayout.Background.ToArray();
     }
 
     /// <summary>
-    /// Logical room size in 16-pixel blocks. The width is native <c>room_width_in_blocks</c>, used as
-    /// every row's index stride; the height comes from the room header.
+    /// Room size in 16-pixel blocks. The width is every row's index stride; the height comes from the room's level, which
+    /// may hold more rows than the room's screens show.
     /// </summary>
     public Extent16<RoomBlocks> Size { get; }
 
     /// <summary>
-    /// The entries this room's type-$9 blocks select by index. Synthetic collision fixtures
-    /// deliberately leave it null; cartridge room loading always supplies it.
+    /// The entries this room's door blocks select by index. Synthetic collision fixtures deliberately leave it null;
+    /// room loading always supplies it.
     /// </summary>
     public IReadOnlyList<DoorListEntry>? Doors { get; }
 
-    /// <summary>
-    /// Door definition selected by the most recent native type-$9 collision, mirroring
-    /// the side effect on WRAM <c>door_def_ptr</c> made by <c>$94:938B/$93CE</c>.
-    /// </summary>
+    /// <summary>The door definition selected by the most recent door-block collision, until the transition consumes it.</summary>
     public DoorDefinition? PendingDoorTransition { get; internal set; }
 
     /// <summary>
-    /// Bank-$94 sets WRAM <c>elevator_flags</c> when a type-$9 block resolves to the special
-    /// low-bank pseudo destination. EnemyMain runs before Samus collision, so the runtime
-    /// consumes this publication at the beginning of the following gameplay frame.
+    /// Set when a door block resolves to the elevator's pseudo door for a standing pose. Enemies update before Samus's
+    /// collision, so the elevator consumes this publication at the beginning of the following gameplay frame.
     /// </summary>
     public bool ElevatorDoorContactPending { get; internal set; }
 
-    /// <summary>Read-only logical BG1 words, including collision type in bits 12–15.</summary>
-    public ReadOnlyMemory<ushort> ForegroundEntries => _foregroundEntries;
-
     /// <summary>
-    /// BG1 as the level data shows it (#1346). The same immutable plane is returned until a block write, so frames that
-    /// change nothing share it.
+    /// The foreground as the room shows it (#1346). The same immutable plane is returned until a block write, so frames
+    /// that change nothing share it.
     /// </summary>
-    public RoomLevelPlane ForegroundPlane => PublishedForeground ??= new(Size, VisualStreamingForegroundAllocation);
+    public RoomLevelPlane ForegroundPlane => PublishedForeground ??= new(Size, ShownForeground);
 
-    /// <summary>The layer-2 plane as the level data shows it; nothing writes BG2's visual words after loading, so it is built once.</summary>
+    /// <summary>The background plane as the room shows it; nothing changes the background after loading, so it is built once.</summary>
     [field: NonSerialized]
-    public RoomLevelPlane BackgroundPlane => field ??= new(Size, VisualStreamingBackgroundAllocation);
+    public RoomLevelPlane BackgroundPlane => field ??= new(Size, background);
 
-    /// <summary>
-    /// Converts a 16-pixel block coordinate using the same row-major multiplication as
-    /// bank $94. Invalid coordinates fail loudly instead of wrapping into unrelated WRAM.
-    /// </summary>
+    /// <summary>Converts a block coordinate to its row-major index. Coordinates outside the room fail loudly.</summary>
     public int GetBlockIndex(Position16<RoomBlocks> block)
     {
         if (block.X >= (uint)Size.X)
@@ -202,113 +130,99 @@ public sealed class RoomLevelData
     }
 
     /// <summary>
-    /// Reproduces <c>Spawn_Room_PLM</c>'s unchecked byte-coordinate multiplication while
-    /// bounding the result to the translated image of bank-$7F level memory.
+    /// The row-major index of a room object's block, without the room's width or height bounds: a column past the
+    /// width runs into the next row, and a row past the height lands in the terrain beyond the room.
     /// </summary>
     /// <remarks>
-    /// This is intentionally distinct from <see cref="GetBlockIndex"/>. A PLM setup that
-    /// requires a logical room block must still use the strict API and fail at that actual
-    /// consumption point. Native-memory setup and draw operations may use the bounded PLM
-    /// allocation, matching the two shipped off-room colored-door records safely.
+    /// This is intentionally distinct from <see cref="GetBlockIndex"/>. A room object that requires a block of the grid
+    /// still uses the strict index and fails at that point; setup and draws reach the terrain beyond the room through
+    /// this one, as the two shipped off-room coloured doors do.
     /// </remarks>
+    /// <exception cref="ArgumentOutOfRangeException">A coordinate is negative, or the block lies past the terrain beyond the room.</exception>
     internal int GetPlmBlockIndex(Position16<RoomBlocks> block)
     {
         if (block.X < 0 || block.Y < 0)
             throw new ArgumentOutOfRangeException(nameof(block), $"PLM block {block} has a negative coordinate.");
         int blockIndex = checked(block.Y * Size.X + block.X);
-        if ((uint)blockIndex >= (uint)PlmForegroundAllocation.Length)
+        if ((uint)blockIndex >= (uint)(Terrain.Length + BeyondRoom.Count))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(block),
-                $"PLM block ({block.X},{block.Y}) resolves to native index {blockIndex}, " +
-                $"outside the {PlmForegroundAllocation.Length}-word safe level allocation.");
+                $"PLM block ({block.X},{block.Y}) resolves to index {blockIndex}, past the room's " +
+                $"{Terrain.Length}-block grid and the {BeyondRoom.Count} blocks beyond it.");
         }
 
         return blockIndex;
     }
 
-    /// <summary>
-    /// Reads a level word past the authored plane from the native level allocation: the
-    /// rest of the decompressed BTS/BG2 stream, then the <c>$82:EA73</c> $8000 prefill,
-    /// including any PLM writes there. Indices past the allocation are unbounded memory.
-    /// </summary>
-    internal ushort ReadAllocationTailLevelWord(int blockIndex)
+    /// <summary>A block past the room's grid, as a room object or enemy terrain read finds it.</summary>
+    /// <param name="blockIndex">A row-major index past the grid.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The index is inside the grid.</exception>
+    /// <exception cref="NotSupportedException">The index is past the terrain beyond the room.</exception>
+    internal RoomCollisionBlock GetBlockBeyondRoom(int blockIndex)
     {
         if (IsLogicalBlockIndex(blockIndex))
-            throw new ArgumentOutOfRangeException(nameof(blockIndex), "The index is inside the authored room plane.");
-        if ((uint)blockIndex >= (uint)PlmForegroundAllocation.Length)
+            throw new ArgumentOutOfRangeException(nameof(blockIndex), "The index is inside the room's grid.");
+        int beyond = blockIndex - Terrain.Length;
+        if (beyond < 0 || beyond >= BeyondRoom.Count)
         {
             throw new NotSupportedException(
-                $"Native block {blockIndex} lies past the {PlmForegroundAllocation.Length}-word level allocation.");
+                $"Block {blockIndex} lies past the room's grid and the {BeyondRoom.Count} blocks beyond it.");
         }
-        return PlmForegroundAllocation[blockIndex];
+        return new RoomCollisionBlock(blockIndex, BeyondRoom.TerrainAt(beyond), BeyondRoom.BehaviorAt(beyond));
     }
 
-    /// <summary>Whether a native PLM block index belongs to the authored logical plane.</summary>
+    /// <summary>Whether a room object's block index belongs to the room's grid.</summary>
     internal bool IsLogicalBlockIndex(int blockIndex) =>
-        (uint)blockIndex < (uint)_foregroundEntries.Length;
+        (uint)blockIndex < (uint)Terrain.Length;
 
-    /// <summary>Reads a block through the bounded level/BTS allocation used by PLM code.</summary>
+    /// <summary>Reads a room object's block, inside the grid or in the terrain beyond the room.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The block is past the terrain beyond the room.</exception>
     internal RoomCollisionBlock GetPlmCollisionBlockByIndex(int blockIndex)
     {
-        if ((uint)blockIndex >= (uint)PlmForegroundAllocation.Length)
-            throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return new RoomCollisionBlock(
-            blockIndex,
-            PlmForegroundAllocation[blockIndex],
-            new RoomBlockBehavior(PlmBehaviorAllocation[blockIndex]));
+        if (IsLogicalBlockIndex(blockIndex))
+            return GetCollisionBlockByIndex(blockIndex);
+        int beyond = BeyondIndex(blockIndex);
+        return new RoomCollisionBlock(blockIndex, BeyondRoom.TerrainAt(beyond), BeyondRoom.BehaviorAt(beyond));
     }
 
     /// <summary>
-    /// Applies a bank-$84 level-data write inside the bounded native PLM allocation.
-    /// Logical writes remain visible to collision and streaming; tail writes remain safely
-    /// isolated just as their cartridge addresses remain outside the authored room.
+    /// A room object's terrain write, showing the terrain's own picture. Writes inside the grid reach collision and the
+    /// display; writes past it persist in the terrain beyond the room.
     /// </summary>
-    internal void SetPlmForegroundEntry(int blockIndex, int levelWord)
-        => SetPlmForegroundEntry(blockIndex, levelWord,
-            RoomLevelWord.FromRaw(levelWord).VisualWord);
+    internal void SetPlmTerrain(int blockIndex, RoomTerrainBlock block) =>
+        SetPlmTerrain(blockIndex, block, block.Appearance);
 
     /// <summary>
-    /// Applies a native PLM word to collision while selecting an independent visual
-    /// block reference for BG1. The visual operand may not set a collision bit.
+    /// A room object's terrain write that shows <paramref name="shown"/> over the terrain instead of the terrain's own
+    /// picture. Past the grid nothing is shown, so only the terrain persists.
     /// </summary>
-    internal void SetPlmForegroundEntry(int blockIndex, int levelWord, int visualWord)
+    internal void SetPlmTerrain(int blockIndex, RoomTerrainBlock block, RoomBlockAppearance shown)
     {
-        if ((uint)blockIndex >= (uint)PlmForegroundAllocation.Length)
-            throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        if (!RoomLevelWord.IsValidVisualWord(visualWord))
-            throw new ArgumentOutOfRangeException(nameof(visualWord));
-
-        RoomLevelWord word = RoomLevelWord.FromRaw(levelWord);
-        PlmForegroundAllocation[blockIndex] = word.Raw;
         if (!IsLogicalBlockIndex(blockIndex))
+        {
+            BeyondRoom.SetTerrain(BeyondIndex(blockIndex), block);
             return;
+        }
 
-        _foregroundEntries[blockIndex] = word.Raw;
-        if (blockIndex < StreamingForegroundAllocation.Length)
-            StreamingForegroundAllocation[blockIndex] = word.Raw;
-        if (blockIndex < VisualStreamingForegroundAllocation.Length)
-            VisualStreamingForegroundAllocation[blockIndex] = word.WithVisualWord(visualWord).Raw;
+        Terrain[blockIndex] = block;
+        ShownForeground[blockIndex] = shown;
         PublishedForeground = null;
     }
 
-    /// <summary>Applies a bank-$84 BTS write, one byte (0 through 255), through the bounded native PLM allocation.</summary>
-    internal void SetPlmBehavior(int blockIndex, int behavior)
+    /// <summary>A room object's behaviour write, inside the grid or in the terrain beyond the room.</summary>
+    internal void SetPlmBehavior(int blockIndex, RoomBlockBehavior behavior)
     {
-        if ((uint)blockIndex >= (uint)PlmBehaviorAllocation.Length)
-            throw new ArgumentOutOfRangeException(nameof(blockIndex));
+        if (!IsLogicalBlockIndex(blockIndex))
+        {
+            BeyondRoom.SetBehavior(BeyondIndex(blockIndex), behavior);
+            return;
+        }
 
-        Ensure.BetweenInclusive(0, byte.MaxValue, behavior);
-        PlmBehaviorAllocation[blockIndex] = (byte)behavior;
-        if (IsLogicalBlockIndex(blockIndex))
-            BehaviorBytes[blockIndex] = (byte)behavior;
+        Behaviors[blockIndex] = behavior;
     }
 
-    /// <summary>Typed overload for a bounded native PLM BTS write.</summary>
-    internal void SetPlmBehavior(int blockIndex, RoomBlockBehavior behavior) =>
-        SetPlmBehavior(blockIndex, behavior.ToBtsByte());
-
-    /// <summary>Returns both collision inputs consumed for one block by bank $94.</summary>
+    /// <summary>Returns the terrain and behaviour collision reads for one block of the grid.</summary>
     public RoomCollisionBlock GetCollisionBlock(Position16<RoomBlocks> block)
     {
         int index = GetBlockIndex(block);
@@ -316,70 +230,34 @@ public sealed class RoomLevelData
     }
 
     /// <summary>
-    /// Reads the logical room block or reproduces bank <c>$82</c>'s prefilled collision
-    /// allocation when a bank-<c>$94</c> scan crosses the authored room boundary.
+    /// Reads a block of the grid, or the edge-solid block when a collision probe asks about a position outside the
+    /// room's width or height (<see cref="TerrainBeyondRoom{TTerrain, TBehavior}.EdgeSolid"/>).
     /// </summary>
-    /// <remarks>
-    /// <c>$82:EA73-$EA90</c> fills the complete <c>$6400</c>-byte level-data allocation
-    /// with <c>$8000</c> before decompressing the smaller logical room plane. Native
-    /// collision code indexes that allocation without a logical-width/height guard, so
-    /// nearby out-of-room probes encounter an unconditional type-eight solid. Rendering
-    /// and streaming remain logical-sized; collision callers share this seam instead of
-    /// independently fabricating wrapping or empty terrain.
-    /// </remarks>
-    internal RoomCollisionBlock GetCollisionBlockOrPrefilledSolid(Position16<RoomBlocks> block)
-    {
-        if (!Size.Contains(block))
-        {
-            return new RoomCollisionBlock(
-                Index: -1,
-                PackedWord: PrefilledSolidWord,
-                Bts: new RoomBlockBehavior(0));
-        }
-
-        return GetCollisionBlock(block);
-    }
+    internal RoomCollisionBlock GetCollisionBlockOrEdgeSolid(Position16<RoomBlocks> block) =>
+        Size.Contains(block) ? GetCollisionBlock(block) : EdgeSolid();
 
     /// <summary>
-    /// Applies the same prefilled-allocation rule after a collision extension has already
-    /// reduced its target to a native row-major index.
+    /// Applies the same edge rule after a collision extension has already reduced its target to a row-major index.
     /// </summary>
-    internal RoomCollisionBlock GetCollisionBlockByIndexOrPrefilledSolid(int blockIndex)
-    {
-        if ((uint)blockIndex >= (uint)_foregroundEntries.Length)
-        {
-            return new RoomCollisionBlock(
-                Index: -1,
-                PackedWord: PrefilledSolidWord,
-                Bts: new RoomBlockBehavior(0));
-        }
+    internal RoomCollisionBlock GetCollisionBlockByIndexOrEdgeSolid(int blockIndex) =>
+        IsLogicalBlockIndex(blockIndex) ? GetCollisionBlockByIndex(blockIndex) : EdgeSolid();
 
-        return GetCollisionBlockByIndex(blockIndex);
-    }
-
-    /// <summary>
-    /// Reads a native row-major index after bank-$94 type-$5/$D extension arithmetic.
-    /// </summary>
+    /// <summary>Reads a block of the grid by its row-major index, as collision extensions reach it.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the grid.</exception>
     public RoomCollisionBlock GetCollisionBlockByIndex(int blockIndex)
     {
-        if ((uint)blockIndex >= (uint)_foregroundEntries.Length)
+        if (!IsLogicalBlockIndex(blockIndex))
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return new RoomCollisionBlock(
-            blockIndex,
-            _foregroundEntries[blockIndex],
-            new RoomBlockBehavior(BehaviorBytes[blockIndex]));
+        return new RoomCollisionBlock(blockIndex, Terrain[blockIndex], Behaviors[blockIndex]);
     }
 
-    /// <summary>
-    /// Converts unsigned room-world pixels to a block coordinate exactly as the native
-    /// <c>LSR ×4</c>/<c>&gt;&gt; 4</c> collision paths do.
-    /// </summary>
+    /// <summary>Reads the block containing a room pixel: sixteen pixels to a block.</summary>
     public RoomCollisionBlock GetCollisionBlockAtPixel(Position16<RoomPixels> position) =>
         GetCollisionBlock(position.ToRoomBlock());
 
     /// <summary>
-    /// Resolves a type-$9 BTS byte through the active room's door list exactly as bank $94
-    /// does, then publishes the normal-door transition request for the top-level dispatcher.
+    /// Resolves a door block's behaviour through the active room's door list, then publishes the normal-door transition
+    /// request for the top-level dispatcher.
     /// </summary>
     public DoorListEntry ResolveDoorCollision(
         int behavior,
@@ -388,37 +266,34 @@ public sealed class RoomLevelData
     {
         if (Doors is not { } doors)
         {
-            // Every cartridge-backed room header supplies this pointer. Its nullable form
-            // exists only so focused synthetic collision fixtures need not fabricate bank-
-            // $8F metadata when they contain no type-$9 blocks. Reaching a door in such a
+            // Every installed room supplies its door list. Its nullable form exists only so focused synthetic collision
+            // fixtures need not fabricate door metadata when they contain no door blocks. Reaching a door in such a
             // fixture is therefore an invalid host composition, not missing door behavior.
             throw new InvalidOperationException(
-                "Door collision requires cartridge room metadata; this level has no door list.");
+                "Door collision requires the room's door list; this level has none.");
         }
 
-        // Elevator and special-door bytes share the door list lookup before the destination
+        // Elevator and special-door behaviours share the door list lookup before the destination
         // decides whether collision is solid or starts the door transition.
         int index = new RoomBlockBehavior(behavior).DoorListIndex;
         if (index >= doors.Count)
             throw new InvalidDataException($"Door index {index} is outside the room's {doors.Count}-entry door list.");
         DoorListEntry entry = doors[index];
-        // The native door handler normally publishes either a real transition or the
-        // elevator-contact flag. The desktop runtime collapses the outer transition states
-        // into one room-load call, however, so destination-side elevator return scans must
-        // inspect the same type-$9 block without republishing either side effect. Keep the
-        // door lookup and solid/passable classification intact while gating only the writes.
+        // The door handler normally publishes either a real transition or the elevator-contact flag. The runtime
+        // collapses the outer transition states into one room-load call, however, so destination-side elevator return
+        // scans must inspect the same door block without republishing either side effect. Keep the door lookup and
+        // solid/passable classification intact while gating only the writes.
         if (publishDoorSideEffects && entry.Door is { } door)
             PendingDoorTransition ??= door;
-        // `$94:938B/$94:93CE` treat the pseudo destination as solid for every pose, but
-        // publish elevator_flags only while samus_pose is below $09. This prevents running,
-        // aerial, morph, and damage poses that merely brush the block from arming the actor.
+        // The pseudo destination is solid for every pose, but publishes the elevator contact only for standing poses.
+        // This prevents running, aerial, morph, and damage poses that merely brush the block from arming the actor.
         else if (publishDoorSideEffects && entry.IsElevatorPseudoDoor &&
                  samusPose is SamusCollisionPose.StandingNormal or SamusCollisionPose.StandingOther)
             ElevatorDoorContactPending = true;
         return entry;
     }
 
-    /// <summary>Consumes the native-equivalent <c>door_def_ptr</c> publication once.</summary>
+    /// <summary>Consumes the pending door transition once.</summary>
     public DoorDefinition? ConsumePendingDoorTransition()
     {
         DoorDefinition? pending = PendingDoorTransition;
@@ -435,48 +310,37 @@ public sealed class RoomLevelData
     }
 
     /// <summary>
-    /// Replaces one complete native <c>level_data</c> word and keeps the bank-$80
-    /// streaming allocation coherent with the collision plane.
+    /// Replaces one foreground block's terrain, collision kind and picture together, and shows its picture.
     /// </summary>
     /// <remarks>
-    /// Bank-$84 PLM draw instructions write the full word, including the collision nibble,
-    /// visual block number, and parent flip bits. A narrower "change the graphic" helper
-    /// would be incorrect here: breakable grapple frames intentionally alternate between
-    /// type-$E grapple terrain and type-$0 air.
+    /// Room-object draws write the whole block: breakable grapple frames alternate between grapple terrain and air, so
+    /// a narrower "change the picture" helper would be incorrect here.
     /// </remarks>
-    public void SetForegroundEntry(int blockIndex, int levelWord)
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the grid.</exception>
+    public void SetTerrain(int blockIndex, RoomTerrainBlock block)
     {
-        if ((uint)blockIndex >= (uint)_foregroundEntries.Length)
+        if (!IsLogicalBlockIndex(blockIndex))
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-
-        RoomLevelWord word = RoomLevelWord.FromRaw(levelWord);
-        _foregroundEntries[blockIndex] = word.Raw;
-        PlmForegroundAllocation[blockIndex] = word.Raw;
-        if (blockIndex < StreamingForegroundAllocation.Length)
-            StreamingForegroundAllocation[blockIndex] = word.Raw;
-        if (blockIndex < VisualStreamingForegroundAllocation.Length)
-            VisualStreamingForegroundAllocation[blockIndex] = word.Raw;
+        Terrain[blockIndex] = block;
+        ShownForeground[blockIndex] = block.Appearance;
         PublishedForeground = null;
     }
 
-    /// <summary>
-    /// Replaces the low BTS byte paired with one level-data block.
-    /// </summary>
-    /// <remarks>
-    /// The cartridge stores BTS bytes in a word-addressable allocation and preserves the
-    /// neighboring high byte with <c>AND #$FF00</c>. This model already exposes each logical
-    /// low byte separately, so assigning this element is the equivalent operation.
-    /// </remarks>
-    public void SetBehavior(int blockIndex, int behavior)
+    /// <summary>Replaces the behaviour of one foreground block.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the grid.</exception>
+    public void SetBehavior(int blockIndex, RoomBlockBehavior behavior)
     {
-        if ((uint)blockIndex >= (uint)BehaviorBytes.Length)
+        if (!IsLogicalBlockIndex(blockIndex))
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        Ensure.BetweenInclusive(0, byte.MaxValue, behavior);
-        BehaviorBytes[blockIndex] = (byte)behavior;
-        PlmBehaviorAllocation[blockIndex] = (byte)behavior;
+        Behaviors[blockIndex] = behavior;
     }
 
-    /// <summary>Writes a typed BTS value while retaining the byte-exact room format.</summary>
-    public void SetBehavior(int blockIndex, RoomBlockBehavior behavior) =>
-        SetBehavior(blockIndex, behavior.ToBtsByte());
+    /// <summary>The block a collision probe outside the room reads.</summary>
+    private RoomCollisionBlock EdgeSolid() => new(Index: -1, BeyondRoom.EdgeSolid, BeyondRoom.NoBehavior);
+
+    /// <summary>A row-major index past the grid, counted from the first block past it.</summary>
+    private int BeyondIndex(int blockIndex) =>
+        blockIndex >= Terrain.Length
+            ? blockIndex - Terrain.Length
+            : throw new ArgumentOutOfRangeException(nameof(blockIndex), blockIndex, "A room object's block index is negative.");
 }

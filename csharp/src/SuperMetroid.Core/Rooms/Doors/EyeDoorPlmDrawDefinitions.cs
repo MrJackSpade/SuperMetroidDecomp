@@ -37,115 +37,115 @@ internal static class EyeDoorPlmDrawDefinitions
         {
             [new EyeDoorDraws.Draw(EyeDoorDraws.Component.Clear, 0, Left: true)] =
             [
-                RoomLevelWord.Create(0xaa, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0xcc, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0xcc, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0xaa, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0xaa, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0xcc, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0xcc, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0xaa, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
             ],
             [new EyeDoorDraws.Draw(EyeDoorDraws.Component.Eye, 0, Left: true)] =
             [
-                RoomLevelWord.Create(0xcc, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0xcc, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0xcc, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0xcc, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
             ],
             [new EyeDoorDraws.Draw(EyeDoorDraws.Component.Eye, 1, Left: true)] =
             [
-                RoomLevelWord.Create(0xcb, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0xcb, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0xcb, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0xcb, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
             ],
             [new EyeDoorDraws.Draw(EyeDoorDraws.Component.Eye, 2, Left: true)] =
             [
-                RoomLevelWord.Create(0xca, LevelBlockFlipFlags.Horizontal, RoomCollisionType.ShootableBlock),
-                RoomLevelWord.Create(0xca, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.VerticalExtension),
+                RoomLevelWord.Create(0xca, BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock),
+                RoomLevelWord.Create(0xca, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.VerticalExtension),
             ],
             [new EyeDoorDraws.Draw(EyeDoorDraws.Component.Eye, 3, Left: true)] =
             [
-                RoomLevelWord.Create(0xcd, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0xcd, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0xcd, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0xcd, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
             ],
             [new EyeDoorDraws.Draw(EyeDoorDraws.Component.Eye, 4, Left: true)] =
             [
-                RoomLevelWord.Create(0xca, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0xca, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0xca, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0xca, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
             ],
             [new EyeDoorDraws.Draw(EyeDoorDraws.Component.Middle, 0, Left: true)] =
             [
-                RoomLevelWord.Create(0xaa, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SpikeBlock),
+                RoomLevelWord.Create(0xaa, BlockMirroring.Horizontal, RoomCollisionType.SpikeBlock),
             ],
             [new EyeDoorDraws.Draw(EyeDoorDraws.Component.Middle, 1, Left: true)] =
             [
-                RoomLevelWord.Create(0xab, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SpikeBlock),
+                RoomLevelWord.Create(0xab, BlockMirroring.Horizontal, RoomCollisionType.SpikeBlock),
             ],
             [new EyeDoorDraws.Draw(EyeDoorDraws.Component.Middle, 2, Left: true)] =
             [
-                RoomLevelWord.Create(0xac, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SpikeBlock),
+                RoomLevelWord.Create(0xac, BlockMirroring.Horizontal, RoomCollisionType.SpikeBlock),
             ],
             [new EyeDoorDraws.Draw(EyeDoorDraws.Component.Bottom, 0, Left: true)] =
             [
-                RoomLevelWord.Create(0xaa, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SpikeBlock),
+                RoomLevelWord.Create(0xaa, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SpikeBlock),
             ],
             [new EyeDoorDraws.Draw(EyeDoorDraws.Component.Bottom, 1, Left: true)] =
             [
-                RoomLevelWord.Create(0xab, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SpikeBlock),
+                RoomLevelWord.Create(0xab, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SpikeBlock),
             ],
             [new EyeDoorDraws.Draw(EyeDoorDraws.Component.Bottom, 2, Left: true)] =
             [
-                RoomLevelWord.Create(0xac, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SpikeBlock),
+                RoomLevelWord.Create(0xac, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SpikeBlock),
             ],
             [new EyeDoorDraws.Draw(EyeDoorDraws.Component.Clear, 0, Left: false)] =
             [
-                RoomLevelWord.Create(0xaa, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0xcc, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0xcc, LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0xaa, LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0xaa, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0xcc, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0xcc, BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0xaa, BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
             ],
             [new EyeDoorDraws.Draw(EyeDoorDraws.Component.Eye, 0, Left: false)] =
             [
-                RoomLevelWord.Create(0xcc, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0xcc, LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0xcc, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0xcc, BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
             ],
             [new EyeDoorDraws.Draw(EyeDoorDraws.Component.Eye, 1, Left: false)] =
             [
-                RoomLevelWord.Create(0xcb, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0xcb, LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0xcb, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0xcb, BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
             ],
             [new EyeDoorDraws.Draw(EyeDoorDraws.Component.Eye, 2, Left: false)] =
             [
-                RoomLevelWord.Create(0xca, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock),
-                RoomLevelWord.Create(0xca, LevelBlockFlipFlags.Vertical, RoomCollisionType.VerticalExtension),
+                RoomLevelWord.Create(0xca, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+                RoomLevelWord.Create(0xca, BlockMirroring.Vertical, RoomCollisionType.VerticalExtension),
             ],
             [new EyeDoorDraws.Draw(EyeDoorDraws.Component.Eye, 3, Left: false)] =
             [
-                RoomLevelWord.Create(0xcd, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0xcd, LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0xcd, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0xcd, BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
             ],
             [new EyeDoorDraws.Draw(EyeDoorDraws.Component.Eye, 4, Left: false)] =
             [
-                RoomLevelWord.Create(0xca, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0xca, LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0xca, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0xca, BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
             ],
             [new EyeDoorDraws.Draw(EyeDoorDraws.Component.Middle, 0, Left: false)] =
             [
-                RoomLevelWord.Create(0xaa, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock),
+                RoomLevelWord.Create(0xaa, BlockMirroring.None, RoomCollisionType.SpikeBlock),
             ],
             [new EyeDoorDraws.Draw(EyeDoorDraws.Component.Middle, 1, Left: false)] =
             [
-                RoomLevelWord.Create(0xab, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock),
+                RoomLevelWord.Create(0xab, BlockMirroring.None, RoomCollisionType.SpikeBlock),
             ],
             [new EyeDoorDraws.Draw(EyeDoorDraws.Component.Middle, 2, Left: false)] =
             [
-                RoomLevelWord.Create(0xac, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock),
+                RoomLevelWord.Create(0xac, BlockMirroring.None, RoomCollisionType.SpikeBlock),
             ],
             [new EyeDoorDraws.Draw(EyeDoorDraws.Component.Bottom, 0, Left: false)] =
             [
-                RoomLevelWord.Create(0xaa, LevelBlockFlipFlags.Vertical, RoomCollisionType.SpikeBlock),
+                RoomLevelWord.Create(0xaa, BlockMirroring.Vertical, RoomCollisionType.SpikeBlock),
             ],
             [new EyeDoorDraws.Draw(EyeDoorDraws.Component.Bottom, 1, Left: false)] =
             [
-                RoomLevelWord.Create(0xab, LevelBlockFlipFlags.Vertical, RoomCollisionType.SpikeBlock),
+                RoomLevelWord.Create(0xab, BlockMirroring.Vertical, RoomCollisionType.SpikeBlock),
             ],
             [new EyeDoorDraws.Draw(EyeDoorDraws.Component.Bottom, 2, Left: false)] =
             [
-                RoomLevelWord.Create(0xac, LevelBlockFlipFlags.Vertical, RoomCollisionType.SpikeBlock),
+                RoomLevelWord.Create(0xac, BlockMirroring.Vertical, RoomCollisionType.SpikeBlock),
             ],
         };
 }

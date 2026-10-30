@@ -164,7 +164,7 @@ internal static class StationPlmDraws
         private protected abstract ushort Word(int run, int cell);
 
         /// <summary>Builds one native level word from its collision type, flip bits and tile.</summary>
-        private protected static ushort LevelWord(RoomCollisionType collision, LevelBlockFlipFlags flips, int block) =>
+        private protected static ushort LevelWord(RoomCollisionType collision, BlockMirroring flips, int block) =>
             RoomLevelWord.Create(block, flips, collision).Raw;
 
         /// <summary>Rejects a run outside this layout's native command count.</summary>
@@ -187,7 +187,7 @@ internal static class StationPlmDraws
 
         /// <inheritdoc/>
         private protected override ushort Word(int run, int cell) =>
-            LevelWord(RoomCollisionType.SolidBlock, LevelBlockFlipFlags.None, MapFirstBlock + Frame * 32 - run);
+            LevelWord(RoomCollisionType.SolidBlock, BlockMirroring.None, MapFirstBlock + Frame * 32 - run);
     }
 
     /// <summary>
@@ -209,7 +209,7 @@ internal static class StationPlmDraws
 
         /// <inheritdoc/>
         private protected override ushort Word(int run, int cell) =>
-            LevelWord(run == 0 ? RoomCollisionType.SolidBlock : RoomCollisionType.Slope, LevelBlockFlipFlags.None, FirstTile + Frame - run * 32);
+            LevelWord(run == 0 ? RoomCollisionType.SolidBlock : RoomCollisionType.Slope, BlockMirroring.None, FirstTile + Frame - run * 32);
     }
 
     /// <summary>
@@ -233,8 +233,8 @@ internal static class StationPlmDraws
         {
             bool shaft = run is > 0 and < 5;
             int tile = (shaft ? SaveShaftBlock : SavePodBlock) + (Id == StationDraw.SaveActive ? 1 : 0);
-            LevelBlockFlipFlags flips = (cell == 1 ? LevelBlockFlipFlags.Horizontal : LevelBlockFlipFlags.None) |
-                (run == 0 ? LevelBlockFlipFlags.Vertical : LevelBlockFlipFlags.None);
+            BlockMirroring flips = (cell == 1 ? BlockMirroring.Horizontal : BlockMirroring.None) |
+                (run == 0 ? BlockMirroring.Vertical : BlockMirroring.None);
             RoomCollisionType collision = shaft ? RoomCollisionType.Air
                 : Id == StationDraw.SaveIdle && run == 0 && cell == 0 ? RoomCollisionType.SpecialBlock : RoomCollisionType.SolidBlock;
             return LevelWord(collision, flips, tile);
@@ -257,7 +257,7 @@ internal static class StationPlmDraws
         /// <inheritdoc/>
         private protected override ushort Word(int run, int cell) =>
             LevelWord(RoomCollisionType.SolidBlock,
-                (Side == HorizontalDirection.Left ^ run != 0) ? LevelBlockFlipFlags.Horizontal : LevelBlockFlipFlags.None,
+                (Side == HorizontalDirection.Left ^ run != 0) ? BlockMirroring.Horizontal : BlockMirroring.None,
                 Pose == StationAccessPose.Extended ? MapAccessExtendedBlock : MapAccessRetractedBlock);
     }
 
@@ -277,7 +277,7 @@ internal static class StationPlmDraws
         {
             bool extended = Pose == StationAccessPose.Extended;
             return LevelWord(extended ? RoomCollisionType.SolidBlock : RoomCollisionType.SpecialBlock,
-                Side == HorizontalDirection.Left ? LevelBlockFlipFlags.None : LevelBlockFlipFlags.Horizontal,
+                Side == HorizontalDirection.Left ? BlockMirroring.None : BlockMirroring.Horizontal,
                 extended ? ResourceAccessExtendedBlock : ResourceAccessRetractedBlock);
         }
     }

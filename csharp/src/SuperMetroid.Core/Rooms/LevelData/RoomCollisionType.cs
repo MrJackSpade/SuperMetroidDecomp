@@ -1,42 +1,42 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>
-/// Complete high-nibble dispatch values in one native room level-data word. The names
-/// follow the sixteen-entry bank-$94 collision jump tables rather than describing only
-/// the subset currently translated by a particular caller.
+/// How a room block collides. The kinds are the game's sixteen collision families, named whether or not a particular
+/// caller handles them. The values are arbitrary: compare kinds by name, and ask families through
+/// <see cref="RoomCollisionTypeExtensions"/>, never by ordering.
 /// </summary>
 public enum RoomCollisionType
 {
-    /// <summary>Empty air handled by dispatcher entry zero.</summary>
-    Air = 0x0,
-    /// <summary>Slope collision whose geometry is selected by BTS.</summary>
-    Slope = 0x1,
+    /// <summary>Empty air; the default kind.</summary>
+    Air,
+    /// <summary>Slope collision whose geometry the block's behaviour selects.</summary>
+    Slope,
     /// <summary>Non-solid spike-air behavior.</summary>
-    SpikeAir = 0x2,
-    /// <summary>Special non-solid air behavior selected by BTS.</summary>
-    SpecialAir = 0x3,
+    SpikeAir,
+    /// <summary>Special non-solid air whose reaction the block's behaviour selects.</summary>
+    SpecialAir,
     /// <summary>Non-solid shootable-air behavior.</summary>
-    ShootableAir = 0x4,
-    /// <summary>Horizontal extension whose BTS displacement resolves another block.</summary>
-    HorizontalExtension = 0x5,
-    /// <summary>Unused non-solid dispatcher entry.</summary>
-    UnusedAir = 0x6,
+    ShootableAir,
+    /// <summary>Horizontal extension: the block collides as the block its behaviour's displacement names.</summary>
+    HorizontalExtension,
+    /// <summary>Unused non-solid kind.</summary>
+    UnusedAir,
     /// <summary>Non-solid bombable-air behavior.</summary>
-    BombableAir = 0x7,
+    BombableAir,
     /// <summary>Ordinary fully solid block.</summary>
-    SolidBlock = 0x8,
+    SolidBlock,
     /// <summary>Door collision block associated with a door PLM.</summary>
-    DoorBlock = 0x9,
+    DoorBlock,
     /// <summary>Solid spike-block behavior.</summary>
-    SpikeBlock = 0xa,
-    /// <summary>Special solid-block behavior selected by BTS.</summary>
-    SpecialBlock = 0xb,
+    SpikeBlock,
+    /// <summary>Special solid block whose reaction the block's behaviour selects.</summary>
+    SpecialBlock,
     /// <summary>Solid shootable-block behavior.</summary>
-    ShootableBlock = 0xc,
-    /// <summary>Vertical extension whose BTS displacement resolves another block.</summary>
-    VerticalExtension = 0xd,
+    ShootableBlock,
+    /// <summary>Vertical extension: the block collides as the block its behaviour's displacement names.</summary>
+    VerticalExtension,
     /// <summary>Solid block that accepts the grapple beam.</summary>
-    GrappleBlock = 0xe,
+    GrappleBlock,
     /// <summary>Solid bombable-block behavior.</summary>
-    BombableBlock = 0xf,
+    BombableBlock,
 }

@@ -25,10 +25,10 @@ internal static class RoomPlmGrappleBlockDrawDefinitions
     /// <summary>The value each key selects; LevelWord looks it up.</summary>
     internal static readonly IReadOnlyDictionary<GrappleBlockDraw, RoomLevelWord> LevelWords = new Dictionary<GrappleBlockDraw, RoomLevelWord>
     {
-        [GrappleBlockDraw.Intact] = RoomLevelWord.Create(0x0b7, LevelBlockFlipFlags.None, RoomCollisionType.GrappleBlock),
-        [GrappleBlockDraw.Break0] = RoomLevelWord.Create(0x053, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-        [GrappleBlockDraw.Break1] = RoomLevelWord.Create(0x054, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-        [GrappleBlockDraw.Break2] = RoomLevelWord.Create(0x055, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-        [GrappleBlockDraw.Blank] = RoomLevelWord.Create(0x0ff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+        [GrappleBlockDraw.Intact] = RoomLevelWord.Create(0x0b7, BlockMirroring.None, RoomCollisionType.GrappleBlock),
+        [GrappleBlockDraw.Break0] = RoomLevelWord.Create(0x053, BlockMirroring.None, RoomCollisionType.Air),
+        [GrappleBlockDraw.Break1] = RoomLevelWord.Create(0x054, BlockMirroring.None, RoomCollisionType.Air),
+        [GrappleBlockDraw.Break2] = RoomLevelWord.Create(0x055, BlockMirroring.None, RoomCollisionType.Air),
+        [GrappleBlockDraw.Blank] = RoomLevelWord.Create(0x0ff, BlockMirroring.None, RoomCollisionType.Air),
     };
 }

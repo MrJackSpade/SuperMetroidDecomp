@@ -143,7 +143,7 @@ internal static class ShotBlockPlmDraws
                 throw new ArgumentOutOfRangeException(nameof(block));
             if (!Restore)
                 return Frame == 3 ? PlmLevelWordDefinitions.BlankAir
-                    : RoomLevelWord.Create(BreakupFirstBlock + Frame, LevelBlockFlipFlags.None, RoomCollisionType.Air).Raw;
+                    : RoomLevelWord.Create(BreakupFirstBlock + Frame, BlockMirroring.None, RoomCollisionType.Air).Raw;
             int row = Vertical ? block : run;
             int column = Vertical ? 0 : block;
             int tile = RestoreBlocks.TryGetValue(Layout, out int restored)
@@ -152,7 +152,7 @@ internal static class ShotBlockPlmDraws
             // Parent is shootable; children link left on the first row and up below.
             RoomCollisionType collision = row == 0 && column == 0 ? RoomCollisionType.ShootableBlock
                 : row == 0 ? RoomCollisionType.HorizontalExtension : RoomCollisionType.VerticalExtension;
-            return RoomLevelWord.Create(tile + RestoreRowStride * row + column, LevelBlockFlipFlags.None, collision).Raw;
+            return RoomLevelWord.Create(tile + RestoreRowStride * row + column, BlockMirroring.None, collision).Raw;
         }
     }
 

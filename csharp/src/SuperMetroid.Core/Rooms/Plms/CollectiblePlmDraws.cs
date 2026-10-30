@@ -34,11 +34,11 @@ internal static class CollectiblePlmDraws
     private static ushort Word(Draw draw) => draw.Group switch
     {
         DrawGroup.Empty => PlmLevelWordDefinitions.BlankAir,
-        DrawGroup.Orb => RoomLevelWord.Create(OrbFirstBlock + draw.Index, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock).Raw,
-        DrawGroup.OrbBurst => RoomLevelWord.Create(OrbBurstBlock, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock).Raw,
-        DrawGroup.Tank => RoomLevelWord.Create(TankFirstBlock + draw.Index, LevelBlockFlipFlags.None, RoomCollisionType.SpecialBlock).Raw,
-        DrawGroup.Dynamic => RoomLevelWord.Create(DynamicFirstBlock + draw.Index, LevelBlockFlipFlags.None, RoomCollisionType.SpecialBlock).Raw,
-        DrawGroup.ShotReveal => RoomLevelWord.Create(ShotRevealFirstBlock + draw.Index, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock).Raw,
+        DrawGroup.Orb => RoomLevelWord.Create(OrbFirstBlock + draw.Index, BlockMirroring.None, RoomCollisionType.ShootableBlock).Raw,
+        DrawGroup.OrbBurst => RoomLevelWord.Create(OrbBurstBlock, BlockMirroring.None, RoomCollisionType.SolidBlock).Raw,
+        DrawGroup.Tank => RoomLevelWord.Create(TankFirstBlock + draw.Index, BlockMirroring.None, RoomCollisionType.SpecialBlock).Raw,
+        DrawGroup.Dynamic => RoomLevelWord.Create(DynamicFirstBlock + draw.Index, BlockMirroring.None, RoomCollisionType.SpecialBlock).Raw,
+        DrawGroup.ShotReveal => RoomLevelWord.Create(ShotRevealFirstBlock + draw.Index, BlockMirroring.None, RoomCollisionType.SolidBlock).Raw,
         _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {draw.Group}."),
     };
 

@@ -31,25 +31,25 @@ internal static class CrocomireArenaPlmDrawDefinitions
         [CrocomireArenaDraw.ClearBridge] =
         [
             [
-                RoomLevelWord.Create(0x80, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x80, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x80, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x80, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x80, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x80, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x80, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x80, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x80, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x80, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x80, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x80, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x80, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x80, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x80, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x80, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x80, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x80, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x80, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x80, BlockMirroring.None, RoomCollisionType.Air),
             ],
         ],
         [CrocomireArenaDraw.CrumbleBridgeBlock] =
         [
-            [RoomLevelWord.Create(0x10b, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)],
+            [RoomLevelWord.Create(0x10b, BlockMirroring.None, RoomCollisionType.SolidBlock)],
         ],
         [CrocomireArenaDraw.ClearBridgeBlock] =
         [
-            [RoomLevelWord.Create(0x80, LevelBlockFlipFlags.None, RoomCollisionType.Air)],
+            [RoomLevelWord.Create(0x80, BlockMirroring.None, RoomCollisionType.Air)],
         ],
         [CrocomireArenaDraw.ClearInvisibleWall] =
         [
@@ -81,13 +81,13 @@ internal static class CrocomireArenaPlmDrawDefinitions
     /// </summary>
     private static RoomLevelWord[] WallColumn(int tile, RoomCollisionType collision) =>
     [
-        RoomLevelWord.Create(0x80, LevelBlockFlipFlags.None, collision),
-        RoomLevelWord.Create(tile, LevelBlockFlipFlags.None, collision),
-        RoomLevelWord.Create(tile + 0x20, LevelBlockFlipFlags.None, collision),
-        RoomLevelWord.Create(tile, LevelBlockFlipFlags.None, collision),
-        RoomLevelWord.Create(tile + 0x20, LevelBlockFlipFlags.None, collision),
-        RoomLevelWord.Create(tile + 0x40, LevelBlockFlipFlags.None, collision),
-        RoomLevelWord.Create(0x80, LevelBlockFlipFlags.None, collision),
-        RoomLevelWord.Create(0x80, LevelBlockFlipFlags.None, collision),
+        RoomLevelWord.Create(0x80, BlockMirroring.None, collision),
+        RoomLevelWord.Create(tile, BlockMirroring.None, collision),
+        RoomLevelWord.Create(tile + 0x20, BlockMirroring.None, collision),
+        RoomLevelWord.Create(tile, BlockMirroring.None, collision),
+        RoomLevelWord.Create(tile + 0x20, BlockMirroring.None, collision),
+        RoomLevelWord.Create(tile + 0x40, BlockMirroring.None, collision),
+        RoomLevelWord.Create(0x80, BlockMirroring.None, collision),
+        RoomLevelWord.Create(0x80, BlockMirroring.None, collision),
     ];
 }

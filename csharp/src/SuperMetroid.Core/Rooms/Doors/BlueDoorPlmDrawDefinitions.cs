@@ -22,143 +22,143 @@ internal static class BlueDoorPlmDrawDefinitions
         {
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Left, AliasFrame)] =
             [
-                RoomLevelWord.Create(0x0c, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x2c, LevelBlockFlipFlags.None, RoomCollisionType.VerticalExtension),
-                RoomLevelWord.Create(0x2c, LevelBlockFlipFlags.Vertical, RoomCollisionType.VerticalExtension),
-                RoomLevelWord.Create(0x0c, LevelBlockFlipFlags.Vertical, RoomCollisionType.VerticalExtension),
+                RoomLevelWord.Create(0x0c, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x2c, BlockMirroring.None, RoomCollisionType.VerticalExtension),
+                RoomLevelWord.Create(0x2c, BlockMirroring.Vertical, RoomCollisionType.VerticalExtension),
+                RoomLevelWord.Create(0x0c, BlockMirroring.Vertical, RoomCollisionType.VerticalExtension),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Left, 0)] =
             [
-                RoomLevelWord.Create(0x0c, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock),
-                RoomLevelWord.Create(0x2c, LevelBlockFlipFlags.None, RoomCollisionType.VerticalExtension),
-                RoomLevelWord.Create(0x2c, LevelBlockFlipFlags.Vertical, RoomCollisionType.VerticalExtension),
-                RoomLevelWord.Create(0x0c, LevelBlockFlipFlags.Vertical, RoomCollisionType.VerticalExtension),
+                RoomLevelWord.Create(0x0c, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+                RoomLevelWord.Create(0x2c, BlockMirroring.None, RoomCollisionType.VerticalExtension),
+                RoomLevelWord.Create(0x2c, BlockMirroring.Vertical, RoomCollisionType.VerticalExtension),
+                RoomLevelWord.Create(0x0c, BlockMirroring.Vertical, RoomCollisionType.VerticalExtension),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Left, 1)] =
             [
-                RoomLevelWord.Create(0x0d, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x2d, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x2d, LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x0d, LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x0d, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x2d, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x2d, BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x0d, BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Left, 2)] =
             [
-                RoomLevelWord.Create(0x0e, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x2e, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x2e, LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x0e, LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x0e, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x2e, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x2e, BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x0e, BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Left, 3)] =
             [
-                RoomLevelWord.Create(0x0f, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x2f, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x2f, LevelBlockFlipFlags.Vertical, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x0f, LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x0f, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x2f, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x2f, BlockMirroring.Vertical, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x0f, BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Right, AliasFrame)] =
             [
-                RoomLevelWord.Create(0x0c, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x2c, LevelBlockFlipFlags.Horizontal, RoomCollisionType.VerticalExtension),
-                RoomLevelWord.Create(0x2c, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.VerticalExtension),
-                RoomLevelWord.Create(0x0c, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.VerticalExtension),
+                RoomLevelWord.Create(0x0c, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x2c, BlockMirroring.Horizontal, RoomCollisionType.VerticalExtension),
+                RoomLevelWord.Create(0x2c, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.VerticalExtension),
+                RoomLevelWord.Create(0x0c, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.VerticalExtension),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Right, 0)] =
             [
-                RoomLevelWord.Create(0x0c, LevelBlockFlipFlags.Horizontal, RoomCollisionType.ShootableBlock),
-                RoomLevelWord.Create(0x2c, LevelBlockFlipFlags.Horizontal, RoomCollisionType.VerticalExtension),
-                RoomLevelWord.Create(0x2c, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.VerticalExtension),
-                RoomLevelWord.Create(0x0c, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.VerticalExtension),
+                RoomLevelWord.Create(0x0c, BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock),
+                RoomLevelWord.Create(0x2c, BlockMirroring.Horizontal, RoomCollisionType.VerticalExtension),
+                RoomLevelWord.Create(0x2c, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.VerticalExtension),
+                RoomLevelWord.Create(0x0c, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.VerticalExtension),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Right, 1)] =
             [
-                RoomLevelWord.Create(0x0d, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x2d, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x2d, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x0d, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x0d, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x2d, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x2d, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x0d, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Right, 2)] =
             [
-                RoomLevelWord.Create(0x0e, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x2e, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x2e, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x0e, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x0e, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x2e, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x2e, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x0e, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Right, 3)] =
             [
-                RoomLevelWord.Create(0x0f, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x2f, LevelBlockFlipFlags.Horizontal, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x2f, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x0f, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x0f, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x2f, BlockMirroring.Horizontal, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x2f, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x0f, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Up, AliasFrame)] =
             [
-                RoomLevelWord.Create(0x1d, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x1c, LevelBlockFlipFlags.Horizontal, RoomCollisionType.HorizontalExtension),
-                RoomLevelWord.Create(0x1c, LevelBlockFlipFlags.None, RoomCollisionType.HorizontalExtension),
-                RoomLevelWord.Create(0x1d, LevelBlockFlipFlags.None, RoomCollisionType.HorizontalExtension),
+                RoomLevelWord.Create(0x1d, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x1c, BlockMirroring.Horizontal, RoomCollisionType.HorizontalExtension),
+                RoomLevelWord.Create(0x1c, BlockMirroring.None, RoomCollisionType.HorizontalExtension),
+                RoomLevelWord.Create(0x1d, BlockMirroring.None, RoomCollisionType.HorizontalExtension),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Up, 0)] =
             [
-                RoomLevelWord.Create(0x1d, LevelBlockFlipFlags.Horizontal, RoomCollisionType.ShootableBlock),
-                RoomLevelWord.Create(0x1c, LevelBlockFlipFlags.Horizontal, RoomCollisionType.HorizontalExtension),
-                RoomLevelWord.Create(0x1c, LevelBlockFlipFlags.None, RoomCollisionType.HorizontalExtension),
-                RoomLevelWord.Create(0x1d, LevelBlockFlipFlags.None, RoomCollisionType.HorizontalExtension),
+                RoomLevelWord.Create(0x1d, BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock),
+                RoomLevelWord.Create(0x1c, BlockMirroring.Horizontal, RoomCollisionType.HorizontalExtension),
+                RoomLevelWord.Create(0x1c, BlockMirroring.None, RoomCollisionType.HorizontalExtension),
+                RoomLevelWord.Create(0x1d, BlockMirroring.None, RoomCollisionType.HorizontalExtension),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Up, 1)] =
             [
-                RoomLevelWord.Create(0x3d, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x3c, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x3c, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x3d, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x3d, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x3c, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x3c, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x3d, BlockMirroring.None, RoomCollisionType.SolidBlock),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Up, 2)] =
             [
-                RoomLevelWord.Create(0x1f, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x1e, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x1e, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x1f, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x1f, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x1e, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x1e, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x1f, BlockMirroring.None, RoomCollisionType.SolidBlock),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Up, 3)] =
             [
-                RoomLevelWord.Create(0x3f, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x3e, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x3e, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x3f, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x3f, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x3e, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x3e, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x3f, BlockMirroring.None, RoomCollisionType.SolidBlock),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Down, AliasFrame)] =
             [
-                RoomLevelWord.Create(0x1d, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x1c, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.HorizontalExtension),
-                RoomLevelWord.Create(0x1c, LevelBlockFlipFlags.Vertical, RoomCollisionType.HorizontalExtension),
-                RoomLevelWord.Create(0x1d, LevelBlockFlipFlags.Vertical, RoomCollisionType.HorizontalExtension),
+                RoomLevelWord.Create(0x1d, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x1c, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.HorizontalExtension),
+                RoomLevelWord.Create(0x1c, BlockMirroring.Vertical, RoomCollisionType.HorizontalExtension),
+                RoomLevelWord.Create(0x1d, BlockMirroring.Vertical, RoomCollisionType.HorizontalExtension),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Down, 0)] =
             [
-                RoomLevelWord.Create(0x1d, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.ShootableBlock),
-                RoomLevelWord.Create(0x1c, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.HorizontalExtension),
-                RoomLevelWord.Create(0x1c, LevelBlockFlipFlags.Vertical, RoomCollisionType.HorizontalExtension),
-                RoomLevelWord.Create(0x1d, LevelBlockFlipFlags.Vertical, RoomCollisionType.HorizontalExtension),
+                RoomLevelWord.Create(0x1d, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.ShootableBlock),
+                RoomLevelWord.Create(0x1c, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.HorizontalExtension),
+                RoomLevelWord.Create(0x1c, BlockMirroring.Vertical, RoomCollisionType.HorizontalExtension),
+                RoomLevelWord.Create(0x1d, BlockMirroring.Vertical, RoomCollisionType.HorizontalExtension),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Down, 1)] =
             [
-                RoomLevelWord.Create(0x3d, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x3c, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x3c, LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x3d, LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x3d, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x3c, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x3c, BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x3d, BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Down, 2)] =
             [
-                RoomLevelWord.Create(0x1f, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x1e, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x1e, LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x1f, LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x1f, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x1e, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x1e, BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x1f, BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Down, 3)] =
             [
-                RoomLevelWord.Create(0x3f, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x3e, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x3e, LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x3f, LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x3f, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x3e, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x3e, BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x3f, BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
             ],
         };
 }

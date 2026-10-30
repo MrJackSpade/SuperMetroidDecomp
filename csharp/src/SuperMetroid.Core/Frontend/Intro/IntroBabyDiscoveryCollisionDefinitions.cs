@@ -16,9 +16,9 @@ internal static class IntroBabyDiscoveryCollisionDefinitions
     /// <summary>Ten zero rows precede the two authored nonzero rows.</summary>
     internal const int ZeroRows = 10;
     /// <summary>The eleventh source row's block in every column: a slope block of shape zero with no visual tile.</summary>
-    internal static ushort PenultimateRowWord => RoomLevelWord.Create(0, LevelBlockFlipFlags.None, RoomCollisionType.Slope).Raw;
+    internal static ushort PenultimateRowWord => RoomLevelWord.Create(0, BlockMirroring.None, RoomCollisionType.Slope).Raw;
     /// <summary>The final source row's block in every column: a solid block with no visual tile.</summary>
-    internal static ushort FinalRowWord => RoomLevelWord.Create(0, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock).Raw;
+    internal static ushort FinalRowWord => RoomLevelWord.Create(0, BlockMirroring.None, RoomCollisionType.SolidBlock).Raw;
 
     /// <summary>Native room height, including four zero-initialized rows beyond the imported region.</summary>
     internal const int RoomRows = 16;

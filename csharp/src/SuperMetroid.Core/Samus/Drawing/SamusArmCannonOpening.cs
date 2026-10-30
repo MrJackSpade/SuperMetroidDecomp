@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// <summary>Whether the selected HUD item opens the arm cannon.</summary>
 internal static class SamusArmCannonOpening
 {
-    /// <summary>Returns the native desired cover state for a HUD item.</summary>
-    public static byte DesiredOpenFlag(HudItem selectedHudItem) =>
-        DesiredOpenFlags.ContainsKey(selectedHudItem) ? DesiredOpenFlags[selectedHudItem] : throw new ArgumentOutOfRangeException(nameof(selectedHudItem), selectedHudItem, "HUD item is outside the six-entry dispatcher.");
+    /// <summary>Whether a HUD item opens the cover.</summary>
+    public static bool Opens(HudItem selectedHudItem) =>
+        OpensCover.ContainsKey(selectedHudItem) ? OpensCover[selectedHudItem] : throw new ArgumentOutOfRangeException(nameof(selectedHudItem), selectedHudItem, "HUD item is outside the six-entry dispatcher.");
 }

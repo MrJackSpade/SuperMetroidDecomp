@@ -563,34 +563,34 @@ internal static void VerifySamusArmCannon()
     cannon.Update(samus);
     AssertEqual(0, cannon.Frame,
         "second closed HUD sample agrees with already-closed state");
-    AssertEqual(2, cannon.ToggleFlag,
+    AssertEqual(2, cannon.StableSelectionUpdates,
         "stable HUD selection saturates arm-cannon toggle at two");
-    AssertEqual(2, cannon.DrawingMode,
-        "pose record publishes after-body arm-cannon draw mode");
+    AssertEqual(SamusArmCannonDrawOrder.AfterBody, cannon.DrawOrder,
+        "pose record publishes after-body arm-cannon draw order");
 
     samus.SelectedHudItem = HudItem.Missile;
-    int openBeforeSelection = cannon.OpenFlag;
+    bool openBeforeSelection = cannon.IsOpen;
     cannon.Update(samus);
-    AssertTrue(cannon.ToggleFlag == 1 && cannon.OpenFlag == openBeforeSelection,
+    AssertTrue(cannon.StableSelectionUpdates == 1 && cannon.IsOpen == openBeforeSelection,
         "new missile selection waits one stable HUD frame");
     AssertEqual(0, cannon.Frame,
         "selection-change frame keeps cannon closed");
 
-    int openBeforeOpening = cannon.OpenFlag;
+    bool openBeforeOpening = cannon.IsOpen;
     cannon.Update(samus);
-    AssertTrue(openBeforeOpening == 0 && cannon.OpenFlag != openBeforeOpening,
+    AssertTrue(!openBeforeOpening && cannon.IsOpen != openBeforeOpening,
         "second missile sample begins opening");
     AssertEqual(1, cannon.Frame,
         "opening starts at zero and advances to frame one in the same call");
-    AssertEqual(1, cannon.OpenFlag, "missile selection stores open flag one");
-    AssertEqual(1, cannon.CloseFlag, "opening frame one retains transition flag");
+    AssertTrue(cannon.IsOpen, "missile selection opens the cover");
+    AssertTrue(cannon.IsTransitioning, "opening frame one is still transitioning");
 
     cannon.Update(samus);
     AssertEqual(2, cannon.Frame, "opening advances to cover frame two");
-    AssertEqual(1, cannon.CloseFlag, "frame two remains transitional");
+    AssertTrue(cannon.IsTransitioning, "frame two remains transitional");
     cannon.Update(samus);
     AssertEqual(3, cannon.Frame, "opening clamps at cover frame three");
-    AssertEqual(0, cannon.CloseFlag, "fully open cover clears transition flag");
+    AssertTrue(!cannon.IsTransitioning, "fully open cover ends the transition");
 
     // Rewind is intentionally unnecessary: selecting frame one in the public state is not
     // possible, which protects the model from debugger-only invalid combinations. The
@@ -632,13 +632,13 @@ internal static void VerifySamusArmCannon()
     // Closing mirrors opening but starts from synthetic frame four. The same stable-sample
     // call decrements immediately to three, followed by two, one, and invisible zero.
     samus.SelectedHudItem = HudItem.Beam;
-    int openBeforeDeselection = cannon.OpenFlag;
+    bool openBeforeDeselection = cannon.IsOpen;
     cannon.Update(samus);
-    AssertTrue(cannon.ToggleFlag == 1 && cannon.OpenFlag == openBeforeDeselection,
+    AssertTrue(cannon.StableSelectionUpdates == 1 && cannon.IsOpen == openBeforeDeselection,
         "item deselection also waits one stable frame");
-    int openBeforeClosing = cannon.OpenFlag;
+    bool openBeforeClosing = cannon.IsOpen;
     cannon.Update(samus);
-    AssertTrue(openBeforeClosing == 1 && cannon.OpenFlag == 0,
+    AssertTrue(openBeforeClosing && !cannon.IsOpen,
         "second empty-item sample begins closing");
     AssertEqual(3, cannon.Frame, "closing begins visibly at frame three");
     cannon.Update(samus);
@@ -647,7 +647,7 @@ internal static void VerifySamusArmCannon()
     AssertEqual(1, cannon.Frame, "closing decrements to frame one");
     cannon.Update(samus);
     AssertEqual(0, cannon.Frame, "closing reaches invisible frame zero");
-    AssertEqual(0, cannon.CloseFlag, "fully closed cover clears transition flag");
+    AssertTrue(!cannon.IsTransitioning, "fully closed cover ends the transition");
 
     Console.WriteLine(
         "  Samus arm cannon: HUD debounce, open/close cadence, cover draw, clipping, flicker, and cover binding agree.");

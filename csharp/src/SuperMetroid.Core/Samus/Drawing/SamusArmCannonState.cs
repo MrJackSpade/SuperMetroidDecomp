@@ -23,48 +23,37 @@ public sealed class SamusArmCannonState
     [field: NonSerialized]
     public InstalledSamusArmCannonArtwork? Artwork { get; set; }
 
-    /// <summary>Low byte of WRAM `$0AA6`, 0 through 255: zero closed, one open/opening.</summary>
-    public int OpenFlag
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
-    }
+    /// <summary>Whether the cover is open or opening; false while closed or closing.</summary>
+    public bool IsOpen { get; internal set; }
 
-    /// <summary>High byte at WRAM `$0AA7`, 0 through 255: one while either transition is incomplete.</summary>
-    public int CloseFlag
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
-    }
+    /// <summary>Whether an opening or closing is still under way.</summary>
+    public bool IsTransitioning { get; internal set; }
 
-    /// <summary>WRAM `$0AA8`, 0 through 65535; zero is invisible, one/two transition, three fully open.</summary>
+    /// <summary>The cover frame, 0 through 65535; zero is invisible, one and two transition, three fully open.</summary>
     public int Frame
     {
         get;
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>WRAM `$0AAA`, 0 through 65535; the HUD selection producer saturates this at two.</summary>
-    public int ToggleFlag
+    /// <summary>
+    /// The updates the HUD selection has held still, 0 through 65535; a change restarts it at one and it saturates at
+    /// two, when a transition may begin.
+    /// </summary>
+    public int StableSelectionUpdates
     {
         get;
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>Pose-record byte one copied to WRAM `$0AAC` on every draw pass, 0 through 65535.</summary>
-    public int DrawingMode
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    /// <summary>Where this frame's cover is drawn relative to the body, from the pose's drawing mode.</summary>
+    public SamusArmCannonDrawOrder DrawOrder { get; internal set; }
 
     /// <summary>
-    /// Where this frame's cover is drawn relative to the body. The full source byte is retained in
-    /// <see cref="DrawingMode"/> because `$90:C5E0-$C5E6` stores it unmasked; only the drawing handler
-    /// reads its low nibble, where zero hides the cover, two draws it after the body and every other
-    /// value draws it before the body.
+    /// The draw order a pose's drawing mode selects. The drawing handler reads only the mode's low nibble: zero hides
+    /// the cover, two draws it after the body and every other value draws it before the body.
     /// </summary>
-    public SamusArmCannonDrawOrder DrawOrder => (DrawingMode & 15) switch
+    internal static SamusArmCannonDrawOrder DrawOrderOf(int drawingMode) => (drawingMode & 15) switch
     {
         0 => SamusArmCannonDrawOrder.Hidden,
         2 => SamusArmCannonDrawOrder.AfterBody,
@@ -81,19 +70,19 @@ public sealed class SamusArmCannonState
         bool itemChanged = samus.SelectedHudItem != PreviousSelectedHudItem;
         if (itemChanged)
         {
-            ToggleFlag = 1;
+            StableSelectionUpdates = 1;
             PreviousSelectedHudItem = samus.SelectedHudItem;
         }
         else
         {
-            int incremented = unchecked((ushort)(ToggleFlag + 1));
-            ToggleFlag = incremented < 3 ? incremented : 2;
+            int incremented = unchecked((ushort)(StableSelectionUpdates + 1));
+            StableSelectionUpdates = incremented < 3 ? incremented : 2;
         }
 
-        if (CloseFlag != 0 || TryStartTransition(samus.SelectedHudItem))
+        if (IsTransitioning || TryStartTransition(samus.SelectedHudItem))
             AdvanceFrame();
 
-        DrawingMode = Placement(samus.Pose).DrawingMode;
+        DrawOrder = DrawOrderOf(Placement(samus.Pose).DrawingMode);
         return new SamusArmCannonUpdateResult();
     }
 
@@ -145,19 +134,18 @@ public sealed class SamusArmCannonState
     /// <summary>Starts opening or closing only after the HUD item has been stable for two updates.</summary>
     private bool TryStartTransition(HudItem selectedHudItem)
     {
-        if (ToggleFlag < 2)
+        if (StableSelectionUpdates < 2)
             return false;
 
-        int desiredOpenFlag = SamusArmCannonOpening.DesiredOpenFlag(selectedHudItem);
-        if (OpenFlag == desiredOpenFlag)
+        bool opens = SamusArmCannonOpening.Opens(selectedHudItem);
+        if (IsOpen == opens)
             return false;
 
-        // The packed native word write changes the low open byte and sets high close byte
-        // one simultaneously. Closing begins from synthetic frame four; the same call then
-        // advances it to visible frame three.
-        Frame = desiredOpenFlag != 0 ? 0 : 4;
-        OpenFlag = desiredOpenFlag;
-        CloseFlag = 1;
+        // Closing begins from synthetic frame four; the same call then advances it to
+        // visible frame three.
+        Frame = opens ? 0 : 4;
+        IsOpen = opens;
+        IsTransitioning = true;
         return true;
     }
 
@@ -169,7 +157,7 @@ public sealed class SamusArmCannonState
     /// <summary>Moves the cover one native frame toward open three or closed zero, then clears the transition flag.</summary>
     private void AdvanceFrame()
     {
-        if (OpenFlag != 0)
+        if (IsOpen)
         {
             int incremented = unchecked((ushort)(Frame + 1));
             if (unchecked((short)(incremented - 3)) < 0)
@@ -192,9 +180,8 @@ public sealed class SamusArmCannonState
             Frame = 0;
         }
 
-        // `$90:C658` stores the low byte as a 16-bit word, clearing only the transition
-        // byte while retaining the desired open state.
-        CloseFlag = 0;
+        // `$90:C658` ends the transition while retaining the open state.
+        IsTransitioning = false;
     }
 
 }

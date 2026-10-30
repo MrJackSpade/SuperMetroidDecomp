@@ -137,10 +137,10 @@ internal static class NativeSnapshotImportVerification
         samus.Presentation.BottomSpritemap = SamusSpritemapNative.Frame(spritemaps, (SamusPoseId)W(NativeSnapshotMemory.Pose), SamusBodyHalf.Bottom, W(NativeSnapshotMemory.SamusBottomSpritemap));
         samus.Presentation.SpritemapPosition = new Position16<ScreenPixels>(W(NativeSnapshotMemory.SamusSpriteX), W(NativeSnapshotMemory.SamusSpriteY));
         samus.ArmCannon.Frame = W(NativeSnapshotMemory.CannonFrame);
-        samus.ArmCannon.ToggleFlag = W(NativeSnapshotMemory.CannonToggle);
-        samus.ArmCannon.DrawingMode = W(NativeSnapshotMemory.CannonDrawingMode);
-        samus.ArmCannon.OpenFlag = memory[NativeSnapshotMemory.CannonFlags];
-        samus.ArmCannon.CloseFlag = memory[NativeSnapshotMemory.CannonFlags + 1];
+        samus.ArmCannon.StableSelectionUpdates = W(NativeSnapshotMemory.CannonToggle);
+        samus.ArmCannon.DrawOrder = SamusArmCannonState.DrawOrderOf(W(NativeSnapshotMemory.CannonDrawingMode));
+        samus.ArmCannon.IsOpen = memory[NativeSnapshotMemory.CannonFlags] != 0;
+        samus.ArmCannon.IsTransitioning = memory[NativeSnapshotMemory.CannonFlags + 1] != 0;
         new ProjectileInheritanceRecordsAccess(samus.ProjectileInheritance).Load(memory.AsSpan(NativeSnapshotMemory.ProjectileInheritancePrefix,
             NativeSnapshotMemory.SamusSlopeAdjusted - NativeSnapshotMemory.ProjectileInheritancePrefix));
         samus.Kinematics.PositionAdjustedBySlope = W(NativeSnapshotMemory.SamusSlopeAdjusted) != 0;

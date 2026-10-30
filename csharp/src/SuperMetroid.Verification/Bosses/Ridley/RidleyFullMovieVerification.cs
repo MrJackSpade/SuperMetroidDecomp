@@ -1063,10 +1063,16 @@ internal static class RidleyFullMovieVerification
                             SheetFrameSources.CharacterDraw((ImageSpriteDraw)covers[0]).Artwork.Id.Variant,
                             $"update {frame}: cannon draw binds the reference cover tile");
                 }
-                Check("Cannon flags", LittleEndianBytes.Word(checked((byte)samus.ArmCannon.OpenFlag), checked((byte)samus.ArmCannon.CloseFlag)), NativeSnapshotMemory.CannonFlags);
+                // The recorded cover flags are a byte each; the drawing mode is compared as the draw order it selects.
+                ushort recordedCannonFlags = W(NativeSnapshotMemory.CannonFlags);
+                if (samus.ArmCannon.IsOpen != (LittleEndianBytes.LowByte(recordedCannonFlags) != 0) ||
+                    samus.ArmCannon.IsTransitioning != (LittleEndianBytes.HighByte(recordedCannonFlags) != 0))
+                    mismatches.Add($"Cannon flags: native={recordedCannonFlags:X4} port open={samus.ArmCannon.IsOpen} transitioning={samus.ArmCannon.IsTransitioning}");
                 Check("Cannon frame", samus.ArmCannon.Frame, NativeSnapshotMemory.CannonFrame);
-                Check("Cannon toggle", samus.ArmCannon.ToggleFlag, NativeSnapshotMemory.CannonToggle);
-                Check("Cannon drawing mode", samus.ArmCannon.DrawingMode, NativeSnapshotMemory.CannonDrawingMode);
+                Check("Cannon toggle", samus.ArmCannon.StableSelectionUpdates, NativeSnapshotMemory.CannonToggle);
+                SamusArmCannonDrawOrder recordedDrawOrder = SamusArmCannonState.DrawOrderOf(W(NativeSnapshotMemory.CannonDrawingMode));
+                if (samus.ArmCannon.DrawOrder != recordedDrawOrder)
+                    mismatches.Add($"Cannon draw order: native={recordedDrawOrder} port={samus.ArmCannon.DrawOrder}");
                 Check("Minimap disabled", runtime.Hud.MinimapDisabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.MinimapDisabled);
                 CheckBytes("Room scroll storage", RoomScrollGrid.StorageByteCount,
                     runtime.Room.LoadedCamera.Scrolls.ReadStorage, NativeSnapshotMemory.ScrollStorage);

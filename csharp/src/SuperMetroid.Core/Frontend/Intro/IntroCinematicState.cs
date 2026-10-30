@@ -1,4 +1,3 @@
-using System.Buffers.Binary;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
@@ -635,11 +634,9 @@ public sealed class IntroCinematicState : IFrontendScreen
         FlashbackMotherBrainExplosions = null;
         FlashbackRinkas = new IntroRinkaSystem();
 
-        // Retain the exact 224-word level-data copy as debugger-visible state. The later
-        // $91:8784 demo movement/collision translation will consume this array; loading it
-        // now proves the visual BG1 screen is not standing in for the collision contract.
-        MotherBrainLevelData = IntroMotherBrainCollision.CopySourceBytes();
-        CurrentFlashbackLevel = CreateMotherBrainLevel(MotherBrainLevelData);
+        // The flashback's collision room is built from its own terrain blocks, so the
+        // visual BG1 screen never stands in for the collision contract.
+        CurrentFlashbackLevel = CreateMotherBrainLevel();
         flashbackProjectiles.Reset();
         CurrentFlashbackDemoInput = new DemoInputState();
         CurrentFlashbackDemoInput.Clear();
@@ -659,12 +656,6 @@ public sealed class IntroCinematicState : IFrontendScreen
         crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Palette.CrossfadeInitialCounter);
         Phase = IntroCinematicPhase.MotherBrainCrossfade;
     }
-
-    /// <summary>
-    /// Exact 448-byte $8C:BEC3 room-collision image copied by the Mother Brain setup.
-    /// Null until page one has accepted its input edge.
-    /// </summary>
-    public byte[]? MotherBrainLevelData { get; private set; }
 
     /// <summary>Advances 32 component updates of the text-to-gameplay fade before exposing the Mother Brain room.</summary>
     private void StepMotherBrainCrossfade()
@@ -1100,21 +1091,19 @@ level, samus, FrameCounterWord(elapsedUpdates));
         FlashbackDemoInput.Disable();
     }
 
-    /// <summary>Builds the flashback's 224-word collision room with native-cleared BTS storage.</summary>
-    private static RoomLevelData CreateMotherBrainLevel(ReadOnlySpan<byte> source)
+    /// <summary>Builds the flashback's collision room: its terrain, with every block's behaviour cleared.</summary>
+    private static RoomLevelData CreateMotherBrainLevel()
     {
-        const int width = 16;
-        const int height = 16;
-        var foreground = new ushort[width * height];
-        for (int byteOffset = 0; byteOffset < source.Length; byteOffset += 2)
-        {
-            foreground[byteOffset / 2] = BinaryPrimitives.ReadUInt16LittleEndian(source[byteOffset..]);
-        }
+        const int width = IntroMotherBrainCollisionDefinitions.Columns;
+        const int height = IntroMotherBrainCollisionDefinitions.RoomRows;
+        RoomTerrainBlock[] foreground = IntroMotherBrainCollision.CreateForeground();
+        var behavior = new RoomBlockBehavior[width * height];
+        behavior.AsSpan().Fill(RoomBlockBehaviorValues.None);
 
-        // $8B:AF30 clears the complete 512-byte word-addressable BTS allocation. BG2 and
-        // block-definition data are irrelevant to bank-$94 collision in this visual room;
-        // their arrays exist only to satisfy the shared RoomLevelData ownership contract.
-        return new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(foreground, new byte[width * height], new ushort[width * height]));
+        // The background plane is irrelevant to collision in this visual room; it exists
+        // only to satisfy the shared RoomLevelData ownership contract.
+        return new RoomLevelData(new Extent16<RoomBlocks>(width, height),
+            new RoomLevelPlanes(foreground, behavior, new RoomBlockAppearance[width * height]));
     }
 
     /// <summary>

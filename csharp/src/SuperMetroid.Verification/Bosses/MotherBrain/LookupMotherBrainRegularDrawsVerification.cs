@@ -4,6 +4,8 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 /// <summary>Checks Mother Brain's regular room draw lists and their compiled shape descriptors.</summary>
@@ -48,15 +50,15 @@ internal static class LookupMotherBrainRegularDrawsVerification
                 AssertRunHeader(count, exported[index].Runs.Span[run], "Mother Brain regular export direction/count");
                 int length = count & 0x7fff;
                 AssertEqual(length, shape.Count(run), "Mother Brain regular native width");
-                AssertEqual(length, dto.Runs.Span[run].LevelWords.Length, "Mother Brain regular DTO width");
-                AssertEqual(length, exported[index].Runs.Span[run].LevelWords.Length, "Mother Brain regular export width");
+                AssertEqual(length, dto.Runs.Span[run].Blocks.Length, "Mother Brain regular DTO width");
+                AssertEqual(length, exported[index].Runs.Span[run].Blocks.Length, "Mother Brain regular export width");
                 AssertEqual((count & 0x8000) != 0, shape.Vertical(run), "Mother Brain regular runtime direction");
                 for (int block = 0; block < length; block++, cursor += 2)
                 {
-                    ushort expected = ReadWord(cursor);
-                    AssertEqual(expected, shape.WordAt(run, block), "Mother Brain regular native calculated cell");
-                    AssertEqual(expected, dto.Runs.Span[run].LevelWords.Span[block], "Mother Brain regular native DTO cell");
-                    AssertEqual(expected, exported[index].Runs.Span[run].LevelWords.Span[block], "Mother Brain regular native export cell");
+                    RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadWord(cursor));
+                    AssertEqual(expected, shape.BlockAt(run, block), "Mother Brain regular native calculated cell");
+                    AssertEqual(expected, dto.Runs.Span[run].Blocks.Span[block], "Mother Brain regular native DTO cell");
+                    AssertEqual(expected, exported[index].Runs.Span[run].Blocks.Span[block], "Mother Brain regular native export cell");
                     cells++;
                 }
                 sbyte nextX = unchecked((sbyte)MotherBrainRegularDrawMappingRomByte(rom, 0x840000 | cursor++));
@@ -68,7 +70,7 @@ internal static class LookupMotherBrainRegularDrawsVerification
                 AssertEqual(nextY, exported[index].Runs.Span[run].Next.Y, "Mother Brain regular export Y");
                 AssertEqual((sbyte)0, nextY, "Mother Brain regular runtime column origin Y");
                 foreach (int invalid in new[] { int.MinValue, -1, length, int.MaxValue })
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(run, invalid), "Mother Brain regular cell bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(run, invalid), "Mother Brain regular cell bounds");
                 run++;
                 if (nextX == 0 && nextY == 0) break;
             }
@@ -79,7 +81,7 @@ internal static class LookupMotherBrainRegularDrawsVerification
                 cursor, "Mother Brain regular original draw end");
             foreach (int invalid in new[] { int.MinValue, -1, run, int.MaxValue })
             {
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(invalid, 0), "Mother Brain regular run bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid, 0), "Mother Brain regular run bounds");
                 AssertThrows<ArgumentOutOfRangeException>(() => shape.NextX(invalid), "Mother Brain regular offset bounds");
             }
         }

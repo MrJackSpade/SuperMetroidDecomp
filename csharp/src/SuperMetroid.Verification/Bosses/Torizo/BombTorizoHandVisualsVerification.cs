@@ -8,10 +8,12 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Verification.Harness;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 
 /// <summary>Checks Bomb Torizo hand draw-list extraction, installed overrides,
-/// stock refresh, and rejection of collision bits in visual words.</summary>
+/// and stock refresh.</summary>
 internal static class BombTorizoHandVisualsVerification
 {
     /// <summary>Extracts the native hand art into a scratch installation and
@@ -43,32 +45,27 @@ internal static class BombTorizoHandVisualsVerification
                 ?? throw new InvalidDataException("Extracted hand JSON is empty.");
             JsonNode intact = document.Required("entries").AsArray().RequiredElements().Single(entry =>
                 entry.Required("id").GetValue<string>() == "intact");
-            intact.Required("blocks")[0] = 0x0053;
+            intact.Required("blocks")[0] = InstalledAppearanceJson.Cell(0x53);
             Directory.CreateDirectory(
                 installation.RoomPlmBombTorizoHandVisualOverrideDirectory);
             string overridePath = Path.Combine(
                 installation.RoomPlmBombTorizoHandVisualOverrideDirectory,
                 RoomPlmBombTorizoHandVisualFiles.VisualFileName);
             File.WriteAllText(overridePath, document.ToJsonString());
-            AssertEqual((ushort)0x0053,
-                installation.LoadRoomPlmBombTorizoHandVisuals().GetWord(
+            AssertEqual(RoomBlockAppearance.Of(0x53),
+                installation.LoadRoomPlmBombTorizoHandVisuals().GetAppearance(
                     PlmDraw.Of(BombTorizoHandDraw.Intact), 0, 0),
                 "installed hand override selects its changed block");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
             RoomPlmBombTorizoHandVisualFiles.Extract(rom, refreshed,
                 SupportedCartridge.Sha256);
-            AssertEqual((ushort)0x0053,
+            AssertEqual(RoomBlockAppearance.Of(0x53),
                 RoomPlmBombTorizoHandVisualFiles.Load(refreshed,
                     installation.RoomPlmBombTorizoHandVisualOverrideDirectory)
-                    .GetWord(PlmDraw.Of(BombTorizoHandDraw.Intact), 0, 0),
+                    .GetAppearance(PlmDraw.Of(BombTorizoHandDraw.Intact), 0, 0),
                 "hand override survives stock replacement");
 
-            intact.Required("blocks")[0] = 0xf053;
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmBombTorizoHandVisuals(),
-                "hand override rejects collision bits in visual words");
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
                 () => RoomPlmBombTorizoHandVisualFiles.ValidateStock(

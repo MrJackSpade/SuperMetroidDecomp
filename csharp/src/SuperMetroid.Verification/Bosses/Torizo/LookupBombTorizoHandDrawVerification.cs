@@ -5,6 +5,9 @@ using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.AssetExtraction;
+using static SuperMetroid.Verification.Harness.TerrainBlockFieldAssertions;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 
 /// <summary>Checks Bomb Torizo hand PLM geometry, collision, and artwork against native draw lists.</summary>
@@ -12,12 +15,12 @@ internal static class LookupBombTorizoHandDrawVerification
 {
     /// <summary>Checks both hand layouts' run geometry and pointer/name domain.</summary>
     internal static void VerifyBombTorizoHandDrawGeometry(SuperMetroidAddressSpace rom) => VerifyBombTorizoHandDrawField(rom, 0);
-    /// <summary>Checks the physical collision nibble of every hand draw word.</summary>
+    /// <summary>Checks the collision kind of every hand draw block against the decoded cartridge block.</summary>
     internal static void VerifyBombTorizoHandDrawCollision(SuperMetroidAddressSpace rom) => VerifyBombTorizoHandDrawField(rom, 1);
-    /// <summary>Checks the visual metatile and flip bits of every hand draw word.</summary>
+    /// <summary>Checks the appearance of every hand draw block against the decoded cartridge block.</summary>
     internal static void VerifyBombTorizoHandDrawVisuals(SuperMetroidAddressSpace rom) => VerifyBombTorizoHandDrawField(rom, 2);
 
-    /// <summary>Compares the selected draw field across native words, descriptors, and exported artwork records.</summary>
+    /// <summary>Compares the selected draw field across decoded native blocks, descriptors, and exported artwork records.</summary>
     private static void VerifyBombTorizoHandDrawField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0x9877,0x989d];
@@ -64,26 +67,25 @@ internal static class LookupBombTorizoHandDrawVerification
                 AssertTrue(count is > 0 and < 0x8000, "Torizo hand original horizontal run");
                 if (field == 0)
                 {
-                    AssertEqual(count, shape.WordCount(run), "Torizo hand native run width");
+                    AssertEqual(count, shape.BlockCount(run), "Torizo hand native run width");
                     AssertEqual(x, shape.OriginX(run), "Torizo hand original origin-relative X");
                     AssertEqual(y, shape.OriginY(run), "Torizo hand original origin-relative Y");
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         AssertRunHeader(count, frame.Runs.Span[run], "Torizo hand DTO direction/count");
-                        AssertEqual(count, frame.Runs.Span[run].LevelWords.Length, "Torizo hand DTO width");
+                        AssertEqual(count, frame.Runs.Span[run].Blocks.Length, "Torizo hand DTO width");
                     }
                     foreach (int bad in new[] {int.MinValue,-1,count,int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(run,bad), "Torizo hand cell bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(run,bad), "Torizo hand cell bounds");
                 }
                 for (int word = 0; word < count; word++, cursor += 2)
                 {
                     if (field != 0)
                     {
-                        int mask = field == 1 ? 0xf000 : 0xfff;
-                        int expected = ReadSamusEaterPlmWord(rom, 0x840000 | cursor) & mask;
-                        AssertEqual(expected, shape.WordAt(run,word) & mask, "Torizo hand original calculated field");
-                        AssertEqual(expected, dto.Runs.Span[run].LevelWords.Span[word] & mask, "Torizo hand original DTO field");
-                        AssertEqual(expected, exported[index].Runs.Span[run].LevelWords.Span[word] & mask, "Torizo hand original export field");
+                        RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, 0x840000 | cursor));
+                        AssertTerrainField(field, expected, shape.BlockAt(run,word), "Torizo hand original calculated field");
+                        AssertTerrainField(field, expected, dto.Runs.Span[run].Blocks.Span[word], "Torizo hand original DTO field");
+                        AssertTerrainField(field, expected, exported[index].Runs.Span[run].Blocks.Span[word], "Torizo hand original export field");
                     }
                     cells++;
                 }
@@ -109,7 +111,7 @@ internal static class LookupBombTorizoHandDrawVerification
             if (field == 0)
             foreach (int bad in new[] {int.MinValue,-1,run,int.MaxValue})
             {
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(bad,0), "Torizo hand run bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(bad,0), "Torizo hand run bounds");
                 AssertThrows<ArgumentOutOfRangeException>(() => shape.OriginX(bad), "Torizo hand X bounds");
                 AssertThrows<ArgumentOutOfRangeException>(() => shape.OriginY(bad), "Torizo hand Y bounds");
                 AssertThrows<ArgumentOutOfRangeException>(() => shape.NextX(bad), "Torizo hand next X bounds");

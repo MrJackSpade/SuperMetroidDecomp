@@ -52,7 +52,6 @@ internal sealed class BossRoomMutationPlms
             return false;
 
         slot.BlockIndex = blockIndex;
-        slot.RestoreLevelWord = 0;
         // SpawnHardcodedPlm stores the header before setup. Keep identity intact
         // for owner queries and mixed populations, not just instruction dispatch.
         slot.Header = header;
@@ -94,7 +93,6 @@ internal sealed class BossRoomMutationPlms
             return false;
 
         slot.BlockIndex = blockIndex;
-        slot.RestoreLevelWord = 0;
         slot.LoopTimer = 0;
         slot.StartAnimation(new SporeSpawnCeilingPlmAnimation(header == PlmHeaderId.CrumbleSporeSpawnCeiling
             ? SporeSpawnCeilingProgram.Crumble
@@ -416,9 +414,8 @@ internal sealed class BossRoomMutationPlms
         slot.StartAnimation(new KraidRoomPlmAnimation(program));
         slot.InstructionTimer = WrappingCountdown.Start(1);
 
-        // PlmSetup_DeactivatePlm clears level-word bits 12..14, not all four collision
-        // bits. Bit 15 is the independent tile priority flag and survives setup.
-        level.SetForegroundEntry(blockIndex, level.GetCollisionBlockByIndex(blockIndex).PackedWord.WithPlmDeactivation().Raw);
+        // PlmSetup_DeactivatePlm keeps a solid block solid and turns every other block to air.
+        level.SetTerrain(blockIndex, level.GetCollisionBlockByIndex(blockIndex).Terrain.Deactivated());
         return true;
     }
 
@@ -733,7 +730,6 @@ internal sealed class BossRoomMutationPlms
             return false;
 
         slot.BlockIndex = blockIndex;
-        slot.RestoreLevelWord = 0;
         slot.LoopTimer = 0;
         slot.StartAnimation(new CrocomireArenaPlmAnimation(program));
         slot.InstructionTimer = WrappingCountdown.Start(1);
@@ -743,9 +739,8 @@ internal sealed class BossRoomMutationPlms
 
     /// <summary>
     /// Spawns Shitroid's hardcoded ten-block vertical wall mutation at `$84:B763/$B767`.
-    /// Setup executes synchronously inside <c>SpawnHardcodedPLM</c>: `$B763` clears the
-    /// collision nibble and `$B767` replaces it with type eight while preserving the low
-    /// twelve bits of every authored level word.
+    /// Setup executes synchronously inside <c>SpawnHardcodedPLM</c>: `$B763` makes each block
+    /// air and `$B767` makes it solid, preserving every authored block's appearance.
     /// </summary>
     /// <returns>False when all forty native PLM slots are occupied; no terrain is changed.</returns>
     public bool TrySpawnShitroidWallMutation(
@@ -769,7 +764,6 @@ internal sealed class BossRoomMutationPlms
 
         slot.Header = header;
         slot.BlockIndex = level.GetBlockIndex(block);
-        slot.RestoreLevelWord = 0;
         slot.LoopTimer = 0;
         slot.PreInstruction = PlmPreInstructions.Inert;
         slot.Argument = null;
@@ -782,9 +776,9 @@ internal sealed class BossRoomMutationPlms
         for (int rowOffset = 0; rowOffset < 10; rowOffset++)
         {
             int blockIndex = level.GetBlockIndex(block + new Offset16<RoomBlocks>(0, checked((short)rowOffset)));
-            RoomLevelWord replacement = level.GetCollisionBlockByIndex(blockIndex).PackedWord.WithCollisionType(
+            RoomTerrainBlock replacement = level.GetCollisionBlockByIndex(blockIndex).Terrain.WithCollision(
                 header == PlmHeaderId.CreateBabyMetroidInvisibleWall ? RoomCollisionType.SolidBlock : RoomCollisionType.Air);
-            level.SetForegroundEntry(blockIndex, replacement.Raw);
+            level.SetTerrain(blockIndex, replacement);
         }
         return true;
     }
@@ -1099,7 +1093,6 @@ internal sealed class BossRoomMutationPlms
             return false;
 
         slot.BlockIndex = level.GetBlockIndex(block);
-        slot.RestoreLevelWord = 0;
         slot.LoopTimer = 0;
         slot.StartAnimation(new MotherBrainFakeDeathPlmAnimation(program));
         slot.InstructionTimer = WrappingCountdown.Start(1);
@@ -1108,11 +1101,11 @@ internal sealed class BossRoomMutationPlms
         {
             // B5F8 installs the door-list index and three upward-linked extensions
             // synchronously, before the first draw instruction changes their artwork.
-            PlmLevelWrites.WritePlmCollisionTypeAndBts(level, slot.BlockIndex, RoomCollisionType.DoorBlock,
-                MotherBrainDeathDefinitions.EscapeDoorListIndex);
+            PlmLevelWrites.WritePlmCollisionAndBehavior(level, slot.BlockIndex, RoomCollisionType.DoorBlock,
+                MotherBrainDeathDefinitions.EscapeDoorBehavior);
             for (int row = 1; row < 4; row++)
-                PlmLevelWrites.WritePlmCollisionTypeAndBts(level, slot.BlockIndex + row * level.Size.X,
-                    RoomCollisionType.VerticalExtension, unchecked((byte)MotherBrainDeathDefinitions.EscapeDoorExtensionOffset));
+                PlmLevelWrites.WritePlmCollisionAndBehavior(level, slot.BlockIndex + row * level.Size.X,
+                    RoomCollisionType.VerticalExtension, MotherBrainDeathDefinitions.EscapeDoorExtensionBehavior);
         }
         return true;
     }

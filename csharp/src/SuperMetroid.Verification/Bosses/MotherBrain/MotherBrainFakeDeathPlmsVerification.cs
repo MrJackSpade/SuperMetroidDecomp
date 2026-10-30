@@ -77,15 +77,14 @@ internal static class MotherBrainFakeDeathPlmsVerification
     {
         const int width = 32;
         const int height = 16;
-        ushort[] words = Enumerable.Repeat((ushort)0x8123,
+        RoomTerrainBlock[] terrain = Enumerable.Repeat(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock),
             width * height).ToArray();
-        RoomLevelData level = CreateRoom(new(width, height), words,
-            new byte[words.Length]);
+        RoomLevelData level = CreateRoom(new(width, height), terrain, new RoomBlockBehavior[terrain.Length]);
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.BossRoomMutations.TrySpawnMotherBrainMutation(level, new(5, 3), header),
             $"Mother Brain mutation {header} allocates");
-        ushort[] expected = Enumerable.Range(0, words.Length)
-            .Select(index => level.GetCollisionBlockByIndex(index).PackedWord.Raw)
+        RoomTerrainBlock[] expected = Enumerable.Range(0, terrain.Length)
+            .Select(index => level.GetCollisionBlockByIndex(index).Terrain)
             .ToArray();
         AssertTrue(plms.PopulationSlots.Single().Animation is MotherBrainFakeDeathPlmAnimation { Program: var started } && started == program,
             $"Mother Brain mutation {header} starts its typed program");
@@ -100,9 +99,9 @@ internal static class MotherBrainFakeDeathPlmsVerification
             int y = 3 + (runIndex == 0 ? 0 :
                 draw.Runs.Span[runIndex - 1].Next.Y);
             bool vertical = run.Direction == PlmRunDirection.Vertical;
-            for (int block = 0; block < run.LevelWords.Length; block++)
+            for (int block = 0; block < run.Blocks.Length; block++)
                 expected[(y + (vertical ? block : 0)) * width +
-                    x + (vertical ? 0 : block)] = run.LevelWords.Span[block];
+                    x + (vertical ? 0 : block)] = run.Blocks.Span[block];
         }
         var guard = NewMotherBrainFakeDeathSourceGuard(new TestAddressSpace());
         plms.Step(level);
@@ -110,7 +109,7 @@ internal static class MotherBrainFakeDeathPlmsVerification
             $"Mother Brain mutation {header} persists through its draw frame");
         for (int index = 0; index < expected.Length; index++)
             AssertEqual(expected[index],
-                level.GetCollisionBlockByIndex(index).PackedWord.Raw,
+                level.GetCollisionBlockByIndex(index).Terrain,
                 $"Mother Brain mutation {header} level block {index}");
         plms.Step(level);
         AssertEqual(0, plms.SlotTable.ActiveCount,
@@ -129,7 +128,7 @@ internal static class MotherBrainFakeDeathPlmsVerification
                  MotherBrainFakeDeathDraws.All.Any(draw =>
                      pointer >= PlmDrawAddressCodec.Of(draw.Draw) && pointer < PlmDrawAddressCodec.Of(draw.Draw) +
                          draw.Runs.Span.Sum(run =>
-                             4 + run.LevelWords.Length * 2)));
+                             4 + run.Blocks.Length * 2)));
         }, address => $"Mother Brain mutation reread migrated source ${address:X6}.");
 
     /// <summary>Runs the focused Mother Brain terrain mutation comparison against the retail ROM.</summary>

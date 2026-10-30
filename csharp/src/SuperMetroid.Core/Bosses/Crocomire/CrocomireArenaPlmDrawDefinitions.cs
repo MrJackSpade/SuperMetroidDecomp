@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
 /// Five bounded physical block-draw layouts for Crocomire's bridge and
-/// three-column arena wall at $84:9B5B..9BF6. Bridge runs repeat one word;
+/// three-column arena wall at $84:9B5B..9BF6. Bridge runs repeat one block;
 /// wall columns use consecutive tiles, two alternating rows and a final base row.
-/// Clear/create share artwork and differ only in the solid block bit. Native
+/// Clear/create share artwork and differ only in whether the blocks are solid. Native
 /// continuation offsets are relative to the origin, not the preceding column.
 /// </summary>
 internal static class CrocomireArenaPlmDrawDefinitions
@@ -26,42 +26,42 @@ internal static class CrocomireArenaPlmDrawDefinitions
     /// consecutive tiles with two alternating rows and a final base row between empty cells, solid only when the
     /// create-wall state writes it.
     /// </summary>
-    internal static readonly Dictionary<CrocomireArenaDraw, RoomLevelWord[][]> Cells = new()
+    internal static readonly Dictionary<CrocomireArenaDraw, RoomTerrainBlock[][]> Cells = new()
     {
         [CrocomireArenaDraw.ClearBridge] =
         [
             [
-                RoomLevelWord.Create(0x80, BlockMirroring.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x80, BlockMirroring.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x80, BlockMirroring.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x80, BlockMirroring.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x80, BlockMirroring.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x80, BlockMirroring.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x80, BlockMirroring.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x80, BlockMirroring.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x80, BlockMirroring.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x80, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air),
             ],
         ],
         [CrocomireArenaDraw.CrumbleBridgeBlock] =
         [
-            [RoomLevelWord.Create(0x10b, BlockMirroring.None, RoomCollisionType.SolidBlock)],
+            [RoomTerrainBlock.Of(0x10b, BlockMirroring.None, RoomCollisionType.SolidBlock)],
         ],
         [CrocomireArenaDraw.ClearBridgeBlock] =
         [
-            [RoomLevelWord.Create(0x80, BlockMirroring.None, RoomCollisionType.Air)],
+            [RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air)],
         ],
         [CrocomireArenaDraw.ClearInvisibleWall] =
         [
-            WallColumn(0x107, RoomCollisionType.Air),
-            WallColumn(0x108, RoomCollisionType.Air),
-            WallColumn(0x109, RoomCollisionType.Air),
+            WallColumn(0x107, 0x127, 0x147, RoomCollisionType.Air),
+            WallColumn(0x108, 0x128, 0x148, RoomCollisionType.Air),
+            WallColumn(0x109, 0x129, 0x149, RoomCollisionType.Air),
         ],
         [CrocomireArenaDraw.CreateInvisibleWall] =
         [
-            WallColumn(0x107, RoomCollisionType.SolidBlock),
-            WallColumn(0x108, RoomCollisionType.SolidBlock),
-            WallColumn(0x109, RoomCollisionType.SolidBlock),
+            WallColumn(0x107, 0x127, 0x147, RoomCollisionType.SolidBlock),
+            WallColumn(0x108, 0x128, 0x148, RoomCollisionType.SolidBlock),
+            WallColumn(0x109, 0x129, 0x149, RoomCollisionType.SolidBlock),
         ],
     };
 
@@ -76,18 +76,18 @@ internal static class CrocomireArenaPlmDrawDefinitions
     };
 
     /// <summary>
-    /// One wall column from its first tile: an empty cell, the tile, the tile one tileset row below, the two again,
-    /// the base two rows below the tile, then two empty cells.
+    /// One wall column: an empty cell, the top block, the middle block (the block one tileset row below the top), the
+    /// two again, the base block (two tileset rows below the top), then two empty cells.
     /// </summary>
-    private static RoomLevelWord[] WallColumn(int tile, RoomCollisionType collision) =>
+    private static RoomTerrainBlock[] WallColumn(int top, int middle, int bottom, RoomCollisionType collision) =>
     [
-        RoomLevelWord.Create(0x80, BlockMirroring.None, collision),
-        RoomLevelWord.Create(tile, BlockMirroring.None, collision),
-        RoomLevelWord.Create(tile + 0x20, BlockMirroring.None, collision),
-        RoomLevelWord.Create(tile, BlockMirroring.None, collision),
-        RoomLevelWord.Create(tile + 0x20, BlockMirroring.None, collision),
-        RoomLevelWord.Create(tile + 0x40, BlockMirroring.None, collision),
-        RoomLevelWord.Create(0x80, BlockMirroring.None, collision),
-        RoomLevelWord.Create(0x80, BlockMirroring.None, collision),
+        RoomTerrainBlock.Of(0x80, BlockMirroring.None, collision),
+        RoomTerrainBlock.Of(top, BlockMirroring.None, collision),
+        RoomTerrainBlock.Of(middle, BlockMirroring.None, collision),
+        RoomTerrainBlock.Of(top, BlockMirroring.None, collision),
+        RoomTerrainBlock.Of(middle, BlockMirroring.None, collision),
+        RoomTerrainBlock.Of(bottom, BlockMirroring.None, collision),
+        RoomTerrainBlock.Of(0x80, BlockMirroring.None, collision),
+        RoomTerrainBlock.Of(0x80, BlockMirroring.None, collision),
     ];
 }

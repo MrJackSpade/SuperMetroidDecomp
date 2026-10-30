@@ -322,7 +322,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         EtecoonEnemyState state,
         RoomLevelData level)
     {
-        if (EnemyTerrain.EnemyHasSolidHighBitHorizontallyAhead(
+        if (EnemyTerrain.EnemyMeetsAttachmentBlockHorizontallyAhead(
                 level,
                 slot,
                 EtecoonRightWallProbe))

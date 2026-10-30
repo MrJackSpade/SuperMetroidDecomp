@@ -4,18 +4,21 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Enemies.Chozo.ChozoStatueVisualsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
+using static SuperMetroid.Verification.Harness.TerrainBlockFieldAssertions;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Enemies.Chozo;
 
-/// <summary>Checks three Chozo statue PLM draw layouts against native geometry and block words.</summary>
+/// <summary>Checks three Chozo statue PLM draw layouts against native geometry and decoded terrain blocks.</summary>
 internal static class LookupChozoLayoutsVerification
 {
     /// <summary>Checks draw-domain ownership, continuation offsets, and physical block placement.</summary>
     internal static void VerifyChozoLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyChozoLayoutDrawField(rom, 0);
-    /// <summary>Compares collision-type bits of all Chozo layout cells with native draw words.</summary>
+    /// <summary>Compares the collision kind of all Chozo layout cells with the decoded native draw blocks.</summary>
     internal static void VerifyChozoLayoutCollision(SuperMetroidAddressSpace rom) => VerifyChozoLayoutDrawField(rom, 1);
-    /// <summary>Compares visual bits of all Chozo layout cells with native draw words.</summary>
+    /// <summary>Compares the appearance of all Chozo layout cells with the decoded native draw blocks.</summary>
     internal static void VerifyChozoLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyChozoLayoutDrawField(rom, 2);
 
     /// <summary>Checks the selected geometry or cell field across pointer and visual-ID views.</summary>
@@ -60,13 +63,13 @@ internal static class LookupChozoLayoutsVerification
                 AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Chozo layout reverse ID");
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordCount(invalid), "Chozo layout run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Chozo layout run bounds");
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.NextX(invalid), "Chozo layout X bounds");
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.NextY(invalid), "Chozo layout offset bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(invalid, 0), "Chozo layout word run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid, 0), "Chozo layout block run bounds");
                 }
             }
-            var level = CreateRoom(new(32, 16), new ushort[512], new byte[512]);
+            var level = CreateEmptyRoom(new(32, 16));
             var plms = PlmFixtures.Unbound();
             var guarded = NewChozoProgramAndDrawReadGuard(rom);
             if (field == 0)
@@ -87,32 +90,31 @@ internal static class LookupChozoLayoutsVerification
                 if (field == 0)
                 {
                     AssertEqual((ushort)count, header, "Chozo layout native direction");
-                    AssertEqual(count, shape.WordCount(run), "Chozo layout native calculated count");
+                    AssertEqual(count, shape.BlockCount(run), "Chozo layout native calculated count");
                     AssertEqual(LittleEndianBytes.Word((byte)shape.NextX(run), (byte)shape.NextY(run)), offset, "Chozo layout native calculated continuation");
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         var part = frame.Runs.Span[run];
                         AssertRunHeader(header, part, "Chozo layout native DTO geometry");
-                        AssertEqual(count, part.LevelWords.Length, "Chozo layout native DTO count");
+                        AssertEqual(count, part.Blocks.Length, "Chozo layout native DTO count");
                         AssertEqual(offset, LittleEndianBytes.Word((byte)part.Next.X, (byte)part.Next.Y), "Chozo layout native DTO offset");
                     }
                     for (int cell = 0; cell < count; cell++)
-                        AssertEqual(ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2),
-                            level.GetCollisionBlock(new(checked((ushort)(drawX + cell)), checked((ushort)drawY))).PackedWord.Raw,
-                            "Chozo native physical word at original absolute run position");
+                        AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2)),
+                            level.GetCollisionBlock(new(checked((ushort)(drawX + cell)), checked((ushort)drawY))).Terrain,
+                            "Chozo decoded native block at original absolute run position");
                     drawX = 3 + unchecked((sbyte)offset);
                     drawY = 4 + unchecked((sbyte)(LittleEndianBytes.HighByte(offset)));
                     int selectedRun = run;
                     foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(selectedRun, invalid), "Chozo layout cell bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(selectedRun, invalid), "Chozo layout cell bounds");
                 }
                 else for (int cell = 0; cell < count; cell++)
                 {
-                    int mask = field == 1 ? 0xf000 : 0xfff;
-                    int expected = ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2) & mask;
-                    AssertEqual(expected, shape.WordAt(run, cell) & mask, "Chozo layout original calculated field");
+                    RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2));
+                    AssertTerrainField(field, expected, shape.BlockAt(run, cell), "Chozo layout original calculated field");
                     foreach (var frame in new[] {dto,exported[index],byId})
-                        AssertEqual(expected, frame.Runs.Span[run].LevelWords.Span[cell] & mask, "Chozo layout original DTO field");
+                        AssertTerrainField(field, expected, frame.Runs.Span[run].Blocks.Span[cell], "Chozo layout original DTO field");
                 }
                 cells += count;
                 run++;

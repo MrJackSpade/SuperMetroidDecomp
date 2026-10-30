@@ -45,8 +45,8 @@ internal static class CrocomireArenaVisualsVerification
                 RoomPlmCrocomireVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted Crocomire JSON is empty.");
-            Entry("clear-bridge").Required("blocks")[9] = 0x0058;
-            Entry("create-invisible-wall").Required("blocks")[23] = 0x0059;
+            Entry("clear-bridge").Required("blocks")[9] = InstalledAppearanceJson.Cell(0x58);
+            Entry("create-invisible-wall").Required("blocks")[23] = InstalledAppearanceJson.Cell(0x59);
             Directory.CreateDirectory(
                 installation.RoomPlmCrocomireVisualOverrideDirectory);
             string overridePath = Path.Combine(
@@ -55,34 +55,29 @@ internal static class CrocomireArenaVisualsVerification
             File.WriteAllText(overridePath, document.ToJsonString());
             RoomPlmCrocomireVisualCatalog edited =
                 installation.LoadRoomPlmCrocomireVisuals();
-            AssertEqual((ushort)0x0058,
-                edited.GetWord(PlmDraw.Of(CrocomireArenaDraw.ClearBridge), 0, 9),
+            AssertEqual(RoomBlockAppearance.Of(0x58),
+                edited.GetAppearance(PlmDraw.Of(CrocomireArenaDraw.ClearBridge), 0, 9),
                 "Crocomire override edits far bridge block");
-            AssertEqual((ushort)0x0059,
-                edited.GetWord(PlmDraw.Of(CrocomireArenaDraw.CreateInvisibleWall), 2, 7),
+            AssertEqual(RoomBlockAppearance.Of(0x59),
+                edited.GetAppearance(PlmDraw.Of(CrocomireArenaDraw.CreateInvisibleWall), 2, 7),
                 "Crocomire override edits final wall column");
             VerifyCrocomireVisualDraw(PlmHeaderId.ClearCrocomireBridge,
-                new(9, 0), 0x0080, 0x0058, edited);
+                new(9, 0), RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air), RoomBlockAppearance.Of(0x58), edited);
             VerifyCrocomireVisualDraw(PlmHeaderId.CreateCrocomireInvisibleWall,
-                new(2, 7), 0x8080, 0x0059, edited);
+                new(2, 7), RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.SolidBlock), RoomBlockAppearance.Of(0x59), edited);
             VerifyCrocomireVisualDraw(PlmHeaderId.ClearCrocomireBridge,
-                new(9, 0), 0x0080, 0x0080, null);
+                new(9, 0), RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air), RoomBlockAppearance.Of(0x80), null);
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
             RoomPlmCrocomireVisualFiles.Extract(rom, refreshed,
                 SupportedCartridge.Sha256);
-            AssertEqual((ushort)0x0059,
+            AssertEqual(RoomBlockAppearance.Of(0x59),
                 RoomPlmCrocomireVisualFiles.Load(refreshed,
                     installation.RoomPlmCrocomireVisualOverrideDirectory)
-                    .GetWord(PlmDraw.Of(CrocomireArenaDraw.CreateInvisibleWall),
+                    .GetAppearance(PlmDraw.Of(CrocomireArenaDraw.CreateInvisibleWall),
                         2, 7),
                 "Crocomire override survives stock replacement");
 
-            Entry("clear-bridge").Required("blocks")[9] = 0xf058;
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmCrocomireVisuals(),
-                "Crocomire override cannot alter physical collision bits");
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
                 () => RoomPlmCrocomireVisualFiles.ValidateStock(
@@ -102,23 +97,22 @@ internal static class CrocomireArenaVisualsVerification
 
     /// <summary>Runs one arena mutation and checks its collision word, immediate BG1 update, and ROM-free visual source.</summary>
     private static void VerifyCrocomireVisualDraw(PlmHeaderId header,
-        Offset16<RoomBlocks> blockOffset, ushort physicalWord, ushort visualWord,
+        Offset16<RoomBlocks> blockOffset, RoomTerrainBlock physical, RoomBlockAppearance visual,
         RoomPlmCrocomireVisualCatalog? visuals)
     {
         const int width = 32;
-        ushort[] words = Enumerable.Repeat((ushort)0x8123, width * 16).ToArray();
-        RoomLevelData level = CreateRoom(new(width, 16), words,
-            new byte[words.Length]);
+        RoomTerrainBlock[] terrain = Enumerable.Repeat(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), width * 16).ToArray();
+        RoomLevelData level = CreateRoom(new(width, 16), terrain, new RoomBlockBehavior[terrain.Length]);
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmCrocomireVisuals = visuals });
         AssertTrue(plms.BossRoomMutations.TrySpawnCrocomireArenaMutation(level, new(5, 3), header),
             $"Crocomire visual header {header} allocates");
         var guard = NewCrocomireSourceGuard(new TestAddressSpace());
         plms.Step(level);
         int blockIndex = (3 + blockOffset.Y) * width + 5 + blockOffset.X;
-        AssertEqual(physicalWord,
-            level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
+        AssertEqual(physical,
+            level.GetCollisionBlockByIndex(blockIndex).Terrain,
             $"Crocomire visual header {header} retains physical block");
-        AssertEqual(visualWord, level.DisplayedVisualWord(blockIndex),
+        AssertEqual(visual, level.DisplayedAppearance(blockIndex),
             $"Crocomire visual header {header} presents edited tile");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             $"Crocomire visual header {header} reads no compiled source");

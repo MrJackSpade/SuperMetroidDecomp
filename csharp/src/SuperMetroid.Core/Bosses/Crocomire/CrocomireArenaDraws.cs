@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
@@ -8,8 +9,8 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// </summary>
 internal static class CrocomireArenaDraws
 {
-    /// <summary>Decoded bridge or three-column wall geometry with its independently selected solid collision bit.</summary>
-    internal readonly record struct Draw(CrocomireArenaDraw Frame, CrocomireArenaShape Shape, int WordsPerRun)
+    /// <summary>Bridge or three-column wall geometry with its independently selected solidity.</summary>
+    internal readonly record struct Draw(CrocomireArenaDraw Frame, CrocomireArenaShape Shape, int BlocksPerRun)
     {
         /// <summary>Whether the draw writes wall columns rather than a bridge run.</summary>
         internal bool Wall => Shape != CrocomireArenaShape.Bridge;
@@ -25,13 +26,13 @@ internal static class CrocomireArenaDraws
             return run + 1 < RunCount ? (sbyte)(run + 1) : (sbyte)0;
         }
         /// <summary>The bridge tile or the wall's alternating rows and final base row, solid only in the create-wall state.</summary>
-        internal ushort WordAt(int run, int block)
+        internal RoomTerrainBlock BlockAt(int run, int block)
         {
             if ((uint)run >= RunCount)
                 throw new ArgumentOutOfRangeException(nameof(run));
-            if ((uint)block >= WordsPerRun)
+            if ((uint)block >= BlocksPerRun)
                 throw new ArgumentOutOfRangeException(nameof(block));
-            return CrocomireArenaPlmDrawDefinitions.Cells[Frame][run][block].Raw;
+            return CrocomireArenaPlmDrawDefinitions.Cells[Frame][run][block];
         }
     }
 
@@ -70,9 +71,9 @@ internal static class CrocomireArenaDraws
         var runs = new RoomPlmShotBlockDrawDefinitions.Run[shape.RunCount];
         for (int run = 0; run < runs.Length; run++)
         {
-            var words = new ushort[shape.WordsPerRun];
-            for (int block = 0; block < words.Length; block++) words[block] = shape.WordAt(run, block);
-            runs[run] = new(shape.Direction, words, new(shape.NextX(run), 0));
+            var blocks = new RoomTerrainBlock[shape.BlocksPerRun];
+            for (int block = 0; block < blocks.Length; block++) blocks[block] = shape.BlockAt(run, block);
+            runs[run] = new(shape.Direction, blocks, new(shape.NextX(run), 0));
         }
         list = new(draw, runs);
         return true;

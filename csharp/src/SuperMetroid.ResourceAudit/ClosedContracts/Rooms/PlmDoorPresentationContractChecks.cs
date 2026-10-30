@@ -53,8 +53,8 @@ internal static class PlmDoorPresentationContractChecks
                     eye.GetWord(EyeDoorPlmDrawDefinitions.MirroredOpeningClear, 4);
                     eye.GetWord(EyeDoorDraws.DrawList(EyeDoorOrientation.Left, EyeDoorComponent.Eye, EyeDoorPlmFrame.Eye0), 1);
                     eye.GetWord(EyeDoorDraws.DrawList(EyeDoorOrientation.Left, EyeDoorComponent.Eye, EyeDoorPlmFrame.Eye0), 2);
-                    escape.GetWord(PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 3);
-                    escape.GetWord(PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 4);
+                    escape.GetAppearance(PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 3);
+                    escape.GetAppearance(PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 4);
                     item.GetWord(draw: RoomPlmCollectibleDrawDefinitions.Empty);
                     item.GetWord(draw: PlmDraw.Of(StationDraw.MapFrame0));
                     grapple.GetWord(PlmDraw.Of(GrappleBlockDraw.Intact));

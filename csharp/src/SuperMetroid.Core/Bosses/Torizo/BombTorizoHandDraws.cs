@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
@@ -18,7 +19,7 @@ internal static class BombTorizoHandDraws
         /// <summary>Gets the number of horizontal strips in the selected native draw list.</summary>
         internal int RunCount => Strips.Length;
         /// <summary>Gets the block count in a selected strip, rejecting an invalid run index.</summary>
-        internal int WordCount(int run) => Strip(run).Cells.Length;
+        internal int BlockCount(int run) => Strip(run).Cells.Length;
         /// <summary>Gets a strip's horizontal origin relative to the hand PLM block.</summary>
         internal sbyte OriginX(int run) => checked((sbyte)Strip(run).Origin.X);
         /// <summary>Gets a strip's vertical origin relative to the hand PLM block.</summary>
@@ -35,12 +36,12 @@ internal static class BombTorizoHandDraws
             _ = Strip(run);
             return run + 1 == RunCount ? (sbyte)0 : OriginY(run + 1);
         }
-        /// <summary>Gets one strip cell's physical level word.</summary>
-        internal ushort WordAt(int run, int word)
+        /// <summary>Gets one strip cell's terrain block.</summary>
+        internal RoomTerrainBlock BlockAt(int run, int cell)
         {
             BombTorizoHandStrip strip = Strip(run);
-            if ((uint)word >= strip.Cells.Length) throw new ArgumentOutOfRangeException(nameof(word));
-            return strip.Cells[word].Raw;
+            if ((uint)cell >= strip.Cells.Length) throw new ArgumentOutOfRangeException(nameof(cell));
+            return strip.Cells[cell];
         }
         /// <summary>Selects a strip, rejecting indices outside the selected intact or cleared list.</summary>
         private BombTorizoHandStrip Strip(int run) =>
@@ -75,9 +76,9 @@ internal static class BombTorizoHandDraws
         var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];
         for (int run = 0; run < runs.Length; run++)
         {
-            var words = new ushort[draw.WordCount(run)];
-            for (int word = 0; word < words.Length; word++) words[word] = draw.WordAt(run, word);
-            runs[run] = new(PlmRunDirection.Horizontal, words, new(draw.NextX(run), draw.NextY(run)));
+            var blocks = new RoomTerrainBlock[draw.BlockCount(run)];
+            for (int cell = 0; cell < blocks.Length; cell++) blocks[cell] = draw.BlockAt(run, cell);
+            runs[run] = new(PlmRunDirection.Horizontal, blocks, new(draw.NextX(run), draw.NextY(run)));
         }
         list = new(request, runs);
         return true;

@@ -1,4 +1,4 @@
-using System.Buffers.Binary;
+using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Core.Frontend.Intro.IntroMotherBrainCollisionDefinitions;
 
 namespace SuperMetroid.Core.Frontend.Intro;
@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal static class IntroMotherBrainCollision
 {
     /// <summary>Combines the authored left collision contour with geometric ceiling, floor, center, and right-platform blocks.</summary>
-    private static ushort Block(int row, int column)
+    private static RoomTerrainBlock Block(int row, int column)
     {
         if (row is CeilingRow or FloorRow) return Solid;
         if (row > CeilingRow && row < FloorRow && column < LeftContourWidths[row - UpperTipRow])
@@ -22,20 +22,20 @@ internal static class IntroMotherBrainCollision
         bool rightPlatform = column >= RightPlatformColumn && row >= PlatformRow && row <= PlatformRow + 1;
         if (centralPlatform || rightPlatform) return row == PlatformRow ? PlatformTop : Solid;
         if (row == FloorRow - 1 && column == CentralColumn + 1) return Solid;
-        return 0;
+        return Empty;
     }
 
-    /// <summary>Construct the exact debugger-visible native bytes independently for each flashback.</summary>
-    internal static byte[] CopySourceBytes()
+    /// <summary>
+    /// Builds the flashback room's terrain, row-major and freshly for each flashback: the authored source rows, then
+    /// empty rows to the room's full height.
+    /// </summary>
+    internal static RoomTerrainBlock[] CreateForeground()
     {
-        var bytes = new byte[Columns * SourceRows * sizeof(ushort)];
+        var foreground = new RoomTerrainBlock[Columns * RoomRows];
+        foreground.AsSpan().Fill(Empty);
         for (int row = 0; row < SourceRows; row++)
             for (int column = 0; column < Columns; column++)
-            {
-                int word = Block(row, column);
-                int offset = (row * Columns + column) * sizeof(ushort);
-                BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(offset), checked((ushort)word));
-            }
-        return bytes;
+                foreground[row * Columns + column] = Block(row, column);
+        return foreground;
     }
 }

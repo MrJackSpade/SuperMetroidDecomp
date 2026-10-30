@@ -32,9 +32,9 @@ internal static class LowerNorfairHandVerification
         var handEntries = ChozoStatueDraws.All.Select(draw =>
             new RoomPlmVisualEntry(
                 ChozoStatueDraws.VisualId(draw.Draw),
-                draw.VisualWords())).ToArray();
+                draw.Appearances())).ToArray();
         handEntries.Single(entry => entry.Id == "lower-norfair-cleared-hand")
-            .Blocks[0] = 0x0053;
+            .Blocks[0] = RoomBlockAppearance.Of(0x53);
         runtime.ShotBlockVisuals.RoomPlmChozoStatueVisuals =
             new RoomPlmChozoStatueVisualCatalog(handEntries);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
@@ -45,11 +45,11 @@ internal static class LowerNorfairHandVerification
         var level = runtime.Room.LoadedLevelData;
         var hand = level.GetCollisionBlock(new(4, 8));
         AssertTrue(runtime.Plms.BlockReactions.TrySpawnProjectileShotBlock(level, hand.Index,
-            hand.Bts, new SamusProjectileTypeWord(0x0300), true), "power bomb breaks the retail hand cover");
+            hand.Behavior, new SamusProjectileTypeWord(0x0300), true), "power bomb breaks the retail hand cover");
         for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);
         hand = level.GetCollisionBlock(new(4, 8));
         AssertEqual(RoomCollisionType.SpecialBlock, hand.CollisionType, "destroyed cover becomes solid hand");
-        AssertEqual(0x83, hand.Bts.Value, "Norfair hand activation BTS");
+        AssertEqual(ChozoStatueRoomDefinitions.LowerNorfairHandBehavior, hand.Behavior, "Norfair hand activation behaviour");
         var samus = runtime.Player.IntroducedSamus;
         foreach (bool hasSpaceJump in new[] { false, true })
         {
@@ -122,8 +122,8 @@ internal static class LowerNorfairHandVerification
         AssertTrue(runtime.Room.LoadedLevelData.GetCollisionBlock(new(4, 8)).CollisionType != RoomCollisionType.SpecialBlock,
             "completed statue does not install another hand trigger");
         RoomLevelData reentered = runtime.Room.LoadedLevelData;
-        AssertEqual((ushort)0x0053,
-            reentered.DisplayedVisualWord(0x1d * reentered.Size.X + 0x0c),
+        AssertEqual(RoomBlockAppearance.Of(0x53),
+            reentered.DisplayedAppearance(0x1d * reentered.Size.X + 0x0c),
             "event-completed hand re-entry streams the installed visual override");
         AssertEqual(0, bus.ForbiddenReadAttempts,
             "complete Lower Norfair hand sequence did not reread compiled PLM data");

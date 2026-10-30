@@ -14,12 +14,12 @@ internal static class EscapeAnimalWalls
             draw = default;
             return false;
         }
-        RoomLevelWord word = EscapeAnimalPlmDrawDefinitions.Cells.TryGetValue(list, out RoomLevelWord cell)
+        RoomTerrainBlock block = EscapeAnimalPlmDrawDefinitions.Cells.TryGetValue(list, out RoomTerrainBlock cell)
             ? cell
             : throw new InvalidOperationException($"Undefined EscapeAnimalDraw {list}.");
         draw = new(request, new RoomPlmShotBlockDrawDefinitions.Run[]
         {
-            new(PlmRunDirection.Vertical, Enumerable.Repeat(word.Raw, EscapeAnimalPlmDrawDefinitions.WallHeight).ToArray(), new(0, 0)),
+            new(PlmRunDirection.Vertical, Enumerable.Repeat(block, EscapeAnimalPlmDrawDefinitions.WallHeight).ToArray(), new(0, 0)),
         });
         return true;
     }

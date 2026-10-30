@@ -8,6 +8,8 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Verification.Harness;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 
 /// <summary>Checks Draygon cannon visual extraction, installation, overrides, and stock integrity.</summary>
@@ -38,32 +40,27 @@ internal static class DraygonCannonVisualsVerification
                 ?? throw new InvalidDataException("Extracted cannon JSON is empty.");
             JsonNode rightShield = document.Required("entries").AsArray().RequiredElements().Single(entry =>
                 entry.Required("id").GetValue<string>() == "right-shield-a");
-            rightShield.Required("blocks")[0] = 0x0053;
+            rightShield.Required("blocks")[0] = InstalledAppearanceJson.Cell(0x53);
             Directory.CreateDirectory(
                 installation.RoomPlmDraygonCannonVisualOverrideDirectory);
             string overridePath = Path.Combine(
                 installation.RoomPlmDraygonCannonVisualOverrideDirectory,
                 RoomPlmDraygonCannonVisualFiles.VisualFileName);
             File.WriteAllText(overridePath, document.ToJsonString());
-            AssertEqual((ushort)0x0053,
-                installation.LoadRoomPlmDraygonCannonVisuals().GetWord(
+            AssertEqual(RoomBlockAppearance.Of(0x53),
+                installation.LoadRoomPlmDraygonCannonVisuals().GetAppearance(
                     PlmDraw.Of(DraygonCannonDraw.RightShieldA), 0, 0),
                 "installed cannon override selects its edited block");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
             RoomPlmDraygonCannonVisualFiles.Extract(rom, refreshed,
                 SupportedCartridge.Sha256);
-            AssertEqual((ushort)0x0053,
+            AssertEqual(RoomBlockAppearance.Of(0x53),
                 RoomPlmDraygonCannonVisualFiles.Load(refreshed,
                     installation.RoomPlmDraygonCannonVisualOverrideDirectory)
-                    .GetWord(PlmDraw.Of(DraygonCannonDraw.RightShieldA), 0, 0),
+                    .GetAppearance(PlmDraw.Of(DraygonCannonDraw.RightShieldA), 0, 0),
                 "cannon override survives stock replacement");
 
-            rightShield.Required("blocks")[0] = 0xf053;
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmDraygonCannonVisuals(),
-                "cannon override rejects physical collision bits");
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
                 () => RoomPlmDraygonCannonVisualFiles.ValidateStock(

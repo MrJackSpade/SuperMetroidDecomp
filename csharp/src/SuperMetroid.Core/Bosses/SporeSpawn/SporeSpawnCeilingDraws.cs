@@ -10,15 +10,15 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 internal static class SporeSpawnCeilingDraws
 {
     /// <summary>The one air cell a ceiling draw fills its square with.</summary>
-    internal static bool TryGetWord(PlmDraw request, out RoomLevelWord word)
+    internal static bool TryGetBlock(PlmDraw request, out RoomTerrainBlock block)
     {
         if (request is not PlmFrameDraw<SporeSpawnCeilingDraw>)
         {
-            word = default;
+            block = default;
             return false;
         }
         var list = PlmDraw.FrameOf<SporeSpawnCeilingDraw>(request, "SporeSpawnCeilingDraw");
-        word = SporeSpawnCeilingPlmDrawDefinitions.Cells.TryGetValue(list, out RoomLevelWord cell)
+        block = SporeSpawnCeilingPlmDrawDefinitions.Cells.TryGetValue(list, out RoomTerrainBlock cell)
             ? cell
             : throw new InvalidOperationException($"Undefined SporeSpawnCeilingDraw {list}.");
         return true;
@@ -56,23 +56,23 @@ internal static class SporeSpawnCeilingDraws
     internal static bool TryGet(PlmDraw request,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
-        if (TryGetWord(request, out RoomLevelWord word))
+        if (TryGetBlock(request, out RoomTerrainBlock block))
         {
-            list = Square(request, word);
+            list = Square(request, block);
             return true;
         }
         list = default;
         return false;
     }
 
-    /// <summary>Duplicates one physical tile across the two horizontal runs of the ceiling's two-by-two layout.</summary>
+    /// <summary>Duplicates one terrain block across the two horizontal runs of the ceiling's two-by-two layout.</summary>
     private static RoomPlmShotBlockDrawDefinitions.DrawList Square(
-        PlmDraw draw, RoomLevelWord physicalWord) => new(draw,
+        PlmDraw draw, RoomTerrainBlock block) => new(draw,
         new RoomPlmShotBlockDrawDefinitions.Run[]
         {
             new RoomPlmShotBlockDrawDefinitions.Run(
-                PlmRunDirection.Horizontal, new ushort[] { physicalWord.Raw, physicalWord.Raw }, new(0, 1)),
+                PlmRunDirection.Horizontal, new[] { block, block }, new(0, 1)),
             new RoomPlmShotBlockDrawDefinitions.Run(
-                PlmRunDirection.Horizontal, new ushort[] { physicalWord.Raw, physicalWord.Raw }, new(0, 0)),
+                PlmRunDirection.Horizontal, new[] { block, block }, new(0, 0)),
         });
 }

@@ -27,9 +27,7 @@ internal static class DraygonCannonPlmsVerification
         const int roomHeight = 32;
         var bus = new TestAddressSpace();
         SeedDraygonCannonFixture(bus);
-        RoomLevelData level = CreateRoom(new(roomWidth, roomHeight),
-            new ushort[roomWidth * roomHeight],
-            new byte[roomWidth * roomHeight]);
+        RoomLevelData level = CreateEmptyRoom(new(roomWidth, roomHeight));
         var disabledWords = new List<DraygonCannonControlWord>();
         var plms = PlmFixtures.Unbound();
 
@@ -47,15 +45,15 @@ internal static class DraygonCannonPlmsVerification
         int rightBlock = 18 * roomWidth + 2;
         int upperLeftBlock = 15 * roomWidth + 29;
         int lowerLeftBlock = 21 * roomWidth + 29;
-        AssertEqual((int)RoomCollisionType.ShootableBlock,
-            (int)level.GetCollisionBlockByIndex(rightBlock).CollisionType,
-            "shielded right cannon setup installs type C");
-        AssertEqual(0x44, level.GetCollisionBlockByIndex(rightBlock).Bts.Value,
-            "shielded right cannon setup installs BTS 44");
-        AssertEqual((int)RoomCollisionType.VerticalExtension,
-            (int)level.GetCollisionBlockByIndex(rightBlock + roomWidth).CollisionType,
+        AssertEqual(RoomCollisionType.ShootableBlock,
+            level.GetCollisionBlockByIndex(rightBlock).CollisionType,
+            "shielded right cannon setup installs a shootable block");
+        AssertEqual(0x44, level.GetCollisionBlockByIndex(rightBlock).Behavior.Value,
+            "shielded right cannon setup installs behaviour 44");
+        AssertEqual(RoomCollisionType.VerticalExtension,
+            level.GetCollisionBlockByIndex(rightBlock + roomWidth).CollisionType,
             "shielded right cannon setup installs its vertical extension");
-        AssertEqual(0xff, level.GetCollisionBlockByIndex(rightBlock + roomWidth).Bts.Value,
+        AssertEqual(0xff, level.GetCollisionBlockByIndex(rightBlock + roomWidth).Behavior.Value,
             "shielded right cannon extension points to its origin");
 
         StepDraygonCannonPlms(plms, level);
@@ -88,8 +86,8 @@ internal static class DraygonCannonPlmsVerification
         AssertDestroyedCannon(level, upperLeftBlock, roomWidth, "upper-left cannon");
         AssertTrue(!disabledWords.Contains(DraygonCannonControlWord.LowerRight),
             "untouched lower-right cannon remains enabled");
-        AssertEqual((int)RoomCollisionType.ShootableBlock,
-            (int)level.GetCollisionBlockByIndex(lowerLeftBlock).CollisionType,
+        AssertEqual(RoomCollisionType.ShootableBlock,
+            level.GetCollisionBlockByIndex(lowerLeftBlock).CollisionType,
             "untouched lower-right cannon remains shootable");
 
         Console.WriteLine(
@@ -123,7 +121,7 @@ internal static class DraygonCannonPlmsVerification
         RoomLevelData level) =>
         plms.Step(level, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
 
-    /// <summary>Requires both cannon cells to become spike blocks with BTS 03 after destruction.</summary>
+    /// <summary>Requires both cannon cells to become spike blocks with the destroyed-cannon behaviour.</summary>
     private static void AssertDestroyedCannon(
         RoomLevelData level,
         int blockIndex,
@@ -132,11 +130,11 @@ internal static class DraygonCannonPlmsVerification
     {
         foreach (int cell in new[] { blockIndex, blockIndex + roomWidth })
         {
-            AssertEqual((int)RoomCollisionType.SpikeBlock,
-                (int)level.GetCollisionBlockByIndex(cell).CollisionType,
-                $"{context} replaces cell {cell} with type A");
-            AssertEqual(0x03, level.GetCollisionBlockByIndex(cell).Bts.Value,
-                $"{context} replaces cell {cell} with BTS 03");
+            AssertEqual(RoomCollisionType.SpikeBlock,
+                level.GetCollisionBlockByIndex(cell).CollisionType,
+                $"{context} replaces cell {cell} with a spike block");
+            AssertEqual(0x03, level.GetCollisionBlockByIndex(cell).Behavior.Value,
+                $"{context} replaces cell {cell} with behaviour 03");
         }
     }
 

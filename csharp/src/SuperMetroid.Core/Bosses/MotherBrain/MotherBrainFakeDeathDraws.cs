@@ -56,11 +56,11 @@ internal static class MotherBrainFakeDeathDraws
             return run + 1 == RunCount ? (sbyte)0 : (sbyte)(Side == 0 ? 1 : Side);
         }
         /// <summary>The solid fill row's cell, or a tube interior cleared between its restored endpoints.</summary>
-        internal ushort WordAt(int run, int block)
+        internal RoomTerrainBlock BlockAt(int run, int block)
         {
             int count = Count(run);
             if ((uint)block >= count) throw new ArgumentOutOfRangeException(nameof(block));
-            return MotherBrainFakeDeathPlmDrawDefinitions.Cells[Frame][run][block].Raw;
+            return MotherBrainFakeDeathPlmDrawDefinitions.Cells[Frame][run][block];
         }
     }
 
@@ -68,7 +68,7 @@ internal static class MotherBrainFakeDeathDraws
     internal static bool TryDescribeRegular(PlmDraw request, out RegularDraw draw)
     {
         draw = default;
-        // Shared draw-pointer space: words outside this family belong to other owners.
+        // Shared draw-pointer space: draws outside this family belong to other owners.
         if (request is not PlmFrameDraw<MotherBrainFakeDeathDraw>) return false;
         var list = PlmDraw.FrameOf<MotherBrainFakeDeathDraw>(request, "MotherBrainFakeDeathDraw");
         if (MotherBrainFakeDeathPlmDrawDefinitions.RegularShapes.TryGetValue(list, out draw))
@@ -87,9 +87,9 @@ internal static class MotherBrainFakeDeathDraws
         var runs = new RoomPlmShotBlockDrawDefinitions.Run[shape.RunCount];
         for (int run = 0; run < runs.Length; run++)
         {
-            var words = new ushort[shape.Count(run)];
-            for (int block = 0; block < words.Length; block++) words[block] = shape.WordAt(run, block);
-            runs[run] = new(shape.Vertical(run) ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal, words, new(shape.NextX(run), 0));
+            var blocks = new RoomTerrainBlock[shape.Count(run)];
+            for (int block = 0; block < blocks.Length; block++) blocks[block] = shape.BlockAt(run, block);
+            runs[run] = new(shape.Vertical(run) ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal, blocks, new(shape.NextX(run), 0));
         }
         draw = new(request, runs);
         return true;
@@ -107,17 +107,17 @@ internal static class MotherBrainFakeDeathDraws
 
     /// <summary>
     /// Twelve horizontal thirteen-cell rows at 84:9505..966C, spaced thirty
-    /// bytes apart. Top/bottom rows retain collision type one; interior rows
-    /// are air. Visual bits remain independent from these physical boundaries.
+    /// bytes apart. Top/bottom rows are slopes; interior rows are air.
+    /// Appearances remain independent from these physical boundaries.
     /// </summary>
     internal readonly record struct BackgroundDraw([property: IntegerQuantity("tile row within the background draw")] int Row)
     {
         /// <summary>Combines a selected mural tile with solid collision only on its upper and lower border rows.</summary>
-        internal ushort WordAt(int column)
+        internal RoomTerrainBlock BlockAt(int column)
         {
             if ((uint)column >= 13) throw new ArgumentOutOfRangeException(nameof(column));
-            RoomLevelWord visual = MotherBrainFakeDeathPlmDrawDefinitions.BackgroundVisuals[Row][column];
-            return (Row is 0 or 11 ? visual.WithCollisionType(RoomCollisionType.Slope) : visual).Raw;
+            RoomTerrainBlock visual = MotherBrainFakeDeathPlmDrawDefinitions.BackgroundVisuals[Row][column];
+            return Row is 0 or 11 ? visual.WithCollision(RoomCollisionType.Slope) : visual;
         }
     }
 
@@ -136,9 +136,9 @@ internal static class MotherBrainFakeDeathDraws
     {
         draw = default;
         if (!TryDescribeBackground(request, out var row)) return false;
-        var words = new ushort[13];
-        for (int column = 0; column < words.Length; column++) words[column] = row.WordAt(column);
-        draw = new(request, new RoomPlmShotBlockDrawDefinitions.Run[] { new(PlmRunDirection.Horizontal, words, new(0, 0)) });
+        var blocks = new RoomTerrainBlock[13];
+        for (int column = 0; column < blocks.Length; column++) blocks[column] = row.BlockAt(column);
+        draw = new(request, new RoomPlmShotBlockDrawDefinitions.Run[] { new(PlmRunDirection.Horizontal, blocks, new(0, 0)) });
         return true;
     }
 
@@ -177,10 +177,10 @@ internal static class MotherBrainFakeDeathDraws
             return Frame == MotherBrainFakeDeathDraw.FillWall && run == 0 ? (sbyte)-1 : (sbyte)0;
         }
         /// <summary>The solid wall caps or the escape door's parent, extensions and air-backed artwork.</summary>
-        internal ushort WordAt(int run, int block)
+        internal RoomTerrainBlock BlockAt(int run, int block)
         {
             if ((uint)block >= Count(run)) throw new ArgumentOutOfRangeException(nameof(block));
-            return MotherBrainFakeDeathPlmDrawDefinitions.Cells[Frame][run][block].Raw;
+            return MotherBrainFakeDeathPlmDrawDefinitions.Cells[Frame][run][block];
         }
     }
 
@@ -188,7 +188,7 @@ internal static class MotherBrainFakeDeathDraws
     internal static bool TryDescribeBoundary(PlmDraw request, out BoundaryDraw draw)
     {
         draw = default;
-        // Shared draw-pointer space: words outside this family belong to other owners.
+        // Shared draw-pointer space: draws outside this family belong to other owners.
         if (request is not PlmFrameDraw<MotherBrainFakeDeathDraw>) return false;
         var list = PlmDraw.FrameOf<MotherBrainFakeDeathDraw>(request, "MotherBrainFakeDeathDraw");
         bool owned = list is MotherBrainFakeDeathDraw.FillWall or MotherBrainFakeDeathDraw.EscapeDoor;
@@ -204,9 +204,9 @@ internal static class MotherBrainFakeDeathDraws
         var runs = new RoomPlmShotBlockDrawDefinitions.Run[2];
         for (int run = 0; run < runs.Length; run++)
         {
-            var words = new ushort[shape.Count(run)];
-            for (int block = 0; block < words.Length; block++) words[block] = shape.WordAt(run, block);
-            runs[run] = new(PlmRunDirection.Vertical, words, new(shape.NextX(run), shape.NextY(run)));
+            var blocks = new RoomTerrainBlock[shape.Count(run)];
+            for (int block = 0; block < blocks.Length; block++) blocks[block] = shape.BlockAt(run, block);
+            runs[run] = new(PlmRunDirection.Vertical, blocks, new(shape.NextX(run), shape.NextY(run)));
         }
         draw = new(request, runs);
         return true;

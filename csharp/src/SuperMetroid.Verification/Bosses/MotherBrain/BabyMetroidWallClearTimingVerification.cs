@@ -33,8 +33,8 @@ internal static class BabyMetroidWallClearTimingVerification
         const int WallColumn = 0x30, WallRow = 11;
         // The wall as Baby Metroid's earlier create request leaves it: rows 9-12 solid.
         for (int row = 9; row <= 12; row++)
-            level.SetForegroundEntry(row * level.Size.X + WallColumn,
-                RoomLevelWord.Create(0x00ff, 0, RoomCollisionType.SolidBlock).Raw);
+            level.SetTerrain(row * level.Size.X + WallColumn,
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.SolidBlock));
 
         var shitroid = runtime.Enemies.ShitroidBehavior.Shitroid ?? throw new InvalidOperationException("Verification requires runtime.Enemies.ShitroidBehavior._shitroid.");
         shitroid.Function = ShitroidAiFunction.RiseAfterFeeding;

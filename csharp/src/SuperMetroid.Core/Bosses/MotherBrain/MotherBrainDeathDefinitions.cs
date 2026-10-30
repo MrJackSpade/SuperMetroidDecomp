@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -41,9 +42,9 @@ public static class MotherBrainDeathDefinitions
     /// <summary>The screen position of the escape subtitle.</summary>
     public const int SubtitleX = 128, SubtitleY = 192;
 
-    /// <summary>The door-list entry the escape door leads through.</summary>
-    public const int EscapeDoorListIndex = 1;
+    /// <summary>The escape door's behaviour: it leads through door-list entry one.</summary>
+    public static readonly RoomBlockBehavior EscapeDoorBehavior = new(1);
 
-    /// <summary>The block each escape-door extension links to: one block upward.</summary>
-    public const sbyte EscapeDoorExtensionOffset = -1;
+    /// <summary>Each escape-door extension's behaviour: a link to the block one row upward.</summary>
+    public static readonly RoomBlockBehavior EscapeDoorExtensionBehavior = new(0xff);
 }

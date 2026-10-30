@@ -12,7 +12,7 @@ public static class RoomPlmDraygonCannonVisualFiles
     public const string VisualFileName = "draygon-cannons.json";
 
     /// <summary>Verifies the twelve reachable native cannon layouts and creates flattened shield/damaged-frame visual JSON plus its provenance and digest manifest.</summary>
-    /// <param name="bus">Cartridge source for bank-$84 comparisons of complete cannon level words and two- or three-run geometry.</param>
+    /// <param name="bus">Cartridge source for bank-$84 comparisons of decoded cannon terrain blocks and two- or three-run geometry.</param>
     /// <param name="directory">Destination directory, created if absent; the visual JSON and manifest must not already exist.</param>
     /// <param name="sourceCartridgeSha256">Source identity recorded in the manifest; subsequent loading requires the supported cartridge identity.</param>
     /// <exception cref="InvalidDataException">Native draw contents or geometry differ from the compiled reachable cannon definitions.</exception>
@@ -26,14 +26,14 @@ public static class RoomPlmDraygonCannonVisualFiles
     /// <param name="stockDirectory">Stock directory containing the cannon JSON and its provenance/digest manifest.</param>
     /// <param name="overrideDirectory">Optional directory whose cannon JSON replaces stock when present; an absent file retains stock.</param>
     /// <returns>The selected reachable cannon art, leaving hit thresholds, physical collision, and control writes compiled.</returns>
-    /// <exception cref="InvalidDataException">Stock provenance, digest, format, or compiled equality fails, or selected entries violate frame coverage or visual-word rules.</exception>
+    /// <exception cref="InvalidDataException">Stock provenance, digest, format, or compiled equality fails, or selected entries violate frame coverage.</exception>
     public static RoomPlmDraygonCannonVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
             new RoomPlmVisualFamily<RoomPlmDraygonCannonVisualCatalog>(VisualFileName, "Draygon cannon", DraygonCannonDraws.All, DraygonCannonDraws.VisualId, entries => new RoomPlmDraygonCannonVisualCatalog(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetWord(draw, run, block)));
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 
-    /// <summary>Checks stock cannon provenance, digest, schema, twelve-frame coverage, and equality with compiled visual words; ignores overrides.</summary>
+    /// <summary>Checks stock cannon provenance, digest, schema, twelve-frame coverage, and equality with compiled appearances; ignores overrides.</summary>
     /// <param name="directory">Installed stock Draygon cannon directory.</param>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 }

@@ -13,6 +13,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.World;
+using SuperMetroid.Verification.Harness;
 namespace SuperMetroid.Verification.Enemies.Chozo;
 
 /// <summary>Checks extracted Chozo statue draw data, editable visual overrides, and compiled PLM execution.</summary>
@@ -44,11 +45,11 @@ internal static class ChozoStatueVisualsVerification
             JsonNode clearSlope = document.Required("entries").AsArray().RequiredElements().Single(entry =>
                 entry.Required("id").GetValue<string>() ==
                 "wrecked-ship-clear-slope-access");
-            clearSlope.Required("blocks")[0] = 0x0053;
+            clearSlope.Required("blocks")[0] = InstalledAppearanceJson.Cell(0x53);
             JsonNode blockSlope = document.Required("entries").AsArray().RequiredElements().Single(entry =>
                 entry.Required("id").GetValue<string>() ==
                 "wrecked-ship-block-slope-access");
-            blockSlope.Required("blocks")[0] = 0x0054;
+            blockSlope.Required("blocks")[0] = InstalledAppearanceJson.Cell(0x54);
             Directory.CreateDirectory(
                 installation.RoomPlmChozoStatueVisualOverrideDirectory);
             string overridePath = Path.Combine(
@@ -56,7 +57,7 @@ internal static class ChozoStatueVisualsVerification
                 RoomPlmChozoStatueVisualFiles.VisualFileName);
             File.WriteAllText(overridePath, document.ToJsonString());
             var selected = installation.LoadRoomPlmChozoStatueVisuals();
-            AssertEqual((ushort)0x0053, selected.GetWord(
+            AssertEqual(RoomBlockAppearance.Of(0x53), selected.GetAppearance(
                 PlmDraw.Of(ChozoStatueDraw.ClearSlopeAccess), 0, 0),
                 "Chozo art override selects its edited first block");
 
@@ -65,14 +66,13 @@ internal static class ChozoStatueVisualsVerification
             // each extracted override without falling back to ROM data.
             const int width = 32;
             var guarded = NewChozoProgramAndDrawReadGuard(rom);
-            foreach ((PlmHeaderId header, ushort physical, ushort visual) in new[]
+            foreach ((PlmHeaderId header, RoomTerrainBlock physical, RoomBlockAppearance visual) in new[]
             {
-                new VerifyChozoStatueVisualInstallationCase(PlmHeaderId.ClearSlopeAccessForWreckedShipChozo, 0x012b, 0x0053),
-                new VerifyChozoStatueVisualInstallationCase(PlmHeaderId.BlockSlopeAccessForWreckedShipChozo, 0xa12b, 0x0054),
+                new VerifyChozoStatueVisualInstallationCase(PlmHeaderId.ClearSlopeAccessForWreckedShipChozo, RoomTerrainBlock.Of(0x12b, BlockMirroring.None, RoomCollisionType.Air), RoomBlockAppearance.Of(0x53)),
+                new VerifyChozoStatueVisualInstallationCase(PlmHeaderId.BlockSlopeAccessForWreckedShipChozo, RoomTerrainBlock.Of(0x12b, BlockMirroring.None, RoomCollisionType.SpikeBlock), RoomBlockAppearance.Of(0x54)),
             })
             {
-                var level = CreateRoom(new(width, 16),
-                    new ushort[width * 16], new byte[width * 16]);
+                var level = CreateEmptyRoom(new(width, 16));
                 var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmChozoStatueVisuals = selected });
                 AssertTrue(plms.ChozoStatue.TrySpawnChozoStatuePlm(level,
                     new ChozoStatuePlmRequest(header, new Position16<RoomBlocks>(3, 4), IsHardcoded: false)),
@@ -80,36 +80,34 @@ internal static class ChozoStatueVisualsVerification
                 plms.Step(level);
                 int origin = 4 * width + 3;
                 AssertEqual(physical,
-                    level.GetCollisionBlockByIndex(origin).PackedWord.Raw,
-                    $"edited Chozo art retains native physical word for {header}");
+                    level.GetCollisionBlockByIndex(origin).Terrain,
+                    $"edited Chozo art retains native physical block for {header}");
                 AssertEqual(visual,
-                    level.DisplayedVisualWord(origin),
+                    level.DisplayedAppearance(origin),
                     $"edited Chozo art reaches streamed tilemap for {header}");
             }
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "Chozo slope PLMs did not reread compiled program or draw bytes");
 
-            var crumbleLevel = CreateRoom(new(width, 16),
-                new ushort[width * 16], new byte[width * 16]);
+            var crumbleLevel = CreateEmptyRoom(new(width, 16));
             var crumblePlms = PlmFixtures.Unbound();
             AssertTrue(crumblePlms.ChozoStatue.TrySpawnChozoStatuePlm(crumbleLevel,
                 new ChozoStatuePlmRequest(PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug,
                     new Position16<RoomBlocks>(3, 4), IsHardcoded: false)),
                 "Chozo crumble plug spawns in a bounded test room");
-            var seenCrumbleWords = new HashSet<ushort>();
+            var seenCrumbleBlocks = new HashSet<RoomTerrainBlock>();
             for (int frame = 0; frame < 15; frame++)
             {
                 crumblePlms.Step(crumbleLevel);
-                seenCrumbleWords.Add(crumbleLevel.GetCollisionBlock(new(3, 4)).PackedWord.Raw);
+                seenCrumbleBlocks.Add(crumbleLevel.GetCollisionBlock(new(3, 4)).Terrain);
             }
-            foreach (ushort word in new ushort[] { 0x0053, 0x0054, 0x0055, 0x00ff })
-                AssertTrue(seenCrumbleWords.Contains(word),
-                    $"Chozo crumble program draws frame ${word:X4}");
+            foreach (int block in new[] { 0x53, 0x54, 0x55, 0xff })
+                AssertTrue(seenCrumbleBlocks.Contains(RoomTerrainBlock.Of(block, BlockMirroring.None, RoomCollisionType.Air)),
+                    $"Chozo crumble program draws air block ${block:X3}");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "Chozo crumble PLM did not reread compiled program or draw bytes");
 
-            var wreckedHandLevel = CreateRoom(new(width, 16),
-                new ushort[width * 16], new byte[width * 16]);
+            var wreckedHandLevel = CreateEmptyRoom(new(width, 16));
             var wreckedHandPlms = PlmFixtures.Unbound();
             AssertTrue(wreckedHandPlms.ChozoStatue.TrySpawnChozoStatuePlm(wreckedHandLevel,
                 new ChozoStatuePlmRequest(PlmHeaderId.WreckedShipChozoHand,
@@ -124,17 +122,12 @@ internal static class ChozoStatueVisualsVerification
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
             RoomPlmChozoStatueVisualFiles.Extract(rom, refreshed,
                 SupportedCartridge.Sha256);
-            AssertEqual((ushort)0x0053,
+            AssertEqual(RoomBlockAppearance.Of(0x53),
                 RoomPlmChozoStatueVisualFiles.Load(refreshed,
                     installation.RoomPlmChozoStatueVisualOverrideDirectory)
-                    .GetWord(PlmDraw.Of(ChozoStatueDraw.ClearSlopeAccess), 0, 0),
+                    .GetAppearance(PlmDraw.Of(ChozoStatueDraw.ClearSlopeAccess), 0, 0),
                 "Chozo override survives stock replacement");
 
-            clearSlope.Required("blocks")[0] = 0xf053;
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmChozoStatueVisuals(),
-                "Chozo override rejects physical collision bits");
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
                 () => RoomPlmChozoStatueVisualFiles.ValidateStock(
@@ -166,7 +159,7 @@ internal static class ChozoStatueVisualsVerification
                     {
                         int first = 0x840000 | PlmDrawAddressCodec.Of(draw.Draw);
                         int length = draw.Runs.Span.Sum(run =>
-                            4 + run.LevelWords.Length * 2);
+                            4 + run.Blocks.Length * 2);
                         return address >= first && address < first + length;
                     }),
                 address => $"Chozo PLM reread compiled program or draw byte ${address:X6}.");

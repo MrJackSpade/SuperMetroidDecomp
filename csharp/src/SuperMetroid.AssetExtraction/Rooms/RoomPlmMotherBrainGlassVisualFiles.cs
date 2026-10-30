@@ -11,7 +11,7 @@ public static class RoomPlmMotherBrainGlassVisualFiles
     /// <summary>Family-relative stock/override JSON filename for Mother Brain's initial, damaged, shifted, shattering, and cleared glass PLM layouts.</summary>
     public const string VisualFileName = "mother-brain-glass.json";
 
-    /// <summary>Checks native bank-$84 glass draw shapes, physical words, and offsets, then exports their appearance-only words in flattened run order.</summary>
+    /// <summary>Checks native bank-$84 glass draw shapes, decoded terrain blocks, and offsets, then exports their block appearances in flattened run order.</summary>
     /// <param name="bus">Cartridge source for the compiled glass layouts; this extraction does not export shard sprites, hit thresholds, or event timing.</param>
     /// <param name="directory">Family directory, created if absent; receives new <see cref="VisualFileName"/> and <c>manifest.json</c> files.</param>
     /// <param name="sourceCartridgeSha256">Nonblank caller-supplied provenance hash, recorded without recomputing it; a stock load requires the supported cartridge identity.</param>
@@ -30,14 +30,14 @@ public static class RoomPlmMotherBrainGlassVisualFiles
     /// <param name="stockDirectory">Family directory containing the required stock JSON and version-one manifest.</param>
     /// <param name="overrideDirectory">Optional family directory; null or a missing override JSON selects validated stock.</param>
     /// <returns>A ROM-independent glass metatile catalog; draw geometry, hit thresholds, shards, and event timing remain compiled.</returns>
-    /// <remarks>Supported-cartridge provenance, byte hash, and compiled stock visual words are always checked first. Overrides need all compiled identities, original run/cell counts, and twelve-bit visual words, but no manifest.</remarks>
+    /// <remarks>Supported-cartridge provenance, byte hash, and compiled stock appearances are always checked first. Overrides need all compiled identities, original run/cell counts, and appearances, but no manifest.</remarks>
     /// <exception cref="InvalidDataException">Integrity, provenance, JSON version, frame coverage/identity, shape, or presentation-only word bits are invalid.</exception>
     /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
     public static RoomPlmMotherBrainGlassVisualCatalog Load(string stockDirectory,
         string? overrideDirectory = null) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
             new RoomPlmVisualFamily<RoomPlmMotherBrainGlassVisualCatalog>(VisualFileName, "Mother Brain glass", MotherBrainGlassDraws.All, MotherBrainGlassDraws.VisualId, entries => new RoomPlmMotherBrainGlassVisualCatalog(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetWord(draw, run, block)));
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 
     /// <summary>Runs stock glass manifest, integrity, schema, and compiled-appearance checks without overrides, cartridge reads, or file writes.</summary>
     /// <param name="stockDirectory">Glass family directory containing both required stock files.</param>

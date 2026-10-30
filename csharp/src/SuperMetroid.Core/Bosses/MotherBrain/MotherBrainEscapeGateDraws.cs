@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -11,11 +12,11 @@ internal static class MotherBrainEscapeGateDraws
     /// <summary>Four vertical cells, always solid, selected by open/half/closed state.</summary>
     internal readonly record struct Draw(MotherBrainEscapeGateDraw Frame)
     {
-        /// <summary>The level word of the gate's cell at <paramref name="row"/>, top to bottom.</summary>
-        internal ushort WordAt(int row)
+        /// <summary>The terrain block of the gate's cell at <paramref name="row"/>, top to bottom.</summary>
+        internal RoomTerrainBlock BlockAt(int row)
         {
             if ((uint)row >= 4) throw new ArgumentOutOfRangeException(nameof(row));
-            return MotherBrainEscapeGatePlmDrawDefinitions.Cells[Frame][row].Raw;
+            return MotherBrainEscapeGatePlmDrawDefinitions.Cells[Frame][row];
         }
     }
 
@@ -46,9 +47,9 @@ internal static class MotherBrainEscapeGateDraws
     {
         list = default;
         if (!TryDescribe(request, out var draw)) return false;
-        var words = new ushort[4];
-        for (int row = 0; row < words.Length; row++) words[row] = draw.WordAt(row);
-        list = new(request, new RoomPlmShotBlockDrawDefinitions.Run[] { new(PlmRunDirection.Vertical, words, new(0, 0)) });
+        var blocks = new RoomTerrainBlock[4];
+        for (int row = 0; row < blocks.Length; row++) blocks[row] = draw.BlockAt(row);
+        list = new(request, new RoomPlmShotBlockDrawDefinitions.Run[] { new(PlmRunDirection.Vertical, blocks, new(0, 0)) });
         return true;
     }
 

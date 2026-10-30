@@ -40,7 +40,7 @@ internal static class ChozoGrabAnimationVerification
         samus.Position = samus.Position.WithWhole(new(0x4a * 16 + 8, (ushort)(0x17 * 16 - samus.Kinematics.Radius.Y)));
         var level = runtime.Room.LoadedLevelData;
         var block = level.GetCollisionBlockByIndex(level.GetBlockIndex(new(0x4a, 0x17)));
-        AssertEqual(ChozoStatueRoomDefinitions.WreckedShipHandBts.Value, block.Bts.Value,
+        AssertEqual(ChozoStatueRoomDefinitions.WreckedShipHandBehavior, block.Behavior,
             "fixture uses the retail statue hand block");
         var expectedExplosion = new SamusPowerBombExplosionState
         {

@@ -4,6 +4,8 @@ using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 
 /// <summary>Checks Crocomire arena PLM physical draw descriptors against the five native bank-$84 lists.</summary>
@@ -41,20 +43,20 @@ internal static class LookupCrocomireDrawsVerification
             {
                 ushort count = ReadWord(cursor);
                 cursor += 2;
-                AssertRunHeader(count, shape.Direction, shape.WordsPerRun, "Crocomire native direction/count");
+                AssertRunHeader(count, shape.Direction, shape.BlocksPerRun, "Crocomire native direction/count");
                 AssertRunHeader(count, dto.Runs.Span[run], "Crocomire DTO direction/count");
                 AssertRunHeader(count, exported[index].Runs.Span[run], "Crocomire export direction/count");
                 int length = count & 0x7fff;
-                AssertEqual(length, shape.WordsPerRun, "Crocomire native width");
-                AssertEqual(length, dto.Runs.Span[run].LevelWords.Length, "Crocomire DTO width");
-                AssertEqual(length, exported[index].Runs.Span[run].LevelWords.Length, "Crocomire export width");
+                AssertEqual(length, shape.BlocksPerRun, "Crocomire native width");
+                AssertEqual(length, dto.Runs.Span[run].Blocks.Length, "Crocomire DTO width");
+                AssertEqual(length, exported[index].Runs.Span[run].Blocks.Length, "Crocomire export width");
                 AssertEqual((count & 0x8000) != 0, shape.Wall, "Crocomire runtime direction");
                 for (int block = 0; block < length; block++, cursor += 2)
                 {
-                    ushort expected = ReadWord(cursor);
-                    AssertEqual(expected, shape.WordAt(run, block), "Crocomire native calculated cell");
-                    AssertEqual(expected, dto.Runs.Span[run].LevelWords.Span[block], "Crocomire native DTO cell");
-                    AssertEqual(expected, exported[index].Runs.Span[run].LevelWords.Span[block], "Crocomire native export cell");
+                    RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadWord(cursor));
+                    AssertEqual(expected, shape.BlockAt(run, block), "Crocomire native calculated cell");
+                    AssertEqual(expected, dto.Runs.Span[run].Blocks.Span[block], "Crocomire native DTO cell");
+                    AssertEqual(expected, exported[index].Runs.Span[run].Blocks.Span[block], "Crocomire native export cell");
                     cells++;
                 }
                 sbyte nextX = unchecked((sbyte)CrocomirePhysicalDrawMappingRomByte(rom, 0x840000 | cursor++));
@@ -66,7 +68,7 @@ internal static class LookupCrocomireDrawsVerification
                 AssertEqual(nextY, exported[index].Runs.Span[run].Next.Y, "Crocomire export Y");
                 AssertEqual((sbyte)0, nextY, "Crocomire runtime column origin Y");
                 foreach (int invalid in new[] { int.MinValue, -1, length, int.MaxValue })
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(run, invalid), "Crocomire cell bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(run, invalid), "Crocomire cell bounds");
                 run++;
                 if (nextX == 0 && nextY == 0) break;
             }
@@ -77,7 +79,7 @@ internal static class LookupCrocomireDrawsVerification
                 cursor, "Crocomire original draw end");
             foreach (int invalid in new[] { int.MinValue, -1, run, int.MaxValue })
             {
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(invalid, 0), "Crocomire run bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid, 0), "Crocomire run bounds");
                 AssertThrows<ArgumentOutOfRangeException>(() => shape.NextX(invalid), "Crocomire offset bounds");
             }
         }

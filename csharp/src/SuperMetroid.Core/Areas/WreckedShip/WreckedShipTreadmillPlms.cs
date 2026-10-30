@@ -27,7 +27,7 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
     }
     /// <summary>
     /// Spawns header $B64B or $B64F at cartridge block coordinate (4,9), then executes
-    /// shared setup $84:B04A synchronously by replacing the following $38 level words with
+    /// shared setup $84:B04A synchronously by replacing the following 56 blocks with
     /// blank air. The first ordinary PLM pass later either installs treadmill collision
     /// when Phantoon is dead or deletes the actor without doing so.
     /// </summary>
@@ -63,11 +63,11 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
             direction,
             areaBossDefeated);
 
-        // Setup $84:B04A writes exact level words and deliberately leaves BTS alone.
+        // Setup $84:B04A writes blank air and deliberately leaves the blocks' behaviour alone.
         for (int offset = 0; offset < WreckedShipTreadmillBlockDefinitions.BlockCount; offset++)
         {
             int blockIndex = origin + offset;
-            level.SetForegroundEntry(blockIndex, WreckedShipTreadmillBlockDefinitions.BlankAirWord);
+            level.SetTerrain(blockIndex, WreckedShipTreadmillBlockDefinitions.InactiveTreadmillBlock);
         }
         return true;
     }
@@ -109,15 +109,14 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
                 WreckedShipTreadmillBlockDefinitions.BlockCount);
             bool rightwards = state.Direction == WreckedShipTreadmillDirection.Rightwards;
 
-            // Instructions $AD43/$AD58 call the shared raw row writer. The level word's
-            // low twelve bits stay $0FF, so the visual block definition is unchanged;
-            // only collision type three and direction BTS become active.
+            // Instructions $AD43/$AD58 call the shared row writer. The blank appearance is
+            // unchanged; only the special-air kind and the direction behaviour become active.
             for (int offset = 0; offset < WreckedShipTreadmillBlockDefinitions.BlockCount; offset++)
             {
                 int blockIndex = slot.BlockIndex + offset;
-                level.SetForegroundEntry(
+                level.SetTerrain(
                     blockIndex,
-                    WreckedShipTreadmillBlockDefinitions.ActiveTreadmillWord);
+                    WreckedShipTreadmillBlockDefinitions.ActiveTreadmillBlock);
                 level.SetBehavior(blockIndex, rightwards
                     ? WreckedShipTreadmillBlockDefinitions.RightwardsBehavior
                     : WreckedShipTreadmillBlockDefinitions.LeftwardsBehavior);

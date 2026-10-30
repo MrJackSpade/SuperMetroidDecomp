@@ -34,49 +34,50 @@ internal static class ElevatorPlatformVisualsVerification
                 new RoomPlmVisualRunEntry(
                     ElevatorPlatformDraws.VisualId(list.Draw),
                     list.Runs.Span.SelectToArray(run =>
-                        run.LevelWords.Span.SelectToArray(word =>
-                            new RoomLevelWord(word).VisualWord))))
+                        run.Blocks.Span.SelectToArray(block => block.Appearance))))
                 .ToArray();
         RoomPlmVisualRunEntry first = entries.Single(entry =>
             entry.Id == "first-frame");
-        first.Runs[0][0] = 0x0053;
+        first.Runs[0][0] = RoomBlockAppearance.Of(0x53);
         var edited = new RoomPlmElevatorPlatformVisualCatalog(entries);
-        first.Runs[0][0] = 0x0054;
-        AssertEqual((ushort)0x0053,
-            edited.GetWord(PlmDraw.Of(ElevatorPlatformDraw.First), 0, 0),
+        first.Runs[0][0] = RoomBlockAppearance.Of(0x54);
+        AssertEqual(RoomBlockAppearance.Of(0x53),
+            edited.GetAppearance(PlmDraw.Of(ElevatorPlatformDraw.First), 0, 0),
             "elevator visual catalog copies author data");
         RenderResult Render(RoomPlmElevatorPlatformVisualCatalog visuals)
         {
             const ushort population = 0x9400;
             var bus = new TestAddressSpace();
             SeedSoleElevatorPlatformPlm(bus, population, new(0x0c, 0x08), ElevatorPlatformPlmDefinitionsConstants.InstructionLoop);
-            RoomLevelData level = CreateRoom(new(32, 16), new ushort[32 * 16],
-                new byte[32 * 16]);
+            RoomLevelData level = CreateEmptyRoom(new(32, 16));
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmElevatorPlatformVisuals = visuals });
             AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                 "elevator visual fixture loads one real PLM");
             plms.Step(level);
             int index = Enumerable.Range(0, 32 * 16).Single(block =>
-                level.GetCollisionBlockByIndex(block).PackedWord.Raw == 0x8085);
-            return new RenderResult(level.GetCollisionBlockByIndex(index).PackedWord.Raw,
-                level.DisplayedVisualWord(index));
+                level.GetCollisionBlockByIndex(block).Terrain == PlatformEdge);
+            return new RenderResult(level.GetCollisionBlockByIndex(index).Terrain,
+                level.DisplayedAppearance(index));
         }
 
         var native = Render(stock);
         var changed = Render(edited);
-        AssertEqual((ushort)0x8085, native.Physical,
+        AssertEqual(PlatformEdge, native.Physical,
             "stock elevator keeps cartridge physical block");
         AssertEqual(native.Physical, changed.Physical,
             "edited elevator art cannot change platform collision");
-        AssertEqual((ushort)0x0085, native.Rendered,
+        AssertEqual(PlatformEdge.Appearance, native.Rendered,
             "stock elevator streams its native block");
-        AssertEqual((ushort)0x0053, changed.Rendered,
+        AssertEqual(RoomBlockAppearance.Of(0x53), changed.Rendered,
             "edited elevator art survives camera streaming");
 
         Suite(nameof(VerifyElevatorPlatformVisualInstallation), () => VerifyElevatorPlatformVisualInstallation());
     }
 
-    /// <summary>Checks extracted stock, override survival, and rejection of collision-bit or manifest corruption.</summary>
+    /// <summary>The first frame's upper edge cell: block $85, unmirrored, solid.</summary>
+    private static readonly RoomTerrainBlock PlatformEdge = RoomTerrainBlock.Of(0x85, BlockMirroring.None, RoomCollisionType.SolidBlock);
+
+    /// <summary>Checks extracted stock, override survival, and rejection of manifest corruption.</summary>
     private static void VerifyElevatorPlatformVisualInstallation()
     {
         using var testRootScratch = new TestScratchDirectory("elevator-platform-visual");
@@ -100,32 +101,27 @@ internal static class ElevatorPlatformVisualsVerification
                 ?? throw new InvalidDataException("Extracted elevator JSON is empty.");
             JsonNode first = document.Required("entries").AsArray().RequiredElements().Single(entry =>
                 entry.Required("id").GetValue<string>() == "first-frame");
-            first.Required("runs").Required(0)[0] = 0x0053;
+            first.Required("runs").Required(0)[0] = EditedCell();
             Directory.CreateDirectory(
                 installation.RoomPlmElevatorPlatformVisualOverrideDirectory);
             string overridePath = Path.Combine(
                 installation.RoomPlmElevatorPlatformVisualOverrideDirectory,
                 RoomPlmElevatorPlatformVisualFiles.VisualFileName);
             File.WriteAllText(overridePath, document.ToJsonString());
-            AssertEqual((ushort)0x0053,
-                installation.LoadRoomPlmElevatorPlatformVisuals().GetWord(
+            AssertEqual(RoomBlockAppearance.Of(0x53),
+                installation.LoadRoomPlmElevatorPlatformVisuals().GetAppearance(
                     PlmDraw.Of(ElevatorPlatformDraw.First), 0, 0),
                 "elevator override selects edited frame art");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
             RoomPlmElevatorPlatformVisualFiles.Extract(rom, refreshed,
                 SupportedCartridge.Sha256);
-            AssertEqual((ushort)0x0053,
+            AssertEqual(RoomBlockAppearance.Of(0x53),
                 RoomPlmElevatorPlatformVisualFiles.Load(refreshed,
-                    installation.RoomPlmElevatorPlatformVisualOverrideDirectory).GetWord(
+                    installation.RoomPlmElevatorPlatformVisualOverrideDirectory).GetAppearance(
                         PlmDraw.Of(ElevatorPlatformDraw.First), 0, 0),
                 "elevator override survives stock replacement");
 
-            first.Required("runs").Required(0)[0] = 0xf053;
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmElevatorPlatformVisuals(),
-                "elevator override rejects collision bits");
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmElevatorPlatformVisuals(),
@@ -136,4 +132,7 @@ internal static class ElevatorPlatformVisualsVerification
             if (Directory.Exists(testRoot)) Directory.Delete(testRoot, recursive: true);
         }
     }
+
+    /// <summary>The installed JSON of the edited cell: block $53, unmirrored.</summary>
+    private static JsonObject EditedCell() => new() { ["block"] = 0x53, ["mirroring"] = nameof(BlockMirroring.None) };
 }

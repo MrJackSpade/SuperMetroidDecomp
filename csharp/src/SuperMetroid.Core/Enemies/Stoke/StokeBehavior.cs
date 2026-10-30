@@ -179,7 +179,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Ports <c>CheckForVerticalSolidBlockCollision</c>'s Stoke use at $A0:BC76.</summary>
     private static bool StokeHasSolidFloorTwoPixelsBelow(RoomLevelData level, RoomEnemySlot slot)
-        => EnemyTerrain.EnemyHasSolidHighBitVerticallyAhead(level, slot, StokeFloorProbeDisplacement);
+        => EnemyTerrain.EnemyMeetsAttachmentBlockVerticallyAhead(level, slot, StokeFloorProbeDisplacement);
 
     /// <summary>Ports <c>TurnStokeAround</c> at <c>$A2:8A95</c>.</summary>
     private static void TurnStokeAround(RoomEnemySlot slot, StokeEnemyState state)

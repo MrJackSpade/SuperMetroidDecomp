@@ -30,8 +30,7 @@ internal sealed class EnemyBreakableTerrainPlms
         slot.BlockIndex = blockIndex;
         slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.EnemyBreakableTerrain));
         slot.InstructionTimer = WrappingCountdown.Start(1);
-        level.SetForegroundEntry(blockIndex, block.PackedWord
-            .WithCollisionType(RoomCollisionType.Air).Raw);
+        level.SetTerrain(blockIndex, block.Terrain.WithCollision(RoomCollisionType.Air));
         return true;
     }
 }

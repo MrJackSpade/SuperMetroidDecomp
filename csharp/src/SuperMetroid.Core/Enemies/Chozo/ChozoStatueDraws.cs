@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Enemies.Chozo;
@@ -16,17 +17,17 @@ internal static class ChozoStatueDraws
         /// <summary>One run for the hand cell, five for the Wrecked Ship slope layout.</summary>
         public int RunCount => Strips.Length;
         /// <summary>The cells in one run, rejecting an invalid run index.</summary>
-        public int WordCount(int run) => Strip(run).Cells.Length;
+        public int BlockCount(int run) => Strip(run).Cells.Length;
         /// <summary>The next run's horizontal offset.</summary>
         public sbyte NextX(int run) => checked((sbyte)Strip(run).Next.X);
         /// <summary>The next run's vertical offset.</summary>
         public sbyte NextY(int run) => checked((sbyte)Strip(run).Next.Y);
-        /// <summary>One cell's complete level word.</summary>
-        public ushort WordAt(int run, int cell)
+        /// <summary>One cell's complete terrain block.</summary>
+        public RoomTerrainBlock BlockAt(int run, int cell)
         {
             PlmBlockStrip strip = Strip(run);
             if ((uint)cell >= (uint)strip.Cells.Length) throw new ArgumentOutOfRangeException(nameof(cell));
-            return strip.Cells[cell].Raw;
+            return strip.Cells[cell];
         }
         /// <summary>Selects a run, rejecting indexes outside the selected hand or slope geometry.</summary>
         private PlmBlockStrip Strip(int run) =>

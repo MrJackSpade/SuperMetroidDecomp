@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
@@ -11,8 +12,8 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
-/// Installs named elevator-platform appearances. Native draw geometry and physical level
-/// words are checked against the compiled cartridge definitions.
+/// Installs named elevator-platform appearances. Native draw geometry and decoded terrain
+/// blocks are checked against the compiled cartridge definitions.
 /// </summary>
 public static class RoomPlmElevatorPlatformVisualFiles
 {
@@ -23,22 +24,23 @@ public static class RoomPlmElevatorPlatformVisualFiles
     /// <summary>Version of the three-frame elevator platform visual document and manifest.</summary>
     private const int FormatVersion = 1;
 
-    /// <summary>Uses camel-case JSON while accepting historical member casing on load.</summary>
+    /// <summary>Uses camel-case JSON, with block mirroring named, while accepting historical member casing on load.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
         WriteIndented = true,
+        Converters = { new JsonStringEnumConverter() },
     };
 
-    /// <summary>Verifies the three elevator-platform draws at $84:AA97–AADE and exports their metatile/flip words, not their solid collision bits.</summary>
-    /// <param name="bus">Cartridge source whose three-run frame shapes, full level words, and continuation offsets must match compiled definitions.</param>
+    /// <summary>Verifies the three elevator-platform draws at $84:AA97–AADE and exports their block appearances, not their solid collision.</summary>
+    /// <param name="bus">Cartridge source whose three-run frame shapes, decoded terrain blocks, and continuation offsets must match compiled definitions.</param>
     /// <param name="directory">Family directory, created before native checks; receives new visual JSON and manifest files.</param>
     /// <param name="sourceCartridgeSha256">Nonblank importer-supplied provenance hash, recorded without recomputation and checked against the supported identity on stock load.</param>
     /// <remarks>Each frame retains native upper-edge/upper-edge/lower-row run order. Existing outputs are refused; failure of the later manifest write does not remove the earlier JSON.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     /// <exception cref="ArgumentException">The directory or source hash is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">Native draw geometry or physical words differ from compiled data.</exception>
+    /// <exception cref="InvalidDataException">Native draw geometry or decoded terrain blocks differ from compiled data.</exception>
     /// <exception cref="IOException">An output exists or filesystem access fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256)
@@ -63,10 +65,10 @@ public static class RoomPlmElevatorPlatformVisualFiles
     /// <summary>Validates stock platform artwork before selecting an optional complete three-frame visual replacement.</summary>
     /// <param name="stockDirectory">Family directory containing version-one stock JSON and its required provenance/hash manifest.</param>
     /// <param name="overrideDirectory">Optional family directory; null or missing visual JSON uses validated stock.</param>
-    /// <returns>A ROM-independent catalog with copied authored visual words; solid geometry and the four-update first/second/third/second loop stay compiled.</returns>
-    /// <remarks>Stock must match supported provenance, its byte hash, and compiled visuals even when overridden. Replacement JSON needs all three identities with original run lengths and twelve-bit words, but no manifest.</remarks>
+    /// <returns>A ROM-independent catalog with copied authored appearances; solid geometry and the four-update first/second/third/second loop stay compiled.</returns>
+    /// <remarks>Stock must match supported provenance, its byte hash, and compiled visuals even when overridden. Replacement JSON needs all three identities with original run lengths and valid appearances, but no manifest.</remarks>
     /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">Provenance, integrity, schema, identities, coverage, shapes, or visual bits are invalid.</exception>
+    /// <exception cref="InvalidDataException">Provenance, integrity, schema, identities, coverage, shapes, or appearances are invalid.</exception>
     /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
     public static RoomPlmElevatorPlatformVisualCatalog Load(
         string stockDirectory, string? overrideDirectory)
@@ -99,7 +101,7 @@ public static class RoomPlmElevatorPlatformVisualFiles
     /// <exception cref="InvalidDataException">Stock provenance, integrity, schema, or compiled appearance checks fail.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
-    /// <summary>Checks bank 84 run headers, physical words, and offsets before extracting editable visual bits.</summary>
+    /// <summary>Checks bank 84 run headers, decoded terrain blocks, and offsets before extracting editable appearances.</summary>
     private static RoomPlmVisualRunEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
         var entries = new List<RoomPlmVisualRunEntry>();
@@ -107,21 +109,22 @@ public static class RoomPlmElevatorPlatformVisualFiles
                  ElevatorPlatformDraws.DrawLists.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
         {
             int cursor = PlmDrawAddressCodec.Of(list.Draw);
-            var visuals = new List<ushort[]>();
+            var visuals = new List<RoomBlockAppearance[]>();
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
             {
                 if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, cursor)) != PlmRunHeaderCodec.Encode(run))
                     throw new InvalidDataException(
                         $"Elevator-platform draw list {list.Draw} differs in source cartridge shape.");
                 cursor = unchecked((ushort)(cursor + 2));
-                var visualWords = new ushort[run.LevelWords.Length];
-                for (int index = 0; index < visualWords.Length; index++)
+                var appearances = new RoomBlockAppearance[run.Blocks.Length];
+                for (int index = 0; index < appearances.Length; index++)
                 {
-                    int source = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, cursor));
-                    if (source != run.LevelWords.Span[index])
+                    RoomTerrainBlock source = RoomLevelWordCodec.Decode(checked((ushort)CartridgeImportSource.Require(bus)
+                        .ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, cursor))));
+                    if (source != run.Blocks.Span[index])
                         throw new InvalidDataException(
                             $"Elevator-platform draw list {list.Draw} differs at ${cursor:X4}.");
-                    visualWords[index] = new RoomLevelWord(checked((ushort)source)).VisualWord;
+                    appearances[index] = source.Appearance;
                     cursor = unchecked((ushort)(cursor + 2));
                 }
 
@@ -131,7 +134,7 @@ public static class RoomPlmElevatorPlatformVisualFiles
                     throw new InvalidDataException(
                         $"Elevator-platform draw list {list.Draw} differs in next-record offset.");
                 cursor = unchecked((ushort)(cursor + 2));
-                visuals.Add(visualWords);
+                visuals.Add(appearances);
             }
 
             entries.Add(new RoomPlmVisualRunEntry(
@@ -141,18 +144,17 @@ public static class RoomPlmElevatorPlatformVisualFiles
         return entries.ToArray();
     }
 
-    /// <summary>Rejects stock artwork whose visual words differ from the compiled native draw lists.</summary>
+    /// <summary>Rejects stock artwork whose appearances differ from the compiled native draw lists.</summary>
     private static void VerifyStockMatchesCompiled(RoomPlmElevatorPlatformVisualCatalog catalog,
         string path)
     {
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
                  ElevatorPlatformDraws.DrawLists)
         for (int run = 0; run < list.Runs.Length; run++)
-        for (int word = 0; word < list.Runs.Span[run].LevelWords.Length; word++)
+        for (int cell = 0; cell < list.Runs.Span[run].Blocks.Length; cell++)
         {
-            int expected = new RoomLevelWord(
-                list.Runs.Span[run].LevelWords.Span[word]).VisualWord;
-            if (catalog.GetWord(list.Draw, run, word) != expected)
+            RoomBlockAppearance expected = list.Runs.Span[run].Blocks.Span[cell].Appearance;
+            if (catalog.GetAppearance(list.Draw, run, cell) != expected)
                 throw new InvalidDataException(
                     $"Stock elevator-platform visuals {path} differ from compiled frame " +
                     ElevatorPlatformDraws.VisualId(list.Draw) + ".");

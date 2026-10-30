@@ -27,43 +27,47 @@ internal static class CrocomireArenaPlmsVerification
         Suite(nameof(VerifyCrocomirePhysicalDrawMapping), () => VerifyCrocomirePhysicalDrawMapping(rom));
 
         Suite(nameof(VerifyCrocomireMutation), () => VerifyCrocomireMutation(PlmHeaderId.ClearCrocomireBridge,
-            cell => cell.Y == 0 && cell.X < 10 ? (ushort)0x0080 : (ushort)0x8123));
+            cell => cell.Y == 0 && cell.X < 10 ? Block(0x80, RoomCollisionType.Air) : Untouched));
         Suite(nameof(VerifyCrocomireMutation), () => VerifyCrocomireMutation(PlmHeaderId.CrumbleCrocomireBridgeBlock,
-            cell => cell == Position16<RoomBlocks>.Zero ? (ushort)0x810b : (ushort)0x8123));
+            cell => cell == Position16<RoomBlocks>.Zero ? Block(0x10b, RoomCollisionType.SolidBlock) : Untouched));
         Suite(nameof(VerifyCrocomireMutation), () => VerifyCrocomireMutation(PlmHeaderId.ClearCrocomireBridgeBlock,
-            cell => cell == Position16<RoomBlocks>.Zero ? (ushort)0x0080 : (ushort)0x8123));
+            cell => cell == Position16<RoomBlocks>.Zero ? Block(0x80, RoomCollisionType.Air) : Untouched));
         Suite(nameof(VerifyCrocomireMutation), () => VerifyCrocomireMutation(PlmHeaderId.ClearCrocomireInvisibleWall,
-            cell => cell.X < 3 && cell.Y < 8 ? WallWord(cell, false) : (ushort)0x8123));
+            cell => cell.X < 3 && cell.Y < 8 ? WallBlock(cell, RoomCollisionType.Air) : Untouched));
         Suite(nameof(VerifyCrocomireMutation), () => VerifyCrocomireMutation(PlmHeaderId.CreateCrocomireInvisibleWall,
-            cell => cell.X < 3 && cell.Y < 8 ? WallWord(cell, true) : (ushort)0x8123));
+            cell => cell.X < 3 && cell.Y < 8 ? WallBlock(cell, RoomCollisionType.SolidBlock) : Untouched));
         Console.WriteLine("Crocomire PLMs: five programs and physical draws match ROM; all mutations execute without source reads.");
 
     }
 
-    /// <summary>Calculates the expected native invisible-wall metatile, with its solid bit when built.</summary>
-    private static ushort WallWord(Position16<RoomBlocks> cell, bool solid)
+    /// <summary>The solid block every room cell starts as, which a mutation outside its draw leaves alone.</summary>
+    private static readonly RoomTerrainBlock Untouched = Block(0x123, RoomCollisionType.SolidBlock);
+
+    /// <summary>An unmirrored block of <paramref name="kind"/> showing tileset block <paramref name="block"/>.</summary>
+    private static RoomTerrainBlock Block(int block, RoomCollisionType kind) => RoomTerrainBlock.Of(block, BlockMirroring.None, kind);
+
+    /// <summary>Calculates the expected invisible-wall block: its column's tiles down three tileset rows, air or solid.</summary>
+    private static RoomTerrainBlock WallBlock(Position16<RoomBlocks> cell, RoomCollisionType kind)
     {
-        ushort value = cell.Y switch
+        int block = cell.Y switch
         {
-            0 or 6 or 7 => 0x0080,
-            1 or 3 => checked((ushort)(0x0107 + cell.X)),
-            2 or 4 => checked((ushort)(0x0127 + cell.X)),
-            5 => checked((ushort)(0x0147 + cell.X)),
+            0 or 6 or 7 => 0x80,
+            1 or 3 => 0x107 + cell.X,
+            2 or 4 => 0x127 + cell.X,
+            5 => 0x147 + cell.X,
             _ => throw new ArgumentOutOfRangeException(nameof(cell)),
         };
-        return solid ? (ushort)(value | 0x8000) : value;
+        return Block(block, kind);
     }
 
     /// <summary>Spawns one arena PLM and compares its first-frame block changes and next-frame deletion.</summary>
     private static void VerifyCrocomireMutation(PlmHeaderId header,
-        Func<Position16<RoomBlocks>, ushort> expectedWord)
+        Func<Position16<RoomBlocks>, RoomTerrainBlock> expectedBlock)
     {
         const int width = 32;
         const int height = 16;
-        ushort[] sourceWords = Enumerable.Repeat((ushort)0x8123,
-            width * height).ToArray();
-        RoomLevelData level = CreateRoom(new(width, height), sourceWords,
-            new byte[sourceWords.Length]);
+        RoomTerrainBlock[] terrain = Enumerable.Repeat(Untouched, width * height).ToArray();
+        RoomLevelData level = CreateRoom(new(width, height), terrain, new RoomBlockBehavior[terrain.Length]);
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.BossRoomMutations.TrySpawnCrocomireArenaMutation(level, new(5, 3), header),
             $"Crocomire header {header} allocates");
@@ -73,8 +77,8 @@ internal static class CrocomireArenaPlmsVerification
             $"Crocomire header {header} persists for native draw frame");
         for (int y = 0; y < 9; y++)
         for (int x = 0; x < 11; x++)
-            AssertEqual(expectedWord(new((ushort)x, (ushort)y)),
-                level.GetCollisionBlockByIndex((3 + y) * width + 5 + x).PackedWord.Raw,
+            AssertEqual(expectedBlock(new((ushort)x, (ushort)y)),
+                level.GetCollisionBlockByIndex((3 + y) * width + 5 + x).Terrain,
                 $"Crocomire header {header} physical block ({x},{y})");
         plms.Step(level);
         AssertEqual(0, plms.SlotTable.ActiveCount,

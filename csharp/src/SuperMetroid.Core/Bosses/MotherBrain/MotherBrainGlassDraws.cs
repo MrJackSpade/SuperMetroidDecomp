@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -25,8 +26,8 @@ internal static class MotherBrainGlassDraws
         {
             if ((uint)run >= (uint)RunCount) throw new ArgumentOutOfRangeException(nameof(run));
         }
-        /// <summary>Returns the number of level words in one pane or shatter draw run.</summary>
-        internal int WordCount(int run)
+        /// <summary>Returns the number of blocks in one pane or shatter draw run.</summary>
+        internal int BlockCount(int run)
         {
             CheckRun(run);
             return MotherBrainGlassPlmDrawDefinitions.Cells[Frame][run].Length;
@@ -52,11 +53,11 @@ internal static class MotherBrainGlassDraws
             return (sbyte)(Pane || Shifted && (run != 0 || Frame != MotherBrainGlassDraw.ShiftedPane1) ||
                 Frame == MotherBrainGlassDraw.Shatter1 && run >= 1 ? 1 : 0);
         }
-        /// <summary>The selected block's visual tile, flip bits, and native collision nibble.</summary>
-        internal ushort WordAt(int run, int cell)
+        /// <summary>The selected block's appearance and collision kind.</summary>
+        internal RoomTerrainBlock BlockAt(int run, int cell)
         {
-            if ((uint)cell >= (uint)WordCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
-            return MotherBrainGlassPlmDrawDefinitions.Cells[Frame][run][cell].Raw;
+            if ((uint)cell >= (uint)BlockCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
+            return MotherBrainGlassPlmDrawDefinitions.Cells[Frame][run][cell];
         }
     }
 
@@ -88,9 +89,9 @@ internal static class MotherBrainGlassDraws
         var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];
         for (int run = 0; run < runs.Length; run++)
         {
-            var words = new ushort[draw.WordCount(run)];
-            for (int cell = 0; cell < words.Length; cell++) words[cell] = draw.WordAt(run, cell);
-            runs[run] = new(draw.Vertical(run) ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal, words, new(draw.NextX(run), draw.NextY(run)));
+            var blocks = new RoomTerrainBlock[draw.BlockCount(run)];
+            for (int cell = 0; cell < blocks.Length; cell++) blocks[cell] = draw.BlockAt(run, cell);
+            runs[run] = new(draw.Vertical(run) ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal, blocks, new(draw.NextX(run), draw.NextY(run)));
         }
         list = new(request, runs);
         return true;

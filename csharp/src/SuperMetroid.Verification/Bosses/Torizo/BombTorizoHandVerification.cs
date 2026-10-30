@@ -42,14 +42,14 @@ internal static class BombTorizoHandVerification
         // from the synthetic bus so a fallback to the old decoder cannot pass.
         var guarded = NewBombTorizoHandProgramReadGuard(bus);
 
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]));
+        var level = CreateEmptyRoom(new(width, height));
         var samus = new SamusState();
         var plms = PlmFixtures.Unbound();
         var editedVisuals = new RoomPlmBombTorizoHandVisualCatalog(
         [
-            new("intact", [0x0053, 0x0066, 0x0064, 0x0045,
-                0x0046, 0x0047, 0x0048, 0x0049]),
-            new("cleared", Enumerable.Repeat((ushort)0x00ff, 16).ToArray()),
+            new("intact", [RoomBlockAppearance.Of(0x53), RoomBlockAppearance.Of(0x66), RoomBlockAppearance.Of(0x64), RoomBlockAppearance.Of(0x45),
+                RoomBlockAppearance.Of(0x46), RoomBlockAppearance.Of(0x47), RoomBlockAppearance.Of(0x48), RoomBlockAppearance.Of(0x49)]),
+            new("cleared", Enumerable.Repeat(RoomBlockAppearance.Of(0xff), 16).ToArray()),
         ]);
         PlmFixtures.VisualsOf(plms).RoomPlmBombTorizoHandVisuals = editedVisuals;
 
@@ -62,15 +62,15 @@ internal static class BombTorizoHandVerification
         // additional passes prove that neither a countdown nor host wall clock bypasses it.
         plms.Step(level);
         int handOrigin = level.GetBlockIndex(new(13, 11));
-        AssertEqual((ushort)0x8065,
-            level.GetCollisionBlockByIndex(handOrigin).PackedWord.Raw,
-            "edited Bomb Torizo hand keeps the cartridge's physical level word");
-        AssertEqual((ushort)0x0053,
-            level.DisplayedVisualWord(handOrigin),
+        AssertEqual(RoomTerrainBlock.Of(0x65, BlockMirroring.None, RoomCollisionType.SolidBlock),
+            level.GetCollisionBlockByIndex(handOrigin).Terrain,
+            "edited Bomb Torizo hand keeps the cartridge's terrain block");
+        AssertEqual(RoomBlockAppearance.Of(0x53),
+            level.DisplayedAppearance(handOrigin),
             "edited hand survives later background streaming");
-        AssertEqual((ushort)0x8064, level.GetCollisionBlock(new(12, 11)).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x64, BlockMirroring.None, RoomCollisionType.SolidBlock), level.GetCollisionBlock(new(12, 11)).Terrain,
             "multi-run hand geometry retains the second native run");
-        AssertEqual((ushort)0x8049, level.GetCollisionBlock(new(14, 12)).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x49, BlockMirroring.None, RoomCollisionType.SolidBlock), level.GetCollisionBlock(new(14, 12)).Terrain,
             "multi-run hand geometry retains the fourth native run");
         plms.Step(level);
         for (int frame = 0; frame < 180; frame++)
@@ -110,8 +110,8 @@ internal static class BombTorizoHandVerification
             "hand fragments preserve cartridge order");
         AssertTrue(!plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.BombTorizoHand),
             "final delete removes header seen by Torizo AI");
-        AssertEqual((ushort)0x00ff,
-            level.GetCollisionBlockByIndex(handOrigin).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
+            level.GetCollisionBlockByIndex(handOrigin).Terrain,
             "five-run cleared hand removes its physical origin block");
         AssertEqual(1, plms.BombTorizoHand.MusicRequests.Count,
             "terminal hand pass queues one music command");
@@ -132,7 +132,7 @@ internal static class BombTorizoHandVerification
             "  Bomb Torizo hand: inventory gate, crumble delay, debris cadence, music, and deletion agree.");
     }
 
-    /// <summary>Compares hand draw geometry, physical words, instructions, callback, debris, and DMA operands with the cartridge.</summary>
+    /// <summary>Compares hand draw geometry, decoded terrain blocks, instructions, callback, debris, and DMA operands with the cartridge.</summary>
     private static void VerifyBombTorizoHandProgramDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(

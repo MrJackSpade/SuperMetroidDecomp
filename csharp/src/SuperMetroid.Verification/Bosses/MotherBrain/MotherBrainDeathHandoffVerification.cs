@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Video;
+using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Escape;
@@ -35,18 +36,18 @@ internal static class MotherBrainDeathHandoffVerification
         text.StepInto(vram); text.StepInto(vram);
         AssertTrue(text.StepInto(vram), "typewriter completes only at terminator after delay");
 
-        ushort[] foreground = Enumerable.Repeat((ushort)0x8123, 256).ToArray();
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(foreground, new byte[256], new ushort[256]));
+        RoomTerrainBlock[] terrain = Enumerable.Repeat(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), 256).ToArray();
+        var level = CreateRoom(new(16, 16), terrain, new RoomBlockBehavior[terrain.Length]);
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.BossRoomMutations.TrySpawnMotherBrainMutation(level, new(0, 6), PlmHeaderId.MotherBrainsRoomEscapeDoor), "escape PLM allocates");
-        AssertEqual((ushort)0x9123, level.GetCollisionBlock(new(0, 6)).PackedWord.Raw, "door setup preserves visual bits");
-        AssertEqual(1, level.GetCollisionBlock(new(0, 6)).Bts.Value, "door setup selects second door header");
+        AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.DoorBlock), level.GetCollisionBlock(new(0, 6)).Terrain, "door setup preserves the block's appearance");
+        AssertEqual(1, level.GetCollisionBlock(new(0, 6)).Behavior.Value, "door setup selects second door header");
         for (int row = 7; row < 10; row++)
         {
-            AssertEqual((ushort)0xd123, level.GetCollisionBlock(new(0, checked((ushort)row))).PackedWord.Raw, "extension preserves visual bits");
-            AssertEqual(byte.MaxValue, level.GetCollisionBlock(new(0, checked((ushort)row))).Bts.Value, "extension links one block upward");
+            AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.VerticalExtension), level.GetCollisionBlock(new(0, checked((ushort)row))).Terrain, "extension preserves the block's appearance");
+            AssertEqual(byte.MaxValue, level.GetCollisionBlock(new(0, checked((ushort)row))).Behavior.Value, "extension links one block upward");
         }
-        AssertEqual((ushort)0x8123, level.GetCollisionBlock(new(0, 10)).PackedWord.Raw, "door setup does not overrun four blocks");
+        AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), level.GetCollisionBlock(new(0, 10)).Terrain, "door setup does not overrun four blocks");
         Console.WriteLine("  Mother Brain escape: typewriter glyph/delay/click semantics and native door setup agree.");
     }
 

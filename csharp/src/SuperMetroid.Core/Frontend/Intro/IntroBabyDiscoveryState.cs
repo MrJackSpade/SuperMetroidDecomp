@@ -59,8 +59,8 @@ internal sealed class IntroBabyDiscoveryState
         Samus.CommitPoseHistory();
         Samus.Presentation.PrimeGraphics(Samus);
 
-        // $8B:AFDF copies exactly $300 bytes into a room declared 32x16 blocks. The final
-        // 128 foreground words and all BTS bytes retain the earlier zero initialization.
+        // The discovery room is 32x16 blocks, of which the authored terrain fills twelve rows.
+        // The final four rows are empty, and no block has a behaviour.
         Level = CreateLevel();
 
         demo.Clear();

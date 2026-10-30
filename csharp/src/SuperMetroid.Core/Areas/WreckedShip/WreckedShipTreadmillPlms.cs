@@ -27,7 +27,7 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
     }
     /// <summary>
     /// Spawns header $B64B or $B64F at cartridge block coordinate (4,9), then executes
-    /// shared setup $84:B04A synchronously by replacing the following $38 level words with
+    /// shared setup $84:B04A synchronously by replacing the following 56 blocks with
     /// blank air. The first ordinary PLM pass later either installs treadmill collision
     /// when Phantoon is dead or deletes the actor without doing so.
     /// </summary>

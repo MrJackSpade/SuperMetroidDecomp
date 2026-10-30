@@ -50,16 +50,15 @@ internal static class DraygonCannonPlmProgramVerification
         ]);
         var guarded = NewDraygonCannonProgramReadGuard(source);
         const int width = 32;
-        var level = CreateRoom(new(width, 32),
-            new ushort[width * 32], new byte[width * 32]);
+        var level = CreateEmptyRoom(new(width, 32));
         var disabled = new List<DraygonCannonControlWord>();
         var plms = PlmFixtures.Unbound();
         var entries = DraygonCannonDraws.All.Select(draw =>
             new RoomPlmVisualEntry(
                 DraygonCannonDraws.VisualId(draw.Draw),
-                draw.VisualWords())).ToArray();
-        entries.Single(entry => entry.Id == "right-shield-a").Blocks[0] = 0x0053;
-        entries.Single(entry => entry.Id == "left-shield-a").Blocks[0] = 0x0054;
+                draw.Appearances())).ToArray();
+        entries.Single(entry => entry.Id == "right-shield-a").Blocks[0] = RoomBlockAppearance.Of(0x53);
+        entries.Single(entry => entry.Id == "left-shield-a").Blocks[0] = RoomBlockAppearance.Of(0x54);
         PlmFixtures.VisualsOf(plms).RoomPlmDraygonCannonVisuals = new RoomPlmDraygonCannonVisualCatalog(entries);
         AssertEqual(4, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { DraygonCannonDisabled = disabled.Add } }),
             "four retail cannon headers load with cartridge program lists");
@@ -73,48 +72,48 @@ internal static class DraygonCannonPlmProgramVerification
         Step(plms, guarded, level);
         int rightShieldBlock = 18 * width + 2;
         int leftShieldBlock = 15 * width + 29;
-        AssertEqual((ushort)0xc514,
-            level.GetCollisionBlockByIndex(rightShieldBlock).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x114, BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock),
+            level.GetCollisionBlockByIndex(rightShieldBlock).Terrain,
             "edited right shield retains native physical collision and tile reference");
-        AssertEqual((ushort)0x0053,
-            level.DisplayedVisualWord(rightShieldBlock),
+        AssertEqual(RoomBlockAppearance.Of(0x53),
+            level.DisplayedAppearance(rightShieldBlock),
             "edited right shield survives later room streaming");
-        AssertEqual((ushort)0xc114,
-            level.GetCollisionBlockByIndex(leftShieldBlock).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x114, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+            level.GetCollisionBlockByIndex(leftShieldBlock).Terrain,
             "edited left shield retains native physical collision and tile reference");
-        AssertEqual((ushort)0x0054,
-            level.DisplayedVisualWord(leftShieldBlock),
+        AssertEqual(RoomBlockAppearance.Of(0x54),
+            level.DisplayedAppearance(leftShieldBlock),
             "edited offscreen left shield enters later background streaming");
         AssertTrue(disabled.Contains(DraygonCannonControlWord.UpperLeft),
             "pre-destroyed cannon executes its retail damage-list entry");
         int rightBlock = rightShieldBlock;
         AssertTrue(plms.ProjectileTriggers.TryNotifyResidentProjectileHit(rightBlock, 0x0200),
             "Super Missile reaches live right cannon");
-        var seenRightDamageWords = new HashSet<ushort>();
+        var seenRightDamageBlocks = new HashSet<RoomTerrainBlock>();
         for (int frame = 0; frame < 28; frame++)
         {
             Step(plms, guarded, level);
-            seenRightDamageWords.Add(
-                level.GetCollisionBlockByIndex(rightBlock).PackedWord.Raw);
+            seenRightDamageBlocks.Add(
+                level.GetCollisionBlockByIndex(rightBlock).Terrain);
         }
-        foreach (ushort word in new ushort[] { 0xa580, 0xa581, 0xa582, 0xa583 })
-            AssertTrue(seenRightDamageWords.Contains(word),
-                $"right cannon damage loop draws compiled frame ${word:X4}");
+        foreach (int block in new[] { 0x180, 0x181, 0x182, 0x183 })
+            AssertTrue(seenRightDamageBlocks.Contains(RoomTerrainBlock.Of(block, BlockMirroring.Horizontal, RoomCollisionType.SpikeBlock)),
+                $"right cannon damage loop draws compiled mirrored spike block ${block:X3}");
         AssertTrue(disabled.Contains(DraygonCannonControlWord.LowerLeft),
             "right cannon follows native three-hit threshold to damaged list");
         int leftBlock = leftShieldBlock;
         AssertTrue(plms.ProjectileTriggers.TryNotifyResidentProjectileHit(leftBlock, 0x0200),
             "Super Missile reaches live left cannon");
-        var seenLeftDamageWords = new HashSet<ushort>();
+        var seenLeftDamageBlocks = new HashSet<RoomTerrainBlock>();
         for (int frame = 0; frame < 28; frame++)
         {
             Step(plms, guarded, level);
-            seenLeftDamageWords.Add(
-                level.GetCollisionBlockByIndex(leftBlock).PackedWord.Raw);
+            seenLeftDamageBlocks.Add(
+                level.GetCollisionBlockByIndex(leftBlock).Terrain);
         }
-        foreach (ushort word in new ushort[] { 0xa180, 0xa181, 0xa182, 0xa183 })
-            AssertTrue(seenLeftDamageWords.Contains(word),
-                $"left cannon damage loop draws compiled frame ${word:X4}");
+        foreach (int block in new[] { 0x180, 0x181, 0x182, 0x183 })
+            AssertTrue(seenLeftDamageBlocks.Contains(RoomTerrainBlock.Of(block, BlockMirroring.None, RoomCollisionType.SpikeBlock)),
+                $"left cannon damage loop draws compiled spike block ${block:X3}");
         AssertTrue(disabled.Contains(DraygonCannonControlWord.UpperRight),
             "left cannon follows native threshold to damaged list");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -132,7 +131,7 @@ internal static class DraygonCannonPlmProgramVerification
                     {
                         int start = 0x840000 | PlmDrawAddressCodec.Of(draw.Draw);
                         int size = draw.Runs.Span.Sum(run =>
-                            4 + run.LevelWords.Length * 2);
+                            4 + run.Blocks.Length * 2);
                         return address >= start && address < start + size;
                     }),
                 address => $"Draygon cannon reread compiled program byte ${address:X6}.");

@@ -10,6 +10,9 @@ using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.AssetExtraction;
+using static SuperMetroid.Verification.Harness.TerrainBlockFieldAssertions;
 namespace SuperMetroid.Verification.Enemies.Elevator;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -19,9 +22,9 @@ internal static class LookupElevatorPlatformLayoutsVerification
 {
     /// <summary>Checks draw run positions, continuation offsets, and resulting room block placement.</summary>
     internal static void VerifyElevatorPlatformLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformLayoutDrawField(rom, 0);
-    /// <summary>Checks collision bits of each exported level word against the native draw lists.</summary>
+    /// <summary>Checks the collision kind of each exported block against the decoded native draw lists.</summary>
     internal static void VerifyElevatorPlatformLayoutCollision(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformLayoutDrawField(rom, 1);
-    /// <summary>Checks the visible tile bits of each exported level word against the native draw lists.</summary>
+    /// <summary>Checks the appearance of each exported block against the decoded native draw lists.</summary>
     internal static void VerifyElevatorPlatformLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformLayoutDrawField(rom, 2);
 
     /// <summary>Checks the requested word field across the calculated shape, DTO exports, and native PLM list.</summary>
@@ -66,13 +69,13 @@ internal static class LookupElevatorPlatformLayoutsVerification
                 AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "ElevatorPlatform layout reverse ID");
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordCount(invalid), "ElevatorPlatform layout run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "ElevatorPlatform layout run bounds");
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.NextX(invalid), "ElevatorPlatform layout X bounds");
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.NextY(invalid), "ElevatorPlatform layout offset bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(invalid, 0), "ElevatorPlatform layout word run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid, 0), "ElevatorPlatform layout word run bounds");
                 }
             }
-            var level = CreateRoom(new(32, 16), new ushort[512], new byte[512]);
+            var level = CreateEmptyRoom(new(32, 16));
             var plms = PlmFixtures.Unbound();
             var bus = new TestAddressSpace();
             if (field == 0)
@@ -92,32 +95,31 @@ internal static class LookupElevatorPlatformLayoutsVerification
                 if (field == 0)
                 {
                     AssertEqual((ushort)count, header, "ElevatorPlatform layout native direction");
-                    AssertEqual(count, shape.WordCount(run), "ElevatorPlatform layout native calculated count");
+                    AssertEqual(count, shape.BlockCount(run), "ElevatorPlatform layout native calculated count");
                     AssertEqual(LittleEndianBytes.Word((byte)shape.NextX(run), (byte)shape.NextY(run)), offset, "ElevatorPlatform layout native calculated continuation");
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         var part = frame.Runs.Span[run];
                         AssertRunHeader(header, part, "ElevatorPlatform layout native DTO geometry");
-                        AssertEqual(count, part.LevelWords.Length, "ElevatorPlatform layout native DTO count");
+                        AssertEqual(count, part.Blocks.Length, "ElevatorPlatform layout native DTO count");
                         AssertEqual(offset, LittleEndianBytes.Word((byte)part.Next.X, (byte)part.Next.Y), "ElevatorPlatform layout native DTO offset");
                     }
                     for (int cell = 0; cell < count; cell++)
-                        AssertEqual(ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2),
-                            level.GetCollisionBlock(new(checked((ushort)(drawX + cell)), checked((ushort)drawY))).PackedWord.Raw,
-                            "ElevatorPlatform native physical word at original absolute run position");
+                        AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2)),
+                            level.GetCollisionBlock(new(checked((ushort)(drawX + cell)), checked((ushort)drawY))).Terrain,
+                            "ElevatorPlatform decoded native block at original absolute run position");
                     drawX = 3 + unchecked((sbyte)offset);
                     drawY = 4 + unchecked((sbyte)(LittleEndianBytes.HighByte(offset)));
                     int selectedRun = run;
                     foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(selectedRun, invalid), "ElevatorPlatform layout cell bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(selectedRun, invalid), "ElevatorPlatform layout cell bounds");
                 }
                 else for (int cell = 0; cell < count; cell++)
                 {
-                    int mask = field == 1 ? 0xf000 : 0xfff;
-                    int expected = ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2) & mask;
-                    AssertEqual(expected, shape.WordAt(run, cell) & mask, "ElevatorPlatform layout original calculated field");
+                    RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2));
+                    AssertTerrainField(field, expected, shape.BlockAt(run, cell), "ElevatorPlatform layout original calculated field");
                     foreach (var frame in new[] {dto,exported[index],byId})
-                        AssertEqual(expected, frame.Runs.Span[run].LevelWords.Span[cell] & mask, "ElevatorPlatform layout original DTO field");
+                        AssertTerrainField(field, expected, frame.Runs.Span[run].Blocks.Span[cell], "ElevatorPlatform layout original DTO field");
                 }
                 cells += count;
                 run++;

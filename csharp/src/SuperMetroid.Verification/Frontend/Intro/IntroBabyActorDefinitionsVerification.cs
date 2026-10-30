@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
@@ -65,21 +66,16 @@ internal static class IntroBabyActorDefinitionsVerification
         }
 
         var guarded = NewIntroBabyActorDefinitionGuard(retail);
-        byte[] nativeCollision = VerifyIntroDiscoveryCollision(retail);
+        RoomTerrainBlock[] nativeCollision = VerifyIntroDiscoveryCollision(retail);
         var discovery = new IntroBabyDiscoveryState(new SharedRandom(), 
             existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Samus.SamusState()));
         var referenceBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var reference = new IntroBabyDiscoveryState(new SharedRandom(), 
             existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Samus.SamusState()));
-        for (int block = 0; block < discovery.Level.ForegroundEntries.Length; block++)
-        {
-            ushort expected = block * sizeof(ushort) < nativeCollision.Length
-                ? LittleEndianBytes.Word(nativeCollision[block * 2], nativeCollision[block * 2 + 1])
-                : (ushort)0;
-            AssertEqual(expected, discovery.Level.ForegroundEntries.Span[block],
-                $"SR388 discovery physical block {block} preserves native word");
-        }
+        for (int block = 0; block < nativeCollision.Length; block++)
+            AssertEqual(nativeCollision[block], discovery.Level.GetCollisionBlockByIndex(block).Terrain,
+                $"SR388 discovery physical block {block} matches the decoded original");
         discovery.Samus.Position = discovery.Samus.Position.WithWholeX(0x00a8);
         reference.Samus.Position = reference.Samus.Position.WithWholeX(0x00a8);
         var egg = discovery.egg;

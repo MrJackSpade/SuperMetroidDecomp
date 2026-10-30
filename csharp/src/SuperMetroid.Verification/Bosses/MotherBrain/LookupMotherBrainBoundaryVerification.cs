@@ -6,6 +6,9 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.AssetExtraction;
+using static SuperMetroid.Verification.Harness.TerrainBlockFieldAssertions;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 /// <summary>Cross-checks Mother Brain fake-death wall and door draw records against bank $84.</summary>
@@ -43,17 +46,17 @@ internal static class LookupMotherBrainBoundaryVerification
                 {
                     AssertEqual(2, draw.Runs.Length, "Mother Brain two boundary runs");
                     AssertRunHeader(direction, draw.Runs.Span[run], "Mother Brain DTO direction/count");
-                    AssertEqual(count, draw.Runs.Span[run].LevelWords.Length, "Mother Brain DTO run width");
+                    AssertEqual(count, draw.Runs.Span[run].Blocks.Length, "Mother Brain DTO run width");
                     AssertEqual(x, draw.Runs.Span[run].Next.X, "Mother Brain DTO X");
                     AssertEqual(y, draw.Runs.Span[run].Next.Y, "Mother Brain DTO Y");
                 }
                 foreach (int bad in new[] {int.MinValue,-1,count,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(run,bad), "Mother Brain boundary cell bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(run,bad), "Mother Brain boundary cell bounds");
             }
             AssertEqual(index == 0 ? 0x94b1 : 0x94c9, cursor, "Mother Brain exact boundary record end");
             foreach (int bad in new[] {int.MinValue,-1,2,int.MaxValue})
             {
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(bad,0), "Mother Brain boundary run bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(bad,0), "Mother Brain boundary run bounds");
                 AssertThrows<ArgumentOutOfRangeException>(() => shape.NextX(bad), "Mother Brain boundary X bounds");
                 AssertThrows<ArgumentOutOfRangeException>(() => shape.NextY(bad), "Mother Brain boundary Y bounds");
             }
@@ -63,15 +66,15 @@ internal static class LookupMotherBrainBoundaryVerification
     /// <summary>Reads native boundary bytes for the geometry comparison.</summary>
     private static byte MotherBrainBoundaryGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Compares collision bits in both boundary records with native block words.</summary>
+    /// <summary>Compares the collision kinds in both boundary records with the decoded native blocks.</summary>
     internal static void VerifyMotherBrainBoundaryCollision(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyMotherBrainBoundaryCells), () => VerifyMotherBrainBoundaryCells(rom, 0));
 
-    /// <summary>Compares visual bits of the fake-death wall record with native block words.</summary>
+    /// <summary>Compares the appearances of the fake-death wall record with the decoded native blocks.</summary>
     internal static void VerifyMotherBrainWallVisuals(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyMotherBrainBoundaryCells), () => VerifyMotherBrainBoundaryCells(rom, 1));
 
-    /// <summary>Compares visual bits of the fake-death door record with native block words.</summary>
+    /// <summary>Compares the appearances of the fake-death door record with the decoded native blocks.</summary>
     internal static void VerifyMotherBrainDoorVisuals(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyMotherBrainBoundaryCells), () => VerifyMotherBrainBoundaryCells(rom, 2));
 
@@ -84,16 +87,16 @@ internal static class LookupMotherBrainBoundaryVerification
             MotherBrainFakeDeathDraws.TryDescribeBoundary(NativePlmDraws.At<MotherBrainFakeDeathDraw>(pointer), out var shape);
             MotherBrainFakeDeathDraws.TryGet(NativePlmDraws.At<MotherBrainFakeDeathDraw>(pointer), out var dto);
             int cursor = pointer;
-            int mask = field == 0 ? 0xf000 : 0xfff;
+            int compared = field == 0 ? CollisionField : field;
             for (int run = 0; run < 2; run++)
             {
                 int count = ReadSamusEaterPlmWord(rom, 0x840000 | cursor) & 0x7fff;
                 cursor += 2;
                 for (int block = 0; block < count; block++, cursor += 2)
                 {
-                    int expected = ReadSamusEaterPlmWord(rom, 0x840000 | cursor) & mask;
-                    AssertEqual(expected, shape.WordAt(run,block) & mask, "Mother Brain native boundary field");
-                    AssertEqual(expected, dto.Runs.Span[run].LevelWords.Span[block] & mask, "Mother Brain DTO boundary field");
+                    RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, 0x840000 | cursor));
+                    AssertTerrainField(compared, expected, shape.BlockAt(run,block), "Mother Brain native boundary field");
+                    AssertTerrainField(compared, expected, dto.Runs.Span[run].Blocks.Span[block], "Mother Brain DTO boundary field");
                 }
                 cursor += 2;
             }

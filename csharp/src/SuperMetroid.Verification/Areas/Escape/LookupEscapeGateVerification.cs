@@ -4,6 +4,9 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.AssetExtraction;
+using static SuperMetroid.Verification.Harness.TerrainBlockFieldAssertions;
 namespace SuperMetroid.Verification.Areas.Escape;
 
 /// <summary>Checks Mother Brain escape-gate PLM program and draw fields against native data.</summary>
@@ -101,20 +104,19 @@ internal static class LookupEscapeGateVerification
                     AssertEqual(1, frame.Runs.Length, "Escape gate one run");
                     AssertEqual(PlmRunDirection.Vertical, frame.Runs.Span[0].Direction, "Escape gate DTO runs down its column");
                     AssertEqual(4, frame.Runs.Span[0].Count, "Escape gate DTO block count");
-                    AssertEqual(4, frame.Runs.Span[0].LevelWords.Length, "Escape gate DTO width");
+                    AssertEqual(4, frame.Runs.Span[0].Blocks.Length, "Escape gate DTO width");
                     AssertEqual((sbyte)0, frame.Runs.Span[0].Next.X, "Escape gate DTO final X");
                     AssertEqual((sbyte)0, frame.Runs.Span[0].Next.Y, "Escape gate DTO final Y");
                 }
                 foreach (int invalid in new[] {int.MinValue,-1,4,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(invalid), "Escape gate calculated row bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid), "Escape gate calculated row bounds");
             }
             else for (int row = 0; row < 4; row++)
             {
-                int mask = field == 1 ? 0xf000 : 0xfff;
-                int expected = ReadSamusEaterPlmWord(rom, 0x840000 | (pointer + 2 + row * 2)) & mask;
-                AssertEqual(expected, shape.WordAt(row) & mask, "Escape gate original calculated field");
-                AssertEqual(expected, dto.Runs.Span[0].LevelWords.Span[row] & mask, "Escape gate original DTO field");
-                AssertEqual(expected, exported[index].Runs.Span[0].LevelWords.Span[row] & mask, "Escape gate original export field");
+                RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, 0x840000 | (pointer + 2 + row * 2)));
+                AssertTerrainField(field, expected, shape.BlockAt(row), "Escape gate original calculated field");
+                AssertTerrainField(field, expected, dto.Runs.Span[0].Blocks.Span[row], "Escape gate original DTO field");
+                AssertTerrainField(field, expected, exported[index].Runs.Span[0].Blocks.Span[row], "Escape gate original export field");
             }
         }
     }

@@ -5,6 +5,8 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 /// <summary>Checks Mother Brain fake-death background draw geometry and collision words.</summary>
@@ -34,19 +36,19 @@ internal static class LookupMotherBrainBackgroundVerification
                 AssertEqual(1, draw.Runs.Length, "Mother Brain single background row");
                 var run = draw.Runs.Span[0];
                 AssertRunHeader(ReadSamusEaterPlmWord(rom, 0x840000 | value), run, "Mother Brain native background count/direction");
-                AssertEqual(13, run.LevelWords.Length, "Mother Brain background width");
+                AssertEqual(13, run.Blocks.Length, "Mother Brain background width");
                 AssertEqual(unchecked((sbyte)MotherBrainBackgroundGeometryRomByte(rom, 0x840000 | (value + 28))), run.Next.X, "Mother Brain background native X");
                 AssertEqual(unchecked((sbyte)MotherBrainBackgroundGeometryRomByte(rom, 0x840000 | (value + 29))), run.Next.Y, "Mother Brain background native Y");
             }
             foreach (int bad in new[] {int.MinValue,-1,13,int.MaxValue})
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(bad), "Mother Brain background column bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(bad), "Mother Brain background column bounds");
         }
     }
 
     /// <summary>Reads one cartridge byte as the independent row-offset oracle.</summary>
     private static byte MotherBrainBackgroundGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Checks that every background cell keeps the ROM's collision and visual word intact.</summary>
+    /// <summary>Checks that every background cell matches the decoded ROM block: its collision kind and appearance.</summary>
     internal static void VerifyMotherBrainBackgroundCollision(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0x9505,0x9523,0x9541,0x955f,0x957d,0x959b,0x95b9,0x95d7,0x95f5,0x9613,0x9631,0x964f];
@@ -56,9 +58,9 @@ internal static class LookupMotherBrainBackgroundVerification
             MotherBrainFakeDeathDraws.TryGet(NativePlmDraws.At<MotherBrainFakeDeathDraw>(pointer), out var dto);
             for (int column = 0; column < 13; column++)
             {
-                ushort original = ReadSamusEaterPlmWord(rom, 0x840000 | (pointer + 2 + column * 2));
-                AssertEqual(original, shape.WordAt(column), "Mother Brain original collision and preserved visual bits");
-                AssertEqual(original, dto.Runs.Span[0].LevelWords.Span[column], "Mother Brain DTO complete native cell");
+                RoomTerrainBlock original = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, 0x840000 | (pointer + 2 + column * 2)));
+                AssertEqual(original, shape.BlockAt(column), "Mother Brain decoded original background block");
+                AssertEqual(original, dto.Runs.Span[0].Blocks.Span[column], "Mother Brain DTO complete native cell");
             }
         }
     }

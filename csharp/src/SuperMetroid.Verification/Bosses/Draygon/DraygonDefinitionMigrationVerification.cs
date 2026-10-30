@@ -19,17 +19,13 @@ internal static class DraygonDefinitionMigrationVerification
         AssertEqual(0xa5a217, DraygonSourceDefinitions.IntroColors, "intro source");
         AssertEqual(0xa596af, DraygonSourceDefinitions.HealthBandColors, "health band source");
 
-        // The cannon's terrain is the collision type and behaviour of the block words the cartridge writes.
-        foreach ((DraygonCannonTerrain terrain, ushort word, string name) in new (DraygonCannonTerrain, ushort, string)[]
-        {
-            (DraygonCannonDefinitions.LiveCannon, 0xc044, "live cannon"),
-            (DraygonCannonDefinitions.LiveCannonExtension, 0xd0ff, "live cannon extension"),
-            (DraygonCannonDefinitions.DestroyedCannon, 0xa003, "destroyed cannon"),
-        })
-        {
-            AssertEqual(new RoomLevelWord(word).CollisionType, terrain.Type, $"{name} collision type");
-            AssertEqual(word & 0xff, terrain.Behavior.Value, $"{name} behaviour");
-        }
+        // The cannon's terrain is the collision kind and behaviour the cartridge writes for each cannon state.
+        AssertEqual(RoomCollisionType.ShootableBlock, DraygonCannonDefinitions.LiveCannon.Type, "live cannon collision kind");
+        AssertEqual(new RoomBlockBehavior(0x44), DraygonCannonDefinitions.LiveCannon.Behavior, "live cannon behaviour");
+        AssertEqual(RoomCollisionType.VerticalExtension, DraygonCannonDefinitions.LiveCannonExtension.Type, "live cannon extension collision kind");
+        AssertEqual(new RoomBlockBehavior(0xff), DraygonCannonDefinitions.LiveCannonExtension.Behavior, "live cannon extension behaviour");
+        AssertEqual(RoomCollisionType.SpikeBlock, DraygonCannonDefinitions.DestroyedCannon.Type, "destroyed cannon collision kind");
+        AssertEqual(new RoomBlockBehavior(3), DraygonCannonDefinitions.DestroyedCannon.Behavior, "destroyed cannon behaviour");
         AssertEqual(0x77, DraygonCannonDefinitions.SuperMissileHitCounterSeed, "Super Missile hit counter");
         AssertEqual(3, DraygonCannonDefinitions.HitsToDestroy, "hits to destroy");
 

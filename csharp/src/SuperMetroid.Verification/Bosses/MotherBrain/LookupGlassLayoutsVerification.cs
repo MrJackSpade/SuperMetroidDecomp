@@ -5,6 +5,9 @@ using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerifi
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.Plms;
 
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.AssetExtraction;
+using static SuperMetroid.Verification.Harness.TerrainBlockFieldAssertions;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 /// <summary>Checks Mother Brain glass PLM draw geometry, collision words, and visual cells.</summary>
@@ -59,9 +62,9 @@ internal static class LookupGlassLayoutsVerification
                 AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Glass layout reverse ID");
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordCount(invalid), "Glass layout run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Glass layout run bounds");
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.NextY(invalid), "Glass layout offset bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(invalid, 0), "Glass layout word run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid, 0), "Glass layout word run bounds");
                 }
             }
             int cursor = 0x840000 | pointer;
@@ -74,26 +77,25 @@ internal static class LookupGlassLayoutsVerification
                 if (field == 0)
                 {
                     AssertEqual((ushort)(count | (shape.Vertical(run) ? 0x8000 : 0)), header, "Glass layout native direction");
-                    AssertEqual(count, shape.WordCount(run), "Glass layout native calculated count");
+                    AssertEqual(count, shape.BlockCount(run), "Glass layout native calculated count");
                     AssertEqual(LittleEndianBytes.Word((byte)shape.NextX(run), (byte)shape.NextY(run)), offset, "Glass layout native calculated continuation");
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         var part = frame.Runs.Span[run];
                         AssertRunHeader(header, part, "Glass layout native DTO geometry");
-                        AssertEqual(count, part.LevelWords.Length, "Glass layout native DTO count");
+                        AssertEqual(count, part.Blocks.Length, "Glass layout native DTO count");
                         AssertEqual(offset, LittleEndianBytes.Word((byte)part.Next.X, (byte)part.Next.Y), "Glass layout native DTO offset");
                     }
                     int selectedRun = run;
                     foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(selectedRun, invalid), "Glass layout cell bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(selectedRun, invalid), "Glass layout cell bounds");
                 }
                 else for (int cell = 0; cell < count; cell++)
                 {
-                    int mask = field == 1 ? 0xf000 : 0xfff;
-                    int expected = ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2) & mask;
-                    AssertEqual(expected, shape.WordAt(run, cell) & mask, "Glass layout original calculated field");
+                    RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2));
+                    AssertTerrainField(field, expected, shape.BlockAt(run, cell), "Glass layout original calculated field");
                     foreach (var frame in new[] {dto,exported[index],byId})
-                        AssertEqual(expected, frame.Runs.Span[run].LevelWords.Span[cell] & mask, "Glass layout original DTO field");
+                        AssertTerrainField(field, expected, frame.Runs.Span[run].Blocks.Span[cell], "Glass layout original DTO field");
                 }
                 cells += count;
                 run++;

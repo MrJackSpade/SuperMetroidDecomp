@@ -40,6 +40,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -753,23 +754,15 @@ internal static class IntroCinematicArtworkVerification
     private static void VerifyIntroMotherBrainCollision(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
         IntroCinematicArtwork stock)
     {
-        byte[] native = VerifyIntroMotherBrainCollisionSource(CartridgeImportSource.Require(bus));
+        RoomTerrainBlock[] native = VerifyIntroMotherBrainCollisionSource(CartridgeImportSource.Require(bus));
         var guarded = NewIntroArtworkSourceReadGuard(bus);
         var state = CreateRetailIntroFixture(characterArtwork: stock);
         state.SetupFirstIllustratedPage();
         state.SetupMotherBrainFlashback();
-        AssertTrue(state.MotherBrainLevelData is not null &&
-                state.MotherBrainLevelData.SequenceEqual(native),
-            "flashback setup retains the exact native physical level without ROM reads");
-        var level = state.CurrentFlashbackLevel;
-        for (int index = 0; index < (level ?? throw new InvalidOperationException("Verification requires level.")).ForegroundEntries.Length; index++)
-        {
-            ushort expected = index * sizeof(ushort) < native.Length
-                ? LittleEndianBytes.Word(native[index * 2], native[index * 2 + 1])
-                : (ushort)0;
-            AssertEqual(expected, level.ForegroundEntries.Span[index],
-                $"Mother Brain flashback collision block {index} preserves native level word");
-        }
+        var level = state.CurrentFlashbackLevel ?? throw new InvalidOperationException("Verification requires level.");
+        for (int index = 0; index < native.Length; index++)
+            AssertEqual(native[index], level.GetCollisionBlockByIndex(index).Terrain,
+                $"Mother Brain flashback collision block {index} matches the decoded original without ROM reads");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "flashback setup never rereads the physical level source");
     }

@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 
+using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 namespace SuperMetroid.Verification.Enemies.Chozo;
 
 /// <summary>Checks Chozo statue PLM headers, programs, layouts, and installed visuals against cartridge data.</summary>
@@ -65,7 +66,7 @@ internal static class ChozoStatuePlmDefinitionsVerification
             const int width = 32;
             const int height = 16;
             int blockCount = width * height;
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[blockCount], new byte[blockCount], new ushort[blockCount]));
+            var level = CreateEmptyRoom(new(width, height));
             var plms = PlmFixtures.Unbound();
             var request = new ChozoStatuePlmRequest(
                 definition.Header,
@@ -90,9 +91,9 @@ internal static class ChozoStatuePlmDefinitionsVerification
                     block.CollisionType,
                     "Wrecked Ship hand installs special-block collision");
                 AssertEqual(
-                    ChozoStatueRoomDefinitions.WreckedShipHandBts.Value,
-                    block.Bts.Value,
-                    "Wrecked Ship hand installs native BTS");
+                    ChozoStatueRoomDefinitions.WreckedShipHandBehavior,
+                    block.Behavior,
+                    "Wrecked Ship hand installs its special-solid behaviour");
             }
         }
 

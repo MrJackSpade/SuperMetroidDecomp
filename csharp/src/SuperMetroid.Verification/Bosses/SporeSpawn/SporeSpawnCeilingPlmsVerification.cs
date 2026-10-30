@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Bosses.SporeSpawn;
 using SuperMetroid.Verification.Harness;
 
@@ -57,11 +58,11 @@ internal static class SporeSpawnCeilingPlmsVerification
         {
             ushort pointer = (ushort)raw;
             int index = Array.IndexOf(pointers, pointer);
-            AssertEqual(index >= 0, SporeSpawnCeilingDraws.TryGetWord(NativePlmDraws.At<SporeSpawnCeilingDraw>(pointer), out RoomLevelWord word), "Spore ceiling scalar ownership");
+            AssertEqual(index >= 0, SporeSpawnCeilingDraws.TryGetBlock(NativePlmDraws.At<SporeSpawnCeilingDraw>(pointer), out RoomTerrainBlock block), "Spore ceiling scalar ownership");
             AssertEqual(index >= 0, SporeSpawnCeilingDraws.TryGet(NativePlmDraws.At<SporeSpawnCeilingDraw>(pointer), out var dto), "Spore ceiling DTO ownership");
             if (index < 0)
             {
-                AssertEqual((ushort)0, word.Raw, "missing Spore ceiling scalar zero");
+                AssertEqual(default(RoomTerrainBlock), block, "missing Spore ceiling scalar default");
                 AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "missing Spore ceiling DTO default");
                 continue;
             }
@@ -69,9 +70,9 @@ internal static class SporeSpawnCeilingPlmsVerification
             for (int row = 0; row < 2; row++)
             for (int column = 0; column < 2; column++)
             {
-                ushort native = ReadSamusEaterPlmWord(rom, 0x840000 | (pointer + row * 8 + column * 2 + 2));
-                AssertEqual(native, word.Raw, "Spore ceiling calculated scalar covers each native cell");
-                AssertEqual(native, dto.Runs.Span[row].LevelWords.Span[column], "Spore ceiling direct DTO word");
+                RoomTerrainBlock native = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, 0x840000 | (pointer + row * 8 + column * 2 + 2)));
+                AssertEqual(native, block, "Spore ceiling calculated scalar covers each decoded native cell");
+                AssertEqual(native, dto.Runs.Span[row].Blocks.Span[column], "Spore ceiling direct DTO block");
             }
         }
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in draws)
@@ -82,8 +83,8 @@ internal static class SporeSpawnCeilingPlmsVerification
                 AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), run,
                     $"Spore Spawn draw ${PlmDrawAddressCodec.Of(draw.Draw):X4} run header at +{cursor - PlmDrawAddressCodec.Of(draw.Draw)}");
                 cursor += 2;
-                foreach (ushort word in run.LevelWords.Span)
-                    AssertDrawWord(word);
+                foreach (RoomTerrainBlock cell in run.Blocks.Span)
+                    AssertDrawBlock(cell);
                 AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
                     unchecked((byte)run.Next.X),
                     $"Spore Spawn draw ${PlmDrawAddressCodec.Of(draw.Draw):X4} signed X offset");
@@ -94,12 +95,12 @@ internal static class SporeSpawnCeilingPlmsVerification
             AssertEqual(16, cursor - PlmDrawAddressCodec.Of(draw.Draw),
                 $"Spore Spawn draw ${PlmDrawAddressCodec.Of(draw.Draw):X4} covers its native 2x2 span");
 
-            // Checks one compiled draw word at the current native cursor and advances past it.
-            void AssertDrawWord(ushort expected)
+            // Checks one compiled draw block against the decoded native block at the cursor and advances past it.
+            void AssertDrawBlock(RoomTerrainBlock expected)
             {
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor),
+                AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor)),
                     expected,
-                    $"Spore Spawn draw ${PlmDrawAddressCodec.Of(draw.Draw):X4} word +{cursor - PlmDrawAddressCodec.Of(draw.Draw)}");
+                    $"Spore Spawn draw ${PlmDrawAddressCodec.Of(draw.Draw):X4} block +{cursor - PlmDrawAddressCodec.Of(draw.Draw)}");
                 cursor += 2;
             }
         }
@@ -111,12 +112,12 @@ internal static class SporeSpawnCeilingPlmsVerification
     {
         const int width = 16;
         const int height = 32;
-        ushort[] words = new ushort[width * height];
+        var terrain = new RoomTerrainBlock[width * height];
+        terrain.AsSpan().Fill(RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Air));
         for (int y = 30; y <= 31; y++)
         for (int x = 7; x <= 8; x++)
-            words[y * width + x] = 0x0123;
-        RoomLevelData level = CreateRoom(new(width, height), words,
-            new byte[words.Length]);
+            terrain[y * width + x] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.Air);
+        RoomLevelData level = CreateRoom(new(width, height), terrain, new RoomBlockBehavior[terrain.Length]);
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.BossRoomMutations.TrySpawnSporeSpawnCeiling(level,
                 clear ? PlmHeaderId.ClearSporeSpawnCeiling :
@@ -133,17 +134,18 @@ internal static class SporeSpawnCeilingPlmsVerification
                 soundFrame = frame;
             if (frame % 4 == 0 && frame <= (clear ? 0 : 12))
             {
-                ushort expected = clear ? (ushort)0x00ff : (ushort)(frame switch
+                int expectedBlock = clear ? 0xff : frame switch
                 {
-                    0 => 0x0053,
-                    4 => 0x0054,
-                    8 => 0x0055,
-                    _ => 0x00ff,
-                });
+                    0 => 0x53,
+                    4 => 0x54,
+                    8 => 0x55,
+                    _ => 0xff,
+                };
+                RoomTerrainBlock expected = RoomTerrainBlock.Of(expectedBlock, BlockMirroring.None, RoomCollisionType.Air);
                 for (int y = 30; y <= 31; y++)
                 for (int x = 7; x <= 8; x++)
                     AssertEqual(expected,
-                        level.GetCollisionBlockByIndex(y * width + x).PackedWord.Raw,
+                        level.GetCollisionBlockByIndex(y * width + x).Terrain,
                         $"Spore Spawn {(clear ? "clear" : "crumble")} frame {frame} ({x},{y})");
             }
             if (plms.SlotTable.ActiveCount == 0)

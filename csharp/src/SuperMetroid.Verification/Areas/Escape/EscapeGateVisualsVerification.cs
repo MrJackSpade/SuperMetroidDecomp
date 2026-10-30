@@ -19,6 +19,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.AssetExtraction.Video;
+using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 namespace SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -35,28 +36,28 @@ internal static class EscapeGateVisualsVerification
                 .OrderBy(draw => PlmDrawAddressCodec.Of(draw.Draw))
                 .Select(draw => new RoomPlmVisualEntry(
                     MotherBrainEscapeGateDraws.VisualId(draw.Draw),
-                    draw.Runs.Span[0].LevelWords.Span
-                        .SelectToArray(word => new RoomLevelWord(word).VisualWord)))
+                    draw.Runs.Span[0].Blocks.Span
+                        .SelectToArray(block => block.Appearance)))
                 .ToArray();
         RoomPlmVisualEntry closed = entries.Single(entry =>
             entry.Id == "closed");
         RoomPlmVisualEntry halfClosed = entries.Single(entry =>
             entry.Id == "half-closed");
-        ushort stockClosed = closed.Blocks[0];
-        ushort stockHalfClosed = halfClosed.Blocks[0];
-        closed.Blocks[0] = 0x0053;
-        halfClosed.Blocks[0] = 0x0054;
+        RoomBlockAppearance stockClosed = closed.Blocks[0];
+        RoomBlockAppearance stockHalfClosed = halfClosed.Blocks[0];
+        closed.Blocks[0] = RoomBlockAppearance.Of(0x53);
+        halfClosed.Blocks[0] = RoomBlockAppearance.Of(0x54);
         var edited = new RoomPlmEscapeGateVisualCatalog(entries);
-        closed.Blocks[0] = 0x0055;
-        halfClosed.Blocks[0] = 0x0056;
-        AssertEqual((ushort)0x0053,
-            edited.GetWord(PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 0),
+        closed.Blocks[0] = RoomBlockAppearance.Of(0x55);
+        halfClosed.Blocks[0] = RoomBlockAppearance.Of(0x56);
+        AssertEqual(RoomBlockAppearance.Of(0x53),
+            edited.GetAppearance(PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 0),
             "escape-gate catalog copies closed-frame author data");
-        AssertEqual((ushort)0x0054,
-            edited.GetWord(PlmDraw.Of(MotherBrainEscapeGateDraw.HalfClosed), 0),
+        AssertEqual(RoomBlockAppearance.Of(0x54),
+            edited.GetAppearance(PlmDraw.Of(MotherBrainEscapeGateDraw.HalfClosed), 0),
             "escape-gate catalog copies transition-frame author data");
         AssertEqual(stockClosed,
-            RoomPlmEscapeGateVisualCatalog.Stock().GetWord(
+            RoomPlmEscapeGateVisualCatalog.Stock().GetAppearance(
                 PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 0),
             "stock escape-gate catalog retains cartridge appearance");
         closed.Blocks[0] = stockClosed;
@@ -65,11 +66,6 @@ internal static class EscapeGateVisualsVerification
         AssertThrows<InvalidDataException>(
             () => new RoomPlmEscapeGateVisualCatalog(entries.Skip(1)),
             "escape-gate catalog rejects a missing frame");
-        closed.Blocks[0] = 0xf053;
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmEscapeGateVisualCatalog(entries),
-            "escape-gate catalog rejects collision bits in a visual word");
-        closed.Blocks[0] = stockClosed;
         Suite(nameof(VerifyEscapeGateLiveVisual), () => VerifyEscapeGateLiveVisual(edited));
         Suite(nameof(VerifyEscapeGateVisualInstallation), () => VerifyEscapeGateVisualInstallation(rom));
         Console.WriteLine(
@@ -97,7 +93,7 @@ internal static class EscapeGateVisualsVerification
             0x00, 0x00,
         ]);
         var guarded = NewMotherBrainEscapeGateGuard(bus);
-        RoomLevelData CreateLevel() => new RoomLevelData(new(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]));
+        RoomLevelData CreateLevel() => CreateEmptyRoom(new(width, width));
         var system = new SharedGameState();
 
         RoomLevelData closedLevel = CreateLevel();
@@ -105,11 +101,11 @@ internal static class EscapeGateVisualsVerification
         AssertEqual(1, PlmFixtures.LoadPopulation(ref closed, new PlmRoom(closedLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "edited escape gate loads its real resident header");
         closed.Step(closedLevel);
-        AssertEqual((ushort)0x830f,
-            closedLevel.GetCollisionBlockByIndex(origin).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x30f, BlockMirroring.None, RoomCollisionType.SolidBlock),
+            closedLevel.GetCollisionBlockByIndex(origin).Terrain,
             "edited closed gate preserves native physical collision");
-        AssertEqual((ushort)0x0053,
-            closedLevel.DisplayedVisualWord(origin),
+        AssertEqual(RoomBlockAppearance.Of(0x53),
+            closedLevel.DisplayedAppearance(origin),
             "edited closed gate survives later camera streaming");
 
         RoomLevelData closingLevel = CreateLevel();
@@ -129,10 +125,10 @@ internal static class EscapeGateVisualsVerification
             "edited escape closure selects the real secondary instruction list");
         for (int frame = 0; frame < 3; frame++)
             closing.Step(closingLevel);
-        AssertEqual((ushort)0x830f,
-            closingLevel.GetCollisionBlockByIndex(origin).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x30f, BlockMirroring.None, RoomCollisionType.SolidBlock),
+            closingLevel.GetCollisionBlockByIndex(origin).Terrain,
             "edited half-closed gate preserves native physical collision");
-        AssertEqual((ushort)0x0054, closingLevel.DisplayedVisualWord(origin),
+        AssertEqual(RoomBlockAppearance.Of(0x54), closingLevel.DisplayedAppearance(origin),
             "edited half-closed gate is shown");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "escape-gate visuals never reread compiled program or draw payloads");
@@ -159,31 +155,26 @@ internal static class EscapeGateVisualsVerification
                 ?? throw new InvalidDataException("Extracted escape-gate JSON is empty.");
             JsonNode closed = document.Required("entries").AsArray().RequiredElements().Single(entry =>
                 entry.Required("id").GetValue<string>() == "closed");
-            closed.Required("blocks")[0] = 0x0053;
+            closed.Required("blocks")[0] = InstalledAppearanceJson.Cell(0x53);
             Directory.CreateDirectory(
                 installation.RoomPlmEscapeGateVisualOverrideDirectory);
             string overridePath = Path.Combine(
                 installation.RoomPlmEscapeGateVisualOverrideDirectory,
                 RoomPlmEscapeGateVisualFiles.VisualFileName);
             File.WriteAllText(overridePath, document.ToJsonString());
-            AssertEqual((ushort)0x0053,
-                installation.LoadRoomPlmEscapeGateVisuals().GetWord(
+            AssertEqual(RoomBlockAppearance.Of(0x53),
+                installation.LoadRoomPlmEscapeGateVisuals().GetAppearance(
                     PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 0),
                 "installed escape-gate override changes selected frame");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
             RoomPlmEscapeGateVisualFiles.Extract(rom, refreshed,
                 SupportedCartridge.Sha256);
-            AssertEqual((ushort)0x0053,
+            AssertEqual(RoomBlockAppearance.Of(0x53),
                 RoomPlmEscapeGateVisualFiles.Load(refreshed,
-                    installation.RoomPlmEscapeGateVisualOverrideDirectory).GetWord(
+                    installation.RoomPlmEscapeGateVisualOverrideDirectory).GetAppearance(
                     PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 0),
                 "escape-gate override survives stock replacement");
-            closed.Required("blocks")[0] = 0xf053;
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmEscapeGateVisuals(),
-                "invalid escape-gate override fails loudly");
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
                 () => RoomPlmEscapeGateVisualFiles.ValidateStock(

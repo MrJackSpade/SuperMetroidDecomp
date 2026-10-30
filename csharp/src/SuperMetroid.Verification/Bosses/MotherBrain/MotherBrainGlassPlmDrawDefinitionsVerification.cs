@@ -19,6 +19,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.AssetExtraction.Video;
+using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -27,7 +28,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// <summary>Checks compiled Mother Brain glass draw layouts through the guarded production PLM path.</summary>
 internal static class MotherBrainGlassPlmDrawDefinitionsVerification
 {
-    /// <summary>Compares eleven physical draw lists with cartridge data and verifies editable visual words leave collision blocks intact.</summary>
+    /// <summary>Compares eleven physical draw lists with cartridge data and verifies editable appearances leave collision blocks intact.</summary>
     internal static void VerifyMotherBrainGlassPlmDrawDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -41,19 +42,19 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         RoomPlmVisualEntry[] entries = lists.Select(draw =>
             new RoomPlmVisualEntry(
                 MotherBrainGlassDraws.VisualId(draw.Draw),
-                draw.VisualWords())).ToArray();
+                draw.Appearances())).ToArray();
         RoomPlmVisualEntry shatter = entries.Single(entry =>
             entry.Id == "shatter-1");
-        ushort originalWord = shatter.Blocks[6];
-        shatter.Blocks[6] = 0x0057;
+        RoomBlockAppearance originalAppearance = shatter.Blocks[6];
+        shatter.Blocks[6] = RoomBlockAppearance.Of(0x57);
         var edited = new RoomPlmMotherBrainGlassVisualCatalog(entries);
-        shatter.Blocks[6] = 0x0058;
-        AssertEqual((ushort)0x0057, edited.GetWord(NativePlmDraws.At<MotherBrainGlassDraw>(0x978f), 1, 2),
+        shatter.Blocks[6] = RoomBlockAppearance.Of(0x58);
+        AssertEqual(RoomBlockAppearance.Of(0x57), edited.GetAppearance(NativePlmDraws.At<MotherBrainGlassDraw>(0x978f), 1, 2),
             "glass visual catalog copies author data");
-        AssertEqual(originalWord,
-            RoomPlmMotherBrainGlassVisualCatalog.Stock().GetWord(NativePlmDraws.At<MotherBrainGlassDraw>(0x978f), 1, 2),
+        AssertEqual(originalAppearance,
+            RoomPlmMotherBrainGlassVisualCatalog.Stock().GetAppearance(NativePlmDraws.At<MotherBrainGlassDraw>(0x978f), 1, 2),
             "stock glass visual catalog retains the native shatter tile");
-        shatter.Blocks[6] = originalWord;
+        shatter.Blocks[6] = originalAppearance;
         AssertEqual(11, lists.Length,
             "Mother Brain glass program selects eleven distinct physical draw lists");
         var bank84 = new byte[0x8000];
@@ -88,7 +89,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         // The production control list is compiled and immutable. Draw each layout through the
         // production timed-frame draw instead of mutating a cartridge operand execution no longer reads.
         var guarded = NewMotherBrainGlassDrawReadGuard(bus, lists);
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]));
+        var level = CreateEmptyRoom(new(width, height));
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmMotherBrainGlassVisuals = visuals });
         AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false, IsBossDefeated = () => false, IsMiniBossDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } } }),
             $"Mother Brain glass loads for draw ${PlmDrawAddressCodec.Of(selected.Draw):X4}");
@@ -98,32 +99,32 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
 
         int entryX = originX;
         int entryY = originY;
-        var expected = new Dictionary<int, ushort>();
+        var expected = new Dictionary<int, RoomTerrainBlock>();
         foreach (RoomPlmShotBlockDrawDefinitions.Run run in selected.Runs.Span)
         {
             bool vertical = run.Direction == PlmRunDirection.Vertical;
-            for (int block = 0; block < run.LevelWords.Length; block++)
+            for (int block = 0; block < run.Blocks.Length; block++)
             {
                 int x = entryX + (vertical ? 0 : block);
                 int y = entryY + (vertical ? block : 0);
-                expected.Add(y * width + x, run.LevelWords.Span[block]);
+                expected.Add(y * width + x, run.Blocks.Span[block]);
             }
             entryX = originX + run.Next.X;
             entryY = originY + run.Next.Y;
         }
-        foreach ((int index, ushort word) in expected)
-            AssertEqual(word, level.GetCollisionBlockByIndex(index).PackedWord.Raw,
+        foreach ((int index, RoomTerrainBlock block) in expected)
+            AssertEqual(block, level.GetCollisionBlockByIndex(index).Terrain,
                 $"glass draw ${PlmDrawAddressCodec.Of(selected.Draw):X4} writes native physical block {index}");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"glass draw ${PlmDrawAddressCodec.Of(selected.Draw):X4} avoids source payload reads");
         if (visuals is not null)
         {
             const int editedBlock = 7 * width + 6;
-            AssertEqual((ushort)0x0057,
-                level.DisplayedVisualWord(editedBlock),
+            AssertEqual(RoomBlockAppearance.Of(0x57),
+                level.DisplayedAppearance(editedBlock),
                 "edited glass tile survives later camera streaming");
-            AssertEqual((ushort)0x0ecf,
-                level.GetCollisionBlockByIndex(editedBlock).PackedWord.Raw,
+            AssertEqual(RoomTerrainBlock.Of(0x2cf, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.Air),
+                level.GetCollisionBlockByIndex(editedBlock).Terrain,
                 "edited glass appearance does not change the physical shatter block");
         }
     }
@@ -150,32 +151,27 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
                 ?? throw new InvalidDataException("Extracted glass JSON is empty.");
             JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
                 entry.Required("id").GetValue<string>() == "shatter-1");
-            frame.Required("blocks")[6] = 0x0057;
+            frame.Required("blocks")[6] = InstalledAppearanceJson.Cell(0x57);
             Directory.CreateDirectory(
                 installation.RoomPlmMotherBrainGlassVisualOverrideDirectory);
             string overridePath = Path.Combine(
                 installation.RoomPlmMotherBrainGlassVisualOverrideDirectory,
                 RoomPlmMotherBrainGlassVisualFiles.VisualFileName);
             File.WriteAllText(overridePath, document.ToJsonString());
-            AssertEqual((ushort)0x0057,
+            AssertEqual(RoomBlockAppearance.Of(0x57),
                 installation.LoadRoomPlmMotherBrainGlassVisuals()
-                    .GetWord(NativePlmDraws.At<MotherBrainGlassDraw>(0x978f), 1, 2),
+                    .GetAppearance(NativePlmDraws.At<MotherBrainGlassDraw>(0x978f), 1, 2),
                 "installed glass override changes the multi-run shatter tile");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
             RoomPlmMotherBrainGlassVisualFiles.Extract(rom, refreshed,
                 SupportedCartridge.Sha256);
-            AssertEqual((ushort)0x0057,
+            AssertEqual(RoomBlockAppearance.Of(0x57),
                 RoomPlmMotherBrainGlassVisualFiles.Load(refreshed,
                     installation.RoomPlmMotherBrainGlassVisualOverrideDirectory)
-                    .GetWord(NativePlmDraws.At<MotherBrainGlassDraw>(0x978f), 1, 2),
+                    .GetAppearance(NativePlmDraws.At<MotherBrainGlassDraw>(0x978f), 1, 2),
                 "glass override survives stock replacement");
 
-            frame.Required("blocks")[6] = 0xf057;
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmMotherBrainGlassVisuals(),
-                "invalid glass override fails loudly");
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmMotherBrainGlassVisuals(),
@@ -195,7 +191,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
             {
                 int first = 0x840000 | PlmDrawAddressCodec.Of(list.Draw);
                 int length = list.Runs.Span.Sum(run =>
-                    4 + run.LevelWords.Length * 2);
+                    4 + run.Blocks.Length * 2);
                 return address >= first && address < first + length;
             }),
             address => $"Mother Brain glass reread draw payload ${address:X6}.");

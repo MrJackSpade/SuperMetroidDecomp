@@ -6,6 +6,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 /// <summary>Checks Mother Brain glass PLM visuals through damage and shatter frames.</summary>
@@ -16,19 +18,19 @@ internal static class LookupMotherBrainGlassStockVerification
         RoomPlmMotherBrainGlassVisualCatalog installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9717,"initial"),new LookupEscapeGateStockFrame(0x971d,"pane-damage-1"),new LookupEscapeGateStockFrame(0x9731,"pane-damage-2"),new LookupEscapeGateStockFrame(0x9745,"pane-transition"),new LookupEscapeGateStockFrame(0x974f,"shifted-pane-1"),new LookupEscapeGateStockFrame(0x9769,"shifted-pane-2"),new LookupEscapeGateStockFrame(0x9781,"shifted-pane-3"),new LookupEscapeGateStockFrame(0x978f,"shatter-1"),new LookupEscapeGateStockFrame(0x97b7,"shatter-2"),new LookupEscapeGateStockFrame(0x97e7,"shatter-3"),new LookupEscapeGateStockFrame(0x9817,"cleared")];
-        var native = new Dictionary<ushort, ushort[][]>();
+        var native = new Dictionary<ushort, RoomBlockAppearance[][]>();
         foreach (var frame in frames)
         {
-            var runs = new List<ushort[]>();
+            var runs = new List<RoomBlockAppearance[]>();
             int cursor = frame.Pointer;
             while (true)
             {
                 int count = ReadSamusEaterPlmWord(rom, 0x840000 | cursor) & 0x7fff;
                 cursor += 2;
-                var words = new ushort[count];
-                for (int word = 0; word < count; word++, cursor += 2)
-                    words[word] = (ushort)(ReadSamusEaterPlmWord(rom, 0x840000 | cursor) & 0xfff);
-                runs.Add(words);
+                var appearances = new RoomBlockAppearance[count];
+                for (int cell = 0; cell < count; cell++, cursor += 2)
+                    appearances[cell] = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, 0x840000 | cursor)).Appearance;
+                runs.Add(appearances);
                 byte x = MotherBrainGlassStockMappingRomByte(rom, 0x840000 | cursor++), y = MotherBrainGlassStockMappingRomByte(rom, 0x840000 | cursor++);
                 if (x == 0 && y == 0) break;
             }
@@ -39,8 +41,8 @@ internal static class LookupMotherBrainGlassStockVerification
         var flat = frames.ToDictionary(frame => frame.Pointer, frame => native[frame.Pointer].SelectMany(run => run).ToArray());
         var stock = RoomPlmMotherBrainGlassVisualCatalog.Stock();
         var imported = new RoomPlmMotherBrainGlassVisualCatalog(entries.Reverse());
-        string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
-            nameof(RoomPlmMotherBrainGlassVisualCatalog), words.ToDictionary(pair => MotherBrainGlassDraws.VisualId(NativePlmDraws.At<MotherBrainGlassDraw>(pair.Key)), pair => pair.Value));
+        string Hash(Dictionary<ushort, RoomBlockAppearance[]> appearances) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
+            nameof(RoomPlmMotherBrainGlassVisualCatalog), appearances.ToDictionary(pair => MotherBrainGlassDraws.VisualId(NativePlmDraws.At<MotherBrainGlassDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(flat), catalog.ContentIdentity, "Glass original flattened identity");
@@ -50,39 +52,37 @@ internal static class LookupMotherBrainGlassStockVerification
                 for (int run = 0; run < runs.Length; run++)
                 {
                     for (int word = 0; word < runs[run].Length; word++)
-                        AssertEqual(runs[run][word], catalog.GetWord(NativePlmDraws.At<MotherBrainGlassDraw>(frame.Pointer),run,word), "Glass original stock word");
+                        AssertEqual(runs[run][word], catalog.GetAppearance(NativePlmDraws.At<MotherBrainGlassDraw>(frame.Pointer),run,word), "Glass original stock appearance");
                     foreach (int bad in new[] {int.MinValue,-1,runs[run].Length,int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<MotherBrainGlassDraw>(frame.Pointer),run,bad), "Glass stock word bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativePlmDraws.At<MotherBrainGlassDraw>(frame.Pointer),run,bad), "Glass stock cell bounds");
                 }
                 foreach (int bad in new[] {int.MinValue,-1,runs.Length,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<MotherBrainGlassDraw>(frame.Pointer),bad,0), "Glass stock run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativePlmDraws.At<MotherBrainGlassDraw>(frame.Pointer),bad,0), "Glass stock run bounds");
             }
         }
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<MotherBrainGlassDraw>((ushort)pointer),0,0), "Glass stock unknown pointer");
-        entries[8].Blocks[12] = 0xc58;
+                AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<MotherBrainGlassDraw>((ushort)pointer),0,0), "Glass stock unknown pointer");
+        entries[8].Blocks[12] = RoomBlockAppearance.Of(0x58, BlockMirroring.Horizontal | BlockMirroring.Vertical);
         var mixed = new RoomPlmMotherBrainGlassVisualCatalog(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
         AssertEqual(Hash(expected), mixed.ContentIdentity, "Glass mixed custom/stock identity");
-        entries[8].Blocks[12] = 0x5a;
-        entries[10].Blocks[15] = 0x5b;
+        entries[8].Blocks[12] = RoomBlockAppearance.Of(0x5a);
+        entries[10].Blocks[15] = RoomBlockAppearance.Of(0x5b);
         foreach (var frame in frames)
         {
             int index = 0;
             for (int run = 0; run < native[frame.Pointer].Length; run++)
             for (int word = 0; word < native[frame.Pointer][run].Length; word++)
-                AssertEqual(expected[frame.Pointer][index++], mixed.GetWord(NativePlmDraws.At<MotherBrainGlassDraw>(frame.Pointer),run,word), "Glass cloned custom and unchanged stock isolation");
+                AssertEqual(expected[frame.Pointer][index++], mixed.GetAppearance(NativePlmDraws.At<MotherBrainGlassDraw>(frame.Pointer),run,word), "Glass cloned custom and unchanged stock isolation");
         }
         AssertThrows<InvalidDataException>(() => new RoomPlmMotherBrainGlassVisualCatalog(entries[..1]), "Glass missing frame");
         AssertThrows<InvalidDataException>(() => new RoomPlmMotherBrainGlassVisualCatalog(entries.Append(entries[0])), "Glass duplicate frame");
         var invalid = entries.ToArray();
         invalid[0] = new("INITIAL", entries[0].Blocks);
         AssertThrows<InvalidDataException>(() => new RoomPlmMotherBrainGlassVisualCatalog(invalid), "Glass ordinal identity");
-        invalid[0] = new(entries[0].Id, new ushort[7]);
+        invalid[0] = new(entries[0].Id, new RoomBlockAppearance[7]);
         AssertThrows<InvalidDataException>(() => new RoomPlmMotherBrainGlassVisualCatalog(invalid), "Glass exact flattened shape");
-        entries[0].Blocks[0] = 0xf058;
-        AssertThrows<InvalidDataException>(() => new RoomPlmMotherBrainGlassVisualCatalog(entries), "Glass visual bits only");
     }
 
     /// <summary>Reads native bank $84 glass draw-stream bytes as the stock reference.</summary>

@@ -46,8 +46,8 @@ internal static class MotherBrainFakeDeathVisualsVerification
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException(
                     "Extracted Mother Brain fake-death JSON is empty.");
-            Entry("background-row-d").Required("blocks")[12] = 0x0058;
-            Entry("clear-bottom-right-tube").Required("blocks")[5] = 0x0059;
+            Entry("background-row-d").Required("blocks")[12] = InstalledAppearanceJson.Cell(0x58);
+            Entry("clear-bottom-right-tube").Required("blocks")[5] = InstalledAppearanceJson.Cell(0x59);
             Directory.CreateDirectory(
                 installation.RoomPlmMotherBrainFakeDeathVisualOverrideDirectory);
             string overridePath = Path.Combine(
@@ -56,39 +56,34 @@ internal static class MotherBrainFakeDeathVisualsVerification
             File.WriteAllText(overridePath, document.ToJsonString());
             RoomPlmMotherBrainFakeDeathVisualCatalog edited =
                 installation.LoadRoomPlmMotherBrainFakeDeathVisuals();
-            AssertEqual((ushort)0x0058,
-                edited.GetWord(PlmDraw.Of(MotherBrainFakeDeathDraw.BackgroundRowD),
+            AssertEqual(RoomBlockAppearance.Of(0x58),
+                edited.GetAppearance(PlmDraw.Of(MotherBrainFakeDeathDraw.BackgroundRowD),
                     0, 12),
                 "Mother Brain override edits far background tile");
-            AssertEqual((ushort)0x0059,
-                edited.GetWord(
+            AssertEqual(RoomBlockAppearance.Of(0x59),
+                edited.GetAppearance(
                     PlmDraw.Of(MotherBrainFakeDeathDraw.ClearBottomRightTube),
                     1, 0),
                 "Mother Brain override edits second-run tube tile");
             VerifyMotherBrainVisualDraw(PlmHeaderId.MotherBrainsBackgroundRowD,
-                new(12, 0), 0x1249, 0x0058, edited);
+                new(12, 0), RoomTerrainBlock.Of(0x249, BlockMirroring.None, RoomCollisionType.Slope), RoomBlockAppearance.Of(0x58), edited);
             VerifyMotherBrainVisualDraw(PlmHeaderId.ClearMotherBrainBottomRightTube,
-                new(-1, 0), 0x00ff, 0x0059, edited);
+                new(-1, 0), RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air), RoomBlockAppearance.Of(0x59), edited);
             VerifyMotherBrainVisualDraw(PlmHeaderId.MotherBrainsBackgroundRowD,
-                new(12, 0), 0x1249, new RoomLevelWord(0x1249).VisualWord,
+                new(12, 0), RoomTerrainBlock.Of(0x249, BlockMirroring.None, RoomCollisionType.Slope), RoomTerrainBlock.Of(0x249, BlockMirroring.None, RoomCollisionType.Slope).Appearance,
                 null);
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
             RoomPlmMotherBrainFakeDeathVisualFiles.Extract(rom, refreshed,
                 SupportedCartridge.Sha256);
-            AssertEqual((ushort)0x0059,
+            AssertEqual(RoomBlockAppearance.Of(0x59),
                 RoomPlmMotherBrainFakeDeathVisualFiles.Load(refreshed,
                     installation.RoomPlmMotherBrainFakeDeathVisualOverrideDirectory)
-                    .GetWord(
+                    .GetAppearance(
                         PlmDraw.Of(MotherBrainFakeDeathDraw.ClearBottomRightTube),
                         1, 0),
                 "Mother Brain override survives stock replacement");
 
-            Entry("background-row-d").Required("blocks")[12] = 0xf058;
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmMotherBrainFakeDeathVisuals(),
-                "Mother Brain override cannot change collision bits");
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
                 () => RoomPlmMotherBrainFakeDeathVisualFiles.ValidateStock(
@@ -109,24 +104,23 @@ internal static class MotherBrainFakeDeathVisualsVerification
 
     /// <summary>Checks a selected mutation's physical block and redrawn visual tile with source reads guarded.</summary>
     private static void VerifyMotherBrainVisualDraw(PlmHeaderId header,
-        Offset16<RoomBlocks> blockOffset, ushort physicalWord, ushort visualWord,
+        Offset16<RoomBlocks> blockOffset, RoomTerrainBlock physical, RoomBlockAppearance visual,
         RoomPlmMotherBrainFakeDeathVisualCatalog? visuals)
     {
         const int width = 32;
-        ushort[] words = Enumerable.Repeat((ushort)0x8123, width * 16).ToArray();
-        RoomLevelData level = CreateRoom(new(width, 16), words,
-            new byte[words.Length]);
+        RoomTerrainBlock[] terrain = Enumerable.Repeat(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), width * 16).ToArray();
+        RoomLevelData level = CreateRoom(new(width, 16), terrain, new RoomBlockBehavior[terrain.Length]);
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmMotherBrainFakeDeathVisuals = visuals });
         AssertTrue(plms.BossRoomMutations.TrySpawnMotherBrainMutation(level, new(5, 3), header),
             $"Mother Brain visual header {header} allocates");
         var guard = NewMotherBrainFakeDeathSourceGuard(new TestAddressSpace());
         plms.Step(level);
         int blockIndex = (3 + blockOffset.Y) * width + 5 + blockOffset.X;
-        AssertEqual(physicalWord,
-            level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
+        AssertEqual(physical,
+            level.GetCollisionBlockByIndex(blockIndex).Terrain,
             $"Mother Brain visual header {header} retains physical block");
         // The redraw identifies its block by the block's DrawPLM BG1 ring destination.
-        AssertEqual(visualWord, level.DisplayedVisualWord(blockIndex),
+        AssertEqual(visual, level.DisplayedAppearance(blockIndex),
             $"Mother Brain visual header {header} presents edited tile");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             $"Mother Brain visual header {header} reads no compiled source");

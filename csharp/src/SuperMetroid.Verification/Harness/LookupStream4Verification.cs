@@ -1228,7 +1228,7 @@ internal static class LookupStream4Verification
             AssertEqual((ushort)0x5678, copied[^1].PackedWord, "Subtitle copy leaves the destination suffix untouched");
             // The game shows the subtitle as its installed picture at its cell (#1467); the import pictures these words.
             var page = new EndingTextPage();
-            var state = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = page, Inventory = default, JapaneseText = true, Presentation = presentation, InstalledSequence = EndingTextSequence.ItemPercentage });
+            var state = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = page, Inventory = default, JapaneseText = true, Presentation = presentation.Typewriter(), InstalledSequence = EndingTextSequence.ItemPercentage });
             state.InstalledInitialMarkerPending = false;
             state.InstalledCharacterIndex = presentation.Compile(EndingTextSequence.ItemPercentage).Length;
             var screen = new EndingScreen();

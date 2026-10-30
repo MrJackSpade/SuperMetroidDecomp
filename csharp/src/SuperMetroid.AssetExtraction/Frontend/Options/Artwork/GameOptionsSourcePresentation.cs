@@ -24,14 +24,160 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
     /// <summary>The missile cursor's sprite by animation frame.</summary>
     internal readonly SpriteComposition[] cursorSprites;
 
-    /// <summary>Retains the compiled presentation and its compositions.</summary>
+    /// <summary>Compiled tiles of each named options page.</summary>
+    private readonly Dictionary<GameOptionsTilemap, BackgroundTile[]> pages;
+    /// <summary>The common backdrop page.</summary>
+    private readonly BackgroundTile[] background;
+    /// <summary>Edited controller-button glyphs, keyed by button; a button absent here draws its native glyph.</summary>
+    internal readonly Dictionary<ControllerButton, BackgroundTile[]> controllerLabels;
+    /// <summary>Edited controller-label anchors by action, or null for the native destinations.</summary>
+    internal readonly Position16<TilemapCells>[]? controllerLabelAnchors;
+    /// <summary>Edited primary-language highlight regions, or null for the native regions.</summary>
+    internal readonly GameOptionsLanguageRegionDocument[]? languageRegions;
+    /// <summary>Edited special-setting visuals, or null for the native cells.</summary>
+    internal readonly Dictionary<GameOptionsToggle, GameOptionsToggleVisualDocument>? specialToggles;
+
+    /// <summary>Retains the compiled presentation, only the visual edits that depart from stock geometry, and its compositions.</summary>
     private GameOptionsSourcePresentation(GameOptionsPresentationDocument document, GameOptionsPages pages,
         GameOptionsSprites sprites, string contentIdentity)
-        : base(document, pages.Pages, pages.Background, pages.ControllerLabels, contentIdentity)
+        : base(document, contentIdentity)
     {
+        this.pages = pages.Pages;
+        background = pages.Background;
+        controllerLabels = pages.ControllerLabels.Where(pair => pair.Value.Where((tile, cell) =>
+            tile != GameOptionsPageCells.ControllerLabelTile(pair.Key, cell)).Any())
+            .ToDictionary(pair => pair.Key, pair => pair.Value);
+        controllerLabelAnchors = document.ControllerLabelAnchors.Where((point, index) =>
+            point != GameOptionsPageCells.ControllerAnchor(index)).Any() ? document.ControllerLabelAnchors : null;
+        languageRegions = document.LanguageRegions.Where((region, index) =>
+            region.HighlightWhenJapanese != GameOptionsPageCells.LanguagePaletteRegion(index).HighlightWhenJapanese ||
+            !region.Cells.SequenceEqual(GameOptionsPageCells.LanguageCells(index))).Any()
+            ? document.LanguageRegions : null;
+        Dictionary<GameOptionsToggle, GameOptionsToggleVisualDocument> toggles = GameOptionsPresentationDefinitions.Toggles.ToDictionary(
+            toggle => toggle, toggle => document.SpecialToggles[GameOptionsNames.ToggleName(toggle)]);
+        specialToggles = toggles.Any(pair =>
+            !pair.Value.EnabledCells.SequenceEqual(GameOptionsPageCells.ToggleCells(pair.Key, GameOptionsToggleState.Enabled)) ||
+            !pair.Value.DisabledCells.SequenceEqual(GameOptionsPageCells.ToggleCells(pair.Key, GameOptionsToggleState.Disabled)))
+            ? toggles : null;
+        SelectedPalette = document.SelectedPalette;
+        UnselectedPalette = document.UnselectedPalette;
         headingSprites = sprites.Headings;
         cursorSprites = sprites.Cursors;
     }
+
+    /// <summary>BG palette index 0-7 applied to the currently chosen language and special-toggle text regions.</summary>
+    public int SelectedPalette { get; }
+    /// <summary>BG palette index 0-7 applied to the other language and toggle choices; differs from <see cref="SelectedPalette"/>.</summary>
+    public int UnselectedPalette { get; }
+
+    /// <summary>Returns an independent mutable copy of one compiled foreground page.</summary>
+    internal BackgroundTile[] CreatePage(GameOptionsTilemap tilemap) => (BackgroundTile[])pages[tilemap].Clone();
+
+    /// <summary>Recolors English and Japanese text regions according to the selected language.</summary>
+    internal void ApplyLanguage(Span<BackgroundTile> primaryPage, bool japanese)
+    {
+        for (int index = 0; index < GameOptionsDefinitions.LanguagePaletteRegionCount; index++)
+            ApplyPalette(primaryPage, LanguageRegionCells(index), japanese == HighlightsWhenJapanese(index) ? SelectedPalette : UnselectedPalette);
+    }
+
+    /// <summary>The primary-page cells of language region <paramref name="index"/>.</summary>
+    internal IReadOnlyCollection<int> LanguageRegionCells(int index) =>
+        languageRegions is null ? [.. GameOptionsPageCells.LanguageCells(index)] : languageRegions[index].Cells;
+
+    /// <summary>Whether language region <paramref name="index"/> takes the selected palette while the text is Japanese.</summary>
+    private bool HighlightsWhenJapanese(int index) =>
+        languageRegions?[index].HighlightWhenJapanese ?? GameOptionsPageCells.LanguagePaletteRegion(index).HighlightWhenJapanese;
+
+    /// <summary>Writes the selected button glyph into one controller action's two-row label area.</summary>
+    internal void ApplyControllerLabel(Span<BackgroundTile> page, int action, int button)
+    {
+        if ((uint)action >= GameOptionsDefinitions.Rows.ControllerActionCount)
+            throw new ArgumentOutOfRangeException(nameof(action));
+        ControllerButton label = GameOptionsNames.ControllerLabelButton(button);
+        controllerLabels.TryGetValue(label, out BackgroundTile[]? cells);
+        foreach (GameOptionsLabelCell cell in ControllerLabelCells(action))
+            page[cell.PageCell] = cells is not null ? cells[cell.GlyphCell] : GameOptionsPageCells.ControllerLabelTile(label, cell.GlyphCell);
+    }
+
+    /// <summary>Each page cell of controller action <paramref name="action"/>'s label, with its place in the label's glyph.</summary>
+    private IEnumerable<GameOptionsLabelCell> ControllerLabelCells(int action)
+    {
+        Position16<TilemapCells> anchor = controllerLabelAnchors?[action] ?? GameOptionsPageCells.ControllerAnchor(action);
+        for (int row = 0; row < GameOptionsPageDefinitions.ControllerLabelHeight; row++)
+        for (int column = 0; column < GameOptionsPageDefinitions.ControllerLabelWidth; column++)
+            yield return new GameOptionsLabelCell((anchor.Y + row) * GameOptionsDefinitions.MenuTilemapWidth + anchor.X + column,
+                row * GameOptionsPageDefinitions.ControllerLabelWidth + column);
+    }
+
+    /// <summary>Recolors the enabled and disabled labels for one special setting.</summary>
+    internal void ApplySpecialToggle(Span<BackgroundTile> page, GameOptionsToggle name, bool enabled)
+    {
+        ApplyPalette(page, ToggleChoiceCells(name, GameOptionsToggleState.Enabled), enabled ? SelectedPalette : UnselectedPalette);
+        ApplyPalette(page, ToggleChoiceCells(name, GameOptionsToggleState.Disabled), enabled ? UnselectedPalette : SelectedPalette);
+    }
+
+    /// <summary>The page cells of <paramref name="name"/>'s <paramref name="state"/> choice.</summary>
+    private IReadOnlyCollection<int> ToggleChoiceCells(GameOptionsToggle name, GameOptionsToggleState state) => specialToggles is null
+        ? [.. GameOptionsPageCells.ToggleCells(name, state)]
+        : state == GameOptionsToggleState.Enabled ? specialToggles[name].EnabledCells : specialToggles[name].DisabledCells;
+
+    /// <summary>Changes only the colour variant of selected tilemap cells, preserving their artwork and mirroring.</summary>
+    private static void ApplyPalette(Span<BackgroundTile> page, IEnumerable<int> cells, int palette)
+    {
+        foreach (int cell in cells)
+            page[cell] = page[cell] with { ColourVariant = palette };
+    }
+
+    /// <summary>
+    /// Every picture of the options screen the menus' sheet holds (#1467): the backdrop page; each page less its dynamic
+    /// cells; each language row as the primary page shows it in either language; each action's label naming each
+    /// assignable button; and each toggle's two choices on each special page with either selected.
+    /// </summary>
+    internal IEnumerable<ScreenPictureSubject> Subjects()
+    {
+        int width = GameOptionsDefinitions.MenuTilemapWidth;
+        yield return ScreenPictureSubject.Page(GameOptionsNames.BackgroundFrame, background, width);
+        foreach (GameOptionsTilemap tilemap in GameOptionsPresentationDefinitions.Tilemaps)
+            yield return ScreenPictureSubject.Page(GameOptionsNames.PageFrame(tilemap), pages[tilemap], width, DynamicCells(tilemap));
+        foreach (bool japanese in new[] { false, true })
+        {
+            BackgroundTile[] primary = CreatePage(GameOptionsTilemap.Primary);
+            ApplyLanguage(primary, japanese);
+            for (int region = 0; region < GameOptionsDefinitions.LanguagePaletteRegionCount; region++)
+                yield return ScreenPictureSubject.Cells(GameOptionsNames.LanguageFrame(region, japanese), primary, width, LanguageRegionCells(region));
+        }
+        for (int action = 0; action < GameOptionsDefinitions.Rows.ControllerActionCount; action++)
+        {
+            int[] cells = [.. ControllerLabelCells(action).Select(cell => cell.PageCell)];
+            for (int button = 0; button < GameOptionsPresentationDefinitions.ControllerLabelButtons.Count; button++)
+            {
+                BackgroundTile[] controller = CreatePage(GameOptionsTilemap.ControllerEnglish);
+                ApplyControllerLabel(controller, action, button);
+                yield return ScreenPictureSubject.Cells(GameOptionsNames.ControllerLabelFrame(action, GameOptionsNames.ControllerLabelButton(button)),
+                    controller, width, cells);
+            }
+        }
+        foreach (GameOptionsTilemap special in new[] { GameOptionsTilemap.SpecialEnglish, GameOptionsTilemap.SpecialJapanese })
+        foreach (GameOptionsToggle toggle in GameOptionsPresentationDefinitions.Toggles)
+        foreach (bool enabled in new[] { false, true })
+        {
+            BackgroundTile[] page = CreatePage(special);
+            ApplySpecialToggle(page, toggle, enabled);
+            int[] cells = [.. ToggleChoiceCells(toggle, GameOptionsToggleState.Enabled), .. ToggleChoiceCells(toggle, GameOptionsToggleState.Disabled)];
+            yield return ScreenPictureSubject.Cells(GameOptionsNames.ToggleFrame(special, toggle, enabled), page, width, cells);
+        }
+    }
+
+    /// <summary>The cells of <paramref name="tilemap"/> its pictures over it show instead of the page's own picture.</summary>
+    private IEnumerable<int> DynamicCells(GameOptionsTilemap tilemap) => tilemap switch
+    {
+        GameOptionsTilemap.Primary => Enumerable.Range(0, GameOptionsDefinitions.LanguagePaletteRegionCount).SelectMany(LanguageRegionCells),
+        GameOptionsTilemap.ControllerEnglish or GameOptionsTilemap.ControllerJapanese =>
+            Enumerable.Range(0, GameOptionsDefinitions.Rows.ControllerActionCount).SelectMany(action => ControllerLabelCells(action).Select(cell => cell.PageCell)),
+        GameOptionsTilemap.SpecialEnglish or GameOptionsTilemap.SpecialJapanese => GameOptionsPresentationDefinitions.Toggles.SelectMany(toggle =>
+            ToggleChoiceCells(toggle, GameOptionsToggleState.Enabled).Concat(ToggleChoiceCells(toggle, GameOptionsToggleState.Disabled))),
+        _ => throw new ArgumentOutOfRangeException(nameof(tilemap), tilemap, "Undefined options page."),
+    };
 
     /// <summary>Reads a complete options-menu JSON document and compiles validated pages, controller labels, highlights, and sprite layouts.</summary>
     /// <param name="source">Readable stream consumed from its current position to the end and left open.</param>
@@ -100,13 +246,13 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
         {
             string name = GameOptionsNames.ControllerLabelName(button);
             MapPresentationCell[] cells = document.ControllerLabels[name];
-            if (cells is null || cells.Length != GameOptionsPresentationDefinitions.ControllerLabelCellCount)
+            if (cells is null || cells.Length != GameOptionsPageDefinitions.ControllerLabelCellCount)
                 throw new InvalidDataException($"Options controller label {name} requires six cells.");
             labels.Add(button, CompileCells(cells, $"options controller label {name}"));
         }
 
         foreach (Position16<TilemapCells> anchor in document.ControllerLabelAnchors)
-            ValidateTilePoint(anchor, "controller-label anchor", GameOptionsPresentationDefinitions.ControllerLabelSize);
+            ValidateTilePoint(anchor, "controller-label anchor", GameOptionsPageDefinitions.ControllerLabelSize);
         var claimedLanguageCells = new HashSet<int>();
         foreach (GameOptionsLanguageRegionDocument? region in document.LanguageRegions)
         {
@@ -168,7 +314,7 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
     private static BackgroundTile[] CompilePage(GameOptionsPresentationDocument document, string name)
     {
         MapPresentationCell[] cells = document.Pages[name];
-        if (cells is null || cells.Length != GameOptionsPresentationDefinitions.PageCellCount)
+        if (cells is null || cells.Length != GameOptionsPageDefinitions.PageCellCount)
             throw new InvalidDataException($"Options page {name} requires 1024 cells.");
         return CompileCells(cells, $"options page {name}");
     }
@@ -186,7 +332,7 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
             MapPresentationCell? cell = cells[index];
             if (cell is null ||
                 (uint)cell.TileColumn >= MapTileAtlasFormat.TileColumns ||
-                (uint)cell.TileRow >= GameOptionsPresentationDefinitions.CharacterRows ||
+                (uint)cell.TileRow >= GameOptionsPageDefinitions.CharacterRows ||
                 (uint)cell.Palette >= MapPresentationFormat.PaletteCount)
                 throw new InvalidDataException(
                     $"{owner} cell {index} has an invalid atlas coordinate or palette.");
@@ -211,7 +357,7 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
     private static void ValidateCellSet(int[] cells, HashSet<int> claimed, string owner)
     {
         foreach (int cell in cells)
-            if ((uint)cell >= GameOptionsPresentationDefinitions.PageCellCount || !claimed.Add(cell))
+            if ((uint)cell >= GameOptionsPageDefinitions.PageCellCount || !claimed.Add(cell))
                 throw new InvalidDataException($"Options {owner} contains an invalid or duplicate cell {cell}.");
     }
 

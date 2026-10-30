@@ -110,14 +110,7 @@ public static class SpriteSheetFiles
     internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, Lazy<InstalledSamusBodyArtwork> body,
         Lazy<AreaMapPresentation> maps, Lazy<IntroCinematicArtwork> intro, Lazy<EndingObjectArtwork> ending) => sheet switch
     {
-        SpriteSheetId.MenuForegroundTiles or SpriteSheetId.MenuMapTiles or
-            SpriteSheetId.AreaMapForegroundTilesCrateria or SpriteSheetId.AreaMapForegroundTilesBrinstar or
-            SpriteSheetId.AreaMapForegroundTilesNorfair or SpriteSheetId.AreaMapForegroundTilesWreckedShip or
-            SpriteSheetId.AreaMapForegroundTilesMaridia or SpriteSheetId.AreaMapForegroundTilesTourian or
-            SpriteSheetId.AreaMapBackgroundTilesCrateria or SpriteSheetId.AreaMapBackgroundTilesBrinstar or
-            SpriteSheetId.AreaMapBackgroundTilesNorfair or SpriteSheetId.AreaMapBackgroundTilesWreckedShip or
-            SpriteSheetId.AreaMapBackgroundTilesMaridia or SpriteSheetId.AreaMapBackgroundTilesTourian or
-            SpriteSheetId.PauseMapTiles or SpriteSheetId.PauseInterfaceTiles or
+        SpriteSheetId.PauseMapTiles or SpriteSheetId.PauseInterfaceTiles or
             SpriteSheetId.IntroFontTiles =>
             [ScreenTileSheet.FrameName],
         SpriteSheetId.IntroScenePictures => IntroScenePictures.FrameNames,
@@ -143,6 +136,14 @@ public static class SpriteSheetFiles
         SpriteSheetId.MapSprites => MapSpriteNames.SheetFrames,
         SpriteSheetId.PauseSprites => PauseSheetComposer.FrameNames(maps.Value),
         SpriteSheetId.PauseHud => HudImageSheet.PauseFrameNames(maps.Value),
+        SpriteSheetId.MenuPictures => MenuPictureSheet.FrameNames(maps.Value),
+        SpriteSheetId.RoomMapPictures => MapPictureSheets.RoomMapFrameNames(maps.Value),
+        SpriteSheetId.AreaMapForegroundCrateria or SpriteSheetId.AreaMapForegroundBrinstar or
+            SpriteSheetId.AreaMapForegroundNorfair or SpriteSheetId.AreaMapForegroundWreckedShip or
+            SpriteSheetId.AreaMapForegroundMaridia or SpriteSheetId.AreaMapForegroundTourian => [AreaMapPictures.WorldForegroundFrame],
+        SpriteSheetId.AreaMapBackgroundCrateria or SpriteSheetId.AreaMapBackgroundBrinstar or
+            SpriteSheetId.AreaMapBackgroundNorfair or SpriteSheetId.AreaMapBackgroundWreckedShip or
+            SpriteSheetId.AreaMapBackgroundMaridia or SpriteSheetId.AreaMapBackgroundTourian => [AreaMapPictures.WorldBackgroundFrame],
         SpriteSheetId.Title => TitleSpriteDefinitions.All.Select(TitleSpriteDefinitions.FrameName),
         SpriteSheetId.IntroSprites => IntroSpriteSheetComposer.FrameNames(intro.Value),
         SpriteSheetId.CeresFlightSprites => IntroSpriteSheetComposer.CeresFlightFrameNames(intro.Value.CeresFlight),

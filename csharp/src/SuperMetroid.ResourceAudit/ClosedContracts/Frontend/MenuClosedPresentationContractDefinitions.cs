@@ -7,8 +7,7 @@ internal static class MenuClosedPresentationContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Frontend.Options.Artwork.GameOptionsPresentation", "options-v1-complete-menu-domains",
-            ["CreatePage", "LoadBackground", "ApplyLanguage", "ApplyControllerLabel", "ApplySpecialToggle",
-                "CursorPosition", "DrawHeading", "DrawCursor"],
+            ["CursorPosition", "DrawHeading", "DrawCursor"],
             [new("csharp/src/SuperMetroid.Core/Frontend/Options/Artwork/GameOptionsPresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/MapSpriteCompositions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Menus/MenuMissileAnimationDefinitions.cs"),
@@ -21,7 +20,7 @@ internal static class MenuClosedPresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Frontend/Options/GameOptionsLayout.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Options/GameOptionsPositions.cs")]),
         new("SuperMetroid.Core.Frontend.GameOver.Artwork.GameOverPresentation", "game-over-v1-complete-enum-domains",
-            ["LoadTilemapTo", "DrawBaby", "DrawEgg", "DrawCursor", "ApplyBabyPalette"],
+            ["DrawBaby", "DrawEgg", "DrawCursor", "ApplyBabyPalette"],
             [new("csharp/src/SuperMetroid.Core/Frontend/GameOver/Artwork/GameOverPresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/MapSpriteCompositions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Menus/MenuMissileAnimationDefinitions.cs"),

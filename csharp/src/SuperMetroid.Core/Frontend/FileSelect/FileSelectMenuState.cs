@@ -57,6 +57,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private readonly ScreenFade screenFade = new();
     /// <summary>Installed page identifier rebuilt after save data or debugger bindings change.</summary>
     private FileSelectPage currentPresentationPage = FileSelectPage.MainEmpty;
+    /// <summary>The page shown, with its slots' fields and the slots its prompt names (#1467).</summary>
+    internal ShownFileSelectPage ShownPage { get; private set; } = new(FileSelectPage.MainEmpty, [], 0, 0);
 
     /// <summary>Performs menu indices zero through two, including every native ROM transfer.</summary>
     public FileSelectMenuState(SaveSlotStore saves, AudioQueues? audio = null,
@@ -69,7 +71,6 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         screen = new MenuScreen(mapPresentation.Palettes,
             mapPresentation.WorldArtwork, spriteSheets);
         BindSpriteSheets(spriteSheets);
-        mapPresentation.FileSelect.LoadBackground(screen.Tilemaps);
 
         this.saves = Ensure.NotNull(saves);
         for (int slot = 0; slot < saveSlots.Length; slot++)
@@ -209,7 +210,11 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     public LayeredScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
-        return MenuRenderSnapshotCapture.Capture(screen, 0, checked((byte)brightness.Level));
+        FileSelectPresentation presentation = (mapPresentation ?? throw new InvalidOperationException(
+            "File select requires installed menu presentation assets.")).FileSelect;
+        // The backdrop, the page, its slots' fields and its slot letters are the menus' pictures (#1467).
+        return MenuRenderSnapshotCapture.Capture(screen, screen.PagePictures(FileSelectParts.BackgroundFrame),
+            screen.CellPictures(ShownPage.Pictures(presentation)), 0, checked((byte)brightness.Level));
     }
 
     /// <summary>Builds the current border, missile, helmet, and optional copy-arrow sprite entries from menu phase.</summary>
@@ -699,107 +704,14 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         screen.BindWorldArtwork(catalog.WorldArtwork);
 
         screen.BindMapPalettes(catalog.Palettes);
-        catalog.FileSelect.LoadBackground(screen.Tilemaps);
         RebuildInstalledPresentationPage();
     }
 
-    /// <summary>Copies the installed page and overlays live save data and dynamic source/destination letters.</summary>
-    private void RebuildInstalledPresentationPage()
-    {
-        FileSelectPresentation presentation = mapPresentation?.FileSelect ??
-            throw new InvalidOperationException("File-select presentation is not bound.");
-        // The page shows from the moment it is selected: file select selects pages only where the cartridge also
-        // uploads them in the same dispatch.
-        Span<BackgroundTile> bg1Tilemap = screen.Tilemaps.Bg1;
-        presentation.CopyPage(currentPresentationPage, bg1Tilemap);
-        bool main = currentPresentationPage is
-            FileSelectPage.MainWithData or
-            FileSelectPage.MainEmpty;
-        for (int slot = 0; slot < saveSlots.Length; slot++)
-            DrawInstalledSlot(saveSlots[slot], presentation.Slot(!main, slot));
-
-        switch (currentPresentationPage)
-        {
-            case FileSelectPage.CopyDestination:
-                presentation.WriteSlotLetter(bg1Tilemap,
-                    presentation.DynamicAnchor(
-                        FileSelectAnchor.CopyDestinationSource),
-                    operationSourceSlot);
-                break;
-            case FileSelectPage.CopyConfirm:
-            case FileSelectPage.CopyCompleted:
-                presentation.WriteSlotLetter(bg1Tilemap,
-                    presentation.DynamicAnchor(
-                        FileSelectAnchor.CopyConfirmSource),
-                    operationSourceSlot);
-                presentation.WriteSlotLetter(bg1Tilemap,
-                    presentation.DynamicAnchor(
-                        FileSelectAnchor.CopyConfirmDestination),
-                    copyTargetSlot);
-                break;
-            case FileSelectPage.ClearConfirm:
-            case FileSelectPage.ClearCompleted:
-                presentation.WriteSlotLetter(bg1Tilemap,
-                    presentation.DynamicAnchor(
-                        FileSelectAnchor.ClearConfirmSource),
-                    operationSourceSlot);
-                break;
-            case FileSelectPage.MainWithData:
-            case FileSelectPage.MainEmpty:
-            case FileSelectPage.CopySource:
-            case FileSelectPage.ClearSelection:
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined file-select page {currentPresentationPage}.");
-        }
-    }
-
-    /// <summary>Overlays NO DATA or the slot's health, energy tanks, and clamped time onto an installed page.</summary>
-    private void DrawInstalledSlot(
-        SuperMetroid.Core.Saves.SuperMetroidSaveSlot? slot,
-        FileSelectSlotFieldDocument layout)
-    {
-        FileSelectPresentation presentation = mapPresentation?.FileSelect ??
-            throw new InvalidOperationException("File-select presentation is not bound.");
-        Span<BackgroundTile> bg1Tilemap = screen.Tilemaps.Bg1;
-        if (slot is null)
-        {
-            presentation.ApplyPatch(bg1Tilemap,
-                FileSelectPatch.NoData, layout.NoDataAnchor);
-            return;
-        }
-
-        presentation.ApplyPatch(bg1Tilemap,
-            FileSelectPatch.Energy, layout.EnergyAnchor);
-        int health = slot.Health % 100;
-        presentation.WriteDigit(bg1Tilemap, layout.HealthAnchor, 0, health / 10);
-        presentation.WriteDigit(bg1Tilemap, layout.HealthAnchor, 1, health % 10);
-        int tankCell = (layout.EnergyAnchor.Y + FileSelectEnergyTankDefinitions.RowOffset) *
-            FileSelectPresentationDefinitions.Width + layout.EnergyAnchor.X + FileSelectEnergyTankDefinitions.ColumnOffset;
-        int rowRemaining = FileSelectEnergyTankDefinitions.FirstRowCount;
-        int filledTanks = slot.Health / FileSelectEnergyTankDefinitions.EnergyPerTank;
-        int palette = bg1Tilemap[layout.HealthAnchor.Y * FileSelectPresentationDefinitions.Width +
-            layout.HealthAnchor.X].ColourVariant;
-        for (int tank = 0; tank < slot.MaxHealth / FileSelectEnergyTankDefinitions.EnergyPerTank; tank++)
-        {
-            if ((uint)tankCell >= bg1Tilemap.Length)
-                throw new InvalidDataException("File-select energy tanks escaped the menu tilemap.");
-            bg1Tilemap[tankCell++] = new BackgroundTile(tank < filledTanks
-                ? FileSelectEnergyTankDefinitions.FilledTile : FileSelectEnergyTankDefinitions.EmptyTile, palette, highPriority: false);
-            if (--rowRemaining == 0)
-            {
-                tankCell -= FileSelectEnergyTankDefinitions.RowRewindCells;
-                rowRemaining = FileSelectEnergyTankDefinitions.WrappedRowCount;
-            }
-        }
-        int hours = Math.Min(slot.GameTimeHours, 99);
-        int minutes = Math.Min(slot.GameTimeMinutes, 99);
-        presentation.WriteDigit(bg1Tilemap, layout.TimeValueAnchor, 0, hours / 10);
-        presentation.WriteDigit(bg1Tilemap, layout.TimeValueAnchor, 1, hours % 10);
-        presentation.ApplyPatch(bg1Tilemap,
-            FileSelectPatch.TimeColon,
-            new(checked((ushort)(layout.TimeValueAnchor.X + 2)), layout.TimeValueAnchor.Y));
-        presentation.WriteDigit(bg1Tilemap, layout.TimeValueAnchor, 3, minutes / 10);
-        presentation.WriteDigit(bg1Tilemap, layout.TimeValueAnchor, 4, minutes % 10);
-    }
+    /// <summary>
+    /// Shows the selected page with each slot's field and the slots its copy or clear prompt names, as they are now: the
+    /// cartridge uploads the page only where file select selects it or its slots change (#1467).
+    /// </summary>
+    private void RebuildInstalledPresentationPage() =>
+        ShownPage = new ShownFileSelectPage(currentPresentationPage,
+            [.. saveSlots.Select(slot => slot is null ? null : ShownFileSelectSave.Of(slot))], operationSourceSlot, copyTargetSlot);
 }

@@ -3,7 +3,9 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
+using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Spatial;
@@ -27,11 +29,142 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
     /// <summary>Stores the compiled presentation and its sprite compositions.</summary>
     private FileSelectSourcePresentation(FileSelectPresentationDocument document, FileSelectPages pages,
         FileSelectGlyphs glyphs, FileSelectSprites sprites, string contentIdentity)
-        : base(document, pages.Foreground, pages.Background, pages.Patches, glyphs.Digits, glyphs.SlotLetters, contentIdentity)
+        : base(document, contentIdentity)
     {
+        this.pages = pages.Foreground;
+        background = pages.Background;
+        patches = pages.Patches;
+        digits = PreserveEditedGlyphs(glyphs.Digits, FileSelectFieldTileDefinitions.DigitTileBase);
+        slotLetters = PreserveEditedGlyphs(glyphs.SlotLetters, FileSelectFieldTileDefinitions.SamusLetterTileBase);
         borderSprites = sprites.Borders;
         cursorSprites = sprites.Cursors;
         helmetSprites = sprites.Helmets;
+    }
+
+    /// <summary>Named, compiled 32-by-32 tilemaps for the menu pages.</summary>
+    private readonly Dictionary<FileSelectPage, BackgroundTile[]> pages;
+    /// <summary>The common backdrop tilemap.</summary>
+    private readonly BackgroundTile[] background;
+    /// <summary>Each slot-field patch.</summary>
+    internal readonly Dictionary<FileSelectPatch, FileSelectCompiledPatch> patches;
+    /// <summary>Edited digit glyphs, or null when every digit is the native consecutive glyph.</summary>
+    internal readonly BackgroundTile[]? digits;
+    /// <summary>Edited slot-letter glyphs, or null when every letter is the native consecutive glyph.</summary>
+    internal readonly BackgroundTile[]? slotLetters;
+
+    /// <summary>Returns null when every glyph matches its stock consecutive tile.</summary>
+    private static BackgroundTile[]? PreserveEditedGlyphs(BackgroundTile[] values, BackgroundTile first)
+    {
+        for (int index = 0; index < values.Length; index++)
+            if (values[index] != first with { Tile = first.Tile + index })
+                return values;
+        return null;
+    }
+
+    /// <summary>Copies one named full page into a 1024-cell destination tilemap.</summary>
+    internal void CopyPage(FileSelectPage page, Span<BackgroundTile> destination)
+    {
+        Ensure.LengthEqual(destination, FileSelectPresentationDefinitions.CellCount);
+        pages[page].CopyTo(destination);
+    }
+
+    /// <summary>Places an ENERGY, NO DATA, or time-colon patch relative to its tile anchor.</summary>
+    internal void ApplyPatch(Span<BackgroundTile> tilemap, FileSelectPatch name, Position16<TilemapCells> anchor)
+    {
+        FileSelectCompiledPatch patch = patches[name];
+        for (int index = 0; index < patch.Count; index++)
+        {
+            FileSelectCompiledPatchCell cell = patch.Cell(index);
+            tilemap[FileSelectPresentationDefinitions.PageSize.RowMajorIndex(anchor + cell.Offset)] = cell.Tile;
+        }
+    }
+
+    /// <summary>The tile of decimal digit <paramref name="digit"/>, using edited glyph art when supplied.</summary>
+    private BackgroundTile Digit(int digit) => (uint)digit < FileSelectPresentationDefinitions.DigitCount
+        ? digits is null ? FileSelectFieldTiles.Digit(digit) : digits[digit]
+        : throw new ArgumentOutOfRangeException(nameof(digit));
+
+    /// <summary>The tile of save slot <paramref name="slot"/>'s letter, using edited glyph art when supplied.</summary>
+    private BackgroundTile SlotLetter(int slot) => (uint)slot < FileSelectPresentationDefinitions.SlotLetterCount
+        ? slotLetters is null ? FileSelectFieldTiles.SlotLetter(slot) : slotLetters[slot]
+        : throw new ArgumentOutOfRangeException(nameof(slot));
+
+    /// <summary>Writes one decimal digit using edited glyph art when supplied.</summary>
+    internal void WriteDigit(Span<BackgroundTile> tilemap, Position16<TilemapCells> anchor, int offset, int digit) =>
+        tilemap[anchor.Y * FileSelectPresentationDefinitions.Width + anchor.X + offset] = Digit(digit);
+
+    /// <summary>Writes the selected slot's letter at its dynamic tile anchor.</summary>
+    internal void WriteSlotLetter(Span<BackgroundTile> tilemap, Position16<TilemapCells> anchor, int slot) =>
+        tilemap[anchor.Y * FileSelectPresentationDefinitions.Width + anchor.X] = SlotLetter(slot);
+
+    /// <summary>The energy tank's tile, filled or empty, in the colour variant of health tens digit <paramref name="tensDigit"/>.</summary>
+    private BackgroundTile Tank(bool filled, int tensDigit) => new(filled ? FileSelectFieldTileDefinitions.FilledTankTile
+        : FileSelectFieldTileDefinitions.EmptyTankTile, Digit(tensDigit).ColourVariant, highPriority: false);
+
+    /// <summary>
+    /// The tiles of <paramref name="shown"/>'s page, row by row, as the cartridge writes them: the page, each slot's field
+    /// and the slot letters its prompt names, so verification compares the menus' pictures' sources with the cartridge's.
+    /// </summary>
+    internal BackgroundTile[] LayOut(ShownFileSelectPage shown)
+    {
+        Ensure.NotNull(shown);
+        var tiles = new BackgroundTile[FileSelectPresentationDefinitions.CellCount];
+        CopyPage(shown.Page, tiles);
+        foreach (PlacedFrame placed in shown.Pictures(this).Skip(1))
+        {
+            ScreenPictureSubject glyph = FieldSubjects().First(subject => subject.Name == placed.Frame);
+            Position16<TilemapCells> cell = placed.Cell;
+            for (int index = 0; index < glyph.Tiles.Length; index++)
+            {
+                if (glyph.Tiles[index] is not { } tile)
+                    continue;
+                int x = cell.X + glyph.Offset.X + index % glyph.Size.X, y = cell.Y + glyph.Offset.Y + index / glyph.Size.X;
+                tiles[y * FileSelectPresentationDefinitions.Width + x] = tile;
+            }
+        }
+        return tiles;
+    }
+
+    /// <summary>
+    /// Every picture of file select the menus' sheet holds (#1467): the backdrop and each page, then each field picture
+    /// the game places at a field's anchor.
+    /// </summary>
+    internal IEnumerable<ScreenPictureSubject> Subjects()
+    {
+        yield return ScreenPictureSubject.Page(FileSelectParts.BackgroundFrame, background, FileSelectPresentationDefinitions.Width);
+        foreach (FileSelectPage page in FileSelectPresentationDefinitions.Pages)
+            yield return ScreenPictureSubject.Page(FileSelectParts.PageFrame(page), pages[page], FileSelectPresentationDefinitions.Width);
+        foreach (ScreenPictureSubject field in FieldSubjects())
+            yield return field;
+    }
+
+    /// <summary>
+    /// The field pictures, each placed at its anchor: each patch with its cells where they lie from the anchor, each digit,
+    /// each slot letter, and each tank filled or empty in each health tens digit's colours.
+    /// </summary>
+    private IEnumerable<ScreenPictureSubject> FieldSubjects()
+    {
+        Extent16<TilemapCells> cell = new(1, 1);
+        foreach (FileSelectPatch name in FileSelectPresentationDefinitions.Patches)
+        {
+            FileSelectCompiledPatch patch = patches[name];
+            FileSelectCompiledPatchCell[] cells = [.. Enumerable.Range(0, patch.Count).Select(patch.Cell)];
+            int left = cells.Min(each => each.Offset.X), top = cells.Min(each => each.Offset.Y);
+            int right = cells.Max(each => each.Offset.X), bottom = cells.Max(each => each.Offset.Y);
+            var size = new Extent16<TilemapCells>(checked((ushort)(right - left + 1)), checked((ushort)(bottom - top + 1)));
+            var tiles = new BackgroundTile?[size.X * size.Y];
+            foreach (FileSelectCompiledPatchCell each in cells)
+                tiles[(each.Offset.Y - top) * size.X + each.Offset.X - left] = each.Tile;
+            yield return new ScreenPictureSubject(FileSelectParts.PatchFrame(name), new(checked((short)left), checked((short)top)), size, tiles);
+        }
+        for (int digit = 0; digit < FileSelectPresentationDefinitions.DigitCount; digit++)
+        {
+            yield return ScreenPictureSubject.Block(FileSelectParts.DigitFrame(digit), default, cell, new[] { Digit(digit) });
+            foreach (bool filled in new[] { false, true })
+                yield return ScreenPictureSubject.Block(FileSelectParts.TankFrame(filled, digit), default, cell, new[] { Tank(filled, digit) });
+        }
+        for (int slot = 0; slot < FileSelectPresentationDefinitions.SlotLetterCount; slot++)
+            yield return ScreenPictureSubject.Block(FileSelectParts.LetterFrame(slot), default, cell, new[] { SlotLetter(slot) });
     }
 
     /// <summary>Reads and validates a complete file-select JSON document, compiling its tilemaps, patches, glyphs, and sprite compositions.</summary>

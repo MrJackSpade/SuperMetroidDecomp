@@ -121,8 +121,8 @@ internal static class FileSelectMapWindowVerification
         var graphics = new FileSelectRoomMapGraphics(new SuperMetroid.Core.Progression.SharedGameState(),
             SuperMetroid.Core.Progression.AreaId.Maridia, mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));
         RgbaPixel[] frameOnly = graphics.RenderFrameOnly().ToArray();
-        graphics.screen.Tilemaps.AreaMap[0] = new BackgroundTile(0x234, 4, highPriority: false);
-        AssertTrue(frameOnly.SequenceEqual(graphics.RenderFrameOnly()), "transition frame never samples room-map BG1 tiles");
+        AssertTrue(frameOnly.Length > 0 && graphics.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly).Layers is [PicturedPlaneLayer],
+            "transition frame shows only the frame's picture, never the room map's cells");
     }
 
     /// <summary>Checks active map colors, native BG3 tilemap transfers, an opaque drawn map, and visited-station labels.</summary>
@@ -132,7 +132,7 @@ internal static class FileSelectMapWindowVerification
         int[] indices = [86, 107, 102, 81, 97, 118];
         int[] activeColors = [0x01db, 0x0bb1, 0x0013, 0x7fe0, 0x6400, 0x6417];
         var maps = RetailPresentationFixture();
-        var graphics = new FileSelectAreaMapGraphics(0, maps.Palettes, maps.Screens, maps.WorldArtwork, MenuSheetFixtures.For(maps));
+        var graphics = new FileSelectAreaMapGraphics(0, maps.Palettes, maps.WorldArtwork, MenuSheetFixtures.For(maps));
         graphics.BindLabels(maps.Labels);
         for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
         {
@@ -141,7 +141,7 @@ internal static class FileSelectMapWindowVerification
             if (area != 0)
                 AssertEqual(0x4a52, graphics.screen.Palette.Colors[86], "switching area restores Crateria inactive color");
             // The selected area's image is built once and every tilemap byte read from it.
-            var shownArea = MenuScreenFixtures.Vram(graphics.screen);
+            var shownArea = MenuScreenFixtures.Vram(graphics, maps);
             for (int offset = 0; offset < MapSourceDefinitions.Menu.TilemapBytes; offset++)
                 AssertEqual(FileSelectAreaMapGraphicsRomByte(bus, MapSourceDefinitions.FileSelectMap.AreaBackgrounds + area * MapSourceDefinitions.Menu.TilemapBytes + offset),
                     shownArea.ReadByte(FileSelectMapNativeSources.AreaBackgroundVram * 2 + offset), "selected area BG3 DMA bytes");

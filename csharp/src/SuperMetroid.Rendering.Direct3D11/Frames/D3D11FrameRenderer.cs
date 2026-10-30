@@ -88,6 +88,9 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// <summary>The pictured planes the frame being drawn shows, each once (#1467).</summary>
     private readonly List<PicturedPlane> framePlanes = [];
 
+    /// <summary>The frontend picture grids a frame draws, each once; reused across frames (#1467).</summary>
+    private readonly List<PictureGrid> frameGrids = [];
+
     /// <summary>
     /// Reuses owner-thread scratch after UpdateSubresource has copied its source.
     /// Clear every word: optional scanline/coverage fields must never leak across passes.
@@ -552,7 +555,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     {
         // Reject unimplemented operations before changing GPU state. No CPU fallback.
         foreach (DisplayLayer layer in scene.Layers)
-            if (layer is not (ScreenTilesLayer or ScreenTilesViewportLayer or PicturedPlaneLayer or AddedPicturedPlaneLayer or HudLayer or ScreenTintLayer or SpritesLayer or SpriteDepthLayer or TurningFloorLayer or TurningRoomLayer or ColourAddBandsLayer or OverlayBlendLayer or AddedScreenTilesLayer or MessageBoxLayer or GameplaySceneLayer or InsetSceneLayer or GameplayBlendLayer))
+            if (layer is not (ScreenTilesLayer or ScreenTilesViewportLayer or PicturedPlaneLayer or AddedPicturedPlaneLayer or PictureGridLayer or HudLayer or ScreenTintLayer or SpritesLayer or SpriteDepthLayer or TurningFloorLayer or TurningRoomLayer or ColourAddBandsLayer or OverlayBlendLayer or AddedScreenTilesLayer or MessageBoxLayer or GameplaySceneLayer or InsetSceneLayer or GameplayBlendLayer))
                 throw new NotSupportedException($"GPU layer {layer.GetType().Name} is not implemented yet.");
         SuperMetroid.Core.Assets.SpriteSheetFrame? messagePicture = null;
         PicturedHud? hud = null;
@@ -583,6 +586,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         screens.Clear();
         List<PicturedPlane> planes = framePlanes;
         planes.Clear();
+        List<PictureGrid> grids = frameGrids;
+        grids.Clear();
         foreach (DisplayLayer layer in scene.Layers)
         {
             if (layer is TurningFloorLayer frontendMode7)
@@ -593,6 +598,8 @@ public sealed class D3D11FrameRenderer : IDisposable
                 if (!screens.Contains(cells))
                     screens.Add(cells);
             }
+            if (layer is PictureGridLayer { Grid: { } grid } && !grids.Contains(grid))
+                grids.Add(grid);
             // The pictured planes (#1467), each once.
             foreach (PicturedPlane plane in PicturedPlanes(layer))
             {
@@ -612,7 +619,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         var levels = new RoomLevelLayers(rooms?.Bg1, rooms?.Bg2 ?? floor, rooms?.DoorSource, rooms?.Bg1Overlay, rooms?.Sky, bg3,
             rooms?.Bg2Overlay, floorMap, rooms?.BossBody, rooms?.XrayReveal, rooms?.Bg2Image,
             messagePicture, screens.Count == 0 ? null : new ScreenPictureTables([.. screens]), hud,
-            planes.Count == 0 ? null : new PicturedPlaneTables([.. planes]));
+            planes.Count == 0 ? null : new PicturedPlaneTables([.. planes]), grids.Count == 0 ? null : new PictureGridTables([.. grids]));
         // The image texture holds every image the scene shows before either buffer names a place in it (#1408).
         images.Needed.Clear();
         D3D11SpriteDrawBuffer.Collect(scene.Paint.SpriteDraws.AsSpan(), images.Needed);
@@ -684,6 +691,14 @@ public sealed class D3D11FrameRenderer : IDisposable
                     break;
                 case ScreenTilesViewportLayer bg:
                     DispatchScreenTiles(D3D11TileOperation.Layer, bg.Cells, new Position16<TilePlanePixels>(0, checked((ushort)bg.VerticalScroll)), bg.Priority, bg.TransparentColorZero);
+                    break;
+                case PictureGridLayer grid:
+                    // The grid's cell pictures, scrolled and wrapping at its edges (#1467).
+                    DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
+                    {
+                        Map = roomLevels.GridTable(grid.Grid), Scroll = grid.Scroll, Priority = Priority(grid.Priority),
+                        RoomSource = D3D11RoomSource.PictureGrid,
+                    });
                     break;
                 case PicturedPlaneLayer pictured:
                     // The plane's placed pictures, each pixel in its picture's priority tier (#1467).

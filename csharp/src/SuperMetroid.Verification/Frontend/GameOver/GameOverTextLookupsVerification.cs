@@ -2,6 +2,8 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.GameOver;
+using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Frontend.GameOver;
@@ -15,7 +17,7 @@ internal static class GameOverTextLookupsVerification
 
     /// <summary>Checks destination offsets in the five $A2 load instructions.</summary>
     internal static void VerifyGameOverTextDestinations(ISnesAddressSpace rom) =>
-        Suite(nameof(VerifyGameOverTextField), () => VerifyGameOverTextField(rom, 3, 0xa2, stream => (stream.Origin.Y * GameOverPresentationDefinitions.TilemapWidth + stream.Origin.X) * sizeof(ushort), "destination"));
+        Suite(nameof(VerifyGameOverTextField), () => VerifyGameOverTextField(rom, 3, 0xa2, stream => (stream.Origin.Y * GameOverPageDefinitions.TilemapWidth + stream.Origin.X) * sizeof(ushort), "destination"));
 
     /// <summary>Compares selector and enumeration order with retail immediates and rejects invalid selectors.</summary>
     private static void VerifyGameOverTextField(ISnesAddressSpace rom, int fieldOffset,

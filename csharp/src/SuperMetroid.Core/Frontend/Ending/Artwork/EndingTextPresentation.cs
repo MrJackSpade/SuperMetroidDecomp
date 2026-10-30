@@ -103,6 +103,9 @@ public sealed class EndingTextPresentation
         _ => throw new ArgumentOutOfRangeException(nameof(sequence), sequence, null),
     };
 
+    /// <summary>The characters the ending's typewriter types, which the game reads instead of this presentation (#1467).</summary>
+    public EndingTypewriterText Typewriter() => new([.. percentage], [.. finalMessage]);
+
     /// <summary>Loads and validates <c>ending-text.json</c>, compiling bounded labels and retaining result/subtitle tile edits without importing cinematic timers or instructions.</summary>
     /// <param name="json">UTF-8 JSON read from the current stream position to its end; the stream remains open.</param>
     /// <returns>A presentation with validated dimensions and glyphs, compiled text sequences, and an identity derived from the source bytes.</returns>

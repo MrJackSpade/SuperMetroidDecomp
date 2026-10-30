@@ -49,8 +49,6 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Map-arrow artwork and presentation frames for scrolling indicators.</summary>
     public required MapArrowPresentation Arrows { get; init; }
 
-    /// <summary>Named compiled map-screen tilemap layers, separate from the character atlas and per-area map cells.</summary>
-    public required MapScreenPresentation Screens { get; init; }
 
     /// <summary>Selected foreground and background PNG artwork for the world-map screen.</summary>
     public required WorldMapArtwork WorldArtwork { get; init; }
@@ -106,14 +104,12 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Selected opening-narration character artwork used with <see cref="IntroNarration"/>.</summary>
     public required IntroFontAtlas IntroFont { get; init; }
 
-    /// <summary>Ending text and display presentation, separate from staff-credit content.</summary>
-    public required EndingTextPresentation EndingText { get; init; }
+    /// <summary>The characters the ending's typewriter types, compiled by the import from the installed ending text (#1467).</summary>
+    public required EndingTypewriterText EndingText { get; init; }
 
     /// <summary>Selected character artwork for ending text and its font transfers.</summary>
     public required EndingFontAtlas EndingFont { get; init; }
 
-    /// <summary>Selected staff-credit text and presentation, separate from the other ending text.</summary>
-    public required CreditsPresentation StaffCredits { get; init; }
 
     /// <summary>Title Mode 7 characters and tilemap, OBJ characters, and Baby character artwork selected from their extracted files.</summary>
     public required TitleGraphicsPresentation TitleGraphics { get; init; }
@@ -138,9 +134,6 @@ internal sealed record AreaMapPresentationParts
 
     /// <summary>Selected animated room-FX character artwork, separate from layer-3 tilemaps and palette blending.</summary>
     public required RoomFxAnimatedTileAtlas RoomFxAnimatedTiles { get; init; }
-
-    /// <summary>Selected layer-3 room-FX tilemaps, separate from animated characters and palette-blend colors.</summary>
-    public required RoomFxLayer3Pages RoomFxLayer3Tilemaps { get; init; }
 
     /// <summary>Selected room-FX palette-blend presentation, separate from layer-3 tilemap geometry and animated character bytes.</summary>
     public required RoomFxBlendInks RoomFxPaletteBlends { get; init; }

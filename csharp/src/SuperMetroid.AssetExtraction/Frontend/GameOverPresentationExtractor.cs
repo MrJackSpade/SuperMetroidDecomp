@@ -6,6 +6,7 @@ using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.GameOver;
 using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -29,8 +30,8 @@ public static class GameOverPresentationExtractor
         Ensure.NotNull(bus);
         VerifyCompiledAnimation(bus);
 
-        ushort[] tilemap = new ushort[GameOverPresentationDefinitions.TilemapCellCount];
-        Array.Fill(tilemap, GameOverPresentationDefinitions.BlankTile);
+        ushort[] tilemap = new ushort[GameOverPageDefinitions.TilemapCellCount];
+        Array.Fill(tilemap, GameOverPageDefinitions.BlankTile);
         foreach (GameOverTextStream stream in GameOverTexts.All)
             LoadText(stream);
 
@@ -100,7 +101,7 @@ public static class GameOverPresentationExtractor
         void LoadText(GameOverTextStream stream)
         {
             // The cartridge's load immediates name each element's first cell as a byte offset into the page's rows.
-            int destinationByteOffset = (stream.Origin.Y * GameOverPresentationDefinitions.TilemapWidth + stream.Origin.X) * sizeof(ushort);
+            int destinationByteOffset = (stream.Origin.Y * GameOverPageDefinitions.TilemapWidth + stream.Origin.X) * sizeof(ushort);
             int initialColumn = destinationByteOffset;
             int sourceAddress = GameOverSourceDefinitions.TextBank | GameOverTextSources.Pointer(stream.Element);
             while (true)

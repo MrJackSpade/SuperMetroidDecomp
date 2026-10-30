@@ -1,10 +1,15 @@
 using System.Text.Json;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Map.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Map.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
-/// <summary>Immutable compiled map-screen layers authored as named JSON tile grids.</summary>
+/// <summary>
+/// Immutable compiled map-screen pages authored as named JSON tile grids: the world map's foreground and each area's
+/// background and room frame. Only the import reads them; it pictures each page once (#1467).
+/// </summary>
 public sealed class MapScreenPresentation
 {
     /// <summary>Validated named map pages, each 1024 placed tiles in 32-column row order.</summary>
@@ -12,8 +17,8 @@ public sealed class MapScreenPresentation
     /// <summary>Takes ownership of the compiled pages after load-time validation.</summary>
     private MapScreenPresentation(Dictionary<MapScreenPageId, BackgroundTile[]> pages) => this.pages = pages;
 
-    /// <summary>Copies the named page into a screen's own tilemap (#1358).</summary>
-    internal void LoadTo(Span<BackgroundTile> destination, MapScreenPageId page) => SuperMetroid.Core.Frontend.Menus.MenuTilemaps.Load(destination, pages[page]);
+    /// <summary>The named page's tiles, row by row.</summary>
+    internal ReadOnlySpan<BackgroundTile> Page(MapScreenPageId page) => pages[page];
     /// <summary>Loads and validates the complete set of named map-screen pages from JSON.</summary>
     public static MapScreenPresentation Load(Stream json)
     {

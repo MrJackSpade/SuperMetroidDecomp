@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
@@ -72,7 +74,7 @@ internal static class Layer3PlaneVerification
         // The plane names the water page (#1466); the installed pages spell the words the cartridge writes for it.
         Layer3Plane shownPlane = water.EffectPlane;
         AssertEqual<RoomFxType?>(RoomFxType.Water, shownPlane.EffectPage, "the room's BG3 plane shows the water page");
-        RoomFxLayer3Pages pages = InstalledFixtures.Maps.RoomFxLayer3Tilemaps;
+        RoomFxLayer3Pages pages = InstalledAreaMapPresentation.RoomFxPagesOf(InstalledFixtures.Maps);
         ushort[] plane = shownPlane.WordsIn(pages);
         ReadOnlySpan<byte> page = pages.ResolveBytes(RoomFxType.Water);
         for (int row = Layer3PlaneConstants.HudRows; row < Layer3Plane.Rows; row++)

@@ -6,6 +6,8 @@ using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerifica
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.GameOver;
+using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Frontend.GameOver;
@@ -24,7 +26,7 @@ internal static class GameOverRomDataVerification
     internal static void VerifyGameOverRomData()
     {
         // #1416: the stride is the import's; the check asserts it is one page row of the installed page width.
-        AssertEqual(GameOverPresentationDefinitions.TilemapWidth * sizeof(ushort),
+        AssertEqual(GameOverPageDefinitions.TilemapWidth * sizeof(ushort),
             GameOverSourceDefinitions.TextRowBytes,
             "game-over text row stride is one page row");
 

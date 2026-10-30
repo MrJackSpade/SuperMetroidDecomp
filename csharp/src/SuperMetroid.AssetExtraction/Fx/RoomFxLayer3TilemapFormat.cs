@@ -1,5 +1,7 @@
 
-namespace SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Fx;
+
+namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>The room effects' 32x33 layer-three page geometry and the installed file holding the pages.</summary>
 public static class RoomFxLayer3TilemapFormat

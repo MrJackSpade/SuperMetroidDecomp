@@ -39,7 +39,6 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
         Landmarks = parts.Landmarks;
         SaveMarkers = parts.SaveMarkers;
         Arrows = parts.Arrows;
-        Screens = parts.Screens;
         WorldArtwork = parts.WorldArtwork;
         Sprites = parts.Sprites;
         PauseBackdrops = parts.PauseBackdrops;
@@ -60,7 +59,6 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
         IntroFont = parts.IntroFont;
         EndingText = parts.EndingText;
         EndingFont = parts.EndingFont;
-        StaffCredits = parts.StaffCredits;
         TitleGraphics = parts.TitleGraphics;
         TitlePalette = parts.TitlePalette;
         TitleGradient = parts.TitleGradient;
@@ -69,7 +67,6 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
         MotherBrainRainbowPalette = parts.MotherBrainRainbowPalette;
         MotherBrainRoomColors = parts.MotherBrainRoomColors;
         RoomFxAnimatedTiles = parts.RoomFxAnimatedTiles;
-        RoomFxLayer3Tilemaps = parts.RoomFxLayer3Tilemaps;
         RoomFxPaletteBlends = parts.RoomFxPaletteBlends;
         PowerBombFixedColors = parts.PowerBombFixedColors;
         SamusVisorColors = parts.SamusVisorColors;
@@ -102,8 +99,6 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
     public MapSaveMarkerPositions SaveMarkers { get; }
     /// <summary>Map-arrow artwork and presentation frames for scrolling indicators.</summary>
     public MapArrowPresentation Arrows { get; }
-    /// <summary>Named compiled map-screen tilemap layers, separate from the character atlas and per-area map cells.</summary>
-    public MapScreenPresentation Screens { get; }
     /// <summary>Selected foreground and background PNG artwork for the world-map screen.</summary>
     public WorldMapArtwork WorldArtwork { get; }
     /// <summary>The installed map and menu sprites; the game draws them from the map sprite sheet, and their compositions belong to the import pipeline (#1463).</summary>
@@ -140,12 +135,10 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
     public IntroNarrationPresentation IntroNarration { get; }
     /// <summary>Selected opening-narration character artwork used with <see cref="IntroNarration"/>.</summary>
     public IntroFontAtlas IntroFont { get; }
-    /// <summary>Ending text and display presentation, separate from staff-credit content.</summary>
-    public EndingTextPresentation EndingText { get; }
+    /// <summary>The characters the ending's typewriter types, compiled by the import from the installed ending text (#1467).</summary>
+    public EndingTypewriterText EndingText { get; }
     /// <summary>Selected character artwork for ending text and its font transfers.</summary>
     public EndingFontAtlas EndingFont { get; }
-    /// <summary>Selected staff-credit text and presentation, separate from the other ending text.</summary>
-    public CreditsPresentation StaffCredits { get; }
     /// <summary>Title Mode 7 characters and tilemap, OBJ characters, and Baby character artwork selected from their extracted files.</summary>
     public TitleGraphicsPresentation TitleGraphics { get; }
     /// <summary>Title-screen palette colors, separate from the title gradient and graphics transfers.</summary>
@@ -163,7 +156,6 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
     /// <summary>Selected animated room-FX character artwork, separate from layer-3 tilemaps and palette blending.</summary>
     public RoomFxAnimatedTileAtlas RoomFxAnimatedTiles { get; }
     /// <summary>Selected layer-3 room-FX tilemaps, separate from animated characters and palette-blend colors.</summary>
-    public RoomFxLayer3Pages RoomFxLayer3Tilemaps { get; }
     /// <summary>Selected room-FX palette-blend presentation, separate from layer-3 tilemap geometry and animated character bytes.</summary>
     public RoomFxBlendInks RoomFxPaletteBlends { get; }
     /// <summary>Fixed RGB5 colors for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>

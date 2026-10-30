@@ -32,7 +32,7 @@ internal static class TextAndMapPresentationContractChecks
             class TextMapConsumer {
                 void Inspect(EscapeTypewriterPresentation escape, IntroNarrationPresentation intro,
                     EndingTextPresentation ending, CreditsPresentation credits, MapSpriteCompositions sprites, SpriteSheet mapSheet,
-                    MapArrowPresentation arrows, MapScreenPresentation screen,
+                    MapArrowPresentation arrows,
                     ScreenSprites objects, System.Span<BackgroundTile> tilemap, AreaId area) {
                     escape.Get(EscapeTypewriterProgramId.Ceres);
                     escape.Get(EscapeTypewriterProgramId.Zebes);
@@ -54,9 +54,6 @@ internal static class TextAndMapPresentationContractChecks
                     arrows.Get(MapScrollDirection.Down);
                     arrows.Get(MapScrollDirection.None);
                     arrows.Get((MapScrollDirection)99);
-                    screen.LoadTo(tilemap, MapScreenDefinitions.WorldForeground);
-                    screen.LoadTo(tilemap, MapScreenDefinitions.WorldBackground(AreaId.Maridia));
-                    screen.LoadTo(tilemap, MapScreenDefinitions.RoomFrame(area));
                 }
             }
             """;
@@ -79,11 +76,11 @@ internal static class TextAndMapPresentationContractChecks
         CSharpCompilation compilation = Compile(trees);
         FixtureConsumerBinding.Require(compilation, calls, "TextAndMapPresentationContractChecks");
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 23, "all twenty-three calls must first reproduce absent provider adapters" + " (" + before.Describe() + ")");
-        Require(after.Classifications.Count == 14 && after.UnresolvedCount == 9 && after.MissingCount == 0 &&
-            after.Consumers.Count == 23, "supported domains qualify; invalid enums, sparse IDs and rows must remain failing " +
-            "(expected 14/9/0/23; " + after.Describe() + ")");
-        Require(after.ReferenceCount == 14, "each classified call requires its reviewed provider contract" + " (" + after.Describe() + ")");
+        Require(before.UnresolvedCount == 20, "all twenty calls must first reproduce absent provider adapters" + " (" + before.Describe() + ")");
+        Require(after.Classifications.Count == 12 && after.UnresolvedCount == 8 && after.MissingCount == 0 &&
+            after.Consumers.Count == 20, "supported domains qualify; invalid enums, sparse IDs and rows must remain failing " +
+            "(expected 12/8/0/20; " + after.Describe() + ")");
+        Require(after.ReferenceCount == 12, "each classified call requires its reviewed provider contract" + " (" + after.Describe() + ")");
     }
 
     /// <summary>Reports a specific text or map provider contract failure.</summary>

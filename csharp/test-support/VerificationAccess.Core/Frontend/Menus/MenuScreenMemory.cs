@@ -27,17 +27,20 @@ internal static class MenuScreenMemory
         return image.CaptureImage();
     }
 
-    /// <summary>The memory image <paramref name="screen"/> shows: its characters with its tilemaps over them.</summary>
+    /// <summary>
+    /// The memory image <paramref name="screen"/> shows: its characters with <paramref name="tilemaps"/>, the cartridge's
+    /// four menu screens (BG1, the area map's second screen, BG2, the area background) laid out from what it shows (#1467).
+    /// </summary>
     [WholeImageFixture("the menu's 64 KiB memory image")]
-    internal static byte[] Compose(MenuScreen screen)
+    internal static byte[] Compose(MenuScreen screen, ReadOnlySpan<BackgroundTile> tilemaps)
     {
         byte[] image = Characters(screen);
-        ushort[] tilemaps = BackgroundTileWordBytes.Words(screen.Tilemaps.All);
+        ushort[] words = BackgroundTileWordBytes.Words(tilemaps);
         int first = MenuVramLayout.Bg1TilemapWord * sizeof(ushort);
-        for (int word = 0; word < tilemaps.Length; word++)
+        for (int word = 0; word < words.Length; word++)
         {
-            image[first + word * 2] = LittleEndianBytes.LowByte(tilemaps[word]);
-            image[first + word * 2 + 1] = LittleEndianBytes.HighByte(tilemaps[word]);
+            image[first + word * 2] = LittleEndianBytes.LowByte(words[word]);
+            image[first + word * 2 + 1] = LittleEndianBytes.HighByte(words[word]);
         }
         return image;
     }

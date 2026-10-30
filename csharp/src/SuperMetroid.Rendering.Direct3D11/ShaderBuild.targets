@@ -5,7 +5,7 @@
   <Target Name="CompileDisplayShaders" BeforeTargets="PrepareForBuild">
     <Error Condition="!Exists('$(ShaderCompiler)')" Text="Install Windows SDK 10.0.26100.0 x64 shader compiler; see D3D11_BUILD.md." />
     <MakeDir Directories="$(IntermediateOutputPath)Shaders" />
-    <Exec Command="&quot;$(ShaderCompiler)&quot; /nologo /Ges /WX /O3 /T cs_5_0 /E TitleGradientMain /Fo &quot;$(IntermediateOutputPath)Shaders\TitleGradient.cso&quot; &quot;$(MSBuildProjectDirectory)\Shaders\TitleGradient.hlsl&quot;" />
+    <Exec Command="&quot;$(ShaderCompiler)&quot; /nologo /Ges /WX /O3 /T cs_5_0 /E ScreenGradientMain /Fo &quot;$(IntermediateOutputPath)Shaders\ScreenGradient.cso&quot; &quot;$(MSBuildProjectDirectory)\Shaders\ScreenGradient.hlsl&quot;" />
     <Exec Command="&quot;$(ShaderCompiler)&quot; /nologo /Ges /WX /O3 /T cs_5_0 /E Main /Fo &quot;$(IntermediateOutputPath)Shaders\Solid.cso&quot; &quot;$(MSBuildProjectDirectory)\Shaders\Solid.hlsl&quot;" />
     <Exec Command="&quot;$(ShaderCompiler)&quot; /nologo /Ges /WX /O3 /T cs_5_0 /E Main /Fo &quot;$(IntermediateOutputPath)Shaders\Tiles.cso&quot; &quot;$(MSBuildProjectDirectory)\Shaders\Tiles.hlsl&quot;" />
     <Exec Command="&quot;$(ShaderCompiler)&quot; /nologo /Ges /WX /O3 /T vs_5_0 /E SpriteQuad /Fo &quot;$(IntermediateOutputPath)Shaders\SpriteVertex.cso&quot; &quot;$(MSBuildProjectDirectory)\Shaders\Sprites.hlsl&quot;" />
@@ -13,7 +13,7 @@
     <Exec Command="&quot;$(ShaderCompiler)&quot; /nologo /Ges /WX /O3 /T vs_5_0 /E Vertex /Fo &quot;$(IntermediateOutputPath)Shaders\DisplayVertex.cso&quot; &quot;$(MSBuildProjectDirectory)\Shaders\Display.hlsl&quot;" />
     <Exec Command="&quot;$(ShaderCompiler)&quot; /nologo /Ges /WX /O3 /T ps_5_0 /E Pixel /Fo &quot;$(IntermediateOutputPath)Shaders\DisplayPixel.cso&quot; &quot;$(MSBuildProjectDirectory)\Shaders\Display.hlsl&quot;" />
     <ItemGroup>
-      <EmbeddedResource Include="$(IntermediateOutputPath)Shaders\TitleGradient.cso" LogicalName="SuperMetroid.Shaders.TitleGradient.cso" />
+      <EmbeddedResource Include="$(IntermediateOutputPath)Shaders\ScreenGradient.cso" LogicalName="SuperMetroid.Shaders.ScreenGradient.cso" />
       <EmbeddedResource Include="$(IntermediateOutputPath)Shaders\SpriteVertex.cso" LogicalName="SuperMetroid.Shaders.SpriteVertex.cso" />
       <EmbeddedResource Include="$(IntermediateOutputPath)Shaders\SpritePixel.cso" LogicalName="SuperMetroid.Shaders.SpritePixel.cso" />
       <EmbeddedResource Include="$(IntermediateOutputPath)Shaders\DisplayVertex.cso" LogicalName="SuperMetroid.Shaders.DisplayVertex.cso" />

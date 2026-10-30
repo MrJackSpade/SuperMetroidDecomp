@@ -88,14 +88,14 @@ public sealed class TitleSequenceState : IFrontendScreen
     private int babyFrameTimer;
     /// <summary>Whether the title shows its perspective floor behind the title objects.</summary>
     private bool floorBackgroundEnabled;
-    /// <summary>Enables the installed scanline gradient during the final title stages.</summary>
+    /// <summary>Enables the installed gradient during the final title stages.</summary>
     private bool gradientEnabled;
     /// <summary>Selects the demo destination after the shared title fade-out.</summary>
     private bool fadingToDemo;
 
     /// <summary>Creates the native initial title setup performed by <c>$8B:9B68</c>.</summary>
     /// <param name="audio">Receives the opening music and title transitions when audio is available.</param>
-    /// <param name="titleGradientPresentation">The installed scanline gradient.</param>
+    /// <param name="titleGradientPresentation">The installed gradients, one per zoom bucket.</param>
     /// <param name="titlePalettePresentation">Required installed title colours.</param>
     /// <param name="titleGraphicsPresentation">Required installed title graphics.</param>
     /// <param name="spriteSheets">Required installed sprite sheets the title's compositions draw from.</param>
@@ -369,12 +369,12 @@ public sealed class TitleSequenceState : IFrontendScreen
                 ? new AffineTransform(unchecked((short)Zoom), TitleSequenceDefinitions.Scenes.Rotation.TableIndex,
                     0, unchecked((short)Zoom), new Offset16<FloorPixels>(128, 128), panPosition.Whole.AsSignedWord())
                 : null,
-            checked((byte)Brightness), gradientEnabled ? ResolveTitleGradient() : default,
+            checked((byte)Brightness), gradientEnabled ? new ScreenGradientLayer(ResolveTitleGradient()) : null,
             floorBackgroundEnabled ? TitleFloors.Of(spriteSheets, TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages[BabyFrame]) : null);
     }
 
     /// <summary>Resolves the installed title gradient at the current Mode 7 scale.</summary>
-    private ReadOnlySpan<TitleGradientLine> ResolveTitleGradient()
+    private ScreenGradient ResolveTitleGradient()
     {
         if (titleGradientPresentation is null)
             throw new InvalidOperationException(

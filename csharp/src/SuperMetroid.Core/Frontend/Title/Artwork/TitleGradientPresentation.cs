@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
@@ -5,28 +6,28 @@ using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Core.Frontend.Title.Artwork;
 
 /// <summary>
-/// Editable scanline color-math presentation for the sixteen title zoom buckets.
-/// The selected lines contain no HDMA addresses, instruction streams, or gameplay state.
+/// The title's editable gradients, one for each of the sixteen zoom buckets, each described by its stops (#1468).
+/// The gradients contain no cartridge addresses, instruction streams, or gameplay state.
 /// </summary>
 public sealed class TitleGradientPresentation
 {
-    /// <summary>Sixteen independently authored 224-line gradients indexed by the zoom high nibble.</summary>
-    private readonly TitleGradientLine[][] variants;
+    /// <summary>Sixteen independently authored gradients indexed by zoom bucket.</summary>
+    private readonly ScreenGradient[] variants;
 
-    /// <summary>Retains validated, owned title gradient scanline arrays.</summary>
-    private TitleGradientPresentation(TitleGradientLine[][] variants) => this.variants = variants;
+    /// <summary>Retains validated title gradients.</summary>
+    private TitleGradientPresentation(ScreenGradient[] variants) => this.variants = variants;
 
-    /// <summary>Returns the authored scanlines selected by native zoom bits four through seven.</summary>
-    /// <param name="zoom">Native Mode-7 zoom word; only bits 4..7 select a variant, with all other bits ignored.</param>
-    /// <returns>A borrowed read-only view of the selected presentation's 224 compiled scanlines in top-to-bottom screen order.</returns>
-    public ReadOnlySpan<TitleGradientLine> Resolve(int zoom) =>
-        variants[(zoom >> 4) % 16];
+    /// <summary>Returns the gradient the title shows at <paramref name="zoom"/>.</summary>
+    /// <param name="zoom">The title floor's zoom; only bits 4..7 select a gradient, with all other bits ignored.</param>
+    /// <returns>The selected gradient, covering the whole screen.</returns>
+    public ScreenGradient Resolve(int zoom) =>
+        variants[(zoom >> 4) % TitleGradientFormat.VariantCount];
 
-    /// <summary>Validates all sixteen authored zoom variants and compiles their independent per-scanline colours and blends.</summary>
+    /// <summary>Validates all sixteen authored zoom variants and compiles their stops.</summary>
     /// <param name="json">UTF-8 JSON read from its current position to the end and left open for the caller.</param>
-    /// <returns>An immutable presentation whose scanlines do not retain the document's mutable arrays.</returns>
+    /// <returns>An immutable presentation whose gradients do not retain the document's mutable arrays.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
-    /// <exception cref="InvalidDataException">JSON is invalid or ambiguous, its version or variant ordering/count is wrong, or a variant lacks 224 scanlines with valid RGB5 colours.</exception>
+    /// <exception cref="InvalidDataException">JSON is invalid or ambiguous, its version or variant ordering/count is wrong, or a variant's stops do not start on line 0, run top to bottom on the screen and hold RGB5 colours.</exception>
     public static TitleGradientPresentation Load(Stream json)
     {
         TitleGradientDocument document;
@@ -51,72 +52,77 @@ public sealed class TitleGradientPresentation
                 $"{TitleGradientFormat.VariantCount} zoom variants.");
         }
 
-        var variants = new TitleGradientLine[TitleGradientFormat.VariantCount][];
+        var variants = new ScreenGradient[TitleGradientFormat.VariantCount];
         for (int variant = 0; variant < variants.Length; variant++)
         {
             TitleGradientVariant? source = document.Variants[variant];
-            if (source is null || source.ZoomHighNibble != variant || source.Lines is null ||
-                source.Lines.Length != ScreenGeometry.ScreenHeightPixels)
+            if (source is null || source.ZoomHighNibble != variant || source.Stops is null || source.Stops.Length == 0)
             {
                 throw new InvalidDataException(
-                    $"Title gradient variant {variant} must identify nibble {variant} and contain " +
-                    $"{ScreenGeometry.ScreenHeightPixels} scanlines.");
+                    $"Title gradient variant {variant} must identify nibble {variant} and contain stops.");
             }
 
-            variants[variant] = new TitleGradientLine[source.Lines.Length];
-            for (int line = 0; line < source.Lines.Length; line++)
+            var stops = ImmutableArray.CreateBuilder<GradientStop>(source.Stops.Length);
+            foreach (TitleGradientStop? value in source.Stops)
             {
-                TitleGradientScanline? value = source.Lines[line];
-                if (value is null || value.Red is < 0 or > 31 || value.Green is < 0 or > 31 ||
-                    value.Blue is < 0 or > 31)
+                if (value is null || value.Red is < 0 or > RgbColor.MaxChannel || value.Green is < 0 or > RgbColor.MaxChannel ||
+                    value.Blue is < 0 or > RgbColor.MaxChannel)
                 {
                     throw new InvalidDataException(
-                        $"Title gradient variant {variant}, scanline {line} requires RGB5 colors.");
+                        $"Title gradient variant {variant}, stop {stops.Count} requires an RGB5 colour.");
                 }
-                variants[variant][line] = new(value.Red, value.Green, value.Blue, Blend(value));
+                bool placed = stops.Count == 0 ? value.Line == 0 : value.Line > stops[^1].Line && value.Line < DisplayScreen.Height;
+                if (!placed)
+                {
+                    throw new InvalidDataException(
+                        $"Title gradient variant {variant}, stop {stops.Count} must begin on line 0 or below the stop before it, on the screen.");
+                }
+                stops.Add(new GradientStop(value.Line, new RgbColor(value.Red, value.Green, value.Blue), Blend(value)));
             }
+            variants[variant] = new ScreenGradient(stops.MoveToImmutable(), DisplayScreen.Height);
         }
         return new TitleGradientPresentation(variants);
     }
 
-    /// <summary>The layers <paramref name="line"/> blends with and how, as the renderers' colour-math control.</summary>
-    private static ColorBlend Blend(TitleGradientScanline line)
+    /// <summary>The layers <paramref name="stop"/> blends with and how, as the renderers' colour-math control.</summary>
+    private static ColorBlend Blend(TitleGradientStop stop)
     {
         ColorBlend blend = default;
-        if (line.BlendsFloor) blend |= ColorBlend.Bg1;
-        if (line.BlendsObjects) blend |= ColorBlend.Sprites;
-        if (line.BlendsBackdrop) blend |= ColorBlend.Backdrop;
-        if (line.Subtracts) blend |= ColorBlend.Subtract;
+        if (stop.BlendsFloor) blend |= ColorBlend.Bg1;
+        if (stop.BlendsObjects) blend |= ColorBlend.Sprites;
+        if (stop.BlendsBackdrop) blend |= ColorBlend.Backdrop;
+        if (stop.Subtracts) blend |= ColorBlend.Subtract;
         return blend;
     }
 
     /// <summary>
-    /// The authored scanline for a compiled <paramref name="line"/>: its colour, the layers it blends with and whether it
-    /// subtracts. A control naming any layer or mode the title does not use is rejected rather than dropped.
+    /// The authored stop for a compiled <paramref name="stop"/>: its line, its colour, the layers it blends with and
+    /// whether it subtracts. A blend naming any layer or mode the title does not use is rejected rather than dropped.
     /// </summary>
-    /// <exception cref="InvalidDataException"><paramref name="line"/> blends a layer or mode outside the title's four.</exception>
-    public static TitleGradientScanline Author(TitleGradientLine line)
+    /// <exception cref="InvalidDataException"><paramref name="stop"/> blends a layer or mode outside the title's four.</exception>
+    public static TitleGradientStop Author(GradientStop stop)
     {
         const ColorBlend titleBlends = ColorBlend.Bg1 | ColorBlend.Sprites |
             ColorBlend.Backdrop | ColorBlend.Subtract;
-        if ((line.Control & ~titleBlends) != ColorBlend.None)
-            throw new InvalidDataException($"Title gradient line blends {line.Control}, outside the floor, objects, backdrop and subtraction.");
-        return new TitleGradientScanline
+        if ((stop.Blend & ~titleBlends) != ColorBlend.None)
+            throw new InvalidDataException($"Title gradient stop blends {stop.Blend}, outside the floor, objects, backdrop and subtraction.");
+        return new TitleGradientStop
         {
-            Red = line.Red,
-            Green = line.Green,
-            Blue = line.Blue,
-            BlendsFloor = (line.Control & ColorBlend.Bg1) != ColorBlend.None,
-            BlendsObjects = (line.Control & ColorBlend.Sprites) != ColorBlend.None,
-            BlendsBackdrop = (line.Control & ColorBlend.Backdrop) != ColorBlend.None,
-            Subtracts = (line.Control & ColorBlend.Subtract) != ColorBlend.None,
+            Line = stop.Line,
+            Red = stop.Colour.Red,
+            Green = stop.Colour.Green,
+            Blue = stop.Colour.Blue,
+            BlendsFloor = (stop.Blend & ColorBlend.Bg1) != ColorBlend.None,
+            BlendsObjects = (stop.Blend & ColorBlend.Sprites) != ColorBlend.None,
+            BlendsBackdrop = (stop.Blend & ColorBlend.Backdrop) != ColorBlend.None,
+            Subtracts = (stop.Blend & ColorBlend.Subtract) != ColorBlend.None,
         };
     }
 
     /// <summary>Serializes and validates every gradient variant before writing any UTF-8 JSON bytes.</summary>
     /// <param name="json">Destination stream written at its current position and left open; trailing bytes are not truncated.</param>
     /// <param name="document">Authored gradient whose mutable arrays are read for serialization, not retained by the writer.</param>
-    /// <exception cref="InvalidDataException">The serialized document fails <see cref="Load"/>'s schema or scanline-value validation.</exception>
+    /// <exception cref="InvalidDataException">The serialized document fails <see cref="Load"/>'s schema or stop validation.</exception>
     public static void Write(Stream json, TitleGradientDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);

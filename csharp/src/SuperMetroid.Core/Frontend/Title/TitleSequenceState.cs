@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms.Backgrounds;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;

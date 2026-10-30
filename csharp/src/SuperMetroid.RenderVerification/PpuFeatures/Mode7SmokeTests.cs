@@ -62,8 +62,8 @@ internal static class Mode7SmokeTests
         }
         // A Ceres room's floor with its floor animation frames drawn over it (#1467), and the fixture's floor, with outside
         // pixels transparent, as Ceres rooms show them, or repeating.
-        (byte[] cells, byte[] pixels) = AffineFloorConstants.Split(vram);
-        var ceres = new RoomFloor(AffineFloorConstants.CeresRoom(cells, pixels, palette));
+        FloorMemory floorMemory = AffineFloorConstants.Split(vram);
+        var ceres = new RoomFloor(AffineFloorConstants.CeresRoom(floorMemory.Map, floorMemory.Pixels, palette));
         ceres.Draw(CeresFloorAnimation.PictureOf(CeresFloorAnimationFrame.ElevatorDark));
         ceres.Draw(CeresFloorAnimation.PictureOf(CeresFloorAnimationFrame.WingFrame1));
         ceres.Draw(CeresFloorAnimation.PictureOf(CeresFloorAnimationFrame.BabyFrame2));

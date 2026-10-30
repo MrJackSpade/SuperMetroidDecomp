@@ -3,13 +3,11 @@ using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.VerificationImporters;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Bosses.Ridley;
 using SuperMetroid.Core.Compatibility;
 
-using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
 /// <summary>Checks Ceres Ridley's getaway curve and Mode 7 transfer lists against retail data.</summary>

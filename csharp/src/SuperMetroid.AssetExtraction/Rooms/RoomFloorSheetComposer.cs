@@ -46,8 +46,8 @@ internal static class RoomFloorSheetComposer
             map[word] = words[word * sizeof(ushort)];
             pixels[word] = words[word * sizeof(ushort) + 1];
         }
-        return FloorSheetComposer.Compose(
+        return FloorSheetComposer.ComposeRoom(
             [FloorSheetComposer.Whole(RoomFloorSheet.FloorFrameName, map, pixels), .. CeresFloorDrawings.Pictures(map, pixels)],
-            colours, roomColours: true);
+            colours);
     }
 }

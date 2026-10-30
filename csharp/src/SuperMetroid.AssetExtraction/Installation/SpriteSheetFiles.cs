@@ -110,11 +110,11 @@ public static class SpriteSheetFiles
             SpriteSheetId.AreaMapBackgroundTilesMaridia or SpriteSheetId.AreaMapBackgroundTilesTourian or
             SpriteSheetId.PauseMapTiles or SpriteSheetId.PauseInterfaceTiles or
             SpriteSheetId.IntroSceneTiles or SpriteSheetId.IntroFontTiles or SpriteSheetId.CeresFlightObjectTiles or
-            SpriteSheetId.CeresIntroObjectTiles or SpriteSheetId.ZebesRevealTiles or
-            SpriteSheetId.EndingCreditsFontTiles or SpriteSheetId.EndingTextFontTiles or
-            SpriteSheetId.EndingSubtitleTiles or SpriteSheetId.EndingLogoTiles or SpriteSheetId.EndingWaitingTiles or
-            SpriteSheetId.EndingWavySamusTiles or SpriteSheetId.EndingExplosionTiles =>
+            SpriteSheetId.CeresIntroObjectTiles or SpriteSheetId.ZebesRevealTiles =>
             [ScreenTileSheet.FrameName],
+        SpriteSheetId.EndingCreditsRows or SpriteSheetId.EndingPostCreditsPictures or
+            SpriteSheetId.EndingWavySamusPicture or SpriteSheetId.EndingExplosionPictures =>
+            EndingPictureSheetComposer.FrameNames(sheet),
         SpriteSheetId.TitleFloorTiles or SpriteSheetId.TitleBabyTiles or SpriteSheetId.CeresFlightFloorTiles or
             SpriteSheetId.EndingEscapeAFloorTiles or SpriteSheetId.EndingEscapeBFloorTiles or
             SpriteSheetId.EndingPlanetExplosionFloorTiles or SpriteSheetId.EndingFlyawayFloorTiles or

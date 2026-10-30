@@ -79,9 +79,6 @@ internal static class EndingRewardSpriteArtworkVerification
             EndingObjectArtwork edited = installation.LoadEndingObjectArt();
             var audio = new AudioQueues();
             var scene = CreateRetailEndingFixture(audio, 2, 0);
-            scene.InstalledArtwork.BindStaffCredits(CreditsPresentation.Load(new MemoryStream(
-                CreditsPresentationExtractor.Extract(
-                    SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")))));
             scene.InstalledArtwork.BindFixtureObjectArtwork(stock);
             scene.Stage.BindFloorArtwork(installation.LoadEndingMode7Art());
             AssertTrue(FindVisibleEdit(EndingCreditsPhase.PostCreditsReward, 60000, 150),

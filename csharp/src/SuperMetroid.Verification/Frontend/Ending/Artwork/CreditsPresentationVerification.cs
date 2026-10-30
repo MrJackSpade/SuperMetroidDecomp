@@ -38,7 +38,7 @@ internal static class CreditsPresentationVerification
 
         // Exercise actual runtime cadence through completion. CreditsObjectState has no bus
         // dependency, so this also proves installed playback cannot fall back to ROM text.
-        var runtime = new CreditsObjectState(presentation);
+        var runtime = new CreditsObjectState(presentation.RowCount);
         for (int row = 0; row < presentation.RowCount; row++)
         {
             for (int frame = 0; frame < 15; frame++)
@@ -46,11 +46,11 @@ internal static class CreditsPresentationVerification
                     $"credits row {row} waits for its sixteenth half-pixel frame");
             CreditsObjectStepResult result = runtime.Step();
             AssertTrue(result.CopiedRow && !result.Finished,
-                $"credits row {row} copies at the native eight-pixel boundary");
-            int destination = row & 31;
-            AssertTrue(runtime.Tilemap.Slice(destination * 32, 32)
-                .SequenceEqual(presentation.GetRow(row)),
-                $"credits runtime row {row} reaches circular staging");
+                $"credits row {row} is taken at the native eight-pixel boundary");
+            // Every row the installed document gives text is a row the roll lays a line picture on.
+            AssertTrue(CreditsRollRows.Pictures[row] is not null
+                || presentation.GetRow(row).ToArray().All(tile => tile == CreditsPresentationDefinitions.BlankTile),
+                $"credits row {row} with text is a pictured line row");
         }
         for (int frame = 0; frame < 15; frame++) runtime.Step();
         AssertTrue(runtime.Step().Finished && !runtime.Enabled,

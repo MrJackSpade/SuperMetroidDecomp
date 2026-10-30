@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Ending;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>The three pieces of artwork the post-shot parts show.</summary>
 internal enum EndingPostShotUploadSource

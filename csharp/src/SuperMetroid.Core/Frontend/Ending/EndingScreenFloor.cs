@@ -39,17 +39,8 @@ internal static class EndingScreenFloor
                     Floor(floor).RewardIcon.Map.Span.Slice(source, chunkCells).CopyTo(cells.AsSpan(upload.As<EndingChunkUpload>().Chunk * chunkCells));
                     break;
                 case EndingUploadKind.FlyawayChunk:
-                case EndingUploadKind.EscapeClouds:
-                case EndingUploadKind.ExplosionObjects:
-                case EndingUploadKind.ObjectFragment:
-                case EndingUploadKind.EndingFont:
-                case EndingUploadKind.CreditsFont:
                 case EndingUploadKind.CreditsCharacterArt:
-                case EndingUploadKind.CreditsTilemap:
-                case EndingUploadKind.TextTilemap:
-                case EndingUploadKind.PostShotLowerTilemap:
-                case EndingUploadKind.PostShotTransfer:
-                    // The flyaway's first lane uploads characters; these lay out no floor cells.
+                    // The flyaway's first lane uploads characters; the post-credits art lays out no floor cells.
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(uploads), upload.Kind, "Undefined ending upload.");

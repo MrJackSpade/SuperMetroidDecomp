@@ -208,7 +208,6 @@ internal static class InstalledFixtures
         ending.InstalledArtwork.BindPaletteArtwork(RepositoryInstallation.Installation.LoadEndingPalettes());
         ending.InstalledArtwork.BindPaletteFxColors(Maps.RoomPaletteFx);
         ending.Stage.BindEndingFont(Maps.EndingFont);
-        ending.InstalledArtwork.BindStaffCredits(Maps.StaffCredits);
         return ending;
     }
 

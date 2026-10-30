@@ -15,8 +15,21 @@ public sealed class EndingObjectSourceArtwork : EndingObjectArtwork
     /// <param name="parts">The ending's object character atlases, tilemaps and sprite presentations (#633).</param>
     /// <exception cref="ArgumentNullException">An atlas, composition resource, or fragment sequence is null.</exception>
     /// <exception cref="InvalidDataException">A transfer has an incorrect byte length, or the fragment sequence is malformed.</exception>
-    public EndingObjectSourceArtwork(EndingObjectArtworkParts parts) : base(Ensure.NotNull(parts))
+    public EndingObjectSourceArtwork(EndingObjectArtworkParts parts)
     {
+        Ensure.NotNull(parts);
+        WaitingTilemap = Ensure.NotNull(parts.WaitingTilemap);
+        PostCreditsFragmentB = Ensure.NotNull(parts.PostCreditsFragmentB);
+        PostShotLogoMap = Ensure.NotNull(parts.PostShotLogoMap);
+        Ensure.NotNull(parts.Fragments);
+        if (!IsWholeMap(WaitingTilemap) ||
+            !IsWholeMap(PostCreditsFragmentB) ||
+            !IsWholeMap(PostShotLogoMap) ||
+            parts.Fragments.Count != EndingObjectArtworkFormat.FragmentCount ||
+            parts.Fragments.Any(fragment => fragment is null || !IsWholeMap(fragment)))
+            throw new InvalidDataException("Ending OBJ catalog has an incorrect native transfer length.");
+        fragments = [.. parts.Fragments];
+        fragmentsById = Enum.GetValues<EndingObjectFragmentId>().Zip(fragments, (id, fragment) => KeyValuePair.Create(id, fragment)).ToDictionary();
         Clouds = Ensure.NotNull(parts.Clouds);
         Explosion = Ensure.NotNull(parts.Explosion);
         WaitingSamus = Ensure.NotNull(parts.WaitingSamus);
@@ -38,6 +51,29 @@ public sealed class EndingObjectSourceArtwork : EndingObjectArtwork
         RewardSprites = Ensure.NotNull(parts.RewardSprites);
         LogoSprites = Ensure.NotNull(parts.LogoSprites);
     }
+
+    /// <summary>The four explosion maps in <see cref="EndingObjectFragmentId"/> order.</summary>
+    private readonly RoomBackgroundTilemapAtlas[] fragments;
+
+    /// <summary>The same maps keyed by the explosion map each one holds.</summary>
+    private readonly Dictionary<EndingObjectFragmentId, RoomBackgroundTilemapAtlas> fragmentsById;
+
+    /// <summary>Whether <paramref name="map"/> holds exactly one 32-by-32 page of tiles.</summary>
+    private static bool IsWholeMap(RoomBackgroundTilemapAtlas map) => map.Tiles.Length == EndingObjectArtworkFormat.MapCellCount;
+
+    /// <summary>The waiting scene's 32x32 backdrop map.</summary>
+    public RoomBackgroundTilemapAtlas WaitingTilemap { get; }
+    /// <summary>The transformation's 32x32 map, imported from <c>$99:DAB1</c>.</summary>
+    public RoomBackgroundTilemapAtlas PostCreditsFragmentB { get; }
+    /// <summary>The post-shot logo's 32x32 map.</summary>
+    public RoomBackgroundTilemapAtlas PostShotLogoMap { get; }
+
+    /// <summary>The four explosion maps in <see cref="EndingObjectFragmentId"/> order.</summary>
+    public IReadOnlyList<RoomBackgroundTilemapAtlas> Fragments => fragments;
+
+    /// <summary>One 32-by-32-cell explosion map.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> is not one of the four maps.</exception>
+    public RoomBackgroundTilemapAtlas Fragment(EndingObjectFragmentId id) => Ensure.Listed(fragmentsById, id);
 
     /// <summary>Checks an atlas transfer against the cartridge's required byte count.</summary>
     private static bool HasRequiredLength(RoomCharacterAtlas atlas, EndingObjectTransfer transfer) =>

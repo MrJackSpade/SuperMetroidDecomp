@@ -8,15 +8,12 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 public sealed class CreditsPresentation
 {
     /// <summary>Validated editable lines rendered on demand at the fixed cartridge cadence.</summary>
-    private readonly CreditsLineDocument[]? lines;
-    /// <summary>Precompiled row overrides supplied by a fixture when the editable line path is unused.</summary>
-    internal readonly BackgroundTile[][]? fixtureRows;
+    private readonly CreditsLineDocument[] lines;
 
-    /// <summary>Retains one row source and the identity of its original JSON bytes.</summary>
-    internal CreditsPresentation(CreditsLineDocument[]? lines, BackgroundTile[][]? fixtureRows, string contentIdentity)
+    /// <summary>Retains the lines and the identity of their original JSON bytes.</summary>
+    private CreditsPresentation(CreditsLineDocument[] lines, string contentIdentity)
     {
         this.lines = lines;
-        this.fixtureRows = fixtureRows;
         ContentIdentity = contentIdentity;
     }
 
@@ -24,7 +21,7 @@ public sealed class CreditsPresentation
     public string ContentIdentity { get; }
 
     /// <summary>Gets the fixed number of 32-tile rows in the compiled staff roll.</summary>
-    public int RowCount => fixtureRows?.Length ?? CreditsPresentationDefinitions.ExpectedCompiledRows;
+    public int RowCount => CreditsPresentationDefinitions.ExpectedCompiledRows;
 
     /// <summary>Compiles one staff-roll tilemap row, including authored blank-row cadence.</summary>
     /// <param name="index">Zero-based compiled row index.</param>
@@ -33,11 +30,8 @@ public sealed class CreditsPresentation
     {
         if ((uint)index >= RowCount)
             throw new ArgumentOutOfRangeException(nameof(index));
-        if (fixtureRows is not null)
-            return fixtureRows[index];
         int row = 0;
-        CreditsLineDocument[] authored = lines ??
-            throw new InvalidOperationException("Credits presentation has neither fixture rows nor authored lines.");
+        CreditsLineDocument[] authored = lines;
         for (int line = 0; line < authored.Length; line++)
         {
             var definition = CreditsRoles.Lines[line];
@@ -117,7 +111,7 @@ public sealed class CreditsPresentation
                 $"Credits compiled to {compiledRows} rows; expected " +
                 $"{CreditsPresentationDefinitions.ExpectedCompiledRows}.");
         }
-        return new(document.Lines, null, Convert.ToHexString(SHA256.HashData(source)));
+        return new(document.Lines, Convert.ToHexString(SHA256.HashData(source)));
     }
 
     /// <summary>Validates and writes a credits document as JSON.</summary>

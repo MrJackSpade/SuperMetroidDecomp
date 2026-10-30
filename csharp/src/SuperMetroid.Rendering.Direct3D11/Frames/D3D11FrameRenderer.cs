@@ -85,6 +85,8 @@ public sealed class D3D11FrameRenderer : IDisposable
 
     /// <summary>The frontend tile layers' cells a frame draws, each once; reused across frames.</summary>
     private readonly List<ScreenTileMap> frameScreens = [];
+    /// <summary>The pictured planes the frame being drawn shows, each once (#1467).</summary>
+    private readonly List<PicturedPlane> framePlanes = [];
 
     /// <summary>
     /// Reuses owner-thread scratch after UpdateSubresource has copied its source.
@@ -477,6 +479,51 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.Dispatch(32, 28, 1);
     }
 
+    /// <summary>Adds a pictured plane's colours where the plane covering it shows, each line at its own scroll (#1467).</summary>
+    private unsafe void DispatchAddPlaneBehind(AddedPicturedPlaneLayer layer)
+    {
+        var data = ClearUploadConstants();
+        data[0] = (uint)D3D11TileOperation.AddLayerBehind;
+        data[1] = roomLevels.PlaneTable(layer.Plane);
+        data[4] = (uint)layer.VerticalScroll;
+        data[5] = layer.Plane.Size.X; data[6] = layer.Plane.Size.Y; data[8] = 1; data[26] = 224;
+        data[14] = (uint)D3D11RoomSource.PicturedPlane;
+        data[10] = layer.IncludeObjects ? 1u : 0u;
+        data[11] = layer.MainObjects ? 1u : 0u;
+        if (layer.MainCoverage is { } coverage)
+        {
+            // Header word two marks the covering layer as a pictured plane, whose table goes where the floor transform
+            // would, as a tile layer's cells do.
+            data[2] = 1;
+            int offset = 16;
+            data[offset] = roomLevels.PlaneTable(coverage.Plane);
+            data[offset + 2] = coverage.Scroll.X; data[offset + 3] = coverage.Scroll.Y;
+            data[offset + 4] = coverage.Plane.Size.X; data[offset + 5] = coverage.Plane.Size.Y;
+            data[offset + 6] = Priority(coverage.Priority); data[offset + 7] = 1;
+        }
+        if (!layer.Scrolls.IsEmpty)
+        {
+            data[15] = 1;
+            for (int line = 0; line < layer.Scrolls.Length; line++)
+            {
+                int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + line * 4;
+                data[offset] = layer.Scrolls[line].X;
+                data[offset + 1] = layer.Scrolls[line].Y;
+            }
+        }
+        fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
+        owner.Context.Dispatch(32, 28, 1);
+    }
+
+    /// <summary>The pictured planes a layer draws (#1467): its own and, for a plane added behind, its covering plane.</summary>
+    private static IEnumerable<PicturedPlane> PicturedPlanes(DisplayLayer layer) => layer switch
+    {
+        PicturedPlaneLayer bg => [bg.Plane],
+        AddedPicturedPlaneLayer { MainCoverage: { } coverage } sub => [sub.Plane, coverage.Plane],
+        AddedPicturedPlaneLayer sub => [sub.Plane],
+        _ => [],
+    };
+
     /// <summary>The cells a frontend layer draws (#1403): its own and, for a layer added behind, its covering layer's.</summary>
     private static IEnumerable<ScreenTileMap> ScreenMaps(DisplayLayer layer) => layer switch
     {
@@ -505,7 +552,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     {
         // Reject unimplemented operations before changing GPU state. No CPU fallback.
         foreach (DisplayLayer layer in scene.Layers)
-            if (layer is not (ScreenTilesLayer or ScreenTilesViewportLayer or HudLayer or ScreenTintLayer or SpritesLayer or SpriteDepthLayer or TurningFloorLayer or TurningRoomLayer or ColourAddBandsLayer or OverlayBlendLayer or AddedScreenTilesLayer or MessageBoxLayer or GameplaySceneLayer or InsetSceneLayer or GameplayBlendLayer))
+            if (layer is not (ScreenTilesLayer or ScreenTilesViewportLayer or PicturedPlaneLayer or AddedPicturedPlaneLayer or HudLayer or ScreenTintLayer or SpritesLayer or SpriteDepthLayer or TurningFloorLayer or TurningRoomLayer or ColourAddBandsLayer or OverlayBlendLayer or AddedScreenTilesLayer or MessageBoxLayer or GameplaySceneLayer or InsetSceneLayer or GameplayBlendLayer))
                 throw new NotSupportedException($"GPU layer {layer.GetType().Name} is not implemented yet.");
         SuperMetroid.Core.Assets.SpriteSheetFrame? messagePicture = null;
         PicturedHud? hud = null;
@@ -534,6 +581,8 @@ public sealed class D3D11FrameRenderer : IDisposable
             : throw new InvalidOperationException("A frame shows two different Mode 7 floors.");
         List<ScreenTileMap> screens = frameScreens;
         screens.Clear();
+        List<PicturedPlane> planes = framePlanes;
+        planes.Clear();
         foreach (DisplayLayer layer in scene.Layers)
         {
             if (layer is TurningFloorLayer frontendMode7)
@@ -543,6 +592,12 @@ public sealed class D3D11FrameRenderer : IDisposable
             {
                 if (!screens.Contains(cells))
                     screens.Add(cells);
+            }
+            // The pictured planes (#1467), each once.
+            foreach (PicturedPlane plane in PicturedPlanes(layer))
+            {
+                if (!planes.Contains(plane))
+                    planes.Add(plane);
             }
             if (layer is TurningRoomLayer mode7)
             {
@@ -556,7 +611,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         }
         var levels = new RoomLevelLayers(rooms?.Bg1, rooms?.Bg2 ?? floor, rooms?.DoorSource, rooms?.Bg1Overlay, rooms?.Sky, bg3,
             rooms?.Bg2Overlay, floorMap, rooms?.BossBody, rooms?.XrayReveal, rooms?.Bg2Image,
-            messagePicture, screens.Count == 0 ? null : new ScreenPictureTables([.. screens]), hud);
+            messagePicture, screens.Count == 0 ? null : new ScreenPictureTables([.. screens]), hud,
+            planes.Count == 0 ? null : new PicturedPlaneTables([.. planes]));
         // The image texture holds every image the scene shows before either buffer names a place in it (#1408).
         images.Needed.Clear();
         D3D11SpriteDrawBuffer.Collect(scene.Paint.SpriteDraws.AsSpan(), images.Needed);
@@ -602,6 +658,9 @@ public sealed class D3D11FrameRenderer : IDisposable
                 case AddedScreenTilesLayer sub:
                     DispatchAddLayerBehind(sub);
                     break;
+                case AddedPicturedPlaneLayer added:
+                    DispatchAddPlaneBehind(added);
+                    break;
                 case OverlayBlendLayer math:
                     DispatchBackgroundMath(math);
                     break;
@@ -625,6 +684,14 @@ public sealed class D3D11FrameRenderer : IDisposable
                     break;
                 case ScreenTilesViewportLayer bg:
                     DispatchScreenTiles(D3D11TileOperation.Layer, bg.Cells, new Position16<TilePlanePixels>(0, checked((ushort)bg.VerticalScroll)), bg.Priority, bg.TransparentColorZero);
+                    break;
+                case PicturedPlaneLayer pictured:
+                    // The plane's placed pictures, each pixel in its picture's priority tier (#1467).
+                    DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
+                    {
+                        Map = roomLevels.PlaneTable(pictured.Plane), Scroll = pictured.Scroll, MapSize = pictured.Plane.Size,
+                        Priority = Priority(pictured.Priority), RoomSource = D3D11RoomSource.PicturedPlane,
+                    });
                     break;
                 case HudLayer hudLayer:
                     // The HUD's placed pictures at the top of the screen, each pixel in its picture's priority tier (#1466).

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rendering;
@@ -32,7 +33,6 @@ internal sealed class EndingCreditsState : IFrontendScreen
             InstalledArtwork.BindEndingText(artwork.MapPresentation?.EndingText);
             InstalledArtwork.BindPaletteFxColors(artwork.MapPresentation?.RoomPaletteFx);
             Stage.BindEndingFont(artwork.MapPresentation?.EndingFont);
-            InstalledArtwork.BindStaffCredits(artwork.MapPresentation?.StaffCredits);
         }
         if (!ReferenceEquals(previous.IntroCinematicArt, artwork.IntroCinematicArt))
             Flyaway.BindFlightArtwork(artwork.IntroCinematicArt?.CeresFlight);
@@ -51,13 +51,12 @@ internal sealed class EndingCreditsState : IFrontendScreen
     private readonly EndingInventorySnapshot inventory;
     /// <summary>Chooses the localized post-credits text asset.</summary>
     private readonly bool japaneseText;
-    /// <summary>The ending's screen: its palette and the graphics transfers its scenes have made (#1358).</summary>
+    /// <summary>The ending's screen: its palette, the pictures its scenes have loaded and its text pages (#1358, #1467).</summary>
     internal readonly EndingScreen screen = new();
     /// <summary>Dynamic cinematic actors in native slot traversal order.</summary>
     internal readonly List<EndingSprite> sprites = [];
-    /// <summary>Staging copy of the two-screen post-credits result tilemap.</summary>
-    private readonly BackgroundTile[] postCreditsTilemap =
-        new BackgroundTile[EndingScreenDefinitions.TilemapWords];
+    /// <summary>The post-credits staging page.</summary>
+    private readonly EndingTextPage postCreditsPage = new();
     /// <summary>The state of the credits scroll, which exists while that phase runs.</summary>
     internal CreditsObjectState Credits => InstalledArtwork.CurrentCredits ??
         throw new InvalidOperationException("The credits scroll is not running.");
@@ -107,7 +106,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
         Flyaway = new EndingFlyaway(setup.CrittersEscaped, screen, sprites, Stage);
         Explosion = new EndingZebesExplosion(screen, sprites, Stage, Flyaway, InstalledArtwork);
         EscapeScenes = new EndingEscapeScenes(audio, setup.GameTimeHours, setup.GameTimeMinutes, screen, sprites, Stage, InstalledArtwork);
-        CreditsRoll = new EndingCreditsRoll(inventory, japaneseText, screen, sprites, postCreditsTilemap, Stage, InstalledArtwork);
+        CreditsRoll = new EndingCreditsRoll(inventory, japaneseText, screen, sprites, postCreditsPage, Stage, InstalledArtwork);
         InstalledArtwork.BindEndingText(setup.EndingText);
         Stage.Phase = EndingCreditsPhase.SetupEscapeFromZebes;
     }
@@ -265,8 +264,6 @@ internal sealed class EndingCreditsState : IFrontendScreen
 
             case EndingCreditsPhase.Credits:
                 CreditsObjectStepResult creditsStep = Credits.Step();
-                if (creditsStep.CopiedRow)
-                    Credits.UploadTilemap(screen);
                 if (creditsStep.Finished)
                     CreditsRoll.SetupPostCreditsBlank();
                 break;
@@ -302,11 +299,10 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.PostCreditsWaitingBackdrop:
                 if (--Stage.PhaseTimer <= 0)
                 {
-                    // Function 132 installs the complete $8C:DC9B result panel into rows
-                    // nine through seventeen before the following 180-frame hold.
-                    (InstalledArtwork.EndingText ?? throw new InvalidOperationException(
-                        "Post-credits text requires installed ending text.")).BuildResultPanel().CopyTo(
-                        postCreditsTilemap, EndingResultTextLayout.ResultPanelFirstCell);
+                    // Function 132 shows the complete $8C:DC9B result panel in rows nine through seventeen before the
+                    // following 180-frame hold.
+                    _ = InstalledArtwork.EndingText ?? throw new InvalidOperationException("Post-credits text requires installed ending text.");
+                    postCreditsPage.Write(EndingPictureNames.ResultPanel, EndingResultTextLayout.ResultPanelCell);
                     CreditsRoll.UploadPostCreditsTilemap();
                     Stage.PhaseTimer = 180;
                     Stage.Phase = EndingCreditsPhase.PostCreditsWaitingSamus;
@@ -416,7 +412,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 Stage.PostCreditsScroll -= new Offset16<TilePlanePixels>(0, 2);
                 if (--Stage.PhaseTimer <= 0)
                 {
-                    InstalledArtwork.StartPostCreditsText(new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = postCreditsTilemap, Inventory = inventory, JapaneseText = japaneseText, DestinationTilemap = CreditsRoll.PostCreditsTextTilemap, Presentation = InstalledArtwork.EndingText, InstalledSequence = InstalledArtwork.EndingText is null ? null : EndingTextSequence.FinalMessage }));
+                    InstalledArtwork.StartPostCreditsText(new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = postCreditsPage, Inventory = inventory, JapaneseText = japaneseText, DestinationTilemap = CreditsRoll.PostCreditsTextTilemap, Presentation = InstalledArtwork.EndingText, InstalledSequence = InstalledArtwork.EndingText is null ? null : EndingTextSequence.FinalMessage }));
                     Stage.Phase = EndingCreditsPhase.SeeYouNextMission;
                 }
                 break;
@@ -474,9 +470,6 @@ internal sealed class EndingCreditsState : IFrontendScreen
     internal bool UsesExplosionFinaleDisplay => (EscapeScenes.ExplosionFinaleDisplay || EscapeScenes.ExplosionBurstDisplay) && !EndingCreditsPresentation.ExplosionWhiteout(this)
         && EndingCreditsPhaseGroups.BeforePlanetEscape.Contains(Stage.Phase);
 
-    /// <summary>What <paramref name="layer"/> shows reading <paramref name="depth"/> characters: their pre-coloured tiles (#1392).</summary>
-    internal ScreenLayerPictures LayerTiles(EndingTileLayer layer, TileInkDepth depth) => screen.Tiles(InstalledArtwork.Sheets, layer, depth);
-
     /// <summary>The floor's cells: what the floor scene, flyaway and reward uploads lay out.</summary>
     internal byte[] FloorCells() => screen.FloorCells(Stage.FloorArtwork, Flyaway.FlightArtwork);
 
@@ -496,34 +489,70 @@ internal sealed class EndingCreditsState : IFrontendScreen
             Plane(EndingExplosionDisplayDefinitions.FinaleMainMap, TileDepth.Back),
             Plane(EndingExplosionDisplayDefinitions.FinaleSubMap, TileDepth.Front),
             Plane(EndingExplosionDisplayDefinitions.FinaleMainMap, TileDepth.Front),
-            new AddedScreenTilesLayer(ExplosionCells(EndingExplosionDisplayDefinitions.FinaleSubMap), IncludeObjects: true,
+            new AddedPicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.FinaleSubMap), IncludeObjects: true,
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];
         return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers, checked((byte)Stage.Brightness));
 
-        ScreenTilesLayer Plane(EndingObjectFragmentId map, TileDepth priority) => new(ExplosionCells(map),
+        PicturedPlaneLayer Plane(EndingObjectFragmentId map, TileDepth priority) => new(ExplosionPlane(map),
             new Position16<TilePlanePixels>(0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow), priority == TileDepth.Front);
     }
 
-    /// <summary>The cells of the explosion's one-screen <paramref name="map"/>, showing its characters' pre-coloured tiles (#1392).</summary>
-    private ScreenTileMap ExplosionCells(EndingObjectFragmentId map) =>
-        ScreenTileMap.Of(screen.ExplosionPlane(map, Stage.ObjectArtwork), ScreenTilesViewportLayer.MapSize, LayerTiles(EndingTileLayer.Explosion, TileInkDepth.SixteenColours));
+    /// <summary>One screen of cells, the size of every whole-screen ending picture.</summary>
+    private static readonly Extent16<TilemapCells> ScreenCells = new(EndingScreenDefinitions.TilemapWidth, EndingScreenDefinitions.TilemapHeight);
+
+    /// <summary>The ending's installed picture <paramref name="picture"/> of sheet <paramref name="sheet"/>.</summary>
+    private SpriteSheetFrame Picture(SpriteSheetId sheet, string picture) => InstalledArtwork.SpriteSheet(sheet).Frame(picture);
+
+    /// <summary>A one-screen plane showing the whole-screen picture <paramref name="picture"/> once <paramref name="loaded"/>, otherwise nothing (#1467).</summary>
+    internal PicturedPlane ScreenPicture(SpriteSheetId sheet, string picture, bool loaded) => loaded
+        ? new PicturedPlane(ScreenCells, [new PlacedPlanePicture(Picture(sheet, picture), Position16<TilePlanePixels>.Zero)])
+        : PicturedPlane.Empty(ScreenCells);
+
+    /// <summary>The explosion's one-screen <paramref name="map"/>, once the explosion has loaded its maps (#1467).</summary>
+    private PicturedPlane ExplosionPlane(EndingObjectFragmentId map) =>
+        ScreenPicture(SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(map), screen.ExplosionMapsLoaded);
+
+    /// <summary>The credits roll's plane: its held rows' line pictures (#1467).</summary>
+    internal PicturedPlane CreditsPlane() => Credits.Plane(InstalledArtwork.SpriteSheet(SpriteSheetId.EndingCreditsRows));
+
+    /// <summary>The waiting scene's backdrop, a <paramref name="size"/> plane, once the post-credits art is loaded (#1467).</summary>
+    internal PicturedPlane WaitingPlane(Extent16<TilemapCells> size) => new(size, screen.PostCreditsArtLoaded
+        ? [new PlacedPlanePicture(Picture(SpriteSheetId.EndingPostCreditsPictures, EndingPictureNames.WaitingBackdrop), Position16<TilePlanePixels>.Zero)]
+        : []);
 
     /// <summary>
-    /// The cells of the <paramref name="size"/> map <paramref name="plane"/> shows (#1404), showing <paramref name="layer"/>'s
-    /// pre-coloured tiles of <paramref name="depth"/> characters. A two-screen text map shows the final text's lower screen
-    /// below its upper one.
+    /// The <paramref name="size"/> plane of the text page <paramref name="page"/> (#1467): the text it shows, each piece's
+    /// picture at its cell. A two-screen final page shows its lower screen's text below its upper screen's.
     /// </summary>
-    /// <exception cref="ArgumentException">A plane other than the text plane is asked for two screens.</exception>
-    internal ScreenTileMap Cells(EndingPlane plane, Extent16<TilemapCells> size, EndingTileLayer layer, TileInkDepth depth)
+    /// <exception cref="ArgumentException">The result page is asked for two screens.</exception>
+    internal PicturedPlane TextPagePlane(EndingTextTilemap page, Extent16<TilemapCells> size)
     {
-        ReadOnlySpan<BackgroundTile> upper = screen.Plane(plane, Stage.ObjectArtwork);
-        if (size.Y <= EndingScreenDefinitions.TilemapHeight)
-            return ScreenTileMap.Of(upper[..(size.X * size.Y)], size, LayerTiles(layer, depth));
-        if (plane != EndingPlane.Text)
-            throw new ArgumentException($"The {plane} plane has one screen.", nameof(plane));
-        BackgroundTile[] tiles = [.. upper, .. screen.Plane(EndingPlane.TextLower, Stage.ObjectArtwork)];
-        return ScreenTileMap.Of(tiles.AsSpan(0, size.X * size.Y), size, LayerTiles(layer, depth));
+        SpriteSheet sheet = InstalledArtwork.SpriteSheet(SpriteSheetId.EndingPostCreditsPictures);
+        var placed = ImmutableArray.CreateBuilder<PlacedPlanePicture>();
+        bool twoScreens = size.Y > EndingScreenDefinitions.TilemapHeight;
+        if (page == EndingTextTilemap.ResultPanel)
+        {
+            if (twoScreens)
+                throw new ArgumentException("The result page has one screen.", nameof(size));
+            Place(screen.ResultPageText, 0);
+        }
+        else if (screen.FinalPageText is { } upper)
+        {
+            Place(upper, 0);
+            if (twoScreens)
+                Place(screen.FinalPageLowerText, EndingScreenDefinitions.TilemapHeight);
+        }
+        return new PicturedPlane(size, placed.ToImmutable());
+
+        // Places each piece of text `firstRow` rows down the plane.
+        void Place(ImmutableArray<ShownEndingText> text, int firstRow)
+        {
+            foreach (ShownEndingText shown in text)
+                placed.Add(new PlacedPlanePicture(sheet.Frame(shown.Picture), new Position16<TilePlanePixels>(
+                    checked((ushort)(shown.Cell.X * ScreenGeometry.BackgroundTileSizePixels)),
+                    checked((ushort)((shown.Cell.Y + firstRow) * ScreenGeometry.BackgroundTileSizePixels)))));
+        }
     }
 
     /// <summary>Captures the burst's BG1/OBJ main screen and BG2 subscreen color math.</summary>
@@ -531,14 +560,14 @@ internal sealed class EndingCreditsState : IFrontendScreen
     {
         // F2B7: BG1 and OBJ on main, BG2 on sub, math only for BG1 and
         // eligible OBJ palettes. Keep the backdrop and OBJ palettes 0–3 unmodified.
-        var main = new ScreenTilesLayer(ExplosionCells(EndingExplosionDisplayDefinitions.InitialMap),
+        var main = new PicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.InitialMap),
             new Position16<TilePlanePixels>(0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow), null);
         DisplayLayer[] layers =
         [
             new SpriteDepthLayer(0), new SpriteDepthLayer(1),
             main with { Priority = false }, new SpriteDepthLayer(2),
             main with { Priority = true }, new SpriteDepthLayer(3),
-            new AddedScreenTilesLayer(ExplosionCells(EndingExplosionDisplayDefinitions.BurstSubMap), main, MainObjects: true,
+            new AddedPicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.BurstSubMap), main, MainObjects: true,
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];
         return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers, checked((byte)Stage.Brightness));

@@ -22,10 +22,10 @@ internal sealed class EndingPostShot
     /// <summary>Signals the caller to hand control to the white-flash phase after the hold expires.</summary>
     public bool ReadyForWhiteFlash { get; private set; }
 
-    /// <summary>Captures the starting palette for the post-shot rotation, fades and logo transfers.</summary>
+    /// <summary>Captures the starting palette for the post-shot rotation, fades and logo parts.</summary>
     public EndingPostShot(ScreenPalette palette) => sourceColours = Ensure.NotNull(palette).Capture();
 
-    /// <summary>Advances the native rotation, both palette fades, timed VRAM uploads, and white-flash handoff by one update.</summary>
+    /// <summary>Advances the native rotation, both palette fades, the subtitle and logo parts, and white-flash handoff by one update.</summary>
     public void Step(EndingScreen screen)
     {
         Ensure.NotNull(screen);
@@ -50,10 +50,13 @@ internal sealed class EndingPostShot
         }
         else
         {
-            // Func141 calls the fade before the upload helper: its final fade call
-            // permits the first sheet replacement on that very same frame.
-            if (samusFade == EndingPostShotDefinitions.FadeFrames && PartsShown < EndingPostShotUploadDefinitions.Count)
-                screen.Record(EndingUploadKind.PostShotTransfer, PartsShown++);
+            // Func141 calls the fade before the part helper: its final fade call
+            // permits the first part on that very same frame.
+            if (samusFade == EndingPostShotDefinitions.FadeFrames && PartsShown < EndingPostShotParts.Count)
+            {
+                screen.ShowPostShotPart();
+                PartsShown++;
+            }
             ReadyForWhiteFlash = --hold == 0;
         }
     }

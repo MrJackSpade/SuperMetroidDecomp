@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>The opening cinematic's shared definitions: its installed artwork extents, text layout, palette fades, music, actors' palettes and sounds, and the narration caret.</summary>
@@ -32,8 +30,6 @@ public static class IntroCinematicDefinitions
     /// <summary>Blank text cells, the Japanese blank glyph and the final line's placement.</summary>
     public static class Text
     {
-        /// <summary>The blank cell of the Japanese narration layout: the blank glyph in front, colour variant seven.</summary>
-        public static BackgroundTile JapaneseBlank { get; } = new(0x029, 7, highPriority: true);
         /// <summary>The first gameplay text cell cleared.</summary>
         public const int GameplayBlankStartIndex = 128;
         /// <summary>Gameplay text cells cleared.</summary>

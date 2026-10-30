@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Frontend;
 
@@ -19,6 +20,7 @@ internal static class TextAndMapPresentationContractChecks
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
+            using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
             using SuperMetroid.Core.Assets;
             using SuperMetroid.Core.Escape.Artwork;
             using SuperMetroid.Core.Frontend.Ending.Artwork;
@@ -45,8 +47,8 @@ internal static class TextAndMapPresentationContractChecks
                     ending.Compile((EndingTextSequence)99);
                     ending.BuildResultPanel();
                     ending.BuildCopyrightPanel();
-                    credits.GetRow(CreditsPresentationDefinitions.ExpectedCompiledRows - 1);
-                    credits.GetRow(CreditsPresentationDefinitions.ExpectedCompiledRows);
+                    credits.GetRow(CreditsRollDefinitions.ExpectedCompiledRows - 1);
+                    credits.GetRow(CreditsRollDefinitions.ExpectedCompiledRows);
                     credits.GetRow(-1);
                     MapSpriteSheet.Draw(mapSheet, MapSpriteId.WorldTitle, objects, default, SuperMetroid.Core.Frontend.ScreenColourGroup.MapLabels);
                     MapSpriteSheet.Draw(mapSheet, (MapSpriteId)0, objects, default, SuperMetroid.Core.Frontend.ScreenColourGroup.MapLabels);
@@ -61,7 +63,7 @@ internal static class TextAndMapPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("TextMapProviderFixture", sources,
-            platforms.Append(typeof(CreditsPresentation).Assembly.Location).Distinct()
+            platforms.Append(typeof(EndingTypewriterText).Assembly.Location).Append(typeof(CreditsPresentation).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)

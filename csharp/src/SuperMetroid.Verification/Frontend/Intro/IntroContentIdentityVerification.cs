@@ -69,7 +69,7 @@ internal static class IntroContentIdentityVerification
         foreach (Type type in new[]
         {
             typeof(IntroCinematicArtwork), typeof(IntroCinematicSourceArtwork), typeof(IntroEyeTilemapPresentation),
-            typeof(CeresFlightArtwork), typeof(CeresDestructionArtwork),
+            typeof(CeresFlightArtwork), typeof(CeresDestructionArtwork), typeof(ZebesRevealArtwork),
             typeof(CeresFlightActorPlacements), typeof(CeresDestructionActorPlacements), typeof(CeresRevealActorPlacements),
             typeof(IntroCaretSpritePresentation), typeof(IntroMotherBrainSpritePresentation),
             typeof(IntroMotherBrainExplosionSpritePresentation), typeof(IntroRinkaSpritePresentation),
@@ -207,10 +207,11 @@ internal static class IntroContentIdentityVerification
         {
             Version = CeresDestructionArtworkFormat.Version, Width = CeresDestructionArtworkFormat.MapWidth,
             Height = CeresDestructionArtworkFormat.MapHeight, Views = views,
-        }), MapJson("zebes-map"),
-            RoomCharacterAtlasPng.Read(Png("zebes-characters", 256, 128, 16), CeresDestructionArtworkFormat.ZebesCharacterByteCount),
+        }),
             Json(new CeresRevealActorLayoutDocument { Version = CeresRevealActorLayoutFormat.Version, Actors = revealActors }),
             Json(new CeresDestructionActorLayoutDocument { Version = CeresDestructionActorLayoutFormat.Version, Actors = destructionActors }));
+        var zebesReveal = ZebesRevealArtwork.Load(MapJson("zebes-map"),
+            RoomCharacterAtlasPng.Read(Png("zebes-characters", 256, 128, 16), ZebesRevealArtworkFormat.CharacterByteCount));
 
         RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
             .Select(index => Map("page-" + index, index)).ToArray();
@@ -225,7 +226,7 @@ internal static class IntroContentIdentityVerification
                 {
                     Id = IntroEyeTilemapFormat.FrameId(index), Cells = Cells("eye-" + index, IntroEyeTilemapFormat.CellsPerFrame),
                 }).ToArray(),
-            })), CaretSprites = IntroCaretSpritePresentation.Load(Sprites("caret", IntroCaretSpriteDefinitions.Frames.Select(frame => frame.Name), IntroCaretSpriteVersion.Current.Revision)), MotherBrainSprites = IntroMotherBrainSpritePresentation.Load(Sprites("mother-brain", IntroMotherBrainSpriteDefinitions.Frames.Select(frame => frame.Name))), MotherBrainExplosionSprites = IntroMotherBrainExplosionSpritePresentation.Load(Sprites("mb-explosion", IntroMotherBrainExplosionSpriteDefinitions.Frames.Select(frame => frame.Name))), RinkaSprites = IntroRinkaSpritePresentation.Load(Sprites("rinka", IntroRinkaSpriteDefinitions.Frames.Select(frame => frame.Name))), EggEffectSprites = IntroEggEffectSpritePresentation.Load(Sprites("egg", IntroEggEffectSpriteDefinitions.Frames.Select(frame => frame.Name))), DiscoveryActorSprites = IntroDiscoveryActorSpritePresentation.Load(Sprites("discovery", IntroDiscoveryActorSpriteDefinitions.Frames.Select(frame => frame.Name))), ScientistSprites = IntroScientistSpritePresentation.Load(Sprites("scientist", IntroScientistSpriteDefinitions.Frames.Select(frame => frame.Name))), Palette = IntroCinematicPaletteFile.Read(PaletteJson("intro-palette")), CeresFlight = flight, CeresDestruction = destruction, CeresDestructionSprites = CeresDestructionSpritePresentation.Load(Sprites("destruction", CeresDestructionSpriteDefinitions.Frames.Select(frame => frame.Name))) });
+            })), CaretSprites = IntroCaretSpritePresentation.Load(Sprites("caret", IntroCaretSpriteDefinitions.Frames.Select(frame => frame.Name), IntroCaretSpriteVersion.Current.Revision)), MotherBrainSprites = IntroMotherBrainSpritePresentation.Load(Sprites("mother-brain", IntroMotherBrainSpriteDefinitions.Frames.Select(frame => frame.Name))), MotherBrainExplosionSprites = IntroMotherBrainExplosionSpritePresentation.Load(Sprites("mb-explosion", IntroMotherBrainExplosionSpriteDefinitions.Frames.Select(frame => frame.Name))), RinkaSprites = IntroRinkaSpritePresentation.Load(Sprites("rinka", IntroRinkaSpriteDefinitions.Frames.Select(frame => frame.Name))), EggEffectSprites = IntroEggEffectSpritePresentation.Load(Sprites("egg", IntroEggEffectSpriteDefinitions.Frames.Select(frame => frame.Name))), DiscoveryActorSprites = IntroDiscoveryActorSpritePresentation.Load(Sprites("discovery", IntroDiscoveryActorSpriteDefinitions.Frames.Select(frame => frame.Name))), ScientistSprites = IntroScientistSpritePresentation.Load(Sprites("scientist", IntroScientistSpriteDefinitions.Frames.Select(frame => frame.Name))), Palette = IntroCinematicPaletteFile.Read(PaletteJson("intro-palette")), CeresFlight = flight, CeresDestruction = destruction, ZebesReveal = zebesReveal, CeresDestructionSprites = CeresDestructionSpritePresentation.Load(Sprites("destruction", CeresDestructionSpriteDefinitions.Frames.Select(frame => frame.Name))) });
     }
 
     /// <summary>Runs selected-content identity checks for opening and Ceres assets.</summary>

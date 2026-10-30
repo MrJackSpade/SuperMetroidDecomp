@@ -41,13 +41,9 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
         Arrows = parts.Arrows;
         WorldArtwork = parts.WorldArtwork;
         Sprites = parts.Sprites;
-        PauseBackdrops = parts.PauseBackdrops;
-        PauseWireframes = parts.PauseWireframes;
         PauseSelectors = parts.PauseSelectors;
         PauseReserveTanks = parts.PauseReserveTanks;
         PauseReserveUi = parts.PauseReserveUi;
-        PauseEquipmentBase = parts.PauseEquipmentBase;
-        PauseEquipmentLabels = parts.PauseEquipmentLabels;
         EscapeTimer = parts.EscapeTimer;
         EscapeTimerTiles = parts.EscapeTimerTiles;
         GameplayHud = parts.GameplayHud;
@@ -103,20 +99,12 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
     public WorldMapArtwork WorldArtwork { get; }
     /// <summary>The installed map and menu sprites; the game draws them from the map sprite sheet, and their compositions belong to the import pipeline (#1463).</summary>
     public MapSpriteCompositions Sprites { get; }
-    /// <summary>Pause-screen backdrop tilemap presentation, independent of equipment and map state.</summary>
-    public PauseBackdropPresentation PauseBackdrops { get; }
-    /// <summary>Samus suit wireframe artwork for the pause equipment screen.</summary>
-    public PauseWireframePresentation PauseWireframes { get; }
     /// <summary>Pause selection-indicator artwork and presentation parameters; inventory and selection logic remain engine-owned.</summary>
     public PauseSelectorPresentation PauseSelectors { get; }
     /// <summary>Reserve-strip artwork and drawing origins, independent of reserve energy and fill selection.</summary>
     public PauseReserveTankPresentation PauseReserveTanks { get; }
     /// <summary>Reserve labels, digits, and arrow appearances, separate from the tank strip and compiled reserve-mode behavior.</summary>
     public PauseReserveUiPresentation PauseReserveUi { get; }
-    /// <summary>Equipment-page base tilemap artwork, before live inventory and reserve patches are applied.</summary>
-    public PauseEquipmentBasePresentation PauseEquipmentBase { get; }
-    /// <summary>Equipment-page label artwork and placement, separate from the base tilemap and live inventory decisions.</summary>
-    public PauseEquipmentLabelPresentation PauseEquipmentLabels { get; }
     /// <summary>Escape countdown visual layout and digit presentation, separate from the character bytes in <see cref="EscapeTimerTiles"/>.</summary>
     public EscapeTimerPresentation EscapeTimer { get; }
     /// <summary>Selected character bytes for the two escape-timer VRAM transfers.</summary>

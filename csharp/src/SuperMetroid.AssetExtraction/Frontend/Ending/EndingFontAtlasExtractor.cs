@@ -1,9 +1,9 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Spatial;
-using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 

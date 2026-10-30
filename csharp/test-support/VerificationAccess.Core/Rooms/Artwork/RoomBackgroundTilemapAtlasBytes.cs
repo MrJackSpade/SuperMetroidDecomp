@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.Core.Rooms.Artwork;
 

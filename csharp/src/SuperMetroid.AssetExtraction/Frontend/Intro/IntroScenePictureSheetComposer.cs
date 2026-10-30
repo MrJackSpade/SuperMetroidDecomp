@@ -35,15 +35,16 @@ internal static class IntroScenePictureSheetComposer
         int height = ((pages.Length + 1) * cells + eye.Y) * CharacterPixels;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)width), checked((ushort)height)));
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
-        ReadOnlySpan<BackgroundTile> pageTiles = intro.BackgroundPages.Span;
+        IntroCinematicSourceArtwork sources = IntroCinematicSourceArtwork.Of(intro);
+        ReadOnlySpan<BackgroundTile> pageTiles = sources.BackgroundPages.Span;
         for (int page = 0; page < pages.Length; page++)
             frames.Add(IntroScenePictures.Page(pages[page]),
                 PaintRect(canvas, 0, page * cells, cells, pageTiles.Slice(page * planeCells, planeCells), characters, colours));
         frames.Add(IntroScenePictures.Portrait,
-            PaintRect(canvas, 0, pages.Length * cells, cells, intro.PortraitTilemap.Span[..planeCells], characters, colours));
+            PaintRect(canvas, 0, pages.Length * cells, cells, sources.PortraitTilemap.Span[..planeCells], characters, colours));
         for (int frame = 0; frame < eyes.Length; frame++)
             frames.Add(IntroScenePictures.Eye(eyes[frame]),
-                PaintRect(canvas, frame * eye.X, (pages.Length + 1) * cells, eye.X, intro.EyeFrames.FrameTiles(frame), characters, colours));
+                PaintRect(canvas, frame * eye.X, (pages.Length + 1) * cells, eye.X, sources.EyeFrames.FrameTiles(frame), characters, colours));
         return canvas.ToSheet(colours, frames, SpriteImageColours.Background);
     }
 

@@ -59,6 +59,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Cartridge-oracle checks for the second set of gameplay, artwork, and pause-screen catalogs.</summary>
@@ -769,7 +770,7 @@ internal static class LookupStream2Verification
                 PauseEquipmentLabelTiles.StockPageByte(id), "Native semantic label placement");
             for (int cell = 0; cell < label.Cells.Length; cell++)
             {
-                AssertEqual(native[cell], PauseEquipmentLabelTiles.StockTile(id, cell), "Native glyph tile, colour variant, priority and mirroring");
+                AssertEqual(native[cell], PauseEquipmentLabelGlyphs.StockTile(id, cell), "Native glyph tile, colour variant, priority and mirroring");
                 words++;
             }
         }
@@ -848,9 +849,9 @@ internal static class LookupStream2Verification
             "Independent moved label retains its edited destination and untouched original cell");
         AssertEqual(115, words, "All native equipment glyph tiles");
         AssertEqual(106, changedCells, "All ordinary label glyph cells edited independently");
-        AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelTiles.StockTile((PauseEquipmentLabelId)byte.MaxValue, 0), "Unknown label rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelTiles.StockTile(PauseEquipmentLabelId.Ice, -1), "Negative label cell rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelTiles.StockTile(PauseEquipmentLabelId.Ice, 5), "Label cell upper bound rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelGlyphs.StockTile((PauseEquipmentLabelId)byte.MaxValue, 0), "Unknown label rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelGlyphs.StockTile(PauseEquipmentLabelId.Ice, -1), "Negative label cell rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelGlyphs.StockTile(PauseEquipmentLabelId.Ice, 5), "Label cell upper bound rejected");
         Console.WriteLine("Pause equipment labels:115 native words/15placements,106 ordinary and five Hyper cell edits, disabled recoloring, exact Plasma/Varia overrun, source hashes and bounds pass; glyph artwork remains independent.");
     }
 

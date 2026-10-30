@@ -1,10 +1,10 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Buffers.Binary;
-using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 

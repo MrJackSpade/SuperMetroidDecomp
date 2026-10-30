@@ -82,13 +82,9 @@ internal static class PauseMenuFixtureVerification
             Arrows = stock.Arrows,
             WorldArtwork = stock.WorldArtwork,
             Sprites = MapSpriteArtwork.Read(spriteJson, spritePng),
-            PauseBackdrops = backdrops,
-            PauseWireframes = stock.PauseWireframes,
             PauseSelectors = PauseSelectorSourcePresentation.Load(selectorJson),
             PauseReserveTanks = PauseReserveTankSourcePresentation.Load(reserveJson),
             PauseReserveUi = stock.PauseReserveUi,
-            PauseEquipmentBase = stock.PauseEquipmentBase,
-            PauseEquipmentLabels = stock.PauseEquipmentLabels,
             EscapeTimer = stock.EscapeTimer,
             EscapeTimerTiles = stock.EscapeTimerTiles,
             GameplayHud = stock.GameplayHud,
@@ -126,6 +122,8 @@ internal static class PauseMenuFixtureVerification
             new MapTileCharacters(Read(MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount)), new HudTileAtlas(hud),
             new MapTileCharacters(Read(MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount))),
             GameplayMessageArtwork.Of(stock), InstalledAreaMapPresentation.RoomFxPagesOf(stock), InstalledAreaMapPresentation.StaffCreditsOf(stock),
-            InstalledAreaMapPresentation.EndingTextOf(stock), InstalledAreaMapPresentation.ScreensOf(stock));
+            InstalledAreaMapPresentation.EndingTextOf(stock), InstalledAreaMapPresentation.ScreensOf(stock),
+            new PauseScreenArtwork(backdrops, InstalledAreaMapPresentation.PauseOf(stock).Wireframes,
+                InstalledAreaMapPresentation.PauseOf(stock).EquipmentBase, InstalledAreaMapPresentation.PauseOf(stock).EquipmentLabels));
     }
 }

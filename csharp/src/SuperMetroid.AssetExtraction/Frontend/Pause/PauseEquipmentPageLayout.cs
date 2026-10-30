@@ -4,6 +4,8 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
@@ -24,8 +26,8 @@ internal static class PauseEquipmentPageLayout
     {
         Ensure.NotNull(maps);
         Ensure.NotNull(page);
-        BackgroundTile[] tiles = maps.PauseEquipmentBase.CreateTilemap();
-        PauseEquipmentLabelPresentation labels = maps.PauseEquipmentLabels;
+        BackgroundTile[] tiles = InstalledAreaMapPresentation.PauseOf(maps).EquipmentBase.CreateTilemap();
+        PauseEquipmentLabelPresentation labels = InstalledAreaMapPresentation.PauseOf(maps).EquipmentLabels;
         // LoadEquipmentScreen writes each whole label from inventory; the rest of each label shows the state its last
         // whole write left.
         SamusBeamFlags collectedBeams = SamusBeamFlags.None, equippedBeams = SamusBeamFlags.None;
@@ -57,7 +59,7 @@ internal static class PauseEquipmentPageLayout
             if (rewritesHead)
                 labels.ApplyLabel(tiles, key.Category, key.Item, PauseEquipmentLabelDefinitions.BeamWords, Disabled(shown.Head));
         }
-        maps.PauseWireframes.ApplyTo(tiles, page.Wireframe);
+        InstalledAreaMapPresentation.PauseOf(maps).Wireframes.ApplyTo(tiles, page.Wireframe);
         if (page.Reserve is { } reserve)
         {
             PauseReserveUiPresentation ui = maps.PauseReserveUi;
@@ -113,12 +115,12 @@ internal static class PauseEquipmentPageLayout
         HashSet<int> afterWireframe = [.. afterReserve, .. parts.Reserve];
         HashSet<int> afterTail = [.. afterWireframe, .. parts.Wireframe];
         HashSet<int> afterLabels = [.. afterTail, .. parts.ShownTail];
-        HashSet<int> afterHyper = [.. afterLabels, .. PauseEquipmentLabelTiles.Labels().SelectMany(key => maps.PauseEquipmentLabels.PageCells(key.Label))];
-        yield return ScreenPictureSubject.Page(PauseEquipmentPictures.BaseFrame, maps.PauseEquipmentBase.CreateTilemap(), Columns, parts.Dynamic);
+        HashSet<int> afterHyper = [.. afterLabels, .. PauseEquipmentLabelTiles.Labels().SelectMany(key => InstalledAreaMapPresentation.PauseOf(maps).EquipmentLabels.PageCells(key.Label))];
+        yield return ScreenPictureSubject.Page(PauseEquipmentPictures.BaseFrame, InstalledAreaMapPresentation.PauseOf(maps).EquipmentBase.CreateTilemap(), Columns, parts.Dynamic);
         PauseEquipmentLabelState[] states = Enum.GetValues<PauseEquipmentLabelState>();
         foreach (PauseEquipmentLabelKey key in PauseEquipmentLabelTiles.Labels())
         {
-            int[] cells = [.. maps.PauseEquipmentLabels.PageCells(key.Label)];
+            int[] cells = [.. InstalledAreaMapPresentation.PauseOf(maps).EquipmentLabels.PageCells(key.Label)];
             foreach (PauseEquipmentLabelState state in states)
             {
                 BackgroundTile[] page = LayOut(maps, Reference with { Labels = Reference.Labels.Replace(Reference.Label(key.Label), ShownEquipmentLabel.Whole(key.Label, state)) });
@@ -194,7 +196,7 @@ internal static class PauseEquipmentPageLayout
         /// <exception cref="InvalidDataException">Two parts overlap in a way the pictures cannot keep apart.</exception>
         internal static PageFootprints Of(AreaMapPresentation maps)
         {
-            PauseEquipmentLabelPresentation labels = maps.PauseEquipmentLabels;
+            PauseEquipmentLabelPresentation labels = InstalledAreaMapPresentation.PauseOf(maps).EquipmentLabels;
             PauseReserveUiPresentation ui = maps.PauseReserveUi;
             int[] wireframe = [.. Enumerable.Range(0, PauseWireframeDefinitions.Rows).SelectMany(row => Enumerable.Range(
                 PauseWireframeDefinitions.FirstPageTile + row * PauseWireframeDefinitions.PageColumns, PauseWireframeDefinitions.Columns))];

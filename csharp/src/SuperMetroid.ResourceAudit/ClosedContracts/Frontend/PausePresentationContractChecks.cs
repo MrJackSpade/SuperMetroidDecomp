@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Frontend;
 
@@ -19,6 +20,7 @@ internal static class PausePresentationContractChecks
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
+            using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
             using SuperMetroid.Core.Frontend.Pause;
             using SuperMetroid.Core.Frontend.Pause.Artwork;
             using SuperMetroid.Core.Progression;
@@ -59,7 +61,7 @@ internal static class PausePresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("PauseProviderFixture", sources,
-            platforms.Append(typeof(PauseSelectorPresentation).Assembly.Location).Distinct()
+            platforms.Append(typeof(PauseSelectorPresentation).Assembly.Location).Append(typeof(PauseEquipmentBasePresentation).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)

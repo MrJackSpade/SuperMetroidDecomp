@@ -3,8 +3,8 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.AssetExtraction.Fx;
 

@@ -17,6 +17,8 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Verification.Frontend.Map;
 
 using SuperMetroid.Verification.Harness;
@@ -212,8 +214,8 @@ internal static class MapInstallationVerification
         var equipmentBase = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseEquipmentBaseDefinitions.FileName)));
         equipmentBase.Required("cells").Required(194)["flipX"] = true;
         File.WriteAllText(equipmentBaseOverride, equipmentBase.ToJsonString());
-        string equipmentLabelOverride = Path.Combine(installation.MapOverrideDirectory, PauseEquipmentLabelDefinitions.FileName);
-        var equipmentLabels = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseEquipmentLabelDefinitions.FileName)));
+        string equipmentLabelOverride = Path.Combine(installation.MapOverrideDirectory, PauseEquipmentLabelArtworkDefinitions.FileName);
+        var equipmentLabels = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseEquipmentLabelArtworkDefinitions.FileName)));
         equipmentLabels.Required("labels").Required("Beam.Charge").Required("cells").Required(0)["flipX"] = true;
         File.WriteAllText(equipmentLabelOverride, equipmentLabels.ToJsonString());
         string escapeTimerOverride = Path.Combine(installation.MapOverrideDirectory, EscapeTimerPresentationDefinitions.FileName);

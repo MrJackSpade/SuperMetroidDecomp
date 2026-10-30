@@ -4,6 +4,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.AssetExtraction.Fx;
 

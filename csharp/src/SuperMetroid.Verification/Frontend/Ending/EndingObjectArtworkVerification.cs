@@ -32,6 +32,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 

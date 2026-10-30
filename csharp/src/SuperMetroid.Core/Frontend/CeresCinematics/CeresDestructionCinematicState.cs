@@ -452,12 +452,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Stages the planet-reveal Mode-1 map and resets camera, angle, fade, and mosaic state.</summary>
     private void SetupZebesReveal()
     {
-        IntroCinematicArtwork content = Artwork ?? throw new InvalidOperationException(
-            "Zebes reveal requires installed cinematic artwork.");
-        RequireMinimum(content.CeresDestruction.ZebesMap.Tiles.Length, CeresDestructionArtworkFormat.ZebesMapByteCount / sizeof(ushort),
-            "Zebes reveal tilemap");
-        RequireMinimum(content.CeresDestruction.ZebesCharacters.Characters.Length, CeresDestructionArtworkFormat.ZebesCharacterByteCount,
-            "Zebes reveal characters");
+        if (Artwork is null)
+            throw new InvalidOperationException("Zebes reveal requires installed cinematic artwork.");
 
         // C699 starts in Mode 1. It also stages the rear-gunship view, which becomes visible
         // only when C7CA later selects the floor again.

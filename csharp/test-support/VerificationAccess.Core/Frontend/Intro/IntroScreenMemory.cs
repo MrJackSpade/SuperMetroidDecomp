@@ -36,7 +36,7 @@ internal static class IntroScreenMemory
                 blank.CopyTo(blanked.AsSpan(offset));
             intro.JapaneseBlankCharacters.Load(blanked);
         }
-        intro.BackgroundPages.Load(BackgroundTileWordBytes.Of(artwork.BackgroundPages.Span[..IntroCinematicDefinitionsArtworkConstants.BackgroundPageTilemapCells]));
+        intro.BackgroundPages.Load(BackgroundTileWordBytes.Of(sources.BackgroundPages.Span[..IntroCinematicDefinitionsArtworkConstants.BackgroundPageTilemapCells]));
         intro.IntroObjectCharacters.Load(sources.IntroObjectCharacters.Characters.Span);
         intro.CinematicObjectCharacters.Load(sources.CinematicObjectCharacters.Characters.Span[..IntroCinematicArtworkConstants.ObjectCharacterBytes]);
         return vram.CaptureImage();
@@ -64,16 +64,16 @@ internal static class IntroScreenMemory
         var tiles = new BackgroundTile[IntroCinematicDefinitionsTilemapsConstants.TextTilemapWordCount];
         if (text.FirstCardShown)
         {
-            artwork.InitialNarrationTilemap.Span[..IntroCinematicDefinitions.Artwork.NarrationTilemapCells].CopyTo(tiles);
+            IntroCinematicSourceArtwork.Of(artwork).InitialNarrationTilemap.Span[..IntroCinematicDefinitions.Artwork.NarrationTilemapCells].CopyTo(tiles);
             return tiles;
         }
         Array.Fill(tiles, IntroNarrationTilemapConstants.Blank);
         for (int index = 0; index < IntroCinematicDefinitions.Text.GameplayBlankStartIndex; index++)
         {
-            tiles[index] = IntroCinematicDefinitions.Text.JapaneseBlank;
-            tiles[index + IntroNarrationTilemapConstants.JapaneseBlankBottomDelta] = IntroCinematicDefinitions.Text.JapaneseBlank;
+            tiles[index] = IntroFinalLineTilemapFormat.MarginTile;
+            tiles[index + IntroNarrationTilemapConstants.JapaneseBlankBottomDelta] = IntroFinalLineTilemapFormat.MarginTile;
         }
-        artwork.FinalLine.Tiles.Span[..IntroCinematicDefinitions.Text.FinalLineWordCount].CopyTo(tiles.AsSpan(IntroCinematicDefinitions.Text.FinalLineFirstCell));
+        IntroCinematicSourceArtwork.Of(artwork).FinalLine.Tiles.Span[..IntroCinematicDefinitions.Text.FinalLineWordCount].CopyTo(tiles.AsSpan(IntroCinematicDefinitions.Text.FinalLineFirstCell));
         tiles[IntroNarrationTilemapConstants.FinalBlankLeftIndex] = IntroNarrationTilemapConstants.FinalBlank;
         tiles[IntroNarrationTilemapConstants.FinalBlankRightIndex] = IntroNarrationTilemapConstants.FinalBlank;
         for (int row = IntroNarrationText.FirstTextRow; row < IntroNarrationText.FirstTextRow + IntroNarrationText.TextRows; row++)
@@ -94,10 +94,11 @@ internal static class IntroScreenMemory
     /// </summary>
     internal static BackgroundTile[] PortraitTiles(IntroCinematicArtwork artwork, IntroEyeFrame? eye)
     {
-        BackgroundTile[] portrait = artwork.PortraitTilemap.Span[..IntroCinematicDefinitionsArtworkConstants.SamusHeadTilemapCells].ToArray();
+        IntroCinematicSourceArtwork sources = IntroCinematicSourceArtwork.Of(artwork);
+        BackgroundTile[] portrait = sources.PortraitTilemap.Span[..IntroCinematicDefinitionsArtworkConstants.SamusHeadTilemapCells].ToArray();
         if (eye is not { } frame)
             return portrait;
-        ReadOnlySpan<BackgroundTile> rectangle = artwork.EyeFrames.FrameTiles((int)frame);
+        ReadOnlySpan<BackgroundTile> rectangle = sources.EyeFrames.FrameTiles((int)frame);
         Position16<TilemapCells> corner = IntroEyeAnimationDefinitions.PortraitCell;
         Extent16<TilemapCells> size = IntroEyeAnimationDefinitions.FrameSize;
         for (int cell = 0; cell < rectangle.Length; cell++)

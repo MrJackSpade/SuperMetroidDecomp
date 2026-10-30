@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Frontend;
 
@@ -19,6 +20,7 @@ internal static class CinematicPresentationContractChecks
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
+            using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
             using SuperMetroid.Core.Areas.Ceres;
             using SuperMetroid.Core.Areas.Ceres.Artwork;
             using SuperMetroid.Core.Areas.Escape;
@@ -62,7 +64,7 @@ internal static class CinematicPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("CinematicProviderFixture", sources,
-            platforms.Append(typeof(TitleGraphicsPresentation).Assembly.Location).Distinct()
+            platforms.Append(typeof(TitleGraphicsPresentation).Assembly.Location).Append(typeof(IntroEyeTilemapPresentation).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)

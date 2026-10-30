@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
@@ -40,8 +41,8 @@ internal static class IntroNarrationPictureSheetComposer
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)(cells * CharacterPixels)), checked((ushort)((letterTop + letterRows) * CharacterPixels))));
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
         {
-            [IntroNarrationPictures.FirstCard] = PaintRect(canvas, 0, 0, cells, intro.InitialNarrationTilemap.Span[..IntroCinematicDefinitions.Artwork.NarrationTilemapCells], whole, colours),
-            [IntroNarrationPictures.FinalLine] = PaintRect(canvas, 0, cells, cells, intro.FinalLine.Tiles.Span[..IntroCinematicDefinitions.Text.FinalLineWordCount], blanked, colours),
+            [IntroNarrationPictures.FirstCard] = PaintRect(canvas, 0, 0, cells, IntroCinematicSourceArtwork.Of(intro).InitialNarrationTilemap.Span[..IntroCinematicDefinitions.Artwork.NarrationTilemapCells], whole, colours),
+            [IntroNarrationPictures.FinalLine] = PaintRect(canvas, 0, cells, cells, IntroCinematicSourceArtwork.Of(intro).FinalLine.Tiles.Span[..IntroCinematicDefinitions.Text.FinalLineWordCount], blanked, colours),
         };
         for (int variant = 0; variant < variants; variant++)
         {

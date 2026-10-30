@@ -15,7 +15,7 @@ public static class CreditsRollRows
     /// <exception cref="InvalidDataException">The layout is not the roll's row count.</exception>
     private static ImmutableArray<string?> Layout()
     {
-        var rows = ImmutableArray.CreateBuilder<string?>(CreditsPresentationDefinitions.ExpectedCompiledRows);
+        var rows = ImmutableArray.CreateBuilder<string?>(CreditsRollDefinitions.ExpectedCompiledRows);
         IReadOnlyList<CreditsLineDefinition> lines = CreditsRoles.Lines;
         for (int line = 0; line < lines.Count; line++)
         {
@@ -25,10 +25,10 @@ public static class CreditsRollRows
             if (lines[line].Style == CreditsLineStyle.Large)
                 rows.Add(EndingPictureNames.CreditsLineBottom(line));
         }
-        for (int blank = 0; blank < CreditsPresentationDefinitions.TrailingBlankRows; blank++)
+        for (int blank = 0; blank < CreditsRollDefinitions.TrailingBlankRows; blank++)
             rows.Add(null);
-        if (rows.Count != CreditsPresentationDefinitions.ExpectedCompiledRows)
-            throw new InvalidDataException($"The credits roll lays out {rows.Count} rows, not {CreditsPresentationDefinitions.ExpectedCompiledRows}.");
+        if (rows.Count != CreditsRollDefinitions.ExpectedCompiledRows)
+            throw new InvalidDataException($"The credits roll lays out {rows.Count} rows, not {CreditsRollDefinitions.ExpectedCompiledRows}.");
         return rows.MoveToImmutable();
     }
 }

@@ -18,6 +18,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.World;
 
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Checks installed Kraid BG2, head, and room-background artwork against native transfers.</summary>

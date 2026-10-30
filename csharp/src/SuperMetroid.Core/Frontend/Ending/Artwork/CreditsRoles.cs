@@ -1,9 +1,9 @@
-using static SuperMetroid.Core.Frontend.Ending.Artwork.CreditsPresentationDefinitions;
+using static SuperMetroid.Core.Frontend.Ending.Artwork.CreditsRollDefinitions;
 
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>
-/// The credits' 67 staff roles in native order (<see cref="CreditsPresentationDefinitions"/>), each with its document key, glyph
+/// The credits' 67 staff roles in native order (<see cref="CreditsRollDefinitions"/>), each with its document key, glyph
 /// style and preceding blank rows.
 /// </summary>
 public static class CreditsRoles

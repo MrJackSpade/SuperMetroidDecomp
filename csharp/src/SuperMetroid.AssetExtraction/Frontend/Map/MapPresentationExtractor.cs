@@ -4,7 +4,6 @@ using System.Text.Json;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
-using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -29,6 +28,8 @@ using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -174,9 +175,9 @@ public static class MapPresentationExtractor
             file.Write(equipmentBaseBytes);
         hashes.Add(PauseEquipmentBaseDefinitions.FileName, Convert.ToHexString(SHA256.HashData(equipmentBaseBytes)));
         byte[] equipmentLabelBytes = PauseEquipmentLabelExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, PauseEquipmentLabelDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(Path.Combine(directory, PauseEquipmentLabelArtworkDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(equipmentLabelBytes);
-        hashes.Add(PauseEquipmentLabelDefinitions.FileName, Convert.ToHexString(SHA256.HashData(equipmentLabelBytes)));
+        hashes.Add(PauseEquipmentLabelArtworkDefinitions.FileName, Convert.ToHexString(SHA256.HashData(equipmentLabelBytes)));
         byte[] escapeTimerBytes = EscapeTimerPresentationExtractor.Extract();
         using (var file = new FileStream(Path.Combine(directory, EscapeTimerPresentationDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(escapeTimerBytes);

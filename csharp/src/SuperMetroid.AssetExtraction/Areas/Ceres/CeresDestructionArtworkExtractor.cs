@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Spatial;
-using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -10,6 +9,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
@@ -46,15 +46,15 @@ internal static class CeresDestructionArtworkExtractor
         byte[] zebesMap = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
             CeresCinematicSourceDefinitions.ZebesTilemap,
             maximumOutputBytes: CeresCinematicSourceDefinitions.CompressedTilemapLimit);
-        if (zebesMap.Length < CeresDestructionArtworkFormat.ZebesMapByteCount)
+        if (zebesMap.Length < ZebesRevealArtworkFormat.MapByteCount)
             throw new InvalidDataException("Zebes reveal tilemap is shorter than its native transfer.");
         byte[] zebesMapJson = RoomBackgroundTilemapExtractor.Encode(
-            zebesMap.AsSpan(0, CeresDestructionArtworkFormat.ZebesMapByteCount));
+            zebesMap.AsSpan(0, ZebesRevealArtworkFormat.MapByteCount));
 
         byte[] zebesCharacters = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
             CeresCinematicSourceDefinitions.ZebesCharacters,
-            maximumOutputBytes: CeresDestructionArtworkFormat.ZebesCharacterByteCount);
-        if (zebesCharacters.Length != CeresDestructionArtworkFormat.ZebesCharacterByteCount)
+            maximumOutputBytes: ZebesRevealArtworkFormat.CharacterByteCount);
+        if (zebesCharacters.Length != ZebesRevealArtworkFormat.CharacterByteCount)
             throw new InvalidDataException("Zebes reveal character stream has the wrong transfer length.");
         byte[] pixels = SnesGraphics.DecodePlanarTiles(zebesCharacters, 4,
             IntroCinematicArtworkFormat.TileColumns, out Extent16<ImagePixels> size);
@@ -133,22 +133,22 @@ internal static class CeresDestructionArtworkExtractor
 
         CeresDestructionArtwork compiled = CeresDestructionArtwork.Load(
             new MemoryStream(mapJson.ToArray(), writable: false),
-            new MemoryStream(zebesMapJson, writable: false),
-            RoomCharacterAtlasPng.Read(new MemoryStream(zebesPng, writable: false), CeresDestructionArtworkFormat.ZebesCharacterByteCount),
             new MemoryStream(actorsFile, writable: false),
             new MemoryStream(destructionActorsFile, writable: false));
+        ZebesRevealArtwork zebes = ZebesRevealArtwork.Load(new MemoryStream(zebesMapJson, writable: false),
+            RoomCharacterAtlasPng.Read(new MemoryStream(zebesPng, writable: false), ZebesRevealArtworkFormat.CharacterByteCount));
         _ = CeresDestructionSpritePresentation.Load(new MemoryStream(spritesFile, writable: false));
         if (!compiled.CeresMaps.Span.SequenceEqual(allCeresMaps.AsSpan(firstDestructionByte,
                 CeresDestructionArtworkFormat.MapByteCount)) ||
-            !BackgroundTileWords.ToBytes(compiled.ZebesMap.Tiles.Span).SequenceEqual(zebesMap.AsSpan(0,
-                CeresDestructionArtworkFormat.ZebesMapByteCount)) ||
-            !compiled.ZebesCharacters.Characters.Span.SequenceEqual(zebesCharacters))
+            !BackgroundTileWords.ToBytes(zebes.Map.Tiles.Span).SequenceEqual(zebesMap.AsSpan(0,
+                ZebesRevealArtworkFormat.MapByteCount)) ||
+            !zebes.Characters.Characters.Span.SequenceEqual(zebesCharacters))
             throw new InvalidDataException("Ceres destruction PNG/JSON export changed native bytes.");
         return new Dictionary<string, byte[]>(StringComparer.Ordinal)
         {
             [CeresDestructionArtworkFormat.CeresMapFileName] = mapJson.ToArray(),
-            [CeresDestructionArtworkFormat.ZebesMapFileName] = zebesMapJson,
-            [CeresDestructionArtworkFormat.ZebesCharacterFileName] = zebesPng,
+            [ZebesRevealArtworkFormat.MapFileName] = zebesMapJson,
+            [ZebesRevealArtworkFormat.CharacterFileName] = zebesPng,
             [CeresDestructionSpriteFormat.FileName] = spritesFile,
             [CeresRevealActorLayoutFormat.FileName] = actorsFile,
             [CeresDestructionActorLayoutFormat.FileName] = destructionActorsFile,

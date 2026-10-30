@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 

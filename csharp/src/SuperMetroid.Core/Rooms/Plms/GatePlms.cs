@@ -137,9 +137,8 @@ internal sealed class GatePlms : IPlmFamilySource
 
         int gateBlockIndex = IsLeftTrigger(trigger) ? blockIndex + 1 : blockIndex - 1;
         PlmSlot? gate = null;
-        for (int index = _slotTable.Slots.Count - 1; index >= 0; index--)
+        foreach (PlmSlot candidate in _slotTable.InProcessingOrder)
         {
-            PlmSlot candidate = _slotTable.Slots[index];
             if (candidate.Active && candidate.Family is DownwardGatePlmState &&
                 candidate.BlockIndex == gateBlockIndex)
             {

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <summary>Draygon's opening Evir dance: each sprite's stream latency and the movement it reads from the traced path.</summary>
 internal static class DraygonIntroDance
 {
-    /// <summary>Returns the signed stream latency for native sprite slot 28 through 31.</summary>
+    /// <summary>Returns the signed stream latency for the dancing Evir in sprite-object slot ordinal 28 through 31.</summary>
     /// <remarks>
     /// Independently reviewed for #1165 against NTSC J/U v1.0 and pinned bank_A5.asm:
     /// the four reachable signed words are the arithmetic progression 128*(slot-35).

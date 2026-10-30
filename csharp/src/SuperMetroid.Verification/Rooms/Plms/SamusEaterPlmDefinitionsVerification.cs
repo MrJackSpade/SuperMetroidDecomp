@@ -39,7 +39,7 @@ internal static class SamusEaterPlmDefinitionsVerification
             plms.SamusEater.TrySpawnSamusEater(level, block, headerPointer, samus.RoomView);
 
             RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
-            AssertEqual(39, slot.NativeSlotIndex, "Samus Eater uses highest free native slot");
+            AssertEqual(0, slot.ProcessingPosition, "Samus Eater takes the first free slot in processing order");
             AssertEqual(headerPointer, slot.HeaderPointer, "Samus Eater header identity");
             AssertEqual(5, slot.BlockIndex, "Samus Eater trigger block");
             AssertTrue(slot.Animation is SamusEaterPlmAnimation animation && animation.Program == definition.Program,

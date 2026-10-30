@@ -76,7 +76,7 @@ internal static class ChozoStatuePlmDefinitionsVerification
                 plms.ChozoStatue.TrySpawnChozoStatuePlm(level, request),
                 $"Chozo PLM {definition.Header} allocates");
             RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
-            AssertEqual(39, slot.NativeSlotIndex, "Chozo PLM uses highest free native slot");
+            AssertEqual(0, slot.ProcessingPosition, "Chozo PLM takes the first free slot in processing order");
             AssertEqual(definition.Header, slot.HeaderPointer, "Chozo PLM header identity");
             AssertEqual(4 * width + 3, slot.BlockIndex, "Chozo PLM requested block coordinate");
             AssertTrue(PlmProgramStartOracle.IsRunning(definition.Program, slot), "Chozo PLM starts its first program");

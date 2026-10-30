@@ -139,14 +139,14 @@ internal sealed class DraygonDeath
             state.DeathSmokeObjectsSpawned++;
     }
 
-    /// <summary>Clears the room sprite pool and allocates six burial Evirs in native slot order.</summary>
+    /// <summary>Clears the room sprite pool and spawns six burial Evirs, which take the first six slots in processing order.</summary>
     private void SpawnDraygonDeathEvirs(DraygonEnemyState state)
     {
         ClearRoomSpriteObjectPool();
 
-        // The two native loops share one descending position-table index. Allocation also
-        // descends, so these calls deterministically occupy slots 31..26 in movement-table
-        // order: three left-facing objects followed by three right-facing objects.
+        // The two loops share one descending position-table index. Each spawn takes the next slot in processing order,
+        // so the Evirs occupy the first six slots in movement-table order: three left-facing objects followed by three
+        // right-facing objects.
         for (int entry = 5; entry >= 3; entry--)
             SpawnDraygonDeathEvir(entry, RoomSpriteObjectKind.DraygonIntroEvir);
         for (int entry = 2; entry >= 0; entry--)
@@ -174,22 +174,22 @@ internal sealed class DraygonDeath
     /// <summary>Advances the six burial Evir sprite slots by their table-defined velocities.</summary>
     internal void MoveDraygonDeathEvirs()
     {
-        for (int entry = 5, slotIndex = RoomSpriteObjectPool.RoomSpriteObjectSlotCount - 1;
-             entry >= 0;
-             entry--, slotIndex--)
+        // The first Evir in processing order moves by the last table entry, and so on down to the first.
+        int entry = DraygonBurialEvirDefinitions.EntryCount - 1;
+        foreach (RoomSpriteObjectSlot sprite in _spriteObjects.InProcessingOrder.Take(DraygonBurialEvirDefinitions.EntryCount))
         {
-            RoomSpriteObjectSlot sprite = _spriteObjects.Slots[slotIndex];
             if (!sprite.IsActive || sprite.Kind is not (
                     RoomSpriteObjectKind.DraygonIntroEvir or
                     RoomSpriteObjectKind.DraygonDeathEvirFacingRight))
             {
                 throw new InvalidDataException(
-                    $"Draygon burial movement expected Evir in sprite slot {slotIndex}.");
+                    $"Draygon burial movement expected Evir in sprite slot {sprite.SlotIndex}.");
             }
 
             DraygonBurialEvirDefinition definition =
                 DraygonBurialEvirs.ForEntry(entry);
             sprite.Position = sprite.Position.Advance(DraygonBurialEvirs.Velocity(definition));
+            entry--;
         }
     }
 

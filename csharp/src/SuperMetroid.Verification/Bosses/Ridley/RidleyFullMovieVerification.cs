@@ -1384,7 +1384,8 @@ internal static class RidleyFullMovieVerification
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             {
-                var plmSlots = runtime.Plms.PopulationSlots.ToDictionary(slot => slot.NativeSlotIndex);
+                // The movie's memory lists PLMs by slot ordinal, and the table processes the highest ordinal first.
+                var plmSlots = runtime.Plms.PopulationSlots.ToDictionary(slot => PlmSlotTable.Capacity - 1 - slot.ProcessingPosition);
                 for (int slotIndex = 0; slotIndex < initialPlms.Length; slotIndex++)
                 {
                     int offset = slotIndex * 2;

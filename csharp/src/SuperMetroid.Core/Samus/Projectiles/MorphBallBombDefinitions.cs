@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 public static class MorphBallBombDefinitions
 {
-    /// <summary>Five physical bomb slots at projectile byte indices $0A-$12.</summary>
+    /// <summary>How many bombs Samus can have out at once.</summary>
     public const int SlotCount = 5;
 
     /// <summary>Normal-bomb cooldown selected from non-beam table entry five.</summary>

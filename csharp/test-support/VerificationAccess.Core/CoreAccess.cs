@@ -237,7 +237,7 @@ internal static class CoreAccess
         internal bool SamusLoadAppearanceActive => runtime.SamusLoadAppearanceFramesRemaining != 0;
     }
 
-    /// <summary>Finds a unique population PLM and snapshots active save stations in descending native slot order.</summary>
+    /// <summary>Finds a unique population PLM and snapshots active stations in processing order.</summary>
     extension(RoomPlmSystem plms)
     {
 
@@ -254,16 +254,15 @@ internal static class CoreAccess
             };
         }
 
-        /// <summary>Active station PLMs, highest native slot first.</summary>
+        /// <summary>Active station PLMs, in processing order.</summary>
         internal IReadOnlyList<StationPlmSnapshot> StationSnapshots
         {
             get
             {
                 bool lockedOut = plms.Stations.SaveStationLockedOut;
-                return PlmSlots(plms)
-                    .Select((slot, index) => new IndexedPlmSlot(slot, index))
+                return plms.SlotTable.InProcessingOrder
+                    .Select((slot, position) => new IndexedPlmSlot(slot, position))
                     .Where(entry => entry.Slot.Active)
-                    .OrderByDescending(entry => entry.Index)
                     .SelectMany(entry => entry.Slot.Family is StationPlms.StationPlmState station
                         ? [new StationPlmSnapshot(entry.Index, entry.Slot.BlockIndex, entry.Slot.NativeRoomArgument,
                             station.Kind, station.Triggered, station.SavePhase, lockedOut)]
@@ -272,9 +271,6 @@ internal static class CoreAccess
             }
         }
     }
-
-    /// <summary>Exposes physical PLM slots to the station snapshot reader.</summary>
-    private static PlmSlot[] PlmSlots(RoomPlmSystem plms) => [.. plms.SlotTable.Slots];
 
     /// <summary>Every room-FX record the compiled catalog defines, in pointer order.</summary>
     internal static IEnumerable<RoomFxRecordDefinition> AllRoomFxRecords()
@@ -417,7 +413,7 @@ internal static class CoreAccess
     /// <summary>Lists active PLM block positions and collectible phases and artwork in slot order.</summary>
     extension(RoomPlmSystem self)
     {
-        /// <summary>Block index of every active PLM, in native slot order.</summary>
+        /// <summary>Block index of every active PLM, by slot ordinal.</summary>
         internal IReadOnlyList<int> ActivePlmBlockIndices =>
         [
             .. Group4ActivePlmSlots(self).Select(slot => slot.BlockIndex),
@@ -437,7 +433,7 @@ internal static class CoreAccess
     }
 
 
-    /// <summary>Visits active physical PLM slots in native slot order.</summary>
+    /// <summary>Visits occupied PLM slots by ordinal.</summary>
     private static IEnumerable<PlmSlot> Group4ActivePlmSlots(RoomPlmSystem plms) =>
         plms.SlotTable.Slots.Where(slot => slot.Active);
 

@@ -108,10 +108,10 @@ internal static class DownwardGatePlmsVerification
 
         AssertEqual(2, plms.SlotTable.ActiveCount, "gate and shot-block records retain separate PLM slots");
         RoomPlmSlotSnapshot[] slots = plms.PopulationSlots.ToArray();
-        AssertEqual(39, slots[0].NativeSlotIndex, "gate receives the first highest native slot");
+        AssertEqual(0, slots[0].ProcessingPosition, "gate is processed first");
         AssertEqual(PlmHeaderId.DownwardGate, slots[0].HeaderPointer,
             "first resident slot is the closed downward gate");
-        AssertEqual(38, slots[1].NativeSlotIndex, "shot block receives the next native slot");
+        AssertEqual(1, slots[1].ProcessingPosition, "shot block is processed next");
         AssertTrue(slots[1].Animation is DownwardGatePlmAnimation { Program: DownwardGateProgram.TriggerBlueLeft },
             "argument zero selects the blue-left trigger program");
 

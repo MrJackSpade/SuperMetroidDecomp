@@ -14,7 +14,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// The five ordinary Samus-projectile slots at WRAM byte indices <c>$00-$08</c>.
+/// Samus's ordinary projectile slots (see <see cref="ProjectileSlotTable"/> for their slot order).
 /// </summary>
 /// <remarks>
 /// This class is deliberately a field-for-field translation rather than a desktop particle
@@ -105,16 +105,13 @@ public sealed class SamusProjectileSystem
         Motion = new ProjectileMotion(Animation, SlotTable, TerrainCollision, Trails);
         Ensure.NotNull(residue).ApplyTo(SlotTable.Slots);
     }
-    /// <summary>Native ordinary-projectile capacity; bombs occupy the other five slots.</summary>
+    /// <summary>How many ordinary shots Samus can have out at once; bombs have their own slots.</summary>
     public const int SlotCount = 5;
 
-    /// <summary>
-    /// WRAM allocates byte indices <c>$00-$22</c>, inclusive, for projectile trails.
-    /// Because every parallel array is word-indexed, that is eighteen independent slots.
-    /// </summary>
+    /// <summary>How many projectile trails can be live at once.</summary>
     public const int TrailSlotCount = 18;
 
-    /// <summary>The slots in native low-to-high byte-index order: $00, $02, ... $08.</summary>
+    /// <summary>The shot slots by ordinal.</summary>
     public IReadOnlyList<SamusProjectileSlot> Slots => SlotTable.Slots;
 
     /// <summary>The most recent `$91:D743` charged-shot palette sub-handler result.</summary>
@@ -319,7 +316,7 @@ public sealed class SamusProjectileSystem
     /// <param name="buttons">The controller words Samus's projectile producer reads: held buttons, this frame's new presses, and the previous frame's new presses (#633).</param>
     /// <param name="layer1">Horizontal and vertical camera origin in whole room pixels, used by projectile offscreen handling.</param>
     /// <param name="sharedProjectiles">
-    /// Bomb-slot owner carrying shared WRAM cooldown <c>$0CCC</c>. The runtime steps that
+    /// Bomb-slot owner carrying the shared projectile cooldown. The runtime steps that
     /// clock once, immediately before calling this method; this method may replace it after
     /// a successful shot just as bank $90 does.
     /// </param>
@@ -402,14 +399,13 @@ public sealed class SamusProjectileSystem
         bool projectileDeleted = false;
         List<SoundRequest>? comboSounds = null;
 
-        // `$90:AECE` walks the complete ten-slot arrays from byte index $12 down to zero.
-        // Bombs were handled by the companion class first; preserve the ordinary half's
-        // descending $08->$00 order here because instruction deletion changes the counter.
-        // The HUD producer can activate X-ray during this alpha pass. Native checks
-        // the newly published freeze flag before HandleProjectile, not only at entry.
-        for (int slotIndex = SlotCount - 1; !samus.Xray.TimeIsFrozen && slotIndex >= 0; slotIndex--)
+        // Bombs were handled by the companion class first; the shots run in update order here because instruction
+        // deletion changes the counter. The HUD producer can activate X-ray during this pass, so the freeze is checked
+        // before each slot, not only at entry.
+        foreach (SamusProjectileSlot slot in SlotTable.InUpdateOrder)
         {
-            SamusProjectileSlot slot = SlotTable.Slots[slotIndex];
+            if (samus.Xray.TimeIsFrozen)
+                break;
             if (slot.Cursor is null)
                 continue;
 
@@ -613,9 +609,8 @@ public sealed class SamusProjectileSystem
     {
         Ensure.NotNull(sprites);
 
-        for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
+        foreach (SamusProjectileSlot slot in SlotTable.InUpdateOrder)
         {
-            SamusProjectileSlot slot = SlotTable.Slots[slotIndex];
             if (!slot.IsActive ||
                 slot.Type.Family.IsBombOrExplosion)
                 continue;
@@ -624,12 +619,10 @@ public sealed class SamusProjectileSystem
             // missile or explosion remains visible on every NMI parity.
             if (slot.Type.Family == SamusProjectileFamily.Beam && !slot.Type.IsChargedBeam)
             {
-                // Native X is the even byte index `$00,$02,...,$08`, so native `X & 2`
-                // is exactly the parity of this host slot index. Spazer/plasma combinations
-                // use NMI bit one and the opposite phase from power/ice/
-                // wave, which use NMI bit zero. Keeping these branches separate is what
-                // prevents the wider beam art from disappearing on the wrong video field.
-                bool oddSlot = (slotIndex & 1) != 0;
+                // Shots in odd and even slots flicker on opposite frames. Spazer/plasma combinations use frame bit
+                // one and the opposite phase from power/ice/wave, which use frame bit zero. Keeping these branches
+                // separate is what prevents the wider beam art from disappearing on the wrong video field.
+                bool oddSlot = (slot.SlotIndex & 1) != 0;
                 bool skip = slot.Type.HasAnyBeam(SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)
                     ? oddSlot != ((frameCounter & 2) != 0)
                     : oddSlot == ((frameCounter & 1) != 0);
@@ -641,7 +634,7 @@ public sealed class SamusProjectileSystem
             // cull by world X. OAM retains the nine-bit X and lets the PPU clip it.
             // This also preserves sprite ordering/capacity when a combo orbits offscreen.
             if (slot.Sprite is not null)
-                ProjectileAnimation.DrawSlot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile, slotIndex),
+                ProjectileAnimation.DrawSlot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile, slot.SlotIndex),
                     slot, layer1, horizontalMargin: null, artwork);
         }
     }
@@ -657,11 +650,9 @@ public sealed class SamusProjectileSystem
     public void AdvanceTrails(bool timeIsFrozen)
     {
 
-        // Native Y starts at byte index $22, so the most recently preferred allocation slot
-        // is also handled first, left side before right.
-        for (int slotIndex = TrailSlotCount - 1; slotIndex >= 0; slotIndex--)
+        // Trails advance in update order, the order a new trail searches for a free slot, left side before right.
+        foreach (SamusProjectileTrailSlot slot in SlotTable.TrailsInUpdateOrder)
         {
-            SamusProjectileTrailSlot slot = SlotTable.TrailSlots[slotIndex];
             ProjectileTrails.AdvanceTrailSide(slot, timeIsFrozen, direction: HorizontalDirection.Left);
             ProjectileTrails.AdvanceTrailSide(slot, timeIsFrozen, direction: HorizontalDirection.Right);
         }
@@ -677,11 +668,10 @@ public sealed class SamusProjectileSystem
         ProjectileDrawArtwork objects)
     {
         Ensure.NotNull(sprites);
-        for (int slotIndex = TrailSlotCount - 1; slotIndex >= 0; slotIndex--)
+        foreach (SamusProjectileTrailSlot slot in SlotTable.TrailsInUpdateOrder)
         {
-            SamusProjectileTrailSlot slot = SlotTable.TrailSlots[slotIndex];
-            ProjectileTrails.DrawTrailSide(sprites, slot, slotIndex, layer1, direction: HorizontalDirection.Left, objects);
-            ProjectileTrails.DrawTrailSide(sprites, slot, slotIndex, layer1, direction: HorizontalDirection.Right, objects);
+            ProjectileTrails.DrawTrailSide(sprites, slot, slot.SlotIndex, layer1, direction: HorizontalDirection.Left, objects);
+            ProjectileTrails.DrawTrailSide(sprites, slot, slot.SlotIndex, layer1, direction: HorizontalDirection.Right, objects);
         }
     }
 
@@ -695,16 +685,15 @@ public sealed class SamusProjectileSystem
     {
         Ensure.NotNull(sprites);
 
-        for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
+        foreach (SamusProjectileSlot slot in SlotTable.InUpdateOrder)
         {
-            SamusProjectileSlot slot = SlotTable.Slots[slotIndex];
             SamusProjectileFamily family = slot.Type.Family;
             if (!slot.IsActive || family is not (
                     SamusProjectileFamily.BeamExplosion or
                     SamusProjectileFamily.MissileExplosion))
                 continue;
 
-            ProjectileAnimation.DrawSlot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile, slotIndex),
+            ProjectileAnimation.DrawSlot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile, slot.SlotIndex),
                 slot, layer1, horizontalMargin: 48, artwork);
         }
     }

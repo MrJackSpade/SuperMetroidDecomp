@@ -42,9 +42,9 @@ internal sealed class DraygonIntro
                 _presentation.ShowLook(DraygonIntroPresentationDefinitions.EvirTiles);
                 state.IntroEvirGraphicsLoaded = true;
 
-                // CreateSpriteAtPos searches descending, so these become native indexes
-                // $3E,$3C,$3A,$38—the exact four slots later traversed by $A5:A13E.
-                for (int actor = 0; actor < 4; actor++)
+                // Each spawn takes the next slot in processing order, so these become the first four slots in
+                // processing order, the exact four the dance later moves.
+                for (int actor = 0; actor < DraygonIntroDanceDefinitions.EvirCount; actor++)
                 {
                     if (_spriteObjects.SpawnRoomSpriteObject(
                             new(16, 384),
@@ -81,14 +81,13 @@ internal sealed class DraygonIntro
             return;
         }
 
-        // The native routine processes only object indexes $3E..$38. Its latency lookup
-        // unexpectedly uses the first four of eight entries, producing 128 inert frames;
-        // retain that retail quirk rather than choosing the seemingly intended entries.
-        for (int slotIndex = 31; slotIndex >= 28; slotIndex--)
+        // The dance moves only the first four slots in processing order. Its latency lookup unexpectedly uses the first
+        // four of eight entries, producing 128 inert frames; retain that retail quirk rather than choosing the seemingly
+        // intended entries.
+        foreach (RoomSpriteObjectSlot sprite in _spriteObjects.InProcessingOrder.Take(DraygonIntroDanceDefinitions.EvirCount))
         {
-            RoomSpriteObjectSlot sprite = _spriteObjects.Slots[slotIndex];
             int streamIndex = state.FightIntroDanceIndex +
-                DraygonIntroDance.MovementLatencyForSlot(slotIndex);
+                DraygonIntroDance.MovementLatencyForSlot(sprite.SlotIndex);
             if (streamIndex < 0 || !sprite.IsActive)
                 continue;
 

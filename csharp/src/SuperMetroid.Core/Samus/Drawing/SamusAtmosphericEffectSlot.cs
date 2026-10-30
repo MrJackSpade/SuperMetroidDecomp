@@ -32,13 +32,15 @@ public sealed class SamusAtmosphericEffectSlot
         AnimationFrame = 0;
     }
 
-    /// <summary>$0AD4 array countdown in update calls; negative words suppress motion/drawing until decrement reaches $8000 and reloads the current frame duration.</summary>
+    /// <summary>
+    /// Countdown in update calls. A negative countdown suppresses motion and drawing until it reaches the delayed-start
+    /// marker, which reloads the current frame's duration.
+    /// </summary>
     public WrappingCountdown AnimationTimer { get; internal set; }
 
     /// <summary>
-    /// $0ADC/$0AE4 array anchor in whole room pixels; camera subtraction occurs only when
-    /// drawing, motion wraps as native words, diving splashes follow the live FX surface and
-    /// lava spray/dust rise one pixel per active update.
+    /// Anchor in whole room pixels; the camera is subtracted only when drawing, motion wraps at sixteen bits, diving
+    /// splashes follow the live FX surface and lava spray and dust rise one pixel per active update.
     /// </summary>
     public Position16<RoomPixels> Position { get; internal set; }
 

@@ -16,9 +16,12 @@ using SuperMetroid.Core.World;
 /// <summary>Checks typed PLM population ownership and execution on a RAM-only bus.</summary>
 internal static class PlmPopulationInputBoundaryVerification
 {
-    /// <summary>Native slots the typed population occupies after extension deletion frees the highest slot.</summary>
+    /// <summary>
+    /// Processing positions the typed population occupies after extension deletion frees the first slot in processing
+    /// order.
+    /// </summary>
     private static readonly int[] ReusedPopulationSlots =
-        [39, 38];
+        [0, 1];
 
     /// <summary>Verifies the identified typed-input conversion, without importing a ROM or driving gameplay.</summary>
     internal static void VerifyPlmPopulationInputBoundary()
@@ -44,8 +47,8 @@ internal static class PlmPopulationInputBoundaryVerification
         var plms = PlmFixtures.Unbound();
         AssertEqual(3, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "typed population runs the real sequential allocator using a RAM-only bus");
-        AssertTrue(plms.PopulationSlots.Select(slot => slot.NativeSlotIndex).SequenceEqual(ReusedPopulationSlots),
-            "extension deletion permits immediate highest-slot reuse in authored order");
+        AssertTrue(plms.PopulationSlots.Select(slot => slot.ProcessingPosition).SequenceEqual(ReusedPopulationSlots),
+            "extension deletion lets the next record reuse the first slot in processing order, in authored order");
         AssertEqual(RoomBlockBehaviorValues.ScrollTrigger.Value, level.GetCollisionBlock(new(3, 3)).Behavior.Value,
             "typed trigger setup publishes its native collision behavior");
         AssertEqual((int)RoomCollisionType.HorizontalExtension, (int)level.GetCollisionBlock(new(4, 3)).CollisionType,

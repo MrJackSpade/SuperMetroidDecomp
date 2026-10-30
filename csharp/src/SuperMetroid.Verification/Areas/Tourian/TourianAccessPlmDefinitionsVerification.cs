@@ -35,7 +35,7 @@ internal static class TourianAccessPlmDefinitionsVerification
                 $"Tourian access {(clear ? "clear" : "crumble")} actor allocates");
             AssertEqual(1, plms.SlotTable.ActiveCount, "Tourian access spawn occupies one PLM slot");
             RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
-            AssertEqual(39, slot.NativeSlotIndex, "Tourian access uses the highest free native slot");
+            AssertEqual(0, slot.ProcessingPosition, "Tourian access takes the first free slot in processing order");
             AssertEqual(definition.Header, slot.HeaderPointer, "Tourian access header identity");
             AssertEqual(12 * width + 6, slot.BlockIndex, "Tourian access fixed block coordinate");
             AssertTrue(slot.Animation is TourianAccessPlmAnimation animation && animation.Program == definition.Program,

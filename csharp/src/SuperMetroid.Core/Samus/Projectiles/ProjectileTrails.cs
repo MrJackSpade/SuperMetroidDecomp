@@ -65,18 +65,10 @@ internal sealed class ProjectileTrails
             ProjectileTrailPlacements.Start(placements, animationFrame, Overreads) is not { } placement)
             return;
 
-        SamusProjectileTrailSlot? trail = null;
-        for (int slotIndex = SamusProjectileSystem.TrailSlotCount - 1; slotIndex >= 0; slotIndex--)
-        {
-            // The original tests only the left timer. A right stream can still be alive in
-            // malformed/debug-edited state and will be overwritten when the left sentinel is
-            // clear; retain that asymmetric allocation contract rather than being "safer".
-            if (_slotTable.TrailSlots[slotIndex].Left.InstructionTimer.IsZero)
-            {
-                trail = _slotTable.TrailSlots[slotIndex];
-                break;
-            }
-        }
+        // The search tests only the left timer. A right stream can still be alive in malformed or debug-edited state and
+        // is overwritten when the left side is free; retain that asymmetric allocation rather than being "safer".
+        SamusProjectileTrailSlot? trail = _slotTable.TrailsInUpdateOrder.FirstOrDefault(
+            candidate => candidate.Left.InstructionTimer.IsZero);
         if (trail is null)
             return;
 

@@ -22,7 +22,7 @@ internal sealed class ScrollPlms : IPlmFamilySource
     {
         _slotTable = slotTable;
     }
-    /// <summary>Every live cartridge-authored scroll trigger, in native slot order.</summary>
+    /// <summary>Every live cartridge-authored scroll trigger, by slot ordinal.</summary>
     public IReadOnlyList<ScrollPlmSnapshot> Snapshots => _slotTable.Slots
         .Where(slot => slot.Active && slot.Family is ScrollPlmState)
         .Select(slot => new ScrollPlmSnapshot(

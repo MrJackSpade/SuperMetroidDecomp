@@ -23,12 +23,10 @@ internal sealed class ProjectileTriggerPlms
         int blockIndex,
         SamusProjectileType projectileType)
     {
-        // Native searches physical slots from $4E down to zero and accepts the first
-        // matching block regardless of its header. Preserve that generality: reaction
-        // PLMs and future translated actors must not be omitted from a family dispatcher.
-        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
+        // The search runs in processing order and accepts the first matching block regardless of its header. Preserve
+        // that generality: reaction PLMs and future translated actors must not be omitted from a family dispatcher.
+        foreach (PlmSlot slot in _slotTable.InProcessingOrder)
         {
-            PlmSlot slot = _slotTable.Slots[slotIndex];
             if (!slot.Active || slot.BlockIndex != blockIndex)
                 continue;
 

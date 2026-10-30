@@ -7,9 +7,15 @@ using SuperMetroid.Core.Rooms.SpriteObjects;
 namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
 /// <summary>
-/// The bank-$B4 room sprite-object pool: 32 instruction-driven decorative actors (dust, splashes, shells)
-/// that enemies and projectiles spawn, step and draw independently of enemy and projectile slots.
+/// The room's sprite-object pool: program-driven decorative actors (dust, splashes, shells) that enemies and projectiles
+/// spawn, step and draw independently of enemy and projectile slots.
 /// </summary>
+/// <remarks>
+/// Slot order: the pool holds at most <see cref="Capacity"/> objects, each slot with a fixed ordinal. Spawning, stepping
+/// and drawing all run in one processing order, from the highest ordinal down. A spawn takes the first free slot in that
+/// order, so in a pool where nothing has been freed the objects step and draw in the order they were spawned; a full
+/// pool drops the spawn.
+/// </remarks>
 [RoomLifetime]
 internal sealed class RoomSpriteObjectPool
 {
@@ -18,28 +24,37 @@ internal sealed class RoomSpriteObjectPool
 
     /// <summary>Connects decorative sprite objects to the room's presentation bindings.</summary>
     internal RoomSpriteObjectPool(EnemyPresentation presentation) => _presentation = presentation;
-    /// <summary>The cartridge allocates 32 physical sprite-object slots, searched from highest to lowest.</summary>
-    internal const int RoomSpriteObjectSlotCount = 32;
-    /// <summary>Fixed bank-$B4 decorative actor slots, including inactive entries.</summary>
+    /// <summary>How many sprite objects the pool holds at once; a spawn into a full pool is dropped.</summary>
+    internal const int Capacity = 32;
+    /// <summary>The slots by ordinal, including free ones.</summary>
     private readonly RoomSpriteObjectSlot[] _roomSpriteObjects =
-        Enumerable.Range(0, RoomSpriteObjectSlotCount)
+        Enumerable.Range(0, Capacity)
             .Select(index => new RoomSpriteObjectSlot(index))
             .ToArray();
 
-    /// <summary>All 32 physical slots, including inactive ones.</summary>
+    /// <summary>The slots by ordinal, including free ones.</summary>
     internal IReadOnlyList<RoomSpriteObjectSlot> Slots => _roomSpriteObjects;
 
-    /// <summary>Ports <c>CreateSpriteAtPos</c> at <c>$B4:BC26</c>.</summary>
+    /// <summary>The slots in processing order, highest ordinal first, including free ones.</summary>
+    internal IEnumerable<RoomSpriteObjectSlot> InProcessingOrder
+    {
+        get
+        {
+            for (int ordinal = _roomSpriteObjects.Length - 1; ordinal >= 0; ordinal--)
+                yield return _roomSpriteObjects[ordinal];
+        }
+    }
+
+    /// <summary>Spawns an object of <paramref name="kind"/> at <paramref name="position"/> in the first free slot in processing order.</summary>
+    /// <returns>The slot, or null when the pool is full and the spawn is dropped.</returns>
     internal RoomSpriteObjectSlot? SpawnRoomSpriteObject(
         Position16<RoomPixels> position,
         RoomSpriteObjectKind kind,
         SpriteGraphics graphics)
     {
-        // Native allocation searches indexes $3E,$3C,...,$00. A saturated pool drops the
-        // request and returns $FFFF; callers must not grow an unbounded host collection.
-        for (int index = _roomSpriteObjects.Length - 1; index >= 0; index--)
+        // A full pool drops the request; callers must not grow an unbounded collection instead.
+        foreach (RoomSpriteObjectSlot slot in InProcessingOrder)
         {
-            RoomSpriteObjectSlot slot = _roomSpriteObjects[index];
             if (slot.IsActive)
                 continue;
 
@@ -55,14 +70,13 @@ internal sealed class RoomSpriteObjectPool
         return null;
     }
 
-    /// <summary>Ports the non-frozen body of <c>HandleSpriteObjects</c> at $B4:BC82.</summary>
+    /// <summary>Steps every object whose updates are enabled, in processing order.</summary>
     internal void StepRoomSpriteObjects()
     {
-        // The hardware walks descending native indexes. No current program spawns another
-        // object, but retaining the order keeps pool behavior stable for later families.
-        for (int index = _roomSpriteObjects.Length - 1; index >= 0; index--)
+        // No current program spawns another object, but keeping the processing order keeps pool behaviour stable for
+        // later families.
+        foreach (RoomSpriteObjectSlot slot in InProcessingOrder)
         {
-            RoomSpriteObjectSlot slot = _roomSpriteObjects[index];
             if (!slot.IsActive || slot.UpdatesDisabled)
                 continue;
             CountdownStep step = slot.Timer.Decrement();
@@ -74,7 +88,7 @@ internal sealed class RoomSpriteObjectPool
 
     /// <summary>
     /// Runs the slot's program to its next frame: a timed frame installs its frame and duration, the repeat-last hold
-    /// keeps the frame and reloads $7FFF as <c>$B4:BCF0</c> does, and delete clears the slot.
+    /// keeps the frame and reloads the longest countdown, and delete clears the slot.
     /// </summary>
     private static void AdvanceProgram(RoomSpriteObjectSlot slot)
     {
@@ -104,8 +118,8 @@ internal sealed class RoomSpriteObjectPool
 
     /// <summary>
     /// Points the slot at <paramref name="program"/> past its first frame and shows that frame, keeping the current
-    /// countdown: the native frozen Metroid shell stores the list's address and draws its first record without
-    /// reloading the timer, so the next expiry continues at the list's second record.
+    /// countdown: the frozen Metroid shell shows the program's first frame without reloading the timer, so the next
+    /// expiry continues at the program's second step.
     /// </summary>
     internal static void ShowFirstFrameKeepingTimer(RoomSpriteObjectSlot slot, RoomSpriteObjectProgram program)
     {
@@ -118,14 +132,13 @@ internal sealed class RoomSpriteObjectPool
         slot.Frame = show.Frame;
     }
 
-    /// <summary>Ports <c>DrawSpriteObjects</c> at <c>$B4:BD32</c>.</summary>
+    /// <summary>Draws every visible object, in processing order.</summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="camera">Layer-one camera position in whole room pixels.</param>
     internal void DrawRoomSpriteObjects(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
     {
-        for (int index = _roomSpriteObjects.Length - 1; index >= 0; index--)
+        foreach (RoomSpriteObjectSlot slot in InProcessingOrder)
         {
-            RoomSpriteObjectSlot slot = _roomSpriteObjects[index];
             if (!slot.IsActive)
                 continue;
 
@@ -142,7 +155,7 @@ internal sealed class RoomSpriteObjectPool
             }
 
             EnemyFrameId shown = RoomSpriteObjectVisualDefinitions.ShownFrames.Of(slot.Frame);
-            _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.RoomSpriteObject, index),
+            _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.RoomSpriteObject, slot.SlotIndex),
                 EnemySheetDefinitions.SpriteObjectFrameName(shown), screen, slot.Graphics.TileBase, slot.Graphics.Colouring);
         }
     }

@@ -54,9 +54,8 @@ internal sealed class DoorPlms : IPlmFamilySource
         Ensure.NotNull(system);
 
         int blockIndex = level.GetBlockIndex(door.PlmBlock);
-        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
+        foreach (PlmSlot resident in _slotTable.InProcessingOrder)
         {
-            PlmSlot resident = _slotTable.Slots[slotIndex];
             if (!resident.Active || resident.BlockIndex != blockIndex)
                 continue;
 

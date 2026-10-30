@@ -147,12 +147,12 @@ internal static class EyeDoorPlmsVerification
 
         AssertEqual(3, plms.SlotTable.ActiveCount, $"{orientation} eye door retains three PLM slots");
         RoomPlmSlotSnapshot[] slots = plms.PopulationSlots.ToArray();
-        AssertEqual(39, slots[0].NativeSlotIndex,
-            $"{orientation} eye receives the first highest native slot");
-        AssertEqual(38, slots[1].NativeSlotIndex,
-            $"{orientation} main door receives the second native slot");
-        AssertEqual(37, slots[2].NativeSlotIndex,
-            $"{orientation} bottom receives the third native slot");
+        AssertEqual(0, slots[0].ProcessingPosition,
+            $"{orientation} eye is processed first");
+        AssertEqual(1, slots[1].ProcessingPosition,
+            $"{orientation} main door is processed second");
+        AssertEqual(2, slots[2].ProcessingPosition,
+            $"{orientation} bottom is processed third");
         AssertEqual((int)RoomCollisionType.ShootableBlock,
             (int)level.GetCollisionBlockByIndex(eyeBlock).CollisionType,
             $"{orientation} eye setup installs collision type C");

@@ -2,13 +2,13 @@ using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>One of the forty native PLM slots: header, block, instruction state and the family state it carries.</summary>
+/// <summary>One of the room's PLM slots: header, block, instruction state and the family state it carries.</summary>
 internal sealed class PlmSlot
 {
-    /// <summary>Samus position saved by the Brinstar plant setup (native <c>PLM_Vars</c> X, <c>PLMExtra_Vars</c> Y).</summary>
+    /// <summary>Samus position saved by the Brinstar plant setup.</summary>
     public Position16<RoomPixels> PlantHeldPosition { get; set; }
     /// <summary>
-    /// Whether this physical PLM slot holds a PLM and participates in the room update. Only <see cref="PlmSlotTable"/>'s
+    /// Whether this slot holds a PLM and participates in the room update. Only <see cref="PlmSlotTable"/>'s
     /// spawn operations claim a slot; <see cref="Delete"/> and <see cref="Clear"/> free it.
     /// </summary>
     public bool Active { get; private set; }
@@ -25,13 +25,13 @@ internal sealed class PlmSlot
     internal PlmAnimation? Animation { get; private set; }
     /// <summary>Countdown until the slot's next instruction-list step.</summary>
     public WrappingCountdown InstructionTimer { get; set; }
-    /// <summary>The pre-instruction run before the timer/list pass (native bank-$84 pointer <c>$1CD7,x</c>).</summary>
+    /// <summary>The pre-instruction run before the timer/list pass.</summary>
     internal IPlmPreInstruction PreInstruction { get; set; } = PlmPreInstructions.Inert;
     /// <summary>What the slot's PLM was placed with, or the state its setup or opening left there; null for none.</summary>
     public PlmRoomArgument? Argument { get; set; }
     /// <summary>The hits a Draygon cannon or Mother Brain's glass has taken.</summary>
     public int HitCounter { get; set; }
-    /// <summary>Native <c>PLM_Timers</c>, distinct from the instruction countdown.</summary>
+    /// <summary>The slot's loop counter, distinct from the instruction countdown.</summary>
     public int LoopTimer
     {
         get;
@@ -45,15 +45,15 @@ internal sealed class PlmSlot
     /// </summary>
     public ResidentPlmProjectileHit? ProjectileHit { get; set; }
     /// <summary>
-    /// The semantic state of the family this slot belongs to, or null while the slot runs only its native words under the
+    /// The semantic state of the family this slot belongs to, or null while the slot runs only its shared state under the
     /// shared pre-instruction, timer and instruction interpreter.
     /// </summary>
     internal PlmFamilyState? Family { get; set; }
 
     /// <summary>
-    /// Clears every native word and the family reference, so a recycled slot cannot run its former family. Native PLM
-    /// arrays hold only scalar words, so allocating an inactive slot replaces every prior discriminator; every population
-    /// and runtime spawn passes through this reset before writing its own words.
+    /// Clears every field and the family reference, so a recycled slot cannot run its former family. Claiming a free slot
+    /// replaces every prior discriminator; every population and runtime spawn passes through this reset before setting its
+    /// own state.
     /// </summary>
     internal void Clear()
     {
@@ -73,7 +73,7 @@ internal sealed class PlmSlot
     }
 
     /// <summary>
-    /// Claims this free slot for a new PLM: every word is reset and the slot is active. Only <see cref="PlmSlotTable"/>'s
+    /// Claims this free slot for a new PLM: every field is reset and the slot is active. Only <see cref="PlmSlotTable"/>'s
     /// spawn operations call it, which analyzer SME6303 enforces.
     /// </summary>
     internal void Claim()
@@ -85,7 +85,7 @@ internal sealed class PlmSlot
     }
 
     /// <summary>
-    /// Deletes the PLM, as the delete instruction does: only the PLM ID is cleared, and the other words stay until the
+    /// Deletes the PLM, as the delete instruction does: only occupancy is cleared, and the other fields stay until the
     /// slot is claimed again.
     /// </summary>
     internal void Delete() => Active = false;

@@ -17,11 +17,10 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// bank-$94 block reactions, and bank-$A0 Samus/projectile overlap handling.
 /// </summary>
 /// <remarks>
-/// The cartridge does not have a tidy C-style <c>Bomb</c> structure. Bomb slots are the
-/// upper five indices of several ten-word projectile arrays. Consequently, for example,
-/// <c>projectile_variables[5]</c> at WRAM $0C86 is also named <c>bomb_timers[0]</c> by
-/// routines that index from the bomb half of the allocation. This port gives each slot
-/// semantic fields, but the comments below retain every important alias and source seam.
+/// Slot order: Samus has <see cref="SlotCount"/> bomb slots, each with a fixed ordinal. A placed bomb takes the lowest
+/// free ordinal, a bomb spread fills every slot in ordinal order, and the bomb update and drawing run in update order,
+/// from the highest ordinal down. The bomb-jump scan alone runs in ordinal order, so the highest overlapping bomb decides
+/// Samus's launch.
 /// </remarks>
 [RoomLifetime]
 public sealed class SamusBombProjectileSystem
@@ -29,7 +28,7 @@ public sealed class SamusBombProjectileSystem
     /// <summary>Shared installed timed-frame sprite choices for the bomb half of the projectile pool.</summary>
     [field: NonSerialized]
     public SuperMetroid.Core.Samus.Artwork.InstalledProjectileFrameBindings? FrameBindings { get; set; }
-    /// <summary>Number of physical bomb slots at projectile byte indices $0A-$12.</summary>
+    /// <summary>How many bombs Samus can have out at once.</summary>
     public const int SlotCount = MorphBallBombDefinitions.SlotCount;
 
     /// <summary>A placed Morph Ball bomb.</summary>
@@ -38,39 +37,47 @@ public sealed class SamusBombProjectileSystem
     /// <summary>A placed Power Bomb.</summary>
     public static SamusProjectileType PowerBombType => SamusProjectileType.Of(SamusProjectileFamily.PowerBomb);
 
-    /// <summary>Semantic views of native projectile indices five through nine, in their scan order.</summary>
+    /// <summary>The bomb slots by ordinal.</summary>
     private readonly SamusBombProjectileSlot[] _slots =
         Enumerable.Range(0, SlotCount).Select(index => new SamusBombProjectileSlot(index)).ToArray();
 
-    /// <summary>The five slots in the same low-to-high order as WRAM $0C86-$0C8E.</summary>
+    /// <summary>The bomb slots by ordinal.</summary>
     public IReadOnlyList<SamusBombProjectileSlot> Slots => _slots;
+
+    /// <summary>The bomb slots in update order, highest ordinal first.</summary>
+    private IEnumerable<SamusBombProjectileSlot> InUpdateOrder
+    {
+        get
+        {
+            for (int ordinal = _slots.Length - 1; ordinal >= 0; ordinal--)
+                yield return _slots[ordinal];
+        }
+    }
 
     /// <summary>Bank-$88 owner of the flash, damaging radius, and armed flag.</summary>
     public SamusPowerBombExplosionState PowerBombExplosion { get; } = new();
 
-    /// <summary>WRAM $0CD2, maintained independently from slot scans by the original.</summary>
+    /// <summary>How many bombs Samus has out by the placing routines' count; kept separately from the free-slot search.</summary>
     public int BombCounter
     {
         get;
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>WRAM $0CCC. Its low byte gates another bomb while one is active.</summary>
+    /// <summary>The cooldown shared by every Samus projectile. Its low byte gates another bomb while one is active.</summary>
     public WrappingCountdown CooldownTimer { get; private set; }
 
     /// <summary>
-    /// Replaces WRAM <c>$0CCC</c> from another Samus-projectile producer.
+    /// Replaces the shared projectile cooldown from another Samus-projectile producer.
     /// </summary>
     /// <remarks>
-    /// Beams, missiles, power bombs, and normal bombs do not own separate cooldowns in the
-    /// cartridge. They all read and write the same word. Ordinary projectiles live in a
-    /// separate translated class because the native slot arrays split cleanly at byte index
-    /// <c>$0A</c>, but that host boundary must not accidentally create a second clock.
+    /// Beams, missiles, power bombs and normal bombs do not own separate cooldowns; they all read and write the same
+    /// one. Ordinary projectiles live in a separate class, but that boundary must not create a second clock.
     /// </remarks>
     internal void SetSharedCooldown(int value) => CooldownTimer = WrappingCountdown.FromRaw(value);
 
     /// <summary>
-    /// Replaces WRAM <c>$0CD2</c> from an enemy-owned Samus interaction. Shitroid writes
+    /// Replaces the bomb count from an enemy-owned Samus interaction. Shitroid writes
     /// five while it drains Samus to suppress projectile allocation, then clears the word
     /// at the terminal one-energy transition without disturbing the shared cooldown.
     /// </summary>
@@ -177,13 +184,12 @@ public sealed class SamusBombProjectileSystem
         bool projectileDeleted = false;
         var blockReactions = new List<BombBlockReaction>();
 
-        // HandleProjectile starts at projectile byte index $12 and walks downward. Those
-        // are bomb slots four through zero after removing the ordinary-projectile half.
-        // X-ray may have frozen time in this same HUD pass. Cooldown above still
-        // runs, but native skips HandleProjectile for all ten slots after admission.
-        for (int slotIndex = SlotCount - 1; !samus.Xray.TimeIsFrozen && slotIndex >= 0; slotIndex--)
+        // Bombs run in update order. X-ray may have frozen time in this same HUD pass: the cooldown above still runs, but
+        // no projectile is handled after admission.
+        foreach (SamusBombProjectileSlot slot in InUpdateOrder)
         {
-            SamusBombProjectileSlot slot = _slots[slotIndex];
+            if (samus.Xray.TimeIsFrozen)
+                break;
             if (slot.Cursor is null)
                 continue;
 
@@ -258,7 +264,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>
-    /// Draws $93:834D's bomb-slot subset in descending physical-slot order.
+    /// Draws the placed bombs and Power Bombs, in update order.
     /// </summary>
     public void Draw(
         SpriteFrameBuffer sprites,
@@ -267,9 +273,8 @@ public sealed class SamusBombProjectileSystem
     {
         Ensure.NotNull(sprites);
 
-        for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
+        foreach (SamusBombProjectileSlot slot in InUpdateOrder)
         {
-            SamusBombProjectileSlot slot = _slots[slotIndex];
             // Type $0300 power bombs and type $0500 normal bombs both use the same bank-$93
             // timed-spritemap interpreter. The large power-bomb flash itself is an HDMA
             // color-math window and is composed separately from OAM.
@@ -296,7 +301,7 @@ public sealed class SamusBombProjectileSystem
 
             SpriteSheetFrame image = artwork.Sheet.Frame(ProjectileSheetFrames.ProjectileFrame(
                 slot.Sprite ?? throw new InvalidOperationException("A drawn bomb shows a composition.")));
-            sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusBomb, slotIndex), image,
+            sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusBomb, slot.Index), image,
                 Position16<ScreenPixels>.Of(unchecked((ushort)screenX), screenY), SpriteMirror.None));
         }
     }
@@ -363,7 +368,7 @@ public sealed class SamusBombProjectileSystem
             CooldownTimer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>Applies held/new Shoot admission, ammo and equipment gates, then initializes a normal or power bomb in a native slot.</summary>
+    /// <summary>Applies held/new Shoot admission, ammo and equipment gates, then initializes a normal or power bomb in the lowest free bomb slot.</summary>
     internal int? TryPlaceBomb(
         SamusState samus,
         ControllerButton controllerInput,
@@ -531,7 +536,7 @@ public sealed class SamusBombProjectileSystem
         return true;
     }
 
-    /// <summary>Finds the first zero-type physical bomb slot, retaining the native last-slot fallback for inconsistent counters.</summary>
+    /// <summary>Finds the lowest free bomb slot, taking the last slot when an inconsistent count admitted a bomb with none free.</summary>
     private int FindFreeBombSlot()
     {
         int slotIndex = 0;
@@ -583,10 +588,8 @@ public sealed class SamusBombProjectileSystem
         SamusProjectileFamily typeFamily = slot.Type.Family;
         if (typeFamily is not (SamusProjectileFamily.Bomb or SamusProjectileFamily.PowerBomb))
         {
-            // This class owns only physical projectile slots five through nine after
-            // $90:BF9D/$C157 have selected normal- or Power-Bomb pre-instructions. No
-            // retail producer installs another family in these semantic slots; seeing
-            // one means the host-side slot model was mutated inconsistently.
+            // Bomb slots hold only normal bombs and Power Bombs. No retail producer installs another family in them;
+            // seeing one means the slot model was mutated inconsistently.
             throw new InvalidDataException(
                 $"Bomb slot {slot.Index} has invalid projectile family {typeFamily}.");
         }
@@ -1104,7 +1107,7 @@ public sealed class SamusBombProjectileSystem
         return publishedDirection;
     }
 
-    /// <summary>Clears a physical bomb slot and decrements the native aggregate counter with its signed-underflow clamp.</summary>
+    /// <summary>Clears a bomb slot and decrements the bomb count, clamping a signed underflow to zero.</summary>
     private void ClearProjectile(SamusBombProjectileSlot slot)
     {
         bool wasActive = slot.IsActive;
@@ -1112,8 +1115,7 @@ public sealed class SamusBombProjectileSystem
         if (!wasActive)
             return;
 
-        // ClearProjectile decrements the aggregate for byte indices >= $0A and clamps a
-        // signed underflow to zero. Consistent state cannot underflow, but the clamp is real.
+        // Consistent state cannot underflow, but the clamp is real.
         CountdownStep remaining = WrappingCounter.Decrement(BombCounter);
         BombCounter = remaining.IsNegative ? (ushort)0 : remaining.Value;
     }

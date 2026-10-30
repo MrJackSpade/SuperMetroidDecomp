@@ -36,10 +36,10 @@ internal static class DraygonCannonPlmsVerification
 
         RoomPlmSlotSnapshot[] slots = plms.PopulationSlots.ToArray();
         AssertEqual(4, slots.Length, "Draygon cannon native slot count");
-        AssertEqual(39, slots[0].NativeSlotIndex, "pre-destroyed cannon receives first slot");
-        AssertEqual(38, slots[1].NativeSlotIndex, "lower-left cannon receives second slot");
-        AssertEqual(37, slots[2].NativeSlotIndex, "upper-right cannon receives third slot");
-        AssertEqual(36, slots[3].NativeSlotIndex, "lower-right cannon receives fourth slot");
+        AssertEqual(0, slots[0].ProcessingPosition, "pre-destroyed cannon is processed first");
+        AssertEqual(1, slots[1].ProcessingPosition, "lower-left cannon is processed second");
+        AssertEqual(2, slots[2].ProcessingPosition, "upper-right cannon is processed third");
+        AssertEqual(3, slots[3].ProcessingPosition, "lower-right cannon is processed fourth");
 
         int preDestroyedBlock = 11 * roomWidth + 2;
         int rightBlock = 18 * roomWidth + 2;

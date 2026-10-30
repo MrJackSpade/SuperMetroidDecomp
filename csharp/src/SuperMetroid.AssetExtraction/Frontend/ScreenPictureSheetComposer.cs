@@ -71,7 +71,7 @@ internal static class ScreenPictureSheetComposer
                 new Extent16<ImagePixels>(checked((ushort)(subject.Size.X * TilePixels)), checked((ushort)(subject.Size.Y * TilePixels))), depth);
             frame = frame with
             {
-                Origin = new Offset16<ImagePixels>(checked((short)-(subject.Cell.X * TilePixels)), checked((short)-(subject.Cell.Y * TilePixels))),
+                Origin = new Offset16<ImagePixels>(checked((short)-(subject.Offset.X * TilePixels)), checked((short)-(subject.Offset.Y * TilePixels))),
             };
             if (!frames.TryAdd(subject.Name, frame))
                 throw new InvalidDataException($"A frontend screen pictures {subject.Name} twice.");

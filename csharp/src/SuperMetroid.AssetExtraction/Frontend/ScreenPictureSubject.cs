@@ -10,10 +10,10 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// frame's origin is the page's corner, so the game places every picture of a page at the page's own corner.
 /// </summary>
 /// <param name="Name">The picture's frame name.</param>
-/// <param name="Cell">The page cell the picture's top-left cell lies on.</param>
+/// <param name="Offset">The cells from the point the game places the picture at (a page's corner, or a field's anchor) to its top-left cell.</param>
 /// <param name="Size">The picture's width and height in cells.</param>
 /// <param name="Tiles">Its tiles row by row; none where it paints nothing.</param>
-internal sealed record ScreenPictureSubject(string Name, Position16<TilemapCells> Cell, Extent16<TilemapCells> Size, BackgroundTile?[] Tiles)
+internal sealed record ScreenPictureSubject(string Name, Offset16<TilemapCells> Offset, Extent16<TilemapCells> Size, BackgroundTile?[] Tiles)
 {
     /// <summary>The whole of <paramref name="page"/>, <paramref name="width"/> cells across, except <paramref name="omitted"/> cells.</summary>
     /// <exception cref="ArgumentException">The page is not whole rows.</exception>
@@ -52,17 +52,17 @@ internal sealed record ScreenPictureSubject(string Name, Position16<TilemapCells
         var tiles = new BackgroundTile?[across * (bottom - top + 1)];
         foreach (int cell in cells)
             tiles[(cell / width - top) * across + cell % width - left] = page[cell];
-        return new(name, new(checked((ushort)left), checked((ushort)top)), new(checked((ushort)across), checked((ushort)(bottom - top + 1))), tiles);
+        return new(name, new(checked((short)left), checked((short)top)), new(checked((ushort)across), checked((ushort)(bottom - top + 1))), tiles);
     }
 
-    /// <summary>A <paramref name="size"/> block of <paramref name="tiles"/>, row by row, whose top-left cell lies on page cell <paramref name="cell"/>.</summary>
+    /// <summary>A <paramref name="size"/> block of <paramref name="tiles"/>, row by row, whose top-left cell lies <paramref name="offset"/> from where the game places it.</summary>
     /// <exception cref="ArgumentException">The tiles do not fill the block.</exception>
-    internal static ScreenPictureSubject Block(string name, Position16<TilemapCells> cell, Extent16<TilemapCells> size, ReadOnlySpan<BackgroundTile> tiles)
+    internal static ScreenPictureSubject Block(string name, Offset16<TilemapCells> offset, Extent16<TilemapCells> size, ReadOnlySpan<BackgroundTile> tiles)
     {
         Ensure.LengthEqual(tiles, size.X * size.Y);
         var painted = new BackgroundTile?[tiles.Length];
         for (int index = 0; index < tiles.Length; index++)
             painted[index] = tiles[index];
-        return new(name, cell, size, painted);
+        return new(name, offset, size, painted);
     }
 }

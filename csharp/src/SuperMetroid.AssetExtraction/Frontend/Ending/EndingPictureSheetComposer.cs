@@ -34,6 +34,9 @@ internal static class EndingPictureSheetComposer
     /// <summary>The font's character every page clears to: its blank glyph, which must show nothing.</summary>
     private const int BlankGlyph = 0x07f;
 
+    /// <summary>The shelves of two-row glyphs: the large letters, then the digits and the percent sign where the letters leave no room.</summary>
+    private const int LargeGlyphShelves = 2;
+
     /// <summary>The ending's picture sheets.</summary>
     internal static IReadOnlyList<SpriteSheetId> Sheets { get; } =
         [SpriteSheetId.EndingCreditsRows, SpriteSheetId.EndingPostCreditsPictures, SpriteSheetId.EndingWavySamusPicture, SpriteSheetId.EndingExplosionPictures];
@@ -151,7 +154,7 @@ internal static class EndingPictureSheetComposer
         BackgroundTile[][] panels = [text.BuildResultPanel(), text.BuildCopyrightPanel(), [.. text.JapaneseSubtitle]];
         (string Name, BackgroundTile[] Words)[] glyphs = [.. Glyphs()];
         int panelRows = PostCreditsPanels.Sum(panel => panel.Rows);
-        int glyphRows = EndingTextDefinitions.SmallGlyphHeight + 2 * EndingTextDefinitions.LargeGlyphHeight;
+        int glyphRows = EndingTextDefinitions.SmallGlyphHeight + LargeGlyphShelves * EndingTextDefinitions.LargeGlyphHeight;
         int height = (PostCreditsScreens.Count * ScreenCells + panelRows + glyphRows) * CharacterPixels;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(ScreenSize.X, checked((ushort)height)));
         RgbColor[] colours = Colours(sources, EndingPaletteId.PostCredits);

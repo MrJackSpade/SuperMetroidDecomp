@@ -1250,7 +1250,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // soon as it selects a DIFFERENT pose, before collision and movement.
         if (_player.ProspectiveSamusPose is { } matchedBombCancel &&
             matchedBombCancel.ProspectivePose != samus.Pose)
-            samus.BombJumpDirection = 0;
+            samus.BombJumpRequest = SamusBombJumpRequest.None;
         frame.SamplePoseLookup(poseLookup, samus);
         _player.ProspectiveSamusFallbackPose = null;
         _player.ProspectiveSamusWallCollisionPose = null;

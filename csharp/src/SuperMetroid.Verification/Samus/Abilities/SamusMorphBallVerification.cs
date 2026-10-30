@@ -315,14 +315,14 @@ empty, samus, frameCounter: 1);
     };
     SamusPoseMetadata.RefreshCollisionRadii(frozenCrouchBombJump);
     SamusPresentation.InitializeAnimation(frozenCrouchBombJump);
-    SamusPoseMetadata.PublishBombJumpDirection(frozenCrouchBombJump, 2);
+    SamusPoseMetadata.PublishBombJumpDirection(frozenCrouchBombJump, SamusBombJumpDirection.Straight);
     AssertTrue(!SamusPoseMetadata.TrySetupPublishedBombJump(frozenCrouchBombJump, 
 
             floor,
             timeIsFrozen: true,
             frameCounter: 0, controllerNewInput: 0),
         "frozen standing/crouching setup rejects bomb jump");
-    AssertEqual(0, frozenCrouchBombJump.BombJumpDirection,
+    AssertEqual(SamusBombJumpRequest.None, frozenCrouchBombJump.BombJumpRequest,
         "frozen setup clears complete published direction word");
     AssertEqual(SamusPoseId.CrouchingRightPose, frozenCrouchBombJump.Pose,
         "frozen setup retains crouching pose");
@@ -334,7 +334,7 @@ empty, samus, frameCounter: 1);
     };
     SamusPoseMetadata.RefreshCollisionRadii(crouchBombJump);
     SamusPresentation.InitializeAnimation(crouchBombJump);
-    SamusPoseMetadata.PublishBombJumpDirection(crouchBombJump, 1);
+    SamusPoseMetadata.PublishBombJumpDirection(crouchBombJump, SamusBombJumpDirection.Left);
     AssertTrue(SamusPoseMetadata.TrySetupPublishedBombJump(crouchBombJump, 
 
             floor,
@@ -347,7 +347,7 @@ empty, samus, frameCounter: 1);
         "crouch bomb jump installs forward-jump radius from ROM");
     AssertEqual(45, crouchBombJump.Position.Y.Whole,
         "crouch bomb jump aligns feet without the ordinary jump-transition lift");
-    AssertEqual(0x0801, crouchBombJump.BombJumpDirection,
+    AssertEqual(SamusBombJumpRequest.Published(SamusBombJumpDirection.Left).Accept(), crouchBombJump.BombJumpRequest,
         "humanoid setup executes command three after pose initialization");
 
     var airborneBombRejection = new SamusState
@@ -357,14 +357,14 @@ empty, samus, frameCounter: 1);
     };
     SamusPoseMetadata.RefreshCollisionRadii(airborneBombRejection);
     SamusPresentation.InitializeAnimation(airborneBombRejection);
-    SamusPoseMetadata.PublishBombJumpDirection(airborneBombRejection, 3);
+    SamusPoseMetadata.PublishBombJumpDirection(airborneBombRejection, SamusBombJumpDirection.Right);
     AssertTrue(!SamusPoseMetadata.TrySetupPublishedBombJump(airborneBombRejection, 
 
             empty,
             timeIsFrozen: false,
             frameCounter: 0, controllerNewInput: 0),
         "normal-jump movement type uses native carry-clear setup entry");
-    AssertEqual(0, airborneBombRejection.BombJumpDirection,
+    AssertEqual(SamusBombJumpRequest.None, airborneBombRejection.BombJumpRequest,
         "carry-clear bomb-jump family consumes and clears published direction");
     AssertTrue(!airborneBombRejection.BombJumpStarting,
         "carry-clear bomb-jump family does not install special movement");
@@ -653,11 +653,11 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         return new MakeDirectionFixtureResult(fixtureSystem, fixtureSamus);
     }
 
-    foreach ((ushort samusX, SamusBombJumpDirection expectedDirection, byte expectedWord) in new SamusMorphBallVerifySamusMorphBallMovementCase3[]
+    foreach ((ushort samusX, SamusBombJumpDirection expectedDirection) in new SamusMorphBallVerifySamusMorphBallMovementCase3[]
     {
-        new SamusMorphBallVerifySamusMorphBallMovementCase3(47, SamusBombJumpDirection.Left, 1),
-        new SamusMorphBallVerifySamusMorphBallMovementCase3(48, SamusBombJumpDirection.Straight, 2),
-        new SamusMorphBallVerifySamusMorphBallMovementCase3(49, SamusBombJumpDirection.Right, 3),
+        new SamusMorphBallVerifySamusMorphBallMovementCase3(47, SamusBombJumpDirection.Left),
+        new SamusMorphBallVerifySamusMorphBallMovementCase3(48, SamusBombJumpDirection.Straight),
+        new SamusMorphBallVerifySamusMorphBallMovementCase3(49, SamusBombJumpDirection.Right),
     })
     {
         (SamusBombProjectileSystem directionSystem, SamusState directionSamus) =
@@ -666,8 +666,8 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         BombProjectileFrameResult timerEight = directionSystem.StepFrame(new SamusTerrain { Level = floor }, directionSamus, 0, 0);
         AssertEqual(expectedDirection, timerEight.PublishedBombJumpDirection,
             $"timer-eight bomb direction at Samus X {samusX}");
-        AssertEqual(expectedWord, directionSamus.BombJumpDirection,
-            "bank-$A0 publishes low byte without command bit");
+        AssertEqual(SamusBombJumpRequest.Published(expectedDirection), directionSamus.BombJumpRequest,
+            "bank-$A0 publishes the direction as a request pose handling has not accepted");
         AssertTrue(!directionSamus.BombJumpStarting,
             "timer-eight overlap does not start movement in same frame");
     }
@@ -681,7 +681,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         "timer fifteen advances the live instruction pointer into fast animation");
     while (bombs.Slots[0].BombTimer.RawValue > 8)
         bombs.StepFrame(new SamusTerrain { Level = floor }, bombProjectileSamus, 0, 0);
-    AssertEqual(2, bombProjectileSamus.BombJumpDirection,
+    AssertEqual(SamusBombJumpRequest.Published(SamusBombJumpDirection.Straight), bombProjectileSamus.BombJumpRequest,
         "same-X timer-eight overlap publishes straight direction");
     AssertTrue(SamusPoseMetadata.TrySetupPublishedBombJump(bombProjectileSamus, 
 
@@ -689,8 +689,8 @@ empty, spring, controllerInput: 0, frameCounter: 0);
             timeIsFrozen: false,
             frameCounter: 0, controllerNewInput: 0),
         "following alpha consumes published morphed bomb jump");
-    AssertEqual(0x0802, bombProjectileSamus.BombJumpDirection,
-        "morphed setup adds command-three bit on following frame");
+    AssertEqual(SamusBombJumpRequest.Published(SamusBombJumpDirection.Straight).Accept(), bombProjectileSamus.BombJumpRequest,
+        "morphed setup accepts the request on the following frame");
 
     BombProjectileFrameResult explosion = default;
     while (!bombs.Slots[0].IsExploding)
@@ -1530,11 +1530,11 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     SamusPresentation.InitializeAnimation(bombJump);
     bombJump.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x4000);
     AssertThrows<ArgumentOutOfRangeException>(
-        () => bombJump.RequestMorphedBombJump(0),
+        () => bombJump.RequestMorphedBombJump(SamusBombJumpDirection.None),
         "bomb-jump direction zero rejected");
 
-    bombJump.RequestMorphedBombJump(3);
-    AssertEqual(0x0803, bombJump.BombJumpDirection, "right bomb jump command word");
+    bombJump.RequestMorphedBombJump(SamusBombJumpDirection.Right);
+    AssertEqual(SamusBombJumpRequest.Published(SamusBombJumpDirection.Right).Accept(), bombJump.BombJumpRequest, "right bomb jump accepted");
     ushort startX = bombJump.Position.X.Whole;
     ushort startY = bombJump.Position.Y.Whole;
     SamusBombJumpMovement.Start(bombJump);
@@ -1564,7 +1564,7 @@ empty, bombJump, frameCounter: 0, PlmFixtures.Unbound());
     SamusBombJumpMovement.Step(
 empty, bombJump, frameCounter: 1, PlmFixtures.Unbound());
     AssertTrue(!bombJump.BombJumpActive, "signed bomb-jump apex ends special handler");
-    AssertEqual(0, bombJump.BombJumpDirection, "bomb-jump apex clears command word");
+    AssertEqual(SamusBombJumpRequest.None, bombJump.BombJumpRequest, "bomb-jump apex drops the request");
     AssertEqual(SamusVerticalDirection.Down, bombJump.Kinematics.YDirection, "bomb-jump apex hands off downward direction");
     AssertEqual(SamusAccelerationMode.Decelerating, bombJump.HorizontalSpeed.AccelerationMode, "diagonal apex selects mode two");
 
@@ -1584,7 +1584,7 @@ empty, bombJump, frameCounter: 1, PlmFixtures.Unbound());
     SamusPoseMetadata.RefreshCollisionRadii(straightBombJump);
     SamusPresentation.InitializeAnimation(straightBombJump);
     straightBombJump.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x4000);
-    straightBombJump.RequestMorphedBombJump(2);
+    straightBombJump.RequestMorphedBombJump(SamusBombJumpDirection.Straight);
     SamusBombJumpMovement.Start(straightBombJump);
     ushort straightXSubposition = straightBombJump.Kinematics.Position.X.Fraction;
     BombJumpMovementResult ceilingHit = SamusBombJumpMovement.Step(

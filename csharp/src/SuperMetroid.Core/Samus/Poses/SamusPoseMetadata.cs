@@ -585,39 +585,12 @@ internal static class SamusPoseMetadata
         SamusPoseId.UnmorphingTransitionRightPose or SamusPoseId.UnmorphingTransitionLeftPose;
 
     /// <summary>
-    /// Publishes a bomb overlap's launch direction as the direction word's low-byte values one, two and three for
-    /// left, straight and right. The gameplay loop does this after frame-handler alpha; setup considers it after
-    /// movement and hurt arbitration.
+    /// Publishes a bomb overlap's launch direction as a request Samus's pose handling has not yet accepted. The
+    /// gameplay loop does this after frame-handler alpha; setup considers it after movement and hurt arbitration.
     /// </summary>
     public static void PublishBombJumpDirection(SamusState samus, SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection direction) =>
-        PublishBombJumpDirection(samus, direction switch
-        {
-            SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection.Left => 1,
-            SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection.Straight => 2,
-            SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection.Right => 3,
-            SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection.None =>
-                throw new ArgumentOutOfRangeException(nameof(direction), direction, "A published bomb jump has a direction."),
-            _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined bomb-jump direction."),
-        });
-
-    /// <summary>
-    /// Stores only bank-$A0's low-byte bomb direction. The gameplay loop does this after
-    /// frame-handler alpha; setup considers it after movement and hurt arbitration.
-    /// </summary>
-    public static void PublishBombJumpDirection(SamusState samus, int direction)
-    {
-        if (direction is < 1 or > 3)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(direction),
-                direction,
-                "Bomb-jump direction must be left, straight, or right.");
-        }
-
-        // $A0:984B writes the complete word, not just its low byte. A timer-eight overlap
-        // therefore publishes exactly $0001/$0002/$0003.
-        samus.BombJumpDirection = direction;
-    }
+        // $A0:984B replaces the whole request, so a blast during an accepted jump publishes a fresh, unaccepted one.
+        samus.BombJumpRequest = SamusBombJumpRequest.Published(direction);
 
     /// <summary>
     /// Executes the carry-clear branches of the bomb-jump movement table before pose selection.
@@ -629,10 +602,10 @@ internal static class SamusPoseMetadata
     /// entries retain their current pose. Jump/turn/transition/damage-boost and actor-owned
     /// families clear the published direction exactly like the table's carry-clear routines.
     /// </remarks>
-    /// <returns>True when the pending low-byte direction was rejected and cleared.</returns>
+    /// <returns>True when the pending request was rejected and dropped.</returns>
     public static bool RejectUnsupportedPublishedBombJump(SamusState samus, bool timeIsFrozen)
     {
-        if (samus.BombJumpDirection == 0 || checked((ushort)samus.BombJumpDirection) > byte.MaxValue)
+        if (!samus.BombJumpRequest.AwaitsPoseHandling)
             return false;
         SamusMovementType movement = ReadMovementKind(samus);
         bool reject = movement is SamusMovementType.NormalJumping or SamusMovementType.SpinJumping or
@@ -640,7 +613,7 @@ internal static class SamusPoseMetadata
             SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling or
             SamusMovementType.DamageBoost or SamusMovementType.DraygonHeld or SamusMovementType.Special ||
             timeIsFrozen && movement is (SamusMovementType.Standing or SamusMovementType.Crouching);
-        if (reject) samus.BombJumpDirection = 0;
+        if (reject) samus.BombJumpRequest = SamusBombJumpRequest.None;
         return reject;
     }
 
@@ -656,8 +629,7 @@ internal static class SamusPoseMetadata
     {
 
         Ensure.NotNull(level);
-        if (RejectUnsupportedPublishedBombJump(samus, timeIsFrozen) ||
-            samus.BombJumpDirection == 0 || checked((ushort)samus.BombJumpDirection) > byte.MaxValue)
+        if (RejectUnsupportedPublishedBombJump(samus, timeIsFrozen) || !samus.BombJumpRequest.AwaitsPoseHandling)
             return false;
 
         SamusMovementType movementType = ReadMovementKind(samus);
@@ -665,11 +637,10 @@ internal static class SamusPoseMetadata
         {
             case SamusMovementType.Standing:
             case SamusMovementType.Crouching:
-                // `$90:DFED` is the only setup branch gated by frozen time. Its clear is a
-                // complete 16-bit STZ, so no high-byte provenance survives rejection.
+                // `$90:DFED` is the only setup branch gated by frozen time; it drops the request.
                 if (timeIsFrozen)
                 {
-                    samus.BombJumpDirection = 0;
+                    samus.BombJumpRequest = SamusBombJumpRequest.None;
                     return false;
                 }
                 goto case SamusMovementType.Running;
@@ -750,7 +721,7 @@ internal static class SamusPoseMetadata
             case SamusMovementType.DamageBoost:
             case SamusMovementType.DraygonHeld:
             case SamusMovementType.Special:
-                samus.BombJumpDirection = 0;
+                samus.BombJumpRequest = SamusBombJumpRequest.None;
                 return false;
 
             default:
@@ -775,7 +746,7 @@ internal static class SamusPoseMetadata
         // resume after the bomb arc returns control to normal movement.
         samus.CrystalFlash.RelinquishMovementHandler();
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
-        samus.BombJumpDirection |= SamusBombJumpMovement.ActiveFlag;
+        samus.BombJumpRequest = samus.BombJumpRequest.Accept();
         samus.BombJumpStarting = true;
         samus.BombJumpActive = false;
         samus.BombJumpPoseInputLocked = true;

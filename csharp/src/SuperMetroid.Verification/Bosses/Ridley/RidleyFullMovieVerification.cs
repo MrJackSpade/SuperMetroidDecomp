@@ -1176,7 +1176,7 @@ internal static class RidleyFullMovieVerification
             Check("Samus SpeedDivisor", checked((ushort)samus.HorizontalSpeed.SpeedDivisor), NativeSnapshotMemory.SpeedDivisor);
             Check("Samus ContactDamageIndex", (ushort)samus.HorizontalSpeed.ContactDamageIndex, NativeSnapshotMemory.ContactDamageIndex);
             Check("Samus MorphBallBounceState", (ushort)samus.MorphBallBounceState, NativeSnapshotMemory.MorphBallBounceState);
-            Check("Samus BombJumpDirection", samus.BombJumpDirection, NativeSnapshotMemory.BombJumpDirection);
+            Check("Samus bomb jump", SamusBombJumpRequestCodec.ToNative(samus.BombJumpRequest), NativeSnapshotMemory.BombJumpDirection);
             Check("Samus running momentum", samus.HorizontalSpeed.HasRunningMomentum ? (ushort)1 : (ushort)0, NativeSnapshotMemory.Momentum);
             Check("Samus speed boost counter", checked((ushort)samus.HorizontalSpeed.SpeedBoostCounter.RawValue), NativeSnapshotMemory.BoostCounter);
             Check("Samus horizontal speed table", samus.HorizontalSpeed.ActiveSpeedTableBaseAddress, NativeSnapshotMemory.HorizontalSpeedTable);

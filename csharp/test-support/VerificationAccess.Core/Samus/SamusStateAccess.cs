@@ -3,6 +3,7 @@ namespace SuperMetroid.Core.Samus;
 
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.World;
 
 /// <summary>Verification access to <see cref="SamusState"/> members production does not use.</summary>
@@ -47,10 +48,10 @@ internal static class SamusStateAccess
         /// Convenience debugger/test entry that performs both native phases: publishing the
         /// bank-$A0 timer-eight overlap direction, then consuming it through $90:DF99 and
         /// special command three $91:EE80. Live runtime code calls those phases on either
-        /// side of movement through <see cref="SamusPoseMetadata.PublishBombJumpDirection(SamusState, int)"/> and
+        /// side of movement through <see cref="SamusPoseMetadata.PublishBombJumpDirection(SamusState, SamusBombJumpDirection)"/> and
         /// <see cref="SamusPoseMetadata.TrySetupPublishedBombJump"/>.
         /// </summary>
-        internal void RequestMorphedBombJump(byte direction)
+        internal void RequestMorphedBombJump(SamusBombJumpDirection direction)
         {
             if (!SamusPoseMetadata.IsStableBallPose(self.Pose))
             {

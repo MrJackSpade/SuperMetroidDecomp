@@ -120,7 +120,7 @@ internal static class ShutterNativeArc
         // Native pose record carries direction/movement type in its first two bytes.
         ram[0xA1E] = SamusPoseRecordCodec.FacingByte(samus.Pose);
         ram[0xA1F] = SamusPoseRecordCodecTooling.MovementByte(samus.Pose);
-        Word(0xA56, samus.BombJumpDirection); Word(0xA58, 0xE032); Word(0xA60, 0xE90E);
+        Word(0xA56, SamusBombJumpRequestCodec.ToNative(samus.BombJumpRequest)); Word(0xA58, 0xE032); Word(0xA60, 0xE90E);
         Word(0xB2C, k.YSpeed.Fraction); Word(0xB2E, k.YSpeed.Whole);
         Word(0xB32, k.YAcceleration.Fraction); Word(0xB34, k.YAcceleration.Whole); Word(0xB36, (ushort)k.YDirection);
         Word(0xB42, speed.ExtraRunSpeed.Whole); Word(0xB44, speed.ExtraRunSpeed.Fraction);

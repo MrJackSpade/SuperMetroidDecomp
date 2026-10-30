@@ -34,6 +34,7 @@ namespace SuperMetroid.Verification.Harness;
 
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.TestSupport.ScenarioFixtures;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Fx.PaletteFx;
 
@@ -214,7 +215,7 @@ internal static class NativeSnapshotImportVerification
             W(NativeSnapshotMemory.ContactDamageIndex), "Samus contact damage index");
         samus.MorphBallBounceState = ClosedEnumWordDecoding.Decode<SamusBallBounceState>(
             W(NativeSnapshotMemory.MorphBallBounceState), "Samus morph-ball bounce state");
-        samus.BombJumpDirection = W(NativeSnapshotMemory.BombJumpDirection);
+        samus.BombJumpRequest = SamusBombJumpRequestCodec.FromNative(W(NativeSnapshotMemory.BombJumpDirection));
 
         foreach (var trail in runtime.Projectiles.TrailSlots)
         {

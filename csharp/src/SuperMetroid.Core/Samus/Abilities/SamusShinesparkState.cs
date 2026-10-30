@@ -326,7 +326,7 @@ public sealed class SamusShinesparkState
             new SamusSpeedBoostCounter(ShinesparkDefinitions.ActiveSpeedBoostCounter);
         samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(8, 0);
         samus.HorizontalSpeed.BaseSpeed = default;
-        samus.BombJumpDirection = 0;
+        samus.BombJumpRequest = SamusBombJumpRequest.None;
 
         VerticalAcceleration = SignedSixteenSixteen.FromParts(7, 0);
         StartStopTimer = WrappingCountdown.Start(30);

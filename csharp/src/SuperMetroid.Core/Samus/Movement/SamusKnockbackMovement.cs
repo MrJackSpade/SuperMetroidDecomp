@@ -192,7 +192,7 @@ level, targetPose, frameCounter, plms))
         // The remainder of `$91:ED4E` runs for both pointer-table families. A pending bomb
         // jump cannot coexist with hurt movement, and shinespark/Screw contact damage is
         // cancelled before the special movement handler begins.
-        samus.BombJumpDirection = 0;
+        samus.BombJumpRequest = SamusBombJumpRequest.None;
         // Replacing the movement pointer cancels the bomb mover immediately, but
         // does not replace its independently locked pose-input pointer yet.
         samus.BombJumpStarting = false;

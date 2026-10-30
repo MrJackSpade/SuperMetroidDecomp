@@ -16,16 +16,12 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </remarks>
 public static class SamusBombJumpMovement
 {
-    /// <summary>Bit 11 of the bomb-jump direction word: a bomb jump is armed.</summary>
-    internal const ushort ActiveFlag = 1 << 11;
-
     /// <summary>Runs `$90:E025`, which initializes velocity but deliberately moves zero pixels.</summary>
     public static BombJumpMovementResult Start(SamusState samus)
     {
         Ensure.NotNull(samus);
-        int direction = unchecked((byte)samus.BombJumpDirection);
-        if (direction is < 1 or > 3 || (samus.BombJumpDirection & ActiveFlag) == 0)
-            throw new InvalidOperationException($"Bomb-jump start requires armed direction $0801-$0803, got ${samus.BombJumpDirection:X4}.");
+        if (!samus.BombJumpRequest.Accepted)
+            throw new InvalidOperationException($"Bomb-jump start requires an accepted request, got {samus.BombJumpRequest}.");
 
         // `$90:9A2C` uses the same bottom-edge air/water/lava classification as ordinary
         // launch, indexing adjacent table words by zero/two/four. Gravity is refreshed by
@@ -53,28 +49,19 @@ public static class SamusBombJumpMovement
         if (!samus.BombJumpActive)
             throw new InvalidOperationException("Bomb-jump main handler requires an active jump.");
 
-        if (samus.BombJumpDirection == 0)
+        SamusBombJumpDirection direction = samus.BombJumpRequest.Direction;
+        if (direction == SamusBombJumpDirection.None)
             return End(samus, null);
 
-        int direction = unchecked((byte)samus.BombJumpDirection);
-        if (direction is < 1 or > 3)
-        {
-            // Native doubles this value into a four-entry pointer table whose zero entry
-            // deliberately crashes. Surface corrupted/impossible state instead of turning
-            // it into a made-up graceful termination.
-            throw new InvalidOperationException(
-                $"Active bomb jump has invalid native direction ${samus.BombJumpDirection:X4}.");
-        }
-
         BlockMoveResult? horizontal;
-        if (direction != 2)
+        if (direction != SamusBombJumpDirection.Straight)
         {
             // `$90:8EF4` bypasses the normal movement-type pointer and feeds `$90:9F25`
             // directly to the deceleration-allowed calculator. Direction one is left;
             // direction three is right. Existing base words intentionally participate.
             uint baseSpeed = samus.HorizontalSpeed.CalculateBaseSpeed(
                 SamusStandaloneSpeedRecord.DiagonalBombJump);
-            var displacement = SamusHorizontalDisplacement.Toward(direction == 1, samus, baseSpeed);
+            var displacement = SamusHorizontalDisplacement.Toward(direction == SamusBombJumpDirection.Left, samus, baseSpeed);
             horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = displacement.Displacement, CollisionMovementDirection = displacement.CollisionDirection });
             // The native direction-aware X mover clears momentum on a wall hit
             // before the later Y scan replaces its collision result. This must
@@ -91,7 +78,7 @@ public static class SamusBombJumpMovement
         {
             samus.Kinematics.YSpeed = default;
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
-            if (direction != 2)
+            if (direction != SamusBombJumpDirection.Straight)
                 samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
         }
         else if (samus.Kinematics.YDirection == SamusVerticalDirection.Up && samus.Kinematics.YSpeed.Whole == 0)
@@ -155,7 +142,7 @@ public static class SamusBombJumpMovement
         SamusState samus,
         BlockMoveResult? vertical)
     {
-        samus.BombJumpDirection = 0;
+        samus.BombJumpRequest = SamusBombJumpRequest.None;
         samus.BombJumpStarting = false;
         samus.BombJumpActive = false;
         samus.BombJumpPoseInputLocked = false;

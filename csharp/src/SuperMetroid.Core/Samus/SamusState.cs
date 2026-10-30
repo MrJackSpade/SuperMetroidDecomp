@@ -367,15 +367,10 @@ public sealed class SamusState
     public SamusBallBounceState MorphBallBounceState { get; set; }
 
     /// <summary>
-    /// WRAM `$0A56`: low byte 1/2/3 is left/straight/right; bit `$0800` marks the bank-$91
-    /// special prospective command as accepted and prevents the same explosion rearming it.
+    /// The bomb jump a bomb's blast asked of Samus: its launch direction, and whether her pose handling has accepted it,
+    /// which keeps the same request from arming the jump again.
     /// </summary>
-    [PackedFields("WRAM $0A56: low byte left, straight or right, plus the $0800 accepted-command bit; zero means no bomb jump")]
-    public int BombJumpDirection
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public SamusBombJumpRequest BombJumpRequest { get; set; }
 
     /// <summary>True for `$90:E025`'s one-frame velocity-initialization handler.</summary>
     public bool BombJumpStarting { get; set; }

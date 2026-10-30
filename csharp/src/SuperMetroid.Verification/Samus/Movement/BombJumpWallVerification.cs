@@ -25,7 +25,7 @@ internal static class BombJumpWallVerification
         SamusPresentation.InitializeAnimation(samus);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0xF000);
         samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x4000);
-        samus.RequestMorphedBombJump(3);
+        samus.RequestMorphedBombJump(SamusBombJumpDirection.Right);
         SamusBombJumpMovement.Start(samus);
         var result = SamusBombJumpMovement.Step(level, samus, 0, PlmFixtures.Unbound());
         // Only the X mover's wall hit clears the base speed the bomb-jump calculator just accelerated.
@@ -35,7 +35,7 @@ internal static class BombJumpWallVerification
         // must not end the special handler; the native branch tests the later Y result.
         AssertTrue(samus.BombJumpActive, "wall-only collision retains native bomb-jump handler");
         AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "bomb-jump wall hit clears horizontal momentum without cancelling ascent");
-        AssertEqual(0x0803, samus.BombJumpDirection, "native bomb-wall direction remains armed");
+        AssertEqual(SamusBombJumpRequest.Published(SamusBombJumpDirection.Right).Accept(), samus.BombJumpRequest, "the bomb-wall request remains accepted");
         AssertEqual(59, samus.Position.X.Whole, "native bomb-wall X endpoint");
         AssertEqual(77, samus.Position.Y.Whole, "native bomb-wall Y endpoint");
         AssertEqual(0x4000, samus.Kinematics.Position.Y.Fraction, "native bomb-wall Y fraction");
@@ -72,7 +72,7 @@ internal static class BombJumpWallVerification
         var hurt = new SamusState { Pose = SamusPoseId.KnockbackRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(32, 120)) };
         SamusPoseMetadata.RefreshCollisionRadii(hurt);
         SamusPresentation.InitializeAnimation(hurt);
-        SamusPoseMetadata.PublishBombJumpDirection(hurt, 2);
+        SamusPoseMetadata.PublishBombJumpDirection(hurt, SamusBombJumpDirection.Straight);
         AssertTrue(SamusPoseMetadata.TrySetupPublishedBombJump(hurt, level, false, 0, controllerNewInput: 0), "hurt pose admits bomb start");
         SamusBombJumpMovement.Start(hurt);
         hurt.Kinematics.YSpeed = new UnsignedSixteenSixteen(1, 0);
@@ -83,7 +83,7 @@ internal static class BombJumpWallVerification
         AssertTrue(!hurt.BombJumpPoseInputLocked, "fractional upward speed restores next frame's input");
         AssertTrue(hurt.BombJumpActive, "restoring input does not prematurely end upward movement");
         AssertEqual(SamusPoseId.KnockbackRightPose, hurt.Pose, "restoring input retains damaged pose until an actual transition");
-        SamusPoseMetadata.PublishBombJumpDirection(hurt, 2);
+        SamusPoseMetadata.PublishBombJumpDirection(hurt, SamusBombJumpDirection.Straight);
         AssertTrue(SamusPoseMetadata.TrySetupPublishedBombJump(hurt, level, false, 0, controllerNewInput: 0), "fresh bomb command rearms retained hurt pose");
         AssertTrue(hurt.BombJumpPoseInputLocked, "fresh bomb command locks input again");
 

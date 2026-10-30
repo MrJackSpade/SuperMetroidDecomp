@@ -27,7 +27,7 @@ internal static class BombJumpRunMomentumVerification
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(2, 0xc000);
-        SamusPoseMetadata.PublishBombJumpDirection(samus, 1);
+        SamusPoseMetadata.PublishBombJumpDirection(samus, SamusBombJumpDirection.Left);
         AssertTrue(SamusPoseMetadata.TrySetupPublishedBombJump(samus, floor, timeIsFrozen: false, frameCounter: 0, controllerNewInput: 0),
             "a running Samus accepts the bomb jump");
         AssertEqual(SamusPoseId.NormalJumpForwardLeftPose, samus.Pose, "the bomb jump installs pose $52");

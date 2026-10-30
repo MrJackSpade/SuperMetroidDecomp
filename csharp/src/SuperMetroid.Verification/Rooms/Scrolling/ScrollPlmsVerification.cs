@@ -154,7 +154,7 @@ internal static class ScrollPlmsVerification
         };
         SamusPoseMetadata.RefreshCollisionRadii(bombJump);
         bombJump.Kinematics.YAcceleration = default;
-        bombJump.RequestMorphedBombJump(2);
+        bombJump.RequestMorphedBombJump(SamusBombJumpDirection.Straight);
         SamusBombJumpMovement.Start(bombJump);
         bombJump.Kinematics.YSpeed = new UnsignedSixteenSixteen(1, 0);
         SamusBombJumpMovement.Step(

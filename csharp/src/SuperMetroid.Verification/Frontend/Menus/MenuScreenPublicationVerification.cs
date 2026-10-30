@@ -105,9 +105,9 @@ internal static class MenuScreenPublicationVerification
             gameOver.Step(0);
         // Game over shows one picture of its whole page at the page's corner, under the sprites (#1467).
         LayeredScene gameOverScene = gameOver.CaptureRenderSnapshot();
-        AssertTrue(gameOverScene.Layers.Length == 2 && gameOverScene.Layers[0] is PicturedPlaneLayer { Plane.Pictures: [{ } page] } &&
-            ReferenceEquals(page.Picture, gameOverSheets.Get(SpriteSheetId.MenuPictures).Frame(SuperMetroid.Core.Frontend.GameOver.Artwork.GameOverPresentationDefinitions.PageFrame)) &&
-            page.Corner == default && gameOverScene.Layers[1] is SpritesLayer, "game over shows its page's picture under its sprites");
+        AssertTrue(gameOverScene.Layers.Length == 2 && gameOverScene.Layers[0] is PicturedPlaneLayer { Plane.Pictures: [{ } gameOverPage] } &&
+            ReferenceEquals(gameOverPage.Picture, gameOverSheets.Get(SpriteSheetId.MenuPictures).Frame(SuperMetroid.Core.Frontend.GameOver.Artwork.GameOverPresentationDefinitions.PageFrame)) &&
+            gameOverPage.Corner == default && gameOverScene.Layers[1] is SpritesLayer, "game over shows its page's picture under its sprites");
         AssertTrue(gameOverScene.Paint.Colors.SequenceEqual(gameOver.screen.Palette.Colors), "game over draws its own palette");
         AssertTrue(PaintedSpriteEntries.AreOwn(gameOverScene.Paint.SpriteDraws, gameOver.screen.Objects.Draws), "game over draws its own sprite entries");
         Console.WriteLine("  Menu screens: file select, options and game over publish their pages' pictures, palette and sprite entries.");

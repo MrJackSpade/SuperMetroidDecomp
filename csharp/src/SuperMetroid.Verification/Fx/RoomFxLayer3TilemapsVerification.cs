@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text.Json;

@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Frontend.Pause;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Artwork;
@@ -156,6 +157,8 @@ internal static class MenuSheetFixtures
         sheets[SpriteSheetId.MenuPictures] = LoadTiles(SpriteSheetId.MenuPictures, MenuPictureSheet.Compose(maps), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
         // The room maps' cells and frames, and each area's world-map pages, are pictured from the maps' presentation (#1467).
         sheets[SpriteSheetId.RoomMapPictures] = LoadTiles(SpriteSheetId.RoomMapPictures, MapPictureSheets.ComposeRoomMap(maps), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
+        // The pause screen's map cells, backdrops and buttons are pictured from the maps' presentation (#1467).
+        sheets[SpriteSheetId.PausePictures] = LoadTiles(SpriteSheetId.PausePictures, PausePictureSheet.Compose(maps), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
         foreach (KeyValuePair<AreaId, SpriteSheetId> foreground in ScreenTileSheetDefinitions.AreaMapForegrounds)
             sheets[foreground.Value] = LoadTiles(foreground.Value, MapPictureSheets.ComposeWorldForeground(maps, foreground.Key), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
         foreach (KeyValuePair<AreaId, SpriteSheetId> background in ScreenTileSheetDefinitions.AreaMapBackgrounds)

@@ -12,7 +12,7 @@ internal static class SamusSheetSources
     {
         SpriteSheetId.EscapeTimer => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The escape timer is not one of Samus's sheets."),
         SpriteSheetId.PauseHud => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The pause HUD composes from the HUD's images, not sprite parts."),
-        SpriteSheetId.MenuPictures or SpriteSheetId.RoomMapPictures => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The menus' pictures compose from their pages, not sprite parts."),
+        SpriteSheetId.MenuPictures or SpriteSheetId.RoomMapPictures or SpriteSheetId.PausePictures => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The menus' pictures compose from their pages, not sprite parts."),
         SpriteSheetId.Grapple => GrappleSheetComposer.Sources(inputs),
         SpriteSheetId.SamusBodyTop or SpriteSheetId.SamusBodyBottom => SamusBodySheetComposer.Sources(inputs, sheet),
         SpriteSheetId.SamusOverlays => SamusOverlaySheetComposer.Sources(inputs),

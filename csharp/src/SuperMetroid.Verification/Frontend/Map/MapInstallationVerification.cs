@@ -22,6 +22,7 @@ namespace SuperMetroid.Verification.Frontend.Map;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Verifies that installed map and projectile overrides survive import, loading, and host startup.</summary>
 internal static class MapInstallationVerification

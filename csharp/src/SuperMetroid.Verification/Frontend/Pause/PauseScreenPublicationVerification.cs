@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -54,17 +55,32 @@ internal static class PauseScreenPublicationVerification
         PauseScreen screen = pause.screen;
         FramePaint memory = pause.CaptureRenderSnapshot().Paint;
         byte[] vram = pause.ShownVram();
-        AssertTiles(vram, PauseMenuLayoutConstants.Bg1TilemapWord, screen.Tilemaps.Bg1, $"{page} BG1");
-        AssertTiles(vram, PauseMenuLayoutConstants.Bg2TilemapWord, screen.Tilemaps.Bg2, $"{page} BG2");
+        BackgroundTile[] frame = pause.ShownBg2Tiles;
+        AssertTiles(vram, PauseMenuLayoutConstants.Bg1TilemapWord, pause.ShownBg1Tiles, $"{page} BG1");
+        AssertTiles(vram, PauseMenuLayoutConstants.Bg2TilemapWord, frame, $"{page} BG2");
         AssertTiles(vram, GameplayVramLayoutConstants.HudTilemapWord, screen.Bg3Tiles, $"{page} BG3");
+        AssertShownPlanes(pause, page);
         int tilemapsFirst = PauseMenuLayoutConstants.Bg1TilemapWord * sizeof(ushort);
-        int tilemapsEnd = (PauseMenuLayoutConstants.Bg2TilemapWord + screen.Tilemaps.Bg2.Length) * sizeof(ushort);
+        int tilemapsEnd = (PauseMenuLayoutConstants.Bg2TilemapWord + frame.Length) * sizeof(ushort);
         AssertTrue(vram.AsSpan(0, tilemapsFirst).SequenceEqual(screen.Characters[..tilemapsFirst]) &&
             vram.AsSpan(tilemapsEnd, GameplayVramLayoutConstants.HudTilemapWord * sizeof(ushort) - tilemapsEnd)
                 .SequenceEqual(screen.Characters[tilemapsEnd..(GameplayVramLayoutConstants.HudTilemapWord * sizeof(ushort))]),
             $"{page} draws its bound characters");
         AssertTrue(memory.Colors.SequenceEqual(screen.Palette.Colors), $"{page} draws its own palette");
         AssertTrue(screen.Objects.Draws.Length > 0 && PaintedSpriteEntries.AreOwn(memory.SpriteDraws, screen.Objects.Draws), $"{page} draws its own sprite entries");
+    }
+
+    /// <summary>
+    /// Asserts that the captured frame draws the map page as the grid of the shown map's cell pictures, or the equipment
+    /// page, and the frame as the area's backdrop, button rows and labels in the highlight's shades (#1467).
+    /// </summary>
+    private static void AssertShownPlanes(PauseMenuState pause, string page)
+    {
+        DisplayLayer[] layers = [.. pause.CaptureRenderSnapshot().Layers];
+        PicturedPlane frame = pause.screen.Frame(pause.area, pause.ButtonHighlight);
+        AssertTrue(layers.OfType<PicturedPlaneLayer>().Any(layer => layer.Plane.Equals(frame)), $"{page} draws the area's frame pictures");
+        bool grid = layers.OfType<PictureGridLayer>().Any(layer => layer.Grid.Equals(AreaMapPictures.Grid(pause.ShownMap, pause.screen.Pictures)));
+        AssertEqual(pause.ScreenMode == PauseScreenMode.Map, grid, $"{page} draws the shown map's cell pictures only on the map page");
     }
 
     /// <summary>Asserts that the words of <paramref name="vram"/> from <paramref name="firstWord"/> place exactly the tiles <paramref name="expected"/>.</summary>

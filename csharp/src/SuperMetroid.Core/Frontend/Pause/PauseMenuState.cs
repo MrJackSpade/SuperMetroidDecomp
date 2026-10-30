@@ -53,7 +53,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Provides persistent area map and exploration bits.</summary>
     private readonly SharedGameState system;
     /// <summary>Area whose map and pause backdrop are displayed.</summary>
-    private readonly AreaId area;
+    internal readonly AreaId area;
     /// <summary>Room header map origin used to locate Samus on the area map.</summary>
     private readonly Position16<MapTiles> roomMapPosition;
     /// <summary>Visibility rule for the installed map and its scroll bounds.</summary>
@@ -64,8 +64,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     internal readonly PauseScreen screen;
     /// <summary>Mutable BG1 equipment page including current inventory labels and tanks.</summary>
     internal readonly BackgroundTile[] equipmentTilemap;
-    /// <summary>Mutable button-label source whose palette bits survive page transitions.</summary>
-    private readonly BackgroundTile[] pauseButtonTilemap;
+    /// <summary>Which of the frame's button labels are lit (#1467); it survives page transitions and artwork rebinds.</summary>
+    internal PauseButtonHighlight ButtonHighlight { get; private set; }
+    /// <summary>How the map page shows the area map (#1466, #1467), as last loaded.</summary>
+    internal ShownAreaMap ShownMap { get; private set; }
     /// <summary>Current map/equipment fade or load phase.</summary>
     internal PauseMenuTransition Transition { get; private set; }
     /// <summary>Counter inserted between brightness changes during fade-in.</summary>
@@ -133,7 +135,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // screen binds that artwork and its capture places the characters.
         screen = new PauseScreen(entry.MapPresentation, entry.SpriteSheets);
         BindSpriteSheets(entry.SpriteSheets);
-        LoadPauseBackdrop();
         if (entry.GameplayHud is not null)
         {
             // SetupPPUForPauseMenu changes BG3SC to $58 but never uploads a replacement
@@ -151,14 +152,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // cell shows nothing rather than pause character zero, the visible orange `1` glyph.
         entry.MapPresentation.Palettes.Pause.LoadTo(screen.Palette);
 
-        // LoadPauseScreenBaseTilemaps does *not* leave the bottom two button-label rows
-        // solely in the $B6:E000 BG2 image. It keeps a mutable $B6:E400 copy at WRAM
-        // $3400, recolors MAP/EQUIPMENT/START there, and queues $80 bytes from $3640 to
-        // BG2 word $3B20. Omitting this second source is why the pause-screen chrome looked
-        // like missing HUD. Keep the complete mutable source so every native word index
-        // below remains directly comparable with bank $82.
-        pauseButtonTilemap = entry.MapPresentation.PauseBackdrops.CreateButtonTilemap();
-        SetPauseButtonLabelMode(0);
+        // LoadPauseScreenBaseTilemaps shows the button page's two label rows over the backdrop's bottom rows, its labels
+        // lit or dimmed by the highlight; the frame is the area's backdrop picture, the button rows' picture and each
+        // label's picture in its shade (#1467).
+        SetPauseButtonLabelMode(PauseButtonHighlight.MapPage);
 
         // $B6:E800 is the mutable equipment template normally copied to $7E:3800.
         equipmentTilemap = entry.MapPresentation.PauseEquipmentBase.CreateTilemap();
@@ -199,7 +196,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             if ((delayedPressed & ControllerButton.R) != ControllerButton.None)
             {
                 audio?.QueueSound(Library1Sound.MenuConfirm, maximumQueued: SoundQueueLimit.Max6);
-                SetPauseButtonLabelMode(2);
+                SetPauseButtonLabelMode(PauseButtonHighlight.EquipmentPage);
                 Transition = PauseMenuTransition.MapToEquipmentFadeOut;
                 TransitionBrightness = 15;
             }
@@ -224,7 +221,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         if ((delayedPressed & ControllerButton.L) != ControllerButton.None)
         {
             audio?.QueueSound(Library1Sound.MenuConfirm, maximumQueued: SoundQueueLimit.Max6);
-            SetPauseButtonLabelMode(0);
+            SetPauseButtonLabelMode(PauseButtonHighlight.MapPage);
             Transition = PauseMenuTransition.EquipmentToMapFadeOut;
             TransitionBrightness = 15;
         }
@@ -241,7 +238,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         if ((delayedPressed & ControllerButton.Start) == ControllerButton.None)
             return false;
         audio?.QueueSound(Library1Sound.MenuConfirm, maximumQueued: SoundQueueLimit.Max6);
-        SetPauseButtonLabelMode(1);
+        SetPauseButtonLabelMode(PauseButtonHighlight.Unpausing);
         return true;
     }
 
@@ -280,23 +277,31 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         Position16<TilePlanePixels> mapScroll = new(
             ScreenMode == PauseScreenMode.Map ? MapScrollPosition.X : (ushort)0,
             unchecked((ushort)((ScreenMode == PauseScreenMode.Map ? MapScrollPosition.Y : 0) + ScreenGeometry.BackgroundRowOffset)));
-        // Every plane draws from the pause screen's pre-coloured tiles (#1392).
-        ScreenLayerPictures planes = screen.PlaneTiles;
-        var bg1 = new ScreenTilesLayer(ScreenTileMap.Of(screen.Tilemaps.Bg1, new Extent16<TilemapCells>(64, 32), planes),
-            mapScroll, false);
-        var bg2 = new ScreenTilesLayer(ScreenTileMap.Of(screen.Tilemaps.Bg2, new Extent16<TilemapCells>(32, 32), planes),
-            new Position16<TilePlanePixels>(0, ScreenGeometry.BackgroundRowOffset), false);
+        // The map page is a grid of the area map's cell pictures; the equipment page still draws from the pause screen's
+        // pre-coloured tiles (#1392); the frame is the area's backdrop and button pictures (#1467).
+        DisplayLayer bg1 = ScreenMode == PauseScreenMode.Map
+            ? new PictureGridLayer(AreaMapPictures.Grid(ShownMap, screen.Pictures), mapScroll, false)
+            : new ScreenTilesLayer(ScreenTileMap.Of(screen.Tilemaps.Equipment, new Extent16<TilemapCells>(32, 32), screen.PlaneTiles), mapScroll, false);
+        var bg2 = new PicturedPlaneLayer(screen.Frame(area, ButtonHighlight), new Position16<TilePlanePixels>(0, ScreenGeometry.BackgroundRowOffset), false);
         // The retained HUD is its own layer at the HUD's place, drawn from its images in their priority tiers (#1466).
         var hud = new HudLayer(screen.RetainedHudPictures(), TransparentColorZero: true, Priority: false);
         DisplayLayer[] layers =
         [
             new SpriteDepthLayer(0), hud,
             new SpriteDepthLayer(1), bg2, bg1,
-            new SpriteDepthLayer(2), bg2 with { Priority = true }, bg1 with { Priority = true },
+            new SpriteDepthLayer(2), bg2 with { Priority = true }, InFront(bg1),
             new SpriteDepthLayer(3), hud with { Priority = true },
         ];
         return new(screen.Paint(), layers, checked((byte)(Transition == PauseMenuTransition.None ? 15 : TransitionBrightness)));
     }
+
+    /// <summary><paramref name="layer"/>, the map page's grid or the equipment page, drawing only its front-tier pixels.</summary>
+    private static DisplayLayer InFront(DisplayLayer layer) => layer switch
+    {
+        PictureGridLayer grid => grid with { Priority = true },
+        ScreenTilesLayer tiles => tiles with { Priority = true },
+        _ => throw new InvalidOperationException($"The pause page is no {layer.GetType().Name}."),
+    };
 
     /// <summary>Assembles map markers or equipment sprites in their native page-specific order.</summary>
     private void PrepareRenderSprites()
@@ -466,12 +471,12 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Builds the area map from installed presentation and exploration bits into BG1.</summary>
+    [MemberNotNull(nameof(ShownMap))]
     private void LoadPauseMapTilemap()
     {
         AreaMapPresentation maps = mapPresentation ?? throw new InvalidOperationException(
             "Pause map requires installed map presentation assets.");
-        MenuTilemaps.LoadAreaMap(screen.Tilemaps.Bg1,
-            AreaMapProjection.Project(maps.Get(area), system, maps.HiddenCells.Unrevealed, mapRevealMode));
+        ShownMap = AreaMapProjection.Project(maps.Get(area), system, maps.HiddenCells.Unrevealed, mapRevealMode);
 
         // Installed backdrops already contain their authored area lettering.
     }
@@ -657,65 +662,12 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         selector.Draw(screen.Objects, PauseSheet, SelectedCategory, SelectedItem, ItemSelectorAnimationFrame);
     }
 
-    /// <summary>Gets the native OBJ palette bits shared by pause map markers.</summary>
-
     /// <summary>
-    /// Ports the three SetPauseScreenButtonLabelPalettes variants at $82:A628-$A84C and
-    /// immediately performs UpdatePauseMenuLRStartVramTilemap's $80-byte upload.
+    /// Ports the three SetPauseScreenButtonLabelPalettes variants at $82:A628-$A84C and the upload of the two label rows
+    /// that follows each: the frame shows its labels in <paramref name="highlight"/>'s shades from the next capture.
     /// </summary>
-    private void SetPauseButtonLabelMode(int mode)
-    {
-        // These indexes are words relative to native WRAM $3000. The mutable cartridge
-        // template begins at $3400, or word index $200; subtract that origin before
-        // indexing the local tilemap.
-        // Labels draw bright in BG palette two and dim in palette five.
-        const int BrightLabelPalette = 2;
-        const int DimLabelPalette = 5;
-        void SetPalette(int sourceWordIndex, int wordCount, int palette)
-        {
-            int localWordIndex = sourceWordIndex - PauseMenuLayout.ButtonSourceWordOrigin;
-            for (int word = 0; word < wordCount; word++)
-            {
-                ref BackgroundTile tile = ref pauseButtonTilemap[localWordIndex + word];
-                tile = tile with { ColourVariant = palette };
-            }
-        }
-
-        switch (mode)
-        {
-            case 0: // Stable map page: MAP bright, EQUIPMENT/START dim.
-                SetPalette(822, 5, BrightLabelPalette);
-                SetPalette(854, 5, BrightLabelPalette);
-                SetPalette(812, 4, BrightLabelPalette);
-                SetPalette(844, 4, BrightLabelPalette);
-                SetPalette(805, 5, DimLabelPalette);
-                SetPalette(837, 5, DimLabelPalette);
-                break;
-
-            case 1: // Start/unpause highlight.
-                SetPalette(812, 4, BrightLabelPalette);
-                SetPalette(844, 4, BrightLabelPalette);
-                SetPalette(805, 5, DimLabelPalette);
-                SetPalette(837, 5, DimLabelPalette);
-                SetPalette(822, 5, DimLabelPalette);
-                SetPalette(854, 5, DimLabelPalette);
-                break;
-
-            case 2: // Stable equipment page: EQUIPMENT bright, MAP/START dim.
-                SetPalette(805, 5, BrightLabelPalette);
-                SetPalette(837, 5, BrightLabelPalette);
-                SetPalette(812, 4, BrightLabelPalette);
-                SetPalette(844, 4, BrightLabelPalette);
-                SetPalette(822, 5, DimLabelPalette);
-                SetPalette(854, 5, DimLabelPalette);
-                break;
-
-            default:
-                throw new ArgumentOutOfRangeException(nameof(mode), mode, "Pause label mode must be 0..2.");
-        }
-
-        UploadButtonRows();
-    }
+    private void SetPauseButtonLabelMode(PauseButtonHighlight highlight) =>
+        ButtonHighlight = Enum.IsDefined(highlight) ? highlight : throw new ArgumentOutOfRangeException(nameof(highlight), highlight, "Undefined pause highlight.");
 
     /// <summary>Draws a map sprite sheet frame in the map's colours <paramref name="colouring"/>.</summary>
     private void DrawMenuSpritemap(MapSpriteId id, Position16<SpritePixels> origin, ScreenColourGroup colouring) =>
@@ -723,13 +675,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // and reserve tanks draw through their semantic presentation owners.
         MapSpriteSheet.Draw(MapSheet, id, screen.Objects, origin, colouring);
 
-    /// <summary>Shows the current mutable equipment page on BG1's first screen, leaving the second as the map left it.</summary>
-    private void UploadEquipmentTilemap() =>
-        MenuTilemaps.Load(screen.Tilemaps.Bg1[..equipmentTilemap.Length], equipmentTilemap);
-
-    /// <summary>Shows the mutable button-label source's two rows on BG2, as the queued $7E:3640 transfer does.</summary>
-    private void UploadButtonRows() => MenuTilemaps.Load(screen.Tilemaps.ButtonRows,
-        pauseButtonTilemap.AsSpan(PauseMenuLayout.ButtonRowsSourceTile, PauseMenuLayout.ButtonRowsTileCount));
+    /// <summary>Shows the current mutable equipment page, which the equipment page draws.</summary>
+    private void UploadEquipmentTilemap() => equipmentTilemap.CopyTo(screen.Tilemaps.Equipment);
 
     /// <summary>Gets the inventory bit represented by an item in an equipment category.</summary>
     private static PauseEquipmentBit ReadCategoryMask(PauseEquipmentCategoryDefinition category, int item) =>
@@ -929,8 +876,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // owners. Replacing the static base must not reset their phase.
         catalog.Palettes.Pause.LoadToExcept(screen.Palette, screen.Palette.Colours(ScreenColourGroup.MapHighlight),
             screen.Palette.Colours(ScreenColourGroup.PauseReserveArrowShade), screen.Palette.Colours(ScreenColourGroup.PauseReserveArrowLight));
-        LoadPauseBackdrop();
-        RefreshPauseButtonArtwork();
         // Refresh the authored base and rebuild the now-semantic inventory layer. The
         // explicit overrun bit retains the retail Boots-to-Plasma VAR artifact without
         // preserving stale pixels at a label's old editable destination.
@@ -966,40 +911,11 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                 UpdateReserveArrow(pauseFrameCounterByte);
         }
         if (ScreenMode != PauseScreenMode.Map) UploadEquipmentTilemap();
-        // The serialized live button palette rows still own their overlay on
-        // the refreshed backdrop, including a Start/fade highlight.
-        // Do not rerun controls or rebuild equipment: that would erase native
-        // same-frame label overruns and change the state being restored.
-        UploadButtonRows();
+        // The live button highlight, including a Start/fade highlight, is state the frame's pictures show again; do not
+        // rerun controls or rebuild equipment: that would erase native same-frame label overruns.
         // Preserve the serialized scroll position and transition timing. Only refresh
         // BG1 when it currently contains the map; the equipment page shares that VRAM.
         if (ScreenMode == PauseScreenMode.Map) LoadPauseMapTilemap();
-    }
-
-    /// <summary>Loads the selected area's installed pause backdrop into BG2.</summary>
-    private void LoadPauseBackdrop()
-    {
-        (mapPresentation ?? throw new InvalidOperationException(
-            "Pause backdrop requires installed presentation assets."))
-            .PauseBackdrops.LoadTo(screen.Tilemaps.Bg2, area);
-    }
-
-    /// <summary>Adopts replacement button art while preserving palette bits from the live menu.</summary>
-    private void RefreshPauseButtonArtwork()
-    {
-        BackgroundTile[] replacement = (mapPresentation ?? throw new InvalidOperationException(
-            "Pause buttons require installed presentation assets."))
-            .PauseBackdrops.CreateButtonTilemap();
-        // Only these palette bits are owned by the live menu. Carry them forward
-        // word-by-word (including restored historical states) rather than inferring
-        // a mode from ScreenMode, which lags the button highlight during fades.
-        foreach (var span in PauseMenuButtonLabels.ButtonLabelSpans)
-        for (int index = 0; index < span.Count; index++)
-        {
-            int tile = span.Word - PauseMenuLayout.ButtonSourceWordOrigin + index;
-            replacement[tile] = replacement[tile] with { ColourVariant = pauseButtonTilemap[tile].ColourVariant };
-        }
-        replacement.CopyTo(pauseButtonTilemap, 0);
     }
 
     /// <summary>Whether reserve-arrow ownership has published a state to retain across artwork rebinds.</summary>

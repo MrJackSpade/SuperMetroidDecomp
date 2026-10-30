@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Areas.Ceres;
+namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>One row a Ceres floor animation frame draws: where it starts on the floor and the atlas runs it shows.</summary>
 /// <param name="Column">The floor column of the row's first cell.</param>

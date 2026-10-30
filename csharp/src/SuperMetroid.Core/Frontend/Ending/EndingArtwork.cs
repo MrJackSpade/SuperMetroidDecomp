@@ -58,7 +58,6 @@ internal sealed class EndingArtwork
     internal void BindObjectArtwork(EndingObjectArtwork? value)
     {
         _stage.ObjectArtwork = value;
-        screen.Invalidate();
     }
 
     /// <summary>
@@ -99,7 +98,7 @@ internal sealed class EndingArtwork
             throw new InvalidOperationException("Reward landing has no active graphics upload.");
         if ((uint)index >= EndingRewardJumpDefinitions.IconChunkCount)
             throw new ArgumentOutOfRangeException(nameof(index));
-        screen.Record(EndingUploadKind.RewardChunk, index);
+        screen.LoadRewardChunk(index);
     }
 
     /// <summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Core;
@@ -44,7 +45,7 @@ internal static class EndingRewardGestureVerification
                     EndingRewardGraphicsUploadDefinitions.DestinationTable + chunk * sizeof(ushort)),
                 SuperMetroid.AssetExtraction.Frontend.Ending.EndingVramDestinations.RewardChunkWordOf(chunk),
                 $"reward graphics destination address {chunk} matches pinned cartridge");
-            graphicsScreen.Record(EndingUploadKind.RewardChunk, chunk);
+            graphicsScreen.LoadRewardChunk(chunk);
             byte[] graphicsVram = EndingScreenMemory.Compose(graphicsScreen, rewardArtwork, null, null, null, EndingReward.Armored);
             int uploadedBytes = (chunk + 1) * 2048;
             AssertTrue(graphicsVram[..uploadedBytes].AsSpan().SequenceEqual(expectedGraphics.AsSpan(0, uploadedBytes)),

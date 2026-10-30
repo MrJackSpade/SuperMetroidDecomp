@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
@@ -19,9 +20,9 @@ internal static class MotherBrainDeathHandoffVerification
         // The installed program keeps the same glyphs and destination; delay two is engine-owned.
         var program = new EscapeTypewriterProgram(EscapeTypewriterProgramId.Zebes,
             [new EscapeTypewriterLine(0, "A !")]);
-        var text = new EscapeTypewriterState(program, EscapeTypewriterDefinitions.ZebesTileBase);
+        var text = new EscapeTypewriterState(program);
         AssertTrue(!text.StepInto(vram), "typewriter first glyph is not completion");
-        AssertEqual(EscapeTypewriterDefinitions.ZebesTileBase.PackedWord, vram.ReadWord(0), "text glyph reaches its cell");
+        AssertEqual(EscapeTypewriterTileDefinitions.ZebesTileBase.PackedWord, vram.ReadWord(0), "text glyph reaches its cell");
         AssertTrue(!text.ClickRequested, "first glyph does not click");
         text.StepInto(vram);
         AssertEqual(2, text.Cell, "space advances cursor without a tile");
@@ -29,7 +30,7 @@ internal static class MotherBrainDeathHandoffVerification
         text.StepInto(vram);
         AssertEqual(1, text.GlyphsWritten, "delay applies before next visible glyph");
         text.StepInto(vram);
-        AssertEqual((ushort)(EscapeTypewriterDefinitions.ZebesTileBase.PackedWord + 26), vram.ReadWord(2), "exclamation uses native remap");
+        AssertEqual((ushort)(EscapeTypewriterTileDefinitions.ZebesTileBase.PackedWord + 26), vram.ReadWord(2), "exclamation uses native remap");
         AssertTrue(text.ClickRequested, "second visible glyph clicks despite intervening space");
         text.StepInto(vram); text.StepInto(vram);
         AssertTrue(text.StepInto(vram), "typewriter completes only at terminator after delay");

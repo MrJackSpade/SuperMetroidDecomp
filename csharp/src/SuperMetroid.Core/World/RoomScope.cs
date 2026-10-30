@@ -88,8 +88,8 @@ internal sealed record RoomScope
     /// <summary>The bank-$88 scrolling-sky updater of a scrolling-sky room, or null.</summary>
     public required ScrollingSkyState? ScrollingSky { get; init; }
 
-    /// <summary>The Mode 7 map a Ceres room shows, or null outside Ceres (#1349).</summary>
-    public required FloorMap? FloorMap { get; init; }
+    /// <summary>The turning floor a Ceres room shows, or null outside Ceres (#1349, #1467).</summary>
+    public required RoomFloor? Floor { get; init; }
 
     /// <summary>Door, header and library-background data of a Landing Site entry, or null.</summary>
     public required LandingSiteEntryState? LandingSiteEntry { get; init; }

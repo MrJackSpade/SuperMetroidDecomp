@@ -12,4 +12,7 @@ public readonly record struct EscapeTypewriterGlyph(int Cell, string Picture)
 {
     /// <summary>The name of the picture of <paramref name="character"/> as <paramref name="program"/>'s typewriter types it.</summary>
     public static string PictureOf(EscapeTypewriterProgramId program, char character) => $"{program}Typed.{character}";
+
+    /// <summary>Whether typing <paramref name="character"/> writes a glyph; a space only moves to the next cell.</summary>
+    public static bool Types(char character) => character != ' ';
 }

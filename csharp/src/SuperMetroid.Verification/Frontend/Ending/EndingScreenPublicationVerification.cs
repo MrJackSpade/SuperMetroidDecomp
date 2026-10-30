@@ -22,13 +22,13 @@ internal static class EndingScreenPublicationVerification
     internal static void VerifyEndingScreenPublication()
     {
         var screen = new EndingScreen();
-        screen.Record(EndingUploadKind.FlyawayChunk, 1);
+        screen.LoadFlyawayChunk(0);
         screen.ShowText(EndingTextTilemap.FinalText, [new ShownEndingText(EndingPictureNames.CopyrightPanel, EndingResultTextLayout.CopyrightPanelCell)]);
         screen.LoadExplosionMaps();
-        screen.Record(EndingUploadKind.FlyawayChunk, 1);
-        AssertEqual(1, screen.Uploads.Count, "a floor load covering an earlier one replaces it");
+        AssertThrows<InvalidOperationException>(() => screen.LoadFlyawayChunk(0), "the flyaway floor's loads are made once each, in order");
+        AssertEqual(EndingFloorShot.None, screen.FloorShot, "a floor shows only once all its loads are made");
         screen.Clear();
-        AssertTrue(screen.Uploads.Count == 0 && !screen.ExplosionMapsLoaded && screen.FinalPageText is null,
+        AssertTrue(screen.FlyawayChunksLoaded == 0 && !screen.ExplosionMapsLoaded && screen.FinalPageText is null,
             "a full clear forgets every load and every shown picture");
 
         var audio = new AudioQueues();
@@ -41,7 +41,6 @@ internal static class EndingScreenPublicationVerification
                 audio.AdvanceFrame(default);
             }
             AssertEqual(target, ending.Stage.Phase, $"the ending reaches {target}");
-            AssertTrue(ending.screen.Uploads.Count < 64, $"the ending's transfer record stays bounded at {target}");
             FramePaint shown = EndingCreditsPresentation.CaptureRenderSnapshot(ending).Paint;
             byte[] shownVram = ending.ShownVram();
             EndingCreditsState restored = RoundTrip(ending);

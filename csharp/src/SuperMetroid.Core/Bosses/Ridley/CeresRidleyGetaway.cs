@@ -218,19 +218,16 @@ internal sealed class CeresRidleyGetaway
     }
 
     /// <summary>
-    /// Draws one floor animation frame onto the room's floor (#1349) and adds its floor updates to
-    /// <paramref name="updates"/>, whose descriptors outlive the update. Its tile numbers are immutable definitions; the
-    /// source each update records is installed (#1415), so gameplay needs no cartridge read.
+    /// Draws one floor animation frame's picture over the room's floor (#1349, #1467) and adds its floor updates to
+    /// <paramref name="updates"/>, whose descriptors outlive the update. The descriptors are installed (#1415), so gameplay
+    /// needs no cartridge read.
     /// </summary>
     private void ApplyFloorAnimationFrame(CeresFloorAnimationFrame frame, List<FloorUpdate> updates)
     {
         CeresRidleyFloorUpdateSources sources = _bossArtwork.CeresRidleyFloorUpdates ?? throw new InvalidOperationException(
             "The Ceres Ridley getaway requires the installed floor update sources.");
-        CeresFloorAnimation.FrameRuns runs = CeresFloorAnimation.Get(frame);
-        foreach (CeresFloorTileRun run in runs)
-            _room.Services.DrawFloorMap(run.FloorCell, [.. run.TileNumbers]);
-        for (int index = 0; index < runs.Count; index++)
-            updates.Add(new FloorUpdate(sources.TileSource(frame, index), runs[index].TileNumbers.Count, runs[index].FloorCell));
+        _room.Services.DrawFloor(CeresFloorAnimation.PictureOf(frame));
+        updates.AddRange(sources.Updates(frame));
     }
 
     /// <summary>
@@ -289,7 +286,7 @@ internal sealed class CeresRidleyGetaway
                     return;
 
                 state.CeresEscapeTypewriter = _bossArtwork.EscapeTypewriterPresentation is { } presentation
-                    ? new(presentation.Get(EscapeTypewriterProgramId.Ceres), EscapeTypewriterDefinitions.CeresTileBase)
+                    ? new(presentation.Get(EscapeTypewriterProgramId.Ceres))
                     : null;
 
                 // `$A6:C0E3-$A6:C0F1` advances the even-byte dispatch index twice for

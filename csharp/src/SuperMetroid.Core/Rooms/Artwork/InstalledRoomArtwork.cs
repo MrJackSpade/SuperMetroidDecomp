@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// <summary>
 /// The installed pre-coloured room artwork (#1392, #1466): the block sheet of each tileset a room can load with the
 /// appearance inputs its blocks depend on, the image of each library background a room state loads, and the sheets of the
-/// pictures written over the rooms' backgrounds.
+/// pictures written over the rooms' backgrounds, and the turning floor of each Ceres tileset (#1467).
 /// </summary>
 public sealed class InstalledRoomArtwork
 {
@@ -19,13 +19,13 @@ public sealed class InstalledRoomArtwork
     public InstalledRoomArtwork(IReadOnlyDictionary<TilesetDefinition, RoomBlockSheet> sheets,
         IReadOnlyDictionary<string, RoomBackgroundImage> backgrounds, IReadOnlyDictionary<TilesetDefinition, WrittenPictureSheet> written,
         IReadOnlyDictionary<TilesetDefinition, WrittenPictureSheet> bg3Pictures, IReadOnlyDictionary<TilesetDefinition, MessageBoxSheet> messageBoxes,
-        IReadOnlyDictionary<TilesetDefinition, FloorTileSheet> floorTiles)
+        IReadOnlyDictionary<TilesetDefinition, RoomFloorSheet> floors)
     {
-        FloorTiles = Ensure.NotNull(floorTiles);
-        foreach ((TilesetDefinition tileset, FloorTileSheet tiles) in floorTiles)
+        Floors = Ensure.NotNull(floors);
+        foreach ((TilesetDefinition tileset, RoomFloorSheet floor) in floors)
         {
-            if (tiles.Tileset != tileset)
-                throw new ArgumentException($"{tiles.Name} is filed under {tileset}.", nameof(floorTiles));
+            if (floor.Tileset != tileset)
+                throw new ArgumentException($"{floor.Name} is filed under {tileset}.", nameof(floors));
         }
         MessageBoxes = Ensure.NotNull(messageBoxes);
         foreach ((TilesetDefinition tileset, MessageBoxSheet messages) in messageBoxes)
@@ -68,13 +68,13 @@ public sealed class InstalledRoomArtwork
     /// <summary>The sheets of the HUD's and room effects' BG3 pictures, by the tileset whose colours they show in.</summary>
     public IReadOnlyDictionary<TilesetDefinition, WrittenPictureSheet> Bg3Pictures { get; }
 
-    /// <summary>The floor tiles of each Ceres tileset.</summary>
-    public IReadOnlyDictionary<TilesetDefinition, FloorTileSheet> FloorTiles { get; }
+    /// <summary>The turning floor of each Ceres tileset.</summary>
+    public IReadOnlyDictionary<TilesetDefinition, RoomFloorSheet> Floors { get; }
 
-    /// <summary>The floor tiles of Ceres tileset <paramref name="tileset"/>.</summary>
-    /// <exception cref="InvalidDataException">No floor tiles are installed for the tileset.</exception>
-    public FloorTileSheet FloorTilesOf(TilesetDefinition tileset) =>
-        FloorTiles.TryGetValue(tileset, out FloorTileSheet? tiles) ? tiles : throw new InvalidDataException($"No floor tiles are installed for {tileset}.");
+    /// <summary>The turning floor of Ceres tileset <paramref name="tileset"/>.</summary>
+    /// <exception cref="InvalidDataException">No floor is installed for the tileset.</exception>
+    public RoomFloorSheet FloorOf(TilesetDefinition tileset) =>
+        Floors.TryGetValue(tileset, out RoomFloorSheet? floor) ? floor : throw new InvalidDataException($"No floor is installed for {tileset}.");
 
     /// <summary>The message box images of each tileset's rooms.</summary>
     public IReadOnlyDictionary<TilesetDefinition, MessageBoxSheet> MessageBoxes { get; }
@@ -110,12 +110,10 @@ public sealed class InstalledRoomArtwork
                 AppendInputs(content, cell.Inputs);
             }
         }
-        foreach (FloorTileSheet tiles in FloorTiles.Values.OrderBy(tiles => tiles.Name, StringComparer.Ordinal))
+        foreach (RoomFloorSheet floor in Floors.Values.OrderBy(floor => floor.Name, StringComparer.Ordinal))
         {
-            content.AppendName("mode7", tiles.Name);
-            tiles.Sheet.AppendIdentity(content);
-            foreach (bool pictured in tiles.Pictured)
-                content.AppendName("pictured", pictured ? "yes" : "no");
+            content.AppendName("floor", floor.Name);
+            floor.Sheet.AppendIdentity(content);
         }
         foreach (MessageBoxSheet messages in MessageBoxes.Values.OrderBy(messages => messages.Name, StringComparer.Ordinal))
         {

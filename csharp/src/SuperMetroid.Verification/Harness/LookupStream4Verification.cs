@@ -1297,12 +1297,10 @@ internal static class LookupStream4Verification
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => CeresFloorAnimation.BabyFrameForPhase(invalid), "Baby transfer phase preserves bounded selection");
         var colors = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
-        // The getaway patches the room's Mode 7 map, which each NMI publishes; it no longer writes VRAM (#1349).
-        byte[] untouchedCells = new byte[FloorMap.Cells];
-        Array.Fill(untouchedCells, (byte)0x5a);
-        var map = new FloorMap(untouchedCells, default, RoomBackgroundsFixtures.FloorTiles());
+        // The getaway draws the capsule's frames over the room's turning floor, which each NMI publishes; it writes no VRAM (#1349, #1467).
+        RoomFloor map = RoomBackgroundsFixtures.CeresFloor();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance,
-            services: new StandaloneRoomEnemyServices(() => 0) { FloorMap = map })
+            services: new StandaloneRoomEnemyServices(() => 0) { Floor = map })
             { BossArtworkBinding = { CeresRidleyFloorColors = colors, CeresRidleyFloorUpdates = CeresRidleyFloorUpdateFiles.Read(new MemoryStream(CeresRidleyFloorUpdateFiles.Extract(rom))) } };
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
@@ -1312,29 +1310,23 @@ internal static class LookupStream4Verification
         var state = new RidleyEnemyState { GetawayFrameIndex = 1 };
         byte[] untouched = new byte[SnesVram.ByteCount];
         Array.Fill(untouched, (byte)0x5a);
+        string[] capsulePictures = [.. new[] { CeresFloorAnimationFrame.BabyFrame0, CeresFloorAnimationFrame.BabyFrame1, CeresFloorAnimationFrame.BabyFrame2 }
+            .Select(CeresFloorAnimation.PictureOf)];
+        string? Capsule() => map.Drawn.SingleOrDefault(capsulePictures.Contains);
         int expectedPhase = 0;
         for (ushort nmi = 0; nmi < 16; nmi++)
         {
             vram.LoadBytes(0, untouched);
-            map.Write(0, untouchedCells);
+            string? before = Capsule();
             bool advances = (nmi & 3) == 0;
             if (advances) expectedPhase = (expectedPhase + 1) & 3;
             tick(state, null, nmi);
-            AssertTrue(vram.Bytes.SequenceEqual(untouched), "The getaway leaves VRAM to the published Mode 7 map");
+            AssertTrue(vram.Bytes.SequenceEqual(untouched), "The getaway leaves VRAM to the published floor");
             AssertEqual((ushort)expectedPhase, state.GetawayBabyFrame, "Actual getaway advances Baby before selection only on every fourth NMI");
-            int pointer = 0xa60000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6acda + expectedPhase * 2));
-            for (int row = 0; row < 2; row++, pointer += 9)
-            {
-                int source = (CartridgeImportSource.Require(rom).ReadCartridgeLong(pointer + 1));
-                int destination = CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + 6));
-                for (int column = 0; column < 2; column++)
-                {
-                    AssertEqual(advances ? rom.ReadCartridgeByte(source + column) : (byte)0x5a,
-                        map.Publish().Cells[destination + column].Tile, "Actual getaway selects native capsule rows and preserves non-update NMIs");
-                }
-            }
+            AssertEqual(advances ? CeresFloorAnimation.PictureOf(CeresFloorAnimation.BabyFrameForPhase(expectedPhase)) : before, Capsule(),
+                "Actual getaway draws the native capsule frame and keeps it on non-update NMIs");
         }
-        Console.WriteLine("Baby reflected phase: four original pointers and one actual16-NMI cycle preserve advance-before-select and the transferred map tiles.");
+        Console.WriteLine("Baby reflected phase: four original pointers and one actual 16-NMI cycle preserve advance-before-select and the drawn capsule frames.");
     }
 
     /// <summary>Checks Fly animation frame identities against the cartridge instruction data.</summary>

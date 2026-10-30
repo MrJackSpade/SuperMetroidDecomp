@@ -5,7 +5,9 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Bosses.Ridley;
+using SuperMetroid.Core.Compatibility;
 
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Bosses.Ridley;
@@ -40,69 +42,49 @@ internal static class CeresRidleyGetawayDefinitionsVerification
         Console.WriteLine("Ceres Ridley compiled getaway: all 337 native curve words match, including irregular zoom steps and terminal frame.");
     }
 
-    /// <summary>Checks seven compiled transfer lists and their low-byte-only VRAM effects.</summary>
+    /// <summary>
+    /// Checks the seven floor animation lists (#1467): the import's runs write exactly the cells and tiles the cartridge's
+    /// lists write, and the installed floor updates record each getaway run's source, count and floor cell.
+    /// </summary>
     internal static void VerifyCompiledCeresRidleyMode7Transfers(SuperMetroidAddressSpace rom)
     {
         int checkedTransfers = 0;
         CeresRidleyFloorUpdateSources installed = CeresRidleyFloorUpdateFiles.Read(new MemoryStream(CeresRidleyFloorUpdateFiles.Extract(rom)));
         // The sources the getaway's updates record are installed (#1415): the import decodes the cartridge's descriptors
         // to the values Core's catalog held before, the capsule's first run at $A6:AD1B and the wing's at $A6:ADB7.
-        AssertEqual(0xad1b, installed.TileSource(CeresFloorAnimationFrame.BabyFrame0, 0), "the capsule's first run source the import decodes");
-        AssertEqual(0xadb7, installed.TileSource(CeresFloorAnimationFrame.WingFrame0, 0), "the wing's first run source the import decodes");
+        AssertEqual(0xad1b, installed.Updates(CeresFloorAnimationFrame.BabyFrame0)[0].TileSource, "the capsule's first run source the import decodes");
+        AssertEqual(0xadb7, installed.Updates(CeresFloorAnimationFrame.WingFrame0)[0].TileSource, "the wing's first run source the import decodes");
         foreach (CeresFloorAnimationFrame pointer in Enum.GetValues<CeresFloorAnimationFrame>())
         {
-            CeresFloorAnimation.FrameRuns compiled =
-                CeresFloorAnimation.Get(pointer);
             int cursor = 0xa60000 | CeresNativeWords.FloorAnimationFrames.Word(pointer);
             bool getawayFrame = pointer is not (CeresFloorAnimationFrame.ElevatorLight or CeresFloorAnimationFrame.ElevatorDark);
             int run = 0;
-            var expectedVram = new byte[SnesVram.ByteCount];
-            Array.Fill(expectedVram, (byte)0x5a);
-            var seed = new byte[FloorMap.Cells];
-            for (int cell = 0; cell < seed.Length; cell++)
-                seed[cell] = expectedVram[cell * 2];
-            var actual = new FloorMap(seed, default, RoomBackgroundsFixtures.FloorTiles());
-            foreach (CeresFloorTileRun transfer in compiled)
+            var expected = new Dictionary<int, byte>();
+            while (rom.ReadCartridgeByte(cursor) != 0)
             {
-                AssertEqual((byte)0x80, rom.ReadCartridgeByte(cursor),
-                    "Ceres Mode 7 native transfer control");
-                int source = (CartridgeImportSource.Require(rom).ReadCartridgeLong(cursor + 1));
+                AssertEqual((byte)0x80, rom.ReadCartridgeByte(cursor), "Ceres floor native transfer control");
+                int source = CartridgeImportSource.Require(rom).ReadCartridgeLong(cursor + 1);
                 ushort size = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 4);
                 ushort destination = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 6);
-                AssertEqual((byte)0, rom.ReadCartridgeByte(cursor + 8),
-                    "Ceres Mode 7 native VRAM increment mode");
-                AssertEqual(size, transfer.TileNumbers.Length,
-                    "Ceres Mode 7 compiled byte count");
-                AssertEqual(destination, transfer.FloorCell,
-                    "Ceres Mode 7 compiled VRAM destination");
+                AssertEqual((byte)0, rom.ReadCartridgeByte(cursor + 8), "Ceres floor native VRAM increment mode");
                 if (getawayFrame)
-                    AssertEqual(source & ushort.MaxValue, installed.TileSource(pointer, run),
-                        $"Ceres {pointer} run {run} installed floor update source");
+                    AssertEqual(new FloorUpdate(source & ushort.MaxValue, size, destination), installed.Updates(pointer)[run],
+                        $"Ceres {pointer} run {run} installed floor update");
                 run++;
                 for (int index = 0; index < size; index++)
-                {
-                    byte value = rom.ReadCartridgeByte(source + index);
-                    AssertEqual(value, transfer.TileNumbers[index],
-                        "Ceres Mode 7 compiled tilemap source byte");
-                    expectedVram[((destination + index) & 0x7fff) * 2] = value;
-                }
+                    expected[destination + index] = rom.ReadCartridgeByte(source + index);
                 cursor += 9;
                 checkedTransfers++;
             }
-            AssertEqual((byte)0, rom.ReadCartridgeByte(cursor),
-                "Ceres Mode 7 compiled list reaches native terminator");
-            // Ridley writes each transfer into the room's Mode 7 map, in list order (#1349).
-            foreach (CeresFloorTileRun transfer in CeresFloorAnimation.Get(pointer))
-                actual.Write(transfer.FloorCell, [.. transfer.TileNumbers]);
-            byte[] cells = [.. actual.Publish().Cells.Select(cell => (byte)cell.Tile)];
-            bool matches = true;
-            for (int cell = 0; cell < cells.Length; cell++)
-                matches &= cells[cell] == expectedVram[cell * 2];
-            AssertTrue(matches, "Ceres Mode 7 compiled list writes its map cells in order");
+            if (getawayFrame)
+                AssertEqual(run, installed.Updates(pointer).Count, $"Ceres {pointer} installs every run's floor update");
+            IReadOnlyDictionary<int, byte> drawn = CeresFloorDrawings.Cells(pointer);
+            AssertTrue(drawn.Count == expected.Count && expected.All(cell => drawn.TryGetValue(cell.Key, out byte tile) && tile == cell.Value),
+                $"Ceres {pointer}'s picture writes exactly the cells and tiles its list writes");
         }
         AssertThrows<InvalidDataException>(() =>
-            CeresFloorAnimation.Get((CeresFloorAnimationFrame)0xffff),
-            "Ceres Mode 7 unknown transfer list fails loudly");
-        Console.WriteLine($"Ceres compiled Mode 7: {checkedTransfers} native transfers across all seven lists match source bytes, destinations, and VRAM effects.");
+            CeresFloorAnimation.PictureOf((CeresFloorAnimationFrame)0xffff),
+            "Ceres unknown floor animation frame fails loudly");
+        Console.WriteLine($"Ceres floor animation: {checkedTransfers} native transfers across all seven lists match the pictured cells and installed updates.");
     }
 }

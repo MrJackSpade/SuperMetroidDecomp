@@ -86,16 +86,6 @@ public static class TitleSequenceDefinitions
     {
         /// <summary>The title sprites' 512 four-bit characters.</summary>
         public const int ObjectCharacterByteCount = 512 * 32;
-        /// <summary>The Baby Metroid's floor characters: four pages of four characters.</summary>
-        public const int BabyCharacterByteCount = 4 * BabyCharacterPageByteCount;
-        /// <summary>The title floor's 256 eight-bit characters.</summary>
-        public const int FloorCharacterByteCount = 256 * 64;
-        /// <summary>The cells of the title floor's map that the scenes show.</summary>
-        public const int FloorMapByteCount = 64 * 64;
-        /// <summary>The floor character every cell outside the shown map holds.</summary>
-        public const byte FloorInitialMapByte = 255;
-        /// <summary>One Baby Metroid animation page: four eight-bit characters.</summary>
-        public const int BabyCharacterPageByteCount = 4 * 64;
         /// <summary>The Baby Metroid's four-phase page cycle 0, 1, 2, 1.</summary>
         public static TitleBabyPageSequence BabyAnimationSourcePages => default;
     }

@@ -29,6 +29,6 @@ public interface IRoomEnemyServices : IChozoStatueRoomServices, IMotherBrainRoom
     /// <summary>Writes <paramref name="picture"/> over the room's BG2 at its tilemap cell (#1348, #1466).</summary>
     void WriteBg2Picture(WrittenPicture picture);
 
-    /// <summary>Writes tile numbers into the room's turning floor map from cell <paramref name="firstCell"/> (#1349).</summary>
-    void DrawFloorMap(int firstCell, ReadOnlySpan<byte> tiles);
+    /// <summary>Draws the picture named <paramref name="picture"/> over the part of the room's turning floor it covers (#1349, #1467).</summary>
+    void DrawFloor(string picture);
 }

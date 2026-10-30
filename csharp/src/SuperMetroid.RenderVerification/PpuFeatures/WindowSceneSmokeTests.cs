@@ -29,7 +29,7 @@ internal static class WindowSceneSmokeTests
             new Extent16<TilemapCells>(32, 32)), new Position16<TilePlanePixels>(3, 11), true);
         AffineFloor childFloor = AffineFloorFixtures.Floor(childMemory.Vram, childMemory.Paint.Colors);
         LayeredScene Child(byte brightness) => new(childMemory.Paint, new DisplayLayer[] {
-            new TurningFloorLayer(new(255, 71, -71, 255, new(128, 112), new(13, -11), FloorOverflowMode.CharacterZero), childFloor),
+            new TurningFloorLayer(new(255, 71, -71, 255, new(128, 112), new(13, -11), FloorOverflowMode.Wrap), childFloor),
             new SpritesLayer() }, brightness);
         // The parent's tile layer and the child's floor pack once; drawing them before the counted frames leaves each of
         // those only its memory and sprite-draw uploads.

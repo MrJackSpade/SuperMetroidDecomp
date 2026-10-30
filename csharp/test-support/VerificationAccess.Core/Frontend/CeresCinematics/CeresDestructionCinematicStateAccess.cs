@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
@@ -18,11 +18,11 @@ internal static class CeresDestructionCinematicStateAccess
         internal int ActiveActorCount => self.actors.Count;
 
         /// <summary>
-        /// Reads the low-byte Mode-7 map selected by the cinematic's current native transfers.
+        /// Reads the floor cell the cartridge's map holds for the cinematic's current floor shot.
         /// </summary>
         internal byte ReadMode7MapByte(int mapByteIndex)
         {
-            if ((uint)mapByteIndex >= AffineFloor.CellCount)
+            if ((uint)mapByteIndex >= FloorSheetComposer.CellCount)
                 throw new ArgumentOutOfRangeException(nameof(mapByteIndex));
             return CeresDestructionScreenMemory.Compose(self)[mapByteIndex * 2];
         }

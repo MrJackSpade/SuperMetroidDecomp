@@ -443,9 +443,9 @@ internal static class CeresFlightArtworkVerification
     private static byte[] ExpectedCeresFlightVram(CeresFlightArtwork artwork, bool rear)
     {
         var expected = new byte[SnesVram.ByteCount];
-        for (int word = 0; word < AffineFloor.CellCount; word++)
+        for (int word = 0; word < FloorSheetComposer.CellCount; word++)
         {
-            expected[word * 2] = CeresFlightSceneDefinitions.BlankFloorCharacter;
+            expected[word * 2] = CeresFloorShotDefinitions.BlankTile;
             expected[word * 2 + 1] = artwork.FloorCharacters.Span[word];
         }
         int mapOffset = rear ? CeresFlightArtworkFormat.MapCellsPerView : 0;

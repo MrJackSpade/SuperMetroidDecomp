@@ -7,7 +7,8 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
-/// The ending's screen as checks read it (#1358, #1467): the floor's recorded loads executed in order into a VRAM, then
+/// The ending's screen as checks read it (#1358, #1467): the floor's loads the screen's state says were made, executed in
+/// the order the ending makes them (the scene's floor, the flyaway's loads, the post-credits art, the reward icon's loads), then
 /// the explosion's and the post-shot's loads the screen's scene state says were made. The game draws pictures selected by
 /// that state; this image is what the loads would have left, for checks that compare installed artwork byte for byte.
 /// </summary>
@@ -21,33 +22,22 @@ internal static class EndingScreenMemory
         ArgumentNullException.ThrowIfNull(screen);
         var vram = new SnesVram();
         var artwork = new EndingTransferArtwork(objects, font, reward);
-        foreach (EndingUpload upload in screen.uploads)
+        if (screen.FloorScene is { } loaded)
         {
-            switch (upload.Kind)
-            {
-                case EndingUploadKind.FloorSceneTiles:
-                    EndingFloorSceneArtwork scene = Required(floor)[upload.As<EndingFloorSceneUpload>().Scene];
-                    var mode7 = new Mode7Vram(vram);
-                    mode7.LoadMap(scene.Map.Span);
-                    mode7.LoadMap(scene.Map.Span, cell: EndingFloorArtworkFormat.MapByteCount);
-                    mode7.LoadCharacters(EndingFloorSceneCharacters.Of(scene).Characters.Span);
-                    break;
-                case EndingUploadKind.FlyawayChunk:
-                    Flyaway(vram, upload.As<EndingChunkUpload>().Chunk, flight);
-                    break;
-                case EndingUploadKind.RewardChunk:
-                    int chunk = upload.As<EndingChunkUpload>().Chunk;
-                    vram.LoadBytes(EndingVramDestinations.RewardChunkWordOf(chunk) * sizeof(ushort),
-                        EndingRewardIconCharacters.Of(Required(floor).RewardIcon).Bytes.Span.Slice(EndingRewardGraphicsUploads.ChunkOffset(chunk),
-                            EndingRewardGraphicsUploadDefinitions.ChunkBytes));
-                    break;
-                case EndingUploadKind.CreditsCharacterArt:
-                    EndingScreenImage.Execute(vram, new EndingTransfer(EndingTransferKind.CreditsCharacterArt), artwork);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(screen), upload.Kind, "Undefined ending floor load.");
-            }
+            EndingFloorSceneArtwork scene = Required(floor)[loaded];
+            var mode7 = new Mode7Vram(vram);
+            mode7.LoadMap(scene.Map.Span);
+            mode7.LoadMap(scene.Map.Span, cell: EndingFloorArtworkFormat.MapByteCount);
+            mode7.LoadCharacters(EndingFloorSceneCharacters.Of(scene).Characters.Span);
         }
+        for (int chunk = 0; chunk < screen.FlyawayChunksLoaded; chunk++)
+            Flyaway(vram, chunk, flight);
+        if (screen.PostCreditsArtLoaded)
+            EndingScreenImage.Execute(vram, new EndingTransfer(EndingTransferKind.CreditsCharacterArt), artwork);
+        for (int chunk = 0; chunk < screen.RewardChunksLoaded; chunk++)
+            vram.LoadBytes(EndingVramDestinations.RewardChunkWordOf(chunk) * sizeof(ushort),
+                EndingRewardIconCharacters.Of(Required(floor).RewardIcon).Bytes.Span.Slice(EndingRewardGraphicsUploads.ChunkOffset(chunk),
+                    EndingRewardGraphicsUploadDefinitions.ChunkBytes));
         if (screen.ExplosionMapsLoaded)
         {
             EndingScreenImage.Execute(vram, new EndingTransfer(EndingTransferKind.ExplosionObjects), artwork);

@@ -9,12 +9,18 @@ namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
 /// The ending's screen (#1358, #1467): its palette, which of the ending's pre-assembled pictures its scenes have loaded,
-/// the post-credits text each text page shows, and the floor's loads since the last full clear.
+/// the post-credits text each text page shows, and how far the floor's loads have come since the last full clear.
 /// </summary>
 internal sealed class EndingScreen
 {
-    /// <summary>The floor's loads since the last full clear, oldest first, which the floor's cells and tiles are read from.</summary>
-    internal readonly List<EndingUpload> uploads = [];
+    /// <summary>The escape or explosion scene whose floor is loaded, or null before one is.</summary>
+    internal EndingFloorSceneId? FloorScene { get; private set; }
+
+    /// <summary>How many of the flyaway floor's loads are made, in order; it shows once all are (#1467).</summary>
+    internal int FlyawayChunksLoaded { get; private set; }
+
+    /// <summary>How many of the reward icon floor's loads are made, in order; it shows once all are (#1467).</summary>
+    internal int RewardChunksLoaded { get; private set; }
 
     /// <summary>The ending's colours, including partial fades.</summary>
     public ScreenPalette Palette { get; } = new();
@@ -40,25 +46,22 @@ internal sealed class EndingScreen
     /// <summary>Clears every load and every page, as a full VRAM clear does.</summary>
     public void Clear()
     {
-        uploads.Clear();
+        FloorScene = null;
+        FlyawayChunksLoaded = 0;
+        RewardChunksLoaded = 0;
         ExplosionMapsLoaded = false;
         PostCreditsArtLoaded = false;
         PostShotPartsShown = 0;
         ResultPageText = [];
         FinalPageText = null;
         FinalPageLowerText = [];
-        ForgetShown();
     }
 
     /// <summary>Loads the explosion's maps and characters.</summary>
     internal void LoadExplosionMaps() => ExplosionMapsLoaded = true;
 
     /// <summary>Loads the post-credits art, whose reward and shooting characters replace the floor's.</summary>
-    internal void LoadPostCreditsArt()
-    {
-        PostCreditsArtLoaded = true;
-        Record(new EndingSheetUpload(EndingUploadKind.CreditsCharacterArt));
-    }
+    internal void LoadPostCreditsArt() => PostCreditsArtLoaded = true;
 
     /// <summary>Shows the post-shot's next subtitle or logo part.</summary>
     /// <exception cref="InvalidOperationException">Every part is already shown.</exception>
@@ -94,57 +97,31 @@ internal sealed class EndingScreen
     /// <summary>Shows <paramref name="text"/> on the final page's lower screen.</summary>
     internal void ShowFinalLowerText(ImmutableArray<ShownEndingText> text) => FinalPageLowerText = text;
 
-    /// <summary>The sheets <see cref="floorTiles"/> were read from.</summary>
-    [NonSerialized]
-    private InstalledSpriteSheets? tileSheets;
+    /// <summary>
+    /// The shot whose turning floor is loaded (#1467): the reward icon once all its loads are made; nothing once the
+    /// post-credits art has replaced the floor's characters; the flyaway once all its loads are made; else the scene's.
+    /// While a floor is still loading, the floor keeps showing the shot loaded before it.
+    /// </summary>
+    internal EndingFloorShot FloorShot =>
+        RewardChunksLoaded == EndingRewardJumpDefinitions.IconChunkCount ? EndingFloorShot.RewardIcon
+        : PostCreditsArtLoaded ? EndingFloorShot.None
+        : FlyawayChunksLoaded == EndingFloorDefinitions.FlyawayChunkCount ? EndingFloorShot.Flyaway
+        : FloorScene is { } scene ? EndingScreenFloor.SceneShot(scene)
+        : EndingFloorShot.None;
 
-    /// <summary>The floor's cells, until the loads or the artwork change.</summary>
-    [NonSerialized]
-    private byte[]? floorCells;
+    /// <summary>Loads the escape or explosion scene <paramref name="scene"/>'s floor.</summary>
+    public void LoadFloor(EndingFloorSceneId scene) => FloorScene = scene;
 
-    /// <summary>What the floor's loads' characters show (#1392), until the loads change.</summary>
-    [NonSerialized]
-    private FloorTilePictures? floorTiles;
+    /// <summary>Makes the flyaway floor's load <paramref name="index"/>, the next in order.</summary>
+    /// <exception cref="InvalidOperationException">The load is not the next.</exception>
+    internal void LoadFlyawayChunk(int index) => FlyawayChunksLoaded = Next(index, FlyawayChunksLoaded, EndingFloorDefinitions.FlyawayChunkCount, "flyaway");
 
-    /// <summary>What the floor's loads' characters show (#1392).</summary>
-    internal FloorTilePictures FloorTiles(InstalledSpriteSheets sheets)
-    {
-        if (!ReferenceEquals(tileSheets, sheets))
-        {
-            floorTiles = null;
-            tileSheets = sheets;
-        }
-        return floorTiles ??= EndingScreenTiles.Floor(sheets, uploads);
-    }
+    /// <summary>Makes the reward icon floor's load <paramref name="index"/>, the next in order.</summary>
+    /// <exception cref="InvalidOperationException">The load is not the next.</exception>
+    internal void LoadRewardChunk(int index) => RewardChunksLoaded = Next(index, RewardChunksLoaded, EndingRewardJumpDefinitions.IconChunkCount, "reward icon");
 
-    /// <summary>Records a load of chunk <paramref name="chunk"/> of the floor's installed artwork.</summary>
-    public void Record(EndingUploadKind kind, int chunk) => Record(new EndingChunkUpload(kind, chunk));
-
-    /// <summary>Records the load of the installed floor scene <paramref name="scene"/>.</summary>
-    public void Record(EndingFloorSceneId scene) => Record(new EndingFloorSceneUpload(scene));
-
-    /// <summary>Forgets what the screen shows after the bound artwork changes.</summary>
-    public void Invalidate()
-    {
-        ForgetShown();
-    }
-
-    /// <summary>The floor's cells over <paramref name="floor"/> and <paramref name="flight"/>.</summary>
-    internal byte[] FloorCells(EndingFloorArtwork? floor, CeresFlightArtwork? flight) =>
-        floorCells ??= EndingScreenFloor.Cells(uploads, floor, flight);
-
-    /// <summary>Forgets the floor's cells and tiles.</summary>
-    private void ForgetShown()
-    {
-        floorCells = null;
-        floorTiles = null;
-    }
-
-    /// <summary>Appends <paramref name="upload"/>, dropping the earlier load whose cells it covers.</summary>
-    private void Record(EndingUpload upload)
-    {
-        uploads.RemoveAll(earlier => earlier.IsReplacedBy(upload));
-        uploads.Add(upload);
-        ForgetShown();
-    }
+    /// <summary>The loads made once load <paramref name="index"/> follows <paramref name="loaded"/> of <paramref name="count"/>.</summary>
+    private static int Next(int index, int loaded, int count, string floor) => index == loaded && index < count
+        ? loaded + 1
+        : throw new InvalidOperationException($"The {floor} floor's load {index} does not follow its {loaded} loads.");
 }

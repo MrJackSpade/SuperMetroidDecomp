@@ -132,12 +132,8 @@ public enum SpriteSheetId
     IntroSceneTiles,
     /// <summary>The opening cinematic's narration font under its palette (#1392).</summary>
     IntroFontTiles,
-    /// <summary>The Ceres flight's object characters under its palette, which its caption and the Ceres scene show (#1392).</summary>
-    CeresFlightObjectTiles,
-    /// <summary>The shared cinematic object characters under the Ceres flight palette, which the Ceres scene loads (#1392).</summary>
-    CeresIntroObjectTiles,
-    /// <summary>The Zebes reveal's characters under the Ceres flight palette (#1392).</summary>
-    ZebesRevealTiles,
+    /// <summary>The Ceres cinematics' background pictures: the caption's letters, the katakana caption and the Zebes planet (#1467).</summary>
+    CeresCinematicPictures,
     /// <summary>The credits roll's staff line pictures under the credits palette (#1467).</summary>
     EndingCreditsRows,
     /// <summary>The post-credits pictures under the post-credits palette: the waiting backdrop, the logo, the panels and the typed glyphs (#1467).</summary>
@@ -146,20 +142,18 @@ public enum SpriteSheetId
     EndingWavySamusPicture,
     /// <summary>The Zebes explosion's four maps' pictures under the explosion palette (#1467).</summary>
     EndingExplosionPictures,
-    /// <summary>The title's Mode 7 characters under its palette (#1392).</summary>
-    TitleFloorTiles,
-    /// <summary>The title's Baby Metroid animation pages under its palette (#1392).</summary>
-    TitleBabyTiles,
-    /// <summary>The Ceres flight's Mode 7 characters under its palette, which the destruction shows too (#1392).</summary>
-    CeresFlightFloorTiles,
-    /// <summary>The ending's first escape backdrop's Mode 7 characters under the escape palette (#1392).</summary>
-    EndingEscapeAFloorTiles,
-    /// <summary>The ending's second escape backdrop's Mode 7 characters under the escape palette (#1392).</summary>
-    EndingEscapeBFloorTiles,
-    /// <summary>The ending's planet explosion's Mode 7 characters under the explosion palette (#1392).</summary>
-    EndingPlanetExplosionFloorTiles,
-    /// <summary>The flyaway's gunship Mode 7 characters under the escape palette (#1392).</summary>
-    EndingFlyawayFloorTiles,
-    /// <summary>The reward icon's Mode 7 characters under the post-credits palette (#1392).</summary>
-    EndingRewardIconFloorTiles,
+    /// <summary>The title's turning floor with each Baby Metroid page shown, under its palette (#1392, #1467).</summary>
+    TitleFloor,
+    /// <summary>The Ceres flight's and destruction's turning floor in each of their shots, under the flight's palette (#1392, #1467).</summary>
+    CeresFloor,
+    /// <summary>The ending's first escape backdrop's turning floor under the escape palette (#1392, #1467).</summary>
+    EndingEscapeAFloor,
+    /// <summary>The ending's second escape backdrop's turning floor under the escape palette (#1392, #1467).</summary>
+    EndingEscapeBFloor,
+    /// <summary>The ending's planet explosion's turning floor under the explosion palette (#1392, #1467).</summary>
+    EndingPlanetExplosionFloor,
+    /// <summary>The flyaway gunship's turning floor under the escape palette (#1392, #1467).</summary>
+    EndingFlyawayFloor,
+    /// <summary>The reward icon's turning floor under the post-credits palette (#1392, #1467).</summary>
+    EndingRewardIconFloor,
 }

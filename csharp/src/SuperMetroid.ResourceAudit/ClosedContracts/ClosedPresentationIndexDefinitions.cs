@@ -130,7 +130,6 @@ internal static class ClosedPresentationIndexDefinitions
         ("PauseReserveTankPresentation", "Anchor" or "Draw", "index") => new(0, PauseReserveTankDefinitions.AnchorCount),
         ("IntroEyeTilemapPresentation", "FrameTiles", "index") => new(0, IntroEyeTilemapFormat.FrameCount),
         ("CeresDoorVisuals", "LoadAnimationColors", "row") => new(0, CeresDoorVisualDefinitions.AnimationRowCount),
-        ("CeresDoorVisuals", "PlatformFrame", "frame") => new(0, CeresDoorVisualDefinitions.PlatformFrameCount),
         ("ChargeFlarePlacements", "Resolve", "direction") => new(0, ChargeFlarePlacementDefinitions.DirectionCount),
         ("ChargeFlareSprites", "Frame", "selector") => new(0, ChargeFlareSpriteSelection.Selectors.Count),
         ("InstalledGrappleSprites", "Segment", "frame") => new(0, GrappleSpriteDefinitions.SegmentFrameCount),

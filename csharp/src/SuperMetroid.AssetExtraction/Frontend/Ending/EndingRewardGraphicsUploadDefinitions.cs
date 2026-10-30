@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Ending;
+
+namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>How the post-credits icon artwork is shown in sixteen equal chunks.</summary>
 internal static class EndingRewardGraphicsUploadDefinitions

@@ -75,15 +75,11 @@ public sealed class LoadedRoomAssets
     }
 
     /// <summary>
-    /// The perspective floor a Ceres room shows (#1349): the 128 by 128 tile numbers its tileset's installed floor map
-    /// starts from, which extraction imports with the tileset's floor tiles (#1422).
+    /// The perspective floor a Ceres room shows (#1349, #1467): its tileset's installed floor, which the import pictures
+    /// from the tileset's floor map and characters (#1422), with nothing drawn over it yet.
     /// </summary>
-    /// <exception cref="InvalidDataException">No floor tiles are installed for the room's tileset.</exception>
-    public FloorMap CreateFloorMap()
-    {
-        FloorTileSheet tiles = Pictures.FloorTilesOf(Tileset);
-        return new FloorMap(tiles.Map, Tileset, tiles);
-    }
+    /// <exception cref="InvalidDataException">No floor is installed for the room's tileset.</exception>
+    public RoomFloor CreateFloor() => new(Pictures.FloorOf(Tileset));
 
     /// <summary>
     /// Gives every background set the tileset's colours for it (#1464). The room's tileset artwork shows in its block sheet's

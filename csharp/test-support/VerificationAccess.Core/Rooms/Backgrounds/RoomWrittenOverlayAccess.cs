@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
+using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Escape;
@@ -56,16 +57,13 @@ internal static class RoomWrittenOverlayAccess
                 throw new InvalidOperationException($"No installed Ceres warning page gives the words of {picture}.");
             return tiles.ToArray();
         }
-        foreach ((EscapeTypewriterProgramId program, BackgroundTile tileBase) in new[]
-                 {
-                     (EscapeTypewriterProgramId.Ceres, EscapeTypewriterDefinitions.CeresTileBase),
-                     (EscapeTypewriterProgramId.Zebes, EscapeTypewriterDefinitions.ZebesTileBase),
-                 })
+        foreach (EscapeTypewriterProgramId program in new[] { EscapeTypewriterProgramId.Ceres, EscapeTypewriterProgramId.Zebes })
         {
+            BackgroundTile tileBase = EscapeTypewriterGlyphTiles.TileBaseOf(program);
             for (int character = 0; character <= byte.MaxValue; character++)
             {
                 if (EscapeTypewriterGlyph.PictureOf(program, (char)character) == picture
-                    && EscapeTypewriterState.GlyphOf(character, tileBase) is { } glyph)
+                    && EscapeTypewriterGlyphTiles.GlyphOf(character, tileBase) is { } glyph)
                     return [glyph];
             }
         }

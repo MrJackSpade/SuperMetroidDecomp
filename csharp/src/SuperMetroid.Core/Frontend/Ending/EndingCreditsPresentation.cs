@@ -31,7 +31,7 @@ internal static class EndingCreditsPresentation
             // Mode 7 places OBJ priority zero below BG1; the other three priorities
             // are above it. BG1 subtracts the winning OBJ subscreen, without halving.
             layers.Add(new SpriteDepthLayer(0));
-            layers.Add(new TurningFloorLayer(PostShotTransform(ending), AffineFloor.Of(ending.FloorCells(), ending.FloorTiles()), true));
+            layers.Add(new TurningFloorLayer(PostShotTransform(ending), ending.Floor(), true));
             layers.Add(new SpriteDepthLayer(1));
             layers.Add(new SpriteDepthLayer(2));
             layers.Add(new SpriteDepthLayer(3));
@@ -69,7 +69,7 @@ internal static class EndingCreditsPresentation
                 layers.Add(new TurningFloorLayer(new((short)a, (short)b, unchecked((short)-b), (short)a,
                     CurrentFloorCenter(ending),
                     ending.Stage.FloorPosition.Whole.AsSignedWord(), AtmosphericMapWraps(ending) ? FloorOverflowMode.Wrap : FloorOverflowMode.Transparent),
-                    AffineFloor.Of(ending.FloorCells(), ending.FloorTiles()), AddsForeground: AtmosphericMapWraps(ending)));
+                    ending.Floor(), AddsForeground: AtmosphericMapWraps(ending)));
             }
             memory = CaptureMemory(ending, objectSheet);
             if (EndingObjectsEnabled(ending) && !AtmosphericMapWraps(ending))

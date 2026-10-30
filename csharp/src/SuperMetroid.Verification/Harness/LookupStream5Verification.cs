@@ -320,7 +320,10 @@ internal static class LookupStream5Verification
         Console.WriteLine("Phantoon closed eye:60/360/720 native waits,2280 actual moving countdown calls,both directions/exact eye-open handoffs and48 real spiral spawns pass.");
     }
 
-    /// <summary>Compares Ceres platform graphics and VRAM placement against retail words.</summary>
+    /// <summary>
+    /// Compares the Ceres platform's strips against retail words (#1467): the platform actor draws the light or dark strip's
+    /// picture by its phase, and the import pictures each strip from exactly the cartridge's four cells.
+    /// </summary>
     internal static void VerifyLookupStream5CeresPlatform(SuperMetroidAddressSpace rom)
     {
         var document = new CeresDoorVisualDocument
@@ -329,8 +332,6 @@ internal static class LookupStream5Verification
             Normal = Colors(CeresSourceDefinitions.Door.NormalColors,15),
             Escape = Colors(CeresSourceDefinitions.Door.EscapeColors,15),
             Animation = Enumerable.Range(0,8).Select(row => Colors(CeresSourceDefinitions.Door.AnimationColors +16*row,6)).ToArray(),
-            Mode7DoorFrames = Enumerable.Range(0,2).Select(frame => Enumerable.Range(0,4)
-                .Select(index => (int)rom.ReadCartridgeByte(CeresSourceDefinitions.Door.PlatformFrames +4*frame+index)).ToArray()).ToArray(),
         };
         byte[] planar = Enumerable.Range(0,CeresDoorVisualDefinitions.CharacterBytes)
             .Select(index => rom.ReadCartridgeByte(CeresSourceDefinitions.Door.Characters+index)).ToArray();
@@ -338,75 +339,44 @@ internal static class LookupStream5Verification
         using var png = new MemoryStream();
         IndexedPng.Write(png,size,pixels,SnesGraphics.DiagnosticPalette(16));
         byte[] pngBytes = png.ToArray();
-        CeresDoorVisuals Load(CeresDoorVisualDocument value) => CeresDoorVisualFiles.Read(
-            new MemoryStream(pngBytes),new MemoryStream(CeresDoorVisualFiles.Write(value)));
-        var stock = Load(document);
-        CheckPlatformActor(stock, document);
-        CheckHash(stock, document);
-        AssertEqual(0, stock.platformEdits.Count, "No stored stock platform cells");
-        for (int frame = 0; frame < 2; frame++)
-        for (int cell = 0; cell < 4; cell++)
+        var stock = CeresDoorVisualFiles.Read(new MemoryStream(pngBytes),new MemoryStream(CeresDoorVisualFiles.Write(document)));
+        CeresFloorAnimationFrame[] strips = [CeresFloorAnimationFrame.ElevatorLight, CeresFloorAnimationFrame.ElevatorDark];
+        for (int frame = 0; frame < strips.Length; frame++)
         {
-            int[][] frames = document.Mode7DoorFrames.Select(row => row.ToArray()).ToArray();
-            frames[frame][cell] ^= 255;
-            var changed = document with { Mode7DoorFrames = frames };
-            var edited = Load(changed);
-            AssertEqual(1, edited.platformEdits.Count, "One independent platform override");
-            CheckPlatformActor(edited, changed);
-            CheckHash(edited, changed);
+            IReadOnlyDictionary<int, byte> cells = CeresFloorDrawings.Cells(strips[frame]);
+            for (int cell = 0; cell < 4; cell++)
+                AssertEqual(rom.ReadCartridgeByte(CeresSourceDefinitions.Door.PlatformFrames + frame * 4 + cell), cells[12 * 128 + 14 + cell],
+                    "The import pictures the platform strip's native cells");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.PlatformFrame(-1), "Platform lower frame domain");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.PlatformFrame(2), "Platform upper frame domain");
-        AssertThrows<ArgumentOutOfRangeException>(() => CeresFloorAnimation.PlatformTile(0, -1), "Canonical platform lower column domain");
-        AssertThrows<ArgumentOutOfRangeException>(() => CeresFloorAnimation.PlatformTile(0, 4), "Canonical platform upper column domain");
-        Console.WriteLine("Ceres platform: eight native cells/eight independent edits,99 actual phase calls through wrap, high-byte/neighbor preservation, canonical hashes and domains pass.");
+        RoomFloor floor = RoomBackgroundsFixtures.CeresFloor();
+        var system = new RoomEnemySystem(new EnemySession(), services: new StandaloneRoomEnemyServices(() => 0) { Floor = floor })
+        {
+            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoorVisual = stock },
+        };
+        system.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
+        var slots = (RoomEnemySlot[])system.SlotTable.Slots;
+        foreach (ushort tick in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 0xfffe, 0xffff, 0 })
+        {
+            slots[0].FrameCounter = tick;
+            system.CeresDoorBehavior.RunCeresDoorPaletteAnimation();
+            AssertEqual(CeresFloorAnimation.PictureOf(strips[(tick & 2) >> 1]), floor.Drawn.Single(), "Actual platform phase draws its strip over the floor");
+        }
+        string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1",content =>
+        {
+            content.Append("tiles",planar);
+            content.AppendWords("normal",document.Normal.Select(Pack).ToArray());
+            content.AppendWords("escape",document.Escape.Select(Pack).ToArray());
+            content.AppendWordFrames("animation",document.Animation.Select(row=>row.Select(Pack).ToArray()).ToArray());
+        });
+        AssertEqual(identity,stock.ContentIdentity,"Ceres calculated colors preserve canonical resource identity");
+        Console.WriteLine("Ceres platform: eight native cells pictured, actual phase calls through wrap draw their strips, canonical hash passes.");
         PaletteRgb5[] Colors(int source,int count) => Enumerable.Range(0,count).Select(index =>
         {
             ushort word = ReadVerificationWord(rom,source+2*index);
             return new PaletteRgb5 { Red = word &31, Green = (word>>5)&31, Blue = (word>>10)&31 };
         }).ToArray();
-        void CheckPlatformActor(CeresDoorVisuals visual, CeresDoorVisualDocument expected)
-        {
-            var system = new RoomEnemySystem(new EnemySession())
-            {
-                TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoorVisual = visual },
-            };
-            var vram = new SnesVram();
-            int destination = CeresDoorVisualDefinitions.PlatformFloorCell;
-            byte[] initial = Enumerable.Range(0, 12).Select(index => (byte)(index % 2 == 0 ? 0x5d : 0xa7)).ToArray();
-            vram.LoadBytes((destination - 1) * 2, initial);
-            system.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
-            system.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
-            var slots = (RoomEnemySlot[])system.SlotTable.Slots;
-            foreach (ushort tick in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 0xfffe, 0xffff, 0 })
-            {
-                slots[0].FrameCounter = tick;
-                system.CeresDoorBehavior.RunCeresDoorPaletteAnimation();
-                int frame = (tick & 2) >> 1;
-                for (int cell = 0; cell < 4; cell++)
-                {
-                    AssertEqual((ushort)(0xa700 | expected.Mode7DoorFrames[frame][cell]), vram.ReadWord(destination + cell), "Actual platform phase and character-byte preservation");
-                    AssertEqual(rom.ReadCartridgeByte(0xa6f918 + frame * 4 + cell), CeresFloorAnimation.PlatformTile(frame, cell), "Canonical platform cap/atlas geometry matches native");
-                }
-                AssertEqual((ushort)0xa75d, vram.ReadWord(destination - 1), "Platform preceding map/character unchanged");
-                AssertEqual((ushort)0xa75d, vram.ReadWord(destination + 4), "Platform following map/character unchanged");
-            }
-        }        static ushort Pack(PaletteRgb5 color) => (ushort)(color.Red | color.Green<<5 | color.Blue<<10);
-        void CheckHash(CeresDoorVisuals actual, CeresDoorVisualDocument expected)
-        {
-            string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1",content =>
-            {
-                content.Append("tiles",planar);
-                content.AppendWords("normal",expected.Normal.Select(Pack).ToArray());
-                content.AppendWords("escape",expected.Escape.Select(Pack).ToArray());
-                content.AppendWordFrames("animation",expected.Animation.Select(row=>row.Select(Pack).ToArray()).ToArray());
-                content.Append("mode7-frames",expected.Mode7DoorFrames.Length);
-                foreach(var frame in expected.Mode7DoorFrames) content.Append("mode7-frame",frame.Select(value=>(byte)value).ToArray());
-            });
-            AssertEqual(identity,actual.ContentIdentity,"Ceres calculated colors preserve canonical resource identity");
-        }
+        static ushort Pack(PaletteRgb5 color) => (ushort)(color.Red | color.Green<<5 | color.Blue<<10);
     }
-
     /// <summary>Checks Phantoon's exposed-body phase and related authored visual state.</summary>
     internal static void VerifyLookupStream5PhantoonExposure(SuperMetroidAddressSpace rom)
     {
@@ -1581,8 +1551,6 @@ internal static class LookupStream5Verification
             Normal = Colors(CeresSourceDefinitions.Door.NormalColors,15),
             Escape = Colors(CeresSourceDefinitions.Door.EscapeColors,15),
             Animation = Enumerable.Range(0,8).Select(row => Colors(CeresSourceDefinitions.Door.AnimationColors +16*row,6)).ToArray(),
-            Mode7DoorFrames = Enumerable.Range(0,2).Select(frame => Enumerable.Range(0,4)
-                .Select(index => (int)rom.ReadCartridgeByte(CeresSourceDefinitions.Door.PlatformFrames +4*frame+index)).ToArray()).ToArray(),
         };
         byte[] planar = Enumerable.Range(0,CeresDoorVisualDefinitions.CharacterBytes)
             .Select(index => rom.ReadCartridgeByte(CeresSourceDefinitions.Door.Characters+index)).ToArray();
@@ -1653,8 +1621,6 @@ internal static class LookupStream5Verification
                 content.AppendWords("normal",expected.Normal.Select(Pack).ToArray());
                 content.AppendWords("escape",expected.Escape.Select(Pack).ToArray());
                 content.AppendWordFrames("animation",expected.Animation.Select(row=>row.Select(Pack).ToArray()).ToArray());
-                content.Append("mode7-frames",expected.Mode7DoorFrames.Length);
-                foreach(var frame in expected.Mode7DoorFrames) content.Append("mode7-frame",frame.Select(value=>(byte)value).ToArray());
             });
             AssertEqual(identity,actual.ContentIdentity,"Ceres calculated colors preserve canonical resource identity");
         }
@@ -1987,7 +1953,6 @@ internal static class LookupStream5Verification
         {
             Version = 1, Normal = Colors(CeresSourceDefinitions.Door.NormalColors, 15), Escape = Colors(CeresSourceDefinitions.Door.EscapeColors, 15),
             Animation = Enumerable.Range(0, 8).Select(row => Colors(CeresSourceDefinitions.Door.AnimationColors + 16 * row, 6)).ToArray(),
-            Mode7DoorFrames = Enumerable.Range(0, 2).Select(frame => Enumerable.Range(0, 4).Select(i => (int)rom.ReadCartridgeByte(CeresSourceDefinitions.Door.PlatformFrames + frame * 4 + i)).ToArray()).ToArray(),
         };
         byte[] planar = Enumerable.Range(0, CeresDoorVisualDefinitions.CharacterBytes).Select(i => rom.ReadCartridgeByte(CeresSourceDefinitions.Door.Characters + i)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
@@ -2034,7 +1999,6 @@ internal static class LookupStream5Verification
             {
                 content.Append("tiles", planar); content.AppendWords("normal", document.Normal.Select(Pack).ToArray()); content.AppendWords("escape", document.Escape.Select(Pack).ToArray());
                 content.AppendWordFrames("animation", document.Animation.Select(row => row.Select(Pack).ToArray()).ToArray());
-                content.Append("mode7-frames", 2); foreach (var frame in document.Mode7DoorFrames) content.Append("mode7-frame", frame.Select(value => (byte)value).ToArray());
             });
             AssertEqual(identity, visual.ContentIdentity, "Normal changes preserve independently installed escape/animation and canonical hash");
             return basis;
@@ -2053,7 +2017,6 @@ internal static class LookupStream5Verification
         {
             Version = 1, Normal = Colors(CeresSourceDefinitions.Door.NormalColors, 15), Escape = Colors(CeresSourceDefinitions.Door.EscapeColors, 15),
             Animation = Enumerable.Range(0, 8).Select(row => Colors(CeresSourceDefinitions.Door.AnimationColors + 16 * row, 6)).ToArray(),
-            Mode7DoorFrames = Enumerable.Range(0, 2).Select(frame => Enumerable.Range(0, 4).Select(i => (int)rom.ReadCartridgeByte(CeresSourceDefinitions.Door.PlatformFrames + frame * 4 + i)).ToArray()).ToArray(),
         };
         byte[] planar = Enumerable.Range(0, CeresDoorVisualDefinitions.CharacterBytes).Select(i => rom.ReadCartridgeByte(CeresSourceDefinitions.Door.Characters + i)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
@@ -2098,7 +2061,6 @@ internal static class LookupStream5Verification
             {
                 content.Append("tiles", planar); content.AppendWords("normal", document.Normal.Select(Pack).ToArray()); content.AppendWords("escape", document.Escape.Select(Pack).ToArray());
                 content.AppendWordFrames("animation", document.Animation.Select(row => row.Select(Pack).ToArray()).ToArray());
-                content.Append("mode7-frames", 2); foreach (var frame in document.Mode7DoorFrames) content.Append("mode7-frame", frame.Select(value => (byte)value).ToArray());
             });
             AssertEqual(identity, visual.ContentIdentity, "Escape changes preserve independently installed normal/animation and canonical hash");
             return basis;
@@ -2117,7 +2079,6 @@ internal static class LookupStream5Verification
         {
             Version = 1, Normal = Colors(CeresSourceDefinitions.Door.NormalColors, 15), Escape = Colors(CeresSourceDefinitions.Door.EscapeColors, 15),
             Animation = Enumerable.Range(0, 8).Select(row => Colors(CeresSourceDefinitions.Door.AnimationColors + 16 * row, 6)).ToArray(),
-            Mode7DoorFrames = Enumerable.Range(0, 2).Select(frame => Enumerable.Range(0, 4).Select(i => (int)rom.ReadCartridgeByte(CeresSourceDefinitions.Door.PlatformFrames + frame * 4 + i)).ToArray()).ToArray(),
         };
         byte[] planar = Enumerable.Range(0, CeresDoorVisualDefinitions.CharacterBytes).Select(i => rom.ReadCartridgeByte(CeresSourceDefinitions.Door.Characters + i)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
@@ -2151,7 +2112,7 @@ internal static class LookupStream5Verification
             var visual = CeresDoorVisualFiles.Read(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualFiles.Write(document)));
             for (int row = 0; row < 8; row++) for (int color = 0; color < 6; color++)
                 AssertEqual(Pack(document.Animation[row][color]), basis.ColorAt(row, color), "Every supplied beacon channel remains independent");
-            var system = new RoomEnemySystem(new EnemySession(), services: new StandaloneRoomEnemyServices(() => 0) { FloorMap = new FloorMap(new byte[FloorMap.Cells], default, RoomBackgroundsFixtures.FloorTiles()) }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoorVisual = visual } };
+            var system = new RoomEnemySystem(new EnemySession(), services: new StandaloneRoomEnemyServices(() => 0) { Floor = RoomBackgroundsFixtures.CeresFloor() }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoorVisual = visual } };
             var cgram = new SamusColourRig();
             system.Presentation.BindColours(cgram.Gameplay);
             system.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
@@ -2168,7 +2129,6 @@ internal static class LookupStream5Verification
             {
                 content.Append("tiles", planar); content.AppendWords("normal", document.Normal.Select(Pack).ToArray()); content.AppendWords("escape", document.Escape.Select(Pack).ToArray());
                 content.AppendWordFrames("animation", document.Animation.Select(row => row.Select(Pack).ToArray()).ToArray());
-                content.Append("mode7-frames", 2); foreach (var frame in document.Mode7DoorFrames) content.Append("mode7-frame", frame.Select(value => (byte)value).ToArray());
             });
             AssertEqual(identity, visual.ContentIdentity, "Beacon edits preserve normal/escape/platform and canonical hash");
             return basis;

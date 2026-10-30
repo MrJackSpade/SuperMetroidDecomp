@@ -88,9 +88,9 @@ internal sealed class RoomEnemyRuntimeServices(
     public void WriteBg2Picture(WrittenPicture picture) => room.LoadedScope.WriteBg2Picture(picture);
 
     /// <inheritdoc />
-    public void DrawFloorMap(int firstCell, ReadOnlySpan<byte> tiles) =>
-        (room.LoadedScope.FloorMap ?? throw new InvalidOperationException("Only a Ceres room has a Mode 7 map to write."))
-            .Write(firstCell, tiles);
+    public void DrawFloor(string picture) =>
+        (room.LoadedScope.Floor ?? throw new InvalidOperationException("Only a Ceres room has a turning floor to draw over."))
+            .Draw(picture);
 
     /// <summary>Checks whether a requested Bomb Torizo hand PLM header remains active.</summary>
     public bool HasActiveHeader(PlmHeaderId header) => plms.BombTorizoHand.HasActiveHeader(header);

@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// Installs the pre-coloured room artwork (#1392, #1466): each tileset's block sheet, the appearance inputs each tileset's
 /// blocks depend on, and each library background's image, each as an image, palette map and pictures, the tilemap words
 /// each background pictures with the inputs its changing cells depend on, the written picture sheets with the inputs each
-/// picture depends on, and the provenance of their hashes. A player override of a sheet's or image's file replaces the stock one.
+/// picture depends on, each Ceres tileset's turning floor (#1467), and the provenance of their hashes. A player override of a sheet's or image's file replaces the stock one.
 /// </summary>
 public static class RoomBlockSheetFiles
 {
@@ -34,11 +34,11 @@ public static class RoomBlockSheetFiles
     /// </summary>
     private const int WrittenManifestVersion = 1;
 
-    /// <summary>The manifest naming each Ceres tileset's Mode 7 tiles, what each was pictured over and the tileset's floor map.</summary>
-    public const string Mode7ManifestFileName = "mode7-tiles.json";
+    /// <summary>The manifest naming each Ceres tileset whose turning floor is installed.</summary>
+    public const string FloorManifestFileName = "room-floors.json";
 
-    /// <summary>The Mode 7 manifest's schema revision: revision 2 adds each tileset's imported floor map (#1422).</summary>
-    private const int Mode7ManifestVersion = 2;
+    /// <summary>The floor manifest's schema revision: revision 1 names the tilesets whose floors are pictures (#1467).</summary>
+    private const int FloorManifestVersion = 1;
 
     /// <summary>Composes and writes every tileset's block sheet and background image; the installer validates them with <see cref="ValidateStock"/>.</summary>
     /// <param name="content">Installed stock content holding the characters, definitions, palettes, tilemaps and uploads the sheets compose from.</param>
@@ -56,15 +56,11 @@ public static class RoomBlockSheetFiles
             .. composition.Backgrounds.Select(entry => new NamedComposedSheet(entry.Key, entry.Value.Sheet)),
             .. writtenSheets.Select(written => new NamedComposedSheet(WrittenPictureSheet.NameOf(written.Layer, written.Tileset), written.Sheet)),
             .. composition.MessageBoxes.Select(entry => new NamedComposedSheet(MessageBoxSheet.NameOf(entry.Key), entry.Value)),
-            .. composition.FloorTiles.Values.Select(tiles => new NamedComposedSheet(FloorTileSheet.NameOf(tiles.Tileset), tiles.Sheet)),
+            .. composition.Floors.Select(entry => new NamedComposedSheet(RoomFloorSheet.NameOf(entry.Key), entry.Value)),
         ]);
         store.Finish(sourceCartridgeSha256);
-        File.WriteAllBytes(Path.Combine(directory, Mode7ManifestFileName), JsonSerializer.SerializeToUtf8Bytes(
-            new Mode7Manifest(Mode7ManifestVersion, composition.FloorTiles.Values.ToDictionary(tiles => RoomBlockSheet.NameOf(tiles.Tileset),
-                tiles => new FloorTilesDocument(
-                    tiles.Shown.Select(shown => shown is not null).ToArray(),
-                    tiles.Map),
-                StringComparer.Ordinal)),
+        File.WriteAllBytes(Path.Combine(directory, FloorManifestFileName), JsonSerializer.SerializeToUtf8Bytes(
+            new FloorManifest(FloorManifestVersion, [.. composition.Floors.Keys.Select(RoomBlockSheet.NameOf).Order(StringComparer.Ordinal)]),
             JsonOptions));
         var sheets = new WrittenManifest(WrittenManifestVersion, [.. writtenSheets.Select(written => new WrittenSheetDocument(written.Layer,
             RoomBlockSheet.NameOf(written.Tileset), [.. written.Inputs.OrderBy(entry => entry.Key, StringComparer.Ordinal)
@@ -95,15 +91,15 @@ public static class RoomBlockSheetFiles
             ?? throw new InvalidDataException($"Written picture manifest {writtenPath} is empty.");
         if (written.Version != WrittenManifestVersion || written.Sheets is null)
             throw new InvalidDataException($"Written picture manifest {writtenPath} is not revision {WrittenManifestVersion}.");
-        string mode7Path = Path.Combine(stockDirectory, Mode7ManifestFileName);
-        Mode7Manifest mode7 = JsonSerializer.Deserialize<Mode7Manifest>(File.ReadAllBytes(mode7Path), JsonOptions)
-            ?? throw new InvalidDataException($"Mode 7 manifest {mode7Path} is empty.");
-        if (mode7.Version != Mode7ManifestVersion || mode7.Tiles is null)
-            throw new InvalidDataException($"Mode 7 manifest {mode7Path} is not revision {Mode7ManifestVersion}.");
+        string floorPath = Path.Combine(stockDirectory, FloorManifestFileName);
+        FloorManifest floors = JsonSerializer.Deserialize<FloorManifest>(File.ReadAllBytes(floorPath), JsonOptions)
+            ?? throw new InvalidDataException($"Floor manifest {floorPath} is empty.");
+        if (floors.Version != FloorManifestVersion || floors.Tilesets is null)
+            throw new InvalidDataException($"Floor manifest {floorPath} is not revision {FloorManifestVersion}.");
         IReadOnlyList<TilesetDefinition> tilesets = RoomBlockUploads.Tilesets();
         Dictionary<string, TilesetDefinition> byName = tilesets.ToDictionary(RoomBlockSheet.NameOf, StringComparer.Ordinal);
         SpriteSheetStore store = SpriteSheetStore.Open(stockDirectory, overrideDirectory, ProvenanceFileName,
-            2 * tilesets.Count + manifest.Words.Count + written.Sheets.Length + mode7.Tiles.Count);
+            2 * tilesets.Count + manifest.Words.Count + written.Sheets.Length + floors.Tilesets.Length);
         // The inputs each block depends on are the stock record's: an override repaints a block's pictures, not what they
         // depend on.
         return new InstalledRoomArtwork(
@@ -117,12 +113,10 @@ public static class RoomBlockSheetFiles
                 StringComparer.Ordinal),
             Sheets(WrittenPictureLayer.Bg12), Sheets(WrittenPictureLayer.Bg3),
             tilesets.ToDictionary(tileset => tileset, tileset => new MessageBoxSheet(tileset, store.Read(MessageBoxSheet.NameOf(tileset)))),
-            mode7.Tiles.Select(entry => byName.TryGetValue(entry.Key, out TilesetDefinition tileset) ? new FloorTileSheet(tileset,
-                    store.Read(FloorTileSheet.NameOf(tileset)), [.. entry.Value.Pictured ?? throw new InvalidDataException(
-                        $"Mode 7 manifest {mode7Path} records no tiles for {entry.Key}.")],
-                    entry.Value.Map ?? throw new InvalidDataException($"Mode 7 manifest {mode7Path} has no floor map for {entry.Key}."))
-                : throw new InvalidDataException($"Mode 7 manifest {mode7Path} names unknown tileset {entry.Key}."))
-                .ToDictionary(tiles => tiles.Tileset));
+            floors.Tilesets.Select(name => byName.TryGetValue(name, out TilesetDefinition tileset)
+                    ? new RoomFloorSheet(tileset, store.Read(RoomFloorSheet.NameOf(tileset)))
+                    : throw new InvalidDataException($"Floor manifest {floorPath} names unknown tileset {name}."))
+                .ToDictionary(floor => floor.Tileset));
 
         // The installed sheets of one layer's written pictures, each under its tileset. The inputs each picture depends on
         // are the stock record's: an override repaints a sheet's pictures, not what they depend on.
@@ -161,15 +155,10 @@ public static class RoomBlockSheetFiles
     /// <param name="Inputs">The inputs it depends on, as their tokens spell them.</param>
     private sealed record CellDocument(int Cell, string? Picture, string[]? Inputs);
 
-    /// <summary>The Mode 7 manifest: what each Ceres tileset's tiles were pictured over and the tileset's floor map, by tileset.</summary>
+    /// <summary>The floor manifest: the Ceres tilesets whose turning floors are installed.</summary>
     /// <param name="Version">The schema revision.</param>
-    /// <param name="Tiles">Each tileset's tiles and floor map, by its installed name.</param>
-    private sealed record Mode7Manifest(int Version, Dictionary<string, FloorTilesDocument> Tiles);
-
-    /// <summary>One Ceres tileset's floor tiles and floor map.</summary>
-    /// <param name="Pictured">Whether the sheet pictures each tile, by tile.</param>
-    /// <param name="Map">The floor map a room of the tileset starts from: 16384 tile numbers, row-major.</param>
-    private sealed record FloorTilesDocument(bool[]? Pictured, byte[] Map);
+    /// <param name="Tilesets">Each tileset's installed name.</param>
+    private sealed record FloorManifest(int Version, string[]? Tilesets);
 
     /// <summary>The written picture manifest: each written picture sheet and the inputs each of its pictures depends on.</summary>
     /// <param name="Version">The schema revision.</param>

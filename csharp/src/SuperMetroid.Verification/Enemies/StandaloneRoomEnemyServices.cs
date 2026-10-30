@@ -25,8 +25,8 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     /// <summary>The installed target of pictures written over BG2, or null when the host provides none.</summary>
     private readonly Action<WrittenPicture>? bg2Overlay;
 
-    /// <summary>The installed Mode 7 map, or null when the host provides none.</summary>
-    private readonly FloorMap? floorMap;
+    /// <summary>The room's turning floor, or null when the host provides none.</summary>
+    private readonly RoomFloor? floor;
 
     /// <summary>Services whose RNG advances with <paramref name="generate"/>.</summary>
     public StandaloneRoomEnemyServices(Func<int> generate) => random = new RandomNumbers(Ensure.NotNull(generate));
@@ -65,12 +65,12 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     public void WriteBg1Picture(WrittenPicture picture) =>
         (bg1Overlay ?? throw Unavailable.Missing("write pictures over BG1"))(picture);
 
-    /// <summary>Installs the Mode 7 map the Ceres door and Ridley's getaway write.</summary>
-    public FloorMap FloorMap { init => floorMap = Ensure.NotNull(value); }
+    /// <summary>Installs the turning floor the Ceres door and Ridley's getaway draw over.</summary>
+    public RoomFloor Floor { init => floor = Ensure.NotNull(value); }
 
     /// <inheritdoc />
-    public void DrawFloorMap(int firstCell, ReadOnlySpan<byte> tiles) =>
-        (floorMap ?? throw Unavailable.Missing("write the room's Mode 7 map")).Write(firstCell, tiles);
+    public void DrawFloor(string picture) =>
+        (floor ?? throw Unavailable.Missing("draw over the room's turning floor")).Draw(picture);
 
     /// <summary>Installs the target of pictures written over BG2, which the Zebes escape typewriter writes (#1466).</summary>
     public Action<WrittenPicture> WriteBg2Pictures { init => bg2Overlay = Ensure.NotNull(value); }

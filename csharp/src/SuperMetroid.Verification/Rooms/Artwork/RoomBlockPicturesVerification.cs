@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -196,7 +197,7 @@ internal static class RoomBlockPicturesVerification
         WrittenPictureSheet sheet = (runtime.Room.Scope?.Bg2OverlayPictures ?? throw new InvalidOperationException($"{room.Name} has no written pictures.")).Sheet;
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
         var typewriter = new EscapeTypewriterState((runtime.BossArtwork.EscapeTypewriterPresentation
-            ?? throw new InvalidOperationException("No escape typewriter.")).Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterDefinitions.ZebesTileBase);
+            ?? throw new InvalidOperationException("No escape typewriter.")).Get(EscapeTypewriterProgramId.Zebes));
         // The typewriter types each glyph's picture by name (#1466); the overlay is checked against the tiles it typed.
         RoomWrittenOverlay overlay = RoomWrittenOverlay.Empty;
         var typedWords = new int[RoomWrittenOverlay.CellCount];
@@ -206,7 +207,7 @@ internal static class RoomBlockPicturesVerification
             if (glyph is { } typed)
             {
                 overlay = overlay.With(new WrittenPicture(typed.Picture, typed.Cell));
-                typedWords[typed.Cell] = typed.TileOver(EscapeTypewriterDefinitions.ZebesTileBase).PackedWord;
+                typedWords[typed.Cell] = EscapeTypewriterGlyphTiles.Of(EscapeTypewriterProgramId.Zebes, typed).PackedWord;
             }
         }
         ImmutableArray<BgTilePicture?> pictures = new WrittenPictureResolver(sheet).Resolve(overlay, AppearanceOf(runtime, RoomScopeOf(runtime).ArtworkFrames));
@@ -331,39 +332,35 @@ internal static class RoomBlockPicturesVerification
     }
 
     /// <summary>
-    /// Confirms a Ceres room's Mode 7 map draws from its tileset's tile pictures (#1392): in the Ceres elevator room the
-    /// latched map carries the pictures, every tile it names is pictured, and each pictured tile's pixels are the colours
-    /// its characters' high bytes name.
+    /// Confirms a Ceres room's turning floor draws its tileset's installed floor (#1392, #1467): in the Ceres elevator room
+    /// the latched floor is the installed picture, and each of its pixels paints the colour its cell's tile's characters
+    /// name in the room's composed memory.
     /// </summary>
     internal static void VerifyMode7TilePictures()
     {
         RoomHeaderDefinition room = RoomHeaderDefinitions.CeresElev;
         SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
-        AssertTrue(runtime.Display.Latched.Rooms?.Floor is not null, $"{room.Name} shows its Mode 7 map");
-        FloorMap map = runtime.Room.LoadedScope.FloorMap ?? throw new InvalidOperationException($"{room.Name} has no Mode 7 map.");
-        FloorTileSheet tiles = map.Tiles;
-        AssertTrue(map.NamedTiles.All(tile => tiles.Pictured[tile]), $"{room.Name}'s Mode 7 map names only pictured tiles");
-        ReadOnlySpan<byte> vram = runtime.ComposedVram();
-        SpriteImage sheet = tiles.Picture.Sheet;
-        int pictured = 0;
-        for (int tile = 0; tile < FloorTileSheet.Tiles; tile++)
+        AffineFloor shown = runtime.Display.Latched.Rooms?.Floor ?? throw new InvalidOperationException($"{room.Name} shows no floor.");
+        RoomFloorSheet floor = (runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException($"{room.Name} has no floor.")).Sheet;
+        AssertTrue(ReferenceEquals(shown.Image, floor.Floor.Image), $"{room.Name} shows its tileset's installed floor");
+        (byte[] map, byte[] pixels) = AffineFloorConstants.Split(runtime.ComposedVram());
+        SpriteImage sheet = shown.Image.Sheet;
+        int checkedPixels = 0;
+        for (int y = 0; y < AffineFloor.SidePixels; y++)
         {
-            if (!tiles.Pictured[tile])
-                continue;
-            pictured++;
-            Position16<ImagePixels> corner = FloorTileSheet.Corner(tile);
-            for (int pixel = 0; pixel < FloorTileSheet.TileWords; pixel++)
+            for (int x = 0; x < AffineFloor.SidePixels; x++)
             {
-                int expected = vram[(tile * FloorTileSheet.TileWords + pixel) * 2 + 1];
-                int at = (tiles.Picture.Corner.Y + corner.Y + pixel / 8) * sheet.Size.X + tiles.Picture.Corner.X + corner.X + pixel % 8;
+                int tile = map[y / 8 * (AffineFloor.SidePixels / 8) + x / 8];
+                int expected = pixels[tile * 64 + y % 8 * 8 + x % 8];
+                int at = (shown.Image.Corner.Y + y) * sheet.Size.X + shown.Image.Corner.X + x;
                 AssertTrue(sheet.Inks[at].PaletteIndex == expected && (expected == 0 || sheet.Pixels[at] == sheet.StandardColours[expected].ToRgbaPixel()),
-                    $"{tiles.Name}: tile {tile} pixel {pixel} paints index {sheet.Inks[at].PaletteIndex} where its characters name {expected}");
+                    $"{floor.Name}: floor pixel ({x}, {y}) paints index {sheet.Inks[at].PaletteIndex} where its tile's characters name {expected}");
+                checkedPixels++;
             }
         }
-        Console.WriteLine($"Mode 7 tile pictures: {tiles.Name} pictured {pictured} tiles, the {map.NamedTiles.Count} {room.Name}'s map names among them.");
+        Console.WriteLine($"Floor pictures: {floor.Name} paints all {checkedPixels} of {room.Name}'s floor pixels as its characters name them.");
     }
-
     /// <summary>Loads <paramref name="room"/> and checks its background image over <see cref="Frames"/> frames.</summary>
     private static void CheckBackground(RoomHeaderDefinition room, bool expectRebound)
     {

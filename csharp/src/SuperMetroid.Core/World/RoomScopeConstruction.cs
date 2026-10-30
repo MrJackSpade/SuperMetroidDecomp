@@ -51,8 +51,8 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>The scrolling-sky updater, if the room has one.</summary>
     public ScrollingSkyState? ScrollingSky { get; set; }
 
-    /// <summary>The Mode 7 map of a Ceres room.</summary>
-    public FloorMap? FloorMap { get; set; }
+    /// <summary>The turning floor of a Ceres room.</summary>
+    public RoomFloor? Floor { get; set; }
 
     /// <summary>The Landing Site entry, if any.</summary>
     public LandingSiteEntryState? LandingSiteEntry { get; set; }
@@ -129,7 +129,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
                 Assets.BlockSheet)
             : null,
         ScrollingSky = ScrollingSky,
-        FloorMap = FloorMap,
+        Floor = Floor,
         LandingSiteEntry = LandingSiteEntry,
         Projectiles = Projectiles ?? throw Missing(nameof(Projectiles)),
         BombProjectiles = BombProjectiles ?? throw Missing(nameof(BombProjectiles)),

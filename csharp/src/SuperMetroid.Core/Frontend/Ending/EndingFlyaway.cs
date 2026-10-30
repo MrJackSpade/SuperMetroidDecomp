@@ -172,30 +172,18 @@ internal sealed class EndingFlyaway
     internal void BindFlightArtwork(CeresFlightArtwork? value)
     {
         FlightArtwork = value;
-        screen.Invalidate();
     }
 
-    /// <summary>Prepares Ceres-derived flyaway streams while restoring the explosion's BG palette half.</summary>
+    /// <summary>Restores the explosion's BG palette half before the flyaway's floor loads; the floor is an installed picture (#1467).</summary>
     internal void PrepareFlyawayUploads()
     {
-        PrepareFlyawayStreams();
         // Func117 restores the BG half before disabling BG1. OBJ VRAM and palettes
         // remain live while Func118 replaces the two Mode-7 lanes over sixteen NMIs.
         _stage.StaticScreen(EndingPaletteId.Explosion).LoadBackgroundsTo(screen.Palette);
     }
 
-    /// <summary>Requires the Ceres flight artwork the native sixteen-NMI flyaway DMA sequence transfers.</summary>
-    private void PrepareFlyawayStreams()
-    {
-        CeresFlightArtwork artwork = FlightArtwork ?? throw new InvalidOperationException(
-            "Ending flyaway requires installed flight artwork.");
-        EndingStage.RequireMinimum(artwork.FloorCharacterCount * CeresFlightArtworkFormat.FloorCharacterBytes, EndingArtworkExtentDefinitions.FloorBytes,
-            "flyaway characters");
-        EndingStage.RequireMinimum(artwork.FloorMaps, EndingArtworkExtentDefinitions.FlyawayMapDataBytes, "flyaway map");
-    }
-
     /// <summary>Transfers one scheduled flyaway chunk to its Mode-7 character or map lane.</summary>
-    internal void UploadFlyawayChunk(int index) => screen.Record(EndingUploadKind.FlyawayChunk, index);
+    internal void UploadFlyawayChunk(int index) => screen.LoadFlyawayChunk(index);
 
     /// <summary>The gunship flight's installed artwork.</summary>
     [field: NonSerialized]

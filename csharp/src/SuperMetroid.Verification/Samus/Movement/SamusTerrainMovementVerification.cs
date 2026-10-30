@@ -18,6 +18,17 @@ using SuperMetroid.Core.World;
 /// <summary>Checks Samus's block collision, grounded physics, reversal, Moonwalk and wall-contact routes.</summary>
 internal static class SamusTerrainMovementVerification
 {
+/// <summary>An air block showing block zero.</summary>
+private static readonly RoomTerrainBlock Air = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Air);
+
+/// <summary>A slope block showing block zero; its behaviour selects the shape.</summary>
+private static readonly RoomTerrainBlock Slope = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope);
+
+/// <summary>Behaviour zero: no parameter.</summary>
+private static readonly RoomBlockBehavior NoBehavior = RoomBlockBehaviorValues.None;
+
+/// <summary>Slope behaviour $12: shape $12, unmirrored floor.</summary>
+private static readonly RoomBlockBehavior Shape12 = new(0x12);
 
 /// <summary>Slope, block, grounded, reversal, moonwalk, and wall-contact verification.</summary>
 internal static void VerifySamusSlopePhysics()
@@ -53,8 +64,8 @@ internal static void VerifySamusSlopePhysics()
     // is Y=25 (low nibble 9). Height 8 yields correction 8-9-1 = -2, so $94:87F4 moves
     // her center upward to 19 and marks slope adjustment for the later grounding branch.
     RoomLevelData level = CreateRoom(new(2, 2),
-        [0x0000, 0x0000, 0x1000, 0x0000],
-        [0x00, 0x00, 0x12, 0x00]);
+        [Air, Air, Slope, Air],
+        [NoBehavior, NoBehavior, Shape12, NoBehavior]);
     SlopeAlignmentResult aligned = SamusSlopePhysics.AlignYPosition(
         level,
         position: new(8, 21),
@@ -282,7 +293,7 @@ internal static void VerifySamusBlockCollision()
         dispatcherWords[1 * width + 2] = RoomTerrainBlock.Of(0, BlockMirroring.None, collisionKind);
         RoomLevelData dispatcherLevel = CreateRoom(new(width, height),
             dispatcherWords,
-            new byte[dispatcherWords.Length]);
+            new RoomBlockBehavior[dispatcherWords.Length]);
         var dispatcherBody = new SamusKinematicsState
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(26, 24)),
@@ -292,10 +303,10 @@ internal static void VerifySamusBlockCollision()
         BlockMoveResult dispatcherMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = dispatcherLevel }, dispatcherBody, null, new HorizontalBlockMove { Displacement = 0x00020000 });
 
         AssertEqual(expectedCollision, dispatcherMove.Collided,
-            $"body dispatcher type ${(collisionWord >> 12):X1} collision topology");
+            $"body dispatcher {collisionKind} collision topology");
         AssertEqual(expectedCollision ? 0x00010000 : 0x00020000,
             dispatcherMove.AcceptedDisplacement,
-            $"body dispatcher type ${(collisionWord >> 12):X1} accepted displacement");
+            $"body dispatcher {collisionKind} accepted displacement");
     }
 
     // Unlike the ownerless topology fixtures above, a live Samus-owned kinematics child
@@ -356,7 +367,7 @@ internal static void VerifySamusBlockCollision()
         var spikeWords = new RoomTerrainBlock[width * height];
         var spikeBehaviors = new RoomBlockBehavior[spikeWords.Length];
         spikeWords[2 * width + 1] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpikeBlock);
-        spikeBehaviors[2 * width + 1] = new RoomBlockBehavior(SpikeBlockBehavior.Heavy);
+        spikeBehaviors[2 * width + 1] = RoomBlockBehaviorValues.None;
         RoomLevelData wreckedShipSpikes = CreateRoom(new(width, height), spikeWords, spikeBehaviors);
         var spikeSamus = new SamusState
         {
@@ -445,8 +456,8 @@ internal static void VerifySamusGroundedMovement()
     // eight-pixel surface at X nibble eight. Row one is an uninterrupted two-block floor so
     // the radius scan can visit either column without introducing another dispatcher type.
     RoomLevelData level = CreateRoom(new(2, 3),
-        [0, 0, 0x1000, 0x1000, 0, 0],
-        [0, 0, 0x12, 0x12, 0, 0]);
+        [Air, Air, Slope, Slope, Air, Air],
+        [NoBehavior, NoBehavior, Shape12, Shape12, NoBehavior, NoBehavior]);
 
     var running = new SamusState { Pose = SamusPoseId.MovingRightNormalPose };
     running.Kinematics.Position = running.Kinematics.Position.WithWhole(new(24, 19));
@@ -1869,7 +1880,7 @@ internal static void VerifySamusRanIntoWall()
 
     // Put a two-block-high wall immediately at X=96. Center 91/radius five has a current
     // right boundary at 95; the same +1.0000 request advances the sampled boundary to 96.
-    var blockedForeground = (ushort[])openForeground.Clone();
+    var blockedForeground = (RoomTerrainBlock[])openForeground.Clone();
     blockedForeground[6] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
     blockedForeground[width + 6] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
     RoomLevelData blockedFloor = CreateRoom(new(width, 4), blockedForeground, new RoomBlockBehavior[blockedForeground.Length]);

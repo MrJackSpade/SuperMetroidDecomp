@@ -418,7 +418,7 @@ floor, SamusPoseId.UnmorphingTransitionLeftPose, frameCounter: 0),
     SamusPoseMetadata.RefreshCollisionRadii(samus);
     AssertEqual(16, samus.Kinematics.Radius.Y, "following alpha publishes unmorph radius");
 
-    var tunnelBlocks = (ushort[])floorBlocks.Clone();
+    var tunnelBlocks = (RoomTerrainBlock[])floorBlocks.Clone();
     for (int x = 0; x < width; x++)
         tunnelBlocks[2 * width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
     RoomLevelData tunnel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(tunnelBlocks, new RoomBlockBehavior[tunnelBlocks.Length], new RoomBlockAppearance[tunnelBlocks.Length]));

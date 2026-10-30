@@ -58,7 +58,7 @@ public static class LevelBlockTilemapExpander
                 topRight.WithFlipsToggled(TileFlip.Horizontal | TileFlip.Vertical),
                 topLeft.WithFlipsToggled(TileFlip.Horizontal | TileFlip.Vertical)),
             _ => throw new InvalidDataException(
-                $"Level word ${levelEntry.Raw:X4} contains unsupported visual flip flags."),
+                $"Block appearance {appearance} has unsupported mirroring."),
         };
     }
 }

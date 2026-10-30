@@ -405,11 +405,11 @@ endpointLevel, endpointSamus, ControllerButton.X, endpointPlms);
 endpointLevel, endpointSamus, ControllerButton.X, endpointPlms);
 
         AssertEqual(expectedCancellation, endpointReaction.Phase == GrapplePhase.CancelPending,
-            $"grapple endpoint type ${(collisionWord >> 12):X1} cancellation topology");
+            $"grapple endpoint {collisionKind} cancellation topology");
         AssertEqual(!expectedCancellation, endpointReaction.Fired,
-            $"grapple endpoint type ${(collisionWord >> 12):X1} live-beam topology");
+            $"grapple endpoint {collisionKind} live-beam topology");
         AssertEqual(expectedPlms, endpointPlms.SlotTable.ActiveCount,
-            $"grapple endpoint type ${(collisionWord >> 12):X1} shared PLM side effect");
+            $"grapple endpoint {collisionKind} shared PLM side effect");
     }
 
     // Length grows before collision checks. Values 12..120 receive their four probes, but

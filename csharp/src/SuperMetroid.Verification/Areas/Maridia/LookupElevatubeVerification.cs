@@ -1,4 +1,5 @@
 using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Rooms;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Areas.Maridia;
@@ -13,7 +14,7 @@ internal static class LookupElevatubeVerification
     /// <summary>Compares the single installed elevatube draw with its native run, tile, and displacement.</summary>
     internal static void VerifyElevatubePhysicalDraw(SuperMetroidAddressSpace rom)
     {
-        AssertEqual(ReadSamusEaterPlmWord(rom, 0x849369), MaridiaElevatubePlmDefinitions.Terrain.Raw, "Elevatube native scalar");
+        AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, 0x849369)), MaridiaElevatubePlmDefinitions.Terrain, "Elevatube native terrain");
         var all = MaridiaElevatubePlmDefinitions.AllDraws.ToArray();
         AssertEqual(1, all.Length, "Elevatube single export");
         AssertTrue(MaridiaElevatubeDraws.TryGetDrawByVisualId("elevatube-block", out var selected), "Elevatube ordinal ID");
@@ -24,7 +25,7 @@ internal static class LookupElevatubeVerification
             var run = draw.Runs.Span[0];
             AssertRunHeader(ReadSamusEaterPlmWord(rom, 0x849367), run, "Elevatube native run header");
             AssertEqual(1, run.Count, "Elevatube one word");
-            AssertEqual(ReadSamusEaterPlmWord(rom, 0x849369), run.Blocks.Span[0], "Elevatube DTO original word");
+            AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, 0x849369)), run.Blocks.Span[0], "Elevatube DTO native terrain");
             AssertEqual(unchecked((sbyte)ElevatubePhysicalDrawRomByte(rom, 0x84936b)), run.Next.X, "Elevatube original X");
             AssertEqual(unchecked((sbyte)ElevatubePhysicalDrawRomByte(rom, 0x84936c)), run.Next.Y, "Elevatube original Y");
         }

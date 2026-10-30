@@ -240,7 +240,7 @@ internal static void VerifySamusAimedAerialMovement()
         blocks[12 * width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
     RoomLevelData level = CreateRoom(new(width, height),
         blocks,
-        new byte[blocks.Length]);
+        new RoomBlockBehavior[blocks.Length]);
 
     var samus = new SamusState
     {
@@ -439,12 +439,12 @@ level, compactLeftLanding, 0, index);
     // Put radius-ten `$17` between a row-nine ceiling and row-twelve floor. The body itself
     // fits, but both independent nine-pixel probes collide. `$91:FFA7` therefore selects
     // ordinary `$27` and `$91:FFD4-$91:FFE9` moves the center up by 10-16 = -6 pixels.
-    var boxedBlocks = (ushort[])blocks.Clone();
+    var boxedBlocks = (RoomTerrainBlock[])blocks.Clone();
     for (int x = 0; x < width; x++)
         boxedBlocks[9 * width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
     RoomLevelData boxedLevel = CreateRoom(new(width, height),
         boxedBlocks,
-        new byte[boxedBlocks.Length]);
+        new RoomBlockBehavior[boxedBlocks.Length]);
     var boxedCompact = new SamusState
     {
         Pose = SamusPoseId.NormalJumpAimDownRightPose,

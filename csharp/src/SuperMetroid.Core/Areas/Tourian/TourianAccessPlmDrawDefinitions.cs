@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.LevelData;
+
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
@@ -10,17 +12,17 @@ namespace SuperMetroid.Core.Areas.Tourian;
 internal static class TourianAccessPlmDrawDefinitions
 {
     /// <summary>
-    /// The rows and air word of each Tourian access draw. Clear selects six blank rows; empty selects one. The three
-    /// crumble records select successive tiles $53..55. Every row is four air cells.
+    /// The rows and air block of each Tourian access draw. Clear selects six blank rows; empty selects one. The three
+    /// crumble records show successive blocks $53..55, unmirrored. Every row is four air cells.
     /// </summary>
     internal static readonly IReadOnlyDictionary<TourianAccessDraw, TourianAccessDrawFill> Fills =
         new Dictionary<TourianAccessDraw, TourianAccessDrawFill>
         {
-            [TourianAccessDraw.Clear] = new(6, 0x00ff),
-            [TourianAccessDraw.EmptyRow] = new(1, 0x00ff),
-            [TourianAccessDraw.CrumbleFirst] = new(1, 0x53),
-            [TourianAccessDraw.CrumbleSecond] = new(1, 0x54),
-            [TourianAccessDraw.CrumbleThird] = new(1, 0x55),
+            [TourianAccessDraw.Clear] = new(6, RoomTerrainBlocks.BlankAir),
+            [TourianAccessDraw.EmptyRow] = new(1, RoomTerrainBlocks.BlankAir),
+            [TourianAccessDraw.CrumbleFirst] = new(1, RoomTerrainBlock.Of(0x53, BlockMirroring.None, RoomCollisionType.Air)),
+            [TourianAccessDraw.CrumbleSecond] = new(1, RoomTerrainBlock.Of(0x54, BlockMirroring.None, RoomCollisionType.Air)),
+            [TourianAccessDraw.CrumbleThird] = new(1, RoomTerrainBlock.Of(0x55, BlockMirroring.None, RoomCollisionType.Air)),
         };
 
     /// <summary>The artwork identity naming each empty, crumble or six-row clear frame in visual files.</summary>

@@ -19,6 +19,15 @@ using SuperMetroid.Core.Rooms.Doors;
 /// <summary>Checks open-door contact during pause fade while Samus remains in a horizontal shinespark.</summary>
 internal static class PauseDoorShinesparkVerification
 {
+    /// <summary>A door block showing block zero: the column Samus sparks into.</summary>
+    private static readonly RoomTerrainBlock Door = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.DoorBlock);
+
+    /// <summary>A plain solid block: the wall behind the door column.</summary>
+    private static readonly RoomTerrainBlock Solid = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+
+    /// <summary>The door column's behaviour: entry three of the Parlor door list.</summary>
+    private static readonly RoomBlockBehavior ParlorExitDoor = new(3);
+
     /// <summary>Confirms normal and terminal fade frames publish the door transition in native order without extra source-room movement.</summary>
     internal static void VerifyPauseDoorShinespark()
     {
@@ -35,15 +44,15 @@ internal static class PauseDoorShinesparkVerification
             runtime.System.SetEvent(EventNumber.ZebesAwake);
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Parlor);
             foreach (var enemy in runtime.Enemies.SlotTable.Slots) enemy.Clear();
-            var words = new ushort[32 * 16];
-            var bts = new byte[words.Length];
+            var words = new RoomTerrainBlock[32 * 16];
+            var bts = new RoomBlockBehavior[words.Length];
             for (int row = 0; row < 16; row++)
             {
-                words[row * 32 + 10] = 0x9000;
-                bts[row * 32 + 10] = 3;
-                words[row * 32 + 12] = 0x8000;
+                words[row * 32 + 10] = Door;
+                bts[row * 32 + 10] = ParlorExitDoor;
+                words[row * 32 + 12] = Solid;
             }
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 16), new RoomLevelPlanes(words, bts, new ushort[512]), doors: RoomDoorListDefinitions.ForListPointer(0xdad5));
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 16), new RoomLevelPlanes(words, bts, new RoomBlockAppearance[512]), doors: RoomDoorListDefinitions.ForListPointer(0xdad5));
             runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { LevelData = level });
             var samus = runtime.Player.IntroducedSamus;
             samus.Control.Unlock();

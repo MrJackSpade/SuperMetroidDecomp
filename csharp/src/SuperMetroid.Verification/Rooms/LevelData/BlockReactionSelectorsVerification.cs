@@ -1,5 +1,6 @@
 using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Verification.Rooms.Plms;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -52,7 +53,7 @@ internal static class BlockReactionSelectorsVerification
             ushort count = ReadRomWord(rom,0x840000 | pointer);
             AssertRunHeader(count,run,"bombed reveal native direction/count");
             AssertEqual(count & 0x7fff,run.Count,"bombed reveal native word count");
-            AssertEqual(ReadRomWord(rom,0x840000 | (pointer + 2)),run.Blocks.Span[0],
+            AssertEqual(RoomLevelWordCodec.Decode(ReadRomWord(rom,0x840000 | (pointer + 2))),run.Blocks.Span[0],
                 "bombed reveal native physical parent and visual tile");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 4))),run.Next.X,"bombed reveal native terminal X");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 5))),run.Next.Y,"bombed reveal native terminal Y");

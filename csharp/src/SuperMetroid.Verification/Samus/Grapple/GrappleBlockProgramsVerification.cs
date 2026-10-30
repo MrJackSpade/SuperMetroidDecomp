@@ -82,7 +82,7 @@ internal static class GrappleBlockProgramsVerification
             }
             AssertEqual((ushort)pointer,NativePlmDraws.AddressOf(PlmDraw.Of(draw.Frame)),"Grapple draw identity");
             AssertRunHeader(ReadRomWord(rom,0x840000 | pointer),RoomPlmGrappleBlockDrawDefinitions.DrawList.Direction,RoomPlmGrappleBlockDrawDefinitions.DrawList.Count,"Grapple native single-block geometry");
-            AssertEqual(ReadRomWord(rom,0x840000 | (pointer + 2)),draw.Terrain,"Grapple native collision and tile word");
+            AssertEqual(RoomLevelWordCodec.Decode(ReadRomWord(rom,0x840000 | (pointer + 2))),draw.Terrain,"Grapple native terrain");
             AssertEqual(unchecked((sbyte)GrappleBlockPhysicalDrawMappingRomByte(rom, 0x840000 | (pointer + 4))),RoomPlmGrappleBlockDrawDefinitions.DrawList.NextX,"Grapple native terminal X");
             AssertEqual(unchecked((sbyte)GrappleBlockPhysicalDrawMappingRomByte(rom, 0x840000 | (pointer + 5))),RoomPlmGrappleBlockDrawDefinitions.DrawList.NextY,"Grapple native terminal Y");
             AssertEqual(draw,exported.Single(entry => NativePlmDraws.AddressOf(PlmDraw.Of(entry.Frame)) == pointer),"Grapple exported draw matches calculation");

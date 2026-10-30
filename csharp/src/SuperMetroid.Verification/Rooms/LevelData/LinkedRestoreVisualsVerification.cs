@@ -32,7 +32,7 @@ internal static class LinkedRestoreVisualsVerification
         var native = new Dictionary<ushort, RoomBlockAppearance[]>();
         foreach (var frame in frames)
         {
-            var words = new List<ushort>();
+            var words = new List<RoomBlockAppearance>();
             int cursor = frame.Pointer;
             while (true)
             {

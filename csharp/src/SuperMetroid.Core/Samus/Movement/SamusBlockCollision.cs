@@ -776,7 +776,7 @@ public static class SamusBlockCollision
     private static bool ClearCollisionTypeWithoutLifecycle(RoomLevelData level, int blockIndex)
     {
         level.SetTerrain(blockIndex,
-            RoomTerrainBlock.Of(RoomPlmVisualBlockDefinitions.CollisionBombParent, BlockMirroring.None, RoomCollisionType.Air));
+            new RoomTerrainBlock(RoomPlmVisualBlockDefinitions.CollisionBombParent, RoomCollisionType.Air));
         return true;
     }
 

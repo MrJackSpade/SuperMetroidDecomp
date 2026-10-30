@@ -980,7 +980,7 @@ public sealed class SamusBombProjectileSystem
                 block.Behavior.UsesAreaReactionTable)
                 return;
             if (!block.Behavior.UsesAreaReactionTable &&
-                block.Behavior.Value != EscapeAnimalWallDefinitions.ReactionBts &&
+                block.Behavior != EscapeAnimalWallDefinitions.ReactionBehavior &&
                 !block.Behavior.IsNormalReactionIndex(16) &&
                 !block.Behavior.IsShootableCollisionProbe)
             {

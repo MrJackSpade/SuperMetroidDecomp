@@ -3,7 +3,6 @@ using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.MotherBrain;
-using System.Collections.Immutable;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -1028,8 +1027,7 @@ internal sealed class SuperMetroidRuntime
         var frameEnd = new GameplayFrameEndDisplayInputs(
             Room.DoorTransitionMainScreenLayers,
             sky?.Publish(Room.Camera?.PixelPosition.Y ?? throw new InvalidOperationException("Scrolling sky has no gameplay camera.")),
-            crocomireDeath is { MeltingScrollActive: true } melting
-                ? ImmutableArray.CreateRange(melting.Bg2ScrollByScanline) : null,
+            crocomireDeath is { MeltingScrollActive: true } melting ? melting.MeltDistortion : null,
             motherBrain is { RisingFloorClipActive: true },
             motherBrain?.RainbowBeam.RenderSnapshot,
             CeresHazeRenderSnapshot.Capture(Room.LoadedScope.CeresHaze),

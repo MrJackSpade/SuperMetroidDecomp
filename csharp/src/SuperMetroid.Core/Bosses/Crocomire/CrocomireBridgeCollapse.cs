@@ -223,7 +223,7 @@ internal sealed class CrocomireBridgeCollapse
     /// <summary>Byte-for-byte fixed-point fall from <c>SinkCrocomireDown</c> at $A4:91C1.</summary>
     internal void RunCrocomireSink(CrocomireEnemyState state)
     {
-        _bodyLayer.FillCrocomireBg2ScrollTable(_bodyLayer.Placement.Y);
+        _bodyLayer.LevelCrocomireMeltDistortion(_bodyLayer.Placement.Y);
         state.FightFlags &= ~CrocomireFightFlags.DamageReactionPending;
         _bodyLayer.PlaceCrocomireBodyLayer(state);
         RoomEnemySlot body = state.Body;
@@ -266,7 +266,7 @@ internal sealed class CrocomireBridgeCollapse
     /// <summary>Byte-for-byte fixed-point rise from $A4:92D8.</summary>
     internal void RunCrocomireRise(CrocomireEnemyState state)
     {
-        _bodyLayer.FillCrocomireBg2ScrollTable(_bodyLayer.Placement.Y);
+        _bodyLayer.LevelCrocomireMeltDistortion(_bodyLayer.Placement.Y);
         RoomEnemySlot body = state.Body;
         if (unchecked((short)(body.Position.Y.Whole - 218)) < 0)
         {

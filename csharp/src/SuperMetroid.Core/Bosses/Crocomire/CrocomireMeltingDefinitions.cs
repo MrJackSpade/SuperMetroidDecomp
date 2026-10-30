@@ -34,6 +34,12 @@ internal static class CrocomireMeltingDefinitions
     public const int DistortionEndY = 48;
 
     /// <summary>
+    /// The lines the melt's stretch can reach, counted from the first gameplay line: the band starts and ends within
+    /// them, and those below the screen are never shown.
+    /// </summary>
+    public const int DistortionLines = 256;
+
+    /// <summary>
     /// The body-layer cells a melt image's drawing shows, from the layer's first: the sixteen rows the cartridge's transfer
     /// leads the image with, then the eight rows the image covers.
     /// </summary>

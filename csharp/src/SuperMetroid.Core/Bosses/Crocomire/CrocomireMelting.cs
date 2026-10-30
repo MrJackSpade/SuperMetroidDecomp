@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
@@ -64,7 +65,7 @@ internal sealed class CrocomireMelting
     internal void ShowSecondCrocomireMeltImage(CrocomireEnemyState state)
     {
         _ = RequireCrocomireMeltingImage(CrocomireMeltingIllustration.Second);
-        _bodyLayer.FillCrocomireBg2ScrollTable(_bodyLayer.Placement.Y);
+        _bodyLayer.LevelCrocomireMeltDistortion(_bodyLayer.Placement.Y);
         StartCrocomireMeltingBodyProgram(state, CrocomireBodyProgram.MeltingTwoTopRow);
         // $A4:940E-941D clears the first thirty-two rows.
         ShowCrocomireMeltingImage(CrocomireMeltingIllustration.Second, clearedCells: 1024);
@@ -109,7 +110,7 @@ internal sealed class CrocomireMelting
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         _ = RequireCrocomireMeltingImage(pass);
-        _bodyLayer.FillCrocomireBg2ScrollTable(_bodyLayer.Placement.Y);
+        _bodyLayer.LevelCrocomireMeltDistortion(_bodyLayer.Placement.Y);
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
         death.DistortionStep = 256;
         death.LowestDistortionSourceRow = CrocomireMeltingDefinitions.LowestDistortionSourceRow;
@@ -171,11 +172,7 @@ internal sealed class CrocomireMelting
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         death.MeltingScrollActive = true;
-        int lineCount = Math.Clamp((state.Tongue?.Position.Y.Whole ?? state.Body.Position.Y.Whole) - 72, 0, 256);
-        Span<ushort> scrolls = death.MutableBg2ScrollByScanline;
-        scrolls.Slice(0, lineCount).Fill(_bodyLayer.Placement.Y);
-        if (lineCount < scrolls.Length)
-            scrolls.Slice(lineCount).Fill(_bodyLayer.Placement.Y);
+        _bodyLayer.LevelCrocomireMeltDistortion(_bodyLayer.Placement.Y);
 
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
         death.BodyXBeforeMelting = state.Body.Position.X.Whole;
@@ -208,7 +205,7 @@ internal sealed class CrocomireMelting
         death.DistortionStep = Math.Min(
             death.DistortionStep + 384,
             CrocomireBehavior.MaximumCrocomireDistortionStep);
-        BuildCrocomireMeltingScrollTable(state, death);
+        StretchCrocomireMeltDistortion(state, death);
     }
 
     /// <summary>
@@ -227,29 +224,35 @@ internal sealed class CrocomireMelting
         ShowMeltBand(death, death.NextMeltBand++);
     }
 
-    /// <summary>Builds scanline BG2 offsets that distort Crocomire's body through the melting pass.</summary>
-    private void BuildCrocomireMeltingScrollTable(
+    /// <summary>
+    /// Stretches his body layer through the melt's band (#1468): from the line below the tongue, each line falls a further
+    /// <see cref="CrocomireDeathState.DistortionStep"/> of a row behind his body layer's placement, while the band's source
+    /// row climbs one row a line less that fraction, until it reaches
+    /// <see cref="CrocomireDeathState.LowestDistortionSourceRow"/> or the band reaches the distortion's last line. The
+    /// lines above the band keep the scroll the melt was last levelled at; the lines below show the placement.
+    /// </summary>
+    /// <remarks>
+    /// The band's first line follows the tongue, which rides his body; the body only shakes sideways while it melts, so
+    /// the band never starts lower than the last stretch's, and the lines above it keep the levelled scroll.
+    /// </remarks>
+    private void StretchCrocomireMeltDistortion(
         CrocomireEnemyState state,
         CrocomireDeathState death)
     {
-        Span<ushort> output = death.MutableBg2ScrollByScanline;
-        int line = Math.Clamp((state.Tongue?.Position.Y.Whole ?? state.Body.Position.Y.Whole) - 72, 0, 256);
-        int adjustedY = death.DistortionSourceRow;
-        int currentY = adjustedY;
-        int fraction = 0;
-        while (line < output.Length &&
-               adjustedY < death.LowestDistortionSourceRow)
-        {
-            output[line++] = unchecked((ushort)(
-                _bodyLayer.Placement.Y + adjustedY - currentY));
-            bool carry = false;
-            fraction = WordCarry.AddWithCarry((ushort)fraction, checked((ushort)death.DistortionStep), ref carry);
-            if (!carry)
-                adjustedY++;
-            currentY++;
-        }
-        if (line < output.Length)
-            output.Slice(line).Fill(_bodyLayer.Placement.Y);
+        int firstLine = Math.Clamp((state.Tongue?.Position.Y.Whole ?? state.Body.Position.Y.Whole) - 72, 0,
+            CrocomireMeltingDefinitions.DistortionLines);
+        int rows = death.LowestDistortionSourceRow - death.DistortionSourceRow;
+        // The source row rises a whole row less the slope's fraction each line, so it first reaches the lowest row on the
+        // line after its rise passes one row short of it.
+        int row = SixteenSixteen.FromWhole(1);
+        int bandLines = rows <= 0 ? 0 : (rows - 1) * row / (row - death.DistortionStep) + 1;
+        int endLine = Math.Min(firstLine + bandLines, CrocomireMeltingDefinitions.DistortionLines);
+        death.MeltDistortion = new ScrollStretch(death.MeltDistortion.ScrollAbove, _bodyLayer.Placement.Y,
+            ScreenLine(firstLine), ScreenLine(endLine), death.DistortionStep);
+
+        // The distortion's lines start at the first gameplay line; those below the screen are never shown.
+        static int ScreenLine(int distortionLine) =>
+            Math.Min(distortionLine + ScreenGeometry.GameplayHudHeightPixels, ScreenGeometry.ScreenHeightPixels);
     }
 
     /// <summary>Ends the current dissolve and selects the next death-scene instruction phase.</summary>

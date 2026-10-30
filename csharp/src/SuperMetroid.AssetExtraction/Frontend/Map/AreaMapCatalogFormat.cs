@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Progression;
 
-namespace SuperMetroid.Core.Map.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>On-disk names and manifest bounds for seven area maps and their shared presentation resources.</summary>
 public static class AreaMapCatalogFormat

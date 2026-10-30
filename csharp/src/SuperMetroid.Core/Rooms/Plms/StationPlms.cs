@@ -958,7 +958,7 @@ internal sealed class StationPlms : IPlmFamilySource
     private void DrawStationAccess(RoomLevelData level, StationPlmState station, StationAccessPose pose)
     {
         StationAccessBehavior accessBehavior = station.AccessBehavior
-            ?? throw new InvalidDataException("Station access has no BTS owner.");
+            ?? throw new InvalidDataException("Station access has no behaviour owner.");
         StationAccessPlmDefinition definition =
             StationAccessPlms.Resolve(accessBehavior);
         _drawing.Draw(level, station.AccessBlockIndex, PlmDraw.Of(pose == StationAccessPose.Extended ? definition.Extended : definition.Retracted));

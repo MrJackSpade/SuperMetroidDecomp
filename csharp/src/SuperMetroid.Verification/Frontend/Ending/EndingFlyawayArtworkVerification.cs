@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.Core.Frontend;
 using System.Text.Json;
 using SuperMetroid.Core.Rendering;
@@ -71,7 +72,7 @@ internal static class EndingFlyawayArtworkVerification
         edited.FrontTiles[0] = unchecked((byte)(edited.FrontTiles[0] + 1));
         Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
         using (var output = File.Create(overridePath))
-            CeresFlightArtwork.WriteMap(output, edited);
+            CeresFlightCharacters.WriteMap(output, edited);
         CeresFlightArtwork overrideArt = installation.LoadIntroCinematicArt().CeresFlight;
         File.Delete(overridePath);
 

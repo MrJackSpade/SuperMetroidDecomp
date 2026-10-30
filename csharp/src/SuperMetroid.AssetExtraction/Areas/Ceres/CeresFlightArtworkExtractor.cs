@@ -42,7 +42,7 @@ internal static class CeresFlightArtworkExtractor
         byte[] floorPng = Png(mode7Size, mode7Pixels, 256);
         byte[] objectPng = Png(objectSize, objPixels, 16);
         using var mapJson = new MemoryStream();
-        CeresFlightArtwork.WriteMap(mapJson, new CeresFlightMapDocument
+        CeresFlightCharacters.WriteMap(mapJson, new CeresFlightMapDocument
         {
             Version = CeresFlightArtworkFormat.Version,
             Width = CeresFlightArtworkFormat.MapWidth,

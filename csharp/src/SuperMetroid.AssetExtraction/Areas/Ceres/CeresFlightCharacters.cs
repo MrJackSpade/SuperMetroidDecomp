@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
@@ -24,10 +25,11 @@ public sealed class CeresFlightCharacters : CeresFlightArtwork
     private CeresFlightCharacters(byte[] floorCharacters, byte[] floorMaps,
         byte[] objectCharacters, CeresFlightPalette palette,
         CeresFlightSpritePresentation sprites, CeresFlightActorPlacements actors)
-        : base(floorMaps, palette, actors, floorCharacters.Length / CeresFlightArtworkFormat.FloorCharacterBytes,
+        : base(palette, actors, floorCharacters.Length / CeresFlightArtworkFormat.FloorCharacterBytes,
             objectCharacters.Length / CeresFlightArtworkFormat.ObjectCharacterBytes)
     {
         FloorCharacters = floorCharacters;
+        FloorMaps = floorMaps;
         ObjectCharacters = objectCharacters;
         Sprites = sprites;
     }
@@ -37,6 +39,9 @@ public sealed class CeresFlightCharacters : CeresFlightArtwork
 
     /// <summary>Owned $4000-byte stream of 256 chunky 8-bpp Mode-7 characters, imported from <c>Tiles_Gunship_Ceres_Mode7</c> at <c>$95:A82F</c>; also reused by the ending flyaway.</summary>
     public ReadOnlyMemory<byte> FloorCharacters { get; }
+
+    /// <summary>Front 768 map bytes followed by rear 768 map bytes, which the import pictures into the flight's floors (#1467).</summary>
+    public ReadOnlyMemory<byte> FloorMaps { get; }
 
     /// <summary>Owned $4000-byte stream of 512 planar 4-bpp characters, imported from <c>Tiles_Space_Ceres</c> at <c>$96:D10A</c> and uploaded to VRAM bytes $C000-$FFFF.</summary>
     public ReadOnlyMemory<byte> ObjectCharacters { get; }
@@ -100,4 +105,61 @@ public sealed class CeresFlightCharacters : CeresFlightArtwork
     /// <exception cref="InvalidDataException">The flight artwork was not read from installed artwork.</exception>
     public static CeresFlightCharacters Of(CeresFlightArtwork flight) => flight as CeresFlightCharacters
         ?? throw new InvalidDataException("The Ceres flight artwork was not read from installed artwork.");
+
+    /// <summary>Reads both ordered 768-byte front and rear map slices from a version-one map document.</summary>
+    /// <param name="mapJson">Version-one document containing both ordered 768-byte front/rear map slices.</param>
+    /// <returns>Front 768 map bytes followed by rear 768 map bytes.</returns>
+    /// <exception cref="InvalidDataException">The document has an unsupported version, dimensions, array length, or tile index.</exception>
+    internal static byte[] ReadMaps(Stream mapJson)
+    {
+        CeresFlightMapDocument document = ReadMap(Ensure.NotNull(mapJson));
+        byte[] map = new byte[2 * CeresFlightArtworkFormat.MapCellsPerView];
+        for (int index = 0; index < CeresFlightArtworkFormat.MapCellsPerView; index++)
+        {
+            map[index] = checked((byte)document.FrontTiles[index]);
+            map[CeresFlightArtworkFormat.MapCellsPerView + index] =
+                checked((byte)document.RearTiles[index]);
+        }
+        return map;
+    }
+
+    /// <summary>Serializes a front/rear map document and validates its serialized form before writing any bytes to the destination.</summary>
+    /// <param name="json">Caller-owned writable destination stream, written at its current position.</param>
+    /// <param name="document">Version-one document with two complete 32-by-24 editing arrays containing tile indices $00-$FF.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
+    /// <exception cref="InvalidDataException">The document is null or has an unsupported version, dimensions, array length, or tile index.</exception>
+    public static void WriteMap(Stream json, CeresFlightMapDocument document)
+    {
+        Ensure.NotNull(json);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        _ = ReadMap(new MemoryStream(bytes, writable: false));
+        json.Write(bytes);
+    }
+
+    /// <summary>Requires two complete 32-by-24 tile-index views before compiling their upload bytes.</summary>
+    private static CeresFlightMapDocument ReadMap(Stream json)
+    {
+        CeresFlightMapDocument document;
+        try
+        {
+            document = JsonSerializer.Deserialize<CeresFlightMapDocument>(json,
+                ArtworkJson.Options)
+                ?? throw new InvalidDataException("Ceres flight Mode-7 map JSON is null.");
+        }
+        catch (JsonException error)
+        {
+            throw new InvalidDataException("Invalid Ceres flight Mode-7 map JSON.", error);
+        }
+        if (document.Version != CeresFlightArtworkFormat.Version ||
+            document.Width != CeresFlightArtworkFormat.MapWidth ||
+            document.Height != CeresFlightArtworkFormat.MapHeight ||
+            !ValidView(document.FrontTiles) || !ValidView(document.RearTiles))
+            throw new InvalidDataException(
+                "Ceres flight map requires two ordered 32x24 arrays of eight-bit tile indexes.");
+        return document;
+
+        static bool ValidView(int[]? tiles) =>
+            tiles is { Length: CeresFlightArtworkFormat.MapCellsPerView } &&
+            tiles.All(tile => (uint)tile <= byte.MaxValue);
+    }
 }

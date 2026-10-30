@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -60,7 +61,7 @@ internal static void VerifyCeresDestructionCinematic()
     string overrideRoot = overrideRootScratch.Root;
     Directory.CreateDirectory(overrideRoot);
     using (var stream = File.Create(Path.Combine(overrideRoot, CeresFlightArtworkFormat.MapFileName)))
-        CeresFlightArtwork.WriteMap(stream, new CeresFlightMapDocument
+        CeresFlightCharacters.WriteMap(stream, new CeresFlightMapDocument
         {
             Version = CeresFlightArtworkFormat.Version,
             Width = CeresFlightArtworkFormat.MapWidth,

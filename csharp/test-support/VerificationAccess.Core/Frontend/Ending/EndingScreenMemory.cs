@@ -64,7 +64,7 @@ internal static class EndingScreenMemory
             return;
         }
         var map = new byte[EndingArtworkExtentDefinitions.FloorBytes];
-        content.FloorMaps.Span[..EndingArtworkExtentDefinitions.FlyawayMapDataBytes].CopyTo(map);
+        CeresFlightCharacters.Of(content).FloorMaps.Span[..EndingArtworkExtentDefinitions.FlyawayMapDataBytes].CopyTo(map);
         map.AsSpan(EndingArtworkExtentDefinitions.FlyawayMapDataBytes).Fill(EndingArtworkExtentDefinitions.FlyawayBlankTile);
         mode7.LoadMap(map.AsSpan(offset, chunkBytes), offset);
     }

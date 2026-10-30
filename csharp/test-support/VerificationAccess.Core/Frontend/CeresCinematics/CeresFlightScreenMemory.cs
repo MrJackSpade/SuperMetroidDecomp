@@ -25,7 +25,7 @@ internal static class CeresFlightScreenMemory
         mode7.LoadCharacters(artwork.FloorCharacters.Span[..CeresFlightArtworkFormat.FloorByteCount]);
         mode7.FillMap(CeresFloorShotDefinitions.BlankTile, FloorSheetComposer.CellCount);
         int slice = rear ? CeresFlightArtworkFormat.MapCellsPerView : 0;
-        mode7.LoadMap(artwork.FloorMaps.Span.Slice(slice, CeresFlightArtworkFormat.MapCellsPerView));
+        mode7.LoadMap(CeresFlightCharacters.Of(artwork).FloorMaps.Span.Slice(slice, CeresFlightArtworkFormat.MapCellsPerView));
         new CeresVram(vram).ObjectCharacters.Load(artwork.ObjectCharacters.Span[..CeresFlightArtworkFormat.ObjectByteCount]);
         return vram.CaptureImage();
     }

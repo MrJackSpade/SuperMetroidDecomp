@@ -331,6 +331,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightMapDocument",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Areas/Ceres/CeresFlightMapDocument.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightPaletteDocument",
       "kind": "record",
       "scope": "product",
@@ -75731,19 +75744,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresFlightMapDocument",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/Artwork/CeresFlightMapDocument.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresFlightPalette",

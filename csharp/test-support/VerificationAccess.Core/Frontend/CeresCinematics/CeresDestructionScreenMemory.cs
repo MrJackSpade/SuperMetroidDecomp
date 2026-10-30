@@ -26,8 +26,8 @@ internal static class CeresDestructionScreenMemory
         var mode7 = new Mode7Vram(vram);
         var ceres = new CeresVram(vram);
         var views = new byte[CeresFloorShotDefinitions.MapCells];
-        artwork.CeresFlight.FloorMaps.Span.CopyTo(views);
-        IntroCinematicSourceArtwork.Of(artwork).CeresDestructionMaps.Views.Span[..(views.Length - artwork.CeresFlight.FloorMaps.Length)].CopyTo(views.AsSpan(artwork.CeresFlight.FloorMaps.Length));
+        CeresFlightCharacters.Of(artwork.CeresFlight).FloorMaps.Span.CopyTo(views);
+        IntroCinematicSourceArtwork.Of(artwork).CeresDestructionMaps.Views.Span[..(views.Length - CeresFlightCharacters.Of(artwork.CeresFlight).FloorMaps.Length)].CopyTo(views.AsSpan(CeresFlightCharacters.Of(artwork.CeresFlight).FloorMaps.Length));
         if (floor is { } shot)
         {
             mode7.LoadCharacters(artwork.CeresFlight.FloorCharacters.Span[..CeresFlightArtworkFormat.FloorByteCount]);

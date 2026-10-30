@@ -1,4 +1,7 @@
-namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.Core.Spatial;
+
+namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>Editable front/rear map slices from <c>Gunship_Ceres_Tilemap</c> at <c>$96:FE69</c>, preserving native transfer order.</summary>
 /// <remarks>The 32-by-24 dimensions describe the host editing arrays, not a replacement for the hardware's full Mode-7 map geometry. Arrays are caller-owned mutable document data and are copied into byte transfers when loaded.</remarks>

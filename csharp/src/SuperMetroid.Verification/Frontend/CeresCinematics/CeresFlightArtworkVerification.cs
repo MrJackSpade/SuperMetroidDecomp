@@ -48,7 +48,7 @@ internal static class CeresFlightArtworkVerification
             "installed Ceres OBJ PNG preserves every native character byte");
         byte[] nativeMaps = RomDataReader.Decompress(bus, CeresCinematicSourceDefinitions.CeresTilemaps,
             maximumOutputBytes: 0x1000);
-        AssertTrue(stock.FloorMaps.Span.SequenceEqual(nativeMaps.AsSpan(0,
+        AssertTrue(CeresFlightCharacters.Of(stock).FloorMaps.Span.SequenceEqual(nativeMaps.AsSpan(0,
                 CeresFlightArtworkFormat.MapCellCount)),
             "installed front/rear Ceres maps preserve every consumed native byte");
         byte[] nativePalette = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
@@ -126,7 +126,7 @@ internal static class CeresFlightArtworkVerification
                 map.FrontTiles[0] = unchecked((byte)(map.FrontTiles[0] + 1));
                 map.RearTiles[0] = unchecked((byte)(map.RearTiles[0] + 1));
                 using var output = File.Create(overridePath);
-                CeresFlightArtwork.WriteMap(output, map);
+                CeresFlightCharacters.WriteMap(output, map);
             }
             else
             {
@@ -163,7 +163,7 @@ internal static class CeresFlightArtworkVerification
                     ExpectedCeresFlightVram(edited, rear: true)),
                 $"restored rear view rebinds edited {name} with native map ordering");
             if (isRearMap)
-                AssertTrue(!edited.FloorMaps.Span.SequenceEqual(stock.FloorMaps.Span),
+                AssertTrue(!CeresFlightCharacters.Of(edited).FloorMaps.Span.SequenceEqual(CeresFlightCharacters.Of(stock).FloorMaps.Span),
                     "front and rear JSON edits both compile into the active map stream");
             File.Delete(overridePath);
         }
@@ -186,7 +186,7 @@ internal static class CeresFlightArtworkVerification
                 ?? throw new InvalidDataException("Ceres Mode-7 map is empty.");
         persistentMap.FrontTiles[0] = unchecked((byte)(persistentMap.FrontTiles[0] + 1));
         using (var output = File.Create(invalidMap))
-            CeresFlightArtwork.WriteMap(output, persistentMap);
+            CeresFlightCharacters.WriteMap(output, persistentMap);
         CeresFlightArtwork selected = installation.LoadIntroCinematicArt().CeresFlight;
         string stockMode7 = Path.Combine(installation.IntroCinematicDirectory,
             CeresFlightArtworkFormat.FloorFileName);
@@ -195,8 +195,8 @@ internal static class CeresFlightArtworkVerification
             "a Ceres map override cannot hide a corrupt stock PNG");
         GameInstallation repaired = GameAssetInstaller.EnsureInstalled(installation.Root)
             ?? throw new InvalidOperationException("Ceres artwork vanished during stock repair.");
-        AssertTrue(repaired.LoadIntroCinematicArt().CeresFlight.FloorMaps.Span.SequenceEqual(
-                selected.FloorMaps.Span),
+        AssertTrue(CeresFlightCharacters.Of(repaired.LoadIntroCinematicArt().CeresFlight).FloorMaps.Span.SequenceEqual(
+                CeresFlightCharacters.Of(selected).FloorMaps.Span),
             "stock Ceres art repair preserves the player's external map override");
         File.Delete(invalidMap);
         Console.WriteLine("Ceres flight art: native front/rear frames and five ROM-sourced rear actor placements, independent PNG/JSON/palette edits, rebind and strict failures pass.");
@@ -400,7 +400,7 @@ internal static class CeresFlightArtworkVerification
         Array.Fill(map.FrontTiles, 0);
         Array.Fill(map.RearTiles, 0);
         using (var output = File.Create(mapOverride))
-            CeresFlightArtwork.WriteMap(output, map);
+            CeresFlightCharacters.WriteMap(output, map);
         CeresFlightArtwork originalArtwork = IntroCinematicArtworkFiles.Load(installation.IntroCinematicDirectory, null).CeresFlight;
         CeresFlightArtwork changedArtwork = installation.LoadIntroCinematicArt().CeresFlight;
         var original = new IntroCeresFlightState(new AudioQueues(),
@@ -449,7 +449,7 @@ internal static class CeresFlightArtworkVerification
         }
         int mapOffset = rear ? CeresFlightArtworkFormat.MapCellsPerView : 0;
         for (int word = 0; word < CeresFlightArtworkFormat.MapCellsPerView; word++)
-            expected[word * 2] = artwork.FloorMaps.Span[mapOffset + word];
+            expected[word * 2] = CeresFlightCharacters.Of(artwork).FloorMaps.Span[mapOffset + word];
         artwork.ObjectCharacters.Span.CopyTo(expected.AsSpan(
             (CeresVramLayout.ObjectCharacters.Offset * 2)));
         return expected;

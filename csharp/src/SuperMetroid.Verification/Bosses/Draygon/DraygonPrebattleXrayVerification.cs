@@ -86,7 +86,7 @@ internal static class DraygonPrebattleXrayVerification
         RgbaPixel[] RenderWithRegisters(GameplaySceneView registers)
         {
             var gameplay = new GameplaySceneLayer(registers, math.Gameplay.Rooms, math.Gameplay.BackgroundLineScrolls, math.Gameplay.LayersShownByLine);
-            var changed = new GameplayBlendLayer(gameplay, math.Lines, math.RevealBlocks, math.Blend, math.BlendPlane, math.BlendsWithBackground);
+            var changed = new GameplayBlendLayer(gameplay, math.Window, math.RevealBlocks, math.Blend, math.BlendPlane, math.BlendsWithBackground);
             // The scene's later layers, the HUD's among them (#1466), stay as captured.
             DisplayLayer[] layers = scene.Layers.ToArray();
             layers[0] = changed;

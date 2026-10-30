@@ -4327,9 +4327,8 @@ internal static class VerificationAssert
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(powerBombOracle.Rom)),
             "Power Bomb oracle is NTSC J/U v1.0");
-        Suite(nameof(VerifyPowerBombWidthAlgorithm), () => VerifyPowerBombWidthAlgorithm(powerBombOracle));
-        Suite(nameof(VerifyPowerBombTopOffsetAlgorithm), () => VerifyPowerBombTopOffsetAlgorithm(powerBombOracle));
-        Console.WriteLine("Power Bomb base curves: all 64 original bytes and invalid bounds pass.");
+        Suite(nameof(VerifyPowerBombOvalAspect), () => VerifyPowerBombOvalAspect(powerBombOracle));
+        Console.WriteLine("Power Bomb base curves: the original curve has the blast oval's aspect.");
         return 0;
     }
 

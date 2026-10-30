@@ -47,7 +47,7 @@ internal static class BackgroundMosaicTests
                     (mode == 3 ? ScreenLayers.Foreground : ScreenLayers.None),
                 BackgroundPixelation: new(size));
             var ordinary = new GameplaySceneLayer(registers, rooms, new BackgroundLineScrolls(horizontal, vertical));
-            DisplayLayer layer = mode is 0 or 3 ? ordinary : new GameplayBlendLayer(ordinary, Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new SceneBlend { Layers = mode == 2 ? ColorBlend.Backdrop : ColorBlend.None, BlendsWithLayersBehind = mode == 2, FixedColor = RgbColor.Black }, subscreenUsesBg2: mode == 2);
+            DisplayLayer layer = mode is 0 or 3 ? ordinary : new GameplayBlendLayer(ordinary, ScreenWindow.Closed, false, new SceneBlend { Layers = mode == 2 ? ColorBlend.Backdrop : ColorBlend.None, BlendsWithLayersBehind = mode == 2, FixedColor = RgbColor.Black }, subscreenUsesBg2: mode == 2);
             var scene = new LayeredScene(memory, [layer], 15);
             var packet = new DisplayPacket(new(++cases, 1, 0), scene);
             var actual = DisplayRendering.Render(scene);

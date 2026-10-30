@@ -43,8 +43,8 @@ internal static class GameplayCaptureIntegrationTestsVerification
         RgbaPixel[] expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
         LayeredScene captured = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertTrue(captured.Layers.Length == 5 && captured.Layers[0] is GameplaySceneLayer && captured.Layers[1] is HudLayer
-            && captured.Layers[2] is ColourAddBandsLayer && captured.Layers[3] is MessageBoxLayer
-            && captured.Layers[4] is ColourAddBandsLayer, "base/HUD/Power Bomb/message/suit order");
+            && captured.Layers[2] is ColourAddWindowLayer && captured.Layers[3] is MessageBoxLayer
+            && captured.Layers[4] is ColourAddWindowLayer, "base/HUD/Power Bomb/message/suit order");
         var retained = new DisplayPacket(new(1, 1, 0), captured);
         AssertTrue(expected.SequenceEqual(RenderForComparison(retained)), "composed gameplay overlay parity");
         runtime.MessageBox.Step(ControllerButton.A);

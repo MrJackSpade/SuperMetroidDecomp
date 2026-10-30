@@ -1,39 +1,38 @@
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.TestSupport.FrameRendering;
 namespace SuperMetroid.Verification.Rendering;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Samus.Projectiles;
 
-/// <summary>Checks compiled Power Bomb width and top-offset curves through scanline rendering.</summary>
+/// <summary>Checks the Power Bomb's blast oval: its authored radii and aspect against the cartridge, its capture and its drawing.</summary>
 internal static class PowerBombShapeVerification
 {
-    /// <summary>Compares all 32 quantized sine widths with native bytes and rejects invalid indices.</summary>
-    internal static void VerifyPowerBombWidthAlgorithm(SuperMetroidAddressSpace rom)
-    {
-        for (int i = 0; i < 32; i++)
-            AssertEqual(rom.ReadCartridgeByte(PowerBombShapeReferenceData.Width + i), PowerBombShape.Width(i),
-                "Power Bomb quantized sine width");
-        foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => PowerBombShape.Width(invalid),
-                "Power Bomb width bounds");
-    }
+    /// <summary>The cartridge's unscaled curve entries the blast's widest and tallest extents come from.</summary>
+    private const int UnscaledCurveEntries = 32;
 
-    /// <summary>Compares all 32 quantized vertical boundaries with native bytes and rejects invalid indices.</summary>
-    internal static void VerifyPowerBombTopOffsetAlgorithm(SuperMetroidAddressSpace rom)
+    /// <summary>
+    /// The blast is an oval three quarters as tall as wide (#1468): checks that the cartridge's unscaled curve, whose last
+    /// width is the blast's widest extent and whose first top offset is its tallest, has that aspect to within one part
+    /// in a hundred.
+    /// </summary>
+    internal static void VerifyPowerBombOvalAspect(SuperMetroidAddressSpace rom)
     {
-        for (int i = 0; i < 32; i++)
-            AssertEqual(rom.ReadCartridgeByte(PowerBombShapeReferenceData.TopOffset + i), PowerBombShape.TopOffset(i),
-                "Power Bomb doubly quantized vertical boundary");
-        foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => PowerBombShape.TopOffset(invalid),
-                "Power Bomb top offset bounds");
+        int widest = rom.ReadCartridgeByte(PowerBombShapeReferenceData.Width + UnscaledCurveEntries - 1);
+        int tallest = rom.ReadCartridgeByte(PowerBombShapeReferenceData.TopOffset);
+        double aspect = (double)PowerBombExplosionDefinitions.OvalHeightParts / PowerBombExplosionDefinitions.OvalWidthParts;
+        AssertTrue(Math.Abs((double)tallest / widest - aspect) < 0.01,
+            $"the cartridge's blast curve, {widest} wide by {tallest} tall, has the oval's aspect");
     }
 
     /// <summary>
-    /// Reads every row of all 21 pre-scaled window shapes through their stream cursor and compares each byte with the
-    /// cartridge table the cursor names, then rejects a cursor past the end of either stream.
+    /// Checks each walked oval's radius against the cartridge's pre-scaled shape it replaces: the shape's middle line is
+    /// 255/256 of the radius wide on each side. Also rejects a cursor past the end of either stream.
     /// </summary>
     internal static void VerifyPowerBombPreScaledShapes(SuperMetroidAddressSpace rom)
     {
@@ -46,46 +45,29 @@ internal static class PowerBombShapeVerification
         })
         {
             for (int index = 0; index < PowerBombShapeCursor.CountOf(stream); index++)
-            for (int row = 0; row < 192; row++)
-                AssertEqual(rom.ReadCartridgeByte(table + index * 192 + row),
-                    PowerBombShape.ReadPreScaledHalfWidth(new PowerBombShapeCursor(stream, index), row),
-                    $"Power Bomb {stream} shape {index} row {row}");
+            {
+                int radius = new PowerBombShapeCursor(stream, index).HorizontalRadius();
+                AssertEqual((int)rom.ReadCartridgeByte(table + index * PowerBombShapeReferenceData.ShapeLines), radius * 255 / 256,
+                    $"Power Bomb {stream} shape {index} has the cartridge shape's middle width");
+            }
             AssertThrows<InvalidOperationException>(
-                () => PowerBombShape.ReadPreScaledHalfWidth(
-                    new PowerBombShapeCursor(stream, PowerBombShapeCursor.CountOf(stream)), 0),
+                () => new PowerBombShapeCursor(stream, PowerBombShapeCursor.CountOf(stream)).HorizontalRadius(),
                 $"a {stream} shape past the stream is rejected");
         }
     }
 
-    /// <summary>Checks signed scanline profiles and clipped rendered pixels across radii and centers.</summary>
+    /// <summary>
+    /// Checks the captured oval for every whole radius of the unscaled phases: centred on the blast, the radius wide and
+    /// three quarters of it tall, below the HUD, or nothing for a radius too small to show. Then draws blasts on and off
+    /// the screen and checks the centre is lit, the HUD and the pixels well beyond the oval are not.
+    /// </summary>
     internal static void VerifyCompiledPowerBombShape(SuperMetroidAddressSpace rom)
     {
-        Suite(nameof(VerifyPowerBombWidthAlgorithm), () => VerifyPowerBombWidthAlgorithm(rom));
-        Suite(nameof(VerifyPowerBombTopOffsetAlgorithm), () => VerifyPowerBombTopOffsetAlgorithm(rom));
+        Suite(nameof(VerifyPowerBombOvalAspect), () => VerifyPowerBombOvalAspect(rom));
         Suite(nameof(VerifyPowerBombPreScaledShapes), () => VerifyPowerBombPreScaledShapes(rom));
-        byte[] widths = new byte[32], tops = new byte[32];
-        for (int i = 0; i < 32; i++)
-        {
-            widths[i] = rom.ReadCartridgeByte(PowerBombShapeReferenceData.Width + i);
-            tops[i] = rom.ReadCartridgeByte(PowerBombShapeReferenceData.TopOffset + i);
-        }
-        int[] Profile(int radius)
-        {
-            var result = Enumerable.Repeat(-1, 193).ToArray();
-            if (radius == 0) return result;
-            int outer = EightEight.Multiply(radius, tops[0]);
-            // Independent native-style fill: later bands overwrite shared endpoints.
-            for (int i = 0; i < 32; i++)
-            {
-                int inner = EightEight.Multiply(radius, tops[i]);
-                for (int y = inner; y <= outer; y++) result[y] = EightEight.Multiply(radius, widths[i]);
-                outer = inner;
-            }
-            for (int y = 0; y <= outer; y++) result[y] = EightEight.Multiply(radius, widths[31]);
-            return result;
-        }
         var explosion = new SamusPowerBombExplosionState();
-        var read = new Func<SamusPowerBombExplosionState, int, int>((state, y) => GameplayEffectCapture.ReadPowerBombHalfWidth(PowerBombRenderSnapshot.Capture(state), y));
+        explosion.Spawn(new(100, 120));
+        int cases = 0;
         foreach (var phase in new[] { PowerBombExplosionPhase.PreExplosionWhite, PowerBombExplosionPhase.ExplosionYellow })
         {
             explosion.RenderedPhase = phase;
@@ -93,13 +75,17 @@ internal static class PowerBombShapeVerification
             {
                 explosion.RenderedPreExplosionRadius = PowerBombRadius.FromRaw(EightEight.FromWhole(radius) | 123);
                 explosion.RenderedExplosionRadius = PowerBombRadius.FromRaw(EightEight.FromWhole(radius) | 234);
-                int[] expected = Profile(radius);
-                for (int y = -192; y <= 192; y++)
-                    AssertEqual(expected[Math.Abs(y)], read(explosion, y), "Power Bomb complete signed band profile without bus");
+                ColourAddWindowLayer layer = GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0))
+                    ?? throw new InvalidOperationException("An active Power Bomb captures its window.");
+                int tall = radius * 3 / 4;
+                ScreenWindow expected = tall == 0 ? ScreenWindow.Closed
+                    : ScreenWindow.Of(WindowOval.Ellipse(Offset16<ScreenPixels>.Of(100, 120), radius, tall), DisplayScreen.HudHeight);
+                AssertEqual(expected, layer.Window, $"Power Bomb {phase} oval of whole radius {radius}");
+                cases++;
             }
         }
         int frames = 0;
-        foreach (int radius in new[] { 0, 1, 32, 128, 255 })
+        foreach (int radius in new[] { 32, 128, 255 })
         foreach (short centerX in new short[] { -16, 128, 272 })
         foreach (short centerY in new short[] { -16, 128, 240 })
         {
@@ -107,26 +93,25 @@ internal static class PowerBombShapeVerification
             explosion.RenderedPhase = PowerBombExplosionPhase.ExplosionYellow;
             explosion.RenderedExplosionRadius = PowerBombRadius.FromRaw(EightEight.FromWhole(radius));
             explosion.FixedColor = explosion.FixedColor.WithRed(31);
-            ColourAddBandsLayer windows = GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0))
-                ?? throw new InvalidOperationException("An active Power Bomb captures its windows.");
-            int[] profile = Profile(radius);
-            for (int y = 0; y < 224; y++)
+            ColourAddWindowLayer layer = GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0))
+                ?? throw new InvalidOperationException("An active Power Bomb captures its window.");
+            RgbaPixel[] drawn = DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []),
+                new DisplayLayer[] { layer }, DisplayBrightness.Full));
+            int tall = radius * 3 / 4;
+            for (int y = 0; y < DisplayScreen.Height; y++)
+            for (int x = 0; x < DisplayScreen.Width; x++)
             {
-                ColorAddWindow window = windows.Windows[y];
-                for (int x = 0; x < 256; x++)
-                {
-                    int distance = Math.Abs(y - centerY);
-                    int halfWidth = distance < profile.Length ? profile[distance] : -1;
-                    bool lit = y >= DisplayScreen.HudHeight && halfWidth >= 0 && Math.Abs(x - centerX) <= halfWidth;
-                    bool covered = x >= window.Left && x <= window.Right;
-                    AssertEqual(lit, covered, "Power Bomb native-profile window and clipping");
-                    if (covered)
-                        AssertEqual((255, 0, 0), (window.Red, window.Green, window.Blue), "Power Bomb window adds its fixed colour");
-                }
+                double dx = (double)(x - centerX) / radius, dy = (double)(y - centerY) / tall;
+                double distance = dx * dx + dy * dy;
+                bool lit = drawn[y * DisplayScreen.Width + x].R != 0;
+                if (y < DisplayScreen.HudHeight || distance > 1.1)
+                    AssertTrue(!lit, $"Power Bomb radius {radius} at {centerX},{centerY} leaves {x},{y} outside its oval or in the HUD unlit");
+                else if (distance < 0.9)
+                    AssertTrue(lit, $"Power Bomb radius {radius} at {centerX},{centerY} lights {x},{y} inside its oval");
             }
             frames++;
         }
-        Console.WriteLine($"Power Bomb compiled shape: 64 native bytes, 197120 signed scanline cases and {frames} complete clipped/HUD-preserving frames match without a bus.");
+        Console.WriteLine($"Power Bomb oval: authored radii and aspect match the cartridge, {cases} captured ovals and {frames} drawn blasts agree.");
     }
 
     /// <summary>Runs the Power Bomb shape algorithm and pixel fixture.</summary>

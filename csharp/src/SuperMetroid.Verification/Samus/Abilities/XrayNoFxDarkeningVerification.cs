@@ -59,7 +59,7 @@ internal static class XrayNoFxDarkeningVerification
             "capture retains the cleared BG3 effect area");
         // Where the subscreen shows nothing, colour math takes the fixed colour without halving: the blend with its BG3
         // operand removed is the transparent case.
-        LayeredScene transparentScene = Replace(snapshot, new GameplayBlendLayer(math.Gameplay, math.Lines, math.RevealBlocks, math.Blend));
+        LayeredScene transparentScene = Replace(snapshot, new GameplayBlendLayer(math.Gameplay, math.Window, math.RevealBlocks, math.Blend));
         RgbaPixel[] transparent = DisplayRendering.Render(transparentScene);
         foreach (int index in samples)
             AssertEqual(Channels(unblended[index], channel => Math.Min(MaximumChannel, channel + FixedColorChannel)), transparent[index],

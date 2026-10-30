@@ -56,20 +56,19 @@ internal static class LookupCeresHazeRampVerification
             {
                 int flags = ReadVerificationWord(rom, dead ? 0x88de16 : 0x88de11);
                 var captured = GameplayEffectCapture.CaptureCeresHaze(dead, counter);
+                // The haze is its tint stepped down the gameplay area (#1468): no colour above line 64, one step more
+                // every eight lines up to fifteen, shifted by the fade.
+                AssertEqual(new LineColourSteps(64, 8, 15, counter - 15), captured.Steps, "the haze's bands and fade");
+                AssertEqual(ScreenWindow.Of(WindowRectangle.Spanning(0, 32, 255, 223), 32), captured.Window, "the haze covers the gameplay area");
                 // The haze over a black screen, as the display renderer draws it.
                 RgbaPixel[] drawn = DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []),
                     new DisplayLayer[] { captured }, DisplayBrightness.Full));
                 for (int y = 0; y < original.Length; y++)
                 {
-                    var actual = CeresHazeShading.ResolveComponents(y, counter, dead, null);
                     byte red = (byte)((flags & 0x20) != 0 ? original[y] : 0);
                     byte green = (byte)((flags & 0x40) != 0 ? original[y] : 0);
                     byte blue = (byte)((flags & 0x80) != 0 ? original[y] : 0);
-                    AssertEqual(new RgbColor(red, green, blue), actual, "Every native fade counter and physical scanline");
                     byte Expand(byte component) => y < 32 ? (byte)0 : (byte)((component << 3) | (component >> 2));
-                    AssertEqual(Expand(red), captured.Windows[y].Red, "Captured red preserves native ramp/HUD mask");
-                    AssertEqual(Expand(green), captured.Windows[y].Green, "Captured green preserves native ramp/HUD mask");
-                    AssertEqual(Expand(blue), captured.Windows[y].Blue, "Captured blue preserves native ramp/HUD mask");
                     for (int x = 0; x < 256; x++)
                     {
                         var pixel = drawn[y * 256 + x];
@@ -103,8 +102,11 @@ internal static class LookupCeresHazeRampVerification
                 int selected = dead ? 31 - channel : channel;
                 // Independent nearest-integer definition of the pre-existing RGB5 scaling contract.
                 byte expected = (byte)Math.Min(31, Math.Round((double)original * selected / (lastCounter - 1), MidpointRounding.AwayFromZero));
-                var actual = CeresHazeShading.ResolveComponents(200, counter, dead, colors);
-                AssertEqual(new RgbColor(expected, expected, expected), actual, "All reachable amplitudes and RGB5 channel values scale exactly");
+                RgbaPixel actual = DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []),
+                    new DisplayLayer[] { GameplayEffectCapture.CaptureCeresHaze(dead, counter, colors) }, DisplayBrightness.Full))[200 * DisplayScreen.Width];
+                byte drawn = (byte)((expected << 3) | (expected >> 2));
+                AssertEqual(new VerifyCeresHazeNativeRampCase(drawn, drawn, drawn), new VerifyCeresHazeNativeRampCase(actual.R, actual.G, actual.B),
+                    "All reachable amplitudes and RGB5 channel values scale exactly as drawn");
             }
         }
     }

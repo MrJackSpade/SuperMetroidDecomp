@@ -25,18 +25,24 @@ internal static class ColorWindowSmokeTests
             new Position16<TilePlanePixels>(3, 11), null);
         PicturedPlane subscreen = VramPictureFixtures.Plane(vram, palette, 0x5800, 0x4000, TileInkDepth.FourColours, AddedPicturedPlaneLayer.MapSize);
         int count = 0;
+        // Seeded windows of every shape kind (#1468), whole and stepped colours.
         for (int sample = 0; sample < 64; sample++)
         {
-            var lines = new ColorAddWindow[224];
-            for (int y = 0; y < lines.Length; y++)
-                lines[y] = (y % 5) switch {
-                    0 => ColorAddWindow.Empty,
-                    1 => new(0, 255, 255, 0, 1),
-                    2 => new(255, 255, 0, 255, 127),
-                    3 => new(0, 0, 127, 1, 255),
-                    _ => new((byte)random.Next(256), (byte)random.Next(256),
-                        (byte)random.Next(256), (byte)random.Next(256), (byte)random.Next(256)) };
-            Check(new ColourAddBandsLayer(lines));
+            int firstEdge = random.Next(WindowCone.AngleUnitsPerTurn);
+            int left = random.Next(-32, 256), top = random.Next(-32, 224);
+            WindowShape[] shapes =
+            [
+                new WindowCone(Offset16<ScreenPixels>.Of(random.Next(-64, 320), random.Next(-64, 288)),
+                    firstEdge, firstEdge + random.Next(WindowCone.AngleUnitsPerTurn / 2)),
+                WindowRectangle.Spanning(left, top, left + random.Next(64), top + random.Next(64)),
+                new WindowOval(Offset16<ScreenPixels>.Of(random.Next(-64, 320), random.Next(-64, 288)), random.Next(64),
+                    1 + random.Next(128), 1 + random.Next(128)),
+            ];
+            int firstLine = random.Next(224);
+            var window = new ScreenWindow(shapes.AsSpan(0, 1 + sample % shapes.Length), firstLine, random.Next(firstLine, 225));
+            var colour = new RgbColor(random.Next(32), random.Next(32), random.Next(32));
+            Check(new ColourAddWindowLayer(window, colour, sample % 2 == 0 ? null
+                : new LineColourSteps(random.Next(224), 1 + random.Next(16), 1 + random.Next(15), random.Next(-1, 2))));
         }
         Check(GameplayEffectCapture.CaptureCeresHaze(false));
         Check(GameplayEffectCapture.CaptureCeresHaze(true));
@@ -78,7 +84,7 @@ internal static class ColorWindowSmokeTests
         }
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact color-effect/message comparisons passed.");
 
-        void Check(ColourAddBandsLayer windows)
+        void Check(ColourAddWindowLayer windows)
         {
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory,
                 new DisplayLayer[] { background,

@@ -28,6 +28,7 @@ using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Bosses.MotherBrain;
@@ -683,14 +684,20 @@ internal static class CollectiblesVerification
             "unsupported message identifies numeric ID and source context");
     }
 
-    /// <summary>The colour the suit pickup's captured beam window adds at a screen pixel; nothing outside its window.</summary>
+    /// <summary>The colour the suit pickup's captured beam adds at a screen pixel, as the display renderer draws it over black.</summary>
     private static (int Red, int Green, int Blue) SuitAddition(SamusSuitPickupFlash? flash, int x, int y)
     {
         if (GameplayEffectCapture.CaptureSuitPickup(flash) is not { } layer)
             return (0, 0, 0);
-        ColorAddWindow window = layer.Windows[y];
-        return x >= window.Left && x <= window.Right ? (window.Red, window.Green, window.Blue) : (0, 0, 0);
+        RgbaPixel pixel = DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []),
+            new DisplayLayer[] { layer }, DisplayBrightness.Full))[y * DisplayScreen.Width + x];
+        return (pixel.R, pixel.G, pixel.B);
     }
+
+    /// <summary>The window the suit pickup's light beam is captured with, in a fixed colour.</summary>
+    private static ScreenWindow SuitWindow(SamusSuitPickupBeam beam) =>
+        (GameplayEffectCapture.CaptureSuitPickup(new SamusSuitPickupFlash(beam, RgbColor.White))
+            ?? throw new InvalidOperationException("An active suit pickup captures its window.")).Window;
 
     /// <summary>Checks suit-pickup window staging, beam curve, palette reveal, input release, and Gravity priority.</summary>
     private static void VerifySuitPickupTransformation()
@@ -744,13 +751,8 @@ internal static class CollectiblesVerification
         pickup.Step(samus, cgram.Samus);
         AssertEqual(SuitBeam(SamusSuitPickupBeamShape.GrowingFromEdges, 120, 120, 8), pickup.Beam,
             "stage zero publishes eight grown scanlines of the X=120 beam");
-        ushort[] stageZero = SuitPickupBeamWindowBuilder.Build(pickup.Beam);
-        AssertEqual((ushort)0x7878, stageZero[0],
-            "stage zero narrows first top scanline");
-        AssertEqual((ushort)0x7878, stageZero[255],
-            "stage zero narrows first bottom scanline");
-        AssertEqual((ushort)0x00ff, stageZero[8],
-            "stage zero changes exactly eight top scanlines per frame");
+        AssertEqual(new ScreenWindow([WindowRectangle.Spanning(120, 0, 120, 7), WindowRectangle.Spanning(120, 248, 120, 255)]),
+            SuitWindow(pickup.Beam), "stage zero lights the narrow beam on eight lines from the top and eight from the bottom");
         (int Red, int Green, int Blue) beamPixel = SuitAddition(pickup.Flash, 120, 0);
         AssertTrue(beamPixel.Red != 0 && beamPixel.Green != 0,
             "stage-zero one-pixel beam receives fixed color");
@@ -830,13 +832,11 @@ internal static class CollectiblesVerification
         SamusSuitPickupBeam[] curved = [.. beams.Where(beam => beam.Shape == SamusSuitPickupBeamShape.CurvedColumn)];
         AssertEqual(SuitBeam(SamusSuitPickupBeamShape.CurvedColumn, 0, 255, 0), curved[^1],
             "stage two ends at the full-screen column");
-        ushort[] full = SuitPickupBeamWindowBuilder.Build(curved[^1]);
-        AssertTrue(full.All(word => word == SuitPickupBeamDefinitions.FullScreenWindow.Word),
-            "the final curved column covers every scanline");
-        ushort[] widening = SuitPickupBeamWindowBuilder.Build(curved[0]);
-        AssertTrue(LittleEndianBytes.LowByte(widening[127]) < LittleEndianBytes.LowByte(widening[0])
-            && LittleEndianBytes.HighByte(widening[128]) > LittleEndianBytes.HighByte(widening[255]),
-            "the curved column is widest at the vertical center");
+        AssertEqual(ScreenWindow.Of(new WindowOval(Offset16<ScreenPixels>.Of(0, 128), 255, 24, 128)), SuitWindow(curved[^1]),
+            "the final curved column is the whole screen line rounded by the beam's curve");
+        AssertEqual(ScreenWindow.Of(new WindowOval(Offset16<ScreenPixels>.Of(curved[0].Left.X, 128), curved[0].Right.X - curved[0].Left.X,
+                SuitPickupBeamDefinitions.CurveWidth, 128)), SuitWindow(curved[0]),
+            "the curved column is its column widened by the curve, widest at the middle line");
 
         SamusSuitPickupBeam[] closing = [.. beams.Where(beam => beam.Shape == SamusSuitPickupBeamShape.ClosingCurvedColumn)];
         for (int i = 0; i < closing.Length; i++)
@@ -845,12 +845,11 @@ internal static class CollectiblesVerification
             if (i > 0) AssertTrue(closing[i].Progress > closing[i - 1].Progress, "stage four wipes further every update");
         }
         AssertTrue(closing[^1].Progress >= 128, "stage four ends once the wipe reaches the center");
-        ushort[] wiped = SuitPickupBeamWindowBuilder.Build(closing[0]);
+        ScreenWindow wiped = SuitWindow(closing[0]);
         int top = closing[0].Progress;
-        AssertEqual(SuitPickupBeamDefinitions.EmptyWindow.Word, wiped[top - 1], "closing wipes the top progress scanlines");
-        AssertEqual(SuitPickupBeamDefinitions.FullScreenWindow.Word, wiped[top], "closing keeps the scanline below the top wipe");
-        AssertEqual(SuitPickupBeamDefinitions.EmptyWindow.Word, wiped[256 - (top - 1)], "closing wipes one fewer bottom scanline");
-        AssertEqual(SuitPickupBeamDefinitions.FullScreenWindow.Word, wiped[255 - (top - 1)], "closing keeps the scanline above the bottom wipe");
+        AssertEqual(top, wiped.FirstLine, "closing wipes the top progress lines");
+        AssertEqual(Math.Min(DisplayScreen.Height, 256 - (top - 1)), wiped.EndLine, "closing wipes one fewer bottom line");
+        AssertEqual(new WindowOval(Offset16<ScreenPixels>.Of(0, 128), 255, 24, 128), wiped.Shapes[0], "closing keeps the final curved column between its wipes");
 
         SamusSuitPickupBeam[] line = [.. beams.Where(beam => beam.Shape == SamusSuitPickupBeamShape.CenterLine)];
         AssertEqual(SuitBeam(SamusSuitPickupBeamShape.CenterLine, 7, 240, 0), line[0],
@@ -858,11 +857,8 @@ internal static class CollectiblesVerification
         for (int i = 1; i < line.Length; i++)
             AssertTrue(line[i].Left.X == line[i - 1].Left.X + 8 && line[i].Right.X == line[i - 1].Right.X - 8,
                 "stage five narrows eight pixels per side every update");
-        ushort[] center = SuitPickupBeamWindowBuilder.Build(line[0]);
-        AssertTrue(center.Select((word, y) => new CollectiblesVerifySuitPickupBeamSequenceCase(word, y)).All(row => row.Y == 128
-            ? row.Word == LittleEndianBytes.Word(7, 240)
-            : row.Word == SuitPickupBeamDefinitions.EmptyWindow.Word),
-            "stage five lights only the center scanline");
+        AssertEqual(ScreenWindow.Of(WindowRectangle.Spanning(7, 128, 240, 128)), SuitWindow(line[0]),
+            "stage five lights only the center line");
 
         // Color: unchanged until the curved stage, white by the reveal, then toward Varia orange.
         int firstCurved = beams.FindIndex(beam => beam.Shape == SamusSuitPickupBeamShape.CurvedColumn);

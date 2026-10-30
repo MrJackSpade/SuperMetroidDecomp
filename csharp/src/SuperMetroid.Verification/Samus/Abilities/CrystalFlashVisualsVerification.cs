@@ -60,7 +60,7 @@ internal static class CrystalFlashVisualsVerification
         {
             // Remove only the captured color window, retaining identical OAM,
             // palette, terrain and camera to isolate its actual visible contribution.
-            var withoutWindow = DisplayRendering.Render(packet.Without<ColourAddBandsLayer>());
+            var withoutWindow = DisplayRendering.Render(packet.Without<ColourAddWindowLayer>());
             AssertTrue(pixels.AsSpan(0, 32 * 256).SequenceEqual(withoutWindow.AsSpan(0, 32 * 256)),
                 "Crystal Flash window preserves HUD pixels");
             windowVisible = !pixels.SequenceEqual(withoutWindow);

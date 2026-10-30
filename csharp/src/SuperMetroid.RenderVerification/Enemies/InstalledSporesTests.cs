@@ -152,7 +152,7 @@ internal static class InstalledSporesTests
                         });
                     var layer = GameplayEffectCapture.CaptureSpores(gameplay, (replacement.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires replacement.CaptureForDisplay().")));
                     Require(!layer.RevealBlocks && layer.Blend.Layers == (ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop) &&
-                        layer.Lines.All(line => line.Left > line.Right) && layer.BlendPlane is not null,
+                        layer.Window.IsClosed && layer.BlendPlane is not null,
                         "Spore capture does not blend the background, the sprites and the backdrop with the spores.");
                     packets.Add(new(new(packets.Count + 1, 1, 0), new LayeredScene(
                         FramePaint.FromNative(editedColors.Colors, []), [layer], 15)));

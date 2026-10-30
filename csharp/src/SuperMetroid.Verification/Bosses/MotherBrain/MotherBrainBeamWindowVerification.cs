@@ -1,9 +1,11 @@
 using SuperMetroid.Tooling;
 using System.Reflection;
-using System.Security.Cryptography;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -11,7 +13,7 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
-/// <summary>Checks Mother Brain's rainbow beam lines, colour cycling, and captured render data.</summary>
+/// <summary>Checks Mother Brain's rainbow beam cone, colour cycling, and captured render data.</summary>
 internal static class MotherBrainBeamWindowVerification
 {
     /// <summary>Checks apex geometry, HUD exclusion, native color stride, quadrant signs, and paint purity.</summary>
@@ -33,19 +35,24 @@ internal static class MotherBrainBeamWindowVerification
                 System.Text.Encoding.UTF8.GetBytes(paletteDocument.ToJsonString()))),
         };
         AssertTrue(beam.Geometry is null, "no geometry is published before the first build");
-        AssertTrue(RainbowBeamWindowBuilder.Build(null).All(line => line == MotherBrainBeamLine.None),
-            "a missing geometry misses every line");
+        AssertEqual(ScreenWindow.Closed, (GameplayEffectCapture.CaptureMotherBrainRainbowBeam(
+                new MotherBrainRainbowBeamRenderSnapshot(true, RgbColor.Black, null))
+                ?? throw new InvalidOperationException("An active beam captures its window.")).Window,
+            "a missing geometry lights nothing");
         void Step() => beam.Step(true, new(100, 95), RotationAngle.QuarterTurn, Width(64));
         Step();
         AssertEqual(MotherBrainBeamDefinitions.InitialColor, beam.Color, "beam first frame uses E767 fixed color");
         AssertEqual(new MotherBrainRainbowBeamGeometry(114, 100, 32, 96, MotherBrainBeamDirection.Right),
             beam.Geometry, "right beam publishes the low-byte mouth X, mouth Y and both wrapped edges");
-        MotherBrainBeamLine[] windows = RainbowBeamWindowBuilder.Build(beam.Geometry);
-        AssertEqual(new MotherBrainBeamLine(0x73, 0xff), windows[99], "right beam upper apex accumulates before writing");
-        AssertEqual(new MotherBrainBeamLine(0x73, 0xff), windows[100], "right beam lower apex accumulates before writing");
-        AssertEqual(new MotherBrainBeamLine(0x9e, 0xff), windows[143], "first indirect run last row");
-        AssertEqual(new MotherBrainBeamLine(0xa3, 0xff), windows[144], "second right run preserves native EC table offset");
-        AssertTrue(windows.Take(32).All(line => line == MotherBrainBeamLine.None),
+        // The beam's edges are measured from straight down: 32 and 96 reflect to the screen's 96 and 32, a cone from
+        // up-right to down-right of the mouth, below the HUD (#1468).
+        AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), 32, 96), MotherBrainBeamDefinitions.FirstLine),
+            Cone(beam.RenderSnapshot), "right beam is a cone from the mouth between its reflected edges");
+        RgbaPixel[] drawn = Draw(beam.RenderSnapshot);
+        int[] upperApex = LitColumns(drawn, 99);
+        AssertTrue(upperApex.Length != 0 && upperApex[0] is >= 114 and <= 116 && upperApex[^1] == 255,
+            "the line above the mouth lights from beside the mouth to the screen's right edge");
+        AssertTrue(Enumerable.Range(0, MotherBrainBeamDefinitions.FirstLine).All(line => LitColumns(drawn, line).Length == 0),
             "rainbow beam misses the HUD");
         Step();
         AssertEqual(31, beam.Color, "first cycling frame reads entry zero");
@@ -67,9 +74,10 @@ internal static class MotherBrainBeamWindowVerification
         MotherBrainRainbowBeamRenderSnapshot snapshot = beam.RenderSnapshot;
         AssertEqual(new MotherBrainRainbowBeamRenderSnapshot(true, beam.Color, beam.Geometry), snapshot,
             "render snapshot carries the active flag, color and geometry by value");
-        var capture = GameplayEffectCapture.CaptureMotherBrainRainbowBeam(snapshot);
-        AssertEqual(new ColorAddWindow(115, 255, 255, 0, 0), (capture ?? throw new InvalidOperationException("Verification requires capture.")).Windows[100],
-            "shared render packet includes beam geometry and native color");
+        var capture = GameplayEffectCapture.CaptureMotherBrainRainbowBeam(snapshot)
+            ?? throw new InvalidOperationException("Verification requires capture.");
+        AssertEqual(snapshot.Color, capture.Colour, "shared render packet adds the beam's native colour");
+        AssertEqual(Cone(snapshot), capture.Window, "shared render packet includes the beam's cone");
         int cursor = beam.ColorIndex;
         _ = GameplayEffectCapture.CaptureMotherBrainRainbowBeam(beam.RenderSnapshot);
         AssertEqual(cursor, beam.ColorIndex, "repainting cannot advance beam simulation");
@@ -83,88 +91,57 @@ internal static class MotherBrainBeamWindowVerification
         {
             beam.Step(true, new(100, 95), RotationAngle.FromTableIndex(angle), 512);
             bool up = angle is 96 or 128 or 160;
-            MotherBrainBeamLine expected = angle switch
-            {
-                32 or 96 => new MotherBrainBeamLine(0x72, 0x73),
-                128 or 0 => new MotherBrainBeamLine(0x71, 0x72),
-                _ => new MotherBrainBeamLine(0x70, 0x71),
-            };
-            MotherBrainBeamLine[] quadrant = RainbowBeamWindowBuilder.Build(beam.Geometry);
-            AssertEqual(expected, quadrant[up ? 99 : 100], $"native quadrant {angle} apex edge signs");
-            AssertEqual(MotherBrainBeamLine.None, quadrant[up ? 100 : 99],
-                $"native quadrant {angle} stays on its ray side of the mouth");
+            MotherBrainRainbowBeamGeometry geometry = beam.Geometry ?? throw new InvalidOperationException("The beam resolved its geometry.");
+            AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), 128 - geometry.EdgeB, 128 - geometry.EdgeA),
+                MotherBrainBeamDefinitions.FirstLine), Cone(beam.RenderSnapshot), $"quadrant {angle} reflects its edges into the cone's");
+            AssertEqual(0, LitColumns(Draw(beam.RenderSnapshot), up ? 101 : 98).Length,
+                $"quadrant {angle} stays on its ray side of the mouth");
         }
         MotherBrainRainbowBeamGeometry? retained = beam.Geometry;
         beam.Step(true, new(100, 95), RotationAngle.ThreeQuarterTurn, 512);
         AssertEqual(retained, beam.Geometry, "native left-axis RTS preserves prior geometry");
         beam.Step(true, new(356, 95), RotationAngle.QuarterTurn, Width(64));
         AssertEqual(114, (beam.Geometry ?? throw new InvalidOperationException("Verification requires beam.Geometry.")).MouthScreenX, "DE20 uses low X byte, not wrapped enemy-header data");
-        AssertEqual(new MotherBrainBeamLine(0x73, 0xff), RainbowBeamWindowBuilder.Build(beam.Geometry)[100],
-            "low-byte mouth X rasterizes like the unwrapped head");
+        AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), 32, 96), MotherBrainBeamDefinitions.FirstLine),
+            Cone(beam.RenderSnapshot), "low-byte mouth X places the cone like the unwrapped head");
         AssertThrows<InvalidDataException>(() => beam.Step(true, new(100, 27), RotationAngle.QuarterTurn, Width(64)),
             "a mouth above the work area fails during the simulation update");
-        VerifyGoldenWindows(beam.PresentationColors);
-        Console.WriteLine("  Mother Brain beam: native apex, HDMA split, HUD exclusion, retained geometry, color stride/reset, owned capture and golden windows agree.");
+        VerifyRetainedCones(beam.PresentationColors);
+        Console.WriteLine("  Mother Brain beam: cones from the mouth, HUD exclusion, retained geometry, color stride/reset and owned capture agree.");
     }
 
     /// <summary>
-    /// Line-for-line goldens of the native rasterization, which moved verbatim from the simulation
-    /// to the renderer: one per dispatcher, the down-left zero sentinel, the rightward overflow
-    /// break and both retain cases.
+    /// The geometry a left-straddling beam keeps is the cone drawn (#1468): in the same active run, and after the beam
+    /// is deactivated and starts a new attack.
     /// </summary>
-    private static void VerifyGoldenWindows(MotherBrainRainbowPalettePresentation colors)
+    private static void VerifyRetainedCones(MotherBrainRainbowPalettePresentation colors)
     {
         var beam = new MotherBrainRainbowBeamEffect { PresentationColors = colors };
-        string Build(int x, int y, byte angle, ushort width)
-        {
-            beam.Step(false, default, default, 0);
-            beam.Step(true, new(unchecked((ushort)x), (ushort)y), RotationAngle.FromTableIndex(angle), width);
-            return Digest(RainbowBeamWindowBuilder.Build(beam.Geometry));
-        }
-        AssertEqual("481275D4FA0BB34E", Build(100, 95, 64, Width(64)), "right dispatcher golden");
-        AssertEqual("BB8664C54614AA03", Build(100, 95, 128, Width(32)), "up dispatcher golden");
-        AssertEqual("6E2CA9E2B685191B", Build(150, 60, 0, Width(32)), "down dispatcher golden");
-        string downLeft = Build(16, 80, 224, Width(32));
-        AssertEqual("CFBC8396E8E49C1E", downLeft, "down-left zero-sentinel golden");
-        AssertEqual(MotherBrainBeamDirection.Down, (beam.Geometry ?? throw new InvalidOperationException("Verification requires beam.Geometry.")).Direction, "down-left fixture uses the down dispatcher");
-        AssertTrue(beam.Geometry.Value.EdgeA >= 128 && beam.Geometry.Value.EdgeB >= 128, "down-left fixture has both edges negative");
-        MotherBrainBeamLine[] downLeftWindows = RainbowBeamWindowBuilder.Build(beam.Geometry);
-        AssertTrue(downLeftWindows[beam.Geometry.Value.MouthY + 1] != MotherBrainBeamLine.None
-            && downLeftWindows[^1] == MotherBrainBeamLine.None,
-            "down-left rows whose clamped edges reach the zero sentinel are empty");
-        string overflow = Build(226, 120, 64, Width(8));
-        AssertEqual("8A62CA68461C8B8F", overflow, "rightward overflow-break golden");
-        MotherBrainBeamLine[] overflowWindows = RainbowBeamWindowBuilder.Build(beam.Geometry);
-        AssertTrue(overflowWindows.Any(line => line != MotherBrainBeamLine.None)
-            && overflowWindows[MotherBrainBeamDefinitions.FirstLine] == MotherBrainBeamLine.None,
-            "overflow fixture stops writing once an edge passes $FFFF");
-
-        // Retain after a prior build, in the same active run.
-        beam.Step(false, default, default, 0);
         beam.Step(true, new(100, 95), RotationAngle.FromTableIndex(128), Width(32));
+        ScreenWindow up = Cone(beam.RenderSnapshot);
         beam.Step(true, new(100, 95), RotationAngle.ThreeQuarterTurn, 512);
-        AssertEqual("BB8664C54614AA03", Digest(RainbowBeamWindowBuilder.Build(beam.Geometry)), "retain keeps the previous build");
-        // Retain after deactivation and reactivation.
+        AssertEqual(up, Cone(beam.RenderSnapshot), "retain keeps the previous cone");
         beam.Step(false, default, default, 0);
         beam.Step(true, new(40, 150), RotationAngle.ThreeQuarterTurn, 512);
-        AssertEqual("BB8664C54614AA03", Digest(RainbowBeamWindowBuilder.Build(beam.Geometry)),
-            "retain after reactivation still shows the build from the earlier attack");
+        AssertEqual(up, Cone(beam.RenderSnapshot), "retain after reactivation still shows the cone from the earlier attack");
     }
 
     /// <summary>Native 8.8 angular-width word for a whole number of 256-unit-turn table units.</summary>
     private static ushort Width(int wholeTableUnits) => (ushort)EightEight.FromWhole(wholeTableUnits);
 
-    /// <summary>Hashes each line's left and right columns, in line order, for a stable comparison.</summary>
-    private static string Digest(MotherBrainBeamLine[] lines)
-    {
-        var bytes = new byte[lines.Length * 2];
-        for (int i = 0; i < lines.Length; i++)
-        {
-            bytes[i * 2] = checked((byte)lines[i].Left);
-            bytes[i * 2 + 1] = checked((byte)lines[i].Right);
-        }
-        return Convert.ToHexString(SHA256.HashData(bytes))[..16];
-    }
+    /// <summary>The window an active beam is captured with.</summary>
+    private static ScreenWindow Cone(MotherBrainRainbowBeamRenderSnapshot beam) =>
+        (GameplayEffectCapture.CaptureMotherBrainRainbowBeam(beam)
+            ?? throw new InvalidOperationException("An active beam captures its window.")).Window;
+
+    /// <summary>The active beam over a black screen, in a fixed colour, as the display renderer draws it.</summary>
+    private static RgbaPixel[] Draw(MotherBrainRainbowBeamRenderSnapshot beam) =>
+        DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []),
+            new DisplayLayer[] { new ColourAddWindowLayer(Cone(beam), new RgbColor(31, 31, 31)) }, DisplayBrightness.Full));
+
+    /// <summary>The columns a drawn line lights.</summary>
+    private static int[] LitColumns(RgbaPixel[] drawn, int line) =>
+        Enumerable.Range(0, DisplayScreen.Width).Where(x => drawn[line * DisplayScreen.Width + x].R != 0).ToArray();
 
     /// <summary>Asserts that a simulation effect owner stores no per-scanline array.</summary>
     [ReflectionAudit("metadata shape is the subject: a simulation effect owner must hold no per-scanline register table")]

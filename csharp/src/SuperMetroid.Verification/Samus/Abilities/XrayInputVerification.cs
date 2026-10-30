@@ -58,7 +58,7 @@ internal static class XrayInputVerification
                     "setup pre-instruction starts blending one call after the instruction list installs it");
                 if (frame != 0)
                 {
-                    AssertTrue(((GameplayBlendLayer)startup.Layers[0]).Lines.All(line => line.Left > line.Right),
+                    AssertTrue(((GameplayBlendLayer)startup.Layers[0]).Window.IsClosed,
                         "setup keeps the beam closed while copying tilemaps");
                     AssertEqual(frame == 7 ? XrayRoomDisplayRules.ActiveBackdrop : RgbColor.Black, startup.Paint.Colors[0],
                         "only setup stage eight installs the X-ray backdrop");
@@ -84,7 +84,7 @@ internal static class XrayInputVerification
             runtime.StepFrame((runtime.Options.ControllerBindings.Dash | (frame < 80 ? ControllerButton.Up : ControllerButton.Down)));
         var captured = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var reveal = captured.LayersOf<GameplayBlendLayer>().Single();
-        AssertTrue(reveal.Lines.Any(line => line.Left <= line.Right), "full X-ray publishes a nonempty visible window");
+        AssertTrue(!reveal.Window.IsClosed, "full X-ray publishes a nonempty visible window");
         var pixels = DisplayRendering.Render(captured);
         AssertTrue(reveal.RevealBlocks, "ordinary X-ray room selects terrain revelation");
         AssertEqual(ColorBlend.Bg1 | ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop | ColorBlend.Half, reveal.Blend.Layers,
@@ -101,14 +101,14 @@ internal static class XrayInputVerification
         var releaseEdge = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertTrue(releaseEdge.Layers[0] is GameplayBlendLayer,
             "release edge retains the beam until native deactivation executes on the following frame");
-        AssertTrue(((GameplayBlendLayer)releaseEdge.Layers[0]).Lines.SequenceEqual(reveal.Lines),
+        AssertTrue(((GameplayBlendLayer)releaseEdge.Layers[0]).Window == reveal.Window,
             "release edge retains the last HDMA window endpoints");
         for (int frame = 0; frame < 2; frame++)
         {
             runtime.StepFrame(0);
             var restoring = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
             AssertTrue(restoring.Layers[0] is GameplayBlendLayer, "BG2 restore retains X-ray layer ownership");
-            AssertTrue(((GameplayBlendLayer)restoring.Layers[0]).Lines.All(line => line.Left > line.Right),
+            AssertTrue(((GameplayBlendLayer)restoring.Layers[0]).Window.IsClosed,
                 "deactivation closes the beam while BG2 restore completes");
             AssertEqual(0, restoring.Paint.Colors[0], "deactivation resets the backdrop before unfreezing");
         }

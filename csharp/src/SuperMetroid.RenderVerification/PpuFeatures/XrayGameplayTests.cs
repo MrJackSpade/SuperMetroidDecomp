@@ -48,7 +48,8 @@ internal static class XrayGameplayTests
             bg1 = bg1 with { Bg3 = plane };
             var registers = new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0), new Extent16<TilemapCells>(64, 32),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
-            var lines = Enumerable.Repeat(new XrayWindowLine(128, 255), 224).ToArray();
+            // The X-ray's window covers the screen's right half (#1468).
+            var lines = ScreenWindow.Of(WindowRectangle.Spanning(128, 0, 255, 223));
             var controls = ColorBlend.Bg1 | ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop
                 | (half ? ColorBlend.Half : 0) | (subtract ? ColorBlend.Subtract : 0);
             var bg3 = sub ? new OverlayBlendLayer(plane, Layer3Plane.Rows / 2, 32, 32,
@@ -89,7 +90,7 @@ internal static class XrayGameplayTests
                     var additive = new GameplayBlendLayer(new(registers with
                     {
                         MainScreenLayers = ScreenLayers.Foreground | ScreenLayers.Sprites,
-                    }, bodyRooms), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new SceneBlend { Layers = ColorBlend.Bg1 | ColorBlend.Bg3 | ColorBlend.Sprites | ColorBlend.Backdrop, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, subscreenUsesBg2: true);
+                    }, bodyRooms), ScreenWindow.Closed, false, new SceneBlend { Layers = ColorBlend.Bg1 | ColorBlend.Bg3 | ColorBlend.Sprites | ColorBlend.Backdrop, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, subscreenUsesBg2: true);
                     var bodyColors = cgram.Colors.ToArray();
                     if (blackBody) bodyColors[2] = RgbColor.Black;
                     var addScene = new LayeredScene(FramePaint.FromOam(vram.Bytes, bodyColors, oam, 1, 0), [additive], 15);
@@ -108,7 +109,7 @@ internal static class XrayGameplayTests
                 // four. Keep foreground at x80 and the OBJ at x16. This distinguishes
                 // native Fireflea source selection from a whole-frame dark overlay.
                 vram.ExecuteWordTransfer(new ushort[] { 4 }, GameplayVramLayout.Bg2TilemapWord + 8 * 32 + 9, 1);
-                var dark = new GameplayBlendLayer(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1), new TilemapCell(8, 8, new(4)), new TilemapCell(9, 8, new(4))) with { Bg3 = Layer3CellsFixtures.FromVram(vram.Bytes, cgram.Colors, 0x1000) }), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new SceneBlend { Layers = ColorBlend.Bg2 | ColorBlend.Backdrop | ColorBlend.Subtract, BlendsWithLayersBehind = false, FixedColor = new RgbColor(18, 18, 18) });
+                var dark = new GameplayBlendLayer(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1), new TilemapCell(8, 8, new(4)), new TilemapCell(9, 8, new(4))) with { Bg3 = Layer3CellsFixtures.FromVram(vram.Bytes, cgram.Colors, 0x1000) }), ScreenWindow.Closed, false, new SceneBlend { Layers = ColorBlend.Bg2 | ColorBlend.Backdrop | ColorBlend.Subtract, BlendsWithLayersBehind = false, FixedColor = new RgbColor(18, 18, 18) });
                 var darkScene = new LayeredScene(FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0), new DisplayLayer[] { dark }, 15);
                 var darkPixels = DisplayRendering.Render(darkScene);
                 Check(darkPixels[64 * 256 + 64], new(0, 16, 0, 255), "Fireflea BG2 subtraction");
@@ -137,7 +138,7 @@ internal static class XrayGameplayTests
                 new BackgroundLineScrolls(
                 Enumerable.Range(0, 192).Select(_ => Word()).ToArray(),
                 Enumerable.Range(0, 192).Select(_ => Word()).ToArray()));
-            var lines = Enumerable.Range(0, 224).Select(_ => new XrayWindowLine((byte)random.Next(256), (byte)random.Next(256))).ToArray();
+            var lines = RandomWindow(random);
             int bg3Rows = frame % 2 == 0 ? 32 : 64;
             var bg3 = new OverlayBlendLayer(gameplay.Rooms.ShownBg3, random.Next(Layer3Plane.Rows - bg3Rows + 1), bg3Rows, 32,
                 BlendOperation.Add, Enumerable.Range(0, 224).Select(_ => new Position16<TilePlanePixels>(Word(), Word())).ToArray());
@@ -162,7 +163,7 @@ internal static class XrayGameplayTests
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
             SuperMetroid.Core.Gameplay.RoomBackgrounds seeded = RoomBackgroundsFixtures.Seeded(random, registers.ForegroundScroll.AsBgPlaneScroll(), pictureColours: colors);
             var gameplay = new GameplaySceneLayer(registers, seeded with { XrayReveal = RoomBackgroundsFixtures.SeededReveal(random, colors) });
-            var lines = Enumerable.Range(0, 224).Select(_ => new XrayWindowLine((byte)random.Next(256), (byte)random.Next(256))).ToArray();
+            var lines = RandomWindow(random);
             var layer = new GameplayBlendLayer(gameplay, lines, true, new SceneBlend { Layers = (ColorBlend)random.Next(256), BlendsWithLayersBehind = false, FixedColor = new RgbColor((byte)random.Next(32), (byte)random.Next(32), (byte)random.Next(32)) }, null);
             var memory = FramePaint.FromOam(bytes, colors, oam, 128, 3);
             var scene = new LayeredScene(memory, new DisplayLayer[] { layer }, 15);
@@ -175,6 +176,18 @@ internal static class XrayGameplayTests
         static void Check(RgbaPixel actual, RgbaPixel expected, string context)
         {
             if (actual != expected) throw new InvalidOperationException($"{context}: expected {expected}, got {actual}.");
+        }
+
+        // A seeded window (#1468): a cone from an apex on or off the screen joined with a rectangle, within a band of lines.
+        static ScreenWindow RandomWindow(Random random)
+        {
+            int firstEdge = random.Next(WindowCone.AngleUnitsPerTurn);
+            var cone = new WindowCone(Offset16<ScreenPixels>.Of(random.Next(-64, 320), random.Next(-64, 288)),
+                firstEdge, firstEdge + random.Next(WindowCone.AngleUnitsPerTurn / 2));
+            int left = random.Next(-32, 256), top = random.Next(-32, 224);
+            var rectangle = WindowRectangle.Spanning(left, top, left + random.Next(128), top + random.Next(128));
+            int firstLine = random.Next(224);
+            return new ScreenWindow([cone, rectangle], firstLine, random.Next(firstLine, 225));
         }
     }
 }

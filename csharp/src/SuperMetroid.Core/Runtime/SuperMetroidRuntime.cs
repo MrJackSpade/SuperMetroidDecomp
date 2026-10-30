@@ -852,7 +852,7 @@ internal sealed class SuperMetroidRuntime
             // kick setup. Publish the camera calculation itself, including its
             // integer-only sign test and previous scrolling checkpoint. A second
             // frame-end absolute delta loses both the bias and checkpoint timing.
-            samus.AbsoluteMovedLastFrameXFixed = unchecked((uint)camera.Speed.X.RawValue);
+            samus.HorizontalDistanceMovedPlusOne = camera.Speed.X;
             samus.ProjectileInheritance.CameraYSubspeed = camera.Speed.Y.Fraction;
 
             // MainScrollingRoutine `$90:9563` invokes the mutable global

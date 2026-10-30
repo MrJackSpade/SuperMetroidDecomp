@@ -38,7 +38,7 @@ internal static class YardKickVerification
             state.Behavior = YardBehavior.NormalCrawling;
             samus.Position = samus.Position.WithWhole(actor.Position.Whole);
             samus.InvincibilityTimer = WrappingCountdown.Start(0);
-            samus.AbsoluteMovedLastFrameXFixed = (SixteenSixteen.FromWhole((uint)whole)) | fraction;
+            samus.HorizontalDistanceMovedPlusOne = SignedSixteenSixteen.FromRaw(unchecked((int)(SixteenSixteen.FromWhole((uint)whole) | fraction)));
             AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, 0, assets.LevelData, actor.EnemyIndex),
                 "Yard kick enters through native contact dispatcher");
             bool left = pose == SamusPoseId.FacingLeftNormalPose;

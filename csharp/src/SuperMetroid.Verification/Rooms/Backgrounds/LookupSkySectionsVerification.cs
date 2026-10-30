@@ -2,6 +2,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.Verification.Rooms.Backgrounds;
 
@@ -51,7 +53,9 @@ internal static class LookupSkySectionsVerification
                 expected = FixedCoordinate.WholeOf(unchecked((int)expectedSlots[slot]));
                 break;
             }
-            ushort actual = (layer with { VerticalScroll = unchecked((ushort)(worldY - 32)) }).GameplayLineScrolls(1)[0];
+            // The sky's described bands (#1468) at the first gameplay line.
+            ushort actual = ScrollShapeLines.BandScroll(SkyBandScrolls.Of(layer with { VerticalScroll = unchecked((ushort)(worldY - 32)) }, 0),
+                ScreenGeometry.GameplayHudHeightPixels);
             AssertEqual(expected, actual, "Sky caller band selection, ushort camera wrap and terminal fallback");
         }
     }

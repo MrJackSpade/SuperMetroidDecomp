@@ -17,6 +17,7 @@ namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks typed room-FX records, blend dispatch and renderable BG3 effects against native definitions.</summary>
 internal static class RoomFxRomDataVerification
@@ -256,7 +257,8 @@ internal static class RoomFxRomDataVerification
                 }, RoomBackgroundsFixtures.BlankBg3()) is null,
                 $"{type} $FFFF surface suppresses the complete BG3 liquid plane");
 
-            ushort[] bg2Scroll = type == RoomFxType.Water
+            // The described BG2 wave (#1468), evaluated on each gameplay line.
+            ushort[] bg2Scroll = ScrollShapeLines.GameplayScrolls(type == RoomFxType.Water
                 ? GameplayEffectCapture.BuildWaterBackgroundHorizontalScrolls(
                     snapshot,
                     bg2Scroll: new Position16<BackgroundPixels>(0x0200, 0)) ?? throw new InvalidDataException(
@@ -264,7 +266,7 @@ internal static class RoomFxRomDataVerification
                 : GameplayEffectCapture.BuildLavaAcidBackgroundVerticalScrolls(
                     snapshot,
                     bg2VerticalScroll: 0x0200) ?? throw new InvalidDataException(
-                        $"{type} did not publish its BG2 HDMA scroll table.");
+                        $"{type} did not publish its BG2 HDMA scroll table."));
             AssertEqual(DisplayScreen.Height - DisplayScreen.HudHeight,
                 bg2Scroll.Length,
                 $"{type} BG2 wave table covers gameplay scanlines");

@@ -60,8 +60,8 @@ uint XrayGameplay(uint2 screen)
     uint mainScreen = scan.z >> 16;
     uint2 bg2Screen = screen;
     if (Reserved27 > 1) bg2Screen -= bg2Screen % Reserved27;
-    // Layer 2's line scroll, displaced by its described wave or stretch (#1468).
-    uint2 bg2Scroll = DisplacedScroll(scan.xy, screen.y);
+    // Layer 2's line scroll, from its described line scrolls (#1468).
+    uint2 bg2Scroll = LineScrollPair(SlotHorizontal, SlotVertical, screen.y);
     // Inside the window (the X-ray cone, #1468) the room shows unblended.
     bool inside = InWindow(screen);
     uint source = 32;
@@ -91,7 +91,7 @@ uint XrayGameplay(uint2 screen)
         if (OffsetX != 0 && (Reserved3 == BehindLayer3 || Reserved3 == BehindLayer2AndLayer3) && screen.y >= (uint)CenterY)
         {
             uint2 bg3 = XrayBackground(SourceLayer3, (uint)MatrixC, uint2(32,(uint)CenterX),
-                screen + uint2(scan.w & 65535, scan.w >> 16));
+                screen + LineScrollPair(SlotBlendHorizontal, SlotBlendVertical, screen.y));
             if ((bg3.x >> 24) != 0 && (bg3.y != 0 || (sub >> 24) == 0)) sub = bg3.x;
         }
         bool useSub = OffsetX != 0 && (sub >> 24) != 0;

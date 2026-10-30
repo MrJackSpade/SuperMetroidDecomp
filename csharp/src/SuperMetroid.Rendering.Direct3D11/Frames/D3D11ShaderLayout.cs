@@ -7,7 +7,7 @@ internal static class D3D11ShaderLayout
     /// Words in the constant buffer every compute pass shares: room for the largest pass's parameters, its header, a
     /// row for each visible line and the words that follow them.
     /// </summary>
-    internal const int ConstantWords = 1028;
+    internal const int ConstantWords = LineScrollsWordOffset + D3D11LineScrolls.Words;
     /// <summary>Compute dispatches cover the target in eight-pixel workgroup tiles.</summary>
     internal const int DispatchTileEdge = 8;
     /// <summary>Per-scanline shader parameters begin after the fixed dispatch header.</summary>
@@ -16,6 +16,8 @@ internal static class D3D11ShaderLayout
     internal const int ScanlineParameterWords = 4;
     /// <summary>The window block (<see cref="D3D11WindowPacking"/>, #1468) follows the row of each visible line.</summary>
     internal const int WindowWordOffset = ScanlineParametersWordOffset + ScanlineParameterWords * Core.Rendering.DisplayScreen.Height;
+    /// <summary>The described line scrolls' slots and data rows (#1468, <see cref="D3D11LineScrolls"/>) follow the window block.</summary>
+    internal const int LineScrollsWordOffset = WindowWordOffset + D3D11WindowPacking.Words;
     /// <summary>Embedded compute shader for solid color and brightness passes.</summary>
     internal const string SolidResourceName = "SuperMetroid.Shaders.Solid.cso";
     /// <summary>Embedded compute shader for tile, object, and color-composition dispatches.</summary>

@@ -53,7 +53,7 @@ internal static class XrayGameplayTests
             var controls = ColorBlend.Bg1 | ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop
                 | (half ? ColorBlend.Half : 0) | (subtract ? ColorBlend.Subtract : 0);
             var bg3 = sub ? new OverlayBlendLayer(plane, Layer3Plane.Rows / 2, 32, 32,
-                BlendOperation.Add, new Position16<TilePlanePixels>[224]) : null;
+                BlendOperation.Add, ScrollBands.Uniform(0), ScrollBands.Uniform(0)) : null;
             var layer = new GameplayBlendLayer(new(registers, bg1), lines, reveal, new SceneBlend { Layers = controls, BlendsWithLayersBehind = true, FixedColor = new RgbColor(7, 7, 7) }, bg3);
             var scene = new LayeredScene(memory, new DisplayLayer[] { layer }, 15);
             var packet = new DisplayPacket(new(++count, 1, 0), scene);
@@ -135,13 +135,18 @@ internal static class XrayGameplayTests
             var gameplay = new GameplaySceneLayer(registers, RoomBackgroundsFixtures.Seeded(random, registers.ForegroundScroll.AsBgPlaneScroll(),
                     frame % 2 == 0 ? registers.BackgroundScroll.AsBgPlaneScroll() : null, door: frame % 3 == 0, overlay: frame % 4 == 0,
                     pictureColours: frame % 5 == 0 ? colors : null),
-                new BackgroundLineScrolls(
-                Enumerable.Range(0, 192).Select(_ => Word()).ToArray(),
-                Enumerable.Range(0, 192).Select(_ => Word()).ToArray()));
+                // Layer 2's line scrolls are random described shapes (#1468): a sampled wave across, bands down.
+                new BackgroundLineScrolls
+                {
+                    Horizontal = new SampledScrollWave(Word(), [.. Enumerable.Range(0, 16).Select(_ => random.Next(-128, 128))], random.Next(65536), random.Next(16), 32, 224),
+                    Vertical = new ScrollBands(Word(), [new ScrollBand(32 + random.Next(64), Word()), new ScrollBand(128 + random.Next(64), Word())]),
+                });
             var lines = RandomWindow(random);
             int bg3Rows = frame % 2 == 0 ? 32 : 64;
             var bg3 = new OverlayBlendLayer(gameplay.Rooms.ShownBg3, random.Next(Layer3Plane.Rows - bg3Rows + 1), bg3Rows, 32,
-                BlendOperation.Add, Enumerable.Range(0, 224).Select(_ => new Position16<TilePlanePixels>(Word(), Word())).ToArray());
+                // The blend plane's line scrolls are random described shapes (#1468): a sine wave across, a stretch down.
+                BlendOperation.Add, new ScrollWave(Word(), random.Next(65536), new ByteAngle((byte)random.Next(256)), 1 + random.Next(256), 32, 224),
+                new ScrollStretch(Word(), Word(), 32 + random.Next(64), 128 + random.Next(96), random.Next(65536)));
             bool bg2Subscreen = frame % 4 == 0;
             var layer = new GameplayBlendLayer(gameplay, lines, frame % 2 == 0, new SceneBlend { Layers = (ColorBlend)random.Next(256), BlendsWithLayersBehind = bg2Subscreen || frame % 3 != 0, FixedColor = new RgbColor((byte)random.Next(32), (byte)random.Next(32), (byte)random.Next(32)) }, bg2Subscreen ? null : bg3, bg2Subscreen);
             byte obsel = (byte)random.Next(256);

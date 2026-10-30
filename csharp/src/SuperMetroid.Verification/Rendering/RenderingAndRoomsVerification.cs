@@ -924,8 +924,6 @@ internal static void VerifyBg2ScreenLayout()
     gameplayCgram.SetColor(3 * 16 + 1, RgbColor.FromWord(0x7c00));
     gameplayVram.ExecuteWordTransfer([0x0801], destinationWord: 0x4800, wordIncrement: 1);
     gameplayVram.ExecuteWordTransfer([0x0801, 0x0c02], destinationWord: 0x4c00, wordIncrement: 1);
-    var horizontalByLine = new ushort[DisplayScreen.Height - DisplayScreen.HudHeight];
-    horizontalByLine[0] = 8;
     RgbaPixel[] gameplayFrame = RenderOrdinaryGameplay(gameplayCgram,
         new GameplaySceneLayer(
             new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0x00e0),
@@ -935,7 +933,8 @@ internal static void VerifyBg2ScreenLayout()
             {
                 Bg2Image = RoomBlockFixtures.LoadedBackground(gameplayVram.Bytes, gameplayCgram.Colors, GameplayVramLayout.Bg2TilemapWord),
             },
-            new BackgroundLineScrolls(horizontalByLine, default)));
+            // The sky's first gameplay line scrolls eight pixels; the rest keep BG2's own scroll (#1468).
+            new BackgroundLineScrolls { Horizontal = new ScrollBands(0, [new ScrollBand(DisplayScreen.HudHeight, 8), new ScrollBand(DisplayScreen.HudHeight + 1, 0)]) }));
     AssertEqual(new RgbaPixel(0, 0, 255),
         gameplayFrame[DisplayScreen.HudHeight * DisplayScreen.Width],
         "ordinary compositor consumes sky HOFS and vertical BGSC screen");
@@ -1076,12 +1075,12 @@ internal static void VerifyScrollingSkyState()
     // +0.8000. Its additional +0.C000 produces integer 1 after only one frame.
     AssertEqual(1, sky.GetDataSlotPosition(8), "sky aliased fast HDMA slot");
     ScrollingSkyLayer layer = sky.Publish(0x02c0) ?? throw new InvalidOperationException("The configured sky publishes its layer.");
-    AssertEqual(1, layer.GameplayLineScrolls(1)[0], "sky scanline resolves aliased HDMA slot");
+    AssertEqual(1, ScrollShapeLines.BandScroll(SkyBandScrolls.Of(layer, 0), DisplayScreen.HudHeight), "sky scanline resolves aliased HDMA slot");
 
     sky.ProcessFrame(layer1YPosition: 0x041f, timeIsFrozen: true);
     AssertEqual(false, sky.BandsShown, "frozen sky terminates HDMA table");
     ScrollingSkyLayer frozen = sky.Publish(0x02c0) ?? throw new InvalidOperationException("The configured sky publishes its layer.");
-    AssertTrue(!frozen.BandsShown && frozen.GameplayLineScrolls().All(scroll => scroll == 0), "a frozen frame shows every band unshifted");
+    AssertTrue(!frozen.BandsShown && ScrollShapeLines.GameplayScrolls(SkyBandScrolls.Of(frozen, 0)).All(scroll => scroll == 0), "a frozen frame shows every band unshifted");
     AssertEqual(1, frozen.BandOffsets[8], "a frozen frame keeps the band offsets");
     AssertTrue(new ScrollingSkyState(ScrollingSkyChunkTable.Land, hasBands: false).Publish(0) is null,
         "a sky main without the band HDMA object publishes no sky layer");

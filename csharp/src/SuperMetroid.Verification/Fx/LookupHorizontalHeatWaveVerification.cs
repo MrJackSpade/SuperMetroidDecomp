@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.Verification.Fx;
 
@@ -27,7 +28,8 @@ internal static class LookupHorizontalHeatWaveVerification
                 LayerBlendingConfiguration.WaterSubtractive, new Position16<OverlayPixels>(baseScroll, 0),
                 Surface: new(0, 100), LiquidOptions: RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave)
                 { LavaAcidBg2WavePhase = phase };
-            ushort[] scrolls = (GameplayEffectCapture.BuildLavaAcidBackgroundHorizontalScrolls(fx,
+            // The described heat haze (#1468), evaluated on each gameplay line.
+            ushort[] scrolls = ScrollShapeLines.GameplayScrolls(GameplayEffectCapture.BuildLavaAcidBackgroundHorizontalScrolls(fx,
                 new Position16<BackgroundPixels>(baseScroll, (ushort)cameraPhase)) ?? throw new InvalidOperationException("Verification requires GameplayEffectCapture.BuildLavaAcidBg2HorizontalScrolls(fx, new Position16<Bg2Pixel...."));
             for (int line = 0; line < scrolls.Length; line++)
                 AssertEqual(unchecked((ushort)(baseScroll + Original((phase + cameraPhase + line) & 15))),

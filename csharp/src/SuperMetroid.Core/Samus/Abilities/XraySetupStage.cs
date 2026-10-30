@@ -19,10 +19,16 @@ public enum XraySetupStage
     ReadBg1SecondScreen = 2,
     /// <summary><c>XraySetup_3_ReadBG1Tilemap_1stScreen</c> (<c>$91:CB57</c>), called at <c>$91:D240</c>.</summary>
     ReadBg1FirstScreen = 3,
-    /// <summary><c>XraySetup_4_BuildBG2Tilemap_ReadBG2Tilemap_1stScreen</c> (<c>$91:CB8E</c>), called at <c>$91:D249</c>.</summary>
-    BuildRevealReadBg2FirstScreen = 4,
-    /// <summary><c>XraySetup_5_ReadBG2Tilemap_2ndScreen</c>, called at <c>$91:D252</c>.</summary>
-    ReadBg2SecondScreen = 5,
+    /// <summary>
+    /// Call four, where the reveal is built: <c>XraySetup_4_BuildBG2Tilemap_ReadBG2Tilemap_1stScreen</c>
+    /// (<c>$91:CB8E</c>), called at <c>$91:D249</c>. The port builds the whole reveal here.
+    /// </summary>
+    BuildRevealFirstScreen = 4,
+    /// <summary>
+    /// Call five, where the cartridge builds the reveal's second screen (<c>XraySetup_5_ReadBG2Tilemap_2ndScreen</c>,
+    /// called at <c>$91:D252</c>); the port has built it already, so the call only spends its update.
+    /// </summary>
+    BuildRevealSecondScreen = 5,
     /// <summary><c>XraySetup_6_TransferXrayTilemap_1stScreen</c>, called at <c>$91:D25B</c>.</summary>
     TransferRevealFirstScreen = 6,
     /// <summary><c>XraySetup_7_InitializeXray_TransferXrayTilemap_2ndScreen</c>, called at <c>$91:D264</c>.</summary>

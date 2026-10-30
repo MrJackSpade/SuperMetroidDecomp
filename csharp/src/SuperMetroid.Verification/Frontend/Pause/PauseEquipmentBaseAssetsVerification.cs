@@ -53,7 +53,7 @@ internal static class PauseEquipmentBaseAssetsVerification
 
         const int editedCell = 194;
         AssertTrue(!PauseEquipmentBaseTiles.IsLiveOwnedCell(editedCell) &&
-            !original.PauseReserveUi.ArrowPageCells().Contains(editedCell), "edited control cell belongs to static base presentation");
+            !InstalledAreaMapPresentation.PauseOf(original).ReserveUi.ArrowPageCells().Contains(editedCell), "edited control cell belongs to static base presentation");
         PauseBackdropCell[] cells = document.Cells.ToArray();
         cells[editedCell] = cells[editedCell] with
         {

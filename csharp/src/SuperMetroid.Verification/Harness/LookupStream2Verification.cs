@@ -1653,12 +1653,12 @@ internal static class LookupStream2Verification
         byte[] source = PauseReserveUiExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseReserveUiDocument>(source, ArtworkJson.Options);
         var stock = PauseReserveUiFile.Read(new MemoryStream(source));
-        var edits = stock.arrowColorEdits;
+        var edits = stock.ArrowColours.arrowColorEdits;
         AssertEqual(0, edits.Count, "Native channel choices plus calculated ramps need no unexplained color overrides");
         var cgram = new ScreenPalette();
         for (int frame = 0; frame < 32; frame++)
         {
-            stock.ApplyArrowColors(cgram, true, frame);
+            stock.ArrowColours.ApplyArrowColors(cgram, true, frame);
             AssertEqual(ReadVerificationWord(rom, 0x82ad5d + 2 * frame), cgram.Colours(ScreenColourGroup.PauseReserveArrowShade)[0], "Native arrow color6 reaches the arrow's shade colour");
             AssertEqual(ReadVerificationWord(rom, 0x82ad9d + 2 * frame), cgram.Colours(ScreenColourGroup.PauseReserveArrowLight)[0], "Native arrow color11 reaches the arrow's light colour");
         }
@@ -1700,12 +1700,12 @@ internal static class LookupStream2Verification
             var cgram = new ScreenPalette();
             for (int frame = -1; frame <= 32; frame++)
             {
-                presentation.ApplyArrowColors(cgram, true, frame);
+                presentation.ArrowColours.ApplyArrowColors(cgram, true, frame);
                 var row = expected.Arrow.Frames[frame & 31];
                 AssertEqual(Pack(row.Color6), cgram.Colours(ScreenColourGroup.PauseReserveArrowShade)[0], "Independent supplied color6");
                 AssertEqual(Pack(row.Color11), cgram.Colours(ScreenColourGroup.PauseReserveArrowLight)[0], "Independent supplied color11");
             }
-            presentation.ApplyArrowColors(cgram, false, 0);
+            presentation.ArrowColours.ApplyArrowColors(cgram, false, 0);
             AssertEqual(Pack(expected.Arrow.SolidColor6), cgram.Colours(ScreenColourGroup.PauseReserveArrowShade)[0], "Solid arrow color6");
             AssertEqual(Pack(expected.Arrow.SolidColor11), cgram.Colours(ScreenColourGroup.PauseReserveArrowLight)[0], "Solid arrow color11");
         }

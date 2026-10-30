@@ -62,7 +62,7 @@ internal static class PauseEquipmentPageLayout
         InstalledAreaMapPresentation.PauseOf(maps).Wireframes.ApplyTo(tiles, page.Wireframe);
         if (page.Reserve is { } reserve)
         {
-            PauseReserveUiPresentation ui = maps.PauseReserveUi;
+            PauseReserveUiPresentation ui = InstalledAreaMapPresentation.PauseOf(maps).ReserveUi;
             ui.ApplyLabel(tiles, PauseReserveLabel.Mode);
             ui.ApplyLabel(tiles, PauseReserveLabel.ReserveTank);
             if (reserve.Mode != ReserveTankMode.None)
@@ -72,7 +72,7 @@ internal static class PauseEquipmentPageLayout
                 ui.ApplyDigit(tiles, place, digits[place]);
         }
         if (page.Arrow != ShownReserveArrow.Unpainted)
-            maps.PauseReserveUi.ApplyArrowTilePalettes(tiles, page.Arrow == ShownReserveArrow.Lit);
+            InstalledAreaMapPresentation.PauseOf(maps).ReserveUi.ApplyArrowTilePalettes(tiles, page.Arrow == ShownReserveArrow.Lit);
         return tiles;
     }
 
@@ -154,7 +154,7 @@ internal static class PauseEquipmentPageLayout
             for (int digit = 0; digit < PauseReserveUiDefinitions.DigitCount; digit++)
             {
                 BackgroundTile[] page = LayOut(maps, Reference with { Reserve = new ShownReserveDisplay(ReserveTankMode.None, digit * placeValue) });
-                yield return Part(PauseEquipmentPictures.ReserveDigitFrame(place, digit), page, [maps.PauseReserveUi.DigitCell(place)], afterReserve);
+                yield return Part(PauseEquipmentPictures.ReserveDigitFrame(place, digit), page, [InstalledAreaMapPresentation.PauseOf(maps).ReserveUi.DigitCell(place)], afterReserve);
             }
         }
         foreach (ShownReserveArrow arrow in Enum.GetValues<ShownReserveArrow>())
@@ -197,7 +197,7 @@ internal static class PauseEquipmentPageLayout
         internal static PageFootprints Of(AreaMapPresentation maps)
         {
             PauseEquipmentLabelPresentation labels = InstalledAreaMapPresentation.PauseOf(maps).EquipmentLabels;
-            PauseReserveUiPresentation ui = maps.PauseReserveUi;
+            PauseReserveUiPresentation ui = InstalledAreaMapPresentation.PauseOf(maps).ReserveUi;
             int[] wireframe = [.. Enumerable.Range(0, PauseWireframeDefinitions.Rows).SelectMany(row => Enumerable.Range(
                 PauseWireframeDefinitions.FirstPageTile + row * PauseWireframeDefinitions.PageColumns, PauseWireframeDefinitions.Columns))];
             int[] beams = [.. PauseEquipmentLabelTiles.Labels().Where(key => !PauseEquipmentPictures.HasRest(key.Label)).SelectMany(key => labels.PageCells(key.Label))];

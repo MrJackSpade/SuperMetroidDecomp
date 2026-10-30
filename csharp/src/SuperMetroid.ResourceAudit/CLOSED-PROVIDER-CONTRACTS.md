@@ -112,9 +112,11 @@ sixteen colors. The only constructor is private.
 
 ## Pause reserve UI v1 — six original consumer boundaries
 
-`PauseReserveUiPresentation.Load` requires all four labels, ten complete digits,
+`PauseReserveUiFile.Read` requires all four labels, ten complete digits,
 ten unique arrow cells, 32 full animation frames and both fixed arrow colors.
-Only its private constructor can publish a provider.
+Only its private constructor can publish a provider. The import's
+`PauseReserveUiPresentation` holds the labels, digits and arrow cells; the arrow's
+colours are Core's `PauseReserveArrowColours`, the only part the game binds (#1467).
 
 - `ApplyDigit`: positions 0..2 and digit values 0..9 are range-checked.
 - `ApplyArrowTilePalettes`: uses the two loaded palette choices and validated offsets.

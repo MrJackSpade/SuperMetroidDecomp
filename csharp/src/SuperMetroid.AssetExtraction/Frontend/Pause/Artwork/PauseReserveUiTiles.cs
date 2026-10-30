@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Frontend.Pause.Artwork.PauseReserveUiDefinitions;
+using static SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseReserveUiDefinitions;
 
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>
 /// Draws the pause screen's reserve-tank labels (<see cref="PauseReserveUiDefinitions"/>).

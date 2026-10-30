@@ -1,9 +1,14 @@
+using SuperMetroid.Core;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rendering;
 
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
-/// <summary>Editable reserve labels, digits and arrow appearance; energy and mode behavior stay compiled.</summary>
+/// <summary>
+/// Editable reserve labels, digits and arrow appearance (#1467): the import lays the equipment page's reserve pictures out
+/// from the labels, digits and arrow cells, and the game binds only the arrow's colours. Energy and mode behavior stay
+/// compiled.
+/// </summary>
 public sealed class PauseReserveUiPresentation
 {
     /// <summary>Mode, Reserve Tank, Manual, and Auto strips retaining only departures from stock artwork.</summary>
@@ -16,16 +21,8 @@ public sealed class PauseReserveUiPresentation
     internal readonly int[]? arrowCells;
     /// <summary>BG palette selections used for active and inactive arrow tile cells.</summary>
     private readonly int enabledPalette, disabledPalette;
-    /// <summary>Two bevel colors shown when AUTO pulse animation is inactive.</summary>
-    private readonly RgbColor solidColor6, solidColor11;
-    /// <summary>Only pulse starting colors that differ from the reversed solid bevel colors.</summary>
-    private readonly ReserveArrowColorEdits arrowStartEdits;
-    /// <summary>Grey midpoint levels from which each mirrored pulse ramp is calculated.</summary>
-    private readonly ReserveArrowGreyLevels arrowGreyLevels;
-    /// <summary>Independently edited pulse colors that depart from the mirrored ramp.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> arrowColorEdits = [];
 
-    /// <summary>Compacts stock-equivalent digit/arrow positions and derives sparse label and pulse-color edits.</summary>
+    /// <summary>Compacts stock-equivalent digit/arrow positions and keeps the arrow's colours.</summary>
     private PauseReserveUiPresentation(PauseReserveUiParts parts)
     {
         this.labels = parts.Labels; this.digitCell = parts.DigitCell;
@@ -38,20 +35,12 @@ public sealed class PauseReserveUiPresentation
             stockArrow &= parts.ArrowCells[cell] == ArrowCell(cell);
         this.arrowCells = stockArrow ? null : parts.ArrowCells;
         this.enabledPalette = parts.EnabledPalette;
-        this.disabledPalette = parts.DisabledPalette; this.solidColor6 = parts.SolidColor6;
-        this.solidColor11 = parts.SolidColor11;
-        arrowStartEdits = new ReserveArrowColorEdits(parts.ArrowFrames[0].Color6 == parts.SolidColor11 ? null : parts.ArrowFrames[0].Color6,
-            parts.ArrowFrames[0].Color11 == parts.SolidColor6 ? null : parts.ArrowFrames[0].Color11);
-        var middle = parts.ArrowFrames[PauseReserveUiDefinitions.ArrowFrames / 2 - 1];
-        arrowGreyLevels = new ReserveArrowGreyLevels(middle.Color6.Red, middle.Color11.Red);
-        for (int frame = 0; frame < parts.ArrowFrames.Length; frame++)
-        {
-            if (parts.ArrowFrames[frame].Color6 != CalculateArrowColor(frame, ReserveArrowBevel.Shade))
-                arrowColorEdits.Add(new ColourCell(frame, 0), parts.ArrowFrames[frame].Color6);
-            if (parts.ArrowFrames[frame].Color11 != CalculateArrowColor(frame, ReserveArrowBevel.Light))
-                arrowColorEdits.Add(new ColourCell(frame, 1), parts.ArrowFrames[frame].Color11);
-        }
+        this.disabledPalette = parts.DisabledPalette;
+        ArrowColours = parts.ArrowColours;
     }
+
+    /// <summary>The arrow's solid and pulse colours, which the game binds to the pause screen (#1467).</summary>
+    public PauseReserveArrowColours ArrowColours { get; }
 
     /// <summary>
     /// Native reserve-arrow cells form an eight-cell vertical stem followed by a two-cell
@@ -120,59 +109,6 @@ public sealed class PauseReserveUiPresentation
         }
     }
 
-    /// <summary>Writes the two selected arrow bevel colours to the screen's colours, using either the pulse frame or the solid appearance.</summary>
-    /// <param name="colours">The screen's colours, whose reserve-arrow bevel colours change.</param>
-    /// <param name="animated">Whether to sample the 32-phase pulse rather than the solid colors; the pause owner decides when AUTO selection should animate.</param>
-    /// <param name="frame">Pulse phase, masked to its low five bits; normally the accepted eight-bit frame counter and ignored for solid colors.</param>
-    public void ApplyArrowColors(ScreenPalette colours, bool animated, int frame)
-    {
-        var colors = animated ? new ReserveArrowColors(ArrowColor(frame, ReserveArrowBevel.Shade), ArrowColor(frame, ReserveArrowBevel.Light)) : new ReserveArrowColors(solidColor6, solidColor11);
-        Ensure.NotNull(colours).Colours(ScreenColourGroup.PauseReserveArrowShade).Fill(colors.Color6);
-        colours.Colours(ScreenColourGroup.PauseReserveArrowLight).Fill(colors.Color11);
-    }
-
-    /// <summary>
-    /// $82:AD5D/AD9D mirror two16-phase RGB ramps around the repeated midpoint.
-    /// Starts share the reversed solid-arrow colors; grey midpoint channels share one level.
-    /// Repeated normalized fade subtraction explains the below-integer blue crossings at5/10.
-    /// The penultimate bright-red/dark-blue channels hold their preceding shade. Endpoint
-    /// colors/levels and this exact two-channel hold are authored bevel-color/pulse content:
-    /// different choices paint a different pulse. Held magnitudes derive from the prior shade;
-    /// independently supplied differences stay sparse.
-    /// </summary>
-    private RgbColor CalculateArrowColor(int frame, ReserveArrowBevel bevel)
-    {
-        int last = PauseReserveUiDefinitions.ArrowFrames - 1;
-        int phase = Math.Min(frame, last - frame);
-        int steps = last / 2;
-        bool second = bevel == ReserveArrowBevel.Light;
-        RgbColor start = second ? arrowStartEdits.Color11 ?? solidColor6 : arrowStartEdits.Color6 ?? solidColor11;
-        int grey = second ? arrowGreyLevels.Color11 : arrowGreyLevels.Color6;
-        if (phase == steps) return new(grey, grey, grey);
-        ColorChannel held = second ? ColorChannel.Blue : ColorChannel.Red;
-        return start.Map((channel, channelStart) =>
-        {
-            int channelPhase = phase == steps - 1 && channel == held ? phase - 1 : phase;
-            float remaining = 1;
-            float step = (float)(1d / steps);
-            for (int tick = 0; tick < channelPhase; tick++)
-                remaining = (float)((double)remaining - step);
-            float amount = (float)(1d - remaining);
-            // Explicit binary32 roundings separate multiplication and addition: an FMA
-            // cannot remove the intermediate rounding or alter the integral crossings.
-            float delta = (float)((double)(grey - channelStart) * amount);
-            return (int)(float)(channelStart + (double)delta);
-        });
-    }
-
-    /// <summary>Uses the supplied independent bevel shade when present; otherwise mirrors the calculated 32-phase ramp.</summary>
-    private RgbColor ArrowColor(int frame, ReserveArrowBevel bevel)
-    {
-        frame &= PauseReserveUiDefinitions.ArrowFrames - 1;
-        return arrowColorEdits.TryGetValue(new ColourCell(frame, (bevel == ReserveArrowBevel.Light ? 1 : 0)), out RgbColor supplied)
-            ? supplied : CalculateArrowColor(frame, bevel);
-    }
-
     /// <summary>Compiles the selected reserve labels, digit words, arrow placements and arrow colours into a presentation.</summary>
     /// <param name="selection">The selected labels, digits, arrow placements and arrow colours.</param>
     internal static PauseReserveUiPresentation Create(PauseReserveUiSelection selection)
@@ -181,7 +117,7 @@ public sealed class PauseReserveUiPresentation
         var labels = new Dictionary<PauseReserveLabel, ReserveLabel>();
         foreach (KeyValuePair<PauseReserveLabel, int> label in selection.LabelCells)
             labels.Add(label.Key, ReserveLabel.Load(label.Key, label.Value, selection.LabelTiles[label.Key]));
-        return new(new PauseReserveUiParts { Labels = labels, DigitCell = selection.DigitCell, Digits = selection.Digits, ArrowCells = selection.ArrowCells, EnabledPalette = selection.EnabledPalette, DisabledPalette = selection.DisabledPalette, SolidColor6 = selection.SolidColor6, SolidColor11 = selection.SolidColor11, ArrowFrames = selection.ArrowFrames });
+        return new(new PauseReserveUiParts { Labels = labels, DigitCell = selection.DigitCell, Digits = selection.Digits, ArrowCells = selection.ArrowCells, EnabledPalette = selection.EnabledPalette, DisabledPalette = selection.DisabledPalette, ArrowColours = selection.ArrowColours });
     }
 
     /// <summary>Resolves unchanged reserve-label cells from stock and stores only edited placement or tiles.</summary>
@@ -227,13 +163,7 @@ public sealed class PauseReserveUiPresentation
         /// <summary>BG palette selector used when reserve control is unavailable.</summary>
         public required int DisabledPalette { get; init; }
 
-        /// <summary>Static arrow bevel color for palette slot six outside pulse animation.</summary>
-        public required RgbColor SolidColor6 { get; init; }
-
-        /// <summary>Static arrow bevel color for palette slot eleven outside pulse animation.</summary>
-        public required RgbColor SolidColor11 { get; init; }
-
-        /// <summary>Two RGB5 bevel colors for each of the 32 mirrored pulse phases.</summary>
-        public required ReserveArrowColors[] ArrowFrames { get; init; }
+        /// <summary>The arrow's solid and pulse colours.</summary>
+        public required PauseReserveArrowColours ArrowColours { get; init; }
     }
 }

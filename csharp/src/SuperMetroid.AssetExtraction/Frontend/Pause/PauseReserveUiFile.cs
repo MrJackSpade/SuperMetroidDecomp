@@ -25,7 +25,7 @@ public static class PauseReserveUiFile
         if (document.Version != PauseReserveUiDefinitions.Version || document.Labels is null || document.Labels.Count != 4 ||
             document.Digits is null || document.Digits.Cells is null || document.Digits.Cells.Length != PauseReserveUiDefinitions.DigitCount ||
             document.Arrow is null || document.Arrow.Cells is null || document.Arrow.Cells.Length != 10 ||
-            document.Arrow.Frames is null || document.Arrow.Frames.Length != PauseReserveUiDefinitions.ArrowFrames ||
+            document.Arrow.Frames is null || document.Arrow.Frames.Length != PauseReserveArrowDefinitions.ArrowFrames ||
             (uint)document.Arrow.EnabledPalette > 7 || (uint)document.Arrow.DisabledPalette > 7)
             throw new InvalidDataException("Pause reserve UI requires four labels, ten digits, ten arrow cells, and 32 arrow frames.");
         var labelCells = new Dictionary<PauseReserveLabel, int>();
@@ -51,8 +51,8 @@ public static class PauseReserveUiFile
         {
             LabelCells = labelCells, LabelTiles = labelTiles, DigitCell = digitCell, Digits = digits,
             ArrowCells = arrowCells, EnabledPalette = document.Arrow.EnabledPalette,
-            DisabledPalette = document.Arrow.DisabledPalette, SolidColor6 = solidColor6, SolidColor11 = solidColor11,
-            ArrowFrames = frames,
+            DisabledPalette = document.Arrow.DisabledPalette,
+            ArrowColours = new PauseReserveArrowColours(solidColor6, solidColor11, frames),
         });
 
         // Converts a bounded equipment-page cell coordinate to its row-major cell.

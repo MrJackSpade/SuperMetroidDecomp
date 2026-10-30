@@ -3,6 +3,8 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <summary>Compiled timing and traced movement for Draygon's opening Evir dance.</summary>
 internal static class DraygonIntroDanceDefinitions
 {
+    /// <summary>The Evirs the opening dance moves: the first four sprite objects in processing order.</summary>
+    internal const int EvirCount = 4;
 
     /// <summary>Native byte-index advance after each dance update at <c>$A5:A188</c>.</summary>
     public const ushort StreamIndexAdvance = 4;

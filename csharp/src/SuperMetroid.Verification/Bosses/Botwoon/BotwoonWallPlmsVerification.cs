@@ -35,13 +35,13 @@ internal static class BotwoonWallPlmsVerification
         AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), draw.Runs.Span[0],
             "Botwoon clear run header");
         cursor += 2;
-        foreach (ushort word in draw.Runs.Span[0].LevelWords.Span)
+        foreach (ushort word in draw.Runs.Span[0].Blocks.Span)
             AssertWord(word);
         for (int index = 0; index < 9; index++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x849311 + index * 2),
-                BotwoonWallPlmDraws.LevelWordAt(index), "Botwoon calculated clear word matches native");
+                BotwoonWallPlmDraws.BlockAt(index), "Botwoon calculated clear word matches native");
         foreach (int index in new[] {int.MinValue,-1,9,int.MaxValue})
-            AssertThrows<ArgumentOutOfRangeException>(() => BotwoonWallPlmDraws.LevelWordAt(index), "Botwoon fill rejects invalid block index");
+            AssertThrows<ArgumentOutOfRangeException>(() => BotwoonWallPlmDraws.BlockAt(index), "Botwoon fill rejects invalid block index");
         AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
             unchecked((byte)draw.Runs.Span[0].Next.X),
             "Botwoon clear final X offset");
@@ -69,11 +69,11 @@ internal static class BotwoonWallPlmsVerification
     {
         const int width = 32;
         const int height = 16;
-        ushort[] words = new ushort[width * height];
+        var words = new RoomTerrainBlock[width * height];
         for (int y = 4; y <= 12; y++)
-            words[y * width + 15] = 0x0123;
+            words[y * width + 15] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.Air);
         RoomLevelData level = CreateRoom(new(width, height), words,
-            new byte[words.Length]);
+            new RoomBlockBehavior[words.Length]);
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.BossRoomMutations.TrySpawnBotwoonWall(level,
                 clear ? PlmHeaderId.ClearBotwoonWall :
@@ -92,8 +92,8 @@ internal static class BotwoonWallPlmsVerification
             if (clear && frame == 0)
             {
                 for (int y = 4; y <= 12; y++)
-                    AssertEqual((ushort)0x00ff,
-                        level.GetCollisionBlockByIndex(y * width + 15).PackedWord.Raw,
+                    AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air),
+                        level.GetCollisionBlockByIndex(y * width + 15).Terrain,
                         $"Botwoon clear row {y}");
             }
             if (!clear && frame >= 63 && frame <= 203 &&
@@ -101,15 +101,15 @@ internal static class BotwoonWallPlmsVerification
             {
                 int row = (frame - 63) / 16;
                 int phase = (frame - 63) / 4 % 4;
-                ushort appearance = phase switch
+                RoomTerrainBlock appearance = phase switch
                 {
-                    0 => 0x0053,
-                    1 => 0x0054,
-                    2 => 0x0055,
-                    _ => 0x00ff,
+                    0 => RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air),
+                    1 => RoomTerrainBlock.Of(0x054, BlockMirroring.None, RoomCollisionType.Air),
+                    2 => RoomTerrainBlock.Of(0x055, BlockMirroring.None, RoomCollisionType.Air),
+                    _ => RoomTerrainBlocks.BlankAir,
                 };
                 AssertEqual(appearance,
-                    level.GetCollisionBlockByIndex((4 + row) * width + 15).PackedWord.Raw,
+                    level.GetCollisionBlockByIndex((4 + row) * width + 15).Terrain,
                     $"Botwoon crumble frame {frame}, row {row}");
                 if (row == 0 && phase == 0)
                 {

@@ -35,7 +35,7 @@ internal static class CompiledDynamicCollectibleGraphicsVerification
         // then exercise the real sequential room loader and assert what it binds.
         var guarded = NewRetailCollectibleGraphicsReadGuard(rom);
         const int width = 64;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64), new RoomLevelPlanes(new ushort[width * 64], new byte[width * 64], new ushort[width * 64]));
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64), new RoomLevelPlanes(new RoomTerrainBlock[width * 64], new RoomBlockBehavior[width * 64], new RoomBlockAppearance[width * 64]));
         RoomAppearance appearance = BgArtworkFixtures.For(new SnesVram());
         var plms = PlmFixtures.Unbound();
         PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, appearance, new SharedGameState(), AreaId.Crateria), RoomPlmPopulationDefinitions.Get(0x83fe), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });

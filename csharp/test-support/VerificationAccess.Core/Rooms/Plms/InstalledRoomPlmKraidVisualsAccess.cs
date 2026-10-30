@@ -5,11 +5,11 @@ internal static class InstalledRoomPlmKraidVisualsAccess
     /// <summary>Builds the Kraid room-art fixture from its explicit compiled visual parts.</summary>
     extension(InstalledRoomPlmKraidVisuals)
     {
-        /// <summary>Builds stock Kraid PLM art from the visual bits of its physical draw words.</summary>
+        /// <summary>Builds stock Kraid PLM art from the appearances of its draws.</summary>
         internal static InstalledRoomPlmKraidVisuals Stock() => new(
             KraidRoomPlmDraws.All.Select(draw =>
                 new RoomPlmVisualEntry(
                     KraidRoomPlmDraws.VisualId(draw.Draw),
-                    draw.VisualWords())));
+                    draw.Appearances())));
     }
 }

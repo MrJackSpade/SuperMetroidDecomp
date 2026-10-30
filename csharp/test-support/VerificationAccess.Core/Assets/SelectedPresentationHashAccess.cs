@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core;
 
 namespace SuperMetroid.Core.Assets;
@@ -17,30 +18,30 @@ internal static class SelectedPresentationHashAccess
         }
     }
 
-    /// <summary>Builds stable hashes for single runs, scalar words, and multiple runs per frame.</summary>
+    /// <summary>Builds stable hashes for single runs, single blocks, and multiple runs per frame.</summary>
     extension(SelectedPresentationHash)
     {
-        /// <summary>Wraps each word-array frame as one run before the canonical keyed hash.</summary>
-        internal static string FromWordFrames(string domain, IReadOnlyDictionary<string, ushort[]> frames) =>
-            SelectedPresentationHash.FromWordFrames(domain, frames.ToDictionary(pair => pair.Key, pair => new[] { pair.Value }));
+        /// <summary>Wraps each appearance-array frame as one run before the canonical keyed hash.</summary>
+        internal static string FromAppearanceFrames(string domain, IReadOnlyDictionary<string, RoomBlockAppearance[]> frames) =>
+            SelectedPresentationHash.FromAppearanceFrames(domain, frames.ToDictionary(pair => pair.Key, pair => new[] { pair.Value }));
 
-        /// <summary>Wraps each scalar frame as a one-word run before the canonical keyed hash.</summary>
-        internal static string FromWordFrames(string domain, IReadOnlyDictionary<string, ushort> frames) =>
-            SelectedPresentationHash.FromWordFrames(domain, frames.ToDictionary(pair => pair.Key, pair => new[] { pair.Value }));
+        /// <summary>Wraps each single-block frame as a one-block run before the canonical keyed hash.</summary>
+        internal static string FromAppearanceFrames(string domain, IReadOnlyDictionary<string, RoomBlockAppearance> frames) =>
+            SelectedPresentationHash.FromAppearanceFrames(domain, frames.ToDictionary(pair => pair.Key, pair => new[] { pair.Value }));
 
         /// <summary>
-        /// Preserves draw-run and word order while canonicalizing frame order: frames are keyed by their artwork identity
+        /// Preserves draw-run and block order while canonicalizing frame order: frames are keyed by their artwork identity
         /// and hashed in identity order, as the PLM visual catalogs frame them.
         /// </summary>
-        internal static string FromWordFrames(string domain, IReadOnlyDictionary<string, ushort[][]> frames) =>
+        internal static string FromAppearanceFrames(string domain, IReadOnlyDictionary<string, RoomBlockAppearance[][]> frames) =>
             SelectedPresentationHash.Create(domain, content =>
             {
-                foreach ((string id, ushort[][] runs) in frames.OrderBy(pair => pair.Key, StringComparer.Ordinal))
+                foreach ((string id, RoomBlockAppearance[][] runs) in frames.OrderBy(pair => pair.Key, StringComparer.Ordinal))
                 {
                     content.AppendName("frame", id);
                     content.Append("runs", runs.Length);
-                    foreach (ushort[] run in runs)
-                        content.AppendWords("words", run);
+                    foreach (RoomBlockAppearance[] run in runs)
+                        content.AppendAppearances("blocks", run);
                 }
             });
     }

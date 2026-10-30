@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus.Drawing;
@@ -38,7 +39,7 @@ internal static class CollectibleMessageTimingVerification
         runtime.StepFrame(0);
         runtime.StepFrame(0);
         var item = runtime.Plms.CollectiblePlms.Collectibles.Single(i => i.Kind == InWorldCollectibleKind.EnergyTank);
-        ushort visible = runtime.Room.LoadedLevelData.ForegroundEntries.Span[item.BlockIndex];
+        RoomTerrainBlock visible = runtime.Room.LoadedLevelData.GetCollisionBlockByIndex(item.BlockIndex).Terrain;
         // The block the displayed frame shows for the pickup, with its mirroring, and the picture it draws: its latched room
         // BG1 (#1346, #1431).
         (RoomBlockCell Cell, SpriteSheetFrame? Picture) ShownBlock()
@@ -63,7 +64,7 @@ internal static class CollectibleMessageTimingVerification
         Console.WriteLine($"Pickup frame: tile retained={beforeTile == ShownBlock()}, HUD retained={beforeHud.SequenceEqual(HudWords())}");
         void AssertHeld()
         {
-            AssertEqual(visible, runtime.Room.LoadedLevelData.ForegroundEntries.Span[item.BlockIndex], "pickup level tile remains during message");
+            AssertEqual(visible, runtime.Room.LoadedLevelData.GetCollisionBlockByIndex(item.BlockIndex).Terrain, "pickup level tile remains during message");
             AssertTrue(beforeTile == ShownBlock(), "displayed pickup block and picture remain during message");
             AssertTrue(beforeHud.SequenceEqual(HudWords()), "HUD counters remain during message");
             AssertTrue(beforeVisibleHud.SequenceEqual(VisibleHudWords()), "displayed HUD VRAM remains during message");
@@ -84,7 +85,7 @@ internal static class CollectibleMessageTimingVerification
             runtime.StepFrame(0);
         }
         AssertTrue(!runtime.MessageBox.IsActive, "message returns");
-        AssertTrue(runtime.Room.LoadedLevelData.ForegroundEntries.Span[item.BlockIndex] != visible, "return executes pickup empty draw");
+        AssertTrue(runtime.Room.LoadedLevelData.GetCollisionBlockByIndex(item.BlockIndex).Terrain != visible, "return executes pickup empty draw");
         AssertTrue(!beforeHud.SequenceEqual(HudWords()), "return rebuilds HUD for acquired energy");
         AssertEqual(199, samus.MaxHealth, "return grants no duplicate energy");
         runtime.FrameBoundary.BeginAcceptedFrame(0);

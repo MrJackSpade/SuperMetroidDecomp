@@ -27,9 +27,9 @@ internal static class EyeDoorSweatBehaviorVerification
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, EyeDoorSweatNativeListAddresses.Extent, "eye-door sweat");
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         const int roomWidth = 16;
-        var foreground = new ushort[roomWidth * 16];
-        foreground[5 * roomWidth + 6] = (int)RoomCollisionType.SolidBlock << 12;
-        RoomLevelData level = CreateRoom(new(roomWidth, 16), foreground, new byte[foreground.Length]);
+        var foreground = new RoomTerrainBlock[roomWidth * 16];
+        foreground[5 * roomWidth + 6] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+        RoomLevelData level = CreateRoom(new(roomWidth, 16), foreground, new RoomBlockBehavior[foreground.Length]);
         var request = new EyeDoorProjectileRequest(EyeDoorProjectileDefinition.Sweat, Facing: EyeDoorOrientation.Right, PlmBlockIndex: 4 * roomWidth + 7, DoorBit: 0);
         enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(request, roomWidth, new SharedGameState());
         RoomEnemyProjectileSlot sweat = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorSweat);

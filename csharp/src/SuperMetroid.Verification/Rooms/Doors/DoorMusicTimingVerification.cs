@@ -36,9 +36,9 @@ internal static class DoorMusicTimingVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            var door = level.ResolveDoorCollision(block.Bts.Value, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), false);
+            var door = level.ResolveDoorCollision(block.Behavior.Value, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), false);
             if (door.Door?.DestinationRoom != RoomHeaderDefinitions.LandingSite) continue;
-            doorX = x; doorY = y; behavior = block.Bts.Value; break;
+            doorX = x; doorY = y; behavior = block.Behavior.Value; break;
         }
         AssertTrue(doorX >= 0, "Parlor has the retail Landing Site door");
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Parlor,

@@ -69,7 +69,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
             level.GetCollisionBlockByIndex(blockIndex).CollisionType,
             "accepted setup clears the live collision nibble in the contact frame");
         AssertEqual(RoomPlmVisualBlockDefinitions.SpeedBoosterParent,
-            level.GetCollisionBlockByIndex(blockIndex).PackedWord.VisualBlockIndex,
+            level.GetCollisionBlockByIndex(blockIndex).Terrain.Appearance,
             "accepted setup installs cartridge visual parent $0B6");
         RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
         AssertEqual(PlmHeaderId.SpeedBlockRespawning, slot.HeaderPointer,
@@ -91,7 +91,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
             level.GetCollisionBlockByIndex(blockIndex).CollisionType,
             "respawning list restores special-solid collision");
         AssertEqual(RoomPlmVisualBlockDefinitions.SpeedBoosterParent,
-            level.GetCollisionBlockByIndex(blockIndex).PackedWord.VisualBlockIndex,
+            level.GetCollisionBlockByIndex(blockIndex).Terrain.Appearance,
             "respawning list restores synthesized visual parent $0B6");
     }
 
@@ -163,11 +163,11 @@ internal static class SpeedBoosterCollisionBlocksVerification
         var bus = new TestAddressSpace();
         SeedSpeedBoosterBlockCartridge(bus, emptyPopulation);
 
-        ushort[] words = new ushort[width * height];
-        byte[] behaviors = new byte[words.Length];
+        var words = new RoomTerrainBlock[width * height];
+        var behaviors = new RoomBlockBehavior[words.Length];
         int blockIndex = blockY * width + blockX;
-        words[blockIndex] = 0xb123;
-        behaviors[blockIndex] = bts.ToBtsByte();
+        words[blockIndex] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SpecialBlock);
+        behaviors[blockIndex] = bts;
         RoomLevelData level = CreateRoom(new(width, height),
             words,
             behaviors);

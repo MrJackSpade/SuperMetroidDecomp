@@ -20,24 +20,25 @@ internal static class XrayOverlaysVerification
     {
         var bus = new TestAddressSpace();
         var overlays = InstalledXrayOverlays.FromOverlaysForVerification(
-            Enumerable.Range(1, 8).Select(value => (ushort)value),
+            Enumerable.Range(1, 8).Select(value => RoomBlockAppearance.Of(value)),
             new XrayRoomOverlayTiles[]
             {
                 new(SpecialRoom, new XrayRoomOverlayVisual[]
                 {
-                    new(new(1, 1), new RoomLevelWord(0x0809)), new(new(17, 1), new RoomLevelWord(10)),
-                    new(new(2, 1), new RoomLevelWord(0x0403)), new(new(3, 1), new RoomLevelWord(0x0c04)),
+                    new(new(1, 1), RoomBlockAppearance.Of(9, BlockMirroring.Vertical)), new(new(17, 1), RoomBlockAppearance.Of(10)),
+                    new(new(2, 1), RoomBlockAppearance.Of(3, BlockMirroring.Horizontal)),
+                    new(new(3, 1), RoomBlockAppearance.Of(4, BlockMirroring.Horizontal | BlockMirroring.Vertical)),
                 }),
             });
         var entries = new List<XrayRevealVisualDefinition>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         for (int bts = 0; bts <= byte.MaxValue; bts++)
-            if (XrayRevealTable.Find(type, (byte)bts) is { } definition &&
+            if (XrayRevealTable.Find(type, new RoomBlockBehavior(bts)) is { } definition &&
                 InstalledXrayReveals.IsDrawable(definition.Command))
-                entries.Add(new(type, (byte)bts, new(definition.TopLeft, definition.TopRight,
+                entries.Add(new(type, new RoomBlockBehavior(bts), new(definition.TopLeft, definition.TopRight,
                     definition.BottomLeft, definition.BottomRight)));
         var visuals = new InstalledXrayReveals(entries, overlays);
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]));
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new RoomTerrainBlock[1024], new RoomBlockBehavior[1024], new RoomBlockAppearance[1024]));
         var system = new SharedGameState();
         var items = new[]
         {
@@ -45,7 +46,7 @@ internal static class XrayOverlaysVerification
             new CollectiblePlmSnapshot(PlmHeaderId.ExposedEnergyTank, 33, 2, InWorldCollectibleKind.EnergyTank, -1),
         };
         // Each overlay places one whole block (#1431): the cell at the camera's block shows the block written last, in the
-        // arrangement its word's flips select.
+        // arrangement its mirroring selects.
         var map = new RevealedBlock?[XrayRevealLayout.Cells];
         RevealedBlock Defined(int block) => new(block, RevealedBlockArrangement.AsDefined);
         XrayRevealOverlays.Apply(level, map, items, system, null, new(16, 16), visuals);

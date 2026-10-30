@@ -18,20 +18,20 @@ internal static class XrayTilemapVerification
     {
         // Every BG1 block shows its own index, mirrored each of the four ways in turn, so a copied cell names the one
         // location it was read from and how the level mirrors it.
-        LevelBlockFlipFlags[] mirrorings =
+        BlockMirroring[] mirrorings =
         [
-            LevelBlockFlipFlags.None, LevelBlockFlipFlags.Horizontal, LevelBlockFlipFlags.Vertical,
-            LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical,
+            BlockMirroring.None, BlockMirroring.Horizontal, BlockMirroring.Vertical,
+            BlockMirroring.Horizontal | BlockMirroring.Vertical,
         ];
         RevealedBlockArrangement[] arrangements =
         [
             RevealedBlockArrangement.AsDefined, RevealedBlockArrangement.MirroredHorizontally,
             RevealedBlockArrangement.MirroredVertically, RevealedBlockArrangement.MirroredBoth,
         ];
-        ushort[] foreground = [.. Enumerable.Range(0, RoomSide * RoomSide)
-            .Select(block => RoomLevelWord.Create(block, mirrorings[block % mirrorings.Length], RoomCollisionType.SolidBlock).Raw)];
+        RoomTerrainBlock[] foreground = [.. Enumerable.Range(0, RoomSide * RoomSide)
+            .Select(block => RoomTerrainBlock.Of(block, mirrorings[block % mirrorings.Length], RoomCollisionType.SolidBlock))];
         var level = new RoomLevelData(new Extent16<RoomBlocks>(RoomSide, RoomSide),
-            new RoomLevelPlanes(foreground, new byte[RoomSide * RoomSide], new ushort[RoomSide * RoomSide]));
+            new RoomLevelPlanes(foreground, new RoomBlockBehavior[RoomSide * RoomSide], new RoomBlockAppearance[RoomSide * RoomSide]));
         RevealedBlock Copied(int x, int y)
         {
             int block = y * RoomSide + x;
@@ -43,10 +43,10 @@ internal static class XrayTilemapVerification
         RevealedBlock?[] Build(AreaId area = AreaId.Brinstar) => XrayRevealMap.Build(level, layer1, default, area);
         RevealedBlock? Cell(RevealedBlock?[] map, int column, int row) => map[row * XrayRevealLayout.MetatileColumns + column];
         // Changes a block's collision, leaving the block BG1 shows, so a cell no reveal writes keeps its copy.
-        void Set(int index, RoomCollisionType type, byte bts)
+        void Set(int index, RoomCollisionType type, int behavior)
         {
-            level.SetPlmForegroundEntry(index, (int)type << 12, new RoomLevelWord(foreground[index]).VisualWord);
-            level.SetPlmBehavior(index, bts);
+            level.SetPlmTerrain(index, RoomTerrainBlock.Of(0, BlockMirroring.None, type), foreground[index].Appearance);
+            level.SetPlmBehavior(index, new RoomBlockBehavior(behavior));
         }
         RevealedBlock?[] basis = Build();
         AssertEqual(Copied(1, 1), Cell(basis, 0, 0), "base copy starts at the block holding the screen's top-left corner, mirrored as the level mirrors it");

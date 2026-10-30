@@ -56,13 +56,14 @@ internal static class PlmContentIdentityVerification
                 .Contains(domain, StringComparison.Ordinal), domain + " has a specific compatibility warning");
         }
 
-        var runs = new Dictionary<string, ushort[][]> { ["frame"] = [[2, 3], [4]] };
-        var repartitioned = new Dictionary<string, ushort[][]> { ["frame"] = [[2], [3, 4]] };
-        var swapped = new Dictionary<string, ushort[][]> { ["frame"] = [[4], [2, 3]] };
-        AssertTrue(SelectedPresentationHash.FromWordFrames("test", runs) !=
-            SelectedPresentationHash.FromWordFrames("test", repartitioned), "run boundaries are not flattened away");
-        AssertTrue(SelectedPresentationHash.FromWordFrames("test", runs) !=
-            SelectedPresentationHash.FromWordFrames("test", swapped), "native draw-run order contributes to identity");
+        RoomBlockAppearance two = RoomBlockAppearance.Of(2), three = RoomBlockAppearance.Of(3), four = RoomBlockAppearance.Of(4);
+        var runs = new Dictionary<string, RoomBlockAppearance[][]> { ["frame"] = [[two, three], [four]] };
+        var repartitioned = new Dictionary<string, RoomBlockAppearance[][]> { ["frame"] = [[two], [three, four]] };
+        var swapped = new Dictionary<string, RoomBlockAppearance[][]> { ["frame"] = [[four], [two, three]] };
+        AssertTrue(SelectedPresentationHash.FromAppearanceFrames("test", runs) !=
+            SelectedPresentationHash.FromAppearanceFrames("test", repartitioned), "run boundaries are not flattened away");
+        AssertTrue(SelectedPresentationHash.FromAppearanceFrames("test", runs) !=
+            SelectedPresentationHash.FromAppearanceFrames("test", swapped), "native draw-run order contributes to identity");
         Console.WriteLine("  Room-actor content: all 26 domains, canonical ordering, independent edits, " +
             "draw-run framing and host compatibility pass without a ROM.");
     }
@@ -71,17 +72,17 @@ internal static class PlmContentIdentityVerification
     private static IReadOnlyDictionary<string, string> CreatePlmIdentityFixture(
         string? edited = null, bool reverse = false)
     {
-        // Native definitions determine only the required shape/IDs. Copy visible words before editing;
-        // the physical collision words, run geometry and native programs must remain untouched.
+        // Compiled definitions determine only the required shape/IDs. Copy appearances before editing;
+        // the terrain, run geometry and programs must remain untouched.
         IEnumerable<PlmContentIdentityFrame> Runs(string domain,
             IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions)
         {
             var frames = definitions.Select(draw => new PlmContentIdentityFrame(draw.Draw, Runs:draw.Runs.Span
-                .SelectToArray(run => run.LevelWords.Span
-                    .SelectToArray(word => new RoomLevelWord(word).VisualWord)))).ToArray();
+                .SelectToArray(run => run.Blocks.Span
+                    .SelectToArray(block => block.Appearance)))).ToArray();
             if (domain == edited)
                 foreach (var frame in frames)
-                    frame.Runs[^1][^1] ^= 1;
+                    frame.Runs[^1][^1] = frame.Runs[^1][^1].WithBlock(frame.Runs[^1][^1].Block ^ 1);
             return reverse ? frames.Reverse() : frames;
         }
 
@@ -89,15 +90,15 @@ internal static class PlmContentIdentityVerification
             IEnumerable<PlmContentIdentityDefinition> definitions)
         {
             var frames = definitions.Select(draw =>
-                new PlmContentIdentityDefinition(draw.Draw, Word:(ushort)(new RoomLevelWord(draw.Word).VisualWord ^
-                    (domain == edited ? 1 : 0)))).ToArray();
+                new PlmContentIdentityDefinition(draw.Draw, domain == edited
+                    ? draw.Appearance.WithBlock(draw.Appearance.Block ^ 1) : draw.Appearance)).ToArray();
             return reverse ? frames.Reverse() : frames;
         }
 
         return RoomPlmPresentationIdentity.Create(new RoomPlmVisualCatalogSet { ShotBlock = new InstalledRoomPlmShotBlockVisuals(Runs(GameInstallationLayout.RoomPlmShotBlockVisualDirectoryName, ShotBlockPlmDraws.All)
                 .Select(draw => new RoomPlmVisualRunEntry(ShotBlockPlmDraws.VisualId(draw.Draw), draw.Runs))), GrappleBlock = new InstalledRoomPlmGrappleBlockVisuals(Words(GameInstallationLayout.RoomPlmGrappleBlockVisualDirectoryName,
-                GrappleBlockPlmDraws.All.Select(draw => new PlmContentIdentityDefinition(PlmDraw.Of(draw.Frame), draw.LevelWord.Raw)))
-                .Select(draw => new RoomPlmVisualWordEntry(GrappleBlockPlmDraws.VisualId(PlmDraw.FrameOf<GrappleBlockDraw>(draw.Draw, "Grapple-block")), draw.Word))), Station = new InstalledRoomPlmStationVisuals(Runs(GameInstallationLayout.RoomPlmStationVisualDirectoryName, StationPlmDraws.All)
+                GrappleBlockPlmDraws.All.Select(draw => new PlmContentIdentityDefinition(PlmDraw.Of(draw.Frame), draw.Terrain.Appearance)))
+                .Select(draw => new RoomPlmVisualBlockEntry(GrappleBlockPlmDraws.VisualId(PlmDraw.FrameOf<GrappleBlockDraw>(draw.Draw, "Grapple-block")), draw.Appearance))), Station = new InstalledRoomPlmStationVisuals(Runs(GameInstallationLayout.RoomPlmStationVisualDirectoryName, StationPlmDraws.All)
                 .Select(draw => new RoomPlmVisualRunEntry(StationPlmDraws.VisualId(draw.Draw), draw.Runs))), BlueDoor = new InstalledRoomPlmBlueDoorVisuals(Runs(GameInstallationLayout.RoomPlmBlueDoorVisualDirectoryName, BlueDoorCaps.Editable)
                 .Select(draw => new RoomPlmVisualEntry(BlueDoorCaps.VisualId(draw.Draw), draw.Runs.SelectMany(run => run).ToArray()))), ColoredDoor = new InstalledRoomPlmColoredDoorVisuals(Runs(GameInstallationLayout.RoomPlmColoredDoorVisualDirectoryName, ColoredDoorCaps.All)
                 .Select(draw => new RoomPlmVisualEntry(ColoredDoorCaps.VisualId(draw.Draw), draw.Runs.SelectMany(run => run).ToArray()))), GreyDoor = new InstalledRoomPlmGreyDoorVisuals(Runs(GameInstallationLayout.RoomPlmGreyDoorVisualDirectoryName, GreyDoorCaps.All)
@@ -121,8 +122,8 @@ internal static class PlmContentIdentityVerification
                 .Select(draw => new RoomPlmVisualEntry(KraidRoomPlmDraws.VisualId(draw.Draw), draw.Runs.SelectMany(run => run).ToArray()))), Crocomire = new RoomPlmCrocomireVisualCatalog(Runs(GameInstallationLayout.RoomPlmCrocomireVisualDirectoryName, CrocomireArenaDraws.All)
                 .Select(draw => new RoomPlmVisualEntry(CrocomireArenaDraws.VisualId(draw.Draw), draw.Runs.SelectMany(run => run).ToArray()))), MotherBrainFakeDeath = new RoomPlmMotherBrainFakeDeathVisualCatalog(Runs(GameInstallationLayout.RoomPlmMotherBrainFakeDeathVisualDirectoryName, MotherBrainFakeDeathDraws.All)
                 .Select(draw => new RoomPlmVisualEntry(MotherBrainFakeDeathDraws.VisualId(draw.Draw), draw.Runs.SelectMany(run => run).ToArray()))), Collectible = new InstalledRoomPlmCollectibleVisuals(Words(GameInstallationLayout.RoomPlmCollectibleVisualDirectoryName,
-                CollectiblePlmDraws.All.Select(draw => new PlmContentIdentityDefinition(PlmDraw.Of(draw.Draw), draw.LevelWord.Raw)))
-                .Select(draw => new RoomPlmVisualWordEntry(CollectiblePlmDraws.VisualId(PlmDraw.FrameOf<RoomPlmCollectibleDrawDefinitions.Draw>(draw.Draw, "collectible")), draw.Word))) });
+                CollectiblePlmDraws.All.Select(draw => new PlmContentIdentityDefinition(PlmDraw.Of(draw.Draw), draw.Terrain.Appearance)))
+                .Select(draw => new RoomPlmVisualBlockEntry(CollectiblePlmDraws.VisualId(PlmDraw.FrameOf<RoomPlmCollectibleDrawDefinitions.Draw>(draw.Draw, "collectible")), draw.Appearance))) });
     }
 
     /// <summary>Runs the ROM-free selected-art identity and compatibility checks.</summary>

@@ -29,12 +29,12 @@ internal static class RechargeStationAdmissionVerification
             SeedRoomPlmPopulationRom(bus);
             PlmHeaderId header = missile ? PlmHeaderId.MissileStation : PlmHeaderId.EnergyStation;
             SeedRoomPlmPopulation(bus, 0x9000, [(byte)PlmNativeWords.Word(header), LittleEndianBytes.HighByte(PlmNativeWords.Word(header)), 8, 8, 0, 0, 0, 0]);
-            var level = CreateRoom(new(32, 16), new ushort[512], new byte[512]);
+            var level = CreateRoom(new(32, 16), new RoomTerrainBlock[512], new RoomBlockBehavior[512]);
             var samus = new SamusState { Health = 199, MaxHealth = 199, Missiles = 15, MaxMissiles = 15 };
             var plms = PlmFixtures.Unbound();
             PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
             int accessX = right ? 9 : 7;
-            var behavior = new RoomBlockBehavior(level.GetCollisionBlock(new(checked((ushort)accessX), 8)).Bts.Value);
+            var behavior = new RoomBlockBehavior(level.GetCollisionBlock(new(checked((ushort)accessX), 8)).Behavior.Value);
             bool Touch() => plms.Stations.TryNotifyStationCollision(level.GetBlockIndex(new(checked((ushort)accessX), 8)), behavior,
                 (right ? SamusPoseId.RanIntoWallLeftPose : SamusPoseId.RanIntoWallRightPose).ForRoomCollision(),
                 Axis.Horizontal, movingPositive: !right, roomWidthInBlocks: 32);

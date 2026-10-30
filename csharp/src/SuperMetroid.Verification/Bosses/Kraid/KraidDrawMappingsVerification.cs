@@ -75,7 +75,7 @@ internal static class KraidDrawMappingsVerification
             AssertEqual(1, exported[expected.Pointer].Runs.Length, "Kraid export has one run");
             var run = exported[expected.Pointer].Runs.Span[0];
             AssertRunHeader(directionCount, run, "Kraid export direction/count");
-            AssertEqual(expected.Count, run.LevelWords.Length, "Kraid export word extent");
+            AssertEqual(expected.Count, run.Count, "Kraid export word extent");
             ushort tail = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | (expected.Pointer + 2 + expected.Count * 2));
             AssertEqual((ushort)0, tail, "Kraid native terminator has zero displacement");
             AssertEqual((sbyte)0, run.Next.X, "Kraid export terminal X");
@@ -115,7 +115,7 @@ internal static class KraidDrawMappingsVerification
             {
                 ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | (expected.Pointer + 2 + block * 2));
                 AssertEqual(word, draw.WordAt(block), "Kraid calculated original physical/visual word");
-                AssertEqual(word, exported[expected.Pointer].Runs.Span[0].LevelWords.Span[block],
+                AssertEqual(word, exported[expected.Pointer].Runs.Span[0].Blocks.Span[block],
                     "Kraid materialized export word");
             }
             foreach (int block in new[] { int.MinValue, -1, expected.Count, int.MaxValue })

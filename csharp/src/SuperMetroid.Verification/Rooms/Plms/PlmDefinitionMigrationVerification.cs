@@ -45,10 +45,10 @@ internal static class PlmDefinitionMigrationVerification
 
         // The deleted RomData catalogs' values.
         AssertEqual(5, DownwardGateDefinitions.GateHeightInBlocks, "gate height");
-        AssertEqual(0x10, DownwardGateDefinitions.ClosedGateBts, "closed gate behaviour");
+        AssertEqual(0x10, DownwardGateDefinitions.ClosedGateBehavior, "closed gate behaviour");
         AssertEqual(0x1000, DownwardGateDefinitions.OneBlockDistance, "gate projectile block distance");
         AssertEqual(2, DownwardGateDefinitions.BlockAssociationScale, "gate projectile block association");
-        AssertEqual(0x8044, NoobTubePlmDefinitions.SolidProjectileTriggerLevelWord.Raw, "n00b tube origin block");
+        AssertEqual(0x8044, NoobTubePlmDefinitions.SolidProjectileTrigger.Raw, "n00b tube origin block");
         AssertEqual(0x000b, NoobTubePlmDefinitions.EarthquakeType, "n00b tube earthquake type");
         AssertEqual(0x0040, NoobTubePlmDefinitions.EarthquakeTimer, "n00b tube earthquake timer");
         AssertEqual(0xfb00, NoobTubeDebrisDefinitions.BubbleInitialYVelocity.RawValue, "bubble velocity");
@@ -61,22 +61,22 @@ internal static class PlmDefinitionMigrationVerification
         AssertEqual(0x0010, SamusEaterPlmDefinitions.HeldInvincibilityBit, "plant hold invincibility bit");
         AssertEqual(48, SamusEaterPlmDefinitions.ReleaseInvincibilityFrames, "plant release invincibility");
         AssertEqual(2, SamusEaterPlmDefinitions.ChewDamage, "plant chew damage");
-        AssertEqual(0xb123 & 0x8fff, new RoomLevelWord(0xb123).WithPlmDeactivation().Raw, "plant trigger deactivation keeps the former mask's bits");
+        AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SpecialBlock).Deactivated(), "plant trigger deactivation leaves a solid block solid with its appearance");
         AssertEqual(null, MetroidsClearedEvents.ResolveEvent(8), "ninth metroids-cleared entry is a no-op");
         AssertEqual((EventNumber?)EventNumber.FirstMetroidHallCleared, MetroidsClearedEvents.ResolveEvent(9), "first quota observer");
         AssertEqual((EventNumber?)EventNumber.SecondMetroidShaftCleared, MetroidsClearedEvents.ResolveEvent(12), "last quota observer");
 
-        // Level words built from collision type and visual block equal the former literal words.
-        AssertEqual(0x8180, MaridiaElevatubePlmDefinitions.PhysicalWord.Raw, "elevatube level word");
-        AssertEqual(0xc046, GatePlms.DownwardGateShotBlock(0).LeftBlockWord, "blue-left gate trigger block");
-        AssertEqual(0xc04d, GatePlms.DownwardGateShotBlock(7).RightBlockWord, "yellow-right gate trigger block");
+        // Terrain blocks keep the collision kind and appearance of the former literal words.
+        AssertEqual(RoomTerrainBlock.Of(0x180, BlockMirroring.None, RoomCollisionType.SolidBlock), MaridiaElevatubePlmDefinitions.Terrain, "elevatube block");
+        AssertEqual(RoomTerrainBlock.Of(0x046, BlockMirroring.None, RoomCollisionType.ShootableBlock), GatePlms.DownwardGateShotBlock(0).LeftBlock, "blue-left gate trigger block");
+        AssertEqual(RoomTerrainBlock.Of(0x04d, BlockMirroring.None, RoomCollisionType.ShootableBlock), GatePlms.DownwardGateShotBlock(7).RightBlock, "yellow-right gate trigger block");
         var bombHorizontal = new LinkedRestorePlmFamily.Draw(PlmDraw.Of(BombBlockRestoreDraw.Horizontal), PlmRestoreShape.Horizontal, LinkedRestorePlmFamily.BombBlock);
-        AssertEqual(0xf058, bombHorizontal.WordAt(0, 0), "bomb block parent");
-        AssertEqual(0x5058, bombHorizontal.WordAt(0, 1), "bomb block horizontal child");
+        AssertEqual(RoomTerrainBlock.Of(0x058, BlockMirroring.None, RoomCollisionType.BombableBlock), bombHorizontal.BlockAt(0, 0), "bomb block parent");
+        AssertEqual(RoomTerrainBlock.Of(0x058, BlockMirroring.None, RoomCollisionType.HorizontalExtension), bombHorizontal.BlockAt(0, 1), "bomb block horizontal child");
         var crumbleVertical = new LinkedRestorePlmFamily.Draw(PlmDraw.Of(ContactCrumbleRestoreDraw.Vertical), PlmRestoreShape.Vertical, LinkedRestorePlmFamily.ContactCrumble);
-        AssertEqual(0xb0bc, crumbleVertical.WordAt(0, 0), "contact crumble parent");
-        AssertEqual(0xd0bc, crumbleVertical.WordAt(0, 1), "contact crumble vertical child");
-        Console.WriteLine("PLM definition migration: header words, member identifications, station animations, catalog values and level words keep their values.");
+        AssertEqual(RoomTerrainBlock.Of(0x0bc, BlockMirroring.None, RoomCollisionType.SpecialBlock), crumbleVertical.BlockAt(0, 0), "contact crumble parent");
+        AssertEqual(RoomTerrainBlock.Of(0x0bc, BlockMirroring.None, RoomCollisionType.VerticalExtension), crumbleVertical.BlockAt(0, 1), "contact crumble vertical child");
+        Console.WriteLine("PLM definition migration: header words, member identifications, station animations, catalog values and terrain blocks keep their values.");
     }
 
     /// <summary>Runs the focused PLM definition-migration check.</summary>

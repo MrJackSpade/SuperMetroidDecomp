@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -20,18 +22,18 @@ internal static class LookupColoredDoorStockVerification
             new LookupColoredCapFamily(0xa8e7,"red-left"),new LookupColoredCapFamily(0xa917,"red-right"),new LookupColoredCapFamily(0xa947,"red-up"),new LookupColoredCapFamily(0xa977,"red-down")];
         var frames = families.SelectMany(family => Enumerable.Range(0,4).Select(frame =>
             new LookupEscapeGateStockFrame(Pointer:(ushort)(family.First + 12 * frame), Id:$"{family.Name}-frame-{frame}"))).ToArray();
-        var native = new Dictionary<ushort, ushort[]>();
+        var native = new Dictionary<ushort, RoomBlockAppearance[]>();
         foreach (var frame in frames)
         {
-            var words = new ushort[4];
+            var words = new RoomBlockAppearance[4];
             for (int row = 0; row < words.Length; row++)
-                words[row] = (ushort)(ReadSamusEaterPlmWord(rom, 0x840000 | (frame.Pointer + 2 + row * 2)) & 0xfff);
+                words[row] = RoomLevelWordCodec.DecodeAppearance(ReadSamusEaterPlmWord(rom, 0x840000 | (frame.Pointer + 2 + row * 2)));
             native.Add(frame.Pointer, words);
         }
         var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
         var stock = InstalledRoomPlmColoredDoorVisuals.Stock();
         var imported = new InstalledRoomPlmColoredDoorVisuals(entries.Reverse());
-        string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
+        string Hash(Dictionary<ushort, RoomBlockAppearance[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
             nameof(InstalledRoomPlmColoredDoorVisuals), words.ToDictionary(pair => ColoredDoorCaps.VisualId(NativePlmDraws.At<ColoredDoorCaps.Draw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
@@ -39,33 +41,31 @@ internal static class LookupColoredDoorStockVerification
             foreach (var frame in frames)
             {
                 for (int row = 0; row < 4; row++)
-                    AssertEqual(native[frame.Pointer][row], catalog.GetWord(NativePlmDraws.At<ColoredDoorCaps.Draw>(frame.Pointer),row), "Colored door native stock visual");
+                    AssertEqual(native[frame.Pointer][row], catalog.GetAppearance(NativePlmDraws.At<ColoredDoorCaps.Draw>(frame.Pointer),row), "Colored door native stock visual");
                 foreach (int bad in new[] {int.MinValue,-1,4,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<ColoredDoorCaps.Draw>(frame.Pointer),bad), "Colored door stock row bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativePlmDraws.At<ColoredDoorCaps.Draw>(frame.Pointer),bad), "Colored door stock row bounds");
             }
         }
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
             if (!native.ContainsKey((ushort)raw))
-                AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<ColoredDoorCaps.Draw>((ushort)raw),0), "Colored door unknown stock pointer");
-        entries[47].Blocks[1] = 0xc58;
-        entries[16].Blocks[3] = 0x59;
+                AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<ColoredDoorCaps.Draw>((ushort)raw),0), "Colored door unknown stock pointer");
+        entries[47].Blocks[1] = RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical);
+        entries[16].Blocks[3] = RoomBlockAppearance.Of(0x059);
         var mixed = new InstalledRoomPlmColoredDoorVisuals(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer,
             frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
         AssertEqual(Hash(expected), mixed.ContentIdentity, "Colored door custom/stock hash");
-        entries[47].Blocks[1] = 0x5a;
-        entries[0].Blocks[0] = 0x5b;
+        entries[47].Blocks[1] = RoomBlockAppearance.Of(0x05a);
+        entries[0].Blocks[0] = RoomBlockAppearance.Of(0x05b);
         foreach (var frame in frames)
         for (int row = 0; row < 4; row++)
-            AssertEqual(expected[frame.Pointer][row], mixed.GetWord(NativePlmDraws.At<ColoredDoorCaps.Draw>(frame.Pointer),row), "Colored door custom clone and stock isolation");
+            AssertEqual(expected[frame.Pointer][row], mixed.GetAppearance(NativePlmDraws.At<ColoredDoorCaps.Draw>(frame.Pointer),row), "Colored door custom clone and stock isolation");
         AssertThrows<InvalidDataException>(() => new InstalledRoomPlmColoredDoorVisuals(entries[..47]), "Colored door missing frame");
         AssertThrows<InvalidDataException>(() => new InstalledRoomPlmColoredDoorVisuals(entries.Append(entries[0])), "Colored door duplicate frame");
         var invalid = entries.ToArray();
         invalid[0] = new("YELLOW-LEFT-FRAME-0", entries[0].Blocks);
         AssertThrows<InvalidDataException>(() => new InstalledRoomPlmColoredDoorVisuals(invalid), "Colored door ordinal identity");
-        invalid[0] = new(entries[0].Id, new ushort[3]);
+        invalid[0] = new(entries[0].Id, new RoomBlockAppearance[3]);
         AssertThrows<InvalidDataException>(() => new InstalledRoomPlmColoredDoorVisuals(invalid), "Colored door exact shape");
-        entries[0].Blocks[0] = 0xf058;
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmColoredDoorVisuals(entries), "Colored door visual bits only");
     }
 }

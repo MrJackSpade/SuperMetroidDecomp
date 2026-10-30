@@ -1,3 +1,5 @@
+using SuperMetroid.Verification.Rooms.Plms;
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Tooling;
@@ -25,19 +27,19 @@ internal static class XrayRevealVisualInstallationVerification
     internal static void VerifyXrayRevealVisualInstallation(GameInstallation installed)
     {
         static RevealedBlock Defined(int block) => new(block, RevealedBlockArrangement.AsDefined);
-        // An overlay's word places its block, rows swapped where it is flipped vertically; it draws no horizontal flip.
-        static RevealedBlock Overlaid(ushort word) => new(new RoomLevelWord(word).VisualBlockIndex,
-            (new RoomLevelWord(word).VisualFlipFlags & LevelBlockFlipFlags.Vertical) != LevelBlockFlipFlags.None
+        // An overlay places its block, rows swapped where it is mirrored vertically; it draws no horizontal mirroring.
+        static RevealedBlock Overlaid(RoomBlockAppearance appearance) => new(appearance.Block,
+            (appearance.Mirroring & BlockMirroring.Vertical) != BlockMirroring.None
                 ? RevealedBlockArrangement.RowsSwapped : RevealedBlockArrangement.AsDefined);
         InstalledXrayReveals stock = installed.LoadXrayRevealVisuals();
         int drawable = 0;
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         for (int bts = 0; bts <= byte.MaxValue; bts++)
         {
-            XrayRevealDefinition? native = XrayRevealTable.Find(type, unchecked((byte)bts));
+            XrayRevealDefinition? native = XrayRevealTable.Find(type, new RoomBlockBehavior(bts));
             if (native is not { } definition ||
                 !InstalledXrayReveals.IsDrawable(definition.Command)) continue;
-            AssertEqual((XrayRevealDefinition?)definition, stock.Apply(type, unchecked((byte)bts)),
+            AssertEqual((XrayRevealDefinition?)definition, stock.Apply(type, new RoomBlockBehavior(bts)),
                 $"stock installed X-ray visual {type}/BTS ${bts:X2}");
             drawable++;
         }
@@ -49,7 +51,7 @@ internal static class XrayRevealVisualInstallationVerification
         for (int slot = 0; slot < InstalledXrayOverlays.DynamicGraphicsSlots * 2; slot++)
         {
             ushort pointer = NativeWord(SamusSourceDefinitions.ItemDrawPointers.Value + slot * 2);
-            AssertEqual((ushort)(NativeWord(SamusSourceDefinitions.XrayItemDrawBank.Value | (pointer + 2)) & 0x0fff),
+            AssertEqual(RoomLevelWordCodec.DecodeAppearance(NativeWord(SamusSourceDefinitions.XrayItemDrawBank.Value | (pointer + 2))),
                 overlays.ItemMetatile(slot), $"stock X-ray item graphics slot {slot}");
         }
         int specialRecords = 0;
@@ -59,8 +61,8 @@ internal static class XrayRevealVisualInstallationVerification
             for (int index = 0; index < tiles.Count; index++)
             {
                 ushort coordinates = NativeWord(SamusSourceDefinitions.XrayRoomOverlayBank.Value | (pointer + index * 4));
-                AssertEqual(new XrayRoomOverlayVisual(new((byte)coordinates, LittleEndianBytes.HighByte(coordinates)), NativeWord(SamusSourceDefinitions.XrayRoomOverlayBank.Value |
-                        (pointer + index * 4 + 2))), tiles[index],
+                AssertEqual(new XrayRoomOverlayVisual(new((byte)coordinates, LittleEndianBytes.HighByte(coordinates)), RoomLevelWordCodec.DecodeAppearance(NativeWord(SamusSourceDefinitions.XrayRoomOverlayBank.Value |
+                        (pointer + index * 4 + 2)))), tiles[index],
                     $"stock X-ray room overlay ${pointer:X4} record {index}");
                 specialRecords++;
             }
@@ -75,34 +77,32 @@ internal static class XrayRevealVisualInstallationVerification
         JsonArray entries = document.Required("entries").AsArray();
         JsonObject tall = entries.RequiredElements().Select(node => node.AsObject()).Single(entry =>
             entry.Required("collisionType").GetValue<string>() == nameof(RoomCollisionType.ShootableBlock) &&
-            entry.Required("btsValues").AsArray().RequiredElements().Any(value => value.GetValue<int>() == 2));
+            entry.Required("behaviorValues").AsArray().RequiredElements().Any(value => value.GetValue<int>() == 2));
         AssertEqual("tall", tall.Required("shape").GetValue<string>(),
             "shot-block BTS 2 uses the native tall copy command");
-        ushort originalTop = unchecked((ushort)tall.Required("topLeft").GetValue<int>());
+        int originalTop = tall.Required("topLeft").GetValue<int>();
         tall["topLeft"] = originalTop + 1;
         JsonArray items = document.Required("itemMetatiles").AsArray();
-        ushort originalItem = unchecked((ushort)items.Required(0).GetValue<int>());
-        ushort editedItem = (ushort)((originalItem & 0x0c00) |
-            ((originalItem + 1) & 0x03ff));
-        items[0] = editedItem;
+        RoomBlockAppearance originalItem = ReadAppearance(items.Required(0));
+        RoomBlockAppearance editedItem = originalItem.WithBlock(originalItem.Block + 1);
+        items[0] = PlmVisualJson.Appearance(editedItem);
         JsonObject roomOverlay = document.Required("rooms").AsArray().Required(0).AsObject();
         ushort roomPointer = unchecked((ushort)roomOverlay.Required("pointer").GetValue<int>());
         JsonObject lastRoomTile = (roomOverlay.Required("tiles").AsArray().Last() ?? throw new InvalidOperationException("Verification requires roomOverlay.Required(\"tiles\").AsArray().Last().")).AsObject();
-        ushort originalRoomWord = unchecked((ushort)lastRoomTile.Required("word").GetValue<int>());
-        ushort editedRoomWord = (ushort)((originalRoomWord & 0x0c00) |
-            ((originalRoomWord + 1) & 0x03ff));
+        RoomBlockAppearance originalRoomWord = ReadAppearance(lastRoomTile.Required("appearance"));
+        RoomBlockAppearance editedRoomWord = originalRoomWord.WithBlock(originalRoomWord.Block + 1);
         lastRoomTile["x"] = 1;
         lastRoomTile["y"] = 1;
-        lastRoomTile["word"] = editedRoomWord;
+        lastRoomTile["appearance"] = PlmVisualJson.Appearance(editedRoomWord);
         Directory.CreateDirectory(installed.XrayRevealVisualOverrideDirectory);
         string overridePath = Path.Combine(installed.XrayRevealVisualOverrideDirectory,
             XrayRevealVisualFiles.VisualFileName);
         File.WriteAllText(overridePath, document.ToJsonString());
         InstalledXrayReveals edited = installed.LoadXrayRevealVisuals();
 
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(Enumerable.Repeat((ushort)0x8000, 1024).ToArray(), new byte[1024], new ushort[1024]));
-        level.SetPlmForegroundEntry(33, (int)RoomCollisionType.ShootableBlock << 12);
-        level.SetPlmBehavior(33, 2);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock), 1024).ToArray(), new RoomBlockBehavior[1024], new RoomBlockAppearance[1024]));
+        level.SetPlmTerrain(33, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock));
+        level.SetPlmBehavior(33, new RoomBlockBehavior(2));
         RoomCollisionBlock before = level.GetPlmCollisionBlockByIndex(33);
         // Each reveal cell is the whole block shown and its arrangement (#1431).
         RevealedBlock?[] originalMap = XrayRevealMap.Build(level, new(16, 16), default, AreaId.Brinstar, stock);
@@ -117,7 +117,7 @@ internal static class XrayRevealVisualInstallationVerification
 
         var item = new CollectiblePlmSnapshot(PlmHeaderId.ExposedEnergyTank, 33, 1,
             InWorldCollectibleKind.Bombs, 0);
-        var overlayLevel = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]));
+        var overlayLevel = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new RoomTerrainBlock[1024], new RoomBlockBehavior[1024], new RoomBlockAppearance[1024]));
         var noRomVisualData = new TestAddressSpace();
         var itemMap = new RevealedBlock?[XrayRevealLayout.Cells];
         XrayRevealOverlays.Apply(overlayLevel, itemMap, [item],
@@ -131,8 +131,8 @@ internal static class XrayRevealVisualInstallationVerification
 
         _ = GameAssetInstaller.EnsureInstalled(installed.Root)
             ?? throw new InvalidOperationException("X-ray repair lost the installation.");
-        AssertEqual((ushort)(originalTop + 1), (installed.LoadXrayRevealVisuals()
-                .Apply(RoomCollisionType.ShootableBlock, 2) ?? throw new InvalidOperationException("Verification requires installed.LoadXrayRevealVisuals() .Apply(RoomCollisionType.ShootableBlock, 2).")).TopLeft,
+        AssertEqual(originalTop + 1, (installed.LoadXrayRevealVisuals()
+                .Apply(RoomCollisionType.ShootableBlock, new RoomBlockBehavior(2)) ?? throw new InvalidOperationException("Verification requires installed.LoadXrayRevealVisuals() .Apply(RoomCollisionType.ShootableBlock, 2).")).TopLeft,
             "X-ray override survives stock installation validation");
         AssertEqual(editedItem, (installed.LoadXrayRevealVisuals().Overlays ?? throw new InvalidOperationException("Verification requires installed.LoadXrayRevealVisuals().Overlays.")).ItemMetatile(0),
             "item overlay edit survives stock installation validation");
@@ -166,4 +166,9 @@ internal static class XrayRevealVisualInstallationVerification
             $"and {specialRecords} special-room records match the cartridge; edited visual tiles " +
             "render without ROM reads, survive repair, and leave collision/copy shape unchanged.");
     }
+
+    /// <summary>Reads an installed appearance object: its block number and mirroring name.</summary>
+    private static RoomBlockAppearance ReadAppearance(JsonNode node) =>
+        RoomBlockAppearance.Of(node.Required("block").GetValue<int>(),
+            Enum.Parse<BlockMirroring>(node.Required("mirroring").GetValue<string>()));
 }

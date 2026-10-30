@@ -38,10 +38,10 @@ internal static class XraySetupVerification
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         for (int bts = 0; bts <= byte.MaxValue; bts++)
         {
-            XrayRevealDefinition? native = XrayRevealTable.Find(type, unchecked((byte)bts));
+            XrayRevealDefinition? native = XrayRevealTable.Find(type, new RoomBlockBehavior(bts));
             if (native is not { } definition ||
                 !InstalledXrayReveals.IsDrawable(definition.Command)) continue;
-            visualEntries.Add(new(type, unchecked((byte)bts), new XrayRevealVisualWords(
+            visualEntries.Add(new(type, new RoomBlockBehavior(bts), new XrayRevealVisualBlocks(
                 type == RoomCollisionType.Air ? 0x00fe : definition.TopLeft,
                 definition.TopRight, definition.BottomLeft, definition.BottomRight)));
         }
@@ -68,9 +68,8 @@ internal static class XraySetupVerification
         // BG1 shows level data (#1346): show one unmirrored block everywhere, keeping collision.
         void ShowEverywhere(int stage)
         {
-            ReadOnlySpan<ushort> blocks = level.ForegroundEntries.Span;
-            for (int block = 0; block < blocks.Length; block++)
-                level.SetPlmForegroundEntry(block, blocks[block], Markers[stage]);
+            for (int block = 0; block < level.Size.Area; block++)
+                level.SetPlmTerrain(block, level.GetPlmCollisionBlockByIndex(block).Terrain, RoomBlockAppearance.Of(Markers[stage]));
         }
         // Stage four builds the reveal from the BG1 plane the room shows then (#1351); nothing is captured earlier.
         ShowEverywhere(0);

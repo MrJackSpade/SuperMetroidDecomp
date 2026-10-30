@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Rooms.Plms;
@@ -58,12 +59,12 @@ internal static class TourianAccessPlmProgramsVerification
         {
             ushort pointer = (ushort)raw;
             int index = Array.IndexOf(pointers, pointer);
-            AssertEqual(index >= 0, TourianAccessPlmDrawDefinitionsConstants.TryDescribe(NativePlmDraws.At<TourianAccessDraw>(pointer), out int rows, out int word), "Tourian draw descriptor ownership");
+            AssertEqual(index >= 0, TourianAccessPlmDrawDefinitionsConstants.TryDescribe(NativePlmDraws.At<TourianAccessDraw>(pointer), out int rows, out RoomTerrainBlock word), "Tourian draw descriptor ownership");
             AssertEqual(index >= 0, TourianAccessPlmDrawDefinitionsConstants.TryGet(NativePlmDraws.At<TourianAccessDraw>(pointer), out var dto), "Tourian draw DTO ownership");
             if (index < 0)
             {
                 AssertEqual(0, rows, "missing Tourian rows zero");
-                AssertEqual(0, word, "missing Tourian word zero");
+                AssertEqual(default(RoomTerrainBlock), word, "missing Tourian block default");
                 AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "missing Tourian DTO default");
                 continue;
             }
@@ -73,9 +74,9 @@ internal static class TourianAccessPlmProgramsVerification
             for (int row = 0; row < rows; row++)
             for (int column = 0; column < 4; column++)
             {
-                ushort native = ReadSamusEaterPlmWord(rom, 0x840000 | (pointer + row * 12 + column * 2 + 2));
-                AssertEqual(native, word, "Tourian scalar covers every native cell");
-                AssertEqual(native, dto.Runs.Span[row].LevelWords.Span[column], "Tourian direct DTO word");
+                RoomTerrainBlock native = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, 0x840000 | (pointer + row * 12 + column * 2 + 2)));
+                AssertEqual(native, word, "Tourian scalar covers every cartridge cell");
+                AssertEqual(native, dto.Runs.Span[row].Blocks.Span[column], "Tourian direct DTO block");
             }
         }
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in draws)
@@ -86,8 +87,8 @@ internal static class TourianAccessPlmProgramsVerification
                 AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), run,
                     $"Tourian draw ${PlmDrawAddressCodec.Of(draw.Draw):X4} run header at +{cursor - PlmDrawAddressCodec.Of(draw.Draw)}");
                 cursor += 2;
-                foreach (ushort word in run.LevelWords.Span)
-                    AssertTourianDrawWord(word);
+                foreach (RoomTerrainBlock block in run.Blocks.Span)
+                    AssertTourianDrawBlock(block);
                 AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
                     unchecked((byte)run.Next.X),
                     $"Tourian draw ${PlmDrawAddressCodec.Of(draw.Draw):X4} run X offset matches ROM");
@@ -100,10 +101,10 @@ internal static class TourianAccessPlmProgramsVerification
                     PlmDrawAddressCodec.Of(PlmDraw.Of(TourianAccessDraw.Clear)) ? 72 : 12)),
                 $"Tourian draw ${PlmDrawAddressCodec.Of(draw.Draw):X4} has the complete native span");
 
-            void AssertTourianDrawWord(ushort expected)
+            void AssertTourianDrawBlock(RoomTerrainBlock expected)
             {
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor),
-                    expected, $"Tourian draw ${PlmDrawAddressCodec.Of(draw.Draw):X4} word at +{cursor - PlmDrawAddressCodec.Of(draw.Draw)} matches ROM");
+                AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor)),
+                    expected, $"Tourian draw ${PlmDrawAddressCodec.Of(draw.Draw):X4} block at +{cursor - PlmDrawAddressCodec.Of(draw.Draw)} decodes from the ROM word");
                 cursor += 2;
             }
         }
@@ -115,12 +116,12 @@ internal static class TourianAccessPlmProgramsVerification
     {
         const int width = 16;
         const int height = 20;
-        ushort[] words = new ushort[width * height];
+        var words = new RoomTerrainBlock[width * height];
         for (int y = 12; y < 18; y++)
         for (int x = 6; x < 10; x++)
-            words[y * width + x] = 0x0123;
+            words[y * width + x] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.Air);
         RoomLevelData level = CreateRoom(new(width, height), words,
-            new byte[words.Length]);
+            new RoomBlockBehavior[words.Length]);
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.Tourian.TrySpawnTourianAccess(level, clear ? TourianAccessFloor.Clear : TourianAccessFloor.Crumble),
             $"Tourian {(clear ? "clear" : "crumble")} PLM allocates");
@@ -130,8 +131,8 @@ internal static class TourianAccessPlmProgramsVerification
         {
             plms.Step(level);
             if (frame == 0 && !clear)
-                AssertEqual((ushort)0x0053,
-                    level.GetCollisionBlockByIndex(12 * width + 6).PackedWord.Raw,
+                AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air),
+                    level.GetCollisionBlockByIndex(12 * width + 6).Terrain,
                     "Tourian crumble first frame draws the native first breakup word");
             if (plms.SlotTable.ActiveCount == 0)
                 deletionFrame = frame;
@@ -140,8 +141,8 @@ internal static class TourianAccessPlmProgramsVerification
             $"Tourian {(clear ? "clear" : "crumble")} PLM deletes on its native frame");
         for (int y = 12; y < 18; y++)
         for (int x = 6; x < 10; x++)
-            AssertEqual((ushort)0x00ff,
-                level.GetCollisionBlockByIndex(y * width + x).PackedWord.Raw,
+            AssertEqual(RoomTerrainBlocks.BlankAir,
+                level.GetCollisionBlockByIndex(y * width + x).Terrain,
                 $"Tourian {(clear ? "clear" : "crumble")} clears ({x},{y}) physically");
         AssertEqual(0, bus.ForbiddenReadAttempts,
             $"Tourian {(clear ? "clear" : "crumble")} reads no migrated ROM bytes");

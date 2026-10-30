@@ -117,15 +117,15 @@ internal static class DownwardGatePlmsVerification
 
         for (int row = 0; row < DownwardGateDefinitions.GateHeightInBlocks; row++)
         {
-            AssertEqual(DownwardGateDefinitions.ClosedGateBts,
-                level.GetCollisionBlockByIndex(gateBlockIndex + row * level.Size.X).Bts.Value,
+            AssertEqual(DownwardGateDefinitions.ClosedGateBehavior,
+                level.GetCollisionBlockByIndex(gateBlockIndex + row * level.Size.X).Behavior.Value,
                 $"gate setup writes BTS $10 to row {row}");
         }
         AssertEqual((int)RoomCollisionType.ShootableBlock,
             (int)level.GetCollisionBlockByIndex(gateBlockIndex - 1).CollisionType,
             "left trigger table installs a shootable block");
         AssertEqual((int)DownwardGateTriggerBehavior.BlueLeft,
-            level.GetCollisionBlockByIndex(gateBlockIndex - 1).Bts.Value,
+            level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior.Value,
             "argument zero installs retail blue-left BTS $46");
 
         DownwardGateProjectileRequest request = plms.Gates.TakeDownwardGateProjectileRequests().Single();
@@ -157,13 +157,13 @@ internal static class DownwardGatePlmsVerification
         // must wake its blue-left gate exactly as it does in room $8F:9E52.
         StepDownwardGatePlm(plms, level);
         StepDownwardGatePlm(plms, level);
-        AssertEqual((ushort)0xc0ff,
-            level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.X).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+            level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.X).Terrain,
             "compiled initial gate draw installs the second solid column word");
         AssertTrue(plms.Gates.TrySpawnDownwardGateTrigger(
                 level,
                 gateBlockIndex - 1,
-                level.GetCollisionBlockByIndex(gateBlockIndex - 1).Bts,
+                level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior,
                 0x0004),
             "power beam reaches the sleeping blue gate");
         StepDownwardGatePlm(plms, level);
@@ -184,8 +184,8 @@ internal static class DownwardGatePlmsVerification
         }
         AssertEqual(0, enemies.ActiveEnemyProjectileCount,
             "opened gate actor retracts four tiles and deletes");
-        AssertEqual((ushort)0x00ff,
-            level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.X).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air),
+            level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.X).Terrain,
             "compiled final open draw clears the second column collision word");
         RoomPlmSlotSnapshot openedGate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
@@ -195,7 +195,7 @@ internal static class DownwardGatePlmsVerification
         AssertTrue(plms.Gates.TrySpawnDownwardGateTrigger(
                 level,
                 gateBlockIndex - 1,
-                level.GetCollisionBlockByIndex(gateBlockIndex - 1).Bts,
+                level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior,
                 0x0004),
             "second power beam reaches the sleeping open blue gate");
         // The open-state collision image remains for sixteen frames before $BBE1 spawns
@@ -226,7 +226,7 @@ internal static class DownwardGatePlmsVerification
         int triggerBlockIndex = ((byte)trigger & 1) == 0
             ? gateBlockIndex - 1
             : gateBlockIndex + 1;
-        RoomBlockBehavior bts = level.GetCollisionBlockByIndex(triggerBlockIndex).Bts;
+        RoomBlockBehavior bts = level.GetCollisionBlockByIndex(triggerBlockIndex).Behavior;
         AssertTrue(plms.Gates.TrySpawnDownwardGateTrigger(level, triggerBlockIndex, bts, projectile),
             $"{trigger} is claimed by the gate dispatcher");
         RoomPlmSlotSnapshot gate = plms.PopulationSlots.Single(slot =>
@@ -236,11 +236,10 @@ internal static class DownwardGatePlmsVerification
         StepDownwardGatePlm(plms, level);
         StepDownwardGatePlm(plms, level);
         int color = ((byte)trigger - (byte)DownwardGateTriggerBehavior.BlueLeft) / 2;
-        ushort expectedTriggerWord = ((byte)trigger & 1) == 0
-            ? checked((ushort)(0xc0db - color))
-            : checked((ushort)(0xc4db - color));
+        RoomTerrainBlock expectedTriggerWord = RoomTerrainBlock.Of(0x0db - color,
+            ((byte)trigger & 1) == 0 ? BlockMirroring.None : BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock);
         AssertEqual(expectedTriggerWord,
-            level.GetCollisionBlockByIndex(triggerBlockIndex).PackedWord.Raw,
+            level.GetCollisionBlockByIndex(triggerBlockIndex).Terrain,
             $"{trigger} compiled shot-trigger draw installs its physical block word");
         AssertTrue(plms.PopulationSlots.All(slot =>
                 slot.HeaderPointer != PlmHeaderId.DownwardGateShotBlock),
@@ -270,8 +269,8 @@ internal static class DownwardGatePlmsVerification
         SeedDownwardGateProjectileRom(bus);
 
         RoomLevelData level = CreateRoom(new(roomWidth, 16),
-            new ushort[roomWidth * 16],
-            new byte[roomWidth * 16]);
+            new RoomTerrainBlock[roomWidth * 16],
+            new RoomBlockBehavior[roomWidth * 16]);
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmDownwardGateVisuals = visuals });
         int parsed = PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Brinstar), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(2, parsed, $"{trigger} synthetic population parses both records");

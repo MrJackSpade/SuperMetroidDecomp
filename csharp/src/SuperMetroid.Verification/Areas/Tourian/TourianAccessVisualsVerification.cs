@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -49,8 +51,8 @@ internal static class TourianAccessVisualsVerification
                 entry.Required("id").GetValue<string>() == "crumble-frame-0");
             JsonNode clear = document.Required("entries").AsArray().RequiredElements().Single(entry =>
                 entry.Required("id").GetValue<string>() == "clear-six-rows");
-            firstFrame.Required("blocks")[0] = 0x0058;
-            clear.Required("blocks")[20] = 0x0058;
+            firstFrame.Required("blocks")[0] = PlmVisualJson.Appearance(0x058);
+            clear.Required("blocks")[20] = PlmVisualJson.Appearance(0x058);
             Directory.CreateDirectory(
                 installation.RoomPlmTourianAccessVisualOverrideDirectory);
             string overridePath = Path.Combine(
@@ -59,12 +61,12 @@ internal static class TourianAccessVisualsVerification
             File.WriteAllText(overridePath, document.ToJsonString());
             RoomPlmTourianAccessVisuals edited =
                 installation.LoadRoomPlmTourianAccessVisuals();
-            AssertEqual((ushort)0x0058,
-                edited.GetWord(PlmDraw.Of(TourianAccessDraw.CrumbleFirst),
+            AssertEqual(RoomBlockAppearance.Of(0x058),
+                edited.GetAppearance(PlmDraw.Of(TourianAccessDraw.CrumbleFirst),
                     0, 0),
                 "Tourian override edits the first crumble frame");
-            AssertEqual((ushort)0x0058,
-                edited.GetWord(PlmDraw.Of(TourianAccessDraw.Clear), 5, 0),
+            AssertEqual(RoomBlockAppearance.Of(0x058),
+                edited.GetAppearance(PlmDraw.Of(TourianAccessDraw.Clear), 5, 0),
                 "Tourian override edits the last clear row independently");
 
             VerifyTourianAccessVisualSeparation(rom, edited, clear: false);
@@ -73,10 +75,10 @@ internal static class TourianAccessVisualsVerification
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
             RoomPlmTourianAccessVisualFiles.Extract(rom, refreshed,
                 SupportedCartridge.Sha256);
-            AssertEqual((ushort)0x0058,
+            AssertEqual(RoomBlockAppearance.Of(0x058),
                 RoomPlmTourianAccessVisualFiles.Load(refreshed,
                     installation.RoomPlmTourianAccessVisualOverrideDirectory)
-                    .GetWord(PlmDraw.Of(TourianAccessDraw.Clear), 5, 0),
+                    .GetAppearance(PlmDraw.Of(TourianAccessDraw.Clear), 5, 0),
                 "Tourian override survives stock replacement");
 
             firstFrame.Required("blocks")[0] = 0xf058;
@@ -105,19 +107,19 @@ internal static class TourianAccessVisualsVerification
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9297,"crumble-empty-row"), new LookupEscapeGateStockFrame(0x92a3,"crumble-frame-0"),
             new LookupEscapeGateStockFrame(0x92af,"crumble-frame-1"), new LookupEscapeGateStockFrame(0x92bb,"crumble-frame-2"), new LookupEscapeGateStockFrame(0x92c7,"clear-six-rows")];
-        var native = new Dictionary<ushort, ushort[]>();
+        var native = new Dictionary<ushort, RoomBlockAppearance[]>();
         foreach (var frame in frames)
         {
-            var words = new ushort[frame.Pointer == 0x92c7 ? 24 : 4];
+            var words = new RoomTerrainBlock[frame.Pointer == 0x92c7 ? 24 : 4];
             for (int index = 0; index < words.Length; index++)
-                words[index] = (ushort)(ReadSamusEaterPlmWord(rom,
-                    0x840000 | (frame.Pointer + index / 4 * 12 + index % 4 * 2 + 2)) & 0xfff);
+                words[index] = RoomLevelWordCodec.DecodeAppearance(ReadSamusEaterPlmWord(rom,
+                    0x840000 | (frame.Pointer + index / 4 * 12 + index % 4 * 2 + 2)));
             native.Add(frame.Pointer, words);
         }
         var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
         var stock = RoomPlmTourianAccessVisuals.Stock();
         var imported = new RoomPlmTourianAccessVisuals(entries.Reverse());
-        string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
+        string Hash(Dictionary<ushort, RoomBlockAppearance[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
             "RoomPlmTourianAccessVisualCatalog", words.ToDictionary(pair => TourianAccessDraws.VisualId(NativePlmDraws.At<TourianAccessDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock, imported, installed})
         {
@@ -125,36 +127,34 @@ internal static class TourianAccessVisualsVerification
             foreach (var frame in frames)
             {
                 for (int index = 0; index < native[frame.Pointer].Length; index++)
-                    AssertEqual(native[frame.Pointer][index], catalog.GetWord(NativePlmDraws.At<TourianAccessDraw>(frame.Pointer),index / 4,index % 4), "Tourian access native stock word");
+                    AssertEqual(native[frame.Pointer][index], catalog.GetAppearance(NativePlmDraws.At<TourianAccessDraw>(frame.Pointer),index / 4,index % 4), "Tourian access native stock word");
                 foreach (int bad in new[] {int.MinValue,-1,native[frame.Pointer].Length / 4,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<TourianAccessDraw>(frame.Pointer),bad,0), "Tourian access run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativePlmDraws.At<TourianAccessDraw>(frame.Pointer),bad,0), "Tourian access run bounds");
                 foreach (int bad in new[] {int.MinValue,-1,4,int.MaxValue})
                 for (int run = 0; run < native[frame.Pointer].Length / 4; run++)
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<TourianAccessDraw>(frame.Pointer),run,bad), "Tourian access block bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativePlmDraws.At<TourianAccessDraw>(frame.Pointer),run,bad), "Tourian access block bounds");
             }
         }
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<TourianAccessDraw>((ushort)pointer),0,0), "Tourian access unknown pointer");
-        entries[4].Blocks[23] = 0x0c58;
-        entries[2].Blocks[0] = 0x0059;
+                AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<TourianAccessDraw>((ushort)pointer),0,0), "Tourian access unknown pointer");
+        entries[4].Blocks[23] = RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical);
+        entries[2].Blocks[0] = RoomBlockAppearance.Of(0x059);
         var mixed = new RoomPlmTourianAccessVisuals(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
         AssertEqual(Hash(expected), mixed.ContentIdentity, "Tourian access mixed custom stock hash");
-        entries[4].Blocks[23] = 0x005a;
-        entries[1].Blocks[0] = 0x005b;
+        entries[4].Blocks[23] = RoomBlockAppearance.Of(0x05a);
+        entries[1].Blocks[0] = RoomBlockAppearance.Of(0x05b);
         foreach (var frame in frames)
         for (int index = 0; index < native[frame.Pointer].Length; index++)
-            AssertEqual(expected[frame.Pointer][index], mixed.GetWord(NativePlmDraws.At<TourianAccessDraw>(frame.Pointer),index / 4,index % 4), "Tourian access clone isolation and stock fallback");
+            AssertEqual(expected[frame.Pointer][index], mixed.GetAppearance(NativePlmDraws.At<TourianAccessDraw>(frame.Pointer),index / 4,index % 4), "Tourian access clone isolation and stock fallback");
         AssertThrows<InvalidDataException>(() => new RoomPlmTourianAccessVisuals(entries[..4]), "Tourian access missing frame");
         AssertThrows<InvalidDataException>(() => new RoomPlmTourianAccessVisuals(entries.Append(entries[0])), "Tourian access duplicate frame");
         var invalid = entries.ToArray();
         invalid[0] = new("CRUMBLE-EMPTY-ROW", entries[0].Blocks);
         AssertThrows<InvalidDataException>(() => new RoomPlmTourianAccessVisuals(invalid), "Tourian access ordinal identity");
-        invalid[0] = new(entries[0].Id, new ushort[3]);
+        invalid[0] = new(entries[0].Id, new RoomBlockAppearance[3]);
         AssertThrows<InvalidDataException>(() => new RoomPlmTourianAccessVisuals(invalid), "Tourian access exact frame shape");
-        entries[0].Blocks[0] = 0xf058;
-        AssertThrows<InvalidDataException>(() => new RoomPlmTourianAccessVisuals(entries), "Tourian access visual bits only");
     }
 
     /// <summary>Checks edited crumble or clear tiles through immediate redraw and later room streaming.</summary>
@@ -166,10 +166,10 @@ internal static class TourianAccessVisualsVerification
         const int width = 16;
         const int height = 20;
         int blockIndex = (clear ? 17 : 12) * width + 6;
-        ushort[] words = new ushort[width * height];
-        words[blockIndex] = 0x0123;
+        var words = new RoomTerrainBlock[width * height];
+        words[blockIndex] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.Air);
         RoomLevelData level = CreateRoom(new(width, height), words,
-            new byte[words.Length]);
+            new RoomBlockBehavior[words.Length]);
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmTourianAccessVisuals = edited });
         AssertTrue(plms.Tourian.TrySpawnTourianAccess(level, clear ? TourianAccessFloor.Clear : TourianAccessFloor.Crumble),
             $"Tourian {(clear ? "clear" : "crumble")} real PLM allocates");
@@ -177,13 +177,13 @@ internal static class TourianAccessVisualsVerification
         // The edited bottom clear row must be inside the camera to assert its
         // immediate VRAM update; the physical level mutation is world-relative.
         plms.Step(level);
-        AssertEqual(clear ? (ushort)0x00ff : (ushort)0x0053,
-            level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
+        AssertEqual(clear ? RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air) : RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air),
+            level.GetCollisionBlockByIndex(blockIndex).Terrain,
             $"Tourian {(clear ? "clear" : "crumble")} edited art retains native physical word");
-        AssertEqual((ushort)0x0058, level.DisplayedVisualWord(blockIndex),
+        AssertEqual(RoomBlockAppearance.Of(0x058), level.DisplayedAppearance(blockIndex),
             $"Tourian {(clear ? "clear" : "crumble")} edited block reaches immediate redraw");
-        AssertEqual((ushort)0x0058,
-            level.DisplayedVisualWord(blockIndex),
+        AssertEqual(RoomBlockAppearance.Of(0x058),
+            level.DisplayedAppearance(blockIndex),
             $"Tourian {(clear ? "clear" : "crumble")} edit survives later streaming");
         AssertEqual(0, bus.ForbiddenReadAttempts,
             $"Tourian {(clear ? "clear" : "crumble")} edited draw reads no source bytes");

@@ -12,7 +12,7 @@ internal static class LookupCollectibleSelectorsVerification
     internal static void VerifyCollectibleOrbSelector(SuperMetroidAddressSpace rom)
     {
         for (int phase = 0; phase < 4; phase++)
-            AssertEqual(ReadCollectibleVisualWord(rom, (ushort)(0xdfb5 + phase * 4)),
+            AssertEqual(ReadCollectibleDrawWord(rom, (ushort)(0xdfb5 + phase * 4)),
                 PlmDrawAddressCodec.Of(CollectiblePlmDraws.OrbFrame(phase)), "Collectible native orb phase draw");
         foreach (int bad in new[] {int.MinValue,-1,4,5,int.MaxValue})
             AssertThrows<InvalidDataException>(() => CollectiblePlmDraws.OrbFrame(bad), "Collectible orb phase bounds");
@@ -23,9 +23,9 @@ internal static class LookupCollectibleSelectorsVerification
     {
         for (int phase = 0; phase < 3; phase++)
         {
-            AssertEqual(ReadCollectibleVisualWord(rom, (ushort)(0xe014 + phase * 4)),
+            AssertEqual(ReadCollectibleDrawWord(rom, (ushort)(0xe014 + phase * 4)),
                 PlmDrawAddressCodec.Of(CollectiblePlmDraws.ShotRevealFrame(phase)), "Collectible native reveal draw");
-            AssertEqual(ReadCollectibleVisualWord(rom, (ushort)(0xe024 + phase * 4)),
+            AssertEqual(ReadCollectibleDrawWord(rom, (ushort)(0xe024 + phase * 4)),
                 PlmDrawAddressCodec.Of(CollectiblePlmDraws.ShotRevealFrame(2 - phase)), "Collectible native reconceal draw");
         }
         foreach (int bad in new[] {int.MinValue,-1,3,4,int.MaxValue})
@@ -41,7 +41,7 @@ internal static class LookupCollectibleSelectorsVerification
         {
             for (int phase = 0; phase < 2; phase++)
                 foreach (int unusedSlot in new[] {int.MinValue,-1,0,1,2,3,4,int.MaxValue})
-                    AssertEqual(ReadCollectibleVisualWord(rom, (ushort)(starts[kind] + phase * 4)),
+                    AssertEqual(ReadCollectibleDrawWord(rom, (ushort)(starts[kind] + phase * 4)),
                         PlmDrawAddressCodec.Of(CollectiblePlmDraws.VisibleFrame((InWorldCollectibleKind)kind,phase,unusedSlot)),
                         "Collectible native tank draw independent of graphics slot");
             foreach (int bad in new[] {int.MinValue,-1,2,3,int.MaxValue})
@@ -59,7 +59,7 @@ internal static class LookupCollectibleSelectorsVerification
             for (int phase = 0; phase < 2; phase++)
             {
                 for (int slot = 0; slot < 4; slot++)
-                    AssertEqual(ReadCollectibleVisualWord(rom, (ushort)((phase == 0 ? 0xe05f : 0xe077) + slot * 2)),
+                    AssertEqual(ReadCollectibleDrawWord(rom, (ushort)((phase == 0 ? 0xe05f : 0xe077) + slot * 2)),
                         PlmDrawAddressCodec.Of(CollectiblePlmDraws.VisibleFrame((InWorldCollectibleKind)kind,phase,slot)),
                         "Collectible native allocated dynamic draw");
                 foreach (int bad in new[] {int.MinValue,-1,4,5,int.MaxValue})

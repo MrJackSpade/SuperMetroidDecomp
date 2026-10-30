@@ -185,7 +185,7 @@ internal sealed class InstalledSamusIsolationTests
         {
             new SamusMechanicsSnapshot(Stock.Samus).RequireSame(new(Edited.Samus), context);
             Require(Stock.Memory.WorkRam.SequenceEqual(Edited.Memory.WorkRam), context + ": mutable memory changed");
-            Require(Stock.Level.ForegroundEntries.Span.SequenceEqual(Edited.Level.ForegroundEntries.Span),
+            Require(Stock.Level.Terrain.AsSpan().SequenceEqual(Edited.Level.Terrain),
                 context + ": collision room changed");
             tests.comparisons++;
             if (!new CgramPalettes(Stock.Colors).ImageEquals(new CgramPalettes(Edited.Colors))) tests.changedColors++;

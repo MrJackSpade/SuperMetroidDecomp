@@ -34,9 +34,9 @@ internal static class SpeedBoosterEchoStopVerification
         int animation = 0;
         speed.TryAdvanceSpeedBoosterAnimationStage(null, SamusMovementType.Running, ControllerButton.B,
             0, ref animation, out _, () => queue.QueueSound(Library3Sound.SpeedBooster, SoundQueueLimit.Max6));
-        var words = new ushort[256];
-        for (int index = 160; index < 176; index++) words[index] = 0x8000;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(words, new byte[256], new ushort[256]));
+        var words = new RoomTerrainBlock[256];
+        for (int index = 160; index < 176; index++) words[index] = RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(words, new RoomBlockBehavior[256], new RoomBlockAppearance[256]));
         int starts = 0, stops = 0, stopRequests = 0, finalPeak = 0;
         // The queue rewrites a request every frame until the SPC echoes it ($82:8A55), so a request counts once,
         // when library three's port changes to its value.
@@ -125,7 +125,7 @@ internal static class SpeedBoosterEchoStopVerification
         speed.EchoSoundFlag = 1;
         speed.EchoSoundRequested = true;
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        var sand = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(Enumerable.Repeat((ushort)0x3000, 16).ToArray(), Enumerable.Repeat((byte)0x80, 16).ToArray(), new ushort[16]));
+        var sand = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialAir), 16).ToArray(), Enumerable.Repeat(new RoomBlockBehavior(0x80), 16).ToArray(), new RoomBlockAppearance[16]));
         SamusInsideBlockReactions.PrepareFrame(sand, samus, AreaId.Maridia);
         AssertEqual(0, speed.EchoSoundFlag, "quicksand clears the native persistent flag");
         AssertTrue(speed.EchoSoundRequested, "quicksand does not retract a previously published start command");

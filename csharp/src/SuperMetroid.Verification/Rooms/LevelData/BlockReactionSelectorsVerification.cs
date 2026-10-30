@@ -51,8 +51,8 @@ internal static class BlockReactionSelectorsVerification
             var run = draw.Runs.Span[0];
             ushort count = ReadRomWord(rom,0x840000 | pointer);
             AssertRunHeader(count,run,"bombed reveal native direction/count");
-            AssertEqual(count & 0x7fff,run.LevelWords.Length,"bombed reveal native word count");
-            AssertEqual(ReadRomWord(rom,0x840000 | (pointer + 2)),run.LevelWords.Span[0],
+            AssertEqual(count & 0x7fff,run.Count,"bombed reveal native word count");
+            AssertEqual(ReadRomWord(rom,0x840000 | (pointer + 2)),run.Blocks.Span[0],
                 "bombed reveal native physical parent and visual tile");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 4))),run.Next.X,"bombed reveal native terminal X");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 5))),run.Next.Y,"bombed reveal native terminal Y");

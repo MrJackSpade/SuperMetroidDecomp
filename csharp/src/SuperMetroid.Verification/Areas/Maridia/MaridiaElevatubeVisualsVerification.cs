@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json.Nodes;
@@ -42,7 +43,7 @@ internal static class MaridiaElevatubeVisualsVerification
                 RoomPlmMaridiaElevatubeVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted elevatube JSON is empty.");
-            document.Required("entries").Required(0).Required("blocks")[0] = 0x0058;
+            document.Required("entries").Required(0).Required("blocks")[0] = PlmVisualJson.Appearance(0x058);
             Directory.CreateDirectory(
                 installation.RoomPlmMaridiaElevatubeVisualOverrideDirectory);
             string overridePath = Path.Combine(
@@ -51,25 +52,25 @@ internal static class MaridiaElevatubeVisualsVerification
             File.WriteAllText(overridePath, document.ToJsonString());
             InstalledRoomPlmMaridiaElevatubeVisuals edited =
                 installation.LoadRoomPlmMaridiaElevatubeVisuals();
-            AssertEqual((ushort)0x0058,
-                edited.GetWord(MaridiaElevatubePlmDefinitions.BlockDraw, 0, 0),
+            AssertEqual(RoomBlockAppearance.Of(0x058),
+                edited.GetAppearance(MaridiaElevatubePlmDefinitions.BlockDraw, 0, 0),
                 "elevatube override replaces only the visible block");
 
-            RoomLevelData level = CreateRoom(new(4, 4), new ushort[16], new byte[16]);
+            RoomLevelData level = CreateRoom(new(4, 4), new RoomTerrainBlock[16], new RoomBlockBehavior[16]);
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmMaridiaElevatubeVisuals = edited });
             AssertTrue(plms.WreckedShipTreadmill.TrySpawnMaridiaElevatube(level),
                 "production door setup spawns the elevatube PLM");
             var guard = NewMaridiaElevatubeSourceGuard(new TestAddressSpace());
             int blockIndex = level.GetBlockIndex(MaridiaElevatubeDefinitions.PlmBlock);
             plms.Step(level);
-            AssertEqual((ushort)0x8180,
-                level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
+            AssertEqual(RoomTerrainBlock.Of(0x180, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                level.GetCollisionBlockByIndex(blockIndex).Terrain,
                 "edited elevatube tile retains native physical block");
             // A PLM redraw identifies its block by the BG1 ring destination of that block.
-            AssertEqual((ushort)0x0058, level.DisplayedVisualWord(blockIndex),
+            AssertEqual(RoomBlockAppearance.Of(0x058), level.DisplayedAppearance(blockIndex),
                 "edited elevatube reaches immediate tilemap update");
-            AssertEqual((ushort)0x0058,
-                level.DisplayedVisualWord(blockIndex),
+            AssertEqual(RoomBlockAppearance.Of(0x058),
+                level.DisplayedAppearance(blockIndex),
                 "edited elevatube survives later camera streaming");
             int heardAtFrame = -1;
             for (int frame = 1; frame < 24 && plms.SlotTable.ActiveCount != 0; frame++)
@@ -89,10 +90,10 @@ internal static class MaridiaElevatubeVisualsVerification
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
             RoomPlmMaridiaElevatubeVisualFiles.Extract(rom, refreshed,
                 SupportedCartridge.Sha256);
-            AssertEqual((ushort)0x0058,
+            AssertEqual(RoomBlockAppearance.Of(0x058),
                 RoomPlmMaridiaElevatubeVisualFiles.Load(refreshed,
                     installation.RoomPlmMaridiaElevatubeVisualOverrideDirectory)
-                    .GetWord(MaridiaElevatubePlmDefinitions.BlockDraw, 0, 0),
+                    .GetAppearance(MaridiaElevatubePlmDefinitions.BlockDraw, 0, 0),
                 "elevatube override survives stock replacement");
             document.Required("entries").Required(0).Required("blocks")[0] = 0xf058;
             File.WriteAllText(overridePath, document.ToJsonString());

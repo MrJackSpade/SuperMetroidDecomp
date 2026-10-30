@@ -27,9 +27,9 @@ internal static class SamusEaterPlmDefinitionsVerification
             const int width = 4;
             const int height = 4;
             int blockCount = width * height;
-            var levelWords = new ushort[blockCount];
-            levelWords[5] = 0xb123;
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(levelWords, new byte[blockCount], new ushort[blockCount]));
+            var levelWords = new RoomTerrainBlock[blockCount];
+            levelWords[5] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SpecialBlock);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(levelWords, new RoomBlockBehavior[blockCount], new RoomBlockAppearance[blockCount]));
             var plms = PlmFixtures.Unbound();
             var samus = new SamusState();
             samus.Position = samus.Position.WithWhole(new(24, definition.Ceiling ? (ushort)16 : (ushort)0));
@@ -46,8 +46,8 @@ internal static class SamusEaterPlmDefinitionsVerification
                 "Samus Eater starts its typed bite");
             AssertEqual(1, slot.InstructionTimer, "Samus Eater starts on timer one");
             AssertEqual(
-                0x8123,
-                level.GetCollisionBlock(new(1, 1)).PackedWord.Raw,
+                RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                level.GetCollisionBlock(new(1, 1)).Terrain,
                 "Samus Eater deactivates its trigger");
         }
 

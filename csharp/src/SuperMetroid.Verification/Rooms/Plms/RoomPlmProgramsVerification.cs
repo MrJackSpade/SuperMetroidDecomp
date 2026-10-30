@@ -200,7 +200,7 @@ internal static class RoomPlmProgramsVerification
                 length = 3;
                 return true;
             case RoomPlmInstruction.SetPlmBtsToOne:
-                cue = new(BlockReactionPlmCueKind.SetBtsToOne, null);
+                cue = new(BlockReactionPlmCueKind.RestoreRespawningGrappleBehavior, null);
                 length = 2;
                 return true;
             case RoomPlmInstruction.SetGreyDoorPreInstruction:
@@ -483,7 +483,7 @@ internal static class RoomPlmProgramsVerification
         (bool known, cue, length) = InstructionAt<RoomPlmInstruction>(cartridge, cursor) switch
         {
             RoomPlmInstruction.QueueSoundLibrary3Maximum6 => new BlueDoorCueAtCase(true, DoorSoundCue(QueuedLibrary3Sound(cartridge, cursor), BlueDoorCue.QueueOpenSound, BlueDoorCue.QueueCloseSound), 3),
-            RoomPlmInstruction.SetPlmBtsFromByte => new BlueDoorCueAtCase(true, BlueDoorCue.RestoreBlueBts, 3),
+            RoomPlmInstruction.SetPlmBtsFromByte => new BlueDoorCueAtCase(true, BlueDoorCue.RestoreBlueBehavior, 3),
             RoomPlmInstruction.SetGreyDoorPreInstruction or
                 RoomPlmInstruction.Sleep or
                 RoomPlmInstruction.Delete or

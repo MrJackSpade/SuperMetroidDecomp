@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
@@ -45,12 +46,12 @@ internal static class BombBlockProgramsVerification
                 AssertEqual((nativeCount & 0x8000) != 0, draw.Vertical, "bomb restoration native orientation");
                 var exportedRun = list.Runs.Span[run];
                 AssertRunHeader(nativeCount, exportedRun, "bomb restoration exported direction/count");
-                AssertEqual(count, exportedRun.LevelWords.Length, "bomb restoration exported word count");
+                AssertEqual(count, exportedRun.Count, "bomb restoration exported word count");
                 for (int block = 0; block < count; block++)
                 {
-                    ushort native = ReadRomWord(rom, 0x840000 | (cursor + 2 + 2 * block));
-                    AssertEqual(native, draw.WordAt(run, block), "bomb restoration calculated parent/child word");
-                    AssertEqual(native, exportedRun.LevelWords.Span[block], "bomb restoration exported word");
+                    RoomTerrainBlock native = RoomLevelWordCodec.Decode(ReadRomWord(rom, 0x840000 | (cursor + 2 + 2 * block)));
+                    AssertEqual(native, draw.BlockAt(run, block), "bomb restoration calculated parent/child word");
+                    AssertEqual(native, exportedRun.Blocks.Span[block], "bomb restoration exported word");
                 }
                 cursor += 2 + 2 * count;
                 byte x = rom.ReadCartridgeByte(0x840000 | cursor);
@@ -66,9 +67,9 @@ internal static class BombBlockProgramsVerification
             AssertEqual(run, draw.RunCount, "bomb restoration complete calculated runs");
             AssertEqual(run, list.Runs.Length, "bomb restoration complete exported runs");
             foreach (int invalid in new[] {int.MinValue, -1, run, int.MaxValue})
-                AssertThrows<ArgumentOutOfRangeException>(() => draw.WordAt(invalid, 0), "bomb restoration run bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => draw.BlockAt(invalid, 0), "bomb restoration run bounds");
             foreach (int invalid in new[] {int.MinValue, -1, 2, int.MaxValue})
-                AssertThrows<ArgumentOutOfRangeException>(() => draw.WordAt(0, invalid), "bomb restoration block bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => draw.BlockAt(0, invalid), "bomb restoration block bounds");
         }
     }
 
@@ -169,7 +170,7 @@ internal static class BombBlockProgramsVerification
             int cursor = PlmDrawAddressCodec.Of(list.Draw);
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
             {
-                int byteCountForRun = 2 + 2 * run.LevelWords.Length + 2;
+                int byteCountForRun = 2 + 2 * run.Count + 2;
                 for (int offset = 0; offset < byteCountForRun; offset++)
                     forbidden.Add(0x840000 | (cursor + offset));
                 cursor += byteCountForRun;
@@ -192,11 +193,11 @@ internal static class BombBlockProgramsVerification
                     $"bomb BTS {behavior}/{producer} sound count, frame {frame}");
                 for (int block = 0; block < 64; block++)
                 {
-                    AssertEqual(native.Level.GetCollisionBlockByIndex(block).PackedWord.Raw,
-                        compiled.Level.GetCollisionBlockByIndex(block).PackedWord.Raw,
+                    AssertEqual(native.Level.GetCollisionBlockByIndex(block).Terrain,
+                        compiled.Level.GetCollisionBlockByIndex(block).Terrain,
                         $"bomb BTS {behavior}/{producer} block {block}, frame {frame}");
-                    AssertEqual(native.Level.GetCollisionBlockByIndex(block).Bts.Value,
-                        compiled.Level.GetCollisionBlockByIndex(block).Bts.Value,
+                    AssertEqual(native.Level.GetCollisionBlockByIndex(block).Behavior.Value,
+                        compiled.Level.GetCollisionBlockByIndex(block).Behavior.Value,
                         $"bomb BTS {behavior}/{producer} BTS {block}, frame {frame}");
                 }
             }
@@ -221,8 +222,7 @@ internal static class BombBlockProgramsVerification
         RoomPlmVisualRunEntry[] entries = ShotBlockPlmDraws.All
             .Select(list => new RoomPlmVisualRunEntry(ShotBlockPlmDraws.VisualId(list.Draw),
                 list.Runs.Span.SelectToArray(run =>
-                    run.LevelWords.Span.SelectToArray(word =>
-                        new RoomLevelWord(word).VisualWord))))
+                    run.Blocks.Span.SelectToArray(block => block.Appearance))))
             .ToArray();
         RoomPlmVisualRunEntry first = entries.Single(entry =>
             entry.Id == "single-breakup-0");
@@ -234,39 +234,39 @@ internal static class BombBlockProgramsVerification
         {
             const int width = 8;
             const int blockIndex = 27;
-            var words = new ushort[width * width];
-            words[blockIndex] = 0xf321;
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]));
+            var words = new RoomTerrainBlock[width * width];
+            words[blockIndex] = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.BombableBlock);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]));
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmShotBlockVisuals = visuals });
             AssertTrue(plms.TrySpawnCollisionBombBlock(level, blockIndex, 0),
                 "bomb visual test installs the real collision-triggered PLM");
             plms.Step(level);
-            return new BombBlockProgramsRenderResult(level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
-                level.DisplayedVisualWord(blockIndex),
-                level.DisplayedVisualWord(blockIndex));
+            return new BombBlockProgramsRenderResult(level.GetCollisionBlockByIndex(blockIndex).Terrain,
+                level.DisplayedAppearance(blockIndex),
+                level.DisplayedAppearance(blockIndex));
         }
 
         var stock = Render(InstalledRoomPlmShotBlockVisuals.Stock());
         var changed = Render(edited);
-        AssertEqual((ushort)0x0053, stock.Physical,
+        AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air), stock.Physical,
             "native bomb-break frame installs its original air collision word");
         AssertEqual(stock.Physical, changed.Physical,
             "shared breakup-art edit cannot change bomb-block physical collision");
         // The block BG1 shows names its picture (#1431): the stock breakup frame's block, or the edited frame's.
-        AssertEqual((ushort)0x0053, stock.Immediate,
+        AssertEqual(RoomBlockAppearance.Of(0x053), stock.Immediate,
             "stock breakup frame's block reaches the immediate redraw");
-        AssertEqual((ushort)0x0054, changed.Immediate,
+        AssertEqual(RoomBlockAppearance.Of(0x054), changed.Immediate,
             "edited breakup frame's block reaches the immediate bomb-block redraw");
-        AssertEqual((ushort)0x0054, changed.Streamed,
+        AssertEqual(RoomBlockAppearance.Of(0x054), changed.Streamed,
             "edited bomb-block breakup frame's block survives later camera streaming");
 
         RenderRestoredParentResult RenderRestoredParent()
         {
             const int width = 8;
             const int blockIndex = 27;
-            var words = new ushort[width * width];
-            words[blockIndex] = 0xf321;
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]));
+            var words = new RoomTerrainBlock[width * width];
+            words[blockIndex] = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.BombableBlock);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]));
             var plms = PlmFixtures.Unbound();
             AssertTrue(plms.TrySpawnCollisionBombBlock(level, blockIndex, 1),
                 "restored-art test installs linked respawning bomb block");
@@ -275,16 +275,16 @@ internal static class BombBlockProgramsVerification
                 plms.Step(level);
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "linked restoration uses no compiled source draw bytes");
-            return new RenderRestoredParentResult(level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
-                level.DisplayedVisualWord(blockIndex));
+            return new RenderRestoredParentResult(level.GetCollisionBlockByIndex(blockIndex).Terrain,
+                level.DisplayedAppearance(blockIndex));
         }
 
         // A block's look is its picture in the block sheet (#1431), so the restored parent is checked as the block it
         // shows: block $058 unmirrored, whose picture a block sheet override repaints.
         var restoredParent = RenderRestoredParent();
-        AssertEqual((ushort)0xf058, restoredParent.Physical,
+        AssertEqual(RoomTerrainBlock.Of(0x058, BlockMirroring.None, RoomCollisionType.BombableBlock), restoredParent.Physical,
             "linked bomb block restores its native solid parent word");
-        AssertEqual((ushort)0x0058, restoredParent.Streamed,
+        AssertEqual(RoomBlockAppearance.Of(0x058), restoredParent.Streamed,
             "restored parent shows block $058 to later streaming");
     }
 
@@ -310,11 +310,11 @@ internal static class BombBlockProgramsVerification
     {
         const int width = 8;
         const int blockIndex = 27;
-        var words = new ushort[width * width];
-        words[blockIndex] = 0xf321;
-        var bts = new byte[words.Length];
-        bts[blockIndex] = behavior;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, bts, new ushort[words.Length]));
+        var words = new RoomTerrainBlock[width * width];
+        words[blockIndex] = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.BombableBlock);
+        var bts = new RoomBlockBehavior[words.Length];
+        bts[blockIndex] = new RoomBlockBehavior(behavior);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, bts, new RoomBlockAppearance[words.Length]));
         var plms = PlmFixtures.Unbound();
         bool spawned = producer switch
         {

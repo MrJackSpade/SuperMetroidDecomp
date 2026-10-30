@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Verification.Areas.Escape;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Rooms.Plms;
@@ -18,18 +20,18 @@ internal static class LookupDownwardGateStockVerification
             new LookupEscapeGateStockFrame(0xa5d7,"blue-left-trigger"),new LookupEscapeGateStockFrame(0xa5e3,"blue-right-trigger"),new LookupEscapeGateStockFrame(0xa5eb,"green-left-trigger"),
             new LookupEscapeGateStockFrame(0xa5f7,"green-right-trigger"),new LookupEscapeGateStockFrame(0xa5ff,"red-left-trigger"),new LookupEscapeGateStockFrame(0xa60b,"red-right-trigger"),
             new LookupEscapeGateStockFrame(0xa613,"yellow-left-trigger"),new LookupEscapeGateStockFrame(0xa61f,"yellow-right-trigger")];
-        var native = new Dictionary<ushort, ushort[][]>();
+        var native = new Dictionary<ushort, RoomBlockAppearance[][]>();
         foreach (var frame in frames)
         {
-            var runs = new List<ushort[]>();
+            var runs = new List<RoomBlockAppearance[]>();
             int cursor = frame.Pointer;
             while (true)
             {
                 int count = ReadSamusEaterPlmWord(rom, 0x840000 | cursor) & 0x7fff;
                 cursor += 2;
-                var words = new ushort[count];
+                var words = new RoomBlockAppearance[count];
                 for (int word = 0; word < count; word++, cursor += 2)
-                    words[word] = (ushort)(ReadSamusEaterPlmWord(rom, 0x840000 | cursor) & 0xfff);
+                    words[word] = RoomLevelWordCodec.DecodeAppearance(ReadSamusEaterPlmWord(rom, 0x840000 | cursor));
                 runs.Add(words);
                 byte x = DownwardGateStockMappingRomByte(rom, 0x840000 | cursor++), y = DownwardGateStockMappingRomByte(rom, 0x840000 | cursor++);
                 if (x == 0 && y == 0) break;
@@ -40,7 +42,7 @@ internal static class LookupDownwardGateStockVerification
             native[frame.Pointer].Select(run => run.ToArray()).ToArray())).ToArray();
         var stock = InstalledRoomPlmDownwardGateVisuals.Stock();
         var imported = new InstalledRoomPlmDownwardGateVisuals(entries.Reverse());
-        string Hash(Dictionary<ushort, ushort[][]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
+        string Hash(Dictionary<ushort, RoomBlockAppearance[][]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
             nameof(InstalledRoomPlmDownwardGateVisuals), words.ToDictionary(pair => DownwardGatePlmDraws.VisualId(NativePlmDraws.At<DownwardGateDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock, imported, installed})
         {
@@ -51,17 +53,17 @@ internal static class LookupDownwardGateStockVerification
                 for (int run = 0; run < runs.Length; run++)
                 {
                     for (int word = 0; word < runs[run].Length; word++)
-                        AssertEqual(runs[run][word], catalog.GetWord(NativePlmDraws.At<DownwardGateDraw>(frame.Pointer),run,word), "Gate original stock word");
+                        AssertEqual(runs[run][word], catalog.GetAppearance(NativePlmDraws.At<DownwardGateDraw>(frame.Pointer),run,word), "Gate original stock word");
                     foreach (int bad in new[] {int.MinValue,-1,runs[run].Length,int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<DownwardGateDraw>(frame.Pointer),run,bad), "Gate stock word bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativePlmDraws.At<DownwardGateDraw>(frame.Pointer),run,bad), "Gate stock word bounds");
                 }
                 foreach (int bad in new[] {int.MinValue,-1,runs.Length,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<DownwardGateDraw>(frame.Pointer),bad,0), "Gate stock run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativePlmDraws.At<DownwardGateDraw>(frame.Pointer),bad,0), "Gate stock run bounds");
             }
         }
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<DownwardGateDraw>((ushort)pointer),0,0), "Gate stock unknown pointer");
+                AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<DownwardGateDraw>((ushort)pointer),0,0), "Gate stock unknown pointer");
         entries[6].Runs[1][0] = 0xc58;
         entries[5].Runs[0][4] = 0x59;
         var mixed = new InstalledRoomPlmDownwardGateVisuals(entries);
@@ -73,18 +75,16 @@ internal static class LookupDownwardGateStockVerification
         foreach (var frame in frames)
         for (int run = 0; run < expected[frame.Pointer].Length; run++)
         for (int word = 0; word < expected[frame.Pointer][run].Length; word++)
-            AssertEqual(expected[frame.Pointer][run][word], mixed.GetWord(NativePlmDraws.At<DownwardGateDraw>(frame.Pointer),run,word), "Gate clone isolation and stock fallback");
+            AssertEqual(expected[frame.Pointer][run][word], mixed.GetAppearance(NativePlmDraws.At<DownwardGateDraw>(frame.Pointer),run,word), "Gate clone isolation and stock fallback");
         AssertThrows<InvalidDataException>(() => new InstalledRoomPlmDownwardGateVisuals(entries[..13]), "Gate missing frame");
         AssertThrows<InvalidDataException>(() => new InstalledRoomPlmDownwardGateVisuals(entries.Append(entries[0])), "Gate duplicate frame");
         var invalid = entries.ToArray();
         invalid[0] = new("COLUMN-FRAME-0",entries[0].Runs);
         AssertThrows<InvalidDataException>(() => new InstalledRoomPlmDownwardGateVisuals(invalid), "Gate ordinal identity");
-        invalid[0] = new(entries[0].Id,[new ushort[4]]);
+        invalid[0] = new(entries[0].Id,[new RoomBlockAppearance[4]]);
         AssertThrows<InvalidDataException>(() => new InstalledRoomPlmDownwardGateVisuals(invalid), "Gate exact word shape");
-        invalid[0] = new(entries[0].Id,[new ushort[5],new ushort[1]]);
+        invalid[0] = new(entries[0].Id,[new RoomBlockAppearance[5],new RoomBlockAppearance[1]]);
         AssertThrows<InvalidDataException>(() => new InstalledRoomPlmDownwardGateVisuals(invalid), "Gate exact run shape");
-        entries[0].Runs[0][0] = 0xf058;
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmDownwardGateVisuals(entries), "Gate visual bits only");
     }
 
     /// <summary>Reads a native downward-gate draw-list byte for the stock oracle.</summary>

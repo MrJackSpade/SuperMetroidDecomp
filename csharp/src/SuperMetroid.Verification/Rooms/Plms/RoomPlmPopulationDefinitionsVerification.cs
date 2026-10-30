@@ -71,7 +71,7 @@ internal static class RoomPlmPopulationDefinitionsVerification
     {
         const int width = 64;
         const int height = 64;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]));
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new RoomTerrainBlock[width * height], new RoomBlockBehavior[width * height], new RoomBlockAppearance[width * height]));
         var plms = PlmFixtures.Unbound();
         int count = PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), (useCompiled ? RoomPlmPopulationDefinitions.Get(pointer) : RoomPlmPopulationImporter.Read(bus, pointer)), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false, IsBossDefeated = () => false, IsMiniBossDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } } });
         return new RoomPlmPopulationDefinitionsLoadResult(count, plms.PopulationSlots.ToArray());

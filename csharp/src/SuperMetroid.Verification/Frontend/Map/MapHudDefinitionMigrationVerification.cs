@@ -59,13 +59,14 @@ internal static class MapHudDefinitionMigrationVerification
         AssertEqual(0x4e, MapSpriteOrdinals.Spritemaps.Word(MapSpriteId.StationMap), "map station spritemap ordinal");
         AssertEqual(MapSpriteId.WorldTitle, MapSpriteOrdinals.Spritemaps.Decode(0x38, "map spritemap ordinal"), "world title decodes");
 
-        // GameplayMessageRomData: layout, timing, colours and glyphs stay in Core; its sources moved to extraction.
+        // GameplayMessageRomData: layout, timing and colours stay in Core; its sources and the glyph words the import lays
+        // each message form out with moved to extraction (#1466).
         AssertEqual(32, GameplayMessageBoxDefinitions.Layout.TilemapWidth, "message tilemap width");
         AssertEqual(124, GameplayMessageBoxDefinitions.Layout.WindowCenterY, "message window centre");
         AssertEqual(8, GameplayMessageBoxDefinitions.Timing.PreOpenLagFrames, "pre-open waits");
         AssertEqual(360, GameplayMessageBoxDefinitions.Timing.ItemMinimumDisplayFrames, "item message duration");
         AssertEqual(RgbColor.FromWord(0x0bb1), GameplayMessageBoxDefinitions.Palette.TemporaryLightColor, "light message colour");
-        AssertEqual(0x284e, GameplayMessageBoxDefinitions.Buttons.UnknownGlyph.PackedWord, "blank button glyph encoded through the codec");
+        AssertEqual(0x284e, GameplayMessageTilemapDefinitions.UnknownGlyph.PackedWord, "blank button glyph encoded through the codec");
         AssertEqual(0x3ce1, GameplayMessageButtonGlyphs.ResolveGlyph(ControllerButton.B).PackedWord, "B glyph encoded through the codec");
         AssertEqual(0x120, GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(GameplayMessageId.SpeedBooster), "speed booster glyph offset");
         AssertEqual(0x85869b, HudSourceDefinitions.Messages.DefinitionTable, "message definition table");

@@ -55,9 +55,6 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
         GameOver = parts.GameOver;
         GameOptions = parts.GameOptions;
         FileSelect = parts.FileSelect;
-        GameplayMessageTitles = parts.GameplayMessageTitles;
-        GameplayMessagePanels = parts.GameplayMessagePanels;
-        GameplayMessageNotices = parts.GameplayMessageNotices;
         EscapeTypewriter = parts.EscapeTypewriter;
         IntroNarration = parts.IntroNarration;
         IntroFont = parts.IntroFont;
@@ -137,12 +134,6 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
     public GameOptionsPresentation GameOptions { get; }
     /// <summary>Selected file-select screen presentation, separate from per-area maps and save-marker coordinates.</summary>
     public FileSelectPresentation FileSelect { get; }
-    /// <summary>Gameplay-message title text and tile presentation, separate from message panels and short notices.</summary>
-    public GameplayMessageTitlePresentation GameplayMessageTitles { get; }
-    /// <summary>Gameplay-message panel artwork and layout, separate from title content and short notice presentation.</summary>
-    public GameplayMessagePanelPresentation GameplayMessagePanels { get; }
-    /// <summary>Short gameplay-notice presentation, separate from full message titles and panels.</summary>
-    public GameplayMessageNoticePresentation GameplayMessageNotices { get; }
     /// <summary>Selected escape-sequence typewriter text and visual presentation.</summary>
     public EscapeTypewriterPresentation EscapeTypewriter { get; }
     /// <summary>Opening narration text and presentation, separate from its selected font characters.</summary>

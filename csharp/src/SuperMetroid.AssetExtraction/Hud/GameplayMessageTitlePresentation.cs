@@ -1,10 +1,12 @@
 using System.Collections.Frozen;
 using System.Security.Cryptography;
 using System.Text.Json;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
 
-namespace SuperMetroid.Core.Hud.Artwork;
+namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>
 /// Editable UTF-8 titles for the cartridge's one-row gameplay message boxes.

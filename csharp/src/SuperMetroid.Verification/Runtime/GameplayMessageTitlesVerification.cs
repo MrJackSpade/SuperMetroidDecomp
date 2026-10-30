@@ -5,6 +5,7 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Runtime;
@@ -12,10 +13,10 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 
-/// <summary>Checks extracted message-title text against native tilemaps and live presentation rebinding.</summary>
+/// <summary>Checks extracted message-title text against native tilemaps and the words an edited title lays out.</summary>
 internal static class GameplayMessageTitlesVerification
 {
-    /// <summary>Compares installed title rows to cartridge words, then exercises a live UTF-8 edit and restore.</summary>
+    /// <summary>Compares installed title rows to cartridge words, then lays a shown message out from a UTF-8 edit and from stock.</summary>
     internal static void VerifyGameplayMessageTitles(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -23,12 +24,12 @@ internal static class GameplayMessageTitlesVerification
         GameplayMessageTitlePresentation stock = GameplayMessageTitlePresentation.Load(
             new MemoryStream(extracted, writable: false));
 
+        var stockMessages = new GameplayMessageArtwork(stock);
         int comparedWords = 0;
         int width = GameplayMessageBoxDefinitions.Layout.TilemapWidth;
         foreach (GameplayMessageId id in GameplayMessageTitleDefinitions.MessageIds)
         {
             var installed = new GameplayMessageBoxState();
-            installed.BindPresentation(stock);
             installed.Begin(id, 0);
             // The title's content row is the cartridge's one-row tilemap named by the
             // message definition table; read it directly as the independent reference.
@@ -36,7 +37,7 @@ internal static class GameplayMessageTitlesVerification
                 ((byte)id - 1) * HudSourceDefinitions.Messages.DefinitionBytes;
             int content = HudSourceDefinitions.Messages.BankBase |
                 (LittleEndianBytes.Word(GameplayMessageTitlesRomByte(bus, definition + 4), GameplayMessageTitlesRomByte(bus, definition + 5)));
-            ReadOnlySpan<BackgroundTile> row = installed.Tilemap.Slice(width, width);
+            ReadOnlySpan<BackgroundTile> row = installed.Tilemap(stockMessages).AsSpan(width, width);
             for (int column = 0; column < width; column++)
                 AssertEqual(LittleEndianBytes.Word(GameplayMessageTitlesRomByte(bus, content + column * 2), GameplayMessageTitlesRomByte(bus, content + column * 2 + 1)),
                     row[column].PackedWord, $"installed UTF-8 gameplay title {id} column {column}, encoded through the codec, matches the cartridge tilemap");
@@ -51,24 +52,18 @@ internal static class GameplayMessageTitlesVerification
         GameplayMessageTitlePresentation edited = GameplayMessageTitlePresentation.Load(
             new MemoryStream(editedBytes, writable: false));
 
+        // The game names the form it shows; an edited title changes the words the import lays that form out with.
         var active = new GameplayMessageBoxState();
-        active.BindPresentation(stock);
         active.Begin(GameplayMessageId.EnergyTank, 0);
         active.Step(0);
-        GameplayMessageBoxPhase phase = active.Phase;
-        int radius = active.RadiusPixels;
-        BackgroundTile[] before = active.Tilemap.ToArray();
-        active.BindPresentation(edited);
-        AssertEqual(phase, active.Phase, "message-title content rebind preserves coroutine phase");
-        AssertEqual(radius, active.RadiusPixels, "message-title content rebind preserves window radius");
-        AssertTrue(!before.SequenceEqual(active.Tilemap),
-            "UTF-8 title edit reaches an already active message without a ROM patch");
+        BackgroundTile[] before = active.Tilemap(stockMessages);
+        AssertTrue(!before.SequenceEqual(active.Tilemap(new GameplayMessageArtwork(edited))),
+            "UTF-8 title edit changes the words of the shown message without a ROM patch");
 
         GameplayMessageTitlePresentation restored = GameplayMessageTitlePresentation.Load(
             new MemoryStream(extracted, writable: false));
-        active.BindPresentation(restored);
-        AssertTrue(before.SequenceEqual(active.Tilemap),
-            "restoring stock UTF-8 title restores exact live tilemap");
+        AssertTrue(before.SequenceEqual(active.Tilemap(new GameplayMessageArtwork(restored))),
+            "restoring stock UTF-8 title restores the shown message's exact words");
 
         byte[] malformed = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString(
             ArtworkJson.Options).Replace("ENERGY TEST", "energy test"));
@@ -77,7 +72,7 @@ internal static class GameplayMessageTitlesVerification
             "gameplay-message title rejects glyphs absent from its documented font mapping");
 
         Console.WriteLine(
-            $"Gameplay-message titles: {GameplayMessageTitleDefinitions.MessageIds.Length} UTF-8 titles and {comparedWords} installed words match the cartridge with message ROM reads forbidden; live edit/rebind and invalid glyph rejection pass.");
+            $"Gameplay-message titles: {GameplayMessageTitleDefinitions.MessageIds.Length} UTF-8 titles and {comparedWords} installed words match the cartridge with message ROM reads forbidden; edited layout, stock restore and invalid glyph rejection pass.");
     }
 
     /// <summary>Reads a title-table byte solely for the independent cartridge comparison.</summary>

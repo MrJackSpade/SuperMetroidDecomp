@@ -113,7 +113,7 @@ public static class GameplayMessageNoticeExtractor
         int sourceWord)
     {
         var result = new BackgroundTile[
-            GameplayMessageBoxDefinitions.Layout.SaveSelectionRowWords];
+            GameplayMessageTilemapDefinitions.SaveSelectionRowWords];
         for (int word = 0; word < result.Length; word++)
         {
             result[word] = BackgroundTileWords.ToTile(CartridgeImportSource.Require(bus).ReadCartridgeWord((HudSourceDefinitions.Messages.SaveSelectionTilemap +

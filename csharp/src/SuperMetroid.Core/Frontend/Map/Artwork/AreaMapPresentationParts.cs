@@ -97,15 +97,6 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Selected file-select screen presentation, separate from per-area maps and save-marker coordinates.</summary>
     public required FileSelectPresentation FileSelect { get; init; }
 
-    /// <summary>Gameplay-message title text and tile presentation, separate from message panels and short notices.</summary>
-    public required GameplayMessageTitlePresentation GameplayMessageTitles { get; init; }
-
-    /// <summary>Gameplay-message panel artwork and layout, separate from title content and short notice presentation.</summary>
-    public required GameplayMessagePanelPresentation GameplayMessagePanels { get; init; }
-
-    /// <summary>Short gameplay-notice presentation, separate from full message titles and panels.</summary>
-    public required GameplayMessageNoticePresentation GameplayMessageNotices { get; init; }
-
     /// <summary>Selected escape-sequence typewriter text and visual presentation.</summary>
     public required EscapeTypewriterPresentation EscapeTypewriter { get; init; }
 

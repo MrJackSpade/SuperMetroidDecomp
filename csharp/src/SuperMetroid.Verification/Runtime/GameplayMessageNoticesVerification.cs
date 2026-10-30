@@ -12,6 +12,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Checks cartridge-extracted message text in the installed box renderer and editable presentation catalog.</summary>
 internal static class GameplayMessageNoticesVerification
@@ -24,26 +25,27 @@ internal static class GameplayMessageNoticesVerification
         GameplayMessageNoticePresentation stock = GameplayMessageNoticePresentation.Load(
             new MemoryStream(extracted, writable: false));
 
+        var stockMessages = new GameplayMessageArtwork(null, null, stock);
         int comparedWords = 0;
         foreach (GameplayMessageId id in GameplayMessageNoticeDefinitions.MessageIds)
         {
             var installed = new GameplayMessageBoxState();
-            installed.BindPresentation(null, null, stock);
             installed.Begin(id, 0);
-            comparedWords += installed.Tilemap.Length;
+            comparedWords += installed.Tilemap(stockMessages).Length;
 
             if (!GameplayMessageNotices.IsSaveConfirmation(id))
                 continue;
             while (installed.Phase != GameplayMessageBoxPhase.AwaitingInput)
                 installed.Step(0);
-            BackgroundTile[] yesSelected = installed.Tilemap.ToArray();
+            BackgroundTile[] yesSelected = installed.Tilemap(stockMessages);
             // $85:84BA's two lag waits precede each ReadControllerInput; press on the read frame.
             for (int lag = 0; lag < GameplayMessageBoxDefinitions.Timing.SaveSelectionReadLagFrames; lag++)
                 installed.Step(0);
             installed.Step(ControllerButton.Right);
-            AssertTrue(!yesSelected.SequenceEqual(installed.Tilemap),
+            BackgroundTile[] noSelected = installed.Tilemap(stockMessages);
+            AssertTrue(!yesSelected.SequenceEqual(noSelected),
                 $"installed gameplay-message notice {id} redraws its NO-selection row without cartridge reads");
-            comparedWords += installed.Tilemap.Length;
+            comparedWords += noSelected.Length;
         }
 
         JsonObject document = RequiredJson.Parse(extracted).AsObject();
@@ -54,23 +56,15 @@ internal static class GameplayMessageNoticesVerification
         GameplayMessageNoticePresentation edited = GameplayMessageNoticePresentation.Load(
             new MemoryStream(editedBytes, writable: false));
 
+        // The game names the form it shows; an edited notice changes the words the import lays that form out with.
         var active = new GameplayMessageBoxState();
-        active.BindPresentation(null, null, stock);
         active.Begin(GameplayMessageId.MapDataAccessCompleted, 0);
         active.Step(0);
-        GameplayMessageBoxPhase phase = active.Phase;
-        int radius = active.RadiusPixels;
-        BackgroundTile[] before = active.Tilemap.ToArray();
-        active.BindPresentation(null, null, edited);
-        AssertEqual(phase, active.Phase,
-            "message-notice content rebind preserves coroutine phase");
-        AssertEqual(radius, active.RadiusPixels,
-            "message-notice content rebind preserves window radius");
-        AssertTrue(!before.SequenceEqual(active.Tilemap),
-            "UTF-8 notice edit reaches an active message without a ROM patch");
-        active.BindPresentation(null, null, stock);
-        AssertTrue(before.SequenceEqual(active.Tilemap),
-            "restoring stock notice restores exact live tilemap");
+        BackgroundTile[] before = active.Tilemap(stockMessages);
+        AssertTrue(!before.SequenceEqual(active.Tilemap(new GameplayMessageArtwork(null, null, edited))),
+            "UTF-8 notice edit changes the words of the shown message without a ROM patch");
+        AssertTrue(before.SequenceEqual(active.Tilemap(stockMessages)),
+            "stock notice lays the shown message out with its exact words");
 
         byte[] malformed = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString(
             ArtworkJson.Options).Replace("MAP TEST", "map test"));
@@ -79,7 +73,7 @@ internal static class GameplayMessageNoticesVerification
             "gameplay-message notice rejects glyphs absent from its documented font mapping");
 
         Console.WriteLine(
-            $"Gameplay-message notices: {GameplayMessageNoticeDefinitions.MessageIds.Length} UTF-8 layouts and {comparedWords} installed words match the cartridge with message ROM reads forbidden; YES/NO selection, live edit/rebind and invalid glyph rejection pass.");
+            $"Gameplay-message notices: {GameplayMessageNoticeDefinitions.MessageIds.Length} UTF-8 layouts and {comparedWords} installed words match the cartridge with message ROM reads forbidden; YES/NO selection, edited layout and invalid glyph rejection pass.");
     }
 
     /// <summary>Checks deterministic stock extraction and that an override changes rendered save text and content identity.</summary>
@@ -105,11 +99,9 @@ internal static class GameplayMessageNoticesVerification
         AreaMapPresentation edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
         var state = new GameplayMessageBoxState();
-        state.BindPresentation(edited.GameplayMessageTitles, edited.GameplayMessagePanels,
-            edited.GameplayMessageNotices);
         state.Begin(GameplayMessageId.SaveConfirmation, 0);
-        AssertTrue(!stockCatalog.GameplayMessageNotices.Build(GameplayMessageId.SaveConfirmation)
-                .SequenceEqual(state.Tilemap),
+        AssertTrue(!(GameplayMessageArtwork.Of(stockCatalog).Notices ?? throw new InvalidOperationException("Stock installs the message notices."))
+                .Build(GameplayMessageId.SaveConfirmation).SequenceEqual(state.Tilemap(GameplayMessageArtwork.Of(edited))),
             "catalog override changes installed save-confirmation text");
         AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
             "gameplay-message notice override changes catalog content identity");

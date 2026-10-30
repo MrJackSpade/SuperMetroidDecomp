@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Hud.Artwork;
+namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Editable large item-instruction panel schema; border arrays, panel dictionary and nested templates remain caller-mutable until compilation.</summary>
 public sealed record GameplayMessagePanelDocument

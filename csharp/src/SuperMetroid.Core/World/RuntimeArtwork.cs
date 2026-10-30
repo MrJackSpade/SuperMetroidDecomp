@@ -26,8 +26,6 @@ internal sealed class RuntimeArtwork
     private readonly ActiveRoomState _room;
     /// <summary>Receives gameplay HUD presentation and reports initialization state.</summary>
     private readonly HudState _hud;
-    /// <summary>Receives installed message title, panel, and notice presentation.</summary>
-    private readonly GameplayMessageBoxState _messageBox;
     /// <summary>Receives Samus palette, grapple, and tile-art bindings.</summary>
     private readonly SamusFrameState _player;
     /// <summary>Receives animated tile, layer-three map, and blend-color catalogs for every room's FX.</summary>
@@ -53,7 +51,6 @@ internal sealed class RuntimeArtwork
         _bossArtwork = dependencies.BossArtwork;
         _room = dependencies.Room;
         _hud = dependencies.Hud;
-        _messageBox = dependencies.MessageBox;
         _player = dependencies.Player;
         _roomFx = dependencies.RoomFx;
     }
@@ -69,8 +66,6 @@ internal sealed class RuntimeArtwork
         {
             field = value;
             _hud.BindPresentation(value?.GameplayHud, _player.Samus);
-            _messageBox.BindPresentation(value?.GameplayMessageTitles, value?.GameplayMessagePanels,
-                value?.GameplayMessageNotices);
             _roomFx.AnimatedTileArtwork = value?.RoomFxAnimatedTiles;
             _roomFx.Layer3Tilemaps = value?.RoomFxLayer3Tilemaps;
             _roomFx.PaletteBlendColors = value?.RoomFxPaletteBlends;

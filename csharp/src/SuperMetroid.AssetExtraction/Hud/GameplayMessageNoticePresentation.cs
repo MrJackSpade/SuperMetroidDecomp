@@ -1,9 +1,11 @@
 using System.Security.Cryptography;
 using System.Text.Json;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
 
-namespace SuperMetroid.Core.Hud.Artwork;
+namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>
 /// Editable bounded text regions for station-completion and save-confirmation notices.
@@ -42,7 +44,7 @@ public sealed class GameplayMessageNoticePresentation
     {
         CompiledNotice notice = Get(messageId);
         int width = GameplayMessageBoxDefinitions.Layout.TilemapWidth;
-        var result = new BackgroundTile[(notice.RowCount + GameplayMessageBoxDefinitions.Layout.BorderRows) * width];
+        var result = new BackgroundTile[(notice.RowCount + GameplayMessageTilemapDefinitions.BorderRows) * width];
         border.CopyTo(result, 0);
         notice.Template.CopyTo(result, width);
         border.CopyTo(result, result.Length - width);
@@ -77,13 +79,13 @@ public sealed class GameplayMessageNoticePresentation
                 $"Gameplay-message notice {messageId} has no YES selection row.")
             : notice.NoSelection ?? throw new InvalidDataException(
                 $"Gameplay-message notice {messageId} has no NO selection row.");
-        int firstCell = GameplayMessageBoxDefinitions.Layout.SaveSelectionRow * GameplayMessageBoxDefinitions.Layout.TilemapWidth;
-        if (tilemap.Length < firstCell + GameplayMessageBoxDefinitions.Layout.SaveSelectionRowWords)
+        int firstCell = GameplayMessageTilemapDefinitions.SaveSelectionRow * GameplayMessageBoxDefinitions.Layout.TilemapWidth;
+        if (tilemap.Length < firstCell + GameplayMessageTilemapDefinitions.SaveSelectionRowWords)
         {
             throw new InvalidDataException(
                 "Save confirmation tilemap is too short for its installed selection row.");
         }
-        source.CopyTo(tilemap.Slice(firstCell, GameplayMessageBoxDefinitions.Layout.SaveSelectionRowWords));
+        source.CopyTo(tilemap.Slice(firstCell, GameplayMessageTilemapDefinitions.SaveSelectionRowWords));
     }
 
     /// <summary>Requires the exact supported notice set and dimensions, nonoverlapping bounded text regions, valid glyphs, and selection rows only for save confirmations.</summary>
@@ -140,8 +142,8 @@ public sealed class GameplayMessageNoticePresentation
                 value.Template.Length != expectedWords || value.Text is null ||
                 value.Text.Length == 0 ||
                 save != (value.YesSelection is not null && value.NoSelection is not null) ||
-                value.YesSelection is { Length: not GameplayMessageBoxDefinitions.Layout.SaveSelectionRowWords } ||
-                value.NoSelection is { Length: not GameplayMessageBoxDefinitions.Layout.SaveSelectionRowWords })
+                value.YesSelection is { Length: not GameplayMessageTilemapDefinitions.SaveSelectionRowWords } ||
+                value.NoSelection is { Length: not GameplayMessageTilemapDefinitions.SaveSelectionRowWords })
             {
                 throw new InvalidDataException(
                     $"Gameplay-message notice {id} has invalid dimensions or selection rows.");

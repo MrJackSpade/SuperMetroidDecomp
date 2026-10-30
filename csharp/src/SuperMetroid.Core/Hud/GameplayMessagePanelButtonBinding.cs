@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Hud.Artwork;
+namespace SuperMetroid.Core.Hud;
 
 /// <summary>Compiled controller binding represented by a panel's safe button-glyph slot.</summary>
 public enum GameplayMessagePanelButtonBinding

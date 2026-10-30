@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rooms;
 
-namespace SuperMetroid.Core.Hud.Artwork;
+namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Schema and stock text-region geometry for completion and save notices.</summary>
 public static class GameplayMessageNoticeDefinitions

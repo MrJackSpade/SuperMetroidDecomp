@@ -30,7 +30,7 @@ public static class GameplayMessagePanelExtractor
             int draw = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 2));
             int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 4));
             int next = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + HudSourceDefinitions.Messages.DefinitionBytes + 4));
-            GameplayMessageRoutine expectedSetup = GameplayMessagePanelDefinitions.ButtonBindings[id] switch
+            GameplayMessageRoutine expectedSetup = GameplayMessageButtons.PanelBinding(id) switch
             {
                 GameplayMessagePanelButtonBinding.Shoot => GameplayMessageRoutine.PatchShootButton,
                 GameplayMessagePanelButtonBinding.Run => GameplayMessageRoutine.PatchRunButton,

@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Hud.Artwork;
+namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>One large-panel title and four-row tile template; button substitution and message timing are supplied by compiled gameplay behavior.</summary>
 public sealed record GameplayMessagePanel

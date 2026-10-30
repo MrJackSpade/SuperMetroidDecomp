@@ -2,7 +2,8 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.AssetExtraction.Hud;
+using SuperMetroid.Core.Hud;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 
@@ -20,8 +21,7 @@ internal static class MessagePresentationContractChecks
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
-            using SuperMetroid.Core.Hud;
-            using SuperMetroid.Core.Hud.Artwork;
+            using SuperMetroid.AssetExtraction.Hud;
             using SuperMetroid.Core.Rooms;
             class MessageConsumer {
                 void Inspect(GameplayMessageTitlePresentation titles, GameplayMessagePanelPresentation panels,
@@ -41,7 +41,8 @@ internal static class MessagePresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         var compilation = CSharpCompilation.Create("MessageProviderFixture", trees,
-            platforms.Append(typeof(GameplayMessageTitlePresentation).Assembly.Location).Distinct()
+            platforms.Append(typeof(GameplayMessageTitlePresentation).Assembly.Location)
+                .Append(typeof(GameplayMessageBoxDefinitions).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         FixtureConsumerBinding.Require(compilation, calls, "MessagePresentationContractChecks");

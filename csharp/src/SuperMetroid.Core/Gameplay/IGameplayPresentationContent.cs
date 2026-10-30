@@ -22,15 +22,6 @@ public interface IGameplayPresentationContent : IAreaMapSource, IInstalledArtwor
     /// <summary>Escape countdown visual layout and digit presentation.</summary>
     EscapeTimerPresentation EscapeTimer { get; }
 
-    /// <summary>Gameplay-message title text and tile presentation, separate from message panels and short notices.</summary>
-    GameplayMessageTitlePresentation GameplayMessageTitles { get; }
-
-    /// <summary>Gameplay-message panel artwork and layout, separate from title content and short notice presentation.</summary>
-    GameplayMessagePanelPresentation GameplayMessagePanels { get; }
-
-    /// <summary>Short gameplay-notice presentation, separate from full message titles and panels.</summary>
-    GameplayMessageNoticePresentation GameplayMessageNotices { get; }
-
     /// <summary>Selected escape-sequence typewriter text and visual presentation.</summary>
     EscapeTypewriterPresentation EscapeTypewriter { get; }
 

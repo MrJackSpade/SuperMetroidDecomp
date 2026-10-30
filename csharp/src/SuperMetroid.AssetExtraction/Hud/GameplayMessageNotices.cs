@@ -1,7 +1,9 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
 
-namespace SuperMetroid.Core.Hud.Artwork;
+namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>How each editable completion and save notice is shaped: its content height and the text regions of its stock picture.</summary>
 public static class GameplayMessageNotices

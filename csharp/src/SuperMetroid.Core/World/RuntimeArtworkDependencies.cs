@@ -19,9 +19,6 @@ internal sealed record RuntimeArtworkDependencies
     /// <summary>Hud.</summary>
     public required HudState Hud { get; init; }
 
-    /// <summary>Message box.</summary>
-    public required GameplayMessageBoxState MessageBox { get; init; }
-
     /// <summary>Player.</summary>
     public required SamusFrameState Player { get; init; }
 

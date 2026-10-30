@@ -121,11 +121,6 @@ public sealed class InstalledRoomArtwork
         {
             content.AppendName("messages", messages.Name);
             messages.Sheet.AppendIdentity(content);
-            foreach ((string name, ImmutableArray<BackgroundTile> tiles) in messages.Messages.OrderBy(entry => entry.Key, StringComparer.Ordinal))
-            {
-                content.AppendName("message", name);
-                content.AppendTiles("tiles", tiles.AsSpan());
-            }
         }
         foreach (TileWordSheet words in TileWords.Values.Concat(Bg3Words.Values).OrderBy(words => words.Name, StringComparer.Ordinal))
         {

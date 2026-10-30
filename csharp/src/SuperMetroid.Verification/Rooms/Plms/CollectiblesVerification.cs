@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -523,7 +524,8 @@ internal static class CollectiblesVerification
     private static void VerifyPermanentItemMessageBox()
     {
         var bus = new TestAddressSpace();
-        var message = CreatePermanentMessageFixture();
+        GameplayMessageArtwork messages = CreatePermanentMessageFixture();
+        var message = new GameplayMessageBoxState();
 
         message.Begin(GameplayMessageIds.EnergyTank, 0);
         // $85:808D-$8096 spend eight lag frames before Open_MessageBox; the first ends the
@@ -538,12 +540,12 @@ internal static class CollectiblesVerification
         }
         AssertEqual(GameplayMessageBoxPhase.Opening, message.Phase,
             "item message enters shared opening coroutine");
-        AssertEqual(3, message.TilemapRowCount, "small item message has border/content/border");
-        AssertEqual((ushort)0x3801, message.Tilemap[0].PackedWord, "small item message uses custom installed border");
-        AssertEqual(GameplayMessageTitleDefinitions.TransparentTile, message.Tilemap[32],
+        AssertEqual(3, message.TilemapRowCount(messages), "small item message has border/content/border");
+        AssertEqual((ushort)0x3801, message.Tilemap(messages)[0].PackedWord, "small item message uses custom installed border");
+        AssertEqual(GameplayMessageTitleDefinitions.TransparentTile, message.Tilemap(messages)[32],
             "small item message preserves transparent outer columns");
         ushort[] expectedTitle = [0x38f3, 0x38e4, 0x38f2, 0x38f3];
-        AssertTrue(BackgroundTileWordBytes.Words(message.Tilemap.Slice(45, 4)).SequenceEqual(expectedTitle),
+        AssertTrue(BackgroundTileWordBytes.Words(message.Tilemap(messages).AsSpan(45, 4)).SequenceEqual(expectedTitle),
             "small item message centers the installed TEST title with palette six");
 
         for (int openingFrame = 0; openingFrame < 13; openingFrame++)
@@ -603,8 +605,8 @@ internal static class CollectiblesVerification
         message.Begin(GameplayMessageIds.MissileTank, 0, shootBinding: ControllerButton.B);
         for (int preparingFrame = 0; preparingFrame < 7; preparingFrame++)
             message.Step(0);
-        AssertEqual(6, message.TilemapRowCount, "large item message has four content rows");
-        AssertEqual((ushort)0x3ce1, message.Tilemap[0x12a / 2].PackedWord,
+        AssertEqual(6, message.TilemapRowCount(messages), "large item message has four content rows");
+        AssertEqual((ushort)0x3ce1, message.Tilemap(messages)[0x12a / 2].PackedWord,
             "large item message patches configured shoot-button glyph");
 
         message.Step(0); // radius 0
@@ -614,15 +616,15 @@ internal static class CollectiblesVerification
         // small-border drawing routine but delimits three complete content rows. This
         // verifies the native variable-length copy instead of inferring height from the
         // border routine's name.
-        message = CreatePermanentMessageFixture();
+        message = new GameplayMessageBoxState();
         message.Begin(GameplayMessageIds.MapDataAccessCompleted, 0);
         for (int preparingFrame = 0; preparingFrame < 7; preparingFrame++)
             message.Step(0);
-        AssertEqual(5, message.TilemapRowCount,
+        AssertEqual(5, message.TilemapRowCount(messages),
             "map-station message accepts three rows inside the small border");
-        AssertEqual((ushort)0x3820, message.Tilemap[32].PackedWord,
+        AssertEqual((ushort)0x3820, message.Tilemap(messages)[32].PackedWord,
             "map-station message copies the first variable-height content row");
-        AssertEqual((ushort)0x3822, message.Tilemap[96].PackedWord,
+        AssertEqual((ushort)0x3822, message.Tilemap(messages)[96].PackedWord,
             "map-station message copies the third variable-height content row");
         message.Step(0);
         message.Step(0);
@@ -665,7 +667,7 @@ internal static class CollectiblesVerification
                     GameplayMessageIds.FromCartridge(messageId, "retail definition-table audit"),
                     controllerRead: 0);
                 AssertTrue(
-                    retailMessage.TilemapRowCount is >=
+                    retailMessage.TilemapRowCount(RetailMessageFixture()) is >=
                         GameplayMessageBoxDefinitions.Layout.MinimumRows and <=
                         GameplayMessageBoxDefinitions.Layout.MaximumRows,
                     $"retail gameplay message {messageId} has a supported layout");

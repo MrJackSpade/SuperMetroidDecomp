@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.Core.Frontend;
@@ -366,13 +367,21 @@ internal static class EndingObjectArtworkVerification
             scene.InstalledArtwork.BindFixtureObjectArtwork(edited);
             LayeredScene changed = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
             byte[] changedVram = scene.ShownVram();
-            AssertTrue(!baselineVram.SequenceEqual(changedVram) &&
-                    baselineVram[..(EndingVramLayout.ExplosionObjects.Offset * 2)]
-                        .SequenceEqual(changedVram
-                            [..(EndingVramLayout.ExplosionObjects.Offset * 2)]) &&
+            // The edited art reaches the sheet it composes and the shown memory image, while the turning floor, a picture
+            // the import composes from the floor art, and the colours stay as they were (#1467).
+            SpriteSheetId editedSheet = resource switch
+            {
+                0 => SpriteSheetId.EndingCloudSprites,
+                1 => SpriteSheetId.EndingExplosionSprites,
+                _ => SpriteSheetId.EndingExplosionPictures,
+            };
+            AssertTrue(!EndingSheetFixtures.WithEnding(stock).Get(editedSheet).Image.Pixels.ToArray()
+                    .SequenceEqual(EndingSheetFixtures.WithEnding(edited).Get(editedSheet).Image.Pixels.ToArray()) &&
+                    !baselineVram.SequenceEqual(changedVram) &&
+                    ShownFloors(baseline).SequenceEqual(ShownFloors(changed)) &&
                     baseline.Paint.Colors.SequenceEqual(changed.Paint.Colors) &&
                     scene.Stage.Phase == baselinePhase,
-                $"edited {name} changes OBJ VRAM without touching Mode-7 graphics or CGRAM");
+                $"edited {name} recomposes its sheet and changes the shown image without touching the floor picture or colours");
             bool visibleEdit = false;
             for (int frame = 0; frame < 2400 && !visibleEdit &&
                 scene.Stage.Phase < (resource == 0
@@ -519,4 +528,8 @@ internal static class EndingObjectArtworkVerification
             address => $"Ending OBJ reread cartridge source ${address:X6}.");
         return guard;
     }
+
+    /// <summary>The turning floors <paramref name="scene"/> shows, in layer order.</summary>
+    private static AffineFloor[] ShownFloors(LayeredScene scene) =>
+        [.. scene.Layers.ToArray().OfType<TurningFloorLayer>().Select(static layer => layer.Floor)];
 }

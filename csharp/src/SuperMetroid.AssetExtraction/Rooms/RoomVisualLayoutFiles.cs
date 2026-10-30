@@ -251,7 +251,7 @@ public static class RoomVisualLayoutFiles
 
     /// <summary>A plane of appearances as a document writes it.</summary>
     private static RoomLayoutPlaneDocument WritePlane(RoomBlockAppearance[] blocks) =>
-        new([.. blocks.Select(block => block.Block)], new string([.. blocks.Select(block => MirroringCodes[block.Mirroring])]));
+        new([.. blocks.Select(block => block.Block)], new string(blocks.Select(block => MirroringCodes[block.Mirroring]).ToArray()));
 
     /// <summary>A document's plane as appearances.</summary>
     /// <exception cref="InvalidDataException">The plane's arrays differ in length or hold an unknown mirroring code.</exception>

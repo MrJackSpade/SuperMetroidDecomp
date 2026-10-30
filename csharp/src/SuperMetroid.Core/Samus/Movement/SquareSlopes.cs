@@ -17,7 +17,7 @@ public static class SquareSlopes
     /// </summary>
     /// <remarks>
     /// Independently checked for #1165 against all twenty NTSC J/U v1.0 bytes and pinned
-    /// bank_94.asm. Return exactly zero or $80. Callers retain BTS/XOR mirroring and
+    /// bank_94.asm. Return exactly zero or $80. Callers retain the behaviour's XOR mirroring and
     /// leading-edge selection; reject unsupported indices as the previous span did.
     /// </remarks>
     public static byte ReadSamusQuadrant(int tableIndex)

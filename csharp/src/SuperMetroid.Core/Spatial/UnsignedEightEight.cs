@@ -16,12 +16,6 @@ public static class UnsignedEightEight
     /// <summary>The whole units of an unsigned 8.8 word held as an int, 0 through 65535; other values are rejected.</summary>
     public static byte Whole(int value) => Whole(RequireWord(value));
 
-    /// <summary>The fraction of an unsigned 8.8 word: its 1/256ths below the whole units.</summary>
-    public static byte Fraction(ushort value) => unchecked((byte)value);
-
-    /// <summary>The fraction of an unsigned 8.8 word held as an int, 0 through 65535; other values are rejected.</summary>
-    public static byte Fraction(int value) => Fraction(RequireWord(value));
-
     /// <summary>An unsigned 8.8 word with its fraction dropped: the whole units kept in place.</summary>
     public static ushort WithoutFraction(ushort value) => (ushort)(Whole(value) << FractionBits);
 

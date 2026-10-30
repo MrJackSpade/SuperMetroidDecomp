@@ -55,9 +55,9 @@ internal static class TorizoStateQuantitiesVerification
         Apply(TorizoCueKind.SteppedRightWithLeftFoot);
         // The cartridge's parameter-1 posture bits: facing right $8000, the opposite leg forward $2000, turning $4000.
         AssertEqual(lowParameterBits + 0xa000,
-            TorizoParameterFlagCodec.ToParameterWord(state.Posture, state.PostureParameterLowBits), "a stepping cue replaces the posture bits and keeps parameter 1's low bits");
+            TorizoParameterWords.ToParameterWord(state.Posture, state.PostureParameterLowBits), "a stepping cue replaces the posture bits and keeps parameter 1's low bits");
         Apply(TorizoCueKind.SetTurningAround);
-        AssertEqual(lowParameterBits + 0xe000, TorizoParameterFlagCodec.ToParameterWord(state.Posture, state.PostureParameterLowBits),
+        AssertEqual(lowParameterBits + 0xe000, TorizoParameterWords.ToParameterWord(state.Posture, state.PostureParameterLowBits),
             "the turning cue adds its posture bit alone");
 
         state.Behavior = TorizoBehaviorFlags.Stunned | TorizoBehaviorFlags.FaceBlownUp;

@@ -16,22 +16,6 @@ internal static class SamusBombJumpRequestCodec
     internal static int ToNative(SamusBombJumpRequest request) =>
         DirectionByte(request.Direction) | (request.Accepted ? AcceptedBit : 0);
 
-    /// <summary>Decodes a native word; a word no native writer stores is rejected.</summary>
-    internal static SamusBombJumpRequest FromNative(int word)
-    {
-        if (word == 0)
-            return SamusBombJumpRequest.None;
-        SamusBombJumpDirection direction = (word & ~AcceptedBit) switch
-        {
-            1 => SamusBombJumpDirection.Left,
-            2 => SamusBombJumpDirection.Straight,
-            3 => SamusBombJumpDirection.Right,
-            _ => throw new InvalidDataException($"Bomb-jump word ${word:X4} is not a native request."),
-        };
-        SamusBombJumpRequest published = SamusBombJumpRequest.Published(direction);
-        return (word & AcceptedBit) != 0 ? published.Accept() : published;
-    }
-
     /// <summary>The direction's native low byte.</summary>
     private static int DirectionByte(SamusBombJumpDirection direction) => direction switch
     {

@@ -43,6 +43,4 @@ public sealed class RoomMainCarryover
     public void LeaveTurnStep(int step, bool backward) =>
         Held = Ensure.BetweenInclusive(0, BackwardBit - 1, step) | (backward ? BackwardBit : 0);
 
-    /// <summary>Leaves nothing: the value is zero.</summary>
-    public void Clear() => Held = 0;
 }

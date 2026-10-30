@@ -69,9 +69,6 @@ public readonly record struct SamusProjectileType
     /// <summary>Whether the projectile is of <paramref name="family"/>.</summary>
     public bool IsFamily(SamusProjectileFamily family) => Family == family;
 
-    /// <summary>Whether the projectile's family comes at or after <paramref name="family"/> in the game's family order.</summary>
-    public bool IsFamilyAtOrAfter(SamusProjectileFamily family) => Family.IsAtOrAfter(family);
-
     /// <summary>Whether the projectile carries any of the beam components in <paramref name="beams"/>.</summary>
     public bool HasAnyBeam(SamusBeamFlags beams) => (BeamCombination.Components & beams) != SamusBeamFlags.None;
 }

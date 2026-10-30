@@ -20,7 +20,7 @@ internal static class TorizoDefinitionMigrationVerification
         AssertEqual(0xc95e, TorizoNativeWords.PreInstructions.Word(TorizoPreInstruction.Idle), "idle movement routine");
 
         // The latches sit where the cartridge's parameter words keep them.
-        AssertEqual(0xb234, TorizoParameterFlagCodec.ToParameterWord(TorizoPostureFlags.FacingRight | TorizoPostureFlags.OppositeLegForward, 0x1234),
+        AssertEqual(0xb234, TorizoParameterWords.ToParameterWord(TorizoPostureFlags.FacingRight | TorizoPostureFlags.OppositeLegForward, 0x1234),
             "posture word facing right, opposite leg forward");
         AssertEqual(TorizoPostureFlags.OppositeLegForward | TorizoPostureFlags.TurningAround | TorizoPostureFlags.FacingRight,
             TorizoParameterFlagCodec.PostureOf(0xe123), "posture of an authored word");

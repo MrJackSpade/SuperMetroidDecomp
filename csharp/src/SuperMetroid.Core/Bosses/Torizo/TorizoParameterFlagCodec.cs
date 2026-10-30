@@ -13,10 +13,10 @@ internal static class TorizoParameterFlagCodec
     internal const int PostureLowBitsMask = (1 << 13) - 1;
 
     /// <summary>One latch and the parameter-word bit that holds it.</summary>
-    private readonly record struct LatchBit<TFlags>(TFlags Flag, int Bit) where TFlags : struct, Enum;
+    internal readonly record struct LatchBit<TFlags>(TFlags Flag, int Bit) where TFlags : struct, Enum;
 
     /// <summary>Each posture latch's bit in parameter 1.</summary>
-    private static readonly LatchBit<TorizoPostureFlags>[] PostureBits =
+    internal static readonly LatchBit<TorizoPostureFlags>[] PostureBits =
     [
         new(TorizoPostureFlags.OppositeLegForward, 1 << 13),
         new(TorizoPostureFlags.TurningAround, 1 << 14),
@@ -31,16 +31,6 @@ internal static class TorizoParameterFlagCodec
         new(TorizoBehaviorFlags.FaceBlownUp, 1 << 14),
         new(TorizoBehaviorFlags.GutBlownUp, 1 << 15),
     ];
-
-    /// <summary>The posture and the low bits beside it as one parameter word, the form an egg carries.</summary>
-    internal static ushort ToParameterWord(TorizoPostureFlags posture, int lowBits)
-    {
-        int word = Ensure.BetweenInclusive(0, PostureLowBitsMask, lowBits);
-        foreach ((TorizoPostureFlags flag, int bit) in PostureBits)
-            if ((posture & flag) != 0)
-                word |= bit;
-        return checked((ushort)word);
-    }
 
     /// <summary>The posture latches of an authored parameter-1 word.</summary>
     internal static TorizoPostureFlags PostureOf(int parameterWord)

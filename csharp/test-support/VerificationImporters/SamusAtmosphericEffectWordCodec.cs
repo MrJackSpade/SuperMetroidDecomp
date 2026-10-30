@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// frame apart; this is the one place their packing is known, for imports and checks of native state.
 /// </summary>
 [EncodingOwner("Samus atmospheric effect slot word")]
-public static class SamusAtmosphericEffectWordCodec
+internal static class SamusAtmosphericEffectWordCodec
 {
     /// <summary>The bits of the word's animation frame, below its effect.</summary>
     private const int FrameBits = 8;

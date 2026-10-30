@@ -130,14 +130,22 @@ internal static class EndingMode7ArtworkVerification
                 EndingFloorSceneArtwork.WriteMap(output, map);
             EndingFloorArtwork editedMap = installation.LoadEndingMode7Art();
             state.Stage.BindFloorArtwork(editedMap);
+            // The ending draws its floor from the floor sheet the import composes from the map, so the edited map reaches
+            // the screen through the sheets the edited art composes (#1467).
+            InstalledSpriteSheets editedMapSheets = EndingSheetFixtures.WithEndingMode7(editedMap);
+            state.InstalledArtwork.BindSpriteSheets(editedMapSheets);
             LayeredScene mapSnapshot = EndingCreditsPresentation.CaptureRenderSnapshot(state);
-            byte[] mapSnapshotVram = state.ShownVram();
-            byte[] mapVram = mapSnapshotVram.ToArray();
-            AssertTrue(!baseline.SequenceEqual(mapVram) &&
-                    baseline.AsSpan(0x8000).SequenceEqual(mapVram.AsSpan(0x8000)) &&
-                    !baselinePixels.SequenceEqual(
-                        DisplayRendering.Render(mapSnapshot)),
-                $"edited ending {id} map changes visible pixels, but only its Mode-7 VRAM lanes");
+            SpriteSheetId floorSheet = id switch
+            {
+                EndingFloorSceneId.EscapeA => SpriteSheetId.EndingEscapeAFloor,
+                EndingFloorSceneId.EscapeB => SpriteSheetId.EndingEscapeBFloor,
+                EndingFloorSceneId.PlanetExplosion => SpriteSheetId.EndingPlanetExplosionFloor,
+                _ => throw new ArgumentOutOfRangeException(nameof(id)),
+            };
+            AssertTrue(!InstalledFixtures.SpriteSheets.Get(floorSheet).Image.Pixels.ToArray()
+                    .SequenceEqual(editedMapSheets.Get(floorSheet).Image.Pixels.ToArray()) &&
+                    !baselinePixels.SequenceEqual(DisplayRendering.Render(mapSnapshot)),
+                $"edited ending {id} map recomposes its floor picture and changes the shown frame");
             if (id == EndingFloorSceneId.PlanetExplosion)
             {
                 var partialBus = NewEndingMode7SourceReadGuard(
@@ -180,6 +188,7 @@ internal static class EndingMode7ArtworkVerification
             }
             File.Delete(mapOverride);
             state.Stage.BindFloorArtwork(stock);
+            state.InstalledArtwork.BindSpriteSheets(InstalledFixtures.SpriteSheets);
 
             string pngName = EndingFloorArtworkFormat.CharacterFileName(id);
             string pngOverride = Path.Combine(installation.EndingMode7OverrideDirectory, pngName);

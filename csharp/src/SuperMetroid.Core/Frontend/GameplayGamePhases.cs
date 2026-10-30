@@ -214,7 +214,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
                !session.Runtime.MessageBox.IsActive &&
                !samusInputLockedAtFrameStart &&
                !samus.Control.AlphaLocked &&
-               session.Runtime.PowerBombExplosionStatus == 0 &&
+               !session.Runtime.PowerBombExplosionActive &&
                !samus.Xray.TimeIsFrozen &&
                !session.Runtime.RoomLoader.HasPendingDoorTransition &&
                session.Runtime.Room.ActiveRoom.AreaIndex != AreaId.Ceres &&

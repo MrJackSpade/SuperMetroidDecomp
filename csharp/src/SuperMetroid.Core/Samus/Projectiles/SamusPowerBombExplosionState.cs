@@ -25,16 +25,11 @@ public sealed class SamusPowerBombExplosionState
     [field: NonSerialized]
     public InstalledPowerBombFixedColors? PresentationColors { get; set; }
 
-    /// <summary>The HDMA explosion status, 0 through 65535; the top bit set is the normal active state.</summary>
-    [PackedFields("HDMA explosion status word: zero is no explosion and the top bit set is the active state")]
-    public int Status
-    {
-        get;
-        private set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
-
-    /// <summary>The status bit set while the bank-$88 animation runs.</summary>
-    private const int ActiveStatus = 1 << 15;
+    /// <summary>
+    /// Whether a Power Bomb or Crystal Flash explosion is running: from its spawn until its afterglow's cleanup. Sounds,
+    /// X-ray, pausing and Shaktool's room controller test it.
+    /// </summary>
+    public bool IsActive { get; private set; }
 
     /// <summary>Room-pixel centre copied from the projectile when its fuse reaches zero.</summary>
     public Position16<RoomPixels> Position { get; private set; }
@@ -85,7 +80,6 @@ public sealed class SamusPowerBombExplosionState
     public bool IsArmed { get; private set; }
 
     /// <summary>True while the bank-$88 color-math animation is running.</summary>
-    public bool IsActive => Status >= ActiveStatus;
 
     /// <summary>HDMA fade timer; its zero initialization underflows to permit the first afterglow step.</summary>
     private WrappingCountdown _afterglowTimer;
@@ -116,7 +110,7 @@ public sealed class SamusPowerBombExplosionState
     public void Spawn(Position16<RoomPixels> position)
     {
         Position = position;
-        Status = ActiveStatus;
+        IsActive = true;
 
         // Allocation occurs after this frame's HDMA pass. The NEXT pass consumes the
         // instruction list and installs the radius pre-instruction; that pre-instruction
@@ -148,7 +142,7 @@ public sealed class SamusPowerBombExplosionState
         // position, radius, speed, fixed-color, and window-table WRAM words.
         IsArmed = false;
         Position = position;
-        Status = ActiveStatus;
+        IsActive = true;
         PreExplosionRadius = PowerBombRadius.FromRaw(PowerBombExplosionDefinitions.InitialRadius);
         ExplosionRadius = PowerBombRadius.FromRaw(PowerBombExplosionDefinitions.InitialRadius);
         RadiusSpeed = PowerBombRadius.Zero;
@@ -229,7 +223,7 @@ public sealed class SamusPowerBombExplosionState
     public void Reset()
     {
         IsArmed = false;
-        Status = 0;
+        IsActive = false;
         Position = Position16<RoomPixels>.Zero;
         PreExplosionRadius = PowerBombRadius.Zero;
         ExplosionRadius = PowerBombRadius.Zero;
@@ -247,13 +241,13 @@ public sealed class SamusPowerBombExplosionState
     }
 
     /// <summary>
-    /// Retains the old runtime debugger seam used to force X-ray's status precondition.
-    /// A forced status does not fabricate an animation phase or armed projectile.
+    /// Retains the runtime debugger seam used to force X-ray's explosion precondition.
+    /// A forced explosion does not fabricate an animation phase or armed projectile.
     /// </summary>
-    internal void SetStatusForDebugging(int value)
+    internal void SetActiveForDebugging(bool active)
     {
-        Status = value;
-        if (value == 0 && Phase != PowerBombExplosionPhase.Inactive)
+        IsActive = active;
+        if (!active && Phase != PowerBombExplosionPhase.Inactive)
             Phase = PowerBombExplosionPhase.Inactive;
     }
 
@@ -396,7 +390,7 @@ public sealed class SamusPowerBombExplosionState
         ConsumeAfterglowStep();
         if (_afterglowStepsRemaining == 0)
         {
-            Status = 0;
+            IsActive = false;
             PreExplosionRadius = PowerBombRadius.Zero;
             ExplosionRadius = PowerBombRadius.Zero;
             // $88:8B4E does not clear the shared radius-speed word. Retain it
@@ -464,7 +458,7 @@ public sealed class SamusPowerBombExplosionState
         // and clears every shared Power Bomb word. Flag is already zero from `$90:D6AE`,
         // but assigning it again mirrors the cleanup routine and makes reset atomic.
         IsArmed = false;
-        Status = 0;
+        IsActive = false;
         PreExplosionRadius = PowerBombRadius.Zero;
         ExplosionRadius = PowerBombRadius.Zero;
         RadiusSpeed = PowerBombRadius.Zero;

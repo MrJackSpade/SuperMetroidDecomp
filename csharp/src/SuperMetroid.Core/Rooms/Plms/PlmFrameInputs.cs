@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>What the PLM handler reads from the rest of the frame: scroll zones, enemy deaths and quota, newly pressed input, collected items and the power-bomb status (#633).</summary>
+/// <summary>What the PLM handler reads from the rest of the frame: scroll zones, enemy deaths and quota, newly pressed input, collected items and whether a Power Bomb explosion is running (#633).</summary>
 public readonly record struct PlmFrameInputs
 {
     /// <summary>Scrolls.</summary>
@@ -21,11 +21,6 @@ public readonly record struct PlmFrameInputs
     /// <summary>Collected items.</summary>
     public SuperMetroid.Core.Progression.SamusEquipmentFlags CollectedItems { get; init; }
 
-    /// <summary>Power bomb explosion status.</summary>
-    [PackedFields("HDMA explosion status word: zero is no explosion and the top bit set is the active state")]
-    public int PowerBombExplosionStatus
-    {
-        get;
-        init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    /// <summary>Whether a Power Bomb explosion is running.</summary>
+    public bool PowerBombExplosionActive { get; init; }
 }

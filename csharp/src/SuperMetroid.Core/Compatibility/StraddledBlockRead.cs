@@ -23,6 +23,9 @@ public static class StraddledBlockRead
     /// <summary>The block-number bits below the reflections.</summary>
     private const int BlockBits = 10;
 
+    /// <summary>The two mirroring bits above the block number.</summary>
+    private const int MirroringMask = 3;
+
     /// <summary>The block's bits below its collision family.</summary>
     private const int FamilyShift = 12;
 
@@ -35,15 +38,26 @@ public static class StraddledBlockRead
         int straddled = (Pack(first) >> HalfBits) | ((Pack(second) & halfMask) << HalfBits);
         return new StraddledBlock(
             straddled & ((1 << BlockBits) - 1),
-            (straddled & (1 << BlockBits)) != 0,
-            (straddled & (1 << (BlockBits + 1))) != 0,
+            ((straddled >> BlockBits) & MirroringMask) switch
+            {
+                0 => StraddledBlock.Reflection.None,
+                1 => StraddledBlock.Reflection.Horizontal,
+                2 => StraddledBlock.Reflection.Vertical,
+                _ => StraddledBlock.Reflection.Both,
+            },
             straddled >> FamilyShift);
     }
 
     /// <summary>A block's fields side by side in the order the original read them.</summary>
     private static int Pack(StraddledBlock block) =>
         block.Block |
-        (block.Horizontal ? 1 << BlockBits : 0) |
-        (block.Vertical ? 1 << (BlockBits + 1) : 0) |
+        ((block.Mirroring switch
+        {
+            StraddledBlock.Reflection.None => 0,
+            StraddledBlock.Reflection.Horizontal => 1,
+            StraddledBlock.Reflection.Vertical => 2,
+            StraddledBlock.Reflection.Both => MirroringMask,
+            _ => throw new ArgumentOutOfRangeException(nameof(block), block.Mirroring, "Undefined mirroring."),
+        }) << BlockBits) |
         (block.Family << FamilyShift);
 }

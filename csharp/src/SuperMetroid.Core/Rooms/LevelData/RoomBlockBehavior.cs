@@ -21,15 +21,14 @@ public readonly record struct RoomBlockBehavior(int Value)
     /// number, so the trigger's picture also selects the gate's colour and side.
     /// </summary>
     /// <param name="trigger">What the trigger block shows.</param>
-    public static RoomBlockBehavior OfGateTrigger(RoomBlockAppearance trigger) => new(trigger.Block & byte.MaxValue);
+    public static RoomBlockBehavior OfGateTrigger(RoomBlockAppearance trigger) => RoomBlockBehaviorCodec.GateTrigger(trigger);
 
     /// <summary>
     /// The behaviour of a horizontal or vertical extension that collides as the block <paramref name="offset"/> blocks
     /// (or rows) away; <see cref="ExtensionOffset"/> reads it back.
     /// </summary>
     /// <param name="offset">The signed displacement, -128 through 127.</param>
-    public static RoomBlockBehavior OfExtensionOffset(int offset) =>
-        new(Ensure.BetweenInclusive(sbyte.MinValue, sbyte.MaxValue, offset) & byte.MaxValue);
+    public static RoomBlockBehavior OfExtensionOffset(int offset) => RoomBlockBehaviorCodec.ExtensionOffset(offset);
 
     /// <summary>The low five bits: a slope's shape.</summary>
     private const int SlopeShapeBits = (1 << 5) - 1;

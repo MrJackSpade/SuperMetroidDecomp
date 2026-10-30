@@ -13,7 +13,7 @@ internal static class PlmVisualDomainAudit
     /// draws and dynamic indexes remain unknown.</summary>
     internal static string? InvalidConstants(IInvocationOperation operation)
     {
-        if (operation.TargetMethod.Name != "GetWord") return null;
+        if (operation.TargetMethod.Name != "GetAppearance") return null;
         RoomPlmShotBlockDrawDefinitions.DrawList[]? frames =
             PlmVisualDomainDefinitions.Get(operation.TargetMethod.ContainingType.ToDisplayString());
         if (frames is null) return null;

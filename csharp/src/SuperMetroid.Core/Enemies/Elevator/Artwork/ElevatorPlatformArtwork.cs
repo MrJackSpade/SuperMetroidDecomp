@@ -26,7 +26,7 @@ internal static class ElevatorPlatformArtwork
                     for (int cell = 0; cell < count; cell++)
                         buffer[cell] = visuals.GetAppearance(frame.Draw, run, cell) ??
                             throw new InvalidDataException($"Elevator-platform visuals lack frame {frame.Draw}.");
-                    content.AppendAppearances("words", buffer.AsSpan(0, count));
+                    content.AppendAppearances("blocks", buffer.AsSpan(0, count));
                 }
             }
         });

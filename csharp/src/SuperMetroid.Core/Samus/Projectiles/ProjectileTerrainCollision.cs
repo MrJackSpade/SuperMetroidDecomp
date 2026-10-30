@@ -218,16 +218,27 @@ internal sealed class ProjectileTerrainCollision
     private static RoomTerrainBlock Straddling(RoomTerrainBlock first, RoomTerrainBlock second)
     {
         StraddledBlock read = StraddledBlockRead.Of(ToStraddled(first), ToStraddled(second));
-        return RoomTerrainBlock.Of(read.Block,
-            (read.Horizontal ? BlockMirroring.Horizontal : BlockMirroring.None) |
-            (read.Vertical ? BlockMirroring.Vertical : BlockMirroring.None),
-            KindsByFamily[read.Family]);
+        BlockMirroring mirroring = read.Mirroring switch
+        {
+            StraddledBlock.Reflection.None => BlockMirroring.None,
+            StraddledBlock.Reflection.Horizontal => BlockMirroring.Horizontal,
+            StraddledBlock.Reflection.Vertical => BlockMirroring.Vertical,
+            StraddledBlock.Reflection.Both => BlockMirroring.Both,
+            _ => throw new InvalidOperationException($"Undefined straddled mirroring {read.Mirroring}."),
+        };
+        return RoomTerrainBlock.Of(read.Block, mirroring, KindsByFamily[read.Family]);
     }
 
     /// <summary>A terrain block as the straddled read takes it.</summary>
     private static StraddledBlock ToStraddled(RoomTerrainBlock block) => new(block.Appearance.Block,
-        (block.Appearance.Mirroring & BlockMirroring.Horizontal) != 0,
-        (block.Appearance.Mirroring & BlockMirroring.Vertical) != 0,
+        block.Appearance.Mirroring switch
+        {
+            BlockMirroring.None => StraddledBlock.Reflection.None,
+            BlockMirroring.Horizontal => StraddledBlock.Reflection.Horizontal,
+            BlockMirroring.Vertical => StraddledBlock.Reflection.Vertical,
+            BlockMirroring.Both => StraddledBlock.Reflection.Both,
+            _ => throw new InvalidOperationException($"Undefined mirroring {block.Appearance.Mirroring}."),
+        },
         Array.IndexOf(KindsByFamily, block.Collision));
 
     /// <summary>

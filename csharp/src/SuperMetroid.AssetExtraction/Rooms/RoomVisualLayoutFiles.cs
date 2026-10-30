@@ -32,7 +32,7 @@ public static class RoomVisualLayoutFiles
     private const int LegacyFormatVersion = 1;
 
     /// <summary>The character a document writes for each mirroring.</summary>
-    private static readonly IReadOnlyDictionary<BlockMirroring, char> MirroringCodes = new Dictionary<BlockMirroring, char>
+    private static readonly Dictionary<BlockMirroring, char> MirroringCodes = new()
     {
         [BlockMirroring.None] = '-',
         [BlockMirroring.Horizontal] = 'H',
@@ -190,7 +190,8 @@ public static class RoomVisualLayoutFiles
                     old = JsonAssetDocument.Read<LegacyRoomVisualLayoutDocument>(stream, JsonOptions, $"room layout {legacy}");
                 if (old.FormatVersion != LegacyFormatVersion || old.SourceAddress != source)
                     throw new InvalidDataException($"Room layout override {legacy} is not the version-{LegacyFormatVersion} layout of the level its name gives.");
-                WriteFromWords(current, level, old.WidthInBlocks, old.HeightInBlocks, old.ForegroundVisualWords, old.BackgroundVisualWords, legacy);
+                WriteFromWords(current, level, old.Size, old.ForegroundVisualWords,
+                    old.BackgroundVisualWords, legacy);
                 File.Delete(legacy);
                 continue;
             }
@@ -199,33 +200,33 @@ public static class RoomVisualLayoutFiles
             WordRoomVisualLayoutDocument words;
             using (FileStream stream = File.OpenRead(current))
                 words = JsonAssetDocument.Read<WordRoomVisualLayoutDocument>(stream, JsonOptions, $"room layout {current}");
-            if (words.Level != level.Name)
-                throw new InvalidDataException($"Room layout override {current} is not the layout of the level its name gives.");
-            byte[] json = Serialize(level, words.WidthInBlocks, words.HeightInBlocks, words.ForegroundVisualWords,
+            if (words.FormatVersion != WordFormatVersion || words.Level != level.Name)
+                throw new InvalidDataException($"Room layout override {current} is not the version-{WordFormatVersion} layout of the level its name gives.");
+            byte[] json = Serialize(level, words.Size, words.ForegroundVisualWords,
                 words.BackgroundVisualWords, current);
             File.WriteAllBytes(current, json);
         }
     }
 
     /// <summary>Writes a version-three override converted from level words to a new file.</summary>
-    private static void WriteFromWords(string path, RoomLevelId level, int width, int height, ushort[] foreground,
+    private static void WriteFromWords(string path, RoomLevelId level, Extent16<RoomBlocks> size, ushort[] foreground,
         ushort[] background, string source)
     {
-        byte[] json = Serialize(level, width, height, foreground, background, source);
+        byte[] json = Serialize(level, size, foreground, background, source);
         using var file = new FileStream(path, FileMode.CreateNew, FileAccess.Write);
         file.Write(json);
     }
 
     /// <summary>Converts a word layout's planes, which must hold no collision bits, to a version-three document.</summary>
     /// <exception cref="InvalidDataException">A plane is missing or a word holds collision bits.</exception>
-    private static byte[] Serialize(RoomLevelId level, int width, int height, ushort[]? foreground, ushort[]? background,
-        string source)
+    private static byte[] Serialize(RoomLevelId level, Extent16<RoomBlocks> size, ushort[]? foreground,
+        ushort[]? background, string source)
     {
         if (foreground is null || background is null ||
             foreground.Any(word => !RoomLevelWordCodec.IsAppearanceWord(word)) ||
             background.Any(word => !RoomLevelWordCodec.IsAppearanceWord(word)))
             throw new InvalidDataException($"Room layout override {source} lacks a plane or holds a collision bit in its artwork.");
-        return JsonSerializer.SerializeToUtf8Bytes(new RoomVisualLayoutDocument(FormatVersion, level.Name, width, height,
+        return JsonSerializer.SerializeToUtf8Bytes(new RoomVisualLayoutDocument(FormatVersion, level.Name, size.X, size.Y,
             WritePlane([.. foreground.Select(RoomLevelWordCodec.DecodeAppearance)]),
             WritePlane([.. background.Select(RoomLevelWordCodec.DecodeAppearance)])), JsonOptions);
     }
@@ -330,10 +331,20 @@ public static class RoomVisualLayoutFiles
     [SpatialComponents("External format: version-two room-layout JSON stores widthInBlocks/heightInBlocks.")]
     private sealed record WordRoomVisualLayoutDocument(int FormatVersion, string Level,
         int WidthInBlocks, int HeightInBlocks, ushort[] ForegroundVisualWords,
-        ushort[] BackgroundVisualWords);
+        ushort[] BackgroundVisualWords)
+    {
+        /// <summary>Converts document dimensions into the room-block extent the converted document keeps.</summary>
+        [JsonIgnore]
+        public Extent16<RoomBlocks> Size => new(checked((ushort)WidthInBlocks), checked((ushort)HeightInBlocks));
+    }
     /// <summary>A version-one layout override, which named its level by the level's cartridge source.</summary>
     [SpatialComponents("External format: version-one room-layout JSON stores widthInBlocks/heightInBlocks.")]
     private sealed record LegacyRoomVisualLayoutDocument(int FormatVersion, int SourceAddress,
         int WidthInBlocks, int HeightInBlocks, ushort[] ForegroundVisualWords,
-        ushort[] BackgroundVisualWords);
+        ushort[] BackgroundVisualWords)
+    {
+        /// <summary>Converts document dimensions into the room-block extent the converted document keeps.</summary>
+        [JsonIgnore]
+        public Extent16<RoomBlocks> Size => new(checked((ushort)WidthInBlocks), checked((ushort)HeightInBlocks));
+    }
 }

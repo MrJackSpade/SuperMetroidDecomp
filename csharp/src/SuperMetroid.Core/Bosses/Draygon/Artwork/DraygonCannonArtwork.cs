@@ -26,7 +26,7 @@ internal static class DraygonCannonArtwork
                 content.AppendName("frame", DraygonCannonDraws.VisualId(frame.Draw));
                 // Preserve the flattened single-run framing of installed cannon artwork.
                 content.Append("runs", 1);
-                content.AppendAppearances("words", appearances.AsSpan(0, count));
+                content.AppendAppearances("blocks", appearances.AsSpan(0, count));
             }
         });
 

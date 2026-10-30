@@ -40,7 +40,7 @@ internal static class GameplayGrapplePaletteVerification
         var scope = runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.");
         // The synthetic floor keeps the Parlor's own block definitions, so the published plane resolves its blocks to the
         // pictures the room's tileset sheet holds.
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 16), new RoomLevelPlanes(words, new RoomBlockBehavior[512], new RoomBlockAppearance[512]));
+        var level = Harness.VerificationHelpersVerification.CreateRoom(new Extent16<RoomBlocks>(32, 16), words, new RoomBlockBehavior[512]);
         runtime.Room.Adopt(scope with { LevelData = level });
         var samus = runtime.Player.IntroducedSamus;
         var expected = new SamusColourRig();

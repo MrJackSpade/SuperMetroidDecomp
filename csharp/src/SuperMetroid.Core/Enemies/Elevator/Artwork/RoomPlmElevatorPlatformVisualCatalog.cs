@@ -27,10 +27,10 @@ public sealed class RoomPlmElevatorPlatformVisualCatalog
     /// <summary>Resolves one elevator-platform block appearance without replacing its compiled terrain block or draw offset.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>
     /// <param name="runIndex">Zero-based ordinal of the native draw run.</param>
-    /// <param name="cellIndex">Zero-based cell ordinal within that run, not a room coordinate.</param>
+    /// <param name="blockIndex">Zero-based block ordinal within that run, not a room coordinate.</param>
     /// <returns>The selected block and mirroring, taken from the compiled stock frame when unchanged.</returns>
     /// <exception cref="InvalidDataException">The draw is not a supported platform frame.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">The run or cell ordinal is outside the compiled draw shape.</exception>
-    internal RoomBlockAppearance? GetAppearance(PlmDraw draw, int runIndex, int cellIndex) =>
-        ElevatorPlatformArtwork.Appearance(customAppearances, draw, runIndex, cellIndex);
+    /// <exception cref="ArgumentOutOfRangeException">The run or block ordinal is outside the compiled draw shape.</exception>
+    internal RoomBlockAppearance? GetAppearance(PlmDraw draw, int runIndex, int blockIndex) =>
+        ElevatorPlatformArtwork.Appearance(customAppearances, draw, runIndex, blockIndex);
 }

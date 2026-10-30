@@ -17042,6 +17042,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.RoomLevelWordCodec",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/RoomLevelWordCodec.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.RoomLevelWordEncoder",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/AssetExtraction/RoomLevelWordEncoder.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Rooms.AnimatedCharacterPlacement",
       "kind": "record",
       "scope": "product",
@@ -18429,6 +18455,32 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomLevelSpaceDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomLevelSpaceDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomLevelStreamDecoder",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomLevelStreamDecoder.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Rooms.RoomLevelStreamFiles",
       "kind": "static class",
       "scope": "product",
@@ -18442,7 +18494,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomLevelStreamFiles.StreamFileEntry",
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomLevelStreamFiles.LevelFileEntry",
       "kind": "record",
       "scope": "product",
       "assemblies": [
@@ -18455,7 +18507,7 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomLevelStreamFiles.StreamFileManifest",
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomLevelStreamFiles.LevelFileManifest",
       "kind": "record",
       "scope": "product",
       "assemblies": [
@@ -19761,7 +19813,33 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomVisualLayoutFiles.RoomLayoutPlaneDocument",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomVisualLayoutFiles.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Rooms.RoomVisualLayoutFiles.RoomVisualLayoutDocument",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomVisualLayoutFiles.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomVisualLayoutFiles.WordRoomVisualLayoutDocument",
       "kind": "record",
       "scope": "product",
       "assemblies": [
@@ -48638,6 +48716,45 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.StraddledBlock",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/StraddledBlock.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.StraddledBlock.Reflection",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/StraddledBlock.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.StraddledBlockRead",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/StraddledBlockRead.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.SuitPickupSparkCarryover",
       "kind": "static class",
       "scope": "product",
@@ -48649,6 +48766,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.TerrainBeyondRoom\u003CTTerrain, TBehavior\u003E",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/TerrainBeyondRoom.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.TickAccumulator",
@@ -101664,6 +101794,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.LevelData.BlockMirroring",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/LevelData/BlockMirroring.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.LevelData.BlockMoveResult",
       "kind": "record struct",
       "scope": "product",
@@ -101806,6 +101949,19 @@
       "disposition": "contract"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.LevelData.InstalledRoomLevel",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/LevelData/InstalledRoomLevel.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.LevelData.InstalledRoomLevelStreams",
       "kind": "class",
       "scope": "product",
@@ -101851,30 +102007,17 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.LevelData.LevelBlockFlipFlags",
-      "kind": "enum",
+      "type": "SuperMetroid.Core.Rooms.LevelData.RoomBlockAppearance",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/LevelData/LevelBlockFlipFlags.cs"
+        "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomBlockAppearance.cs"
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.LevelData.LevelBlockFlipFlagsCodec",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/LevelData/LevelBlockFlipFlagsCodec.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Rooms.LevelData.RoomBlockBehavior",
@@ -102135,19 +102278,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.LevelData.RoomLevelMemoryLayout",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomLevelMemoryLayout.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Rooms.LevelData.RoomLevelPlanes",
       "kind": "struct",
       "scope": "product",
@@ -102161,64 +102291,6 @@
       "disposition": "constructor-parameters"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.LevelData.RoomLevelStreaming",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomLevelStreaming.cs"
-      ],
-      "partial": "none",
-      "disposition": "constructor-parameters"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.LevelData.RoomLevelWord",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomLevelWord.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.LevelData.RoomLevelWordAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Rooms/LevelData/RoomLevelWordAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.LevelData.RoomLevelWordAccess.extension(SuperMetroid.Core.Rooms.LevelData.RoomLevelWord)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Rooms/LevelData/RoomLevelWordAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Rooms.LevelData.RoomPaletteSet",
       "kind": "enum",
       "scope": "product",
@@ -102230,6 +102302,32 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.LevelData.RoomTerrainBlock",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomTerrainBlock.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.LevelData.RoomTerrainBlocks",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomTerrainBlocks.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Rooms.LevelData.RoomTilesetDefinitions",
@@ -102269,6 +102367,32 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.LevelData.SelectedPresentationHashAppearances",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/LevelData/SelectedPresentationHashAppearances.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.LevelData.SelectedPresentationHashAppearances.extension(SuperMetroid.Core.Assets.SelectedPresentationHash)",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/LevelData/SelectedPresentationHashAppearances.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Rooms.LevelData.SlopeAlignmentResult",
@@ -102460,6 +102584,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Plms.BlockReactionPlmDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Plms/BlockReactionPlmDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Rooms.Plms.BlockReactionPlmDrawDefinitions",
@@ -105189,19 +105326,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.Plms.PlmLevelWordDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmLevelWordDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Rooms.Plms.PlmLevelWrites",
       "kind": "static class",
       "scope": "product",
@@ -105468,6 +105592,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Plms.PlmSlotDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmSlotDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Rooms.Plms.PlmSlotTable",
@@ -106961,6 +107098,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.Plms.RoomPlmVisualBlockEntry",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmVisualBlockEntry.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.Plms.RoomPlmVisualEntry",
       "kind": "record",
       "scope": "product",
@@ -106982,19 +107132,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmVisualRunEntry.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Plms.RoomPlmVisualWordEntry",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmVisualWordEntry.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -111557,6 +111694,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Abilities.XrayRevealVisualBlocks",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealVisualBlocks.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Abilities.XrayRevealVisualDefinition",
       "kind": "record struct",
       "scope": "product",
@@ -111565,19 +111715,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealVisualDefinition.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Abilities.XrayRevealVisualWords",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealVisualWords.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -155516,6 +155653,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Fx.TreadmillPhysicsVerification.ConveyorCase",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Fx/TreadmillPhysicsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Verification.Fx.TreadmillVisualVerification",
       "kind": "static class",
       "scope": "test",
@@ -156465,6 +156615,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Harness.InstalledAppearanceJson",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Harness/InstalledAppearanceJson.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Harness.LargeDeviation",
       "kind": "record struct",
       "scope": "test",
@@ -157409,6 +157572,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Harness/SyntheticSamusCartridgeVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Harness.TerrainBlockFieldAssertions",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Harness/TerrainBlockFieldAssertions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -160074,6 +160250,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Rooms/Plms/PlmRunHeaderAssertions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Rooms.Plms.PlmVisualJson",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Rooms/Plms/PlmVisualJson.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

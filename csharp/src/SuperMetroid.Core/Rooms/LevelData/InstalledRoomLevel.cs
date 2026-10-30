@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Rooms.LevelData;
 
@@ -54,15 +53,4 @@ public sealed class InstalledRoomLevel
 
     /// <summary>How many blocks the room's level space holds past its grid.</summary>
     public int BeyondCount { get; }
-
-    /// <summary>
-    /// The room's grid for one room load, with its own terrain beyond the room, so writes last exactly the room's
-    /// lifetime.
-    /// </summary>
-    /// <param name="doors">The room's door list.</param>
-    /// <param name="visualLayout">The selected initial appearances of both planes.</param>
-    public RoomLevelData Load(IReadOnlyList<DoorListEntry> doors, RoomLevelArtwork visualLayout) =>
-        new(Size, new RoomLevelPlanes(Foreground.AsSpan(), Behaviors.AsSpan(), Background.AsSpan()), doors, visualLayout,
-            new TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior>(Following, BeyondCount, RoomTerrainBlocks.EdgeSolid,
-                RoomBlockBehaviorValues.None));
 }

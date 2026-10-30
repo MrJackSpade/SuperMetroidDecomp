@@ -101,7 +101,12 @@ public sealed class LoadedRoomAssets
                 $"Room {header.Definition.Name}'s installed {level.Size.X}x{level.Size.Y}-block level cannot contain its " +
                 $"{header.Size.X}x{header.Size.Y} visible screens.");
         }
-        return level.Load(header.Doors, visualLayout);
+        // The level gets its own terrain beyond the grid, so writes there last exactly the room's lifetime.
+        return new RoomLevelData(level.Size,
+            new RoomLevelPlanes(level.Foreground.AsSpan(), level.Behaviors.AsSpan(), level.Background.AsSpan()),
+            header.Doors, visualLayout,
+            new TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior>(level.Following, level.BeyondCount,
+                RoomTerrainBlocks.EdgeSolid, RoomBlockBehaviorValues.None));
     }
 
     /// <summary>Creates the room's screen-indexed scroll grid from its selected state.</summary>

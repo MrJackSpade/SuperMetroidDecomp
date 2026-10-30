@@ -35,7 +35,7 @@ public readonly record struct RoomBlockAppearance(int Block, BlockMirroring Mirr
 
     /// <summary>Rejects mirroring outside the two reflections.</summary>
     private static BlockMirroring Validate(BlockMirroring mirroring) =>
-        (mirroring & ~(BlockMirroring.Horizontal | BlockMirroring.Vertical)) == 0
+        mirroring is BlockMirroring.None or BlockMirroring.Horizontal or BlockMirroring.Vertical or BlockMirroring.Both
             ? mirroring
             : throw new ArgumentOutOfRangeException(nameof(mirroring), mirroring, "A block mirrors only horizontally and vertically.");
 }

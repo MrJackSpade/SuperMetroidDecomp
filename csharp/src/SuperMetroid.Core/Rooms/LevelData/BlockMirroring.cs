@@ -10,4 +10,6 @@ public enum BlockMirroring
     Horizontal = 1,
     /// <summary>The block is reflected top to bottom.</summary>
     Vertical = 2,
+    /// <summary>The block is reflected both ways.</summary>
+    Both = Horizontal | Vertical,
 }

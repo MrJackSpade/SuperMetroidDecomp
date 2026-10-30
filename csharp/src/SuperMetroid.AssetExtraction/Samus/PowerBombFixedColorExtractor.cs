@@ -8,6 +8,8 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Exports native RGB5 colors without exporting radius or HDMA mechanics.</summary>
+/// <remarks>The one decoder of the cartridge's three-byte fixed-colour triplets: each byte keeps its low five bits.</remarks>
+[EncodingOwner("Power Bomb fixed-colour triplet")]
 public static class PowerBombFixedColorExtractor
 {
     /// <summary>Imports the sixteen pre-explosion and thirty-two explosion fixed-color triplets used by Power Bomb effects.</summary>

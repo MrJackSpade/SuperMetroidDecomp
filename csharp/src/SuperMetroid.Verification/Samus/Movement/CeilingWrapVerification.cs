@@ -34,7 +34,7 @@ internal static class CeilingWrapVerification
             {
                 system.TerrainCollision.RunInitialBeamCollision(level, shot, plms, true, powerBomb);
                 int owner = plms.SlotTable.ActiveCount == 0 ? 0 : plms.PopulationSlots[0].BlockIndex * 2;
-                string actual = $"{tileX},{call},{plms.SlotTable.ActiveCount},{owner:X4},{RoomLevelWordCodec.Encode(level.GetCollisionBlockByIndex(tileX).Terrain):X4},{RoomLevelWordCodec.Encode(level.GetCollisionBlockByIndex(tileX + 1).Terrain):X4}";
+                string actual = $"{tileX},{call},{plms.SlotTable.ActiveCount},{owner:X4},{RoomLevelWordEncoder.Encode(level.GetCollisionBlockByIndex(tileX).Terrain):X4},{RoomLevelWordEncoder.Encode(level.GetCollisionBlockByIndex(tileX + 1).Terrain):X4}";
                 string expected = native[cursor++];
                 if (actual != expected && mismatches++ < 8)
                     Console.WriteLine($"Ceiling PLM mismatch:\n{actual}\n{expected}");

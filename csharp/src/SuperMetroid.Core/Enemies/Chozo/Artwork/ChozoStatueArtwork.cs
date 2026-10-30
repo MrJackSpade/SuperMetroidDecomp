@@ -25,7 +25,7 @@ internal static class ChozoStatueArtwork
                 content.AppendName("frame", ChozoStatueDraws.VisualId(frame.Draw));
                 // Preserve the flattened single-run framing of installed Chozo artwork.
                 content.Append("runs", 1);
-                content.AppendAppearances("words", appearances.AsSpan(0, count));
+                content.AppendAppearances("blocks", appearances.AsSpan(0, count));
             }
         });
 

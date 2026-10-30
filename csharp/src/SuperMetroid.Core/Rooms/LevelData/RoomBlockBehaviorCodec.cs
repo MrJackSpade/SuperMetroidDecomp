@@ -24,6 +24,13 @@ internal static class RoomBlockBehaviorCodec
         return new RoomBlockBehavior(RoomBlockBehaviorValues.BlueDoorFacingLeft.Value + index);
     }
 
+    /// <summary>The behaviour a gate trigger takes from its block number: the number's low eight bits.</summary>
+    internal static RoomBlockBehavior GateTrigger(RoomBlockAppearance trigger) => new(trigger.Block & byte.MaxValue);
+
+    /// <summary>An extension's signed offset, -128 through 127, stored as its parameter in two's complement.</summary>
+    internal static RoomBlockBehavior ExtensionOffset(int offset) =>
+        new(Ensure.BetweenInclusive(sbyte.MinValue, sbyte.MaxValue, offset) & byte.MaxValue);
+
     /// <summary>Decodes the four contiguous blue-door cap values.</summary>
     internal static bool TryBlueDoorOrientation(RoomBlockBehavior behavior, out ColoredDoorOrientation orientation)
     {

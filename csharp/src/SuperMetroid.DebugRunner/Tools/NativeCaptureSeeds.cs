@@ -51,7 +51,7 @@ internal static class NativeCaptureSeeds
             writer.Write(level.Size.X); writer.Write(level.Size.Y);
             // The native capture reads the room as the cartridge's level words and behaviour bytes.
             for (int index = 0; index < level.Size.Area; index++)
-                writer.Write(RoomLevelWordCodec.Encode(level.GetCollisionBlockByIndex(index).Terrain));
+                writer.Write(RoomLevelWordEncoder.Encode(level.GetCollisionBlockByIndex(index).Terrain));
             for (int index = 0; index < level.Size.Area; index++)
                 writer.Write(checked((byte)level.GetCollisionBlockByIndex(index).Behavior.Value));
         }

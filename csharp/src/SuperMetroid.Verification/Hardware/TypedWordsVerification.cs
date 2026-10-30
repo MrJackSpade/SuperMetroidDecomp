@@ -364,9 +364,9 @@ internal static void VerifyTypedNativeWords()
     RoomTerrainBlock grapple = RoomTerrainBlock.Of(42, BlockMirroring.Horizontal | BlockMirroring.Vertical,
         RoomCollisionType.GrappleBlock);
     AssertEqual(grapple, RoomLevelWordCodec.Decode(0xec2a), "level word decodes kind, block and mirroring");
-    AssertEqual(0xec2a, (int)RoomLevelWordCodec.Encode(grapple), "typed block encodes the level word");
+    AssertEqual(0xec2a, (int)RoomLevelWordEncoder.Encode(grapple), "typed block encodes the level word");
     AssertEqual(grapple.Appearance, RoomLevelWordCodec.DecodeAppearance(0xec2a), "appearance ignores the collision kind");
-    AssertEqual(0x0c2a, (int)RoomLevelWordCodec.EncodeAppearance(grapple.Appearance), "appearance encodes without collision bits");
+    AssertEqual(0x0c2a, (int)RoomLevelWordEncoder.EncodeAppearance(grapple.Appearance), "appearance encodes without collision bits");
     AssertTrue(RoomLevelWordCodec.IsAppearanceWord(0x0c2a) && !RoomLevelWordCodec.IsAppearanceWord(0xec2a),
         "only collision-free words are appearance words");
     AssertEqual(RoomTerrainBlock.Of(42, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.HorizontalExtension),
@@ -408,7 +408,7 @@ internal static void VerifyTypedNativeWords()
         RoomTerrainBlock decoded = RoomLevelWordCodec.Decode((ushort)(collisionNibble << 12));
         AssertEqual(retailCollisionTypes[collisionNibble], decoded.Collision,
             $"level collision nibble ${collisionNibble:X1}");
-        AssertEqual(collisionNibble << 12, (int)RoomLevelWordCodec.Encode(decoded),
+        AssertEqual(collisionNibble << 12, (int)RoomLevelWordEncoder.Encode(decoded),
             $"level collision kind encodes nibble ${collisionNibble:X1}");
         AssertTrue(decoded.StopsAttachment == (collisionNibble >= 8),
             $"attachment stops at the solid kinds, the upper half of the nibbles (${collisionNibble:X1})");

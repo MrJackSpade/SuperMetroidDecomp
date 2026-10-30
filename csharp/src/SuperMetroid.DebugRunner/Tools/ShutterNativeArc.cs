@@ -110,7 +110,7 @@ internal static class ShutterNativeArc
         for (int i = 0; i < level.Size.X * level.Size.Y; i++)
         {
             var block = level.GetCollisionBlockByIndex(i);
-            Word(0x10002 + i * 2, RoomLevelWordCodec.Encode(block.Terrain));
+            Word(0x10002 + i * 2, RoomLevelWordEncoder.Encode(block.Terrain));
             ram[0x16402 + i] = checked((byte)block.Behavior.Value);
         }
         Word(0xAF6, k.Position.X.Whole); Word(0xAF8, k.Position.X.Fraction);

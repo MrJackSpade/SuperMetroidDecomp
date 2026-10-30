@@ -22,7 +22,7 @@ internal static class EscapeGateArtwork
                         throw new InvalidDataException($"Escape-gate visuals lack frame {frame.Draw}.");
                 content.AppendName("frame", MotherBrainEscapeGateDraws.VisualId(frame.Draw));
                 content.Append("runs", 1);
-                content.AppendAppearances("words", appearances);
+                content.AppendAppearances("blocks", appearances);
             }
         });
 

@@ -1,7 +1,6 @@
 using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text;
-using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -86,20 +85,6 @@ internal sealed class SelectedPresentationHash
         for (int index = 0; index < words.Length; index++)
             BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(index * sizeof(ushort)), words[index]);
         Append(label, bytes);
-    }
-
-    /// <summary>
-    /// Block appearances hash as each block number followed by the mirroring's name, so the hash names what a block
-    /// shows rather than how a file or the cartridge stores it.
-    /// </summary>
-    public void AppendAppearances(string label, ReadOnlySpan<RoomBlockAppearance> appearances)
-    {
-        Append(label, appearances.Length);
-        foreach (RoomBlockAppearance appearance in appearances)
-        {
-            Append("block", appearance.Block);
-            AppendName("mirroring", appearance.Mirroring.ToString());
-        }
     }
 
     /// <summary>Colors hash as their 15-bit CGRAM words, identical to <see cref="AppendWords"/> of the encoded words.</summary>

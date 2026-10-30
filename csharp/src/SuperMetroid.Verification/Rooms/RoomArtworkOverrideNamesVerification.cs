@@ -55,7 +55,7 @@ internal static class RoomArtworkOverrideNamesVerification
 
     /// <summary>
     /// A room-layout override under its old source name (#1414) moves to its level's name and its document names the
-    /// level instead of the source, keeping its words; an old document of another source is refused, and an override
+    /// level instead of the source, keeping the appearances its words held; an old document of another source is refused, and an override
     /// under both names is refused.
     /// </summary>
     internal static void VerifyRoomLayoutOverrideNames()
@@ -77,13 +77,18 @@ internal static class RoomArtworkOverrideNamesVerification
         using (JsonDocument moved = JsonDocument.Parse(File.ReadAllText(current)))
         {
             JsonElement root = moved.RootElement;
-            AssertEqual(2, root.GetProperty("formatVersion").GetInt32(), "the moved layout is a version-two document");
+            // The migration carries an old override straight to the current appearance document (#1469).
+            AssertEqual(3, root.GetProperty("formatVersion").GetInt32(), "the moved layout is a version-three document");
             AssertEqual("LandingSite", root.GetProperty("level").GetString(), "the moved layout names its level");
             AssertTrue(!root.TryGetProperty("sourceAddress", out _), "the moved layout no longer names a cartridge source");
-            AssertTrue(root.GetProperty("foregroundVisualWords").EnumerateArray().Select(word => word.GetInt32()).SequenceEqual(new[] { 5, 1029 }) &&
-                root.GetProperty("backgroundVisualWords").EnumerateArray().Select(word => word.GetInt32()).SequenceEqual(new[] { 0, 7 }) &&
+            JsonElement foreground = root.GetProperty("foreground"), background = root.GetProperty("background");
+            // Word 1029 is block 5 mirrored left to right; the others are unmirrored blocks.
+            AssertTrue(foreground.GetProperty("blocks").EnumerateArray().Select(block => block.GetInt32()).SequenceEqual(new[] { 5, 5 }) &&
+                foreground.GetProperty("mirroring").GetString() == "-H" &&
+                background.GetProperty("blocks").EnumerateArray().Select(block => block.GetInt32()).SequenceEqual(new[] { 0, 7 }) &&
+                background.GetProperty("mirroring").GetString() == "--" &&
                 root.GetProperty("widthInBlocks").GetInt32() == 2 && root.GetProperty("heightInBlocks").GetInt32() == 1,
-                "the moved layout keeps its dimensions and words");
+                "the moved layout keeps its dimensions and the appearances its words held");
         }
 
         File.WriteAllText(legacy, legacyDocument);

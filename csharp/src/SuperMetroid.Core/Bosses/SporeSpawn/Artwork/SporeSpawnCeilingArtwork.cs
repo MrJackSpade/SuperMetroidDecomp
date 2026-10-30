@@ -23,7 +23,7 @@ internal static class SporeSpawnCeilingArtwork
                 content.AppendName("frame", SporeSpawnCeilingDraws.VisualId(draw.Draw));
                 // Preserve the original flattened frame identity.
                 content.Append("runs", 1);
-                content.AppendAppearances("words", appearances);
+                content.AppendAppearances("blocks", appearances);
             }
         });
 

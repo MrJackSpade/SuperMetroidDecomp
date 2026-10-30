@@ -119,8 +119,8 @@ public static class RoomPlmElevatorPlatformVisualFiles
                 var appearances = new RoomBlockAppearance[run.Blocks.Length];
                 for (int index = 0; index < appearances.Length; index++)
                 {
-                    RoomTerrainBlock source = RoomLevelWordCodec.Decode(checked((ushort)CartridgeImportSource.Require(bus)
-                        .ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, cursor))));
+                    RoomTerrainBlock source = RoomLevelWordCodec.Decode(CartridgeImportSource.Require(bus)
+                        .ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, cursor)));
                     if (source != run.Blocks.Span[index])
                         throw new InvalidDataException(
                             $"Elevator-platform draw list {list.Draw} differs at ${cursor:X4}.");

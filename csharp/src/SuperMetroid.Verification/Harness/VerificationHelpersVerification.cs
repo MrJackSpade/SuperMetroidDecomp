@@ -1,7 +1,9 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
@@ -203,14 +205,20 @@ internal static class VerificationHelpersVerification
         Extent16<RoomBlocks> size,
         ReadOnlySpan<RoomTerrainBlock> foreground,
         ReadOnlySpan<RoomBlockBehavior> behavior,
-        ReadOnlySpan<RoomBlockAppearance> background = default)
+        ReadOnlySpan<RoomBlockAppearance> background = default,
+        IReadOnlyList<DoorListEntry>? doors = null)
     {
         int blockCount = checked(size.X * size.Y);
         RoomBlockAppearance[] clearedBackground = background.IsEmpty
             ? new RoomBlockAppearance[blockCount]
             : background.ToArray();
 
-        return new RoomLevelData(size, new RoomLevelPlanes(foreground, behavior, clearedBackground));
+        // Like a retail room, the fixture's level space continues past its grid with solid blocks, so room objects and
+        // probes that reach past the grid find what the game's prefilled level space holds (#1469).
+        var beyond = new TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior>([],
+            Math.Max(0, RoomLevelSpaceDefinitions.PrefilledWordCount - blockCount), RoomTerrainBlocks.EdgeSolid,
+            RoomBlockBehaviorValues.None);
+        return new RoomLevelData(size, new RoomLevelPlanes(foreground, behavior, clearedBackground), doors, beyondRoom: beyond);
     }
 
     /// <summary>

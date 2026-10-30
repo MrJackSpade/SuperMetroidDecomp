@@ -25,7 +25,7 @@ internal static class MotherBrainFakeDeathArtwork
                 content.AppendName("frame", MotherBrainFakeDeathDraws.VisualId(draw.Draw));
                 // Existing installations hash each draw as one flattened visual frame.
                 content.Append("runs", 1);
-                content.AppendAppearances("words", appearances.AsSpan(0, index));
+                content.AppendAppearances("blocks", appearances.AsSpan(0, index));
             }
         });
 

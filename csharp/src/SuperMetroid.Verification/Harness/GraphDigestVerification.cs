@@ -56,13 +56,19 @@ internal static class GraphDigestVerification
     }
     /// <summary>
     /// True when every instance field of two objects of one type holds equal state: arrays of
-    /// unmanaged elements by content, everything else by <see cref="object.Equals(object?, object?)"/>.
+    /// unmanaged elements by content, arrays of other value types element by element, an owned Core object by its own
+    /// fields, everything else by <see cref="object.Equals(object?, object?)"/>.
     /// Reflection covers fields added later, so a restore that forgets one fails here.
     /// </summary>
     [ReflectionAudit("structural equality: every instance field is compared, so a restore that forgets a field added later fails")]
-    internal static bool InstanceStateEquals<T>(T actual, T expected) where T : class
+    internal static bool InstanceStateEquals<T>(T actual, T expected) where T : class =>
+        FieldsEqual(typeof(T), actual, expected);
+
+    /// <summary>Compares every instance field <paramref name="declared"/> and its bases declare.</summary>
+    [ReflectionAudit("structural equality: every instance field is compared, so a restore that forgets a field added later fails")]
+    private static bool FieldsEqual(Type declared, object actual, object expected)
     {
-        for (Type? type = typeof(T); type is not null; type = type.BaseType)
+        for (Type? type = declared; type is not null; type = type.BaseType)
             foreach (var field in type.GetFields(System.Reflection.BindingFlags.Instance |
                          System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic |
                          System.Reflection.BindingFlags.DeclaredOnly))
@@ -70,12 +76,33 @@ internal static class GraphDigestVerification
                 object? left = field.GetValue(actual), right = field.GetValue(expected);
                 if (left is Array leftArray && right is Array rightArray)
                 {
-                    if (leftArray.GetType() != rightArray.GetType() || !(leftArray.GetType().GetElementType() ?? throw new InvalidOperationException("Verification requires leftArray.GetType().GetElementType().")).IsPrimitive)
+                    Type element = leftArray.GetType().GetElementType()
+                        ?? throw new InvalidOperationException("Verification requires leftArray.GetType().GetElementType().");
+                    if (leftArray.GetType() != rightArray.GetType() || !element.IsValueType)
                         throw new InvalidOperationException($"{type.Name}.{field.Name} needs an element comparison.");
-                    if (!System.Runtime.InteropServices.MemoryMarshal.CreateReadOnlySpan(
-                            ref System.Runtime.InteropServices.MemoryMarshal.GetArrayDataReference(leftArray), Buffer.ByteLength(leftArray))
-                        .SequenceEqual(System.Runtime.InteropServices.MemoryMarshal.CreateReadOnlySpan(
-                            ref System.Runtime.InteropServices.MemoryMarshal.GetArrayDataReference(rightArray), Buffer.ByteLength(rightArray))))
+                    if (leftArray.Length != rightArray.Length)
+                        return false;
+                    if (element.IsPrimitive)
+                    {
+                        if (!System.Runtime.InteropServices.MemoryMarshal.CreateReadOnlySpan(
+                                ref System.Runtime.InteropServices.MemoryMarshal.GetArrayDataReference(leftArray), Buffer.ByteLength(leftArray))
+                            .SequenceEqual(System.Runtime.InteropServices.MemoryMarshal.CreateReadOnlySpan(
+                                ref System.Runtime.InteropServices.MemoryMarshal.GetArrayDataReference(rightArray), Buffer.ByteLength(rightArray))))
+                            return false;
+                    }
+                    else
+                    {
+                        // Value elements (typed blocks, behaviours) compare by their own equality, one by one.
+                        for (int index = 0; index < leftArray.Length; index++)
+                            if (!Equals(leftArray.GetValue(index), rightArray.GetValue(index)))
+                                return false;
+                    }
+                }
+                else if (left is not null && right is not null && !Equals(left, right) && left.GetType() == right.GetType() &&
+                         !left.GetType().IsValueType && left.GetType().Assembly == typeof(Ensure).Assembly)
+                {
+                    // An object the state owns (the terrain past a room's grid) is compared by its own fields.
+                    if (!FieldsEqual(left.GetType(), left, right))
                         return false;
                 }
                 else if (!Equals(left, right)) return false;

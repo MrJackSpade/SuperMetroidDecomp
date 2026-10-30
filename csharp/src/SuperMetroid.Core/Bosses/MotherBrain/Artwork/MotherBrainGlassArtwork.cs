@@ -26,7 +26,7 @@ internal static class MotherBrainGlassArtwork
                 content.AppendName("frame", MotherBrainGlassDraws.VisualId(frame.Draw));
                 // Preserve the flattened single-run framing of installed glass artwork.
                 content.Append("runs", 1);
-                content.AppendAppearances("words", appearances.AsSpan(0, count));
+                content.AppendAppearances("blocks", appearances.AsSpan(0, count));
             }
         });
 

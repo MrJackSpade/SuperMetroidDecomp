@@ -245,9 +245,9 @@ public static class XrayRevealVisualFiles
     {
         for (int entry = SamusSourceDefinitions.XrayRevealBlockTypeTable; ; entry += 4)
         {
-            ushort key = ReadWord(bus, entry);
+            int key = ReadWord(bus, entry);
             if ((RevealTableMarker)key == RevealTableMarker.TableEnd) return null;
-            if (RoomLevelWordCodec.Decode(key).Collision != type) continue;
+            if (RoomLevelWordCodec.Decode(checked((ushort)key)).Collision != type) continue;
             for (int match = ReadWord(bus, entry + 2); ; match += 4)
             {
                 int value = ReadWord(bus, match);

@@ -25,7 +25,7 @@ internal static class CrocomireArenaArtwork
                 content.AppendName("frame", CrocomireArenaDraws.VisualId(draw.Draw));
                 // Preserve the flattened-frame identity used by existing visual installations.
                 content.Append("runs", 1);
-                content.AppendAppearances("words", appearances.AsSpan(0, count));
+                content.AppendAppearances("blocks", appearances.AsSpan(0, count));
             }
         });
 

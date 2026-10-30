@@ -1,4 +1,4 @@
-// A room under the X-ray: its layers and sprites in their order, the reveal's window, the layers each line shows, and
+// A room under the X-ray: its layers and sprites in their order, the reveal's window (Window.hlsli), the layers each line shows, and
 // the blend with the fixed colour or what lies behind. D3D11FrameRenderer.DispatchXrayRoom packs the header and lines;
 // D3D11XrayBehindLayers names what lies behind.
 static const uint BehindLayer3 = 1;
@@ -60,7 +60,8 @@ uint XrayGameplay(uint2 screen)
     uint mainScreen = scan.z >> 16;
     uint2 bg2Screen = screen;
     if (Reserved27 > 1) bg2Screen -= bg2Screen % Reserved27;
-    bool inside = screen.x >= (scan.z & 255) && screen.x <= ((scan.z >> 8) & 255);
+    // Inside the window (the X-ray cone, #1468) the room shows unblended.
+    bool inside = InWindow(screen);
     uint source = 32;
     int rank = -1;
     if ((TransparentZero == 0 || inside) && (mainScreen & 2) != 0)

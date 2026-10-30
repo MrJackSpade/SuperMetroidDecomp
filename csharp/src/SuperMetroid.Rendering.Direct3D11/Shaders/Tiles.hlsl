@@ -19,6 +19,8 @@ cbuffer TileParameters : register(b0)
     uint Reserved27;
     uint Reserved28, Reserved29, Reserved30, Reserved31;
     uint4 ScanlineParameters[224];
+    // The window an operation tests pixels against (Window.hlsli, #1468): a header row and two rows per shape.
+    uint4 WindowShapes[9];
 };
 // The scene's colours (D3D11SceneColourBuffer): the backdrop, then each colour slot's table's word, then the tables:
 // a word of one bit per sixteen-ink group still showing its image's own colours, then each ink's colour.
@@ -324,6 +326,7 @@ uint PicturePixel(uint picture, uint2 pixel, out uint index, out bool high)
 }
 
 #include "SpriteLayer.hlsli"
+#include "Window.hlsli"
 #include "Xray.hlsli"
 
 // Whether the screen pixel lies where the plane covering a plane added behind it shows (#1467), or everywhere without
@@ -373,12 +376,20 @@ void Main(uint3 id : SV_DispatchThreadID)
     }
     if (Operation == OpLineColourAdd)
     {
-        uint4 window = ScanlineParameters[id.y];
-        uint left = window.x & 255, right = (window.x >> 8) & 255;
-        if (id.x >= left && id.x <= right)
+        // A colour added through a window (ColourAddWindowLayer, #1468): the colour's five-bit channels in AddR, AddG
+        // and AddB. When MatrixC holds a count of steps, the colour strengthens down the screen: none above line
+        // MatrixA, then one step more every MatrixB lines up to MatrixC, with MatrixD steps added to every line.
+        if (InWindow(id.xy))
         {
+            uint3 colour = uint3(AddR, AddG, AddB);
+            if (MatrixC > 0)
+            {
+                int strength = (int)id.y < MatrixA ? 0 : min(MatrixC, 1 + ((int)id.y - MatrixA) / MatrixB);
+                uint scale = (uint)max(0, strength + MatrixD);
+                colour = min(31u, (colour * scale + (uint)(MatrixC / 2)) / (uint)MatrixC);
+            }
             uint pixel = Output[id.xy];
-            Output[id.xy] = Pack(min(255, Unpack(pixel) + window.yzw), pixel >> 24);
+            Output[id.xy] = Pack(min(255, Unpack(pixel) + ((colour << 3) | (colour >> 2))), pixel >> 24);
         }
         return;
     }

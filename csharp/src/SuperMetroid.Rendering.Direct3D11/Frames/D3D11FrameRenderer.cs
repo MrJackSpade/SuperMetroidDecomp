@@ -242,21 +242,22 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.Dispatch(32, 28, 1);
     }
 
-    /// <summary>Uploads each scanline's color window edges and fixed RGB channels.</summary>
-    private unsafe void DispatchColorWindows(ColourAddBandsLayer layer)
+    /// <summary>
+    /// Uploads a colour added through a window (#1468): the window's shapes, the colour's five-bit channels and, when
+    /// it strengthens down the screen, its steps (the first line, lines per step, steps and the steps added to every line).
+    /// </summary>
+    private unsafe void DispatchColorWindows(ColourAddWindowLayer layer)
     {
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.LineColourAdd;
+        data[10] = (uint)layer.Colour.Red; data[11] = (uint)layer.Colour.Green; data[12] = (uint)layer.Colour.Blue;
         data[26] = 224;
-        for (int y = 0; y < layer.Windows.Length; y++)
+        if (layer.Steps is { } steps)
         {
-            ColorAddWindow line = layer.Windows[y];
-            int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + y * 4;
-            data[offset] = D3D11ConstantPacking.Bytes(checked((byte)line.Left), checked((byte)line.Right), 0, 0);
-            data[offset + 1] = (uint)line.Red;
-            data[offset + 2] = (uint)line.Green;
-            data[offset + 3] = (uint)line.Blue;
+            data[16] = (uint)steps.FirstLine; data[17] = (uint)steps.LinesPerStep;
+            data[18] = (uint)steps.Steps; data[19] = unchecked((uint)steps.Shift);
         }
+        D3D11WindowPacking.Pack(data, layer.Window);
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
@@ -327,16 +328,17 @@ public sealed class D3D11FrameRenderer : IDisposable
             var scroll = layer.Gameplay.BackgroundScrollAt(line);
             data[offset] = scroll.X;
             data[offset + 1] = unchecked((ushort)(scroll.Y + D3D11Screen.LayerLineOffset));
-            data[offset + 2] = D3D11ConstantPacking.Bytes(checked((byte)layer.Lines[y].Left), checked((byte)layer.Lines[y].Right), 0, 0);
-            // The third byte holds the layers this line shows; the low half the line's window edges.
+            // The third byte holds the layers this line shows.
             var mainScreen = layer.Gameplay.LayersShownByLine.IsEmpty
                 ? r.MainScreenLayers : layer.Gameplay.LayersShownByLine[line];
             // Draygon's room hides layer 2 outside its band even while the X-ray blends.
             if (y < r.BackgroundFirstLine || y >= r.BackgroundEndLine) mainScreen &= ~ScreenLayers.Background;
-            data[offset + 2] |= D3D11ConstantPacking.Bytes(0, 0, (byte)mainScreen, 0);
+            data[offset + 2] = D3D11ConstantPacking.Bytes(0, 0, (byte)mainScreen, 0);
             if (layer.BlendPlane is { } bg3)
                 data[offset + 3] = D3D11ConstantPacking.Halves(bg3.Scrolls[y].X, bg3.Scrolls[y].Y);
         }
+        // The X-ray's cone (#1468): inside it the room shows unblended.
+        D3D11WindowPacking.Pack(data, layer.Window);
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
@@ -493,7 +495,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     {
         // Reject unimplemented operations before changing GPU state. No CPU fallback.
         foreach (DisplayLayer layer in scene.Layers)
-            if (layer is not (PicturedPlaneLayer or AddedPicturedPlaneLayer or PictureGridLayer or HudLayer or ScreenTintLayer or SpritesLayer or SpriteDepthLayer or TurningFloorLayer or TurningRoomLayer or ColourAddBandsLayer or OverlayBlendLayer or MessageBoxLayer or GameplaySceneLayer or InsetSceneLayer or GameplayBlendLayer or ScreenGradientLayer))
+            if (layer is not (PicturedPlaneLayer or AddedPicturedPlaneLayer or PictureGridLayer or HudLayer or ScreenTintLayer or SpritesLayer or SpriteDepthLayer or TurningFloorLayer or TurningRoomLayer or ColourAddWindowLayer or OverlayBlendLayer or MessageBoxLayer or GameplaySceneLayer or InsetSceneLayer or GameplayBlendLayer or ScreenGradientLayer))
                 throw new NotSupportedException($"GPU layer {layer.GetType().Name} is not implemented yet.");
         SuperMetroid.Core.Assets.SpriteSheetFrame? messagePicture = null;
         PicturedHud? hud = null;
@@ -598,7 +600,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                 case OverlayBlendLayer math:
                     DispatchBackgroundMath(math);
                     break;
-                case ColourAddBandsLayer windows:
+                case ColourAddWindowLayer windows:
                     DispatchColorWindows(windows);
                     break;
                 case TurningRoomLayer gameplay:

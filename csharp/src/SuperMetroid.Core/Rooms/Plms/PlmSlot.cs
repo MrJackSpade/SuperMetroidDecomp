@@ -17,10 +17,10 @@ internal sealed class PlmSlot
     /// <summary>Index of the room block owned by this PLM.</summary>
     public int BlockIndex { get; set; }
     /// <summary>
-    /// Native <c>PLM_Vars</c>. Grapple setup saves the original word; collision-bomb
-    /// setup synthesizes the dimension-parent restoration word <c>$x058</c> instead.
+    /// The terrain the slot restores at its block. Grapple setup saves the original block; collision-bomb setup
+    /// saves the dimension parent instead.
     /// </summary>
-    public RoomLevelWord RestoreLevelWord { get; set; }
+    public RoomTerrainBlock RestoreTerrain { get; set; } = PlmSlotDefinitions.ClearedRestoreTerrain;
     /// <summary>The typed program the slot runs (#1296), or null for a slot a family step drives or a free slot.</summary>
     internal PlmAnimation? Animation { get; private set; }
     /// <summary>Countdown until the slot's next instruction-list step.</summary>
@@ -54,7 +54,7 @@ internal sealed class PlmSlot
         PlantHeldPosition = Position16<RoomPixels>.Zero;
         Header = 0;
         BlockIndex = 0;
-        RestoreLevelWord = 0;
+        RestoreTerrain = PlmSlotDefinitions.ClearedRestoreTerrain;
         Animation = null;
         InstructionTimer = WrappingCountdown.Start(0);
         PreInstruction = PlmPreInstructions.Inert;

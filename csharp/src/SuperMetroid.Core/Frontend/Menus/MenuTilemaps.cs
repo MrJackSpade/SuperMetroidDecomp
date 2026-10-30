@@ -1,4 +1,6 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.Menus;
 
@@ -31,5 +33,24 @@ internal sealed class MenuTilemaps
     {
         Ensure.LengthEqual(source, destination.Length);
         source.CopyTo(destination);
+    }
+
+    /// <summary>
+    /// Places each cell of <paramref name="map"/> on <paramref name="destination"/>, a map screen's two-page area-map layer:
+    /// its shape's picture in the colour variant the screen shows it in, mirrored and in its tier.
+    /// </summary>
+    internal static void LoadAreaMap(Span<BackgroundTile> destination, ShownAreaMap map)
+    {
+        Ensure.NotNull(map);
+        if (destination.Length != AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles)
+            throw new ArgumentException("An area map fills a whole two-page layer.", nameof(destination));
+        for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
+        for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
+        {
+            var cell = new Position16<MapTiles>(unchecked((ushort)x), unchecked((ushort)y));
+            ShownMapCell shown = map[cell];
+            destination[AreaMapPages.GetTilemapWordIndex(cell)] =
+                new BackgroundTile(shown.Cell.Shape.Picture, shown.ColourVariant, shown.Cell.InFront, shown.Cell.Mirroring);
+        }
     }
 }

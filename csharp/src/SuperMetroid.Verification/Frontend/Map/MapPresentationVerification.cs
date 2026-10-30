@@ -133,7 +133,7 @@ internal static class MapPresentationVerification
         AssertTrue(!map.IsDiscoverable(new(4, 6)), "new artwork cannot create exploration cells");
 
         var system = new SharedGameState();
-        byte[] projected = BackgroundTileWordBytes.Of(AreaMapTilemapBuilder.Build(map, system, MapTileWords.PauseBlank.ToCell(), MapRevealMode.Secret));
+        byte[] projected = BackgroundTileWordBytes.Of(ShownAreaMapTiles.Of(AreaMapProjection.Project(map, system, MapTileWords.PauseBlank.ToCell(), MapRevealMode.Secret)));
         ushort Word(int x, int y) => System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(
             projected.AsSpan(AreaMapPages.GetTilemapWordIndex(new(checked((ushort)x), checked((ushort)y))) * 2));
         AssertEqual(MapTileWord.Of(map.Cell(new(5, 6))).Raw, Word(5, 6), "shared pause/file-select projection uses editable art");
@@ -1358,8 +1358,8 @@ internal static class MapPresentationVerification
         AssertTrue(stock.RenderBackgrounds(new(0, 0)).SequenceEqual(installed.RenderBackgrounds(new(0, 0))),
             "file-select installed stock renders identical pixels without map ROM reads");
         installed.BindFixtureArtwork(edited);
-        byte[] expected = BackgroundTileWordBytes.Of(AreaMapTilemapBuilder.Build(edited.Get(AreaId.Crateria), system, MapTileWords.FileSelectUndownloadedBlank.ToCell()));
-        byte[] unchanged = BackgroundTileWordBytes.Of(AreaMapTilemapBuilder.Build(original.Get(AreaId.Crateria), system, MapTileWords.FileSelectUndownloadedBlank.ToCell()));
+        byte[] expected = BackgroundTileWordBytes.Of(ShownAreaMapTiles.Of(AreaMapProjection.Project(edited.Get(AreaId.Crateria), system, MapTileWords.FileSelectUndownloadedBlank.ToCell())));
+        byte[] unchanged = BackgroundTileWordBytes.Of(ShownAreaMapTiles.Of(AreaMapProjection.Project(original.Get(AreaId.Crateria), system, MapTileWords.FileSelectUndownloadedBlank.ToCell())));
         AssertTrue(!expected.SequenceEqual(unchanged), "override changes a visible file-select cell");
         var shownInstalled = MenuScreenFixtures.Vram(installed.screen);
         for (int i = 0; i < expected.Length / 2; i++)

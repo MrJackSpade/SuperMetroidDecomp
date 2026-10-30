@@ -63,7 +63,7 @@ internal static class GrappleEnemyDeathVerification
             // full enemy-frame adapter forwards it to the queue with Max1.
             heardDeath |= fixture.System.DeathsAndDrops.LastEnemyDeathSoundEffectLibrary2 ==
                 Library2Sound.EnemyKilled;
-            if (explosion.Variable0 == (ushort)EnemyPickupKind.SmallEnergy * 2)
+            if (explosion.State is EnemyPickupState { Kind: EnemyPickupKind.SmallEnergy })
             {
                 AssertEqual(31, frame, "small explosion uses the cartridge's complete 31-frame animation");
                 sawPickup = true;

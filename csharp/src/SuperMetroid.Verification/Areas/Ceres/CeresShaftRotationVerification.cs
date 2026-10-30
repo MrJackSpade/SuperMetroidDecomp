@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Areas.Ceres;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Areas.Ceres;
 /// <summary>Checks the Ceres elevator shaft's timed Mode 7 matrix publications against native rotation records.</summary>
@@ -11,8 +10,8 @@ internal static class CeresShaftRotationVerification
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         // Numeric coefficients/phases were proven by the #1165 research; this check covers
         // actual per-frame publication only.
-        var scratch = new RoomMainScratchState();
-        var state = new CeresElevatorShaftRoomMainState(active: true, scratch);
+        var carryover = new RoomMainCarryover();
+        var state = new CeresElevatorShaftRoomMainState(active: true, carryover);
         ushort phaseWord = 34, timer = 60;
         int updates = 0;
         // Four full sweeps: compare every held frame as well as every matrix
@@ -25,7 +24,7 @@ internal static class CeresShaftRotationVerification
             int offset = (ushort)(phaseWord * 6);
             if (changed)
                 timer = rom.ReadCartridgeWord(CeresShaftRotationDefinitions.ReferenceAddress + offset);
-            var actual = state.Step(null, elevatorDoorDestroyed: true, allowDeparture: false, scratch);
+            var actual = state.Step(null, elevatorDoorDestroyed: true, allowDeparture: false, carryover);
             AssertEqual(changed, actual.MatrixChanged, "shaft matrix publication frame");
             AssertEqual(timer, state.RotationTimer.RawValue, "shaft native timer every frame");
             if (changed)
@@ -38,7 +37,9 @@ internal static class CeresShaftRotationVerification
                     : phaseWord == 67 ? (ushort)0x8044 : (ushort)(phaseWord + 1);
                 updates++;
             }
-            AssertEqual(phaseWord, scratch.Var1, "shaft forward/reverse native phase");
+            AssertEqual(phaseWord & 127, state.RotationStep, "shaft turn step every frame");
+            AssertEqual(phaseWord >= 32768, state.RotatingBackward, "shaft sweep direction every frame");
+            AssertEqual(phaseWord, carryover.Countdown.RawValue, "shaft turn step the following room inherits, as the native phase word");
         }
     }
 }

@@ -183,9 +183,9 @@ internal static class EnemyDropsVerification
             NativeDropChances) ??
             throw new InvalidOperationException($"Could not allocate {kind} test pickup.");
 
-        AssertEqual(unchecked((ushort)((ushort)kind * 2)), pickup.Variable0,
-            $"{kind} uses native eproj_E identity");
-        AssertEqual(400, pickup.Variable1,
+        AssertEqual(kind, pickup.StateOf<EnemyPickupState>().Kind,
+            $"{kind} pickup restores {kind}");
+        AssertEqual(400, pickup.StateOf<EnemyPickupState>().Lifetime,
             $"{kind} starts with native 400-frame lifetime");
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
 
@@ -206,7 +206,7 @@ internal static class EnemyDropsVerification
         EnemyDropFixture reroll = CreateEnemyDropFixture(rerollSamus, randomValues: [0, 1]);
         RoomEnemyProjectileSlot rerolled = (reroll.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(
             new(50, 50), NativeDropChances) ?? throw new InvalidOperationException("Verification requires reroll.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable( new(50, 50), NativeDropChan...."));
-        AssertEqual(2, rerolled.Variable0,
+        AssertEqual(EnemyPickupKind.SmallEnergy, rerolled.StateOf<EnemyPickupState>().Kind,
             "zero RNG sample rerolls before selecting small energy");
 
         // `$7E:0E1E` is a stateful critical-energy flag. Energy below 30 enables it,
@@ -221,13 +221,13 @@ internal static class EnemyDropsVerification
 
         RoomEnemyProjectileSlot belowThirty =
             (bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(10, 10), biasDropChances) ?? throw new InvalidOperationException("Verification requires bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(10, 10), biasDropChancePoi...."));
-        AssertEqual(4, belowThirty.Variable0,
+        AssertEqual(EnemyPickupKind.BigEnergy, belowThirty.StateOf<EnemyPickupState>().Kind,
             "critical energy suppresses no-drop and renormalizes energy weights");
 
         biasSamus.Health = 40;
         RoomEnemyProjectileSlot graceBand =
             (bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(20, 20), biasDropChances) ?? throw new InvalidOperationException("Verification requires bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(20, 20), biasDropChancePoi...."));
-        AssertEqual(4, graceBand.Variable0,
+        AssertEqual(EnemyPickupKind.BigEnergy, graceBand.StateOf<EnemyPickupState>().Kind,
             "30..49 energy retains the previous critical-drop bias");
 
         biasSamus.Health = 50;
@@ -257,9 +257,9 @@ internal static class EnemyDropsVerification
 
         RoomEnemyProjectileSlot expiring =
             (fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(300, 300), NativeDropChances) ?? throw new InvalidOperationException("Verification requires fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(300, 300), NativeDropCh...."));
-        expiring.Variable1 = 1;
+        expiring.StateOf<EnemyPickupState>().Lifetime = 1;
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
-        AssertEqual(0, expiring.Variable1,
+        AssertEqual(0, expiring.StateOf<EnemyPickupState>().Lifetime,
             "pickup lifetime decrements before its expiry comparison");
         AssertEqual((ushort)0xefdf, expiring.PreInstructionWord,
             "expired pickup enters native blank tail");
@@ -299,7 +299,7 @@ internal static class EnemyDropsVerification
             AssertEqual(50, samus.Health,
                 $"grapple cannot collect pickup during protected frame {frame + 1}");
         }
-        AssertEqual(384, pickup.Variable1,
+        AssertEqual(384, pickup.StateOf<EnemyPickupState>().Lifetime,
             "sixteen protected frames still decrement pickup lifetime");
 
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
@@ -387,8 +387,8 @@ internal static class EnemyDropsVerification
         EnemyDeathProjectileProgram converted = fixture.System.DeathsAndDrops.ConvertEnemyDeathExplosionToPickup(explosion);
         AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, explosion.Kind,
             "EEAF converts death actor in place without rewriting its definition identity");
-        AssertEqual(2, explosion.Variable0,
-            "converted death actor stores selected small-energy identity");
+        AssertEqual(EnemyPickupKind.SmallEnergy, explosion.StateOf<EnemyPickupState>().Kind,
+            "converted death actor becomes a small-energy pickup");
         AssertEqual((ushort)0xefe0, explosion.PreInstructionWord,
             "converted death actor enters shared pickup pre-instruction");
         AssertEqual(EnemyDeathProjectileProgram.SmallEnergy, converted,

@@ -56,16 +56,18 @@ internal static class MotherBrainTurretDefinitionsVerification
                 $"production Mother Brain turret kind {parameter}");
             AssertEqual(definition.Position, turret.Position.Whole,
                 $"production Mother Brain turret position {parameter}");
-            AssertEqual(parameter, turret.DirectionParameter,
+            MotherBrainTurretState turretState = turret.StateOf<MotherBrainTurretState>();
+            AssertEqual(parameter, turretState.Turret,
                 $"production Mother Brain turret identity {parameter}");
-            AssertEqual(unchecked((ushort)(0x0100 | (byte)definition.InitialDirection)),
-                turret.Position.Y.Fraction,
-                $"production Mother Brain turret packed direction {parameter}");
+            AssertEqual(MotherBrainTurretDefinitions.Ring.PositionOf(definition.InitialDirection), turretState.RingPosition,
+                $"production Mother Brain turret initial ring position {parameter}");
+            AssertEqual(1, turretState.RotationStep,
+                $"production Mother Brain turret starts turning forward {parameter}");
             AssertTrue(turret.Animation is MotherBrainTurretAnimation { Program: MotherBrainTurretProgram.TurretPose },
                 $"production Mother Brain turret {parameter} starts its typed pose");
-            AssertEqual(MotherBrainTurretDefinitions.MinimumRotationDelay, turret.Velocity.X.RawValue,
+            AssertEqual(MotherBrainTurretDefinitions.MinimumRotationDelay, (int)turretState.RotationWait.RawValue,
                 $"production Mother Brain turret rotation timer {parameter}");
-            AssertEqual(MotherBrainTurretDefinitions.MinimumFiringCooldown, turret.Velocity.Y.RawValue,
+            AssertEqual(MotherBrainTurretDefinitions.MinimumFiringCooldown, (int)turretState.FiringWait.RawValue,
                 $"production Mother Brain turret cooldown {parameter}");
 
             foreach (sbyte delta in new sbyte[] { -1, 1 })
@@ -73,8 +75,7 @@ internal static class MotherBrainTurretDefinitionsVerification
             {
                 var rotation = new RoomEnemyProjectileSlot(0)
                 {
-                    Position = new(new(0, 0), new(0, unchecked(LittleEndianBytes.Word(current, unchecked((byte)delta))))),
-                    DirectionParameter = parameter,
+                    State = new MotherBrainTurretState(parameter, current) { RotationStep = delta },
                 };
                 byte candidate = unchecked((byte)((current + delta) & 7));
                 bool allowed = rom.ReadCartridgeByte(
@@ -85,10 +86,11 @@ internal static class MotherBrainTurretDefinitionsVerification
                     : unchecked((byte)(current + expectedDelta));
 
                 MotherBrainProjectiles.SelectNextMotherBrainTurretDirection(rotation);
-                AssertEqual(unchecked(
-                        LittleEndianBytes.Word(expectedDirection, unchecked((byte)expectedDelta))),
-                    rotation.Position.Y.Fraction,
+                MotherBrainTurretState rotated = rotation.StateOf<MotherBrainTurretState>();
+                AssertEqual((int)expectedDirection, rotated.RingPosition,
                     $"production Mother Brain turret rotation {parameter}/{current}/{delta}");
+                AssertEqual((int)expectedDelta, rotated.RotationStep,
+                    $"production Mother Brain turret turn step {parameter}/{current}/{delta}");
             }
         }
 
@@ -121,7 +123,8 @@ internal static class MotherBrainTurretDefinitionsVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             var turret = new RoomEnemyProjectileSlot(0)
             {
-                Position = new(new(0x0400, 0), new(0x0200, direction)),
+                Position = new(new(0x0400, 0), new(0x0200, 0)),
+                State = new MotherBrainTurretState(0, direction),
             };
             enemies.MotherBrainBehavior.Projectiles.SpawnMotherBrainTurretBullet(turret);
 
@@ -129,10 +132,9 @@ internal static class MotherBrainTurretDefinitionsVerification
                 enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
             AssertEqual(RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, bullet.Kind,
                 $"production Mother Brain turret bullet kind {direction}");
-            AssertEqual(direction, bullet.DirectionParameter,
+            AssertTrue(bullet.Animation is MotherBrainTurretAnimation bulletAnimation &&
+                    bulletAnimation.Cursor.Program == new MotherBrainTurretPose(MotherBrainTurretProgram.BulletPose, typedDirection),
                 $"production Mother Brain turret bullet direction {direction}");
-            AssertEqual((ushort)(direction * 2), bullet.Variable0,
-                $"production Mother Brain turret bullet direction offset {direction}");
             AssertEqual(new Position16<RoomPixels>(0x0400, 0x0200) + definition.BulletOffset, bullet.Position.Whole,
                 $"production Mother Brain turret bullet position {direction}");
             AssertEqual(definition.BulletVelocity, bullet.Velocity,

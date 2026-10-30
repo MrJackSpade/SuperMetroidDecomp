@@ -16,11 +16,4 @@ internal static class FuneNamiheNativeWords
         [FuneNamiheEnemyFunction.FuneActivityNoOp] = 0x978e,
         [FuneNamiheEnemyFunction.NamiheActivityNoOp] = 0x978f,
     });
-
-    /// <summary>The routine word naming each <see cref="NamiFuneFireballFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<NamiFuneFireballFunction> NamiFuneFireballFunctions = new(new Dictionary<NamiFuneFireballFunction, ushort>
-    {
-        [NamiFuneFireballFunction.MovingLeft] = 0xdf40,
-        [NamiFuneFireballFunction.MovingRight] = 0xdf6a,
-    });
 }

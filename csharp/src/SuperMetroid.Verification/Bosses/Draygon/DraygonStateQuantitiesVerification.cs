@@ -38,7 +38,7 @@ internal static class DraygonStateQuantitiesVerification
         RoomEnemyProjectileSlot goop = AttachedGoop(enemies, lifetime: 2);
         enemies.DraygonBehavior.Goop.RunAttachedDraygonGoop(goop, samus);
         AssertTrue(goop.IsActive, "an attached goop with lifetime two holds for its first update");
-        AssertEqual(1, goop.Variable0, "the first update leaves one update of lifetime");
+        AssertEqual(1, goop.StateOf<DraygonGoopAttachedState>().Lifetime.RawValue, "the first update leaves one update of lifetime");
         enemies.DraygonBehavior.Goop.RunAttachedDraygonGoop(goop, samus);
         AssertTrue(!goop.IsActive, "the goop falls off on the update its lifetime reaches zero");
         AssertEqual(0, samus.XSpeedDivisor, "the goop that falls off restores one X-speed divisor step");
@@ -47,7 +47,7 @@ internal static class DraygonStateQuantitiesVerification
         RoomEnemyProjectileSlot cleared = AttachedGoop(enemies, lifetime: 0);
         enemies.DraygonBehavior.Goop.RunAttachedDraygonGoop(cleared, samus);
         AssertTrue(cleared.IsActive, "a cleared lifetime wraps below zero instead of releasing the goop");
-        AssertEqual(ushort.MaxValue, cleared.Variable0, "a cleared lifetime wraps to the full word");
+        AssertEqual(ushort.MaxValue, cleared.StateOf<DraygonGoopAttachedState>().Lifetime.RawValue, "a cleared lifetime wraps to the full word");
     }
 
     /// <summary>Puts an attached Draygon goop with the given lifetime in the last projectile slot.</summary>
@@ -56,8 +56,7 @@ internal static class DraygonStateQuantitiesVerification
         RoomEnemyProjectileSlot goop = enemies.Projectiles.EnemyProjectiles[^1];
         goop.Kind = RoomEnemyProjectileKind.DraygonGoop;
         goop.PreInstruction = EnemyProjectilePreInstruction.DraygonGoop_StuckToSamus;
-        goop.Variable1 = 1;
-        goop.Variable0 = lifetime;
+        goop.State = new DraygonGoopAttachedState(stackPosition: 1) { Lifetime = WrappingCountdown.FromRaw(lifetime) };
         return goop;
     }
 

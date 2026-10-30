@@ -110,7 +110,7 @@ internal static class BotwoonAnimationsVerification
             int[] expectedDirections = [unchecked((byte)(spitAngle - 16)), spitAngle, unchecked((byte)(spitAngle + 16))];
             int[] actualDirections = volleyEnemies.Projectiles.EnemyProjectiles
                 .Where(projectile => projectile.Kind == RoomEnemyProjectileKind.BotwoonSpit)
-                .Select(projectile => projectile.DirectionParameter)
+                .Select(projectile => (int)projectile.StateOf<AngledFlightState>().Heading.RawValue)
                 .Order()
                 .ToArray();
             AssertTrue(expectedDirections.Order().SequenceEqual(actualDirections),
@@ -168,13 +168,17 @@ internal static class BotwoonAnimationsVerification
 
         // A changed selector restarts the segment; an unchanged one keeps running.
         Action<RoomEnemyProjectileSlot, int> animate = enemies.BotwoonBehavior.AnimateBotwoonBodySegment;
-        var segment = new RoomEnemyProjectileSlot(1) { Kind = RoomEnemyProjectileKind.BotwoonBody, DirectionParameter = 0 };
+        var segment = new RoomEnemyProjectileSlot(1)
+        {
+            Kind = RoomEnemyProjectileKind.BotwoonBody,
+            State = new BotwoonSegmentState(BotwoonSegmentProgram.FromSelector(0)),
+        };
         segment.StartAnimation(BotwoonProjectileAnimation.ForSegment(BotwoonSegmentProgram.FromSelector(0)));
         Pass(segment);
         Pass(segment);
         animate(segment, 0);
         AssertEqual((ushort)7, segment.InstructionTimer.RawValue, "an unchanged Botwoon segment program keeps its timer");
-        segment.DirectionParameter = 2;
+        segment.StateOf<BotwoonSegmentState>().Pose = BotwoonSegmentProgram.FromSelector(2);
         animate(segment, 0);
         AssertEqual((ushort)1, segment.InstructionTimer.RawValue, "a changed Botwoon segment program restarts");
         Pass(segment);

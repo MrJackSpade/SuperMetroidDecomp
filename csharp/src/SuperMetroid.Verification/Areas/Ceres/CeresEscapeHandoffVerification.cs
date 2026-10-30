@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Areas.Ceres.CeresShaftRotationVerification;
 using static SuperMetroid.Verification.Samus.Artwork.SamusRenderingVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -129,23 +128,23 @@ internal static class CeresEscapeHandoffVerification
         // No rotation bytes are installed in this address space. The live matrix
         // lifecycle consumes application-owned records, not synthetic ROM artwork.
 
-        var scratch = new RoomMainScratchState();
-        var state = new CeresElevatorShaftRoomMainState(active: true, scratch);
+        var carryover = new RoomMainCarryover();
+        var state = new CeresElevatorShaftRoomMainState(active: true, carryover);
         SamusState outsideTrigger = CreateSamus(
             SamusPoseId.FacingRightNormalPose,
             position: new(32, 100));
 
-        StepFrames(60, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, scratch));
+        StepFrames(60, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover));
         AssertEqual(0, state.RotationTimer.RawValue, "shaft door delay retains zero for one room-main call");
         AssertEqual(
             CeresElevatorShaftRoomMainState.InitialRotationIndex,
-            scratch.Var1,
+            state.RotationStep,
             "shaft index waits through first 60 calls");
 
         CeresElevatorShaftRoomMainResult firstMatrix =
-            state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, scratch);
+            state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover);
         AssertTrue(firstMatrix.MatrixChanged, "61st shaft call underflows and consumes first matrix record");
-        AssertEqual(35, scratch.Var1, "shaft index advances after record 34");
+        AssertEqual(35, state.RotationStep, "shaft index advances after record 34");
         AssertEqual(0x0100, state.Transform.MatrixA, "shaft cosine comes from record 34");
         AssertEqual(0, state.Transform.MatrixB, "shaft sine comes from record 34");
         AssertEqual(
@@ -153,34 +152,37 @@ internal static class CeresEscapeHandoffVerification
             state.Transform.MatrixC,
             "shaft C matrix is native negated sine");
 
-        // Consume records 35..67. The final forward phase is encoded as $8044 rather
-        // than 68; one more call proves the wrapped multiplication selects record 68.
+        // Consume records 35..67. The sweep then reverses at step 68, and one more call proves step 68 reads record 68.
+        // The following room inherits the backward steps with the native phase word's sign bit.
         for (int i = 0; i < 33; i++)
-            StepFrames(state.RotationTimer.RawValue + 1, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, scratch));
-        AssertEqual(0x8044, scratch.Var1, "shaft forward sweep enters encoded reverse phase");
-        StepFrames(state.RotationTimer.RawValue + 1, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, scratch));
-        AssertEqual(0x8043, scratch.Var1, "shaft encoded reverse phase decrements");
-        AssertEqual(0x00fe, state.Transform.MatrixA, "encoded phase maps to record 68");
+            StepFrames(state.RotationTimer.RawValue + 1, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover));
+        AssertEqual(68, state.RotationStep, "shaft forward sweep enters the reverse sweep at step 68");
+        AssertTrue(state.RotatingBackward, "shaft forward sweep reverses after step 67");
+        AssertEqual(0x8044, carryover.Countdown.RawValue, "the following room inherits the reverse step as phase $8044");
+        StepFrames(state.RotationTimer.RawValue + 1, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover));
+        AssertEqual(67, state.RotationStep, "shaft reverse sweep counts down");
+        AssertEqual(0x8043, carryover.Countdown.RawValue, "the following room inherits the next reverse step as phase $8043");
+        AssertEqual(0x00fe, state.Transform.MatrixA, "reverse step 68 reads record 68");
         AssertEqual(34, state.Transform.MatrixB, "reverse endpoint sine");
         Suite(nameof(VerifyCeresShaftCompiledRotation), () => VerifyCeresShaftCompiledRotation());
 
         // State $20/$21 still run room main but fail its explicit game-state-eight gate.
-        var triggerScratch = new RoomMainScratchState();
-        var trigger = new CeresElevatorShaftRoomMainState(active: true, triggerScratch);
+        var triggerCarryover = new RoomMainCarryover();
+        var trigger = new CeresElevatorShaftRoomMainState(active: true, triggerCarryover);
         SamusState samus = CreateSamus(
             SamusPoseId.FacingRightNormalPose,
             position: new(113, 75));
-        trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: false, triggerScratch);
+        trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: false, triggerCarryover);
         AssertTrue(!trigger.DepartureRequested, "non-gameplay dispatcher cannot trigger departure");
 
         CeresElevatorShaftRoomMainResult requested =
-            trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: true, triggerScratch);
+            trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: true, triggerCarryover);
         AssertTrue(requested.DepartureRequestedThisFrame, "inclusive lower Y/exclusive lower X trigger admits Samus");
         AssertTrue(samus.Control.AlphaLocked, "departure trigger installs SamusCode_00 lock");
         AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "departure keeps right-facing standing pose");
 
         CeresElevatorShaftRoomMainResult repeated =
-            trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: true, triggerScratch);
+            trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: true, triggerCarryover);
         AssertTrue(!repeated.DepartureRequestedThisFrame, "departure request is a one-frame publication");
     }
 

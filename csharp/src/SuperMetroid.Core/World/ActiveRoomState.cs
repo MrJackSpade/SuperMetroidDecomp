@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// The loaded room's live state: room, door and assets, level data, camera, background streamer and scrolling
-/// sky, landing-site entry, inherited layer-1 position, load station, Ceres elevator arrival, room-main scratch and
+/// sky, landing-site entry, inherited layer-1 position, load station, Ceres elevator arrival, the value one room main leaves the next, and
 /// the door transition's main-screen layers.
 /// </summary>
 [RoomScopeBoundary("Holds the loaded room and the room under construction.")]

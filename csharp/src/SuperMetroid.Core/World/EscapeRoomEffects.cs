@@ -14,7 +14,7 @@ internal sealed class EscapeRoomEffects
     private readonly GameplayTimeFreeze _freeze;
     /// <summary>Sets the native two- or four-frame explosion cadence.</summary>
     private readonly FrameClock _clock;
-    /// <summary>Provides the active room callback, camera, level, and scratch countdown.</summary>
+    /// <summary>Provides the active room callback, camera and level.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Supplies the cartridge random sequence and Zebes timebomb event.</summary>
     private readonly SharedGameState _system;

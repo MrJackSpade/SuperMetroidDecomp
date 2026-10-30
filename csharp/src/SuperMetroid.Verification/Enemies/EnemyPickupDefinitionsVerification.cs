@@ -11,15 +11,13 @@ namespace SuperMetroid.Verification.Enemies;
 /// <summary>Checks the six native enemy pickup selectors and five live pickup initializers.</summary>
 internal static class EnemyPickupDefinitionsVerification
 {
-    /// <summary>Compares compiled animation offsets and pointers with bank-$86, then confirms production spawn timing, pre-instruction, lifetime, and contact behavior.</summary>
+    /// <summary>Compares compiled pickup programs with bank-$86, then confirms production spawn timing, pre-instruction, lifetime, and contact behavior.</summary>
     internal static void VerifyEnemyPickupDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 6; index++)
         {
             var kind = (EnemyPickupKind)index;
             EnemyPickupAnimationDefinition animation = EnemyPickups.Animation(kind);
-            AssertEqual(index * 2, animation.TableOffset,
-                $"enemy pickup table offset {kind}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86ef04 + index * 2)),
                 animation.Program is { } program ? EnemyDeathProjectileNativeListAddresses.Entry(program) : (ushort)0,
                 $"enemy pickup program {kind}");
@@ -30,21 +28,19 @@ internal static class EnemyPickupDefinitionsVerification
             var kind = (EnemyPickupKind)index;
             var projectile = new RoomEnemyProjectileSlot(index)
             {
-                Variable0 = 0xffff,
-                Variable1 = 0xffff,
                 InstructionTimer = WrappingCountdown.Start(0xffff),
                 PreInstruction = EnemyProjectilePreInstruction.None,
                 PersistsOnSamusContact = true,
             };
             EnemyDeathsAndDropsConstants.BeginEnemyPickup(projectile, kind);
             EnemyPickupAnimationDefinition expected = EnemyPickups.Animation(kind);
-            AssertEqual(expected.TableOffset, projectile.Variable0,
-                $"production pickup table offset {kind}");
+            AssertEqual(kind, projectile.StateOf<EnemyPickupState>().Kind,
+                $"production pickup kind {kind}");
             AssertEqual(expected.Program, ProgramOf(projectile),
                 $"production pickup program {kind}");
             AssertEqual(1, projectile.InstructionTimer.RawValue,
                 $"production pickup instruction timer {kind}");
-            AssertEqual(400, projectile.Variable1,
+            AssertEqual(400, projectile.StateOf<EnemyPickupState>().Lifetime,
                 $"production pickup lifetime {kind}");
             AssertEqual(EnemyProjectilePreInstruction.Pickup,
                 projectile.PreInstruction,

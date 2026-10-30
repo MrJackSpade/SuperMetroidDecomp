@@ -48,7 +48,7 @@ internal static class MotherBrainDoorFragmentDefinitionsVerification
                 $"production Mother Brain door fragment X velocity {parameter}");
             AssertEqual(definition.Velocity.Y, fragment.Velocity.Y,
                 $"production Mother Brain door fragment Y velocity {parameter}");
-            AssertEqual(MotherBrainDeathDefinitions.DoorFragmentLifetime, fragment.Variable0,
+            AssertEqual(MotherBrainDeathDefinitions.DoorFragmentLifetime, fragment.StateOf<MotherBrainDoorFragmentState>().Lifetime.RawValue,
                 $"production Mother Brain door fragment lifetime {parameter}");
         }
 

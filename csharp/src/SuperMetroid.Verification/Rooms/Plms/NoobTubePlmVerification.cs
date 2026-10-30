@@ -265,8 +265,8 @@ internal static class NoobTubePlmVerification
         RoomEnemyProjectileSlot firstShard = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeShard &&
             projectile.Animation is NoobTubeProjectileAnimation { Cursor.Program: NoobTubeProjectileProgram.Shard0 });
-        AssertEqual(0x0048, firstShard.Variable1,
-            "first shard stores signed X origin in variable F");
+        AssertEqual(0x0048, firstShard.StateOf<NoobTubeDebrisState>().X.Whole,
+            "first shard keeps its signed X origin as its own column");
         AssertEqual(0x0058, firstShard.Position.Y.Whole,
             "first shard stores its signed Y offset");
         AssertEqual(0xfe80, firstShard.Velocity.X.RawValue,
@@ -277,7 +277,7 @@ internal static class NoobTubePlmVerification
         RoomEnemyProjectileSlot lastShard = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeShard &&
             projectile.Animation is NoobTubeProjectileAnimation { Cursor.Program: NoobTubeProjectileProgram.Shard9 });
-        AssertEqual(0x0078, lastShard.Variable1,
+        AssertEqual(0x0078, lastShard.StateOf<NoobTubeDebrisState>().X.Whole,
             "last shard uses final signed X offset");
         AssertEqual(0x0060, lastShard.Position.Y.Whole,
             "last shard uses final signed Y offset");
@@ -288,7 +288,7 @@ internal static class NoobTubePlmVerification
 
         RoomEnemyProjectileSlot firstBubble = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeReleasedAirBubble &&
-            projectile.Variable1 == 0x0048);
+            projectile.StateOf<NoobTubeDebrisState>().X.Whole == 0x0048);
         AssertEqual(0x0070, firstBubble.Position.Y.Whole,
             "first bubble uses its first absolute PLM-origin offset");
         AssertEqual(NoobTubeDebrisDefinitions.BubbleInitialYVelocity.RawValue,
@@ -296,7 +296,7 @@ internal static class NoobTubePlmVerification
 
         RoomEnemyProjectileSlot lastBubble = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeReleasedAirBubble &&
-            projectile.Variable1 == 0x00d8);
+            projectile.StateOf<NoobTubeDebrisState>().X.Whole == 0x00d8);
         AssertEqual(0x0074, lastBubble.Position.Y.Whole,
             "last bubble uses its final absolute PLM-origin offset");
 

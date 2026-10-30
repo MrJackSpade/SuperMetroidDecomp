@@ -42,8 +42,9 @@ internal static class FallingSparkLaunchDefinitionsVerification
             AssertEqual(source.Position.Y.Fraction, projectile.Position.Y.Fraction, "Spark copies source Y fraction");
             AssertEqual((ushort)0, projectile.Velocity.X.RawValue, "Spark clears aliased vertical fraction");
             AssertEqual((ushort)0, projectile.Velocity.Y.RawValue, "Spark clears aliased vertical whole");
-            AssertEqual(whole, projectile.Variable1, "Actual spark whole launch field");
-            AssertEqual(fraction, projectile.Variable0, "Actual spark fractional launch field");
+            SignedSixteenSixteen drift = projectile.StateOf<FallingSparkState>().HorizontalStep;
+            AssertEqual(whole, drift.WholeWord, "Actual spark drift whole pixels");
+            AssertEqual(fraction, drift.Fraction, "Actual spark drift fraction");
             uint expected = unchecked((new FixedCoordinate(source.Position.X.Whole, source.Position.X.Fraction).RawValue) + (SixteenSixteen.FromWhole((uint)whole) | fraction));
             move(projectile);
             AssertEqual(FixedCoordinate.WholeOf(unchecked((int)expected)), projectile.Position.X.Whole, "Native signed launch reaches actual wrapped movement");

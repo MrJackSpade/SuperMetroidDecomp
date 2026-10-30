@@ -31,9 +31,9 @@ internal static class PowampSpikeBehaviorVerification
         AssertEqual(8, spikes.Length, "a burst spawns all eight spikes");
         foreach (RoomEnemyProjectileSlot spike in spikes)
         {
-            AssertEqual(PowampSpikeProgram.Initial, ProgramOf(spike), $"spike {spike.DirectionParameter} starts its looping program");
+            AssertEqual(PowampSpikeProgram.Initial, ProgramOf(spike), $"spike {spike.StateOf<PowampSpikeState>().Direction} starts its looping program");
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spike, Entry(PowampSpikeProgram.Initial), 40,
-                $"Powamp spike {spike.DirectionParameter}");
+                $"Powamp spike {spike.StateOf<PowampSpikeState>().Direction}");
             AssertTrue(!deleted, "a spike's loop runs until collision deletes it");
         }
 

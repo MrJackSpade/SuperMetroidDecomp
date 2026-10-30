@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
@@ -91,10 +92,8 @@ internal static class BombTorizoAttackDefinitionsVerification
                     $"Bomb Torizo explosion {parameter} facing {facingRight} X");
                 AssertEqual(unchecked((ushort)(500 + expected.Y)), projectile.Position.Y.Whole,
                     $"Bomb Torizo explosion {parameter} facing {facingRight} Y");
-                AssertEqual(projectile.Position.X.Whole, projectile.Variable0,
-                    $"Bomb Torizo explosion {parameter} retained X");
-                AssertEqual(projectile.Position.Y.Whole, projectile.Variable1,
-                    $"Bomb Torizo explosion {parameter} retained Y");
+                AssertEqual(projectile.Position.Whole, projectile.StateOf<AnchoredProjectileState>().Anchor,
+                    $"Bomb Torizo explosion {parameter} returns to its spawn point");
             }
         }
 

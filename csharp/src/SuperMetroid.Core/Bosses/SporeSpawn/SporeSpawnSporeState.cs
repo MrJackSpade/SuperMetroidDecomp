@@ -16,7 +16,7 @@ internal sealed class SporeSpawnSporeState(bool mirrored) : EnemyProjectileState
     internal int PathStep
     {
         get;
-        private set => field = Ensure.BetweenInclusive(0, PathSteps - 1, value);
+        set => field = Ensure.BetweenInclusive(0, PathSteps - 1, value);
     }
 
     /// <summary>Moves the spore on to the next step of its path, repeating the path after its last step.</summary>

@@ -53,7 +53,7 @@ internal static class PhantoonFlameSpawnsVerification
                 PhantoonFlameSpawnType.Casual => 0,
                 _ => throw new InvalidOperationException($"Undefined {nameof(PhantoonFlameSpawnType)} {(int)type}."),
             };
-            AssertEqual(angle, flame.Variable0, "Actual flame initial angle");
+            AssertEqual(angle, flame.State is PhantoonOrbitingFlameState orbit ? orbit.Angle.RawValue : (ushort)0, "Actual flame initial angle; flames that do not orbit keep none");
             AssertEqual(x, flame.Position.X.Whole, "Actual flame initial X");
             AssertEqual(y, flame.Position.Y.Whole, "Actual flame initial wrapped Y");
             AssertEqual(speed, flame.Velocity.X.RawValue, "Actual flame direction or packed delay");

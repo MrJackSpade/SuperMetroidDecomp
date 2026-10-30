@@ -47,7 +47,6 @@ internal static class PlmDefinitionMigrationVerification
         AssertEqual(5, DownwardGateDefinitions.GateHeightInBlocks, "gate height");
         AssertEqual(new RoomBlockBehavior(0x10), DownwardGateDefinitions.ClosedGateBehavior, "closed gate behaviour");
         AssertEqual(0x1000, DownwardGateDefinitions.OneBlockDistance, "gate projectile block distance");
-        AssertEqual(2, DownwardGateDefinitions.BlockAssociationScale, "gate projectile block association");
         AssertEqual(RoomTerrainBlock.Of(0x044, BlockMirroring.None, RoomCollisionType.SolidBlock), NoobTubePlmDefinitions.SolidProjectileTrigger, "n00b tube origin block");
         AssertEqual(0x000b, NoobTubePlmDefinitions.EarthquakeType, "n00b tube earthquake type");
         AssertEqual(0x0040, NoobTubePlmDefinitions.EarthquakeTimer, "n00b tube earthquake timer");

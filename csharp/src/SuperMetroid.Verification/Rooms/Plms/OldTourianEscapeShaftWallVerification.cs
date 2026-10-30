@@ -45,8 +45,8 @@ internal static class OldTourianEscapeShaftWallVerification
         AssertEqual(1, Explosions(), "Samus below and right of ($F0,$820) blows the wall");
         RoomEnemyProjectileSlot explosion = runtime.Enemies.Projectiles.EnemyProjectiles.First(projectile =>
             projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion);
-        AssertEqual(0x0110, explosion.Variable0, "the explosion is centred on the wall's X");
-        AssertEqual(0x0888, explosion.Variable1, "the explosion is centred on the wall's Y");
+        AssertEqual(0x0110, explosion.Position.X.Whole, "the explosion is centred on the wall's X");
+        AssertEqual(0x0888, explosion.Position.Y.Whole, "the explosion is centred on the wall's Y");
         AssertTrue(explosion.Animation is OldTourianWallExplosionAnimation, "the explosion plays its typed program");
         AssertTrue(explosion.Animation is not null, "the explosion runs no native list");
         RoomLevelData level = runtime.Room.LoadedLevelData;

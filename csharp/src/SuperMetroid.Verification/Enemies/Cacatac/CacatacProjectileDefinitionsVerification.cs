@@ -48,8 +48,27 @@ internal static class CacatacProjectileDefinitionsVerification
             AssertTrue(actual.Animation is CacatacProjectileAnimation { Cursor.Program: var spawned } &&
                     CacatacProjectileNativeListAddresses.Entry(spawned) == native,
                 $"spawned Cacatac instruction {direction}");
-            AssertEqual(expectedNegative, actual.Velocity.Y.RawValue, $"spawned Cacatac negative speed {direction}");
-            AssertEqual(expectedPositive, actual.Velocity.X.RawValue, $"spawned Cacatac positive speed {direction}");
+            // A spike moves toward each side its direction names, at the negative speed toward left or up and the
+            // positive speed toward right or down, and not at all along an axis its direction does not name.
+            ushort expectedX = direction switch
+            {
+                CacatacSpikeDirection.LeftFacingUp or CacatacSpikeDirection.LeftFacingDown or
+                    CacatacSpikeDirection.UpLeft or CacatacSpikeDirection.DownLeft => expectedNegative,
+                CacatacSpikeDirection.RightFacingUp or CacatacSpikeDirection.RightFacingDown or
+                    CacatacSpikeDirection.UpRight or CacatacSpikeDirection.DownRight => expectedPositive,
+                CacatacSpikeDirection.Up or CacatacSpikeDirection.Down => 0,
+                _ => throw new InvalidOperationException($"Undefined {nameof(CacatacSpikeDirection)} {direction}."),
+            };
+            ushort expectedY = direction switch
+            {
+                CacatacSpikeDirection.Up or CacatacSpikeDirection.UpLeft or CacatacSpikeDirection.UpRight => expectedNegative,
+                CacatacSpikeDirection.Down or CacatacSpikeDirection.DownLeft or CacatacSpikeDirection.DownRight => expectedPositive,
+                CacatacSpikeDirection.LeftFacingUp or CacatacSpikeDirection.LeftFacingDown or
+                    CacatacSpikeDirection.RightFacingUp or CacatacSpikeDirection.RightFacingDown => 0,
+                _ => throw new InvalidOperationException($"Undefined {nameof(CacatacSpikeDirection)} {direction}."),
+            };
+            AssertEqual(expectedX, actual.Velocity.X.RawValue, $"spawned Cacatac horizontal velocity {direction}");
+            AssertEqual(expectedY, actual.Velocity.Y.RawValue, $"spawned Cacatac vertical velocity {direction}");
             AssertEqual(source.Position.X.Whole, actual.Position.X.Whole, $"spawned Cacatac X {direction}");
             AssertEqual(source.Position.X.Fraction, actual.Position.X.Fraction, $"spawned Cacatac X fraction {direction}");
             AssertEqual(source.Position.Y.Whole, actual.Position.Y.Whole, $"spawned Cacatac Y {direction}");

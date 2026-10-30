@@ -32,8 +32,6 @@ internal static class IdentityTableVerification
 
         ParametersMatchValues(CeresSteamDefinitions.Variants, [0, 1, 2, 3, 4, 5], value => (CeresSteamVariant)value, "Ceres steam variants");
         ParametersMatchValues(CacatacProjectileDefinitions.Directions, [0, 1, 2], value => (CacatacDirection)value, "Cacatac directions");
-        ParametersMatchValues(CacatacProjectileDefinitions.SpikeSelectors, [0, 2, 4, 6, 8, 10, 12, 14, 16, 18],
-            value => (CacatacSpikeDirection)value, "Cacatac spike selectors");
 
         int[] breakupOrder = [12, 10, 8, 6, 4, 2, 0, 14, 16, 20, 18, 22];
         var spawned = new List<int>();

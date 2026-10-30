@@ -41,10 +41,10 @@ internal static class CacatacBehaviorVerification
             CacatacSpikeDirection[] directions = upsideUp
                 ? [CacatacSpikeDirection.LeftFacingUp, CacatacSpikeDirection.UpLeft, CacatacSpikeDirection.Up, CacatacSpikeDirection.UpRight, CacatacSpikeDirection.RightFacingUp]
                 : [CacatacSpikeDirection.LeftFacingDown, CacatacSpikeDirection.DownLeft, CacatacSpikeDirection.Down, CacatacSpikeDirection.DownRight, CacatacSpikeDirection.RightFacingDown];
-            AssertEqual(string.Join(",", directions.Select(direction => (ushort)direction).Order()),
+            AssertEqual(string.Join(",", directions.Select(direction => CacatacSpikes.Velocity(direction).ToString()).Order()),
                 string.Join(",", enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.Kind == RoomEnemyProjectileKind.CacatacSpike)
-                    .Select(projectile => projectile.Variable0).Order()),
-                $"Cacatac {orientation} spike directions");
+                    .Select(projectile => projectile.Velocity.ToString()).Order()),
+                $"Cacatac {orientation} spikes fly at their directions' velocities");
         }
         Console.WriteLine("  Cacatac behavior: both idles restore patrol and loop on time; both attacks play the sound, spit five spikes and resume patrol.");
     }

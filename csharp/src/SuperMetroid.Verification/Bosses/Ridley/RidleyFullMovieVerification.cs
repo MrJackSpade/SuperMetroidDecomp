@@ -1567,7 +1567,6 @@ internal static class RidleyFullMovieVerification
                 if (projectile.PersistsOnSamusContact) properties |= NativeSnapshotMemory.EnemyProjectilePersistent;
                 if (projectile.BlocksSamusProjectiles) properties |= NativeSnapshotMemory.EnemyProjectileShotCollision;
                 Check(owner + " properties", properties, NativeSnapshotMemory.EnemyProjectileProperties + index);
-                ushort variableE = checked((ushort)projectile.Variable0), variableF = checked((ushort)projectile.Variable1);
                 switch (projectile.Kind)
                 {
                     case RoomEnemyProjectileKind.CeresRidleyFireball:
@@ -1583,8 +1582,8 @@ internal static class RidleyFullMovieVerification
                     case RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft:
                     case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp:
                     case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown:
-                        variableE = checked((ushort)projectile.RemainingAfterburns);
-                        variableF = EnemyProjectileNativeWords.Kinds.Word(projectile.NextAfterburnKind);
+                        Check(owner + " remaining afterburns", checked((ushort)projectile.RemainingAfterburns), NativeSnapshotMemory.EnemyProjectileVariableE + index);
+                        Check(owner + " next afterburn kind", EnemyProjectileNativeWords.Kinds.Word(projectile.NextAfterburnKind), NativeSnapshotMemory.EnemyProjectileVariableF + index);
                         break;
                     case RoomEnemyProjectileKind.MiscDustExplosion:
                     case RoomEnemyProjectileKind.EnemyDeathExplosion:
@@ -1707,10 +1706,6 @@ internal static class RidleyFullMovieVerification
                     default:
                         throw new InvalidDataException($"Movie projectile {projectile.Kind} needs an E/F mapping");
                 }
-                Check(owner + " variable E", variableE, NativeSnapshotMemory.EnemyProjectileVariableE + index);
-                if (projectile.Kind != RoomEnemyProjectileKind.CeresRidleyFireball)
-                    Check(owner + " variable F", variableF, NativeSnapshotMemory.EnemyProjectileVariableF + index);
-                Check(owner + " variable G", projectile.CollidedProjectileType, NativeSnapshotMemory.EnemyProjectileVariableG + index);
                 Check(owner + " collision option", EnemyProjectileCollisionOptionCodec.ToNative(projectile.CollisionOption), NativeSnapshotMemory.EnemyProjectileCollisionOption + index);
                 if (projectile.Kind is RoomEnemyProjectileKind.EnemyDeathExplosion or RoomEnemyProjectileKind.EnemyDeathPickup)
                 {

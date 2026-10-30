@@ -58,13 +58,13 @@ internal static class SporeSpawnProjectileDefinitionsVerification
         }
 
         RoomEnemyProjectileSlot spore = enemies.Projectiles.EnemyProjectiles[0];
-        for (int offset = 0; offset < 256; offset++)
+        for (int step = 0; step < 128; step++)
         for (int mirrored = 0; mirrored < 2; mirrored++)
         {
+            int offset = step * 2;
             spore.Kind = RoomEnemyProjectileKind.SporeSpawnSpore;
             spore.Position = spore.Position.WithWhole(new(0x0200, 0x0200));
-            spore.Variable0 = unchecked((ushort)offset);
-            spore.Variable1 = mirrored == 0 ? (ushort)0 : (ushort)0x0080;
+            spore.State = new SporeSpawnSporeState(mirrored: mirrored != 0) { PathStep = step };
             int x = unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + offset));
             int y = unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + ((offset + 1) & 0xff)));
             move(spore);
@@ -72,8 +72,8 @@ internal static class SporeSpawnProjectileDefinitionsVerification
                 spore.Position.X.Whole, $"Spore Spawn production X {offset:X2}/{mirrored}");
             AssertEqual(unchecked((ushort)(0x0200 + y + y)), spore.Position.Y.Whole,
                 $"Spore Spawn production Y {offset:X2}/{mirrored}");
-            AssertEqual(unchecked((byte)(offset + 2)), spore.Variable0,
-                $"Spore Spawn production cursor {offset:X2}/{mirrored}");
+            AssertEqual((step + 1) % 128, spore.StateOf<SporeSpawnSporeState>().PathStep,
+                $"Spore Spawn production path step {offset:X2}/{mirrored}");
         }
 
         AssertThrows<ArgumentOutOfRangeException>(

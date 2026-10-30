@@ -213,15 +213,15 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     ];
 
     /// <summary>A mirrored mural cell.</summary>
-    private const LevelBlockFlipFlags FlipX = BlockMirroring.Horizontal;
+    private const BlockMirroring FlipX = BlockMirroring.Horizontal;
     /// <summary>A vertically flipped mural cell.</summary>
-    private const LevelBlockFlipFlags FlipY = BlockMirroring.Vertical;
+    private const BlockMirroring FlipY = BlockMirroring.Vertical;
     /// <summary>A mural cell flipped both ways.</summary>
-    private const LevelBlockFlipFlags FlipXY = BlockMirroring.Horizontal | BlockMirroring.Vertical;
+    private const BlockMirroring FlipXY = BlockMirroring.Horizontal | BlockMirroring.Vertical;
 
-    /// <summary>One air mural cell: tileset tile <paramref name="index"/> with <paramref name="flips"/>.</summary>
-    private static RoomTerrainBlock Tile(int index, LevelBlockFlipFlags flips = BlockMirroring.None) =>
-        RoomTerrainBlock.Of(checked((ushort)index), flips, RoomCollisionType.Air);
+    /// <summary>One air mural cell: tileset tile <paramref name="index"/> with <paramref name="flips"/> mirroring.</summary>
+    private static RoomTerrainBlock Tile(int index, BlockMirroring flips = BlockMirroring.None) =>
+        RoomTerrainBlock.Of(index, flips, RoomCollisionType.Air);
 
     /// <summary>The twelve mural rows, top to bottom; a row's position is its row of the mural.</summary>
     internal static readonly MotherBrainFakeDeathDraw[] BackgroundRows =

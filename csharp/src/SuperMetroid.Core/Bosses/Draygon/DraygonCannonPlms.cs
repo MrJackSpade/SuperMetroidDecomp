@@ -334,11 +334,11 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
 
         slot.HitCounter = 0;
         slot.StartAnimation(new DraygonCannonPlmAnimation(DraygonCannonPrograms.StartProgram(orientation)));
-        WriteDraygonCannonTypeAndBts(
+        WriteDraygonCannonTerrain(
             level,
             slot.BlockIndex,
             DraygonCannonDefinitions.LiveCannon);
-        WriteDraygonCannonTypeAndBts(
+        WriteDraygonCannonTerrain(
             level,
             checked(slot.BlockIndex + level.Size.X),
             DraygonCannonDefinitions.LiveCannonExtension);
@@ -393,27 +393,27 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
         (_enemies ?? throw new InvalidOperationException(
             "Draygon cannon bytecode has no enemy-control-word writer.")).DisableDraygonCannon(
                 state.ControlWord);
-        WriteDraygonCannonTypeAndBts(
+        WriteDraygonCannonTerrain(
             level,
             slot.BlockIndex,
             DraygonCannonDefinitions.DestroyedCannon);
-        WriteDraygonCannonTypeAndBts(
+        WriteDraygonCannonTerrain(
             level,
             checked(slot.BlockIndex + level.Size.X),
             DraygonCannonDefinitions.DestroyedCannon);
         state.Destroyed = true;
     }
 
-    /// <summary>Changes a cannon block's collision type and behavior while preserving its visual tile bits.</summary>
-    private static void WriteDraygonCannonTypeAndBts(
+    /// <summary>Changes a cannon block's collision kind and behavior while preserving its appearance.</summary>
+    private static void WriteDraygonCannonTerrain(
         RoomLevelData level,
         int blockIndex,
         DraygonCannonTerrain terrain)
     {
-        RoomLevelWord original = level.GetPlmCollisionBlockByIndex(blockIndex).PackedWord;
-        level.SetPlmForegroundEntry(
+        RoomTerrainBlock original = level.GetPlmCollisionBlockByIndex(blockIndex).Terrain;
+        level.SetPlmTerrain(
             blockIndex,
-            original.WithCollisionType(terrain.Type).Raw);
+            original.WithCollision(terrain.Type));
         level.SetPlmBehavior(blockIndex, terrain.Behavior);
     }
 

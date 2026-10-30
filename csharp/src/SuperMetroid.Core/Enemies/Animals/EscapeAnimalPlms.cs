@@ -27,11 +27,11 @@ internal sealed class EscapeAnimalPlms : ICrittersEscapeReaction
         if (_slotTable.IsFull)
             throw new InvalidOperationException("Animal rescue wall setup has no free PLM slot.");
         PlmLevelWrites.WritePlmCollisionAndBehavior(level, blockIndex, EscapeAnimalWallDefinitions.OriginCollisionType,
-            new RoomBlockBehavior(EscapeAnimalWallDefinitions.ReactionBts));
+            EscapeAnimalWallDefinitions.ReactionBehavior);
         for (int row = 1; row <= 2; row++)
             PlmLevelWrites.WritePlmCollisionAndBehavior(level, blockIndex + row * level.Size.X,
                 EscapeAnimalWallDefinitions.ExtensionCollisionType,
-                new RoomBlockBehavior(EscapeAnimalWallDefinitions.ExtensionBts));
+                EscapeAnimalWallDefinitions.ExtensionBehavior);
     }
 
     /// <summary>

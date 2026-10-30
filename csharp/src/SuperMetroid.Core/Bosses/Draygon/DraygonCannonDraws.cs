@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
@@ -25,7 +26,7 @@ internal static class DraygonCannonDraws
             if ((uint)run >= (uint)RunCount) throw new ArgumentOutOfRangeException(nameof(run));
         }
         /// <summary>Counts cells in a horizontal cannon row or split left-side run.</summary>
-        public int WordCount(int run)
+        public int BlockCount(int run)
         {
             CheckRun(run);
             return Right || run == 2 ? 2 : 1;
@@ -43,10 +44,10 @@ internal static class DraygonCannonDraws
             return run == (Right ? 0 : 1) ? (sbyte)1 : (sbyte)0;
         }
         /// <summary>The cannon cell's collision, mirror and shield or damage tile.</summary>
-        public ushort WordAt(int run, int cell)
+        public RoomTerrainBlock BlockAt(int run, int cell)
         {
-            if ((uint)cell >= (uint)WordCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
-            return DraygonCannonPlmDrawDefinitions.Cells[this][run][cell].Raw;
+            if ((uint)cell >= (uint)BlockCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
+            return DraygonCannonPlmDrawDefinitions.Cells[this][run][cell];
         }
     }
 

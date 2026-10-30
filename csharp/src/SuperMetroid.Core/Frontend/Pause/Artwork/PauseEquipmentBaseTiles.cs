@@ -50,17 +50,6 @@ public static class PauseEquipmentBaseTiles
     public static bool IsNonInventoryLiveOwnedCell(int cell) =>
         IsLiveOwnedCell(cell) && !IsEquipmentLabelCell(cell);
 
-    /// <summary>Returns whether a cell belongs to the vertical or horizontal reserve-mode arrow footprint.</summary>
-    /// <param name="cell">Zero-based cell index in the equipment tilemap.</param>
-    /// <returns><see langword="true"/> when the reserve UI supplies the arrow cell.</returns>
-    public static bool IsArrowCell(int cell)
-    {
-        int vertical = cell - PauseReserveUiDefinitions.VerticalStartCell;
-        if (vertical >= 0 && vertical % PauseReserveUiDefinitions.RowStrideCells == 0 &&
-            vertical / PauseReserveUiDefinitions.RowStrideCells < PauseReserveUiDefinitions.VerticalCount) return true;
-        return (uint)(cell - PauseReserveUiDefinitions.HorizontalStartCell) < PauseReserveUiDefinitions.HorizontalCount;
-    }
-
     /// <summary>Chooses the native frame footprint, title glyphs, and palette for each section.</summary>
     /// <remarks>Title styles and supply padding belong to the authored composition of this page.</remarks>
     private static PanelShape Panel(PanelKind kind) => kind switch

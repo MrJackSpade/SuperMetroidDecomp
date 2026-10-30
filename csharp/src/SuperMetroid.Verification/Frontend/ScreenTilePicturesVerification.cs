@@ -168,7 +168,10 @@ internal static class ScreenTilePicturesVerification
     /// <summary>Title updates sampled: the sequence through its zoom, as the GPU's retail frontend check runs it.</summary>
     private const int TitleTicks = 2500;
 
-    /// <summary>The pause screen's map and equipment pages each draw every background from their tiles, exactly as their characters draw them.</summary>
+    /// <summary>
+    /// The pause screen's map and equipment pages each draw their pictured backgrounds exactly as VRAM's characters draw the
+    /// tilemaps the cartridge lays out for what they show (#1467).
+    /// </summary>
     internal static void VerifyPauseScreenTilePictures()
     {
         AreaMapPresentation maps = InstalledFixtures.Maps;
@@ -179,10 +182,10 @@ internal static class ScreenTilePicturesVerification
             Samus = new SamusState(), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = maps,
             SpriteSheets = InstalledFixtures.SpriteSheets,
         });
-        int layers = AssertDrawnFromTiles(PauseTilemapScene(pause, "pause map"), pause.ShownVram(), "pause map");
+        int layers = AssertPauseDrawnFromVram(pause, "pause map");
         PauseEquipmentRulesVerification.EnterPauseEquipment(pause);
-        layers += AssertDrawnFromTiles(PauseTilemapScene(pause, "pause equipment"), pause.ShownVram(), "pause equipment");
-        Console.WriteLine($"Screen tile pictures: the pause map and equipment pages draw all {layers} of their background layers from their tiles, as their characters do.");
+        layers += AssertPauseDrawnFromVram(pause, "pause equipment");
+        Console.WriteLine($"Screen tile pictures: the pause map and equipment pages draw all {layers} of their pictured background layers as their characters do.");
     }
 
     /// <summary>
@@ -243,29 +246,42 @@ internal static class ScreenTilePicturesVerification
     }
 
     /// <summary>
-    /// <paramref name="pause"/>'s scene with its pictured map grid and frame drawn instead from the cartridge's tilemaps over
-    /// the screen's tiles (#1467), once asserted to draw the same image: so the tiles' check against the characters covers
-    /// the pictures too.
+    /// <param    /// <summary>
+    /// Asserts <paramref name="pause"/>'s scene draws what its VRAM draws (#1467): its map grid, equipment page and frame,
+    /// drawn instead from the BG1 and BG2 tilemaps the cartridge lays out for them over tiles decoded from the scene's own
+    /// VRAM characters and CGRAM, give the same image; returns the pictured layers checked.
     /// </summary>
-    private static LayeredScene PauseTilemapScene(PauseMenuState pause, string name)
+    private static int AssertPauseDrawnFromVram(PauseMenuState pause, string name)
     {
         LayeredScene scene = pause.CaptureRenderSnapshot();
-        ScreenLayerPictures tiles = pause.screen.PlaneTiles;
-        ScreenTileMap map = ScreenTileMap.Of(pause.ShownBg1Tiles, new Extent16<TilemapCells>(AreaMapLayout.WidthInTiles, AreaMapLayout.HeightInTiles), tiles);
-        ScreenTileMap frame = ScreenTileMap.Of(pause.ShownBg2Tiles, MenuScreen.PageSize, tiles);
-        DisplayLayer[] layers = [.. scene.Layers.ToArray().Select(layer => layer switch
+        byte[] vram = pause.ShownVram();
+        BackgroundTile[] page = pause.ShownBg1Tiles;
+        BackgroundTile[] frame = pause.ShownBg2Tiles;
+        ScreenLayerPictures tiles = VramTileFixtures.Tiles(vram, scene.Paint.Colors, PauseVramLayout.MapCharacters.Offset, TileInkDepth.SixteenColours,
+            [.. page.Concat(frame).Select(tile => tile.Tile).Distinct()]);
+        ScreenTileMap pageCells = ScreenTileMap.Of(page, new Extent16<TilemapCells>(AreaMapLayout.WidthInTiles, AreaMapLayout.HeightInTiles), tiles);
+        ScreenTileMap frameCells = ScreenTileMap.Of(frame, MenuScreen.PageSize, tiles);
+        PicturedPlane shownFrame = pause.screen.Frame(pause.area, pause.ButtonHighlight);
+        int layers = 0;
+        DisplayLayer FromVram(DisplayLayer layer)
         {
-            PictureGridLayer grid => new ScreenTilesLayer(map, grid.Scroll, grid.Priority),
-            PicturedPlaneLayer plane => new ScreenTilesLayer(frame, plane.Scroll, plane.Priority),
-            _ => layer,
-        })];
-        var tiled = new LayeredScene(scene.Paint, layers, scene.Brightness);
-        AssertTrue(RenderNamed(scene, name).SequenceEqual(RenderNamed(tiled, name)), $"{name}: its pictures draw what the cartridge's tilemaps draw");
-        return tiled;
+            DisplayLayer? tiled = layer switch
+            {
+                PictureGridLayer grid => new ScreenTilesLayer(pageCells, grid.Scroll, grid.Priority),
+                PicturedPlaneLayer plane => new ScreenTilesLayer(plane.Plane.Equals(shownFrame) ? frameCells : pageCells, plane.Scroll, plane.Priority),
+                _ => null,
+            };
+            if (tiled is null)
+                return layer;
+            layers++;
+            return tiled;
+        }
+        var fromVram = new LayeredScene(scene.Paint, [.. scene.Layers.ToArray().Select(FromVram)], scene.Brightness);
+        AssertTrue(layers > 0, $"{name} draws pictured backgrounds");
+        AssertTrue(RenderNamed(scene, name).SequenceEqual(RenderNamed(fromVram, name)), $"{name}: its pictures draw what VRAM's characters draw of the cartridge's tilemaps");
+        return layers;
     }
-
-    /// <summary>
-    /// The character base <paramref name="cells"/>' tiles picture: of the bases a background can select, one every
+haracter base <paramref name="cells"/>' tiles picture: of the bases a background can select, one every
     /// <see cref="CharacterBaseStep"/> words, the one whose characters match the most of the tiles the cells show.
     /// </summary>
     private static int CharacterBase(ReadOnlySpan<byte> vram, ScreenTileMap cells, string name)

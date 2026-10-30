@@ -81,6 +81,9 @@ internal static class PauseScreenPublicationVerification
         AssertTrue(layers.OfType<PicturedPlaneLayer>().Any(layer => layer.Plane.Equals(frame)), $"{page} draws the area's frame pictures");
         bool grid = layers.OfType<PictureGridLayer>().Any(layer => layer.Grid.Equals(AreaMapPictures.Grid(pause.ShownMap, pause.screen.Pictures)));
         AssertEqual(pause.ScreenMode == PauseScreenMode.Map, grid, $"{page} draws the shown map's cell pictures only on the map page");
+        bool equipment = pause.ShownEquipment is { } shown
+            && layers.OfType<PicturedPlaneLayer>().Any(layer => layer.Plane.Equals(pause.screen.EquipmentPage(shown)));
+        AssertEqual(pause.ScreenMode != PauseScreenMode.Map, equipment, $"{page} draws the uploaded equipment page's pictures only on the equipment page");
     }
 
     /// <summary>Asserts that the words of <paramref name="vram"/> from <paramref name="firstWord"/> place exactly the tiles <paramref name="expected"/>.</summary>

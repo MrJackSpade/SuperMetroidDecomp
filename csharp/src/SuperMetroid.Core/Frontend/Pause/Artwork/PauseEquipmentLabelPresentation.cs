@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 
@@ -12,34 +11,32 @@ public sealed class PauseEquipmentLabelPresentation
     /// <summary>Edits to the nine-cell native blank strip used when inventory text is absent, by cell.</summary>
     internal readonly Dictionary<int, BackgroundTile> blankEdits;
 
-    /// <summary>Captures compiled label differences, the disabled palette, and the hash of the source JSON bytes.</summary>
+    /// <summary>Captures compiled label differences and the disabled palette.</summary>
     private PauseEquipmentLabelPresentation(Dictionary<PauseEquipmentLabelId, CompiledLabel> labels, Dictionary<int, BackgroundTile> blankEdits,
-        int disabledPalette, string contentIdentity)
+        int disabledPalette)
     {
         this.labels = labels;
         this.blankEdits = blankEdits;
         DisabledPalette = disabledPalette;
-        ContentIdentity = contentIdentity;
     }
 
     /// <summary>Colour variant 0..7 substituted into collected but unequipped labels; the retail gray-text variant is three.</summary>
     public int DisabledPalette { get; }
-    /// <summary>Uppercase hexadecimal SHA-256 of the exact source JSON bytes, used by pause-menu rebinding to decide whether to rebuild inventory labels.</summary>
-    public string ContentIdentity { get; }
-
-    /// <summary>Includes Hyper's five-cell display and Plasma's nine-cell overrun when deciding whether rebinding may replace a live tilemap cell.</summary>
-    internal bool OwnsLiveCell(int cell)
+    /// <summary>
+    /// The equipment-page cells a write of <paramref name="label"/> covers, first to last (#1467): an ordinary label's own
+    /// width, and Hyper's five displayed cells.
+    /// </summary>
+    internal IEnumerable<int> PageCells(PauseEquipmentLabelId label)
     {
-        foreach ((PauseEquipmentLabelId id, CompiledLabel label) in labels)
-        {
-            int cells = id == PauseEquipmentLabelId.Plasma
-                ? PauseEquipmentLabelDefinitions.EquipmentWords
-                : id == PauseEquipmentLabelId.Hyper
-                    ? PauseEquipmentLabelDefinitions.BeamWords
-                    : label.CellCount;
-            if ((uint)(cell - label.PageCell) < cells) return true;
-        }
-        return false;
+        CompiledLabel compiled = labels[label];
+        return Enumerable.Range(compiled.PageCell, label == PauseEquipmentLabelId.Hyper ? PauseEquipmentLabelDefinitions.BeamWords : compiled.CellCount);
+    }
+
+    /// <summary>The cells after Plasma's own that its nine-cell button overrun writes Varia's first cells to (#1467).</summary>
+    internal IEnumerable<int> PlasmaOverrunCells()
+    {
+        CompiledLabel plasma = labels[PauseEquipmentLabelId.Plasma];
+        return Enumerable.Range(plasma.PageCell + plasma.CellCount, PauseEquipmentLabelDefinitions.EquipmentWords - plasma.CellCount);
     }
 
     /// <summary>Clears uncollected strips, recolors collected but unequipped strips, and replaces ordinary beam labels with Hyper when active.</summary>
@@ -161,8 +158,7 @@ public sealed class PauseEquipmentLabelPresentation
         var blankEdits = new Dictionary<int, BackgroundTile>();
         for (int cell = 0; cell < PauseEquipmentLabelDefinitions.EquipmentWords; cell++)
             if (blank[cell] != default) blankEdits.Add(cell, blank[cell]);
-        return new(compiled, blankEdits, document.DisabledPalette,
-            Convert.ToHexString(SHA256.HashData(source)));
+        return new(compiled, blankEdits, document.DisabledPalette);
     }
 
     /// <summary>Serializes the editable label schema to UTF-8 JSON, validates it through <see cref="Load"/>, then writes the validated bytes.</summary>

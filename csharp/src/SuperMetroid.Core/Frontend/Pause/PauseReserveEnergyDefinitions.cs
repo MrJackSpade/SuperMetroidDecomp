@@ -11,6 +11,10 @@ internal static class PauseReserveEnergyDefinitions
     internal static readonly int ModeItem = Items.IndexOf(PauseReserveItem.Mode);
     /// <summary>Reserve energy one tank of the gauge holds.</summary>
     internal const int EnergyPerTank = 100;
+    /// <summary>The supply digits' number base: each digit place counts ten of the place after it.</summary>
+    internal const int DecimalBase = 10;
+    /// <summary>The place value of the supply's leading digit.</summary>
+    internal const int Hundred = DecimalBase * DecimalBase;
     /// <summary>Reserve energy each of a partly filled tank's seven fill steps stands for.</summary>
     internal const int EnergyPerFillStep = 14;
     /// <summary>A partly filled tank showing fewer whole steps than this flickers its next step while that step is partly filled.</summary>

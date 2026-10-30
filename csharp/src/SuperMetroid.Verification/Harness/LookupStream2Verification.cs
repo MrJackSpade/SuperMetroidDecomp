@@ -610,7 +610,6 @@ internal static class LookupStream2Verification
         }
         AssertEqual(0, residuals.Count, "Zero unexplained stock equipment-base tiles" );
 
-        ConfirmRebind(stock, native);
         foreach (int cell in new[] { 0, 5 * 32 + 13, 9 * 32 + 2, 4 * 32 + 1, 12 * 32 + 3, 16 * 32 + 4, 7 * 32 + 15, 7 * 32 + 16 })
         {
             var cells = document.Cells.ToArray();
@@ -620,42 +619,11 @@ internal static class LookupStream2Verification
             var selected = PauseEquipmentBasePresentation.Load(new MemoryStream(editedJson.ToArray()));
             BackgroundTile[] expected = PauseTileGrid.Compile(cells, "Independent equipment base edit");
             AssertTrue(expected.SequenceEqual(selected.CreateTilemap()), "Independent selected glyph/palette/flip edit preserves every other cell and mirror partner");
-            ConfirmRebind(selected, expected);
         }
         BackgroundTile[] mutable = stock.CreateTilemap();
         mutable[0] = mutable[0] with { Tile = mutable[0].Tile ^ 1 };
         AssertTrue(native.SequenceEqual(stock.CreateTilemap()), "Mutable menu state does not alter immutable template");
-        AssertThrows<ArgumentException>(() => stock.RebindBaseInto(new BackgroundTile[1]), "Base rebind length bound");
-        AssertThrows<ArgumentException>(() => stock.RebindBeforeInventoryRefreshInto(new BackgroundTile[1]), "Inventory rebind length bound");
-        Console.WriteLine($"Equipment template:1024native tiles, exact{residuals.Count}stock overrides,8independent edits,18actual rebinds,mutable-state independence and bounds pass; approved specific page composition retained, glyph pixels separately accounted.");
-
-        static void ConfirmRebind(PauseEquipmentBasePresentation presentation, BackgroundTile[] selected)
-        {
-            var sentinel = new BackgroundTile(0x155, 5, highPriority: false, TileFlip.Horizontal);
-            foreach (bool beforeInventory in new[] { false, true })
-            {
-                BackgroundTile[] actual = Enumerable.Repeat(sentinel, 1024).ToArray();
-                BackgroundTile[] expected = actual.ToArray();
-                for (int cell = 0; cell < 1024; cell++)
-                {
-                    int x = cell % 32, y = cell / 32;
-                    bool inventory = y is >= 16 and <= 20 && x is >= 4 and < 13 ||
-                        x is >= 21 and < 30 && y is 9 or 10 or >= 13 and <= 16 or >= 19 and <= 21;
-                    bool reserve = y is 10 or 11 && x is >= 4 and < 11 ||
-                        cell >= PauseReserveUiDefinitions.DigitCell && cell < PauseReserveUiDefinitions.DigitCell + 3;
-                    bool wireframe = x is >= 12 and < 20 && y is >= 7 and < 24;
-                    if (beforeInventory ? (reserve || wireframe) && !inventory : inventory || reserve || wireframe) continue;
-                    BackgroundTile tile = selected[cell];
-                    bool arrow = x == 1 && y is >= 4 and <= 12 || y == 12 && x == 2;
-                    // A reserve arrow keeps the colour variant the live menu shows.
-                    if (arrow) tile = tile with { ColourVariant = sentinel.ColourVariant };
-                    expected[cell] = tile;
-                }
-                if (beforeInventory) presentation.RebindBeforeInventoryRefreshInto(actual);
-                else presentation.RebindBaseInto(actual);
-                AssertTrue(expected.SequenceEqual(actual), "Actual base refresh preserves live ownership and arrow palette while applying selected artwork");
-            }
-        }
+        Console.WriteLine($"Equipment template:1024native tiles, exact{residuals.Count}stock overrides,8independent edits and mutable-state independence pass; approved specific page composition retained, glyph pixels separately accounted.");
     }
 
     /// <summary>Checks pause wireframe mirror relationships and independently edited cells.</summary>

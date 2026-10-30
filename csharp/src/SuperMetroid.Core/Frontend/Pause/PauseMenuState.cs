@@ -62,8 +62,13 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     [NonSerialized] private AreaMapPresentation? mapPresentation;
     /// <summary>The pause screen: its artwork, tilemaps (including the retained gameplay HUD rows), palette and sprite entries (#1358).</summary>
     internal readonly PauseScreen screen;
-    /// <summary>Mutable BG1 equipment page including current inventory labels and tanks.</summary>
-    internal readonly BackgroundTile[] equipmentTilemap;
+    /// <summary>
+    /// The equipment page as the cartridge's writes to its tilemap have left it (#1467): labels, overrun tail, wireframe,
+    /// reserve display and arrow. The page shows it once uploaded.
+    /// </summary>
+    internal ShownEquipmentPage Equipment { get; private set; }
+    /// <summary>The equipment page as last uploaded, which the equipment page shows; none before the first upload.</summary>
+    internal ShownEquipmentPage? ShownEquipment { get; private set; }
     /// <summary>Which of the frame's button labels are lit (#1467); it survives page transitions and artwork rebinds.</summary>
     internal PauseButtonHighlight ButtonHighlight { get; private set; }
     /// <summary>How the map page shows the area map (#1466, #1467), as last loaded.</summary>
@@ -102,8 +107,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     internal int ItemSelectorAnimationFrame { get; set; }
     /// <summary>Remaining updates in the equipment selector frame.</summary>
     internal int ItemSelectorAnimationTimer { get; set; }
-    /// <summary>Tracks the retail Boots-to-Plasma label copy overrun across artwork rebinds.</summary>
-    private bool plasmaLabelOverrunActive;
     /// <summary>Last selected map marker or equipment selector origin for diagnostics.</summary>
     internal Position16<SpritePixels> LastIndicatorOrigin { get; private set; }
     /// <summary>Pose of the Samus map marker when it was the last indicator drawn, for diagnostics; null after a selector draw.</summary>
@@ -157,9 +160,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // label's picture in its shade (#1467).
         SetPauseButtonLabelMode(PauseButtonHighlight.MapPage);
 
-        // $B6:E800 is the mutable equipment template normally copied to $7E:3800.
-        equipmentTilemap = entry.MapPresentation.PauseEquipmentBase.CreateTilemap();
-        RebuildEquipmentTilemap();
+        // LoadEquipmentScreen copies the template, then writes every label, the wireframe and the reserve display.
+        Equipment = BuiltEquipmentPage();
         LoadPauseMapTilemap();
         SelectFirstCollectedEquipment();
         SetupMapScrolling();
@@ -277,11 +279,12 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         Position16<TilePlanePixels> mapScroll = new(
             ScreenMode == PauseScreenMode.Map ? MapScrollPosition.X : (ushort)0,
             unchecked((ushort)((ScreenMode == PauseScreenMode.Map ? MapScrollPosition.Y : 0) + ScreenGeometry.BackgroundRowOffset)));
-        // The map page is a grid of the area map's cell pictures; the equipment page still draws from the pause screen's
-        // pre-coloured tiles (#1392); the frame is the area's backdrop and button pictures (#1467).
+        // The map page is a grid of the area map's cell pictures, the equipment page the pictures of what it last uploaded
+        // and the frame the area's backdrop and button pictures (#1467).
         DisplayLayer bg1 = ScreenMode == PauseScreenMode.Map
             ? new PictureGridLayer(AreaMapPictures.Grid(ShownMap, screen.Pictures), mapScroll, false)
-            : new ScreenTilesLayer(ScreenTileMap.Of(screen.Tilemaps.Equipment, new Extent16<TilemapCells>(32, 32), screen.PlaneTiles), mapScroll, false);
+            : new PicturedPlaneLayer(screen.EquipmentPage(ShownEquipment ?? throw new InvalidOperationException(
+                "The equipment page shows before it was uploaded.")), mapScroll, false);
         var bg2 = new PicturedPlaneLayer(screen.Frame(area, ButtonHighlight), new Position16<TilePlanePixels>(0, ScreenGeometry.BackgroundRowOffset), false);
         // The retained HUD is its own layer at the HUD's place, drawn from its images in their priority tiers (#1466).
         var hud = new HudLayer(screen.RetainedHudPictures(), TransparentColorZero: true, Priority: false);
@@ -299,7 +302,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private static DisplayLayer InFront(DisplayLayer layer) => layer switch
     {
         PictureGridLayer grid => grid with { Priority = true },
-        ScreenTilesLayer tiles => tiles with { Priority = true },
+        PicturedPlaneLayer page => page with { Priority = true },
         _ => throw new InvalidOperationException($"The pause page is no {layer.GetType().Name}."),
     };
 
@@ -416,24 +419,13 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         SelectedItem = 0;
     }
 
-    /// <summary>Rebuilds the equipment page from its template and current inventory state.</summary>
-    private void RebuildEquipmentTilemap()
-    {
-        // Restore the literal base before applying inventory-dependent labels. This makes
-        // repeated A toggles idempotent and mirrors re-entering LoadEquipmentScreen...
-        (mapPresentation ?? throw new InvalidOperationException(
-            "Pause equipment requires installed presentation assets."))
-            .PauseEquipmentBase.CreateTilemap().CopyTo(equipmentTilemap, 0);
-        mapPresentation.PauseEquipmentLabels.ApplyInventory(equipmentTilemap,
-            samus.CollectedBeams, samus.EquippedBeams, samus.CollectedItems,
-            samus.EquippedItems, samus.HyperBeamEnabled);
-
-        plasmaLabelOverrunActive = false;
-
-        WriteSamusWireframe();
-        WriteReserveLabels();
-        WriteReserveSupplyDigits();
-    }
+    /// <summary>
+    /// The equipment page built from its template and the current inventory: every label in its inventory state, no overrun
+    /// tail, the equipped wireframe, and the reserve labels and supply digits once reserve capacity exists.
+    /// </summary>
+    private ShownEquipmentPage BuiltEquipmentPage() => ShownEquipmentPage.Built(
+        new PauseInventory(samus.CollectedBeams, samus.EquippedBeams, samus.CollectedItems, samus.EquippedItems, samus.HyperBeamEnabled),
+        samus.MaxReserveEnergy == 0 ? null : new ShownReserveDisplay(samus.ReserveTankMode, samus.ReserveEnergy));
 
     /// <summary>
     /// Translates <c>Load_EquipmentScreen_ReserveHealth_Tilemap</c> at $82:8F70.
@@ -445,30 +437,11 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     {
         if (samus.MaxReserveEnergy == 0)
             return;
-
-        int supply = samus.ReserveEnergy;
-        Span<int> decimalPlaceValues = stackalloc int[]
-        {
-            supply / 100,
-            supply % 100 / 10,
-            supply % 10,
-        };
-        for (int digitIndex = 0; digitIndex < decimalPlaceValues.Length; digitIndex++)
-        {
-            (mapPresentation ?? throw new InvalidOperationException(
-                "Reserve digits require installed presentation assets."))
-                .PauseReserveUi.ApplyDigit(equipmentTilemap, digitIndex, decimalPlaceValues[digitIndex]);
-        }
+        Equipment = Equipment.WithReserveSupply(samus.ReserveEnergy);
     }
 
-    /// <summary>Selects and patches the pause wireframe for Samus's equipped suit.</summary>
-    private void WriteSamusWireframe()
-    {
-        PauseWireframeKind variant = PauseEquipmentRules.WireframeKind(samus.EquippedItems);
-        (mapPresentation ?? throw new InvalidOperationException(
-            "Pause wireframe requires installed presentation assets."))
-            .PauseWireframes.ApplyTo(equipmentTilemap, variant);
-    }
+    /// <summary>Writes the pause wireframe for Samus's equipped suit and boots over the page.</summary>
+    private void WriteSamusWireframe() => Equipment = Equipment.WithWireframe(PauseEquipmentRules.WireframeKind(samus.EquippedItems));
 
     /// <summary>Builds the area map from installed presentation and exploration bits into BG1.</summary>
     [MemberNotNull(nameof(ShownMap))]
@@ -675,8 +648,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // and reserve tanks draw through their semantic presentation owners.
         MapSpriteSheet.Draw(MapSheet, id, screen.Objects, origin, colouring);
 
-    /// <summary>Shows the current mutable equipment page, which the equipment page draws.</summary>
-    private void UploadEquipmentTilemap() => equipmentTilemap.CopyTo(screen.Tilemaps.Equipment);
+    /// <summary>Uploads the equipment page as its writes have left it: the equipment page shows it from the next capture.</summary>
+    private void UploadEquipmentTilemap() => ShownEquipment = Equipment;
 
     /// <summary>Gets the inventory bit represented by an item in an equipment category.</summary>
     private static PauseEquipmentBit ReadCategoryMask(PauseEquipmentCategoryDefinition category, int item) =>
@@ -739,18 +712,13 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         UploadEquipmentTilemap();
     }
 
-    /// <summary>Patches one equipment label, retaining the retail overlong Plasma copy when selected.</summary>
-    private void UpdateEquipmentLabel(PauseEquipmentCategory categoryIndex, int item, int wordCount, bool disabled)
-    {
-        var category = PauseEquipmentCategories.Get(categoryIndex);
-        if (categoryIndex == PauseEquipmentCategory.Beams &&
-            item == PauseEquipmentCategories.PlasmaItem && wordCount > category.LabelWordCount)
-            plasmaLabelOverrunActive = true;
-        (mapPresentation ?? throw new InvalidOperationException(
-            "Equipment labels require installed presentation assets."))
-            .PauseEquipmentLabels.ApplyLabel(
-                equipmentTilemap, categoryIndex, item, wordCount, disabled);
-    }
+    /// <summary>
+    /// Writes one equipment label: <paramref name="wordCount"/> cells, the dispatched category's label width, so the retail
+    /// overlong Plasma copy and a beam column's five-cell write over a nine-cell label are written as the cartridge writes them.
+    /// </summary>
+    private void UpdateEquipmentLabel(PauseEquipmentCategory categoryIndex, int item, int wordCount, bool disabled) =>
+        Equipment = Equipment.WithLabelWritten(PauseEquipmentLabelTiles.Label(categoryIndex, item), wordCount,
+            disabled ? PauseEquipmentLabelState.Disabled : PauseEquipmentLabelState.Enabled);
 
     /// <summary>Scans collected items in one category and moves the selector to the first eligible item.</summary>
     private bool TrySelectEquipment(PauseEquipmentCategory categoryIndex, int start, int step)
@@ -865,7 +833,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Rebinds edited map and pause artwork while retaining live scroll, palette, and label state.</summary>
     public void BindMapPresentation(AreaMapPresentation? catalog)
     {
-        AreaMapPresentation? previousCatalog = mapPresentation;
         mapPresentation = catalog ?? throw new InvalidOperationException(
             "Pause menu requires installed map presentation assets.");
         CurrentMapArrows ??= new FileSelectMapAnimations(catalog.Arrows);
@@ -876,33 +843,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // owners. Replacing the static base must not reset their phase.
         catalog.Palettes.Pause.LoadToExcept(screen.Palette, screen.Palette.Colours(ScreenColourGroup.MapHighlight),
             screen.Palette.Colours(ScreenColourGroup.PauseReserveArrowShade), screen.Palette.Colours(ScreenColourGroup.PauseReserveArrowLight));
-        // Refresh the authored base and rebuild the now-semantic inventory layer. The
-        // explicit overrun bit retains the retail Boots-to-Plasma VAR artifact without
-        // preserving stale pixels at a label's old editable destination.
-        if (previousCatalog is null ||
-            previousCatalog.PauseEquipmentLabels.ContentIdentity != catalog.PauseEquipmentLabels.ContentIdentity)
-        {
-            catalog.PauseEquipmentBase.RebindBeforeInventoryRefreshInto(equipmentTilemap);
-            catalog.PauseEquipmentLabels.ApplyInventory(equipmentTilemap,
-                samus.CollectedBeams, samus.EquippedBeams, samus.CollectedItems,
-                samus.EquippedItems, samus.HyperBeamEnabled);
-            if (plasmaLabelOverrunActive)
-                catalog.PauseEquipmentLabels.ApplyLabel(equipmentTilemap,
-                    PauseEquipmentCategory.Beams, PauseEquipmentCategories.PlasmaItem,
-                    PauseEquipmentCategories.Get(PauseEquipmentCategory.Boots).LabelWordCount,
-                    disabled: false);
-        }
-        else catalog.PauseEquipmentBase.RebindBaseInto(
-            equipmentTilemap, previousCatalog.PauseEquipmentLabels);
-        // Reapply only the wireframe patch, in its native footprint. The surrounding
-        // mutable labels include intentional cartridge overruns and must not be rebuilt.
-        WriteSamusWireframe();
-        // Reserve presentation has its own bounded footprints and can safely adopt the
-        // rebound content without reconstructing unrelated inventory labels.
+        // The equipment page is typed state the rebound sheets' pictures show again (#1467): its labels, overrun tail,
+        // wireframe and reserve display keep exactly what the cartridge's writes left, and nothing is rewritten.
         if (samus.MaxReserveEnergy != 0)
         {
-            WriteReserveLabels();
-            WriteReserveSupplyDigits();
             // A rebind is not a tank dispatch: re-apply the owner's latched arrow state with the
             // new palettes. Only a bind before anything has latched asks the owner.
             if (reserveArrowLatched)
@@ -936,14 +880,14 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         SetReserveArrow(state, frameCounterByte);
     }
 
-    /// <summary>Applies reserve-arrow tile and palette state, then latches it for content rebinds.</summary>
+    /// <summary>Applies reserve-arrow tile colouring and palette state, then latches it for content rebinds.</summary>
     private void SetReserveArrow(ReserveArrowState state, int frameCounterByte = 0)
     {
         PauseReserveUiPresentation presentation = (mapPresentation ?? throw new InvalidOperationException(
             "Reserve arrow requires installed presentation assets.")).PauseReserveUi;
         presentation.ApplyArrowColors(screen.Palette,
             state == ReserveArrowState.Animated, frameCounterByte);
-        presentation.ApplyArrowTilePalettes(equipmentTilemap, state != ReserveArrowState.Hidden);
+        Equipment = Equipment.WithArrow(state != ReserveArrowState.Hidden ? ShownReserveArrow.Lit : ShownReserveArrow.Dim);
         reserveArrowLatched = true;
         reserveArrowLatchedState = state;
         reserveArrowLatchedFrame = frameCounterByte;
@@ -953,22 +897,14 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private void ReapplyLatchedReserveArrow() =>
         SetReserveArrow(reserveArrowLatchedState, reserveArrowLatchedFrame);
 
-    /// <summary>Writes reserve mode and tank labels only when reserve capacity exists.</summary>
+    /// <summary>
+    /// Rewrites the reserve mode and tank labels for the current mode, only when reserve capacity exists. Native setup keeps
+    /// MODE's initial MANUAL text for the zero mode and replaces its four characters once a mode is set.
+    /// </summary>
     private void WriteReserveLabels()
     {
-        // Absence of capacity leaves the original blank template intact. Restoring
-        // the template before rebuilding also removes labels if inventory is changed.
         if (samus.MaxReserveEnergy == 0) return;
-        PauseReserveUiPresentation presentation = (mapPresentation ?? throw new InvalidOperationException(
-            "Reserve labels require installed presentation assets.")).PauseReserveUi;
-        presentation.ApplyLabel(equipmentTilemap, PauseReserveLabel.Mode);
-        presentation.ApplyLabel(equipmentTilemap, PauseReserveLabel.ReserveTank);
-        // Native setup retains the initial MANUAL label for the zero/uninitialized
-        // mode and patches its first four characters only after a nonzero mode exists.
-        if (samus.ReserveTankMode != ReserveTankMode.None)
-            presentation.ApplyLabel(equipmentTilemap,
-                samus.ReserveTankMode == ReserveTankMode.Auto ? PauseReserveLabel.Auto : PauseReserveLabel.Manual,
-                attributes: LabelAttributes.Preserve);
+        Equipment = Equipment.WithReserveMode(samus.ReserveTankMode);
     }
 
     /// <summary>Accepted eight-bit frame phase (zero through 255) retained so repeated renders cannot advance tank fill flicker.</summary>

@@ -43,43 +43,6 @@ public sealed class PauseEquipmentBasePresentation
         return PauseEquipmentBaseTiles.StockTile(cell);
     }
 
-    /// <summary>Refreshes authored base cells while preserving every footprint owned by live menu state.</summary>
-    public void RebindBaseInto(Span<BackgroundTile> current,
-        PauseEquipmentLabelPresentation? equipmentLabels = null)
-    {
-        Ensure.LengthEqual(current, PauseEquipmentBaseDefinitions.Cells);
-        for (int cell = 0; cell < PauseEquipmentBaseDefinitions.Cells; cell++)
-        {
-            bool liveOwned = equipmentLabels is null
-                ? PauseEquipmentBaseTiles.IsLiveOwnedCell(cell)
-                : PauseEquipmentBaseTiles.IsNonInventoryLiveOwnedCell(cell) ||
-                    equipmentLabels.OwnsLiveCell(cell);
-            if (liveOwned) continue;
-            current[cell] = Replacement(current[cell], cell);
-        }
-    }
-
-    /// <summary>
-    /// Refreshes the complete authored base before semantic inventory labels are rebuilt,
-    /// while retaining the independent wireframe/reserve owners and live arrow palette.
-    /// </summary>
-    public void RebindBeforeInventoryRefreshInto(Span<BackgroundTile> current)
-    {
-        Ensure.LengthEqual(current, PauseEquipmentBaseDefinitions.Cells);
-        for (int cell = 0; cell < PauseEquipmentBaseDefinitions.Cells; cell++)
-        {
-            if (PauseEquipmentBaseTiles.IsNonInventoryLiveOwnedCell(cell)) continue;
-            current[cell] = Replacement(current[cell], cell);
-        }
-    }
-
-    /// <summary>The selected tile of <paramref name="cell"/>, keeping a reserve arrow cell's live colour variant from <paramref name="shown"/>.</summary>
-    private BackgroundTile Replacement(BackgroundTile shown, int cell)
-    {
-        BackgroundTile replacement = Tile(cell);
-        return PauseEquipmentBaseTiles.IsArrowCell(cell) ? replacement with { ColourVariant = shown.ColourVariant } : replacement;
-    }
-
     /// <summary>Loads and validates all 1024 editable equipment-page base cells.</summary>
     /// <param name="json">The caller-owned stream containing the tile-reference document.</param>
     /// <returns>The presentation retaining only cells that differ from calculated stock composition.</returns>

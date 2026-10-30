@@ -6,22 +6,12 @@ using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// What the opening cinematic's layers show (#1392, #1404): the scene characters, and the narration font with, once the
-/// first illustrated page blanks the Japanese glyphs, the font's blank glyph repeated over them, as their pre-coloured tiles
-/// under the cinematic's palette, at the tile numbers each layer reads.
+/// What the opening cinematic's narration plane shows (#1392, #1404): the narration font with, once the first illustrated
+/// page blanks the Japanese glyphs, the font's blank glyph repeated over them, as their pre-coloured tiles under the
+/// cinematic's palette. The scene planes are installed pictures (#1467).
 /// </summary>
 internal static class IntroScreenTiles
 {
-    /// <summary>The scene planes: the scene characters.</summary>
-    internal static ScreenLayerPictures Scene(InstalledSpriteSheets sheets)
-    {
-        Ensure.NotNull(sheets);
-        return new ScreenTileSet(TileInkDepth.SixteenColours)
-            .Place(ScreenTileSheets.Of(sheets, SpriteSheetId.IntroSceneTiles), IntroTileSetDefinitions.SceneFirstTile, 0,
-                IntroCinematicDefinitions.Artwork.BackgroundCharacterBytes / (ScreenTileSheet.CharacterWordsOf(TileInkDepth.SixteenColours) * sizeof(ushort)))
-            .Pictures();
-    }
-
     /// <summary>The narration plane, with the Japanese glyphs blanked when <paramref name="japaneseGlyphsBlanked"/>.</summary>
     internal static ScreenLayerPictures Narration(InstalledSpriteSheets sheets, bool japaneseGlyphsBlanked)
     {

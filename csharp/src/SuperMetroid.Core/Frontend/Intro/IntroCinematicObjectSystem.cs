@@ -13,7 +13,7 @@ internal sealed class IntroCinematicObjectSystem
 {
     /// <summary>Queues alternating non-space typewriter sounds when audio is present.</summary>
     private readonly AudioQueues? audio;
-    /// <summary>The shown portrait and narration tilemaps: eye-frame rectangles and narration uploads land here.</summary>
+    /// <summary>The shown narration tilemap: narration uploads land here.</summary>
     private readonly IntroTilemaps tilemaps;
     /// <summary>Receives narration glyph words at their authored row and column.</summary>
     private readonly BackgroundTile[] textTilemap;
@@ -28,10 +28,8 @@ internal sealed class IntroCinematicObjectSystem
     private WrappingCountdown textInstructionTimer;
     /// <summary>Caller-installed narration artwork, rebound after debugger restoration.</summary>
     [NonSerialized] private IntroNarrationPresentation? narrationPresentation;
-    /// <summary>Caller-installed eye rectangles, rebound after debugger restoration.</summary>
-    [NonSerialized] private IntroEyeTilemapPresentation? eyeArtwork;
-    /// <summary>The eye frame on the portrait, redrawn when the eye artwork is rebound; null before the first frame.</summary>
-    private IntroEyeFrame? currentEyeFrame;
+    /// <summary>The eye frame the portrait shows, as an installed picture over it (#1467); null before the first frame.</summary>
+    internal IntroEyeFrame? EyeFrame { get; private set; }
     /// <summary>Compiled page glyphs, rebound from the installed presentation after restore.</summary>
     [NonSerialized] private IntroNarrationCharacter[]? narrationProgram;
     /// <summary>The bound narration page's characters.</summary>
@@ -54,21 +52,19 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Tracks subtitle page transitions and the Japanese input wait.</summary>
     private readonly IntroJapaneseSubtitles subtitles;
 
-    /// <summary>Binds eye, caret, narration, shown tilemaps, subtitle, and optional audio owners.</summary>
+    /// <summary>Binds caret, narration, shown tilemaps, subtitle, and optional audio owners.</summary>
     public IntroCinematicObjectSystem(
         IntroTilemaps tilemaps,
         BackgroundTile[] textTilemap,
         IntroJapaneseSubtitles subtitles,
         AudioQueues? audio = null,
-        IntroNarrationPresentation? narrationPresentation = null,
-        IntroEyeTilemapPresentation? eyeArtwork = null)
+        IntroNarrationPresentation? narrationPresentation = null)
     {
         this.subtitles = Ensure.NotNull(subtitles);
         this.tilemaps = Ensure.NotNull(tilemaps);
         this.textTilemap = Ensure.NotNull(textTilemap);
         this.audio = audio;
         this.narrationPresentation = narrationPresentation;
-        this.eyeArtwork = eyeArtwork;
         Ensure.LengthEqual(textTilemap, IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount);
     }
 
@@ -96,17 +92,6 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Current native screen position of the persistent text caret object; Y=$F8 deliberately hides it below the viewport.</summary>
     public Position16<ScreenPixels> Caret { get; private set; } =
         new(IntroCinematicDefinitions.ObjectSystem.CaretLeftX, IntroCinematicDefinitions.ObjectSystem.CaretFirstTextY);
-
-    /// <summary>Reapply the active eye rectangle after restoring a state or changing art.</summary>
-    public void BindEyeArtwork(IntroEyeTilemapPresentation? value)
-    {
-        eyeArtwork = value;
-        if (value is not null && currentEyeFrame is { } frame)
-            CopyRectangleToPortrait(
-                IntroEyeAnimationDefinitions.PortraitCell,
-                IntroEyeAnimationDefinitions.FrameSize,
-                value.FrameTiles(EyeArtworkIndex(frame)));
-    }
 
     /// <summary>
     /// Implements <c>PlaceIntroTextCaretOffScreen</c> at $8B:ADE1. The retail game keeps
@@ -339,7 +324,7 @@ internal sealed class IntroCinematicObjectSystem
 
     /// <summary>
     /// Advances the portrait eye one cinematic update: when its frame expires, the program shows its next frame for
-    /// that frame's duration and the frame's rectangle is drawn on the portrait.
+    /// that frame's duration and the portrait shows the frame's picture.
     /// </summary>
     private void StepEye()
     {
@@ -357,42 +342,8 @@ internal sealed class IntroCinematicObjectSystem
         ShowEyeFrame(shown.Frame);
     }
 
-    /// <summary>Draws <paramref name="frame"/>'s installed rectangle on the portrait and keeps it for artwork rebinding.</summary>
-    internal void ShowEyeFrame(IntroEyeFrame frame)
-    {
-        currentEyeFrame = frame;
-        IntroEyeTilemapPresentation content = eyeArtwork ?? throw new InvalidOperationException(
-            "Intro eye animation requires installed eye artwork.");
-        CopyRectangleToPortrait(
-            IntroEyeAnimationDefinitions.PortraitCell,
-            IntroEyeAnimationDefinitions.FrameSize,
-            content.FrameTiles(EyeArtworkIndex(frame)));
-    }
-
-    /// <summary>The position of <paramref name="frame"/> in the installed eye artwork, which keeps the cartridge's draw-record order.</summary>
-    private static int EyeArtworkIndex(IntroEyeFrame frame) => frame switch
-    {
-        IntroEyeFrame.Open => 0,
-        IntroEyeFrame.HalfOpen => 1,
-        IntroEyeFrame.Closed => 2,
-        IntroEyeFrame.Deadpan => 3,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined intro eye frame."),
-    };
-
-    /// <summary>Validates and writes each eye tilemap row into the portrait VRAM region.</summary>
-    private void CopyRectangleToPortrait(Position16<TilemapCells> destination, Extent16<TilemapCells> size,
-        ReadOnlySpan<BackgroundTile> source)
-    {
-        ValidateRectangle(destination, size);
-        if (source.Length != size.Area)
-            throw new InvalidDataException("Opening eye frame does not match its native rectangle size.");
-        Span<BackgroundTile> portrait = tilemaps.Portrait;
-        for (int row = 0; row < size.Y; row++)
-        {
-            source.Slice(row * size.X, size.X).CopyTo(
-                portrait[((destination.Y + row) * IntroCinematicDefinitions.Tilemaps.TilemapWidth + destination.X)..]);
-        }
-    }
+    /// <summary>Shows <paramref name="frame"/> on the portrait.</summary>
+    internal void ShowEyeFrame(IntroEyeFrame frame) => EyeFrame = frame;
 
     /// <summary>Moves the persistent caret onscreen and restarts its non-blinking sprite list.</summary>
     private void ResetCaret()
@@ -411,12 +362,4 @@ internal sealed class IntroCinematicObjectSystem
         caretSprite.Start(CinematicSpriteProgram.IntroTextCaretBlink);
     }
 
-    /// <summary>Rejects any eye rectangle extending beyond the 32-by-32 portrait tilemap.</summary>
-    private static void ValidateRectangle(Position16<TilemapCells> origin, Extent16<TilemapCells> size)
-    {
-        if (origin.X + size.X > IntroCinematicDefinitions.Tilemaps.TilemapWidth ||
-            origin.Y + size.Y > IntroCinematicDefinitions.Tilemaps.TilemapWidth)
-            throw new InvalidDataException(
-                $"Cinematic rectangle ({origin.X},{origin.Y}) {size.X}x{size.Y} leaves its 32x32 tilemap.");
-    }
 }

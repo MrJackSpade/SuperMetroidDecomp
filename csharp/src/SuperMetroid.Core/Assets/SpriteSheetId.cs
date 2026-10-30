@@ -128,8 +128,8 @@ public enum SpriteSheetId
     PauseInterfaceTiles,
     /// <summary>The HUD's images and the cleared cell pause shows on its HUD plane, under the pause palette (#1392, #1466).</summary>
     PauseHud,
-    /// <summary>The opening cinematic's scene characters under its palette (#1392).</summary>
-    IntroSceneTiles,
+    /// <summary>The opening cinematic's scene pictures: its scene pages, Samus's portrait and the portrait's eye frames (#1467).</summary>
+    IntroScenePictures,
     /// <summary>The opening cinematic's narration font under its palette (#1392).</summary>
     IntroFontTiles,
     /// <summary>The Ceres cinematics' background pictures: the caption's letters, the katakana caption and the Zebes planet (#1467).</summary>

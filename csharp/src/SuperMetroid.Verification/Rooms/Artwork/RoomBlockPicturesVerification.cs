@@ -25,7 +25,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.World.RoomStates;
-using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

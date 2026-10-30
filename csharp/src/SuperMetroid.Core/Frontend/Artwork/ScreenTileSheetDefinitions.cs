@@ -15,7 +15,6 @@ public static class ScreenTileSheetDefinitions
     {
         [SpriteSheetId.PauseMapTiles] = TileInkDepth.SixteenColours,
         [SpriteSheetId.PauseInterfaceTiles] = TileInkDepth.SixteenColours,
-        [SpriteSheetId.IntroSceneTiles] = TileInkDepth.SixteenColours,
         [SpriteSheetId.IntroFontTiles] = TileInkDepth.FourColours,
     };
 

@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
@@ -56,6 +57,7 @@ internal sealed class SpriteSheetSourceCatalog
     internal ComposedSpriteSheet Compose(SpriteSheetId sheet) => sheet == SpriteSheetId.PauseHud ? HudImageSheet.ComposePause(maps.Value)
         : sheet == SpriteSheetId.MenuPictures ? MenuPictureSheet.Compose(maps.Value)
         : sheet == SpriteSheetId.RoomMapPictures ? MapPictureSheets.ComposeRoomMap(maps.Value)
+        : sheet == SpriteSheetId.PausePictures ? PausePictureSheet.Compose(maps.Value)
         : ScreenTileSheetDefinitions.AreaMapForegrounds.Values.Contains(sheet)
             ? MapPictureSheets.ComposeWorldForeground(maps.Value, ScreenTileSheetDefinitions.AreaMapForegrounds.Single(entry => entry.Value == sheet).Key)
         : ScreenTileSheetDefinitions.AreaMapBackgrounds.Values.Contains(sheet)
@@ -79,7 +81,7 @@ internal sealed class SpriteSheetSourceCatalog
     {
         SpriteSheetId.EscapeTimer => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The escape timer composes from the cartridge."),
         SpriteSheetId.PauseHud => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The pause HUD composes from the HUD's images, not sprite parts."),
-        SpriteSheetId.MenuPictures or SpriteSheetId.RoomMapPictures => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The menus' pictures compose from their pages, not sprite parts."),
+        SpriteSheetId.MenuPictures or SpriteSheetId.RoomMapPictures or SpriteSheetId.PausePictures => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The menus' pictures compose from their pages, not sprite parts."),
         SpriteSheetId.GameOver => GameOverSheetComposer.Sources(maps.Value),
         SpriteSheetId.FileSelect => FileSelectSheetComposer.Sources(maps.Value),
         SpriteSheetId.GameOptions => GameOptionsSheetComposer.Sources(maps.Value),

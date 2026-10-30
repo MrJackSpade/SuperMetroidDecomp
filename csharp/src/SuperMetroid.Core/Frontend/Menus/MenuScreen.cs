@@ -60,17 +60,9 @@ internal sealed class MenuScreen
         return new PicturedPlane(PageSize, [.. Ensure.NotNull(pictures).Select(placed => Place(sheet.Frame(placed.Frame), placed.Cell))]);
     }
 
-    /// <summary>
-    /// <paramref name="picture"/> placed at page cell <paramref name="cell"/>: the point its frame names as its origin lands on
-    /// the cell's corner. A picture reaching past the page's top or left edge continues from the opposite edge.
-    /// </summary>
-    private static PlacedPlanePicture Place(SpriteSheetFrame picture, Position16<TilemapCells> cell)
-    {
-        int page = PageSize.X * ScreenGeometry.BackgroundTileSizePixels;
-        int left = cell.X * ScreenGeometry.BackgroundTileSizePixels - picture.Origin.X;
-        int top = cell.Y * ScreenGeometry.BackgroundTileSizePixels - picture.Origin.Y;
-        return new(picture, new((ushort)(((left % page) + page) % page), (ushort)(((top % page) + page) % page)));
-    }
+    /// <summary><paramref name="picture"/> placed at page cell <paramref name="cell"/>, its origin on the cell's corner.</summary>
+    private static PlacedPlanePicture Place(SpriteSheetFrame picture, Position16<TilemapCells> cell) =>
+        PlacedPlanePicture.AtCell(picture, cell, PageSize);
 
     /// <summary>The installed world-map characters.</summary>
     [field: NonSerialized]

@@ -1,7 +1,10 @@
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Frontend.Pause;
@@ -34,7 +37,31 @@ internal sealed class PauseScreen
         pictured = null;
     }
 
-    /// <summary>What the map, equipment and frame planes show under the pause palette (#1392).</summary>
+    /// <summary>The pause screen's pictures (#1467): the area maps' cells, each area's backdrop, the button rows and labels.</summary>
+    internal SpriteSheet Pictures => Sheets.Get(SpriteSheetId.PausePictures);
+
+    /// <summary>
+    /// The frame <paramref name="area"/>'s pause screen shows under <paramref name="highlight"/> (#1467): the area's
+    /// backdrop, the button rows over its bottom rows and each label in the shade the highlight shows it in.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The installed pause pictures hold no such frame.</exception>
+    internal PicturedPlane Frame(AreaId area, PauseButtonHighlight highlight)
+    {
+        SpriteSheet pictures = Pictures;
+        PauseButtonLabel[] labels = Enum.GetValues<PauseButtonLabel>();
+        var placed = ImmutableArray.CreateBuilder<PlacedPlanePicture>();
+        placed.Add(AtCorner(pictures.Frame(PauseFramePictures.BackdropFrame(area))));
+        placed.Add(AtCorner(pictures.Frame(PauseFramePictures.ButtonRowsFrame)));
+        foreach (PauseButtonLabel label in labels)
+            placed.Add(AtCorner(pictures.Frame(PauseFramePictures.ButtonFrame(label, PauseFramePictures.ShadeOf(highlight, label)))));
+        return new PicturedPlane(MenuScreen.PageSize, placed.ToImmutable());
+    }
+
+    /// <summary><paramref name="picture"/> placed with its origin on the frame's corner, where the cartridge's page shows it.</summary>
+    private static PlacedPlanePicture AtCorner(SpriteSheetFrame picture) =>
+        PlacedPlanePicture.AtCell(picture, default, MenuScreen.PageSize);
+
+    /// <summary>What the equipment plane shows under the pause palette (#1392).</summary>
     [field: NonSerialized]
     [AllowNull]
     internal ScreenLayerPictures PlaneTiles { get => field ??= PauseScreenTiles.Planes(Sheets); private set; }

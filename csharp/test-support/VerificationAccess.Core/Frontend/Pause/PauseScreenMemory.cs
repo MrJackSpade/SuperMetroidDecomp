@@ -27,15 +27,19 @@ internal static class PauseScreenMemory
         return image.CaptureImage();
     }
 
-    /// <summary>The memory image <paramref name="screen"/> shows: its characters with its tilemaps over them.</summary>
+    /// <summary>
+    /// The memory image <paramref name="menu"/> shows: its screen's characters with the tilemaps the cartridge lays out for
+    /// what it shows over them (#1467).
+    /// </summary>
     [WholeImageFixture("the pause screen's memory image")]
-    internal static byte[] Compose(PauseScreen screen)
+    internal static byte[] Compose(PauseMenuState menu)
     {
+        PauseScreen screen = menu.screen;
         var image = new SnesVram();
         image.LoadBytes(0, Characters(screen.Artwork));
         var pause = new PauseVram(image);
-        pause.Bg1Tilemap.Write(BackgroundTileWordBytes.Words(screen.Tilemaps.Bg1));
-        pause.Bg2Tilemap.Write(BackgroundTileWordBytes.Words(screen.Tilemaps.Bg2));
+        pause.Bg1Tilemap.Write(BackgroundTileWordBytes.Words(menu.ShownBg1Tiles));
+        pause.Bg2Tilemap.Write(BackgroundTileWordBytes.Words(menu.ShownBg2Tiles));
         pause.Bg3Tilemap.Write(BackgroundTileWordBytes.Words(screen.Bg3Tiles));
         return image.CaptureImage();
     }

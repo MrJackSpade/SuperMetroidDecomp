@@ -98,6 +98,8 @@ public enum SpriteSheetId
     MenuPictures,
     /// <summary>The room maps' pictures under the file-select palette: each map cell picture and each area's room frame (#1467).</summary>
     RoomMapPictures,
+    /// <summary>The pause screen's pictures under the pause palette: each map cell picture, each area's backdrop, the button rows and labels (#1467).</summary>
+    PausePictures,
     /// <summary>The menu's world foreground characters under Crateria's world-map palette (#1392).</summary>
     AreaMapForegroundCrateria,
     /// <summary>The menu's world foreground characters under Brinstar's world-map palette (#1392).</summary>

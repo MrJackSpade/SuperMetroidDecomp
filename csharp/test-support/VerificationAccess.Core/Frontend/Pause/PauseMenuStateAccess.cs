@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Artwork;
-
+using SuperMetroid.AssetExtraction.Frontend.Pause;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Map;
 
 namespace SuperMetroid.Core.Frontend.Pause;
 
@@ -32,8 +33,42 @@ internal static class PauseMenuStateAccess
         internal PauseEquipmentCategory? LastSelectorCategory => self.LastSelectorCategory;
 
         /// <summary>
-        /// Reads one native $7E:3000-relative button-label word after its queued-equivalent
-        /// upload, proving the bottom pause chrome reached the shown BG2 rows.
+        /// The BG1 tiles the cartridge would show (#1467): the shown area map laid out on the layer's two pages, with the
+        /// equipment page over the first while the equipment page shows, for comparison with native VRAM.
+        /// </summary>
+        internal BackgroundTile[] ShownBg1Tiles
+        {
+            get
+            {
+                BackgroundTile[] tiles = ShownAreaMapTiles.Of(self.ShownMap);
+                if (self.ScreenMode != PauseScreenMode.Map)
+                    self.screen.Tilemaps.Equipment.CopyTo(tiles);
+                return tiles;
+            }
+        }
+
+        /// <summary>
+        /// The BG1 tile the cartridge would show at map cell <paramref name="cell"/> (#1467): the shown map's tile, or the
+        /// equipment page's where the equipment page covers the first page.
+        /// </summary>
+        internal BackgroundTile ShownBg1Tile(Position16<MapTiles> cell)
+        {
+            int index = AreaMapPages.GetTilemapWordIndex(cell);
+            if (self.ScreenMode != PauseScreenMode.Map && index < self.screen.Tilemaps.Equipment.Length)
+                return self.screen.Tilemaps.Equipment[index];
+            ShownMapCell shown = self.ShownMap[cell];
+            return new BackgroundTile(shown.Cell.Shape.Picture, shown.ColourVariant, shown.Cell.InFront, shown.Cell.Mirroring);
+        }
+
+        /// <summary>
+        /// The BG2 tiles the cartridge would show (#1467): the area's backdrop with the button rows over it, each label in
+        /// the shade the highlight shows it in, laid out from the import's sources of the frame's pictures.
+        /// </summary>
+        internal BackgroundTile[] ShownBg2Tiles => PausePictureSheet.Frame(self.screen.Artwork, self.area, self.ButtonHighlight);
+
+        /// <summary>
+        /// Reads one native $7E:3000-relative button-label word as the shown BG2 rows hold it, proving the bottom pause
+        /// chrome shows each label in its highlight's shade.
         /// </summary>
         internal ushort ReadPauseButtonLabelWord(int nativeWordIndex)
         {
@@ -41,7 +76,7 @@ internal static class PauseMenuStateAccess
             int uploadedWordOffset = nativeWordIndex - firstUploadedNativeWordIndex;
             if ((uint)uploadedWordOffset >= PauseMenuLayout.ButtonRowsTileCount)
                 throw new ArgumentOutOfRangeException(nameof(nativeWordIndex));
-            return BackgroundTileWords.ToWord(self.screen.Tilemaps.ButtonRows[uploadedWordOffset]);
+            return BackgroundTileWords.ToWord(self.ShownBg2Tiles[nativeWordIndex]);
         }
 
         /// <summary>

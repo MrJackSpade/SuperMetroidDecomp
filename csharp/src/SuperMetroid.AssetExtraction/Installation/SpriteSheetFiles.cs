@@ -20,6 +20,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Frontend.Pause;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Frontend.CeresCinematics;
@@ -138,6 +139,7 @@ public static class SpriteSheetFiles
         SpriteSheetId.PauseHud => HudImageSheet.PauseFrameNames(maps.Value),
         SpriteSheetId.MenuPictures => MenuPictureSheet.FrameNames(maps.Value),
         SpriteSheetId.RoomMapPictures => MapPictureSheets.RoomMapFrameNames(maps.Value),
+        SpriteSheetId.PausePictures => PausePictureSheet.FrameNames(maps.Value),
         SpriteSheetId.AreaMapForegroundCrateria or SpriteSheetId.AreaMapForegroundBrinstar or
             SpriteSheetId.AreaMapForegroundNorfair or SpriteSheetId.AreaMapForegroundWreckedShip or
             SpriteSheetId.AreaMapForegroundMaridia or SpriteSheetId.AreaMapForegroundTourian => [AreaMapPictures.WorldForegroundFrame],

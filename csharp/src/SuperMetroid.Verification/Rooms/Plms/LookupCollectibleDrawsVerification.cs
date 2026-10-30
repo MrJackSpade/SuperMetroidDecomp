@@ -32,11 +32,11 @@ internal static class LookupCollectibleDrawsVerification
             {
                 bool owned = expected.Any(entry => entry.Pointer == raw);
                 AssertEqual(owned, RoomPlmCollectibleDrawDefinitionsTooling.TryGet(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>((ushort)raw), out var value), "Collectible complete pointer domain");
-                AssertEqual(owned, CollectiblePlmDraws.TryGetBlock(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>((ushort)raw), out RoomTerrainBlock word), "Collectible runtime word domain");
+                AssertEqual(owned, CollectiblePlmDraws.TryGetBlock(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>((ushort)raw), out RoomTerrainBlock block), "Collectible runtime block domain");
                 if (!owned)
                 {
                     AssertEqual(default(RoomPlmCollectibleDrawFrame), value, "Collectible rejected output");
-                    AssertEqual((ushort)0, word, "Collectible rejected runtime output");
+                    AssertEqual(default(RoomTerrainBlock), block, "Collectible rejected runtime output");
                 }
             }
         for (int index = 0; index < expected.Length; index++)

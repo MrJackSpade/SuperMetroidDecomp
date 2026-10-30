@@ -58,7 +58,7 @@ internal static class TourianElevatorDoorsVerification
             var behaviors = new RoomBlockBehavior[16];
             int target = horizontal ? 6 : 9;
             blocks[target] = RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.DoorBlock);
-            behaviors[target] = bts;
+            behaviors[target] = new RoomBlockBehavior(bts);
             var level = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(blocks, behaviors, new RoomBlockAppearance[16]), doors: RoomDoorListDefinitions.ForListPointer(list));
             var state = new SamusKinematicsState
             {

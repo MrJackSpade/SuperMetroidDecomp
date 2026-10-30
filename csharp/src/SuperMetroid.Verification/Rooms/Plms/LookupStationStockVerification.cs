@@ -66,12 +66,12 @@ internal static class LookupStationStockVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<StationDraw>((ushort)pointer),0,0), "Station stock unknown pointer");
-        entries[10].Runs[3][1] = 0xc58;
+        entries[10].Runs[3][1] = RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical);
         var mixed = new InstalledRoomPlmStationVisuals(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Runs.Select(run => run.ToArray()).ToArray());
         AssertEqual(Hash(expected), mixed.ContentIdentity, "Station mixed custom/stock identity");
-        entries[10].Runs[3][1] = 0x5a;
-        entries[11].Runs[5][0] = 0x5b;
+        entries[10].Runs[3][1] = RoomBlockAppearance.Of(0x05a);
+        entries[11].Runs[5][0] = RoomBlockAppearance.Of(0x05b);
         foreach (var frame in frames)
         {
             for (int run = 0; run < native[frame.Pointer].Length; run++)

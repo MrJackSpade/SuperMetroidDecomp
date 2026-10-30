@@ -1,6 +1,8 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Verification.Rooms.Plms;
@@ -42,7 +44,9 @@ internal static class LookupDownwardGateSelectionVerification
                     $"Downward gate argument {raw} starts its trigger program");
                 continue;
             }
-            AssertEqual(native, field == 1 ? action.LeftBlockWord : action.RightBlockWord,
+            // The cartridge stores zero for a side that receives no block.
+            RoomTerrainBlock? nativeBlock = native == 0 ? null : RoomLevelWordCodec.Decode(native);
+            AssertEqual(nativeBlock, field == 1 ? action.LeftBlock : action.RightBlock,
                 $"Downward gate original field {field}, argument {raw}");
         }
     }

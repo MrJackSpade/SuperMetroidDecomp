@@ -43,7 +43,7 @@ internal static class MotherBrainPlasmaImpactVerification
             "Accepted beam spends one step of walk credit");
         AssertEqual(EnemyShotTiming.PlasmaInvincibilityFrames, head.InvincibilityTimer.RawValue,
             "The no-death damage tail grants Plasma's hit immunity");
-        var level = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
+        var level = CreateEmptyRoom(new(16, 16));
         for (int frame = 0; frame < 3; frame++)
         {
             shots.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, Position16<RoomPixels>.Zero, bombs, projectileProducerEnabled: false);

@@ -64,14 +64,14 @@ internal static class LookupDownwardGateStockVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<DownwardGateDraw>((ushort)pointer),0,0), "Gate stock unknown pointer");
-        entries[6].Runs[1][0] = 0xc58;
-        entries[5].Runs[0][4] = 0x59;
+        entries[6].Runs[1][0] = RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical);
+        entries[5].Runs[0][4] = RoomBlockAppearance.Of(0x059);
         var mixed = new InstalledRoomPlmDownwardGateVisuals(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer,
             frame => entries.Single(entry => entry.Id == frame.Id).Runs.Select(run => run.ToArray()).ToArray());
         AssertEqual(Hash(expected), mixed.ContentIdentity, "Gate mixed stock/custom hash");
-        entries[6].Runs[1][0] = 0x5a;
-        entries[0].Runs[0][0] = 0x5b;
+        entries[6].Runs[1][0] = RoomBlockAppearance.Of(0x05a);
+        entries[0].Runs[0][0] = RoomBlockAppearance.Of(0x05b);
         foreach (var frame in frames)
         for (int run = 0; run < expected[frame.Pointer].Length; run++)
         for (int word = 0; word < expected[frame.Pointer][run].Length; word++)

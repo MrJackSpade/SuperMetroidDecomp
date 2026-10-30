@@ -453,7 +453,7 @@ level, SamusPoseId.NeutralJumpTransitionRightPose, frameCounter: 1),
     // Ceiling row one ends at pixel 31. A crouched body occupies 32..63 exactly, while a
     // standing body would need 27..63. Both five-pixel probes collide, so native pose
     // collision rejects the larger pose and retains crouch.
-    var tunnelBlocks = (ushort[])floor.Clone();
+    var tunnelBlocks = (RoomTerrainBlock[])floor.Clone();
     for (int x = 0; x < width; x++)
         tunnelBlocks[1 * width + x] = RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock);
     RoomLevelData tunnel = CreateRoom(new(width, height), tunnelBlocks, new RoomBlockBehavior[tunnelBlocks.Length]);

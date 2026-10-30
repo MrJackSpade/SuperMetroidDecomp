@@ -84,7 +84,7 @@ internal static class CollectiblesVerification
                 // LoadItemPLMGfx shows the item in its graphics slot before the first item draw; BG1 shows the slot's
                 // first-frame block, whose picture the collectible shown in the slot names (#1431, #1466).
                 AssertEqual(
-                    (ushort)(0x008e + loaded.GraphicsSlot * 2),
+                    RoomBlockAppearance.Of(0x08e + loaded.GraphicsSlot * 2),
                     fixture.Level.DisplayedAppearance(fixture.BlockIndex),
                     $"{kind} shown block is its slot's first-frame block");
                 AssertEqual<InWorldCollectibleKind?>(

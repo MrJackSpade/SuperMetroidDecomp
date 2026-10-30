@@ -86,7 +86,7 @@ internal static class GModeGateGlitchVerification
         Enum sleepingGateProgram = (gate.Animation ?? throw new InvalidOperationException("The gate runs no typed program.")).RunningProgram;
         while (plms.SlotTable.ActiveCount < 40)
         {
-            AssertTrue(plms.TrySpawnProjectileShotBlock(
+            AssertTrue(plms.BlockReactions.TrySpawnProjectileShotBlock(
                     level,
                     gate.BlockIndex,
                     DownwardGateDefinitions.ClosedGateBehavior,
@@ -317,7 +317,7 @@ internal static class GModeGateGlitchVerification
                 var words = new RoomTerrainBlock[width * height];
                 var behaviors = new RoomBlockBehavior[words.Length];
                 words[blockIndex] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, collisionType);
-                behaviors[blockIndex] = bts;
+                behaviors[blockIndex] = new RoomBlockBehavior(bts);
                 return CreateRoom(new(width, height), words, behaviors);
             }
 

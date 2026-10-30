@@ -1,6 +1,8 @@
 using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Rooms;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -113,13 +115,14 @@ internal static class KraidDrawMappingsVerification
             AssertTrue(KraidRoomPlmDraws.TryGet(NativePlmDraws.At<KraidRoomDraw>(expected.Pointer), out var draw), "Kraid word owner exists");
             for (int block = 0; block < expected.Count; block++)
             {
-                ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | (expected.Pointer + 2 + block * 2));
-                AssertEqual(word, draw.WordAt(block), "Kraid calculated original physical/visual word");
-                AssertEqual(word, exported[expected.Pointer].Runs.Span[0].Blocks.Span[block],
-                    "Kraid materialized export word");
+                RoomTerrainBlock native = RoomLevelWordCodec.Decode(
+                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | (expected.Pointer + 2 + block * 2)));
+                AssertEqual(native, draw.BlockAt(block), "Kraid calculated block matches the native level word");
+                AssertEqual(native, exported[expected.Pointer].Runs.Span[0].Blocks.Span[block],
+                    "Kraid materialized export block");
             }
             foreach (int block in new[] { int.MinValue, -1, expected.Count, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => draw.WordAt(block), "Kraid computed word bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => draw.BlockAt(block), "Kraid computed block bounds");
         }
     }
 

@@ -45,10 +45,10 @@ internal static class PlmDefinitionMigrationVerification
 
         // The deleted RomData catalogs' values.
         AssertEqual(5, DownwardGateDefinitions.GateHeightInBlocks, "gate height");
-        AssertEqual(0x10, DownwardGateDefinitions.ClosedGateBehavior, "closed gate behaviour");
+        AssertEqual(new RoomBlockBehavior(0x10), DownwardGateDefinitions.ClosedGateBehavior, "closed gate behaviour");
         AssertEqual(0x1000, DownwardGateDefinitions.OneBlockDistance, "gate projectile block distance");
         AssertEqual(2, DownwardGateDefinitions.BlockAssociationScale, "gate projectile block association");
-        AssertEqual(0x8044, NoobTubePlmDefinitions.SolidProjectileTrigger.Raw, "n00b tube origin block");
+        AssertEqual(RoomTerrainBlock.Of(0x044, BlockMirroring.None, RoomCollisionType.SolidBlock), NoobTubePlmDefinitions.SolidProjectileTrigger, "n00b tube origin block");
         AssertEqual(0x000b, NoobTubePlmDefinitions.EarthquakeType, "n00b tube earthquake type");
         AssertEqual(0x0040, NoobTubePlmDefinitions.EarthquakeTimer, "n00b tube earthquake timer");
         AssertEqual(0xfb00, NoobTubeDebrisDefinitions.BubbleInitialYVelocity.RawValue, "bubble velocity");

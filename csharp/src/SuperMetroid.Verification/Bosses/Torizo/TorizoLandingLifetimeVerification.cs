@@ -35,10 +35,10 @@ internal static class TorizoLandingLifetimeVerification
         body.Health=body.Definition.Health;state.Posture=TorizoPostureFlags.None;state.PostureParameterLowBits=0;state.Behavior=0;
         body.Properties=EnemyPropertyWord.FromWord(0x2000);state.BodyProgram=AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.FacingLeftFalling1);body.InstructionTimer=WrappingCountdown.Start(5);
         body.Position = body.Position.WithWhole(new(128, (ushort)(190-body.Radius.Y)));
-        var words=new ushort[256];for(int i=12*16;i<13*16;i++)words[i]=0x8000;
+        var terrain=new RoomTerrainBlock[256];for(int i=12*16;i<13*16;i++)terrain[i]=RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
         // A flat floor across row 12 of the room's own blocks, which its block sheet pictures.
         var scope = runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.");
-        var level=new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(words, new byte[256], new ushort[256]));
+        var level=new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(terrain, new RoomBlockBehavior[256], new RoomBlockAppearance[256]));
         runtime.Room.Adopt(scope with { LevelData = level });
         var samus=runtime.Player.IntroducedSamus;samus.Pose=SamusPoseId.FacingRightNormalPose;
         samus.Health=samus.MaxHealth=999;

@@ -118,7 +118,7 @@ internal static class DownwardGatePlmsVerification
         for (int row = 0; row < DownwardGateDefinitions.GateHeightInBlocks; row++)
         {
             AssertEqual(DownwardGateDefinitions.ClosedGateBehavior,
-                level.GetCollisionBlockByIndex(gateBlockIndex + row * level.Size.X).Behavior.Value,
+                level.GetCollisionBlockByIndex(gateBlockIndex + row * level.Size.X).Behavior,
                 $"gate setup writes BTS $10 to row {row}");
         }
         AssertEqual((int)RoomCollisionType.ShootableBlock,

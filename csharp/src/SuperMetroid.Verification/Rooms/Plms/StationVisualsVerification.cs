@@ -35,9 +35,9 @@ internal static class StationVisualsVerification
                     ))
             .ToArray();
         RoomPlmVisualRunEntry first = entries.Single(entry => entry.Id == "map-frame-0");
-        first.Runs[0][0] = 0x0053;
+        first.Runs[0][0] = RoomBlockAppearance.Of(0x053);
         var edited = new InstalledRoomPlmStationVisuals(entries);
-        first.Runs[0][0] = 0x0054;
+        first.Runs[0][0] = RoomBlockAppearance.Of(0x054);
         ushort pointer = PlmDrawAddressCodec.Of(StationAnimationPrograms.Resolve(
             StationAnimationList.MapIdle, 0).Draw);
         AssertEqual(RoomBlockAppearance.Of(0x053), edited.GetAppearance(NativePlmDraws.At<StationDraw>(pointer), 0, 0),

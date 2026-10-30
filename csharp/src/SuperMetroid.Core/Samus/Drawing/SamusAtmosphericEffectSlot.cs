@@ -1,48 +1,35 @@
 namespace SuperMetroid.Core.Samus.Drawing;
 
-/// <summary>One debugger-visible packed atmospheric slot.</summary>
+/// <summary>One of Samus's four atmospheric effect slots: a splash, bubbles, lava spray or dust.</summary>
 public sealed class SamusAtmosphericEffectSlot
 {
-    /// <summary>
-    /// The bits of the slot word's animation frame, below its graphics type. The two stay one word because the
-    /// animation steps the whole word: a frame advancing past its eight bits carries into the type.
-    /// </summary>
-    private const int AnimationFrameBits = 8;
+    /// <summary>The slot's effect; <see cref="SamusAtmosphericEffectType.Inactive"/> when the slot is empty.</summary>
+    public SamusAtmosphericEffectType Type { get; private set; }
 
-    /// <summary>Low byte animation frame, high byte graphics type; 0 through 65535.</summary>
-    [PackedFields("packed slot word: low byte animation frame, high byte graphics type; zero marks an empty slot")]
-    public int FrameAndType
+    /// <summary>The zero-based frame within the effect's animation.</summary>
+    public int AnimationFrame { get; private set; }
+
+    /// <summary>Whether the slot shows no effect.</summary>
+    public bool IsEmpty => Type == SamusAtmosphericEffectType.Inactive;
+
+    /// <summary>Starts an effect at an animation frame.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The effect is <see cref="SamusAtmosphericEffectType.Inactive"/>.</exception>
+    internal void SetEffect(SamusAtmosphericEffectType type, int animationFrame)
     {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        if (type == SamusAtmosphericEffectType.Inactive)
+            throw new ArgumentOutOfRangeException(nameof(type), type, "An effect slot is emptied, not started as inactive.");
+        Type = type;
+        AnimationFrame = Ensure.BetweenInclusive(0, byte.MaxValue, animationFrame);
     }
 
-    /// <summary>The zero-based frame within the current graphics type, held in the packed word's low byte.</summary>
-    public int AnimationFrame => unchecked((byte)FrameAndType);
+    /// <summary>Advances to the effect's next animation frame.</summary>
+    internal void AdvanceFrame() => AnimationFrame++;
 
-    /// <summary>
-    /// The graphics types in the order the packed word's high byte numbers them, the order of the native per-type
-    /// tables: a type is held as its position here.
-    /// </summary>
-    private static readonly SamusAtmosphericEffectType[] TypeOrder =
-    [
-        SamusAtmosphericEffectType.Inactive, SamusAtmosphericEffectType.FootstepSplash,
-        SamusAtmosphericEffectType.AlternateFootstepSplash, SamusAtmosphericEffectType.DivingSplash,
-        SamusAtmosphericEffectType.LavaSurfaceDamage, SamusAtmosphericEffectType.Bubbles, SamusAtmosphericEffectType.Dust,
-        SamusAtmosphericEffectType.AlternateDust,
-    ];
-
-    /// <summary>The slot's graphics type, held in the packed word's high byte; <see cref="SamusAtmosphericEffectType.Inactive"/> when cleared.</summary>
-    public SamusAtmosphericEffectType Type => TypeOrder[FrameAndType >> AnimationFrameBits];
-
-    /// <summary>Packs a graphics type and its animation frame into the slot word.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The type is not one the word can hold.</exception>
-    internal void SetFrameAndType(SamusAtmosphericEffectType type, int animationFrame)
+    /// <summary>Empties the slot, leaving its timer and anchor behind.</summary>
+    internal void ClearEffect()
     {
-        int position = Array.IndexOf(TypeOrder, type);
-        if (position < 0)
-            throw new ArgumentOutOfRangeException(nameof(type), type, "Atmospheric type must be one of the eight native types.");
-        FrameAndType = checked((byte)animationFrame) | checked((byte)position) << AnimationFrameBits;
+        Type = SamusAtmosphericEffectType.Inactive;
+        AnimationFrame = 0;
     }
 
     /// <summary>$0AD4 array countdown in update calls; negative words suppress motion/drawing until decrement reaches $8000 and reloads the current frame duration.</summary>
@@ -55,10 +42,10 @@ public sealed class SamusAtmosphericEffectSlot
     /// </summary>
     public Position16<RoomPixels> Position { get; internal set; }
 
-    /// <summary>Resets the packed word, delayed timer, and anchor during room or Samus initialization.</summary>
+    /// <summary>Empties the slot and resets its delayed timer and anchor during room or Samus initialization.</summary>
     internal void Clear()
     {
-        FrameAndType = 0;
+        ClearEffect();
         AnimationTimer = WrappingCountdown.Start(0);
         Position = Position16<RoomPixels>.Zero;
     }

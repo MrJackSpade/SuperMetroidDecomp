@@ -233,7 +233,17 @@ internal static class NativeSnapshotImportVerification
         for (int index = 0; index < SamusAtmosphericEffectsState.SlotCount; index++)
         {
             ushort packed = W(NativeSnapshotMemory.AtmosphericFrameAndType + index * 2);
-            samus.LiquidPhysics.AtmosphericEffects.SetSlot(index, (SamusAtmosphericEffectType)LittleEndianBytes.HighByte(packed), (byte)packed,
+            SamusAtmosphericEffectType effectType = SuperMetroid.AssetExtraction.Samus.SamusAtmosphericEffectWordCodec.DecodeType(packed);
+            if (effectType == SamusAtmosphericEffectType.Inactive)
+            {
+                samus.LiquidPhysics.AtmosphericEffects.ClearEffect(index);
+                samus.LiquidPhysics.AtmosphericEffects.Slots[index].AnimationTimer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.AtmosphericTimer + index * 2));
+                samus.LiquidPhysics.AtmosphericEffects.Slots[index].Position =
+                    new(W(NativeSnapshotMemory.AtmosphericX + index * 2), W(NativeSnapshotMemory.AtmosphericY + index * 2));
+                continue;
+            }
+            samus.LiquidPhysics.AtmosphericEffects.SetSlot(index, effectType,
+                SuperMetroid.AssetExtraction.Samus.SamusAtmosphericEffectWordCodec.DecodeFrame(packed),
                 W(NativeSnapshotMemory.AtmosphericTimer + index * 2),
                 new(W(NativeSnapshotMemory.AtmosphericX + index * 2), W(NativeSnapshotMemory.AtmosphericY + index * 2)));
         }

@@ -1123,8 +1123,12 @@ internal static class RidleyFullMovieVerification
                 for (int index = 0; index < SamusAtmosphericEffectsState.SlotCount; index++)
                 {
                     var effect = samus.LiquidPhysics.AtmosphericEffects.Slots[index];
-                    Check($"Atmosphere {index} frame/type", effect.FrameAndType, NativeSnapshotMemory.AtmosphericFrameAndType + index * 2);
-                    if (effect.Type == 0) continue;
+                    // The recorded frame/type word is compared as the effect and frame the import codec decodes it to.
+                    ushort recordedEffect = W(NativeSnapshotMemory.AtmosphericFrameAndType + index * 2);
+                    if (effect.Type != SuperMetroid.AssetExtraction.Samus.SamusAtmosphericEffectWordCodec.DecodeType(recordedEffect) ||
+                        effect.AnimationFrame != SuperMetroid.AssetExtraction.Samus.SamusAtmosphericEffectWordCodec.DecodeFrame(recordedEffect))
+                        mismatches.Add($"Atmosphere {index} frame/type: native={recordedEffect:X4} port={effect.Type}/{effect.AnimationFrame}");
+                    if (effect.IsEmpty) continue;
                     Check($"Atmosphere {index} timer", effect.AnimationTimer.RawValue, NativeSnapshotMemory.AtmosphericTimer + index * 2);
                     Check($"Atmosphere {index} X", effect.Position.X, NativeSnapshotMemory.AtmosphericX + index * 2);
                     Check($"Atmosphere {index} Y", effect.Position.Y, NativeSnapshotMemory.AtmosphericY + index * 2);

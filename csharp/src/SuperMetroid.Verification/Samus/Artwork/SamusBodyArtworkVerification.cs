@@ -195,7 +195,8 @@ internal static class SamusBodyArtworkVerification
                 Position16<RoomPixels>.Zero, 128, SamusBodySheetFixtures.ForAtmosphere(stock.Spritemaps, stock.Atmosphere)));
             AssertTrue(nativeEffectOam.LastFinalizedSpriteCount > 0 &&
                 nativeEffectOam.ImageEquals(installedEffectOam) &&
-                nativeEffects.Slots[0].FrameAndType == installedEffects.Slots[0].FrameAndType &&
+                nativeEffects.Slots[0].Type == installedEffects.Slots[0].Type &&
+                nativeEffects.Slots[0].AnimationFrame == installedEffects.Slots[0].AnimationFrame &&
                 nativeEffects.Slots[0].AnimationTimer.RawValue == installedEffects.Slots[0].AnimationTimer.RawValue,
                 $"direct atmospheric type {type} frame {frame} installed/native OAM and timing parity");
         }

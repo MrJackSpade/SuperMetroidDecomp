@@ -1,9 +1,9 @@
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Editable pause equipment-page label schema, separating inventory-owned text from the backdrop, wireframe, and reserve controls.</summary>
 public sealed record PauseEquipmentLabelDocument
 {
-    /// <summary>Schema revision; loading requires version one from <see cref="PauseEquipmentLabelDefinitions.Version"/>.</summary>
+    /// <summary>Schema revision; loading requires version one from <see cref="PauseEquipmentLabelArtworkDefinitions.Version"/>.</summary>
     public required int Version { get; init; }
     /// <summary>BG palette selector 0..7 applied to collected but unequipped labels while preserving their character, priority, and flip bits.</summary>
     public required int DisabledPalette { get; init; }

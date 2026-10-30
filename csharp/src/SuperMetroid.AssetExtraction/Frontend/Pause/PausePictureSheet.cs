@@ -5,9 +5,9 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause;
-using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
@@ -33,7 +33,7 @@ internal static class PausePictureSheet
         {
             AreaId area = AreaIds.At(index);
             var backdrop = new BackgroundTile[PauseBackdropDefinitions.Cells];
-            maps.PauseBackdrops.LoadTo(backdrop, area);
+            InstalledAreaMapPresentation.PauseOf(maps).Backdrops.LoadTo(backdrop, area);
             yield return ScreenPictureSubject.Page(PauseFramePictures.BackdropFrame(area), backdrop, Columns, buttonCells);
         }
         BackgroundTile[] buttons = ButtonRows(maps);
@@ -64,7 +64,7 @@ internal static class PausePictureSheet
     /// <summary>The button page's two shown rows laid where the frame shows them, on an otherwise empty frame.</summary>
     internal static BackgroundTile[] ButtonRows(AreaMapPresentation maps)
     {
-        BackgroundTile[] page = maps.PauseBackdrops.CreateButtonTilemap();
+        BackgroundTile[] page = InstalledAreaMapPresentation.PauseOf(maps).Backdrops.CreateButtonTilemap();
         var rows = new BackgroundTile[PauseBackdropDefinitions.Cells];
         page.AsSpan(PauseFrameDefinitions.ButtonSourceFirstRow * Columns, PauseFrameDefinitions.ButtonRowCount * Columns)
             .CopyTo(rows.AsSpan(PauseFrameDefinitions.ButtonRowsFirstRow * Columns));

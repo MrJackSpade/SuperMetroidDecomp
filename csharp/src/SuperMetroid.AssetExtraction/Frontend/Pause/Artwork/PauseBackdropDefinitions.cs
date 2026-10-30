@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Pause BG2 presentation geometry and import-only native sources.</summary>
 public static class PauseBackdropDefinitions

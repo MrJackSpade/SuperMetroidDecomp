@@ -1,8 +1,9 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
-using static SuperMetroid.Core.Frontend.Pause.Artwork.PauseBackdropDefinitions;
+using static SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseBackdropDefinitions;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>
 /// Draws the pause screen's backdrops (<see cref="PauseBackdropDefinitions"/>): each area's name, the button panel and the frame.

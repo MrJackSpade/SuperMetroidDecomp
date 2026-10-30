@@ -17,6 +17,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks installed pause backdrops, labels, and button tiles through live page transitions.</summary>
@@ -45,7 +46,7 @@ internal static class PauseBackdropsVerification
         using (var output = File.Create(path)) PauseBackdropPresentation.Write(output, document with { Areas = editedAreas, Buttons = buttons });
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "backdrop/button-only edits change catalog identity");
-        AssertTrue(original.PauseBackdrops.CreateButtonTilemap().SequenceEqual(BackgroundTileWordBytes.Tiles(
+        AssertTrue(InstalledAreaMapPresentation.PauseOf(original).Backdrops.CreateButtonTilemap().SequenceEqual(BackgroundTileWordBytes.Tiles(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0xb6e400, 0x400))), "all native mutable button tiles survive extraction");
         AreaId everyTickArea = Enum.GetValues<AreaId>()[0];
         foreach (AreaId area in Enum.GetValues<AreaId>())
@@ -53,7 +54,7 @@ internal static class PauseBackdropsVerification
             byte[] expected = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0xb6e000, 0x800);
             ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82965f + (int)area * 2);
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0x820000 | label, 24).CopyTo(expected, 170 * 2);
-            var tiles = new BackgroundTile[PauseBackdropDefinitions.Cells]; original.PauseBackdrops.LoadTo(tiles, area);
+            var tiles = new BackgroundTile[PauseBackdropDefinitions.Cells]; InstalledAreaMapPresentation.PauseOf(original).Backdrops.LoadTo(tiles, area);
             AssertTrue(BackgroundTileWordBytes.Tiles(expected).SequenceEqual(tiles), "all 1024 backdrop tiles match native frame plus unmasked area lettering");
             var native = Create(bus, area, original);
             var pause = Create(guard, area, original);

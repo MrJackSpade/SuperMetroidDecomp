@@ -2,6 +2,7 @@ using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
@@ -54,8 +55,8 @@ public static class PauseEquipmentLabelExtractor
         using var output = new MemoryStream();
         PauseEquipmentLabelPresentation.Write(output, new()
         {
-            Version = PauseEquipmentLabelDefinitions.Version,
-            DisabledPalette = PauseEquipmentLabelDefinitions.DisabledPalette,
+            Version = PauseEquipmentLabelArtworkDefinitions.Version,
+            DisabledPalette = PauseEquipmentLabelArtworkDefinitions.DisabledPalette,
             Blank = ReadCells(bus, PauseMenuSourceDefinitions.BlankEquipmentLabel,
                 PauseEquipmentLabelDefinitions.EquipmentWords, "Equipment.Blank"),
             Labels = labels,

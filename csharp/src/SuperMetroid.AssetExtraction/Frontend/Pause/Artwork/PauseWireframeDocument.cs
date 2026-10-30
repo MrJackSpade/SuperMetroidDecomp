@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Editable JSON schema for pause-menu wireframe artwork; equipped-item rules still select which variant is shown, independently of authored cell content.</summary>
 public sealed record PauseWireframeDocument

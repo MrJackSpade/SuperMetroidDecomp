@@ -1,7 +1,9 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Editable label artwork and placement for the pause equipment page.</summary>
 public sealed class PauseEquipmentLabelPresentation
@@ -111,7 +113,7 @@ public sealed class PauseEquipmentLabelPresentation
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause equipment label JSON.", error); }
 
-        if (document.Version != PauseEquipmentLabelDefinitions.Version || document.Labels is null ||
+        if (document.Version != PauseEquipmentLabelArtworkDefinitions.Version || document.Labels is null ||
             document.Blank is null || document.Blank.Length != PauseEquipmentLabelDefinitions.EquipmentWords ||
             (uint)document.DisabledPalette >= 8)
             throw new InvalidDataException("Pause equipment labels require version 1, nine blank cells and a valid disabled palette.");
@@ -132,7 +134,7 @@ public sealed class PauseEquipmentLabelPresentation
                 ? PauseEquipmentLabelDefinitions.BeamWords : PauseEquipmentLabelDefinitions.EquipmentWords;
             if (label.Cells is null || label.Cells.Length != words ||
                 (uint)label.Column >= PauseEquipmentLabelDefinitions.TilemapColumns ||
-                (uint)label.Row >= PauseEquipmentLabelDefinitions.TilemapRows ||
+                (uint)label.Row >= PauseEquipmentLabelArtworkDefinitions.TilemapRows ||
                 label.Column + (id == PauseEquipmentLabelId.Hyper ? PauseEquipmentLabelDefinitions.BeamWords : words) > PauseEquipmentLabelDefinitions.TilemapColumns)
                 throw new InvalidDataException($"Pause equipment label {key} has invalid cells or placement.");
             int destinationCell = label.Row * PauseEquipmentLabelDefinitions.TilemapColumns + label.Column;
@@ -143,8 +145,8 @@ public sealed class PauseEquipmentLabelPresentation
                 for (int cell = destinationCell; cell < destinationCell + footprint; cell++)
                 {
                     bool plasmaWireframeOverlap = id == PauseEquipmentLabelId.Plasma &&
-                        destinationCell == PauseEquipmentLabelDefinitions.PlasmaCell &&
-                        cell == PauseEquipmentLabelDefinitions.PlasmaWireframeOverlapCell;
+                        destinationCell == PauseEquipmentLabelArtworkDefinitions.PlasmaCell &&
+                        cell == PauseEquipmentLabelArtworkDefinitions.PlasmaWireframeOverlapCell;
                     if (PauseEquipmentBaseTiles.IsNonInventoryLiveOwnedCell(cell) &&
                         !plasmaWireframeOverlap)
                         throw new InvalidDataException($"Pause equipment label {key} overlaps wireframe or reserve state at cell {cell}.");
@@ -188,7 +190,7 @@ public sealed class PauseEquipmentLabelPresentation
     /// <summary>Rejects partial tilemaps so fixed label destinations remain within the complete 32-by-32 pause tilemap.</summary>
     private static void ValidateTilemap(Span<BackgroundTile> tilemap)
     {
-        if (tilemap.Length != PauseEquipmentLabelDefinitions.TilemapColumns * PauseEquipmentLabelDefinitions.TilemapRows)
+        if (tilemap.Length != PauseEquipmentLabelDefinitions.TilemapColumns * PauseEquipmentLabelArtworkDefinitions.TilemapRows)
             throw new ArgumentException("Pause equipment labels require a complete 32x32 tilemap.", nameof(tilemap));
     }
 
@@ -212,7 +214,7 @@ public sealed class PauseEquipmentLabelPresentation
         {
             var edits = new Dictionary<int, BackgroundTile>();
             for (int cell = 0; cell < tiles.Length; cell++)
-                if (tiles[cell] != PauseEquipmentLabelTiles.StockTile(id, cell)) edits.Add(cell, tiles[cell]);
+                if (tiles[cell] != PauseEquipmentLabelGlyphs.StockTile(id, cell)) edits.Add(cell, tiles[cell]);
             int? changedDestination = destinationCell == PauseEquipmentLabelTiles.StockPageByte(id) / sizeof(ushort)
                 ? null : destinationCell;
             return new(id, changedDestination, edits);
@@ -223,7 +225,7 @@ public sealed class PauseEquipmentLabelPresentation
         {
             for (int cell = 0; cell < destination.Length; cell++)
                 destination[cell] = edits.TryGetValue(cell, out BackgroundTile edited) ? edited
-                    : PauseEquipmentLabelTiles.StockTile(id, cell);
+                    : PauseEquipmentLabelGlyphs.StockTile(id, cell);
         }
     }
 }

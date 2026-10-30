@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Native-size artwork references, not tile numbers, addresses or gameplay commands.</summary>
 public sealed record PauseBackdropCell

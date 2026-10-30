@@ -1,7 +1,8 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Editable equipment-page base art, independent of live inventory and reserve patches.</summary>
 public sealed class PauseEquipmentBasePresentation

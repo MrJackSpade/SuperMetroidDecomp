@@ -14,6 +14,7 @@ using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
@@ -25,8 +26,8 @@ internal static class PauseEquipmentLabelsVerification
         string overrides, AreaMapPresentation original)
     {
         Directory.CreateDirectory(overrides);
-        string stockPath = Path.Combine(stock, PauseEquipmentLabelDefinitions.FileName);
-        string overridePath = Path.Combine(overrides, PauseEquipmentLabelDefinitions.FileName);
+        string stockPath = Path.Combine(stock, PauseEquipmentLabelArtworkDefinitions.FileName);
+        string overridePath = Path.Combine(overrides, PauseEquipmentLabelArtworkDefinitions.FileName);
         var document = RequiredJson.Deserialize<PauseEquipmentLabelDocument>(
             File.ReadAllBytes(stockPath), ArtworkJson.Options);
         var guard = NewPauseEquipmentLabelReadGuard(bus);

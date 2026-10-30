@@ -1,7 +1,9 @@
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Frontend.Pause.Artwork.PauseWireframeDefinitions;
+using static SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseWireframeDefinitions;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>
 /// Draws the equipment screen's Samus wireframes (<see cref="PauseWireframeDefinitions"/>) from their shared pieces.

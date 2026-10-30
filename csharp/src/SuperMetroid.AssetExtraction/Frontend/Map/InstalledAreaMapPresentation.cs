@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -17,9 +18,11 @@ public sealed class InstalledAreaMapPresentation : AreaMapPresentation
     /// effects' BG3 pages.
     /// </summary>
     internal InstalledAreaMapPresentation(AreaMapPresentationParts parts, MapCharacterArtwork characters, GameplayMessageArtwork messages,
-        RoomFxLayer3Pages roomFxPages, CreditsPresentation staffCredits, EndingTextPresentation endingText, MapScreenPresentation screens) : base(parts)
+        RoomFxLayer3Pages roomFxPages, CreditsPresentation staffCredits, EndingTextPresentation endingText, MapScreenPresentation screens,
+        PauseScreenArtwork pause) : base(parts)
     {
         Screens = Ensure.NotNull(screens);
+        Pause = Ensure.NotNull(pause);
         StaffCredits = Ensure.NotNull(staffCredits);
         EndingTextPresentation = Ensure.NotNull(endingText);
         Characters = Ensure.NotNull(characters);
@@ -38,6 +41,14 @@ public sealed class InstalledAreaMapPresentation : AreaMapPresentation
 
     /// <summary>The map screens' pages, which the import pictures for the world map and the room maps (#1467).</summary>
     public MapScreenPresentation Screens { get; }
+
+    /// <summary>The pause screen's backdrops, wireframes and equipment-page artwork, which the import pictures into the pause sheet (#1467).</summary>
+    public PauseScreenArtwork Pause { get; }
+
+    /// <summary>The pause screen's artwork the installed map presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
+    public static PauseScreenArtwork PauseOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.Pause
+        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no pause screen artwork.");
 
     /// <summary>The map screens' pages the installed map presentation <paramref name="maps"/> was read with.</summary>
     /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>

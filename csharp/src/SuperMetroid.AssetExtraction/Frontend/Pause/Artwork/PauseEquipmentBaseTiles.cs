@@ -1,7 +1,10 @@
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Frontend.Pause.Artwork.PauseEquipmentBaseDefinitions;
+using static SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseEquipmentBaseDefinitions;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>
 /// Draws the equipment screen's base page (<see cref="PauseEquipmentBaseDefinitions"/>): its panels and which cells the live
@@ -94,10 +97,10 @@ public static class PauseEquipmentBaseTiles
             int first = PauseEquipmentLabelTiles.StockPageByte(label.Label) / sizeof(ushort);
             int index = cell - first;
             if ((uint)index >= PauseEquipmentLabelTiles.StockWordCount(label.Label)) continue;
-            BackgroundTile tile = PauseEquipmentLabelTiles.StockTile(label.Label, index);
+            BackgroundTile tile = PauseEquipmentLabelGlyphs.StockTile(label.Label, index);
             bool grayTemplate = label.Category == PauseEquipmentCategory.Boots ||
                 (label.Category == PauseEquipmentCategory.Suits && label.Item < 2);
-            return grayTemplate ? tile with { ColourVariant = PauseEquipmentLabelDefinitions.DisabledPalette } : tile;
+            return grayTemplate ? tile with { ColourVariant = PauseEquipmentLabelArtworkDefinitions.DisabledPalette } : tile;
         }
         // Copied transparent edge metadata and guide-layer policy are separately accounted
         // composition inputs, not unexplained full-word fallbacks.

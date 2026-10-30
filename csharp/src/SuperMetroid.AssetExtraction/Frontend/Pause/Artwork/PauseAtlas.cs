@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>One 256-character page of the loaded pause graphics, stored in documents by its name.</summary>
 public enum PauseAtlas

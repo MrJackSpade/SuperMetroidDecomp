@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>One complete 32x32 backdrop per area; live buttons are a separate foreground overlay.</summary>
 public sealed record PauseBackdropDocument

@@ -1,7 +1,9 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Immutable wireframe artwork. It cannot change which equipment selects a visual.</summary>
 public sealed class PauseWireframePresentation

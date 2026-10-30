@@ -1,8 +1,9 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core;
 
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Complete authored pause backdrops, including area lettering, without runtime ROM patches.</summary>
 public sealed class PauseBackdropPresentation

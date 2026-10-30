@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Equipment-page base artwork and the compiled footprints owned by live menu state.</summary>
 public static class PauseEquipmentBaseDefinitions

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Native pause wireframe patch geometry, independent of inventory selection.</summary>
 public static class PauseWireframeDefinitions

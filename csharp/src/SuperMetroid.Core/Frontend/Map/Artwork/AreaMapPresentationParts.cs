@@ -56,12 +56,6 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Selected map sprite shapes and indexed PNG artwork used to draw map icons.</summary>
     public required MapSpriteCompositions Sprites { get; init; }
 
-    /// <summary>Pause-screen backdrop tilemap presentation, independent of equipment and map state.</summary>
-    public required PauseBackdropPresentation PauseBackdrops { get; init; }
-
-    /// <summary>Samus suit wireframe artwork for the pause equipment screen.</summary>
-    public required PauseWireframePresentation PauseWireframes { get; init; }
-
     /// <summary>Pause selection-indicator artwork and presentation parameters; inventory and selection logic remain engine-owned.</summary>
     public required PauseSelectorPresentation PauseSelectors { get; init; }
 
@@ -70,12 +64,6 @@ internal sealed record AreaMapPresentationParts
 
     /// <summary>Reserve labels, digits, and arrow appearances, separate from the tank strip and compiled reserve-mode behavior.</summary>
     public required PauseReserveUiPresentation PauseReserveUi { get; init; }
-
-    /// <summary>Equipment-page base tilemap artwork, before live inventory and reserve patches are applied.</summary>
-    public required PauseEquipmentBasePresentation PauseEquipmentBase { get; init; }
-
-    /// <summary>Equipment-page label artwork and placement, separate from the base tilemap and live inventory decisions.</summary>
-    public required PauseEquipmentLabelPresentation PauseEquipmentLabels { get; init; }
 
     /// <summary>Escape countdown visual layout and digit presentation, separate from the character bytes in <see cref="EscapeTimerTiles"/>.</summary>
     public required EscapeTimerPresentation EscapeTimer { get; init; }

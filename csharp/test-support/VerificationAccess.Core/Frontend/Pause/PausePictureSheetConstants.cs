@@ -4,6 +4,8 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
@@ -18,7 +20,7 @@ internal static class PausePictureSheetConstants
     {
         Ensure.NotNull(maps);
         var frame = new BackgroundTile[PauseBackdropDefinitions.Cells];
-        maps.PauseBackdrops.LoadTo(frame, area);
+        InstalledAreaMapPresentation.PauseOf(maps).Backdrops.LoadTo(frame, area);
         BackgroundTile[] buttons = PausePictureSheet.ButtonRows(maps);
         foreach (int cell in PausePictureSheet.ButtonRowCells())
             frame[cell] = buttons[cell];

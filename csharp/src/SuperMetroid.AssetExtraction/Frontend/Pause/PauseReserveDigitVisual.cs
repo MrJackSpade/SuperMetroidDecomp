@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 

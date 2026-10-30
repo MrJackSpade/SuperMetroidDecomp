@@ -7,7 +7,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
@@ -83,7 +83,7 @@ internal static class PausePictureSheet
     internal static ScreenCharacters Characters(AreaMapPresentation maps)
     {
         MapCharacterArtwork characters = MapCharacterArtwork.Of(Ensure.NotNull(maps));
-        int bytes = MapScreenDefinitions.MapTileCount * ScreenTileSheet.CharacterWordsOf(TileInkDepth.SixteenColours) * sizeof(ushort);
+        int bytes = MapScreenDefinitions.MapTileCount * RoomTileCanvas.CharacterBytes;
         return new ScreenCharacters(TileInkDepth.SixteenColours)
             .Place(PauseTileSetDefinitions.MapFirstTile, characters.Map.Characters[..bytes].ToArray())
             .Place(PauseTileSetDefinitions.InterfaceFirstTile, characters.Pause.Characters[..bytes].ToArray());

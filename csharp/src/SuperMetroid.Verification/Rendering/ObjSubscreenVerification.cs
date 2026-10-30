@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -129,11 +130,11 @@ internal static class ObjSubscreenVerification
         ushort[] colors = new ushort[256];
         colors[0] = 31;
         colors[20] = 31 << 10;
-        // The subscreen and its coverage are the one-screen maps at a tilemap word, read as the fixture stands when drawn.
-        ScreenTileMap Cells(int tilemapWord) => VramTileFixtures.Cells(vram, ToColors(colors), tilemapWord, 0, TileInkDepth.SixteenColours, AddedScreenTilesLayer.MapSize);
+        // The subscreen and its coverage picture the one-screen maps at a tilemap word, read as the fixture stands when drawn.
+        PicturedPlane Plane(int tilemapWord) => VramPictureFixtures.Plane(vram, ToColors(colors), tilemapWord, 0, TileInkDepth.SixteenColours, AddedPicturedPlaneLayer.MapSize);
         var memory = FramePaint.FromNative(ToColors(colors), []);
         var packet = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory,
-            new DisplayLayer[] { new AddedScreenTilesLayer(Cells(0x7000)) }, 15));
+            new DisplayLayer[] { new AddedPicturedPlaneLayer(Plane(0x7000)) }, 15));
         AssertTrue(DisplayRendering.Render(packet).All(pixel => pixel == new RgbaPixel(255, 0, 255)),
             "four-bit subscreen resolves upper bitplanes and sixteen-color palette stride before addition");
 
@@ -147,8 +148,8 @@ internal static class ObjSubscreenVerification
             oam[0] = 8; oam[1] = 8; oam[3] = (byte)(palette * 2);
             var masked = new DisplayPacket(new(3, 1, 0), new LayeredScene(
                 FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3),
-                new DisplayLayer[] { new SpritesLayer(), new AddedScreenTilesLayer(Cells(0x7000),
-                    new ScreenTilesLayer(Cells(0x6800), new Position16<TilePlanePixels>(0, 0), null), MainObjects: true) }, 15));
+                new DisplayLayer[] { new SpritesLayer(), new AddedPicturedPlaneLayer(Plane(0x7000),
+                    new PicturedPlaneLayer(Plane(0x6800), new Position16<TilePlanePixels>(0, 0), null), MainObjects: true) }, 15));
             var pixels = DisplayRendering.Render(masked);
             AssertEqual(new RgbaPixel(255, 0, 0), pixels[0], "masked subscreen does not add to backdrop");
             AssertEqual(palette == 4 ? new RgbaPixel(0, 255, 255) : new RgbaPixel(0, 255, 0), pixels[8 * 256 + 8],
@@ -163,7 +164,7 @@ internal static class ObjSubscreenVerification
             vram[0xe000 + (32 + 1) * 2 + 1] = (byte)(4 | (highBackground ? 32 : 0));
             var composite = new DisplayPacket(new(2, 1, 0), new LayeredScene(
                 FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3),
-                new DisplayLayer[] { new AddedScreenTilesLayer(Cells(0x7000), IncludeObjects: true) }, 15));
+                new DisplayLayer[] { new AddedPicturedPlaneLayer(Plane(0x7000), IncludeObjects: true) }, 15));
             bool objectWins = priority >= (highBackground ? 3 : 2);
             AssertEqual(objectWins ? new RgbaPixel(255, 255, 0) : new RgbaPixel(255, 0, 255),
                 DisplayRendering.Render(composite)[8 * 256 + 8],

@@ -7,7 +7,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
@@ -49,7 +48,7 @@ internal static class CeresCinematicPictureSheetComposer
         int width = Math.Max(captionWidth, PlanetCells * CharacterPixels);
         int captionHeight = japaneseRows * CharacterPixels;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)width), checked((ushort)(captionHeight + PlanetCells * CharacterPixels))));
-        RgbColor[] colours = ScreenTileSheetComposer.FlightColours(ceresFlight)[..SpriteImage.SpriteColourCount].ToArray();
+        RgbColor[] colours = ScreenPaletteColours.FlightColours(ceresFlight)[..SpriteImage.SpriteColourCount].ToArray();
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         // The caption letters side by side, then the katakana caption beside them, then the planet below.
         for (int letter = 0; letter < letters; letter++)
@@ -70,7 +69,7 @@ internal static class CeresCinematicPictureSheetComposer
             planetGroups = planetGroups.Union(Paint(canvas, cell % PlanetCells * CharacterPixels, captionHeight + cell / PlanetCells * CharacterPixels,
                 planet[cell], zebes, colours));
         frames.Add(CeresCinematicPictures.ZebesPlanet, Frame(0, captionHeight, PlanetCells, planet.Length / PlanetCells, planetGroups));
-        return canvas.ToSheet(colours, frames, ScreenTileSheet.ColoursOf(TileInkDepth.SixteenColours));
+        return canvas.ToSheet(colours, frames, SpriteImageColours.Background);
     }
 
     /// <summary>Paints <paramref name="tile"/> at (<paramref name="left"/>, <paramref name="top"/>) from <paramref name="characters"/>.</summary>

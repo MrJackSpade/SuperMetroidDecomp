@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11.Device;
@@ -20,9 +21,9 @@ internal static class ColorWindowSmokeTests
         RgbColor[] palette = Enumerable.Range(0, 256).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
         var memory = FramePaint.FromNative(palette, []);
         Layer3Cells bg3 = Layer3CellsFixtures.FromVram(vram, palette, 0x7ff8);
-        ScreenLayerPictures tiles = VramTileFixtures.Tiles(vram, palette, 0x6000, TileInkDepth.SixteenColours);
-        var background = new ScreenTilesLayer(ScreenTileMapConstants.Capture(vram, 0x4000, new Extent16<TilemapCells>(32, 32), tiles), new Position16<TilePlanePixels>(3, 11), null);
-        ScreenTileMap subscreen = VramTileFixtures.Cells(vram, palette, 0x5800, 0x4000, TileInkDepth.FourColours, AddedScreenTilesLayer.MapSize);
+        var background = new PicturedPlaneLayer(VramPictureFixtures.Plane(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(32, 32)),
+            new Position16<TilePlanePixels>(3, 11), null);
+        PicturedPlane subscreen = VramPictureFixtures.Plane(vram, palette, 0x5800, 0x4000, TileInkDepth.FourColours, AddedPicturedPlaneLayer.MapSize);
         int count = 0;
         for (int sample = 0; sample < 64; sample++)
         {
@@ -58,11 +59,11 @@ internal static class ColorWindowSmokeTests
         foreach (bool? priority in new bool?[] { null, false, true })
         foreach (bool masked in new[] { false, true })
         {
-            var coverage = masked ? new ScreenTilesLayer(ScreenTileMapConstants.Capture(vram, 0x7ffe, new Extent16<TilemapCells>(width, height), tiles),
-                new Position16<TilePlanePixels>(65535, 511), priority) : null;
+            var coverage = masked ? new PicturedPlaneLayer(VramPictureFixtures.Plane(vram, palette, 0x7ffe, 0x6000, TileInkDepth.SixteenColours,
+                new Extent16<TilemapCells>(width, height)), new Position16<TilePlanePixels>(65535, 511), priority) : null;
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory,
                 new DisplayLayer[] { background,
-                    new ScreenTintLayer(1, 2, 3), new AddedScreenTilesLayer(subscreen, coverage) }, 13));
+                    new ScreenTintLayer(1, 2, 3), new AddedPicturedPlaneLayer(subscreen, coverage) }, 13));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: subscreen {count}, masked {masked}, geometry {width}x{height}, priority {priority}");
         }

@@ -19,8 +19,6 @@ cbuffer TileParameters : register(b0)
     uint Reserved27;
     uint Reserved28, Reserved29, Reserved30, Reserved31;
     uint4 ScanlineParameters[224];
-    // The tile table of the layer covering a layer added behind it (#1392).
-    uint CoverageTable;
 };
 // The scene's colours (D3D11SceneColourBuffer): the backdrop, then each colour slot's table's word, then the tables:
 // a word of one bit per sixteen-ink group still showing its image's own colours, then each ink's colour.
@@ -29,14 +27,10 @@ StructuredBuffer<uint> Colours : register(t0);
 // and the pre-coloured block pictures the planes' definitions show (#1392).
 StructuredBuffer<uint> RoomLevels : register(t3);
 // RoomSource: what a layer pass draws: the room's layer 1 or 2 as level data shows it, the sky's rows, the layer-3
-// plane, a boss body, the X-ray reveal, a library background, a frontend layer's cells or the HUD. SourceLayer2Overlay
-// added to it lays words written over layer 2 on top.
+// plane, a boss body, the X-ray reveal, a library background, the HUD, a pictured plane or a picture grid.
+// SourceLayer2Overlay added to it lays words written over layer 2 on top.
 static const uint SourceLayer1 = 1, SourceLayer2 = 2, SourceSky = 3, SourceLayer3 = 4;
 static const uint SourceBossBody = 6, SourceXrayReveal = 7, SourceLibraryBackground = 8;
-// A frontend layer's cells drawn from their tiles' pre-coloured pictures (#1392), its table's word in RoomSource's
-// high half: three words a tile, the tile's picture (zero where no artwork shows it), the corner
-// of its palette row zero tile, x below y, and the pixels from one palette row's block to the next.
-static const uint SourceScreenCells = 9;
 // The HUD's placed pictures (PicturedHud, #1466), at the HUD's place at the top of the screen.
 static const uint SourceHud = 10;
 // A pictured plane (PicturedPlane, #1467), its table's word in TilemapWord: its size in cells, x below y, the count of its
@@ -47,9 +41,6 @@ static const uint SourcePicturedPlane = 11;
 // vertical mirroring in bits 30 and 31. The grid wraps at its edges.
 static const uint SourcePictureGrid = 12;
 static const uint GridFlipX = 1073741824, GridFlipY = 2147483648, GridPictureMask = 1073741823;
-// A frontend layer's cell (D3D11RoomLevelBuffer.PackScreenMap): its tile in the low half, its colour variant above it,
-// then its priority and its mirroring.
-static const uint CellHigh = 1048576, CellFlipX = 2097152, CellFlipY = 4194304;
 static const uint SourceLayer2Overlay = 256;
 static const uint RoomRecordWords = 6, RoomDoorSlot = 2, RoomDoorWindowWord = 18, RoomOverlayWord = 19, RoomSkyWord = 20;
 static const uint RoomBg3Word = 21, RoomBg2OverlayWord = 22, RoomFloorSheetsWord = 23, RoomBossBodyWord = 24, RoomXrayRevealWord = 25;
@@ -335,70 +326,30 @@ uint PicturePixel(uint picture, uint2 pixel, out uint index, out bool high)
 #include "SpriteLayer.hlsli"
 #include "Xray.hlsli"
 
-// A frontend layer's cell at the scrolled position (#1403), packed row by row from room level word `TilemapWord`, drawn
-// from the pre-coloured picture of its tile in `table` (#1392): `picture` is the tile's sheet picture, and `within` the
-// pixel in it in the cell's colour variant, mirrored as the cell mirrors it.
-uint ScreenTile(uint2 sampleScreen, uint2 scroll, uint table, out uint2 within, out uint picture)
-{
-    uint x = (sampleScreen.x + scroll.x) & (MapWidth * 8 - 1);
-    uint y = (sampleScreen.y + scroll.y) & (MapHeight * 8 - 1);
-    uint tileX = x >> 3, tileY = y >> 3;
-    uint entry = RoomLevels[TilemapWord + tileY * MapWidth + tileX];
-    uint at = table + (entry & 65535) * 3;
-    picture = RoomLevels[at];
-    uint corner = RoomLevels[at + 1];
-    uint2 pixel = uint2((entry & CellFlipX) != 0 ? 7 - (x & 7) : x & 7, (entry & CellFlipY) != 0 ? 7 - (y & 7) : y & 7);
-    within = pixel + uint2(corner & 65535, (corner >> 16) + ((entry >> 16) & 15) * RoomLevels[at + 2]);
-    return entry;
-}
-
+// Whether the screen pixel lies where the plane covering a plane added behind it shows (#1467), or everywhere without
+// one. An opaque pixel of the covering plane's picture covers, in its picture's priority tier; where no picture lies,
+// nothing covers and the tier is the back one. The covering plane's table is in MatrixA, its scroll in MatrixC and
+// MatrixD, its priority filter in OffsetX, and OffsetY marks that it is present.
 bool MainCoverage(uint2 screen)
 {
     uint4 geometry = uint4(CenterX, CenterY, OffsetX, OffsetY);
     if (geometry.w == 0) return true;
     uint4 map = uint4(MatrixA, MatrixB, MatrixC, MatrixD);
-    if (Reserved1 != 0)
-    {
-        // A covering pictured plane (#1467): an opaque pixel of its picture covers, in its picture's priority tier; where
-        // no picture lies, nothing covers and the tier is the back one.
-        uint2 coverWithin;
-        uint coverPicture;
-        uint coverIndex = 0;
-        bool coverHigh = false;
-        bool coverShown = PlanePicture(map.x, (screen + map.zw) & 65535, coverWithin, coverPicture);
-        bool coverCovered = coverShown && PicturePixel(coverPicture, coverWithin, coverIndex, coverHigh) != 0 && coverIndex != 0;
-        if (geometry.z != 0 && (coverHigh ? 1u : 0u) != geometry.z - 1) return false;
-        if (AddG != 0)
-        {
-            bool coverBlends;
-            uint2 coverObj = SpriteAt(screen, coverBlends);
-            if (coverObj.y != NoSprite && (!coverCovered || coverObj.y >= (coverHigh ? 3 : 2)))
-                return coverBlends;
-        }
-        return coverCovered;
-    }
-    uint2 position = (screen + map.zw) & (geometry.xy * 8 - 1);
-    uint2 tile = position >> 3;
-    // The coverage layer's cells, packed row by row from room level word map.x (#1403).
-    uint entry = RoomLevels[map.x + tile.y * geometry.x + tile.x];
-    if (geometry.z != 0 && ((entry & CellHigh) != 0 ? 1u : 0u) != geometry.z - 1) return false;
-    uint px = (entry & CellFlipX) != 0 ? 7 - (position.x & 7) : position.x & 7;
-    uint py = (entry & CellFlipY) != 0 ? 7 - (position.y & 7) : position.y & 7;
-    // The covering layer draws from its tiles' pre-coloured pictures (#1392): an opaque pixel of its tile covers.
-    uint at = CoverageTable + (entry & 65535) * 3;
-    uint corner = RoomLevels[at + 1];
-    uint index;
-    bool ignored;
-    bool covered = RoomLevels[at] != 0 && PicturePixel(RoomLevels[at], uint2(px + (corner & 65535),
-        py + (corner >> 16) + ((entry >> 16) & 15) * RoomLevels[at + 2]), index, ignored) != 0 && index != 0;
+    uint2 coverWithin;
+    uint coverPicture;
+    uint coverIndex = 0;
+    bool coverHigh = false;
+    bool coverShown = PlanePicture(map.x, (screen + map.zw) & 65535, coverWithin, coverPicture);
+    bool coverCovered = coverShown && PicturePixel(coverPicture, coverWithin, coverIndex, coverHigh) != 0 && coverIndex != 0;
+    if (geometry.z != 0 && (coverHigh ? 1u : 0u) != geometry.z - 1) return false;
     if (AddG != 0)
     {
-        bool blends;
-        uint2 obj = SpriteAt(screen, blends);
-        if (obj.y != NoSprite && (!covered || obj.y >= ((entry & CellHigh) != 0 ? 3 : 2)))
-            return blends;
+        bool coverBlends;
+        uint2 coverObj = SpriteAt(screen, coverBlends);
+        if (coverObj.y != NoSprite && (!coverCovered || coverObj.y >= (coverHigh ? 3 : 2)))
+            return coverBlends;
     }
-    return covered;
+    return coverCovered;
 }
 
 [numthreads(8, 8, 1)]
@@ -557,12 +508,6 @@ void Main(uint3 id : SV_DispatchThreadID)
         {
             if (!GridPicture(TilemapWord, scrolled, within, picture)) return;
         }
-        else if (source == SourceScreenCells)
-        {
-            entry = ScreenTile(sampleScreen, scroll, RoomSource >> 16, within, picture);
-            // A cell naming a tile no artwork the screen loads shows draws nothing.
-            if (picture == 0) return;
-        }
         else
         {
             if (!RoomTile(source, scrolled, entry, within, picture)) return;
@@ -574,8 +519,6 @@ void Main(uint3 id : SV_DispatchThreadID)
     bool high;
     // A block picture keeps no row for its transparent pixels; room planes show colour zero as transparent.
     uint sampled = PicturePixel(picture, within, color, high);
-    // A frontend layer's tile takes its cell's priority (#1392).
-    if (source == SourceScreenCells) high = (entry & CellHigh) != 0;
     if (PriorityFilter != 0 && (high ? 1u : 0u) != PriorityFilter - 1) return;
     bool objectSubscreen = Operation == OpAddLayerBehind && AddR != 0;
     uint2 subObject = objectSubscreen ? SpriteAt(id.xy) : uint2(0, NoSprite);

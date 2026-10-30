@@ -73,7 +73,7 @@ internal static class FrontendFloorSheetComposer
                 .CopyTo(pixels.AsSpan(TitleFloorTileDefinitions.BabyFirstTile * FloorSheetComposer.TileBytes));
             pictures.Add(FloorSheetComposer.Whole(TitleFloors.FrameName(page), map, pixels));
         }
-        return FloorSheetComposer.Compose(pictures, ScreenTileSheetComposer.TitleColours(palette));
+        return FloorSheetComposer.Compose(pictures, ScreenPaletteColours.TitleColours(palette));
     }
 
     /// <summary>
@@ -115,7 +115,7 @@ internal static class FrontendFloorSheetComposer
             FloorSheetComposer.Whole(CeresFloors.FrameName(CeresFloorShot.Explosion), explosion, pixels),
             FloorSheetComposer.Whole(CeresFloors.FrameName(CeresFloorShot.ExplosionWithoutGunship), explosionWithoutGunship, pixels),
             FloorSheetComposer.Whole(CeresFloors.FrameName(CeresFloorShot.ZebesApproach), zebes, pixels),
-        ], ScreenTileSheetComposer.FlightColours(flight));
+        ], ScreenPaletteColours.FlightColours(flight));
 
         // A floor of the blank tile.
         static byte[] Blank()
@@ -153,7 +153,7 @@ internal static class FrontendFloorSheetComposer
         map.CopyTo(cells.AsSpan(EndingFloorArtworkFormat.MapByteCount));
         return FloorSheetComposer.Compose(
             [FloorSheetComposer.Whole(EndingFloorDefinitions.FrameName, cells, EndingFloorSceneCharacters.Of(sources.EndingMode7[scene]).Characters.Span)],
-            ScreenTileSheetComposer.EndingColours(sources.EndingPalettes, palette));
+            ScreenPaletteColours.EndingColours(sources.EndingPalettes, palette));
     }
 
     /// <summary>
@@ -171,7 +171,7 @@ internal static class FrontendFloorSheetComposer
         flight.FloorMaps.Span[..EndingArtworkExtentDefinitions.FlyawayMapDataBytes].CopyTo(cells);
         return FloorSheetComposer.Compose(
             [FloorSheetComposer.Whole(EndingFloorDefinitions.FrameName, cells, characters[..EndingArtworkExtentDefinitions.FloorBytes])],
-            ScreenTileSheetComposer.EndingColours(palettes, EndingPaletteId.Escape));
+            ScreenPaletteColours.EndingColours(palettes, EndingPaletteId.Escape));
     }
 
     /// <summary>
@@ -190,6 +190,6 @@ internal static class FrontendFloorSheetComposer
             pixels[pixel] = words[pixel * sizeof(ushort) + 1];
         return FloorSheetComposer.Compose(
             [FloorSheetComposer.Whole(EndingFloorDefinitions.FrameName, map[..FloorSheetComposer.CellCount], pixels)],
-            ScreenTileSheetComposer.EndingColours(palettes, EndingPaletteId.PostCredits));
+            ScreenPaletteColours.EndingColours(palettes, EndingPaletteId.PostCredits));
     }
 }

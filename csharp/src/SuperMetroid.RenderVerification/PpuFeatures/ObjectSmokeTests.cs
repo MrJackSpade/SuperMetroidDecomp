@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11.Device;
@@ -22,7 +23,7 @@ internal static class ObjectSmokeTests
         random.NextBytes(oam);
         RgbColor[] palette = Enumerable.Range(0, SnesCgram.ColorCount)
             .Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
-        ScreenTileMap cells = VramTileFixtures.Cells(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(32, 32));
+        PicturedPlane plane = VramPictureFixtures.Plane(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(32, 32));
         int cases = 0;
         for (int size = 0; size < 8; size++)
         foreach (int count in new[] { 0, 1, 37, 128 })
@@ -33,9 +34,9 @@ internal static class ObjectSmokeTests
             Check(memory, obsel, new DisplayLayer[] { new SpritesLayer() });
             Check(memory, obsel, new DisplayLayer[] {
                 new SpriteDepthLayer(0),
-                new ScreenTilesLayer(cells, new Position16<TilePlanePixels>(3, 11), false),
+                new PicturedPlaneLayer(plane, new Position16<TilePlanePixels>(3, 11), false),
                 new SpriteDepthLayer(1), new SpriteDepthLayer(2),
-                new ScreenTilesLayer(cells, new Position16<TilePlanePixels>(3, 11), true),
+                new PicturedPlaneLayer(plane, new Position16<TilePlanePixels>(3, 11), true),
                 new SpriteDepthLayer(3) });
         }
         // Earlier OAM wins even when the later entry has greater display priority.

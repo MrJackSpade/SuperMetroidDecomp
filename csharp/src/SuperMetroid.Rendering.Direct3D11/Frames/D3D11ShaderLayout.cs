@@ -12,8 +12,6 @@ internal static class D3D11ShaderLayout
     internal const int DispatchTileEdge = 8;
     /// <summary>Per-scanline shader parameters begin after the fixed dispatch header.</summary>
     internal const int ScanlineParametersWordOffset = 32;
-    /// <summary>The word after the line parameters: the tile table of the layer covering a layer added behind it (#1392).</summary>
-    internal const int CoverageTableWord = ScanlineParametersWordOffset + 224 * 4;
     /// <summary>Embedded compute shader for solid color and brightness passes.</summary>
     internal const string SolidResourceName = "SuperMetroid.Shaders.Solid.cso";
     /// <summary>Embedded compute shader for tile, object, and color-composition dispatches.</summary>

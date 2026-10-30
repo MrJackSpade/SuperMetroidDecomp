@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rendering;
@@ -25,13 +26,13 @@ internal static class WindowSceneSmokeTests
             return (vram, FramePaint.FromOam(vram, palette, oam, 128, obsel));
         }
         var parentMemory = Memory(3); var childMemory = Memory(7);
-        var background = new ScreenTilesLayer(VramTileFixtures.Cells(parentMemory.Vram, parentMemory.Paint.Colors, 0x4000, 0x6000, TileInkDepth.SixteenColours,
+        var background = new PicturedPlaneLayer(VramPictureFixtures.Plane(parentMemory.Vram, parentMemory.Paint.Colors, 0x4000, 0x6000, TileInkDepth.SixteenColours,
             new Extent16<TilemapCells>(32, 32)), new Position16<TilePlanePixels>(3, 11), true);
         AffineFloor childFloor = AffineFloorFixtures.Floor(childMemory.Vram, childMemory.Paint.Colors);
         LayeredScene Child(byte brightness) => new(childMemory.Paint, new DisplayLayer[] {
             new TurningFloorLayer(new(255, 71, -71, 255, new(128, 112), new(13, -11), FloorOverflowMode.Wrap), childFloor),
             new SpritesLayer() }, brightness);
-        // The parent's tile layer and the child's floor pack once; drawing them before the counted frames leaves each of
+        // The parent's pictured plane and the child's floor pack once; drawing them before the counted frames leaves each of
         // those only its memory and sprite-draw uploads.
         int count = 0;
         renderer.RenderForReadback(new DisplayPacket(new(++count, 1, 0), new LayeredScene(parentMemory.Paint,

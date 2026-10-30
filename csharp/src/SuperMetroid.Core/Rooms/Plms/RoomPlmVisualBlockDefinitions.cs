@@ -1,35 +1,29 @@
+using SuperMetroid.Core.Rooms.LevelData;
+
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// Visual block indexes synthesized by bank-$84 PLM setup routines rather than read from
-/// room level data. These are low ten-bit block-definition indexes, not complete packed
-/// level words or bank-$84 draw-list pointers.
+/// Block appearances PLM setups and block reactions write themselves rather than read from the room: unmirrored blocks
+/// of the room's tileset.
 /// </summary>
 internal static class RoomPlmVisualBlockDefinitions
 {
     /// <summary>
-    /// Bomb-block parent $058, synthesized by $84:CE83 on successful Samus contact.
-    /// The live word immediately becomes this air-type visual; the restore word keeps
-    /// the original collision nibble with the same replacement visual index.
+    /// Bomb-block parent $058, shown on successful Samus contact. The live block immediately becomes this air block;
+    /// the restore block keeps the original collision kind with the same replacement appearance.
     /// </summary>
-    public const ushort CollisionBombParent = 0x0058;
+    public static readonly RoomBlockAppearance CollisionBombParent = RoomBlockAppearance.Of(0x058);
 
-    /// <summary>
-    /// Speed-block parent visual block <c>$0B6</c>, synthesized by setup
-    /// <c>$84:CDEA</c> before its authored animation list replaces it.
-    /// </summary>
-    public const ushort SpeedBoosterParent = 0x00b6;
+    /// <summary>Speed-block parent $0B6, shown by the Speed Booster block setup before its animation replaces it.</summary>
+    public static readonly RoomBlockAppearance SpeedBoosterParent = RoomBlockAppearance.Of(0x0b6);
 
-    /// <summary>
-    /// Contact-crumble parent visual block `$0BC`, written by setup `$84:CE37` before its
-    /// authored animation list replaces it.
-    /// </summary>
-    public const ushort ContactCrumbleParent = 0x00bc;
+    /// <summary>Contact-crumble parent $0BC, shown by the crumble block setup before its animation replaces it.</summary>
+    public static readonly RoomBlockAppearance ContactCrumbleParent = RoomBlockAppearance.Of(0x0bc);
 
-    /// <summary>Visual block $052: the shot block a beam break restores after its respawn delay.</summary>
-    public const ushort ShotBlockParent = 0x0052;
-    /// <summary>Visual block $057: the power-bomb block a power bomb restores after its respawn delay.</summary>
-    public const ushort PowerBombBlockParent = 0x0057;
-    /// <summary>Visual block $09F: the Super Missile block a Super Missile restores after its respawn delay.</summary>
-    public const ushort SuperMissileBlockParent = 0x009f;
+    /// <summary>Block $052: the shot block a beam break restores after its respawn delay.</summary>
+    public static readonly RoomBlockAppearance ShotBlockParent = RoomBlockAppearance.Of(0x052);
+    /// <summary>Block $057: the power-bomb block a power bomb restores after its respawn delay.</summary>
+    public static readonly RoomBlockAppearance PowerBombBlockParent = RoomBlockAppearance.Of(0x057);
+    /// <summary>Block $09F: the Super Missile block a Super Missile restores after its respawn delay.</summary>
+    public static readonly RoomBlockAppearance SuperMissileBlockParent = RoomBlockAppearance.Of(0x09f);
 }

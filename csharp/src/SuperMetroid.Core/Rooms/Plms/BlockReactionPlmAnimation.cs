@@ -39,8 +39,8 @@ internal sealed class BlockReactionPlmAnimation(BlockReactionPlmProgram program)
             case BlockReactionPlmCueKind.QueueSoundLibrary2Maximum6:
                 context.QueueSound(cue.QueuedSound, SoundQueueLimit.Max6);
                 break;
-            case BlockReactionPlmCueKind.SetBtsToOne:
-                context.Level.SetBehavior(slot.BlockIndex, 1);
+            case BlockReactionPlmCueKind.RestoreRespawningGrappleBehavior:
+                context.Level.SetBehavior(slot.BlockIndex, BlockReactionPlmDefinitions.RespawningGrappleBehavior);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(BlockReactionPlmCueKind)} {cue.Kind}.");

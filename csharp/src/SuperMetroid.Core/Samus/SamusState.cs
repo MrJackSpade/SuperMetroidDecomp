@@ -359,11 +359,7 @@ public sealed class SamusState
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>
-    /// Morph-ball bounce state at WRAM <c>$0B20</c>: zero is not bouncing, one is the first
-    /// rebound, and two is the second rebound. Spring Ball also stores high byte $06 as its
-    /// bounce family; see <see cref="SamusBallBounceState"/>.
-    /// </summary>
+    /// <summary>How far a landing Morph Ball or Spring Ball has bounced; see <see cref="SamusBallBounceState"/>.</summary>
     public SamusBallBounceState MorphBallBounceState { get; set; }
 
     /// <summary>

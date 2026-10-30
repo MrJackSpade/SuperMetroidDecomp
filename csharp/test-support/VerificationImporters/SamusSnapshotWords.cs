@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.TestSupport.VerificationImporters;
 
@@ -41,6 +42,31 @@ internal static class SamusSnapshotWords
             ? new SamusTransitionShot(word & byte.MaxValue)
             : throw new InvalidDataException($"Transition shot word ${word:X4} carries no native initializer's tag.");
     }
+
+    /// <summary>The high byte the Spring Ball landing puts on <c>$0B20</c> above the rebound count.</summary>
+    internal const ushort SpringBallBounceFamily = 6 << 8;
+
+    /// <summary>Decodes <c>$0B20</c>: the rebound count in the low byte, with the Spring Ball family's high byte or none.</summary>
+    internal static SamusBallBounceState DecodeBallBounce(ushort word) => word switch
+    {
+        0 => SamusBallBounceState.None,
+        1 => SamusBallBounceState.FirstRebound,
+        2 => SamusBallBounceState.SecondRebound,
+        SpringBallBounceFamily + 1 => SamusBallBounceState.SpringBallFirstRebound,
+        SpringBallBounceFamily + 2 => SamusBallBounceState.SpringBallSecondRebound,
+        _ => throw new InvalidDataException($"Ball bounce word ${word:X4} is not a native bounce state."),
+    };
+
+    /// <summary>Encodes a bounce state as the word native code writes.</summary>
+    internal static int EncodeBallBounce(SamusBallBounceState state) => state switch
+    {
+        SamusBallBounceState.None => 0,
+        SamusBallBounceState.FirstRebound => 1,
+        SamusBallBounceState.SecondRebound => 2,
+        SamusBallBounceState.SpringBallFirstRebound => SpringBallBounceFamily + 1,
+        SamusBallBounceState.SpringBallSecondRebound => SpringBallBounceFamily + 2,
+        _ => throw new InvalidOperationException($"Undefined {nameof(SamusBallBounceState)} {state}."),
+    };
 
     /// <summary>Decodes <c>$0DC0</c>: zero, one, or any word with bit 15 set.</summary>
     internal static ResumeChargingBeamSoundLatch DecodeResumeChargingBeamSound(ushort word) => word switch

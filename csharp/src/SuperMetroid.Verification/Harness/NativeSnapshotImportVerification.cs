@@ -213,8 +213,7 @@ internal static class NativeSnapshotImportVerification
         samus.HorizontalSpeed.SpeedDivisor = W(NativeSnapshotMemory.SpeedDivisor);
         samus.HorizontalSpeed.ContactDamageIndex = ClosedEnumWordDecoding.Decode<SamusContactDamageIndex>(
             W(NativeSnapshotMemory.ContactDamageIndex), "Samus contact damage index");
-        samus.MorphBallBounceState = ClosedEnumWordDecoding.Decode<SamusBallBounceState>(
-            W(NativeSnapshotMemory.MorphBallBounceState), "Samus morph-ball bounce state");
+        samus.MorphBallBounceState = SamusSnapshotWords.DecodeBallBounce(W(NativeSnapshotMemory.MorphBallBounceState));
         samus.BombJumpRequest = SamusBombJumpRequestCodec.FromNative(W(NativeSnapshotMemory.BombJumpDirection));
 
         foreach (var trail in runtime.Projectiles.TrailSlots)

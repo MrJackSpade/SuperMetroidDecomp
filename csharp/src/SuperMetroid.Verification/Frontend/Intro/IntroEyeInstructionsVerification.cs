@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -25,7 +24,7 @@ internal static class IntroEyeInstructionsVerification
     {
         var narration = IntroNarrationPresentation.Load(
             new MemoryStream(IntroNarrationExtractor.Extract(rom), writable: false));
-        var objects = new IntroCinematicObjectSystem(new IntroTilemaps(), new BackgroundTile[IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount],
+        var objects = new IntroCinematicObjectSystem(new IntroNarrationText(),
             new IntroJapaneseSubtitles(enabled: false), narrationPresentation: narration);
 
         var native = new NativeEyeReader(rom, IntroEyeAnimationDefinitionsConstants.StartPointer);

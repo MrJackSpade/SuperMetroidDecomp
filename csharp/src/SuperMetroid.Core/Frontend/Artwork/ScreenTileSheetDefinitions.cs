@@ -15,7 +15,6 @@ public static class ScreenTileSheetDefinitions
     {
         [SpriteSheetId.PauseMapTiles] = TileInkDepth.SixteenColours,
         [SpriteSheetId.PauseInterfaceTiles] = TileInkDepth.SixteenColours,
-        [SpriteSheetId.IntroFontTiles] = TileInkDepth.FourColours,
     };
 
     /// <summary>The installed sheets of frontend turning floors' pictures (#1392, #1467).</summary>

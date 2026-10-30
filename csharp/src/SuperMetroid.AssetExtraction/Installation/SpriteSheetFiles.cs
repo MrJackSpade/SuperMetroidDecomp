@@ -111,10 +111,10 @@ public static class SpriteSheetFiles
     internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, Lazy<InstalledSamusBodyArtwork> body,
         Lazy<AreaMapPresentation> maps, Lazy<IntroCinematicArtwork> intro, Lazy<EndingObjectArtwork> ending) => sheet switch
     {
-        SpriteSheetId.PauseMapTiles or SpriteSheetId.PauseInterfaceTiles or
-            SpriteSheetId.IntroFontTiles =>
+        SpriteSheetId.PauseMapTiles or SpriteSheetId.PauseInterfaceTiles =>
             [ScreenTileSheet.FrameName],
         SpriteSheetId.IntroScenePictures => IntroScenePictures.FrameNames,
+        SpriteSheetId.IntroNarrationPictures => IntroNarrationPictures.FrameNames,
         SpriteSheetId.CeresCinematicPictures => CeresCinematicPictures.FrameNames,
         SpriteSheetId.EndingCreditsRows or SpriteSheetId.EndingPostCreditsPictures or
             SpriteSheetId.EndingWavySamusPicture or SpriteSheetId.EndingExplosionPictures =>

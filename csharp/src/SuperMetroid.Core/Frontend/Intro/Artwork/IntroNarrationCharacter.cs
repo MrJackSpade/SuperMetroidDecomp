@@ -1,14 +1,14 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
-/// <summary>Identifies one compiled character emitted in typewriter order.</summary>
-/// <param name="Column">Zero-based tilemap column for the character.</param>
-/// <param name="Row">Zero-based tilemap row for the character.</param>
-/// <param name="Tile">The tile that shows the narration glyph: its character, colour variant and priority.</param>
-/// <param name="IsSpace">Whether the source character is a space.</param>
+/// <summary>One narration character in typewriter order, at the cell it is typed into.</summary>
+/// <param name="Column">Zero-based text column for the character.</param>
+/// <param name="Row">Zero-based text row for the character.</param>
+/// <param name="Character">The character typed there, one the narration's alphabet supports.</param>
 public readonly record struct IntroNarrationCharacter(
     int Column,
     int Row,
-    BackgroundTile Tile,
-    bool IsSpace);
+    char Character)
+{
+    /// <summary>Whether the character is a space, which types no letter and makes no typewriter sound.</summary>
+    public bool IsSpace => Character == ' ';
+}

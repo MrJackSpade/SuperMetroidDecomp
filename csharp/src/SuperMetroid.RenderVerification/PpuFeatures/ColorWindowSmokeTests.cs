@@ -22,7 +22,7 @@ internal static class ColorWindowSmokeTests
         Layer3Cells bg3 = Layer3CellsFixtures.FromVram(vram, palette, 0x7ff8);
         ScreenLayerPictures tiles = VramTileFixtures.Tiles(vram, palette, 0x6000, TileInkDepth.SixteenColours);
         var background = new ScreenTilesLayer(ScreenTileMapConstants.Capture(vram, 0x4000, new Extent16<TilemapCells>(32, 32), tiles), new Position16<TilePlanePixels>(3, 11), null);
-        ScreenTileMap subscreen = VramTileFixtures.Cells(vram, palette, 0x5800, 0x4000, TileInkDepth.FourColours, ScreenTilesViewportLayer.MapSize);
+        ScreenTileMap subscreen = VramTileFixtures.Cells(vram, palette, 0x5800, 0x4000, TileInkDepth.FourColours, AddedScreenTilesLayer.MapSize);
         int count = 0;
         for (int sample = 0; sample < 64; sample++)
         {

@@ -531,7 +531,6 @@ public sealed class D3D11FrameRenderer : IDisposable
     private static IEnumerable<ScreenTileMap> ScreenMaps(DisplayLayer layer) => layer switch
     {
         ScreenTilesLayer bg => [bg.Cells],
-        ScreenTilesViewportLayer bg => [bg.Cells],
         AddedScreenTilesLayer { MainCoverage: { } coverage } sub => [sub.Cells, coverage.Cells],
         AddedScreenTilesLayer sub => [sub.Cells],
         _ => [],
@@ -555,7 +554,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     {
         // Reject unimplemented operations before changing GPU state. No CPU fallback.
         foreach (DisplayLayer layer in scene.Layers)
-            if (layer is not (ScreenTilesLayer or ScreenTilesViewportLayer or PicturedPlaneLayer or AddedPicturedPlaneLayer or PictureGridLayer or HudLayer or ScreenTintLayer or SpritesLayer or SpriteDepthLayer or TurningFloorLayer or TurningRoomLayer or ColourAddBandsLayer or OverlayBlendLayer or AddedScreenTilesLayer or MessageBoxLayer or GameplaySceneLayer or InsetSceneLayer or GameplayBlendLayer))
+            if (layer is not (ScreenTilesLayer or PicturedPlaneLayer or AddedPicturedPlaneLayer or PictureGridLayer or HudLayer or ScreenTintLayer or SpritesLayer or SpriteDepthLayer or TurningFloorLayer or TurningRoomLayer or ColourAddBandsLayer or OverlayBlendLayer or AddedScreenTilesLayer or MessageBoxLayer or GameplaySceneLayer or InsetSceneLayer or GameplayBlendLayer))
                 throw new NotSupportedException($"GPU layer {layer.GetType().Name} is not implemented yet.");
         SuperMetroid.Core.Assets.SpriteSheetFrame? messagePicture = null;
         PicturedHud? hud = null;
@@ -689,9 +688,6 @@ public sealed class D3D11FrameRenderer : IDisposable
                 case ScreenTilesLayer bg:
                     DispatchScreenTiles(D3D11TileOperation.Layer, bg.Cells, bg.Scroll, bg.Priority);
                     break;
-                case ScreenTilesViewportLayer bg:
-                    DispatchScreenTiles(D3D11TileOperation.Layer, bg.Cells, new Position16<TilePlanePixels>(0, checked((ushort)bg.VerticalScroll)), bg.Priority, bg.TransparentColorZero);
-                    break;
                 case PictureGridLayer grid:
                     // The grid's cell pictures, scrolled and wrapping at its edges (#1467).
                     DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
@@ -706,6 +702,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                     {
                         Map = roomLevels.PlaneTable(pictured.Plane), Scroll = pictured.Scroll, MapSize = pictured.Plane.Size,
                         Priority = Priority(pictured.Priority), RoomSource = D3D11RoomSource.PicturedPlane,
+                        TransparentZero = pictured.ShowsColourZero ? 0u : 1u,
                     });
                     break;
                 case HudLayer hudLayer:

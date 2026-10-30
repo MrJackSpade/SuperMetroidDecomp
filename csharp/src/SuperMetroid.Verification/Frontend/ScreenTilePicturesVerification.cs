@@ -82,7 +82,7 @@ internal static class ScreenTilePicturesVerification
         int layers = 0;
         void Check(LayeredScene scene, byte[] vram, string name)
         {
-            if (scene.Layers.ToArray().Any(layer => layer is ScreenTilesLayer or ScreenTilesViewportLayer or AddedScreenTilesLayer or TurningFloorLayer)
+            if (scene.Layers.ToArray().Any(layer => layer is ScreenTilesLayer or AddedScreenTilesLayer or TurningFloorLayer)
                 && sampled.Add(name))
                 layers += AssertDrawnFromTiles(scene, vram, name);
         }
@@ -211,7 +211,6 @@ internal static class ScreenTilePicturesVerification
             DisplayLayer stripped = layer switch
             {
                 ScreenTilesLayer bg => bg with { Cells = FromCharacters(bg.Cells) },
-                ScreenTilesViewportLayer bg => bg with { Cells = FromCharacters(bg.Cells) },
                 TurningFloorLayer mode7 => mode7 with { Floor = AffineFloorFixtures.Floor(vram, scene.Paint.Colors) },
                 AddedScreenTilesLayer sub => sub with
                 {
@@ -293,7 +292,6 @@ internal static class ScreenTilePicturesVerification
     private static IEnumerable<ScreenTileMap> TileMaps(DisplayLayer layer) => layer switch
     {
         ScreenTilesLayer bg => [bg.Cells],
-        ScreenTilesViewportLayer bg => [bg.Cells],
         AddedScreenTilesLayer { MainCoverage: { } coverage } sub => [sub.Cells, coverage.Cells],
         AddedScreenTilesLayer sub => [sub.Cells],
         _ => [],

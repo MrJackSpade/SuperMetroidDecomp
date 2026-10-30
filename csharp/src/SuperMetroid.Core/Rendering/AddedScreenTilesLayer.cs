@@ -16,15 +16,26 @@ public sealed record AddedScreenTilesLayer(ScreenTileMap Cells,
     public ScreenTileMap Cells
     {
         get;
-        init => field = ScreenTilesViewportLayer.RequireScreen(value);
-    } = ScreenTilesViewportLayer.RequireScreen(Cells);
+        init => field = RequireScreen(value);
+    } = RequireScreen(Cells);
 
-    /// <summary>Uniform vertical scroll in pixels, 0 through <see cref="ScreenTilesViewportLayer.MaximumScroll"/>.</summary>
+    /// <summary>The largest scroll.</summary>
+    public const int MaximumScroll = ushort.MaxValue;
+
+    /// <summary>The one-screen map an added layer reads.</summary>
+    public static readonly Extent16<TilemapCells> MapSize = new(32, 32);
+
+    /// <summary>Uniform vertical scroll in pixels, 0 through <see cref="MaximumScroll"/>.</summary>
     public int VerticalScroll
     {
         get;
-        init => field = Ensure.BetweenInclusive(0, ScreenTilesViewportLayer.MaximumScroll, value);
-    } = Ensure.BetweenInclusive(0, ScreenTilesViewportLayer.MaximumScroll, VerticalScroll);
+        init => field = Ensure.BetweenInclusive(0, MaximumScroll, value);
+    } = Ensure.BetweenInclusive(0, MaximumScroll, VerticalScroll);
+
+    /// <summary>Requires a one-screen map, the map the addition reads.</summary>
+    /// <exception cref="ArgumentException">The map is not <see cref="MapSize"/>.</exception>
+    private static ScreenTileMap RequireScreen(ScreenTileMap cells) => Ensure.NotNull(cells).Size == MapSize ? cells
+        : throw new ArgumentException($"The layer adds a {MapSize.X}x{MapSize.Y} map, not {cells.Size.X}x{cells.Size.Y}.", nameof(cells));
 
     /// <summary>Copied per-line scrolls; an empty array selects the uniform scroll.</summary>
     private Position16<TilePlanePixels>[] scrolls = [];

@@ -5,13 +5,11 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Spatial;
-using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
@@ -30,7 +28,6 @@ internal static class ScreenTileSheetComposer
         AreaMapPresentation maps = sources.Maps;
         return sheet switch
         {
-            SpriteSheetId.IntroFontTiles => Compose(IntroFontCharacters.Of(maps.IntroFont).Characters.Span, TileInkDepth.FourColours, IntroColours(sources.Intro)),
             SpriteSheetId.PauseMapTiles => Compose(MapCharacterArtwork.Of(maps).Map.Characters, TileInkDepth.SixteenColours, ScreenColourImage.Encode(maps.Palettes.Pause)),
             SpriteSheetId.PauseInterfaceTiles => Compose(MapCharacterArtwork.Of(maps).Pause.Characters, TileInkDepth.SixteenColours, ScreenColourImage.Encode(maps.Palettes.Pause)),
             SpriteSheetId.AreaMapForegroundCrateria or SpriteSheetId.AreaMapForegroundBrinstar or
@@ -62,7 +59,8 @@ internal static class ScreenTileSheetComposer
                 SpriteSheetId.EndingEscapeBFloor or SpriteSheetId.EndingPlanetExplosionFloor or
                 SpriteSheetId.EndingFlyawayFloor or SpriteSheetId.EndingRewardIconFloor or SpriteSheetId.EndingCreditsRows or
                 SpriteSheetId.EndingPostCreditsPictures or SpriteSheetId.EndingWavySamusPicture or
-                SpriteSheetId.EndingExplosionPictures or SpriteSheetId.CeresCinematicPictures or SpriteSheetId.IntroScenePictures =>
+                SpriteSheetId.EndingExplosionPictures or SpriteSheetId.CeresCinematicPictures or SpriteSheetId.IntroScenePictures or
+                SpriteSheetId.IntroNarrationPictures =>
                 throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The sheet holds no screen tiles."),
             _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
         };
@@ -109,12 +107,6 @@ internal static class ScreenTileSheetComposer
         var colours = new ScreenPalette();
         Ensure.NotNull(palette).Apply(colours);
         return ScreenColourImage.Encode(colours);
-    }
-
-    /// <summary>The opening cinematic's palette.</summary>
-    private static ReadOnlySpan<RgbColor> IntroColours(IntroCinematicArtwork intro)
-    {
-        return ScreenColourImage.Encode(intro.Palette.Colours);
     }
 
     /// <summary>The ending's palette <paramref name="palette"/> from <paramref name="palettes"/>.</summary>

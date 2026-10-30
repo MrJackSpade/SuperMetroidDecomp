@@ -22,12 +22,12 @@ public sealed record AddedPicturedPlaneLayer(PicturedPlane Plane,
         init => field = RequireScreen(value);
     } = RequireScreen(Plane);
 
-    /// <summary>Uniform vertical scroll in pixels, 0 through <see cref="ScreenTilesViewportLayer.MaximumScroll"/>.</summary>
+    /// <summary>Uniform vertical scroll in pixels, 0 through <see cref="AddedScreenTilesLayer.MaximumScroll"/>.</summary>
     public int VerticalScroll
     {
         get;
-        init => field = Ensure.BetweenInclusive(0, ScreenTilesViewportLayer.MaximumScroll, value);
-    } = Ensure.BetweenInclusive(0, ScreenTilesViewportLayer.MaximumScroll, VerticalScroll);
+        init => field = Ensure.BetweenInclusive(0, AddedScreenTilesLayer.MaximumScroll, value);
+    } = Ensure.BetweenInclusive(0, AddedScreenTilesLayer.MaximumScroll, VerticalScroll);
 
     /// <summary>Copied per-line scrolls; an empty array selects the uniform scroll.</summary>
     private Position16<TilePlanePixels>[] scrolls = [];
@@ -47,7 +47,7 @@ public sealed record AddedPicturedPlaneLayer(PicturedPlane Plane,
     }
 
     /// <summary>Requires a one-screen plane, the plane the addition reads.</summary>
-    /// <exception cref="ArgumentException">The plane is not <see cref="ScreenTilesViewportLayer.MapSize"/>.</exception>
-    private static PicturedPlane RequireScreen(PicturedPlane plane) => Ensure.NotNull(plane).Size == ScreenTilesViewportLayer.MapSize ? plane
-        : throw new ArgumentException($"The layer adds a {ScreenTilesViewportLayer.MapSize.X}x{ScreenTilesViewportLayer.MapSize.Y}-cell plane, not {plane.Size.X}x{plane.Size.Y}.", nameof(plane));
+    /// <exception cref="ArgumentException">The plane is not <see cref="AddedScreenTilesLayer.MapSize"/>.</exception>
+    private static PicturedPlane RequireScreen(PicturedPlane plane) => Ensure.NotNull(plane).Size == AddedScreenTilesLayer.MapSize ? plane
+        : throw new ArgumentException($"The layer adds a {AddedScreenTilesLayer.MapSize.X}x{AddedScreenTilesLayer.MapSize.Y}-cell plane, not {plane.Size.X}x{plane.Size.Y}.", nameof(plane));
 }

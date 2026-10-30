@@ -51,9 +51,9 @@ internal static class IntroNarrationPresentationVerification
         {
             // The installed page runs to completion with every narration ROM read forbidden;
             // extraction copied its text from the cartridge.
-            BackgroundTile[] installedTilemap = CreateBlankIntroTilemap();
+            var installedText = PagesText();
             var installed = new IntroCinematicObjectSystem(
-                new IntroTilemaps(), installedTilemap, new IntroJapaneseSubtitles(enabled: false),
+                installedText, new IntroJapaneseSubtitles(enabled: false),
                 narrationPresentation: presentation);
             StartPage(installed, page);
             for (int frame = 0; !IsPageComplete(installed, page); frame++)
@@ -63,8 +63,8 @@ internal static class IntroNarrationPresentationVerification
                 installed.Step(0);
                 comparedFrames++;
             }
-            AssertTrue(installedTilemap.Any(tile => tile != IntroCinematicDefinitions.Text.Blank),
-                $"installed opening narration {page} draws its text");
+            AssertTrue(ShowsAnyLetter(installedText),
+                $"installed opening narration {page} shows its text");
         }
 
         JsonObject editedDocument = RequiredJson.Parse(extracted).AsObject();
@@ -74,31 +74,29 @@ internal static class IntroNarrationPresentationVerification
             editedDocument.ToJsonString(ArtworkJson.Options));
         IntroNarrationPresentation edited = IntroNarrationPresentation.Load(
             new MemoryStream(editedBytes, writable: false));
-        BackgroundTile[] editedTilemap = CreateBlankIntroTilemap();
+        var editedText = PagesText();
         var editedState = new IntroCinematicObjectSystem(
-            new IntroTilemaps(), editedTilemap, new IntroJapaneseSubtitles(enabled: false),
+            editedText, new IntroJapaneseSubtitles(enabled: false),
             narrationPresentation: edited);
         editedState.StartEnglishPageSix();
         editedState.Step(0);
         editedState.Step(0);
-        AssertEqual(IntroNarrationGlyphs.CompileGlyph('T'),
-            editedTilemap[4 * IntroCinematicDefinitions.Tilemaps.TilemapWidth + 1],
-            "edited UTF-8 opening narration reaches the live tilemap");
+        AssertEqual(new IntroTextCell('T', 0), editedText.ShownAt(1, 4),
+            "edited UTF-8 opening narration shows its first letter at its cell");
 
-        BackgroundTile[] reboundTilemap = CreateBlankIntroTilemap();
+        var reboundText = PagesText();
         var rebound = new IntroCinematicObjectSystem(
-            new IntroTilemaps(), reboundTilemap, new IntroJapaneseSubtitles(enabled: false),
+            reboundText, new IntroJapaneseSubtitles(enabled: false),
             narrationPresentation: presentation);
         rebound.StartEnglishPageSix();
         rebound.Step(0);
         rebound.BindNarration(edited);
         rebound.Step(0);
-        AssertEqual(IntroNarrationGlyphs.CompileGlyph('T'),
-            reboundTilemap[4 * IntroCinematicDefinitions.Tilemaps.TilemapWidth + 1],
+        AssertEqual(new IntroTextCell('T', 0), reboundText.ShownAt(1, 4),
             "active opening narration accepts current replacement content");
 
         var saved = new IntroCinematicObjectSystem(
-            new IntroTilemaps(), CreateBlankIntroTilemap(), new IntroJapaneseSubtitles(enabled: false),
+            PagesText(), new IntroJapaneseSubtitles(enabled: false),
             narrationPresentation: presentation);
         saved.StartEnglishPageSix();
         saved.Step(0);
@@ -143,12 +141,26 @@ internal static class IntroNarrationPresentationVerification
             "Opening font: 144 PNG tiles compile to exact native 2-bpp bytes; installed upload, active pixel edit and ROM-read guard pass.");
     }
 
-    /// <summary>Starts a text layer filled with the native blank tilemap word.</summary>
-    private static BackgroundTile[] CreateBlankIntroTilemap()
+    /// <summary>Narration text showing the pages, every text cell blank, as the first illustrated page leaves it.</summary>
+    private static IntroNarrationText PagesText()
     {
-        var result = new BackgroundTile[IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount];
-        Array.Fill(result, IntroCinematicDefinitions.Text.Blank);
-        return result;
+        var text = new IntroNarrationText();
+        text.ShowPages();
+        return text;
+    }
+
+    /// <summary>Whether <paramref name="text"/> shows a letter in any text cell.</summary>
+    private static bool ShowsAnyLetter(IntroNarrationText text)
+    {
+        for (int row = IntroNarrationText.FirstTextRow; row < IntroNarrationText.FirstTextRow + IntroNarrationText.TextRows; row++)
+        {
+            for (int column = 0; column < IntroNarrationText.RowCells; column++)
+            {
+                if (text.ShownAt(column, row).Letter is not null)
+                    return true;
+            }
+        }
+        return false;
     }
 
     /// <summary>Calls the cinematic entry point for one of its six English story pages.</summary>
@@ -202,8 +214,7 @@ internal static class IntroNarrationPresentationVerification
             document.ToJsonString(ArtworkJson.Options));
         AreaMapPresentation edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
-        AssertEqual(IntroNarrationGlyphs.CompileGlyph('T'),
-            edited.IntroNarration.Compile(IntroNarrationPageId.Page1)[0].Tile,
+        AssertEqual('T', edited.IntroNarration.Compile(IntroNarrationPageId.Page1)[0].Character,
             "catalog override changes installed opening narration");
         AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
             "opening-narration override changes catalog content identity");

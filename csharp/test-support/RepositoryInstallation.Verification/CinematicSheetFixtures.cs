@@ -99,8 +99,8 @@ internal static class CinematicSheetFixtures
                 var tileSources = new ScreenTileSources(() => InstalledFixtures.Maps, () => key,
                     RepositoryInstallation.Installation.LoadEndingObjectArt, RepositoryInstallation.Installation.LoadEndingPalettes,
                     RepositoryInstallation.Installation.LoadEndingMode7Art);
-                sheets[SpriteSheetId.IntroFontTiles] = LoadTiles(SpriteSheetId.IntroFontTiles,
-                    ScreenTileSheetComposer.Compose(SpriteSheetId.IntroFontTiles, tileSources), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
+                sheets[SpriteSheetId.IntroNarrationPictures] = LoadTiles(SpriteSheetId.IntroNarrationPictures,
+                    IntroNarrationPictureSheetComposer.Compose(key, InstalledFixtures.Maps.IntroFont), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.IntroScenePictures] = LoadTiles(SpriteSheetId.IntroScenePictures,
                     IntroScenePictureSheetComposer.Compose(key), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.CeresCinematicPictures] = LoadTiles(SpriteSheetId.CeresCinematicPictures,

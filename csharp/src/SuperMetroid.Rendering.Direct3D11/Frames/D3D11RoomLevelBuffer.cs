@@ -112,6 +112,21 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private readonly List<D3D11ColourSlot> colourSlots = [];
     /// <summary>Where the last <see cref="Pack"/> put each frontend layer's cells (#1403).</summary>
     private readonly Dictionary<ScreenTileMap, int> screenMaps = [];
+    /// <summary>
+    /// Where the last <see cref="Pack"/> put each picture layer's placed pictures (#1467): their count, then two words each
+    /// in drawing order, the picture's offset and its top-left layer pixel, x below y.
+    /// </summary>
+    private readonly Dictionary<PlacedPictures, int> placedTables = [];
+    /// <summary>
+    /// Where the last <see cref="Pack"/> put each picture grid (#1467): its width and height in cells, x below y, then one
+    /// word per cell row by row, its one-cell picture's offset (zero for none) with its horizontal and vertical mirroring in
+    /// bits 30 and 31.
+    /// </summary>
+    private readonly Dictionary<PictureGrid, int> gridTables = [];
+    /// <summary>The bit of a packed grid cell marking horizontal mirroring.</summary>
+    private const uint GridFlipHorizontally = 1u << 30;
+    /// <summary>The bit of a packed grid cell marking vertical mirroring.</summary>
+    private const uint GridFlipVertically = 1u << 31;
 
     /// <summary>Creates an empty buffer.</summary>
     internal D3D11RoomLevelBuffer(ID3D11Device device)
@@ -165,13 +180,15 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         PicturedHud? hud = frame.Hud;
         ImmutableArray<ScreenLayerPictures> screens = frame.Screens?.Layers ?? [];
         ImmutableArray<ScreenTileMap> screenCells = frame.Screens?.Maps ?? [];
+        ImmutableArray<PlacedPictures> placedLayers = frame.Pictures?.Placed ?? [];
+        ImmutableArray<PictureGrid> grids = frame.Pictures?.Grids ?? [];
         if (packed == frame && packedGeneration == images.Generation)
             return false;
         // No dispatch samples t3 without one of these, so such a scene keeps the last packed room unread. It colours no
         // picture either, so the last room's colour slots go: the scene's colours are packed for none of its images, and a
         // later frame showing that room again packs it afresh.
         if (bg1 is null && bg2 is null && sky is null && bg3 is null && mode7 is null && reveal is null && image is null
-            && message is null && screens.IsEmpty && hud is null)
+            && message is null && screens.IsEmpty && hud is null && placedLayers.IsEmpty && grids.IsEmpty)
         {
             colourSlots.Clear();
             packed = null;
@@ -193,6 +210,18 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         {
             if (screenMaps.TryAdd(map, words))
                 words += map.Cells.Length;
+        }
+        placedTables.Clear();
+        foreach (PlacedPictures layer in placedLayers)
+        {
+            if (placedTables.TryAdd(layer, words))
+                words += 1 + layer.Pictures.Length * HudPictureWords;
+        }
+        gridTables.Clear();
+        foreach (PictureGrid grid in grids)
+        {
+            if (gridTables.TryAdd(grid, words))
+                words += 1 + grid.Cells.Length;
         }
         var blockOffsets = new int[PlaneSlots];
         for (int slot = 0; slot < PlaneSlots; slot++)
@@ -307,6 +336,10 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             PackScreenTable(upload.Slice(offset, ScreenTableWords), screen, pictureWords);
         foreach ((ScreenTileMap map, int offset) in screenMaps)
             PackScreenMap(upload.Slice(offset, map.Cells.Length), map);
+        foreach ((PlacedPictures layer, int offset) in placedTables)
+            PackPlacedPictures(upload, layer, offset, pictureWords);
+        foreach ((PictureGrid grid, int offset) in gridTables)
+            PackGrid(upload, grid, offset, pictureWords);
         upload[Bg2ImageWord] = (uint)imageOffset;
         upload[SkyImageWord] = (uint)skyImageOffset;
         foreach ((RoomBackgroundImagePlane? plane, int offset) in new[] { (image, imageOffset), (skyImage, skyImageOffset) })
@@ -402,6 +435,51 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         }
     }
 
+    /// <summary>
+    /// Packs <paramref name="layer"/>'s placed pictures from <paramref name="offset"/>, as <see cref="placedTables"/>
+    /// describes: the count, then each picture's offset and its top-left layer pixel.
+    /// </summary>
+    private static void PackPlacedPictures(Span<uint> upload, PlacedPictures layer, int offset, Dictionary<SpriteSheetFrame, int> pictureWords)
+    {
+        ImmutableArray<PlacedPicture> pictures = layer.Pictures;
+        upload[offset] = (uint)pictures.Length;
+        for (int index = 0; index < pictures.Length; index++)
+        {
+            PlacedPicture placed = pictures[index];
+            int record = offset + 1 + index * HudPictureWords;
+            upload[record] = (uint)pictureWords[placed.Picture];
+            upload[record + 1] = D3D11ConstantPacking.Halves(placed.TopLeft.X, placed.TopLeft.Y);
+        }
+    }
+
+    /// <summary>
+    /// Packs <paramref name="grid"/> from <paramref name="offset"/>, as <see cref="gridTables"/> describes: its size, then
+    /// each cell's picture with its mirroring, and its corner in the picture.
+    /// </summary>
+    private static void PackGrid(Span<uint> upload, PictureGrid grid, int offset, Dictionary<SpriteSheetFrame, int> pictureWords)
+    {
+        upload[offset] = D3D11ConstantPacking.Halves(grid.Size.X, grid.Size.Y);
+        ImmutableArray<GridPicture?> cells = grid.Cells;
+        for (int index = 0; index < cells.Length; index++)
+        {
+            if (cells[index] is not { } cell)
+                continue;
+            upload[offset + 1 + index] = (uint)pictureWords[cell.Picture]
+                | ((cell.Mirroring & TileFlip.Horizontal) != 0 ? GridFlipHorizontally : 0)
+                | ((cell.Mirroring & TileFlip.Vertical) != 0 ? GridFlipVertically : 0);
+        }
+    }
+
+    /// <summary>The room level buffer word of <paramref name="layer"/>'s placed pictures in the last packing (#1467).</summary>
+    /// <exception cref="InvalidOperationException">The last packing held no such layer.</exception>
+    internal uint PlacedTable(PlacedPictures layer) => placedTables.TryGetValue(layer, out int offset) ? (uint)offset
+        : throw new InvalidOperationException("A picture layer's pictures were not packed with its frame.");
+
+    /// <summary>The room level buffer word of <paramref name="grid"/>'s cells in the last packing (#1467).</summary>
+    /// <exception cref="InvalidOperationException">The last packing held no such grid.</exception>
+    internal uint GridTable(PictureGrid grid) => gridTables.TryGetValue(grid, out int offset) ? (uint)offset
+        : throw new InvalidOperationException("A picture grid's cells were not packed with its frame.");
+
     /// <summary>The tile pictures of an overlay, or none.</summary>
     private static ImmutableArray<BgTilePicture?> Tiles(ImmutableArray<BgTilePicture?>? pictures) =>
         pictures is { IsDefault: false } shown ? shown : [];
@@ -447,6 +525,19 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             yield return (part.Picture, D3D11PictureColouring.Frame);
         foreach (PlacedHudPicture placed in frame.Hud?.Pictures ?? [])
             yield return (placed.Picture, D3D11PictureColouring.Frame);
+        foreach (PlacedPictures layer in frame.Pictures?.Placed ?? [])
+        {
+            foreach (PlacedPicture placed in layer.Pictures)
+                yield return (placed.Picture, D3D11PictureColouring.Frame);
+        }
+        foreach (PictureGrid grid in frame.Pictures?.Grids ?? [])
+        {
+            foreach (GridPicture? cell in grid.Cells)
+            {
+                if (cell is { } shown)
+                    yield return (shown.Picture, D3D11PictureColouring.Frame);
+            }
+        }
         IEnumerable<BgTilePicture?>[] tilePictures =
         [
             Tiles(frame.Bg2Overlay?.Pictures),

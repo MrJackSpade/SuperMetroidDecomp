@@ -30,7 +30,7 @@ public sealed class LayeredScene
         // cannot rearrange a queued frame's layer order after publication.
         foreach (DisplayLayer layer in layers)
         {
-            if (layer is not (SpriteDepthLayer or SpritesLayer or ScreenTilesLayer or ScreenTilesViewportLayer or HudLayer or TurningFloorLayer or ScreenTintLayer or GameplaySceneLayer or ColourAddBandsLayer or MessageBoxLayer or OverlayBlendLayer or TurningRoomLayer or AddedScreenTilesLayer or InsetSceneLayer or GameplayBlendLayer))
+            if (layer is not (SpriteDepthLayer or SpritesLayer or ScreenTilesLayer or ScreenTilesViewportLayer or HudLayer or TurningFloorLayer or ScreenTintLayer or GameplaySceneLayer or ColourAddBandsLayer or MessageBoxLayer or OverlayBlendLayer or TurningRoomLayer or AddedScreenTilesLayer or InsetSceneLayer or GameplayBlendLayer or PicturesLayer or PictureGridLayer or AddedPicturesLayer))
                 throw new ArgumentException("Unrecognized or null display layer.", nameof(layers));
             if (layer is TurningFloorLayer { SubtractsSprites: true, AddsForeground: true })
                 throw new ArgumentException("A turning floor cannot both subtract the sprites and add itself.", nameof(layers));

@@ -343,24 +343,24 @@ static const int QuarterSine[65] =
 // moves the lines above its band by its shape word.
 int2 LineDisplacement(uint screenY)
 {
+    int2 displacement = int2(0, 0);
     uint bandFirst = DisplacementBand & 65535, bandEnd = DisplacementBand >> 16;
-    if (DisplacementKind == DisplacementWave)
+    bool inBand = screenY >= bandFirst && screenY < bandEnd;
+    if (DisplacementKind == DisplacementWave && inBand)
     {
-        if (screenY < bandFirst || screenY >= bandEnd) return int2(0, 0);
         uint period = DisplacementShape >> 16;
         uint angle = ((DisplacementShape & 255) + screenY * 256 / period) & 255;
         uint quarter = angle & 127;
         if (quarter > 64) quarter = 128 - quarter;
         int magnitude = (int)(((uint)QuarterSine[quarter] * DisplacementScale) >> 16);
-        return int2(angle >= 128 ? -magnitude : magnitude, 0);
+        displacement.x = angle >= 128 ? -magnitude : magnitude;
     }
-    if (DisplacementKind == DisplacementStretch)
+    else if (DisplacementKind == DisplacementStretch)
     {
-        if (screenY < bandFirst) return int2(0, (int)DisplacementShape);
-        if (screenY >= bandEnd) return int2(0, 0);
-        return int2(0, -(int)(((screenY - bandFirst) * DisplacementScale) >> 16));
+        if (screenY < bandFirst) displacement.y = (int)DisplacementShape;
+        else if (inBand) displacement.y = -(int)(((screenY - bandFirst) * DisplacementScale) >> 16);
     }
-    return int2(0, 0);
+    return displacement;
 }
 // A screen line's scroll displaced by the pass's described shape, wrapped as a sixteen-bit scroll.
 uint2 DisplacedScroll(uint2 scroll, uint screenY) { return (uint2)((int2)scroll + LineDisplacement(screenY)) & 65535; }

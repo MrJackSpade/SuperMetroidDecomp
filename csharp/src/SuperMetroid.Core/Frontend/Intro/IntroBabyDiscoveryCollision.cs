@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Core.Frontend.Intro.IntroBabyDiscoveryCollisionDefinitions;
 
 namespace SuperMetroid.Core.Frontend.Intro;
@@ -8,12 +9,13 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </summary>
 internal static class IntroBabyDiscoveryCollision
 {
-    /// <summary>Construct mutable room state directly from its two horizontal collision strips.</summary>
-    internal static ushort[] CreateForeground()
+    /// <summary>Construct mutable room terrain directly from its two horizontal collision strips.</summary>
+    internal static RoomTerrainBlock[] CreateForeground()
     {
-        var foreground = new ushort[Columns * RoomRows];
-        foreground.AsSpan(ZeroRows * Columns, Columns).Fill(PenultimateRowWord);
-        foreground.AsSpan((SourceRows - 1) * Columns, Columns).Fill(FinalRowWord);
+        var foreground = new RoomTerrainBlock[Columns * RoomRows];
+        foreground.AsSpan().Fill(EmptyBlock);
+        foreground.AsSpan(ZeroRows * Columns, Columns).Fill(PenultimateRowBlock);
+        foreground.AsSpan((SourceRows - 1) * Columns, Columns).Fill(FinalRowBlock);
         return foreground;
     }
 }

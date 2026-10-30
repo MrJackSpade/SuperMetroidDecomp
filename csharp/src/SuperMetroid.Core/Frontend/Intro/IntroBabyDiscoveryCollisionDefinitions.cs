@@ -3,23 +3,25 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// Immutable physical level copied by the SR388 discovery setup. This 32-by-12
-/// source is distinct from the visible BG page; the final four 32-block rows of
-/// the declared room retain their native zero initialization.
+/// Immutable physical terrain of the SR388 discovery room. This 32-by-12 authored
+/// region is distinct from the visible BG page; the final four 32-block rows of
+/// the declared room are empty.
 /// </summary>
 internal static class IntroBabyDiscoveryCollisionDefinitions
 {
-    /// <summary>Thirty-two physical foreground words per source row.</summary>
+    /// <summary>Thirty-two blocks per room row.</summary>
     internal const int Columns = 32;
-    /// <summary>Twelve ROM-authored rows; the room itself is sixteen rows tall.</summary>
+    /// <summary>Twelve authored rows; the room itself is sixteen rows tall.</summary>
     internal const int SourceRows = 12;
-    /// <summary>Ten zero rows precede the two authored nonzero rows.</summary>
+    /// <summary>Ten empty rows precede the two authored terrain rows.</summary>
     internal const int ZeroRows = 10;
-    /// <summary>The eleventh source row's block in every column: a slope block of shape zero with no visual tile.</summary>
-    internal static ushort PenultimateRowWord => RoomLevelWord.Create(0, LevelBlockFlipFlags.None, RoomCollisionType.Slope).Raw;
-    /// <summary>The final source row's block in every column: a solid block with no visual tile.</summary>
-    internal static ushort FinalRowWord => RoomLevelWord.Create(0, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock).Raw;
+    /// <summary>The eleventh source row's block in every column: a slope block showing block zero.</summary>
+    internal static readonly RoomTerrainBlock PenultimateRowBlock = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope);
+    /// <summary>The final source row's block in every column: a solid block showing block zero.</summary>
+    internal static readonly RoomTerrainBlock FinalRowBlock = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+    /// <summary>Every other block of the room: air showing block zero.</summary>
+    internal static readonly RoomTerrainBlock EmptyBlock = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Air);
 
-    /// <summary>Native room height, including four zero-initialized rows beyond the imported region.</summary>
+    /// <summary>Room height, including four empty rows beyond the authored region.</summary>
     internal const int RoomRows = 16;
 }

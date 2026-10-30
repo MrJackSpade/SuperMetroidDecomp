@@ -478,12 +478,15 @@ internal sealed class IntroBabyDiscoveryState
         return actor;
     }
 
-    /// <summary>Creates the discovery collision room with zero-filled cells beyond the $300-byte foreground copy.</summary>
+    /// <summary>Creates the discovery collision room: its terrain, with every block's behaviour cleared.</summary>
     private static RoomLevelData CreateLevel()
     {
         const int width = IntroBabyDiscoveryCollisionDefinitions.Columns;
         const int height = IntroBabyDiscoveryCollisionDefinitions.RoomRows;
-        ushort[] foreground = IntroBabyDiscoveryCollision.CreateForeground();
-        return new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(foreground, new byte[width * height], new ushort[width * height]));
+        RoomTerrainBlock[] foreground = IntroBabyDiscoveryCollision.CreateForeground();
+        var behavior = new RoomBlockBehavior[width * height];
+        behavior.AsSpan().Fill(RoomBlockBehaviorValues.None);
+        return new RoomLevelData(new Extent16<RoomBlocks>(width, height),
+            new RoomLevelPlanes(foreground, behavior, new RoomBlockAppearance[width * height]));
     }
 }

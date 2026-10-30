@@ -43,11 +43,9 @@ public static class XrayScopeDefinitions
         public const byte LeftFrameOne = 0xe4;
     }
 
-    /// <summary>Fixed-point and ROM-table definitions for the X-ray color-math window.</summary>
+    /// <summary>How the X-ray scope's cone widens.</summary>
     public static class Window
     {
-        /// <summary>One whole unit in the native signed 8.8 direction representation.</summary>
-        public const int UnitVector = 0x0100;
         /// <summary>Per-frame 16.16 angular-width growth applied while widening.</summary>
         public const uint WideningStep = 0x00000800u;
     }

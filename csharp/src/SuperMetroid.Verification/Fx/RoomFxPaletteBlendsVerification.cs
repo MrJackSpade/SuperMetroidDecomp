@@ -24,6 +24,11 @@ using SuperMetroid.TestSupport.FrameRendering;
 /// <summary>Checks extracted room-FX blend colors, installed CGRAM writes, and Ceres haze color overrides.</summary>
 internal static class RoomFxPaletteBlendsVerification
 {
+    /// <summary>The colour a Ceres haze layer adds at the start of screen line 120, drawn over black by the display renderer.</summary>
+    private static RgbaPixel HazeLine(ColourAddWindowLayer haze) =>
+        DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []),
+            new DisplayLayer[] { haze }, DisplayBrightness.Full))[120 * DisplayScreen.Width];
+
     /// <summary>Compares compiled FX palettes with the retail source and checks guarded load and reload paths.</summary>
     internal static void VerifyRoomFxPaletteBlends()
     {
@@ -100,34 +105,24 @@ internal static class RoomFxPaletteBlendsVerification
         };
         RoomFxBlendInks edited = RoomFxPaletteBlendFile.Read(
             new MemoryStream(RoomFxPaletteBlendFile.Write(editedDocument)));
-        ColorAddWindow stockLine = GameplayEffectCapture.CaptureCeresHaze(false).Windows[120];
-        AssertEqual(new ColorAddWindow(0, 255, 0, 0, 66), stockLine,
+        // Each haze over a black screen, as the display renderer draws its line 120 (#1468).
+        RgbaPixel stockLine = HazeLine(GameplayEffectCapture.CaptureCeresHaze(false));
+        AssertEqual(new RgbaPixel(0, 0, 66, 255), stockLine,
             "stock Ceres blue haze retains its native scanline-eight fixed color");
-        AssertEqual(new ColorAddWindow(0, 255, 66, 0, 0),
-            GameplayEffectCapture.CaptureCeresHaze(true).Windows[120],
+        AssertEqual(new RgbaPixel(66, 0, 0, 255), HazeLine(GameplayEffectCapture.CaptureCeresHaze(true)),
             "stock Ceres escape haze retains the matching red fixed color");
-        ColorAddWindow editedLine = GameplayEffectCapture.CaptureCeresHaze(
-            false, colors: edited).Windows[120];
-        AssertEqual(stockLine.Blue, editedLine.Green,
+        RgbaPixel editedLine = HazeLine(GameplayEffectCapture.CaptureCeresHaze(false, colors: edited));
+        AssertEqual(stockLine.B, editedLine.G,
             "edited Ceres tint replaces blue with equal-amplitude green on the same scanline");
-        AssertEqual(0, editedLine.Blue, "edited Ceres tint removes blue addition");
-        ColorAddWindow editedEscapeLine = GameplayEffectCapture.CaptureCeresHaze(
-            true, colors: edited).Windows[120];
-        AssertEqual(stockLine.Blue, editedEscapeLine.Blue,
+        AssertEqual((byte)0, editedLine.B, "edited Ceres tint removes blue addition");
+        RgbaPixel editedEscapeLine = HazeLine(GameplayEffectCapture.CaptureCeresHaze(true, colors: edited));
+        AssertEqual(stockLine.B, editedEscapeLine.B,
             "edited escape tint reaches the post-Ridley channel without changing the gradient");
-        AssertEqual(0, editedEscapeLine.Red,
+        AssertEqual((byte)0, editedEscapeLine.R,
             "edited escape tint removes the stock red channel");
-        AssertEqual(stockLine, GameplayEffectCapture.CaptureCeresHaze(false).Windows[120],
+        AssertEqual(stockLine, HazeLine(GameplayEffectCapture.CaptureCeresHaze(false)),
             "cosmetic override does not mutate stock presentation");
-        // The edited haze over a black screen, as the display renderer draws it.
-        RgbaPixel[] pixels = DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []),
-            new DisplayLayer[] { GameplayEffectCapture.CaptureCeresHaze(false, colors: edited) }, DisplayBrightness.Full));
-        AssertEqual(editedLine.Green, pixels[120 * DisplayScreen.Width].G,
-            "the display renderer draws the same edited Ceres tint the capture holds");
-        AssertEqual((byte)0, pixels[120 * DisplayScreen.Width].B,
-            "the display renderer does not retain the stock blue channel");
-        AssertEqual(0, GameplayEffectCapture.CaptureCeresHaze(
-            false, intensity: 0, colors: edited).Windows[120].Green,
+        AssertEqual((byte)0, HazeLine(GameplayEffectCapture.CaptureCeresHaze(false, intensity: 0, colors: edited)).G,
             "cosmetic color cannot change the native fade-out duration");
         AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendFile.Write(
             editedDocument with
@@ -174,8 +169,8 @@ internal static class RoomFxPaletteBlendsVerification
         AssertEqual(expected, cgram.Colors[RoomFxNativeSources.PaletteBlendDestinationIndex],
             "edited room-FX blend color reaches production CGRAM");
         AssertEqual(0, bus.ForbiddenReadAttempts, "edited room-FX blend does not read native palette table");
-        AssertTrue(GameplayEffectCapture.CaptureCeresHaze(false,
-                colors: edited.RoomFxPaletteBlends).Windows[120].Green > 0,
+        AssertTrue(HazeLine(GameplayEffectCapture.CaptureCeresHaze(false,
+                colors: edited.RoomFxPaletteBlends)).G > 0,
             "installed room-FX color override reaches Ceres haze rendering");
         AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendFile.Write(document with
         {

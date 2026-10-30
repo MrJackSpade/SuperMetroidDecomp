@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>Where the X-ray beam starts relative to Samus, its colour, and how its edges are rounded.</summary>
+/// <summary>Where the X-ray beam starts relative to Samus, and its colour.</summary>
 public static class XrayWindowRenderDefinitions
 {
     /// <summary>The intensity, in every channel, of the grey X-ray blends a revealable room with.</summary>
@@ -11,6 +11,4 @@ public static class XrayWindowRenderDefinitions
     public const int StandingEyeHeight = 16;
     /// <summary>How far above Samus's centre the beam starts while she crouches.</summary>
     public const int CrouchingEyeHeight = 12;
-    /// <summary>The fraction of a pixel, in 8.8 fixed point, a beam edge drops when it is rounded to a whole column.</summary>
-    public const int SubpixelTolerance = 0xFF;
 }

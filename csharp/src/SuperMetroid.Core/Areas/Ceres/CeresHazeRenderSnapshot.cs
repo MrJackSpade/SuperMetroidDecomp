@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// Value-only render input for the Ceres haze's per-scanline COLDATA gradient. The HDMA object
-/// writes its table during the main loop and HDMA reads it while the frame is displayed.
+/// Value-only render input for the Ceres haze: which tint it adds and how far it has faded. The display capture
+/// describes it as a colour strengthening in bands down the screen (#1468).
 /// </summary>
 /// <param name="IsRed">True for the Ridley-dead red ramp, false for the Ridley-alive blue ramp.</param>
 /// <param name="Intensity">Last published ramp strength in RGB5 channel units.</param>

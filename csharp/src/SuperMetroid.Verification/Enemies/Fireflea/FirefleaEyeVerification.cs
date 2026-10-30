@@ -50,7 +50,7 @@ internal static class FirefleaEyeVerification
         RgbaPixel[]? bright = null;
         foreach (byte darkness in new byte[] { 0, 6, 12, 18, 24, 25, 31 })
         {
-            var closed = Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray();
+            var closed = ScreenWindow.Closed;
             var layer = new GameplayBlendLayer(objects, closed, false, new SceneBlend { Layers = actualDarkness.Blend.Layers, BlendsWithLayersBehind = false, FixedColor = new RgbColor(darkness, darkness, darkness) });
             var pixels = DisplayRendering.Render(new LayeredScene(memory, new DisplayLayer[] { layer }, source.Brightness));
             bright ??= pixels;

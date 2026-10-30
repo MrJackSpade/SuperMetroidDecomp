@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
@@ -12,10 +11,14 @@ using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks retained scanline color windows for suit pickup and Power Bomb effects.</summary>
+/// <summary>Checks that captured colour windows for the suit pickup and the Power Bomb keep their shapes.</summary>
 internal static class ColorWindowSnapshotTestsVerification
 {
-    /// <summary>Checks captured window layers keep their windows through later phases and own their input.</summary>
+    /// <summary>
+    /// Checks that a captured colour window keeps the window and colour it was captured with while the effect advances
+    /// (#1468): each sampled layer equals a capture taken at the same moment, after the effect has stepped on. Also
+    /// checks that a window owns its shapes and joins no more than it can draw.
+    /// </summary>
     internal static void VerifyColorWindowSnapshots()
     {
         var cgram = new SnesCgram();
@@ -34,16 +37,16 @@ internal static class ColorWindowSnapshotTestsVerification
             for (int tick = 0; tick < 2000 && pickup.IsActive; tick++)
             {
                 bool sample = phases.Add(pickup.Stage) || tick % 7 == 0;
-                ColourAddBandsLayer? retained = null;
-                ColorAddWindow[]? captured = null;
+                ColourAddWindowLayer? retained = null;
+                ColourAddWindowLayer? copy = null;
                 if (sample)
                 {
                     retained = GameplayEffectCapture.CaptureSuitPickup(pickup.Flash)
-                        ?? throw new InvalidOperationException("An active suit pickup captures its windows.");
-                    captured = retained.Windows.ToArray();
+                        ?? throw new InvalidOperationException("An active suit pickup captures its window.");
+                    copy = GameplayEffectCapture.CaptureSuitPickup(pickup.Flash);
                 }
                 pickup.Step(samus, new SamusColourRig().Samus);
-                if (retained is not null) Compare(captured ?? throw new InvalidOperationException("Verification requires captured."), retained);
+                if (retained is not null) Compare(copy, retained);
             }
             AssertTrue(!pickup.IsActive, "suit window fixture completes");
         }
@@ -58,39 +61,41 @@ internal static class ColorWindowSnapshotTestsVerification
             for (int tick = 0; tick < 2000 && explosion.IsActive; tick++)
             {
                 bool sample = phases.Add(explosion.RenderedPhase) || tick % 13 == 0;
-                ColourAddBandsLayer? retained = null;
-                ColorAddWindow[]? captured = null;
+                ColourAddWindowLayer? retained = null;
+                ColourAddWindowLayer? copy = null;
                 if (sample)
                 {
                     retained = GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0))
-                        ?? throw new InvalidOperationException("Verification requires retained.");
-                    captured = retained.Windows.ToArray();
+                        ?? throw new InvalidOperationException("An active Power Bomb captures its window.");
+                    copy = GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
                 }
                 explosion.StepFrame();
-                if (retained is not null) Compare(captured ?? throw new InvalidOperationException("Verification requires captured."), retained);
+                if (retained is not null) Compare(copy, retained);
             }
             AssertTrue(!explosion.IsActive && phases.Contains(PowerBombExplosionPhase.Afterglow),
                 "Power Bomb fixture reaches afterglow and completes");
         }
 
-        var windows = new ColorAddWindow[224];
-        Array.Fill(windows, new ColorAddWindow(0, 255, 200, 10, 255));
-        var owned = new ColourAddBandsLayer(windows);
-        Array.Fill(windows, ColorAddWindow.Empty);
-        AssertTrue(owned.Windows.ToArray().All(window => window == new ColorAddWindow(0, 255, 200, 10, 255)), "windows own input");
-        AssertThrows<ArgumentException>(() => new ColourAddBandsLayer(new ColorAddWindow[223]),
-            "window operation rejects incomplete scanline table");
-        _ = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory, new DisplayLayer[] { owned }, 15));
-        Console.WriteLine($"  Color window snapshots: {samples} suit/Power Bomb retained windows and input ownership agree.");
+        WindowShape[] shapes = [WindowRectangle.Spanning(0, 0, 255, 223)];
+        var owned = new ScreenWindow(shapes);
+        shapes[0] = WindowRectangle.Spanning(1, 1, 2, 2);
+        AssertEqual(WindowRectangle.Spanning(0, 0, 255, 223), owned.Shapes[0], "a window owns its shapes");
+        AssertThrows<ArgumentException>(() => new ScreenWindow(new WindowShape[ScreenWindow.MaximumShapes + 1]),
+            "a window joins no more shapes than the backend draws");
+        AssertThrows<ArgumentException>(() => new WindowCone(Offset16<ScreenPixels>.Zero, 0, WindowCone.AngleUnitsPerTurn / 2),
+            "a cone is narrower than half a turn");
+        _ = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory,
+            new DisplayLayer[] { new ColourAddWindowLayer(owned, new RgbColor(25, 1, 31)) }, 15));
+        Console.WriteLine($"  Color window snapshots: {samples} suit/Power Bomb retained windows and window ownership agree.");
 
-        void Compare(ColorAddWindow[] captured, ColourAddBandsLayer layer)
+        void Compare(ColourAddWindowLayer? captured, ColourAddWindowLayer layer)
         {
             samples++;
-            AssertTrue(layer.Windows.SequenceEqual(captured), $"color window snapshot sample {samples}");
+            AssertEqual(captured, layer, $"color window snapshot sample {samples}");
         }
     }
 
-    /// <summary>Runs the scanline color-window retention checks.</summary>
+    /// <summary>Runs the colour-window retention checks.</summary>
     [VerificationCommand("--color-window-fixture")]
     internal static int ColorWindowFixtureCommand()
     {

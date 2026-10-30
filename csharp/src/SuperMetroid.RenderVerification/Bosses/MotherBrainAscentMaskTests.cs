@@ -44,7 +44,7 @@ internal static class MotherBrainAscentMaskTests
             Check(0, 80, 2, "middle band retains BG2");
             var packet = new DisplayPacket(new(1, 1, 0), scene);
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "Mother Brain ascent mask");
-            var math = new GameplayBlendLayer(layer, Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new SceneBlend { Layers = ColorBlend.None, BlendsWithLayersBehind = false, FixedColor = RgbColor.Black });
+            var math = new GameplayBlendLayer(layer, ScreenWindow.Closed, false, new SceneBlend { Layers = ColorBlend.None, BlendsWithLayersBehind = false, FixedColor = RgbColor.Black });
             var mathScene = new LayeredScene(memory, [math], 15);
             var mathPacket = new DisplayPacket(new(2, 1, 0), mathScene);
             PixelComparison.Verify(mathPacket, pixels, DisplayRendering.Render(mathScene), "CPU source-aware ascent mask");

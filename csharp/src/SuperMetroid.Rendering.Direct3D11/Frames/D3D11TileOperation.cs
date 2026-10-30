@@ -15,7 +15,7 @@ internal enum D3D11TileOperation : uint
     InsertSprites = 6,
     /// <summary>Draws the perspective floor from its image.</summary>
     Floor = 7,
-    /// <summary>Adds a colour within each line's window.</summary>
+    /// <summary>Adds a colour within a window's shapes, whole or strengthening down the screen (#1468).</summary>
     LineColourAdd = 8,
     /// <summary>Adds a layer's colours to the screen.</summary>
     AddLayer = 9,

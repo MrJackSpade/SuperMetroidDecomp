@@ -887,7 +887,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private sealed record CeresActorSlot(IntroDiscoverySprite Actor, int Slot);
 
     /// <summary>Captures the active station blast's scanline color addition as a render layer.</summary>
-    private ColourAddBandsLayer? CaptureStationExplosion() =>
+    private ColourAddWindowLayer? CaptureStationExplosion() =>
         GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(stationExplosion),
             layer1: Position16<RoomPixels>.Zero, firstVisibleScanline: 0);
 

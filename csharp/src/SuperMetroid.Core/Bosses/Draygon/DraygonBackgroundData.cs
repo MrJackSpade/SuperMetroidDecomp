@@ -1,17 +1,17 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>BG2 artwork origin operands used by Draygon's graphics-drawn hook.</summary>
+/// <summary>Where Draygon's body image is placed on his body layer, and the bands of lines that layer shows on.</summary>
 internal static class DraygonBackgroundData
 {
-    /// <summary>$88:DF94 rejects body screen X below -$40 or at/above $140.</summary>
+    /// <summary>The body layer shows on no line while the body's screen X is below -64 or at or past 320.</summary>
     public const int MinimumScreenX = -64, MaximumScreenX = 320;
-    /// <summary>$88:DF94 rejects body screen Y below -$10 or at/above $130.</summary>
+    /// <summary>The body layer shows on no line while the body's screen Y is below -16 or at or past 304.</summary>
     public const int MinimumScreenY = -16, MaximumScreenY = 304;
-    /// <summary>$88:DFC7/$DFCC split top, middle and bottom at body Y $28/$C0.</summary>
+    /// <summary>A body above screen Y 40 shows the top band, one above 192 the whole gameplay area, and lower ones the bottom band.</summary>
     public const int MiddleScreenY = 40, BottomScreenY = 192;
-    /// <summary>$88:E013: after the HUD, enable BG2 for $40 physical lines.</summary>
+    /// <summary>The top band runs from below the HUD to line 96.</summary>
     public const int TopBandEnd = 96;
-    /// <summary>$88:E00C: after the HUD, disable BG2 for $60 physical lines.</summary>
+    /// <summary>The bottom band runs from line 128 to the bottom of the screen.</summary>
     public const int BottomBandStart = 128;
     /// <summary>$A5:9342, Draygon_Func_36: horizontal artwork origin subtracted after camera minus body X.</summary>
     public const int HorizontalOrigin = 450;

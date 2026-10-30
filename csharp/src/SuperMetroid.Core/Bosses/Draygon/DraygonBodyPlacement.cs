@@ -7,8 +7,4 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <param name="BodyPosition">Draygon's body position.</param>
 /// <param name="LayerPlacement">The layer position shown at the screen's top-left, which puts the body image at the body position.</param>
 /// <param name="Deleted">Whether the body has been deleted, which hides it.</param>
-public sealed record DraygonBodyPlacement(Position16<RoomPixels> BodyPosition, Position16<BackgroundPixels> LayerPlacement, bool Deleted)
-{
-    /// <summary>The physical scanlines [first, end) that show the body against <paramref name="camera"/>.</summary>
-    public DraygonBodyScanlines VisibleLines(Position16<RoomPixels> camera) => DraygonMainScreenWindow.Select(BodyPosition, camera, Deleted);
-}
+public sealed record DraygonBodyPlacement(Position16<RoomPixels> BodyPosition, Position16<BackgroundPixels> LayerPlacement, bool Deleted);

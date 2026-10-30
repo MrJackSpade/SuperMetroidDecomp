@@ -184,7 +184,7 @@ internal static class FirefleaFxVerification
         var darkLayer = (GameplayBlendLayer)ordinaryDarkness.Layers[0];
         AssertEqual(ColorBlend.Bg2 | ColorBlend.Backdrop | ColorBlend.Subtract, darkLayer.Blend.Layers,
             "normal Fireflea darkens BG2/backdrop, not foreground or Samus");
-        AssertTrue(darkLayer.Lines.All(line => line.Left > line.Right),
+        AssertTrue(darkLayer.Window.IsClosed,
             "ordinary Fireflea darkness has no X-ray exemption window");
         AssertTrue(!darkLayer.RevealBlocks && !darkLayer.Blend.BlendsWithLayersBehind,
             "ordinary Fireflea keeps both room maps and subtracts fixed color");

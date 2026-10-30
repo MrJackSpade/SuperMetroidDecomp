@@ -19,9 +19,9 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// hiding those two independently observable lifetimes behind one host animation.
 /// </para>
 /// <para>
-/// The cartridge writes the light beam into a 256-word WH0/WH1 table at WRAM <c>$7E:9E00</c>.
-/// Nothing in gameplay reads that table, so this owner publishes the beam's shape, progress
-/// and fixed color as <c>Flash</c> instead, and the renderer rasterizes it.
+/// Nothing in gameplay reads how the light beam is drawn, so this owner publishes the beam's
+/// shape, progress and fixed color as <c>Flash</c>, and the display capture describes it as
+/// window shapes the backend draws (#1468).
 /// </para>
 /// <para>
 /// The stage and the light beam's progress share two scratch words with the shinespark's
@@ -224,16 +224,17 @@ public sealed class SamusSuitPickupState
     };
 
     /// <summary>
-    /// The light-beam word the shared scratch holds: the scanline count while the beam appears, during the reveal
-    /// and while it shrinks; the two edge columns, left in the low byte, while it is a column or centre line.
+    /// The light beam's progress the shared scratch holds for a later shinespark (<see cref="SuitPickupSparkCarryover"/>):
+    /// the lines grown or wiped while the beam appears, during the reveal and while it shrinks; its edges while it is a
+    /// column or centre line.
     /// </summary>
-    private ushort SharedScratchLightBeamWord() => Stage switch
+    private int SharedScratchLightBeamWord() => Stage switch
     {
         SamusSuitPickupStage.LightBeamAppears or SamusSuitPickupStage.RevealSuit or
-            SamusSuitPickupStage.LightBeamShrinks => checked((ushort)_lightBeamScanlines),
+            SamusSuitPickupStage.LightBeamShrinks => SuitPickupSparkCarryover.OfLines(_lightBeamScanlines),
         SamusSuitPickupStage.UniformWidening or SamusSuitPickupStage.CurvedWidening or
             SamusSuitPickupStage.LightBeamDissipates or SamusSuitPickupStage.Finish =>
-            new SuitPickupBeamEdges(checked((byte)_lightBeamLeft.X), checked((byte)_lightBeamRight.X)).Word,
+            SuitPickupSparkCarryover.OfEdges(_lightBeamLeft.X, _lightBeamRight.X),
         _ => throw new InvalidDataException($"Unknown suit-pickup stage {Stage}."),
     };
 
@@ -300,7 +301,7 @@ public sealed class SamusSuitPickupState
         Beam = new(SamusSuitPickupBeamShape.CurvedColumn, _lightBeamLeft, _lightBeamRight, 0);
 
         LightBeamWideningVelocity += WideningVelocity(SuitPickupBeamDefinitions.WideningAcceleration);
-        if (new SuitPickupBeamEdges((byte)left, (byte)right) == SuitPickupBeamDefinitions.FullScreenWindow)
+        if (new SuitPickupBeamEdges(left, right) == SuitPickupBeamDefinitions.FullScreenWindow)
         {
             Stage = SamusSuitPickupStage.RevealSuit;
             // The unsigned speed halves, truncating its lowest fraction bit.

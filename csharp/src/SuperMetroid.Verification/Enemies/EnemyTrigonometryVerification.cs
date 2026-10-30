@@ -43,7 +43,6 @@ using SuperMetroid.Verification.Enemies.Sbug;
 using SuperMetroid.Verification.Enemies.Polyp;
 using SuperMetroid.Verification.Enemies.Nuclear;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Samus.Movement.AbsoluteTangentDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Alcoon.AlcoonInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Atomic.AtomicMovementDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.BeamCallbackTablesVerification;
@@ -591,7 +590,6 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyCompiledGrowingShutters), () => VerifyCompiledGrowingShutters(LoadRepositoryRom())),
         new(nameof(VerifyCompiledIntroEggMotion), () => VerifyCompiledIntroEggMotion(LoadRepositoryRom())),
         new(nameof(VerifyCompiledPowerBombShape), () => VerifyCompiledPowerBombShape(LoadRepositoryRom())),
-        new(nameof(VerifyCompiledAbsoluteTangent), () => VerifyCompiledAbsoluteTangent(LoadRepositoryRom())),
         new(nameof(VerifyCompiledStatueWalking), () => VerifyCompiledStatueWalking(LoadRepositoryRom())),
         new(nameof(VerifyCompiledRidleyInertia), () => VerifyCompiledRidleyInertia(LoadRepositoryRom())),
         new(nameof(VerifyRidleyDeathAcceleration), () => VerifyRidleyDeathAcceleration(LoadRepositoryRom())),

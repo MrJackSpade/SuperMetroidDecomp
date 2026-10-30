@@ -1,43 +1,40 @@
 using static SuperMetroid.Verification.Rooms.Plms.CollectiblesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks the compiled suit-pickup beam contour against retail bytes and guarded runtime use.</summary>
+/// <summary>Checks the suit-pickup beam's rounded sides against the retail contour, and guarded runtime use.</summary>
 internal static class SuitPickupBeamCurveDefinitionsVerification
 {
-    /// <summary>Compares all 128 native contour offsets and rejects indices beyond the contour.</summary>
+    /// <summary>The offsets the retail contour holds for the beam's upper half, mirrored below its middle line.</summary>
+    private const int ContourOffsets = SuitPickupBeamDefinitions.BeamLines / 2;
+
+    /// <summary>
+    /// The beam's rounded sides are now an oval the backend draws (#1468), not a per-line contour: checks that the
+    /// authored reach at the middle line, <see cref="SuitPickupBeamDefinitions.CurveWidth"/>, is the retail contour's
+    /// widest offset, and that the contour narrows to its smallest offset at the beam's top line.
+    /// </summary>
     internal static void VerifySuitPickupBeamCurveDefinitions(SuperMetroidAddressSpace rom)
     {
-        for (int index = 0; index < SuitPickupBeamCurveDefinitions.OffsetCount; index++)
-        {
-            AssertEqual(
-                rom.ReadCartridgeByte(SuitPickupBeamCurveDefinitions.NativeCurveAddress + index),
-                SuitPickupBeamCurve.OffsetAt(index),
-                $"suit-pickup beam offset {index}");
-        }
-
-        AssertThrows<InvalidDataException>(
-            () => SuitPickupBeamCurve.OffsetAt(-1),
-            "suit-pickup beam curve rejects a negative index");
-        AssertThrows<InvalidDataException>(
-            () => SuitPickupBeamCurve.OffsetAt(
-                SuitPickupBeamCurveDefinitions.OffsetCount),
-            "suit-pickup beam curve rejects a post-contour index");
-
-        Console.WriteLine(
-            "Suit-pickup beam curve: all 128 native offsets match and invalid indexes fail loudly.");
+        byte[] contour = new byte[ContourOffsets];
+        for (int index = 0; index < contour.Length; index++)
+            contour[index] = rom.ReadCartridgeByte(SuitPickupBeamDefinitions.BeamCurve + index);
+        AssertEqual(SuitPickupBeamDefinitions.CurveWidth, (int)contour.Max(),
+            "the rounded sides reach the retail contour's widest offset");
+        AssertEqual(SuitPickupBeamDefinitions.CurveWidth, (int)contour[^1],
+            "the retail contour is widest at the beam's middle line");
+        AssertEqual(contour.Min(), contour[0], "the retail contour is narrowest at the beam's top line");
+        Console.WriteLine("Suit-pickup beam curve: the authored oval's reach matches the retail contour's extremes.");
     }
 
-    /// <summary>Rejects cartridge reads from the compiled curve region during transformation.</summary>
+    /// <summary>Rejects cartridge reads from the retail contour region during transformation.</summary>
     internal static CartridgeReadGuard NewSuitPickupBeamCurveReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
-            .Forbid(address => address >= SuitPickupBeamCurveDefinitions.NativeCurveAddress &&
-                address < SuitPickupBeamCurveDefinitions.NativeCurveAddress +
-                    SuitPickupBeamCurveDefinitions.OffsetCount,
+            .Forbid(address => address >= SuitPickupBeamDefinitions.BeamCurve &&
+                address < SuitPickupBeamDefinitions.BeamCurve + ContourOffsets,
                 address => $"Suit-pickup transformation attempted curve read ${address:X6}.");
 
     /// <summary>Runs contour parity and permanent-collectible checks from the verification host.</summary>

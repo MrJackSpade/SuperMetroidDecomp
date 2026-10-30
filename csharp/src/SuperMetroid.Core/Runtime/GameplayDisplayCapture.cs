@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
@@ -109,8 +108,9 @@ public static class GameplayDisplayCapture
         ushort[]? lavaY = fx is { } vertical
             ? GameplayEffectCapture.BuildLavaAcidBackgroundVerticalScrolls(vertical, bg2Scroll.Y) : null;
         Position16<BackgroundPixels>? kraidBody = bosses.KraidBodyPlacement;
-        // Draygon's body shows only on the scanlines around it ($88:DF94), placed against the frame's camera (#1354).
-        DraygonBodyScanlines bg2Lines = bosses.DraygonBody?.VisibleLines(scrolls.Layer1Position) ?? new DraygonBodyScanlines(32, 224);
+        // Draygon's body shows only on the band of lines around it, placed against the frame's camera (#1354, #1468).
+        ScreenLineBand bg2Lines = bosses.DraygonBody is { } draygon
+            ? DraygonBodyBand.ShownLines(draygon, scrolls.Layer1Position) : ScreenLineBand.Gameplay;
         Position16<BackgroundPixels>? crocomireBody = bosses.CrocomireBodyPlacement;
         bool verticalStatueMap = scene.FxType == RoomFxType.TourianEntranceStatue;
         ScreenLayers displayedMainScreen = latched.MainScreen;
@@ -128,7 +128,7 @@ public static class GameplayDisplayCapture
                 (bosses.MotherBrainBody is { Hidden: true }
                     ? ScreenLayers.Foreground | ScreenLayers.Sprites
                     : displayedMainScreen),
-            bg2Lines.First, bg2Lines.End,
+            bg2Lines.FirstLine, bg2Lines.EndLine,
             BackgroundPixelation: latched.Phantoon is { } phantoonDisplay ? new BackgroundPixelation(phantoonDisplay.MosaicBlockSize) : default);
         // Producers can return longer HDMA storage; the renderer consumes only the
         // gameplay region. Own exactly those visible register values in the packet.
@@ -227,8 +227,7 @@ public static class GameplayDisplayCapture
         // The source-aware operation is shared with X-ray, but an empty window means
         // every pixel is eligible. Only the background and the backdrop blend:
         // foreground and Samus must not be tinted by a whole-frame darkening overlay.
-        var closed = Enumerable.Repeat(new XrayWindowLine(255, 0), ScreenGeometry.ScreenHeightPixels).ToArray();
-        return new(ordinary, closed, revealBlocks: false, blend: new SceneBlend { Layers = ColorBlend.Bg2 | ColorBlend.Backdrop | ColorBlend.Subtract, BlendsWithLayersBehind = false, FixedColor = fixedColor });
+        return new(ordinary, ScreenWindow.Closed, revealBlocks: false, blend: new SceneBlend { Layers = ColorBlend.Bg2 | ColorBlend.Backdrop | ColorBlend.Subtract, BlendsWithLayersBehind = false, FixedColor = fixedColor });
     }
 
     /// <summary>Captures the latched perspective floor and the HUD's layer, adding the layer-2 band below the floor during Ridley's getaway.</summary>
@@ -270,7 +269,7 @@ public static class GameplayDisplayCapture
         if (mode == LayerBlendingConfiguration.PhantoonHidden) return gameplay;
         // $88:80D9: TM=$15, TS=$02, CGADSUB=$35. Gameplay HUD is the separate
         // IRQ band; below it BG2 adds to eligible main sources, never occluding BG1.
-        return new GameplayBlendLayer(gameplay, Enumerable.Repeat(new XrayWindowLine(255, 0), ScreenGeometry.ScreenHeightPixels).ToArray(), false, new SceneBlend { Layers = ColorBlend.Bg1 | ColorBlend.Bg3 | ColorBlend.Sprites | ColorBlend.Backdrop, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, subscreenUsesBg2: true);
+        return new GameplayBlendLayer(gameplay, ScreenWindow.Closed, false, new SceneBlend { Layers = ColorBlend.Bg1 | ColorBlend.Bg3 | ColorBlend.Sprites | ColorBlend.Backdrop, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, subscreenUsesBg2: true);
     }
 
     /// <summary>Captures X-ray's layer ownership before priority resolution and color math.</summary>
@@ -346,9 +345,8 @@ public static class GameplayDisplayCapture
         // phase closes the HDMA window on the NEXT call and clears the backdrop;
         // restoration keeps ownership until phase five finally unfreezes gameplay.
         bool closed = settingUp || restoring || xray.BeamPhase == XrayBeamPhase.NoBeam;
-        var lines = closed ? Enumerable.Repeat(new XrayWindowLine(255, 0), ScreenGeometry.ScreenHeightPixels).ToArray()
-            : GameplayEffectCapture.CaptureXrayWindowLines(xray, scrolls.Layer1Position);
-        var layer = new GameplayBlendLayer(gameplay, lines, reveal, new SceneBlend { Layers = control, BlendsWithLayersBehind = mode != XrayRoomBlendMode.Fireflea, FixedColor = new RgbColor(red, green, blue) }, sub);
+        ScreenWindow window = closed ? ScreenWindow.Closed : GameplayEffectCapture.CaptureXrayWindow(xray, scrolls.Layer1Position);
+        var layer = new GameplayBlendLayer(gameplay, window, reveal, new SceneBlend { Layers = control, BlendsWithLayersBehind = mode != XrayRoomBlendMode.Fireflea, FixedColor = new RgbColor(red, green, blue) }, sub);
         return new(paint, new DisplayLayer[] { layer, Hud(latched) }, basis.Brightness);
     }
 }

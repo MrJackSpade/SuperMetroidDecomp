@@ -971,10 +971,6 @@ internal static void VerifyBg2ScreenLayout()
         DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(cgram.Colors, []), new DisplayLayer[] { layer }, DisplayBrightness.Full));
 }
 
-/// <summary>The native first pre-scaled power-bomb profile's half width for <paramref name="row"/> at $88:9F06.</summary>
-static int ReadRetailPowerBombPreScaledHalfWidth(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, int row) =>
-    rom.ReadCartridgeByte(0x889f06 + row);
-
 /// <summary>
 /// Synthetic cartridge with the literal `$88:A266-$88:A2A5` horizontal samples and vertical
 /// band boundaries used by `$88:8CC6/$8D04/$8D46` (kept independent of the production loop so
@@ -1001,7 +997,7 @@ static TestAddressSpace CreatePowerBombColorMathWindowCartridge()
     return bus;
 }
 
-/// <summary>Proves that desktop power-bomb composition uses the native radius frame and center-outward half-profile orientation.</summary>
+/// <summary>Proves that power-bomb composition uses the drawn radius frame and an oval centred on the blast.</summary>
 internal static void VerifyPowerBombColorMathWindow()
 {
     TestAddressSpace bus = CreatePowerBombColorMathWindowCartridge();
@@ -1012,70 +1008,40 @@ internal static void VerifyPowerBombColorMathWindow()
     explosion.Arm();
     explosion.Spawn(new(centerX, centerY));
 
-    // Spawn happens after the native HDMA pass. Even though status is already `$8000`,
-    // the host must not invent an explosion table on this frame.
-    ColourAddBandsLayer? spawnWindows = CaptureWindows();
-    AssertTrue(AddedColour(spawnWindows, centerX, centerY) is null,
-        "power-bomb spawn frame has no premature HDMA window");
+    // Spawning happens after this frame's oval was chosen, so the spawn frame shows nothing.
+    AssertEqual(ScreenWindow.Closed, CaptureWindow().Window, "power-bomb spawn frame has no premature oval");
 
     explosion.StepFrame();
     AssertEqual(PowerBombExplosionPhase.Inactive, explosion.RenderedPhase,
         "first HDMA pass initializes the list without generating a window");
-    // The first pre-instruction draws radius `$04.00`, then advances the live state to
-    // `$34.00`. `$04 * $BF >> 8` gives a two-line vertical extent and `$04 * $FF >> 8`
-    // gives a three-pixel center half-width. Testing beyond both extents catches use of
-    // the already-updated `$34.00` radius as well as floating-point ellipse substitution.
+    // The first frame draws radius 4, then advances the live state to radius 52. The oval is that drawn radius wide
+    // and three quarters of it tall (#1468): using the already-updated radius would be far wider.
     explosion.StepFrame();
     AssertEqual(0x0400, explosion.RenderedPreExplosionRadius.RawValue,
         "power-bomb renderer retains pre-update radius");
     AssertEqual(0x3400, explosion.PreExplosionRadius.RawValue,
         "power-bomb logic advances next-frame radius");
-    ColourAddBandsLayer? scaledWindows = CaptureWindows();
-    (int Red, int Green, int Blue) fixedColor = (8, 16, 24);
-    AssertEqual<(int, int, int)?>(fixedColor,
-        AddedColour(scaledWindows, centerX + 3, centerY),
-        "scaled power-bomb center uses truncated final horizontal sample");
-    AssertTrue(AddedColour(scaledWindows, centerX + 4, centerY) is null,
-        "scaled power-bomb center excludes first outside pixel");
-    AssertTrue(AddedColour(scaledWindows, centerX, centerY + 3) is null,
-        "scaled power-bomb vertical extent uses ROM boundary table");
+    ColourAddWindowLayer scaled = CaptureWindow();
+    AssertEqual(ScreenWindow.Of(WindowOval.Ellipse(Offset16<ScreenPixels>.Of(centerX, centerY), 4, 3), DisplayScreen.HudHeight),
+        scaled.Window, "the first flash is an oval of the drawn radius");
+    AssertEqual(new RgbColor(1, 2, 3), scaled.Colour, "the first flash adds the installed fixed colour");
 
-    // A pre-scaled record is a center-outward half-profile. Native HDMA mirrors it around
-    // the explosion Y coordinate; it is not indexed by adding a screen-space midpoint.
+    // The walked yellow ovals are centred on the blast, not on a screen midpoint.
     while (explosion.Phase == PowerBombExplosionPhase.PreExplosionWhite)
         explosion.StepFrame();
-    var shapeReference = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
     explosion.StepFrame();
     AssertEqual(PowerBombExplosionPhase.PreExplosionYellow, explosion.RenderedPhase,
         "first pre-scaled yellow frame is retained for composition");
-    ColourAddBandsLayer? shapeWindows = CaptureWindows();
     AssertEqual<PowerBombShapeCursor?>(new PowerBombShapeCursor(PowerBombShapeStream.Yellow, 0), explosion.RenderedShape,
-        "first yellow frame selects the native profile");
-    for (int y = 0; y < DisplayScreen.Height; y++)
-    {
-        int row = Math.Abs(y - centerY);
-        int halfWidth = row < 192 ? ReadRetailPowerBombPreScaledHalfWidth(shapeReference, row) : 0;
-        for (int x = 0; x < DisplayScreen.Width; x++)
-        {
-            bool inside = y >= DisplayScreen.HudHeight && halfWidth != 0 && Math.Abs(x - centerX) <= halfWidth;
-            AssertEqual<(int, int, int)?>(inside ? fixedColor : null,
-                AddedColour(shapeWindows, x, y),
-                $"native pre-scaled profile pixel ({x},{y})");
-        }
-    }
-    Console.WriteLine("  Power bomb: ROM curve bands, rendered-frame timing, and center-outward shapes agree.");
+        "first yellow frame selects the first yellow oval");
+    AssertEqual(ScreenWindow.Of(WindowOval.Ellipse(Offset16<ScreenPixels>.Of(centerX, centerY), 146, 109), DisplayScreen.HudHeight),
+        CaptureWindow().Window, "the first yellow oval is centred on the blast");
+    Console.WriteLine("  Power bomb: drawn-radius timing, the oval's size and its centre agree.");
 
-    // The colour windows the displayed frame adds for the explosion, as the gameplay capture takes them.
-    ColourAddBandsLayer? CaptureWindows() =>
-        GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
-}
-
-/// <summary>The colour <paramref name="windows"/> add at a screen pixel, or null where no window covers it.</summary>
-static (int Red, int Green, int Blue)? AddedColour(ColourAddBandsLayer? windows, int x, int y)
-{
-    if (windows is null) return null;
-    ColorAddWindow window = windows.Windows[y];
-    return x >= window.Left && x <= window.Right ? (window.Red, window.Green, window.Blue) : null;
+    // The colour the displayed frame adds for the explosion, as the gameplay capture takes it.
+    ColourAddWindowLayer CaptureWindow() =>
+        GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0))
+            ?? throw new InvalidOperationException("An active Power Bomb captures its window.");
 }
 
 /// <summary>Checks bank-$88 sky fixed-point bands and four queued circular-map rows.</summary>

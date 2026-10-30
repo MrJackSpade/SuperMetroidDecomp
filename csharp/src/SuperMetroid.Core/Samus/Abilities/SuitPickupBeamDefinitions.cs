@@ -1,14 +1,12 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>Varia/Gravity pickup HDMA curve and native 8.8 geometry.</summary>
+/// <summary>The suit pickup's light beam: its authored edges, the speeds its edges move at, and its rounded sides.</summary>
 public static class SuitPickupBeamDefinitions
 {
-    /// <summary>Collapsed beam with both window endpoints at X=120.</summary>
-    public static readonly SuitPickupBeamEdges NarrowBeamEdges = new(0x78, 0x78);
-    /// <summary>Inverted endpoints representing an empty window.</summary>
-    public static readonly SuitPickupBeamEdges EmptyWindow = new(0xff, 0x00);
-    /// <summary>Endpoints representing the complete 256-pixel window.</summary>
-    public static readonly SuitPickupBeamEdges FullScreenWindow = new(0x00, 0xff);
+    /// <summary>Collapsed beam with both edges at X=120.</summary>
+    public static readonly SuitPickupBeamEdges NarrowBeamEdges = new(120, 120);
+    /// <summary>Edges spanning the whole 256-pixel screen line.</summary>
+    public static readonly SuitPickupBeamEdges FullScreenWindow = new(0, 255);
     /// <summary>Initial unsigned 8.8 widening speed.</summary>
     public const ushort InitialWideningSpeed = 0x0100;
     /// <summary>Per-frame unsigned 8.8 widening acceleration.</summary>
@@ -17,10 +15,12 @@ public static class SuitPickupBeamDefinitions
     public const ushort ShrinkingDeceleration = 0x0020;
     /// <summary>Minimum unsigned 8.8 shrinking speed.</summary>
     public const ushort MinimumShrinkingSpeed = 0x0100;
-    /// <summary>Stage-two initial asymmetric endpoint pair.</summary>
-    public static readonly SuitPickupBeamEdges CurvedWideningStart = new(0x6c, 0x84);
-    /// <summary>Stage-five signed starting endpoint pair from <c>$88:E222</c>.</summary>
-    public static readonly SuitPickupBeamEdges DissipationStart = new(0xff, 0xf8);
-    /// <summary>Number of scanlines and window words produced by the HDMA builder.</summary>
-    public const int WindowScanlineCount = 256;
+    /// <summary>Stage-two initial asymmetric edge pair.</summary>
+    public static readonly SuitPickupBeamEdges CurvedWideningStart = new(108, 132);
+    /// <summary>Stage-five starting edge pair, whose left edge wraps to the screen's left on the first narrowing.</summary>
+    public static readonly SuitPickupBeamEdges DissipationStart = new(255, 248);
+    /// <summary>The lines the beam spans from the top of the screen; its middle line is half way down them.</summary>
+    public const int BeamLines = 256;
+    /// <summary>How far the curved beam's rounded sides reach beyond its column at the middle line, in pixels.</summary>
+    public const int CurveWidth = 24;
 }

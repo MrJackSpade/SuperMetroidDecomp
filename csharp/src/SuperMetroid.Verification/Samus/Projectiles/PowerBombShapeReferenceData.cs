@@ -11,4 +11,6 @@ internal static class PowerBombShapeReferenceData
     internal const int PreScaledWhite = 0x889246;
     /// <summary>$88:9F06, the four pre-scaled yellow window shapes that follow the white ones.</summary>
     internal const int PreScaledYellow = 0x889f06;
+    /// <summary>The lines of one pre-scaled shape, from its middle line outward.</summary>
+    internal const int ShapeLines = 192;
 }

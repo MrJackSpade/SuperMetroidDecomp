@@ -65,13 +65,13 @@ internal static class CinematicSnapshotTestsVerification
                 LayeredScene snapshot = destruction.CaptureRenderSnapshot();
                 mode7 |= snapshot.Layers.Any(layer => layer is TurningFloorLayer);
                 mode1 |= snapshot.Layers.Any(layer => layer is PicturedPlaneLayer);
-                foreach (var window in snapshot.LayersOf<ColourAddBandsLayer>())
+                foreach (var window in snapshot.LayersOf<ColourAddWindowLayer>())
                 {
-                    explosionWindow |= window.Windows.Any(row =>
-                        row.Left <= row.Right && (row.Red != 0 || row.Green != 0 || row.Blue != 0));
-                    ColorAddWindow top = window.Windows[0];
-                    explosionCoversTop |= top.Left <= top.Right &&
-                        (top.Red != 0 || top.Green != 0 || top.Blue != 0);
+                    bool coloured = window.Colour != RgbColor.Black;
+                    explosionWindow |= !window.Window.IsClosed && coloured;
+                    // The blast's oval reaches the top line and its window starts there, with no HUD band cut out (#1468).
+                    explosionCoversTop |= coloured && window.Window.FirstLine == 0 && window.Window.Shapes.Length != 0 &&
+                        window.Window.Shapes[0] is WindowOval oval && oval.CoreStart.Y - oval.VerticalRadius <= 0;
                 }
                 Compare(expected, snapshot, tick);
                 destruction.Step();

@@ -92,10 +92,11 @@ internal static class InstalledPowerBombIsolationTests
                             framesToRender.Add(new ContextFrame(packet, context));
                             // With a black backdrop this center pixel must be exactly the
                             // selected expanded RGB, not merely different from stock.
-                            ColorAddWindow center = second.Windows[112];
-                            if (center.Left <= 128 && center.Right >= 128)
+                            // The oval is centred on that pixel (#1468), so an open window covers it.
+                            if (!second.Window.IsClosed)
                                 Require(DisplayRendering.Render(packet)[112 * packet.Size.X + 128] ==
-                                    new RgbaPixel(checked((byte)center.Red), checked((byte)center.Green), checked((byte)center.Blue)), context + ": edited RGB did not reach pixels");
+                                    new RgbaPixel(RgbColor.ExpandChannel(second.Colour.Red), RgbColor.ExpandChannel(second.Colour.Green),
+                                        RgbColor.ExpandChannel(second.Colour.Blue)), context + ": edited RGB did not reach pixels");
                         }
                         comparisons++;
                     } while (baseline.IsActive);
@@ -167,15 +168,13 @@ internal static class InstalledPowerBombIsolationTests
         }
     }
 
-    /// <summary>Checks color-add window lifetime and every scanline's horizontal bounds independently of its color.</summary>
-    private static void RequireSameGeometry(ColourAddBandsLayer? first,
-        ColourAddBandsLayer? second, string context)
+    /// <summary>Checks color-add window lifetime and its shapes independently of its color.</summary>
+    private static void RequireSameGeometry(ColourAddWindowLayer? first,
+        ColourAddWindowLayer? second, string context)
     {
         Require((first is null) == (second is null), context + ": window lifetime differs");
         if (first is null || second is null) return;
-        for (int row = 0; row < first.Windows.Length; row++)
-            Require(first.Windows[row].Left == second.Windows[row].Left &&
-                first.Windows[row].Right == second.Windows[row].Right, context + $": window row {row} differs");
+        Require(first.Window == second.Window, context + ": window shapes differ");
     }
 
     /// <summary>Captures the three live fixed-color outputs without including simulation state.</summary>

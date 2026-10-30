@@ -43,9 +43,9 @@ internal static class RuntimeOverlayTests
         var initial = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         if (initial.Layers.Length != 5 || initial.Layers[0] is not GameplaySceneLayer
             || initial.Layers[1] is not HudLayer
-            || initial.Layers[2] is not ColourAddBandsLayer
+            || initial.Layers[2] is not ColourAddWindowLayer
             || initial.Layers[3] is not MessageBoxLayer
-            || initial.Layers[4] is not ColourAddBandsLayer)
+            || initial.Layers[4] is not ColourAddWindowLayer)
             throw new InvalidOperationException("Fixture missed base/HUD/Power Bomb/message/suit composition order.");
 
         for (int tick = 0; tick < 90; tick++)

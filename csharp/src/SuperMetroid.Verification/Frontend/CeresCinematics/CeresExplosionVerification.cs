@@ -50,15 +50,13 @@ internal static class CeresExplosionVerification
                 }
 
                 var actual = scene.CaptureRenderSnapshot()
-                    .LayersOf<ColourAddBandsLayer>().SingleOrDefault();
+                    .LayersOf<ColourAddWindowLayer>().SingleOrDefault();
                 var expected = GameplayEffectCapture.CapturePowerBombGlow(
                     PowerBombRenderSnapshot.Capture(reference), new Position16<RoomPixels>(0, 0), firstVisibleScanline: 0);
                 AssertEqual(expected is null, actual is null, "Ceres blast window lifetime");
                 if (expected is not null && actual is not null)
                 {
-                    for (int y = 0; y < expected.Windows.Length; y++)
-                        AssertEqual(expected.Windows[y], actual.Windows[y],
-                            $"Ceres blast frame {frame} line {y}: endpoints and RGB");
+                    AssertEqual(expected, actual, $"Ceres blast frame {frame}: oval, colour and lines from the screen's top");
                     compared++;
                     phases.Add(reference.RenderedPhase);
                 }

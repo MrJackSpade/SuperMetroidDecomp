@@ -13,7 +13,6 @@ using SuperMetroid.Verification.Enemies.Shutters;
 using SuperMetroid.Verification.Enemies.Boulder;
 using SuperMetroid.Verification.Enemies.Bull;
 using SuperMetroid.Tooling;
-using static SuperMetroid.Verification.Samus.Movement.AbsoluteTangentDefinitionsVerification;
 using static SuperMetroid.Verification.Fx.AnimatedTileInstructionCodesVerification;
 using static SuperMetroid.Verification.Enemies.Atomic.AtomicMovementDefinitionsVerification;
 using static SuperMetroid.Verification.Audio.AudioUploadCatalogVerification;
@@ -4306,19 +4305,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Checks fixed-point tangent values against the native table.</summary>
-    [VerificationCommand("--lookup-absolute-tangent")]
-    internal static int LookupAbsoluteTangentCommand()
-    {
-        var tangentOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(tangentOracle.Rom)),
-            "Tangent oracle is NTSC J/U v1.0");
-        Suite(nameof(VerifyCompiledAbsoluteTangent), () => VerifyCompiledAbsoluteTangent(tangentOracle, definitionsOnly: true));
-        Console.WriteLine("Absolute tangent algorithm: all 129 original words, direct caller aliases and invalid bounds pass.");
-        return 0;
-    }
-
     /// <summary>Checks Shaktool joint positions and body-link motion.</summary>
     [VerificationCommand("--lookup-shaktool-joint-algorithms")]
     internal static int LookupShaktoolJointAlgorithmsCommand()
@@ -4340,9 +4326,8 @@ internal static class VerificationAssert
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(powerBombOracle.Rom)),
             "Power Bomb oracle is NTSC J/U v1.0");
-        Suite(nameof(VerifyPowerBombWidthAlgorithm), () => VerifyPowerBombWidthAlgorithm(powerBombOracle));
-        Suite(nameof(VerifyPowerBombTopOffsetAlgorithm), () => VerifyPowerBombTopOffsetAlgorithm(powerBombOracle));
-        Console.WriteLine("Power Bomb base curves: all 64 original bytes and invalid bounds pass.");
+        Suite(nameof(VerifyPowerBombOvalAspect), () => VerifyPowerBombOvalAspect(powerBombOracle));
+        Console.WriteLine("Power Bomb base curves: the original curve has the blast oval's aspect.");
         return 0;
     }
 
@@ -4436,8 +4421,7 @@ internal static class VerificationAssert
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(curveOracle.Rom)),
             "Window curve oracle is NTSC J/U v1.0");
         Suite(nameof(VerifySuitPickupBeamCurveDefinitions), () => VerifySuitPickupBeamCurveDefinitions(curveOracle));
-        Suite(nameof(VerifyCompiledAbsoluteTangent), () => VerifyCompiledAbsoluteTangent(curveOracle, definitionsOnly: true));
-        Console.WriteLine("Window curves: 128 suit bytes and129 tangent words, direct readers and bounds match original data.");
+        Console.WriteLine("Window curves: the suit beam's rounded sides match the original contour's extremes.");
         return 0;
     }
 

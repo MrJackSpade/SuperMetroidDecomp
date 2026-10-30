@@ -41,14 +41,14 @@ internal static class SuitPickupSharedScratchVerification
         // Stage zero: the word is the grown scanline count, until the stage hands over the narrow beam's edges.
         StepThrough(pickup, samus, cgram, SamusSuitPickupStage.LightBeamAppears,
             context => AssertScratch(samus, 0, checked((ushort)pickup.Beam.Progress), context));
-        AssertScratch(samus, 1, SuitPickupBeamDefinitions.NarrowBeamEdges.Word, "uniform widening starts");
+        AssertScratch(samus, 1, EdgeWord(SuitPickupBeamDefinitions.NarrowBeamEdges), "uniform widening starts");
         pickup.Step(samus, cgram.Samus);
         AssertScratch(samus, 1, LittleEndianBytes.Word(119, 121), "first uniform widening call");
 
         // Columns: the word is the edge pair, left column in the low byte, until the curved stage reaches full width.
         StepThrough(pickup, samus, cgram, SamusSuitPickupStage.UniformWidening,
             context => AssertScratch(samus, 1, BeamEdgeWord(pickup), context));
-        AssertScratch(samus, 2, SuitPickupBeamDefinitions.CurvedWideningStart.Word, "curved widening starts");
+        AssertScratch(samus, 2, EdgeWord(SuitPickupBeamDefinitions.CurvedWideningStart), "curved widening starts");
         StepThrough(pickup, samus, cgram, SamusSuitPickupStage.CurvedWidening,
             context => AssertScratch(samus, 2, BeamEdgeWord(pickup), context));
         AssertScratch(samus, 3, 0, "full-width beam clears the word for the reveal");
@@ -59,7 +59,7 @@ internal static class SuitPickupSharedScratchVerification
         // Stage four: the word is the wipe's scanline count, until the stage hands over the dissipation edges.
         StepThrough(pickup, samus, cgram, SamusSuitPickupStage.LightBeamShrinks,
             context => AssertScratch(samus, 4, checked((ushort)pickup.Beam.Progress), context));
-        AssertScratch(samus, 5, SuitPickupBeamDefinitions.DissipationStart.Word, "dissipation starts");
+        AssertScratch(samus, 5, EdgeWord(SuitPickupBeamDefinitions.DissipationStart), "dissipation starts");
         pickup.Step(samus, cgram.Samus);
         AssertEqual(7, pickup.Beam.Left.X, "the first dissipation call wraps the left column from 255 to 7");
         AssertScratch(samus, 5, LittleEndianBytes.Word(7, 240), "first dissipation call");
@@ -90,6 +90,10 @@ internal static class SuitPickupSharedScratchVerification
     /// <summary>The published beam's edge columns as one word, left column in the low byte.</summary>
     private static ushort BeamEdgeWord(SamusSuitPickupState pickup) =>
         LittleEndianBytes.Word(checked((byte)pickup.Beam.Left.X), checked((byte)pickup.Beam.Right.X));
+
+    /// <summary>An authored edge pair as the word the carryover leaves, left column in the low byte (#1468).</summary>
+    private static ushort EdgeWord(SuitPickupBeamEdges edges) =>
+        LittleEndianBytes.Word(checked((byte)edges.Left), checked((byte)edges.Right));
 
     /// <summary>Checks that the spark acceleration and Crystal Flash ammunition timer hold the expected scratch words.</summary>
     private static void AssertScratch(SamusState samus, ushort stageNumber, ushort lightBeamWord, string context)

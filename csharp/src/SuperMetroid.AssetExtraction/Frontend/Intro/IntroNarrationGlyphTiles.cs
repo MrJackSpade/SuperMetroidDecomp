@@ -1,6 +1,7 @@
 using System.Collections.Frozen;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using static SuperMetroid.AssetExtraction.Frontend.Intro.IntroNarrationGlyphTileDefinitions;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
@@ -10,21 +11,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// </summary>
 public static class IntroNarrationGlyphTiles
 {
-    /// <summary>Tile of uppercase A, from <c>IndirectInstructions_IntroText_A</c> at <c>$8C:D685</c>; A-Z use consecutive tiles in the upper priority tier.</summary>
-    private const int UppercaseATile = 0x000;
-    /// <summary>Tile of digit zero, from the glyph record at <c>$8C:D721</c>; zero through nine use consecutive upper-priority tiles.</summary>
-    private const int DigitZeroTile = 0x01a;
-    /// <summary>Blank-space tile from <c>IndirectInstructions_IntroText_Space</c> at <c>$8C:D67D</c>, without the nonblank glyphs' priority.</summary>
-    private const int BlankTile = 0x02f;
-    /// <summary>Period tile from <c>IndirectInstructions_IntroText_Period</c> at <c>$8C:D75D</c>, distinct from the unused decimal-point glyph.</summary>
-    private const int PeriodTile = 0x024;
-    /// <summary>Comma tile from <c>IndirectInstructions_IntroText_Comma</c> at <c>$8C:D763</c>.</summary>
-    private const int CommaTile = 0x025;
-    /// <summary>Apostrophe tile from <c>IndirectInstructions_IntroText_Apostrophe</c> at <c>$8C:D76F</c>.</summary>
-    private const int ApostropheTile = 0x027;
-    /// <summary>Exclamation tile from <c>IndirectInstructions_IntroText_ExclamationPoint</c> at <c>$8C:D77B</c>.</summary>
-    private const int ExclamationTile = 0x02a;
-
     /// <summary>Compiles one supported narration character into the exact tile that shows it, in the glyphs' priority tier.</summary>
     /// <param name="character">Space, uppercase A-Z, digit 0-9, period, comma, straight apostrophe, or exclamation mark; no case or punctuation normalization is performed.</param>
     /// <returns>The tile that shows the character, not a Unicode code point or glyph-record pointer.</returns>

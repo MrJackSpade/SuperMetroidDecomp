@@ -74,8 +74,9 @@ Each pass runs over the screen, or over a band of lines, in the order the scene 
   order, layer 2 hidden or shown inside the reveal window and layer 1 outside it, the layers each line shows, and outside
   the window the blend of the frontmost pixel with the fixed colour or with what lies behind (layer 2, layer 3 or both):
   add or subtract, halved where the blend halves.
-- **Title gradient** (`TitleGradient.hlsl`). Adds or subtracts each line's colour to the pixels whose layer the line's
-  blend names: the backdrop, or a sprite that blends.
+- **Gradient** (`ScreenGradient.hlsl`, #1468). A gradient is its stops and the band of lines they cover. Each line of
+  the band takes the last stop beginning on or above it and adds or subtracts that stop's colour to the pixels whose
+  layer the stop's blend names: the floor or backdrop, or a sprite that blends.
 - **Brightness and fades.** Scales every opaque pixel's channels by the level over fifteen, the scene's brightness first
   and then each fade in order, each rounding its own result.
 - **Windowed scene.** Composes a child scene with its own resources and copies its window's rectangle into the screen.

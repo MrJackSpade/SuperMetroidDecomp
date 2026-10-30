@@ -63,6 +63,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.FullRunSuitesVerification;
 using static SuperMetroid.Verification.Harness.SuiteSchedulingVerification;
 using static SuperMetroid.Verification.Frontend.Title.TitleGradientVerification;
+using SuperMetroid.Verification.Frontend.Title;
 using static SuperMetroid.Verification.Frontend.Map.WorldMapLabelsVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Frontend.Map;
@@ -1093,8 +1094,8 @@ internal static class MapPresentationVerification
             ?? throw new InvalidDataException("Extracted title gradient document is null.");
         foreach (TitleGradientVariant variant in document.Variants)
         {
-            TitleGradientScanline line = variant.Lines[0];
-            variant.Lines[0] = line with { Red = line.Red == 31 ? 30 : line.Red + 1 };
+            TitleGradientStop stop = variant.Stops[0];
+            variant.Stops[0] = stop with { Red = stop.Red == 31 ? 30 : stop.Red + 1 };
         }
 
         string replacement = Path.Combine(overrides, TitleGradientFormat.FileName);
@@ -1103,11 +1104,11 @@ internal static class MapPresentationVerification
         AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "title gradient override changes installed-content identity");
-        (TitleGradientLine[] rendered, ushort selectedZoom) = CaptureInstalledTitleGradient(
+        CaptureInstalledTitleGradientResult capture = CaptureInstalledTitleGradient(
             edited.TitleGradient, edited.TitlePalette, edited.TitleGraphics);
-        AssertTrue(rendered.SequenceEqual(edited.TitleGradient.Resolve(selectedZoom)),
+        AssertTrue(capture.Gradient.Equals(edited.TitleGradient.Resolve(capture.Zoom)),
             "production title consumes selected gradient override");
-        AssertTrue(!rendered.SequenceEqual(original.TitleGradient.Resolve(selectedZoom)),
+        AssertTrue(!capture.Gradient.Equals(original.TitleGradient.Resolve(capture.Zoom)),
             "gradient override visibly changes production title output");
 
         File.Delete(replacement);

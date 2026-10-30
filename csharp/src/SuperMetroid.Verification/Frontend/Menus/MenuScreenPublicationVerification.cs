@@ -75,11 +75,18 @@ internal static class MenuScreenPublicationVerification
             options.Step(0);
         AssertPublished(options.screen, options.CaptureRenderSnapshot(), "options");
 
-        var gameOver = new GameOverMenuState(new AudioQueues(), maps, MenuSheetFixtures.For(maps));
+        InstalledSpriteSheets gameOverSheets = MenuSheetFixtures.For(maps);
+        var gameOver = new GameOverMenuState(new AudioQueues(), maps, gameOverSheets);
         for (int frame = 0; frame < 30; frame++)
             gameOver.Step(0);
-        AssertPublished(gameOver.screen, gameOver.CaptureRenderSnapshot(), "game over");
-        Console.WriteLine("  Menu screens: file select, options and game over publish their own tilemaps, palette and sprite entries.");
+        // Game over shows one picture of its whole page at the page's corner, under the sprites (#1467).
+        LayeredScene gameOverScene = gameOver.CaptureRenderSnapshot();
+        AssertTrue(gameOverScene.Layers.Length == 2 && gameOverScene.Layers[0] is PicturesLayer { Pictures.Pictures: [{ } page] } &&
+            ReferenceEquals(page.Picture, gameOverSheets.Get(SpriteSheetId.MenuPictures).Frame(SuperMetroid.Core.Frontend.GameOver.Artwork.GameOverPresentationDefinitions.PageFrame)) &&
+            page.At == default && gameOverScene.Layers[1] is SpritesLayer, "game over shows its page's picture under its sprites");
+        AssertTrue(gameOverScene.Paint.Colors.SequenceEqual(gameOver.screen.Palette.Colors), "game over draws its own palette");
+        AssertTrue(PaintedSpriteEntries.AreOwn(gameOverScene.Paint.SpriteDraws, gameOver.screen.Objects.Draws), "game over draws its own sprite entries");
+        Console.WriteLine("  Menu screens: file select and options publish their own tilemaps, palette and sprite entries; game over its page's picture.");
     }
 
     /// <summary>Asserts that <paramref name="snapshot"/> is composed from <paramref name="screen"/>'s published state.</summary>

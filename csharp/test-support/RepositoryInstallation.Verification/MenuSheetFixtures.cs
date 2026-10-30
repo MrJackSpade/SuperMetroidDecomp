@@ -152,6 +152,8 @@ internal static class MenuSheetFixtures
         }
         // Pause's HUD plane draws the HUD's images, pictured from the maps' HUD artwork and characters (#1466).
         sheets[SpriteSheetId.PauseHud] = LoadTiles(SpriteSheetId.PauseHud, HudImageSheet.ComposePause(maps), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
+        // The menus' pages and the pictures placed over them are pictured from the maps' presentation (#1467).
+        sheets[SpriteSheetId.MenuPictures] = LoadTiles(SpriteSheetId.MenuPictures, MenuPictureSheet.Compose(maps), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
         return new InstalledSpriteSheets(sheets);
     }
 

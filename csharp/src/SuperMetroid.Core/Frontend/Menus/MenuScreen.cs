@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
 namespace SuperMetroid.Core.Frontend.Menus;
@@ -37,6 +38,20 @@ internal sealed class MenuScreen
         MenuTiles = null;
         RoomMapTiles = null;
         areaMapTiles = null;
+    }
+
+    /// <summary>
+    /// The menus' pictures named <paramref name="frames"/>, each placed at its page's corner in drawing order, a later one
+    /// over an earlier one (#1467): each lands where the cartridge's page shows it.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The installed menu pictures hold no such frame.</exception>
+    internal PlacedPictures PagePictures(params ReadOnlySpan<string> frames)
+    {
+        SpriteSheet pictures = Sheets.Get(SpriteSheetId.MenuPictures);
+        var placed = ImmutableArray.CreateBuilder<PlacedPicture>(frames.Length);
+        foreach (string frame in frames)
+            placed.Add(new PlacedPicture(pictures.Frame(frame), default));
+        return new PlacedPictures(placed.MoveToImmutable());
     }
 
     /// <summary>What the menu planes show under the file-select palette (#1392).</summary>

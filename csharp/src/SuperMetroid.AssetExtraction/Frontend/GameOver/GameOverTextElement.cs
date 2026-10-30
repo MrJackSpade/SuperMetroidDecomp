@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.GameOver;
+namespace SuperMetroid.AssetExtraction.Frontend.GameOver;
 
 /// <summary>Mutually exclusive game-over text elements in the menu's load order.</summary>
 public enum GameOverTextElement

@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.FileSelect;
-using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Options;
@@ -37,9 +36,6 @@ internal static class FrontendShownVramAccess
 
     /// <summary>The title screen's composed image.</summary>
     extension(TitleSequenceState self) { [WholeImageFixture("the scene's composed memory image")] internal byte[] ShownVram() => TitleScreenMemory.Compose(self); }
-
-    /// <summary>The game over menu's composed image.</summary>
-    extension(GameOverMenuState self) { [WholeImageFixture("the scene's composed memory image")] internal byte[] ShownVram() => MenuScreenMemory.Compose(self.screen); }
 
     /// <summary>The options menu's composed image.</summary>
     extension(GameOptionsMenuState self) { [WholeImageFixture("the scene's composed memory image")] internal byte[] ShownVram() => MenuScreenMemory.Compose(self.screen); }

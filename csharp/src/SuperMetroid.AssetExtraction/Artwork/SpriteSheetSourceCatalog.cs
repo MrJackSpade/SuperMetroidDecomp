@@ -54,6 +54,7 @@ internal sealed class SpriteSheetSourceCatalog
 
     /// <summary>Composes sheet <paramref name="sheet"/>.</summary>
     internal ComposedSpriteSheet Compose(SpriteSheetId sheet) => sheet == SpriteSheetId.PauseHud ? HudImageSheet.ComposePause(maps.Value)
+        : sheet == SpriteSheetId.MenuPictures ? MenuPictureSheet.Compose(maps.Value)
         : ScreenTileSheetDefinitions.Depths.ContainsKey(sheet) ? ScreenTileSheetComposer.Compose(sheet, ScreenTiles())
         : ScreenTileSheetDefinitions.FloorSheets.Contains(sheet) ? ScreenTileSheetComposer.ComposeMode7(sheet, ScreenTiles())
         : SpriteSheetComposer.Compose(For(sheet), DefaultPalette, DefaultPriority);
@@ -70,6 +71,7 @@ internal sealed class SpriteSheetSourceCatalog
     {
         SpriteSheetId.EscapeTimer => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The escape timer composes from the cartridge."),
         SpriteSheetId.PauseHud => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The pause HUD composes from the HUD's images, not sprite parts."),
+        SpriteSheetId.MenuPictures => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The menus' pictures compose from their pages, not sprite parts."),
         SpriteSheetId.GameOver => GameOverSheetComposer.Sources(maps.Value),
         SpriteSheetId.FileSelect => FileSelectSheetComposer.Sources(maps.Value),
         SpriteSheetId.GameOptions => GameOptionsSheetComposer.Sources(maps.Value),

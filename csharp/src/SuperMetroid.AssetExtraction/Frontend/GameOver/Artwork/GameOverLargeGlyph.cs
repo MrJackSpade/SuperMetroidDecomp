@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
 /// <summary>The two menu atlas cells one large game-over letter shows, one above the other.</summary>
 /// <param name="Top">The upper half's cell.</param>

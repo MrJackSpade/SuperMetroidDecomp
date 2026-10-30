@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.GameOver;
+namespace SuperMetroid.AssetExtraction.Frontend.GameOver;
 
 /// <summary>The game-over page's five text elements and the cells they start on.</summary>
 /// <remarks>

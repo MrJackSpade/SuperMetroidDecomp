@@ -45,7 +45,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     private AreaMapPresentation MapPresentation => mapPresentation ??
         throw new InvalidOperationException("No map presentation is installed for the game-over screen.");
 
-    /// <summary>Creates the game-over scene with installed artwork and its BG1 tilemap, leaving music, animation, and fade initialization for the first update.</summary>
+    /// <summary>Creates the game-over scene with installed artwork, leaving music, animation, and fade initialization for the first update.</summary>
     /// <param name="audio">Shared cartridge-style music and sound queue used by menu updates.</param>
     /// <param name="mapPresentation">Required installed presentation bundle.</param>
     /// <param name="spriteSheets">Required installed sprite sheets, which the Baby, egg and cursor draw from.</param>
@@ -68,7 +68,6 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         screen = new MenuScreen(mapPresentation.Palettes,
             mapPresentation.WorldArtwork, spriteSheets);
         BindSpriteSheets(spriteSheets);
-        LoadGameOverTilemap(mapPresentation.GameOver);
         Phase = GameOverMenuPhase.ConfigureGraphics;
     }
 
@@ -110,7 +109,6 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
 
 
         screen.BindMapPalettes(catalog.Palettes);
-        LoadGameOverTilemap(catalog.GameOver);
         if (BabyStep is int step)
         {
             GameOverBabyInstruction instruction = GameOverBabyAnimation.Get(step);
@@ -232,17 +230,12 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         }
     }
 
-    /// <summary>Copies installed BG1 game-over cells into the menu's BG1 tilemap.</summary>
-    private void LoadGameOverTilemap(GameOverPresentation presentation) =>
-        presentation.LoadTilemapTo(screen.Tilemaps.Bg1);
-
-    /// <summary>Captures BG1/OBJ only; the game-over PPU does not enable BG2.</summary>
+    /// <summary>Captures the page and the sprites over it; the game-over screen shows no backdrop page.</summary>
     public LayeredScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
-        DisplayLayer[] layers = [new ScreenTilesLayer(ScreenTileMap.Of(screen.Tilemaps.Bg1,
-            new Extent16<TilemapCells>(GameOverPresentationDefinitions.TilemapWidth, GameOverPresentationDefinitions.TilemapHeight), screen.MenuTiles),
-            new Position16<TilePlanePixels>(0, 0), null), new SpritesLayer()];
+        // The page is one installed picture of the whole game-over page (#1467).
+        DisplayLayer[] layers = [new PicturesLayer(screen.PagePictures(GameOverPresentationDefinitions.PageFrame), default, null), new SpritesLayer()];
         return new(screen.Paint(), layers, checked((byte)brightness));
     }
 

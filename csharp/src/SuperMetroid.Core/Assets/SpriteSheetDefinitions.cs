@@ -52,6 +52,7 @@ public static class SpriteSheetDefinitions
         [SpriteSheetId.ProjectilesSpazerPlasmaIce] = "projectiles-spazer-plasma-ice",
         [SpriteSheetId.MenuForegroundTiles] = "menu-foreground-tiles",
         [SpriteSheetId.MenuMapTiles] = "menu-map-tiles",
+        [SpriteSheetId.MenuPictures] = "menu-pictures",
         [SpriteSheetId.AreaMapForegroundTilesCrateria] = "area-map-foreground-tiles-crateria",
         [SpriteSheetId.AreaMapForegroundTilesBrinstar] = "area-map-foreground-tiles-brinstar",
         [SpriteSheetId.AreaMapForegroundTilesNorfair] = "area-map-foreground-tiles-norfair",

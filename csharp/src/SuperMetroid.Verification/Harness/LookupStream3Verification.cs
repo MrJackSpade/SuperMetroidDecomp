@@ -70,6 +70,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.GameOver;
 using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -733,11 +734,12 @@ internal static class LookupStream3Verification
         GameOverSourcePresentation Load() => GameOverSourcePresentation.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         var stock = Load();
-        AssertTrue(stock.tilemap is null, "game-over stock text retains no tilemap row");
+        AssertTrue(stock.page.SequenceEqual(Enumerable.Range(0, GameOverPageDefinitions.TilemapCellCount).Select(GameOverText.TilemapTile)),
+            "the stock game-over page is the spelled game-over text");
         Confirm(stock);
         foreach (GameOverTextStream stream in GameOverTexts.All)
         {
-            int cell = stream.Origin.Y * GameOverPresentationDefinitions.TilemapWidth + stream.Origin.X;
+            int cell = stream.Origin.Y * GameOverPageDefinitions.TilemapWidth + stream.Origin.X;
             document.Tilemap[cell] = document.Tilemap[cell] with { Palette = 1, FlipY = true };
         }
         document.Tilemap[0] = document.Tilemap[0] with { TileColumn = 1 };
@@ -745,11 +747,9 @@ internal static class LookupStream3Verification
         AssertThrows<ArgumentOutOfRangeException>(() => GameOverText.TilemapTile(-1), "game-over text negative cell");
         AssertThrows<ArgumentOutOfRangeException>(() => GameOverText.TilemapTile(1024), "game-over text final cell boundary");
 
-        void Confirm(GameOverPresentation presentation)
+        void Confirm(GameOverSourcePresentation presentation)
         {
-            var tiles = new BackgroundTile[GameOverPresentationDefinitions.TilemapCellCount];
-            presentation.LoadTilemapTo(tiles);
-            ushort[] words = BackgroundTileWordBytes.Words(tiles);
+            ushort[] words = BackgroundTileWordBytes.Words(presentation.page);
             for (int cell = 0; cell < document.Tilemap.Length; cell++)
             {
                 MapPresentationCell source = document.Tilemap[cell];

@@ -98,6 +98,8 @@ public enum SpriteSheetId
     MenuForegroundTiles,
     /// <summary>The menu's map characters under the file-select palette (#1392).</summary>
     MenuMapTiles,
+    /// <summary>The menus' pictures under the file-select palette: each menu page and the pictures placed over it (#1467).</summary>
+    MenuPictures,
     /// <summary>The menu's world foreground characters under Crateria's world-map palette (#1392).</summary>
     AreaMapForegroundTilesCrateria,
     /// <summary>The menu's world foreground characters under Brinstar's world-map palette (#1392).</summary>

@@ -166,11 +166,11 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         int triggerBlockIndex = collisionBlockIndex ?? level.GetBlockIndex(new(unchecked((ushort)triggerBlockX), unchecked((ushort)triggerBlockY)));
         RoomCollisionBlock triggerBlock = level.GetCollisionBlockByIndex(triggerBlockIndex);
 
-        // Both setup routines clear only the block-type nibble. The parallel BTS byte and
-        // visual block number survive until their subsequently spawned hardcoded PLM runs.
-        level.SetForegroundEntry(
+        // Both setup routines clear only the block's collision kind. Its behaviour and
+        // appearance survive until their subsequently spawned hardcoded PLM runs.
+        level.SetTerrain(
             triggerBlockIndex,
-            triggerBlock.PackedWord.VisualWord);
+            triggerBlock.Terrain.WithCollision(RoomCollisionType.Air));
         state.HandTriggered = true;
         DisableChozoStatueSamusControls();
         if (!state.IsWreckedShip)

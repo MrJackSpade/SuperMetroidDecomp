@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Enemies.Elevator;
@@ -16,17 +17,17 @@ internal static class ElevatorPlatformDraws
         /// <summary>Gets the three native strips.</summary>
         public int RunCount => Strips.Length;
         /// <summary>Gets one edge cell or four lower-row cells for a selected strip.</summary>
-        public int WordCount(int run) => Strip(run).Cells.Length;
+        public int BlockCount(int run) => Strip(run).Cells.Length;
         /// <summary>Gets the next strip's absolute horizontal offset from the PLM origin.</summary>
         public sbyte NextX(int run) => checked((sbyte)Strip(run).Next.X);
         /// <summary>Gets the next strip's absolute vertical offset from the PLM origin.</summary>
         public sbyte NextY(int run) => checked((sbyte)Strip(run).Next.Y);
-        /// <summary>Gets a solid platform tile word.</summary>
-        public ushort WordAt(int run, int cell)
+        /// <summary>Gets a solid platform block.</summary>
+        public RoomTerrainBlock BlockAt(int run, int cell)
         {
             PlmBlockStrip strip = Strip(run);
             if ((uint)cell >= (uint)strip.Cells.Length) throw new ArgumentOutOfRangeException(nameof(cell));
-            return strip.Cells[cell].Raw;
+            return strip.Cells[cell];
         }
         /// <summary>Selects a strip, rejecting a strip index outside this platform draw.</summary>
         private PlmBlockStrip Strip(int run) =>

@@ -147,14 +147,14 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         // Native AI reloads this every airborne frame. It becomes a countdown only after
-        // the solid-bit probe reports the ground, which is why interrupted dives never age.
+        // the attachment probe reports the ground, which is why interrupted dives never age.
         state.BurrowTimer = WrappingCountdown.Start(MetareeBurrowLifetimeNtsc);
 
         // Bits zero/one are still unnamed because their general engine semantics are not
         // proven. Metaree writes the literal mask `$0003`; retaining it raw avoids inventing
         // a flags-enum contract while preserving collision/processing behavior exactly.
         slot.Properties = slot.Properties.WithFamilyData((byte)(slot.Properties.FamilyData | MetareeDefinitions.DescentPropertyBits));
-        if (EnemyTerrain.EnemyHasSolidHighBitBelow(
+        if (EnemyTerrain.EnemyMeetsAttachmentBlockBelow(
                 level,
                 slot,
                 SixteenSixteen.FromWhole(state.YVelocity)))

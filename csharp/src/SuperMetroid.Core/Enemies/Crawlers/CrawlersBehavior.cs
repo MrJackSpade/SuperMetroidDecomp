@@ -497,7 +497,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             (uint)blockY < level.Size.Y)
         {
             RoomCollisionBlock block = level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
-            int slopeShape = block.Bts.SlopeShape;
+            int slopeShape = block.Behavior.SlopeShape;
             if (block.CollisionType == RoomCollisionType.Slope && slopeShape >= 5)
             {
                 return CrawlerSlopes.Scale(velocity.X.RawValue, slopeShape);

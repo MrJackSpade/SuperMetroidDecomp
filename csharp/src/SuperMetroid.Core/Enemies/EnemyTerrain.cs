@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms;
+﻿using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
 
@@ -169,9 +169,9 @@ internal sealed class EnemyTerrain
 
     /// <summary>
     /// Ports the downward, geometry-only portion of $A0:BF8A used by Skree/Metaree. Unlike the common
-    /// collision dispatcher, this routine deliberately tests only level-word bit 15.
+    /// collision dispatcher, this routine deliberately tests only whether each block stops attachment.
     /// </summary>
-    internal static bool EnemyHasSolidHighBitBelow(
+    internal static bool EnemyMeetsAttachmentBlockBelow(
         RoomLevelData level,
         RoomEnemySlot slot,
         int unsignedDistance)
@@ -186,7 +186,7 @@ internal sealed class EnemyTerrain
         {
             if ((uint)column >= level.Size.X ||
                 (uint)row >= level.Size.Y ||
-                level.GetCollisionBlock(new(unchecked((ushort)column), unchecked((ushort)row))).PackedWord.HasSolidProbeBit)
+                level.GetCollisionBlock(new(unchecked((ushort)column), unchecked((ushort)row))).Terrain.StopsAttachment)
             {
                 return true;
             }
@@ -196,10 +196,10 @@ internal sealed class EnemyTerrain
 
     /// <summary>
     /// Ports <c>EnemyFunc_BBBF</c> at $A0:BBBF. Unlike the ordinary horizontal collision
-    /// mover, this look-ahead probe deliberately considers only raw level-word bit fifteen
-    /// and does not resolve BTS extensions or slope geometry.
+    /// mover, this look-ahead probe deliberately considers only whether each block stops attachment
+    /// and does not resolve extension links or slope geometry.
     /// </summary>
-    internal static bool EnemyHasSolidHighBitHorizontallyAhead(
+    internal static bool EnemyMeetsAttachmentBlockHorizontallyAhead(
         RoomLevelData level,
         RoomEnemySlot slot,
         int displacement)
@@ -220,7 +220,7 @@ internal sealed class EnemyTerrain
         {
             if ((uint)column >= level.Size.X ||
                 (uint)row >= level.Size.Y ||
-                level.GetCollisionBlock(new(unchecked((ushort)column), unchecked((ushort)row))).PackedWord.HasSolidProbeBit)
+                level.GetCollisionBlock(new(unchecked((ushort)column), unchecked((ushort)row))).Terrain.StopsAttachment)
             {
                 return true;
             }
@@ -229,11 +229,11 @@ internal sealed class EnemyTerrain
     }
 
     /// <summary>
-    /// Ports $A0:BC76's read-only vertical solid-bit probe. It does not move the
-    /// actor or apply slope/BTS behavior; Yard hiding and Stoke support checks
+    /// Ports $A0:BC76's read-only vertical attachment probe. It does not move the
+    /// actor or apply slope or extension behavior; Yard hiding and Stoke support checks
     /// use it to test attachment without consuming their look-ahead distance.
     /// </summary>
-    internal static bool EnemyHasSolidHighBitVerticallyAhead(RoomLevelData level, RoomEnemySlot slot, int displacement)
+    internal static bool EnemyMeetsAttachmentBlockVerticallyAhead(RoomLevelData level, RoomEnemySlot slot, int displacement)
     {
         uint position = slot.Position.Y.RawValue;
         int center = FixedCoordinate.WholeOf(unchecked((int)(position + (uint)displacement)));
@@ -247,7 +247,7 @@ internal sealed class EnemyTerrain
         for (int blockX = firstBlockX; blockX <= lastBlockX; blockX++)
         {
             if ((uint)blockX >= level.Size.X ||
-                level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY))).PackedWord.HasSolidProbeBit)
+                level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY))).Terrain.StopsAttachment)
                 return true;
         }
         return false;
@@ -273,12 +273,12 @@ internal sealed class EnemyTerrain
             RoomCollisionType.ShootableAir or
             RoomCollisionType.UnusedAir or
             RoomCollisionType.BombableAir => false,
-            RoomCollisionType.Slope when block.Bts.IsNonSquareSlope =>
+            RoomCollisionType.Slope when block.Behavior.IsNonSquareSlope =>
                 treatNonSquareSlopesAsWalls,
             RoomCollisionType.Slope => SquareHorizontalSlopeIsSolid(
                 slot,
                 targetEdge,
-                block.Bts,
+                block.Behavior,
                 remaining,
                 spanMinusOne),
             RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension =>
@@ -308,7 +308,7 @@ internal sealed class EnemyTerrain
             RoomCollisionType.ShootableAir or
             RoomCollisionType.UnusedAir or
             RoomCollisionType.BombableAir => false,
-            RoomCollisionType.Slope when block.Bts.IsNonSquareSlope =>
+            RoomCollisionType.Slope when block.Behavior.IsNonSquareSlope =>
                 NonSquareVerticalSlopeIsSolid(
                     level,
                     slot,
@@ -318,7 +318,7 @@ internal sealed class EnemyTerrain
             RoomCollisionType.Slope => SquareVerticalSlopeIsSolid(
                 slot,
                 probe.TargetEdge.Y,
-                block.Bts,
+                block.Behavior,
                 probe.Remaining,
                 probe.SpanMinusOne),
             RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension => false,
@@ -342,8 +342,8 @@ internal sealed class EnemyTerrain
 
     /// <summary>
     /// Reads a block for the bank-$A0 movers, which never bound the index to the authored
-    /// room: past the room plane they read the rest of the native level allocation (the
-    /// decompressed BTS/BG2 stream, then the $8000 prefill). Extension links are followed
+    /// room: past the room plane they read the blocks beyond the room (see
+    /// <see cref="RoomLevelData.GetBlockBeyondRoom"/>). Extension links are followed
     /// as the native reaction dispatcher repeats them.
     /// </summary>
     private static RoomCollisionBlock ResolveEnemyMoverBlock(RoomLevelData level, int startBlock)
@@ -358,10 +358,10 @@ internal sealed class EnemyTerrain
             int offset = block.CollisionType switch
             {
                 RoomCollisionType.HorizontalExtension when
-                    block.Bts != RoomBlockBehaviorValues.None => block.Bts.ExtensionOffset,
+                    block.Behavior != RoomBlockBehaviorValues.None => block.Behavior.ExtensionOffset,
                 RoomCollisionType.VerticalExtension when
-                    block.Bts != RoomBlockBehaviorValues.None =>
-                    block.Bts.ExtensionOffset * level.Size.X,
+                    block.Behavior != RoomBlockBehaviorValues.None =>
+                    block.Behavior.ExtensionOffset * level.Size.X,
                 RoomCollisionType.Air or RoomCollisionType.Slope or RoomCollisionType.SpikeAir or
                     RoomCollisionType.SpecialAir or RoomCollisionType.ShootableAir or
                     RoomCollisionType.HorizontalExtension or RoomCollisionType.UnusedAir or
@@ -377,32 +377,29 @@ internal sealed class EnemyTerrain
         }
 
         throw new InvalidDataException(
-            $"Enemy collision BTS chain from block {startBlock} is cyclic.");
+            $"Enemy collision extension chain from block {startBlock} is cyclic.");
     }
 
-    /// <summary>Reads the native level allocation past the authored room, rejecting types that require unbounded BTS.</summary>
+    /// <summary>Reads a block beyond the authored room, rejecting kinds whose behaviour there is unbounded.</summary>
     private static RoomCollisionBlock ReadEnemyMoverAllocationTail(RoomLevelData level, int blockIndex)
     {
-        var block = new RoomCollisionBlock(
-            Index: -1,
-            PackedWord: level.ReadAllocationTailLevelWord(blockIndex),
-            Bts: new RoomBlockBehavior(0));
-        // Slopes, extensions and spike blocks read BTS, and native BTS past the authored
-        // room ($7F:6402 + index) is unbounded memory left by earlier rooms.
+        RoomCollisionBlock block = level.GetBlockBeyondRoom(blockIndex);
+        // Slopes, extensions and spike blocks read their behaviour, and a block's behaviour
+        // beyond the authored room is unbounded state left by earlier rooms.
         if (block.CollisionType is RoomCollisionType.Slope or
             RoomCollisionType.HorizontalExtension or
             RoomCollisionType.VerticalExtension or
             RoomCollisionType.SpikeBlock)
         {
             throw new NotSupportedException(
-                $"Enemy collision reached BTS-dependent type {block.CollisionType} at native " +
-                $"block {blockIndex}, past the room plane; native BTS there is unbounded memory.");
+                $"Enemy collision reached behaviour-dependent type {block.CollisionType} at " +
+                $"block {blockIndex}, past the room plane; block behaviour there is unbounded.");
         }
         return block;
     }
 
     /// <summary>
-    /// Resolves signed type-$5/$D BTS links exactly as the native dispatcher repeats them.
+    /// Resolves signed extension links exactly as the native dispatcher repeats them.
     /// A guard converts corrupt cyclic room data into a useful exception instead of a host
     /// stack overflow; valid chains always terminate well before the room allocation size.
     /// </summary>
@@ -423,10 +420,10 @@ internal sealed class EnemyTerrain
             int offset = block.CollisionType switch
             {
                 RoomCollisionType.HorizontalExtension when
-                    block.Bts != RoomBlockBehaviorValues.None => block.Bts.ExtensionOffset,
+                    block.Behavior != RoomBlockBehaviorValues.None => block.Behavior.ExtensionOffset,
                 RoomCollisionType.VerticalExtension when
-                    block.Bts != RoomBlockBehaviorValues.None =>
-                    block.Bts.ExtensionOffset * level.Size.X,
+                    block.Behavior != RoomBlockBehaviorValues.None =>
+                    block.Behavior.ExtensionOffset * level.Size.X,
                 RoomCollisionType.Air or RoomCollisionType.Slope or RoomCollisionType.SpikeAir or
                     RoomCollisionType.SpecialAir or RoomCollisionType.ShootableAir or
                     RoomCollisionType.HorizontalExtension or RoomCollisionType.UnusedAir or
@@ -442,19 +439,19 @@ internal sealed class EnemyTerrain
         }
 
         throw new InvalidDataException(
-            $"Enemy collision BTS chain from block ({start.X},{start.Y}) is cyclic.");
+            $"Enemy collision extension chain from block ({start.X},{start.Y}) is cyclic.");
     }
 
     /// <summary>Tests the target half-tile quadrant and the enemy's vertical span against a square slope.</summary>
     private static bool SquareHorizontalSlopeIsSolid(
         RoomEnemySlot slot,
         int targetEdge,
-        RoomBlockBehavior bts,
+        RoomBlockBehavior behavior,
         int remaining,
         int spanMinusOne)
     {
-        int tableIndex = 4 * bts.SlopeShape +
-            (bts.SlopeOrientation ^ ((targetEdge & 8) >> 3));
+        int tableIndex = 4 * behavior.SlopeShape +
+            (behavior.SlopeOrientation ^ ((targetEdge & 8) >> 3));
         if (remaining == 0)
         {
             if (((slot.Radius.Y + slot.Position.Y.Whole - 1) & 8) == 0)
@@ -475,12 +472,12 @@ internal sealed class EnemyTerrain
     private static bool SquareVerticalSlopeIsSolid(
         RoomEnemySlot slot,
         int targetEdge,
-        RoomBlockBehavior bts,
+        RoomBlockBehavior behavior,
         int remaining,
         int spanMinusOne)
     {
-        int tableIndex = 4 * bts.SlopeShape +
-            (bts.SlopeOrientation ^ ((targetEdge & 8) >> 2));
+        int tableIndex = 4 * behavior.SlopeShape +
+            (behavior.SlopeOrientation ^ ((targetEdge & 8) >> 2));
         if (remaining == 0)
         {
             if (((slot.Radius.X + slot.Position.X.Whole - 1) & 8) == 0)
@@ -508,14 +505,14 @@ internal sealed class EnemyTerrain
         if (block.Index % level.Size.X != slot.Position.X.Whole >> 4)
             return false;
 
-        RoomBlockBehavior bts = block.Bts;
-        int xWithinBlock = bts.SlopeFlipsHorizontally
+        RoomBlockBehavior behavior = block.Behavior;
+        int xWithinBlock = behavior.SlopeFlipsHorizontally
             ? RoomGridConversions.OffsetFromBlockEnd(slot.Position.X.Whole)
             : RoomGridConversions.OffsetWithinBlock(slot.Position.X.Whole);
-        int height = ReadNonSquareSlopeHeight(bts, xWithinBlock);
+        int height = ReadNonSquareSlopeHeight(behavior, xWithinBlock);
         if (movingUp)
         {
-            if (!bts.SlopeFlipsVertically)
+            if (!behavior.SlopeFlipsVertically)
                 return false;
             int edgeWithinBlock = RoomGridConversions.OffsetFromBlockEnd(targetCenter - slot.Radius.Y);
             int adjustment = height - edgeWithinBlock - 1;
@@ -525,7 +522,7 @@ internal sealed class EnemyTerrain
             return true;
         }
 
-        if (bts.SlopeFlipsVertically)
+        if (behavior.SlopeFlipsVertically)
             return false;
         int bottomWithinBlock = RoomGridConversions.OffsetWithinBlock(slot.Radius.Y + targetCenter - 1);
         int downwardAdjustment = height - bottomWithinBlock - 1;
@@ -578,15 +575,15 @@ internal sealed class EnemyTerrain
 
         RoomCollisionBlock block = level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
         if (block.CollisionType != RoomCollisionType.Slope ||
-            !block.Bts.IsNonSquareSlope)
+            !block.Behavior.IsNonSquareSlope)
             return false;
-        if ((surface == SlopeSurface.Underside) != block.Bts.SlopeFlipsVertically)
+        if ((surface == SlopeSurface.Underside) != block.Behavior.SlopeFlipsVertically)
             return false;
 
-        int xWithinBlock = block.Bts.SlopeFlipsHorizontally
+        int xWithinBlock = block.Behavior.SlopeFlipsHorizontally
             ? RoomGridConversions.OffsetFromBlockEnd(pixel.X)
             : RoomGridConversions.OffsetWithinBlock(pixel.X);
-        int height = ReadNonSquareSlopeHeight(block.Bts, xWithinBlock);
+        int height = ReadNonSquareSlopeHeight(block.Behavior, xWithinBlock);
         int edgeWithinBlock = surface == SlopeSurface.Underside
             ? RoomGridConversions.OffsetFromBlockEnd(pixel.Y)
             : RoomGridConversions.OffsetWithinBlock(pixel.Y);
@@ -600,8 +597,8 @@ internal sealed class EnemyTerrain
     }
 
     /// <summary>Looks up the authored height of a slope shape at an already oriented block-local X.</summary>
-    internal static int ReadNonSquareSlopeHeight(RoomBlockBehavior bts, int xWithinBlock) =>
-        SlopeHeights.Read(bts.SlopeShape, xWithinBlock);
+    internal static int ReadNonSquareSlopeHeight(RoomBlockBehavior behavior, int xWithinBlock) =>
+        SlopeHeights.Read(behavior.SlopeShape, xWithinBlock);
     /// <summary>
     /// The active frame's room PLM owner for enemy-breakable blocks. This synchronous call
     /// context is not persisted; every enemy frame supplies it again after debugger restoration.
@@ -611,7 +608,7 @@ internal sealed class EnemyTerrain
     /// <summary>Spawns the breakable-block PLM for an enemy spike reaction and clears collision even if its pool is full.</summary>
     internal bool ReactToEnemySpikeBlock(RoomLevelData level, int blockIndex, RoomCollisionBlock block)
     {
-        if (!EnemyBreakableTerrain.IsEnemyBreakable(block.Bts)) return true;
+        if (!EnemyBreakableTerrain.IsEnemyBreakable(block.Behavior)) return true;
         var plms = _collisionPlms ?? throw new InvalidOperationException("Enemy-breakable terrain requires the active room PLM owner.");
         plms.TrySpawnEnemyBreakableBlock(level, blockIndex);
         return false; // $A0:C2D6 clears carry even if the PLM pool was full.

@@ -23,6 +23,6 @@ public static class EscapeAnimalWallDefinitions
     /// <summary>The extension blocks' behaviour: a displacement of one block up, onto the block above.</summary>
     public const byte ExtensionBts = 0xff;
 
-    /// <summary>The metatile the reaction shows in place of the wall's artwork, unflipped.</summary>
-    public const ushort ReactionVisualBlock = 0x009f;
+    /// <summary>The block the reaction shows in place of the wall's artwork, unmirrored.</summary>
+    public static readonly RoomBlockAppearance ReactionAppearance = RoomBlockAppearance.Of(0x9f);
 }

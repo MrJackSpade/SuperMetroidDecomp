@@ -592,7 +592,7 @@ internal sealed class EnemyProjectileEngine
 
         RoomCollisionBlock collisionBlock = level.GetCollisionBlockByIndex(blockIndex);
         RoomCollisionType type = collisionBlock.CollisionType;
-        if (type == RoomCollisionType.Slope && !collisionBlock.Bts.IsNonSquareSlope)
+        if (type == RoomCollisionType.Slope && !collisionBlock.Behavior.IsNonSquareSlope)
         {
             // Bank $86 tests only occupied eight-pixel quadrants touched by the
             // leading edge. Empty halves of square slopes are not solid walls.
@@ -606,8 +606,8 @@ internal sealed class EnemyProjectileEngine
                 int quadrant = (axis == Axis.Horizontal)
                     ? ((targetEdge & 8) >> 3) | ((half & 1) << 1)
                     : ((targetEdge & 8) >> 2) | (half & 1);
-                int tableIndex = 4 * collisionBlock.Bts.SlopeShape +
-                    (quadrant ^ collisionBlock.Bts.SlopeOrientation);
+                int tableIndex = 4 * collisionBlock.Behavior.SlopeShape +
+                    (quadrant ^ collisionBlock.Behavior.SlopeOrientation);
                 if (!SquareSlopes.EnemyQuadrantIsSolid(tableIndex))
                     continue;
 
@@ -622,7 +622,7 @@ internal sealed class EnemyProjectileEngine
             return false;
         }
 
-        if (type == RoomCollisionType.Slope && collisionBlock.Bts.IsNonSquareSlope)
+        if (type == RoomCollisionType.Slope && collisionBlock.Behavior.IsNonSquareSlope)
         {
             // Horizontal bank-$86 motion ignores non-square slopes; the following
             // vertical pass owns their height profile. Treating one as a full wall can
@@ -638,12 +638,12 @@ internal sealed class EnemyProjectileEngine
                 return false;
 
             bool movingUp = movingNegative;
-            if (movingUp != collisionBlock.Bts.SlopeFlipsVertically)
+            if (movingUp != collisionBlock.Behavior.SlopeFlipsVertically)
                 return false;
 
             int height = EnemyTerrain.ReadNonSquareSlopeHeight(
-                collisionBlock.Bts,
-                (collisionBlock.Bts.SlopeFlipsHorizontally
+                collisionBlock.Behavior,
+                (collisionBlock.Behavior.SlopeFlipsHorizontally
                     ? projectile.Position.X.Whole ^ BlockPixelMask
                     : projectile.Position.X.Whole) & BlockPixelMask);
             int edgeWithinBlock = movingUp

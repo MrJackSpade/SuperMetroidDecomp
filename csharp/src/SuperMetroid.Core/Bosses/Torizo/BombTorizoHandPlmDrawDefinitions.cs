@@ -4,12 +4,12 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
 /// Physical block draws selected by Bomb Torizo's resident hand PLM. These
-/// level words and run offsets are cartridge mechanics, not editable art.
+/// terrain blocks and run offsets are cartridge mechanics, not editable art.
 /// </summary>
 internal static class BombTorizoHandPlmDrawDefinitions
 {
     /// <summary>$84:989D: a cleared cell, air with blank tile FF.</summary>
-    private static readonly RoomLevelWord ClearedCell = RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air);
+    private static readonly RoomTerrainBlock ClearedCell = RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air);
 
     /// <summary>
     /// Each draw's horizontal strips in native run order. Intact ($84:9877) is four strips of solid blocks whose tiles are
@@ -21,10 +21,10 @@ internal static class BombTorizoHandPlmDrawDefinitions
     {
         [BombTorizoHandDraw.Intact] =
         [
-            new(new(0, 0), [RoomLevelWord.Create(0x65, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock), RoomLevelWord.Create(0x66, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)]),
-            new(new(-1, 0), [RoomLevelWord.Create(0x64, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)]),
-            new(new(0, -1), [RoomLevelWord.Create(0x45, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock), RoomLevelWord.Create(0x46, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)]),
-            new(new(-1, 1), [RoomLevelWord.Create(0x47, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock), RoomLevelWord.Create(0x48, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock), RoomLevelWord.Create(0x49, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)]),
+            new(new(0, 0), [RoomTerrainBlock.Of(0x65, BlockMirroring.None, RoomCollisionType.SolidBlock), RoomTerrainBlock.Of(0x66, BlockMirroring.None, RoomCollisionType.SolidBlock)]),
+            new(new(-1, 0), [RoomTerrainBlock.Of(0x64, BlockMirroring.None, RoomCollisionType.SolidBlock)]),
+            new(new(0, -1), [RoomTerrainBlock.Of(0x45, BlockMirroring.None, RoomCollisionType.SolidBlock), RoomTerrainBlock.Of(0x46, BlockMirroring.None, RoomCollisionType.SolidBlock)]),
+            new(new(-1, 1), [RoomTerrainBlock.Of(0x47, BlockMirroring.None, RoomCollisionType.SolidBlock), RoomTerrainBlock.Of(0x48, BlockMirroring.None, RoomCollisionType.SolidBlock), RoomTerrainBlock.Of(0x49, BlockMirroring.None, RoomCollisionType.SolidBlock)]),
         ],
         [BombTorizoHandDraw.Cleared] =
         [

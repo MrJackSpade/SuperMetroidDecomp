@@ -14,183 +14,183 @@ internal static class MotherBrainGlassPlmDrawDefinitions
     /// the shifted pane mirrors its inner column, and shatter states clear the outer columns before replacing the
     /// centre supports. NTSC source: 84:9717..9846.
     /// </summary>
-    internal static readonly Dictionary<MotherBrainGlassDraw, RoomLevelWord[][]> Cells = new()
+    internal static readonly Dictionary<MotherBrainGlassDraw, RoomTerrainBlock[][]> Cells = new()
     {
         [MotherBrainGlassDraw.Initial] =
         [
-            [RoomLevelWord.Create(0x2c0, LevelBlockFlipFlags.Horizontal, RoomCollisionType.ShootableBlock)],
+            [RoomTerrainBlock.Of(0x2c0, BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock)],
         ],
         [MotherBrainGlassDraw.PaneDamage1] =
         [
             [
-                RoomLevelWord.Create(0x2c7, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock),
-                RoomLevelWord.Create(0x2c9, LevelBlockFlipFlags.None, RoomCollisionType.VerticalExtension),
-                RoomLevelWord.Create(0x2c9, LevelBlockFlipFlags.Vertical, RoomCollisionType.VerticalExtension),
-                RoomLevelWord.Create(0x2c7, LevelBlockFlipFlags.Vertical, RoomCollisionType.HorizontalExtension),
+                RoomTerrainBlock.Of(0x2c7, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+                RoomTerrainBlock.Of(0x2c9, BlockMirroring.None, RoomCollisionType.VerticalExtension),
+                RoomTerrainBlock.Of(0x2c9, BlockMirroring.Vertical, RoomCollisionType.VerticalExtension),
+                RoomTerrainBlock.Of(0x2c7, BlockMirroring.Vertical, RoomCollisionType.HorizontalExtension),
             ],
             [
-                RoomLevelWord.Create(0x2c8, LevelBlockFlipFlags.None, RoomCollisionType.VerticalExtension),
-                RoomLevelWord.Create(0x2c8, LevelBlockFlipFlags.Vertical, RoomCollisionType.VerticalExtension),
+                RoomTerrainBlock.Of(0x2c8, BlockMirroring.None, RoomCollisionType.VerticalExtension),
+                RoomTerrainBlock.Of(0x2c8, BlockMirroring.Vertical, RoomCollisionType.VerticalExtension),
             ],
         ],
         [MotherBrainGlassDraw.PaneDamage2] =
         [
             [
-                RoomLevelWord.Create(0x2c7, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock),
-                RoomLevelWord.Create(0x2cb, LevelBlockFlipFlags.None, RoomCollisionType.VerticalExtension),
-                RoomLevelWord.Create(0x2cb, LevelBlockFlipFlags.Vertical, RoomCollisionType.VerticalExtension),
-                RoomLevelWord.Create(0x2c7, LevelBlockFlipFlags.Vertical, RoomCollisionType.HorizontalExtension),
+                RoomTerrainBlock.Of(0x2c7, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+                RoomTerrainBlock.Of(0x2cb, BlockMirroring.None, RoomCollisionType.VerticalExtension),
+                RoomTerrainBlock.Of(0x2cb, BlockMirroring.Vertical, RoomCollisionType.VerticalExtension),
+                RoomTerrainBlock.Of(0x2c7, BlockMirroring.Vertical, RoomCollisionType.HorizontalExtension),
             ],
             [
-                RoomLevelWord.Create(0x2ca, LevelBlockFlipFlags.None, RoomCollisionType.VerticalExtension),
-                RoomLevelWord.Create(0x2ca, LevelBlockFlipFlags.Vertical, RoomCollisionType.VerticalExtension),
+                RoomTerrainBlock.Of(0x2ca, BlockMirroring.None, RoomCollisionType.VerticalExtension),
+                RoomTerrainBlock.Of(0x2ca, BlockMirroring.Vertical, RoomCollisionType.VerticalExtension),
             ],
         ],
         [MotherBrainGlassDraw.PaneTransition] =
         [
             [
-                RoomLevelWord.Create(0x2c7, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock),
-                RoomLevelWord.Create(0x2cc, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x2cc, LevelBlockFlipFlags.Vertical, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x2c7, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+                RoomTerrainBlock.Of(0x2cc, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x2cc, BlockMirroring.Vertical, RoomCollisionType.Air),
             ],
         ],
         [MotherBrainGlassDraw.ShiftedPane1] =
         [
-            [RoomLevelWord.Create(0x2c7, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock)],
+            [RoomTerrainBlock.Of(0x2c7, BlockMirroring.None, RoomCollisionType.ShootableBlock)],
             [
-                RoomLevelWord.Create(0x2cd, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x2c9, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x2c9, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x2cd, LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x2cd, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x2c9, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x2c9, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x2cd, BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
             ],
             [
-                RoomLevelWord.Create(0x2c8, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x2c8, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x2c8, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x2c8, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
             ],
         ],
         [MotherBrainGlassDraw.ShiftedPane2] =
         [
-            [RoomLevelWord.Create(0x2c7, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock)],
+            [RoomTerrainBlock.Of(0x2c7, BlockMirroring.None, RoomCollisionType.ShootableBlock)],
             [
-                RoomLevelWord.Create(0x2cb, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x2cb, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x2cd, LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x2cb, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x2cb, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x2cd, BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
             ],
             [
-                RoomLevelWord.Create(0x2ca, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x2ca, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x2ca, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x2ca, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
             ],
         ],
         [MotherBrainGlassDraw.ShiftedPane3] =
         [
-            [RoomLevelWord.Create(0x2c7, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock)],
+            [RoomTerrainBlock.Of(0x2c7, BlockMirroring.None, RoomCollisionType.ShootableBlock)],
             [
-                RoomLevelWord.Create(0x2cc, LevelBlockFlipFlags.Horizontal, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x2cc, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x2cc, BlockMirroring.Horizontal, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x2cc, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.Air),
             ],
         ],
         [MotherBrainGlassDraw.Shatter1] =
         [
             [
-                RoomLevelWord.Create(0x2ce, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock),
-                RoomLevelWord.Create(0x2cf, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x2cf, LevelBlockFlipFlags.Vertical, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x2ce, LevelBlockFlipFlags.Vertical, RoomCollisionType.HorizontalExtension),
+                RoomTerrainBlock.Of(0x2ce, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+                RoomTerrainBlock.Of(0x2cf, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x2cf, BlockMirroring.Vertical, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x2ce, BlockMirroring.Vertical, RoomCollisionType.HorizontalExtension),
             ],
             [
-                RoomLevelWord.Create(0x2ce, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x2cf, LevelBlockFlipFlags.Horizontal, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x2cf, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x2ce, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x2ce, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x2cf, BlockMirroring.Horizontal, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x2cf, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x2ce, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
             ],
             [
-                RoomLevelWord.Create(0x2d0, LevelBlockFlipFlags.Horizontal, RoomCollisionType.VerticalExtension),
-                RoomLevelWord.Create(0x2d0, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.VerticalExtension),
+                RoomTerrainBlock.Of(0x2d0, BlockMirroring.Horizontal, RoomCollisionType.VerticalExtension),
+                RoomTerrainBlock.Of(0x2d0, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.VerticalExtension),
             ],
             [
-                RoomLevelWord.Create(0x2d0, LevelBlockFlipFlags.None, RoomCollisionType.VerticalExtension),
-                RoomLevelWord.Create(0x2d0, LevelBlockFlipFlags.Vertical, RoomCollisionType.VerticalExtension),
+                RoomTerrainBlock.Of(0x2d0, BlockMirroring.None, RoomCollisionType.VerticalExtension),
+                RoomTerrainBlock.Of(0x2d0, BlockMirroring.Vertical, RoomCollisionType.VerticalExtension),
             ],
         ],
         [MotherBrainGlassDraw.Shatter2] =
         [
             [
-                RoomLevelWord.Create(0x2ce, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x2ce, LevelBlockFlipFlags.Vertical, RoomCollisionType.HorizontalExtension),
+                RoomTerrainBlock.Of(0x2ce, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x2ce, BlockMirroring.Vertical, RoomCollisionType.HorizontalExtension),
             ],
             [
-                RoomLevelWord.Create(0x2ce, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x2ce, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x2ce, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x2ce, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
             ],
             [
-                RoomLevelWord.Create(0x2c2, LevelBlockFlipFlags.None, RoomCollisionType.HorizontalExtension),
-                RoomLevelWord.Create(0x2c3, LevelBlockFlipFlags.None, RoomCollisionType.VerticalExtension),
-                RoomLevelWord.Create(0x2c3, LevelBlockFlipFlags.Vertical, RoomCollisionType.VerticalExtension),
-                RoomLevelWord.Create(0x2c4, LevelBlockFlipFlags.None, RoomCollisionType.VerticalExtension),
+                RoomTerrainBlock.Of(0x2c2, BlockMirroring.None, RoomCollisionType.HorizontalExtension),
+                RoomTerrainBlock.Of(0x2c3, BlockMirroring.None, RoomCollisionType.VerticalExtension),
+                RoomTerrainBlock.Of(0x2c3, BlockMirroring.Vertical, RoomCollisionType.VerticalExtension),
+                RoomTerrainBlock.Of(0x2c4, BlockMirroring.None, RoomCollisionType.VerticalExtension),
             ],
             [
-                RoomLevelWord.Create(0x2c2, LevelBlockFlipFlags.Horizontal, RoomCollisionType.HorizontalExtension),
-                RoomLevelWord.Create(0x2c3, LevelBlockFlipFlags.Horizontal, RoomCollisionType.VerticalExtension),
-                RoomLevelWord.Create(0x2c3, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.VerticalExtension),
-                RoomLevelWord.Create(0x2c4, LevelBlockFlipFlags.Horizontal, RoomCollisionType.VerticalExtension),
+                RoomTerrainBlock.Of(0x2c2, BlockMirroring.Horizontal, RoomCollisionType.HorizontalExtension),
+                RoomTerrainBlock.Of(0x2c3, BlockMirroring.Horizontal, RoomCollisionType.VerticalExtension),
+                RoomTerrainBlock.Of(0x2c3, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.VerticalExtension),
+                RoomTerrainBlock.Of(0x2c4, BlockMirroring.Horizontal, RoomCollisionType.VerticalExtension),
             ],
         ],
         [MotherBrainGlassDraw.Shatter3] =
         [
             [
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
             ],
             [
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
             ],
             [
-                RoomLevelWord.Create(0x2d2, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x2d3, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x2d3, LevelBlockFlipFlags.Vertical, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x2d4, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x2d2, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x2d3, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x2d3, BlockMirroring.Vertical, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x2d4, BlockMirroring.None, RoomCollisionType.Air),
             ],
             [
-                RoomLevelWord.Create(0x2d2, LevelBlockFlipFlags.Horizontal, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x2d3, LevelBlockFlipFlags.Horizontal, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x2d3, LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x2d4, LevelBlockFlipFlags.Horizontal, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x2d2, BlockMirroring.Horizontal, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x2d3, BlockMirroring.Horizontal, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x2d3, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0x2d4, BlockMirroring.Horizontal, RoomCollisionType.Air),
             ],
         ],
         [MotherBrainGlassDraw.Cleared] =
         [
             [
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
             ],
             [
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
             ],
             [
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
             ],
             [
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
             ],
         ],
     };

@@ -26,11 +26,12 @@ internal sealed class EscapeAnimalPlms : ICrittersEscapeReaction
         // Hardcoded spawn cannot execute setup when every native PLM slot is occupied.
         if (_slotTable.IsFull)
             throw new InvalidOperationException("Animal rescue wall setup has no free PLM slot.");
-        PlmLevelWrites.WritePlmCollisionTypeAndBts(level, blockIndex, EscapeAnimalWallDefinitions.OriginCollisionType,
-            EscapeAnimalWallDefinitions.ReactionBts);
+        PlmLevelWrites.WritePlmCollisionAndBehavior(level, blockIndex, EscapeAnimalWallDefinitions.OriginCollisionType,
+            new RoomBlockBehavior(EscapeAnimalWallDefinitions.ReactionBts));
         for (int row = 1; row <= 2; row++)
-            PlmLevelWrites.WritePlmCollisionTypeAndBts(level, blockIndex + row * level.Size.X,
-                EscapeAnimalWallDefinitions.ExtensionCollisionType, EscapeAnimalWallDefinitions.ExtensionBts);
+            PlmLevelWrites.WritePlmCollisionAndBehavior(level, blockIndex + row * level.Size.X,
+                EscapeAnimalWallDefinitions.ExtensionCollisionType,
+                new RoomBlockBehavior(EscapeAnimalWallDefinitions.ExtensionBts));
     }
 
     /// <summary>
@@ -53,7 +54,6 @@ internal sealed class EscapeAnimalPlms : ICrittersEscapeReaction
 
         slot.BlockIndex = level.GetBlockIndex(
             new(CrateriaMainstreetEscapePassagePlmDefinitions.BlockX, CrateriaMainstreetEscapePassagePlmDefinitions.BlockY));
-        slot.RestoreLevelWord = 0;
         slot.Header = PlmHeaderId.CrateriaMainstreetEscapePassage;
         slot.LoopTimer = 0;
         slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.CrateriaPassage));
@@ -78,8 +78,8 @@ internal sealed class EscapeAnimalPlms : ICrittersEscapeReaction
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
         // The reaction keeps the wall's collision type and shows the reaction block; until its list runs, the block
         // is deactivated, staying solid only when it was.
-        slot.RestoreLevelWord = block.PackedWord.WithVisualWord(EscapeAnimalWallDefinitions.ReactionVisualBlock);
-        level.SetForegroundEntry(blockIndex, slot.RestoreLevelWord.WithPlmDeactivation().Raw);
+        slot.RestoreTerrain = block.Terrain.WithAppearance(EscapeAnimalWallDefinitions.ReactionAppearance);
+        level.SetTerrain(blockIndex, slot.RestoreTerrain.Deactivated());
         return true;
     }
 }

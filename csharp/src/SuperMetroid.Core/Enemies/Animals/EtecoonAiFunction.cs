@@ -17,7 +17,7 @@ public enum EtecoonAiFunction
     FaceSamusPause,
     /// <summary>$A7:EB02, Function_Etecoon_RunningLeft: moves left using terrain collision and reverses into rightward running when it hits a wall.</summary>
     RunLeftToWall,
-    /// <summary>$A7:EB2C, Function_Etecoon_RunningRight: probes 32 room pixels rightward for the solid-block high bit and starts jumping when the wall is near.</summary>
+    /// <summary>$A7:EB2C, Function_Etecoon_RunningRight: probes 32 room pixels rightward for a block that stops attachment and starts jumping when the wall is near.</summary>
     RunRightToWall,
     /// <summary>$A7:EB50, Function_Etecoon_Jumping: resolves horizontal motion before vertical motion, enters the eight-update wall-jump pause on wall contact, and routes the actor after landing.</summary>
     Airborne,

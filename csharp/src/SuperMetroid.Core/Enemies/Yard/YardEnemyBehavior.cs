@@ -252,11 +252,11 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         bool stillAttached = state.Direction < 4
-            ? EnemyTerrain.EnemyHasSolidHighBitHorizontallyAhead(
+            ? EnemyTerrain.EnemyMeetsAttachmentBlockHorizontallyAhead(
                 level,
                 slot,
                 CrawlersBehavior.Shift8AddMagnitude(state.CrawlingVelocity.X.RawValue, 7))
-            : EnemyTerrain.EnemyHasSolidHighBitVerticallyAhead(
+            : EnemyTerrain.EnemyMeetsAttachmentBlockVerticallyAhead(
                 level,
                 slot,
                 CrawlersBehavior.Shift8AddMagnitude(state.CrawlingVelocity.Y.RawValue, 7));

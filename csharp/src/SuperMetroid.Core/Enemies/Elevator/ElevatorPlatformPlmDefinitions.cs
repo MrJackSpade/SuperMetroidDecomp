@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Elevator;
 
 /// <summary>
 /// The $B70B elevator-platform PLM's complete $84:AFB6 instruction loop and its
-/// three tile-layout lists. Timing, list selection, collision words, and offsets
+/// three tile-layout lists. Timing, list selection, collision kinds, and offsets
 /// are cartridge-defined; the underlying tiles remain the room tileset artwork.
 /// </summary>
 internal static class ElevatorPlatformPlmDefinitions
@@ -20,38 +20,38 @@ internal static class ElevatorPlatformPlmDefinitions
     {
         [ElevatorPlatformDraw.First] =
         [
-            new(new(3, 0), [RoomLevelWord.Create(0x85, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)]),
-            new(new(0, 1), [RoomLevelWord.Create(0x85, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock)]),
+            new(new(3, 0), [RoomTerrainBlock.Of(0x85, BlockMirroring.None, RoomCollisionType.SolidBlock)]),
+            new(new(0, 1), [RoomTerrainBlock.Of(0x85, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock)]),
             new(new(0, 0),
             [
-                RoomLevelWord.Create(0x88, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x89, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x89, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x88, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x88, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x89, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x89, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x88, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
             ]),
         ],
         [ElevatorPlatformDraw.Second] =
         [
-            new(new(3, 0), [RoomLevelWord.Create(0x86, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)]),
-            new(new(0, 1), [RoomLevelWord.Create(0x86, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock)]),
+            new(new(3, 0), [RoomTerrainBlock.Of(0x86, BlockMirroring.None, RoomCollisionType.SolidBlock)]),
+            new(new(0, 1), [RoomTerrainBlock.Of(0x86, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock)]),
             new(new(0, 0),
             [
-                RoomLevelWord.Create(0x8a, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x8b, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x8b, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x8a, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x8a, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x8b, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x8b, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x8a, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
             ]),
         ],
         [ElevatorPlatformDraw.Third] =
         [
-            new(new(3, 0), [RoomLevelWord.Create(0x87, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock)]),
-            new(new(0, 1), [RoomLevelWord.Create(0x87, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock)]),
+            new(new(3, 0), [RoomTerrainBlock.Of(0x87, BlockMirroring.None, RoomCollisionType.SolidBlock)]),
+            new(new(0, 1), [RoomTerrainBlock.Of(0x87, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock)]),
             new(new(0, 0),
             [
-                RoomLevelWord.Create(0x8c, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x8d, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x8d, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x8c, LevelBlockFlipFlags.Horizontal, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x8c, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x8d, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x8d, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(0x8c, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
             ]),
         ],
     };

@@ -14,7 +14,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// The five ordinary Samus-projectile slots at WRAM byte indices <c>$00-$08</c>.
+/// Samus's ordinary projectile slots (see <see cref="ProjectileSlotTable"/> for their slot order).
 /// </summary>
 /// <remarks>
 /// This class is deliberately a field-for-field translation rather than a desktop particle
@@ -316,7 +316,7 @@ public sealed class SamusProjectileSystem
     /// <param name="buttons">The controller words Samus's projectile producer reads: held buttons, this frame's new presses, and the previous frame's new presses (#633).</param>
     /// <param name="layer1">Horizontal and vertical camera origin in whole room pixels, used by projectile offscreen handling.</param>
     /// <param name="sharedProjectiles">
-    /// Bomb-slot owner carrying shared WRAM cooldown <c>$0CCC</c>. The runtime steps that
+    /// Bomb-slot owner carrying the shared projectile cooldown. The runtime steps that
     /// clock once, immediately before calling this method; this method may replace it after
     /// a successful shot just as bank $90 does.
     /// </param>

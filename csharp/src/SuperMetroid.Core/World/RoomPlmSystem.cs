@@ -107,7 +107,7 @@ public sealed class RoomPlmSystem : ISamusRoomPlms, IBossRoomPlms, IAreaRoomPlms
     /// <summary>Controls the Mother Brain chamber glass barrier and shatter sequence.</summary>
     internal MotherBrainGlassPlms MotherBrainGlass { get; }
 
-    /// <summary>Builds a room's PLM population into native-order physical slots.</summary>
+    /// <summary>Builds a room's PLM population into the slot table, in spawn order.</summary>
     internal PlmPopulationLoader PopulationLoader { get; }
 
     /// <summary>Runs save, map, and refill station room interactions.</summary>

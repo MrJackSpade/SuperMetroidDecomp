@@ -26,7 +26,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     private readonly IRoomFxMotion? _roomFx;
     /// <summary>Updates level blocks and queues their tilemap draws.</summary>
     private readonly IPlmDrawing _drawing;
-    /// <summary>Enumerates active item PLMs in native slot order.</summary>
+    /// <summary>Enumerates active item PLMs by slot ordinal.</summary>
     private readonly PlmSlotTable _slotTable;
     /// <summary>Receives item instruction sound requests.</summary>
     private readonly PlmSoundQueue _sounds;
@@ -175,7 +175,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     internal void BeginCollectibleFrame() => _collectiblePickupEvents.Clear();
 
     /// <summary>
-    /// Runs one permanent-item setup on the physical slot selected by the shared room
+    /// Runs one permanent-item setup on the slot selected by the shared room
     /// loader. The setup remains table-driven by the cartridge header and presentation.
     /// </summary>
     internal void SetupCollectibleSlot(
@@ -470,7 +470,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
 
         // The item instruction grants inventory before DisplayMessageBox, but its
         // following draw/delete instructions cannot run until that synchronous call
-        // returns. Keep the existing tile and physical slot throughout the fanfare.
+        // returns. Keep the existing tile and slot throughout the fanfare.
         item.Triggered = false;
         item.Timer = 0;
         item.Phase = CollectiblePhase.AwaitingMessage;

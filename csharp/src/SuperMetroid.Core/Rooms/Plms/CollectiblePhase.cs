@@ -25,7 +25,7 @@ public enum CollectiblePhase
     CollectedShotBlockEmpty,
     /// <summary>The collected shot block runs three four-frame respawn draws before restoring its saved block.</summary>
     CollectedShotBlockRespawn,
-    /// <summary>Inventory and persistence have been granted; the physical slot and drawn tile remain while the synchronous pickup message runs.</summary>
+    /// <summary>Inventory and persistence have been granted; the slot and drawn tile remain while the synchronous pickup message runs.</summary>
     AwaitingMessage,
     /// <summary>The pickup message has returned and the suspended item list is ready for its empty draw or shot-block continuation.</summary>
     ResumeAfterMessage,

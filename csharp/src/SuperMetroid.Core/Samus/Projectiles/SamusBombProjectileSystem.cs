@@ -368,7 +368,7 @@ public sealed class SamusBombProjectileSystem
             CooldownTimer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>Applies held/new Shoot admission, ammo and equipment gates, then initializes a normal or power bomb in a native slot.</summary>
+    /// <summary>Applies held/new Shoot admission, ammo and equipment gates, then initializes a normal or power bomb in the lowest free bomb slot.</summary>
     internal int? TryPlaceBomb(
         SamusState samus,
         ControllerButton controllerInput,

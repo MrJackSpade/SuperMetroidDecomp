@@ -10,7 +10,7 @@ public static class RoomPlmGreyDoorVisualFiles
     /// <summary>Family-relative JSON filename for twenty grey-door and shared clear-cap layouts, used in both stock and override directories.</summary>
     public const string VisualFileName = "grey-doors.json";
 
-    /// <summary>Checks the bank-$84 grey-door/clear-cap draw shapes, physical words, and offsets, then exports their twelve-bit visual words in native run order.</summary>
+    /// <summary>Checks the bank-$84 grey-door/clear-cap draw shapes, terrain, and offsets, then exports their twelve-bit appearance in native run order.</summary>
     /// <param name="bus">Cartridge source supplying the compiled draw region $84:A677–A766.</param>
     /// <param name="directory">Family asset directory, created if absent; receives <see cref="VisualFileName"/> and <c>manifest.json</c> as new files.</param>
     /// <param name="sourceCartridgeSha256">Nonblank caller-supplied cartridge hash recorded as provenance; loading requires the supported cartridge identity.</param>
@@ -29,14 +29,14 @@ public static class RoomPlmGreyDoorVisualFiles
     /// <param name="stockDirectory">Family directory containing the required version-one manifest and stock JSON.</param>
     /// <param name="overrideDirectory">Optional family directory; null or an absent <see cref="VisualFileName"/> uses validated stock.</param>
     /// <returns>A ROM-independent catalog for all twenty layouts, preserving compiled door mechanics and geometry.</returns>
-    /// <remarks>Stock must match its byte hash, supported-cartridge provenance, and compiled visual words even when an override exists. Override JSON needs all frame identities/shapes and visual-only words, but no manifest.</remarks>
-    /// <exception cref="InvalidDataException">Stock integrity, provenance, JSON format, frame coverage, shapes, or visual word bits are invalid.</exception>
+    /// <remarks>Stock must match its byte hash, supported-cartridge provenance, and compiled appearance even when an override exists. Override JSON needs all frame identities/shapes and appearance, but no manifest.</remarks>
+    /// <exception cref="InvalidDataException">Stock integrity, provenance, JSON format, frame coverage, shapes, or appearance bits are invalid.</exception>
     /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
     public static InstalledRoomPlmGreyDoorVisuals Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
             new RoomPlmVisualFamily<InstalledRoomPlmGreyDoorVisuals>(VisualFileName, "Grey-door", GreyDoorCaps.All, GreyDoorCaps.VisualId, entries => new InstalledRoomPlmGreyDoorVisuals(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetWord(draw, block)));
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetAppearance(draw, block)));
 
     /// <summary>Runs stock manifest, hash, schema, and compiled-appearance checks without selecting overrides, reading a cartridge, or writing files.</summary>
     /// <param name="directory">Grey-door family directory containing both required stock files.</param>

@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -26,6 +27,7 @@ public static class RoomPlmCollectibleVisualFiles
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
         WriteIndented = true,
+        Converters = { new JsonStringEnumConverter() },
     };
 
     /// <summary>Verifies the native collectible selectors/draw lists and creates a new stock visual JSON plus provenance manifest.</summary>
@@ -34,7 +36,7 @@ public static class RoomPlmCollectibleVisualFiles
     /// <param name="sourceCartridgeSha256">SHA-256 identity recorded in the stock manifest.</param>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     /// <exception cref="ArgumentException">A path or cartridge identity is blank.</exception>
-    /// <exception cref="InvalidDataException">Native selectors, draw geometry, or level words differ from the compiled definitions.</exception>
+    /// <exception cref="InvalidDataException">Native selectors, draw geometry, or block differ from the compiled definitions.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256)
     {
@@ -42,7 +44,7 @@ public static class RoomPlmCollectibleVisualFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);
-        RoomPlmVisualWordEntry[] entries = ReadAndVerifyNative(bus);
+        RoomPlmVisualBlockEntry[] entries = ReadAndVerifyNative(bus);
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(
             new VisualDocument(FormatVersion, entries), JsonOptions);
         using (var output = new FileStream(Path.Combine(directory, VisualFileName),
@@ -93,8 +95,8 @@ public static class RoomPlmCollectibleVisualFiles
     /// <param name="directory">Stock collectible directory; overrides are intentionally ignored.</param>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
-    /// <summary>Checks eight dynamic selectors and all 24 one-cell native draws before extracting visual words.</summary>
-    private static RoomPlmVisualWordEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
+    /// <summary>Checks eight dynamic selectors and all 24 one-cell native draws before extracting appearance.</summary>
+    private static RoomPlmVisualBlockEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
         for (int slot = 0; slot < 4; slot++)
         for (int animation = 0; animation < 2; animation++)
@@ -110,28 +112,28 @@ public static class RoomPlmCollectibleVisualFiles
                     $"Dynamic collectible selector $84:{table + slot * 2:X4} differs from the cartridge.");
         }
 
-        var entries = new List<RoomPlmVisualWordEntry>();
+        var entries = new List<RoomPlmVisualBlockEntry>();
         foreach (RoomPlmCollectibleDrawFrame frame in CollectiblePlmDraws.All)
         {
             int address = PlmDrawAddressCodec.Of(PlmDraw.Of(frame.Draw));
             if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, address)) != 1 ||
-                CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, (checked((ushort)(address + 2))))) != frame.LevelWord ||
+                RoomLevelWordCodec.Decode(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, (checked((ushort)(address + 2)))))) != frame.Terrain ||
                 CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, (checked((ushort)(address + 4))))) != 0)
                 throw new InvalidDataException(
                     $"Collectible draw {frame.Id} at $84:{address:X4} differs from compiled geometry or level word.");
-            entries.Add(new RoomPlmVisualWordEntry(frame.Id,
-                frame.LevelWord.VisualWord));
+            entries.Add(new RoomPlmVisualBlockEntry(frame.Id,
+                frame.Terrain.Appearance));
         }
         return entries.ToArray();
     }
 
-    /// <summary>Checks that hash-validated stock visual bits still match compiled cartridge definitions.</summary>
+    /// <summary>Checks that hash-validated stock appearance still match compiled cartridge definitions.</summary>
     private static void VerifyStockMatchesCompiled(InstalledRoomPlmCollectibleVisuals catalog,
         string path)
     {
         foreach (RoomPlmCollectibleDrawFrame frame in CollectiblePlmDraws.All)
-            if (catalog.GetWord(PlmDraw.Of(frame.Draw)) !=
-                frame.LevelWord.VisualWord)
+            if (catalog.GetAppearance(PlmDraw.Of(frame.Draw)) !=
+                frame.Terrain.Appearance)
                 throw new InvalidDataException(
                     $"Stock collectible visuals {path} differ from compiled frame {frame.Id}.");
     }
@@ -173,5 +175,5 @@ public static class RoomPlmCollectibleVisualFiles
         string VisualSha256);
     /// <summary>Stores a versioned, complete set of named collectible visual references.</summary>
     private sealed record VisualDocument(int Version,
-        RoomPlmVisualWordEntry[] Entries);
+        RoomPlmVisualBlockEntry[] Entries);
 }

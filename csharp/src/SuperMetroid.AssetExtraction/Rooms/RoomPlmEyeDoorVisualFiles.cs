@@ -11,7 +11,7 @@ public static class RoomPlmEyeDoorVisualFiles
     public const string VisualFileName = "eye-doors.json";
 
     /// <summary>Verifies the twenty-three editable native eye-door layouts and creates visual-only JSON plus its provenance and digest manifest.</summary>
-    /// <param name="bus">Cartridge source for bank-$84 comparisons of full component level words and their one-, two-, or four-block run shapes.</param>
+    /// <param name="bus">Cartridge source for bank-$84 comparisons of full component block and their one-, two-, or four-block run shapes.</param>
     /// <param name="directory">Destination directory, created if absent; the visual JSON and manifest must not already exist.</param>
     /// <param name="sourceCartridgeSha256">Source identity recorded in the manifest; subsequent loading requires the supported cartridge identity.</param>
     /// <exception cref="InvalidDataException">Native draw contents or geometry differ from the compiled editable eye-door definitions.</exception>
@@ -30,9 +30,9 @@ public static class RoomPlmEyeDoorVisualFiles
         string? overrideDirectory = null) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
             new RoomPlmVisualFamily<InstalledRoomPlmEyeDoorVisuals>(VisualFileName, "eye-door", EyeDoorDraws.Editable, EyeDoorDraws.VisualId, entries => new InstalledRoomPlmEyeDoorVisuals(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetWord(draw, block)));
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetAppearance(draw, block)));
 
-    /// <summary>Checks stock eye-door provenance, digest, schema, twenty-three-frame coverage, and equality with compiled visual words; ignores overrides.</summary>
+    /// <summary>Checks stock eye-door provenance, digest, schema, twenty-three-frame coverage, and equality with compiled appearance; ignores overrides.</summary>
     /// <param name="stockDirectory">Installed stock eye-door directory.</param>
     public static void ValidateStock(string stockDirectory) => Load(stockDirectory);
 }

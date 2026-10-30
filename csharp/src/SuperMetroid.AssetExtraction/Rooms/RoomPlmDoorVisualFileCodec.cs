@@ -1,6 +1,7 @@
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -9,9 +10,9 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
-/// Shared installed-file contract for bounded PLM block-draw layouts. Visual
-/// blocks are stored in native run order, while the compiled definitions retain
-/// run directions, signed offsets and physical level words.
+/// Shared installed-file contract for bounded PLM block-draw layouts. Block appearances (block number and mirroring)
+/// are stored in run order, while the compiled definitions retain run directions, signed offsets and terrain. The
+/// cartridge's block are decoded once, here, by <see cref="RoomLevelWordCodec"/>.
 /// </summary>
 internal static class RoomPlmDoorVisualFileCodec
 {
@@ -20,18 +21,19 @@ internal static class RoomPlmDoorVisualFileCodec
     /// <summary>Schema version shared by the stock manifest and editable visual document.</summary>
     private const int FormatVersion = 1;
 
-    /// <summary>Uses camel-case field names and readable output for installed PLM visual JSON.</summary>
+    /// <summary>Uses camel-case field names, mirroring names and readable output for installed PLM visual JSON.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
         WriteIndented = true,
+        Converters = { new JsonStringEnumConverter() },
     };
 
-    /// <summary>One draw-list identity and its editable block visuals in native run order.</summary>
-    internal sealed record Entry(string Id, ushort[] Blocks);
+    /// <summary>One draw-list identity and its editable block appearances in run order.</summary>
+    internal sealed record Entry(string Id, RoomBlockAppearance[] Blocks);
 
-    /// <summary>Verifies native PLM run geometry and level words before writing a fresh stock visual file and hash manifest.</summary>
+    /// <summary>Verifies the cartridge's PLM run geometry and blocks before writing a fresh stock visual file and hash manifest.</summary>
     internal static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256, string visualFileName, string family,
         IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions,
@@ -64,7 +66,7 @@ internal static class RoomPlmDoorVisualFileCodec
         IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions = visuals.Definitions;
         Func<PlmDraw, string> visualId = visuals.VisualId;
         Func<Entry[], TCatalog> createCatalog = visuals.CreateCatalog;
-        Func<TCatalog, PlmDraw, int, int, ushort> getWord = visuals.GetWord;
+        Func<TCatalog, PlmDraw, int, int, RoomBlockAppearance?> getAppearance = visuals.GetAppearance;
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
         string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
         VisualManifest manifest = ReadJson<VisualManifest>(manifestPath, family);
@@ -83,7 +85,7 @@ internal static class RoomPlmDoorVisualFileCodec
             ReadJson<VisualDocument>(stockBytes, stockPath, family), stockPath,
             family, createCatalog);
         VerifyStockMatchesCompiled(stock, stockPath, family, definitions,
-            visualId, getWord);
+            visualId, getAppearance);
 
         string? overridePath = overrideDirectory is null ? null :
             Path.Combine(overrideDirectory, visualFileName);
@@ -93,7 +95,7 @@ internal static class RoomPlmDoorVisualFileCodec
                 overridePath, family, createCatalog);
     }
 
-    /// <summary>Checks bounded bank-$84 run counts, directions, offsets, and level words while extracting only visual bits.</summary>
+    /// <summary>Checks bounded bank-$84 run counts, directions, offsets, and decoded blocks while extracting only their appearances.</summary>
     private static Entry[] ReadAndVerifyNative(ISnesAddressSpace bus,
         string family,
         IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions,
@@ -109,58 +111,57 @@ internal static class RoomPlmDoorVisualFileCodec
             if (draw.Runs.Length is < 1 or > 8)
                 throw new InvalidDataException(
                     $"Compiled {family} draw ${pointer:X4} has an invalid run count.");
-            var blocks = new List<ushort>();
+            var blocks = new List<RoomBlockAppearance>();
             int cursor = pointer;
             for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
             {
                 RoomPlmShotBlockDrawDefinitions.Run run = draw.Runs.Span[runIndex];
                 // Kraid's native spike-clear list is one 22-block run. A bounded
                 // 32-block allowance admits it without exposing arbitrary layouts.
-                if (run.LevelWords.Length is < 1 or > 32 ||
+                if (run.Count is < 1 or > 32 ||
                     ReadWord(bus, cursor) != PlmRunHeaderCodec.Encode(run))
                     throw new InvalidDataException(
                         $"{family} draw ${pointer:X4} differs in run {runIndex} shape.");
-                for (int block = 0; block < run.LevelWords.Length; block++)
+                for (int block = 0; block < run.Count; block++)
                 {
-                    int source = ReadWord(bus,
-                        checked((ushort)(cursor + 2 + block * 2)));
-                    if (source != run.LevelWords.Span[block])
+                    RoomTerrainBlock source = RoomLevelWordCodec.Decode(ReadWord(bus,
+                        checked((ushort)(cursor + 2 + block * 2))));
+                    if (source != run.Blocks.Span[block])
                         throw new InvalidDataException(
                             $"{family} draw ${pointer:X4} differs at run {runIndex}, block {block}.");
-                    blocks.Add(new RoomLevelWord(checked((ushort)source)).VisualWord);
+                    blocks.Add(source.Appearance);
                 }
                 int nativeOffset = ReadWord(bus,
-                    checked((ushort)(cursor + 2 + run.LevelWords.Length * 2)));
+                    checked((ushort)(cursor + 2 + run.Count * 2)));
                 int compiledOffset =
                     LittleEndianBytes.Word(unchecked((byte)run.Next.X), unchecked((byte)run.Next.Y));
                 if (nativeOffset != compiledOffset ||
                     (runIndex == draw.Runs.Length - 1) != (nativeOffset == 0))
                     throw new InvalidDataException(
                         $"{family} draw ${pointer:X4} differs at run {runIndex} offset.");
-                cursor = checked((ushort)(cursor + 4 + run.LevelWords.Length * 2));
+                cursor = checked((ushort)(cursor + 4 + run.Count * 2));
             }
             entries.Add(new Entry(visualId(draw.Draw), blocks.ToArray()));
         }
         return entries.ToArray();
     }
 
-    /// <summary>Requires every stock visual block to match the compiled draw-list source word.</summary>
+    /// <summary>Requires every stock appearance to match the compiled draw's block.</summary>
     private static void VerifyStockMatchesCompiled<TCatalog>(TCatalog catalog,
         string path, string family,
         IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions,
         Func<PlmDraw, string> visualId,
-        Func<TCatalog, PlmDraw, int, int, ushort> getWord)
+        Func<TCatalog, PlmDraw, int, int, RoomBlockAppearance?> getAppearance)
     {
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in definitions)
         {
             for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
             {
                 RoomPlmShotBlockDrawDefinitions.Run run = draw.Runs.Span[runIndex];
-                for (int block = 0; block < run.LevelWords.Length; block++)
+                for (int block = 0; block < run.Count; block++)
                 {
-                    int expected = new RoomLevelWord(
-                        run.LevelWords.Span[block]).VisualWord;
-                    if (getWord(catalog, draw.Draw, runIndex, block) != expected)
+                    RoomBlockAppearance expected = run.Blocks.Span[block].Appearance;
+                    if (getAppearance(catalog, draw.Draw, runIndex, block) != expected)
                         throw new InvalidDataException(
                             $"Stock {family} visuals {path} differ from compiled frame " +
                             visualId(draw.Draw) + $" run {runIndex}, block {block}.");
@@ -211,6 +212,6 @@ internal static class RoomPlmDoorVisualFileCodec
     /// <summary>Stock provenance binding a visual JSON hash to the supported cartridge.</summary>
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);
-    /// <summary>Versioned collection of editable block visuals extracted from compiled draw lists.</summary>
+    /// <summary>Versioned collection of editable block appearances extracted from compiled draw lists.</summary>
     private sealed record VisualDocument(int Version, Entry[] Entries);
 }

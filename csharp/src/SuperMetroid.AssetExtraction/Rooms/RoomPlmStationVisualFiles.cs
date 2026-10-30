@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -10,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// Installs named, editable station visual block references. Native draw geometry and
-/// complete physical level words are checked against the compiled cartridge catalog.
+/// complete terrain are checked against the compiled cartridge catalog.
 /// </summary>
 public static class RoomPlmStationVisualFiles
 {
@@ -27,16 +28,17 @@ public static class RoomPlmStationVisualFiles
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
         WriteIndented = true,
+        Converters = { new JsonStringEnumConverter() },
     };
 
-    /// <summary>Checks every compiled bank-$84 station draw shape, physical word, and offset before exporting named metatile/flip run arrays.</summary>
+    /// <summary>Checks every compiled bank-$84 station draw shape, terrain, and offset before exporting named metatile/flip run arrays.</summary>
     /// <param name="bus">Cartridge source for map, energy, missile, save, and access layouts in their original draw-run order.</param>
     /// <param name="directory">Family directory, created before native checks; receives new visual JSON and manifest files.</param>
     /// <param name="sourceCartridgeSha256">Nonblank importer-supplied provenance hash, recorded without recomputation and required to match the supported identity on stock load.</param>
-    /// <remarks>Only visual bits 0..11 are serialized; save-floor cap runs retain native order rather than a top-to-bottom rearrangement. Existing files are refused and separate writes can leave a partial installation.</remarks>
+    /// <remarks>Only appearance 0..11 are serialized; save-floor cap runs retain native order rather than a top-to-bottom rearrangement. Existing files are refused and separate writes can leave a partial installation.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     /// <exception cref="ArgumentException">The directory or source hash is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">Native station draws differ from compiled shapes, physical words, or offsets.</exception>
+    /// <exception cref="InvalidDataException">Native station draws differ from compiled shapes, terrain, or offsets.</exception>
     /// <exception cref="IOException">An output exists or filesystem access fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256)
@@ -62,9 +64,9 @@ public static class RoomPlmStationVisualFiles
     /// <param name="stockDirectory">Family directory containing version-one stock JSON and its required manifest.</param>
     /// <param name="overrideDirectory">Optional family directory; null or absent visual JSON uses validated stock.</param>
     /// <returns>A ROM-independent catalog with copied authored runs and compiled station mechanics and draw geometry unchanged.</returns>
-    /// <remarks>Stock provenance, byte hash, and compiled visual equality are checked before an override. Replacement JSON must contain all named layouts with original run counts/lengths and twelve-bit visual words; no override manifest is needed.</remarks>
+    /// <remarks>Stock provenance, byte hash, and compiled visual equality are checked before an override. Replacement JSON must contain all named layouts with original run counts/lengths and twelve-bit appearance; no override manifest is needed.</remarks>
     /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">Provenance, integrity, schema, identities, coverage, run shape, or visual bits are invalid.</exception>
+    /// <exception cref="InvalidDataException">Provenance, integrity, schema, identities, coverage, run shape, or appearance are invalid.</exception>
     /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
     public static InstalledRoomPlmStationVisuals Load(
         string stockDirectory, string? overrideDirectory)
@@ -105,21 +107,21 @@ public static class RoomPlmStationVisualFiles
                  StationPlmDraws.All.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
         {
             int cursor = PlmDrawAddressCodec.Of(list.Draw);
-            var visuals = new List<ushort[]>();
+            var visuals = new List<RoomBlockAppearance[]>();
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
             {
                 if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, cursor)) != PlmRunHeaderCodec.Encode(run))
                     throw new InvalidDataException(
                         $"Station draw list {list.Draw} differs in source cartridge shape.");
                 cursor = unchecked((ushort)(cursor + 2));
-                var visualWords = new ushort[run.LevelWords.Length];
-                for (int index = 0; index < visualWords.Length; index++)
+                var appearances = new RoomBlockAppearance[run.Count];
+                for (int index = 0; index < appearances.Length; index++)
                 {
-                    int source = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, cursor));
-                    if (source != run.LevelWords.Span[index])
+                    RoomTerrainBlock source = RoomLevelWordCodec.Decode(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, cursor)));
+                    if (source != run.Blocks.Span[index])
                         throw new InvalidDataException(
                             $"Station draw list {list.Draw} differs at ${cursor:X4}.");
-                    visualWords[index] = new RoomLevelWord(checked((ushort)source)).VisualWord;
+                    appearances[index] = source.Appearance;
                     cursor = unchecked((ushort)(cursor + 2));
                 }
 
@@ -129,7 +131,7 @@ public static class RoomPlmStationVisualFiles
                     throw new InvalidDataException(
                         $"Station draw list {list.Draw} differs in next-record offset.");
                 cursor = unchecked((ushort)(cursor + 2));
-                visuals.Add(visualWords);
+                visuals.Add(appearances);
             }
 
             entries.Add(new RoomPlmVisualRunEntry(
@@ -139,18 +141,17 @@ public static class RoomPlmStationVisualFiles
         return entries.ToArray();
     }
 
-    /// <summary>Requires every stock visual word to match the compiled station draw catalog.</summary>
+    /// <summary>Requires every stock appearance to match the compiled station draw catalog.</summary>
     private static void VerifyStockMatchesCompiled(InstalledRoomPlmStationVisuals catalog,
         string path)
     {
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
                  StationPlmDraws.All)
         for (int run = 0; run < list.Runs.Length; run++)
-        for (int word = 0; word < list.Runs.Span[run].LevelWords.Length; word++)
+        for (int word = 0; word < list.Runs.Span[run].Count; word++)
         {
-            int expected = new RoomLevelWord(
-                list.Runs.Span[run].LevelWords.Span[word]).VisualWord;
-            if (catalog.GetWord(list.Draw, run, word) != expected)
+            RoomBlockAppearance expected = list.Runs.Span[run].Blocks.Span[word].Appearance;
+            if (catalog.GetAppearance(list.Draw, run, word) != expected)
                 throw new InvalidDataException(
                     $"Stock station visuals {path} differ from compiled frame " +
                     StationPlmDraws.VisualId(list.Draw) + ".");

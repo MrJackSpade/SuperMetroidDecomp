@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Fx.Artwork;
-using System.Collections.Immutable;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -17,7 +16,7 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 /// <param name="DoorTransitionMainScreenLayers">The layers a door transition shows below the HUD, or null outside a door transition.</param>
 /// <param name="ScrollingSky">The scrolling sky's rows and parallax bands, when the room spawned the sky's band HDMA object.</param>
-/// <param name="CrocomireMeltingScrolls">Crocomire's melting BG2VOFS HDMA table, while its channel is active.</param>
+/// <param name="CrocomireMelt">The stretch Crocomire's melt sags his body layer through (#1468), while it runs.</param>
 /// <param name="MotherBrainAscentShowing">Whether Mother Brain's rising-body display owns the gameplay layers.</param>
 /// <param name="RainbowBeam">Rainbow-beam window description; its fixed color comes from the NMI latch.</param>
 /// <param name="CeresHaze">The Ceres haze's per-line fixed-colour gradient, when the room spawned one.</param>
@@ -31,7 +30,7 @@ namespace SuperMetroid.Core.Runtime;
 public sealed record GameplayFrameEndDisplayInputs(
     ScreenLayers? DoorTransitionMainScreenLayers,
     ScrollingSkyLayer? ScrollingSky,
-    ImmutableArray<ushort>? CrocomireMeltingScrolls,
+    ScrollStretch? CrocomireMelt,
     bool MotherBrainAscentShowing,
     MotherBrainRainbowBeamRenderSnapshot? RainbowBeam,
     CeresHazeRenderSnapshot? CeresHaze,

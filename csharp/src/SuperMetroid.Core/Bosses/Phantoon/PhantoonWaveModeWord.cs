@@ -10,9 +10,9 @@ internal static class PhantoonWaveModeWord
     /// <summary>The mode bit that selects the 128-line rather than the 64-line wave.</summary>
     private const int LongWaveBit = 1;
 
-    /// <summary>The samples in half of one cycle of the wave <paramref name="mode"/> selects.</summary>
+    /// <summary>The screen lines of one whole cycle of the wave <paramref name="mode"/> selects.</summary>
     /// <param name="mode">The wave channel's nonzero mode.</param>
-    internal static int HalfCycle(int mode) => (mode & LongWaveBit) != 0
-        ? PhantoonWaveDefinitions.LongHalfCycle
-        : PhantoonWaveDefinitions.ShortHalfCycle;
+    internal static int Period(int mode) => (mode & LongWaveBit) != 0
+        ? PhantoonWaveDefinitions.LongPeriod
+        : PhantoonWaveDefinitions.ShortPeriod;
 }

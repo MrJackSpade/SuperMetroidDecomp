@@ -12,10 +12,13 @@ using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.FrameRendering;
 
-/// <summary>Checks post-credits Samus wave HDMA, its visible color addition, and repeatable rendering.</summary>
+/// <summary>Checks the post-credits Samus wave's description (#1468), its visible color addition, and repeatable rendering.</summary>
 internal static class EndingWavySamusTests
 {
-    /// <summary>Compares all 180 wave frames with native scroll math and checks that selected frames visibly add the wave.</summary>
+    /// <summary>
+    /// Checks all 180 wave frames' described wave and vertical scroll (#1468): its parameters, and that the wave the shader
+    /// evaluates gives every line the cartridge's scroll; and that selected frames visibly add and move the wave.
+    /// </summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var installed = RepositoryInstallation.Installation;
@@ -39,11 +42,16 @@ internal static class EndingWavySamusTests
         {
             Require(scene.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop, "Native wave lasts exactly the 180-frame hold");
             var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-            var wave = snapshot.LayersOf<AddedPicturedPlaneLayer>().Single();
-            for (int line = 0; line < 224; line++)
+            var added = snapshot.LayersOf<AddedPicturedPlaneLayer>().Single();
+            Require(added.VerticalScroll == age * 2, $"Native vertical scroll age {age}");
+            if (age < 2) Require(added.HorizontalWave is null, $"The setup-only frames show no wave, age {age}");
+            else
             {
-                Require(wave.Scrolls[line].X == NativeX(age, line), $"Native HDMA X age {age}, line {line}");
-                Require(wave.Scrolls[line].Y == age * 2, $"Native vertical scroll age {age}");
+                ScrollWave wave = added.HorizontalWave ?? throw new InvalidDataException($"The wave shows from age 2, age {age}");
+                Require(wave is { BaseScroll: 0, Amplitude: 0x4000, Period: 128, FirstLine: 0, EndLine: 224 }, $"Wave amplitude, period and band, age {age}");
+                Require(wave.Phase.RawValue == (byte)((-2 + (age - 1) * 16) >> 1), $"Wave phase advances eight sine steps a frame, age {age}");
+                for (int line = 0; line < 224; line++)
+                    Require(ScrollShapeLines.WaveScroll(wave, line) == NativeX(age, line), $"Described wave gives native HDMA X age {age}, line {line}");
             }
             if (age is 0 or 1 or 2 or 3 or 179)
             {
@@ -55,13 +63,6 @@ internal static class EndingWavySamusTests
                 var packet = new DisplayPacket(new(age + 1, 1, (ushort)age), snapshot);
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), "Ending wave frame on this device matches the WARP reference device");
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), "Repeated wave rendering does not advance simulation");
-                if (age == 0)
-                {
-                    var supplied = wave.Scrolls.ToArray();
-                    var owned = wave.WithScrolls(supplied);
-                    supplied[0] = new(123, 123);
-                    Require(owned.Scrolls[0] == new Position16<TilePlanePixels>(0, 0), "Captured line scrolls own their input memory");
-                }
                 if (age == 3) Require(previous is not null && !expected.SequenceEqual(previous), "Wave changes visible pixels between consecutive frames");
                 previous = expected;
             }
@@ -69,7 +70,7 @@ internal static class EndingWavySamusTests
         }
         Require(scene.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingSamus, "Result panel replaces the wave after its wait");
         Require(!EndingCreditsPresentation.CaptureRenderSnapshot(scene).LayersOf<AddedPicturedPlaneLayer>().Any(), "Result panel disables BG3 addition");
-        Console.WriteLine($"{device.Kind}: ending wave native scrolls, moving blue pixels and 180-frame lifecycle passed.");
+        Console.WriteLine($"{device.Kind}: ending wave description and native line scrolls, moving blue pixels and 180-frame lifecycle passed.");
 
         ushort NativeX(int age, int line)
         {

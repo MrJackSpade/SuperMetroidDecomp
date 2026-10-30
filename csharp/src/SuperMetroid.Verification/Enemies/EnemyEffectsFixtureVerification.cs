@@ -15,6 +15,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
@@ -68,7 +69,7 @@ internal static class EnemyEffectsFixtureVerification
             // The fight's initialization attaches the cleared body canvases the melting body is drawn on (#1466).
             Effect = BossBodyCanvasFixtures.AttachCrocomire(Enemies, Sheets);
             Effect.AcidSmokeTimer = WrappingCountdown.Start(1);
-            Effect.MutableBg2ScrollByScanline.Fill(19);
+            Effect.MeltDistortion = ScrollStretch.Level(19);
             Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
             Enemies.CrocomireBehavior.Access.Crocomire = Actor;
             Enemies.VerificationServices().ReadRandom = () => 0x1234;
@@ -108,7 +109,7 @@ internal static class EnemyEffectsFixtureVerification
             AssertAnimationValues(expected.Enemies.RoomSpriteObjects[slot], actual.Enemies.RoomSpriteObjects[slot], context);
         for (int band = 0; band < CrocomireMeltingDefinitions.SecondPassBandCount; band++)
             AssertEqual(expected.MeltBand(band), actual.MeltBand(band), context + " band " + band + " picture");
-        AssertTrue(expected.Effect.Bg2ScrollByScanline.SequenceEqual(actual.Effect.Bg2ScrollByScanline), context + " HDMA geometry");
+        AssertEqual(expected.Effect.MeltDistortion, actual.Effect.MeltDistortion, context + " melt stretch");
         AssertSameBytes(expected.Memory.WorkRam, actual.Memory.WorkRam, context + " WRAM");
         AssertTrue(expected.Enemies.Audio.SoundRequests.SequenceEqual(actual.Enemies.Audio.SoundRequests), context + " audio");
         AssertTrue(expected.Enemies.Audio.MusicRequests.SequenceEqual(actual.Enemies.Audio.MusicRequests), context + " music");

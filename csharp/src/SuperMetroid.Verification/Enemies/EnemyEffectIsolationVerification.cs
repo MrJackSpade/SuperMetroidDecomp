@@ -9,6 +9,8 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.FrameRendering;
 namespace SuperMetroid.Verification.Enemies;
 
 using SuperMetroid.Verification.Harness;
@@ -17,6 +19,28 @@ using SuperMetroid.Core.World;
 /// <summary>Checks that replacement effect artwork changes pixels without changing Crocomire or Mother Brain timing.</summary>
 internal static class EnemyEffectIsolationVerification
 {
+    /// <summary>
+    /// Rebuilds the cartridge's melt scroll table, as its loop builds it line by line, into <paramref name="scrolls"/> from the fixture's state after a
+    /// dissolve step: from the line below the tongue, each line one row further behind, less the slope's carry, until the
+    /// source row reaches the lowest; the lines after show the placement, and the lines before keep what they held.
+    /// </summary>
+    private static void BuildNativeMeltScrolls(ushort[] scrolls, CrocomireEffectFixture fixture)
+    {
+        CrocomireDeathState death = fixture.Effect;
+        ushort placement = fixture.Enemies.CrocomireBehavior.BodyLayer.Placement.Y;
+        int line = Math.Clamp((fixture.Actor.Tongue?.Position.Y.Whole ?? fixture.Actor.Body.Position.Y.Whole) - 72, 0, 256);
+        int adjustedY = death.DistortionSourceRow, currentY = adjustedY, fraction = 0;
+        while (line < scrolls.Length && adjustedY < death.LowestDistortionSourceRow)
+        {
+            scrolls[line++] = unchecked((ushort)(placement + adjustedY - currentY));
+            fraction += death.DistortionStep;
+            if (fraction < 65536) adjustedY++;
+            else fraction -= 65536;
+            currentY++;
+        }
+        if (line < scrolls.Length) scrolls.AsSpan(line).Fill(placement);
+    }
+
     /// <summary>
     /// Checks that replacement melt artwork changes neither Crocomire's mechanics nor which picture each band of his melt
     /// image shows on each update (#1406).
@@ -51,6 +75,11 @@ internal static class EnemyEffectIsolationVerification
 
             baseline.Call(c => c.Melting.BeginCrocomireMelting); edited.Call(c => c.Melting.BeginCrocomireMelting);
             phase = baseline.Actor.DeathSequenceIndex;
+            // The cartridge's BG2 vertical-scroll table, from the first gameplay line, levelled as the melt starts.
+            var nativeScrolls = new ushort[256];
+            Array.Fill(nativeScrolls, baseline.Enemies.CrocomireBehavior.BodyLayer.Placement.Y);
+            AssertEqual(ScrollStretch.Level(baseline.Enemies.CrocomireBehavior.BodyLayer.Placement.Y), baseline.Effect.MeltDistortion,
+                "the melt starts levelled at his body layer's placement");
             // The compiled slope starts at 256, grows by 384 to 20480, then completes on
             // the following call. This explicit bound comes from the source, not a probe.
             int calls = (20480 - 256 + 383) / 384 + 1;
@@ -60,6 +89,14 @@ internal static class EnemyEffectIsolationVerification
                 baseline.Dissolve(); edited.Dissolve();
                 AssertCrocomireEffectMechanics(baseline, edited, "melt dissolve call " + call);
                 AssertEqual(call < calls, baseline.Effect.MeltingScrollActive, "exact HDMA lifetime");
+                if (call < calls)
+                {
+                    // The described stretch gives every gameplay line the scroll the cartridge's table gives it (#1468).
+                    BuildNativeMeltScrolls(nativeScrolls, baseline);
+                    for (int line = 0; line < BackgroundLineScrolls.GameplayLines; line++)
+                        AssertEqual(nativeScrolls[line], ScrollShapeLines.StretchScroll(baseline.Effect.MeltDistortion, line + ScreenGeometry.GameplayHudHeightPixels),
+                            $"melt dissolve call {call} stretch at gameplay line {line}");
+                }
                 AssertEqual(call == calls ? phase.Next() : phase, baseline.Actor.DeathSequenceIndex, "exact dissolve phase handoff");
                 AssertEqual(Math.Min(call, CrocomireMeltingDefinitions.ColumnCount), baseline.Effect.MeltColumnsErased, "fixed erase-column cadence");
                 AssertEqual(initialSmokeObjects + (call + 5) / 6,

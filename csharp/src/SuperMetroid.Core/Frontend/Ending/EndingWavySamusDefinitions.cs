@@ -1,18 +1,27 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>Post-credits BG3 scroll program and artwork identities.</summary>
+/// <summary>The post-credits wave that ripples Samus sideways while the backdrop waits, and how it moves.</summary>
 internal static class EndingWavySamusDefinitions
 {
-    /// <summary>$88:EC48 / Spawn_WavySamus_HDMAObject seeds unsigned 8.8 amplitude $4000.</summary>
+    /// <summary>$88:EC48 / Spawn_WavySamus_HDMAObject: the wave's peak displacement, in 1/256ths of a pixel (64 pixels).</summary>
     internal const int Amplitude = 0x4000;
-    /// <summary>$88:EC4E / Spawn_WavySamus_HDMAObject seeds phase delta eight, doubled to a byte index.</summary>
-    internal const int PhaseByteStep = 8 * 2;
-    /// <summary>$88:ECA2 / Instruction_Setup_WavySamus initializes the phase to minus two.</summary>
-    internal const int InitialPhase = -2;
-    /// <summary>$88:ECD1 / PreInstruction_WavySamus advances four sine-table bytes per first-half sample.</summary>
-    internal const int SampleByteStep = 4;
-    /// <summary>$88:ECD6 / PreInstruction_WavySamus produces 64 words and a sign-inverted second half.</summary>
-    internal const int HalfCycle = 64;
+    /// <summary>
+    /// $88:EC4E / Spawn_WavySamus_HDMAObject: the sine steps the wave's angle advances each frame, so the ripple travels up
+    /// the screen.
+    /// </summary>
+    internal const int AngleStepPerFrame = 8;
+    /// <summary>$88:ECA2 / Instruction_Setup_WavySamus: the wave's angle at screen line zero before its first advance, one step before the cycle's start.</summary>
+    internal const int InitialAngle = -1;
+    /// <summary>
+    /// $88:ECD1-ECD6 / PreInstruction_WavySamus: the screen lines of one whole cycle of the wave, a half cycle of 64 lines
+    /// and its sign-inverted mirror.
+    /// </summary>
+    internal const int Period = 128;
+    /// <summary>
+    /// The frame the wave first shows: the frame it starts on only sets it up (Instruction_Setup_WavySamus), and the
+    /// following frame is its first advance.
+    /// </summary>
+    internal const int FirstWaveAge = 2;
     /// <summary>$8B:E193 / CinematicFunction_PostCredits_WavySamus advances BG3Y by two per call.</summary>
     internal const int VerticalStep = 2;
 }

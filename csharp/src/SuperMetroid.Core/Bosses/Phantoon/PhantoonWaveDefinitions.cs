@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>The shapes of Phantoon's wave: its modes, its sine phase cycle and its half-cycle lengths.</summary>
+/// <summary>The shapes of Phantoon's wave: its modes, its sine phase cycle and its periods.</summary>
 public static class PhantoonWaveDefinitions
 {
     /// <summary>
@@ -15,21 +15,19 @@ public static class PhantoonWaveDefinitions
     /// <summary>The mode the final death's 128-line wave starts with.</summary>
     public const ushort DeathMode = 1;
 
-    /// <summary>The phases in one whole cycle of the wave: a byte offset into the signed sine's 256 two-byte samples.</summary>
+    /// <summary>The phases in one whole cycle of the wave: two for each of the sine's 256 angle steps.</summary>
     public const int PhaseCycle = 512;
 
-    /// <summary>The bytes of one signed sine sample: an even phase reads a whole sample, an odd phase straddles two.</summary>
-    public const int SampleBytes = 2;
-
     /// <summary>
-    /// The byte that follows the signed sine's last sample, which the last odd phase reads as the high byte of its value
-    /// (#1165: every phase matches the original, including this read past the samples).
+    /// The phases in one of the sine's angle steps. The phase counts the bytes of two-byte sine samples; an odd phase,
+    /// which only a restored phase can hold, shows the angle of the even phase below it (#1468: the original's read
+    /// straddling two samples there is a presentation quirk, not kept).
     /// </summary>
-    public const byte TrailingByte = 0x8b;
+    public const int PhasesPerAngleStep = 2;
 
-    /// <summary>The samples in half of the 64-line wave's cycle.</summary>
-    public const int ShortHalfCycle = 32;
+    /// <summary>The screen lines of one whole cycle of the 64-line wave.</summary>
+    public const int ShortPeriod = 64;
 
-    /// <summary>The samples in half of the 128-line wave's cycle.</summary>
-    public const int LongHalfCycle = 64;
+    /// <summary>The screen lines of one whole cycle of the 128-line wave.</summary>
+    public const int LongPeriod = 128;
 }

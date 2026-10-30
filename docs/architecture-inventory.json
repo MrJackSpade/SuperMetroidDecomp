@@ -85561,14 +85561,14 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Title.Artwork.TitleGradientScanline",
+      "type": "SuperMetroid.Core.Frontend.Title.Artwork.TitleGradientStop",
       "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Title/Artwork/TitleGradientScanline.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Title/Artwork/TitleGradientStop.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -97981,6 +97981,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Rendering.GradientStop",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/GradientStop.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Rendering.GridPicture",
       "kind": "record struct",
       "scope": "product",
@@ -98340,6 +98353,32 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Rendering.ScreenGradient",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/ScreenGradient.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.ScreenGradientLayer",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/ScreenGradientLayer.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Rendering.ScreenPalette",
       "kind": "class",
       "scope": "product",
@@ -98471,19 +98510,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Rendering/TileDepth.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.TitleGradientLine",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/TitleGradientLine.cs"
       ],
       "partial": "none",
       "disposition": "value"

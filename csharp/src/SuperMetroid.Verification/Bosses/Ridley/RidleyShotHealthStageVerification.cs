@@ -56,7 +56,7 @@ internal static class RidleyShotHealthStageVerification
             shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = WrappingCountdown.Start(1);
         }
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, samus,
-            onlyEnemyIndex: ridley.EnemyIndex);
+            onlyEnemy: ridley);
 
         AssertTrue(ridley.Health < 9000, "the hits cross 9000");
         AssertEqual(0, state.HealthStage, "the shot leaves the health stage for his AI to update");

@@ -32,10 +32,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        // The initializer consumes init0 and the low extra-property word as a two-bit table
-        // selector before clearing the latter. Keep native dispatch ordering independent
+        // The initializer selects its wait from the low extra-property word and the population
+        // entry's wait before clearing the former. Keep native dispatch ordering independent
         // of the origin direction encoded below.
-        int initialFunctionIndex = slot.ExtraProperties.ToWord() * 2 + slot.CurrentInstruction;
+        int initialFunctionIndex = slot.ExtraProperties.ToWord() * 2 +
+            (slot.Spawn.Population.SpawnSettingsOf<GrowingShutterSpawnSettings>().WaitsForSamus ? 1 : 0);
         state.Function = GrowingShutters.InitialFunction(initialFunctionIndex);
 
         bool growsUp = slot.ExtraProperties.ToWord() != 0;
@@ -239,9 +240,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new HorizontalShutterEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        int packedSpeedAndDirection = checked((ushort)slot.CurrentInstruction);
-        state.SpeedTableIndex = unchecked((byte)packedSpeedAndDirection);
-        state.PrimaryDirection = unchecked((byte)(EightEight.WholeOf(packedSpeedAndDirection)));
+        ShutterSpawnSettings settings = slot.Spawn.Population.SpawnSettingsOf<ShutterSpawnSettings>();
+        state.SpeedTableIndex = settings.SpeedIndex;
+        state.PrimaryDirection = settings.PrimaryDirection;
         state.ReactionDirection = state.PrimaryDirection ^ 1;
 
         int speedRecordOffset = state.SpeedTableIndex * 8;
@@ -532,18 +533,12 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The shared idle-shutter contact test at $A2:EEE9 and $A2:F1F6: the bitwise AND of
-    /// Samus's four solid-enemy collision words equals this enemy (one or more directions
-    /// hit it and the rest hold $FFFF), and her contact-damage index is nonzero.
+    /// The shared idle-shutter contact test: Samus's solid-enemy contacts this update name this shutter, as
+    /// <see cref="SolidContactSlotCombination"/> combines them, and her contact-damage index is nonzero.
     /// </summary>
-    private static bool SamusContactsIdleShutter(RoomEnemySlot slot, SamusState samus)
-    {
-        IReadOnlyList<ushort> collisions = samus.Kinematics.SolidEnemyCollisionIndexes;
-        int combined = unchecked((ushort)(collisions[0] & collisions[1] & collisions[2] & collisions[3]));
-        return combined != ShutterContactDefinitions.NoSolidEnemy &&
-            combined == slot.EnemyIndex &&
-            samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None;
-    }
+    private static bool SamusContactsIdleShutter(RoomEnemySlot slot, SamusState samus) =>
+        SolidContactSlotCombination.Combine(samus.Kinematics.SolidEnemyCollisions, EnemySlotOrder.Capacity) == slot.SlotIndex &&
+        samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None;
 
     /// <summary>Tests the native strict, wrapped absolute-X proximity threshold.</summary>
     private static bool IsSamusWithinShutterHorizontalDistance(
@@ -743,9 +738,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new VerticalShutterEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        int packedSpeedAndDirection = checked((ushort)slot.CurrentInstruction);
-        state.SpeedTableIndex = unchecked((byte)packedSpeedAndDirection);
-        state.PrimaryDirection = unchecked((byte)(EightEight.WholeOf(packedSpeedAndDirection)));
+        ShutterSpawnSettings settings = slot.Spawn.Population.SpawnSettingsOf<ShutterSpawnSettings>();
+        state.SpeedTableIndex = settings.SpeedIndex;
+        state.PrimaryDirection = settings.PrimaryDirection;
         state.ReactionDirection = state.PrimaryDirection;
 
         int speedRecordOffset = state.SpeedTableIndex * 8;

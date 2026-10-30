@@ -947,7 +947,7 @@ internal static class RidleyFullMovieVerification
             foreach (var actor in runtime.Enemies.SlotTable.Slots)
                 words.AddRange([SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.DefinitionId), actor.Position.X.Whole, actor.Position.X.Fraction,
                     actor.Position.Y.Whole, actor.Position.Y.Fraction, checked((ushort)actor.Health), actor.SpritemapPointer,
-                    checked((ushort)actor.CurrentInstruction), actor.InstructionTimer.RawValue]);
+                    actor.InstructionTimer.RawValue]);
             return words.ToArray();
         }
         int pairedBodyDraws = 0, phaseShiftedBodyDraws = 0, retainedHiddenBodyRecords = 0;
@@ -1197,7 +1197,7 @@ internal static class RidleyFullMovieVerification
             Check("Samus slope adjustment", samus.Kinematics.PositionAdjustedBySlope ? (ushort)1 : (ushort)0,
                 NativeSnapshotMemory.SamusSlopeAdjusted);
             for (int direction = 0; direction < 4; direction++)
-                Check($"Samus solid enemy {direction}", samus.Kinematics.SolidEnemyCollisionIndexes[direction],
+                Check($"Samus solid enemy {direction}", SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.WordOf(samus.Kinematics.SolidEnemyCollisions[direction]),
                     NativeSnapshotMemory.SamusSolidEnemyIndices + direction * 2);
             var inheritance = new ProjectileInheritanceInspection(samus.ProjectileInheritance);
             for (int offset = 0; offset < inheritance.ByteCount; offset += 2)
@@ -1290,7 +1290,7 @@ internal static class RidleyFullMovieVerification
             foreach (var actor in runtime.Enemies.SlotTable.Slots)
             {
                 if (deferLoadingOwners) continue;
-                int address = NativeSnapshotMemory.EnemyBase + actor.EnemyIndex;
+                int address = NativeSnapshotMemory.EnemyBase + SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(actor.SlotIndex);
                 string owner = $"Enemy {actor.SlotIndex}";
                 Check(owner + " identity", SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.DefinitionId), address);
                 if (actor.DefinitionId == 0 || W(address) == 0) continue;
@@ -1300,7 +1300,9 @@ internal static class RidleyFullMovieVerification
                 Check(owner + " Y fraction", actor.Position.Y.Fraction, address + 8);
                 Check(owner + " health", checked((ushort)actor.Health), address + 20);
                 Check(owner + " spritemap", actor.SpritemapPointer, address + 22);
-                Check(owner + " instruction", pointers.Enemy(runtime.Enemies, actor), address + 26);
+                // Only actors whose animation cursor translates to a native pointer are compared on it (#1471).
+                if (pointers.TranslatedEnemy(runtime.Enemies, actor) is { } instruction)
+                    Check(owner + " instruction", instruction, address + 26);
                 Check(owner + " instruction timer", actor.InstructionTimer.RawValue, address + 28);
                 Check(owner + " XRadius", actor.Radius.X, address + 10);
                 Check(owner + " YRadius", actor.Radius.Y, address + 12);
@@ -1757,7 +1759,7 @@ internal static class RidleyFullMovieVerification
                     // The native word holds the killed slot's table offset, bit 15 for a respawn, $FFFF for none.
                     KilledEnemy killed = projectile.KilledEnemy;
                     Check(owner + " killed enemy index", killed.SlotIndex < 0 ? 0xffff
-                        : killed.SlotIndex * EnemySlotTable.EnemyIndexStride | (killed.Respawns ? 0x8000 : 0),
+                        : SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(killed.SlotIndex) | (killed.Respawns ? 0x8000 : 0),
                         NativeSnapshotMemory.EnemyProjectileKilledEnemy + index);
                 }
                 ushort nativeDamage = (ushort)(W(NativeSnapshotMemory.EnemyProjectileProperties + index) & 0x0fff);

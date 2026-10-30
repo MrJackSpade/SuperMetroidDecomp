@@ -16,11 +16,11 @@ public sealed class BabyTurtleEnemyState
     /// </summary>
     public BabyTurtleAiFunction? Function { get; internal set; }
 
-    /// <summary>The parent Mama Turtle's physical slot index.</summary>
+    /// <summary>The parent Mama Turtle's slot ordinal.</summary>
     public int ParentSlotIndex
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue / EnemySlotTable.EnemyIndexStride, value);
+        internal set => field = Ensure.BetweenInclusive(0, EnemySlotOrder.Capacity - 1, value);
     }
 
     /// <summary>

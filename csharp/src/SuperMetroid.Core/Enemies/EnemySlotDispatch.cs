@@ -13,7 +13,7 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
 {
     /// <summary>The room whose definitions spawns read.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>The 32 native enemy slots.</summary>
+    /// <summary>The room's enemy slots.</summary>
     private readonly EnemySlotTable _slotTable;
     /// <summary>The room's graphics set, which gives each enemy its tile and palette indexes.</summary>
     private readonly EnemyGraphicsSet _graphics;
@@ -31,7 +31,7 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
     }
 
     /// <summary>
-    /// Copies population and definition fields into a physical slot, resolving room graphics
+    /// Copies population and definition fields into a slot, resolving room graphics
     /// indexes and recording a spawn snapshot before initialization AI runs.
     /// </summary>
     internal void InitializeSlotFromDefinition(
@@ -46,7 +46,7 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
         slot.Health = definition.Health;
         slot.Layer = definition.Layer;
         slot.Position = slot.Position.WithWhole(new(population.Position.X, population.Position.Y));
-        slot.CurrentInstruction = population.InitializationParameter;
+
         slot.Properties = population.Properties;
         slot.ExtraProperties = population.ExtraProperties;
         slot.AiStates = EnemyAiStates.None;
@@ -92,18 +92,15 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
     /// <inheritdoc/>
     RoomEnemySlot? IEnemyDispatch.SpawnEnemy(RoomEnemyPopulationRecord population)
     {
-        int slotIndex = _slotTable.FindFreeSlotIndex();
-        if (slotIndex < 0)
+        if (_slotTable.FindFreeSlot() is not { } slot)
             return null;
-        RoomEnemySlot slot = _slotTable.Slots[slotIndex];
         InitializeSlotFromDefinition(slot, population, _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionId));
         RunInitializationAi(slot, EnemySpawnSurroundings.None);
         // SpawnEnemy's post-init $A0:93D9 write precedes the first instruction tick.
         slot.Frame = slot.Properties.HasAny(EnemyProperties.ProcessInstructions)
             ? EnemyFrameId.Empty
             : null;
-        _slotTable.EnemyCount = unchecked((ushort)Math.Max(_slotTable.EnemyCount, slotIndex + 1));
-        _slotTable.FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * EnemySlotTable.EnemyIndexStride));
+        _slotTable.CoverSpawn(slot);
         return slot;
     }
 
@@ -111,8 +108,8 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
     void IEnemyDispatch.RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
         RunMainAi(slot, frame);
 
-    /// <summary>Exposes native slot offsets selected for Samus collision checks this frame.</summary>
-    IReadOnlyList<int> IEnemyDispatch.InteractiveEnemyIndexes => _processingWindow.InteractiveEnemyIndexes;
+    /// <summary>Exposes the enemies selected for Samus collision checks this frame.</summary>
+    IReadOnlyList<RoomEnemySlot> IEnemyDispatch.InteractiveEnemies => _processingWindow.InteractiveEnemies;
 
     /// <summary>Dispatches a loaded slot's banked main AI pointer through the compiled table.</summary>
     internal static void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

@@ -31,21 +31,17 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
     private static RipperExtensionWords[] NewExtensions() =>
-        [.. Enumerable.Range(0, EnemySlotTable.MaximumEnemyCount).Select(_ => new RipperExtensionWords())];
+        [.. Enumerable.Range(0, EnemySlotOrder.Capacity).Select(_ => new RipperExtensionWords())];
 
     /// <summary>Ports <c>InitAI_GRipper</c> at $A2:E1D3.</summary>
     internal void InitializeGRipper(RoomEnemySlot slot)
     {
         var state = CreateRipperState(slot);
 
-        // GRipper overloads the population's initialization-list word as a packed speed
-        // selector. Only its low byte reaches the eight-byte speed-table multiplication.
-        // The peculiar BIT #$FEFF direction test is preserved literally: every retail word
-        // with a nonzero speed field selects the positive pair, even when bit eight is set.
-        int packedSelector = checked((ushort)slot.CurrentInstruction);
-        state.SpeedTableByteOffset = unchecked((ushort)(PopulationParameterSettings.Of(packedSelector).First * 8));
-        bool selectsPositiveVelocity = (packedSelector & ~RipperMasks.IgnoredSelectorBit) != 0;
-        LoadRipperVelocity(state, selectsPositiveVelocity);
+        // The population entry names the patrol speed record and the starting direction.
+        GRipperSpawnSettings settings = slot.Spawn.Population.SpawnSettingsOf<GRipperSpawnSettings>();
+        state.SpeedTableByteOffset = settings.SpeedIndex * 8;
+        LoadRipperVelocity(state, settings.MovesRight);
         SetRipperProgram(
             slot,
             state.XVelocity.WholePixels < 0 ? RipperProgram.GRipperMovingLeft : RipperProgram.GRipperMovingRight);

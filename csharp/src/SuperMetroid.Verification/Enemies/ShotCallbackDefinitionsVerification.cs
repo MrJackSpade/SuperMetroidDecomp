@@ -171,9 +171,9 @@ internal static class ShotCallbackDefinitionsVerification
         static CreateLiteralNoOpCombatSystemResult CreateLiteralNoOpCombatSystem()
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var interactive = (List<int>)enemies.ProcessingWindow.InteractiveEnemyIndexes;
+            var interactive = (List<RoomEnemySlot>)enemies.ProcessingWindow.InteractiveEnemies;
             RoomEnemySlot enemy = enemies.SlotTable.Slots[0];
-            interactive.Add(enemy.EnemyIndex);
+            interactive.Add(enemy);
             enemy.Bind((EnemyDefinitionId)0x1234, enemy.Definition);
             enemy.Frame = EnemyFrameId.SkulteraSwimLeft0;
             enemy.Position = enemy.Position.WithWhole(new(0x0100, 0x0100));

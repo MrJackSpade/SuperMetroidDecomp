@@ -169,8 +169,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         if ((state.GenerationFlags & ZebetiteGenerationFlags.LinkedPair) != ZebetiteGenerationFlags.None)
         {
             RoomEnemySlot secondary = SpawnZebetite(ZebetiteHalf.Linked);
-            secondary.RequireSpeciesState<ZebetiteEnemyState>().LinkedEnemyIndex = slot.EnemyIndex;
-            state.LinkedEnemyIndex = secondary.EnemyIndex;
+            secondary.RequireSpeciesState<ZebetiteEnemyState>().LinkedSlot = slot.SlotIndex;
+            state.LinkedSlot = secondary.SlotIndex;
         }
 
         state.Function = ZebetiteAiFunction.WaitForDoorTransition;
@@ -242,12 +242,11 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Finds a free physical slot and initializes a primary or linked half from its population record.</summary>
     internal RoomEnemySlot SpawnZebetite(ZebetiteHalf half)
     {
-        // A0:9275 scans physical slots from zero. In particular, a primary's
-        // death vacates its slot before spawning the next generation; surviving
-        // linked halves retain pointers to that reused physical slot.
-        int slotIndex = _slotTable.FindFreeSlotIndex();
-        if (slotIndex < 0)
-            throw new InvalidOperationException("Zebetite progression exhausted the 32-slot enemy pool.");
+        // The spawn takes the first free slot. In particular, a primary's death vacates
+        // its slot before spawning the next generation; surviving linked halves keep
+        // naming that reused slot.
+        RoomEnemySlot spawned = _slotTable.FindFreeSlot() ??
+            throw new InvalidOperationException("Zebetite progression filled every enemy slot.");
 
         RoomEnemyPopulationRecord population =
             Zebetites.SpawnPopulation(half);
@@ -258,12 +257,10 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"{population.DefinitionId}.");
         }
 
-        RoomEnemySlot spawned = _slotTable.Slots[slotIndex];
         RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionId);
         _dispatch.InitializeSlotFromDefinition(spawned, population, definition);
         _dispatch.RunInitializationAi(spawned, EnemySpawnSurroundings.None);
-        _slotTable.EnemyCount = unchecked((ushort)Math.Max(_slotTable.EnemyCount, slotIndex + 1));
-        _slotTable.FirstFreeEnemyIndex = unchecked((ushort)Math.Max(_slotTable.FirstFreeEnemyIndex, (slotIndex + 1) * EnemySlotTable.EnemyIndexStride));
+        _slotTable.CoverSpawn(spawned);
         return spawned;
     }
 
@@ -271,16 +268,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResolveZebetiteShotAfterCommon(RoomEnemySlot struck)
     {
         LastZebetiteSoundEffect = ZebetiteShotSound;
-        int linkedIndex = struck.RequireSpeciesState<ZebetiteEnemyState>().LinkedEnemyIndex;
-        if (linkedIndex < 0 || linkedIndex >= EnemySlotTable.MaximumEnemyCount * EnemySlotTable.EnemyIndexStride ||
-            linkedIndex % EnemySlotTable.EnemyIndexStride != 0)
-        {
-            throw new InvalidDataException(
-                $"Zebetite slot {struck.SlotIndex} contains invalid linked index " +
-                $"${linkedIndex:X4}.");
-        }
-
-        RoomEnemySlot linked = _slotTable.SlotAtEnemyIndex(linkedIndex);
+        RoomEnemySlot linked = _slotTable.Slots[struck.RequireSpeciesState<ZebetiteEnemyState>().LinkedSlot];
         linked.Health = struck.Health;
         linked.FlashTimer = struck.FlashTimer;
     }

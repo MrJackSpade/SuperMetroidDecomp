@@ -24,15 +24,15 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
             SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(population.DefinitionId),
             population.Position.X,
             population.Position.Y,
-            checked((ushort)population.InitializationParameter),
+            checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Encode(population.SpawnSettings)),
             population.Properties.ToWord(),
             population.ExtraProperties.ToWord(),
             checked((ushort)population.Parameter1),
             checked((ushort)population.Parameter2),
         ];
-        // Word 3 is the record's initialization parameter: the cartridge stores the Baby's first instruction list
-        // there ($CFA2), which the cutscene's typed program replaces, so the compiled record holds zero and the check
-        // asserts that instead of the pointer.
+        // Word 3 is the record's initialization word: the cartridge stores the Baby's first instruction list
+        // there ($CFA2), which the cutscene's typed program replaces, so the compiled record carries no spawn settings
+        // and the check asserts that instead of the pointer.
         const int initializationParameterWord = 3;
         for (int word = 0; word < actual.Length; word++)
         {
@@ -41,8 +41,8 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((populationAddress + word * 2)), actual[word],
                 $"Mother Brain Baby population word {word}");
         }
-        AssertEqual(0, population.InitializationParameter,
-            "Mother Brain Baby population carries no instruction-list pointer");
+        AssertEqual(EnemySpawnSettings.None, population.SpawnSettings,
+            "Mother Brain Baby population carries no spawn settings");
         AssertEqual(EnemyDefinitionId.BabyMetroidCutscene,
             population.DefinitionId,
             "Mother Brain Baby population definition");
@@ -72,8 +72,8 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
             "Mother Brain Baby initialization created cutscene state");
         AssertEqual(2, enemies.SlotTable.EnemyCount,
             "Mother Brain Baby extended physical enemy high-water mark");
-        AssertEqual(2 * 0x40, enemies.SlotTable.FirstFreeEnemyIndex,
-            "Mother Brain Baby published next native enemy index");
+        AssertEqual(enemies.SlotTable.Slots[2], enemies.SlotTable.FindFreeSlot(),
+            "Mother Brain Baby's spawn leaves the following slot free");
 
         try
         {

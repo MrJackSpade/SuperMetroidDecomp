@@ -4,24 +4,27 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Mutable projection of the 64-byte WRAM <c>EnemyData</c> record. Named properties retain
-/// their native word widths even where current translated actors only consume a low byte.
+/// One of the room's enemy places and the enemy occupying it: its identity, where it is, how it collides, its health and
+/// timers, and the species state installed for it. A place is addressed by the slot object or its ordinal
+/// (<see cref="SlotIndex"/>); <see cref="EnemySlotOrder"/> sets how places are allocated and processed.
 /// </summary>
 public sealed class RoomEnemySlot
 {
-    /// <summary>Assigns the stable native $40-byte slot index before population data is copied in.</summary>
+    /// <summary>Creates the place at <paramref name="slotIndex"/> in <see cref="EnemySlotOrder"/>, before any occupant is installed.</summary>
     internal RoomEnemySlot(int slotIndex, EnemySpeciesRegistry registry)
     {
         _registry = Ensure.NotNull(registry);
-        SlotIndex = slotIndex;
+        SlotIndex = Ensure.BetweenInclusive(0, EnemySlotOrder.Capacity - 1, slotIndex);
     }
 
-    /// <summary>Zero-based managed slot number, fixed for the slot object's lifetime; room populations occupy at most 32 native slots.</summary>
+    /// <summary>
+    /// The slot's ordinal in <see cref="EnemySlotOrder"/>, 0 through <see cref="EnemySlotOrder.Capacity"/> minus one,
+    /// fixed for the slot's lifetime: the identity by which the game names "which enemy", such as the enemy Samus last
+    /// met solidly in each direction.
+    /// </summary>
     [IntegerQuantity("position of the slot in the enemy table")]
     public int SlotIndex { get; }
-    /// <summary>The enemy index the game numbers this enemy by, equal to <see cref="SlotIndex"/> times $40: the index Samus records for a solid enemy she collides with and the processing and drawing lists hold.</summary>
-    public int EnemyIndex => SlotIndex * EnemySlotTable.EnemyIndexStride;
-    /// <summary>Enemy.ID at slot +$00: bank-$A0 header identity; zero denotes a cleared/inactive slot.</summary>
+    /// <summary>The occupant's enemy identity; <see cref="EnemyDefinitionId.None"/> denotes an empty slot.</summary>
     public EnemyDefinitionId DefinitionId { get; private set; }
     /// <summary>Immutable resolved header for the current enemy identity, supplying initialization, collision, and AI definitions.</summary>
     public RoomEnemyDefinition Definition { get; private set; }
@@ -33,7 +36,7 @@ public sealed class RoomEnemySlot
     internal IEnemyEntity? Entity { get; private set; }
 
     /// <summary>
-    /// Each species' state installed in this physical slot, keyed by state type. Like the slot's words it outlives the
+    /// Each species' state installed in this slot, keyed by state type. Like the slot's other state it outlives the
     /// occupant: a reaction tail that runs after common damage killed the enemy still reads it, until the next occupant of
     /// that species replaces it or the room loads.
     /// </summary>
@@ -93,55 +96,46 @@ public sealed class RoomEnemySlot
         Entity = definitionId == EnemyDefinitionId.None ? null : _registry.Create(this);
     }
 
-    /// <summary>Empties the slot's identity, as the deleted-property path does, leaving its other words.</summary>
+    /// <summary>Empties the slot's identity, as the deleted-property path does, leaving its other state.</summary>
     internal void Unbind()
     {
         DefinitionId = 0;
         Entity = null;
     }
-    /// <summary>Original population and character-offset values retained independently of mutable live slot fields.</summary>
+    /// <summary>The population entry the occupant was spawned from, kept unchanged while its live state moves on.</summary>
     public RoomEnemySpawnSnapshot Spawn { get; internal set; }
-    /// <summary>
-    /// Enemy.XPosition/XSubPosition/YPosition/YSubPosition at +$02..+$08: the native 16.16 room
-    /// position, each whole word wrapping at sixteen bits.
-    /// </summary>
+    /// <summary>The enemy's 16.16 room position, each whole coordinate wrapping at sixteen bits.</summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
-    /// <summary>Enemy.XHitboxRadius/YHitboxRadius at +$0A/+$0C: collision half-extents in pixels, initially copied from the header.</summary>
+    /// <summary>Collision half-extents in pixels, initially the definition's.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
-    /// <summary>Enemy.properties at +$0E: mutable primary native property bits controlling collision, drawing, and instruction processing.</summary>
+    /// <summary>The occupant's properties controlling collision, drawing and animation, initially the population entry's.</summary>
     public EnemyPropertyWord Properties { get; internal set; }
-    /// <summary>Enemy.properties2 at +$10: mutable additional properties, including extended-spritemap selection.</summary>
+    /// <summary>The occupant's additional properties, including whether it draws extended frames.</summary>
     public EnemyExtraPropertyWord ExtraProperties { get; internal set; }
-    /// <summary>Enemy.AI at +$12: native handler-selection bits for ordinary, hurt, frozen, and other AI dispatch states.</summary>
+    /// <summary>Which of the ordinary, hurt, frozen and grappled behaviours the enemy's update dispatches to.</summary>
     public EnemyAiStates AiStates { get; internal set; }
-    /// <summary>Enemy.health at +$14: mutable remaining enemy health, initialized from the definition and reduced by weapon damage.</summary>
+    /// <summary>Remaining health, initially the definition's and reduced by weapon damage.</summary>
     public int Health { get; internal set; }
-    /// <summary>Enemy.spritemap at +$16: the frame the actor shows, an installed spritemap or extended frame; null before any.</summary>
+    /// <summary>The frame the enemy shows, an installed spritemap or extended frame; null before any.</summary>
     public EnemyFrameId? Frame { get; internal set; }
-    /// <summary>Enemy.loopCounter at +$18: actor/instruction-owned loop or delay word; it is not a universal elapsed-frame counter.</summary>
+    /// <summary>A loop or delay count the occupant's behaviour and animation keep; not an elapsed-frame counter.</summary>
     public WrappingCountdown Timer { get; internal set; }
-    /// <summary>
-    /// Enemy.instList at +$1A, 0 through 65535: populated from the population's actor-specific initialization
-    /// parameter, which several families read as packed selectors; an imported state carries the native instruction
-    /// pointer here.
-    /// </summary>
-    public int CurrentInstruction
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
-    /// <summary>Enemy.instTimer at +$1C: animation instruction countdown in processing updates; initialization starts it at one.</summary>
+
+    /// <summary>Updates left before the enemy's animation takes its next step; a new occupant starts at one.</summary>
     public WrappingCountdown InstructionTimer { get; internal set; }
     /// <summary>
-    /// Enemy.palette at +$1E: what colours the enemy draws in (#1464), normally the colours its graphics set loads for
-    /// it; an emptied record draws in the common sprite colours.
+    /// What colours the enemy draws in (#1464), normally the colours its graphics set loads for it; an emptied slot
+    /// draws in the common sprite colours.
     /// </summary>
     public SpriteColouring Colouring
     {
         get;
         internal set => field = Ensure.NotNull(value);
     } = SharedSpriteColouring.Common;
-    /// <summary>Enemy.GFXOffset at +$20: sprite character-index offset assigned by the graphics set, in 32-byte planar tile units.</summary>
+    /// <summary>
+    /// The sheet character the occupant's graphics start at, as its graphics set places them; the projectiles and sprite
+    /// objects it spawns draw from the spawned-object sheet composed at that character (#1471 keeps it for that reader).
+    /// </summary>
     public int TileIndexBase
     {
         get;
@@ -150,25 +144,25 @@ public sealed class RoomEnemySlot
     /// <summary>The sheet characters and colours the enemy draws with, as the projectiles and sprite objects it spawns take them.</summary>
     public SpriteGraphics Graphics => new(TileIndexBase, Colouring);
     /// <summary>
-    /// Enemy.layer at +$22, 0 through 65535: drawing-queue layer word, initialized from the definition's byte-sized
-    /// layer; the draw queue reads its low three bits.
+    /// The enemy's draw layer, initially the definition's: enemies draw layer by layer, and the draw queue takes the
+    /// layer's lowest three bits, so it orders the enemy among the eight queues.
     /// </summary>
     public int Layer
     {
         get;
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
-    /// <summary>Enemy.flashTimer at +$24: hurt-flash countdown consumed by enemy processing and palette selection; reaching the native threshold clears hurt-AI dispatch.</summary>
+    /// <summary>The hurt flash's remaining updates; the flash alternates the enemy's colours and its end ends hurt dispatch.</summary>
     public WrappingCountdown FlashTimer { get; internal set; }
-    /// <summary>Enemy.freezeTimer at +$26: remaining freeze-processing countdown; frozen palette blinking and thaw decisions read the same native word.</summary>
+    /// <summary>How long the enemy stays frozen; its frozen blinking and thaw read it.</summary>
     public WrappingCountdown FrozenTimer { get; internal set; }
-    /// <summary>Enemy.invincibilityTimer at +$28: damage-interaction suppression countdown, sampled before its per-enemy decrement.</summary>
+    /// <summary>Updates during which weapons and contact do not interact with the enemy, sampled before it counts down.</summary>
     public WrappingCountdown InvincibilityTimer { get; internal set; }
-    /// <summary>Enemy.shakeTimer at +$2A: remaining draw calls applying the enemy's one-pixel horizontal shake, decremented during drawing.</summary>
+    /// <summary>Draws left that shake the enemy one pixel sideways, counted down as it draws.</summary>
     public WrappingCountdown ShakeTimer { get; internal set; }
     /// <summary>
-    /// Enemy.frameCounter at +$2C, 0 through 65535: wrapping enemy-processing counter used by actor behavior and
-    /// drawing, independent of the global NMI counter.
+    /// The enemy's own update count, 0 through 65535, wrapping; its behaviour and drawing read it, independently of the
+    /// game's frame counter.
     /// </summary>
     public int FrameCounter
     {
@@ -184,10 +178,13 @@ public sealed class RoomEnemySlot
 
     /// <summary>The frames a hurt flash runs before any extension: the hurt duration, or four when it is zero.</summary>
     internal int HurtFlashFrames => HurtAiTime == 0 ? 4 : HurtAiTime;
-    /// <summary>Native spawn-data graphical offset, added to the live whole position before camera subtraction.</summary>
-    public Offset16<RoomPixels> SpawnOffset { get; internal set; }
+    /// <summary>
+    /// Where the enemy draws relative to its position: zero for every population entry; Ceres's steam sets it to
+    /// place its puffs on the rotating station.
+    /// </summary>
+    public Offset16<RoomPixels> DrawOffset { get; internal set; }
 
-    /// <summary>Resets all mutable enemy, animation and actor scratch words when a native slot becomes inactive.</summary>
+    /// <summary>Empties the slot when its occupant is removed: identity, live state and the species values kept with it.</summary>
     internal void Clear()
     {
         Unbind();
@@ -200,7 +197,7 @@ public sealed class RoomEnemySlot
         Health = 0;
         AiStates = EnemyAiStates.None;
         InstructionTimer = WrappingCountdown.Start(0);
-        CurrentInstruction = 0;
+
         Timer = WrappingCountdown.Start(0);
         Frame = null;
         FrozenTimer = WrappingCountdown.Start(0);
@@ -212,7 +209,7 @@ public sealed class RoomEnemySlot
         ShakeTimer = WrappingCountdown.Start(0);
         InvincibilityTimer = WrappingCountdown.Start(0);
         HurtAiTime = 0;
-        SpawnOffset = Offset16<RoomPixels>.Zero;
+        DrawOffset = Offset16<RoomPixels>.Zero;
         foreach (Action clearWithRecord in _clearWithRecord.Values)
             clearWithRecord();
     }

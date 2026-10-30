@@ -146,7 +146,7 @@ internal static class NativeSnapshotImportVerification
         samus.Kinematics.PositionAdjustedBySlope = W(NativeSnapshotMemory.SamusSlopeAdjusted) != 0;
         for (int direction = 0; direction < 4; direction++)
             samus.Kinematics.RecordSolidEnemyCollision((SamusCollisionDirection)direction,
-                W(NativeSnapshotMemory.SamusSolidEnemyIndices + direction * 2));
+                SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.SlotOrNoneOf(W(NativeSnapshotMemory.SamusSolidEnemyIndices + direction * 2)));
         samus.HorizontalSpeed.ActiveSpeedTableBaseAddress = W(NativeSnapshotMemory.HorizontalSpeedTable);
         samus.HorizontalSpeed.DecelerationMultiplier = memory[NativeSnapshotMemory.HorizontalDecelerationMultiplier];
         samus.HorizontalSpeed.EchoSoundFlag = W(NativeSnapshotMemory.SpeedEchoSoundLatch);
@@ -288,7 +288,7 @@ internal static class NativeSnapshotImportVerification
         for (int index = 0; index < runtime.Enemies.SlotTable.Slots.Count; index++)
         {
             var slot = runtime.Enemies.SlotTable.Slots[index];
-            int address = NativeSnapshotMemory.EnemyBase + index * 64;
+            int address = NativeSnapshotMemory.EnemyBase + SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(index);
             if (W(address) != 0)
                 AssertTrue(SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(slot.DefinitionId) == W(address), "initial enemy species agrees with room population");
             slot.Bind(SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionSlotWords.FromSlotWord(W(address)), slot.Definition);
@@ -301,7 +301,7 @@ internal static class NativeSnapshotImportVerification
             // A free native slot keeps its last occupant's word in that occupant's bank; a free port slot shows no frame.
             slot.SpritemapPointer = W(address) == 0 ? (ushort)0 : W(address + 22);
             slot.Timer = WrappingCountdown.FromRaw(W(address + 24));
-            slot.CurrentInstruction = W(address + 26);
+
             slot.InstructionTimer = WrappingCountdown.FromRaw(W(address + 28));
             // The native palette word names a row; the colouring it denotes is decoded under the room's loaded set.
             slot.SetPaletteRow(runtime.Enemies, NativeSpriteGraphicsWords.PaletteRow(W(address + 30)));
@@ -323,7 +323,7 @@ internal static class NativeSnapshotImportVerification
                 kraid.HeadProgram = kraidHeadCursors.TryCursorAt(words.B);
             // A Pipe Bug's animation runs as a typed program (#641): resume it where the recorded pointer stands.
             if (runtime.Enemies.PipeBugStates[index] is { } pipeBug)
-                pipeBug.Program = pipeBugPointers.CursorAt(checked((ushort)slot.CurrentInstruction));
+                pipeBug.Program = pipeBugPointers.CursorAt(W(address + MovieDesyncMemory.EnemyInstructionListOffset));
             if (runtime.Enemies.PipeBugStates[index] is { IsBrinstar: true } pipe)
             {
                 pipe.SpawnPosition = new(words.B, words.C);

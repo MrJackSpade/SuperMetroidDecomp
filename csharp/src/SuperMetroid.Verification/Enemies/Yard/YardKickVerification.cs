@@ -39,7 +39,7 @@ internal static class YardKickVerification
             samus.Position = samus.Position.WithWhole(actor.Position.Whole);
             samus.InvincibilityTimer = WrappingCountdown.Start(0);
             samus.HorizontalDistanceMovedPlusOne = SignedSixteenSixteen.FromRaw(unchecked((int)(SixteenSixteen.FromWhole((uint)whole) | fraction)));
-            AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, 0, assets.LevelData, actor.EnemyIndex),
+            AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, 0, assets.LevelData, actor),
                 "Yard kick enters through native contact dispatcher");
             bool left = pose == SamusPoseId.FacingLeftNormalPose;
             AssertEqual(left ? unchecked((ushort)-whole) : whole, state.AirborneVelocity.X.WholeWord, "kick whole word");

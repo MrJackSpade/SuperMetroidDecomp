@@ -11,7 +11,7 @@ internal static class MagdolliteApexThresholdVerification
 {
     /// <summary>
     /// Confirms issue #1269: the $A8:B259 maximum-rise branch compares arm height with
-    /// <c>MagdolliteArmHeightThreshold + EnemyIndex</c> ($A0:9073) before loading the growth
+    /// the threshold table plus the enemy's slot offset ($A0:9073) before loading the growth
     /// index into Y. The recorded Crateria arm in slot two reads $AE9D and grows one final
     /// pillar segment at the apex. For every enemy slot, the cartridge's signed comparison of each rise an arm can
     /// reach the apex with (the maximum rise plus at most one step of the fastest speed record) against the overread

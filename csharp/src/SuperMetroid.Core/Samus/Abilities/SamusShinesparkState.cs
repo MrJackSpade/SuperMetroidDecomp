@@ -1154,7 +1154,7 @@ false,             CrashSequenceFinished: true);
         SolidEnemyCollisionResult enemy = SamusSolidEnemyCollision.Probe(
             samus.Kinematics, samus.Kinematics.InteractiveEnemies, SamusCollisionDirection.Up,
             FixedCoordinate.WholeOf(collisionMagnitude), unchecked((ushort)collisionMagnitude));
-        samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirection.Up, enemy.EnemyIndex);
+        samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirection.Up, enemy.EnemySlot);
         if (enemy.Collided)
             return new BlockMoveResult(0, true, EnemyCollision: enemy);
 

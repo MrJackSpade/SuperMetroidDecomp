@@ -7,6 +7,10 @@ internal static class RoomEnemySlotSpawnParameters
     internal static void SetSpawnParameter1(this RoomEnemySlot slot, int value) =>
         slot.Spawn = slot.Spawn with { Population = slot.Spawn.Population with { Parameter1 = value } };
 
+    /// <summary>Sets the spawn settings the slot's population entry gives its species (#1471).</summary>
+    internal static void SetSpawnSettings(this RoomEnemySlot slot, EnemySpawnSettings settings) =>
+        slot.Spawn = slot.Spawn with { Population = slot.Spawn.Population with { SpawnSettings = settings } };
+
     /// <summary>Sets the slot's authored second spawn parameter, 0 through 65535.</summary>
     internal static void SetSpawnParameter2(this RoomEnemySlot slot, int value) =>
         slot.Spawn = slot.Spawn with { Population = slot.Spawn.Population with { Parameter2 = value } };

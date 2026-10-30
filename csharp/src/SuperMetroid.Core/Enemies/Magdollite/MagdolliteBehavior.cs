@@ -503,7 +503,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     private MagdolliteComposite RequireMagdolliteComposite(RoomEnemySlot member)
     {
         int headIndex = member.SlotIndex - checked(member.Spawn.Population.Parameter1);
-        if (headIndex < 0 || headIndex + 2 >= EnemySlotTable.MaximumEnemyCount)
+        if (headIndex < 0 || headIndex + 2 >= EnemySlotOrder.Capacity)
             throw new InvalidDataException($"Magdollite slot {member.SlotIndex} has no complete composite.");
 
         RoomEnemySlot head = _slotTable.Slots[headIndex];
@@ -641,7 +641,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Resolves the next physical record used by paired base-and-pillar animation opcodes.</summary>
     private RoomEnemySlot NextMagdolliteSlot(RoomEnemySlot slot)
     {
-        if (slot.SlotIndex + 1 >= EnemySlotTable.MaximumEnemyCount)
+        if (slot.SlotIndex + 1 >= EnemySlotOrder.Capacity)
             throw new InvalidDataException($"Magdollite slot {slot.SlotIndex} has no following component.");
         return _slotTable.Slots[slot.SlotIndex + 1];
     }
@@ -652,10 +652,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         // The native callback literally addresses current+$40 and current+$80. Ordinary
         // touch/shot reaches only the collision-enabled head, but power bombs may expose
         // this retail cross-record quirk, so do not silently normalize current to a group.
-        RoomEnemySlot? following = current.SlotIndex + 1 < EnemySlotTable.MaximumEnemyCount
+        RoomEnemySlot? following = current.SlotIndex + 1 < EnemySlotOrder.Capacity
             ? _slotTable.Slots[current.SlotIndex + 1]
             : null;
-        RoomEnemySlot? secondFollowing = current.SlotIndex + 2 < EnemySlotTable.MaximumEnemyCount
+        RoomEnemySlot? secondFollowing = current.SlotIndex + 2 < EnemySlotOrder.Capacity
             ? _slotTable.Slots[current.SlotIndex + 2]
             : null;
 

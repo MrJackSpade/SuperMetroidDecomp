@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -34,21 +33,7 @@ internal static class ImportedSpritemapsVerification
         ImportedSpritemapOracle.DrawEnemyProjectile(CartridgeImportSource.Require(bus), oam,
             bank8dSpritemapPointer, origin, graphicsIndex, originYIsOnScreen);
 
-    /// <summary>Checks a timed enemy instruction's executed sprite operand against its retail word.</summary>
-    internal static void VerifyExecutedEnemySelector(ISnesAddressSpace rom,
-        RoomEnemySlot slot, HashSet<ushort> executedOperands)
-    {
-        if (slot.InstructionTimer.IsZero) return;
-        ushort operand = unchecked((ushort)(slot.CurrentInstruction - 2));
-        int bank = (int)new SnesAddress(slot.NativeHeader.Bank, 0);
-        ushort native = LittleEndianBytes.Word(ExecutedEnemySelectorRomByte(rom, bank | operand), ExecutedEnemySelectorRomByte(rom, bank | unchecked((ushort)(operand + 1))));
-        AssertEqual(native, slot.SpritemapPointer,
-            $"executed enemy visual ${bank | operand:X6} matches cartridge selector");
-        executedOperands.Add(operand);
-    }
 
-    /// <summary>Reads one native enemy frame-selector byte for the executed-instruction check.</summary>
-    private static byte ExecutedEnemySelectorRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Compares the executed projectile frame's installed OAM with its native selector and spritemap.</summary>
     internal static void VerifyExecutedProjectileFrame(ISnesAddressSpace rom,
         RoomEnemyProjectileSlot projectile, EnemyProjectileSpritemapCatalog artwork,

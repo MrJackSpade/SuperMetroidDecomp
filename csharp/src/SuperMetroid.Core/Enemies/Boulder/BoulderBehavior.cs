@@ -87,10 +87,8 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
         int horizontalReach = -slot.Spawn.Population.Parameter2Settings.First;
 
-        // The population record's initialization parameter was copied to current_instruction
-        // before init AI ran. Boulder consumes only its low byte as the strict Samus-Y
-        // trigger threshold, then starts the real rolling animation in its place.
-        int verticalReach = unchecked((byte)slot.CurrentInstruction);
+        // The population entry's trigger height is the strict Samus-Y threshold.
+        int verticalReach = slot.Spawn.Population.SpawnSettingsOf<BoulderSpawnSettings>().TriggerHeight;
         state.DirectionSelector = slot.Spawn.Population.Parameter1Settings.Second;
         if (state.DirectionSelector == 0)
         {

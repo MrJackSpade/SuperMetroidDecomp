@@ -80,7 +80,8 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
     {
         int address = MotherBrainNativeListAddresses.TubePopulationRecord(piece);
         ushort Word(int offset) => LittleEndianBytes.Word(ReadByte(address + offset), ReadByte(address + offset + 1));
-        return new RoomEnemyPopulationRecord(FixtureDefinitionId(Word(0)), new(Word(2), Word(4)), Word(6), EnemyPropertyWord.FromWord(Word(8)), EnemyExtraPropertyWord.FromWord(Word(10)), Word(12), Word(14));
+        EnemyDefinitionId enemy = FixtureDefinitionId(Word(0));
+        return new RoomEnemyPopulationRecord(enemy, new(Word(2), Word(4)), SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(enemy, Word(6)), EnemyPropertyWord.FromWord(Word(8)), EnemyExtraPropertyWord.FromWord(Word(10)), Word(12), Word(14));
     }
 
     /// <summary>Reads up to 32 native-sized enemy population records through the terminating sentinel.</summary>
@@ -88,16 +89,16 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
     {
         int cursor = RoomEnemyRomLayout.PopulationBank | pointer;
         var records = new List<RoomEnemyPopulationRecord>();
-        for (int slot = 0; slot <= EnemySlotTable.MaximumEnemyCount; slot++)
+        for (int slot = 0; slot <= EnemySlotOrder.Capacity; slot++)
         {
             ushort definitionPointerWord = ReadFixtureWord(cursor);
             if (definitionPointerWord == 0xffff)
                 return new RoomEnemyPopulationDefinition(
                     $"fixture population ${pointer:X4}", records.ToArray(), ReadByte(cursor + 2));
             EnemyDefinitionId definitionPointer = FixtureDefinitionId(definitionPointerWord);
-            if (slot == EnemySlotTable.MaximumEnemyCount)
+            if (slot == EnemySlotOrder.Capacity)
                 throw new InvalidDataException($"Fixture population ${pointer:X4} exceeds 32 entries.");
-            records.Add(new RoomEnemyPopulationRecord(definitionPointer, new(ReadFixtureWord(cursor + 2), ReadFixtureWord(cursor + 4)), ReadFixtureWord(cursor + 6), EnemyPropertyWord.FromWord(ReadFixtureWord(cursor + 8)), EnemyExtraPropertyWord.FromWord(ReadFixtureWord(cursor + 10)), ReadFixtureWord(cursor + 12), ReadFixtureWord(cursor + 14)));
+            records.Add(new RoomEnemyPopulationRecord(definitionPointer, new(ReadFixtureWord(cursor + 2), ReadFixtureWord(cursor + 4)), SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(definitionPointer, ReadFixtureWord(cursor + 6)), EnemyPropertyWord.FromWord(ReadFixtureWord(cursor + 8)), EnemyExtraPropertyWord.FromWord(ReadFixtureWord(cursor + 10)), ReadFixtureWord(cursor + 12), ReadFixtureWord(cursor + 14)));
             cursor += 16;
         }
         throw new InvalidDataException($"Fixture population ${pointer:X4} is unterminated.");

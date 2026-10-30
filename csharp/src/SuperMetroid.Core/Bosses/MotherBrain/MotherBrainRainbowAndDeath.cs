@@ -283,7 +283,7 @@ internal sealed class MotherBrainRainbowAndDeath
         RoomEnemySlot head = state.Head;
 
         // `$A9:C447` resets the physical list timer only when body AI requests a new list.
-        // The dedicated latch is essential because CurrentInstruction advances away from
+        // The dedicated latch is essential because the running program advances away from
         // the list origin while the request itself remains unchanged.
         if (sequence.State.HeadProgram is { } headProgram &&
             (step is { HeadInstructionListRequested: true } ||

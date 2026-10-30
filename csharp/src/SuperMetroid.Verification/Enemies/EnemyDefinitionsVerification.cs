@@ -28,7 +28,7 @@ internal static class EnemyDefinitionsVerification
         {
             int populationAddress = RoomEnemyRomLayout.PopulationBank |
                 RoomEnemyPopulationDefinitions.PointerOf(state.EnemyPopulation);
-            for (int slot = 0; slot < EnemySlotTable.MaximumEnemyCount; slot++)
+            for (int slot = 0; slot < EnemySlotOrder.Capacity; slot++)
             {
                 ushort pointerWord = ReadVerificationWord(bus, populationAddress);
                 if (pointerWord == 0xffff) break;
@@ -118,8 +118,9 @@ internal static class EnemyDefinitionsVerification
             ushort[] words = Enumerable.Range(0, 8)
                 .Select(wordIndex => ReadVerificationWord(rom, address + wordIndex * 2))
                 .ToArray();
-            // The native record's instruction list is unused: the piece runs its typed program (#641).
-            var native = new RoomEnemyPopulationRecord(EnemyDefinitionIds.FromHeaderPointer(words[0]), new(words[1], words[2]), 0, EnemyPropertyWord.FromWord(words[4]), EnemyExtraPropertyWord.FromWord(words[5]), words[6], words[7]);
+            // The native record's instruction list decodes to no spawn settings: the piece runs its typed program (#641).
+            EnemyDefinitionId nativeEnemy = EnemyDefinitionIds.FromHeaderPointer(words[0]);
+            var native = new RoomEnemyPopulationRecord(nativeEnemy, new(words[1], words[2]), EnemySpawnSettingsCodec.Decode(nativeEnemy, words[3]), EnemyPropertyWord.FromWord(words[4]), EnemyExtraPropertyWord.FromWord(words[5]), words[6], words[7]);
             AssertEqual(native, MotherBrainFallingTubes.Get(piece),
                 $"Mother Brain falling-tube record {piece} matches the native placement words");
 

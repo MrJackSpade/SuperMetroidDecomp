@@ -41,7 +41,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
     private static KzanExtensionWords[] NewExtensions() =>
-        [.. Enumerable.Range(0, EnemySlotTable.MaximumEnemyCount).Select(_ => new KzanExtensionWords())];
+        [.. Enumerable.Range(0, EnemySlotOrder.Capacity).Select(_ => new KzanExtensionWords())];
 
     /// <summary>Initializes the top's idle list, wrapped speed-table index, fall distance, and low-byte wait timer from its two parameters.</summary>
     internal void InitializeKzanTop(RoomEnemySlot slot)

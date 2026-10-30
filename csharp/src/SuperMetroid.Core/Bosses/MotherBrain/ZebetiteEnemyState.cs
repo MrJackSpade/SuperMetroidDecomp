@@ -9,11 +9,13 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 public sealed class ZebetiteEnemyState
 {
-    /// <summary>Creates the state for one Zebetite half from its spawn parameters: its pairing and linked-slot index.</summary>
+    /// <summary>
+    /// Creates the state for one Zebetite half from its spawn parameters: its pairing. Its linked half starts as the
+    /// first slot, as the spawn records leave the link at zero, until a pair links its halves.
+    /// </summary>
     internal ZebetiteEnemyState(RoomEnemyPopulationRecord population)
     {
         IsSecondaryHalf = population.Parameter1 != 0;
-        LinkedEnemyIndex = population.Parameter2;
     }
 
     /// <summary>
@@ -38,11 +40,14 @@ public sealed class ZebetiteEnemyState
     /// <summary>Where this half's health program resumes (#641).</summary>
     internal AnimationProgramCursor<ZebetiteProgram> Cursor { get; set; }
 
-    /// <summary>The linked half's enemy index (parameter two).</summary>
-    public int LinkedEnemyIndex
+    /// <summary>
+    /// The slot ordinal of the half a shot's health and flash are copied to: the other half of a linked pair, and the
+    /// first slot for a single barrier, which therefore takes the barrier's health and flash when the barrier is shot.
+    /// </summary>
+    public int LinkedSlot
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, EnemySlotOrder.Capacity - 1, value);
     }
 
     /// <summary>Whether this is the linked bottom half (nonzero parameter one); it skips primary palette cycling and dies without publishing the next generation's events or respawn.</summary>
@@ -54,7 +59,7 @@ public sealed class ZebetiteEnemyState
         Function = null;
         Generation = 0;
         GenerationFlags = default;
-        LinkedEnemyIndex = 0;
+        LinkedSlot = 0;
         IsSecondaryHalf = false;
     }
 }

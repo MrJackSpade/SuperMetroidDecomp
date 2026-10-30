@@ -104,7 +104,7 @@ public static class SamusBlockCollision
                 direction,
                 FixedCoordinate.WholeOf(unchecked((int)magnitude)),
                 unchecked((ushort)magnitude));
-            state.RecordSolidEnemyCollision(direction, probe.EnemyIndex);
+            state.RecordSolidEnemyCollision(direction, probe.EnemySlot);
 
             if (probe.Collided)
             {
@@ -420,7 +420,7 @@ public static class SamusBlockCollision
                 direction,
                 FixedCoordinate.WholeOf(unchecked((int)magnitude)),
                 unchecked((ushort)magnitude));
-            state.RecordSolidEnemyCollision(direction, probe.EnemyIndex);
+            state.RecordSolidEnemyCollision(direction, probe.EnemySlot);
 
             if (probe.Collided)
             {

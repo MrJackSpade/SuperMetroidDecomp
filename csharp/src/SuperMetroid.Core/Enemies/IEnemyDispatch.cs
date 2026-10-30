@@ -18,13 +18,13 @@ internal interface IEnemyDispatch
     /// <summary>
     /// Native <c>SpawnEnemy</c> ($A0:92DB): installs <paramref name="population"/> in the first free slot, runs its
     /// initialization AI, starts its instruction list when it processes instructions and extends the live enemy range.
-    /// Returns null without spawning when all 32 slots are occupied.
+    /// Returns null without spawning when every slot is occupied.
     /// </summary>
     RoomEnemySlot? SpawnEnemy(RoomEnemyPopulationRecord population);
 
     /// <summary>Runs the slot's main AI inside the supplied frame.</summary>
     void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame);
 
-    /// <summary>Native indexes of the enemies admitted to interaction this frame, in processing order.</summary>
-    IReadOnlyList<int> InteractiveEnemyIndexes { get; }
+    /// <summary>The enemies admitted to interaction this frame, in slot order.</summary>
+    IReadOnlyList<RoomEnemySlot> InteractiveEnemies { get; }
 }

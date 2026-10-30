@@ -26,8 +26,7 @@ internal sealed class EnemyDrawList
     private readonly EnemyPresentation _presentation;
     /// <summary>Supplies installed extended frames and validates active room ownership.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Resolves native queue indices to current enemy slots at draw time.</summary>
-    private readonly EnemySlotTable _slotTable;
+
 
     /// <summary>Retains the behavior and presentation owners used by EnemyMain's draw pass.</summary>
     internal EnemyDrawList(EnemyDrawListDependencies dependencies)
@@ -38,21 +37,20 @@ internal sealed class EnemyDrawList
         _motherBrainBehavior = dependencies.MotherBrainBehavior;
         _presentation = dependencies.Presentation;
         _room = dependencies.Room;
-        _slotTable = dependencies.SlotTable;
     }
-    /// <summary>Native enemy indices grouped into the eight ordered drawing layers.</summary>
-    internal readonly List<int>[] DrawQueues =
-        Enumerable.Range(0, 8).Select(_ => new List<int>()).ToArray();
+    /// <summary>The enemies queued on each of the eight drawing layers, each queue in <see cref="EnemySlotOrder"/>.</summary>
+    internal readonly List<RoomEnemySlot>[] DrawQueues =
+        Enumerable.Range(0, 8).Select(_ => new List<RoomEnemySlot>()).ToArray();
 
     /// <summary>Empties every layer queue before the enemy pass rebuilds them.</summary>
     internal void Clear()
     {
-        foreach (List<int> queue in DrawQueues)
+        foreach (List<RoomEnemySlot> queue in DrawQueues)
             queue.Clear();
     }
 
-    /// <summary>Queues an enemy, by native index, for its draw layer.</summary>
-    internal void Enqueue(int layer, int enemyIndex) => DrawQueues[layer].Add(enemyIndex);
+    /// <summary>Queues <paramref name="enemy"/> on its draw layer, after the enemies already queued there.</summary>
+    internal void Enqueue(int layer, RoomEnemySlot enemy) => DrawQueues[layer].Add(Ensure.NotNull(enemy));
 
     /// <summary>The draws <see cref="AdvanceLayers"/> prepared for the layer range <see cref="DrawLayers"/> publishes next.</summary>
     [NonSerialized] private List<PreparedEnemyDraw>? _prepared;
@@ -60,7 +58,7 @@ internal sealed class EnemyDrawList
     [NonSerialized] private InclusiveRange _preparedLayers;
 
     /// <summary>
-    /// The simulation half of <c>WriteEnemyOams</c> for an inclusive layer range, in native slot order: each queued
+    /// The simulation half of <c>WriteEnemyOams</c> for an inclusive layer range, in queue order: each queued
     /// enemy's shake tick is consumed while its origin is formed, and an extended enemy's boss body frame is
     /// drawn. These run whenever the cartridge's draw pass runs, whether or not the frame is shown.
     /// </summary>
@@ -77,19 +75,17 @@ internal sealed class EnemyDrawList
         var prepared = new List<PreparedEnemyDraw>();
         foreach (int layer in Enumerable.Range(firstLayer, lastLayer - firstLayer + 1))
         {
-            foreach (int enemyIndex in DrawQueues[layer])
+            foreach (RoomEnemySlot slot in DrawQueues[layer])
             {
-                RoomEnemySlot slot = _slotTable.SlotAtEnemyIndex(enemyIndex);
                 // Power-bomb damage runs after queue construction and can clear a
                 // queued actor or replace it with the inert respawn reservation.
                 // Neither lifecycle state owns a display composition.
                 if (slot.DefinitionId is 0 or EnemyDefinitionId.Respawn)
                     continue;
 
-                // Enemy spawn-point offsets are zero for ordinary room-population entries.
-                // WriteEnemyOams nevertheless performs the additions before subtracting
-                // layer-1 position, so preserve modular 16-bit arithmetic here.
-                Position16<ScreenPixels> origin = (slot.Position.Whole + slot.SpawnOffset).ToScreen(camera);
+                // The draw offset is zero for ordinary room-population entries; the addition
+                // precedes the camera subtraction and wraps at sixteen bits.
+                Position16<ScreenPixels> origin = (slot.Position.Whole + slot.DrawOffset).ToScreen(camera);
 
                 // `WriteEnemyOAM` `$A0:947B-$9494` consumes one shake tick while forming
                 // the shared origin for both ordinary and extended spritemaps. Bit one of
@@ -108,7 +104,7 @@ internal sealed class EnemyDrawList
                 {
                     EnemyFrameId frame = slot.Frame ?? throw new InvalidDataException(
                         $"Enemy {slot.DefinitionId} draws before showing a frame.");
-                    prepared.Add(new PreparedEnemyDraw(layer, slot, enemyIndex, origin, drawColouring, frame, null, null));
+                    prepared.Add(new PreparedEnemyDraw(layer, slot, origin, drawColouring, frame, null, null));
                     continue;
                 }
 
@@ -120,7 +116,7 @@ internal sealed class EnemyDrawList
                     // and collision programs.
                     EnemyFrameId selected = _room.Artwork.ExtendedFramePlacements.GetDisplayFrame(shown);
                     _instructions.DrawBossBodyFrame(slot, selected);
-                    prepared.Add(new PreparedEnemyDraw(layer, slot, enemyIndex, origin, drawColouring, null, shown, installed));
+                    prepared.Add(new PreparedEnemyDraw(layer, slot, origin, drawColouring, null, shown, installed));
                     continue;
                 }
 
@@ -134,7 +130,7 @@ internal sealed class EnemyDrawList
     }
 
     /// <summary>
-    /// Publishes the draws <see cref="AdvanceLayers"/> prepared for the same layer range, in native slot order, as
+    /// Publishes the draws <see cref="AdvanceLayers"/> prepared for the same layer range, in queue order, as
     /// whole-frame entries over the gameplay OBJ page. An occupant's supplemental sprites and the layer-five boss hooks
     /// still write OAM between them, in the cartridge's order.
     /// </summary>
@@ -161,7 +157,7 @@ internal sealed class EnemyDrawList
             {
                 PreparedEnemyDraw draw = prepared[next];
                 RoomEnemySlot slot = draw.Slot;
-                var source = new SpriteSource(SpriteSourceKind.Enemy, draw.EnemyIndex / EnemySlotTable.EnemyIndexStride);
+                var source = new SpriteSource(SpriteSourceKind.Enemy, slot.SlotIndex);
                 // An occupant may draw supplemental sprites before the common writer emits its body (Ridley's tail
                 // and wings), preserving both that drawing order and the enemy's normal layer queue.
                 if (slot.Entity is IEnemyDrawHooks drawHooks)
@@ -211,13 +207,13 @@ internal sealed class EnemyDrawList
     /// <summary>One queued enemy's draw, formed by <see cref="AdvanceLayers"/>.</summary>
     /// <param name="Layer">The native draw layer it was queued on.</param>
     /// <param name="Slot">The enemy.</param>
-    /// <param name="EnemyIndex">The enemy's index.</param>
+
     /// <param name="Origin">Its shaken screen origin.</param>
     /// <param name="Colouring">The colours the common draw selected for this frame.</param>
     /// <param name="Frame">An ordinary enemy's frame; null for an extended enemy.</param>
     /// <param name="ExtendedFrame">The extended frame an extended enemy shows, which names its components' sheet frames; null for an ordinary enemy.</param>
     /// <param name="Components">Where an extended enemy's installed components are placed; null for an ordinary enemy.</param>
-    private readonly record struct PreparedEnemyDraw(int Layer, RoomEnemySlot Slot, int EnemyIndex,
+    private readonly record struct PreparedEnemyDraw(int Layer, RoomEnemySlot Slot,
         Position16<ScreenPixels> Origin, SpriteColouring Colouring, EnemyFrameId? Frame, EnemyFrameId? ExtendedFrame,
         ReadOnlyMemory<EnemyExtendedComponentPlacement>? Components);
 

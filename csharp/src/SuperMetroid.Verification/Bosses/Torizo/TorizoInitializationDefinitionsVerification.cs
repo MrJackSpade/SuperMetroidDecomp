@@ -43,7 +43,6 @@ internal static class TorizoInitializationDefinitionsVerification
                 actor.Colouring = SpriteColouring.InFixtureSet(7);
                 actor.Timer = WrappingCountdown.Start(0xffff);
                 actor.InstructionTimer = WrappingCountdown.Start(0xffff);
-                actor.CurrentInstruction = 0xffff;
                 initialize(actor);
                 AssertEqual(native[0], actor.Position.X.Whole, "Real Torizo initial X");
                 AssertEqual(native[1], actor.Position.Y.Whole, "Real Torizo initial Y");
@@ -68,12 +67,12 @@ internal static class TorizoInitializationDefinitionsVerification
             defeated = true;
             actor.Properties = EnemyPropertyWord.FromWord(0x1234);
             actor.Position = actor.Position.WithWhole(new(0x1111, 0x2222));
-            actor.CurrentInstruction = 0x3333;
+            actor.InstructionTimer = WrappingCountdown.Start(0x3333);
             initialize(actor);
             AssertEqual((ushort)(0x1234 | (ushort)EnemyProperties.Deleted), actor.Properties.ToWord(), "Defeated Torizo is deleted before initialization writes");
             AssertEqual((ushort)0x1111, actor.Position.X.Whole, "Defeated Torizo preserves X");
             AssertEqual((ushort)0x2222, actor.Position.Y.Whole, "Defeated Torizo preserves Y");
-            AssertEqual(0x3333, actor.CurrentInstruction, "Defeated Torizo preserves instruction");
+            AssertEqual((ushort)0x3333, actor.InstructionTimer.RawValue, "Defeated Torizo leaves its animation untouched");
         }
         Console.WriteLine("Torizo initialization: all 12 native words, 131072 real live initializations and both defeated early returns pass without ROM reads.");
     }

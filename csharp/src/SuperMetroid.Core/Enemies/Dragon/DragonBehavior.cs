@@ -248,7 +248,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         // power bomb may invoke this on a wing and copy into whatever physical record follows
         // it. Preserve that retail aliasing bug instead of silently normalizing to a body/wing
         // relationship; several dense populations place another live actor in that slot.
-        if (actor.SlotIndex >= EnemySlotTable.MaximumEnemyCount - 1)
+        if (actor.SlotIndex >= EnemySlotOrder.Capacity - 1)
         {
             throw new InvalidDataException(
                 "Dragon combat callback cannot alias beyond the final physical enemy slot.");
@@ -284,7 +284,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Requires Dragon's authored body/wing population pair in adjacent physical slots.</summary>
     private RoomEnemySlot GetDragonWing(RoomEnemySlot body)
     {
-        if (body.SlotIndex >= EnemySlotTable.MaximumEnemyCount - 1)
+        if (body.SlotIndex >= EnemySlotOrder.Capacity - 1)
             throw new InvalidDataException("Dragon body occupies the final physical enemy slot.");
 
         RoomEnemySlot wing = _slotTable.Slots[body.SlotIndex + 1];

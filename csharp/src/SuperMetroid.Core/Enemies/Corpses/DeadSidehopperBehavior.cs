@@ -69,7 +69,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
     /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
     private static DeadSidehopperExtensionWords[] NewExtensions() =>
-        [.. Enumerable.Range(0, EnemySlotTable.MaximumEnemyCount).Select(_ => new DeadSidehopperExtensionWords())];
+        [.. Enumerable.Range(0, EnemySlotOrder.Capacity).Select(_ => new DeadSidehopperExtensionWords())];
 
     /// <summary>Remembers level data for the private power-bomb callback, which has no level argument.</summary>
     private RoomLevelData? _deadSidehopperLevel;
@@ -232,7 +232,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                 return;
 
             case DeadSidehopperAiFunction.WaitForSamusCollision:
-                if (samus?.Kinematics.DidCollideWithSolidEnemy(slot.EnemyIndex) == true)
+                if (samus?.Kinematics.DidCollideWithSolidEnemy(slot.SlotIndex) == true)
                     state.Function = DeadSidehopperAiFunction.PreRotDelay;
                 return;
 

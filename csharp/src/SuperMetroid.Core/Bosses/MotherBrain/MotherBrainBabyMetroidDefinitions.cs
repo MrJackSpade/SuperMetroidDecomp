@@ -16,6 +16,6 @@ internal static class MotherBrainBabyMetroidDefinitions
     /// program replaces and nothing reads.
     /// </summary>
     internal static readonly RoomEnemyPopulationRecord SpawnPopulation =
-        new(EnemyDefinitionId.BabyMetroidCutscene, new(0x0180, 0x0040), 0,
+        new(EnemyDefinitionId.BabyMetroidCutscene, new(0x0180, 0x0040), EnemySpawnSettings.None,
             new EnemyPropertyWord(EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen), new EnemyExtraPropertyWord(EnemyExtraProperties.None), 0, 0);
 }

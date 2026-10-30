@@ -35,7 +35,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
     private static FirefleaExtensionWords[] NewExtensions() =>
-        [.. Enumerable.Range(0, EnemySlotTable.MaximumEnemyCount).Select(_ => new FirefleaExtensionWords())];
+        [.. Enumerable.Range(0, EnemySlotOrder.Capacity).Select(_ => new FirefleaExtensionWords())];
 
     /// <summary>Ports <c>InitAI_Fireflea</c> at <c>$A3:8D2D</c>, decoding motion parameters and the retail initial-circle angle bug.</summary>
     internal void InitializeFireflea(RoomEnemySlot slot)

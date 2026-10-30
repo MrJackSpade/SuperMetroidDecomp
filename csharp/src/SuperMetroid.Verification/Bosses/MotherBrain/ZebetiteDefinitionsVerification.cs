@@ -71,7 +71,7 @@ internal static class ZebetiteDefinitionsVerification
                 SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(population.DefinitionId),
                 population.Position.X,
                 population.Position.Y,
-                checked((ushort)population.InitializationParameter),
+                checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Encode(population.SpawnSettings)),
                 population.Properties.ToWord(),
                 population.ExtraProperties.ToWord(),
                 checked((ushort)population.Parameter1),

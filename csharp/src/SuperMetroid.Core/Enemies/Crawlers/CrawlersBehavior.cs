@@ -62,12 +62,11 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         Bind(slot, state);
 
-        // The population initialization parameter is an orientation index, not an
-        // instruction pointer. Masking to two bits before selector lookup is native.
-        // InitAI_Viola ($A3:B678) alone selects with the property bits instead.
-        CrawlerSurfaceOrientation orientation = CrawlerAnimationDefinitions.Orientations.At((animationFamily == CrawlerAnimationFamily.Viola
-            ? slot.Properties.FamilyData
-            : slot.CurrentInstruction) & 3);
+        // The population entry names the starting surface. InitAI_Viola ($A3:B678) alone
+        // selects with the property bits instead.
+        CrawlerSurfaceOrientation orientation = animationFamily == CrawlerAnimationFamily.Viola
+            ? CrawlerAnimationDefinitions.Orientations.At(slot.Properties.FamilyData & 3)
+            : slot.Spawn.Population.SpawnSettingsOf<CrawlerSpawnSettings>().Orientation;
         state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.InitialProgram(
             animationFamily, orientation));
         slot.Frame = EnemyFrameId.Empty;
@@ -123,7 +122,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             SurfaceTableOffset = slot.Spawn.Population.Parameter2,
         };
         Bind(slot, state);
-        CrawlerSurfaceOrientation orientation = CrawlerAnimationDefinitions.Orientations.At(slot.CurrentInstruction & 3);
+        CrawlerSurfaceOrientation orientation = slot.Spawn.Population.SpawnSettingsOf<CrawlerSpawnSettings>().Orientation;
         state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.InitialProgram(
             CrawlerAnimationFamily.HZoomer, orientation));
         slot.Frame = EnemyFrameId.Empty;

@@ -42,9 +42,9 @@ internal static class MovieDesyncMemory
     public const int EnemyBase = 0x0f78;
     /// <summary>Enemy slot stride in bytes.</summary>
     public const int EnemyStride = 64;
-    /// <summary>Offsets inside an enemy slot: species, X, X subposition, Y, Y subposition, health.</summary>
+    /// <summary>Offsets inside an enemy slot: species, X, X subposition, Y, Y subposition, health, instruction list.</summary>
     public const int EnemyIdentityOffset = 0x00, EnemyXOffset = 0x02, EnemyXFractionOffset = 0x04,
-        EnemyYOffset = 0x06, EnemyYFractionOffset = 0x08, EnemyHealthOffset = 0x14;
+        EnemyYOffset = 0x06, EnemyYFractionOffset = 0x08, EnemyHealthOffset = 0x14, EnemyInstructionListOffset = 0x1a;
 
     /// <summary>$7E:2020: seven ten-word Ridley tail records; X/Y at +12/+14. The tail deals contact damage.</summary>
     public const int RidleyTailSegments = 0x2020, RidleyTailSegmentStride = 20,

@@ -274,14 +274,14 @@ internal static class RoomEnemySystemAccess
         internal ShitroidEnemyState? Shitroid => self.ShitroidBehavior.Shitroid;
 
         /// <summary>Native $40-byte slot offsets selected by the most recent activity scan.</summary>
-        internal IReadOnlyList<int> ActiveEnemyIndexes => self.ProcessingWindow.ActiveEnemyIndexes;
+        internal IReadOnlyList<RoomEnemySlot> ActiveEnemies => self.ProcessingWindow.ActiveEnemies;
 
         /// <summary>Typed native state for every physical Etecoon slot.</summary>
         internal IReadOnlyList<EtecoonEnemyState?> EtecoonStates =>
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<EtecoonEntity, EtecoonEnemyState>())];
 
         /// <summary>Native slot offsets admitted to solid-enemy interaction.</summary>
-        internal IReadOnlyList<int> InteractiveEnemyIndexes => self.ProcessingWindow.InteractiveEnemyIndexes;
+        internal IReadOnlyList<RoomEnemySlot> InteractiveEnemies => self.ProcessingWindow.InteractiveEnemies;
 
         /// <summary>Typed Alcoon state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<AlcoonEnemyState?> AlcoonStates =>

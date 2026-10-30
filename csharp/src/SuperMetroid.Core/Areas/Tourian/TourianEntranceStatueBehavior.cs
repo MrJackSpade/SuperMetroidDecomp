@@ -55,7 +55,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
 
     /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
     private static TourianEntranceStatueExtensionWords[] NewExtensions() =>
-        [.. Enumerable.Range(0, EnemySlotTable.MaximumEnemyCount).Select(_ => new TourianEntranceStatueExtensionWords())];
+        [.. Enumerable.Range(0, EnemySlotOrder.Capacity).Select(_ => new TourianEntranceStatueExtensionWords())];
 
     /// <summary>Installs one of three animations and lets only the first statue record spawn the fixed decorative actors.</summary>
     internal void InitializeTourianEntranceStatue(RoomEnemySlot statue)

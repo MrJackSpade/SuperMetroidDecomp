@@ -97,11 +97,11 @@ internal static class MochtroidBotwoonClipVerification
         samus.CommitPoseHistory();
 
         RoomEnemySlot mochtroid = runtime.Enemies.SlotTable.Slots.Single(
-            slot => slot.EnemyIndex == expected.EnemyNativeIndex);
+            slot => slot.SlotIndex == SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.SlotOf(expected.EnemyNativeIndex));
         AssertEqual(EnemyDefinitionId.Mochtroid, mochtroid.DefinitionId,
             $"{expected.Case} fixture selects retail Mochtroid slot");
         foreach (RoomEnemySlot slot in runtime.Enemies.SlotTable.Slots.Where(
-                     slot => slot.EnemyIndex != expected.EnemyNativeIndex))
+                     slot => slot != mochtroid))
         {
             slot.Clear();
         }
@@ -130,8 +130,8 @@ internal static class MochtroidBotwoonClipVerification
             {
                 AssertEqual(expected.LandingY, samus.Position.Y.Whole,
                     $"{expected.Case} frozen-Mochtroid landing Y");
-                AssertEqual(expected.EnemyNativeIndex,
-                    samus.Kinematics.SolidEnemyCollisionIndexes[(int)SamusCollisionDirection.Down],
+                AssertEqual((int?)mochtroid.SlotIndex,
+                    samus.Kinematics.SolidEnemyCollisions[(int)SamusCollisionDirection.Down],
                     $"{expected.Case} landing collision owner");
             }
             if (frame == expected.StandFrame)

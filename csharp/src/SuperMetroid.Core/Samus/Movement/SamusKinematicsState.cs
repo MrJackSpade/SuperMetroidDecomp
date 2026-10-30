@@ -16,11 +16,10 @@ namespace SuperMetroid.Core.Samus.Movement;
 public sealed class SamusKinematicsState
 {
     /// <summary>
-    /// WRAM $7E:182C-$1833 retains each direction's solid-enemy hit until EnemyMain's
-    /// tail clears all four words; dead-monster AI observes this delayed result.
+    /// The slot ordinal of the solid enemy Samus met in each of the four directions, or null where she met none, kept
+    /// until the end of the enemy pass clears them; dead-monster AI observes this delayed result.
     /// </summary>
-    private readonly ushort[] _solidEnemyCollisionIndexes =
-        [ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue];
+    private readonly int?[] _solidEnemyCollisions = [null, null, null, null];
 
     /// <summary>
     /// Contact-damage snapshot for ownerless geometry probes. Sand still reads this
@@ -84,10 +83,10 @@ public sealed class SamusKinematicsState
         Array.Empty<SolidEnemyCollisionBody>();
 
     /// <summary>
-    /// Native left/right/up/down collision-index words. <c>$FFFF</c> means that direction did
-    /// not encounter a solid enemy.
+    /// The slot ordinal of the solid enemy Samus met moving left, right, up and down, in that order, or null where she
+    /// met none since the enemy pass last cleared them.
     /// </summary>
-    public IReadOnlyList<ushort> SolidEnemyCollisionIndexes => _solidEnemyCollisionIndexes;
+    public IReadOnlyList<int?> SolidEnemyCollisions => _solidEnemyCollisions;
 
     /// <summary>
     /// Room-pixel 16.16 position: X at WRAM <c>$0AF6.$0AF8</c>, Y at <c>$0AFA.$0AFC</c>.
@@ -160,12 +159,12 @@ public sealed class SamusKinematicsState
     public Position16<RoomPixels> BottomPixel =>
         new(Position.X.Whole, unchecked((ushort)(BottomBoundary - 1)));
 
-    /// <summary>Publishes the result of one directional bank-$A0 solid-enemy probe.</summary>
+    /// <summary>Publishes the result of one directional solid-enemy probe: the slot ordinal of the enemy met, or null.</summary>
     internal void RecordSolidEnemyCollision(
         SamusCollisionDirection direction,
-        int? solidEnemyIndex)
+        int? solidEnemySlot)
     {
-        int word = direction switch
+        int entry = direction switch
         {
             SamusCollisionDirection.Left => 0,
             SamusCollisionDirection.Right => 1,
@@ -175,21 +174,21 @@ public sealed class SamusKinematicsState
                 "A non-directional probe publishes no solid-enemy collision."),
             _ => throw new ArgumentOutOfRangeException(nameof(direction)),
         };
-        _solidEnemyCollisionIndexes[word] = checked((ushort)(solidEnemyIndex ?? ushort.MaxValue));
+        _solidEnemyCollisions[entry] = solidEnemySlot;
     }
 
-    /// <summary>Tests the four collision words exactly as dead-monster wait AI does.</summary>
-    internal bool DidCollideWithSolidEnemy(int solidEnemyIndex)
+    /// <summary>Whether Samus met the enemy in slot <paramref name="solidEnemySlot"/> in any direction, as dead-monster wait AI tests.</summary>
+    internal bool DidCollideWithSolidEnemy(int solidEnemySlot)
     {
-        foreach (int index in _solidEnemyCollisionIndexes)
+        foreach (int? slot in _solidEnemyCollisions)
         {
-            if (index == solidEnemyIndex)
+            if (slot == solidEnemySlot)
                 return true;
         }
         return false;
     }
 
-    /// <summary>Ports EnemyMain's end-of-frame clear of <c>$182C-$1833</c>.</summary>
-    internal void ClearSolidEnemyCollisionIndexes() =>
-        Array.Fill(_solidEnemyCollisionIndexes, ushort.MaxValue);
+    /// <summary>Forgets every direction's contact, as the end of the enemy pass does.</summary>
+    internal void ClearSolidEnemyCollisions() =>
+        Array.Fill(_solidEnemyCollisions, null);
 }

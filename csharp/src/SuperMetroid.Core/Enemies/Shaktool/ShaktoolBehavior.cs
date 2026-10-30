@@ -380,7 +380,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The slot of the chain's first segment, which must be one of the room's enemy slots.</summary>
     private RoomEnemySlot OwnerSlot(ShaktoolSegmentState state)
     {
-        if (state.OwnerSlotIndex is < 0 or >= EnemySlotTable.MaximumEnemyCount)
+        if (state.OwnerSlotIndex is < 0 or >= EnemySlotOrder.Capacity)
             throw new ArgumentOutOfRangeException(nameof(state), $"Shaktool owner slot {state.OwnerSlotIndex} is not an enemy slot.");
         return _slotTable.Slots[state.OwnerSlotIndex];
     }

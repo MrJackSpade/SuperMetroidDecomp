@@ -37,7 +37,7 @@ internal static class CrawlerBehaviorVerification
             slot.Bind(definition, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             // The population parameter, read before initialization, selects the surface; InitAI_Viola reads the property bits.
-            slot.CurrentInstruction = (ushort)orientation;
+            slot.SetSpawnSettings(new CrawlerSpawnSettings(orientation));
             if (family == CrawlerAnimationFamily.Viola)
                 slot.Properties = EnemyPropertyWord.FromWord((ushort)orientation);
             if (family == CrawlerAnimationFamily.HZoomer)

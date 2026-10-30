@@ -25,7 +25,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
     private static BullExtensionWords[] NewExtensions() =>
-        [.. Enumerable.Range(0, EnemySlotTable.MaximumEnemyCount).Select(_ => new BullExtensionWords())];
+        [.. Enumerable.Range(0, EnemySlotOrder.Capacity).Select(_ => new BullExtensionWords())];
 
     /// <summary>Ports <c>InitAI_Bull</c> at <c>$A8:D8C9</c>.</summary>
     internal void InitializeBull(RoomEnemySlot slot)

@@ -83,7 +83,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
     private static MotherBrainExtensionWords[] NewExtensions() =>
-        [.. Enumerable.Range(0, EnemySlotTable.MaximumEnemyCount).Select(_ => new MotherBrainExtensionWords())];
+        [.. Enumerable.Range(0, EnemySlotOrder.Capacity).Select(_ => new MotherBrainExtensionWords())];
 
     /// <summary>Ports the common body main/hurt entry at <c>$A9:873E</c>.</summary>
     internal void RunMotherBrainBodyMain(

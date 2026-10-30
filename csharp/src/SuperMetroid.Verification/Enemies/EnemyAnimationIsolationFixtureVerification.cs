@@ -66,11 +66,8 @@ internal static class EnemyAnimationIsolationFixtureVerification
         internal EnemyAnimationFixture(InstalledEnemyArtwork artwork, bool golden, RoomEnemyGraphicsSetDefinition? graphicsSet = null)
         {
             const int roomBlocks = 32;
-            var layer = new ushort[roomBlocks * roomBlocks];
-            for (int y = FloorY / 16; y < roomBlocks; y++)
-            for (int x = 0; x < roomBlocks; x++)
-                layer[y * roomBlocks + x] = RoomLevelWord.Create(0, 0, RoomCollisionType.SolidBlock).Raw;
-            Level = new RoomLevelData(new Extent16<RoomBlocks>(roomBlocks, roomBlocks), new RoomLevelPlanes(layer, new byte[layer.Length], new ushort[layer.Length]));
+            const int floorRow = FloorY / 16;
+            Level = CreateSolidRowsRoom(new(roomBlocks, roomBlocks), floorRow, roomBlocks - floorRow);
             Enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
             Enemies.Presentation.BindColours(Colors.Gameplay);

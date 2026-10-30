@@ -19,15 +19,15 @@ internal static class ElevatorStandUpContactVerification
     internal static void VerifyElevatorStandUpContact()
     {
         const int Width = 4, Height = 6, DoorRow = 4;
-        var blocks = new ushort[Width * Height];
-        var behaviors = new byte[Width * Height];
+        var blocks = new RoomTerrainBlock[Width * Height];
+        var behaviors = new RoomBlockBehavior[Width * Height];
         for (int x = 0; x < Width; x++)
         {
-            // Tourian's elevator list: BTS 2 is the solid pseudo-door that arms the actor.
-            blocks[DoorRow * Width + x] = 0x9000;
-            behaviors[DoorRow * Width + x] = 2;
+            // Tourian's elevator list: behaviour 2 is the solid pseudo-door that arms the actor.
+            blocks[DoorRow * Width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.DoorBlock);
+            behaviors[DoorRow * Width + x] = new RoomBlockBehavior(2);
         }
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(Width, Height), new RoomLevelPlanes(blocks, behaviors, new ushort[Width * Height]), doors: RoomDoorListDefinitions.ForListPointer(0xdad5));
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(Width, Height), new RoomLevelPlanes(blocks, behaviors, new RoomBlockAppearance[Width * Height]), doors: RoomDoorListDefinitions.ForListPointer(0xdad5));
 
         var samus = new SamusState { Pose = SamusPoseId.CrouchingLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(24, 0)) };
         SamusPoseMetadata.RefreshCollisionRadii(samus);

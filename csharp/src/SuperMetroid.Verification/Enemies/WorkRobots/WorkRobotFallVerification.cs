@@ -16,7 +16,7 @@ internal static class WorkRobotFallVerification
     /// </summary>
     internal static void VerifyWorkRobotFall()
     {
-        var air = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(new ushort[64], new byte[64], new ushort[64]));
+        RoomLevelData air = VerificationHelpersVerification.CreateEmptyRoom(new(8, 8));
         var frame = new ClockedEnemyAiFrame(
             new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Level = air },
             new FrameCounters(0));

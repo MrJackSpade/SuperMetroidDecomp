@@ -72,10 +72,8 @@ internal static class YardTurnDefinitionsVerification
     private static void VerifyYardTurnProductionBranches(
         IReadOnlyList<YardTurnDefinitionsRecord> records)
     {
-        var emptyWords = new ushort[64 * 64];
-        var solidWords = Enumerable.Repeat((ushort)0x8000, emptyWords.Length).ToArray();
-        RoomLevelData empty = CreateYardTurnLevel(emptyWords);
-        RoomLevelData solid = CreateYardTurnLevel(solidWords);
+        RoomLevelData empty = VerificationHelpersVerification.CreateEmptyRoom(new(64, 64));
+        RoomLevelData solid = VerificationHelpersVerification.CreateSolidRowsRoom(new(64, 64), firstSolidRow: 0, solidRowCount: 64);
 
         foreach ((YardMovementFunction movement, bool disabled, _) in records)
         {
@@ -88,9 +86,6 @@ internal static class YardTurnDefinitionsVerification
                 movement, disabled, solid, definition.InsideTurnProgram,
                 $"Yard inside turn {movement}/{disabled}");
         }
-
-        static RoomLevelData CreateYardTurnLevel(ushort[] words) =>
-            new(new Extent16<RoomBlocks>(64, 64), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]));
 
         static void VerifyYardTurnProductionBranch(
             YardMovementFunction movement,

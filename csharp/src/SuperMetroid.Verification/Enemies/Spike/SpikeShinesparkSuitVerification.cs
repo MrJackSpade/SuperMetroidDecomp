@@ -18,6 +18,12 @@ namespace SuperMetroid.Verification.Enemies.Spike;
 /// <summary>Checks the spike-induced Shinespark suit timing window and Reserve freeze behavior.</summary>
 internal static class SpikeShinesparkSuitVerification
 {
+    /// <summary>Open air showing block zero: the cleared field the fixture builds its hazards in.</summary>
+    private static readonly RoomTerrainBlock OpenAir = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Air);
+
+    /// <summary>Spike air showing block zero: the hazard Samus's body touches.</summary>
+    private static readonly RoomTerrainBlock SpikeAirTerrain = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpikeAir);
+
     /// <summary>Compares adjacent dry launch frames and the underwater Reserve timing window.</summary>
     internal static void VerifySpikeShinesparkSuit()
     {
@@ -166,8 +172,8 @@ internal static class SpikeShinesparkSuitVerification
             projectile.Clear();
         for (int block = 0; block < level.Size.X * level.Size.Y; block++)
         {
-            level.SetForegroundEntry(block, 0);
-            level.SetBehavior(block, 0);
+            level.SetTerrain(block, OpenAir);
+            level.SetBehavior(block, RoomBlockBehaviorValues.None);
         }
 
         SamusState samus = runtime.Player.IntroducedSamus;
@@ -192,7 +198,7 @@ internal static class SpikeShinesparkSuitVerification
             "spike-suit fixture accepts stored Shinespark");
 
         int centerBlock = (samus.Position.Y.Whole >> 4) * level.Size.X + (samus.Position.X.Whole >> 4);
-        level.SetForegroundEntry(centerBlock, (ushort)RoomCollisionType.SpikeAir << 12);
+        level.SetTerrain(centerBlock, SpikeAirTerrain);
         level.SetBehavior(centerBlock, SpikeHazardDefinitions.DamagingSpikeAirBehavior);
         if (underwater)
         {
@@ -201,7 +207,7 @@ internal static class SpikeShinesparkSuitVerification
             // coupling this timing test to any one retail room's surrounding geometry.
             for (int block = 0; block < level.Size.X * level.Size.Y; block++)
             {
-                level.SetForegroundEntry(block, (ushort)RoomCollisionType.SpikeAir << 12);
+                level.SetTerrain(block, SpikeAirTerrain);
                 level.SetBehavior(block, SpikeHazardDefinitions.DamagingSpikeAirBehavior);
             }
         }

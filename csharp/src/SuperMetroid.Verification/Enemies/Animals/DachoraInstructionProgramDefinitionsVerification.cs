@@ -69,7 +69,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
             slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
             DachoraBehavior.InitializeDachora(slot);
             DachoraEnemyState state = enemies.SlotTable.Slots[0].EntityState<DachoraEntity, DachoraEnemyState>() ?? throw new InvalidOperationException("The Dachora has no state.");
-            var empty = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]));
+            RoomLevelData empty = VerificationHelpersVerification.CreateEmptyRoom(new(16, 16));
             // One $1000 subspeed step from just below each threshold lands exactly on whole speeds four and eight.
             state.Program = new AnimationProgramCursor<DachoraProgram>(slow, 3);
             state.Speed = SignedSixteenSixteen.FromParts(3, 0xf000);

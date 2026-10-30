@@ -61,15 +61,8 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
     }
 
     /// <summary>Builds a wide room with a solid floor for Work Robot movement and fall callbacks.</summary>
-    private static RoomLevelData CreateWorkRobotInstructionRoom()
-    {
-        const int width = 64;
-        const int height = 32;
-        var words = new ushort[width * height];
-        for (int x = 0; x < width; x++)
-            words[20 * width + x] = 0x8000;
-        return new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]));
-    }
+    private static RoomLevelData CreateWorkRobotInstructionRoom() =>
+        VerificationHelpersVerification.CreateSolidRowsRoom(new(64, 32), firstSolidRow: 20, solidRowCount: 1);
 
     /// <summary>Runs Work Robot instruction checks from the verification command dispatcher.</summary>
     [VerificationCommand("--work-robot-instruction-program-definitions")]

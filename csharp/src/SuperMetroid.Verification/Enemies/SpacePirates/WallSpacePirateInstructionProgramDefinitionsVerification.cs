@@ -198,24 +198,12 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
     }
 
     /// <summary>Creates unobstructed terrain so each wall Pirate program can advance without collision.</summary>
-    private static RoomLevelData CreateOpenWallPirateRoom()
-    {
-        const int width = 32;
-        const int height = 32;
-        int blockCount = width * height;
-        return new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[blockCount], new byte[blockCount], new ushort[blockCount]));
-    }
+    private static RoomLevelData CreateOpenWallPirateRoom() =>
+        VerificationHelpersVerification.CreateEmptyRoom(new(32, 32));
 
     /// <summary>Creates a solid row that triggers the wall Pirate's downward-climb reversal.</summary>
-    private static RoomLevelData CreateWallPirateFloorRoom()
-    {
-        const int width = 32;
-        const int height = 32;
-        var foreground = new ushort[width * height];
-        for (int column = 0; column < width; column++)
-            foreground[17 * width + column] = 0x8000;
-        return new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(foreground, new byte[foreground.Length], new ushort[foreground.Length]));
-    }
+    private static RoomLevelData CreateWallPirateFloorRoom() =>
+        VerificationHelpersVerification.CreateSolidRowsRoom(new(32, 32), firstSolidRow: 17, solidRowCount: 1);
 
     /// <summary>Runs the standalone wall Space Pirate instruction verification command.</summary>
     [VerificationCommand("--wall-space-pirate-instruction-mechanics")]

@@ -376,12 +376,15 @@ internal static class EndingObjectArtworkVerification
                 _ => SpriteSheetId.EndingExplosionPictures,
             };
             AssertTrue(!EndingSheetFixtures.WithEnding(stock).Get(editedSheet).Image.Pixels.ToArray()
-                    .SequenceEqual(EndingSheetFixtures.WithEnding(edited).Get(editedSheet).Image.Pixels.ToArray()) &&
-                    !baselineVram.SequenceEqual(changedVram) &&
-                    ShownFloors(baseline).SequenceEqual(ShownFloors(changed)) &&
-                    baseline.Paint.Colors.SequenceEqual(changed.Paint.Colors) &&
-                    scene.Stage.Phase == baselinePhase,
-                $"edited {name} recomposes its sheet and changes the shown image without touching the floor picture or colours");
+                    .SequenceEqual(EndingSheetFixtures.WithEnding(edited).Get(editedSheet).Image.Pixels.ToArray()),
+                $"edited {name} recomposes its {editedSheet} sheet");
+            // The clouds are sprites drawn from their sheet and load nothing into the memory image; the loop below asserts
+            // that their edit reaches the rendered frame. The explosion's characters and maps are loaded into it.
+            if (editedSheet != SpriteSheetId.EndingCloudSprites)
+                AssertTrue(!baselineVram.SequenceEqual(changedVram), $"edited {name} changes the shown memory image");
+            AssertTrue(ShownFloors(baseline).SequenceEqual(ShownFloors(changed)), $"edited {name} leaves the turning floor's picture as it was");
+            AssertTrue(baseline.Paint.Colors.SequenceEqual(changed.Paint.Colors), $"edited {name} leaves the colours as they were");
+            AssertEqual(baselinePhase, scene.Stage.Phase, $"rebinding edited {name} leaves the ending's phase as it was");
             bool visibleEdit = false;
             for (int frame = 0; frame < 2400 && !visibleEdit &&
                 scene.Stage.Phase < (resource == 0

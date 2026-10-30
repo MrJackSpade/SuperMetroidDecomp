@@ -49,8 +49,6 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Map-arrow artwork and presentation frames for scrolling indicators.</summary>
     public required MapArrowPresentation Arrows { get; init; }
 
-    /// <summary>Named compiled map-screen tilemap layers, separate from the character atlas and per-area map cells.</summary>
-    public required MapScreenPresentation Screens { get; init; }
 
     /// <summary>Selected foreground and background PNG artwork for the world-map screen.</summary>
     public required WorldMapArtwork WorldArtwork { get; init; }

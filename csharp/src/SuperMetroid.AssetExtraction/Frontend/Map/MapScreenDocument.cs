@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Map.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Map.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
-/// <summary>Layout-only content: tile-sheet coordinates, palette selectors, priority and flips.</summary>
+/// <summary>Layout-only content: tile-sheet coordinates, palette selectors, priority and flips; the import's alone (#1467).</summary>
 public sealed record MapScreenDocument
 {
     /// <summary>Gets the map-screen schema revision.</summary>

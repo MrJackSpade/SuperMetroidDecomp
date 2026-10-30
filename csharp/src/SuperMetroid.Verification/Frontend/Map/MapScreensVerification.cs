@@ -157,7 +157,7 @@ internal static class MapScreensVerification
         Console.WriteLine("Map screen resources: six native world/room VRAM and pixel comparisons, guarded full menu, independent JSON/PNG edits, restored content and strict failures pass.");
 
         static FileSelectAreaMapGraphics World(ISnesAddressSpace addressSpace, AreaMapPresentation catalog, int area) =>
-            new(area, catalog.Palettes, catalog.Screens,
+            new(area, catalog.Palettes,
                 catalog.WorldArtwork, MenuSheetFixtures.For(catalog));
     }
 

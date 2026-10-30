@@ -16,18 +16,6 @@ public static class ScreenTileSheetDefinitions
     {
         [SpriteSheetId.MenuForegroundTiles] = TileInkDepth.SixteenColours,
         [SpriteSheetId.MenuMapTiles] = TileInkDepth.SixteenColours,
-        [SpriteSheetId.AreaMapForegroundTilesCrateria] = TileInkDepth.SixteenColours,
-        [SpriteSheetId.AreaMapForegroundTilesBrinstar] = TileInkDepth.SixteenColours,
-        [SpriteSheetId.AreaMapForegroundTilesNorfair] = TileInkDepth.SixteenColours,
-        [SpriteSheetId.AreaMapForegroundTilesWreckedShip] = TileInkDepth.SixteenColours,
-        [SpriteSheetId.AreaMapForegroundTilesMaridia] = TileInkDepth.SixteenColours,
-        [SpriteSheetId.AreaMapForegroundTilesTourian] = TileInkDepth.SixteenColours,
-        [SpriteSheetId.AreaMapBackgroundTilesCrateria] = TileInkDepth.FourColours,
-        [SpriteSheetId.AreaMapBackgroundTilesBrinstar] = TileInkDepth.FourColours,
-        [SpriteSheetId.AreaMapBackgroundTilesNorfair] = TileInkDepth.FourColours,
-        [SpriteSheetId.AreaMapBackgroundTilesWreckedShip] = TileInkDepth.FourColours,
-        [SpriteSheetId.AreaMapBackgroundTilesMaridia] = TileInkDepth.FourColours,
-        [SpriteSheetId.AreaMapBackgroundTilesTourian] = TileInkDepth.FourColours,
         [SpriteSheetId.PauseMapTiles] = TileInkDepth.SixteenColours,
         [SpriteSheetId.PauseInterfaceTiles] = TileInkDepth.SixteenColours,
         [SpriteSheetId.IntroSceneTiles] = TileInkDepth.SixteenColours,
@@ -56,22 +44,22 @@ public static class ScreenTileSheetDefinitions
     /// <summary>The menu's world foreground characters under each Zebes area's world-map palette, which its area map shows.</summary>
     public static IReadOnlyDictionary<AreaId, SpriteSheetId> AreaMapForegrounds { get; } = new Dictionary<AreaId, SpriteSheetId>
     {
-        [AreaId.Crateria] = SpriteSheetId.AreaMapForegroundTilesCrateria,
-        [AreaId.Brinstar] = SpriteSheetId.AreaMapForegroundTilesBrinstar,
-        [AreaId.Norfair] = SpriteSheetId.AreaMapForegroundTilesNorfair,
-        [AreaId.WreckedShip] = SpriteSheetId.AreaMapForegroundTilesWreckedShip,
-        [AreaId.Maridia] = SpriteSheetId.AreaMapForegroundTilesMaridia,
-        [AreaId.Tourian] = SpriteSheetId.AreaMapForegroundTilesTourian,
+        [AreaId.Crateria] = SpriteSheetId.AreaMapForegroundCrateria,
+        [AreaId.Brinstar] = SpriteSheetId.AreaMapForegroundBrinstar,
+        [AreaId.Norfair] = SpriteSheetId.AreaMapForegroundNorfair,
+        [AreaId.WreckedShip] = SpriteSheetId.AreaMapForegroundWreckedShip,
+        [AreaId.Maridia] = SpriteSheetId.AreaMapForegroundMaridia,
+        [AreaId.Tourian] = SpriteSheetId.AreaMapForegroundTourian,
     };
 
     /// <summary>The menu's world background characters under each Zebes area's world-map palette, which its area map shows.</summary>
     public static IReadOnlyDictionary<AreaId, SpriteSheetId> AreaMapBackgrounds { get; } = new Dictionary<AreaId, SpriteSheetId>
     {
-        [AreaId.Crateria] = SpriteSheetId.AreaMapBackgroundTilesCrateria,
-        [AreaId.Brinstar] = SpriteSheetId.AreaMapBackgroundTilesBrinstar,
-        [AreaId.Norfair] = SpriteSheetId.AreaMapBackgroundTilesNorfair,
-        [AreaId.WreckedShip] = SpriteSheetId.AreaMapBackgroundTilesWreckedShip,
-        [AreaId.Maridia] = SpriteSheetId.AreaMapBackgroundTilesMaridia,
-        [AreaId.Tourian] = SpriteSheetId.AreaMapBackgroundTilesTourian,
+        [AreaId.Crateria] = SpriteSheetId.AreaMapBackgroundCrateria,
+        [AreaId.Brinstar] = SpriteSheetId.AreaMapBackgroundBrinstar,
+        [AreaId.Norfair] = SpriteSheetId.AreaMapBackgroundNorfair,
+        [AreaId.WreckedShip] = SpriteSheetId.AreaMapBackgroundWreckedShip,
+        [AreaId.Maridia] = SpriteSheetId.AreaMapBackgroundMaridia,
+        [AreaId.Tourian] = SpriteSheetId.AreaMapBackgroundTourian,
     };
 }

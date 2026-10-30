@@ -55,6 +55,11 @@ internal sealed class SpriteSheetSourceCatalog
     /// <summary>Composes sheet <paramref name="sheet"/>.</summary>
     internal ComposedSpriteSheet Compose(SpriteSheetId sheet) => sheet == SpriteSheetId.PauseHud ? HudImageSheet.ComposePause(maps.Value)
         : sheet == SpriteSheetId.MenuPictures ? MenuPictureSheet.Compose(maps.Value)
+        : sheet == SpriteSheetId.RoomMapPictures ? MapPictureSheets.ComposeRoomMap(maps.Value)
+        : ScreenTileSheetDefinitions.AreaMapForegrounds.Values.Contains(sheet)
+            ? MapPictureSheets.ComposeWorldForeground(maps.Value, ScreenTileSheetDefinitions.AreaMapForegrounds.Single(entry => entry.Value == sheet).Key)
+        : ScreenTileSheetDefinitions.AreaMapBackgrounds.Values.Contains(sheet)
+            ? MapPictureSheets.ComposeWorldBackground(maps.Value, ScreenTileSheetDefinitions.AreaMapBackgrounds.Single(entry => entry.Value == sheet).Key)
         : ScreenTileSheetDefinitions.Depths.ContainsKey(sheet) ? ScreenTileSheetComposer.Compose(sheet, ScreenTiles())
         : ScreenTileSheetDefinitions.FloorSheets.Contains(sheet) ? ScreenTileSheetComposer.ComposeMode7(sheet, ScreenTiles())
         : EndingPictureSheetComposer.Sheets.Contains(sheet) ? EndingPictureSheetComposer.Compose(sheet, ScreenTiles())
@@ -72,7 +77,7 @@ internal sealed class SpriteSheetSourceCatalog
     {
         SpriteSheetId.EscapeTimer => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The escape timer composes from the cartridge."),
         SpriteSheetId.PauseHud => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The pause HUD composes from the HUD's images, not sprite parts."),
-        SpriteSheetId.MenuPictures => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The menus' pictures compose from their pages, not sprite parts."),
+        SpriteSheetId.MenuPictures or SpriteSheetId.RoomMapPictures => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The menus' pictures compose from their pages, not sprite parts."),
         SpriteSheetId.GameOver => GameOverSheetComposer.Sources(maps.Value),
         SpriteSheetId.FileSelect => FileSelectSheetComposer.Sources(maps.Value),
         SpriteSheetId.GameOptions => GameOptionsSheetComposer.Sources(maps.Value),
@@ -100,13 +105,13 @@ internal sealed class SpriteSheetSourceCatalog
             SpriteSheetId.ProjectilesPlasmaWave or SpriteSheetId.ProjectilesPlasmaIce or
             SpriteSheetId.ProjectilesPlasmaIceWave or SpriteSheetId.ProjectilesSpazerPlasmaWave or
             SpriteSheetId.ProjectilesSpazerPlasmaIce or SpriteSheetId.MenuForegroundTiles or
-            SpriteSheetId.MenuMapTiles or SpriteSheetId.AreaMapForegroundTilesCrateria or
-            SpriteSheetId.AreaMapForegroundTilesBrinstar or SpriteSheetId.AreaMapForegroundTilesNorfair or
-            SpriteSheetId.AreaMapForegroundTilesWreckedShip or SpriteSheetId.AreaMapForegroundTilesMaridia or
-            SpriteSheetId.AreaMapForegroundTilesTourian or SpriteSheetId.AreaMapBackgroundTilesCrateria or
-            SpriteSheetId.AreaMapBackgroundTilesBrinstar or SpriteSheetId.AreaMapBackgroundTilesNorfair or
-            SpriteSheetId.AreaMapBackgroundTilesWreckedShip or SpriteSheetId.AreaMapBackgroundTilesMaridia or
-            SpriteSheetId.AreaMapBackgroundTilesTourian or SpriteSheetId.PauseMapTiles or
+            SpriteSheetId.MenuMapTiles or SpriteSheetId.AreaMapForegroundCrateria or
+            SpriteSheetId.AreaMapForegroundBrinstar or SpriteSheetId.AreaMapForegroundNorfair or
+            SpriteSheetId.AreaMapForegroundWreckedShip or SpriteSheetId.AreaMapForegroundMaridia or
+            SpriteSheetId.AreaMapForegroundTourian or SpriteSheetId.AreaMapBackgroundCrateria or
+            SpriteSheetId.AreaMapBackgroundBrinstar or SpriteSheetId.AreaMapBackgroundNorfair or
+            SpriteSheetId.AreaMapBackgroundWreckedShip or SpriteSheetId.AreaMapBackgroundMaridia or
+            SpriteSheetId.AreaMapBackgroundTourian or SpriteSheetId.PauseMapTiles or
             SpriteSheetId.PauseInterfaceTiles or SpriteSheetId.IntroSceneTiles or
             SpriteSheetId.IntroFontTiles or SpriteSheetId.CeresFlightObjectTiles or
             SpriteSheetId.CeresIntroObjectTiles or SpriteSheetId.ZebesRevealTiles or

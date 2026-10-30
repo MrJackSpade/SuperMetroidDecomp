@@ -39,7 +39,6 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
         Landmarks = parts.Landmarks;
         SaveMarkers = parts.SaveMarkers;
         Arrows = parts.Arrows;
-        Screens = parts.Screens;
         WorldArtwork = parts.WorldArtwork;
         Sprites = parts.Sprites;
         PauseBackdrops = parts.PauseBackdrops;
@@ -100,8 +99,6 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
     public MapSaveMarkerPositions SaveMarkers { get; }
     /// <summary>Map-arrow artwork and presentation frames for scrolling indicators.</summary>
     public MapArrowPresentation Arrows { get; }
-    /// <summary>Named compiled map-screen tilemap layers, separate from the character atlas and per-area map cells.</summary>
-    public MapScreenPresentation Screens { get; }
     /// <summary>Selected foreground and background PNG artwork for the world-map screen.</summary>
     public WorldMapArtwork WorldArtwork { get; }
     /// <summary>The installed map and menu sprites; the game draws them from the map sprite sheet, and their compositions belong to the import pipeline (#1463).</summary>

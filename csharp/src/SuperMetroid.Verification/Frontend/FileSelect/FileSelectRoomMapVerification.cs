@@ -133,7 +133,7 @@ internal static class FileSelectRoomMapVerification
         system.LoadMapStationBytes(slot.MapStationBytes);
         RgbaPixel[] roomFrame = new FileSelectRoomMapGraphics(system, AreaId.Maridia, mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture())).RenderFrameOnly();
         var maps = RetailPresentationFixture();
-        var areaGraphics = new FileSelectAreaMapGraphics(4, maps.Palettes, maps.Screens, maps.WorldArtwork, MenuSheetFixtures.For(maps));
+        var areaGraphics = new FileSelectAreaMapGraphics(4, maps.Palettes, maps.WorldArtwork, MenuSheetFixtures.For(maps));
         areaGraphics.BindLabels(maps.Labels);
         RgbaPixel[] area = areaGraphics.Render(new ushort[] { 0, 0, 0, 0, 1, 0 });
         for (int tick = 1; tick <= 4; tick++)

@@ -17,8 +17,9 @@ public sealed class InstalledAreaMapPresentation : AreaMapPresentation
     /// effects' BG3 pages.
     /// </summary>
     internal InstalledAreaMapPresentation(AreaMapPresentationParts parts, MapCharacterArtwork characters, GameplayMessageArtwork messages,
-        RoomFxLayer3Pages roomFxPages, CreditsPresentation staffCredits, EndingTextPresentation endingText) : base(parts)
+        RoomFxLayer3Pages roomFxPages, CreditsPresentation staffCredits, EndingTextPresentation endingText, MapScreenPresentation screens) : base(parts)
     {
+        Screens = Ensure.NotNull(screens);
         StaffCredits = Ensure.NotNull(staffCredits);
         EndingTextPresentation = Ensure.NotNull(endingText);
         Characters = Ensure.NotNull(characters);
@@ -34,6 +35,14 @@ public sealed class InstalledAreaMapPresentation : AreaMapPresentation
 
     /// <summary>The editable room effects' BG3 pages, which the import pictures into each tileset's BG3 sheet (#1466, #1467).</summary>
     public RoomFxLayer3Pages RoomFxPages { get; }
+
+    /// <summary>The map screens' pages, which the import pictures for the world map and the room maps (#1467).</summary>
+    public MapScreenPresentation Screens { get; }
+
+    /// <summary>The map screens' pages the installed map presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
+    public static MapScreenPresentation ScreensOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.Screens
+        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no map screens.");
 
     /// <summary>The editable staff credits, which the import pictures into the ending's credits rows (#1467).</summary>
     public CreditsPresentation StaffCredits { get; }

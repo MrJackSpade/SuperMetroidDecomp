@@ -100,30 +100,32 @@ public enum SpriteSheetId
     MenuMapTiles,
     /// <summary>The menus' pictures under the file-select palette: each menu page and the pictures placed over it (#1467).</summary>
     MenuPictures,
+    /// <summary>The room maps' pictures under the file-select palette: each map cell picture and each area's room frame (#1467).</summary>
+    RoomMapPictures,
     /// <summary>The menu's world foreground characters under Crateria's world-map palette (#1392).</summary>
-    AreaMapForegroundTilesCrateria,
+    AreaMapForegroundCrateria,
     /// <summary>The menu's world foreground characters under Brinstar's world-map palette (#1392).</summary>
-    AreaMapForegroundTilesBrinstar,
+    AreaMapForegroundBrinstar,
     /// <summary>The menu's world foreground characters under Norfair's world-map palette (#1392).</summary>
-    AreaMapForegroundTilesNorfair,
+    AreaMapForegroundNorfair,
     /// <summary>The menu's world foreground characters under WreckedShip's world-map palette (#1392).</summary>
-    AreaMapForegroundTilesWreckedShip,
+    AreaMapForegroundWreckedShip,
     /// <summary>The menu's world foreground characters under Maridia's world-map palette (#1392).</summary>
-    AreaMapForegroundTilesMaridia,
+    AreaMapForegroundMaridia,
     /// <summary>The menu's world foreground characters under Tourian's world-map palette (#1392).</summary>
-    AreaMapForegroundTilesTourian,
+    AreaMapForegroundTourian,
     /// <summary>The menu's world background characters under Crateria's world-map palette (#1392).</summary>
-    AreaMapBackgroundTilesCrateria,
+    AreaMapBackgroundCrateria,
     /// <summary>The menu's world background characters under Brinstar's world-map palette (#1392).</summary>
-    AreaMapBackgroundTilesBrinstar,
+    AreaMapBackgroundBrinstar,
     /// <summary>The menu's world background characters under Norfair's world-map palette (#1392).</summary>
-    AreaMapBackgroundTilesNorfair,
+    AreaMapBackgroundNorfair,
     /// <summary>The menu's world background characters under WreckedShip's world-map palette (#1392).</summary>
-    AreaMapBackgroundTilesWreckedShip,
+    AreaMapBackgroundWreckedShip,
     /// <summary>The menu's world background characters under Maridia's world-map palette (#1392).</summary>
-    AreaMapBackgroundTilesMaridia,
+    AreaMapBackgroundMaridia,
     /// <summary>The menu's world background characters under Tourian's world-map palette (#1392).</summary>
-    AreaMapBackgroundTilesTourian,
+    AreaMapBackgroundTourian,
     /// <summary>The map characters under the pause palette (#1392).</summary>
     PauseMapTiles,
     /// <summary>The pause interface characters under the pause palette (#1392).</summary>

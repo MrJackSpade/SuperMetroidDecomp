@@ -36,12 +36,6 @@ internal static class FrontendShownVramAccess
     /// <summary>The title screen's composed image.</summary>
     extension(TitleSequenceState self) { [WholeImageFixture("the scene's composed memory image")] internal byte[] ShownVram() => TitleScreenMemory.Compose(self); }
 
-    /// <summary>The file select area map's composed image.</summary>
-    extension(FileSelectAreaMapGraphics self) { [WholeImageFixture("the scene's composed memory image")] internal byte[] ShownVram() => MenuScreenMemory.Compose(self.screen); }
-
-    /// <summary>The file select room map's composed image.</summary>
-    extension(FileSelectRoomMapGraphics self) { [WholeImageFixture("the scene's composed memory image")] internal byte[] ShownVram() => MenuScreenMemory.Compose(self.screen); }
-
     /// <summary>The pause menu's composed image.</summary>
     extension(PauseMenuState self) { [WholeImageFixture("the scene's composed memory image")] internal byte[] ShownVram() => PauseScreenMemory.Compose(self.screen); }
 }

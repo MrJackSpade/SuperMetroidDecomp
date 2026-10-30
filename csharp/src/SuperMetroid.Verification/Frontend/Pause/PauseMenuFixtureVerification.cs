@@ -80,7 +80,6 @@ internal static class PauseMenuFixtureVerification
             Landmarks = stock.Landmarks,
             SaveMarkers = stock.SaveMarkers,
             Arrows = stock.Arrows,
-            Screens = stock.Screens,
             WorldArtwork = stock.WorldArtwork,
             Sprites = MapSpriteArtwork.Read(spriteJson, spritePng),
             PauseBackdrops = backdrops,

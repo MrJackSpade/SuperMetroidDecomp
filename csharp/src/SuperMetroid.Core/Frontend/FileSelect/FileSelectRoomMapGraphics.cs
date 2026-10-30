@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Assets;
@@ -18,6 +19,10 @@ public sealed class FileSelectRoomMapGraphics
 
     /// <summary>The installed map sprite sheet the icons, marker and arrows draw from.</summary>
     [NonSerialized] private SpriteSheet? mapSheet;
+    /// <summary>The installed room-map pictures the map's cells and the frame draw from (#1467).</summary>
+    [NonSerialized] private SpriteSheet? roomPictures;
+    /// <summary>How the room map shows the area's cells (#1466, #1467).</summary>
+    private ShownAreaMap areaMap;
     /// <summary>The room map's palette, initialized from file-select presentation colors and subsequently updated by the menu's palette-animation owner.</summary>
     public ScreenPalette Palette => screen.Palette;
     /// <summary>Persistent downloaded-map and explored-cell state held by the icon owner.</summary>
@@ -41,24 +46,15 @@ public sealed class FileSelectRoomMapGraphics
         icons.BindLandmarks(mapPresentation.Landmarks);
         InstalledSpriteSheets installed = sheets ?? throw new InvalidOperationException("Room-map graphics require the installed sprite sheets.");
         mapSheet = installed.Get(SpriteSheetId.MapSprites);
+        roomPictures = installed.Get(SpriteSheetId.RoomMapPictures);
         icons.BindSprites(mapSheet);
         int index = AreaIds.ToIndex(area);
         if (index >= FileSelectMapDefinitions.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
         screen = new MenuScreen(mapPresentation.Palettes,
             mapPresentation.WorldArtwork, installed);
-        MenuTilemaps.LoadAreaMap(screen.Tilemaps.AreaMap, AreaMapProjection.Project(mapPresentation.Get(area), system,
-            mapPresentation.HiddenCells.RoomSelect(system.HasAreaMap(area)), revealMode));
-
-        LoadFrame(mapPresentation.Screens, area);
-    }
-
-    /// <summary>Installs the selected area's fixed BG2 room frame into menu VRAM.</summary>
-    private void LoadFrame(MapScreenPresentation? screens, AreaId area)
-    {
-        (screens ?? throw new InvalidOperationException(
-            "Room-map frame requires installed map-screen assets."))
-            .LoadTo(screen.Tilemaps.Bg2, MapScreenDefinitions.RoomFrame(area));
+        areaMap = AreaMapProjection.Project(mapPresentation.Get(area), system,
+            mapPresentation.HiddenCells.RoomSelect(system.HasAreaMap(area)), revealMode);
     }
 
     /// <summary>Rebinds the installed sheets: the map sprites the icons, marker and arrows draw from, and the background tiles.</summary>
@@ -66,6 +62,7 @@ public sealed class FileSelectRoomMapGraphics
     {
         InstalledSpriteSheets installed = sheets ?? throw new InvalidOperationException("Room-map graphics require the installed sprite sheets.");
         mapSheet = installed.Get(SpriteSheetId.MapSprites);
+        roomPictures = installed.Get(SpriteSheetId.RoomMapPictures);
         icons.BindSprites(mapSheet);
         screen.BindScreenTiles(installed);
     }
@@ -82,9 +79,7 @@ public sealed class FileSelectRoomMapGraphics
         var system = icons.MapSystem;
         var area = icons.MapArea;
         screen.BindWorldArtwork(catalog.WorldArtwork);
-        LoadFrame(catalog.Screens, area);
-        MenuTilemaps.LoadAreaMap(screen.Tilemaps.AreaMap,
-            AreaMapProjection.Project(catalog.Get(area), system, catalog.HiddenCells.RoomSelect(system.HasAreaMap(area))));
+        areaMap = AreaMapProjection.Project(catalog.Get(area), system, catalog.HiddenCells.RoomSelect(system.HasAreaMap(area)));
     }
 
     /// <summary>Composes landmarks, the saved-station marker, and arrows in native order without advancing animations.</summary>
@@ -105,18 +100,19 @@ public sealed class FileSelectRoomMapGraphics
         FileSelectStationMarker? marker = null, FileSelectMapAnimations? animations = null, RoomMapContent content = RoomMapContent.Scene)
     {
         var layers = new List<DisplayLayer>();
-        // Both planes draw from the map characters' pre-coloured tiles (#1392).
-        ScreenLayerPictures tiles = screen.RoomMapTiles;
-        ScreenTileMap frame = ScreenTileMap.Of(screen.Tilemaps.Bg2, new Extent16<TilemapCells>(32, 32), tiles);
+        // The frame is the area's installed room-frame picture and the map a grid of its cells' pictures (#1467).
+        SpriteSheet pictures = roomPictures ?? throw new InvalidOperationException("The room map's pictures are rebound after debugger restoration.");
+        var frame = new PicturedPlane(MenuScreen.PageSize, [new PlacedPlanePicture(pictures.Frame(AreaMapPictures.RoomFrameName(icons.MapArea)), default)]);
+        var frameScroll = new Position16<TilePlanePixels>(0, FileSelectMapDefinitions.RoomFrameVerticalScroll);
         if (content == RoomMapContent.FrameOnly)
-            layers.Add(new ScreenTilesLayer(frame, new Position16<TilePlanePixels>(0, FileSelectMapDefinitions.RoomFrameVerticalScroll), null));
+            layers.Add(new PicturedPlaneLayer(frame, frameScroll, null));
         else
         {
-            ScreenTileMap map = ScreenTileMap.Of(screen.Tilemaps.AreaMap, new Extent16<TilemapCells>(64, 32), tiles);
+            PictureGrid map = AreaMapPictures.Grid(areaMap, pictures);
             foreach (bool priority in new[] { false, true })
             {
-                layers.Add(new ScreenTilesLayer(frame, new Position16<TilePlanePixels>(0, FileSelectMapDefinitions.RoomFrameVerticalScroll), priority));
-                layers.Add(new ScreenTilesLayer(map, scroll.AsBgPlaneScroll(), priority));
+                layers.Add(new PicturedPlaneLayer(frame, frameScroll, priority));
+                layers.Add(new PictureGridLayer(map, scroll.AsBgPlaneScroll(), priority));
             }
         }
         if (marker is not null && content != RoomMapContent.FrameOnly)

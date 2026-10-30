@@ -38,10 +38,5 @@ internal static class TextAndMapClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Frontend/Map/MapArrowSprites.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Map/MapScrollControls.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/FileSelect/FileSelectMapScroll.cs")]),
-        new("SuperMetroid.Core.Frontend.Map.Artwork.MapScreenPresentation", "map-screen-complete-pages-and-bounded-names", ["LoadTo"],
-            [new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/MapScreenPresentation.cs"),
-             new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/MapScreenDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/MapScreens.cs"),
-             new("csharp/src/SuperMetroid.Core/Progression/AreaId.cs")]),
     ];
 }

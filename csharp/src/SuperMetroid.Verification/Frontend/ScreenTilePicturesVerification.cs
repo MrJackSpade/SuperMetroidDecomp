@@ -7,6 +7,8 @@ using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Artwork;
+using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Pause;
@@ -35,35 +37,41 @@ namespace SuperMetroid.Verification.Frontend;
 internal static class ScreenTilePicturesVerification
 {
     /// <summary>
-    /// Each Zebes area's map with and without its backdrop, and each area's room map and
-    /// frame each draw every background from their tiles, exactly as their characters draw them.
+    /// Each Zebes area's world map shows its foreground page's picture with its background's picture added, everywhere or
+    /// only where the foreground covers; each area's room map shows its frame's picture and a grid of its cells' pictures,
+    /// one picture for every cell, or the frame alone (#1467).
     /// </summary>
     internal static void VerifyMenuScreenTilePictures()
     {
         AreaMapPresentation maps = InstalledFixtures.Maps;
-        int screens = 0, layers = 0;
-        void Check(LayeredScene scene, byte[] vram, string name)
-        {
-            layers += AssertDrawnFromTiles(scene, vram, name);
-            screens++;
-        }
+        InstalledSpriteSheets sheets = InstalledFixtures.SpriteSheets;
         var explored = new SharedGameState();
         explored.LoadExploredMapBytes(Enumerable.Repeat(byte.MaxValue, 7 * 256).ToArray());
         ushort[] used = Enumerable.Repeat(ushort.MaxValue, FileSelectMapDefinitions.AreaCount).ToArray();
         for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
         {
+            var shownArea = (AreaId)area;
+            SpriteSheetFrame foreground = sheets.Get(ScreenTileSheetDefinitions.AreaMapForegrounds[shownArea]).Frame(AreaMapPictures.WorldForegroundFrame);
+            SpriteSheetFrame background = sheets.Get(ScreenTileSheetDefinitions.AreaMapBackgrounds[shownArea]).Frame(AreaMapPictures.WorldBackgroundFrame);
             FileSelectAreaMapGraphics world = InstalledFixtures.CreateFileSelectAreaMap(area);
-            var shownWorld = world.ShownVram();
-            Check(world.CaptureRenderSnapshot(used, AreaMapColorMath.WithBackdrop), shownWorld, $"{(AreaId)area} area map");
-            var shownWorld2 = world.ShownVram();
-            Check(world.CaptureRenderSnapshot(used, AreaMapColorMath.ForegroundOnly), shownWorld2, $"{(AreaId)area} area map without its backdrop");
-            var room = new FileSelectRoomMapGraphics(explored, (AreaId)area, mapPresentation: maps, sheets: InstalledFixtures.SpriteSheets);
-            var shownRoom = room.ShownVram();
-            Check(room.CaptureRenderSnapshot(), shownRoom, $"{(AreaId)area} room map");
-            var shownRoom2 = room.ShownVram();
-            Check(room.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly), shownRoom2, $"{(AreaId)area} room map frame");
+            foreach (AreaMapColorMath math in new[] { AreaMapColorMath.WithBackdrop, AreaMapColorMath.ForegroundOnly })
+            {
+                LayeredScene scene = world.CaptureRenderSnapshot(used, math);
+                AssertTrue(scene.Layers[0] is PicturedPlaneLayer { Plane.Pictures: [{ } shownForeground] } && ReferenceEquals(shownForeground.Picture, foreground)
+                    && scene.Layers[1] is AddedPicturedPlaneLayer { Plane.Pictures: [{ } shownBackground] } added && ReferenceEquals(shownBackground.Picture, background)
+                    && (added.MainCoverage is null) == (math == AreaMapColorMath.WithBackdrop),
+                    $"{shownArea} world map shows its foreground and adds its background ({math})");
+            }
+            var room = new FileSelectRoomMapGraphics(explored, shownArea, mapPresentation: maps, sheets: sheets);
+            LayeredScene roomScene = room.CaptureRenderSnapshot();
+            AssertTrue(roomScene.Layers.Length == 4 && roomScene.Layers[1] is PictureGridLayer { Grid: { } grid }
+                && grid.Cells.Length == AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles && grid.Cells.All(cell => cell is not null),
+                $"{shownArea} room map shows every cell's picture");
+            AssertTrue(room.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly).Layers is [PicturedPlaneLayer { Plane.Pictures: [{ } frame] }]
+                && ReferenceEquals(frame.Picture, sheets.Get(SpriteSheetId.RoomMapPictures).Frame(AreaMapPictures.RoomFrameName(shownArea))),
+                $"{shownArea} room map frame shows its picture");
         }
-        Console.WriteLine($"Screen tile pictures: {screens} menu screens draw all {layers} of their background layers from their tiles, as their characters do.");
+        Console.WriteLine("Screen pictures: each area's world map and room map show their installed pictures.");
     }
 
     /// <summary>

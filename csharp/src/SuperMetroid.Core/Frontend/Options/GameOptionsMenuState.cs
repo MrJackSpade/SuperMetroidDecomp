@@ -31,9 +31,9 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>Derives newly pressed buttons from the raw held controller word.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>Provides editable menu art after construction or debugger restoration.</summary>
-    [NonSerialized] private AreaMapPresentation? mapPresentation;
+    [NonSerialized] internal AreaMapPresentation? mapPresentation;
     /// <summary>The page last loaded and the state its labels, language rows and toggle choices were drawn from (#1467).</summary>
-    private ShownOptionsPage shownPage;
+    internal ShownOptionsPage shownPage;
     /// <summary>Page whose input and cursor policy currently apply.</summary>
     private GameOptionsPage page = GameOptionsPage.Primary;
     /// <summary>Page to load when the current page has dissolved to black.</summary>

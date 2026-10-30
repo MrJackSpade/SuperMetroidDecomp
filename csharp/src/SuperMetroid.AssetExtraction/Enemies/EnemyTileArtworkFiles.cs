@@ -201,7 +201,7 @@ public static class EnemyTileArtworkFiles
         }
         byte[] ceresEscapeOverlay = CeresEscapeOverlayTilemapFiles.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory,
-            CeresEscapeOverlayTilemapDefinitions.FileName), ceresEscapeOverlay);
+            CeresWarningGlyphDefinitions.FileName), ceresEscapeOverlay);
         byte[] phantoonBg2Json = PhantoonBg2FrameFiles.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory, PhantoonBg2FrameDefinitions.FileName),
             phantoonBg2Json);
@@ -776,7 +776,7 @@ public static class EnemyTileArtworkFiles
         try
         {
             byte[] selected = ReadStockOrOverride(
-                CeresEscapeOverlayTilemapDefinitions.FileName,
+                CeresWarningGlyphDefinitions.FileName,
                 manifest.CeresEscapeOverlaySha256);
             ceresEscapeOverlay = CeresEscapeOverlays.Load(
                 new MemoryStream(selected, writable: false));

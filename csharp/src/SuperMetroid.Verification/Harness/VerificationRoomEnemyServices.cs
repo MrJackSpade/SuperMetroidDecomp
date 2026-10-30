@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
@@ -129,13 +130,13 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     public void SetLayerBlendingDefault(LayerBlendingConfiguration configuration) =>
         Loaded("write Mother Brain's layer-blending configuration").MotherBrain.SetLayerBlendingDefault(configuration);
 
-    /// <summary>Forwards a BG1 overlay write to the loaded room.</summary>
-    public void DrawBg1Overlay(int first, ReadOnlySpan<BackgroundTile> tiles) =>
-        Loaded("write over the room's BG1").DrawBg1Overlay(first, tiles);
+    /// <summary>Forwards a picture written over BG1 to the loaded room.</summary>
+    public void WriteBg1Picture(WrittenPicture picture) =>
+        Loaded("write over the room's BG1").WriteBg1Picture(picture);
 
-    /// <summary>Writes words over the loaded room's BG2.</summary>
-    public void DrawBg2Overlay(int first, ReadOnlySpan<BackgroundTile> tiles) =>
-        Loaded("write over the room's BG2").DrawBg2Overlay(first, tiles);
+    /// <summary>Forwards a picture written over BG2 to the loaded room.</summary>
+    public void WriteBg2Picture(WrittenPicture picture) =>
+        Loaded("write over the room's BG2").WriteBg2Picture(picture);
 
     /// <summary>Writes tile numbers into the loaded room's Mode 7 map.</summary>
     public void DrawFloorMap(int firstCell, ReadOnlySpan<byte> tiles) =>

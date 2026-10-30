@@ -31,7 +31,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// The X-ray reveal the NMI queue uploads for BG2 while X-ray is active, drawn from the room's block pictures (#1392).
 /// </param>
 /// <param name="Rooms">The room backgrounds this NMI displays, resolved from level data; null before the first room.</param>
-/// <param name="Layer3">The room effect's BG3 words this NMI latched, which its pictures are resolved from; null before the first room.</param>
+/// <param name="Layer3">The room effect's BG3 plane this NMI latched, which its pictures are resolved from; null before the first room.</param>
 /// <param name="Hud">The HUD's images this NMI latched, which cover the BG3 plane's top rows and the pause screen keeps (#1466).</param>
 public sealed record GameplayDisplayLatch(
     GameplayRenderSnapshot Scrolls,

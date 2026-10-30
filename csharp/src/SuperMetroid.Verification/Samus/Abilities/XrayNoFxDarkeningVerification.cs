@@ -55,7 +55,7 @@ internal static class XrayNoFxDarkeningVerification
         AssertTrue(math.BlendPlane is not null, "no-FX X-ray retains the actual BG3 plane");
         // Clear_FX_Tilemap leaves the effect area of a room without FX in the cleared cell, which the subscreen shows.
         Layer3Plane layer3 = runtime.AcceptedLayer3Plane;
-        AssertTrue(layer3.Tiles[(Layer3PlaneConstants.HudRows * Layer3Plane.Columns)..].ToArray().All(cell => cell == Layer3Plane.ClearedCell),
+        AssertTrue(layer3.EffectPage is null,
             "capture retains the cleared BG3 effect area");
         // Where the subscreen shows nothing, colour math takes the fixed colour without halving: the blend with its BG3
         // operand removed is the transparent case.

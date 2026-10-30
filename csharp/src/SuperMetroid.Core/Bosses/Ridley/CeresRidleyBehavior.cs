@@ -31,8 +31,6 @@ internal sealed class CeresRidleyBehavior
 
     /// <summary>Ceres Ridley's Mode 7 getaway and the station's self-destruct countdown that follows.</summary>
     internal CeresRidleyGetaway Getaway { get; }
-    /// <summary>The session's installed area artwork.</summary>
-    private readonly AreaArtworkBinding _areaArtwork;
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
 
@@ -43,7 +41,6 @@ internal sealed class CeresRidleyBehavior
     internal CeresRidleyBehavior(CeresRidleyBehaviorDependencies dependencies)
     {
         _bossArtwork = dependencies.Presentation.Artwork;
-        _areaArtwork = dependencies.AreaArtwork;
         _ridleyTail = dependencies.RidleyTail;
         _ridleyEncounter = dependencies.RidleyEncounter;
         _roomStatus = dependencies.RoomStatus;
@@ -51,7 +48,7 @@ internal sealed class CeresRidleyBehavior
         BabyScene = new CeresRidleyBabyScene(dependencies.Room, dependencies.Earthquake, dependencies.Audio, dependencies.SlotTable, dependencies.Presentation.Surfaces, _ridleyEncounter, _bossArtwork);
         Fades = new CeresRidleyFades(dependencies.Presentation.Surfaces, _bossArtwork);
         Hits = new CeresRidleyHits(dependencies.Room, dependencies.SlotTable, dependencies.Presentation.Surfaces, dependencies.Collision, _ridleyEncounter, _bossArtwork);
-        Getaway = new CeresRidleyGetaway(new CeresRidleyGetawayDependencies { FrameResults = dependencies.FrameResults, Room = dependencies.Room, Audio = dependencies.Audio, SlotTable = dependencies.SlotTable, Presentation = dependencies.Presentation.Surfaces, RidleyEncounter = _ridleyEncounter, RoomStatus = _roomStatus, AreaArtwork = _areaArtwork , BossArtwork = _bossArtwork });
+        Getaway = new CeresRidleyGetaway(new CeresRidleyGetawayDependencies { FrameResults = dependencies.FrameResults, Room = dependencies.Room, Audio = dependencies.Audio, SlotTable = dependencies.SlotTable, Presentation = dependencies.Presentation.Surfaces, RidleyEncounter = _ridleyEncounter, RoomStatus = _roomStatus, BossArtwork = _bossArtwork });
     }
 
     /// <summary>

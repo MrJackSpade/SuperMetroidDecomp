@@ -50,9 +50,9 @@ internal static class RoomFxRecordDefinitionsVerification
             new MemoryStream(RoomFxPaletteBlendExtractor.Extract(bus)));
         RoomFxLayer3Pages tilemaps = RoomFxLayer3Pages.Load(
             new MemoryStream(RoomFxLayer3TilemapExtractor.Extract(bus)));
-        var nativeFxSession = new RoomFxSession{ PaletteBlendColors = colors, Layer3Tilemaps = tilemaps };
+        var nativeFxSession = new RoomFxSession{ PaletteBlendColors = colors };
         RoomLayer3FxState nativeFx;
-        var compiledFxSession = new RoomFxSession{ PaletteBlendColors = colors, Layer3Tilemaps = tilemaps };
+        var compiledFxSession = new RoomFxSession{ PaletteBlendColors = colors };
         RoomLayer3FxState compiledFx;
         nativeFx = RoomLayer3FxState.ForRoom(nativeFxSession, nativeCgram.BackgroundSets, room.State.Fx,
             station.Door, randomNumber: 0, room.Definition);

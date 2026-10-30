@@ -502,10 +502,12 @@ internal static class LookupStream5Verification
             system.CeresRidleyBehavior.Getaway.DrawCeresEmergencyText();
             int first = ReadVerificationWord(rom, 0xa6c162) - GameplayVramLayout.Bg1TilemapWord;
             int count = ReadVerificationWord(rom, 0xa6c15d) / sizeof(ushort);
-            AssertEqual(count, overlay.Overlay.Words.Count(word => word != RoomTilemapOverlay.Unwritten), "Native emergency word extent");
+            // The getaway writes the title's picture by name (#1466); the words it stands for are the edited page's.
+            System.Collections.Immutable.ImmutableArray<int> shownWords = overlay.Overlay.WordsIn(result);
+            AssertEqual(count, shownWords.Count(word => word != RoomWrittenOverlay.Unwritten), "Native emergency word extent");
             AssertEqual(source.Pages["emergency"].Length, count, "Edited emergency page keeps its native extent");
             for (int index = 0; index < count; index++)
-                AssertEqual(source.Pages["emergency"][index].PackedWord, overlay.Overlay.Words[first + index], "Actual shown emergency preserves independent edits");
+                AssertEqual(source.Pages["emergency"][index].PackedWord, shownWords[first + index], "Actual shown emergency preserves independent edits");
             foreach (var page in CeresEscapeOverlayTilemapDefinitions.All)
             {
                 byte[] expected = new byte[page.WordCount * 2];

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
@@ -31,8 +32,6 @@ internal sealed class CeresRidleyGetaway
     private readonly RidleyEncounter _ridleyEncounter;
     /// <summary>Publishes Ceres escape and self-destruct room status.</summary>
     private readonly EnemyRoomStatus _roomStatus;
-    /// <summary>The session's installed area artwork.</summary>
-    private readonly AreaArtworkBinding _areaArtwork;
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
 
@@ -49,7 +48,6 @@ internal sealed class CeresRidleyGetaway
         _presentation = dependencies.Presentation;
         _ridleyEncounter = dependencies.RidleyEncounter;
         _roomStatus = dependencies.RoomStatus;
-        _areaArtwork = dependencies.AreaArtwork;
     }
 
     /// <summary>
@@ -354,15 +352,9 @@ internal sealed class CeresRidleyGetaway
         DrawCeresOverlay(CeresEscapeOverlayTilemapDefinitions.Emergency);
     }
 
-    /// <summary>Writes one installed warning tilemap over the room's BG1 at its overlay cell.</summary>
-    private void DrawCeresOverlay(CeresEscapeOverlayTilemapDefinition page)
-    {
-        CeresEscapeOverlays overlays = _areaArtwork.Artwork?.CeresEscapeOverlayTilemaps
-            ?? throw new InvalidDataException("The Ceres escape has no installed warning tilemaps.");
-        if (!overlays.TryResolve(page, out ReadOnlyMemory<BackgroundTile> tiles))
-            throw new InvalidDataException($"Installed Ceres escape has no editable {page.Name} tilemap.");
-        _room.Services.DrawBg1Overlay(page.Cell, tiles.Span);
-    }
+    /// <summary>Writes the picture of one warning page over the room's BG1 at its overlay cell (#1466).</summary>
+    private void DrawCeresOverlay(CeresEscapeOverlayTilemapDefinition page) =>
+        _room.Services.WriteBg1Picture(new WrittenPicture(page.Picture, page.Cell));
 
     /// <summary>
     /// Ports ProcessSpriteTilesTransfers at $A6:C26E (#1406): shows the list's next page, one an update. A page of the
@@ -401,7 +393,7 @@ internal sealed class CeresRidleyGetaway
         bool completed = installed.Step(out EscapeTypewriterGlyph? glyph);
         // The Ceres program types over the room's BG1 (#1348).
         if (glyph is { } typed)
-            _room.Services.DrawBg1Overlay(typed.Cell, [typed.Tile]);
+            _room.Services.WriteBg1Picture(new WrittenPicture(typed.Picture, typed.Cell));
         state.CeresEscapeTextDelayTimer = installed.DelayTimer;
         if (installed.ClickRequested)
             _audio.QueueEnemySound(EscapeTypewriterDefinitions.CeresClick, maximumQueued: SoundQueueLimit.Max3);

@@ -276,15 +276,15 @@ internal sealed class AcceptedFrameBoundary
         }
         // A boss body shows each part's picture for the frame its animation selected (#1466).
         ShownBossBody? shownBody = latched.Bosses.Body?.Show(scope.ArtworkFrames);
-        // Words written over BG2 draw from the sheet's pictures the same way.
+        // Pictures written over BG2 draw from the written picture sheet's frames for the inputs they depend on (#1466).
         RoomOverlayPictures? bg2Overlay = scope.Bg2Overlay is { } overlay
             ? new RoomOverlayPictures((scope.Bg2OverlayPictures ?? throw new InvalidDataException(
-                $"{scope.Room.Definition.Name} writes over BG2 with no installed tile word sheet.")).Resolve(overlay, appearance))
+                $"{scope.Room.Definition.Name} writes over BG2 with no installed written picture sheet.")).Resolve(overlay, appearance))
             : null;
-        // Words written over BG1, as the Ceres escape's warning, draw from the sheet's pictures the same way.
+        // Pictures written over BG1, as the Ceres escape's warning, draw from the sheet the same way.
         RoomOverlayPictures? bg1Overlay = scope.Bg1Overlay is { } written
             ? new RoomOverlayPictures((scope.Bg1OverlayPictures ?? throw new InvalidDataException(
-                $"{scope.Room.Definition.Name} writes over BG1 with no installed tile word sheet.")).Resolve(written, appearance))
+                $"{scope.Room.Definition.Name} writes over BG1 with no installed written picture sheet.")).Resolve(written, appearance))
             : null;
         return latched with
         {
@@ -299,7 +299,7 @@ internal sealed class AcceptedFrameBoundary
                 Bg1Overlay = bg1Overlay,
                 // The room effect's page draws from the BG3 sheet's pictures, as the effects' animations select them; the
                 // HUD's images from the same sheet cover its top rows (#1466).
-                Bg3 = new Layer3Cells(UnderHud(scope.Bg3Pictures.Resolve(latched.Layer3 ?? throw new InvalidOperationException("A room's NMI latches its BG3 words."),
+                Bg3 = new Layer3Cells(UnderHud(scope.Bg3Pictures.Resolve(latched.Layer3 ?? throw new InvalidOperationException("A room's NMI latches its BG3 plane."),
                     appearance), HudPicturesIn(scope.Bg3Pictures.Sheet.Sheet).CellPictures(latched.Hud ?? ShownHud.Nothing))),
             },
             XrayReveal = reveal is null ? null : new XrayRevealPlane(reveal.Value.AsSpan(), pictures),
@@ -307,7 +307,7 @@ internal sealed class AcceptedFrameBoundary
     }
 
     /// <summary>The room effect's part of the BG3 plane this NMI displays (#1348); the HUD's images cover its top rows (#1466).</summary>
-    internal Layer3Plane CaptureLayer3Plane() => Layer3Plane.Compose(_room.Layer3Fx?.EffectPageTiles() ?? []);
+    internal Layer3Plane CaptureLayer3Plane() => _room.Layer3Fx?.EffectPlane ?? Layer3Plane.Cleared;
 
     /// <summary>The pictures of the HUD's images in <paramref name="sheet"/>, the room's BG3 sheet.</summary>
     private HudPictures HudPicturesIn(SpriteSheet sheet) =>

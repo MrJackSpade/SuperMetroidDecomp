@@ -97,21 +97,23 @@ internal static class CeresRidleyPicturesVerification
             runtime.Enemies.CeresRidleyBehavior.Getaway.TickCeresRidleySelfDestruct(ridley);
             runtime.FrameBoundary.BeginAcceptedFrame(0);
         }
-        RoomTilemapOverlay overlay = runtime.Room.LoadedScope.Bg1Overlay
+        RoomWrittenOverlay overlay = runtime.Room.LoadedScope.Bg1Overlay
             ?? throw new InvalidOperationException("Ceres Ridley's getaway wrote no warning over BG1.");
+        // The getaway writes its pages' and glyphs' pictures by name (#1466); the words they stand for are the import's.
+        System.Collections.Immutable.ImmutableArray<int> words = overlay.WordsIn(InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps);
         RoomOverlayPictures shown = runtime.Display.Latched.Rooms?.Bg1Overlay
             ?? throw new InvalidOperationException("The displayed frame shows no warning over BG1.");
         ReadOnlySpan<byte> page = RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteLooks).Characters;
         int written = 0;
-        for (int index = 0; index < RoomTilemapOverlay.WordCount; index++)
+        for (int index = 0; index < RoomWrittenOverlay.CellCount; index++)
         {
-            if (overlay.Words[index] == RoomTilemapOverlay.Unwritten)
+            if (words[index] == RoomWrittenOverlay.Unwritten)
             {
                 AssertTrue(shown.Pictures[index] is null, $"Nothing written at word {index} shows nothing over BG1");
                 continue;
             }
             written++;
-            var word = new SnesBgTilemapWord((ushort)overlay.Words[index]);
+            var word = new SnesBgTilemapWord((ushort)words[index]);
             BgTilePicture picture = shown.Pictures[index]
                 ?? throw new InvalidOperationException($"The warning's word {index}, ${word.Raw:X4}, shows no picture.");
             SpriteImage sheet = picture.Picture.Sheet;

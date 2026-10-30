@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
@@ -14,6 +15,12 @@ public sealed record AreaSourceArtwork : AreaArtworkBundle
 {
     /// <summary>Editable warning-text and door character pages for the Ceres escape.</summary>
     public CeresEscapeTileArtwork? CeresEscapeTiles { get; init; }
+
+    /// <summary>
+    /// Editable English and Japanese tile words of the Ceres warning pages, which only the written picture sheets are composed
+    /// from (#1466): gameplay writes each page's picture by name.
+    /// </summary>
+    public CeresEscapeOverlays? CeresEscapeOverlayTilemaps { get; init; }
 
     /// <inheritdoc/>
     public override string ContentIdentity => SelectedPresentationHash.Create("area-bundle-v1", content =>

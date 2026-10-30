@@ -42,7 +42,4 @@ internal sealed record CeresRidleyBehaviorDependencies
     /// <summary>Room status.</summary>
     public required EnemyRoomStatus RoomStatus { get; init; }
 
-    /// <summary>The session's installed area artwork.</summary>
-    public required AreaArtworkBinding AreaArtwork { get; init; }
-
 }

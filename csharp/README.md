@@ -568,12 +568,12 @@ A room's library background is a full image in the same directory, one for each 
 (`{background}[.{door}].{tileset}`): both BG2 pages it loads, the first above the second, with their tilemap words listed
 in `room-backgrounds.json`. A 16x16 cell whose characters the room rebinds, as the Tourian statues' are, draws that
 cell's block picture while they show something else. The scrolling sky is an image of all its rows the same way, one for each
-sky (`SkyLand`, `SkyOcean`) and tileset. Words written over a room's BG2 after it loads (the bodies of Kraid, Phantoon,
-Draygon, Crocomire and Mother Brain, and the Zebes escape warning) are pictured on one sheet per tileset,
-`Words.<tileset>`, with an image of each part each writer writes; `tile-words.json` records where each tile word is
-pictured over each artwork that can show at its character. BG3 has a sheet per tileset too, `Bg3Words.<tileset>`: the
-HUD fully stocked, every other word the HUD writes, the minimap's map tiles and each room effect's page, in BG3's
-four-colour rows with every pixel keeping its palette index, colour zero included. Each tileset's gameplay message boxes
+sky (`SkyLand`, `SkyOcean`) and tileset. Pictures written over a room's BG1 or BG2 after it loads (the Ceres warning's
+pages and typed glyphs, and the Zebes escape warning's glyphs) are pictured on one sheet per tileset,
+`Written.<tileset>`, one frame per picture and per value of the appearance inputs it depends on;
+`written-pictures.json` records the inputs each picture depends on. BG3 has a sheet per tileset too,
+`Bg3Pictures.<tileset>`: each of the HUD's images, the cleared cell and each room effect's page, in BG3's four-colour
+rows with every pixel keeping its palette index, colour zero included. Each tileset's gameplay message boxes
 are `Messages.<tileset>`: one image of each message in each form it takes (each button a panel can name, each save
 choice), in its BG3 colours with the two colours a message box installs; `message-boxes.json` records the words each
 image pictures. Each Ceres tileset's Mode 7 tiles are one picture, `Mode7.<tileset>`, sixteen tiles to a row;

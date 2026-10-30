@@ -34,8 +34,7 @@ internal static class RoomFxRetailInventoryVerification
     private const int RetailRoomFxDoorCount = 597;
 
     /// <summary>One bus's extracted room-FX catalogs; immutable, so every FX state built on that bus shares them.</summary>
-    internal sealed record RetailFxCatalogs(RoomFxBlendInks PaletteBlends,
-        RoomFxLayer3Pages Layer3Tilemaps, RoomFxAnimatedTileAtlas AnimatedTiles);
+    internal sealed record RetailFxCatalogs(RoomFxBlendInks PaletteBlends, RoomFxAnimatedTileAtlas AnimatedTiles);
 
     /// <summary>Reuses extracted FX art for states sharing an import bus without keeping that bus alive.</summary>
     private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<SuperMetroidAddressSpace, RetailFxCatalogs>
@@ -47,14 +46,11 @@ internal static class RoomFxRetailInventoryVerification
         RetailFxCatalogs catalogs = retailFxCatalogs.GetValue(bus, source => new(
             RoomFxPaletteBlendFile.Read(new MemoryStream(
                 SuperMetroid.AssetExtraction.Fx.RoomFxPaletteBlendExtractor.Extract(source))),
-            RoomFxLayer3Pages.Load(new MemoryStream(
-                SuperMetroid.AssetExtraction.Fx.RoomFxLayer3TilemapExtractor.Extract(source))),
             RoomFxAnimatedTileAtlasPng.Read(new MemoryStream(
                 SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTileAtlasExtractor.Extract(source)))));
         return new()
         {
             PaletteBlendColors = catalogs.PaletteBlends,
-            Layer3Tilemaps = catalogs.Layer3Tilemaps,
             AnimatedTileArtwork = catalogs.AnimatedTiles,
         };
     }
@@ -431,7 +427,7 @@ internal static class RoomFxRetailInventoryVerification
         RoomLayer3FxRenderSnapshot firstSnapshot = fx.CaptureForDisplay()
             ?? throw new InvalidDataException("Business Center lava published no render snapshot.");
         // The BG3 plane the room shows under a blank HUD: the lava page its effect chose (#1348).
-        Layer3Plane plane = EffectPlane(fx);
+        ushort[] plane = EffectPlane(fx);
         RgbaPixel[] first = RenderRoomFx(vram, cgram, firstSnapshot, plane);
         RgbaPixel[] backdrop = RenderRoomFxBackdrop(cgram);
         int surfaceFirstRow = firstSnapshot.WaterSurfaceScreenY -
@@ -477,10 +473,10 @@ internal static class RoomFxRetailInventoryVerification
         SnesVram vram,
         GameplayColours cgram,
         RoomLayer3FxRenderSnapshot snapshot,
-        Layer3Plane plane)
+        ushort[] plane)
     {
         OverlayBlendLayer? layer = GameplayEffectCapture.CaptureRoomLayer3Fx(snapshot,
-            Layer3CellsFixtures.FromWords(plane.Words, BgArtworkFixtures.ComposedVram(vram, new BgArtworkBytes()).Bytes, cgram.Colors));
+            Layer3CellsFixtures.FromWords(plane, BgArtworkFixtures.ComposedVram(vram, new BgArtworkBytes()).Bytes, cgram.Colors));
         return DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(cgram.Colors, []),
             layer is null ? [] : new DisplayLayer[] { layer }, DisplayBrightness.Full));
     }
@@ -489,9 +485,11 @@ internal static class RoomFxRetailInventoryVerification
     private static RgbaPixel[] RenderRoomFxBackdrop(GameplayColours cgram) =>
         DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(cgram.Colors, []), [], DisplayBrightness.Full));
 
-    /// <summary>The BG3 plane a room effect shows under a blank HUD: the page its effect chose (#1348).</summary>
-    private static Layer3Plane EffectPlane(RoomLayer3FxState fx) =>
-        Layer3Plane.Compose(fx.EffectPageTiles());
+    /// <summary>
+    /// The tile words of the BG3 plane a room effect shows under a blank HUD: the page its effect chose (#1348), as the
+    /// installed pages spell it (#1466).
+    /// </summary>
+    private static ushort[] EffectPlane(RoomLayer3FxState fx) => fx.EffectPlane.WordsIn(InstalledFixtures.Maps.RoomFxLayer3Tilemaps);
 
     /// <summary>Copies a vertical frame band so the audit can compare the animated liquid boundary.</summary>
     private static RgbaPixel[] ReadRows(RgbaPixel[] frame, int firstRow, int endRow) =>
@@ -654,7 +652,7 @@ internal static class RoomFxRetailInventoryVerification
 
         AnimatedTileFrameArtwork.ShowIn(vram, risenFrames, fxSession.AnimatedTileArtwork
             ?? throw new InvalidOperationException("The retail FX session has no animated tiles."), AnimatedTileObject.Lava);
-        Layer3Plane finalPlane = EffectPlane(fx);
+        ushort[] finalPlane = EffectPlane(fx);
         RoomLayer3FxRenderSnapshot finalSnapshot = fx.CaptureForDisplay()
             ?? throw new InvalidDataException(
                 $"Room {definition.Room} rising lava published no final snapshot.");
@@ -871,7 +869,7 @@ internal static class RoomFxRetailInventoryVerification
         // Loading a heat-only $FFFF record retains the lava type and BG2/palette owners,
         // but the stale visible liquid plane must remain suppressed.
         fx = RoomLayer3FxState.ForRoom(fxSession, cgram.BackgroundSets, hiddenRoom.State.Fx, door: null, randomNumber: 0);
-        Layer3Plane hiddenPlane = EffectPlane(fx);
+        ushort[] hiddenPlane = EffectPlane(fx);
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
         fx.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
         RgbaPixel[] frame = RenderRoomFx(vram, cgram,

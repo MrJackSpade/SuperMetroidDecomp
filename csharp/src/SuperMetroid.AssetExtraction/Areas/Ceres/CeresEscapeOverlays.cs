@@ -1,9 +1,11 @@
+using SuperMetroid.Core;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Areas.Ceres.Artwork;
+namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>Editable tiles for Ceres's five fixed warning overlays.</summary>
 public sealed class CeresEscapeOverlays
@@ -70,11 +72,11 @@ public sealed class CeresEscapeOverlays
         CeresEscapeOverlayTilemapDocument document)
     {
         Ensure.NotNull(document);
-        if (document.Version != CeresEscapeOverlayTilemapDefinitions.Version ||
+        if (document.Version != CeresWarningGlyphDefinitions.Version ||
             document.Pages is null ||
             document.Pages.Count != CeresEscapeOverlayTilemapDefinitions.All.Length)
             throw new InvalidDataException(
-                $"Ceres escape overlay requires version {CeresEscapeOverlayTilemapDefinitions.Version} and five named tilemaps.");
+                $"Ceres escape overlay requires version {CeresWarningGlyphDefinitions.Version} and five named tilemaps.");
         var compiled = new Dictionary<CeresEscapeOverlayWord, BackgroundTile>();
         foreach (CeresEscapeOverlayTilemapDefinition definition in
                  CeresEscapeOverlayTilemapDefinitions.All)

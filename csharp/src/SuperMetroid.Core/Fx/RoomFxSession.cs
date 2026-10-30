@@ -19,10 +19,6 @@ public sealed class RoomFxSession
     [field: NonSerialized]
     public RoomFxAnimatedTileAtlas? AnimatedTileArtwork { get; set; }
 
-    /// <summary>Current host-owned BG3 effect tilemaps; never stored in debugger state.</summary>
-    [field: NonSerialized]
-    public RoomFxLayer3Pages? Layer3Tilemaps { get; set; }
-
     /// <summary>Current host-owned room-FX blend colors; never stored in debugger state.</summary>
     [field: NonSerialized]
     public RoomFxBlendInks? PaletteBlendColors { get; set; }

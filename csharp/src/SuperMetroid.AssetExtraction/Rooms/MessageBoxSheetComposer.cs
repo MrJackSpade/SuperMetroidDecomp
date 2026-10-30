@@ -71,7 +71,7 @@ internal static class MessageBoxSheetComposer
                     characters.Slice(tile.Tile * RoomTileCanvas.TwoBppCharacterBytes, RoomTileCanvas.TwoBppCharacterBytes), colours);
             }
             int messageRows = tiles.Length / width;
-            frames.Add(name, TileWordSheetComposer.Frame(canvas, top, messageRows, TileWordLayer.Bg3));
+            frames.Add(name, WrittenPictureSheetComposer.Frame(canvas, top, messageRows, WrittenPictureLayer.Bg3));
             top += messageRows;
         }
         return canvas.ToRoomSheet(colours, frames, SpriteImageColours.TwoBppBackground);

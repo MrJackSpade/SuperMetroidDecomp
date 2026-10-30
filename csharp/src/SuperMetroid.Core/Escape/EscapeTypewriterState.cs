@@ -119,7 +119,7 @@ public sealed class EscapeTypewriterState
 
     /// <summary>Whether a line of <paramref name="length"/> glyphs typed from <paramref name="cell"/> stays inside the overlay.</summary>
     internal static bool LineFitsOverlay(int cell, int length) =>
-        cell >= 0 && cell + length <= RoomTilemapOverlay.WordCount;
+        cell >= 0 && cell + length <= RoomWrittenOverlay.CellCount;
 
     /// <summary>Types a non-space glyph, requests a click every second glyph, and advances the cell.</summary>
     private EscapeTypewriterGlyph? TypeCharacter(int character)
@@ -127,7 +127,7 @@ public sealed class EscapeTypewriterState
         EscapeTypewriterGlyph? glyph = null;
         if (GlyphOf(character, tileBase) is { } tile)
         {
-            glyph = new(Cell, tile);
+            glyph = new(Cell, tile, EscapeTypewriterGlyph.PictureOf(ProgramId, (char)character));
             GlyphsWritten++;
             ClickRequested = GlyphsWritten % 2 == 0;
         }

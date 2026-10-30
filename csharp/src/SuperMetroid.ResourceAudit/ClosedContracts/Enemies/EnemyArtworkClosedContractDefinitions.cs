@@ -27,7 +27,7 @@ internal static class EnemyArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyPaletteSheet.cs"),
              new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresEscapeTileArtwork.cs"),
              new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresEscapeTileArtworkDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresEscapeOverlays.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Areas/Ceres/CeresEscapeOverlays.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Bosses/Torizo/TorizoSwapArtwork.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Bosses/Torizo/TorizoSwapArtworkDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyPaletteDefinitions.cs")]),

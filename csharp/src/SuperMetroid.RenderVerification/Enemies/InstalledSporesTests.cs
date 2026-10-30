@@ -101,9 +101,9 @@ internal static class InstalledSporesTests
             Require(baseline.LayerBlendConfiguration == LayerBlendingConfiguration.Spores,
                 "A compiled spores record selects incompatible blending.");
             // Since #1348 the room's BG3 plane shows the effect's page directly instead of a copy written into VRAM.
-            Require(baseline.EffectPageType == RoomFxType.Spores && baseline.EffectPageTiles()
-                    .SequenceEqual(stock.RoomFxLayer3Tilemaps.Resolve(RoomFxType.Spores).ToArray()),
-                "The spores room does not show the installed spores BG3 page.");
+            // The plane names the effect's page (#1466); the installed sheet pictures its words.
+            Require(baseline.EffectPageType == RoomFxType.Spores && baseline.EffectPlane.EffectPage == RoomFxType.Spores,
+                "The spores room does not show the spores BG3 page.");
             int tick = 0;
             for (int frame = 0; frame < 1050; frame++)
             {
@@ -148,8 +148,8 @@ internal static class InstalledSporesTests
                     var gameplay = new GameplaySceneLayer(new(default, default, new Extent16<TilemapCells>(64, 32),
                         ScreenLayers.Background), RoomBackgroundsFixtures.Blank() with
                         {
-                            Bg3 = Layer3CellsFixtures.FromWords(Layer3Plane.Compose(
-                                replacement.EffectPageTiles()).Words, new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]),
+                            Bg3 = Layer3CellsFixtures.FromWords(replacement.EffectPlane.WordsIn(edited.RoomFxLayer3Tilemaps),
+                                new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]),
                         });
                     var layer = GameplayEffectCapture.CaptureSpores(gameplay, (replacement.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires replacement.CaptureForDisplay().")));
                     Require(!layer.RevealBlocks && layer.Blend.Layers == (ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop) &&
@@ -171,7 +171,6 @@ internal static class InstalledSporesTests
     private static RoomFxSession Create(AreaMapPresentation presentation) => new()
     {
         AnimatedTileArtwork = presentation.RoomFxAnimatedTiles,
-        Layer3Tilemaps = presentation.RoomFxLayer3Tilemaps,
         PaletteBlendColors = presentation.RoomFxPaletteBlends,
     };
 

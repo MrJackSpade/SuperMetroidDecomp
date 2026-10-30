@@ -120,9 +120,9 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
                 Assets.Pictures.Background(RoomBackgroundImage.NameOf(background, background.PictureDoor(Door), Assets.Tileset)),
                 Assets.BlockSheet)
             : null,
-        Bg2OverlayPictures = Assets.Pictures.TileWords.TryGetValue(Assets.Tileset, out TileWordSheet? words) ? new TileWordPictureResolver(words) : null,
-        Bg1OverlayPictures = words is null ? null : new TileWordPictureResolver(words),
-        Bg3Pictures = new TileWordPictureResolver(Assets.Pictures.Bg3(Assets.Tileset)),
+        Bg2OverlayPictures = Assets.Pictures.Written.TryGetValue(Assets.Tileset, out WrittenPictureSheet? written) ? new WrittenPictureResolver(written) : null,
+        Bg1OverlayPictures = written is null ? null : new WrittenPictureResolver(written),
+        Bg3Pictures = new WrittenPictureResolver(Assets.Pictures.Bg3(Assets.Tileset)),
         MessageBoxes = Assets.Pictures.MessageBox(Assets.Tileset),
         SkyImage = ScrollingSky is { } sky
             ? new RoomBackgroundImageResolver(Assets.Pictures.Background(RoomBackgroundImage.SkyNameOf(sky.Variant, Assets.Tileset)),

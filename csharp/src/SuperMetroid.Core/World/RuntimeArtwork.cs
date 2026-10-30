@@ -72,7 +72,6 @@ internal sealed class RuntimeArtwork
             _messageBox.BindPresentation(value?.GameplayMessageTitles, value?.GameplayMessagePanels,
                 value?.GameplayMessageNotices);
             _roomFx.AnimatedTileArtwork = value?.RoomFxAnimatedTiles;
-            _roomFx.Layer3Tilemaps = value?.RoomFxLayer3Tilemaps;
             _roomFx.PaletteBlendColors = value?.RoomFxPaletteBlends;
             BindSamusPalettePresentation();
             _bossArtwork.EscapeTypewriterPresentation = value?.EscapeTypewriter;

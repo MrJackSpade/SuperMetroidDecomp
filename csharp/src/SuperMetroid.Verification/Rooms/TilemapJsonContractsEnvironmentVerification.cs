@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using System.Buffers.Binary;
@@ -119,7 +120,7 @@ internal static class TilemapJsonContractsEnvironmentVerification
         var overlayWords = CeresEscapeOverlayTilemapDefinitions.All.ToDictionary(page => page.Name,
             page => Enumerable.Range(0, page.WordCount).Select(index => unchecked((ushort)(index * 197 + 23))).ToArray());
         string overlayJson = Encoding.UTF8.GetString(CeresEscapeOverlays.Write(new()
-            { Version = CeresEscapeOverlayTilemapDefinitions.Version, Pages = overlayWords.ToDictionary(page => page.Key, page => BackgroundTileWordBytes.Tiles(page.Value)) }));
+            { Version = CeresWarningGlyphDefinitions.Version, Pages = overlayWords.ToDictionary(page => page.Key, page => BackgroundTileWordBytes.Tiles(page.Value)) }));
         var overlay = CeresEscapeOverlays.Load(TilemapContractStream(overlayJson));
         foreach (var page in CeresEscapeOverlayTilemapDefinitions.All)
         {

@@ -31,16 +31,11 @@ public sealed class RoomLayer3FxState
     /// <summary>The room's fixed colour. It is session-lived, so it keeps the last writer's colour across rooms.</summary>
     public RoomFixedColor FixedColors => _session.FixedColors;
 
-    /// <summary>Current host-owned BG3 effect tilemaps; never stored in debugger state.</summary>
-    public RoomFxLayer3Pages? Layer3Tilemaps => _session.Layer3Tilemaps;
-
     /// <summary>The effect whose authored page the room's BG3 plane shows, chosen when the room loaded; null when it shows none.</summary>
     public RoomFxType? EffectPageType { get; private set; }
 
-    /// <summary>The tiles of the page the room's BG3 plane shows (#1348); empty when it shows none.</summary>
-    public BackgroundTile[] EffectPageTiles() => EffectPageType is { } type
-        ? (Layer3Tilemaps ?? throw new InvalidOperationException("A room effect's page requires installed layer-3 tilemaps.")).Resolve(type).ToArray()
-        : [];
+    /// <summary>The BG3 plane the room shows (#1348, #1466): the cleared picture, with its effect's page picture when it has one.</summary>
+    public Layer3Plane EffectPlane => Layer3Plane.Of(EffectPageType);
 
     /// <summary>Current host-owned room-FX blend colors; never stored in debugger state.</summary>
     public RoomFxBlendInks? PaletteBlendColors => _session.PaletteBlendColors;

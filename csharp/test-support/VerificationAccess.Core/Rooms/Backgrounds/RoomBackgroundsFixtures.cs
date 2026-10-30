@@ -186,9 +186,9 @@ internal static class RoomBackgroundsFixtures
     /// <summary>A seeded run of <paramref name="count"/> words written over a background, as <see cref="SeededPicturedOverlay"/> seeds them.</summary>
     private static RoomOverlayPictures SeededOverlayRun(Random random, RgbColor[] scene, int count)
     {
-        int first = random.Next(RoomTilemapOverlay.WordCount - count);
+        int first = random.Next(RoomWrittenOverlay.CellCount - count);
         System.Collections.Immutable.ImmutableArray<BgTilePicture?> written = SeededBodyPictures(random, scene, count);
-        var pictures = new BgTilePicture?[RoomTilemapOverlay.WordCount];
+        var pictures = new BgTilePicture?[RoomWrittenOverlay.CellCount];
         for (int index = 0; index < count; index++)
             pictures[first + index] = random.Next(8) == 0 ? null : written[index];
         return new RoomOverlayPictures([.. pictures]);

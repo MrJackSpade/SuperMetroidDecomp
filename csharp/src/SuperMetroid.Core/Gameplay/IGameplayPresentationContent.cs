@@ -55,9 +55,6 @@ public interface IGameplayPresentationContent : IAreaMapSource, IInstalledArtwor
     /// <summary>Room and cinematic palette-animation colors; instruction timing, CGRAM destinations, and side effects remain compiled.</summary>
     RoomPaletteFxPresentation RoomPaletteFx { get; }
 
-    /// <summary>Selected layer-3 room-FX tilemaps, separate from animated characters and palette-blend colors.</summary>
-    RoomFxLayer3Pages RoomFxLayer3Tilemaps { get; }
-
     /// <summary>Selected room-FX palette-blend presentation, separate from layer-3 tilemap geometry and animated character bytes.</summary>
     RoomFxBlendInks RoomFxPaletteBlends { get; }
 

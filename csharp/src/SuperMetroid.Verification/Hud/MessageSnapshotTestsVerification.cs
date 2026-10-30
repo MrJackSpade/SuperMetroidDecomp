@@ -87,8 +87,8 @@ internal static class MessageSnapshotTestsVerification
                 _ = new DisplayPacket(new(++samples, 1, 0), new LayeredScene(memory, [layer], 15));
             }
         }
-        SpriteSheetFrame wrongSize = RepositoryInstallation.Installation.LoadRoomBlockSheets().Bg3Words.Values.First()
-            .Sheet.Frame("Fill");
+        SpriteSheetFrame wrongSize = RepositoryInstallation.Installation.LoadRoomBlockSheets().Bg3Pictures.Values.First()
+            .Sheet.Frame(SuperMetroid.Core.Fx.Layer3Plane.ClearedPicture);
         AssertThrows<ArgumentException>(() => new MessageBoxLayer(wrongSize, 1), "an image of no whole message rows rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => MessageBoxLayer.FromTilemap(messages.Messages.Values.First().AsSpan(), 25, messages),
             "invalid reveal radius rejected");

@@ -13,8 +13,8 @@ public sealed class RoomOverlayPictures
     /// <exception cref="ArgumentException">There is not one picture slot for each tilemap position.</exception>
     public RoomOverlayPictures(ImmutableArray<BgTilePicture?> pictures)
     {
-        if (pictures.IsDefault || pictures.Length != RoomTilemapOverlay.WordCount)
-            throw new ArgumentException($"An overlay needs a picture slot for each of its {RoomTilemapOverlay.WordCount} positions.", nameof(pictures));
+        if (pictures.IsDefault || pictures.Length != RoomWrittenOverlay.CellCount)
+            throw new ArgumentException($"An overlay needs a picture slot for each of its {RoomWrittenOverlay.CellCount} positions.", nameof(pictures));
         Pictures = pictures;
     }
 

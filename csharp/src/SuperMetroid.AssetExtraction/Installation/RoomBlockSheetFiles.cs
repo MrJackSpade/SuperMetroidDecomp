@@ -13,8 +13,8 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// <summary>
 /// Installs the pre-coloured room artwork (#1392, #1466): each tileset's block sheet, the appearance inputs each tileset's
 /// blocks depend on, and each library background's image, each as an image, palette map and pictures, the tilemap words
-/// each background pictures with the inputs its changing cells depend on, the tile word sheets with the inputs each word
-/// depends on, and the provenance of their hashes. A player override of a sheet's or image's file replaces the stock one.
+/// each background pictures with the inputs its changing cells depend on, the written picture sheets with the inputs each
+/// picture depends on, and the provenance of their hashes. A player override of a sheet's or image's file replaces the stock one.
 /// </summary>
 public static class RoomBlockSheetFiles
 {
@@ -27,11 +27,14 @@ public static class RoomBlockSheetFiles
     /// <summary>The background manifest's schema revision: revision 2 records each image's changing cells (#1466).</summary>
     private const int BackgroundManifestVersion = 2;
 
-    /// <summary>The manifest naming each tile word sheet and where it pictures each tile word.</summary>
-    public const string WordManifestFileName = "tile-words.json";
+    /// <summary>The manifest naming each written picture sheet and the inputs each of its pictures depends on.</summary>
+    public const string WrittenManifestFileName = "written-pictures.json";
 
-    /// <summary>The tile word manifest's schema revision: revision 2 names each picture by its words' appearance inputs (#1466).</summary>
-    private const int WordManifestVersion = 2;
+    /// <summary>
+    /// The written picture manifest's schema revision: revision 1 names each picture by what is written and the values of
+    /// its appearance inputs (#1466).
+    /// </summary>
+    private const int WrittenManifestVersion = 1;
 
     /// <summary>The manifest naming each message box image and the words it pictures.</summary>
     public const string MessageManifestFileName = "message-boxes.json";
@@ -55,11 +58,11 @@ public static class RoomBlockSheetFiles
         SpriteSheetStore store = SpriteSheetStore.Create(directory, ProvenanceFileName);
         foreach ((TilesetDefinition tileset, RoomBlockAppearances appearances) in composition.BlockAppearances)
             RoomBlockAppearanceFiles.Write(directory, tileset, appearances);
-        ComposedTileWordSheet[] wordSheets = [.. composition.TileWords.Values, .. composition.Bg3Words.Values];
+        ComposedWrittenPictureSheet[] writtenSheets = [.. composition.Written.Values, .. composition.Bg3Pictures.Values];
         store.WriteAll([
             .. composition.BlockSheets.Select(entry => new NamedComposedSheet(RoomBlockSheet.NameOf(entry.Key), entry.Value)),
             .. composition.Backgrounds.Select(entry => new NamedComposedSheet(entry.Key, entry.Value.Sheet)),
-            .. wordSheets.Select(words => new NamedComposedSheet(TileWordSheet.NameOf(words.Layer, words.Tileset), words.Sheet)),
+            .. writtenSheets.Select(written => new NamedComposedSheet(WrittenPictureSheet.NameOf(written.Layer, written.Tileset), written.Sheet)),
             .. composition.MessageBoxes.Select(entry => new NamedComposedSheet(MessageBoxSheet.NameOf(entry.Key), entry.Value)),
             .. composition.FloorTiles.Values.Select(tiles => new NamedComposedSheet(FloorTileSheet.NameOf(tiles.Tileset), tiles.Sheet)),
         ]);
@@ -74,12 +77,10 @@ public static class RoomBlockSheetFiles
         File.WriteAllBytes(Path.Combine(directory, MessageManifestFileName), JsonSerializer.SerializeToUtf8Bytes(
             new MessageManifest(MessageManifestVersion, composition.Messages.ToDictionary(entry => entry.Key, entry => BackgroundTileWords.ToWords(entry.Value.AsSpan()),
                 StringComparer.Ordinal)), JsonOptions));
-        var sheets = new WordManifest(WordManifestVersion, [.. wordSheets.Select(words => new WordSheetDocument(words.Layer,
-            RoomBlockSheet.NameOf(words.Tileset), [.. words.Tiles.Select(tile => new WordTileDocument(BackgroundTileWords.ToWord(tile.Tile.Tile), tile.Tile.Appearance,
-                tile.Frame, tile.Corner.X, tile.Corner.Y))],
-            [.. words.Inputs.OrderBy(entry => BackgroundTileWords.ToWord(entry.Key)).Select(entry => new WordInputsDocument(BackgroundTileWords.ToWord(entry.Key),
-                [.. entry.Value.Select(input => input.Token)]))]))]);
-        File.WriteAllBytes(Path.Combine(directory, WordManifestFileName), JsonSerializer.SerializeToUtf8Bytes(sheets, JsonOptions));
+        var sheets = new WrittenManifest(WrittenManifestVersion, [.. writtenSheets.Select(written => new WrittenSheetDocument(written.Layer,
+            RoomBlockSheet.NameOf(written.Tileset), [.. written.Inputs.OrderBy(entry => entry.Key, StringComparer.Ordinal)
+                .Select(entry => new WrittenPictureDocument(entry.Key, [.. entry.Value.Select(input => input.Token)]))]))]);
+        File.WriteAllBytes(Path.Combine(directory, WrittenManifestFileName), JsonSerializer.SerializeToUtf8Bytes(sheets, JsonOptions));
         var manifest = new BackgroundManifest(BackgroundManifestVersion,
             composition.Backgrounds.ToDictionary(entry => entry.Key, entry => entry.Value.Words, StringComparer.Ordinal),
             composition.Backgrounds.ToDictionary(entry => entry.Key, entry => entry.Value.Cells.Select(cell => new CellDocument(cell.Cell, cell.Picture,
@@ -100,11 +101,11 @@ public static class RoomBlockSheetFiles
             ?? throw new InvalidDataException($"Room background manifest {manifestPath} is empty.");
         if (manifest.Version != BackgroundManifestVersion || manifest.Words is null || manifest.Cells is null)
             throw new InvalidDataException($"Room background manifest {manifestPath} is not revision {BackgroundManifestVersion}.");
-        string wordPath = Path.Combine(stockDirectory, WordManifestFileName);
-        WordManifest words = JsonSerializer.Deserialize<WordManifest>(File.ReadAllBytes(wordPath), JsonOptions)
-            ?? throw new InvalidDataException($"Tile word manifest {wordPath} is empty.");
-        if (words.Version != WordManifestVersion || words.Sheets is null)
-            throw new InvalidDataException($"Tile word manifest {wordPath} is not revision {WordManifestVersion}.");
+        string writtenPath = Path.Combine(stockDirectory, WrittenManifestFileName);
+        WrittenManifest written = JsonSerializer.Deserialize<WrittenManifest>(File.ReadAllBytes(writtenPath), JsonOptions)
+            ?? throw new InvalidDataException($"Written picture manifest {writtenPath} is empty.");
+        if (written.Version != WrittenManifestVersion || written.Sheets is null)
+            throw new InvalidDataException($"Written picture manifest {writtenPath} is not revision {WrittenManifestVersion}.");
         string messagePath = Path.Combine(stockDirectory, MessageManifestFileName);
         MessageManifest messages = JsonSerializer.Deserialize<MessageManifest>(File.ReadAllBytes(messagePath), JsonOptions)
             ?? throw new InvalidDataException($"Message box manifest {messagePath} is empty.");
@@ -120,7 +121,7 @@ public static class RoomBlockSheetFiles
         IReadOnlyList<TilesetDefinition> tilesets = RoomBlockUploads.Tilesets();
         Dictionary<string, TilesetDefinition> byName = tilesets.ToDictionary(RoomBlockSheet.NameOf, StringComparer.Ordinal);
         SpriteSheetStore store = SpriteSheetStore.Open(stockDirectory, overrideDirectory, ProvenanceFileName,
-            2 * tilesets.Count + manifest.Words.Count + words.Sheets.Length + mode7.Tiles.Count);
+            2 * tilesets.Count + manifest.Words.Count + written.Sheets.Length + mode7.Tiles.Count);
         // The inputs each block depends on are the stock record's: an override repaints a block's pictures, not what they
         // depend on.
         return new InstalledRoomArtwork(
@@ -132,7 +133,7 @@ public static class RoomBlockSheetFiles
                     .Select(cell => new RoomBackgroundCell(cell.Cell, cell.Picture ?? throw new InvalidDataException($"Room background manifest {manifestPath} names no picture of a cell of {entry.Key}."),
                         Inputs(cell.Inputs)))),
                 StringComparer.Ordinal),
-            Sheets(TileWordLayer.Bg12), Sheets(TileWordLayer.Bg3),
+            Sheets(WrittenPictureLayer.Bg12), Sheets(WrittenPictureLayer.Bg3),
             tilesets.ToDictionary(tileset => tileset, tileset => new MessageBoxSheet(tileset, store.Read(MessageBoxSheet.NameOf(tileset)), messageTiles)),
             mode7.Tiles.Select(entry => byName.TryGetValue(entry.Key, out TilesetDefinition tileset) ? new FloorTileSheet(tileset,
                     store.Read(FloorTileSheet.NameOf(tileset)), [.. entry.Value.Pictured ?? throw new InvalidDataException(
@@ -141,20 +142,21 @@ public static class RoomBlockSheetFiles
                 : throw new InvalidDataException($"Mode 7 manifest {mode7Path} names unknown tileset {entry.Key}."))
                 .ToDictionary(tiles => tiles.Tileset));
 
-        // The installed sheets of one layer's words, each under its tileset.
-        Dictionary<TilesetDefinition, TileWordSheet> Sheets(TileWordLayer layer) => words.Sheets.Where(sheet => sheet.Layer == layer)
-            .Select(sheet => Words(sheet, byName.TryGetValue(sheet.Tileset, out TilesetDefinition tileset) ? tileset
-                : throw new InvalidDataException($"Tile word manifest {wordPath} names unknown tileset {sheet.Tileset}."), store))
+        // The installed sheets of one layer's written pictures, each under its tileset. The inputs each picture depends on
+        // are the stock record's: an override repaints a sheet's pictures, not what they depend on.
+        Dictionary<TilesetDefinition, WrittenPictureSheet> Sheets(WrittenPictureLayer layer) => written.Sheets.Where(sheet => sheet.Layer == layer)
+            .Select(sheet => Written(sheet, byName.TryGetValue(sheet.Tileset, out TilesetDefinition tileset) ? tileset
+                : throw new InvalidDataException($"Written picture manifest {writtenPath} names unknown tileset {sheet.Tileset}."), store))
             .ToDictionary(sheet => sheet.Tileset);
     }
 
-    /// <summary>The tile word sheet <paramref name="document"/> describes, read from <paramref name="store"/>.</summary>
-    private static TileWordSheet Words(WordSheetDocument document, TilesetDefinition tileset, SpriteSheetStore store) =>
-        new(document.Layer, tileset, store.Read(TileWordSheet.NameOf(document.Layer, tileset)),
-            document.Tiles.Select(tile => new TileWordSheetTile(new TileWordAppearance(BackgroundTileWords.ToTile(checked((ushort)tile.Word)),
-                tile.Appearance ?? ""), tile.Frame, new Position16<ImagePixels>(checked((ushort)tile.X), checked((ushort)tile.Y)))),
-            (document.Inputs ?? throw new InvalidDataException($"Tile word sheet {TileWordSheet.NameOf(document.Layer, tileset)} records no word inputs."))
-                .ToDictionary(word => BackgroundTileWords.ToTile(checked((ushort)word.Word)), word => Inputs(word.Inputs)));
+    /// <summary>The written picture sheet <paramref name="document"/> describes, read from <paramref name="store"/>.</summary>
+    private static WrittenPictureSheet Written(WrittenSheetDocument document, TilesetDefinition tileset, SpriteSheetStore store) =>
+        new(document.Layer, tileset, store.Read(WrittenPictureSheet.NameOf(document.Layer, tileset)),
+            (document.Pictures ?? throw new InvalidDataException($"Written picture sheet {WrittenPictureSheet.NameOf(document.Layer, tileset)} records no pictures."))
+                .ToDictionary(picture => picture.Picture ?? throw new InvalidDataException(
+                    $"Written picture sheet {WrittenPictureSheet.NameOf(document.Layer, tileset)} records a picture with no name."),
+                    picture => Inputs(picture.Inputs), StringComparer.Ordinal));
 
     /// <summary>The inputs <paramref name="tokens"/> spell, as the manifests record them.</summary>
     /// <exception cref="InvalidDataException">The tokens are missing or spell an unknown input.</exception>
@@ -192,31 +194,21 @@ public static class RoomBlockSheetFiles
     /// <param name="Words">Each image's words, by image name.</param>
     private sealed record MessageManifest(int Version, Dictionary<string, ushort[]> Words);
 
-    /// <summary>The tile word manifest: each tile word sheet and where it pictures each tile word.</summary>
+    /// <summary>The written picture manifest: each written picture sheet and the inputs each of its pictures depends on.</summary>
     /// <param name="Version">The schema revision.</param>
     /// <param name="Sheets">The sheets.</param>
-    private sealed record WordManifest(int Version, WordSheetDocument[] Sheets);
+    private sealed record WrittenManifest(int Version, WrittenSheetDocument[] Sheets);
 
-    /// <summary>One tile word sheet.</summary>
-    /// <param name="Layer">The backgrounds the words are written over.</param>
-    /// <param name="Tileset">The installed name of the tileset whose rooms the words are written in.</param>
-    /// <param name="Tiles">Where the sheet pictures each tile word for each value of its inputs.</param>
-    /// <param name="Inputs">The inputs each tile word that depends on any depends on.</param>
-    private sealed record WordSheetDocument(TileWordLayer Layer, string Tileset, WordTileDocument[] Tiles, WordInputsDocument[]? Inputs);
+    /// <summary>One written picture sheet.</summary>
+    /// <param name="Layer">The backgrounds the pictures are written over.</param>
+    /// <param name="Tileset">The installed name of the tileset whose rooms the pictures are written in.</param>
+    /// <param name="Pictures">Each picture the sheet holds and the inputs it depends on.</param>
+    private sealed record WrittenSheetDocument(WrittenPictureLayer Layer, string Tileset, WrittenPictureDocument[]? Pictures);
 
-    /// <summary>Where a tile word sheet pictures one tile word for one set of values of its inputs.</summary>
-    /// <param name="Word">The tile word.</param>
-    /// <param name="Appearance">The values of its inputs, as a picture's name spells them; empty for a word that depends on none.</param>
-    /// <param name="Frame">The frame picturing the word.</param>
-    /// <param name="X">The tile's left pixel within the frame.</param>
-    /// <param name="Y">The tile's top pixel within the frame.</param>
-    [SpatialComponents("External format: the installed tile word manifest stores each tile's frame corner as x/y.")]
-    private sealed record WordTileDocument(int Word, string? Appearance, string Frame, int X, int Y);
-
-    /// <summary>The inputs one tile word depends on.</summary>
-    /// <param name="Word">The tile word.</param>
-    /// <param name="Inputs">The inputs, as their tokens spell them.</param>
-    private sealed record WordInputsDocument(int Word, string[]? Inputs);
+    /// <summary>One picture a written picture sheet holds, by the name its frames begin with.</summary>
+    /// <param name="Picture">The name.</param>
+    /// <param name="Inputs">The inputs it depends on, as their tokens spell them.</param>
+    private sealed record WrittenPictureDocument(string? Picture, string[]? Inputs);
 
     /// <summary>Stable camel-case manifest fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

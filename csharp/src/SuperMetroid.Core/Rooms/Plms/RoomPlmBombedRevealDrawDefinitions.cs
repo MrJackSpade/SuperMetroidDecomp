@@ -2,14 +2,14 @@ using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>Non-breaking reveals of gated shootable parents in bank $84.</summary>
+/// <summary>Non-breaking reveals of gated shootable parents.</summary>
 internal static class RoomPlmBombedRevealDrawDefinitions
 {
-    /// <summary>The single level word each bombed reveal draws.</summary>
-    internal static readonly IReadOnlyDictionary<RoomPlmBombedRevealDraw, RoomLevelWord> Words = new Dictionary<RoomPlmBombedRevealDraw, RoomLevelWord>
+    /// <summary>The single block each bombed reveal draws.</summary>
+    internal static readonly IReadOnlyDictionary<RoomPlmBombedRevealDraw, RoomTerrainBlock> Blocks = new Dictionary<RoomPlmBombedRevealDraw, RoomTerrainBlock>
     {
-        [RoomPlmBombedRevealDraw.PowerBomb] = RoomLevelWord.Create(0x057, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock),
-        [RoomPlmBombedRevealDraw.SuperMissile] = RoomLevelWord.Create(0x09f, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock),
-        [RoomPlmBombedRevealDraw.CrumbleSingle] = RoomLevelWord.Create(0x0bc, LevelBlockFlipFlags.None, RoomCollisionType.SpecialBlock),
+        [RoomPlmBombedRevealDraw.PowerBomb] = RoomTerrainBlock.Of(0x057, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+        [RoomPlmBombedRevealDraw.SuperMissile] = RoomTerrainBlock.Of(0x09f, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+        [RoomPlmBombedRevealDraw.CrumbleSingle] = RoomTerrainBlock.Of(0x0bc, BlockMirroring.None, RoomCollisionType.SpecialBlock),
     };
 }

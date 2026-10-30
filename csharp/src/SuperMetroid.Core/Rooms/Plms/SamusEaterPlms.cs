@@ -36,7 +36,7 @@ internal sealed class SamusEaterPlms
         slot.StartAnimation(new SamusEaterPlmAnimation(definition.Program));
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.PlantHeldPosition = new(samus.Position.X.Whole, unchecked((ushort)(samus.Position.Y.Whole + (definition.Ceiling ? 1 : -1))));
-        level.SetForegroundEntry(block.Index, block.PackedWord.WithPlmDeactivation().Raw);
+        level.SetTerrain(block.Index, block.Terrain.Deactivated());
         return;
     }
 

@@ -11,7 +11,7 @@ internal enum SpeedBoosterBlockFrame
     Crumble2,
     /// <summary>The last crumble image: the block is gone.</summary>
     Crumble3,
-    /// <summary>The block's saved level word, restored.</summary>
+    /// <summary>The block's saved block, restored.</summary>
     RestoredBlock,
     /// <summary>The bomb reveal's block image.</summary>
     BombReveal,

@@ -102,7 +102,7 @@ internal sealed class EscapeRoomEffects
                 unchecked((ushort)(_room.Camera.PixelPosition.X + (byte)random)),
                 unchecked((ushort)(_room.Camera.PixelPosition.Y + SharedRandomState.UpperByte(random))));
             int blockIndex = _room.LevelData.Size.RowMajorIndex(explosion.ToRoomBlock());
-            if (!nonblank || _room.LevelData.GetPlmCollisionBlockByIndex(blockIndex).PackedWord.VisualBlockIndex != ZebesEscapeDefinitions.BlankTile)
+            if (!nonblank || _room.LevelData.GetPlmCollisionBlockByIndex(blockIndex).Terrain.Appearance.Block != ZebesEscapeDefinitions.BlankTile)
                 enemies.PlmSpawns.SpawnEscapeExplosion(explosion, _system.NextRandom(), nonblank ? unchecked((ushort)(blockIndex * 2)) : (ushort)0);
         }
         if (nonblank) enemies.Earthquake.KeepShaking();

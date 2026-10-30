@@ -3,14 +3,14 @@ using static SuperMetroid.Core.Rooms.Plms.RoomPlmCollectibleDrawDefinitions;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>The level word and artwork name of each collectible draw.</summary>
+/// <summary>The terrain and artwork name of each collectible draw.</summary>
 internal static class CollectiblePlmDraws
 {
     /// <summary>Physical runtime projection without constructing exported artwork names.</summary>
-    internal static bool TryGetWord(PlmDraw request, out RoomLevelWord word)
+    internal static bool TryGetBlock(PlmDraw request, out RoomTerrainBlock block)
     {
         bool found = TryLocate(request, out Draw draw);
-        word = found ? new RoomLevelWord(Word(draw)) : default;
+        block = found ? Block(draw) : default;
         return found;
     }
 
@@ -30,15 +30,15 @@ internal static class CollectiblePlmDraws
     private static bool TryLocate(PlmDraw request, out Draw draw) =>
         PlmDraw.TryFrame(request, static (Draw frame) => (uint)frame.Index < (uint)CountOf(frame.Group), out draw);
 
-    /// <summary>The physical level word a draw writes; each group advances one tile per frame.</summary>
-    private static ushort Word(Draw draw) => draw.Group switch
+    /// <summary>The terrain a draw writes; each group advances one block per frame.</summary>
+    private static RoomTerrainBlock Block(Draw draw) => draw.Group switch
     {
-        DrawGroup.Empty => PlmLevelWordDefinitions.BlankAir,
-        DrawGroup.Orb => RoomLevelWord.Create(OrbFirstBlock + draw.Index, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock).Raw,
-        DrawGroup.OrbBurst => RoomLevelWord.Create(OrbBurstBlock, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock).Raw,
-        DrawGroup.Tank => RoomLevelWord.Create(TankFirstBlock + draw.Index, LevelBlockFlipFlags.None, RoomCollisionType.SpecialBlock).Raw,
-        DrawGroup.Dynamic => RoomLevelWord.Create(DynamicFirstBlock + draw.Index, LevelBlockFlipFlags.None, RoomCollisionType.SpecialBlock).Raw,
-        DrawGroup.ShotReveal => RoomLevelWord.Create(ShotRevealFirstBlock + draw.Index, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock).Raw,
+        DrawGroup.Empty => RoomTerrainBlocks.BlankAir,
+        DrawGroup.Orb => RoomTerrainBlock.Of(OrbFirstBlock + draw.Index, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+        DrawGroup.OrbBurst => RoomTerrainBlock.Of(OrbBurstBlock, BlockMirroring.None, RoomCollisionType.SolidBlock),
+        DrawGroup.Tank => RoomTerrainBlock.Of(TankFirstBlock + draw.Index, BlockMirroring.None, RoomCollisionType.SpecialBlock),
+        DrawGroup.Dynamic => RoomTerrainBlock.Of(DynamicFirstBlock + draw.Index, BlockMirroring.None, RoomCollisionType.SpecialBlock),
+        DrawGroup.ShotReveal => RoomTerrainBlock.Of(ShotRevealFirstBlock + draw.Index, BlockMirroring.None, RoomCollisionType.SolidBlock),
         _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {draw.Group}."),
     };
 
@@ -120,7 +120,7 @@ internal static class CollectiblePlmDraws
                 for (int index = 0; index < CountOf(group); index++)
                 {
                     var draw = new Draw(group, index);
-                    yield return new(draw, new RoomLevelWord(Word(draw)), VisualId(draw));
+                    yield return new(draw, Block(draw), VisualId(draw));
                 }
             }
         }

@@ -48,20 +48,19 @@ internal sealed class GatePlms : IPlmFamilySource
         return requests;
     }
 
-    /// <summary>Marks the gate's five vertical BTS cells and requests its initial closed projectile.</summary>
+    /// <summary>Marks the gate's five vertical cells' behaviour and requests its initial closed projectile.</summary>
     internal void SetupDownwardGateSlot(RoomLevelData level, PlmSlot slot)
     {
         slot.Family = new DownwardGatePlmState();
         slot.StartAnimation(new DownwardGatePlmAnimation(DownwardGateProgram.Closed));
 
-        // Setup $C784 writes BTS $10 to the five vertically adjacent gate cells without
-        // replacing their authored level words. C# block indexes are words, whereas the
-        // native PLM index is a byte offset, so one room width here equals native +2*width.
+        // The setup writes the closed-gate behaviour to the five vertically adjacent gate cells without replacing their
+        // authored terrain.
         for (int row = 0; row < DownwardGateDefinitions.GateHeightInBlocks; row++)
         {
             int blockIndex = checked(slot.BlockIndex + row * level.Size.X);
             _ = level.GetCollisionBlockByIndex(blockIndex);
-            level.SetBehavior(blockIndex, DownwardGateDefinitions.ClosedGateBts);
+            level.SetBehavior(blockIndex, DownwardGateDefinitions.ClosedGateBehavior);
         }
 
         _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
@@ -70,20 +69,19 @@ internal sealed class GatePlms : IPlmFamilySource
             slot.BlockIndex));
     }
 
-    /// <summary>Installs a side trigger's selected instruction list and authored neighboring shot-block words.</summary>
+    /// <summary>Installs a side trigger's selected program and its authored neighboring shot block.</summary>
     internal static void SetupDownwardGateShotBlock(RoomLevelData level, PlmSlot slot)
     {
         DownwardGateShotBlockDefinition definition = DownwardGateShotBlock((slot.Argument as GateTriggerArgument
             ?? throw new InvalidDataException($"Downward gate shot block at block {slot.BlockIndex} was placed without its trigger.")).Trigger);
         slot.StartAnimation(new DownwardGatePlmAnimation(definition.Program));
 
-        // Setup $C6E0 performs independent left and right writes even though every authored
-        // row installs exactly one side. Preserve that ordering instead of deriving the side
-        // from the trigger's low bit.
-        if (definition.LeftBlockWord != 0)
-            WriteDownwardGateShotBlock(level, slot.BlockIndex - 1, definition.LeftBlockWord);
-        if (definition.RightBlockWord != 0)
-            WriteDownwardGateShotBlock(level, slot.BlockIndex + 1, definition.RightBlockWord);
+        // The setup performs independent left and right writes even though every authored row installs exactly one
+        // side. Preserve that ordering instead of deriving the side from the trigger.
+        if (definition.LeftBlock is { } left)
+            WriteDownwardGateShotBlock(level, slot.BlockIndex - 1, left);
+        if (definition.RightBlock is { } right)
+            WriteDownwardGateShotBlock(level, slot.BlockIndex + 1, right);
     }
 
     /// <summary>
@@ -95,16 +93,16 @@ internal sealed class GatePlms : IPlmFamilySource
             ? DownwardGateShotBlockDefinitions.Triggers[trigger]
             : throw new InvalidDataException($"Downward gate trigger {trigger} does not name one of the eight colors and sides.");
 
-    /// <summary>Writes a trigger's foreground word and its low-byte behavior to one collision block.</summary>
-    /// <remarks>The trigger's BTS is the word's low byte: its visual block index, which selects the trigger's color and side.</remarks>
-    private static void WriteDownwardGateShotBlock(RoomLevelData level, int blockIndex, int word)
+    /// <summary>Writes a trigger's terrain and its gate-trigger behaviour to one collision block.</summary>
+    /// <remarks>The trigger's behaviour comes from its block number, which selects the trigger's color and side.</remarks>
+    private static void WriteDownwardGateShotBlock(RoomLevelData level, int blockIndex, RoomTerrainBlock trigger)
     {
         _ = level.GetCollisionBlockByIndex(blockIndex);
-        level.SetForegroundEntry(blockIndex, word);
-        level.SetBehavior(blockIndex, RoomLevelWord.FromRaw(word).VisualBlockIndexLowByte);
+        level.SetTerrain(blockIndex, trigger);
+        level.SetBehavior(blockIndex, RoomBlockBehavior.OfGateTrigger(trigger.Appearance));
     }
 
-    /// <summary>Runs the shootable BTS $46-$4D dispatcher and wakes its adjacent gate.</summary>
+    /// <summary>Runs the gate-trigger shot dispatcher and wakes its adjacent gate.</summary>
     public bool TrySpawnDownwardGateTrigger(
         RoomLevelData level,
         int blockIndex,

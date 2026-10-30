@@ -30,7 +30,7 @@ internal sealed class ScrollPlms : IPlmFamilySource
         .ToArray();
 
     /// <summary>
-    /// Applies setup <c>$84:B393</c> to the already-resolved origin of special-air BTS $46.
+    /// Applies the scroll trigger's touch to the already-resolved origin of its special-air trigger block.
     /// </summary>
     /// <param name="blockIndex">Zero-based row-major 16x16 room-block index of the trigger origin, after any scroll-extension traversal.</param>
     /// <returns>True when a live resident scroll PLM owns the block, including an already-triggered one; false when no matching owner exists.</returns>
@@ -42,12 +42,11 @@ internal sealed class ScrollPlms : IPlmFamilySource
             if (!slot.Active || slot.BlockIndex != blockIndex || slot.Family is not ScrollPlmState scroll)
                 continue;
 
-            // Native PLM_Vars bit 15 prevents multiple collision probes in one frame from
-            // repeatedly advancing the sleeping instruction pointer.
+            // The trigger latch prevents multiple collision probes in one frame from repeatedly advancing the sleeping
+            // program.
             if (!scroll.Triggered)
             {
                 scroll.Triggered = true;
-                slot.RestoreLevelWord = new RoomLevelWord(0).WithCollisionType(RoomCollisionType.SolidBlock).Raw;
                 slot.InstructionTimer = WrappingCountdown.Start(1);
             }
             return true;
@@ -104,16 +103,15 @@ internal sealed class ScrollPlms : IPlmFamilySource
             $"Scroll PLM data at block {slot.BlockIndex} has no negative terminator.");
     }
 
-    /// <summary>Restores the type-$3 special-air trigger and rearms its waiting instruction list.</summary>
+    /// <summary>Restores the special-air trigger and rearms its waiting program.</summary>
     private static void FinishScrollMutation(RoomLevelData level, PlmSlot slot)
     {
-        // Instruction $8B55 clears PLM_Vars and restores type-$3 special air, then
-        // the list loops to Sleep. BTS $46 remains unchanged and can wake it again.
+        // The finishing instruction clears the trigger latch and restores special air, then the program loops to
+        // sleep. The scroll-trigger behaviour remains unchanged and can wake it again.
         ((slot.Family as ScrollPlmState) ?? throw new InvalidOperationException("A scroll PLM slot owns scroll trigger state.")).Triggered = false;
-        slot.RestoreLevelWord = 0;
-        level.SetForegroundEntry(
+        level.SetTerrain(
             slot.BlockIndex,
-            level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.WithCollisionType(RoomCollisionType.SpecialAir).Raw);
+            level.GetCollisionBlockByIndex(slot.BlockIndex).Terrain.WithCollision(RoomCollisionType.SpecialAir));
         level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.ScrollTrigger);
     }
 
@@ -409,10 +407,10 @@ internal sealed class ScrollPlms : IPlmFamilySource
                 _ => throw new InvalidOperationException(
                     "Validated scroll extension escaped its setup table."),
             };
-            level.SetForegroundEntry(
+            level.SetTerrain(
                 slot.BlockIndex,
-                level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.WithCollisionType(collisionType).Raw);
-            level.SetBehavior(slot.BlockIndex, unchecked((byte)offset));
+                level.GetCollisionBlockByIndex(slot.BlockIndex).Terrain.WithCollision(collisionType));
+            level.SetBehavior(slot.BlockIndex, RoomBlockBehavior.OfExtensionOffset(offset));
 
             // Every extension setup ends in DeletePLM. Clearing this preallocated slot is
             // what permits the following ROM record to reuse the same highest native ID.
@@ -425,9 +423,9 @@ internal sealed class ScrollPlms : IPlmFamilySource
             Program = compiledProgram.HasValue ? null : program.ToArray(),
             CompiledProgram = compiledProgram,
         };
-        level.SetForegroundEntry(
+        level.SetTerrain(
             slot.BlockIndex,
-            level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.WithCollisionType(RoomCollisionType.SpecialAir).Raw);
+            level.GetCollisionBlockByIndex(slot.BlockIndex).Terrain.WithCollision(RoomCollisionType.SpecialAir));
         level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.ScrollTrigger);
     }
 

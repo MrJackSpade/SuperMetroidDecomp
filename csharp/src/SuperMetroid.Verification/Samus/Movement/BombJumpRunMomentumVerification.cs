@@ -18,10 +18,10 @@ internal static class BombJumpRunMomentumVerification
     internal static void VerifyBombJumpRunMomentum()
     {
         const int width = 8, height = 8;
-        var floorBlocks = new ushort[width * height];
+        var floorBlocks = new RoomTerrainBlock[width * height];
         for (int x = 0; x < width; x++)
-            floorBlocks[4 * width + x] = 0x8000;
-        var floor = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(floorBlocks, new byte[floorBlocks.Length], new ushort[floorBlocks.Length]));
+            floorBlocks[4 * width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+        var floor = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(floorBlocks, new RoomBlockBehavior[floorBlocks.Length], new RoomBlockAppearance[floorBlocks.Length]));
 
         var samus = new SamusState { Pose = SamusPoseId.MovingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(48, 43)) };
         SamusPoseMetadata.RefreshCollisionRadii(samus);

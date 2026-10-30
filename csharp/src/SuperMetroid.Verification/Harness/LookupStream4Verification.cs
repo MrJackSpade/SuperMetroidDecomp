@@ -1837,9 +1837,9 @@ internal static class LookupStream4Verification
         Func<RidleyEnemyState, RoomLevelData?, bool> touches = RidleyTail.RidleyTailTouchesTerrain;
         for (int solidRow = 0; solidRow < 2; solidRow++)
         {
-            ushort[] blocks = new ushort[2];
-            blocks[solidRow] = 0x8000;
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 2), new RoomLevelPlanes(blocks, new byte[2], new ushort[2]));
+            RoomTerrainBlock[] blocks = new RoomTerrainBlock[2];
+            blocks[solidRow] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 2), new RoomLevelPlanes(blocks, new RoomBlockBehavior[2], new RoomBlockAppearance[2]));
             for (int segmentIndex = 0; segmentIndex < 7; segmentIndex++)
             foreach (ushort y in new ushort[] { 13, 14, 15, 0xfff0, 0xfff1 })
             {

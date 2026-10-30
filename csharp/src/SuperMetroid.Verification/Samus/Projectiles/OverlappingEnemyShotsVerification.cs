@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -55,7 +56,7 @@ internal static class OverlappingEnemyShotsVerification
             AssertEqual(80, enemy.Health, "each overlapping Beetom takes native missile damage");
         AssertTrue(shot.PackedDirection.HasLowByteLifecycleState, "non-piercing shot is marked for deferred removal");
         AssertEqual(0x8100, shot.Type, "collision preserves payload until projectile processing");
-        var level = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
+        var level = CreateRoom(new(16, 16), new RoomTerrainBlock[256], new RoomBlockBehavior[256]);
         shots.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, Position16<RoomPixels>.Zero, bombs, projectileProducerEnabled: false);
         AssertEqual(0, shot.Type, "next projectile pass consumes the removal marker");
         foreach (var enemy in enemies.SlotTable.Slots.Take(3))

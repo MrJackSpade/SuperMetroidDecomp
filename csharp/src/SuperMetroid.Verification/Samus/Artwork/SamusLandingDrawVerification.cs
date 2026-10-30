@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -41,8 +42,8 @@ internal static class SamusLandingDrawVerification
         var level = runtime.Room.LoadedLevelData;
         for (int y = 0; y <= 16; y++)
         for (int x = 0; x < level.Size.X; x++)
-            level.SetForegroundEntry(y * level.Size.X + x,
-                y is 0 or 16 || x is 0 or 15 ? (ushort)0x8000 : (ushort)0);
+            level.SetTerrain(y * level.Size.X + x,
+                y is 0 or 16 || x is 0 or 15 ? RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock) : default);
         runtime.InitializeDebugGroundedSamus(64, 232, 16);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();

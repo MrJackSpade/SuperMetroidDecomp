@@ -141,11 +141,8 @@ internal static class RoomArtworkRenderParityVerification
 
             void AssertGameplayPlanesUnchanged(SuperMetroidRuntime changed, string artwork)
             {
-                AssertTrue(native.Room.LoadedLevelData.ForegroundEntries.Span.SequenceEqual(
-                        changed.Room.LoadedLevelData.ForegroundEntries.Span) &&
-                    native.Room.LoadedLevelData.BehaviorBytes.AsSpan().SequenceEqual(
-                        changed.Room.LoadedLevelData.BehaviorBytes.AsSpan()),
-                    $"{artwork} override does not change placement or collision BTS");
+                AssertTrue(native.Room.LoadedLevelData.SameTerrainAs(changed.Room.LoadedLevelData),
+                    $"{artwork} override does not change the room's terrain or behaviours");
             }
 
             SuperMetroidRuntime LoadRoom(bool installedArt)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -41,7 +42,7 @@ internal static class ProjectileDamageVerification
                 "Unknown selector address fails instead of reading arbitrary cartridge data");
         }
 
-        var room = CreateRoom(new(32, 16), new ushort[512], new byte[512]);
+        var room = CreateRoom(new(32, 16), new RoomTerrainBlock[512], new RoomBlockBehavior[512]);
         SamusState Samus() => new() { Pose = SamusPoseId.FacingRightNormalPose, Position = new(new(128, 0), new(128, 0)), Missiles = 10, SuperMissiles = 10 };
         void Check(SamusProjectileSlot slot, int table, int index, int direction)
         {

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
@@ -108,7 +109,7 @@ internal static class GrappleFiringDefinitionsVerification
         }
         // Run the real four-substep extension path in empty terrain, not just its setup.
         // Presentation overrides must change Flare without changing trajectory or Start.
-        var empty = CreateRoom(new(64, 64), new ushort[4096], new byte[4096]);
+        var empty = CreateRoom(new(64, 64), new RoomTerrainBlock[4096], new RoomBlockBehavior[4096]);
         foreach (bool replaceFlare in new[] { false, true })
         for (byte direction = 0; direction < 10; direction++)
         {

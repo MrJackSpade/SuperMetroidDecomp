@@ -81,7 +81,7 @@ public static class SamusTerrainHazardCollision
         if (block.Index < 0 || !SamusBlockCollision.TryResolveExtension(level, ref block))
             return;
         if (block.CollisionType != RoomCollisionType.SpikeAir ||
-            block.Behavior.Value != SpikeHazardDefinitions.DamagingSpikeAirBehavior)
+            block.Behavior != SpikeHazardDefinitions.DamagingSpikeAirBehavior)
         {
             return;
         }

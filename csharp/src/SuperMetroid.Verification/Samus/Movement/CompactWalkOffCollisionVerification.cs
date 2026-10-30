@@ -13,9 +13,9 @@ internal static class CompactWalkOffCollisionVerification
     /// pose, radius timing, vertical speed, and corrected Y position.</summary>
     internal static void VerifyCompactWalkOffCollision()
     {
-        var words = new ushort[16 * 32];
-        for (int x = 0; x < 16; x++) words[16 * 16 + x] = 0x8000;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 32), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]));
+        var words = new RoomTerrainBlock[16 * 32];
+        for (int x = 0; x < 16; x++) words[16 * 16 + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 32), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]));
         foreach (bool left in new[] { false, true })
         {
             // Native soft-unmorph comparison: the neighboring ordinary landing's

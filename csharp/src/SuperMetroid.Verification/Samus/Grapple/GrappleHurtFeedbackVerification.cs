@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -32,7 +33,7 @@ internal static class GrappleHurtFeedbackVerification
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Parlor);
         foreach (var enemy in runtime.Enemies.SlotTable.Slots) enemy.Clear();
-        var level = CreateRoom(new(32, 16), new ushort[512], new byte[512]);
+        var level = CreateRoom(new(32, 16), new RoomTerrainBlock[512], new RoomBlockBehavior[512]);
         runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { LevelData = level });
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();

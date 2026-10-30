@@ -20,10 +20,10 @@ internal static class WallProbeBombBlockVerification
         foreach (var (pose, breaks) in new VerifyWallProbeBombBlockCase[]
             { new VerifyWallProbeBombBlockCase(SamusPoseId.ScrewAttackRightPose, true), new VerifyWallProbeBombBlockCase(SamusPoseId.FacingRightNormalPose, false) })
         {
-            var foreground = new ushort[width * height];
+            var foreground = new RoomTerrainBlock[width * height];
             for (int y = 1; y < 6; y++)
-                foreground[y * width + 4] = (int)RoomCollisionType.BombableBlock << 12;
-            RoomLevelData level = CreateRoom(new(width, height), foreground, new byte[foreground.Length]);
+                foreground[y * width + 4] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.BombableBlock);
+            RoomLevelData level = CreateRoom(new(width, height), foreground, new RoomBlockBehavior[foreground.Length]);
             var samus = new SamusState { Pose = pose };
             SamusKinematicsState state = samus.Kinematics;
             state.Position = state.Position.WithWholeX(58).WithFractionX(fraction).WithWholeY(48);

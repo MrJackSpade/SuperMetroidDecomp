@@ -3,9 +3,21 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// <summary>Verification access to <see cref="RoomLevelData"/> members production does not use.</summary>
 internal static class RoomLevelDataAccess
 {
-    /// <summary>Restores a room's grid from a fixture snapshot.</summary>
+    /// <summary>Reads a room's grid and restores it from a fixture snapshot.</summary>
     extension(RoomLevelData self)
     {
+        /// <summary>Each foreground block's terrain, row by row.</summary>
+        internal ReadOnlySpan<RoomTerrainBlock> TerrainGrid => self.Terrain;
+
+        /// <summary>Each foreground block's behaviour, row by row.</summary>
+        internal ReadOnlySpan<RoomBlockBehavior> BehaviorGrid => self.Behaviors;
+
+        /// <summary>Whether this grid's terrain and behaviours, which gameplay reads, equal <paramref name="other"/>'s.</summary>
+        internal bool SameTerrainAs(RoomLevelData other) =>
+            self.Size == Ensure.NotNull(other).Size &&
+            self.Terrain.AsSpan().SequenceEqual(other.Terrain) &&
+            self.Behaviors.AsSpan().SequenceEqual(other.Behaviors);
+
         /// <summary>
         /// Returns this level to <paramref name="source"/>'s complete state in place: every plane, the terrain beyond the
         /// room and the pending door flags. Both levels must share one layout.

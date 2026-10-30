@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -21,7 +22,7 @@ internal static class SuperMissileEnemyHitQuakeVerification
     /// </summary>
     internal static void VerifySuperMissileEnemyHitQuake()
     {
-        var room = CreateRoom(new(64, 16), new ushort[64 * 16], new byte[64 * 16]);
+        var room = CreateRoom(new(64, 16), new RoomTerrainBlock[64 * 16], new RoomBlockBehavior[64 * 16]);
         var samus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),

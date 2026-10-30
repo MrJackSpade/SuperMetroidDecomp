@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -33,7 +34,7 @@ internal static class ProjectileCooldownsVerification
             AssertThrows<InvalidDataException>(
                 () => SamusProjectileCooldowns.ReadByte(address - SamusSourceDefinitionsConstants.FiringTables.Value),
                 "Unknown cooldown address fails instead of reading adjacent presentation data");
-        var room = CreateRoom(new(32, 16), new ushort[512], new byte[512]);
+        var room = CreateRoom(new(32, 16), new RoomTerrainBlock[512], new RoomBlockBehavior[512]);
         for (ushort beam = 0; beam < 12; beam++)
         foreach (bool charged in new[] { false, true })
         foreach (ControllerButton edge in new ControllerButton[] { 0, ControllerButton.X })

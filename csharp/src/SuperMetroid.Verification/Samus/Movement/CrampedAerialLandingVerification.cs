@@ -39,13 +39,13 @@ internal static class CrampedAerialLandingVerification
 
         const int roomWidth = 16;
         const int roomHeight = 16;
-        var foreground = new ushort[roomWidth * roomHeight];
+        var foreground = new RoomTerrainBlock[roomWidth * roomHeight];
 
         // Room $02/$0B has shootable solid cells at (8,2) and (8,4). At captured X=$0094,
         // Samus's horizontal radius overlaps column eight, leaving exactly 32 vertical pixels
         // between the bottom of the ceiling cell and the top of the floor cell.
-        foreground[2 * roomWidth + 8] = 0xc000;
-        foreground[4 * roomWidth + 8] = 0xc000;
+        foreground[2 * roomWidth + 8] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock);
+        foreground[4 * roomWidth + 8] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock);
         RoomLevelData level = CreateRoom(new(roomWidth, roomHeight),
             foreground,
             new byte[foreground.Length]);

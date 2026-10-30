@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -66,7 +67,7 @@ internal static class GrappleBodyPlacementVerification
         foreach (int invalid in new[] { -1, 32 })
             AssertThrows<InvalidDataException>(() => InstalledGrappleSwingFrames.Write(new() { Version = 1, Frames = Enumerable.Repeat(invalid, 256).ToArray() }), "Invalid swing-frame index rejected");
         AssertThrows<InvalidDataException>(() => InstalledGrappleSwingFrames.Write(new() { Version = 1, Frames = new int[255] }), "Incomplete swing-frame table rejected");
-        var empty = CreateRoom(new(64, 64), new ushort[4096], new byte[4096]);
+        var empty = CreateRoom(new(64, 64), new RoomTerrainBlock[4096], new RoomBlockBehavior[4096]);
         foreach (bool faceRight in new[] { false, true })
         for (int angle = 0; angle < 256; angle += 32)
         {

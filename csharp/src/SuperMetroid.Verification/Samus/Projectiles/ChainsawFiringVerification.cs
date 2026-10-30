@@ -32,7 +32,7 @@ internal static class ChainsawFiringVerification
     internal static void VerifyChainsawFiring()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]));
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new RoomTerrainBlock[256], new RoomBlockBehavior[256], new RoomBlockAppearance[256]));
         var samus = new SamusState
         {
             CollectedItems = SamusEquipmentFlags.HiJumpBoots,
@@ -64,9 +64,9 @@ internal static class ChainsawFiringVerification
         // PowerBomb_Func3 clears the inactive shot, but the native callback still falls
         // through to the bank-$94 boundary dispatcher. A bombable origin with no PLM owner
         // makes that otherwise invisible call fail loudly through the production path.
-        ushort[] reactiveWords = new ushort[256];
-        reactiveWords[0] = (int)RoomCollisionType.BombableBlock << 12;
-        var reactiveLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(reactiveWords, new byte[256], new ushort[256]));
+        RoomTerrainBlock[] reactiveWords = new RoomTerrainBlock[256];
+        reactiveWords[0] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.BombableBlock);
+        var reactiveLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(reactiveWords, new RoomBlockBehavior[256], new RoomBlockAppearance[256]));
         var reactiveSamus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
@@ -79,18 +79,18 @@ internal static class ChainsawFiringVerification
         // Wave collision scans do not kill their owner, but they still run every touched
         // block's shot reaction before the B0AC callback deletes the no-Power-Bomb shot.
         // This is how an invisible, zero-range Chainsaw shot opens a blue door.
-        ushort[] doorWords = new ushort[256];
-        byte[] doorBts = new byte[256];
+        RoomTerrainBlock[] doorWords = new RoomTerrainBlock[256];
+        RoomBlockBehavior[] doorBts = new RoomBlockBehavior[256];
         int doorOrigin = 6 * 16 + 9;
-        doorWords[doorOrigin] = (int)RoomCollisionType.ShootableBlock << 12;
-        doorBts[doorOrigin] = 0x41;
+        doorWords[doorOrigin] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock);
+        doorBts[doorOrigin] = new RoomBlockBehavior(0x41);
         for (int row = 1; row < 4; row++)
         {
             doorWords[doorOrigin + row * 16] =
-                (int)RoomCollisionType.VerticalExtension << 12;
-            doorBts[doorOrigin + row * 16] = unchecked((byte)-row);
+                RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.VerticalExtension);
+            doorBts[doorOrigin + row * 16] = new RoomBlockBehavior(unchecked((byte)-row));
         }
-        var doorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(doorWords, doorBts, new ushort[256]));
+        var doorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(doorWords, doorBts, new RoomBlockAppearance[256]));
         var doorSamus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
@@ -172,10 +172,10 @@ internal static class ChainsawFiringVerification
         const int bombableBlock = 2 * 5 + 1;
         TestAddressSpace interferenceBus = CreateChainsawInterferenceCartridge(yellowDoorPopulation);
 
-        ushort[] interferenceWords = new ushort[25];
-        byte[] interferenceBts = new byte[25];
-        interferenceWords[yellowDoorBlock] = 0x8000;
-        var interferenceLevel = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(interferenceWords, interferenceBts, new ushort[25]));
+        RoomTerrainBlock[] interferenceWords = new RoomTerrainBlock[25];
+        RoomBlockBehavior[] interferenceBts = new RoomBlockBehavior[25];
+        interferenceWords[yellowDoorBlock] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+        var interferenceLevel = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(interferenceWords, interferenceBts, new RoomBlockAppearance[25]));
         var interferencePlms = PlmFixtures.Unbound();
         AssertEqual(1, PlmFixtures.LoadPopulation(ref interferencePlms, new PlmRoom(interferenceLevel, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(interferenceBus, yellowDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "Chainsaw interference fixture loads the resident yellow door");
@@ -205,10 +205,10 @@ internal static class ChainsawFiringVerification
         AssertEqual((byte)0, suppressedDoor.HitCounter,
             "suppressed yellow door never advances its opening threshold");
 
-        ushort[] breakingWords = new ushort[25];
+        RoomTerrainBlock[] breakingWords = new RoomTerrainBlock[25];
         breakingWords[bombableBlock] =
-            (int)RoomCollisionType.BombableBlock << 12;
-        var breakingLevel = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(breakingWords, new byte[25], new ushort[25]));
+            RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.BombableBlock);
+        var breakingLevel = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(breakingWords, new RoomBlockBehavior[25], new RoomBlockAppearance[25]));
         var breakingPlms = PlmFixtures.Unbound();
         var breakingReactions = new List<BombBlockReaction>();
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(

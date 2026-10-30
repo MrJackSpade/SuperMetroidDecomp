@@ -32,13 +32,15 @@ internal static class RoomBackgroundsVerification
     /// <summary>Resolves constructed planes through scroll offsets, a door window and an overlay.</summary>
     internal static void VerifyRoomBackgroundSources()
     {
-        // Block n's picture paints the tiles of words n*4 .. n*4+3; the level words select blocks with flips (#1431).
+        // Block n's picture paints the tiles of words n*4 .. n*4+3; the appearances select blocks with mirroring (#1431).
         var definitions = new BackgroundTile[16 * BlockTiles];
         for (int word = 0; word < definitions.Length; word++)
             definitions[word] = BackgroundTileWordBytes.Tile(word);
-        var blocks = new ushort[Side * Side];
+        BlockMirroring[] mirrorings = [BlockMirroring.None, BlockMirroring.Horizontal, BlockMirroring.Vertical,
+            BlockMirroring.Horizontal | BlockMirroring.Vertical];
+        var blocks = new RoomBlockAppearance[Side * Side];
         for (int block = 0; block < blocks.Length; block++)
-            blocks[block] = (ushort)((block % 4) << 10 | block);
+            blocks[block] = RoomBlockAppearance.Of(block, mirrorings[block % mirrorings.Length]);
         var plane = new RoomLevelPlane(new Extent16<RoomBlocks>(Side, Side), blocks);
         var offset = new Offset16<TilePlanePixels>(0x10, -0x08);
         // The destination and the door's source room draw block pictures of different characters (#1403).
@@ -49,18 +51,18 @@ internal static class RoomBackgroundsVerification
         random.NextBytes(sourceImage);
         var layer = new RoomBackgroundLayer(plane.Cells, offset, RoomBlockFixtures.Pictures(definitions, destinationImage, palette));
 
-        // Each level pixel shows its level word's whole block, by index and mirroring (#1431), drawn through the offset.
+        // Each level pixel shows its appearance's whole block, by index and mirroring (#1431), drawn through the offset.
         AssertEqual(offset, layer.ScrollOffset, "the layer is drawn through the plane's scroll offset");
         int checks = 0;
         for (int y = 0; y < Side * RoomLevelPlane.BlockPixels; y += 3)
         for (int x = 0; x < Side * RoomLevelPlane.BlockPixels; x += 5)
         {
             var level = new Position16<TilePlanePixels>((ushort)x, (ushort)y);
-            var word = new RoomLevelWord(blocks[y / RoomLevelPlane.BlockPixels * Side + x / RoomLevelPlane.BlockPixels]);
+            RoomBlockAppearance shown = blocks[y / RoomLevelPlane.BlockPixels * Side + x / RoomLevelPlane.BlockPixels];
             AssertTrue(layer.Blocks.TryCellAt(level, out RoomBlockCell cell, out Position16<TilePlanePixels> within),
                 $"level pixel {x},{y} is inside the room");
-            AssertEqual(new RoomBlockCell(word.VisualBlockIndex, word.VisualFlipFlags), cell,
-                $"level pixel {x},{y} shows the level word's block and mirroring");
+            AssertEqual(new RoomBlockCell(shown.Block, shown.Mirroring), cell,
+                $"level pixel {x},{y} shows the appearance's block and mirroring");
             AssertEqual(new Position16<TilePlanePixels>((ushort)(x % RoomLevelPlane.BlockPixels), (ushort)(y % RoomLevelPlane.BlockPixels)), within,
                 $"level pixel {x},{y} lies at its place within the block");
             checks++;
@@ -71,7 +73,7 @@ internal static class RoomBackgroundsVerification
             "a scroll left of the room shows no block");
 
         // The door's source screen covers the window at its scroll, below the HUD and the first blank scanline.
-        var sourceBlocks = Enumerable.Repeat((ushort)15, Side * Side).ToArray();
+        var sourceBlocks = Enumerable.Repeat(RoomBlockAppearance.Of(15), Side * Side).ToArray();
         RoomBlockPictureTable sourcePictures = RoomBlockFixtures.Pictures(definitions, sourceImage, palette);
         var source = new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(Side, Side), sourceBlocks).Cells,
             new Offset16<TilePlanePixels>(0, 0), sourcePictures);
@@ -89,15 +91,15 @@ internal static class RoomBackgroundsVerification
     /// <summary>A PLM's block change reaches the next published plane, and an earlier plane keeps its blocks.</summary>
     internal static void VerifyPlmBlockChangeReachesPlane()
     {
-        RoomLevelData level = CreateRoom(new(Side, Side), new ushort[Side * Side], new byte[Side * Side]);
+        RoomLevelData level = CreateRoom(new(Side, Side), new RoomTerrainBlock[Side * Side], new RoomBlockBehavior[Side * Side]);
         RoomLevelPlane before = level.ForegroundPlane;
         AssertTrue(ReferenceEquals(before, level.ForegroundPlane), "an unchanged room publishes one plane");
         const int block = 2 * Side + 1;
-        PlmLevelWrites.DrawLevelWord(level, block, 0x8007);
+        level.SetPlmTerrain(block, RoomTerrainBlock.Of(7, BlockMirroring.None, RoomCollisionType.SolidBlock));
         RoomLevelPlane after = level.ForegroundPlane;
-        AssertEqual(new RoomBlockCell(0x007, LevelBlockFlipFlags.None), after.Cells.Cells[block],
+        AssertEqual(new RoomBlockCell(0x007, BlockMirroring.None), after.Cells.Cells[block],
             "the next plane shows the PLM's block");
-        AssertEqual(new RoomBlockCell(0x000, LevelBlockFlipFlags.None), before.Cells.Cells[block],
+        AssertEqual(new RoomBlockCell(0x000, BlockMirroring.None), before.Cells.Cells[block],
             "the earlier plane keeps the block it published");
         Console.WriteLine("  Room backgrounds: a PLM block change reaches the next plane only.");
     }

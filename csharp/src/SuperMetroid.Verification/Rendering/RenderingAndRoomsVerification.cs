@@ -717,16 +717,11 @@ internal static void VerifyLevelBlockTilemapExpansion()
     // lookup. Existing child flip/palette bits are retained and XORed, never reconstructed.
     BackgroundTile[] definitions = BackgroundTileWordBytes.Tiles(new ushort[] { 0, 0, 0, 0, 0x0123, 0x4567, 0x89ab, 0xcdef });
 
-    RoomLevelWord unflipped = RoomLevelWord.Create(
-        1, LevelBlockFlipFlags.None, RoomCollisionType.Air);
-    RoomLevelWord horizontalSlope = RoomLevelWord.Create(
-        1, LevelBlockFlipFlags.Horizontal, RoomCollisionType.Slope);
-    RoomLevelWord verticalExtension = RoomLevelWord.Create(
-        1, LevelBlockFlipFlags.Vertical, RoomCollisionType.VerticalExtension);
-    RoomLevelWord doubleFlipHorizontalExtension = RoomLevelWord.Create(
-        1,
-        LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical,
-        RoomCollisionType.HorizontalExtension);
+    RoomBlockAppearance unflipped = RoomBlockAppearance.Of(1);
+    RoomBlockAppearance horizontalSlope = RoomBlockAppearance.Of(1, BlockMirroring.Horizontal);
+    RoomBlockAppearance verticalExtension = RoomBlockAppearance.Of(1, BlockMirroring.Vertical);
+    RoomBlockAppearance doubleFlipHorizontalExtension = RoomBlockAppearance.Of(
+        1, BlockMirroring.Horizontal | BlockMirroring.Vertical);
 
     AssertEqual(
         Expanded(0x0123, 0x4567, 0x89ab, 0xcdef),
@@ -735,18 +730,18 @@ internal static void VerifyLevelBlockTilemapExpansion()
     AssertEqual(
         Expanded(0x0567, 0x4123, 0x8def, 0xc9ab),
         LevelBlockTilemapExpander.Expand(horizontalSlope, definitions),
-        "horizontally flipped slope expansion ignores collision nibble");
+        "horizontally mirrored block expansion");
     AssertEqual(
         Expanded(0x09ab, 0x4def, 0x8123, 0xc567),
         LevelBlockTilemapExpander.Expand(verticalExtension, definitions),
-        "vertically flipped extension expansion ignores collision nibble");
+        "vertically mirrored block expansion");
     AssertEqual(
         Expanded(0x0def, 0x49ab, 0x8567, 0xc123),
         LevelBlockTilemapExpander.Expand(doubleFlipHorizontalExtension, definitions),
-        "doubly flipped horizontal extension expansion ignores collision nibble");
+        "doubly mirrored block expansion");
 
     AssertThrows<InvalidDataException>(
-        () => LevelBlockTilemapExpander.Expand(0x0002, definitions),
+        () => LevelBlockTilemapExpander.Expand(RoomBlockAppearance.Of(2), definitions),
         "block definition bounds check");
 
     Console.WriteLine("  BG stream: all 16x16 block flip expansions agree.");
@@ -758,28 +753,33 @@ internal static void VerifyLevelBlockTilemapExpansion()
 }
 
 /// <summary>
-/// Verifies the shared row-major BG1/BTS model that will feed bank-$94 collision while
-/// continuing to construct the already-verified bank-$80 visual streamer.
+/// Verifies the shared row-major grid of terrain blocks and behaviours collision reads, and the planes the
+/// display shows from the same grid.
 /// </summary>
 internal static void VerifyRoomLevelData()
 {
     const int width = 3;
     const int height = 2;
-    ushort[] foreground = [
-        0x0000, 0x1123, 0x8567,
-        0xc001, 0xe002, 0xf003,
+    RoomTerrainBlock[] foreground = [
+        default, RoomTerrainBlock.Of(291, BlockMirroring.None, RoomCollisionType.Slope),
+        RoomTerrainBlock.Of(359, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+        RoomTerrainBlock.Of(1, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+        RoomTerrainBlock.Of(2, BlockMirroring.None, RoomCollisionType.GrappleBlock),
+        RoomTerrainBlock.Of(3, BlockMirroring.None, RoomCollisionType.BombableBlock),
     ];
-    byte[] behavior = [0x00, 0x45, 0x80, 0x11, 0x22, 0x33];
-    ushort[] background = [0, 1, 2, 3, 4, 5];
+    RoomBlockBehavior[] behavior = [new(0x00), new(0x45), new(0x80), new(0x11), new(0x22), new(0x33)];
+    RoomBlockAppearance[] background = [.. Enumerable.Range(0, width * height).Select(block => RoomBlockAppearance.Of(block))];
     var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(foreground, behavior, background));
 
     RoomCollisionBlock block = level.GetCollisionBlock(new(1, 1));
     AssertEqual(4, block.Index, "room collision row-major index");
-    AssertEqual(0xe002, block.PackedWord.Raw, "room collision level word");
-    AssertEqual(0x22, block.Bts.Value, "room collision parallel BTS byte");
-    AssertEqual(RoomCollisionType.GrappleBlock, block.CollisionType,
-        "room collision high-nibble dispatcher type");
-    AssertEqual(2, block.VisualBlockIndex, "room collision visual block index");
+    AssertEqual(foreground[4], block.Terrain, "room collision reads the block's terrain");
+    AssertEqual(new RoomBlockBehavior(0x22), block.Behavior, "room collision reads the block's behaviour");
+    AssertEqual(RoomCollisionType.GrappleBlock, block.CollisionType, "room collision kind");
+    AssertEqual(2, block.VisualBlockIndex, "room collision block shown");
+    AssertTrue(level.ForegroundPlane.Blocks.SequenceEqual(foreground.Select(terrain => terrain.Appearance).ToArray()),
+        "the foreground shows its terrain's appearances");
+    AssertTrue(level.BackgroundPlane.Blocks.SequenceEqual(background), "the background shows its appearances");
 
     // Pixel (31,17) is block (1,1); shifts must occur before multiplication/indexing.
     AssertEqual(block, level.GetCollisionBlockAtPixel(new(31, 17)), "room pixel-to-block conversion");
@@ -790,7 +790,7 @@ internal static void VerifyRoomLevelData()
         () => level.GetCollisionBlock(new(0, height)),
         "room collision rejects Y beyond header height");
 
-    Console.WriteLine("  Room level: shared BG1/BTS indexing, collision type, and pixel conversion agree.");
+    Console.WriteLine("  Room level: shared terrain and behaviour indexing, collision kind, and pixel conversion agree.");
 }
 
 /// <summary>

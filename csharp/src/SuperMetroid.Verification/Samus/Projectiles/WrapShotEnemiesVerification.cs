@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -47,13 +48,13 @@ internal static class WrapShotEnemiesVerification
             runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Level = runtime.Room.LevelData });
             AssertTrue(runtime.Enemies.InteractiveEnemyIndexes.Contains(enemy.EnemyIndex), "Remote control enemy is collision-eligible");
 
-            var words = new ushort[64 * 128];
+            var words = new RoomTerrainBlock[64 * 128];
             for (int row = 0; row < 128; row++)
             {
-                words[row * 64 + (left ? 63 : 0)] = 0x4000;
-                words[row * 64 + (left ? 0 : 63)] = 0x8000;
+                words[row * 64 + (left ? 63 : 0)] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableAir);
+                words[row * 64 + (left ? 0 : 63)] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
             }
-            var level = CreateRoom(new(64, 128), words, new byte[words.Length]);
+            var level = CreateRoom(new(64, 128), words, new RoomBlockBehavior[words.Length]);
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(left ? 32 : 992), 128)),
                 PoseId = left ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose,
                 EquippedBeams = SamusBeamFlags.Wave };
@@ -68,7 +69,7 @@ internal static class WrapShotEnemiesVerification
                 shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left ? 0 : 768), 0), bombs);
                 AssertEqual(0, runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs), "Tile alias does not redirect the projectile enemy hitbox");
             }
-            AssertEqual(0x0052, level.GetCollisionBlockByIndex(target).PackedWord.Raw, "Same shot actually triggers the remote tile");
+            AssertEqual(RoomTerrainBlock.Of(0x052, BlockMirroring.None, RoomCollisionType.Air), level.GetCollisionBlockByIndex(target).Terrain, "Same shot actually triggers the remote tile");
             AssertEqual(health, enemy.Health, "Remote enemy health is unchanged");
             AssertEqual(0, enemy.FlashTimer.RawValue, "Remote enemy receives no impact flash");
 

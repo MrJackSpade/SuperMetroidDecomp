@@ -71,12 +71,12 @@ internal static void VerifySamusAerialTurnsAndWallJump()
 
     const int width = 8;
     const int height = 8;
-    var foreground = new ushort[width * height];
+    var foreground = new RoomTerrainBlock[width * height];
     for (int x = 0; x < width; x++)
-        foreground[6 * width + x] = 0x8000;
+        foreground[6 * width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
     for (int y = 1; y < 6; y++)
-        foreground[y * width + 4] = 0x8000; // vertical wall begins at world X=64
-    RoomLevelData level = CreateRoom(new(width, height), foreground, new byte[foreground.Length]);
+        foreground[y * width + 4] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock); // vertical wall begins at world X=64
+    RoomLevelData level = CreateRoom(new(width, height), foreground, new RoomBlockBehavior[foreground.Length]);
 
     // Native $94:967F observes integer position but its solid-block dispatcher
     // still writes the live fractional X word. Verify both directions and air.
@@ -513,8 +513,8 @@ internal static void VerifySamusKnockbackAndDamageBoost()
 
     const int width = 16;
     const int height = 16;
-    var foreground = new ushort[width * height];
-    RoomLevelData empty = CreateRoom(new(width, height), foreground, new byte[foreground.Length]);
+    var foreground = new RoomTerrainBlock[width * height];
+    RoomLevelData empty = CreateRoom(new(width, height), foreground, new RoomBlockBehavior[foreground.Length]);
 
     var samus = new SamusState
     {
@@ -605,10 +605,10 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     // square floor so `$90:923F`'s no-speed down probe collides immediately. The special
     // handler clears live velocity after collision, while its result must retain the 5.0000
     // magnitude seen by `$91:F078` for hard-landing sound selection.
-    var downForeground = new ushort[width * height];
+    var downForeground = new RoomTerrainBlock[width * height];
     for (int x = 0; x < width; x++)
-        downForeground[6 * width + x] = 0x8000;
-    RoomLevelData floorLevel = CreateRoom(new(width, height), downForeground, new byte[downForeground.Length]);
+        downForeground[6 * width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+    RoomLevelData floorLevel = CreateRoom(new(width, height), downForeground, new RoomBlockBehavior[downForeground.Length]);
     var downKnockback = new SamusState
     {
         Pose = SamusPoseId.FacingRightNormalPose,

@@ -41,10 +41,10 @@ internal static void VerifySamusAerialMovement()
 
     const int width = 8;
     const int height = 8;
-    var foreground = new ushort[width * height];
+    var foreground = new RoomTerrainBlock[width * height];
     for (int x = 0; x < width; x++)
-        foreground[6 * width + x] = 0x8000; // ordinary solid floor begins at Y=96
-    RoomLevelData level = CreateRoom(new(width, height), foreground, new byte[foreground.Length]);
+        foreground[6 * width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock); // ordinary solid floor begins at Y=96
+    RoomLevelData level = CreateRoom(new(width, height), foreground, new RoomBlockBehavior[foreground.Length]);
 
     var samus = new SamusState
     {
@@ -299,11 +299,11 @@ level, fallLeft, 0, unchecked((ushort)(frame + 1))),
         {
             for (int solidBlockX = 1; solidBlockX <= 4; solidBlockX++)
             {
-                var squareForeground = new ushort[width * height];
-                var squareBehavior = new byte[width * height];
-                squareForeground[3 * width + solidBlockX] = 0x1000;
-                squareBehavior[3 * width + solidBlockX] = unchecked((byte)(
-                    shape | (orientation << 6)));
+                var squareForeground = new RoomTerrainBlock[width * height];
+                var squareBehavior = new RoomBlockBehavior[width * height];
+                squareForeground[3 * width + solidBlockX] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope);
+                squareBehavior[3 * width + solidBlockX] = new RoomBlockBehavior(unchecked((byte)(
+                    shape | (orientation << 6))));
                 RoomLevelData squareRoom = CreateRoom(new(width, height),
                     squareForeground,
                     squareBehavior);
@@ -617,11 +617,11 @@ empty, screwRepeat, ControllerButton.A, 0, ControllerButton.A);
     // `$84:CE91-$CEA3` explicitly admits poses `$81/$82`, independently of the boost-stage
     // branch above them. Place a BTS-4 permanent 1x1 block under a falling Screw body so the
     // shared vertical movement must allocate the room PLM and continue through new air.
-    var screwBombForeground = new ushort[16 * 16];
-    var screwBombBts = new byte[screwBombForeground.Length];
+    var screwBombForeground = new RoomTerrainBlock[16 * 16];
+    var screwBombBts = new RoomBlockBehavior[screwBombForeground.Length];
     int screwBombIndex = 8 * 16 + 8;
-    screwBombForeground[screwBombIndex] = 0xf123;
-    screwBombBts[screwBombIndex] = 4;
+    screwBombForeground[screwBombIndex] = RoomTerrainBlock.Of(291, BlockMirroring.None, RoomCollisionType.BombableBlock);
+    screwBombBts[screwBombIndex] = new RoomBlockBehavior(4);
     RoomLevelData screwBombLevel = CreateRoom(new(16, 16), screwBombForeground, screwBombBts);
     var screwBombPlms = PlmFixtures.Unbound();
     SamusState screwBombSamus = CreateFallingSpin(
@@ -639,8 +639,8 @@ empty, screwRepeat, ControllerButton.A, 0, ControllerButton.A);
         "Screw collision-bomb setup returns carry clear and preserves vertical travel");
     AssertTrue(screwBombPlms.PopulationSlots.Any(slot => slot.BlockIndex == screwBombIndex),
         "Screw vertical collision reacts at the exact BTS-4 block");
-    AssertEqual(0x0058,
-        screwBombLevel.GetCollisionBlockByIndex(screwBombIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x058, BlockMirroring.None, RoomCollisionType.Air),
+        screwBombLevel.GetCollisionBlockByIndex(screwBombIndex).Terrain,
         "Screw setup installs CE83's replacement visual before the PLM handler");
     AssertEqual(1, screwBombPlms.SlotTable.ActiveCount,
         "Screw pose installs the BTS-4 bank-$84 lifecycle in the room owner");

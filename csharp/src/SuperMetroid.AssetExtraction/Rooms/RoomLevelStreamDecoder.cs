@@ -1,6 +1,5 @@
 using System.Buffers.Binary;
 using System.Collections.Immutable;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Spatial;
 

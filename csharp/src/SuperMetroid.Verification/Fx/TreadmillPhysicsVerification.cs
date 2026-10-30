@@ -11,11 +11,11 @@ internal static class TreadmillPhysicsVerification
     /// conveyor direction and the resulting production horizontal motion.</summary>
     internal static void VerifyTreadmillPhysics()
     {
-        ushort[] words = new ushort[16];
-        byte[] bts = new byte[16];
-        for (int i = 8; i < 12; i++) { words[i] = 0x30ff; bts[i] = 8; }
-        for (int i = 12; i < 16; i++) words[i] = 0x8000;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(words, bts, new ushort[16]));
+        RoomTerrainBlock[] words = new RoomTerrainBlock[16];
+        RoomBlockBehavior[] bts = new RoomBlockBehavior[16];
+        for (int i = 8; i < 12; i++) { words[i] = RoomTerrainBlock.Of(255, BlockMirroring.None, RoomCollisionType.SpecialAir); bts[i] = new RoomBlockBehavior(8); }
+        for (int i = 12; i < 16; i++) words[i] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(words, bts, new RoomBlockAppearance[16]));
         var samus = new SamusState { Position = new(new(24, 0), new(40, 0))};
         samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(8);
         SamusInsideBlockReactions.PrepareFrame(level, samus, AreaId.Crateria);
@@ -28,7 +28,7 @@ internal static class TreadmillPhysicsVerification
         foreach (bool powered in new[] { false, true })
         foreach (ushort verticalSpeed in new ushort[] { 0, 1 })
         {
-            for (int i = 8; i < 12; i++) level.SetBehavior(i, behavior);
+            for (int i = 8; i < 12; i++) level.SetBehavior(i, new RoomBlockBehavior(behavior));
             samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(24, 40)) };
             var body = samus.Kinematics;
             body.Radius = body.Radius.WithY(8);
@@ -49,8 +49,8 @@ internal static class TreadmillPhysicsVerification
             cases++;
         }
         // A solid obstruction must clip the carried displacement through the ordinary mover.
-        level.SetForegroundEntry(10, 0x8000);
-        level.SetBehavior(9, 8);
+        level.SetTerrain(10, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock));
+        level.SetBehavior(9, new RoomBlockBehavior(8));
         samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(27, 40)) };
         samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(8);
         SamusInsideBlockReactions.PrepareFrame(level, samus, AreaId.Crateria);

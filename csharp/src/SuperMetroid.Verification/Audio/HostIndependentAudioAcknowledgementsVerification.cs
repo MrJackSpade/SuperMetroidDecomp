@@ -116,7 +116,7 @@ internal static class HostIndependentAudioAcknowledgementsVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            level.ResolveDoorCollision(block.Bts.Value, runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), true);
+            level.ResolveDoorCollision(block.Behavior.Value, runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), true);
             game.GameState = SuperMetroidGameState.HitDoorBlock;
             return;
         }

@@ -44,9 +44,9 @@ internal static class HeroShotRuntimeVerification
             for (int x = 16; x < 64; x++)
             {
                 int index = y * level.Size.X + x;
-                level.SetForegroundEntry(index, RoomLevelWord.Create(0, 0,
-                    y >= 32 || x == 54 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air).Raw);
-                level.SetBehavior(index, 0);
+                level.SetTerrain(index, RoomTerrainBlock.Of(0, BlockMirroring.None,
+                    y >= 32 || x == 54 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air));
+                level.SetBehavior(index, RoomBlockBehaviorValues.None);
             }
             var samus = runtime.Player.IntroducedSamus;
             samus.Control.Unlock();
@@ -128,9 +128,9 @@ internal static class HeroShotRuntimeVerification
     /// <summary>Checks that landing pose correction changes previous Y once without disturbing camera X or fractions.</summary>
     private static void VerifyPoseCollisionCameraCheckpoint()
     {
-        var blocks = new ushort[16 * 32];
-        for (int x = 0; x < 16; x++) blocks[31 * 16 + x] = 0x8000;
-        var level = CreateRoom(new(16, 32), blocks, new byte[blocks.Length]);
+        var blocks = new RoomTerrainBlock[16 * 32];
+        for (int x = 0; x < 16; x++) blocks[31 * 16 + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+        var level = CreateRoom(new(16, 32), blocks, new RoomBlockBehavior[blocks.Length]);
         var samus = new SamusState { Pose = SamusPoseId.FallingRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 477)) };
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         AssertTrue(SamusPoseTransitions.TryApplyAerialLanding(samus, level, false, 0, 0),

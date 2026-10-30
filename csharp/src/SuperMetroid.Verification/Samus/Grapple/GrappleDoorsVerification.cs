@@ -25,17 +25,17 @@ internal static class GrappleDoorsVerification
             const int origin = 4 * width + 4;
             bool verticalCap = orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right;
             int stride = verticalCap ? width : 1;
-            var words = new ushort[width * width];
-            var bts = new byte[words.Length];
-            words[origin] = (int)RoomCollisionType.ShootableBlock << 12;
-            bts[origin] = (byte)(RoomBlockBehaviorValues.BlueDoorFacingLeft.Value + (int)orientation);
+            var words = new RoomTerrainBlock[width * width];
+            var bts = new RoomBlockBehavior[words.Length];
+            words[origin] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock);
+            bts[origin] = new RoomBlockBehavior(RoomBlockBehaviorValues.BlueDoorFacingLeft.Value + (int)orientation);
             for (int offset = 1; offset < 4; offset++)
             {
-                words[origin + offset * stride] = (ushort)((int)(verticalCap
-                    ? RoomCollisionType.VerticalExtension : RoomCollisionType.HorizontalExtension) << 12);
-                bts[origin + offset * stride] = unchecked((byte)-offset);
+                words[origin + offset * stride] = RoomTerrainBlock.Of(0, BlockMirroring.None, verticalCap
+                    ? RoomCollisionType.VerticalExtension : RoomCollisionType.HorizontalExtension);
+                bts[origin + offset * stride] = RoomBlockBehavior.OfExtensionOffset(-offset);
             }
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, bts, new ushort[words.Length]));
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, bts, new RoomBlockAppearance[words.Length]));
             int hitBlock = origin + hitOffset * stride;
             var samus = new SamusState
             {

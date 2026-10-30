@@ -87,10 +87,10 @@ internal static void VerifySamusMorphBallMovement()
 
     const int width = 8;
     const int height = 8;
-    var floorBlocks = new ushort[width * height];
+    var floorBlocks = new RoomTerrainBlock[width * height];
     for (int x = 0; x < width; x++)
-        floorBlocks[4 * width + x] = 0x8000;
-    RoomLevelData floor = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(floorBlocks, new byte[floorBlocks.Length], new ushort[floorBlocks.Length]));
+        floorBlocks[4 * width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+    RoomLevelData floor = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(floorBlocks, new RoomBlockBehavior[floorBlocks.Length], new RoomBlockAppearance[floorBlocks.Length]));
 
     var samus = new SamusState
     {
@@ -190,7 +190,7 @@ floor, samus, frameCounter: 0);
 
     // Remove the floor and execute the stable grounded handler. Its failed +1 probe drives
     // the explicit `$1D/$41 -> $31/$32` walk-off transition and starts downward gravity.
-    RoomLevelData empty = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]));
+    RoomLevelData empty = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new RoomTerrainBlock[width * height], new RoomBlockBehavior[width * height], new RoomBlockAppearance[width * height]));
     SamusPosturePoseTransitions.ApplyMorphBallPoseChange(samus, SamusPoseId.MorphBallGroundLeftPose);
     samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
     MorphBallMovementResult unsupported = SamusMorphBallMovement.StepGrounded(
@@ -420,8 +420,8 @@ floor, SamusPoseId.UnmorphingTransitionLeftPose, frameCounter: 0),
 
     var tunnelBlocks = (ushort[])floorBlocks.Clone();
     for (int x = 0; x < width; x++)
-        tunnelBlocks[2 * width + x] = 0x8000;
-    RoomLevelData tunnel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(tunnelBlocks, new byte[tunnelBlocks.Length], new ushort[tunnelBlocks.Length]));
+        tunnelBlocks[2 * width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+    RoomLevelData tunnel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(tunnelBlocks, new RoomBlockBehavior[tunnelBlocks.Length], new RoomBlockAppearance[tunnelBlocks.Length]));
     var boxedBall = new SamusState
     {
         Pose = SamusPoseId.MorphBallGroundRightPose,
@@ -697,7 +697,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         explosion = bombs.StepFrame(new SamusTerrain { Level = floor }, bombProjectileSamus, 0, 0);
     AssertTrue(bombs.Slots[0].IsExploding, "timer zero selects bomb explosion list");
     AssertEqual(0x0501, bombs.Slots[0].Type, "first explosion pass marks block cross handled");
-    AssertEqual(0x8000, floor.GetCollisionBlockByIndex(4 * width + 3).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlocks.EdgeSolid, floor.GetCollisionBlockByIndex(4 * width + 3).Terrain,
         "bottom reaction leaves the fixture solid floor intact without inventing a PLM");
     AssertEqual(1, (explosion.SoundRequests ?? throw new InvalidOperationException("Verification requires explosion.SoundRequests.")).Count,
         "normal bomb fuse expiry publishes exactly one sound request");
@@ -1016,15 +1016,15 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     // redirects one column left to a BTS-zero type-$F parent. `$94:9CF4` visits center
     // before left, so the extension must spawn exactly one PLM and synchronously turn the
     // parent into temporary type-$8 terrain; the later left-arm visit sees that mutation.
-    var reactionWords = new ushort[width * height];
-    var reactionBts = new byte[reactionWords.Length];
+    var reactionWords = new RoomTerrainBlock[width * height];
+    var reactionBts = new RoomBlockBehavior[reactionWords.Length];
     const int reactionParentIndex = 3 * width + 2;
     const int reactionExtensionIndex = 3 * width + 3;
-    reactionWords[reactionParentIndex] = 0xf321;
-    reactionBts[reactionParentIndex] = 0;
-    reactionWords[reactionExtensionIndex] = 0x5058;
-    reactionBts[reactionExtensionIndex] = 0xff;
-    RoomLevelData reactionLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(reactionWords, reactionBts, new ushort[reactionWords.Length]));
+    reactionWords[reactionParentIndex] = RoomTerrainBlock.Of(801, BlockMirroring.None, RoomCollisionType.BombableBlock);
+    reactionBts[reactionParentIndex] = new RoomBlockBehavior(0);
+    reactionWords[reactionExtensionIndex] = RoomTerrainBlock.Of(88, BlockMirroring.None, RoomCollisionType.HorizontalExtension);
+    reactionBts[reactionExtensionIndex] = new RoomBlockBehavior(0xff);
+    RoomLevelData reactionLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(reactionWords, reactionBts, new RoomBlockAppearance[reactionWords.Length]));
     var reactionPlms = PlmFixtures.Unbound();
     var reactionBombs = CreateBombFixture();
     var reactionSamus = new SamusState
@@ -1045,7 +1045,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         reactionLevel.GetCollisionBlockByIndex(reactionExtensionIndex).CollisionType,
         "bomb cross leaves the visited horizontal extension in place");
     AssertEqual(new RoomBlockBehavior(0xff),
-        reactionLevel.GetCollisionBlockByIndex(reactionExtensionIndex).Bts,
+        reactionLevel.GetCollisionBlockByIndex(reactionExtensionIndex).Behavior,
         "bomb cross preserves the extension's signed redirect BTS");
     AssertEqual(RoomCollisionType.SolidBlock,
         reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).CollisionType,
@@ -1054,16 +1054,16 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         "extension redirect installs its reaction PLM on the parent block");
     AssertEqual(1, reactionPlms.SlotTable.ActiveCount,
         "extension and later parent visit produce one native reaction PLM");
-    AssertEqual(0x8058,
-        reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x058, BlockMirroring.None, RoomCollisionType.SolidBlock),
+        reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).Terrain,
         "CEDA keeps a type-F bomb block temporarily solid through movement beta");
 
     // PLM_Handler runs after movement beta in the same gameplay frame. Normal-bomb setup
     // began at `$CC3F`, so this first handler pass draws air `$0053` without queueing the
     // reaction head's sound $0A. The bomb explosion itself remains the sound owner.
     reactionPlms.Step(reactionLevel);
-    AssertEqual(0x0053,
-        reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air),
+        reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).Terrain,
         "same-frame PLM pass draws the first bomb-block air frame");
     AssertEqual(0, reactionPlms.Sounds.SoundRequests.Count,
         "normal bomb setup skips reaction PLM sound $0A");
@@ -1072,13 +1072,13 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     // timeline. The restored word is deliberately `$F058`, not the original `$F321`:
     // setup CEDA synthesized PLM_Vars by replacing all twelve low bits with `$058`.
     StepFrames(12, _ => reactionPlms.Step(reactionLevel));
-    AssertEqual(0x00ff,
-        reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air),
+        reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).Terrain,
         "bomb reaction reaches blank air after three four-frame transitions");
     StepFrames(384 + 12, _ =>
         reactionPlms.Step(reactionLevel));
-    AssertEqual(0xf058,
-        reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x058, BlockMirroring.None, RoomCollisionType.BombableBlock),
+        reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).Terrain,
         "bomb reaction restores synthesized type-F parent after native hold");
     AssertEqual(1, reactionPlms.SlotTable.ActiveCount,
         "DrawPLMBlock retains reaction PLM through its timer-one restore pass");
@@ -1090,12 +1090,12 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     // type-$C parent remains unchanged during CF2E setup, then the same gameplay frame's
     // PLM pass reveals `$C057`. This catches an omitted/wrong collision-type dispatcher
     // branch even if the isolated bank-$84 setup tests continue to pass.
-    var integratedRevealWords = new ushort[width * height];
-    var integratedRevealBts = new byte[integratedRevealWords.Length];
+    var integratedRevealWords = new RoomTerrainBlock[width * height];
+    var integratedRevealBts = new RoomBlockBehavior[integratedRevealWords.Length];
     const int integratedRevealIndex = 3 * width + 3;
-    integratedRevealWords[integratedRevealIndex] = 0xc000;
-    integratedRevealBts[integratedRevealIndex] = 8;
-    RoomLevelData integratedRevealLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(integratedRevealWords, integratedRevealBts, new ushort[integratedRevealWords.Length]));
+    integratedRevealWords[integratedRevealIndex] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock);
+    integratedRevealBts[integratedRevealIndex] = new RoomBlockBehavior(8);
+    RoomLevelData integratedRevealLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(integratedRevealWords, integratedRevealBts, new RoomBlockAppearance[integratedRevealWords.Length]));
     var integratedRevealPlms = PlmFixtures.Unbound();
     var integratedRevealBombs = CreateBombFixture();
     var integratedRevealSamus = new SamusState
@@ -1117,12 +1117,12 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         "bomb dispatcher installs its reveal PLM on the center parent");
     AssertEqual(1, integratedRevealPlms.SlotTable.ActiveCount,
         "bomb dispatcher installs shootable reveal PLM");
-    AssertEqual(0xc000,
-        integratedRevealLevel.GetCollisionBlockByIndex(integratedRevealIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+        integratedRevealLevel.GetCollisionBlockByIndex(integratedRevealIndex).Terrain,
         "CF2E leaves required-weapon parent unchanged through movement beta");
     integratedRevealPlms.Step(integratedRevealLevel);
-    AssertEqual(0xc057,
-        integratedRevealLevel.GetCollisionBlockByIndex(integratedRevealIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x057, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+        integratedRevealLevel.GetCollisionBlockByIndex(integratedRevealIndex).Terrain,
         "same-frame PLM pass reveals required power-bomb block");
 
     // The player's recording that reached room `$8F:9B9D` detonated a normal bomb beside
@@ -1130,12 +1130,12 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     // to Setup_BlueDoor; it is not an out-of-range ordinary shot-block table index. Drive
     // the complete bomb fuse/cross path so this regression cannot pass through a direct
     // PLM helper while gameplay still throws before reaching it.
-    var bombDoorWords = new ushort[width * height];
-    var bombDoorBts = new byte[bombDoorWords.Length];
+    var bombDoorWords = new RoomTerrainBlock[width * height];
+    var bombDoorBts = new RoomBlockBehavior[bombDoorWords.Length];
     const int bombDoorIndex = 3 * width + 3;
-    bombDoorWords[bombDoorIndex] = 0xc000;
-    bombDoorBts[bombDoorIndex] = RoomBlockBehaviorValues.BlueDoorFacingRight.ToBtsByte();
-    RoomLevelData bombDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(bombDoorWords, bombDoorBts, new ushort[bombDoorWords.Length]));
+    bombDoorWords[bombDoorIndex] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock);
+    bombDoorBts[bombDoorIndex] = RoomBlockBehaviorValues.BlueDoorFacingRight;
+    RoomLevelData bombDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(bombDoorWords, bombDoorBts, new RoomBlockAppearance[bombDoorWords.Length]));
     var bombDoorPlms = PlmFixtures.Unbound();
     var bombDoorBombs = CreateBombFixture();
     var bombDoorSamus = new SamusState
@@ -1156,7 +1156,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         bombDoorLevel.GetCollisionBlockByIndex(bombDoorIndex).CollisionType,
         "normal bomb synchronously runs blue-door setup");
 
-    RoomLevelData powerBombDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(bombDoorWords, bombDoorBts, new ushort[bombDoorWords.Length]));
+    RoomLevelData powerBombDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(bombDoorWords, bombDoorBts, new RoomBlockAppearance[bombDoorWords.Length]));
     var powerBombDoorPlms = PlmFixtures.Unbound();
     AssertTrue(!powerBombDoorPlms.DoorPlms.TrySpawnBlueDoorOpening(
             powerBombDoorLevel,
@@ -1172,20 +1172,20 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     // preserve the original low twelve bits. Prove that a type-C/BTS-zero parent becomes
     // temporary `$8052`, begins at the ROM's `$0053` air frame, queues sound `$0A` through
     // the max-one opcode, and ultimately restores synthesized `$C052` rather than `$C321`.
-    var shotWords = new ushort[width * height];
+    var shotWords = new RoomTerrainBlock[width * height];
     const int shotIndex = 3 * width + 3;
-    shotWords[shotIndex] = 0xc321;
-    RoomLevelData shotLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new byte[shotWords.Length], new ushort[shotWords.Length]));
+    shotWords[shotIndex] = RoomTerrainBlock.Of(801, BlockMirroring.None, RoomCollisionType.ShootableBlock);
+    RoomLevelData shotLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new RoomBlockBehavior[shotWords.Length], new RoomBlockAppearance[shotWords.Length]));
     var shotPlms = PlmFixtures.Unbound();
     AssertTrue(
         shotPlms.TrySpawnBombedShootableBlock(shotLevel, shotIndex, 0, 0x0500),
         "normal bomb allocates respawning shot-block PLM");
-    AssertEqual(0x8052,
-        shotLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x052, BlockMirroring.None, RoomCollisionType.SolidBlock),
+        shotLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "CE6B installs synthesized temporary shot-block word");
     shotPlms.Step(shotLevel);
-    AssertEqual(0x0053,
-        shotLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air),
+        shotLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "respawning shot block begins with retail air frame");
     AssertEqual(1, shotPlms.Sounds.SoundRequests.Count,
         "shot-block head queues one sound request");
@@ -1194,13 +1194,13 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     AssertEqual(1, shotPlms.Sounds.SoundRequests[0].MaximumQueued.Requests,
         "$84:8C79 uses sound-library-two maximum one");
     StepFrames(12, _ => shotPlms.Step(shotLevel));
-    AssertEqual(0x00ff,
-        shotLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air),
+        shotLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "respawning shot block reaches its blank hold word");
     StepFrames(384 + 12, _ =>
         shotPlms.Step(shotLevel));
-    AssertEqual(0xc052,
-        shotLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x052, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+        shotLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "respawning shot block restores CE6B's synthesized parent");
     shotPlms.Step(shotLevel);
     AssertEqual(0, shotPlms.SlotTable.ActiveCount,
@@ -1211,7 +1211,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     // max-one sound opcode rather than ordinary shot block `$8C79`. Following the entire
     // reverse animation proves RestoreLevelWord is the setup-produced `$C057`, never the
     // fixture's original visual block `$C321`.
-    RoomLevelData powerBombShotLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new byte[shotWords.Length], new ushort[shotWords.Length]));
+    RoomLevelData powerBombShotLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new RoomBlockBehavior[shotWords.Length], new RoomBlockAppearance[shotWords.Length]));
     var powerBombShotPlms = PlmFixtures.Unbound();
     AssertTrue(
         powerBombShotPlms.TrySpawnProjectileShotBlock(
@@ -1221,19 +1221,19 @@ empty, spring, controllerInput: 0, frameCounter: 0);
             projectileType: 0x0300,
             solidBlock: true),
         "power bomb allocates BTS-eight respawning block PLM");
-    AssertEqual(0x8057,
-        powerBombShotLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x057, BlockMirroring.None, RoomCollisionType.SolidBlock),
+        powerBombShotLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "CF2E installs synthesized temporary power-bomb word");
     powerBombShotPlms.Step(powerBombShotLevel);
-    AssertEqual(0x0053,
-        powerBombShotLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air),
+        powerBombShotLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "power-bomb block begins with retail air frame");
     AssertEqual(new SoundRequest(Library2Sound.BlockCrumble, SoundQueueLimit.Max1), powerBombShotPlms.Sounds.SoundRequests[0],
         "$8C7C queues power-bomb breakup sound with maximum one");
     StepFrames(12 + 384 + 12, _ =>
         powerBombShotPlms.Step(powerBombShotLevel));
-    AssertEqual(0xc057,
-        powerBombShotLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x057, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+        powerBombShotLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "respawning power-bomb block restores synthesized $C057 parent");
     powerBombShotPlms.Step(powerBombShotLevel);
     AssertEqual(0, powerBombShotPlms.SlotTable.ActiveCount,
@@ -1244,11 +1244,11 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     // collision through the legacy normal-bomb-only helper, even though the shared
     // projectile setup above already models CF2E's accepted family `$0300`. Drive the
     // actual placement and fuse so a direct helper test cannot conceal that mismatch.
-    var integratedPowerBombWords = new ushort[width * height];
-    var integratedPowerBombBts = new byte[integratedPowerBombWords.Length];
-    integratedPowerBombWords[shotIndex] = 0xc321;
-    integratedPowerBombBts[shotIndex] = 8;
-    RoomLevelData integratedPowerBombLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(integratedPowerBombWords, integratedPowerBombBts, new ushort[integratedPowerBombWords.Length]));
+    var integratedPowerBombWords = new RoomTerrainBlock[width * height];
+    var integratedPowerBombBts = new RoomBlockBehavior[integratedPowerBombWords.Length];
+    integratedPowerBombWords[shotIndex] = RoomTerrainBlock.Of(801, BlockMirroring.None, RoomCollisionType.ShootableBlock);
+    integratedPowerBombBts[shotIndex] = new RoomBlockBehavior(8);
+    RoomLevelData integratedPowerBombLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(integratedPowerBombWords, integratedPowerBombBts, new RoomBlockAppearance[integratedPowerBombWords.Length]));
     var integratedPowerBombPlms = PlmFixtures.Unbound();
     var integratedPowerBombs = CreateBombFixture();
     var integratedPowerBombSamus = new SamusState
@@ -1266,31 +1266,31 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     {
         integratedPowerBombs.StepFrame(new SamusTerrain { Level = integratedPowerBombLevel, Plms = integratedPowerBombPlms }, integratedPowerBombSamus, 0, 0);
     }
-    AssertEqual(0xc321,
-        integratedPowerBombLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+        integratedPowerBombLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "power-bomb fuse frame leaves gated block intact before radius scan");
     integratedPowerBombs.StepFrame(new SamusTerrain { Level = integratedPowerBombLevel, Plms = integratedPowerBombPlms }, integratedPowerBombSamus, 0, 0);
     AssertTrue(integratedPowerBombPlms.PopulationSlots.Any(slot => slot.BlockIndex == shotIndex),
         "expanding power bomb visits BTS-eight shootable block");
-    AssertEqual(0x8057,
-        integratedPowerBombLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x057, BlockMirroring.None, RoomCollisionType.SolidBlock),
+        integratedPowerBombLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "integrated CF2E setup installs temporary power-bomb block word");
     AssertEqual(1, integratedPowerBombPlms.SlotTable.ActiveCount,
         "integrated power-bomb radius allocates the gated block PLM exactly once");
     integratedPowerBombPlms.Step(integratedPowerBombLevel);
-    AssertEqual(0x0053,
-        integratedPowerBombLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air),
+        integratedPowerBombLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "integrated power-bomb reaction draws the first cleared-air frame");
 
     // Issue #298 reached the deliberate seventeenth `$94:9EA6` table entry through the
     // same expanding-radius dispatcher. Keep this separate from the direct PLM test below:
     // the production boundary collector used to reject BTS $10 before it could call the
     // correctly translated `$84:B974` one-frame owner.
-    var collisionProbeWords = new ushort[width * height];
-    var collisionProbeBts = new byte[collisionProbeWords.Length];
-    collisionProbeWords[shotIndex] = 0xc321;
-    collisionProbeBts[shotIndex] = 0x10;
-    RoomLevelData collisionProbeLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(collisionProbeWords, collisionProbeBts, new ushort[collisionProbeWords.Length]));
+    var collisionProbeWords = new RoomTerrainBlock[width * height];
+    var collisionProbeBts = new RoomBlockBehavior[collisionProbeWords.Length];
+    collisionProbeWords[shotIndex] = RoomTerrainBlock.Of(801, BlockMirroring.None, RoomCollisionType.ShootableBlock);
+    collisionProbeBts[shotIndex] = new RoomBlockBehavior(0x10);
+    RoomLevelData collisionProbeLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(collisionProbeWords, collisionProbeBts, new RoomBlockAppearance[collisionProbeWords.Length]));
     var collisionProbePlms = PlmFixtures.Unbound();
     RunPowerBombToInitialBoundary(
             collisionProbeLevel,
@@ -1300,15 +1300,15 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         "expanding power bomb visits native BTS-ten collision-probe entry");
     AssertEqual(4, collisionProbePlms.SlotTable.ActiveCount,
         "zero-radius border visits its center four times and allocates four B974 PLMs");
-    AssertEqual(0xc321,
-        collisionProbeLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+        collisionProbeLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "B974 boundary reaction leaves terrain unchanged");
 
     // `$84:D08C` is the corresponding Super Missile block. CF67 accepts family `$0200`,
     // synthesizes `$C09F`, and retains `$CB71`'s max-six sound plus the same 384-frame
     // blank hold. An ordinary missile must fail that setup without touching terrain or
     // leaving an apparently occupied host PLM slot.
-    RoomLevelData superShotLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new byte[shotWords.Length], new ushort[shotWords.Length]));
+    RoomLevelData superShotLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new RoomBlockBehavior[shotWords.Length], new RoomBlockAppearance[shotWords.Length]));
     var superShotPlms = PlmFixtures.Unbound();
     AssertTrue(!superShotPlms.TrySpawnProjectileShotBlock(
             superShotLevel,
@@ -1317,8 +1317,8 @@ empty, spring, controllerInput: 0, frameCounter: 0);
             projectileType: 0x0100,
             solidBlock: true),
         "ordinary missile is rejected by Super Missile block setup");
-    AssertEqual(0xc321,
-        superShotLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+        superShotLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "rejected missile leaves Super Missile block word untouched");
     AssertEqual(0, superShotPlms.SlotTable.ActiveCount,
         "rejected missile leaves no live PLM header");
@@ -1329,16 +1329,16 @@ empty, spring, controllerInput: 0, frameCounter: 0);
             projectileType: 0x0200,
             solidBlock: true),
         "Super Missile allocates BTS-A respawning block PLM");
-    AssertEqual(0x809f,
-        superShotLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x09f, BlockMirroring.None, RoomCollisionType.SolidBlock),
+        superShotLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "CF67 installs synthesized temporary Super Missile word");
     superShotPlms.Step(superShotLevel);
     AssertEqual(new SoundRequest(Library2Sound.BlockCrumble, SoundQueueLimit.Max6), superShotPlms.Sounds.SoundRequests[0],
         "$CB71 queues Super Missile breakup sound with maximum six");
     StepFrames(12 + 384 + 12, _ =>
         superShotPlms.Step(superShotLevel));
-    AssertEqual(0xc09f,
-        superShotLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x09f, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+        superShotLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "respawning Super Missile block restores synthesized $C09F parent");
     superShotPlms.Step(superShotLevel);
     AssertEqual(0, superShotPlms.SlotTable.ActiveCount,
@@ -1353,7 +1353,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         new VerifySamusMorphBallMovementCase(11, 0x0200, "Super-Missile"),
     })
     {
-        RoomLevelData permanentWeaponLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new byte[shotWords.Length], new ushort[shotWords.Length]));
+        RoomLevelData permanentWeaponLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new RoomBlockBehavior[shotWords.Length], new RoomBlockAppearance[shotWords.Length]));
         var permanentWeaponPlms = PlmFixtures.Unbound();
         AssertTrue(permanentWeaponPlms.TrySpawnProjectileShotBlock(
                 permanentWeaponLevel,
@@ -1366,8 +1366,8 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         {
             permanentWeaponPlms.Step(permanentWeaponLevel);
         }
-        AssertEqual(0x00ff,
-            permanentWeaponLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air),
+            permanentWeaponLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
             $"permanent {familyName} block ends on retail blank word");
         AssertEqual(0, permanentWeaponPlms.SlotTable.ActiveCount,
             $"permanent {familyName} block deletes without restoration");
@@ -1377,7 +1377,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     // has a collision-nibble asymmetry instead: type C allocates an area-table no-op, while
     // type four returns before Spawn_PLM. These slots are visually invisible, but retaining
     // their one-handler lifetime prevents the finite 40-slot pool from behaving differently.
-    RoomLevelData noOpShotLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new byte[shotWords.Length], new ushort[shotWords.Length]));
+    RoomLevelData noOpShotLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new RoomBlockBehavior[shotWords.Length], new RoomBlockAppearance[shotWords.Length]));
     var noOpShotPlms = PlmFixtures.Unbound();
     AssertTrue(noOpShotPlms.TrySpawnProjectileShotBlock(
             noOpShotLevel,
@@ -1409,8 +1409,8 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         "BTS-ten allocates the native B974 collision-probe PLM");
     AssertEqual(3, noOpShotPlms.SlotTable.ActiveCount,
         "the three solid/no-op reactions occupy native slots");
-    AssertEqual(0xc321,
-        noOpShotLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+        noOpShotLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "all no-op shot reactions preserve terrain");
     noOpShotPlms.Step(noOpShotLevel);
     AssertEqual(0, noOpShotPlms.SlotTable.ActiveCount,
@@ -1419,14 +1419,14 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     // Normal bombs striking BTS 8 and A do not break their weapon-gated blocks. CF2E/CF67
     // redirect the PLM pointer to one-frame diagnostic reveals. The complete level word is
     // drawn by the normal bank-$84 draw parser and remains after the slot deletes.
-    var revealWords = new ushort[width * height];
+    var revealWords = new RoomTerrainBlock[width * height];
     const int powerRevealIndex = 2 * width + 2;
     const int superRevealIndex = 2 * width + 4;
     const int areaNoOpIndex = 4 * width + 2;
-    revealWords[powerRevealIndex] = 0x4000;
-    revealWords[superRevealIndex] = 0xc000;
-    revealWords[areaNoOpIndex] = 0xc222;
-    RoomLevelData revealLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(revealWords, new byte[revealWords.Length], new ushort[revealWords.Length]));
+    revealWords[powerRevealIndex] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableAir);
+    revealWords[superRevealIndex] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock);
+    revealWords[areaNoOpIndex] = RoomTerrainBlock.Of(546, BlockMirroring.None, RoomCollisionType.ShootableBlock);
+    RoomLevelData revealLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(revealWords, new RoomBlockBehavior[revealWords.Length], new RoomBlockAppearance[revealWords.Length]));
     var revealPlms = PlmFixtures.Unbound();
     AssertTrue(
         revealPlms.TrySpawnBombedShootableBlock(revealLevel, powerRevealIndex, 8, 0x0500),
@@ -1438,16 +1438,16 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         revealPlms.TrySpawnBombedShootableBlock(revealLevel, areaNoOpIndex, 0x80, 0x0500),
         "negative type-C BTS allocates area-table no-op PLM");
     revealPlms.Step(revealLevel);
-    AssertEqual(0xc057,
-        revealLevel.GetCollisionBlockByIndex(powerRevealIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x057, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+        revealLevel.GetCollisionBlockByIndex(powerRevealIndex).Terrain,
         "normal bomb reveals visible power-bomb block word");
-    AssertEqual(0xc09f,
-        revealLevel.GetCollisionBlockByIndex(superRevealIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x09f, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+        revealLevel.GetCollisionBlockByIndex(superRevealIndex).Terrain,
         "normal bomb reveals visible super-missile block word");
     AssertEqual(0, revealPlms.Sounds.SoundRequests.Count,
         "weapon-required reveal lists do not queue shot-break sound");
-    AssertEqual(0xc222,
-        revealLevel.GetCollisionBlockByIndex(areaNoOpIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x222, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+        revealLevel.GetCollisionBlockByIndex(areaNoOpIndex).Terrain,
         "area-dependent shootable no-op leaves terrain unchanged");
     AssertEqual(2, revealPlms.SlotTable.ActiveCount,
         "area no-op deletes while both one-frame reveal PLMs remain timed");
@@ -1459,27 +1459,27 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     // horizontal rows with a signed `(0,+1)` continuation; asserting all four words guards
     // both the special dispatch and the generic multi-record parser. Brinstar's negative
     // BTS `$82` instead selects the area-specific speed-block reveal at `$84:C928`.
-    var specialWords = new ushort[width * height];
+    var specialWords = new RoomTerrainBlock[width * height];
     const int crumbleIndex = 2 * width + 2;
     const int speedIndex = 5 * width + 5;
-    specialWords[crumbleIndex] = 0xb000;
-    specialWords[speedIndex] = 0xb000;
-    RoomLevelData specialLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(specialWords, new byte[specialWords.Length], new ushort[specialWords.Length]));
+    specialWords[crumbleIndex] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialBlock);
+    specialWords[speedIndex] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialBlock);
+    RoomLevelData specialLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(specialWords, new RoomBlockBehavior[specialWords.Length], new RoomBlockAppearance[specialWords.Length]));
     // #320: the cartridge's normal table extends through BTS $4F, not $0F.
     // Exercise actual bomb collision dispatch and assert the resulting terrain.
     for (byte behavior = 16; behavior < 80; behavior++)
     {
-        var words = new ushort[width * height];
-        var behaviors = new byte[words.Length];
-        words[crumbleIndex] = 0xb000;
-        behaviors[crumbleIndex] = behavior;
-        var tableLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(words, behaviors, new ushort[words.Length]));
+        var words = new RoomTerrainBlock[width * height];
+        var behaviors = new RoomBlockBehavior[words.Length];
+        words[crumbleIndex] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialBlock);
+        behaviors[crumbleIndex] = new RoomBlockBehavior(behavior);
+        var tableLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(words, behaviors, new RoomBlockAppearance[words.Length]));
         var tablePlms = PlmFixtures.Unbound();
         SamusBombProjectileSystem.CollectSingleBombedBlockReaction(tableLevel,
             new(2, 2), new(), tablePlms, AreaId.Crateria, 0x0500);
         tablePlms.Step(tableLevel);
-        AssertEqual(behavior is >= 0x1a and <= 0x1d ? 0xb0b6 : 0xb000,
-            tableLevel.GetCollisionBlockByIndex(crumbleIndex).PackedWord.Raw,
+        AssertEqual(behavior is >= 0x1a and <= 0x1d ? RoomTerrainBlock.Of(0x0b6, BlockMirroring.None, RoomCollisionType.SpecialBlock) : RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialBlock),
+            tableLevel.GetCollisionBlockByIndex(crumbleIndex).Terrain,
             $"extended bomb-special BTS {behavior:X2} native reveal/no-op terrain");
     }
         var specialPlms = PlmFixtures.Unbound();
@@ -1498,20 +1498,20 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     AssertEqual(2, specialPlms.SlotTable.ActiveCount,
         "rejected Power Bomb special reveal leaves no active PLM slot");
     specialPlms.Step(specialLevel);
-    AssertEqual(0xb0bc,
-        specialLevel.GetCollisionBlockByIndex(crumbleIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x0bc, BlockMirroring.None, RoomCollisionType.SpecialBlock),
+        specialLevel.GetCollisionBlockByIndex(crumbleIndex).Terrain,
         "crumble reveal writes parent word");
-    AssertEqual(0x50bc,
-        specialLevel.GetCollisionBlockByIndex(crumbleIndex + 1).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x0bc, BlockMirroring.None, RoomCollisionType.HorizontalExtension),
+        specialLevel.GetCollisionBlockByIndex(crumbleIndex + 1).Terrain,
         "crumble reveal writes right extension");
-    AssertEqual(0xd0bc,
-        specialLevel.GetCollisionBlockByIndex(crumbleIndex + width).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x0bc, BlockMirroring.None, RoomCollisionType.VerticalExtension),
+        specialLevel.GetCollisionBlockByIndex(crumbleIndex + width).Terrain,
         "crumble reveal writes lower vertical extension");
-    AssertEqual(0xd0bc,
-        specialLevel.GetCollisionBlockByIndex(crumbleIndex + width + 1).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x0bc, BlockMirroring.None, RoomCollisionType.VerticalExtension),
+        specialLevel.GetCollisionBlockByIndex(crumbleIndex + width + 1).Terrain,
         "crumble reveal writes lower-right vertical extension");
-    AssertEqual(0xb0b6,
-        specialLevel.GetCollisionBlockByIndex(speedIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x0b6, BlockMirroring.None, RoomCollisionType.SpecialBlock),
+        specialLevel.GetCollisionBlockByIndex(speedIndex).Terrain,
         "Brinstar area table reveals speed-booster block");
     specialPlms.Step(specialLevel);
     AssertEqual(0, specialPlms.SlotTable.ActiveCount,
@@ -1571,10 +1571,10 @@ empty, bombJump, frameCounter: 1, PlmFixtures.Unbound());
     // Direction two deliberately omits horizontal calculation. A ceiling collision ends
     // the handler on that same frame and zeros vertical magnitude before normal movement
     // resumes, matching `$90:E077-$90:E094`.
-    var ceilingBlocks = new ushort[width * height];
+    var ceilingBlocks = new RoomTerrainBlock[width * height];
     for (int x = 0; x < width; x++)
-        ceilingBlocks[2 * width + x] = 0x8000;
-    RoomLevelData ceiling = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(ceilingBlocks, new byte[ceilingBlocks.Length], new ushort[ceilingBlocks.Length]));
+        ceilingBlocks[2 * width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+    RoomLevelData ceiling = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(ceilingBlocks, new RoomBlockBehavior[ceilingBlocks.Length], new RoomBlockAppearance[ceilingBlocks.Length]));
     var straightBombJump = new SamusState
     {
         Pose = SamusPoseId.MorphBallGroundLeftPose,

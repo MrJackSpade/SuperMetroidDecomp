@@ -83,14 +83,14 @@ internal static void VerifySamusBlockCollision()
 
     const int width = 4;
     const int height = 4;
-    var foreground = new ushort[width * height];
-    var behavior = new byte[foreground.Length];
+    var foreground = new RoomTerrainBlock[width * height];
+    var behavior = new RoomBlockBehavior[foreground.Length];
 
     // Row one contains a non-square slope in column one and an ordinary type-8 solid in
     // column two. Every other cell is dispatcher type zero air.
-    foreground[1 * width + 1] = 0x1000;
-    behavior[1 * width + 1] = 0x12;
-    foreground[1 * width + 2] = 0x8000;
+    foreground[1 * width + 1] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope);
+    behavior[1 * width + 1] = new RoomBlockBehavior(0x12);
+    foreground[1 * width + 2] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
     RoomLevelData level = CreateRoom(new(width, height), foreground, behavior);
 
     // At Y=21/radius5 the body penetrates shape-$12's height-8 sample by two pixels.
@@ -118,7 +118,7 @@ internal static void VerifySamusBlockCollision()
     AssertTrue(groundProbe.Collided, "vertical non-square grounding probe collides");
     AssertEqual(0, groundProbe.AcceptedDisplacement, "vertical non-square grounding probe clips to zero");
     AssertEqual(19, groundedBody.Position.Y.Whole, "grounding collision preserves resting center Y");
-    AssertEqual(0x12, level.GetCollisionBlockAtPixel(new(24, 24)).Bts.Value,
+    AssertEqual(0x12, level.GetCollisionBlockAtPixel(new(24, 24)).Behavior.Value,
         "grounding collision probe's target block carries slope BTS");
 
     // Moving two pixels right from X=26 would enter the type-8 block at X=32. The solid
@@ -150,12 +150,12 @@ internal static void VerifySamusBlockCollision()
     // Shape four has all four $94:8E54 quadrant bytes set. Unlike an ordinary solid, its
     // clipping boundary is the leading 8-pixel half, although this fixture reaches the
     // block's first half so the permitted amount is one whole pixel.
-    var squareForeground = new ushort[width * height];
-    var squareBehavior = new byte[squareForeground.Length];
-    squareForeground[1 * width + 2] = 0x1000;
-    squareBehavior[1 * width + 2] = 0x04;
-    squareForeground[2 * width + 1] = 0x1000;
-    squareBehavior[2 * width + 1] = 0x04;
+    var squareForeground = new RoomTerrainBlock[width * height];
+    var squareBehavior = new RoomBlockBehavior[squareForeground.Length];
+    squareForeground[1 * width + 2] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope);
+    squareBehavior[1 * width + 2] = new RoomBlockBehavior(0x04);
+    squareForeground[2 * width + 1] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope);
+    squareBehavior[2 * width + 1] = new RoomBlockBehavior(0x04);
     RoomLevelData squareLevel = CreateRoom(new(width, height), squareForeground, squareBehavior);
 
     var squareWallBody = new SamusKinematicsState
@@ -187,10 +187,10 @@ internal static void VerifySamusBlockCollision()
     const ushort doorListPointer = 0x94f3;
     const ushort normalDoorPointer = 0x8a4e;
 
-    var doorForeground = new ushort[width * height];
-    var doorBehavior = new byte[doorForeground.Length];
-    doorForeground[1 * width + 2] = 0x9000;
-    RoomLevelData doorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(doorForeground, doorBehavior, new ushort[doorForeground.Length]), doors: RoomDoorListDefinitions.ForListPointer(doorListPointer));
+    var doorForeground = new RoomTerrainBlock[width * height];
+    var doorBehavior = new RoomBlockBehavior[doorForeground.Length];
+    doorForeground[1 * width + 2] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.DoorBlock);
+    RoomLevelData doorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(doorForeground, doorBehavior, new RoomBlockAppearance[doorForeground.Length]), doors: RoomDoorListDefinitions.ForListPointer(doorListPointer));
     var doorBody = new SamusKinematicsState
     {
         Position = FixedPosition<RoomPixels>.FromWhole(new(26, 24)),
@@ -210,8 +210,8 @@ internal static void VerifySamusBlockCollision()
     AssertTrue(doorLevel.PendingDoorTransition is null,
         "consumed door transition does not leak into later movement");
 
-    doorBehavior[1 * width + 2] = 2;
-    RoomLevelData elevatorDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(doorForeground, doorBehavior, new ushort[doorForeground.Length]), doors: RoomDoorListDefinitions.ForListPointer(doorListPointer));
+    doorBehavior[1 * width + 2] = new RoomBlockBehavior(2);
+    RoomLevelData elevatorDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(doorForeground, doorBehavior, new RoomBlockAppearance[doorForeground.Length]), doors: RoomDoorListDefinitions.ForListPointer(doorListPointer));
     doorBody.Position = doorBody.Position.WithWholeX(26).WithFractionX(0);
     BlockMoveResult elevatorDoorMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = elevatorDoorLevel }, doorBody, null, new HorizontalBlockMove { Displacement = 0x00020000 });
     AssertTrue(elevatorDoorMove.Collided, "elevator pseudo-door remains solid");
@@ -233,7 +233,7 @@ internal static void VerifySamusBlockCollision()
     AssertTrue(rightEdgeMove.Collided, "prefilled right room edge is solid");
     AssertEqual(0x00010000, rightEdgeMove.AcceptedDisplacement,
         "prefilled right room edge clips at logical boundary");
-    AssertEqual(0x8000, level.GetCollisionBlockOrPrefilledSolid(new(4, 1)).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock), level.GetCollisionBlockOrEdgeSolid(new(4, 1)).Terrain,
         "prefilled right room edge probe reads native $8000 word");
 
     var bottomEdgeBody = new SamusKinematicsState
@@ -245,21 +245,21 @@ internal static void VerifySamusBlockCollision()
     AssertTrue(bottomEdgeMove.Collided, "prefilled bottom room edge is solid");
     AssertEqual(0x00010000, bottomEdgeMove.AcceptedDisplacement,
         "prefilled bottom room edge clips at logical boundary");
-    AssertEqual(0x8000, level.GetCollisionBlockOrPrefilledSolid(new(3, 4)).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock), level.GetCollisionBlockOrEdgeSolid(new(3, 4)).Terrain,
         "prefilled bottom room edge probe reads native $8000 word");
 
     // Grapple endpoint/body collision now consumes this same room-owned seam instead of
     // maintaining a second interpretation of the native prefill. Check coordinate and
     // already-linear forms because bank-$94 uses both during extension redispatch.
     RoomCollisionBlock coordinatePrefill =
-        level.GetCollisionBlockOrPrefilledSolid(new(level.Size.X, 0));
+        level.GetCollisionBlockOrEdgeSolid(new(level.Size.X, 0));
     AssertEqual(-1, coordinatePrefill.Index,
         "coordinate prefill is outside the logical room plane");
-    AssertEqual(0x8000, coordinatePrefill.PackedWord.Raw,
+    AssertEqual(RoomTerrainBlocks.EdgeSolid, coordinatePrefill.Terrain,
         "coordinate prefill exposes native solid word");
     RoomCollisionBlock linearPrefill =
-        level.GetCollisionBlockByIndexOrPrefilledSolid(-1);
-    AssertEqual(0x8000, linearPrefill.PackedWord.Raw,
+        level.GetCollisionBlockByIndexOrEdgeSolid(-1);
+    AssertEqual(RoomTerrainBlocks.EdgeSolid, linearPrefill.Terrain,
         "linear extension prefill exposes native solid word");
 
     // Exercise every formerly open body-dispatch entry through the public movement seam.
@@ -267,19 +267,19 @@ internal static void VerifySamusBlockCollision()
     // retain their independent solid topology. Their authored damage/PLM producer seams do
     // not alter the clipping result asserted here and are deliberately not claimed by this
     // kinematics-only fixture.
-    foreach ((ushort collisionWord, bool expectedCollision) in new[]
+    foreach ((RoomCollisionType collisionKind, bool expectedCollision) in new[]
     {
-        new SamusTerrainMovementVerifySamusBlockCollisionCase2(0x2000, false),
-        new SamusTerrainMovementVerifySamusBlockCollisionCase2(0x3000, false),
-        new SamusTerrainMovementVerifySamusBlockCollisionCase2(0x4000, false),
-        new SamusTerrainMovementVerifySamusBlockCollisionCase2(0x6000, false),
-        new SamusTerrainMovementVerifySamusBlockCollisionCase2(0x7000, false),
-        new SamusTerrainMovementVerifySamusBlockCollisionCase2(0xa000, true),
-        new SamusTerrainMovementVerifySamusBlockCollisionCase2(0xb000, true),
+        new SamusTerrainMovementVerifySamusBlockCollisionCase2(RoomCollisionType.SpikeAir, false),
+        new SamusTerrainMovementVerifySamusBlockCollisionCase2(RoomCollisionType.SpecialAir, false),
+        new SamusTerrainMovementVerifySamusBlockCollisionCase2(RoomCollisionType.ShootableAir, false),
+        new SamusTerrainMovementVerifySamusBlockCollisionCase2(RoomCollisionType.UnusedAir, false),
+        new SamusTerrainMovementVerifySamusBlockCollisionCase2(RoomCollisionType.BombableAir, false),
+        new SamusTerrainMovementVerifySamusBlockCollisionCase2(RoomCollisionType.SpikeBlock, true),
+        new SamusTerrainMovementVerifySamusBlockCollisionCase2(RoomCollisionType.SpecialBlock, true),
     })
     {
-        var dispatcherWords = new ushort[width * height];
-        dispatcherWords[1 * width + 2] = collisionWord;
+        var dispatcherWords = new RoomTerrainBlock[width * height];
+        dispatcherWords[1 * width + 2] = RoomTerrainBlock.Of(0, BlockMirroring.None, collisionKind);
         RoomLevelData dispatcherLevel = CreateRoom(new(width, height),
             dispatcherWords,
             new byte[dispatcherWords.Length]);
@@ -313,10 +313,10 @@ internal static void VerifySamusBlockCollision()
         new SamusTerrainMovementVerifySamusBlockCollisionCase(2, 0),
     })
     {
-        var spikeWords = new ushort[width * height];
-        var spikeBehaviors = new byte[spikeWords.Length];
-        spikeWords[2 * width + 1] = 0xa000;
-        spikeBehaviors[2 * width + 1] = spikeBehavior;
+        var spikeWords = new RoomTerrainBlock[width * height];
+        var spikeBehaviors = new RoomBlockBehavior[spikeWords.Length];
+        spikeWords[2 * width + 1] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpikeBlock);
+        spikeBehaviors[2 * width + 1] = new RoomBlockBehavior(spikeBehavior);
         RoomLevelData spikeLevel = CreateRoom(new(width, height), spikeWords, spikeBehaviors);
         var spikeSamus = new SamusState
         {
@@ -353,10 +353,10 @@ internal static void VerifySamusBlockCollision()
         new VerifySamusBlockCollisionCase(true, SpikeHazardDefinitions.HeavySpikeDamage),
     })
     {
-        var spikeWords = new ushort[width * height];
-        var spikeBehaviors = new byte[spikeWords.Length];
-        spikeWords[2 * width + 1] = 0xa000;
-        spikeBehaviors[2 * width + 1] = (byte)SpikeBlockBehavior.Heavy;
+        var spikeWords = new RoomTerrainBlock[width * height];
+        var spikeBehaviors = new RoomBlockBehavior[spikeWords.Length];
+        spikeWords[2 * width + 1] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpikeBlock);
+        spikeBehaviors[2 * width + 1] = new RoomBlockBehavior(SpikeBlockBehavior.Heavy);
         RoomLevelData wreckedShipSpikes = CreateRoom(new(width, height), spikeWords, spikeBehaviors);
         var spikeSamus = new SamusState
         {
@@ -378,9 +378,9 @@ internal static void VerifySamusBlockCollision()
     // Put the damaging spike-air tile at each point in turn and assert the same side effects.
     foreach (int spikeRow in new[] { 0, 1, 2 })
     {
-        var spikeAirWords = new ushort[width * height];
-        var spikeAirBehaviors = new byte[spikeAirWords.Length];
-        spikeAirWords[spikeRow * width + 1] = 0x2000;
+        var spikeAirWords = new RoomTerrainBlock[width * height];
+        var spikeAirBehaviors = new RoomBlockBehavior[spikeAirWords.Length];
+        spikeAirWords[spikeRow * width + 1] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpikeAir);
         spikeAirBehaviors[spikeRow * width + 1] =
             SpikeHazardDefinitions.DamagingSpikeAirBehavior;
         RoomLevelData spikeAirLevel = CreateRoom(new(width, height),
@@ -405,9 +405,9 @@ internal static void VerifySamusBlockCollision()
             $"inside-block spike-air starts invincibility at sampled row {spikeRow}");
     }
 
-    var contactSafeWords = new ushort[width * height];
-    var contactSafeBehaviors = new byte[contactSafeWords.Length];
-    contactSafeWords[1 * width + 1] = 0x2000;
+    var contactSafeWords = new RoomTerrainBlock[width * height];
+    var contactSafeBehaviors = new RoomBlockBehavior[contactSafeWords.Length];
+    contactSafeWords[1 * width + 1] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpikeAir);
     contactSafeBehaviors[1 * width + 1] =
         SpikeHazardDefinitions.DamagingSpikeAirBehavior;
     RoomLevelData contactSafeSpikeAir = CreateRoom(new(width, height),
@@ -605,10 +605,10 @@ internal static void VerifySamusGroundedReversal()
     // A broad row of ordinary type-$8 solids removes slope scaling from this test. Center
     // Y=11 with radius 5 rests exactly on the row-one top edge at physical Y=16.
     const int width = 8;
-    var foreground = new ushort[width * 3];
+    var foreground = new RoomTerrainBlock[width * 3];
     for (int x = 0; x < width; x++)
-        foreground[width + x] = 0x8000;
-    RoomLevelData level = CreateRoom(new(width, 3), foreground, new byte[foreground.Length]);
+        foreground[width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+    RoomLevelData level = CreateRoom(new(width, 3), foreground, new RoomBlockBehavior[foreground.Length]);
 
     var movingLeft = new SamusState { Pose = SamusPoseId.MovingLeftNormalPose };
     movingLeft.Kinematics.Position = movingLeft.Kinematics.Position.WithWhole(new(64, 11));
@@ -825,10 +825,10 @@ internal static void VerifySamusGroundedReversal()
     // Real standing/turn poses have radius 21, unlike the compact radius-five fixture used
     // above to isolate ordinary displacement arithmetic. Place their center at Y=27 over
     // a row-three floor: top Y=6 remains inside the room and bottom Y=48 touches that floor.
-    var aimedForeground = new ushort[width * 5];
+    var aimedForeground = new RoomTerrainBlock[width * 5];
     for (int x = 0; x < width; x++)
-        aimedForeground[width * 3 + x] = 0x8000;
-    RoomLevelData aimedLevel = CreateRoom(new(width, 5), aimedForeground, new byte[aimedForeground.Length]);
+        aimedForeground[width * 3 + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+    RoomLevelData aimedLevel = CreateRoom(new(width, 5), aimedForeground, new RoomBlockBehavior[aimedForeground.Length]);
 
     for (int caseIndex = 0; caseIndex < aimedTurnCases.Length; caseIndex++)
     {
@@ -1654,10 +1654,10 @@ internal static void VerifySamusMoonwalking()
 
     // A flat row of type-$8 solids isolates horizontal sign and the shared downward probe.
     const int width = 12;
-    var foreground = new ushort[width * 3];
+    var foreground = new RoomTerrainBlock[width * 3];
     for (int x = 0; x < width; x++)
-        foreground[width + x] = 0x8000;
-    RoomLevelData floor = CreateRoom(new(width, 3), foreground, new byte[foreground.Length]);
+        foreground[width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+    RoomLevelData floor = CreateRoom(new(width, 3), foreground, new RoomBlockBehavior[foreground.Length]);
     foreach ((SamusPoseId pose, _, _, int direction) in stable)
     {
         var walker = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(80, 11)) };
@@ -1845,10 +1845,10 @@ internal static void VerifySamusRanIntoWall()
     WritePoseDefinitionByte(bus, (int)SamusPoseId.MovingRightNormalPose, 3, 2);
 
     const int width = 12;
-    var openForeground = new ushort[width * 4];
+    var openForeground = new RoomTerrainBlock[width * 4];
     for (int x = 0; x < width; x++)
-        openForeground[width * 2 + x] = 0x8000;
-    RoomLevelData openFloor = CreateRoom(new(width, 4), openForeground, new byte[openForeground.Length]);
+        openForeground[width * 2 + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+    RoomLevelData openFloor = CreateRoom(new(width, 4), openForeground, new RoomBlockBehavior[openForeground.Length]);
 
     // A clear prospective run really moves one pixel; it is not merely a collision query.
     var armPump = new SamusState
@@ -1870,9 +1870,9 @@ internal static void VerifySamusRanIntoWall()
     // Put a two-block-high wall immediately at X=96. Center 91/radius five has a current
     // right boundary at 95; the same +1.0000 request advances the sampled boundary to 96.
     var blockedForeground = (ushort[])openForeground.Clone();
-    blockedForeground[6] = 0x8000;
-    blockedForeground[width + 6] = 0x8000;
-    RoomLevelData blockedFloor = CreateRoom(new(width, 4), blockedForeground, new byte[blockedForeground.Length]);
+    blockedForeground[6] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+    blockedForeground[width + 6] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+    RoomLevelData blockedFloor = CreateRoom(new(width, 4), blockedForeground, new RoomBlockBehavior[blockedForeground.Length]);
     var blocked = new SamusState
     {
         Pose = SamusPoseId.FacingRightNormalPose,

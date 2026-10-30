@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Palettes;
@@ -358,32 +359,29 @@ internal static void VerifyTypedNativeWords()
             (ushort)EnemyExtraProperties.UsesExtendedSpritemap, "typed-word verification"),
         "enemy extra-property escape hatch rejects known flags");
 
-    // $E selects the verified grapple collision handler, $C supplies both parent flips,
-    // and $02A is the visual block. All three packed fields share this exact raw word.
-    var levelWord = new RoomLevelWord(0xec2a);
-    AssertEqual(RoomCollisionType.GrappleBlock, levelWord.CollisionType,
-        "level collision enum");
-    AssertEqual(0x002a, levelWord.VisualBlockIndex, "level visual index field");
-    AssertEqual(BlockMirroring.Horizontal | BlockMirroring.Vertical,
-        levelWord.VisualFlipFlags, "level parent flip flags");
-    AssertEqual(0xec2a, (ushort)levelWord, "level word raw round trip");
-
-    RoomLevelWord encodedLevelWord = RoomLevelWord.Create(
-        visualBlockIndex: 0x002a,
-        BlockMirroring.Horizontal | BlockMirroring.Vertical,
+    // The import's level-word codec: $E selects the grapple collision kind, $C supplies both
+    // mirrorings, and $02A is the block. The typed block holds each field by name.
+    RoomTerrainBlock grapple = RoomTerrainBlock.Of(42, BlockMirroring.Horizontal | BlockMirroring.Vertical,
         RoomCollisionType.GrappleBlock);
-    AssertEqual(0xec2a, encodedLevelWord.Raw, "level word typed encode");
-    AssertEqual(0x5c2a,
-        encodedLevelWord.WithCollisionType(RoomCollisionType.HorizontalExtension).Raw,
-        "level collision replacement preserves visual flips");
-    AssertEqual(0xe82a,
-        encodedLevelWord.WithVisualFlipFlags(BlockMirroring.Vertical).Raw,
-        "level flip replacement preserves collision and index");
-    AssertEqual(0xec55, encodedLevelWord.WithVisualBlockIndex(0x0055).Raw,
-        "level block replacement preserves collision and flips");
+    AssertEqual(grapple, RoomLevelWordCodec.Decode(0xec2a), "level word decodes kind, block and mirroring");
+    AssertEqual(0xec2a, (int)RoomLevelWordCodec.Encode(grapple), "typed block encodes the level word");
+    AssertEqual(grapple.Appearance, RoomLevelWordCodec.DecodeAppearance(0xec2a), "appearance ignores the collision kind");
+    AssertEqual(0x0c2a, (int)RoomLevelWordCodec.EncodeAppearance(grapple.Appearance), "appearance encodes without collision bits");
+    AssertTrue(RoomLevelWordCodec.IsAppearanceWord(0x0c2a) && !RoomLevelWordCodec.IsAppearanceWord(0xec2a),
+        "only collision-free words are appearance words");
+    AssertEqual(RoomTerrainBlock.Of(42, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.HorizontalExtension),
+        grapple.WithCollision(RoomCollisionType.HorizontalExtension), "collision replacement keeps the appearance");
+    AssertEqual(RoomTerrainBlock.Of(42, BlockMirroring.Vertical, RoomCollisionType.GrappleBlock),
+        grapple.WithAppearance(grapple.Appearance.WithMirroring(BlockMirroring.Vertical)),
+        "mirroring replacement keeps the kind and block");
+    AssertEqual(RoomTerrainBlock.Of(85, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.GrappleBlock),
+        grapple.WithBlock(85), "block replacement keeps the kind and mirroring");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => encodedLevelWord.WithVisualFlipFlags((BlockMirroring)0x1000),
-        "level flip replacement rejects collision bits");
+        () => grapple.Appearance.WithMirroring((BlockMirroring)4),
+        "an appearance mirrors only horizontally and vertically");
+    AssertThrows<ArgumentOutOfRangeException>(
+        () => RoomBlockAppearance.Of(RoomBlockAppearance.LastBlock + 1),
+        "an appearance names a block of the tileset's set");
 
     RoomCollisionType[] retailCollisionTypes =
     [
@@ -407,13 +405,15 @@ internal static void VerifyTypedNativeWords()
     for (byte collisionNibble = 0; collisionNibble < retailCollisionTypes.Length;
          collisionNibble++)
     {
-        var typedLevelWord = new RoomLevelWord((ushort)(collisionNibble << 12));
-        AssertEqual(retailCollisionTypes[collisionNibble], typedLevelWord.CollisionType,
+        RoomTerrainBlock decoded = RoomLevelWordCodec.Decode((ushort)(collisionNibble << 12));
+        AssertEqual(retailCollisionTypes[collisionNibble], decoded.Collision,
             $"level collision nibble ${collisionNibble:X1}");
-        AssertEqual(collisionNibble, typedLevelWord.CollisionTypeValue,
-            $"level collision raw nibble ${collisionNibble:X1}");
-        AssertTrue(typedLevelWord.HasSolidProbeBit == (collisionNibble >= 8),
-            $"attachment probe tests the raw high bit for collision nibble ${collisionNibble:X1}");
+        AssertEqual(collisionNibble << 12, (int)RoomLevelWordCodec.Encode(decoded),
+            $"level collision kind encodes nibble ${collisionNibble:X1}");
+        AssertTrue(decoded.StopsAttachment == (collisionNibble >= 8),
+            $"attachment stops at the solid kinds, the upper half of the nibbles (${collisionNibble:X1})");
+        AssertEqual(collisionNibble >= 8 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air, decoded.Deactivated().Collision,
+            $"deactivation keeps solid kinds solid and makes the rest air (${collisionNibble:X1})");
     }
 
     // BTS remains a raw byte until the collision nibble selects its meaning. Exercise

@@ -46,12 +46,12 @@ internal static class AcidStatueFirstEntryVerification
             RoomCollisionBlock block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock)
                 continue;
-            DoorDefinition? candidate = level.ResolveDoorCollision(block.Bts.Value, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), false).Door;
+            DoorDefinition? candidate = level.ResolveDoorCollision(block.Behavior.Value, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), false).Door;
             if (candidate?.DestinationRoom != destinationRoom)
                 continue;
             doorX = x;
             doorY = y;
-            behavior = block.Bts.Value;
+            behavior = block.Behavior.Value;
             break;
         }
         AssertTrue(doorX >= 0, "Main Hall contains the retail door into the Acid Statue room");

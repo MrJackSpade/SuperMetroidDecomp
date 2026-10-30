@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -23,9 +24,9 @@ internal static class MissileEdgeVerification
         for (int edge = 0; edge < 2; edge++)
         {
             var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-            var blocks = new ushort[64 * 16];
-            for (int row = 0; row < 16; row++) blocks[row * 64 + 32] = 0x8000;
-            var room = CreateRoom(new(64, 16), blocks, new byte[blocks.Length]);
+            var blocks = new RoomTerrainBlock[64 * 16];
+            for (int row = 0; row < 16; row++) blocks[row * 64 + 32] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+            var room = CreateRoom(new(64, 16), blocks, new RoomBlockBehavior[blocks.Length]);
             var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(497, 128)),
                 SelectedHudItem = HudItem.Missile, Missiles = 5, MaxMissiles = 5 };
             var projectiles = CreateProjectileFixture();

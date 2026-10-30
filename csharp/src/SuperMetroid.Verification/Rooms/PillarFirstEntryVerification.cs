@@ -39,9 +39,9 @@ internal static class PillarFirstEntryVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            var door = level.ResolveDoorCollision(block.Bts.Value, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), false);
+            var door = level.ResolveDoorCollision(block.Behavior.Value, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), false);
             if (door.Door?.DestinationRoom != destination) continue;
-            doorX = x; doorY = y; behavior = block.Bts.Value;
+            doorX = x; doorY = y; behavior = block.Behavior.Value;
             break;
         }
         AssertTrue(doorX >= 0, "Pillar Room incoming retail door exists");

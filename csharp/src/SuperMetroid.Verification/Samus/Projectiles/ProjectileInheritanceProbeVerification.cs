@@ -130,7 +130,7 @@ internal static class ProjectileInheritanceProbeVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)) };
         samus.Kinematics.Radius = new(5, 5);
-        var level = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
+        var level = CreateRoom(new(16, 16), new RoomTerrainBlock[256], new RoomBlockBehavior[256]);
         samus.ProjectileInheritance.ClearMovement();
         SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = 0x00031234 });
         AssertEqual((short)0x0300, samus.ProjectileInheritance.ReadVelocity(2, 0).X.SignedRawValue,
@@ -148,7 +148,7 @@ internal static class ProjectileInheritanceProbeVerification
         SamusBlockCollision.ProbeWallHorizontal(level, samus.Kinematics, samus, 1 << 16);
         AssertTrue(beforeProbe.SequenceEqual(records.Capture()),
             "Wall observation cannot replace live movement inheritance");
-        level.SetForegroundEntry(4 * 16 + 5, RoomLevelWord.Create(0, 0, RoomCollisionType.SolidBlock).Raw);
+        level.SetTerrain(4 * 16 + 5, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock));
         var clipped = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = 20 << 16 });
         AssertTrue(clipped.Collided, "Inheritance fixture actually reaches its solid wall");
         AssertEqual(FixedCoordinate.WholeOf(clipped.AcceptedDisplacement),
@@ -176,9 +176,9 @@ internal static class ProjectileInheritanceProbeVerification
         for (int x = 16; x < 48; x++)
         {
             int index = y * level.Size.X + x;
-            level.SetForegroundEntry(index, RoomLevelWord.Create(0, 0,
-                y >= 32 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air).Raw);
-            level.SetBehavior(index, 0);
+            level.SetTerrain(index, RoomTerrainBlock.Of(0, BlockMirroring.None,
+                y >= 32 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air));
+            level.SetBehavior(index, RoomBlockBehaviorValues.None);
         }
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();

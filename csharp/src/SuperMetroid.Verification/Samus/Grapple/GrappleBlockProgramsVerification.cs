@@ -174,11 +174,11 @@ internal static class GrappleBlockProgramsVerification
                     $"Grapple BTS {bts} active count, frame {frame}");
                 AssertEqual(native.Plms.Sounds.SoundRequests.Count, compiled.Plms.Sounds.SoundRequests.Count,
                     $"Grapple BTS {bts} sound count, frame {frame}");
-                AssertEqual(native.Level.GetCollisionBlockByIndex(27).PackedWord.Raw,
-                    compiled.Level.GetCollisionBlockByIndex(27).PackedWord.Raw,
+                AssertEqual(native.Level.GetCollisionBlockByIndex(27).Terrain,
+                    compiled.Level.GetCollisionBlockByIndex(27).Terrain,
                     $"Grapple BTS {bts} level word, frame {frame}");
-                AssertEqual(native.Level.GetCollisionBlockByIndex(27).Bts.Value,
-                    compiled.Level.GetCollisionBlockByIndex(27).Bts.Value,
+                AssertEqual(native.Level.GetCollisionBlockByIndex(27).Behavior.Value,
+                    compiled.Level.GetCollisionBlockByIndex(27).Behavior.Value,
                     $"Grapple BTS {bts} BTS, frame {frame}");
             }
 
@@ -213,14 +213,14 @@ internal static class GrappleBlockProgramsVerification
         {
             const int width = 8;
             const int blockIndex = 27;
-            var words = new ushort[width * width];
-            words[blockIndex] = 0xe123;
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]));
+            var words = new RoomTerrainBlock[width * width];
+            words[blockIndex] = RoomTerrainBlock.Of(291, BlockMirroring.None, RoomCollisionType.GrappleBlock);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]));
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmGrappleBlockVisuals = visuals });
             AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, blockIndex, 1),
                 "visual test starts the real respawning Grapple PLM");
             plms.Step(level);
-            return new GrappleBlockProgramsRenderResult(level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
+            return new GrappleBlockProgramsRenderResult(level.GetCollisionBlockByIndex(blockIndex).Terrain,
                 level.DisplayedVisualWord(blockIndex),
                 level.DisplayedVisualWord(blockIndex));
         }
@@ -313,9 +313,9 @@ internal static class GrappleBlockProgramsVerification
     {
         const int width = 8;
         const int blockIndex = 27;
-        var words = new ushort[width * width];
-        words[blockIndex] = 0xe123;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]));
+        var words = new RoomTerrainBlock[width * width];
+        words[blockIndex] = RoomTerrainBlock.Of(291, BlockMirroring.None, RoomCollisionType.GrappleBlock);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]));
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, blockIndex, bts),
             $"Grapple BTS {bts} installs its native program");

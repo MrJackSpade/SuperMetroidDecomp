@@ -36,7 +36,9 @@ internal static class MaridiaPipeTerrainAudit
             int registerX = background ? r.BackgroundScroll.X : r.ForegroundScroll.X;
             int registerY = background ? r.BackgroundScroll.Y : r.ForegroundScroll.Y;
             int tilemap = background ? GameplayVramLayout.Bg2TilemapWord : GameplayVramLayout.Bg1TilemapWord;
-            ReadOnlySpan<ushort> source = background ? level.BackgroundEntries : level.ForegroundEntries.Span;
+            // The authored planes: the background as loaded, the foreground as its terrain shows.
+            RoomBlockAppearance[] source = background ? level.BackgroundPlane.Blocks.ToArray()
+                : [.. Enumerable.Range(0, level.Size.Area).Select(index => level.GetCollisionBlockByIndex(index).Terrain.Appearance)];
             int differences = 0;
             var rows = new SortedSet<int>();
             string first = "";

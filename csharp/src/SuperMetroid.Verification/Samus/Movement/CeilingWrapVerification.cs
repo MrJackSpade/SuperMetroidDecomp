@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Rooms.Plms;
@@ -23,8 +25,8 @@ internal static class CeilingWrapVerification
         int cursor = 0, mismatches = 0;
         for (int tileX = 63; tileX <= 65; tileX++)
         {
-            var words = Enumerable.Repeat((ushort)0x0040, 128 * 32).ToArray();
-            var level = CreateRoom(new(128, 32), words, new byte[words.Length]);
+            var words = Enumerable.Repeat(RoomTerrainBlock.Of(0x040, BlockMirroring.None, RoomCollisionType.Air), 128 * 32).ToArray();
+            var level = CreateRoom(new(128, 32), words, new RoomBlockBehavior[words.Length]);
             var plms = PlmFixtures.Unbound();
             var shot = new SamusProjectileSlot(0) { Position = new(new((ushort)(tileX * 16), 0), new(4, 0)), Radius = new(1, 8), Type = 1,
                 Direction = (ushort)SamusProjectileDirection.Right };
@@ -32,7 +34,7 @@ internal static class CeilingWrapVerification
             {
                 system.TerrainCollision.RunInitialBeamCollision(level, shot, plms, true, powerBomb);
                 int owner = plms.SlotTable.ActiveCount == 0 ? 0 : plms.PopulationSlots[0].BlockIndex * 2;
-                string actual = $"{tileX},{call},{plms.SlotTable.ActiveCount},{owner:X4},{level.GetCollisionBlockByIndex(tileX).PackedWord.Raw:X4},{level.GetCollisionBlockByIndex(tileX + 1).PackedWord.Raw:X4}";
+                string actual = $"{tileX},{call},{plms.SlotTable.ActiveCount},{owner:X4},{RoomLevelWordCodec.Encode(level.GetCollisionBlockByIndex(tileX).Terrain):X4},{RoomLevelWordCodec.Encode(level.GetCollisionBlockByIndex(tileX + 1).Terrain):X4}";
                 string expected = native[cursor++];
                 if (actual != expected && mismatches++ < 8)
                     Console.WriteLine($"Ceiling PLM mismatch:\n{actual}\n{expected}");

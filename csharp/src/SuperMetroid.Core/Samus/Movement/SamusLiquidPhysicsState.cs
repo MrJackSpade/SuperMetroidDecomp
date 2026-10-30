@@ -776,7 +776,7 @@ public sealed class SamusLiquidPhysicsState
 
         if (useWetFootsteps)
             SpawnFootstepPair(samus, SamusAtmosphericEffectType.FootstepSplash);
-        else if (samus.HorizontalSpeed.IsFullSpeedBoost &&
+        else if (samus.HorizontalSpeed.IsActivelySpeedBoosting &&
                  DetermineRawMediumAtBoundary(samus.Kinematics.BottomBoundary) == SamusLiquidMedium.Air)
             SpawnFootstepPair(samus, SamusAtmosphericEffectType.AlternateDust);
 
@@ -786,7 +786,7 @@ public sealed class SamusLiquidPhysicsState
         if (!CinematicFunctionActive &&
             !bossPresent &&
             SamusInputSnapshot.SharedShineTimer(samus) == 0 &&
-            !samus.HorizontalSpeed.SpeedBoostCounter.HasActiveStageBit)
+            !samus.HorizontalSpeed.SpeedBoostCounter.IsAtFullStage)
         {
             QueueSound(Library3Sound.Footsteps, maximumQueued: SoundQueueLimit.Max6);
         }

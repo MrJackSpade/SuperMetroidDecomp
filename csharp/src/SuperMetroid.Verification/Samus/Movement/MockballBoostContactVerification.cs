@@ -35,7 +35,7 @@ internal static class MockballBoostContactVerification
             var speed = samus.HorizontalSpeed;
             speed.HasRunningMomentum = true;
             speed.ExtraRunSpeed = speed.ExtraRunSpeed.WithWhole(7);
-            speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0401);
+            speed.SpeedBoostCounter = new SamusSpeedBoostCounter(4, 1);
             var enemy = fixture.System.SlotTable.Slots[0];
             enemy.Bind((EnemyDefinitionId)0x9000, enemy.Definition);
             enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
@@ -57,18 +57,18 @@ internal static class MockballBoostContactVerification
                 AssertEqual(SamusContactDamageIndex.SpeedBooster, speed.ContactDamageIndex, "moving ball republishes Speed Booster contact attack");
                 AssertEqual(7, speed.ExtraRunSpeed.Whole, "moving ball retains boost momentum");
             }
-            speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0301);
+            speed.SpeedBoostCounter = new SamusSpeedBoostCounter(3, 1);
             speed.ContactDamageIndex = SamusContactDamageIndex.None;
             SamusMorphBallMovement.StepGrounded(floor, samus, 4);
             AssertEqual(SamusContactDamageIndex.None, speed.ContactDamageIndex, "sub-threshold boost does not grant a ball contact attack");
-            speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0401);
+            speed.SpeedBoostCounter = new SamusSpeedBoostCounter(4, 1);
             speed.ContactDamageIndex = SamusContactDamageIndex.None;
             samus.Pose = pose == SamusPoseId.MorphBallMovingRightPose
                 ? SamusPoseId.MorphBallGroundRightPose : SamusPoseId.SpringBallGroundRightPose;
             speed.AccelerationMode = SamusAccelerationMode.Accelerating;
             SamusMorphBallMovement.StepGrounded(floor, samus, 5);
             AssertEqual(SamusContactDamageIndex.None, speed.ContactDamageIndex, "stationary ball does not run the moving-ball boost publication");
-            AssertEqual(0, speed.SpeedBoostCounter.RawValue, "stopping retains native boost cancellation");
+            AssertEqual(new SamusSpeedBoostCounter(0, 0), speed.SpeedBoostCounter, "stopping retains native boost cancellation");
         }
         Console.WriteLine("Mockball boost: moving Morph/Spring Ball republishes contact damage for consecutive frames, deals 500 damage, and respects boost threshold and stopping.");
     }

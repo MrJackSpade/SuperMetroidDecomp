@@ -38,8 +38,8 @@ internal static class SamusRunningCadenceBytes
         _ => throw new ArgumentOutOfRangeException(nameof(cadence), cadence, "Undefined running cadence."),
     };
 
-    /// <summary>Resolves the native low-byte reset word selected after a stage advance.</summary>
-    internal static ushort ReadResetWord(int selection) => selection switch
+    /// <summary>Resolves the cadence a stage advance resets to, 0 through 2, for the selection made.</summary>
+    internal static int ReadResetWord(int selection) => selection switch
     {
         <= 3 => 1,
         4 => 2,

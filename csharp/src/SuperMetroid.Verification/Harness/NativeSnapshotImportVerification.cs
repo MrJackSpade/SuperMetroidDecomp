@@ -202,7 +202,7 @@ internal static class NativeSnapshotImportVerification
         samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(W(NativeSnapshotMemory.ExtraSpeed), W(NativeSnapshotMemory.ExtraFraction));
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationModeImport.FromNative(W(NativeSnapshotMemory.AccelerationMode));
         samus.HorizontalSpeed.HasRunningMomentum = W(NativeSnapshotMemory.Momentum) != 0;
-        samus.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(W(NativeSnapshotMemory.BoostCounter));
+        samus.HorizontalSpeed.SpeedBoostCounter = SamusSnapshotWords.DecodeSpeedBoostCounter(W(NativeSnapshotMemory.BoostCounter));
         samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(W(NativeSnapshotMemory.VerticalSpeed), W(NativeSnapshotMemory.VerticalFraction));
         samus.Kinematics.YDirection = ClosedEnumWordDecoding.Decode<SamusVerticalDirection>(
             W(NativeSnapshotMemory.VerticalDirection), "Samus vertical direction");

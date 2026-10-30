@@ -520,8 +520,7 @@ internal sealed class InstalledSamusIsolationTests
     private void CheckStoredShine()
     {
         Pair pair = Create();
-        Require(pair.Apply("stored shine admission", actor => actor.Samus.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(
-            ShinesparkDefinitions.ActiveSpeedBoostCounter))),
+        Require(pair.Apply("stored shine admission", actor => actor.Samus.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage)),
             "Stored shine was not admitted");
         for (int frame = 0; frame < 180; frame++)
             pair.Apply($"stored shine palette {frame}", actor => actor.Samus.Shinespark.UpdatePalette(
@@ -538,8 +537,7 @@ internal sealed class InstalledSamusIsolationTests
         string context = $"shinespark pose {(int)target:X2}";
         pair.Apply(context + " admission", actor =>
         {
-            Require(actor.Samus.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(
-                ShinesparkDefinitions.ActiveSpeedBoostCounter)), "Spark charge rejected");
+            Require(actor.Samus.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage), "Spark charge rejected");
             actor.Samus.Shinespark.BeginWindup(actor.Samus);
         });
         for (ushort frame = 0; frame < 29; frame++)

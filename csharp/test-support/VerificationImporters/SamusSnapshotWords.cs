@@ -43,6 +43,17 @@ internal static class SamusSnapshotWords
             : throw new InvalidDataException($"Transition shot word ${word:X4} carries no native initializer's tag.");
     }
 
+    /// <summary>The counter value of one boost stage in <c>$0B3E</c>: the stage is the high byte, the cadence the low.</summary>
+    private const int SpeedBoostStageStep = 1 << 8;
+
+    /// <summary>Decodes <c>$0B3E</c>; a stage past full boost is rejected by the counter.</summary>
+    internal static SamusSpeedBoostCounter DecodeSpeedBoostCounter(ushort word) =>
+        new(word / SpeedBoostStageStep, word % SpeedBoostStageStep);
+
+    /// <summary>Encodes the Speed Booster counter as the word native code holds.</summary>
+    internal static int EncodeSpeedBoostCounter(SamusSpeedBoostCounter counter) =>
+        counter.Stage * SpeedBoostStageStep + counter.Cadence;
+
     /// <summary>The high byte the Spring Ball landing puts on <c>$0B20</c> above the rebound count.</summary>
     internal const ushort SpringBallBounceFamily = 6 << 8;
 

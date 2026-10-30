@@ -17,7 +17,7 @@ internal static class ShinesparkEnemyStopVerification
         foreach (int gap in new[] { 4, 20 })
         {
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)), Health = 399 };
-            samus.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(ShinesparkDefinitions.ActiveSpeedBoostCounter));
+            samus.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage);
             samus.Shinespark.BeginWindup(samus);
             samus.Shinespark.BeginDirectionalLaunch(samus, SamusPoseId.ShinesparkVerticalLeftPose);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(ushort.MaxValue);

@@ -7,48 +7,50 @@ using SuperMetroid.Verification.Harness;
 namespace SuperMetroid.Verification.Samus.Movement;
 
 /// <summary>
-/// Checks the Speed Booster counter, speed echo index, speed divisor and deceleration multiplier now that they are
-/// stored as ordinary integers: each keeps the sixteen-bit (or eight-bit) range and wrap the cartridge's words had,
-/// driven through the production operations.
+/// Checks the Speed Booster counter's stage borrow and range, and the speed echo index, speed divisor and deceleration
+/// multiplier now that they are stored as ordinary integers, driven through the production operations.
 /// </summary>
 internal static class SpeedBoosterWordRangeVerification
 {
-    /// <summary>Counter value for stage <paramref name="stage"/> with the given cadence countdown.</summary>
-    private static int Counter(int stage, int cadence) => stage * 256 + cadence;
-
     /// <summary>Exercises the cadence borrow, the counter's range, the crash residue in the echo index and the two widened quantities' ranges.</summary>
     internal static void VerifySpeedBoosterWordRange()
     {
-        // A cadence countdown at zero borrows from the stage, exactly as the cartridge's
-        // sixteen-bit decrement does: stage two, cadence zero becomes stage one, cadence 255,
-        // which is not a stage advance. Zero wraps to the largest counter.
-        foreach ((int before, int expected) in new[]
+        // A cadence countdown at zero borrows from the stage: stage two, cadence zero becomes stage one, cadence 255,
+        // which is not a stage advance.
+        foreach ((SamusSpeedBoostCounter before, SamusSpeedBoostCounter expected) in new[]
         {
-            new VerifySpeedBoosterWordRangeCase(Counter(2, 0), Counter(1, 255)),
-            new VerifySpeedBoosterWordRangeCase(0, ushort.MaxValue),
-            new VerifySpeedBoosterWordRangeCase(Counter(4, 0), Counter(3, 255)),
+            new VerifySpeedBoosterWordRangeCase(new SamusSpeedBoostCounter(2, 0), new SamusSpeedBoostCounter(1, 255)),
+            new VerifySpeedBoosterWordRangeCase(new SamusSpeedBoostCounter(4, 0), new SamusSpeedBoostCounter(3, 255)),
         })
         {
-            var speed = new SamusHorizontalSpeedState { HasRunningMomentum = true, SpeedBoostCounter = new SamusSpeedBoostCounter(before) };
+            var speed = new SamusHorizontalSpeedState { HasRunningMomentum = true, SpeedBoostCounter = before };
             int frame = 7;
             bool advanced = speed.TryAdvanceSpeedBoosterAnimationStage(null, SamusMovementType.Running, ControllerButton.B,
                 animationFrameBuffer: 0, ref frame, out _);
-            AssertTrue(!advanced, $"counter {before}: a borrowing decrement leaves a nonzero cadence, so no stage advances");
-            AssertEqual(expected, speed.SpeedBoostCounter.RawValue, $"counter {before}: the decrement wraps across the sixteen-bit counter");
+            AssertTrue(!advanced, $"counter {before}: a borrowing countdown leaves a nonzero cadence, so no stage advances");
+            AssertEqual(expected, speed.SpeedBoostCounter, $"counter {before}: the countdown borrows a stage");
         }
 
+        // Stage zero with no cadence has no stage to borrow from.
+        var empty = new SamusHorizontalSpeedState { HasRunningMomentum = true, SpeedBoostCounter = new SamusSpeedBoostCounter(0, 0) };
+        int emptyFrame = 7;
+        AssertThrows<InvalidOperationException>(() => empty.TryAdvanceSpeedBoosterAnimationStage(null, SamusMovementType.Running,
+            ControllerButton.B, animationFrameBuffer: 0, ref emptyFrame, out _), "a stage-zero counter with no cadence cannot borrow");
+
         // A cadence of one reaching zero advances the stage and reloads the cadence.
-        var advancing = new SamusHorizontalSpeedState { HasRunningMomentum = true, SpeedBoostCounter = new SamusSpeedBoostCounter(Counter(1, 1)) };
+        var advancing = new SamusHorizontalSpeedState { HasRunningMomentum = true, SpeedBoostCounter = new SamusSpeedBoostCounter(1, 1) };
         int advancingFrame = 7;
         AssertTrue(advancing.TryAdvanceSpeedBoosterAnimationStage(null, SamusMovementType.Running, ControllerButton.B,
             animationFrameBuffer: 0, ref advancingFrame, out _), "cadence one expires and advances the stage");
-        AssertEqual(Counter(2, SamusRunningCadenceBytes.ReadResetWord(2)), advancing.SpeedBoostCounter.RawValue,
+        AssertEqual(new SamusSpeedBoostCounter(2, SamusRunningCadenceBytes.ReadResetWord(2)), advancing.SpeedBoostCounter,
             "stage two with its reloaded cadence");
 
         var range = new SamusHorizontalSpeedState();
-        AssertThrows<ArgumentOutOfRangeException>(() => range.SpeedBoostCounter = new SamusSpeedBoostCounter(ushort.MaxValue + 1),
-            "the counter never holds more than sixteen bits");
-        AssertThrows<ArgumentOutOfRangeException>(() => range.SpeedBoostCounter = new SamusSpeedBoostCounter(-1), "the counter is never negative");
+        AssertThrows<ArgumentOutOfRangeException>(() => range.SpeedBoostCounter = new SamusSpeedBoostCounter(SamusSpeedBoostCounter.FullStage + 1, 0),
+            "no stage lies past full boost");
+        AssertThrows<ArgumentOutOfRangeException>(() => range.SpeedBoostCounter = new SamusSpeedBoostCounter(0, byte.MaxValue + 1),
+            "the cadence never exceeds 255");
+        AssertThrows<ArgumentOutOfRangeException>(() => range.SpeedBoostCounter = new SamusSpeedBoostCounter(-1, 0), "the stage is never negative");
         AssertThrows<ArgumentOutOfRangeException>(() => range.SpeedDivisor = ushort.MaxValue + 1,
             "the divisor never holds more than sixteen bits");
         AssertThrows<ArgumentOutOfRangeException>(() => range.DecelerationMultiplier = byte.MaxValue + 1,
@@ -60,7 +62,7 @@ internal static class SpeedBoosterWordRangeVerification
         const int crashResidue = 16 + 2 * 256;
         var boosted = new SamusHorizontalSpeedState
         {
-            SpeedBoostCounter = new SamusSpeedBoostCounter(SamusSpeedBoostCounterFixtures.ActiveStageWord),
+            SpeedBoostCounter = SamusSpeedBoostCounter.AtFullStage,
         };
         boosted.SetShinesparkCrashEchoState(crashResidue, Position16<RoomPixels>.Zero, Position16<RoomPixels>.Zero);
         AssertTrue(!boosted.SpeedEchoesDeparting, "the crash residue is not the departure state");

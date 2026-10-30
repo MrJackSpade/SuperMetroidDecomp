@@ -726,7 +726,7 @@ internal sealed class SamusPresentation
             return;
         }
 
-        if (!samus.HorizontalSpeed.IsFullSpeedBoost)
+        if (!samus.HorizontalSpeed.IsActivelySpeedBoosting)
             return;
 
         // `$90:87C7` draws slot one before slot zero. OAM order is observable when their

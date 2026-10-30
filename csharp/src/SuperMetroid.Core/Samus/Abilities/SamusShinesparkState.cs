@@ -252,12 +252,11 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>
-    /// Ports <c>Samus_CrouchTrans</c> at <c>$91:F7B0</c>. The signed comparison accepts
-    /// stage four and any larger high byte exactly as the 65816 does.
+    /// Ports <c>Samus_CrouchTrans</c> at <c>$91:F7B0</c>: a crouch at the full boost stage stores a shinespark.
     /// </summary>
     public bool TryStoreFromSpeedBooster(SamusSpeedBoostCounter speedBoostCounter)
     {
-        if (!speedBoostCounter.MeetsShinesparkStoreThreshold)
+        if (!speedBoostCounter.IsAtFullStage)
             return false;
 
         ShineTimer = WrappingCountdown.Start(180);
@@ -322,8 +321,7 @@ public sealed class SamusShinesparkState
         samus.Kinematics.YSpeed = default;
         samus.KnockbackDirection = Movement.SamusKnockbackDirection.None;
         samus.KnockbackActive = false;
-        samus.HorizontalSpeed.SpeedBoostCounter =
-            new SamusSpeedBoostCounter(ShinesparkDefinitions.ActiveSpeedBoostCounter);
+        samus.HorizontalSpeed.SpeedBoostCounter = SamusSpeedBoostCounter.AtFullStage;
         samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(8, 0);
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.BombJumpRequest = SamusBombJumpRequest.None;

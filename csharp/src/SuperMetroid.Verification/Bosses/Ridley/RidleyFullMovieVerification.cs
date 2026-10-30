@@ -1178,7 +1178,7 @@ internal static class RidleyFullMovieVerification
             Check("Samus MorphBallBounceState", SamusSnapshotWords.EncodeBallBounce(samus.MorphBallBounceState), NativeSnapshotMemory.MorphBallBounceState);
             Check("Samus bomb jump", SamusBombJumpRequestCodec.ToNative(samus.BombJumpRequest), NativeSnapshotMemory.BombJumpDirection);
             Check("Samus running momentum", samus.HorizontalSpeed.HasRunningMomentum ? (ushort)1 : (ushort)0, NativeSnapshotMemory.Momentum);
-            Check("Samus speed boost counter", checked((ushort)samus.HorizontalSpeed.SpeedBoostCounter.RawValue), NativeSnapshotMemory.BoostCounter);
+            Check("Samus speed boost counter", SamusSnapshotWords.EncodeSpeedBoostCounter(samus.HorizontalSpeed.SpeedBoostCounter), NativeSnapshotMemory.BoostCounter);
             Check("Samus horizontal speed table", samus.HorizontalSpeed.ActiveSpeedTableBaseAddress, NativeSnapshotMemory.HorizontalSpeedTable);
             AssertEqual(memory[NativeSnapshotMemory.HorizontalDecelerationMultiplier], samus.HorizontalSpeed.DecelerationMultiplier,
                 $"update {frame}: Samus horizontal deceleration multiplier");

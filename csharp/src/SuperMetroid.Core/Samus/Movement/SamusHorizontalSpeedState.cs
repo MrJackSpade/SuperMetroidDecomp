@@ -31,27 +31,17 @@ public sealed class SamusHorizontalSpeedState
     public bool HasRunningMomentum { get; set; }
 
     /// <summary>
-    /// Speed Booster charge counter, 0 through 65535: the boost stage times 256 plus the
-    /// running-cadence countdown that advances it. Stages zero through four are reached by
-    /// running; No-Speed-Booster Dash keeps it zero.
+    /// Speed Booster progress: the boost stage and the running cadence that advances it. Stages zero through four are
+    /// reached by running; No-Speed-Booster Dash keeps it zero. The cadence borrows from the stage when it is counted
+    /// down at zero (<see cref="TryAdvanceSpeedBoosterAnimationStage"/>).
     /// </summary>
-    /// <remarks>
-    /// The value stays in the sixteen-bit range because its wrap is load-bearing: the cadence
-    /// countdown borrows from the stage when it is decremented at zero, and a restored counter
-    /// can carry any stage. It changes only through the wrapping cadence decrement in
-    /// <see cref="TryAdvanceSpeedBoosterAnimationStage"/> and through whole-counter writes
-    /// checked against that range.
-    /// </remarks>
     public SamusSpeedBoostCounter SpeedBoostCounter { get; set; }
 
-    /// <summary>Whether the speed-boost counter's high byte is the full fourth stage.</summary>
-    public bool IsFullSpeedBoost => SpeedBoostCounter.HighByteIsStageFour;
-
     /// <summary>
-    /// Whether the counter's stage field is four, the cartridge condition used by
-    /// Speed Booster block setup and active-boost contact behavior.
+    /// Whether the boost is at its full stage: Speed Booster blocks, boost contact damage, the echoes, the full-boost
+    /// palette and lava cancellation test it.
     /// </summary>
-    public bool IsActivelySpeedBoosting => SpeedBoostCounter.IsActivelySpeedBoosting;
+    public bool IsActivelySpeedBoosting => SpeedBoostCounter.IsAtFullStage;
 
     /// <summary>
     /// The step of the Speed Booster or Screw Attack colour cycle shown next, counted from the shown suit's first
@@ -234,7 +224,7 @@ public sealed class SamusHorizontalSpeedState
                 HasRunningMomentum = true;
                 SpecialPaletteTimer = WrappingCountdown.Start(1);
                 CyclePaletteStep = 0;
-                SpeedBoostCounter = new SamusSpeedBoostCounter(SamusRunningCadenceBytes.ReadResetWord(0));
+                SpeedBoostCounter = new SamusSpeedBoostCounter(stage: 0, cadence: SamusRunningCadenceBytes.ReadResetWord(0));
             }
 
             if (ExtraRunSpeed.WordsAtLeast(new UnsignedSixteenSixteen(7, 0)))
@@ -302,21 +292,18 @@ public sealed class SamusHorizontalSpeedState
         if (!HasRunningMomentum || movementType != SamusMovementType.Running || !heldButtons.HasAny(dashButton))
             return false;
 
-        // The decrement wraps across the whole sixteen-bit counter, so a cadence countdown
-        // already at zero borrows from the stage. A stage advances only when the decremented
-        // cadence countdown is zero; that test leaves the stage unchanged.
+        // A cadence countdown already at zero borrows from the stage. A stage advances only
+        // when the decremented cadence countdown is zero; that test leaves the stage unchanged.
         (SamusSpeedBoostCounter decremented, bool cadenceExpired) = SpeedBoostCounter.DecrementForAnimationCommand();
         SpeedBoostCounter = decremented;
         if (!cadenceExpired)
             return false;
 
         int? echoSelection = null;
-        if (!SpeedBoostCounter.HasActiveStageBit)
+        if (!SpeedBoostCounter.IsAtFullStage)
         {
-            // Without the fourth-stage bit the counter is below 64512, so one more stage
-            // cannot leave the sixteen-bit range.
             SpeedBoostCounter = SpeedBoostCounter.AdvanceStage();
-            if (SpeedBoostCounter.HasActiveStageBit)
+            if (SpeedBoostCounter.IsAtFullStage)
             {
                 EchoSoundFlag = 1;
                 if (queueEchoSound is null)
@@ -334,7 +321,7 @@ public sealed class SamusHorizontalSpeedState
 
         int stage = echoSelection ?? SpeedBoostCounter.Stage;
         int nextCadence = SamusRunningCadenceBytes.ReadResetWord(stage);
-        SpeedBoostCounter = SpeedBoostCounter.WithCadenceWord(nextCadence);
+        SpeedBoostCounter = SpeedBoostCounter.WithCadence(nextCadence);
 
         SamusRunningCadence cadence = SamusRunningCadenceBytes.SpeedBoostCadence(stage);
         animationFrame = 0;
@@ -350,7 +337,7 @@ public sealed class SamusHorizontalSpeedState
     public byte ReadSpeedBoosterAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? floorUpdateResidue, int byteIndex,
         SamusAnimationWindows? windows)
     {
-        int stage = checked((byte)SpeedBoostCounter.Stage);
+        int stage = SpeedBoostCounter.Stage;
         return SamusRunningCadenceBytes.ReadAnimationByte(floorUpdateResidue,
             SamusRunningCadenceBytes.SpeedBoostCadence(stage), byteIndex, windows);
     }
@@ -427,7 +414,7 @@ public sealed class SamusHorizontalSpeedState
             return true;
         }
 
-        if (!IsFullSpeedBoost)
+        if (!IsActivelySpeedBoosting)
             return paletteCopied;
 
         // DEC is a full 16-bit operation. BEQ/BPL mean zero and signed underflow both reload
@@ -514,7 +501,7 @@ public sealed class SamusHorizontalSpeedState
         Position16<RoomPixels> position)
     {
         Ensure.BetweenInclusive(0, ushort.MaxValue, gameTimeFrames);
-        if (!IsFullSpeedBoost ||
+        if (!IsActivelySpeedBoosting ||
             SpeedEchoesDeparting ||
             (gameTimeFrames & 3) != 0)
         {
@@ -591,7 +578,7 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Enables Speed Booster contact damage only at the fully charged counter's high-byte state.</summary>
     private void PublishBoostContactDamage()
     {
-        if (IsFullSpeedBoost)
+        if (IsActivelySpeedBoosting)
             ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
     }
 
@@ -640,7 +627,7 @@ public sealed class SamusHorizontalSpeedState
             {
                 SpecialPaletteTimer = WrappingCountdown.Start(0);
                 CyclePaletteStep = 0;
-                SpeedBoostCounter = new SamusSpeedBoostCounter(SamusRunningCadenceBytes.ReadResetWord(0));
+                SpeedBoostCounter = new SamusSpeedBoostCounter(stage: 0, cadence: SamusRunningCadenceBytes.ReadResetWord(0));
             }
             return;
         }

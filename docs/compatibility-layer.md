@@ -53,5 +53,6 @@ service only when it has its own timing contract; coherent responsibilities shar
 | `IRoomLoadProgress` / `InstantRoomLoad` | how far room loading has progressed when each enemy initializes | each door-scroll update |
 | `WrappingCountdown`, `CountdownStep`, `LowByteCountdownStep`, `WrappingCounter` | timers and counters that wrap at their width, tested as the original tested them | where each timer is advanced |
 | `WordCarry` | the carry or borrow out of a byte or word that moves the next part of a multi-part value (#1420) | at each chained addition or subtraction |
+| `SuitPickupSparkCarryover` | the suit pickup light beam's last progress (lines grown or wiped, or its two edge columns), which a later shinespark windup reads as its vertical acceleration's fraction (#1468) | when the suit pickup publishes its stage, at setup and after each stage call |
 | `UnsignedDivision` | the aim-angle division: a word over a byte, a zero divisor giving the largest word (#1420) | when an enemy aims at a point |
 | `FloorUpdateResidue`, `FloorUpdate`, `IFloorUpdateResidue` | the descriptors the Ceres Ridley getaway's floor updates leave behind, which Samus's running stage five and the invalid poses read as delays (a bounded over-read, #1338) | recorded at each getaway update that changes the floor; read when Samus's animation reads past its tables |

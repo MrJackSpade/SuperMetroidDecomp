@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Abilities;
+namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// What the suit pickup's light beam leaves behind for a later shinespark windup to read as the fraction of its
@@ -8,19 +8,19 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// that value accelerates by it, so the value is gameplay-observable; how the light is drawn is not.
 /// </summary>
 /// <remarks>
-/// Consulted when <see cref="SamusSuitPickupState"/> publishes its stage, at setup and after every stage call. The
-/// original game kept the light's progress in a working word the shinespark windup later read as its acceleration;
-/// the suit pickup shared-scratch check confirms the exact value at every stage of a Varia transformation.
+/// Consulted when the suit pickup publishes its stage, at setup and after every stage call. The original game kept the
+/// light's progress in a working word the shinespark windup later read as its acceleration; the suit pickup
+/// shared-scratch check confirms the exact value at every stage of a Varia transformation.
 /// </remarks>
 [CompatibilityService("a shinespark windup after a suit pickup accelerates by the light beam's last recorded progress")]
 [EncodingOwner("suit pickup light beam progress the shinespark reads")]
 public static class SuitPickupSparkCarryover
 {
-    /// <summary>The value left while the beam is measured in lines grown or wiped.</summary>
+    /// <summary>The value left while the beam is measured in lines grown or wiped, 0 through 255.</summary>
     public static int OfLines(int lines) => Ensure.BetweenInclusive(0, byte.MaxValue, lines);
 
-    /// <summary>The value left while the beam is a column between two edges.</summary>
-    public static int OfEdges(SuitPickupBeamEdges edges) =>
-        Ensure.BetweenInclusive(0, byte.MaxValue, edges.Left) +
-        Ensure.BetweenInclusive(0, byte.MaxValue, edges.Right) * ScreenGeometry.ScreenWidthPixels;
+    /// <summary>The value left while the beam is a column between two edge columns, each 0 through 255.</summary>
+    public static int OfEdges(int left, int right) =>
+        Ensure.BetweenInclusive(0, byte.MaxValue, left) +
+        Ensure.BetweenInclusive(0, byte.MaxValue, right) * ScreenGeometry.ScreenWidthPixels;
 }

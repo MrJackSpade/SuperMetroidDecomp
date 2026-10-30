@@ -19,9 +19,9 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// hiding those two independently observable lifetimes behind one host animation.
 /// </para>
 /// <para>
-/// The cartridge writes the light beam into a 256-word WH0/WH1 table at WRAM <c>$7E:9E00</c>.
-/// Nothing in gameplay reads that table, so this owner publishes the beam's shape, progress
-/// and fixed color as <c>Flash</c> instead, and the renderer rasterizes it.
+/// Nothing in gameplay reads how the light beam is drawn, so this owner publishes the beam's
+/// shape, progress and fixed color as <c>Flash</c>, and the display capture describes it as
+/// window shapes the backend draws (#1468).
 /// </para>
 /// <para>
 /// The stage and the light beam's progress share two scratch words with the shinespark's
@@ -234,7 +234,7 @@ public sealed class SamusSuitPickupState
             SamusSuitPickupStage.LightBeamShrinks => SuitPickupSparkCarryover.OfLines(_lightBeamScanlines),
         SamusSuitPickupStage.UniformWidening or SamusSuitPickupStage.CurvedWidening or
             SamusSuitPickupStage.LightBeamDissipates or SamusSuitPickupStage.Finish =>
-            SuitPickupSparkCarryover.OfEdges(new SuitPickupBeamEdges(_lightBeamLeft.X, _lightBeamRight.X)),
+            SuitPickupSparkCarryover.OfEdges(_lightBeamLeft.X, _lightBeamRight.X),
         _ => throw new InvalidDataException($"Unknown suit-pickup stage {Stage}."),
     };
 

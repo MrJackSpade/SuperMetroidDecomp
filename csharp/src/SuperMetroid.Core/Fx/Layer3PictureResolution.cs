@@ -20,9 +20,9 @@ internal static class Layer3PictureResolution
         Ensure.NotNull(plane);
         if (resolver.Sheet.Layer != WrittenPictureLayer.Bg3)
             throw new InvalidOperationException($"{resolver.Sheet.Name} pictures no BG3 pictures.");
-        WrittenPicture[] page = plane.EffectPage is { } type
-            ? [new WrittenPicture(Layer3Plane.EffectPagePicture(type), Layer3Plane.EffectPageFirstRow * Layer3Plane.Columns)]
-            : [];
+        var page = new List<WrittenPicture>();
+        if (plane.EffectPage is { } type)
+            page.Add(new WrittenPicture(Layer3Plane.EffectPagePicture(type), Layer3Plane.EffectPageFirstRow * Layer3Plane.Columns));
         return resolver.ResolvePlaced(plane, Layer3Plane.Columns * Layer3Plane.Rows, Layer3Plane.ClearedPicture, page, appearance);
     }
 }

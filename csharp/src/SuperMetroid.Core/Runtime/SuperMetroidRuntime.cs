@@ -359,16 +359,14 @@ internal sealed class SuperMetroidRuntime
     public SuperMetroid.Core.Progression.SuperMetroidGameState DispatchGameState { get; set; } = SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay;
 
     /// <summary>
-    /// Native power-bomb explosion status at WRAM <c>$0CE2</c>, 0 through 65535. X-ray setup rejects every
-    /// nonzero phase. The getter reads the translated bank-$88 owner; the setter is a
-    /// debugger seam for forcing preconditions without constructing an explosion.
+    /// Whether a power-bomb explosion is under way; X-ray setup and the pause check reject one. The getter reads the
+    /// room's explosion; the setter is a debugger seam for forcing preconditions without constructing an explosion.
     /// </summary>
-    /// <remarks>Before the first room exists there is no explosion, so its status is the cleared one.</remarks>
-    [PackedFields("HDMA explosion status word: zero is no explosion and the top bit set is the active state")]
-    public int PowerBombExplosionStatus
+    /// <remarks>Before the first room exists there is no explosion.</remarks>
+    public bool PowerBombExplosionActive
     {
-        get => Room.BombProjectiles?.PowerBombExplosion.Status ?? 0;
-        set => Room.LoadedScope.BombProjectiles.PowerBombExplosion.SetStatusForDebugging(value);
+        get => Room.BombProjectiles?.PowerBombExplosion.IsActive == true;
+        set => Room.LoadedScope.BombProjectiles.PowerBombExplosion.SetActiveForDebugging(value);
     }
 
     /// <summary>

@@ -187,7 +187,7 @@ internal sealed class SamusFramePhases
         if (!_player.Samus.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope))
             return false;
 
-        return _player.Samus.Xray.TryBegin(_player.Samus, _player.PreviousMovementTypeForXray, new XrayBeginConditions { GameState = gameState, PowerBombExplosionActive = bombProjectiles.PowerBombExplosion.Status != 0, ProjectileCooldownTimer = bombProjectiles.CooldownTimer, BombCounter = bombProjectiles.BombCounter }, XrayActivation.Deferred);
+        return _player.Samus.Xray.TryBegin(_player.Samus, _player.PreviousMovementTypeForXray, new XrayBeginConditions { GameState = gameState, PowerBombExplosionActive = bombProjectiles.PowerBombExplosion.IsActive, ProjectileCooldownTimer = bombProjectiles.CooldownTimer, BombCounter = bombProjectiles.BombCounter }, XrayActivation.Deferred);
     }
 
     /// <summary>

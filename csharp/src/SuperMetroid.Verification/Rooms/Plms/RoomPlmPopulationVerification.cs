@@ -1062,7 +1062,7 @@ internal static class RoomPlmPopulationVerification
         AssertTrue(PlmProgramStartOracle.IsRunning(PlmProgramStart.Typed(ScriptedRoomPlmProgram.ShaktoolRoomController), sleeping),
             "the controller runs its typed program, resting on its closing sleep");
 
-        plms.Step(level, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, PowerBombExplosionStatus = 1 });
+        plms.Step(level, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, PowerBombExplosionActive = true });
         for (int cell = 0; cell < ShaktoolRoomDefinitions.ScrollCellCount; cell++)
             AssertEqual(RoomScrollState.Blue, scrolls.ReadState(cell),
                 $"Shaktool power bomb opens scroll cell {cell}");

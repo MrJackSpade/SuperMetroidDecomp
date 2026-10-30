@@ -912,8 +912,8 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         "fuse expiry allocates HDMA list without executing setup");
     AssertEqual(0, powerBombs.PowerBombExplosion.PreExplosionRadius.RawValue,
         "pre-explosion radius is not initialized during allocation");
-    AssertEqual(0x8000, powerBombs.PowerBombExplosion.Status,
-        "normal explosion publishes active status $8000");
+    AssertTrue(powerBombs.PowerBombExplosion.IsActive,
+        "normal explosion becomes active at its spawn");
     AssertEqual(
         new SoundRequest(Library1Sound.PowerBombExplosion, SoundQueueLimit.Max15),
         (powerBombFuse.SoundRequests ?? throw new InvalidOperationException("Verification requires powerBombFuse.SoundRequests.")).Single(),

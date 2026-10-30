@@ -253,7 +253,7 @@ internal sealed class MotherBrainRainbowAndDeath
                 WriteZebesTypewriterGlyph(typed);
             if (text.ClickRequested) state.LastSoundEffectLibrary3 = EscapeTypewriterDefinitions.ZebesClick;
         }
-        MotherBrainRainbowBeamAttackStepResult step = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, MainEnemyExecutionCounter = _frameContext.RandomEnemyCounter, PowerBombActive = sharedProjectiles?.PowerBombExplosion.Status != 0, RandomNumberSeed = MotherBrainRandomSample.FromGenerator(_room.Random.Read()), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _room.Session.JapaneseText, TypewriterFinished = typewriterFinished, GlobalEarthquakeTimer = _earthquake.EarthquakeTimer, CameraCheckpoint = _room.RainbowBeamCameraCheckpoint });
+        MotherBrainRainbowBeamAttackStepResult step = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, MainEnemyExecutionCounter = _frameContext.RandomEnemyCounter, PowerBombActive = sharedProjectiles?.PowerBombExplosion.IsActive != false, RandomNumberSeed = MotherBrainRandomSample.FromGenerator(_room.Random.Read()), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _room.Session.JapaneseText, TypewriterFinished = typewriterFinished, GlobalEarthquakeTimer = _earthquake.EarthquakeTimer, CameraCheckpoint = _room.RainbowBeamCameraCheckpoint });
         _frameResults.MotherBrainDeathStep = step;
         ApplyLiveMotherBrainRainbowState(state, sequence, step, samus, sharedProjectiles);
     }

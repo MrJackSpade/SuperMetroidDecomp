@@ -80,7 +80,7 @@ internal static class ChozoGrabAnimationVerification
                 AssertEqual(expectedExplosion.FixedColor.Red, actual.FixedColor.Red, "carried blast red");
                 AssertEqual(expectedExplosion.FixedColor.Green, actual.FixedColor.Green, "carried blast green");
                 AssertEqual(expectedExplosion.FixedColor.Blue, actual.FixedColor.Blue, "carried blast blue");
-                AssertEqual(expectedExplosion.Status, actual.Status, $"carried Power Bomb cleanup at frame {frames}");
+                AssertEqual(expectedExplosion.IsActive, actual.IsActive, $"carried Power Bomb cleanup at frame {frames}");
             }
             if (samus.Control.Mode.Beta == SamusBetaHandler.ScriptLocked)
             {
@@ -113,7 +113,7 @@ internal static class ChozoGrabAnimationVerification
                 AssertEqual(expectedExplosion.FixedColor.Red, actual.FixedColor.Red, "carried blast red");
                 AssertEqual(expectedExplosion.FixedColor.Green, actual.FixedColor.Green, "carried blast green");
                 AssertEqual(expectedExplosion.FixedColor.Blue, actual.FixedColor.Blue, "carried blast blue");
-                AssertEqual(expectedExplosion.Status, actual.Status, $"carried Power Bomb cleanup at frame {frames}");
+                AssertEqual(expectedExplosion.IsActive, actual.IsActive, $"carried Power Bomb cleanup at frame {frames}");
             }
             animationResumed |= samus.AnimationFrame != 2 || samus.AnimationFrameTimer.RawValue != 3;
         }

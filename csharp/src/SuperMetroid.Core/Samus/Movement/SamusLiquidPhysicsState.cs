@@ -102,7 +102,7 @@ public sealed class SamusLiquidPhysicsState
     /// </summary>
     public SamusLiquidMedium LiquidPhysicsType { get; internal set; }
 
-    /// <summary>The four native water/lava/footstep particle slots and their OAM renderer.</summary>
+    /// <summary>Samus's atmospheric effect slots (water, lava and footstep particles) and their drawing.</summary>
     public SamusAtmosphericEffectsState AtmosphericEffects { get; } = new();
 
     /// <summary>
@@ -586,7 +586,7 @@ public sealed class SamusLiquidPhysicsState
         int secondX = unchecked((ushort)(firstX - leftSeparation));
         int y = type == SamusAtmosphericEffectType.FootstepSplash ? unchecked((ushort)(bottom - 4)) : bottom;
 
-        // Landing owns WRAM slots two and three (byte offsets +4/+6), not the running-foot
+        // Landing owns effect slots two and three, not the running-foot
         // slots zero/one. Both begin immediately on frame zero with timer three.
         AtmosphericEffects.SetSlot(2, type, 0, 3, Position16<RoomPixels>.Of(firstX, y));
         AtmosphericEffects.SetSlot(3, type, 0, 3, Position16<RoomPixels>.Of(secondX, y));

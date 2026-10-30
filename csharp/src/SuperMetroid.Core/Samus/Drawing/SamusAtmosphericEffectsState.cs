@@ -4,25 +4,25 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>
-/// The four packed atmospheric-graphics slots at WRAM <c>$0AD4-$0AF3</c> and their
-/// bank-$90 producer/animation/draw logic.
+/// Samus's atmospheric effect slots and their animation and drawing.
 /// </summary>
 /// <remarks>
-/// These are not host particles. Water entry, bubbles, lava spray, footsteps, and boost
-/// dust all share four fixed cartridge slots. Each slot stores its animation frame in the
-/// low byte and its type in the high byte; the deliberately strange <c>$8002</c> timers are
-/// signed delay sentinels. Preserving those words makes the one-frame staggering and slot
-/// contention visible in the debugger exactly as they are in WRAM.
+/// These are not free particles. Water entry, bubbles, lava spray, footsteps and boost dust share
+/// <see cref="SlotCount"/> fixed slots, and a new effect replaces whatever its slot held.
+/// Slot order: each producer writes its own slots by ordinal. Running footsteps and the shallow water splash take slots
+/// zero and one, a diving splash slot zero, the landing pair slots two and three, bubbles slot two, wall-jump dust slot
+/// three, and lava spray all four. The update runs from the highest ordinal down, so the higher slot draws in front where
+/// effects overlap. Delayed-start timers (negative countdowns) stagger an effect's first frame by an update.
 /// </remarks>
 public sealed class SamusAtmosphericEffectsState
 {
     /// <summary>Exactly $8000: a delayed-start timer, which reloads the current frame's duration and draws it.</summary>
     internal const ushort DelayedStartMarker = 1 << 15;
 
-    /// <summary>Four shared slots, represented by four words in each native timer, X, Y, and packed frame/type array.</summary>
+    /// <summary>How many atmospheric effects Samus can show at once.</summary>
     public const int SlotCount = 4;
 
-    /// <summary>Fixed WRAM-order storage shared by splashes, bubbles, lava spray, and boost dust.</summary>
+    /// <summary>The slots by ordinal, shared by splashes, bubbles, lava spray and boost dust.</summary>
     private readonly SamusAtmosphericEffectSlot[] _slots =
     [
         new(),
@@ -31,10 +31,10 @@ public sealed class SamusAtmosphericEffectsState
         new(),
     ];
 
-    /// <summary>Read-only debugger view of the four native slots, in WRAM order.</summary>
+    /// <summary>The slots by ordinal.</summary>
     public IReadOnlyList<SamusAtmosphericEffectSlot> Slots => _slots;
 
-    /// <summary>Clears every slot as room/Samus initialization clears the backing WRAM.</summary>
+    /// <summary>Clears every slot, as room and Samus initialization do.</summary>
     public void Clear()
     {
         foreach (SamusAtmosphericEffectSlot slot in _slots)
@@ -42,14 +42,14 @@ public sealed class SamusAtmosphericEffectsState
     }
 
     /// <summary>
-    /// Installs a literal native slot. Public visibility is intentional: deterministic tests
-    /// and debugger experiments can seed the exact packed state without a fake water room.
+    /// Starts an effect in a slot. Public visibility is intentional: deterministic tests and debugger experiments can
+    /// seed exact state without a fake water room.
     /// </summary>
-    /// <param name="slotIndex">Zero-based slot index, 0..3, corresponding to native byte offsets 0, 2, 4, and 6.</param>
+    /// <param name="slotIndex">The slot's ordinal, 0 through <see cref="SlotCount"/> - 1.</param>
     /// <param name="type">The effect; an inactive effect with frame zero leaves the slot empty.</param>
-    /// <param name="animationFrame">Low-byte animation index; interpreted against the selected type when updated.</param>
-    /// <param name="animationTimer">Literal native countdown word, including signed delayed-start sentinels such as $8002.</param>
-    /// <param name="anchor">Room-space anchor in whole pixels, stored with native 16-bit wrapping.</param>
+    /// <param name="animationFrame">Animation frame, interpreted against the selected type when updated.</param>
+    /// <param name="animationTimer">The countdown, including negative delayed-start countdowns.</param>
+    /// <param name="anchor">Room-space anchor in whole pixels, wrapping at sixteen bits.</param>
     public void SetSlot(
         int slotIndex,
         SamusAtmosphericEffectType type,
@@ -69,7 +69,7 @@ public sealed class SamusAtmosphericEffectsState
     /// cartridge deliberately leaves the timer and coordinates behind; retaining that stale state matters when proving
     /// that a later producer really initialized every field it owns.
     /// </summary>
-    /// <param name="slotIndex">Zero-based slot index, 0..3; its timer and coordinates are not cleared.</param>
+    /// <param name="slotIndex">The slot's ordinal; its timer and coordinates are not cleared.</param>
     public void ClearEffect(int slotIndex)
     {
         ValidateSlotIndex(slotIndex);
@@ -80,7 +80,7 @@ public sealed class SamusAtmosphericEffectsState
     /// Ports <c>Handle_AtmosphericEffects</c> at <c>$90:8A4C-$8C1E</c>, including timer
     /// underflow, reverse slot order, per-type motion, clipping, and the two OAM paths.
     /// </summary>
-    /// <param name="sprites">Frame receiving visible effects as draws, with slot three processed first.</param>
+    /// <param name="sprites">Frame receiving visible effects as draws, the highest slot first.</param>
     /// <param name="camera">Room-space camera X and Y origin in whole pixels.</param>
     /// <param name="fxYPosition">Live liquid-surface Y in room pixels, used to anchor the diving splash on each update.</param>
     /// <param name="sheets">The installed sheets every visible effect draws from; required when one is visible.</param>
@@ -93,8 +93,7 @@ public sealed class SamusAtmosphericEffectsState
         Ensure.NotNull(sprites);
         var drawing = new AtmosphereDrawing(sprites, camera, sheets);
 
-        // Native Y begins at byte offset six and decrements by two. Slot three therefore
-        // receives the earlier/lower OAM index whenever multiple effects overlap.
+        // The update runs from the highest ordinal down, so the higher slot draws in front whenever effects overlap.
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
         {
             SamusAtmosphericEffectSlot slot = _slots[slotIndex];
@@ -145,8 +144,7 @@ public sealed class SamusAtmosphericEffectsState
                     break;
 
                 case SamusAtmosphericEffectType.LavaSurfaceDamage:
-                    // Slots 0/1 drift apart to the right and slots 2/3 to the left. Native
-                    // tests bit two of the byte offset (0,2,4,6), equivalent to index >= 2.
+                    // The first two slots' spray drifts right and the last two slots' left.
                     slot.Position += new Offset16<RoomPixels>(slotIndex >= 2 ? (short)-1 : (short)1, -1);
                     DrawDirectSmallSprite(drawing, slot, slotIndex, type, SamusAtmosphereSheetDefinitions.LavaAndDustFrame(slot.AnimationFrame));
                     break;
@@ -221,7 +219,7 @@ public sealed class SamusAtmosphericEffectsState
             "Samus's atmospheric effects require the installed sprite sheets.")).Get(SpriteSheetId.SamusAtmosphere).Frame(name);
     }
 
-    /// <summary>Restricts literal slot operations to the four native atmospheric records.</summary>
+    /// <summary>Restricts slot operations to the slots that exist.</summary>
     private static void ValidateSlotIndex(int slotIndex)
     {
         if ((uint)slotIndex >= SlotCount)

@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
@@ -16,8 +17,10 @@ public sealed class InstalledAreaMapPresentation : AreaMapPresentation
     /// effects' BG3 pages.
     /// </summary>
     internal InstalledAreaMapPresentation(AreaMapPresentationParts parts, MapCharacterArtwork characters, GameplayMessageArtwork messages,
-        RoomFxLayer3Pages roomFxPages) : base(parts)
+        RoomFxLayer3Pages roomFxPages, CreditsPresentation staffCredits, EndingTextPresentation endingText) : base(parts)
     {
+        StaffCredits = Ensure.NotNull(staffCredits);
+        EndingTextPresentation = Ensure.NotNull(endingText);
         Characters = Ensure.NotNull(characters);
         Messages = Ensure.NotNull(messages);
         RoomFxPages = Ensure.NotNull(roomFxPages);
@@ -31,6 +34,22 @@ public sealed class InstalledAreaMapPresentation : AreaMapPresentation
 
     /// <summary>The editable room effects' BG3 pages, which the import pictures into each tileset's BG3 sheet (#1466, #1467).</summary>
     public RoomFxLayer3Pages RoomFxPages { get; }
+
+    /// <summary>The editable staff credits, which the import pictures into the ending's credits rows (#1467).</summary>
+    public CreditsPresentation StaffCredits { get; }
+
+    /// <summary>The editable ending text, whose pages and glyphs the import pictures and whose typewriter characters it compiles (#1467).</summary>
+    public EndingTextPresentation EndingTextPresentation { get; }
+
+    /// <summary>The staff credits the installed map presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
+    public static CreditsPresentation StaffCreditsOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.StaffCredits
+        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no staff credits.");
+
+    /// <summary>The ending text the installed map presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
+    public static EndingTextPresentation EndingTextOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.EndingTextPresentation
+        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no ending text.");
 
     /// <summary>The room effects' pages the installed map presentation <paramref name="maps"/> was read with.</summary>
     /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>

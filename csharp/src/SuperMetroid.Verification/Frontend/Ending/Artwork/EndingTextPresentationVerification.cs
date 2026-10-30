@@ -50,7 +50,7 @@ internal static class EndingTextPresentationVerification
         {
             var installedPage = new EndingTextPage();
             // The installed sequence runs to completion with its text streams guarded.
-            var installed = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = installedPage, Inventory = default, JapaneseText = true, Presentation = presentation, InstalledSequence = sequence });
+            var installed = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = installedPage, Inventory = default, JapaneseText = true, Presentation = presentation.Typewriter(), InstalledSequence = sequence });
             var installedScreen = new EndingScreen();
             for (int frame = 0; !installed.Completed; frame++)
             {
@@ -81,7 +81,7 @@ internal static class EndingTextPresentationVerification
             edited.Compile(EndingTextSequence.ItemPercentage)[0],
             "edited percentage text reaches its live program");
 
-        var saved = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = new EndingTextPage(), Inventory = default, JapaneseText = false, Presentation = presentation, InstalledSequence = EndingTextSequence.FinalMessage });
+        var saved = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = new EndingTextPage(), Inventory = default, JapaneseText = false, Presentation = presentation.Typewriter(), InstalledSequence = EndingTextSequence.FinalMessage });
         saved.Step(new EndingScreen());
         using var snapshot = new MemoryStream();
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(snapshot, saved);
@@ -90,7 +90,7 @@ internal static class EndingTextPresentationVerification
             .Deserialize<EndingBackgroundTextState>(snapshot);
         AssertThrows<InvalidOperationException>(() => restored.Step(new EndingScreen()),
             "restored ending text fails loudly until host content is rebound");
-        restored.BindPresentation(presentation);
+        restored.BindPresentation(presentation.Typewriter());
         restored.Step(new EndingScreen());
 
         editedDocument["finalMessage"] = "lowercase";

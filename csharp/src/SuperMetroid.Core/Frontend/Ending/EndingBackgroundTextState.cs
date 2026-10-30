@@ -27,7 +27,7 @@ internal sealed class EndingBackgroundTextState
     /// <summary>The installed ending text presentation; it is rebound after state restoration.</summary>
     [field: NonSerialized]
     [AllowNull]
-    private EndingTextPresentation Presentation { get => field ?? throw new InvalidOperationException("No ending text presentation is installed."); set; }
+    private EndingTypewriterText Presentation { get => field ?? throw new InvalidOperationException("No ending text presentation is installed."); set; }
     /// <summary>Compiled installed typewriter characters, omitted from serialized debugger state.</summary>
     [NonSerialized] private EndingTextCharacter[]? installedProgram;
     /// <summary>The installed text sequence's characters.</summary>
@@ -74,7 +74,7 @@ internal sealed class EndingBackgroundTextState
     }
 
     /// <summary>Rebinds current host content after debugger-state restoration.</summary>
-    public void BindPresentation(EndingTextPresentation? value)
+    public void BindPresentation(EndingTypewriterText? value)
     {
         Presentation = value;
         installedProgram = installedSequence is { } sequence && value is not null

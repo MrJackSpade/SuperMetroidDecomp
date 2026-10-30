@@ -60,7 +60,6 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
         IntroFont = parts.IntroFont;
         EndingText = parts.EndingText;
         EndingFont = parts.EndingFont;
-        StaffCredits = parts.StaffCredits;
         TitleGraphics = parts.TitleGraphics;
         TitlePalette = parts.TitlePalette;
         TitleGradient = parts.TitleGradient;
@@ -139,12 +138,10 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
     public IntroNarrationPresentation IntroNarration { get; }
     /// <summary>Selected opening-narration character artwork used with <see cref="IntroNarration"/>.</summary>
     public IntroFontAtlas IntroFont { get; }
-    /// <summary>Ending text and display presentation, separate from staff-credit content.</summary>
-    public EndingTextPresentation EndingText { get; }
+    /// <summary>The characters the ending's typewriter types, compiled by the import from the installed ending text (#1467).</summary>
+    public EndingTypewriterText EndingText { get; }
     /// <summary>Selected character artwork for ending text and its font transfers.</summary>
     public EndingFontAtlas EndingFont { get; }
-    /// <summary>Selected staff-credit text and presentation, separate from the other ending text.</summary>
-    public CreditsPresentation StaffCredits { get; }
     /// <summary>Title Mode 7 characters and tilemap, OBJ characters, and Baby character artwork selected from their extracted files.</summary>
     public TitleGraphicsPresentation TitleGraphics { get; }
     /// <summary>Title-screen palette colors, separate from the title gradient and graphics transfers.</summary>

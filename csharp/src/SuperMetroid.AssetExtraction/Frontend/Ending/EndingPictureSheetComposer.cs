@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -105,7 +106,7 @@ internal static class EndingPictureSheetComposer
     private static ComposedSpriteSheet ComposeCredits(ScreenTileSources sources)
     {
         AreaMapPresentation maps = sources.Maps;
-        CreditsPresentation credits = maps.StaffCredits ?? throw new InvalidDataException("The ending's credits are not installed.");
+        CreditsPresentation credits = InstalledAreaMapPresentation.StaffCreditsOf(maps);
         ReadOnlySpan<byte> font = EndingFontCharacters.Of(maps.EndingFont).Characters.Span[..EndingTransferExtentDefinitions.FontCharacterBytes];
         RequireBlank(font);
         var characters = new Characters(RoomTileCanvas.CharacterBytes);
@@ -131,7 +132,7 @@ internal static class EndingPictureSheetComposer
     private static ComposedSpriteSheet ComposePostCredits(ScreenTileSources sources)
     {
         EndingObjectSourceArtwork objects = sources.EndingObjects;
-        EndingTextPresentation text = sources.Maps.EndingText ?? throw new InvalidDataException("The ending's text is not installed.");
+        EndingTextPresentation text = InstalledAreaMapPresentation.EndingTextOf(sources.Maps);
         ReadOnlySpan<byte> font = EndingFontCharacters.Of(sources.Maps.EndingFont).Characters.Span;
         RequireBlank(font);
         // The waiting layer shows the waiting characters; the logo layer, the logo's.

@@ -106,14 +106,12 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Selected opening-narration character artwork used with <see cref="IntroNarration"/>.</summary>
     public required IntroFontAtlas IntroFont { get; init; }
 
-    /// <summary>Ending text and display presentation, separate from staff-credit content.</summary>
-    public required EndingTextPresentation EndingText { get; init; }
+    /// <summary>The characters the ending's typewriter types, compiled by the import from the installed ending text (#1467).</summary>
+    public required EndingTypewriterText EndingText { get; init; }
 
     /// <summary>Selected character artwork for ending text and its font transfers.</summary>
     public required EndingFontAtlas EndingFont { get; init; }
 
-    /// <summary>Selected staff-credit text and presentation, separate from the other ending text.</summary>
-    public required CreditsPresentation StaffCredits { get; init; }
 
     /// <summary>Title Mode 7 characters and tilemap, OBJ characters, and Baby character artwork selected from their extracted files.</summary>
     public required TitleGraphicsPresentation TitleGraphics { get; init; }

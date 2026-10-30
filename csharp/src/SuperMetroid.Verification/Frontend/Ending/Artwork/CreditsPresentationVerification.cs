@@ -124,8 +124,8 @@ internal static class CreditsPresentationVerification
         AreaMapPresentation edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
         int textRow = CreditsPresentationDefinitions.InitialBlankRows;
-        AssertTrue(!edited.StaffCredits.GetRow(textRow).SequenceEqual(
-            original.StaffCredits.GetRow(textRow)),
+        AssertTrue(!InstalledAreaMapPresentation.StaffCreditsOf(edited).GetRow(textRow).SequenceEqual(
+            InstalledAreaMapPresentation.StaffCreditsOf(original).GetRow(textRow)),
             "staff-credit override reaches the installed catalog");
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "staff-credit override changes catalog identity");
@@ -133,8 +133,8 @@ internal static class CreditsPresentationVerification
         File.Delete(overridePath);
         AreaMapPresentation restored = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
-        AssertTrue(restored.StaffCredits.GetRow(textRow).SequenceEqual(
-            original.StaffCredits.GetRow(textRow)),
+        AssertTrue(InstalledAreaMapPresentation.StaffCreditsOf(restored).GetRow(textRow).SequenceEqual(
+            InstalledAreaMapPresentation.StaffCreditsOf(original).GetRow(textRow)),
             "removing staff-credit override restores stock content");
 
         File.WriteAllText(overridePath, "{ bad credits");

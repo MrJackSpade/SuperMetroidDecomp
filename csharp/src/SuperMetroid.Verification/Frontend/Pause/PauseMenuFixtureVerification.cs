@@ -101,7 +101,6 @@ internal static class PauseMenuFixtureVerification
             IntroFont = stock.IntroFont,
             EndingText = stock.EndingText,
             EndingFont = stock.EndingFont,
-            StaffCredits = stock.StaffCredits,
             TitleGraphics = stock.TitleGraphics,
             TitlePalette = stock.TitlePalette,
             TitleGradient = stock.TitleGradient,

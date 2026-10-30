@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using System.Buffers.Binary;
 
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Fx;
 

@@ -11,7 +11,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Fx;

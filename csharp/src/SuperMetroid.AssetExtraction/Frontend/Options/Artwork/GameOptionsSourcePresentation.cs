@@ -117,7 +117,7 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
     }
 
     /// <summary>The page cells of <paramref name="name"/>'s <paramref name="state"/> choice.</summary>
-    private IReadOnlyCollection<int> ToggleChoiceCells(GameOptionsToggle name, GameOptionsToggleState state) => specialToggles is null
+    private int[] ToggleChoiceCells(GameOptionsToggle name, GameOptionsToggleState state) => specialToggles is null
         ? [.. GameOptionsPageCells.ToggleCells(name, state)]
         : state == GameOptionsToggleState.Enabled ? specialToggles[name].EnabledCells : specialToggles[name].DisabledCells;
 

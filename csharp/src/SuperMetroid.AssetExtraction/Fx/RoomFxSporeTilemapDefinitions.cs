@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Fx.Artwork;
-
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Constant stock spore attributes in all 1056 words at $8A:98C0..A0FF.</summary>

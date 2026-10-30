@@ -242,7 +242,7 @@ extraction. `/Od` passed; disassembly and shader probes showed `/O3` selecting t
 wrong byte. Two explicit byte-selection steps preserve optimized compilation and
 pass the archived fixture in `test-fixtures/issue-321-tile-byte-selection`.
 
-The title gradient has its own `TitleGradientMain` compute entry point and embedded
+The gradient pass has its own `ScreenGradientMain` compute entry point and embedded
 shader, compiled with the same pinned toolchain. Adding its fixed-color/OBJ work
 to the shared tile entry point regressed unrelated BG add/subtract output (#337).
 The preceding shader passed the same failing fixture; separate compilation restores

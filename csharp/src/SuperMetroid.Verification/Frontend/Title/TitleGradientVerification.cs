@@ -18,6 +18,8 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.AssetExtraction.Video;
+using System.Collections.Immutable;
+using SuperMetroid.TestSupport.FrameRendering;
 namespace SuperMetroid.Verification.Frontend.Title;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Fx.Artwork;
@@ -45,25 +47,43 @@ internal static class TitleGradientVerification
         Suite(nameof(VerifyExtractedTitleGraphics), () => VerifyExtractedTitleGraphics(bus));
         Suite(nameof(VerifyExtractedTitlePalette), () => VerifyExtractedTitlePalette(bus));
         Suite(nameof(VerifyExtractedTitleGradient), () => VerifyExtractedTitleGradient(bus));
-        // Independently transcribed boundaries from $8C:BC7D and $88:EB95.
-        var lines = TitleGradientDecoder.Decode(bus, 0);
-        AssertEqual(new TitleGradientLine(15, 15, 15, SubtractFromBackground), lines[0], "title gradient starts subtracting fifteen");
-        AssertEqual(new TitleGradientLine(14, 14, 14, SubtractFromBackground), lines[4], "title gradient advances after four scanlines");
-        AssertEqual(new TitleGradientLine(0, 0, 0, SubtractFromBackground), lines[121], "last subtractive title line");
-        AssertEqual(new TitleGradientLine(0, 0, 0, AddToBackgroundAndObjects), lines[122], "first additive title line");
-        AssertEqual(new TitleGradientLine(0, 1, 1, AddToBackgroundAndObjects), lines[132], "lower title cyan band begins");
-        AssertEqual(new TitleGradientLine(0, 2, 2, AddToBackgroundAndObjects), lines[144], "second lower cyan band begins");
+        // Independently transcribed boundaries from $8C:BC7D and $88:EB95, now as the stops their bands begin on (#1468).
+        ScreenGradient gradient = TitleGradientDecoder.Decode(bus, 0);
+        AssertEqual(0, gradient.Top, "title gradient's band starts on the top line");
+        AssertEqual(ScreenGeometry.ScreenHeightPixels, gradient.Bottom, "title gradient's band runs to the bottom of the screen");
+        AssertEqual(new GradientStop(0, new RgbColor(15, 15, 15), SubtractFromBackground), gradient.Stops[0], "title gradient starts subtracting fifteen");
+        AssertStop(gradient, new GradientStop(4, new RgbColor(14, 14, 14), SubtractFromBackground), "title gradient steps down after four lines");
+        GradientStop lastSubtractive = StopCovering(gradient, 121);
+        AssertEqual(SubtractFromBackground, lastSubtractive.Blend, "last subtractive title line subtracts");
+        AssertEqual(RgbColor.Black, lastSubtractive.Colour, "last subtractive title line's colour is black");
+        AssertStop(gradient, new GradientStop(122, RgbColor.Black, AddToBackgroundAndObjects), "first additive title band begins");
+        AssertStop(gradient, new GradientStop(132, new RgbColor(0, 1, 1), AddToBackgroundAndObjects), "lower title cyan band begins");
+        AssertStop(gradient, new GradientStop(144, new RgbColor(0, 2, 2), AddToBackgroundAndObjects), "second lower cyan band begins");
+        for (int stop = 1; stop < gradient.Stops.Length; stop++)
+        {
+            GradientStop above = gradient.Stops[stop - 1], below = gradient.Stops[stop];
+            AssertTrue(above.Colour != below.Colour || above.Blend != below.Blend, $"title stop on line {below.Line} changes the colour or the blend");
+        }
         for (ushort zoom = 0; zoom < 256; zoom++)
         {
-            var actual = TitleGradientDecoder.Decode(bus, zoom);
-            var nibble = TitleGradientDecoder.Decode(bus, (ushort)(zoom & 0xf0));
-            if (!actual.SequenceEqual(nibble))
+            ScreenGradient actual = TitleGradientDecoder.Decode(bus, zoom);
+            ScreenGradient nibble = TitleGradientDecoder.Decode(bus, (ushort)(zoom & 0xf0));
+            if (!actual.Equals(nibble))
                 throw new InvalidDataException("Title gradient index used low zoom bits.");
-            AssertEqual(SubtractFromBackground, actual[121].Control, "zoom preserves subtractive boundary");
-            AssertEqual(AddToBackgroundAndObjects, actual[122].Control, "zoom preserves additive boundary");
+            AssertEqual(SubtractFromBackground, StopCovering(actual, 121).Blend, "zoom preserves subtractive boundary");
+            AssertEqual(AddToBackgroundAndObjects, StopCovering(actual, 122).Blend, "zoom preserves additive boundary");
+            AssertEqual(122, StopCovering(actual, 122).Line, "zoom keeps the additive band beginning on its line");
         }
-        Console.WriteLine("  Title gradient: 256 zoom selections, native cyan bands and subtract/add boundary agree.");
+        Console.WriteLine($"  Title gradient: {gradient.Stops.Length} stops; 256 zoom selections, native cyan bands and subtract/add boundary agree.");
     }
+
+    /// <summary>The stop whose band covers <paramref name="line"/>: the last beginning on or above it.</summary>
+    private static GradientStop StopCovering(ScreenGradient gradient, int line) =>
+        gradient.Stops.Last(stop => stop.Line <= line);
+
+    /// <summary>Asserts that <paramref name="gradient"/> has a stop beginning exactly on <paramref name="expected"/>'s line, as <paramref name="expected"/> describes it.</summary>
+    private static void AssertStop(ScreenGradient gradient, GradientStop expected, string description) =>
+        AssertEqual(expected, StopCovering(gradient, expected.Line), description);
 
     /// <summary>Compares extracted title character and map transfers with their retail source streams and live title rendering.</summary>
     private static void VerifyExtractedTitleGraphics(ISnesAddressSpace bus)
@@ -415,7 +435,7 @@ internal static class TitleGradientVerification
             new MemoryStream(extracted, writable: false));
         for (ushort zoom = 0; zoom < 256; zoom++)
         {
-            if (!presentation.Resolve(zoom).SequenceEqual(
+            if (!presentation.Resolve(zoom).Equals(
                     TitleGradientDecoder.Decode(CartridgeImportSource.Require(bus), zoom)))
                 throw new InvalidDataException($"Extracted title gradient differs at zoom ${zoom:X2}.");
         }
@@ -433,20 +453,52 @@ internal static class TitleGradientVerification
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.FloorMapFile]),
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.ObjectTilesFile]),
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.BabyTilesFile]));
-        (TitleGradientLine[] rendered, ushort selectedZoom) = CaptureInstalledTitleGradient(
-            presentation, palette, graphics);
-        if (!rendered.SequenceEqual(presentation.Resolve(selectedZoom)) ||
+        CaptureInstalledTitleGradientResult capture = CaptureInstalledTitleGradient(presentation, palette, graphics);
+        if (!capture.Gradient.Equals(presentation.Resolve(capture.Zoom)) ||
             guardedBus.ForbiddenReadAttempts != 0)
         {
             throw new InvalidDataException(
                 "Production title rendering did not use the installed gradient presentation exclusively.");
         }
+        Suite(nameof(VerifyRenderedTitleGradient), () => VerifyRenderedTitleGradient(capture));
         Console.WriteLine(
             $"  Title gradient presentation: {TitleGradientFormat.VariantCount} editable variants match ROM; " +
             $"production avoided {cartridgeReads.Count} cartridge source bytes.");
     }
 
-    /// <summary>Mutates extracted gradient JSON to check schema, line structure, blend fields, and native-address rejection.</summary>
+    /// <summary>
+    /// Draws the installed title's first gradient frame at full brightness from its stops and checks the backend steps
+    /// exactly where each band begins (#1468): the frame equals the same gradient described with a stop on every line, the gradient
+    /// changes the frame, and a band that begins below the top and ends above the bottom draws its lines as the whole
+    /// gradient does while leaving the lines outside it as the frame without a gradient shows them.
+    /// </summary>
+    private static void VerifyRenderedTitleGradient(CaptureInstalledTitleGradientResult capture)
+    {
+        FloorScene scene = capture.Scene;
+        ScreenGradient gradient = capture.Gradient;
+        RgbaPixel[] Draw(ScreenGradient? shown) => DisplayRendering.Render(new DisplayPacket(DisplayRendering.NextFrame(),
+            new FloorScene(scene.Paint, scene.Background, DisplayBrightness.Full, shown is null ? null : new ScreenGradientLayer(shown), scene.Floor)));
+        ImmutableArray<GradientStop> everyLine = [.. Enumerable.Range(gradient.Top, gradient.Bottom - gradient.Top)
+            .Select(line => StopCovering(gradient, line) with { Line = line })];
+        RgbaPixel[] stepped = Draw(gradient);
+        AssertTrue(stepped.SequenceEqual(Draw(new ScreenGradient(everyLine, gradient.Bottom))),
+            "the title gradient drawn from its stops matches it described line by line");
+        RgbaPixel[] plain = Draw(null);
+        AssertTrue(!stepped.SequenceEqual(plain), "the title gradient changes the frame");
+        AssertTrue(gradient.Stops.Length > 2, "the title gradient has stops inside the screen to band");
+        var inner = new ScreenGradient([.. gradient.Stops.Skip(1).Take(gradient.Stops.Length - 2)], gradient.Stops[^1].Line);
+        RgbaPixel[] banded = Draw(inner);
+        int width = ScreenGeometry.ScreenWidthPixels;
+        for (int line = 0; line < ScreenGeometry.ScreenHeightPixels; line++)
+        {
+            bool inside = line >= inner.Top && line < inner.Bottom;
+            ReadOnlySpan<RgbaPixel> expected = (inside ? stepped : plain).AsSpan(line * width, width);
+            AssertTrue(banded.AsSpan(line * width, width).SequenceEqual(expected),
+                inside ? $"line {line} inside the band is drawn as the whole gradient draws it" : $"line {line} outside the band is left as it is");
+        }
+    }
+
+    /// <summary>Mutates extracted gradient JSON to check schema, stop structure, blend fields, and native-address rejection.</summary>
     private static void VerifyTitleGradientValidation(byte[] extracted)
     {
         TitleGradientDocument document = JsonSerializer.Deserialize<TitleGradientDocument>(
@@ -466,14 +518,21 @@ internal static class TitleGradientVerification
         TitleGradientVariant first = document.Variants[0];
         document.Variants[0] = first with { ZoomHighNibble = 1 };
         Reject("title gradient rejects mismatched variant identity");
-        document.Variants[0] = first with { Lines = first.Lines[..^1] };
-        Reject("title gradient rejects incomplete scanline set");
+        document.Variants[0] = first with { Stops = [] };
+        Reject("title gradient rejects a variant without stops");
         document.Variants[0] = first;
 
-        TitleGradientScanline line = first.Lines[0];
-        first.Lines[0] = line with { Red = 32 };
+        TitleGradientStop top = first.Stops[0], second = first.Stops[1];
+        first.Stops[0] = top with { Red = 32 };
         Reject("title gradient rejects non-RGB5 color");
-        first.Lines[0] = line;
+        first.Stops[0] = top with { Line = 1 };
+        Reject("title gradient rejects a first stop below the top line");
+        first.Stops[0] = top;
+        first.Stops[1] = second with { Line = top.Line };
+        Reject("title gradient rejects a stop on its predecessor's line");
+        first.Stops[1] = second with { Line = ScreenGeometry.ScreenHeightPixels };
+        Reject("title gradient rejects a stop below the screen");
+        first.Stops[1] = second;
 
         string extractedText = System.Text.Encoding.UTF8.GetString(extracted);
         void RejectText(string text, string description) => AssertThrows<InvalidDataException>(
@@ -484,14 +543,18 @@ internal static class TitleGradientVerification
         AssertTrue(extractedText.Contains(versionField, StringComparison.Ordinal), "extracted title gradient states its schema version");
         RejectText(extractedText.Replace(versionField, versionField + ",\n  \"nativeAddress\": 9192685", StringComparison.Ordinal),
             "title gradient rejects native-address escape hatch");
-        // A line's blend is named layers and a direction; the revision-1 control byte is not accepted beside or instead of them.
-        AssertTrue(extractedText.Contains("\"blendsFloor\": ", StringComparison.Ordinal), "extracted title gradient names each line's blended layers");
+        // A stop's blend is named layers and a direction; the revision-1 control byte is not accepted beside or instead of them.
+        AssertTrue(extractedText.Contains("\"blendsFloor\": ", StringComparison.Ordinal), "extracted title gradient names each stop's blended layers");
         RejectText(extractedText.Replace("\"blendsFloor\": ", "\"colorMathControl\": 161,\n        \"blendsFloor\": ", StringComparison.Ordinal),
             "title gradient rejects a color-math control byte");
         string withoutDirection = System.Text.RegularExpressions.Regex.Replace(
             extractedText, ",\\s*\"subtracts\": (true|false)", string.Empty);
-        AssertTrue(withoutDirection != extractedText, "extracted title gradient states each line's blend direction");
-        RejectText(withoutDirection, "title gradient rejects a line without its blend direction");
+        AssertTrue(withoutDirection != extractedText, "extracted title gradient states each stop's blend direction");
+        RejectText(withoutDirection, "title gradient rejects a stop without its blend direction");
+        // The revision-2 per-line arrays are not accepted in place of stops.
+        AssertTrue(extractedText.Contains("\"stops\": ", StringComparison.Ordinal), "extracted title gradient describes each variant by its stops");
+        RejectText(extractedText.Replace("\"stops\": ", "\"lines\": ", StringComparison.Ordinal),
+            "title gradient rejects per-line arrays in place of stops");
     }
 
     /// <summary>Steps the installed title through Start's skip fade and captures the first visible gradient and Mode 7 zoom.</summary>
@@ -507,8 +570,8 @@ internal static class TitleGradientVerification
         {
             title.Step(0);
             FloorScene snapshot = title.CaptureRenderSnapshot();
-            if (!snapshot.Gradient.IsEmpty)
-                return new CaptureInstalledTitleGradientResult(snapshot.Gradient.ToArray(), title.Mode7MatrixScale);
+            if (snapshot.Gradient is { } shown)
+                return new CaptureInstalledTitleGradientResult(shown.Gradient, title.Mode7MatrixScale, snapshot);
         }
         throw new InvalidDataException("Production title rendering never reached a gradient frame.");
     }

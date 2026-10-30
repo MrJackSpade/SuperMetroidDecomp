@@ -48,8 +48,8 @@ public sealed class D3D11FrameRenderer : IDisposable
     private readonly ID3D11Buffer constants;
     /// <summary>The composition passes: layers, sprite insertion, the floor, blends and brightness.</summary>
     private readonly ID3D11ComputeShader tileShader;
-    /// <summary>Scanline gradient compute program for the title screen.</summary>
-    private readonly ID3D11ComputeShader titleGradientShader;
+    /// <summary>Gradient compute program, drawing a gradient layer's stops over its band (#1468).</summary>
+    private readonly ID3D11ComputeShader screenGradientShader;
     /// <summary>The scene's backdrop and the colours each of its pictures' images shows, bound at register t0.</summary>
     private readonly D3D11SceneColourBuffer sceneColours;
     /// <summary>The scene's whole-frame sprite draws, bound at register t1.</summary>
@@ -116,7 +116,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         {
             shader = Own(LoadShader(D3D11ShaderLayout.SolidResourceName));
             tileShader = Own(LoadShader(D3D11ShaderLayout.TileResourceName));
-            titleGradientShader = Own(LoadShader(D3D11ShaderLayout.TitleGradientResourceName));
+            screenGradientShader = Own(LoadShader(D3D11ShaderLayout.ScreenGradientResourceName));
             output = Own(owner.Device.CreateTexture2D(new Texture2DDescription(Format.R32_UInt,
                 D3D11Screen.Width, D3D11Screen.Height, 1, 1, BindFlags.UnorderedAccess | BindFlags.ShaderResource)));
             view = Own(owner.Device.CreateUnorderedAccessView(output));
@@ -159,8 +159,9 @@ public sealed class D3D11FrameRenderer : IDisposable
             var operations = new List<DisplayLayer>();
             if (mode7.Background is { } background && mode7.Floor is { } shownFloor) operations.Add(new TurningFloorLayer(background, shownFloor));
             operations.Add(new SpritesLayer());
+            if (mode7.Gradient is { } gradient) operations.Add(gradient);
             DrawLayers(packet, new LayeredScene(mode7.Paint,
-                operations.ToArray(), mode7.Brightness), mode7.Gradient);
+                operations.ToArray(), mode7.Brightness));
             return;
         }
         RgbaPixel color = packet.SolidColor ?? throw new NotSupportedException("This compute path does not yet support the requested composition.");
@@ -490,12 +491,11 @@ public sealed class D3D11FrameRenderer : IDisposable
     };
 
     /// <summary>Rejects unsupported layers, uploads the scene's images, colours and layers, then dispatches passes in scene order.</summary>
-    private unsafe void DrawLayers(DisplayPacket packet, LayeredScene scene,
-        ReadOnlySpan<SuperMetroid.Core.Rendering.TitleGradientLine> gradient = default)
+    private unsafe void DrawLayers(DisplayPacket packet, LayeredScene scene)
     {
         // Reject unimplemented operations before changing GPU state. No CPU fallback.
         foreach (DisplayLayer layer in scene.Layers)
-            if (layer is not (PicturedPlaneLayer or AddedPicturedPlaneLayer or PictureGridLayer or HudLayer or ScreenTintLayer or SpritesLayer or SpriteDepthLayer or TurningFloorLayer or TurningRoomLayer or ColourAddBandsLayer or OverlayBlendLayer or MessageBoxLayer or GameplaySceneLayer or InsetSceneLayer or GameplayBlendLayer))
+            if (layer is not (PicturedPlaneLayer or AddedPicturedPlaneLayer or PictureGridLayer or HudLayer or ScreenTintLayer or SpritesLayer or SpriteDepthLayer or TurningFloorLayer or TurningRoomLayer or ColourAddBandsLayer or OverlayBlendLayer or MessageBoxLayer or GameplaySceneLayer or InsetSceneLayer or GameplayBlendLayer or ScreenGradientLayer))
                 throw new NotSupportedException($"GPU layer {layer.GetType().Name} is not implemented yet.");
         SuperMetroid.Core.Assets.SpriteSheetFrame? messagePicture = null;
         PicturedHud? hud = null;
@@ -643,11 +643,13 @@ public sealed class D3D11FrameRenderer : IDisposable
                 case ScreenTintLayer add:
                     DispatchTile(D3D11TileOperation.AddColour, new D3D11TileDispatch { Red = (uint)add.Red, Green = (uint)add.Green, Blue = (uint)add.Blue });
                     break;
+                case ScreenGradientLayer gradient:
+                    DispatchGradient(gradient.Gradient);
+                    break;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(DisplayLayer)} {layer}.");
             }
         }
-        if (!gradient.IsEmpty) DispatchTitleGradient(gradient);
         // The frame's one brightness dims the composed scene once.
         DispatchTile(D3D11TileOperation.Brightness, new D3D11TileDispatch { Level = (uint)packet.Brightness });
     }
@@ -731,19 +733,26 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.Dispatch(32, 28, 1);
     }
 
-    /// <summary>Applies authored RGB/control values across title scanlines after tile composition.</summary>
-    private unsafe void DispatchTitleGradient(ReadOnlySpan<SuperMetroid.Core.Rendering.TitleGradientLine> lines)
+    /// <summary>
+    /// Draws a gradient over the composed layers (#1468): its band in the header's first and end scanline words, its
+    /// stop count in the level word, and each stop as a row: its colour's channels, then its blend with the line its
+    /// band begins on above it. The shader finds each line's stop.
+    /// </summary>
+    private unsafe void DispatchGradient(ScreenGradient gradient)
     {
         var data = ClearUploadConstants();
-        data[26] = 224;
-        for (int y = 0; y < lines.Length; y++)
+        data[9] = (uint)gradient.Stops.Length;
+        data[25] = (uint)gradient.Top; data[26] = (uint)gradient.Bottom;
+        for (int stop = 0; stop < gradient.Stops.Length; stop++)
         {
-            int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + y * 4;
-            data[offset] = (uint)lines[y].Red; data[offset + 1] = (uint)lines[y].Green;
-            data[offset + 2] = (uint)lines[y].Blue; data[offset + 3] = (uint)lines[y].Control;
+            GradientStop shown = gradient.Stops[stop];
+            int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + stop * 4;
+            data[offset] = (uint)shown.Colour.Red; data[offset + 1] = (uint)shown.Colour.Green;
+            data[offset + 2] = (uint)shown.Colour.Blue;
+            data[offset + 3] = (uint)shown.Blend | (uint)shown.Line << D3D11ShaderLayout.GradientStopLineShift;
         }
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
-        owner.Context.CSSetShader(titleGradientShader);
+        owner.Context.CSSetShader(screenGradientShader);
         owner.Context.Dispatch(32, 28, 1);
         owner.Context.CSSetShader(tileShader);
     }

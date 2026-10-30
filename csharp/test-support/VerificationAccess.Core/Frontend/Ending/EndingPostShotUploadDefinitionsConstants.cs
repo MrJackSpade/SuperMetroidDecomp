@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Frontend.Ending;
+
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Cartridge values of <see cref="EndingPostShotUploadDefinitions"/> that only verification reads.</summary>

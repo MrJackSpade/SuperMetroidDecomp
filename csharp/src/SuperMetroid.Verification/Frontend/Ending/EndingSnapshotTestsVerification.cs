@@ -27,10 +27,6 @@ internal static class EndingSnapshotTestsVerification
             var audio = new AudioQueues(); var otherAudio = new AudioQueues();
             var legacy = CreateRetailEndingFixture(audio, hours, 59);
             var captured = CreateRetailEndingFixture(otherAudio, hours, 59);
-            var credits = CreditsPresentation.Load(new MemoryStream(
-                SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.Extract(bus)));
-            legacy.InstalledArtwork.BindStaffCredits(credits);
-            captured.InstalledArtwork.BindStaffCredits(credits);
             var phases = new HashSet<EndingCreditsPhase>();
             var phaseEntryFrames = new Dictionary<EndingCreditsPhase, int>();
             var gunshipPalettes = new HashSet<string>();
@@ -95,28 +91,27 @@ internal static class EndingSnapshotTestsVerification
                 }
                 bool sample = firstPhaseFrame || tick % 97 == 0;
                 if (legacy.Stage.Phase == EndingCreditsPhase.ZebesExplosionAnimation &&
-                    EndingCreditsPresentation.CaptureRenderSnapshot(legacy).LayersOf<AddedScreenTilesLayer>().Any(layer => layer.MainObjects))
+                    EndingCreditsPresentation.CaptureRenderSnapshot(legacy).LayersOf<AddedPicturedPlaneLayer>().Any(layer => layer.MainObjects))
                 {
                     var burst = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
-                    var sub = burst.LayersOf<AddedScreenTilesLayer>().Single();
-                    var shownLegacy = legacy.ShownVram();
-                    AssertTrue(ShowsTilemap(shownLegacy, sub.Cells, 0x7c00), "F2B7 selects burst BG2 map");
-                    var shownLegacy2 = legacy.ShownVram();
-                    AssertTrue(ShowsTilemap(shownLegacy2, (sub.MainCoverage ?? throw new InvalidOperationException("Verification requires sub.MainCoverage.")).Cells, 0x7000),
+                    var sub = burst.LayersOf<AddedPicturedPlaneLayer>().Single();
+                    AssertTrue(ShowsOnly(legacy, sub.Plane, SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(EndingObjectFragmentId.Segment7C)),
+                        "F2B7 selects burst BG2 map");
+                    AssertTrue(ShowsOnly(legacy, (sub.MainCoverage ?? throw new InvalidOperationException("Verification requires sub.MainCoverage.")).Plane,
+                            SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(EndingObjectFragmentId.Segment70)),
                         "F2B7 keeps BG1 map and excludes backdrop color math");
 
                     burstDisplayFrames++;
                 }
                 if (legacy.Stage.Phase == EndingCreditsPhase.ZebesExplosionAnimation
-                    && EndingCreditsPresentation.CaptureRenderSnapshot(legacy).LayersOf<AddedScreenTilesLayer>().Any(layer => layer.IncludeObjects))
+                    && EndingCreditsPresentation.CaptureRenderSnapshot(legacy).LayersOf<AddedPicturedPlaneLayer>().Any(layer => layer.IncludeObjects))
                 {
                     var finale = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
-                    var backgrounds = finale.LayersOf<ScreenTilesLayer>();
-                    var shownLegacy3 = legacy.ShownVram();
-                    AssertTrue(backgrounds.Zip(new[] { 0x7800, 0x7400, 0x7800, 0x7400 }).All(shown => ShowsTilemap(shownLegacy3, shown.First.Cells, shown.Second)),
+                    var backgrounds = finale.LayersOf<PicturedPlaneLayer>();
+                    AssertTrue(backgrounds.Zip(new[] { EndingObjectFragmentId.Segment78, EndingObjectFragmentId.Segment74, EndingObjectFragmentId.Segment78,
+                            EndingObjectFragmentId.Segment74 }).All(shown => ShowsOnly(legacy, shown.First.Plane, SpriteSheetId.EndingExplosionPictures,
+                            EndingPictureNames.ExplosionMap(shown.Second))),
                         "native explosion finale selects both background maps in main-screen priority order");
-                    AssertTrue(backgrounds.All(bg => ShowsCharacters(bg.Cells, legacy.LayerTiles(EndingTileLayer.Explosion, TileInkDepth.SixteenColours))),
-                        "explosion finale uses Mode1 character base, not stale Mode7 decoding");
                     AssertTrue(!finale.Layers.Any(layer => layer is SpritesLayer or SpriteDepthLayer),
                         "F2FA moves OBJ exclusively to the subscreen");
                     if (hours == 2 && finaleDisplayFrames == 10)
@@ -179,13 +174,10 @@ internal static class EndingSnapshotTestsVerification
                     var flash = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
                     var add = flash.LayersOf<ScreenTintLayer>().Single();
                     AssertEqual((byte)Math.Max(0, 31 - elapsed), add.Red, "native post-shot white fade component");
-                    var textPlane = flash.LayersOf<ScreenTilesLayer>().Single();
-                    var shownLegacy5 = legacy.ShownVram();
-                    // The lower screen is off screen at zero scroll until its own upload replaces it (#1404), so only the
-                    // upper screen is the native one here.
-                    AssertTrue(ShowsUpperScreen(shownLegacy5, textPlane.Cells, 0x4c00),
-                        "final text uses native upper screen" + TilemapDifference(shownLegacy5, textPlane.Cells, 0x4c00));
-                    AssertEqual(64, textPlane.MapSize.Y, "final text map is two screens tall");
+                    var textPlane = flash.LayersOf<PicturedPlaneLayer>().Single();
+                    // E48A clears the copyright before the final page is first shown, so the final page shows no text yet.
+                    AssertTrue(textPlane.Plane.Pictures.IsEmpty, "final text page starts cleared");
+                    AssertEqual(64, (int)textPlane.Plane.Size.Y, "final text map is two screens tall");
                     if (firstPhaseFrame)
                         AssertTrue(legacy.Render().All(pixel => pixel == new RgbaPixel(255, 255, 255)), "post-shot flash begins fully white");
                 }
@@ -238,8 +230,8 @@ internal static class EndingSnapshotTestsVerification
                     var copyright = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
                     AssertTrue(!copyright.Layers.Any(layer => layer is SpritesLayer),
                         "native E293 hides reward actors during copyright panel");
-                    var shownLegacy6 = legacy.ShownVram();
-                    AssertTrue(ShowsTilemap(shownLegacy6, copyright.LayersOf<ScreenTilesLayer>().Single().Cells, 0x4800),
+                    AssertTrue(ShowsOnly(legacy, copyright.LayersOf<PicturedPlaneLayer>().Single().Plane, SpriteSheetId.EndingPostCreditsPictures,
+                            EndingPictureNames.CopyrightPanel),
                         "native E293 selects copyright BG1 after first 64 reveal frames");
                 }
                 if (legacy.Stage.Phase is EndingCreditsPhase.WaitForPlanetEscapeMusic or EndingCreditsPhase.WaitForPlanetEscapeMusicQueue)
@@ -254,14 +246,12 @@ internal static class EndingSnapshotTestsVerification
                 if (legacy.Stage.Phase == EndingCreditsPhase.PostCreditsReward)
                 {
                     var reveal = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
-                    var backgrounds = reveal.LayersOf<ScreenTilesLayer>();
+                    var backgrounds = reveal.LayersOf<PicturedPlaneLayer>();
                     AssertEqual(hours >= 10 ? 0 : 1, backgrounds.Length, "native reward reveal background enable mask");
                     if (hours < 10)
                     {
-                        var shownLegacy7 = legacy.ShownVram();
-                        AssertTrue(ShowsTilemap(shownLegacy7, backgrounds[0].Cells, 0x4c00), "reward reveal selects waiting BG2, not producer BG1");
-                        AssertTrue(ShowsCharacters(backgrounds[0].Cells, legacy.LayerTiles(EndingTileLayer.Waiting, TileInkDepth.SixteenColours)),
-                            "reward reveal uses waiting BG2 characters");
+                        AssertTrue(ShowsOnly(legacy, backgrounds[0].Plane, SpriteSheetId.EndingPostCreditsPictures, EndingPictureNames.WaitingBackdrop),
+                            "reward reveal selects the waiting backdrop, not the producer panel");
                     }
                 }
                 if (legacy.Stage.Phase is EndingCreditsPhase.PlanetEscapeFast or EndingCreditsPhase.PlanetEscapeSlow or EndingCreditsPhase.PlanetEscapeAccelerating)
@@ -369,28 +359,7 @@ internal static class EndingSnapshotTestsVerification
         Console.WriteLine($"  Ending snapshots: {samples} sampled frames cover escape, credits and all three reward branches.");
     }
 
-    /// <summary>Whether <paramref name="cells"/> are the cells of the tilemap at <paramref name="tilemapWord"/> in the scene's memory image <paramref name="vram"/>.</summary>
-    private static bool ShowsTilemap(byte[] vram, ScreenTileMap cells, int tilemapWord) =>
-        ScreenTileMapConstants.Capture(vram, tilemapWord, cells.Size, cells.Tiles).Equals(cells);
-
-    /// <summary>Whether the upper 32-row screen of <paramref name="cells"/> shows the tilemap at <paramref name="tilemapWord"/>.</summary>
-    private static bool ShowsUpperScreen(byte[] vram, ScreenTileMap cells, int tilemapWord)
-    {
-        var screen = new Extent16<TilemapCells>(cells.Size.X, 32);
-        ScreenTileMap native = ScreenTileMapConstants.Capture(vram, tilemapWord, screen, cells.Tiles);
-        return native.Cells.AsSpan().SequenceEqual(cells.Cells.AsSpan(0, native.Cells.Length));
-    }
-
-    /// <summary>Where <paramref name="cells"/> first differ from the tilemap at <paramref name="tilemapWord"/>, or nothing when they match.</summary>
-    private static string TilemapDifference(byte[] vram, ScreenTileMap cells, int tilemapWord)
-    {
-        ScreenTileMap native = ScreenTileMapConstants.Capture(vram, tilemapWord, cells.Size, cells.Tiles);
-        int differing = Enumerable.Range(0, cells.Cells.Length).Where(cell => native.Cells[cell] != cells.Cells[cell]).Count();
-        int first = Enumerable.Range(0, cells.Cells.Length).FirstOrDefault(cell => native.Cells[cell] != cells.Cells[cell], -1);
-        return first < 0 ? "" : $" ({differing} cells differ; first at row {first / cells.Size.X}, column {first % cells.Size.X}: native {native.Cells[first]}, shown {cells.Cells[first]})";
-    }
-
-    /// <summary>Whether <paramref name="cells"/> show the tiles of <paramref name="characters"/>.</summary>
-    private static bool ShowsCharacters(ScreenTileMap cells, ScreenLayerPictures characters) =>
-        cells.Tiles.Depth == characters.Depth && cells.Tiles.Tiles.SequenceEqual(characters.Tiles);
+    /// <summary>Whether <paramref name="plane"/> shows exactly the installed picture <paramref name="picture"/> of <paramref name="sheet"/> (#1467).</summary>
+    private static bool ShowsOnly(EndingCreditsState ending, PicturedPlane plane, SpriteSheetId sheet, string picture) =>
+        plane.Pictures.Length == 1 && plane.Pictures[0].Picture == ending.InstalledArtwork.SpriteSheet(sheet).Frame(picture);
 }

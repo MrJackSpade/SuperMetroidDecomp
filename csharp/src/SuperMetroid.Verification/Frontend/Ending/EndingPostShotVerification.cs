@@ -33,7 +33,7 @@ internal static class EndingPostShotVerification
             SuperMetroid.AssetExtraction.Frontend.Ending.EndingFontAtlasExtractor.Extract(bus), writable: false);
         EndingFontCharacters fontAtlas = EndingFontCharacters.Read(fontPng);
         var shot = new EndingPostShot(screen.Palette);
-        var artwork = new EndingScreenArtwork(null, null, RepositoryInstallation.Installation.LoadEndingObjectArt(), fontAtlas, EndingReward.Armored);
+        EndingObjectArtwork objects = RepositoryInstallation.Installation.LoadEndingObjectArt();
         byte[] tiles = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), 0x99e089, 0x8000);
         byte[] map = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), 0x99ecc4, 0x8000);
         for (int frame = 1; frame <= 216; frame++)
@@ -63,8 +63,9 @@ internal static class EndingPostShotVerification
                 tiles.AsSpan(offset, 0x800).CopyTo(expected.AsSpan(0xc000 + offset));
             }
             if (frame == 53) map.AsSpan(0, 0x800).CopyTo(expected.AsSpan(0xa800));
-            var shownScreen = EndingScreenFixtures.Vram(screen, artwork);
-            AssertTrue(expected.AsSpan().SequenceEqual(shownScreen.Bytes), "each native logo transfer changes exactly its intended VRAM bytes");
+            AssertEqual(shot.PartsShown, screen.PostShotPartsShown, "the screen shows each part the post-shot makes");
+            byte[] shownScreen = EndingScreenMemory.Compose(screen, null, null, objects, fontAtlas, EndingReward.Armored);
+            AssertTrue(expected.AsSpan().SequenceEqual(shownScreen), "each native logo transfer changes exactly its intended VRAM bytes");
         }
         AssertEqual(0, guardedBus.ForbiddenReadAttempts,
             "post-shot uploads never reread the fixed cartridge transfer table");

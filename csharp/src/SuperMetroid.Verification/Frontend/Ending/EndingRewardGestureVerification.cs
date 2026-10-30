@@ -31,7 +31,7 @@ internal static class EndingRewardGestureVerification
         Suite(nameof(VerifyEndingLogo), () => VerifyEndingLogo(bus));
         Suite(nameof(VerifyEndingCloudMotion), () => VerifyEndingCloudMotion());
         var uploadBus = NewEndingRewardUploadDefinitionReadGuard(bus);
-        var rewardArtwork = new EndingScreenArtwork(RepositoryInstallation.Installation.LoadEndingMode7Art(), null, null, null, EndingReward.Armored);
+        EndingFloorArtwork rewardArtwork = RepositoryInstallation.Installation.LoadEndingMode7Art();
         var graphicsScreen = new EndingScreen();
         byte[] expectedGraphics = RomDataReader.Decompress(bus,
             EndingSourceDefinitions.Artwork.PostCreditsFloorCharacters,
@@ -47,11 +47,11 @@ internal static class EndingRewardGestureVerification
                 SuperMetroid.AssetExtraction.Frontend.Ending.EndingVramDestinations.RewardChunkWordOf(chunk),
                 $"reward graphics destination address {chunk} matches pinned cartridge");
             graphicsScreen.Record(EndingUploadKind.RewardChunk, chunk);
-            SnesVram graphicsVram = EndingScreenFixtures.Vram(graphicsScreen, rewardArtwork);
+            byte[] graphicsVram = EndingScreenMemory.Compose(graphicsScreen, rewardArtwork, null, null, null, EndingReward.Armored);
             int uploadedBytes = (chunk + 1) * 2048;
-            AssertTrue(graphicsVram.Bytes[..uploadedBytes].SequenceEqual(expectedGraphics.AsSpan(0, uploadedBytes)),
+            AssertTrue(graphicsVram[..uploadedBytes].AsSpan().SequenceEqual(expectedGraphics.AsSpan(0, uploadedBytes)),
                 "reward graphics DMA preserves both interleaved lanes at every upload boundary");
-            AssertTrue(graphicsVram.Bytes[uploadedBytes..].All(value => value == 0),
+            AssertTrue(graphicsVram[uploadedBytes..].All(value => value == 0),
                 "reward graphics upload leaves pending chunks unwritten");
         }
         AssertEqual(0, uploadBus.ForbiddenReadAttempts,

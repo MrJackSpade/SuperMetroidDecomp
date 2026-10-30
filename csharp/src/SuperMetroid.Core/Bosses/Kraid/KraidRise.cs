@@ -210,7 +210,7 @@ internal sealed class KraidRise
                 // `$A7:AD9A` queues this character upload on the same frame that it
                 // initializes palette-six fading. Without it, BG1's authored repeating
                 // room-background blocks decode an uninitialized character as transparent,
-                // exposing Kraid BG2's `$0338` filler rectangle above his head.
+                // exposing the filler rectangle of Kraid's body layer above his head.
                 ShowKraidRoomBackdrop();
                 return;
 

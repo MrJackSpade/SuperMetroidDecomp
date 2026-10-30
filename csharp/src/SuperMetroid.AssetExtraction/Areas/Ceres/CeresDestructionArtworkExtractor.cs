@@ -26,20 +26,20 @@ internal static class CeresDestructionArtworkExtractor
             CeresCinematicSourceDefinitions.CeresTilemaps,
             maximumOutputBytes: CeresCinematicSourceDefinitions.CompressedTilemapLimit);
         int firstDestructionByte = 2 * CeresFlightArtworkFormat.MapCellsPerView;
-        if (allCeresMaps.Length < firstDestructionByte + CeresDestructionArtworkFormat.MapByteCount)
+        if (allCeresMaps.Length < firstDestructionByte + CeresDestructionMapFormat.MapByteCount)
             throw new InvalidDataException("Ceres destruction lacks its three native map slices.");
-        var views = new int[CeresDestructionArtworkFormat.ViewCount][];
+        var views = new int[CeresDestructionMapFormat.ViewCount][];
         for (int view = 0; view < views.Length; view++)
             views[view] = allCeresMaps.AsSpan(firstDestructionByte +
-                    view * CeresDestructionArtworkFormat.CellsPerView,
-                    CeresDestructionArtworkFormat.CellsPerView)
+                    view * CeresDestructionMapFormat.CellsPerView,
+                    CeresDestructionMapFormat.CellsPerView)
                 .SelectToArray(tile => (int)tile);
         using var mapJson = new MemoryStream();
-        CeresDestructionArtwork.WriteMap(mapJson, new CeresDestructionMapDocument
+        CeresDestructionMaps.Write(mapJson, new CeresDestructionMapDocument
         {
-            Version = CeresDestructionArtworkFormat.Version,
-            Width = CeresDestructionArtworkFormat.MapWidth,
-            Height = CeresDestructionArtworkFormat.MapHeight,
+            Version = CeresDestructionMapFormat.Version,
+            Width = CeresDestructionMapFormat.MapWidth,
+            Height = CeresDestructionMapFormat.MapHeight,
             Views = views,
         });
 
@@ -131,22 +131,22 @@ internal static class CeresDestructionArtworkExtractor
             });
         byte[] destructionActorsFile = destructionActorsJson.ToArray();
 
-        CeresDestructionArtwork compiled = CeresDestructionArtwork.Load(
-            new MemoryStream(mapJson.ToArray(), writable: false),
+        CeresDestructionMaps compiled = CeresDestructionMaps.Load(new MemoryStream(mapJson.ToArray(), writable: false));
+        _ = CeresDestructionArtwork.Load(
             new MemoryStream(actorsFile, writable: false),
             new MemoryStream(destructionActorsFile, writable: false));
         ZebesRevealArtwork zebes = ZebesRevealArtwork.Load(new MemoryStream(zebesMapJson, writable: false),
             RoomCharacterAtlasPng.Read(new MemoryStream(zebesPng, writable: false), ZebesRevealArtworkFormat.CharacterByteCount));
         _ = CeresDestructionSpritePresentation.Load(new MemoryStream(spritesFile, writable: false));
-        if (!compiled.CeresMaps.Span.SequenceEqual(allCeresMaps.AsSpan(firstDestructionByte,
-                CeresDestructionArtworkFormat.MapByteCount)) ||
+        if (!compiled.Views.Span.SequenceEqual(allCeresMaps.AsSpan(firstDestructionByte,
+                CeresDestructionMapFormat.MapByteCount)) ||
             !BackgroundTileWords.ToBytes(zebes.Map.Tiles.Span).SequenceEqual(zebesMap.AsSpan(0,
                 ZebesRevealArtworkFormat.MapByteCount)) ||
             !zebes.Characters.Characters.Span.SequenceEqual(zebesCharacters))
             throw new InvalidDataException("Ceres destruction PNG/JSON export changed native bytes.");
         return new Dictionary<string, byte[]>(StringComparer.Ordinal)
         {
-            [CeresDestructionArtworkFormat.CeresMapFileName] = mapJson.ToArray(),
+            [CeresDestructionMapFormat.FileName] = mapJson.ToArray(),
             [ZebesRevealArtworkFormat.MapFileName] = zebesMapJson,
             [ZebesRevealArtworkFormat.CharacterFileName] = zebesPng,
             [CeresDestructionSpriteFormat.FileName] = spritesFile,

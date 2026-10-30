@@ -11,6 +11,6 @@ public record IntroCinematicSceneParts
     /// <summary>Mode-7 artwork and placements used after the narration fades to Ceres.</summary>
     public required CeresFlightArtwork CeresFlight { get; init; }
 
-    /// <summary>Ceres destruction maps and the destruction and Zebes-reveal actors' placements.</summary>
+    /// <summary>The destruction and Zebes-reveal actors' placements.</summary>
     public required CeresDestructionArtwork CeresDestruction { get; init; }
 }

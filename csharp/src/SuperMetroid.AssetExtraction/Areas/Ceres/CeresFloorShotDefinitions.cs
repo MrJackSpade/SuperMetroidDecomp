@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
@@ -13,7 +13,7 @@ internal static class CeresFloorShotDefinitions
     internal const byte BlankTile = 140;
 
     /// <summary>The cells of one view: 32 by 24.</summary>
-    internal const int ViewCells = CeresDestructionArtworkFormat.CellsPerView;
+    internal const int ViewCells = CeresDestructionMapFormat.CellsPerView;
 
     /// <summary>Where the gunship's front view starts.</summary>
     internal const int FrontViewStart = 0;

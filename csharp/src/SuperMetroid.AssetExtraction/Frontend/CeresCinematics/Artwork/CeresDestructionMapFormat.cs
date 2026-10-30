@@ -1,12 +1,12 @@
-namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
-/// <summary>Files and exact native transfer dimensions for the destruction maps; the Zebes reveal's are the import's (#1467).</summary>
-public static class CeresDestructionArtworkFormat
+/// <summary>File and exact native transfer dimensions of the destruction's Mode 7 maps (#1467).</summary>
+public static class CeresDestructionMapFormat
 {
     /// <summary>Supported schema revision for the Ceres destruction Mode 7 map document.</summary>
     public const int Version = 1;
     /// <summary>Installed JSON filename for the two destruction map views followed by the native clear-map slice.</summary>
-    public const string CeresMapFileName = "ceres-destruction-mode7-maps.json";
+    public const string FileName = "ceres-destruction-mode7-maps.json";
     /// <summary>Number of eight-bit Mode 7 map cells per row in each exported Ceres slice.</summary>
     public const int MapWidth = 32;
     /// <summary>Number of map-cell rows in each exported Ceres slice.</summary>

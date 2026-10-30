@@ -26,6 +26,9 @@ public sealed record IntroCinematicArtworkParts : IntroCinematicSceneParts
     /// <summary>Samus portrait eye rectangles, independent of blink timing.</summary>
     public required IntroEyeTilemapPresentation EyeFrames { get; init; }
 
+    /// <summary>The destruction's Mode 7 maps, which the Ceres floor's shots are composed from.</summary>
+    public required CeresDestructionMaps CeresDestructionMaps { get; init; }
+
     /// <summary>The Zebes reveal's tilemap and characters, which the planet's picture is composed from.</summary>
     public required ZebesRevealArtwork ZebesReveal { get; init; }
 

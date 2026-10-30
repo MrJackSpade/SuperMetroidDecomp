@@ -25,7 +25,7 @@ public abstract class IntroCinematicArtwork
     public IntroCinematicPalette Palette { get; }
     /// <summary>Mode-7 and OBJ visual streams used after the narration fades to Ceres.</summary>
     public CeresFlightArtwork CeresFlight { get; }
-    /// <summary>Destruction maps and the destruction and Zebes-reveal actors' placements.</summary>
+    /// <summary>The destruction and Zebes-reveal actors' placements.</summary>
     public CeresDestructionArtwork CeresDestruction { get; }
 
     /// <summary>Identity of the entire selected opening bundle, including the artwork its sheets are composed from.</summary>

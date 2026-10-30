@@ -32,7 +32,11 @@ namespace SuperMetroid.Core.Gameplay;
 /// </param>
 /// <param name="Rooms">The room backgrounds this NMI displays, resolved from level data; null before the first room.</param>
 /// <param name="Layer3">The room effect's BG3 plane this NMI latched, which its pictures are resolved from; null before the first room.</param>
-/// <param name="Hud">The HUD's images this NMI latched, which cover the BG3 plane's top rows and the pause screen keeps (#1466).</param>
+/// <param name="Hud">The HUD's images this NMI latched, which the pause screen keeps (#1466).</param>
+/// <param name="PicturedHud">
+/// <paramref name="Hud"/>'s images as their pictures in the room's BG3 sheet, which the frame's HUD layer draws (#1466); null
+/// until the accepted NMI that latched them resolves them, and before the first room.
+/// </param>
 public sealed record GameplayDisplayLatch(
     GameplayRenderSnapshot Scrolls,
     ScreenLayers MainScreen,
@@ -47,7 +51,8 @@ public sealed record GameplayDisplayLatch(
     XrayRevealPlane? XrayReveal,
     RoomBackgrounds? Rooms,
     Layer3Plane? Layer3 = null,
-    ShownHud? Hud = null)
+    ShownHud? Hud = null,
+    PicturedHud? PicturedHud = null)
 {
     /// <summary>Whether the frame shows a Ceres perspective floor instead of the room's ordinary layers.</summary>
     public bool ShowsPerspectiveFloor => PerspectiveFloor is not null;

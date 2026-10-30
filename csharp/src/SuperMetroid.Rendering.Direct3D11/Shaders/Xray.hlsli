@@ -6,7 +6,7 @@ static const uint BehindLayer2 = 2;
 static const uint BehindLayer2AndLayer3 = 3;
 // A room layer (RoomTile) or the layer-3 plane from row `map`; a position the room does not cover is transparent.
 // Words written over layer 2 cover it when roomSource carries SourceLayer2Overlay.
-uint2 XrayBackground(uint roomSource, uint map, uint2 size, uint2 position, bool opaqueZero)
+uint2 XrayBackground(uint roomSource, uint map, uint2 size, uint2 position)
 {
     uint entry = 0;
     uint picture = 0;
@@ -38,7 +38,7 @@ uint2 XrayBackground(uint roomSource, uint map, uint2 size, uint2 position, bool
         uint index;
         bool high;
         uint colour = PicturePixel(picture, within, index, high);
-        if (shown && (index != 0 || opaqueZero)) sample = uint2(colour, high ? 1 : 0);
+        if (shown && index != 0) sample = uint2(colour, high ? 1 : 0);
     }
     return sample;
 }
@@ -53,12 +53,8 @@ void XrayInsert(uint2 candidate, int candidateRank, uint candidateSource,
 uint XrayGameplay(uint2 screen)
 {
     uint winner = Backdrop();
-    if (screen.y < 32)
-    {
-        uint2 hud = XrayBackground(SourceLayer3, 0, uint2(32,32), screen, true);
-        winner = hud.x;
-    }
-    else
+    // The HUD's band shows no room; the HUD's own layer draws over it (#1466).
+    if (screen.y >= 32)
     {
     uint4 scan = ScanlineParameters[screen.y];
     uint mainScreen = scan.z >> 16;
@@ -69,12 +65,12 @@ uint XrayGameplay(uint2 screen)
     int rank = -1;
     if ((TransparentZero == 0 || inside) && (mainScreen & 2) != 0)
     {
-        uint2 bg = XrayBackground(RoomSource, (uint)MatrixA, uint2(MapWidth,MapHeight), bg2Screen + scan.xy, false);
+        uint2 bg = XrayBackground(RoomSource, (uint)MatrixA, uint2(MapWidth,MapHeight), bg2Screen + scan.xy);
         XrayInsert(bg, bg.y != 0 ? 5 : 2, 2, winner, rank, source);
     }
     if ((TransparentZero == 0 || !inside) && (mainScreen & 1) != 0)
     {
-        uint2 bg = XrayBackground(SourceLayer1, 0, uint2(64,32), screen + uint2(HorizontalScroll,VerticalScroll), false);
+        uint2 bg = XrayBackground(SourceLayer1, 0, uint2(64,32), screen + uint2(HorizontalScroll,VerticalScroll));
         XrayInsert(bg, bg.y != 0 ? 6 : 3, 1, winner, rank, source);
     }
     if ((mainScreen & 16) != 0)
@@ -88,11 +84,11 @@ uint XrayGameplay(uint2 screen)
     {
         uint sub = 0;
         if (OffsetX != 0 && (Reserved3 == BehindLayer2 || Reserved3 == BehindLayer2AndLayer3))
-            sub = XrayBackground(RoomSource, (uint)MatrixA, uint2(MapWidth,MapHeight), bg2Screen + scan.xy, false).x;
+            sub = XrayBackground(RoomSource, (uint)MatrixA, uint2(MapWidth,MapHeight), bg2Screen + scan.xy).x;
         if (OffsetX != 0 && (Reserved3 == BehindLayer3 || Reserved3 == BehindLayer2AndLayer3) && screen.y >= (uint)CenterY)
         {
             uint2 bg3 = XrayBackground(SourceLayer3, (uint)MatrixC, uint2(32,(uint)CenterX),
-                screen + uint2(scan.w & 65535, scan.w >> 16), false);
+                screen + uint2(scan.w & 65535, scan.w >> 16));
             if ((bg3.x >> 24) != 0 && (bg3.y != 0 || (sub >> 24) == 0)) sub = bg3.x;
         }
         bool useSub = OffsetX != 0 && (sub >> 24) != 0;

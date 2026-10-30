@@ -52,7 +52,7 @@ internal sealed class AcceptedFrameBoundary
     private readonly SamusFrameState _player;
     /// <summary>Supplies the room's fixed colour.</summary>
     private readonly RoomFxSession _roomFx;
-    /// <summary>The HUD whose images cover the BG3 plane's top rows.</summary>
+    /// <summary>The HUD whose images each NMI latches.</summary>
     private readonly HudState _hud;
     /// <summary>The pictures of the HUD's images in the room's BG3 sheet, looked up once per sheet (#1466).</summary>
     private HudPictures? _hudPictures;
@@ -298,35 +298,22 @@ internal sealed class AcceptedFrameBoundary
                 Bg2Overlay = bg2Overlay,
                 Bg1Overlay = bg1Overlay,
                 // The room effect's page draws from the BG3 sheet's pictures, as the effects' animations select them; the
-                // HUD's images from the same sheet cover its top rows (#1466).
-                Bg3 = new Layer3Cells(UnderHud(scope.Bg3Pictures.Resolve(latched.Layer3 ?? throw new InvalidOperationException("A room's NMI latches its BG3 plane."),
-                    appearance), HudPicturesIn(scope.Bg3Pictures.Sheet.Sheet).CellPictures(latched.Hud ?? ShownHud.Nothing))),
+                // plane holds nothing else (#1466).
+                Bg3 = new Layer3Cells(scope.Bg3Pictures.Resolve(latched.Layer3 ?? throw new InvalidOperationException("A room's NMI latches its BG3 plane."),
+                    appearance)),
             },
+            // The HUD's images draw from the same sheet, on the HUD's own layer (#1466).
+            PicturedHud = HudPicturesIn(scope.Bg3Pictures.Sheet.Sheet).Pictured(latched.Hud ?? ShownHud.Nothing),
             XrayReveal = reveal is null ? null : new XrayRevealPlane(reveal.Value.AsSpan(), pictures),
         };
     }
 
-    /// <summary>The room effect's part of the BG3 plane this NMI displays (#1348); the HUD's images cover its top rows (#1466).</summary>
+    /// <summary>The BG3 plane this NMI displays (#1348): the room effect's page; the HUD is its own layer (#1466).</summary>
     internal Layer3Plane CaptureLayer3Plane() => _room.Layer3Fx?.EffectPlane ?? Layer3Plane.Cleared;
 
     /// <summary>The pictures of the HUD's images in <paramref name="sheet"/>, the room's BG3 sheet.</summary>
     private HudPictures HudPicturesIn(SpriteSheet sheet) =>
         _hudPictures is { } shown && ReferenceEquals(shown.Sheet, sheet) ? shown : _hudPictures = new HudPictures(sheet);
-
-    /// <summary>
-    /// <paramref name="plane"/>'s cell pictures with each cell <paramref name="hud"/> pictures in its top rows showing the
-    /// HUD's picture instead (#1466).
-    /// </summary>
-    private static ImmutableArray<BgTilePicture?> UnderHud(ImmutableArray<BgTilePicture?> plane, ImmutableArray<BgTilePicture?> hud)
-    {
-        BgTilePicture?[] cells = [.. plane];
-        for (int cell = 0; cell < hud.Length; cell++)
-        {
-            if (hud[cell] is { } picture)
-                cells[cell] = picture;
-        }
-        return [.. cells];
-    }
 
     /// <summary>The fixed colours effects chose during the previous main loop.</summary>
     private GameplayLatchedFixedColors CaptureFixedColors()

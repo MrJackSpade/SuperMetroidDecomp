@@ -126,14 +126,15 @@ internal static class HudAtlasVerification
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.Hud.UpdateMinimap(runtime.System, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = (runtime.Artwork.MapPresentation ?? throw new InvalidOperationException("Verification requires runtime.Artwork.MapPresentation.")).Get(AreaId.Crateria) });
         }
-        // The HUD band the display renderer draws: the BG3 plane the frame latches, its characters as their bound artwork
-        // composes them.
+        // The top rows of the BG3 plane the frame latches, its characters as their bound artwork composes them, drawn added
+        // over the black backdrop: the plane no longer holds the HUD, which is its own layer (#1466), so the band shows
+        // the plane's own rows on the plane's layer.
         static RgbaPixel[] Render(SuperMetroidRuntime runtime)
         {
-            Layer3Cells hud = Layer3CellsFixtures.FromWords(runtime.FrameBoundary.CaptureLayer3Plane().WordsIn(InstalledFixtures.Maps.RoomFxLayer3Tilemaps), runtime.ComposedVram(),
+            Layer3Cells plane = Layer3CellsFixtures.FromWords(runtime.FrameBoundary.CaptureLayer3Plane().WordsIn(InstalledFixtures.Maps.RoomFxLayer3Tilemaps), runtime.ComposedVram(),
                 runtime.Colours.Colors);
-            var layer = new GameplaySceneLayer(new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0),
-                new Extent16<TilemapCells>(32, 32), ScreenLayers.Overlay), RoomBackgroundsFixtures.Blank() with { Bg3 = hud });
+            var layer = new OverlayBlendLayer(plane, 0, Layer3Plane.Rows, 0, BlendOperation.Add,
+                new Position16<TilePlanePixels>[ScreenGeometry.ScreenHeightPixels]);
             RgbaPixel[] frame = DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(runtime.Colours.Colors, []),
                 new DisplayLayer[] { layer }, DisplayBrightness.Full));
             return frame[..(DisplayScreen.HudHeight * DisplayScreen.Width)];

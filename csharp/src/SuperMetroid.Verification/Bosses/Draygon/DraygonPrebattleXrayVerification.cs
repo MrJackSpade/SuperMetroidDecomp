@@ -74,9 +74,11 @@ internal static class DraygonPrebattleXrayVerification
         for (int frame = 0; frame < descentFrames + 2; frame++) runtime.StepFrame(0);
         var combat = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         var ordinary = (GameplaySceneLayer)combat.Layers[0];
+        // The HUD is its own layer after the room (#1466); both renders keep it.
         var combatWithoutBg2 = new LayeredScene(combat.Paint,
             new DisplayLayer[] { new GameplaySceneLayer(ordinary.View with
-                { MainScreenLayers = ordinary.View.MainScreenLayers & ~ScreenLayers.Background }, ordinary.Rooms, ordinary.BackgroundLineScrolls) }, combat.Brightness);
+                { MainScreenLayers = ordinary.View.MainScreenLayers & ~ScreenLayers.Background }, ordinary.Rooms, ordinary.BackgroundLineScrolls),
+                combat.Layers[1] }, combat.Brightness);
         int visible = DisplayRendering.Render(combat).Zip(DisplayRendering.Render(combatWithoutBg2), (first, second) => first != second).Count(differs => differs);
         Console.WriteLine($"Battle-start Draygon body: {visible} visible pixels.");
         AssertTrue(visible > 0, "battle start still displays Draygon's body");
@@ -85,7 +87,10 @@ internal static class DraygonPrebattleXrayVerification
         {
             var gameplay = new GameplaySceneLayer(registers, math.Gameplay.Rooms, math.Gameplay.BackgroundLineScrolls, math.Gameplay.LayersShownByLine);
             var changed = new GameplayBlendLayer(gameplay, math.Lines, math.RevealBlocks, math.Blend, math.BlendPlane, math.BlendsWithBackground);
-            return DisplayRendering.Render(new LayeredScene(scene.Paint, new DisplayLayer[] { changed }, scene.Brightness));
+            // The scene's later layers, the HUD's among them (#1466), stay as captured.
+            DisplayLayer[] layers = scene.Layers.ToArray();
+            layers[0] = changed;
+            return DisplayRendering.Render(new LayeredScene(scene.Paint, layers, scene.Brightness));
         }
     }
 

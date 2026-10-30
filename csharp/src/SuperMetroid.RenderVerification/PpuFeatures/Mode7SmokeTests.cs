@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.TestSupport.FrameRendering;
 
@@ -23,7 +23,9 @@ internal static class Mode7SmokeTests
         random.NextBytes(vram); random.NextBytes(oam);
         RgbColor[] palette = Enumerable.Range(0, 256).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
         var memory = FramePaint.FromOam(vram, palette, oam, 128, 3);
-        Layer3Cells bg3 = Layer3CellsFixtures.FromVram(vram, palette, 0x4000);
+        // The HUD is its own layer (#1466), drawn over the lines the floor leaves to it.
+        PicturedHud pictured = PicturedHudFixtures.FromVram(vram, palette, 0x4000);
+        var hudLayer = new HudLayer(pictured, TransparentColorZero: false, Priority: null);
         AffineFloor map = AffineFloorFixtures.Floor(vram, palette);
         // Below the floor band, the room's layer-2 plane drawn from its block pictures (#1403).
         RoomBackgroundLayer floorRoom = RoomBackgroundsFixtures.Seeded(random, default, new Position16<TilePlanePixels>(17, 65535), pictureColours: palette).Bg2
@@ -53,9 +55,9 @@ internal static class Mode7SmokeTests
                 : (TurningRoomLowerBand?)null;
             var layer = new TurningRoomLayer(
                 new(scale, 71, -71, scale, new(128, 112), new(-17, 211), FloorOverflowMode.CharacterZero),
-                bg3, map, hud, band);
+                map, hud, band);
             Check(new DisplayPacket(new(++count, 1, 0),
-                new LayeredScene(memory, new DisplayLayer[] { layer }, 13)));
+                new LayeredScene(memory, hud == 0 ? new DisplayLayer[] { layer } : new DisplayLayer[] { layer, hudLayer }, 13)));
         }
         // A Ceres room's map drawn from seeded tile pictures (#1392), some rows recoloured by the scene, and from the
         // fixture's characters, with outside pixels transparent, as Ceres rooms show them, or character zero.
@@ -67,9 +69,9 @@ internal static class Mode7SmokeTests
         {
             var layer = new TurningRoomLayer(
                 new(scale, 71, -71, scale, new(128, 112), new(-17, 211), fill ? FloorOverflowMode.CharacterZero : FloorOverflowMode.Transparent),
-                bg3, shown, hud, null);
+                shown, hud, null);
             Check(new DisplayPacket(new(++count, 1, 0),
-                new LayeredScene(memory, new DisplayLayer[] { layer }, 13)));
+                new LayeredScene(memory, hud == 0 ? new DisplayLayer[] { layer } : new DisplayLayer[] { layer, hudLayer }, 13)));
         }
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact Mode 7 comparisons passed.");
 
